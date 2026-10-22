@@ -57,6 +57,8 @@ struct RootView: View {
                 FlechettesView()
             case .airHockey:
                 AirHockeyView()
+            case .filet:
+                FiletView()
             case .coffreLevels:
                 CoffreLevelsView()
             case .coffre(let number):
@@ -117,6 +119,8 @@ struct RootView: View {
             return [Theme.stop, Theme.gold, Color(hex: 0x2FD6A0)]
         case .airHockey:
             return [Theme.laser, Theme.paint, Color(hex: 0x7B5CFF)]
+        case .filet:
+            return [Theme.filet, Color(hex: 0x3CCB7F), Color(hex: 0xFF5C4D)]
         case .coffreLevels, .coffre, .coffreDuel:
             return [Theme.gold, Color(hex: 0xFF8A3D), Color(hex: 0x6A5CFF)]
         case .soleil:

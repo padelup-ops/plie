@@ -6,6 +6,7 @@ final class SoundPlayer {
     enum Effect: String, CaseIterable {
         case notch, decoy, clunk, lock, wrong, vault, win, beam, go, stop, caught, splat
         case whoosh, swish, thud, pop, puck, goal, bloom
+        case tock, pok, smash, net, applause, point
     }
 
     static let shared = SoundPlayer()
@@ -21,7 +22,7 @@ final class SoundPlayer {
             let copies: Int
             switch effect {
             case .notch, .decoy, .puck: copies = 4
-            case .thud, .pop, .whoosh: copies = 3
+            case .thud, .pop, .whoosh, .tock, .pok: copies = 3
             default: copies = 1
             }
             var list: [AVAudioPlayer] = []

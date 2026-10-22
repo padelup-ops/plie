@@ -13,6 +13,7 @@ enum Route: Equatable {
     case panier
     case flechettes
     case airHockey
+    case filet
     case coffreLevels
     case coffre(Int)
     case coffreDuel
@@ -45,6 +46,9 @@ final class AppState {
 
     /// Records des jeux d'arcade.
     private(set) var panierBest = 0
+    /// FILET : plus haut niveau battu (0 = aucun) et nombre de victoires.
+    private(set) var filetBestLevel = 0
+    private(set) var filetWins = 0
     private(set) var flechettesBest = 0
 
     /// Coffres ouverts : meilleur temps et étoiles.
@@ -85,6 +89,7 @@ final class AppState {
         case "panier": route = .panier
         case "flechettes": route = .flechettes
         case "airHockey": route = .airHockey
+        case "filet": route = .filet
         case "coffreLevels": route = .coffreLevels
         case "coffre": route = .coffre(number)
         case "coffreDuel": route = .coffreDuel
@@ -206,6 +211,20 @@ final class AppState {
         if score > flechettesBest { flechettesBest = score; save() }
     }
 
+    /// Le niveau Champion de FILET fait partie du Pass.
+    static let freeFiletLevel = 2
+
+    func filetNeedsPass(_ level: Int, hasPass: Bool) -> Bool {
+        level > Self.freeFiletLevel && !hasPass
+    }
+
+    func recordFilet(level: Int, won: Bool) {
+        guard won else { return }
+        filetWins += 1
+        filetBestLevel = max(filetBestLevel, level)
+        save()
+    }
+
     // MARK: COFFRE
 
     func coffreIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
@@ -247,6 +266,8 @@ final class AppState {
         static let fermeGarden = "ferme.garden"
         static let panierBest = "panier.best"
         static let flechettesBest = "flechettes.best"
+        static let filetBest = "filet.bestLevel"
+        static let filetWins = "filet.wins"
         static let pliageBest = "pliage.best"
         static let coffreBest = "coffre.best"
         static let coffreStars = "coffre.stars"
@@ -275,6 +296,8 @@ final class AppState {
         }
         panierBest = defaults.integer(forKey: Keys.panierBest)
         flechettesBest = defaults.integer(forKey: Keys.flechettesBest)
+        filetBestLevel = defaults.integer(forKey: Keys.filetBest)
+        filetWins = defaults.integer(forKey: Keys.filetWins)
         coffreBest = decode(Keys.coffreBest)
         let stars: [Int: Double] = decode(Keys.coffreStars)
         coffreStars = stars.mapValues { Int($0) }
@@ -292,6 +315,8 @@ final class AppState {
         }
         defaults.set(panierBest, forKey: Keys.panierBest)
         defaults.set(flechettesBest, forKey: Keys.flechettesBest)
+        defaults.set(filetBestLevel, forKey: Keys.filetBest)
+        defaults.set(filetWins, forKey: Keys.filetWins)
         encode(coffreBest, Keys.coffreBest)
         encode(coffreStars.mapValues { Double($0) }, Keys.coffreStars)
         defaults.set(soleilGames, forKey: Keys.soleilGames)

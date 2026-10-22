@@ -28,7 +28,7 @@ struct HubView: View {
                             .shadow(color: Theme.paint.opacity(0.45), radius: 18)
                             .rotation3DEffect(.degrees(6 * sin(t * 0.8)), axis: (x: 0, y: 1, z: 0))
                     }
-                    Text(L("Neuf jeux pensés pour l'iPhone Duo"))
+                    Text(L("Dix jeux pensés pour l'iPhone Duo"))
                         .font(.plie(18, weight: .bold))
                         .foregroundStyle(.white)
                     if !DuoSupport.apisAvailable {
@@ -87,6 +87,15 @@ struct HubView: View {
                          badge: L("Pli en L · Solo"),
                          progress: app.panierBest == 0 ? L("Pas encore de record") : L("Record : \(app.panierBest) points")) {
                     app.route = .panier
+                }
+
+                gameCard(title: L("FILET"),
+                         subtitle: L("Du ping-pong sur ton Duo plié en L : la charnière devient le filet, ton adversaire te fait face."),
+                         symbol: "figure.table.tennis",
+                         color: Theme.filet,
+                         badge: L("Pli en L · Solo"),
+                         progress: app.filetBestLevel == 0 ? L("Pas encore de victoire") : L("\(app.filetWins) victoire\(app.filetWins > 1 ? "s" : "") · meilleur : \(FiletGame.Level(rawValue: app.filetBestLevel)?.name ?? "")")) {
+                    app.route = .filet
                 }
 
                 gameCard(title: L("FLÉCHETTES"),
@@ -323,6 +332,7 @@ struct PassView: View {
                     benefit("paintpalette.fill", Theme.paint, L("PLIAGE : \(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus"), L("Mélanges de couleurs et origamis en 4 plis."))
                     benefit("lock.rotation", Theme.gold, L("LE COFFRE : \(CoffreLevel.count - AppState.freeCoffreLevels) coffres de plus"), L("Faux crans, crans discrets, et coffres sans chiffres, au toucher seulement."))
                     benefit("arrow.up.right.circle.fill", Theme.bascule, L("BASCULE : \(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus"), L("Le vent, puis les ressorts."))
+                    benefit("figure.table.tennis", Theme.filet, L("FILET : le niveau Champion"), L("Un adversaire qui smashe et vise loin de ta raquette."))
                     benefit("leaf.fill", Theme.ferme, L("FERME : toutes les plantes"), L("Tulipe, lavande, bonsaï, cerisier, rose, et les séances de 45 à 90 minutes."))
                     benefit("sparkles", Theme.sun, L("Les prochains jeux et niveaux"), L("Tout ce qui sortira plus tard est inclus."))
                 }

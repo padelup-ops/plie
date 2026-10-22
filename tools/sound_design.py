@@ -258,7 +258,42 @@ def ambient():
     os.remove(wav)
 
 
+def filet_sounds():
+    """Ping-pong : rebond sur la table, frappe de raquette, smash, filet, applaudissements."""
+    C5, E5, G5, C6 = hz("C", 5), hz("E", 5), hz("G", 5), hz("C", 6)
+    # Rebond : petit « toc » clair et creux (la balle) + la résonance de la table
+    t = t_axis(0.12)
+    table = np.sin(2 * np.pi * 1150 * t) * np.exp(-60 * t) * 0.5 + np.sin(2 * np.pi * 620 * t) * np.exp(-45 * t) * 0.35
+    write("tock", mix((wood(3200, 0.05, 0.4), 0, 0.7), (table, 0, 1)), 0.7, (0.35, 0.12, 6000))
+    # Frappe : « pok » de caoutchouc, plus rond
+    t = t_axis(0.14)
+    rubber = np.sin(2 * np.pi * 760 * t) * np.exp(-38 * t) + 0.4 * np.sin(2 * np.pi * 1520 * t) * np.exp(-60 * t)
+    write("pok", mix((rubber, 0, 1), (wood(1900, 0.06, 0.5), 0, 0.5), (thump(320, 160, 0.08), 0, 0.4)), 0.75, (0.4, 0.14, 6000))
+    # Smash : frappe sèche + souffle
+    write("smash", mix((rubber, 0, 1), (wood(2400, 0.07, 0.9), 0, 0.8), (thump(260, 90, 0.12), 0, 0.7),
+                       (whoosh(0.3, 800, 4200, up=True), 0.01, 0.55)), 0.85, (0.5, 0.16, 7000))
+    # Filet : frottement doux et mat
+    n = int(SR * 0.22)
+    rustle = bandpass(rng.standard_normal(n), 350, 1400) * np.exp(-16 * t_axis(0.22))
+    write("net", mix((rustle, 0, 1), (thump(140, 70, 0.18), 0, 0.6)), 0.6, (0.3, 0.1, 3000))
+    # Point gagné : deux notes claires
+    write("point", mix((kalimba(E5, 0.5), 0, 1), (kalimba(C6, 0.8), 0.09, 1), (bell(G5 * 2, 0.9, 4), 0.12, 0.2)), 0.6, (0.9, 0.24, 8000))
+    # Applaudissements : des centaines de petits claquements
+    dur = 1.8
+    out = np.zeros(int(SR * dur))
+    clap_n = int(SR * 0.03)
+    for _ in range(420):
+        start = rng.beta(1.6, 3.2) * (dur - 0.05)
+        i = int(start * SR)
+        burst = rng.standard_normal(clap_n) * np.exp(-np.arange(clap_n) / (SR * 0.006))
+        out[i:i + clap_n] += burst * rng.uniform(0.3, 1.0)
+    out = bandpass(out, 700, 5200)
+    out *= np.clip(t_axis(dur) / 0.08, 0, 1) * np.clip((dur - t_axis(dur)) / 0.9, 0, 1)
+    write("applause", out, 0.5, (1.0, 0.25, 6000))
+
+
 if __name__ == "__main__":
     sounds()
     ambient()
+    filet_sounds()
     print("sons écrits")
