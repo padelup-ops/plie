@@ -286,8 +286,8 @@ struct RayonBoard: View {
         // Lues ici (et non dans Canvas) pour que SwiftUI redessine le plateau à chaque mouvement.
         let level = session.level
         let t = session.t
-        let result = result
-        let hold = hold
+        let result = session.result
+        let hold = session.hold
 
         Canvas { context, size in
             let side = min(size.width, size.height)
