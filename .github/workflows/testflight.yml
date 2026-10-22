@@ -25,6 +25,8 @@ jobs:
   build:
     runs-on: xcode-27
     timeout-minutes: 45
+    permissions:
+      contents: write
     env:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
@@ -34,7 +36,7 @@ jobs:
 
     steps:
       - name: Récupérer le code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Choisir Xcode 27.1
         run: |
@@ -145,16 +147,26 @@ jobs:
         run: |
           grep -n -E "error:|Error|failed" archive.log export.log 2>/dev/null | head -60 || true
 
-      - name: Garder les journaux
+      - name: Publier les journaux dans la branche ci-logs
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: journaux-${{ github.run_number }}
-          path: |
-            build.log
-            archive.log
-            export.log
-          if-no-files-found: ignore
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/ci" && cd "$RUNNER_TEMP/ci"
+          git init -q -b ci-logs
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          for f in build.log archive.log export.log; do
+            if [ -f "$GITHUB_WORKSPACE/$f" ]; then
+              grep -n -B2 -A6 -E "error:" "$GITHUB_WORKSPACE/$f" | head -1500 > "erreurs-${f%.log}.txt" || true
+              tail -n 200 "$GITHUB_WORKSPACE/$f" > "fin-${f%.log}.txt"
+              gzip -c "$GITHUB_WORKSPACE/$f" > "$f.gz"
+            fi
+          done
+          echo "build ${{ github.run_number }} - commit ${{ github.sha }} - $(date -u)" > build.txt
+          git add -A
+          git commit -qm "Journaux du build ${{ github.run_number }}"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-logs || echo "::warning::Impossible de publier les journaux"
 
       - name: Effacer la clé
         if: always()
