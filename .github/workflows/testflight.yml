@@ -91,7 +91,30 @@ jobs:
           printf '%s\n' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
           echo "ASC_KEY_PATH=$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" >> "$GITHUB_ENV"
 
-      - name: Archiver et signer
+      - name: Lister les certificats du compte (lecture seule)
+        if: steps.secrets.outputs.ready == 'true'
+        continue-on-error: true
+        run: |
+          python3 -m pip install --quiet --user pyjwt cryptography >/dev/null 2>&1 || python3 -m pip install --quiet --break-system-packages pyjwt cryptography >/dev/null 2>&1 || true
+          python3 - <<'PY' | tee certificats.txt
+          import json, os, time, urllib.request
+          import jwt
+          key = open(os.environ["ASC_KEY_PATH"]).read()
+          token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 600, "aud": "appstoreconnect-v1"},
+                             key, algorithm="ES256", headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
+          req = urllib.request.Request("https://api.appstoreconnect.apple.com/v1/certificates?limit=200",
+                                       headers={"Authorization": "Bearer " + token})
+          data = json.load(urllib.request.urlopen(req))["data"]
+          print(f"{len(data)} certificats")
+          for c in sorted(data, key=lambda c: (c["attributes"].get("certificateType") or "", c["attributes"].get("expirationDate") or "")):
+              a = c["attributes"]
+              print(a.get("certificateType"), "|", a.get("displayName"), "|", a.get("name"), "| expire", (a.get("expirationDate") or "")[:10], "|", c["id"])
+          PY
+
+      # Archive sans signature : aucun certificat de développement n'est créé à chaque build
+      # (le compte en autorise un nombre limité). La signature de distribution est faite
+      # à l'export, avec le certificat géré par Apple dans le cloud.
+      - name: Archiver
         if: steps.secrets.outputs.ready == 'true'
         run: |
           set -o pipefail
@@ -101,13 +124,9 @@ jobs:
             -project Plie.xcodeproj -scheme Plie -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/Plie.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$ASC_KEY_PATH" \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
-            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             $EXTRA 2>&1 | tee archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
           grep -q "ARCHIVE SUCCEEDED" archive.log
@@ -161,6 +180,7 @@ jobs:
           git init -q -b ci-logs
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
+          [ -f "$GITHUB_WORKSPACE/certificats.txt" ] && cp "$GITHUB_WORKSPACE/certificats.txt" .
           for f in build.log archive.log export.log; do
             if [ -f "$GITHUB_WORKSPACE/$f" ]; then
               grep -n -B2 -A6 -E "error:" "$GITHUB_WORKSPACE/$f" | head -1500 > "erreurs-${f%.log}.txt" || true
