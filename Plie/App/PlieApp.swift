@@ -66,6 +66,11 @@ struct RootView: View {
                 for failure in rayon.failures + pliage.failures {
                     NSLog("PLIE-CHECK ÉCHEC %@", failure)
                 }
+                let report = (["rayon \(rayon.ok)/\(RayonLevel.all.count)", "pliage \(pliage.ok)/\(PliageLevel.all.count)"]
+                              + rayon.failures + pliage.failures).joined(separator: "\n")
+                if let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                    try? report.write(to: folder.appendingPathComponent("selfcheck.txt"), atomically: true, encoding: .utf8)
+                }
             }
             #endif
         }

@@ -201,6 +201,10 @@ struct RayonPlayView: View {
                     .foregroundStyle(Theme.muted)
             }
 
+            if showTip, let tip = session.level.tip {
+                TipBanner(text: tip) { showTip = false }
+            }
+
             GeometryReader { proxy in
                 let side = min(proxy.size.width, proxy.size.height)
                 RayonBoard(session: session)
@@ -235,32 +239,6 @@ struct RayonPlayView: View {
                                 dragStartT = nil
                             }
                     )
-                    .overlay(alignment: .top) {
-                        if showTip, let tip = session.level.tip {
-                            HStack(alignment: .top, spacing: 10) {
-                                Image(systemName: "lightbulb.fill")
-                                    .foregroundStyle(Theme.gold)
-                                Text(tip)
-                                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                    .fixedSize(horizontal: false, vertical: true)
-                                Spacer(minLength: 0)
-                                Button {
-                                    showTip = false
-                                } label: {
-                                    Image(systemName: "xmark")
-                                        .font(.system(size: 13, weight: .bold))
-                                        .foregroundStyle(Theme.muted)
-                                        .frame(width: 28, height: 28)
-                                }
-                                .accessibilityLabel("Masquer le conseil")
-                            }
-                            .foregroundStyle(.white)
-                            .padding(12)
-                            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.cardHigh.opacity(0.96)))
-                            .frame(maxWidth: min(side, 520))
-                            .padding(.top, 6)
-                        }
-                    }
             }
 
             controlHint
@@ -297,6 +275,7 @@ struct RayonPlayView: View {
             }
         }
         .animation(.easeOut(duration: 0.25), value: session.solved)
+        .animation(.easeOut(duration: 0.2), value: showTip)
     }
 
     private var controlHint: some View {

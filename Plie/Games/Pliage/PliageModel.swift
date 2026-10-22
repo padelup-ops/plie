@@ -229,6 +229,22 @@ final class PliageSession {
         Haptics.tap()
     }
 
+    #if DEBUG
+    /// Captures : fige la feuille en plein pli.
+    func debugFreeze(progress value: Double, stampedAlready: Bool) {
+        guard let fold = level.solution.first else { return }
+        selected = fold
+        active = fold
+        if stampedAlready {
+            history.append(grid)
+            grid = PliageEngine.fold(grid, width: level.width, height: level.height, along: fold)
+        }
+        stamped = stampedAlready
+        progress = value
+        phase = .hinge
+    }
+    #endif
+
     // MARK: Animation
 
     func tick(dt: Double) {

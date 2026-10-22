@@ -153,6 +153,34 @@ struct GameHeader<Trailing: View>: View {
     }
 }
 
+/// Conseil affiché au-dessus du plateau, qu'on peut masquer.
+struct TipBanner: View {
+    let text: String
+    let onClose: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "lightbulb.fill")
+                .foregroundStyle(Theme.gold)
+            Text(text)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            Button(action: onClose) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Theme.muted)
+                    .frame(width: 28, height: 28)
+            }
+            .accessibilityLabel("Masquer le conseil")
+        }
+        .foregroundStyle(.white)
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.cardHigh))
+        .transition(.opacity)
+    }
+}
+
 struct StarsView: View {
     let count: Int
     var size: CGFloat = 16

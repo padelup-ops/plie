@@ -45,7 +45,7 @@ struct HubView: View {
 
                 gameCard(title: "PLIAGE",
                          subtitle: "La peinture est fraîche : plie la feuille pour la décalquer et reproduire le modèle.",
-                         symbol: "square.split.2x1.fill",
+                         symbol: "paintpalette.fill",
                          color: Theme.paint,
                          badge: "Plis · Casse-tête",
                          progress: "\(app.pliageSolved.count) / \(PliageLevel.all.count) pliages") {
@@ -233,7 +233,7 @@ struct PassView: View {
 
                 VStack(alignment: .leading, spacing: 14) {
                     benefit("light.beacon.max.fill", Theme.laser, "RAYON : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus", "Miroirs pivotants, labyrinthes et miroirs jumeaux.")
-                    benefit("square.split.2x1.fill", Theme.paint, "PLIAGE : \(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus", "Mélanges de couleurs et origamis en 4 plis.")
+                    benefit("paintpalette.fill", Theme.paint, "PLIAGE : \(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus", "Mélanges de couleurs et origamis en 4 plis.")
                     benefit("lock.rotation", Theme.gold, "LE COFFRE : \(CoffreLevel.count - AppState.freeCoffreLevels) coffres de plus", "Faux crans, crans discrets, et coffres sans chiffres, au toucher seulement.")
                     benefit("sparkles", Theme.sun, "Les prochains jeux et niveaux", "Tout ce qui sortira plus tard est inclus.")
                 }

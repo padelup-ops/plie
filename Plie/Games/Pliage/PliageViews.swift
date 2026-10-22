@@ -114,6 +114,10 @@ struct PliagePlayView: View {
                 FoldCounter(used: session.foldsUsed, par: session.level.par)
             }
 
+            if showTip, let tip = session.level.tip {
+                TipBanner(text: tip) { showTip = false }
+            }
+
             GeometryReader { proxy in
                 let wide = proxy.size.width > proxy.size.height * 1.15
                 if wide {
@@ -125,7 +129,7 @@ struct PliagePlayView: View {
                 } else {
                     VStack(spacing: 12) {
                         ModelPanel(level: session.level, compact: true)
-                            .frame(height: min(proxy.size.height * 0.3, 190))
+                            .frame(height: min(proxy.size.height * 0.36, 210))
                         board
                     }
                 }
@@ -137,35 +141,51 @@ struct PliagePlayView: View {
                 Button {
                     session.undo()
                 } label: {
-                    Label("Annuler", systemImage: "arrow.uturn.backward")
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.system(size: 20, weight: .bold))
+                        .frame(width: 58, height: 58)
+                        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Theme.card))
                 }
-                .buttonStyle(GhostButtonStyle())
+                .accessibilityLabel("Annuler le dernier pli")
                 .disabled(session.foldsUsed == 0 || session.isAnimating)
-                .opacity(session.foldsUsed == 0 ? 0.5 : 1)
+                .opacity(session.foldsUsed == 0 ? 0.4 : 1)
+
+                Button {
+                    session.performFold()
+                } label: {
+                    Label("Plier", systemImage: "rectangle.portrait.and.arrow.right")
+                }
+                .buttonStyle(ChunkyButtonStyle(color: Theme.paint, height: 58))
+                .disabled(!session.canFold)
+                .opacity(session.canFold ? 1 : 0.45)
 
                 Button {
                     session.reset()
                 } label: {
-                    Label("Recommencer", systemImage: "arrow.counterclockwise")
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 20, weight: .bold))
+                        .frame(width: 58, height: 58)
+                        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Theme.card))
                 }
-                .buttonStyle(GhostButtonStyle())
+                .accessibilityLabel("Recommencer le pliage")
                 .disabled(session.foldsUsed == 0 || session.isAnimating)
-                .opacity(session.foldsUsed == 0 ? 0.5 : 1)
+                .opacity(session.foldsUsed == 0 ? 0.4 : 1)
             }
-
-            Button {
-                session.performFold()
-            } label: {
-                Label("Plier", systemImage: "rectangle.portrait.and.arrow.right")
-            }
-            .buttonStyle(ChunkyButtonStyle(color: Theme.paint, height: 58))
-            .disabled(!session.canFold)
-            .opacity(session.canFold ? 1 : 0.45)
+            .foregroundStyle(.white)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .onHingeAngle { degrees in
             session.hingeChanged(degrees)
+        }
+        .onAppear {
+            #if DEBUG
+            let demo = UserDefaults.standard.double(forKey: "pliageDemo")
+            if demo > 0 {
+                showTip = false
+                session.debugFreeze(progress: demo, stampedAlready: UserDefaults.standard.bool(forKey: "pliageDemoStamped"))
+            }
+            #endif
         }
         .onReceive(ticker) { _ in
             session.tick(dt: 1.0 / 60.0)
@@ -181,36 +201,12 @@ struct PliagePlayView: View {
             }
         }
         .animation(.easeOut(duration: 0.25), value: session.solved)
+        .animation(.easeOut(duration: 0.2), value: showTip)
+        .onChange(of: session.foldsUsed) { _, _ in showTip = false }
     }
 
     private var board: some View {
         PliageBoard(session: session)
-            .overlay(alignment: .top) {
-                if showTip, let tip = session.level.tip {
-                    HStack(alignment: .top, spacing: 10) {
-                        Image(systemName: "lightbulb.fill")
-                            .foregroundStyle(Theme.gold)
-                        Text(tip)
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                            .fixedSize(horizontal: false, vertical: true)
-                        Spacer(minLength: 0)
-                        Button {
-                            showTip = false
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundStyle(Theme.muted)
-                                .frame(width: 28, height: 28)
-                        }
-                        .accessibilityLabel("Masquer le conseil")
-                    }
-                    .foregroundStyle(.white)
-                    .padding(12)
-                    .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.cardHigh.opacity(0.96)))
-                    .padding(.top, 4)
-                    .onTapGesture { showTip = false }
-                }
-            }
     }
 
     @ViewBuilder
