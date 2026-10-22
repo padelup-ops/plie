@@ -22,7 +22,7 @@ struct HubView: View {
                             LinearGradient(colors: [Theme.laser, Theme.gold, Theme.sun],
                                            startPoint: .leading, endPoint: .trailing)
                         )
-                    Text("Quatre jeux pensés pour l'iPhone Duo")
+                    Text("Neuf jeux pensés pour l'iPhone Duo")
                         .font(.plie(18, weight: .bold))
                         .foregroundStyle(.white)
                     if !DuoSupport.apisAvailable {
@@ -33,6 +33,8 @@ struct HubView: View {
                     }
                 }
                 .padding(.bottom, 4)
+
+                SectionTitle(text: "Casse-tête")
 
                 gameCard(title: "RAYON",
                          subtitle: "Plie ton téléphone pour orienter le miroir, fais pivoter les autres, et touche la cible avec le laser.",
@@ -52,6 +54,15 @@ struct HubView: View {
                     app.route = .pliageLevels
                 }
 
+                gameCard(title: "BASCULE",
+                         subtitle: "Le pli règle le tremplin : envoie la bille dans le panier en ramassant les étoiles.",
+                         symbol: "arrow.up.right.circle.fill",
+                         color: Theme.bascule,
+                         badge: "Charnière · Adresse",
+                         progress: "\(app.basculeStars.count) / \(BasculeLevel.all.count) niveaux") {
+                    app.route = .basculeLevels
+                }
+
                 gameCard(title: "LE COFFRE",
                          subtitle: "Ouvre la charnière comme une molette, sens le bon cran, craque la combinaison.",
                          symbol: "lock.rotation",
@@ -61,6 +72,37 @@ struct HubView: View {
                     app.route = .coffreLevels
                 }
 
+                SectionTitle(text: "Arcade")
+
+                gameCard(title: "PANIER",
+                         subtitle: "Plie ton Duo en L : le panier se dresse devant toi. Un maximum de paniers en 60 secondes.",
+                         symbol: "basketball.fill",
+                         color: Theme.panier,
+                         badge: "Pli en L · Solo",
+                         progress: app.panierBest == 0 ? "Pas encore de record" : "Record : \(app.panierBest) points") {
+                    app.route = .panier
+                }
+
+                gameCard(title: "FLÉCHETTES",
+                         subtitle: "La cible sur la moitié debout, la fléchette sous ton doigt. Seul ou à deux.",
+                         symbol: "scope",
+                         color: Theme.darts,
+                         badge: "Pli en L · 1 ou 2 joueurs",
+                         progress: app.flechettesBest == 0 ? "Pas encore de record" : "Record : \(app.flechettesBest) points") {
+                    app.route = .flechettes
+                }
+
+                gameCard(title: "AIR HOCKEY",
+                         subtitle: "Duo ouvert à plat entre vous deux : la charnière devient la ligne médiane.",
+                         symbol: "circle.circle.fill",
+                         color: Theme.hockeyB,
+                         badge: "À plat · 1 ou 2 joueurs",
+                         progress: "Premier à 7 buts") {
+                    app.route = .airHockey
+                }
+
+                SectionTitle(text: "En groupe")
+
                 gameCard(title: "1, 2, 3… SOLEIL !",
                          subtitle: "Le téléphone fait l'arbitre : il voit qui bouge et le renvoie au départ.",
                          symbol: "sun.max.fill",
@@ -68,6 +110,17 @@ struct HubView: View {
                          badge: "Caméra · 2 joueurs et +",
                          progress: app.soleilGames == 0 ? "Jamais joué" : "\(app.soleilGames) partie\(app.soleilGames > 1 ? "s" : "")") {
                     app.route = .soleil
+                }
+
+                SectionTitle(text: "Concentration")
+
+                gameCard(title: "FERME",
+                         subtitle: "Ferme ton Duo et ta plante pousse sur l'écran extérieur. Rouvre-le trop tôt, elle fane.",
+                         symbol: "leaf.fill",
+                         color: Theme.ferme,
+                         badge: "Fermé · Concentration",
+                         progress: app.fermeGarden.isEmpty ? "Jardin vide" : "\(app.fermeGarden.count) plante\(app.fermeGarden.count > 1 ? "s" : "") dans ton jardin") {
+                    app.route = .ferme
                 }
 
                 if !store.ownsPass {
@@ -186,7 +239,7 @@ struct SettingsView: View {
                 }
                 Section("iPhone Duo") {
                     Text(DuoSupport.apisAvailable
-                         ? "Sur iPhone Duo, RAYON, PLIAGE et LE COFFRE se jouent avec la charnière, et 1, 2, 3… Soleil ! peut afficher le signal sur l'écran extérieur. Sur les autres iPhone, tout se joue au doigt."
+                         ? "Sur iPhone Duo, RAYON, PLIAGE, BASCULE et LE COFFRE se jouent avec la charnière ; PANIER et FLÉCHETTES se jouent plié en L, AIR HOCKEY à plat, FERME fermé. Sur les autres iPhone, tout se joue au doigt."
                          : "Cet iPhone n'a pas de charnière : RAYON, PLIAGE et LE COFFRE se jouent au doigt.")
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
@@ -235,6 +288,8 @@ struct PassView: View {
                     benefit("light.beacon.max.fill", Theme.laser, "RAYON : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus", "Miroirs pivotants, labyrinthes et miroirs jumeaux.")
                     benefit("paintpalette.fill", Theme.paint, "PLIAGE : \(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus", "Mélanges de couleurs et origamis en 4 plis.")
                     benefit("lock.rotation", Theme.gold, "LE COFFRE : \(CoffreLevel.count - AppState.freeCoffreLevels) coffres de plus", "Faux crans, crans discrets, et coffres sans chiffres, au toucher seulement.")
+                    benefit("arrow.up.right.circle.fill", Theme.bascule, "BASCULE : \(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus", "Le vent, puis les ressorts.")
+                    benefit("leaf.fill", Theme.ferme, "FERME : toutes les plantes", "Tulipe, lavande, bonsaï, cerisier, rose, et les séances de 45 à 90 minutes.")
                     benefit("sparkles", Theme.sun, "Les prochains jeux et niveaux", "Tout ce qui sortira plus tard est inclus.")
                 }
                 .padding(18)

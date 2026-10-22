@@ -7,6 +7,12 @@ enum Route: Equatable {
     case rayon(Int)
     case pliageLevels
     case pliage(Int)
+    case basculeLevels
+    case bascule(Int)
+    case ferme
+    case panier
+    case flechettes
+    case airHockey
     case coffreLevels
     case coffre(Int)
     case coffreDuel
@@ -30,6 +36,16 @@ final class AppState {
     private(set) var pliageSolved: Set<Int> = []
     private(set) var pliageBest: [Int: Double] = [:]
 
+    /// BASCULE : étoiles par niveau réussi.
+    private(set) var basculeStars: [Int: Int] = [:]
+
+    /// FERME : les plantes qui ont poussé.
+    private(set) var fermeGarden: [FermeRecord] = []
+
+    /// Records des jeux d'arcade.
+    private(set) var panierBest = 0
+    private(set) var flechettesBest = 0
+
     /// Coffres ouverts : meilleur temps et étoiles.
     private(set) var coffreBest: [Int: Double] = [:]
     private(set) var coffreStars: [Int: Int] = [:]
@@ -39,6 +55,7 @@ final class AppState {
     /// Nombre de niveaux jouables sans le Pass.
     static let freeRayonLevels = 20
     static let freePliageLevels = 15
+    static let freeBasculeLevels = 10
     static let freeCoffreLevels = 10
 
     @ObservationIgnored private let defaults = UserDefaults.standard
@@ -60,6 +77,12 @@ final class AppState {
         case "rayon": route = .rayon(number)
         case "pliageLevels": route = .pliageLevels
         case "pliage": route = .pliage(number)
+        case "basculeLevels": route = .basculeLevels
+        case "bascule": route = .bascule(number)
+        case "ferme": route = .ferme
+        case "panier": route = .panier
+        case "flechettes": route = .flechettes
+        case "airHockey": route = .airHockey
         case "coffreLevels": route = .coffreLevels
         case "coffre": route = .coffre(number)
         case "coffreDuel": route = .coffreDuel
@@ -126,6 +149,55 @@ final class AppState {
         save()
     }
 
+    // MARK: BASCULE
+
+    func basculeIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
+        if number > Self.freeBasculeLevels && !hasPass { return false }
+        return number == 1 || basculeStars[number - 1] != nil || basculeStars[number] != nil
+    }
+
+    func basculeNeedsPass(_ number: Int, hasPass: Bool) -> Bool {
+        number > Self.freeBasculeLevels && !hasPass
+    }
+
+    func recordBascule(_ number: Int, stars: Int) {
+        basculeStars[number] = max(basculeStars[number] ?? 0, stars)
+        save()
+    }
+
+    // MARK: FERME
+
+    func recordFerme(_ record: FermeRecord) {
+        fermeGarden.append(record)
+        save()
+    }
+
+    /// Nombre de jours d'affilée (jusqu'à aujourd'hui ou hier) avec au moins une plante.
+    var fermeStreak: Int {
+        let calendar = Calendar.current
+        let days = Set(fermeGarden.map { calendar.startOfDay(for: $0.date) })
+        var day = calendar.startOfDay(for: Date())
+        if !days.contains(day) {
+            day = calendar.date(byAdding: .day, value: -1, to: day) ?? day
+        }
+        var count = 0
+        while days.contains(day) {
+            count += 1
+            day = calendar.date(byAdding: .day, value: -1, to: day) ?? day
+        }
+        return count
+    }
+
+    // MARK: Arcade
+
+    func recordPanier(_ score: Int) {
+        if score > panierBest { panierBest = score; save() }
+    }
+
+    func recordFlechettes(_ score: Int) {
+        if score > flechettesBest { flechettesBest = score; save() }
+    }
+
     // MARK: COFFRE
 
     func coffreIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
@@ -162,6 +234,10 @@ final class AppState {
         static let rayonSolved = "rayon.solved"
         static let rayonBest = "rayon.best"
         static let pliageSolved = "pliage.solved"
+        static let basculeStars = "bascule.stars"
+        static let fermeGarden = "ferme.garden"
+        static let panierBest = "panier.best"
+        static let flechettesBest = "flechettes.best"
         static let pliageBest = "pliage.best"
         static let coffreBest = "coffre.best"
         static let coffreStars = "coffre.stars"
@@ -182,6 +258,13 @@ final class AppState {
         rayonBest = decode(Keys.rayonBest)
         if let solved = defaults.array(forKey: Keys.pliageSolved) as? [Int] { pliageSolved = Set(solved) }
         pliageBest = decode(Keys.pliageBest)
+        basculeStars = decode(Keys.basculeStars).mapValues { Int($0) }
+        if let data = defaults.data(forKey: Keys.fermeGarden),
+           let garden = try? JSONDecoder().decode([FermeRecord].self, from: data) {
+            fermeGarden = garden
+        }
+        panierBest = defaults.integer(forKey: Keys.panierBest)
+        flechettesBest = defaults.integer(forKey: Keys.flechettesBest)
         coffreBest = decode(Keys.coffreBest)
         let stars: [Int: Double] = decode(Keys.coffreStars)
         coffreStars = stars.mapValues { Int($0) }
@@ -193,6 +276,12 @@ final class AppState {
         encode(rayonBest, Keys.rayonBest)
         defaults.set(Array(pliageSolved), forKey: Keys.pliageSolved)
         encode(pliageBest, Keys.pliageBest)
+        encode(basculeStars.mapValues { Double($0) }, Keys.basculeStars)
+        if let data = try? JSONEncoder().encode(fermeGarden) {
+            defaults.set(data, forKey: Keys.fermeGarden)
+        }
+        defaults.set(panierBest, forKey: Keys.panierBest)
+        defaults.set(flechettesBest, forKey: Keys.flechettesBest)
         encode(coffreBest, Keys.coffreBest)
         encode(coffreStars.mapValues { Double($0) }, Keys.coffreStars)
         defaults.set(soleilGames, forKey: Keys.soleilGames)

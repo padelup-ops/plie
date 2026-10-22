@@ -44,6 +44,19 @@ struct RootView: View {
             case .pliage(let number):
                 PliagePlayView(number: number)
                     .id(number)
+            case .basculeLevels:
+                BasculeLevelsView()
+            case .bascule(let number):
+                BasculePlayView(number: number)
+                    .id(number)
+            case .ferme:
+                FermeView()
+            case .panier:
+                PanierView()
+            case .flechettes:
+                FlechettesView()
+            case .airHockey:
+                AirHockeyView()
             case .coffreLevels:
                 CoffreLevelsView()
             case .coffre(let number):
@@ -62,12 +75,14 @@ struct RootView: View {
             if UserDefaults.standard.bool(forKey: "selfCheck") {
                 let rayon = RayonEngine.selfCheck()
                 let pliage = PliageEngine.selfCheck()
+                let bascule = BasculeEngine.selfCheck()
                 NSLog("PLIE-CHECK rayon %ld/%ld pliage %ld/%ld", rayon.ok, RayonLevel.all.count, pliage.ok, PliageLevel.all.count)
                 for failure in rayon.failures + pliage.failures {
                     NSLog("PLIE-CHECK ÉCHEC %@", failure)
                 }
-                let report = (["rayon \(rayon.ok)/\(RayonLevel.all.count)", "pliage \(pliage.ok)/\(PliageLevel.all.count)"]
-                              + rayon.failures + pliage.failures).joined(separator: "\n")
+                let report = (["rayon \(rayon.ok)/\(RayonLevel.all.count)", "pliage \(pliage.ok)/\(PliageLevel.all.count)",
+                               "bascule \(bascule.ok)/\(BasculeLevel.all.count)"]
+                              + rayon.failures + pliage.failures + bascule.failures).joined(separator: "\n")
                 if let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
                     try? report.write(to: folder.appendingPathComponent("selfcheck.txt"), atomically: true, encoding: .utf8)
                 }
