@@ -1,0 +1,34 @@
+{
+  "identifier" : "5A1E0D3C",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : true,
+      "internalID" : "6740000001",
+      "localizations" : [
+        {
+          "description" : "Tous les niveaux de RAYON et du COFFRE, et les prochains jeux.",
+          "displayName" : "Pass Plié",
+          "locale" : "fr_FR"
+        }
+      ],
+      "productID" : "plie.pass.complet",
+      "referenceName" : "Pass Plié",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_locale" : "fr_FR",
+    "_storefront" : "FRA"
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

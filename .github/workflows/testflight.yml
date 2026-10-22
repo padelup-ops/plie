@@ -1,0 +1,161 @@
+# Compile Plié sur un Mac de GitHub (Xcode 27.1) et l'envoie sur TestFlight.
+#
+# Sans secrets : vérifie seulement que l'app compile (utile pour corriger les erreurs).
+# Avec les 5 secrets ci-dessous : archive, signe et envoie sur App Store Connect.
+#
+# Secrets à créer dans GitHub (Settings > Secrets and variables > Actions) :
+#   ASC_KEY_ID        identifiant de la clé API App Store Connect (ex. 2X9R4HXF34)
+#   ASC_ISSUER_ID     identifiant de l'émetteur (Issuer ID), en haut de la page des clés
+#   ASC_PRIVATE_KEY   contenu complet du fichier AuthKey_XXXX.p8 (de -----BEGIN à -----END)
+#   APPLE_TEAM_ID     identifiant d'équipe (10 caractères), page « Membership » du compte développeur
+#   BUNDLE_ID         identifiant de l'app, ex. com.tonnom.plie
+
+name: TestFlight
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: testflight
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: xcode-27
+    timeout-minutes: 45
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Choisir Xcode 27.1
+        run: |
+          ls -d /Applications/Xcode*.app
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          if [ -z "$XCODE" ]; then XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | head -1); fi
+          if [ -z "$XCODE" ]; then
+            echo "::warning::Xcode 27.1 introuvable, compilation sans les fonctions iPhone Duo"
+            XCODE=/Applications/Xcode.app
+            echo "NO_DUO=1" >> "$GITHUB_ENV"
+          fi
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i iphoneos
+
+      - name: Vérifier que l'app compile
+        run: |
+          set -o pipefail
+          EXTRA=""
+          if [ "$NO_DUO" = "1" ]; then EXTRA='SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited)'; fi
+          xcodebuild build \
+            -project Plie.xcodeproj -scheme Plie -configuration Release \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO $EXTRA 2>&1 | tee build.log | grep -E "error:|warning: .*deprecated|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" build.log
+
+      - name: Afficher les erreurs de compilation
+        if: failure()
+        run: |
+          echo "=== Erreurs ==="
+          grep -n -E "error:" build.log | head -80 || true
+
+      - name: Vérifier les secrets
+        id: secrets
+        run: |
+          if [ -n "$ASC_KEY_ID" ] && [ -n "$ASC_ISSUER_ID" ] && [ -n "$ASC_PRIVATE_KEY" ] && [ -n "$APPLE_TEAM_ID" ] && [ -n "$BUNDLE_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Compilation réussie. Ajoute les 5 secrets pour envoyer sur TestFlight."
+          fi
+
+      - name: Préparer la clé API App Store Connect
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" >> "$GITHUB_ENV"
+
+      - name: Archiver et signer
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          set -o pipefail
+          EXTRA=""
+          if [ "$NO_DUO" = "1" ]; then EXTRA='SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited)'; fi
+          xcodebuild archive \
+            -project Plie.xcodeproj -scheme Plie -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Plie.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            $EXTRA 2>&1 | tee archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
+          grep -q "ARCHIVE SUCCEEDED" archive.log
+
+      - name: Envoyer sur App Store Connect (TestFlight)
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
+            <key>teamID</key>
+            <string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>uploadSymbols</key>
+            <true/>
+            <key>manageAppVersionAndBuildNumber</key>
+            <false/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Plie.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export.log
+          grep -q -E "EXPORT SUCCEEDED|Upload succeeded|Uploaded" export.log
+          echo "::notice::Build ${{ github.run_number }} envoyé. Il apparaîtra dans TestFlight après 15 à 30 minutes de traitement par Apple."
+
+      - name: Afficher les erreurs de signature ou d'envoi
+        if: failure() && steps.secrets.outputs.ready == 'true'
+        run: |
+          grep -n -E "error:|Error|failed" archive.log export.log 2>/dev/null | head -60 || true
+
+      - name: Garder les journaux
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: journaux-${{ github.run_number }}
+          path: |
+            build.log
+            archive.log
+            export.log
+          if-no-files-found: ignore
+
+      - name: Effacer la clé
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"
