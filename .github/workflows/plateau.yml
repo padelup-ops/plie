@@ -1,0 +1,67 @@
+# Branche « plateau » : teste les moteurs d'échecs et de dames, puis vérifie que l'app compile.
+# Aucun envoi sur TestFlight depuis cette branche.
+
+name: Plateau
+
+on:
+  push:
+    branches: [plateau]
+  workflow_dispatch:
+
+concurrency:
+  group: plateau
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: xcode-27
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          xcodebuild -version
+
+      - name: Tester les moteurs
+        run: |
+          set -o pipefail
+          xcrun swiftc -O Plie/Games/Plateau/ChessEngine.swift Plie/Games/Plateau/DraughtsEngine.swift Tests/Engines/main.swift -o engine-tests 2>&1 | tee engines.log
+          ./engine-tests 2>&1 | tee -a engines.log
+
+      - name: Comparer avec python-chess et pydraughts
+        if: always()
+        run: |
+          python3 -m pip install --quiet --user chess pydraughts >/dev/null 2>&1 || python3 -m pip install --quiet --break-system-packages chess pydraughts >/dev/null 2>&1 || true
+          [ -x ./engine-tests ] && python3 tools/engine_crosscheck.py ./engine-tests 2>&1 | tee crosscheck.log
+
+      - name: Vérifier que l'app compile
+        if: always()
+        run: |
+          set -o pipefail
+          xcodebuild build -project Plie.xcodeproj -scheme Plie -configuration Release \
+            -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" build.log
+
+      - name: Publier les journaux
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/ci" && cd "$RUNNER_TEMP/ci"
+          git init -q -b ci-logs-plateau
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          for f in engines.log crosscheck.log; do [ -f "$GITHUB_WORKSPACE/$f" ] && cp "$GITHUB_WORKSPACE/$f" .; done
+          if [ -f "$GITHUB_WORKSPACE/build.log" ]; then
+            grep -n -B2 -A6 -E "error:" "$GITHUB_WORKSPACE/build.log" | head -1500 > erreurs-build.txt || true
+            tail -n 60 "$GITHUB_WORKSPACE/build.log" > fin-build.txt
+          fi
+          echo "run ${{ github.run_number }} - commit ${{ github.sha }} - $(date -u)" > build.txt
+          git add -A
+          git commit -qm "Journaux plateau ${{ github.run_number }}"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-logs-plateau || true

@@ -19,7 +19,9 @@ on:
     paths-ignore:
       - "GUIDE.md"
       - "tools/**"
+      - "Tests/**"
       - ".github/workflows/screenshots.yml"
+      - ".github/workflows/plateau.yml"
   workflow_dispatch:
 
 concurrency:
