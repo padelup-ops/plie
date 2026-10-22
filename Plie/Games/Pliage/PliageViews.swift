@@ -434,8 +434,9 @@ struct PliageBoard: View {
                         context.fill(Path(rect), with: .color(Theme.paint.opacity(0.10)))
                     }
 
-                    // Lignes de pli
+                    // Lignes de pli (pendant un pli, seule la ligne active reste visible)
                     for fold in level.allFolds {
+                        if let current = active, progress > 0, fold != current { continue }
                         var line = Path()
                         if fold.axis == .vertical {
                             let x = origin.x + CGFloat(fold.index) * cell
