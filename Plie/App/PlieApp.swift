@@ -59,6 +59,12 @@ struct RootView: View {
                 AirHockeyView()
             case .filet:
                 FiletView()
+            case .chess:
+                ChessView()
+            case .draughts:
+                DraughtsView()
+            case .piano:
+                PianoView()
             case .coffreLevels:
                 CoffreLevelsView()
             case .coffre(let number):
@@ -121,6 +127,12 @@ struct RootView: View {
             return [Theme.laser, Theme.paint, Color(hex: 0x7B5CFF)]
         case .filet:
             return [Theme.filet, Color(hex: 0x3CCB7F), Color(hex: 0xFF5C4D)]
+        case .chess:
+            return [Theme.chess, Color(hex: 0x8A5A3C), Color(hex: 0x6A5CFF)]
+        case .draughts:
+            return [Theme.draughts, Color(hex: 0xC8A35A), Color(hex: 0x5C3DE8)]
+        case .piano:
+            return [Theme.piano, Color(hex: 0xF3D79A), Color(hex: 0x8E1B22)]
         case .coffreLevels, .coffre, .coffreDuel:
             return [Theme.gold, Color(hex: 0xFF8A3D), Color(hex: 0x6A5CFF)]
         case .soleil:

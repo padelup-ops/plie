@@ -30,7 +30,7 @@ struct HubView: View {
                             .shadow(color: Theme.paint.opacity(0.45), radius: 18)
                             .rotation3DEffect(.degrees(6 * sin(t * 0.8)), axis: (x: 0, y: 1, z: 0))
                     }
-                    Text(L("Dix jeux pensés pour l'iPhone Duo"))
+                    Text(L("Treize jeux pensés pour l'iPhone Duo"))
                         .font(.plie(18, weight: .bold))
                         .foregroundStyle(.white)
                     if !DuoSupport.apisAvailable {
@@ -118,6 +118,39 @@ struct HubView: View {
                     app.route = .airHockey
                 }
 
+                SectionTitle(text: L("Jeux de plateau"))
+
+                gameCard(title: L("ÉCHECS"),
+                         subtitle: L("Le Duo déplié à plat entre vous deux : la charnière sépare les camps, chacun voit ses pièces à l'endroit."),
+                         symbol: "crown.fill",
+                         color: Theme.chess,
+                         badge: L("À plat · 2 joueurs ou contre l'ordi"),
+                         progress: app.chessGames == 0 ? L("Jamais joué") : L("\(app.chessGames) partie\(app.chessGames > 1 ? "s" : "") terminée\(app.chessGames > 1 ? "s" : "")"),
+                         art: AnyView(ChessPieceView(type: ChessPiece.knight, white: true))) {
+                    app.route = .chess
+                }
+
+                gameCard(title: L("DAMES"),
+                         subtitle: L("Le vrai jeu de dames sur 100 cases, face à face : prises obligatoires, rafles et dames volantes."),
+                         symbol: "circle.grid.2x2.fill",
+                         color: Theme.draughts,
+                         badge: L("À plat · 2 joueurs ou contre l'ordi"),
+                         progress: app.draughtsGames == 0 ? L("Jamais joué") : L("\(app.draughtsGames) partie\(app.draughtsGames > 1 ? "s" : "") terminée\(app.draughtsGames > 1 ? "s" : "")"),
+                         art: AnyView(DraughtsPieceView(white: true, king: true))) {
+                    app.route = .draughts
+                }
+
+                SectionTitle(text: L("Musique"))
+
+                gameCard(title: L("PIANO"),
+                         subtitle: L("Ouvre le Duo comme un pupitre : le clavier à plat, la partition devant toi. Apprends un morceau note après note."),
+                         symbol: "pianokeys",
+                         color: Theme.piano,
+                         badge: L("Pupitre à 45° · Musique"),
+                         progress: L("\(PianoSong.all.count) morceaux à apprendre")) {
+                    app.route = .piano
+                }
+
                 SectionTitle(text: L("En groupe"))
 
                 gameCard(title: L("1, 2, 3… SOLEIL !"),
@@ -184,6 +217,7 @@ struct HubView: View {
                           color: Color,
                           badge: String,
                           progress: String,
+                          art: AnyView? = nil,
                           action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(alignment: .top, spacing: 16) {
@@ -192,10 +226,14 @@ struct HubView: View {
                         .fill(LinearGradient(colors: [color, color.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing))
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .fill(LinearGradient(colors: [.white.opacity(0.35), .clear], startPoint: .top, endPoint: .center))
-                    Image(systemName: symbol)
-                        .font(.system(size: 30, weight: .bold))
-                        .foregroundStyle(Theme.ink)
-                        .shadow(color: .white.opacity(0.4), radius: 1, y: 1)
+                    if let art {
+                        art.padding(7)
+                    } else {
+                        Image(systemName: symbol)
+                            .font(.system(size: 30, weight: .bold))
+                            .foregroundStyle(Theme.ink)
+                            .shadow(color: .white.opacity(0.4), radius: 1, y: 1)
+                    }
                 }
                 .frame(width: 66, height: 66)
                 .shadow(color: color.opacity(0.55), radius: 12, y: 4)
@@ -275,7 +313,7 @@ struct SettingsView: View {
                 }
                 Section(L("iPhone Duo")) {
                     Text(DuoSupport.apisAvailable
-                         ? L("Sur iPhone Duo, RAYON, PLIAGE, BASCULE et LE COFFRE se jouent avec la charnière ; PANIER, FLÉCHETTES et FILET se jouent plié en L, AIR HOCKEY à plat, FERME fermé. Sur les autres iPhone, tout se joue au doigt.")
+                         ? L("Sur iPhone Duo, RAYON, PLIAGE, BASCULE et LE COFFRE se jouent avec la charnière ; PANIER, FLÉCHETTES et FILET se jouent plié en L, AIR HOCKEY, ÉCHECS et DAMES à plat, le PIANO en pupitre, FERME fermé. Sur les autres iPhone, tout se joue au doigt.")
                          : L("Cet iPhone n'a pas de charnière : RAYON, PLIAGE et LE COFFRE se jouent au doigt."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
@@ -335,6 +373,7 @@ struct PassView: View {
                     benefit("lock.rotation", Theme.gold, L("LE COFFRE : \(CoffreLevel.count - AppState.freeCoffreLevels) coffres de plus"), L("Faux crans, crans discrets, et coffres sans chiffres, au toucher seulement."))
                     benefit("arrow.up.right.circle.fill", Theme.bascule, L("BASCULE : \(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus"), L("Le vent, puis les ressorts."))
                     benefit("figure.table.tennis", Theme.filet, L("FILET : le niveau Champion"), L("Un adversaire qui smashe et vise loin de ta raquette."))
+                    benefit("crown.fill", Theme.chess, L("ÉCHECS et DAMES : l'ordinateur Difficile"), L("Un adversaire qui calcule plusieurs coups à l'avance."))
                     benefit("leaf.fill", Theme.ferme, L("FERME : toutes les plantes"), L("Tulipe, lavande, bonsaï, cerisier, rose, et les séances de 45 à 90 minutes."))
                     benefit("sparkles", Theme.sun, L("Les prochains jeux et niveaux"), L("Tout ce qui sortira plus tard est inclus."))
                 }

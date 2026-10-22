@@ -285,8 +285,8 @@ EN = {
     "Sons": "Sounds",
     "Strict": "Strict",
     "Sur cet iPhone, tu joues au doigt à la place de la charnière.": "On this iPhone, you play with your finger instead of the hinge.",
-    "Sur iPhone Duo, RAYON, PLIAGE, BASCULE et LE COFFRE se jouent avec la charnière ; PANIER, FLÉCHETTES et FILET se jouent plié en L, AIR HOCKEY à plat, FERME fermé. Sur les autres iPhone, tout se joue au doigt.":
-        "On iPhone Duo, BEAM, INKFOLD, RAMP and THE SAFE are played with the hinge; HOOPS, DARTS and PING PONG folded into an L, AIR HOCKEY flat, FOCUS closed. On other iPhones, everything is played with your finger.",
+    "Sur iPhone Duo, RAYON, PLIAGE, BASCULE et LE COFFRE se jouent avec la charnière ; PANIER, FLÉCHETTES et FILET se jouent plié en L, AIR HOCKEY, ÉCHECS et DAMES à plat, le PIANO en pupitre, FERME fermé. Sur les autres iPhone, tout se joue au doigt.":
+        "On iPhone Duo, BEAM, INKFOLD, RAMP and THE SAFE are played with the hinge; HOOPS, DARTS and PING PONG folded into an L, AIR HOCKEY, CHESS and CHECKERS flat, PIANO as a music stand, FOCUS closed. On other iPhones, everything is played with your finger.",
     "Sur le cercle…": "Off the rim…",
     "Sévérité": "Strictness",
     "Sévérité de l'arbitre": "Referee strictness",
