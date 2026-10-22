@@ -286,6 +286,19 @@ final class ChessMatch {
         }
     }
 
+    #if DEBUG
+    /// Captures automatiques : joue quelques coups puis choisit une pièce.
+    func debugDemo(solo: Bool) {
+        start(opponent: solo ? .computer(level: 2) : .human, clock: solo ? .none : .five, humanWhite: true)
+        for u in ["e2e4", "e7e5", "g1f3", "b8c6", "f1c4", "f8c5", "d2d3", "g8f6"] {
+            if let m = position.legalMoves().first(where: { $0.uci == u }) { commit(m) }
+        }
+        thinkToken += 1
+        thinking = false
+        tap(5)
+    }
+    #endif
+
     // MARK: Demandes entre joueurs
 
     func askUndo(side: Int) {
@@ -439,7 +452,14 @@ struct ChessView: View {
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .ignoresSafeArea()
-        .onAppear { refreshSaved() }
+        .onAppear {
+            refreshSaved()
+            #if DEBUG
+            if let demo = UserDefaults.standard.string(forKey: "boardDemo"), match.phase == .setup {
+                match.debugDemo(solo: demo == "solo")
+            }
+            #endif
+        }
         .onHingeAngle { degrees in
             hingePresent = degrees != nil
             guard let degrees else { return }

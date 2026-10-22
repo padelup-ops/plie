@@ -324,6 +324,18 @@ final class DraughtsMatch {
         }
     }
 
+    #if DEBUG
+    func debugDemo(solo: Bool) {
+        start(opponent: solo ? .computer(level: 2) : .human, clock: solo ? .none : .five, humanWhite: true)
+        for n in ["32-28", "19-23", "28x19", "14x23"] {
+            if let m = position.legalMoves().first(where: { $0.notation == n }) { finalize(m, before: position, mover: sideToMove) }
+        }
+        thinkToken += 1
+        thinking = false
+        tap(DraughtsPosition.cell(ofNumber: 33))
+    }
+    #endif
+
     // MARK: Demandes
 
     func askUndo(side: Int) {
@@ -472,7 +484,14 @@ struct DraughtsView: View {
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .ignoresSafeArea()
-        .onAppear { refreshSaved() }
+        .onAppear {
+            refreshSaved()
+            #if DEBUG
+            if let demo = UserDefaults.standard.string(forKey: "boardDemo"), match.phase == .setup {
+                match.debugDemo(solo: demo == "solo")
+            }
+            #endif
+        }
         .onHingeAngle { degrees in
             hingePresent = degrees != nil
             guard let degrees else { return }
