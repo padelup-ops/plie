@@ -292,8 +292,60 @@ def filet_sounds():
     write("applause", out, 0.5, (1.0, 0.25, 6000))
 
 
+def board_sounds():
+    """Échecs et dames : pièces de bois posées, prises, échec, promotion, pendule."""
+    C5, E5, G5, C6, E6, B5 = hz("C", 5), hz("E", 5), hz("G", 5), hz("C", 6), hz("E", 6), hz("B", 5)
+    t = t_axis(0.18)
+    body = np.sin(2 * np.pi * 190 * t) * np.exp(-28 * t) + 0.5 * np.sin(2 * np.pi * 410 * t) * np.exp(-40 * t)
+    write("pieceMove", mix((wood(1250, 0.07, 0.7), 0, 0.8), (body, 0, 0.9), (wood(2600, 0.03, 0.2), 0.002, 0.3)), 0.75, (0.35, 0.14, 5000))
+    write("pieceCapture", mix((wood(1750, 0.07, 0.9), 0, 0.9), (wood(1350, 0.08, 1.0), 0.045, 0.9), (body, 0.045, 0.7),
+                              (whoosh(0.12, 1500, 3500), 0.0, 0.15)), 0.8, (0.35, 0.14, 5000))
+    write("checkBell", mix((bell(B5, 1.3, 3.2), 0, 0.7), (bell(E6, 1.1, 3.5), 0.07, 0.45)), 0.55, (0.9, 0.25, 8000))
+    write("promote", mix(*[(kalimba(f, 0.9), i * 0.07, 1) for i, f in enumerate([C5, E5, G5, C6])],
+                         (bell(E6, 1.4, 2.5), 0.25, 0.35)), 0.7, (1.0, 0.28, 8000))
+    write("clockTick", wood(2700, 0.03, 0.3), 0.35)
+
+
+def piano_samples():
+    """Notes de piano de do 3 à do 6 (MIDI 48 à 84) : cordes légèrement désaccordées, marteau, double décroissance."""
+    for midi in range(48, 85):
+        f = 440.0 * 2 ** ((midi - 69) / 12)
+        dur = 3.2 if midi < 60 else (2.7 if midi < 72 else 2.2)
+        t = t_axis(dur)
+        sig = np.zeros_like(t)
+        B = 0.00025 + 0.00002 * (midi - 48)
+        tau_slow = 3.0 * (261.6 / f) ** 0.55
+        for n in range(1, 20):
+            fn = n * f * math.sqrt(1 + B * n * n)
+            if fn > 9500:
+                break
+            amp = (1.0 / n ** 1.15) * (1.0 if n == 1 else 0.85) * math.exp(-0.04 * n * (f / 261.6) ** 0.3)
+            env = 0.62 * np.exp(-t / (0.22 / (1 + 0.15 * (n - 1)))) + 0.38 * np.exp(-t / (tau_slow / (1 + 0.22 * (n - 1))))
+            for cents in (-0.9, 0.0, 0.8):
+                ff = fn * 2 ** (cents / 1200)
+                sig += amp * env * np.sin(2 * np.pi * ff * t + rng.uniform(0, 6.28)) / 3
+        hammer = lowpass_fast(rng.standard_normal(len(t)) * np.exp(-t / 0.006), min(6000, f * 8)) * 0.08
+        sig = (sig + hammer) * np.clip(t / 0.003, 0, 1)
+        fade = np.clip((dur - t) / 0.35, 0, 1)
+        sig *= fade
+        # Volume ressenti à peu près égal sur tout le clavier
+        sig = sig / (np.max(np.abs(sig)) or 1) * (0.62 - 0.12 * (midi - 48) / 36)
+        wav = os.path.join(OUT, f"piano{midi}.wav")
+        data = (np.clip(sig, -1, 1) * 32767).astype("<i2").tobytes()
+        with wave.open(wav, "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(SR)
+            w.writeframes(data)
+        m4a = os.path.join(OUT, f"piano{midi}.m4a")
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-c:a", "aac", "-b:a", "96k", m4a], check=True)
+        os.remove(wav)
+
+
 if __name__ == "__main__":
     sounds()
     ambient()
     filet_sounds()
+    board_sounds()
+    piano_samples()
     print("sons écrits")

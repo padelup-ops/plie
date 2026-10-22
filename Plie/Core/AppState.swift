@@ -14,6 +14,9 @@ enum Route: Equatable {
     case flechettes
     case airHockey
     case filet
+    case chess
+    case draughts
+    case piano
     case coffreLevels
     case coffre(Int)
     case coffreDuel
@@ -49,6 +52,11 @@ final class AppState {
     /// FILET : plus haut niveau battu (0 = aucun) et nombre de victoires.
     private(set) var filetBestLevel = 0
     private(set) var filetWins = 0
+    /// Jeux de plateau : parties terminées et victoires contre l'ordinateur (meilleur niveau battu).
+    private(set) var chessGames = 0
+    private(set) var chessBestLevel = 0
+    private(set) var draughtsGames = 0
+    private(set) var draughtsBestLevel = 0
     private(set) var flechettesBest = 0
 
     /// Coffres ouverts : meilleur temps et étoiles.
@@ -90,6 +98,9 @@ final class AppState {
         case "flechettes": route = .flechettes
         case "airHockey": route = .airHockey
         case "filet": route = .filet
+        case "chess": route = .chess
+        case "draughts": route = .draughts
+        case "piano": route = .piano
         case "coffreLevels": route = .coffreLevels
         case "coffre": route = .coffre(number)
         case "coffreDuel": route = .coffreDuel
@@ -218,6 +229,22 @@ final class AppState {
         level > Self.freeFiletLevel && !hasPass
     }
 
+    /// Le niveau « Difficile » de l'ordinateur, aux échecs et aux dames, fait partie du Pass.
+    func boardLevelNeedsPass(_ level: Int, hasPass: Bool) -> Bool {
+        level >= 3 && !hasPass
+    }
+
+    func recordBoardGame(chess: Bool, wonAgainstComputer: Bool, level: Int) {
+        if chess {
+            chessGames += 1
+            if wonAgainstComputer { chessBestLevel = max(chessBestLevel, level) }
+        } else {
+            draughtsGames += 1
+            if wonAgainstComputer { draughtsBestLevel = max(draughtsBestLevel, level) }
+        }
+        save()
+    }
+
     func recordFilet(level: Int, won: Bool) {
         guard won else { return }
         filetWins += 1
@@ -268,6 +295,10 @@ final class AppState {
         static let flechettesBest = "flechettes.best"
         static let filetBest = "filet.bestLevel"
         static let filetWins = "filet.wins"
+        static let chessGames = "chess.games"
+        static let chessBest = "chess.bestLevel"
+        static let draughtsGames = "draughts.games"
+        static let draughtsBest = "draughts.bestLevel"
         static let pliageBest = "pliage.best"
         static let coffreBest = "coffre.best"
         static let coffreStars = "coffre.stars"
@@ -298,6 +329,10 @@ final class AppState {
         flechettesBest = defaults.integer(forKey: Keys.flechettesBest)
         filetBestLevel = defaults.integer(forKey: Keys.filetBest)
         filetWins = defaults.integer(forKey: Keys.filetWins)
+        chessGames = defaults.integer(forKey: Keys.chessGames)
+        chessBestLevel = defaults.integer(forKey: Keys.chessBest)
+        draughtsGames = defaults.integer(forKey: Keys.draughtsGames)
+        draughtsBestLevel = defaults.integer(forKey: Keys.draughtsBest)
         coffreBest = decode(Keys.coffreBest)
         let stars: [Int: Double] = decode(Keys.coffreStars)
         coffreStars = stars.mapValues { Int($0) }
@@ -317,6 +352,10 @@ final class AppState {
         defaults.set(flechettesBest, forKey: Keys.flechettesBest)
         defaults.set(filetBestLevel, forKey: Keys.filetBest)
         defaults.set(filetWins, forKey: Keys.filetWins)
+        defaults.set(chessGames, forKey: Keys.chessGames)
+        defaults.set(chessBestLevel, forKey: Keys.chessBest)
+        defaults.set(draughtsGames, forKey: Keys.draughtsGames)
+        defaults.set(draughtsBestLevel, forKey: Keys.draughtsBest)
         encode(coffreBest, Keys.coffreBest)
         encode(coffreStars.mapValues { Double($0) }, Keys.coffreStars)
         defaults.set(soleilGames, forKey: Keys.soleilGames)

@@ -5,6 +5,11 @@ name: Captures iPhone Duo
 
 on:
   workflow_dispatch:
+    inputs:
+      routes:
+        description: "Écrans à capturer (séparés par des espaces ; « + » ajoute un argument de lancement)"
+        required: false
+        default: "hub rayonLevels rayon:1 rayon:16 rayon:40 rayon:55 pliageLevels pliage:1 pliage:20 pliage:40 coffreLevels coffre:1 coffreDuel soleil pass"
 
 jobs:
   shots:
@@ -73,10 +78,13 @@ jobs:
           DATA=$(xcrun simctl get_app_container "$UDID" "$BID" data 2>/dev/null || true)
           cp "$DATA/Documents/selfcheck.txt" shots/autocontrole.txt 2>/dev/null || echo "autocontrôle introuvable" > shots/autocontrole.txt
           cat shots/autocontrole.txt
-          for R in hub rayonLevels rayon:1 rayon:16 rayon:40 rayon:55 pliageLevels pliage:1 pliage:20 pliage:40 coffreLevels coffre:1 coffreDuel soleil pass; do
-            N=$(echo "$R" | tr ':' '-')
+          for ITEM in ${{ github.event.inputs.routes }}; do
+            R=${ITEM%%+*}
+            EXTRA=""
+            if [ "$ITEM" != "$R" ]; then EXTRA="-boardDemo ${ITEM#*+}"; fi
+            N=$(echo "$ITEM" | tr ':+' '--')
             xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
-            xcrun simctl launch "$UDID" "$BID" -screenshotRoute "$R" > "shots/lancement-$N.txt" 2>&1 || true
+            xcrun simctl launch "$UDID" "$BID" -screenshotRoute "$R" $EXTRA > "shots/lancement-$N.txt" 2>&1 || true
             sleep 6
             xcrun simctl io "$UDID" screenshot --display=1 --mask=black "shots/$N-ecran1.png" 2>>shots/erreurs-captures.txt || true
             if xcrun simctl spawn "$UDID" launchctl list | grep -q "$BID"; then

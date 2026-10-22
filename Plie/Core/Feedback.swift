@@ -7,6 +7,7 @@ final class SoundPlayer {
         case notch, decoy, clunk, lock, wrong, vault, win, beam, go, stop, caught, splat
         case whoosh, swish, thud, pop, puck, goal, bloom
         case tock, pok, smash, net, applause, point
+        case pieceMove, pieceCapture, checkBell, promote, clockTick
     }
 
     static let shared = SoundPlayer()
@@ -22,7 +23,8 @@ final class SoundPlayer {
             let copies: Int
             switch effect {
             case .notch, .decoy, .puck: copies = 4
-            case .thud, .pop, .whoosh, .tock, .pok: copies = 3
+            case .thud, .pop, .whoosh, .tock, .pok, .pieceMove, .clockTick: copies = 3
+            case .pieceCapture: copies = 4
             default: copies = 1
             }
             var list: [AVAudioPlayer] = []
