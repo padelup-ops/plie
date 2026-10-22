@@ -1,6 +1,6 @@
-# Plié : du projet Xcode à TestFlight, puis à l'App Store
+# Origamo : du projet Xcode à TestFlight, puis à l'App Store
 
-Plié regroupe trois jeux pensés pour l'iPhone Duo :
+Origamo regroupe trois jeux pensés pour l'iPhone Duo :
 
 - **RAYON** : on plie le téléphone pour orienter un miroir et envoyer un laser sur la cible. 45 niveaux en 3 mondes, tous vérifiés solubles.
 - **LE COFFRE** : on ouvre la charnière lentement comme une molette, on sent le bon cran, on reste immobile pour valider. 30 coffres + un mode duel à deux.
@@ -8,7 +8,7 @@ Plié regroupe trois jeux pensés pour l'iPhone Duo :
 
 Sur les autres iPhone, tout marche aussi : la charnière est remplacée par le doigt, et le signal de Soleil s'affiche sur l'écran principal.
 
-Modèle économique : gratuit avec 15 niveaux de RAYON, 10 coffres et Soleil en entier. Un seul achat, le **Pass Plié** (4,99 €), débloque tout le reste, pour toujours.
+Modèle économique : gratuit avec 15 niveaux de RAYON, 10 coffres et Soleil en entier. Un seul achat, le **Pass Origamo** (4,99 €), débloque tout le reste, pour toujours.
 
 ---
 
@@ -67,16 +67,16 @@ Sur appstoreconnect.apple.com :
 2. **Inscris-toi au Small Business Program** (developer.apple.com/app-store/small-business-program) : Apple prend 15 % au lieu de 30 % tant que tu fais moins d'un million de dollars par an.
 3. **Mes apps** > **+** > **Nouvelle app** :
    - Plateforme : iOS
-   - Nom : `Plié – Jeux pour iPhone Duo` (si le nom est pris, essaie `Plié : jeux à plier`)
+   - Nom : `Origamo : mini-jeux pliés` (en anglais : `Origamo: Folding Mini Games`) ; sous-titre : `10 jeux à jouer en pliant` (en anglais : `10 games you play by folding`)
    - Langue principale : Français
    - Bundle ID : celui choisi à l'étape 2
    - SKU : `plie-001`
 4. Dans l'app > **Achats intégrés** > **+** :
    - Type : **Non consommable**
-   - Nom de référence : `Pass Plié`
+   - Nom de référence : `Pass Origamo`
    - ID du produit : `plie.pass.complet` (exactement celui-là, c'est celui du code)
    - Prix : 4,99 €
-   - Nom affiché : `Pass Plié` ; description : `Tous les niveaux de RAYON et du COFFRE, et les prochains jeux.`
+   - Nom affiché : `Pass Origamo` ; description : `Tous les niveaux de RAYON et du COFFRE, et les prochains jeux.`
    - Ajoute une capture d'écran de l'écran du Pass (demandée pour la vérification).
 
 ## 5. Envoyer sur TestFlight
@@ -97,7 +97,7 @@ La question sur le chiffrement est déjà réglée dans `Info.plist` (l'app n'ut
 - **Classification par âge** : 4+.
 - **Captures d'écran** : fais-en sur iPhone Duo. Apple affiche un badge « Optimisé pour iPhone Duo » aux apps qui envoient des captures Duo. Prépare aussi des captures iPhone 6,9 pouces.
 - **Notes pour la vérification** (champ « App Review Information ») :
-  > Plié est conçu pour l'iPhone Duo. RAYON et LE COFFRE se jouent en pliant l'appareil (onHingeChange). Sur les autres iPhone, ils se jouent au doigt. Dans « 1, 2, 3… Soleil ! », la caméra sert à détecter les mouvements des joueurs, et sur iPhone Duo ouvert le signal s'affiche sur l'écran extérieur via CameraCaptureAccessory, pendant la capture. Aucune image n'est enregistrée ni envoyée.
+  > Origamo est conçu pour l'iPhone Duo. RAYON et LE COFFRE se jouent en pliant l'appareil (onHingeChange). Sur les autres iPhone, ils se jouent au doigt. Dans « 1, 2, 3… Soleil ! », la caméra sert à détecter les mouvements des joueurs, et sur iPhone Duo ouvert le signal s'affiche sur l'écran extérieur via CameraCaptureAccessory, pendant la capture. Aucune image n'est enregistrée ni envoyée.
 - **Demande de mise en avant** : App Store Connect > **Nominations**. Coche « optimisé pour iPhone Duo » et « prend en charge toutes les positions de l'appareil ». C'est gratuit et c'est ton meilleur levier.
 
 ## 7. Textes de la fiche App Store
@@ -120,7 +120,7 @@ La question sur le chiffrement est déjà réglée dans `Info.plist` (l'app n'ut
 >
 > Fonctionne aussi sur tous les iPhone : la charnière est alors remplacée par le doigt.
 >
-> Gratuit pour commencer. Le Pass Plié débloque tous les niveaux en un seul achat, sans abonnement ni publicité.
+> Gratuit pour commencer. Le Pass Origamo débloque tous les niveaux en un seul achat, sans abonnement ni publicité.
 >
 > Rien n'est collecté : les images de la caméra ne quittent jamais ton téléphone.
 
@@ -156,15 +156,15 @@ Un jeu payant à achat unique fait souvent entre 2 et 5 % d'acheteurs. Le chiffr
 
 ## Politique de confidentialité (à publier en ligne)
 
-> **Politique de confidentialité de Plié**
+> **Politique de confidentialité de Origamo**
 >
-> Plié ne collecte, ne stocke sur un serveur et ne partage aucune donnée personnelle.
+> Origamo ne collecte, ne stocke sur un serveur et ne partage aucune donnée personnelle.
 >
 > **Caméra.** Le jeu « 1, 2, 3… Soleil ! » utilise la caméra pour détecter les mouvements des joueurs. L'analyse se fait entièrement sur l'appareil. Les photos des joueurs pris en train de bouger restent dans l'app pendant la partie et sont effacées quand on la quitte. Elles ne sont partagées que si l'utilisateur appuie lui-même sur « Partager ».
 >
 > **Progression.** Les niveaux réussis et les réglages sont enregistrés uniquement sur l'appareil.
 >
-> **Achats.** Les achats sont gérés par Apple. Plié ne reçoit aucune information de paiement.
+> **Achats.** Les achats sont gérés par Apple. Origamo ne reçoit aucune information de paiement.
 >
 > **Contact.** [ton adresse e-mail]
 >

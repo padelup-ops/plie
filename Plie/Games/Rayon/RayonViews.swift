@@ -324,7 +324,7 @@ struct RayonPlayView: View {
                     .foregroundStyle(Theme.muted)
                 if let next = nextNumber {
                     if app.rayonNeedsPass(next, hasPass: store.ownsPass) {
-                        Text(L("La suite t'attend : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus avec le Pass Plié."))
+                        Text(L("La suite t'attend : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus avec le Pass Origamo."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Theme.muted)

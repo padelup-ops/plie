@@ -11,12 +11,12 @@
       "localizations" : [
         {
           "description" : "Tous les niveaux de RAYON et du COFFRE, et les prochains jeux.",
-          "displayName" : "Pass Plié",
+          "displayName" : "Pass Origamo",
           "locale" : "fr_FR"
         }
       ],
       "productID" : "plie.pass.complet",
-      "referenceName" : "Pass Plié",
+      "referenceName" : "Pass Origamo",
       "type" : "NonConsumable"
     }
   ],

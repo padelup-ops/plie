@@ -221,7 +221,7 @@ struct BasculePlayView: View {
                 }
                 if number < BasculeLevel.all.count {
                     if app.basculeNeedsPass(number + 1, hasPass: store.ownsPass) {
-                        Text(L("\(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus, avec le vent et les ressorts, dans le Pass Plié."))
+                        Text(L("\(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus, avec le vent et les ressorts, dans le Pass Origamo."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)
                             .multilineTextAlignment(.center)

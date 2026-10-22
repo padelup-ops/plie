@@ -250,7 +250,7 @@ struct PliagePlayView: View {
                     .foregroundStyle(Theme.muted)
                 if number < PliageLevel.all.count {
                     if app.pliageNeedsPass(number + 1, hasPass: store.ownsPass) {
-                        Text(L("\(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus, avec les mélanges de couleurs, dans le Pass Plié."))
+                        Text(L("\(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus, avec les mélanges de couleurs, dans le Pass Origamo."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)
                             .multilineTextAlignment(.center)

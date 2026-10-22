@@ -1,4 +1,4 @@
-"""Sons de Plié : timbres doux (marimba, kalimba, cloches, bois) avec un peu de réverbération.
+"""Sons de Origamo : timbres doux (marimba, kalimba, cloches, bois) avec un peu de réverbération.
 
 Usage : python3 sound_design.py   (écrit ../Plie/Sounds/*.wav et ../Plie/Sounds/ambient.m4a)
 """

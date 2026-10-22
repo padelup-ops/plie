@@ -199,7 +199,7 @@ struct CoffrePlayView: View {
                 }
                 if number < CoffreLevel.count {
                     if app.coffreNeedsPass(number + 1, hasPass: store.ownsPass) {
-                        Text(L("20 coffres plus vicieux t'attendent avec le Pass Plié."))
+                        Text(L("20 coffres plus vicieux t'attendent avec le Pass Origamo."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)
                             .multilineTextAlignment(.center)

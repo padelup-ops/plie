@@ -271,7 +271,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plie/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Plié";
+				INFOPLIST_KEY_CFBundleDisplayName = Origamo;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.puzzle-games";
 				INFOPLIST_KEY_NSCameraUsageDescription = "La caméra sert d’arbitre dans 1, 2, 3… Soleil ! : elle repère qui bouge pendant le STOP. Les images restent sur ton téléphone.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -306,7 +306,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plie/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Plié";
+				INFOPLIST_KEY_CFBundleDisplayName = Origamo;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.puzzle-games";
 				INFOPLIST_KEY_NSCameraUsageDescription = "La caméra sert d’arbitre dans 1, 2, 3… Soleil ! : elle repère qui bouge pendant le STOP. Les images restent sur ton téléphone.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

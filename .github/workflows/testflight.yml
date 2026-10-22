@@ -1,4 +1,4 @@
-# Compile Plié sur un Mac de GitHub (Xcode 27.1) et l'envoie sur TestFlight.
+# Compile Origamo sur un Mac de GitHub (Xcode 27.1) et l'envoie sur TestFlight.
 #
 # Sans secrets : vérifie seulement que l'app compile (utile pour corriger les erreurs).
 # Avec les 5 secrets ci-dessous : archive, signe et envoie sur App Store Connect.

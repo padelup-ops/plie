@@ -1,4 +1,4 @@
-"""Icône de Plié : une cocotte en papier (le jeu plié par excellence), chaque pétale porte un mini-jeu."""
+"""Icône de Origamo : une cocotte en papier (le jeu plié par excellence), chaque pétale porte un mini-jeu."""
 import math, random, sys
 from playwright.sync_api import sync_playwright
 

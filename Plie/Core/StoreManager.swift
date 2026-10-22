@@ -1,7 +1,7 @@
 import StoreKit
 import Observation
 
-/// Un seul achat intégré : le Pass Plié, qui débloque tous les niveaux des trois jeux.
+/// Un seul achat intégré : le Pass Origamo, qui débloque tous les niveaux des trois jeux.
 @Observable
 final class StoreManager {
     static let passID = "plie.pass.complet"

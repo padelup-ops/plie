@@ -164,7 +164,7 @@ struct SoleilView: View {
             }
             .tint(Theme.sun)
             if game.useOuterScreen {
-                Label(game.outerAvailable ? L("Écran extérieur prêt") : L("Ouvre le Duo et garde Plié en plein écran"),
+                Label(game.outerAvailable ? L("Écran extérieur prêt") : L("Ouvre le Duo et garde Origamo en plein écran"),
                       systemImage: game.outerAvailable ? "checkmark.circle.fill" : "rectangle.portrait.on.rectangle.portrait")
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(game.outerAvailable ? Theme.go : Theme.gold)

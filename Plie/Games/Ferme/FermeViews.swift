@@ -336,7 +336,7 @@ struct FermeView: View {
 
                 Text(session.hingeAvailable
                      ? L("Touche « Planter », puis ferme ton iPhone Duo. Si tu le rouvres avant la fin, tu as 10 secondes pour le refermer, sinon ta plante fane.")
-                     : L("Touche « Planter » et pose ton téléphone. Si tu quittes Plié plus de 10 secondes, ta plante fane."))
+                     : L("Touche « Planter » et pose ton téléphone. Si tu quittes Origamo plus de 10 secondes, ta plante fane."))
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)

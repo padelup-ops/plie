@@ -18,8 +18,10 @@ struct HubView: View {
                 VStack(spacing: 6) {
                     TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
                         let t = timeline.date.timeIntervalSinceReferenceDate
-                        Text(L("PLIÉ"))
-                            .font(.plie(88))
+                        Text(L("ORIGAMO"))
+                            .font(.plie(72))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
                             .foregroundStyle(
                                 LinearGradient(colors: [Theme.laser, Theme.paint, Theme.gold, Theme.sun, Theme.laser],
                                                startPoint: UnitPoint(x: -0.5 + (t * 0.08).truncatingRemainder(dividingBy: 1), y: 0),
@@ -146,7 +148,7 @@ struct HubView: View {
                             Image(systemName: "crown.fill")
                                 .font(.system(size: 22, weight: .bold))
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(L("Pass Plié"))
+                                Text(L("Pass Origamo"))
                                     .font(.plie(18))
                                 Text(L("Tous les niveaux, pour toujours"))
                                     .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -255,7 +257,7 @@ struct SettingsView: View {
                     Toggle(L("Sons"), isOn: Binding(get: { app.soundOn }, set: { app.setSound($0) }))
                     Toggle(L("Vibrations"), isOn: Binding(get: { app.hapticsOn }, set: { app.setHaptics($0) }))
                 }
-                Section(L("Pass Plié")) {
+                Section(L("Pass Origamo")) {
                     if store.ownsPass {
                         Label(L("Tout est débloqué"), systemImage: "checkmark.seal.fill")
                     } else {
@@ -273,7 +275,7 @@ struct SettingsView: View {
                 }
                 Section(L("iPhone Duo")) {
                     Text(DuoSupport.apisAvailable
-                         ? L("Sur iPhone Duo, RAYON, PLIAGE, BASCULE et LE COFFRE se jouent avec la charnière ; PANIER et FLÉCHETTES se jouent plié en L, AIR HOCKEY à plat, FERME fermé. Sur les autres iPhone, tout se joue au doigt.")
+                         ? L("Sur iPhone Duo, RAYON, PLIAGE, BASCULE et LE COFFRE se jouent avec la charnière ; PANIER, FLÉCHETTES et FILET se jouent plié en L, AIR HOCKEY à plat, FERME fermé. Sur les autres iPhone, tout se joue au doigt.")
                          : L("Cet iPhone n'a pas de charnière : RAYON, PLIAGE et LE COFFRE se jouent au doigt."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
@@ -320,7 +322,7 @@ struct PassView: View {
                 Image(systemName: "crown.fill")
                     .font(.system(size: 54, weight: .bold))
                     .foregroundStyle(Theme.gold)
-                Text(L("Pass Plié"))
+                Text(L("Pass Origamo"))
                     .font(.plie(40))
                 Text(L("Un seul achat, sans abonnement ni publicité."))
                     .font(.plie(17, weight: .semibold))

@@ -702,10 +702,10 @@ struct FiletScene: View {
             var lx: CGFloat = w * 0.12
             var flip = false
             while lx < w {
-                context.draw(Text(verbatim: flip ? "FILET" : "PLIÉ").font(.system(size: logoSize, weight: .black, design: .rounded))
+                context.draw(Text(verbatim: flip ? "FILET" : "ORIGAMO").font(.system(size: logoSize, weight: .black, design: .rounded))
                                 .foregroundColor(.white.opacity(0.55)),
                              at: CGPoint(x: lx, y: boards.midY))
-                lx += max(60, logoSize * 5)
+                lx += max(70, logoSize * 6)
                 flip.toggle()
             }
 
