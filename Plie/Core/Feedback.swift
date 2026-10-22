@@ -4,7 +4,7 @@ import UIKit
 /// Petits sons du jeu, lus depuis les fichiers .wav du dossier Sounds.
 final class SoundPlayer {
     enum Effect: String, CaseIterable {
-        case notch, decoy, clunk, lock, wrong, vault, win, beam, go, stop, caught
+        case notch, decoy, clunk, lock, wrong, vault, win, beam, go, stop, caught, splat
     }
 
     static let shared = SoundPlayer()

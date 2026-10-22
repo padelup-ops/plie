@@ -39,6 +39,11 @@ struct RootView: View {
             case .rayon(let number):
                 RayonPlayView(number: number)
                     .id(number)
+            case .pliageLevels:
+                PliageLevelsView()
+            case .pliage(let number):
+                PliagePlayView(number: number)
+                    .id(number)
             case .coffreLevels:
                 CoffreLevelsView()
             case .coffre(let number):
@@ -54,6 +59,14 @@ struct RootView: View {
         .onAppear {
             #if DEBUG
             app.applyScreenshotRoute()
+            if UserDefaults.standard.bool(forKey: "selfCheck") {
+                let rayon = RayonEngine.selfCheck()
+                let pliage = PliageEngine.selfCheck()
+                NSLog("PLIE-CHECK rayon %ld/%ld pliage %ld/%ld", rayon.ok, RayonLevel.all.count, pliage.ok, PliageLevel.all.count)
+                for failure in rayon.failures + pliage.failures {
+                    NSLog("PLIE-CHECK ÉCHEC %@", failure)
+                }
+            }
             #endif
         }
         .sheet(isPresented: $app.showPass) {

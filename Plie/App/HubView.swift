@@ -22,7 +22,7 @@ struct HubView: View {
                             LinearGradient(colors: [Theme.laser, Theme.gold, Theme.sun],
                                            startPoint: .leading, endPoint: .trailing)
                         )
-                    Text("Trois jeux pensés pour l'iPhone Duo")
+                    Text("Quatre jeux pensés pour l'iPhone Duo")
                         .font(.plie(18, weight: .bold))
                         .foregroundStyle(.white)
                     if !DuoSupport.apisAvailable {
@@ -35,12 +35,21 @@ struct HubView: View {
                 .padding(.bottom, 4)
 
                 gameCard(title: "RAYON",
-                         subtitle: "Plie ton téléphone pour orienter le miroir et toucher la cible avec le laser.",
+                         subtitle: "Plie ton téléphone pour orienter le miroir, fais pivoter les autres, et touche la cible avec le laser.",
                          symbol: "light.beacon.max.fill",
                          color: Theme.laser,
-                         badge: "Charnière · Solo",
+                         badge: "Charnière · Casse-tête",
                          progress: "\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux") {
                     app.route = .rayonLevels
+                }
+
+                gameCard(title: "PLIAGE",
+                         subtitle: "La peinture est fraîche : plie la feuille pour la décalquer et reproduire le modèle.",
+                         symbol: "square.split.2x1.fill",
+                         color: Theme.paint,
+                         badge: "Plis · Casse-tête",
+                         progress: "\(app.pliageSolved.count) / \(PliageLevel.all.count) pliages") {
+                    app.route = .pliageLevels
                 }
 
                 gameCard(title: "LE COFFRE",
@@ -71,7 +80,7 @@ struct HubView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Pass Plié")
                                     .font(.plie(18))
-                                Text("Les 75 niveaux des trois jeux, pour toujours")
+                                Text("Tous les niveaux, pour toujours")
                                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                                     .opacity(0.85)
                             }
@@ -177,8 +186,8 @@ struct SettingsView: View {
                 }
                 Section("iPhone Duo") {
                     Text(DuoSupport.apisAvailable
-                         ? "Sur iPhone Duo, RAYON et LE COFFRE se jouent avec la charnière, et 1, 2, 3… Soleil ! peut afficher le signal sur l'écran extérieur. Sur les autres iPhone, tout se joue au doigt."
-                         : "Cet iPhone n'a pas de charnière : RAYON et LE COFFRE se jouent au doigt.")
+                         ? "Sur iPhone Duo, RAYON, PLIAGE et LE COFFRE se jouent avec la charnière, et 1, 2, 3… Soleil ! peut afficher le signal sur l'écran extérieur. Sur les autres iPhone, tout se joue au doigt."
+                         : "Cet iPhone n'a pas de charnière : RAYON, PLIAGE et LE COFFRE se jouent au doigt.")
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
                 }
@@ -223,8 +232,9 @@ struct PassView: View {
                     .multilineTextAlignment(.center)
 
                 VStack(alignment: .leading, spacing: 14) {
-                    benefit("light.beacon.max.fill", Theme.laser, "RAYON : les mondes 2 et 3", "30 niveaux de plus, avec plusieurs miroirs et des miroirs jumeaux.")
-                    benefit("lock.rotation", Theme.gold, "LE COFFRE : 20 coffres de plus", "Faux crans, crans discrets, et coffres sans chiffres, au toucher seulement.")
+                    benefit("light.beacon.max.fill", Theme.laser, "RAYON : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus", "Miroirs pivotants, labyrinthes et miroirs jumeaux.")
+                    benefit("square.split.2x1.fill", Theme.paint, "PLIAGE : \(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus", "Mélanges de couleurs et origamis en 4 plis.")
+                    benefit("lock.rotation", Theme.gold, "LE COFFRE : \(CoffreLevel.count - AppState.freeCoffreLevels) coffres de plus", "Faux crans, crans discrets, et coffres sans chiffres, au toucher seulement.")
                     benefit("sparkles", Theme.sun, "Les prochains jeux et niveaux", "Tout ce qui sortira plus tard est inclus.")
                 }
                 .padding(18)

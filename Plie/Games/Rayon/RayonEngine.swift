@@ -45,6 +45,27 @@ struct ControlMirror {
     }
 }
 
+/// Un miroir pivotant : chaque tap le fait tourner de 45° (4 orientations).
+struct Rotor {
+    let cx: Double
+    let cy: Double
+    let length: Double
+    /// Orientation au début du niveau (angle = start × 45°).
+    let start: Int
+    /// Orientation de la solution vérifiée.
+    let solution: Int
+
+    init(_ cx: Double, _ cy: Double, _ length: Double, start: Int, solution: Int) {
+        self.cx = cx
+        self.cy = cy
+        self.length = length
+        self.start = start
+        self.solution = solution
+    }
+
+    static let stepDegrees = 45.0
+}
+
 struct RayonLevel {
     let number: Int
     let world: Int
@@ -55,18 +76,43 @@ struct RayonLevel {
     let mirrors: [Seg]
     let walls: [Seg]
     let controls: [ControlMirror]
+    let rotors: [Rotor]
     let span: Double
     let startT: Double
+    /// Position de charnière vérifiée (avec les pivots dans l'orientation `solution`).
+    let solutionT: Double
 
     func controlAngle(_ control: ControlMirror, t: Double) -> Double {
         control.base + t * span * control.factor
     }
 
+    var startRotorAngles: [Double] {
+        rotors.map { Double($0.start) * Rotor.stepDegrees }
+    }
+
+    var solutionRotorAngles: [Double] {
+        rotors.map { Double($0.solution) * Rotor.stepDegrees }
+    }
+
+    static let worldCount = 4
+
     static func worldName(_ world: Int) -> String {
         switch world {
         case 1: return "Premier reflet"
-        case 2: return "Le labyrinthe"
+        case 2: return "Les pivots"
+        case 3: return "Le labyrinthe"
         default: return "Les jumeaux"
+        }
+    }
+
+    /// Conseil affiché au premier niveau de chaque monde.
+    var tip: String? {
+        guard let first = RayonLevel.all.first(where: { $0.world == world }), first.number == number else { return nil }
+        switch world {
+        case 2: return "Nouveau : touche un miroir rond pour le faire pivoter de 45°. Trouve la bonne orientation, puis vise avec la charnière."
+        case 3: return "Plusieurs pivots, des murs et des miroirs fixes : trace le chemin dans ta tête avant de viser."
+        case 4: return "Le miroir jumeau tourne en même temps que le miroir central, mais à son propre rythme."
+        default: return nil
         }
     }
 }
@@ -93,7 +139,8 @@ enum RayonEngine {
         return (Pt(cx - dx, cy - dy), Pt(cx + dx, cy + dy))
     }
 
-    static func lines(for level: RayonLevel, t: Double) -> [Line] {
+    /// Même ordre que tools/rayon2_gen.py : miroirs fixes, commandés, pivots, murs, bords.
+    static func lines(for level: RayonLevel, t: Double, rotorAngles: [Double]) -> [Line] {
         var result: [Line] = []
         for m in level.mirrors {
             let (p, q) = endpoints(cx: m.cx, cy: m.cy, length: m.length, angle: m.angle)
@@ -101,6 +148,11 @@ enum RayonEngine {
         }
         for c in level.controls {
             let (p, q) = endpoints(cx: c.cx, cy: c.cy, length: c.length, angle: level.controlAngle(c, t: t))
+            result.append(Line(p: p, q: q, isMirror: true))
+        }
+        for (index, r) in level.rotors.enumerated() {
+            let angle = index < rotorAngles.count ? rotorAngles[index] : Double(r.start) * Rotor.stepDegrees
+            let (p, q) = endpoints(cx: r.cx, cy: r.cy, length: r.length, angle: angle)
             result.append(Line(p: p, q: q, isMirror: true))
         }
         for w in level.walls {
@@ -147,8 +199,8 @@ enum RayonEngine {
     }
 
     /// Suit le rayon depuis l'émetteur jusqu'à la cible, un mur ou le bord du plateau.
-    static func trace(_ level: RayonLevel, t: Double) -> Result {
-        let segments = lines(for: level, t: t)
+    static func trace(_ level: RayonLevel, t: Double, rotorAngles: [Double]) -> Result {
+        let segments = lines(for: level, t: t, rotorAngles: rotorAngles)
         var ox = level.emitter.x
         var oy = level.emitter.y
         let a = level.emitterAngle * .pi / 180
@@ -197,3 +249,23 @@ enum RayonEngine {
         return Result(points: points, hit: false)
     }
 }
+
+#if DEBUG
+extension RayonEngine {
+    /// Autocontrôle : chaque niveau est soluble avec la solution enregistrée, et pas dès le départ.
+    static func selfCheck() -> (ok: Int, failures: [String]) {
+        var ok = 0
+        var failures: [String] = []
+        for level in RayonLevel.all {
+            let solved = trace(level, t: level.solutionT, rotorAngles: level.solutionRotorAngles).hit
+            let startHit = trace(level, t: level.startT, rotorAngles: level.startRotorAngles).hit
+            if solved && !startHit {
+                ok += 1
+            } else {
+                failures.append("RAYON \(level.number): solution=\(solved) départ=\(startHit)")
+            }
+        }
+        return (ok, failures)
+    }
+}
+#endif

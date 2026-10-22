@@ -68,7 +68,10 @@ jobs:
 
       - name: Capturer chaque écran
         run: |
-          for R in hub rayonLevels rayon:1 rayon:20 rayon:38 coffreLevels coffre:1 coffre:24 coffreDuel soleil pass; do
+          xcrun simctl launch "$UDID" "$BID" -selfCheck YES > /dev/null 2>&1 || true
+          sleep 8
+          xcrun simctl spawn "$UDID" log show --last 2m --style compact --predicate 'eventMessage CONTAINS "PLIE-CHECK"' > shots/autocontrole.txt 2>&1 || true
+          for R in hub rayonLevels rayon:1 rayon:16 rayon:40 rayon:55 pliageLevels pliage:1 pliage:20 pliage:40 coffreLevels coffre:1 coffreDuel soleil pass; do
             N=$(echo "$R" | tr ':' '-')
             xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
             xcrun simctl launch "$UDID" "$BID" -screenshotRoute "$R" > "shots/lancement-$N.txt" 2>&1 || true

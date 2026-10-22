@@ -1,5 +1,6 @@
-// Fichier généré par tools/rayon_gen.py : ne pas modifier à la main.
-// Chaque niveau a été vérifié : il existe une position de charnière qui envoie le rayon sur la cible.
+// Fichier généré par tools/rayon2_gen.py : ne pas modifier à la main.
+// Chaque niveau a été vérifié : avec les bons pivots, une position de charnière envoie
+// le rayon sur la cible ; au départ, aucune position de charnière ne marche.
 
 import Foundation
 
@@ -12,7 +13,8 @@ extension RayonLevel {
             mirrors: [],
             walls: [Seg(0.3701, 0.7571, 0.2231, 90)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 100.15, 1.0)],
-            span: 120, startT: 0.3
+            rotors: [],
+            span: 120, startT: 0.3, solutionT: 0.5732
         ),
         RayonLevel(
             number: 2, world: 1,
@@ -21,7 +23,8 @@ extension RayonLevel {
             mirrors: [],
             walls: [Seg(0.8014, 0.5859, 0.1713, 131.8478)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 16.0758, 1.0)],
-            span: 130, startT: 0.5
+            rotors: [],
+            span: 130, startT: 0.5, solutionT: 0.1332
         ),
         RayonLevel(
             number: 3, world: 1,
@@ -30,7 +33,8 @@ extension RayonLevel {
             mirrors: [],
             walls: [Seg(0.3658, 0.8924, 0.2698, 9.0698)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 72.4694, 1.0)],
-            span: 120, startT: 0.5
+            rotors: [],
+            span: 120, startT: 0.5, solutionT: 0.8768
         ),
         RayonLevel(
             number: 4, world: 1,
@@ -39,7 +43,8 @@ extension RayonLevel {
             mirrors: [Seg(0.1446, 0.6396, 0.1693, 72.5528)],
             walls: [Seg(0.2454, 0.8939, 0.1705, 0)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 172.1226, 1.0)],
-            span: 130, startT: 0.6
+            rotors: [],
+            span: 130, startT: 0.6, solutionT: 0.3289
         ),
         RayonLevel(
             number: 5, world: 1,
@@ -48,7 +53,8 @@ extension RayonLevel {
             mirrors: [],
             walls: [Seg(0.3685, 0.6717, 0.2956, 0)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 140.3051, 1.0)],
-            span: 110, startT: 0.4
+            rotors: [],
+            span: 110, startT: 0.4, solutionT: 0.6746
         ),
         RayonLevel(
             number: 6, world: 1,
@@ -57,7 +63,8 @@ extension RayonLevel {
             mirrors: [Seg(0.1886, 0.7906, 0.1829, 73.295)],
             walls: [Seg(0.6917, 0.1758, 0.1749, 90)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 43.1527, 1.0)],
-            span: 110, startT: 0.6
+            rotors: [],
+            span: 110, startT: 0.6, solutionT: 0.3168
         ),
         RayonLevel(
             number: 7, world: 1,
@@ -66,7 +73,8 @@ extension RayonLevel {
             mirrors: [Seg(0.3777, 0.1749, 0.2144, 161.5496)],
             walls: [Seg(0.1053, 0.7281, 0.2769, 90), Seg(0.7705, 0.6329, 0.2546, 93.7037)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 83.9775, 1.0)],
-            span: 120, startT: 0.5
+            rotors: [],
+            span: 120, startT: 0.5, solutionT: 0.7636
         ),
         RayonLevel(
             number: 8, world: 1,
@@ -75,7 +83,8 @@ extension RayonLevel {
             mirrors: [],
             walls: [Seg(0.6914, 0.8112, 0.1872, 15.6147)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 14.2023, 1.0)],
-            span: 120, startT: 0.35
+            rotors: [],
+            span: 120, startT: 0.35, solutionT: 0.6075
         ),
         RayonLevel(
             number: 9, world: 1,
@@ -84,7 +93,8 @@ extension RayonLevel {
             mirrors: [Seg(0.323, 0.6499, 0.1646, 101.943)],
             walls: [Seg(0.1079, 0.243, 0.1794, 90)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 16.197, 1.0)],
-            span: 130, startT: 0.55
+            rotors: [],
+            span: 130, startT: 0.55, solutionT: 0.2643
         ),
         RayonLevel(
             number: 10, world: 1,
@@ -93,7 +103,8 @@ extension RayonLevel {
             mirrors: [Seg(0.159, 0.2357, 0.2106, 17.5998)],
             walls: [Seg(0.8409, 0.7745, 0.1567, 0)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 169.235, 1.0)],
-            span: 140, startT: 0.25
+            rotors: [],
+            span: 140, startT: 0.25, solutionT: 0.5314
         ),
         RayonLevel(
             number: 11, world: 1,
@@ -102,7 +113,8 @@ extension RayonLevel {
             mirrors: [Seg(0.4248, 0.7371, 0.1751, 38.3456)],
             walls: [Seg(0.2401, 0.3655, 0.1657, 90)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 8.8543, 1.0)],
-            span: 110, startT: 0.6
+            rotors: [],
+            span: 110, startT: 0.6, solutionT: 0.3464
         ),
         RayonLevel(
             number: 12, world: 1,
@@ -111,7 +123,8 @@ extension RayonLevel {
             mirrors: [Seg(0.8057, 0.5947, 0.2068, 19.2422)],
             walls: [Seg(0.3502, 0.747, 0.2282, 0), Seg(0.1125, 0.2728, 0.2527, 90)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 27.7003, 1.0)],
-            span: 140, startT: 0.45
+            rotors: [],
+            span: 140, startT: 0.45, solutionT: 0.7018
         ),
         RayonLevel(
             number: 13, world: 1,
@@ -120,7 +133,8 @@ extension RayonLevel {
             mirrors: [],
             walls: [Seg(0.7604, 0.2053, 0.1718, 55.5362)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 8.7328, 1.0)],
-            span: 120, startT: 0.25
+            rotors: [],
+            span: 120, startT: 0.25, solutionT: 0.5446
         ),
         RayonLevel(
             number: 14, world: 1,
@@ -129,7 +143,8 @@ extension RayonLevel {
             mirrors: [Seg(0.4432, 0.1275, 0.2199, 157.0677), Seg(0.1299, 0.384, 0.1881, 17.9797)],
             walls: [Seg(0.5588, 0.8256, 0.1831, 90), Seg(0.1407, 0.8083, 0.1876, 21.7717)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 158.2896, 1.0)],
-            span: 140, startT: 0.65
+            rotors: [],
+            span: 140, startT: 0.65, solutionT: 0.3618
         ),
         RayonLevel(
             number: 15, world: 1,
@@ -138,277 +153,458 @@ extension RayonLevel {
             mirrors: [Seg(0.729, 0.2529, 0.1654, 2.3905)],
             walls: [Seg(0.769, 0.6512, 0.1698, 90), Seg(0.8755, 0.1855, 0.2022, 90), Seg(0.1028, 0.5036, 0.2596, 90)],
             controls: [ControlMirror(0.5, 0.5, 0.24, 68.9252, 1.0)],
-            span: 140, startT: 0.5
+            rotors: [],
+            span: 140, startT: 0.5, solutionT: 0.7939
         ),
         RayonLevel(
             number: 16, world: 2,
-            emitter: Pt(0.169, 0.94), emitterAngle: -56.2388,
-            target: Pt(0.2675, 0.6409), targetRadius: 0.045,
-            mirrors: [Seg(0.1733, 0.13, 0.2075, 160.1893), Seg(0.6919, 0.1847, 0.1888, 30.467)],
-            walls: [Seg(0.3192, 0.222, 0.1774, 0), Seg(0.7967, 0.4171, 0.2796, 108.1028), Seg(0.4243, 0.7049, 0.1472, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 104.5722, 1.0)],
-            span: 140, startT: 0.5
+            emitter: Pt(0.2807, 0.06), emitterAngle: 62.9304,
+            target: Pt(0.253, 0.5899), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.2077, 0.8701, 0.2091, 0), Seg(0.832, 0.3598, 0.2581, 171.5747)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 176.3989, 1.0)],
+            rotors: [Rotor(0.6424, 0.7846, 0.17, start: 2, solution: 3)],
+            span: 90.809, startT: 0.45, solutionT: 0.7329
         ),
         RayonLevel(
             number: 17, world: 2,
-            emitter: Pt(0.5087, 0.06), emitterAngle: 88.9828,
-            target: Pt(0.4409, 0.7154), targetRadius: 0.045,
-            mirrors: [Seg(0.2992, 0.5773, 0.1946, 92.4933), Seg(0.1471, 0.5749, 0.2102, 120.4174)],
-            walls: [Seg(0.6531, 0.285, 0.1427, 90), Seg(0.7616, 0.5624, 0.1893, 136.5196), Seg(0.7322, 0.104, 0.2437, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 64.8297, 1.0)],
-            span: 140, startT: 0.65
+            emitter: Pt(0.06, 0.243), emitterAngle: 30.9168,
+            target: Pt(0.7425, 0.3475), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.5876, 0.7328, 0.1765, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 74.7554, 1.0)],
+            rotors: [Rotor(0.4131, 0.2381, 0.17, start: 0, solution: 3)],
+            span: 97.2857, startT: 0.4, solutionT: 0.6864
         ),
         RayonLevel(
             number: 18, world: 2,
-            emitter: Pt(0.3357, 0.06), emitterAngle: 67.5686,
-            target: Pt(0.5511, 0.7198), targetRadius: 0.045,
-            mirrors: [Seg(0.6896, 0.3023, 0.1947, 139.6779), Seg(0.4278, 0.7819, 0.205, 16.7311), Seg(0.2535, 0.139, 0.2347, 11.0729)],
-            walls: [Seg(0.8146, 0.8825, 0.1542, 76.2909), Seg(0.1298, 0.3642, 0.1608, 90)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 17.6814, 1.0)],
-            span: 140, startT: 0.7
+            emitter: Pt(0.94, 0.7567), emitterAngle: -148.5699,
+            target: Pt(0.2713, 0.3334), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.2267, 0.1259, 0.2454, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 107.4273, 1.0)],
+            rotors: [Rotor(0.4163, 0.7275, 0.17, start: 1, solution: 0)],
+            span: 97.079, startT: 0.3, solutionT: 0.5546
         ),
         RayonLevel(
             number: 19, world: 2,
-            emitter: Pt(0.7711, 0.94), emitterAngle: -123.2687,
-            target: Pt(0.4274, 0.2796), targetRadius: 0.045,
-            mirrors: [Seg(0.1427, 0.1794, 0.2274, 112.994), Seg(0.3251, 0.3882, 0.2217, 92.3369), Seg(0.8396, 0.7894, 0.227, 49.2856)],
-            walls: [Seg(0.5543, 0.1986, 0.2732, 49.3993), Seg(0.4267, 0.159, 0.2274, 43.0793)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 179.9563, 1.0)],
-            span: 150, startT: 0.7
+            emitter: Pt(0.06, 0.4707), emitterAngle: 3.0959,
+            target: Pt(0.7497, 0.2346), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.6813, 0.884, 0.1885, 0), Seg(0.3039, 0.8488, 0.2252, 149.5411)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 55.0205, 1.0)],
+            rotors: [Rotor(0.4107, 0.1484, 0.17, start: 0, solution: 3)],
+            span: 96.2163, startT: 0.5, solutionT: 0.7711
         ),
         RayonLevel(
             number: 20, world: 2,
-            emitter: Pt(0.8293, 0.06), emitterAngle: 128.8702,
-            target: Pt(0.4122, 0.7915), targetRadius: 0.045,
-            mirrors: [Seg(0.5816, 0.8558, 0.2209, 144.4107)],
-            walls: [Seg(0.2153, 0.1545, 0.1789, 90), Seg(0.1723, 0.4978, 0.1427, 45.9999), Seg(0.8607, 0.4328, 0.2523, 90)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 37.779, 1.0)],
-            span: 120, startT: 0.3
+            emitter: Pt(0.06, 0.6433), emitterAngle: -18.0452,
+            target: Pt(0.8446, 0.8427), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.1962, 0.3311, 0.226, 30.1862), Seg(0.7087, 0.7136, 0.1515, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 106.8398, 1.0)],
+            rotors: [Rotor(0.8577, 0.4868, 0.17, start: 0, solution: 1)],
+            span: 102.4294, startT: 0.35, solutionT: 0.6157
         ),
         RayonLevel(
             number: 21, world: 2,
-            emitter: Pt(0.06, 0.2988), emitterAngle: 28.4669,
-            target: Pt(0.815, 0.4994), targetRadius: 0.045,
-            mirrors: [Seg(0.8309, 0.4088, 0.1903, 24.671)],
-            walls: [Seg(0.4233, 0.7752, 0.2962, 0), Seg(0.1455, 0.6351, 0.2166, 90), Seg(0.678, 0.8572, 0.2228, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 126.2849, 1.0)],
-            span: 120, startT: 0.75
+            emitter: Pt(0.2426, 0.06), emitterAngle: 59.2759,
+            target: Pt(0.7063, 0.7033), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.8788, 0.1948, 0.1544, 0), Seg(0.6682, 0.3996, 0.1594, 50.4732)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 60.3452, 1.0)],
+            rotors: [Rotor(0.3765, 0.8276, 0.17, start: 3, solution: 1)],
+            span: 102.5419, startT: 0.5, solutionT: 0.2386
         ),
         RayonLevel(
             number: 22, world: 2,
-            emitter: Pt(0.2489, 0.06), emitterAngle: 64.8827,
-            target: Pt(0.3746, 0.1839), targetRadius: 0.045,
-            mirrors: [Seg(0.3258, 0.6117, 0.2206, 51.6848), Seg(0.584, 0.8031, 0.162, 5.717), Seg(0.7109, 0.3368, 0.2117, 75.0082)],
-            walls: [Seg(0.8862, 0.7282, 0.2935, 90), Seg(0.7792, 0.5821, 0.2062, 142.5783)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 35.9721, 1.0)],
-            span: 120, startT: 0.3
+            emitter: Pt(0.706, 0.94), emitterAngle: -115.1062,
+            target: Pt(0.2129, 0.511), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.8895, 0.1729, 0.2458, 90), Seg(0.8073, 0.6906, 0.1754, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 46.2466, 1.0)],
+            rotors: [Rotor(0.484, 0.2284, 0.17, start: 2, solution: 1), Rotor(0.1952, 0.2114, 0.17, start: 2, solution: 3)],
+            span: 93.8999, startT: 0.6, solutionT: 0.3143
         ),
         RayonLevel(
             number: 23, world: 2,
-            emitter: Pt(0.6548, 0.94), emitterAngle: -105.8139,
-            target: Pt(0.6934, 0.6955), targetRadius: 0.045,
-            mirrors: [Seg(0.3714, 0.2865, 0.1671, 149.3548), Seg(0.8475, 0.4525, 0.2231, 50.7152)],
-            walls: [Seg(0.7851, 0.7805, 0.1885, 171.1475), Seg(0.3375, 0.168, 0.2201, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 28.4236, 1.0)],
-            span: 120, startT: 0.5
+            emitter: Pt(0.2092, 0.06), emitterAngle: 56.4406,
+            target: Pt(0.8241, 0.5475), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.2076, 0.496, 0.1941, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 108.1306, 1.0)],
+            rotors: [Rotor(0.4583, 0.228, 0.17, start: 1, solution: 3), Rotor(0.7828, 0.2778, 0.17, start: 0, solution: 1)],
+            span: 96.4922, startT: 0.25, solutionT: 0.5254
         ),
         RayonLevel(
             number: 24, world: 2,
-            emitter: Pt(0.7813, 0.06), emitterAngle: 117.6752,
-            target: Pt(0.732, 0.6147), targetRadius: 0.045,
-            mirrors: [Seg(0.8561, 0.158, 0.2053, 5.2167), Seg(0.558, 0.7222, 0.1757, 22.3203)],
-            walls: [Seg(0.7598, 0.4095, 0.2576, 60.2985), Seg(0.1886, 0.7958, 0.1929, 90)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 72.6058, 1.0)],
-            span: 150, startT: 0.5
+            emitter: Pt(0.06, 0.42), emitterAngle: 11.6253,
+            target: Pt(0.813, 0.6119), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.4889, 0.3, 0.2509, 10.118), Seg(0.8913, 0.2654, 0.1673, 90), Seg(0.1172, 0.7733, 0.203, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 47.3604, 1.0)],
+            rotors: [Rotor(0.301, 0.6586, 0.17, start: 3, solution: 2), Rotor(0.5277, 0.8392, 0.17, start: 3, solution: 0)],
+            span: 92.0823, startT: 0.6, solutionT: 0.3204
         ),
         RayonLevel(
             number: 25, world: 2,
-            emitter: Pt(0.4267, 0.06), emitterAngle: 85.129,
-            target: Pt(0.7531, 0.8445), targetRadius: 0.045,
-            mirrors: [Seg(0.7895, 0.5962, 0.2024, 56.5457)],
-            walls: [Seg(0.1891, 0.3476, 0.2226, 0), Seg(0.8969, 0.861, 0.1966, 99.8454), Seg(0.2976, 0.8136, 0.2204, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 137.5197, 1.0)],
-            span: 140, startT: 0.4
+            emitter: Pt(0.3984, 0.94), emitterAngle: -75.7504,
+            target: Pt(0.7751, 0.6226), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.2343, 0.7998, 0.2961, 90), Seg(0.1756, 0.3009, 0.2258, 0), Seg(0.841, 0.8187, 0.1884, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 38.7291, 1.0)],
+            rotors: [Rotor(0.4789, 0.2176, 0.17, start: 0, solution: 3), Rotor(0.7464, 0.2376, 0.17, start: 0, solution: 1)],
+            span: 90.1656, startT: 0.35, solutionT: 0.6271
         ),
         RayonLevel(
             number: 26, world: 2,
-            emitter: Pt(0.5783, 0.06), emitterAngle: 103.1336,
-            target: Pt(0.746, 0.4102), targetRadius: 0.045,
-            mirrors: [Seg(0.4494, 0.2942, 0.1981, 135.5694)],
-            walls: [Seg(0.631, 0.7881, 0.2949, 91.8693), Seg(0.7697, 0.7151, 0.2074, 90)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 47.3547, 1.0)],
-            span: 150, startT: 0.5
+            emitter: Pt(0.06, 0.5143), emitterAngle: -1.6661,
+            target: Pt(0.8588, 0.6743), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.6824, 0.8125, 0.2891, 0), Seg(0.2281, 0.7989, 0.288, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 71.2522, 1.0)],
+            rotors: [Rotor(0.4192, 0.2403, 0.17, start: 0, solution: 3), Rotor(0.7565, 0.3451, 0.17, start: 2, solution: 1)],
+            span: 90.465, startT: 0.35, solutionT: 0.6004
         ),
         RayonLevel(
             number: 27, world: 2,
-            emitter: Pt(0.06, 0.4839), emitterAngle: 3.581,
-            target: Pt(0.3454, 0.7688), targetRadius: 0.045,
-            mirrors: [Seg(0.625, 0.7848, 0.1824, 115.021)],
-            walls: [Seg(0.8818, 0.6444, 0.1591, 90), Seg(0.2878, 0.2157, 0.2377, 45.4171), Seg(0.3308, 0.6594, 0.1923, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 177.7172, 1.0)],
-            span: 140, startT: 0.7
+            emitter: Pt(0.6619, 0.94), emitterAngle: -111.0558,
+            target: Pt(0.211, 0.5515), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.7953, 0.4529, 0.1421, 90), Seg(0.394, 0.8587, 0.1662, 68.7564)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 33.8481, 1.0)],
+            rotors: [Rotor(0.5291, 0.1973, 0.17, start: 3, solution: 1), Rotor(0.2424, 0.2249, 0.17, start: 0, solution: 3)],
+            span: 97.0943, startT: 0.75, solutionT: 0.4957
         ),
         RayonLevel(
             number: 28, world: 2,
-            emitter: Pt(0.06, 0.6916), emitterAngle: -21.0426,
-            target: Pt(0.6934, 0.5465), targetRadius: 0.045,
-            mirrors: [Seg(0.6776, 0.7902, 0.2368, 174.5413), Seg(0.8549, 0.6072, 0.1729, 68.5954)],
-            walls: [Seg(0.8317, 0.2351, 0.2076, 164.5678), Seg(0.1324, 0.3285, 0.1818, 65.9825)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 7.6364, 1.0)],
-            span: 140, startT: 0.5
+            emitter: Pt(0.5754, 0.94), emitterAngle: -99.7874,
+            target: Pt(0.1509, 0.4279), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.1864, 0.1494, 0.1775, 149.3636)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 54.0555, 1.0)],
+            rotors: [Rotor(0.7201, 0.3442, 0.17, start: 3, solution: 2), Rotor(0.4946, 0.1845, 0.17, start: 2, solution: 0)],
+            span: 92.456, startT: 0.35, solutionT: 0.6314
         ),
         RayonLevel(
             number: 29, world: 2,
-            emitter: Pt(0.7262, 0.06), emitterAngle: 113.5297,
-            target: Pt(0.3465, 0.6372), targetRadius: 0.045,
-            mirrors: [Seg(0.7127, 0.7397, 0.1717, 79.8641), Seg(0.1636, 0.545, 0.2376, 82.2773)],
-            walls: [Seg(0.5309, 0.7707, 0.1788, 87.2309), Seg(0.8612, 0.1792, 0.238, 86.9184)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 22.957, 1.0)],
-            span: 160, startT: 0.4
+            emitter: Pt(0.3233, 0.94), emitterAngle: -68.6417,
+            target: Pt(0.5165, 0.1749), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.7781, 0.2192, 0.2043, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 154.0358, 1.0)],
+            rotors: [Rotor(0.2223, 0.5289, 0.17, start: 3, solution: 1), Rotor(0.2564, 0.202, 0.17, start: 0, solution: 3)],
+            span: 103.1833, startT: 0.5, solutionT: 0.7611
         ),
         RayonLevel(
             number: 30, world: 2,
-            emitter: Pt(0.06, 0.7814), emitterAngle: -34.3109,
-            target: Pt(0.6639, 0.8345), targetRadius: 0.045,
-            mirrors: [Seg(0.3582, 0.362, 0.2115, 142.946), Seg(0.2351, 0.7021, 0.1744, 118.8515)],
-            walls: [Seg(0.4722, 0.8115, 0.1949, 162.5032), Seg(0.537, 0.1605, 0.1938, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.24, 112.6027, 1.0)],
-            span: 120, startT: 0.5
+            emitter: Pt(0.06, 0.5846), emitterAngle: -9.6114,
+            target: Pt(0.5404, 0.175), targetRadius: 0.05,
+            mirrors: [],
+            walls: [Seg(0.855, 0.2589, 0.1782, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 152.1734, 1.0)],
+            rotors: [Rotor(0.6624, 0.6871, 0.17, start: 2, solution: 0), Rotor(0.8236, 0.5013, 0.17, start: 3, solution: 2)],
+            span: 98.6458, startT: 0.75, solutionT: 0.4854
         ),
         RayonLevel(
             number: 31, world: 3,
-            emitter: Pt(0.676, 0.94), emitterAngle: -107.9877,
-            target: Pt(0.2164, 0.7403), targetRadius: 0.042,
-            mirrors: [],
-            walls: [Seg(0.3172, 0.2471, 0.1513, 90), Seg(0.6124, 0.3138, 0.2536, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 78.9771, 1.0), ControlMirror(0.5, 0.75, 0.2, 179.3809, 1.5)],
-            span: 140, startT: 0.45
+            emitter: Pt(0.4504, 0.06), emitterAngle: 84.1381,
+            target: Pt(0.1736, 0.2037), targetRadius: 0.046,
+            mirrors: [Seg(0.1985, 0.5369, 0.1807, 83.574), Seg(0.8349, 0.5267, 0.1514, 0)],
+            walls: [Seg(0.6994, 0.3331, 0.2169, 90), Seg(0.8154, 0.7687, 0.2269, 71.4626)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 55.4788, 1.0)],
+            rotors: [Rotor(0.5476, 0.8153, 0.17, start: 2, solution: 3), Rotor(0.2333, 0.7678, 0.17, start: 0, solution: 1)],
+            span: 91.2687, startT: 0.6, solutionT: 0.3139
         ),
         RayonLevel(
             number: 32, world: 3,
-            emitter: Pt(0.7642, 0.06), emitterAngle: 117.6463,
-            target: Pt(0.2364, 0.734), targetRadius: 0.042,
-            mirrors: [],
-            walls: [Seg(0.8959, 0.6939, 0.2397, 90), Seg(0.7588, 0.6642, 0.159, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 41.1414, 1.0), ControlMirror(0.5, 0.75, 0.2, 94.2652, 0.5)],
-            span: 160, startT: 0.6
+            emitter: Pt(0.06, 0.4142), emitterAngle: 10.6099,
+            target: Pt(0.3367, 0.1206), targetRadius: 0.046,
+            mirrors: [Seg(0.2301, 0.3406, 0.1523, 0)],
+            walls: [Seg(0.1599, 0.2489, 0.1716, 0), Seg(0.4002, 0.7375, 0.2175, 24.8927), Seg(0.3666, 0.8446, 0.1914, 0), Seg(0.7851, 0.7503, 0.2897, 16.569)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 165.5218, 1.0)],
+            rotors: [Rotor(0.7473, 0.5567, 0.17, start: 2, solution: 3), Rotor(0.6646, 0.1958, 0.17, start: 3, solution: 1)],
+            span: 92.7578, startT: 0.55, solutionT: 0.2754
         ),
         RayonLevel(
             number: 33, world: 3,
-            emitter: Pt(0.7411, 0.94), emitterAngle: -115.2286,
-            target: Pt(0.1404, 0.3101), targetRadius: 0.042,
-            mirrors: [Seg(0.3247, 0.5459, 0.2309, 94.318)],
-            walls: [Seg(0.7668, 0.5521, 0.2752, 90), Seg(0.3135, 0.8499, 0.1593, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 160.6199, 1.0), ControlMirror(0.5, 0.25, 0.2, 0.1899, 0.5)],
-            span: 140, startT: 0.2
+            emitter: Pt(0.3855, 0.94), emitterAngle: -75.4463,
+            target: Pt(0.1933, 0.1558), targetRadius: 0.046,
+            mirrors: [Seg(0.4225, 0.21, 0.1743, 7.6988), Seg(0.5528, 0.8202, 0.1614, 46.2786), Seg(0.2355, 0.8269, 0.1701, 0)],
+            walls: [Seg(0.7296, 0.8267, 0.2014, 90), Seg(0.1792, 0.6943, 0.1428, 90), Seg(0.6618, 0.7902, 0.197, 90), Seg(0.1858, 0.3995, 0.1901, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 101.5303, 1.0)],
+            rotors: [Rotor(0.7405, 0.5087, 0.17, start: 2, solution: 3), Rotor(0.73, 0.2212, 0.17, start: 3, solution: 1)],
+            span: 87.0848, startT: 0.75, solutionT: 0.4921
         ),
         RayonLevel(
             number: 34, world: 3,
-            emitter: Pt(0.06, 0.54), emitterAngle: -7.4693,
-            target: Pt(0.2582, 0.7098), targetRadius: 0.042,
-            mirrors: [Seg(0.7364, 0.2799, 0.1847, 57.1855)],
-            walls: [Seg(0.3016, 0.8864, 0.2163, 29.8777), Seg(0.1722, 0.3465, 0.1775, 55.9899), Seg(0.333, 0.2258, 0.1418, 0), Seg(0.8431, 0.5595, 0.2716, 90)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 86.507, 1.0), ControlMirror(0.5, 0.75, 0.2, 77.3822, 0.5)],
-            span: 160, startT: 0.2
+            emitter: Pt(0.94, 0.2674), emitterAngle: 153.4642,
+            target: Pt(0.5184, 0.8566), targetRadius: 0.046,
+            mirrors: [Seg(0.3437, 0.6875, 0.171, 48.9703), Seg(0.7543, 0.7086, 0.1672, 54.1199)],
+            walls: [Seg(0.7855, 0.5643, 0.1997, 90), Seg(0.7041, 0.2431, 0.2663, 0), Seg(0.8767, 0.7056, 0.2741, 74.9647)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 166.5518, 1.0)],
+            rotors: [Rotor(0.3414, 0.2826, 0.17, start: 1, solution: 0), Rotor(0.1949, 0.4835, 0.17, start: 1, solution: 2)],
+            span: 93.6793, startT: 0.55, solutionT: 0.2825
         ),
         RayonLevel(
             number: 35, world: 3,
-            emitter: Pt(0.94, 0.3311), emitterAngle: 163.2976,
-            target: Pt(0.2303, 0.5932), targetRadius: 0.042,
-            mirrors: [Seg(0.151, 0.7389, 0.2025, 33.0859)],
-            walls: [Seg(0.8336, 0.7154, 0.1869, 0), Seg(0.8189, 0.2824, 0.1522, 90), Seg(0.5721, 0.814, 0.2176, 0), Seg(0.4336, 0.1227, 0.2949, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 170.7928, 1.0), ControlMirror(0.25, 0.3399, 0.2, 145.2285, 0.5)],
-            span: 140, startT: 0.5
+            emitter: Pt(0.06, 0.1786), emitterAngle: 34.6533,
+            target: Pt(0.5903, 0.7617), targetRadius: 0.046,
+            mirrors: [Seg(0.2638, 0.6439, 0.1871, 68.2381)],
+            walls: [Seg(0.1543, 0.7725, 0.1811, 0), Seg(0.8437, 0.7304, 0.1947, 164.848), Seg(0.2604, 0.8757, 0.1542, 0), Seg(0.3607, 0.1674, 0.2381, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 112.8062, 1.0)],
+            rotors: [Rotor(0.6968, 0.2764, 0.17, start: 2, solution: 0), Rotor(0.857, 0.4585, 0.17, start: 0, solution: 2)],
+            span: 89.8127, startT: 0.4, solutionT: 0.6654
         ),
         RayonLevel(
             number: 36, world: 3,
-            emitter: Pt(0.1806, 0.06), emitterAngle: 58.4837,
-            target: Pt(0.1514, 0.5414), targetRadius: 0.042,
-            mirrors: [Seg(0.6372, 0.8275, 0.1975, 156.9322), Seg(0.3127, 0.8372, 0.1945, 27.0692)],
-            walls: [Seg(0.4626, 0.825, 0.1635, 90), Seg(0.8775, 0.7627, 0.156, 0), Seg(0.4586, 0.6815, 0.2121, 6.6818), Seg(0.1847, 0.3739, 0.2448, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 120.6874, 1.0), ControlMirror(0.75, 0.5556, 0.2, 130.9652, -0.5)],
-            span: 150, startT: 0.4
+            emitter: Pt(0.94, 0.1581), emitterAngle: 142.3007,
+            target: Pt(0.4273, 0.7698), targetRadius: 0.046,
+            mirrors: [Seg(0.1546, 0.8279, 0.1801, 99.2652), Seg(0.1216, 0.5496, 0.161, 0)],
+            walls: [Seg(0.5515, 0.1707, 0.2861, 64.8517), Seg(0.2369, 0.769, 0.2669, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 17.7043, 1.0)],
+            rotors: [Rotor(0.8212, 0.4864, 0.17, start: 2, solution: 1), Rotor(0.8099, 0.7536, 0.17, start: 0, solution: 3)],
+            span: 94.3257, startT: 0.3, solutionT: 0.5543
         ),
         RayonLevel(
             number: 37, world: 3,
-            emitter: Pt(0.8037, 0.06), emitterAngle: 121.0675,
-            target: Pt(0.336, 0.3672), targetRadius: 0.042,
-            mirrors: [Seg(0.4035, 0.1391, 0.2272, 4.1667)],
-            walls: [Seg(0.74, 0.5168, 0.2285, 90), Seg(0.2666, 0.8589, 0.1415, 90)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 167.658, 1.0), ControlMirror(0.5, 0.75, 0.2, 46.6693, 0.5)],
-            span: 120, startT: 0.5
+            emitter: Pt(0.06, 0.7675), emitterAngle: -32.4427,
+            target: Pt(0.75, 0.8674), targetRadius: 0.046,
+            mirrors: [],
+            walls: [Seg(0.1285, 0.1877, 0.2053, 90), Seg(0.7093, 0.3191, 0.2952, 90), Seg(0.8201, 0.2503, 0.2269, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 58.2154, 1.0)],
+            rotors: [Rotor(0.2741, 0.4053, 0.17, start: 0, solution: 3), Rotor(0.4076, 0.7238, 0.17, start: 3, solution: 1)],
+            span: 87.8791, startT: 0.6, solutionT: 0.3021
         ),
         RayonLevel(
             number: 38, world: 3,
-            emitter: Pt(0.06, 0.4771), emitterAngle: 6.2362,
-            target: Pt(0.8228, 0.5067), targetRadius: 0.042,
-            mirrors: [Seg(0.1339, 0.2915, 0.1642, 154.9969)],
-            walls: [Seg(0.7786, 0.7085, 0.1902, 90), Seg(0.198, 0.1607, 0.2119, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 107.414, 1.0), ControlMirror(0.75, 0.3156, 0.2, 47.3467, -0.5)],
-            span: 120, startT: 0.75
+            emitter: Pt(0.06, 0.4645), emitterAngle: 4.2238,
+            target: Pt(0.8723, 0.3288), targetRadius: 0.046,
+            mirrors: [Seg(0.7213, 0.8056, 0.1778, 90)],
+            walls: [Seg(0.5117, 0.7727, 0.2173, 0), Seg(0.8327, 0.7952, 0.1876, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 46.4113, 1.0)],
+            rotors: [Rotor(0.2647, 0.3498, 0.17, start: 1, solution: 2), Rotor(0.585, 0.1453, 0.17, start: 3, solution: 0)],
+            span: 91.6971, startT: 0.4, solutionT: 0.675
         ),
         RayonLevel(
             number: 39, world: 3,
-            emitter: Pt(0.6223, 0.94), emitterAngle: -107.8796,
-            target: Pt(0.4537, 0.173), targetRadius: 0.042,
-            mirrors: [Seg(0.2579, 0.2363, 0.1876, 98.5881)],
-            walls: [Seg(0.7973, 0.7959, 0.1949, 90), Seg(0.8167, 0.4538, 0.1612, 173.9782)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 120.1581, 1.0), ControlMirror(0.25, 0.6624, 0.2, 79.4467, 0.5)],
-            span: 140, startT: 0.5
+            emitter: Pt(0.8061, 0.94), emitterAngle: -124.7924,
+            target: Pt(0.4491, 0.1951), targetRadius: 0.046,
+            mirrors: [Seg(0.2681, 0.6276, 0.1811, 0)],
+            walls: [Seg(0.2198, 0.2589, 0.2998, 90), Seg(0.3819, 0.8069, 0.1594, 90), Seg(0.1996, 0.7141, 0.1642, 15.3202)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 76.4452, 1.0)],
+            rotors: [Rotor(0.8262, 0.5409, 0.17, start: 0, solution: 3), Rotor(0.7882, 0.2377, 0.17, start: 3, solution: 1)],
+            span: 91.6956, startT: 0.75, solutionT: 0.4879
         ),
         RayonLevel(
             number: 40, world: 3,
-            emitter: Pt(0.94, 0.5028), emitterAngle: -180.2934,
-            target: Pt(0.2326, 0.756), targetRadius: 0.042,
-            mirrors: [Seg(0.7781, 0.8184, 0.1612, 2.9688)],
-            walls: [Seg(0.2101, 0.4408, 0.2419, 0), Seg(0.4141, 0.2676, 0.1771, 3.2312)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 34.2511, 1.0), ControlMirror(0.5, 0.75, 0.2, 177.5332, -0.5)],
-            span: 120, startT: 0.5
+            emitter: Pt(0.8289, 0.94), emitterAngle: -127.192,
+            target: Pt(0.1547, 0.329), targetRadius: 0.046,
+            mirrors: [Seg(0.2329, 0.8534, 0.1743, 71.4002)],
+            walls: [Seg(0.2421, 0.5866, 0.2704, 90), Seg(0.3801, 0.7609, 0.1475, 115.9234), Seg(0.7755, 0.1716, 0.1554, 48.1335), Seg(0.1092, 0.8046, 0.2754, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 95.5415, 1.0)],
+            rotors: [Rotor(0.7399, 0.6141, 0.17, start: 0, solution: 3), Rotor(0.6031, 0.3265, 0.17, start: 3, solution: 1), Rotor(0.3815, 0.2211, 0.17, start: 2, solution: 0)],
+            span: 85.6704, startT: 0.65, solutionT: 0.3907
         ),
         RayonLevel(
             number: 41, world: 3,
-            emitter: Pt(0.94, 0.7458), emitterAngle: -152.8143,
-            target: Pt(0.3019, 0.2663), targetRadius: 0.042,
-            mirrors: [Seg(0.1747, 0.6912, 0.1736, 17.5375)],
-            walls: [Seg(0.8308, 0.3594, 0.2286, 0), Seg(0.7193, 0.7763, 0.2867, 90)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 34.5907, 1.0), ControlMirror(0.5, 0.25, 0.2, 50.18, -0.5)],
-            span: 150, startT: 0.5
+            emitter: Pt(0.06, 0.7876), emitterAngle: -32.9658,
+            target: Pt(0.1317, 0.2856), targetRadius: 0.046,
+            mirrors: [Seg(0.4765, 0.8218, 0.1738, 90)],
+            walls: [Seg(0.7733, 0.8813, 0.2314, 152.2266), Seg(0.1583, 0.464, 0.1621, 151.0613), Seg(0.803, 0.2894, 0.2733, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 153.9718, 1.0)],
+            rotors: [Rotor(0.7234, 0.598, 0.17, start: 2, solution: 3), Rotor(0.5888, 0.2911, 0.17, start: 3, solution: 1), Rotor(0.354, 0.1881, 0.17, start: 2, solution: 0)],
+            span: 85.0277, startT: 0.55, solutionT: 0.2532
         ),
         RayonLevel(
             number: 42, world: 3,
-            emitter: Pt(0.94, 0.1986), emitterAngle: 141.9795,
-            target: Pt(0.2216, 0.6082), targetRadius: 0.042,
-            mirrors: [Seg(0.1419, 0.4647, 0.2348, 139.8607)],
-            walls: [Seg(0.5768, 0.8605, 0.1628, 90), Seg(0.775, 0.243, 0.1853, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 120.0709, 1.0), ControlMirror(0.75, 0.664, 0.2, 1.7163, -1.0)],
-            span: 150, startT: 0.6
+            emitter: Pt(0.411, 0.06), emitterAngle: 79.2828,
+            target: Pt(0.2946, 0.8636), targetRadius: 0.046,
+            mirrors: [],
+            walls: [Seg(0.7784, 0.2546, 0.2656, 90), Seg(0.7613, 0.7247, 0.283, 55.3155), Seg(0.5531, 0.6924, 0.2145, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 134.9962, 1.0)],
+            rotors: [Rotor(0.6001, 0.2878, 0.17, start: 2, solution: 1), Rotor(0.3094, 0.4249, 0.17, start: 1, solution: 3), Rotor(0.1985, 0.6599, 0.17, start: 1, solution: 2)],
+            span: 91.627, startT: 0.3, solutionT: 0.5729
         ),
         RayonLevel(
             number: 43, world: 3,
-            emitter: Pt(0.06, 0.1854), emitterAngle: 33.9604,
-            target: Pt(0.2633, 0.6746), targetRadius: 0.042,
-            mirrors: [],
-            walls: [Seg(0.7349, 0.2491, 0.1989, 0), Seg(0.1436, 0.836, 0.1489, 16.8027), Seg(0.8224, 0.5619, 0.283, 118.661), Seg(0.5749, 0.8191, 0.2654, 164.3658)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 93.5317, 1.0), ControlMirror(0.25, 0.4911, 0.2, 151.7174, -0.5)],
-            span: 160, startT: 0.5
+            emitter: Pt(0.06, 0.666), emitterAngle: -21.3223,
+            target: Pt(0.1878, 0.3211), targetRadius: 0.046,
+            mirrors: [Seg(0.1277, 0.1832, 0.1531, 0)],
+            walls: [Seg(0.3883, 0.8951, 0.2041, 161.0363), Seg(0.8965, 0.8015, 0.2738, 110.1388)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 149.8022, 1.0)],
+            rotors: [Rotor(0.731, 0.5943, 0.17, start: 1, solution: 3), Rotor(0.6209, 0.3245, 0.17, start: 2, solution: 1), Rotor(0.4002, 0.2344, 0.17, start: 3, solution: 0)],
+            span: 87.145, startT: 0.65, solutionT: 0.3507
         ),
         RayonLevel(
             number: 44, world: 3,
-            emitter: Pt(0.94, 0.278), emitterAngle: 149.5455,
-            target: Pt(0.7083, 0.5874), targetRadius: 0.042,
-            mirrors: [],
-            walls: [Seg(0.2232, 0.2939, 0.2249, 90), Seg(0.8099, 0.7108, 0.1563, 0)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 86.2078, 1.0), ControlMirror(0.5, 0.75, 0.2, 50.2331, -0.5)],
-            span: 140, startT: 0.55
+            emitter: Pt(0.486, 0.94), emitterAngle: -88.2284,
+            target: Pt(0.8708, 0.3464), targetRadius: 0.046,
+            mirrors: [Seg(0.3681, 0.1352, 0.1969, 0)],
+            walls: [Seg(0.8073, 0.757, 0.2054, 90), Seg(0.7239, 0.6615, 0.2762, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 149.5983, 1.0)],
+            rotors: [Rotor(0.235, 0.6307, 0.17, start: 0, solution: 1), Rotor(0.3845, 0.3277, 0.17, start: 2, solution: 3), Rotor(0.6086, 0.2171, 0.17, start: 3, solution: 0)],
+            span: 86.094, startT: 0.45, solutionT: 0.7336
         ),
         RayonLevel(
             number: 45, world: 3,
-            emitter: Pt(0.7434, 0.06), emitterAngle: 114.1673,
-            target: Pt(0.5338, 0.2265), targetRadius: 0.042,
-            mirrors: [Seg(0.8495, 0.6786, 0.2305, 57.6165)],
-            walls: [Seg(0.5718, 0.1424, 0.1702, 18.7378), Seg(0.1764, 0.2588, 0.2685, 90)],
-            controls: [ControlMirror(0.5, 0.5, 0.22, 20.6558, 1.0), ControlMirror(0.5, 0.75, 0.2, 56.3519, 1.5)],
-            span: 120, startT: 0.3
+            emitter: Pt(0.06, 0.4807), emitterAngle: 2.5838,
+            target: Pt(0.1935, 0.3091), targetRadius: 0.046,
+            mirrors: [Seg(0.8512, 0.212, 0.1758, 90)],
+            walls: [Seg(0.2915, 0.7909, 0.1828, 0), Seg(0.4944, 0.1521, 0.2469, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 127.5437, 1.0)],
+            rotors: [Rotor(0.7819, 0.6061, 0.17, start: 1, solution: 2), Rotor(0.5273, 0.7019, 0.17, start: 3, solution: 0), Rotor(0.3107, 0.6204, 0.17, start: 3, solution: 1)],
+            span: 88.9536, startT: 0.45, solutionT: 0.7204
+        ),
+        RayonLevel(
+            number: 46, world: 4,
+            emitter: Pt(0.94, 0.2742), emitterAngle: 151.7928,
+            target: Pt(0.841, 0.5928), targetRadius: 0.046,
+            mirrors: [],
+            walls: [Seg(0.7092, 0.1162, 0.2244, 0), Seg(0.8253, 0.8727, 0.203, 147.966), Seg(0.2413, 0.2416, 0.1488, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 119.0628, 1.0), ControlMirror(0.254, 0.662, 0.2, 50.0001, 1.4)],
+            rotors: [Rotor(0.5029, 0.8549, 0.17, start: 1, solution: 0)],
+            span: 99.2726, startT: 0.55, solutionT: 0.2532
+        ),
+        RayonLevel(
+            number: 47, world: 4,
+            emitter: Pt(0.7878, 0.94), emitterAngle: -122.4624,
+            target: Pt(0.5084, 0.8166), targetRadius: 0.046,
+            mirrors: [Seg(0.8404, 0.5269, 0.1983, 0)],
+            walls: [Seg(0.8991, 0.2091, 0.261, 90), Seg(0.8958, 0.7485, 0.2266, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 8.9442, 1.0), ControlMirror(0.2647, 0.7573, 0.2, 71.6603, -1.0)],
+            rotors: [Rotor(0.2244, 0.4624, 0.17, start: 1, solution: 3)],
+            span: 94.6355, startT: 0.55, solutionT: 0.2539
+        ),
+        RayonLevel(
+            number: 48, world: 4,
+            emitter: Pt(0.5527, 0.94), emitterAngle: -97.9019,
+            target: Pt(0.3609, 0.2876), targetRadius: 0.046,
+            mirrors: [Seg(0.8387, 0.85, 0.167, 0)],
+            walls: [Seg(0.7371, 0.237, 0.1523, 90), Seg(0.2062, 0.3046, 0.2966, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 123.3515, 1.0), ControlMirror(0.7276, 0.6552, 0.2, 89.9636, 0.6)],
+            rotors: [Rotor(0.3292, 0.6869, 0.17, start: 2, solution: 1)],
+            span: 91.7078, startT: 0.55, solutionT: 0.2664
+        ),
+        RayonLevel(
+            number: 49, world: 4,
+            emitter: Pt(0.6252, 0.94), emitterAngle: -106.3202,
+            target: Pt(0.3648, 0.2123), targetRadius: 0.046,
+            mirrors: [Seg(0.2119, 0.1348, 0.1745, 90)],
+            walls: [Seg(0.4005, 0.7615, 0.2124, 0), Seg(0.1812, 0.6268, 0.2949, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 112.8316, 1.0), ControlMirror(0.7835, 0.6312, 0.2, 132.1962, 0.6)],
+            rotors: [Rotor(0.7929, 0.2028, 0.17, start: 3, solution: 1)],
+            span: 90.0321, startT: 0.55, solutionT: 0.2918
+        ),
+        RayonLevel(
+            number: 50, world: 4,
+            emitter: Pt(0.06, 0.3635), emitterAngle: 18.5347,
+            target: Pt(0.3139, 0.2212), targetRadius: 0.046,
+            mirrors: [],
+            walls: [Seg(0.123, 0.7156, 0.2619, 90), Seg(0.237, 0.6646, 0.2791, 115.7421)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 162.8051, 1.0), ControlMirror(0.7501, 0.7124, 0.2, 117.8243, 0.6)],
+            rotors: [Rotor(0.6185, 0.3245, 0.17, start: 0, solution: 1)],
+            span: 99.0474, startT: 0.75, solutionT: 0.4754
+        ),
+        RayonLevel(
+            number: 51, world: 4,
+            emitter: Pt(0.06, 0.4854), emitterAngle: 2.5256,
+            target: Pt(0.7517, 0.7227), targetRadius: 0.046,
+            mirrors: [Seg(0.193, 0.258, 0.1901, 156.3207)],
+            walls: [Seg(0.319, 0.1299, 0.2146, 0), Seg(0.7777, 0.8972, 0.1966, 176.6525), Seg(0.2839, 0.7827, 0.1927, 123.5791)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 90.9473, 1.0), ControlMirror(0.8576, 0.4304, 0.2, 119.4803, -0.6)],
+            rotors: [Rotor(0.7063, 0.2391, 0.17, start: 3, solution: 0)],
+            span: 91.4482, startT: 0.45, solutionT: 0.7075
+        ),
+        RayonLevel(
+            number: 52, world: 4,
+            emitter: Pt(0.6918, 0.06), emitterAngle: 112.9456,
+            target: Pt(0.6428, 0.7486), targetRadius: 0.046,
+            mirrors: [],
+            walls: [Seg(0.8565, 0.3955, 0.2549, 90), Seg(0.6443, 0.8746, 0.2458, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 131.032, 1.0), ControlMirror(0.2997, 0.7772, 0.2, 58.061, -1.0)],
+            rotors: [Rotor(0.1453, 0.3666, 0.17, start: 1, solution: 3)],
+            span: 90.9118, startT: 0.55, solutionT: 0.2811
+        ),
+        RayonLevel(
+            number: 53, world: 4,
+            emitter: Pt(0.6434, 0.06), emitterAngle: 107.97,
+            target: Pt(0.1746, 0.1993), targetRadius: 0.046,
+            mirrors: [],
+            walls: [Seg(0.8911, 0.6221, 0.2266, 90), Seg(0.7856, 0.7096, 0.185, 110.5742), Seg(0.7679, 0.159, 0.2229, 90)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 31.6239, 1.0), ControlMirror(0.2624, 0.4742, 0.2, 39.3938, 0.6)],
+            rotors: [Rotor(0.5414, 0.8559, 0.17, start: 2, solution: 3), Rotor(0.3036, 0.8282, 0.17, start: 3, solution: 1)],
+            span: 94.8005, startT: 0.4, solutionT: 0.665
+        ),
+        RayonLevel(
+            number: 54, world: 4,
+            emitter: Pt(0.7464, 0.94), emitterAngle: -118.2648,
+            target: Pt(0.1751, 0.1558), targetRadius: 0.046,
+            mirrors: [Seg(0.5329, 0.7789, 0.1656, 90)],
+            walls: [Seg(0.3479, 0.8452, 0.198, 0), Seg(0.7687, 0.1454, 0.2796, 3.2097), Seg(0.8272, 0.7875, 0.2254, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 62.7674, 1.0), ControlMirror(0.4648, 0.2871, 0.2, 108.134, 1.4)],
+            rotors: [Rotor(0.7669, 0.5643, 0.17, start: 0, solution: 3), Rotor(0.7145, 0.3472, 0.17, start: 3, solution: 1)],
+            span: 99.1353, startT: 0.4, solutionT: 0.6675
+        ),
+        RayonLevel(
+            number: 55, world: 4,
+            emitter: Pt(0.06, 0.6244), emitterAngle: -16.0398,
+            target: Pt(0.1258, 0.8407), targetRadius: 0.046,
+            mirrors: [],
+            walls: [Seg(0.7755, 0.2159, 0.2797, 51.344), Seg(0.2297, 0.3634, 0.2416, 129.0626)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 110.7951, 1.0), ControlMirror(0.7953, 0.6936, 0.2, 44.8285, 0.6)],
+            rotors: [Rotor(0.5345, 0.8455, 0.17, start: 2, solution: 0), Rotor(0.326, 0.7241, 0.17, start: 1, solution: 0)],
+            span: 99.8664, startT: 0.5, solutionT: 0.7782
+        ),
+        RayonLevel(
+            number: 56, world: 4,
+            emitter: Pt(0.06, 0.7253), emitterAngle: -28.51,
+            target: Pt(0.841, 0.7335), targetRadius: 0.046,
+            mirrors: [],
+            walls: [Seg(0.4068, 0.1495, 0.2007, 90), Seg(0.7076, 0.1918, 0.2736, 90), Seg(0.1983, 0.8811, 0.1877, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 43.1517, 1.0), ControlMirror(0.1935, 0.4136, 0.2, 104.2675, 0.6)],
+            rotors: [Rotor(0.3526, 0.7049, 0.17, start: 0, solution: 1), Rotor(0.623, 0.8526, 0.17, start: 2, solution: 0)],
+            span: 92.8101, startT: 0.7, solutionT: 0.4268
+        ),
+        RayonLevel(
+            number: 57, world: 4,
+            emitter: Pt(0.7321, 0.06), emitterAngle: 119.0507,
+            target: Pt(0.1261, 0.3585), targetRadius: 0.046,
+            mirrors: [Seg(0.3013, 0.1809, 0.1619, 0)],
+            walls: [Seg(0.8281, 0.3899, 0.1938, 0), Seg(0.4084, 0.2635, 0.2997, 0), Seg(0.2505, 0.8432, 0.2606, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 7.7742, 1.0), ControlMirror(0.7905, 0.6741, 0.2, 55.5534, 0.6)],
+            rotors: [Rotor(0.5456, 0.7592, 0.17, start: 1, solution: 0), Rotor(0.2269, 0.6484, 0.17, start: 0, solution: 1)],
+            span: 99.9925, startT: 0.4, solutionT: 0.6782
+        ),
+        RayonLevel(
+            number: 58, world: 4,
+            emitter: Pt(0.4526, 0.06), emitterAngle: 84.8772,
+            target: Pt(0.5968, 0.7188), targetRadius: 0.046,
+            mirrors: [Seg(0.8502, 0.3358, 0.1889, 0)],
+            walls: [Seg(0.7424, 0.4912, 0.2113, 90), Seg(0.847, 0.4919, 0.1989, 74.7695), Seg(0.5894, 0.8518, 0.1726, 0)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 124.1894, 1.0), ControlMirror(0.3629, 0.7001, 0.2, 160.0901, 1.4)],
+            rotors: [Rotor(0.329, 0.2714, 0.17, start: 2, solution: 0), Rotor(0.1857, 0.4631, 0.17, start: 3, solution: 2)],
+            span: 95.8916, startT: 0.65, solutionT: 0.3668
+        ),
+        RayonLevel(
+            number: 59, world: 4,
+            emitter: Pt(0.06, 0.3047), emitterAngle: 24.4586,
+            target: Pt(0.712, 0.8577), targetRadius: 0.046,
+            mirrors: [Seg(0.1383, 0.8592, 0.1673, 0)],
+            walls: [Seg(0.4784, 0.8547, 0.1925, 0), Seg(0.2266, 0.6922, 0.2098, 0), Seg(0.6653, 0.1126, 0.143, 144.094)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 65.8801, 1.0), ControlMirror(0.6585, 0.3353, 0.2, 85.7619, -0.6)],
+            rotors: [Rotor(0.409, 0.246, 0.17, start: 2, solution: 3), Rotor(0.8014, 0.6566, 0.17, start: 0, solution: 2)],
+            span: 99.1251, startT: 0.45, solutionT: 0.7225
+        ),
+        RayonLevel(
+            number: 60, world: 4,
+            emitter: Pt(0.94, 0.7874), emitterAngle: -148.2101,
+            target: Pt(0.29, 0.3999), targetRadius: 0.046,
+            mirrors: [Seg(0.7964, 0.8956, 0.1892, 0)],
+            walls: [Seg(0.2932, 0.1643, 0.1522, 90), Seg(0.1743, 0.8171, 0.2599, 147.7355)],
+            controls: [ControlMirror(0.5, 0.5, 0.24, 84.8985, 1.0), ControlMirror(0.4837, 0.1721, 0.2, 144.0329, 0.6)],
+            rotors: [Rotor(0.802, 0.5385, 0.17, start: 0, solution: 3), Rotor(0.7598, 0.2073, 0.17, start: 0, solution: 1)],
+            span: 94.8025, startT: 0.55, solutionT: 0.2561
         )
     ]
 }

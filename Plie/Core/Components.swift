@@ -12,6 +12,7 @@ enum Theme {
     static let gold = Color(hex: 0xFFC53D)
     static let sun = Color(hex: 0xFF7A2F)
     static let coral = Color(hex: 0xFF5C4D)
+    static let paint = Color(hex: 0xFF4F9A)
     static let go = Color(hex: 0x23C46B)
     static let stop = Color(hex: 0xE8343F)
     static let muted = Color.white.opacity(0.62)

@@ -20,16 +20,16 @@ struct RayonLevelsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     Text(DuoSupport.apisAvailable
-                         ? "Plie ton iPhone Duo pour faire tourner le miroir bleu. Garde le laser sur la cible pour valider."
-                         : "Glisse ton doigt pour faire tourner le miroir bleu. Garde le laser sur la cible pour valider.")
+                         ? "Plie ton iPhone Duo pour faire tourner le miroir bleu, touche les miroirs ronds pour les faire pivoter. Garde le laser sur la cible pour valider."
+                         : "Glisse ton doigt pour faire tourner le miroir bleu, touche les miroirs ronds pour les faire pivoter. Garde le laser sur la cible pour valider.")
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.muted)
 
-                    ForEach(1...3, id: \.self) { world in
+                    ForEach(1...RayonLevel.worldCount, id: \.self) { world in
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 SectionTitle(text: "Monde \(world) · \(RayonLevel.worldName(world))")
-                                if world > 1 && !store.ownsPass {
+                                if RayonLevel.all.contains(where: { $0.world == world && app.rayonNeedsPass($0.number, hasPass: store.ownsPass) }) {
                                     Image(systemName: "crown.fill")
                                         .foregroundStyle(Theme.gold)
                                 }
@@ -93,12 +93,39 @@ final class RayonSession {
     var elapsed: Double = 0
     var result: RayonEngine.Result
     var hingeDegrees: Double?
+    /// Nombre de quarts de tour (45°) de chaque pivot depuis l'angle 0. Ne fait qu'augmenter.
+    var rotorSteps: [Int]
+    /// Angles affichés, qui rejoignent les angles réels en douceur.
+    var rotorAngles: [Double]
+    var taps = 0
 
     init(level: RayonLevel) {
         self.level = level
         self.t = level.startT
         self.targetT = level.startT
-        self.result = RayonEngine.trace(level, t: level.startT)
+        self.rotorSteps = level.rotors.map(\.start)
+        self.rotorAngles = level.startRotorAngles
+        self.result = RayonEngine.trace(level, t: level.startT, rotorAngles: level.startRotorAngles)
+    }
+
+    func tapRotor(_ index: Int) {
+        guard !solved, rotorSteps.indices.contains(index) else { return }
+        rotorSteps[index] += 1
+        taps += 1
+        Haptics.tap()
+        SoundPlayer.shared.play(.notch, volume: 0.7)
+    }
+
+    /// Pivot sous le doigt (coordonnées du plateau, de 0 à 1), s'il y en a un.
+    func rotorIndex(at point: Pt) -> Int? {
+        var best: (index: Int, distance: Double)?
+        for (index, rotor) in level.rotors.enumerated() {
+            let d = ((rotor.cx - point.x) * (rotor.cx - point.x) + (rotor.cy - point.y) * (rotor.cy - point.y)).squareRoot()
+            if d <= max(rotor.length / 2 + 0.03, 0.09), best == nil || d < best!.distance {
+                best = (index, d)
+            }
+        }
+        return best?.index
     }
 
     /// Avance d'une image : le miroir suit la charnière en douceur, et on mesure le temps passé sur la cible.
@@ -107,9 +134,21 @@ final class RayonSession {
         elapsed += dt
         let follow = min(1, dt * 16)
         let next = t + (targetT - t) * follow
+        var changed = false
         if abs(next - t) > 0.00002 {
             t = next
-            let newResult = RayonEngine.trace(level, t: t)
+            changed = true
+        }
+        for index in rotorAngles.indices {
+            let goal = Double(rotorSteps[index]) * Rotor.stepDegrees
+            let gap = goal - rotorAngles[index]
+            if abs(gap) > 0.01 {
+                rotorAngles[index] = abs(gap) < 0.6 ? goal : rotorAngles[index] + gap * min(1, dt * 18)
+                changed = true
+            }
+        }
+        if changed {
+            let newResult = RayonEngine.trace(level, t: t, rotorAngles: rotorAngles)
             if newResult.hit && !result.hit {
                 Haptics.tap()
                 SoundPlayer.shared.play(.beam, volume: 0.6)
@@ -139,6 +178,9 @@ struct RayonPlayView: View {
     @State private var recorded = false
     @State private var hingeBaseline: Double?
     @State private var hingeActive = false
+    @State private var touchedRotor: Int?
+    @State private var touchDecided = false
+    @State private var showTip = true
 
     private let ticker = Timer.publish(every: 1.0 / 60.0, on: .main, in: .common).autoconnect()
 
@@ -168,12 +210,57 @@ struct RayonPlayView: View {
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged { value in
+                                let originX = (proxy.size.width - side) / 2
+                                let originY = (proxy.size.height - side) / 2
+                                if !touchDecided {
+                                    touchDecided = true
+                                    let start = Pt(Double((value.startLocation.x - originX) / side),
+                                                   Double((value.startLocation.y - originY) / side))
+                                    touchedRotor = session.rotorIndex(at: start)
+                                }
+                                // Un doigt posé sur un pivot sert à le tourner, pas à viser.
+                                guard touchedRotor == nil else { return }
                                 if dragStartT == nil { dragStartT = session.targetT }
                                 let delta = Double(value.translation.width + value.translation.height * 0.35) / Double(side) * 0.9
                                 session.targetT = min(1, max(0, (dragStartT ?? 0) + delta))
                             }
-                            .onEnded { _ in dragStartT = nil }
+                            .onEnded { value in
+                                if let rotor = touchedRotor,
+                                   abs(value.translation.width) < 24, abs(value.translation.height) < 24 {
+                                    session.tapRotor(rotor)
+                                    showTip = false
+                                }
+                                touchedRotor = nil
+                                touchDecided = false
+                                dragStartT = nil
+                            }
                     )
+                    .overlay(alignment: .top) {
+                        if showTip, let tip = session.level.tip {
+                            HStack(alignment: .top, spacing: 10) {
+                                Image(systemName: "lightbulb.fill")
+                                    .foregroundStyle(Theme.gold)
+                                Text(tip)
+                                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Spacer(minLength: 0)
+                                Button {
+                                    showTip = false
+                                } label: {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 13, weight: .bold))
+                                        .foregroundStyle(Theme.muted)
+                                        .frame(width: 28, height: 28)
+                                }
+                                .accessibilityLabel("Masquer le conseil")
+                            }
+                            .foregroundStyle(.white)
+                            .padding(12)
+                            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.cardHigh.opacity(0.96)))
+                            .frame(maxWidth: min(side, 520))
+                            .padding(.top, 6)
+                        }
+                    }
             }
 
             controlHint
@@ -254,12 +341,14 @@ struct RayonPlayView: View {
                     .foregroundStyle(Theme.laser)
                 Text("Dans le mille !")
                     .font(.plie(34))
-                Text("Niveau \(number) en \(formatSeconds(session.elapsed))")
+                Text(session.level.rotors.isEmpty
+                     ? "Niveau \(number) en \(formatSeconds(session.elapsed))"
+                     : "Niveau \(number) en \(formatSeconds(session.elapsed)) · \(session.taps) tap\(session.taps > 1 ? "s" : "")")
                     .font(.plie(17, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                 if let next = nextNumber {
                     if app.rayonNeedsPass(next, hasPass: store.ownsPass) {
-                        Text("Le monde 2 t'attend : 30 niveaux de plus avec le Pass Plié.")
+                        Text("La suite t'attend : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus avec le Pass Plié.")
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Theme.muted)
@@ -296,6 +385,7 @@ struct RayonBoard: View {
         let t = session.t
         let result = session.result
         let hold = session.hold
+        let rotorAngles = session.rotorAngles
 
         Canvas { context, size in
             let side = min(size.width, size.height)
@@ -353,6 +443,39 @@ struct RayonBoard: View {
                                style: StrokeStyle(lineWidth: side * 0.016, lineCap: .round))
                 context.fill(Path(ellipseIn: CGRect(x: center.x - 5, y: center.y - 5, width: 10, height: 10)),
                              with: .color(.white))
+            }
+
+            // Pivots : un disque qu'on touche, un miroir qui tourne de 45°
+            for (index, r) in level.rotors.enumerated() {
+                let angle = index < rotorAngles.count ? rotorAngles[index] : 0
+                let center = point(Pt(r.cx, r.cy))
+                let radius = r.length * side / 2 + side * 0.012
+                let disk = Path(ellipseIn: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
+                context.fill(disk, with: .color(Color(hex: 0x262B4D)))
+                context.stroke(disk, with: .color(Theme.gold.opacity(0.55)), lineWidth: max(1.5, side * 0.004))
+                // 4 repères : les orientations possibles
+                for k in 0..<8 {
+                    let a = Double(k) * 45 * .pi / 180
+                    let inner = CGPoint(x: center.x + cos(a) * radius * 0.84, y: center.y + sin(a) * radius * 0.84)
+                    let outer = CGPoint(x: center.x + cos(a) * radius * 0.96, y: center.y + sin(a) * radius * 0.96)
+                    var tick = Path()
+                    tick.move(to: inner)
+                    tick.addLine(to: outer)
+                    context.stroke(tick, with: .color(.white.opacity(0.28)), lineWidth: 1)
+                }
+                let (a, b) = RayonEngine.endpoints(cx: r.cx, cy: r.cy, length: r.length, angle: angle)
+                context.stroke(segmentPath(a, b), with: .color(Color(hex: 0xF4F1FF)),
+                               style: StrokeStyle(lineWidth: side * 0.013, lineCap: .round))
+                let pin = side * 0.011
+                context.fill(Path(ellipseIn: CGRect(x: center.x - pin, y: center.y - pin, width: pin * 2, height: pin * 2)),
+                             with: .color(Theme.gold))
+                // Petite flèche : « touche-moi pour tourner »
+                var badge = context.resolve(Image(systemName: "arrow.clockwise"))
+                badge.shading = .color(Theme.gold)
+                let badgeSize = side * 0.03
+                context.draw(badge, in: CGRect(x: center.x + radius * 0.62 - badgeSize / 2,
+                                               y: center.y + radius * 0.62 - badgeSize / 2,
+                                               width: badgeSize, height: badgeSize))
             }
 
             // Cible
