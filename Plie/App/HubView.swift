@@ -16,12 +16,18 @@ struct HubView: View {
                 }
 
                 VStack(spacing: 6) {
-                    Text(L("PLIÉ"))
-                        .font(.plie(84))
-                        .foregroundStyle(
-                            LinearGradient(colors: [Theme.laser, Theme.gold, Theme.sun],
-                                           startPoint: .leading, endPoint: .trailing)
-                        )
+                    TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
+                        let t = timeline.date.timeIntervalSinceReferenceDate
+                        Text(L("PLIÉ"))
+                            .font(.plie(88))
+                            .foregroundStyle(
+                                LinearGradient(colors: [Theme.laser, Theme.paint, Theme.gold, Theme.sun, Theme.laser],
+                                               startPoint: UnitPoint(x: -0.5 + (t * 0.08).truncatingRemainder(dividingBy: 1), y: 0),
+                                               endPoint: UnitPoint(x: 1.5 + (t * 0.08).truncatingRemainder(dividingBy: 1), y: 1))
+                            )
+                            .shadow(color: Theme.paint.opacity(0.45), radius: 18)
+                            .rotation3DEffect(.degrees(6 * sin(t * 0.8)), axis: (x: 0, y: 1, z: 0))
+                    }
                     Text(L("Neuf jeux pensés pour l'iPhone Duo"))
                         .font(.plie(18, weight: .bold))
                         .foregroundStyle(.white)
@@ -153,6 +159,7 @@ struct HubView: View {
             .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
         }
+        // Le fond lumineux est dessiné par RootView.
         .sheet(isPresented: $showSettings) {
             SettingsView()
                 .environment(app)
@@ -169,11 +176,18 @@ struct HubView: View {
                           action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(alignment: .top, spacing: 16) {
-                Image(systemName: symbol)
-                    .font(.system(size: 30, weight: .bold))
-                    .foregroundStyle(Theme.ink)
-                    .frame(width: 64, height: 64)
-                    .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(color))
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(LinearGradient(colors: [color, color.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(LinearGradient(colors: [.white.opacity(0.35), .clear], startPoint: .top, endPoint: .center))
+                    Image(systemName: symbol)
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundStyle(Theme.ink)
+                        .shadow(color: .white.opacity(0.4), radius: 1, y: 1)
+                }
+                .frame(width: 66, height: 66)
+                .shadow(color: color.opacity(0.55), radius: 12, y: 4)
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
@@ -199,13 +213,23 @@ struct HubView: View {
                     .padding(.top, 22)
             }
             .padding(16)
-            .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Theme.card))
-            .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .strokeBorder(color.opacity(0.35), lineWidth: 1)
+            .background(
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 26, style: .continuous)
+                            .fill(LinearGradient(colors: [color.opacity(0.16), Theme.card.opacity(0.55)],
+                                                 startPoint: .topLeading, endPoint: .bottomTrailing))
+                    )
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .strokeBorder(LinearGradient(colors: [color.opacity(0.6), .white.opacity(0.08)],
+                                                 startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.35), radius: 14, y: 8)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressableStyle())
     }
 }
 
@@ -218,6 +242,7 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section(L("Ressenti")) {
+                    Toggle(L("Musique"), isOn: Binding(get: { app.musicOn }, set: { app.setMusic($0) }))
                     Toggle(L("Sons"), isOn: Binding(get: { app.soundOn }, set: { app.setSound($0) }))
                     Toggle(L("Vibrations"), isOn: Binding(get: { app.hapticsOn }, set: { app.setHaptics($0) }))
                 }
@@ -302,7 +327,7 @@ struct PassView: View {
                     benefit("sparkles", Theme.sun, L("Les prochains jeux et niveaux"), L("Tout ce qui sortira plus tard est inclus."))
                 }
                 .padding(18)
-                .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Theme.card))
+                .background(GlassPanel(cornerRadius: 22))
 
                 if store.ownsPass {
                     Label(L("Déjà débloqué, merci !"), systemImage: "checkmark.seal.fill")
@@ -361,5 +386,15 @@ struct PassView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+}
+
+/// Bouton qui s'enfonce légèrement quand on appuie.
+struct PressableStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .brightness(configuration.isPressed ? 0.05 : 0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }

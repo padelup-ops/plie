@@ -1,0 +1,297 @@
+import SwiftUI
+
+// MARK: - Confettis de victoire
+
+/// Pluie de confettis qui part du haut de l'écran, joue une fois (environ 3 secondes).
+struct ConfettiView: View {
+    var colors: [Color] = [Theme.laser, Theme.gold, Theme.paint, Theme.sun, Color(hex: 0x8BDB4F)]
+    var count = 90
+
+    @State private var start = Date()
+    @State private var pieces: [Piece] = []
+
+    struct Piece {
+        let x: Double
+        let vx: Double
+        let vy: Double
+        let spin: Double
+        let size: Double
+        let color: Int
+        let delay: Double
+        let shape: Int
+    }
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let t = timeline.date.timeIntervalSince(start)
+            Canvas { context, size in
+                guard t < 4 else { return }
+                for p in pieces {
+                    let lt = t - p.delay
+                    guard lt > 0 else { continue }
+                    let w0 = Double(size.width)
+                    let h0 = Double(size.height)
+                    let xd: Double = (p.x + p.vx * lt) * w0 + sin(lt * 3 + p.spin) * 12
+                    let fall: Double = p.vy * lt + 0.45 * lt * lt
+                    let yd: Double = -20 + fall * h0 * 0.35
+                    guard yd < h0 + 20 else { continue }
+                    let x = CGFloat(xd)
+                    let y = CGFloat(yd)
+                    let fade = max(0, min(1, (3.6 - lt) / 0.8))
+                    var c = context
+                    c.opacity = fade
+                    c.translateBy(x: x, y: y)
+                    c.rotate(by: .radians(p.spin + lt * 5))
+                    let w = p.size
+                    let rect = CGRect(x: -w / 2, y: -w / 4, width: w, height: w / 2)
+                    let path = p.shape == 0 ? Path(roundedRect: rect, cornerRadius: 1.5) : Path(ellipseIn: CGRect(x: -w / 3, y: -w / 3, width: w / 1.5, height: w / 1.5))
+                    c.fill(path, with: .color(colors[p.color % colors.count]))
+                }
+            }
+        }
+        .allowsHitTesting(false)
+        .onAppear {
+            start = Date()
+            var g = SystemRandomNumberGenerator()
+            pieces = (0..<count).map { _ in
+                Piece(x: Double.random(in: 0.05...0.95, using: &g),
+                      vx: Double.random(in: -0.12...0.12, using: &g),
+                      vy: Double.random(in: 0.2...1.1, using: &g),
+                      spin: Double.random(in: 0...6.28, using: &g),
+                      size: Double.random(in: 7...13, using: &g),
+                      color: Int.random(in: 0..<10, using: &g),
+                      delay: Double.random(in: 0...0.5, using: &g),
+                      shape: Int.random(in: 0...3, using: &g) == 0 ? 1 : 0)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Fond animé
+
+/// Fond doux : de grandes taches de lumière qui dérivent lentement.
+struct AmbientBackdrop: View {
+    var colors: [Color] = [Color(hex: 0x3DE0FF), Color(hex: 0xFF4F9A), Color(hex: 0xFFC53D)]
+    var base: Color = Theme.ink
+    var intensity: Double = 0.22
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 20.0)) { timeline in
+            let t = timeline.date.timeIntervalSinceReferenceDate
+            Canvas { context, size in
+                context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(base))
+                context.drawLayer { layer in
+                    layer.addFilter(.blur(radius: min(size.width, size.height) * 0.12))
+                    for (i, color) in colors.enumerated() {
+                        let k = Double(i)
+                        let cx = size.width * (0.5 + 0.38 * sin(t * 0.07 + k * 2.1))
+                        let cy = size.height * (0.4 + 0.35 * cos(t * 0.05 + k * 1.7))
+                        let r = min(size.width, size.height) * (0.35 + 0.08 * sin(t * 0.11 + k))
+                        layer.fill(Path(ellipseIn: CGRect(x: cx - r, y: cy - r, width: r * 2, height: r * 2)),
+                                   with: .color(color.opacity(intensity)))
+                    }
+                }
+            }
+        }
+        .ignoresSafeArea()
+        .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Aides de dessin
+
+enum Draw {
+    /// Étoile à 5 branches.
+    static func star(center: CGPoint, radius: CGFloat, inner: CGFloat = 0.45, rotation: Double = 0) -> Path {
+        var p = Path()
+        for i in 0..<10 {
+            let r = i % 2 == 0 ? radius : radius * inner
+            let a = Double(i) * .pi / 5 - .pi / 2 + rotation
+            let point = CGPoint(x: center.x + CGFloat(cos(a)) * r, y: center.y + CGFloat(sin(a)) * r)
+            if i == 0 { p.move(to: point) } else { p.addLine(to: point) }
+        }
+        p.closeSubpath()
+        return p
+    }
+
+    /// Petit éclat lumineux (scintillement).
+    static func sparkle(center: CGPoint, radius: CGFloat) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: center.x, y: center.y - radius))
+        p.addQuadCurve(to: CGPoint(x: center.x + radius, y: center.y), control: center)
+        p.addQuadCurve(to: CGPoint(x: center.x, y: center.y + radius), control: center)
+        p.addQuadCurve(to: CGPoint(x: center.x - radius, y: center.y), control: center)
+        p.addQuadCurve(to: CGPoint(x: center.x, y: center.y - radius), control: center)
+        return p
+    }
+
+    /// Nombre pseudo-aléatoire stable (pour placer des étoiles, des nuages… toujours au même endroit).
+    static func hash(_ i: Int, _ salt: Int = 0) -> Double {
+        var x = UInt64(truncatingIfNeeded: i &* 2_654_435_761 &+ salt &* 40_503 &+ 97)
+        x ^= x >> 13
+        x = x &* 0x5bd1e995
+        x ^= x >> 15
+        return Double(x % 10_000) / 10_000
+    }
+
+    /// Tache de peinture brillante, aux bords légèrement irréguliers (forme stable grâce à `seed`).
+    static func paintDab(_ context: inout GraphicsContext, in rect: CGRect, color: Color, seed: Int) {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let n = 12
+        var points: [CGPoint] = []
+        for k in 0..<n {
+            let a = Double(k) / Double(n) * 2 * .pi
+            let ca = abs(cos(a)), sa = abs(sin(a))
+            let squircle = 1 / pow(pow(ca, 4) + pow(sa, 4), 0.25)
+            let jitter = 0.88 + 0.12 * hash(seed, k)
+            let rx = Double(rect.width) / 2 * squircle * jitter
+            let ry = Double(rect.height) / 2 * squircle * jitter
+            points.append(CGPoint(x: center.x + CGFloat(cos(a) * rx), y: center.y + CGFloat(sin(a) * ry)))
+        }
+        var blob = Path()
+        func mid(_ p: CGPoint, _ q: CGPoint) -> CGPoint { CGPoint(x: (p.x + q.x) / 2, y: (p.y + q.y) / 2) }
+        blob.move(to: mid(points[n - 1], points[0]))
+        for k in 0..<n {
+            blob.addQuadCurve(to: mid(points[k], points[(k + 1) % n]), control: points[k])
+        }
+        blob.closeSubpath()
+        context.fill(blob.offsetBy(dx: 0, dy: rect.height * 0.04), with: .color(.black.opacity(0.12)))
+        context.fill(blob, with: .color(color))
+        context.fill(blob, with: .linearGradient(Gradient(colors: [.white.opacity(0.3), .clear, .black.opacity(0.14)]),
+                                                 startPoint: CGPoint(x: rect.minX, y: rect.minY),
+                                                 endPoint: CGPoint(x: rect.maxX, y: rect.maxY)))
+        let hl = CGRect(x: rect.minX + rect.width * 0.2, y: rect.minY + rect.height * 0.16,
+                        width: rect.width * 0.26, height: rect.height * 0.16)
+        context.fill(Path(ellipseIn: hl), with: .color(.white.opacity(0.38)))
+    }
+
+    /// Grain de papier : petits points clairs et sombres.
+    static func paperGrain(_ context: inout GraphicsContext, in rect: CGRect, seed: Int, density: Int = 140) {
+        for i in 0..<density {
+            let x = rect.minX + CGFloat(hash(i, seed)) * rect.width
+            let y = rect.minY + CGFloat(hash(i, seed + 1)) * rect.height
+            let r = CGFloat(0.5 + hash(i, seed + 2))
+            let dark = i % 2 == 0
+            context.fill(Path(ellipseIn: CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2)),
+                         with: .color(dark ? .black.opacity(0.05) : .white.opacity(0.18)))
+        }
+    }
+
+    /// Bille ou balle avec ombrage (lumière en haut à gauche).
+    static func shadedBall(_ context: inout GraphicsContext, center: CGPoint, radius: CGFloat, color: Color, highlight: Color = .white) {
+        let rect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
+        context.fill(Path(ellipseIn: rect.offsetBy(dx: radius * 0.15, dy: radius * 0.25)), with: .color(.black.opacity(0.25)))
+        context.fill(Path(ellipseIn: rect), with: .radialGradient(
+            Gradient(colors: [highlight.opacity(0.9), color, color.opacity(0.75)]),
+            center: CGPoint(x: center.x - radius * 0.35, y: center.y - radius * 0.4),
+            startRadius: 0, endRadius: radius * 1.5))
+    }
+}
+
+// MARK: - Écran de victoire
+
+/// Fond d'un écran de victoire : assombrit le jeu, ajoute un halo et des confettis.
+struct CelebrationBackdrop: View {
+    var accent: Color = Theme.gold
+    var confetti = true
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.5)
+            RadialGradient(colors: [accent.opacity(0.28), .clear], center: .center, startRadius: 0, endRadius: 420)
+            if confetti { ConfettiView() }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(true)
+    }
+}
+
+/// Carte en verre dépoli avec liseré lumineux, pour les écrans de fin.
+struct WinCardModifier: ViewModifier {
+    var accent: Color
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 30, style: .continuous).fill(.ultraThinMaterial)
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(LinearGradient(colors: [Theme.cardHigh.opacity(0.85), Theme.ink.opacity(0.92)],
+                                             startPoint: .top, endPoint: .bottom))
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .strokeBorder(LinearGradient(colors: [accent.opacity(0.9), accent.opacity(0.15), .white.opacity(0.2)],
+                                                     startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+                }
+                .shadow(color: accent.opacity(0.35), radius: 30, y: 10)
+            )
+            .environment(\.colorScheme, .dark)
+    }
+}
+
+/// Icône de victoire qui rebondit et brille.
+struct WinIcon: View {
+    let systemName: String
+    var color: Color = Theme.gold
+    @State private var pop = false
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(RadialGradient(colors: [color.opacity(0.55), .clear], center: .center, startRadius: 0, endRadius: 52))
+                .frame(width: 104, height: 104)
+                .scaleEffect(pop ? 1.1 : 0.6)
+            Image(systemName: systemName)
+                .font(.system(size: 46, weight: .bold))
+                .foregroundStyle(LinearGradient(colors: [.white, color], startPoint: .top, endPoint: .bottom))
+                .shadow(color: color.opacity(0.8), radius: 12)
+                .scaleEffect(pop ? 1 : 0.3)
+                .rotationEffect(.degrees(pop ? 0 : -25))
+        }
+        .frame(height: 80)
+        .onAppear {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.55)) { pop = true }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+extension View {
+    func winCard(accent: Color = Theme.gold) -> some View {
+        modifier(WinCardModifier(accent: accent))
+    }
+}
+
+// MARK: - Case de niveau
+
+/// Fond d'une case de niveau : verre dépoli, ou couleur du jeu qui brille une fois réussi.
+struct LevelTile: View {
+    var done: Bool
+    var accent: Color
+    var cornerRadius: CGFloat = 16
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        ZStack {
+            if done {
+                shape.fill(LinearGradient(colors: [accent.opacity(0.95), accent.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+                    .shadow(color: accent.opacity(0.45), radius: 8, y: 3)
+                shape.fill(LinearGradient(colors: [.white.opacity(0.3), .clear], startPoint: .top, endPoint: .center))
+            } else {
+                shape.fill(.ultraThinMaterial)
+                shape.fill(LinearGradient(colors: [Theme.cardHigh.opacity(0.75), Theme.card.opacity(0.85)], startPoint: .top, endPoint: .bottom))
+                shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.18), .white.opacity(0.03)], startPoint: .top, endPoint: .bottom), lineWidth: 1)
+            }
+        }
+        .environment(\.colorScheme, .dark)
+    }
+}
+
+/// Panneau en verre dépoli, pour les bandeaux d'aide et les cartes.
+struct GlassPanel: View {
+    var cornerRadius: CGFloat = 16
+
+    var body: some View {
+        LevelTile(done: false, accent: .clear, cornerRadius: cornerRadius)
+    }
+}

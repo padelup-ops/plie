@@ -63,8 +63,7 @@ struct PliageLevelsView: View {
             }
         } label: {
             ZStack {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(solved ? Theme.paint : Theme.card)
+                LevelTile(done: solved, accent: Theme.paint)
                 if unlocked {
                     VStack(spacing: 1) {
                         Text("\(number)")
@@ -144,7 +143,7 @@ struct PliagePlayView: View {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.system(size: 20, weight: .bold))
                         .frame(width: 58, height: 58)
-                        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Theme.card))
+                        .background(GlassPanel(cornerRadius: 18))
                 }
                 .accessibilityLabel(L("Annuler le dernier pli"))
                 .disabled(session.foldsUsed == 0 || session.isAnimating)
@@ -165,7 +164,7 @@ struct PliagePlayView: View {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 20, weight: .bold))
                         .frame(width: 58, height: 58)
-                        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Theme.card))
+                        .background(GlassPanel(cornerRadius: 18))
                 }
                 .accessibilityLabel(L("Recommencer le pliage"))
                 .disabled(session.foldsUsed == 0 || session.isAnimating)
@@ -223,7 +222,7 @@ struct PliagePlayView: View {
             Spacer(minLength: 0)
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.card))
+        .background(GlassPanel(cornerRadius: 16))
     }
 
     private var statusText: String {
@@ -241,11 +240,9 @@ struct PliagePlayView: View {
 
     private var successOverlay: some View {
         ZStack {
-            Color.black.opacity(0.6).ignoresSafeArea()
+            CelebrationBackdrop(accent: Theme.paint)
             VStack(spacing: 14) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 44, weight: .bold))
-                    .foregroundStyle(Theme.paint)
+                WinIcon(systemName: "sparkles", color: Theme.paint)
                 Text(L("Pliage réussi !"))
                     .font(.plie(34))
                 Text(L("En \(session.foldsUsed) pli\(session.foldsUsed > 1 ? "s" : "") · \(formatSeconds(session.elapsed))"))
@@ -274,7 +271,7 @@ struct PliagePlayView: View {
             .foregroundStyle(.white)
             .padding(24)
             .frame(maxWidth: 420)
-            .background(RoundedRectangle(cornerRadius: 28, style: .continuous).fill(Theme.ink))
+            .winCard(accent: Theme.paint)
             .padding(24)
         }
     }
@@ -321,7 +318,7 @@ struct ModelPanel: View {
             .frame(maxHeight: .infinity)
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Theme.card))
+        .background(GlassPanel(cornerRadius: 20))
     }
 }
 
@@ -370,14 +367,18 @@ struct PaintGrid: View {
             let cell = min(size.width / CGFloat(width), size.height / CGFloat(height))
             let origin = CGPoint(x: (size.width - cell * CGFloat(width)) / 2, y: (size.height - cell * CGFloat(height)) / 2)
             let sheet = CGRect(x: origin.x, y: origin.y, width: cell * CGFloat(width), height: cell * CGFloat(height))
+            context.fill(Path(roundedRect: sheet.offsetBy(dx: 0, dy: 3), cornerRadius: cell * 0.12), with: .color(.black.opacity(0.25)))
             context.fill(Path(roundedRect: sheet, cornerRadius: cell * 0.12), with: .color(PliageEngine.paper))
+            context.fill(Path(roundedRect: sheet, cornerRadius: cell * 0.12),
+                         with: .linearGradient(Gradient(colors: [.white.opacity(0.14), .clear, .black.opacity(0.06)]),
+                                               startPoint: sheet.origin, endPoint: CGPoint(x: sheet.maxX, y: sheet.maxY)))
             for r in 0..<height {
                 for c in 0..<width {
                     let value = grid[r * width + c]
                     guard value != 0 else { continue }
                     let rect = CGRect(x: origin.x + CGFloat(c) * cell, y: origin.y + CGFloat(r) * cell, width: cell, height: cell)
                         .insetBy(dx: cell * 0.08, dy: cell * 0.08)
-                    context.fill(Path(roundedRect: rect, cornerRadius: cell * 0.2), with: .color(PliageEngine.color(value)))
+                    Draw.paintDab(&context, in: rect, color: PliageEngine.color(value), seed: r * width + c)
                 }
             }
         }
@@ -410,8 +411,11 @@ struct PliageBoard: View {
             ZStack(alignment: .topLeading) {
                 Canvas { context, _ in
                     let sheet = CGRect(x: origin.x, y: origin.y, width: sheetW, height: sheetH)
-                    context.fill(Path(roundedRect: sheet.insetBy(dx: -4, dy: -4).offsetBy(dx: 0, dy: 6), cornerRadius: 10),
-                                 with: .color(.black.opacity(0.35)))
+                    context.drawLayer { layer in
+                        layer.addFilter(.blur(radius: 14))
+                        layer.fill(Path(roundedRect: sheet.insetBy(dx: -2, dy: -2).offsetBy(dx: 0, dy: 12), cornerRadius: 12),
+                                   with: .color(.black.opacity(0.55)))
+                    }
 
                     for r in 0..<h {
                         for c in 0..<w {
@@ -422,10 +426,21 @@ struct PliageBoard: View {
                             context.fill(Path(rect), with: .color(PliageEngine.paper))
                             let value = grid[r * w + c]
                             if value != 0 {
-                                context.fill(Path(roundedRect: rect.insetBy(dx: cell * 0.08, dy: cell * 0.08), cornerRadius: cell * 0.2),
-                                             with: .color(PliageEngine.color(value)))
+                                Draw.paintDab(&context, in: rect.insetBy(dx: cell * 0.08, dy: cell * 0.08),
+                                              color: PliageEngine.color(value), seed: r * w + c)
                             }
                         }
+                    }
+                    // Lumière douce et grain du papier (pas sur la partie soulevée)
+                    context.drawLayer { layer in
+                        var visible = Path(sheet)
+                        if let fold = active, let lifted, progress > 0 {
+                            visible.addRect(PliageBoard.flapRect(fold: fold, flap: lifted, origin: origin, cell: cell, w: w, h: h))
+                        }
+                        layer.clip(to: visible, style: FillStyle(eoFill: true))
+                        layer.fill(Path(sheet), with: .linearGradient(Gradient(colors: [.white.opacity(0.12), .clear, .black.opacity(0.07)]),
+                                                                     startPoint: sheet.origin, endPoint: CGPoint(x: sheet.maxX, y: sheet.maxY)))
+                        Draw.paperGrain(&layer, in: sheet, seed: level.width * 31 + level.height)
                     }
 
                     // Côté qui va se soulever
@@ -549,7 +564,7 @@ struct FlapView: View {
                     guard value != 0 else { continue }
                     let rect = CGRect(x: CGFloat(ci) * cell, y: CGFloat(ri) * cell, width: cell, height: cell)
                         .insetBy(dx: cell * 0.08, dy: cell * 0.08)
-                    context.fill(Path(roundedRect: rect, cornerRadius: cell * 0.2), with: .color(PliageEngine.color(value)))
+                    Draw.paintDab(&context, in: rect, color: PliageEngine.color(value), seed: r * w + c)
                 }
             }
         }

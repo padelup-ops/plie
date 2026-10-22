@@ -91,7 +91,7 @@ struct CoffreLevelsView: View {
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 78)
-            .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(opened ? Theme.cardHigh : Theme.card))
+            .background(LevelTile(done: false, accent: Theme.gold, cornerRadius: 18))
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .strokeBorder(opened ? Theme.gold.opacity(0.6) : Color.clear, lineWidth: 1.5)
@@ -169,6 +169,8 @@ struct CoffrePlayView: View {
             }
         }
         .onAppear { Haptics.prepare() }
+        .onAppear { MusicPlayer.shared.duck(true) }
+        .onDisappear { MusicPlayer.shared.duck(false) }
         .overlay {
             if session.opened {
                 openedOverlay
@@ -180,11 +182,9 @@ struct CoffrePlayView: View {
 
     private var openedOverlay: some View {
         ZStack {
-            Color.black.opacity(0.6).ignoresSafeArea()
+            CelebrationBackdrop(accent: Theme.gold)
             VStack(spacing: 14) {
-                Image(systemName: "lock.open.fill")
-                    .font(.system(size: 48, weight: .bold))
-                    .foregroundStyle(Theme.gold)
+                WinIcon(systemName: "lock.open.fill", color: Theme.gold)
                 Text(L("Coffre ouvert !"))
                     .font(.plie(34))
                 StarsView(count: stars, size: 28)
@@ -223,7 +223,7 @@ struct CoffrePlayView: View {
             .foregroundStyle(.white)
             .padding(24)
             .frame(maxWidth: 420)
-            .background(RoundedRectangle(cornerRadius: 28, style: .continuous).fill(Theme.ink))
+            .winCard(accent: Theme.gold)
             .padding(24)
         }
     }
@@ -250,7 +250,9 @@ struct CombinationSlots: View {
                     .frame(width: 62, height: 62)
                     .background(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(isFound ? Theme.gold : Theme.card)
+                            .fill(isFound ? AnyShapeStyle(LinearGradient(colors: [Color(hex: 0xFFE08A), Theme.gold], startPoint: .top, endPoint: .bottom))
+                                          : AnyShapeStyle(LinearGradient(colors: [Theme.cardHigh, Theme.card], startPoint: .top, endPoint: .bottom)))
+                            .shadow(color: isFound ? Theme.gold.opacity(0.5) : .black.opacity(0.3), radius: isFound ? 10 : 4, y: 3)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -286,7 +288,7 @@ struct CoffreHint: View {
             }
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.card))
+        .background(GlassPanel(cornerRadius: 16))
     }
 }
 
@@ -308,11 +310,34 @@ struct CoffreDial: View {
             let step = 360.0 / Double(positions)
 
             ZStack {
+                // Porte du coffre : boulons et ombre portée
                 Circle()
-                    .fill(RadialGradient(colors: [Color(hex: 0x3A3F63), Color(hex: 0x1B1E36)],
-                                         center: .center, startRadius: 0, endRadius: side / 2))
+                    .fill(Color.black.opacity(0.45))
+                    .blur(radius: side * 0.03)
+                    .offset(y: side * 0.03)
                 Circle()
-                    .strokeBorder(Theme.gold.opacity(0.5), lineWidth: side * 0.015)
+                    .fill(AngularGradient(colors: [Color(hex: 0x6E7598), Color(hex: 0x2E3352), Color(hex: 0x8C93B5), Color(hex: 0x2E3352),
+                                                   Color(hex: 0x6E7598), Color(hex: 0x2E3352), Color(hex: 0x8C93B5), Color(hex: 0x2E3352), Color(hex: 0x6E7598)],
+                                          center: .center))
+                Circle()
+                    .fill(RadialGradient(colors: [.white.opacity(0.18), .clear, .black.opacity(0.35)],
+                                         center: UnitPoint(x: 0.35, y: 0.3), startRadius: 0, endRadius: side * 0.6))
+                ForEach(0..<12, id: \.self) { k in
+                    Circle()
+                        .fill(RadialGradient(colors: [.white.opacity(0.8), Color(hex: 0x9AA1C2), Color(hex: 0x3A3F63)],
+                                             center: UnitPoint(x: 0.35, y: 0.3), startRadius: 0, endRadius: side * 0.014))
+                        .frame(width: side * 0.022, height: side * 0.022)
+                        .offset(y: -side * 0.475)
+                        .rotationEffect(.degrees(Double(k) * 30 + 15))
+                }
+                Circle()
+                    .strokeBorder(LinearGradient(colors: [Color(hex: 0xFFE08A), Theme.gold, Color(hex: 0x9C6A10), Theme.gold],
+                                                 startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: side * 0.018)
+                // Plateau gradué, un peu enfoncé
+                Circle()
+                    .fill(RadialGradient(colors: [Color(hex: 0x2A2F52), Color(hex: 0x161932)], center: .center, startRadius: 0, endRadius: side * 0.45))
+                    .frame(width: side * 0.88, height: side * 0.88)
+                    .overlay(Circle().strokeBorder(Color.black.opacity(0.4), lineWidth: side * 0.01).blur(radius: 2))
 
                 // Graduations et chiffres, qui tournent avec la molette.
                 ZStack {
@@ -337,12 +362,17 @@ struct CoffreDial: View {
 
                 // Poignée centrale avec l'anneau de maintien.
                 Circle()
-                    .fill(Color(hex: 0x14172B))
+                    .fill(AngularGradient(colors: [Color(hex: 0x2B3054), Color(hex: 0x4A5180), Color(hex: 0x1C2040), Color(hex: 0x4A5180), Color(hex: 0x2B3054)],
+                                          center: .center))
+                    .overlay(Circle().fill(RadialGradient(colors: [.white.opacity(0.16), .clear], center: UnitPoint(x: 0.35, y: 0.3),
+                                                          startRadius: 0, endRadius: side * 0.2)))
+                    .overlay(Circle().strokeBorder(.white.opacity(0.18), lineWidth: 1.5))
                     .frame(width: side * 0.42, height: side * 0.42)
-                    .shadow(color: .black.opacity(0.5), radius: 10, y: 4)
+                    .shadow(color: .black.opacity(0.6), radius: 12, y: 6)
                 Circle()
                     .trim(from: 0, to: session.holdProgress)
                     .stroke(Theme.gold, style: StrokeStyle(lineWidth: side * 0.025, lineCap: .round))
+                    .shadow(color: Theme.gold.opacity(0.9), radius: 8)
                     .rotationEffect(.degrees(-90))
                     .frame(width: side * 0.36, height: side * 0.36)
                 VStack(spacing: 2) {
@@ -357,7 +387,8 @@ struct CoffreDial: View {
 
                 // Repère fixe en haut.
                 Triangle()
-                    .fill(Theme.coral)
+                    .fill(LinearGradient(colors: [Color(hex: 0xFF8A7A), Theme.coral], startPoint: .top, endPoint: .bottom))
+                    .shadow(color: Theme.coral.opacity(0.8), radius: 6)
                     .frame(width: side * 0.07, height: side * 0.06)
                     .rotationEffect(.degrees(180))
                     .offset(y: -side * 0.5 + side * 0.01)
@@ -453,6 +484,8 @@ struct CoffreDuelView: View {
                 dialValue = fraction * Double(positions - 1)
             }
         }
+        .onAppear { MusicPlayer.shared.duck(true) }
+        .onDisappear { MusicPlayer.shared.duck(false) }
         .onReceive(ticker) { _ in
             guard case .cracking(let player) = phase, let session else { return }
             session.tick(dt: 1.0 / 60.0)
@@ -593,8 +626,14 @@ struct CoffreDuelView: View {
             }
             Spacer(minLength: 0)
             ZStack {
-                Circle().fill(Theme.card)
-                Circle().strokeBorder(Theme.gold.opacity(0.6), lineWidth: 6)
+                Circle()
+                    .fill(AngularGradient(colors: [Color(hex: 0x4A5180), Color(hex: 0x23284A), Color(hex: 0x5A6290), Color(hex: 0x23284A), Color(hex: 0x4A5180)],
+                                          center: .center))
+                    .overlay(Circle().fill(RadialGradient(colors: [.white.opacity(0.15), .clear, .black.opacity(0.3)],
+                                                          center: UnitPoint(x: 0.35, y: 0.3), startRadius: 0, endRadius: 180)))
+                    .shadow(color: .black.opacity(0.5), radius: 16, y: 8)
+                Circle().strokeBorder(LinearGradient(colors: [Color(hex: 0xFFE08A), Theme.gold, Color(hex: 0x9C6A10)],
+                                                     startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 7)
                 Text(String(format: "%02d", current))
                     .font(.plie(84))
                     .monospacedDigit()
@@ -657,7 +696,7 @@ struct CoffreDuelView: View {
                             .foregroundStyle(player == winner ? Theme.gold : .white)
                     }
                     .padding(14)
-                    .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.card))
+                    .background(GlassPanel(cornerRadius: 16))
                 }
             }
             Spacer()

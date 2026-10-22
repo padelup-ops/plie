@@ -27,6 +27,7 @@ final class AppState {
 
     private(set) var soundOn = true
     private(set) var hapticsOn = true
+    private(set) var musicOn = true
 
     /// Niveaux de RAYON réussis, et meilleur temps par niveau.
     private(set) var rayonSolved: Set<Int> = []
@@ -64,6 +65,7 @@ final class AppState {
         load()
         SoundPlayer.shared.enabled = soundOn
         Haptics.enabled = hapticsOn
+        MusicPlayer.shared.setEnabled(musicOn)
     }
 
     #if DEBUG
@@ -99,6 +101,12 @@ final class AppState {
         soundOn = on
         SoundPlayer.shared.enabled = on
         defaults.set(on, forKey: Keys.sound)
+    }
+
+    func setMusic(_ on: Bool) {
+        musicOn = on
+        MusicPlayer.shared.setEnabled(on)
+        defaults.set(on, forKey: Keys.music)
     }
 
     func setHaptics(_ on: Bool) {
@@ -231,6 +239,7 @@ final class AppState {
     private enum Keys {
         static let sound = "sound"
         static let haptics = "haptics"
+        static let music = "music"
         static let rayonSolved = "rayon.solved"
         static let rayonBest = "rayon.best"
         static let pliageSolved = "pliage.solved"
@@ -254,6 +263,7 @@ final class AppState {
         }
         if defaults.object(forKey: Keys.sound) != nil { soundOn = defaults.bool(forKey: Keys.sound) }
         if defaults.object(forKey: Keys.haptics) != nil { hapticsOn = defaults.bool(forKey: Keys.haptics) }
+        if defaults.object(forKey: Keys.music) != nil { musicOn = defaults.bool(forKey: Keys.music) }
         if let solved = defaults.array(forKey: Keys.rayonSolved) as? [Int] { rayonSolved = Set(solved) }
         rayonBest = decode(Keys.rayonBest)
         if let solved = defaults.array(forKey: Keys.pliageSolved) as? [Int] { pliageSolved = Set(solved) }

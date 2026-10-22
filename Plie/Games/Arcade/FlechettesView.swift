@@ -94,6 +94,7 @@ final class DartsGame {
         let hit = Dartboard.score(x: x, y: y)
         darts.append(Dart(x: x, y: y, points: hit.points, label: hit.label))
         Haptics.tap()
+        SoundPlayer.shared.play(.whoosh, volume: 0.6)
     }
 
     func tick(dt: Double) {
@@ -111,7 +112,7 @@ final class DartsGame {
                 volleyPoints += d.points
                 message = d.points == 0 ? L("Raté") : "\(d.label) · +\(d.points)"
                 if d.points >= 50 { Haptics.success(); SoundPlayer.shared.play(.vault, volume: 0.6) }
-                else if d.points > 0 { Haptics.correct(subtle: true); SoundPlayer.shared.play(.clunk, volume: 0.6) }
+                else if d.points > 0 { Haptics.correct(subtle: true); SoundPlayer.shared.play(.thud, volume: 0.8) }
                 else { SoundPlayer.shared.play(.wrong, volume: 0.4) }
                 if darts.count == Self.dartsPerVolley {
                     pause = 1.1
@@ -239,7 +240,7 @@ struct FlechettesView: View {
         .foregroundStyle(.white)
         .padding(24)
         .frame(maxWidth: 460)
-        .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(Theme.ink.opacity(0.94)))
+        .winCard(accent: Theme.darts)
         .padding(20)
     }
 }
@@ -258,18 +259,39 @@ struct DartsScene: View {
             let h = size.height
             let fold = h * 0.5
 
+            // Mur en lambris de bois, sous un spot
             context.fill(Path(CGRect(x: 0, y: 0, width: w, height: fold)),
-                         with: .linearGradient(Gradient(colors: [Color(hex: 0x231A2E), Color(hex: 0x332540)]),
+                         with: .linearGradient(Gradient(colors: [Color(hex: 0x2A1712), Color(hex: 0x4A2A1C)]),
                                                startPoint: .zero, endPoint: CGPoint(x: 0, y: fold)))
-            context.fill(Path(CGRect(x: 0, y: fold, width: w, height: h - fold)), with: .color(Color(hex: 0x17131F)))
+            let planks = 9
+            for i in 0..<planks {
+                let x = w * CGFloat(i) / CGFloat(planks)
+                context.fill(Path(CGRect(x: x, y: 0, width: w / CGFloat(planks), height: fold)),
+                             with: .color((i % 2 == 0 ? Color.black : Color(hex: 0xFFB070)).opacity(0.05 + 0.04 * Draw.hash(i, 8))))
+                context.stroke(Path(CGRect(x: x, y: 0, width: 0.5, height: fold)), with: .color(.black.opacity(0.35)), lineWidth: 1)
+            }
+            // Sol : moquette sombre et ligne de tir
+            context.fill(Path(CGRect(x: 0, y: fold, width: w, height: h - fold)),
+                         with: .linearGradient(Gradient(colors: [Color(hex: 0x1F1520), Color(hex: 0x120D16)]),
+                                               startPoint: CGPoint(x: 0, y: fold), endPoint: CGPoint(x: 0, y: h)))
+            context.fill(Path(CGRect(x: w * 0.2, y: h * 0.74, width: w * 0.6, height: 4)), with: .color(Theme.gold.opacity(0.55)))
             context.stroke(Path(CGRect(x: 0, y: fold - 0.5, width: w, height: 1)), with: .color(.white.opacity(0.08)), lineWidth: 1)
 
             // Cible
             let center = CGPoint(x: w / 2, y: fold * 0.52)
             let R = min(fold * 0.4, w * 0.36)
             let outer = R * 1.16
+            context.fill(Path(ellipseIn: CGRect(x: center.x - R * 2.2, y: center.y - R * 2.2, width: R * 4.4, height: R * 4.4)),
+                         with: .radialGradient(Gradient(colors: [Color(hex: 0xFFE2B0).opacity(0.28), .clear]),
+                                               center: center, startRadius: 0, endRadius: R * 2.2))
+            context.drawLayer { shadow in
+                shadow.addFilter(.blur(radius: R * 0.08))
+                shadow.fill(Path(ellipseIn: CGRect(x: center.x - outer, y: center.y - outer + R * 0.08, width: outer * 2, height: outer * 2)),
+                            with: .color(.black.opacity(0.6)))
+            }
             context.fill(Path(ellipseIn: CGRect(x: center.x - outer, y: center.y - outer, width: outer * 2, height: outer * 2)),
-                         with: .color(Color(hex: 0x111111)))
+                         with: .radialGradient(Gradient(colors: [Color(hex: 0x262626), Color(hex: 0x0C0C0C)]),
+                                               center: center, startRadius: R, endRadius: outer))
             let sector = 2 * Double.pi / 20
             for i in 0..<20 {
                 let a0 = -Double.pi / 2 - sector / 2 + Double(i) * sector
@@ -297,6 +319,21 @@ struct DartsScene: View {
             context.fill(Path(ellipseIn: CGRect(x: center.x - ob, y: center.y - ob, width: ob * 2, height: ob * 2)), with: .color(Color(hex: 0x1E8B4E)))
             let b = R * Dartboard.bull
             context.fill(Path(ellipseIn: CGRect(x: center.x - b, y: center.y - b, width: b * 2, height: b * 2)), with: .color(Color(hex: 0xD8343F)))
+            // Fils métalliques entre les zones
+            var wires = Path()
+            for r in [Dartboard.outerBull, Dartboard.tripleIn, Dartboard.tripleOut, Dartboard.doubleIn, 1.0] {
+                wires.addEllipse(in: CGRect(x: center.x - R * r, y: center.y - R * r, width: R * r * 2, height: R * r * 2))
+            }
+            for i in 0..<20 {
+                let a = -Double.pi / 2 - sector / 2 + Double(i) * sector
+                wires.move(to: CGPoint(x: center.x + CGFloat(cos(a)) * R * Dartboard.outerBull, y: center.y + CGFloat(sin(a)) * R * Dartboard.outerBull))
+                wires.addLine(to: CGPoint(x: center.x + CGFloat(cos(a)) * R, y: center.y + CGFloat(sin(a)) * R))
+            }
+            context.stroke(wires, with: .color(Color(hex: 0xD9DDE6).opacity(0.55)), lineWidth: max(0.6, R * 0.006))
+            // Reflet du spot sur la cible
+            context.fill(Path(ellipseIn: CGRect(x: center.x - outer, y: center.y - outer, width: outer * 2, height: outer * 2)),
+                         with: .radialGradient(Gradient(colors: [.white.opacity(0.12), .clear]),
+                                               center: CGPoint(x: center.x - R * 0.35, y: center.y - R * 0.45), startRadius: 0, endRadius: R))
 
             // Fléchettes
             for d in darts {
@@ -305,41 +342,63 @@ struct DartsScene: View {
                 let start = CGPoint(x: w / 2, y: h * 0.85)
                 let p = CGPoint(x: start.x + (target.x - start.x) * CGFloat(s), y: start.y + (target.y - start.y) * CGFloat(s))
                 let len = (s < 1 ? 46 : 22) * (1 - 0.5 * CGFloat(s))
-                var shaft = Path()
-                shaft.move(to: p)
-                shaft.addLine(to: CGPoint(x: p.x, y: p.y + len))
-                context.stroke(shaft, with: .color(Color(hex: 0xC9CED9)), style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                var flight = Path()
-                flight.move(to: CGPoint(x: p.x, y: p.y + len))
-                flight.addLine(to: CGPoint(x: p.x - 7, y: p.y + len + 10))
-                flight.addLine(to: CGPoint(x: p.x + 7, y: p.y + len + 10))
-                flight.closeSubpath()
-                context.fill(flight, with: .color(Theme.darts))
-                context.fill(Path(ellipseIn: CGRect(x: p.x - 2.5, y: p.y - 2.5, width: 5, height: 5)), with: .color(.white))
+                if s >= 1 {
+                    // Ombre de la fléchette plantée
+                    var shade = Path()
+                    shade.move(to: p)
+                    shade.addLine(to: CGPoint(x: p.x + len * 0.5, y: p.y + len * 0.8))
+                    context.stroke(shade, with: .color(.black.opacity(0.35)), style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                }
+                DartsScene.dart(&context, tip: p, length: len, scale: s < 1 ? 1 : 0.8)
             }
 
             // Fléchettes restantes, en bas
             if playing {
                 for i in 0..<max(0, left) {
                     let x = w / 2 + CGFloat(i - 1) * 34
-                    var shaft = Path()
-                    shaft.move(to: CGPoint(x: x, y: h * 0.78))
-                    shaft.addLine(to: CGPoint(x: x, y: h * 0.78 + 46))
-                    context.stroke(shaft, with: .color(Color(hex: 0xC9CED9)), style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                    var flight = Path()
-                    flight.move(to: CGPoint(x: x, y: h * 0.78 + 46))
-                    flight.addLine(to: CGPoint(x: x - 8, y: h * 0.78 + 58))
-                    flight.addLine(to: CGPoint(x: x + 8, y: h * 0.78 + 58))
-                    flight.closeSubpath()
-                    context.fill(flight, with: .color(Theme.darts))
+                    DartsScene.dart(&context, tip: CGPoint(x: x, y: h * 0.78), length: 46, scale: 1.1)
                 }
             }
 
             if let message {
-                context.draw(Text(message).font(.plie(24)).foregroundColor(.white),
-                             at: CGPoint(x: w / 2, y: fold + (h - fold) * 0.18))
+                let at = CGPoint(x: w / 2, y: fold + (h - fold) * 0.18)
+                context.drawLayer { glow in
+                    glow.addFilter(.blur(radius: 8))
+                    glow.draw(Text(message).font(.plie(24)).foregroundColor(Theme.darts), at: at)
+                }
+                context.draw(Text(message).font(.plie(24)).foregroundColor(.white), at: at)
             }
         }
         .accessibilityLabel(L("Cible de fléchettes"))
+    }
+
+    /// Une fléchette vue de dos : pointe, fût en tungstène, ailette colorée.
+    static func dart(_ context: inout GraphicsContext, tip: CGPoint, length: CGFloat, scale: CGFloat) {
+        let barrelEnd = CGPoint(x: tip.x, y: tip.y + length * 0.55)
+        let shaftEnd = CGPoint(x: tip.x, y: tip.y + length)
+        var point = Path()
+        point.move(to: tip)
+        point.addLine(to: CGPoint(x: tip.x, y: tip.y + length * 0.18))
+        context.stroke(point, with: .color(Color(hex: 0xE8ECF4)), style: StrokeStyle(lineWidth: 1.6 * scale, lineCap: .round))
+        var barrel = Path()
+        barrel.move(to: CGPoint(x: tip.x, y: tip.y + length * 0.16))
+        barrel.addLine(to: barrelEnd)
+        context.stroke(barrel, with: .linearGradient(Gradient(colors: [Color(hex: 0x6B7280), Color(hex: 0xE5E7EB), Color(hex: 0x6B7280)]),
+                                                     startPoint: CGPoint(x: tip.x - 3 * scale, y: 0), endPoint: CGPoint(x: tip.x + 3 * scale, y: 0)),
+                       style: StrokeStyle(lineWidth: 4.5 * scale, lineCap: .round))
+        var shaft = Path()
+        shaft.move(to: barrelEnd)
+        shaft.addLine(to: shaftEnd)
+        context.stroke(shaft, with: .color(Color(hex: 0x2A2A35)), style: StrokeStyle(lineWidth: 2.4 * scale, lineCap: .round))
+        var flight = Path()
+        flight.move(to: CGPoint(x: shaftEnd.x, y: shaftEnd.y - 6 * scale))
+        flight.addLine(to: CGPoint(x: shaftEnd.x - 8 * scale, y: shaftEnd.y + 8 * scale))
+        flight.addLine(to: CGPoint(x: shaftEnd.x, y: shaftEnd.y + 4 * scale))
+        flight.addLine(to: CGPoint(x: shaftEnd.x + 8 * scale, y: shaftEnd.y + 8 * scale))
+        flight.closeSubpath()
+        context.fill(flight, with: .linearGradient(Gradient(colors: [Theme.darts, Theme.darts.opacity(0.6)]),
+                                                   startPoint: CGPoint(x: shaftEnd.x, y: shaftEnd.y - 6 * scale),
+                                                   endPoint: CGPoint(x: shaftEnd.x, y: shaftEnd.y + 8 * scale)))
+        context.stroke(flight, with: .color(.white.opacity(0.35)), lineWidth: 0.8)
     }
 }

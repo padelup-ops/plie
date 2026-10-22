@@ -169,6 +169,7 @@ enum EnglishStrings {
         "Mon jardin, {} plantes": "My garden, {} plants",
         "Monde {} · {}": "World {} · {}",
         "Mouvement détecté": "Movement detected",
+        "Musique": "Music",
         "Mélanges": "Mixing",
         "Mélanges : rouge et jaune donnent orange, jaune et bleu donnent vert, rouge et bleu donnent violet": "Mixes: red and yellow make orange, yellow and blue make green, red and blue make purple",
         "Mélanges de couleurs et origamis en 4 plis.": "Color mixing and 4-fold origami.",

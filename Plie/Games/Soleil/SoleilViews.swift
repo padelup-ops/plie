@@ -35,7 +35,11 @@ struct SoleilView: View {
             Task { await game.syncCamera() }
         }
         .task { await game.prepareCamera() }
-        .onDisappear { game.shutdown() }
+        .onAppear { MusicPlayer.shared.duck(true) }
+        .onDisappear {
+            game.shutdown()
+            MusicPlayer.shared.duck(false)
+        }
         .onChange(of: game.phase) { _, newPhase in
             if newPhase == .won && !recorded {
                 recorded = true
@@ -74,7 +78,7 @@ struct SoleilView: View {
                         step("4", L("Le premier qui arrive appuie sur « Touché ! » et gagne."))
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Theme.card))
+                    .background(GlassPanel(cornerRadius: 20))
 
                     VStack(spacing: 10) {
                         SectionTitle(text: L("Sévérité de l'arbitre"))
@@ -167,7 +171,7 @@ struct SoleilView: View {
             }
         }
         .padding(16)
-        .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Theme.card))
+        .background(GlassPanel(cornerRadius: 20))
     }
 
     private func step(_ number: String, _ text: String) -> some View {
@@ -263,9 +267,7 @@ struct SoleilView: View {
     private var wonView: some View {
         ScrollView {
             VStack(spacing: 18) {
-                Image(systemName: "trophy.fill")
-                    .font(.system(size: 56, weight: .bold))
-                    .foregroundStyle(Theme.gold)
+                WinIcon(systemName: "trophy.fill", color: Theme.gold)
                     .padding(.top, 30)
                 Text(L("On a un gagnant !"))
                     .font(.plie(34))
@@ -318,6 +320,7 @@ struct SoleilView: View {
             .frame(maxWidth: 560)
             .frame(maxWidth: .infinity)
         }
+        .overlay(alignment: .top) { ConfettiView().frame(height: 600) }
     }
 }
 
@@ -330,11 +333,33 @@ struct SoleilSignal: View {
     var body: some View {
         ZStack {
             color
+            // Rayons de soleil qui tournent doucement derrière le texte
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
+                let t = timeline.date.timeIntervalSinceReferenceDate
+                Canvas { context, size in
+                    let c = CGPoint(x: size.width / 2, y: size.height / 2)
+                    let reach = max(size.width, size.height)
+                    for k in 0..<12 {
+                        let a = Double(k) * .pi / 6 + t * 0.15
+                        var ray = Path()
+                        ray.move(to: c)
+                        ray.addLine(to: CGPoint(x: c.x + CGFloat(cos(a - 0.11)) * reach, y: c.y + CGFloat(sin(a - 0.11)) * reach))
+                        ray.addLine(to: CGPoint(x: c.x + CGFloat(cos(a + 0.11)) * reach, y: c.y + CGFloat(sin(a + 0.11)) * reach))
+                        ray.closeSubpath()
+                        context.fill(ray, with: .color(.white.opacity(0.06)))
+                    }
+                    context.fill(Path(CGRect(origin: .zero, size: size)),
+                                 with: .radialGradient(Gradient(colors: [.white.opacity(0.18), .clear, .black.opacity(0.25)]),
+                                                       center: c, startRadius: 0, endRadius: reach * 0.6))
+                }
+            }
+            .allowsHitTesting(false)
             VStack(spacing: large ? 12 : 2) {
                 Text(title)
                     .font(.plie(large ? 92 : 28))
                     .minimumScaleFactor(0.4)
                     .lineLimit(1)
+                    .shadow(color: .black.opacity(0.3), radius: 8, y: 4)
                 if large, let subtitle {
                     Text(subtitle)
                         .font(.plie(24, weight: .bold))

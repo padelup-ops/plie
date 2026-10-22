@@ -29,7 +29,7 @@ struct RootView: View {
         @Bindable var app = app
 
         ZStack {
-            Theme.ink.ignoresSafeArea()
+            AmbientBackdrop(colors: backdropColors, intensity: 0.2)
 
             switch app.route {
             case .hub:
@@ -69,6 +69,9 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.22), value: app.route)
+        .onChange(of: app.route) { _, _ in
+            SoundPlayer.shared.play(.pop, volume: 0.35)
+        }
         .onAppear {
             #if DEBUG
             app.applyScreenshotRoute()
@@ -92,6 +95,32 @@ struct RootView: View {
         .sheet(isPresented: $app.showPass) {
             PassView()
                 .environment(store)
+        }
+    }
+
+    /// Les couleurs du fond lumineux changent avec le jeu.
+    private var backdropColors: [Color] {
+        switch app.route {
+        case .hub:
+            return [Theme.laser, Theme.paint, Theme.gold]
+        case .rayonLevels, .rayon:
+            return [Color(hex: 0x6A3DE8), Theme.laser, Color(hex: 0x1F4FC9)]
+        case .pliageLevels, .pliage:
+            return [Theme.paint, Color(hex: 0xFF9A3D), Color(hex: 0x8B5CF6)]
+        case .basculeLevels, .bascule:
+            return [Color(hex: 0x3DB8FF), Color(hex: 0x8BDB4F), Theme.gold]
+        case .ferme:
+            return [Color(hex: 0x4FD18B), Color(hex: 0xC7E86B), Color(hex: 0xFF9AC4)]
+        case .panier:
+            return [Theme.sun, Color(hex: 0xFF3D6E), Theme.gold]
+        case .flechettes:
+            return [Theme.stop, Theme.gold, Color(hex: 0x2FD6A0)]
+        case .airHockey:
+            return [Theme.laser, Theme.paint, Color(hex: 0x7B5CFF)]
+        case .coffreLevels, .coffre, .coffreDuel:
+            return [Theme.gold, Color(hex: 0xFF8A3D), Color(hex: 0x6A5CFF)]
+        case .soleil:
+            return [Theme.sun, Theme.go, Theme.gold]
         }
     }
 }

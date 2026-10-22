@@ -62,8 +62,7 @@ struct RayonLevelsView: View {
             }
         } label: {
             ZStack {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(solved ? Theme.laser : Theme.card)
+                LevelTile(done: solved, accent: Theme.laser)
                 if unlocked {
                     Text("\(number)")
                         .font(.plie(22))
@@ -294,7 +293,7 @@ struct RayonPlayView: View {
             }
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.card))
+        .background(GlassPanel(cornerRadius: 16))
     }
 
     private var hintText: String {
@@ -313,11 +312,9 @@ struct RayonPlayView: View {
 
     private var successOverlay: some View {
         ZStack {
-            Color.black.opacity(0.55).ignoresSafeArea()
+            CelebrationBackdrop(accent: Theme.laser)
             VStack(spacing: 14) {
-                Image(systemName: "scope")
-                    .font(.system(size: 44, weight: .bold))
-                    .foregroundStyle(Theme.laser)
+                WinIcon(systemName: "scope", color: Theme.laser)
                 Text(L("Dans le mille !"))
                     .font(.plie(34))
                 Text(session.level.rotors.isEmpty
@@ -347,7 +344,7 @@ struct RayonPlayView: View {
             .foregroundStyle(.white)
             .padding(24)
             .frame(maxWidth: 420)
-            .background(RoundedRectangle(cornerRadius: 28, style: .continuous).fill(Theme.ink))
+            .winCard(accent: Theme.laser)
             .padding(24)
         }
     }
@@ -365,6 +362,8 @@ struct RayonBoard: View {
         let result = session.result
         let hold = session.hold
         let rotorAngles = session.rotorAngles
+        let clock = session.elapsed
+        let number = session.level.number
 
         Canvas { context, size in
             let side = min(size.width, size.height)
@@ -380,16 +379,38 @@ struct RayonBoard: View {
                 return path
             }
 
-            // Fond et quadrillage
-            let board = Path(roundedRect: CGRect(x: 0, y: 0, width: side, height: side), cornerRadius: side * 0.04)
-            context.fill(board, with: .color(Color(hex: 0x13162B)))
+            // Fond : ciel profond, nébuleuses et étoiles
+            let boardRect = CGRect(x: 0, y: 0, width: side, height: side)
+            let board = Path(roundedRect: boardRect, cornerRadius: side * 0.04)
+            context.fill(board, with: .radialGradient(Gradient(colors: [Color(hex: 0x1E2150), Color(hex: 0x0C0E22)]),
+                                                     center: CGPoint(x: side * 0.5, y: side * 0.45), startRadius: 0, endRadius: side * 0.75))
+            context.drawLayer { layer in
+                layer.clip(to: board)
+                layer.addFilter(.blur(radius: side * 0.09))
+                let nebula: [(Double, Double, Color)] = [(0.25, 0.3, Color(hex: 0x6A3DE8)), (0.78, 0.72, Color(hex: 0x1FA2C9)), (0.7, 0.2, Color(hex: 0xC93D8B))]
+                for (i, n) in nebula.enumerated() {
+                    let r = side * CGFloat(0.22 + 0.06 * Draw.hash(number, i))
+                    let c = CGPoint(x: side * CGFloat(n.0), y: side * CGFloat(n.1))
+                    layer.fill(Path(ellipseIn: CGRect(x: c.x - r, y: c.y - r, width: r * 2, height: r * 2)), with: .color(n.2.opacity(0.22)))
+                }
+            }
+            for i in 0..<70 {
+                let x = Draw.hash(i, number) * Double(side)
+                let y = Draw.hash(i, number + 7) * Double(side)
+                let twinkle = 0.35 + 0.65 * (0.5 + 0.5 * sin(clock * (1 + Draw.hash(i, 3) * 2) + Double(i)))
+                let r = CGFloat(0.6 + Draw.hash(i, 11) * 1.4)
+                context.fill(Path(ellipseIn: CGRect(x: CGFloat(x) - r, y: CGFloat(y) - r, width: r * 2, height: r * 2)),
+                             with: .color(.white.opacity(0.55 * twinkle)))
+            }
             var grid = Path()
             for i in 1..<10 {
                 let v = side * CGFloat(i) / 10
                 grid.move(to: CGPoint(x: v, y: 0)); grid.addLine(to: CGPoint(x: v, y: side))
                 grid.move(to: CGPoint(x: 0, y: v)); grid.addLine(to: CGPoint(x: side, y: v))
             }
-            context.stroke(grid, with: .color(.white.opacity(0.04)), lineWidth: 1)
+            context.stroke(grid, with: .color(.white.opacity(0.025)), lineWidth: 1)
+            context.stroke(board, with: .linearGradient(Gradient(colors: [Theme.laser.opacity(0.5), Theme.paint.opacity(0.3)]),
+                                                       startPoint: .zero, endPoint: CGPoint(x: side, y: side)), lineWidth: 2)
 
             // Pliure (là où se trouve la charnière)
             var fold = Path()
@@ -397,18 +418,24 @@ struct RayonBoard: View {
             fold.addLine(to: CGPoint(x: side / 2, y: side * 0.98))
             context.stroke(fold, with: .color(.white.opacity(0.06)), style: StrokeStyle(lineWidth: 1, dash: [4, 6]))
 
-            // Murs
+            // Murs : blocs de pierre avec un liseré
             for w in level.walls {
                 let (a, b) = RayonEngine.endpoints(cx: w.cx, cy: w.cy, length: w.length, angle: w.angle)
-                context.stroke(segmentPath(a, b), with: .color(Color(hex: 0x4A4F6E)),
+                context.stroke(segmentPath(a, b), with: .color(.black.opacity(0.35)),
+                               style: StrokeStyle(lineWidth: side * 0.03, lineCap: .round))
+                context.stroke(segmentPath(a, b), with: .linearGradient(Gradient(colors: [Color(hex: 0x5C6390), Color(hex: 0x3A3F63)]),
+                                                                       startPoint: point(a), endPoint: point(b)),
                                style: StrokeStyle(lineWidth: side * 0.024, lineCap: .round))
+                context.stroke(segmentPath(a, b), with: .color(.white.opacity(0.18)),
+                               style: StrokeStyle(lineWidth: side * 0.004, lineCap: .round))
             }
 
-            // Miroirs fixes
+            // Miroirs fixes : argent poli
             for m in level.mirrors {
                 let (a, b) = RayonEngine.endpoints(cx: m.cx, cy: m.cy, length: m.length, angle: m.angle)
-                context.stroke(segmentPath(a, b), with: .color(Color(hex: 0xDDE3F5)),
-                               style: StrokeStyle(lineWidth: side * 0.012, lineCap: .round))
+                context.stroke(segmentPath(a, b), with: .linearGradient(Gradient(colors: [Color(hex: 0x9FA8C7), .white, Color(hex: 0xB9C2DD), .white]),
+                                                                       startPoint: point(a), endPoint: point(b)),
+                               style: StrokeStyle(lineWidth: side * 0.013, lineCap: .round))
             }
 
             // Miroirs pilotés par la charnière
@@ -417,8 +444,14 @@ struct RayonBoard: View {
                 let center = point(Pt(c.cx, c.cy))
                 let ring = Path(ellipseIn: CGRect(x: center.x - c.length * side / 2, y: center.y - c.length * side / 2,
                                                   width: c.length * side, height: c.length * side))
-                context.stroke(ring, with: .color(Theme.laser.opacity(0.12)), style: StrokeStyle(lineWidth: 1, dash: [3, 5]))
-                context.stroke(segmentPath(a, b), with: .color(Theme.laser),
+                context.stroke(ring, with: .color(Theme.laser.opacity(0.16)), style: StrokeStyle(lineWidth: 1, dash: [3, 5]))
+                context.drawLayer { layer in
+                    layer.addFilter(.blur(radius: side * 0.01))
+                    layer.stroke(segmentPath(a, b), with: .color(Theme.laser.opacity(0.7)),
+                                 style: StrokeStyle(lineWidth: side * 0.03, lineCap: .round))
+                }
+                context.stroke(segmentPath(a, b), with: .linearGradient(Gradient(colors: [Theme.laser, .white, Theme.laser]),
+                                                                       startPoint: point(a), endPoint: point(b)),
                                style: StrokeStyle(lineWidth: side * 0.016, lineCap: .round))
                 context.fill(Path(ellipseIn: CGRect(x: center.x - 5, y: center.y - 5, width: 10, height: 10)),
                              with: .color(.white))
@@ -430,7 +463,9 @@ struct RayonBoard: View {
                 let center = point(Pt(r.cx, r.cy))
                 let radius = r.length * side / 2 + side * 0.012
                 let disk = Path(ellipseIn: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
-                context.fill(disk, with: .color(Color(hex: 0x262B4D)))
+                context.fill(disk, with: .radialGradient(Gradient(colors: [Color(hex: 0x3A4170), Color(hex: 0x1D2140)]),
+                                                        center: CGPoint(x: center.x - radius * 0.3, y: center.y - radius * 0.35),
+                                                        startRadius: 0, endRadius: radius * 1.4))
                 context.stroke(disk, with: .color(Theme.gold.opacity(0.55)), lineWidth: max(1.5, side * 0.004))
                 // 4 repères : les orientations possibles
                 for k in 0..<8 {
@@ -457,9 +492,22 @@ struct RayonBoard: View {
                                                width: badgeSize, height: badgeSize))
             }
 
-            // Cible
+            // Cible (anneaux qui pulsent)
             let target = point(level.target)
             let r = level.targetRadius * side
+            let pulse = CGFloat(0.5 + 0.5 * sin(clock * 3))
+            for k in 0..<2 {
+                let rr = r * (1.25 + 0.35 * CGFloat(k) + 0.15 * pulse)
+                context.stroke(Path(ellipseIn: CGRect(x: target.x - rr, y: target.y - rr, width: rr * 2, height: rr * 2)),
+                               with: .color(Theme.gold.opacity(0.18 - 0.07 * Double(k))), lineWidth: 1.5)
+            }
+            if result.hit {
+                context.drawLayer { layer in
+                    layer.addFilter(.blur(radius: r * 0.8))
+                    layer.fill(Path(ellipseIn: CGRect(x: target.x - r * 1.4, y: target.y - r * 1.4, width: r * 2.8, height: r * 2.8)),
+                               with: .color(Theme.gold.opacity(0.55)))
+                }
+            }
             let targetRect = CGRect(x: target.x - r, y: target.y - r, width: r * 2, height: r * 2)
             context.stroke(Path(ellipseIn: targetRect), with: .color(Theme.gold), lineWidth: max(2, side * 0.008))
             let innerR = r * 0.45
@@ -490,8 +538,14 @@ struct RayonBoard: View {
             // Émetteur
             let e = point(level.emitter)
             let er = side * 0.026
-            context.fill(Path(ellipseIn: CGRect(x: e.x - er, y: e.y - er, width: er * 2, height: er * 2)), with: .color(Theme.coral))
-            context.stroke(Path(ellipseIn: CGRect(x: e.x - er, y: e.y - er, width: er * 2, height: er * 2)), with: .color(.white), lineWidth: 2)
+            context.drawLayer { layer in
+                layer.addFilter(.blur(radius: er * 0.7))
+                let g = er * (1.6 + 0.25 * pulse)
+                layer.fill(Path(ellipseIn: CGRect(x: e.x - g, y: e.y - g, width: g * 2, height: g * 2)), with: .color(Theme.coral.opacity(0.6)))
+            }
+            var core = context
+            Draw.shadedBall(&core, center: e, radius: er, color: Theme.coral)
+            context.stroke(Path(ellipseIn: CGRect(x: e.x - er, y: e.y - er, width: er * 2, height: er * 2)), with: .color(.white.opacity(0.9)), lineWidth: 2)
         }
         .accessibilityLabel(result.hit ? L("Plateau de jeu : le laser touche la cible") : L("Plateau de jeu : le laser ne touche pas la cible"))
     }

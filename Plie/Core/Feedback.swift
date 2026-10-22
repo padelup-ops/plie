@@ -5,6 +5,7 @@ import UIKit
 final class SoundPlayer {
     enum Effect: String, CaseIterable {
         case notch, decoy, clunk, lock, wrong, vault, win, beam, go, stop, caught, splat
+        case whoosh, swish, thud, pop, puck, goal, bloom
     }
 
     static let shared = SoundPlayer()
@@ -17,7 +18,12 @@ final class SoundPlayer {
         for effect in Effect.allCases {
             guard let url = Bundle.main.url(forResource: effect.rawValue, withExtension: "wav") else { continue }
             // Plusieurs lecteurs par son : les crans du coffre peuvent s'enchaîner très vite.
-            let copies = (effect == .notch || effect == .decoy) ? 4 : 1
+            let copies: Int
+            switch effect {
+            case .notch, .decoy, .puck: copies = 4
+            case .thud, .pop, .whoosh: copies = 3
+            default: copies = 1
+            }
             var list: [AVAudioPlayer] = []
             for _ in 0..<copies {
                 if let player = try? AVAudioPlayer(contentsOf: url) {
@@ -103,5 +109,50 @@ enum Haptics {
     static func warning() {
         guard enabled else { return }
         notification.notificationOccurred(.warning)
+    }
+}
+
+/// Musique d'ambiance douce, en boucle. Se tait si une autre app joue déjà de la musique.
+final class MusicPlayer {
+    static let shared = MusicPlayer()
+
+    private var player: AVAudioPlayer?
+    private var enabled = true
+    private var ducked = 0
+
+    private init() {
+        if let url = Bundle.main.url(forResource: "ambient", withExtension: "m4a"),
+           let p = try? AVAudioPlayer(contentsOf: url) {
+            p.numberOfLoops = -1
+            p.volume = 0
+            p.prepareToPlay()
+            player = p
+        }
+    }
+
+    func setEnabled(_ on: Bool) {
+        enabled = on
+        update()
+    }
+
+    /// Les jeux qui ont besoin d'entendre de petits sons (coffre, voix de Soleil) baissent la musique.
+    func duck(_ on: Bool) {
+        ducked = max(0, ducked + (on ? 1 : -1))
+        update()
+    }
+
+    private func update() {
+        guard let player else { return }
+        let shouldPlay = enabled && ducked == 0 && !AVAudioSession.sharedInstance().isOtherAudioPlaying
+        if shouldPlay {
+            if !player.isPlaying { player.play() }
+            player.setVolume(0.32, fadeDuration: 1.2)
+        } else if player.isPlaying {
+            player.setVolume(0, fadeDuration: 0.6)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+                guard let self, let player = self.player, !(self.enabled && self.ducked == 0) else { return }
+                player.pause()
+            }
+        }
     }
 }

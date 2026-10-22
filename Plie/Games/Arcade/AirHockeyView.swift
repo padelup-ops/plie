@@ -44,6 +44,11 @@ final class HockeyGame {
     private(set) var scoreB = 0
     private(set) var lastScorer = 0
     private(set) var goalTimer: Double = 0
+    /// Dernières positions du palet, pour sa traînée lumineuse.
+    private(set) var trail: [HVec] = []
+    /// Moment du dernier choc (pour l'onde autour du maillet).
+    private(set) var impact: (at: HVec, time: Double)?
+    private(set) var time: Double = 0
 
     @ObservationIgnored private var velA = HVec(u: 0, v: 0)
     @ObservationIgnored private var velB = HVec(u: 0, v: 0)
@@ -68,6 +73,7 @@ final class HockeyGame {
         malletB = HVec(u: 0.86, v: width / 2)
         puck = HVec(u: serveToA ? 0.3 : 0.7, v: width / 2)
         puckVel = HVec(u: 0, v: 0)
+        trail = []
         targetA = nil
         targetB = nil
         velA = HVec(u: 0, v: 0)
@@ -81,6 +87,7 @@ final class HockeyGame {
 
     func tick(dt: Double) {
         clock += dt
+        time = clock
         switch phase {
         case .goal:
             goalTimer -= dt
@@ -108,6 +115,8 @@ final class HockeyGame {
             movePuck(h)
             if phase != .playing { break }
         }
+        trail.append(puck)
+        if trail.count > 12 { trail.removeFirst(trail.count - 12) }
     }
 
     private func clampA(_ p: HVec) -> HVec {
@@ -216,15 +225,17 @@ final class HockeyGame {
         }
         if clock - lastHit > 0.08 {
             lastHit = clock
+            impact = (puck, clock)
             Haptics.tap()
-            SoundPlayer.shared.play(.notch, volume: 0.8)
+            SoundPlayer.shared.play(.puck, volume: 0.9)
         }
     }
 
     private func bump() {
         if clock - lastHit > 0.08 {
             lastHit = clock
-            SoundPlayer.shared.play(.notch, volume: 0.4)
+            impact = (puck, clock)
+            SoundPlayer.shared.play(.puck, volume: 0.45)
         }
     }
 
@@ -234,7 +245,7 @@ final class HockeyGame {
         phase = .goal
         goalTimer = 1.3
         Haptics.success()
-        SoundPlayer.shared.play(.caught, volume: 0.7)
+        SoundPlayer.shared.play(.goal, volume: 0.85)
     }
 }
 
@@ -347,7 +358,7 @@ struct AirHockeyView: View {
         .foregroundStyle(.white)
         .padding(24)
         .frame(maxWidth: 460)
-        .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(Theme.ink.opacity(0.94)))
+        .winCard(accent: Theme.laser)
         .padding(20)
     }
 }
@@ -366,6 +377,9 @@ struct HockeyTable: View {
         let goalFlash = game.phase == .goal
         let width = game.width
         let gw = game.goalWidth
+        let trail = game.trail
+        let impact = game.impact
+        let now = game.time
 
         Canvas { context, size in
             func sp(_ u: Double, _ v: Double) -> CGPoint {
@@ -376,26 +390,50 @@ struct HockeyTable: View {
                 Path(ellipseIn: CGRect(x: c.x - r, y: c.y - r, width: r * 2, height: r * 2))
             }
 
+            // Table néon : fond sombre, trous d'air, bandes lumineuses
             let table = CGRect(origin: .zero, size: size)
-            context.fill(Path(roundedRect: table, cornerRadius: 18),
-                         with: .linearGradient(Gradient(colors: [Color(hex: 0x123B6E), Color(hex: 0x0D2A52)]),
-                                               startPoint: .zero, endPoint: CGPoint(x: size.width, y: size.height)))
-            context.stroke(Path(roundedRect: table.insetBy(dx: 3, dy: 3), cornerRadius: 16), with: .color(.white.opacity(0.5)), lineWidth: 3)
+            let tablePath = Path(roundedRect: table, cornerRadius: 18)
+            context.fill(tablePath, with: .linearGradient(Gradient(colors: [Color(hex: 0x0B1440), Color(hex: 0x070B26)]),
+                                                         startPoint: .zero, endPoint: CGPoint(x: size.width, y: size.height)))
+            context.fill(tablePath, with: .radialGradient(Gradient(colors: [Color(hex: 0x2A3CFF).opacity(0.18), .clear]),
+                                                         center: CGPoint(x: size.width / 2, y: size.height / 2), startRadius: 0,
+                                                         endRadius: max(size.width, size.height) * 0.6))
+            var holes = Path()
+            let gap: CGFloat = 18
+            var y: CGFloat = gap / 2
+            while y < size.height {
+                var x: CGFloat = gap / 2
+                while x < size.width {
+                    holes.addEllipse(in: CGRect(x: x - 0.9, y: y - 0.9, width: 1.8, height: 1.8))
+                    x += gap
+                }
+                y += gap
+            }
+            context.fill(holes, with: .color(.white.opacity(0.07)))
+            func neon(_ path: Path, _ color: Color, _ width: CGFloat, dash: [CGFloat] = []) {
+                context.drawLayer { glow in
+                    glow.addFilter(.blur(radius: width * 2))
+                    glow.stroke(path, with: .color(color.opacity(0.9)), style: StrokeStyle(lineWidth: width * 2, lineCap: .round, dash: dash))
+                }
+                context.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: width, lineCap: .round, dash: dash))
+                context.stroke(path, with: .color(.white.opacity(0.6)), style: StrokeStyle(lineWidth: max(1, width * 0.3), lineCap: .round, dash: dash))
+            }
+            neon(Path(roundedRect: table.insetBy(dx: 4, dy: 4), cornerRadius: 15), Color(hex: 0x7B5CFF), 3)
 
             // Ligne médiane (la charnière) et rond central
             var mid = Path()
             mid.move(to: sp(0.5, 0))
             mid.addLine(to: sp(0.5, width))
-            context.stroke(mid, with: .color(Color(hex: 0xFF4A5A).opacity(0.8)), style: StrokeStyle(lineWidth: 3, dash: [10, 8]))
-            context.stroke(disc(sp(0.5, width / 2), scale * 0.14), with: .color(Color(hex: 0xFF4A5A).opacity(0.6)), lineWidth: 2)
+            neon(mid, Color(hex: 0xFF4A5A), 2.5, dash: [10, 8])
+            neon(disc(sp(0.5, width / 2), scale * 0.14), Color(hex: 0xFF4A5A).opacity(0.8), 2)
 
             // Buts
             for (u, color) in [(0.0, Theme.hockeyA), (1.0, Theme.hockeyB)] {
                 var g = Path()
                 g.move(to: sp(u, width / 2 - gw / 2))
                 g.addLine(to: sp(u, width / 2 + gw / 2))
-                context.stroke(g, with: .color(color), style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                context.stroke(disc(sp(u, width / 2), scale * CGFloat(gw / 2)), with: .color(color.opacity(0.25)), lineWidth: 2)
+                neon(g, color, 7)
+                neon(disc(sp(u, width / 2), scale * CGFloat(gw / 2)), color.opacity(0.5), 1.5)
             }
 
             // Scores, chacun tourné vers son joueur
@@ -409,21 +447,53 @@ struct HockeyTable: View {
             }
 
             // Maillets et palet
+            let pr = CGFloat(HockeyGame.puckR) * scale
+            // Traînée du palet
+            if trail.count > 1 {
+                for (i, p) in trail.enumerated() {
+                    let f = CGFloat(i + 1) / CGFloat(trail.count)
+                    context.fill(disc(sp(p.u, p.v), pr * (0.4 + 0.6 * f)), with: .color(Theme.laser.opacity(0.22 * Double(f))))
+                }
+            }
+            // Onde de choc
+            if let impact {
+                let age = now - impact.time
+                if age < 0.35 {
+                    let k = CGFloat(age / 0.35)
+                    context.stroke(disc(sp(impact.at.u, impact.at.v), pr * (1 + 2.2 * k)),
+                                   with: .color(.white.opacity(0.6 * Double(1 - k))), lineWidth: 2)
+                }
+            }
             for (m, color) in [(a, Theme.hockeyA), (b, Theme.hockeyB)] {
                 let c = sp(m.u, m.v)
                 let r = CGFloat(HockeyGame.malletR) * scale
-                context.fill(disc(c, r), with: .color(color))
-                context.fill(disc(c, r * 0.55), with: .color(.white.opacity(0.35)))
-                context.stroke(disc(c, r), with: .color(.white.opacity(0.6)), lineWidth: 2)
+                context.drawLayer { glow in
+                    glow.addFilter(.blur(radius: r * 0.5))
+                    glow.fill(disc(c, r * 1.15), with: .color(color.opacity(0.6)))
+                }
+                Draw.shadedBall(&context, center: c, radius: r, color: color)
+                context.fill(disc(c, r * 0.5), with: .radialGradient(Gradient(colors: [.white.opacity(0.7), color]),
+                                                                    center: CGPoint(x: c.x - r * 0.15, y: c.y - r * 0.15),
+                                                                    startRadius: 0, endRadius: r * 0.5))
+                context.stroke(disc(c, r), with: .color(.white.opacity(0.55)), lineWidth: 1.5)
             }
             let pc = sp(puck.u, puck.v)
-            let pr = CGFloat(HockeyGame.puckR) * scale
-            context.fill(disc(pc, pr), with: .color(Color(hex: 0x111111)))
-            context.stroke(disc(pc, pr), with: .color(.white.opacity(goalFlash ? 1 : 0.7)), lineWidth: goalFlash ? 4 : 2)
+            context.drawLayer { glow in
+                glow.addFilter(.blur(radius: pr * 0.6))
+                glow.fill(disc(pc, pr * 1.3), with: .color(Theme.laser.opacity(goalFlash ? 0.9 : 0.55)))
+            }
+            context.fill(disc(pc, pr), with: .radialGradient(Gradient(colors: [Color(hex: 0x3A3F55), Color(hex: 0x0B0C14)]),
+                                                            center: CGPoint(x: pc.x - pr * 0.3, y: pc.y - pr * 0.3),
+                                                            startRadius: 0, endRadius: pr * 1.3))
+            context.stroke(disc(pc, pr), with: .color(Theme.laser.opacity(goalFlash ? 1 : 0.85)), lineWidth: goalFlash ? 4 : 2)
 
             if goalFlash {
-                let text = Text(L("BUT !")).font(.plie(scale * 0.12)).foregroundColor(.white)
-                context.draw(text, at: CGPoint(x: size.width / 2, y: size.height / 2))
+                let at = CGPoint(x: size.width / 2, y: size.height / 2)
+                context.drawLayer { glow in
+                    glow.addFilter(.blur(radius: 12))
+                    glow.draw(Text(L("BUT !")).font(.plie(scale * 0.12)).foregroundColor(Theme.paint), at: at)
+                }
+                context.draw(Text(L("BUT !")).font(.plie(scale * 0.12)).foregroundColor(.white), at: at)
             }
         }
         .accessibilityLabel(L("Table d'air hockey, \(scoreA) à \(scoreB)"))

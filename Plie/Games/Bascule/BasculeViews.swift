@@ -66,8 +66,12 @@ struct BasculeLevelsView: View {
             }
         } label: {
             ZStack {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(stars != nil ? Theme.cardHigh : Theme.card)
+                LevelTile(done: false, accent: Theme.bascule)
+                if stars != nil {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Theme.bascule.opacity(0.7), lineWidth: 1.5)
+                        .shadow(color: Theme.bascule.opacity(0.5), radius: 6)
+                }
                 if unlocked {
                     VStack(spacing: 3) {
                         Text("\(number)")
@@ -159,7 +163,7 @@ struct BasculePlayView: View {
                     .monospacedDigit()
             }
             .padding(12)
-            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.card))
+            .background(GlassPanel(cornerRadius: 16))
 
             Button {
                 showTip = false
@@ -200,11 +204,9 @@ struct BasculePlayView: View {
 
     private var successOverlay: some View {
         ZStack {
-            Color.black.opacity(0.6).ignoresSafeArea()
+            CelebrationBackdrop(accent: Theme.gold)
             VStack(spacing: 14) {
-                Image(systemName: "basketball.fill")
-                    .font(.system(size: 44, weight: .bold))
-                    .foregroundStyle(Theme.bascule)
+                WinIcon(systemName: "basketball.fill", color: Theme.bascule)
                 Text(L("Dans le panier !"))
                     .font(.plie(34))
                 StarsView(count: session.collected.count, size: 28)
@@ -243,7 +245,7 @@ struct BasculePlayView: View {
             .foregroundStyle(.white)
             .padding(24)
             .frame(maxWidth: 420)
-            .background(RoundedRectangle(cornerRadius: 28, style: .continuous).fill(Theme.ink))
+            .winCard(accent: Theme.gold)
             .padding(24)
         }
     }
@@ -276,11 +278,50 @@ struct BasculeBoard: View {
                 return p
             }
 
-            // Ciel
+            // Ciel de fin de journée, soleil, nuages et collines
             let board = Path(roundedRect: CGRect(x: 0, y: 0, width: side, height: side), cornerRadius: side * 0.04)
-            context.fill(board, with: .linearGradient(Gradient(colors: [Color(hex: 0x1B3358), Color(hex: 0x0F1B33)]),
+            context.fill(board, with: .linearGradient(Gradient(colors: [Color(hex: 0x1A2A5E), Color(hex: 0x3B3B8F), Color(hex: 0x8C4F8F), Color(hex: 0xF08A5D)]),
                                                      startPoint: .zero, endPoint: CGPoint(x: 0, y: side)))
-            context.fill(Path(CGRect(x: 0, y: side * 0.985, width: side, height: side * 0.015)), with: .color(Color(hex: 0x0A0F1E)))
+            context.drawLayer { sky in
+                sky.clip(to: board)
+                let sun = pt(0.78, 0.2)
+                sky.drawLayer { glow in
+                    glow.addFilter(.blur(radius: side * 0.06))
+                    glow.fill(Path(ellipseIn: CGRect(x: sun.x - side * 0.16, y: sun.y - side * 0.16, width: side * 0.32, height: side * 0.32)),
+                              with: .color(Color(hex: 0xFFD28A).opacity(0.55)))
+                }
+                sky.fill(Path(ellipseIn: CGRect(x: sun.x - side * 0.06, y: sun.y - side * 0.06, width: side * 0.12, height: side * 0.12)),
+                         with: .color(Color(hex: 0xFFE3A8).opacity(0.9)))
+                // Nuages qui dérivent
+                for i in 0..<4 {
+                    let speed = 0.008 + Draw.hash(i, 5) * 0.01
+                    var x = (Draw.hash(i, level.number) + clock * speed).truncatingRemainder(dividingBy: 1.4) - 0.2
+                    if x < -0.2 { x += 1.4 }
+                    let y = 0.62 + Draw.hash(i, level.number + 3) * 0.32
+                    let c = pt(x, y)
+                    let w = side * CGFloat(0.16 + Draw.hash(i, 9) * 0.1)
+                    var cloud = Path()
+                    cloud.addEllipse(in: CGRect(x: c.x - w / 2, y: c.y - w * 0.12, width: w, height: w * 0.28))
+                    cloud.addEllipse(in: CGRect(x: c.x - w * 0.28, y: c.y - w * 0.26, width: w * 0.42, height: w * 0.36))
+                    cloud.addEllipse(in: CGRect(x: c.x - w * 0.02, y: c.y - w * 0.2, width: w * 0.34, height: w * 0.3))
+                    sky.fill(cloud, with: .color(.white.opacity(0.12)))
+                }
+                // Collines au loin
+                for layerIndex in 0..<2 {
+                    var hills = Path()
+                    let base = 0.07 + 0.04 * Double(1 - layerIndex)
+                    hills.move(to: pt(0, 0))
+                    for k in 0...40 {
+                        let x = Double(k) / 40
+                        let y = base + 0.025 * sin(x * 7 + Double(layerIndex) * 2 + Double(level.number)) + 0.015 * sin(x * 17)
+                        hills.addLine(to: pt(x, y))
+                    }
+                    hills.addLine(to: pt(1, 0))
+                    hills.closeSubpath()
+                    sky.fill(hills, with: .color(Color(hex: layerIndex == 0 ? 0x4A2E5C : 0x2A1B3D).opacity(0.85)))
+                }
+            }
+            context.stroke(board, with: .color(.white.opacity(0.12)), lineWidth: 1.5)
 
             // Pliure du Duo
             context.stroke(line(pt(0.5, 0.02), pt(0.5, 0.98)), with: .color(.white.opacity(0.07)),
@@ -310,29 +351,49 @@ struct BasculeBoard: View {
 
             // Pente de départ
             let start = level.startPoint
-            context.stroke(line(pt(start.x, start.y - 0.015), pt(0.5, level.pivotY - 0.015)),
-                           with: .color(Color(hex: 0xC98A4B)), style: StrokeStyle(lineWidth: side * 0.022, lineCap: .round))
+            let slopeA = pt(start.x, start.y - 0.015)
+            let slopeB = pt(0.5, level.pivotY - 0.015)
+            context.stroke(line(slopeA, slopeB).offsetBy(dx: 0, dy: side * 0.008), with: .color(.black.opacity(0.25)),
+                           style: StrokeStyle(lineWidth: side * 0.022, lineCap: .round))
+            context.stroke(line(slopeA, slopeB),
+                           with: .linearGradient(Gradient(colors: [Color(hex: 0xE0A867), Color(hex: 0xB0743C)]), startPoint: slopeA, endPoint: slopeB),
+                           style: StrokeStyle(lineWidth: side * 0.022, lineCap: .round))
+            context.stroke(line(slopeA, slopeB).offsetBy(dx: 0, dy: -side * 0.005), with: .color(.white.opacity(0.25)),
+                           style: StrokeStyle(lineWidth: side * 0.004, lineCap: .round))
 
             // Tremplin
             let tip = BasculeEngine.rampTip(level, alpha: alpha)
-            context.stroke(line(pt(0.5, level.pivotY), pt(tip.x, tip.y)),
-                           with: .color(Theme.bascule), style: StrokeStyle(lineWidth: side * 0.02, lineCap: .round))
+            let rampA = pt(0.5, level.pivotY)
+            let rampB = pt(tip.x, tip.y)
+            context.drawLayer { glow in
+                glow.addFilter(.blur(radius: side * 0.012))
+                glow.stroke(line(rampA, rampB), with: .color(Theme.bascule.opacity(0.6)), style: StrokeStyle(lineWidth: side * 0.03, lineCap: .round))
+            }
+            context.stroke(line(rampA, rampB),
+                           with: .linearGradient(Gradient(colors: [Theme.bascule, .white.opacity(0.9), Theme.bascule]), startPoint: rampA, endPoint: rampB),
+                           style: StrokeStyle(lineWidth: side * 0.02, lineCap: .round))
             let pivot = pt(0.5, level.pivotY)
             let pr = side * 0.018
-            context.fill(Path(ellipseIn: CGRect(x: pivot.x - pr, y: pivot.y - pr, width: pr * 2, height: pr * 2)), with: .color(.white))
+            Draw.shadedBall(&context, center: pivot, radius: pr, color: Color(hex: 0xC9CFE6))
 
             // Aide à la visée
             if aiming {
-                for p in preview {
+                for (i, p) in preview.enumerated() {
                     let c = pt(p.x, p.y)
-                    context.fill(Path(ellipseIn: CGRect(x: c.x - 2.5, y: c.y - 2.5, width: 5, height: 5)), with: .color(.white.opacity(0.45)))
+                    let fade = 1 - Double(i) / Double(max(1, preview.count))
+                    let r = 1.5 + 1.5 * fade
+                    context.fill(Path(ellipseIn: CGRect(x: c.x - r, y: c.y - r, width: r * 2, height: r * 2)), with: .color(.white.opacity(0.2 + 0.45 * fade)))
                 }
             }
 
             // Murs
             for w in level.walls {
-                context.stroke(line(pt(w.ax, w.ay), pt(w.bx, w.by)), with: .color(Color(hex: 0x5A6488)),
+                let wa = pt(w.ax, w.ay), wb = pt(w.bx, w.by)
+                context.stroke(line(wa, wb).offsetBy(dx: 0, dy: side * 0.006), with: .color(.black.opacity(0.3)),
                                style: StrokeStyle(lineWidth: side * 0.016, lineCap: .round))
+                context.stroke(line(wa, wb), with: .linearGradient(Gradient(colors: [Color(hex: 0x7A84AE), Color(hex: 0x4A5278)]), startPoint: wa, endPoint: wb),
+                               style: StrokeStyle(lineWidth: side * 0.016, lineCap: .round))
+                context.stroke(line(wa, wb), with: .color(.white.opacity(0.2)), style: StrokeStyle(lineWidth: side * 0.003, lineCap: .round))
             }
 
             // Ressorts
@@ -360,20 +421,42 @@ struct BasculeBoard: View {
             cup.addLine(to: pt(basket.x2, basket.top))
             context.fill(Path(CGRect(x: pt(basket.x1, basket.top).x, y: pt(basket.x1, basket.top).y,
                                      width: (basket.x2 - basket.x1) * side, height: BasculeEngine.basketDepth * side)),
-                         with: .color(Theme.gold.opacity(0.15)))
+                         with: .linearGradient(Gradient(colors: [Theme.gold.opacity(0.05), Theme.gold.opacity(0.3)]),
+                                               startPoint: pt(basket.x1, basket.top), endPoint: pt(basket.x1, bottom)))
+            // Tressage du panier
+            var weave = Path()
+            let rows = 3
+            for k in 1..<rows {
+                let y = basket.top - BasculeEngine.basketDepth * Double(k) / Double(rows)
+                weave.move(to: pt(basket.x1, y))
+                weave.addLine(to: pt(basket.x2, y))
+            }
+            context.stroke(weave, with: .color(Theme.gold.opacity(0.45)), lineWidth: 1)
+            context.drawLayer { glow in
+                glow.addFilter(.blur(radius: side * 0.01))
+                glow.stroke(cup, with: .color(Theme.gold.opacity(0.7)), style: StrokeStyle(lineWidth: side * 0.02, lineCap: .round, lineJoin: .round))
+            }
             context.stroke(cup, with: .color(Theme.gold), style: StrokeStyle(lineWidth: side * 0.012, lineCap: .round, lineJoin: .round))
 
             // Étoiles
             for (index, s) in level.stars.enumerated() where !collected.contains(index) {
                 let c = pt(s.x, s.y)
-                context.fill(BasculeBoard.star(center: c, radius: BasculeEngine.starRadius * side), with: .color(Theme.gold))
+                let sr = BasculeEngine.starRadius * side
+                context.drawLayer { glow in
+                    glow.addFilter(.blur(radius: sr * 0.6))
+                    glow.fill(Path(ellipseIn: CGRect(x: c.x - sr * 1.3, y: c.y - sr * 1.3, width: sr * 2.6, height: sr * 2.6)),
+                              with: .color(Theme.gold.opacity(0.35 + 0.15 * sin(clock * 4 + Double(index)))))
+                }
+                let starPath = Draw.star(center: c, radius: sr, rotation: sin(clock * 1.5 + Double(index)) * 0.25)
+                context.fill(starPath, with: .linearGradient(Gradient(colors: [Color(hex: 0xFFF1B8), Theme.gold, Color(hex: 0xF0A020)]),
+                                                             startPoint: CGPoint(x: c.x, y: c.y - sr), endPoint: CGPoint(x: c.x, y: c.y + sr)))
+                context.stroke(starPath, with: .color(.white.opacity(0.6)), lineWidth: 1)
             }
 
             // Bille
             let b = pt(ballX, ballY)
             let br = BasculeEngine.ballRadius * side
-            context.fill(Path(ellipseIn: CGRect(x: b.x - br, y: b.y - br, width: br * 2, height: br * 2)), with: .color(Color(hex: 0xFF7A2F)))
-            context.fill(Path(ellipseIn: CGRect(x: b.x - br * 0.45, y: b.y - br * 0.6, width: br * 0.6, height: br * 0.6)), with: .color(.white.opacity(0.6)))
+            Draw.shadedBall(&context, center: b, radius: br, color: Color(hex: 0xFF7A2F))
         }
         .accessibilityLabel(L("Plateau : tremplin à \(Int(alpha.rounded())) degrés"))
     }

@@ -325,7 +325,7 @@ final class BasculeSession {
         attempts += 1
         phase = .rolling
         Haptics.tap()
-        SoundPlayer.shared.play(.notch, volume: 0.6)
+        SoundPlayer.shared.play(.whoosh, volume: 0.5)
     }
 
     func tick(dt: Double) {
@@ -369,7 +369,7 @@ final class BasculeSession {
             }
             if f.stars.count > collected.count {
                 Haptics.tap()
-                SoundPlayer.shared.play(.beam, volume: 0.5)
+                SoundPlayer.shared.play(.pop, volume: 0.8)
             }
             collected = f.stars
             ballX = f.x
