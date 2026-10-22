@@ -72,9 +72,9 @@ struct BasculeLevel {
 
     static func worldName(_ world: Int) -> String {
         switch world {
-        case 1: return "Premier saut"
-        case 2: return "Coup de vent"
-        default: return "Rebonds"
+        case 1: return L("Premier saut")
+        case 2: return L("Coup de vent")
+        default: return L("Rebonds")
         }
     }
 
@@ -84,9 +84,9 @@ struct BasculeLevel {
     var tip: String? {
         guard let first = BasculeLevel.all.first(where: { $0.world == world }), first.number == number else { return nil }
         switch world {
-        case 1: return "Le pli règle le tremplin : plus tu fermes ton Duo, plus il se relève. Vise le panier, puis lâche la bille."
-        case 2: return "Le vent pousse la bille pendant son vol. Regarde le sens des flèches avant de viser."
-        case 3: return "Le panier n'est accessible qu'en rebondissant sur le ressort vert."
+        case 1: return L("Le pli règle le tremplin : plus tu fermes ton Duo, plus il se relève. Vise le panier, puis lâche la bille.")
+        case 2: return L("Le vent pousse la bille pendant son vol. Regarde le sens des flèches avant de viser.")
+        case 3: return L("Le panier n'est accessible qu'en rebondissant sur le ressort vert.")
         default: return nil
         }
     }
@@ -253,7 +253,7 @@ enum BasculeEngine {
             if f.outcome == .win && f.stars.count == 3 {
                 ok += 1
             } else {
-                failures.append("BASCULE \(level.number): \(f.outcome) étoiles=\(f.stars.count)")
+                failures.append(L("BASCULE \(level.number): \(f.outcome) étoiles=\(f.stars.count)"))
             }
         }
         return (ok, failures)
@@ -353,7 +353,7 @@ final class BasculeSession {
                 if p >= 1 {
                     let f = BasculeEngine.launch(level, alpha: lockedAlpha)
                     if f.outcome == .short {
-                        miss("Pas assez d'élan : baisse le tremplin.")
+                        miss(L("Pas assez d'élan : baisse le tremplin."))
                     } else {
                         flight = f
                         phase = .flying
@@ -382,11 +382,11 @@ final class BasculeSession {
                 Haptics.success()
                 SoundPlayer.shared.play(.win)
             case .wall:
-                miss("Bing ! Un mur. Essaie un autre angle.")
+                miss(L("Bing ! Un mur. Essaie un autre angle."))
             case .out:
-                miss("Raté ! Ajuste le tremplin.")
+                miss(L("Raté ! Ajuste le tremplin."))
             case .short:
-                miss("Pas assez d'élan : baisse le tremplin.")
+                miss(L("Pas assez d'élan : baisse le tremplin."))
             case .flying:
                 break
             }

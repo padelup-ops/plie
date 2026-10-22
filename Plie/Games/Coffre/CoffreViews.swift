@@ -9,8 +9,8 @@ struct CoffreLevelsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            GameHeader(title: "LE COFFRE",
-                       subtitle: "\(app.coffreBest.count) / \(CoffreLevel.count) coffres ouverts",
+            GameHeader(title: L("LE COFFRE"),
+                       subtitle: L("\(app.coffreBest.count) / \(CoffreLevel.count) coffres ouverts"),
                        onBack: { app.route = .hub }) {
                 EmptyView()
             }
@@ -20,8 +20,8 @@ struct CoffreLevelsView: View {
             ScrollView {
                 VStack(spacing: 18) {
                     Text(DuoSupport.apisAvailable
-                         ? "Ouvre et ferme ton iPhone Duo lentement, comme la molette d'un coffre. Un « clonk » plus fort ? Reste immobile une seconde pour essayer ce chiffre."
-                         : "Tourne la molette du doigt, lentement. Un « clonk » plus fort ? Reste immobile une seconde pour essayer ce chiffre.")
+                         ? L("Ouvre et ferme ton iPhone Duo lentement, comme la molette d'un coffre. Un « clonk » plus fort ? Reste immobile une seconde pour essayer ce chiffre.")
+                         : L("Tourne la molette du doigt, lentement. Un « clonk » plus fort ? Reste immobile une seconde pour essayer ce chiffre."))
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.muted)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -33,9 +33,9 @@ struct CoffreLevelsView: View {
                             Image(systemName: "person.2.fill")
                                 .font(.system(size: 20, weight: .bold))
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Duel à deux")
+                                Text(L("Duel à deux"))
                                     .font(.plie(18))
-                                Text("Chacun crée un code, le plus rapide à craquer celui de l'autre gagne")
+                                Text(L("Chacun crée un code, le plus rapide à craquer celui de l'autre gagne"))
                                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                                     .opacity(0.8)
                                     .multilineTextAlignment(.leading)
@@ -49,7 +49,7 @@ struct CoffreLevelsView: View {
                     }
                     .buttonStyle(.plain)
 
-                    SectionTitle(text: "Les coffres")
+                    SectionTitle(text: L("Les coffres"))
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), spacing: 10)], spacing: 10) {
                         ForEach(1...CoffreLevel.count, id: \.self) { number in
                             levelButton(number)
@@ -98,7 +98,7 @@ struct CoffreLevelsView: View {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Coffre \(number)\(opened ? ", ouvert" : "")\(unlocked ? "" : ", verrouillé")")
+        .accessibilityLabel(L("Coffre \(number)\(opened ? L(", ouvert") : "")\(unlocked ? "" : L(", verrouillé"))"))
     }
 }
 
@@ -123,7 +123,7 @@ struct CoffrePlayView: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            GameHeader(title: "Coffre n° \(number)",
+            GameHeader(title: L("Coffre n° \(number)"),
                        subtitle: session.level.features.joined(separator: " · "),
                        onBack: { app.route = .coffreLevels }) {
                 VStack(alignment: .trailing, spacing: 2) {
@@ -131,7 +131,7 @@ struct CoffrePlayView: View {
                         .font(.plie(17, weight: .bold))
                         .monospacedDigit()
                     if session.mistakes > 0 {
-                        Text("\(session.mistakes) erreur\(session.mistakes > 1 ? "s" : "")")
+                        Text(L("\(session.mistakes) erreur\(session.mistakes > 1 ? "s" : "")"))
                             .font(.system(size: 12, weight: .bold, design: .rounded))
                             .foregroundStyle(Theme.coral)
                     }
@@ -185,38 +185,38 @@ struct CoffrePlayView: View {
                 Image(systemName: "lock.open.fill")
                     .font(.system(size: 48, weight: .bold))
                     .foregroundStyle(Theme.gold)
-                Text("Coffre ouvert !")
+                Text(L("Coffre ouvert !"))
                     .font(.plie(34))
                 StarsView(count: stars, size: 28)
-                Text("\(formatSeconds(session.elapsed)) · \(session.mistakes) erreur\(session.mistakes > 1 ? "s" : "")")
+                Text(L("\(formatSeconds(session.elapsed)) · \(session.mistakes) erreur\(session.mistakes > 1 ? "s" : "")"))
                     .font(.plie(17, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                 if stars < 3 {
-                    Text("3 étoiles : sans erreur et en moins de \(Int(session.level.par)) s.")
+                    Text(L("3 étoiles : sans erreur et en moins de \(Int(session.level.par)) s."))
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.muted)
                         .multilineTextAlignment(.center)
                 }
                 if number < CoffreLevel.count {
                     if app.coffreNeedsPass(number + 1, hasPass: store.ownsPass) {
-                        Text("20 coffres plus vicieux t'attendent avec le Pass Plié.")
+                        Text(L("20 coffres plus vicieux t'attendent avec le Pass Plié."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)
                             .multilineTextAlignment(.center)
-                        Button("Débloquer la suite") { app.showPass = true }
+                        Button(L("Débloquer la suite")) { app.showPass = true }
                             .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink))
                     } else {
-                        Button("Coffre suivant") { app.route = .coffre(number + 1) }
+                        Button(L("Coffre suivant")) { app.route = .coffre(number + 1) }
                             .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink))
                     }
                 } else {
-                    Text("Tu as ouvert tous les coffres. Respect.")
+                    Text(L("Tu as ouvert tous les coffres. Respect."))
                         .font(.plie(17, weight: .bold))
                 }
                 HStack(spacing: 10) {
-                    Button("Rejouer") { app.route = .coffreLevels; DispatchQueue.main.async { app.route = .coffre(number) } }
+                    Button(L("Rejouer")) { app.route = .coffreLevels; DispatchQueue.main.async { app.route = .coffre(number) } }
                         .buttonStyle(GhostButtonStyle())
-                    Button("Les coffres") { app.route = .coffreLevels }
+                    Button(L("Les coffres")) { app.route = .coffreLevels }
                         .buttonStyle(GhostButtonStyle())
                 }
             }
@@ -273,14 +273,14 @@ struct CoffreHint: View {
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(Theme.gold)
                 Text(usesHinge
-                     ? "Ouvre et ferme lentement. Clonk plus fort ? Ne bouge plus."
-                     : "Tourne la molette lentement. Clonk plus fort ? Ne bouge plus.")
+                     ? L("Ouvre et ferme lentement. Clonk plus fort ? Ne bouge plus.")
+                     : L("Tourne la molette lentement. Clonk plus fort ? Ne bouge plus."))
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.muted)
                 Spacer(minLength: 0)
             }
             if !app.soundOn && !app.hapticsOn {
-                Text("Active le son ou les vibrations dans les réglages : sans eux, impossible de sentir les crans.")
+                Text(L("Active le son ou les vibrations dans les réglages : sans eux, impossible de sentir les crans."))
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.coral)
             }
@@ -350,7 +350,7 @@ struct CoffreDial: View {
                         .font(.plie(side * 0.11))
                         .monospacedDigit()
                         .foregroundStyle(.white)
-                    Text(session.holdProgress > 0.05 ? "on essaie…" : " ")
+                    Text(session.holdProgress > 0.05 ? L("on essaie…") : " ")
                         .font(.system(size: side * 0.035, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.muted)
                 }
@@ -390,7 +390,7 @@ struct CoffreDial: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { shake = 0 }
             }
         }
-        .accessibilityLabel("Molette du coffre, position \(session.notch)")
+        .accessibilityLabel(L("Molette du coffre, position \(session.notch)"))
     }
 }
 
@@ -433,7 +433,7 @@ struct CoffreDuelView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            GameHeader(title: "Duel du coffre", subtitle: subtitle, onBack: { app.route = .coffreLevels }) {
+            GameHeader(title: L("Duel du coffre"), subtitle: subtitle, onBack: { app.route = .coffreLevels }) {
                 EmptyView()
             }
             content
@@ -465,12 +465,12 @@ struct CoffreDuelView: View {
 
     private var subtitle: String {
         switch phase {
-        case .intro: return "2 joueurs, un seul téléphone"
-        case .setting(let p): return "Joueur \(p) crée son code"
-        case .handover(let c): return "Au tour du joueur \(c)"
-        case .cracking(let p): return "Joueur \(p) craque le code"
-        case .roundResult: return "Résultat de la manche"
-        case .final: return "Résultat final"
+        case .intro: return L("2 joueurs, un seul téléphone")
+        case .setting(let p): return L("Joueur \(p) crée son code")
+        case .handover(let c): return L("Au tour du joueur \(c)")
+        case .cracking(let p): return L("Joueur \(p) craque le code")
+        case .roundResult: return L("Résultat de la manche")
+        case .final: return L("Résultat final")
         }
     }
 
@@ -483,15 +483,15 @@ struct CoffreDuelView: View {
                 Image(systemName: "person.2.fill")
                     .font(.system(size: 50, weight: .bold))
                     .foregroundStyle(Theme.gold)
-                Text("Chacun cache un code de 3 chiffres. L'autre doit le craquer au toucher. Le plus rapide gagne.")
+                Text(L("Chacun cache un code de 3 chiffres. L'autre doit le craquer au toucher. Le plus rapide gagne."))
                     .font(.plie(19, weight: .semibold))
                     .multilineTextAlignment(.center)
-                Text("Le joueur 1 commence : il crée son code sans que le joueur 2 regarde.")
+                Text(L("Le joueur 1 commence : il crée son code sans que le joueur 2 regarde."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
                 Spacer()
-                Button("Joueur 1 : créer mon code") {
+                Button(L("Joueur 1 : créer mon code")) {
                     chosen = []
                     phase = .setting(player: 1)
                 }
@@ -508,15 +508,15 @@ struct CoffreDuelView: View {
                 Image(systemName: "arrow.left.arrow.right.circle.fill")
                     .font(.system(size: 56, weight: .bold))
                     .foregroundStyle(Theme.gold)
-                Text("Passe le téléphone au joueur \(cracker)")
+                Text(L("Passe le téléphone au joueur \(cracker)"))
                     .font(.plie(26))
                     .multilineTextAlignment(.center)
-                Text("Joueur \(cracker) : trouve les 3 chiffres. Un clonk plus fort, puis tu restes immobile une seconde.")
+                Text(L("Joueur \(cracker) : trouve les 3 chiffres. Un clonk plus fort, puis tu restes immobile une seconde."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
                 Spacer()
-                Button("Je suis prêt") {
+                Button(L("Je suis prêt")) {
                     let setter = cracker == 2 ? 1 : 2
                     let level = CoffreLevel(number: 0, digits: digits, positions: positions,
                                             decoysPerDigit: 1, subtle: false, hideNumbers: false)
@@ -531,7 +531,7 @@ struct CoffreDuelView: View {
             if let session {
                 VStack(spacing: 14) {
                     HStack {
-                        Text("Joueur \(player)")
+                        Text(L("Joueur \(player)"))
                             .font(.plie(18))
                         Spacer()
                         Text(formatSeconds(session.elapsed))
@@ -553,18 +553,18 @@ struct CoffreDuelView: View {
                 Image(systemName: "lock.open.fill")
                     .font(.system(size: 50, weight: .bold))
                     .foregroundStyle(Theme.gold)
-                Text("Joueur \(player) a ouvert le coffre en \(formatSeconds(time))")
+                Text(L("Joueur \(player) a ouvert le coffre en \(formatSeconds(time))"))
                     .font(.plie(24))
                     .multilineTextAlignment(.center)
                 Spacer()
                 if times.count < 2 {
-                    Button("Joueur 2 : créer mon code") {
+                    Button(L("Joueur 2 : créer mon code")) {
                         chosen = []
                         phase = .setting(player: 2)
                     }
                     .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink))
                 } else {
-                    Button("Voir le gagnant") { phase = .final }
+                    Button(L("Voir le gagnant")) { phase = .final }
                         .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink))
                 }
             }
@@ -578,7 +578,7 @@ struct CoffreDuelView: View {
     private func settingView(player: Int) -> some View {
         let current = Int(dialValue.rounded())
         return VStack(spacing: 14) {
-            Text("Joueur \(player), choisis 3 chiffres")
+            Text(L("Joueur \(player), choisis 3 chiffres"))
                 .font(.plie(20))
             HStack(spacing: 10) {
                 ForEach(0..<digits, id: \.self) { index in
@@ -611,11 +611,11 @@ struct CoffreDuelView: View {
                     }
                     .onEnded { _ in lastAngle = nil }
             )
-            Text(usesHinge ? "Plie le téléphone pour choisir un chiffre" : "Glisse le doigt à gauche ou à droite")
+            Text(usesHinge ? L("Plie le téléphone pour choisir un chiffre") : L("Glisse le doigt à gauche ou à droite"))
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.muted)
             Spacer(minLength: 0)
-            Button("Garder le \(current)") {
+            Button(L("Garder le \(current)")) {
                 chosen.append(current)
                 Haptics.tap()
                 if chosen.count == digits {
@@ -626,7 +626,7 @@ struct CoffreDuelView: View {
             .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink))
             .disabled(chosen.last == current || current == 0 || current == positions - 1)
             .opacity(chosen.last == current || current == 0 || current == positions - 1 ? 0.5 : 1)
-            Text("Le 00 et le \(positions - 1) sont interdits, et deux chiffres de suite doivent être différents.")
+            Text(L("Le 00 et le \(positions - 1) sont interdits, et deux chiffres de suite doivent être différents."))
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center)
@@ -643,12 +643,12 @@ struct CoffreDuelView: View {
             Image(systemName: "trophy.fill")
                 .font(.system(size: 60, weight: .bold))
                 .foregroundStyle(Theme.gold)
-            Text(winner == 0 ? "Égalité parfaite !" : "Le joueur \(winner) gagne !")
+            Text(winner == 0 ? L("Égalité parfaite !") : L("Le joueur \(winner) gagne !"))
                 .font(.plie(32))
             VStack(spacing: 8) {
                 ForEach([1, 2], id: \.self) { player in
                     HStack {
-                        Text("Joueur \(player)")
+                        Text(L("Joueur \(player)"))
                             .font(.plie(18, weight: .bold))
                         Spacer()
                         Text(formatSeconds(times[player] ?? 0))
@@ -661,7 +661,7 @@ struct CoffreDuelView: View {
                 }
             }
             Spacer()
-            Button("Revanche") {
+            Button(L("Revanche")) {
                 codes = [:]
                 times = [:]
                 chosen = []
@@ -669,7 +669,7 @@ struct CoffreDuelView: View {
                 phase = .setting(player: 1)
             }
             .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink))
-            Button("Retour") { app.route = .coffreLevels }
+            Button(L("Retour")) { app.route = .coffreLevels }
                 .buttonStyle(GhostButtonStyle())
         }
         .frame(maxWidth: 520)

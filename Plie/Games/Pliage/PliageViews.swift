@@ -9,8 +9,8 @@ struct PliageLevelsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            GameHeader(title: "PLIAGE",
-                       subtitle: "\(app.pliageSolved.count) / \(PliageLevel.all.count) pliages réussis",
+            GameHeader(title: L("PLIAGE"),
+                       subtitle: L("\(app.pliageSolved.count) / \(PliageLevel.all.count) pliages réussis"),
                        onBack: { app.route = .hub }) {
                 EmptyView()
             }
@@ -20,15 +20,15 @@ struct PliageLevelsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     Text(DuoSupport.apisAvailable
-                         ? "La peinture est fraîche : plie la feuille (ou ton iPhone Duo) et elle se décalque de l'autre côté. Reproduis le modèle avec le nombre de plis indiqué."
-                         : "La peinture est fraîche : plie la feuille et elle se décalque de l'autre côté. Reproduis le modèle avec le nombre de plis indiqué.")
+                         ? L("La peinture est fraîche : plie la feuille (ou ton iPhone Duo) et elle se décalque de l'autre côté. Reproduis le modèle avec le nombre de plis indiqué.")
+                         : L("La peinture est fraîche : plie la feuille et elle se décalque de l'autre côté. Reproduis le modèle avec le nombre de plis indiqué."))
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.muted)
 
                     ForEach(1...PliageLevel.worldCount, id: \.self) { world in
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                SectionTitle(text: "Monde \(world) · \(PliageLevel.worldName(world))")
+                                SectionTitle(text: L("Monde \(world) · \(PliageLevel.worldName(world))"))
                                 if PliageLevel.all.contains(where: { $0.world == world && app.pliageNeedsPass($0.number, hasPass: store.ownsPass) }) {
                                     Image(systemName: "crown.fill")
                                         .foregroundStyle(Theme.gold)
@@ -69,7 +69,7 @@ struct PliageLevelsView: View {
                     VStack(spacing: 1) {
                         Text("\(number)")
                             .font(.plie(22))
-                        Text("\(level.par) pli\(level.par > 1 ? "s" : "")")
+                        Text(L("\(level.par) pli\(level.par > 1 ? "s" : "")"))
                             .font(.system(size: 10, weight: .bold, design: .rounded))
                             .opacity(0.75)
                     }
@@ -83,7 +83,7 @@ struct PliageLevelsView: View {
             .frame(height: 62)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Pliage \(number), \(level.par) plis\(solved ? ", réussi" : "")\(unlocked ? "" : ", verrouillé")")
+        .accessibilityLabel(L("Pliage \(number), \(level.par) plis\(solved ? L(", réussi") : "")\(unlocked ? "" : L(", verrouillé"))"))
     }
 }
 
@@ -108,7 +108,7 @@ struct PliagePlayView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            GameHeader(title: "Pliage n° \(number)",
+            GameHeader(title: L("Pliage n° \(number)"),
                        subtitle: PliageLevel.worldName(session.level.world),
                        onBack: { app.route = .pliageLevels }) {
                 FoldCounter(used: session.foldsUsed, par: session.level.par)
@@ -146,14 +146,14 @@ struct PliagePlayView: View {
                         .frame(width: 58, height: 58)
                         .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Theme.card))
                 }
-                .accessibilityLabel("Annuler le dernier pli")
+                .accessibilityLabel(L("Annuler le dernier pli"))
                 .disabled(session.foldsUsed == 0 || session.isAnimating)
                 .opacity(session.foldsUsed == 0 ? 0.4 : 1)
 
                 Button {
                     session.performFold()
                 } label: {
-                    Label("Plier", systemImage: "rectangle.portrait.and.arrow.right")
+                    Label(L("Plier"), systemImage: "rectangle.portrait.and.arrow.right")
                 }
                 .buttonStyle(ChunkyButtonStyle(color: Theme.paint, height: 58))
                 .disabled(!session.canFold)
@@ -167,7 +167,7 @@ struct PliagePlayView: View {
                         .frame(width: 58, height: 58)
                         .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Theme.card))
                 }
-                .accessibilityLabel("Recommencer le pliage")
+                .accessibilityLabel(L("Recommencer le pliage"))
                 .disabled(session.foldsUsed == 0 || session.isAnimating)
                 .opacity(session.foldsUsed == 0 ? 0.4 : 1)
             }
@@ -228,15 +228,15 @@ struct PliagePlayView: View {
 
     private var statusText: String {
         if session.outOfFolds && !session.solved {
-            return "Tous les plis sont utilisés. Annule un pli pour essayer autrement."
+            return L("Tous les plis sont utilisés. Annule un pli pour essayer autrement.")
         }
         if session.selected == nil {
-            return "Touche une ligne pointillée pour choisir où plier."
+            return L("Touche une ligne pointillée pour choisir où plier.")
         }
         if session.hingeReady {
-            return "Plie ton iPhone Duo pour plier la feuille, ou touche « Plier »."
+            return L("Plie ton iPhone Duo pour plier la feuille, ou touche « Plier ».")
         }
-        return "Touche « Plier », ou touche à nouveau la ligne."
+        return L("Touche « Plier », ou touche à nouveau la ligne.")
     }
 
     private var successOverlay: some View {
@@ -246,29 +246,29 @@ struct PliagePlayView: View {
                 Image(systemName: "sparkles")
                     .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(Theme.paint)
-                Text("Pliage réussi !")
+                Text(L("Pliage réussi !"))
                     .font(.plie(34))
-                Text("En \(session.foldsUsed) pli\(session.foldsUsed > 1 ? "s" : "") · \(formatSeconds(session.elapsed))")
+                Text(L("En \(session.foldsUsed) pli\(session.foldsUsed > 1 ? "s" : "") · \(formatSeconds(session.elapsed))"))
                     .font(.plie(17, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                 if number < PliageLevel.all.count {
                     if app.pliageNeedsPass(number + 1, hasPass: store.ownsPass) {
-                        Text("\(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus, avec les mélanges de couleurs, dans le Pass Plié.")
+                        Text(L("\(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus, avec les mélanges de couleurs, dans le Pass Plié."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)
                             .multilineTextAlignment(.center)
-                        Button("Débloquer la suite") { app.showPass = true }
+                        Button(L("Débloquer la suite")) { app.showPass = true }
                             .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink))
                     } else {
-                        Button("Pliage suivant") { app.route = .pliage(number + 1) }
+                        Button(L("Pliage suivant")) { app.route = .pliage(number + 1) }
                             .buttonStyle(ChunkyButtonStyle(color: Theme.paint))
                     }
                 } else {
-                    Text("Tu as réussi tous les pliages. Maître origami !")
+                    Text(L("Tu as réussi tous les pliages. Maître origami !"))
                         .font(.plie(17, weight: .bold))
                         .multilineTextAlignment(.center)
                 }
-                Button("Tous les pliages") { app.route = .pliageLevels }
+                Button(L("Tous les pliages")) { app.route = .pliageLevels }
                     .buttonStyle(GhostButtonStyle())
             }
             .foregroundStyle(.white)
@@ -297,7 +297,7 @@ struct FoldCounter: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 9)
         .background(Capsule().fill(Theme.card))
-        .accessibilityLabel("\(used) pli\(used > 1 ? "s" : "") sur \(par)")
+        .accessibilityLabel(L("\(used) pli\(used > 1 ? "s" : "") sur \(par)"))
     }
 }
 
@@ -308,7 +308,7 @@ struct ModelPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                SectionTitle(text: "Modèle · \(level.par) pli\(level.par > 1 ? "s" : "")")
+                SectionTitle(text: L("Modèle · \(level.par) pli\(level.par > 1 ? "s" : "")"))
             }
             HStack(alignment: .center, spacing: 12) {
                 PaintGrid(grid: level.target, width: level.width, height: level.height)
@@ -338,7 +338,7 @@ struct MixLegend: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Mélanges : rouge et jaune donnent orange, jaune et bleu donnent vert, rouge et bleu donnent violet")
+        .accessibilityLabel(L("Mélanges : rouge et jaune donnent orange, jaune et bleu donnent vert, rouge et bleu donnent violet"))
     }
 
     private func mix(_ a: UInt8, _ b: UInt8, _ result: UInt8) -> some View {
@@ -484,7 +484,7 @@ struct PliageBoard: View {
                                   y: fold.axis == .vertical ? origin.y + sheetH / 2 : origin.y + CGFloat(fold.index) * cell)
                         .onTapGesture { session.tapLine(fold) }
                         .accessibilityElement()
-                        .accessibilityLabel(fold.axis == .vertical ? "Pli vertical \(fold.index)" : "Pli horizontal \(fold.index)")
+                        .accessibilityLabel(fold.axis == .vertical ? L("Pli vertical \(fold.index)") : L("Pli horizontal \(fold.index)"))
                         .accessibilityAddTraits(.isButton)
                 }
             }

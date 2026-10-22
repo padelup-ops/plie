@@ -21,15 +21,15 @@ enum Dartboard {
     /// Points pour un impact (x à droite, y vers le haut, en rayons de cible).
     static func score(x: Double, y: Double) -> (points: Int, label: String) {
         let r = (x * x + y * y).squareRoot()
-        if r > 1 { return (0, "Raté") }
-        if r < bull { return (50, "Mille !") }
+        if r > 1 { return (0, L("Raté")) }
+        if r < bull { return (50, L("Mille !")) }
         if r < outerBull { return (25, "25") }
         var phi = atan2(x, y)
         if phi < 0 { phi += 2 * .pi }
         let sector = Int((phi + .pi / 20) / (2 * .pi / 20)) % 20
         let n = numbers[sector]
-        if r >= tripleIn && r < tripleOut { return (n * 3, "Triple \(n)") }
-        if r >= doubleIn { return (n * 2, "Double \(n)") }
+        if r >= tripleIn && r < tripleOut { return (n * 3, L("Triple \(n)")) }
+        if r >= doubleIn { return (n * 2, L("Double \(n)")) }
         return (n, "\(n)")
     }
 }
@@ -109,13 +109,13 @@ final class DartsGame {
                 let d = darts[i]
                 scores[current] += d.points
                 volleyPoints += d.points
-                message = d.points == 0 ? "Raté" : "\(d.label) · +\(d.points)"
+                message = d.points == 0 ? L("Raté") : "\(d.label) · +\(d.points)"
                 if d.points >= 50 { Haptics.success(); SoundPlayer.shared.play(.vault, volume: 0.6) }
                 else if d.points > 0 { Haptics.correct(subtle: true); SoundPlayer.shared.play(.clunk, volume: 0.6) }
                 else { SoundPlayer.shared.play(.wrong, volume: 0.4) }
                 if darts.count == Self.dartsPerVolley {
                     pause = 1.1
-                    message = "Volée : \(volleyPoints) points"
+                    message = L("Volée : \(volleyPoints) points")
                 }
             }
         }
@@ -156,9 +156,9 @@ struct FlechettesView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            GameHeader(title: "FLÉCHETTES", subtitle: headerText, onBack: { app.route = .hub }) {
+            GameHeader(title: L("FLÉCHETTES"), subtitle: headerText, onBack: { app.route = .hub }) {
                 if game.phase == .playing {
-                    Pill(text: "Volée \(game.volley)/\(game.volleys)", color: Theme.card)
+                    Pill(text: L("Volée \(game.volley)/\(game.volleys)"), color: Theme.card)
                 }
             }
             .padding(.horizontal, 16)
@@ -191,10 +191,10 @@ struct FlechettesView: View {
         switch game.phase {
         case .playing:
             return game.players == 2
-                ? "Joueur \(game.current + 1) · \(game.scores[0]) – \(game.scores[1])"
-                : "\(game.scores[0]) points · record \(app.flechettesBest)"
+                ? L("Joueur \(game.current + 1) · \(game.scores[0]) – \(game.scores[1])")
+                : L("\(game.scores[0]) points · record \(app.flechettesBest)")
         default:
-            return "Record solo : \(app.flechettesBest) points"
+            return L("Record solo : \(app.flechettesBest) points")
         }
     }
 
@@ -204,15 +204,15 @@ struct FlechettesView: View {
                 if game.players == 2 {
                     let a = game.scores[0]
                     let b = game.scores[1]
-                    Text(a == b ? "Égalité !" : "Joueur \(a > b ? 1 : 2) gagne !")
+                    Text(a == b ? L("Égalité !") : L("Joueur \(a > b ? 1 : 2) gagne !"))
                         .font(.plie(30))
                     Text("\(a) – \(b)")
                         .font(.plie(22, weight: .semibold))
                         .foregroundStyle(Theme.muted)
                 } else {
-                    Text("Partie terminée")
+                    Text(L("Partie terminée"))
                         .font(.plie(30))
-                    Text("\(game.scores[0]) points en 10 volées")
+                    Text(L("\(game.scores[0]) points en 10 volées"))
                         .font(.plie(18, weight: .semibold))
                         .foregroundStyle(Theme.muted)
                 }
@@ -220,18 +220,18 @@ struct FlechettesView: View {
                 Image(systemName: "scope")
                     .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(Theme.darts)
-                Text("Lance d'un glissé vers le haut")
+                Text(L("Lance d'un glissé vers le haut"))
                     .font(.plie(22))
                     .multilineTextAlignment(.center)
-                Text("Le côté vient de la direction du geste, la hauteur de sa force. Sur iPhone Duo, plie-le en L en paysage : la cible se dresse devant toi.")
+                Text(L("Le côté vient de la direction du geste, la hauteur de sa force. Sur iPhone Duo, plie-le en L en paysage : la cible se dresse devant toi."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
             }
             HStack(spacing: 10) {
-                Button("Solo") { game.start(players: 1) }
+                Button(L("Solo")) { game.start(players: 1) }
                     .buttonStyle(ChunkyButtonStyle(color: Theme.darts))
-                Button("À deux") { game.start(players: 2) }
+                Button(L("À deux")) { game.start(players: 2) }
                     .buttonStyle(ChunkyButtonStyle(color: Theme.cardHigh))
             }
             .frame(maxWidth: 360)
@@ -340,6 +340,6 @@ struct DartsScene: View {
                              at: CGPoint(x: w / 2, y: fold + (h - fold) * 0.18))
             }
         }
-        .accessibilityLabel("Cible de fléchettes")
+        .accessibilityLabel(L("Cible de fléchettes"))
     }
 }

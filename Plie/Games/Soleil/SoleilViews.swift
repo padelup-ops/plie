@@ -54,7 +54,7 @@ struct SoleilView: View {
 
     private var setupView: some View {
         VStack(spacing: 0) {
-            GameHeader(title: "1, 2, 3… SOLEIL !", subtitle: "Le téléphone fait l'arbitre", onBack: {
+            GameHeader(title: L("1, 2, 3… SOLEIL !"), subtitle: L("Le téléphone fait l'arbitre"), onBack: {
                 game.shutdown()
                 app.route = .hub
             }) {
@@ -68,17 +68,17 @@ struct SoleilView: View {
                     previewCard
 
                     VStack(alignment: .leading, spacing: 10) {
-                        step("1", "Pose le téléphone debout à l'autre bout de la pièce, la caméra tournée vers les joueurs.")
-                        step("2", "Tout le monde part du fond. Quand la voix dit « soleil », on se fige.")
-                        step("3", "Le téléphone voit qui bouge : photo, et retour au départ.")
-                        step("4", "Le premier qui arrive appuie sur « Touché ! » et gagne.")
+                        step("1", L("Pose le téléphone debout à l'autre bout de la pièce, la caméra tournée vers les joueurs."))
+                        step("2", L("Tout le monde part du fond. Quand la voix dit « soleil », on se fige."))
+                        step("3", L("Le téléphone voit qui bouge : photo, et retour au départ."))
+                        step("4", L("Le premier qui arrive appuie sur « Touché ! » et gagne."))
                     }
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Theme.card))
 
                     VStack(spacing: 10) {
-                        SectionTitle(text: "Sévérité de l'arbitre")
-                        Picker("Sévérité", selection: Binding(get: { game.sensitivity }, set: { game.sensitivity = $0 })) {
+                        SectionTitle(text: L("Sévérité de l'arbitre"))
+                        Picker(L("Sévérité"), selection: Binding(get: { game.sensitivity }, set: { game.sensitivity = $0 })) {
                             ForEach(SoleilSensitivity.allCases) { level in
                                 Text(level.title).tag(level)
                             }
@@ -97,7 +97,7 @@ struct SoleilView: View {
                     Button {
                         game.start()
                     } label: {
-                        Label("Lancer la partie", systemImage: "play.fill")
+                        Label(L("Lancer la partie"), systemImage: "play.fill")
                     }
                     .buttonStyle(ChunkyButtonStyle(color: Theme.sun, height: 62))
                     .disabled(!game.cameraReady)
@@ -118,7 +118,7 @@ struct SoleilView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 VStack {
                     Spacer()
-                    Text("Tous les joueurs doivent être dans le cadre")
+                    Text(L("Tous les joueurs doivent être dans le cadre"))
                         .font(.plie(14, weight: .bold))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
@@ -130,10 +130,10 @@ struct SoleilView: View {
                     Image(systemName: "camera.fill")
                         .font(.system(size: 30, weight: .bold))
                         .foregroundStyle(Theme.sun)
-                    Text("L'arbitre a besoin de la caméra pour voir qui bouge.")
+                    Text(L("L'arbitre a besoin de la caméra pour voir qui bouge."))
                         .font(.plie(16, weight: .bold))
                         .multilineTextAlignment(.center)
-                    Button("Ouvrir les Réglages") {
+                    Button(L("Ouvrir les Réglages")) {
                         if let url = URL(string: UIApplication.openSettingsURLString) {
                             UIApplication.shared.open(url)
                         }
@@ -151,16 +151,16 @@ struct SoleilView: View {
             Toggle(isOn: Binding(get: { game.useOuterScreen },
                                  set: { value in Task { await game.setUseOuterScreen(value) } })) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Signal sur l'écran extérieur")
+                    Text(L("Signal sur l'écran extérieur"))
                         .font(.plie(17, weight: .bold))
-                    Text("Les joueurs voient AVANCEZ / STOP sur l'écran extérieur. Toi, tu vois la caméra et l'arbitre sur l'écran intérieur.")
+                    Text(L("Les joueurs voient AVANCEZ / STOP sur l'écran extérieur. Toi, tu vois la caméra et l'arbitre sur l'écran intérieur."))
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.muted)
                 }
             }
             .tint(Theme.sun)
             if game.useOuterScreen {
-                Label(game.outerAvailable ? "Écran extérieur prêt" : "Ouvre le Duo et garde Plié en plein écran",
+                Label(game.outerAvailable ? L("Écran extérieur prêt") : L("Ouvre le Duo et garde Plié en plein écran"),
                       systemImage: game.outerAvailable ? "checkmark.circle.fill" : "rectangle.portrait.on.rectangle.portrait")
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(game.outerAvailable ? Theme.go : Theme.gold)
@@ -193,7 +193,7 @@ struct SoleilView: View {
 
             VStack {
                 HStack(alignment: .top) {
-                    IconButton(symbol: "xmark", label: "Arrêter la partie") { game.backToSetup() }
+                    IconButton(symbol: "xmark", label: L("Arrêter la partie")) { game.backToSetup() }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 8) {
                         CameraPreview(session: game.camera.session, readyToken: game.cameraToken)
@@ -224,10 +224,10 @@ struct SoleilView: View {
     private var hostView: some View {
         VStack(spacing: 14) {
             HStack {
-                IconButton(symbol: "xmark", label: "Arrêter la partie") { game.backToSetup() }
+                IconButton(symbol: "xmark", label: L("Arrêter la partie")) { game.backToSetup() }
                 Spacer()
                 Pill(text: formatSeconds(game.elapsed), color: Theme.card)
-                Pill(text: "\(game.catches) pris", color: Theme.card)
+                Pill(text: L("\(game.catches) pris"), color: Theme.card)
             }
             ZStack(alignment: .top) {
                 CameraPreview(session: game.camera.session, readyToken: game.cameraToken)
@@ -244,15 +244,15 @@ struct SoleilView: View {
             }
             MotionMeter(level: game.motionLevel, active: game.phase == .stop)
             if game.unstable {
-                Text("Le téléphone bouge : pose-le bien droit.")
+                Text(L("Le téléphone bouge : pose-le bien droit."))
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.gold)
             }
-            Text("Les joueurs voient le signal sur l'écran extérieur. Le gagnant touche « Touché ! » de son côté.")
+            Text(L("Les joueurs voient le signal sur l'écran extérieur. Le gagnant touche « Touché ! » de son côté."))
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center)
-            Button("Déclarer un gagnant") { game.win() }
+            Button(L("Déclarer un gagnant")) { game.win() }
                 .buttonStyle(GhostButtonStyle())
         }
         .padding(16)
@@ -267,15 +267,15 @@ struct SoleilView: View {
                     .font(.system(size: 56, weight: .bold))
                     .foregroundStyle(Theme.gold)
                     .padding(.top, 30)
-                Text("On a un gagnant !")
+                Text(L("On a un gagnant !"))
                     .font(.plie(34))
-                Text("Partie en \(formatSeconds(game.elapsed)) · \(game.catches) joueur\(game.catches > 1 ? "s" : "") pris en flagrant délit")
+                Text(L("Partie en \(formatSeconds(game.elapsed)) · \(game.catches) joueur\(game.catches > 1 ? "s" : "") pris en flagrant délit"))
                     .font(.plie(16, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
 
                 if !game.snapshots.isEmpty {
-                    SectionTitle(text: "Les flagrants délits")
+                    SectionTitle(text: L("Les flagrants délits"))
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(Array(game.snapshots.enumerated()), id: \.offset) { item in
@@ -286,15 +286,15 @@ struct SoleilView: View {
                                         .frame(width: 180, height: 240)
                                         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                                     ShareLink(item: Image(uiImage: item.element),
-                                              preview: SharePreview("Pris en flagrant délit", image: Image(uiImage: item.element))) {
-                                        Label("Partager", systemImage: "square.and.arrow.up")
+                                              preview: SharePreview(L("Pris en flagrant délit"), image: Image(uiImage: item.element))) {
+                                        Label(L("Partager"), systemImage: "square.and.arrow.up")
                                             .font(.plie(14, weight: .bold))
                                     }
                                 }
                             }
                         }
                     }
-                    Text("Ces photos restent dans l'app le temps de la partie. Elles ne sont partagées que si tu appuies sur « Partager ».")
+                    Text(L("Ces photos restent dans l'app le temps de la partie. Elles ne sont partagées que si tu appuies sur « Partager »."))
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.muted)
                         .multilineTextAlignment(.center)
@@ -303,12 +303,12 @@ struct SoleilView: View {
                 Button {
                     game.start()
                 } label: {
-                    Label("Rejouer", systemImage: "arrow.clockwise")
+                    Label(L("Rejouer"), systemImage: "arrow.clockwise")
                 }
                 .buttonStyle(ChunkyButtonStyle(color: Theme.sun, height: 60))
-                Button("Changer les réglages") { game.backToSetup() }
+                Button(L("Changer les réglages")) { game.backToSetup() }
                     .buttonStyle(GhostButtonStyle())
-                Button("Retour aux jeux") {
+                Button(L("Retour aux jeux")) {
                     game.shutdown()
                     app.route = .hub
                 }
@@ -360,20 +360,20 @@ struct SoleilSignal: View {
     private var title: String {
         switch game.phase {
         case .countdown(let n): return "\(n)"
-        case .go: return "AVANCEZ !"
-        case .freezing, .stop: return "STOP !"
-        case .caught: return "BOUGÉ !"
-        case .won: return "GAGNÉ !"
-        case .setup: return "Prêts ?"
+        case .go: return L("AVANCEZ !")
+        case .freezing, .stop: return L("STOP !")
+        case .caught: return L("BOUGÉ !")
+        case .won: return L("GAGNÉ !")
+        case .setup: return L("Prêts ?")
         }
     }
 
     private var subtitle: String? {
         switch game.phase {
-        case .countdown: return "Placez-vous au fond de la pièce"
-        case .go: return "Avancez pendant que la voix parle"
-        case .freezing, .stop: return "On ne bouge plus !"
-        case .caught: return "Retour au départ"
+        case .countdown: return L("Placez-vous au fond de la pièce")
+        case .go: return L("Avancez pendant que la voix parle")
+        case .freezing, .stop: return L("On ne bouge plus !")
+        case .caught: return L("Retour au départ")
         default: return nil
         }
     }
@@ -384,7 +384,7 @@ struct WinButton: View {
 
     var body: some View {
         Button(action: action) {
-            Label("TOUCHÉ ! J'ai gagné", systemImage: "hand.raised.fill")
+            Label(L("TOUCHÉ ! J'ai gagné"), systemImage: "hand.raised.fill")
         }
         .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink, height: 76))
     }
@@ -411,13 +411,13 @@ struct MotionMeter: View {
                 }
             }
             .frame(height: 10)
-            Text(active ? "Mouvement détecté" : "L'arbitre attend le STOP")
+            Text(active ? L("Mouvement détecté") : L("L'arbitre attend le STOP"))
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white.opacity(0.75))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }
-        .accessibilityLabel(active ? "Niveau de mouvement" : "Arbitre en attente")
+        .accessibilityLabel(active ? L("Niveau de mouvement") : L("Arbitre en attente"))
     }
 }
 
@@ -427,14 +427,14 @@ struct CaughtCard: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text("BOUGÉ !")
+            Text(L("BOUGÉ !"))
                 .font(.plie(40))
             Image(uiImage: image)
                 .resizable()
                 .scaledToFit()
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .frame(maxHeight: 320)
-            Text("Le joueur encadré en rouge retourne au départ.")
+            Text(L("Le joueur encadré en rouge retourne au départ."))
                 .font(.plie(16, weight: .bold))
                 .multilineTextAlignment(.center)
         }

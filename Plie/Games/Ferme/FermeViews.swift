@@ -21,6 +21,7 @@ struct FermePlant: Identifiable, Hashable {
     }
 
     var stemColor: Color { Color(hex: stem) }
+    var displayName: String { L(key: name) }
     var flowerColor: Color { Color(hex: flower) }
 
     static let all: [FermePlant] = [
@@ -228,7 +229,7 @@ struct FermeView: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            GameHeader(title: "FERME", subtitle: "Ferme ton Duo, fais pousser ta plante", onBack: {
+            GameHeader(title: L("FERME"), subtitle: L("Ferme ton Duo, fais pousser ta plante"), onBack: {
                 if session.phase == .setup || session.phase == .done || session.phase == .wilted {
                     app.route = .hub
                 }
@@ -242,7 +243,7 @@ struct FermeView: View {
                         .padding(.vertical, 8)
                         .background(Capsule().fill(Theme.card))
                 }
-                .accessibilityLabel("Mon jardin, \(app.fermeGarden.count) plantes")
+                .accessibilityLabel(L("Mon jardin, \(app.fermeGarden.count) plantes"))
             }
 
             switch session.phase {
@@ -280,7 +281,7 @@ struct FermeView: View {
                     .frame(height: 170)
 
                 VStack(spacing: 10) {
-                    SectionTitle(text: "Durée")
+                    SectionTitle(text: L("Durée"))
                     HStack(spacing: 8) {
                         ForEach(durations, id: \.self) { m in
                             let locked = m > 25 && !store.ownsPass
@@ -305,7 +306,7 @@ struct FermeView: View {
                 }
 
                 VStack(spacing: 10) {
-                    SectionTitle(text: "Plante")
+                    SectionTitle(text: L("Plante"))
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             ForEach(FermePlant.all) { plant in
@@ -319,7 +320,7 @@ struct FermeView: View {
                                             .opacity(locked ? 0.4 : 1)
                                         HStack(spacing: 3) {
                                             if locked { Image(systemName: "crown.fill").font(.system(size: 10)).foregroundStyle(Theme.gold) }
-                                            Text(plant.name).font(.system(size: 12, weight: .bold, design: .rounded))
+                                            Text(plant.displayName).font(.system(size: 12, weight: .bold, design: .rounded))
                                         }
                                     }
                                     .padding(10)
@@ -334,8 +335,8 @@ struct FermeView: View {
                 }
 
                 Text(session.hingeAvailable
-                     ? "Touche « Planter », puis ferme ton iPhone Duo. Si tu le rouvres avant la fin, tu as 10 secondes pour le refermer, sinon ta plante fane."
-                     : "Touche « Planter » et pose ton téléphone. Si tu quittes Plié plus de 10 secondes, ta plante fane.")
+                     ? L("Touche « Planter », puis ferme ton iPhone Duo. Si tu le rouvres avant la fin, tu as 10 secondes pour le refermer, sinon ta plante fane.")
+                     : L("Touche « Planter » et pose ton téléphone. Si tu quittes Plié plus de 10 secondes, ta plante fane."))
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
@@ -343,7 +344,7 @@ struct FermeView: View {
                 Button {
                     session.plant()
                 } label: {
-                    Label("Planter · \(session.minutes) min", systemImage: "leaf.fill")
+                    Label(L("Planter · \(session.minutes) min"), systemImage: "leaf.fill")
                 }
                 .buttonStyle(ChunkyButtonStyle(color: Theme.ferme, textColor: Theme.ink, height: 60))
 
@@ -357,8 +358,8 @@ struct FermeView: View {
     private var todayLine: some View {
         let today = app.fermeGarden.filter { Calendar.current.isDateInToday($0.date) }
         let minutes = today.reduce(0) { $0 + $1.minutes }
-        return Text(today.isEmpty ? "Aucune plante aujourd'hui pour l'instant."
-                    : "Aujourd'hui : \(today.count) plante\(today.count > 1 ? "s" : ""), \(minutes) min de concentration.")
+        return Text(today.isEmpty ? L("Aucune plante aujourd'hui pour l'instant.")
+                    : L("Aujourd'hui : \(today.count) plante\(today.count > 1 ? "s" : ""), \(minutes) min de concentration."))
             .font(.system(size: 13, weight: .semibold, design: .rounded))
             .foregroundStyle(Theme.muted)
     }
@@ -374,10 +375,10 @@ struct FermeView: View {
                 Image(systemName: "rectangle.portrait.on.rectangle.portrait")
                     .font(.system(size: 34, weight: .bold))
                     .foregroundStyle(Theme.ferme)
-                Text("Ferme ton iPhone Duo pour commencer")
+                Text(L("Ferme ton iPhone Duo pour commencer"))
                     .font(.plie(24))
                     .multilineTextAlignment(.center)
-                Text("La plante poussera sur l'écran extérieur.")
+                Text(L("La plante poussera sur l'écran extérieur."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
             } else {
@@ -385,7 +386,7 @@ struct FermeView: View {
                     .font(.plie(64))
                     .monospacedDigit()
                 if session.phase == .reopened {
-                    Text("Referme vite ! \(Int(session.reopenLeft.rounded(.up))) s")
+                    Text(L("Referme vite ! \(Int(session.reopenLeft.rounded(.up))) s"))
                         .font(.plie(22))
                         .foregroundStyle(Theme.coral)
                 } else {
@@ -396,7 +397,7 @@ struct FermeView: View {
                 }
             }
             Spacer(minLength: 0)
-            Button(confirmGiveUp ? "Vraiment abandonner ? La plante fanera" : (session.phase == .armed ? "Annuler" : "Abandonner")) {
+            Button(confirmGiveUp ? L("Vraiment abandonner ? La plante fanera") : (session.phase == .armed ? L("Annuler") : L("Abandonner"))) {
                 if session.phase == .armed || confirmGiveUp {
                     confirmGiveUp = false
                     session.giveUp()
@@ -413,10 +414,10 @@ struct FermeView: View {
 
     private var encouragement: String {
         let g = session.growth
-        if g < 0.25 { return "La graine germe. Reste concentré." }
-        if g < 0.5 { return "Les premières feuilles sortent." }
-        if g < 0.8 { return "Elle grandit bien. Continue." }
-        return "Presque en fleur !"
+        if g < 0.25 { return L("La graine germe. Reste concentré.") }
+        if g < 0.5 { return L("Les premières feuilles sortent.") }
+        if g < 0.8 { return L("Elle grandit bien. Continue.") }
+        return L("Presque en fleur !")
     }
 
     private func timeText(_ seconds: Double) -> String {
@@ -432,19 +433,19 @@ struct FermeView: View {
             Spacer(minLength: 0)
             PlantCanvas(plant: FermePlant.named(session.plantID), growth: session.growth, wilted: !done)
                 .frame(maxWidth: 320, maxHeight: 320)
-            Text(done ? "Ta \(FermePlant.named(session.plantID).name.lowercased()) a fleuri !" : "Ta plante a fané…")
+            Text(done ? L("Ta \(FermePlant.named(session.plantID).displayName.lowercased()) a fleuri !") : L("Ta plante a fané…"))
                 .font(.plie(28))
                 .multilineTextAlignment(.center)
-            Text(done ? "\(session.minutes) minutes de concentration. Elle rejoint ton jardin."
-                      : "Ce n'est pas grave : replante-en une et tiens jusqu'au bout.")
+            Text(done ? L("\(session.minutes) minutes de concentration. Elle rejoint ton jardin.")
+                      : L("Ce n'est pas grave : replante-en une et tiens jusqu'au bout."))
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center)
             Spacer(minLength: 0)
-            Button(done ? "Planter encore" : "Réessayer") { session.backToSetup() }
+            Button(done ? L("Planter encore") : L("Réessayer")) { session.backToSetup() }
                 .buttonStyle(ChunkyButtonStyle(color: Theme.ferme, textColor: Theme.ink))
                 .frame(maxWidth: 420)
-            Button("Voir mon jardin") { showGarden = true }
+            Button(L("Voir mon jardin")) { showGarden = true }
                 .buttonStyle(GhostButtonStyle())
                 .frame(maxWidth: 420)
         }
@@ -464,12 +465,12 @@ struct FermeGardenView: View {
             ScrollView {
                 VStack(spacing: 18) {
                     HStack(spacing: 10) {
-                        stat("\(app.fermeGarden.count)", "plantes")
-                        stat("\(totalMinutes / 60) h \(totalMinutes % 60)", "de concentration")
-                        stat("\(app.fermeStreak)", "jours d'affilée")
+                        stat("\(app.fermeGarden.count)", L("plantes"))
+                        stat(L("\(totalMinutes / 60) h \(totalMinutes % 60)"), L("de concentration"))
+                        stat("\(app.fermeStreak)", L("jours d'affilée"))
                     }
                     if app.fermeGarden.isEmpty {
-                        Text("Ton jardin est vide. Ferme ton Duo pour faire pousser ta première plante.")
+                        Text(L("Ton jardin est vide. Ferme ton Duo pour faire pousser ta première plante."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)
                             .multilineTextAlignment(.center)
@@ -480,7 +481,7 @@ struct FermeGardenView: View {
                                 VStack(spacing: 4) {
                                     PlantCanvas(plant: FermePlant.named(item.element.plant), growth: 1, wilted: false)
                                         .frame(width: 64, height: 64)
-                                    Text("\(item.element.minutes) min")
+                                    Text(L("\(item.element.minutes) min"))
                                         .font(.system(size: 11, weight: .bold, design: .rounded))
                                         .foregroundStyle(Theme.muted)
                                 }
@@ -493,11 +494,11 @@ struct FermeGardenView: View {
                 .padding(20)
             }
             .background(Theme.ink.ignoresSafeArea())
-            .navigationTitle("Mon jardin")
+            .navigationTitle(L("Mon jardin"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("OK") { dismiss() }
+                    Button(L("OK")) { dismiss() }
                 }
             }
         }
@@ -621,6 +622,6 @@ struct PlantCanvas: View {
                 }
             }
         }
-        .accessibilityLabel("\(plant.name), \(Int(growth * 100)) % de croissance")
+        .accessibilityLabel(L("\(plant.displayName), \(Int(growth * 100)) % de croissance"))
     }
 }

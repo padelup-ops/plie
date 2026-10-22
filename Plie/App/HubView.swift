@@ -10,23 +10,23 @@ struct HubView: View {
             VStack(spacing: 22) {
                 HStack {
                     Spacer()
-                    IconButton(symbol: "gearshape.fill", label: "Réglages") {
+                    IconButton(symbol: "gearshape.fill", label: L("Réglages")) {
                         showSettings = true
                     }
                 }
 
                 VStack(spacing: 6) {
-                    Text("PLIÉ")
+                    Text(L("PLIÉ"))
                         .font(.plie(84))
                         .foregroundStyle(
                             LinearGradient(colors: [Theme.laser, Theme.gold, Theme.sun],
                                            startPoint: .leading, endPoint: .trailing)
                         )
-                    Text("Neuf jeux pensés pour l'iPhone Duo")
+                    Text(L("Neuf jeux pensés pour l'iPhone Duo"))
                         .font(.plie(18, weight: .bold))
                         .foregroundStyle(.white)
                     if !DuoSupport.apisAvailable {
-                        Text("Sur cet iPhone, tu joues au doigt à la place de la charnière.")
+                        Text(L("Sur cet iPhone, tu joues au doigt à la place de la charnière."))
                             .font(.system(size: 14, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)
                             .multilineTextAlignment(.center)
@@ -34,92 +34,92 @@ struct HubView: View {
                 }
                 .padding(.bottom, 4)
 
-                SectionTitle(text: "Casse-tête")
+                SectionTitle(text: L("Casse-tête"))
 
-                gameCard(title: "RAYON",
-                         subtitle: "Plie ton téléphone pour orienter le miroir, fais pivoter les autres, et touche la cible avec le laser.",
+                gameCard(title: L("RAYON"),
+                         subtitle: L("Plie ton téléphone pour orienter le miroir, fais pivoter les autres, et touche la cible avec le laser."),
                          symbol: "light.beacon.max.fill",
                          color: Theme.laser,
-                         badge: "Charnière · Casse-tête",
-                         progress: "\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux") {
+                         badge: L("Charnière · Casse-tête"),
+                         progress: L("\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux")) {
                     app.route = .rayonLevels
                 }
 
-                gameCard(title: "PLIAGE",
-                         subtitle: "La peinture est fraîche : plie la feuille pour la décalquer et reproduire le modèle.",
+                gameCard(title: L("PLIAGE"),
+                         subtitle: L("La peinture est fraîche : plie la feuille pour la décalquer et reproduire le modèle."),
                          symbol: "paintpalette.fill",
                          color: Theme.paint,
-                         badge: "Plis · Casse-tête",
-                         progress: "\(app.pliageSolved.count) / \(PliageLevel.all.count) pliages") {
+                         badge: L("Plis · Casse-tête"),
+                         progress: L("\(app.pliageSolved.count) / \(PliageLevel.all.count) pliages")) {
                     app.route = .pliageLevels
                 }
 
-                gameCard(title: "BASCULE",
-                         subtitle: "Le pli règle le tremplin : envoie la bille dans le panier en ramassant les étoiles.",
+                gameCard(title: L("BASCULE"),
+                         subtitle: L("Le pli règle le tremplin : envoie la bille dans le panier en ramassant les étoiles."),
                          symbol: "arrow.up.right.circle.fill",
                          color: Theme.bascule,
-                         badge: "Charnière · Adresse",
-                         progress: "\(app.basculeStars.count) / \(BasculeLevel.all.count) niveaux") {
+                         badge: L("Charnière · Adresse"),
+                         progress: L("\(app.basculeStars.count) / \(BasculeLevel.all.count) niveaux")) {
                     app.route = .basculeLevels
                 }
 
-                gameCard(title: "LE COFFRE",
-                         subtitle: "Ouvre la charnière comme une molette, sens le bon cran, craque la combinaison.",
+                gameCard(title: L("LE COFFRE"),
+                         subtitle: L("Ouvre la charnière comme une molette, sens le bon cran, craque la combinaison."),
                          symbol: "lock.rotation",
                          color: Theme.gold,
-                         badge: "Charnière · Solo ou duel",
-                         progress: "\(app.coffreBest.count) / \(CoffreLevel.count) coffres") {
+                         badge: L("Charnière · Solo ou duel"),
+                         progress: L("\(app.coffreBest.count) / \(CoffreLevel.count) coffres")) {
                     app.route = .coffreLevels
                 }
 
-                SectionTitle(text: "Arcade")
+                SectionTitle(text: L("Arcade"))
 
-                gameCard(title: "PANIER",
-                         subtitle: "Plie ton Duo en L : le panier se dresse devant toi. Un maximum de paniers en 60 secondes.",
+                gameCard(title: L("PANIER"),
+                         subtitle: L("Plie ton Duo en L : le panier se dresse devant toi. Un maximum de paniers en 60 secondes."),
                          symbol: "basketball.fill",
                          color: Theme.panier,
-                         badge: "Pli en L · Solo",
-                         progress: app.panierBest == 0 ? "Pas encore de record" : "Record : \(app.panierBest) points") {
+                         badge: L("Pli en L · Solo"),
+                         progress: app.panierBest == 0 ? L("Pas encore de record") : L("Record : \(app.panierBest) points")) {
                     app.route = .panier
                 }
 
-                gameCard(title: "FLÉCHETTES",
-                         subtitle: "La cible sur la moitié debout, la fléchette sous ton doigt. Seul ou à deux.",
+                gameCard(title: L("FLÉCHETTES"),
+                         subtitle: L("La cible sur la moitié debout, la fléchette sous ton doigt. Seul ou à deux."),
                          symbol: "scope",
                          color: Theme.darts,
-                         badge: "Pli en L · 1 ou 2 joueurs",
-                         progress: app.flechettesBest == 0 ? "Pas encore de record" : "Record : \(app.flechettesBest) points") {
+                         badge: L("Pli en L · 1 ou 2 joueurs"),
+                         progress: app.flechettesBest == 0 ? L("Pas encore de record") : L("Record : \(app.flechettesBest) points")) {
                     app.route = .flechettes
                 }
 
-                gameCard(title: "AIR HOCKEY",
-                         subtitle: "Duo ouvert à plat entre vous deux : la charnière devient la ligne médiane.",
+                gameCard(title: L("AIR HOCKEY"),
+                         subtitle: L("Duo ouvert à plat entre vous deux : la charnière devient la ligne médiane."),
                          symbol: "circle.circle.fill",
                          color: Theme.hockeyB,
-                         badge: "À plat · 1 ou 2 joueurs",
-                         progress: "Premier à 7 buts") {
+                         badge: L("À plat · 1 ou 2 joueurs"),
+                         progress: L("Premier à 7 buts")) {
                     app.route = .airHockey
                 }
 
-                SectionTitle(text: "En groupe")
+                SectionTitle(text: L("En groupe"))
 
-                gameCard(title: "1, 2, 3… SOLEIL !",
-                         subtitle: "Le téléphone fait l'arbitre : il voit qui bouge et le renvoie au départ.",
+                gameCard(title: L("1, 2, 3… SOLEIL !"),
+                         subtitle: L("Le téléphone fait l'arbitre : il voit qui bouge et le renvoie au départ."),
                          symbol: "sun.max.fill",
                          color: Theme.sun,
-                         badge: "Caméra · 2 joueurs et +",
-                         progress: app.soleilGames == 0 ? "Jamais joué" : "\(app.soleilGames) partie\(app.soleilGames > 1 ? "s" : "")") {
+                         badge: L("Caméra · 2 joueurs et +"),
+                         progress: app.soleilGames == 0 ? L("Jamais joué") : L("\(app.soleilGames) partie\(app.soleilGames > 1 ? "s" : "")")) {
                     app.route = .soleil
                 }
 
-                SectionTitle(text: "Concentration")
+                SectionTitle(text: L("Concentration"))
 
-                gameCard(title: "FERME",
-                         subtitle: "Ferme ton Duo et ta plante pousse sur l'écran extérieur. Rouvre-le trop tôt, elle fane.",
+                gameCard(title: L("FERME"),
+                         subtitle: L("Ferme ton Duo et ta plante pousse sur l'écran extérieur. Rouvre-le trop tôt, elle fane."),
                          symbol: "leaf.fill",
                          color: Theme.ferme,
-                         badge: "Fermé · Concentration",
-                         progress: app.fermeGarden.isEmpty ? "Jardin vide" : "\(app.fermeGarden.count) plante\(app.fermeGarden.count > 1 ? "s" : "") dans ton jardin") {
+                         badge: L("Fermé · Concentration"),
+                         progress: app.fermeGarden.isEmpty ? L("Jardin vide") : L("\(app.fermeGarden.count) plante\(app.fermeGarden.count > 1 ? "s" : "") dans ton jardin")) {
                     app.route = .ferme
                 }
 
@@ -131,9 +131,9 @@ struct HubView: View {
                             Image(systemName: "crown.fill")
                                 .font(.system(size: 22, weight: .bold))
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Pass Plié")
+                                Text(L("Pass Plié"))
                                     .font(.plie(18))
-                                Text("Tous les niveaux, pour toujours")
+                                Text(L("Tous les niveaux, pour toujours"))
                                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                                     .opacity(0.85)
                             }
@@ -217,46 +217,55 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Ressenti") {
-                    Toggle("Sons", isOn: Binding(get: { app.soundOn }, set: { app.setSound($0) }))
-                    Toggle("Vibrations", isOn: Binding(get: { app.hapticsOn }, set: { app.setHaptics($0) }))
+                Section(L("Ressenti")) {
+                    Toggle(L("Sons"), isOn: Binding(get: { app.soundOn }, set: { app.setSound($0) }))
+                    Toggle(L("Vibrations"), isOn: Binding(get: { app.hapticsOn }, set: { app.setHaptics($0) }))
                 }
-                Section("Pass Plié") {
+                Section(L("Pass Plié")) {
                     if store.ownsPass {
-                        Label("Tout est débloqué", systemImage: "checkmark.seal.fill")
+                        Label(L("Tout est débloqué"), systemImage: "checkmark.seal.fill")
                     } else {
-                        Button("Voir le Pass") {
+                        Button(L("Voir le Pass")) {
                             dismiss()
                             app.showPass = true
                         }
                     }
-                    Button("Restaurer mes achats") {
+                    Button(L("Restaurer mes achats")) {
                         Task { await store.restore() }
                     }
                     if let message = store.message {
                         Text(message).foregroundStyle(Theme.muted)
                     }
                 }
-                Section("iPhone Duo") {
+                Section(L("iPhone Duo")) {
                     Text(DuoSupport.apisAvailable
-                         ? "Sur iPhone Duo, RAYON, PLIAGE, BASCULE et LE COFFRE se jouent avec la charnière ; PANIER et FLÉCHETTES se jouent plié en L, AIR HOCKEY à plat, FERME fermé. Sur les autres iPhone, tout se joue au doigt."
-                         : "Cet iPhone n'a pas de charnière : RAYON, PLIAGE et LE COFFRE se jouent au doigt.")
+                         ? L("Sur iPhone Duo, RAYON, PLIAGE, BASCULE et LE COFFRE se jouent avec la charnière ; PANIER et FLÉCHETTES se jouent plié en L, AIR HOCKEY à plat, FERME fermé. Sur les autres iPhone, tout se joue au doigt.")
+                         : L("Cet iPhone n'a pas de charnière : RAYON, PLIAGE et LE COFFRE se jouent au doigt."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
                 }
-                Section("Vie privée") {
-                    Text("Dans 1, 2, 3… Soleil !, la caméra sert à repérer les mouvements, directement sur le téléphone. Les photos des joueurs pris restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis.")
+                Section("Langue · Language") {
+                    Picker("Langue · Language", selection: Binding(get: { Lang.shared.choice }, set: { Lang.shared.choice = $0 })) {
+                        Text(verbatim: "Automatique · Automatic").tag(Lang.Choice.auto)
+                        Text(verbatim: "Français").tag(Lang.Choice.fr)
+                        Text(verbatim: "English").tag(Lang.Choice.en)
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                }
+                Section(L("Vie privée")) {
+                    Text(L("Dans 1, 2, 3… Soleil !, la caméra sert à repérer les mouvements, directement sur le téléphone. Les photos des joueurs pris restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
                 }
             }
             .scrollContentBackground(.hidden)
             .background(Theme.ink.ignoresSafeArea())
-            .navigationTitle("Réglages")
+            .navigationTitle(L("Réglages"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("OK") { dismiss() }
+                    Button(L("OK")) { dismiss() }
                 }
             }
         }
@@ -272,31 +281,31 @@ struct PassView: View {
             VStack(spacing: 20) {
                 HStack {
                     Spacer()
-                    IconButton(symbol: "xmark", label: "Fermer") { dismiss() }
+                    IconButton(symbol: "xmark", label: L("Fermer")) { dismiss() }
                 }
                 Image(systemName: "crown.fill")
                     .font(.system(size: 54, weight: .bold))
                     .foregroundStyle(Theme.gold)
-                Text("Pass Plié")
+                Text(L("Pass Plié"))
                     .font(.plie(40))
-                Text("Un seul achat, sans abonnement ni publicité.")
+                Text(L("Un seul achat, sans abonnement ni publicité."))
                     .font(.plie(17, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
 
                 VStack(alignment: .leading, spacing: 14) {
-                    benefit("light.beacon.max.fill", Theme.laser, "RAYON : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus", "Miroirs pivotants, labyrinthes et miroirs jumeaux.")
-                    benefit("paintpalette.fill", Theme.paint, "PLIAGE : \(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus", "Mélanges de couleurs et origamis en 4 plis.")
-                    benefit("lock.rotation", Theme.gold, "LE COFFRE : \(CoffreLevel.count - AppState.freeCoffreLevels) coffres de plus", "Faux crans, crans discrets, et coffres sans chiffres, au toucher seulement.")
-                    benefit("arrow.up.right.circle.fill", Theme.bascule, "BASCULE : \(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus", "Le vent, puis les ressorts.")
-                    benefit("leaf.fill", Theme.ferme, "FERME : toutes les plantes", "Tulipe, lavande, bonsaï, cerisier, rose, et les séances de 45 à 90 minutes.")
-                    benefit("sparkles", Theme.sun, "Les prochains jeux et niveaux", "Tout ce qui sortira plus tard est inclus.")
+                    benefit("light.beacon.max.fill", Theme.laser, L("RAYON : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus"), L("Miroirs pivotants, labyrinthes et miroirs jumeaux."))
+                    benefit("paintpalette.fill", Theme.paint, L("PLIAGE : \(PliageLevel.all.count - AppState.freePliageLevels) pliages de plus"), L("Mélanges de couleurs et origamis en 4 plis."))
+                    benefit("lock.rotation", Theme.gold, L("LE COFFRE : \(CoffreLevel.count - AppState.freeCoffreLevels) coffres de plus"), L("Faux crans, crans discrets, et coffres sans chiffres, au toucher seulement."))
+                    benefit("arrow.up.right.circle.fill", Theme.bascule, L("BASCULE : \(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus"), L("Le vent, puis les ressorts."))
+                    benefit("leaf.fill", Theme.ferme, L("FERME : toutes les plantes"), L("Tulipe, lavande, bonsaï, cerisier, rose, et les séances de 45 à 90 minutes."))
+                    benefit("sparkles", Theme.sun, L("Les prochains jeux et niveaux"), L("Tout ce qui sortira plus tard est inclus."))
                 }
                 .padding(18)
                 .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Theme.card))
 
                 if store.ownsPass {
-                    Label("Déjà débloqué, merci !", systemImage: "checkmark.seal.fill")
+                    Label(L("Déjà débloqué, merci !"), systemImage: "checkmark.seal.fill")
                         .font(.plie(18, weight: .bold))
                         .foregroundStyle(Theme.go)
                 } else {
@@ -306,16 +315,16 @@ struct PassView: View {
                         if store.isPurchasing {
                             ProgressView().tint(Theme.ink)
                         } else if let pass = store.pass {
-                            Text("Tout débloquer pour \(pass.displayPrice)")
+                            Text(L("Tout débloquer pour \(pass.displayPrice)"))
                         } else {
-                            Text(store.isLoading ? "Chargement…" : "Indisponible pour le moment")
+                            Text(store.isLoading ? L("Chargement…") : L("Indisponible pour le moment"))
                         }
                     }
                     .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink, height: 62))
                     .disabled(store.pass == nil || store.isPurchasing)
                 }
 
-                Button("Restaurer mes achats") {
+                Button(L("Restaurer mes achats")) {
                     Task { await store.restore() }
                 }
                 .buttonStyle(GhostButtonStyle())

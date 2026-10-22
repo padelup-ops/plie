@@ -121,23 +121,23 @@ final class PanierGame {
             made += 1
             let points = streak >= 3 ? 2 : 1
             score += points
-            lastText = points == 2 ? "En feu ! +2" : "Panier !"
+            lastText = points == 2 ? L("En feu ! +2") : L("Panier !")
             Haptics.correct(subtle: false)
             SoundPlayer.shared.play(.splat, volume: 0.8)
         case .rim:
             streak = 0
-            lastText = "Sur le cercle…"
+            lastText = L("Sur le cercle…")
             SoundPlayer.shared.play(.clunk, volume: 0.7)
         case .long:
             streak = 0
-            lastText = "Trop fort"
+            lastText = L("Trop fort")
             SoundPlayer.shared.play(.decoy, volume: 0.6)
         case .short:
             streak = 0
-            lastText = "Trop court"
+            lastText = L("Trop court")
         case .wide:
             streak = 0
-            lastText = "À côté"
+            lastText = L("À côté")
         }
     }
 }
@@ -153,10 +153,10 @@ struct PanierView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            GameHeader(title: "PANIER", subtitle: "Record : \(app.panierBest) points", onBack: { app.route = .hub }) {
+            GameHeader(title: L("PANIER"), subtitle: L("Record : \(app.panierBest) points"), onBack: { app.route = .hub }) {
                 HStack(spacing: 8) {
-                    Pill(text: "\(game.score) pts", color: Theme.panier.opacity(0.25), textColor: Theme.panier)
-                    Pill(text: "\(Int(game.timeLeft.rounded(.up))) s", color: Theme.card)
+                    Pill(text: L("\(game.score) pts"), color: Theme.panier.opacity(0.25), textColor: Theme.panier)
+                    Pill(text: L("\(Int(game.timeLeft.rounded(.up))) s"), color: Theme.card)
                 }
             }
             .padding(.horizontal, 16)
@@ -193,26 +193,26 @@ struct PanierView: View {
     private var overlay: some View {
         VStack(spacing: 14) {
             if game.phase == .over {
-                Text(game.newRecord ? "Nouveau record !" : "Temps écoulé")
+                Text(game.newRecord ? L("Nouveau record !") : L("Temps écoulé"))
                     .font(.plie(30))
-                Text("\(game.score) points · \(game.made) / \(game.shots) paniers")
+                Text(L("\(game.score) points · \(game.made) / \(game.shots) paniers"))
                     .font(.plie(18, weight: .semibold))
                     .foregroundStyle(Theme.muted)
             } else {
                 Image(systemName: "basketball.fill")
                     .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(Theme.panier)
-                Text("60 secondes, un maximum de paniers")
+                Text(L("60 secondes, un maximum de paniers"))
                     .font(.plie(22))
                     .multilineTextAlignment(.center)
                 Text(hingeSeen
-                     ? "Tourne ton iPhone Duo en paysage et plie-le en L : le panier se dresse devant toi. Lance d'un glissé vers le haut."
-                     : "Lance d'un glissé vers le haut. Trois paniers d'affilée : chaque panier vaut 2 points.")
+                     ? L("Tourne ton iPhone Duo en paysage et plie-le en L : le panier se dresse devant toi. Lance d'un glissé vers le haut.")
+                     : L("Lance d'un glissé vers le haut. Trois paniers d'affilée : chaque panier vaut 2 points."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
             }
-            Button(game.phase == .over ? "Rejouer" : "Jouer") { game.start() }
+            Button(game.phase == .over ? L("Rejouer") : L("Jouer")) { game.start() }
                 .buttonStyle(ChunkyButtonStyle(color: Theme.panier, textColor: Theme.ink))
                 .frame(maxWidth: 320)
         }
@@ -339,6 +339,6 @@ struct PanierScene: View {
                              at: CGPoint(x: w / 2, y: fold + (h - fold) * 0.28))
             }
         }
-        .accessibilityLabel("Terrain de basket")
+        .accessibilityLabel(L("Terrain de basket"))
     }
 }

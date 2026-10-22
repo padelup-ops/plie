@@ -249,7 +249,7 @@ struct AirHockeyView: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            GameHeader(title: "AIR HOCKEY", subtitle: game.solo ? "Contre l'ordinateur" : "À deux, face à face", onBack: { app.route = .hub }) {
+            GameHeader(title: L("AIR HOCKEY"), subtitle: game.solo ? L("Contre l'ordinateur") : L("À deux, face à face"), onBack: { app.route = .hub }) {
                 Pill(text: "\(game.scoreA) – \(game.scoreB)", color: Theme.card)
             }
             .padding(.horizontal, 16)
@@ -317,8 +317,8 @@ struct AirHockeyView: View {
         VStack(spacing: 14) {
             if game.phase == .over {
                 Text(game.solo
-                     ? (game.scoreA > game.scoreB ? "Tu as gagné !" : "L'ordinateur gagne")
-                     : "Le joueur \(game.scoreA > game.scoreB ? "rouge" : "bleu") gagne !")
+                     ? (game.scoreA > game.scoreB ? L("Tu as gagné !") : L("L'ordinateur gagne"))
+                     : (game.scoreA > game.scoreB ? L("Le joueur rouge gagne !") : L("Le joueur bleu gagne !")))
                     .font(.plie(30))
                 Text("\(game.scoreA) – \(game.scoreB)")
                     .font(.plie(22, weight: .semibold))
@@ -327,19 +327,19 @@ struct AirHockeyView: View {
                 Image(systemName: "circle.circle.fill")
                     .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(Theme.hockeyB)
-                Text("Le premier à 7 buts gagne")
+                Text(L("Le premier à 7 buts gagne"))
                     .font(.plie(22))
                 Text(hingePresent
-                     ? "À deux : pose ton iPhone Duo ouvert à plat entre vous. La charnière sert de ligne médiane, chacun défend sa moitié."
-                     : "À deux : posez le téléphone à plat entre vous, chacun défend sa moitié.")
+                     ? L("À deux : pose ton iPhone Duo ouvert à plat entre vous. La charnière sert de ligne médiane, chacun défend sa moitié.")
+                     : L("À deux : posez le téléphone à plat entre vous, chacun défend sa moitié."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
             }
             HStack(spacing: 10) {
-                Button("Solo") { game.start(solo: true) }
+                Button(L("Solo")) { game.start(solo: true) }
                     .buttonStyle(ChunkyButtonStyle(color: Theme.hockeyA))
-                Button("À deux") { game.start(solo: false) }
+                Button(L("À deux")) { game.start(solo: false) }
                     .buttonStyle(ChunkyButtonStyle(color: Theme.hockeyB, textColor: Theme.ink))
             }
             .frame(maxWidth: 360)
@@ -422,10 +422,10 @@ struct HockeyTable: View {
             context.stroke(disc(pc, pr), with: .color(.white.opacity(goalFlash ? 1 : 0.7)), lineWidth: goalFlash ? 4 : 2)
 
             if goalFlash {
-                let text = Text("BUT !").font(.plie(scale * 0.12)).foregroundColor(.white)
+                let text = Text(L("BUT !")).font(.plie(scale * 0.12)).foregroundColor(.white)
                 context.draw(text, at: CGPoint(x: size.width / 2, y: size.height / 2))
             }
         }
-        .accessibilityLabel("Table d'air hockey, \(scoreA) à \(scoreB)")
+        .accessibilityLabel(L("Table d'air hockey, \(scoreA) à \(scoreB)"))
     }
 }

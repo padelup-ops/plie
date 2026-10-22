@@ -98,10 +98,10 @@ struct RayonLevel {
 
     static func worldName(_ world: Int) -> String {
         switch world {
-        case 1: return "Premier reflet"
-        case 2: return "Les pivots"
-        case 3: return "Le labyrinthe"
-        default: return "Les jumeaux"
+        case 1: return L("Premier reflet")
+        case 2: return L("Les pivots")
+        case 3: return L("Le labyrinthe")
+        default: return L("Les jumeaux")
         }
     }
 
@@ -109,9 +109,9 @@ struct RayonLevel {
     var tip: String? {
         guard let first = RayonLevel.all.first(where: { $0.world == world }), first.number == number else { return nil }
         switch world {
-        case 2: return "Nouveau : touche un miroir rond pour le faire pivoter de 45°. Trouve la bonne orientation, puis vise avec la charnière."
-        case 3: return "Plusieurs pivots, des murs et des miroirs fixes : trace le chemin dans ta tête avant de viser."
-        case 4: return "Le miroir jumeau tourne en même temps que le miroir central, mais à son propre rythme."
+        case 2: return L("Nouveau : touche un miroir rond pour le faire pivoter de 45°. Trouve la bonne orientation, puis vise avec la charnière.")
+        case 3: return L("Plusieurs pivots, des murs et des miroirs fixes : trace le chemin dans ta tête avant de viser.")
+        case 4: return L("Le miroir jumeau tourne en même temps que le miroir central, mais à son propre rythme.")
         default: return nil
         }
     }
@@ -262,7 +262,7 @@ extension RayonEngine {
             if solved && !startHit {
                 ok += 1
             } else {
-                failures.append("RAYON \(level.number): solution=\(solved) départ=\(startHit)")
+                failures.append(L("RAYON \(level.number): solution=\(solved) départ=\(startHit)"))
             }
         }
         return (ok, failures)

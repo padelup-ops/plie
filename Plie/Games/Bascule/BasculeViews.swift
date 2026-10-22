@@ -13,8 +13,8 @@ struct BasculeLevelsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            GameHeader(title: "BASCULE",
-                       subtitle: "\(app.basculeStars.count) / \(BasculeLevel.all.count) paniers réussis",
+            GameHeader(title: L("BASCULE"),
+                       subtitle: L("\(app.basculeStars.count) / \(BasculeLevel.all.count) paniers réussis"),
                        onBack: { app.route = .hub }) {
                 EmptyView()
             }
@@ -24,15 +24,15 @@ struct BasculeLevelsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     Text(DuoSupport.apisAvailable
-                         ? "Plie ton iPhone Duo pour régler le tremplin, puis lâche la bille. Fais-la tomber dans le panier en ramassant les étoiles."
-                         : "Glisse ton doigt vers le haut ou le bas pour régler le tremplin, puis lâche la bille. Fais-la tomber dans le panier en ramassant les étoiles.")
+                         ? L("Plie ton iPhone Duo pour régler le tremplin, puis lâche la bille. Fais-la tomber dans le panier en ramassant les étoiles.")
+                         : L("Glisse ton doigt vers le haut ou le bas pour régler le tremplin, puis lâche la bille. Fais-la tomber dans le panier en ramassant les étoiles."))
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.muted)
 
                     ForEach(1...BasculeLevel.worldCount, id: \.self) { world in
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                SectionTitle(text: "Monde \(world) · \(BasculeLevel.worldName(world))")
+                                SectionTitle(text: L("Monde \(world) · \(BasculeLevel.worldName(world))"))
                                 if BasculeLevel.all.contains(where: { $0.world == world && app.basculeNeedsPass($0.number, hasPass: store.ownsPass) }) {
                                     Image(systemName: "crown.fill")
                                         .foregroundStyle(Theme.gold)
@@ -88,7 +88,7 @@ struct BasculeLevelsView: View {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Niveau \(number)\(stars != nil ? ", réussi" : "")\(unlocked ? "" : ", verrouillé")")
+        .accessibilityLabel(L("Niveau \(number)\(stars != nil ? L(", réussi") : "")\(unlocked ? "" : L(", verrouillé"))"))
     }
 }
 
@@ -115,7 +115,7 @@ struct BasculePlayView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            GameHeader(title: "Niveau \(number)",
+            GameHeader(title: L("Niveau \(number)"),
                        subtitle: BasculeLevel.worldName(session.level.world),
                        onBack: { app.route = .basculeLevels }) {
                 StarsView(count: session.collected.count, size: 16)
@@ -148,8 +148,8 @@ struct BasculePlayView: View {
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(Theme.bascule)
                 Text(session.message ?? (usesHinge
-                                          ? "Plie ou déplie ton Duo pour régler le tremplin."
-                                          : "Glisse vers le haut ou le bas pour régler le tremplin."))
+                                          ? L("Plie ou déplie ton Duo pour régler le tremplin.")
+                                          : L("Glisse vers le haut ou le bas pour régler le tremplin.")))
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(session.message != nil ? Theme.coral : Theme.muted)
                     .fixedSize(horizontal: false, vertical: true)
@@ -165,7 +165,7 @@ struct BasculePlayView: View {
                 showTip = false
                 session.launch()
             } label: {
-                Label(session.phase == .missed ? "Relancer la bille" : "Lâcher la bille", systemImage: "circle.fill")
+                Label(session.phase == .missed ? L("Relancer la bille") : L("Lâcher la bille"), systemImage: "circle.fill")
             }
             .buttonStyle(ChunkyButtonStyle(color: Theme.bascule, textColor: Theme.ink, height: 58))
             .disabled(!session.canLaunch)
@@ -205,38 +205,38 @@ struct BasculePlayView: View {
                 Image(systemName: "basketball.fill")
                     .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(Theme.bascule)
-                Text("Dans le panier !")
+                Text(L("Dans le panier !"))
                     .font(.plie(34))
                 StarsView(count: session.collected.count, size: 28)
-                Text(session.attempts == 1 ? "Du premier coup !" : "En \(session.attempts) essais")
+                Text(session.attempts == 1 ? L("Du premier coup !") : L("En \(session.attempts) essais"))
                     .font(.plie(17, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                 if session.collected.count < 3 {
-                    Text("Les 3 étoiles sont sur le même trajet : il existe un angle qui les prend toutes.")
+                    Text(L("Les 3 étoiles sont sur le même trajet : il existe un angle qui les prend toutes."))
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.muted)
                         .multilineTextAlignment(.center)
                 }
                 if number < BasculeLevel.all.count {
                     if app.basculeNeedsPass(number + 1, hasPass: store.ownsPass) {
-                        Text("\(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus, avec le vent et les ressorts, dans le Pass Plié.")
+                        Text(L("\(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus, avec le vent et les ressorts, dans le Pass Plié."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)
                             .multilineTextAlignment(.center)
-                        Button("Débloquer la suite") { app.showPass = true }
+                        Button(L("Débloquer la suite")) { app.showPass = true }
                             .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink))
                     } else {
-                        Button("Niveau suivant") { app.route = .bascule(number + 1) }
+                        Button(L("Niveau suivant")) { app.route = .bascule(number + 1) }
                             .buttonStyle(ChunkyButtonStyle(color: Theme.bascule, textColor: Theme.ink))
                     }
                 }
                 HStack(spacing: 10) {
-                    Button("Rejouer") {
+                    Button(L("Rejouer")) {
                         app.route = .basculeLevels
                         DispatchQueue.main.async { app.route = .bascule(number) }
                     }
                     .buttonStyle(GhostButtonStyle())
-                    Button("Les niveaux") { app.route = .basculeLevels }
+                    Button(L("Les niveaux")) { app.route = .basculeLevels }
                         .buttonStyle(GhostButtonStyle())
                 }
             }
@@ -375,7 +375,7 @@ struct BasculeBoard: View {
             context.fill(Path(ellipseIn: CGRect(x: b.x - br, y: b.y - br, width: br * 2, height: br * 2)), with: .color(Color(hex: 0xFF7A2F)))
             context.fill(Path(ellipseIn: CGRect(x: b.x - br * 0.45, y: b.y - br * 0.6, width: br * 0.6, height: br * 0.6)), with: .color(.white.opacity(0.6)))
         }
-        .accessibilityLabel("Plateau : tremplin à \(Int(alpha.rounded())) degrés")
+        .accessibilityLabel(L("Plateau : tremplin à \(Int(alpha.rounded())) degrés"))
     }
 
     static func star(center: CGPoint, radius: CGFloat) -> Path {

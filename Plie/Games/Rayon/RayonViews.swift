@@ -9,8 +9,8 @@ struct RayonLevelsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            GameHeader(title: "RAYON",
-                       subtitle: "\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux réussis",
+            GameHeader(title: L("RAYON"),
+                       subtitle: L("\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux réussis"),
                        onBack: { app.route = .hub }) {
                 EmptyView()
             }
@@ -20,15 +20,15 @@ struct RayonLevelsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     Text(DuoSupport.apisAvailable
-                         ? "Plie ton iPhone Duo pour faire tourner le miroir bleu, touche les miroirs ronds pour les faire pivoter. Garde le laser sur la cible pour valider."
-                         : "Glisse ton doigt pour faire tourner le miroir bleu, touche les miroirs ronds pour les faire pivoter. Garde le laser sur la cible pour valider.")
+                         ? L("Plie ton iPhone Duo pour faire tourner le miroir bleu, touche les miroirs ronds pour les faire pivoter. Garde le laser sur la cible pour valider.")
+                         : L("Glisse ton doigt pour faire tourner le miroir bleu, touche les miroirs ronds pour les faire pivoter. Garde le laser sur la cible pour valider."))
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.muted)
 
                     ForEach(1...RayonLevel.worldCount, id: \.self) { world in
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                SectionTitle(text: "Monde \(world) · \(RayonLevel.worldName(world))")
+                                SectionTitle(text: L("Monde \(world) · \(RayonLevel.worldName(world))"))
                                 if RayonLevel.all.contains(where: { $0.world == world && app.rayonNeedsPass($0.number, hasPass: store.ownsPass) }) {
                                     Image(systemName: "crown.fill")
                                         .foregroundStyle(Theme.gold)
@@ -77,7 +77,7 @@ struct RayonLevelsView: View {
             .frame(height: 62)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Niveau \(number)\(solved ? ", réussi" : "")\(unlocked ? "" : ", verrouillé")")
+        .accessibilityLabel(L("Niveau \(number)\(solved ? L(", réussi") : "")\(unlocked ? "" : L(", verrouillé"))"))
     }
 }
 
@@ -192,7 +192,7 @@ struct RayonPlayView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            GameHeader(title: "Niveau \(number)",
+            GameHeader(title: L("Niveau \(number)"),
                        subtitle: RayonLevel.worldName(session.level.world),
                        onBack: { app.route = .rayonLevels }) {
                 Text(formatSeconds(session.elapsed))
@@ -299,12 +299,12 @@ struct RayonPlayView: View {
 
     private var hintText: String {
         if HingeMapping.isOpen(session.hingeDegrees) {
-            return "Plie ou déplie ton iPhone Duo pour tourner le miroir"
+            return L("Plie ou déplie ton iPhone Duo pour tourner le miroir")
         }
         if session.hingeDegrees != nil {
-            return "Ouvre ton iPhone Duo pour jouer avec la charnière, ou glisse ton doigt sur le plateau"
+            return L("Ouvre ton iPhone Duo pour jouer avec la charnière, ou glisse ton doigt sur le plateau")
         }
-        return "Glisse ton doigt sur le plateau pour tourner le miroir"
+        return L("Glisse ton doigt sur le plateau pour tourner le miroir")
     }
 
     private var nextNumber: Int? {
@@ -318,30 +318,30 @@ struct RayonPlayView: View {
                 Image(systemName: "scope")
                     .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(Theme.laser)
-                Text("Dans le mille !")
+                Text(L("Dans le mille !"))
                     .font(.plie(34))
                 Text(session.level.rotors.isEmpty
-                     ? "Niveau \(number) en \(formatSeconds(session.elapsed))"
-                     : "Niveau \(number) en \(formatSeconds(session.elapsed)) · \(session.taps) tap\(session.taps > 1 ? "s" : "")")
+                     ? L("Niveau \(number) en \(formatSeconds(session.elapsed))")
+                     : L("Niveau \(number) en \(formatSeconds(session.elapsed)) · \(session.taps) tap\(session.taps > 1 ? "s" : "")"))
                     .font(.plie(17, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                 if let next = nextNumber {
                     if app.rayonNeedsPass(next, hasPass: store.ownsPass) {
-                        Text("La suite t'attend : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus avec le Pass Plié.")
+                        Text(L("La suite t'attend : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus avec le Pass Plié."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Theme.muted)
-                        Button("Débloquer la suite") { app.showPass = true }
+                        Button(L("Débloquer la suite")) { app.showPass = true }
                             .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink))
                     } else {
-                        Button("Niveau suivant") { app.route = .rayon(next) }
+                        Button(L("Niveau suivant")) { app.route = .rayon(next) }
                             .buttonStyle(ChunkyButtonStyle(color: Theme.laser, textColor: Theme.ink))
                     }
                 } else {
-                    Text("Tu as fini tous les niveaux. Chapeau.")
+                    Text(L("Tu as fini tous les niveaux. Chapeau."))
                         .font(.plie(17, weight: .bold))
                 }
-                Button("Tous les niveaux") { app.route = .rayonLevels }
+                Button(L("Tous les niveaux")) { app.route = .rayonLevels }
                     .buttonStyle(GhostButtonStyle())
             }
             .foregroundStyle(.white)
@@ -493,6 +493,6 @@ struct RayonBoard: View {
             context.fill(Path(ellipseIn: CGRect(x: e.x - er, y: e.y - er, width: er * 2, height: er * 2)), with: .color(Theme.coral))
             context.stroke(Path(ellipseIn: CGRect(x: e.x - er, y: e.y - er, width: er * 2, height: er * 2)), with: .color(.white), lineWidth: 2)
         }
-        .accessibilityLabel("Plateau de jeu : le laser \(result.hit ? "touche" : "ne touche pas") la cible")
+        .accessibilityLabel(result.hit ? L("Plateau de jeu : le laser touche la cible") : L("Plateau de jeu : le laser ne touche pas la cible"))
     }
 }

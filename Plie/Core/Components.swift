@@ -133,7 +133,7 @@ struct GameHeader<Trailing: View>: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            IconButton(symbol: "chevron.left", label: "Retour", action: onBack)
+            IconButton(symbol: "chevron.left", label: L("Retour"), action: onBack)
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
                     .font(.plie(20))
@@ -172,7 +172,7 @@ struct TipBanner: View {
                     .foregroundStyle(Theme.muted)
                     .frame(width: 28, height: 28)
             }
-            .accessibilityLabel("Masquer le conseil")
+            .accessibilityLabel(L("Masquer le conseil"))
         }
         .foregroundStyle(.white)
         .padding(12)
@@ -193,7 +193,7 @@ struct StarsView: View {
                     .foregroundStyle(index < count ? Theme.gold : Theme.faint)
             }
         }
-        .accessibilityLabel("\(count) étoile\(count > 1 ? "s" : "") sur 3")
+        .accessibilityLabel(L("\(count) étoile\(count > 1 ? "s" : "") sur 3"))
     }
 }
 

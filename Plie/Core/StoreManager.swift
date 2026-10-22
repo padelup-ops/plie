@@ -32,7 +32,7 @@ final class StoreManager {
         do {
             pass = try await Product.products(for: [Self.passID]).first
         } catch {
-            message = "La boutique ne répond pas pour le moment."
+            message = L("La boutique ne répond pas pour le moment.")
         }
         await refreshEntitlements()
     }
@@ -53,7 +53,7 @@ final class StoreManager {
     @MainActor
     func buyPass() async {
         guard let pass else {
-            message = "Le Pass n'est pas disponible pour le moment."
+            message = L("Le Pass n'est pas disponible pour le moment.")
             return
         }
         isPurchasing = true
@@ -65,19 +65,19 @@ final class StoreManager {
                 if case .verified(let transaction) = verification {
                     await transaction.finish()
                     await refreshEntitlements()
-                    message = "Merci ! Tout est débloqué."
+                    message = L("Merci ! Tout est débloqué.")
                 } else {
-                    message = "L'achat n'a pas pu être vérifié."
+                    message = L("L'achat n'a pas pu être vérifié.")
                 }
             case .pending:
-                message = "Achat en attente de validation."
+                message = L("Achat en attente de validation.")
             case .userCancelled:
                 break
             @unknown default:
                 break
             }
         } catch {
-            message = "L'achat n'a pas abouti. Réessaie dans un instant."
+            message = L("L'achat n'a pas abouti. Réessaie dans un instant.")
         }
     }
 
@@ -86,11 +86,11 @@ final class StoreManager {
         do {
             try await AppStore.sync()
         } catch {
-            message = "Impossible de restaurer les achats pour le moment."
+            message = L("Impossible de restaurer les achats pour le moment.")
         }
         await refreshEntitlements()
         if ownsPass {
-            message = "Pass restauré."
+            message = L("Pass restauré.")
         }
     }
 }

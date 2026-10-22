@@ -38,10 +38,10 @@ struct CoffreLevel {
     }
 
     var features: [String] {
-        var list = ["\(digits) chiffres", "\(positions) crans"]
-        if decoysPerDigit > 0 { list.append(decoysPerDigit == 1 ? "1 faux cran" : "\(decoysPerDigit) faux crans") }
-        if subtle { list.append("cran discret") }
-        if hideNumbers { list.append("sans chiffres") }
+        var list = [L("\(digits) chiffres"), L("\(positions) crans")]
+        if decoysPerDigit > 0 { list.append(decoysPerDigit == 1 ? L("1 faux cran") : L("\(decoysPerDigit) faux crans")) }
+        if subtle { list.append(L("cran discret")) }
+        if hideNumbers { list.append(L("sans chiffres")) }
         return list
     }
 

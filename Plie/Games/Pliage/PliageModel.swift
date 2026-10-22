@@ -60,18 +60,18 @@ struct PliageLevel {
 
     static func worldName(_ world: Int) -> String {
         switch world {
-        case 1: return "Premiers plis"
-        case 2: return "Mélanges"
-        default: return "Origami"
+        case 1: return L("Premiers plis")
+        case 2: return L("Mélanges")
+        default: return L("Origami")
         }
     }
 
     var tip: String? {
         guard let first = PliageLevel.all.first(where: { $0.world == world }), first.number == number else { return nil }
         switch world {
-        case 1: return "La peinture est fraîche : plie la feuille, elle se décalque de l'autre côté du pli. Reproduis le modèle."
-        case 2: return "Les couleurs se mélangent quand elles se superposent : rouge + jaune = orange, jaune + bleu = vert, rouge + bleu = violet."
-        case 3: return "Trois couleurs, et l'ordre des plis compte. Observe les symétries du modèle."
+        case 1: return L("La peinture est fraîche : plie la feuille, elle se décalque de l'autre côté du pli. Reproduis le modèle.")
+        case 2: return L("Les couleurs se mélangent quand elles se superposent : rouge + jaune = orange, jaune + bleu = vert, rouge + bleu = violet.")
+        case 3: return L("Trois couleurs, et l'ordre des plis compte. Observe les symétries du modèle.")
         default: return nil
         }
     }
@@ -138,7 +138,7 @@ enum PliageEngine {
             if sizes && grid == level.target && level.solution.count == level.par && level.start != level.target {
                 ok += 1
             } else {
-                failures.append("PLIAGE \(level.number): tailles=\(sizes) modèle=\(grid == level.target) plis=\(level.solution.count)/\(level.par)")
+                failures.append(L("PLIAGE \(level.number): tailles=\(sizes) modèle=\(grid == level.target) plis=\(level.solution.count)/\(level.par)"))
             }
         }
         return (ok, failures)

@@ -19,17 +19,17 @@ enum SoleilSensitivity: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .cool: return "Cool"
-        case .normal: return "Normal"
-        case .strict: return "Strict"
+        case .cool: return L("Cool")
+        case .normal: return L("Normal")
+        case .strict: return L("Strict")
         }
     }
 
     var detail: String {
         switch self {
-        case .cool: return "Seuls les grands gestes comptent. Idéal avec des enfants."
-        case .normal: return "Un pas ou un bras qui bouge, et c'est perdu."
-        case .strict: return "Le moindre frisson est repéré. Bonne chance."
+        case .cool: return L("Seuls les grands gestes comptent. Idéal avec des enfants.")
+        case .normal: return L("Un pas ou un bras qui bouge, et c'est perdu.")
+        case .strict: return L("Le moindre frisson est repéré. Bonne chance.")
         }
     }
 
@@ -57,7 +57,7 @@ final class SoleilCaller: NSObject, AVSpeechSynthesizerDelegate {
         synthesizer.stopSpeaking(at: .immediate)
         self.completion = completion
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "fr-FR")
+        utterance.voice = AVSpeechSynthesisVoice(language: Lang.shared.speechLanguage)
         utterance.rate = rate
         utterance.preUtteranceDelay = delay
         utterance.volume = 1
@@ -195,7 +195,7 @@ final class SoleilGame {
         elapsed = 0
         motionLevel = 0
         UIApplication.shared.isIdleTimerDisabled = true
-        caller.say("Placez-vous au fond !", rate: 0.5)
+        caller.say(L("Placez-vous au fond !"), rate: 0.5)
 
         Task { @MainActor in
             for n in stride(from: 5, through: 1, by: -1) {
@@ -232,10 +232,10 @@ final class SoleilGame {
         SoundPlayer.shared.play(.go)
 
         let variants: [(String, ClosedRange<Float>)] = [
-            ("Un, deux, trois, soleil !", 0.42...0.56),
-            ("Un… deux… trois… soleil !", 0.40...0.48),
-            ("Un deux trois soleil !", 0.58...0.64),
-            ("Un, deux… trois… soleil !", 0.45...0.55)
+            (L("Un, deux, trois, soleil !"), 0.42...0.56),
+            (L("Un… deux… trois… soleil !"), 0.40...0.48),
+            (L("Un deux trois soleil !"), 0.58...0.64),
+            (L("Un, deux… trois… soleil !"), 0.45...0.55)
         ]
         let pick = variants.randomElement() ?? variants[0]
         let delay = Double.random(in: 0.3...1.6)
@@ -278,7 +278,7 @@ final class SoleilGame {
         snapshots.append(image)
         camera.disarm()
         SoundPlayer.shared.play(.caught)
-        caller.say("Bougé ! Retour au départ !", rate: 0.52)
+        caller.say(L("Bougé ! Retour au départ !"), rate: 0.52)
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 3_400_000_000)
             guard self.cycle == current, self.phase == .caught else { return }
@@ -293,7 +293,7 @@ final class SoleilGame {
         if let start = startDate { elapsed = Date().timeIntervalSince(start) }
         clockTask?.cancel()
         camera.disarm()
-        caller.say("Bravo ! On a un gagnant !", rate: 0.5)
+        caller.say(L("Bravo ! On a un gagnant !"), rate: 0.5)
         SoundPlayer.shared.play(.win)
         UIApplication.shared.isIdleTimerDisabled = false
     }
