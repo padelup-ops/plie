@@ -48,9 +48,9 @@ extension View {
 }
 
 /// Convertit l'angle de la charnière en une valeur de 0 à 1.
-/// 40° (presque fermé) donne 0, 180° (à plat) donne 1.
+/// 80° (ouvert en L, l'écran reste lisible) donne 0, 180° (à plat) donne 1.
 enum HingeMapping {
-    static let lowDegrees = 40.0
+    static let lowDegrees = 80.0
     static let highDegrees = 180.0
 
     static func fraction(fromDegrees degrees: Double) -> Double {

@@ -51,6 +51,11 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.22), value: app.route)
+        .onAppear {
+            #if DEBUG
+            app.applyScreenshotRoute()
+            #endif
+        }
         .sheet(isPresented: $app.showPass) {
             PassView()
                 .environment(store)

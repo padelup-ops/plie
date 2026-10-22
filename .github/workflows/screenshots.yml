@@ -1,0 +1,106 @@
+# Fait tourner Plié sur le simulateur iPhone Duo et capture chaque écran.
+# Les captures sont publiées dans la branche ci-shots.
+
+name: Captures iPhone Duo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  shots:
+    runs-on: xcode-27
+    timeout-minutes: 75
+    permissions:
+      contents: write
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v5
+
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          xcodebuild -version
+
+      - name: Préparer le simulateur iPhone Duo
+        run: |
+          mkdir -p shots
+          find_runtime() {
+            xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes']
+                if r.get('platform') == 'iOS' and r.get('isAvailable')
+                and any('Duo' in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
+          print(rs[-1]['identifier'] if rs else '')"
+          }
+          RUNTIME=$(find_runtime)
+          if [ -z "$RUNTIME" ]; then
+            echo "Téléchargement du simulateur iOS 27.1…"
+            xcodebuild -downloadPlatform iOS 2>&1 | tail -5
+            RUNTIME=$(find_runtime)
+          fi
+          DEVICE_TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Duo' in x['name']]
+          print(d[0]['identifier'] if d else '')")
+          echo "runtime=$RUNTIME devicetype=$DEVICE_TYPE" | tee shots/simulateur.txt
+          xcrun simctl help ui > shots/aide-simctl-ui.txt 2>&1 || true
+          xcrun simctl help io > shots/aide-simctl-io.txt 2>&1 || true
+          UDID=$(xcrun simctl create "Plie Duo" "$DEVICE_TYPE" "$RUNTIME")
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+
+      - name: Compiler et installer l'app
+        run: |
+          set -o pipefail
+          xcodebuild build -project Plie.xcodeproj -scheme Plie -configuration Debug \
+            -sdk iphonesimulator -destination "id=$UDID" -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee shots/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" shots/build.log
+          APP=build/Build/Products/Debug-iphonesimulator/Plie.app
+          xcrun simctl install "$UDID" "$APP"
+          BID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist")
+          echo "BID=$BID" >> "$GITHUB_ENV"
+          xcrun simctl privacy "$UDID" grant camera "$BID" || true
+
+      - name: Capturer chaque écran
+        run: |
+          for R in hub rayonLevels rayon:1 rayon:20 rayon:38 coffreLevels coffre:1 coffre:24 coffreDuel soleil pass; do
+            N=$(echo "$R" | tr ':' '-')
+            xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+            xcrun simctl launch "$UDID" "$BID" -screenshotRoute "$R" > "shots/lancement-$N.txt" 2>&1 || true
+            sleep 6
+            xcrun simctl io "$UDID" screenshot "shots/$N.png" 2>>shots/erreurs-captures.txt || true
+            xcrun simctl io "$UDID" screenshot --display=external "shots/$N-exterieur.png" 2>>shots/erreurs-captures.txt || true
+            if xcrun simctl spawn "$UDID" launchctl list | grep -q "$BID"; then
+              echo "$R : l'app tourne" >> shots/etat.txt
+            else
+              echo "$R : l'app N'EST PLUS LANCÉE (plantage ?)" >> shots/etat.txt
+            fi
+          done
+          cat shots/etat.txt
+          mkdir -p shots/plantages
+          cp ~/Library/Logs/DiagnosticReports/*Plie* shots/plantages/ 2>/dev/null || true
+          xcrun simctl spawn "$UDID" log show --last 15m --style compact --predicate 'process == "Plie"' > shots/journal-app.txt 2>&1 || true
+          tail -c 200000 shots/journal-app.txt > shots/journal-app-fin.txt || true
+          rm -f shots/journal-app.txt
+
+      - name: Publier les captures dans la branche ci-shots
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p shots
+          cd shots
+          rm -f build.log.gz
+          [ -f build.log ] && gzip -f build.log
+          git init -q -b ci-shots
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          echo "captures ${{ github.run_number }} - commit ${{ github.sha }} - $(date -u)" > captures.txt
+          git add -A
+          git commit -qm "Captures ${{ github.run_number }}"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-shots

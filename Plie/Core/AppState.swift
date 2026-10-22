@@ -42,6 +42,25 @@ final class AppState {
         Haptics.enabled = hapticsOn
     }
 
+    #if DEBUG
+    /// Captures automatiques : `-screenshotRoute rayon:3` ouvre directement le niveau 3 de RAYON.
+    func applyScreenshotRoute() {
+        guard let value = UserDefaults.standard.string(forKey: "screenshotRoute") else { return }
+        let parts = value.split(separator: ":").map(String.init)
+        let number = parts.count > 1 ? (Int(parts[1]) ?? 1) : 1
+        switch parts.first ?? "" {
+        case "rayonLevels": route = .rayonLevels
+        case "rayon": route = .rayon(number)
+        case "coffreLevels": route = .coffreLevels
+        case "coffre": route = .coffre(number)
+        case "coffreDuel": route = .coffreDuel
+        case "soleil": route = .soleil
+        case "pass": showPass = true
+        default: route = .hub
+        }
+    }
+    #endif
+
     // MARK: Réglages
 
     func setSound(_ on: Bool) {
