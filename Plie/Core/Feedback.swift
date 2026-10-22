@@ -48,8 +48,16 @@ final class SoundPlayer {
         player.play()
     }
 
-    /// Session audio par défaut : les sons se mélangent à la musique en cours.
+    /// Session audio par défaut : les sons et la musique respectent le mode silencieux
+    /// et se mélangent à ce que l'utilisateur écoute déjà.
     static func configureSession() {
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
+        try? session.setActive(true)
+    }
+
+    /// Le piano est un instrument : il joue même en mode silencieux, comme GarageBand.
+    static func configureInstrumentSession() {
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
         try? session.setActive(true)

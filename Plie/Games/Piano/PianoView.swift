@@ -416,12 +416,14 @@ struct PianoView: View {
         .ignoresSafeArea()
         .onHingeAngle { hingeAngle = $0 }
         .onAppear {
+            SoundPlayer.configureInstrumentSession()
             PianoSynth.shared.prepare()
             MusicPlayer.shared.duck(true)
         }
         .onDisappear {
             model.stopListening()
             PianoSynth.shared.stop()
+            SoundPlayer.configureSession()
             MusicPlayer.shared.duck(false)
         }
     }
