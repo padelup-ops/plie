@@ -55,13 +55,10 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     }
 
     private func configureOnQueue(position: AVCaptureDevice.Position) -> Bool {
-        let wasRunning = session.isRunning
-        if wasRunning { session.stopRunning() }
+        // On change d'objectif sans arrêter la session : sur iPhone Duo, l'écran extérieur
+        // n'est disponible que tant que la caméra filme.
         session.beginConfiguration()
-        defer {
-            session.commitConfiguration()
-            if wasRunning { session.startRunning() }
-        }
+        defer { session.commitConfiguration() }
 
         if session.canSetSessionPreset(.vga640x480) {
             session.sessionPreset = .vga640x480
@@ -102,8 +99,9 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
                 connection.isVideoMirrored = camera.position == .front
             }
         }
-        armed = false
+        // Nouvelle caméra : la prochaine image servira de référence.
         reference = nil
+        consecutive = 0
         return true
     }
 

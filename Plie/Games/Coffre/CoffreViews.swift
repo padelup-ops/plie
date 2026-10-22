@@ -152,7 +152,11 @@ struct CoffrePlayView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .onHingeAngle { degrees in
-            guard let degrees else { return }
+            // Duo fermé (ou pas de charnière) : on tourne la molette au doigt.
+            guard let degrees, HingeMapping.isOpen(degrees) else {
+                usesHinge = false
+                return
+            }
             usesHinge = true
             session.setFraction(HingeMapping.fraction(fromDegrees: degrees))
         }
@@ -437,7 +441,10 @@ struct CoffreDuelView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .onHingeAngle { degrees in
-            guard let degrees else { return }
+            guard let degrees, HingeMapping.isOpen(degrees) else {
+                usesHinge = false
+                return
+            }
             usesHinge = true
             let fraction = HingeMapping.fraction(fromDegrees: degrees)
             if case .cracking = phase {

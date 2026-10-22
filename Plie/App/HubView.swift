@@ -122,8 +122,9 @@ struct HubView: View {
                         .foregroundStyle(Theme.muted)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
-                    HStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Pill(text: badge, color: color.opacity(0.18), textColor: color)
+                            .fixedSize()
                         Text(progress)
                             .font(.system(size: 12, weight: .semibold, design: .rounded))
                             .foregroundStyle(Theme.muted)

@@ -182,7 +182,7 @@ struct RayonPlayView: View {
         .padding(.vertical, 8)
         .onHingeAngle { degrees in
             session.hingeDegrees = degrees
-            guard let degrees, dragStartT == nil else { return }
+            guard let degrees, HingeMapping.isOpen(degrees), dragStartT == nil else { return }
             // Le miroir ne suit la charnière qu'une fois qu'on a commencé à plier :
             // sinon la position de départ du téléphone pourrait résoudre le niveau toute seule.
             if !hingeActive {
@@ -214,16 +214,14 @@ struct RayonPlayView: View {
 
     private var controlHint: some View {
         HStack(spacing: 10) {
-            Image(systemName: session.hingeDegrees != nil ? "rectangle.portrait.on.rectangle.portrait" : "hand.draw.fill")
+            Image(systemName: HingeMapping.isOpen(session.hingeDegrees) ? "rectangle.portrait.on.rectangle.portrait" : "hand.draw.fill")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundStyle(Theme.laser)
-            Text(session.hingeDegrees != nil
-                 ? "Plie ou déplie ton iPhone Duo pour tourner le miroir"
-                 : "Glisse ton doigt sur le plateau pour tourner le miroir")
+            Text(hintText)
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.muted)
             Spacer(minLength: 0)
-            if let degrees = session.hingeDegrees {
+            if let degrees = session.hingeDegrees, HingeMapping.isOpen(degrees) {
                 Text("\(Int(degrees.rounded()))°")
                     .font(.plie(15, weight: .bold))
                     .monospacedDigit()
@@ -231,6 +229,16 @@ struct RayonPlayView: View {
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.card))
+    }
+
+    private var hintText: String {
+        if HingeMapping.isOpen(session.hingeDegrees) {
+            return "Plie ou déplie ton iPhone Duo pour tourner le miroir"
+        }
+        if session.hingeDegrees != nil {
+            return "Ouvre ton iPhone Duo pour jouer avec la charnière, ou glisse ton doigt sur le plateau"
+        }
+        return "Glisse ton doigt sur le plateau pour tourner le miroir"
     }
 
     private var nextNumber: Int? {

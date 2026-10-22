@@ -85,6 +85,7 @@ final class SoleilGame {
     var cameraAllowed = true
     var cameraReady = false
     var cameraToken = 0
+    var cameraPosition: AVCaptureDevice.Position = .front
     var motionLevel: Double = 0
     var unstable = false
 
@@ -143,20 +144,44 @@ final class SoleilGame {
         let allowed = await SoleilCamera.requestAccess()
         cameraAllowed = allowed
         guard allowed else { return }
-        // Sur iPhone Duo avec l'écran extérieur, on filme avec la caméra arrière,
-        // du même côté que l'écran extérieur que regardent les joueurs.
-        let position: AVCaptureDevice.Position = useOuterScreen ? .back : .front
+        let position = wantedCameraPosition
         let ok = await camera.configure(position: position)
         cameraReady = ok
+        cameraPosition = position
         cameraToken += 1
         if ok { camera.start() }
+    }
+
+    /// Caméra tournée vers les joueurs.
+    /// iPhone Duo ouvert avec l'écran extérieur : caméra arrière, du même côté que l'écran extérieur.
+    /// Sinon (Duo fermé ou autre iPhone) : caméra avant, du côté de l'écran principal.
+    var wantedCameraPosition: AVCaptureDevice.Position {
+        playersUseOuterScreen ? .back : .front
     }
 
     @MainActor
     func setUseOuterScreen(_ value: Bool) async {
         guard value != useOuterScreen else { return }
         useOuterScreen = value
-        await prepareCamera()
+        await syncCamera()
+    }
+
+    /// Change de caméra si les joueurs ne regardent plus le même écran.
+    @MainActor
+    func syncCamera() async {
+        guard cameraAllowed, cameraReady else { return }
+        let wanted = wantedCameraPosition
+        guard wanted != cameraPosition else { return }
+        if wanted == .front {
+            // L'écran extérieur peut disparaître une fraction de seconde : on attend avant de basculer.
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            guard wantedCameraPosition == .front, cameraPosition != .front else { return }
+        }
+        let ok = await camera.configure(position: wanted)
+        if ok {
+            cameraPosition = wanted
+            cameraToken += 1
+        }
     }
 
     // MARK: Déroulement

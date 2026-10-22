@@ -26,9 +26,13 @@ struct SoleilView: View {
         .onHingeAngle { degrees in
             guard degrees != nil, !game.hingeDetected else { return }
             game.hingeDetected = true
+            // Sur iPhone Duo, on propose d'office le signal sur l'écran extérieur.
             if DuoSupport.apisAvailable && game.phase == .setup {
                 Task { await game.setUseOuterScreen(true) }
             }
+        }
+        .onChange(of: game.outerAvailable) { _, _ in
+            Task { await game.syncCamera() }
         }
         .task { await game.prepareCamera() }
         .onDisappear { game.shutdown() }

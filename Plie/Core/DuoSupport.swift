@@ -53,6 +53,14 @@ enum HingeMapping {
     static let lowDegrees = 80.0
     static let highDegrees = 180.0
 
+    /// En dessous de cet angle, le Duo est considéré comme fermé : on joue au doigt sur l'écran extérieur.
+    static let openThreshold = 35.0
+
+    static func isOpen(_ degrees: Double?) -> Bool {
+        guard let degrees else { return false }
+        return degrees >= openThreshold
+    }
+
     static func fraction(fromDegrees degrees: Double) -> Double {
         let value = (degrees - lowDegrees) / (highDegrees - lowDegrees)
         return min(1, max(0, value))

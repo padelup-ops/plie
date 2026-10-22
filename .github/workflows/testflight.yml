@@ -15,6 +15,11 @@ name: TestFlight
 on:
   push:
     branches: [main]
+    # Pas de nouvelle version TestFlight quand seuls la doc, les outils ou les captures changent.
+    paths-ignore:
+      - "GUIDE.md"
+      - "tools/**"
+      - ".github/workflows/screenshots.yml"
   workflow_dispatch:
 
 concurrency:
