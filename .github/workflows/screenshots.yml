@@ -73,8 +73,9 @@ jobs:
             xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
             xcrun simctl launch "$UDID" "$BID" -screenshotRoute "$R" > "shots/lancement-$N.txt" 2>&1 || true
             sleep 6
-            xcrun simctl io "$UDID" screenshot "shots/$N.png" 2>>shots/erreurs-captures.txt || true
-            xcrun simctl io "$UDID" screenshot --display=external "shots/$N-exterieur.png" 2>>shots/erreurs-captures.txt || true
+            # Le Duo a deux écrans : 1 = écran extérieur, 3 = écran intérieur.
+            xcrun simctl io "$UDID" screenshot --display=1 --mask=black "shots/$N-ecran1.png" 2>>shots/erreurs-captures.txt || true
+            xcrun simctl io "$UDID" screenshot --display=3 --mask=black "shots/$N-ecran3.png" 2>>shots/erreurs-captures.txt || true
             if xcrun simctl spawn "$UDID" launchctl list | grep -q "$BID"; then
               echo "$R : l'app tourne" >> shots/etat.txt
             else
@@ -82,6 +83,17 @@ jobs:
             fi
           done
           cat shots/etat.txt
+          # Essai : allumer seulement l'écran intérieur, comme un Duo ouvert.
+          xcrun simctl io "$UDID" screenConfig --display=3 power on 2>>shots/erreurs-captures.txt || true
+          xcrun simctl io "$UDID" screenConfig --display=1 power off 2>>shots/erreurs-captures.txt || true
+          sleep 4
+          for R in hub rayon:20 coffre:1 soleil; do
+            N=$(echo "$R" | tr ':' '-')
+            xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+            xcrun simctl launch "$UDID" "$BID" -screenshotRoute "$R" > /dev/null 2>&1 || true
+            sleep 6
+            xcrun simctl io "$UDID" screenshot --display=3 --mask=black "shots/ouvert-$N.png" 2>>shots/erreurs-captures.txt || true
+          done
           mkdir -p shots/plantages
           cp ~/Library/Logs/DiagnosticReports/*Plie* shots/plantages/ 2>/dev/null || true
           xcrun simctl spawn "$UDID" log show --last 15m --style compact --predicate 'process == "Plie"' > shots/journal-app.txt 2>&1 || true
