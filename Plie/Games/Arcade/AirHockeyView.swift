@@ -55,6 +55,13 @@ final class HockeyGame {
     @ObservationIgnored private var targetA: HVec?
     @ObservationIgnored private var targetB: HVec?
     @ObservationIgnored private var lastHit: Double = 0
+    /// Anti-blocage : palet presque arrêté, ou serré contre un bord par un maillet.
+    @ObservationIgnored private var slowTime: Double = 0
+    @ObservationIgnored private var jamTime: Double = 0
+    /// Après une frappe, l'ordinateur recule un instant au lieu de coincer le palet.
+    @ObservationIgnored private var aiCooldown: Double = 0
+    /// Moment de la dernière remise en jeu (pour l'afficher).
+    private(set) var noticeAt: Double = -10
     @ObservationIgnored private var clock: Double = 0
 
     var goalWidth: Double { min(width * 0.46, 0.62) }
@@ -78,6 +85,9 @@ final class HockeyGame {
         targetB = nil
         velA = HVec(u: 0, v: 0)
         velB = HVec(u: 0, v: 0)
+        slowTime = 0
+        jamTime = 0
+        aiCooldown = 0
     }
 
     /// Le doigt d'un joueur, en coordonnées du terrain.
@@ -115,8 +125,35 @@ final class HockeyGame {
             movePuck(h)
             if phase != .playing { break }
         }
+        if phase == .playing { unstick(dt) }
         trail.append(puck)
         if trail.count > 12 { trail.removeFirst(trail.count - 12) }
+    }
+
+    /// Le palet ne doit jamais rester bloqué : arrêté trop longtemps, ou coincé contre un bord.
+    private func unstick(_ dt: Double) {
+        let r = Self.puckR
+        let nearWall = puck.u < r + 0.02 || puck.u > 1 - r - 0.02 || puck.v < r + 0.02 || puck.v > width - r - 0.02
+        let contact = Self.malletR + Self.puckR + 0.012
+        let pinned = nearWall && ((puck - malletA).length < contact || (puck - malletB).length < contact)
+        jamTime = pinned ? jamTime + dt : 0
+        slowTime = puckVel.length < 0.12 ? slowTime + dt : 0
+        // Un palet arrêté dans le camp d'un joueur humain lui laisse plus de temps pour le frapper.
+        let humanSide = puck.u < 0.5 || !solo
+        if jamTime > 1.2 || slowTime > (humanSide ? 6.0 : 3.0) {
+            faceOff(towardA: puck.u >= 0.5)
+        }
+    }
+
+    /// Remise en jeu au centre, vers le joueur qui n'avait pas le palet.
+    private func faceOff(towardA: Bool) {
+        jamTime = 0
+        slowTime = 0
+        puck = HVec(u: 0.5, v: width / 2)
+        puckVel = HVec(u: towardA ? -0.55 : 0.55, v: Double.random(in: -0.25...0.25))
+        trail = []
+        noticeAt = clock
+        SoundPlayer.shared.play(.whoosh, volume: 0.5)
     }
 
     private func clampA(_ p: HVec) -> HVec {
@@ -148,10 +185,20 @@ final class HockeyGame {
 
     /// Adversaire de l'ordinateur : défend son but, attaque quand le palet est de son côté.
     private func aiTarget(_ h: Double) {
-        let attacking = puck.u > 0.5 && puckVel.u < 1.2
+        var attacking = puck.u > 0.5 && puckVel.u < 1.2
+        if aiCooldown > 0 {
+            aiCooldown -= h
+            attacking = false
+        }
         var goal: HVec
         if attacking {
-            goal = HVec(u: puck.u + 0.06, v: puck.v)
+            if puck.u > 1 - Self.malletR - Self.puckR - 0.01 {
+                // Palet collé à mon fond : je le dégage par le côté au lieu de l'écraser contre le bord.
+                let side: Double = puck.v > width / 2 ? 1 : -1
+                goal = HVec(u: puck.u, v: puck.v + side * (Self.malletR + Self.puckR))
+            } else {
+                goal = HVec(u: puck.u + 0.06, v: puck.v)
+            }
         } else {
             let gw = goalWidth
             goal = HVec(u: 0.88, v: min(width / 2 + gw / 2, max(width / 2 - gw / 2, puck.v)))
@@ -184,6 +231,9 @@ final class HockeyGame {
         // Fonds et buts
         let gw = goalWidth
         let inGoalMouth = abs(puck.v - width / 2) < gw / 2 - r * 0.3
+        // Un palet arrêté dans l'entrée du but finit par y glisser.
+        if inGoalMouth && puck.u < r { puckVel.u -= 0.9 * h }
+        if inGoalMouth && puck.u > 1 - r { puckVel.u += 0.9 * h }
         if puck.u < r {
             if inGoalMouth {
                 if puck.u < -r { scored(by: 1) }
@@ -202,8 +252,8 @@ final class HockeyGame {
             }
         }
 
-        collide(mallet: malletA, vel: velA)
-        collide(mallet: malletB, vel: velB)
+        collide(mallet: malletA, vel: velA, isComputer: false)
+        collide(mallet: malletB, vel: velB, isComputer: solo)
 
         let speed = puckVel.length
         if speed > Self.maxSpeed {
@@ -211,11 +261,12 @@ final class HockeyGame {
         }
     }
 
-    private func collide(mallet: HVec, vel: HVec) {
+    private func collide(mallet: HVec, vel: HVec, isComputer: Bool) {
         let d = puck - mallet
         let dist = d.length
         let minDist = Self.malletR + Self.puckR
         guard dist < minDist, dist > 0.0001 else { return }
+        if isComputer { aiCooldown = 0.35 }
         let n = d * (1 / dist)
         puck = mallet + n * minDist
         let rel = puckVel - vel
@@ -380,6 +431,7 @@ struct HockeyTable: View {
         let trail = game.trail
         let impact = game.impact
         let now = game.time
+        let notice = game.time - game.noticeAt < 1.1
 
         Canvas { context, size in
             func sp(_ u: Double, _ v: Double) -> CGPoint {
@@ -487,6 +539,10 @@ struct HockeyTable: View {
                                                             startRadius: 0, endRadius: pr * 1.3))
             context.stroke(disc(pc, pr), with: .color(Theme.laser.opacity(goalFlash ? 1 : 0.85)), lineWidth: goalFlash ? 4 : 2)
 
+            if notice && !goalFlash {
+                let at = CGPoint(x: size.width / 2, y: size.height / 2 - scale * 0.12)
+                context.draw(Text(L("Remise en jeu")).font(.plie(scale * 0.06)).foregroundColor(.white.opacity(0.85)), at: at)
+            }
             if goalFlash {
                 let at = CGPoint(x: size.width / 2, y: size.height / 2)
                 context.drawLayer { glow in

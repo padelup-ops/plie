@@ -530,4 +530,5 @@ EN = {
     'Vive le vent': 'Jingle Bells',
     'Berceuse': 'Lullaby',
     'Lettre à Élise': 'Für Elise',
+    "Remise en jeu": "Face-off",
 }

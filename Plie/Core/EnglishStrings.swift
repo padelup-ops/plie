@@ -349,6 +349,7 @@ enum EnglishStrings {
         "Rejouer": "Play again",
         "Relancer la bille": "Launch again",
         "Relève l'écran du haut à 45° : il devient un pupitre": "Raise the top screen to 45°: it becomes a music stand",
+        "Remise en jeu": "Face-off",
         "Reprendre la partie · {}": "Resume game · {}",
         "Reprendre un coup": "Take back a move",
         "Ressenti": "Feel",
