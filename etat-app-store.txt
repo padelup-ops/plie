@@ -1,0 +1,11 @@
+APP_ID 6825605393
+nom Origamo: FoldMini Games | bundle com.padelup.plie | sku plie-001 | langue en-US
+lien App Store : https://apps.apple.com/app/id6825605393
+version 1.0 | état PREPARE_FOR_SUBMISSION | plateforme IOS
+appInfo 8720dc08-2ad6-403a-a562-00952687dba1 | état PREPARE_FOR_SUBMISSION
+  langue en-US | nom Origamo: FoldMini Games | sous-titre 10 games you play by folding | confidentialité None
+  langue fr-FR | nom Origamo : mini-jeux pliés | sous-titre 10 jeux à jouer en pliant | confidentialité None
+aucun achat intégré créé
+build 19 | traitement VALID | envoyé 2026-10-22T16:16:51-07:00
+build 16 | traitement VALID | envoyé 2026-10-22T13:15:56-07:00
+build 15 | traitement VALID | envoyé 2026-10-22T12:55:44-07:00
