@@ -23,6 +23,7 @@ on:
       - ".github/workflows/screenshots.yml"
       - ".github/workflows/plateau.yml"
       - ".github/workflows/asc-info.yml"
+      - ".github/workflows/asc-fiche.yml"
   workflow_dispatch:
 
 concurrency:
