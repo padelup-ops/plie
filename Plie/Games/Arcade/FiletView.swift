@@ -559,6 +559,9 @@ struct FiletView: View {
                     .font(.plie(16, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
+                if game.won {
+                    ShareResultButton(game: L("FILET"), result: L("Victoire \(game.scoreMe) – \(game.scoreAI) contre : \(game.level.name)"), accent: Theme.filet)
+                }
             } else {
                 WinIcon(systemName: "figure.table.tennis", color: Theme.filet)
                 Text(L("Le premier à 7 points gagne"))

@@ -447,6 +447,9 @@ struct FermeView: View {
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center)
+            if done {
+                ShareResultButton(game: L("FERME"), result: L("\(session.minutes) minutes de concentration"), accent: Theme.ferme)
+            }
             Spacer(minLength: 0)
             Button(done ? L("Planter encore") : L("Réessayer")) { session.backToSetup() }
                 .buttonStyle(ChunkyButtonStyle(color: Theme.ferme, textColor: Theme.ink))

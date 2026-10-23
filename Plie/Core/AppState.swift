@@ -32,6 +32,9 @@ final class AppState {
     private(set) var soundOn = true
     private(set) var hapticsOn = true
     private(set) var musicOn = true
+    /// Victoires et réussites : après quelques-unes, on propose de noter l'app.
+    private(set) var happyMoments = 0
+    private(set) var reviewRequest = 0
 
     /// Niveaux de RAYON réussis, et meilleur temps par niveau.
     private(set) var rayonSolved: Set<Int> = []
@@ -119,6 +122,14 @@ final class AppState {
         defaults.set(on, forKey: Keys.sound)
     }
 
+    /// Une victoire ou une réussite. À la 4e, la 15e et la 40e, on propose de noter l'app
+    /// (iOS limite de toute façon l'affichage à trois fois par an).
+    func celebrate() {
+        happyMoments += 1
+        defaults.set(happyMoments, forKey: "happyMoments")
+        if [4, 15, 40].contains(happyMoments) { reviewRequest += 1 }
+    }
+
     func setMusic(_ on: Bool) {
         musicOn = on
         MusicPlayer.shared.setEnabled(on)
@@ -143,6 +154,7 @@ final class AppState {
     }
 
     func recordRayon(_ number: Int, time: Double) {
+        celebrate()
         rayonSolved.insert(number)
         if let best = rayonBest[number] {
             rayonBest[number] = min(best, time)
@@ -164,6 +176,7 @@ final class AppState {
     }
 
     func recordPliage(_ number: Int, time: Double) {
+        celebrate()
         pliageSolved.insert(number)
         if let best = pliageBest[number] {
             pliageBest[number] = min(best, time)
@@ -185,6 +198,7 @@ final class AppState {
     }
 
     func recordBascule(_ number: Int, stars: Int) {
+        if stars > 0 { celebrate() }
         basculeStars[number] = max(basculeStars[number] ?? 0, stars)
         save()
     }
@@ -192,6 +206,7 @@ final class AppState {
     // MARK: FERME
 
     func recordFerme(_ record: FermeRecord) {
+        celebrate()
         fermeGarden.append(record)
         save()
     }
@@ -215,10 +230,12 @@ final class AppState {
     // MARK: Arcade
 
     func recordPanier(_ score: Int) {
+        if score > panierBest && score > 0 { celebrate() }
         if score > panierBest { panierBest = score; save() }
     }
 
     func recordFlechettes(_ score: Int) {
+        if score > flechettesBest && score > 0 { celebrate() }
         if score > flechettesBest { flechettesBest = score; save() }
     }
 
@@ -235,6 +252,7 @@ final class AppState {
     }
 
     func recordBoardGame(chess: Bool, wonAgainstComputer: Bool, level: Int) {
+        celebrate()
         if chess {
             chessGames += 1
             if wonAgainstComputer { chessBestLevel = max(chessBestLevel, level) }
@@ -247,6 +265,7 @@ final class AppState {
 
     func recordFilet(level: Int, won: Bool) {
         guard won else { return }
+        celebrate()
         filetWins += 1
         filetBestLevel = max(filetBestLevel, level)
         save()
@@ -264,6 +283,7 @@ final class AppState {
     }
 
     func recordCoffre(_ number: Int, time: Double, stars: Int) {
+        celebrate()
         if let best = coffreBest[number] {
             coffreBest[number] = min(best, time)
         } else {
@@ -276,6 +296,7 @@ final class AppState {
     // MARK: SOLEIL
 
     func recordSoleilGame() {
+        celebrate()
         soleilGames += 1
         save()
     }
@@ -316,6 +337,7 @@ final class AppState {
         if defaults.object(forKey: Keys.sound) != nil { soundOn = defaults.bool(forKey: Keys.sound) }
         if defaults.object(forKey: Keys.haptics) != nil { hapticsOn = defaults.bool(forKey: Keys.haptics) }
         if defaults.object(forKey: Keys.music) != nil { musicOn = defaults.bool(forKey: Keys.music) }
+        happyMoments = defaults.integer(forKey: "happyMoments")
         if let solved = defaults.array(forKey: Keys.rayonSolved) as? [Int] { rayonSolved = Set(solved) }
         rayonBest = decode(Keys.rayonBest)
         if let solved = defaults.array(forKey: Keys.pliageSolved) as? [Int] { pliageSolved = Set(solved) }

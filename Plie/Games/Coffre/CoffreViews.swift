@@ -219,6 +219,7 @@ struct CoffrePlayView: View {
                     Button(L("Les coffres")) { app.route = .coffreLevels }
                         .buttonStyle(GhostButtonStyle())
                 }
+                ShareResultButton(game: L("LE COFFRE"), result: L("Coffre \(number) ouvert en \(formatSeconds(session.elapsed))"), accent: Theme.gold)
             }
             .foregroundStyle(.white)
             .padding(24)

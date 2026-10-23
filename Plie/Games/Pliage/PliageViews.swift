@@ -267,6 +267,7 @@ struct PliagePlayView: View {
                 }
                 Button(L("Tous les pliages")) { app.route = .pliageLevels }
                     .buttonStyle(GhostButtonStyle())
+                ShareResultButton(game: L("PLIAGE"), result: L("Pliage \(number) réussi en \(session.foldsUsed) pli\(session.foldsUsed > 1 ? "s" : "")"), accent: Theme.paint)
             }
             .foregroundStyle(.white)
             .padding(24)

@@ -216,6 +216,7 @@ struct FlechettesView: View {
                     Text(L("\(game.scores[0]) points en 10 volées"))
                         .font(.plie(18, weight: .semibold))
                         .foregroundStyle(Theme.muted)
+                    ShareResultButton(game: L("FLÉCHETTES"), result: L("\(game.scores[0]) points en 10 volées"), accent: Theme.darts)
                 }
             } else {
                 Image(systemName: "scope")

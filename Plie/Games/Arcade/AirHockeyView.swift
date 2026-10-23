@@ -385,6 +385,7 @@ struct AirHockeyView: View {
                 Text("\(game.scoreA) – \(game.scoreB)")
                     .font(.plie(22, weight: .semibold))
                     .foregroundStyle(Theme.muted)
+                ShareResultButton(game: L("AIR HOCKEY"), result: "\(game.scoreA) – \(game.scoreB)", accent: Theme.hockeyB)
             } else {
                 Image(systemName: "circle.circle.fill")
                     .font(.system(size: 44, weight: .bold))

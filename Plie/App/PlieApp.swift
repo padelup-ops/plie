@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 @main
 struct PlieApp: App {
@@ -24,6 +25,7 @@ struct PlieApp: App {
 struct RootView: View {
     @Environment(AppState.self) private var app
     @Environment(StoreManager.self) private var store
+    @Environment(\.requestReview) private var requestReview
 
     var body: some View {
         @Bindable var app = app
@@ -79,6 +81,10 @@ struct RootView: View {
         .animation(.easeInOut(duration: 0.22), value: app.route)
         .onChange(of: app.route) { _, _ in
             SoundPlayer.shared.play(.pop, volume: 0.35)
+        }
+        .onChange(of: app.reviewRequest) { _, _ in
+            // Un peu après la victoire, pour ne pas couper l'écran de réussite.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { requestReview() }
         }
         .onAppear {
             #if DEBUG

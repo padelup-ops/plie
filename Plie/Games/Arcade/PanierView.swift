@@ -199,6 +199,7 @@ struct PanierView: View {
                 Text(L("\(game.score) points · \(game.made) / \(game.shots) paniers"))
                     .font(.plie(18, weight: .semibold))
                     .foregroundStyle(Theme.muted)
+                ShareResultButton(game: L("PANIER"), result: L("\(game.score) points en 60 secondes"), accent: Theme.panier)
             } else {
                 Image(systemName: "basketball.fill")
                     .font(.system(size: 44, weight: .bold))

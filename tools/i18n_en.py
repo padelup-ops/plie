@@ -531,4 +531,12 @@ EN = {
     'Berceuse': 'Lullaby',
     'Lettre à Élise': 'Für Elise',
     "Remise en jeu": "Face-off",
+    'Joué sur iPhone Duo avec Origamo': 'Played on iPhone Duo with Origamo',
+    "{} : {}. Je joue sur Origamo, des jeux pensés pour l'iPhone Duo.": "{}: {}. I'm playing Origamo, games made for iPhone Duo.",
+    'Pliage {} réussi en {} pli{}': 'Puzzle {0} solved in {1} fold{2}',
+    'Niveau {} : {} étoile{} sur 3': 'Level {0}: {1} star{2} out of 3',
+    'Coffre {} ouvert en {}': 'Safe {} opened in {}',
+    '{} points en 60 secondes': '{} points in 60 seconds',
+    'Victoire {} – {} contre : {}': 'Won {} – {} against: {}',
+    '{} minutes de concentration': '{} minutes of focus',
 }

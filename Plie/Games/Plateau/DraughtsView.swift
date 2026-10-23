@@ -608,7 +608,8 @@ struct DraughtsView: View {
                 buttons: [
                     SeatPromptButton(title: match.facing ? L("Revanche") : L("Rejouer"), color: Theme.draughts) { match.rematch() },
                     SeatPromptButton(title: L("Menu"), color: Color.white.opacity(0.15), textColor: .white) { match.backToSetup(); refreshSaved() },
-                ]
+                ],
+                extra: won == true ? AnyView(ShareResultButton(game: L("DAMES"), result: text, accent: Theme.draughts)) : nil
             )
         }
         if match.menuSide == side {

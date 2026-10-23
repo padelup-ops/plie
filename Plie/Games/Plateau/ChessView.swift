@@ -619,7 +619,8 @@ struct ChessView: View {
                 buttons: [
                     SeatPromptButton(title: match.facing ? L("Revanche") : L("Rejouer"), color: Theme.chess) { match.rematch() },
                     SeatPromptButton(title: L("Menu"), color: Color.white.opacity(0.15), textColor: .white) { match.backToSetup(); refreshSaved() },
-                ]
+                ],
+                extra: won == true ? AnyView(ShareResultButton(game: L("ÉCHECS"), result: text, accent: Theme.chess)) : nil
             )
         }
         if match.menuSide == side {

@@ -340,6 +340,7 @@ struct RayonPlayView: View {
                 }
                 Button(L("Tous les niveaux")) { app.route = .rayonLevels }
                     .buttonStyle(GhostButtonStyle())
+                ShareResultButton(game: L("RAYON"), result: L("Niveau \(number) en \(formatSeconds(session.elapsed))"), accent: Theme.laser)
             }
             .foregroundStyle(.white)
             .padding(24)

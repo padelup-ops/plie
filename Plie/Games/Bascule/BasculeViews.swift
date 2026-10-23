@@ -241,6 +241,7 @@ struct BasculePlayView: View {
                     Button(L("Les niveaux")) { app.route = .basculeLevels }
                         .buttonStyle(GhostButtonStyle())
                 }
+                ShareResultButton(game: L("BASCULE"), result: L("Niveau \(number) : \(session.collected.count) étoile\(session.collected.count > 1 ? "s" : "") sur 3"), accent: Theme.bascule)
             }
             .foregroundStyle(.white)
             .padding(24)
