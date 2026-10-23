@@ -355,6 +355,11 @@ struct AirHockeyView: View {
             }
         }
         .padding(.top, 8)
+        #if DEBUG
+        .onAppear {
+            if UserDefaults.standard.string(forKey: "boardDemo") != nil { game.start(solo: false) }
+        }
+        #endif
         .onHingeAngle { degrees in
             if degrees != nil { hingePresent = true }
         }

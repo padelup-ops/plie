@@ -179,6 +179,11 @@ struct FlechettesView: View {
             }
         }
         .padding(.top, 8)
+        #if DEBUG
+        .onAppear {
+            if UserDefaults.standard.string(forKey: "boardDemo") != nil { game.start(players: 2) }
+        }
+        #endif
         .onReceive(ticker) { _ in
             let wasPlaying = game.phase == .playing
             game.tick(dt: 1.0 / 60.0)

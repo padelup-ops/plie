@@ -179,6 +179,11 @@ struct PanierView: View {
             }
         }
         .padding(.top, 8)
+        #if DEBUG
+        .onAppear {
+            if UserDefaults.standard.string(forKey: "boardDemo") != nil { game.start() }
+        }
+        #endif
         .onHingeAngle { degrees in
             if degrees != nil { hingeSeen = true }
         }

@@ -533,6 +533,11 @@ struct FiletView: View {
             }
         }
         .padding(.top, 8)
+        #if DEBUG
+        .onAppear {
+            if UserDefaults.standard.string(forKey: "boardDemo") != nil { game.start(level: .club) }
+        }
+        #endif
         .onHingeAngle { degrees in
             if degrees != nil { hingeSeen = true }
         }
