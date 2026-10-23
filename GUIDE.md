@@ -8,7 +8,7 @@ Origamo regroupe trois jeux pensés pour l'iPhone Duo :
 
 Sur les autres iPhone, tout marche aussi : la charnière est remplacée par le doigt, et le signal de Soleil s'affiche sur l'écran principal.
 
-Modèle économique : gratuit avec 15 niveaux de RAYON, 10 coffres et Soleil en entier. Un seul achat, le **Pass Origamo** (4,99 €), débloque tout le reste, pour toujours.
+Modèle économique : gratuit avec 15 niveaux de RAYON, 10 coffres et Soleil en entier. Un seul achat, le **Pass Origamo** (2,99 €), débloque tout le reste, pour toujours.
 
 ---
 
@@ -75,7 +75,7 @@ Sur appstoreconnect.apple.com :
    - Type : **Non consommable**
    - Nom de référence : `Pass Origamo`
    - ID du produit : `plie.pass.complet` (exactement celui-là, c'est celui du code)
-   - Prix : 4,99 €
+   - Prix : 2,99 €
    - Nom affiché : `Pass Origamo` ; description : `Tous les niveaux de RAYON et du COFFRE, et les prochains jeux.`
    - Ajoute une capture d'écran de l'écran du Pass (demandée pour la vérification).
 
@@ -136,13 +136,13 @@ Personne ne peut garantir qu'une app perce. Voici ce qui met le plus de chances 
 
 ### Ordre de grandeur des revenus (à prendre avec prudence)
 
-Pour 4,99 € payés par un client en France : environ 0,83 € de TVA, puis 15 % pour Apple. Il te reste **environ 3,50 € par Pass vendu**.
+Pour 2,99 € payés par un client en France : environ 0,50 € de TVA, puis 15 % pour Apple. Il te reste **environ 2,10 € par Pass vendu**.
 
 | Téléchargements | Taux d'achat du Pass | Pass vendus | Revenu net |
 |---|---|---|---|
-| 5 000 | 3 % | 150 | ~525 € |
-| 20 000 | 4 % | 800 | ~2 800 € |
-| 100 000 | 5 % | 5 000 | ~17 500 € |
+| 5 000 | 3 % | 150 | ~320 € |
+| 20 000 | 4 % | 800 | ~1 700 € |
+| 100 000 | 5 % | 5 000 | ~10 600 € |
 
 Un jeu payant à achat unique fait souvent entre 2 et 5 % d'acheteurs. Le chiffre qui change tout, c'est le nombre de téléchargements, donc la visibilité.
 

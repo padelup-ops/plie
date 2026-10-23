@@ -1,0 +1,36 @@
+# Crée l'achat intégré Pass Origamo (tools/asc_pass.py).
+# Ne soumet rien à Apple. Le compte rendu est publié dans la branche ci-asc-pass (pass.txt).
+
+name: App Store Connect (Pass)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  pass:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Créer le Pass
+        run: |
+          pip install --quiet pyjwt cryptography
+          python3 tools/asc_pass.py 2>&1 | tee pass.txt
+      - name: Publier le compte rendu
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out && cp pass.txt out/ && cd out
+          git init -q -b ci-asc-pass
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Pass Origamo"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-asc-pass
