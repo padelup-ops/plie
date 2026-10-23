@@ -1,0 +1,65 @@
+OK   FEN aller-retour rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+OK   perft 1 = 20 (attendu 20) — rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+OK   perft 2 = 400 (attendu 400) — rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+OK   perft 3 = 8902 (attendu 8902) — rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+OK   perft 4 = 197281 (attendu 197281) — rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+OK   FEN aller-retour r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1
+OK   perft 1 = 48 (attendu 48) — r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1
+OK   perft 2 = 2039 (attendu 2039) — r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1
+OK   perft 3 = 97862 (attendu 97862) — r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1
+OK   FEN aller-retour 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1
+OK   perft 1 = 14 (attendu 14) — 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1
+OK   perft 2 = 191 (attendu 191) — 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1
+OK   perft 3 = 2812 (attendu 2812) — 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1
+OK   perft 4 = 43238 (attendu 43238) — 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1
+OK   FEN aller-retour r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1
+OK   perft 1 = 6 (attendu 6) — r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1
+OK   perft 2 = 264 (attendu 264) — r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1
+OK   perft 3 = 9467 (attendu 9467) — r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1
+OK   FEN aller-retour rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8
+OK   perft 1 = 44 (attendu 44) — rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8
+OK   perft 2 = 1486 (attendu 1486) — rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8
+OK   perft 3 = 62379 (attendu 62379) — rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8
+OK   FEN aller-retour r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10
+OK   perft 1 = 46 (attendu 46) — r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10
+OK   perft 2 = 2079 (attendu 2079) — r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10
+OK   perft 3 = 89890 (attendu 89890) — r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10
+OK   notation e4
+OK   notation Cf3
+OK   partie du berger inversée : 4 coups joués
+OK   mat du lion : les Noirs gagnent
+OK   notation Dh4#
+OK   pat détecté
+OK   roi et fou contre roi : nulle
+OK   roi et tour contre roi : pas nulle
+OK   triple répétition
+OK   annuler deux coups
+OK   promotion : 4 choix
+OK   deux roques possibles
+OK   petit roque : tour en f1
+OK   prise en passant
+OK   l'ordinateur voit le mat en un
+OK   l'ordinateur prend la dame offerte
+OK   l'ordinateur répond en moins de 3 s (0.01 s)
+OK   dames : position de départ
+OK   dames : FEN avec intervalles
+OK   dames perft 1 = 9 (attendu 9)
+OK   dames perft 2 = 81 (attendu 81)
+OK   dames perft 3 = 658 (attendu 658)
+OK   dames perft 4 = 4265 (attendu 4265)
+OK   dames perft 5 = 27117 (attendu 27117)
+OK   dames Woldouby perft 1 = 6 (attendu 6)
+OK   dames Woldouby perft 2 = 12 (attendu 12)
+OK   dames Woldouby perft 3 = 30 (attendu 30)
+OK   dames Woldouby perft 4 = 73 (attendu 73)
+OK   dames Woldouby perft 5 = 215 (attendu 215)
+OK   dames Woldouby perft 6 = 590 (attendu 590)
+OK   dames Woldouby perft 7 = 1944 (attendu 1944)
+OK   prise majoritaire : ["32x23x14"]
+OK   dame volante : 5 cases d'arrivée (["46x23", "46x19", "46x14", "46x10", "46x5"])
+OK   le pion prend en arrière : ["23x32"]
+OK   promotion en dame
+OK   pas de promotion en passant par la dernière rangée (["12x3x14"])
+OK   l'ordinateur des dames joue
+Durée : 0.2 s
+TOUT EST BON
