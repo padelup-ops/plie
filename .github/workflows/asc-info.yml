@@ -1,0 +1,75 @@
+# Lecture seule : état de l'app dans App Store Connect (identifiant, versions, achats intégrés).
+# Le résultat est publié dans la branche ci-asc (fichier etat-app-store.txt).
+
+name: App Store Connect (lecture)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+    steps:
+      - name: Lire App Store Connect
+        run: |
+          pip install --quiet pyjwt cryptography
+          python3 - <<'PY' | tee etat-app-store.txt
+          import json, os, time, urllib.request, urllib.error
+          import jwt
+          token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 900,
+                              "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",
+                             headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
+          def get(path):
+              req = urllib.request.Request("https://api.appstoreconnect.apple.com" + path, headers={"Authorization": "Bearer " + token})
+              try:
+                  return json.load(urllib.request.urlopen(req))
+              except urllib.error.HTTPError as e:
+                  return {"error": e.code, "body": e.read().decode()[:400]}
+          apps = get("/v1/apps?filter[bundleId]=" + os.environ["BUNDLE_ID"])
+          if not apps.get("data"):
+              print("app introuvable", apps); raise SystemExit
+          app = apps["data"][0]
+          a = app["attributes"]
+          print("APP_ID", app["id"])
+          print("nom", a.get("name"), "| bundle", a.get("bundleId"), "| sku", a.get("sku"), "| langue", a.get("primaryLocale"))
+          print("lien App Store : https://apps.apple.com/app/id" + app["id"])
+          v = get(f"/v1/apps/{app['id']}/appStoreVersions?limit=10")
+          for x in v.get("data", []):
+              print("version", x["attributes"].get("versionString"), "| état", x["attributes"].get("appStoreState"), "| plateforme", x["attributes"].get("platform"))
+          info = get(f"/v1/apps/{app['id']}/appInfos")
+          for x in info.get("data", []):
+              print("appInfo", x["id"], "| état", x["attributes"].get("appStoreState") or x["attributes"].get("state"))
+              loc = get(f"/v1/appInfos/{x['id']}/appInfoLocalizations")
+              for l in loc.get("data", []):
+                  la = l["attributes"]
+                  print("  langue", la.get("locale"), "| nom", la.get("name"), "| sous-titre", la.get("subtitle"), "| confidentialité", la.get("privacyPolicyUrl"))
+          iap = get(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=20")
+          if "error" in iap:
+              print("achats intégrés : lecture impossible", iap["error"])
+          for x in iap.get("data", []):
+              xa = x["attributes"]
+              print("achat", xa.get("productId"), "|", xa.get("name"), "| état", xa.get("state"), "| type", xa.get("inAppPurchaseType"))
+          if not iap.get("data"):
+              print("aucun achat intégré créé")
+          b = get(f"/v1/builds?filter[app]={app['id']}&sort=-uploadedDate&limit=3")
+          for x in b.get("data", []):
+              print("build", x["attributes"].get("version"), "| traitement", x["attributes"].get("processingState"), "| envoyé", x["attributes"].get("uploadedDate"))
+          PY
+      - name: Publier dans la branche ci-asc
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out && cp etat-app-store.txt out/ && cd out
+          git init -q -b ci-asc
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "État App Store Connect"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-asc
