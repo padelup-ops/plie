@@ -16,7 +16,7 @@ struct BasculeLevelsView: View {
             GameHeader(title: L("BASCULE"),
                        subtitle: L("\(app.basculeStars.count) / \(BasculeLevel.all.count) paniers réussis"),
                        onBack: { app.route = .hub }) {
-                EmptyView()
+                HowToButton(game: .bascule)
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)

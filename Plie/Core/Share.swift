@@ -86,3 +86,31 @@ struct ActivitySheet: UIViewControllerRepresentable {
 
     func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
 }
+
+// MARK: - Le compteur des vrais arbres
+
+/// Quand un joueur fait fleurir les 8 plantes de FERME, l'app envoie un seul message anonyme
+/// (« un jardin de plus est complet ») au compteur d'Origamo. Rien n'identifie la personne.
+enum TreeCounter {
+    static let url = URL(string: "https://origamo.netlify.app/api/arbre")!
+
+    static func send(completion: @escaping (Int?) -> Void) {
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = Data(#"{"event":"jardin-complet"}"#.utf8)
+        request.timeoutInterval = 15
+        let session = URLSession(configuration: .ephemeral)
+        session.dataTask(with: request) { data, response, _ in
+            var number: Int?
+            if (response as? HTTPURLResponse)?.statusCode == 200 {
+                number = 0
+                if let data, let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let count = object["arbres"] as? Int {
+                    number = count
+                }
+            }
+            DispatchQueue.main.async { completion(number) }
+        }.resume()
+    }
+}

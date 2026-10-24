@@ -132,6 +132,14 @@ final class FiletGame {
         batTarget = target
     }
 
+    /// Le doigt se lève : si c'est à toi de servir, la balle part.
+    func releaseBat() {
+        batTarget = nil
+        if phase == .serve && server == 0 && timer > 0.3 {
+            playerHit(serve: true)
+        }
+    }
+
     private func prepareServe() {
         phase = .serve
         resolved = false
@@ -143,7 +151,8 @@ final class FiletGame {
         velocity = FVec(x: 0, y: 0, z: 0)
         lastHitter = server
         if server == 0 {
-            bat.z = min(bat.z, -0.08)
+            bat = FVec(x: Self.width / 2, y: 0, z: 0.25)
+            batVelocity = FVec(x: 0, y: 0, z: 0)
             ball = FVec(x: bat.x, y: 0.2, z: bat.z + 0.04)
         } else {
             aiBat.x = Self.width * Double.random(in: 0.3...0.7)
@@ -168,7 +177,8 @@ final class FiletGame {
             timer += dt
             if server == 0 {
                 ball = FVec(x: bat.x, y: 0.2 + 0.05 * sin(clock * 5), z: bat.z + 0.04)
-                if batVelocity.z > 0.9 { playerHit(serve: true) }
+                // Un geste vers le filet sert tout de suite ; sinon la balle part quand le doigt se lève.
+                if batVelocity.z > 0.6 && timer > 0.3 { playerHit(serve: true) }
             } else {
                 ball = FVec(x: aiBat.x, y: 0.22 + 0.05 * sin(clock * 5), z: Self.length + 0.1)
                 if timer > 1.1 { aiHit(serve: true) }
@@ -192,7 +202,7 @@ final class FiletGame {
 
     private func updateBat(_ dt: Double) {
         if let target = batTarget {
-            let maxZ = (phase == .serve && server == 0) ? -0.06 : Self.half - 0.1
+            let maxZ = Self.half - 0.1
             let nx = min(Self.width + 0.6, max(-0.6, target.x))
             let nz = min(maxZ, max(-0.75, target.z))
             let vx = (nx - bat.x) / dt
@@ -334,7 +344,7 @@ final class FiletGame {
     private func playerHit(serve: Bool) {
         let forward = max(0, batVelocity.z)
         var power = min(1.8, forward / 2.4)
-        if serve { power = min(power, 1.0) }
+        if serve { power = max(0.35, min(power, 1.0)) }
         let high = ball.y > 0.14
         let smash = !serve && power > 0.95 && high
         let noise = 0.05 * (0.5 + power)
@@ -504,14 +514,8 @@ struct FiletView: View {
     private let ticker = Timer.publish(every: 1.0 / 60.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: 10) {
-            GameHeader(title: L("FILET"), subtitle: subtitle, onBack: { app.route = .hub }) {
-                if game.phase != .menu {
-                    Pill(text: "\(game.scoreMe) – \(game.scoreAI)", color: Theme.filet.opacity(0.25), textColor: Theme.filet)
-                }
-            }
-            .padding(.horizontal, 16)
-
+        // La scène occupe tout l'écran : le filet tombe pile sur la charnière, au milieu.
+        ZStack(alignment: .top) {
             GeometryReader { proxy in
                 ZStack {
                     FiletScene(game: game)
@@ -521,7 +525,7 @@ struct FiletView: View {
                                 .onChanged { value in
                                     game.moveBat(to: FiletProjection(size: proxy.size).table(from: value.location))
                                 }
-                                .onEnded { _ in game.moveBat(to: nil) }
+                                .onEnded { _ in game.releaseBat() }
                         )
                     if game.phase == .menu || game.phase == .over {
                         if game.phase == .over && game.won {
@@ -531,8 +535,17 @@ struct FiletView: View {
                     }
                 }
             }
+            .ignoresSafeArea()
+
+            GameHeader(title: L("FILET"), subtitle: subtitle, onBack: { app.route = .hub }) {
+                if game.phase != .menu {
+                    Pill(text: "\(game.scoreMe) – \(game.scoreAI)", color: Theme.filet.opacity(0.25), textColor: Theme.filet)
+                }
+                HowToButton(game: .filet)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
         }
-        .padding(.top, 8)
         .onHingeAngle { degrees in
             if degrees != nil { hingeSeen = true }
         }
@@ -568,7 +581,7 @@ struct FiletView: View {
                     .font(.plie(22))
                     .multilineTextAlignment(.center)
                 Text(hingeSeen
-                     ? L("Plie ton iPhone Duo en L, en paysage : la charnière devient le filet et ton adversaire te fait face. Ta raquette suit ton doigt sur l'écran du bas.")
+                     ? L("Plie ton iPhone Duo en L et pose-le sur la table : la charnière devient le filet. Ta raquette suit ton doigt sur l'écran du bas, et l'ordinateur renvoie la balle depuis l'écran du haut.")
                      : L("Ta raquette suit ton doigt sur la moitié basse. Pousse vers le filet pour frapper fort, de côté pour viser. Trop fort, et la balle sort !"))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
@@ -749,45 +762,20 @@ struct FiletScene: View {
             context.fill(Path(ellipseIn: CGRect(x: pool.x - poolR * 2.4, y: pool.y - poolR * 0.9, width: poolR * 4.8, height: poolR * 1.8)),
                          with: .radialGradient(Gradient(colors: [.white.opacity(0.16), .clear]), center: pool, startRadius: 0, endRadius: poolR * 2.3))
 
-            // L'adversaire, derrière sa moitié de table
-            let oz = FiletGame.length + 0.5
-            let os = P.k(oz)
-            let bodyX = ai.x + 0.26
+            // La raquette de l'ordinateur : elle flotte seule au-dessus de son bout de table
             let swing = max(0, 1 - (clock - aiSwing) / 0.25)
-            let feet = P.point(bodyX, floorY, oz)
-            context.fill(Path(ellipseIn: CGRect(x: feet.x - P.ppm * os * 0.4, y: feet.y - P.ppm * os * 0.08, width: P.ppm * os * 0.8, height: P.ppm * os * 0.16)),
-                         with: .color(.black.opacity(0.3)))
-            let torsoTop = P.point(bodyX, 0.62, oz)
-            let torsoBottom = P.point(bodyX, -0.6, oz)
-            let torsoW = 0.56 * P.ppm * os
-            let torso = CGRect(x: torsoTop.x - torsoW / 2, y: torsoTop.y, width: torsoW, height: torsoBottom.y - torsoTop.y)
-            context.fill(Path(roundedRect: torso, cornerRadius: torsoW * 0.35),
-                         with: .linearGradient(Gradient(colors: [level.color, level.color.opacity(0.7)]),
-                                               startPoint: CGPoint(x: torso.minX, y: 0), endPoint: CGPoint(x: torso.maxX, y: 0)))
-            let headC = P.point(bodyX, 0.88, oz)
-            let headR = 0.18 * P.ppm * os
-            let batC = P.point(ai.x, 0.14 + 0.12 * swing, FiletGame.aiZ)
             let aiS = P.k(FiletGame.aiZ)
-            var arm = Path()
-            arm.move(to: CGPoint(x: torso.minX + torsoW * 0.2, y: torso.minY + torsoW * 0.35))
-            arm.addLine(to: batC)
-            context.stroke(arm, with: .color(Color(hex: 0xF2C29B)), style: StrokeStyle(lineWidth: max(2, torsoW * 0.18), lineCap: .round))
-            Draw.shadedBall(&context, center: headC, radius: headR, color: Color(hex: 0xF2C29B), highlight: Color(hex: 0xFFE6D0))
-            if level == .champion {
-                context.fill(Path(CGRect(x: headC.x - headR, y: headC.y - headR * 0.55, width: headR * 2, height: headR * 0.32)),
-                             with: .color(Theme.gold))
+            let batC = P.point(ai.x, 0.16 + 0.1 * swing, FiletGame.aiZ)
+            let aiR = CGFloat(FiletGame.batRadius) * P.ppm * aiS
+            let floorSpot = P.point(ai.x, floorY, FiletGame.aiZ)
+            context.fill(Path(ellipseIn: CGRect(x: floorSpot.x - aiR * 1.3, y: floorSpot.y - aiR * 0.3, width: aiR * 2.6, height: aiR * 0.6)),
+                         with: .color(.black.opacity(0.28)))
+            context.drawLayer { glow in
+                glow.addFilter(.blur(radius: aiR * 0.7))
+                glow.fill(Path(ellipseIn: CGRect(x: batC.x - aiR * 1.5, y: batC.y - aiR * 1.5, width: aiR * 3, height: aiR * 3)),
+                          with: .color(level.color.opacity(0.35 + 0.4 * swing)))
             }
-            let look = CGFloat(max(-1, min(1, (ball.x - bodyX) * 2))) * headR * 0.18
-            for side in [-1.0, 1.0] {
-                let eye = CGPoint(x: headC.x + CGFloat(side) * headR * 0.38 + look, y: headC.y - headR * 0.05)
-                let er = max(1, headR * 0.13)
-                context.fill(Path(ellipseIn: CGRect(x: eye.x - er, y: eye.y - er, width: er * 2, height: er * 2)), with: .color(Color(hex: 0x1A1A2E)))
-            }
-            var smile = Path()
-            smile.addArc(center: CGPoint(x: headC.x + look, y: headC.y + headR * 0.2), radius: headR * 0.35,
-                         startAngle: .degrees(20), endAngle: .degrees(160), clockwise: false)
-            context.stroke(smile, with: .color(Color(hex: 0x1A1A2E).opacity(0.8)), lineWidth: max(1, headR * 0.1))
-            FiletScene.paddle(&context, center: batC, radius: CGFloat(FiletGame.batRadius) * P.ppm * aiS, tilt: -0.5 + 0.8 * swing, color: Color(hex: 0x2B2B38))
+            FiletScene.paddle(&context, center: batC, radius: aiR, tilt: -0.5 + 0.8 * swing, color: level.color)
 
             // La table : moitié adverse en perspective, ta moitié vue de dessus
             let blueTop = Color(hex: 0x2A6FD6)
@@ -946,7 +934,7 @@ struct FiletScene: View {
             } else if serveHint {
                 let at = CGPoint(x: w / 2, y: h - (h - fold) * 0.12)
                 let bob = CGFloat(sin(clock * 5)) * 4
-                context.draw(Text(L("Glisse vers le haut pour servir")).font(.plie(16, weight: .bold)).foregroundColor(.white.opacity(0.9)),
+                context.draw(Text(L("Touche l'écran pour servir")).font(.plie(16, weight: .bold)).foregroundColor(.white.opacity(0.9)),
                              at: CGPoint(x: at.x, y: at.y + bob))
             }
         }

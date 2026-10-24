@@ -305,30 +305,25 @@ final class HockeyGame {
 struct AirHockeyView: View {
     @Environment(AppState.self) private var app
     @State private var game = HockeyGame()
-    @State private var hingePresent = false
+    @State private var landscape = true
 
     private let ticker = Timer.publish(every: 1.0 / 60.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: 6) {
-            GameHeader(title: L("AIR HOCKEY"), subtitle: game.solo ? L("Contre l'ordinateur") : L("À deux, face à face"), onBack: { app.route = .hub }) {
-                Pill(text: "\(game.scoreA) – \(game.scoreB)", color: Theme.card)
-            }
-            .padding(.horizontal, 16)
+        GeometryReader { proxy in
+            let size = proxy.size
+            // Toujours à l'horizontale, sur tout l'écran : les buts aux deux bouts,
+            // la ligne médiane au milieu, pile sur la charnière du Duo ouvert.
+            let isWide = size.width >= size.height
+            let scale = size.width
 
-            GeometryReader { proxy in
-                let size = proxy.size
-                // La charnière du Duo coupe le terrain en deux. Sans charnière, on joue dans la longueur.
-                let alongX = hingePresent ? size.width < size.height : size.width > size.height
-                let scale = alongX ? size.width : size.height
-                let across = alongX ? size.height / size.width : size.width / size.height
-
-                ZStack {
-                    HockeyTable(game: game, alongX: alongX, scale: scale)
+            ZStack {
+                if isWide {
+                    HockeyTable(game: game, alongX: true, scale: scale)
 
                     // Deux zones tactiles indépendantes : les deux joueurs jouent en même temps.
                     ForEach(0..<2, id: \.self) { player in
-                        let rect = halfRect(player: player, size: size, alongX: alongX)
+                        let rect = halfRect(player: player, size: size, alongX: true)
                         Rectangle()
                             .fill(Color.white.opacity(0.001))
                             .frame(width: rect.width, height: rect.height)
@@ -337,28 +332,50 @@ struct AirHockeyView: View {
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in
                                         let p = CGPoint(x: rect.minX + value.location.x, y: rect.minY + value.location.y)
-                                        game.touch(player: player, at: toField(p, alongX: alongX, scale: scale))
+                                        game.touch(player: player, at: toField(p, alongX: true, scale: scale))
                                     }
                                     .onEnded { _ in game.touch(player: player, at: nil) }
                             )
                     }
 
+                    // Retour et aide, petits, en haut au milieu (sur la ligne médiane)
+                    VStack {
+                        HStack(spacing: 10) {
+                            IconButton(symbol: "chevron.left", label: L("Retour")) { app.route = .hub }
+                            HowToButton(game: .airHockey)
+                        }
+                        .padding(.top, max(8, proxy.safeAreaInsets.top))
+                        Spacer()
+                    }
+
                     if game.phase == .menu || game.phase == .over {
                         menu
                     }
-                }
-                .onAppear { game.width = Double(across) }
-                .onChange(of: size) { _, newSize in
-                    let ax = hingePresent ? newSize.width < newSize.height : newSize.width > newSize.height
-                    game.width = Double(ax ? newSize.height / newSize.width : newSize.width / newSize.height)
+                } else {
+                    rotatePrompt
                 }
             }
+            .onAppear {
+                landscape = size.width >= size.height
+                if landscape { game.width = Double(size.height / max(1, size.width)) }
+            }
+            .onChange(of: size) { _, newSize in
+                landscape = newSize.width >= newSize.height
+                if landscape { game.width = Double(newSize.height / max(1, newSize.width)) }
+            }
         }
-        .padding(.top, 8)
-        .onHingeAngle { degrees in
-            if degrees != nil { hingePresent = true }
+        .ignoresSafeArea()
+        .onReceive(ticker) { _ in
+            // En portrait, la partie attend que le téléphone soit tourné.
+            if landscape { game.tick(dt: 1.0 / 60.0) }
         }
-        .onReceive(ticker) { _ in game.tick(dt: 1.0 / 60.0) }
+    }
+
+    private var rotatePrompt: some View {
+        RotateToLandscapePrompt(color: Theme.hockeyB,
+                                text: L("L'air hockey se joue sur tout l'écran, à l'horizontale : un but à gauche, un but à droite, la charnière au milieu.")) {
+            app.route = .hub
+        }
     }
 
     private func halfRect(player: Int, size: CGSize, alongX: Bool) -> CGRect {
@@ -392,9 +409,7 @@ struct AirHockeyView: View {
                     .foregroundStyle(Theme.hockeyB)
                 Text(L("Le premier à 7 buts gagne"))
                     .font(.plie(22))
-                Text(hingePresent
-                     ? L("À deux : pose ton iPhone Duo ouvert à plat entre vous. La charnière sert de ligne médiane, chacun défend sa moitié.")
-                     : L("À deux : posez le téléphone à plat entre vous, chacun défend sa moitié."))
+                Text(L("Pose le téléphone ouvert à plat. Chacun défend le but de son côté : glisse ton maillet pour frapper le palet."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)

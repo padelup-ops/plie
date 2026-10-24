@@ -1,0 +1,4 @@
+# Site d'Origamo : page d'assistance et de confidentialité, et compteur des vrais arbres.
+[build]
+  publish = "public"
+  functions = "netlify/functions"

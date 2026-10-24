@@ -26,12 +26,19 @@ struct RootView: View {
     @Environment(AppState.self) private var app
     @Environment(StoreManager.self) private var store
     @Environment(\.requestReview) private var requestReview
+    /// Mode d'emploi montré automatiquement à la première visite de chaque jeu.
+    @State private var howTo: GameID?
 
     var body: some View {
         @Bindable var app = app
 
         ZStack {
-            AmbientBackdrop(colors: backdropColors, intensity: 0.2)
+            // Les jeux en plein écran se dessinent eux-mêmes : pas de fond animé derrière (économie de batterie).
+            if fullScreen {
+                Theme.ink.ignoresSafeArea()
+            } else {
+                AmbientBackdrop(colors: backdropColors, intensity: 0.2)
+            }
 
             switch app.route {
             case .hub:
@@ -41,11 +48,6 @@ struct RootView: View {
             case .rayon(let number):
                 RayonPlayView(number: number)
                     .id(number)
-            case .pliageLevels:
-                PliageLevelsView()
-            case .pliage(let number):
-                PliagePlayView(number: number)
-                    .id(number)
             case .basculeLevels:
                 BasculeLevelsView()
             case .bascule(let number):
@@ -53,10 +55,6 @@ struct RootView: View {
                     .id(number)
             case .ferme:
                 FermeView()
-            case .panier:
-                PanierView()
-            case .flechettes:
-                FlechettesView()
             case .airHockey:
                 AirHockeyView()
             case .filet:
@@ -76,12 +74,26 @@ struct RootView: View {
                 CoffreDuelView()
             case .soleil:
                 SoleilView()
+            case .billard:
+                BillardView()
+            case .luciole:
+                LucioleView()
+            case .ecole:
+                EcoleView()
             }
         }
         .animation(.easeInOut(duration: 0.22), value: app.route)
-        .onChange(of: app.route) { _, _ in
+        .onChange(of: app.route) { _, route in
             SoundPlayer.shared.play(.pop, volume: 0.35)
+            if let game = GameID.of(route) {
+                let key = "howto.seen.\(game.rawValue)"
+                if !UserDefaults.standard.bool(forKey: key) {
+                    UserDefaults.standard.set(true, forKey: key)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { howTo = game }
+                }
+            }
         }
+        .sheet(item: $howTo) { game in HowToSheet(game: game) }
         .onChange(of: app.reviewRequest) { _, _ in
             // Un peu après la victoire, pour ne pas couper l'écran de réussite.
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { requestReview() }
@@ -91,15 +103,14 @@ struct RootView: View {
             app.applyScreenshotRoute()
             if UserDefaults.standard.bool(forKey: "selfCheck") {
                 let rayon = RayonEngine.selfCheck()
-                let pliage = PliageEngine.selfCheck()
                 let bascule = BasculeEngine.selfCheck()
-                NSLog("PLIE-CHECK rayon %ld/%ld pliage %ld/%ld", rayon.ok, RayonLevel.all.count, pliage.ok, PliageLevel.all.count)
-                for failure in rayon.failures + pliage.failures {
+                NSLog("PLIE-CHECK rayon %ld/%ld", rayon.ok, RayonLevel.all.count)
+                for failure in rayon.failures {
                     NSLog("PLIE-CHECK ÉCHEC %@", failure)
                 }
-                let report = ([L("rayon \(rayon.ok)/\(RayonLevel.all.count)"), L("pliage \(pliage.ok)/\(PliageLevel.all.count)"),
+                let report = ([L("rayon \(rayon.ok)/\(RayonLevel.all.count)"),
                                L("bascule \(bascule.ok)/\(BasculeLevel.all.count)")]
-                              + rayon.failures + pliage.failures + bascule.failures).joined(separator: "\n")
+                              + rayon.failures + bascule.failures).joined(separator: "\n")
                 if let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
                     try? report.write(to: folder.appendingPathComponent("selfcheck.txt"), atomically: true, encoding: .utf8)
                 }
@@ -119,16 +130,10 @@ struct RootView: View {
             return [Theme.laser, Theme.paint, Theme.gold]
         case .rayonLevels, .rayon:
             return [Color(hex: 0x6A3DE8), Theme.laser, Color(hex: 0x1F4FC9)]
-        case .pliageLevels, .pliage:
-            return [Theme.paint, Color(hex: 0xFF9A3D), Color(hex: 0x8B5CF6)]
         case .basculeLevels, .bascule:
             return [Color(hex: 0x3DB8FF), Color(hex: 0x8BDB4F), Theme.gold]
         case .ferme:
             return [Color(hex: 0x4FD18B), Color(hex: 0xC7E86B), Color(hex: 0xFF9AC4)]
-        case .panier:
-            return [Theme.sun, Color(hex: 0xFF3D6E), Theme.gold]
-        case .flechettes:
-            return [Theme.stop, Theme.gold, Color(hex: 0x2FD6A0)]
         case .airHockey:
             return [Theme.laser, Theme.paint, Color(hex: 0x7B5CFF)]
         case .filet:
@@ -143,6 +148,20 @@ struct RootView: View {
             return [Theme.gold, Color(hex: 0xFF8A3D), Color(hex: 0x6A5CFF)]
         case .soleil:
             return [Theme.sun, Theme.go, Theme.gold]
+        case .billard:
+            return [Theme.billard, Color(hex: 0x0E8558), Theme.gold]
+        case .luciole:
+            return [Theme.luciole, Color(hex: 0x5B2C6F), Color(hex: 0x0B0F3A)]
+        case .ecole:
+            return [Theme.ecole, Color(hex: 0x2F5D46), Color(hex: 0xFF8FC7)]
+        }
+    }
+
+    /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
+    private var fullScreen: Bool {
+        switch app.route {
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts: return true
+        default: return false
         }
     }
 }

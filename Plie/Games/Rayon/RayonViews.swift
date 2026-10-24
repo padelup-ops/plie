@@ -12,7 +12,7 @@ struct RayonLevelsView: View {
             GameHeader(title: L("RAYON"),
                        subtitle: L("\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux réussis"),
                        onBack: { app.route = .hub }) {
-                EmptyView()
+                HowToButton(game: .rayon)
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)

@@ -517,7 +517,7 @@ struct DraughtsView: View {
 
     private func setup(safe: EdgeInsets) -> some View {
         VStack(spacing: 6) {
-            GameHeader(title: L("DAMES"), subtitle: L("Règles internationales, damier de 100 cases"), onBack: { app.route = .hub }) { EmptyView() }
+            GameHeader(title: L("DAMES"), subtitle: L("Règles internationales, damier de 100 cases"), onBack: { app.route = .hub }) { HowToButton(game: .draughts) }
                 .padding(.horizontal, 16)
             ScrollView {
                 BoardSetupCard(

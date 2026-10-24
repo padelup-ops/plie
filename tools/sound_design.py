@@ -342,10 +342,35 @@ def piano_samples():
         os.remove(wav)
 
 
+
+def new_games_sounds():
+    """BILLARD, LUCIOLE et ÉCOLE : choc de billes, bille dans la poche, lucioles, cloche d'école, craie, grotte."""
+    # Choc de deux billes : clic très bref et brillant, avec une petite résonance de résine
+    t = t_axis(0.09)
+    click = rng.standard_normal(len(t)) * np.exp(-260 * t)
+    click = bandpass(click, 2200, 9000)
+    ring = np.sin(2 * np.pi * 3150 * t) * np.exp(-120 * t) * 0.5 + np.sin(2 * np.pi * 5400 * t) * np.exp(-180 * t) * 0.25
+    write("clack", click * 0.9 + ring, 0.85, (0.25, 0.08, 7000))
+    # Bille qui tombe dans la poche : choc sourd puis roulement dans la gouttière
+    roll_t = t_axis(0.5)
+    roll = bandpass(rng.standard_normal(len(roll_t)), 180, 900) * np.exp(-6 * roll_t) * (0.6 + 0.4 * np.sin(2 * np.pi * 22 * roll_t))
+    write("pocket", mix((thump(220, 90, 0.2), 0, 1.0), (wood(700, 0.06, 0.8), 0.0, 0.5), (roll, 0.05, 0.35)), 0.8, (0.3, 0.1, 4000))
+    # Luciole ramassée : deux notes de cloche douce, aiguës
+    write("chime", mix((bell(hz("E", 6), 0.9, 4.0), 0, 0.7), (bell(hz("B", 6), 0.8, 4.5), 0.05, 0.45)), 0.5, (0.8, 0.3, 9000))
+    # Bonne réponse à l'école : ding-dong de cloche
+    write("bell", mix((bell(hz("G", 5), 1.4, 2.4), 0, 0.8), (bell(hz("C", 6), 1.6, 2.2), 0.16, 0.8)), 0.6, (1.0, 0.25, 8000))
+    # Craie sur le tableau : petit frottement
+    tc = t_axis(0.16)
+    chalk = bandpass(rng.standard_normal(len(tc)), 1800, 6500) * (np.sin(np.pi * tc / 0.16) ** 0.6) * (0.7 + 0.3 * np.sin(2 * np.pi * 38 * tc))
+    write("chalk", chalk, 0.35)
+    # Entrée dans la grotte : souffle grave avec écho
+    write("cave", mix((whoosh(0.7, 200, 900), 0, 0.8), (thump(90, 45, 0.5), 0.05, 0.6)), 0.6, (1.6, 0.45, 2500))
+
 if __name__ == "__main__":
     sounds()
     ambient()
     filet_sounds()
     board_sounds()
     piano_samples()
+    new_games_sounds()
     print("sons écrits")

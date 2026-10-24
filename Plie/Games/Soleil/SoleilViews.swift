@@ -5,6 +5,8 @@ struct SoleilView: View {
     @Environment(AppState.self) private var app
     @State private var game = SoleilGame()
     @State private var recorded = false
+    /// Angle de la charnière : Duo ouvert en L, le signal s'affiche sur la moitié debout.
+    @State private var hingeAngle: Double?
 
     var body: some View {
         @Bindable var game = game
@@ -16,23 +18,12 @@ struct SoleilView: View {
             case .won:
                 wonView
             default:
-                if game.playersUseOuterScreen {
-                    hostView
-                } else {
-                    playersView
-                }
+                playersView
             }
         }
         .onHingeAngle { degrees in
-            guard degrees != nil, !game.hingeDetected else { return }
-            game.hingeDetected = true
-            // Sur iPhone Duo, on propose d'office le signal sur l'écran extérieur.
-            if DuoSupport.apisAvailable && game.phase == .setup {
-                Task { await game.setUseOuterScreen(true) }
-            }
-        }
-        .onChange(of: game.outerAvailable) { _, _ in
-            Task { await game.syncCamera() }
+            hingeAngle = degrees
+            if degrees != nil { game.hingeDetected = true }
         }
         .task { await game.prepareCamera() }
         .onAppear { MusicPlayer.shared.duck(true) }
@@ -47,11 +38,6 @@ struct SoleilView: View {
             }
             if newPhase == .setup { recorded = false }
         }
-        // Sur iPhone Duo ouvert, le signal s'affiche sur l'écran extérieur, face aux joueurs.
-        .outerScreen(isEnabled: $game.outerEnabled,
-                     onAvailabilityChange: { game.outerAvailable = $0 }) {
-            SoleilOuterView(game: game)
-        }
     }
 
     // MARK: Préparation
@@ -62,7 +48,7 @@ struct SoleilView: View {
                 game.shutdown()
                 app.route = .hub
             }) {
-                EmptyView()
+                HowToButton(game: .soleil)
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
@@ -72,10 +58,15 @@ struct SoleilView: View {
                     previewCard
 
                     VStack(alignment: .leading, spacing: 10) {
-                        step("1", L("Pose le téléphone debout à l'autre bout de la pièce, la caméra tournée vers les joueurs."))
-                        step("2", L("Tout le monde part du fond. Quand la voix dit « soleil », on se fige."))
-                        step("3", L("Le téléphone voit qui bouge : photo, et retour au départ."))
-                        step("4", L("Le premier qui arrive appuie sur « Touché ! » et gagne."))
+                        if game.hingeDetected {
+                            step("1", L("Ouvre le Duo en L, comme un petit chevalet, et pose-le au bout de la pièce : l'écran intérieur face aux joueurs."))
+                            step("2", L("Regarde l'image ci-dessus : tous les joueurs doivent y être. Si la caméra filme le plafond, retourne le Duo pour que la moitié avec la caméra soit debout."))
+                        } else {
+                            step("1", L("Pose le téléphone debout à l'autre bout de la pièce, l'écran tourné vers les joueurs."))
+                            step("2", L("Regarde l'image ci-dessus : tous les joueurs doivent y être."))
+                        }
+                        step("3", L("Tout le monde part du fond. L'écran affiche AVANCEZ en vert : on avance. Quand la voix dit « soleil », il passe au rouge : on se fige."))
+                        step("4", L("Le téléphone voit qui bouge : photo, et retour au départ. Le premier qui arrive appuie sur « Touché ! » et gagne."))
                     }
                     .padding(16)
                     .background(GlassPanel(cornerRadius: 20))
@@ -92,10 +83,6 @@ struct SoleilView: View {
                             .font(.system(size: 14, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-
-                    if game.hingeDetected && DuoSupport.apisAvailable {
-                        duoCard
                     }
 
                     Button {
@@ -150,30 +137,6 @@ struct SoleilView: View {
         .frame(height: 280)
     }
 
-    private var duoCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Toggle(isOn: Binding(get: { game.useOuterScreen },
-                                 set: { value in Task { await game.setUseOuterScreen(value) } })) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(L("Signal sur l'écran extérieur"))
-                        .font(.plie(17, weight: .bold))
-                    Text(L("Les joueurs voient AVANCEZ / STOP sur l'écran extérieur. Toi, tu vois la caméra et l'arbitre sur l'écran intérieur."))
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                        .foregroundStyle(Theme.muted)
-                }
-            }
-            .tint(Theme.sun)
-            if game.useOuterScreen {
-                Label(game.outerAvailable ? L("Écran extérieur prêt") : L("Ouvre le Duo et garde Origamo en plein écran"),
-                      systemImage: game.outerAvailable ? "checkmark.circle.fill" : "rectangle.portrait.on.rectangle.portrait")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundStyle(game.outerAvailable ? Theme.go : Theme.gold)
-            }
-        }
-        .padding(16)
-        .background(GlassPanel(cornerRadius: 20))
-    }
-
     private func step(_ number: String, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 12) {
             Text(number)
@@ -190,76 +153,86 @@ struct SoleilView: View {
 
     // MARK: Pendant la partie, écran face aux joueurs
 
-    private var playersView: some View {
-        ZStack {
-            SoleilSignal(game: game, large: true)
-                .ignoresSafeArea()
-
-            VStack {
-                HStack(alignment: .top) {
-                    IconButton(symbol: "xmark", label: L("Arrêter la partie")) { game.backToSetup() }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 8) {
-                        CameraPreview(session: game.camera.session, readyToken: game.cameraToken)
-                            .frame(width: 96, height: 128)
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1))
-                        MotionMeter(level: game.motionLevel, active: game.phase == .stop)
-                            .frame(width: 96)
-                    }
-                }
-                Spacer()
-                WinButton { game.win() }
-                    .frame(maxWidth: 520)
-            }
-            .padding(16)
-
-            if game.phase == .caught, let snapshot = game.lastSnapshot {
-                CaughtCard(image: snapshot, catches: game.catches)
-                    .padding(20)
-                    .transition(.scale.combined(with: .opacity))
-            }
-        }
-        .animation(.easeOut(duration: 0.2), value: game.phase)
+    /// Duo ouvert en L (moitié haute debout) : le signal sur la moitié debout, les commandes à plat.
+    private var foldedInL: Bool {
+        guard let a = hingeAngle else { return false }
+        return a > 40 && a < 150
     }
 
-    // MARK: Pendant la partie, iPhone Duo : écran de l'arbitre
+    private var playersView: some View {
+        GeometryReader { proxy in
+            if foldedInL && proxy.size.height > proxy.size.width {
+                VStack(spacing: 0) {
+                    SoleilSignal(game: game, large: true)
+                        .frame(height: proxy.size.height / 2)
+                    ZStack {
+                        Theme.ink
+                        VStack(spacing: 14) {
+                            HStack(alignment: .top, spacing: 14) {
+                                IconButton(symbol: "xmark", label: L("Arrêter la partie")) { game.backToSetup() }
+                                Spacer()
+                                VStack(alignment: .trailing, spacing: 6) {
+                                    Pill(text: formatSeconds(game.elapsed), color: Theme.card)
+                                    Pill(text: L("\(game.catches) pris"), color: Theme.card)
+                                }
+                                CameraPreview(session: game.camera.session, readyToken: game.cameraToken)
+                                    .frame(width: 84, height: 84)
+                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            }
+                            MotionMeter(level: game.motionLevel, active: game.phase == .stop)
+                            Spacer(minLength: 0)
+                            WinButton { game.win() }
+                                .frame(maxWidth: 520)
+                        }
+                        .padding(16)
+                        .padding(.bottom, proxy.safeAreaInsets.bottom)
+                    }
+                    .frame(height: proxy.size.height / 2)
+                }
+                .overlay {
+                    if game.phase == .caught, let snapshot = game.lastSnapshot {
+                        CaughtCard(image: snapshot, catches: game.catches)
+                            .frame(maxHeight: proxy.size.height / 2 - 20)
+                            .padding(10)
+                            .frame(maxHeight: .infinity, alignment: .top)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+            } else {
+                ZStack {
+                    SoleilSignal(game: game, large: true)
 
-    private var hostView: some View {
-        VStack(spacing: 14) {
-            HStack {
-                IconButton(symbol: "xmark", label: L("Arrêter la partie")) { game.backToSetup() }
-                Spacer()
-                Pill(text: formatSeconds(game.elapsed), color: Theme.card)
-                Pill(text: L("\(game.catches) pris"), color: Theme.card)
-            }
-            ZStack(alignment: .top) {
-                CameraPreview(session: game.camera.session, readyToken: game.cameraToken)
-                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                SoleilSignal(game: game, large: false)
-                    .frame(height: 64)
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .padding(10)
-                if game.phase == .caught, let snapshot = game.lastSnapshot {
-                    CaughtCard(image: snapshot, catches: game.catches)
-                        .padding(20)
-                        .frame(maxHeight: .infinity)
+                    VStack {
+                        HStack(alignment: .top) {
+                            IconButton(symbol: "xmark", label: L("Arrêter la partie")) { game.backToSetup() }
+                            Spacer()
+                            VStack(alignment: .trailing, spacing: 8) {
+                                CameraPreview(session: game.camera.session, readyToken: game.cameraToken)
+                                    .frame(width: 96, height: 128)
+                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1))
+                                MotionMeter(level: game.motionLevel, active: game.phase == .stop)
+                                    .frame(width: 96)
+                            }
+                        }
+                        Spacer()
+                        WinButton { game.win() }
+                            .frame(maxWidth: 520)
+                    }
+                    .padding(16)
+                    .padding(.top, proxy.safeAreaInsets.top)
+                    .padding(.bottom, proxy.safeAreaInsets.bottom)
+
+                    if game.phase == .caught, let snapshot = game.lastSnapshot {
+                        CaughtCard(image: snapshot, catches: game.catches)
+                            .padding(20)
+                            .transition(.scale.combined(with: .opacity))
+                    }
                 }
             }
-            MotionMeter(level: game.motionLevel, active: game.phase == .stop)
-            if game.unstable {
-                Text(L("Le téléphone bouge : pose-le bien droit."))
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Theme.gold)
-            }
-            Text(L("Les joueurs voient le signal sur l'écran extérieur. Le gagnant touche « Touché ! » de son côté."))
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundStyle(Theme.muted)
-                .multilineTextAlignment(.center)
-            Button(L("Déclarer un gagnant")) { game.win() }
-                .buttonStyle(GhostButtonStyle())
         }
-        .padding(16)
+        .ignoresSafeArea()
+        .animation(.easeOut(duration: 0.2), value: game.phase)
     }
 
     // MARK: Fin
@@ -466,28 +439,5 @@ struct CaughtCard: View {
         .foregroundStyle(.white)
         .padding(16)
         .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(Color(hex: 0x7A1020)))
-    }
-}
-
-/// Ce que voient les joueurs sur l'écran extérieur de l'iPhone Duo.
-struct SoleilOuterView: View {
-    let game: SoleilGame
-
-    var body: some View {
-        ZStack {
-            SoleilSignal(game: game, large: true)
-                .ignoresSafeArea()
-            if game.phase == .caught, let snapshot = game.lastSnapshot {
-                CaughtCard(image: snapshot, catches: game.catches)
-                    .padding(16)
-            }
-            if game.isPlaying && game.phase != .caught {
-                VStack {
-                    Spacer()
-                    WinButton { game.win() }
-                        .padding(16)
-                }
-            }
-        }
     }
 }

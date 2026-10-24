@@ -431,6 +431,7 @@ struct PianoView: View {
     private var controls: some View {
         HStack(spacing: 10) {
             IconButton(symbol: "chevron.left", label: L("Retour")) { app.route = .hub }
+            HowToButton(game: .piano)
             Menu {
                 ForEach(Array(PianoSong.all.enumerated()), id: \.offset) { item in
                     Button {
@@ -483,12 +484,15 @@ struct ScoreSheet: View {
     let hingeAngle: Double?
 
     var body: some View {
-        TimelineView(.animation) { timeline in
+        // Le papier est dessiné une seule fois ; seules les notes sont redessinées (30 images par seconde
+        // au plus), pour ne pas surcharger le grand écran du Duo.
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
             let now = timeline.date
             Canvas { context, size in
                 draw(&context, size: size, now: now)
             }
         }
+        .background(PaperBackground())
         .overlay(alignment: .center) {
             if model.finished && model.mode == .learn {
                 VStack(spacing: 10) {
@@ -532,19 +536,6 @@ struct ScoreSheet: View {
 
     private func draw(_ context: inout GraphicsContext, size: CGSize, now: Date) {
         let paper = CGRect(origin: .zero, size: size)
-        // Papier crème avec une légère ombre
-        context.drawLayer { shadow in
-            shadow.addFilter(.blur(radius: 8))
-            shadow.fill(Path(roundedRect: paper.offsetBy(dx: 0, dy: 5), cornerRadius: 10), with: .color(.black.opacity(0.45)))
-        }
-        context.fill(Path(roundedRect: paper, cornerRadius: 10),
-                     with: .linearGradient(Gradient(colors: [Color(hex: 0xFFFBF1), Color(hex: 0xF3E9D2)]),
-                                           startPoint: .zero, endPoint: CGPoint(x: 0, y: size.height)))
-        for i in 0..<60 {
-            let x = CGFloat(Draw.hash(i, 5)) * size.width
-            let y = CGFloat(Draw.hash(i, 6)) * size.height
-            context.fill(Path(ellipseIn: CGRect(x: x, y: y, width: 1.4, height: 1.4)), with: .color(Color(hex: 0xBFAE8C).opacity(0.25)))
-        }
         var clip = context
         clip.clip(to: Path(roundedRect: paper.insetBy(dx: 2, dy: 2), cornerRadius: 9))
 
@@ -698,6 +689,25 @@ struct ScoreSheet: View {
     }
 }
 
+/// Papier crème de la partition, avec son ombre : dessiné une fois, pas à chaque image.
+struct PaperBackground: View {
+    var body: some View {
+        Canvas { context, size in
+            let paper = CGRect(origin: .zero, size: size)
+            context.fill(Path(roundedRect: paper, cornerRadius: 10),
+                         with: .linearGradient(Gradient(colors: [Color(hex: 0xFFFBF1), Color(hex: 0xF3E9D2)]),
+                                               startPoint: .zero, endPoint: CGPoint(x: 0, y: size.height)))
+            for i in 0..<60 {
+                let x = CGFloat(Draw.hash(i, 5)) * size.width
+                let y = CGFloat(Draw.hash(i, 6)) * size.height
+                context.fill(Path(ellipseIn: CGRect(x: x, y: y, width: 1.4, height: 1.4)), with: .color(Color(hex: 0xBFAE8C).opacity(0.25)))
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .shadow(color: .black.opacity(0.45), radius: 8, y: 5)
+    }
+}
+
 // MARK: - Clavier
 
 /// Bandeau en bois au-dessus des touches : feutre rouge, nom de l'app, changement d'octave.
@@ -752,7 +762,8 @@ struct KeyboardView: View {
             let guide = model.currentNote?.midi
             let showNames = model.showNames
             ZStack {
-                TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
+                // La touche à jouer clignote ; sans touche guide, le clavier ne se redessine qu'au toucher.
+                TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: guide == nil)) { timeline in
                     let pulse = 0.5 + 0.5 * sin(timeline.date.timeIntervalSinceReferenceDate * 5)
                     Canvas { context, size in
                         drawKeys(&context, geo: geo, pressed: pressed, lit: lit, guide: guide, pulse: pulse, showNames: showNames)

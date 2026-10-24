@@ -244,6 +244,7 @@ struct FermeView: View {
                         .background(Capsule().fill(Theme.card))
                 }
                 .accessibilityLabel(L("Mon jardin, \(app.fermeGarden.count) plantes"))
+                HowToButton(game: .ferme)
             }
 
             switch session.phase {
@@ -279,6 +280,8 @@ struct FermeView: View {
             VStack(spacing: 20) {
                 PlantCanvas(plant: FermePlant.named(session.plantID), growth: 1, wilted: false)
                     .frame(height: 170)
+
+                TreeCard()
 
                 VStack(spacing: 10) {
                     SectionTitle(text: L("Durée"))
@@ -459,6 +462,59 @@ struct FermeView: View {
                 .frame(maxWidth: 420)
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Le vrai arbre
+
+/// Fais fleurir les 8 plantes : on plante un vrai arbre pour toi.
+struct TreeCard: View {
+    @Environment(AppState.self) private var app
+
+    var body: some View {
+        let species = app.fermeSpecies
+        let done = FermePlant.all.filter { species.contains($0.id) }.count
+        let total = FermePlant.all.count
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                Image(systemName: "tree.fill")
+                    .font(.system(size: 26, weight: .bold))
+                    .foregroundStyle(Theme.ferme)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(app.fermeComplete ? L("Ton vrai arbre") : L("Un vrai arbre pour toi"))
+                        .font(.plie(18, weight: .heavy))
+                    Text(app.fermeComplete
+                         ? (app.treeNumber > 0 ? L("Jardin complet ! Ton arbre est le n° \(app.treeNumber) que nous allons planter.") : L("Jardin complet ! Ton arbre est enregistré dès que le téléphone est en ligne."))
+                         : L("Fais fleurir les \(total) plantes au moins une fois : nous plantons un vrai arbre dans le monde avec un partenaire de reforestation."))
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(Theme.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            HStack(spacing: 6) {
+                ForEach(FermePlant.all) { plant in
+                    let grown = species.contains(plant.id)
+                    ZStack {
+                        Circle().fill(grown ? plant.flowerColor : Color.white.opacity(0.08))
+                        Image(systemName: grown ? "checkmark" : "leaf")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(grown ? Theme.ink : Theme.muted)
+                    }
+                    .frame(width: 28, height: 28)
+                    .accessibilityLabel(grown ? L("\(plant.displayName) : a fleuri") : L("\(plant.displayName) : pas encore"))
+                }
+                Spacer(minLength: 0)
+                Text("\(done) / \(total)")
+                    .font(.plie(16, weight: .heavy))
+                    .foregroundStyle(Theme.ferme)
+            }
+            if app.fermeComplete {
+                ShareResultButton(game: L("FERME"), result: L("Jardin complet : un vrai arbre va être planté"), accent: Theme.ferme)
+            }
+        }
+        .padding(16)
+        .background(GlassPanel(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Theme.ferme.opacity(app.fermeComplete ? 0.8 : 0.25), lineWidth: 1.5))
     }
 }
 

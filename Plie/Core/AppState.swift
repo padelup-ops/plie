@@ -5,13 +5,9 @@ enum Route: Equatable {
     case hub
     case rayonLevels
     case rayon(Int)
-    case pliageLevels
-    case pliage(Int)
     case basculeLevels
     case bascule(Int)
     case ferme
-    case panier
-    case flechettes
     case airHockey
     case filet
     case chess
@@ -21,6 +17,9 @@ enum Route: Equatable {
     case coffre(Int)
     case coffreDuel
     case soleil
+    case billard
+    case luciole
+    case ecole
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -40,18 +39,12 @@ final class AppState {
     private(set) var rayonSolved: Set<Int> = []
     private(set) var rayonBest: [Int: Double] = [:]
 
-    /// Pliages réussis, et meilleur temps.
-    private(set) var pliageSolved: Set<Int> = []
-    private(set) var pliageBest: [Int: Double] = [:]
-
     /// BASCULE : étoiles par niveau réussi.
     private(set) var basculeStars: [Int: Int] = [:]
 
     /// FERME : les plantes qui ont poussé.
     private(set) var fermeGarden: [FermeRecord] = []
 
-    /// Records des jeux d'arcade.
-    private(set) var panierBest = 0
     /// FILET : plus haut niveau battu (0 = aucun) et nombre de victoires.
     private(set) var filetBestLevel = 0
     private(set) var filetWins = 0
@@ -60,7 +53,6 @@ final class AppState {
     private(set) var chessBestLevel = 0
     private(set) var draughtsGames = 0
     private(set) var draughtsBestLevel = 0
-    private(set) var flechettesBest = 0
 
     /// Coffres ouverts : meilleur temps et étoiles.
     private(set) var coffreBest: [Int: Double] = [:]
@@ -68,9 +60,21 @@ final class AppState {
 
     private(set) var soleilGames = 0
 
+    /// LUCIOLE : meilleur total de lumières et voyages terminés.
+    private(set) var lucioleBest = 0
+    private(set) var lucioleVoyages = 0
+    /// ÉCOLE : meilleur nombre d'étoiles (sur 10) par classe, et leçons terminées.
+    private(set) var ecoleStars: [Int: Int] = [:]
+    private(set) var ecoleLessons = 0
+    /// BILLARD : parties gagnées.
+    private(set) var billardWins = 0
+
+    /// FERME : le vrai arbre. `treePending` : le jardin est complet, l'envoi au compteur reste à faire.
+    private(set) var treePending = false
+    private(set) var treeNumber = 0
+
     /// Nombre de niveaux jouables sans le Pass.
     static let freeRayonLevels = 20
-    static let freePliageLevels = 15
     static let freeBasculeLevels = 10
     static let freeCoffreLevels = 10
 
@@ -81,6 +85,9 @@ final class AppState {
         SoundPlayer.shared.enabled = soundOn
         Haptics.enabled = hapticsOn
         MusicPlayer.shared.setEnabled(musicOn)
+        // Un jardin complet n'a pas encore pu être compté (pas de réseau) : on réessaie.
+        if fermeComplete && treeNumber == 0 { treePending = true }
+        sendTree()
     }
 
     #if DEBUG
@@ -92,13 +99,9 @@ final class AppState {
         switch parts.first ?? "" {
         case "rayonLevels": route = .rayonLevels
         case "rayon": route = .rayon(number)
-        case "pliageLevels": route = .pliageLevels
-        case "pliage": route = .pliage(number)
         case "basculeLevels": route = .basculeLevels
         case "bascule": route = .bascule(number)
         case "ferme": route = .ferme
-        case "panier": route = .panier
-        case "flechettes": route = .flechettes
         case "airHockey": route = .airHockey
         case "filet": route = .filet
         case "chess": route = .chess
@@ -108,6 +111,9 @@ final class AppState {
         case "coffre": route = .coffre(number)
         case "coffreDuel": route = .coffreDuel
         case "soleil": route = .soleil
+        case "billard": route = .billard
+        case "luciole": route = .luciole
+        case "ecole": route = .ecole
         case "pass": showPass = true
         default: route = .hub
         }
@@ -164,28 +170,6 @@ final class AppState {
         save()
     }
 
-    // MARK: PLIAGE
-
-    func pliageIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
-        if number > Self.freePliageLevels && !hasPass { return false }
-        return number == 1 || pliageSolved.contains(number - 1) || pliageSolved.contains(number)
-    }
-
-    func pliageNeedsPass(_ number: Int, hasPass: Bool) -> Bool {
-        number > Self.freePliageLevels && !hasPass
-    }
-
-    func recordPliage(_ number: Int, time: Double) {
-        celebrate()
-        pliageSolved.insert(number)
-        if let best = pliageBest[number] {
-            pliageBest[number] = min(best, time)
-        } else {
-            pliageBest[number] = time
-        }
-        save()
-    }
-
     // MARK: BASCULE
 
     func basculeIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
@@ -208,6 +192,51 @@ final class AppState {
     func recordFerme(_ record: FermeRecord) {
         celebrate()
         fermeGarden.append(record)
+        if fermeComplete && treeNumber == 0 && !treePending {
+            treePending = true
+        }
+        save()
+        sendTree()
+    }
+
+    /// Les espèces qui ont déjà fleuri au moins une fois.
+    var fermeSpecies: Set<String> { Set(fermeGarden.map(\.plant)) }
+
+    /// Les 8 plantes ont fleuri : on plante un vrai arbre.
+    var fermeComplete: Bool { FermePlant.all.allSatisfy { fermeSpecies.contains($0.id) } }
+
+    /// Envoie « +1 jardin complet » au compteur (anonyme). Réessaie au prochain lancement si besoin.
+    func sendTree() {
+        guard treePending else { return }
+        TreeCounter.send { [weak self] number in
+            guard let self, let number else { return }
+            self.treePending = false
+            self.treeNumber = max(1, number)
+            self.defaults.set(false, forKey: Keys.treePending)
+            self.defaults.set(self.treeNumber, forKey: Keys.treeNumber)
+        }
+    }
+
+    // MARK: Nouveaux jeux
+
+    func recordLuciole(lights: Int, stars: Int) {
+        celebrate()
+        lucioleVoyages += 1
+        lucioleBest = max(lucioleBest, lights)
+        save()
+    }
+
+    func recordEcole(classRaw: Int, stars: Int) {
+        if stars >= 5 { celebrate() }
+        ecoleLessons += 1
+        ecoleStars[classRaw] = max(ecoleStars[classRaw] ?? 0, stars)
+        save()
+    }
+
+    func recordBillard(won: Bool) {
+        guard won else { return }
+        celebrate()
+        billardWins += 1
         save()
     }
 
@@ -228,16 +257,6 @@ final class AppState {
     }
 
     // MARK: Arcade
-
-    func recordPanier(_ score: Int) {
-        if score > panierBest && score > 0 { celebrate() }
-        if score > panierBest { panierBest = score; save() }
-    }
-
-    func recordFlechettes(_ score: Int) {
-        if score > flechettesBest && score > 0 { celebrate() }
-        if score > flechettesBest { flechettesBest = score; save() }
-    }
 
     /// Le niveau Champion de FILET fait partie du Pass.
     static let freeFiletLevel = 2
@@ -309,21 +328,24 @@ final class AppState {
         static let music = "music"
         static let rayonSolved = "rayon.solved"
         static let rayonBest = "rayon.best"
-        static let pliageSolved = "pliage.solved"
         static let basculeStars = "bascule.stars"
         static let fermeGarden = "ferme.garden"
-        static let panierBest = "panier.best"
-        static let flechettesBest = "flechettes.best"
         static let filetBest = "filet.bestLevel"
         static let filetWins = "filet.wins"
         static let chessGames = "chess.games"
         static let chessBest = "chess.bestLevel"
         static let draughtsGames = "draughts.games"
         static let draughtsBest = "draughts.bestLevel"
-        static let pliageBest = "pliage.best"
         static let coffreBest = "coffre.best"
         static let coffreStars = "coffre.stars"
         static let soleilGames = "soleil.games"
+        static let lucioleBest = "luciole.best"
+        static let lucioleVoyages = "luciole.voyages"
+        static let ecoleStars = "ecole.stars"
+        static let ecoleLessons = "ecole.lessons"
+        static let billardWins = "billard.wins"
+        static let treePending = "ferme.treePending"
+        static let treeNumber = "ferme.treeNumber"
     }
 
     private func load() {
@@ -340,15 +362,11 @@ final class AppState {
         happyMoments = defaults.integer(forKey: "happyMoments")
         if let solved = defaults.array(forKey: Keys.rayonSolved) as? [Int] { rayonSolved = Set(solved) }
         rayonBest = decode(Keys.rayonBest)
-        if let solved = defaults.array(forKey: Keys.pliageSolved) as? [Int] { pliageSolved = Set(solved) }
-        pliageBest = decode(Keys.pliageBest)
         basculeStars = decode(Keys.basculeStars).mapValues { Int($0) }
         if let data = defaults.data(forKey: Keys.fermeGarden),
            let garden = try? JSONDecoder().decode([FermeRecord].self, from: data) {
             fermeGarden = garden
         }
-        panierBest = defaults.integer(forKey: Keys.panierBest)
-        flechettesBest = defaults.integer(forKey: Keys.flechettesBest)
         filetBestLevel = defaults.integer(forKey: Keys.filetBest)
         filetWins = defaults.integer(forKey: Keys.filetWins)
         chessGames = defaults.integer(forKey: Keys.chessGames)
@@ -359,19 +377,22 @@ final class AppState {
         let stars: [Int: Double] = decode(Keys.coffreStars)
         coffreStars = stars.mapValues { Int($0) }
         soleilGames = defaults.integer(forKey: Keys.soleilGames)
+        lucioleBest = defaults.integer(forKey: Keys.lucioleBest)
+        lucioleVoyages = defaults.integer(forKey: Keys.lucioleVoyages)
+        ecoleStars = decode(Keys.ecoleStars).mapValues { Int($0) }
+        ecoleLessons = defaults.integer(forKey: Keys.ecoleLessons)
+        billardWins = defaults.integer(forKey: Keys.billardWins)
+        treePending = defaults.bool(forKey: Keys.treePending)
+        treeNumber = defaults.integer(forKey: Keys.treeNumber)
     }
 
     private func save() {
         defaults.set(Array(rayonSolved), forKey: Keys.rayonSolved)
         encode(rayonBest, Keys.rayonBest)
-        defaults.set(Array(pliageSolved), forKey: Keys.pliageSolved)
-        encode(pliageBest, Keys.pliageBest)
         encode(basculeStars.mapValues { Double($0) }, Keys.basculeStars)
         if let data = try? JSONEncoder().encode(fermeGarden) {
             defaults.set(data, forKey: Keys.fermeGarden)
         }
-        defaults.set(panierBest, forKey: Keys.panierBest)
-        defaults.set(flechettesBest, forKey: Keys.flechettesBest)
         defaults.set(filetBestLevel, forKey: Keys.filetBest)
         defaults.set(filetWins, forKey: Keys.filetWins)
         defaults.set(chessGames, forKey: Keys.chessGames)
@@ -381,6 +402,13 @@ final class AppState {
         encode(coffreBest, Keys.coffreBest)
         encode(coffreStars.mapValues { Double($0) }, Keys.coffreStars)
         defaults.set(soleilGames, forKey: Keys.soleilGames)
+        defaults.set(lucioleBest, forKey: Keys.lucioleBest)
+        defaults.set(lucioleVoyages, forKey: Keys.lucioleVoyages)
+        encode(ecoleStars.mapValues { Double($0) }, Keys.ecoleStars)
+        defaults.set(ecoleLessons, forKey: Keys.ecoleLessons)
+        defaults.set(billardWins, forKey: Keys.billardWins)
+        defaults.set(treePending, forKey: Keys.treePending)
+        defaults.set(treeNumber, forKey: Keys.treeNumber)
     }
 
     /// Les dictionnaires sont rangés avec des clés texte (« 12 » → 8,4 secondes).

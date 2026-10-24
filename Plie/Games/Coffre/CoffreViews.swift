@@ -12,7 +12,7 @@ struct CoffreLevelsView: View {
             GameHeader(title: L("LE COFFRE"),
                        subtitle: L("\(app.coffreBest.count) / \(CoffreLevel.count) coffres ouverts"),
                        onBack: { app.route = .hub }) {
-                EmptyView()
+                HowToButton(game: .coffre)
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)

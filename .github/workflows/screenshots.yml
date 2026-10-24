@@ -9,7 +9,7 @@ on:
       routes:
         description: "Écrans à capturer (séparés par des espaces ; « + » ajoute un argument de lancement)"
         required: false
-        default: "hub rayonLevels rayon:1 rayon:16 rayon:40 rayon:55 pliageLevels pliage:1 pliage:20 pliage:40 coffreLevels coffre:1 coffreDuel soleil pass"
+        default: "hub rayonLevels rayon:1 rayon:16 rayon:40 rayon:55 coffreLevels coffre:1 coffreDuel soleil pass"
 
 jobs:
   shots:
