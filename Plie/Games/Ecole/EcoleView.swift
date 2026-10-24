@@ -66,8 +66,14 @@ final class EcoleLesson {
     }
 
     func typeDigit(_ d: Int) {
-        guard feedback == .none || feedback == .wrong, typed.count < 4 else { return }
-        if feedback == .wrong { feedback = .none }
+        guard feedback == .none || feedback == .wrong else { return }
+        if feedback == .wrong {
+            // Nouvel essai : on efface l'ancienne réponse tout de suite.
+            token += 1
+            feedback = .none
+            typed = ""
+        }
+        guard typed.count < 4 else { return }
         typed += "\(d)"
         SoundPlayer.shared.play(.chalk, volume: 0.5)
     }
@@ -82,6 +88,14 @@ final class EcoleLesson {
     func addChalk(_ p: CGPoint, newStroke: Bool) {
         guard feedback == .none || feedback == .wrong, !reading else { return }
         notice = nil
+        if feedback == .wrong {
+            // Nouvel essai : l'ardoise est essuyée.
+            token += 1
+            feedback = .none
+            strokes = []
+            typed = ""
+            strokeOpen = false
+        }
         if !strokeOpen || strokes.isEmpty {
             strokes.append(ChalkStroke(points: [p]))
             strokeOpen = true
