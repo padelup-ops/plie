@@ -457,6 +457,8 @@ struct CrocoMouth: View {
             VStack(spacing: 14) {
                 Text(L("CROC !"))
                     .font(.system(size: 90, weight: .black, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.5), radius: 8)
                 if let l = game.loser {

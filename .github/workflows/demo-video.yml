@@ -11,6 +11,10 @@ on:
         description: "Langues (fr en)"
         required: false
         default: "fr en"
+      scenes:
+        description: "Scènes à filmer (all, ou par ex. « croco boite »)"
+        required: false
+        default: "all"
 
 jobs:
   film:
@@ -72,6 +76,8 @@ jobs:
           gzip -f rushes/build.log
 
       - name: Filmer les scènes
+        env:
+          SCENES: ${{ github.event.inputs.scenes || 'all' }}
         run: |
           # scène | écran | durée (s) | charnière simulée
           cat > scenes.txt <<'EOF'
@@ -91,6 +97,7 @@ jobs:
             while IFS='|' read -r S R D H; do
               S=$(echo "$S" | xargs)
               [ -z "$S" ] && continue
+              if [ "$SCENES" != "all" ] && ! echo " $SCENES " | grep -q " $S "; then continue; fi
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
               DATA=$(xcrun simctl get_app_container "$UDID" "$BID" data 2>/dev/null || true)
               rm -f "$DATA/Documents/demo-origin.txt"
