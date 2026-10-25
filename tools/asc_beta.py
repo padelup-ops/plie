@@ -18,24 +18,22 @@ API = "https://api.appstoreconnect.apple.com"
 BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 
 WHATS_NEW = {
-    "fr-FR": """Nouvelle version d'Origamo !
+    "fr-FR": """Nouveautés de ce build :
 
-• Nouvel accueil : jeu du jour, filtres (seul, à deux, en famille, enfants), et le dessin de la position du Duo sur chaque jeu.
-• 3 nouveaux jeux : BILLARD sur tout l'écran, LUCIOLE (la grotte continue sur l'écran extérieur quand on ferme le Duo), et ÉCOLE pour les 4-10 ans (réponses écrites à la craie avec le doigt).
-• Chaque jeu a son mode d'emploi : bouton « ? ».
-• FILET : l'ordinateur renvoie seul, service corrigé. AIR HOCKEY : à l'horizontale sur tout l'écran. SOLEIL : le signal s'affiche sur le grand écran face aux joueurs. PIANO : correction de l'écran noir.
-• FERME : fais fleurir les 8 plantes et un vrai arbre est planté.
+• 2 nouveaux jeux qui passent d'un écran à l'autre :
+  – GOBELET : le Duo fermé est un gobelet de dés. Secoue-le, puis ouvre-le pour découvrir les dés (Yams, 1 à 4 joueurs).
+  – QUI SUIS-JE ? : Duo fermé sur le front, le mot s'affiche pour tes amis sur l'écran extérieur. Penche la tête en avant si tu trouves, en arrière pour passer.
+• 1, 2, 3… SOLEIL ! refait : plus besoin de voir l'écran, l'arbitre annonce tout à voix haute et dit qui a bougé. Le premier arrivé gagne en posant la main sur la caméra.
 
-À tester en priorité : LUCIOLE (fermer et rouvrir le Duo), ÉCOLE (écrire un nombre à la craie), BILLARD contre l'ordinateur. Dites-nous ce qui coince !""",
-    "en-US": """New Origamo build!
+À tester en priorité : secouer le GOBELET Duo fermé, QUI SUIS-JE ? sur le front, et SOLEIL avec le Duo fermé posé debout. Dites-nous ce qui coince !""",
+    "en-US": """New in this build:
 
-• New home screen: game of the day, filters (solo, two players, family, kids), and how to hold the Duo on every game.
-• 3 new games: POOL across the whole screen, FIREFLY (the cave continues on the outer screen when you close the Duo), and SCHOOL for ages 4-10 (write answers in chalk with your finger).
-• Every game has a guide: tap "?".
-• PING PONG: the computer returns on its own, serve fixed. AIR HOCKEY: sideways, full screen. RED LIGHT, GREEN LIGHT: the signal shows on the big screen facing players. PIANO: black screen fixed.
-• FOCUS: grow all 8 plants and a real tree gets planted.
+• 2 new games that move between screens:
+  – DICE CUP: the closed Duo is a dice cup. Shake it, then open it to reveal the dice (five-dice, 1 to 4 players).
+  – WHO AM I?: hold the closed Duo on your forehead, the word shows on the outer screen for your friends. Tilt your head forward when you get it, back to pass.
+• RED LIGHT, GREEN LIGHT rebuilt: no need to see the screen, the referee says everything out loud and tells who moved. The first to arrive wins by covering the camera.
 
-Please test first: FIREFLY (closing and reopening the Duo), SCHOOL (writing a number in chalk), POOL against the computer. Tell us what breaks!""",
+Please test first: shaking the DICE CUP with the Duo closed, WHO AM I? on your forehead, and RED LIGHT with the closed Duo standing up. Tell us what breaks!""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
