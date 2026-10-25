@@ -1,0 +1,42 @@
+# Distribue un build TestFlight aux bêta-testeurs (tools/asc_beta.py).
+# Envoie aussi le build à la vérification bêta d'Apple quand des testeurs externes l'attendent. Compte rendu : branche ci-asc-beta (beta.txt).
+
+name: App Store Connect (bêta)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Numéro du build (vide = le plus récent)"
+        required: false
+        default: ""
+
+jobs:
+  beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+      BUILD_NUMBER: ${{ inputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Distribuer le build
+        run: |
+          pip install --quiet pyjwt cryptography
+          python3 tools/asc_beta.py 2>&1 | tee beta.txt
+      - name: Publier le compte rendu
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out && cp beta.txt out/ && cd out
+          git init -q -b ci-asc-beta
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Bêta"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-asc-beta
