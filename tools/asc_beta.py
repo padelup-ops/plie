@@ -29,7 +29,7 @@ WHATS_NEW = {
     "en-US": """New in this build:
 
 • AIR HOCKEY for two: the blue mallet stayed stuck at the back of its half. It now follows the finger across its whole half.
-• SHELL GAME for two: the "I'm done" button stayed greyed out after shuffling. It now responds right away (even during a swap).
+• SHELL GAME for two: the "Done" button stayed greyed out after shuffling. It now responds right away (even during a swap).
 • CROC in English: "CHOMP!" now fits on one line.
 • BRICK BREAKER replaces MAGIC: fold the Duo into an L, the brick wall stands up and the paddle is on the half lying flat.
 
