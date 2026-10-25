@@ -288,6 +288,16 @@ struct MorpionView: View {
             }
         }
         .foregroundStyle(.white)
+        .onAppear {
+            #if DEBUG
+            Demo.schedule("morpion", [(0.0, { game.mode = .ultimate; game.vsComputer = false; game.start() })])
+            Demo.every("morpion", 0.3, from: 0.5, until: 9) {
+                guard game.humanTurn else { return }
+                let state = MorpionAI.State(mode: game.mode, cells: game.cells, boards: game.boards, forced: game.forced, me: game.turn)
+                if let move = MorpionAI.choose(state, level: 2) { game.tap(move) }
+            }
+            #endif
+        }
         .onChange(of: game.phase) { _, phase in
             if phase == .over {
                 app.recordMorpion(won: game.vsComputer && game.winner == 1)

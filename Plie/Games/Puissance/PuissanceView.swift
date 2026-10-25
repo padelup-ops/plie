@@ -306,6 +306,15 @@ struct PuissanceView: View {
         .onChange(of: game.phase) { _, phase in
             if phase == .over { app.recordPuissance(won: game.vsComputer && game.winner == 1) }
         }
+        .onAppear {
+            #if DEBUG
+            Demo.schedule("puissance", [(0.0, { game.vsComputer = false; game.start() })])
+            Demo.every("puissance", 0.55, from: 0.6, until: 10) {
+                guard game.humanTurn, let c = PuissanceAI.choose(game.grid, me: game.turn, level: 2) else { return }
+                game.humanDrop(c)
+            }
+            #endif
+        }
     }
 
     private var header: some View {

@@ -106,6 +106,12 @@ final class BriquesGame {
     var height = 1.3
 
     @ObservationIgnored private var target = 0.5
+    #if DEBUG
+    /// Démo : la raquette suit la balle toute seule.
+    @ObservationIgnored var autopilot = false
+
+    func demoMulti() { apply(.multi) }
+    #endif
     @ObservationIgnored private var baseSpeed = 0.92
 
     var paddleW: Double { wideTime > 0 ? 0.3 : 0.19 }
@@ -168,6 +174,11 @@ final class BriquesGame {
             ageShards(dt)
             return
         }
+        #if DEBUG
+        if autopilot, let low = balls.filter({ $0.vy > 0 }).max(by: { $0.y < $1.y }) ?? balls.first {
+            target = low.x + 0.05 * sin(Double(score) * 0.7)
+        }
+        #endif
         // La raquette rattrape le doigt, vite mais sans téléporter.
         let half = paddleW / 2
         let goal = min(1 - half, max(half, target))
@@ -356,6 +367,12 @@ struct BriquesView: View {
         .onFrame { dt in game.tick(dt: dt) }
         .onChange(of: game.phase) { _, phase in
             if phase == .won { app.recordBriques(game.level, stars: game.stars) }
+        }
+        .onAppear {
+            #if DEBUG
+            Demo.schedule("briques", [(0.0, { game.start(5); game.autopilot = true }), (0.8, { game.launch() }),
+                                      (2.4, { game.demoMulti() })])
+            #endif
         }
     }
 

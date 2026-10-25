@@ -203,6 +203,19 @@ final class CoupDoeilGame {
 
     func backToMenu() { phase = .menu }
 
+    #if DEBUG
+    /// Démo : un niveau bien rempli, mémorisé en 3 secondes.
+    func demoPlay() {
+        play(level: 8)
+        timeLeft = 3.2
+    }
+
+    func demoAnswerRight() {
+        guard phase == .quiz, let r = round, questionIndex < r.questions.count else { return }
+        answer(r.questions[questionIndex].correct)
+    }
+    #endif
+
     func setClosed(_ closed: Bool, fromHinge: Bool) {
         if fromHinge { hasHinge = true }
         guard closed != isClosed else { return }
@@ -268,6 +281,12 @@ struct CoupDoeilView: View {
             game.setClosed(degrees < 20, fromHinge: true)
         }
         .onFrame(step: 1.0 / 30.0) { _ in game.tick(dt: 1.0 / 30.0) }
+        .onAppear {
+            #if DEBUG
+            Demo.schedule("coupDoeil", [(0.0, { game.demoPlay() }), (4.9, { game.demoAnswerRight() }),
+                                        (5.6, { game.demoAnswerRight() }), (6.3, { game.demoAnswerRight() })])
+            #endif
+        }
         .onChange(of: game.phase) { _, phase in
             if phase == .check {
                 if game.daily {

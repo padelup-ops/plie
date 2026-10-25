@@ -102,12 +102,19 @@ struct RootView: View {
                 let key = "howto.seen.\(game.rawValue)"
                 if !UserDefaults.standard.bool(forKey: key) {
                     UserDefaults.standard.set(true, forKey: key)
+                    #if DEBUG
+                    // Pendant le tournage de la démo, pas de mode d'emploi par-dessus le jeu.
+                    if Demo.scene != nil { return }
+                    #endif
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { howTo = game }
                 }
             }
         }
         .sheet(item: $howTo) { game in HowToSheet(game: game) }
         .onChange(of: app.reviewRequest) { _, _ in
+            #if DEBUG
+            if Demo.scene != nil { return }
+            #endif
             // Un peu après la victoire, pour ne pas couper l'écran de réussite.
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { requestReview() }
         }

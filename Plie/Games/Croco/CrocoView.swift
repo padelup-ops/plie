@@ -61,6 +61,10 @@ final class CrocoGame {
         phase = .menu
     }
 
+    #if DEBUG
+    func demoSetBadTooth(_ tooth: Int) { badTooth = tooth }
+    #endif
+
     private func newMouth() {
         generation += 1
         seenClosed = isClosed
@@ -195,6 +199,14 @@ struct CrocoView: View {
         }
         .onChange(of: game.phase) { _, phase in
             if phase == .over { app.recordCroco(streak: game.solo ? game.streak : -1) }
+        }
+        .onAppear {
+            #if DEBUG
+            Demo.schedule("croco", [
+                (0.0, { game.playerCount = 2; game.start(); game.demoSetBadTooth(9) }),
+                (3.9, { game.press(2) }), (4.6, { game.press(8) }), (5.3, { game.press(3) }), (6.0, { game.press(9) })
+            ])
+            #endif
         }
     }
 

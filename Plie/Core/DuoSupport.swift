@@ -43,7 +43,12 @@ struct HingeAngleReader: ViewModifier {
 extension View {
     /// Appelé à chaque mouvement de la charnière de l'iPhone Duo.
     func onHingeAngle(_ action: @escaping (Double?) -> Void) -> some View {
+        #if DEBUG
+        // Mode démo : la charnière est simulée (le simulateur n'en a pas).
+        modifier(HingeAngleReader(action: action)).modifier(DemoHingeDriver(action: action))
+        #else
         modifier(HingeAngleReader(action: action))
+        #endif
     }
 }
 

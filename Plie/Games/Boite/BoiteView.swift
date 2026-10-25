@@ -245,6 +245,17 @@ final class BoiteGame {
         phase = .menu
     }
 
+    #if DEBUG
+    /// Démo : la première boîte, avec un code joli à filmer.
+    func demoStart() {
+        start(1)
+        var p = BoitePuzzle(level: BoiteLevel.all[0])
+        p.digits = [4, 7, 2]
+        p.answerDigits = [4, 7, 2]
+        puzzle = p
+    }
+    #endif
+
     func setClosed(_ closed: Bool, fromHinge: Bool) {
         if fromHinge { hasHinge = true }
         guard closed != isClosed else { return }
@@ -359,6 +370,12 @@ struct BoiteView: View {
         }
         .onChange(of: game.phase) { _, phase in
             if phase == .solved { app.recordBoite(game.number, stars: game.stars) }
+        }
+        .onAppear {
+            #if DEBUG
+            Demo.schedule("boite", [(0.0, { game.demoStart() }), (4.4, { game.pressDigit(4) }),
+                                    (4.9, { game.pressDigit(7) }), (5.4, { game.pressDigit(2) })])
+            #endif
         }
     }
 

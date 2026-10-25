@@ -64,6 +64,15 @@ final class BonneteauGame {
         soloRound()
     }
 
+    #if DEBUG
+    /// Démo : seul, déjà à un niveau rapide.
+    func demoSolo(level l: Int) {
+        mode = .solo
+        level = l
+        soloRound()
+    }
+    #endif
+
     func backToMenu() {
         generation += 1
         queue = []
@@ -273,6 +282,14 @@ struct BonneteauView: View {
             camera.start { ok in cameraOn = ok }
         }
         .onDisappear { camera.stop() }
+        .task {
+            #if DEBUG
+            Demo.schedule("bonneteau", [(0.0, { game.demoSolo(level: 6) })])
+            Demo.every("bonneteau", 0.6, from: 1.0, until: 14) {
+                if game.phase == .guess { game.tapCup(game.ballCup) }
+            }
+            #endif
+        }
         .onChange(of: game.phase) { _, phase in
             if phase == .over {
                 if game.mode == .solo { app.recordBonneteau(level: game.level) } else { app.recordBonneteau(level: 0) }
