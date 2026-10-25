@@ -13,7 +13,7 @@ struct HubView: View {
     @State private var filter: HubFilter = .all
     @State private var howTo: GameID?
 
-    static let newGames: Set<GameID> = [.luciole, .ecole, .billard, .gobelet, .devine]
+    static let newGames: Set<GameID> = [.boite, .chut, .coupDoeil, .bombe, .dessine, .pliou]
 
     var body: some View {
         ScrollView {
@@ -64,7 +64,7 @@ struct HubView: View {
                                            endPoint: UnitPoint(x: 1.5 + (t * 0.08).truncatingRemainder(dividingBy: 1), y: 1))
                         )
                 }
-                Text(L("15 jeux à jouer en pliant"))
+                Text(L("\(GameID.allCases.count) jeux à jouer en pliant"))
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white.opacity(0.85))
             }
@@ -79,7 +79,7 @@ struct HubView: View {
 
     private var featured: GameID {
         let day = Calendar.current.ordinality(of: .day, in: .era, for: Date()) ?? 0
-        let pool: [GameID] = [.gobelet, .devine, .luciole, .billard, .ecole, .rayon, .filet, .chess, .piano, .coffre, .airHockey, .ferme, .bascule, .soleil, .draughts]
+        let pool = GameID.allCases
         return pool[day % pool.count]
     }
 
@@ -184,15 +184,18 @@ struct HubView: View {
         switch game {
         case .rayon: return L("\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux")
         case .bascule: return L("\(app.basculeStars.count) / \(BasculeLevel.all.count) niveaux")
-        case .coffre: return L("\(app.coffreBest.count) / \(CoffreLevel.count) coffres")
+        case .boite: return L("\(app.boiteStars.count) / \(BoiteLevel.count) boîtes")
+        case .chut: return app.chutGems > 0 ? L("\(app.chutStars.count) / \(ChutNight.count) nuits · \(app.chutGems) gemmes") : L("\(ChutNight.count) nuits")
+        case .coupDoeil: return app.oeilStreak > 0 ? L("Série : \(app.oeilStreak) jour\(app.oeilStreak > 1 ? "s" : "")") : L("Un défi par jour")
+        case .bombe: return app.bombeGames > 0 ? L("\(app.bombeGames) partie\(app.bombeGames > 1 ? "s" : "")") : L("3 à 8 joueurs")
+        case .dessine: return app.dessineWords > 0 ? L("\(app.dessineWords) mot\(app.dessineWords > 1 ? "s" : "") deviné\(app.dessineWords > 1 ? "s" : "")") : L("3 joueurs et plus")
+        case .pliou: return app.pliouDays > 0 ? L("\(app.pliouDays) jour\(app.pliouDays > 1 ? "s" : "") avec Pliou") : L("Un œuf t'attend")
         case .filet: return app.filetWins > 0 ? L("\(app.filetWins) victoire\(app.filetWins > 1 ? "s" : "")") : nil
         case .airHockey: return L("Premier à 7 buts")
         case .billard: return app.billardWins > 0 ? L("\(app.billardWins) victoire\(app.billardWins > 1 ? "s" : "")") : nil
         case .chess: return app.chessGames > 0 ? L("\(app.chessGames) partie\(app.chessGames > 1 ? "s" : "")") : nil
         case .draughts: return app.draughtsGames > 0 ? L("\(app.draughtsGames) partie\(app.draughtsGames > 1 ? "s" : "")") : nil
         case .luciole: return app.lucioleBest > 0 ? L("Record : \(app.lucioleBest) lumières") : nil
-        case .gobelet: return app.gobeletBest > 0 ? L("Record : \(app.gobeletBest) points") : L("Le Yams, version pliable")
-        case .devine: return app.devineBest > 0 ? L("Record : \(app.devineBest) mots") : L("6 thèmes, 150 mots")
         case .ecole: return app.ecoleLessons > 0 ? L("\(app.ecoleLessons) leçon\(app.ecoleLessons > 1 ? "s" : "")") : L("5 classes")
         case .piano: return L("\(PianoSong.all.count) morceaux")
         case .soleil: return app.soleilGames > 0 ? L("\(app.soleilGames) partie\(app.soleilGames > 1 ? "s" : "")") : nil
@@ -209,7 +212,7 @@ struct HubView: View {
                 .foregroundStyle(.white)
                 .accessibilityAddTraits(.isHeader)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 10)], spacing: 10) {
-                ForEach([Posture.fold, .lShape, .flat, .openClose, .closed, .forehead, .standing], id: \.self) { p in
+                ForEach([Posture.closedOpen, .openClose, .book, .fold, .lShape, .flat, .closed, .standing], id: \.self) { p in
                     HStack(spacing: 10) {
                         PostureIcon(posture: p, color: .white, lineWidth: 3)
                             .frame(width: 44, height: 32)
@@ -420,7 +423,7 @@ struct SettingsView: View {
                 }
                 Section(L("iPhone Duo")) {
                     Text(DuoSupport.apisAvailable
-                         ? L("Sur iPhone Duo, RAYON, BASCULE et LE COFFRE se jouent avec la charnière ; FILET, ÉCOLE et le PIANO plié en L ; AIR HOCKEY, BILLARD, ÉCHECS et DAMES à plat ; LUCIOLE passe de l'écran intérieur à l'écran extérieur ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
+                         ? L("Sur iPhone Duo, LA BOÎTE et CHUT ! commencent fermés : il faut ouvrir le Duo pour jouer. COUP D'ŒIL, BOMBE, PLIOU et LUCIOLE passent d'un écran à l'autre, et DESSINE-MOI montre ton dessin sur l'écran extérieur. RAYON et BASCULE se jouent avec la charnière ; FILET, ÉCOLE et le PIANO plié en L ; AIR HOCKEY, BILLARD, ÉCHECS et DAMES à plat ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
                          : L("Cet iPhone n'a pas de charnière : tous les jeux se jouent au doigt. Chaque jeu a son mode d'emploi : touche « ? »."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
@@ -435,7 +438,7 @@ struct SettingsView: View {
                     .labelsHidden()
                 }
                 Section(L("Vie privée")) {
-                    Text(L("Dans 1, 2, 3… Soleil !, la caméra sert à repérer les mouvements, directement sur le téléphone. Les photos des joueurs pris restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis. Quand ton jardin de FERME est complet, l'app envoie un seul message anonyme pour compter l'arbre à planter : rien ne permet de savoir qui tu es."))
+                    Text(L("Dans 1, 2, 3… Soleil ! et DESSINE-MOI, la caméra sert, directement sur le téléphone, à repérer les mouvements ou à prendre en photo ceux qui devinent. Les photos restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis. Quand ton jardin de FERME est complet, l'app envoie un seul message anonyme pour compter l'arbre à planter : rien ne permet de savoir qui tu es."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
                 }
@@ -476,7 +479,8 @@ struct PassView: View {
 
                 VStack(alignment: .leading, spacing: 14) {
                     benefit("light.beacon.max.fill", Theme.laser, L("RAYON : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus"), L("Miroirs pivotants, labyrinthes et miroirs jumeaux."))
-                    benefit("lock.rotation", Theme.gold, L("LE COFFRE : \(CoffreLevel.count - AppState.freeCoffreLevels) coffres de plus"), L("Faux crans, crans discrets, et coffres sans chiffres, au toucher seulement."))
+                    benefit("shippingbox.fill", Theme.boite, L("LA BOÎTE : \(BoiteLevel.count - AppState.freeBoiteLevels) boîtes de plus"), L("Décodeurs géants, motifs en miroir et codes à l'envers."))
+                    benefit("lizard.fill", Theme.chut, L("CHUT ! : \(ChutNight.count - AppState.freeChutNights) nuits de plus"), L("Un dragon au sommeil de plus en plus léger."))
                     benefit("arrow.up.right.circle.fill", Theme.bascule, L("BASCULE : \(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus"), L("Le vent, puis les ressorts."))
                     benefit("figure.table.tennis", Theme.filet, L("FILET : le niveau Champion"), L("Un adversaire qui smashe et vise loin de ta raquette."))
                     benefit("crown.fill", Theme.chess, L("ÉCHECS et DAMES : l'ordinateur Difficile"), L("Un adversaire qui calcule plusieurs coups à l'avance."))

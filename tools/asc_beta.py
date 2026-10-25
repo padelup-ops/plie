@@ -18,22 +18,30 @@ API = "https://api.appstoreconnect.apple.com"
 BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 
 WHATS_NEW = {
-    "fr-FR": """Nouveautés de ce build :
+    "fr-FR": """Nouveautés de ce build : 6 nouveaux jeux qui utilisent les deux écrans.
 
-• 2 nouveaux jeux qui passent d'un écran à l'autre :
-  – GOBELET : le Duo fermé est un gobelet de dés. Secoue-le, puis ouvre-le pour découvrir les dés (Yams, 1 à 4 joueurs).
-  – QUI SUIS-JE ? : Duo fermé sur le front, le mot s'affiche pour tes amis sur l'écran extérieur. Penche la tête en avant si tu trouves, en arrière pour passer.
-• 1, 2, 3… SOLEIL ! refait : plus besoin de voir l'écran, l'arbitre annonce tout à voix haute et dit qui a bougé. Le premier arrivé gagne en posant la main sur la caméra.
+• LA BOÎTE (remplace LE COFFRE) : Duo fermé, l'indice est sur le couvercle. Ouvre le Duo : la serrure est dedans. Un seul côté à la fois, il faut retenir !
+• CHUT ! : un dragon dort sur le trésor. Ouvre le Duo tout doucement, ramasse les gemmes, referme avant le lever du jour.
+• COUP D'ŒIL : mémorise l'image dedans, ferme le Duo, réponds aux questions dehors. Défi du jour.
+• BOMBE (en groupe) : passez-vous le Duo fermé, la mèche est cachée… BOUM !
+• DESSINE-MOI (en groupe) : tu dessines dedans, les autres devinent sur l'écran extérieur.
+• PLIOU : une bête en papier à élever, elle dort quand tu fermes le Duo.
 
-À tester en priorité : secouer le GOBELET Duo fermé, QUI SUIS-JE ? sur le front, et SOLEIL avec le Duo fermé posé debout. Dites-nous ce qui coince !""",
-    "en-US": """New in this build:
+Retirés : GOBELET, QUI SUIS-JE ? et LE COFFRE.
 
-• 2 new games that move between screens:
-  – DICE CUP: the closed Duo is a dice cup. Shake it, then open it to reveal the dice (five-dice, 1 to 4 players).
-  – WHO AM I?: hold the closed Duo on your forehead, the word shows on the outer screen for your friends. Tilt your head forward when you get it, back to pass.
-• RED LIGHT, GREEN LIGHT rebuilt: no need to see the screen, the referee says everything out loud and tells who moved. The first to arrive wins by covering the camera.
+À tester en priorité : CHUT ! (est-ce qu'ouvrir doucement est trop facile ou trop dur ?), LA BOÎTE en fermant et rouvrant, et DESSINE-MOI sur l'écran extérieur. Dites-nous ce qui coince !""",
+    "en-US": """New in this build: 6 new games that use both screens.
 
-Please test first: shaking the DICE CUP with the Duo closed, WHO AM I? on your forehead, and RED LIGHT with the closed Duo standing up. Tell us what breaks!""",
+• THE BOX (replaces THE SAFE): with the Duo closed, the clue is on the lid. Open the Duo: the lock is inside. Only one side at a time, so remember it!
+• SHHH!: a dragon sleeps on the treasure. Open the Duo very slowly, grab the gems, close it before sunrise.
+• QUICK EYE: memorize the picture inside, close the Duo, answer the questions outside. Daily challenge.
+• BOMB (groups): pass the closed Duo around, the fuse is hidden… BOOM!
+• DRAW IT (groups): you draw inside, the others guess on the outer screen.
+• PLIOU: a paper pet to raise, it sleeps when you close the Duo.
+
+Removed: DICE CUP, WHO AM I? and THE SAFE.
+
+Please test first: SHHH! (is opening slowly too easy or too hard?), THE BOX by closing and opening, and DRAW IT on the outer screen. Tell us what breaks!""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

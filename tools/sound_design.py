@@ -367,23 +367,31 @@ def new_games_sounds():
     write("cave", mix((whoosh(0.7, 200, 900), 0, 0.8), (thump(90, 45, 0.5), 0.05, 0.6)), 0.6, (1.6, 0.45, 2500))
 
 
-def dice_sounds():
-    """GOBELET : dés qui roulent dans le gobelet en cuir, puis qui tombent sur le tapis."""
-    # Secousse : une poignée de petits chocs de dés étouffés par le cuir
-    parts = []
-    for k in range(7):
-        t0 = k * 0.025 + float(rng.uniform(0, 0.012))
-        parts.append((wood(float(rng.uniform(1600, 2600)), 0.04, 0.5), t0, float(rng.uniform(0.4, 0.9))))
-    rattle = mix(*parts)
-    rattle = lowpass_fast(rattle, 5200)
-    write("rattle", rattle, 0.7, (0.2, 0.12, 3000))
-    # Les dés tombent : cinq chocs qui s'espacent, avec un petit rebond
-    parts = [(thump(180, 90, 0.12), 0, 0.4)]
-    t = 0.0
-    for k in range(9):
-        t += 0.035 + 0.012 * k + float(rng.uniform(0, 0.01))
-        parts.append((wood(float(rng.uniform(1300, 2200)), 0.05, 0.7), t, 1.0 - 0.07 * k))
-    write("diceLand", mix(*parts), 0.8, (0.3, 0.12, 5000))
+def duo_games_sounds():
+    """BOMBE, CHUT ! : explosion, ronflement du dragon, rugissement, gemme ramassée."""
+    # BOUM : souffle grave, choc sourd et grondement qui s'éteint
+    tb = t_axis(1.6)
+    rumble = lowpass_fast(rng.standard_normal(len(tb)), 420) * np.exp(-2.6 * tb)
+    crack = bandpass(rng.standard_normal(len(tb)), 600, 4000) * np.exp(-18 * tb)
+    write("boom", mix((thump(110, 38, 0.9), 0, 1.0), (rumble, 0, 0.9), (crack, 0, 0.45)), 0.95, (1.4, 0.3, 2500))
+    # Ronflement : souffle grave qui vibre, inspiration puis expiration
+    ts = t_axis(1.5)
+    breath = bandpass(rng.standard_normal(len(ts)), 70, 520)
+    flutter = 0.55 + 0.45 * np.sign(np.sin(2 * np.pi * 26 * ts))
+    shape = np.sin(np.pi * np.clip(ts / 1.5, 0, 1)) ** 1.5
+    tone = np.sin(2 * np.pi * 78 * ts + 2 * np.sin(2 * np.pi * 26 * ts)) * 0.35
+    write("snore", lowpass_fast((breath * flutter + tone) * shape, 900), 0.6, (0.6, 0.15, 1500))
+    # Rugissement : grognement grave, modulé, avec un souffle de feu
+    tr = t_axis(1.4)
+    growl_f = 95 + 30 * np.sin(2 * np.pi * 3 * tr)
+    phase = 2 * np.pi * np.cumsum(growl_f) / SR
+    growl = (np.sign(np.sin(phase)) * 0.5 + np.sin(phase * 2) * 0.3) * (0.6 + 0.4 * np.sin(2 * np.pi * 34 * tr))
+    fire = bandpass(rng.standard_normal(len(tr)), 300, 3000) * 0.5
+    env_r = np.minimum(1, tr / 0.12) * np.exp(-1.6 * tr)
+    write("roar", lowpass_fast((growl + fire) * env_r, 2600), 0.9, (1.0, 0.25, 3000))
+    # Gemme : petit tintement de cristal
+    write("gem", mix((bell(hz("C", 7), 0.5, 7.0), 0, 0.6), (bell(hz("G", 7), 0.45, 8.0), 0.03, 0.4)), 0.45, (0.5, 0.2, 10000))
+
 
 if __name__ == "__main__":
     sounds()
@@ -392,5 +400,5 @@ if __name__ == "__main__":
     board_sounds()
     piano_samples()
     new_games_sounds()
-    dice_sounds()
+    duo_games_sounds()
     print("sons écrits")

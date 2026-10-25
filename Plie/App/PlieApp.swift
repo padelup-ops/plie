@@ -65,13 +65,18 @@ struct RootView: View {
                 DraughtsView()
             case .piano:
                 PianoView()
-            case .coffreLevels:
-                CoffreLevelsView()
-            case .coffre(let number):
-                CoffrePlayView(number: number)
-                    .id(number)
-            case .coffreDuel:
-                CoffreDuelView()
+            case .boite:
+                BoiteView()
+            case .chut:
+                ChutView()
+            case .coupDoeil:
+                CoupDoeilView()
+            case .bombe:
+                BombeView()
+            case .dessine:
+                DessineView()
+            case .pliou:
+                PliouView()
             case .soleil:
                 SoleilView()
             case .billard:
@@ -80,10 +85,6 @@ struct RootView: View {
                 LucioleView()
             case .ecole:
                 EcoleView()
-            case .gobelet:
-                GobeletView()
-            case .devine:
-                DevineView()
             }
         }
         .animation(.easeInOut(duration: 0.22), value: app.route)
@@ -148,8 +149,18 @@ struct RootView: View {
             return [Theme.draughts, Color(hex: 0xC8A35A), Color(hex: 0x5C3DE8)]
         case .piano:
             return [Theme.piano, Color(hex: 0xF3D79A), Color(hex: 0x8E1B22)]
-        case .coffreLevels, .coffre, .coffreDuel:
-            return [Theme.gold, Color(hex: 0xFF8A3D), Color(hex: 0x6A5CFF)]
+        case .boite:
+            return [Theme.boite, Color(hex: 0x8A5A3C), Theme.gold]
+        case .chut:
+            return [Theme.chut, Color(hex: 0x2B1D4D), Theme.gold]
+        case .coupDoeil:
+            return [Theme.oeil, Color(hex: 0x3D5CFF), Theme.gold]
+        case .bombe:
+            return [Theme.bombe, Theme.sun, Color(hex: 0x6A3DE8)]
+        case .dessine:
+            return [Theme.dessine, Theme.paint, Color(hex: 0x3D8BFF)]
+        case .pliou:
+            return [Theme.pliou, Color(hex: 0xFFD166), Color(hex: 0x7FC8FF)]
         case .soleil:
             return [Theme.sun, Theme.go, Theme.gold]
         case .billard:
@@ -158,17 +169,13 @@ struct RootView: View {
             return [Theme.luciole, Color(hex: 0x5B2C6F), Color(hex: 0x0B0F3A)]
         case .ecole:
             return [Theme.ecole, Color(hex: 0x2F5D46), Color(hex: 0xFF8FC7)]
-        case .gobelet:
-            return [Theme.gobelet, Color(hex: 0x1F8A5B), Theme.gold]
-        case .devine:
-            return [Theme.devine, Color(hex: 0x7B5CFF), Theme.gold]
         }
     }
 
     /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
     private var fullScreen: Bool {
         switch app.route {
-        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .gobelet, .devine: return true
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .chut, .pliou, .bombe, .coupDoeil, .dessine: return true
         default: return false
         }
     }

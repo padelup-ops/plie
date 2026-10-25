@@ -13,15 +13,16 @@ enum Route: Equatable {
     case chess
     case draughts
     case piano
-    case coffreLevels
-    case coffre(Int)
-    case coffreDuel
+    case boite
+    case chut
+    case coupDoeil
+    case bombe
+    case dessine
+    case pliou
     case soleil
     case billard
     case luciole
     case ecole
-    case gobelet
-    case devine
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -56,9 +57,22 @@ final class AppState {
     private(set) var draughtsGames = 0
     private(set) var draughtsBestLevel = 0
 
-    /// Coffres ouverts : meilleur temps et étoiles.
-    private(set) var coffreBest: [Int: Double] = [:]
-    private(set) var coffreStars: [Int: Int] = [:]
+    /// LA BOÎTE : étoiles par boîte ouverte.
+    private(set) var boiteStars: [Int: Int] = [:]
+    /// CHUT ! : étoiles par nuit, et toutes les gemmes rapportées.
+    private(set) var chutStars: [Int: Int] = [:]
+    private(set) var chutGems = 0
+    /// COUP D'ŒIL : étoiles par niveau, défi du jour et série de jours.
+    private(set) var oeilStars: [Int: Int] = [:]
+    private(set) var oeilDailyDay = ""
+    private(set) var oeilDailyScore = 0
+    private(set) var oeilStreak = 0
+    /// BOMBE et DESSINE-MOI : parties jouées, mots trouvés.
+    private(set) var bombeGames = 0
+    private(set) var dessineGames = 0
+    private(set) var dessineWords = 0
+    /// PLIOU : jours où on s'en est occupé.
+    private(set) var pliouDays = 0
 
     private(set) var soleilGames = 0
 
@@ -70,11 +84,6 @@ final class AppState {
     private(set) var ecoleLessons = 0
     /// BILLARD : parties gagnées.
     private(set) var billardWins = 0
-    /// GOBELET : meilleur score en solo et parties jouées. QUI SUIS-JE : meilleur nombre de mots.
-    private(set) var gobeletBest = 0
-    private(set) var gobeletGames = 0
-    private(set) var devineBest = 0
-    private(set) var devineGames = 0
 
     /// FERME : le vrai arbre. `treePending` : le jardin est complet, l'envoi au compteur reste à faire.
     private(set) var treePending = false
@@ -83,7 +92,8 @@ final class AppState {
     /// Nombre de niveaux jouables sans le Pass.
     static let freeRayonLevels = 20
     static let freeBasculeLevels = 10
-    static let freeCoffreLevels = 10
+    static let freeBoiteLevels = 12
+    static let freeChutNights = 10
 
     @ObservationIgnored private let defaults = UserDefaults.standard
 
@@ -114,15 +124,16 @@ final class AppState {
         case "chess": route = .chess
         case "draughts": route = .draughts
         case "piano": route = .piano
-        case "coffreLevels": route = .coffreLevels
-        case "coffre": route = .coffre(number)
-        case "coffreDuel": route = .coffreDuel
+        case "boite": route = .boite
+        case "chut": route = .chut
+        case "coupDoeil": route = .coupDoeil
+        case "bombe": route = .bombe
+        case "dessine": route = .dessine
+        case "pliou": route = .pliou
         case "soleil": route = .soleil
         case "billard": route = .billard
         case "luciole": route = .luciole
         case "ecole": route = .ecole
-        case "gobelet": route = .gobelet
-        case "devine": route = .devine
         case "pass": showPass = true
         default: route = .hub
         }
@@ -242,20 +253,6 @@ final class AppState {
         save()
     }
 
-    func recordGobelet(best: Int) {
-        celebrate()
-        gobeletGames += 1
-        gobeletBest = max(gobeletBest, best)
-        save()
-    }
-
-    func recordDevine(score: Int) {
-        if score > 0 { celebrate() }
-        devineGames += 1
-        devineBest = max(devineBest, score)
-        save()
-    }
-
     func recordBillard(won: Bool) {
         guard won else { return }
         celebrate()
@@ -313,25 +310,91 @@ final class AppState {
         save()
     }
 
-    // MARK: COFFRE
+    // MARK: LA BOÎTE
 
-    func coffreIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
-        if number > Self.freeCoffreLevels && !hasPass { return false }
-        return number == 1 || coffreBest[number - 1] != nil || coffreBest[number] != nil
+    func boiteIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
+        if number > Self.freeBoiteLevels && !hasPass { return false }
+        return number == 1 || boiteStars[number - 1] != nil || boiteStars[number] != nil
     }
 
-    func coffreNeedsPass(_ number: Int, hasPass: Bool) -> Bool {
-        number > Self.freeCoffreLevels && !hasPass
+    func boiteNeedsPass(_ number: Int, hasPass: Bool) -> Bool {
+        number > Self.freeBoiteLevels && !hasPass
     }
 
-    func recordCoffre(_ number: Int, time: Double, stars: Int) {
+    func recordBoite(_ number: Int, stars: Int) {
         celebrate()
-        if let best = coffreBest[number] {
-            coffreBest[number] = min(best, time)
-        } else {
-            coffreBest[number] = time
+        boiteStars[number] = max(boiteStars[number] ?? 0, stars)
+        save()
+    }
+
+    // MARK: CHUT !
+
+    func chutIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
+        if number > Self.freeChutNights && !hasPass { return false }
+        return number == 1 || chutStars[number - 1] != nil || chutStars[number] != nil
+    }
+
+    func chutNeedsPass(_ number: Int, hasPass: Bool) -> Bool {
+        number > Self.freeChutNights && !hasPass
+    }
+
+    func recordChut(_ number: Int, stars: Int, gems: Int) {
+        chutGems += gems
+        if stars > 0 {
+            celebrate()
+            chutStars[number] = max(chutStars[number] ?? 0, stars)
         }
-        coffreStars[number] = max(coffreStars[number] ?? 0, stars)
+        save()
+    }
+
+    // MARK: COUP D'ŒIL, BOMBE, DESSINE-MOI, PLIOU
+
+    func recordOeil(level: Int, stars: Int) {
+        guard stars > 0 else { return }
+        celebrate()
+        oeilStars[level] = max(oeilStars[level] ?? 0, stars)
+        save()
+    }
+
+    /// Défi du jour : la série continue si le dernier défi date d'hier.
+    func recordOeilDaily(day: String, correct: Int) {
+        guard oeilDailyDay != day else {
+            oeilDailyScore = max(oeilDailyScore, correct)
+            save()
+            return
+        }
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        var continues = false
+        if let today = formatter.date(from: day), let last = formatter.date(from: oeilDailyDay),
+           let gap = Calendar.current.dateComponents([.day], from: last, to: today).day {
+            continues = gap == 1
+        }
+        oeilStreak = continues ? oeilStreak + 1 : 1
+        oeilDailyDay = day
+        oeilDailyScore = correct
+        if correct >= 3 { celebrate() }
+        save()
+    }
+
+    func recordBombe() {
+        bombeGames += 1
+        celebrate()
+        save()
+    }
+
+    func recordDessine(found: Int) {
+        dessineGames += 1
+        dessineWords += found
+        if found > 0 { celebrate() }
+        save()
+    }
+
+    func recordPliou(days: Int) {
+        guard days != pliouDays else { return }
+        pliouDays = days
         save()
     }
 
@@ -359,18 +422,23 @@ final class AppState {
         static let chessBest = "chess.bestLevel"
         static let draughtsGames = "draughts.games"
         static let draughtsBest = "draughts.bestLevel"
-        static let coffreBest = "coffre.best"
-        static let coffreStars = "coffre.stars"
+        static let boiteStars = "boite.stars"
+        static let chutStars = "chut.stars"
+        static let chutGems = "chut.gems"
+        static let oeilStars = "oeil.stars"
+        static let oeilDailyDay = "oeil.dailyDay"
+        static let oeilDailyScore = "oeil.dailyScore"
+        static let oeilStreak = "oeil.streak"
+        static let bombeGames = "bombe.games"
+        static let dessineGames = "dessine.games"
+        static let dessineWords = "dessine.words"
+        static let pliouDays = "pliou.days"
         static let soleilGames = "soleil.games"
         static let lucioleBest = "luciole.best"
         static let lucioleVoyages = "luciole.voyages"
         static let ecoleStars = "ecole.stars"
         static let ecoleLessons = "ecole.lessons"
         static let billardWins = "billard.wins"
-        static let gobeletBest = "gobelet.best"
-        static let gobeletGames = "gobelet.games"
-        static let devineBest = "devine.best"
-        static let devineGames = "devine.games"
         static let treePending = "ferme.treePending"
         static let treeNumber = "ferme.treeNumber"
     }
@@ -400,19 +468,23 @@ final class AppState {
         chessBestLevel = defaults.integer(forKey: Keys.chessBest)
         draughtsGames = defaults.integer(forKey: Keys.draughtsGames)
         draughtsBestLevel = defaults.integer(forKey: Keys.draughtsBest)
-        coffreBest = decode(Keys.coffreBest)
-        let stars: [Int: Double] = decode(Keys.coffreStars)
-        coffreStars = stars.mapValues { Int($0) }
+        boiteStars = decode(Keys.boiteStars).mapValues { Int($0) }
+        chutStars = decode(Keys.chutStars).mapValues { Int($0) }
+        chutGems = defaults.integer(forKey: Keys.chutGems)
+        oeilStars = decode(Keys.oeilStars).mapValues { Int($0) }
+        oeilDailyDay = defaults.string(forKey: Keys.oeilDailyDay) ?? ""
+        oeilDailyScore = defaults.integer(forKey: Keys.oeilDailyScore)
+        oeilStreak = defaults.integer(forKey: Keys.oeilStreak)
+        bombeGames = defaults.integer(forKey: Keys.bombeGames)
+        dessineGames = defaults.integer(forKey: Keys.dessineGames)
+        dessineWords = defaults.integer(forKey: Keys.dessineWords)
+        pliouDays = defaults.integer(forKey: Keys.pliouDays)
         soleilGames = defaults.integer(forKey: Keys.soleilGames)
         lucioleBest = defaults.integer(forKey: Keys.lucioleBest)
         lucioleVoyages = defaults.integer(forKey: Keys.lucioleVoyages)
         ecoleStars = decode(Keys.ecoleStars).mapValues { Int($0) }
         ecoleLessons = defaults.integer(forKey: Keys.ecoleLessons)
         billardWins = defaults.integer(forKey: Keys.billardWins)
-        gobeletBest = defaults.integer(forKey: Keys.gobeletBest)
-        gobeletGames = defaults.integer(forKey: Keys.gobeletGames)
-        devineBest = defaults.integer(forKey: Keys.devineBest)
-        devineGames = defaults.integer(forKey: Keys.devineGames)
         treePending = defaults.bool(forKey: Keys.treePending)
         treeNumber = defaults.integer(forKey: Keys.treeNumber)
     }
@@ -430,18 +502,23 @@ final class AppState {
         defaults.set(chessBestLevel, forKey: Keys.chessBest)
         defaults.set(draughtsGames, forKey: Keys.draughtsGames)
         defaults.set(draughtsBestLevel, forKey: Keys.draughtsBest)
-        encode(coffreBest, Keys.coffreBest)
-        encode(coffreStars.mapValues { Double($0) }, Keys.coffreStars)
+        encode(boiteStars.mapValues { Double($0) }, Keys.boiteStars)
+        encode(chutStars.mapValues { Double($0) }, Keys.chutStars)
+        defaults.set(chutGems, forKey: Keys.chutGems)
+        encode(oeilStars.mapValues { Double($0) }, Keys.oeilStars)
+        defaults.set(oeilDailyDay, forKey: Keys.oeilDailyDay)
+        defaults.set(oeilDailyScore, forKey: Keys.oeilDailyScore)
+        defaults.set(oeilStreak, forKey: Keys.oeilStreak)
+        defaults.set(bombeGames, forKey: Keys.bombeGames)
+        defaults.set(dessineGames, forKey: Keys.dessineGames)
+        defaults.set(dessineWords, forKey: Keys.dessineWords)
+        defaults.set(pliouDays, forKey: Keys.pliouDays)
         defaults.set(soleilGames, forKey: Keys.soleilGames)
         defaults.set(lucioleBest, forKey: Keys.lucioleBest)
         defaults.set(lucioleVoyages, forKey: Keys.lucioleVoyages)
         encode(ecoleStars.mapValues { Double($0) }, Keys.ecoleStars)
         defaults.set(ecoleLessons, forKey: Keys.ecoleLessons)
         defaults.set(billardWins, forKey: Keys.billardWins)
-        defaults.set(gobeletBest, forKey: Keys.gobeletBest)
-        defaults.set(gobeletGames, forKey: Keys.gobeletGames)
-        defaults.set(devineBest, forKey: Keys.devineBest)
-        defaults.set(devineGames, forKey: Keys.devineGames)
         defaults.set(treePending, forKey: Keys.treePending)
         defaults.set(treeNumber, forKey: Keys.treeNumber)
     }

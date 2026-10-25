@@ -4,3 +4,4 @@ DerivedData/
 *.xcuserstate
 xcuserdata/
 *.p8
+__pycache__/

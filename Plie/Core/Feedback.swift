@@ -8,7 +8,8 @@ final class SoundPlayer {
         case whoosh, swish, thud, pop, puck, goal, bloom
         case tock, pok, smash, net, applause, point
         case pieceMove, pieceCapture, checkBell, promote, clockTick
-        case clack, pocket, chime, bell, chalk, cave, rattle, diceLand
+        case clack, pocket, chime, bell, chalk, cave
+        case boom, snore, roar, gem
     }
 
     static let shared = SoundPlayer()
@@ -20,14 +21,13 @@ final class SoundPlayer {
     private init() {
         for effect in Effect.allCases {
             guard let url = Bundle.main.url(forResource: effect.rawValue, withExtension: "wav") else { continue }
-            // Plusieurs lecteurs par son : les crans du coffre peuvent s'enchaîner très vite.
+            // Plusieurs lecteurs par son : certains sons (crans, gemmes) s'enchaînent très vite.
             let copies: Int
             switch effect {
             case .notch, .decoy, .puck: copies = 4
             case .thud, .pop, .whoosh, .tock, .pok, .pieceMove, .clockTick: copies = 3
-            case .pieceCapture, .clack, .chime: copies = 4
-            case .pocket, .chalk, .diceLand: copies = 2
-            case .rattle: copies = 4
+            case .pieceCapture, .clack, .chime, .gem: copies = 4
+            case .pocket, .chalk: copies = 2
             default: copies = 1
             }
             var list: [AVAudioPlayer] = []
