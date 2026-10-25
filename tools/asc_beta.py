@@ -20,14 +20,18 @@ BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 WHATS_NEW = {
     "fr-FR": """Nouveautés de ce build :
 
-• CASSE-BRIQUES remplace MAGIE : plie le Duo en L, le mur de briques debout et la raquette sur la moitié posée à plat. La balle traverse la charnière. 30 niveaux, capsules bonus (raquette géante, trois balles, ralenti, vie), briques blindées et briques d'acier.
+• AIR HOCKEY à deux : le maillet bleu restait collé au fond de son camp. Il suit maintenant le doigt dans toute sa moitié.
+• CROCO en anglais : « CHOMP! » tient sur une ligne.
+• CASSE-BRIQUES remplace MAGIE : plie le Duo en L, le mur de briques debout et la raquette sur la moitié posée à plat.
 
-À tester en priorité : CASSE-BRIQUES (la raquette suit-elle bien le doigt ? la balle est-elle trop rapide ?). Dites-nous ce qui coince !""",
+À tester en priorité : AIR HOCKEY à deux (chaque maillet suit-il bien son joueur ?). Dites-nous ce qui coince !""",
     "en-US": """New in this build:
 
-• BRICK BREAKER replaces MAGIC: fold the Duo into an L, the brick wall stands up and the paddle is on the half lying flat. The ball crosses the hinge. 30 levels, power-ups (giant paddle, three balls, slow motion, extra life), armored bricks and steel bricks.
+• AIR HOCKEY for two: the blue mallet stayed stuck at the back of its half. It now follows the finger across its whole half.
+• CROC in English: "CHOMP!" now fits on one line.
+• BRICK BREAKER replaces MAGIC: fold the Duo into an L, the brick wall stands up and the paddle is on the half lying flat.
 
-Please test first: BRICK BREAKER (does the paddle follow your finger well? is the ball too fast?). Tell us what breaks!""",
+Please test first: AIR HOCKEY for two (does each mallet follow its player?). Tell us what breaks!""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

@@ -321,12 +321,15 @@ struct AirHockeyView: View {
                     HockeyTable(game: game, alongX: true, scale: scale)
 
                     // Deux zones tactiles indépendantes : les deux joueurs jouent en même temps.
+                    // Le geste est posé avant .position : ses coordonnées sont alors celles de la zone
+                    // (après .position, elles seraient celles de tout l'écran et le maillet bleu,
+                    // décalé d'une demi-largeur, restait collé au fond de son camp).
                     ForEach(0..<2, id: \.self) { player in
                         let rect = halfRect(player: player, size: size, alongX: true)
                         Rectangle()
                             .fill(Color.white.opacity(0.001))
                             .frame(width: rect.width, height: rect.height)
-                            .position(x: rect.midX, y: rect.midY)
+                            .contentShape(Rectangle())
                             .gesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in
@@ -335,6 +338,7 @@ struct AirHockeyView: View {
                                     }
                                     .onEnded { _ in game.touch(player: player, at: nil) }
                             )
+                            .position(x: rect.midX, y: rect.midY)
                     }
 
                     // Retour et aide, petits, en haut au milieu (sur la ligne médiane)
