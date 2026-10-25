@@ -18,6 +18,8 @@ enum Posture {
     case closed
     /// Debout au bout de la pièce, face aux joueurs.
     case standing
+    /// Fermé, tenu sur le front, l'écran extérieur vers les amis.
+    case forehead
 
     var label: String {
         switch self {
@@ -27,6 +29,7 @@ enum Posture {
         case .openClose: return L("Ouvert puis fermé")
         case .closed: return L("Fermé")
         case .standing: return L("Debout, face aux joueurs")
+        case .forehead: return L("Fermé, sur le front")
         }
     }
 }
@@ -64,7 +67,7 @@ struct HowToStep: Identifiable {
 }
 
 enum GameID: String, CaseIterable, Identifiable {
-    case rayon, bascule, coffre, filet, airHockey, billard, chess, draughts, luciole, ecole, piano, soleil, ferme
+    case rayon, bascule, coffre, filet, airHockey, billard, chess, draughts, luciole, gobelet, devine, ecole, piano, soleil, ferme
 
     var id: String { rawValue }
 
@@ -79,6 +82,8 @@ enum GameID: String, CaseIterable, Identifiable {
         case .chess: return L("ÉCHECS")
         case .draughts: return L("DAMES")
         case .luciole: return L("LUCIOLE")
+        case .gobelet: return L("GOBELET")
+        case .devine: return L("QUI SUIS-JE ?")
         case .ecole: return L("ÉCOLE")
         case .piano: return L("PIANO")
         case .soleil: return L("1, 2, 3… SOLEIL !")
@@ -98,6 +103,8 @@ enum GameID: String, CaseIterable, Identifiable {
         case .chess: return L("Face à face, ou contre l'ordi")
         case .draughts: return L("100 cases, rafles et dames volantes")
         case .luciole: return L("Ferme le Duo pour entrer dans la grotte")
+        case .gobelet: return L("Le Duo fermé est le gobelet de dés")
+        case .devine: return L("Le mot sur ton front, à toi de deviner")
         case .ecole: return L("Le tableau en haut, l'ardoise en bas")
         case .piano: return L("Le clavier à plat, la partition debout")
         case .soleil: return L("Le téléphone fait l'arbitre")
@@ -116,6 +123,8 @@ enum GameID: String, CaseIterable, Identifiable {
         case .chess: return Color(hex: 0xE9B872)
         case .draughts: return Color(hex: 0xFF8A5C)
         case .luciole: return Color(hex: 0xC6F25A)
+        case .gobelet: return Color(hex: 0xFF7A45)
+        case .devine: return Color(hex: 0xF472D0)
         case .ecole: return Color(hex: 0xFFD84D)
         case .piano: return Color(hex: 0xC59BFF)
         case .soleil: return Color(hex: 0xFF8A2F)
@@ -134,6 +143,8 @@ enum GameID: String, CaseIterable, Identifiable {
         case .chess: return "crown.fill"
         case .draughts: return "circle.grid.2x2.fill"
         case .luciole: return "sparkles"
+        case .gobelet: return "dice.fill"
+        case .devine: return "person.fill.questionmark"
         case .ecole: return "pencil.and.scribble"
         case .piano: return "pianokeys"
         case .soleil: return "sun.max.fill"
@@ -146,7 +157,8 @@ enum GameID: String, CaseIterable, Identifiable {
         case .rayon, .bascule, .coffre: return .fold
         case .filet, .ecole, .piano: return .lShape
         case .airHockey, .billard, .chess, .draughts: return .flat
-        case .luciole: return .openClose
+        case .luciole, .gobelet: return .openClose
+        case .devine: return .forehead
         case .soleil: return .standing
         case .ferme: return .closed
         }
@@ -156,6 +168,8 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .rayon, .bascule, .luciole, .piano, .ferme: return L("Seul")
         case .coffre: return L("Seul ou à deux")
+        case .gobelet: return L("1 à 4 joueurs")
+        case .devine: return L("3 joueurs et plus")
         case .filet: return L("Contre l'ordi")
         case .airHockey, .billard, .chess, .draughts: return L("1 ou 2 joueurs")
         case .ecole: return L("Dès 4 ans")
@@ -171,6 +185,8 @@ enum GameID: String, CaseIterable, Identifiable {
         case .airHockey, .billard: return [.solo, .duo, .family]
         case .chess, .draughts: return [.solo, .duo]
         case .ecole: return [.kids, .solo]
+        case .gobelet: return [.solo, .duo, .family]
+        case .devine: return [.family, .kids]
         case .piano: return [.solo, .kids]
         case .soleil: return [.family, .kids]
         case .ferme: return [.solo]
@@ -188,6 +204,8 @@ enum GameID: String, CaseIterable, Identifiable {
         case .chess: return .chess
         case .draughts: return .draughts
         case .luciole: return .luciole
+        case .gobelet: return .gobelet
+        case .devine: return .devine
         case .ecole: return .ecole
         case .piano: return .piano
         case .soleil: return .soleil
@@ -208,6 +226,8 @@ enum GameID: String, CaseIterable, Identifiable {
         case .chess: return .chess
         case .draughts: return .draughts
         case .luciole: return .luciole
+        case .gobelet: return .gobelet
+        case .devine: return .devine
         case .ecole: return .ecole
         case .piano: return .piano
         case .soleil: return .soleil
@@ -289,6 +309,24 @@ enum GameID: String, CaseIterable, Identifiable {
                 duo ? HowToStep(symbol: "book.fill", text: L("À la sortie de la grotte, rouvre ton Duo pour retrouver la prairie."))
                     : HowToStep(symbol: "book.fill", text: L("À la sortie de la grotte, touche « Sortir » pour retrouver la prairie."))
             ]
+        case .gobelet:
+            return [
+                HowToStep(symbol: "dice.fill", text: L("But : faire le plus de points en 13 tours, comme au Yams.")),
+                duo ? HowToStep(symbol: "rectangle.portrait.on.rectangle.portrait", text: L("Ferme ton Duo : c'est le gobelet. Secoue-le, les dés roulent dedans."))
+                    : HowToStep(symbol: "iphone.radiowaves.left.and.right", text: L("Secoue le téléphone pour lancer les dés, ou touche « Lancer ».")),
+                duo ? HowToStep(symbol: "book.fill", text: L("Ouvre le Duo pour soulever le gobelet : les dés tombent sur le tapis."))
+                    : HowToStep(symbol: "eye.fill", text: L("Les dés tombent sur le tapis.")),
+                HowToStep(symbol: "hand.tap.fill", text: L("Touche les dés à garder et relance les autres (3 lancers par tour), puis choisis une case du tableau."))
+            ]
+        case .devine:
+            return [
+                duo ? HowToStep(symbol: "rectangle.portrait.on.rectangle.portrait", text: L("Choisis un thème, puis ferme ton Duo et pose-le sur ton front, à l'horizontale, l'écran vers tes amis."))
+                    : HowToStep(symbol: "iphone", text: L("Choisis un thème, puis pose le téléphone sur ton front, à l'horizontale, l'écran vers tes amis.")),
+                HowToStep(symbol: "person.3.fill", text: L("Tes amis voient le mot : ils te donnent des indices ou le miment, sans le dire.")),
+                HowToStep(symbol: "arrow.down.circle.fill", text: L("Tu as trouvé ? Penche la tête en avant. Trop dur ? Penche-la en arrière pour passer.")),
+                duo ? HowToStep(symbol: "book.fill", text: L("Quand le temps est écoulé, ouvre le Duo : ton score et tous les mots s'affichent sur le grand écran."))
+                    : HowToStep(symbol: "list.bullet", text: L("Quand le temps est écoulé, regarde ton score et tous les mots."))
+            ]
         case .ecole:
             return [
                 duo ? HowToStep(symbol: "laptopcomputer", text: L("Plie le Duo en L et pose-le sur la table : en haut le tableau, en bas l'ardoise."))
@@ -307,11 +345,11 @@ enum GameID: String, CaseIterable, Identifiable {
             ]
         case .soleil:
             return [
-                duo ? HowToStep(symbol: "laptopcomputer", text: L("Ouvre le Duo en L et pose-le au bout de la pièce, l'écran intérieur face aux joueurs."))
-                    : HowToStep(symbol: "iphone", text: L("Pose le téléphone debout au bout de la pièce, l'écran face aux joueurs.")),
-                HowToStep(symbol: "figure.walk", text: L("Écran vert, AVANCEZ : on avance vers le téléphone.")),
-                HowToStep(symbol: "hand.raised.fill", text: L("La voix dit « soleil », l'écran passe au rouge : on se fige ! Qui bouge est pris en photo et retourne au départ.")),
-                HowToStep(symbol: "trophy.fill", text: L("Le premier qui arrive touche « Touché ! » et gagne."))
+                duo ? HowToStep(symbol: "rectangle.portrait.on.rectangle.portrait", text: L("Ferme le Duo et pose-le debout au bout de la pièce : l'écran extérieur et sa caméra face aux joueurs."))
+                    : HowToStep(symbol: "iphone", text: L("Pose le téléphone debout au bout de la pièce, la caméra face aux joueurs.")),
+                HowToStep(symbol: "speaker.wave.3.fill", text: L("Pas besoin de voir l'écran : l'arbitre parle. On avance pendant « Un, deux, trois… », on se fige à « soleil ! ».")),
+                HowToStep(symbol: "camera.fill", text: L("Qui bouge est pris en photo, et la voix annonce qui retourne au départ : le joueur de gauche, du milieu ou de droite.")),
+                HowToStep(symbol: "hand.raised.fill", text: L("Le premier arrivé pose la main sur la caméra : gagné !"))
             ]
         case .ferme:
             return [
@@ -382,6 +420,19 @@ struct PostureIcon: View {
                 var hinge = Path()
                 hinge.addArc(center: CGPoint(x: w * 0.15, y: h * 0.59), radius: h * 0.07, startAngle: .degrees(90), endAngle: .degrees(270), clockwise: false)
                 context.stroke(hinge, with: shade, style: stroke)
+            case .forehead:
+                // Une tête et le téléphone fermé posé sur le front
+                context.stroke(Path(ellipseIn: CGRect(x: w * 0.12, y: h * 0.2, width: w * 0.42, height: h * 0.62)), with: shade, style: stroke)
+                var phone = Path()
+                phone.addRoundedRect(in: CGRect(x: w * 0.56, y: h * 0.18, width: w * 0.12, height: h * 0.44), cornerSize: CGSize(width: 3, height: 3))
+                context.stroke(phone, with: shade, style: stroke)
+                var rays = Path()
+                for k in 0..<3 {
+                    let y = h * (0.28 + 0.12 * CGFloat(k))
+                    rays.move(to: CGPoint(x: w * 0.74, y: y))
+                    rays.addLine(to: CGPoint(x: w * 0.9, y: y - h * 0.04 + h * 0.04 * CGFloat(k)))
+                }
+                context.stroke(rays, with: .color(color.opacity(0.7)), style: StrokeStyle(lineWidth: lineWidth * 0.6, lineCap: .round))
             case .openClose:
                 p.move(to: CGPoint(x: w * 0.08, y: h * 0.72))
                 p.addLine(to: CGPoint(x: w * 0.42, y: h * 0.72))

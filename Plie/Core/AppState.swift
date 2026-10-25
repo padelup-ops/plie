@@ -20,6 +20,8 @@ enum Route: Equatable {
     case billard
     case luciole
     case ecole
+    case gobelet
+    case devine
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -68,6 +70,11 @@ final class AppState {
     private(set) var ecoleLessons = 0
     /// BILLARD : parties gagnées.
     private(set) var billardWins = 0
+    /// GOBELET : meilleur score en solo et parties jouées. QUI SUIS-JE : meilleur nombre de mots.
+    private(set) var gobeletBest = 0
+    private(set) var gobeletGames = 0
+    private(set) var devineBest = 0
+    private(set) var devineGames = 0
 
     /// FERME : le vrai arbre. `treePending` : le jardin est complet, l'envoi au compteur reste à faire.
     private(set) var treePending = false
@@ -114,6 +121,8 @@ final class AppState {
         case "billard": route = .billard
         case "luciole": route = .luciole
         case "ecole": route = .ecole
+        case "gobelet": route = .gobelet
+        case "devine": route = .devine
         case "pass": showPass = true
         default: route = .hub
         }
@@ -233,6 +242,20 @@ final class AppState {
         save()
     }
 
+    func recordGobelet(best: Int) {
+        celebrate()
+        gobeletGames += 1
+        gobeletBest = max(gobeletBest, best)
+        save()
+    }
+
+    func recordDevine(score: Int) {
+        if score > 0 { celebrate() }
+        devineGames += 1
+        devineBest = max(devineBest, score)
+        save()
+    }
+
     func recordBillard(won: Bool) {
         guard won else { return }
         celebrate()
@@ -344,6 +367,10 @@ final class AppState {
         static let ecoleStars = "ecole.stars"
         static let ecoleLessons = "ecole.lessons"
         static let billardWins = "billard.wins"
+        static let gobeletBest = "gobelet.best"
+        static let gobeletGames = "gobelet.games"
+        static let devineBest = "devine.best"
+        static let devineGames = "devine.games"
         static let treePending = "ferme.treePending"
         static let treeNumber = "ferme.treeNumber"
     }
@@ -382,6 +409,10 @@ final class AppState {
         ecoleStars = decode(Keys.ecoleStars).mapValues { Int($0) }
         ecoleLessons = defaults.integer(forKey: Keys.ecoleLessons)
         billardWins = defaults.integer(forKey: Keys.billardWins)
+        gobeletBest = defaults.integer(forKey: Keys.gobeletBest)
+        gobeletGames = defaults.integer(forKey: Keys.gobeletGames)
+        devineBest = defaults.integer(forKey: Keys.devineBest)
+        devineGames = defaults.integer(forKey: Keys.devineGames)
         treePending = defaults.bool(forKey: Keys.treePending)
         treeNumber = defaults.integer(forKey: Keys.treeNumber)
     }
@@ -407,6 +438,10 @@ final class AppState {
         encode(ecoleStars.mapValues { Double($0) }, Keys.ecoleStars)
         defaults.set(ecoleLessons, forKey: Keys.ecoleLessons)
         defaults.set(billardWins, forKey: Keys.billardWins)
+        defaults.set(gobeletBest, forKey: Keys.gobeletBest)
+        defaults.set(gobeletGames, forKey: Keys.gobeletGames)
+        defaults.set(devineBest, forKey: Keys.devineBest)
+        defaults.set(devineGames, forKey: Keys.devineGames)
         defaults.set(treePending, forKey: Keys.treePending)
         defaults.set(treeNumber, forKey: Keys.treeNumber)
     }

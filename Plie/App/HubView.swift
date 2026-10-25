@@ -13,7 +13,7 @@ struct HubView: View {
     @State private var filter: HubFilter = .all
     @State private var howTo: GameID?
 
-    static let newGames: Set<GameID> = [.luciole, .ecole, .billard]
+    static let newGames: Set<GameID> = [.luciole, .ecole, .billard, .gobelet, .devine]
 
     var body: some View {
         ScrollView {
@@ -64,7 +64,7 @@ struct HubView: View {
                                            endPoint: UnitPoint(x: 1.5 + (t * 0.08).truncatingRemainder(dividingBy: 1), y: 1))
                         )
                 }
-                Text(L("13 jeux à jouer en pliant"))
+                Text(L("15 jeux à jouer en pliant"))
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white.opacity(0.85))
             }
@@ -79,7 +79,7 @@ struct HubView: View {
 
     private var featured: GameID {
         let day = Calendar.current.ordinality(of: .day, in: .era, for: Date()) ?? 0
-        let pool: [GameID] = [.luciole, .billard, .ecole, .rayon, .filet, .chess, .piano, .coffre, .airHockey, .ferme, .bascule, .soleil, .draughts]
+        let pool: [GameID] = [.gobelet, .devine, .luciole, .billard, .ecole, .rayon, .filet, .chess, .piano, .coffre, .airHockey, .ferme, .bascule, .soleil, .draughts]
         return pool[day % pool.count]
     }
 
@@ -191,6 +191,8 @@ struct HubView: View {
         case .chess: return app.chessGames > 0 ? L("\(app.chessGames) partie\(app.chessGames > 1 ? "s" : "")") : nil
         case .draughts: return app.draughtsGames > 0 ? L("\(app.draughtsGames) partie\(app.draughtsGames > 1 ? "s" : "")") : nil
         case .luciole: return app.lucioleBest > 0 ? L("Record : \(app.lucioleBest) lumières") : nil
+        case .gobelet: return app.gobeletBest > 0 ? L("Record : \(app.gobeletBest) points") : L("Le Yams, version pliable")
+        case .devine: return app.devineBest > 0 ? L("Record : \(app.devineBest) mots") : L("6 thèmes, 150 mots")
         case .ecole: return app.ecoleLessons > 0 ? L("\(app.ecoleLessons) leçon\(app.ecoleLessons > 1 ? "s" : "")") : L("5 classes")
         case .piano: return L("\(PianoSong.all.count) morceaux")
         case .soleil: return app.soleilGames > 0 ? L("\(app.soleilGames) partie\(app.soleilGames > 1 ? "s" : "")") : nil
@@ -207,7 +209,7 @@ struct HubView: View {
                 .foregroundStyle(.white)
                 .accessibilityAddTraits(.isHeader)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 10)], spacing: 10) {
-                ForEach([Posture.fold, .lShape, .flat, .openClose, .closed, .standing], id: \.self) { p in
+                ForEach([Posture.fold, .lShape, .flat, .openClose, .closed, .forehead, .standing], id: \.self) { p in
                     HStack(spacing: 10) {
                         PostureIcon(posture: p, color: .white, lineWidth: 3)
                             .frame(width: 44, height: 32)

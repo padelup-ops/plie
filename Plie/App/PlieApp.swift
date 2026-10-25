@@ -80,6 +80,10 @@ struct RootView: View {
                 LucioleView()
             case .ecole:
                 EcoleView()
+            case .gobelet:
+                GobeletView()
+            case .devine:
+                DevineView()
             }
         }
         .animation(.easeInOut(duration: 0.22), value: app.route)
@@ -154,13 +158,17 @@ struct RootView: View {
             return [Theme.luciole, Color(hex: 0x5B2C6F), Color(hex: 0x0B0F3A)]
         case .ecole:
             return [Theme.ecole, Color(hex: 0x2F5D46), Color(hex: 0xFF8FC7)]
+        case .gobelet:
+            return [Theme.gobelet, Color(hex: 0x1F8A5B), Theme.gold]
+        case .devine:
+            return [Theme.devine, Color(hex: 0x7B5CFF), Theme.gold]
         }
     }
 
     /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
     private var fullScreen: Bool {
         switch app.route {
-        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts: return true
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .gobelet, .devine: return true
         default: return false
         }
     }

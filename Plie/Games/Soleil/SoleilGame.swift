@@ -86,6 +86,8 @@ final class SoleilGame {
     var cameraReady = false
     var cameraToken = 0
     var cameraPosition: AVCaptureDevice.Position = .front
+    /// Caméra choisie par les joueurs : celle de l'écran (avant) ou celle du dos (arrière).
+    var cameraChoice: AVCaptureDevice.Position = .front
     var motionLevel: Double = 0
     var unstable = false
 
@@ -99,6 +101,7 @@ final class SoleilGame {
     var catches = 0
     var snapshots: [UIImage] = []
     var lastSnapshot: UIImage?
+    var lastSide: Double = 0.5
     var elapsed: Double = 0
 
     @ObservationIgnored let camera = SoleilCamera()
@@ -124,7 +127,11 @@ final class SoleilGame {
             self.motionLevel = level
         }
         camera.onCatch = { [weak self] snapshot in
-            self?.caught(snapshot.image)
+            self?.caught(snapshot.image, side: snapshot.side)
+        }
+        camera.onCovered = { [weak self] in
+            guard let self, self.phase == .go else { return }
+            self.win()
         }
         camera.onUnstable = { [weak self] in
             guard let self else { return }
@@ -156,7 +163,15 @@ final class SoleilGame {
     /// iPhone Duo ouvert avec l'écran extérieur : caméra arrière, du même côté que l'écran extérieur.
     /// Sinon (Duo fermé ou autre iPhone) : caméra avant, du côté de l'écran principal.
     var wantedCameraPosition: AVCaptureDevice.Position {
-        playersUseOuterScreen ? .back : .front
+        cameraChoice
+    }
+
+    /// Les joueurs choisissent la caméra qui les voit.
+    @MainActor
+    func setCamera(_ position: AVCaptureDevice.Position) async {
+        guard position != cameraChoice else { return }
+        cameraChoice = position
+        await syncCamera()
     }
 
     @MainActor
@@ -172,11 +187,6 @@ final class SoleilGame {
         guard cameraAllowed, cameraReady else { return }
         let wanted = wantedCameraPosition
         guard wanted != cameraPosition else { return }
-        if wanted == .front {
-            // L'écran extérieur peut disparaître une fraction de seconde : on attend avant de basculer.
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            guard wantedCameraPosition == .front, cameraPosition != .front else { return }
-        }
         let ok = await camera.configure(position: wanted)
         if ok {
             cameraPosition = wanted
@@ -195,10 +205,11 @@ final class SoleilGame {
         elapsed = 0
         motionLevel = 0
         UIApplication.shared.isIdleTimerDisabled = true
-        caller.say(L("Placez-vous au fond !"), rate: 0.5)
+        // Tout est annoncé à voix haute : les joueurs n'ont pas besoin de voir l'écran.
+        caller.say(L("Posez le téléphone, la caméra vers vous, et placez-vous au fond. Départ dans dix secondes !"), rate: 0.5)
 
         Task { @MainActor in
-            for n in stride(from: 5, through: 1, by: -1) {
+            for n in stride(from: 10, through: 1, by: -1) {
                 guard self.cycle == current else { return }
                 self.phase = .countdown(n)
                 SoundPlayer.shared.play(.notch)
@@ -229,6 +240,7 @@ final class SoleilGame {
         phase = .go
         motionLevel = 0
         camera.disarm()
+        camera.watchCover(true)
         SoundPlayer.shared.play(.go)
 
         let variants: [(String, ClosedRange<Float>)] = [
@@ -254,6 +266,7 @@ final class SoleilGame {
         cycle += 1
         let current = cycle
         phase = .freezing
+        camera.watchCover(false)
         SoundPlayer.shared.play(.stop)
         Task { @MainActor in
             // Une demi-seconde pour s'arrêter, puis la caméra surveille.
@@ -268,7 +281,7 @@ final class SoleilGame {
         }
     }
 
-    private func caught(_ image: UIImage) {
+    private func caught(_ image: UIImage, side: Double) {
         guard phase == .stop else { return }
         cycle += 1
         let current = cycle
@@ -278,7 +291,16 @@ final class SoleilGame {
         snapshots.append(image)
         camera.disarm()
         SoundPlayer.shared.play(.caught)
-        caller.say(L("Bougé ! Retour au départ !"), rate: 0.52)
+        let who: String
+        if side < 0.36 {
+            who = L("Bougé ! Le joueur de gauche retourne au départ !")
+        } else if side > 0.64 {
+            who = L("Bougé ! Le joueur de droite retourne au départ !")
+        } else {
+            who = L("Bougé ! Le joueur du milieu retourne au départ !")
+        }
+        lastSide = side
+        caller.say(who, rate: 0.52)
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 3_400_000_000)
             guard self.cycle == current, self.phase == .caught else { return }
@@ -293,7 +315,8 @@ final class SoleilGame {
         if let start = startDate { elapsed = Date().timeIntervalSince(start) }
         clockTask?.cancel()
         camera.disarm()
-        caller.say(L("Bravo ! On a un gagnant !"), rate: 0.5)
+        camera.watchCover(false)
+        caller.say(L("Touché ! Bravo, on a un gagnant !"), rate: 0.5)
         SoundPlayer.shared.play(.win)
         UIApplication.shared.isIdleTimerDisabled = false
     }
@@ -302,6 +325,7 @@ final class SoleilGame {
         cycle += 1
         caller.stop()
         camera.disarm()
+        camera.watchCover(false)
         clockTask?.cancel()
         phase = .setup
         motionLevel = 0

@@ -11,6 +11,8 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     struct Catch {
         let image: UIImage
+        /// Où était le joueur qui a bougé, vu par les joueurs : 0 = à leur gauche, 1 = à leur droite.
+        let side: Double
     }
 
     let session = AVCaptureSession()
@@ -21,6 +23,8 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     var onCatch: ((Catch) -> Void)?
     /// Le téléphone lui-même bouge trop. Appelé sur le fil principal.
     var onUnstable: (() -> Void)?
+    /// Une main couvre la caméra (le premier joueur arrivé). Appelé sur le fil principal.
+    var onCovered: (() -> Void)?
 
     private let queue = DispatchQueue(label: "app.plie.soleil.camera")
     private let output = AVCaptureVideoDataOutput()
@@ -37,6 +41,9 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     private var consecutive = 0
     private var frameCounter = 0
     private var lastLevelSent = Date.distantPast
+    private var watchingCover = false
+    private var coveredFrames = 0
+    private var brightness = 120.0
 
     static let pixelThreshold = 28
 
@@ -132,6 +139,14 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         }
     }
 
+    /// Surveille la main posée sur la caméra (pendant « AVANCEZ ») : image très sombre et unie.
+    func watchCover(_ on: Bool) {
+        queue.async {
+            self.watchingCover = on
+            self.coveredFrames = 0
+        }
+    }
+
     func disarm() {
         queue.async {
             self.armed = false
@@ -163,11 +178,33 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         frameCounter &+= 1
-        guard armed, frameCounter % 2 == 0,
+        guard armed || watchingCover, frameCounter % 2 == 0,
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
         guard let small = Self.smallGray(pixelBuffer) else { return }
         let (gray, width, height) = small
+
+        if watchingCover {
+            // Image très sombre et presque unie, nettement plus sombre que la pièce : une main sur l'objectif.
+            var sum = 0
+            for v in gray { sum += Int(v) }
+            let mean = Double(sum) / Double(max(1, gray.count))
+            var variance = 0.0
+            for v in gray { let d = Double(v) - mean; variance += d * d }
+            let deviation = (variance / Double(max(1, gray.count))).squareRoot()
+            if mean < min(40, brightness * 0.35) && deviation < 14 {
+                coveredFrames += 1
+            } else {
+                coveredFrames = 0
+                brightness = brightness * 0.95 + mean * 0.05
+            }
+            if coveredFrames >= 10 {
+                coveredFrames = 0
+                watchingCover = false
+                DispatchQueue.main.async { self.onCovered?() }
+            }
+        }
+        guard armed else { return }
 
         guard let reference, referenceWidth == width, referenceHeight == height else {
             self.reference = gray
@@ -216,9 +253,13 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         if consecutive >= 3 {
             armed = false
             consecutive = 0
-            let image = makeSnapshot(pixelBuffer: pixelBuffer, mask: mask, gridWidth: width, gridHeight: height)
+            let shot = makeSnapshot(pixelBuffer: pixelBuffer, mask: mask, gridWidth: width, gridHeight: height)
+            // Image de la caméra de l'écran : en miroir, la gauche de l'image est la gauche des joueurs.
+            let mirrored = position == .front
             DispatchQueue.main.async {
-                if let image { self.onCatch?(Catch(image: image)) }
+                if let shot {
+                    self.onCatch?(Catch(image: shot.image, side: mirrored ? shot.centerX : 1 - shot.centerX))
+                }
             }
         }
     }
@@ -258,7 +299,7 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     // MARK: Photo du « tricheur »
 
-    private func makeSnapshot(pixelBuffer: CVPixelBuffer, mask: [Bool], gridWidth: Int, gridHeight: Int) -> UIImage? {
+    private func makeSnapshot(pixelBuffer: CVPixelBuffer, mask: [Bool], gridWidth: Int, gridHeight: Int) -> (image: UIImage, centerX: Double)? {
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         guard let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return nil }
         let size = CGSize(width: cgImage.width, height: cgImage.height)
@@ -299,10 +340,18 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
             }
         }
 
+        let centerX: Double
+        if let personBox {
+            centerX = Double(personBox.midX)
+        } else if maxX > minX {
+            centerX = (minX + maxX) / 2
+        } else {
+            centerX = 0.5
+        }
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
-        return renderer.image { context in
+        let image = renderer.image { context in
             UIImage(cgImage: cgImage).draw(in: CGRect(origin: .zero, size: size))
             let cg = context.cgContext
 
@@ -332,5 +381,6 @@ final class SoleilCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
                 cg.stroke(frame.insetBy(dx: -4, dy: -4))
             }
         }
+        return (image, centerX)
     }
 }

@@ -366,6 +366,25 @@ def new_games_sounds():
     # Entrée dans la grotte : souffle grave avec écho
     write("cave", mix((whoosh(0.7, 200, 900), 0, 0.8), (thump(90, 45, 0.5), 0.05, 0.6)), 0.6, (1.6, 0.45, 2500))
 
+
+def dice_sounds():
+    """GOBELET : dés qui roulent dans le gobelet en cuir, puis qui tombent sur le tapis."""
+    # Secousse : une poignée de petits chocs de dés étouffés par le cuir
+    parts = []
+    for k in range(7):
+        t0 = k * 0.025 + float(rng.uniform(0, 0.012))
+        parts.append((wood(float(rng.uniform(1600, 2600)), 0.04, 0.5), t0, float(rng.uniform(0.4, 0.9))))
+    rattle = mix(*parts)
+    rattle = lowpass_fast(rattle, 5200)
+    write("rattle", rattle, 0.7, (0.2, 0.12, 3000))
+    # Les dés tombent : cinq chocs qui s'espacent, avec un petit rebond
+    parts = [(thump(180, 90, 0.12), 0, 0.4)]
+    t = 0.0
+    for k in range(9):
+        t += 0.035 + 0.012 * k + float(rng.uniform(0, 0.01))
+        parts.append((wood(float(rng.uniform(1300, 2200)), 0.05, 0.7), t, 1.0 - 0.07 * k))
+    write("diceLand", mix(*parts), 0.8, (0.3, 0.12, 5000))
+
 if __name__ == "__main__":
     sounds()
     ambient()
@@ -373,4 +392,5 @@ if __name__ == "__main__":
     board_sounds()
     piano_samples()
     new_games_sounds()
+    dice_sounds()
     print("sons écrits")

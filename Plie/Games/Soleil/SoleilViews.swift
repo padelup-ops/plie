@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import AVFoundation
 
 struct SoleilView: View {
     @Environment(AppState.self) private var app
@@ -59,17 +60,31 @@ struct SoleilView: View {
 
                     VStack(alignment: .leading, spacing: 10) {
                         if game.hingeDetected {
-                            step("1", L("Ouvre le Duo en L, comme un petit chevalet, et pose-le au bout de la pièce : l'écran intérieur face aux joueurs."))
-                            step("2", L("Regarde l'image ci-dessus : tous les joueurs doivent y être. Si la caméra filme le plafond, retourne le Duo pour que la moitié avec la caméra soit debout."))
+                            step("1", L("Ferme le Duo et pose-le debout au bout de la pièce, contre un livre : l'écran extérieur et sa caméra face aux joueurs."))
                         } else {
-                            step("1", L("Pose le téléphone debout à l'autre bout de la pièce, l'écran tourné vers les joueurs."))
-                            step("2", L("Regarde l'image ci-dessus : tous les joueurs doivent y être."))
+                            step("1", L("Pose le téléphone debout au bout de la pièce, contre un objet, la caméra tournée vers les joueurs."))
                         }
-                        step("3", L("Tout le monde part du fond. L'écran affiche AVANCEZ en vert : on avance. Quand la voix dit « soleil », il passe au rouge : on se fige."))
-                        step("4", L("Le téléphone voit qui bouge : photo, et retour au départ. Le premier qui arrive appuie sur « Touché ! » et gagne."))
+                        step("2", L("Vérifie l'image ci-dessus : tous les joueurs doivent y être. Sinon, change de caméra ou déplace le téléphone."))
+                        step("3", L("Pas besoin de voir l'écran : l'arbitre annonce tout à voix haute. On avance pendant « Un, deux, trois… », on se fige à « soleil ! »."))
+                        step("4", L("Qui bouge est pris en photo, et la voix dit qui retourne au départ. Le premier arrivé pose la main sur la caméra : gagné !"))
                     }
                     .padding(16)
                     .background(GlassPanel(cornerRadius: 20))
+
+                    VStack(spacing: 10) {
+                        SectionTitle(text: L("Caméra"))
+                        Picker(L("Caméra"), selection: Binding(get: { game.cameraChoice }, set: { value in Task { await game.setCamera(value) } })) {
+                            Text(L("Caméra de l'écran")).tag(AVCaptureDevice.Position.front)
+                            Text(L("Caméra du dos")).tag(AVCaptureDevice.Position.back)
+                        }
+                        .pickerStyle(.segmented)
+                        Text(game.cameraChoice == .front
+                             ? L("Elle est du même côté que l'écran : les joueurs voient aussi AVANCEZ / STOP.")
+                             : L("Meilleure image. L'écran est caché, mais tout est annoncé à voix haute."))
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundStyle(Theme.muted)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
 
                     VStack(spacing: 10) {
                         SectionTitle(text: L("Sévérité de l'arbitre"))
