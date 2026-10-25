@@ -101,12 +101,13 @@ jobs:
               for i in $(seq 1 50); do grep -q "Recording started" "rushes/$L-$S.rec.log" && break; sleep 0.2; done
               python3 -c "import time; print('%.3f' % time.time())" > "rushes/$L-$S.recstart"
               ARGS=(-screenshotRoute "$R" -language "$L" -AppleLanguages "($L)" -AppleLocale "${L}_FR")
-              if [ "$S" != "hub" ]; then ARGS+=(-demo "$S"); fi
+              if [ "$S" != "hub" ]; then ARGS+=(-demo "$S" -demoDelay 2); fi
               if [ -n "$H" ]; then ARGS+=(-demoHinge "$H"); fi
               xcrun simctl launch "$UDID" "$BID" "${ARGS[@]}" > "rushes/$L-$S.launch.txt" 2>&1 || true
               python3 -c "import time; print('%.3f' % time.time())" > "rushes/$L-$S.launchtime"
+              # démarrage de l'app (~4 s) + attente avant la démo (2 s) + la scène + une marge
               sleep "$D"
-              sleep 1.5
+              sleep 8
               kill -INT $REC
               wait $REC || true
               cp "$DATA/Documents/demo-origin.txt" "rushes/$L-$S.origin" 2>/dev/null || echo "none" > "rushes/$L-$S.origin"

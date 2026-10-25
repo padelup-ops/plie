@@ -14,9 +14,10 @@ enum Demo {
 
     static func isScene(_ name: String) -> Bool { scene == name }
 
-    /// L'instant zéro de la démo : la première fois qu'on en parle (quand l'écran du jeu apparaît).
+    /// L'instant zéro de la démo : quand l'écran du jeu apparaît, plus `-demoDelay` secondes
+    /// (le temps que l'app ait fini de s'afficher).
     static let origin: Date = {
-        let now = Date()
+        let now = Date().addingTimeInterval(UserDefaults.standard.double(forKey: "demoDelay"))
         if let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             try? String(format: "%.3f", now.timeIntervalSince1970)
                 .write(to: folder.appendingPathComponent("demo-origin.txt"), atomically: true, encoding: .utf8)
