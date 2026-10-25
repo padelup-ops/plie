@@ -21,17 +21,19 @@ WHATS_NEW = {
     "fr-FR": """Nouveautés de ce build :
 
 • AIR HOCKEY à deux : le maillet bleu restait collé au fond de son camp. Il suit maintenant le doigt dans toute sa moitié.
+• BONNETEAU à deux : le bouton « J'ai fini » restait grisé après le mélange. Il répond maintenant tout de suite (même pendant un échange).
 • CROCO en anglais : « CHOMP! » tient sur une ligne.
 • CASSE-BRIQUES remplace MAGIE : plie le Duo en L, le mur de briques debout et la raquette sur la moitié posée à plat.
 
-À tester en priorité : AIR HOCKEY à deux (chaque maillet suit-il bien son joueur ?). Dites-nous ce qui coince !""",
+À tester en priorité : AIR HOCKEY à deux (chaque maillet suit-il bien son joueur ?) et BONNETEAU à deux. Dites-nous ce qui coince !""",
     "en-US": """New in this build:
 
 • AIR HOCKEY for two: the blue mallet stayed stuck at the back of its half. It now follows the finger across its whole half.
+• SHELL GAME for two: the "I'm done" button stayed greyed out after shuffling. It now responds right away (even during a swap).
 • CROC in English: "CHOMP!" now fits on one line.
 • BRICK BREAKER replaces MAGIC: fold the Duo into an L, the brick wall stands up and the paddle is on the half lying flat.
 
-Please test first: AIR HOCKEY for two (does each mallet follow its player?). Tell us what breaks!""",
+Please test first: AIR HOCKEY for two (does each mallet follow its player?) and SHELL GAME for two. Tell us what breaks!""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

@@ -38,7 +38,10 @@ final class BonneteauGame {
     private(set) var level = 1
 
     @ObservationIgnored private var queue: [(Int, Int)] = []
-    @ObservationIgnored private var busy = false
+    /// Observé (pas @ObservationIgnored) : le bouton « J'ai fini » doit se réactiver dès la fin d'un échange.
+    private var busy = false
+    /// « J'ai fini » touché pendant un échange : on passe à la suite dès qu'il est terminé.
+    @ObservationIgnored private var finishWhenIdle = false
     @ObservationIgnored private var generation = 0
     @ObservationIgnored var takePhoto: (() -> UIImage?)?
 
@@ -77,6 +80,7 @@ final class BonneteauGame {
         generation += 1
         queue = []
         busy = false
+        finishWhenIdle = false
         phase = .menu
     }
 
@@ -92,6 +96,7 @@ final class BonneteauGame {
         swaps = 0
         queue = []
         busy = false
+        finishWhenIdle = false
         ballCup = 0
     }
 
@@ -139,8 +144,13 @@ final class BonneteauGame {
     }
 
     func doneShuffling() {
-        guard phase == .shuffle, !shuffling else { return }
+        guard phase == .shuffle, mode == .duo, swaps > 0 || shuffling else { return }
         selected = nil
+        if shuffling {
+            finishWhenIdle = true
+            return
+        }
+        finishWhenIdle = false
         phase = .guess
         SoundPlayer.shared.play(.go, volume: 0.5)
     }
@@ -222,6 +232,8 @@ final class BonneteauGame {
             if self.queue.isEmpty {
                 if self.mode == .solo && self.phase == .shuffle {
                     self.phase = .guess
+                } else if self.finishWhenIdle {
+                    self.doneShuffling()
                 }
             } else {
                 self.runQueue()
@@ -434,7 +446,7 @@ struct BonneteauView: View {
                     Label(L("J'ai fini"), systemImage: "checkmark")
                 }
                 .buttonStyle(ChunkyButtonStyle(color: Theme.bonneteau, textColor: Theme.ink, height: 54))
-                .disabled(game.shuffling || game.swaps == 0)
+                .disabled(game.swaps == 0 && !game.shuffling)
             }
             .frame(maxWidth: 520)
             .padding(.horizontal, 16)
