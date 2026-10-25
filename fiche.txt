@@ -1,0 +1,17 @@
+APP_ID 6825605393
+ok     nom et sous-titre en-US
+ok     nom et sous-titre fr-FR
+ok     catégories
+version 1.0 ea766c6f-2385-4588-8185-4ec0a4b3c1fa
+ok     description en-US
+ok     description fr-FR
+ok     build 26 choisi pour la version
+ÉCHEC  notes pour App Review -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.REQUIRED: You must provide a value for the attribute 'contactFirstName' with this request; ENTITY_ERROR.ATTRIBUTE.REQUIRED: You must provide a value for the attribute 'contactLastName' with this request; ENTITY_ERROR.ATTRIBUTE.REQUIRED: You must provide a value for the attribute 'contactEmail' with this request; ENTITY_ERROR.ATTRIBUTE.REQUIRED: You must provide a value for the attribute 'contactPhone' with this request; ENTITY_ERROR.ATTRIBUTE.INVALID: The phone number must be in a valid format. Preface the phone number with ‘+’ followed by the country code (for example, +44 844 209 0611)
+
+fiche en-US | Origamo: Folding Mini Games | 13 games you play by folding
+fiche fr-FR | Origamo : mini-jeux pliés | 13 jeux à jouer en pliant
+version fr-FR | description 2082 car. | mots-clés iphone duo,pliable,échecs,dames,piano,billard,ping-pong,air hockey,école,enfants,calcul,laser
+version en-US | description 1939 car. | mots-clés iphone duo,foldable,chess,checkers,piano,pool,billiards,ping pong,air hockey,kids,math,school
+build choisi : 26
+
+À REVOIR : notes pour App Review
