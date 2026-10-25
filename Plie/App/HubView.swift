@@ -13,7 +13,7 @@ struct HubView: View {
     @State private var filter: HubFilter = .all
     @State private var howTo: GameID?
 
-    static let newGames: Set<GameID> = [.magie, .bonneteau, .morpion, .puissance, .boite, .chut]
+    static let newGames: Set<GameID> = [.magie, .bonneteau, .morpion, .puissance, .boite, .croco]
 
     var body: some View {
         ScrollView {
@@ -185,7 +185,7 @@ struct HubView: View {
         case .rayon: return L("\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux")
         case .bascule: return L("\(app.basculeStars.count) / \(BasculeLevel.all.count) niveaux")
         case .boite: return L("\(app.boiteStars.count) / \(BoiteLevel.count) boîtes")
-        case .chut: return app.chutGems > 0 ? L("\(app.chutStars.count) / \(ChutNight.count) nuits · \(app.chutGems) gemmes") : L("\(ChutNight.count) nuits")
+        case .croco: return app.crocoBest > 0 ? L("Record : \(app.crocoBest) dents") : L("1 à 6 joueurs")
         case .coupDoeil: return app.oeilStreak > 0 ? L("Série : \(app.oeilStreak) jour\(app.oeilStreak > 1 ? "s" : "")") : L("Un défi par jour")
         case .bombe: return app.bombeGames > 0 ? L("\(app.bombeGames) partie\(app.bombeGames > 1 ? "s" : "")") : L("3 à 8 joueurs")
         case .dessine: return app.dessineWords > 0 ? L("\(app.dessineWords) mot\(app.dessineWords > 1 ? "s" : "") deviné\(app.dessineWords > 1 ? "s" : "")") : L("3 joueurs et plus")
@@ -427,7 +427,7 @@ struct SettingsView: View {
                 }
                 Section(L("iPhone Duo")) {
                     Text(DuoSupport.apisAvailable
-                         ? L("Sur iPhone Duo, LA BOÎTE et CHUT ! commencent fermés : il faut ouvrir le Duo pour jouer. COUP D'ŒIL, BOMBE, PLIOU, MAGIE et LUCIOLE passent d'un écran à l'autre ; DESSINE-MOI et BONNETEAU montrent le jeu sur l'écran extérieur, face à l'autre joueur. RAYON et BASCULE se jouent avec la charnière ; FILET, ÉCOLE, PIANO et PUISSANCE 4 plié en L ; AIR HOCKEY, BILLARD, ÉCHECS, DAMES et MORPION à plat ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
+                         ? L("Sur iPhone Duo, LA BOÎTE et CROCO commencent fermés : il faut ouvrir le Duo pour jouer. COUP D'ŒIL, BOMBE, PLIOU, MAGIE et LUCIOLE passent d'un écran à l'autre ; DESSINE-MOI et BONNETEAU montrent le jeu sur l'écran extérieur, face à l'autre joueur. RAYON et BASCULE se jouent avec la charnière ; FILET, ÉCOLE, PIANO et PUISSANCE 4 plié en L ; AIR HOCKEY, BILLARD, ÉCHECS, DAMES et MORPION à plat ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
                          : L("Cet iPhone n'a pas de charnière : tous les jeux se jouent au doigt. Chaque jeu a son mode d'emploi : touche « ? »."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
@@ -484,7 +484,6 @@ struct PassView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     benefit("light.beacon.max.fill", Theme.laser, L("RAYON : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus"), L("Miroirs pivotants, labyrinthes et miroirs jumeaux."))
                     benefit("shippingbox.fill", Theme.boite, L("LA BOÎTE : \(BoiteLevel.count - AppState.freeBoiteLevels) boîtes de plus"), L("Décodeurs géants, motifs en miroir et codes à l'envers."))
-                    benefit("lizard.fill", Theme.chut, L("CHUT ! : \(ChutNight.count - AppState.freeChutNights) nuits de plus"), L("Un dragon au sommeil de plus en plus léger."))
                     benefit("arrow.up.right.circle.fill", Theme.bascule, L("BASCULE : \(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus"), L("Le vent, puis les ressorts."))
                     benefit("figure.table.tennis", Theme.filet, L("FILET : le niveau Champion"), L("Un adversaire qui smashe et vise loin de ta raquette."))
                     benefit("crown.fill", Theme.chess, L("ÉCHECS et DAMES : l'ordinateur Difficile"), L("Un adversaire qui calcule plusieurs coups à l'avance."))

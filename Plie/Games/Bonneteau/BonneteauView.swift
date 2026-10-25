@@ -566,10 +566,14 @@ struct BonneteauTable: View {
                         .frame(width: cupW * 0.9, height: cupW * 0.18)
                         .position(x: x(for: cup, spacing: spacing, width: g.size.width), y: baseY + cupH * 0.02)
                 }
-                // La boule, sous son gobelet
-                BonneteauBall()
-                    .frame(width: cupW * 0.36, height: cupW * 0.36)
-                    .position(x: x(for: game.ballCup, spacing: spacing, width: g.size.width), y: baseY - cupW * 0.18)
+                // La boule n'existe à l'écran que quand son gobelet est soulevé : pendant les échanges,
+                // un gobelet qui passe par-dessus ou rétrécit ne peut donc jamais la laisser voir.
+                if game.lifted.contains(game.ballCup) {
+                    BonneteauBall()
+                        .frame(width: cupW * 0.36, height: cupW * 0.36)
+                        .position(x: x(for: game.ballCup, spacing: spacing, width: g.size.width), y: baseY - cupW * 0.2)
+                        .transition(.opacity)
+                }
                 ForEach(0..<n, id: \.self) { cup in
                     let up = game.lifted.contains(cup)
                     let arc = game.arc[cup] ?? 0

@@ -368,19 +368,12 @@ def new_games_sounds():
 
 
 def duo_games_sounds():
-    """BOMBE, CHUT ! : explosion, ronflement du dragon, rugissement, gemme ramassée."""
+    """BOMBE et CROCO : explosion, rugissement, mâchoire qui claque."""
     # BOUM : souffle grave, choc sourd et grondement qui s'éteint
     tb = t_axis(1.6)
     rumble = lowpass_fast(rng.standard_normal(len(tb)), 420) * np.exp(-2.6 * tb)
     crack = bandpass(rng.standard_normal(len(tb)), 600, 4000) * np.exp(-18 * tb)
     write("boom", mix((thump(110, 38, 0.9), 0, 1.0), (rumble, 0, 0.9), (crack, 0, 0.45)), 0.95, (1.4, 0.3, 2500))
-    # Ronflement : souffle grave qui vibre, inspiration puis expiration
-    ts = t_axis(1.5)
-    breath = bandpass(rng.standard_normal(len(ts)), 70, 520)
-    flutter = 0.55 + 0.45 * np.sign(np.sin(2 * np.pi * 26 * ts))
-    shape = np.sin(np.pi * np.clip(ts / 1.5, 0, 1)) ** 1.5
-    tone = np.sin(2 * np.pi * 78 * ts + 2 * np.sin(2 * np.pi * 26 * ts)) * 0.35
-    write("snore", lowpass_fast((breath * flutter + tone) * shape, 900), 0.6, (0.6, 0.15, 1500))
     # Rugissement : grognement grave, modulé, avec un souffle de feu
     tr = t_axis(1.4)
     growl_f = 95 + 30 * np.sin(2 * np.pi * 3 * tr)
@@ -389,8 +382,9 @@ def duo_games_sounds():
     fire = bandpass(rng.standard_normal(len(tr)), 300, 3000) * 0.5
     env_r = np.minimum(1, tr / 0.12) * np.exp(-1.6 * tr)
     write("roar", lowpass_fast((growl + fire) * env_r, 2600), 0.9, (1.0, 0.25, 3000))
-    # Gemme : petit tintement de cristal
-    write("gem", mix((bell(hz("C", 7), 0.5, 7.0), 0, 0.6), (bell(hz("G", 7), 0.45, 8.0), 0.03, 0.4)), 0.45, (0.5, 0.2, 10000))
+    # CROC ! : la mâchoire qui claque (deux chocs de bois très secs, et un choc sourd)
+    write("chomp", mix((wood(900, 0.09, 1.4), 0, 1.0), (wood(620, 0.1, 1.4), 0.035, 0.9),
+                       (thump(200, 70, 0.25), 0.0, 0.9)), 0.95, (0.25, 0.1, 3500))
 
 
 if __name__ == "__main__":

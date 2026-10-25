@@ -67,8 +67,8 @@ struct RootView: View {
                 PianoView()
             case .boite:
                 BoiteView()
-            case .chut:
-                ChutView()
+            case .croco:
+                CrocoView()
             case .coupDoeil:
                 CoupDoeilView()
             case .bombe:
@@ -159,8 +159,8 @@ struct RootView: View {
             return [Theme.piano, Color(hex: 0xF3D79A), Color(hex: 0x8E1B22)]
         case .boite:
             return [Theme.boite, Color(hex: 0x8A5A3C), Theme.gold]
-        case .chut:
-            return [Theme.chut, Color(hex: 0x2B1D4D), Theme.gold]
+        case .croco:
+            return [Theme.croco, Color(hex: 0x0A5A44), Theme.gold]
         case .coupDoeil:
             return [Theme.oeil, Color(hex: 0x3D5CFF), Theme.gold]
         case .bombe:
@@ -191,7 +191,7 @@ struct RootView: View {
     /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
     private var fullScreen: Bool {
         switch app.route {
-        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .chut, .pliou, .bombe, .coupDoeil, .dessine, .magie, .bonneteau, .morpion, .puissance: return true
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .magie, .bonneteau, .morpion, .puissance: return true
         default: return false
         }
     }

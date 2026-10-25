@@ -14,7 +14,7 @@ enum Route: Equatable {
     case draughts
     case piano
     case boite
-    case chut
+    case croco
     case coupDoeil
     case bombe
     case dessine
@@ -63,9 +63,9 @@ final class AppState {
 
     /// LA BOÎTE : étoiles par boîte ouverte.
     private(set) var boiteStars: [Int: Int] = [:]
-    /// CHUT ! : étoiles par nuit, et toutes les gemmes rapportées.
-    private(set) var chutStars: [Int: Int] = [:]
-    private(set) var chutGems = 0
+    /// CROCO : record de dents (seul) et parties jouées.
+    private(set) var crocoBest = 0
+    private(set) var crocoGames = 0
     /// COUP D'ŒIL : étoiles par niveau, défi du jour et série de jours.
     private(set) var oeilStars: [Int: Int] = [:]
     private(set) var oeilDailyDay = ""
@@ -106,7 +106,6 @@ final class AppState {
     static let freeRayonLevels = 20
     static let freeBasculeLevels = 10
     static let freeBoiteLevels = 12
-    static let freeChutNights = 10
 
     @ObservationIgnored private let defaults = UserDefaults.standard
 
@@ -138,7 +137,7 @@ final class AppState {
         case "draughts": route = .draughts
         case "piano": route = .piano
         case "boite": route = .boite
-        case "chut": route = .chut
+        case "croco": route = .croco
         case "coupDoeil": route = .coupDoeil
         case "bombe": route = .bombe
         case "dessine": route = .dessine
@@ -344,22 +343,14 @@ final class AppState {
         save()
     }
 
-    // MARK: CHUT !
+    // MARK: CROCO
 
-    func chutIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
-        if number > Self.freeChutNights && !hasPass { return false }
-        return number == 1 || chutStars[number - 1] != nil || chutStars[number] != nil
-    }
-
-    func chutNeedsPass(_ number: Int, hasPass: Bool) -> Bool {
-        number > Self.freeChutNights && !hasPass
-    }
-
-    func recordChut(_ number: Int, stars: Int, gems: Int) {
-        chutGems += gems
-        if stars > 0 {
+    /// `streak` : dents appuyées seul, ou -1 pour une partie à plusieurs.
+    func recordCroco(streak: Int) {
+        crocoGames += 1
+        if streak > crocoBest {
+            crocoBest = streak
             celebrate()
-            chutStars[number] = max(chutStars[number] ?? 0, stars)
         }
         save()
     }
@@ -475,8 +466,8 @@ final class AppState {
         static let draughtsGames = "draughts.games"
         static let draughtsBest = "draughts.bestLevel"
         static let boiteStars = "boite.stars"
-        static let chutStars = "chut.stars"
-        static let chutGems = "chut.gems"
+        static let crocoBest = "croco.best"
+        static let crocoGames = "croco.games"
         static let oeilStars = "oeil.stars"
         static let oeilDailyDay = "oeil.dailyDay"
         static let oeilDailyScore = "oeil.dailyScore"
@@ -528,8 +519,8 @@ final class AppState {
         draughtsGames = defaults.integer(forKey: Keys.draughtsGames)
         draughtsBestLevel = defaults.integer(forKey: Keys.draughtsBest)
         boiteStars = decode(Keys.boiteStars).mapValues { Int($0) }
-        chutStars = decode(Keys.chutStars).mapValues { Int($0) }
-        chutGems = defaults.integer(forKey: Keys.chutGems)
+        crocoBest = defaults.integer(forKey: Keys.crocoBest)
+        crocoGames = defaults.integer(forKey: Keys.crocoGames)
         oeilStars = decode(Keys.oeilStars).mapValues { Int($0) }
         oeilDailyDay = defaults.string(forKey: Keys.oeilDailyDay) ?? ""
         oeilDailyScore = defaults.integer(forKey: Keys.oeilDailyScore)
@@ -569,8 +560,8 @@ final class AppState {
         defaults.set(draughtsGames, forKey: Keys.draughtsGames)
         defaults.set(draughtsBestLevel, forKey: Keys.draughtsBest)
         encode(boiteStars.mapValues { Double($0) }, Keys.boiteStars)
-        encode(chutStars.mapValues { Double($0) }, Keys.chutStars)
-        defaults.set(chutGems, forKey: Keys.chutGems)
+        defaults.set(crocoBest, forKey: Keys.crocoBest)
+        defaults.set(crocoGames, forKey: Keys.crocoGames)
         encode(oeilStars.mapValues { Double($0) }, Keys.oeilStars)
         defaults.set(oeilDailyDay, forKey: Keys.oeilDailyDay)
         defaults.set(oeilDailyScore, forKey: Keys.oeilDailyScore)

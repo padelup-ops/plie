@@ -75,7 +75,7 @@ struct HowToStep: Identifiable {
 }
 
 enum GameID: String, CaseIterable, Identifiable {
-    case boite, chut, magie, bonneteau, coupDoeil, bombe, dessine, pliou, luciole
+    case boite, croco, magie, bonneteau, coupDoeil, bombe, dessine, pliou, luciole
     case morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme
 
     var id: String { rawValue }
@@ -87,7 +87,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bonneteau: return L("BONNETEAU")
         case .morpion: return L("MORPION")
         case .puissance: return L("PUISSANCE 4")
-        case .chut: return L("CHUT !")
+        case .croco: return L("CROCO")
         case .coupDoeil: return L("COUP D'ŒIL")
         case .bombe: return L("BOMBE")
         case .dessine: return L("DESSINE-MOI")
@@ -115,7 +115,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bonneteau: return L("Suis la boule… sur l'autre écran")
         case .morpion: return L("Classique ou super morpion, en néon")
         case .puissance: return L("La grille debout, tu lâches le jeton")
-        case .chut: return L("Ouvre tout doucement : le dragon dort")
+        case .croco: return L("Le Duo est sa gueule : quelle dent mord ?")
         case .coupDoeil: return L("Regarde dedans, réponds dehors")
         case .bombe: return L("Passe le Duo avant le BOUM !")
         case .dessine: return L("Tu dessines dedans, ils devinent dehors")
@@ -142,7 +142,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bonneteau: return Theme.bonneteau
         case .morpion: return Theme.morpion
         case .puissance: return Theme.puissance
-        case .chut: return Theme.chut
+        case .croco: return Theme.croco
         case .coupDoeil: return Theme.oeil
         case .bombe: return Theme.bombe
         case .dessine: return Theme.dessine
@@ -169,7 +169,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bonneteau: return "eyes"
         case .morpion: return "number"
         case .puissance: return "circle.grid.3x3.fill"
-        case .chut: return "lizard.fill"
+        case .croco: return "lizard.fill"
         case .coupDoeil: return "eye.fill"
         case .bombe: return "flame.fill"
         case .dessine: return "scribble.variable"
@@ -191,7 +191,7 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var posture: Posture {
         switch self {
-        case .boite, .chut: return .closedOpen
+        case .boite, .croco: return .closedOpen
         case .coupDoeil, .bombe, .pliou, .luciole, .magie: return .openClose
         case .dessine, .bonneteau: return .book
         case .rayon, .bascule: return .fold
@@ -204,7 +204,8 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var players: String {
         switch self {
-        case .boite, .chut, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme: return L("Seul")
+        case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme: return L("Seul")
+        case .croco: return L("1 à 6 joueurs")
         case .bombe: return L("3 à 8 joueurs")
         case .dessine: return L("3 joueurs et plus")
         case .filet: return L("Contre l'ordi")
@@ -217,7 +218,8 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var filters: Set<HubFilter> {
         switch self {
-        case .boite, .chut, .coupDoeil, .pliou: return [.twoScreens, .solo, .kids]
+        case .boite, .coupDoeil, .pliou: return [.twoScreens, .solo, .kids]
+        case .croco: return [.twoScreens, .family, .kids, .solo]
         case .magie: return [.twoScreens, .family, .kids]
         case .bonneteau: return [.twoScreens, .duo, .solo, .family]
         case .morpion, .puissance: return [.solo, .duo, .family, .kids]
@@ -237,7 +239,7 @@ enum GameID: String, CaseIterable, Identifiable {
     var route: Route {
         switch self {
         case .boite: return .boite
-        case .chut: return .chut
+        case .croco: return .croco
         case .magie: return .magie
         case .bonneteau: return .bonneteau
         case .morpion: return .morpion
@@ -266,7 +268,7 @@ enum GameID: String, CaseIterable, Identifiable {
         switch route {
         case .hub: return nil
         case .boite: return .boite
-        case .chut: return .chut
+        case .croco: return .croco
         case .magie: return .magie
         case .bonneteau: return .bonneteau
         case .morpion: return .morpion
@@ -302,15 +304,13 @@ enum GameID: String, CaseIterable, Identifiable {
                 HowToStep(symbol: "eye.fill", text: L("Tu as oublié ? Referme pour relire le couvercle. Mais chaque coup d'œil en plus coûte une étoile.")),
                 HowToStep(symbol: "gift.fill", text: L("Chaque boîte ouverte cache un trésor pour ta collection. Gare aux pièges : codes à l'envers, motifs en miroir…"))
             ]
-        case .chut:
+        case .croco:
             return [
-                duo ? HowToStep(symbol: "moon.zzz.fill", text: L("Duo fermé, l'écran extérieur montre le dragon qui dort sur son trésor."))
-                    : HowToStep(symbol: "moon.zzz.fill", text: L("Le dragon dort sur son coffre au trésor.")),
-                duo ? HowToStep(symbol: "tortoise.fill", text: L("Ouvre ton Duo tout, tout doucement, jusqu'au bout. Trop vite ? Le dragon ouvre un œil…"))
-                    : HowToStep(symbol: "tortoise.fill", text: L("Monte le couvercle tout doucement avec le curseur, jusqu'en haut. Trop vite ? Le dragon ouvre un œil…")),
-                HowToStep(symbol: "diamond.fill", text: L("Coffre ouvert : touche les gemmes pour les prendre. Chaque geste fait un peu de bruit. Quand il renifle, ne bouge plus !")),
-                duo ? HowToStep(symbol: "sunrise.fill", text: L("Avant le lever du jour, referme doucement le Duo pour t'enfuir avec ton butin."))
-                    : HowToStep(symbol: "sunrise.fill", text: L("Avant le lever du jour, redescends le couvercle pour t'enfuir avec ton butin."))
+                duo ? HowToStep(symbol: "moon.zzz.fill", text: L("Duo fermé, le croco dort. Ouvre le Duo : tu lui ouvres la gueule !"))
+                    : HowToStep(symbol: "lizard.fill", text: L("Le croco ouvre grand la gueule : en haut ses dents du haut, en bas ses dents du bas.")),
+                HowToStep(symbol: "hand.point.up.fill", text: L("Chacun son tour, appuie sur une dent. Elle s'enfonce… ouf !")),
+                HowToStep(symbol: "exclamationmark.triangle.fill", text: L("Mais une des dents fait mordre le croco : CROC ! Celui qui l'a touchée perd une vie.")),
+                HowToStep(symbol: "trophy.fill", text: L("Le dernier qui n'a pas été croqué gagne. Seul : appuie sur un maximum de dents sans te faire croquer."))
             ]
         case .coupDoeil:
             return [

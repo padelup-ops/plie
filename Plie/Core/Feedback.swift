@@ -9,7 +9,7 @@ final class SoundPlayer {
         case tock, pok, smash, net, applause, point
         case pieceMove, pieceCapture, checkBell, promote, clockTick
         case clack, pocket, chime, bell, chalk, cave
-        case boom, snore, roar, gem
+        case boom, roar, chomp
     }
 
     static let shared = SoundPlayer()
@@ -26,7 +26,7 @@ final class SoundPlayer {
             switch effect {
             case .notch, .decoy, .puck: copies = 4
             case .thud, .pop, .whoosh, .tock, .pok, .pieceMove, .clockTick: copies = 3
-            case .pieceCapture, .clack, .chime, .gem: copies = 4
+            case .pieceCapture, .clack, .chime: copies = 4
             case .pocket, .chalk: copies = 2
             default: copies = 1
             }
@@ -123,6 +123,14 @@ enum Haptics {
     static func warning() {
         guard enabled else { return }
         notification.notificationOccurred(.warning)
+    }
+
+    /// La mâchoire du croco qui claque : trois grands coups.
+    static func chomp() {
+        guard enabled else { return }
+        heavy.impactOccurred(intensity: 1)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.09) { heavy.impactOccurred(intensity: 1) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { rigid.impactOccurred(intensity: 0.8) }
     }
 }
 

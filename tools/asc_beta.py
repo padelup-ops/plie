@@ -20,22 +20,20 @@ BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 WHATS_NEW = {
     "fr-FR": """Nouveautés de ce build :
 
-• Nouveau logo néon.
-• MAGIE : 3 tours avec le Duo. Télépathie (l'écran extérieur souffle la carte au magicien), la pièce qui traverse le téléphone, et la prédiction 1089 scellée sur l'écran extérieur.
-• BONNETEAU : l'un cache la boule et mélange les gobelets sur l'écran intérieur, l'autre suit sur l'écran extérieur, puis on inverse. Ou seul, de plus en plus vite.
-• MORPION (classique et super morpion, en néon) et PUISSANCE 4 (Duo en L : la grille debout, on lâche les jetons depuis le bas).
-• Plus fluide : les jeux d'action suivent maintenant le rythme de l'écran, l'accueil et les grilles de niveaux sont beaucoup plus légers.
+• CROCO remplace CHUT ! : le Duo est la gueule du crocodile. Fermé, il dort ; ouvre-lui la gueule, appuyez chacun votre tour sur une dent… et gare à celle qui le fait mordre ! De 1 à 6 joueurs.
+• BONNETEAU corrigé : on ne voit plus du tout la boule pendant le mélange.
 
-À tester en priorité : les tours de MAGIE, le BONNETEAU à deux avec l'écran extérieur, et la fluidité (accueil, air hockey, ping-pong). Dites-nous ce qui coince !""",
+Toujours là : MAGIE, BONNETEAU, MORPION, PUISSANCE 4, le logo néon et la meilleure fluidité.
+
+À tester en priorité : CROCO à plusieurs (fermer puis rouvrir le Duo) et le BONNETEAU. Dites-nous ce qui coince !""",
     "en-US": """New in this build:
 
-• New neon logo.
-• MAGIC: 3 tricks with the Duo. Telepathy (the outer screen whispers the card to the magician), the coin through the phone, and the 1089 prediction sealed on the outer screen.
-• SHELL GAME: one player hides the ball and shuffles the cups on the inner screen, the other follows on the outer screen, then swap. Or solo, faster and faster.
-• TIC-TAC-TOE (classic and ultimate, in neon) and CONNECT 4 (Duo in an L: the grid stands up, you drop discs from below).
-• Smoother: action games now follow the display's refresh, and the home screen and level grids are much lighter.
+• CROC replaces SHHH!: the Duo is the crocodile's jaws. Closed, it sleeps; open its jaws, take turns pressing a tooth… and watch out for the one that makes it bite! 1 to 6 players.
+• SHELL GAME fixed: the ball can no longer be seen while the cups are shuffled.
 
-Please test first: the MAGIC tricks, two-player SHELL GAME with the outer screen, and smoothness (home, air hockey, ping pong). Tell us what breaks!""",
+Still here: MAGIC, SHELL GAME, TIC-TAC-TOE, CONNECT 4, the neon logo and the smoother app.
+
+Please test first: CROC with several players (close and reopen the Duo) and the SHELL GAME. Tell us what breaks!""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
