@@ -20,20 +20,14 @@ BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 WHATS_NEW = {
     "fr-FR": """Nouveautés de ce build :
 
-• CROCO remplace CHUT ! : le Duo est la gueule du crocodile. Fermé, il dort ; ouvre-lui la gueule, appuyez chacun votre tour sur une dent… et gare à celle qui le fait mordre ! De 1 à 6 joueurs.
-• BONNETEAU corrigé : on ne voit plus du tout la boule pendant le mélange.
+• CASSE-BRIQUES remplace MAGIE : plie le Duo en L, le mur de briques debout et la raquette sur la moitié posée à plat. La balle traverse la charnière. 30 niveaux, capsules bonus (raquette géante, trois balles, ralenti, vie), briques blindées et briques d'acier.
 
-Toujours là : MAGIE, BONNETEAU, MORPION, PUISSANCE 4, le logo néon et la meilleure fluidité.
-
-À tester en priorité : CROCO à plusieurs (fermer puis rouvrir le Duo) et le BONNETEAU. Dites-nous ce qui coince !""",
+À tester en priorité : CASSE-BRIQUES (la raquette suit-elle bien le doigt ? la balle est-elle trop rapide ?). Dites-nous ce qui coince !""",
     "en-US": """New in this build:
 
-• CROC replaces SHHH!: the Duo is the crocodile's jaws. Closed, it sleeps; open its jaws, take turns pressing a tooth… and watch out for the one that makes it bite! 1 to 6 players.
-• SHELL GAME fixed: the ball can no longer be seen while the cups are shuffled.
+• BRICK BREAKER replaces MAGIC: fold the Duo into an L, the brick wall stands up and the paddle is on the half lying flat. The ball crosses the hinge. 30 levels, power-ups (giant paddle, three balls, slow motion, extra life), armored bricks and steel bricks.
 
-Still here: MAGIC, SHELL GAME, TIC-TAC-TOE, CONNECT 4, the neon logo and the smoother app.
-
-Please test first: CROC with several players (close and reopen the Duo) and the SHELL GAME. Tell us what breaks!""",
+Please test first: BRICK BREAKER (does the paddle follow your finger well? is the ball too fast?). Tell us what breaks!""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

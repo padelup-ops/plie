@@ -19,7 +19,7 @@ enum Route: Equatable {
     case bombe
     case dessine
     case pliou
-    case magie
+    case briques
     case bonneteau
     case morpion
     case puissance
@@ -82,10 +82,11 @@ final class AppState {
     private(set) var morpionWins = 0
     private(set) var puissanceGames = 0
     private(set) var puissanceWins = 0
-    /// BONNETEAU : meilleur niveau seul, parties à deux. MAGIE : tours joués.
+    /// BONNETEAU : meilleur niveau seul, parties à deux.
     private(set) var bonneteauBest = 0
     private(set) var bonneteauGames = 0
-    private(set) var magieShows = 0
+    /// CASSE-BRIQUES : étoiles par niveau réussi.
+    private(set) var briquesStars: [Int: Int] = [:]
 
     private(set) var soleilGames = 0
 
@@ -106,6 +107,7 @@ final class AppState {
     static let freeRayonLevels = 20
     static let freeBasculeLevels = 10
     static let freeBoiteLevels = 12
+    static let freeBriquesLevels = 15
 
     @ObservationIgnored private let defaults = UserDefaults.standard
 
@@ -142,7 +144,7 @@ final class AppState {
         case "bombe": route = .bombe
         case "dessine": route = .dessine
         case "pliou": route = .pliou
-        case "magie": route = .magie
+        case "briques": route = .briques
         case "bonneteau": route = .bonneteau
         case "morpion": route = .morpion
         case "puissance": route = .puissance
@@ -406,7 +408,7 @@ final class AppState {
         save()
     }
 
-    // MARK: MORPION, PUISSANCE 4, BONNETEAU, MAGIE
+    // MARK: MORPION, PUISSANCE 4, BONNETEAU, CASSE-BRIQUES
 
     func recordMorpion(won: Bool) {
         morpionGames += 1
@@ -436,8 +438,18 @@ final class AppState {
         save()
     }
 
-    func recordMagie() {
-        magieShows += 1
+    func briquesIsUnlocked(_ number: Int, hasPass: Bool) -> Bool {
+        if number > Self.freeBriquesLevels && !hasPass { return false }
+        return number == 1 || briquesStars[number - 1] != nil || briquesStars[number] != nil
+    }
+
+    func briquesNeedsPass(_ number: Int, hasPass: Bool) -> Bool {
+        number > Self.freeBriquesLevels && !hasPass
+    }
+
+    func recordBriques(_ number: Int, stars: Int) {
+        celebrate()
+        briquesStars[number] = max(briquesStars[number] ?? 0, stars)
         save()
     }
 
@@ -482,7 +494,7 @@ final class AppState {
         static let puissanceWins = "puissance.wins"
         static let bonneteauBest = "bonneteau.best"
         static let bonneteauGames = "bonneteau.games"
-        static let magieShows = "magie.shows"
+        static let briquesStars = "briques.stars"
         static let soleilGames = "soleil.games"
         static let lucioleBest = "luciole.best"
         static let lucioleVoyages = "luciole.voyages"
@@ -535,7 +547,7 @@ final class AppState {
         puissanceWins = defaults.integer(forKey: Keys.puissanceWins)
         bonneteauBest = defaults.integer(forKey: Keys.bonneteauBest)
         bonneteauGames = defaults.integer(forKey: Keys.bonneteauGames)
-        magieShows = defaults.integer(forKey: Keys.magieShows)
+        briquesStars = decode(Keys.briquesStars).mapValues { Int($0) }
         soleilGames = defaults.integer(forKey: Keys.soleilGames)
         lucioleBest = defaults.integer(forKey: Keys.lucioleBest)
         lucioleVoyages = defaults.integer(forKey: Keys.lucioleVoyages)
@@ -576,7 +588,7 @@ final class AppState {
         defaults.set(puissanceWins, forKey: Keys.puissanceWins)
         defaults.set(bonneteauBest, forKey: Keys.bonneteauBest)
         defaults.set(bonneteauGames, forKey: Keys.bonneteauGames)
-        defaults.set(magieShows, forKey: Keys.magieShows)
+        encode(briquesStars.mapValues { Double($0) }, Keys.briquesStars)
         defaults.set(soleilGames, forKey: Keys.soleilGames)
         defaults.set(lucioleBest, forKey: Keys.lucioleBest)
         defaults.set(lucioleVoyages, forKey: Keys.lucioleVoyages)
