@@ -75,14 +75,18 @@ struct HowToStep: Identifiable {
 }
 
 enum GameID: String, CaseIterable, Identifiable {
-    case boite, chut, coupDoeil, bombe, dessine, pliou, luciole
-    case rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme
+    case boite, chut, magie, bonneteau, coupDoeil, bombe, dessine, pliou, luciole
+    case morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .boite: return L("LA BOÎTE")
+        case .magie: return L("MAGIE")
+        case .bonneteau: return L("BONNETEAU")
+        case .morpion: return L("MORPION")
+        case .puissance: return L("PUISSANCE 4")
         case .chut: return L("CHUT !")
         case .coupDoeil: return L("COUP D'ŒIL")
         case .bombe: return L("BOMBE")
@@ -107,6 +111,10 @@ enum GameID: String, CaseIterable, Identifiable {
     var tagline: String {
         switch self {
         case .boite: return L("Fermée, l'indice. Ouverte, la serrure.")
+        case .magie: return L("Des tours que seul le Duo peut faire")
+        case .bonneteau: return L("Suis la boule… sur l'autre écran")
+        case .morpion: return L("Classique ou super morpion, en néon")
+        case .puissance: return L("La grille debout, tu lâches le jeton")
         case .chut: return L("Ouvre tout doucement : le dragon dort")
         case .coupDoeil: return L("Regarde dedans, réponds dehors")
         case .bombe: return L("Passe le Duo avant le BOUM !")
@@ -130,6 +138,10 @@ enum GameID: String, CaseIterable, Identifiable {
     var color: Color {
         switch self {
         case .boite: return Theme.boite
+        case .magie: return Theme.magie
+        case .bonneteau: return Theme.bonneteau
+        case .morpion: return Theme.morpion
+        case .puissance: return Theme.puissance
         case .chut: return Theme.chut
         case .coupDoeil: return Theme.oeil
         case .bombe: return Theme.bombe
@@ -153,6 +165,10 @@ enum GameID: String, CaseIterable, Identifiable {
     var symbol: String {
         switch self {
         case .boite: return "shippingbox.fill"
+        case .magie: return "wand.and.stars"
+        case .bonneteau: return "eyes"
+        case .morpion: return "number"
+        case .puissance: return "circle.grid.3x3.fill"
         case .chut: return "lizard.fill"
         case .coupDoeil: return "eye.fill"
         case .bombe: return "flame.fill"
@@ -176,11 +192,11 @@ enum GameID: String, CaseIterable, Identifiable {
     var posture: Posture {
         switch self {
         case .boite, .chut: return .closedOpen
-        case .coupDoeil, .bombe, .pliou, .luciole: return .openClose
-        case .dessine: return .book
+        case .coupDoeil, .bombe, .pliou, .luciole, .magie: return .openClose
+        case .dessine, .bonneteau: return .book
         case .rayon, .bascule: return .fold
-        case .filet, .ecole, .piano: return .lShape
-        case .airHockey, .billard, .chess, .draughts: return .flat
+        case .filet, .ecole, .piano, .puissance: return .lShape
+        case .airHockey, .billard, .chess, .draughts, .morpion: return .flat
         case .soleil: return .standing
         case .ferme: return .closed
         }
@@ -192,7 +208,8 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bombe: return L("3 à 8 joueurs")
         case .dessine: return L("3 joueurs et plus")
         case .filet: return L("Contre l'ordi")
-        case .airHockey, .billard, .chess, .draughts: return L("1 ou 2 joueurs")
+        case .airHockey, .billard, .chess, .draughts, .morpion, .puissance, .bonneteau: return L("1 ou 2 joueurs")
+        case .magie: return L("Un magicien et son public")
         case .ecole: return L("Dès 4 ans")
         case .soleil: return L("2 joueurs et plus")
         }
@@ -201,6 +218,9 @@ enum GameID: String, CaseIterable, Identifiable {
     var filters: Set<HubFilter> {
         switch self {
         case .boite, .chut, .coupDoeil, .pliou: return [.twoScreens, .solo, .kids]
+        case .magie: return [.twoScreens, .family, .kids]
+        case .bonneteau: return [.twoScreens, .duo, .solo, .family]
+        case .morpion, .puissance: return [.solo, .duo, .family, .kids]
         case .bombe, .dessine: return [.twoScreens, .family]
         case .luciole: return [.twoScreens, .solo, .kids]
         case .rayon, .bascule: return [.solo, .kids]
@@ -218,6 +238,10 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .boite: return .boite
         case .chut: return .chut
+        case .magie: return .magie
+        case .bonneteau: return .bonneteau
+        case .morpion: return .morpion
+        case .puissance: return .puissance
         case .coupDoeil: return .coupDoeil
         case .bombe: return .bombe
         case .dessine: return .dessine
@@ -243,6 +267,10 @@ enum GameID: String, CaseIterable, Identifiable {
         case .hub: return nil
         case .boite: return .boite
         case .chut: return .chut
+        case .magie: return .magie
+        case .bonneteau: return .bonneteau
+        case .morpion: return .morpion
+        case .puissance: return .puissance
         case .coupDoeil: return .coupDoeil
         case .bombe: return .bombe
         case .dessine: return .dessine
@@ -319,6 +347,38 @@ enum GameID: String, CaseIterable, Identifiable {
                 duo ? HowToStep(symbol: "moon.zzz.fill", text: L("Fatigué ? Ferme le Duo : c'est la nuit, il dort sur l'écran extérieur."))
                     : HowToStep(symbol: "moon.zzz.fill", text: L("Fatigué ? Touche « Dodo » pour qu'il dorme.")),
                 HowToStep(symbol: "flame.fill", text: L("Reviens chaque jour : il grandit, et ta série débloque des chapeaux."))
+            ]
+        case .morpion:
+            return [
+                HowToStep(symbol: "number", text: L("But : aligner trois symboles, en ligne, en colonne ou en diagonale.")),
+                duo ? HowToStep(symbol: "rectangle.split.2x1.fill", text: L("Déplie le Duo à plat entre vous deux : chacun lit son tour à l'endroit."))
+                    : HowToStep(symbol: "iphone", text: L("Pose le téléphone à plat entre vous deux, ou joue contre l'ordinateur.")),
+                HowToStep(symbol: "hand.tap.fill", text: L("Touche une case pour y poser ton symbole. L'ordinateur Imbattable ne perd jamais !")),
+                HowToStep(symbol: "square.grid.3x3.fill", text: L("Super morpion : la case où tu joues envoie l'autre dans la petite grille du même endroit. Gagne trois grilles alignées."))
+            ]
+        case .puissance:
+            return [
+                HowToStep(symbol: "circle.grid.3x3.fill", text: L("But : aligner 4 jetons de ta couleur, en ligne, en colonne ou en diagonale.")),
+                duo ? HowToStep(symbol: "laptopcomputer", text: L("Plie le Duo en L : la grille debout, le lanceur sur la moitié posée à plat."))
+                    : HowToStep(symbol: "iphone", text: L("La grille en haut, le lanceur en bas.")),
+                HowToStep(symbol: "hand.draw.fill", text: L("Glisse le doigt sur le lanceur pour viser une colonne, lâche pour faire tomber le jeton. Tu peux aussi toucher la grille.")),
+                HowToStep(symbol: "person.2.fill", text: L("Contre l'ordinateur (3 niveaux) ou à deux, chacun son tour."))
+            ]
+        case .bonneteau:
+            return [
+                duo ? HowToStep(symbol: "book.fill", text: L("À deux : ouvre le Duo comme un livre entre vous. Celui qui cache a l'écran intérieur, celui qui devine regarde l'écran extérieur."))
+                    : HowToStep(symbol: "person.2.fill", text: L("À deux : celui qui cache mélange, l'autre regarde le même écran.")),
+                HowToStep(symbol: "hand.tap.fill", text: L("Touche un gobelet pour y cacher la boule, puis touche deux gobelets pour les échanger, aussi vite que tu veux.")),
+                HowToStep(symbol: "number", text: L("Celui qui devine dit le numéro du gobelet. Puis on retourne le Duo et on inverse les rôles. Premier à 5 points !")),
+                HowToStep(symbol: "person.fill", text: L("Seul : l'ordinateur mélange de plus en plus vite. Jusqu'à quel niveau iras-tu ?"))
+            ]
+        case .magie:
+            return [
+                HowToStep(symbol: "wand.and.stars", text: L("Trois tours de magie à faire devant tes amis : télépathie, la pièce qui traverse, la prédiction.")),
+                HowToStep(symbol: "eye.slash.fill", text: L("Avant chaque tour, lis le secret en cachette : il t'explique quoi dire et quoi faire.")),
+                duo ? HowToStep(symbol: "rectangle.portrait.on.rectangle.portrait", text: L("Les tours utilisent les deux écrans : l'écran extérieur te souffle ce que le public ne voit pas."))
+                    : HowToStep(symbol: "iphone", text: L("Sans Duo, chaque tour a sa version sur un seul écran.")),
+                HowToStep(symbol: "sparkles", text: L("Entraîne-toi seul avant : un bon magicien ne rate jamais son effet !"))
             ]
         case .rayon:
             return [

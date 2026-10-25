@@ -71,31 +71,39 @@ struct ConfettiView: View {
 // MARK: - Fond animé
 
 /// Fond doux : de grandes taches de lumière qui dérivent lentement.
+/// Les taches sont des dégradés (pas de flou à recalculer) et c'est Core Animation qui les déplace :
+/// rien n'est redessiné image par image, l'accueil reste fluide quand on fait défiler.
 struct AmbientBackdrop: View {
     var colors: [Color] = [Color(hex: 0x3DE0FF), Color(hex: 0xFF4F9A), Color(hex: 0xFFC53D)]
     var base: Color = Theme.ink
     var intensity: Double = 0.22
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var drift = false
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 20.0)) { timeline in
-            let t = timeline.date.timeIntervalSinceReferenceDate
-            Canvas { context, size in
-                context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(base))
-                context.drawLayer { layer in
-                    layer.addFilter(.blur(radius: min(size.width, size.height) * 0.12))
-                    for (i, color) in colors.enumerated() {
-                        let k = Double(i)
-                        let cx = size.width * (0.5 + 0.38 * sin(t * 0.07 + k * 2.1))
-                        let cy = size.height * (0.4 + 0.35 * cos(t * 0.05 + k * 1.7))
-                        let r = min(size.width, size.height) * (0.35 + 0.08 * sin(t * 0.11 + k))
-                        layer.fill(Path(ellipseIn: CGRect(x: cx - r, y: cy - r, width: r * 2, height: r * 2)),
-                                   with: .color(color.opacity(intensity)))
-                    }
+        GeometryReader { g in
+            let s = max(g.size.width, g.size.height)
+            ZStack {
+                base
+                ForEach(Array(colors.enumerated()), id: \.offset) { item in
+                    let k = Double(item.offset)
+                    let phase = drift ? 1.0 : 0.0
+                    Circle()
+                        .fill(RadialGradient(colors: [item.element.opacity(min(1, intensity * 1.8)), item.element.opacity(0)],
+                                             center: .center, startRadius: 0, endRadius: s * 0.42))
+                        .frame(width: s * 0.84, height: s * 0.84)
+                        .position(x: g.size.width * (0.5 + 0.34 * sin(k * 2.1 + phase * 1.3)),
+                                  y: g.size.height * (0.4 + 0.3 * cos(k * 1.7 + phase * 1.1)))
                 }
             }
         }
         .ignoresSafeArea()
+        .allowsHitTesting(false)
         .accessibilityHidden(true)
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 16).repeatForever(autoreverses: true)) { drift = true }
+        }
     }
 }
 
@@ -278,8 +286,8 @@ struct LevelTile: View {
                     .shadow(color: accent.opacity(0.45), radius: 8, y: 3)
                 shape.fill(LinearGradient(colors: [.white.opacity(0.3), .clear], startPoint: .top, endPoint: .center))
             } else {
-                shape.fill(.ultraThinMaterial)
-                shape.fill(LinearGradient(colors: [Theme.cardHigh.opacity(0.75), Theme.card.opacity(0.85)], startPoint: .top, endPoint: .bottom))
+                // Pas de verre dépoli : il recalculait le flou du fond animé à chaque image, sur chaque case.
+                shape.fill(LinearGradient(colors: [Theme.cardHigh.opacity(0.92), Theme.card.opacity(0.95)], startPoint: .top, endPoint: .bottom))
                 shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.18), .white.opacity(0.03)], startPoint: .top, endPoint: .bottom), lineWidth: 1)
             }
         }

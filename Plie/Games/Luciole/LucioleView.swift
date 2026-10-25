@@ -350,7 +350,6 @@ struct LucioleView: View {
     @State private var game = LucioleGame()
     @State private var recorded = false
 
-    private let ticker = Timer.publish(every: 1.0 / 60.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         GeometryReader { proxy in
@@ -409,7 +408,7 @@ struct LucioleView: View {
             guard let degrees else { return }
             game.setClosed(degrees < 20, fromHinge: true)
         }
-        .onReceive(ticker) { _ in
+        .onFrame { _ in
             game.tick(dt: 1.0 / 60.0)
             if game.phase == .over && !recorded {
                 recorded = true

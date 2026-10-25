@@ -511,7 +511,6 @@ struct FiletView: View {
     @State private var game = FiletGame()
     @State private var hingeSeen = false
 
-    private let ticker = Timer.publish(every: 1.0 / 60.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         // La scène occupe tout l'écran : le filet tombe pile sur la charnière, au milieu.
@@ -549,7 +548,7 @@ struct FiletView: View {
         .onHingeAngle { degrees in
             if degrees != nil { hingeSeen = true }
         }
-        .onReceive(ticker) { _ in
+        .onFrame { _ in
             let wasOver = game.phase == .over
             game.tick(dt: 1.0 / 60.0)
             if !wasOver && game.phase == .over {
@@ -680,19 +679,22 @@ struct FiletScene: View {
             context.fill(Path(CGRect(x: 0, y: 0, width: w, height: h)),
                          with: .radialGradient(Gradient(colors: [.white.opacity(0.1), .clear]),
                                                center: CGPoint(x: w / 2, y: fold), startRadius: 0, endRadius: max(w, h) * 0.6))
-            context.drawLayer { lights in
-                lights.addFilter(.blur(radius: w * 0.04))
+            // Projecteurs : des dégradés plutôt qu'un flou recalculé à chaque image (plus fluide).
+            do {
+                let lights = context
                 for k in 0..<3 {
                     let lx = w * (0.22 + 0.28 * CGFloat(k))
-                    lights.fill(Path(ellipseIn: CGRect(x: lx - w * 0.06, y: -h * 0.03, width: w * 0.12, height: h * 0.07)),
-                                with: .color(Color(hex: 0xFFF1C9).opacity(0.5)))
+                    lights.fill(Path(ellipseIn: CGRect(x: lx - w * 0.09, y: -h * 0.06, width: w * 0.18, height: h * 0.13)),
+                                with: .radialGradient(Gradient(colors: [Color(hex: 0xFFF1C9).opacity(0.55), Color(hex: 0xFFF1C9).opacity(0)]),
+                                                      center: CGPoint(x: lx, y: h * 0.005), startRadius: 0, endRadius: w * 0.09))
                     var cone = Path()
                     cone.move(to: CGPoint(x: lx - w * 0.02, y: 0))
                     cone.addLine(to: CGPoint(x: lx + w * 0.02, y: 0))
                     cone.addLine(to: CGPoint(x: w / 2 + (lx - w / 2) * 0.4 + w * 0.12, y: fold))
                     cone.addLine(to: CGPoint(x: w / 2 + (lx - w / 2) * 0.4 - w * 0.12, y: fold))
                     cone.closeSubpath()
-                    lights.fill(cone, with: .color(Color(hex: 0xFFF1C9).opacity(0.05 + 0.015 * sin(clock * 0.7 + Double(k) * 2))))
+                    lights.fill(cone, with: .linearGradient(Gradient(colors: [Color(hex: 0xFFF1C9).opacity(0.09 + 0.02 * sin(clock * 0.7 + Double(k) * 2)), Color(hex: 0xFFF1C9).opacity(0.02)]),
+                                                            startPoint: CGPoint(x: lx, y: 0), endPoint: CGPoint(x: lx, y: fold)))
                 }
             }
             // Public (têtes derrière les panneaux)
@@ -770,11 +772,9 @@ struct FiletScene: View {
             let floorSpot = P.point(ai.x, floorY, FiletGame.aiZ)
             context.fill(Path(ellipseIn: CGRect(x: floorSpot.x - aiR * 1.3, y: floorSpot.y - aiR * 0.3, width: aiR * 2.6, height: aiR * 0.6)),
                          with: .color(.black.opacity(0.28)))
-            context.drawLayer { glow in
-                glow.addFilter(.blur(radius: aiR * 0.7))
-                glow.fill(Path(ellipseIn: CGRect(x: batC.x - aiR * 1.5, y: batC.y - aiR * 1.5, width: aiR * 3, height: aiR * 3)),
-                          with: .color(level.color.opacity(0.35 + 0.4 * swing)))
-            }
+            context.fill(Path(ellipseIn: CGRect(x: batC.x - aiR * 1.6, y: batC.y - aiR * 1.6, width: aiR * 3.2, height: aiR * 3.2)),
+                         with: .radialGradient(Gradient(colors: [level.color.opacity(0.4 + 0.4 * swing), level.color.opacity(0)]),
+                                               center: batC, startRadius: aiR * 0.4, endRadius: aiR * 1.6))
             FiletScene.paddle(&context, center: batC, radius: aiR, tilt: -0.5 + 0.8 * swing, color: level.color)
 
             // La table : moitié adverse en perspective, ta moitié vue de dessus
@@ -794,10 +794,10 @@ struct FiletScene: View {
             let n1 = P.point(0, 0, 0), n2 = P.point(W, 0, 0)
             let near = CGRect(x: n1.x, y: fold, width: n2.x - n1.x, height: n1.y - fold)
             // ombre et épaisseur de ton bout de table
-            context.drawLayer { shadow in
-                shadow.addFilter(.blur(radius: P.ppm * 0.05))
-                shadow.fill(Path(near.offsetBy(dx: P.ppm * 0.04, dy: P.ppm * 0.08)), with: .color(.black.opacity(0.45)))
-            }
+            // Ombre douce de la table, sans flou : deux rectangles transparents décalés.
+            context.fill(Path(roundedRect: near.offsetBy(dx: P.ppm * 0.05, dy: P.ppm * 0.1).insetBy(dx: -P.ppm * 0.03, dy: -P.ppm * 0.03), cornerRadius: P.ppm * 0.05),
+                         with: .color(.black.opacity(0.18)))
+            context.fill(Path(near.offsetBy(dx: P.ppm * 0.04, dy: P.ppm * 0.08)), with: .color(.black.opacity(0.28)))
             context.fill(Path(CGRect(x: near.minX, y: near.maxY, width: near.width, height: max(3, P.ppm * 0.035))),
                          with: .color(Color(hex: 0x123672)))
             context.fill(Path(near), with: .linearGradient(Gradient(colors: [blueTop, blueBottom]),

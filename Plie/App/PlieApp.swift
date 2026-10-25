@@ -77,6 +77,14 @@ struct RootView: View {
                 DessineView()
             case .pliou:
                 PliouView()
+            case .magie:
+                MagieView()
+            case .bonneteau:
+                BonneteauView()
+            case .morpion:
+                MorpionView()
+            case .puissance:
+                PuissanceView()
             case .soleil:
                 SoleilView()
             case .billard:
@@ -161,6 +169,14 @@ struct RootView: View {
             return [Theme.dessine, Theme.paint, Color(hex: 0x3D8BFF)]
         case .pliou:
             return [Theme.pliou, Color(hex: 0xFFD166), Color(hex: 0x7FC8FF)]
+        case .magie:
+            return [Theme.magie, Theme.gold, Color(hex: 0x2A0B45)]
+        case .bonneteau:
+            return [Theme.bonneteau, Color(hex: 0x1F7A4D), Theme.gold]
+        case .morpion:
+            return [Theme.neonX, Theme.neonO, Color(hex: 0x1E0840)]
+        case .puissance:
+            return [Theme.p4Red, Theme.p4Yellow, Theme.p4Plate]
         case .soleil:
             return [Theme.sun, Theme.go, Theme.gold]
         case .billard:
@@ -175,7 +191,7 @@ struct RootView: View {
     /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
     private var fullScreen: Bool {
         switch app.route {
-        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .chut, .pliou, .bombe, .coupDoeil, .dessine: return true
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .chut, .pliou, .bombe, .coupDoeil, .dessine, .magie, .bonneteau, .morpion, .puissance: return true
         default: return false
         }
     }

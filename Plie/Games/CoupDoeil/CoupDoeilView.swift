@@ -152,7 +152,9 @@ final class CoupDoeilGame {
     private(set) var daily = false
     private(set) var questionIndex = 0
     private(set) var answers: [Int] = []
-    private(set) var timeLeft: Double = 0
+    @ObservationIgnored private(set) var timeLeft: Double = 0
+    /// Le temps affiché, arrondi au dixième : l'image n'est pas redessinée à chaque image.
+    private(set) var shownTime: Double = 0
     private(set) var isClosed = false
     private(set) var hasHinge = false
 
@@ -194,6 +196,7 @@ final class CoupDoeilGame {
         answers = []
         questionIndex = 0
         timeLeft = r.seconds
+        shownTime = r.seconds
         phase = .memorize
         SoundPlayer.shared.play(.go, volume: 0.5)
     }
@@ -216,6 +219,8 @@ final class CoupDoeilGame {
     func tick(dt: Double) {
         guard phase == .memorize else { return }
         timeLeft -= dt
+        let rounded = (max(0, timeLeft) * 10).rounded(.up) / 10
+        if rounded != shownTime { shownTime = rounded }
         if timeLeft <= 0 {
             phase = hasHinge ? .hide : .quiz
             SoundPlayer.shared.play(.stop, volume: 0.5)
@@ -244,7 +249,6 @@ struct CoupDoeilView: View {
     @Environment(AppState.self) private var app
     @State private var game = CoupDoeilGame()
 
-    private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ZStack {
@@ -263,7 +267,7 @@ struct CoupDoeilView: View {
             guard let degrees else { return }
             game.setClosed(degrees < 20, fromHinge: true)
         }
-        .onReceive(ticker) { _ in game.tick(dt: 1.0 / 30.0) }
+        .onFrame(step: 1.0 / 30.0) { _ in game.tick(dt: 1.0 / 30.0) }
         .onChange(of: game.phase) { _, phase in
             if phase == .check {
                 if game.daily {
@@ -372,7 +376,7 @@ struct CoupDoeilView: View {
         VStack(spacing: 12) {
             header
             Text(L("Mémorise tout !")).font(.plie(26))
-            ProgressView(value: max(0, game.timeLeft), total: game.round?.seconds ?? 1)
+            ProgressView(value: game.shownTime, total: game.round?.seconds ?? 1)
                 .tint(Theme.oeil)
                 .frame(maxWidth: 420)
             if let r = game.round {

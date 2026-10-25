@@ -63,7 +63,7 @@ final class BombeGame {
     private(set) var strikes: [Int] = []
     private(set) var challenge = BombeChallenge(text: "")
     private(set) var passes = 0
-    private(set) var clock: Double = 0
+    @ObservationIgnored private(set) var clock: Double = 0
     private(set) var boomAt: Double = 0
     private(set) var isClosed = false
     private(set) var hasHinge = false
@@ -173,7 +173,6 @@ struct BombeView: View {
     @State private var game = BombeGame()
     @State private var players = 4
 
-    private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ZStack {
@@ -193,7 +192,7 @@ struct BombeView: View {
             guard let degrees else { return }
             game.setClosed(degrees < 20, fromHinge: true)
         }
-        .onReceive(ticker) { _ in game.tick(dt: 1.0 / 30.0) }
+        .onFrame(step: 1.0 / 30.0) { _ in game.tick(dt: 1.0 / 30.0) }
         .onChange(of: game.phase) { _, phase in
             if phase == .over { app.recordBombe() }
         }

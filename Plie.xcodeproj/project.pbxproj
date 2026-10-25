@@ -273,7 +273,7 @@
 				INFOPLIST_FILE = Plie/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Origamo;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.puzzle-games";
-				INFOPLIST_KEY_NSCameraUsageDescription = "La caméra sert d’arbitre dans 1, 2, 3… Soleil ! (elle repère qui bouge) et prend en photo ceux qui devinent dans DESSINE-MOI. Les images restent sur ton téléphone.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "La caméra sert d’arbitre dans 1, 2, 3… Soleil !, prend en photo ceux qui devinent dans DESSINE-MOI et BONNETEAU, et allume l’écran extérieur pendant les jeux à deux écrans. Les images restent sur ton téléphone.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -308,7 +308,7 @@
 				INFOPLIST_FILE = Plie/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Origamo;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.puzzle-games";
-				INFOPLIST_KEY_NSCameraUsageDescription = "La caméra sert d’arbitre dans 1, 2, 3… Soleil ! (elle repère qui bouge) et prend en photo ceux qui devinent dans DESSINE-MOI. Les images restent sur ton téléphone.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "La caméra sert d’arbitre dans 1, 2, 3… Soleil !, prend en photo ceux qui devinent dans DESSINE-MOI et BONNETEAU, et allume l’écran extérieur pendant les jeux à deux écrans. Les images restent sur ton téléphone.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

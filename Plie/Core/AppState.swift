@@ -19,6 +19,10 @@ enum Route: Equatable {
     case bombe
     case dessine
     case pliou
+    case magie
+    case bonneteau
+    case morpion
+    case puissance
     case soleil
     case billard
     case luciole
@@ -73,6 +77,15 @@ final class AppState {
     private(set) var dessineWords = 0
     /// PLIOU : jours où on s'en est occupé.
     private(set) var pliouDays = 0
+    /// MORPION et PUISSANCE 4 : parties et victoires contre l'ordinateur.
+    private(set) var morpionGames = 0
+    private(set) var morpionWins = 0
+    private(set) var puissanceGames = 0
+    private(set) var puissanceWins = 0
+    /// BONNETEAU : meilleur niveau seul, parties à deux. MAGIE : tours joués.
+    private(set) var bonneteauBest = 0
+    private(set) var bonneteauGames = 0
+    private(set) var magieShows = 0
 
     private(set) var soleilGames = 0
 
@@ -130,6 +143,10 @@ final class AppState {
         case "bombe": route = .bombe
         case "dessine": route = .dessine
         case "pliou": route = .pliou
+        case "magie": route = .magie
+        case "bonneteau": route = .bonneteau
+        case "morpion": route = .morpion
+        case "puissance": route = .puissance
         case "soleil": route = .soleil
         case "billard": route = .billard
         case "luciole": route = .luciole
@@ -398,6 +415,41 @@ final class AppState {
         save()
     }
 
+    // MARK: MORPION, PUISSANCE 4, BONNETEAU, MAGIE
+
+    func recordMorpion(won: Bool) {
+        morpionGames += 1
+        if won {
+            morpionWins += 1
+            celebrate()
+        }
+        save()
+    }
+
+    func recordPuissance(won: Bool) {
+        puissanceGames += 1
+        if won {
+            puissanceWins += 1
+            celebrate()
+        }
+        save()
+    }
+
+    /// `level` : niveau atteint seul (0 pour une partie à deux).
+    func recordBonneteau(level: Int) {
+        bonneteauGames += 1
+        if level > bonneteauBest {
+            bonneteauBest = level
+            celebrate()
+        }
+        save()
+    }
+
+    func recordMagie() {
+        magieShows += 1
+        save()
+    }
+
     // MARK: SOLEIL
 
     func recordSoleilGame() {
@@ -433,6 +485,13 @@ final class AppState {
         static let dessineGames = "dessine.games"
         static let dessineWords = "dessine.words"
         static let pliouDays = "pliou.days"
+        static let morpionGames = "morpion.games"
+        static let morpionWins = "morpion.wins"
+        static let puissanceGames = "puissance.games"
+        static let puissanceWins = "puissance.wins"
+        static let bonneteauBest = "bonneteau.best"
+        static let bonneteauGames = "bonneteau.games"
+        static let magieShows = "magie.shows"
         static let soleilGames = "soleil.games"
         static let lucioleBest = "luciole.best"
         static let lucioleVoyages = "luciole.voyages"
@@ -479,6 +538,13 @@ final class AppState {
         dessineGames = defaults.integer(forKey: Keys.dessineGames)
         dessineWords = defaults.integer(forKey: Keys.dessineWords)
         pliouDays = defaults.integer(forKey: Keys.pliouDays)
+        morpionGames = defaults.integer(forKey: Keys.morpionGames)
+        morpionWins = defaults.integer(forKey: Keys.morpionWins)
+        puissanceGames = defaults.integer(forKey: Keys.puissanceGames)
+        puissanceWins = defaults.integer(forKey: Keys.puissanceWins)
+        bonneteauBest = defaults.integer(forKey: Keys.bonneteauBest)
+        bonneteauGames = defaults.integer(forKey: Keys.bonneteauGames)
+        magieShows = defaults.integer(forKey: Keys.magieShows)
         soleilGames = defaults.integer(forKey: Keys.soleilGames)
         lucioleBest = defaults.integer(forKey: Keys.lucioleBest)
         lucioleVoyages = defaults.integer(forKey: Keys.lucioleVoyages)
@@ -513,6 +579,13 @@ final class AppState {
         defaults.set(dessineGames, forKey: Keys.dessineGames)
         defaults.set(dessineWords, forKey: Keys.dessineWords)
         defaults.set(pliouDays, forKey: Keys.pliouDays)
+        defaults.set(morpionGames, forKey: Keys.morpionGames)
+        defaults.set(morpionWins, forKey: Keys.morpionWins)
+        defaults.set(puissanceGames, forKey: Keys.puissanceGames)
+        defaults.set(puissanceWins, forKey: Keys.puissanceWins)
+        defaults.set(bonneteauBest, forKey: Keys.bonneteauBest)
+        defaults.set(bonneteauGames, forKey: Keys.bonneteauGames)
+        defaults.set(magieShows, forKey: Keys.magieShows)
         defaults.set(soleilGames, forKey: Keys.soleilGames)
         defaults.set(lucioleBest, forKey: Keys.lucioleBest)
         defaults.set(lucioleVoyages, forKey: Keys.lucioleVoyages)

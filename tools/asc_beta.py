@@ -18,30 +18,24 @@ API = "https://api.appstoreconnect.apple.com"
 BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 
 WHATS_NEW = {
-    "fr-FR": """Nouveautés de ce build : 6 nouveaux jeux qui utilisent les deux écrans.
+    "fr-FR": """Nouveautés de ce build :
 
-• LA BOÎTE (remplace LE COFFRE) : Duo fermé, l'indice est sur le couvercle. Ouvre le Duo : la serrure est dedans. Un seul côté à la fois, il faut retenir !
-• CHUT ! : un dragon dort sur le trésor. Ouvre le Duo tout doucement, ramasse les gemmes, referme avant le lever du jour.
-• COUP D'ŒIL : mémorise l'image dedans, ferme le Duo, réponds aux questions dehors. Défi du jour.
-• BOMBE (en groupe) : passez-vous le Duo fermé, la mèche est cachée… BOUM !
-• DESSINE-MOI (en groupe) : tu dessines dedans, les autres devinent sur l'écran extérieur.
-• PLIOU : une bête en papier à élever, elle dort quand tu fermes le Duo.
+• Nouveau logo néon.
+• MAGIE : 3 tours avec le Duo. Télépathie (l'écran extérieur souffle la carte au magicien), la pièce qui traverse le téléphone, et la prédiction 1089 scellée sur l'écran extérieur.
+• BONNETEAU : l'un cache la boule et mélange les gobelets sur l'écran intérieur, l'autre suit sur l'écran extérieur, puis on inverse. Ou seul, de plus en plus vite.
+• MORPION (classique et super morpion, en néon) et PUISSANCE 4 (Duo en L : la grille debout, on lâche les jetons depuis le bas).
+• Plus fluide : les jeux d'action suivent maintenant le rythme de l'écran, l'accueil et les grilles de niveaux sont beaucoup plus légers.
 
-Retirés : GOBELET, QUI SUIS-JE ? et LE COFFRE.
+À tester en priorité : les tours de MAGIE, le BONNETEAU à deux avec l'écran extérieur, et la fluidité (accueil, air hockey, ping-pong). Dites-nous ce qui coince !""",
+    "en-US": """New in this build:
 
-À tester en priorité : CHUT ! (est-ce qu'ouvrir doucement est trop facile ou trop dur ?), LA BOÎTE en fermant et rouvrant, et DESSINE-MOI sur l'écran extérieur. Dites-nous ce qui coince !""",
-    "en-US": """New in this build: 6 new games that use both screens.
+• New neon logo.
+• MAGIC: 3 tricks with the Duo. Telepathy (the outer screen whispers the card to the magician), the coin through the phone, and the 1089 prediction sealed on the outer screen.
+• SHELL GAME: one player hides the ball and shuffles the cups on the inner screen, the other follows on the outer screen, then swap. Or solo, faster and faster.
+• TIC-TAC-TOE (classic and ultimate, in neon) and CONNECT 4 (Duo in an L: the grid stands up, you drop discs from below).
+• Smoother: action games now follow the display's refresh, and the home screen and level grids are much lighter.
 
-• THE BOX (replaces THE SAFE): with the Duo closed, the clue is on the lid. Open the Duo: the lock is inside. Only one side at a time, so remember it!
-• SHHH!: a dragon sleeps on the treasure. Open the Duo very slowly, grab the gems, close it before sunrise.
-• QUICK EYE: memorize the picture inside, close the Duo, answer the questions outside. Daily challenge.
-• BOMB (groups): pass the closed Duo around, the fuse is hidden… BOOM!
-• DRAW IT (groups): you draw inside, the others guess on the outer screen.
-• PLIOU: a paper pet to raise, it sleeps when you close the Duo.
-
-Removed: DICE CUP, WHO AM I? and THE SAFE.
-
-Please test first: SHHH! (is opening slowly too easy or too hard?), THE BOX by closing and opening, and DRAW IT on the outer screen. Tell us what breaks!""",
+Please test first: the MAGIC tricks, two-player SHELL GAME with the outer screen, and smoothness (home, air hockey, ping pong). Tell us what breaks!""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

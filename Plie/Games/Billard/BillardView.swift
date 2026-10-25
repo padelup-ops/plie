@@ -288,7 +288,6 @@ struct BillardView: View {
 
     enum DragMode { case none, placing, aiming }
 
-    private let ticker = Timer.publish(every: 1.0 / 60.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         GeometryReader { proxy in
@@ -322,7 +321,7 @@ struct BillardView: View {
             }
         }
         .ignoresSafeArea()
-        .onReceive(ticker) { _ in
+        .onFrame { _ in
             if landscape { match.tick(dt: 1.0 / 60.0) }
         }
         .onChange(of: match.phase) { _, phase in

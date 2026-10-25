@@ -53,7 +53,7 @@ final class ChutGame {
     private(set) var gems: [ChutGem] = []
     private(set) var lootClock: Double = 0
     private(set) var sniffing = false
-    private(set) var clock: Double = 0
+    @ObservationIgnored private(set) var clock: Double = 0
     private(set) var tooFast = false
 
     @ObservationIgnored private var samples: [(t: Double, a: Double)] = []
@@ -178,7 +178,8 @@ final class ChutGame {
         switch phase {
         case .opening, .loot:
             let quiet = night.quietSpeed
-            tooFast = speed > quiet
+            let fast = speed > quiet
+            if fast != tooFast { tooFast = fast }
             if tooFast {
                 wake += (speed - quiet) / quiet * dt * 0.9
             } else {
@@ -204,7 +205,7 @@ final class ChutGame {
             }
             if wake >= 1 { wakeUp() }
         default:
-            tooFast = false
+            if tooFast { tooFast = false }
         }
 
         // Le ronflement : il s'arrête quand le dragon est presque réveillé (c'est là qu'il faut s'inquiéter).
@@ -222,7 +223,6 @@ struct ChutView: View {
     @Environment(StoreManager.self) private var store
     @State private var game = ChutGame()
 
-    private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ZStack {
@@ -257,7 +257,7 @@ struct ChutView: View {
             guard let degrees else { return }
             game.setAngle(degrees, fromHinge: true)
         }
-        .onReceive(ticker) { _ in game.tick(dt: 1.0 / 30.0) }
+        .onFrame(step: 1.0 / 30.0) { _ in game.tick(dt: 1.0 / 30.0) }
         .onChange(of: game.phase) { _, phase in
             if phase == .escaped { app.recordChut(game.night.number, stars: game.stars, gems: game.collected) }
         }
@@ -285,7 +285,7 @@ struct ChutView: View {
             VStack(spacing: 14) {
                 topBar
                 Spacer()
-                ChutDragon(wake: 0, awake: false, clock: game.clock)
+                ChutDragon(wake: 0, awake: false)
                     .frame(height: 230)
                 Text(L("Chut… le dragon dort sur le trésor."))
                     .font(.plie(24))
@@ -344,7 +344,7 @@ struct ChutView: View {
                             StarsView(count: game.stars, size: 28)
                         }
                     } else {
-                        ChutDragon(wake: 1, awake: true, clock: game.clock)
+                        ChutDragon(wake: 1, awake: true)
                             .frame(height: 170)
                         Text(L("Le dragon s'est réveillé !"))
                             .font(.plie(30))
@@ -400,7 +400,7 @@ struct ChutTreasureView: View {
                                center: UnitPoint(x: 0.5, y: 0.7), startRadius: 10, endRadius: max(size.width, size.height) * 0.6)
                     .ignoresSafeArea()
 
-                ChutDragon(wake: game.wake, awake: false, clock: game.clock)
+                ChutDragon(wake: game.wake, awake: false)
                     .frame(width: min(size.width * 0.7, 520), height: min(size.height * 0.32, 260))
                     .position(x: size.width / 2, y: size.height * 0.16)
 
@@ -547,7 +547,7 @@ struct ChutMenu: View {
 
             ScrollView {
                 VStack(spacing: 18) {
-                    ChutDragon(wake: 0, awake: false, clock: 0)
+                    ChutDragon(wake: 0, awake: false, animated: false)
                         .frame(height: 150)
                     Text(L("Un dragon dort sur le coffre. Ouvre le Duo sans le réveiller, ramasse les gemmes et referme avant le lever du jour. Chaque nuit, il a le sommeil plus léger."))
                         .font(.system(size: 15, weight: .medium, design: .rounded))
@@ -640,9 +640,16 @@ struct ChutCave: View {
 struct ChutDragon: View {
     let wake: Double
     let awake: Bool
-    let clock: Double
+    var animated = true
 
     var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !animated)) { timeline in
+            dragon(clock: animated ? timeline.date.timeIntervalSinceReferenceDate : 0)
+        }
+        .accessibilityLabel(awake ? L("Le dragon est réveillé") : (wake > 0.5 ? L("Le dragon remue") : L("Le dragon dort")))
+    }
+
+    private func dragon(clock: Double) -> some View {
         Canvas { context, size in
             let w = size.width, h = size.height
             let breathe = CGFloat(sin(clock * (awake ? 6 : 1.6))) * h * 0.015
@@ -728,6 +735,5 @@ struct ChutDragon: View {
                 }
             }
         }
-        .accessibilityLabel(awake ? L("Le dragon est réveillé") : (wake > 0.5 ? L("Le dragon remue") : L("Le dragon dort")))
     }
 }

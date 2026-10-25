@@ -13,7 +13,7 @@ struct HubView: View {
     @State private var filter: HubFilter = .all
     @State private var howTo: GameID?
 
-    static let newGames: Set<GameID> = [.boite, .chut, .coupDoeil, .bombe, .dessine, .pliou]
+    static let newGames: Set<GameID> = [.magie, .bonneteau, .morpion, .puissance, .boite, .chut]
 
     var body: some View {
         ScrollView {
@@ -51,7 +51,7 @@ struct HubView: View {
                 .shadow(color: Theme.paint.opacity(0.5), radius: 10)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 0) {
-                TimelineView(.animation(minimumInterval: 1.0 / 20.0, paused: reduceMotion)) { timeline in
+                TimelineView(.animation(minimumInterval: 1.0 / 10.0, paused: reduceMotion)) { timeline in
                     let t = timeline.date.timeIntervalSinceReferenceDate
                     Text(L("ORIGAMO"))
                         .font(.system(.largeTitle, design: .rounded, weight: .black))
@@ -189,6 +189,10 @@ struct HubView: View {
         case .coupDoeil: return app.oeilStreak > 0 ? L("Série : \(app.oeilStreak) jour\(app.oeilStreak > 1 ? "s" : "")") : L("Un défi par jour")
         case .bombe: return app.bombeGames > 0 ? L("\(app.bombeGames) partie\(app.bombeGames > 1 ? "s" : "")") : L("3 à 8 joueurs")
         case .dessine: return app.dessineWords > 0 ? L("\(app.dessineWords) mot\(app.dessineWords > 1 ? "s" : "") deviné\(app.dessineWords > 1 ? "s" : "")") : L("3 joueurs et plus")
+        case .magie: return L("3 tours de magie")
+        case .bonneteau: return app.bonneteauBest > 0 ? L("Record seul : niveau \(app.bonneteauBest)") : L("À deux ou seul")
+        case .morpion: return app.morpionWins > 0 ? L("\(app.morpionWins) victoire\(app.morpionWins > 1 ? "s" : "")") : L("Classique et super morpion")
+        case .puissance: return app.puissanceWins > 0 ? L("\(app.puissanceWins) victoire\(app.puissanceWins > 1 ? "s" : "")") : L("Contre l'ordi ou à deux")
         case .pliou: return app.pliouDays > 0 ? L("\(app.pliouDays) jour\(app.pliouDays > 1 ? "s" : "") avec Pliou") : L("Un œuf t'attend")
         case .filet: return app.filetWins > 0 ? L("\(app.filetWins) victoire\(app.filetWins > 1 ? "s" : "")") : nil
         case .airHockey: return L("Premier à 7 buts")
@@ -314,7 +318,7 @@ struct GameTile: View {
                     .accessibilityHidden(true)
             }
             .background(FoldedPaper(color: game.color, cornerRadius: 26))
-            .shadow(color: game.color.opacity(0.35), radius: 14, y: 6)
+            .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(.white.opacity(0.18), lineWidth: 1))
         }
         .buttonStyle(PressableStyle())
         .overlay(alignment: .topTrailing) {
@@ -423,7 +427,7 @@ struct SettingsView: View {
                 }
                 Section(L("iPhone Duo")) {
                     Text(DuoSupport.apisAvailable
-                         ? L("Sur iPhone Duo, LA BOÎTE et CHUT ! commencent fermés : il faut ouvrir le Duo pour jouer. COUP D'ŒIL, BOMBE, PLIOU et LUCIOLE passent d'un écran à l'autre, et DESSINE-MOI montre ton dessin sur l'écran extérieur. RAYON et BASCULE se jouent avec la charnière ; FILET, ÉCOLE et le PIANO plié en L ; AIR HOCKEY, BILLARD, ÉCHECS et DAMES à plat ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
+                         ? L("Sur iPhone Duo, LA BOÎTE et CHUT ! commencent fermés : il faut ouvrir le Duo pour jouer. COUP D'ŒIL, BOMBE, PLIOU, MAGIE et LUCIOLE passent d'un écran à l'autre ; DESSINE-MOI et BONNETEAU montrent le jeu sur l'écran extérieur, face à l'autre joueur. RAYON et BASCULE se jouent avec la charnière ; FILET, ÉCOLE, PIANO et PUISSANCE 4 plié en L ; AIR HOCKEY, BILLARD, ÉCHECS, DAMES et MORPION à plat ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
                          : L("Cet iPhone n'a pas de charnière : tous les jeux se jouent au doigt. Chaque jeu a son mode d'emploi : touche « ? »."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
@@ -438,7 +442,7 @@ struct SettingsView: View {
                     .labelsHidden()
                 }
                 Section(L("Vie privée")) {
-                    Text(L("Dans 1, 2, 3… Soleil ! et DESSINE-MOI, la caméra sert, directement sur le téléphone, à repérer les mouvements ou à prendre en photo ceux qui devinent. Les photos restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis. Quand ton jardin de FERME est complet, l'app envoie un seul message anonyme pour compter l'arbre à planter : rien ne permet de savoir qui tu es."))
+                    Text(L("Dans 1, 2, 3… Soleil !, DESSINE-MOI, BONNETEAU et MAGIE, la caméra sert, directement sur le téléphone, à repérer les mouvements, à prendre en photo ceux qui devinent, ou simplement à allumer l'écran extérieur. Les photos restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis. Quand ton jardin de FERME est complet, l'app envoie un seul message anonyme pour compter l'arbre à planter : rien ne permet de savoir qui tu es."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
                 }

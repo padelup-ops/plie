@@ -181,7 +181,6 @@ struct RayonPlayView: View {
     @State private var touchDecided = false
     @State private var showTip = true
 
-    private let ticker = Timer.publish(every: 1.0 / 60.0, on: .main, in: .common).autoconnect()
 
     init(number: Int) {
         self.number = number
@@ -260,7 +259,7 @@ struct RayonPlayView: View {
                 session.targetT = HingeMapping.fraction(fromDegrees: degrees)
             }
         }
-        .onReceive(ticker) { _ in
+        .onFrame { _ in
             session.tick(dt: 1.0 / 60.0)
             if session.solved && !recorded {
                 recorded = true

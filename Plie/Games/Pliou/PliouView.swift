@@ -40,7 +40,7 @@ final class PliouPet {
     private(set) var bounceAt: Double = -10
     private(set) var munchAt: Double = -10
     private(set) var bubbles: [CGPoint] = []
-    private(set) var clock: Double = 0
+    @ObservationIgnored private(set) var clock: Double = 0
     private(set) var message: String?
 
     @ObservationIgnored private var playTaps: [Double] = []
@@ -200,7 +200,7 @@ final class PliouPet {
 
     func tick(dt: Double) {
         clock += dt
-        bubbles = bubbles.count > 0 && Int(clock * 10) % 3 == 0 ? Array(bubbles.dropFirst()) : bubbles
+        if !bubbles.isEmpty && Int(clock * 10) % 3 == 0 { bubbles.removeFirst() }
         if asleep {
             if state.hatched {
                 state.energy = min(1, state.energy + dt / 90)
@@ -235,7 +235,6 @@ struct PliouView: View {
     @State private var hasHinge = false
     @State private var wardrobe = false
 
-    private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ZStack {
@@ -262,7 +261,7 @@ struct PliouView: View {
             hasHinge = true
             pet.setClosed(degrees < 20)
         }
-        .onReceive(ticker) { _ in pet.tick(dt: 1.0 / 30.0) }
+        .onFrame(step: 1.0 / 30.0) { _ in pet.tick(dt: 1.0 / 30.0) }
         .onAppear { pet.catchUp() }
         .onDisappear { app.recordPliou(days: pet.state.careDays.count) }
         .sheet(isPresented: $wardrobe) { wardrobeSheet }

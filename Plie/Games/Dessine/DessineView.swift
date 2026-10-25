@@ -109,9 +109,12 @@ final class DessineGame {
     private(set) var found = 0
     private(set) var foundWords: [String] = []
     private(set) var photos: [DessinePhoto] = []
-    private(set) var timeLeft: Double = 90
-    private(set) var flashAt: Double = -10
-    private(set) var clock: Double = 0
+    @ObservationIgnored private(set) var timeLeft: Double = 90
+    /// Secondes restantes affichées (changent une fois par seconde).
+    private(set) var secondsLeft = 90
+    /// « Trouvé ! » affiché en grand sur l'écran extérieur.
+    private(set) var flashing = false
+    @ObservationIgnored private(set) var clock: Double = 0
     private(set) var round = 0
     private(set) var bestRound = 0
     var duration = 90
@@ -130,6 +133,7 @@ final class DessineGame {
         photos = []
         strokes = []
         timeLeft = Double(duration)
+        secondsLeft = duration
         if deck.isEmpty { refill() }
         word = deck.popLast() ?? ""
         phase = .drawing
@@ -179,7 +183,11 @@ final class DessineGame {
         guard phase == .drawing else { return }
         found += 1
         foundWords.append(word)
-        flashAt = clock
+        flashing = true
+        let found = self.found
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+            if self?.found == found { self?.flashing = false }
+        }
         if let image = takePhoto?() {
             nextID += 1
             photos.append(DessinePhoto(id: nextID, word: word, image: image))
@@ -208,6 +216,7 @@ final class DessineGame {
         let before = Int(timeLeft.rounded(.up))
         timeLeft = max(0, timeLeft - dt)
         let after = Int(timeLeft.rounded(.up))
+        if after != secondsLeft { secondsLeft = after }
         if after != before && after <= 5 && after > 0 { SoundPlayer.shared.play(.clockTick, volume: 0.8) }
         if timeLeft <= 0 {
             phase = .roundEnd
@@ -230,7 +239,6 @@ struct DessineView: View {
     @State private var outerAvailable = false
     @State private var peek = false
 
-    private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
     static let palette: [UInt32] = [0x1A1A1A, 0xE5332A, 0xF28A1E, 0xF7C531, 0x1E8A4C, 0x2457D6, 0x8E44AD, 0x8B5A2B]
 
     /// L'écran extérieur montre le dessin : le mot peut rester affiché pour le dessinateur.
@@ -246,7 +254,7 @@ struct DessineView: View {
             }
         }
         .foregroundStyle(.white)
-        .onReceive(ticker) { _ in game.tick(dt: 1.0 / 30.0) }
+        .onFrame(step: 1.0 / 30.0) { _ in game.tick(dt: 1.0 / 30.0) }
         .onAppear {
             game.takePhoto = { [camera] in camera.snapshot() }
             camera.start { ok in cameraOn = ok }
@@ -275,10 +283,10 @@ struct DessineView: View {
                 Label("\(game.found)", systemImage: "checkmark.seal.fill")
                     .font(.plie(18))
                     .foregroundStyle(Theme.go)
-                Text("\(Int(game.timeLeft.rounded(.up)))")
+                Text("\(game.secondsLeft)")
                     .font(.plie(24))
                     .monospacedDigit()
-                    .foregroundStyle(game.timeLeft <= 10 ? Theme.coral : .white)
+                    .foregroundStyle(game.secondsLeft <= 10 ? Theme.coral : .white)
                     .frame(minWidth: 44)
             }
         }
@@ -571,7 +579,7 @@ struct DessineOuterView: View {
                     Label("\(game.found)", systemImage: "checkmark.seal.fill").font(.plie(24)).foregroundStyle(Theme.go)
                     Spacer()
                     if game.phase == .drawing {
-                        Text("\(Int(game.timeLeft.rounded(.up)))").font(.plie(30)).monospacedDigit()
+                        Text("\(game.secondsLeft)").font(.plie(30)).monospacedDigit()
                     }
                 }
                 .padding(.horizontal, 18)
@@ -583,7 +591,7 @@ struct DessineOuterView: View {
                             DessineCanvas.draw(&context, strokes: game.strokes, size: s)
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                        if game.clock - game.flashAt < 1.2 {
+                        if game.flashing {
                             Text(L("Trouvé !"))
                                 .font(.plie(64))
                                 .foregroundStyle(Theme.go)

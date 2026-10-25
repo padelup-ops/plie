@@ -307,7 +307,6 @@ struct AirHockeyView: View {
     @State private var game = HockeyGame()
     @State private var landscape = true
 
-    private let ticker = Timer.publish(every: 1.0 / 60.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         GeometryReader { proxy in
@@ -365,7 +364,7 @@ struct AirHockeyView: View {
             }
         }
         .ignoresSafeArea()
-        .onReceive(ticker) { _ in
+        .onFrame { _ in
             // En portrait, la partie attend que le téléphone soit tourné.
             if landscape { game.tick(dt: 1.0 / 60.0) }
         }
@@ -478,11 +477,10 @@ struct HockeyTable: View {
                 y += gap
             }
             context.fill(holes, with: .color(.white.opacity(0.07)))
+            // Néon sans flou (un flou par trait, 60 fois par seconde, faisait ramer) : deux halos transparents.
             func neon(_ path: Path, _ color: Color, _ width: CGFloat, dash: [CGFloat] = []) {
-                context.drawLayer { glow in
-                    glow.addFilter(.blur(radius: width * 2))
-                    glow.stroke(path, with: .color(color.opacity(0.9)), style: StrokeStyle(lineWidth: width * 2, lineCap: .round, dash: dash))
-                }
+                context.stroke(path, with: .color(color.opacity(0.14)), style: StrokeStyle(lineWidth: width * 5, lineCap: .round, dash: dash))
+                context.stroke(path, with: .color(color.opacity(0.3)), style: StrokeStyle(lineWidth: width * 2.6, lineCap: .round, dash: dash))
                 context.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: width, lineCap: .round, dash: dash))
                 context.stroke(path, with: .color(.white.opacity(0.6)), style: StrokeStyle(lineWidth: max(1, width * 0.3), lineCap: .round, dash: dash))
             }
@@ -535,10 +533,8 @@ struct HockeyTable: View {
             for (m, color) in [(a, Theme.hockeyA), (b, Theme.hockeyB)] {
                 let c = sp(m.u, m.v)
                 let r = CGFloat(HockeyGame.malletR) * scale
-                context.drawLayer { glow in
-                    glow.addFilter(.blur(radius: r * 0.5))
-                    glow.fill(disc(c, r * 1.15), with: .color(color.opacity(0.6)))
-                }
+                context.fill(disc(c, r * 1.45), with: .radialGradient(Gradient(colors: [color.opacity(0.6), color.opacity(0)]),
+                                                                     center: c, startRadius: r * 0.8, endRadius: r * 1.45))
                 Draw.shadedBall(&context, center: c, radius: r, color: color)
                 context.fill(disc(c, r * 0.5), with: .radialGradient(Gradient(colors: [.white.opacity(0.7), color]),
                                                                     center: CGPoint(x: c.x - r * 0.15, y: c.y - r * 0.15),
@@ -546,10 +542,8 @@ struct HockeyTable: View {
                 context.stroke(disc(c, r), with: .color(.white.opacity(0.55)), lineWidth: 1.5)
             }
             let pc = sp(puck.u, puck.v)
-            context.drawLayer { glow in
-                glow.addFilter(.blur(radius: pr * 0.6))
-                glow.fill(disc(pc, pr * 1.3), with: .color(Theme.laser.opacity(goalFlash ? 0.9 : 0.55)))
-            }
+            context.fill(disc(pc, pr * 1.7), with: .radialGradient(Gradient(colors: [Theme.laser.opacity(goalFlash ? 0.9 : 0.55), Theme.laser.opacity(0)]),
+                                                                  center: pc, startRadius: pr * 0.8, endRadius: pr * 1.7))
             context.fill(disc(pc, pr), with: .radialGradient(Gradient(colors: [Color(hex: 0x3A3F55), Color(hex: 0x0B0C14)]),
                                                             center: CGPoint(x: pc.x - pr * 0.3, y: pc.y - pr * 0.3),
                                                             startRadius: 0, endRadius: pr * 1.3))

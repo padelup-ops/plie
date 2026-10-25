@@ -109,7 +109,6 @@ struct BasculePlayView: View {
     @State private var usesHinge = false
     @State private var recorded = false
 
-    private let ticker = Timer.publish(every: 1.0 / 60.0, on: .main, in: .common).autoconnect()
 
     init(number: Int) {
         self.number = number
@@ -185,7 +184,7 @@ struct BasculePlayView: View {
             usesHinge = true
             session.setTarget(BasculeEngine.alpha(fromFraction: HingeMapping.fraction(fromDegrees: degrees)))
         }
-        .onReceive(ticker) { _ in
+        .onFrame { _ in
             session.tick(dt: 1.0 / 60.0)
             if session.phase == .won && !recorded {
                 recorded = true
