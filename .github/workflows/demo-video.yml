@@ -16,6 +16,8 @@ jobs:
   film:
     runs-on: xcode-27
     timeout-minutes: 90
+    permissions:
+      contents: write
 
     steps:
       - name: Récupérer le code
@@ -115,10 +117,26 @@ jobs:
           xcrun simctl spawn "$UDID" log show --last 20m --style compact --predicate 'process == "Plie"' > rushes/journal-app.txt 2>&1 || true
           tail -c 150000 rushes/journal-app.txt > rushes/journal-app-fin.txt; rm -f rushes/journal-app.txt
 
-      - name: Publier les rushes
+      - name: Réduire les vidéos
+        run: |
+          cd rushes
+          for f in *.mov; do
+            avconvert --source "$f" --preset Preset1920x1080 --output "${f%.mov}.mp4" --replace > /dev/null 2>&1 \
+              || cp "$f" "${f%.mov}.mp4"
+            rm -f "$f"
+          done
+          ls -la
+
+      - name: Publier les rushes dans la branche ci-demo
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: demo-rushes
-          path: rushes/
-          retention-days: 7
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd rushes
+          git init -q -b ci-demo
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          echo "tournage ${{ github.run_number }} - commit ${{ github.sha }} - $(date -u)" > tournage.txt
+          git add -A
+          git commit -qm "Tournage ${{ github.run_number }}"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-demo
