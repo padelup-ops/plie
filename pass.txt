@@ -1,0 +1,14 @@
+APP_ID 6825605393
+ok     création de l'achat plie.pass.complet
+ok     textes fr-FR
+ok     textes en-US
+ok     prix 2.99 € (base France)
+ok     disponibilité (175 pays)
+
+achat plie.pass.complet | Pass Origamo | type NON_CONSUMABLE | état MISSING_METADATA
+   en-US | Origamo Pass | Every level, forever
+   fr-FR | Pass Origamo | Tous les niveaux, pour toujours
+  prix de base : FRA
+
+PASS CRÉÉ
+Il reste à ajouter une capture de l'écran du Pass, puis à cocher l'achat sur la page de la version 1.0.
