@@ -1,0 +1,41 @@
+# Cherche dans le SDK iOS de Xcode 27.1 tout ce qui parle de charnière / pliage (lecture seule).
+name: Exploration SDK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  explore:
+    runs-on: xcode-27
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Chercher
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          SDK=$(xcrun --sdk iphoneos --show-sdk-path)
+          echo "SDK=$SDK" > sdk.txt
+          mkdir -p out
+          cd "$SDK/System/Library/Frameworks"
+          # Toutes les déclarations qui mentionnent la charnière ou le pliage
+          grep -rIl -i -E "hinge|foldstate|fold state|devicefold|posture|isFolded|foldable" --include="*.swiftinterface" --include="*.h" . 2>/dev/null | sort > "$GITHUB_WORKSPACE/out/fichiers.txt" || true
+          for f in $(cat "$GITHUB_WORKSPACE/out/fichiers.txt"); do
+            echo "===== $f"
+            grep -n -i -E -B3 -A12 "hinge|foldstate|fold state|devicefold|posture|isFolded|foldable" "$f" | head -400
+          done > "$GITHUB_WORKSPACE/out/extraits.txt" 2>/dev/null || true
+          # CoreMotion, UIKit et WidgetKit : les nouveautés 27.x
+          grep -rIn -E "introduced: 27|iOS 27|ios, introduced: 27" --include="*.swiftinterface" CoreMotion.framework UIKit.framework WidgetKit.framework SwiftUI.framework ActivityKit.framework BackgroundTasks.framework 2>/dev/null | head -2000 > "$GITHUB_WORKSPACE/out/nouveautes-27.txt" || true
+          grep -rIn -E "API_AVAILABLE\(ios\(27" --include="*.h" CoreMotion.framework UIKit.framework 2>/dev/null | head -1000 > "$GITHUB_WORKSPACE/out/nouveautes-27-headers.txt" || true
+          wc -l "$GITHUB_WORKSPACE"/out/*.txt
+      - name: Publier
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd out
+          git init -q -b ci-sdk
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Exploration SDK"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-sdk
