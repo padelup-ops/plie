@@ -1784,4 +1784,9 @@ EN = {
     "À la une": "Featured",
     "Éclaté !": "Popped!",
     "Égalité ! On rejoue": "Tie! Play again",
+    "Version de test": "Test version",
+    "Testeur : tous les jeux et tous les niveaux sont offerts.": "Tester: every game and every level is free.",
+    "Voir l'app comme un nouveau joueur": "See the app as a new player",
+    "Pour voir les cadenas, les clés et le Pass, comme quelqu'un qui vient d'installer l'app.": "To see the locks, the keys and the Pass, like someone who just installed the app.",
+    "Offert aux testeurs": "Free for testers",
 }

@@ -21,8 +21,8 @@ struct DuelsView: View {
         .onChange(of: game.phase) { _, phase in
             if phase == .over { app.recordDuels() }
         }
-        .onAppear { game.hasPass = store.ownsPass }
-        .onChange(of: store.ownsPass) { _, owns in game.hasPass = owns }
+        .onAppear { game.hasPass = store.hasEverything }
+        .onChange(of: store.hasEverything) { _, owns in game.hasPass = owns }
     }
 
     private var menu: some View {
@@ -59,7 +59,7 @@ struct DuelsView: View {
 
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 8)], spacing: 8) {
                     ForEach(DuelsGame.Kind.allCases) { k in
-                        let locked = k.needsPass && !store.ownsPass
+                        let locked = k.needsPass && !store.hasEverything
                         HStack(spacing: 8) {
                             Image(systemName: locked ? "lock.fill" : k.symbol)
                                 .font(.system(size: 15, weight: .bold))
@@ -78,7 +78,7 @@ struct DuelsView: View {
                     }
                 }
                 .frame(maxWidth: 520)
-                if !store.ownsPass {
+                if !store.hasEverything {
                     Button {
                         app.showPass = true
                     } label: {

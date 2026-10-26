@@ -414,8 +414,8 @@ struct BriquesView: View {
 
     private func levelButton(_ n: Int) -> some View {
         let done = app.briquesStars[n] != nil
-        let needsPass = app.briquesNeedsPass(n, hasPass: store.ownsPass)
-        let unlocked = app.briquesIsUnlocked(n, hasPass: store.ownsPass)
+        let needsPass = app.briquesNeedsPass(n, hasPass: store.hasEverything)
+        let unlocked = app.briquesIsUnlocked(n, hasPass: store.hasEverything)
         return Button {
             if needsPass {
                 app.showPass = true
@@ -513,7 +513,7 @@ struct BriquesView: View {
                 if game.phase == .won && game.level < BriquesLevel.count {
                     Button {
                         let next = game.level + 1
-                        if app.briquesNeedsPass(next, hasPass: store.ownsPass) {
+                        if app.briquesNeedsPass(next, hasPass: store.hasEverything) {
                             app.showPass = true
                         } else {
                             game.start(next)

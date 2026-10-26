@@ -437,7 +437,7 @@ struct BoiteView: View {
                         if game.number < BoiteLevel.count {
                             Button {
                                 let next = game.number + 1
-                                if app.boiteNeedsPass(next, hasPass: store.ownsPass) {
+                                if app.boiteNeedsPass(next, hasPass: store.hasEverything) {
                                     app.showPass = true
                                 } else {
                                     game.start(next)
@@ -534,8 +534,8 @@ struct BoiteMenu: View {
 
     private func levelButton(_ number: Int) -> some View {
         let done = app.boiteStars[number] != nil
-        let needsPass = app.boiteNeedsPass(number, hasPass: store.ownsPass)
-        let unlocked = app.boiteIsUnlocked(number, hasPass: store.ownsPass)
+        let needsPass = app.boiteNeedsPass(number, hasPass: store.hasEverything)
+        let unlocked = app.boiteIsUnlocked(number, hasPass: store.hasEverything)
 
         return Button {
             if needsPass {

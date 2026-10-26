@@ -33,7 +33,7 @@ struct BasculeLevelsView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 SectionTitle(text: L("Monde \(world) · \(BasculeLevel.worldName(world))"))
-                                if BasculeLevel.all.contains(where: { $0.world == world && app.basculeNeedsPass($0.number, hasPass: store.ownsPass) }) {
+                                if BasculeLevel.all.contains(where: { $0.world == world && app.basculeNeedsPass($0.number, hasPass: store.hasEverything) }) {
                                     Image(systemName: "crown.fill")
                                         .foregroundStyle(Theme.gold)
                                 }
@@ -55,8 +55,8 @@ struct BasculeLevelsView: View {
 
     private func levelButton(_ number: Int) -> some View {
         let stars = app.basculeStars[number]
-        let needsPass = app.basculeNeedsPass(number, hasPass: store.ownsPass)
-        let unlocked = app.basculeIsUnlocked(number, hasPass: store.ownsPass)
+        let needsPass = app.basculeNeedsPass(number, hasPass: store.hasEverything)
+        let unlocked = app.basculeIsUnlocked(number, hasPass: store.hasEverything)
 
         return Button {
             if needsPass {
@@ -219,7 +219,7 @@ struct BasculePlayView: View {
                         .multilineTextAlignment(.center)
                 }
                 if number < BasculeLevel.all.count {
-                    if app.basculeNeedsPass(number + 1, hasPass: store.ownsPass) {
+                    if app.basculeNeedsPass(number + 1, hasPass: store.hasEverything) {
                         Text(L("\(BasculeLevel.all.count - AppState.freeBasculeLevels) niveaux de plus, avec le vent et les ressorts, dans le Pass Origamo."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.muted)

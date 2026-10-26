@@ -7,7 +7,30 @@ final class StoreManager {
     static let passID = "plie.pass.complet"
 
     var pass: Product?
+    /// Le Pass a vraiment été acheté.
     var ownsPass = false
+
+    /// Version de test (TestFlight, ou Xcode) : tout est offert aux testeurs.
+    /// Jamais sur l'App Store : le reçu y est un reçu de production.
+    let isTestBuild: Bool = {
+        guard BuildFlags.testersGetEverything else { return false }
+        #if DEBUG
+        return true
+        #else
+        return Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
+        #endif
+    }()
+
+    /// Pour voir l'app comme un nouveau joueur (cadenas, clés, Pass), même en version de test.
+    private(set) var simulateFree = UserDefaults.standard.bool(forKey: "tester.simulateFree")
+
+    /// Tous les jeux et tous les niveaux : Pass acheté, ou version de test.
+    var hasEverything: Bool { ownsPass || (isTestBuild && !simulateFree) }
+
+    func setSimulateFree(_ on: Bool) {
+        simulateFree = on
+        UserDefaults.standard.set(on, forKey: "tester.simulateFree")
+    }
     var isLoading = false
     var isPurchasing = false
     var message: String?

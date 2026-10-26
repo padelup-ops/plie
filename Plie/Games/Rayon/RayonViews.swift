@@ -29,7 +29,7 @@ struct RayonLevelsView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 SectionTitle(text: L("Monde \(world) · \(RayonLevel.worldName(world))"))
-                                if RayonLevel.all.contains(where: { $0.world == world && app.rayonNeedsPass($0.number, hasPass: store.ownsPass) }) {
+                                if RayonLevel.all.contains(where: { $0.world == world && app.rayonNeedsPass($0.number, hasPass: store.hasEverything) }) {
                                     Image(systemName: "crown.fill")
                                         .foregroundStyle(Theme.gold)
                                 }
@@ -51,8 +51,8 @@ struct RayonLevelsView: View {
 
     private func levelButton(_ number: Int) -> some View {
         let solved = app.rayonSolved.contains(number)
-        let needsPass = app.rayonNeedsPass(number, hasPass: store.ownsPass)
-        let unlocked = app.rayonIsUnlocked(number, hasPass: store.ownsPass)
+        let needsPass = app.rayonNeedsPass(number, hasPass: store.hasEverything)
+        let unlocked = app.rayonIsUnlocked(number, hasPass: store.hasEverything)
 
         return Button {
             if needsPass {
@@ -322,7 +322,7 @@ struct RayonPlayView: View {
                     .font(.plie(17, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                 if let next = nextNumber {
-                    if app.rayonNeedsPass(next, hasPass: store.ownsPass) {
+                    if app.rayonNeedsPass(next, hasPass: store.hasEverything) {
                         Text(L("La suite t'attend : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus avec le Pass Origamo."))
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .multilineTextAlignment(.center)

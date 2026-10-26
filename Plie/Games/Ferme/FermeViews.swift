@@ -287,7 +287,7 @@ struct FermeView: View {
                     SectionTitle(text: L("Durée"))
                     HStack(spacing: 8) {
                         ForEach(durations, id: \.self) { m in
-                            let locked = m > 25 && !store.ownsPass
+                            let locked = m > 25 && !store.hasEverything
                             Button {
                                 if locked { app.showPass = true } else { session.minutes = m }
                             } label: {
@@ -313,7 +313,7 @@ struct FermeView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             ForEach(FermePlant.all) { plant in
-                                let locked = !plant.free && !store.ownsPass
+                                let locked = !plant.free && !store.hasEverything
                                 Button {
                                     if locked { app.showPass = true } else { session.plantID = plant.id }
                                 } label: {

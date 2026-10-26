@@ -44,7 +44,7 @@ struct HubView: View {
         ]
     }
 
-    private var hasPass: Bool { store.ownsPass }
+    private var hasPass: Bool { store.hasEverything }
 
     private func unlocked(_ game: GameID) -> Bool { app.isUnlocked(game, hasPass: hasPass) }
 
@@ -621,7 +621,7 @@ struct ChooseGameSheet: View {
     @Environment(StoreManager.self) private var store
     @Environment(\.dismiss) private var dismiss
 
-    private var locked: [GameID] { GameID.allCases.filter { !app.isUnlocked($0, hasPass: store.ownsPass) } }
+    private var locked: [GameID] { GameID.allCases.filter { !app.isUnlocked($0, hasPass: store.hasEverything) } }
 
     var body: some View {
         ScrollView {
@@ -723,9 +723,18 @@ struct SettingsView: View {
                     Toggle(L("Sons"), isOn: Binding(get: { app.soundOn }, set: { app.setSound($0) }))
                     Toggle(L("Vibrations"), isOn: Binding(get: { app.hapticsOn }, set: { app.setHaptics($0) }))
                 }
+                if store.isTestBuild {
+                    Section(L("Version de test")) {
+                        Label(L("Testeur : tous les jeux et tous les niveaux sont offerts."), systemImage: "gift.fill")
+                        Toggle(L("Voir l'app comme un nouveau joueur"), isOn: Binding(get: { store.simulateFree }, set: { store.setSimulateFree($0) }))
+                        Text(L("Pour voir les cadenas, les clés et le Pass, comme quelqu'un qui vient d'installer l'app."))
+                            .font(.system(size: 13))
+                            .foregroundStyle(Theme.muted)
+                    }
+                }
                 Section(L("Pass Origamo")) {
-                    if store.ownsPass {
-                        Label(L("Tout est débloqué"), systemImage: "checkmark.seal.fill")
+                    if store.hasEverything {
+                        Label(store.ownsPass ? L("Tout est débloqué") : L("Offert aux testeurs"), systemImage: "checkmark.seal.fill")
                     } else {
                         Button(L("Voir le Pass")) {
                             dismiss()
@@ -810,7 +819,7 @@ struct PassView: View {
                 .padding(18)
                 .background(GlassPanel(cornerRadius: 22))
 
-                if store.ownsPass {
+                if store.hasEverything {
                     Label(L("Déjà débloqué, merci !"), systemImage: "checkmark.seal.fill")
                         .font(.plie(18, weight: .bold))
                         .foregroundStyle(Theme.go)

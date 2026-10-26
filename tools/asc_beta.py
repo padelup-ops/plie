@@ -20,22 +20,20 @@ BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 WHATS_NEW = {
     "fr-FR": """Nouveautés de ce build :
 
+• Pour les testeurs, TOUT est offert : les 24 jeux, les 18 mini-duels et tous les niveaux. (Réglages > « Voir l'app comme un nouveau joueur » pour voir les cadenas et les clés.)
 • Nouvel accueil : jeux à la une, rangées par situation (à deux, en soirée, la magie du Duo…), « Reprendre ».
-• 6 jeux ouverts au départ ; les autres se débloquent avec des clés gagnées en jouant, ou d'un coup avec le Pass (gratuit pour les testeurs).
-• DUELS : 8 nouveaux mini-duels avec le Pass (pierre-feuille-ciseaux, nerfs d'acier, cercle parfait, ballon, l'intrus, 1 à 9, pile au centre, mémo-grille).
+• DUELS : 8 nouveaux mini-duels (pierre-feuille-ciseaux, nerfs d'acier, cercle parfait, ballon, l'intrus, 1 à 9, pile au centre, mémo-grille).
 • Plié en L : les menus de PUISSANCE 4, CASSE-BRIQUES, FILET, ÉCOLE et PIANO ne tombent plus sur la charnière.
-• SILLAGE et BATAILLE NAVALE sont retirés.
 
-À tester en priorité : l'accueil, les clés et les nouveaux duels.""",
+À tester en priorité : l'accueil et les nouveaux duels.""",
     "en-US": """New in this build:
 
+• For testers, EVERYTHING is free: all 24 games, all 18 mini-duels and every level. (Settings > "See the app as a new player" to see the locks and keys.)
 • New home screen: featured games, rows by situation (for two, party games, Duo magic…), "Resume".
-• 6 games open at the start; the others unlock with keys earned by playing, or all at once with the Pass (free for testers).
-• DUELS: 8 new mini-duels with the Pass (rock paper scissors, nerves of steel, perfect circle, balloon, odd one out, 1 to 9, bull's-eye, grid memory).
+• DUELS: 8 new mini-duels (rock paper scissors, nerves of steel, perfect circle, balloon, odd one out, 1 to 9, bull's-eye, grid memory).
 • Folded into an L: the menus of CONNECT 4, BRICK BREAKER, PING PONG, SCHOOL and PIANO no longer land on the hinge.
-• LIGHT TRAILS and BATTLESHIP are removed.
 
-Please test first: the home screen, the keys and the new duels.""",
+Please test first: the home screen and the new duels.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

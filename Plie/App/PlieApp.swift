@@ -135,7 +135,7 @@ struct RootView: View {
             }
         }
         .onChange(of: app.newKey) { _, _ in
-            guard !store.ownsPass else { return }
+            guard !store.hasEverything else { return }
             SoundPlayer.shared.play(.chime, volume: 0.8)
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { keyToast = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.2) {

@@ -527,7 +527,7 @@ struct DraughtsView: View {
                     rules: L("Touche un pion puis sa case d'arrivée. La prise est obligatoire, et il faut prendre le plus de pièces possible. Les pions prennent aussi en arrière, et les dames volent sur toute la diagonale."),
                     hingeHint: L("Déplie ton iPhone Duo et pose-le à plat entre vous : la charnière sépare vos deux camps. Replie-le un peu pour mettre la pendule en pause."),
                     savedSummary: savedSummary,
-                    passLocked: { app.boardLevelNeedsPass($0, hasPass: store.ownsPass) },
+                    passLocked: { app.boardLevelNeedsPass($0, hasPass: store.hasEverything) },
                     onResume: { match.resume() },
                     onStart: { opponent, clock, white in match.start(opponent: opponent, clock: clock, humanWhite: white) },
                     onPass: { app.showPass = true }

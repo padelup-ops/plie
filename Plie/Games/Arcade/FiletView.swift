@@ -617,7 +617,7 @@ struct FiletView: View {
     }
 
     private func levelButton(_ level: FiletGame.Level) -> some View {
-        let needsPass = app.filetNeedsPass(level.rawValue, hasPass: store.ownsPass)
+        let needsPass = app.filetNeedsPass(level.rawValue, hasPass: store.hasEverything)
         let beaten = app.filetBestLevel >= level.rawValue
         return Button {
             if needsPass {

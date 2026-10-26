@@ -497,7 +497,7 @@ struct ChessView: View {
                     rules: L("Touche une pièce pour voir ses coups, puis touche la case d'arrivée. Toutes les règles sont là : roque, prise en passant, promotion, pat et nulles."),
                     hingeHint: L("Déplie ton iPhone Duo et pose-le à plat entre vous : la charnière sépare vos deux camps, chacun voit ses pièces à l'endroit. Replie-le un peu pour mettre la pendule en pause."),
                     savedSummary: savedSummary,
-                    passLocked: { app.boardLevelNeedsPass($0, hasPass: store.ownsPass) },
+                    passLocked: { app.boardLevelNeedsPass($0, hasPass: store.hasEverything) },
                     onResume: { match.resume() },
                     onStart: { opponent, clock, white in match.start(opponent: opponent, clock: clock, humanWhite: white) },
                     onPass: { app.showPass = true }
