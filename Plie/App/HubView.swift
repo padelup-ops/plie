@@ -13,7 +13,7 @@ struct HubView: View {
     @State private var filter: HubFilter = .all
     @State private var howTo: GameID?
 
-    static let newGames: Set<GameID> = [.briques, .bonneteau, .morpion, .puissance, .boite, .croco]
+    static let newGames: Set<GameID> = [.sillage, .duels, .mots, .navale, .briques, .bonneteau]
 
     var body: some View {
         ScrollView {
@@ -184,6 +184,10 @@ struct HubView: View {
         switch game {
         case .rayon: return L("\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux")
         case .bascule: return L("\(app.basculeStars.count) / \(BasculeLevel.all.count) niveaux")
+        case .sillage: return app.sillageWins > 0 ? L("\(app.sillageWins) victoire\(app.sillageWins > 1 ? "s" : "")") : L("À deux ou contre l'ordi")
+        case .duels: return app.duelsGames > 0 ? L("\(app.duelsGames) partie\(app.duelsGames > 1 ? "s" : "")") : L("10 mini-duels")
+        case .mots: return app.motsBest > 0 ? L("Record : \(app.motsBest) mots") : L("En équipes")
+        case .navale: return app.navaleWins > 0 ? L("\(app.navaleWins) victoire\(app.navaleWins > 1 ? "s" : "")") : L("Contre l'ordi ou à deux")
         case .boite: return L("\(app.boiteStars.count) / \(BoiteLevel.count) boîtes")
         case .croco: return app.crocoBest > 0 ? L("Record : \(app.crocoBest) dents") : L("1 à 6 joueurs")
         case .coupDoeil: return app.oeilStreak > 0 ? L("Série : \(app.oeilStreak) jour\(app.oeilStreak > 1 ? "s" : "")") : L("Un défi par jour")
@@ -427,7 +431,7 @@ struct SettingsView: View {
                 }
                 Section(L("iPhone Duo")) {
                     Text(DuoSupport.apisAvailable
-                         ? L("Sur iPhone Duo, LA BOÎTE et CROCO commencent fermés : il faut ouvrir le Duo pour jouer. COUP D'ŒIL, BOMBE, PLIOU et LUCIOLE passent d'un écran à l'autre ; DESSINE-MOI et BONNETEAU montrent le jeu sur l'écran extérieur, face à l'autre joueur. RAYON et BASCULE se jouent avec la charnière ; FILET, ÉCOLE, PIANO, PUISSANCE 4 et CASSE-BRIQUES plié en L ; AIR HOCKEY, BILLARD, ÉCHECS, DAMES et MORPION à plat ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
+                         ? L("Sur iPhone Duo, LA BOÎTE et CROCO commencent fermés : il faut ouvrir le Duo pour jouer. COUP D'ŒIL, BOMBE, PLIOU et LUCIOLE passent d'un écran à l'autre ; DESSINE-MOI, BONNETEAU et MOTS INTERDITS montrent le jeu sur l'écran extérieur, face aux autres joueurs. RAYON et BASCULE se jouent avec la charnière ; FILET, ÉCOLE, PIANO, PUISSANCE 4, CASSE-BRIQUES et BATAILLE NAVALE plié en L ; AIR HOCKEY, BILLARD, ÉCHECS, DAMES, MORPION, SILLAGE et DUELS à plat ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
                          : L("Cet iPhone n'a pas de charnière : tous les jeux se jouent au doigt. Chaque jeu a son mode d'emploi : touche « ? »."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
@@ -442,7 +446,7 @@ struct SettingsView: View {
                     .labelsHidden()
                 }
                 Section(L("Vie privée")) {
-                    Text(L("Dans 1, 2, 3… Soleil !, DESSINE-MOI et BONNETEAU, la caméra sert, directement sur le téléphone, à repérer les mouvements, à prendre en photo ceux qui devinent, ou simplement à allumer l'écran extérieur. Les photos restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis. Quand ton jardin de FERME est complet, l'app envoie un seul message anonyme pour compter l'arbre à planter : rien ne permet de savoir qui tu es."))
+                    Text(L("Dans 1, 2, 3… Soleil !, DESSINE-MOI, BONNETEAU et MOTS INTERDITS, la caméra sert, directement sur le téléphone, à repérer les mouvements, à prendre en photo ceux qui devinent, ou simplement à allumer l'écran extérieur. Les photos restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis. Quand ton jardin de FERME est complet, l'app envoie un seul message anonyme pour compter l'arbre à planter : rien ne permet de savoir qui tu es."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
                 }

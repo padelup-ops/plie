@@ -27,6 +27,10 @@ enum Route: Equatable {
     case billard
     case luciole
     case ecole
+    case sillage
+    case duels
+    case mots
+    case navale
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -87,6 +91,15 @@ final class AppState {
     private(set) var bonneteauGames = 0
     /// CASSE-BRIQUES : étoiles par niveau réussi.
     private(set) var briquesStars: [Int: Int] = [:]
+    /// SILLAGE, BATAILLE NAVALE : parties, victoires contre l'ordinateur.
+    private(set) var sillageGames = 0
+    private(set) var sillageWins = 0
+    private(set) var navaleGames = 0
+    private(set) var navaleWins = 0
+    /// DUELS : parties jouées. MOTS INTERDITS : manches et record de mots trouvés en une manche.
+    private(set) var duelsGames = 0
+    private(set) var motsRounds = 0
+    private(set) var motsBest = 0
 
     private(set) var soleilGames = 0
 
@@ -152,6 +165,10 @@ final class AppState {
         case "billard": route = .billard
         case "luciole": route = .luciole
         case "ecole": route = .ecole
+        case "sillage": route = .sillage
+        case "duels": route = .duels
+        case "mots": route = .mots
+        case "navale": route = .navale
         case "pass": showPass = true
         default: route = .hub
         }
@@ -428,6 +445,37 @@ final class AppState {
         save()
     }
 
+    func recordSillage(won: Bool) {
+        sillageGames += 1
+        if won {
+            sillageWins += 1
+            celebrate()
+        }
+        save()
+    }
+
+    func recordNavale(won: Bool) {
+        navaleGames += 1
+        if won {
+            navaleWins += 1
+            celebrate()
+        }
+        save()
+    }
+
+    func recordDuels() {
+        duelsGames += 1
+        save()
+    }
+
+    func recordMots(found: Int) {
+        motsRounds += 1
+        if found > motsBest {
+            motsBest = found
+        }
+        save()
+    }
+
     /// `level` : niveau atteint seul (0 pour une partie à deux).
     func recordBonneteau(level: Int) {
         bonneteauGames += 1
@@ -495,6 +543,13 @@ final class AppState {
         static let bonneteauBest = "bonneteau.best"
         static let bonneteauGames = "bonneteau.games"
         static let briquesStars = "briques.stars"
+        static let sillageGames = "sillage.games"
+        static let sillageWins = "sillage.wins"
+        static let navaleGames = "navale.games"
+        static let navaleWins = "navale.wins"
+        static let duelsGames = "duels.games"
+        static let motsRounds = "mots.rounds"
+        static let motsBest = "mots.best"
         static let soleilGames = "soleil.games"
         static let lucioleBest = "luciole.best"
         static let lucioleVoyages = "luciole.voyages"
@@ -548,6 +603,13 @@ final class AppState {
         bonneteauBest = defaults.integer(forKey: Keys.bonneteauBest)
         bonneteauGames = defaults.integer(forKey: Keys.bonneteauGames)
         briquesStars = decode(Keys.briquesStars).mapValues { Int($0) }
+        sillageGames = defaults.integer(forKey: Keys.sillageGames)
+        sillageWins = defaults.integer(forKey: Keys.sillageWins)
+        navaleGames = defaults.integer(forKey: Keys.navaleGames)
+        navaleWins = defaults.integer(forKey: Keys.navaleWins)
+        duelsGames = defaults.integer(forKey: Keys.duelsGames)
+        motsRounds = defaults.integer(forKey: Keys.motsRounds)
+        motsBest = defaults.integer(forKey: Keys.motsBest)
         soleilGames = defaults.integer(forKey: Keys.soleilGames)
         lucioleBest = defaults.integer(forKey: Keys.lucioleBest)
         lucioleVoyages = defaults.integer(forKey: Keys.lucioleVoyages)
@@ -589,6 +651,13 @@ final class AppState {
         defaults.set(bonneteauBest, forKey: Keys.bonneteauBest)
         defaults.set(bonneteauGames, forKey: Keys.bonneteauGames)
         encode(briquesStars.mapValues { Double($0) }, Keys.briquesStars)
+        defaults.set(sillageGames, forKey: Keys.sillageGames)
+        defaults.set(sillageWins, forKey: Keys.sillageWins)
+        defaults.set(navaleGames, forKey: Keys.navaleGames)
+        defaults.set(navaleWins, forKey: Keys.navaleWins)
+        defaults.set(duelsGames, forKey: Keys.duelsGames)
+        defaults.set(motsRounds, forKey: Keys.motsRounds)
+        defaults.set(motsBest, forKey: Keys.motsBest)
         defaults.set(soleilGames, forKey: Keys.soleilGames)
         defaults.set(lucioleBest, forKey: Keys.lucioleBest)
         defaults.set(lucioleVoyages, forKey: Keys.lucioleVoyages)

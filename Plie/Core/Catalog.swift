@@ -75,6 +75,7 @@ struct HowToStep: Identifiable {
 }
 
 enum GameID: String, CaseIterable, Identifiable {
+    case sillage, duels, mots, navale
     case boite, croco, bonneteau, coupDoeil, bombe, dessine, pliou, luciole
     case briques, morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme
 
@@ -82,6 +83,10 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .sillage: return L("SILLAGE")
+        case .duels: return L("DUELS")
+        case .mots: return L("MOTS INTERDITS")
+        case .navale: return L("BATAILLE NAVALE")
         case .boite: return L("LA BOÎTE")
         case .briques: return L("CASSE-BRIQUES")
         case .bonneteau: return L("BONNETEAU")
@@ -110,6 +115,10 @@ enum GameID: String, CaseIterable, Identifiable {
     /// Une phrase courte pour la vignette de l'accueil.
     var tagline: String {
         switch self {
+        case .sillage: return L("Motos de lumière : enferme l'autre !")
+        case .duels: return L("10 mini-duels express, face à face")
+        case .mots: return L("Fais deviner sans dire les mots interdits")
+        case .navale: return L("Tire en haut, ta flotte en bas")
         case .boite: return L("Fermée, l'indice. Ouverte, la serrure.")
         case .briques: return L("Le mur debout, la raquette à plat")
         case .bonneteau: return L("Suis la boule… sur l'autre écran")
@@ -137,6 +146,10 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
+        case .sillage: return Theme.sillage
+        case .duels: return Theme.duels
+        case .mots: return Theme.mots
+        case .navale: return Theme.navale
         case .boite: return Theme.boite
         case .briques: return Theme.briques
         case .bonneteau: return Theme.bonneteau
@@ -164,6 +177,10 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var symbol: String {
         switch self {
+        case .sillage: return "point.topleft.down.to.point.bottomright.curvepath.fill"
+        case .duels: return "bolt.fill"
+        case .mots: return "text.bubble.fill"
+        case .navale: return "ferry.fill"
         case .boite: return "shippingbox.fill"
         case .briques: return "square.grid.3x2.fill"
         case .bonneteau: return "eyes"
@@ -192,6 +209,9 @@ enum GameID: String, CaseIterable, Identifiable {
     var posture: Posture {
         switch self {
         case .boite, .croco: return .closedOpen
+        case .sillage, .duels: return .flat
+        case .mots: return .book
+        case .navale: return .lShape
         case .coupDoeil, .bombe, .pliou, .luciole: return .openClose
         case .dessine, .bonneteau: return .book
         case .rayon, .bascule: return .fold
@@ -206,6 +226,9 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme, .briques: return L("Seul")
         case .croco: return L("1 à 6 joueurs")
+        case .sillage, .navale: return L("1 ou 2 joueurs")
+        case .duels: return L("2 joueurs")
+        case .mots: return L("4 joueurs et plus")
         case .bombe: return L("3 à 8 joueurs")
         case .dessine: return L("3 joueurs et plus")
         case .filet: return L("Contre l'ordi")
@@ -219,6 +242,10 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .boite, .coupDoeil, .pliou: return [.twoScreens, .solo, .kids]
         case .croco: return [.twoScreens, .family, .kids, .solo]
+        case .sillage: return [.duo, .solo]
+        case .duels: return [.duo, .family, .kids]
+        case .mots: return [.twoScreens, .family]
+        case .navale: return [.duo, .solo, .family]
         case .briques: return [.solo, .kids]
         case .bonneteau: return [.twoScreens, .duo, .solo, .family]
         case .morpion, .puissance: return [.solo, .duo, .family, .kids]
@@ -237,6 +264,10 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var route: Route {
         switch self {
+        case .sillage: return .sillage
+        case .duels: return .duels
+        case .mots: return .mots
+        case .navale: return .navale
         case .boite: return .boite
         case .croco: return .croco
         case .briques: return .briques
@@ -266,6 +297,10 @@ enum GameID: String, CaseIterable, Identifiable {
     static func of(_ route: Route) -> GameID? {
         switch route {
         case .hub: return nil
+        case .sillage: return .sillage
+        case .duels: return .duels
+        case .mots: return .mots
+        case .navale: return .navale
         case .boite: return .boite
         case .croco: return .croco
         case .briques: return .briques
@@ -294,6 +329,40 @@ enum GameID: String, CaseIterable, Identifiable {
     /// Mode d'emploi, étape par étape. `duo` : l'appareil a une charnière.
     func howTo(duo: Bool) -> [HowToStep] {
         switch self {
+        case .sillage:
+            return [
+                duo ? HowToStep(symbol: "rectangle.split.1x2.fill", text: L("Déplie le Duo à plat entre vous deux : chacun sa moitié. La charnière coupe l'arène en deux."))
+                    : HowToStep(symbol: "iphone", text: L("Posez le téléphone à plat entre vous deux : chacun sa moitié.")),
+                HowToStep(symbol: "hand.draw.fill", text: L("Ta moto avance toute seule. Glisse le doigt sur ta moitié pour la faire tourner (haut, bas, gauche, droite).")),
+                HowToStep(symbol: "bolt.fill", text: L("Touche sans glisser pour un coup de turbo : trois par manche, pour couper la route à l'autre.")),
+                HowToStep(symbol: "flag.checkered", text: L("Ta moto laisse un mur de lumière. Celui qui se cogne (bord, mur, sillage) perd la manche. Seul : contre l'ordinateur."))
+            ]
+        case .duels:
+            return [
+                duo ? HowToStep(symbol: "rectangle.split.1x2.fill", text: L("Déplie le Duo à plat entre vous deux : chacun sa moitié, tournée vers lui."))
+                    : HowToStep(symbol: "iphone", text: L("Posez le téléphone à plat entre vous deux : chacun sa moitié.")),
+                HowToStep(symbol: "shuffle", text: L("Chaque manche, un mini-duel tiré au hasard : dégainer au signal, tir à la corde, calcul éclair, taupes…")),
+                HowToStep(symbol: "text.book.closed.fill", text: L("La règle s'affiche quelques secondes avant chaque duel. Lisez vite !")),
+                HowToStep(symbol: "trophy.fill", text: L("Chaque duel gagné rapporte un point. Le premier à 5 points gagne (ou 3, ou 7)."))
+            ]
+        case .mots:
+            return [
+                duo ? HowToStep(symbol: "book.fill", text: L("Celui qui fait deviner tient le Duo ouvert comme un livre, l'écran extérieur tourné vers son équipe."))
+                    : HowToStep(symbol: "iphone", text: L("Celui qui fait deviner garde l'écran pour lui.")),
+                HowToStep(symbol: "xmark.circle.fill", text: L("Fais deviner le mot sans dire les cinq mots interdits, ni le mot lui-même. Pas de geste !")),
+                HowToStep(symbol: "checkmark.circle.fill", text: L("« Trouvé ! » : un point, et la caméra prend la photo de ceux qui ont trouvé. « Mot interdit » : un point de moins.")),
+                duo ? HowToStep(symbol: "timer", text: L("En face, l'écran extérieur montre le chrono et le score. À la fin du temps, on passe le Duo à l'autre équipe."))
+                    : HowToStep(symbol: "timer", text: L("À la fin du chrono, on passe le téléphone à l'autre équipe."))
+            ]
+        case .navale:
+            return [
+                duo ? HowToStep(symbol: "laptopcomputer", text: L("Plie le Duo en L : en haut, debout, les eaux ennemies où tu tires ; en bas, à plat, ta flotte."))
+                    : HowToStep(symbol: "iphone", text: L("En haut les eaux ennemies où tu tires, en bas ta flotte.")),
+                HowToStep(symbol: "hand.draw.fill", text: L("Place tes 5 bateaux : glisse-les, touche-les pour les tourner, ou « Au hasard ».")),
+                HowToStep(symbol: "scope", text: L("Touche une case en haut pour tirer. En salve, un tir par bateau encore à flot. Coule toute la flotte ennemie !")),
+                duo ? HowToStep(symbol: "rectangle.portrait.on.rectangle.portrait", text: L("À deux : à la fin de ton tour, ferme le Duo et passe-le. L'autre l'ouvre : il ne voit que ses bateaux à lui."))
+                    : HowToStep(symbol: "person.2.fill", text: L("À deux : à la fin de ton tour, passe le téléphone sans regarder les bateaux de l'autre."))
+            ]
         case .boite:
             return [
                 duo ? HowToStep(symbol: "shippingbox.fill", text: L("Ferme ton Duo : c'est une boîte mystère. Sur son couvercle, l'écran extérieur, il y a un indice."))

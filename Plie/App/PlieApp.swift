@@ -93,6 +93,14 @@ struct RootView: View {
                 LucioleView()
             case .ecole:
                 EcoleView()
+            case .sillage:
+                SillageView()
+            case .duels:
+                DuelsView()
+            case .mots:
+                MotsView()
+            case .navale:
+                NavaleView()
             }
         }
         .animation(.easeInOut(duration: 0.22), value: app.route)
@@ -192,13 +200,21 @@ struct RootView: View {
             return [Theme.luciole, Color(hex: 0x5B2C6F), Color(hex: 0x0B0F3A)]
         case .ecole:
             return [Theme.ecole, Color(hex: 0x2F5D46), Color(hex: 0xFF8FC7)]
+        case .sillage:
+            return [Theme.sillageA, Theme.sillageB, Color(hex: 0x10123A)]
+        case .duels:
+            return [Theme.duelsA, Theme.duelsB, Theme.duels]
+        case .mots:
+            return [Theme.motsTeamA, Theme.motsTeamB, Theme.gold]
+        case .navale:
+            return [Theme.navale, Theme.navaleSea, Color(hex: 0x3DFFB0)]
         }
     }
 
     /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
     private var fullScreen: Bool {
         switch app.route {
-        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance: return true
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .sillage, .duels, .mots, .navale: return true
         default: return false
         }
     }
