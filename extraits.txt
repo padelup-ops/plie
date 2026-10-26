@@ -1,0 +1,663 @@
+===== ./Accelerate.framework/Frameworks/vecLib.framework/Headers/BNNS/bnns_constants.h
+441-
+442- loss = reduction(all batch sample class loss)
+443-
+444: @constant BNNSLossFunctionHinge
+445: performs Hinge loss computation between labels (ground truth output tensor, 0 or 1) and logits (unbpunded 0-centered binary predictions).
+446- loss can be scaled with scalar or weight matrix (matrix size = number_of_classes*batch_size) and reduced according to reduction function
+447- for each class in each sample in the batch:
+448-    weight = scaling factor
+449-    t_i = 2*labels[i] - 1;  // convert 0 or 1 to -1 or 1
+450-    loss = max(0, 1 - t_i * logits_i;
+451-
+452-    in_delta[i] = -1 if logits_i <= 1 and t_i == 1
+453-                   0 if logits_i > 1 and t_i == 1
+454-                   1 if logits_i >= -1 and t_i == -1
+455-                   0 if logits_i < -1 and t_i == -1
+456-
+457-
+--
+497-          BNNSLossFunctionYolo                     __API_AVAILABLE(macos(11.0), ios(14.0), watchos(7.0), tvos(14.0)) =  5,
+498-          BNNSLossFunctionLog                      __API_AVAILABLE(macos(11.0), ios(14.0), watchos(7.0), tvos(14.0)) =  6,
+499-          BNNSLossFunctionCosineDistance           __API_AVAILABLE(macos(11.0), ios(14.0), watchos(7.0), tvos(14.0)) =  7,
+500:          BNNSLossFunctionHinge                    __API_AVAILABLE(macos(11.0), ios(14.0), watchos(7.0), tvos(14.0)) =  8,
+501-          BNNSLossFunctionMeanAbsoluteError        __API_AVAILABLE(macos(11.0), ios(14.0), watchos(7.0), tvos(14.0)) =  9,
+502-          BNNSLossFunctionCategoricalCrossEntropy  __API_AVAILABLE(macos(11.0), ios(14.0), watchos(7.0), tvos(14.0)) = 10,
+503-          );
+504-
+505-/*!
+506-
+507- @abstract Loss layer reduction function
+508-
+509- @constant BNNSLossReductionNone
+510- No reduction. Output loss size equal to input size.
+511-
+512- @constant BNNSLossReductionSum
+===== ./Contacts.framework/Headers/CNChangeHistoryEvent.h
+22-
+23-/// Drop all cached information your app has persisted
+24-API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0))
+25:@interface CNChangeHistoryDropEverythingEvent : CNChangeHistoryEvent
+26-@end
+27-
+28-/// A contact was added
+29-API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0))
+30-@interface CNChangeHistoryAddContactEvent : CNChangeHistoryEvent
+31-@property (readonly, strong, nonatomic) CNContact * contact;
+32-@property (readonly, strong, nonatomic, nullable) NSString * containerIdentifier;
+33-@end
+34-
+35-/// A contact was updated
+36-API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0))
+37-@interface CNChangeHistoryUpdateContactEvent : CNChangeHistoryEvent
+--
+95-API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0))
+96-@protocol CNChangeHistoryEventVisitor <NSObject>
+97-
+98:- (void)visitDropEverythingEvent:(CNChangeHistoryDropEverythingEvent *)event;
+99-
+100-- (void)visitAddContactEvent:(CNChangeHistoryAddContactEvent *)event;
+101-- (void)visitUpdateContactEvent:(CNChangeHistoryUpdateContactEvent *)event;
+102-- (void)visitDeleteContactEvent:(CNChangeHistoryDeleteContactEvent *)event;
+103-
+104-@optional
+105-- (void)visitAddGroupEvent:(CNChangeHistoryAddGroupEvent *)event;
+106-- (void)visitUpdateGroupEvent:(CNChangeHistoryUpdateGroupEvent *)event;
+107-- (void)visitDeleteGroupEvent:(CNChangeHistoryDeleteGroupEvent *)event;
+108-
+109-- (void)visitAddMemberToGroupEvent:(CNChangeHistoryAddMemberToGroupEvent *)event;
+110-- (void)visitRemoveMemberFromGroupEvent:(CNChangeHistoryRemoveMemberFromGroupEvent *)event;
+===== ./Contacts.framework/Headers/CNChangeHistoryFetchRequest.h
+26- *
+27- * @discussion  If non-nil, only changes made after this point in history will be returned.
+28- *
+29: *              If nil, a @c CNChangeHistoryDropEverythingEvent will be returned, followed by an add event
+30- *              for every contact and group currently in the contacts database.
+31- */
+32-@property (copy, nullable, nonatomic) NSData * startingToken;
+33-
+34-/*!
+35- * @abstract    Additional keys to include in the fetched contacts.
+36- *
+37- * @discussion  By default, only @c CNContactIdentifierKey will be fetched. If you
+38- *              would like to include additional key descriptors to process the contacts,
+39- *              include the key descriptors you need.
+40- *
+41- *              @c CNContactIdentifierKey will always be fetched, whether you
+===== ./Contacts.framework/Headers/CNContact+Predicates.h
+33- * @param       emailAddress
+34- *              The email address to search for. Do not include a scheme (e.g., "mailto:").
+35- */
+36:+ (NSPredicate *)predicateForContactsMatchingEmailAddress:(NSString *)emailAddress API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0));
+37-
+38-/*!
+39- * @abstract    Fetch contacts matching a phone number.
+40- *
+41- * @discussion  If the predicate and contact differ in their use or presence of country
+42- *              codes, a best effort will be made to match results; however, inexact
+43- *              matches are not guaranteed.
+44- *
+45- * @param       phoneNumber
+46- *              A @c CNPhoneNumber representing the phone number to search for.
+47- *              Do not include a scheme (e.g., "tel:").
+48- */
+===== ./CoreData.framework/Headers/CoreDataErrors.h
+44-    NSValidationInvalidDateError                     = 1650,   // some date value fails to match date pattern
+45-    NSValidationStringTooLongError                   = 1660,   // some string value is too long
+46-    NSValidationStringTooShortError                  = 1670,   // some string value is too short
+47:    NSValidationStringPatternMatchingError           = 1680,   // some string value fails to match some pattern
+48-    NSValidationInvalidURIError                      = 1690,   // some URI value cannot be represented as a string
+49-    
+50-    NSManagedObjectContextLockingError               = 132000, // can't acquire a lock in a managed object context
+51-    NSPersistentStoreCoordinatorLockingError         = 132010, // can't acquire a lock in a persistent store coordinator
+52-    
+53-    NSManagedObjectReferentialIntegrityError         = 133000, // attempt to fire a fault pointing to an object that does not exist (we can see the store, we can't see the object)
+54-    NSManagedObjectExternalRelationshipError         = 133010, // an object being saved has a relationship containing an object from another store
+55-    NSManagedObjectMergeError                        = 133020, // merge policy failed - unable to complete merging
+56-    NSManagedObjectConstraintMergeError              = 133021, // merge policy failed - unable to complete merging due to multiple conflicting constraint violations
+57-    
+58-    NSPersistentStoreInvalidTypeError                = 134000, // unknown persistent store type/format/version
+59-    NSPersistentStoreTypeMismatchError               = 134010, // returned by persistent store coordinator if a store is accessed that does not match the specified type
+===== ./CoreData.framework/Modules/CoreData.swiftmodule/arm64e-apple-ios.swiftinterface
+553-    get
+554-  }
+555-  @available(*, deprecated, renamed: "validationStringPatternMatching")
+556:  public static var validationStringPatternMatchingError: Foundation::CocoaError.Foundation::Code {
+557-    get
+558-  }
+559-  @available(*, deprecated, renamed: "managedObjectContextLocking")
+560-  public static var managedObjectContextLockingError: Foundation::CocoaError.Foundation::Code {
+561-    get
+562-  }
+563-  @available(*, deprecated, renamed: "persistentStoreCoordinatorLocking")
+564-  public static var persistentStoreCoordinatorLockingError: Foundation::CocoaError.Foundation::Code {
+565-    get
+566-  }
+567-  @available(*, deprecated, renamed: "managedObjectReferentialIntegrity")
+568-  public static var managedObjectReferentialIntegrityError: Foundation::CocoaError.Foundation::Code {
+--
+853-    get
+854-  }
+855-  @available(*, deprecated, renamed: "validationStringPatternMatching")
+856:  public static var validationStringPatternMatchingError: Foundation::CocoaError.Foundation::Code {
+857-    get
+858-  }
+859-  @available(*, deprecated, renamed: "managedObjectContextLocking")
+860-  public static var managedObjectContextLockingError: Foundation::CocoaError.Foundation::Code {
+861-    get
+862-  }
+863-  @available(*, deprecated, renamed: "persistentStoreCoordinatorLocking")
+864-  public static var persistentStoreCoordinatorLockingError: Foundation::CocoaError.Foundation::Code {
+865-    get
+866-  }
+867-  @available(*, deprecated, renamed: "managedObjectReferentialIntegrity")
+868-  public static var managedObjectReferentialIntegrityError: Foundation::CocoaError.Foundation::Code {
+--
+1047-    get
+1048-  }
+1049-  @available(*, unavailable, renamed: "validationStringPatternMatching")
+1050:  public static var ValidationStringPatternMatchingError: Foundation::CocoaError.Foundation::Code {
+1051-    get
+1052-  }
+1053-  @available(*, unavailable, renamed: "managedObjectContextLocking")
+1054-  public static var ManagedObjectContextLockingError: Foundation::CocoaError.Foundation::Code {
+1055-    get
+1056-  }
+1057-  @available(*, unavailable, renamed: "persistentStoreCoordinatorLocking")
+1058-  public static var PersistentStoreCoordinatorLockingError: Foundation::CocoaError.Foundation::Code {
+1059-    get
+1060-  }
+1061-  @available(*, unavailable, renamed: "managedObjectReferentialIntegrity")
+1062-  public static var ManagedObjectReferentialIntegrityError: Foundation::CocoaError.Foundation::Code {
+===== ./CoreText.framework/Headers/CTFontDescriptor.h
+521-/* CFArray; Array of descriptors to be queried.   Valid while downloading or when state is kCTFontDescriptorMatchingWillBeginQuerying. */
+522-CT_EXPORT const CFStringRef kCTFontDescriptorMatchingDescriptors CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
+523-
+524:/* CFArray; Array of matched font descriptors.   Valid when state is kCTFontDescriptorMatchingDidMatch or CTFontDescriptorMatchingEnd. */
+525-CT_EXPORT const CFStringRef kCTFontDescriptorMatchingResult CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
+526-
+527-/* CFNumber; Download progress in 0 - 100.   Valid during Downloading state. */
+528-CT_EXPORT const CFStringRef kCTFontDescriptorMatchingPercentage CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
+529-
+530-/* CFNumber; Byte size to download for the current descriptor.   Valid during Downloading state. */
+531-CT_EXPORT const CFStringRef kCTFontDescriptorMatchingCurrentAssetSize CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
+532-
+533-/* CFNumber; Total downloaded byte size.   Valid during Downloading state. */
+534-CT_EXPORT const CFStringRef kCTFontDescriptorMatchingTotalDownloadedSize CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
+535-
+536-/* CFNumber; Total byte size to download.   Always valid, but may be Zero when information is not available. */
+537-CT_EXPORT const CFStringRef kCTFontDescriptorMatchingTotalAssetSize CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
+538-
+539-/* CFError; Valid when state kCTFontDescriptorMatchingDidFailWithError. */
+540:CT_EXPORT const CFStringRef kCTFontDescriptorMatchingError CT_AVAILABLE(macos(10.8), ios(6.0), watchos(2.0), tvos(9.0));
+541-
+542-#if defined(__BLOCKS__)
+543-
+544-/* Progress callback type */
+545-typedef bool (^CTFontDescriptorProgressHandler)(CTFontDescriptorMatchingState state, CFDictionaryRef progressParameter);
+546-
+547-/*
+548-    @function   CTFontDescriptorMatchFontDescriptorsWithProgressHandler
+549-                This function returns immediately, but can potentially take long time to process.  The progress is notified via progressBlock.
+550-     
+551-    @param      descriptors
+552-                An array of descriptors to process.
+===== ./Foundation.framework/Headers/NSPathUtilities.h
+159-///
+160-/// - Parameter filterTypes: An array of `NSString` objects containing filename extensions. The extensions should not include the dot (`.`) character.
+161-/// - Returns: An array containing all the pathname elements in the receiving array that have filename extensions from the `filterTypes` array.
+162:- (NSArray<NSString *> *)pathsMatchingExtensions:(NSArray<NSString *> *)filterTypes;
+163-
+164-@end
+165-
+166-#if !0
+167-/// Returns the logon name of the current user.
+168-FOUNDATION_EXPORT NSString *NSUserName(void);
+169-/// Returns a string containing the full name of the current user.
+170-FOUNDATION_EXPORT NSString *NSFullUserName(void);
+171-
+172-/// Returns the path to either the user's or application's home directory, depending on the platform.
+173-FOUNDATION_EXPORT NSString *NSHomeDirectory(void);
+174-/// Returns the path to a given user's home directory.
+===== ./HealthKit.framework/Headers/HKTypeIdentifiers.h
+187-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierAppleWalkingSteadinessEvent API_AVAILABLE(ios(15.0), watchos(8.0), macCatalyst(15.0), macos(13.0), visionos(1.0));         // HKCategoryValueAppleWalkingSteadinessEvent
+188-
+189-// Other
+190:HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierHandwashingEvent API_AVAILABLE(ios(14.0), watchos(7.0), macCatalyst(14.0), macos(13.0), visionos(1.0));                    // HKCategoryValue
+191:HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierToothbrushingEvent API_AVAILABLE(ios(13.0), watchos(6.0), macCatalyst(13.0), macos(13.0), visionos(1.0));                  // HKCategoryValue
+192-
+193-// Reproductive Health
+194-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierBleedingAfterMenopause API_AVAILABLE(ios(27.0), watchos(27.0), macCatalyst(27.0), macos(27.0), visionos(27.0));            // HKCategoryValueVaginalBleeding
+195-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierBleedingAfterPregnancy API_AVAILABLE(ios(18.0), watchos(11.0), macCatalyst(18.0), macos(15.0), visionos(2.0));             // HKCategoryValueVaginalBleeding
+196-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierBleedingDuringPregnancy API_AVAILABLE(ios(18.0), watchos(11.0), macCatalyst(18.0), macos(15.0), visionos(2.0));            // HKCategoryValueVaginalBleeding
+197-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierCervicalMucusQuality API_AVAILABLE(ios(9.0), watchos(2.0), macCatalyst(13.0), macos(13.0), visionos(1.0));                 // HKCategoryValueCervicalMucusQuality
+198-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierContraceptive API_AVAILABLE(ios(14.3), watchos(7.2), macCatalyst(14.3), macos(13.0), visionos(1.0));                       // HKCategoryValueContraceptive
+199-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierInfrequentMenstrualCycles API_AVAILABLE(ios(16.0), watchos(9.0), macCatalyst(16.0), macos(13.0), visionos(1.0));           // HKCategoryValue
+200-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierIntermenstrualBleeding API_AVAILABLE(ios(9.0), watchos(2.0), macCatalyst(13.0), macos(13.0), visionos(1.0));               // HKCategoryValue
+201-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierIrregularMenstrualCycles API_AVAILABLE(ios(16.0), watchos(9.0), macCatalyst(16.0), macos(13.0), visionos(1.0));            // HKCategoryValue
+202-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierLactation API_AVAILABLE(ios(14.3), watchos(7.2), macCatalyst(14.3), macos(13.0), visionos(1.0));                           // HKCategoryValue
+203-HK_EXTERN HKCategoryTypeIdentifier const HKCategoryTypeIdentifierMenopausalState API_AVAILABLE(ios(27.0), watchos(27.0), macCatalyst(27.0), macos(27.0), visionos(27.0));                   // HKCategoryValueMenopausalState
+===== ./MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSCNNLoss.h
+423- *                  Compute weighted losses: weighted_losses = weight(s) * losses
+424- *                  Compute overall loss:    loss = reduce(weighted_losses, reductionType)
+425- *
+426: *              Hinge loss filter. This loss filter is applied element-wise.
+427- *              The labels are expected to be 0.0 or 1.0.
+428- *              This loss function is computed according to the following formulas:
+429- *                  Compute losses:          losses = max(1 - (t * y), 0.0f)
+430- *                  Compute weighted losses: weighted_losses = weight(s) * losses
+431- *                  Compute overall loss:    loss = reduce(weighted_losses, reductionType)
+432- *
+433- *              Huber loss filter. This loss filter is applied element-wise.
+434- *              This loss function is computed according to the following formulas:
+435- *                  Compute losses:          if (|y - t| <= delta, losses = 0.5 * y^2
+436- *                                           if (|y - t| >  delta, losses = 0.5 * delta^2 + delta * (|y - t| - delta)
+437- *                  Compute weighted losses: weighted_losses = weight(s) * losses
+438- *                  Compute overall loss:    loss = reduce(weighted_losses, reductionType)
+--
+488- *                  Compute gradient:          d/dy = -t / y
+489- *                  Compute weighted gradient: weighted_gradient = weight(s) * gradient
+490- *
+491: *              Hinge loss.
+492- *              The loss gradient is computed according to the following formulas:
+493- *                  Compute gradient:          d/dy = ((1 + ((1 - (2 * t)) * y)) > 0) ? 1 - (2 * t) : 0
+494- *                  Compute weighted gradient: weighted_gradient = weight(s) * gradient
+495- *
+496- *              Huber loss.
+497- *              The loss gradient is computed according to the following formulas:
+498- *                  Compute gradient:          d/dy = |y - t| > delta ? delta : y - t
+499- *                  Compute weighted gradient: weighted_gradient = weight(s) * gradient
+500- *
+501- *              Cosine Distance loss.
+502- *              The loss gradient is computed according to the following formulas:
+503- *                  Compute gradient:          d/dy = -t
+===== ./MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Headers/MPSCNNTypes.h
+29-    MPSCNNLossTypeSoftMaxCrossEntropy           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), macCatalyst(13.0), tvos(11.3)),      // SoftMax Cross Entropy
+30-    MPSCNNLossTypeSigmoidCrossEntropy           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), macCatalyst(13.0), tvos(11.3)),      // Sigmoid Cross Entropy
+31-    MPSCNNLossTypeCategoricalCrossEntropy       MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), macCatalyst(13.0), tvos(11.3)),      // Categorical Cross Entropy
+32:    MPSCNNLossTypeHinge                         MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), macCatalyst(13.0), tvos(11.3)),      // Hinge
+33-    MPSCNNLossTypeHuber                         MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), macCatalyst(13.0), tvos(11.3)),      // Huber
+34-    MPSCNNLossTypeCosineDistance                MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), macCatalyst(13.0), tvos(11.3)),      // Cosine Distance
+35-    MPSCNNLossTypeLog                           MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), macCatalyst(13.0), tvos(11.3)),      // Log
+36-    MPSCNNLossTypeKullbackLeiblerDivergence     MPS_ENUM_AVAILABLE_STARTING( macos(10.13.4), ios(11.3), macCatalyst(13.0), tvos(11.3)),      // Kullback-Leibler Divergence
+37-    
+38-    // Must be last
+39-    MPSCNNLossTypeCount // Holds the number of MPSCNNLossTypes
+40-}
+41-#if defined(DOXYGEN) || defined(__METAL_VERSION__)
+42-MPSCNNLossType
+43-#endif
+44-;
+===== ./MLCompute.framework/Headers/MLCLossLayer.h
+213-/*! @abstract   Create a loss layer
+214-    @param      reductionType         The reduction type to use
+215-    @param      weight                         A scalar floating-point value
+216:    @return     A new hinge loss layer.
+217- */
+218:+ (instancetype)hingeLossWithReductionType:(MLCReductionType)reductionType
+219-                                    weight:(float)weight
+220:    NS_SWIFT_NAME(hingeLoss(reductionType:weight:));
+221-
+222-/*! @abstract   Create a loss layer
+223-    @param      reductionType          The reduction type to use
+224-    @param      weights                       The loss label weights tensor
+225:    @return     A new hinge loss layer.
+226- */
+227:+ (instancetype)hingeLossWithReductionType:(MLCReductionType)reductionType
+228-                                   weights:(MLCTensor * _Nullable)weights
+229:    NS_SWIFT_NAME(hingeLoss(reductionType:weights:));
+230-
+231-/*! @abstract   Create a loss layer
+232-    @param      reductionType          The reduction type to use
+233-    @param      weight                         A scalar floating-point value
+234-    @return     A new cosine distance loss layer.
+235- */
+236-+ (instancetype)cosineDistanceLossWithReductionType:(MLCReductionType)reductionType
+237-                                          weight:(float)weight
+238-    NS_SWIFT_NAME(cosineDistance(reductionType:weight:));
+239-
+240-/*! @abstract   Create a loss layer
+241-    @param      reductionType          The reduction type to use
+===== ./MLCompute.framework/Headers/MLCTypes.h
+319-    /*! The categorical cross entropy loss.
+320-     */
+321-    MLCLossTypeCategoricalCrossEntropy = 4,
+322:    /*! The hinge loss.
+323-     */
+324:    MLCLossTypeHinge                   = 5,
+325-    /*! The Huber loss.
+326-     */
+327-    MLCLossTypeHuber                   = 6,
+328-    /*! The cosine distance loss.
+329-     */
+330-    MLCLossTypeCosineDistance          = 7,
+331-    /*! The log loss.
+332-     */
+333-    MLCLossTypeLog                     = 8,
+334-
+335-    // Must be last
+336-    MLCLossTypeCount                   NS_SWIFT_UNAVAILABLE("")   // Holds the number of MLCLossTypes
+===== ./RoomPlan.framework/Modules/RoomPlan.swiftmodule/arm64e-apple-ios.swiftinterface
+652-  @available(iOS 17.0, *)
+653-  @_disfavoredOverload public func stop(pauseARSession: Swift::Bool = true)
+654-  public struct Configuration {
+655:    public var isCoachingEnabled: Swift::Bool
+656-    public init()
+657-  }
+658-  public enum CaptureError : Foundation::LocalizedError {
+659-    case exceedSceneSizeLimit
+660-    case worldTrackingFailure
+661-    case invalidARConfiguration
+662-    case deviceTooHot
+663-    case deviceNotSupported
+664-    case internalError
+665-    public var errorDescription: Swift::String? {
+666-      get
+667-    }
+===== ./SceneKit.framework/Headers/SCNPhysicsBehavior.h
+21-@end
+22-
+23-/*!
+24: @class SCNPhysicsHingeJoint
+25: @abstract SCNPhysicsHingeJoint makes two bodies to move like they are connected by a hinge. It is for example suitable for doors, chains...
+26- */
+27-SCN_EXPORT API_AVAILABLE(macos(10.10))
+28:@interface SCNPhysicsHingeJoint : SCNPhysicsBehavior
+29-
+30://Initializes and returns a physics hinge joint.
+31://The hinge attaches bodyA and bodyB on anchorA and anchorB respectively. "axisA" and "axisB" specify the axis of rotation for bodyA and bodyB.
+32-+ (instancetype)jointWithBodyA:(SCNPhysicsBody *)bodyA axisA:(SCNVector3)axisA anchorA:(SCNVector3)anchorA bodyB:(SCNPhysicsBody *)bodyB axisB:(SCNVector3)axisB anchorB:(SCNVector3)anchorB;
+33-
+34://Initializes and returns a physics hinge joint.
+35://The hinge attaches body to a specific location in 3d space specified by "anchor" and relative to the node that owns the body. "axis" specifies the axis of rotation for "body".
+36-+ (instancetype)jointWithBody:(SCNPhysicsBody *)body axis:(SCNVector3)axis anchor:(SCNVector3)anchor;
+37-
+38:@property(nonatomic, readonly) SCNPhysicsBody *bodyA; //the first body constrained by the hinge
+39-@property(nonatomic) SCNVector3 axisA;                //the axis of rotation of bodyA
+40-@property(nonatomic) SCNVector3 anchorA;              //the anchor point on which bodyA is attached
+41-
+42:@property(nonatomic, readonly, nullable) SCNPhysicsBody *bodyB; //the second body attached to the hinge.
+43-@property(nonatomic) SCNVector3 axisB;                          //the axis of rotation of bodyB
+44-@property(nonatomic) SCNVector3 anchorB;                        //the anchor point on which bodyB is attached
+45-
+46-@end
+47-
+48-/*!
+49- @class SCNPhysicsBallSocketJoint
+50- @abstract SCNPhysicsBallSocketJoint makes two bodies to move like they are connected by a ball-and-socket joint (i.e it allows rotations around all axes).
+51- */
+52-SCN_EXPORT API_AVAILABLE(macos(10.10))
+53-@interface SCNPhysicsBallSocketJoint : SCNPhysicsBehavior
+54-
+===== ./SwiftUICore.framework/Modules/SwiftUICore.swiftmodule/arm64e-apple-ios.swiftinterface
+16738-  public static func == (a: SwiftUICore::AccessibilityActionCategory, b: SwiftUICore::AccessibilityActionCategory) -> Swift::Bool
+16739-}
+16740-@available(anyAppleOS 27.1, *)
+16741:public struct DeviceHinge : Swift::Hashable, Swift::Sendable {
+16742:  public var status: SwiftUICore::DeviceHinge.SwiftUICore::Status
+16743-  public var angle: SwiftUICore::Angle
+16744:  public static func == (a: SwiftUICore::DeviceHinge, b: SwiftUICore::DeviceHinge) -> Swift::Bool
+16745-  public func hash(into hasher: inout Swift::Hasher)
+16746-  public var hashValue: Swift::Int {
+16747-    get
+16748-  }
+16749-}
+16750-@available(anyAppleOS 27.1, *)
+16751:extension SwiftUICore::DeviceHinge {
+16752-  public struct Status : Swift::Hashable, Swift::Sendable {
+16753:    public static var closed: SwiftUICore::DeviceHinge.SwiftUICore::Status {
+16754-      get
+16755-    }
+16756:    public static var partiallyOpen: SwiftUICore::DeviceHinge.SwiftUICore::Status {
+16757-      get
+16758-    }
+16759:    public static var fullyOpen: SwiftUICore::DeviceHinge.SwiftUICore::Status {
+16760-      get
+16761-    }
+16762:    public static func == (a: SwiftUICore::DeviceHinge.SwiftUICore::Status, b: SwiftUICore::DeviceHinge.SwiftUICore::Status) -> Swift::Bool
+16763-    public func hash(into hasher: inout Swift::Hasher)
+16764-    public var hashValue: Swift::Int {
+16765-      get
+16766-    }
+16767-  }
+16768-}
+16769-@available(anyAppleOS 27.1, *)
+16770:public struct DeviceHingeContext : Swift::Equatable, Swift::Sendable {
+16771:  public var hinge: SwiftUICore::DeviceHinge?
+16772:  public static func == (a: SwiftUICore::DeviceHingeContext, b: SwiftUICore::DeviceHingeContext) -> Swift::Bool
+16773-}
+16774-@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *)
+16775-@_originallyDefinedIn(module: "SwiftUI", iOS 27.0)
+16776-@_originallyDefinedIn(module: "SwiftUI", macOS 27.0)
+16777-@_originallyDefinedIn(module: "SwiftUI", tvOS 27.0)
+16778-@_originallyDefinedIn(module: "SwiftUI", watchOS 27.0)
+16779-@_originallyDefinedIn(module: "SwiftUI", visionOS 27.0)
+16780-extension SwiftUICore::View {
+16781-  @export(implementation) nonisolated public func symbolEffect<T>(_ effect: T, options: Symbols::SymbolEffectOptions = .default, isActive: Swift::Bool = true) -> some SwiftUICore::View where T : Symbols::IndefiniteSymbolEffect, T : Symbols::SymbolEffect {
+16782-        return modifier(_IndefiniteSymbolEffectModifier(
+16783-            effect: effect, options: options, isActive: isActive))
+16784-    }
+--
+24264-}
+24265-@available(anyAppleOS 27.1, *)
+24266-extension SwiftUICore::View {
+24267:  nonisolated public func onHingeChange(isEnabled: Swift::Bool = true, _ action: @escaping (_ oldContext: SwiftUICore::DeviceHingeContext, _ newContext: SwiftUICore::DeviceHingeContext) -> Swift::Void) -> some SwiftUICore::View
+24268-  
+24269-}
+24270-extension CoreFoundation::CGRect {
+24271-  @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+24272-  @inlinable package var x: CoreFoundation::CGFloat {
+24273-    get { return origin.x }
+24274-    set { origin.x = newValue }
+24275-  }
+24276-  @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+24277-  @inlinable package var y: CoreFoundation::CGFloat {
+24278-    get { return origin.y }
+24279-    set { origin.y = newValue }
+===== ./UIKit.framework/Headers/UICollectionView.h
+369-@property (nonatomic, weak, nullable) id <UICollectionViewDataSource> dataSource;
+370-
+371-@property (nonatomic, weak, nullable) id<UICollectionViewDataSourcePrefetching> prefetchDataSource API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos);
+372:@property (nonatomic, getter=isPrefetchingEnabled) BOOL prefetchingEnabled API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos);
+373-
+374-@property (nonatomic, weak, nullable) id <UICollectionViewDragDelegate> dragDelegate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+375-@property (nonatomic, weak, nullable) id <UICollectionViewDropDelegate> dropDelegate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+376-
+377-
+378-/*
+379- * You can force drags to be disabled for this collection view by setting this to NO.
+380- * As of iOS 15, this is true for both iPhone and iPad by default. Prior to iOS 15, it defaulted to false on iPhone.
+381- */
+382-@property (nonatomic) BOOL dragInteractionEnabled API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+383-
+384-@property (nonatomic, readonly, nullable) UIContextMenuInteraction *contextMenuInteraction API_AVAILABLE(ios(13.2), tvos(17.0)) API_UNAVAILABLE(watchos);
+===== ./UIKit.framework/Headers/UIHinge.h
+1:#if (defined(USE_UIKIT_PUBLIC_HEADERS) && USE_UIKIT_PUBLIC_HEADERS) || !__has_include(<UIKitCore/UIHinge.h>)
+2-//
+3://  UIHinge.h
+4-//  UIKit
+5-//
+6-//  Copyright © 2026 Apple Inc. All rights reserved.
+7-//
+8-
+9-#import <UIKit/UIKitDefines.h>
+10-#import <Foundation/Foundation.h>
+11-
+12-NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+13-
+14:/// The status of an individual hinge
+15:typedef NS_ENUM(NSInteger, UIHingeStatus) {
+16-
+17:    /// The status of the hinge is unknown
+18:    UIHingeStatusUnknown = 0,
+19-
+20:    /// The hinge is closed
+21:    UIHingeStatusClosed = 1,
+22-
+23:    /// The hinge is partially open
+24:    UIHingeStatusPartiallyOpen = 2,
+25-
+26:    /// The hinge is open as far as the device allows
+27:    UIHingeStatusFullyOpen = 3,
+28-
+29:} NS_SWIFT_NAME(UIHinge.Status) API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+30-
+31:/// An object encapsulating the state of a single hinge.
+32-///
+33:/// You observe hinge state by adding a `UIHingeInteraction` to a view and reading it from the update delivered to its handler.
+34-///
+35-///     override func viewDidLoad() {
+36-///         super.viewDidLoad()
+37-///
+38:///         let interaction = UIHingeInteraction { [weak self] _, update in
+39-///             guard let self else { return }
+40:///             // A nil `hinge` indicates the interaction has left a
+41:///             // hierarchy that provides hinge updates.
+42:///             guard let hinge = update.hinge else {
+43:///                 handleHingeUnavailable()
+44-///                 return
+45-///             }
+46-///
+47:///             updateAngleDisplay(with: hinge.angle)
+48:///             updateStatusDisplay(with: hinge.status)
+49-///         }
+50-///
+51-///         view.addInteraction(interaction)
+52-///     }
+53-///
+54:/// In the example above, the current angle and status of the hinge are displayed as the user interacts with the hinge.
+55-UIKIT_EXTERN NS_SWIFT_UI_ACTOR API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos)
+56:@interface UIHinge : NSObject <NSCopying>
+57-
+58-+ (instancetype)new NS_UNAVAILABLE;
+59-- (instancetype)init NS_UNAVAILABLE;
+60-
+61:/// The current status of the hinge
+62:@property (nonatomic, readonly) UIHingeStatus status;
+63-
+64:/// The current angle of the hinge, in radians.
+65-///
+66-/// The rate and granularity of angle updates are system policy and can change based on system state, so don't depend on a particular update frequency or
+67:/// precision. If you only need to know whether the hinge is closed, partially open, or fully open, prefer `status` over the angle.
+68-@property (nonatomic, readonly) CGFloat angle;
+69-
+70-@end
+71-
+72-NS_HEADER_AUDIT_END(nullability, sendability)
+73-
+74-#else
+75:#import <UIKitCore/UIHinge.h>
+76-#endif
+===== ./UIKit.framework/Headers/UIHingeInteraction.h
+1:#if (defined(USE_UIKIT_PUBLIC_HEADERS) && USE_UIKIT_PUBLIC_HEADERS) || !__has_include(<UIKitCore/UIHingeInteraction.h>)
+2-//
+3://  UIHingeInteraction.h
+4-//  UIKit
+5-//
+6-//  Copyright © 2026 Apple Inc. All rights reserved.
+7-//
+8-
+9-#import <UIKit/UIInteraction.h>
+10:#import <UIKit/UIHinge.h>
+11-
+12-NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+13-
+14:/// An update for a `UIHingeInteraction`
+15:UIKIT_EXTERN NS_SWIFT_NAME(UIHingeInteraction.Update) NS_SWIFT_UI_ACTOR API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos)
+16:@interface UIHingeInteractionUpdate : NSObject <NSCopying>
+17-
+18-+ (instancetype)new NS_UNAVAILABLE;
+19-- (instancetype)init NS_UNAVAILABLE;
+20-
+21:/// The current hinge state for the interaction, or `nil` when the interaction leaves a hierarchy that provides hinge updates.
+22:@property (nonatomic, readonly, copy, nullable) UIHinge *hinge;
+23-
+24-@end
+25-
+26:/// An interaction for observing the hinge state associated with the view's hierarchy.
+27-///
+28:/// Add a `UIHingeInteraction` to a view to receive hinge state updates. The interaction's handler is called when the hinge state changes, or when the interaction
+29:/// moves between hierarchies. When the interaction moves out of a hierarchy that provides hinge updates, the update's `hinge` is nil.
+30-///
+31-///     override func viewDidLoad() {
+32-///         super.viewDidLoad()
+33-///
+34:///         let interaction = UIHingeInteraction { [weak self] _, update in
+35-///             guard let self else { return }
+36:///             // A nil `hinge` indicates the interaction has left a
+37:///             // hierarchy that provides hinge updates.
+38:///             guard let hinge = update.hinge else {
+39:///                 handleHingeUnavailable()
+40-///                 return
+41-///             }
+42-///
+43:///             updateAngleDisplay(with: hinge.angle)
+44:///             updateStatusDisplay(with: hinge.status)
+45-///         }
+46-///
+47-///         view.addInteraction(interaction)
+48-///     }
+49-///
+50:/// In the example above, the current angle and status of the hinge are displayed as the user interacts with the hinge.
+51-UIKIT_EXTERN NS_SWIFT_UI_ACTOR API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos)
+52:@interface UIHingeInteraction : NSObject <UIInteraction>
+53-
+54-+ (instancetype)new NS_UNAVAILABLE;
+55-- (instancetype)init NS_UNAVAILABLE;
+56-
+57:/// Creates a new hinge interaction with the provided update handler.
+58-///
+59:/// The handler is invoked with the initial hinge state, and again whenever there is an update. An update can occur due to the hinge changing, or when the interaction
+60-/// moves between hierarchies. The handler is stored and escapes, so take care to avoid retain cycles.
+61-///
+62:/// - Parameter updateHandler: Called with the initial hinge state and on each subsequent update for the interaction.
+63:- (instancetype)initWithUpdateHandler:(void(^)(UIHingeInteraction *, UIHingeInteractionUpdate *))updateHandler NS_DESIGNATED_INITIALIZER;
+64-
+65-/// Whether the interaction is enabled.
+66-///
+67:/// While disabled, the interaction's handler is not called for hinge updates, and any updates that occur are not queued. When re-enabled, the handler is called with
+68:/// the current hinge state if one is available.
+69-@property (nonatomic, getter=isEnabled) BOOL enabled;
+70-
+71-@end
+72-
+73-NS_HEADER_AUDIT_END(nullability, sendability)
+74-
+75-#else
+76:#import <UIKitCore/UIHingeInteraction.h>
+77-#endif
+===== ./UIKit.framework/Headers/UIKitCore.h
+304-#import <UIKit/UIGestureRecognizerSubclass.h>
+305-#import <UIKit/UIGraphicsRendererSubclass.h>
+306-#import <UIKit/UIFocusMovementHint.h>
+307:#import <UIKit/UIHinge.h>
+308:#import <UIKit/UIHingeInteraction.h>
+309-#import <UIKit/UIPencilInteraction.h>
+310-#import <UIKit/UISceneWindowingBehaviors.h>
+311-#import <UIKit/UISceneDefinitions.h>
+312-#import <UIKit/UISceneEnhancedStateRestoration.h>
+313-#import <UIKit/UISceneOptions.h>
+314-#import <UIKit/UIScene.h>
+315-#import <UIKit/UIScene+AVAudioSession.h>
+316-#import <UIKit/UISceneSystemProtectionManager.h>
+317-#import <UIKit/UIWindowScene.h>
+318-#import <UIKit/UISceneConfiguration.h>
+319-#import <UIKit/UISceneSession.h>
+320-#import <UIKit/UISceneSessionActivationRequest.h>
+===== ./UIKit.framework/Headers/UITableView.h
+355-@property (nonatomic, weak, nullable) id <UITableViewDelegate> delegate;
+356-
+357-@property (nonatomic, weak, nullable) id <UITableViewDataSourcePrefetching> prefetchDataSource API_AVAILABLE(ios(10.0)) API_UNAVAILABLE(watchos);
+358:@property (nonatomic, getter=isPrefetchingEnabled) BOOL prefetchingEnabled API_AVAILABLE(ios(15.0), tvos(15.0)) API_UNAVAILABLE(watchos);
+359-
+360-@property (nonatomic, weak, nullable) id <UITableViewDragDelegate> dragDelegate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+361-@property (nonatomic, weak, nullable) id <UITableViewDropDelegate> dropDelegate API_AVAILABLE(ios(11.0)) API_UNAVAILABLE(tvos, watchos);
+362-
+363-@property (nonatomic) CGFloat rowHeight;             // default is UITableViewAutomaticDimension
+364-@property (nonatomic) CGFloat sectionHeaderHeight;   // default is UITableViewAutomaticDimension
+365-@property (nonatomic) CGFloat sectionFooterHeight;   // default is UITableViewAutomaticDimension
+366-@property (nonatomic) CGFloat estimatedRowHeight API_AVAILABLE(ios(7.0)); // default is UITableViewAutomaticDimension, set to 0 to disable
+367-@property (nonatomic) CGFloat estimatedSectionHeaderHeight API_AVAILABLE(ios(7.0)); // default is UITableViewAutomaticDimension, set to 0 to disable
+368-@property (nonatomic) CGFloat estimatedSectionFooterHeight API_AVAILABLE(ios(7.0)); // default is UITableViewAutomaticDimension, set to 0 to disable
+369-
+370-/// The height for filler rows added below the last row when there aren't enough rows to fill a plain style table view.

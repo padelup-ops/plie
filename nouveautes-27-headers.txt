@@ -1,0 +1,124 @@
+CoreMotion.framework/Headers/CMRecordedDeviceMotion.h:22:COREMOTION_EXPORT API_AVAILABLE(ios(27), watchos(27), macos(27), visionos(27)) API_UNAVAILABLE(tvos)
+CoreMotion.framework/Headers/CMMotionManager.h:334:@property(retain, nonatomic, nullable) id<CMBodyIdentifiable> deviceMotionBody COREMOTION_EXPORT API_AVAILABLE(ios(27.0), watchos(27.0), visionos(27.0)) API_UNAVAILABLE(macos, tvos);
+CoreMotion.framework/Headers/CMDeviceMotion.h:147:@property(readonly, nonatomic) double headingAccuracy COREMOTION_EXPORT API_AVAILABLE(ios(27.0));
+CoreMotion.framework/Headers/CMBody.h:21:COREMOTION_EXPORT API_AVAILABLE(ios(27.0), macos(27.0), watchos(27.0), tvos(27.0), visionos(27.0))
+UIKit.framework/Headers/UIBarButtonItem.h:66:typedef NSInteger UIBarButtonItemVisibilityPriority NS_TYPED_EXTENSIBLE_ENUM API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIBarButtonItem.h:68:UIKIT_EXTERN const UIBarButtonItemVisibilityPriority UIBarButtonItemVisibilityPriorityStandard API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIBarButtonItem.h:69:UIKIT_EXTERN const UIBarButtonItemVisibilityPriority UIBarButtonItemVisibilityPriorityLow API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos);
+UIKit.framework/Headers/UIBarButtonItem.h:70:UIKIT_EXTERN const UIBarButtonItemVisibilityPriority UIBarButtonItemVisibilityPriorityHigh API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos);
+UIKit.framework/Headers/UIBarButtonItem.h:79:    UIBarButtonItemAxisBehaviorHorizontalOnly API_AVAILABLE(ios(27.1)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos) = 1,
+UIKit.framework/Headers/UIBarButtonItem.h:83:    UIBarButtonItemAxisBehaviorVerticalPreferred API_AVAILABLE(ios(27.1)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos) = 2,
+UIKit.framework/Headers/UIBarButtonItem.h:84:} API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos) NS_SWIFT_NAME(UIBarButtonItem.AxisBehavior);
+UIKit.framework/Headers/UIBarButtonItem.h:170:@property (nonatomic, readwrite, assign) UIBarButtonItemVisibilityPriority visibilityPriority API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIBarButtonItem.h:174:@property (nonatomic, readwrite, getter=isPaddingRemoved, setter=setPaddingRemoved:) BOOL paddingRemoved API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIBarButtonItem.h:179:@property (nonatomic, readwrite, assign) UIBarButtonItemAxisBehavior axisBehavior API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UISceneClosureConfirmation.h:43:UIKIT_EXTERN UIKIT_FINAL NS_SWIFT_UI_ACTOR API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(tvos, watchos, visionos)
+UIKit.framework/Headers/UISceneAccessory.h:26:API_AVAILABLE(ios(27.0))
+UIKit.framework/Headers/UISceneAccessory.h:58:+ (instancetype)cameraCaptureSceneAccessoryWithConfiguration:(UISceneConfiguration *)sceneConfiguration API_AVAILABLE(ios(27.1)) API_UNAVAILABLE(macCatalyst, tvos, visionos, watchos) NS_SWIFT_NAME(cameraCapture(sceneConfiguration:));
+UIKit.framework/Headers/UISceneAccessory.h:73:+ (instancetype)cameraCaptureSceneAccessoryWithConfiguration:(UISceneConfiguration *)sceneConfiguration userInfo:(id)userInfo API_AVAILABLE(ios(27.1)) API_UNAVAILABLE(macCatalyst, tvos, visionos, watchos) NS_SWIFT_NAME(cameraCapture(sceneConfiguration:userInfo:));
+UIKit.framework/Headers/UIDocumentViewControllerLaunchOptions.h:29:@property (nonatomic, copy, nullable) NSString *subtitle API_AVAILABLE(ios(27.0));
+UIKit.framework/Headers/UISheetPresentationController.h:40:} NS_SWIFT_NAME(UISheetPresentationController.Placement) API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UISheetPresentationController.h:120:@property (nonatomic) UISheetPresentationControllerPlacement preferredPlacement API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIVerticalBarEdge.h:19:    UIVerticalBarEdgeLeading API_AVAILABLE(ios(27.1)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos),
+UIKit.framework/Headers/UIVerticalBarEdge.h:21:    UIVerticalBarEdgeTrailing API_AVAILABLE(ios(27.1)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos),
+UIKit.framework/Headers/UIVerticalBarEdge.h:22:} API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIVerticalBarEdge.h:34:    API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIVerticalBarEdge.h:43:    NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIMenuElement.h:51:} API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(watchos) NS_SWIFT_NAME(UIMenuElement.ImageVisibility);
+UIKit.framework/Headers/UIMenuElement.h:68:@property (nonatomic) UIMenuElementImageVisibility preferredImageVisibility API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIMenuElement.h:73:@property (nonatomic, copy, nullable) void (^highlightStateUpdateHandler)(UIMenuElement *element, BOOL isHighlighted) API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:375:    UIWritingToolsCoordinatorTextReplacementReasonAccepted API_AVAILABLE(ios(27.0)) = 2, // a replacement from grammar presentation, representing acceptance of a proposed suggestion
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:385:    UIWritingToolsCoordinatorTextReplacementReasonRejected API_AVAILABLE(ios(27.0)) = 3, // a replacement from grammar presentation, representing rejection of a proposed suggestion, which should subsequently be ignored
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:393:    UIWritingToolsCoordinatorTextReplacementReasonTemporary API_AVAILABLE(ios(27.0)) = 4, // a replacement from grammar presentation, representing a temporary preview of a proposed suggestion
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:474:    UIWritingToolsCoordinatorTextAnimationIndicateGrammar API_AVAILABLE(ios(27.0)) = 10, // the animation effect performed on grammar issues when they are first indicated; when preparing, hide the text, and when finishing, show it again
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:492:} API_AVAILABLE(ios(27.0)) NS_SWIFT_NAME(UIWritingToolsCoordinator.TextDecoration);
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:507:- (nullable NSUUID *)startTextAnimation:(UIWritingToolsCoordinatorTextAnimation)textAnimation forRange:(NSRange)range inContext:(UIWritingToolsCoordinatorContext *)context writingDirection:(NSWritingDirection)writingDirection API_AVAILABLE(ios(27.0)) NS_SWIFT_NAME(startTextAnimation(_:for:in:writingDirection:));
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:515:- (void)cancelTextAnimationsWithIdentifiers:(NSArray <NSUUID *> *)identifiers API_AVAILABLE(ios(27.0)) NS_SWIFT_NAME(cancelTextAnimations(identifiers:));
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:527:- (BOOL)showGrammarPresentationForRange:(NSRange)range inContext:(UIWritingToolsCoordinatorContext *)context API_AVAILABLE(ios(27.0));
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:1075:- (void)writingToolsCoordinator:(UIWritingToolsCoordinator *)writingToolsCoordinator requestsPreviewForTextAnimation:(UIWritingToolsCoordinatorTextAnimation)textAnimation ofRange:(NSRange)range inContext:(UIWritingToolsCoordinatorContext *)context textDecoration:(UIWritingToolsCoordinatorTextDecoration)textDecoration completion:(void(^)(UITargetedPreview * _Nullable))completion API_AVAILABLE(ios(27.0)) NS_SWIFT_ASYNC_NAME(writingToolsCoordinator(_:previewFor:range:context:textDecoration:));
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:1086:- (void)writingToolsCoordinator:(UIWritingToolsCoordinator *)writingToolsCoordinator requestsGrammarResultsForContext:(UIWritingToolsCoordinatorContext *)context completion:(void(^)(NSArray<NSTextCheckingResult *> *results))completion API_AVAILABLE(ios(27.0)) NS_SWIFT_ASYNC_NAME(writingToolsCoordinator(_:grammarResultsFor:));
+UIKit.framework/Headers/UIWritingToolsCoordinator.h:1094:- (void)writingToolsCoordinator:(UIWritingToolsCoordinator *)writingToolsCoordinator setGrammarCheckingEnabled:(BOOL)enabled API_AVAILABLE(ios(27.0));
+UIKit.framework/Headers/UIBarAppearance.h:62:    API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos);
+UIKit.framework/Headers/UITraitCollection.h:126:+ (UITraitCollection *)traitCollectionWithSystemPrefersReducedResourceUsage:(BOOL)systemPrefersReducedResourceUsage API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos) NS_REFINED_FOR_SWIFT;
+UIKit.framework/Headers/UITraitCollection.h:146:@property (nonatomic, readonly) BOOL systemPrefersReducedResourceUsage API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos) NS_REFINED_FOR_SWIFT;
+UIKit.framework/Headers/UITraitCollection.h:184:@property (nonatomic) BOOL systemPrefersReducedResourceUsage API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIPhotoSearchSuggestion.h:36:UIKIT_EXTERN API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(macCatalyst) API_UNAVAILABLE(tvos, watchos, visionos)
+UIKit.framework/Headers/UIViewController.h:366:- (UISceneAccessoryRegistration *)registerSceneAccessory:(UISceneAccessory *)accessory API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(macCatalyst, tvos, visionos, watchos) NS_SWIFT_NAME(registerSceneAccessory(_:));
+UIKit.framework/Headers/UIViewController.h:371:- (void)unregisterSceneAccessory:(UISceneAccessoryRegistration *)registration API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(macCatalyst, tvos, visionos, watchos) NS_SWIFT_NAME(unregisterSceneAccessory(_:));
+UIKit.framework/Headers/UIViewController.h:815:} API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIViewController.h:838:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIViewController.h:850:@property (nonatomic, readonly, nullable) UIViewController *childViewControllerForPreferredVerticalBarBehavior NS_SWIFT_NAME(childForPreferredVerticalBarBehavior) API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIViewController.h:859:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIArrangementViewController.h:22:} NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UIArrangementViewController.h:27:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UIArrangementViewController.h:48:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UIArrangementViewController.h:60:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UIArrangementViewController.h:115:    API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UITextInputTraits.h:115:} API_AVAILABLE(ios(27.0));
+UIKit.framework/Headers/UITextInputTraits.h:264:@property(nonatomic) UITextGrammarCheckingType grammarCheckingType API_AVAILABLE(ios(27.0));  // default is UITextGrammarCheckingTypeDefault
+UIKit.framework/Headers/UITextInputTraits.h:354:UIKIT_EXTERN UITextContentType const UITextContentTypeCellularIMEI1             API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UITextInputTraits.h:356:UIKIT_EXTERN UITextContentType const UITextContentTypeCellularIMEI2             API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UITextInputTraits.h:358:UIKIT_EXTERN UITextContentType const UITextContentTypeCellularNAL               API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UINavigationItem.h:77:    UIVerticalBarCompressionBehaviorPrefersBarItems API_AVAILABLE(ios(27.1)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos) = 1,
+UIKit.framework/Headers/UINavigationItem.h:82:    UIVerticalBarCompressionBehaviorPrefersTabBar API_AVAILABLE(ios(27.1)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos) = 2,
+UIKit.framework/Headers/UINavigationItem.h:83:} API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UINavigationItem.h:302:@property (nonatomic, readwrite, copy) UIBarMinimization *navigationBarMinimization NS_REFINED_FOR_SWIFT API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UINavigationItem.h:312:@property (nonatomic, readwrite, assign) UIVerticalBarCompressionBehavior verticalBarCompressionBehavior API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIDragInteraction.h:43:} API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(watchos, tvos) NS_SWIFT_NAME(UIDragInteraction.LiftBehavior);
+UIKit.framework/Headers/UIDragInteraction.h:64:@property (nonatomic, assign) BOOL allowsPointerDragBeforeLiftDelay API_AVAILABLE(ios(27.0));
+UIKit.framework/Headers/UIDragInteraction.h:69:@property (nonatomic, assign) UIDragLiftBehavior liftBehavior API_AVAILABLE(ios(27.0));
+UIKit.framework/Headers/UITabBarControllerSidebar.h:48:} NS_SWIFT_NAME(UITabBarControllerSidebar.Placement) API_AVAILABLE(ios(27.0), visionos(27.0)) API_UNAVAILABLE(tvos) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UITabBarControllerSidebar.h:83:@property (nonatomic, assign, readonly) BOOL isAvailable API_AVAILABLE(ios(27.0), visionos(27.0)) API_UNAVAILABLE(tvos);
+UIKit.framework/Headers/UITabBarControllerSidebar.h:94:@property (nonatomic, assign) UITabBarControllerSidebarPlacement preferredPlacement API_AVAILABLE(ios(27.0), visionos(27.0)) API_UNAVAILABLE(tvos);
+UIKit.framework/Headers/UITabBarControllerSidebar.h:161:- (void)tabBarController:(UITabBarController *)tabBarController sidebarAvailabilityDidChange:(UITabBarControllerSidebar *)sidebar API_AVAILABLE(ios(27.0), visionos(27.0)) API_UNAVAILABLE(tvos);
+UIKit.framework/Headers/UIViewLayoutRegion.h:30:+ (UIViewLayoutRegion *)layoutRegionForBarOnEdge:(UIRectEdge)edge extent:(CGFloat)extent API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIViewLayoutRegion.h:34:+ (UIViewLayoutRegion *)layoutRegionForBarOnDirectionalEdge:(NSDirectionalRectEdge)edge extent:(CGFloat)extent API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIMenuLeaf.h:33:@property (nonatomic) UIMenuElementImageVisibility preferredImageVisibility API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UITextChecker.h:42:- (void)requestGrammarCheckingOfString:(NSString *)stringToCheck range:(NSRange)range waitForAllResults:(BOOL)waitForAllResults completionHandler:(void (^ _Nullable)(NSArray<NSTextCheckingResult *> *results))completionHandler API_AVAILABLE(ios(27.0), tvos(27.0), macos(27.0), visionos(27.0));
+UIKit.framework/Headers/UITextChecker.h:45:- (void)ignoreGrammarRange:(NSRange)grammarRange inSentence:(NSString *)sentence API_AVAILABLE(ios(27.0), tvos(27.0), macos(27.0), visionos(27.0));
+UIKit.framework/Headers/UIContextMenuConfiguration.h:56:@property (nonatomic) BOOL allowsTypeSelect API_AVAILABLE(ios(27.0), visionos(27.0)) API_UNAVAILABLE(tvos);
+UIKit.framework/Headers/UIHinge.h:29:} NS_SWIFT_NAME(UIHinge.Status) API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIHinge.h:55:UIKIT_EXTERN NS_SWIFT_UI_ACTOR API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos)
+UIKit.framework/Headers/UIApplication.h:185:@property (nonatomic, readonly) BOOL systemPrefersReducedResourceUsage API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIApplication.h:596:UIKIT_EXTERN NSNotificationName const UIApplicationSystemPrefersReducedResourceUsageDidChangeNotification API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos) NS_SWIFT_NONISOLATED NS_SWIFT_NAME(UIApplication.systemPrefersReducedResourceUsageDidChangeNotification);
+UIKit.framework/Headers/UIWindowScene.h:66:- (nullable CADisplayLink *)displayLinkWithTarget:(id)target selector:(SEL)sel NS_SWIFT_NAME(displayLink(target:selector:)) API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIWindowScene.h:73:@property (nonatomic, copy, nullable) UISceneClosureConfirmation *closureConfirmation API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(tvos, watchos, visionos);
+UIKit.framework/Headers/UIWindowScene.h:100:- (UIInterfaceOrientationMask)supportedInterfaceOrientationsForWindowScene:(UIWindowScene *)windowScene API_AVAILABLE(ios(27.0), visionos(27.0)) API_UNAVAILABLE(tvos, watchos);
+UIKit.framework/Headers/UIWindowScene.h:138:UIKIT_EXTERN UISceneSessionRole const UIWindowSceneSessionRoleCameraCaptureAccessory API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos) NS_SWIFT_NAME(windowCameraCaptureAccessory);
+UIKit.framework/Headers/UITrait.h:134:UIKIT_EXTERN API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos) NS_REFINED_FOR_SWIFT
+UIKit.framework/Headers/UIView.h:760:- (nonnull NSArray<UIViewReservedRegion *> *)reservedRegionsOfKind:(nonnull UIViewReservedRegionKind *)kind API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos) NS_REFINED_FOR_SWIFT;
+UIKit.framework/Headers/UIView.h:763:- (nonnull NSArray<UIViewReservedRegion *> *)reservedRegionsOfKind:(nonnull UIViewReservedRegionKind *)kind options:(UIViewReservedRegionQueryOptions)options API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos) NS_REFINED_FOR_SWIFT;
+UIKit.framework/Headers/UIHingeInteraction.h:15:UIKIT_EXTERN NS_SWIFT_NAME(UIHingeInteraction.Update) NS_SWIFT_UI_ACTOR API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos)
+UIKit.framework/Headers/UIHingeInteraction.h:51:UIKIT_EXTERN NS_SWIFT_UI_ACTOR API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos)
+UIKit.framework/Headers/UISceneConfiguration.h:38:- (instancetype)initWithName:(nullable NSString *)name API_AVAILABLE(ios(27.0), macCatalyst(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UITabBarController.h:96:@property (nonatomic, copy, nullable) NSString *prominentTabIdentifier API_AVAILABLE(ios(27.0), visionos(27.0)) API_UNAVAILABLE(tvos, watchos);
+UIKit.framework/Headers/UITabBarController.h:99:- (void)setProminentTabIdentifier:(nullable NSString *)identifier animated:(BOOL)animated API_AVAILABLE(ios(27.0), visionos(27.0)) API_UNAVAILABLE(tvos, watchos);
+UIKit.framework/Headers/UITabBarController.h:124:- (void)performBatchUpdates:(void (NS_NOESCAPE ^)(void))updates API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UISplitArrangement.h:16:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UISplitArrangement.h:44:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UISplitArrangement.h:64:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UISplitArrangement.h:85:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UIViewReservedRegion.h:18:UIKIT_EXTERN UIKIT_FINAL API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos)
+UIKit.framework/Headers/UIViewReservedRegion.h:43:UIKIT_EXTERN UIKIT_FINAL API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos)
+UIKit.framework/Headers/UIViewReservedRegion.h:53:UIKIT_EXTERN UIKIT_FINAL API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos)
+UIKit.framework/Headers/UIViewReservedRegion.h:75:} API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1)) API_UNAVAILABLE(watchos) NS_REFINED_FOR_SWIFT;
+UIKit.framework/Headers/UISceneAccessoryRegistration.h:19:API_AVAILABLE(ios(27.0))
+UIKit.framework/Headers/UIBarMinimization.h:17:    UIBarMinimizationBehaviorNever API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos),
+UIKit.framework/Headers/UIBarMinimization.h:19:    UIBarMinimizationBehaviorOnScrollDown API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos),
+UIKit.framework/Headers/UIBarMinimization.h:21:    UIBarMinimizationBehaviorOnScrollUp API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos),
+UIKit.framework/Headers/UIBarMinimization.h:22:} API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIBarMinimization.h:28:    UIBarMinimizationSafeAreaAdjustmentEnabled API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos),
+UIKit.framework/Headers/UIBarMinimization.h:30:    UIBarMinimizationSafeAreaAdjustmentDisabled API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos),
+UIKit.framework/Headers/UIBarMinimization.h:31:} API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIBarMinimization.h:46:    UIBarMinimizationRestorationBehaviorAtScrollEdge API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(watchos, tvos),
+UIKit.framework/Headers/UIBarMinimization.h:47:} API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UIBarMinimization.h:54:API_AVAILABLE(ios(27.0), tvos(27.0), visionos(27.0)) API_UNAVAILABLE(watchos)
+UIKit.framework/Headers/UISceneOptions.h:52:@property (nullable, nonatomic, strong, readonly) id sceneAccessoryUserInfo API_AVAILABLE(ios(27.0)) API_UNAVAILABLE(macCatalyst, tvos, visionos, watchos);
+UIKit.framework/Headers/UITextView.h:330:- (void)registerTextAttachmentViewProviderReusePolicy:(UITextAttachmentViewProviderReusePolicy)policy forTextAttachmentViewProviderType:(Class)viewProviderType API_AVAILABLE(ios(27.0),tvos(27.0),visionos(27.0)) API_UNAVAILABLE(watchos);
+UIKit.framework/Headers/UITextView.h:333:- (void)textViewportLayoutController:(NSTextViewportLayoutController *)textViewportLayoutController configureRenderingSurfaceForTextLayoutFragment:(NSTextLayoutFragment *)textLayoutFragment API_AVAILABLE(ios(27.0),tvos(27.0),visionos(27.0)) API_UNAVAILABLE(watchos) NS_REQUIRES_SUPER;
+UIKit.framework/Headers/UITextView.h:336:- (CGRect)viewportBoundsForTextViewportLayoutController:(NSTextViewportLayoutController *)textViewportLayoutController API_AVAILABLE(ios(27.0),tvos(27.0),visionos(27.0)) API_UNAVAILABLE(watchos) NS_REQUIRES_SUPER;
+UIKit.framework/Headers/UITextView.h:339:- (void)textViewportLayoutControllerWillLayout:(NSTextViewportLayoutController *)textViewportLayoutController API_AVAILABLE(ios(27.0),tvos(27.0),visionos(27.0)) API_UNAVAILABLE(watchos) NS_REQUIRES_SUPER;
+UIKit.framework/Headers/UITextView.h:342:- (void)textViewportLayoutControllerDidLayout:(NSTextViewportLayoutController *)textViewportLayoutController API_AVAILABLE(ios(27.0),tvos(27.0),visionos(27.0)) API_UNAVAILABLE(watchos) NS_REQUIRES_SUPER;
+UIKit.framework/Headers/UITextView.h:345:- (void)textViewportLayoutControllerReceivedSetNeedsLayout:(NSTextViewportLayoutController *)textViewportLayoutController API_AVAILABLE(ios(27.0),tvos(27.0),visionos(27.0)) API_UNAVAILABLE(watchos) NS_REQUIRES_SUPER;
+UIKit.framework/Headers/UIOverlayArrangement.h:16:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
+UIKit.framework/Headers/UIOverlayArrangement.h:31:API_AVAILABLE(ios(27.1), tvos(27.1), visionos(27.1))
