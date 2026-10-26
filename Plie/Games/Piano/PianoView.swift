@@ -368,6 +368,8 @@ struct PianoView: View {
     @Environment(AppState.self) private var app
     @State private var model = PianoModel()
     @State private var hingeAngle: Double?
+    /// Le choix du morceau s'ouvre sur la moitié à plat (une liste déroulante tomberait sur la charnière).
+    @State private var choosingSong = false
 
     var body: some View {
         GeometryReader { proxy in
@@ -403,6 +405,14 @@ struct PianoView: View {
                 }
                 .frame(width: size.width)
                 .offset(y: fold)
+
+                if choosingSong {
+                    songChooser
+                        .padding(.bottom, max(safe.bottom, 6))
+                        .frame(width: size.width, height: size.height - fold)
+                        .offset(y: fold)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
             .onAppear {
                 model.visibleWhiteCount = visible
@@ -428,25 +438,67 @@ struct PianoView: View {
         }
     }
 
+    private var songChooser: some View {
+        VStack(spacing: 10) {
+            HStack {
+                Text(L("Choisis un morceau"))
+                    .font(.plie(18))
+                Spacer()
+                IconButton(symbol: "xmark", label: L("Fermer")) {
+                    withAnimation(.easeOut(duration: 0.25)) { choosingSong = false }
+                }
+            }
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 200), spacing: 10)], spacing: 10) {
+                    ForEach(Array(PianoSong.all.enumerated()), id: \.offset) { item in
+                        let selected = model.song.id == item.element.id
+                        Button {
+                            model.select(song: item.offset)
+                            model.frameSong()
+                            withAnimation(.easeOut(duration: 0.25)) { choosingSong = false }
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: selected ? "music.note" : "music.note.list")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundStyle(selected ? Theme.ink : Theme.piano)
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(item.element.title)
+                                        .font(.plie(15, weight: .heavy))
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.7)
+                                    Text(item.element.composer)
+                                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                        .opacity(0.7)
+                                }
+                                Spacer(minLength: 0)
+                            }
+                            .foregroundStyle(selected ? Theme.ink : .white)
+                            .padding(.horizontal, 12)
+                            .frame(minHeight: 52)
+                            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(selected ? Theme.piano : Color.white.opacity(0.08)))
+                        }
+                        .buttonStyle(PressableStyle())
+                    }
+                }
+            }
+        }
+        .foregroundStyle(.white)
+        .padding(16)
+        .background(Color(hex: 0x1B1210).opacity(0.97))
+    }
+
     private var controls: some View {
         HStack(spacing: 10) {
             IconButton(symbol: "chevron.left", label: L("Retour")) { app.route = .hub }
             HowToButton(game: .piano)
-            Menu {
-                ForEach(Array(PianoSong.all.enumerated()), id: \.offset) { item in
-                    Button {
-                        model.select(song: item.offset)
-                        model.frameSong()
-                    } label: {
-                        Text("\(item.element.title) · \(item.element.composer)")
-                    }
-                }
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { choosingSong.toggle() }
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "music.note.list")
                     Text(model.song.title)
                         .lineLimit(1)
-                    Image(systemName: "chevron.down").font(.system(size: 11, weight: .bold))
+                    Image(systemName: choosingSong ? "chevron.up" : "chevron.down").font(.system(size: 11, weight: .bold))
                 }
                 .font(.plie(15, weight: .bold))
                 .foregroundStyle(.white)

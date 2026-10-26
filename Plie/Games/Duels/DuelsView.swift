@@ -4,6 +4,7 @@ import SwiftUI
 
 struct DuelsView: View {
     @Environment(AppState.self) private var app
+    @Environment(StoreManager.self) private var store
     @State private var game = DuelsGame()
 
     var body: some View {
@@ -20,6 +21,8 @@ struct DuelsView: View {
         .onChange(of: game.phase) { _, phase in
             if phase == .over { app.recordDuels() }
         }
+        .onAppear { game.hasPass = store.ownsPass }
+        .onChange(of: store.ownsPass) { _, owns in game.hasPass = owns }
     }
 
     private var menu: some View {
@@ -56,15 +59,17 @@ struct DuelsView: View {
 
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 8)], spacing: 8) {
                     ForEach(DuelsGame.Kind.allCases) { k in
+                        let locked = k.needsPass && !store.ownsPass
                         HStack(spacing: 8) {
-                            Image(systemName: k.symbol)
+                            Image(systemName: locked ? "lock.fill" : k.symbol)
                                 .font(.system(size: 15, weight: .bold))
-                                .foregroundStyle(Theme.duels)
+                                .foregroundStyle(locked ? Theme.gold : Theme.duels)
                                 .frame(width: 22)
                             Text(k.title)
                                 .font(.plie(13, weight: .heavy))
                                 .lineLimit(1)
-                                .minimumScaleFactor(0.7)
+                                .minimumScaleFactor(0.6)
+                                .opacity(locked ? 0.6 : 1)
                             Spacer(minLength: 0)
                         }
                         .padding(.horizontal, 10)
@@ -73,6 +78,19 @@ struct DuelsView: View {
                     }
                 }
                 .frame(maxWidth: 520)
+                if !store.ownsPass {
+                    Button {
+                        app.showPass = true
+                    } label: {
+                        Label(L("+8 duels avec le Pass Origamo"), systemImage: "crown.fill")
+                            .font(.plie(15, weight: .heavy))
+                            .padding(.horizontal, 16)
+                            .frame(height: 42)
+                            .background(Capsule().fill(Theme.gold))
+                            .foregroundStyle(Theme.ink)
+                    }
+                    .buttonStyle(PressableStyle())
+                }
 
                 Text(L("Points pour gagner"))
                     .font(.plie(15, weight: .bold))
@@ -119,7 +137,7 @@ struct DuelsBoard: View {
 
     private var tapKinds: Bool {
         switch game.kind {
-        case .draw, .tug, .stroop, .twins, .blind: return true
+        case .draw, .tug, .stroop, .twins, .blind, .target: return true
         default: return false
         }
     }
@@ -134,11 +152,20 @@ struct DuelsBoard: View {
                     .ignoresSafeArea()
                     .allowsHitTesting(false)
             }
+            if game.kind == .circle && (game.phase == .playing || game.phase == .result) {
+                DuelsCircleLayer(game: game, interactive: game.phase == .playing && !game.paused)
+            }
             if game.phase == .playing && !game.paused {
                 if tapKinds {
                     VStack(spacing: 0) {
                         MultiTapPad { game.tap(1) }
                         MultiTapPad { game.tap(0) }
+                    }
+                    .ignoresSafeArea()
+                } else if game.kind == .nerve {
+                    VStack(spacing: 0) {
+                        HoldPad { down in game.hold(1, down) }
+                        HoldPad { down in game.hold(0, down) }
                     }
                     .ignoresSafeArea()
                 } else if game.kind == .arrows {
@@ -381,6 +408,14 @@ struct DuelsPanel: View {
         case .moles: DuelsMolesPanel(game: game, seat: seat)
         case .arrows: DuelsArrowsPanel(game: game, seat: seat)
         case .simon: DuelsSimonPanel(game: game, seat: seat)
+        case .rps: DuelsRPSPanel(game: game, seat: seat)
+        case .nerve: DuelsNervePanel(game: game, seat: seat)
+        case .order: DuelsOrderPanel(game: game, seat: seat)
+        case .odd: DuelsOddPanel(game: game, seat: seat)
+        case .circle: DuelsCirclePanel(game: game, seat: seat)
+        case .balloon: DuelsBalloonPanel(game: game, seat: seat)
+        case .target: DuelsTargetPanel(game: game, seat: seat)
+        case .grid: DuelsGridPanel(game: game, seat: seat)
         }
     }
 }

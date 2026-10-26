@@ -343,18 +343,23 @@ struct PuissanceView: View {
 
     // MARK: Menu
 
+    /// Plié en L : le titre sur la moitié debout, les choix sur la moitié à plat (rien sur la charnière).
     private var menu: some View {
-        ScrollView {
-            VStack(spacing: 18) {
+        HingeSplit {
+            VStack(spacing: 12) {
                 header
                 PuissanceLogo()
-                    .frame(width: 180, height: 140)
-                Text(L("PUISSANCE 4")).font(.plie(40))
+                    .frame(width: 150, height: 110)
+                Text(L("PUISSANCE 4")).font(.plie(36))
                 Text(L("Aligne 4 jetons de ta couleur : en ligne, en colonne ou en diagonale. Plie le Duo en L : la grille debout, et tu lâches tes jetons depuis la moitié posée sur la table."))
-                    .font(.system(.body, design: .rounded, weight: .medium))
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 520)
+                    .padding(.horizontal, 20)
+            }
+        } bottom: {
+            VStack(spacing: 16) {
                 Picker(L("Adversaire"), selection: Binding(get: { game.vsComputer }, set: { game.vsComputer = $0 })) {
                     Text(L("Contre l'ordi")).tag(true)
                     Text(L("À deux")).tag(false)
@@ -388,8 +393,6 @@ struct PuissanceView: View {
                 .frame(maxWidth: 380)
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 30)
-            .frame(maxWidth: .infinity)
         }
     }
 

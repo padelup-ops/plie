@@ -378,32 +378,37 @@ struct BriquesView: View {
 
     // MARK: Menu
 
+    /// Plié en L : le titre sur la moitié debout, les niveaux sur la moitié à plat (rien sur la charnière).
     private var menu: some View {
-        VStack(spacing: 0) {
-            GameHeader(title: L("CASSE-BRIQUES"),
-                       subtitle: L("\(app.briquesStars.count) / \(BriquesLevel.count) niveaux"),
-                       onBack: { app.route = .hub }) {
-                HowToButton(game: .briques)
+        HingeSplit {
+            VStack(spacing: 14) {
+                GameHeader(title: L("CASSE-BRIQUES"),
+                           subtitle: L("\(app.briquesStars.count) / \(BriquesLevel.count) niveaux"),
+                           onBack: { app.route = .hub }) {
+                    HowToButton(game: .briques)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                Image(systemName: "square.grid.3x2.fill")
+                    .font(.system(size: 56, weight: .bold))
+                    .foregroundStyle(Theme.briques)
+                Text(L("Plie le Duo en L : le mur debout, la raquette sur la moitié posée à plat. Casse toutes les briques sans laisser tomber la balle !"))
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.muted)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            ScrollView {
-                VStack(spacing: 18) {
-                    Text(L("Plie le Duo en L : le mur debout, la raquette sur la moitié posée à plat. Casse toutes les briques sans laisser tomber la balle !"))
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
-                        .foregroundStyle(Theme.muted)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    SectionTitle(text: L("Les niveaux"))
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 76), spacing: 10)], spacing: 10) {
-                        ForEach(1...BriquesLevel.count, id: \.self) { n in
-                            levelButton(n)
-                        }
+        } bottom: {
+            VStack(spacing: 12) {
+                SectionTitle(text: L("Les niveaux"))
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 76), spacing: 10)], spacing: 10) {
+                    ForEach(1...BriquesLevel.count, id: \.self) { n in
+                        levelButton(n)
                     }
                 }
-                .padding(20)
-                .frame(maxWidth: 680)
-                .frame(maxWidth: .infinity)
             }
+            .padding(.horizontal, 20)
+            .frame(maxWidth: 680)
         }
     }
 
@@ -493,10 +498,12 @@ struct BriquesView: View {
         .ignoresSafeArea()
     }
 
+    /// Le résultat s'affiche sur la moitié à plat, sous les doigts, pas sur la charnière.
     private var result: some View {
         ZStack {
             Color.black.opacity(0.5).ignoresSafeArea()
-            VStack(spacing: 14) {
+            LowerHalf {
+            VStack(spacing: 12) {
                 Text(game.phase == .won ? L("Mur détruit !") : L("Plus de balles…"))
                     .font(.plie(32))
                 if game.phase == .won {
@@ -521,10 +528,11 @@ struct BriquesView: View {
                 Button(L("Les niveaux")) { game.backToMenu() }
                     .buttonStyle(GhostButtonStyle())
             }
-            .padding(26)
+            .padding(20)
             .frame(maxWidth: 380)
             .winCard(accent: game.phase == .won ? Theme.briques : Theme.coral)
-            .padding(24)
+            .padding(.horizontal, 24)
+            }
         }
     }
 }

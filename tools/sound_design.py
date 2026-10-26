@@ -389,24 +389,12 @@ def duo_games_sounds():
 
 
 def party_sounds():
-    """SILLAGE, DUELS, MOTS INTERDITS, BATAILLE NAVALE."""
-    # zap : petit virage de moto de lumière (balayage doux, très court)
-    tz = t_axis(0.11)
-    f = 1500 * np.exp(-14 * tz) + 380
-    zap = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-26 * tz)
-    write("zap", zap, 0.45, (0.2, 0.08, 7000))
+    """DUELS et MOTS INTERDITS."""
     # bang : coup de feu de duel (claquement sec et réverbération de western)
     tb = t_axis(0.9)
     crack = bandpass(rng.standard_normal(len(tb)), 900, 7000) * np.exp(-38 * tb)
     body = lowpass_fast(rng.standard_normal(len(tb)), 700) * np.exp(-9 * tb)
     write("bang", mix((crack, 0, 1.0), (body, 0, 0.8), (thump(160, 60, 0.18), 0, 0.7)), 0.95, (1.6, 0.35, 4000))
-    # splash : plouf dans l'eau, avec quelques gouttes
-    ts = t_axis(0.7)
-    water = bandpass(rng.standard_normal(len(ts)), 350, 2600) * np.minimum(1, ts / 0.015) * np.exp(-6.5 * ts)
-    drops = [(kalimba(hz(n, 6), 0.25) * 0.4, 0.12 + 0.07 * i, 0.5) for i, n in enumerate(["E", "C", "G"])]
-    write("splash", mix((water, 0, 1.0), (thump(180, 70, 0.2), 0, 0.5), *drops), 0.8, (0.6, 0.18, 5000))
-    # sonar : le « ping » du radar
-    write("sonar", mix((bell(1180, 2.4, 1.6), 0, 1.0), (bell(1180 * 2.01, 1.2, 3.0), 0, 0.2)), 0.55, (2.2, 0.45, 6000))
     # buzzer : mot interdit / fin du chrono
     tq = t_axis(0.5)
     sq = np.sign(np.sin(2 * np.pi * 148 * tq)) * 0.5 + np.sign(np.sin(2 * np.pi * 153 * tq)) * 0.5

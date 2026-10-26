@@ -27,10 +27,8 @@ enum Route: Equatable {
     case billard
     case luciole
     case ecole
-    case sillage
     case duels
     case mots
-    case navale
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -45,6 +43,14 @@ final class AppState {
     /// Victoires et réussites : après quelques-unes, on propose de noter l'app.
     private(set) var happyMoments = 0
     private(set) var reviewRequest = 0
+    /// Jeux débloqués avec une clé, clés en poche, parties vers la prochaine clé.
+    private(set) var unlockedGames: Set<String> = []
+    private(set) var keys = 0
+    private(set) var keyProgress = 0
+    private(set) var keysEarned = 0
+    /// Change à chaque nouvelle clé gagnée (pour l'annoncer).
+    private(set) var newKey = 0
+    private(set) var lastGame: String?
 
     /// Niveaux de RAYON réussis, et meilleur temps par niveau.
     private(set) var rayonSolved: Set<Int> = []
@@ -91,11 +97,6 @@ final class AppState {
     private(set) var bonneteauGames = 0
     /// CASSE-BRIQUES : étoiles par niveau réussi.
     private(set) var briquesStars: [Int: Int] = [:]
-    /// SILLAGE, BATAILLE NAVALE : parties, victoires contre l'ordinateur.
-    private(set) var sillageGames = 0
-    private(set) var sillageWins = 0
-    private(set) var navaleGames = 0
-    private(set) var navaleWins = 0
     /// DUELS : parties jouées. MOTS INTERDITS : manches et record de mots trouvés en une manche.
     private(set) var duelsGames = 0
     private(set) var motsRounds = 0
@@ -165,10 +166,8 @@ final class AppState {
         case "billard": route = .billard
         case "luciole": route = .luciole
         case "ecole": route = .ecole
-        case "sillage": route = .sillage
         case "duels": route = .duels
         case "mots": route = .mots
-        case "navale": route = .navale
         case "pass": showPass = true
         default: route = .hub
         }
@@ -190,6 +189,60 @@ final class AppState {
         defaults.set(happyMoments, forKey: "happyMoments")
         if [4, 15, 40].contains(happyMoments) { reviewRequest += 1 }
     }
+
+    // MARK: Jeux à débloquer
+    //
+    // Six jeux sont ouverts dès le départ. Les autres se débloquent avec des clés : on gagne une clé
+    // à la fin de sa première partie, puis toutes les 3 parties, et on choisit le jeu à ouvrir.
+    // Le Pass Origamo ouvre tout, tout de suite.
+
+    static let starterGames: [GameID] = [.duels, .boite, .croco, .mots, .coupDoeil, .rayon]
+
+    /// Parties à jouer pour gagner la prochaine clé.
+    var gamesPerKey: Int { keysEarned == 0 ? 1 : 3 }
+
+    func isUnlocked(_ game: GameID, hasPass: Bool) -> Bool {
+        hasPass || Self.starterGames.contains(game) || unlockedGames.contains(game.rawValue)
+    }
+
+    var lockedCount: Int {
+        GameID.allCases.filter { !Self.starterGames.contains($0) && !unlockedGames.contains($0.rawValue) }.count
+    }
+
+    /// Une partie terminée : on avance vers la prochaine clé.
+    func gamePlayed() {
+        guard lockedCount > keys else { return }
+        keyProgress += 1
+        if keyProgress >= gamesPerKey {
+            keyProgress = 0
+            keys += 1
+            keysEarned += 1
+            newKey += 1
+        }
+        defaults.set(keyProgress, forKey: Keys.keyProgress)
+        defaults.set(keys, forKey: Keys.keys)
+        defaults.set(keysEarned, forKey: Keys.keysEarned)
+    }
+
+    @discardableResult
+    func unlock(_ game: GameID) -> Bool {
+        guard keys > 0, !unlockedGames.contains(game.rawValue), !Self.starterGames.contains(game) else { return false }
+        keys -= 1
+        unlockedGames.insert(game.rawValue)
+        defaults.set(Array(unlockedGames), forKey: Keys.unlockedGames)
+        defaults.set(keys, forKey: Keys.keys)
+        celebrate()
+        return true
+    }
+
+    /// Le dernier jeu ouvert, pour « Reprendre » sur l'accueil.
+    func opened(_ game: GameID) {
+        guard lastGame != game.rawValue else { return }
+        lastGame = game.rawValue
+        defaults.set(game.rawValue, forKey: Keys.lastGame)
+    }
+
+    var lastPlayed: GameID? { lastGame.flatMap { GameID(rawValue: $0) } }
 
     func setMusic(_ on: Bool) {
         musicOn = on
@@ -215,6 +268,7 @@ final class AppState {
     }
 
     func recordRayon(_ number: Int, time: Double) {
+        gamePlayed()
         celebrate()
         rayonSolved.insert(number)
         if let best = rayonBest[number] {
@@ -237,6 +291,7 @@ final class AppState {
     }
 
     func recordBascule(_ number: Int, stars: Int) {
+        gamePlayed()
         if stars > 0 { celebrate() }
         basculeStars[number] = max(basculeStars[number] ?? 0, stars)
         save()
@@ -245,6 +300,7 @@ final class AppState {
     // MARK: FERME
 
     func recordFerme(_ record: FermeRecord) {
+        gamePlayed()
         celebrate()
         fermeGarden.append(record)
         if fermeComplete && treeNumber == 0 && !treePending {
@@ -275,6 +331,7 @@ final class AppState {
     // MARK: Nouveaux jeux
 
     func recordLuciole(lights: Int, stars: Int) {
+        gamePlayed()
         celebrate()
         lucioleVoyages += 1
         lucioleBest = max(lucioleBest, lights)
@@ -282,6 +339,7 @@ final class AppState {
     }
 
     func recordEcole(classRaw: Int, stars: Int) {
+        gamePlayed()
         if stars >= 5 { celebrate() }
         ecoleLessons += 1
         ecoleStars[classRaw] = max(ecoleStars[classRaw] ?? 0, stars)
@@ -289,6 +347,7 @@ final class AppState {
     }
 
     func recordBillard(won: Bool) {
+        gamePlayed()
         guard won else { return }
         celebrate()
         billardWins += 1
@@ -326,6 +385,7 @@ final class AppState {
     }
 
     func recordBoardGame(chess: Bool, wonAgainstComputer: Bool, level: Int) {
+        gamePlayed()
         celebrate()
         if chess {
             chessGames += 1
@@ -338,6 +398,7 @@ final class AppState {
     }
 
     func recordFilet(level: Int, won: Bool) {
+        gamePlayed()
         guard won else { return }
         celebrate()
         filetWins += 1
@@ -357,6 +418,7 @@ final class AppState {
     }
 
     func recordBoite(_ number: Int, stars: Int) {
+        gamePlayed()
         celebrate()
         boiteStars[number] = max(boiteStars[number] ?? 0, stars)
         save()
@@ -366,6 +428,7 @@ final class AppState {
 
     /// `streak` : dents appuyées seul, ou -1 pour une partie à plusieurs.
     func recordCroco(streak: Int) {
+        gamePlayed()
         crocoGames += 1
         if streak > crocoBest {
             crocoBest = streak
@@ -377,6 +440,7 @@ final class AppState {
     // MARK: COUP D'ŒIL, BOMBE, DESSINE-MOI, PLIOU
 
     func recordOeil(level: Int, stars: Int) {
+        gamePlayed()
         guard stars > 0 else { return }
         celebrate()
         oeilStars[level] = max(oeilStars[level] ?? 0, stars)
@@ -407,12 +471,14 @@ final class AppState {
     }
 
     func recordBombe() {
+        gamePlayed()
         bombeGames += 1
         celebrate()
         save()
     }
 
     func recordDessine(found: Int) {
+        gamePlayed()
         dessineGames += 1
         dessineWords += found
         if found > 0 { celebrate() }
@@ -428,6 +494,7 @@ final class AppState {
     // MARK: MORPION, PUISSANCE 4, BONNETEAU, CASSE-BRIQUES
 
     func recordMorpion(won: Bool) {
+        gamePlayed()
         morpionGames += 1
         if won {
             morpionWins += 1
@@ -437,6 +504,7 @@ final class AppState {
     }
 
     func recordPuissance(won: Bool) {
+        gamePlayed()
         puissanceGames += 1
         if won {
             puissanceWins += 1
@@ -445,30 +513,14 @@ final class AppState {
         save()
     }
 
-    func recordSillage(won: Bool) {
-        sillageGames += 1
-        if won {
-            sillageWins += 1
-            celebrate()
-        }
-        save()
-    }
-
-    func recordNavale(won: Bool) {
-        navaleGames += 1
-        if won {
-            navaleWins += 1
-            celebrate()
-        }
-        save()
-    }
-
     func recordDuels() {
+        gamePlayed()
         duelsGames += 1
         save()
     }
 
     func recordMots(found: Int) {
+        gamePlayed()
         motsRounds += 1
         if found > motsBest {
             motsBest = found
@@ -478,6 +530,7 @@ final class AppState {
 
     /// `level` : niveau atteint seul (0 pour une partie à deux).
     func recordBonneteau(level: Int) {
+        gamePlayed()
         bonneteauGames += 1
         if level > bonneteauBest {
             bonneteauBest = level
@@ -496,6 +549,7 @@ final class AppState {
     }
 
     func recordBriques(_ number: Int, stars: Int) {
+        gamePlayed()
         celebrate()
         briquesStars[number] = max(briquesStars[number] ?? 0, stars)
         save()
@@ -504,6 +558,7 @@ final class AppState {
     // MARK: SOLEIL
 
     func recordSoleilGame() {
+        gamePlayed()
         celebrate()
         soleilGames += 1
         save()
@@ -543,10 +598,6 @@ final class AppState {
         static let bonneteauBest = "bonneteau.best"
         static let bonneteauGames = "bonneteau.games"
         static let briquesStars = "briques.stars"
-        static let sillageGames = "sillage.games"
-        static let sillageWins = "sillage.wins"
-        static let navaleGames = "navale.games"
-        static let navaleWins = "navale.wins"
         static let duelsGames = "duels.games"
         static let motsRounds = "mots.rounds"
         static let motsBest = "mots.best"
@@ -558,9 +609,19 @@ final class AppState {
         static let billardWins = "billard.wins"
         static let treePending = "ferme.treePending"
         static let treeNumber = "ferme.treeNumber"
+        static let unlockedGames = "unlock.games"
+        static let keys = "unlock.keys"
+        static let keyProgress = "unlock.progress"
+        static let keysEarned = "unlock.earned"
+        static let lastGame = "hub.lastGame"
     }
 
     private func load() {
+        unlockedGames = Set(defaults.stringArray(forKey: Keys.unlockedGames) ?? [])
+        keys = defaults.integer(forKey: Keys.keys)
+        keyProgress = defaults.integer(forKey: Keys.keyProgress)
+        keysEarned = defaults.integer(forKey: Keys.keysEarned)
+        lastGame = defaults.string(forKey: Keys.lastGame)
         // Version 2 des niveaux RAYON : les mondes 2 et suivants ont été refaits avec les pivots.
         if defaults.integer(forKey: "rayon.levelsVersion") < 2 {
             if let solved = defaults.array(forKey: Keys.rayonSolved) as? [Int] {
@@ -603,10 +664,6 @@ final class AppState {
         bonneteauBest = defaults.integer(forKey: Keys.bonneteauBest)
         bonneteauGames = defaults.integer(forKey: Keys.bonneteauGames)
         briquesStars = decode(Keys.briquesStars).mapValues { Int($0) }
-        sillageGames = defaults.integer(forKey: Keys.sillageGames)
-        sillageWins = defaults.integer(forKey: Keys.sillageWins)
-        navaleGames = defaults.integer(forKey: Keys.navaleGames)
-        navaleWins = defaults.integer(forKey: Keys.navaleWins)
         duelsGames = defaults.integer(forKey: Keys.duelsGames)
         motsRounds = defaults.integer(forKey: Keys.motsRounds)
         motsBest = defaults.integer(forKey: Keys.motsBest)
@@ -651,10 +708,6 @@ final class AppState {
         defaults.set(bonneteauBest, forKey: Keys.bonneteauBest)
         defaults.set(bonneteauGames, forKey: Keys.bonneteauGames)
         encode(briquesStars.mapValues { Double($0) }, Keys.briquesStars)
-        defaults.set(sillageGames, forKey: Keys.sillageGames)
-        defaults.set(sillageWins, forKey: Keys.sillageWins)
-        defaults.set(navaleGames, forKey: Keys.navaleGames)
-        defaults.set(navaleWins, forKey: Keys.navaleWins)
         defaults.set(duelsGames, forKey: Keys.duelsGames)
         defaults.set(motsRounds, forKey: Keys.motsRounds)
         defaults.set(motsBest, forKey: Keys.motsBest)

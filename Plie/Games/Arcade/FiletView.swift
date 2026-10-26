@@ -561,47 +561,59 @@ struct FiletView: View {
         game.phase == .menu ? L("Ping-pong contre l'ordinateur") : L("Contre : \(game.level.name)")
     }
 
+    /// Plié en L, le filet est sur la charnière : le score et l'explication sur la moitié debout,
+    /// le choix de l'adversaire sur la moitié à plat. Rien sur la pliure.
     private var menu: some View {
-        VStack(spacing: 12) {
-            if game.phase == .over {
-                WinIcon(systemName: game.won ? "trophy.fill" : "figure.table.tennis", color: game.won ? Theme.gold : Theme.filet)
-                Text(game.won ? L("Tu as gagné !") : L("L'ordinateur gagne"))
-                    .font(.plie(30))
-                Text(L("\(game.scoreMe) – \(game.scoreAI) · plus long échange : \(game.longestRally) coups"))
-                    .font(.plie(16, weight: .semibold))
-                    .foregroundStyle(Theme.muted)
-                    .multilineTextAlignment(.center)
-                if game.won {
-                    ShareResultButton(game: L("FILET"), result: L("Victoire \(game.scoreMe) – \(game.scoreAI) contre : \(game.level.name)"), accent: Theme.filet)
-                }
-            } else {
-                WinIcon(systemName: "figure.table.tennis", color: Theme.filet)
-                Text(L("Le premier à 7 points gagne"))
-                    .font(.plie(22))
-                    .multilineTextAlignment(.center)
-                Text(hingeSeen
-                     ? L("Plie ton iPhone Duo en L et pose-le sur la table : la charnière devient le filet. Ta raquette suit ton doigt sur l'écran du bas, et l'ordinateur renvoie la balle depuis l'écran du haut.")
-                     : L("Ta raquette suit ton doigt sur la moitié basse. Pousse vers le filet pour frapper fort, de côté pour viser. Trop fort, et la balle sort !"))
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
-                    .foregroundStyle(Theme.muted)
-                    .multilineTextAlignment(.center)
-            }
-            Text(L("Choisis ton adversaire"))
-                .font(.plie(15, weight: .bold))
-                .foregroundStyle(Theme.muted)
-                .padding(.top, 4)
-            VStack(spacing: 8) {
-                ForEach(FiletGame.Level.allCases) { level in
-                    levelButton(level)
+        HingeSplit {
+            VStack(spacing: 10) {
+                if game.phase == .over {
+                    WinIcon(systemName: game.won ? "trophy.fill" : "figure.table.tennis", color: game.won ? Theme.gold : Theme.filet)
+                    Text(game.won ? L("Tu as gagné !") : L("L'ordinateur gagne"))
+                        .font(.plie(28))
+                    Text(L("\(game.scoreMe) – \(game.scoreAI) · plus long échange : \(game.longestRally) coups"))
+                        .font(.plie(15, weight: .semibold))
+                        .foregroundStyle(Theme.muted)
+                        .multilineTextAlignment(.center)
+                    if game.won {
+                        ShareResultButton(game: L("FILET"), result: L("Victoire \(game.scoreMe) – \(game.scoreAI) contre : \(game.level.name)"), accent: Theme.filet)
+                    }
+                } else {
+                    WinIcon(systemName: "figure.table.tennis", color: Theme.filet)
+                    Text(L("Le premier à 7 points gagne"))
+                        .font(.plie(22))
+                        .multilineTextAlignment(.center)
+                    Text(hingeSeen
+                         ? L("Plie ton iPhone Duo en L et pose-le sur la table : la charnière devient le filet. Ta raquette suit ton doigt sur l'écran du bas, et l'ordinateur renvoie la balle depuis l'écran du haut.")
+                         : L("Ta raquette suit ton doigt sur la moitié basse. Pousse vers le filet pour frapper fort, de côté pour viser. Trop fort, et la balle sort !"))
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundStyle(Theme.muted)
+                        .multilineTextAlignment(.center)
                 }
             }
-            .frame(maxWidth: 360)
+            .foregroundStyle(.white)
+            .padding(18)
+            .frame(maxWidth: 460)
+            .winCard(accent: Theme.filet)
+            .padding(.horizontal, 16)
+            .padding(.top, 56)
+        } bottom: {
+            VStack(spacing: 10) {
+                Text(L("Choisis ton adversaire"))
+                    .font(.plie(15, weight: .bold))
+                    .foregroundStyle(Theme.muted)
+                VStack(spacing: 8) {
+                    ForEach(FiletGame.Level.allCases) { level in
+                        levelButton(level)
+                    }
+                }
+                .frame(maxWidth: 360)
+            }
+            .foregroundStyle(.white)
+            .padding(18)
+            .frame(maxWidth: 460)
+            .winCard(accent: Theme.filet)
+            .padding(.horizontal, 16)
         }
-        .foregroundStyle(.white)
-        .padding(22)
-        .frame(maxWidth: 460)
-        .winCard(accent: Theme.filet)
-        .padding(16)
     }
 
     private func levelButton(_ level: FiletGame.Level) -> some View {

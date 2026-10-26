@@ -28,6 +28,7 @@ struct RootView: View {
     @Environment(\.requestReview) private var requestReview
     /// Mode d'emploi montré automatiquement à la première visite de chaque jeu.
     @State private var howTo: GameID?
+    @State private var keyToast = false
 
     var body: some View {
         @Bindable var app = app
@@ -93,19 +94,16 @@ struct RootView: View {
                 LucioleView()
             case .ecole:
                 EcoleView()
-            case .sillage:
-                SillageView()
             case .duels:
                 DuelsView()
             case .mots:
                 MotsView()
-            case .navale:
-                NavaleView()
             }
         }
         .animation(.easeInOut(duration: 0.22), value: app.route)
         .onChange(of: app.route) { _, route in
             SoundPlayer.shared.play(.pop, volume: 0.35)
+            if let game = GameID.of(route) { app.opened(game) }
             if let game = GameID.of(route) {
                 let key = "howto.seen.\(game.rawValue)"
                 if !UserDefaults.standard.bool(forKey: key) {
@@ -119,6 +117,31 @@ struct RootView: View {
             }
         }
         .sheet(item: $howTo) { game in HowToSheet(game: game) }
+        .overlay(alignment: .top) {
+            if keyToast {
+                HStack(spacing: 10) {
+                    Image(systemName: "key.fill").foregroundStyle(Theme.gold)
+                    Text(L("Nouvelle clé ! Débloque un jeu depuis l'accueil."))
+                        .font(.plie(15, weight: .bold))
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Capsule().fill(Theme.ink.opacity(0.92)))
+                .overlay(Capsule().strokeBorder(Theme.gold, lineWidth: 1.5))
+                .padding(.top, 8)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .allowsHitTesting(false)
+            }
+        }
+        .onChange(of: app.newKey) { _, _ in
+            guard !store.ownsPass else { return }
+            SoundPlayer.shared.play(.chime, volume: 0.8)
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { keyToast = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.2) {
+                withAnimation(.easeOut(duration: 0.3)) { keyToast = false }
+            }
+        }
         .onChange(of: app.reviewRequest) { _, _ in
             #if DEBUG
             if Demo.scene != nil { return }
@@ -200,21 +223,17 @@ struct RootView: View {
             return [Theme.luciole, Color(hex: 0x5B2C6F), Color(hex: 0x0B0F3A)]
         case .ecole:
             return [Theme.ecole, Color(hex: 0x2F5D46), Color(hex: 0xFF8FC7)]
-        case .sillage:
-            return [Theme.sillageA, Theme.sillageB, Color(hex: 0x10123A)]
         case .duels:
             return [Theme.duelsA, Theme.duelsB, Theme.duels]
         case .mots:
             return [Theme.motsTeamA, Theme.motsTeamB, Theme.gold]
-        case .navale:
-            return [Theme.navale, Theme.navaleSea, Color(hex: 0x3DFFB0)]
         }
     }
 
     /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
     private var fullScreen: Bool {
         switch app.route {
-        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .sillage, .duels, .mots, .navale: return true
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .duels, .mots: return true
         default: return false
         }
     }

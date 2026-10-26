@@ -372,6 +372,9 @@ struct AirHockeyView: View {
             // En portrait, la partie attend que le téléphone soit tourné.
             if landscape { game.tick(dt: 1.0 / 60.0) }
         }
+        .onChange(of: game.phase) { _, phase in
+            if phase == .over { app.gamePlayed() }
+        }
     }
 
     private var rotatePrompt: some View {

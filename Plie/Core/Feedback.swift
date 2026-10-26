@@ -10,7 +10,7 @@ final class SoundPlayer {
         case pieceMove, pieceCapture, checkBell, promote, clockTick
         case clack, pocket, chime, bell, chalk, cave
         case boom, roar, chomp
-        case zap, bang, splash, sonar, buzzer, simon0, simon1, simon2, simon3
+        case bang, buzzer, simon0, simon1, simon2, simon3
     }
 
     static let shared = SoundPlayer()
@@ -28,7 +28,7 @@ final class SoundPlayer {
             case .notch, .decoy, .puck: copies = 4
             case .thud, .pop, .whoosh, .tock, .pok, .pieceMove, .clockTick: copies = 3
             case .pieceCapture, .clack, .chime: copies = 4
-            case .pocket, .chalk, .zap, .splash: copies = 2
+            case .pocket, .chalk: copies = 2
             default: copies = 1
             }
             var list: [AVAudioPlayer] = []

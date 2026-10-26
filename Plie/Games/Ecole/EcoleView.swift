@@ -216,6 +216,20 @@ struct EcoleView: View {
                             .frame(width: desk.width, height: desk.height)
                             .offset(x: stacked ? 0 : board.width, y: stacked ? board.height : 0)
                     }
+                } else if stacked {
+                    // Plié en L : la chouette et le titre sur la moitié debout, les choix sur la moitié à plat.
+                    HingeSplit {
+                        if lesson.finished { reportHeader } else { pickerHeader }
+                    } bottom: {
+                        if lesson.finished { reportButtons } else { classList }
+                    }
+                    .frame(width: size.width, height: size.height)
+                    .background(
+                        LinearGradient(colors: [Color(hex: 0x1F4D3A), Color(hex: 0x173828)], startPoint: .top, endPoint: .bottom)
+                    )
+                    .overlay(alignment: .top) {
+                        if lesson.finished && lesson.stars >= 5 { ConfettiView().frame(height: 500).allowsHitTesting(false) }
+                    }
                 } else {
                     ScrollView {
                         if lesson.finished {
@@ -258,12 +272,21 @@ struct EcoleView: View {
 
     private var classPicker: some View {
         VStack(spacing: 16) {
+            pickerHeader
+                .padding(.top, 34)
+            classList
+        }
+        .frame(maxWidth: 760)
+        .frame(maxWidth: .infinity)
+    }
+
+    private var pickerHeader: some View {
+        VStack(spacing: 12) {
             Text(verbatim: "🦉")
-                .font(.system(size: 64))
-                .padding(.top, 50)
+                .font(.system(size: 56))
                 .accessibilityHidden(true)
             Text(L("L'école de la Chouette"))
-                .font(.custom("ChalkboardSE-Bold", size: 34, relativeTo: .largeTitle))
+                .font(.custom("ChalkboardSE-Bold", size: 32, relativeTo: .largeTitle))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
             Text(L("Choisis ta classe. La maîtresse pose 10 questions et les lit à voix haute."))
@@ -271,6 +294,11 @@ struct EcoleView: View {
                 .foregroundStyle(.white.opacity(0.8))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
+        }
+        .padding(.top, 16)
+    }
+
+    private var classList: some View {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: 14)], spacing: 14) {
                 ForEach(EcoleClass.allCases) { c in
                     Button {
@@ -316,9 +344,43 @@ struct EcoleView: View {
             }
             .padding(.horizontal, 18)
             .padding(.bottom, 30)
+            .frame(maxWidth: 760)
+    }
+
+    private var reportHeader: some View {
+        VStack(spacing: 10) {
+            Text(verbatim: lesson.stars >= 8 ? "🏆" : (lesson.stars >= 5 ? "🌟" : "💪"))
+                .font(.system(size: 60))
+                .accessibilityHidden(true)
+            Text(L("Leçon finie !"))
+                .font(.custom("ChalkboardSE-Bold", size: 34, relativeTo: .largeTitle))
+            Text(L("\(lesson.stars) étoiles sur 10"))
+                .font(.system(.title2, design: .rounded, weight: .heavy))
+                .foregroundStyle(Theme.gold)
+            Text(lesson.stars >= 8 ? L("Bravo, tu es un champion !") : (lesson.stars >= 5 ? L("Très bien ! Encore une leçon pour faire mieux ?") : L("Continue, tu vas y arriver !")))
+                .font(.system(.headline, design: .rounded, weight: .bold))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
         }
-        .frame(maxWidth: 760)
-        .frame(maxWidth: .infinity)
+        .foregroundStyle(.white)
+        .padding(.top, 30)
+    }
+
+    private var reportButtons: some View {
+        VStack(spacing: 12) {
+            Button(L("Nouvelle leçon")) {
+                recorded = false
+                lesson.start(lesson.klass)
+            }
+            .buttonStyle(ChunkyButtonStyle(color: Theme.ecole, textColor: Theme.ink))
+            .frame(maxWidth: 380)
+            Button(L("Changer de classe")) { lesson.stop() }
+                .buttonStyle(GhostButtonStyle())
+                .frame(maxWidth: 380)
+            ShareResultButton(game: L("ÉCOLE"), result: L("\(lesson.stars) étoiles sur 10 en \(lesson.klass.title)"), accent: Theme.ecole)
+                .frame(maxWidth: 380)
+        }
+        .padding(.horizontal, 20)
     }
 
     private var report: some View {

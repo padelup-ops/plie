@@ -18,22 +18,24 @@ API = "https://api.appstoreconnect.apple.com"
 BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 
 WHATS_NEW = {
-    "fr-FR": """Nouveautés de ce build : 4 jeux à deux !
+    "fr-FR": """Nouveautés de ce build :
 
-• SILLAGE : Duo à plat entre vous, chacun sa moto de lumière. Glisse pour tourner, touche pour le turbo. Enferme l'autre ! Seul : contre l'ordinateur.
-• DUELS : 10 mini-duels express face à face (dégaine, tir à la corde, calcul éclair, taupes, couleur piège, mémoire…).
-• MOTS INTERDITS : celui qui fait deviner tient le Duo comme un livre ; l'écran extérieur montre le chrono et le score à son équipe.
-• BATAILLE NAVALE : plié en L, les eaux ennemies debout, ta flotte à plat. À deux, refermez le Duo pour vous le passer.
+• Nouvel accueil : jeux à la une, rangées par situation (à deux, en soirée, la magie du Duo…), « Reprendre ».
+• 6 jeux ouverts au départ ; les autres se débloquent avec des clés gagnées en jouant, ou d'un coup avec le Pass (gratuit pour les testeurs).
+• DUELS : 8 nouveaux mini-duels avec le Pass (pierre-feuille-ciseaux, nerfs d'acier, cercle parfait, ballon, l'intrus, 1 à 9, pile au centre, mémo-grille).
+• Plié en L : les menus de PUISSANCE 4, CASSE-BRIQUES, FILET, ÉCOLE et PIANO ne tombent plus sur la charnière.
+• SILLAGE et BATAILLE NAVALE sont retirés.
 
-À tester en priorité : ces 4 jeux à deux. Dites-nous ce qui coince !""",
-    "en-US": """New in this build: 4 two-player games!
+À tester en priorité : l'accueil, les clés et les nouveaux duels.""",
+    "en-US": """New in this build:
 
-• LIGHT TRAILS: the Duo lies flat between you, each player rides a light cycle. Swipe to turn, tap for turbo. Box the other one in! Solo: against the computer.
-• DUELS: 10 quick face-to-face mini-duels (quick draw, tug of war, quick math, whack-a-mole, color trap, memory…).
-• FORBIDDEN WORDS: the clue-giver holds the Duo like a book; the outer screen shows the timer and score to their team.
-• BATTLESHIP: folded into an L, enemy waters standing up, your fleet lying flat. For two, close the Duo to hand it over.
+• New home screen: featured games, rows by situation (for two, party games, Duo magic…), "Resume".
+• 6 games open at the start; the others unlock with keys earned by playing, or all at once with the Pass (free for testers).
+• DUELS: 8 new mini-duels with the Pass (rock paper scissors, nerves of steel, perfect circle, balloon, odd one out, 1 to 9, bull's-eye, grid memory).
+• Folded into an L: the menus of CONNECT 4, BRICK BREAKER, PING PONG, SCHOOL and PIANO no longer land on the hinge.
+• LIGHT TRAILS and BATTLESHIP are removed.
 
-Please test first: these 4 two-player games. Tell us what breaks!""",
+Please test first: the home screen, the keys and the new duels.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
