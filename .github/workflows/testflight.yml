@@ -23,6 +23,9 @@ on:
       - ".github/workflows/screenshots.yml"
       - ".github/workflows/plateau.yml"
       - ".github/workflows/asc-*.yml"
+      - ".github/workflows/sdk-explore.yml"
+      - ".github/workflows/clapet-*.yml"
+      - "clapet/**"
   workflow_dispatch:
 
 concurrency:

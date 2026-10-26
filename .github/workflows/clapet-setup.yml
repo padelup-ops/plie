@@ -1,0 +1,34 @@
+# CLAPET : identifiants de l'app et du widget, et vérification de la fiche App Store Connect.
+name: Clapet - préparation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Préparer
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/setup.py | tee rapport.txt
+      - name: Publier le rapport
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && cp rapport.txt "$RUNNER_TEMP/r/" 2>/dev/null || echo "pas de rapport" > "$RUNNER_TEMP/r/rapport.txt"
+          cd "$RUNNER_TEMP/r"
+          git init -q -b ci-clapet
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Rapport Clapet"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet
