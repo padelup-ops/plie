@@ -50,7 +50,13 @@ def call(method, path, body=None):
     except urllib.error.HTTPError as e:
         text = e.read().decode()
         try:
-            detail = "; ".join(f"{x.get('code')}: {x.get('detail')}" for x in json.loads(text).get("errors", []))
+            errs = json.loads(text).get("errors", [])
+            detail = "; ".join(f"{x.get('code')}: {x.get('detail')}" for x in errs)
+            for x in errs:
+                assoc = (x.get("meta") or {}).get("associatedErrors") or {}
+                for where, items in assoc.items():
+                    for it in items:
+                        detail += f"\n         -> {it.get('code')}: {it.get('detail') or it.get('title')}"
         except Exception:
             detail = text[:600]
         return {"error": e.code, "detail": detail}
