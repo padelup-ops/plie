@@ -1,0 +1,27 @@
+APP 6827349081 Foldly : compteur de plis
+ok     catégories HEALTH_AND_FITNESS / UTILITIES
+ok     classification par âge (aucun contenu sensible)
+ok     droits sur le contenu (aucun contenu de tiers)
+ok     disponibilité déjà définie
+VERSION 1.0 PREPARE_FOR_SUBMISSION
+ok     copyright « 2026 PadelUp » et sortie dès l'accord d'Apple
+ok     coordonnées et notes pour la vérification
+       https://foldly.netlify.app/fr/ -> 200
+       https://foldly.netlify.app/en/ -> 200
+       https://foldly.netlify.app/fr/privacy.html -> 200
+       https://foldly.netlify.app/en/privacy.html -> 200
+ok     confidentialité en-US
+ok     confidentialité fr-FR
+ok     assistance en-US
+ok     assistance fr-FR
+ok     6 capture(s) en-US (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-US (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) fr-FR (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) fr-FR (APP_IPHONE_DUO) déjà à jour
+ok     build 22 choisi pour la version 1.0
+ok     captures traitées par Apple
+ok     version 1.0 ajoutée à la demande
+ok     ENVOI À LA VÉRIFICATION D'APPLE
+état de la version : WAITING_FOR_REVIEW
+
+PRÊT

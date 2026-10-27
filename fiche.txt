@@ -1,0 +1,25 @@
+APP 6827349081 | Foldly : compteur de plis | langue principale fr-FR
+ok     nom en-US « Foldly: Fold Counter »
+ok     nom fr-FR « Foldly : compteur de plis »
+FICHE  en-US | Foldly: Fold Counter | Keep your folds under control
+FICHE  fr-FR | Foldly : compteur de plis | Garde tes plis sous contrôle
+VERSION 1.0 PREPARE_FOR_SUBMISSION
+ok     description en-US
+ok     description fr-FR
+ÉCHEC  aucun palier à  € pour l'app
+ok     texte TestFlight en-US
+ok     texte TestFlight fr-FR
+build 22 prêt
+1 testeur(s) interne(s) chez Origamo
+ok     1 testeur(s) ajouté(s) au groupe « Clapet interne » (déjà fait)
+groupe « Clapet interne » (interne) : 2 testeur(s)
+ok     1 testeur(s) ajouté(s) au groupe « Test autre » (déjà fait)
+groupe « Test autre » (interne) : 0 testeur(s)
+groupe « Duofolds extern testers » (externe) : 2 testeur(s) · lien public https://testflight.apple.com/join/F3SbgAp2
+ok     build ajouté au groupe « Duofolds extern testers »
+état pour les testeurs externes : READY_FOR_BETA_SUBMISSION
+ok     envoi à la vérification bêta d'Apple (déjà fait)
+état final pour les testeurs externes : READY_FOR_BETA_SUBMISSION
+état pour les testeurs internes : IN_BETA_TESTING
+
+À REVOIR : prix
