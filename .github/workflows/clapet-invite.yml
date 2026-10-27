@@ -10,6 +10,10 @@ on:
         description: "1 = testeur interne (invitation App Store Connect, rôle Marketing)"
         required: false
         default: "0"
+      cancel:
+        description: "Ancienne adresse à retirer (facultatif)"
+        required: false
+        default: ""
 jobs:
   invite:
     runs-on: ubuntu-latest
@@ -21,6 +25,7 @@ jobs:
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
       TESTER_EMAIL: ${{ inputs.email }}
       INTERNAL: ${{ inputs.internal }}
+      CANCEL_EMAIL: ${{ inputs.cancel }}
     steps:
       - uses: actions/checkout@v5
       - name: Inviter

@@ -17,6 +17,16 @@ def call(method, path, body=None):
         return {"error": e.code, "detail": e.read().decode()[:600]}
 app = call("GET", "/v1/apps?filter[bundleId]=com.padelup.clapet")["data"][0]
 
+# Une ancienne adresse à retirer (invitation en attente et testeur bêta)
+OLD = os.environ.get("CANCEL_EMAIL", "").strip()
+if OLD:
+    for inv in call("GET", f"/v1/userInvitations?filter[email]={OLD}&limit=5").get("data", []):
+        r = call("DELETE", f"/v1/userInvitations/{inv['id']}")
+        print(f"ok     invitation App Store Connect à {OLD} annulée" if "error" not in r else f"       annulation : {r}")
+    for t in call("GET", f"/v1/betaTesters?filter[email]={OLD}&limit=5").get("data", []):
+        r = call("DELETE", f"/v1/betaTesters/{t['id']}")
+        print(f"ok     testeur bêta {OLD} retiré" if "error" not in r else f"       retrait du testeur : {r}")
+
 # Testeur interne : il faut d'abord être utilisateur d'App Store Connect (rôle Marketing, le plus limité
 # parmi ceux qu'Apple accepte pour les tests internes, et seulement l'app Duo Folds).
 if os.environ.get("INTERNAL") == "1":
