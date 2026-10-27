@@ -57,6 +57,18 @@ iaps = call(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=10").get("data", [])
 print("achats intégrés :", [(i["attributes"].get("productId"), i["attributes"].get("state")) for i in iaps])
 
 # Sonde : quel type de captures pour l'iPhone Duo ? (l'erreur d'Apple liste les valeurs acceptées)
+if os.environ.get("PROBE") == "2":
+    # Sonde : où se déclare « dispositif médical réglementé » ?
+    infos = call(f"/v1/apps/{app['id']}/appInfos").get("data", [])
+    for i in infos:
+        print("APPINFO", i["id"], json.dumps(i.get("attributes"))[:1500])
+        print("APPINFO REL", list((i.get("relationships") or {}).keys()))
+    print("APP ATTR", json.dumps(app.get("attributes"))[:1500])
+    print("APP REL", list((app.get("relationships") or {}).keys()))
+    v = next((v for v in call(f"/v1/apps/{app['id']}/appStoreVersions?limit=3").get("data", [])), None)
+    if v:
+        print("VERSION ATTR", json.dumps(v.get("attributes"))[:1500])
+        print("VERSION REL", list((v.get("relationships") or {}).keys()))
 if os.environ.get("PROBE") == "1":
     def post(path, body):
         req = urllib.request.Request(API + path, method="POST", data=json.dumps(body).encode(),
