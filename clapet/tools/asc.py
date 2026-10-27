@@ -76,22 +76,22 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• TIME OPEN: Foldly measures how long your phone stays open each day (all day with the two Shortcuts automations, Closed and Opened).
-• AUTOMATIC COUNTING: Foldly now counts even when it's not on screen, with the Shortcuts automation "When iPhone is Closed" + the action "Count a fold". In the app: "Count even when the app is closed" shows you how, step by step.
-• When Foldly is on screen as well, each fold is counted only once.
-• A fold is counted even if the screen turns off while you close your phone.
-• Sober design (light or dark), new icon, everything included.
+• New name: the app is now called Foldly.
+• Choose your look: Classic (light or dark, like Health) or Night (dark, big numbers, Today and Week tabs). At first launch, and anytime in Settings.
+• Classic: the hinge gauge and its angle now sit to the right of your count.
+• Adjust the count: type today's folds or your lifetime total (pencil button, or touch and hold the number).
+• Night: "When you fold", your folds by weekday and hour.
 
-Please test: set up the automation, close and open your phone a few times with another app on screen, then check the count in Foldly and in the widgets.""",
+Please test: pick a look, switch to the other one in Settings, adjust the count, and check the widgets.""",
     "fr-FR": """Nouveautés de ce build :
 
-• TEMPS OUVERT : Foldly mesure combien de temps ton téléphone reste ouvert chaque jour (toute la journée avec les deux automatisations Raccourcis, Fermé et Ouvert).
-• COMPTAGE AUTOMATIQUE : Foldly compte maintenant même quand il n'est pas à l'écran, avec l'automatisation Raccourcis « iPhone fermé » + l'action « Compter un pli ». Dans l'app : « Compter même app fermée » te montre comment, pas à pas.
-• Quand Foldly est aussi à l'écran, chaque pli n'est compté qu'une fois.
-• Un pli est compté même si l'écran s'éteint pendant que tu fermes ton téléphone.
-• Style sobre (clair ou sombre), nouvelle icône, tout est inclus.
+• Nouveau nom : l'app s'appelle maintenant Foldly.
+• Choisis ton apparence : Classique (clair ou sombre, comme Santé) ou Nuit (sombre, grands chiffres, onglets Aujourd'hui et Semaine). Au premier lancement, et à tout moment dans les Réglages.
+• Classique : la jauge de charnière et son angle sont maintenant à droite du compteur.
+• Corriger le compteur : tape les plis du jour ou ton total (bouton crayon, ou appui long sur le chiffre).
+• Nuit : « Quand tu plies », tes plis par jour de la semaine et par heure.
 
-À tester : mets en place l'automatisation, ferme et ouvre ton téléphone plusieurs fois avec une autre app à l'écran, puis vérifie le compte dans Foldly et dans les widgets.""",
+À tester : choisis une apparence, passe à l'autre dans les Réglages, corrige le compteur et regarde les widgets.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
