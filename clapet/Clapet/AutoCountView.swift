@@ -24,6 +24,13 @@ struct AutoCountView: View {
                 }
 
                 Section {
+                    ShortcutTutorialView()
+                        .padding(.vertical, 8)
+                } header: {
+                    Text("Video guide")
+                }
+
+                Section {
                     step(1, Text("Open the **Shortcuts** app, **Automation** tab, then tap **+**."))
                     step(2, Text("Choose the trigger **When iPhone is Opened or Closed**, tap the blue words and keep **Closed** only."))
                     step(3, Text("Select **Run Immediately** and turn **Notify** off."))
