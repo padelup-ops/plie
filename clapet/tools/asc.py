@@ -77,21 +77,21 @@ WHATS_NEW = {
     "en-US": """New in this build:
 
 • New name: the app is now called Foldly.
-• Choose your look: Classic (light or dark, like Health) or Night (dark, big numbers, Today and Week tabs). At first launch, and anytime in Settings.
+• Choose your theme: Classic (cards and a ring, like Health) or Modern (big numbers, hinge gauge, Today and Week tabs). At first launch, and anytime in Settings.
 • Classic: the hinge gauge and its angle now sit to the right of your count.
 • Adjust the count: type today's folds or your lifetime total (pencil button, or touch and hold the number).
-• Night: "When you fold", your folds by weekday and hour.
+• Modern: "When you fold", your folds by weekday and hour.
 
-Please test: pick a look, switch to the other one in Settings, adjust the count, and check the widgets.""",
+Please test: pick a theme, switch to the other one in Settings, adjust the count, and check the widgets.""",
     "fr-FR": """Nouveautés de ce build :
 
 • Nouveau nom : l'app s'appelle maintenant Foldly.
-• Choisis ton apparence : Classique (clair ou sombre, comme Santé) ou Nuit (sombre, grands chiffres, onglets Aujourd'hui et Semaine). Au premier lancement, et à tout moment dans les Réglages.
+• Choisis ton thème : Classique (des cartes et un anneau, comme Santé) ou Moderne (grands chiffres, jauge de charnière, onglets Aujourd'hui et Semaine). Au premier lancement, et à tout moment dans les Réglages.
 • Classique : la jauge de charnière et son angle sont maintenant à droite du compteur.
 • Corriger le compteur : tape les plis du jour ou ton total (bouton crayon, ou appui long sur le chiffre).
-• Nuit : « Quand tu plies », tes plis par jour de la semaine et par heure.
+• Moderne : « Quand tu plies », tes plis par jour de la semaine et par heure.
 
-À tester : choisis une apparence, passe à l'autre dans les Réglages, corrige le compteur et regarde les widgets.""",
+À tester : choisis un thème, passe à l'autre dans les Réglages, corrige le compteur et regarde les widgets.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

@@ -239,11 +239,11 @@
 "Folded" = "Plié";
 "Week" = "Semaine";
 "Classic" = "Classique";
-"Night" = "Nuit";
-"Look" = "Apparence";
-"Light or dark, like the Health app" = "Clair ou sombre, comme l'app Santé";
-"Dark, big numbers, Today and Week tabs" = "Sombre, grands chiffres, onglets Aujourd'hui et Semaine";
-"Choose your look" = "Choisis ton apparence";
+"Modern" = "Moderne";
+"Theme" = "Thème";
+"Cards and a ring, like the Health app" = "Des cartes et un anneau, comme l'app Santé";
+"Big numbers, hinge gauge, Today and Week tabs" = "Grands chiffres, jauge de charnière, onglets Aujourd'hui et Semaine";
+"Choose your theme" = "Choisis ton thème";
 "You can change it anytime in Settings." = "Tu pourras la changer à tout moment dans les Réglages.";
 "Continue" = "Continuer";
 "Counts below %lld°" = "Compte sous %lld°";

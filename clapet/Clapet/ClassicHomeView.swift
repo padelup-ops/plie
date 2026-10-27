@@ -201,50 +201,69 @@ struct ClassicHomeView: View {
                     .foregroundStyle(Color.dfAccent)
                     .accessibilityLabel(Text("Adjust the count"))
                 }
-                HStack(alignment: .center, spacing: 20) {
-                    ZStack {
-                        Circle().stroke(statusColor.opacity(0.15), lineWidth: 14)
-                        Circle()
-                            .trim(from: 0, to: model.stats.progress)
-                            .stroke(statusColor, style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                            .rotationEffect(.degrees(-90))
-                            .animation(.easeInOut(duration: 0.4), value: model.stats.progress)
-                        VStack(spacing: 0) {
-                            Text("\(model.stats.today)")
-                                .font(.system(size: 40, weight: .bold))
-                                .monospacedDigit()
-                                .contentTransition(.numericText())
-                                .animation(.easeOut(duration: 0.25), value: model.stats.today)
-                            Text("folds")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
+                // Assez de place : tout sur une ligne, la charnière à droite. Sinon, la charnière passe dessous.
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .center, spacing: 20) {
+                        ring
+                        todayStats.fixedSize()
+                        Spacer(minLength: 8)
+                        hingeGauge
+                    }
+                    VStack(spacing: 10) {
+                        HStack(alignment: .center, spacing: 20) {
+                            ring
+                            todayStats.layoutPriority(1)
+                            Spacer(minLength: 0)
                         }
+                        hingeGauge
+                            .frame(maxWidth: .infinity)
                     }
-                    .frame(width: 132, height: 132)
-                    .contentShape(Circle())
-                    .onLongPressGesture { showAdjust = true }
-                    .overlay(alignment: .topTrailing) {
-                        Text("+1")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(statusColor)
-                            .offset(x: 10, y: bump ? -12 : 0)
-                            .opacity(bump ? 1 : 0)
-                            .allowsHitTesting(false)
-                    }
-                    VStack(alignment: .leading, spacing: 10) {
-                        status
-                            .font(.headline)
-                            .foregroundStyle(statusColor)
-                        stat(Text("Daily limit"), "\(model.stats.goal)")
-                        stat(Text("Yesterday"), "\(model.stats.yesterday())")
-                    }
-                    Spacer(minLength: 8)
-                    // La charnière à droite, dans l'espace libre de la carte.
-                    hingeGauge
                 }
             }
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private var ring: some View {
+        ZStack {
+            Circle().stroke(statusColor.opacity(0.15), lineWidth: 14)
+            Circle()
+                .trim(from: 0, to: model.stats.progress)
+                .stroke(statusColor, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .animation(.easeInOut(duration: 0.4), value: model.stats.progress)
+            VStack(spacing: 0) {
+                Text("\(model.stats.today)")
+                    .font(.system(size: 40, weight: .bold))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.easeOut(duration: 0.25), value: model.stats.today)
+                Text("folds")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: 132, height: 132)
+        .contentShape(Circle())
+        .onLongPressGesture { showAdjust = true }
+        .overlay(alignment: .topTrailing) {
+            Text("+1")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(statusColor)
+                .offset(x: 10, y: bump ? -12 : 0)
+                .opacity(bump ? 1 : 0)
+                .allowsHitTesting(false)
+        }
+    }
+
+    private var todayStats: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            status
+                .font(.headline)
+                .foregroundStyle(statusColor)
+            stat(Text("Daily limit"), "\(model.stats.goal)")
+            stat(Text("Yesterday"), "\(model.stats.yesterday())")
+        }
     }
 
     private var hingeGauge: some View {

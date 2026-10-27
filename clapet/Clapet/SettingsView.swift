@@ -43,11 +43,11 @@ struct SettingsView: View {
                             look.title.tag(look.rawValue)
                         }
                     } label: {
-                        Text("Look")
+                        Text("Theme")
                     }
                     .pickerStyle(.segmented)
                 } header: {
-                    Text("Look")
+                    Text("Theme")
                 } footer: {
                     (DFLook(rawValue: lookRaw) ?? .classic).subtitle
                 }

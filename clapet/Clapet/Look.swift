@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Le look de l'app, au choix
 //
 // « Classique » : comme l'app Santé, clair ou sombre selon l'iPhone.
-// « Nuit » : sombre, grands chiffres, onglets Aujourd'hui / Semaine.
+// « Moderne » : sombre, grands chiffres, jauge, onglets Aujourd'hui / Semaine.
 // Choisi au premier lancement, modifiable dans les Réglages.
 
 enum DFLook: String, CaseIterable, Identifiable {
@@ -18,14 +18,14 @@ enum DFLook: String, CaseIterable, Identifiable {
     var title: Text {
         switch self {
         case .classic: return Text("Classic")
-        case .night: return Text("Night")
+        case .night: return Text("Modern")
         }
     }
 
     var subtitle: Text {
         switch self {
-        case .classic: return Text("Light or dark, like the Health app")
-        case .night: return Text("Dark, big numbers, Today and Week tabs")
+        case .classic: return Text("Cards and a ring, like the Health app")
+        case .night: return Text("Big numbers, hinge gauge, Today and Week tabs")
         }
     }
 }
@@ -83,7 +83,7 @@ struct LookPickerView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Choose your look")
+                    Text("Choose your theme")
                         .font(.title2.weight(.bold))
                     Text("You can change it anytime in Settings.")
                         .font(.subheadline)
@@ -152,10 +152,10 @@ struct LookThumbnail: View {
 
     var body: some View {
         let night = look == .night
-        let background = night ? Color(red: 0.055, green: 0.078, blue: 0.078) : Color(red: 0.94, green: 0.94, blue: 0.96)
-        let card = night ? Color(red: 0.135, green: 0.16, blue: 0.157) : Color.white
+        let background = night ? Color(red: 0.055, green: 0.078, blue: 0.078) : Color(uiColor: .systemGroupedBackground)
+        let card = night ? Color(red: 0.135, green: 0.16, blue: 0.157) : Color(uiColor: .secondarySystemGroupedBackground)
         let accent = night ? Color(red: 0.36, green: 0.89, blue: 0.78) : Color(red: 0.2, green: 0.72, blue: 0.63)
-        let ink = night ? Color.white : Color.black
+        let ink = night ? Color.white : Color.primary
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 14, style: .continuous).fill(background)
             VStack(alignment: .leading, spacing: 6) {
