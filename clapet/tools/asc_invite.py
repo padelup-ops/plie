@@ -43,6 +43,14 @@ if os.environ.get("INTERNAL") == "1":
             r = call("POST", "/v1/betaTesters", {"data": {"type": "betaTesters", "attributes": {"email": EMAIL, "firstName": users[0]["attributes"].get("firstName"), "lastName": users[0]["attributes"].get("lastName")},
                      "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": internal[0]["id"]}]}}}})
             print("ok     ajouté au groupe interne" if "error" not in r else f"       groupe interne : {r.get('detail', '')[:300]}")
+        # Où en est l'invitation TestFlight, et on la renvoie si elle n'est pas encore acceptée
+        for t in call("GET", f"/v1/betaTesters?filter[email]={EMAIL}&limit=5").get("data", []):
+            at = t["attributes"]
+            print("testeur TestFlight :", at.get("email"), "| état", at.get("state"), "| invité par", at.get("inviteType"))
+            if at.get("state") not in ("ACCEPTED", "INSTALLED"):
+                r = call("POST", "/v1/betaTesterInvitations", {"data": {"type": "betaTesterInvitations", "relationships": {
+                         "app": {"data": {"type": "apps", "id": app["id"]}}, "betaTester": {"data": {"type": "betaTesters", "id": t["id"]}}}}})
+                print("ok     e-mail d'invitation TestFlight renvoyé" if "error" not in r else f"       renvoi : {r.get('detail', '')[:300]}")
         sys.exit(0)
     pending = call("GET", f"/v1/userInvitations?filter[email]={EMAIL}&limit=5").get("data", [])
     if pending:
