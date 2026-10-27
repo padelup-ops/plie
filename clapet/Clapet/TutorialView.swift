@@ -13,7 +13,7 @@ struct ShortcutTutorialView: View {
         Text("Tap **+** to create an automation."),
         Text("Choose **iPhone Opened or Closed**."),
         Text("Keep **Closed** only, choose **Run Immediately**, then **Next**."),
-        Text("Search **Duo Folds** and pick **Count a fold**."),
+        Text("Search **Duo Folds**, pick **Count a fold**, then turn off **Show When Run**."),
         Text("Check that the automation is **on**. Done!"),
         Text("Do the same with **Opened** and **Count an opening** to measure the time open."),
     ]

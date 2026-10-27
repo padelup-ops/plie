@@ -128,7 +128,7 @@
 "Your Duo can run a Shortcuts automation each time it's closed. Plug Duo Folds into it: it takes a minute, and it counts all day long." = "Ton Duo peut lancer une automatisation Raccourcis à chaque fermeture. Branche Duo Folds dessus : ça prend une minute, et il compte toute la journée.";
 "Open the **Shortcuts** app, **Automation** tab, then tap **+**." = "Ouvre l'app **Raccourcis**, onglet **Automatisation**, puis touche **+**.";
 "Choose the trigger **When iPhone is Opened or Closed**, tap the blue words and keep **Closed** only." = "Choisis le déclencheur **iPhone ouvert ou fermé** (When iPhone is Opened or Closed), touche les mots en bleu et garde seulement **Fermé**.";
-"Select **Run Immediately** and turn **Notify** off." = "Choisis **Exécuter immédiatement** et désactive la **notification**.";
+"Select **Run Immediately** and turn **Notify When Run** off." = "Choisis **Exécuter immédiatement** et désactive **Notifier lors de l'exécution**.";
 "Tap **Next**, then add the action **Count a fold** (Duo Folds)." = "Touche **Suivant**, puis ajoute l'action **Compter un pli** (Duo Folds).";
 "Back in the list, check that the automation is **turned on**. iOS sometimes adds it switched off." = "De retour dans la liste, vérifie que l'automatisation est **activée**. iOS l'ajoute parfois désactivée.";
 "Set up" = "Mise en place";
@@ -163,7 +163,7 @@
 "Tap **+** to create an automation." = "Touche **+** pour créer une automatisation.";
 "Choose **iPhone Opened or Closed**." = "Choisis **iPhone ouvert ou fermé**.";
 "Keep **Closed** only, choose **Run Immediately**, then **Next**." = "Garde seulement **Fermé**, choisis **Exécuter immédiatement**, puis **Suivant**.";
-"Search **Duo Folds** and pick **Count a fold**." = "Cherche **Duo Folds** et choisis **Compter un pli**.";
+"Search **Duo Folds**, pick **Count a fold**, then turn off **Show When Run**." = "Cherche **Duo Folds**, choisis **Compter un pli**, puis désactive **Afficher lors de l'exécution**.";
 "Check that the automation is **on**. Done!" = "Vérifie que l'automatisation est **activée**. C'est fini !";
 "Do the same with **Opened** and **Count an opening** to measure the time open." = "Refais pareil avec **Ouvert** et **Compter une ouverture** pour mesurer le temps ouvert.";
 "Tap the video to start again" = "Touche la vidéo pour la relancer";
@@ -188,3 +188,17 @@
 "Add Action" = "Ajouter une action";
 "When iPhone is closed" = "Quand l'iPhone est fermé";
 "When iPhone is opened" = "Quand l'iPhone est ouvert";
+"Tap the action, open it with the little arrow and turn **Show When Run** off: nothing will show up, it counts silently." = "Touche l'action, ouvre-la avec la petite flèche et désactive **Afficher lors de l'exécution** : plus rien ne s'affiche, ça compte en silence.";
+"Questions" = "Questions";
+"Something shows up each time I open my Duo." = "Quelque chose s'affiche à chaque ouverture de mon Duo.";
+"In Shortcuts, open the automation, tap the action and turn **Show When Run** off. Also check that **Notify When Run** is off and **Run Immediately** is selected. Do it for both automations." = "Dans Raccourcis, ouvre l'automatisation, touche l'action et désactive **Afficher lors de l'exécution**. Vérifie aussi que **Notifier lors de l'exécution** est désactivé et **Exécuter immédiatement** choisi. Fais-le pour les deux automatisations.";
+"Why keep only “Closed”?" = "Pourquoi garder seulement « Fermé » ?";
+"With “Opened or Closed”, every opening would also count as a fold. Use two automations: **Closed** with Count a fold, **Opened** with Count an opening." = "Avec « Ouvert ou fermé », chaque ouverture compterait aussi comme un pli. Utilise deux automatisations : **Fermé** avec Compter un pli, **Ouvert** avec Compter une ouverture.";
+"Is a fold counted twice when the app is open?" = "Un pli est-il compté deux fois quand l'app est ouverte ?";
+"No. When Duo Folds is on screen and the automation runs too, the fold is counted only once." = "Non. Quand Duo Folds est à l'écran et que l'automatisation tourne aussi, le pli n'est compté qu'une fois.";
+"The widget isn't up to date." = "Le widget n'est pas à jour.";
+"iOS decides when widgets refresh, usually within a few minutes. Opening Duo Folds updates them right away." = "C'est iOS qui décide quand les widgets se mettent à jour, en général en quelques minutes. Ouvrir Duo Folds les met à jour tout de suite.";
+"Does it open the app or drain the battery?" = "Est-ce que ça ouvre l'app ou vide la batterie ?";
+"No. The action runs in the background in a fraction of a second, without opening Duo Folds, even after a restart." = "Non. L'action tourne en arrière-plan en une fraction de seconde, sans ouvrir Duo Folds, même après un redémarrage.";
+"It doesn't count anymore." = "Ça ne compte plus.";
+"Check in Shortcuts that both automations are still turned on. If “Working” above isn't recent, close your Duo once and come back here." = "Vérifie dans Raccourcis que les deux automatisations sont toujours activées. Si « Ça marche » plus haut n'est pas récent, ferme ton Duo une fois et reviens ici.";
