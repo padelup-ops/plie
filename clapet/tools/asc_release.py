@@ -16,12 +16,15 @@ import urllib.request
 import jwt
 
 API = "https://api.appstoreconnect.apple.com"
-BUNDLE = "com.padelup.clapet"
+BUNDLE = os.environ.get("APP_BUNDLE") or "com.padelup.clapet"
 HERE = os.path.dirname(os.path.abspath(__file__))
 BUILD = os.environ.get("RELEASE_BUILD", "").strip()
 SITE = os.environ.get("SITE_URL", "").strip().rstrip("/")
 SUBMIT = os.environ.get("SUBMIT") == "1"
 SHOT_TYPE = os.environ.get("SHOT_TYPE", "APP_IPHONE_67")
+SHOTS_DIR = os.environ.get("SHOTS_DIR") or os.path.join(HERE, "store")
+CATEGORIES = (os.environ.get("CATEGORIES") or "HEALTH_AND_FITNESS,UTILITIES").split(",")
+PRICE_EUR = os.environ.get("APP_PRICE", "").strip()
 LOCALES = {"en-US": "en", "fr-FR": "fr"}
 REVIEW_NOTES = (
     "Duo Folds counts how many times the iPhone Duo is closed and opened, so people can keep that habit under control.\n\n"
@@ -32,6 +35,9 @@ REVIEW_NOTES = (
     "\"When iPhone is Closed\" (Shortcuts > Automation). The app shows these steps under \"Count even when the app is closed\".\n\n"
     "Paid app: everything is included, there is no in-app purchase, no account, no ads and no data collection. "
     "Numbers stay on the device (shared with the widgets through the keychain).")
+
+if os.environ.get("LISTING_JSON"):
+    REVIEW_NOTES = json.load(open(os.environ["LISTING_JSON"], encoding="utf-8"))["reviewNotes"]
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
                     "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",
@@ -96,9 +102,38 @@ print("APP", app_id, app[0]["attributes"]["name"])
 infos = call("GET", f"/v1/apps/{app_id}/appInfos").get("data", [])
 info = next((i for i in infos if i["attributes"].get("appStoreState") not in ("READY_FOR_SALE", "READY_FOR_DISTRIBUTION")), infos[0])
 info_id = info["id"]
-step("catégories (Santé et forme, Utilitaires)", call("PATCH", f"/v1/appInfos/{info_id}", {"data": {"type": "appInfos", "id": info_id, "relationships": {
-    "primaryCategory": {"data": {"type": "appCategories", "id": "HEALTH_AND_FITNESS"}},
-    "secondaryCategory": {"data": {"type": "appCategories", "id": "UTILITIES"}}}}}))
+if CATEGORIES[0] == "GAMES":
+    rel = {"primaryCategory": {"data": {"type": "appCategories", "id": "GAMES"}}}
+    for key, cid in zip(("primarySubcategoryOne", "primarySubcategoryTwo"), CATEGORIES[1:3]):
+        rel[key] = {"data": {"type": "appCategories", "id": cid}}
+else:
+    rel = {"primaryCategory": {"data": {"type": "appCategories", "id": CATEGORIES[0]}}}
+    if len(CATEGORIES) > 1:
+        rel["secondaryCategory"] = {"data": {"type": "appCategories", "id": CATEGORIES[1]}}
+step("catégories " + " / ".join(CATEGORIES), call("PATCH", f"/v1/appInfos/{info_id}", {"data": {"type": "appInfos", "id": info_id, "relationships": rel}}))
+
+# Prix de l'app (base France)
+if PRICE_EUR:
+    current = call("GET", f"/v1/apps/{app_id}/appPriceSchedule?include=manualPrices")
+    have = [x for x in current.get("included", []) if x["type"] == "appPrices"]
+    point, url = None, f"/v1/apps/{app_id}/appPricePoints?filter[territory]=FRA&limit=200"
+    while url and not point:
+        page = call("GET", url)
+        point = next((p for p in page.get("data", []) if p["attributes"].get("customerPrice") == PRICE_EUR), None)
+        url = page.get("links", {}).get("next")
+    if not point:
+        problems.append("prix")
+        print("ÉCHEC  aucun palier à", PRICE_EUR, "€")
+    elif any(x.get("relationships", {}).get("appPricePoint", {}).get("data", {}).get("id") == point["id"] for x in have):
+        print(f"ok     prix {PRICE_EUR} € (déjà en place)")
+    else:
+        step(f"prix {PRICE_EUR} € (base France)", call("POST", "/v1/appPriceSchedules", {
+            "data": {"type": "appPriceSchedules", "relationships": {
+                "app": {"data": {"type": "apps", "id": app_id}},
+                "baseTerritory": {"data": {"type": "territories", "id": "FRA"}},
+                "manualPrices": {"data": [{"type": "appPrices", "id": "${prix}"}]}}},
+            "included": [{"type": "appPrices", "id": "${prix}", "attributes": {"startDate": None},
+                          "relationships": {"appPricePoint": {"data": {"type": "appPricePoints", "id": point["id"]}}}}]}))
 
 age = call("GET", f"/v1/appInfos/{info_id}/ageRatingDeclaration").get("data")
 if age:
@@ -210,7 +245,7 @@ for l in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations")
     lang = LOCALES.get(l["attributes"]["locale"])
     if not lang:
         continue
-    files = [os.path.join(HERE, "store", f"{lang}-{i}.png") for i in range(1, 6)]
+    files = [os.path.join(SHOTS_DIR, f"{lang}-{i}.png") for i in range(1, 11)]
     files = [f for f in files if os.path.exists(f)]
     sets = call("GET", f"/v1/appStoreVersionLocalizations/{l['id']}/appScreenshotSets").get("data", [])
     s = next((x for x in sets if x["attributes"].get("screenshotDisplayType") == SHOT_TYPE), None)

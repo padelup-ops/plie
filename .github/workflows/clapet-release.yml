@@ -1,4 +1,4 @@
-# DUO FOLDS : prépare la version 1.0 (fiche, captures, build) et l'envoie à la vérification d'Apple si demandé.
+# DUO FOLDS ou ORIGAMO : prépare la version 1.0 (fiche, captures, build) et l'envoie à la vérification d'Apple si demandé.
 name: Clapet - mise en production
 on:
   workflow_dispatch:
@@ -10,6 +10,10 @@ on:
         description: "1 = envoyer à la vérification d'Apple"
         required: false
         default: "0"
+      app:
+        description: "duofolds ou origamo"
+        required: false
+        default: "duofolds"
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -23,13 +27,23 @@ jobs:
       ORIGAMO_BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
       RELEASE_BUILD: ${{ inputs.build }}
       SUBMIT: ${{ inputs.submit }}
-      SITE_URL: https://duofolds.netlify.app
+      SITE_URL: ${{ inputs.app == 'origamo' && 'https://origamo.netlify.app' || 'https://duofolds.netlify.app' }}
+      APP_BUNDLE: ${{ inputs.app == 'origamo' && secrets.BUNDLE_ID || 'com.padelup.clapet' }}
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+      SHOTS_DIR: ${{ inputs.app == 'origamo' && 'tools/store_shots' || 'clapet/tools/store' }}
+      CATEGORIES: ${{ inputs.app == 'origamo' && 'GAMES,GAMES_PUZZLE,GAMES_BOARD' || 'HEALTH_AND_FITNESS,UTILITIES' }}
+      LISTING_JSON: ${{ inputs.app == 'origamo' && 'tools/store_listing.json' || '' }}
+      APP_PRICE: ${{ inputs.app == 'origamo' && '4.99' || '' }}
     steps:
       - uses: actions/checkout@v5
       - name: Fiche et textes
         run: |
           python3 -m pip install --quiet pyjwt cryptography
-          SKIP_NOTES=1 BUILD_NUMBER=${{ inputs.build }} timeout 600 python3 clapet/tools/asc.py 2>&1 | grep -v "attente du traitement" | tee fiche.txt || true
+          if [ "${{ inputs.app }}" = "origamo" ]; then
+            python3 tools/asc_fiche.py 2>&1 | tee fiche.txt || true
+          else
+            SKIP_NOTES=1 BUILD_NUMBER=${{ inputs.build }} timeout 600 python3 clapet/tools/asc.py 2>&1 | grep -v "attente du traitement" | tee fiche.txt || true
+          fi
       - name: Version 1.0
         run: python3 clapet/tools/asc_release.py 2>&1 | tee release.txt
       - name: Publier le rapport
