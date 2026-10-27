@@ -1,4 +1,6 @@
-# Site d'Origamo : page d'assistance et de confidentialité, et compteur des vrais arbres.
+# Site d'Origamo : assistance et confidentialité (FR / EN). Pages statiques.
 [build]
   publish = "public"
-  functions = "netlify/functions"
+  command = ""
+[functions]
+  directory = "netlify/aucune-fonction"

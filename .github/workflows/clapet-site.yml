@@ -1,4 +1,4 @@
-# DUO FOLDS : publie le site d'assistance et de confidentialité (clapet/tools/site) sur Netlify.
+# Publie un site d'assistance et de confidentialité (Duo Folds : clapet/tools/site, Origamo : tools/site) sur Netlify.
 # L'entrée « proxy » est le chemin de déploiement donné par Netlify pour ce site.
 name: Clapet - site
 on:
@@ -10,6 +10,14 @@ on:
       proxy:
         description: "Chemin de déploiement Netlify"
         required: true
+      dir:
+        description: "Dossier du site"
+        required: false
+        default: "clapet/tools/site"
+      url:
+        description: "Adresse du site à vérifier"
+        required: false
+        default: "https://duofolds.netlify.app"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -22,11 +30,11 @@ jobs:
       - name: Publier
         run: |
           echo "::add-mask::${{ inputs.proxy }}"
-          cd clapet/tools/site
+          cd "${{ inputs.dir }}"
           npx -y @netlify/mcp@latest --site-id "${{ inputs.site }}" --proxy-path "${{ inputs.proxy }}" 2>&1 | tail -20
       - name: Vérifier
         run: |
           sleep 10
           for p in "" fr/ en/ fr/privacy.html en/privacy.html; do
-            echo "$(curl -s -o /dev/null -w '%{http_code}' https://duofolds.netlify.app/$p) https://duofolds.netlify.app/$p"
+            echo "$(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/$p) ${{ inputs.url }}/$p"
           done
