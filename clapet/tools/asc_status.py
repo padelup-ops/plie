@@ -55,3 +55,18 @@ print("prix :", [x.get("relationships", {}).get("appPricePoint", {}).get("data",
 print("disponibilité :", "oui" if call(f"/v1/apps/{app['id']}/appAvailabilityV2").get("data") else "non")
 iaps = call(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=10").get("data", [])
 print("achats intégrés :", [(i["attributes"].get("productId"), i["attributes"].get("state")) for i in iaps])
+
+# Sonde : quel type de captures pour l'iPhone Duo ? (l'erreur d'Apple liste les valeurs acceptées)
+if os.environ.get("PROBE") == "1":
+    def post(path, body):
+        req = urllib.request.Request(API + path, method="POST", data=json.dumps(body).encode(),
+                                     headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
+        try:
+            return json.load(urllib.request.urlopen(req))
+        except urllib.error.HTTPError as e:
+            return {"error": e.code, "detail": e.read().decode()[:3000]}
+    v = next((v for v in call(f"/v1/apps/{app['id']}/appStoreVersions?limit=3").get("data", [])), None)
+    loc = call(f"/v1/appStoreVersions/{v['id']}/appStoreVersionLocalizations").get("data", [])[0]
+    r = post("/v1/appScreenshotSets", {"data": {"type": "appScreenshotSets", "attributes": {"screenshotDisplayType": "APP_IPHONE_DUO_PROBE"},
+             "relationships": {"appStoreVersionLocalization": {"data": {"type": "appStoreVersionLocalizations", "id": loc["id"]}}}}})
+    print("SONDE", json.dumps(r)[:3000])

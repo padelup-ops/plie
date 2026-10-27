@@ -7,6 +7,10 @@ on:
         description: "Identifiant de l'app (origamo = Origamo)"
         required: false
         default: "com.padelup.clapet"
+      probe:
+        description: "1 = sonder les types de captures"
+        required: false
+        default: "0"
 jobs:
   status:
     runs-on: ubuntu-latest
@@ -16,6 +20,7 @@ jobs:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      PROBE: ${{ inputs.probe }}
       APP_BUNDLE: ${{ inputs.bundle == 'origamo' && secrets.BUNDLE_ID || inputs.bundle || 'com.padelup.clapet' }}
     steps:
       - uses: actions/checkout@v5
