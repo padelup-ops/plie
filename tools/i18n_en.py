@@ -1789,4 +1789,6 @@ EN = {
     "Voir l'app comme un nouveau joueur": "See the app as a new player",
     "Pour voir les cadenas, les clés et le Pass, comme quelqu'un qui vient d'installer l'app.": "To see the locks, the keys and the Pass, like someone who just installed the app.",
     "Offert aux testeurs": "Free for testers",
+    "{} / {} plantes": "{} / {} plants",
+    "Fais fleurir les 8 plantes pour compléter ton jardin.": "Grow all 8 plants to complete your garden.",
 }

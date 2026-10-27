@@ -95,6 +95,7 @@ enum TreeCounter {
     static let url = URL(string: "https://origamo.netlify.app/api/arbre")!
 
     static func send(completion: @escaping (Int?) -> Void) {
+        guard BuildFlags.realTrees else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

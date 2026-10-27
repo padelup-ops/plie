@@ -25,7 +25,7 @@ final class StoreManager {
     private(set) var simulateFree = UserDefaults.standard.bool(forKey: "tester.simulateFree")
 
     /// Tous les jeux et tous les niveaux : Pass acheté, ou version de test.
-    var hasEverything: Bool { ownsPass || (isTestBuild && !simulateFree) }
+    var hasEverything: Bool { BuildFlags.paidApp || ownsPass || (isTestBuild && !simulateFree) }
 
     func setSimulateFree(_ on: Bool) {
         simulateFree = on

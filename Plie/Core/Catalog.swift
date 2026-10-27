@@ -508,7 +508,8 @@ enum GameID: String, CaseIterable, Identifiable {
                 duo ? HowToStep(symbol: "rectangle.portrait.on.rectangle.portrait", text: L("Ferme ton Duo : la plante pousse sur l'écran extérieur pendant que tu te concentres."))
                     : HowToStep(symbol: "iphone", text: L("Pose ton téléphone et ne quitte pas Origamo.")),
                 HowToStep(symbol: "exclamationmark.triangle.fill", text: L("Rouvert trop tôt ? Tu as 10 secondes pour refermer, sinon la plante fane.")),
-                HowToStep(symbol: "tree.fill", text: L("Fais fleurir les 8 plantes : on plante un vrai arbre pour toi."))
+                HowToStep(symbol: "tree.fill", text: BuildFlags.realTrees ? L("Fais fleurir les 8 plantes : on plante un vrai arbre pour toi.")
+                                                                          : L("Fais fleurir les 8 plantes pour compléter ton jardin."))
             ]
         }
     }

@@ -2,6 +2,8 @@
 
 enum EnglishStrings {
     static let table: [String: String] = [
+        "{} / {} plantes": "{} / {} plants",
+        "Fais fleurir les 8 plantes pour compléter ton jardin.": "Grow all 8 plants to complete your garden.",
         "+1 pour toi !": "+1 for you!",
         "+8 duels avec le Pass Origamo": "+8 duels with the Origamo Pass",
         ", ouvert": ", open",

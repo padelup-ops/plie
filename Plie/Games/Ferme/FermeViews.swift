@@ -281,7 +281,7 @@ struct FermeView: View {
                 PlantCanvas(plant: FermePlant.named(session.plantID), growth: 1, wilted: false)
                     .frame(height: 170)
 
-                TreeCard()
+                if BuildFlags.realTrees { TreeCard() }
 
                 VStack(spacing: 10) {
                     SectionTitle(text: L("Durée"))

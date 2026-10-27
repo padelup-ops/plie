@@ -300,7 +300,8 @@ struct HubView: View {
         case .ecole: return app.ecoleLessons > 0 ? L("\(app.ecoleLessons) leçon\(app.ecoleLessons > 1 ? "s" : "")") : L("5 classes")
         case .piano: return L("\(PianoSong.all.count) morceaux")
         case .soleil: return app.soleilGames > 0 ? L("\(app.soleilGames) partie\(app.soleilGames > 1 ? "s" : "")") : nil
-        case .ferme: return L("\(app.fermeSpecies.count) / \(FermePlant.all.count) plantes · un vrai arbre")
+        case .ferme: return BuildFlags.realTrees ? L("\(app.fermeSpecies.count) / \(FermePlant.all.count) plantes · un vrai arbre")
+                                                 : L("\(app.fermeSpecies.count) / \(FermePlant.all.count) plantes")
         }
     }
 
@@ -723,7 +724,7 @@ struct SettingsView: View {
                     Toggle(L("Sons"), isOn: Binding(get: { app.soundOn }, set: { app.setSound($0) }))
                     Toggle(L("Vibrations"), isOn: Binding(get: { app.hapticsOn }, set: { app.setHaptics($0) }))
                 }
-                if store.isTestBuild {
+                if store.isTestBuild && !BuildFlags.paidApp {
                     Section(L("Version de test")) {
                         Label(L("Testeur : tous les jeux et tous les niveaux sont offerts."), systemImage: "gift.fill")
                         Toggle(L("Voir l'app comme un nouveau joueur"), isOn: Binding(get: { store.simulateFree }, set: { store.setSimulateFree($0) }))
@@ -732,6 +733,7 @@ struct SettingsView: View {
                             .foregroundStyle(Theme.muted)
                     }
                 }
+                if !BuildFlags.paidApp {
                 Section(L("Pass Origamo")) {
                     if store.hasEverything {
                         Label(store.ownsPass ? L("Tout est débloqué") : L("Offert aux testeurs"), systemImage: "checkmark.seal.fill")
@@ -747,6 +749,7 @@ struct SettingsView: View {
                     if let message = store.message {
                         Text(message).foregroundStyle(Theme.muted)
                     }
+                }
                 }
                 Section(L("iPhone Duo")) {
                     Text(DuoSupport.apisAvailable
