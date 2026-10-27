@@ -282,7 +282,13 @@ for l in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations")
                 step(f"jeu de captures {shot_type} {lang}", r)
                 continue
             s_ = r["data"]
-        for old in call("GET", f"/v1/appScreenshotSets/{s_['id']}/appScreenshots").get("data", []):
+        existing_shots = call("GET", f"/v1/appScreenshotSets/{s_['id']}/appScreenshots").get("data", [])
+        wanted = sorted(hashlib.md5(open(f, "rb").read()).hexdigest() for f in files)
+        have = sorted((x["attributes"].get("sourceFileChecksum") or "") for x in existing_shots)
+        if wanted == have:
+            print(f"ok     {len(files)} capture(s) {l['attributes']['locale']} ({shot_type}) déjà à jour")
+            continue
+        for old in existing_shots:
             call("DELETE", f"/v1/appScreenshots/{old['id']}")
         ok_count = 0
         for f in files:
@@ -316,6 +322,22 @@ if BUILD:
     else:
         problems.append("build")
         print(f"ÉCHEC  build {BUILD} pas prêt")
+
+# Les captures doivent être traitées par Apple avant l'envoi
+if os.environ.get("SUBMIT") == "1":
+    for attempt in range(30):
+        pending = 0
+        for l in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations").get("data", []):
+            for s_ in call("GET", f"/v1/appStoreVersionLocalizations/{l['id']}/appScreenshotSets").get("data", []):
+                for x in call("GET", f"/v1/appScreenshotSets/{s_['id']}/appScreenshots").get("data", []):
+                    st = ((x["attributes"].get("assetDeliveryState") or {}).get("state"))
+                    if st not in ("COMPLETE",):
+                        pending += 1
+        if not pending:
+            print("ok     captures traitées par Apple")
+            break
+        print(f"       {pending} capture(s) encore en traitement chez Apple")
+        time.sleep(15)
 
 # ---------------------------------------------------------------- envoi à Apple
 if SUBMIT:
