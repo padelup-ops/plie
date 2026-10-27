@@ -23,3 +23,14 @@ for s in call(f"/v1/apps/{app['id']}/betaAppReviewSubmissions?limit=5").get("dat
 subs = call(f"/v1/betaAppReviewSubmissions?filter[build]=" + ",".join(b["id"] for b in call(f"/v1/builds?filter[app]={app['id']}&limit=8").get("data", [])))
 for s in subs.get("data", []):
     print("vérification bêta", s["id"], s["attributes"].get("betaReviewState"), s["attributes"].get("submittedDate"))
+
+# Les envois de builds (avec les erreurs d'Apple si un envoi a échoué)
+ups = call(f"/v1/apps/{app['id']}/buildUploads?limit=6&sort=-uploadedDate")
+if "error" in ups:
+    ups = call(f"/v1/buildUploads?filter[app]={app['id']}&limit=6")
+if "error" in ups:
+    print("envois :", ups)
+for u in ups.get("data", []):
+    a = u["attributes"]
+    print("envoi", a.get("cfBundleVersion"), a.get("cfBundleShortVersionString"), "|", (a.get("state") or {}) if not isinstance(a.get("state"), dict) else a["state"].get("state"),
+          "|", json.dumps(a.get("state"))[:900] if isinstance(a.get("state"), dict) else json.dumps({k: v for k, v in a.items() if k not in ("cfBundleVersion",)})[:900])
