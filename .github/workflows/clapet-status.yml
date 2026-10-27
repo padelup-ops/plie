@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       bundle:
-        description: "Identifiant de l'app (vide = Duo Folds)"
+        description: "Identifiant de l'app (origamo = Origamo)"
         required: false
         default: "com.padelup.clapet"
 jobs:
@@ -16,7 +16,7 @@ jobs:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
-      APP_BUNDLE: ${{ inputs.bundle || 'com.padelup.clapet' }}
+      APP_BUNDLE: ${{ inputs.bundle == 'origamo' && secrets.BUNDLE_ID || inputs.bundle || 'com.padelup.clapet' }}
     steps:
       - uses: actions/checkout@v5
       - name: État
