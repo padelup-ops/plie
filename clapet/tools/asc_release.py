@@ -96,17 +96,18 @@ step("catégories (Santé et forme, Utilitaires)", call("PATCH", f"/v1/appInfos/
 
 age = call("GET", f"/v1/appInfos/{info_id}/ageRatingDeclaration").get("data")
 if age:
+    BOOLS = {"advertising", "gambling", "healthOrWellnessTopics", "lootBox", "messagingAndChat", "parentalControls",
+             "ageAssurance", "unrestrictedWebAccess", "userGeneratedContent", "socialMedia", "socialMediaAgeRestricted", "seventeenPlus"}
+    LEVELS = {"alcoholTobaccoOrDrugUseOrReferences", "contests", "gamblingSimulated", "gunsOrOtherWeapons",
+              "medicalOrTreatmentInformation", "profanityOrCrudeHumor", "sexualContentGraphicAndNudity", "sexualContentOrNudity",
+              "horrorOrFearThemes", "matureOrSuggestiveThemes", "violenceCartoonOrFantasy",
+              "violenceRealisticProlongedGraphicOrSadistic", "violenceRealistic"}
     attrs = {}
-    for k, v in age["attributes"].items():
-        if v is None or v in ("NONE", False, True) or isinstance(v, str):
-            if isinstance(v, bool) or k in ("gambling", "unrestrictedWebAccess", "seventeenPlus", "lootBox", "messagingAndChat",
-                                            "parentalControls", "userGeneratedContent", "advertising", "ageAssurance",
-                                            "healthOrWellnessTopics", "gunsOrOtherWeapons"):
-                attrs[k] = False if k not in ("ageRatingOverride", "koreaAgeRatingOverride") else v
-            elif k in ("kidsAgeBand", "ageRatingOverride", "ageRatingOverrideV2", "koreaAgeRatingOverride", "developerAgeRatingInfoUrl"):
-                continue
-            else:
-                attrs[k] = "NONE"
+    for k in age["attributes"]:
+        if k in BOOLS:
+            attrs[k] = False
+        elif k in LEVELS:
+            attrs[k] = "NONE"
     r = step("classification par âge (aucun contenu sensible)", call("PATCH", f"/v1/ageRatingDeclarations/{age['id']}",
              {"data": {"type": "ageRatingDeclarations", "id": age["id"], "attributes": attrs}}))
     if "error" in r:
