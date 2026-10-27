@@ -76,6 +76,7 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
+• Automatic counting in one tap: in "Automatic counting", two buttons install the "Closed" and "Opened" automations straight into Shortcuts.
 • New name: the app is now called Foldly.
 • Choose your theme: Classic (cards and a ring, like Health) or Modern (big numbers, hinge gauge, Today and Week tabs). At first launch, and anytime in Settings.
 • Classic: the hinge gauge and its angle now sit to the right of your count.
@@ -85,6 +86,7 @@ WHATS_NEW = {
 Please test: pick a theme, switch to the other one in Settings, adjust the count, and check the widgets.""",
     "fr-FR": """Nouveautés de ce build :
 
+• Comptage automatique en un geste : dans « Comptage automatique », deux boutons installent les automatisations « Fermé » et « Ouvert » directement dans Raccourcis.
 • Nouveau nom : l'app s'appelle maintenant Foldly.
 • Choisis ton thème : Classique (des cartes et un anneau, comme Santé) ou Moderne (grands chiffres, jauge de charnière, onglets Aujourd'hui et Semaine). Au premier lancement, et à tout moment dans les Réglages.
 • Classique : la jauge de charnière et son angle sont maintenant à droite du compteur.

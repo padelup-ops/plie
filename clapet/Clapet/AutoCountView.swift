@@ -24,6 +24,17 @@ struct AutoCountView: View {
                 }
 
                 Section {
+                    installRow(Self.closedLink, symbol: "rectangle.compress.vertical",
+                               title: Text("Install the “Closed” automation"), detail: Text("Counts every fold."))
+                    installRow(Self.openedLink, symbol: "rectangle.expand.vertical",
+                               title: Text("Install the “Opened” automation"), detail: Text("Measures how long your phone stays open."))
+                } header: {
+                    Text("Install in one tap")
+                } footer: {
+                    Text("Shortcuts opens with the automation ready: tap Add, then check that it's turned on. Prefer to do it yourself? The guide is below.")
+                }
+
+                Section {
                     ShortcutTutorialView()
                         .padding(.vertical, 8)
                 } header: {
@@ -39,7 +50,7 @@ struct AutoCountView: View {
                     step(6, Text("Back in the list, check that the automation is **turned on**. iOS sometimes adds it switched off."))
                     step(7, Text("Do it again with **Opened** and the action **Count an opening**: Foldly then also measures how long your phone stays open."))
                 } header: {
-                    Text("Set up")
+                    Text("Or set it up by hand")
                 }
 
                 Section {
@@ -94,6 +105,38 @@ struct AutoCountView: View {
             }
         }
         .tint(.dfAccent)
+    }
+
+    /// Les automatisations prêtes à installer (liens iCloud partagés depuis Raccourcis).
+    static let closedLink = URL(string: "https://www.icloud.com/shortcuts/d94e68da5e1b400eba8b2a1cbd99c5de")!
+    static let openedLink = URL(string: "https://www.icloud.com/shortcuts/1a5f6770aada41088c1e20f27c933a09")!
+
+    private func installRow(_ url: URL, symbol: String, title: Text, detail: Text) -> some View {
+        Button {
+            openURL(url)
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: symbol)
+                    .font(.title3)
+                    .foregroundStyle(Color.dfAccent)
+                    .frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    title
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    detail
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "arrow.down.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.dfAccent)
+            }
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func faq(_ question: Text, _ answer: Text) -> some View {

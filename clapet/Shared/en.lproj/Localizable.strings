@@ -238,6 +238,13 @@
 "folds · %@" = "folds · %@";
 "Folded" = "Folded";
 "Week" = "Week";
+"Install in one tap" = "Install in one tap";
+"Install the “Closed” automation" = "Install the “Closed” automation";
+"Counts every fold." = "Counts every fold.";
+"Install the “Opened” automation" = "Install the “Opened” automation";
+"Measures how long your phone stays open." = "Measures how long your phone stays open.";
+"Shortcuts opens with the automation ready: tap Add, then check that it's turned on. Prefer to do it yourself? The guide is below." = "Shortcuts opens with the automation ready: tap Add, then check that it's turned on. Prefer to do it yourself? The guide is below.";
+"Or set it up by hand" = "Or set it up by hand";
 "Classic" = "Classic";
 "Modern" = "Modern";
 "Theme" = "Theme";
