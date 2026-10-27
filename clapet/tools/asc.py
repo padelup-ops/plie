@@ -1,4 +1,4 @@
-"""CLAPET sur App Store Connect : fiche en anglais et en français, puis distribution TestFlight d'un build.
+"""DUO FOLDS (projet Clapet) sur App Store Connect : fiche en anglais et en français, puis distribution TestFlight d'un build.
 
 Variables : ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY, ORIGAMO_BUNDLE_ID, BUILD_NUMBER (facultatif).
 1. Nom, sous-titre (fiche) et description, mots-clés (version) en en-US et fr-FR, texte TestFlight.
@@ -20,63 +20,79 @@ BUNDLE = "com.padelup.clapet"
 BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 
 NAMES = {
-    "en-US": ["Clapet: Fold Counter", "Clapet: Duo Fold Counter", "Clapet - Fold Counter"],
-    "fr-FR": ["Clapet : compteur de plis", "Clapet : compte tes plis", "Clapet - compteur de plis"],
+    "en-US": ["DUO FOLDS: Fold Counter", "DUO FOLDS - Fold Counter", "DUO FOLDS: Hinge Counter"],
+    "fr-FR": ["DUO FOLDS : compteur de plis"],
 }
-SUBTITLE = {"en-US": "Count every fold of your Duo", "fr-FR": "Chaque pli de ton Duo compte"}
+SUBTITLE = {"en-US": "Keep your folds under control", "fr-FR": "Garde tes plis sous contrôle"}
 KEYWORDS = {
-    "en-US": "duo,fold,hinge,counter,foldable,widget,clap,tracker,stats,steps,habit",
-    "fr-FR": "duo,pli,charnière,compteur,pliable,widget,clapet,statistiques,pas,habitude",
+    "en-US": "duo,fold,hinge,counter,foldable,widget,limit,habit,screen time,tracker,stats,digital wellbeing",
+    "fr-FR": "duo,pli,charnière,compteur,pliable,widget,limite,habitude,temps d'écran,suivi,statistiques",
 }
 PROMO = {
-    "en-US": "How many times a day do you fold your Duo? Clapet counts every clap and shows it in widgets, like your steps.",
-    "fr-FR": "Combien de fois par jour plies-tu ton Duo ? Clapet compte chaque clapet et l'affiche en widgets, comme tes pas.",
+    "en-US": "How many times a day do you open your Duo? Set a daily limit and keep an eye on your folds, right from your Home Screen.",
+    "fr-FR": "Combien de fois par jour ouvres-tu ton Duo ? Fixe une limite et garde un œil sur tes plis, directement sur ton écran d'accueil.",
 }
 DESCRIPTION = {
-    "en-US": """Clapet counts every time you close and open your iPhone Duo.
+    "en-US": """Every fold of your iPhone Duo is a glance at your phone. Duo Folds counts them, so you can see your habits and keep them under control.
 
-Keep Clapet on screen, on the inner or the outer display, and fold away: every close is a clap. The little mascot snaps shut with your Duo, you hear the clap and you feel it.
+Keep Duo Folds on screen, on the inner or the outer display: every time you close your Duo, it counts. Set a daily limit and watch the ring: mint while you're under it, yellow when you get close, pink when you're over.
 
-• Today's claps, with a daily goal ring
-• Opens and closes, the last 7 days and your all-time total
-• Your best day, and today hour by hour
-• Levels, from Fresh hinge to Hinge god
-• Home Screen and Lock Screen widgets, like your steps in Health
-• A Shortcuts action, "Count a clap", to count from an automation
+FREE
+• Folds and opens today, the last 7 days and your total
+• A daily limit, and how many folds you have left
+• Today hour by hour, and your hinge level
+• The small Home Screen widget and the Lock Screen line
+• A Shortcuts action, "Count a fold", to count from an automation
 
-Good to know: iOS only tells an app about the hinge while that app is on screen, so Clapet counts while it is open. Your numbers stay on your iPhone.""",
-    "fr-FR": """Clapet compte chaque fois que tu fermes et ouvres ton iPhone Duo.
+DUO FOLDS+ (one-time purchase, no subscription)
+• Every widget: the big Health-style widget, the medium one and the Lock Screen ones
+• Limit alerts: a notification at 80 % and at 100 % of your limit
+• Your full history: 30 days, 12 months, the calendar of days under your limit, your trends and records
+• Five widget colors
+• Export your history as a spreadsheet (CSV)
 
-Garde Clapet à l'écran, sur l'écran intérieur ou extérieur, et plie : chaque fermeture est un clapet. La petite mascotte se referme avec ton Duo, tu entends le clap et tu le sens.
+Good to know: iOS only tells an app about the hinge while that app is on screen, so Duo Folds counts while it is open. Your numbers stay on your iPhone.""",
+    "fr-FR": """Chaque pli de ton iPhone Duo, c'est un coup d'œil à ton téléphone. Duo Folds les compte, pour que tu voies tes habitudes et que tu les gardes sous contrôle.
 
-• Les clapets du jour, avec un anneau d'objectif
-• Ouvertures et fermetures, les 7 derniers jours et ton total
-• Ton record, et ta journée heure par heure
-• Des niveaux, de Charnière neuve à Dieu de la charnière
-• Des widgets pour l'écran d'accueil et l'écran verrouillé, comme tes pas dans Santé
-• Une action Raccourcis, « Compter un clapet », pour compter depuis une automatisation
+Garde Duo Folds à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton Duo, il compte. Fixe une limite par jour et regarde l'anneau : menthe tant que tu es en dessous, jaune quand tu t'en approches, rose quand tu la dépasses.
 
-Bon à savoir : iOS ne prévient une app des mouvements de la charnière que quand elle est à l'écran ; Clapet compte donc tant qu'il est ouvert. Tes chiffres restent sur ton iPhone.""",
+GRATUIT
+• Fermetures et ouvertures du jour, les 7 derniers jours et ton total
+• Une limite par jour, et combien de plis il te reste
+• Ta journée heure par heure, et le niveau de ta charnière
+• Le petit widget de l'écran d'accueil et la ligne de l'écran verrouillé
+• Une action Raccourcis, « Compter un pli », pour compter depuis une automatisation
+
+DUO FOLDS+ (achat unique, sans abonnement)
+• Tous les widgets : le grand widget façon Santé, le moyen et ceux de l'écran verrouillé
+• Les alertes de limite : une notification à 80 % et à 100 % de ta limite
+• Tout l'historique : 30 jours, 12 mois, le calendrier des jours sous ta limite, tes tendances et tes records
+• Cinq couleurs de widgets
+• L'export de ton historique en tableur (CSV)
+
+Bon à savoir : iOS ne prévient une app des mouvements de la charnière que quand elle est à l'écran ; Duo Folds compte donc tant qu'il est ouvert. Tes chiffres restent sur ton iPhone.""",
 }
 BETA_DESCRIPTION = {
-    "en-US": "Clapet counts how many times you close and open your iPhone Duo, with widgets like the steps in Health.",
-    "fr-FR": "Clapet compte combien de fois tu fermes et ouvres ton iPhone Duo, avec des widgets comme les pas dans Santé.",
+    "en-US": "Duo Folds counts how many times you close and open your iPhone Duo, with a daily limit and widgets like the steps in Health.",
+    "fr-FR": "Duo Folds compte combien de fois tu fermes et ouvres ton iPhone Duo, avec une limite par jour et des widgets comme les pas dans Santé.",
 }
 WHATS_NEW = {
-    "en-US": """First Clapet build!
+    "en-US": """New in this build:
 
-• Keep Clapet open and close your Duo: every close is a clap.
-• Add the widgets (Home Screen and Lock Screen): all-time total, today vs yesterday, the week, today by hour, your level.
-• In Settings: daily goal, sounds, vibrations.
+• The app is now called Duo Folds.
+• A daily LIMIT instead of a goal: the ring turns yellow near your limit and pink above it.
+• Duo Folds+ (one-time purchase): every widget, limit alerts, full history and records, widget colors, CSV export. In TestFlight the purchase is free (Apple's test mode). Settings > Test version > "Simulate Duo Folds+" shows both modes.
+• Without Duo Folds+, the big widgets are blurred: tap them to see the offer.
 
-Please test: does every fold count once (no more, no less)? Do the widgets show the same numbers as the app?""",
-    "fr-FR": """Premier build de Clapet !
+Please test: does every fold count once? Do the widgets show the same numbers as the app? Does the purchase unlock the widgets right away?""",
+    "fr-FR": """Nouveautés de ce build :
 
-• Garde Clapet ouvert et ferme ton Duo : chaque fermeture est un clapet.
-• Ajoute les widgets (écran d'accueil et écran verrouillé) : total, aujourd'hui contre hier, la semaine, la journée heure par heure, ton niveau.
-• Dans Réglages : objectif du jour, sons, vibrations.
+• L'app s'appelle maintenant Duo Folds.
+• Une LIMITE par jour au lieu d'un objectif : l'anneau devient jaune près de la limite et rose au-dessus.
+• Duo Folds+ (achat unique) : tous les widgets, alertes de limite, tout l'historique et les records, couleurs des widgets, export CSV. Dans TestFlight l'achat est gratuit (mode test d'Apple). Réglages > Version de test > « Simuler Duo Folds+ » montre les deux modes.
+• Sans Duo Folds+, les grands widgets sont floutés : touche-les pour voir l'offre.
 
-À tester : chaque pli compte-t-il une seule fois (ni plus, ni moins) ? Les widgets affichent-ils les mêmes chiffres que l'app ?""",
+À tester : chaque pli compte-t-il une seule fois ? Les widgets affichent-ils les mêmes chiffres que l'app ? L'achat débloque-t-il les widgets tout de suite ?""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

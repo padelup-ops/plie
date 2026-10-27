@@ -1,4 +1,4 @@
-# CLAPET : fiche App Store Connect (en/fr) et distribution d'un build aux testeurs TestFlight.
+# DUO FOLDS (projet Clapet) : achat Duo Folds+, fiche App Store Connect (en/fr) et distribution d'un build aux testeurs TestFlight.
 name: Clapet - testeurs
 
 on:
@@ -22,9 +22,12 @@ jobs:
       BUILD_NUMBER: ${{ inputs.build }}
     steps:
       - uses: actions/checkout@v5
-      - name: Fiche et testeurs
+      - name: Achat Duo Folds+
         run: |
           python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_plus.py 2>&1 | tee plus.txt || true
+      - name: Fiche et testeurs
+        run: |
           python3 clapet/tools/asc.py 2>&1 | tee beta.txt
       - name: Publier le rapport
         if: always()
@@ -32,6 +35,7 @@ jobs:
           GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p "$RUNNER_TEMP/r" && cp beta.txt "$RUNNER_TEMP/r/" 2>/dev/null || echo "pas de rapport" > "$RUNNER_TEMP/r/beta.txt"
+          cp plus.txt "$RUNNER_TEMP/r/" 2>/dev/null || true
           cd "$RUNNER_TEMP/r"
           git init -q -b ci-clapet-beta
           git config user.name "github-actions"

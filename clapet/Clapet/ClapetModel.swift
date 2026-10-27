@@ -62,7 +62,9 @@ final class ClapetModel {
     // MARK: Compter
 
     func clap() {
+        let before = stats.today
         stats.addClose()
+        LimitAlerts.check(before: before, after: stats.today, limit: stats.goal, plus: stats.plus)
         claps += 1
         lastClapAt = Date()
         if soundOn { ClapetSound.shared.play(.clap) }
@@ -83,16 +85,51 @@ final class ClapetModel {
     }
 
     func reset() {
-        let goal = stats.goal
-        stats = ClapetStats()
-        stats.goal = goal
+        var fresh = ClapetStats()
+        fresh.goal = stats.goal
+        fresh.plus = stats.plus
+        fresh.theme = stats.theme
+        stats = fresh
         changed()
+    }
+
+    // MARK: Duo Folds+
+
+    /// Écrit dans le coffre partagé, pour que les widgets se débloquent aussitôt.
+    func setPlus(_ on: Bool) {
+        guard stats.plus != on else { return }
+        stats.plus = on
+        flush()
+    }
+
+    func setTheme(_ theme: ClapetTheme) {
+        stats.theme = theme.rawValue
+        flush()
+    }
+
+    /// Alertes de limite (Duo Folds+).
+    private(set) var alertsOn = LimitAlerts.enabled
+
+    /// Renvoie faux si iOS refuse les notifications.
+    @MainActor
+    func setAlerts(_ on: Bool) async -> Bool {
+        if on {
+            let ok = await LimitAlerts.requestPermission()
+            LimitAlerts.setEnabled(ok)
+            alertsOn = ok
+            return ok
+        }
+        LimitAlerts.setEnabled(false)
+        alertsOn = false
+        return true
     }
 
     // MARK: Sauvegarde et widgets
 
     func reload() {
+        let plus = stats.plus
         stats = ClapetVault.load()
+        stats.plus = plus
     }
 
     func flush() {

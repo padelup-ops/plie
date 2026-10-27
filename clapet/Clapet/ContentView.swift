@@ -8,11 +8,15 @@ extension Color {
     static let clapetYellow = Color(red: 1.0, green: 0.82, blue: 0.25)
     static let clapetPink = Color(red: 1.0, green: 0.31, blue: 0.48)
     static let clapetCyan = Color(red: 0.49, green: 0.98, blue: 1.0)
+    static let clapetMint = Color(red: 0.43, green: 0.84, blue: 0.65)
 }
 
 struct ContentView: View {
     @Environment(ClapetModel.self) private var model
+    @Environment(ClapetStore.self) private var store
     @State private var showSettings = false
+    @State private var showHistory = false
+    @State private var plusReason: PlusReason?
     @State private var burst = false
     @State private var blink = false
     @State private var tapOpen = 1.0
@@ -31,6 +35,7 @@ struct ContentView: View {
                     header
                     hero
                     numbers
+                    extras
                     week
                     hoursAndLevel
                     tips
@@ -44,7 +49,25 @@ struct ContentView: View {
         .foregroundStyle(.white)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
         .sheet(isPresented: $showSettings) {
-            SettingsView().environment(model)
+            SettingsView().environment(model).environment(store)
+        }
+        .sheet(isPresented: $showHistory) {
+            HistoryView().environment(model)
+        }
+        .sheet(item: $plusReason) { reason in
+            PlusView(reason: reason.text).environment(model).environment(store)
+        }
+        .onOpenURL { url in
+            if url.host == "plus" && !store.hasPlus { plusReason = .widget }
+        }
+        .task {
+            // Une seule fois, après 3 jours suivis : on présente Duo Folds+ (sans insister).
+            try? await Task.sleep(nanoseconds: 2_500_000_000)
+            let d = UserDefaults.standard
+            if !store.hasPlus && model.stats.daysCounted >= 3 && !d.bool(forKey: "plusPromptShown") {
+                d.set(true, forKey: "plusPromptShown")
+                plusReason = .tracking
+            }
         }
         .onChange(of: model.claps) { _, _ in
             burst = false
@@ -69,7 +92,7 @@ struct ContentView: View {
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 0) {
-                Text("Clapet")
+                Text("Duo Folds")
                     .font(.system(size: 34, weight: .black, design: .rounded))
                     .foregroundStyle(LinearGradient(colors: [.clapetYellow, .clapetOrange, .clapetPink], startPoint: .leading, endPoint: .trailing))
                 Text(Date(), format: .dateTime.weekday(.wide).day().month(.wide))
@@ -77,6 +100,19 @@ struct ContentView: View {
                     .foregroundStyle(.white.opacity(0.6))
             }
             Spacer()
+            if !store.hasPlus {
+                Button {
+                    plusReason = .menu
+                } label: {
+                    Text("Plus")
+                        .font(.system(.subheadline, design: .rounded, weight: .black))
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, 14)
+                        .frame(height: 36)
+                        .background(Capsule().fill(LinearGradient(colors: [Color(red: 0.43, green: 0.84, blue: 0.65), .clapetCyan], startPoint: .leading, endPoint: .trailing)))
+                }
+                .accessibilityLabel(Text("Duo Folds+"))
+            }
             Button {
                 showSettings = true
             } label: {
@@ -120,11 +156,10 @@ struct ContentView: View {
             }
             HStack(spacing: 22) {
                 ZStack {
-                    Circle().stroke(Color.clapetOrange.opacity(0.18), lineWidth: 18)
+                    Circle().stroke(ringColor.opacity(0.18), lineWidth: 18)
                     Circle()
                         .trim(from: 0, to: model.stats.progress)
-                        .stroke(AngularGradient(colors: [.clapetYellow, .clapetOrange, .clapetPink, .clapetYellow], center: .center),
-                                style: StrokeStyle(lineWidth: 18, lineCap: .round))
+                        .stroke(ringColor, style: StrokeStyle(lineWidth: 18, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .animation(.spring(response: 0.5, dampingFraction: 0.8), value: model.stats.progress)
                     VStack(spacing: 0) {
@@ -133,7 +168,7 @@ struct ContentView: View {
                             .monospacedDigit()
                             .contentTransition(.numericText())
                             .animation(.spring(response: 0.3), value: model.stats.today)
-                        Text("claps")
+                        Text("folds")
                             .font(.system(.footnote, design: .rounded, weight: .bold))
                             .foregroundStyle(.white.opacity(0.6))
                     }
@@ -143,20 +178,18 @@ struct ContentView: View {
                     Text("Today")
                         .font(.system(.title2, design: .rounded, weight: .black))
                     Label {
-                        Text("Goal \(model.stats.goal)")
+                        Text("Limit \(model.stats.goal)")
                     } icon: {
-                        Image(systemName: "target").foregroundStyle(Color.clapetOrange)
+                        Image(systemName: "gauge.with.dots.needle.67percent").foregroundStyle(ringColor)
                     }
                     Label {
-                        Text("Best day \(model.stats.best)")
+                        Text("Yesterday \(model.stats.yesterday())")
                     } icon: {
-                        Image(systemName: "trophy.fill").foregroundStyle(Color.clapetYellow)
+                        Image(systemName: "clock.arrow.circlepath").foregroundStyle(Color.clapetCyan)
                     }
-                    if model.stats.today >= model.stats.goal && model.stats.goal > 0 {
-                        Text("Goal reached!")
-                            .font(.system(.subheadline, design: .rounded, weight: .heavy))
-                            .foregroundStyle(Color.clapetPink)
-                    }
+                    status
+                        .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                        .foregroundStyle(ringColor)
                 }
                 .font(.system(.subheadline, design: .rounded, weight: .semibold))
                 Spacer(minLength: 0)
@@ -165,6 +198,22 @@ struct ContentView: View {
         .padding(18)
         .background(RoundedRectangle(cornerRadius: 28, style: .continuous).fill(Color.clapetCard))
         .accessibilityElement(children: .combine)
+    }
+
+    /// Menthe sous la limite, jaune à l'approche, rose au-delà.
+    private var ringColor: Color {
+        let s = model.stats
+        guard s.goal > 0 else { return .clapetMint }
+        if s.today > s.goal { return .clapetPink }
+        if Double(s.today) >= 0.8 * Double(s.goal) { return .clapetYellow }
+        return .clapetMint
+    }
+
+    private var status: Text {
+        let left = model.stats.left()
+        if left > 0 { return Text("\(left) left today") }
+        if left == 0 { return Text("Limit reached") }
+        return Text("\(-left) over the limit")
     }
 
     // MARK: Les chiffres
@@ -196,6 +245,57 @@ struct ContentView: View {
         .padding(14)
         .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.clapetCard))
         .accessibilityElement(children: .combine)
+    }
+
+    // MARK: Alertes et historique
+
+    private var extras: some View {
+        HStack(spacing: 12) {
+            Button {
+                if store.hasPlus { showSettings = true } else { plusReason = .alerts }
+            } label: {
+                extraCard("bell.badge.fill", .clapetYellow, Text("Limit alerts"), Text("A notification at 80 % and 100 % of your limit"),
+                          badge: alertsBadge)
+            }
+            Button {
+                if store.hasPlus { showHistory = true } else { plusReason = .history }
+            } label: {
+                extraCard("calendar", .clapetCyan, Text("History"), Text("30 days, 12 months, records"),
+                          badge: store.hasPlus ? nil : AnyView(PlusBadge()))
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var alertsBadge: AnyView? {
+        if !store.hasPlus { return AnyView(PlusBadge()) }
+        guard model.alertsOn else { return nil }
+        return AnyView(Text("On")
+            .font(.system(size: 11, weight: .heavy, design: .rounded))
+            .foregroundStyle(Color.clapetMint))
+    }
+
+    private func extraCard(_ symbol: String, _ color: Color, _ title: Text, _ detail: Text, badge: AnyView?) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Image(systemName: symbol)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(color)
+                Spacer()
+                if let badge { badge }
+            }
+            title
+                .font(.system(.headline, design: .rounded, weight: .black))
+            detail
+                .font(.system(.caption, design: .rounded, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.6))
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
+        }
+        .frame(maxWidth: .infinity, minHeight: 104, alignment: .topLeading)
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.clapetCard))
+        .contentShape(Rectangle())
     }
 
     // MARK: La semaine
@@ -293,12 +393,12 @@ struct ContentView: View {
     private var tips: some View {
         VStack(alignment: .leading, spacing: 12) {
             if model.hasHinge {
-                tip("hand.raised.fill", Text("Clapet counts while it's on screen. Keep it open, then close and open your Duo: clap!"))
+                tip("hand.raised.fill", Text("Duo Folds counts while it's on screen. Keep it open, then close and open your Duo: clap!"))
             } else {
-                tip("hand.tap.fill", Text("No hinge here: tap Clapet to count."))
+                tip("hand.tap.fill", Text("No hinge here: tap the mascot to count."))
             }
-            tip("square.grid.2x2.fill", Text("Add the widget: touch and hold your Home Screen or Lock Screen, tap Edit, then add Clapet."))
-            tip("bolt.fill", Text("In the Shortcuts app, the “Count a clap” action adds one clap, even when Clapet is closed."))
+            tip("square.grid.2x2.fill", Text("Add the widget: touch and hold your Home Screen or Lock Screen, tap Edit, then add Duo Folds."))
+            tip("bolt.fill", Text("In the Shortcuts app, the “Count a fold” action adds one fold, even when Duo Folds is closed."))
         }
         .padding(16)
         .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.clapetCard.opacity(0.6)))
@@ -327,12 +427,12 @@ struct ClapetWeekChart: View {
         Chart {
             ForEach(0..<days.count, id: \.self) { i in
                 BarMark(x: .value("Day", days[i].date, unit: .day),
-                        y: .value("Claps", days[i].closes))
-                    .foregroundStyle(i == days.count - 1 ? Color.clapetOrange : Color.clapetOrange.opacity(0.4))
+                        y: .value("Folds", days[i].closes))
+                    .foregroundStyle((goal > 0 && days[i].closes > goal ? Color.clapetPink : Color.clapetMint).opacity(i == days.count - 1 ? 1 : 0.5))
                     .cornerRadius(6)
             }
             if goal > 0 {
-                RuleMark(y: .value("Goal", goal))
+                RuleMark(y: .value("Limit", goal))
                     .foregroundStyle(Color.clapetYellow.opacity(0.6))
                     .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
             }
@@ -347,6 +447,23 @@ struct ClapetWeekChart: View {
                 AxisGridLine().foregroundStyle(.white.opacity(0.1))
                 AxisValueLabel()
             }
+        }
+    }
+}
+
+/// Pourquoi l'écran Duo Folds+ s'ouvre.
+enum PlusReason: String, Identifiable {
+    case menu, widget, tracking, history, alerts
+
+    var id: String { rawValue }
+
+    var text: Text? {
+        switch self {
+        case .menu: return nil
+        case .widget: return Text("This widget is part of Duo Folds+.")
+        case .tracking: return Text("Three days of tracking! Keep an eye on your folds right from your Home Screen.")
+        case .alerts: return Text("Limit alerts are part of Duo Folds+.")
+        case .history: return Text("Your full history and records are part of Duo Folds+.")
         }
     }
 }

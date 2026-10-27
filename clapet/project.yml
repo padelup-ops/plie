@@ -24,12 +24,15 @@ targets:
     info:
       path: Clapet/Info.plist
       properties:
-        CFBundleDisplayName: Clapet
+        CFBundleDisplayName: Duo Folds
         CFBundleDevelopmentRegion: en
         CFBundleLocalizations: [en, fr]
         CFBundleAllowMixedLocalizations: true
         UILaunchScreen:
           UIColorName: AccentColor
+        CFBundleURLTypes:
+          - CFBundleURLName: com.padelup.clapet
+            CFBundleURLSchemes: [clapet]
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         ITSAppUsesNonExemptEncryption: false
@@ -54,7 +57,7 @@ targets:
     info:
       path: ClapetWidget/Info.plist
       properties:
-        CFBundleDisplayName: Clapet
+        CFBundleDisplayName: Duo Folds
         CFBundleDevelopmentRegion: en
         CFBundleLocalizations: [en, fr]
         NSExtension:

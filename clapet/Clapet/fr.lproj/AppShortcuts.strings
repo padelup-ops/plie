@@ -1,4 +1,5 @@
-"Count a clap in ${applicationName}" = "Compter un clapet dans ${applicationName}";
-"Add a clap in ${applicationName}" = "Ajouter un clapet dans ${applicationName}";
-"How many claps today in ${applicationName}" = "Combien de clapets aujourd'hui dans ${applicationName}";
-"My claps in ${applicationName}" = "Mes clapets dans ${applicationName}";
+/* Raccourcis (écrit par clapet/tools/strings.py) */
+"Count a fold in ${applicationName}" = "Compter un pli dans ${applicationName}";
+"Add a fold in ${applicationName}" = "Ajouter un pli dans ${applicationName}";
+"How many folds today in ${applicationName}" = "Combien de plis aujourd'hui dans ${applicationName}";
+"My folds in ${applicationName}" = "Mes plis dans ${applicationName}";

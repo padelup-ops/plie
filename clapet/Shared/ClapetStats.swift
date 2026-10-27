@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import SwiftUI
 
 // MARK: - Les chiffres de Clapet
 //
@@ -21,11 +22,17 @@ struct ClapetStats: Codable, Equatable {
     var hourlyDay: String?
     var hourly: [Int] = Array(repeating: 0, count: 24)
     var lastClose: Date?
+    /// Le record de plis en une heure.
+    var recordHour = 0
+    /// Duo Folds+ acheté (écrit par l'app, lu par les widgets).
+    var plus = false
+    /// Couleur des widgets (Duo Folds+).
+    var theme = 0
 
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -40,6 +47,9 @@ struct ClapetStats: Codable, Equatable {
         hourly = try c.decodeIfPresent([Int].self, forKey: .hourly) ?? Array(repeating: 0, count: 24)
         if hourly.count != 24 { hourly = Array(repeating: 0, count: 24) }
         lastClose = try c.decodeIfPresent(Date.self, forKey: .lastClose)
+        recordHour = try c.decodeIfPresent(Int.self, forKey: .recordHour) ?? 0
+        plus = try c.decodeIfPresent(Bool.self, forKey: .plus) ?? false
+        theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
     }
 
     /// Les clapets d'une journée, heure par heure (seulement pour aujourd'hui).
@@ -88,7 +98,9 @@ struct ClapetStats: Codable, Equatable {
             hourlyDay = key
             hourly = Array(repeating: 0, count: 24)
         }
-        hourly[Calendar.current.component(.hour, from: date)] += 1
+        let h = Calendar.current.component(.hour, from: date)
+        hourly[h] += 1
+        recordHour = max(recordHour, hourly[h])
         lastClose = date
         if firstDay == nil { firstDay = Self.key(date) }
         trim()
@@ -103,6 +115,112 @@ struct ClapetStats: Codable, Equatable {
         trim()
     }
 
+    // MARK: Historique (Duo Folds+)
+
+    /// Les `count` derniers jours, du plus ancien à aujourd'hui.
+    func lastDays(_ count: Int, now: Date = Date()) -> [(date: Date, closes: Int)] {
+        (0..<count).reversed().compactMap { back in
+            guard let d = Calendar.current.date(byAdding: .day, value: -back, to: now) else { return nil }
+            return (d, day(d).closes)
+        }
+    }
+
+    /// Les 12 derniers mois (total des plis), du plus ancien au mois en cours.
+    func lastMonths(now: Date = Date()) -> [(date: Date, closes: Int)] {
+        let cal = Calendar.current
+        let start = cal.date(from: cal.dateComponents([.year, .month], from: now)) ?? now
+        var totals: [String: Int] = [:]
+        for (key, value) in days { totals[String(key.prefix(7)), default: 0] += value.closes }
+        return (0..<12).reversed().compactMap { back in
+            guard let m = cal.date(byAdding: .month, value: -back, to: start) else { return nil }
+            return (m, totals[String(Self.key(m).prefix(7))] ?? 0)
+        }
+    }
+
+    /// Le jour le plus chargé et sa date.
+    var bestDay: (date: Date, closes: Int)? {
+        guard let top = days.max(by: { $0.value.closes < $1.value.closes || ($0.value.closes == $1.value.closes && $0.key > $1.key) }),
+              top.value.closes > 0, let d = Self.date(top.key) else { return nil }
+        return (d, top.value.closes)
+    }
+
+    /// `goal` est la limite du jour : on cherche à rester en dessous.
+    var limit: Int { goal }
+
+    /// Ce qui reste avant la limite aujourd'hui (négatif : dépassée).
+    func left(now: Date = Date()) -> Int { goal - day(now).closes }
+
+    /// Jours d'affilée sous la limite, depuis le premier jour suivi (aujourd'hui compte s'il est encore sous la limite).
+    func currentStreak(now: Date = Date()) -> Int {
+        guard goal > 0, let first = firstDay else { return 0 }
+        let cal = Calendar.current
+        var d = now
+        var n = 0
+        while Self.key(d) >= first && day(d).closes <= goal {
+            n += 1
+            guard let prev = cal.date(byAdding: .day, value: -1, to: d) else { break }
+            d = prev
+        }
+        return n
+    }
+
+    /// La plus longue série de jours sous la limite.
+    func longestStreak(now: Date = Date()) -> Int {
+        guard goal > 0, let first = firstDay.flatMap(Self.date) else { return 0 }
+        let cal = Calendar.current
+        var d = first
+        var best = 0, run = 0
+        while Self.key(d) <= Self.key(now) {
+            run = day(d).closes <= goal ? run + 1 : 0
+            best = max(best, run)
+            guard let next = cal.date(byAdding: .day, value: 1, to: d) else { break }
+            d = next
+        }
+        return best
+    }
+
+    /// Le jour le plus calme (le moins de plis, aujourd'hui exclu).
+    func calmestDay(now: Date = Date()) -> (date: Date, closes: Int)? {
+        let today = Self.key(now)
+        guard let low = days.filter({ $0.key != today && $0.value.closes > 0 })
+            .min(by: { $0.value.closes < $1.value.closes }), let d = Self.date(low.key) else { return nil }
+        return (d, low.value.closes)
+    }
+
+    /// Les 7 derniers jours comparés aux 7 d'avant, en pourcentage (nil sans semaine d'avant).
+    func weekChange(now: Date = Date()) -> Double? {
+        let recent = lastDays(14, now: now)
+        let previous = recent.prefix(7).reduce(0) { $0 + $1.closes }
+        let current = recent.suffix(7).reduce(0) { $0 + $1.closes }
+        guard previous > 0 else { return nil }
+        return Double(current - previous) / Double(previous)
+    }
+
+    /// Moyenne par jour depuis le premier jour compté.
+    func dailyAverage(now: Date = Date()) -> Double {
+        guard let first = firstDay.flatMap(Self.date) else { return 0 }
+        let n = (Calendar.current.dateComponents([.day], from: first, to: now).day ?? 0) + 1
+        return Double(totalCloses) / Double(max(1, n))
+    }
+
+    var daysCounted: Int { days.values.filter { $0.closes > 0 }.count }
+
+    static func date(_ key: String) -> Date? {
+        let parts = key.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 3 else { return nil }
+        return Calendar.current.date(from: DateComponents(year: parts[0], month: parts[1], day: parts[2], hour: 12))
+    }
+
+    /// L'historique en tableur : date, fermetures, ouvertures.
+    func csv() -> String {
+        var out = "date,folds,opens\n"
+        for key in days.keys.sorted() {
+            let d = days[key] ?? DayCount()
+            out += "\(key),\(d.closes),\(d.opens)\n"
+        }
+        return out
+    }
+
     /// On garde un peu plus d'un an d'historique.
     private mutating func trim() {
         guard days.count > 420 else { return }
@@ -111,7 +229,43 @@ struct ClapetStats: Codable, Equatable {
     }
 }
 
-// MARK: - Les niveaux (sur le total de clapets)
+// MARK: - Les couleurs des widgets (Duo Folds+)
+
+enum ClapetTheme: Int, CaseIterable, Identifiable {
+    case mint, orange, pink, blue, lemon
+
+    var id: Int { rawValue }
+
+    /// Rouge, vert, bleu entre 0 et 1.
+    var rgb: (Double, Double, Double) {
+        switch self {
+        case .mint: return (0.43, 0.84, 0.65)
+        case .orange: return (1.0, 0.58, 0.28)
+        case .pink: return (1.0, 0.42, 0.62)
+        case .blue: return (0.40, 0.70, 1.0)
+        case .lemon: return (0.95, 0.88, 0.32)
+        }
+    }
+
+    var name: String {
+        switch self {
+        case .mint: return String(localized: "Mint")
+        case .orange: return String(localized: "Orange")
+        case .pink: return String(localized: "Pink")
+        case .blue: return String(localized: "Blue")
+        case .lemon: return String(localized: "Lemon")
+        }
+    }
+}
+
+extension ClapetTheme {
+    var color: Color {
+        let (r, g, b) = rgb
+        return Color(red: r, green: g, blue: b)
+    }
+}
+
+// MARK: - Les niveaux (sur le total de plis)
 
 struct ClapetLevel {
     let number: Int
@@ -131,7 +285,7 @@ struct ClapetLevel {
         case 1: return String(localized: "Fresh hinge")
         case 2: return String(localized: "Smooth hinge")
         case 3: return String(localized: "Speedy hinge")
-        case 4: return String(localized: "Clap master")
+        case 4: return String(localized: "Fold master")
         case 5: return String(localized: "Hinge hero")
         case 6: return String(localized: "Fold legend")
         case 7: return String(localized: "Unbreakable")

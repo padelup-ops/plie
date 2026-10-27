@@ -9,16 +9,21 @@ import WidgetKit
 struct ClapetEntry: TimelineEntry {
     let date: Date
     let stats: ClapetStats
+    /// Aperçu dans la galerie des widgets : on montre le widget tel qu'il sera.
+    var preview = false
 }
 
 struct ClapetProvider: TimelineProvider {
     func placeholder(in context: Context) -> ClapetEntry {
-        ClapetEntry(date: Date(), stats: Self.sample())
+        ClapetEntry(date: Date(), stats: Self.sample(), preview: true)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (ClapetEntry) -> Void) {
         let stats = ClapetVault.load()
-        completion(ClapetEntry(date: Date(), stats: context.isPreview && stats.totalCloses == 0 ? Self.sample() : stats))
+        var shown = context.isPreview && stats.totalCloses == 0 ? Self.sample() : stats
+        shown.plus = stats.plus
+        shown.theme = stats.theme
+        completion(ClapetEntry(date: Date(), stats: shown, preview: context.isPreview))
     }
 
     /// Une entrée tous les quarts d'heure (pour « il y a 27 min »), et minuit pour repartir à zéro.
@@ -68,7 +73,45 @@ struct ClapetWidgetView: View {
     private var today: Int { stats.day(entry.date).closes }
     private var yesterday: Int { stats.yesterday(entry.date) }
 
+    /// Le petit widget et la ligne de l'écran verrouillé sont gratuits ; les autres demandent Duo Folds+.
+    private var needsPlus: Bool {
+        switch family {
+        case .systemSmall, .accessoryInline: return false
+        default: return true
+        }
+    }
+
+    private var locked: Bool { needsPlus && !stats.plus && !entry.preview }
+
+    private var isAccessory: Bool {
+        family == .accessoryCircular || family == .accessoryRectangular || family == .accessoryInline
+    }
+
+    /// La couleur choisie (Duo Folds+), menthe sinon.
+    private var accent: Color {
+        stats.plus ? (ClapetTheme(rawValue: stats.theme) ?? .mint).color : Palette.mint
+    }
+
     var body: some View {
+        Group {
+            if locked {
+                lockedView
+            } else {
+                sized
+            }
+        }
+        .containerBackground(for: .widget) {
+            if isAccessory {
+                Color.clear
+            } else {
+                Palette.background
+            }
+        }
+        .widgetURL(locked ? URL(string: "clapet://plus") : nil)
+    }
+
+    @ViewBuilder
+    private var sized: some View {
         switch family {
         case .accessoryCircular: circular
         case .accessoryRectangular: rectangular
@@ -79,15 +122,64 @@ struct ClapetWidgetView: View {
         }
     }
 
+    @ViewBuilder
+    private var lockedView: some View {
+        switch family {
+        case .accessoryCircular:
+            ZStack {
+                AccessoryWidgetBackground()
+                VStack(spacing: 1) {
+                    Image(systemName: "lock.fill").font(.system(size: 14, weight: .bold))
+                    Text("Plus").font(.system(size: 10, weight: .heavy, design: .rounded))
+                }
+            }
+        case .accessoryRectangular:
+            HStack(spacing: 6) {
+                Image(systemName: "lock.fill").font(.system(.title3, weight: .bold))
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Duo Folds+").font(.system(.headline, design: .rounded, weight: .bold))
+                    Text("Tap to unlock").font(.system(.caption, design: .rounded, weight: .medium))
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        default:
+            ZStack {
+                sized
+                    .blur(radius: 7)
+                    .opacity(0.4)
+                VStack(spacing: 6) {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundStyle(Palette.mint)
+                    Text("Duo Folds+")
+                        .font(.system(size: 19, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                    Text("Tap to unlock this widget")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Palette.secondary)
+                }
+            }
+        }
+    }
+
     // MARK: Morceaux
 
     private var header: some View {
         HStack(spacing: 6) {
             Image(systemName: "iphone.gen3")
                 .font(.system(size: 13, weight: .semibold))
-            Text("CLAPET")
+            Text("DUO FOLDS")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .tracking(0.8)
+                .lineLimit(1)
+            if needsPlus && !stats.plus && entry.preview {
+                Text("PLUS")
+                    .font(.system(size: 9, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Palette.mint))
+            }
             Spacer(minLength: 4)
             if family != .systemSmall, let last = stats.lastClose {
                 Text("Last fold \(Self.ago(last, from: entry.date))")
@@ -113,7 +205,7 @@ struct ClapetWidgetView: View {
                 if today != yesterday {
                     Text("\(today > yesterday ? "↑" : "↓") \(abs(today - yesterday))")
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
-                        .foregroundStyle(today > yesterday ? Palette.mint : Palette.red)
+                        .foregroundStyle(today > yesterday ? Palette.red : accent)
                 }
             }
             Text("today vs yesterday")
@@ -151,7 +243,7 @@ struct ClapetWidgetView: View {
                             .minimumScaleFactor(0.6)
                     }
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        .fill(isToday ? Palette.mint : Palette.bar)
+                        .fill(stats.goal > 0 && days[i].closes > stats.goal ? Palette.red.opacity(isToday ? 1 : 0.6) : (isToday ? accent : Palette.bar))
                         .frame(height: max(5, height * CGFloat(days[i].closes) / CGFloat(top)))
                     Text(days[i].date, format: .dateTime.weekday(.narrow))
                         .font(.system(size: 11, weight: isToday ? .bold : .medium, design: .rounded))
@@ -179,7 +271,7 @@ struct ClapetWidgetView: View {
             HStack(alignment: .bottom, spacing: 2) {
                 ForEach(0..<24, id: \.self) { h in
                     RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-                        .fill(hours[h] > 0 && h == peak ? Palette.mint : (hours[h] > 0 ? Color.white.opacity(0.28) : Palette.bar))
+                        .fill(hours[h] > 0 && h == peak ? accent : (hours[h] > 0 ? Color.white.opacity(0.28) : Palette.bar))
                         .frame(height: max(3, 28 * CGFloat(hours[h]) / CGFloat(top)))
                         .frame(maxWidth: .infinity)
                 }
@@ -215,7 +307,7 @@ struct ClapetWidgetView: View {
             GeometryReader { g in
                 ZStack(alignment: .leading) {
                     Capsule().fill(Palette.bar)
-                    Capsule().fill(Palette.mint).frame(width: max(6, g.size.width * CGFloat(level.progress(stats.totalCloses))))
+                    Capsule().fill(accent).frame(width: max(6, g.size.width * CGFloat(level.progress(stats.totalCloses))))
                 }
             }
             .frame(height: 6)
@@ -238,7 +330,7 @@ struct ClapetWidgetView: View {
                     .foregroundStyle(Palette.secondary)
                 if today != yesterday {
                     Text("\(today > yesterday ? "↑" : "↓") \(abs(today - yesterday))")
-                        .foregroundStyle(today > yesterday ? Palette.mint : Palette.red)
+                        .foregroundStyle(today > yesterday ? Palette.red : accent)
                 }
             }
             .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -252,7 +344,6 @@ struct ClapetWidgetView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .containerBackground(for: .widget) { Palette.background }
     }
 
     private var medium: some View {
@@ -268,7 +359,6 @@ struct ClapetWidgetView: View {
                 week(height: 52, showValues: true)
             }
         }
-        .containerBackground(for: .widget) { Palette.background }
     }
 
     private var large: some View {
@@ -284,7 +374,6 @@ struct ClapetWidgetView: View {
             Spacer(minLength: 0)
             levelBar
         }
-        .containerBackground(for: .widget) { Palette.background }
     }
 
     private var circular: some View {
@@ -295,33 +384,30 @@ struct ClapetWidgetView: View {
                 .font(.system(.body, design: .rounded, weight: .bold))
         }
         .gaugeStyle(.accessoryCircularCapacity)
-        .containerBackground(for: .widget) { Color.clear }
     }
 
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 4) {
                 Image(systemName: "iphone.gen3")
-                Text("Clapet")
+                Text("Duo Folds")
                     .font(.system(.headline, design: .rounded, weight: .bold))
             }
-            Text("\(today) claps today")
+            Text("\(today) folds today")
                 .font(.system(.body, design: .rounded, weight: .semibold))
             Text("\(stats.totalCloses) all time")
                 .font(.system(.caption, design: .rounded, weight: .medium))
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .containerBackground(for: .widget) { Color.clear }
     }
 
     private var inline: some View {
         Label {
-            Text("\(today) claps today")
+            Text("\(today) folds today")
         } icon: {
             Image(systemName: "iphone.gen3")
         }
-        .containerBackground(for: .widget) { Color.clear }
     }
 }
 
@@ -332,7 +418,7 @@ struct ClapetWidget: Widget {
         StaticConfiguration(kind: kind, provider: ClapetProvider()) { entry in
             ClapetWidgetView(entry: entry)
         }
-        .configurationDisplayName(Text("Duo folds"))
+        .configurationDisplayName(Text("Duo Folds"))
         .description(Text("How many times you closed your Duo, like your steps in Health."))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
