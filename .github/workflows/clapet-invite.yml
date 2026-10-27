@@ -1,0 +1,32 @@
+# DUO FOLDS : invite un testeur externe par e-mail (rapport dans la branche ci-clapet-invite).
+name: Clapet - inviter un testeur
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: "Adresse e-mail du testeur"
+        required: true
+jobs:
+  invite:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      TESTER_EMAIL: ${{ inputs.email }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Inviter
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_invite.py 2>&1 | tee invite.txt || true
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && cp invite.txt "$RUNNER_TEMP/r/" && cd "$RUNNER_TEMP/r"
+          git init -q -b ci-clapet-invite && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Invitation" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-invite
