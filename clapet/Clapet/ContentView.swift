@@ -74,6 +74,7 @@ struct ContentView: View {
                     if model.stats.autoLast == nil && !Demo.seeded { autoBanner }
                     today
                     numbers
+                    timeOpen
                     week
                     byHour
                     lifetime
@@ -291,6 +292,83 @@ struct ContentView: View {
             }
         }
         .accessibilityElement(children: .combine)
+    }
+
+    // MARK: Temps ouvert
+
+    static func duration(_ t: TimeInterval) -> String {
+        let minutes = Int(t / 60)
+        let allowed: Set<Duration.UnitsFormatStyle.Unit> = minutes >= 60 ? [.hours, .minutes] : [.minutes]
+        return Duration.seconds(Double(minutes * 60)).formatted(.units(allowed: allowed, width: .abbreviated))
+    }
+
+    private var timeOpen: some View {
+        TimelineView(.periodic(from: .now, by: 30)) { context in
+            let now = context.date
+            let s = model.stats
+            let week = s.lastWeek(now: now).map { (date: $0.date, hours: s.openTime($0.date, now: now) / 3600) }
+            Card {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        CardTitle(Text("Time open"), symbol: "hourglass")
+                        Spacer()
+                        if s.openSince != nil {
+                            Label { Text("Open now") } icon: { Circle().fill(Color.dfAccent).frame(width: 7, height: 7) }
+                                .font(.footnote.weight(.medium))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    HStack(alignment: .firstTextBaseline) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(Self.duration(s.openTime(now, now: now)))
+                                .font(.system(size: 28, weight: .bold))
+                                .monospacedDigit()
+                            Text("today").font(.footnote).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        VStack(alignment: .trailing, spacing: 0) {
+                            Text(Self.duration(s.openTime(Calendar.current.date(byAdding: .day, value: -1, to: now) ?? now, now: now)))
+                                .font(.headline)
+                                .monospacedDigit()
+                            Text("yesterday").font(.footnote).foregroundStyle(.secondary)
+                        }
+                        VStack(alignment: .trailing, spacing: 0) {
+                            Text(Self.duration(s.averageOpen(days: 7, now: now)))
+                                .font(.headline)
+                                .monospacedDigit()
+                            Text("per day, 7 days").font(.footnote).foregroundStyle(.secondary)
+                        }
+                        .padding(.leading, 14)
+                    }
+                    Chart {
+                        ForEach(0..<week.count, id: \.self) { i in
+                            BarMark(x: .value("Day", week[i].date, unit: .day), y: .value("Hours", week[i].hours))
+                                .foregroundStyle(Color.dfAccent.opacity(i == week.count - 1 ? 1 : 0.55))
+                                .cornerRadius(4)
+                        }
+                    }
+                    .chartXAxis {
+                        AxisMarks(values: .stride(by: .day)) { _ in
+                            AxisValueLabel(format: .dateTime.weekday(.narrow))
+                        }
+                    }
+                    .chartYAxis {
+                        AxisMarks(position: .leading) { value in
+                            AxisGridLine()
+                            AxisValueLabel {
+                                if let h = value.as(Double.self) { Text("\(Int(h)) h") }
+                            }
+                        }
+                    }
+                    .frame(height: 110)
+                    if s.autoLast == nil {
+                        Text("Measured only while Duo Folds is on screen. Set up the two Shortcuts automations to measure all day.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
     }
 
     // MARK: La semaine

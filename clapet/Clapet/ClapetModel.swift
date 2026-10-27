@@ -34,6 +34,8 @@ final class ClapetModel {
     /// La charnière était en train de se refermer (pour l'écran qui s'éteint avant la fin du geste).
     @ObservationIgnored private var closing = false
     @ObservationIgnored private var lastAngleAt = Date.distantPast
+    /// L'app revient à l'écran : la prochaine lecture de la charnière peut relancer la mesure du temps ouvert.
+    @ObservationIgnored private var resumed = false
     /// Un même pli peut arriver par la charnière et par l'automatisation : on ne le compte qu'une fois.
     @ObservationIgnored private var lastHingeClose = Date.distantPast
     @ObservationIgnored private var lastAutoClose = Date.distantPast
@@ -73,6 +75,9 @@ final class ClapetModel {
         }
         guard let nowClosed else { return }
         isClosed = nowClosed
+        // Vu ouvert sans ouverture en cours (app lancée Duo ouvert) : on commence à mesurer.
+        if !nowClosed && stats.openSince == nil && (state != false || resumed) { stats.startOpen() }
+        resumed = false
         defer { state = nowClosed }
         guard let previous = state, previous != nowClosed else { return }
         if nowClosed { clap() } else { opened() }
@@ -82,7 +87,14 @@ final class ClapetModel {
     /// iOS ne nous donne pas la fin du mouvement : on compte quand même ce pli.
     func leavingScreen() {
         guard state == false, closing, let d = degrees, d < 75,
-              Date().timeIntervalSince(lastAngleAt) < 1.2 else { return }
+              Date().timeIntervalSince(lastAngleAt) < 1.2 else {
+            // Sans l'automatisation, on ne saura pas quand le Duo se ferme : on arrête de mesurer ici.
+            if stats.autoLast == nil && stats.openSince != nil {
+                stats.endOpen()
+                changed()
+            }
+            return
+        }
         state = true
         isClosed = true
         clap()
@@ -106,6 +118,7 @@ final class ClapetModel {
         if hapticsOn { ClapetHaptics.tick() }
         guard Date().timeIntervalSince(lastAutoOpen) > sameFold else { return }
         stats.addOpen()
+        stats.startOpen()
         changed()
     }
 
@@ -127,6 +140,7 @@ final class ClapetModel {
         lastAutoOpen = Date()
         stats.autoLast = Date()
         if Date().timeIntervalSince(lastHingeOpen) > sameFold { stats.addOpen() }
+        stats.startOpen()
         changed()
         WidgetCenter.shared.reloadAllTimelines()
     }
@@ -134,6 +148,7 @@ final class ClapetModel {
     private func countClose() {
         let before = stats.today
         stats.addClose()
+        stats.endOpen()
         LimitAlerts.check(before: before, after: stats.today, limit: stats.goal, plus: stats.plus)
         claps += 1
         lastClapAt = Date()
@@ -188,6 +203,7 @@ final class ClapetModel {
     // MARK: Sauvegarde et widgets
 
     func reload() {
+        resumed = true
         guard !Demo.seeded else { return }
         let plus = stats.plus
         stats = ClapetVault.load()

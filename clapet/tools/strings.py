@@ -180,6 +180,19 @@ FR = {
     "On screen, Duo Folds reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.":
         "À l'écran, Duo Folds lit lui-même la charnière. Quand il n'est pas à l'écran, iOS ne lui dit rien : l'automatisation Raccourcis « iPhone fermé » avec l'action « Compter un pli » prend le relais.",
     "Set up automatic counting": "Mettre en place le comptage automatique",
+    # Temps ouvert
+    "Time open": "Temps ouvert",
+    "Open now": "Ouvert en ce moment",
+    "yesterday": "hier",
+    "per day, 7 days": "par jour, 7 jours",
+    "Hours": "Heures",
+    "%lld h": "%lld h",
+    "Measured only while Duo Folds is on screen. Set up the two Shortcuts automations to measure all day.":
+        "Mesuré seulement quand Duo Folds est à l'écran. Mets en place les deux automatisations Raccourcis pour mesurer toute la journée.",
+    "Do it again with **Opened** and the action **Count an opening**: Duo Folds then also measures how long your Duo stays open.":
+        "Refais-le avec **Ouvert** et l'action **Compter une ouverture** : Duo Folds mesure alors aussi combien de temps ton Duo reste ouvert.",
+    "Open per day (30 days)": "Ouvert par jour (30 jours)",
+    "Open in 30 days": "Ouvert en 30 jours",
 }
 
 SHORTCUTS_FR = {

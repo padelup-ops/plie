@@ -191,6 +191,9 @@ struct HistoryView: View {
             record("chart.bar.fill", .dfOver, "\(busiest?.closes ?? 0)", Text("Busiest day"), busiest.map { Text($0.date, format: dateStyle) })
             record("clock.fill", .dfWarning, "\(s.recordHour)", Text("Busiest hour"), nil)
             record("calendar.badge.checkmark", .secondary, "\(s.daysCounted)", Text("Days tracked"), nil)
+            record("hourglass", mint, ContentView.duration(s.averageOpen(days: 30)), Text("Open per day (30 days)"), nil)
+            record("hourglass.bottomhalf.filled", .dfWarning,
+                   ContentView.duration(s.lastDays(30).reduce(0) { $0 + s.openTime($1.date) }), Text("Open in 30 days"), nil)
         }
     }
 

@@ -148,3 +148,13 @@
 "Count an opening" = "Count an opening";
 "On screen, Duo Folds reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over." = "On screen, Duo Folds reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.";
 "Set up automatic counting" = "Set up automatic counting";
+"Time open" = "Time open";
+"Open now" = "Open now";
+"yesterday" = "yesterday";
+"per day, 7 days" = "per day, 7 days";
+"Hours" = "Hours";
+"%lld h" = "%lld h";
+"Measured only while Duo Folds is on screen. Set up the two Shortcuts automations to measure all day." = "Measured only while Duo Folds is on screen. Set up the two Shortcuts automations to measure all day.";
+"Do it again with **Opened** and the action **Count an opening**: Duo Folds then also measures how long your Duo stays open." = "Do it again with **Opened** and the action **Count an opening**: Duo Folds then also measures how long your Duo stays open.";
+"Open per day (30 days)" = "Open per day (30 days)";
+"Open in 30 days" = "Open in 30 days";

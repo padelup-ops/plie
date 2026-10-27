@@ -39,6 +39,7 @@ DESCRIPTION = {
 Keep Duo Folds on screen, on the inner or the outer display: every time you close your Duo, it counts. Set a daily limit and watch the ring: green while you're under it, orange when you get close, red when you're over.
 
 • Folds and opens today, the last 7 days and your total
+• Time open: how long your Duo stays open each day
 • A daily limit, and how many folds you have left
 • Limit alerts: a notification at 80 % and at 100 % of your limit
 • Today hour by hour, and your lifetime milestones
@@ -55,6 +56,7 @@ Counting all day: on screen, Duo Folds reads the hinge itself. To count when it 
 Garde Duo Folds à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton Duo, il compte. Fixe une limite par jour et regarde l'anneau : vert tant que tu es en dessous, orange quand tu t'en approches, rouge quand tu la dépasses.
 
 • Fermetures et ouvertures du jour, les 7 derniers jours et ton total
+• Le temps ouvert : combien de temps ton Duo reste ouvert chaque jour
 • Une limite par jour, et combien de plis il te reste
 • Des alertes de limite : une notification à 80 % et à 100 % de ta limite
 • Ta journée heure par heure, et tes paliers depuis le début
@@ -74,6 +76,7 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
+• TIME OPEN: Duo Folds measures how long your Duo stays open each day (all day with the two Shortcuts automations, Closed and Opened).
 • AUTOMATIC COUNTING: Duo Folds now counts even when it's not on screen, with the Shortcuts automation "When iPhone is Closed" + the action "Count a fold". In the app: "Count even when the app is closed" shows you how, step by step.
 • When Duo Folds is on screen as well, each fold is counted only once.
 • A fold is counted even if the screen turns off while you close your Duo.
@@ -82,6 +85,7 @@ WHATS_NEW = {
 Please test: set up the automation, close and open your Duo a few times with another app on screen, then check the count in Duo Folds and in the widgets.""",
     "fr-FR": """Nouveautés de ce build :
 
+• TEMPS OUVERT : Duo Folds mesure combien de temps ton Duo reste ouvert chaque jour (toute la journée avec les deux automatisations Raccourcis, Fermé et Ouvert).
 • COMPTAGE AUTOMATIQUE : Duo Folds compte maintenant même quand il n'est pas à l'écran, avec l'automatisation Raccourcis « iPhone fermé » + l'action « Compter un pli ». Dans l'app : « Compter même app fermée » te montre comment, pas à pas.
 • Quand Duo Folds est aussi à l'écran, chaque pli n'est compté qu'une fois.
 • Un pli est compté même si l'écran s'éteint pendant que tu fermes ton Duo.

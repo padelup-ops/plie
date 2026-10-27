@@ -10,6 +10,21 @@ import SwiftUI
 struct DayCount: Codable, Equatable {
     var closes = 0
     var opens = 0
+    /// Temps passé ouvert ce jour-là, en secondes.
+    var openSeconds: Double = 0
+
+    init(closes: Int = 0, opens: Int = 0, openSeconds: Double = 0) {
+        self.closes = closes
+        self.opens = opens
+        self.openSeconds = openSeconds
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        closes = try c.decodeIfPresent(Int.self, forKey: .closes) ?? 0
+        opens = try c.decodeIfPresent(Int.self, forKey: .opens) ?? 0
+        openSeconds = try c.decodeIfPresent(Double.self, forKey: .openSeconds) ?? 0
+    }
 }
 
 struct ClapetStats: Codable, Equatable {
@@ -30,11 +45,15 @@ struct ClapetStats: Codable, Equatable {
     var theme = 0
     /// Dernier pli compté par l'automatisation Raccourcis (app fermée).
     var autoLast: Date?
+    /// Depuis quand le Duo est ouvert (nil : fermé, ou on ne sait pas).
+    var openSince: Date?
+    /// Au-delà, une ouverture sans fermeture vue est oubliée (une fermeture a dû nous échapper).
+    static let maxOpenSession: TimeInterval = 16 * 3600
 
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -53,6 +72,7 @@ struct ClapetStats: Codable, Equatable {
         plus = try c.decodeIfPresent(Bool.self, forKey: .plus) ?? false
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
         autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
+        openSince = try c.decodeIfPresent(Date.self, forKey: .openSince)
     }
 
     /// Les clapets d'une journée, heure par heure (seulement pour aujourd'hui).
@@ -116,6 +136,47 @@ struct ClapetStats: Codable, Equatable {
         totalOpens += 1
         if firstDay == nil { firstDay = Self.key(date) }
         trim()
+    }
+
+    // MARK: Temps ouvert
+
+    /// Le Duo vient de s'ouvrir.
+    mutating func startOpen(_ date: Date = Date()) {
+        if let s = openSince, date.timeIntervalSince(s) < Self.maxOpenSession { return }
+        openSince = date
+    }
+
+    /// Le Duo vient de se fermer : on ajoute la durée d'ouverture (répartie sur les jours traversés).
+    mutating func endOpen(_ date: Date = Date()) {
+        guard let start = openSince else { return }
+        openSince = nil
+        let total = date.timeIntervalSince(start)
+        guard total > 0, total < Self.maxOpenSession else { return }
+        let cal = Calendar.current
+        var s = start
+        while s < date {
+            let midnight = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: s)) ?? date
+            let end = min(date, midnight)
+            var d = day(s)
+            d.openSeconds += end.timeIntervalSince(s)
+            days[Self.key(s)] = d
+            s = end
+        }
+    }
+
+    /// Temps ouvert d'une journée, en comptant l'ouverture en cours pour aujourd'hui.
+    func openTime(_ date: Date = Date(), now: Date = Date()) -> TimeInterval {
+        var t = day(date).openSeconds
+        if Self.key(date) == Self.key(now), let s = openSince, now.timeIntervalSince(s) < Self.maxOpenSession {
+            t += max(0, now.timeIntervalSince(max(s, Calendar.current.startOfDay(for: now))))
+        }
+        return t
+    }
+
+    /// Moyenne de temps ouvert par jour, sur les jours mesurés des `count` derniers jours.
+    func averageOpen(days count: Int = 30, now: Date = Date()) -> TimeInterval {
+        let values = lastDays(count, now: now).map { openTime($0.date, now: now) }.filter { $0 > 0 }
+        return values.isEmpty ? 0 : values.reduce(0, +) / Double(values.count)
     }
 
     // MARK: Historique (Duo Folds+)

@@ -18,6 +18,7 @@ enum AutomaticCounter {
         var stats = ClapetVault.load()
         let before = stats.today
         stats.addClose()
+        stats.endOpen()
         stats.autoLast = Date()
         LimitAlerts.check(before: before, after: stats.today, limit: stats.goal, plus: stats.plus)
         ClapetVault.save(stats)
@@ -32,6 +33,7 @@ enum AutomaticCounter {
         }
         var stats = ClapetVault.load()
         stats.addOpen()
+        stats.startOpen()
         stats.autoLast = Date()
         ClapetVault.save(stats)
         WidgetCenter.shared.reloadAllTimelines()

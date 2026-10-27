@@ -29,10 +29,9 @@ struct AutoCountView: View {
                     step(3, Text("Select **Run Immediately** and turn **Notify** off."))
                     step(4, Text("Tap **Next**, then add the action **Count a fold** (Duo Folds)."))
                     step(5, Text("Back in the list, check that the automation is **turned on**. iOS sometimes adds it switched off."))
+                    step(6, Text("Do it again with **Opened** and the action **Count an opening**: Duo Folds then also measures how long your Duo stays open."))
                 } header: {
                     Text("Set up")
-                } footer: {
-                    Text("Optional: a second automation on **Opened** with the action **Count an opening** also counts your openings.")
                 }
 
                 Section {
