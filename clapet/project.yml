@@ -1,0 +1,65 @@
+# CLAPET : compte les fois où l'on ferme et ouvre l'iPhone Duo.
+# Projet Xcode généré par XcodeGen (sur le Mac de GitHub) : `xcodegen generate` dans ce dossier.
+name: Clapet
+options:
+  bundleIdPrefix: com.padelup
+  developmentLanguage: en
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+targets:
+  Clapet:
+    type: application
+    platform: iOS
+    sources:
+      - path: Clapet
+      - path: Shared
+    info:
+      path: Clapet/Info.plist
+      properties:
+        CFBundleDisplayName: Clapet
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, fr]
+        CFBundleAllowMixedLocalizations: true
+        UILaunchScreen:
+          UIColorName: AccentColor
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        ITSAppUsesNonExemptEncryption: false
+        ClapetKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.clapet.shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.clapet
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: Clapet/Clapet.entitlements
+    dependencies:
+      - target: ClapetWidget
+        embed: true
+    scheme: {}
+  ClapetWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ClapetWidget
+      - path: Shared
+    info:
+      path: ClapetWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Clapet
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, fr]
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        ClapetKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.clapet.shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.clapet.widget
+        CODE_SIGN_ENTITLEMENTS: ClapetWidget/ClapetWidget.entitlements
+        SKIP_INSTALL: YES

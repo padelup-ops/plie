@@ -1,0 +1,220 @@
+# CLAPET : compile l'app et ses widgets sur un Mac de GitHub (Xcode 27.1) et l'envoie sur TestFlight.
+#
+# Le projet Xcode est généré à chaque fois par XcodeGen depuis clapet/project.yml.
+# Les widgets lisent les chiffres de l'app dans un groupe de trousseau commun (ÉQUIPE.com.padelup.clapet.shared) :
+# l'archive est faite sans signature, puis l'app et les widgets reçoivent leurs droits (entitlements)
+# avant l'export, qui les signe pour de bon avec le certificat géré par Apple.
+
+name: Clapet - TestFlight
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "clapet/Clapet/**"
+      - "clapet/ClapetWidget/**"
+      - "clapet/Shared/**"
+      - "clapet/project.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: clapet-testflight
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: xcode-27
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+      BUILD_NUMBER: ${{ github.run_number }}
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v5
+
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          if [ -z "$XCODE" ]; then XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | head -1); fi
+          if [ -z "$XCODE" ]; then XCODE=/Applications/Xcode.app; echo "::warning::Xcode 27.1 introuvable"; fi
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      - name: Installer XcodeGen et générer le projet
+        run: |
+          if ! command -v xcodegen >/dev/null; then
+            brew install xcodegen >/dev/null 2>&1 || true
+          fi
+          if ! command -v xcodegen >/dev/null; then
+            curl -sSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/latest/download/xcodegen.zip
+            unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP/xg"
+            echo "$RUNNER_TEMP/xg/xcodegen/bin" >> "$GITHUB_PATH"
+            export PATH="$RUNNER_TEMP/xg/xcodegen/bin:$PATH"
+          fi
+          xcodegen --version
+          cd clapet && xcodegen generate
+          ls
+
+      - name: Vérifier que l'app compile
+        run: |
+          set -o pipefail
+          cd clapet
+          xcodebuild build \
+            -project Clapet.xcodeproj -scheme Clapet -configuration Release \
+            -destination 'generic/platform=iOS' \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee ../build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" ../build.log
+
+      - name: Afficher les erreurs de compilation
+        if: failure()
+        run: grep -n -E "error:" build.log | head -80 || true
+
+      - name: Préparer la clé API et regarder la fiche App Store Connect
+        id: asc
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" >> "$GITHUB_ENV"
+          python3 -m pip install --quiet --user pyjwt cryptography >/dev/null 2>&1 || python3 -m pip install --quiet --break-system-packages pyjwt cryptography >/dev/null 2>&1 || true
+          python3 clapet/tools/setup.py 2>&1 | tee fiche.txt || true
+          if grep -q "^FICHE  ok" fiche.txt; then
+            echo "record=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "record=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::La fiche Clapet n'existe pas encore sur App Store Connect : le build est signé mais pas envoyé."
+          fi
+
+      # Archive sans signature : aucun certificat de développement n'est créé à chaque build.
+      - name: Archiver
+        run: |
+          set -o pipefail
+          cd clapet
+          xcodebuild archive \
+            -project Clapet.xcodeproj -scheme Clapet -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Clapet.xcarchive" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" 2>&1 | tee ../archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
+          grep -q "ARCHIVE SUCCEEDED" ../archive.log
+
+      - name: Donner aux widgets l'accès aux chiffres (groupe de trousseau)
+        run: |
+          APP="$RUNNER_TEMP/Clapet.xcarchive/Products/Applications/Clapet.app"
+          WIDGET="$APP/PlugIns/ClapetWidget.appex"
+          ls "$APP" "$APP/PlugIns"
+          cat > "$RUNNER_TEMP/shared.entitlements" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>keychain-access-groups</key>
+            <array>
+              <string>${APPLE_TEAM_ID}.com.padelup.clapet.shared</string>
+            </array>
+          </dict>
+          </plist>
+          EOF
+          /usr/libexec/PlistBuddy -c "Print" "$RUNNER_TEMP/shared.entitlements" >/dev/null
+          codesign -f -s - --entitlements "$RUNNER_TEMP/shared.entitlements" "$WIDGET"
+          codesign -f -s - --entitlements "$RUNNER_TEMP/shared.entitlements" "$APP"
+          /usr/libexec/PlistBuddy -c "Print :ClapetKeychainGroup" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP/Info.plist"
+
+      - name: Signer pour l'App Store (sans envoyer) et vérifier les droits
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/ExportLocal.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Clapet.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportLocal.plist" \
+            -exportPath "$RUNNER_TEMP/local" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export-local.log
+          grep -q "EXPORT SUCCEEDED" export-local.log
+          cd "$RUNNER_TEMP/local" && unzip -q -o *.ipa -d ipa
+          {
+            echo "=== App ==="; codesign -d --entitlements :- ipa/Payload/Clapet.app 2>/dev/null
+            echo; echo "=== Widget ==="; codesign -d --entitlements :- ipa/Payload/Clapet.app/PlugIns/ClapetWidget.appex 2>/dev/null
+          } | tee "$GITHUB_WORKSPACE/droits.txt"
+          grep -q "com.padelup.clapet.shared" "$GITHUB_WORKSPACE/droits.txt" || echo "::warning::Le groupe de trousseau partagé manque dans l'app signée"
+
+      - name: Envoyer sur App Store Connect (TestFlight)
+        if: steps.asc.outputs.record == 'true'
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/ExportUpload.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Clapet.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportUpload.plist" \
+            -exportPath "$RUNNER_TEMP/upload" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export.log
+          grep -q -E "EXPORT SUCCEEDED|Upload succeeded|Uploaded" export.log
+          echo "::notice::Clapet build $BUILD_NUMBER envoyé. Il apparaît dans TestFlight après 15 à 30 minutes de traitement."
+
+      - name: Afficher les erreurs de signature ou d'envoi
+        if: failure()
+        run: grep -n -E "error:|Error|failed" archive.log export-local.log export.log 2>/dev/null | head -60 || true
+
+      - name: Publier les journaux dans la branche ci-clapet-logs
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/ci" && cd "$RUNNER_TEMP/ci"
+          git init -q -b ci-clapet-logs
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          for f in fiche.txt droits.txt; do [ -f "$GITHUB_WORKSPACE/$f" ] && cp "$GITHUB_WORKSPACE/$f" .; done
+          for f in build.log archive.log export-local.log export.log; do
+            if [ -f "$GITHUB_WORKSPACE/$f" ]; then
+              grep -n -B2 -A6 -E "error:" "$GITHUB_WORKSPACE/$f" | head -1500 > "erreurs-${f%.log}.txt" || true
+              tail -n 200 "$GITHUB_WORKSPACE/$f" > "fin-${f%.log}.txt"
+            fi
+          done
+          echo "build $BUILD_NUMBER - commit ${{ github.sha }} - $(date -u)" > build.txt
+          git add -A
+          git commit -qm "Journaux Clapet build $BUILD_NUMBER"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-logs || echo "::warning::Impossible de publier les journaux"
+
+      - name: Effacer la clé
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"
