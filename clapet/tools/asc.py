@@ -258,7 +258,7 @@ for g in internal:
     if missing:
         step(f"{len(missing)} testeur(s) ajouté(s) au groupe « {g['attributes']['name']} »",
              call("POST", f"/v1/betaGroups/{g['id']}/relationships/betaTesters",
-                  {"data": [{"type": "betaTesters", "id": tid} for tid in missing]}), tolerate=("already",))
+                  {"data": [{"type": "betaTesters", "id": tid} for tid in missing]}), tolerate=("already", "cannot be assigned"))
     if not g["attributes"].get("hasAccessToAllBuilds"):
         step(f"build ajouté au groupe « {g['attributes']['name']} »",
              call("POST", f"/v1/betaGroups/{g['id']}/relationships/builds", {"data": [{"type": "builds", "id": bid}]}),
