@@ -74,21 +74,11 @@ struct ContentView: View {
     private let closedBelow = 12
 
     var body: some View {
-        GeometryReader { geo in
-            if geo.size.width >= 600 {
-                // Écran intérieur du Duo : deux volets, comme un livre ouvert.
-                HStack(spacing: 0) {
-                    ScrollView { pane { todayPane } }
-                    Rectangle().fill(Color.dfOutline).frame(width: 1).ignoresSafeArea()
-                    ScrollView { pane { weekPane } }
-                }
-            } else {
-                ScrollView {
-                    pane {
-                        todayPane
-                        weekPane.padding(.top, 18)
-                    }
-                }
+        // Une seule colonne, sur l'écran intérieur comme sur l'écran extérieur.
+        ScrollView {
+            pane {
+                todayPane
+                weekPane.padding(.top, 18)
             }
         }
         .background(Color.dfBackground.ignoresSafeArea())
