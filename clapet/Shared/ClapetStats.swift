@@ -129,6 +129,35 @@ struct ClapetStats: Codable, Equatable {
         trim()
     }
 
+    /// Corrige à la main le nombre de plis d'une journée (le total suit de la même différence).
+    mutating func setCloses(_ value: Int, on date: Date = Date()) {
+        let key = Self.key(date)
+        var d = day(date)
+        let target = max(0, min(100_000, value))
+        let delta = target - d.closes
+        guard delta != 0 else { return }
+        d.closes = target
+        days[key] = d
+        totalCloses = max(target, totalCloses + delta)
+        // Heure par heure : on ne garde que des plis vraiment vus, en retirant d'abord les plus récents.
+        if delta < 0, hourlyDay == key {
+            var excess = hourly.reduce(0, +) - target
+            for h in stride(from: 23, through: 0, by: -1) where excess > 0 {
+                let cut = min(hourly[h], excess)
+                hourly[h] -= cut
+                excess -= cut
+            }
+        }
+        if firstDay == nil && target > 0 { firstDay = key }
+        trim()
+    }
+
+    /// Corrige à la main le total depuis le début (jamais moins que les plis d'aujourd'hui).
+    mutating func setTotal(_ value: Int, now: Date = Date()) {
+        totalCloses = max(day(now).closes, min(10_000_000, value))
+        if firstDay == nil && totalCloses > 0 { firstDay = Self.key(now) }
+    }
+
     mutating func addOpen(_ date: Date = Date()) {
         var d = day(date)
         d.opens += 1

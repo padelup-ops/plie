@@ -160,6 +160,14 @@ final class ClapetModel {
         changed()
     }
 
+    /// Corrections à la main : les plis d'aujourd'hui et le total depuis le début.
+    /// `nil` : pas touché. Sans total donné, le total suit la correction d'aujourd'hui.
+    func adjust(today: Int?, total: Int?) {
+        if let today { stats.setCloses(today) }
+        if let total { stats.setTotal(total) }
+        flush()
+    }
+
     func reset() {
         var fresh = ClapetStats()
         fresh.goal = stats.goal

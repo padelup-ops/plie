@@ -202,3 +202,8 @@
 "No. The action runs in the background in a fraction of a second, without opening Duo Folds, even after a restart." = "No. The action runs in the background in a fraction of a second, without opening Duo Folds, even after a restart.";
 "It doesn't count anymore." = "It doesn't count anymore.";
 "Check in Shortcuts that both automations are still turned on. If “Working” above isn't recent, close your Duo once and come back here." = "Check in Shortcuts that both automations are still turned on. If “Working” above isn't recent, close your Duo once and come back here.";
+"Adjust the count" = "Adjust the count";
+"Type today's folds or your lifetime total" = "Type today's folds or your lifetime total";
+"Type the number you want, or use − and +. The lifetime total follows the same change." = "Type the number you want, or use − and +. The lifetime total follows the same change.";
+"Useful if you were counting before Duo Folds. It can't be lower than today's folds." = "Useful if you were counting before Duo Folds. It can't be lower than today's folds.";
+"Save" = "Save";

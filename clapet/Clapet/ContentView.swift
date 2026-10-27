@@ -59,6 +59,7 @@ struct ContentView: View {
     @State private var plusReason: PlusReason?
     @State private var showDemoWidgets = false
     @State private var showAuto = false
+    @State private var showAdjust = false
     @State private var bump = false
     @State private var tapOpen = 0.62
 
@@ -110,6 +111,10 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showAuto) {
             AutoCountView().environment(model)
+        }
+        .sheet(isPresented: $showAdjust) {
+            AdjustCountView().environment(model)
+                .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showHistory) {
             HistoryView().environment(model)
@@ -200,6 +205,15 @@ struct ContentView: View {
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
                     }
+                    Button { showAdjust = true } label: {
+                        Image(systemName: "pencil")
+                            .font(.footnote.weight(.semibold))
+                            .frame(width: 30, height: 30)
+                            .background(Circle().fill(Color.dfFill))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Color.dfAccent)
+                    .accessibilityLabel(Text("Adjust the count"))
                 }
                 HStack(alignment: .center, spacing: 20) {
                     ZStack {
@@ -221,6 +235,8 @@ struct ContentView: View {
                         }
                     }
                     .frame(width: 132, height: 132)
+                    .contentShape(Circle())
+                    .onLongPressGesture { showAdjust = true }
                     .overlay(alignment: .topTrailing) {
                         Text("+1")
                             .font(.subheadline.weight(.semibold))
@@ -495,6 +511,10 @@ struct ContentView: View {
                 model.stats.autoLast == nil ? Text("Off: counts only while the app is on screen") : Text("On, with Shortcuts"),
                 locked: false) {
                 showAuto = true
+            }
+            Divider().padding(.leading, 52)
+            row("pencil", Text("Adjust the count"), Text("Type today's folds or your lifetime total"), locked: false) {
+                showAdjust = true
             }
             Divider().padding(.leading, 52)
             row("calendar", Text("History"), Text("30 days, 12 months, records"), locked: !store.hasPlus) {

@@ -202,3 +202,8 @@
 "No. The action runs in the background in a fraction of a second, without opening Duo Folds, even after a restart." = "Non. L'action tourne en arrière-plan en une fraction de seconde, sans ouvrir Duo Folds, même après un redémarrage.";
 "It doesn't count anymore." = "Ça ne compte plus.";
 "Check in Shortcuts that both automations are still turned on. If “Working” above isn't recent, close your Duo once and come back here." = "Vérifie dans Raccourcis que les deux automatisations sont toujours activées. Si « Ça marche » plus haut n'est pas récent, ferme ton Duo une fois et reviens ici.";
+"Adjust the count" = "Corriger le compteur";
+"Type today's folds or your lifetime total" = "Taper les plis du jour ou le total";
+"Type the number you want, or use − and +. The lifetime total follows the same change." = "Tape le nombre voulu, ou utilise − et +. Le total suit la même différence.";
+"Useful if you were counting before Duo Folds. It can't be lower than today's folds." = "Pratique si tu comptais déjà avant Duo Folds. Il ne peut pas être inférieur aux plis d'aujourd'hui.";
+"Save" = "Enregistrer";
