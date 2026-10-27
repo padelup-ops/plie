@@ -237,3 +237,5 @@
 "%@ · %@" = "%@ · %@";
 "folds · %@" = "folds · %@";
 "Folded" = "Folded";
+"Week" = "Week";
+"Counts below %lld°" = "Counts below %lld°";

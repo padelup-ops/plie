@@ -73,13 +73,26 @@ struct ContentView: View {
     /// Sous cet angle, le Duo est fermé (voir ClapetModel.hinge).
     private let closedBelow = 12
 
+    private enum Page: Hashable { case today, week }
+    @State private var page: Page = .today
+    @Namespace private var tabSpace
+
     var body: some View {
-        // Une seule colonne, sur l'écran intérieur comme sur l'écran extérieur.
-        ScrollView {
-            pane {
-                todayPane
-                weekPane.padding(.top, 18)
+        // Deux onglets en haut : Aujourd'hui et Semaine (on peut aussi glisser de l'un à l'autre).
+        VStack(spacing: 0) {
+            topBar
+                .padding(.horizontal, 20)
+                .padding(.top, 6)
+                .padding(.bottom, 4)
+                .frame(maxWidth: 640)
+                .frame(maxWidth: .infinity)
+            TabView(selection: $page) {
+                ScrollView { pane { todayPane } }
+                    .tag(Page.today)
+                ScrollView { pane { weekPane } }
+                    .tag(Page.week)
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .background(Color.dfBackground.ignoresSafeArea())
         .tint(.dfAccent)
@@ -169,57 +182,84 @@ struct ContentView: View {
 
     // MARK: En-têtes
 
-    private func header(_ title: Text, actions: Bool) -> some View {
+    private var topBar: some View {
         HStack(spacing: 6) {
-            title
-                .font(.system(size: 34, weight: .regular))
-            Spacer()
-            if actions {
-                Button { showWidgets = true } label: {
-                    Image(systemName: "square.grid.2x2.fill")
-                        .font(.title3)
-                        .frame(width: 44, height: 44)
-                }
-                .accessibilityLabel(Text("Widgets"))
-                Menu {
-                    Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
-                    Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
-                    Button {
-                        if store.hasPlus { showHistory = true } else { plusReason = .history }
-                    } label: { Label { Text("History") } icon: { Image(systemName: "calendar") } }
-                    if !store.hasPlus {
-                        Button { plusReason = .menu } label: { Label { Text("Duo Folds+") } icon: { Image(systemName: "plus.circle") } }
-                    }
-                    Button { showSettings = true } label: { Label { Text("Settings") } icon: { Image(systemName: "gearshape") } }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.title3.weight(.semibold))
-                        .rotationEffect(.degrees(90))
-                        .frame(width: 44, height: 44)
-                }
-                .accessibilityLabel(Text("More"))
+            HStack(spacing: 2) {
+                tab(Text("Today"), .today)
+                tab(Text("Week"), .week)
             }
+            .padding(4)
+            .background(Capsule().fill(Color.dfCard))
+            Spacer()
+            Button { showWidgets = true } label: {
+                Image(systemName: "square.grid.2x2.fill")
+                    .font(.title3)
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityLabel(Text("Widgets"))
+            Menu {
+                Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
+                Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
+                Button {
+                    if store.hasPlus { showHistory = true } else { plusReason = .history }
+                } label: { Label { Text("History") } icon: { Image(systemName: "calendar") } }
+                if !store.hasPlus {
+                    Button { plusReason = .menu } label: { Label { Text("Duo Folds+") } icon: { Image(systemName: "plus.circle") } }
+                }
+                Button { showSettings = true } label: { Label { Text("Settings") } icon: { Image(systemName: "gearshape") } }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.title3.weight(.semibold))
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityLabel(Text("More"))
         }
         .foregroundStyle(.primary)
+    }
+
+    private func tab(_ title: Text, _ target: Page) -> some View {
+        let selected = page == target
+        return Button {
+            withAnimation(.easeInOut(duration: 0.25)) { page = target }
+        } label: {
+            title
+                .font(.headline)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 9)
+                .foregroundStyle(selected ? Color.dfBackground : Color.primary.opacity(0.8))
+                .background {
+                    if selected {
+                        Capsule()
+                            .fill(Color.dfAccent)
+                            .matchedGeometryEffect(id: "tab", in: tabSpace)
+                    }
+                }
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     // MARK: Aujourd'hui (volet de gauche)
 
     private var todayPane: some View {
         let s = model.stats
-        let todayWord = Text("Today")
-        let date = Text(Date(), format: .dateTime.weekday(.abbreviated).day().month(.abbreviated))
         return Group {
-            header(Text("Today"), actions: true)
-            Text("\(todayWord) · \(date)")
+            Text(Date(), format: .dateTime.weekday(.wide).day().month(.wide))
                 .font(.title3.weight(.medium))
                 .foregroundStyle(Color.primary.opacity(0.85))
-                .padding(.top, 6)
-            bigNumber
+                .padding(.top, 8)
+            HStack(alignment: .center, spacing: 8) {
+                bigNumber
+                    .layoutPriority(1)
+                Spacer(minLength: 0)
+                miniGauge
+            }
             trend
             if s.autoLast == nil && !Demo.seeded { autoBanner }
-            hingeCard
             tiles
+            timeOpen
             more
             footnote
         }
@@ -289,59 +329,39 @@ struct ContentView: View {
 
     private var angle: Double { model.degrees ?? tapAngle }
 
-    private var hingeCard: some View {
-        Card {
-            VStack(spacing: 14) {
-                HStack {
-                    CardTitle(Text("Hinge now"))
-                    Spacer()
-                    HStack(spacing: 8) {
-                        Image(systemName: "dot.radiowaves.left.and.right")
-                            .foregroundStyle(Color.dfAccent)
-                        if model.hasHinge {
-                            Text("Counting · \(Int(angle.rounded()))°")
-                                .monospacedDigit()
-                        } else {
-                            Text("Tap to count")
-                        }
-                    }
-                    .font(.subheadline.weight(.medium))
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.dfOutline, lineWidth: 1))
+    private var miniGauge: some View {
+        VStack(spacing: 4) {
+            HingeArc(degrees: angle, closedBelow: Double(closedBelow), line: 10)
+                .frame(width: 128, height: 70)
+                .overlay(alignment: .bottom) {
+                    Text("\(Int(angle.rounded()))°")
+                        .font(.system(size: 26, weight: .light))
+                        .monospacedDigit()
                 }
-                HingeArc(degrees: angle, closedBelow: Double(closedBelow))
-                    .aspectRatio(1.85, contentMode: .fit)
-                    .overlay(alignment: .bottom) {
-                        VStack(spacing: 4) {
-                            Text("\(Int(angle.rounded()))°")
-                                .font(.system(size: 50, weight: .light))
-                                .monospacedDigit()
-                            hingeStatus
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.bottom, 2)
-                    }
-                    .padding(.horizontal, 6)
-            }
+            hingeStatus
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .frame(width: 136)
         }
         .contentShape(Rectangle())
         .onTapGesture {
             guard !model.hasHinge else { return }
-            // Sans charnière : on touche pour compter, le dessin se ferme puis se rouvre.
+            // Sans charnière : on touche pour compter, la jauge se ferme puis se rouvre.
             withAnimation(.easeIn(duration: 0.12)) { tapAngle = 0 }
             model.clap()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
                 withAnimation(.easeOut(duration: 0.35)) { tapAngle = 112 }
             }
         }
+        .accessibilityElement(children: .combine)
     }
 
     private var hingeStatus: Text {
-        if !model.hasHinge { return Text("No hinge here: tap to count") }
+        if !model.hasHinge { return Text("Tap to count") }
         if model.isClosed { return Text("Folded") }
-        return Text("Open · counts below \(closedBelow)°")
+        return Text("Counts below \(closedBelow)°")
     }
 
     // MARK: Les tuiles
@@ -402,7 +422,6 @@ struct ContentView: View {
         let range = (start..<max(Date(), start.addingTimeInterval(60))).formatted(.interval.day().month(.abbreviated).year())
         let perDayText = Text("\(perDay) per day")
         return Group {
-            header(Text("This week"), actions: false)
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text("\(total)")
                     .font(.system(size: 76, weight: .light))
@@ -420,7 +439,6 @@ struct ContentView: View {
                 .foregroundStyle(Color.primary.opacity(0.85))
             weekBars(days, perDay: Double(total) / 7)
             heatmap
-            timeOpen
             lifetime
         }
     }
@@ -744,10 +762,11 @@ struct ContentView: View {
 struct HingeArc: View {
     let degrees: Double
     let closedBelow: Double
+    var line: CGFloat = 16
 
     var body: some View {
         GeometryReader { g in
-            let line: CGFloat = 16
+            let line = self.line
             let radius = max(1, min(g.size.width / 2, g.size.height) - line / 2)
             let center = CGPoint(x: g.size.width / 2, y: g.size.height - line / 2)
             let value = min(180, max(0, degrees))

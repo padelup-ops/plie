@@ -286,6 +286,8 @@ FR = {
     "%@ · %@": "%@ · %@",
     "folds · %@": "plis · %@",
     "Folded": "Plié",
+    "Week": "Semaine",
+    "Counts below %lld°": "Compte sous %lld°",
 }
 
 SHORTCUTS_FR = {
