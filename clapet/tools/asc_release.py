@@ -141,7 +141,22 @@ version = next((v for v in versions if v["attributes"].get("appStoreState") in
                 ("PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED")), None)
 if not version:
     print("aucune version modifiable :", [(v["attributes"].get("versionString"), v["attributes"].get("appStoreState")) for v in versions])
-    sys.exit(1)
+    ready = next((v for v in versions if v["attributes"].get("appStoreState") == "READY_FOR_REVIEW"), None)
+    if ready and SUBMIT:
+        # La version est déjà dans une demande de vérification pas encore envoyée : on l'envoie.
+        subs = call("GET", f"/v1/reviewSubmissions?filter[app]={app_id}&filter[state]=READY_FOR_REVIEW,UNRESOLVED_ISSUES").get("data", [])
+        print("demandes ouvertes :", [(x["id"], x["attributes"].get("state")) for x in subs])
+        for sub in subs:
+            items = call("GET", f"/v1/reviewSubmissions/{sub['id']}/items").get("data", [])
+            print("  éléments :", len(items))
+            if items:
+                step("ENVOI À LA VÉRIFICATION D'APPLE", call("PATCH", f"/v1/reviewSubmissions/{sub['id']}", {"data": {
+                     "type": "reviewSubmissions", "id": sub["id"], "attributes": {"submitted": True}}}))
+                break
+        v = call("GET", f"/v1/appStoreVersions/{ready['id']}").get("data", {}).get("attributes", {})
+        print("état de la version :", v.get("appStoreState"))
+        print("\nENVOYÉ" if not problems else "\nÀ REVOIR : " + ", ".join(problems))
+    sys.exit(0 if not problems else 1)
 vid = version["id"]
 print("VERSION", version["attributes"].get("versionString"), version["attributes"].get("appStoreState"))
 
