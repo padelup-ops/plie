@@ -1,0 +1,27 @@
+# DUO FOLDS : état des builds sur App Store Connect (rapport dans la branche ci-clapet-status).
+name: Clapet - état
+on:
+  workflow_dispatch:
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: État
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_status.py 2>&1 | tee etat.txt || true
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && cp etat.txt "$RUNNER_TEMP/r/" && cd "$RUNNER_TEMP/r"
+          git init -q -b ci-clapet-status && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "État Clapet" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-status
