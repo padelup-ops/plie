@@ -1,0 +1,147 @@
+# DUO FOLDS (projet Clapet) : filme les scènes de la vidéo promo sur le simulateur iPhone Duo.
+# L'app est lancée en mode démo (historique réaliste, charnière simulée) et l'écran est enregistré.
+# Les séquences sont publiées dans la branche ci-clapet-demo.
+
+name: Clapet - tournage vidéo
+
+on:
+  workflow_dispatch:
+    inputs:
+      langs:
+        description: "Langues (fr en)"
+        required: false
+        default: "fr en"
+
+jobs:
+  film:
+    runs-on: xcode-27
+    timeout-minutes: 75
+    permissions:
+      contents: write
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v5
+
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          xcodebuild -version
+
+      - name: Générer le projet
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen >/dev/null 2>&1 || true
+          if ! command -v xcodegen >/dev/null; then
+            curl -sSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/latest/download/xcodegen.zip
+            unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP/xg"
+            echo "$RUNNER_TEMP/xg/xcodegen/bin" >> "$GITHUB_PATH"
+            export PATH="$RUNNER_TEMP/xg/xcodegen/bin:$PATH"
+          fi
+          cd clapet && xcodegen generate
+
+      - name: Préparer le simulateur iPhone Duo
+        run: |
+          mkdir -p rushes
+          find_runtime() {
+            xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes']
+                if r.get('platform') == 'iOS' and r.get('isAvailable')
+                and any('Duo' in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
+          print(rs[-1]['identifier'] if rs else '')"
+          }
+          RUNTIME=$(find_runtime)
+          if [ -z "$RUNTIME" ]; then
+            xcodebuild -downloadPlatform iOS 2>&1 | tail -5
+            RUNTIME=$(find_runtime)
+          fi
+          DEVICE_TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Duo' in x['name']]
+          print(d[0]['identifier'] if d else '')")
+          echo "runtime=$RUNTIME devicetype=$DEVICE_TYPE" | tee rushes/simulateur.txt
+          UDID=$(xcrun simctl create "Duo Folds" "$DEVICE_TYPE" "$RUNTIME")
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 --wifiBars 3 --cellularBars 4 || true
+
+      - name: Compiler et installer l'app
+        run: |
+          set -o pipefail
+          cd clapet
+          xcodebuild build -project Clapet.xcodeproj -scheme Clapet -configuration Debug \
+            -sdk iphonesimulator -destination "id=$UDID" -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee ../rushes/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" ../rushes/build.log
+          APP=build/Build/Products/Debug-iphonesimulator/Clapet.app
+          xcrun simctl install "$UDID" "$APP"
+          BID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist")
+          echo "BID=$BID" >> "$GITHUB_ENV"
+          gzip -f ../rushes/build.log
+
+      - name: Filmer les scènes
+        run: |
+          # scène | écran | durée (s) | charnière simulée | autres arguments
+          FOLDS="0:176,0.9:176,1.15:5,1.4:5,1.7:176,2.5:176,2.75:5,3.0:5,3.3:176,4.1:176,4.35:5,4.6:5,4.9:176,5.7:176,5.95:5,6.2:5,6.5:176"
+          cat > scenes.txt <<EOF
+          count|home|8|$FOLDS|-demoToday 44
+          limit|home|8|$FOLDS|-demoToday 57
+          widgets|widgets|5||-demoToday 52
+          history|history|7||-demoToday 52 -demoScroll records@3.2
+          EOF
+          xcrun simctl launch "$UDID" "$BID" > /dev/null 2>&1 || true
+          sleep 6
+          for L in ${{ github.event.inputs.langs }}; do
+            while IFS='|' read -r S R D HG X; do
+              S=$(echo "$S" | xargs)
+              [ -z "$S" ] && continue
+              xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+              DATA=$(xcrun simctl get_app_container "$UDID" "$BID" data 2>/dev/null || true)
+              rm -f "$DATA/Documents/demo-origin.txt"
+              sleep 1
+              OUT="rushes/$L-$S.mov"
+              xcrun simctl io "$UDID" recordVideo --codec=h264 --display=1 --mask=black --force "$OUT" 2> "rushes/$L-$S.rec.log" &
+              REC=$!
+              for i in $(seq 1 50); do grep -q "Recording started" "rushes/$L-$S.rec.log" && break; sleep 0.2; done
+              python3 -c "import time; print('%.3f' % time.time())" > "rushes/$L-$S.recstart"
+              LOC=fr_FR; [ "$L" = "en" ] && LOC=en_US
+              ARGS=(-screen "$R" -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoDelay 2 -AppleLanguages "($L)" -AppleLocale "$LOC")
+              if [ -n "$HG" ]; then ARGS+=(-demoHinge "$HG"); fi
+              ARGS+=($X)
+              xcrun simctl launch "$UDID" "$BID" "${ARGS[@]}" > "rushes/$L-$S.launch.txt" 2>&1 || true
+              python3 -c "import time; print('%.3f' % time.time())" > "rushes/$L-$S.launchtime"
+              sleep "$D"
+              sleep 8
+              kill -INT $REC
+              wait $REC || true
+              cp "$DATA/Documents/demo-origin.txt" "rushes/$L-$S.origin" 2>/dev/null || echo "none" > "rushes/$L-$S.origin"
+              ls -la "$OUT" >> rushes/fichiers.txt 2>&1 || echo "$OUT manquant" >> rushes/fichiers.txt
+            done < scenes.txt
+          done
+          cat rushes/fichiers.txt
+
+      - name: Réduire les vidéos
+        run: |
+          cd rushes
+          for f in *.mov; do
+            avconvert --source "$f" --preset Preset1920x1080 --output "${f%.mov}.mp4" --replace > /dev/null 2>&1 \
+              || cp "$f" "${f%.mov}.mp4"
+            rm -f "$f"
+          done
+          ls -la
+
+      - name: Publier les séquences dans la branche ci-clapet-demo
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd rushes
+          git init -q -b ci-clapet-demo
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          echo "tournage ${{ github.run_number }} - commit ${{ github.sha }} - $(date -u)" > tournage.txt
+          git add -A
+          git commit -qm "Tournage Duo Folds ${{ github.run_number }}"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-demo

@@ -24,7 +24,7 @@ final class ClapetStore {
     private(set) var simulatePlus = UserDefaults.standard.bool(forKey: "tester.simulatePlus")
 
     /// Duo Folds+ : acheté, ou simulé dans une version de test.
-    var hasPlus: Bool { owned || (isTestBuild && simulatePlus) }
+    var hasPlus: Bool { owned || (isTestBuild && simulatePlus) || Demo.plus }
 
     /// Appelé quand `hasPlus` change (pour prévenir les widgets).
     @ObservationIgnored var onChange: ((Bool) -> Void)?

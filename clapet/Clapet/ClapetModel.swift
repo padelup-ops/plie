@@ -34,6 +34,7 @@ final class ClapetModel {
         let d = UserDefaults.standard
         soundOn = d.object(forKey: "sound") as? Bool ?? true
         hapticsOn = d.object(forKey: "haptics") as? Bool ?? true
+        if Demo.seeded { Demo.seed(&stats) }
     }
 
     // MARK: Charnière
@@ -127,6 +128,7 @@ final class ClapetModel {
     // MARK: Sauvegarde et widgets
 
     func reload() {
+        guard !Demo.seeded else { return }
         let plus = stats.plus
         stats = ClapetVault.load()
         stats.plus = plus

@@ -17,6 +17,7 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showHistory = false
     @State private var plusReason: PlusReason?
+    @State private var showDemoWidgets = false
     @State private var burst = false
     @State private var blink = false
     @State private var tapOpen = 1.0
@@ -57,6 +58,10 @@ struct ContentView: View {
         .sheet(item: $plusReason) { reason in
             PlusView(reason: reason.text).environment(model).environment(store)
         }
+        .fullScreenCover(isPresented: $showDemoWidgets) {
+            DemoWidgetsView().environment(model)
+        }
+        .task { await runDemo() }
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
         }
@@ -64,7 +69,7 @@ struct ContentView: View {
             // Une seule fois, après 3 jours suivis : on présente Duo Folds+ (sans insister).
             try? await Task.sleep(nanoseconds: 2_500_000_000)
             let d = UserDefaults.standard
-            if !store.hasPlus && model.stats.daysCounted >= 3 && !d.bool(forKey: "plusPromptShown") {
+            if !Demo.seeded && !store.hasPlus && model.stats.daysCounted >= 3 && !d.bool(forKey: "plusPromptShown") {
                 d.set(true, forKey: "plusPromptShown")
                 plusReason = .tracking
             }
@@ -84,6 +89,34 @@ struct ContentView: View {
                 try? await Task.sleep(nanoseconds: 140_000_000)
                 blink = false
             }
+        }
+    }
+
+    // MARK: Mode démo (vidéo)
+
+    private func runDemo() async {
+        switch Demo.screen {
+        case "history": showHistory = true
+        case "widgets": showDemoWidgets = true
+        case "plus": plusReason = .menu
+        default: break
+        }
+        let keys = Demo.hinge
+        guard !keys.isEmpty else {
+            if Demo.screen != nil || Demo.seeded {
+                try? await Task.sleep(nanoseconds: UInt64(Demo.delay * 1_000_000_000))
+                _ = Demo.markOrigin()
+            }
+            return
+        }
+        try? await Task.sleep(nanoseconds: UInt64(Demo.delay * 1_000_000_000))
+        let origin = Demo.markOrigin()
+        let end = (keys.last?.t ?? 0) + 0.5
+        while !Task.isCancelled {
+            let t = Date().timeIntervalSince(origin)
+            model.hinge(closed: nil, degrees: Demo.angle(at: t, in: keys))
+            if t > end { break }
+            try? await Task.sleep(nanoseconds: 16_000_000)
         }
     }
 

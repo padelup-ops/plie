@@ -15,11 +15,12 @@ struct HistoryView: View {
             ZStack {
                 LinearGradient(colors: [Color.clapetInk, Color(red: 0.10, green: 0.08, blue: 0.22)], startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
+                ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 16) {
                         chartCard
-                        calendarCard
-                        records
+                        calendarCard.id("calendar")
+                        records.id("records")
                         if let csvFile {
                             ShareLink(item: csvFile) {
                                 Label { Text("Export as a spreadsheet (CSV)") } icon: { Image(systemName: "square.and.arrow.up") }
@@ -34,6 +35,13 @@ struct HistoryView: View {
                     .padding(.bottom, 30)
                     .frame(maxWidth: 620)
                     .frame(maxWidth: .infinity)
+                }
+                .task {
+                    // Mode démo : défile jusqu'à une section à un instant donné.
+                    guard let target = Demo.scroll else { return }
+                    try? await Task.sleep(nanoseconds: UInt64((Demo.delay + target.at) * 1_000_000_000))
+                    withAnimation(.easeInOut(duration: 0.9)) { proxy.scrollTo(target.id, anchor: .top) }
+                }
                 }
             }
             .foregroundStyle(.white)
