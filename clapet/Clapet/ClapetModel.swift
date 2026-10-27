@@ -27,6 +27,9 @@ final class ClapetModel {
     }
 
     @ObservationIgnored private var state: Bool?   // vrai : fermé, faux : ouvert, nil : pas encore vu
+    /// La charnière était en train de se refermer (pour l'écran qui s'éteint avant la fin du geste).
+    @ObservationIgnored private var closing = false
+    @ObservationIgnored private var lastAngleAt = Date.distantPast
     @ObservationIgnored private var lastWidgetReload = Date.distantPast
     @ObservationIgnored private var pendingReload = false
 
@@ -43,6 +46,10 @@ final class ClapetModel {
     func hinge(closed: Bool?, degrees: Double?) {
         guard let degrees else { return }
         hasHinge = true
+        if let previous = self.degrees {
+            if degrees < previous - 0.5 { closing = true } else if degrees > previous + 0.5 { closing = false }
+        }
+        lastAngleAt = Date()
         self.degrees = degrees
         // Un peu d'hystérésis : fermé sous 12°, ouvert au-delà de 40°.
         let nowClosed: Bool?
@@ -58,6 +65,16 @@ final class ClapetModel {
         defer { state = nowClosed }
         guard let previous = state, previous != nowClosed else { return }
         if nowClosed { clap() } else { opened() }
+    }
+
+    /// L'app quitte l'écran. Si c'est parce que le Duo se referme (l'écran s'éteint pendant le geste),
+    /// iOS ne nous donne pas la fin du mouvement : on compte quand même ce pli.
+    func leavingScreen() {
+        guard state == false, closing, let d = degrees, d < 75,
+              Date().timeIntervalSince(lastAngleAt) < 1.2 else { return }
+        state = true
+        isClosed = true
+        clap()
     }
 
     // MARK: Compter

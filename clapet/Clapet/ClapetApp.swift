@@ -25,6 +25,7 @@ struct ClapetApp: App {
                         model.reload()
                         Task { await store.refresh() }
                     } else {
+                        model.leavingScreen()
                         model.flush()
                     }
                 }
