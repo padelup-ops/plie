@@ -2,6 +2,11 @@
 name: Clapet - état
 on:
   workflow_dispatch:
+    inputs:
+      bundle:
+        description: "Identifiant de l'app (vide = Duo Folds)"
+        required: false
+        default: "com.padelup.clapet"
 jobs:
   status:
     runs-on: ubuntu-latest
@@ -11,6 +16,7 @@ jobs:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      APP_BUNDLE: ${{ inputs.bundle || 'com.padelup.clapet' }}
     steps:
       - uses: actions/checkout@v5
       - name: État

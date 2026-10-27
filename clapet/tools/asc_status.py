@@ -11,7 +11,7 @@ def call(path):
         return json.load(urllib.request.urlopen(req))
     except urllib.error.HTTPError as e:
         return {"error": e.code, "detail": e.read().decode()[:500]}
-app = call("/v1/apps?filter[bundleId]=com.padelup.clapet")["data"][0]
+app = call("/v1/apps?filter[bundleId]=" + os.environ.get("APP_BUNDLE", "com.padelup.clapet"))["data"][0]
 print("APP", app["id"], app["attributes"]["name"])
 for b in call(f"/v1/builds?filter[app]={app['id']}&sort=-uploadedDate&limit=8&include=buildBetaDetail").get("data", []):
     a = b["attributes"]
@@ -38,3 +38,20 @@ for u in ups.get("data", []):
 # La version App Store
 for v in call(f"/v1/apps/{app['id']}/appStoreVersions?limit=5").get("data", []):
     print("version App Store", v["attributes"].get("versionString"), "|", v["attributes"].get("appStoreState"))
+
+# Captures et prix de la version en préparation
+for v in call(f"/v1/apps/{app['id']}/appStoreVersions?limit=3").get("data", []):
+    for l in call(f"/v1/appStoreVersions/{v['id']}/appStoreVersionLocalizations").get("data", []):
+        sets = call(f"/v1/appStoreVersionLocalizations/{l['id']}/appScreenshotSets").get("data", [])
+        desc = []
+        for st in sets:
+            n = len(call(f"/v1/appScreenshotSets/{st['id']}/appScreenshots").get("data", []))
+            desc.append(f"{st['attributes'].get('screenshotDisplayType')}:{n}")
+        print("captures", v["attributes"].get("versionString"), l["attributes"].get("locale"), desc)
+    b = call(f"/v1/appStoreVersions/{v['id']}/build").get("data")
+    print("build choisi", v["attributes"].get("versionString"), b["attributes"].get("version") if b else None)
+sched = call(f"/v1/apps/{app['id']}/appPriceSchedule?include=manualPrices")
+print("prix :", [x.get("relationships", {}).get("appPricePoint", {}).get("data", {}).get("id", "")[:40] for x in sched.get("included", [])] or sched.get("error"))
+print("disponibilité :", "oui" if call(f"/v1/apps/{app['id']}/appAvailabilityV2").get("data") else "non")
+iaps = call(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=10").get("data", [])
+print("achats intégrés :", [(i["attributes"].get("productId"), i["attributes"].get("state")) for i in iaps])
