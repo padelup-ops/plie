@@ -39,9 +39,9 @@ struct ClapetStats: Codable, Equatable {
     var lastClose: Date?
     /// Le record de plis en une heure.
     var recordHour = 0
-    /// Duo Folds+ acheté (écrit par l'app, lu par les widgets).
+    /// FoldCount+ acheté (écrit par l'app, lu par les widgets).
     var plus = false
-    /// Couleur des widgets (Duo Folds+).
+    /// Couleur des widgets (FoldCount+).
     var theme = 0
     /// Dernier pli compté par l'automatisation Raccourcis (app fermée).
     var autoLast: Date?
@@ -103,7 +103,7 @@ struct ClapetStats: Codable, Equatable {
 
     func day(_ date: Date = Date()) -> DayCount { days[Self.key(date)] ?? DayCount() }
 
-    /// Un « clapet », c'est une fermeture du Duo.
+    /// Un « clapet », c'est une fermeture du téléphone.
     var today: Int { day().closes }
 
     var progress: Double { goal > 0 ? min(1, Double(today) / Double(goal)) : 0 }
@@ -219,7 +219,7 @@ struct ClapetStats: Codable, Equatable {
         return values.isEmpty ? 0 : values.reduce(0, +) / Double(values.count)
     }
 
-    // MARK: Historique (Duo Folds+)
+    // MARK: Historique (FoldCount+)
 
     /// Les `count` derniers jours, du plus ancien à aujourd'hui.
     func lastDays(_ count: Int, now: Date = Date()) -> [(date: Date, closes: Int)] {
@@ -348,7 +348,7 @@ struct ClapetStats: Codable, Equatable {
     }
 }
 
-// MARK: - Les couleurs des widgets (Duo Folds+)
+// MARK: - Les couleurs des widgets (FoldCount+)
 
 enum ClapetTheme: Int, CaseIterable, Identifiable {
     case mint, orange, pink, blue, lemon

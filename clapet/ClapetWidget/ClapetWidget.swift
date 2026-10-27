@@ -58,8 +58,8 @@ struct ClapetWidget: Widget {
         StaticConfiguration(kind: kind, provider: ClapetProvider()) { entry in
             ClapetWidgetView(entry: entry)
         }
-        .configurationDisplayName(Text("Duo Folds"))
-        .description(Text("How many times you closed your Duo, like your steps in Health."))
+        .configurationDisplayName(Text("FoldCount"))
+        .description(Text("How many times you closed your phone, like your steps in Health."))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }

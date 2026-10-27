@@ -1,7 +1,7 @@
 import SwiftUI
 import WidgetKit
 
-// MARK: - Le dessin des widgets de Duo Folds
+// MARK: - Le dessin des widgets de FoldCount
 //
 // Partagé avec l'app : le mode démo (vidéo de présentation) montre les vrais widgets.
 
@@ -38,7 +38,7 @@ struct ClapetWidgetView: View {
     private var today: Int { stats.day(entry.date).closes }
     private var yesterday: Int { stats.yesterday(entry.date) }
 
-    /// Le petit widget et la ligne de l'écran verrouillé sont gratuits ; les autres demandent Duo Folds+.
+    /// Le petit widget et la ligne de l'écran verrouillé sont gratuits ; les autres demandent FoldCount+.
     private var needsPlus: Bool {
         switch family {
         case .systemSmall, .accessoryInline: return false
@@ -52,7 +52,7 @@ struct ClapetWidgetView: View {
         family == .accessoryCircular || family == .accessoryRectangular || family == .accessoryInline
     }
 
-    /// La couleur choisie (Duo Folds+), menthe sinon.
+    /// La couleur choisie (FoldCount+), menthe sinon.
     private var accent: Color {
         stats.plus || DuoFolds.paidApp ? (ClapetTheme(rawValue: stats.theme) ?? .mint).color : Palette.mint
     }
@@ -102,7 +102,7 @@ struct ClapetWidgetView: View {
             HStack(spacing: 6) {
                 Image(systemName: "lock.fill").font(.system(.title3, weight: .bold))
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Duo Folds+").font(.system(.headline, weight: .bold))
+                    Text("FoldCount+").font(.system(.headline, weight: .bold))
                     Text("Tap to unlock").font(.system(.caption, weight: .medium))
                 }
             }
@@ -116,7 +116,7 @@ struct ClapetWidgetView: View {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundStyle(Palette.mint)
-                    Text("Duo Folds+")
+                    Text("FoldCount+")
                         .font(.system(size: 19, weight: .bold))
                         .foregroundStyle(.white)
                     Text("Tap to unlock this widget")
@@ -133,7 +133,7 @@ struct ClapetWidgetView: View {
         HStack(spacing: 6) {
             Image(systemName: "iphone.gen3")
                 .font(.system(size: 13, weight: .semibold))
-            Text("DUO FOLDS")
+            Text("FOLDCOUNT")
                 .font(.system(size: 13, weight: .bold))
                 .tracking(0.8)
                 .lineLimit(1)
@@ -356,7 +356,7 @@ struct ClapetWidgetView: View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 4) {
                 Image(systemName: "iphone.gen3")
-                Text("Duo Folds")
+                Text("FoldCount")
                     .font(.system(.headline, weight: .bold))
             }
             Text("\(today) folds today")

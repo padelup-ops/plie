@@ -114,7 +114,7 @@ struct NightHomeView: View {
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
         }
         .task {
-            // Une seule fois, après 3 jours suivis : on présente Duo Folds+ (sans insister).
+            // Une seule fois, après 3 jours suivis : on présente FoldCount+ (sans insister).
             try? await Task.sleep(nanoseconds: 2_500_000_000)
             let d = UserDefaults.standard
             if !Demo.seeded && !store.hasPlus && model.stats.daysCounted >= 3 && !d.bool(forKey: "plusPromptShown") {
@@ -194,7 +194,7 @@ struct NightHomeView: View {
                     if store.hasPlus { showHistory = true } else { plusReason = .history }
                 } label: { Label { Text("History") } icon: { Image(systemName: "calendar") } }
                 if !store.hasPlus {
-                    Button { plusReason = .menu } label: { Label { Text("Duo Folds+") } icon: { Image(systemName: "plus.circle") } }
+                    Button { plusReason = .menu } label: { Label { Text("FoldCount+") } icon: { Image(systemName: "plus.circle") } }
                 }
                 Button { showSettings = true } label: { Label { Text("Settings") } icon: { Image(systemName: "gearshape") } }
             } label: {
@@ -611,7 +611,7 @@ struct NightHomeView: View {
                     }
                     .frame(height: 110)
                     if s.autoLast == nil {
-                        Text("Measured only while Duo Folds is on screen. Set up the two Shortcuts automations to measure all day.")
+                        Text("Measured only while FoldCount is on screen. Set up the two Shortcuts automations to measure all day.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -734,11 +734,11 @@ struct NightHomeView: View {
     private var footnote: some View {
         VStack(alignment: .leading, spacing: 6) {
             if model.hasHinge {
-                Text("Without the automation, Duo Folds counts only while it's on screen, on the inner or the outer display.")
+                Text("Without the automation, FoldCount counts only while it's on screen, on the inner or the outer display.")
             } else {
-                Text("No hinge here: tap the Duo drawing to count.")
+                Text("No hinge here: tap the phone drawing to count.")
             }
-            Text("Add the widgets from your Home Screen or Lock Screen: touch and hold, Edit, then Duo Folds.")
+            Text("Add the widgets from your Home Screen or Lock Screen: touch and hold, Edit, then FoldCount.")
         }
         .font(.footnote)
         .foregroundStyle(.secondary)
@@ -809,8 +809,8 @@ struct WidgetsHelpView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Label { Text("Touch and hold an empty spot on your Home Screen.") } icon: { Image(systemName: "hand.tap") }
                         Label { Text("Tap Edit, then Add Widget.") } icon: { Image(systemName: "plus.square") }
-                        Label { Text("Search for Duo Folds and pick a size.") } icon: { Image(systemName: "magnifyingglass") }
-                        Label { Text("On the Lock Screen too: touch and hold, Customize, then add Duo Folds.") } icon: { Image(systemName: "lock") }
+                        Label { Text("Search for FoldCount and pick a size.") } icon: { Image(systemName: "magnifyingglass") }
+                        Label { Text("On the Lock Screen too: touch and hold, Customize, then add FoldCount.") } icon: { Image(systemName: "lock") }
                     }
                     .font(.subheadline)
                     .foregroundStyle(Color.primary.opacity(0.9))
@@ -839,7 +839,7 @@ struct WidgetsHelpView: View {
     }
 }
 
-/// Pourquoi l'écran Duo Folds+ s'ouvre.
+/// Pourquoi l'écran FoldCount+ s'ouvre.
 enum PlusReason: String, Identifiable {
     case menu, widget, tracking, history, alerts
 
@@ -848,10 +848,10 @@ enum PlusReason: String, Identifiable {
     var text: Text? {
         switch self {
         case .menu: return nil
-        case .widget: return Text("This widget is part of Duo Folds+.")
+        case .widget: return Text("This widget is part of FoldCount+.")
         case .tracking: return Text("Three days of tracking. Keep an eye on your folds right from your Home Screen.")
-        case .alerts: return Text("Limit alerts are part of Duo Folds+.")
-        case .history: return Text("Your full history and records are part of Duo Folds+.")
+        case .alerts: return Text("Limit alerts are part of FoldCount+.")
+        case .history: return Text("Your full history and records are part of FoldCount+.")
         }
     }
 }

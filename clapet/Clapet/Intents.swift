@@ -5,7 +5,7 @@ import WidgetKit
 //
 // Sur l'iPhone Duo, Raccourcis propose l'automatisation « When iPhone is Opened or Closed ».
 // Branchée sur « Compter un pli » (iPhone fermé) et « Compter une ouverture » (iPhone ouvert),
-// Duo Folds compte même quand il n'est pas à l'écran.
+// FoldCount compte même quand il n'est pas à l'écran.
 
 @MainActor
 enum AutomaticCounter {
@@ -43,7 +43,7 @@ enum AutomaticCounter {
 /// « Compter un pli » : à mettre dans l'automatisation « iPhone fermé ».
 struct CountClapIntent: AppIntent {
     static var title: LocalizedStringResource = "Count a fold"
-    static var description = IntentDescription("Adds one fold to today's count. Use it in a Shortcuts automation that runs when your Duo is closed.")
+    static var description = IntentDescription("Adds one fold to today's count. Use it in a Shortcuts automation that runs when your phone is closed.")
     static var openAppWhenRun = false
 
     /// Rien à l'écran : l'automatisation tourne en silence (le nombre reste disponible pour Raccourcis).
@@ -57,7 +57,7 @@ struct CountClapIntent: AppIntent {
 /// « Compter une ouverture » : à mettre dans l'automatisation « iPhone ouvert » (facultatif).
 struct CountOpenIntent: AppIntent {
     static var title: LocalizedStringResource = "Count an opening"
-    static var description = IntentDescription("Adds one opening to today's count. Use it in a Shortcuts automation that runs when your Duo is opened.")
+    static var description = IntentDescription("Adds one opening to today's count. Use it in a Shortcuts automation that runs when your phone is opened.")
     static var openAppWhenRun = false
 
     @MainActor
@@ -69,7 +69,7 @@ struct CountOpenIntent: AppIntent {
 
 struct TodayClapsIntent: AppIntent {
     static var title: LocalizedStringResource = "Folds today"
-    static var description = IntentDescription("Tells you how many times you closed your Duo today.")
+    static var description = IntentDescription("Tells you how many times you closed your phone today.")
 
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {

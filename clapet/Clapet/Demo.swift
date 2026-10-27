@@ -7,7 +7,7 @@ import WidgetKit
 //   -demoSeed 1             un historique réaliste (45 jours) au lieu des vrais chiffres
 //   -demoToday 44           les plis d'aujourd'hui au départ
 //   -demoLimit 60           la limite du jour
-//   -demoPlus 1             Duo Folds+ débloqué
+//   -demoPlus 1             FoldCount+ débloqué
 //   -demoHinge "t:a,t:a"    charnière simulée : à t secondes, angle a en degrés (interpolé entre deux)
 //   -demoDelay 2            secondes avant le temps zéro de la démo (écrit dans Documents/demo-origin.txt)
 //   -screen home|history|widgets|plus
@@ -114,7 +114,7 @@ enum Demo {
     }
 }
 
-/// L'écran d'accueil d'un iPhone avec les widgets de Duo Folds (pour la vidéo).
+/// L'écran d'accueil d'un iPhone avec les widgets de FoldCount (pour la vidéo).
 struct DemoWidgetsView: View {
     @Environment(ClapetModel.self) private var model
 

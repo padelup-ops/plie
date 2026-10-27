@@ -42,7 +42,7 @@ struct AdjustCountView: View {
                 } header: {
                     Text("All time")
                 } footer: {
-                    Text("Useful if you were counting before Duo Folds. It can't be lower than today's folds.")
+                    Text("Useful if you were counting before FoldCount. It can't be lower than today's folds.")
                 }
             }
             .navigationTitle(Text("Adjust the count"))

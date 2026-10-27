@@ -1,4 +1,4 @@
-"""DUO FOLDS : état des derniers builds sur App Store Connect (traitement, TestFlight, version 1.0)."""
+"""FOLDCOUNT : état des derniers builds sur App Store Connect (traitement, TestFlight, version 1.0)."""
 import json, os, time, urllib.request, urllib.error
 import jwt
 API = "https://api.appstoreconnect.apple.com"

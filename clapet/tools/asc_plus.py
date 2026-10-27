@@ -1,4 +1,4 @@
-"""Crée l'achat intégré « Duo Folds+ » (non consommable) de l'app Duo Folds (projet Clapet).
+"""Crée l'achat intégré « FoldCount+ » (non consommable) de l'app FoldCount (projet Clapet).
 
 Nom et description en anglais et en français, 2,99 € (base France), tous les pays, capture pour la vérification.
 Peut être relancé sans risque : ce qui existe déjà est conservé et complété. Ne soumet rien à Apple.
@@ -19,8 +19,8 @@ PRODUCT_ID = "com.padelup.clapet.plus"
 PRICE_EUR = os.environ.get("PLUS_PRICE", "2.99")
 SCREENSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "review", "plus_review.png")
 LOCALES = {
-    "en-US": ("Duo Folds+", "Every widget, limit alerts, full history"),
-    "fr-FR": ("Duo Folds+", "Tous les widgets, alertes, tout l'historique"),
+    "en-US": ("FoldCount+", "Every widget, limit alerts, full history"),
+    "fr-FR": ("FoldCount+", "Tous les widgets, alertes, tout l'historique"),
 }
 REVIEW_NOTE = ("One-time purchase. Unlocks the medium, large and Lock Screen widgets (without it they are blurred with a "
                "\"Tap to unlock\" message), limit alerts (notifications at 80% and 100% of the daily limit), the full history "
@@ -87,7 +87,7 @@ if existing:
     print("ok     achat déjà créé, état", iap["attributes"].get("state"))
 else:
     r = step("création de l'achat " + PRODUCT_ID, call("POST", "/v2/inAppPurchases", {"data": {"type": "inAppPurchases",
-        "attributes": {"name": "Duo Folds+", "productId": PRODUCT_ID, "inAppPurchaseType": "NON_CONSUMABLE",
+        "attributes": {"name": "FoldCount+", "productId": PRODUCT_ID, "inAppPurchaseType": "NON_CONSUMABLE",
                        "reviewNote": REVIEW_NOTE, "familySharable": False},
         "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
     if "error" in r:
@@ -162,4 +162,4 @@ a = call("GET", f"/v2/inAppPurchases/{iap_id}").get("data", {}).get("attributes"
 print("\nachat", a.get("productId"), "|", a.get("name"), "| type", a.get("inAppPurchaseType"), "| état", a.get("state"))
 for l in get_all(f"/v2/inAppPurchases/{iap_id}/inAppPurchaseLocalizations"):
     print("  ", l["attributes"].get("locale"), "|", l["attributes"].get("name"), "|", l["attributes"].get("description"))
-print("\nDUO FOLDS+ PRÊT" if not problems else "\nÀ REVOIR : " + ", ".join(problems))
+print("\nFOLDCOUNT+ PRÊT" if not problems else "\nÀ REVOIR : " + ", ".join(problems))

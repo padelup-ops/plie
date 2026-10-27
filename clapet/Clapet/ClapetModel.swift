@@ -177,7 +177,7 @@ final class ClapetModel {
         changed()
     }
 
-    // MARK: Duo Folds+
+    // MARK: FoldCount+
 
     /// Écrit dans le coffre partagé, pour que les widgets se débloquent aussitôt.
     func setPlus(_ on: Bool) {
@@ -191,7 +191,7 @@ final class ClapetModel {
         flush()
     }
 
-    /// Alertes de limite (Duo Folds+).
+    /// Alertes de limite (FoldCount+).
     private(set) var alertsOn = LimitAlerts.enabled
 
     /// Renvoie faux si iOS refuse les notifications.

@@ -27,12 +27,14 @@ CATEGORIES = (os.environ.get("CATEGORIES") or "HEALTH_AND_FITNESS,UTILITIES").sp
 PRICE_EUR = os.environ.get("APP_PRICE", "").strip()
 LOCALES = {"en-US": "en", "fr-FR": "fr"}
 REVIEW_NOTES = (
-    "Duo Folds counts how many times the iPhone Duo is closed and opened, so people can keep that habit under control.\n\n"
-    "On an iPhone Duo: keep Duo Folds on screen and fold the device. The app reads the hinge (SwiftUI onHingeChange) and "
+    "FoldCount counts how many times a foldable iPhone (iPhone Duo) is closed and opened, so people can keep that habit under control.\n\n"
+    "On an iPhone Duo: keep FoldCount on screen and fold the device. The app reads the hinge (SwiftUI onHingeChange) and "
     "the count goes up; the ring turns orange near the daily limit and red above it.\n"
-    "On a device without a hinge: tap the Duo drawing on the main screen to add a fold.\n\n"
+    "On a device without a hinge (like an iPad): tap the hinge drawing on the main screen to add a fold.\n\n"
     "Optional automatic counting: the app's Shortcuts action \"Count a fold\" can be added to the personal automation "
     "\"When iPhone is Closed\" (Shortcuts > Automation). The app shows these steps under \"Count even when the app is closed\".\n\n"
+    "Following Guideline 5.2.5, the app was renamed from DUO FOLDS to FoldCount: the Apple product name is no longer used "
+    "in the app name, the name shown on the device or the metadata.\n\n"
     "Paid app: everything is included, there is no in-app purchase, no account, no ads and no data collection. "
     "Numbers stay on the device (shared with the widgets through the keychain).")
 
