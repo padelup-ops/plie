@@ -98,6 +98,14 @@ enum Demo {
         }
         hours[9] += left
         s.hourly = hours
+        // La semaine type : plus de plis en journée, un peu plus en semaine que le week-end.
+        for wd in 0..<7 {
+            let weekend = wd == 0 || wd == 6
+            for h in 0..<24 {
+                let base = Double(shape[(h + (weekend ? 22 : 0)) % 24]) * (weekend ? 3.2 : 4.6)
+                s.weekHours[wd * 24 + h] = Int((base * (0.8 + 0.4 * Double((wd * 7 + h * 3) % 5) / 4)).rounded())
+            }
+        }
         s.recordHour = 14
         s.lastClose = now.addingTimeInterval(-180)
         s.plus = plus

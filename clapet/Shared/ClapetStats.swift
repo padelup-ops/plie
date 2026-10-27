@@ -47,13 +47,15 @@ struct ClapetStats: Codable, Equatable {
     var autoLast: Date?
     /// Depuis quand le Duo est ouvert (nil : fermé, ou on ne sait pas).
     var openSince: Date?
+    /// Les plis par jour de la semaine et par heure, depuis le début : 7 × 24 cases (dimanche d'abord).
+    var weekHours: [Int] = Array(repeating: 0, count: 168)
     /// Au-delà, une ouverture sans fermeture vue est oubliée (une fermeture a dû nous échapper).
     static let maxOpenSession: TimeInterval = 16 * 3600
 
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -73,6 +75,13 @@ struct ClapetStats: Codable, Equatable {
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
         autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
         openSince = try c.decodeIfPresent(Date.self, forKey: .openSince)
+        if let saved = try c.decodeIfPresent([Int].self, forKey: .weekHours), saved.count == 168 {
+            weekHours = saved
+        } else if let key = hourlyDay, let d = Self.date(key) {
+            // Première ouverture de cette version : on part des plis d'aujourd'hui, heure par heure.
+            let row = (Calendar.current.component(.weekday, from: d) - 1) * 24
+            for h in 0..<24 { weekHours[row + h] = hourly[h] }
+        }
     }
 
     /// Les clapets d'une journée, heure par heure (seulement pour aujourd'hui).
@@ -124,6 +133,8 @@ struct ClapetStats: Codable, Equatable {
         let h = Calendar.current.component(.hour, from: date)
         hourly[h] += 1
         recordHour = max(recordHour, hourly[h])
+        let cell = (Calendar.current.component(.weekday, from: date) - 1) * 24 + h
+        if weekHours.count == 168 { weekHours[cell] += 1 }
         lastClose = date
         if firstDay == nil { firstDay = Self.key(date) }
         trim()
@@ -287,6 +298,21 @@ struct ClapetStats: Codable, Equatable {
         let current = recent.suffix(7).reduce(0) { $0 + $1.closes }
         guard previous > 0 else { return nil }
         return Double(current - previous) / Double(previous)
+    }
+
+    /// Moyenne par jour sur les 30 jours avant aujourd'hui (depuis le premier jour suivi). nil le premier jour.
+    func recentAverage(now: Date = Date()) -> Double? {
+        guard let first = firstDay else { return nil }
+        let past = lastDays(31, now: now).dropLast().filter { Self.key($0.date) >= first }
+        guard !past.isEmpty else { return nil }
+        return Double(past.reduce(0) { $0 + $1.closes }) / Double(past.count)
+    }
+
+    /// La case la plus chargée de la semaine type : (jour 0 = dimanche, heure).
+    var busiestSlot: (weekday: Int, hour: Int)? {
+        guard weekHours.count == 168, let top = weekHours.max(), top > 0,
+              let i = weekHours.firstIndex(of: top) else { return nil }
+        return (i / 24, i % 24)
     }
 
     /// Moyenne par jour depuis le premier jour compté.

@@ -16,6 +16,7 @@ struct ClapetApp: App {
             ContentView()
                 .environment(model)
                 .environment(store)
+                .preferredColorScheme(.dark)
                 .task {
                     store.onChange = { [model] has in model.setPlus(has) }
                     await store.load()

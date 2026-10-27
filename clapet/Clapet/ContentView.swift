@@ -1,53 +1,58 @@
 import Charts
 import SwiftUI
+import WidgetKit
 
 // MARK: - Le style de Duo Folds
 //
-// Sobre, comme une app Santé : fonds et textes du système (clair ou sombre selon l'iPhone),
-// une seule couleur d'accent (AccentColor, vert d'eau), l'orange et le rouge du système pour la limite.
+// Sombre et sobre : un fond vert-noir, des cartes cerclées d'un filet, des tuiles pleines,
+// de grands chiffres fins et une seule couleur d'accent, le vert d'eau. Orange et rouge pour la limite.
 
 extension Color {
-    static let dfAccent = Color.accentColor
-    static let dfBackground = Color(uiColor: .systemGroupedBackground)
-    static let dfCard = Color(uiColor: .secondarySystemGroupedBackground)
-    static let dfFill = Color(uiColor: .tertiarySystemFill)
-    static let dfWarning = Color.orange
-    static let dfOver = Color.red
+    static let dfAccent = Color(red: 0.36, green: 0.89, blue: 0.78)
+    static let dfBackground = Color(red: 0.055, green: 0.078, blue: 0.078)
+    static let dfCard = Color(red: 0.135, green: 0.16, blue: 0.157)
+    static let dfFill = Color.white.opacity(0.08)
+    static let dfOutline = Color.white.opacity(0.17)
+    static let dfBar = Color(red: 0.08, green: 0.36, blue: 0.32)
+    static let dfWarning = Color(red: 1.0, green: 0.71, blue: 0.36)
+    static let dfOver = Color(red: 1.0, green: 0.45, blue: 0.42)
 }
 
+/// Une carte : cerclée d'un filet, ou pleine (`filled`) pour les tuiles.
 struct Card<Content: View>: View {
+    let filled: Bool
     let content: Content
 
-    init(@ViewBuilder content: () -> Content) {
+    init(filled: Bool = false, @ViewBuilder content: () -> Content) {
+        self.filled = filled
         self.content = content()
     }
 
     var body: some View {
         content
-            .padding(16)
+            .padding(20)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfCard))
+            .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(filled ? Color.dfCard : Color.clear))
+            .overlay {
+                if !filled {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Color.dfOutline, lineWidth: 1)
+                }
+            }
     }
 }
 
-/// Le titre d'une carte, en petites capitales comme dans Santé.
+/// Le titre d'une carte.
 struct CardTitle: View {
     let text: Text
-    var symbol: String?
 
     init(_ text: Text, symbol: String? = nil) {
         self.text = text
-        self.symbol = symbol
     }
 
     var body: some View {
-        HStack(spacing: 6) {
-            if let symbol { Image(systemName: symbol) }
-            text
-        }
-        .font(.footnote.weight(.semibold))
-        .foregroundStyle(Color.dfAccent)
-        .textCase(.uppercase)
+        text
+            .font(.title3.weight(.semibold))
+            .foregroundStyle(.primary)
     }
 }
 
@@ -60,50 +65,33 @@ struct ContentView: View {
     @State private var showDemoWidgets = false
     @State private var showAuto = false
     @State private var showAdjust = false
+    @State private var showWidgets = false
     @State private var bump = false
-    @State private var tapOpen = 0.62
+    /// Sans charnière : l'angle du dessin, qu'on « ferme » d'un toucher.
+    @State private var tapAngle = 112.0
 
-    private var openness: Double {
-        if let d = model.degrees { return min(1, max(0, d / 180)) }
-        return tapOpen
-    }
+    /// Sous cet angle, le Duo est fermé (voir ClapetModel.hinge).
+    private let closedBelow = 12
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 14) {
-                    if model.stats.autoLast == nil && !Demo.seeded { autoBanner }
-                    today
-                    numbers
-                    timeOpen
-                    week
-                    byHour
-                    lifetime
-                    more
-                    footnote
+        GeometryReader { geo in
+            if geo.size.width >= 600 {
+                // Écran intérieur du Duo : deux volets, comme un livre ouvert.
+                HStack(spacing: 0) {
+                    ScrollView { pane { todayPane } }
+                    Rectangle().fill(Color.dfOutline).frame(width: 1).ignoresSafeArea()
+                    ScrollView { pane { weekPane } }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 28)
-                .frame(maxWidth: 640)
-                .frame(maxWidth: .infinity)
-            }
-            .background(Color.dfBackground)
-            .navigationTitle(Text("Duo Folds"))
-            .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    if !store.hasPlus {
-                        Button { plusReason = .menu } label: {
-                            Text("Plus").font(.subheadline.weight(.semibold))
-                        }
-                        .accessibilityLabel(Text("Duo Folds+"))
+            } else {
+                ScrollView {
+                    pane {
+                        todayPane
+                        weekPane.padding(.top, 18)
                     }
-                    Button { showSettings = true } label: {
-                        Image(systemName: "gearshape")
-                    }
-                    .accessibilityLabel(Text("Settings"))
                 }
             }
         }
+        .background(Color.dfBackground.ignoresSafeArea())
         .tint(.dfAccent)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
         .sheet(isPresented: $showSettings) {
@@ -115,6 +103,9 @@ struct ContentView: View {
         .sheet(isPresented: $showAdjust) {
             AdjustCountView().environment(model)
                 .presentationDetents([.medium, .large])
+        }
+        .sheet(isPresented: $showWidgets) {
+            WidgetsHelpView().environment(model)
         }
         .sheet(isPresented: $showHistory) {
             HistoryView().environment(model)
@@ -147,6 +138,17 @@ struct ContentView: View {
         }
     }
 
+    private func pane<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 18) {
+            content()
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+        .padding(.bottom, 32)
+        .frame(maxWidth: 640, alignment: .leading)
+        .frame(maxWidth: .infinity)
+    }
+
     // MARK: Mode démo (vidéo)
 
     private func runDemo() async {
@@ -175,7 +177,197 @@ struct ContentView: View {
         }
     }
 
-    // MARK: Aujourd'hui
+    // MARK: En-têtes
+
+    private func header(_ title: Text, actions: Bool) -> some View {
+        HStack(spacing: 6) {
+            title
+                .font(.system(size: 34, weight: .regular))
+            Spacer()
+            if actions {
+                Button { showWidgets = true } label: {
+                    Image(systemName: "square.grid.2x2.fill")
+                        .font(.title3)
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel(Text("Widgets"))
+                Menu {
+                    Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
+                    Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
+                    Button {
+                        if store.hasPlus { showHistory = true } else { plusReason = .history }
+                    } label: { Label { Text("History") } icon: { Image(systemName: "calendar") } }
+                    if !store.hasPlus {
+                        Button { plusReason = .menu } label: { Label { Text("Duo Folds+") } icon: { Image(systemName: "plus.circle") } }
+                    }
+                    Button { showSettings = true } label: { Label { Text("Settings") } icon: { Image(systemName: "gearshape") } }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.title3.weight(.semibold))
+                        .rotationEffect(.degrees(90))
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel(Text("More"))
+            }
+        }
+        .foregroundStyle(.primary)
+    }
+
+    // MARK: Aujourd'hui (volet de gauche)
+
+    private var todayPane: some View {
+        let s = model.stats
+        let todayWord = Text("Today")
+        let date = Text(Date(), format: .dateTime.weekday(.abbreviated).day().month(.abbreviated))
+        return Group {
+            header(Text("Today"), actions: true)
+            Text("\(todayWord) · \(date)")
+                .font(.title3.weight(.medium))
+                .foregroundStyle(Color.primary.opacity(0.85))
+                .padding(.top, 6)
+            bigNumber
+            trend
+            if s.autoLast == nil && !Demo.seeded { autoBanner }
+            hingeCard
+            tiles
+            more
+            footnote
+        }
+    }
+
+    private var bigNumber: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 14) {
+            Text("\(model.stats.today)")
+                .font(.system(size: 112, weight: .light))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .animation(.easeOut(duration: 0.25), value: model.stats.today)
+                .overlay(alignment: .topTrailing) {
+                    Text("+1")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Color.dfAccent)
+                        .offset(x: 26, y: bump ? 0 : 14)
+                        .opacity(bump ? 1 : 0)
+                        .allowsHitTesting(false)
+                }
+            Text("folds")
+                .font(.system(size: 30))
+                .foregroundStyle(.secondary)
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
+        .contentShape(Rectangle())
+        .onLongPressGesture { showAdjust = true }
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(Text("Touch and hold to adjust the count"))
+    }
+
+    /// Aujourd'hui comparé à la moyenne des 30 derniers jours.
+    private var trend: some View {
+        let s = model.stats
+        let today = s.today
+        let symbol: String
+        let color: Color
+        let text: Text
+        if let avg = s.recentAverage().map({ Int($0.rounded()) }) {
+            let diff = today - avg
+            if diff < 0 {
+                symbol = "chart.line.downtrend.xyaxis"; color = .dfAccent
+                text = Text("\(-diff) below your \(avg)/day average")
+            } else if diff > 0 {
+                symbol = "chart.line.uptrend.xyaxis"; color = .dfWarning
+                text = Text("\(diff) above your \(avg)/day average")
+            } else {
+                symbol = "chart.line.flattrend.xyaxis"; color = .dfAccent
+                text = Text("Right on your \(avg)/day average")
+            }
+        } else {
+            symbol = "chart.line.flattrend.xyaxis"; color = .dfAccent
+            text = Text("Your daily average shows up tomorrow")
+        }
+        return HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.headline)
+                .foregroundStyle(color)
+            text
+                .font(.title3)
+                .foregroundStyle(Color.primary.opacity(0.85))
+        }
+    }
+
+    // MARK: La charnière
+
+    private var angle: Double { model.degrees ?? tapAngle }
+
+    private var hingeCard: some View {
+        Card {
+            VStack(spacing: 14) {
+                HStack {
+                    CardTitle(Text("Hinge now"))
+                    Spacer()
+                    HStack(spacing: 8) {
+                        Image(systemName: "dot.radiowaves.left.and.right")
+                            .foregroundStyle(Color.dfAccent)
+                        if model.hasHinge {
+                            Text("Counting · \(Int(angle.rounded()))°")
+                                .monospacedDigit()
+                        } else {
+                            Text("Tap to count")
+                        }
+                    }
+                    .font(.subheadline.weight(.medium))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.dfOutline, lineWidth: 1))
+                }
+                HingeArc(degrees: angle, closedBelow: Double(closedBelow))
+                    .aspectRatio(1.85, contentMode: .fit)
+                    .overlay(alignment: .bottom) {
+                        VStack(spacing: 4) {
+                            Text("\(Int(angle.rounded()))°")
+                                .font(.system(size: 50, weight: .light))
+                                .monospacedDigit()
+                            hingeStatus
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.bottom, 2)
+                    }
+                    .padding(.horizontal, 6)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard !model.hasHinge else { return }
+            // Sans charnière : on touche pour compter, le dessin se ferme puis se rouvre.
+            withAnimation(.easeIn(duration: 0.12)) { tapAngle = 0 }
+            model.clap()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+                withAnimation(.easeOut(duration: 0.35)) { tapAngle = 112 }
+            }
+        }
+    }
+
+    private var hingeStatus: Text {
+        if !model.hasHinge { return Text("No hinge here: tap to count") }
+        if model.isClosed { return Text("Folded") }
+        return Text("Open · counts below \(closedBelow)°")
+    }
+
+    // MARK: Les tuiles
+
+    private var tiles: some View {
+        let s = model.stats
+        let left = s.left()
+        return LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+            tile(Text("All time"), "\(s.totalCloses)")
+            tile(Text("Last 7 days"), "\(s.weekTotal)")
+            tile(Text("Opened today"), "\(s.day().opens)")
+            tile(Text("Daily limit"), "\(s.goal)",
+                 detail: left > 0 ? Text("\(left) left today") : (left == 0 ? Text("Limit reached") : Text("\(-left) over the limit")),
+                 color: statusColor)
+        }
+    }
 
     /// Vert d'eau sous la limite, orange à l'approche (80 %), rouge au-delà.
     private var statusColor: Color {
@@ -186,128 +378,171 @@ struct ContentView: View {
         return .dfAccent
     }
 
-    private var status: Text {
-        let left = model.stats.left()
-        if left > 0 { return Text("\(left) left today") }
-        if left == 0 { return Text("Limit reached") }
-        return Text("\(-left) over the limit")
-    }
-
-    private var today: some View {
-        Card {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack {
-                    CardTitle(Text(Date(), format: .dateTime.weekday(.wide).day().month(.wide)), symbol: "calendar")
-                    Spacer()
-                    if model.hasHinge, let d = model.degrees {
-                        Text("Hinge \(Int(d.rounded()))°")
-                            .font(.footnote.weight(.medium))
-                            .monospacedDigit()
-                            .foregroundStyle(.secondary)
-                    }
-                    Button { showAdjust = true } label: {
-                        Image(systemName: "pencil")
-                            .font(.footnote.weight(.semibold))
-                            .frame(width: 30, height: 30)
-                            .background(Circle().fill(Color.dfFill))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(Color.dfAccent)
-                    .accessibilityLabel(Text("Adjust the count"))
-                }
-                HStack(alignment: .center, spacing: 20) {
-                    ZStack {
-                        Circle().stroke(statusColor.opacity(0.15), lineWidth: 14)
-                        Circle()
-                            .trim(from: 0, to: model.stats.progress)
-                            .stroke(statusColor, style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                            .rotationEffect(.degrees(-90))
-                            .animation(.easeInOut(duration: 0.4), value: model.stats.progress)
-                        VStack(spacing: 0) {
-                            Text("\(model.stats.today)")
-                                .font(.system(size: 40, weight: .bold))
-                                .monospacedDigit()
-                                .contentTransition(.numericText())
-                                .animation(.easeOut(duration: 0.25), value: model.stats.today)
-                            Text("folds")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .frame(width: 132, height: 132)
-                    .contentShape(Circle())
-                    .onLongPressGesture { showAdjust = true }
-                    .overlay(alignment: .topTrailing) {
-                        Text("+1")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(statusColor)
-                            .offset(x: 10, y: bump ? -12 : 0)
-                            .opacity(bump ? 1 : 0)
-                            .allowsHitTesting(false)
-                    }
-                    VStack(alignment: .leading, spacing: 10) {
-                        status
-                            .font(.headline)
-                            .foregroundStyle(statusColor)
-                        stat(Text("Daily limit"), "\(model.stats.goal)")
-                        stat(Text("Yesterday"), "\(model.stats.yesterday())")
-                    }
-                    Spacer(minLength: 0)
-                }
-                HingeGauge(openness: openness)
-                    .frame(height: 64)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        guard !model.hasHinge else { return }
-                        // Sans charnière : on touche le Duo pour compter.
-                        withAnimation(.easeIn(duration: 0.12)) { tapOpen = 0 }
-                        model.clap()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.14) {
-                            withAnimation(.easeOut(duration: 0.3)) { tapOpen = 0.62 }
-                        }
-                    }
-                    .accessibilityHidden(true)
-            }
-        }
-        .accessibilityElement(children: .combine)
-    }
-
-    private func stat(_ title: Text, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            title
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.title3.weight(.semibold))
-                .monospacedDigit()
-        }
-    }
-
-    // MARK: Les chiffres
-
-    private var numbers: some View {
-        let d = model.stats.day()
-        return LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-            tile(Text("Closed today"), value: d.closes, symbol: "rectangle.compress.vertical")
-            tile(Text("Opened today"), value: d.opens, symbol: "rectangle.expand.vertical")
-            tile(Text("Last 7 days"), value: model.stats.weekTotal, symbol: "calendar")
-            tile(Text("All time"), value: model.stats.totalCloses, symbol: "sum")
-        }
-    }
-
-    private func tile(_ title: Text, value: Int, symbol: String) -> some View {
-        Card {
+    private func tile(_ title: Text, _ value: String, detail: Text? = nil, color: Color = .secondary) -> some View {
+        Card(filled: true) {
             VStack(alignment: .leading, spacing: 6) {
-                Label { title } icon: { Image(systemName: symbol).foregroundStyle(Color.dfAccent) }
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Text("\(value)")
-                    .font(.system(size: 26, weight: .semibold))
+                title
+                    .font(.headline.weight(.medium))
+                    .foregroundStyle(Color.primary.opacity(0.85))
+                Text(value)
+                    .font(.system(size: 34, weight: .regular))
                     .monospacedDigit()
                     .contentTransition(.numericText())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                if let detail {
+                    detail
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(color)
+                }
             }
         }
         .accessibilityElement(children: .combine)
+    }
+
+    // MARK: La semaine (volet de droite)
+
+    private var weekPane: some View {
+        let s = model.stats
+        let days = s.lastWeek()
+        let total = days.reduce(0) { $0 + $1.closes }
+        let perDay = Int((Double(total) / 7).rounded())
+        let cal = Calendar.current
+        let start = cal.date(byAdding: .day, value: -6, to: cal.startOfDay(for: Date())) ?? Date()
+        let range = (start..<max(Date(), start.addingTimeInterval(60))).formatted(.interval.day().month(.abbreviated).year())
+        let perDayText = Text("\(perDay) per day")
+        return Group {
+            header(Text("This week"), actions: false)
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text("\(total)")
+                    .font(.system(size: 76, weight: .light))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                Text("folds · \(range)")
+                    .font(.title3)
+                    .foregroundStyle(Color.primary.opacity(0.85))
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+            }
+            .padding(.top, 6)
+            Text("\(perDayText) · \(changeText(s.weekChange()))")
+                .font(.title3)
+                .foregroundStyle(Color.primary.opacity(0.85))
+            weekBars(days, perDay: Double(total) / 7)
+            heatmap
+            timeOpen
+            lifetime
+        }
+    }
+
+    private func changeText(_ change: Double?) -> Text {
+        guard let change else { return Text("First week") }
+        let pct = abs(change).formatted(.percent.precision(.fractionLength(0)))
+        if abs(change) < 0.005 { return Text("Same as the previous period") }
+        return change > 0 ? Text("\(pct) more than the previous period") : Text("\(pct) less than the previous period")
+    }
+
+    private func weekBars(_ days: [(date: Date, closes: Int)], perDay: Double) -> some View {
+        let goal = model.stats.goal
+        let top = max(1, days.map(\.closes).max() ?? 1, Int(perDay.rounded()))
+        return Card {
+            VStack(alignment: .leading, spacing: 14) {
+                Chart {
+                    ForEach(0..<days.count, id: \.self) { i in
+                        let n = days[i].closes
+                        let isToday = i == days.count - 1
+                        BarMark(x: .value("Day", days[i].date, unit: .day),
+                                y: .value("Folds", max(Double(n), Double(top) * 0.018)),
+                                width: .ratio(0.8))
+                            .foregroundStyle(isToday ? Color.dfAccent : (goal > 0 && n > goal ? Color.dfOver.opacity(0.75) : Color.dfBar))
+                            .cornerRadius(10)
+                            .annotation(position: .top, spacing: 6) {
+                                Text("\(n)")
+                                    .font(.callout.weight(.medium))
+                                    .monospacedDigit()
+                                    .foregroundStyle(Color.primary.opacity(0.9))
+                            }
+                    }
+                    if perDay > 0 {
+                        RuleMark(y: .value("Average", perDay))
+                            .foregroundStyle(Color.white.opacity(0.45))
+                            .lineStyle(StrokeStyle(lineWidth: 2, dash: [7, 6]))
+                    }
+                }
+                .chartYScale(domain: 0...(Double(top) * 1.22))
+                .chartYAxis(.hidden)
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: .day)) { _ in
+                        AxisValueLabel(format: .dateTime.weekday(.narrow), centered: true)
+                            .font(.headline)
+                            .foregroundStyle(Color.primary.opacity(0.85))
+                    }
+                }
+                .frame(height: 230)
+                Text("Average \(Int(perDay.rounded())) per day")
+                    .font(.headline.weight(.regular))
+                    .foregroundStyle(Color.primary.opacity(0.85))
+            }
+        }
+    }
+
+    // MARK: Quand on plie (semaine type, heure par heure)
+
+    private var heatmap: some View {
+        let s = model.stats
+        let grid = s.weekHours.count == 168 ? s.weekHours : Array(repeating: 0, count: 168)
+        let top = max(1, grid.max() ?? 1)
+        let cal = Calendar.current
+        let letters = cal.veryShortStandaloneWeekdaySymbols
+        return Card {
+            VStack(alignment: .leading, spacing: 14) {
+                CardTitle(Text("When you fold"))
+                VStack(spacing: 4) {
+                    ForEach(0..<7, id: \.self) { row in
+                        let wd = (cal.firstWeekday - 1 + row) % 7
+                        HStack(spacing: 3) {
+                            Text(letters.indices.contains(wd) ? letters[wd] : "")
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(Color.primary.opacity(0.85))
+                                .frame(width: 18, alignment: .leading)
+                            ForEach(0..<24, id: \.self) { h in
+                                let v = grid[wd * 24 + h]
+                                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                    .fill(v == 0 ? Color.dfFill : Color.dfAccent.opacity(0.16 + 0.84 * Double(v) / Double(top)))
+                                    .aspectRatio(1, contentMode: .fit)
+                            }
+                        }
+                    }
+                    HStack(spacing: 0) {
+                        Color.clear.frame(width: 21, height: 1)
+                        ForEach([0, 6, 12, 18], id: \.self) { h in
+                            Text(Self.hourLabel(h))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 2)
+                }
+                if let slot = s.busiestSlot {
+                    let names = cal.standaloneWeekdaySymbols
+                    let day = names.indices.contains(slot.weekday) ? names[slot.weekday] : ""
+                    Text("Most folds: \(day), around \(Self.hourLabel(slot.hour))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("Fills in as you fold, hour by hour.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
+    static func hourLabel(_ h: Int) -> String {
+        var c = DateComponents()
+        c.hour = h
+        return (Calendar.current.date(from: c) ?? Date()).formatted(.dateTime.hour())
     }
 
     // MARK: Temps ouvert
@@ -324,9 +559,9 @@ struct ContentView: View {
             let s = model.stats
             let week = s.lastWeek(now: now).map { (date: $0.date, hours: s.openTime($0.date, now: now) / 3600) }
             Card {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        CardTitle(Text("Time open"), symbol: "hourglass")
+                        CardTitle(Text("Time open"))
                         Spacer()
                         if s.openSince != nil {
                             Label { Text("Open now") } icon: { Circle().fill(Color.dfAccent).frame(width: 7, height: 7) }
@@ -337,7 +572,7 @@ struct ContentView: View {
                     HStack(alignment: .firstTextBaseline) {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(Self.duration(s.openTime(now, now: now)))
-                                .font(.system(size: 28, weight: .bold))
+                                .font(.system(size: 34, weight: .light))
                                 .monospacedDigit()
                             Text("today").font(.footnote).foregroundStyle(.secondary)
                         }
@@ -358,19 +593,19 @@ struct ContentView: View {
                     }
                     Chart {
                         ForEach(0..<week.count, id: \.self) { i in
-                            BarMark(x: .value("Day", week[i].date, unit: .day), y: .value("Hours", week[i].hours))
-                                .foregroundStyle(Color.dfAccent.opacity(i == week.count - 1 ? 1 : 0.55))
-                                .cornerRadius(4)
+                            BarMark(x: .value("Day", week[i].date, unit: .day), y: .value("Hours", week[i].hours), width: .ratio(0.8))
+                                .foregroundStyle(i == week.count - 1 ? Color.dfAccent : Color.dfBar)
+                                .cornerRadius(6)
                         }
                     }
                     .chartXAxis {
                         AxisMarks(values: .stride(by: .day)) { _ in
-                            AxisValueLabel(format: .dateTime.weekday(.narrow))
+                            AxisValueLabel(format: .dateTime.weekday(.narrow), centered: true)
                         }
                     }
                     .chartYAxis {
                         AxisMarks(position: .leading) { value in
-                            AxisGridLine()
+                            AxisGridLine().foregroundStyle(Color.dfFill)
                             AxisValueLabel {
                                 if let h = value.as(Double.self) { Text("\(Int(h)) h") }
                             }
@@ -387,62 +622,6 @@ struct ContentView: View {
         }
     }
 
-    // MARK: La semaine
-
-    private var week: some View {
-        Card {
-            VStack(alignment: .leading, spacing: 12) {
-                CardTitle(Text("This week"), symbol: "chart.bar.fill")
-                ClapetWeekChart(days: model.stats.lastWeek(), goal: model.stats.goal)
-                    .frame(height: 150)
-            }
-        }
-    }
-
-    // MARK: Heure par heure
-
-    private var byHour: some View {
-        let hours = model.stats.hours()
-        let top = max(1, hours.max() ?? 1)
-        let peak = (hours.max() ?? 0) > 0 ? hours.firstIndex(of: top) : nil
-        return Card {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    CardTitle(Text("Today by hour"), symbol: "clock.fill")
-                    Spacer()
-                    if let peak {
-                        Text("Peak \(Self.hourLabel(peak))")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                HStack(alignment: .bottom, spacing: 3) {
-                    ForEach(0..<24, id: \.self) { h in
-                        RoundedRectangle(cornerRadius: 2, style: .continuous)
-                            .fill(h == peak ? Color.dfAccent : (hours[h] > 0 ? Color.dfAccent.opacity(0.45) : Color.dfFill))
-                            .frame(height: max(4, 46 * CGFloat(hours[h]) / CGFloat(top)))
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .frame(height: 46, alignment: .bottom)
-                HStack {
-                    ForEach([0, 6, 12, 18], id: \.self) { h in
-                        Text(Self.hourLabel(h))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-            }
-        }
-    }
-
-    static func hourLabel(_ h: Int) -> String {
-        var c = DateComponents()
-        c.hour = h
-        return (Calendar.current.date(from: c) ?? Date()).formatted(.dateTime.hour())
-    }
-
     // MARK: Depuis le début (paliers)
 
     private var lifetime: some View {
@@ -450,10 +629,10 @@ struct ContentView: View {
         let total = model.stats.totalCloses
         return Card {
             VStack(alignment: .leading, spacing: 10) {
-                CardTitle(Text("Lifetime"), symbol: "infinity")
+                CardTitle(Text("Lifetime"))
                 HStack(alignment: .firstTextBaseline) {
                     Text("\(total)")
-                        .font(.system(size: 30, weight: .bold))
+                        .font(.system(size: 34, weight: .light))
                         .monospacedDigit()
                     Text("folds")
                         .foregroundStyle(.secondary)
@@ -496,14 +675,15 @@ struct ContentView: View {
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
-            .padding(16)
-            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfAccent.opacity(0.12)))
+            .padding(18)
+            .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.dfAccent.opacity(0.12)))
+            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Color.dfAccent.opacity(0.35), lineWidth: 1))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: Historique et alertes
+    // MARK: Réglages rapides
 
     private var more: some View {
         VStack(spacing: 0) {
@@ -512,21 +692,21 @@ struct ContentView: View {
                 locked: false) {
                 showAuto = true
             }
-            Divider().padding(.leading, 52)
+            Divider().overlay(Color.dfOutline).padding(.leading, 56)
             row("pencil", Text("Adjust the count"), Text("Type today's folds or your lifetime total"), locked: false) {
                 showAdjust = true
             }
-            Divider().padding(.leading, 52)
+            Divider().overlay(Color.dfOutline).padding(.leading, 56)
             row("calendar", Text("History"), Text("30 days, 12 months, records"), locked: !store.hasPlus) {
                 if store.hasPlus { showHistory = true } else { plusReason = .history }
             }
-            Divider().padding(.leading, 52)
+            Divider().overlay(Color.dfOutline).padding(.leading, 56)
             row("bell.badge", Text("Limit alerts"), model.alertsOn && store.hasPlus ? Text("On") : Text("At 80 % and 100 % of your limit"),
                 locked: !store.hasPlus) {
                 if store.hasPlus { showSettings = true } else { plusReason = .alerts }
             }
         }
-        .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfCard))
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Color.dfOutline, lineWidth: 1))
     }
 
     private func row(_ symbol: String, _ title: Text, _ detail: Text, locked: Bool, action: @escaping () -> Void) -> some View {
@@ -535,7 +715,7 @@ struct ContentView: View {
                 Image(systemName: symbol)
                     .font(.body.weight(.medium))
                     .foregroundStyle(Color.dfAccent)
-                    .frame(width: 24)
+                    .frame(width: 26)
                 VStack(alignment: .leading, spacing: 1) {
                     title.font(.body).foregroundStyle(.primary)
                     detail.font(.footnote).foregroundStyle(.secondary)
@@ -546,8 +726,8 @@ struct ContentView: View {
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 14)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -569,36 +749,94 @@ struct ContentView: View {
     }
 }
 
-/// Les 7 derniers jours en barres : vert d'eau sous la limite, rouge au-dessus, la limite en pointillés.
-struct ClapetWeekChart: View {
-    let days: [(date: Date, closes: Int)]
-    let goal: Int
+/// La charnière en demi-cercle : à gauche fermé (0°), à droite à plat (180°).
+/// Le petit trait marque l'angle sous lequel un pli est compté.
+struct HingeArc: View {
+    let degrees: Double
+    let closedBelow: Double
 
     var body: some View {
-        Chart {
-            ForEach(0..<days.count, id: \.self) { i in
-                BarMark(x: .value("Day", days[i].date, unit: .day),
-                        y: .value("Folds", days[i].closes))
-                    .foregroundStyle((goal > 0 && days[i].closes > goal ? Color.dfOver : Color.dfAccent).opacity(i == days.count - 1 ? 1 : 0.55))
-                    .cornerRadius(4)
-            }
-            if goal > 0 {
-                RuleMark(y: .value("Limit", goal))
-                    .foregroundStyle(Color.secondary)
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-            }
-        }
-        .chartXAxis {
-            AxisMarks(values: .stride(by: .day)) { _ in
-                AxisValueLabel(format: .dateTime.weekday(.narrow))
-            }
-        }
-        .chartYAxis {
-            AxisMarks(position: .leading) { _ in
-                AxisGridLine()
-                AxisValueLabel()
+        GeometryReader { g in
+            let line: CGFloat = 16
+            let radius = max(1, min(g.size.width / 2, g.size.height) - line / 2)
+            let center = CGPoint(x: g.size.width / 2, y: g.size.height - line / 2)
+            let value = min(180, max(0, degrees))
+            ZStack {
+                arc(0, 180, center, radius)
+                    .stroke(Color.dfFill, style: StrokeStyle(lineWidth: line, lineCap: .round))
+                arc(0, max(0.5, value), center, radius)
+                    .stroke(Color.dfAccent, style: StrokeStyle(lineWidth: line, lineCap: .round))
+                Path { p in
+                    p.move(to: point(closedBelow, center, radius - line * 0.95))
+                    p.addLine(to: point(closedBelow, center, radius + line * 0.95))
+                }
+                .stroke(Color.white.opacity(0.9), style: StrokeStyle(lineWidth: 3, lineCap: .round))
             }
         }
+        .accessibilityHidden(true)
+    }
+
+    private func point(_ hinge: Double, _ c: CGPoint, _ r: CGFloat) -> CGPoint {
+        let t = Double.pi - hinge * .pi / 180
+        return CGPoint(x: c.x + r * CGFloat(cos(t)), y: c.y - r * CGFloat(sin(t)))
+    }
+
+    private func arc(_ from: Double, _ to: Double, _ c: CGPoint, _ r: CGFloat) -> Path {
+        Path { p in
+            let steps = max(2, Int((to - from) / 2))
+            for i in 0...steps {
+                let pt = point(from + (to - from) * Double(i) / Double(steps), c, r)
+                if i == 0 { p.move(to: pt) } else { p.addLine(to: pt) }
+            }
+        }
+    }
+}
+
+/// Les widgets : à quoi ils ressemblent et comment les ajouter.
+struct WidgetsHelpView: View {
+    @Environment(ClapetModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        let entry = ClapetEntry(date: Date(), stats: model.stats)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack(alignment: .top, spacing: 14) {
+                        preview(entry, .systemSmall, width: 170, height: 170)
+                        Spacer(minLength: 0)
+                    }
+                    preview(entry, .systemMedium, width: 364, height: 170)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label { Text("Touch and hold an empty spot on your Home Screen.") } icon: { Image(systemName: "hand.tap") }
+                        Label { Text("Tap Edit, then Add Widget.") } icon: { Image(systemName: "plus.square") }
+                        Label { Text("Search for Duo Folds and pick a size.") } icon: { Image(systemName: "magnifyingglass") }
+                        Label { Text("On the Lock Screen too: touch and hold, Customize, then add Duo Folds.") } icon: { Image(systemName: "lock") }
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(Color.primary.opacity(0.9))
+                }
+                .padding(20)
+            }
+            .background(Color.dfBackground.ignoresSafeArea())
+            .navigationTitle(Text("Widgets"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button { dismiss() } label: { Text("Done") }
+                }
+            }
+        }
+        .tint(.dfAccent)
+    }
+
+    private func preview(_ entry: ClapetEntry, _ family: WidgetFamily, width: CGFloat, height: CGFloat) -> some View {
+        ClapetWidgetView(entry: entry, family: family)
+            .padding(16)
+            .frame(width: width, height: height)
+            .background(Palette.background)
+            .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+            .environment(\.colorScheme, .dark)
     }
 }
 
