@@ -34,3 +34,7 @@ for u in ups.get("data", []):
     a = u["attributes"]
     print("envoi", a.get("cfBundleVersion"), a.get("cfBundleShortVersionString"), "|", (a.get("state") or {}) if not isinstance(a.get("state"), dict) else a["state"].get("state"),
           "|", json.dumps(a.get("state"))[:900] if isinstance(a.get("state"), dict) else json.dumps({k: v for k, v in a.items() if k not in ("cfBundleVersion",)})[:900])
+
+# La version App Store
+for v in call(f"/v1/apps/{app['id']}/appStoreVersions?limit=5").get("data", []):
+    print("version App Store", v["attributes"].get("versionString"), "|", v["attributes"].get("appStoreState"))
