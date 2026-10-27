@@ -1,0 +1,42 @@
+# DUO FOLDS : prépare la version 1.0 (fiche, captures, build) et l'envoie à la vérification d'Apple si demandé.
+name: Clapet - mise en production
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Numéro du build à publier"
+        required: true
+      submit:
+        description: "1 = envoyer à la vérification d'Apple"
+        required: false
+        default: "0"
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      ORIGAMO_BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+      RELEASE_BUILD: ${{ inputs.build }}
+      SUBMIT: ${{ inputs.submit }}
+      SITE_URL: https://duofolds.netlify.app
+    steps:
+      - uses: actions/checkout@v5
+      - name: Fiche et textes
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          SKIP_NOTES=1 BUILD_NUMBER=${{ inputs.build }} timeout 600 python3 clapet/tools/asc.py 2>&1 | grep -v "attente du traitement" | tee fiche.txt || true
+      - name: Version 1.0
+        run: python3 clapet/tools/asc_release.py 2>&1 | tee release.txt
+      - name: Publier le rapport
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && cp fiche.txt release.txt "$RUNNER_TEMP/r/" 2>/dev/null; cd "$RUNNER_TEMP/r"
+          git init -q -b ci-clapet-release && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Mise en production Duo Folds" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-release

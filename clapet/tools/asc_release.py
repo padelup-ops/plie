@@ -164,6 +164,14 @@ else:
 
 # URL d'assistance et de confidentialité
 if SITE:
+    for path in ("fr/", "en/", "fr/privacy.html", "en/privacy.html"):
+        try:
+            code = urllib.request.urlopen(f"{SITE}/{path}", timeout=20).getcode()
+        except Exception as e:
+            code = str(e)
+        print(f"       {SITE}/{path} -> {code}")
+        if code != 200:
+            problems.append(f"page {path}")
     for l in call("GET", f"/v1/appInfos/{info_id}/appInfoLocalizations").get("data", []):
         lang = LOCALES.get(l["attributes"]["locale"], "en")
         step(f"confidentialité {l['attributes']['locale']}", call("PATCH", f"/v1/appInfoLocalizations/{l['id']}", {"data": {
