@@ -1,0 +1,32 @@
+# DUO FOLDS : publie le site d'assistance et de confidentialité (clapet/tools/site) sur Netlify.
+# L'entrée « proxy » est le chemin de déploiement donné par Netlify pour ce site.
+name: Clapet - site
+on:
+  workflow_dispatch:
+    inputs:
+      site:
+        description: "Identifiant du site Netlify"
+        required: true
+      proxy:
+        description: "Chemin de déploiement Netlify"
+        required: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Publier
+        run: |
+          echo "::add-mask::${{ inputs.proxy }}"
+          cd clapet/tools/site
+          npx -y @netlify/mcp@latest --site-id "${{ inputs.site }}" --proxy-path "${{ inputs.proxy }}" 2>&1 | tail -20
+      - name: Vérifier
+        run: |
+          sleep 10
+          for p in "" fr/ en/ fr/privacy.html en/privacy.html; do
+            echo "$(curl -s -o /dev/null -w '%{http_code}' https://duofolds.netlify.app/$p) https://duofolds.netlify.app/$p"
+          done
