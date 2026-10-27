@@ -240,45 +240,49 @@ if SITE:
 else:
     print("       pas encore de site (SITE_URL) : assistance et confidentialité à faire")
 
-# Captures d'écran
+# Captures d'écran : iPhone 6,7" et iPhone Duo (le badge « conçu pour l'iPhone Duo » demande ces dernières)
+SHOT_SETS = [(SHOT_TYPE, ""), ("APP_IPHONE_DUO", "duo-")]
 for l in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations").get("data", []):
     lang = LOCALES.get(l["attributes"]["locale"])
     if not lang:
         continue
-    files = [os.path.join(SHOTS_DIR, f"{lang}-{i}.png") for i in range(1, 11)]
-    files = [f for f in files if os.path.exists(f)]
     sets = call("GET", f"/v1/appStoreVersionLocalizations/{l['id']}/appScreenshotSets").get("data", [])
-    s = next((x for x in sets if x["attributes"].get("screenshotDisplayType") == SHOT_TYPE), None)
-    if not s:
-        r = call("POST", "/v1/appScreenshotSets", {"data": {"type": "appScreenshotSets", "attributes": {"screenshotDisplayType": SHOT_TYPE},
-                 "relationships": {"appStoreVersionLocalization": {"data": {"type": "appStoreVersionLocalizations", "id": l["id"]}}}}})
-        if "error" in r:
-            step(f"jeu de captures {lang}", r)
+    for shot_type, prefix in SHOT_SETS:
+        files = [os.path.join(SHOTS_DIR, f"{prefix}{lang}-{i}.png") for i in range(1, 11)]
+        files = [f for f in files if os.path.exists(f)]
+        if not files:
             continue
-        s = r["data"]
-    for old in call("GET", f"/v1/appScreenshotSets/{s['id']}/appScreenshots").get("data", []):
-        call("DELETE", f"/v1/appScreenshots/{old['id']}")
-    ok_count = 0
-    for f in files:
-        data = open(f, "rb").read()
-        r = call("POST", "/v1/appScreenshots", {"data": {"type": "appScreenshots",
-                 "attributes": {"fileName": os.path.basename(f), "fileSize": len(data)},
-                 "relationships": {"appScreenshotSet": {"data": {"type": "appScreenshotSets", "id": s["id"]}}}}})
-        if "error" in r:
-            step(f"capture {os.path.basename(f)}", r)
-            continue
-        sid = r["data"]["id"]
-        for op in r["data"]["attributes"].get("uploadOperations", []):
-            req = urllib.request.Request(op["url"], data=data[op["offset"]:op["offset"] + op["length"]], method=op["method"],
-                                         headers={h["name"]: h["value"] for h in op.get("requestHeaders", [])})
-            urllib.request.urlopen(req).read()
-        r = call("PATCH", f"/v1/appScreenshots/{sid}", {"data": {"type": "appScreenshots", "id": sid,
-                 "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(data).hexdigest()}}})
-        if "error" in r:
-            step(f"capture {os.path.basename(f)}", r)
-        else:
-            ok_count += 1
-    print(f"ok     {ok_count} capture(s) {l['attributes']['locale']} ({SHOT_TYPE})")
+        s_ = next((x for x in sets if x["attributes"].get("screenshotDisplayType") == shot_type), None)
+        if not s_:
+            r = call("POST", "/v1/appScreenshotSets", {"data": {"type": "appScreenshotSets", "attributes": {"screenshotDisplayType": shot_type},
+                     "relationships": {"appStoreVersionLocalization": {"data": {"type": "appStoreVersionLocalizations", "id": l["id"]}}}}})
+            if "error" in r:
+                step(f"jeu de captures {shot_type} {lang}", r)
+                continue
+            s_ = r["data"]
+        for old in call("GET", f"/v1/appScreenshotSets/{s_['id']}/appScreenshots").get("data", []):
+            call("DELETE", f"/v1/appScreenshots/{old['id']}")
+        ok_count = 0
+        for f in files:
+            data = open(f, "rb").read()
+            r = call("POST", "/v1/appScreenshots", {"data": {"type": "appScreenshots",
+                     "attributes": {"fileName": os.path.basename(f), "fileSize": len(data)},
+                     "relationships": {"appScreenshotSet": {"data": {"type": "appScreenshotSets", "id": s_["id"]}}}}})
+            if "error" in r:
+                step(f"capture {os.path.basename(f)}", r)
+                continue
+            sid = r["data"]["id"]
+            for op in r["data"]["attributes"].get("uploadOperations", []):
+                req = urllib.request.Request(op["url"], data=data[op["offset"]:op["offset"] + op["length"]], method=op["method"],
+                                             headers={h["name"]: h["value"] for h in op.get("requestHeaders", [])})
+                urllib.request.urlopen(req).read()
+            r = call("PATCH", f"/v1/appScreenshots/{sid}", {"data": {"type": "appScreenshots", "id": sid,
+                     "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(data).hexdigest()}}})
+            if "error" in r:
+                step(f"capture {os.path.basename(f)}", r)
+            else:
+                ok_count += 1
+        print(f"ok     {ok_count} capture(s) {l['attributes']['locale']} ({shot_type})")
 
 # Build
 if BUILD:
