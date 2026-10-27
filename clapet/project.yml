@@ -30,8 +30,7 @@ targets:
         CFBundleDevelopmentRegion: en
         CFBundleLocalizations: [en, fr]
         CFBundleAllowMixedLocalizations: true
-        UILaunchScreen:
-          UIColorName: AccentColor
+        UILaunchScreen: {}
         CFBundleURLTypes:
           - CFBundleURLName: com.padelup.clapet
             CFBundleURLSchemes: [clapet]

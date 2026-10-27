@@ -8,13 +8,12 @@ struct HistoryView: View {
     @State private var range = 0
     @State private var csvFile: URL?
 
-    private let mint = Color(red: 0.43, green: 0.84, blue: 0.65)
+    private let mint = Color.dfAccent
 
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient(colors: [Color.clapetInk, Color(red: 0.10, green: 0.08, blue: 0.22)], startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
+                Color.dfBackground.ignoresSafeArea()
                 ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 16) {
@@ -24,10 +23,10 @@ struct HistoryView: View {
                         if let csvFile {
                             ShareLink(item: csvFile) {
                                 Label { Text("Export as a spreadsheet (CSV)") } icon: { Image(systemName: "square.and.arrow.up") }
-                                    .font(.system(.headline, design: .rounded, weight: .heavy))
+                                    .font(.system(.headline, weight: .semibold))
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 14)
-                                    .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color.clapetCard))
+                                    .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color.dfCard))
                             }
                         }
                     }
@@ -44,7 +43,6 @@ struct HistoryView: View {
                 }
                 }
             }
-            .foregroundStyle(.white)
             .navigationTitle(Text("History"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -71,11 +69,11 @@ struct HistoryView: View {
             .pickerStyle(.segmented)
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("\(total)")
-                    .font(.system(size: 34, weight: .black, design: .rounded))
+                    .font(.system(size: 34, weight: .bold))
                     .monospacedDigit()
                 (range == 0 ? Text("folds in 30 days") : Text("folds in 12 months"))
-                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.6))
+                    .font(.system(.subheadline, weight: .semibold))
+                    .foregroundStyle(.secondary)
             }
             Chart {
                 ForEach(0..<data.count, id: \.self) { i in
@@ -92,14 +90,14 @@ struct HistoryView: View {
             }
             .chartYAxis {
                 AxisMarks(position: .leading) { _ in
-                    AxisGridLine().foregroundStyle(.white.opacity(0.1))
+                    AxisGridLine()
                     AxisValueLabel()
                 }
             }
             .frame(height: 180)
         }
         .padding(16)
-        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.clapetCard))
+        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.dfCard))
     }
 
     // MARK: Le calendrier du mois
@@ -120,12 +118,12 @@ struct HistoryView: View {
         let symbols = Self.weekdaySymbols()
         return VStack(alignment: .leading, spacing: 12) {
             Text(now, format: .dateTime.month(.wide).year())
-                .font(.system(.headline, design: .rounded, weight: .black))
+                .font(.system(.headline, weight: .bold))
             HStack(spacing: 6) {
                 ForEach(0..<7, id: \.self) { i in
                     Text(symbols[i])
-                        .font(.system(.caption2, design: .rounded, weight: .bold))
-                        .foregroundStyle(.white.opacity(0.45))
+                        .font(.system(.caption2, weight: .bold))
+                        .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -139,14 +137,14 @@ struct HistoryView: View {
                         let over = model.stats.goal > 0 && v > model.stats.goal
                         ZStack {
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(v == 0 ? Color.white.opacity(0.06) : (over ? Color.clapetPink : mint).opacity(0.25 + 0.75 * Double(v) / Double(top)))
+                                .fill(v == 0 ? Color.dfFill : (over ? Color.dfOver : mint).opacity(0.25 + 0.75 * Double(v) / Double(top)))
                             Text("\(i + 1)")
-                                .font(.system(.caption, design: .rounded, weight: i == today ? .black : .semibold))
-                                .foregroundStyle(v > top / 2 ? Color.black : Color.white.opacity(i > today ? 0.3 : 0.85))
+                                .font(.system(.caption, weight: i == today ? .black : .semibold))
+                                .foregroundStyle(v > top / 2 ? Color.white : Color.primary.opacity(i > today ? 0.3 : 0.85))
                         }
                         .frame(height: 34)
                         .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .stroke(i == today ? Color.white.opacity(0.8) : .clear, lineWidth: 1.5))
+                            .stroke(i == today ? Color.primary.opacity(0.7) : .clear, lineWidth: 1.5))
                     }
                 }
             }
@@ -156,15 +154,15 @@ struct HistoryView: View {
                     Text("Under the limit")
                 }
                 HStack(spacing: 4) {
-                    RoundedRectangle(cornerRadius: 3).fill(Color.clapetPink).frame(width: 12, height: 12)
+                    RoundedRectangle(cornerRadius: 3).fill(Color.dfOver).frame(width: 12, height: 12)
                     Text("Over the limit")
                 }
             }
-            .font(.system(.caption, design: .rounded, weight: .semibold))
-            .foregroundStyle(.white.opacity(0.6))
+            .font(.system(.caption, weight: .semibold))
+            .foregroundStyle(.secondary)
         }
         .padding(16)
-        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.clapetCard))
+        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.dfCard))
     }
 
     static func weekdaySymbols() -> [String] {
@@ -183,16 +181,16 @@ struct HistoryView: View {
         let dateStyle = Date.FormatStyle.dateTime.day().month(.abbreviated)
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
             record("flame.fill", mint, "\(s.currentStreak())", Text("Days under the limit in a row"), nil)
-            record("crown.fill", .clapetYellow, "\(s.longestStreak())", Text("Longest streak"), nil)
+            record("crown.fill", .dfWarning, "\(s.longestStreak())", Text("Longest streak"), nil)
             record(change.map { $0 <= 0 ? "chart.line.downtrend.xyaxis" : "chart.line.uptrend.xyaxis" } ?? "chart.line.flattrend.xyaxis",
-                   change.map { $0 <= 0 ? mint : Color.clapetPink } ?? .white,
+                   change.map { $0 <= 0 ? mint : Color.dfOver } ?? .secondary,
                    change.map { $0.formatted(.percent.precision(.fractionLength(0)).sign(strategy: .always(includingZero: false))) } ?? "–",
                    Text("This week vs last week"), nil)
-            record("chart.line.flattrend.xyaxis", .clapetCyan, s.dailyAverage().formatted(.number.precision(.fractionLength(0...1))), Text("Average per day"), nil)
+            record("chart.line.flattrend.xyaxis", .dfAccent, s.dailyAverage().formatted(.number.precision(.fractionLength(0...1))), Text("Average per day"), nil)
             record("leaf.fill", mint, "\(calmest?.closes ?? 0)", Text("Calmest day"), calmest.map { Text($0.date, format: dateStyle) })
-            record("chart.bar.fill", .clapetPink, "\(busiest?.closes ?? 0)", Text("Busiest day"), busiest.map { Text($0.date, format: dateStyle) })
-            record("clock.fill", .clapetOrange, "\(s.recordHour)", Text("Busiest hour"), nil)
-            record("calendar.badge.checkmark", .white, "\(s.daysCounted)", Text("Days tracked"), nil)
+            record("chart.bar.fill", .dfOver, "\(busiest?.closes ?? 0)", Text("Busiest day"), busiest.map { Text($0.date, format: dateStyle) })
+            record("clock.fill", .dfWarning, "\(s.recordHour)", Text("Busiest hour"), nil)
+            record("calendar.badge.checkmark", .secondary, "\(s.daysCounted)", Text("Days tracked"), nil)
         }
     }
 
@@ -202,22 +200,22 @@ struct HistoryView: View {
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(color)
             Text(value)
-                .font(.system(size: 26, weight: .black, design: .rounded))
+                .font(.system(size: 26, weight: .bold))
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             title
-                .font(.system(.footnote, design: .rounded, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.65))
+                .font(.system(.footnote, weight: .semibold))
+                .foregroundStyle(.secondary)
             if let detail {
                 detail
-                    .font(.system(.caption2, design: .rounded, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.45))
+                    .font(.system(.caption2, weight: .medium))
+                    .foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.clapetCard))
+        .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfCard))
         .accessibilityElement(children: .combine)
     }
 

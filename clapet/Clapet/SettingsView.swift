@@ -11,6 +11,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                if !DuoFolds.paidApp {
                 Section {
                     if store.hasPlus {
                         Label { Text("Duo Folds+ is unlocked. Thank you!") } icon: {
@@ -32,6 +33,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Duo Folds+")
                 }
+                }
                 Section {
                     HStack(spacing: 12) {
                         ForEach(ClapetTheme.allCases) { theme in
@@ -41,7 +43,7 @@ struct SettingsView: View {
                                 Circle()
                                     .fill(theme.color)
                                     .frame(width: 34, height: 34)
-                                    .overlay(Circle().stroke(Color.white, lineWidth: model.stats.theme == theme.rawValue ? 3 : 0))
+                                    .overlay(Circle().stroke(Color.primary, lineWidth: model.stats.theme == theme.rawValue ? 3 : 0))
                                     .overlay {
                                         if !store.hasPlus && theme != .mint {
                                             Image(systemName: "lock.fill").font(.system(size: 12, weight: .bold)).foregroundStyle(.black.opacity(0.6))
@@ -91,7 +93,7 @@ struct SettingsView: View {
                     Text("How it counts")
                 }
                 .font(.footnote)
-                if store.isTestBuild {
+                if store.isTestBuild && !DuoFolds.paidApp {
                     Section {
                         Toggle(isOn: Binding(get: { store.simulatePlus }, set: { store.setSimulatePlus($0) })) {
                             Text("Simulate Duo Folds+")

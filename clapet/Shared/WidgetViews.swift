@@ -46,7 +46,7 @@ struct ClapetWidgetView: View {
         }
     }
 
-    private var locked: Bool { needsPlus && !stats.plus && !entry.preview }
+    private var locked: Bool { !DuoFolds.paidApp && needsPlus && !stats.plus && !entry.preview }
 
     private var isAccessory: Bool {
         family == .accessoryCircular || family == .accessoryRectangular || family == .accessoryInline
@@ -54,7 +54,7 @@ struct ClapetWidgetView: View {
 
     /// La couleur choisie (Duo Folds+), menthe sinon.
     private var accent: Color {
-        stats.plus ? (ClapetTheme(rawValue: stats.theme) ?? .mint).color : Palette.mint
+        stats.plus || DuoFolds.paidApp ? (ClapetTheme(rawValue: stats.theme) ?? .mint).color : Palette.mint
     }
 
     var body: some View {
@@ -95,15 +95,15 @@ struct ClapetWidgetView: View {
                 AccessoryWidgetBackground()
                 VStack(spacing: 1) {
                     Image(systemName: "lock.fill").font(.system(size: 14, weight: .bold))
-                    Text("Plus").font(.system(size: 10, weight: .heavy, design: .rounded))
+                    Text("Plus").font(.system(size: 10, weight: .semibold))
                 }
             }
         case .accessoryRectangular:
             HStack(spacing: 6) {
                 Image(systemName: "lock.fill").font(.system(.title3, weight: .bold))
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Duo Folds+").font(.system(.headline, design: .rounded, weight: .bold))
-                    Text("Tap to unlock").font(.system(.caption, design: .rounded, weight: .medium))
+                    Text("Duo Folds+").font(.system(.headline, weight: .bold))
+                    Text("Tap to unlock").font(.system(.caption, weight: .medium))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -117,10 +117,10 @@ struct ClapetWidgetView: View {
                         .font(.system(size: 24, weight: .bold))
                         .foregroundStyle(Palette.mint)
                     Text("Duo Folds+")
-                        .font(.system(size: 19, weight: .black, design: .rounded))
+                        .font(.system(size: 19, weight: .bold))
                         .foregroundStyle(.white)
                     Text("Tap to unlock this widget")
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(Palette.secondary)
                 }
             }
@@ -134,12 +134,12 @@ struct ClapetWidgetView: View {
             Image(systemName: "iphone.gen3")
                 .font(.system(size: 13, weight: .semibold))
             Text("DUO FOLDS")
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .font(.system(size: 13, weight: .bold))
                 .tracking(0.8)
                 .lineLimit(1)
-            if needsPlus && !stats.plus && entry.preview {
+            if !DuoFolds.paidApp && needsPlus && !stats.plus && entry.preview {
                 Text("PLUS")
-                    .font(.system(size: 9, weight: .heavy, design: .rounded))
+                    .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(.black)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)
@@ -148,7 +148,7 @@ struct ClapetWidgetView: View {
             Spacer(minLength: 4)
             if family != .systemSmall, let last = stats.lastClose {
                 Text("Last fold \(Self.ago(last, from: entry.date))")
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .lineLimit(1)
             }
         }
@@ -165,16 +165,16 @@ struct ClapetWidgetView: View {
         VStack(alignment: .trailing, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 Text("\(today)")
-                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .font(.system(size: 26, weight: .bold))
                     .foregroundStyle(.white)
                 if today != yesterday {
                     Text("\(today > yesterday ? "↑" : "↓") \(abs(today - yesterday))")
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(today > yesterday ? Palette.red : accent)
                 }
             }
             Text("today vs yesterday")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(Palette.secondary)
         }
     }
@@ -182,12 +182,12 @@ struct ClapetWidgetView: View {
     private var allTime: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("\(stats.totalCloses)")
-                .font(.system(size: 52, weight: .bold, design: .rounded))
+                .font(.system(size: 52, weight: .bold))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
                 .foregroundStyle(.white)
             Text("all time")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Palette.secondary)
         }
     }
@@ -202,7 +202,7 @@ struct ClapetWidgetView: View {
                 VStack(spacing: 4) {
                     if showValues {
                         Text("\(days[i].closes)")
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(isToday ? .white : Palette.secondary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
@@ -211,7 +211,7 @@ struct ClapetWidgetView: View {
                         .fill(stats.goal > 0 && days[i].closes > stats.goal ? Palette.red.opacity(isToday ? 1 : 0.6) : (isToday ? accent : Palette.bar))
                         .frame(height: max(5, height * CGFloat(days[i].closes) / CGFloat(top)))
                     Text(days[i].date, format: .dateTime.weekday(.narrow))
-                        .font(.system(size: 11, weight: isToday ? .bold : .medium, design: .rounded))
+                        .font(.system(size: 11, weight: isToday ? .bold : .medium))
                         .foregroundStyle(isToday ? .white : Palette.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -231,7 +231,7 @@ struct ClapetWidgetView: View {
                     Text("Peak \(Self.hour(peak))")
                 }
             }
-            .font(.system(size: 12, weight: .medium, design: .rounded))
+            .font(.system(size: 12, weight: .medium))
             .foregroundStyle(Palette.secondary)
             HStack(alignment: .bottom, spacing: 2) {
                 ForEach(0..<24, id: \.self) { h in
@@ -256,17 +256,18 @@ struct ClapetWidgetView: View {
         let level = stats.level
         return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
-                Text("Level \(level.number)")
-                    .foregroundStyle(.white)
-                Text(level.name)
-                    .foregroundStyle(Palette.secondary)
-                Spacer(minLength: 4)
                 if let next = level.next {
-                    Text("\(next - stats.totalCloses) to level \(level.number + 1)")
+                    Text("Next milestone: \(next)")
+                        .foregroundStyle(.white)
+                    Spacer(minLength: 4)
+                    Text("\(next - stats.totalCloses) to go")
                         .foregroundStyle(Palette.secondary)
+                } else {
+                    Text("\(stats.totalCloses) folds")
+                        .foregroundStyle(.white)
                 }
             }
-            .font(.system(size: 12, weight: .semibold, design: .rounded))
+            .font(.system(size: 12, weight: .semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.8)
             GeometryReader { g in
@@ -286,7 +287,7 @@ struct ClapetWidgetView: View {
             header
             Spacer(minLength: 0)
             Text("\(today)")
-                .font(.system(size: 46, weight: .bold, design: .rounded))
+                .font(.system(size: 46, weight: .bold))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
                 .foregroundStyle(.white)
@@ -298,11 +299,11 @@ struct ClapetWidgetView: View {
                         .foregroundStyle(today > yesterday ? Palette.red : accent)
                 }
             }
-            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .font(.system(size: 13, weight: .semibold))
             Spacer(minLength: 0)
             if let last = stats.lastClose {
                 Text("Last fold \(Self.ago(last, from: entry.date))")
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(Palette.secondary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
@@ -346,7 +347,7 @@ struct ClapetWidgetView: View {
             Image(systemName: "iphone.gen3")
         } currentValueLabel: {
             Text("\(today)")
-                .font(.system(.body, design: .rounded, weight: .bold))
+                .font(.system(.body, weight: .bold))
         }
         .gaugeStyle(.accessoryCircularCapacity)
     }
@@ -356,12 +357,12 @@ struct ClapetWidgetView: View {
             HStack(spacing: 4) {
                 Image(systemName: "iphone.gen3")
                 Text("Duo Folds")
-                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .font(.system(.headline, weight: .bold))
             }
             Text("\(today) folds today")
-                .font(.system(.body, design: .rounded, weight: .semibold))
+                .font(.system(.body, weight: .semibold))
             Text("\(stats.totalCloses) all time")
-                .font(.system(.caption, design: .rounded, weight: .medium))
+                .font(.system(.caption, weight: .medium))
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

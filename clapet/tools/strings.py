@@ -14,13 +14,9 @@ FR = {
     # Accueil
     "Duo Folds": "Duo Folds",
     "Duo Folds+": "Duo Folds+",
-    "Plus": "Plus",
     "Settings": "Réglages",
-    "CLAP!": "CLAP !",
     "folds": "plis",
     "Today": "Aujourd'hui",
-    "Limit %lld": "Limite %lld",
-    "Yesterday %lld": "Hier %lld",
     "%lld left today": "Encore %lld aujourd'hui",
     "Limit reached": "Limite atteinte",
     "%lld over the limit": "%lld au-dessus de la limite",
@@ -29,25 +25,12 @@ FR = {
     "Last 7 days": "7 derniers jours",
     "All time": "Au total",
     "Limit alerts": "Alertes de limite",
-    "A notification at 80 % and 100 % of your limit": "Une notification à 80 % et à 100 % de ta limite",
     "History": "Historique",
     "30 days, 12 months, records": "30 jours, 12 mois, records",
-    "On": "Activées",
     "This week": "Cette semaine",
     "Today by hour": "Aujourd'hui, heure par heure",
     "Peak %@": "Pic à %@",
-    "Level %lld": "Niveau %lld",
-    "%lld to level %lld": "encore %1$lld pour le niveau %2$lld",
-    "Duo Folds counts while it's on screen. Keep it open, then close and open your Duo: clap!":
-        "Duo Folds compte tant qu'il est à l'écran. Garde-le ouvert, puis ferme et ouvre ton Duo : clap !",
-    "No hinge here: tap the mascot to count.": "Pas de charnière ici : touche la mascotte pour compter.",
-    "Add the widget: touch and hold your Home Screen or Lock Screen, tap Edit, then add Duo Folds.":
-        "Ajoute le widget : reste appuyé sur l'écran d'accueil ou l'écran verrouillé, touche Modifier, puis ajoute Duo Folds.",
-    "In the Shortcuts app, the “Count a fold” action adds one fold, even when Duo Folds is closed.":
-        "Dans l'app Raccourcis, l'action « Compter un pli » ajoute un pli, même quand Duo Folds est fermé.",
     "This widget is part of Duo Folds+.": "Ce widget fait partie de Duo Folds+.",
-    "Three days of tracking! Keep an eye on your folds right from your Home Screen.":
-        "Trois jours de suivi ! Garde un œil sur tes plis directement depuis ton écran d'accueil.",
     "Limit alerts are part of Duo Folds+.": "Les alertes de limite font partie de Duo Folds+.",
     "Your full history and records are part of Duo Folds+.": "L'historique complet et les records font partie de Duo Folds+.",
     "Day": "Jour",
@@ -100,8 +83,6 @@ FR = {
     "Unlock for %@": "Débloquer pour %@",
     "Unlock Duo Folds+": "Débloquer Duo Folds+",
     "Restore purchases": "Restaurer les achats",
-    "One-time purchase, linked to your Apple Account. Counting, the daily limit, the week, the levels and the small widget stay free.":
-        "Achat unique, lié à ton compte Apple. Le comptage, la limite du jour, la semaine, les niveaux et le petit widget restent gratuits.",
     "DUO FOLDS": "DUO FOLDS",
     "all time": "au total",
     "The App Store isn't answering right now. Try again in a moment.": "L'App Store ne répond pas pour le moment. Réessaie dans un instant.",
@@ -143,11 +124,29 @@ FR = {
     "today": "aujourd'hui",
     "%lld all time": "%lld au total",
     "How many times you closed your Duo, like your steps in Health.": "Combien de fois tu as fermé ton Duo, comme tes pas dans Santé.",
-    # Couleurs et niveaux
+    # Couleurs
     "Mint": "Menthe", "Orange": "Orange", "Pink": "Rose", "Blue": "Bleu", "Lemon": "Citron",
-    "Fresh hinge": "Charnière neuve", "Smooth hinge": "Charnière souple", "Speedy hinge": "Charnière express",
     "Fold master": "Maître du pli", "Hinge hero": "Héros de la charnière", "Fold legend": "Légende du pli",
-    "Unbreakable": "Incassable", "Hinge god": "Dieu de la charnière",
+    # Nouveau style
+    "Plus": "Plus",
+    "+1": "+1",
+    "On": "Activées",
+    "Hinge %lld°": "Charnière %lld°",
+    "Yesterday": "Hier",
+    "Lifetime": "Depuis le début",
+    "Next milestone: %lld": "Prochain palier : %lld",
+    "%lld folds to the next milestone": "%lld plis avant le prochain palier",
+    "%lld to go": "encore %lld",
+    "%lld folds": "%lld plis",
+    "At 80 % and 100 % of your limit": "À 80 % et à 100 % de ta limite",
+    "Duo Folds counts while it's on screen, on the inner or the outer display.": "Duo Folds compte tant qu'il est à l'écran, intérieur ou extérieur.",
+    "No hinge here: tap the Duo drawing to count.": "Pas de charnière ici : touche le dessin du Duo pour compter.",
+    "Add the widgets from your Home Screen or Lock Screen: touch and hold, Edit, then Duo Folds.":
+        "Ajoute les widgets depuis l'écran d'accueil ou l'écran verrouillé : reste appuyé, Modifier, puis Duo Folds.",
+    "Three days of tracking. Keep an eye on your folds right from your Home Screen.":
+        "Trois jours de suivi. Garde un œil sur tes plis directement depuis ton écran d'accueil.",
+    "One-time purchase, linked to your Apple Account. Counting, the daily limit, the week, the milestones and the small widget stay free.":
+        "Achat unique, lié à ton compte Apple. Le comptage, la limite du jour, la semaine, les paliers et le petit widget restent gratuits.",
 }
 
 SHORTCUTS_FR = {

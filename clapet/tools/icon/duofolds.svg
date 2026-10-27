@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- DUO FOLDS : un anneau de suivi (comme la limite du jour) et un Duo à demi plié, avec son angle -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F232C"/><stop offset="1" stop-color="#0C0E13"/></linearGradient>
+    <linearGradient id="ring" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6ED6A6"/><stop offset="1" stop-color="#7DFAFF"/></linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <circle cx="512" cy="512" r="330" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="58"/>
+  <circle cx="512" cy="512" r="330" fill="none" stroke="url(#ring)" stroke-width="58" stroke-linecap="round"
+          stroke-dasharray="1492.9 2073.5" transform="rotate(-90 512 512)"/>
+  <path d="M 516.0 648 A 175 175 0 0 0 453.5 513.9" fill="none" stroke="#6ED6A6" stroke-width="30" stroke-linecap="round"/>
+  <path d="M 553.1 395.2 L 341.0 648 L 671.0 648" fill="none" stroke="#FFFFFF" stroke-width="60" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

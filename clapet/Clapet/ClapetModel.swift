@@ -32,7 +32,7 @@ final class ClapetModel {
 
     init() {
         let d = UserDefaults.standard
-        soundOn = d.object(forKey: "sound") as? Bool ?? true
+        soundOn = d.object(forKey: "sound") as? Bool ?? false
         hapticsOn = d.object(forKey: "haptics") as? Bool ?? true
         if Demo.seeded { Demo.seed(&stats) }
     }

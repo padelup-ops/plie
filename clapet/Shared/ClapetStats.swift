@@ -280,19 +280,6 @@ struct ClapetLevel {
         return ClapetLevel(number: i + 1, start: thresholds[i], next: i + 1 < thresholds.count ? thresholds[i + 1] : nil)
     }
 
-    var name: String {
-        switch number {
-        case 1: return String(localized: "Fresh hinge")
-        case 2: return String(localized: "Smooth hinge")
-        case 3: return String(localized: "Speedy hinge")
-        case 4: return String(localized: "Fold master")
-        case 5: return String(localized: "Hinge hero")
-        case 6: return String(localized: "Fold legend")
-        case 7: return String(localized: "Unbreakable")
-        default: return String(localized: "Hinge god")
-        }
-    }
-
     func progress(_ total: Int) -> Double {
         guard let next else { return 1 }
         return min(1, Double(total - start) / Double(max(1, next - start)))

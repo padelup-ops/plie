@@ -5,107 +5,97 @@ struct PlusView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
     @Environment(\.dismiss) private var dismiss
-    /// Pourquoi on l'ouvre (objectif atteint, fonction verrouillée…), affiché en haut.
+    /// Pourquoi on l'ouvre (widget verrouillé, historique…), affiché en haut.
     let reason: Text?
 
     init(reason: Text? = nil) {
         self.reason = reason
     }
 
-    private let mint = Color(red: 0.43, green: 0.84, blue: 0.65)
-
     var body: some View {
-        ZStack {
-            LinearGradient(colors: [Color.clapetInk, Color(red: 0.05, green: 0.16, blue: 0.14)], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 22) {
-                    HStack {
-                        Spacer()
-                        Button { dismiss() } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 15, weight: .bold))
-                                .frame(width: 34, height: 34)
-                                .background(Circle().fill(Color.white.opacity(0.12)))
-                        }
-                        .accessibilityLabel(Text("Close"))
-                    }
                     if let reason {
                         reason
-                            .font(.system(.headline, design: .rounded, weight: .heavy))
-                            .foregroundStyle(Color.clapetYellow)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
                     preview
                     VStack(spacing: 6) {
                         Text("Duo Folds+")
-                            .font(.system(size: 38, weight: .black, design: .rounded))
-                            .foregroundStyle(LinearGradient(colors: [mint, .clapetCyan], startPoint: .leading, endPoint: .trailing))
+                            .font(.largeTitle.weight(.bold))
                         Text("Pay once, keep it forever. No subscription.")
-                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.7))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
-                    VStack(alignment: .leading, spacing: 14) {
-                        perk("rectangle.3.group.fill", Text("Every widget"), Text("The big Health-style widget, the medium one and the Lock Screen ones: your folds at a glance."))
-                        perk("bell.badge.fill", Text("Limit alerts"), Text("A notification at 80 % and at 100 % of your daily limit."))
+                    VStack(alignment: .leading, spacing: 16) {
+                        perk("rectangle.3.group", Text("Every widget"), Text("The big Health-style widget, the medium one and the Lock Screen ones: your folds at a glance."))
+                        perk("bell.badge", Text("Limit alerts"), Text("A notification at 80 % and at 100 % of your daily limit."))
                         perk("calendar", Text("Your full history"), Text("30 days, 12 months, the calendar of days under your limit, your trends and records."))
-                        perk("paintpalette.fill", Text("Widget colors"), Text("Five colors for your widgets."))
-                        perk("square.and.arrow.up.fill", Text("Export"), Text("Your history as a spreadsheet (CSV)."))
+                        perk("paintpalette", Text("Widget colors"), Text("Five colors for your widgets."))
+                        perk("square.and.arrow.up", Text("Export"), Text("Your history as a spreadsheet (CSV)."))
                     }
                     .padding(18)
-                    .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.white.opacity(0.06)))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfCard))
 
                     if store.hasPlus {
                         Label { Text("Duo Folds+ is unlocked. Thank you!") } icon: { Image(systemName: "checkmark.seal.fill") }
-                            .font(.system(.headline, design: .rounded, weight: .heavy))
-                            .foregroundStyle(mint)
+                            .font(.headline)
+                            .foregroundStyle(Color.dfAccent)
                             .padding(.vertical, 8)
                     } else {
                         Button {
                             Task { await store.buy() }
                         } label: {
-                            HStack {
-                                if store.isPurchasing { ProgressView().tint(.black) }
+                            HStack(spacing: 8) {
+                                if store.isPurchasing { ProgressView().tint(.white) }
                                 if let price = store.price {
                                     Text("Unlock for \(price)")
                                 } else {
                                     Text("Unlock Duo Folds+")
                                 }
                             }
-                            .font(.system(.title3, design: .rounded, weight: .black))
-                            .foregroundStyle(.black)
+                            .font(.headline)
+                            .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 17)
-                            .background(Capsule().fill(LinearGradient(colors: [mint, .clapetCyan], startPoint: .leading, endPoint: .trailing)))
+                            .padding(.vertical, 16)
+                            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.dfAccent))
                         }
                         .disabled(store.isPurchasing)
                         Button {
                             Task { await store.restore() }
                         } label: {
-                            Text("Restore purchases")
-                                .font(.system(.subheadline, design: .rounded, weight: .bold))
-                                .foregroundStyle(.white.opacity(0.75))
+                            Text("Restore purchases").font(.subheadline.weight(.medium))
                         }
                     }
                     if let message = store.message {
                         Text(message)
-                            .font(.system(.footnote, design: .rounded, weight: .semibold))
-                            .foregroundStyle(Color.clapetYellow)
+                            .font(.footnote)
+                            .foregroundStyle(Color.dfWarning)
                             .multilineTextAlignment(.center)
                     }
-                    Text("One-time purchase, linked to your Apple Account. Counting, the daily limit, the week, the levels and the small widget stay free.")
-                        .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.5))
+                    Text("One-time purchase, linked to your Apple Account. Counting, the daily limit, the week, the milestones and the small widget stay free.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                 }
-                .padding(.horizontal, 22)
+                .padding(.horizontal, 20)
                 .padding(.bottom, 30)
                 .frame(maxWidth: 560)
                 .frame(maxWidth: .infinity)
             }
+            .background(Color.dfBackground)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button { dismiss() } label: { Text("Close") }
+                }
+            }
         }
-        .foregroundStyle(.white)
+        .tint(.dfAccent)
         .task { await store.load() }
         .onChange(of: store.hasPlus) { _, has in
             if has {
@@ -118,82 +108,82 @@ struct PlusView: View {
     private var preview: some View {
         let week = model.stats.lastWeek()
         let top = max(1, week.map(\.closes).max() ?? 1)
+        let mint = Palette.mint
+        let level = model.stats.level
         return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: "iphone.gen3")
-                Text("DUO FOLDS").tracking(0.8)
+                Text("DUO FOLDS").tracking(0.6)
                 Spacer()
             }
-            .font(.system(size: 12, weight: .bold, design: .rounded))
+            .font(.system(size: 12, weight: .semibold))
             .foregroundStyle(.white.opacity(0.5))
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("\(model.stats.totalCloses)")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                        .font(.system(size: 38, weight: .bold))
+                        .foregroundStyle(.white)
                     Text("all time")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.5))
                 }
                 Spacer()
                 HStack(alignment: .bottom, spacing: 6) {
                     ForEach(0..<week.count, id: \.self) { i in
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        RoundedRectangle(cornerRadius: 3, style: .continuous)
                             .fill(i == week.count - 1 ? mint : Color.white.opacity(0.16))
                             .frame(width: 14, height: max(5, 54 * CGFloat(week[i].closes) / CGFloat(top)))
                     }
                 }
             }
-            HStack(spacing: 6) {
-                Text("Level \(model.stats.level.number)")
-                Text(model.stats.level.name).foregroundStyle(.white.opacity(0.5))
-                Spacer()
+            if let next = level.next {
+                Text("Next milestone: \(next)")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.6))
             }
-            .font(.system(size: 12, weight: .semibold, design: .rounded))
             GeometryReader { g in
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.white.opacity(0.16))
-                    Capsule().fill(mint).frame(width: max(6, g.size.width * CGFloat(model.stats.level.progress(model.stats.totalCloses))))
+                    Capsule().fill(mint).frame(width: max(6, g.size.width * CGFloat(level.progress(model.stats.totalCloses))))
                 }
             }
             .frame(height: 6)
         }
         .padding(16)
         .frame(width: 290)
-        .background(RoundedRectangle(cornerRadius: 26, style: .continuous)
-            .fill(LinearGradient(colors: [Color(red: 0.13, green: 0.13, blue: 0.17), Color(red: 0.08, green: 0.08, blue: 0.11)], startPoint: .top, endPoint: .bottom)))
-        .shadow(color: mint.opacity(0.25), radius: 24, y: 8)
-        .rotationEffect(.degrees(-2))
+        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Palette.background))
+        .shadow(color: .black.opacity(0.18), radius: 18, y: 8)
         .accessibilityHidden(true)
     }
 
     private func perk(_ symbol: String, _ title: Text, _ detail: Text) -> some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: symbol)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(mint)
-                .frame(width: 26)
+                .font(.title3)
+                .foregroundStyle(Color.dfAccent)
+                .frame(width: 28)
             VStack(alignment: .leading, spacing: 2) {
-                title.font(.system(.headline, design: .rounded, weight: .heavy))
+                title.font(.headline)
                 detail
-                    .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
 }
 
-/// Un petit cadenas « + » posé sur ce qui demande Duo Folds+.
+/// Une petite étiquette « Plus » sur ce qui demande Duo Folds+.
 struct PlusBadge: View {
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: "lock.fill")
             Text("Plus")
         }
-        .font(.system(size: 11, weight: .heavy, design: .rounded))
-        .foregroundStyle(.black)
+        .font(.caption2.weight(.semibold))
+        .foregroundStyle(Color.dfAccent)
         .padding(.horizontal, 7)
         .padding(.vertical, 3)
-        .background(Capsule().fill(Color(red: 0.43, green: 0.84, blue: 0.65)))
+        .background(Capsule().fill(Color.dfAccent.opacity(0.14)))
     }
 }
