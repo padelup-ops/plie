@@ -72,11 +72,12 @@ enum Demo {
         let cal = Calendar.current
         let now = Date()
         var total = 1180
-        let pattern = [1.25, 0.95, 1.1, 0.8, 1.35, 0.9, 0.7, 1.05, 0.85, 1.15, 0.75, 0.95, 1.2, 0.65]
+        let pattern = [1.1, 0.9, 1.0, 0.8, 1.15, 0.85, 0.75, 1.0, 0.88, 1.05, 0.8, 0.92, 1.12, 0.7]
         for back in (1...45).reversed() {
             guard let d = cal.date(byAdding: .day, value: -back, to: now) else { continue }
-            let trend = 1.0 + Double(back) / 90.0          // un peu plus avant, un peu moins maintenant
-            let n = Int((Double(limit) * 0.92 * trend * pattern[back % pattern.count]).rounded())
+            // Au début on dépasse souvent la limite, puis on reste en dessous : l'habitude change.
+            let trend = 0.78 + Double(back) / 70.0
+            let n = Int((Double(limit) * trend * pattern[back % pattern.count]).rounded())
             s.days[ClapetStats.key(d)] = DayCount(closes: n, opens: n + (back % 3))
             total += n
         }
@@ -88,14 +89,14 @@ enum Demo {
         var hours = Array(repeating: 0, count: 24)
         let shape = [0, 0, 0, 0, 0, 0, 1, 4, 8, 9, 6, 4, 6, 5, 3, 4, 5, 6, 7, 5, 4, 3, 1, 0]
         let sum = shape.reduce(0, +)
+        // Une journée type (pour la vidéo, quelle que soit l'heure du tournage)
         var left = today
-        let hourNow = cal.component(.hour, from: now)
-        for h in 0...hourNow {
+        for h in 0..<24 {
             let n = min(left, Int((Double(today) * Double(shape[h]) / Double(sum)).rounded()))
             hours[h] = n
             left -= n
         }
-        hours[hourNow] += left
+        hours[9] += left
         s.hourly = hours
         s.recordHour = 14
         s.lastClose = now.addingTimeInterval(-180)

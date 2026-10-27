@@ -157,7 +157,7 @@ struct ClapetWidgetView: View {
 
     static func ago(_ date: Date, from now: Date) -> String {
         let f = RelativeDateTimeFormatter()
-        f.unitsStyle = .abbreviated
+        f.unitsStyle = .short
         return f.localizedString(for: min(date, now), relativeTo: now)
     }
 
