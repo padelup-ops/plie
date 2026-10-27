@@ -28,11 +28,13 @@ struct ClapetStats: Codable, Equatable {
     var plus = false
     /// Couleur des widgets (Duo Folds+).
     var theme = 0
+    /// Dernier pli compté par l'automatisation Raccourcis (app fermée).
+    var autoLast: Date?
 
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -50,6 +52,7 @@ struct ClapetStats: Codable, Equatable {
         recordHour = try c.decodeIfPresent(Int.self, forKey: .recordHour) ?? 0
         plus = try c.decodeIfPresent(Bool.self, forKey: .plus) ?? false
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
+        autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
     }
 
     /// Les clapets d'une journée, heure par heure (seulement pour aujourd'hui).

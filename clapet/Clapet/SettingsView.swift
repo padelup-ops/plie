@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var confirmReset = false
     @State private var showPlus = false
     @State private var alertsDenied = false
+    @State private var showAuto = false
 
     var body: some View {
         NavigationStack {
@@ -87,8 +88,10 @@ struct SettingsView: View {
                     Text("Feel")
                 }
                 Section {
-                    Text("iOS only tells an app about the hinge while that app is on screen. Duo Folds counts while it's open, on the inner or the outer screen.")
-                    Text("In Shortcuts, the “Count a fold” action adds one fold. If your Duo offers an automation when it's folded, plug it in there to count all day long.")
+                    Text("On screen, Duo Folds reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.")
+                    Button { showAuto = true } label: {
+                        Label { Text("Set up automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") }
+                    }
                 } header: {
                     Text("How it counts")
                 }
@@ -118,6 +121,9 @@ struct SettingsView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button { dismiss() } label: { Text("Done") }
                 }
+            }
+            .sheet(isPresented: $showAuto) {
+                AutoCountView().environment(model)
             }
             .sheet(isPresented: $showPlus) {
                 PlusView().environment(model).environment(store)

@@ -45,11 +45,11 @@ Keep Duo Folds on screen, on the inner or the outer display: every time you clos
 • Widgets for the Home Screen and the Lock Screen, including a big Health-style widget
 • Your full history: 30 days, 12 months, the calendar of days under your limit, your trends and records
 • Five widget colors, and your history as a spreadsheet (CSV)
-• A Shortcuts action, "Count a fold", to count from an automation
+• Shortcuts actions "Count a fold" and "Count an opening", to count automatically, even when the app is closed
 
 One purchase, everything included. No subscription, no ads, no account.
 
-Good to know: iOS only tells an app about the hinge while that app is on screen, so Duo Folds counts while it is open. Your numbers stay on your iPhone.""",
+Counting all day: on screen, Duo Folds reads the hinge itself. To count when it isn't on screen, plug its "Count a fold" action into the Shortcuts automation "When iPhone is Closed": the app shows you how, step by step. Your numbers stay on your iPhone.""",
     "fr-FR": """Chaque pli de ton iPhone Duo, c'est un coup d'œil à ton téléphone. Duo Folds les compte, pour que tu voies tes habitudes et que tu les gardes sous contrôle.
 
 Garde Duo Folds à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton Duo, il compte. Fixe une limite par jour et regarde l'anneau : vert tant que tu es en dessous, orange quand tu t'en approches, rouge quand tu la dépasses.
@@ -61,11 +61,11 @@ Garde Duo Folds à l'écran, sur l'écran intérieur ou extérieur : chaque fois
 • Des widgets pour l'écran d'accueil et l'écran verrouillé, dont un grand widget façon Santé
 • Tout l'historique : 30 jours, 12 mois, le calendrier des jours sous ta limite, tes tendances et tes records
 • Cinq couleurs de widgets, et ton historique en tableur (CSV)
-• Une action Raccourcis, « Compter un pli », pour compter depuis une automatisation
+• Des actions Raccourcis « Compter un pli » et « Compter une ouverture », pour compter automatiquement, même app fermée
 
 Un seul achat, tout est inclus. Sans abonnement, sans pub, sans compte.
 
-Bon à savoir : iOS ne prévient une app des mouvements de la charnière que quand elle est à l'écran ; Duo Folds compte donc tant qu'il est ouvert. Tes chiffres restent sur ton iPhone.""",
+Compter toute la journée : à l'écran, Duo Folds lit lui-même la charnière. Pour compter quand il n'est pas à l'écran, branche son action « Compter un pli » sur l'automatisation Raccourcis « iPhone fermé » : l'app te montre comment, pas à pas. Tes chiffres restent sur ton iPhone.""",
 }
 BETA_DESCRIPTION = {
     "en-US": "Duo Folds counts how many times you close and open your iPhone Duo, with a daily limit and widgets like the steps in Health.",
@@ -74,18 +74,20 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• A new, sober design (light or dark, like your iPhone) and a new icon.
-• Duo Folds is now a paid app: whoever buys it gets everything. In TestFlight, everything is free: every widget, limit alerts, full history, widget colors, CSV export.
-• Lifetime milestones replace the levels.
+• AUTOMATIC COUNTING: Duo Folds now counts even when it's not on screen, with the Shortcuts automation "When iPhone is Closed" + the action "Count a fold". In the app: "Count even when the app is closed" shows you how, step by step.
+• When Duo Folds is on screen as well, each fold is counted only once.
+• A fold is counted even if the screen turns off while you close your Duo.
+• Sober design (light or dark), new icon, everything included.
 
-Please test: does every fold count once? Do the widgets show the same numbers as the app? Do the limit alerts arrive at 80 % and 100 %?""",
+Please test: set up the automation, close and open your Duo a few times with another app on screen, then check the count in Duo Folds and in the widgets.""",
     "fr-FR": """Nouveautés de ce build :
 
-• Un nouveau style, sobre (clair ou sombre comme ton iPhone), et une nouvelle icône.
-• Duo Folds devient une app payante : qui l'achète a tout. Dans TestFlight, tout est gratuit : tous les widgets, les alertes de limite, tout l'historique, les couleurs, l'export CSV.
-• Des paliers remplacent les niveaux.
+• COMPTAGE AUTOMATIQUE : Duo Folds compte maintenant même quand il n'est pas à l'écran, avec l'automatisation Raccourcis « iPhone fermé » + l'action « Compter un pli ». Dans l'app : « Compter même app fermée » te montre comment, pas à pas.
+• Quand Duo Folds est aussi à l'écran, chaque pli n'est compté qu'une fois.
+• Un pli est compté même si l'écran s'éteint pendant que tu fermes ton Duo.
+• Style sobre (clair ou sombre), nouvelle icône, tout est inclus.
 
-À tester : chaque pli compte-t-il une seule fois ? Les widgets affichent-ils les mêmes chiffres que l'app ? Les alertes arrivent-elles à 80 % et à 100 % ?""",
+À tester : mets en place l'automatisation, ferme et ouvre ton Duo plusieurs fois avec une autre app à l'écran, puis vérifie le compte dans Duo Folds et dans les widgets.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

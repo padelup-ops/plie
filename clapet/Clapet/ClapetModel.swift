@@ -1,9 +1,13 @@
 import SwiftUI
 import WidgetKit
 
-/// Le compteur : il écoute la charnière tant que l'app est à l'écran.
+/// Le compteur : il écoute la charnière tant que l'app est à l'écran,
+/// et reçoit les plis de l'automatisation Raccourcis « iPhone fermé » quand elle n'y est pas.
 @Observable
 final class ClapetModel {
+    /// Le compteur de l'app en cours (pour les actions Raccourcis qui tournent dans l'app).
+    static weak var current: ClapetModel?
+
     private(set) var stats = ClapetVault.load()
     /// Angle de la charnière (degrés), nil si l'appareil n'en a pas.
     private(set) var degrees: Double?
@@ -30,6 +34,12 @@ final class ClapetModel {
     /// La charnière était en train de se refermer (pour l'écran qui s'éteint avant la fin du geste).
     @ObservationIgnored private var closing = false
     @ObservationIgnored private var lastAngleAt = Date.distantPast
+    /// Un même pli peut arriver par la charnière et par l'automatisation : on ne le compte qu'une fois.
+    @ObservationIgnored private var lastHingeClose = Date.distantPast
+    @ObservationIgnored private var lastAutoClose = Date.distantPast
+    @ObservationIgnored private var lastHingeOpen = Date.distantPast
+    @ObservationIgnored private var lastAutoOpen = Date.distantPast
+    private let sameFold: TimeInterval = 3
     @ObservationIgnored private var lastWidgetReload = Date.distantPast
     @ObservationIgnored private var pendingReload = false
 
@@ -38,6 +48,7 @@ final class ClapetModel {
         soundOn = d.object(forKey: "sound") as? Bool ?? false
         hapticsOn = d.object(forKey: "haptics") as? Bool ?? true
         if Demo.seeded { Demo.seed(&stats) }
+        ClapetModel.current = self
     }
 
     // MARK: Charnière
@@ -79,21 +90,53 @@ final class ClapetModel {
 
     // MARK: Compter
 
+    /// Un pli vu par l'app (charnière, ou toucher sans charnière).
     func clap() {
+        lastHingeClose = Date()
+        if soundOn { ClapetSound.shared.play(.clap) }
+        if hapticsOn { ClapetHaptics.clap() }
+        // Déjà compté par l'automatisation il y a un instant ?
+        guard Date().timeIntervalSince(lastAutoClose) > sameFold else { return }
+        countClose()
+    }
+
+    private func opened() {
+        lastHingeOpen = Date()
+        if soundOn { ClapetSound.shared.play(.pop) }
+        if hapticsOn { ClapetHaptics.tick() }
+        guard Date().timeIntervalSince(lastAutoOpen) > sameFold else { return }
+        stats.addOpen()
+        changed()
+    }
+
+    /// Un pli envoyé par l'automatisation Raccourcis « iPhone fermé ».
+    func automationClose() {
+        lastAutoClose = Date()
+        stats.autoLast = Date()
+        if Date().timeIntervalSince(lastHingeClose) > sameFold {
+            countClose()
+        } else {
+            changed()
+        }
+        // L'app peut être remise en veille juste après : les widgets tout de suite.
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    /// Une ouverture envoyée par l'automatisation Raccourcis « iPhone ouvert ».
+    func automationOpen() {
+        lastAutoOpen = Date()
+        stats.autoLast = Date()
+        if Date().timeIntervalSince(lastHingeOpen) > sameFold { stats.addOpen() }
+        changed()
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    private func countClose() {
         let before = stats.today
         stats.addClose()
         LimitAlerts.check(before: before, after: stats.today, limit: stats.goal, plus: stats.plus)
         claps += 1
         lastClapAt = Date()
-        if soundOn { ClapetSound.shared.play(.clap) }
-        if hapticsOn { ClapetHaptics.clap() }
-        changed()
-    }
-
-    private func opened() {
-        stats.addOpen()
-        if soundOn { ClapetSound.shared.play(.pop) }
-        if hapticsOn { ClapetHaptics.tick() }
         changed()
     }
 

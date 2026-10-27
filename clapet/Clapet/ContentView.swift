@@ -58,6 +58,7 @@ struct ContentView: View {
     @State private var showHistory = false
     @State private var plusReason: PlusReason?
     @State private var showDemoWidgets = false
+    @State private var showAuto = false
     @State private var bump = false
     @State private var tapOpen = 0.62
 
@@ -70,6 +71,7 @@ struct ContentView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 14) {
+                    if model.stats.autoLast == nil && !Demo.seeded { autoBanner }
                     today
                     numbers
                     week
@@ -104,6 +106,9 @@ struct ContentView: View {
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
         .sheet(isPresented: $showSettings) {
             SettingsView().environment(model).environment(store)
+        }
+        .sheet(isPresented: $showAuto) {
+            AutoCountView().environment(model)
         }
         .sheet(isPresented: $showHistory) {
             HistoryView().environment(model)
@@ -376,10 +381,44 @@ struct ContentView: View {
         }
     }
 
+    // MARK: Comptage automatique
+
+    private var autoBanner: some View {
+        Button { showAuto = true } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "bolt.badge.automatic.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.dfAccent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Count even when the app is closed")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Text("Set up the Shortcuts automation in one minute.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(16)
+            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfAccent.opacity(0.12)))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
     // MARK: Historique et alertes
 
     private var more: some View {
         VStack(spacing: 0) {
+            row("bolt.badge.automatic", Text("Automatic counting"),
+                model.stats.autoLast == nil ? Text("Off: counts only while the app is on screen") : Text("On, with Shortcuts"),
+                locked: false) {
+                showAuto = true
+            }
+            Divider().padding(.leading, 52)
             row("calendar", Text("History"), Text("30 days, 12 months, records"), locked: !store.hasPlus) {
                 if store.hasPlus { showHistory = true } else { plusReason = .history }
             }
@@ -419,7 +458,7 @@ struct ContentView: View {
     private var footnote: some View {
         VStack(alignment: .leading, spacing: 6) {
             if model.hasHinge {
-                Text("Duo Folds counts while it's on screen, on the inner or the outer display.")
+                Text("Without the automation, Duo Folds counts only while it's on screen, on the inner or the outer display.")
             } else {
                 Text("No hinge here: tap the Duo drawing to count.")
             }

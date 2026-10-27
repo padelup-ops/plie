@@ -3,3 +3,4 @@
 "Add a fold in ${applicationName}" = "Ajouter un pli dans ${applicationName}";
 "How many folds today in ${applicationName}" = "Combien de plis aujourd'hui dans ${applicationName}";
 "My folds in ${applicationName}" = "Mes plis dans ${applicationName}";
+"Count an opening in ${applicationName}" = "Compter une ouverture dans ${applicationName}";
