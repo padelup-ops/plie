@@ -174,8 +174,8 @@ FR = {
     "On, with Shortcuts": "Activé, avec Raccourcis",
     "Without the automation, Duo Folds counts only while it's on screen, on the inner or the outer display.":
         "Sans l'automatisation, Duo Folds ne compte que quand il est à l'écran, intérieur ou extérieur.",
-    "Adds one fold to today's count. Put it in the automation “When iPhone is Closed”.": "Ajoute un pli au compte du jour. À mettre dans l'automatisation « iPhone fermé ».",
-    "Adds one opening to today's count. Put it in the automation “When iPhone is Opened”.": "Ajoute une ouverture au compte du jour. À mettre dans l'automatisation « iPhone ouvert ».",
+    "Adds one fold to today's count. Use it in a Shortcuts automation that runs when your Duo is closed.": "Ajoute un pli au compte du jour. À utiliser dans une automatisation Raccourcis qui se lance quand ton Duo se ferme.",
+    "Adds one opening to today's count. Use it in a Shortcuts automation that runs when your Duo is opened.": "Ajoute une ouverture au compte du jour. À utiliser dans une automatisation Raccourcis qui se lance quand ton Duo s'ouvre.",
     "Count an opening": "Compter une ouverture",
     "On screen, Duo Folds reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.":
         "À l'écran, Duo Folds lit lui-même la charnière. Quand il n'est pas à l'écran, iOS ne lui dit rien : l'automatisation Raccourcis « iPhone fermé » avec l'action « Compter un pli » prend le relais.",

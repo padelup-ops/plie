@@ -143,8 +143,8 @@
 "Off: counts only while the app is on screen" = "Off: counts only while the app is on screen";
 "On, with Shortcuts" = "On, with Shortcuts";
 "Without the automation, Duo Folds counts only while it's on screen, on the inner or the outer display." = "Without the automation, Duo Folds counts only while it's on screen, on the inner or the outer display.";
-"Adds one fold to today's count. Put it in the automation “When iPhone is Closed”." = "Adds one fold to today's count. Put it in the automation “When iPhone is Closed”.";
-"Adds one opening to today's count. Put it in the automation “When iPhone is Opened”." = "Adds one opening to today's count. Put it in the automation “When iPhone is Opened”.";
+"Adds one fold to today's count. Use it in a Shortcuts automation that runs when your Duo is closed." = "Adds one fold to today's count. Use it in a Shortcuts automation that runs when your Duo is closed.";
+"Adds one opening to today's count. Use it in a Shortcuts automation that runs when your Duo is opened." = "Adds one opening to today's count. Use it in a Shortcuts automation that runs when your Duo is opened.";
 "Count an opening" = "Count an opening";
 "On screen, Duo Folds reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over." = "On screen, Duo Folds reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.";
 "Set up automatic counting" = "Set up automatic counting";

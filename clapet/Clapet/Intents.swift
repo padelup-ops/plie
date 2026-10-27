@@ -41,7 +41,7 @@ enum AutomaticCounter {
 /// « Compter un pli » : à mettre dans l'automatisation « iPhone fermé ».
 struct CountClapIntent: AppIntent {
     static var title: LocalizedStringResource = "Count a fold"
-    static var description = IntentDescription("Adds one fold to today's count. Put it in the automation “When iPhone is Closed”.")
+    static var description = IntentDescription("Adds one fold to today's count. Use it in a Shortcuts automation that runs when your Duo is closed.")
     static var openAppWhenRun = false
 
     @MainActor
@@ -54,7 +54,7 @@ struct CountClapIntent: AppIntent {
 /// « Compter une ouverture » : à mettre dans l'automatisation « iPhone ouvert » (facultatif).
 struct CountOpenIntent: AppIntent {
     static var title: LocalizedStringResource = "Count an opening"
-    static var description = IntentDescription("Adds one opening to today's count. Put it in the automation “When iPhone is Opened”.")
+    static var description = IntentDescription("Adds one opening to today's count. Use it in a Shortcuts automation that runs when your Duo is opened.")
     static var openAppWhenRun = false
 
     @MainActor
