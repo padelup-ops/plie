@@ -39,9 +39,9 @@ struct ClapetStats: Codable, Equatable {
     var lastClose: Date?
     /// Le record de plis en une heure.
     var recordHour = 0
-    /// FoldCount+ acheté (écrit par l'app, lu par les widgets).
+    /// Foldly+ acheté (écrit par l'app, lu par les widgets).
     var plus = false
-    /// Couleur des widgets (FoldCount+).
+    /// Couleur des widgets (Foldly+).
     var theme = 0
     /// Dernier pli compté par l'automatisation Raccourcis (app fermée).
     var autoLast: Date?
@@ -219,7 +219,7 @@ struct ClapetStats: Codable, Equatable {
         return values.isEmpty ? 0 : values.reduce(0, +) / Double(values.count)
     }
 
-    // MARK: Historique (FoldCount+)
+    // MARK: Historique (Foldly+)
 
     /// Les `count` derniers jours, du plus ancien à aujourd'hui.
     func lastDays(_ count: Int, now: Date = Date()) -> [(date: Date, closes: Int)] {
@@ -348,7 +348,7 @@ struct ClapetStats: Codable, Equatable {
     }
 }
 
-// MARK: - Les couleurs des widgets (FoldCount+)
+// MARK: - Les couleurs des widgets (Foldly+)
 
 enum ClapetTheme: Int, CaseIterable, Identifiable {
     case mint, orange, pink, blue, lemon

@@ -14,9 +14,9 @@ struct AutoCountView: View {
                         Image(systemName: "bolt.badge.automatic.fill")
                             .font(.largeTitle)
                             .foregroundStyle(Color.dfAccent)
-                        Text("Count every fold, even when FoldCount isn't on screen.")
+                        Text("Count every fold, even when Foldly isn't on screen.")
                             .font(.title3.weight(.semibold))
-                        Text("Your phone can run a Shortcuts automation each time it's closed. Plug FoldCount into it: it takes a minute, and it counts all day long.")
+                        Text("Your phone can run a Shortcuts automation each time it's closed. Plug Foldly into it: it takes a minute, and it counts all day long.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -34,10 +34,10 @@ struct AutoCountView: View {
                     step(1, Text("Open the **Shortcuts** app, **Automation** tab, then tap **+**."))
                     step(2, Text("Choose the trigger **When iPhone is Opened or Closed**, tap the blue words and keep **Closed** only."))
                     step(3, Text("Select **Run Immediately** and turn **Notify When Run** off."))
-                    step(4, Text("Tap **Next**, then add the action **Count a fold** (FoldCount)."))
+                    step(4, Text("Tap **Next**, then add the action **Count a fold** (Foldly)."))
                     step(5, Text("Tap the action, open it with the little arrow and turn **Show When Run** off: nothing will show up, it counts silently."))
                     step(6, Text("Back in the list, check that the automation is **turned on**. iOS sometimes adds it switched off."))
-                    step(7, Text("Do it again with **Opened** and the action **Count an opening**: FoldCount then also measures how long your phone stays open."))
+                    step(7, Text("Do it again with **Opened** and the action **Count an opening**: Foldly then also measures how long your phone stays open."))
                 } header: {
                     Text("Set up")
                 }
@@ -74,11 +74,11 @@ struct AutoCountView: View {
                     faq(Text("Why keep only “Closed”?"),
                         Text("With “Opened or Closed”, every opening would also count as a fold. Use two automations: **Closed** with Count a fold, **Opened** with Count an opening."))
                     faq(Text("Is a fold counted twice when the app is open?"),
-                        Text("No. When FoldCount is on screen and the automation runs too, the fold is counted only once."))
+                        Text("No. When Foldly is on screen and the automation runs too, the fold is counted only once."))
                     faq(Text("The widget isn't up to date."),
-                        Text("iOS decides when widgets refresh, usually within a few minutes. Opening FoldCount updates them right away."))
+                        Text("iOS decides when widgets refresh, usually within a few minutes. Opening Foldly updates them right away."))
                     faq(Text("Does it open the app or drain the battery?"),
-                        Text("No. The action runs in the background in a fraction of a second, without opening FoldCount, even after a restart."))
+                        Text("No. The action runs in the background in a fraction of a second, without opening Foldly, even after a restart."))
                     faq(Text("It doesn't count anymore."),
                         Text("Check in Shortcuts that both automations are still turned on. If “Working” above isn't recent, close your phone once and come back here."))
                 } header: {

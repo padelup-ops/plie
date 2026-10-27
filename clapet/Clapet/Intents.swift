@@ -5,7 +5,7 @@ import WidgetKit
 //
 // Sur l'iPhone Duo, Raccourcis propose l'automatisation « When iPhone is Opened or Closed ».
 // Branchée sur « Compter un pli » (iPhone fermé) et « Compter une ouverture » (iPhone ouvert),
-// FoldCount compte même quand il n'est pas à l'écran.
+// Foldly compte même quand il n'est pas à l'écran.
 
 @MainActor
 enum AutomaticCounter {

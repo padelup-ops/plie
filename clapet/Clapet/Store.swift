@@ -1,13 +1,13 @@
 import StoreKit
 import Observation
 
-/// Un seul achat : FoldCount+, une fois pour toutes (pas d'abonnement).
+/// Un seul achat : Foldly+, une fois pour toutes (pas d'abonnement).
 @Observable
 final class ClapetStore {
     static let plusID = "com.padelup.clapet.plus"
 
     var product: Product?
-    /// FoldCount+ vraiment acheté.
+    /// Foldly+ vraiment acheté.
     private(set) var owned = false
     var isPurchasing = false
     var message: String?
@@ -23,7 +23,7 @@ final class ClapetStore {
 
     private(set) var simulatePlus = UserDefaults.standard.bool(forKey: "tester.simulatePlus")
 
-    /// FoldCount+ : acheté, ou simulé dans une version de test.
+    /// Foldly+ : acheté, ou simulé dans une version de test.
     var hasPlus: Bool { DuoFolds.paidApp || owned || (isTestBuild && simulatePlus) || Demo.plus }
 
     /// Appelé quand `hasPlus` change (pour prévenir les widgets).

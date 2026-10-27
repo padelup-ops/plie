@@ -1,6 +1,6 @@
 import UserNotifications
 
-/// Alertes de limite (FoldCount+) : une notification à 80 % puis à 100 % de la limite du jour.
+/// Alertes de limite (Foldly+) : une notification à 80 % puis à 100 % de la limite du jour.
 enum LimitAlerts {
     static var enabled: Bool { UserDefaults.standard.bool(forKey: "alerts") }
 

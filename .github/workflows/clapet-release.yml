@@ -10,6 +10,10 @@ on:
         description: "1 = envoyer à la vérification d'Apple"
         required: false
         default: "0"
+      withdraw:
+        description: "1 = retirer la version de la vérification (rien d'autre)"
+        required: false
+        default: "0"
       app:
         description: "duofolds ou origamo"
         required: false
@@ -27,7 +31,8 @@ jobs:
       ORIGAMO_BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
       RELEASE_BUILD: ${{ inputs.build }}
       SUBMIT: ${{ inputs.submit }}
-      SITE_URL: ${{ inputs.app == 'origamo' && 'https://origamo.netlify.app' || 'https://duofolds.netlify.app' }}
+      WITHDRAW: ${{ inputs.withdraw }}
+      SITE_URL: ${{ inputs.app == 'origamo' && 'https://origamo.netlify.app' || 'https://foldly.netlify.app' }}
       APP_BUNDLE: ${{ inputs.app == 'origamo' && secrets.BUNDLE_ID || 'com.padelup.clapet' }}
       BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
       SHOTS_DIR: ${{ inputs.app == 'origamo' && 'tools/store_shots' || 'clapet/tools/store' }}
@@ -37,6 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Fiche et textes
+        if: inputs.withdraw != '1'
         run: |
           python3 -m pip install --quiet pyjwt cryptography
           if [ "${{ inputs.app }}" = "origamo" ]; then

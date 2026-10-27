@@ -177,7 +177,7 @@ final class ClapetModel {
         changed()
     }
 
-    // MARK: FoldCount+
+    // MARK: Foldly+
 
     /// Écrit dans le coffre partagé, pour que les widgets se débloquent aussitôt.
     func setPlus(_ on: Bool) {
@@ -191,7 +191,7 @@ final class ClapetModel {
         flush()
     }
 
-    /// Alertes de limite (FoldCount+).
+    /// Alertes de limite (Foldly+).
     private(set) var alertsOn = LimitAlerts.enabled
 
     /// Renvoie faux si iOS refuse les notifications.

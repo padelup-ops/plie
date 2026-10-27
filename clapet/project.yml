@@ -24,7 +24,7 @@ targets:
     info:
       path: Clapet/Info.plist
       properties:
-        CFBundleDisplayName: FoldCount
+        CFBundleDisplayName: Foldly
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
@@ -58,7 +58,7 @@ targets:
     info:
       path: ClapetWidget/Info.plist
       properties:
-        CFBundleDisplayName: FoldCount
+        CFBundleDisplayName: Foldly
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en

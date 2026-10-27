@@ -1,7 +1,7 @@
 import Charts
 import SwiftUI
 
-/// L'historique complet et les records (FoldCount+).
+/// L'historique complet et les records (Foldly+).
 struct HistoryView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(\.dismiss) private var dismiss
@@ -223,7 +223,7 @@ struct HistoryView: View {
     }
 
     private func writeCSV() -> URL? {
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("FoldCount.csv")
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("Foldly.csv")
         do {
             try model.stats.csv().write(to: url, atomically: true, encoding: .utf8)
             return url

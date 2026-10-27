@@ -1,4 +1,4 @@
-"""FOLDCOUNT : invite un testeur externe (par e-mail) dans le groupe externe TestFlight."""
+"""FOLDLY : invite un testeur externe (par e-mail) dans le groupe externe TestFlight."""
 import json, os, sys, time, urllib.request, urllib.error
 import jwt
 API = "https://api.appstoreconnect.apple.com"
@@ -28,7 +28,7 @@ if OLD:
         print(f"ok     testeur bêta {OLD} retiré" if "error" not in r else f"       retrait du testeur : {r}")
 
 # Testeur interne : il faut d'abord être utilisateur d'App Store Connect (rôle Marketing, le plus limité
-# parmi ceux qu'Apple accepte pour les tests internes, et seulement l'app FoldCount).
+# parmi ceux qu'Apple accepte pour les tests internes, et seulement l'app Foldly).
 if os.environ.get("INTERNAL") == "1":
     users = call("GET", f"/v1/users?filter[username]={EMAIL}&limit=5").get("data", [])
     if users:
@@ -60,7 +60,7 @@ if os.environ.get("INTERNAL") == "1":
         "email": EMAIL, "firstName": os.environ.get("FIRST_NAME", "Matthew"), "lastName": os.environ.get("LAST_NAME", "Testeur"),
         "roles": ["MARKETING"], "allAppsVisible": False, "provisioningAllowed": False},
         "relationships": {"visibleApps": {"data": [{"type": "apps", "id": app["id"]}]}}}})
-    print("ok     invitation App Store Connect envoyée (rôle Marketing, app FoldCount seulement)" if "error" not in r else f"ÉCHEC  invitation : {r.get('detail', '')[:500]}")
+    print("ok     invitation App Store Connect envoyée (rôle Marketing, app Foldly seulement)" if "error" not in r else f"ÉCHEC  invitation : {r.get('detail', '')[:500]}")
     sys.exit(0)
 groups = [g for g in call("GET", f"/v1/apps/{app['id']}/betaGroups?limit=50").get("data", []) if not g["attributes"].get("isInternalGroup")]
 if not groups:

@@ -27,13 +27,13 @@ CATEGORIES = (os.environ.get("CATEGORIES") or "HEALTH_AND_FITNESS,UTILITIES").sp
 PRICE_EUR = os.environ.get("APP_PRICE", "").strip()
 LOCALES = {"en-US": "en", "fr-FR": "fr"}
 REVIEW_NOTES = (
-    "FoldCount counts how many times a foldable iPhone (iPhone Duo) is closed and opened, so people can keep that habit under control.\n\n"
-    "On an iPhone Duo: keep FoldCount on screen and fold the device. The app reads the hinge (SwiftUI onHingeChange) and "
+    "Foldly counts how many times a foldable iPhone (iPhone Duo) is closed and opened, so people can keep that habit under control.\n\n"
+    "On an iPhone Duo: keep Foldly on screen and fold the device. The app reads the hinge (SwiftUI onHingeChange) and "
     "the count goes up; the ring turns orange near the daily limit and red above it.\n"
     "On a device without a hinge (like an iPad): tap the hinge drawing on the main screen to add a fold.\n\n"
     "Optional automatic counting: the app's Shortcuts action \"Count a fold\" can be added to the personal automation "
     "\"When iPhone is Closed\" (Shortcuts > Automation). The app shows these steps under \"Count even when the app is closed\".\n\n"
-    "Following Guideline 5.2.5, the app was renamed from DUO FOLDS to FoldCount: the Apple product name is no longer used "
+    "Following Guideline 5.2.5, the app was renamed from DUO FOLDS to Foldly: the Apple product name is no longer used "
     "in the app name, the name shown on the device or the metadata.\n\n"
     "Paid app: everything is included, there is no in-app purchase, no account, no ads and no data collection. "
     "Numbers stay on the device (shared with the widgets through the keychain).")
@@ -99,6 +99,26 @@ if not app:
     sys.exit(1)
 app_id = app[0]["id"]
 print("APP", app_id, app[0]["attributes"]["name"])
+
+# ---------------------------------------------------------------- retrait de la vérification (WITHDRAW=1)
+if os.environ.get("WITHDRAW") == "1":
+    subs = call("GET", f"/v1/reviewSubmissions?filter[app]={app_id}&limit=20").get("data", [])
+    open_states = ("WAITING_FOR_REVIEW", "IN_REVIEW", "UNRESOLVED_ISSUES", "READY_FOR_REVIEW")
+    found = False
+    for sub in subs:
+        state = sub["attributes"].get("state")
+        print("demande de vérification", sub["id"], state)
+        if state in open_states:
+            found = True
+            step(f"demande {sub['id']} retirée de la vérification",
+                 call("PATCH", f"/v1/reviewSubmissions/{sub['id']}",
+                      {"data": {"type": "reviewSubmissions", "id": sub["id"], "attributes": {"canceled": True}}}))
+    if not found:
+        print("aucune demande en cours à retirer")
+    time.sleep(8)
+    for v in call("GET", f"/v1/apps/{app_id}/appStoreVersions?limit=5").get("data", []):
+        print("VERSION", v["attributes"].get("versionString"), v["attributes"].get("appStoreState"))
+    sys.exit(1 if problems else 0)
 
 # ---------------------------------------------------------------- fiche de l'app
 infos = call("GET", f"/v1/apps/{app_id}/appInfos").get("data", [])

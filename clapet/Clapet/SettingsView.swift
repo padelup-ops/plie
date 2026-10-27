@@ -16,12 +16,12 @@ struct SettingsView: View {
                 if !DuoFolds.paidApp {
                 Section {
                     if store.hasPlus {
-                        Label { Text("FoldCount+ is unlocked. Thank you!") } icon: {
+                        Label { Text("Foldly+ is unlocked. Thank you!") } icon: {
                             Image(systemName: "checkmark.seal.fill").foregroundStyle(Color(red: 0.43, green: 0.84, blue: 0.65))
                         }
                     } else {
                         Button { showPlus = true } label: {
-                            Label { Text("Unlock FoldCount+") } icon: { Image(systemName: "sparkles") }
+                            Label { Text("Unlock Foldly+") } icon: { Image(systemName: "sparkles") }
                         }
                     }
                     Button {
@@ -33,7 +33,7 @@ struct SettingsView: View {
                         Text(message).font(.footnote).foregroundStyle(.secondary)
                     }
                 } header: {
-                    Text("FoldCount+")
+                    Text("Foldly+")
                 }
                 }
                 Section {
@@ -92,7 +92,7 @@ struct SettingsView: View {
                     Text("Daily limit")
                 } footer: {
                     if alertsDenied {
-                        Text("Notifications are off for FoldCount. Turn them on in the Settings app.")
+                        Text("Notifications are off for Foldly. Turn them on in the Settings app.")
                     } else {
                         Text("A notification at 80 % and at 100 % of your limit.")
                     }
@@ -104,7 +104,7 @@ struct SettingsView: View {
                     Text("Feel")
                 }
                 Section {
-                    Text("On screen, FoldCount reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.")
+                    Text("On screen, Foldly reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.")
                     Button { showAuto = true } label: {
                         Label { Text("Set up automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") }
                     }
@@ -115,7 +115,7 @@ struct SettingsView: View {
                 if store.isTestBuild && !DuoFolds.paidApp {
                     Section {
                         Toggle(isOn: Binding(get: { store.simulatePlus }, set: { store.setSimulatePlus($0) })) {
-                            Text("Simulate FoldCount+")
+                            Text("Simulate Foldly+")
                         }
                     } header: {
                         Text("Test version")

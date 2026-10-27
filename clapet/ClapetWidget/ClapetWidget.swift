@@ -58,7 +58,7 @@ struct ClapetWidget: Widget {
         StaticConfiguration(kind: kind, provider: ClapetProvider()) { entry in
             ClapetWidgetView(entry: entry)
         }
-        .configurationDisplayName(Text("FoldCount"))
+        .configurationDisplayName(Text("Foldly"))
         .description(Text("How many times you closed your phone, like your steps in Health."))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }

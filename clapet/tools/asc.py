@@ -1,4 +1,4 @@
-"""FoldCount (projet Clapet) sur App Store Connect : fiche en anglais et en français, puis distribution TestFlight d'un build.
+"""Foldly (projet Clapet) sur App Store Connect : fiche en anglais et en français, puis distribution TestFlight d'un build.
 
 Variables : ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY, ORIGAMO_BUNDLE_ID, BUILD_NUMBER (facultatif).
 1. Nom, sous-titre (fiche) et description, mots-clés (version) en en-US et fr-FR, texte TestFlight.
@@ -20,8 +20,8 @@ BUNDLE = "com.padelup.clapet"
 BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 
 NAMES = {
-    "en-US": ["FoldCount: Fold Counter", "FoldCount - Fold Counter", "FoldCount: Hinge Counter"],
-    "fr-FR": ["FoldCount : compteur de plis", "FoldCount - compteur de plis"],
+    "en-US": ["Foldly: Fold Counter", "Foldly - Fold Counter", "Foldly: Hinge Counter", "Foldly: Fold Tracker"],
+    "fr-FR": ["Foldly : compteur de plis", "Foldly - compteur de plis", "Foldly : compteur de pliages"],
 }
 SUBTITLE = {"en-US": "Keep your folds under control", "fr-FR": "Garde tes plis sous contrôle"}
 KEYWORDS = {
@@ -34,9 +34,9 @@ PROMO = {
 }
 PRICE_EUR = os.environ.get("APP_PRICE", "2.99")
 DESCRIPTION = {
-    "en-US": """Every time you unfold your phone, you glance at it. FoldCount counts your folds, so you can see your habits and keep them under control.
+    "en-US": """Every time you unfold your phone, you glance at it. Foldly counts your folds, so you can see your habits and keep them under control.
 
-Keep FoldCount on screen, on the inner or the outer display: every time you close your phone, it counts. Set a daily limit and watch the ring: green while you're under it, orange when you get close, red when you're over.
+Keep Foldly on screen, on the inner or the outer display: every time you close your phone, it counts. Set a daily limit and watch the ring: green while you're under it, orange when you get close, red when you're over.
 
 • Folds and opens today, the last 7 days and your total
 • Time open: how long your phone stays open each day
@@ -50,10 +50,10 @@ Keep FoldCount on screen, on the inner or the outer display: every time you clos
 
 One purchase, everything included. No subscription, no ads, no account.
 
-Counting all day: on screen, FoldCount reads the hinge itself. To count when it isn't on screen, plug its "Count a fold" action into the Shortcuts automation "When iPhone is Closed": the app shows you how, step by step. Your numbers stay on your iPhone.""",
-    "fr-FR": """Chaque fois que tu déplies ton téléphone, tu y jettes un œil. FoldCount compte tes plis, pour que tu voies tes habitudes et que tu les gardes sous contrôle.
+Counting all day: on screen, Foldly reads the hinge itself. To count when it isn't on screen, plug its "Count a fold" action into the Shortcuts automation "When iPhone is Closed": the app shows you how, step by step. Your numbers stay on your iPhone.""",
+    "fr-FR": """Chaque fois que tu déplies ton téléphone, tu y jettes un œil. Foldly compte tes plis, pour que tu voies tes habitudes et que tu les gardes sous contrôle.
 
-Garde FoldCount à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton téléphone, il compte. Fixe une limite par jour et regarde l'anneau : vert tant que tu es en dessous, orange quand tu t'en approches, rouge quand tu la dépasses.
+Garde Foldly à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton téléphone, il compte. Fixe une limite par jour et regarde l'anneau : vert tant que tu es en dessous, orange quand tu t'en approches, rouge quand tu la dépasses.
 
 • Fermetures et ouvertures du jour, les 7 derniers jours et ton total
 • Le temps ouvert : combien de temps ton téléphone reste ouvert chaque jour
@@ -67,31 +67,31 @@ Garde FoldCount à l'écran, sur l'écran intérieur ou extérieur : chaque fois
 
 Un seul achat, tout est inclus. Sans abonnement, sans pub, sans compte.
 
-Compter toute la journée : à l'écran, FoldCount lit lui-même la charnière. Pour compter quand il n'est pas à l'écran, branche son action « Compter un pli » sur l'automatisation Raccourcis « iPhone fermé » : l'app te montre comment, pas à pas. Tes chiffres restent sur ton iPhone.""",
+Compter toute la journée : à l'écran, Foldly lit lui-même la charnière. Pour compter quand il n'est pas à l'écran, branche son action « Compter un pli » sur l'automatisation Raccourcis « iPhone fermé » : l'app te montre comment, pas à pas. Tes chiffres restent sur ton iPhone.""",
 }
 BETA_DESCRIPTION = {
-    "en-US": "FoldCount counts how many times you close and open your foldable phone, with a daily limit and widgets like the steps in Health.",
-    "fr-FR": "FoldCount compte combien de fois tu fermes et ouvres ton téléphone pliable, avec une limite par jour et des widgets comme les pas dans Santé.",
+    "en-US": "Foldly counts how many times you close and open your foldable phone, with a daily limit and widgets like the steps in Health.",
+    "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec une limite par jour et des widgets comme les pas dans Santé.",
 }
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• TIME OPEN: FoldCount measures how long your phone stays open each day (all day with the two Shortcuts automations, Closed and Opened).
-• AUTOMATIC COUNTING: FoldCount now counts even when it's not on screen, with the Shortcuts automation "When iPhone is Closed" + the action "Count a fold". In the app: "Count even when the app is closed" shows you how, step by step.
-• When FoldCount is on screen as well, each fold is counted only once.
+• TIME OPEN: Foldly measures how long your phone stays open each day (all day with the two Shortcuts automations, Closed and Opened).
+• AUTOMATIC COUNTING: Foldly now counts even when it's not on screen, with the Shortcuts automation "When iPhone is Closed" + the action "Count a fold". In the app: "Count even when the app is closed" shows you how, step by step.
+• When Foldly is on screen as well, each fold is counted only once.
 • A fold is counted even if the screen turns off while you close your phone.
 • Sober design (light or dark), new icon, everything included.
 
-Please test: set up the automation, close and open your phone a few times with another app on screen, then check the count in FoldCount and in the widgets.""",
+Please test: set up the automation, close and open your phone a few times with another app on screen, then check the count in Foldly and in the widgets.""",
     "fr-FR": """Nouveautés de ce build :
 
-• TEMPS OUVERT : FoldCount mesure combien de temps ton téléphone reste ouvert chaque jour (toute la journée avec les deux automatisations Raccourcis, Fermé et Ouvert).
-• COMPTAGE AUTOMATIQUE : FoldCount compte maintenant même quand il n'est pas à l'écran, avec l'automatisation Raccourcis « iPhone fermé » + l'action « Compter un pli ». Dans l'app : « Compter même app fermée » te montre comment, pas à pas.
-• Quand FoldCount est aussi à l'écran, chaque pli n'est compté qu'une fois.
+• TEMPS OUVERT : Foldly mesure combien de temps ton téléphone reste ouvert chaque jour (toute la journée avec les deux automatisations Raccourcis, Fermé et Ouvert).
+• COMPTAGE AUTOMATIQUE : Foldly compte maintenant même quand il n'est pas à l'écran, avec l'automatisation Raccourcis « iPhone fermé » + l'action « Compter un pli ». Dans l'app : « Compter même app fermée » te montre comment, pas à pas.
+• Quand Foldly est aussi à l'écran, chaque pli n'est compté qu'une fois.
 • Un pli est compté même si l'écran s'éteint pendant que tu fermes ton téléphone.
 • Style sobre (clair ou sombre), nouvelle icône, tout est inclus.
 
-À tester : mets en place l'automatisation, ferme et ouvre ton téléphone plusieurs fois avec une autre app à l'écran, puis vérifie le compte dans FoldCount et dans les widgets.""",
+À tester : mets en place l'automatisation, ferme et ouvre ton téléphone plusieurs fois avec une autre app à l'écran, puis vérifie le compte dans Foldly et dans les widgets.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// L'écran d'achat de FoldCount+.
+/// L'écran d'achat de Foldly+.
 struct PlusView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
@@ -24,7 +24,7 @@ struct PlusView: View {
                     }
                     preview
                     VStack(spacing: 6) {
-                        Text("FoldCount+")
+                        Text("Foldly+")
                             .font(.largeTitle.weight(.bold))
                         Text("Pay once, keep it forever. No subscription.")
                             .font(.subheadline)
@@ -43,7 +43,7 @@ struct PlusView: View {
                     .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfCard))
 
                     if store.hasPlus {
-                        Label { Text("FoldCount+ is unlocked. Thank you!") } icon: { Image(systemName: "checkmark.seal.fill") }
+                        Label { Text("Foldly+ is unlocked. Thank you!") } icon: { Image(systemName: "checkmark.seal.fill") }
                             .font(.headline)
                             .foregroundStyle(Color.dfAccent)
                             .padding(.vertical, 8)
@@ -56,7 +56,7 @@ struct PlusView: View {
                                 if let price = store.price {
                                     Text("Unlock for \(price)")
                                 } else {
-                                    Text("Unlock FoldCount+")
+                                    Text("Unlock Foldly+")
                                 }
                             }
                             .font(.headline)
@@ -113,7 +113,7 @@ struct PlusView: View {
         return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: "iphone.gen3")
-                Text("FOLDCOUNT").tracking(0.6)
+                Text("FOLDLY").tracking(0.6)
                 Spacer()
             }
             .font(.system(size: 12, weight: .semibold))
@@ -173,7 +173,7 @@ struct PlusView: View {
     }
 }
 
-/// Une petite étiquette « Plus » sur ce qui demande FoldCount+.
+/// Une petite étiquette « Plus » sur ce qui demande Foldly+.
 struct PlusBadge: View {
     var body: some View {
         HStack(spacing: 3) {

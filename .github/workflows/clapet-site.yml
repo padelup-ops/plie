@@ -17,7 +17,7 @@ on:
       url:
         description: "Adresse du site à vérifier"
         required: false
-        default: "https://duofolds.netlify.app"
+        default: "https://foldly.netlify.app"
 jobs:
   deploy:
     runs-on: ubuntu-latest

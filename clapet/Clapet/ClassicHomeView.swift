@@ -80,14 +80,14 @@ struct ClassicHomeView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(Color.dfBackground)
-            .navigationTitle(Text("FoldCount"))
+            .navigationTitle(Text("Foldly"))
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     if !store.hasPlus {
                         Button { plusReason = .menu } label: {
                             Text("Plus").font(.subheadline.weight(.semibold))
                         }
-                        .accessibilityLabel(Text("FoldCount+"))
+                        .accessibilityLabel(Text("Foldly+"))
                     }
                     Button { showSettings = true } label: {
                         Image(systemName: "gearshape")
@@ -122,7 +122,7 @@ struct ClassicHomeView: View {
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
         }
         .task {
-            // Une seule fois, après 3 jours suivis : on présente FoldCount+ (sans insister).
+            // Une seule fois, après 3 jours suivis : on présente Foldly+ (sans insister).
             try? await Task.sleep(nanoseconds: 2_500_000_000)
             let d = UserDefaults.standard
             if !Demo.seeded && !store.hasPlus && model.stats.daysCounted >= 3 && !d.bool(forKey: "plusPromptShown") {
@@ -379,7 +379,7 @@ struct ClassicHomeView: View {
                     }
                     .frame(height: 110)
                     if s.autoLast == nil {
-                        Text("Measured only while FoldCount is on screen. Set up the two Shortcuts automations to measure all day.")
+                        Text("Measured only while Foldly is on screen. Set up the two Shortcuts automations to measure all day.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -557,11 +557,11 @@ struct ClassicHomeView: View {
     private var footnote: some View {
         VStack(alignment: .leading, spacing: 6) {
             if model.hasHinge {
-                Text("Without the automation, FoldCount counts only while it's on screen, on the inner or the outer display.")
+                Text("Without the automation, Foldly counts only while it's on screen, on the inner or the outer display.")
             } else {
                 Text("No hinge here: tap the phone drawing to count.")
             }
-            Text("Add the widgets from your Home Screen or Lock Screen: touch and hold, Edit, then FoldCount.")
+            Text("Add the widgets from your Home Screen or Lock Screen: touch and hold, Edit, then Foldly.")
         }
         .font(.footnote)
         .foregroundStyle(.secondary)
