@@ -2,21 +2,11 @@ import Charts
 import SwiftUI
 import WidgetKit
 
-// MARK: - Le style de Duo Folds
+// MARK: - Le look « Nuit »
 //
 // Sombre et sobre : un fond vert-noir, des cartes cerclées d'un filet, des tuiles pleines,
-// de grands chiffres fins et une seule couleur d'accent, le vert d'eau. Orange et rouge pour la limite.
+// de grands chiffres fins, deux onglets (Aujourd'hui, Semaine). Couleurs : voir Look.swift.
 
-extension Color {
-    static let dfAccent = Color(red: 0.36, green: 0.89, blue: 0.78)
-    static let dfBackground = Color(red: 0.055, green: 0.078, blue: 0.078)
-    static let dfCard = Color(red: 0.135, green: 0.16, blue: 0.157)
-    static let dfFill = Color.white.opacity(0.08)
-    static let dfOutline = Color.white.opacity(0.17)
-    static let dfBar = Color(red: 0.08, green: 0.36, blue: 0.32)
-    static let dfWarning = Color(red: 1.0, green: 0.71, blue: 0.36)
-    static let dfOver = Color(red: 1.0, green: 0.45, blue: 0.42)
-}
 
 /// Une carte : cerclée d'un filet, ou pleine (`filled`) pour les tuiles.
 struct Card<Content: View>: View {
@@ -56,7 +46,7 @@ struct CardTitle: View {
     }
 }
 
-struct ContentView: View {
+struct NightHomeView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
     @State private var showSettings = false

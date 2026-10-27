@@ -8,6 +8,7 @@ struct SettingsView: View {
     @State private var showPlus = false
     @State private var alertsDenied = false
     @State private var showAuto = false
+    @AppStorage(DFLook.key) private var lookRaw = ""
 
     var body: some View {
         NavigationStack {
@@ -34,6 +35,21 @@ struct SettingsView: View {
                 } header: {
                     Text("Duo Folds+")
                 }
+                }
+                Section {
+                    Picker(selection: Binding(get: { DFLook(rawValue: lookRaw)?.rawValue ?? DFLook.classic.rawValue },
+                                              set: { lookRaw = $0 })) {
+                        ForEach(DFLook.allCases) { look in
+                            look.title.tag(look.rawValue)
+                        }
+                    } label: {
+                        Text("Look")
+                    }
+                    .pickerStyle(.segmented)
+                } header: {
+                    Text("Look")
+                } footer: {
+                    (DFLook(rawValue: lookRaw) ?? .classic).subtitle
                 }
                 Section {
                     HStack(spacing: 12) {
