@@ -32,43 +32,38 @@ PROMO = {
     "en-US": "How many times a day do you open your Duo? Set a daily limit and keep an eye on your folds, right from your Home Screen.",
     "fr-FR": "Combien de fois par jour ouvres-tu ton Duo ? Fixe une limite et garde un œil sur tes plis, directement sur ton écran d'accueil.",
 }
+PRICE_EUR = os.environ.get("APP_PRICE", "2.99")
 DESCRIPTION = {
     "en-US": """Every fold of your iPhone Duo is a glance at your phone. Duo Folds counts them, so you can see your habits and keep them under control.
 
-Keep Duo Folds on screen, on the inner or the outer display: every time you close your Duo, it counts. Set a daily limit and watch the ring: mint while you're under it, yellow when you get close, pink when you're over.
+Keep Duo Folds on screen, on the inner or the outer display: every time you close your Duo, it counts. Set a daily limit and watch the ring: green while you're under it, orange when you get close, red when you're over.
 
-FREE
 • Folds and opens today, the last 7 days and your total
 • A daily limit, and how many folds you have left
-• Today hour by hour, and your hinge level
-• The small Home Screen widget and the Lock Screen line
+• Limit alerts: a notification at 80 % and at 100 % of your limit
+• Today hour by hour, and your lifetime milestones
+• Widgets for the Home Screen and the Lock Screen, including a big Health-style widget
+• Your full history: 30 days, 12 months, the calendar of days under your limit, your trends and records
+• Five widget colors, and your history as a spreadsheet (CSV)
 • A Shortcuts action, "Count a fold", to count from an automation
 
-DUO FOLDS+ (one-time purchase, no subscription)
-• Every widget: the big Health-style widget, the medium one and the Lock Screen ones
-• Limit alerts: a notification at 80 % and at 100 % of your limit
-• Your full history: 30 days, 12 months, the calendar of days under your limit, your trends and records
-• Five widget colors
-• Export your history as a spreadsheet (CSV)
+One purchase, everything included. No subscription, no ads, no account.
 
 Good to know: iOS only tells an app about the hinge while that app is on screen, so Duo Folds counts while it is open. Your numbers stay on your iPhone.""",
     "fr-FR": """Chaque pli de ton iPhone Duo, c'est un coup d'œil à ton téléphone. Duo Folds les compte, pour que tu voies tes habitudes et que tu les gardes sous contrôle.
 
-Garde Duo Folds à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton Duo, il compte. Fixe une limite par jour et regarde l'anneau : menthe tant que tu es en dessous, jaune quand tu t'en approches, rose quand tu la dépasses.
+Garde Duo Folds à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton Duo, il compte. Fixe une limite par jour et regarde l'anneau : vert tant que tu es en dessous, orange quand tu t'en approches, rouge quand tu la dépasses.
 
-GRATUIT
 • Fermetures et ouvertures du jour, les 7 derniers jours et ton total
 • Une limite par jour, et combien de plis il te reste
-• Ta journée heure par heure, et le niveau de ta charnière
-• Le petit widget de l'écran d'accueil et la ligne de l'écran verrouillé
+• Des alertes de limite : une notification à 80 % et à 100 % de ta limite
+• Ta journée heure par heure, et tes paliers depuis le début
+• Des widgets pour l'écran d'accueil et l'écran verrouillé, dont un grand widget façon Santé
+• Tout l'historique : 30 jours, 12 mois, le calendrier des jours sous ta limite, tes tendances et tes records
+• Cinq couleurs de widgets, et ton historique en tableur (CSV)
 • Une action Raccourcis, « Compter un pli », pour compter depuis une automatisation
 
-DUO FOLDS+ (achat unique, sans abonnement)
-• Tous les widgets : le grand widget façon Santé, le moyen et ceux de l'écran verrouillé
-• Les alertes de limite : une notification à 80 % et à 100 % de ta limite
-• Tout l'historique : 30 jours, 12 mois, le calendrier des jours sous ta limite, tes tendances et tes records
-• Cinq couleurs de widgets
-• L'export de ton historique en tableur (CSV)
+Un seul achat, tout est inclus. Sans abonnement, sans pub, sans compte.
 
 Bon à savoir : iOS ne prévient une app des mouvements de la charnière que quand elle est à l'écran ; Duo Folds compte donc tant qu'il est ouvert. Tes chiffres restent sur ton iPhone.""",
 }
@@ -79,20 +74,18 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• The app is now called Duo Folds.
-• A daily LIMIT instead of a goal: the ring turns yellow near your limit and pink above it.
-• Duo Folds+ (one-time purchase): every widget, limit alerts, full history and records, widget colors, CSV export. In TestFlight the purchase is free (Apple's test mode). Settings > Test version > "Simulate Duo Folds+" shows both modes.
-• Without Duo Folds+, the big widgets are blurred: tap them to see the offer.
+• A new, sober design (light or dark, like your iPhone) and a new icon.
+• Duo Folds is now a paid app: whoever buys it gets everything. In TestFlight, everything is free: every widget, limit alerts, full history, widget colors, CSV export.
+• Lifetime milestones replace the levels.
 
-Please test: does every fold count once? Do the widgets show the same numbers as the app? Does the purchase unlock the widgets right away?""",
+Please test: does every fold count once? Do the widgets show the same numbers as the app? Do the limit alerts arrive at 80 % and 100 %?""",
     "fr-FR": """Nouveautés de ce build :
 
-• L'app s'appelle maintenant Duo Folds.
-• Une LIMITE par jour au lieu d'un objectif : l'anneau devient jaune près de la limite et rose au-dessus.
-• Duo Folds+ (achat unique) : tous les widgets, alertes de limite, tout l'historique et les records, couleurs des widgets, export CSV. Dans TestFlight l'achat est gratuit (mode test d'Apple). Réglages > Version de test > « Simuler Duo Folds+ » montre les deux modes.
-• Sans Duo Folds+, les grands widgets sont floutés : touche-les pour voir l'offre.
+• Un nouveau style, sobre (clair ou sombre comme ton iPhone), et une nouvelle icône.
+• Duo Folds devient une app payante : qui l'achète a tout. Dans TestFlight, tout est gratuit : tous les widgets, les alertes de limite, tout l'historique, les couleurs, l'export CSV.
+• Des paliers remplacent les niveaux.
 
-À tester : chaque pli compte-t-il une seule fois ? Les widgets affichent-ils les mêmes chiffres que l'app ? L'achat débloque-t-il les widgets tout de suite ?""",
+À tester : chaque pli compte-t-il une seule fois ? Les widgets affichent-ils les mêmes chiffres que l'app ? Les alertes arrivent-elles à 80 % et à 100 % ?""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
@@ -181,6 +174,32 @@ if editable_versions:
 else:
     print("pas de version modifiable pour la description")
 
+# ------------------------------------------------------------ 2 bis. Le prix de l'app (base France)
+current = call("GET", f"/v1/apps/{app_id}/appPriceSchedule?include=manualPrices,baseTerritory")
+have = [x for x in current.get("included", []) if x["type"] == "appPrices"]
+point = None
+url = f"/v1/apps/{app_id}/appPricePoints?filter[territory]=FRA&limit=200"
+while url and not point:
+    page = call("GET", url)
+    point = next((p for p in page.get("data", []) if p["attributes"].get("customerPrice") == PRICE_EUR), None)
+    nxt = page.get("links", {}).get("next")
+    url = nxt.replace(API, "") if nxt else None
+if not point:
+    problems.append("prix")
+    print("ÉCHEC  aucun palier à", PRICE_EUR, "€ pour l'app")
+else:
+    already = any(x.get("relationships", {}).get("appPricePoint", {}).get("data", {}).get("id") == point["id"] for x in have)
+    if already:
+        print(f"ok     prix de l'app {PRICE_EUR} € (déjà en place)")
+    else:
+        step(f"prix de l'app {PRICE_EUR} € (base France)", call("POST", "/v1/appPriceSchedules", {
+            "data": {"type": "appPriceSchedules", "relationships": {
+                "app": {"data": {"type": "apps", "id": app_id}},
+                "baseTerritory": {"data": {"type": "territories", "id": "FRA"}},
+                "manualPrices": {"data": [{"type": "appPrices", "id": "${prix}"}]}}},
+            "included": [{"type": "appPrices", "id": "${prix}", "attributes": {"startDate": None},
+                          "relationships": {"appPricePoint": {"data": {"type": "appPricePoints", "id": point["id"]}}}}]}))
+
 # ------------------------------------------------------------ 3. Le texte TestFlight
 existing = {l["attributes"]["locale"]: l for l in call("GET", f"/v1/apps/{app_id}/betaAppLocalizations").get("data", [])}
 for locale, text in BETA_DESCRIPTION.items():
@@ -213,8 +232,9 @@ bid = build["id"]
 print("build", build["attributes"].get("version"), "prêt")
 
 locs = {l["attributes"]["locale"]: l for l in call("GET", f"/v1/builds/{bid}/betaBuildLocalizations").get("data", [])}
-for locale, text in WHATS_NEW.items():
-    upsert("betaBuildLocalizations", locs, locale, {"whatsNew": text}, "build", "builds", bid, f"notes À tester {locale}")
+if os.environ.get("SKIP_NOTES") != "1":
+    for locale, text in WHATS_NEW.items():
+        upsert("betaBuildLocalizations", locs, locale, {"whatsNew": text}, "build", "builds", bid, f"notes À tester {locale}")
 
 # ------------------------------------------------------------ 5. Les testeurs internes (les mêmes qu'Origamo)
 groups = call("GET", f"/v1/apps/{app_id}/betaGroups?limit=50").get("data", [])
@@ -282,6 +302,11 @@ if external:
                     step(f"adresse de retour {l['attributes']['locale']}", call("PATCH", f"/v1/betaAppLocalizations/{l['id']}",
                          {"data": {"type": "betaAppLocalizations", "id": l["id"], "attributes": {"feedbackEmail": feedback}}}))
     for g in external:
+        if not g["attributes"].get("publicLinkEnabled"):
+            r = step(f"lien public du groupe « {g['attributes'].get('name')} »", call("PATCH", f"/v1/betaGroups/{g['id']}",
+                     {"data": {"type": "betaGroups", "id": g["id"], "attributes": {"publicLinkEnabled": True}}}))
+            if "data" in r:
+                g = r["data"]
         a = g["attributes"]
         n = len(call("GET", f"/v1/betaGroups/{g['id']}/betaTesters?limit=200").get("data", []))
         link = a.get("publicLink") if a.get("publicLinkEnabled") else None

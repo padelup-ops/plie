@@ -7,6 +7,10 @@ on:
       build:
         description: "Numéro du build (vide = le dernier)"
         required: false
+      skip_notes:
+        description: "1 = ne pas réécrire les notes « À tester »"
+        required: false
+        default: "0"
 
 jobs:
   beta:
@@ -20,14 +24,12 @@ jobs:
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
       ORIGAMO_BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
       BUILD_NUMBER: ${{ inputs.build }}
+      SKIP_NOTES: ${{ inputs.skip_notes }}
     steps:
       - uses: actions/checkout@v5
-      - name: Achat Duo Folds+
+      - name: Fiche, prix et testeurs
         run: |
           python3 -m pip install --quiet pyjwt cryptography
-          python3 clapet/tools/asc_plus.py 2>&1 | tee plus.txt || true
-      - name: Fiche et testeurs
-        run: |
           python3 clapet/tools/asc.py 2>&1 | tee beta.txt
       - name: Publier le rapport
         if: always()
