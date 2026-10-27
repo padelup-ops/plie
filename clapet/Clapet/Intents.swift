@@ -46,10 +46,11 @@ struct CountClapIntent: AppIntent {
     static var description = IntentDescription("Adds one fold to today's count. Use it in a Shortcuts automation that runs when your Duo is closed.")
     static var openAppWhenRun = false
 
+    /// Rien à l'écran : l'automatisation tourne en silence (le nombre reste disponible pour Raccourcis).
     @MainActor
-    func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+    func perform() async throws -> some IntentResult & ReturnsValue<Int> {
         let today = AutomaticCounter.close()
-        return .result(value: today, dialog: "\(today) folds today")
+        return .result(value: today)
     }
 }
 
