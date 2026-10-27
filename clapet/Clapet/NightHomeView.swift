@@ -243,8 +243,9 @@ struct NightHomeView: View {
             HStack(alignment: .center, spacing: 8) {
                 bigNumber
                     .layoutPriority(1)
-                Spacer(minLength: 0)
+                // La jauge, centrée dans l'espace à droite du nombre.
                 miniGauge
+                    .frame(maxWidth: .infinity)
             }
             trend
             if s.autoLast == nil && !Demo.seeded { autoBanner }
@@ -321,19 +322,19 @@ struct NightHomeView: View {
 
     private var miniGauge: some View {
         VStack(spacing: 4) {
-            HingeArc(degrees: angle, closedBelow: Double(closedBelow), line: 10)
-                .frame(width: 128, height: 70)
+            HingeArc(degrees: angle, closedBelow: Double(closedBelow), line: 13)
+                .frame(width: 176, height: 96)
                 .overlay(alignment: .bottom) {
                     Text("\(Int(angle.rounded()))°")
-                        .font(.system(size: 26, weight: .light))
+                        .font(.system(size: 34, weight: .light))
                         .monospacedDigit()
                 }
             hingeStatus
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
-                .frame(width: 136)
+                .frame(width: 184)
         }
         .contentShape(Rectangle())
         .onTapGesture {
