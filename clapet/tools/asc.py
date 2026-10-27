@@ -246,6 +246,59 @@ for g in internal:
     count = len(call("GET", f"/v1/betaGroups/{g['id']}/betaTesters?limit=200").get("data", []))
     print(f"groupe « {g['attributes']['name']} » (interne) : {count} testeur(s)")
 
+# Testeurs internes qui n'ont pas pu être ajoutés : on les réinvite par leur adresse.
+if internal and wanted:
+    count = len(call("GET", f"/v1/betaGroups/{internal[0]['id']}/betaTesters?limit=200").get("data", []))
+    if count == 0:
+        for t in wanted.values():
+            at = t["attributes"]
+            body = {"data": {"type": "betaTesters",
+                             "attributes": {k: at.get(k) for k in ("email", "firstName", "lastName") if at.get(k)},
+                             "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": internal[0]["id"]}]}}}}
+            r = call("POST", "/v1/betaTesters", body)
+            print("ok     testeur interne invité par adresse" if "data" in r else f"       testeur interne : {r.get('detail', '')[:200]}")
+
+# ------------------------------------------------------------ 6. Les testeurs externes
+external = [g for g in call(f"GET", f"/v1/apps/{app_id}/betaGroups?limit=50").get("data", []) if not g["attributes"].get("isInternalGroup")]
+if external:
+    # Coordonnées pour la vérification bêta d'Apple : les mêmes que pour Origamo si elles manquent.
+    mine = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {})
+    if mine and not mine.get("attributes", {}).get("contactEmail") and origamo:
+        src = call("GET", f"/v1/apps/{origamo[0]['id']}/betaAppReviewDetail").get("data", {}).get("attributes", {})
+        keep = {k: src.get(k) for k in ("contactFirstName", "contactLastName", "contactPhone", "contactEmail") if src.get(k)}
+        if keep:
+            keep["demoAccountRequired"] = False
+            step("coordonnées pour la vérification bêta (reprises d'Origamo)",
+                 call("PATCH", f"/v1/betaAppReviewDetails/{mine['id']}", {"data": {"type": "betaAppReviewDetails", "id": mine["id"], "attributes": keep}}))
+        else:
+            print("       Origamo n'a pas de coordonnées de vérification bêta à reprendre")
+    # Adresse de retour des testeurs : celle d'Origamo si elle manque.
+    if origamo:
+        src_locs = {l["attributes"]["locale"]: l["attributes"] for l in call("GET", f"/v1/apps/{origamo[0]['id']}/betaAppLocalizations").get("data", [])}
+        feedback = next((v.get("feedbackEmail") for v in src_locs.values() if v.get("feedbackEmail")), None)
+        if feedback:
+            for l in call("GET", f"/v1/apps/{app_id}/betaAppLocalizations").get("data", []):
+                if not l["attributes"].get("feedbackEmail"):
+                    step(f"adresse de retour {l['attributes']['locale']}", call("PATCH", f"/v1/betaAppLocalizations/{l['id']}",
+                         {"data": {"type": "betaAppLocalizations", "id": l["id"], "attributes": {"feedbackEmail": feedback}}}))
+    for g in external:
+        a = g["attributes"]
+        n = len(call("GET", f"/v1/betaGroups/{g['id']}/betaTesters?limit=200").get("data", []))
+        link = a.get("publicLink") if a.get("publicLinkEnabled") else None
+        print(f"groupe « {a.get('name')} » (externe) : {n} testeur(s)" + (f" · lien public {link}" if link else " · pas de lien public"))
+        step(f"build ajouté au groupe « {a.get('name')} »",
+             call("POST", f"/v1/betaGroups/{g['id']}/relationships/builds", {"data": [{"type": "builds", "id": bid}]}),
+             tolerate=("already",))
+    detail = call("GET", f"/v1/builds/{bid}/buildBetaDetail").get("data", {})
+    ext_state = detail.get("attributes", {}).get("externalBuildState")
+    print("état pour les testeurs externes :", ext_state)
+    if ext_state not in ("IN_BETA_TESTING", "READY_FOR_BETA_TESTING", "WAITING_FOR_BETA_REVIEW", "IN_BETA_REVIEW", "BETA_APPROVED"):
+        step("envoi à la vérification bêta d'Apple", call("POST", "/v1/betaAppReviewSubmissions",
+             {"data": {"type": "betaAppReviewSubmissions", "relationships": {"build": {"data": {"type": "builds", "id": bid}}}}}),
+             tolerate=("already",))
+    detail = call("GET", f"/v1/builds/{bid}/buildBetaDetail").get("data", {})
+    print("état final pour les testeurs externes :", detail.get("attributes", {}).get("externalBuildState"))
+
 detail = call("GET", f"/v1/builds/{bid}/buildBetaDetail").get("data", {})
 print("état pour les testeurs internes :", detail.get("attributes", {}).get("internalBuildState"))
 print("\nBUILD DISTRIBUÉ" if not problems else "\nÀ REVOIR : " + ", ".join(problems))
