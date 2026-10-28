@@ -65,14 +65,13 @@ jobs:
           mkdir -p out
           if [ -d "$ASSETS_DIR" ]; then
             MODE=upload python3 clapet/tools/asc_assets.py 2>&1 | tee creative.txt
-            MODE=place python3 clapet/tools/asc_assets.py 2>&1 | tee -a creative.txt
           else
             echo "pas de vidéos d'en-tête pour cette app" | tee creative.txt
           fi
       - name: Version 1.0
         run: |
           set -o pipefail
-          python3 clapet/tools/asc_release.py 2>&1 | tee release.txt
+          ASSETS_DIR=${{ inputs.app == 'origamo' && 'tools/store_creative' || 'clapet/tools/store/creative' }} python3 clapet/tools/asc_release.py 2>&1 | tee release.txt
       - name: Publier le rapport
         if: always()
         env:

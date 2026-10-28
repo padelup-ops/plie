@@ -358,6 +358,14 @@ if BUILD:
         problems.append("build")
         print(f"ÉCHEC  build {BUILD} pas prêt")
 
+# Les vidéos d'en-tête et de recherche (iOS 27), déjà dans la bibliothèque : placées sur cette version, par langue.
+ASSETS_DIR = os.environ.get("ASSETS_DIR", "")
+if ASSETS_DIR and os.path.isdir(ASSETS_DIR):
+    import subprocess
+    r = subprocess.run([sys.executable, os.path.join(HERE, "asc_assets.py")], env={**os.environ, "MODE": "place"},
+                       capture_output=True, text=True)
+    print("\n".join("       " + x for x in (r.stdout + r.stderr).strip().splitlines()[-12:]))
+
 # Les captures doivent être traitées par Apple avant l'envoi
 if os.environ.get("SUBMIT") == "1":
     for attempt in range(30):
