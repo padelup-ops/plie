@@ -1,0 +1,33 @@
+# Foldly : demande de mise en avant sur l'App Store (rapport dans la branche ci-clapet-nominate).
+name: Clapet - mise en avant
+on:
+  workflow_dispatch:
+    inputs:
+      submit:
+        description: "1 = envoyer à Apple (sinon brouillon)"
+        required: false
+        default: "1"
+jobs:
+  nominate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      SUBMIT: ${{ inputs.submit }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Mise en avant
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_nominate.py 2>&1 | tee nomination.txt || true
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && touch nomination.txt && cp nomination.txt "$RUNNER_TEMP/r/" && cd "$RUNNER_TEMP/r"
+          git init -q -b ci-clapet-nominate && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Mise en avant Foldly" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-nominate
