@@ -80,6 +80,7 @@ WHATS_NEW = {
 • Better "Folds today" widget: your daily limit at a glance (green, orange, red), and your phone-down time on the large one.
 • Widget gallery in the app (Widgets row, or the card on the home screen): every size with your real numbers, choose their color, and how to add them.
 • BADGES for the plant challenge: first sprout, 25, 100, 500 plants, goal met 1, 3, 7 and 30 days in a row, and 10 unfolds resisted. See them in My garden.
+• Fixed: the large widget now fits entirely (header and bottom were cut off).
 • Fixed: when plants piled up, the Phone down card overflowed the screen (outer screen especially). Now a ring shows the next plant growing.
 
 Please test: add the two widgets (Home Screen and Lock Screen), and tell us what you think of the badges.""",
@@ -89,6 +90,7 @@ Please test: add the two widgets (Home Screen and Lock Screen), and tell us what
 • Widget « Plis du jour » amélioré : ta limite du jour d'un coup d'œil (vert, orange, rouge), et ton temps téléphone posé sur le grand.
 • Galerie des widgets dans l'app (ligne « Widgets », ou la carte de l'accueil) : toutes les tailles avec tes vrais chiffres, leur couleur, et comment les ajouter.
 • BADGES pour le défi des plantes : première pousse, 25, 100, 500 plantes, objectif tenu 1, 3, 7 et 30 jours d'affilée, et 10 ouvertures évitées. À voir dans Mon jardin.
+• Corrigé : le grand widget tient en entier (le haut et le bas étaient coupés).
 • Corrigé : quand les plantes s'accumulaient, la carte Téléphone posé débordait de l'écran (surtout l'écran extérieur). Un anneau montre maintenant la plante qui pousse.
 
 À tester : ajoute les deux widgets (écran d'accueil et écran verrouillé), et dis-nous ce que tu penses des badges.""",
