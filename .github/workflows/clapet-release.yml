@@ -18,10 +18,14 @@ on:
         description: "duofolds ou origamo"
         required: false
         default: "duofolds"
+      version:
+        description: "Nouvelle version à créer après la 1.0 (ex. 1.0.1 ; vide = la version en cours)"
+        required: false
+        default: ""
 jobs:
   release:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     permissions:
       contents: write
     env:
@@ -30,6 +34,7 @@ jobs:
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
       ORIGAMO_BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
       RELEASE_BUILD: ${{ inputs.build }}
+      NEW_VERSION: ${{ inputs.version }}
       SUBMIT: ${{ inputs.submit }}
       WITHDRAW: ${{ inputs.withdraw }}
       SITE_URL: ${{ inputs.app == 'origamo' && 'https://origamo.netlify.app' || 'https://foldly.netlify.app' }}

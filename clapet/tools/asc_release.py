@@ -192,6 +192,41 @@ else:
         "included": [{"type": "territoryAvailabilities", "id": f"${{{t}}}", "attributes": {"available": True},
                       "relationships": {"territory": {"data": {"type": "territories", "id": t}}}} for t in territories]}))
 
+# ---------------------------------------------------------------- nouvelle version (NEW_VERSION=1.0.1…)
+# Les nouveautés affichées sur l'App Store, par version.
+RELEASE_NOTES = {
+    "1.0.1": {
+        "en-US": "• Phone down: a timer runs on the outer screen while your phone stays closed, and a plant grows every 25 minutes. Build your garden and set a daily goal.\n"
+                 "• Badges for the plant challenge: first sprout, 25, 100 and 500 plants, goal met several days in a row.\n"
+                 "• New Phone down widget, and a better Folds today widget with your daily limit.\n"
+                 "• Mindful pause: a 3-second breath before you unfold, if you want it.\n"
+                 "• Live counter on the Lock Screen, quick checks, longest break, and a card to share your day.",
+        "fr-FR": "• Téléphone posé : un chrono tourne sur l'écran extérieur tant que ton téléphone reste fermé, et une plante pousse toutes les 25 minutes. Fais grandir ton jardin et fixe-toi un objectif.\n"
+                 "• Des badges pour le défi des plantes : première pousse, 25, 100 et 500 plantes, objectif tenu plusieurs jours d'affilée.\n"
+                 "• Nouveau widget Téléphone posé, et widget Plis du jour amélioré avec ta limite.\n"
+                 "• Pause consciente : 3 secondes pour respirer avant d'ouvrir, si tu le souhaites.\n"
+                 "• Compteur en direct sur l'écran verrouillé, coups d'œil, plus longue pause, et une image pour partager ta journée.",
+    },
+}
+NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
+if NEW_VERSION:
+    existing = call("GET", f"/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS&filter[versionString]={NEW_VERSION}").get("data", [])
+    if existing:
+        print(f"ok     version {NEW_VERSION} déjà créée ({existing[0]['attributes'].get('appStoreState')})")
+        new_vid = existing[0]["id"]
+    else:
+        r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
+                 "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "AFTER_APPROVAL"},
+                 "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
+        new_vid = r.get("data", {}).get("id")
+    notes = RELEASE_NOTES.get(NEW_VERSION, {})
+    if new_vid and notes:
+        for l in call("GET", f"/v1/appStoreVersions/{new_vid}/appStoreVersionLocalizations").get("data", []):
+            text = notes.get(l["attributes"]["locale"])
+            if text:
+                step(f"nouveautés {l['attributes']['locale']}", call("PATCH", f"/v1/appStoreVersionLocalizations/{l['id']}", {"data": {
+                     "type": "appStoreVersionLocalizations", "id": l["id"], "attributes": {"whatsNew": text}}}))
+
 # ---------------------------------------------------------------- version 1.0
 versions = call("GET", f"/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS&limit=10").get("data", [])
 version = next((v for v in versions if v["attributes"].get("appStoreState") in
