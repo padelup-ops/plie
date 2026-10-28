@@ -9,15 +9,24 @@ import jwt
 
 API = "https://api.appstoreconnect.apple.com"
 MODE = os.environ.get("MODE", "discover")
-token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
-                    "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",
-                   headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
+_token = {"value": None, "at": 0}
+
+
+def bearer():
+    """Un jeton neuf toutes les 10 minutes (ils expirent au bout de 20 : le traitement des vidéos est long)."""
+    if time.time() - _token["at"] > 600:
+        now = int(time.time())
+        _token["value"] = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": now, "exp": now + 1200,
+                                      "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",
+                                     headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
+        _token["at"] = now
+    return _token["value"]
 
 
 def call(method, path, body=None, raw=False):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(path if path.startswith("http") else API + path, data=data, method=method,
-                                 headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
+                                 headers={"Authorization": "Bearer " + bearer(), "Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req) as r:
             txt = r.read()
@@ -98,6 +107,16 @@ def reserve(name, size, ref):
     return None
 
 
+# L'image d'affiche : la vidéo commence jardin plein, on la prend à la demi-seconde.
+POSTER = os.environ.get("POSTER_TIMECODE", "00:00:00:15")
+
+
+def poster(vid):
+    r = call("PATCH", f"/v1/appAssetLibraryVideos/{vid}", {"data": {"type": "appAssetLibraryVideos", "id": vid,
+             "attributes": {"previewFrameTimeCode": POSTER}}})
+    print("       image d'affiche", POSTER, "ok" if "error" not in r else "refusée : " + short(r, 400))
+
+
 def upload_file(path, ref):
     data = open(path, "rb").read()
     r = reserve(os.path.basename(path), len(data), ref)
@@ -118,10 +137,11 @@ def upload_file(path, ref):
         print("ÉCHEC  validation de l'envoi :", short(c, 600))
         problems.append(os.path.basename(path))
         return vid
-    for attempt in range(60):
+    poster(vid)
+    for attempt in range(12):
         a = call("GET", f"/v1/appAssetLibraryVideos/{vid}").get("data", {}).get("attributes", {})
         state = a.get("state") or (a.get("assetDeliveryState") or {}).get("state")
-        if state not in ("UPLOAD_COMPLETE", "AWAITING_UPLOAD", "PROCESSING", None) or attempt == 59:
+        if state not in ("UPLOAD_COMPLETE", "AWAITING_UPLOAD", "PROCESSING", None) or attempt == 11:
             print(f"       état {state} · spécification {a.get('specId')} · {short({k: v for k, v in a.items() if k not in ('uploadOperations',)}, 900)}")
             break
         time.sleep(15)
@@ -143,14 +163,25 @@ if MODE == "upload":
             digest = hashlib.md5(open(path, "rb").read()).hexdigest()[:12]
             ref = f"{kind}-{locale}-{digest}"
             if ref in have:
-                print(f"ok     {kind} {locale} déjà envoyée ({have[ref]['id']})")
-                report[f"{locale}/{kind}"] = have[ref]["id"]
-                continue
+                st = have[ref]["attributes"].get("state")
+                if st in ("AWAITING_UPLOAD", "FAILED", None):
+                    print(f"       {kind} {locale} : envoi précédent inachevé ({st}), on recommence")
+                    call("DELETE", f"/v1/appAssetLibraryVideos/{have[ref]['id']}")
+                else:
+                    print(f"ok     {kind} {locale} déjà envoyée ({have[ref]['id']}, {st})")
+                    if have[ref]["attributes"].get("previewFrameTimeCode") != POSTER:
+                        poster(have[ref]["id"])
+                    report[f"{locale}/{kind}"] = have[ref]["id"]
+                    continue
             print(f"envoi  {kind} {locale} ({os.path.getsize(path) // 1024} Ko)")
             vid = upload_file(path, ref)
             if vid:
                 report[f"{locale}/{kind}"] = vid
     json.dump(report, open("out/assets.json", "w"), indent=1)
+    print("\nBibliothèque :")
+    for v in library_videos():
+        a = v["attributes"]
+        print(f"  {a.get('referenceName')} · {a.get('state')} · spécification {a.get('specId')} · affiche {a.get('previewFrameTimeCode')}")
     print("\nENVOYÉ DANS LA BIBLIOTHÈQUE" if not problems else "\nÀ REVOIR : " + ", ".join(problems))
 
 
