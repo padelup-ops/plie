@@ -31,7 +31,7 @@ struct RayonLevelsView: View {
                                 SectionTitle(text: L("Monde \(world) · \(RayonLevel.worldName(world))"))
                                 if RayonLevel.all.contains(where: { $0.world == world && app.rayonNeedsPass($0.number, hasPass: store.hasEverything) }) {
                                     Image(systemName: "crown.fill")
-                                        .foregroundStyle(Theme.gold)
+                                        .foregroundStyle(Theme.star)
                                 }
                             }
                             LazyVGrid(columns: [GridItem(.adaptive(minimum: 62), spacing: 10)], spacing: 10) {
@@ -66,11 +66,11 @@ struct RayonLevelsView: View {
                 if unlocked {
                     Text("\(number)")
                         .font(.plie(22))
-                        .foregroundStyle(solved ? Theme.ink : .white)
+                        .foregroundStyle(solved ? Paper.ink : Theme.text)
                 } else {
                     Image(systemName: needsPass ? "crown.fill" : "lock.fill")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(needsPass ? Theme.gold : Theme.muted)
+                        .foregroundStyle(needsPass ? Theme.star : Theme.muted)
                 }
             }
             .frame(height: 62)
@@ -243,6 +243,12 @@ struct RayonPlayView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+        #if DEBUG
+        .onAppear {
+            // Capture d'écran de la carte de victoire.
+            if UserDefaults.standard.string(forKey: "screenshotRoute")?.hasPrefix("rayonWin") == true { session.solved = true }
+        }
+        #endif
         .onHingeAngle { degrees in
             session.hingeDegrees = degrees
             guard let degrees, HingeMapping.isOpen(degrees), dragStartT == nil else { return }
@@ -315,7 +321,7 @@ struct RayonPlayView: View {
             VStack(spacing: 14) {
                 WinIcon(systemName: "scope", color: Theme.laser)
                 Text(L("Dans le mille !"))
-                    .font(.plie(34))
+                    .font(.paperTitle(34))
                 Text(session.level.rotors.isEmpty
                      ? L("Niveau \(number) en \(formatSeconds(session.elapsed))")
                      : L("Niveau \(number) en \(formatSeconds(session.elapsed)) · \(session.taps) tap\(session.taps > 1 ? "s" : "")"))
@@ -341,7 +347,7 @@ struct RayonPlayView: View {
                     .buttonStyle(GhostButtonStyle())
                 ShareResultButton(game: L("RAYON"), result: L("Niveau \(number) en \(formatSeconds(session.elapsed))"), accent: Theme.laser)
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Theme.text)
             .padding(24)
             .frame(maxWidth: 420)
             .winCard(accent: Theme.laser)

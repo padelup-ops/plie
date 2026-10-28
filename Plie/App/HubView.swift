@@ -2,9 +2,9 @@ import SwiftUI
 
 // MARK: - Accueil
 //
-// En haut, les jeux à la une qui défilent. Puis les clés pour débloquer d'autres jeux, « Reprendre »,
-// et les jeux rangés par situation (à deux, en soirée, la magie du Duo…), en rangées qu'on fait glisser.
-// Les jeux encore fermés montrent un cadenas : une clé, ou le Pass, les ouvre.
+// Une table couverte de papier. En haut, les jeux à la une, en feuilles qu'on fait glisser.
+// Puis « Reprendre », et tous les jeux en cartes pliées, qu'on trie d'un geste : à deux, en soirée,
+// la magie du Duo, seul, pour les enfants. Les jeux encore fermés montrent un cadenas.
 
 struct HubView: View {
     @Environment(AppState.self) private var app
@@ -14,13 +14,25 @@ struct HubView: View {
     @State private var howTo: GameID?
     @State private var unlocking: GameID?
     @State private var choosing = false
-    @State private var heroIndex = 0
+    @State private var featuredID: GameID?
+    /// Dernière page choisie par le défilement automatique (pour reconnaître un glissement du doigt).
+    @State private var autoFeatured: GameID?
+    @State private var lastSwipe = Date.distantPast
     @State private var showPostures = false
+    @AppStorage("hub.shelf") private var shelfID = "all"
 
     static let newGames: Set<GameID> = [.duels, .mots, .briques, .bonneteau]
 
     /// Les jeux à la une : ceux qui donnent le plus envie, et qui montrent ce que le Duo sait faire.
     static let featured: [GameID] = [.duels, .boite, .croco, .mots, .coupDoeil]
+
+    /// L'ordre de « Tous » : les plus parlants d'abord.
+    static let allOrder: [GameID] = {
+        let curated: [GameID] = [.duels, .boite, .mots, .croco, .coupDoeil, .rayon, .airHockey, .dessine, .bombe,
+                                 .puissance, .briques, .bonneteau, .pliou, .luciole, .morpion, .billard, .filet,
+                                 .bascule, .chess, .draughts, .soleil, .ferme, .ecole, .piano]
+        return curated + GameID.allCases.filter { !curated.contains($0) }
+    }()
 
     struct Shelf: Identifiable {
         let id: String
@@ -31,18 +43,21 @@ struct HubView: View {
 
     private var shelves: [Shelf] {
         [
-            Shelf(id: "duo", title: L("À deux, face à face"), symbol: "person.2.fill",
+            Shelf(id: "all", title: L("Tous"), symbol: "square.grid.2x2.fill", games: Self.allOrder),
+            Shelf(id: "duo", title: L("À deux"), symbol: "person.2.fill",
                   games: [.duels, .airHockey, .puissance, .morpion, .billard, .chess, .draughts, .bonneteau]),
             Shelf(id: "party", title: L("En soirée"), symbol: "party.popper.fill",
                   games: [.mots, .croco, .dessine, .bombe, .soleil]),
             Shelf(id: "magic", title: L("La magie du Duo"), symbol: "sparkles",
                   games: [.boite, .coupDoeil, .luciole, .pliou, .ferme]),
-            Shelf(id: "fold", title: L("Seul, en pliant"), symbol: "person.fill",
-                  games: [.rayon, .bascule, .briques, .filet]),
-            Shelf(id: "kids", title: L("Pour les enfants"), symbol: "graduationcap.fill",
-                  games: [.ecole, .piano, .croco, .pliou, .morpion])
+            Shelf(id: "fold", title: L("Seul"), symbol: "person.fill",
+                  games: [.rayon, .bascule, .briques, .filet, .boite, .coupDoeil, .pliou, .ferme]),
+            Shelf(id: "kids", title: L("Enfants"), symbol: "graduationcap.fill",
+                  games: [.ecole, .piano, .croco, .pliou, .morpion, .puissance])
         ]
     }
+
+    private var shelf: Shelf { shelves.first { $0.id == shelfID } ?? shelves[0] }
 
     private var hasPass: Bool { store.hasEverything }
 
@@ -57,31 +72,51 @@ struct HubView: View {
     }
 
     var body: some View {
+        ScrollViewReader { reader in
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(alignment: .leading, spacing: 22) {
                 topBar
-                    .padding(.horizontal, 18)
-                hero
+                    .padding(.horizontal, 20)
+                featured
                 if !hasPass && app.lockedCount > 0 {
                     keysCard
-                        .padding(.horizontal, 18)
+                        .padding(.horizontal, 20)
                 }
                 if let last = app.lastPlayed, unlocked(last) {
                     resume(last)
-                        .padding(.horizontal, 18)
+                        .padding(.horizontal, 20)
                 }
-                ForEach(shelves) { shelf in
-                    shelfRow(shelf)
-                }
-                if !hasPass { passCard.padding(.horizontal, 18) }
+                library
+                    .id("library")
+                if !hasPass { passCard.padding(.horizontal, 20) }
                 postureLegend
-                    .padding(.horizontal, 18)
+                    .padding(.horizontal, 20)
             }
-            .padding(.vertical, 12)
+            .padding(.top, 8)
+            .padding(.bottom, 32)
             .frame(maxWidth: 1100)
             .frame(maxWidth: .infinity)
         }
-        // Le fond lumineux est dessiné par RootView.
+        .scrollIndicators(.hidden)
+        #if DEBUG
+        .task {
+            // Captures d'écran : les feuilles de l'accueil, et la grille des jeux.
+            let shot = UserDefaults.standard.string(forKey: "screenshotRoute") ?? ""
+            try? await Task.sleep(nanoseconds: 700_000_000)
+            switch shot {
+            case "settings": showSettings = true
+            case "howto": howTo = .boite
+            case "unlock": unlocking = .ferme
+            case "games": reader.scrollTo("library", anchor: .top)
+            case "party":
+                shelfID = "party"
+                reader.scrollTo("library", anchor: .top)
+            default: break
+            }
+        }
+        #endif
+        }
+        // Le fond de papier est dessiné par RootView.
         .sheet(isPresented: $showSettings) {
             SettingsView()
                 .environment(app)
@@ -110,23 +145,17 @@ struct HubView: View {
 
     private var topBar: some View {
         HStack(spacing: 12) {
-            Image("Logo")
-                .resizable()
-                .scaledToFit()
+            OrigamoMark()
                 .frame(width: 48, height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .shadow(color: Theme.paint.opacity(0.5), radius: 10)
-                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 0) {
-                Text(L("ORIGAMO"))
-                    .font(.system(.largeTitle, design: .rounded, weight: .black))
-                    .tracking(1.5)
+                Text(verbatim: "Origamo")
+                    .font(.paperTitle(32, weight: .bold))
+                    .foregroundStyle(Paper.ink)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                    .foregroundStyle(LinearGradient(colors: [Theme.laser, Theme.paint, Theme.gold], startPoint: .leading, endPoint: .trailing))
                 Text(L("\(GameID.allCases.count) jeux à jouer en pliant"))
-                    .font(.system(.subheadline, design: .rounded, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.85))
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(Paper.inkSoft)
             }
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isHeader)
@@ -136,11 +165,12 @@ struct HubView: View {
                     app.showPass = true
                 } label: {
                     Image(systemName: "crown.fill")
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(Theme.ink)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Paper.ink)
                         .frame(width: 44, height: 44)
-                        .background(Circle().fill(Theme.gold))
+                        .background(Circle().fill(Theme.gold.paperTone()).shadow(color: Paper.shadow.opacity(0.22), radius: 6, y: 3))
                 }
+                .buttonStyle(PressableStyle())
                 .accessibilityLabel(L("Pass Origamo"))
             }
             IconButton(symbol: "gearshape.fill", label: L("Réglages")) { showSettings = true }
@@ -149,26 +179,53 @@ struct HubView: View {
 
     // MARK: À la une
 
-    private var hero: some View {
-        TabView(selection: $heroIndex) {
-            ForEach(Array(Self.featured.enumerated()), id: \.offset) { item in
-                HeroCard(game: item.element, locked: !unlocked(item.element), isNew: Self.newGames.contains(item.element),
-                         daily: item.element == .coupDoeil, animate: !reduceMotion) {
-                    open(item.element)
+    private var featured: some View {
+        VStack(spacing: 12) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 12) {
+                    ForEach(Self.featured) { game in
+                        HeroCard(game: game, locked: !unlocked(game), isNew: Self.newGames.contains(game),
+                                 daily: game == .coupDoeil, animate: !reduceMotion) {
+                            open(game)
+                        }
+                        .containerRelativeFrame(.horizontal)
+                        .id(game)
+                    }
                 }
-                .padding(.horizontal, 18)
-                .tag(item.offset)
+                .scrollTargetLayout()
             }
-        }
-        .tabViewStyle(.page(indexDisplayMode: .always))
-        .frame(height: 300)
-        .task {
-            // Les cartes défilent toutes seules, doucement.
-            while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 6_000_000_000)
-                guard !reduceMotion else { continue }
-                withAnimation(.easeInOut(duration: 0.5)) { heroIndex = (heroIndex + 1) % Self.featured.count }
+            .contentMargins(.leading, 20, for: .scrollContent)
+            .contentMargins(.trailing, 44, for: .scrollContent)
+            .scrollTargetBehavior(.viewAligned)
+            .scrollPosition(id: $featuredID)
+            .scrollClipDisabled()
+            .frame(height: 222)
+            .onChange(of: featuredID) { _, new in
+                if new != autoFeatured { lastSwipe = Date() }
             }
+            .task {
+                // Les feuilles défilent toutes seules, doucement, sauf si on vient d'en faire glisser une.
+                while !Task.isCancelled {
+                    try? await Task.sleep(nanoseconds: 6_000_000_000)
+                    guard !reduceMotion, Date().timeIntervalSince(lastSwipe) > 12 else { continue }
+                    let current = Self.featured.firstIndex(of: featuredID ?? Self.featured[0]) ?? 0
+                    let next = Self.featured[(current + 1) % Self.featured.count]
+                    autoFeatured = next
+                    withAnimation(.easeInOut(duration: 0.6)) { featuredID = next }
+                }
+            }
+
+            HStack(spacing: 6) {
+                ForEach(Self.featured) { game in
+                    let on = game == (featuredID ?? Self.featured[0])
+                    Capsule()
+                        .fill(on ? Paper.ink : Paper.ink.opacity(0.18))
+                        .frame(width: on ? 18 : 6, height: 6)
+                }
+            }
+            .animation(.snappy, value: featuredID)
+            .frame(maxWidth: .infinity)
+            .accessibilityHidden(true)
         }
     }
 
@@ -182,41 +239,39 @@ struct HubView: View {
         } label: {
             HStack(spacing: 14) {
                 ZStack {
-                    Circle().stroke(Color.white.opacity(0.15), lineWidth: 6)
+                    Circle().stroke(Paper.ink.opacity(0.1), lineWidth: 6)
                     Circle()
                         .trim(from: 0, to: app.keys > 0 ? 1 : CGFloat(progress))
-                        .stroke(Theme.gold, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                        .stroke(Paper.gold, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                     Image(systemName: "key.fill")
                         .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(Theme.gold)
+                        .foregroundStyle(Paper.gold)
                 }
                 .frame(width: 58, height: 58)
                 VStack(alignment: .leading, spacing: 3) {
                     if app.keys > 0 {
                         Text(app.keys > 1 ? L("\(app.keys) clés à utiliser !") : L("Une clé à utiliser !"))
-                            .font(.system(.title3, design: .rounded, weight: .black))
+                            .font(.paperTitle(20))
                         Text(L("Choisis le prochain jeu à débloquer"))
                             .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            .opacity(0.85)
+                            .foregroundStyle(Paper.inkSoft)
                     } else {
                         Text(L("\(app.lockedCount) jeux à débloquer"))
-                            .font(.system(.title3, design: .rounded, weight: .black))
+                            .font(.paperTitle(20))
                         Text(need - app.keyProgress > 1 ? L("Encore \(need - app.keyProgress) parties pour gagner une clé") : L("Encore 1 partie pour gagner une clé"))
                             .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            .opacity(0.85)
+                            .foregroundStyle(Paper.inkSoft)
                     }
                 }
                 Spacer(minLength: 0)
                 Image(systemName: app.keys > 0 ? "chevron.right" : "crown.fill")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(app.keys > 0 ? .white : Theme.gold)
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(app.keys > 0 ? Paper.ink : Paper.gold)
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Paper.ink)
             .padding(16)
-            .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.black.opacity(0.35)))
-            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .strokeBorder(app.keys > 0 ? Theme.gold : Color.white.opacity(0.12), lineWidth: app.keys > 0 ? 2 : 1))
+            .background(PaperSheet(color: app.keys > 0 ? Paper.note : Paper.sheet, cornerRadius: 22, ear: app.keys > 0 ? 18 : 0, lift: 0.8))
         }
         .buttonStyle(PressableStyle())
     }
@@ -226,52 +281,85 @@ struct HubView: View {
             app.route = game.route
         } label: {
             HStack(spacing: 12) {
-                Image(systemName: "play.fill")
-                    .font(.system(size: 16, weight: .black))
-                    .foregroundStyle(Theme.ink)
-                    .frame(width: 40, height: 40)
-                    .background(Circle().fill(game.color))
+                ZStack {
+                    PaperSheet(color: game.paper, cornerRadius: 12, lift: 0.4)
+                    Image(systemName: game.symbol)
+                        .font(.system(size: 19, weight: .bold))
+                        .foregroundStyle(Paper.ink)
+                }
+                .frame(width: 48, height: 48)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(L("Reprendre"))
                         .font(.system(.caption, design: .rounded, weight: .heavy))
-                        .foregroundStyle(Theme.muted)
+                        .foregroundStyle(Paper.inkSoft)
                     Text(game.title)
-                        .font(.system(.headline, design: .rounded, weight: .black))
+                        .font(.paperTitle(19))
+                        .foregroundStyle(Paper.ink)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
-                Spacer()
-                Image(systemName: game.symbol)
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(game.color)
+                Spacer(minLength: 8)
+                Image(systemName: "play.fill")
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(Paper.sheet)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(Paper.ink))
             }
-            .foregroundStyle(.white)
-            .padding(12)
-            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.white.opacity(0.08)))
+            .padding(10)
+            .padding(.trailing, 4)
+            .background(PaperSheet(color: Paper.sheet, cornerRadius: 22, lift: 0.7))
         }
         .buttonStyle(PressableStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(L("Reprendre") + ", " + game.title)
     }
 
-    // MARK: Les rangées
+    // MARK: Les jeux
 
-    private func shelfRow(_ shelf: Shelf) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label(shelf.title, systemImage: shelf.symbol)
-                .font(.system(.title3, design: .rounded, weight: .black))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 18)
-                .accessibilityAddTraits(.isHeader)
+    private var library: some View {
+        VStack(alignment: .leading, spacing: 4) {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(shelf.games) { game in
-                        GameCard(game: game, locked: !unlocked(game), isNew: Self.newGames.contains(game), progress: progress(for: game)) {
-                            open(game)
-                        } onHelp: {
-                            howTo = game
+                HStack(spacing: 8) {
+                    ForEach(shelves) { item in
+                        let on = item.id == shelf.id
+                        Button {
+                            Haptics.tap()
+                            withAnimation(.snappy(duration: 0.3)) { shelfID = item.id }
+                        } label: {
+                            Label(item.title, systemImage: item.symbol)
+                                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                .lineLimit(1)
+                                .padding(.horizontal, 14)
+                                .frame(height: 38)
+                                .foregroundStyle(on ? Paper.sheet : Paper.ink)
+                                .background(
+                                    Capsule()
+                                        .fill(on ? Paper.ink : Paper.sheet)
+                                        .shadow(color: Paper.shadow.opacity(on ? 0.25 : 0.10), radius: on ? 6 : 3, y: 2)
+                                )
+                                .overlay(Capsule().stroke(Paper.shadow.opacity(on ? 0 : 0.08), lineWidth: 0.75))
                         }
+                        .buttonStyle(PressableStyle())
+                        .accessibilityAddTraits(on ? .isSelected : [])
                     }
                 }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 4)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
             }
+            .scrollClipDisabled()
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150, maximum: 260), spacing: 14)], spacing: 14) {
+                ForEach(shelf.games) { game in
+                    GameCard(game: game, locked: !unlocked(game), isNew: Self.newGames.contains(game), progress: progress(for: game)) {
+                        open(game)
+                    } onHelp: {
+                        howTo = game
+                    }
+                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 6)
         }
     }
 
@@ -314,29 +402,28 @@ struct HubView: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 10) {
                     Image(systemName: "crown.fill")
-                        .font(.system(size: 26, weight: .bold))
+                        .font(.system(size: 24, weight: .bold))
                     Text(L("Pass Origamo"))
-                        .font(.system(.title2, design: .rounded, weight: .black))
+                        .font(.paperTitle(26))
                     Spacer()
                     Text(store.pass?.displayPrice ?? "")
                         .font(.system(.title3, design: .rounded, weight: .black))
                 }
                 Text(L("Tous les jeux tout de suite, 8 mini-duels de plus et tous les niveaux. Un seul achat, sans abonnement ni publicité."))
-                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
                     .multilineTextAlignment(.leading)
-                    .opacity(0.85)
+                    .foregroundStyle(Paper.ink.opacity(0.75))
                 Text(L("Tout débloquer"))
                     .font(.system(.headline, design: .rounded, weight: .black))
                     .padding(.horizontal, 20)
                     .frame(height: 44)
-                    .background(Capsule().fill(Theme.ink))
-                    .foregroundStyle(.white)
+                    .background(Capsule().fill(Paper.ink))
+                    .foregroundStyle(Paper.sheet)
             }
-            .foregroundStyle(Theme.ink)
+            .foregroundStyle(Paper.ink)
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(FoldedPaper(color: Theme.gold, cornerRadius: 26))
-            .shadow(color: Theme.gold.opacity(0.4), radius: 18, y: 8)
+            .background(PaperSheet(color: Theme.gold.paperTone(), cornerRadius: 26, ear: 26, lift: 1))
         }
         .buttonStyle(PressableStyle())
     }
@@ -350,39 +437,42 @@ struct HubView: View {
             } label: {
                 HStack {
                     Label(L("Comment tenir ton Duo"), systemImage: "iphone.gen3")
-                        .font(.system(.headline, design: .rounded, weight: .black))
+                        .font(.paperTitle(18))
                     Spacer()
-                    Image(systemName: showPostures ? "chevron.up" : "chevron.down")
+                    Image(systemName: "chevron.down")
                         .font(.system(size: 14, weight: .bold))
+                        .rotationEffect(.degrees(showPostures ? 180 : 0))
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(Paper.ink)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
             if showPostures {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 10)], spacing: 10) {
                     ForEach([Posture.closedOpen, .openClose, .book, .fold, .lShape, .flat, .closed, .standing], id: \.self) { p in
                         HStack(spacing: 10) {
-                            PostureIcon(posture: p, color: .white, lineWidth: 3)
+                            PostureIcon(posture: p, color: Paper.ink, lineWidth: 2.6)
                                 .frame(width: 44, height: 32)
                                 .accessibilityHidden(true)
                             Text(p.label)
                                 .font(.system(.subheadline, design: .rounded, weight: .bold))
-                                .foregroundStyle(.white.opacity(0.9))
+                                .foregroundStyle(Paper.ink.opacity(0.85))
                                 .fixedSize(horizontal: false, vertical: true)
                             Spacer(minLength: 0)
                         }
                         .padding(10)
-                        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.white.opacity(0.07)))
+                        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Paper.cream))
                         .accessibilityElement(children: .combine)
                     }
                 }
             }
         }
         .padding(16)
-        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.black.opacity(0.25)))
+        .background(PaperSheet(color: Paper.sheet, cornerRadius: 22, lift: 0.7))
     }
 }
 
-/// Une grande carte « à la une » : couleur du jeu, symbole qui flotte, nom, phrase, position du Duo.
+/// Une grande feuille « à la une » : couleur du jeu, coin corné, symbole qui flotte, nom, phrase, position du Duo.
 struct HeroCard: View {
     let game: GameID
     let locked: Bool
@@ -393,46 +483,53 @@ struct HeroCard: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 8) {
                     Label(daily ? L("Défi du jour") : L("À la une"), systemImage: daily ? "calendar" : "sparkles")
-                        .font(.system(.subheadline, design: .rounded, weight: .heavy))
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Capsule().fill(Theme.ink.opacity(0.85)))
-                        .foregroundStyle(game.color)
+                        .font(.system(.caption, design: .rounded, weight: .heavy))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Capsule().fill(Paper.ink))
+                        .foregroundStyle(Paper.sheet)
                     if isNew { NewBadge() }
+                    if locked {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 12, weight: .black))
+                            .foregroundStyle(Paper.ink)
+                    }
                 }
+                Spacer(minLength: 4)
                 Text(game.title)
-                    .font(.system(size: 42, weight: .black, design: .rounded))
+                    .font(.paperTitle(34))
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
-                    .foregroundStyle(Theme.ink)
+                    .foregroundStyle(Paper.ink)
                 Text(game.tagline)
-                    .font(.system(.title3, design: .rounded, weight: .bold))
-                    .foregroundStyle(Theme.ink.opacity(0.8))
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(Paper.ink.opacity(0.72))
+                    .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: 400, alignment: .leading)
-                Spacer(minLength: 4)
+                    .frame(maxWidth: 320, alignment: .leading)
                 HStack(spacing: 10) {
                     Label(locked ? L("Débloquer") : L("Jouer"), systemImage: locked ? "lock.open.fill" : "play.fill")
-                        .font(.system(.headline, design: .rounded, weight: .black))
-                        .padding(.horizontal, 22)
-                        .frame(height: 50)
-                        .background(Capsule().fill(Theme.ink))
-                        .foregroundStyle(.white)
+                        .font(.system(.headline, design: .rounded, weight: .heavy))
+                        .padding(.horizontal, 18)
+                        .frame(height: 44)
+                        .background(Capsule().fill(Paper.ink))
+                        .foregroundStyle(Paper.sheet)
                     PostureBadge(posture: game.posture, players: game.players, dark: true)
                 }
+                .padding(.top, 6)
             }
-            .padding(22)
+            .padding(20)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(alignment: .trailing) {
+            .background(alignment: .topTrailing) {
                 FloatingSymbol(symbol: game.symbol, animate: animate)
-                    .padding(.trailing, 14)
+                    .padding(.top, 30)
+                    .padding(.trailing, 16)
             }
-            .background(FoldedPaper(color: game.color, cornerRadius: 32))
-            .shadow(color: game.color.opacity(0.45), radius: 18, y: 8)
-            .padding(.bottom, 28)
+            .background(PaperSheet(color: game.paper, cornerRadius: 28, ear: 30, lift: 1.1))
+            .padding(.vertical, 6)
         }
         .buttonStyle(PressableStyle())
         .accessibilityElement(children: .ignore)
@@ -442,7 +539,7 @@ struct HeroCard: View {
     }
 }
 
-/// Une vignette dans une rangée : papier plié, grand symbole, nom, et un cadenas si le jeu est fermé.
+/// Une carte de jeu : une feuille pliée de la couleur du jeu, coin corné, grand symbole, nom, et un cadenas si le jeu est fermé.
 struct GameCard: View {
     let game: GameID
     let locked: Bool
@@ -453,54 +550,54 @@ struct GameCard: View {
 
     var body: some View {
         Button(action: onPlay) {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 6) {
                     ZStack {
-                        Circle().fill(Theme.ink.opacity(0.88))
-                        PostureIcon(posture: game.posture, color: game.color, lineWidth: 2.4)
+                        Circle().fill(.white.opacity(0.45))
+                        Circle().stroke(Paper.ink.opacity(0.18), lineWidth: 0.75)
+                        PostureIcon(posture: game.posture, color: Paper.ink, lineWidth: 2.2)
                             .padding(8)
                     }
-                    .frame(width: 40, height: 40)
-                    Spacer()
+                    .frame(width: 38, height: 38)
                     if locked {
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 14, weight: .black))
-                            .foregroundStyle(Theme.gold)
-                            .frame(width: 32, height: 32)
-                            .background(Circle().fill(Theme.ink.opacity(0.85)))
+                            .font(.system(size: 12, weight: .black))
+                            .foregroundStyle(Paper.sheet)
+                            .frame(width: 28, height: 28)
+                            .background(Circle().fill(Paper.ink))
                     } else if isNew {
                         NewBadge()
                     }
+                    Spacer(minLength: 0)
                 }
-                Spacer(minLength: 6)
+                Spacer(minLength: 8)
                 Image(systemName: game.symbol)
                     .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(Theme.ink)
+                    .foregroundStyle(Paper.ink)
                     .accessibilityHidden(true)
                 Text(game.title)
-                    .font(.system(.headline, design: .rounded, weight: .black))
-                    .foregroundStyle(Theme.ink)
+                    .font(.paperTitle(17))
+                    .foregroundStyle(Paper.ink)
                     .lineLimit(2)
                     .minimumScaleFactor(0.6)
                 Text(locked ? L("Une clé pour l'ouvrir") : (progress ?? game.players))
-                    .font(.system(.caption, design: .rounded, weight: .heavy))
-                    .foregroundStyle(Theme.ink.opacity(0.7))
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(Paper.ink.opacity(0.66))
                     .lineLimit(2)
             }
-            .padding(12)
-            .frame(width: 158, height: 196, alignment: .topLeading)
+            .padding(14)
+            .frame(maxWidth: .infinity, minHeight: 178, alignment: .topLeading)
             .background(alignment: .bottomTrailing) {
                 Image(systemName: game.symbol)
-                    .font(.system(size: 58, weight: .bold))
-                    .foregroundStyle(Theme.ink.opacity(0.14))
+                    .font(.system(size: 64, weight: .bold))
+                    .foregroundStyle(Paper.ink.opacity(0.08))
                     .rotationEffect(.degrees(-12))
-                    .padding(8)
+                    .padding(10)
                     .accessibilityHidden(true)
             }
-            .background(FoldedPaper(color: game.color, cornerRadius: 24))
-            .saturation(locked ? 0.35 : 1)
-            .opacity(locked ? 0.8 : 1)
-            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.18), lineWidth: 1))
+            .background(PaperSheet(color: game.paper, cornerRadius: 22, ear: 22, lift: 0.8))
+            .saturation(locked ? 0.3 : 1)
+            .opacity(locked ? 0.85 : 1)
         }
         .buttonStyle(PressableStyle())
         .contextMenu {
@@ -535,21 +632,21 @@ struct UnlockSheet: View {
                     IconButton(symbol: "xmark", label: L("Fermer")) { dismiss() }
                 }
                 ZStack {
-                    FoldedPaper(color: game.color, cornerRadius: 30)
+                    PaperSheet(color: game.paper, cornerRadius: 30, ear: 32, lift: 1.2)
                     VStack(spacing: 10) {
                         Image(systemName: game.symbol)
-                            .font(.system(size: 54, weight: .bold))
+                            .font(.system(size: 50, weight: .bold))
                         Text(game.title)
-                            .font(.system(size: 34, weight: .black, design: .rounded))
+                            .font(.paperTitle(34))
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
                         Text(game.tagline)
-                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .font(.system(.headline, design: .rounded, weight: .semibold))
                             .multilineTextAlignment(.center)
-                            .opacity(0.8)
+                            .opacity(0.75)
                         PostureBadge(posture: game.posture, players: game.players, dark: true)
                     }
-                    .foregroundStyle(Theme.ink)
+                    .foregroundStyle(Paper.ink)
                     .padding(22)
                 }
                 .frame(minHeight: 250)
@@ -559,16 +656,17 @@ struct UnlockSheet: View {
                         HStack(alignment: .top, spacing: 12) {
                             Image(systemName: item.element.symbol)
                                 .font(.system(size: 17, weight: .bold))
-                                .foregroundStyle(game.color)
+                                .foregroundStyle(Paper.ink.opacity(0.7))
                                 .frame(width: 26)
                             Text(item.element.text)
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                                 .fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 0)
                         }
                     }
                 }
                 .padding(16)
-                .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.white.opacity(0.07)))
+                .background(PaperSheet(color: Paper.sheet, cornerRadius: 20, lift: 0.6))
 
                 if app.keys > 0 {
                     Button {
@@ -580,7 +678,7 @@ struct UnlockSheet: View {
                     } label: {
                         Label(app.keys > 1 ? L("Utiliser une clé (\(app.keys) en poche)") : L("Utiliser ma clé"), systemImage: "key.fill")
                     }
-                    .buttonStyle(ChunkyButtonStyle(color: game.color, textColor: Theme.ink, height: 60))
+                    .buttonStyle(ChunkyButtonStyle(color: game.paper, textColor: Paper.ink, height: 60))
                 } else {
                     VStack(spacing: 8) {
                         let left = app.gamesPerKey - app.keyProgress
@@ -600,15 +698,13 @@ struct UnlockSheet: View {
                 } label: {
                     Label(store.pass.map { L("Tout débloquer · \($0.displayPrice)") } ?? L("Tout débloquer avec le Pass"), systemImage: "crown.fill")
                 }
-                .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink, height: 56))
+                .buttonStyle(ChunkyButtonStyle(color: Theme.gold.paperTone(), textColor: Paper.ink, height: 56))
             }
             .padding(22)
             .frame(maxWidth: 560)
             .frame(maxWidth: .infinity)
         }
-        .background(Theme.ink.ignoresSafeArea())
-        .foregroundStyle(.white)
-        .presentationDragIndicator(.visible)
+        .paperScreen()
         .task {
             if store.pass == nil { await store.load() }
         }
@@ -632,10 +728,10 @@ struct ChooseGameSheet: View {
                     IconButton(symbol: "xmark", label: L("Fermer")) { dismiss() }
                 }
                 Image(systemName: "key.fill")
-                    .font(.system(size: 44, weight: .bold))
-                    .foregroundStyle(Theme.gold)
+                    .font(.system(size: 40, weight: .bold))
+                    .foregroundStyle(Paper.gold)
                 Text(L("Quel jeu veux-tu ouvrir ?"))
-                    .font(.system(size: 28, weight: .black, design: .rounded))
+                    .font(.paperTitle(28))
                     .multilineTextAlignment(.center)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 12) {
                     ForEach(locked) { game in
@@ -649,9 +745,7 @@ struct ChooseGameSheet: View {
             .frame(maxWidth: 760)
             .frame(maxWidth: .infinity)
         }
-        .background(Theme.ink.ignoresSafeArea())
-        .foregroundStyle(.white)
-        .presentationDragIndicator(.visible)
+        .paperScreen()
     }
 }
 
@@ -661,8 +755,8 @@ struct NewBadge: View {
             .font(.system(.caption, design: .rounded, weight: .black))
             .padding(.horizontal, 9)
             .padding(.vertical, 4)
-            .background(Capsule().fill(Theme.ink))
-            .foregroundStyle(.white)
+            .background(Capsule().fill(Paper.accent))
+            .foregroundStyle(Paper.sheet)
             .accessibilityLabel(L("Nouveau jeu"))
     }
 }
@@ -674,8 +768,8 @@ struct PostureBadge: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            PostureIcon(posture: posture, color: dark ? Theme.ink : .white, lineWidth: 2.4)
-                .frame(width: 34, height: 24)
+            PostureIcon(posture: posture, color: dark ? Paper.ink : .white, lineWidth: 2.4)
+                .frame(width: 32, height: 22)
             VStack(alignment: .leading, spacing: 0) {
                 Text(posture.label)
                     .font(.system(.caption, design: .rounded, weight: .heavy))
@@ -684,10 +778,10 @@ struct PostureBadge: View {
                     .opacity(0.75)
             }
         }
-        .foregroundStyle(dark ? Theme.ink : .white)
+        .foregroundStyle(dark ? Paper.ink : .white)
         .padding(.horizontal, 12)
-        .frame(height: 50)
-        .background(Capsule().fill((dark ? Color.white : Color.black).opacity(0.35)))
+        .frame(height: 44)
+        .background(Capsule().fill((dark ? Color.white : Color.black).opacity(dark ? 0.42 : 0.35)))
     }
 }
 
@@ -699,8 +793,8 @@ struct FloatingSymbol: View {
 
     var body: some View {
         Image(systemName: symbol)
-            .font(.system(size: 130, weight: .bold))
-            .foregroundStyle(Theme.ink.opacity(0.2))
+            .font(.system(size: 112, weight: .bold))
+            .foregroundStyle(Paper.ink.opacity(0.13))
             .rotationEffect(.degrees(up ? -6 : 4))
             .offset(y: up ? -8 : 8)
             .onAppear {
@@ -774,7 +868,7 @@ struct SettingsView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .background(Theme.ink.ignoresSafeArea())
+            .background(PaperBackdrop())
             .navigationTitle(L("Réglages"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -783,6 +877,8 @@ struct SettingsView: View {
                 }
             }
         }
+        .tint(Paper.accent)
+        .environment(\.colorScheme, .light)
     }
 }
 
@@ -797,18 +893,16 @@ struct PassView: View {
                     Spacer()
                     IconButton(symbol: "xmark", label: L("Fermer")) { dismiss() }
                 }
-                Image(systemName: "crown.fill")
-                    .font(.system(size: 54, weight: .bold))
-                    .foregroundStyle(Theme.gold)
+                WinIcon(systemName: "crown.fill", color: Theme.gold.paperTone())
                 Text(L("Pass Origamo"))
-                    .font(.plie(40))
+                    .font(.paperTitle(38))
                 Text(L("Tous les jeux et tous les niveaux. Un seul achat, sans abonnement ni publicité."))
                     .font(.plie(17, weight: .semibold))
                     .foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.center)
 
                 VStack(alignment: .leading, spacing: 14) {
-                    benefit("lock.open.fill", Theme.gold, L("Tous les jeux, tout de suite"), L("Plus besoin de clés : les \(GameID.allCases.count - AppState.starterGames.count) jeux à débloquer s'ouvrent d'un coup."))
+                    benefit("lock.open.fill", Paper.gold, L("Tous les jeux, tout de suite"), L("Plus besoin de clés : les \(GameID.allCases.count - AppState.starterGames.count) jeux à débloquer s'ouvrent d'un coup."))
                     benefit("bolt.fill", Theme.duels, L("DUELS : 8 mini-duels de plus"), L("Pierre-feuille-ciseaux, nerfs d'acier, cercle parfait, ballon, l'intrus…"))
                     benefit("light.beacon.max.fill", Theme.laser, L("RAYON : \(RayonLevel.all.count - AppState.freeRayonLevels) niveaux de plus"), L("Miroirs pivotants, labyrinthes et miroirs jumeaux."))
                     benefit("square.grid.3x2.fill", Theme.briques, L("CASSE-BRIQUES : \(BriquesLevel.count - AppState.freeBriquesLevels) niveaux de plus"), L("Briques blindées, murs d'acier et balle plus rapide."))
@@ -820,7 +914,7 @@ struct PassView: View {
                     benefit("sparkles", Theme.sun, L("Les prochains jeux et niveaux"), L("Tout ce qui sortira plus tard est inclus."))
                 }
                 .padding(18)
-                .background(GlassPanel(cornerRadius: 22))
+                .background(PaperSheet(color: Paper.sheet, cornerRadius: 22, ear: 22, lift: 0.8))
 
                 if store.hasEverything {
                     Label(L("Déjà débloqué, merci !"), systemImage: "checkmark.seal.fill")
@@ -831,14 +925,14 @@ struct PassView: View {
                         Task { await store.buyPass() }
                     } label: {
                         if store.isPurchasing {
-                            ProgressView().tint(Theme.ink)
+                            ProgressView().tint(Paper.ink)
                         } else if let pass = store.pass {
                             Text(L("Tout débloquer pour \(pass.displayPrice)"))
                         } else {
                             Text(store.isLoading ? L("Chargement…") : L("Indisponible pour le moment"))
                         }
                     }
-                    .buttonStyle(ChunkyButtonStyle(color: Theme.gold, textColor: Theme.ink, height: 62))
+                    .buttonStyle(ChunkyButtonStyle(color: Theme.gold.paperTone(), textColor: Paper.ink, height: 62))
                     .disabled(store.pass == nil || store.isPurchasing)
                 }
 
@@ -858,8 +952,7 @@ struct PassView: View {
             .frame(maxWidth: 560)
             .frame(maxWidth: .infinity)
         }
-        .background(Theme.ink.ignoresSafeArea())
-        .foregroundStyle(.white)
+        .paperScreen()
         .task {
             if store.pass == nil { await store.load() }
         }
@@ -869,7 +962,7 @@ struct PassView: View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: symbol)
                 .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(color)
+                .foregroundStyle(color.paperTone(saturation: 0.95, brightness: 0.8))
                 .frame(width: 28)
             VStack(alignment: .leading, spacing: 3) {
                 Text(title).font(.plie(16, weight: .bold))

@@ -415,7 +415,7 @@ struct BoardSetupCard: View {
     var body: some View {
         VStack(spacing: 14) {
             symbolView.frame(width: 76, height: 76)
-            Text(title).font(.plie(30))
+            Text(title).font(.paperTitle(30))
             Text(rules)
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.muted)
@@ -446,9 +446,9 @@ struct BoardSetupCard: View {
                                 Text(BoardOpponent.levelName(l))
                             }
                             .font(.plie(14, weight: .bold))
-                            .foregroundStyle(level == l ? Theme.ink : .white)
+                            .foregroundStyle(level == l ? Paper.ink : Theme.text)
                             .frame(maxWidth: .infinity, minHeight: 36)
-                            .background(Capsule().fill(level == l ? accent : Color.white.opacity(0.1)))
+                            .background(Capsule().fill(level == l ? accent : Theme.faint))
                         }
                         .buttonStyle(PressableStyle())
                     }
@@ -475,9 +475,9 @@ struct BoardSetupCard: View {
                 onStart(vsComputer ? .computer(level: level) : .human, vsComputer ? .none : clock, vsComputer ? playWhite : true)
             }
             .buttonStyle(ChunkyButtonStyle(color: savedSummary == nil ? accent : Theme.cardHigh,
-                                           textColor: savedSummary == nil ? Theme.ink : .white, height: 54))
+                                           textColor: savedSummary == nil ? Theme.ink : Theme.text, height: 54))
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(Theme.text)
         .padding(22)
         .frame(maxWidth: 480)
         .winCard(accent: accent)

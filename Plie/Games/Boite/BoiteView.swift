@@ -422,7 +422,7 @@ struct BoiteView: View {
                         .shadow(color: Theme.gold.opacity(0.8), radius: 24)
                         .accessibilityHidden(true)
                     Text(L("Boîte ouverte !"))
-                        .font(.plie(34))
+                        .font(.paperTitle(34))
                     StarsView(count: game.stars, size: 30)
                     Text(game.looks + game.wrong <= game.level.par
                          ? L("Parfait : tu as tout retenu du premier coup.")
@@ -432,7 +432,7 @@ struct BoiteView: View {
                         .multilineTextAlignment(.center)
                     Text(L("Nouveau trésor dans ta collection !"))
                         .font(.plie(16, weight: .bold))
-                        .foregroundStyle(Theme.gold)
+                        .foregroundStyle(Theme.star)
                     VStack(spacing: 10) {
                         if game.number < BoiteLevel.count {
                             Button {

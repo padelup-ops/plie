@@ -654,40 +654,41 @@ struct HowToSheet: View {
                 }
                 HStack(spacing: 16) {
                     ZStack {
-                        FoldedPaper(color: game.color, cornerRadius: 22)
-                        PostureIcon(posture: game.posture, color: Theme.ink, lineWidth: 4)
-                            .padding(14)
+                        PaperSheet(color: game.paper, cornerRadius: 22, ear: 20, lift: 0.9)
+                        PostureIcon(posture: game.posture, color: Paper.ink, lineWidth: 3.5)
+                            .padding(16)
                     }
                     .frame(width: 96, height: 96)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(L("Comment jouer"))
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
-                            .foregroundStyle(game.color)
+                            .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                            .foregroundStyle(Paper.accent)
                         Text(game.title)
-                            .font(.system(.largeTitle, design: .rounded, weight: .black))
+                            .font(.paperTitle(32))
                             .minimumScaleFactor(0.6)
                             .lineLimit(2)
                         Text("\(game.posture.label) · \(game.players)")
                             .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            .foregroundStyle(Theme.muted)
+                            .foregroundStyle(Paper.inkSoft)
                     }
                 }
 
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 12) {
                     ForEach(Array(game.howTo(duo: hingePresent).enumerated()), id: \.element.id) { item in
                         HStack(alignment: .top, spacing: 14) {
                             ZStack {
-                                Circle().fill(game.color)
+                                Circle().fill(game.paper)
+                                Circle().stroke(Paper.shadow.opacity(0.12), lineWidth: 0.75)
                                 Text("\(item.offset + 1)")
-                                    .font(.system(.headline, design: .rounded, weight: .black))
-                                    .foregroundStyle(Theme.ink)
+                                    .font(.paperTitle(17))
+                                    .foregroundStyle(Paper.ink)
                             }
                             .frame(width: 34, height: 34)
                             .accessibilityHidden(true)
                             VStack(alignment: .leading, spacing: 6) {
                                 Image(systemName: item.element.symbol)
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundStyle(game.color)
+                                    .font(.system(size: 19, weight: .bold))
+                                    .foregroundStyle(Paper.ink.opacity(0.7))
                                     .accessibilityHidden(true)
                                 Text(item.element.text)
                                     .font(.system(.body, design: .rounded, weight: .medium))
@@ -696,7 +697,7 @@ struct HowToSheet: View {
                             Spacer(minLength: 0)
                         }
                         .padding(14)
-                        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color.white.opacity(0.07)))
+                        .background(PaperSheet(color: Paper.sheet, cornerRadius: 18, lift: 0.6))
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel(L("Étape \(item.offset + 1) : \(item.element.text)"))
                     }
@@ -707,16 +708,14 @@ struct HowToSheet: View {
                 } label: {
                     Label(L("C'est parti !"), systemImage: "play.fill")
                 }
-                .buttonStyle(ChunkyButtonStyle(color: game.color, textColor: Theme.ink, height: 60))
+                .buttonStyle(ChunkyButtonStyle(color: game.paper, textColor: Paper.ink, height: 60))
             }
             .padding(22)
             .frame(maxWidth: 620)
             .frame(maxWidth: .infinity)
         }
-        .foregroundStyle(.white)
-        .background(Theme.ink.ignoresSafeArea())
+        .paperScreen()
         .onHingeAngle { if $0 != nil { hingePresent = true } }
-        .presentationDragIndicator(.visible)
     }
 }
 

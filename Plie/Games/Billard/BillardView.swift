@@ -437,7 +437,7 @@ struct BillardView: View {
             if match.phase == .over, let w = match.winner {
                 WinIcon(systemName: "trophy.fill", color: Theme.gold)
                 Text(match.solo ? (w == 0 ? L("Tu as gagné !") : L("L'ordinateur gagne")) : L("\(match.playerName(w)) gagne !"))
-                    .font(.plie(30))
+                    .font(.paperTitle(30))
                 if let message = match.message {
                     Text(message)
                         .font(.plie(16, weight: .semibold))
@@ -449,7 +449,7 @@ struct BillardView: View {
             } else {
                 WinIcon(systemName: "circle.grid.cross.fill", color: Theme.billard)
                 Text(L("Billard à 8 billes"))
-                    .font(.plie(26))
+                    .font(.paperTitle(26))
                 Text(L("Rentre toutes tes billes, pleines ou rayées, puis la noire. Tire vers l'arrière et lâche pour jouer."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
@@ -463,7 +463,7 @@ struct BillardView: View {
             }
             .frame(maxWidth: 380)
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(Theme.text)
         .padding(24)
         .frame(maxWidth: 480)
         .winCard(accent: Theme.billard)

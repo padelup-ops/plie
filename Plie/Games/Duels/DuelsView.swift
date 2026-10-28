@@ -186,7 +186,7 @@ struct DuelsBoard: View {
             }
             if game.paused {
                 VStack(spacing: 12) {
-                    Text(L("Pause")).font(.plie(28))
+                    Text(L("Pause")).font(.paperTitle(28))
                     Button {
                         game.togglePause()
                     } label: {

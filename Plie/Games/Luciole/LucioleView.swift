@@ -470,12 +470,12 @@ struct LucioleView: View {
             if game.phase == .over {
                 WinIcon(systemName: "tree.fill", color: Theme.luciole)
                 Text(L("Le voyage est fini !"))
-                    .font(.plie(30))
+                    .font(.paperTitle(30))
                 HStack(spacing: 6) {
                     ForEach(0..<3, id: \.self) { i in
                         Image(systemName: i < game.stars ? "star.fill" : "star")
                             .font(.system(size: 26, weight: .bold))
-                            .foregroundStyle(Theme.gold)
+                            .foregroundStyle(i < game.stars ? Theme.star : Theme.emptyStar)
                     }
                 }
                 .accessibilityLabel(L("\(game.stars) étoiles sur 3"))
@@ -489,7 +489,7 @@ struct LucioleView: View {
             } else {
                 WinIcon(systemName: "sparkles", color: Theme.luciole)
                 Text(L("Le voyage de la luciole"))
-                    .font(.plie(26))
+                    .font(.paperTitle(26))
                     .multilineTextAlignment(.center)
                 Text(L("Ramasse la lumière dans la prairie, traverse la grotte sur l'écran extérieur, et ramène tout au grand arbre."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
@@ -498,13 +498,13 @@ struct LucioleView: View {
                 if app.lucioleBest > 0 {
                     Text(L("Record : \(app.lucioleBest) lumières"))
                         .font(.plie(14, weight: .bold))
-                        .foregroundStyle(Theme.luciole)
+                        .foregroundStyle(Theme.luciole.readableOnPaper())
                 }
                 Button(L("Partir")) { recorded = false; game.start() }
                     .buttonStyle(ChunkyButtonStyle(color: Theme.luciole, textColor: Theme.ink))
             }
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(Theme.text)
         .padding(24)
         .frame(maxWidth: 440)
         .winCard(accent: Theme.luciole)

@@ -404,7 +404,7 @@ struct AirHockeyView: View {
                 Text(game.solo
                      ? (game.scoreA > game.scoreB ? L("Tu as gagné !") : L("L'ordinateur gagne"))
                      : (game.scoreA > game.scoreB ? L("Le joueur rouge gagne !") : L("Le joueur bleu gagne !")))
-                    .font(.plie(30))
+                    .font(.paperTitle(30))
                 Text("\(game.scoreA) – \(game.scoreB)")
                     .font(.plie(22, weight: .semibold))
                     .foregroundStyle(Theme.muted)
@@ -414,7 +414,7 @@ struct AirHockeyView: View {
                     .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(Theme.hockeyB)
                 Text(L("Le premier à 7 buts gagne"))
-                    .font(.plie(22))
+                    .font(.paperTitle(22))
                 Text(L("Pose le téléphone ouvert à plat. Chacun défend le but de son côté : glisse ton maillet pour frapper le palet."))
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.muted)
@@ -428,7 +428,7 @@ struct AirHockeyView: View {
             }
             .frame(maxWidth: 360)
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(Theme.text)
         .padding(24)
         .frame(maxWidth: 460)
         .winCard(accent: Theme.laser)

@@ -206,8 +206,8 @@ struct CelebrationBackdrop: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.5)
-            RadialGradient(colors: [accent.opacity(0.28), .clear], center: .center, startRadius: 0, endRadius: 420)
+            Color(hex: 0x120E18).opacity(0.55)
+            RadialGradient(colors: [accent.opacity(0.26), .clear], center: .center, startRadius: 0, endRadius: 420)
             if confetti { ConfettiView() }
         }
         .ignoresSafeArea()
@@ -215,29 +215,23 @@ struct CelebrationBackdrop: View {
     }
 }
 
-/// Carte en verre dépoli avec liseré lumineux, pour les écrans de fin.
+/// Les cartes de fin de partie et de pause : une feuille de papier collée sur le jeu par un ruban
+/// de la couleur du jeu. Son contenu passe en mode clair (encre sur papier).
 struct WinCardModifier: ViewModifier {
     var accent: Color
 
     func body(content: Content) -> some View {
         content
-            .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 30, style: .continuous).fill(.ultraThinMaterial)
-                    RoundedRectangle(cornerRadius: 30, style: .continuous)
-                        .fill(LinearGradient(colors: [Theme.cardHigh.opacity(0.85), Theme.ink.opacity(0.92)],
-                                             startPoint: .top, endPoint: .bottom))
-                    RoundedRectangle(cornerRadius: 30, style: .continuous)
-                        .strokeBorder(LinearGradient(colors: [accent.opacity(0.9), accent.opacity(0.15), .white.opacity(0.2)],
-                                                     startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
-                }
-                .shadow(color: accent.opacity(0.35), radius: 30, y: 10)
-            )
-            .environment(\.colorScheme, .dark)
+            .foregroundStyle(Paper.ink)
+            .background(PaperSheet(color: Paper.sheet, cornerRadius: 30, ear: 28, lift: 1.8))
+            .overlay(alignment: .top) {
+                WashiTape(color: accent).offset(y: -13)
+            }
+            .environment(\.colorScheme, .light)
     }
 }
 
-/// Icône de victoire qui rebondit et brille.
+/// Icône de victoire : une médaille de papier de la couleur du jeu, qui arrive en tournant.
 struct WinIcon: View {
     let systemName: String
     var color: Color = Theme.gold
@@ -246,17 +240,28 @@ struct WinIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(RadialGradient(colors: [color.opacity(0.55), .clear], center: .center, startRadius: 0, endRadius: 52))
-                .frame(width: 104, height: 104)
-                .scaleEffect(pop ? 1.1 : 0.6)
-            Image(systemName: systemName)
-                .font(.system(size: 46, weight: .bold))
-                .foregroundStyle(LinearGradient(colors: [.white, color], startPoint: .top, endPoint: .bottom))
-                .shadow(color: color.opacity(0.8), radius: 12)
-                .scaleEffect(pop ? 1 : 0.3)
-                .rotationEffect(.degrees(pop ? 0 : -25))
+                .fill(color.opacity(0.22))
+                .frame(width: 96, height: 96)
+                .scaleEffect(pop ? 1 : 0.5)
+            ZStack {
+                Circle().fill(color)
+                Circle().fill(LinearGradient(stops: [
+                    .init(color: .white.opacity(0.32), location: 0),
+                    .init(color: .white.opacity(0.06), location: 0.5),
+                    .init(color: Paper.shadow.opacity(0.04), location: 0.503),
+                    .init(color: Paper.shadow.opacity(0.14), location: 1)
+                ], startPoint: .topLeading, endPoint: .bottomTrailing))
+                Image(systemName: systemName)
+                    .font(.system(size: 30, weight: .bold))
+                    .foregroundStyle(Paper.ink)
+            }
+            .frame(width: 70, height: 70)
+            .compositingGroup()
+            .shadow(color: Paper.shadow.opacity(0.25), radius: 6, y: 3)
+            .scaleEffect(pop ? 1 : 0.3)
+            .rotationEffect(.degrees(pop ? 0 : -25))
         }
-        .frame(height: 80)
+        .frame(height: 92)
         .onAppear {
             withAnimation(.spring(response: 0.45, dampingFraction: 0.55)) { pop = true }
         }
@@ -272,26 +277,31 @@ extension View {
 
 // MARK: - Case de niveau
 
-/// Fond d'une case de niveau : verre dépoli, ou couleur du jeu qui brille une fois réussi.
+/// Fond d'une case de niveau. Sur le papier : une petite feuille, colorée une fois réussie.
+/// Dans la nuit d'un jeu : verre sombre, ou couleur du jeu qui brille.
 struct LevelTile: View {
     var done: Bool
     var accent: Color
     var cornerRadius: CGFloat = 16
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-        ZStack {
-            if done {
-                shape.fill(LinearGradient(colors: [accent.opacity(0.95), accent.opacity(0.7)], startPoint: .top, endPoint: .bottom))
-                    .shadow(color: accent.opacity(0.45), radius: 8, y: 3)
-                shape.fill(LinearGradient(colors: [.white.opacity(0.3), .clear], startPoint: .top, endPoint: .center))
-            } else {
-                // Pas de verre dépoli : il recalculait le flou du fond animé à chaque image, sur chaque case.
-                shape.fill(LinearGradient(colors: [Theme.cardHigh.opacity(0.92), Theme.card.opacity(0.95)], startPoint: .top, endPoint: .bottom))
-                shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.18), .white.opacity(0.03)], startPoint: .top, endPoint: .bottom), lineWidth: 1)
+        if scheme == .light {
+            PaperSheet(color: done ? accent.paperTone() : Paper.sheet, cornerRadius: cornerRadius, lift: 0.5, crease: done)
+        } else {
+            ZStack {
+                if done {
+                    shape.fill(LinearGradient(colors: [accent.opacity(0.95), accent.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+                        .shadow(color: accent.opacity(0.45), radius: 8, y: 3)
+                    shape.fill(LinearGradient(colors: [.white.opacity(0.3), .clear], startPoint: .top, endPoint: .center))
+                } else {
+                    // Pas de verre dépoli : il recalculait le flou du fond animé à chaque image, sur chaque case.
+                    shape.fill(LinearGradient(colors: [Theme.cardHigh.opacity(0.92), Theme.card.opacity(0.95)], startPoint: .top, endPoint: .bottom))
+                    shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.18), .white.opacity(0.03)], startPoint: .top, endPoint: .bottom), lineWidth: 1)
+                }
             }
         }
-        .environment(\.colorScheme, .dark)
     }
 }
 

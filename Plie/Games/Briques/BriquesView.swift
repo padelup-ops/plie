@@ -505,11 +505,11 @@ struct BriquesView: View {
             LowerHalf {
             VStack(spacing: 12) {
                 Text(game.phase == .won ? L("Mur détruit !") : L("Plus de balles…"))
-                    .font(.plie(32))
+                    .font(.paperTitle(32))
                 if game.phase == .won {
                     StarsView(count: game.stars, size: 30)
                 }
-                Text(L("Score : \(game.score)")).font(.plie(20)).foregroundStyle(Theme.gold)
+                Text(L("Score : \(game.score)")).font(.plie(20)).foregroundStyle(Theme.star)
                 if game.phase == .won && game.level < BriquesLevel.count {
                     Button {
                         let next = game.level + 1

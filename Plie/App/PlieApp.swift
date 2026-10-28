@@ -15,8 +15,6 @@ struct PlieApp: App {
             RootView()
                 .environment(app)
                 .environment(store)
-                .preferredColorScheme(.dark)
-                .tint(Theme.laser)
                 .task { await store.load() }
         }
     }
@@ -34,13 +32,17 @@ struct RootView: View {
         @Bindable var app = app
 
         ZStack {
-            // Les jeux en plein écran se dessinent eux-mêmes : pas de fond animé derrière (économie de batterie).
-            if fullScreen {
+            // L'accueil et les menus sont en papier. Les jeux en plein écran se dessinent eux-mêmes :
+            // pas de fond animé derrière (économie de batterie).
+            if onPaper {
+                PaperBackdrop()
+            } else if fullScreen {
                 Theme.ink.ignoresSafeArea()
             } else {
                 AmbientBackdrop(colors: backdropColors, intensity: 0.2)
             }
 
+            Group {
             switch app.route {
             case .hub:
                 HubView()
@@ -99,8 +101,13 @@ struct RootView: View {
             case .mots:
                 MotsView()
             }
+            }
+            .environment(\.colorScheme, onPaper ? .light : .dark)
+            .tint(onPaper ? Paper.accent : Theme.laser)
+            .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.98)), removal: .opacity))
         }
-        .animation(.easeInOut(duration: 0.22), value: app.route)
+        .preferredColorScheme(onPaper ? .light : .dark)
+        .animation(.easeInOut(duration: 0.24), value: app.route)
         .onChange(of: app.route) { _, route in
             SoundPlayer.shared.play(.pop, volume: 0.35)
             if let game = GameID.of(route) { app.opened(game) }
@@ -120,15 +127,15 @@ struct RootView: View {
         .overlay(alignment: .top) {
             if keyToast {
                 HStack(spacing: 10) {
-                    Image(systemName: "key.fill").foregroundStyle(Theme.gold)
+                    Image(systemName: "key.fill").foregroundStyle(Paper.gold)
                     Text(L("Nouvelle clé ! Débloque un jeu depuis l'accueil."))
                         .font(.plie(15, weight: .bold))
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(Paper.ink)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .background(Capsule().fill(Theme.ink.opacity(0.92)))
-                .overlay(Capsule().strokeBorder(Theme.gold, lineWidth: 1.5))
+                .background(Capsule().fill(Paper.sheet).shadow(color: Paper.shadow.opacity(0.25), radius: 10, y: 4))
+                .overlay(Capsule().strokeBorder(Paper.gold, lineWidth: 1.5))
                 .padding(.top, 8)
                 .transition(.move(edge: .top).combined(with: .opacity))
                 .allowsHitTesting(false)
@@ -227,6 +234,14 @@ struct RootView: View {
             return [Theme.duelsA, Theme.duelsB, Theme.duels]
         case .mots:
             return [Theme.motsTeamA, Theme.motsTeamB, Theme.gold]
+        }
+    }
+
+    /// L'accueil et les listes de niveaux : en papier, en mode clair.
+    private var onPaper: Bool {
+        switch app.route {
+        case .hub, .rayonLevels, .basculeLevels: return true
+        default: return false
         }
     }
 

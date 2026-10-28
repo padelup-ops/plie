@@ -143,7 +143,7 @@ final class AppState {
         let number = parts.count > 1 ? (Int(parts[1]) ?? 1) : 1
         switch parts.first ?? "" {
         case "rayonLevels": route = .rayonLevels
-        case "rayon": route = .rayon(number)
+        case "rayon", "rayonWin": route = .rayon(number)
         case "basculeLevels": route = .basculeLevels
         case "bascule": route = .bascule(number)
         case "ferme": route = .ferme

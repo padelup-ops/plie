@@ -35,7 +35,7 @@ struct BasculeLevelsView: View {
                                 SectionTitle(text: L("Monde \(world) · \(BasculeLevel.worldName(world))"))
                                 if BasculeLevel.all.contains(where: { $0.world == world && app.basculeNeedsPass($0.number, hasPass: store.hasEverything) }) {
                                     Image(systemName: "crown.fill")
-                                        .foregroundStyle(Theme.gold)
+                                        .foregroundStyle(Theme.star)
                                 }
                             }
                             LazyVGrid(columns: [GridItem(.adaptive(minimum: 62), spacing: 10)], spacing: 10) {
@@ -66,30 +66,21 @@ struct BasculeLevelsView: View {
             }
         } label: {
             ZStack {
-                LevelTile(done: false, accent: Theme.bascule)
-                if stars != nil {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .strokeBorder(Theme.bascule.opacity(0.7), lineWidth: 1.5)
-                        .shadow(color: Theme.bascule.opacity(0.5), radius: 6)
-                }
+                LevelTile(done: stars != nil, accent: Theme.bascule)
                 if unlocked {
                     VStack(spacing: 3) {
                         Text("\(number)")
                             .font(.plie(22))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Theme.text)
                         StarsView(count: stars ?? 0, size: 9)
                     }
                 } else {
                     Image(systemName: needsPass ? "crown.fill" : "lock.fill")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(needsPass ? Theme.gold : Theme.muted)
+                        .foregroundStyle(needsPass ? Theme.star : Theme.muted)
                 }
             }
             .frame(height: 62)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(stars != nil ? Theme.bascule.opacity(0.6) : Color.clear, lineWidth: 1.5)
-            )
         }
         .buttonStyle(.plain)
         .accessibilityLabel(L("Niveau \(number)\(stars != nil ? L(", réussi") : "")\(unlocked ? "" : L(", verrouillé"))"))
@@ -207,7 +198,7 @@ struct BasculePlayView: View {
             VStack(spacing: 14) {
                 WinIcon(systemName: "basketball.fill", color: Theme.bascule)
                 Text(L("Dans le panier !"))
-                    .font(.plie(34))
+                    .font(.paperTitle(34))
                 StarsView(count: session.collected.count, size: 28)
                 Text(session.attempts == 1 ? L("Du premier coup !") : L("En \(session.attempts) essais"))
                     .font(.plie(17, weight: .semibold))
@@ -242,7 +233,7 @@ struct BasculePlayView: View {
                 }
                 ShareResultButton(game: L("BASCULE"), result: L("Niveau \(number) : \(session.collected.count) étoile\(session.collected.count > 1 ? "s" : "") sur 3"), accent: Theme.bascule)
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Theme.text)
             .padding(24)
             .frame(maxWidth: 420)
             .winCard(accent: Theme.gold)

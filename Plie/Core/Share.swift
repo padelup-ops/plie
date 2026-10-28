@@ -6,7 +6,8 @@ enum AppLinks {
     static let appStore = URL(string: "https://apps.apple.com/app/id6825605393")!
 }
 
-/// Image partagée après une victoire : le jeu, le résultat, le logo, le lien.
+/// Image partagée après une victoire : le résultat sur une feuille de la couleur du jeu, collée sur le papier.
+/// Dessinée en 360 × 450 points, rendue en 1080 × 1350 pixels.
 struct ShareCard: View {
     let game: String
     let result: String
@@ -14,33 +15,45 @@ struct ShareCard: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(colors: [Color(hex: 0x23275C), Color(hex: 0x0B0C1C)], startPoint: .top, endPoint: .bottom)
-            Circle().fill(accent.opacity(0.45)).frame(width: 760, height: 760).blur(radius: 140).offset(x: -240, y: -360)
-            Circle().fill(Theme.paint.opacity(0.3)).frame(width: 640, height: 640).blur(radius: 140).offset(x: 260, y: 380)
-            VStack(spacing: 34) {
-                Image("Logo")
-                    .resizable()
-                    .frame(width: 300, height: 300)
-                    .clipShape(RoundedRectangle(cornerRadius: 68, style: .continuous))
-                    .shadow(color: .black.opacity(0.5), radius: 30, y: 16)
-                Text(game)
-                    .font(.system(size: 66, weight: .black, design: .rounded))
-                    .foregroundStyle(accent)
-                Text(result)
-                    .font(.system(size: 88, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-                    .minimumScaleFactor(0.5)
-                    .padding(.horizontal, 60)
-                Text(L("Joué sur iPhone Duo avec Origamo"))
-                    .font(.system(size: 38, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.8))
-                Text("ORIGAMO")
-                    .font(.system(size: 54, weight: .black, design: .rounded))
-                    .foregroundStyle(LinearGradient(colors: [Theme.laser, Theme.paint, Theme.gold], startPoint: .leading, endPoint: .trailing))
+            PaperBackdrop()
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
+                VStack(spacing: 12) {
+                    Text(game)
+                        .font(.paperTitle(26))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                    Text(result)
+                        .font(.system(size: 30, weight: .heavy, design: .rounded))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(4)
+                        .minimumScaleFactor(0.5)
+                }
+                .foregroundStyle(Paper.ink)
+                .padding(.horizontal, 26)
+                .padding(.vertical, 36)
+                .frame(width: 300)
+                .background(PaperSheet(color: accent.paperTone(), cornerRadius: 26, ear: 36, lift: 1.4))
+                .overlay(alignment: .top) { WashiTape(color: Paper.accent).offset(y: -13) }
+                .rotationEffect(.degrees(-2))
+                Spacer(minLength: 0)
+                HStack(spacing: 10) {
+                    OrigamoMark()
+                        .frame(width: 44, height: 44)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(verbatim: "Origamo")
+                            .font(.paperTitle(24))
+                            .foregroundStyle(Paper.ink)
+                        Text(L("Joué sur iPhone Duo avec Origamo"))
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Paper.inkSoft)
+                    }
+                }
             }
+            .padding(28)
         }
-        .frame(width: 1080, height: 1350)
+        .frame(width: 360, height: 450)
+        .environment(\.colorScheme, .light)
     }
 }
 
@@ -55,7 +68,7 @@ struct ShareResultButton: View {
     var body: some View {
         Button {
             let renderer = ImageRenderer(content: ShareCard(game: game, result: result, accent: accent))
-            renderer.scale = 1
+            renderer.scale = 3
             var list: [Any] = [L("\(game) : \(result). Je joue sur Origamo, des jeux pensés pour l'iPhone Duo.") + "\n" + AppLinks.appStore.absoluteString]
             if let image = renderer.uiImage { list.insert(image, at: 0) }
             items = list
@@ -63,11 +76,11 @@ struct ShareResultButton: View {
         } label: {
             Label(L("Partager"), systemImage: "square.and.arrow.up")
                 .font(.plie(15, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.text)
                 .padding(.horizontal, 16)
                 .frame(minHeight: 40)
-                .background(Capsule().fill(Color.white.opacity(0.14)))
-                .overlay(Capsule().strokeBorder(.white.opacity(0.2), lineWidth: 1))
+                .background(Capsule().fill(Theme.ghost))
+                .overlay(Capsule().strokeBorder(Theme.faint, lineWidth: 1))
         }
         .buttonStyle(PressableStyle())
         .sheet(isPresented: Binding(get: { items != nil }, set: { if !$0 { items = nil } })) {

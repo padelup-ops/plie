@@ -569,7 +569,7 @@ struct FiletView: View {
                 if game.phase == .over {
                     WinIcon(systemName: game.won ? "trophy.fill" : "figure.table.tennis", color: game.won ? Theme.gold : Theme.filet)
                     Text(game.won ? L("Tu as gagné !") : L("L'ordinateur gagne"))
-                        .font(.plie(28))
+                        .font(.paperTitle(28))
                     Text(L("\(game.scoreMe) – \(game.scoreAI) · plus long échange : \(game.longestRally) coups"))
                         .font(.plie(15, weight: .semibold))
                         .foregroundStyle(Theme.muted)
@@ -580,7 +580,7 @@ struct FiletView: View {
                 } else {
                     WinIcon(systemName: "figure.table.tennis", color: Theme.filet)
                     Text(L("Le premier à 7 points gagne"))
-                        .font(.plie(22))
+                        .font(.paperTitle(22))
                         .multilineTextAlignment(.center)
                     Text(hingeSeen
                          ? L("Plie ton iPhone Duo en L et pose-le sur la table : la charnière devient le filet. Ta raquette suit ton doigt sur l'écran du bas, et l'ordinateur renvoie la balle depuis l'écran du haut.")
@@ -590,7 +590,7 @@ struct FiletView: View {
                         .multilineTextAlignment(.center)
                 }
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Theme.text)
             .padding(18)
             .frame(maxWidth: 460)
             .winCard(accent: Theme.filet)
@@ -608,7 +608,7 @@ struct FiletView: View {
                 }
                 .frame(maxWidth: 360)
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Theme.text)
             .padding(18)
             .frame(maxWidth: 460)
             .winCard(accent: Theme.filet)

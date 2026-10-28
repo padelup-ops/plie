@@ -493,7 +493,7 @@ struct MorpionView: View {
                 .onTapGesture { showResult = false }
             VStack(spacing: 14) {
                 Text(statusText)
-                    .font(.plie(32))
+                    .font(.paperTitle(32))
                     .multilineTextAlignment(.center)
                 scorePill
                 Button {

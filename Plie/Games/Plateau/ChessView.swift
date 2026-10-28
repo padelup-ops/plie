@@ -547,14 +547,14 @@ struct ChessView: View {
         return VStack(spacing: 10) {
             Text(L("Promotion : choisis ta pièce"))
                 .font(.plie(16, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.text)
             HStack(spacing: 10) {
                 ForEach(match.promotionChoices, id: \.self) { m in
                     Button { match.choosePromotion(m) } label: {
                         ChessPieceView(type: m.promotion, white: white)
                             .frame(width: 58, height: 58)
                             .padding(6)
-                            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white.opacity(0.12)))
+                            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Theme.cardHigh))
                     }
                     .buttonStyle(PressableStyle())
                 }
