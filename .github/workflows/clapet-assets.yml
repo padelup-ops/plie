@@ -1,0 +1,47 @@
+# Creative assets (iOS 27) : vidéo d'en-tête de la fiche App Store et vidéo des résultats de recherche.
+# Rapport dans la branche ci-clapet-assets.
+name: Clapet - creative assets
+on:
+  workflow_dispatch:
+    inputs:
+      bundle:
+        description: "Identifiant de l'app (origamo = Origamo)"
+        required: false
+        default: "com.padelup.clapet"
+      mode:
+        description: "discover, upload ou place"
+        required: false
+        default: "discover"
+      assets:
+        description: "Dossier des vidéos (par langue)"
+        required: false
+        default: "clapet/tools/store/creative"
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      MODE: ${{ inputs.mode }}
+      ASSETS_DIR: ${{ inputs.assets }}
+      APP_BUNDLE: ${{ inputs.bundle == 'origamo' && secrets.BUNDLE_ID || inputs.bundle || 'com.padelup.clapet' }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Creative assets
+        run: |
+          set -o pipefail
+          python3 -m pip install --quiet pyjwt cryptography
+          mkdir -p out
+          python3 clapet/tools/asc_assets.py 2>&1 | tee out/assets.txt
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && cp -r out/. "$RUNNER_TEMP/r/" 2>/dev/null; cd "$RUNNER_TEMP/r"
+          git init -q -b ci-clapet-assets && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Creative assets" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-assets
