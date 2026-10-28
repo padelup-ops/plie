@@ -56,14 +56,18 @@ app = call("GET", f"/v1/apps?filter[bundleId]={BUNDLE}")["data"][0]
 app_id = app["id"]
 print("APP", app_id, app["attributes"]["name"])
 
-existing = call("GET", f"/v1/nominations?filter[relatedApps]={app_id}&filter[state]=DRAFT,SUBMITTED,ARCHIVED&limit=20")
-print("NOMINATIONS", json.dumps(existing)[:1500])
 nom = None
-for n in existing.get("data", []) if isinstance(existing, dict) else []:
-    if n["attributes"].get("name") == NAME:
-        nom = n
+for state in ("SUBMITTED", "DRAFT"):
+    found = call("GET", f"/v1/nominations?filter[relatedApps]={app_id}&filter[state]={state}&limit=50")
+    if "error" in found:
+        print("liste", state, found["detail"][:300])
+        continue
+    for n in found.get("data", []):
+        print("nomination", n["id"], n["attributes"].get("state"), n["attributes"].get("name"))
+        if nom is None and n["attributes"].get("name") == NAME:
+            nom = n
 
-start = (datetime.datetime.utcnow() + datetime.timedelta(days=22)).strftime("%Y-%m-%dT00:00:00Z")
+start = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=22)).strftime("%Y-%m-%dT00:00:00Z")
 attrs = {
     "name": NAME,
     "type": "APP_LAUNCH",
