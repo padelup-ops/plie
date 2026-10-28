@@ -17,23 +17,23 @@ import jwt
 API = "https://api.appstoreconnect.apple.com"
 BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 
+INTERNAL_ONLY = os.environ.get("INTERNAL_ONLY", "").strip() in ("1", "true", "yes")
+
 WHATS_NEW = {
-    "fr-FR": """Nouveautés de ce build :
+    "fr-FR": """Origamo 1.1 : tout nouveau look, en papier et origami.
 
-• Pour les testeurs, TOUT est offert : les 24 jeux, les 18 mini-duels et tous les niveaux. (Réglages > « Voir l'app comme un nouveau joueur » pour voir les cadenas et les clés.)
-• Nouvel accueil : jeux à la une, rangées par situation (à deux, en soirée, la magie du Duo…), « Reprendre ».
-• DUELS : 8 nouveaux mini-duels (pierre-feuille-ciseaux, nerfs d'acier, cercle parfait, ballon, l'intrus, 1 à 9, pile au centre, mémo-grille).
-• Plié en L : les menus de PUISSANCE 4, CASSE-BRIQUES, FILET, ÉCOLE et PIANO ne tombent plus sur la charnière.
+• Accueil refait : fond de papier, jeux à la une en feuilles qu'on fait glisser, « Reprendre », et tous les jeux en cartes pliées, triés d'un geste (à deux, en soirée, la magie du Duo, seul, enfants).
+• Réglages, modes d'emploi et Pass en papier.
+• Dans les jeux : boutons en papier, conseils en pense-bête, cartes de fin de partie et de pause collées sur le jeu.
 
-À tester en priorité : l'accueil et les nouveaux duels.""",
-    "en-US": """New in this build:
+À tester en priorité : l'accueil, les filtres, et les écrans de fin de partie. Dites-nous ce qui vous plaît ou pas !""",
+    "en-US": """Origamo 1.1: a brand-new paper and origami look.
 
-• For testers, EVERYTHING is free: all 24 games, all 18 mini-duels and every level. (Settings > "See the app as a new player" to see the locks and keys.)
-• New home screen: featured games, rows by situation (for two, party games, Duo magic…), "Resume".
-• DUELS: 8 new mini-duels (rock paper scissors, nerves of steel, perfect circle, balloon, odd one out, 1 to 9, bull's-eye, grid memory).
-• Folded into an L: the menus of CONNECT 4, BRICK BREAKER, PING PONG, SCHOOL and PIANO no longer land on the hinge.
+• New home screen: paper background, featured games as sheets you swipe, "Resume", and every game as a folded card, sorted in one tap (for two, party, Duo magic, solo, kids).
+• Settings, how-to-play screens and the Pass on paper.
+• In the games: paper buttons, tips as sticky notes, end-of-game and pause cards taped onto the game.
 
-Please test first: the home screen and the new duels.""",
+Please test first: the home screen, the filters and the end-of-game screens. Tell us what you like and what you don't!""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
@@ -115,15 +115,19 @@ for locale, text in WHATS_NEW.items():
              {"data": {"type": "betaBuildLocalizations", "attributes": {"locale": locale, "whatsNew": text},
                        "relationships": {"build": {"data": {"type": "builds", "id": bid}}}}}))
 
-# 3. Groupes de testeurs
+# 3. Groupes de testeurs (INTERNAL_ONLY : seulement les testeurs internes, pour vérifier avant tout le monde)
 groups = call("GET", f"/v1/apps/{app_id}/betaGroups?limit=50").get("data", [])
+if INTERNAL_ONLY:
+    groups = [g for g in groups if g["attributes"].get("isInternalGroup")]
+    print("testeurs internes seulement")
 external = [g for g in groups if not g["attributes"].get("isInternalGroup")]
 for g in groups:
     a = g["attributes"]
     testers = call("GET", f"/v1/betaGroups/{g['id']}/betaTesters?limit=200").get("data", [])
     kind = "interne" if a.get("isInternalGroup") else "externe"
     link = a.get("publicLink") if a.get("publicLinkEnabled") else None
-    print(f"groupe « {a.get('name')} » ({kind}) : {len(testers)} testeur(s)" + (f" · lien public {link}" if link else ""))
+    print(f"groupe « {a.get('name')} » ({kind}) : {len(testers)} testeur(s)" + (f" · lien public {link}" if link else "")
+          + (" · reçoit tous les builds" if a.get("hasAccessToAllBuilds") else ""))
     if not a.get("isInternalGroup") or not a.get("hasAccessToAllBuilds"):
         step(f"build ajouté au groupe « {a.get('name')} »",
              call("POST", f"/v1/betaGroups/{g['id']}/relationships/builds", {"data": [{"type": "builds", "id": bid}]}),
@@ -143,5 +147,7 @@ if external:
     print("état pour les testeurs internes :", detail.get("attributes", {}).get("internalBuildState"))
 else:
     print("aucun groupe externe : seuls les testeurs internes reçoivent le build")
+    detail = call("GET", f"/v1/builds/{bid}/buildBetaDetail").get("data", {})
+    print("état pour les testeurs internes :", detail.get("attributes", {}).get("internalBuildState"))
 
 print("\nBUILD DISTRIBUÉ" if not problems else "\nÀ REVOIR : " + ", ".join(problems))

@@ -10,6 +10,10 @@ on:
         description: "Numéro du build (vide = le plus récent)"
         required: false
         default: ""
+      internal_only:
+        description: "1 = testeurs internes seulement"
+        required: false
+        default: ""
 
 jobs:
   beta:
@@ -23,6 +27,7 @@ jobs:
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
       BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
       BUILD_NUMBER: ${{ inputs.build }}
+      INTERNAL_ONLY: ${{ inputs.internal_only }}
     steps:
       - uses: actions/checkout@v4
       - name: Distribuer le build
