@@ -118,7 +118,17 @@ for locale, text in WHATS_NEW.items():
                        "relationships": {"build": {"data": {"type": "builds", "id": bid}}}}}))
 
 # 3. Groupes de testeurs (INTERNAL_ONLY : seulement les testeurs internes, pour vérifier avant tout le monde)
-groups = call("GET", f"/v1/apps/{app_id}/betaGroups?limit=50").get("data", [])
+groups = []
+for attempt in range(5):
+    reply = call("GET", f"/v1/apps/{app_id}/betaGroups?limit=50")
+    if "error" not in reply:
+        groups = reply.get("data", [])
+        break
+    print("lecture des groupes impossible :", reply.get("error"), reply.get("detail"), "· nouvel essai")
+    time.sleep(20)
+if not groups:
+    print("ÉCHEC  aucun groupe de testeurs lu")
+    problems.append("groupes de testeurs")
 if INTERNAL_ONLY:
     groups = [g for g in groups if g["attributes"].get("isInternalGroup")]
     print("testeurs internes seulement")
