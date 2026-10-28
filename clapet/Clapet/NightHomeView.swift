@@ -182,24 +182,25 @@ struct NightHomeView: View {
     // MARK: En-têtes
 
     private var topBar: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 2) {
             HStack(spacing: 2) {
                 tab(Text("Today"), .today)
                 tab(Text("Week"), .week)
             }
             .padding(4)
             .background(Capsule().fill(Color.dfCard))
-            Spacer()
+            .layoutPriority(1)
+            Spacer(minLength: 4)
             Button { showShare = true } label: {
                 Image(systemName: "square.and.arrow.up")
                     .font(.title3)
-                    .frame(width: 44, height: 44)
+                    .frame(width: 38, height: 44)
             }
             .accessibilityLabel(Text("Share my day"))
             Button { showWidgets = true } label: {
                 Image(systemName: "square.grid.2x2.fill")
                     .font(.title3)
-                    .frame(width: 44, height: 44)
+                    .frame(width: 38, height: 44)
             }
             .accessibilityLabel(Text("Widgets"))
             Menu {
@@ -216,7 +217,7 @@ struct NightHomeView: View {
                 Image(systemName: "ellipsis")
                     .font(.title3.weight(.semibold))
                     .rotationEffect(.degrees(90))
-                    .frame(width: 44, height: 44)
+                    .frame(width: 34, height: 44)
             }
             .accessibilityLabel(Text("More"))
         }
@@ -230,7 +231,9 @@ struct NightHomeView: View {
         } label: {
             title
                 .font(.headline)
-                .padding(.horizontal, 20)
+                .lineLimit(1)
+                .fixedSize()
+                .padding(.horizontal, 16)
                 .padding(.vertical, 9)
                 .foregroundStyle(selected ? Color.dfBackground : Color.primary.opacity(0.8))
                 .background {
