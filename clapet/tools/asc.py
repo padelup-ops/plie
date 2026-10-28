@@ -76,24 +76,22 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• Automatic counting in one tap: in "Automatic counting", two buttons install the "Closed" and "Opened" automations straight into Shortcuts.
-• New name: the app is now called Foldly.
-• Choose your theme: Classic (cards and a ring, like Health) or Modern (big numbers, hinge gauge, Today and Week tabs). At first launch, and anytime in Settings.
-• Classic: the hinge gauge and its angle now sit to the right of your count.
-• Adjust the count: type today's folds or your lifetime total (pencil button, or touch and hold the number).
-• Modern: "When you fold", your folds by weekday and hour.
+• Quick checks: how many times you opened your phone for less than 10 seconds, the real measure of the reflex.
+• Longest break: the longest time your phone stayed closed today.
+• Hinge & crease: your total folds, and at your pace when you'll reach 32,000 folds (a public durability test).
+• Live counter: today's folds on the Lock Screen and the outer display, updated at every fold (Settings, or the "Live counter" row).
+• Share my day: a card for your stories and messages (share button at the top).
 
-Please test: pick a theme, switch to the other one in Settings, adjust the count, and check the widgets.""",
+Please test: turn on the live counter, fold a few times with another app on screen, and share your day.""",
     "fr-FR": """Nouveautés de ce build :
 
-• Comptage automatique en un geste : dans « Comptage automatique », deux boutons installent les automatisations « Fermé » et « Ouvert » directement dans Raccourcis.
-• Nouveau nom : l'app s'appelle maintenant Foldly.
-• Choisis ton thème : Classique (des cartes et un anneau, comme Santé) ou Moderne (grands chiffres, jauge de charnière, onglets Aujourd'hui et Semaine). Au premier lancement, et à tout moment dans les Réglages.
-• Classique : la jauge de charnière et son angle sont maintenant à droite du compteur.
-• Corriger le compteur : tape les plis du jour ou ton total (bouton crayon, ou appui long sur le chiffre).
-• Moderne : « Quand tu plies », tes plis par jour de la semaine et par heure.
+• Coups d'œil : combien de fois tu as ouvert ton téléphone moins de 10 secondes, la vraie mesure du réflexe.
+• Plus longue pause : le plus long moment où ton téléphone est resté fermé aujourd'hui.
+• Charnière et pli : ton total de plis, et à ton rythme quand tu atteindras 32 000 plis (un test d'endurance public).
+• Compteur en direct : les plis du jour sur l'écran verrouillé et l'écran extérieur, mis à jour à chaque pli (Réglages, ou la ligne « Compteur en direct »).
+• Partager ma journée : une image pour tes stories et tes messages (bouton de partage en haut).
 
-À tester : choisis un thème, passe à l'autre dans les Réglages, corrige le compteur et regarde les widgets.""",
+À tester : active le compteur en direct, plie plusieurs fois avec une autre app à l'écran, et partage ta journée.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

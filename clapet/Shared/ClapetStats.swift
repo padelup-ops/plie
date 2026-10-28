@@ -12,11 +12,17 @@ struct DayCount: Codable, Equatable {
     var opens = 0
     /// Temps passé ouvert ce jour-là, en secondes.
     var openSeconds: Double = 0
+    /// Coups d'œil : ouvert puis refermé en moins de 10 secondes.
+    var peeks = 0
+    /// La plus longue pause (téléphone fermé), en secondes.
+    var longestBreak: Double = 0
 
-    init(closes: Int = 0, opens: Int = 0, openSeconds: Double = 0) {
+    init(closes: Int = 0, opens: Int = 0, openSeconds: Double = 0, peeks: Int = 0, longestBreak: Double = 0) {
         self.closes = closes
         self.opens = opens
         self.openSeconds = openSeconds
+        self.peeks = peeks
+        self.longestBreak = longestBreak
     }
 
     init(from decoder: Decoder) throws {
@@ -24,6 +30,8 @@ struct DayCount: Codable, Equatable {
         closes = try c.decodeIfPresent(Int.self, forKey: .closes) ?? 0
         opens = try c.decodeIfPresent(Int.self, forKey: .opens) ?? 0
         openSeconds = try c.decodeIfPresent(Double.self, forKey: .openSeconds) ?? 0
+        peeks = try c.decodeIfPresent(Int.self, forKey: .peeks) ?? 0
+        longestBreak = try c.decodeIfPresent(Double.self, forKey: .longestBreak) ?? 0
     }
 }
 
@@ -47,6 +55,8 @@ struct ClapetStats: Codable, Equatable {
     var autoLast: Date?
     /// Depuis quand le Duo est ouvert (nil : fermé, ou on ne sait pas).
     var openSince: Date?
+    /// L'ouverture en cours a été vue (charnière ou automatisation), pas devinée au lancement de l'app.
+    var openFromEvent = false
     /// Les plis par jour de la semaine et par heure, depuis le début : 7 × 24 cases (dimanche d'abord).
     var weekHours: [Int] = Array(repeating: 0, count: 168)
     /// Au-delà, une ouverture sans fermeture vue est oubliée (une fermeture a dû nous échapper).
@@ -55,7 +65,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -75,6 +85,7 @@ struct ClapetStats: Codable, Equatable {
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
         autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
         openSince = try c.decodeIfPresent(Date.self, forKey: .openSince)
+        openFromEvent = try c.decodeIfPresent(Bool.self, forKey: .openFromEvent) ?? false
         if let saved = try c.decodeIfPresent([Int].self, forKey: .weekHours), saved.count == 168 {
             weekHours = saved
         } else if let key = hourlyDay, let d = Self.date(key) {
@@ -181,16 +192,48 @@ struct ClapetStats: Codable, Equatable {
     // MARK: Temps ouvert
 
     /// Le Duo vient de s'ouvrir.
-    mutating func startOpen(_ date: Date = Date()) {
+    /// `event` : une vraie ouverture (charnière ou automatisation), pas un Duo trouvé ouvert au lancement.
+    mutating func startOpen(_ date: Date = Date(), event: Bool = false) {
         if let s = openSince, date.timeIntervalSince(s) < Self.maxOpenSession { return }
         openSince = date
+        openFromEvent = event
+    }
+
+    /// Une vraie ouverture : la pause qui vient de finir compte pour la plus longue pause du jour.
+    mutating func noteOpen(_ date: Date = Date()) {
+        guard let closed = lastClose else { return }
+        let gap = date.timeIntervalSince(closed)
+        guard gap > 0, gap < 24 * 3600 else { return }
+        var d = day(date)
+        d.longestBreak = max(d.longestBreak, gap)
+        days[Self.key(date)] = d
+    }
+
+    /// Les coups d'œil (ouvert moins de 10 s) d'une journée.
+    func peeks(_ date: Date = Date()) -> Int { day(date).peeks }
+
+    /// La plus longue pause d'une journée, en comptant la pause en cours si le téléphone est fermé.
+    func longestBreak(_ date: Date = Date(), now: Date = Date()) -> TimeInterval {
+        var best = day(date).longestBreak
+        if Self.key(date) == Self.key(now), autoLast != nil, openSince == nil,
+           let closed = lastClose, Self.key(closed) == Self.key(now) {
+            best = max(best, now.timeIntervalSince(closed))
+        }
+        return best
     }
 
     /// Le Duo vient de se fermer : on ajoute la durée d'ouverture (répartie sur les jours traversés).
-    mutating func endOpen(_ date: Date = Date()) {
+    /// `event` : une vraie fermeture ; si l'ouverture a duré moins de 10 s, c'est un coup d'œil.
+    mutating func endOpen(_ date: Date = Date(), event: Bool = false) {
         guard let start = openSince else { return }
         openSince = nil
         let total = date.timeIntervalSince(start)
+        if event && openFromEvent && total > 0 && total < 10 {
+            var d = day(start)
+            d.peeks += 1
+            days[Self.key(start)] = d
+        }
+        openFromEvent = false
         guard total > 0, total < Self.maxOpenSession else { return }
         let cal = Calendar.current
         var s = start

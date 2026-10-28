@@ -55,6 +55,8 @@ struct NightHomeView: View {
     @State private var showDemoWidgets = false
     @State private var showAuto = false
     @State private var showAdjust = false
+    @State private var showShare = false
+    @State private var liveOn = LiveCounter.isOn
     @State private var showWidgets = false
     @State private var bump = false
     /// Sans charnière : l'angle du dessin, qu'on « ferme » d'un toucher.
@@ -92,6 +94,9 @@ struct NightHomeView: View {
         }
         .sheet(isPresented: $showAuto) {
             AutoCountView().environment(model)
+        }
+        .sheet(isPresented: $showShare) {
+            ShareDaySheet().environment(model)
         }
         .sheet(isPresented: $showAdjust) {
             AdjustCountView().environment(model)
@@ -181,6 +186,12 @@ struct NightHomeView: View {
             .padding(4)
             .background(Capsule().fill(Color.dfCard))
             Spacer()
+            Button { showShare = true } label: {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.title3)
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityLabel(Text("Share my day"))
             Button { showWidgets = true } label: {
                 Image(systemName: "square.grid.2x2.fill")
                     .font(.title3)
@@ -367,6 +378,10 @@ struct NightHomeView: View {
             tile(Text("Daily limit"), "\(s.goal)",
                  detail: left > 0 ? Text("\(left) left today") : (left == 0 ? Text("Limit reached") : Text("\(-left) over the limit")),
                  color: statusColor)
+            tile(Text("Quick checks"), "\(s.peeks())", detail: Text("Opened less than 10 s"))
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                tile(Text("Longest break"), Self.duration(s.longestBreak(now: context.date)), detail: Text("Kept closed today"))
+            }
         }
     }
 
@@ -431,6 +446,12 @@ struct NightHomeView: View {
             weekBars(days, perDay: Double(total) / 7)
             heatmap
             lifetime
+            Card {
+                VStack(alignment: .leading, spacing: 12) {
+                    CardTitle(Text("Hinge & crease"))
+                    HingeHealthContent(stats: model.stats)
+                }
+            }
         }
     }
 
@@ -694,6 +715,15 @@ struct NightHomeView: View {
             Divider().overlay(Color.dfOutline).padding(.leading, 56)
             row("pencil", Text("Adjust the count"), Text("Type today's folds or your lifetime total"), locked: false) {
                 showAdjust = true
+            }
+            Divider().overlay(Color.dfOutline).padding(.leading, 56)
+            row("square.and.arrow.up", Text("Share my day"), Text("A card for your stories and messages"), locked: false) {
+                showShare = true
+            }
+            Divider().overlay(Color.dfOutline).padding(.leading, 56)
+            row("dot.radiowaves.left.and.right", Text("Live counter"),
+                liveOn ? Text("On the Lock Screen") : Text("Folds today, right on the Lock Screen"), locked: false) {
+                if liveOn { LiveCounter.stop(); liveOn = false } else { liveOn = LiveCounter.start(model.stats) }
             }
             Divider().overlay(Color.dfOutline).padding(.leading, 56)
             row("calendar", Text("History"), Text("30 days, 12 months, records"), locked: !store.hasPlus) {

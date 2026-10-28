@@ -68,5 +68,6 @@ struct ClapetWidget: Widget {
 struct ClapetWidgetBundle: WidgetBundle {
     var body: some Widget {
         ClapetWidget()
+        FoldLiveActivity()
     }
 }

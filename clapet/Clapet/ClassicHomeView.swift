@@ -52,6 +52,8 @@ struct ClassicHomeView: View {
     @State private var showDemoWidgets = false
     @State private var showAuto = false
     @State private var showAdjust = false
+    @State private var showShare = false
+    @State private var liveOn = LiveCounter.isOn
     @State private var bump = false
     @State private var tapOpen = 0.62
 
@@ -71,6 +73,7 @@ struct ClassicHomeView: View {
                     week
                     byHour
                     lifetime
+                    hingeHealth
                     more
                     footnote
                 }
@@ -89,6 +92,10 @@ struct ClassicHomeView: View {
                         }
                         .accessibilityLabel(Text("Foldly+"))
                     }
+                    Button { showShare = true } label: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    .accessibilityLabel(Text("Share my day"))
                     Button { showSettings = true } label: {
                         Image(systemName: "gearshape")
                     }
@@ -103,6 +110,9 @@ struct ClassicHomeView: View {
         }
         .sheet(isPresented: $showAuto) {
             AutoCountView().environment(model)
+        }
+        .sheet(isPresented: $showShare) {
+            ShareDaySheet().environment(model)
         }
         .sheet(isPresented: $showAdjust) {
             AdjustCountView().environment(model)
@@ -312,16 +322,24 @@ struct ClassicHomeView: View {
             tile(Text("Opened today"), value: d.opens, symbol: "rectangle.expand.vertical")
             tile(Text("Last 7 days"), value: model.stats.weekTotal, symbol: "calendar")
             tile(Text("All time"), value: model.stats.totalCloses, symbol: "sum")
+            tile(Text("Quick checks"), value: model.stats.peeks(), symbol: "eye")
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                tile(Text("Longest break"), text: Self.duration(model.stats.longestBreak(now: context.date)), symbol: "moon.zzz")
+            }
         }
     }
 
     private func tile(_ title: Text, value: Int, symbol: String) -> some View {
+        tile(title, text: "\(value)", symbol: symbol)
+    }
+
+    private func tile(_ title: Text, text: String, symbol: String) -> some View {
         ClassicCard {
             VStack(alignment: .leading, spacing: 6) {
                 Label { title } icon: { Image(systemName: symbol).foregroundStyle(Color.dfAccent) }
                     .font(.footnote.weight(.medium))
                     .foregroundStyle(.secondary)
-                Text("\(value)")
+                Text(text)
                     .font(.system(size: 26, weight: .semibold))
                     .monospacedDigit()
                     .contentTransition(.numericText())
@@ -525,6 +543,15 @@ struct ClassicHomeView: View {
 
     // MARK: Historique et alertes
 
+    private var hingeHealth: some View {
+        ClassicCard {
+            VStack(alignment: .leading, spacing: 10) {
+                ClassicCardTitle(Text("Hinge & crease"), symbol: "shield.lefthalf.filled")
+                HingeHealthContent(stats: model.stats)
+            }
+        }
+    }
+
     private var more: some View {
         VStack(spacing: 0) {
             row("bolt.badge.automatic", Text("Automatic counting"),
@@ -535,6 +562,15 @@ struct ClassicHomeView: View {
             Divider().padding(.leading, 52)
             row("pencil", Text("Adjust the count"), Text("Type today's folds or your lifetime total"), locked: false) {
                 showAdjust = true
+            }
+            Divider().padding(.leading, 52)
+            row("square.and.arrow.up", Text("Share my day"), Text("A card for your stories and messages"), locked: false) {
+                showShare = true
+            }
+            Divider().padding(.leading, 52)
+            row("dot.radiowaves.left.and.right", Text("Live counter"),
+                liveOn ? Text("On the Lock Screen") : Text("Folds today, right on the Lock Screen"), locked: false) {
+                if liveOn { LiveCounter.stop(); liveOn = false } else { liveOn = LiveCounter.start(model.stats) }
             }
             Divider().padding(.leading, 52)
             row("calendar", Text("History"), Text("30 days, 12 months, records"), locked: !store.hasPlus) {

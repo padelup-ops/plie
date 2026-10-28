@@ -37,6 +37,7 @@ targets:
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         ITSAppUsesNonExemptEncryption: false
+        NSSupportsLiveActivities: true
         ClapetKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.clapet.shared
     settings:
       base:

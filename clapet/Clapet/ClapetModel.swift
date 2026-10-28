@@ -118,7 +118,8 @@ final class ClapetModel {
         if hapticsOn { ClapetHaptics.tick() }
         guard Date().timeIntervalSince(lastAutoOpen) > sameFold else { return }
         stats.addOpen()
-        stats.startOpen()
+        stats.noteOpen()
+        stats.startOpen(event: true)
         changed()
     }
 
@@ -140,7 +141,8 @@ final class ClapetModel {
         lastAutoOpen = Date()
         stats.autoLast = Date()
         if Date().timeIntervalSince(lastHingeOpen) > sameFold { stats.addOpen() }
-        stats.startOpen()
+        stats.noteOpen()
+        stats.startOpen(event: true)
         changed()
         WidgetCenter.shared.reloadAllTimelines()
     }
@@ -148,7 +150,7 @@ final class ClapetModel {
     private func countClose() {
         let before = stats.today
         stats.addClose()
-        stats.endOpen()
+        stats.endOpen(event: true)
         LimitAlerts.check(before: before, after: stats.today, limit: stats.goal, plus: stats.plus)
         claps += 1
         lastClapAt = Date()
@@ -221,10 +223,12 @@ final class ClapetModel {
     func flush() {
         ClapetVault.save(stats)
         WidgetCenter.shared.reloadAllTimelines()
+        LiveCounter.refresh(stats)
     }
 
     private func changed() {
         ClapetVault.save(stats)
+        LiveCounter.refresh(stats)
         // Les widgets suivent, sans les recharger à chaque clapet.
         let wait = 1.5 - Date().timeIntervalSince(lastWidgetReload)
         if wait <= 0 {

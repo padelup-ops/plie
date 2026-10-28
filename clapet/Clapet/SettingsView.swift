@@ -9,6 +9,8 @@ struct SettingsView: View {
     @State private var alertsDenied = false
     @State private var showAuto = false
     @AppStorage(DFLook.key) private var lookRaw = ""
+    @State private var liveOn = LiveCounter.isOn
+    @State private var liveDenied = false
 
     var body: some View {
         NavigationStack {
@@ -95,6 +97,27 @@ struct SettingsView: View {
                         Text("Notifications are off for Foldly. Turn them on in the Settings app.")
                     } else {
                         Text("A notification at 80 % and at 100 % of your limit.")
+                    }
+                }
+                Section {
+                    Toggle(isOn: Binding(get: { liveOn }, set: { on in
+                        if on {
+                            liveOn = LiveCounter.start(model.stats)
+                            liveDenied = !liveOn
+                        } else {
+                            LiveCounter.stop()
+                            liveOn = false
+                        }
+                    })) {
+                        Text("Live counter")
+                    }
+                } header: {
+                    Text("Lock Screen")
+                } footer: {
+                    if liveDenied {
+                        Text("Live Activities are off for Foldly. Turn them on in the Settings app.")
+                    } else {
+                        Text("Your count on the Lock Screen and the outer display, updated at every fold.")
                     }
                 }
                 Section {
