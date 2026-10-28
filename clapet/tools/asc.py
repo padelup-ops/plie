@@ -76,22 +76,24 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
+• MINDFUL PAUSE: in your "Opened" automation, replace "Count an opening" with "Pause when opened". Each time you unfold, Foldly shows up for 3 seconds: breathe, then carry on or close it. Closing it counts as an unfold resisted.
 • Quick checks: how many times you opened your phone for less than 10 seconds, the real measure of the reflex.
 • Longest break: the longest time your phone stayed closed today.
 • Hinge & crease: your total folds, and at your pace when you'll reach 32,000 folds (a public durability test).
 • Live counter: today's folds on the Lock Screen and the outer display, updated at every fold (Settings, or the "Live counter" row).
 • Share my day: a card for your stories and messages (share button at the top).
 
-Please test: turn on the live counter, fold a few times with another app on screen, and share your day.""",
+Please test: set up the mindful pause, turn on the live counter, and share your day.""",
     "fr-FR": """Nouveautés de ce build :
 
+• PAUSE CONSCIENTE : dans ton automatisation « Ouvert », remplace « Compter une ouverture » par « Pause à l'ouverture ». À chaque ouverture, Foldly s'affiche 3 secondes : respire, puis continue ou referme. Refermer compte comme une ouverture évitée.
 • Coups d'œil : combien de fois tu as ouvert ton téléphone moins de 10 secondes, la vraie mesure du réflexe.
 • Plus longue pause : le plus long moment où ton téléphone est resté fermé aujourd'hui.
 • Charnière et pli : ton total de plis, et à ton rythme quand tu atteindras 32 000 plis (un test d'endurance public).
 • Compteur en direct : les plis du jour sur l'écran verrouillé et l'écran extérieur, mis à jour à chaque pli (Réglages, ou la ligne « Compteur en direct »).
 • Partager ma journée : une image pour tes stories et tes messages (bouton de partage en haut).
 
-À tester : active le compteur en direct, plie plusieurs fois avec une autre app à l'écran, et partage ta journée.""",
+À tester : mets en place la pause consciente, active le compteur en direct, et partage ta journée.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

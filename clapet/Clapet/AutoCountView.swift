@@ -54,6 +54,19 @@ struct AutoCountView: View {
                 }
 
                 Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label { Text("Want to unfold less?").font(.headline) } icon: { Image(systemName: "wind").foregroundStyle(Color.dfAccent) }
+                        Text("In your “Opened” automation, replace “Count an opening” with “Pause when opened”. Each time you open your phone, Foldly shows up for 3 seconds: breathe, then carry on or close it. Closing it counts as an unfold resisted, and the opening is still counted.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.vertical, 4)
+                } header: {
+                    Text("Mindful pause (optional)")
+                }
+
+                Section {
                     Button {
                         if let url = URL(string: "shortcuts://") { openURL(url) }
                     } label: {

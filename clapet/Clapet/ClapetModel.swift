@@ -170,6 +170,12 @@ final class ClapetModel {
         flush()
     }
 
+    /// Après la pause, le téléphone a été refermé : une ouverture évitée.
+    func recordResisted() {
+        stats.addResisted()
+        flush()
+    }
+
     func reset() {
         var fresh = ClapetStats()
         fresh.goal = stats.goal

@@ -1,4 +1,5 @@
 /* Raccourcis (écrit par clapet/tools/strings.py) */
+"Take a pause with ${applicationName}" = "Faire une pause avec ${applicationName}";
 "Count a fold in ${applicationName}" = "Compter un pli dans ${applicationName}";
 "Add a fold in ${applicationName}" = "Ajouter un pli dans ${applicationName}";
 "How many folds today in ${applicationName}" = "Combien de plis aujourd'hui dans ${applicationName}";

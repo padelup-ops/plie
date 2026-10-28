@@ -16,6 +16,8 @@ struct DayCount: Codable, Equatable {
     var peeks = 0
     /// La plus longue pause (téléphone fermé), en secondes.
     var longestBreak: Double = 0
+    /// Ouvertures évitées : après la pause de Foldly, le téléphone a été refermé.
+    var resisted = 0
 
     init(closes: Int = 0, opens: Int = 0, openSeconds: Double = 0, peeks: Int = 0, longestBreak: Double = 0) {
         self.closes = closes
@@ -32,6 +34,7 @@ struct DayCount: Codable, Equatable {
         openSeconds = try c.decodeIfPresent(Double.self, forKey: .openSeconds) ?? 0
         peeks = try c.decodeIfPresent(Int.self, forKey: .peeks) ?? 0
         longestBreak = try c.decodeIfPresent(Double.self, forKey: .longestBreak) ?? 0
+        resisted = try c.decodeIfPresent(Int.self, forKey: .resisted) ?? 0
     }
 }
 
@@ -206,6 +209,13 @@ struct ClapetStats: Codable, Equatable {
         guard gap > 0, gap < 24 * 3600 else { return }
         var d = day(date)
         d.longestBreak = max(d.longestBreak, gap)
+        days[Self.key(date)] = d
+    }
+
+    /// Une ouverture évitée grâce à la pause.
+    mutating func addResisted(_ date: Date = Date()) {
+        var d = day(date)
+        d.resisted += 1
         days[Self.key(date)] = d
     }
 

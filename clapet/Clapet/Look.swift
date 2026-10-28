@@ -46,8 +46,10 @@ extension Color {
 
 /// L'écran principal, dans le look choisi.
 struct ContentView: View {
+    @Environment(ClapetModel.self) private var model
     @AppStorage(DFLook.key) private var lookRaw = ""
     @State private var askLook = false
+    @State private var pause = PauseCenter.shared
 
     var body: some View {
         let look = DFLook(rawValue: lookRaw) ?? .classic
@@ -61,6 +63,9 @@ struct ContentView: View {
         .onAppear {
             // Première ouverture : on propose de choisir (pas pendant le tournage des vidéos).
             if lookRaw.isEmpty && !Demo.seeded && Demo.screen == nil { askLook = true }
+        }
+        .fullScreenCover(isPresented: Binding(get: { pause.pending }, set: { pause.pending = $0 })) {
+            PauseView().environment(model)
         }
         .sheet(isPresented: $askLook, onDismiss: {
             if lookRaw.isEmpty { lookRaw = DFLook.classic.rawValue }

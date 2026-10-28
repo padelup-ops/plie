@@ -1,4 +1,5 @@
 /* Raccourcis (écrit par clapet/tools/strings.py) */
+"Take a pause with ${applicationName}" = "Take a pause with ${applicationName}";
 "Count a fold in ${applicationName}" = "Count a fold in ${applicationName}";
 "Add a fold in ${applicationName}" = "Add a fold in ${applicationName}";
 "How many folds today in ${applicationName}" = "How many folds today in ${applicationName}";

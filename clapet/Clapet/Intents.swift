@@ -69,6 +69,21 @@ struct CountOpenIntent: AppIntent {
     }
 }
 
+/// « Faire une pause à l'ouverture » : à mettre dans l'automatisation « iPhone ouvert » à la place de « Compter une ouverture ».
+/// Compte l'ouverture, puis Foldly s'affiche quelques secondes : respirer, et choisir de continuer ou de refermer.
+struct MindfulOpenIntent: AppIntent {
+    static var title: LocalizedStringResource = "Pause when opened"
+    static var description = IntentDescription("Counts an opening, then shows Foldly for a short pause before you carry on. Use it in a Shortcuts automation that runs when your phone is opened.")
+    static var openAppWhenRun = true
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        AutomaticCounter.open()
+        PauseCenter.shared.pending = true
+        return .result()
+    }
+}
+
 struct TodayClapsIntent: AppIntent {
     static var title: LocalizedStringResource = "Folds today"
     static var description = IntentDescription("Tells you how many times you closed your phone today.")
@@ -90,6 +105,10 @@ struct ClapetShortcuts: AppShortcutsProvider {
                     phrases: ["Count an opening in \(.applicationName)"],
                     shortTitle: "Count an opening",
                     systemImageName: "rectangle.expand.vertical")
+        AppShortcut(intent: MindfulOpenIntent(),
+                    phrases: ["Take a pause with \(.applicationName)"],
+                    shortTitle: "Pause when opened",
+                    systemImageName: "wind")
         AppShortcut(intent: TodayClapsIntent(),
                     phrases: ["How many folds today in \(.applicationName)", "My folds in \(.applicationName)"],
                     shortTitle: "Folds today",
