@@ -1,0 +1,22 @@
+APP 6827349081 Foldly : compteur de plis
+bibliothèque : {"data": {"type": "appAssetLibraries", "id": "6827349081", "relationships": {"images": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6827349081/relationships/images", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6827349081/images"}}, "videos": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6827349081/relationships/videos", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6827349081/videos"}}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6827349081"}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/apps/6827349081/assetLibrary"}}
+3 vidéo(s) déjà dans la bibliothèque
+ok     header en-US déjà envoyée (2f800019-6f11-8459-811c-7b8985c1008d, PREPARE_FOR_SUBMISSION)
+       image d'affiche 00:00:00:15 ok
+ok     search en-US déjà envoyée (94000019-6f11-8459-8130-ee2bf908e0d5, PREPARE_FOR_SUBMISSION)
+       image d'affiche 00:00:00:15 ok
+ok     header fr-FR déjà envoyée (80800019-6f11-8459-8108-ab687396bf23, UPLOAD_COMPLETE)
+       image d'affiche 00:00:00:15 ok
+envoi  search fr-FR (1837 Ko)
+       réservée (relation « assetLibrary », attributs ['category', 'fileName', 'fileSize', 'referenceName'])
+       1 morceau(x) envoyé(s)
+       image d'affiche 00:00:00:15 ok
+       état UPLOAD_COMPLETE · spécification None · {"category": "CREATIVE_ASSETS", "createdDate": "2026-10-28T21:35:46.316653Z", "lastModifiedDate": "2026-10-28T21:35:48.043745Z", "fileName": "search.mp4", "fileSize": 1881184, "previewFrameImage": null, "previewFrameTimeCode": "00:00:00:15", "referenceName": "search-fr-FR-2615c22adb99", "specId": null, "state": "UPLOAD_COMPLETE", "stateDetails": null, "videoAsset": null}
+
+Bibliothèque :
+  header-en-US-113726f9e6ad · PREPARE_FOR_SUBMISSION · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-en-US-e08dc852b6c6 · PREPARE_FOR_SUBMISSION · spécification a28b6440-2fe2-58f0-9da3-354cb54cab57 · affiche 00:00:00:15
+  header-fr-FR-0a864aeda3aa · PREPARE_FOR_SUBMISSION · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-fr-FR-2615c22adb99 · UPLOAD_COMPLETE · spécification None · affiche 00:00:00:15
+
+ENVOYÉ DANS LA BIBLIOTHÈQUE
