@@ -11,6 +11,10 @@ on:
         description: "Langues (fr en)"
         required: false
         default: "fr en"
+      set:
+        description: "Scènes : v2 (téléphone posé, badges, widgets) ou v1 (compteur, limite)"
+        required: false
+        default: "v2"
 
 jobs:
   film:
@@ -85,12 +89,25 @@ jobs:
         run: |
           # scène | écran | durée (s) | charnière simulée | autres arguments
           FOLDS="0:176,0.9:176,1.15:5,1.4:5,1.7:176,2.5:176,2.75:5,3.0:5,3.3:176,4.1:176,4.35:5,4.6:5,4.9:176,5.7:176,5.95:5,6.2:5,6.5:176"
+          if [ "${{ github.event.inputs.set }}" = "v1" ]; then
           cat > scenes.txt <<EOF
           count|home|8|$FOLDS|-demoToday 44
           limit|home|8|$FOLDS|-demoToday 57
           widgets|widgets|5||-demoToday 52
           history|history|7||-demoToday 52 -demoScroll records@3.2
           EOF
+          else
+          # Vidéo 2 : téléphone posé, pause, jardin et badges, widgets (look Moderne)
+          cat > scenes.txt <<EOF
+          phonedown|phonedown|6||-demoToday 23 -look night
+          pause|pause|6||-demoToday 23 -look night
+          garden|garden|6||-demoToday 23 -look night
+          badge|badge|6||-demoToday 23 -look night
+          widgets|widgets|5||-demoToday 23 -look night
+          lock|lock|5||-demoToday 23 -look night
+          gallery|widgetsGallery|6||-demoToday 23 -look night
+          EOF
+          fi
           xcrun simctl launch "$UDID" "$BID" > /dev/null 2>&1 || true
           sleep 6
           for L in ${{ github.event.inputs.langs }}; do

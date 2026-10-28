@@ -78,10 +78,26 @@ enum Demo {
             // Au début on dépasse souvent la limite, puis on reste en dessous : l'habitude change.
             let trend = 0.78 + Double(back) / 70.0
             let n = Int((Double(limit) * trend * pattern[back % pattern.count]).rounded())
-            s.days[ClapetStats.key(d)] = DayCount(closes: n, opens: n + (back % 3))
+            var day = DayCount(closes: n, opens: n + (back % 3))
+            // Téléphone posé : objectif (3 h) tenu les 9 derniers jours, plus irrégulier avant.
+            let hours = back <= 9 ? 3.4 + 0.25 * Double(back % 4) : 2.2 + 0.5 * pattern[back % pattern.count]
+            day.downSeconds = hours * 3600
+            day.plants = Int(hours * 60 / 25 * 0.82)
+            day.resisted = back % 3
+            day.peeks = 4 + back % 5
+            day.longestBreak = 3600 * (1.2 + 0.1 * Double(back % 5))
+            s.days[ClapetStats.key(d)] = day
             total += n
         }
-        s.days[ClapetStats.key(now)] = DayCount(closes: today, opens: today)
+        var day = DayCount(closes: today, opens: today)
+        day.downSeconds = 2.6 * 3600
+        day.plants = 5
+        day.resisted = 2
+        day.peeks = 6
+        s.days[ClapetStats.key(now)] = day
+        // Une session en cours depuis 17 minutes : la prochaine plante pousse.
+        s.autoLast = now.addingTimeInterval(-17 * 60)
+        s.downGoalMinutes = 180
         s.totalCloses = total + today
         s.totalOpens = s.totalCloses
         s.firstDay = cal.date(byAdding: .day, value: -45, to: now).map { ClapetStats.key($0) }
@@ -107,57 +123,61 @@ enum Demo {
             }
         }
         s.recordHour = 14
-        s.lastClose = now.addingTimeInterval(-180)
+        s.lastClose = Demo.screen == "home" || Demo.screen == nil ? now.addingTimeInterval(-180) : now.addingTimeInterval(-17 * 60)
         s.plus = plus
         s.theme = 0
         stats = s
     }
 }
 
-/// L'écran d'accueil d'un iPhone avec les widgets de Foldly (pour la vidéo).
+/// L'écran d'accueil d'un iPhone avec les widgets de Foldly (pour la vidéo), ou son écran verrouillé (`-screen lock`).
 struct DemoWidgetsView: View {
     @Environment(ClapetModel.self) private var model
 
     var body: some View {
         let entry = ClapetEntry(date: Date(), stats: model.stats)
         GeometryReader { g in
-            let scale = min(g.size.width / 400, (g.size.height - 120) / 600)
+            let scale = min(g.size.width / 400, (g.size.height - 120) / 620)
             ZStack {
                 LinearGradient(colors: [Color(red: 0.16, green: 0.20, blue: 0.42), Color(red: 0.42, green: 0.22, blue: 0.48),
                                         Color(red: 0.93, green: 0.52, blue: 0.46)],
                                startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
-                VStack(spacing: 22 * scale) {
-                    widget(entry, .systemLarge, width: 364, height: 382, scale: scale)
-                    HStack(spacing: 22 * scale) {
-                        widget(entry, .systemSmall, width: 170, height: 170, scale: scale)
-                        VStack(spacing: 12 * scale) {
-                            HStack(spacing: 18 * scale) {
-                                icon("heart.fill", .pink, scale)
-                                icon("message.fill", .green, scale)
-                            }
-                            HStack(spacing: 18 * scale) {
-                                icon("camera.fill", .gray, scale)
-                                icon("music.note", .red, scale)
-                            }
+                if Demo.screen == "lock" {
+                    VStack(spacing: 14 * scale) {
+                        WidgetThumb(kind: .phoneDown, family: .accessoryInline, entry: entry, scale: 1.3 * scale)
+                        Text(Date(), format: .dateTime.hour().minute())
+                            .font(.system(size: 120 * scale, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.94))
+                        HStack(spacing: 14 * scale) {
+                            WidgetThumb(kind: .folds, family: .accessoryCircular, entry: entry, scale: 1.35 * scale)
+                            WidgetThumb(kind: .phoneDown, family: .accessoryRectangular, entry: entry, scale: 1.35 * scale)
                         }
-                        .frame(width: 170 * scale, height: 170 * scale)
+                        Spacer()
                     }
+                    .foregroundStyle(.white)
+                    .padding(.top, 90 * scale)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .environment(\.colorScheme, .dark)
+                } else {
+                    VStack(spacing: 22 * scale) {
+                        WidgetThumb(kind: .folds, family: .systemMedium, entry: entry, scale: scale)
+                        HStack(spacing: 22 * scale) {
+                            WidgetThumb(kind: .phoneDown, family: .systemSmall, entry: entry, scale: scale)
+                            WidgetThumb(kind: .folds, family: .systemSmall, entry: entry, scale: scale)
+                        }
+                        WidgetThumb(kind: .phoneDown, family: .systemMedium, entry: entry, scale: scale)
+                        HStack(spacing: 22 * scale) {
+                            icon("heart.fill", .pink, scale)
+                            icon("message.fill", .green, scale)
+                            icon("camera.fill", .gray, scale)
+                            icon("music.note", .red, scale)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-    }
-
-    private func widget(_ entry: ClapetEntry, _ family: WidgetFamily, width: CGFloat, height: CGFloat, scale: CGFloat) -> some View {
-        ClapetWidgetView(entry: entry, family: family)
-            .padding(16)
-            .frame(width: width, height: height)
-            .background(Palette.background)
-            .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-            .environment(\.colorScheme, .dark)
-            .scaleEffect(scale)
-            .frame(width: width * scale, height: height * scale)
     }
 
     private func icon(_ symbol: String, _ color: Color, _ scale: CGFloat) -> some View {

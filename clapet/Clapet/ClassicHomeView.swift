@@ -175,8 +175,10 @@ struct ClassicHomeView: View {
     private func runDemo() async {
         switch Demo.screen {
         case "history": showHistory = true
-        case "widgets": showDemoWidgets = true
+        case "widgets", "lock": showDemoWidgets = true
         case "plus": plusReason = .menu
+        case "garden": showGarden = true
+        case "widgetsGallery": showWidgets = true
         default: break
         }
         let keys = Demo.hinge

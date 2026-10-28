@@ -170,14 +170,14 @@ struct GardenView: View {
                                 .foregroundStyle(.secondary)
                         } else {
                             LazyVGrid(columns: [GridItem(.adaptive(minimum: 26, maximum: 34), spacing: 6)], spacing: 8) {
-                                ForEach(0..<min(total, 300), id: \.self) { i in
+                                ForEach(0..<min(total, 60), id: \.self) { i in
                                     Image(systemName: Garden.symbol(i))
                                         .font(.title3)
                                         .foregroundStyle(Color.dfAccent.opacity(Garden.shade(i)))
                                 }
                             }
-                            if total > 300 {
-                                Text("And \(total - 300) more")
+                            if total > 60 {
+                                Text("And \(total - 60) more")
                                     .font(.footnote)
                                     .foregroundStyle(.secondary)
                             }

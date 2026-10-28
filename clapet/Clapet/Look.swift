@@ -82,6 +82,18 @@ struct ContentView: View {
                 .presentationDetents([.medium, .large])
         }
         .task {
+            // Tournage de la vidéo : la pause à l'ouverture, ou l'écran « Nouveau badge ! ».
+            if Demo.screen == "pause" || Demo.screen == "badge" {
+                try? await Task.sleep(nanoseconds: UInt64(Demo.delay * 1_000_000_000))
+                _ = Demo.markOrigin()
+                if Demo.screen == "pause" {
+                    pause.pending = true
+                } else {
+                    let ids = ["goal7", "plant100"]
+                    newBadges = BadgeBatch(badges: GardenBadges.all(model.stats).filter { ids.contains($0.id) })
+                }
+                return
+            }
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             checkBadges()
         }
