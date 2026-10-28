@@ -4,7 +4,7 @@ MODE=discover   lit la bibliothèque d'assets de l'app et les données de réfé
 MODE=upload     envoie les vidéos de ASSETS_DIR/<locale>/(header|search).mp4 dans la bibliothèque (sans rien soumettre)
 MODE=place      les place sur la version modifiable (en-tête et recherche, par langue) : elles partent en vérification avec elle
 """
-import json, os, sys, time, urllib.request, urllib.error
+import hashlib, json, os, sys, time, urllib.request, urllib.error
 import jwt
 
 API = "https://api.appstoreconnect.apple.com"
@@ -58,3 +58,156 @@ if MODE == "discover":
             print(kind, ":", short(r, 1500))
     for v in call("GET", f"/v1/apps/{app['id']}/appStoreVersions?limit=3").get("data", []):
         print("version", v["id"], v["attributes"].get("versionString"), v["attributes"].get("appStoreState"))
+
+
+# ---------------------------------------------------------------- envoi dans la bibliothèque (sans rien soumettre)
+LIB = (lib.get("data") or {}).get("id")
+ASSETS_DIR = os.environ.get("ASSETS_DIR", "clapet/tools/store/creative")
+KINDS = {"header": "PRODUCT_PAGE_HEADER_ASSET", "search": "APP_STORE_SEARCH_RESULTS_ASSET"}
+problems = []
+
+
+def library_videos():
+    out, url = [], f"/v1/appAssetLibraries/{LIB}/videos?limit=200"
+    while url:
+        r = call("GET", url)
+        if "error" in r:
+            print("liste des vidéos :", short(r, 600))
+            return out
+        out += r.get("data", [])
+        url = (r.get("links") or {}).get("next")
+    return out
+
+
+def reserve(name, size, ref):
+    """Réserve la vidéo dans la bibliothèque (le nom de la relation n'est pas encore documenté partout : on essaie)."""
+    last = None
+    for rel in ("appAssetLibrary", "library", "assetLibrary"):
+        for attrs in ({"fileName": name, "fileSize": size, "category": "CREATIVE_ASSETS", "referenceName": ref},
+                      {"fileName": name, "fileSize": size, "category": "CREATIVE_ASSETS"}):
+            body = {"data": {"type": "appAssetLibraryVideos", "attributes": attrs,
+                             "relationships": {rel: {"data": {"type": "appAssetLibraries", "id": LIB}}}}}
+            r = call("POST", "/v1/appAssetLibraryVideos", body)
+            if "error" not in r:
+                print(f"       réservée (relation « {rel} », attributs {sorted(attrs)})")
+                return r
+            last = r
+            if "referenceName" not in r["detail"] and "relationship" not in r["detail"].lower():
+                break
+    print("ÉCHEC  réservation :", short(last, 900))
+    return None
+
+
+def upload_file(path, ref):
+    data = open(path, "rb").read()
+    r = reserve(os.path.basename(path), len(data), ref)
+    if not r:
+        problems.append(os.path.basename(path))
+        return None
+    vid = r["data"]["id"]
+    ops = r["data"]["attributes"].get("uploadOperations") or []
+    for op in ops:
+        chunk = data[op["offset"]:op["offset"] + op["length"]]
+        req = urllib.request.Request(op["url"], data=chunk, method=op.get("method", "PUT"),
+                                     headers={h["name"]: h["value"] for h in op.get("requestHeaders", [])})
+        urllib.request.urlopen(req).read()
+    print(f"       {len(ops)} morceau(x) envoyé(s)")
+    c = call("PATCH", f"/v1/appAssetLibraryVideos/{vid}", {"data": {"type": "appAssetLibraryVideos", "id": vid,
+             "attributes": {"uploaded": True}}})
+    if "error" in c:
+        print("ÉCHEC  validation de l'envoi :", short(c, 600))
+        problems.append(os.path.basename(path))
+        return vid
+    for attempt in range(60):
+        a = call("GET", f"/v1/appAssetLibraryVideos/{vid}").get("data", {}).get("attributes", {})
+        state = a.get("state") or (a.get("assetDeliveryState") or {}).get("state")
+        if state not in ("UPLOAD_COMPLETE", "AWAITING_UPLOAD", "PROCESSING", None) or attempt == 59:
+            print(f"       état {state} · spécification {a.get('specId')} · {short({k: v for k, v in a.items() if k not in ('uploadOperations',)}, 900)}")
+            break
+        time.sleep(15)
+    return vid
+
+
+if MODE == "upload":
+    have = {v["attributes"].get("referenceName"): v for v in library_videos()}
+    print(len(have), "vidéo(s) déjà dans la bibliothèque")
+    report = {}
+    for locale in sorted(os.listdir(ASSETS_DIR)):
+        folder = os.path.join(ASSETS_DIR, locale)
+        if not os.path.isdir(folder):
+            continue
+        for kind in KINDS:
+            path = os.path.join(folder, kind + ".mp4")
+            if not os.path.exists(path):
+                continue
+            digest = hashlib.md5(open(path, "rb").read()).hexdigest()[:12]
+            ref = f"{kind}-{locale}-{digest}"
+            if ref in have:
+                print(f"ok     {kind} {locale} déjà envoyée ({have[ref]['id']})")
+                report[f"{locale}/{kind}"] = have[ref]["id"]
+                continue
+            print(f"envoi  {kind} {locale} ({os.path.getsize(path) // 1024} Ko)")
+            vid = upload_file(path, ref)
+            if vid:
+                report[f"{locale}/{kind}"] = vid
+    json.dump(report, open("out/assets.json", "w"), indent=1)
+    print("\nENVOYÉ DANS LA BIBLIOTHÈQUE" if not problems else "\nÀ REVOIR : " + ", ".join(problems))
+
+
+# ---------------------------------------------------------------- placement sur la version suivante (MODE=place)
+def placements_of(loc_id):
+    r = call("GET", f"/v1/appStoreVersionLocalizations/{loc_id}/placements?limit=50")
+    return r.get("data", []) if "error" not in r else []
+
+
+def create_placement(kind, vid, loc_id):
+    last = None
+    for vrel in ("video", "asset", "appAssetLibraryVideo"):
+        for lrel in ("appStoreVersionLocalization", "localization"):
+            body = {"data": {"type": "appAssetLibraryPlacements",
+                             "attributes": {"placementType": KINDS[kind], "placementGroup": "DEFAULT_PROFILE"},
+                             "relationships": {vrel: {"data": {"type": "appAssetLibraryVideos", "id": vid}},
+                                               lrel: {"data": {"type": "appStoreVersionLocalizations", "id": loc_id}}}}}
+            r = call("POST", "/v1/appAssetLibraryPlacements", body)
+            if "error" not in r:
+                return r
+            last = r
+            if "relationship" not in r["detail"].lower():
+                return r
+    return last
+
+
+if MODE == "place":
+    versions = call("GET", f"/v1/apps/{app['id']}/appStoreVersions?filter[platform]=IOS&limit=10").get("data", [])
+    version = next((v for v in versions if v["attributes"].get("appStoreState") in
+                    ("PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED")), None)
+    if not version:
+        print("aucune version modifiable : les vidéos seront placées sur la prochaine version",
+              [(v["attributes"].get("versionString"), v["attributes"].get("appStoreState")) for v in versions])
+        sys.exit(0)
+    print("VERSION", version["attributes"].get("versionString"), version["attributes"].get("appStoreState"))
+    have = {v["attributes"].get("referenceName") or "": v for v in library_videos()}
+    for loc in call("GET", f"/v1/appStoreVersions/{version['id']}/appStoreVersionLocalizations").get("data", []):
+        locale = loc["attributes"]["locale"]
+        current = placements_of(loc["id"])
+        for kind in KINDS:
+            path = os.path.join(ASSETS_DIR, locale, kind + ".mp4")
+            if not os.path.exists(path):
+                continue
+            digest = hashlib.md5(open(path, "rb").read()).hexdigest()[:12]
+            asset = have.get(f"{kind}-{locale}-{digest}")
+            if not asset:
+                print(f"ÉCHEC  {kind} {locale} : pas encore dans la bibliothèque (lancer MODE=upload)")
+                problems.append(f"{kind} {locale}")
+                continue
+            # Une seule vidéo par emplacement : on retire l'ancienne.
+            for p in current:
+                if (p["attributes"].get("placementType") == KINDS[kind]):
+                    call("DELETE", f"/v1/appAssetLibraryPlacements/{p['id']}")
+            r = create_placement(kind, asset["id"], loc["id"])
+            if "error" in r:
+                print(f"ÉCHEC  {kind} {locale} :", short(r, 900))
+                problems.append(f"{kind} {locale}")
+            else:
+                print(f"ok     {kind} {locale} placée sur la version")
+    print("\nPLACÉES" if not problems else "\nÀ REVOIR : " + ", ".join(problems))

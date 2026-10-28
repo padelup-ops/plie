@@ -357,6 +357,16 @@ if SUBMIT:
     step("version 1.0 ajoutée à la demande", call("POST", "/v1/reviewSubmissionItems", {"data": {"type": "reviewSubmissionItems",
          "relationships": {"reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
                            "appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}}), tolerate=("already",))
+    # Les vidéos d'en-tête et de recherche (iOS 27) placées sur cette version partent avec elle.
+    for v_ in call("GET", f"/v1/appAssetLibraries/{app_id}/videos?limit=50").get("data", []):
+        st = str(v_["attributes"].get("state") or "")
+        if "APPROVED" in st or "REVIEW" in st or "REJECTED" in st:
+            continue
+        step(f"vidéo d'en-tête {v_['attributes'].get('referenceName')} ajoutée à la demande", call("POST", "/v1/reviewSubmissionItems", {"data": {
+             "type": "reviewSubmissionItems", "relationships": {
+                 "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
+                 "appAssetLibraryVideo": {"data": {"type": "appAssetLibraryVideos", "id": v_["id"]}}}}}),
+             tolerate=("already", "ENTITY_ERROR", "STATE_ERROR"))
     r = step("ENVOI À LA VÉRIFICATION D'APPLE", call("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
          "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}}))
     v = call("GET", f"/v1/appStoreVersions/{vid}").get("data", {}).get("attributes", {})

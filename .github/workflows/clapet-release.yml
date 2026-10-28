@@ -51,6 +51,19 @@ jobs:
           else
             SKIP_NOTES=1 BUILD_NUMBER=${{ inputs.build }} timeout 600 python3 clapet/tools/asc.py 2>&1 | grep -v "attente du traitement" | tee fiche.txt || true
           fi
+      - name: Creative assets (vidéo d'en-tête et de recherche, iOS 27)
+        if: inputs.withdraw != '1'
+        continue-on-error: true
+        env:
+          ASSETS_DIR: ${{ inputs.app == 'origamo' && 'tools/store_creative' || 'clapet/tools/store/creative' }}
+        run: |
+          mkdir -p out
+          if [ -d "$ASSETS_DIR" ]; then
+            MODE=upload python3 clapet/tools/asc_assets.py 2>&1 | tee creative.txt
+            MODE=place python3 clapet/tools/asc_assets.py 2>&1 | tee -a creative.txt
+          else
+            echo "pas de vidéos d'en-tête pour cette app" | tee creative.txt
+          fi
       - name: Version 1.0
         run: |
           set -o pipefail
@@ -60,6 +73,6 @@ jobs:
         env:
           GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p "$RUNNER_TEMP/r" && touch fiche.txt release.txt && cp fiche.txt release.txt "$RUNNER_TEMP/r/"; cd "$RUNNER_TEMP/r"
+          mkdir -p "$RUNNER_TEMP/r" && touch fiche.txt release.txt creative.txt && cp fiche.txt release.txt creative.txt "$RUNNER_TEMP/r/"; cd "$RUNNER_TEMP/r"
           git init -q -b ci-clapet-release && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
           git add -A && git commit -qm "Mise en production Duo Folds" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-release
