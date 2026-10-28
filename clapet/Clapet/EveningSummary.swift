@@ -33,7 +33,7 @@ enum EveningSummary {
             let down = Duration.seconds(Double(Int(stats.downTime(now: now) / 60) * 60))
                 .formatted(.units(allowed: [.hours, .minutes], width: .abbreviated))
             let day = stats.day(now)
-            content.body = String(localized: "\(down) phone down · \(day.plants) plants · \(day.closes) folds")
+            content.body = String(localized: "\(down) phone down · \(stats.plants(now: now)) plants · \(day.closes) folds")
         } else {
             // Déjà passé 21 h 30 : demain, sans chiffres (ils seront mis à jour au premier pli).
             at = cal.dateComponents([.year, .month, .day], from: cal.date(byAdding: .day, value: 1, to: now) ?? now)

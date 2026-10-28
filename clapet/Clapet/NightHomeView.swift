@@ -181,7 +181,16 @@ struct NightHomeView: View {
 
     // MARK: En-têtes
 
+    /// Assez de place : onglets + partage + widgets + menu. Écran étroit (extérieur) : partage et widgets passent dans le menu.
     private var topBar: some View {
+        ViewThatFits(in: .horizontal) {
+            bar(compact: false)
+            bar(compact: true)
+        }
+        .foregroundStyle(.primary)
+    }
+
+    private func bar(compact: Bool) -> some View {
         HStack(spacing: 2) {
             HStack(spacing: 2) {
                 tab(Text("Today"), .today)
@@ -189,21 +198,26 @@ struct NightHomeView: View {
             }
             .padding(4)
             .background(Capsule().fill(Color.dfCard))
-            .layoutPriority(1)
             Spacer(minLength: 4)
-            Button { showShare = true } label: {
-                Image(systemName: "square.and.arrow.up")
-                    .font(.title3)
-                    .frame(width: 38, height: 44)
+            if !compact {
+                Button { showShare = true } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.title3)
+                        .frame(width: 38, height: 44)
+                }
+                .accessibilityLabel(Text("Share my day"))
+                Button { showWidgets = true } label: {
+                    Image(systemName: "square.grid.2x2.fill")
+                        .font(.title3)
+                        .frame(width: 38, height: 44)
+                }
+                .accessibilityLabel(Text("Widgets"))
             }
-            .accessibilityLabel(Text("Share my day"))
-            Button { showWidgets = true } label: {
-                Image(systemName: "square.grid.2x2.fill")
-                    .font(.title3)
-                    .frame(width: 38, height: 44)
-            }
-            .accessibilityLabel(Text("Widgets"))
             Menu {
+                if compact {
+                    Button { showShare = true } label: { Label { Text("Share my day") } icon: { Image(systemName: "square.and.arrow.up") } }
+                    Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
+                }
                 Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
                 Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
                 Button {
@@ -221,7 +235,6 @@ struct NightHomeView: View {
             }
             .accessibilityLabel(Text("More"))
         }
-        .foregroundStyle(.primary)
     }
 
     private func tab(_ title: Text, _ target: Page) -> some View {

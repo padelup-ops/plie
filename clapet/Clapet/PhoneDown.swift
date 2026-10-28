@@ -12,7 +12,7 @@ struct PhoneDownContent: View {
             let now = context.date
             let down = stats.downTime(now: now)
             let goal = Double(stats.downGoalMinutes) * 60
-            let plants = stats.day(now).plants
+            let plants = stats.plants(now: now)
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(Self.format(down))
@@ -140,7 +140,7 @@ struct GardenView: View {
                             Text(PhoneDownContent.format(s.downTime(d.date)))
                                 .monospacedDigit()
                                 .foregroundStyle(.secondary)
-                            Label { Text("\(s.day(d.date).plants)").monospacedDigit() } icon: { Image(systemName: "leaf.fill") }
+                            Label { Text("\(s.plants(d.date))").monospacedDigit() } icon: { Image(systemName: "leaf.fill") }
                                 .foregroundStyle(Color.dfAccent)
                                 .frame(minWidth: 56, alignment: .trailing)
                         }

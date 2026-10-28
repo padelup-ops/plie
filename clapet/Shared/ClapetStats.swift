@@ -259,8 +259,19 @@ struct ClapetStats: Codable, Equatable {
         return t
     }
 
-    /// Toutes les plantes du jardin.
-    var totalPlants: Int { days.values.reduce(0) { $0 + $1.plants } }
+    /// Les plantes qui ont déjà poussé pendant la session en cours (pas encore comptées : elles le seront à l'ouverture).
+    func growingPlants(now: Date = Date()) -> Int {
+        guard let since = downSince(now: now), downCredited != since else { return 0 }
+        return Int(now.timeIntervalSince(since) / (Self.plantMinutes * 60))
+    }
+
+    /// Les plantes d'une journée, session en cours comprise pour aujourd'hui.
+    func plants(_ date: Date = Date(), now: Date = Date()) -> Int {
+        day(date).plants + (Self.key(date) == Self.key(now) ? growingPlants(now: now) : 0)
+    }
+
+    /// Toutes les plantes du jardin, session en cours comprise.
+    var totalPlants: Int { days.values.reduce(0) { $0 + $1.plants } + growingPlants() }
 
     /// Une ouverture évitée grâce à la pause.
     mutating func addResisted(_ date: Date = Date()) {

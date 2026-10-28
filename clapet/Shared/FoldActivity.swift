@@ -19,7 +19,7 @@ struct FoldActivityAttributes: ActivityAttributes {
 extension FoldActivityAttributes.ContentState {
     init(stats: ClapetStats, now: Date = Date()) {
         self.init(today: stats.day(now).closes, limit: stats.goal, day: ClapetStats.key(now), lastFold: stats.lastClose,
-                  downSince: stats.downSince(now: now), plantsToday: stats.day(now).plants)
+                  downSince: stats.downSince(now: now), plantsToday: stats.plants(now: now))
     }
 
     /// Après minuit, tant qu'aucun pli n'est venu mettre l'activité à jour : la nouvelle journée commence à zéro.
