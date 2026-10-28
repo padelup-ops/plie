@@ -403,23 +403,25 @@ struct ClapetWidgetView: View {
         }
     }
 
+    /// Tout doit tenir dans le grand widget, même le plus petit (338 × 354 points, marges comprises) :
+    /// pas de palier ici, des barres un peu moins hautes.
     private var large: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 9) {
             header
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .lastTextBaseline) {
+                VStack(alignment: .leading, spacing: 0) {
                     Text("\(today)")
-                        .font(.system(size: 52, weight: .bold))
+                        .font(.system(size: 44, weight: .bold))
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
                         .foregroundStyle(.white)
                         .widgetAccentable()
                     todayLine
                 }
-                Spacer()
+                Spacer(minLength: 8)
                 VStack(alignment: .trailing, spacing: 0) {
                     Text("\(stats.totalCloses)")
-                        .font(.system(size: 22, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
@@ -429,11 +431,10 @@ struct ClapetWidgetView: View {
                 }
             }
             if stats.goal > 0 { limitBar }
-            week(height: 86, showValues: true)
+            week(height: 56, showValues: true)
             byHour
             Spacer(minLength: 0)
             phoneDownLine
-            levelBar
         }
     }
 
