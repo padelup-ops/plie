@@ -18,6 +18,9 @@ struct DayCount: Codable, Equatable {
     var longestBreak: Double = 0
     /// Ouvertures évitées : après la pause de Foldly, le téléphone a été refermé.
     var resisted = 0
+    /// Téléphone posé : le temps passé fermé, en secondes, et les plantes qui ont poussé (une toutes les 25 min d'affilée).
+    var downSeconds: Double = 0
+    var plants = 0
 
     init(closes: Int = 0, opens: Int = 0, openSeconds: Double = 0, peeks: Int = 0, longestBreak: Double = 0) {
         self.closes = closes
@@ -35,6 +38,8 @@ struct DayCount: Codable, Equatable {
         peeks = try c.decodeIfPresent(Int.self, forKey: .peeks) ?? 0
         longestBreak = try c.decodeIfPresent(Double.self, forKey: .longestBreak) ?? 0
         resisted = try c.decodeIfPresent(Int.self, forKey: .resisted) ?? 0
+        downSeconds = try c.decodeIfPresent(Double.self, forKey: .downSeconds) ?? 0
+        plants = try c.decodeIfPresent(Int.self, forKey: .plants) ?? 0
     }
 }
 
@@ -60,6 +65,11 @@ struct ClapetStats: Codable, Equatable {
     var openSince: Date?
     /// L'ouverture en cours a été vue (charnière ou automatisation), pas devinée au lancement de l'app.
     var openFromEvent = false
+    /// Téléphone posé : objectif du jour (minutes), et la dernière fermeture déjà comptée.
+    var downGoalMinutes = 180
+    var downCredited: Date?
+    /// Une plante pousse toutes les 25 minutes d'affilée téléphone fermé.
+    static let plantMinutes: Double = 25
     /// Les plis par jour de la semaine et par heure, depuis le début : 7 × 24 cases (dimanche d'abord).
     var weekHours: [Int] = Array(repeating: 0, count: 168)
     /// Au-delà, une ouverture sans fermeture vue est oubliée (une fermeture a dû nous échapper).
@@ -68,7 +78,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -89,6 +99,8 @@ struct ClapetStats: Codable, Equatable {
         autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
         openSince = try c.decodeIfPresent(Date.self, forKey: .openSince)
         openFromEvent = try c.decodeIfPresent(Bool.self, forKey: .openFromEvent) ?? false
+        downGoalMinutes = try c.decodeIfPresent(Int.self, forKey: .downGoalMinutes) ?? 180
+        downCredited = try c.decodeIfPresent(Date.self, forKey: .downCredited)
         if let saved = try c.decodeIfPresent([Int].self, forKey: .weekHours), saved.count == 168 {
             weekHours = saved
         } else if let key = hourlyDay, let d = Self.date(key) {
@@ -210,7 +222,45 @@ struct ClapetStats: Codable, Equatable {
         var d = day(date)
         d.longestBreak = max(d.longestBreak, gap)
         days[Self.key(date)] = d
+        // Téléphone posé : une seule fois par fermeture (la charnière et l'automatisation peuvent toutes deux signaler l'ouverture).
+        guard downCredited != closed else { return }
+        downCredited = closed
+        let cal = Calendar.current
+        var s = closed
+        while s < date {
+            let midnight = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: s)) ?? date
+            let end = min(date, midnight)
+            var part = day(s)
+            part.downSeconds += end.timeIntervalSince(s)
+            days[Self.key(s)] = part
+            s = end
+        }
+        let grown = Int(gap / (Self.plantMinutes * 60))
+        if grown > 0 {
+            var e = day(date)
+            e.plants += grown
+            days[Self.key(date)] = e
+        }
     }
+
+    /// Le téléphone est posé (fermé) depuis cette date, d'après les automatisations. nil : ouvert, ou on ne sait pas.
+    func downSince(now: Date = Date()) -> Date? {
+        guard autoLast != nil, openSince == nil, let closed = lastClose,
+              now.timeIntervalSince(closed) >= 0, now.timeIntervalSince(closed) < 24 * 3600 else { return nil }
+        return closed
+    }
+
+    /// Temps posé d'une journée, en comptant la session en cours pour aujourd'hui.
+    func downTime(_ date: Date = Date(), now: Date = Date()) -> TimeInterval {
+        var t = day(date).downSeconds
+        if Self.key(date) == Self.key(now), let since = downSince(now: now), downCredited != since {
+            t += max(0, now.timeIntervalSince(max(since, Calendar.current.startOfDay(for: now))))
+        }
+        return t
+    }
+
+    /// Toutes les plantes du jardin.
+    var totalPlants: Int { days.values.reduce(0) { $0 + $1.plants } }
 
     /// Une ouverture évitée grâce à la pause.
     mutating func addResisted(_ date: Date = Date()) {

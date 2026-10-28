@@ -76,6 +76,7 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
+• PHONE DOWN: fold your phone and a timer starts on the outer screen (with the live counter on). Every 25 minutes closed in a row grows a plant in your garden; set a daily goal and get an evening summary (Settings).
 • MINDFUL PAUSE: in your "Opened" automation, replace "Count an opening" with "Pause when opened". Each time you unfold, Foldly shows up for 3 seconds: breathe, then carry on or close it. Closing it counts as an unfold resisted.
 • Quick checks: how many times you opened your phone for less than 10 seconds, the real measure of the reflex.
 • Longest break: the longest time your phone stayed closed today.
@@ -86,6 +87,7 @@ WHATS_NEW = {
 Please test: set up the mindful pause, turn on the live counter, and share your day.""",
     "fr-FR": """Nouveautés de ce build :
 
+• TÉLÉPHONE POSÉ : plie ton téléphone et un chrono démarre sur l'écran extérieur (avec le compteur en direct). Chaque tranche de 25 minutes fermé d'affilée fait pousser une plante dans ton jardin ; fixe un objectif par jour et reçois un bilan le soir (Réglages).
 • PAUSE CONSCIENTE : dans ton automatisation « Ouvert », remplace « Compter une ouverture » par « Pause à l'ouverture ». À chaque ouverture, Foldly s'affiche 3 secondes : respire, puis continue ou referme. Refermer compte comme une ouverture évitée.
 • Coups d'œil : combien de fois tu as ouvert ton téléphone moins de 10 secondes, la vraie mesure du réflexe.
 • Plus longue pause : le plus long moment où ton téléphone est resté fermé aujourd'hui.

@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var showAuto = false
     @AppStorage(DFLook.key) private var lookRaw = ""
     @State private var liveOn = LiveCounter.isOn
+    @State private var eveningOn = EveningSummary.isOn
     @State private var liveDenied = false
 
     var body: some View {
@@ -98,6 +99,23 @@ struct SettingsView: View {
                     } else {
                         Text("A notification at 80 % and at 100 % of your limit.")
                     }
+                }
+                Section {
+                    Stepper(value: Binding(get: { model.stats.downGoalMinutes }, set: { model.setDownGoal($0) }), in: 30...720, step: 30) {
+                        Text("Daily goal: \(PhoneDownContent.format(Double(model.stats.downGoalMinutes) * 60))")
+                    }
+                    Toggle(isOn: Binding(get: { eveningOn }, set: { on in
+                        Task {
+                            let ok = await EveningSummary.setOn(on, stats: model.stats)
+                            eveningOn = ok && on
+                        }
+                    })) {
+                        Text("Evening summary (9:30 pm)")
+                    }
+                } header: {
+                    Text("Phone down")
+                } footer: {
+                    Text("Time with your phone closed counts toward the goal, and every 25 minutes in a row grows a plant.")
                 }
                 Section {
                     Toggle(isOn: Binding(get: { liveOn }, set: { on in

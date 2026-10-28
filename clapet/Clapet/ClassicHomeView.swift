@@ -53,6 +53,7 @@ struct ClassicHomeView: View {
     @State private var showAuto = false
     @State private var showAdjust = false
     @State private var showShare = false
+    @State private var showGarden = false
     @State private var liveOn = LiveCounter.isOn
     @State private var bump = false
     @State private var tapOpen = 0.62
@@ -68,6 +69,7 @@ struct ClassicHomeView: View {
                 VStack(spacing: 14) {
                     if model.stats.autoLast == nil && !Demo.seeded { autoBanner }
                     today
+                    phoneDown
                     numbers
                     timeOpen
                     week
@@ -110,6 +112,9 @@ struct ClassicHomeView: View {
         }
         .sheet(isPresented: $showAuto) {
             AutoCountView().environment(model)
+        }
+        .sheet(isPresented: $showGarden) {
+            GardenView().environment(model)
         }
         .sheet(isPresented: $showShare) {
             ShareDaySheet().environment(model)
@@ -542,6 +547,15 @@ struct ClassicHomeView: View {
     }
 
     // MARK: Historique et alertes
+
+    private var phoneDown: some View {
+        ClassicCard {
+            VStack(alignment: .leading, spacing: 10) {
+                ClassicCardTitle(Text("Phone down"), symbol: "leaf.fill")
+                PhoneDownContent(stats: model.stats) { showGarden = true }
+            }
+        }
+    }
 
     private var hingeHealth: some View {
         ClassicCard {

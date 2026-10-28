@@ -24,6 +24,7 @@ enum AutomaticCounter {
         ClapetVault.save(stats)
         WidgetCenter.shared.reloadAllTimelines()
         LiveCounter.refresh(stats)
+        EveningSummary.schedule(stats)
         return stats.today
     }
 
@@ -39,6 +40,8 @@ enum AutomaticCounter {
         stats.autoLast = Date()
         ClapetVault.save(stats)
         WidgetCenter.shared.reloadAllTimelines()
+        LiveCounter.refresh(stats)
+        EveningSummary.schedule(stats)
     }
 }
 

@@ -56,6 +56,7 @@ struct NightHomeView: View {
     @State private var showAuto = false
     @State private var showAdjust = false
     @State private var showShare = false
+    @State private var showGarden = false
     @State private var liveOn = LiveCounter.isOn
     @State private var showWidgets = false
     @State private var bump = false
@@ -94,6 +95,9 @@ struct NightHomeView: View {
         }
         .sheet(isPresented: $showAuto) {
             AutoCountView().environment(model)
+        }
+        .sheet(isPresented: $showGarden) {
+            GardenView().environment(model)
         }
         .sheet(isPresented: $showShare) {
             ShareDaySheet().environment(model)
@@ -260,6 +264,12 @@ struct NightHomeView: View {
             }
             trend
             if s.autoLast == nil && !Demo.seeded { autoBanner }
+            Card {
+                VStack(alignment: .leading, spacing: 12) {
+                    CardTitle(Text("Phone down"))
+                    PhoneDownContent(stats: model.stats) { showGarden = true }
+                }
+            }
             tiles
             timeOpen
             more

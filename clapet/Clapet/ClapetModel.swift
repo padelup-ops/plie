@@ -157,6 +157,11 @@ final class ClapetModel {
         changed()
     }
 
+    func setDownGoal(_ minutes: Int) {
+        stats.downGoalMinutes = max(30, min(720, minutes))
+        flush()
+    }
+
     func setGoal(_ g: Int) {
         stats.goal = max(10, min(2000, g))
         changed()
@@ -235,6 +240,7 @@ final class ClapetModel {
     private func changed() {
         ClapetVault.save(stats)
         LiveCounter.refresh(stats)
+        EveningSummary.schedule(stats)
         // Les widgets suivent, sans les recharger à chaque clapet.
         let wait = 1.5 - Date().timeIntervalSince(lastWidgetReload)
         if wait <= 0 {

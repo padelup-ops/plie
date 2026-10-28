@@ -49,12 +49,19 @@ struct FoldLiveActivity: Widget {
                         .tint(tone(s))
                 }
             } compactLeading: {
-                Image(systemName: "rectangle.compress.vertical")
-                    .foregroundStyle(tone(s))
+                Image(systemName: s.downSince == nil ? "rectangle.compress.vertical" : "leaf.fill")
+                    .foregroundStyle(s.downSince == nil ? tone(s) : liveMint)
             } compactTrailing: {
-                Text("\(s.today)")
-                    .monospacedDigit()
-                    .foregroundStyle(tone(s))
+                if let since = s.downSince {
+                    Text(timerInterval: since...Date.distantFuture, countsDown: false)
+                        .monospacedDigit()
+                        .frame(maxWidth: 56)
+                        .foregroundStyle(liveMint)
+                } else {
+                    Text("\(s.today)")
+                        .monospacedDigit()
+                        .foregroundStyle(tone(s))
+                }
             } minimal: {
                 Text("\(s.today)")
                     .monospacedDigit()
@@ -68,6 +75,14 @@ struct FoldLockScreenView: View {
     let state: FoldActivityAttributes.ContentState
 
     var body: some View {
+        if let since = state.downSince {
+            PhoneDownLiveView(since: since, plantsToday: state.plantsToday, today: state.today)
+        } else {
+            counter
+        }
+    }
+
+    private var counter: some View {
         HStack(alignment: .center, spacing: 14) {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
@@ -99,6 +114,48 @@ struct FoldLockScreenView: View {
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.6))
             }
+        }
+        .padding(16)
+    }
+}
+
+
+/// Téléphone posé : le chrono avance tout seul, et la barre se remplit jusqu'à la prochaine plante.
+struct PhoneDownLiveView: View {
+    let since: Date
+    let plantsToday: Int
+    let today: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "leaf.fill")
+                Text("Phone down")
+                    .font(.caption.weight(.semibold))
+                Spacer()
+                Text("\(plantsToday) plants today")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+            .foregroundStyle(liveMint)
+            HStack(alignment: .firstTextBaseline) {
+                Text(timerInterval: since...Date.distantFuture, countsDown: false)
+                    .font(.system(size: 40, weight: .light))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                Spacer()
+                Text("\(today) folds today")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+            ProgressView(timerInterval: since...since.addingTimeInterval(ClapetStats.plantMinutes * 60), countsDown: false) {
+                EmptyView()
+            } currentValueLabel: {
+                Text("Next plant")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+            .tint(liveMint)
         }
         .padding(16)
     }
