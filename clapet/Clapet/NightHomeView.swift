@@ -59,6 +59,8 @@ struct NightHomeView: View {
     @State private var showGarden = false
     @State private var liveOn = LiveCounter.isOn
     @State private var showWidgets = false
+    @State private var widgets = InstalledWidgets.shared
+    @State private var promoHidden = false
     @State private var bump = false
     /// Sans charnière : l'angle du dessin, qu'on « ferme » d'un toucher.
     @State private var tapAngle = 112.0
@@ -107,7 +109,7 @@ struct NightHomeView: View {
                 .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showWidgets) {
-            WidgetsHelpView().environment(model)
+            WidgetsHelpView().environment(model).environment(store)
         }
         .sheet(isPresented: $showHistory) {
             HistoryView().environment(model)
@@ -121,7 +123,9 @@ struct NightHomeView: View {
         .task { await runDemo() }
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
+            if url.host == "garden" { showGarden = true }
         }
+        .onAppear { widgets.refresh() }
         .task {
             // Une seule fois, après 3 jours suivis : on présente Foldly+ (sans insister).
             try? await Task.sleep(nanoseconds: 2_500_000_000)
@@ -284,6 +288,14 @@ struct NightHomeView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     CardTitle(Text("Phone down"))
                     PhoneDownContent(stats: model.stats) { showGarden = true }
+                }
+            }
+            if !promoHidden && WidgetsPromoRule.shouldShow(installed: widgets.count) {
+                Card(filled: true) {
+                    WidgetsPromo { showWidgets = true } onHide: {
+                        WidgetsPromoRule.hide()
+                        withAnimation { promoHidden = true }
+                    }
                 }
             }
             tiles
@@ -743,6 +755,10 @@ struct NightHomeView: View {
                 showAdjust = true
             }
             Divider().overlay(Color.dfOutline).padding(.leading, 56)
+            row("square.grid.2x2", Text("Widgets"), widgetsDetail(widgets.count), locked: false) {
+                showWidgets = true
+            }
+            Divider().overlay(Color.dfOutline).padding(.leading, 56)
             row("square.and.arrow.up", Text("Share my day"), Text("A card for your stories and messages"), locked: false) {
                 showShare = true
             }
@@ -845,54 +861,6 @@ struct HingeArc: View {
                 if i == 0 { p.move(to: pt) } else { p.addLine(to: pt) }
             }
         }
-    }
-}
-
-/// Les widgets : à quoi ils ressemblent et comment les ajouter.
-struct WidgetsHelpView: View {
-    @Environment(ClapetModel.self) private var model
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        let entry = ClapetEntry(date: Date(), stats: model.stats)
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    HStack(alignment: .top, spacing: 14) {
-                        preview(entry, .systemSmall, width: 170, height: 170)
-                        Spacer(minLength: 0)
-                    }
-                    preview(entry, .systemMedium, width: 364, height: 170)
-                    VStack(alignment: .leading, spacing: 10) {
-                        Label { Text("Touch and hold an empty spot on your Home Screen.") } icon: { Image(systemName: "hand.tap") }
-                        Label { Text("Tap Edit, then Add Widget.") } icon: { Image(systemName: "plus.square") }
-                        Label { Text("Search for Foldly and pick a size.") } icon: { Image(systemName: "magnifyingglass") }
-                        Label { Text("On the Lock Screen too: touch and hold, Customize, then add Foldly.") } icon: { Image(systemName: "lock") }
-                    }
-                    .font(.subheadline)
-                    .foregroundStyle(Color.primary.opacity(0.9))
-                }
-                .padding(20)
-            }
-            .background(Color.dfBackground.ignoresSafeArea())
-            .navigationTitle(Text("Widgets"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button { dismiss() } label: { Text("Done") }
-                }
-            }
-        }
-        .tint(.dfAccent)
-    }
-
-    private func preview(_ entry: ClapetEntry, _ family: WidgetFamily, width: CGFloat, height: CGFloat) -> some View {
-        ClapetWidgetView(entry: entry, family: family)
-            .padding(16)
-            .frame(width: width, height: height)
-            .background(Palette.background)
-            .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-            .environment(\.colorScheme, .dark)
     }
 }
 

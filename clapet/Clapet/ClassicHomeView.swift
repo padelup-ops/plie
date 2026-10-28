@@ -54,6 +54,9 @@ struct ClassicHomeView: View {
     @State private var showAdjust = false
     @State private var showShare = false
     @State private var showGarden = false
+    @State private var showWidgets = false
+    @State private var widgets = InstalledWidgets.shared
+    @State private var promoHidden = false
     @State private var liveOn = LiveCounter.isOn
     @State private var bump = false
     @State private var tapOpen = 0.62
@@ -70,6 +73,14 @@ struct ClassicHomeView: View {
                     if model.stats.autoLast == nil && !Demo.seeded { autoBanner }
                     today
                     phoneDown
+                    if !promoHidden && WidgetsPromoRule.shouldShow(installed: widgets.count) {
+                        ClassicCard {
+                            WidgetsPromo { showWidgets = true } onHide: {
+                                WidgetsPromoRule.hide()
+                                withAnimation { promoHidden = true }
+                            }
+                        }
+                    }
                     numbers
                     timeOpen
                     week
@@ -116,6 +127,10 @@ struct ClassicHomeView: View {
         .sheet(isPresented: $showGarden) {
             GardenView().environment(model)
         }
+        .sheet(isPresented: $showWidgets) {
+            WidgetsHelpView().environment(model).environment(store)
+        }
+        .onAppear { widgets.refresh() }
         .sheet(isPresented: $showShare) {
             ShareDaySheet().environment(model)
         }
@@ -135,6 +150,7 @@ struct ClassicHomeView: View {
         .task { await runDemo() }
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
+            if url.host == "garden" { showGarden = true }
         }
         .task {
             // Une seule fois, après 3 jours suivis : on présente Foldly+ (sans insister).
@@ -576,6 +592,10 @@ struct ClassicHomeView: View {
             Divider().padding(.leading, 52)
             row("pencil", Text("Adjust the count"), Text("Type today's folds or your lifetime total"), locked: false) {
                 showAdjust = true
+            }
+            Divider().padding(.leading, 52)
+            row("square.grid.2x2", Text("Widgets"), widgetsDetail(widgets.count), locked: false) {
+                showWidgets = true
             }
             Divider().padding(.leading, 52)
             row("square.and.arrow.up", Text("Share my day"), Text("A card for your stories and messages"), locked: false) {

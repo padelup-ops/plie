@@ -46,6 +46,11 @@ struct ClapetProvider: TimelineProvider {
         s.hourly[9] = 3
         s.hourly[15] = 2
         s.lastClose = Date().addingTimeInterval(-27 * 60)
+        // Téléphone posé : 2 h 10 aujourd'hui, 5 plantes.
+        var today = s.days[ClapetStats.key()] ?? DayCount()
+        today.downSeconds = 130 * 60
+        today.plants = 5
+        s.days[ClapetStats.key()] = today
         return s
     }
 }
@@ -58,9 +63,23 @@ struct ClapetWidget: Widget {
         StaticConfiguration(kind: kind, provider: ClapetProvider()) { entry in
             ClapetWidgetView(entry: entry)
         }
-        .configurationDisplayName(Text("Foldly"))
-        .description(Text("How many times you closed your phone, like your steps in Health."))
+        .configurationDisplayName(Text("Folds today"))
+        .description(Text("Your folds today, your daily limit and your week, like your steps in Health."))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryRectangular, .accessoryInline])
+    }
+}
+
+/// Le widget « Téléphone posé » : le temps fermé, l'objectif et le jardin.
+struct PhoneDownWidget: Widget {
+    let kind = "FoldlyPhoneDown"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: ClapetProvider()) { entry in
+            PhoneDownWidgetView(entry: entry)
+        }
+        .configurationDisplayName(Text("Phone down"))
+        .description(Text("Time with your phone closed today, and the plants growing in your garden."))
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }
 
@@ -68,6 +87,7 @@ struct ClapetWidget: Widget {
 struct ClapetWidgetBundle: WidgetBundle {
     var body: some Widget {
         ClapetWidget()
+        PhoneDownWidget()
         FoldLiveActivity()
     }
 }

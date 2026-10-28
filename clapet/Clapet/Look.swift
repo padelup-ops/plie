@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // MARK: - Le look de l'app, au choix
 //
@@ -50,6 +51,7 @@ struct ContentView: View {
     @AppStorage(DFLook.key) private var lookRaw = ""
     @State private var askLook = false
     @State private var pause = PauseCenter.shared
+    @State private var newBadges: BadgeBatch?
 
     var body: some View {
         let look = DFLook(rawValue: lookRaw) ?? .classic
@@ -69,10 +71,32 @@ struct ContentView: View {
         }
         .sheet(isPresented: $askLook, onDismiss: {
             if lookRaw.isEmpty { lookRaw = DFLook.classic.rawValue }
+            checkBadges()
         }) {
             LookPickerView()
                 .presentationDetents([.medium, .large])
         }
+        // Un badge gagné (jardin, objectif tenu, ouvertures évitées) : on le fête à l'ouverture.
+        .sheet(item: $newBadges) { batch in
+            BadgeUnlockedView(badges: batch.badges)
+                .presentationDetents([.medium, .large])
+        }
+        .task {
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            checkBadges()
+        }
+        .onChange(of: model.stats.totalPlants) { _, _ in checkBadges() }
+        .onChange(of: pause.pending) { _, pending in if !pending { checkBadges() } }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            InstalledWidgets.shared.refresh()
+            checkBadges()
+        }
+    }
+
+    private func checkBadges() {
+        guard !Demo.seeded, Demo.screen == nil, !askLook, !pause.pending, newBadges == nil else { return }
+        let fresh = GardenBadges.newlyUnlocked(model.stats)
+        if !fresh.isEmpty { newBadges = BadgeBatch(badges: fresh) }
     }
 
     static func duration(_ t: TimeInterval) -> String { NightHomeView.duration(t) }

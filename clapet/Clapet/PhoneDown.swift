@@ -13,46 +13,31 @@ struct PhoneDownContent: View {
             let down = stats.downTime(now: now)
             let goal = Double(stats.downGoalMinutes) * 60
             let plants = stats.plants(now: now)
+            let since = stats.downSince(now: now)
+            let reached = down >= goal && goal > 0
             VStack(alignment: .leading, spacing: 12) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(Self.format(down))
-                        .font(.system(size: 32, weight: .light))
-                        .monospacedDigit()
-                    Text("of \(Self.format(goal))")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    if down >= goal && goal > 0 {
-                        Label { Text("Goal reached") } icon: { Image(systemName: "checkmark.seal.fill") }
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(accent)
+                // Sur l'écran extérieur (étroit), « objectif atteint » passe sous le temps.
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        downText(down)
+                        goalText(goal)
+                        Spacer(minLength: 8)
+                        if reached { reachedLabel }
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            downText(down)
+                            goalText(goal)
+                        }
+                        if reached { reachedLabel }
                     }
                 }
                 ProgressView(value: goal > 0 ? min(1, down / goal) : 0)
                     .tint(accent)
-                HStack(spacing: 4) {
-                    if plants == 0 {
-                        Text("Keep your phone closed 25 minutes in a row: a plant grows.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    } else {
-                        ForEach(0..<min(plants, 12), id: \.self) { i in
-                            Image(systemName: Self.plantSymbol(i))
-                                .foregroundStyle(accent.opacity(0.55 + 0.45 * Double(i % 3) / 2))
-                        }
-                        if plants > 12 {
-                            Text("+\(plants - 12)")
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer(minLength: 0)
-                        Text("\(plants) today")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
+                plantsRow(plants: plants, since: since, now: now)
+                if plants > 0 {
+                    GardenStrip(plants: plants, color: accent)
                 }
-                .font(.title3)
                 Button(action: onGarden) {
                     HStack {
                         Label { Text("My garden") } icon: { Image(systemName: "tree.fill") }
@@ -60,6 +45,14 @@ struct PhoneDownContent: View {
                         Text("\(stats.totalPlants)")
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
+                        let won = GardenBadges.all(stats, now: now).filter(\.unlocked).count
+                        if won > 0 {
+                            Label { Text(verbatim: "\(won)") } icon: { Image(systemName: "rosette") }
+                                .labelStyle(.titleAndIcon)
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                                .accessibilityLabel(Text("Badges"))
+                        }
                         Image(systemName: "chevron.right")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(.tertiary)
@@ -79,15 +72,75 @@ struct PhoneDownContent: View {
         }
     }
 
-    static func format(_ t: TimeInterval) -> String {
-        let minutes = Int(t / 60)
-        let allowed: Set<Duration.UnitsFormatStyle.Unit> = minutes >= 60 ? [.hours, .minutes] : [.minutes]
-        return Duration.seconds(Double(minutes * 60)).formatted(.units(allowed: allowed, width: .abbreviated))
+    private func downText(_ down: TimeInterval) -> some View {
+        Text(Self.format(down))
+            .font(.system(size: 32, weight: .light))
+            .monospacedDigit()
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
     }
 
-    static func plantSymbol(_ i: Int) -> String {
-        ["leaf.fill", "camera.macro", "tree.fill"][i % 3]
+    private func goalText(_ goal: TimeInterval) -> some View {
+        Text("of \(Self.format(goal))")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
     }
+
+    private var reachedLabel: some View {
+        Label { Text("Goal reached") } icon: { Image(systemName: "checkmark.seal.fill") }
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(accent)
+            .lineLimit(1)
+    }
+
+    /// Les plantes du jour, et celle qui pousse en ce moment (un anneau qui se remplit en 25 minutes).
+    private func plantsRow(plants: Int, since: Date?, now: Date) -> some View {
+        let growing = since.map { Garden.growing(since: $0, now: now) }
+        return HStack(spacing: 12) {
+            ZStack {
+                Circle().stroke(accent.opacity(0.18), lineWidth: 3)
+                if let growing {
+                    Circle()
+                        .trim(from: 0, to: max(0.03, growing.fraction))
+                        .stroke(accent, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                }
+                Image(systemName: "leaf.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(accent)
+            }
+            .frame(width: 38, height: 38)
+            VStack(alignment: .leading, spacing: 2) {
+                Group {
+                    if plants == 0 {
+                        Text("No plant yet today")
+                    } else if plants == 1 {
+                        Text("1 plant today")
+                    } else {
+                        Text("\(plants) plants today")
+                    }
+                }
+                .font(.subheadline.weight(.semibold))
+                Group {
+                    if let growing {
+                        Text("Next plant in \(growing.minutesLeft) min")
+                    } else {
+                        Text("Keep your phone closed 25 minutes in a row: a plant grows.")
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    static func format(_ t: TimeInterval) -> String { Garden.format(t) }
+
+    static func plantSymbol(_ i: Int) -> String { Garden.symbol(i) }
 }
 
 /// Le jardin : toutes les plantes, et les journées téléphone posé.
@@ -99,6 +152,7 @@ struct GardenView: View {
         let s = model.stats
         let total = s.totalPlants
         let days = Array(s.lastDays(14).reversed())
+        let badges = GardenBadges.all(s)
         NavigationStack {
             List {
                 Section {
@@ -115,11 +169,11 @@ struct GardenView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         } else {
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 10), spacing: 8) {
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 26, maximum: 34), spacing: 6)], spacing: 8) {
                                 ForEach(0..<min(total, 300), id: \.self) { i in
-                                    Image(systemName: PhoneDownContent.plantSymbol(i))
+                                    Image(systemName: Garden.symbol(i))
                                         .font(.title3)
-                                        .foregroundStyle(Color.dfAccent.opacity(0.5 + 0.5 * Double((i * 7) % 5) / 4))
+                                        .foregroundStyle(Color.dfAccent.opacity(Garden.shade(i)))
                                 }
                             }
                             if total > 300 {
@@ -130,6 +184,16 @@ struct GardenView: View {
                         }
                     }
                     .padding(.vertical, 6)
+                }
+                Section {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 10)], spacing: 16) {
+                        ForEach(badges) { b in BadgeTile(badge: b) }
+                    }
+                    .padding(.vertical, 8)
+                } header: {
+                    Text("Badges")
+                } footer: {
+                    Text("\(badges.filter(\.unlocked).count) of \(badges.count) unlocked")
                 }
                 Section {
                     ForEach(0..<days.count, id: \.self) { i in

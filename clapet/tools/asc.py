@@ -76,26 +76,22 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• PHONE DOWN: fold your phone and a timer starts on the outer screen (with the live counter on). Every 25 minutes closed in a row grows a plant in your garden; set a daily goal and get an evening summary (Settings).
-• MINDFUL PAUSE: in your "Opened" automation, replace "Count an opening" with "Pause when opened". Each time you unfold, Foldly shows up for 3 seconds: breathe, then carry on or close it. Closing it counts as an unfold resisted.
-• Quick checks: how many times you opened your phone for less than 10 seconds, the real measure of the reflex.
-• Longest break: the longest time your phone stayed closed today.
-• Hinge & crease: your total folds, and at your pace when you'll reach 32,000 folds (a public durability test).
-• Live counter: today's folds on the Lock Screen and the outer display, updated at every fold (Settings, or the "Live counter" row).
-• Share my day: a card for your stories and messages (share button at the top).
+• NEW WIDGET "Phone down": time with your phone closed today, your goal and your garden. On the Lock Screen (and the outer screen when closed), a timer runs while your phone stays down.
+• Better "Folds today" widget: your daily limit at a glance (green, orange, red), and your phone-down time on the large one.
+• Widget gallery in the app (Widgets row, or the card on the home screen): every size with your real numbers, choose their color, and how to add them.
+• BADGES for the plant challenge: first sprout, 25, 100, 500 plants, goal met 1, 3, 7 and 30 days in a row, and 10 unfolds resisted. See them in My garden.
+• Fixed: when plants piled up, the Phone down card overflowed the screen (outer screen especially). Now a ring shows the next plant growing.
 
-Please test: set up the mindful pause, turn on the live counter, and share your day.""",
+Please test: add the two widgets (Home Screen and Lock Screen), and tell us what you think of the badges.""",
     "fr-FR": """Nouveautés de ce build :
 
-• TÉLÉPHONE POSÉ : plie ton téléphone et un chrono démarre sur l'écran extérieur (avec le compteur en direct). Chaque tranche de 25 minutes fermé d'affilée fait pousser une plante dans ton jardin ; fixe un objectif par jour et reçois un bilan le soir (Réglages).
-• PAUSE CONSCIENTE : dans ton automatisation « Ouvert », remplace « Compter une ouverture » par « Pause à l'ouverture ». À chaque ouverture, Foldly s'affiche 3 secondes : respire, puis continue ou referme. Refermer compte comme une ouverture évitée.
-• Coups d'œil : combien de fois tu as ouvert ton téléphone moins de 10 secondes, la vraie mesure du réflexe.
-• Plus longue pause : le plus long moment où ton téléphone est resté fermé aujourd'hui.
-• Charnière et pli : ton total de plis, et à ton rythme quand tu atteindras 32 000 plis (un test d'endurance public).
-• Compteur en direct : les plis du jour sur l'écran verrouillé et l'écran extérieur, mis à jour à chaque pli (Réglages, ou la ligne « Compteur en direct »).
-• Partager ma journée : une image pour tes stories et tes messages (bouton de partage en haut).
+• NOUVEAU WIDGET « Téléphone posé » : le temps téléphone fermé aujourd'hui, ton objectif et ton jardin. Sur l'écran verrouillé (et l'écran extérieur quand il est fermé), un chrono tourne tant que ton téléphone reste posé.
+• Widget « Plis du jour » amélioré : ta limite du jour d'un coup d'œil (vert, orange, rouge), et ton temps téléphone posé sur le grand.
+• Galerie des widgets dans l'app (ligne « Widgets », ou la carte de l'accueil) : toutes les tailles avec tes vrais chiffres, leur couleur, et comment les ajouter.
+• BADGES pour le défi des plantes : première pousse, 25, 100, 500 plantes, objectif tenu 1, 3, 7 et 30 jours d'affilée, et 10 ouvertures évitées. À voir dans Mon jardin.
+• Corrigé : quand les plantes s'accumulaient, la carte Téléphone posé débordait de l'écran (surtout l'écran extérieur). Un anneau montre maintenant la plante qui pousse.
 
-À tester : mets en place la pause consciente, active le compteur en direct, et partage ta journée.""",
+À tester : ajoute les deux widgets (écran d'accueil et écran verrouillé), et dis-nous ce que tu penses des badges.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

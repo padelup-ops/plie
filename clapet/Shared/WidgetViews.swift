@@ -17,6 +17,7 @@ enum Palette {
                                            startPoint: .top, endPoint: .bottom)
     static let mint = Color(red: 0.43, green: 0.84, blue: 0.65)
     static let red = Color(red: 0.93, green: 0.36, blue: 0.32)
+    static let orange = Color(red: 1.0, green: 0.66, blue: 0.32)
     static let bar = Color.white.opacity(0.16)
     static let secondary = Color.white.opacity(0.5)
 }
@@ -280,6 +281,78 @@ struct ClapetWidgetView: View {
         }
     }
 
+    /// Vert sous la limite, orange à 80 %, rouge au-delà.
+    private var statusColor: Color {
+        guard stats.goal > 0 else { return accent }
+        if today > stats.goal { return Palette.red }
+        if Double(today) >= 0.8 * Double(stats.goal) { return Palette.orange }
+        return accent
+    }
+
+    /// La limite du jour : une barre et ce qui reste.
+    private var limitBar: some View {
+        let left = stats.goal - today
+        return VStack(alignment: .leading, spacing: 4) {
+            GeometryReader { g in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Palette.bar)
+                    Capsule().fill(statusColor)
+                        .frame(width: max(5, g.size.width * CGFloat(min(1, Double(today) / Double(max(1, stats.goal))))))
+                        .widgetAccentable()
+                }
+            }
+            .frame(height: 5)
+            Group {
+                if left > 0 {
+                    Text("\(left) left today")
+                } else if left == 0 {
+                    Text("Limit reached")
+                } else {
+                    Text("\(-left) over the limit")
+                }
+            }
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(left >= 0 ? Palette.secondary : Palette.red)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+        }
+    }
+
+    private var todayLine: some View {
+        HStack(spacing: 4) {
+            Text("today")
+                .foregroundStyle(Palette.secondary)
+            if today != yesterday {
+                Text("\(today > yesterday ? "↑" : "↓") \(abs(today - yesterday))")
+                    .foregroundStyle(today > yesterday ? Palette.red : accent)
+            }
+        }
+        .font(.system(size: 13, weight: .semibold))
+        .lineLimit(1)
+    }
+
+    /// Téléphone posé aujourd'hui, en une ligne (grand widget).
+    private var phoneDownLine: some View {
+        let down = stats.downTime(now: entry.date)
+        let plants = stats.plants(now: entry.date)
+        return HStack(spacing: 8) {
+            Image(systemName: "leaf.fill")
+                .foregroundStyle(accent)
+                .widgetAccentable()
+            Text("\(Garden.format(down)) phone down")
+                .foregroundStyle(.white)
+            Spacer(minLength: 4)
+            Text("\(plants)")
+                .foregroundStyle(.white)
+                .monospacedDigit()
+            Image(systemName: "camera.macro")
+                .foregroundStyle(accent)
+        }
+        .font(.system(size: 12, weight: .semibold))
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
+    }
+
     // MARK: Tailles
 
     private var small: some View {
@@ -291,17 +364,13 @@ struct ClapetWidgetView: View {
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
                 .foregroundStyle(.white)
-            HStack(spacing: 4) {
-                Text("today")
-                    .foregroundStyle(Palette.secondary)
-                if today != yesterday {
-                    Text("\(today > yesterday ? "↑" : "↓") \(abs(today - yesterday))")
-                        .foregroundStyle(today > yesterday ? Palette.red : accent)
-                }
-            }
-            .font(.system(size: 13, weight: .semibold))
-            Spacer(minLength: 0)
-            if let last = stats.lastClose {
+                .contentTransition(.numericText())
+                .widgetAccentable()
+            todayLine
+            Spacer(minLength: 6)
+            if stats.goal > 0 {
+                limitBar
+            } else if let last = stats.lastClose {
                 Text("Last fold \(Self.ago(last, from: entry.date))")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(Palette.secondary)
@@ -316,28 +385,54 @@ struct ClapetWidgetView: View {
         VStack(alignment: .leading, spacing: 8) {
             header
             HStack(alignment: .bottom, spacing: 14) {
-                VStack(alignment: .leading, spacing: 6) {
-                    allTime
-                    versusYesterday
-                        .scaleEffect(0.9, anchor: .leading)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(today)")
+                        .font(.system(size: 40, weight: .bold))
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .foregroundStyle(.white)
+                        .contentTransition(.numericText())
+                        .widgetAccentable()
+                    todayLine
+                    Spacer(minLength: 6)
+                    if stats.goal > 0 { limitBar }
                 }
-                .frame(width: 118, alignment: .leading)
+                .frame(width: 112, alignment: .leading)
                 week(height: 52, showValues: true)
             }
         }
     }
 
     private var large: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
             header
             HStack(alignment: .bottom) {
-                allTime
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(today)")
+                        .font(.system(size: 52, weight: .bold))
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .foregroundStyle(.white)
+                        .widgetAccentable()
+                    todayLine
+                }
                 Spacer()
-                versusYesterday
+                VStack(alignment: .trailing, spacing: 0) {
+                    Text("\(stats.totalCloses)")
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                    Text("all time")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Palette.secondary)
+                }
             }
-            week(height: 110, showValues: true)
+            if stats.goal > 0 { limitBar }
+            week(height: 86, showValues: true)
             byHour
             Spacer(minLength: 0)
+            phoneDownLine
             levelBar
         }
     }
@@ -361,9 +456,15 @@ struct ClapetWidgetView: View {
             }
             Text("\(today) folds today")
                 .font(.system(.body, weight: .semibold))
-            Text("\(stats.totalCloses) all time")
-                .font(.system(.caption, weight: .medium))
-                .foregroundStyle(.secondary)
+                .widgetAccentable()
+            if stats.goal > 0 {
+                Gauge(value: min(1, Double(today) / Double(stats.goal))) { EmptyView() }
+                    .gaugeStyle(.accessoryLinearCapacity)
+            } else {
+                Text("\(stats.totalCloses) all time")
+                    .font(.system(.caption, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -373,6 +474,230 @@ struct ClapetWidgetView: View {
             Text("\(today) folds today")
         } icon: {
             Image(systemName: "iphone.gen3")
+        }
+    }
+}
+
+
+// MARK: - Le widget « Téléphone posé »
+//
+// Le temps passé téléphone fermé aujourd'hui, l'objectif, et le jardin. Sur l'écran verrouillé
+// (et l'écran extérieur du téléphone plié), un chrono tourne pendant que le téléphone est posé.
+
+struct PhoneDownWidgetView: View {
+    @Environment(\.widgetFamily) private var envFamily
+    let entry: ClapetEntry
+    let familyOverride: WidgetFamily?
+
+    init(entry: ClapetEntry, family: WidgetFamily? = nil) {
+        self.entry = entry
+        self.familyOverride = family
+    }
+
+    private var family: WidgetFamily { familyOverride ?? envFamily }
+    private var stats: ClapetStats { entry.stats }
+    private var down: TimeInterval { stats.downTime(now: entry.date) }
+    private var goal: TimeInterval { Double(stats.downGoalMinutes) * 60 }
+    private var plants: Int { stats.plants(now: entry.date) }
+    private var since: Date? { stats.downSince(now: entry.date) }
+    private var progress: Double { goal > 0 ? min(1, down / goal) : 0 }
+
+    private var accent: Color {
+        stats.plus || DuoFolds.paidApp ? (ClapetTheme(rawValue: stats.theme) ?? .mint).color : Palette.mint
+    }
+
+    private var isAccessory: Bool {
+        family == .accessoryCircular || family == .accessoryRectangular || family == .accessoryInline
+    }
+
+    var body: some View {
+        Group {
+            switch family {
+            case .accessoryCircular: circular
+            case .accessoryRectangular: rectangular
+            case .accessoryInline: inline
+            case .systemMedium, .systemLarge, .systemExtraLarge: medium
+            default: small
+            }
+        }
+        .containerBackground(for: .widget) {
+            if isAccessory {
+                Color.clear
+            } else {
+                Palette.background
+            }
+        }
+        .widgetURL(URL(string: "clapet://garden"))
+    }
+
+    private var header: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "leaf.fill")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(accent)
+                .widgetAccentable()
+            Text("Phone down")
+                .font(.system(size: 13, weight: .bold))
+                .textCase(.uppercase)
+                .tracking(0.6)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .foregroundStyle(Palette.secondary)
+            Spacer(minLength: 0)
+        }
+    }
+
+    private var bar: some View {
+        GeometryReader { g in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Palette.bar)
+                Capsule().fill(accent)
+                    .frame(width: max(5, g.size.width * CGFloat(progress)))
+                    .widgetAccentable()
+            }
+        }
+        .frame(height: 5)
+    }
+
+    /// Le chrono de la session en cours (il tourne tout seul, sans recharger le widget).
+    private func sessionTimer(_ since: Date) -> some View {
+        HStack(spacing: 4) {
+            Circle().fill(accent).frame(width: 6, height: 6)
+            Text(timerInterval: since...Date.distantFuture, countsDown: false)
+                .monospacedDigit()
+        }
+        .font(.system(size: 12, weight: .semibold))
+        .foregroundStyle(accent)
+    }
+
+    private var small: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            header
+            Spacer(minLength: 0)
+            Text(Garden.format(down))
+                .font(.system(size: 30, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .foregroundStyle(.white)
+                .widgetAccentable()
+            Text("of \(Garden.format(goal))")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Palette.secondary)
+            Spacer(minLength: 6)
+            bar
+            Spacer(minLength: 6)
+            if plants > 0 {
+                GardenStrip(plants: plants, color: accent, size: 15)
+            } else if let since {
+                sessionTimer(since)
+            } else {
+                Text("No plant yet today")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Palette.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var medium: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                header
+                if let since { sessionTimer(since) }
+            }
+            HStack(alignment: .bottom, spacing: 16) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(Garden.format(down))
+                        .font(.system(size: 34, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .foregroundStyle(.white)
+                        .widgetAccentable()
+                    Text("of \(Garden.format(goal))")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Palette.secondary)
+                    Spacer(minLength: 6)
+                    bar
+                }
+                .frame(width: 128, alignment: .leading)
+                VStack(alignment: .leading, spacing: 6) {
+                    Group {
+                        if plants == 0 {
+                            Text("No plant yet today")
+                        } else if plants == 1 {
+                            Text("1 plant today")
+                        } else {
+                            Text("\(plants) plants today")
+                        }
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    GardenStrip(plants: max(plants, 0), color: accent, size: 17)
+                        .opacity(plants > 0 ? 1 : 0)
+                    Spacer(minLength: 0)
+                    Text("\(stats.totalPlants) in your garden")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Palette.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+            }
+        }
+    }
+
+    private var circular: some View {
+        Gauge(value: progress) {
+            Image(systemName: "leaf.fill")
+        } currentValueLabel: {
+            VStack(spacing: 0) {
+                Image(systemName: "leaf.fill")
+                    .font(.system(size: 10, weight: .bold))
+                Text("\(plants)")
+                    .font(.system(.body, weight: .bold))
+            }
+        }
+        .gaugeStyle(.accessoryCircularCapacity)
+    }
+
+    private var rectangular: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            HStack(spacing: 4) {
+                Image(systemName: "leaf.fill")
+                Text("Phone down")
+                    .font(.system(.headline, weight: .bold))
+            }
+            if let since {
+                Text(timerInterval: since...Date.distantFuture, countsDown: false)
+                    .font(.system(.body, weight: .semibold))
+                    .monospacedDigit()
+                    .widgetAccentable()
+            } else {
+                Text("\(Garden.format(down)) today")
+                    .font(.system(.body, weight: .semibold))
+                    .widgetAccentable()
+            }
+            Group {
+                if plants == 1 {
+                    Text("1 plant today")
+                } else {
+                    Text("\(plants) plants today")
+                }
+            }
+            .font(.system(.caption, weight: .medium))
+            .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var inline: some View {
+        Label {
+            Text("\(Garden.format(down)) phone down")
+        } icon: {
+            Image(systemName: "leaf.fill")
         }
     }
 }
