@@ -18,6 +18,8 @@ API = "https://api.appstoreconnect.apple.com"
 BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 
 INTERNAL_ONLY = os.environ.get("INTERNAL_ONLY", "").strip() in ("1", "true", "yes")
+# RESEND : renvoie l'invitation TestFlight (e-mail) aux testeurs des groupes concernés, et le mail « nouveau build ».
+RESEND = os.environ.get("RESEND", "").strip() in ("1", "true", "yes")
 
 WHATS_NEW = {
     "fr-FR": """Origamo 1.1 : tout nouveau look, en papier et origami.
@@ -132,6 +134,16 @@ for g in groups:
         step(f"build ajouté au groupe « {a.get('name')} »",
              call("POST", f"/v1/betaGroups/{g['id']}/relationships/builds", {"data": [{"type": "builds", "id": bid}]}),
              tolerate=("already", "ENTITY_ERROR.RELATIONSHIP"))
+    if RESEND:
+        for t in testers:
+            ta = t["attributes"]
+            mail = ta.get("email") or ""
+            hidden = (mail[:2] + "***" + mail[mail.find("@"):]) if "@" in mail else "?"
+            print(f"   testeur {hidden} · état {ta.get('state')} · invitation {ta.get('inviteType')}")
+            step(f"invitation renvoyée à {hidden}", call("POST", "/v1/betaTesterInvitations", {"data": {
+                "type": "betaTesterInvitations",
+                "relationships": {"app": {"data": {"type": "apps", "id": app_id}},
+                                  "betaTester": {"data": {"type": "betaTesters", "id": t["id"]}}}}}))
 
 # 4. Vérification bêta d'Apple (obligatoire pour les testeurs externes)
 if external:
@@ -149,5 +161,10 @@ else:
     print("aucun groupe externe : seuls les testeurs internes reçoivent le build")
     detail = call("GET", f"/v1/builds/{bid}/buildBetaDetail").get("data", {})
     print("état pour les testeurs internes :", detail.get("attributes", {}).get("internalBuildState"))
+
+if RESEND:
+    step("mail « nouveau build » envoyé aux testeurs", call("POST", "/v1/buildBetaNotifications",
+         {"data": {"type": "buildBetaNotifications", "relationships": {"build": {"data": {"type": "builds", "id": bid}}}}}),
+         tolerate=("already",))
 
 print("\nBUILD DISTRIBUÉ" if not problems else "\nÀ REVOIR : " + ", ".join(problems))

@@ -14,6 +14,10 @@ on:
         description: "1 = testeurs internes seulement"
         required: false
         default: ""
+      resend:
+        description: "1 = renvoyer l'e-mail d'invitation et de nouveau build"
+        required: false
+        default: ""
 
 jobs:
   beta:
@@ -28,6 +32,7 @@ jobs:
       BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
       BUILD_NUMBER: ${{ inputs.build }}
       INTERNAL_ONLY: ${{ inputs.internal_only }}
+      RESEND: ${{ inputs.resend }}
     steps:
       - uses: actions/checkout@v4
       - name: Distribuer le build
