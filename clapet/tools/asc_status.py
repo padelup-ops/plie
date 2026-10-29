@@ -56,6 +56,27 @@ print("disponibilité :", "oui" if call(f"/v1/apps/{app['id']}/appAvailabilityV2
 iaps = call(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=10").get("data", [])
 print("achats intégrés :", [(i["attributes"].get("productId"), i["attributes"].get("state")) for i in iaps])
 
+# Testeurs TestFlight : par groupe, puis au total (sans doublons), avec leur état d'invitation.
+from collections import Counter
+everyone = {}
+for g in call(f"/v1/betaGroups?filter[app]={app['id']}&limit=50").get("data", []):
+    a = g["attributes"]
+    testers, path = [], f"/v1/betaGroups/{g['id']}/betaTesters?limit=200"
+    while path:
+        page = call(path)
+        testers += page.get("data", [])
+        nxt = (page.get("links") or {}).get("next")
+        path = nxt.replace(API, "") if nxt else None
+    for t in testers:
+        everyone[t["id"]] = t["attributes"]
+    kinds = Counter(t["attributes"].get("inviteType") for t in testers)
+    states = Counter(t["attributes"].get("state") for t in testers)
+    print(f"testeurs groupe « {a.get('name')} » ({'interne' if a.get('isInternalGroup') else 'externe'}) : {len(testers)}"
+          f" · invitation {dict(kinds)} · état {dict(states)}"
+          + (f" · lien public {'actif' if a.get('publicLinkEnabled') else 'coupé'}, limite {a.get('publicLinkLimit')}" if a.get("publicLink") else ""))
+print(f"testeurs au total : {len(everyone)} · état {dict(Counter(t.get('state') for t in everyone.values()))}"
+      f" · invitation {dict(Counter(t.get('inviteType') for t in everyone.values()))}")
+
 # Sonde : quel type de captures pour l'iPhone Duo ? (l'erreur d'Apple liste les valeurs acceptées)
 if os.environ.get("PROBE") == "2":
     # Sonde : où se déclare « dispositif médical réglementé » ?
