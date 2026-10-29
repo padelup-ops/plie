@@ -7,10 +7,15 @@ token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()),
                    headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
 def call(path):
     req = urllib.request.Request(API + path, headers={"Authorization": "Bearer " + token})
-    try:
-        return json.load(urllib.request.urlopen(req))
-    except urllib.error.HTTPError as e:
-        return {"error": e.code, "detail": e.read().decode()[:500]}
+    for attempt in range(4):
+        try:
+            return json.load(urllib.request.urlopen(req, timeout=60))
+        except urllib.error.HTTPError as e:
+            return {"error": e.code, "detail": e.read().decode()[:500]}
+        except Exception as e:  # coupure réseau passagère : on réessaie
+            if attempt == 3:
+                return {"error": "réseau", "detail": str(e)[:200]}
+            time.sleep(3 * (attempt + 1))
 app = call("/v1/apps?filter[bundleId]=" + os.environ.get("APP_BUNDLE", "com.padelup.clapet"))["data"][0]
 print("APP", app["id"], app["attributes"]["name"])
 for b in call(f"/v1/builds?filter[app]={app['id']}&sort=-uploadedDate&limit=8&include=buildBetaDetail").get("data", []):
