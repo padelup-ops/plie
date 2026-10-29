@@ -78,12 +78,12 @@ WHATS_NEW = {
 
 • A 1-minute survey: tell us which feature Foldly should get next (blocking distracting apps when you go over your limit, a bedtime, rare plants to collect, a weekly recap…). It shows up when you open the app, and you can always answer later.
 
-Please test: answer the survey 🙏 It's 6 questions and it decides what we build next. Then keep using the widgets and the plant challenge.""",
+Please test: answer the survey. It's 6 questions and it decides what we build next. Then keep using the widgets and the plant challenge.""",
     "fr-FR": """Nouveautés de ce build :
 
 • Un sondage d'1 minute : dis-nous quelle nouveauté Foldly doit avoir en premier (bloquer les applis qui font perdre du temps quand tu dépasses ta limite, une heure de coucher, des plantes rares à collectionner, un bilan de la semaine…). Il s'affiche à l'ouverture de l'app, et tu peux toujours répondre plus tard.
 
-À tester : réponds au sondage 🙏 6 questions, et c'est lui qui décide de la suite. Puis continue avec les widgets et le défi des plantes.""",
+À tester : réponds au sondage : 6 questions, et c'est lui qui décide de la suite. Puis continue avec les widgets et le défi des plantes.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
