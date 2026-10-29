@@ -23,8 +23,11 @@ final class ClapetStore {
 
     private(set) var simulatePlus = UserDefaults.standard.bool(forKey: "tester.simulatePlus")
 
-    /// Foldly+ : acheté, ou simulé dans une version de test.
-    var hasPlus: Bool { DuoFolds.paidApp || owned || (isTestBuild && simulatePlus) || Demo.plus }
+    /// L'app a été achetée quand elle était payante (1.0) : Foldly+ est offert, pour toujours.
+    private(set) var boughtPaidApp = UserDefaults.standard.bool(forKey: "boughtPaidApp")
+
+    /// Foldly+ : acheté, offert aux acheteurs de la 1.0, ou simulé dans une version de test.
+    var hasPlus: Bool { DuoFolds.paidApp || owned || boughtPaidApp || (isTestBuild && simulatePlus) || Demo.plus }
 
     /// Appelé quand `hasPlus` change (pour prévenir les widgets).
     @ObservationIgnored var onChange: ((Bool) -> Void)?
@@ -55,7 +58,21 @@ final class ClapetStore {
         if product == nil {
             product = try? await Product.products(for: [Self.plusID]).first
         }
+        await checkPaidPurchase()
         await refresh()
+    }
+
+    /// Sur l'App Store, `originalAppVersion` est le numéro de build du tout premier téléchargement :
+    /// avant le premier build gratuit, l'app était payante, donc Foldly+ est déjà payé.
+    @MainActor
+    func checkPaidPurchase() async {
+        guard !boughtPaidApp, DuoFolds.firstFreeBuild > 0,
+              let result = try? await AppTransaction.shared,
+              case .verified(let transaction) = result,
+              let build = Int(transaction.originalAppVersion),
+              build < DuoFolds.firstFreeBuild else { return }
+        boughtPaidApp = true
+        UserDefaults.standard.set(true, forKey: "boughtPaidApp")
     }
 
     @MainActor
@@ -109,8 +126,9 @@ final class ClapetStore {
         } catch {
             message = String(localized: "Purchases can't be restored right now.")
         }
+        await checkPaidPurchase()
         await refresh()
-        if !owned && message == nil {
+        if !owned && !boughtPaidApp && message == nil {
             message = String(localized: "No purchase to restore on this Apple Account.")
         }
     }

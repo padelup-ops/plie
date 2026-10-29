@@ -383,6 +383,12 @@ if os.environ.get("SUBMIT") == "1":
         time.sleep(15)
 
 # ---------------------------------------------------------------- envoi à Apple
+# Foldly devenue gratuite (1.0.1) : les acheteurs de la 1.0 doivent garder Foldly+, ce qui demande le premier build gratuit.
+if SUBMIT and "com.padelup.clapet" in BUNDLE:
+    flags = open(os.path.join(HERE, "..", "Shared", "Flags.swift")).read()
+    if "paidApp = false" in flags and "firstFreeBuild = 0" in flags:
+        problems.append("firstFreeBuild")
+        print("ÉCHEC  Flags.swift : firstFreeBuild vaut 0. Le fixer au numéro du build de la 1.0.1 (les acheteurs de la 1.0 gardent Foldly+).")
 if SUBMIT:
     if problems:
         print("\nPAS ENVOYÉ : il reste des points à régler :", ", ".join(problems))

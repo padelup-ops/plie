@@ -32,7 +32,7 @@ struct PlusView: View {
                             .multilineTextAlignment(.center)
                     }
                     VStack(alignment: .leading, spacing: 16) {
-                        perk("rectangle.3.group", Text("Every widget"), Text("The big Health-style widget, the medium one and the Lock Screen ones: your folds at a glance."))
+                        perk("rectangle.3.group", Text("Every widget"), Text("Folds today in large and medium, Phone down in medium, and the Lock Screen ones with the timer while your phone stays down."))
                         perk("bell.badge", Text("Limit alerts"), Text("A notification at 80 % and at 100 % of your daily limit."))
                         perk("calendar", Text("Your full history"), Text("30 days, 12 months, the calendar of days under your limit, your trends and records."))
                         perk("paintpalette", Text("Widget colors"), Text("Five colors for your widgets."))
@@ -42,7 +42,13 @@ struct PlusView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfCard))
 
-                    if store.hasPlus {
+                    if store.boughtPaidApp && !store.owned {
+                        Label { Text("You bought Foldly when it was paid: Foldly+ is yours. Thank you!") } icon: { Image(systemName: "gift.fill") }
+                            .font(.headline)
+                            .foregroundStyle(Color.dfAccent)
+                            .multilineTextAlignment(.center)
+                            .padding(.vertical, 8)
+                    } else if store.hasPlus {
                         Label { Text("Foldly+ is unlocked. Thank you!") } icon: { Image(systemName: "checkmark.seal.fill") }
                             .font(.headline)
                             .foregroundStyle(Color.dfAccent)
@@ -78,7 +84,7 @@ struct PlusView: View {
                             .foregroundStyle(Color.dfWarning)
                             .multilineTextAlignment(.center)
                     }
-                    Text("One-time purchase, linked to your Apple Account. Counting, the daily limit, the week, the milestones and the small widget stay free.")
+                    Text("One-time purchase, linked to your Apple Account. Counting, the daily limit, phone down, your garden, the badges, the mindful pause and the small widgets stay free.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)

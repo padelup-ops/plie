@@ -511,14 +511,24 @@ struct PhoneDownWidgetView: View {
         family == .accessoryCircular || family == .accessoryRectangular || family == .accessoryInline
     }
 
+    /// Le petit widget et la ligne de l'écran verrouillé sont gratuits ; les autres demandent Foldly+.
+    private var locked: Bool {
+        let free = family == .systemSmall || family == .accessoryInline
+        return !DuoFolds.paidApp && !free && !stats.plus && !entry.preview
+    }
+
     var body: some View {
         Group {
-            switch family {
-            case .accessoryCircular: circular
-            case .accessoryRectangular: rectangular
-            case .accessoryInline: inline
-            case .systemMedium, .systemLarge, .systemExtraLarge: medium
-            default: small
+            if locked {
+                lockedView
+            } else {
+                switch family {
+                case .accessoryCircular: circular
+                case .accessoryRectangular: rectangular
+                case .accessoryInline: inline
+                case .systemMedium, .systemLarge, .systemExtraLarge: medium
+                default: small
+                }
             }
         }
         .containerBackground(for: .widget) {
@@ -528,7 +538,47 @@ struct PhoneDownWidgetView: View {
                 Palette.background
             }
         }
-        .widgetURL(URL(string: "clapet://garden"))
+        .widgetURL(URL(string: locked ? "clapet://plus" : "clapet://garden"))
+    }
+
+    @ViewBuilder
+    private var lockedView: some View {
+        switch family {
+        case .accessoryCircular:
+            ZStack {
+                AccessoryWidgetBackground()
+                VStack(spacing: 1) {
+                    Image(systemName: "lock.fill").font(.system(size: 14, weight: .bold))
+                    Text("Plus").font(.system(size: 10, weight: .semibold))
+                }
+            }
+        case .accessoryRectangular:
+            HStack(spacing: 6) {
+                Image(systemName: "lock.fill").font(.system(.title3, weight: .bold))
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Foldly+").font(.system(.headline, weight: .bold))
+                    Text("Tap to unlock").font(.system(.caption, weight: .medium))
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        default:
+            ZStack {
+                medium
+                    .blur(radius: 7)
+                    .opacity(0.4)
+                VStack(spacing: 6) {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundStyle(Palette.mint)
+                    Text("Foldly+")
+                        .font(.system(size: 19, weight: .bold))
+                        .foregroundStyle(.white)
+                    Text("Tap to unlock this widget")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Palette.secondary)
+                }
+            }
+        }
     }
 
     private var header: some View {

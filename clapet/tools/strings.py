@@ -396,6 +396,10 @@ FR = {
     "Touch and hold your Lock Screen, then tap Customize.": "Touche longuement l'écran verrouillé, puis touche Personnaliser.",
     "Tap Lock Screen, then the area under the clock.": "Touche Écran verrouillé, puis la zone sous l'heure.",
     "Pick Foldly: Folds today or Phone down.": "Choisis Foldly : Plis du jour ou Téléphone posé.",
+    # 1.0.1 : app gratuite, Foldly+ à vie
+    "Folds today in large and medium, Phone down in medium, and the Lock Screen ones with the timer while your phone stays down.": "Plis du jour en grand et en moyen, Téléphone posé en moyen, et ceux de l'écran verrouillé, avec le chrono tant que ton téléphone reste posé.",
+    "One-time purchase, linked to your Apple Account. Counting, the daily limit, phone down, your garden, the badges, the mindful pause and the small widgets stay free.": "Achat unique, lié à ton compte Apple. Le comptage, la limite du jour, le téléphone posé, ton jardin, les badges, la pause consciente et les petits widgets restent gratuits.",
+    "You bought Foldly when it was paid: Foldly+ is yours. Thank you!": "Tu as acheté Foldly quand elle était payante : Foldly+ est à toi. Merci !",
     # Badges du défi des plantes
     "Badges": "Badges",
     "%lld of %lld unlocked": "%1$lld sur %2$lld gagnés",
