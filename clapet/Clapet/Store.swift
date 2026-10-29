@@ -21,13 +21,14 @@ final class ClapetStore {
         #endif
     }()
 
-    private(set) var simulatePlus = UserDefaults.standard.bool(forKey: "tester.simulatePlus")
+    /// Version de test : Foldly+ est offert aux bêta-testeurs, sauf s'ils veulent voir l'app comme un nouvel utilisateur.
+    private(set) var seeAsNewUser = UserDefaults.standard.bool(forKey: "tester.seeAsNewUser")
 
     /// L'app a été achetée quand elle était payante (1.0) : Foldly+ est offert, pour toujours.
     private(set) var boughtPaidApp = UserDefaults.standard.bool(forKey: "boughtPaidApp")
 
     /// Foldly+ : acheté, offert aux acheteurs de la 1.0, ou simulé dans une version de test.
-    var hasPlus: Bool { DuoFolds.paidApp || owned || boughtPaidApp || (isTestBuild && simulatePlus) || Demo.plus }
+    var hasPlus: Bool { DuoFolds.paidApp || owned || boughtPaidApp || (isTestBuild && !seeAsNewUser) || Demo.plus }
 
     /// Appelé quand `hasPlus` change (pour prévenir les widgets).
     @ObservationIgnored var onChange: ((Bool) -> Void)?
@@ -44,9 +45,9 @@ final class ClapetStore {
         }
     }
 
-    func setSimulatePlus(_ on: Bool) {
-        simulatePlus = on
-        UserDefaults.standard.set(on, forKey: "tester.simulatePlus")
+    func setSeeAsNewUser(_ on: Bool) {
+        seeAsNewUser = on
+        UserDefaults.standard.set(on, forKey: "tester.seeAsNewUser")
         onChange?(hasPlus)
     }
 

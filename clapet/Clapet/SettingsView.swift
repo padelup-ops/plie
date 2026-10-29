@@ -155,13 +155,14 @@ struct SettingsView: View {
                 .font(.footnote)
                 if store.isTestBuild && !DuoFolds.paidApp {
                     Section {
-                        Toggle(isOn: Binding(get: { store.simulatePlus }, set: { store.setSimulatePlus($0) })) {
-                            Text("Simulate Foldly+")
+                        Label { Text("Tester: Foldly+ is free for you.") } icon: { Image(systemName: "gift.fill") }
+                        Toggle(isOn: Binding(get: { store.seeAsNewUser }, set: { store.setSeeAsNewUser($0) })) {
+                            Text("See the app as a new user")
                         }
                     } header: {
                         Text("Test version")
                     } footer: {
-                        Text("Only in TestFlight. In TestFlight, the purchase is free too (Apple's test mode).")
+                        Text("Only in TestFlight. Turn it on to see the locks and the Foldly+ screen, like someone who just installed the app. A test purchase is free.")
                     }
                 }
                 Section {
