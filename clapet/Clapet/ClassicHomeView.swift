@@ -57,6 +57,8 @@ struct ClassicHomeView: View {
     @State private var showWidgets = false
     @State private var widgets = InstalledWidgets.shared
     @State private var promoHidden = false
+    @State private var surveyHidden = false
+    @Environment(\.openURL) private var openURL
     @State private var liveOn = LiveCounter.isOn
     @State private var bump = false
     @State private var tapOpen = 0.62
@@ -73,6 +75,14 @@ struct ClassicHomeView: View {
                     if model.stats.autoLast == nil && !Demo.seeded { autoBanner }
                     today
                     phoneDown
+                    if !surveyHidden && SurveyRule.shouldShowCard(isTestBuild: store.isTestBuild) {
+                        ClassicCard {
+                            SurveyPromo { openURL(SurveyRule.url) } onHide: {
+                                SurveyRule.hideCard()
+                                withAnimation { surveyHidden = true }
+                            }
+                        }
+                    }
                     if !promoHidden && WidgetsPromoRule.shouldShow(installed: widgets.count) {
                         ClassicCard {
                             WidgetsPromo { showWidgets = true } onHide: {
@@ -151,6 +161,10 @@ struct ClassicHomeView: View {
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
             if url.host == "garden" { showGarden = true }
+            if SurveyRule.isAnswerLink(url) {
+                SurveyRule.markAnswered()
+                withAnimation { surveyHidden = true }
+            }
         }
         .task {
             // Une seule fois, après 3 jours suivis : on présente Foldly+ (sans insister).

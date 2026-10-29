@@ -52,6 +52,9 @@ struct ContentView: View {
     @State private var askLook = false
     @State private var pause = PauseCenter.shared
     @State private var newBadges: BadgeBatch?
+    @Environment(ClapetStore.self) private var store
+    @Environment(\.openURL) private var openURL
+    @State private var showSurvey = false
 
     var body: some View {
         let look = DFLook(rawValue: lookRaw) ?? .classic
@@ -69,8 +72,18 @@ struct ContentView: View {
         .fullScreenCover(isPresented: Binding(get: { pause.pending }, set: { pause.pending = $0 })) {
             PauseView().environment(model)
         }
+        // Bêta : « Ton avis en 1 minute », une fois par jour au plus, tant que le testeur n'a pas répondu.
+        .fullScreenCover(isPresented: $showSurvey, onDismiss: { checkBadges() }) {
+            SurveyScreen {
+                showSurvey = false
+                openURL(SurveyRule.url)
+            } onLater: {
+                showSurvey = false
+            }
+        }
         .sheet(isPresented: $askLook, onDismiss: {
             if lookRaw.isEmpty { lookRaw = DFLook.classic.rawValue }
+            checkSurvey()
             checkBadges()
         }) {
             LookPickerView()
@@ -95,18 +108,28 @@ struct ContentView: View {
                 return
             }
             try? await Task.sleep(nanoseconds: 1_500_000_000)
+            checkSurvey()
             checkBadges()
         }
         .onChange(of: model.stats.totalPlants) { _, _ in checkBadges() }
         .onChange(of: pause.pending) { _, pending in if !pending { checkBadges() } }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             InstalledWidgets.shared.refresh()
+            checkSurvey()
             checkBadges()
         }
     }
 
+    private func checkSurvey() {
+        guard !askLook, !pause.pending, newBadges == nil, !showSurvey else { return }
+        if SurveyRule.shouldPresent(isTestBuild: store.isTestBuild) {
+            SurveyRule.markPresented()
+            showSurvey = true
+        }
+    }
+
     private func checkBadges() {
-        guard !Demo.seeded, Demo.screen == nil, !askLook, !pause.pending, newBadges == nil else { return }
+        guard !Demo.seeded, Demo.screen == nil, !askLook, !pause.pending, newBadges == nil, !showSurvey else { return }
         let fresh = GardenBadges.newlyUnlocked(model.stats)
         if !fresh.isEmpty { newBadges = BadgeBatch(badges: fresh) }
     }

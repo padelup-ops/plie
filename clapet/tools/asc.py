@@ -76,24 +76,14 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• NEW WIDGET "Phone down": time with your phone closed today, your goal and your garden. On the Lock Screen (and the outer screen when closed), a timer runs while your phone stays down.
-• Better "Folds today" widget: your daily limit at a glance (green, orange, red), and your phone-down time on the large one.
-• Widget gallery in the app (Widgets row, or the card on the home screen): every size with your real numbers, choose their color, and how to add them.
-• BADGES for the plant challenge: first sprout, 25, 100, 500 plants, goal met 1, 3, 7 and 30 days in a row, and 10 unfolds resisted. See them in My garden.
-• Fixed: the large widget now fits entirely (header and bottom were cut off).
-• Fixed: when plants piled up, the Phone down card overflowed the screen (outer screen especially). Now a ring shows the next plant growing.
+• A 1-minute survey: tell us which feature Foldly should get next (blocking distracting apps when you go over your limit, a bedtime, rare plants to collect, a weekly recap…). It shows up when you open the app, and you can always answer later.
 
-Please test: add the two widgets (Home Screen and Lock Screen), and tell us what you think of the badges.""",
+Please test: answer the survey 🙏 It's 6 questions and it decides what we build next. Then keep using the widgets and the plant challenge.""",
     "fr-FR": """Nouveautés de ce build :
 
-• NOUVEAU WIDGET « Téléphone posé » : le temps téléphone fermé aujourd'hui, ton objectif et ton jardin. Sur l'écran verrouillé (et l'écran extérieur quand il est fermé), un chrono tourne tant que ton téléphone reste posé.
-• Widget « Plis du jour » amélioré : ta limite du jour d'un coup d'œil (vert, orange, rouge), et ton temps téléphone posé sur le grand.
-• Galerie des widgets dans l'app (ligne « Widgets », ou la carte de l'accueil) : toutes les tailles avec tes vrais chiffres, leur couleur, et comment les ajouter.
-• BADGES pour le défi des plantes : première pousse, 25, 100, 500 plantes, objectif tenu 1, 3, 7 et 30 jours d'affilée, et 10 ouvertures évitées. À voir dans Mon jardin.
-• Corrigé : le grand widget tient en entier (le haut et le bas étaient coupés).
-• Corrigé : quand les plantes s'accumulaient, la carte Téléphone posé débordait de l'écran (surtout l'écran extérieur). Un anneau montre maintenant la plante qui pousse.
+• Un sondage d'1 minute : dis-nous quelle nouveauté Foldly doit avoir en premier (bloquer les applis qui font perdre du temps quand tu dépasses ta limite, une heure de coucher, des plantes rares à collectionner, un bilan de la semaine…). Il s'affiche à l'ouverture de l'app, et tu peux toujours répondre plus tard.
 
-À tester : ajoute les deux widgets (écran d'accueil et écran verrouillé), et dis-nous ce que tu penses des badges.""",
+À tester : réponds au sondage 🙏 6 questions, et c'est lui qui décide de la suite. Puis continue avec les widgets et le défi des plantes.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

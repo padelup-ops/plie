@@ -61,6 +61,8 @@ struct NightHomeView: View {
     @State private var showWidgets = false
     @State private var widgets = InstalledWidgets.shared
     @State private var promoHidden = false
+    @State private var surveyHidden = false
+    @Environment(\.openURL) private var openURL
     @State private var bump = false
     /// Sans charnière : l'angle du dessin, qu'on « ferme » d'un toucher.
     @State private var tapAngle = 112.0
@@ -124,6 +126,10 @@ struct NightHomeView: View {
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
             if url.host == "garden" { showGarden = true }
+            if SurveyRule.isAnswerLink(url) {
+                SurveyRule.markAnswered()
+                withAnimation { surveyHidden = true }
+            }
         }
         .onAppear { widgets.refresh() }
         .task {
@@ -290,6 +296,14 @@ struct NightHomeView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     CardTitle(Text("Phone down"))
                     PhoneDownContent(stats: model.stats) { showGarden = true }
+                }
+            }
+            if !surveyHidden && SurveyRule.shouldShowCard(isTestBuild: store.isTestBuild) {
+                Card(filled: true) {
+                    SurveyPromo { openURL(SurveyRule.url) } onHide: {
+                        SurveyRule.hideCard()
+                        withAnimation { surveyHidden = true }
+                    }
                 }
             }
             if !promoHidden && WidgetsPromoRule.shouldShow(installed: widgets.count) {

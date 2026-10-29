@@ -23,7 +23,7 @@ button:disabled{opacity:.6}
 .note{color:var(--muted);font-size:14px;margin:14px 4px}
 .hidden{display:none}a{color:var(--accent)}
 #merci{background:var(--card);border-radius:18px;padding:26px 20px;text-align:center}
-#merci h2{margin:.2em 0}
+#merci h2{margin:.2em 0}.btn{display:inline-block;margin-top:14px;padding:13px 22px;border-radius:14px;background:var(--accent);color:#fff;font-weight:600;text-decoration:none}@media (prefers-color-scheme:dark){.btn{color:#0f1013}}
 .err{color:#d0453a;font-size:15px;margin:8px 4px;display:none}
 </style></head><body><main>
 <header><img src="../icon.png" alt=""><div><h1>Ton avis sur Foldly</h1><p class="sub">1 minute, 6 questions. Ça m'aide à choisir la suite.</p></div></header>
@@ -79,7 +79,7 @@ button:disabled{opacity:.6}
 <p class="note">Tes réponses servent seulement à améliorer Foldly. Elles sont anonymes, sauf si tu laisses ton e-mail. <a href="privacy.html">Confidentialité</a></p>
 </form>
 
-<div id="merci" class="hidden"><h2>Merci 🌱</h2><p>Ta réponse est bien arrivée. Tu peux revenir dans Foldly.</p></div>
+<div id="merci" class="hidden"><h2>Merci 🌱</h2><p>Ta réponse est bien arrivée. Tu peux revenir dans Foldly.</p><p id="retour" class="hidden"><a class="btn" href="clapet://sondage-fait">Revenir dans Foldly</a></p></div>
 </main>
 <script>
 (function(){
@@ -95,7 +95,7 @@ button:disabled{opacity:.6}
     body.append('utile',(multi.utile||[]).join(', '));
     var go=document.getElementById('go'); go.disabled=true; document.getElementById('err').style.display='none';
     fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()})
-      .then(function(r){ if(!r.ok) throw r; f.classList.add('hidden'); document.getElementById('merci').classList.remove('hidden'); scrollTo(0,0) })
+      .then(function(r){ if(!r.ok) throw r; f.classList.add('hidden'); document.getElementById('merci').classList.remove('hidden'); scrollTo(0,0); if(f.source.value==='app'){ document.getElementById('retour').classList.remove('hidden'); setTimeout(function(){ location.href='clapet://sondage-fait' },800) } })
       .catch(function(){ go.disabled=false; document.getElementById('err').style.display='block' });
   });
 })();
