@@ -1,0 +1,48 @@
+# Vérifie une page du site de Foldly dans un vrai navigateur (par exemple : envoyer une réponse test au sondage).
+name: Clapet - test du site
+on:
+  workflow_dispatch:
+    inputs:
+      page:
+        description: "Page à tester"
+        required: false
+        default: "https://foldly.netlify.app/fr/sondage.html?src=test&build=test"
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Envoyer une réponse test
+        env:
+          PAGE: ${{ inputs.page }}
+        run: |
+          npm init -y >/dev/null && npm i playwright@1.56.1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > t.js <<'EOF'
+          const { chromium } = require('playwright');
+          (async () => {
+            const b = await chromium.launch();
+            const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+            const errors = []; p.on('pageerror', e => errors.push(e.message));
+            const r = await p.goto(process.env.PAGE, { waitUntil: 'networkidle' });
+            console.log('page', r.status());
+            await p.check('input[name=frequence][value=tous-les-jours]').catch(()=>{});
+            await p.check('input[name=priorite]:first-of-type').catch(()=>{});
+            const radios = await p.$$('input[name=priorite]'); if (radios.length) await radios[0].check();
+            const freq = await p.$$('input[name=frequence]'); if (freq.length) await freq[0].check();
+            await p.check('input[name=utile] >> nth=0');
+            await p.fill('textarea[name=probleme]', 'TEST AUTOMATIQUE - à supprimer');
+            const [resp] = await Promise.all([
+              p.waitForResponse(x => x.request().method() === 'POST', { timeout: 15000 }),
+              p.click('#go'),
+            ]);
+            console.log('envoi', resp.status());
+            await p.waitForSelector('#merci:not(.hidden)', { timeout: 10000 });
+            console.log('merci visible', await p.isVisible('#merci'), 'retour visible', await p.isVisible('#retour'));
+            console.log('erreurs', JSON.stringify(errors));
+            await b.close();
+          })().catch(e => { console.log('ÉCHEC', e.message); process.exit(1); });
+          EOF
+          node t.js
