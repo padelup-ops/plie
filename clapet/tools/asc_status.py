@@ -56,6 +56,16 @@ print("disponibilité :", "oui" if call(f"/v1/apps/{app['id']}/appAvailabilityV2
 iaps = call(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=10").get("data", [])
 print("achats intégrés :", [(i["attributes"].get("productId"), i["attributes"].get("state")) for i in iaps])
 
+# Installations et sessions par build (statistiques TestFlight d'Apple).
+for b in call(f"/v1/builds?filter[app]={app['id']}&sort=-uploadedDate&limit=4").get("data", []):
+    m = call(f"/v1/builds/{b['id']}/metrics/betaBuildUsages")
+    vals = {}
+    for d in m.get("data", []):
+        for pt in d.get("dataPoints", []):
+            for k, v in (pt.get("values") or {}).items():
+                vals[k] = vals.get(k, 0) + (v or 0)
+    print(f"usage build {b['attributes'].get('version')} :", vals or m.get("error") or m.get("detail") or "rien")
+
 # Testeurs TestFlight : par groupe, puis au total (sans doublons), avec leur état d'invitation.
 from collections import Counter
 everyone = {}
