@@ -101,6 +101,7 @@ FR = {
     "Sounds": "Sons",
     "Vibrations": "Vibrations",
     "Feel": "Ressenti",
+    "Opening animation": "Animation d'ouverture",
     "iOS only tells an app about the hinge while that app is on screen. Foldly counts while it's open, on the inner or the outer screen.":
         "iOS ne prévient une app des mouvements de la charnière que quand elle est à l'écran. Foldly compte donc tant qu'il est ouvert, sur l'écran intérieur ou extérieur.",
     "In Shortcuts, the “Count a fold” action adds one fold. If your phone offers an automation when it's folded, plug it in there to count all day long.":

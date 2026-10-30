@@ -80,6 +80,8 @@ struct ContentView: View {
     @Environment(ClapetStore.self) private var store
     @Environment(\.openURL) private var openURL
     @State private var showSurvey = false
+    /// L'animation d'ouverture, au lancement de l'app seulement.
+    @State private var opening = OpeningRule.shouldShow(lookChosen: !(UserDefaults.standard.string(forKey: DFLook.key) ?? "").isEmpty)
 
     var body: some View {
         let look = DFLook(rawValue: lookRaw) ?? .classic
@@ -88,6 +90,13 @@ struct ContentView: View {
             case .classic: ClassicHomeView()
             case .night: NightHomeView()
             case .minimal: MinimalHomeView()
+            }
+        }
+        .overlay {
+            if opening {
+                OpeningView(today: model.stats.today, look: look, haptics: model.hapticsOn) {
+                    opening = false
+                }
             }
         }
         .preferredColorScheme(look == .night ? .dark : nil)
@@ -112,7 +121,8 @@ struct ContentView: View {
                 .presentationDetents([.medium, .large])
         }
         .task {
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            // Après l'animation d'ouverture.
+            try? await Task.sleep(nanoseconds: 2_200_000_000)
             checkSurvey()
             WeekRecapNotice.schedule(model.stats)
         }
@@ -123,7 +133,7 @@ struct ContentView: View {
     }
 
     private func checkSurvey() {
-        guard !askLook, !showSurvey else { return }
+        guard !askLook, !showSurvey, !opening else { return }
         if SurveyRule.shouldPresent(isTestBuild: store.isTestBuild) {
             SurveyRule.markPresented()
             showSurvey = true

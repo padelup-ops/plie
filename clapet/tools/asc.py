@@ -76,16 +76,16 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• Widgets in StandBy: the small Foldly widgets now show big and without a background in StandBy (stand your phone folded in an L, then add a Foldly widget).
-• Since the last update: Foldly is all about your numbers (no more plants, the daily limit is optional), with a weekly recap and a new Minimal theme.
+- Opening animation: when you launch Foldly, the hinge in the logo unfolds, then your count for today rolls up to its number. Tap to skip it, or turn it off in Settings > Feel.
+- Still here: StandBy widgets, the weekly recap and the Minimal theme.
 
-Please test: add a Foldly widget to StandBy, try the Minimal theme, and open your weekly recap.""",
+Please test: launch Foldly in each theme (Classic, Modern, Minimal) and tell us if the animation feels too long or just right.""",
     "fr-FR": """Nouveautés de ce build :
 
-• Widgets en mode veille (StandBy) : les petits widgets Foldly s'affichent en grand et sans fond (pose ton téléphone plié en L, puis ajoute un widget Foldly).
-• Depuis la dernière mise à jour : Foldly se concentre sur tes chiffres (plus de plantes, la limite du jour est facultative), avec un bilan de la semaine et un nouveau thème Épuré.
+- Animation d'ouverture : au lancement, la charnière du logo se déplie, puis ton chiffre du jour défile jusqu'à sa valeur. Touche l'écran pour la passer, ou coupe-la dans Réglages > Ressenti.
+- Toujours là : les widgets en mode veille, le bilan de la semaine et le thème Épuré.
 
-À tester : ajoute un widget Foldly au mode veille, essaie le thème Épuré, et ouvre ton bilan de la semaine.""",
+À tester : lance Foldly dans chaque thème (Classique, Moderne, Épuré) et dis-nous si l'animation est trop longue ou juste bien.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

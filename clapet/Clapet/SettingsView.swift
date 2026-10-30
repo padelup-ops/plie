@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @AppStorage(OpeningRule.key) private var openingOn = true
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -161,6 +162,7 @@ struct SettingsView: View {
                 Section {
                     Toggle(isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })) { Text("Sounds") }
                     Toggle(isOn: Binding(get: { model.hapticsOn }, set: { model.setHaptics($0) })) { Text("Vibrations") }
+                    Toggle(isOn: $openingOn) { Text("Opening animation") }
                 } header: {
                     Text("Feel")
                 }
