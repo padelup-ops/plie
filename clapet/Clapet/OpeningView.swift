@@ -54,9 +54,9 @@ struct OpeningView: View {
 
                 // La charnière qui se déplie.
                 ZStack {
-                    HingeArc(angle: Self.openAngle * hinge)
+                    OpeningArc(angle: Self.openAngle * hinge)
                         .stroke(ringColors.last ?? .accentColor, style: StrokeStyle(lineWidth: size * 0.022, lineCap: .round))
-                    HingeArms(angle: Self.openAngle * hinge)
+                    OpeningArms(angle: Self.openAngle * hinge)
                         .stroke(armColor, style: StrokeStyle(lineWidth: size * 0.075, lineCap: .round, lineJoin: .round))
                 }
                 .scaleEffect(glyphGone ? 0.4 : 1)
@@ -64,7 +64,7 @@ struct OpeningView: View {
 
                 // Puis le chiffre du jour.
                 VStack(spacing: 2) {
-                    CountUpText(value: count)
+                    OpeningCount(value: count)
                         .font(numberFont)
                         .foregroundStyle(armColor)
                     Text("folds today")
@@ -154,7 +154,7 @@ struct OpeningView: View {
 }
 
 /// Le chiffre qui défile de 0 jusqu'au compte du jour.
-private struct CountUpText: View, Animatable {
+private struct OpeningCount: View, Animatable {
     var value: Double
     var animatableData: Double {
         get { value }
@@ -170,7 +170,7 @@ private struct CountUpText: View, Animatable {
 
 /// Les deux branches de l'angle : celle du bas ne bouge pas, l'autre se lève de `angle` degrés.
 /// À 0°, le téléphone vu de profil est fermé.
-private struct HingeArms: Shape {
+private struct OpeningArms: Shape {
     var angle: Double
     var animatableData: Double {
         get { angle }
@@ -190,7 +190,7 @@ private struct HingeArms: Shape {
 }
 
 /// Le petit arc qui mesure l'angle de la charnière.
-private struct HingeArc: Shape {
+private struct OpeningArc: Shape {
     var angle: Double
     var animatableData: Double {
         get { angle }
