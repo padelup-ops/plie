@@ -1,0 +1,8 @@
+-rw-r--r--@ 1 runner  staff  1659949 Oct 30 16:05 rushes/en-open.mov
+-rw-r--r--@ 1 runner  staff  2165533 Oct 30 16:05 rushes/en-count.mov
+-rw-r--r--@ 1 runner  staff  597422 Oct 30 16:06 rushes/en-classic.mov
+-rw-r--r--@ 1 runner  staff  1175120 Oct 30 16:06 rushes/en-night.mov
+-rw-r--r--@ 1 runner  staff  448722 Oct 30 16:07 rushes/en-minimal.mov
+-rw-r--r--@ 1 runner  staff  1794434 Oct 30 16:08 rushes/en-week.mov
+-rw-r--r--@ 1 runner  staff  3642886 Oct 30 16:08 rushes/en-widgets.mov
+-rw-r--r--@ 1 runner  staff  1467610 Oct 30 16:08 rushes/en-history.mov
