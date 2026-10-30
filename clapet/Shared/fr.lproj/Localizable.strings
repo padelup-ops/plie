@@ -329,6 +329,12 @@
 "Put Foldly on your Home Screen" = "Mets Foldly sur ton écran d'accueil";
 "Your folds and your phone-down time at a glance, without opening the app." = "Tes plis et ton temps téléphone posé d'un coup d'œil, sans ouvrir l'app.";
 "Not now" = "Plus tard";
+"Desk mode" = "Mode bureau";
+"open" = "ouvert";
+"closed" = "fermé";
+"Open when stood in an L" = "S'ouvrir quand il est posé en L";
+"Stand your phone folded in an L with Foldly on screen: the top half shows the time and your numbers, big, and the screen stays on." = "Pose ton téléphone plié en L avec Foldly à l'écran : la moitié du haut affiche l'heure et tes chiffres en grand, et l'écran reste allumé.";
+"Stand your phone in an L: the time and your numbers, big" = "Pose ton téléphone plié en L : l'heure et tes chiffres en grand";
 "Do it again with **Opened** and the action **Count an opening**: Foldly then also measures how long your phone stays open and closed." = "Refais-le avec **Ouvert** et l'action **Compter une ouverture** : Foldly mesure alors aussi combien de temps ton téléphone reste ouvert et fermé.";
 "Daily average" = "Moyenne par jour";
 "Off: each day is compared with your average" = "Désactivée : chaque jour est comparé à ta moyenne";

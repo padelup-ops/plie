@@ -80,6 +80,8 @@ struct ContentView: View {
     @Environment(ClapetStore.self) private var store
     @Environment(\.openURL) private var openURL
     @State private var showSurvey = false
+    @State private var desk = DeskCenter.shared
+    @State private var screenSize = CGSize.zero
 
     var body: some View {
         let look = DFLook(rawValue: lookRaw) ?? .classic
@@ -91,6 +93,19 @@ struct ContentView: View {
             }
         }
         .preferredColorScheme(look == .night ? .dark : nil)
+        .background {
+            GeometryReader { g in
+                Color.clear
+                    .onAppear { screenSize = g.size }
+                    .onChange(of: g.size) { _, new in screenSize = new }
+            }
+        }
+        // Posé plié en L : le mode bureau (l'heure et les chiffres du jour, en grand).
+        .fullScreenCover(isPresented: Binding(get: { desk.showing }, set: { desk.showing = $0 })) {
+            DeskView().environment(model)
+        }
+        .onChange(of: model.degrees) { _, _ in checkDesk() }
+        .onChange(of: screenSize) { _, _ in checkDesk() }
         .onAppear {
             // Première ouverture : on propose de choisir (pas pendant le tournage des vidéos).
             if lookRaw.isEmpty && !Demo.seeded && Demo.screen == nil { askLook = true }
@@ -119,6 +134,22 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             InstalledWidgets.shared.refresh()
             checkSurvey()
+        }
+    }
+
+    private func checkDesk() {
+        guard DeskRule.isTabletop(degrees: model.degrees, size: screenSize) else {
+            desk.tabletopSince = nil
+            desk.suppressed = false
+            return
+        }
+        guard DeskRule.autoOn, !desk.showing, !desk.suppressed, !askLook, !showSurvey, !Demo.seeded else { return }
+        // On attend une seconde de position stable avant d'ouvrir.
+        if let since = desk.tabletopSince {
+            if Date().timeIntervalSince(since) >= 1 { desk.showing = true }
+        } else {
+            desk.tabletopSince = Date()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { checkDesk() }
         }
     }
 

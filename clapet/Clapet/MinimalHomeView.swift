@@ -102,6 +102,7 @@ struct MinimalHomeView: View {
             Spacer()
             Menu {
                 Button { showShare = true } label: { Label { Text("Share my day") } icon: { Image(systemName: "square.and.arrow.up") } }
+                Button { DeskCenter.shared.showing = true } label: { Label { Text("Desk mode") } icon: { Image(systemName: "laptopcomputer") } }
                 Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
                 Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
                 Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }

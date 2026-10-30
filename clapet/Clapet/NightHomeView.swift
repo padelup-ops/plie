@@ -232,6 +232,7 @@ struct NightHomeView: View {
                     Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
                 }
                 Button { showWeek = true } label: { Label { Text("Weekly recap") } icon: { Image(systemName: "chart.bar.doc.horizontal") } }
+                Button { DeskCenter.shared.showing = true } label: { Label { Text("Desk mode") } icon: { Image(systemName: "laptopcomputer") } }
                 Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
                 Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
                 Button {

@@ -24,6 +24,8 @@ enum Palette {
 
 struct ClapetWidgetView: View {
     @Environment(\.widgetFamily) private var envFamily
+    /// Faux en veille (StandBy) : le fond est retiré, le widget s'affiche en grand.
+    @Environment(\.showsWidgetContainerBackground) private var showsBackground
     let entry: ClapetEntry
     /// Dans l'app (mode démo), la taille du widget à dessiner.
     let familyOverride: WidgetFamily?
@@ -84,8 +86,41 @@ struct ClapetWidgetView: View {
         case .accessoryInline: inline
         case .systemLarge, .systemExtraLarge: large
         case .systemMedium: medium
-        default: small
+        default:
+            if showsBackground { small } else { standBy }
         }
+    }
+
+    /// En veille (StandBy) : sans fond, le chiffre du jour en très grand.
+    private var standBy: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 5) {
+                Image(systemName: "iphone.gen3")
+                Text("FOLDLY").tracking(0.8)
+            }
+            .font(.system(size: 12, weight: .bold))
+            .foregroundStyle(.secondary)
+            Spacer(minLength: 0)
+            Text("\(today)")
+                .font(.system(size: 76, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .minimumScaleFactor(0.4)
+                .lineLimit(1)
+                .contentTransition(.numericText())
+                .widgetAccentable()
+            Text("folds today")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.secondary)
+            if let ref = reference {
+                Group {
+                    if stats.goalOn { Text("Limit \(ref)") } else { Text("Average \(ref)") }
+                }
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(.secondary)
+                .padding(.top, 2)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     @ViewBuilder
@@ -499,6 +534,7 @@ struct ClapetWidgetView: View {
 
 struct PhoneDownWidgetView: View {
     @Environment(\.widgetFamily) private var envFamily
+    @Environment(\.showsWidgetContainerBackground) private var showsBackground
     let entry: ClapetEntry
     let familyOverride: WidgetFamily?
 
@@ -537,7 +573,8 @@ struct PhoneDownWidgetView: View {
             case .accessoryRectangular: rectangular
             case .accessoryInline: inline
             case .systemMedium, .systemLarge, .systemExtraLarge: medium
-            default: small
+            default:
+                if showsBackground { small } else { standBy }
             }
         }
         .containerBackground(for: .widget) {
@@ -614,6 +651,46 @@ struct PhoneDownWidgetView: View {
                 .foregroundStyle(Palette.secondary)
                 .lineLimit(1)
         }
+    }
+
+    /// En veille (StandBy) : sans fond, le chrono de l'état en cours en très grand.
+    private var standBy: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 5) {
+                Image(systemName: closedSince != nil ? "moon.zzz.fill" : "iphone.gen3")
+                if closedSince != nil {
+                    Text("Closed for")
+                } else if openSince != nil {
+                    Text("Open for")
+                } else {
+                    Text("Today")
+                }
+            }
+            .font(.system(size: 13, weight: .bold))
+            .foregroundStyle(.secondary)
+            Spacer(minLength: 0)
+            if let since = closedSince ?? openSince {
+                Text(timerInterval: since...Date.distantFuture, countsDown: false)
+                    .font(.system(size: 46, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .minimumScaleFactor(0.4)
+                    .lineLimit(1)
+                    .widgetAccentable()
+            } else {
+                Text(TimeFormat.short(closed))
+                    .font(.system(size: 46, weight: .semibold, design: .rounded))
+                    .minimumScaleFactor(0.4)
+                    .lineLimit(1)
+                    .widgetAccentable()
+            }
+            Spacer(minLength: 0)
+            Text("\(TimeFormat.short(closed)) closed · \(TimeFormat.short(open)) open")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private var small: some View {

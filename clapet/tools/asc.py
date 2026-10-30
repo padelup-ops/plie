@@ -76,22 +76,18 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• Foldly is now all about your numbers: no more plants, and no limit by default. Each day is compared with your own average.
-• NEW Weekly recap: at the end of each week, your folds compared with the week before, time open and closed, your busiest and calmest days, and a card to share.
-• NEW Minimal theme: just your numbers, black on white (or white on black). Settings > Theme.
-• The "Phone down" widget becomes "Open & closed": time open and closed today, with a timer on the Lock Screen.
-• The daily limit is still there if you want one: Settings > Daily limit.
+• NEW Desk mode: stand your phone folded in an L with Foldly on screen. The top half shows the time and your numbers, big, and the screen stays on. Also in the menu.
+• Widgets in StandBy: the small Foldly widgets now show big and without a background in StandBy.
+• Since the last update: Foldly is all about your numbers (no more plants, the daily limit is optional), with a weekly recap and a new Minimal theme.
 
-Please test: try the Minimal theme, and open your weekly recap (Weekly recap in the menu).""",
+Please test: stand your phone in an L with Foldly open, add a Foldly widget to StandBy, and open your weekly recap.""",
     "fr-FR": """Nouveautés de ce build :
 
-• Foldly se concentre sur tes chiffres : plus de plantes, et plus de limite par défaut. Chaque journée est comparée à ta propre moyenne.
-• NOUVEAU Bilan de la semaine : à la fin de chaque semaine, tes plis comparés à la semaine d'avant, ton temps ouvert et fermé, ton jour le plus chargé et le plus calme, et une carte à partager.
-• NOUVEAU thème Épuré : juste tes chiffres, noir sur blanc (ou blanc sur noir). Réglages > Thème.
-• Le widget « Téléphone posé » devient « Ouvert / fermé » : ton temps ouvert et fermé aujourd'hui, avec un chrono sur l'écran verrouillé.
-• La limite du jour existe toujours si tu en veux une : Réglages > Limite du jour.
+• NOUVEAU Mode bureau : pose ton téléphone plié en L avec Foldly à l'écran. La moitié du haut affiche l'heure et tes chiffres en grand, et l'écran reste allumé. Aussi dans le menu.
+• Widgets en mode veille (StandBy) : les petits widgets Foldly s'affichent en grand et sans fond.
+• Depuis la dernière mise à jour : Foldly se concentre sur tes chiffres (plus de plantes, la limite du jour est facultative), avec un bilan de la semaine et un nouveau thème Épuré.
 
-À tester : essaie le thème Épuré, et ouvre ton bilan de la semaine (Bilan de la semaine dans le menu).""",
+À tester : pose ton téléphone en L avec Foldly ouvert, ajoute un widget Foldly au mode veille, et ouvre ton bilan de la semaine.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
