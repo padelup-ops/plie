@@ -20,7 +20,7 @@ enum AutomaticCounter {
         stats.addClose()
         stats.endOpen(event: true)
         stats.autoLast = Date()
-        LimitAlerts.check(before: before, after: stats.today, limit: stats.goal, plus: stats.plus)
+        LimitAlerts.check(before: before, after: stats.today, limit: stats.activeLimit, plus: stats.plus)
         ClapetVault.save(stats)
         WidgetCenter.shared.reloadAllTimelines()
         LiveCounter.refresh(stats)
@@ -72,17 +72,17 @@ struct CountOpenIntent: AppIntent {
     }
 }
 
-/// « Faire une pause à l'ouverture » : à mettre dans l'automatisation « iPhone ouvert » à la place de « Compter une ouverture ».
-/// Compte l'ouverture, puis Foldly s'affiche quelques secondes : respirer, et choisir de continuer ou de refermer.
+/// Ancienne action « Faire une pause à l'ouverture » : gardée pour les automatisations déjà créées,
+/// elle compte simplement une ouverture (la pause n'existe plus).
 struct MindfulOpenIntent: AppIntent {
-    static var title: LocalizedStringResource = "Pause when opened"
-    static var description = IntentDescription("Counts an opening, then shows Foldly for a short pause before you carry on. Use it in a Shortcuts automation that runs when your phone is opened.")
-    static var openAppWhenRun = true
+    static var title: LocalizedStringResource = "Count an opening (old action)"
+    static var description = IntentDescription("Same as “Count an opening”. Kept so older automations keep working.")
+    static var openAppWhenRun = false
+    static var isDiscoverable = false
 
     @MainActor
     func perform() async throws -> some IntentResult {
         AutomaticCounter.open()
-        PauseCenter.shared.pending = true
         return .result()
     }
 }
@@ -108,10 +108,6 @@ struct ClapetShortcuts: AppShortcutsProvider {
                     phrases: ["Count an opening in \(.applicationName)"],
                     shortTitle: "Count an opening",
                     systemImageName: "rectangle.expand.vertical")
-        AppShortcut(intent: MindfulOpenIntent(),
-                    phrases: ["Take a pause with \(.applicationName)"],
-                    shortTitle: "Pause when opened",
-                    systemImageName: "wind")
         AppShortcut(intent: TodayClapsIntent(),
                     phrases: ["How many folds today in \(.applicationName)", "My folds in \(.applicationName)"],
                     shortTitle: "Folds today",

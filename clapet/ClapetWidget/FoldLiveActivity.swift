@@ -8,13 +8,18 @@ private let liveMint = Color(red: 0.36, green: 0.89, blue: 0.78)
 private let liveOrange = Color(red: 1.0, green: 0.71, blue: 0.36)
 private let liveRed = Color(red: 1.0, green: 0.45, blue: 0.42)
 
+/// Sans limite, toujours la même couleur. Avec une limite : orange à 80 %, rouge au-delà.
 private func tone(_ s: FoldActivityAttributes.ContentState) -> Color {
-    if s.limit > 0 && s.today > s.limit { return liveRed }
-    if s.limit > 0 && Double(s.today) >= 0.8 * Double(s.limit) { return liveOrange }
+    if s.hasLimit && s.today > s.limit { return liveRed }
+    if s.hasLimit && Double(s.today) >= 0.8 * Double(s.limit) { return liveOrange }
     return liveMint
 }
 
 private func statusText(_ s: FoldActivityAttributes.ContentState) -> Text {
+    guard s.hasLimit else {
+        if let avg = s.average { return Text("Average \(avg)") }
+        return Text("Today")
+    }
     if s.left > 0 { return Text("\(s.left) left") }
     if s.left == 0 { return Text("Limit reached") }
     return Text("\(-s.left) over")
@@ -49,7 +54,7 @@ struct FoldLiveActivity: Widget {
                         .tint(tone(s))
                 }
             } compactLeading: {
-                Image(systemName: s.downSince == nil ? "rectangle.compress.vertical" : "leaf.fill")
+                Image(systemName: s.downSince == nil ? "rectangle.compress.vertical" : "moon.zzz.fill")
                     .foregroundStyle(s.downSince == nil ? tone(s) : liveMint)
             } compactTrailing: {
                 if let since = s.downSince {
@@ -76,7 +81,7 @@ struct FoldLockScreenView: View {
 
     var body: some View {
         if let since = state.downSince {
-            PhoneDownLiveView(since: since, plantsToday: state.plantsToday, today: state.today)
+            ClosedLiveView(since: since, today: state.today)
         } else {
             counter
         }
@@ -110,9 +115,15 @@ struct FoldLockScreenView: View {
                 ProgressView(value: state.progress)
                     .tint(tone(state))
                     .frame(width: 110)
-                Text("Limit \(state.limit)")
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.6))
+                Group {
+                    if state.hasLimit {
+                        Text("Limit \(state.limit)")
+                    } else if let avg = state.average {
+                        Text("\(avg) a day on average")
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.6))
             }
         }
         .padding(16)
@@ -120,22 +131,20 @@ struct FoldLockScreenView: View {
 }
 
 
-/// Téléphone posé : le chrono avance tout seul, et la barre se remplit jusqu'à la prochaine plante.
-struct PhoneDownLiveView: View {
+/// Téléphone fermé : le chrono avance tout seul.
+struct ClosedLiveView: View {
     let since: Date
-    let plantsToday: Int
     let today: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
-                Image(systemName: "leaf.fill")
-                Text("Phone down")
+                Image(systemName: "moon.zzz.fill")
+                Text("Closed for")
                     .font(.caption.weight(.semibold))
                 Spacer()
-                Text("\(plantsToday) plants today")
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.6))
+                Text(verbatim: "Foldly")
+                    .font(.caption.weight(.semibold))
             }
             .foregroundStyle(liveMint)
             HStack(alignment: .firstTextBaseline) {
@@ -148,14 +157,6 @@ struct PhoneDownLiveView: View {
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.6))
             }
-            ProgressView(timerInterval: since...since.addingTimeInterval(ClapetStats.plantMinutes * 60), countsDown: false) {
-                EmptyView()
-            } currentValueLabel: {
-                Text("Next plant")
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.6))
-            }
-            .tint(liveMint)
         }
         .padding(16)
     }

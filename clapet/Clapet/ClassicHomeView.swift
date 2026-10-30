@@ -53,7 +53,8 @@ struct ClassicHomeView: View {
     @State private var showAuto = false
     @State private var showAdjust = false
     @State private var showShare = false
-    @State private var showGarden = false
+    @State private var showWeek = false
+    @State private var weekHidden = false
     @State private var showWidgets = false
     @State private var widgets = InstalledWidgets.shared
     @State private var promoHidden = false
@@ -74,7 +75,15 @@ struct ClassicHomeView: View {
                 VStack(spacing: 14) {
                     if model.stats.autoLast == nil && !Demo.seeded { autoBanner }
                     today
-                    phoneDown
+                    if !weekHidden && WeekRecapRule.shouldShowCard(model.stats) {
+                        ClassicCard {
+                            WeekRecapPromo(recap: WeekRecapRule.current(model.stats)) { showWeek = true } onHide: {
+                                WeekRecapRule.markSeen(WeekRecapRule.current(model.stats))
+                                withAnimation { weekHidden = true }
+                            }
+                        }
+                    }
+                    closedTime
                     if !surveyHidden && SurveyRule.shouldShowCard(isTestBuild: store.isTestBuild) {
                         ClassicCard {
                             SurveyPromo { openURL(SurveyRule.url) } onHide: {
@@ -134,8 +143,8 @@ struct ClassicHomeView: View {
         .sheet(isPresented: $showAuto) {
             AutoCountView().environment(model)
         }
-        .sheet(isPresented: $showGarden) {
-            GardenView().environment(model)
+        .sheet(isPresented: $showWeek, onDismiss: { weekHidden = !WeekRecapRule.shouldShowCard(model.stats) }) {
+            WeekRecapView().environment(model)
         }
         .sheet(isPresented: $showWidgets) {
             WidgetsHelpView().environment(model).environment(store)
@@ -160,7 +169,7 @@ struct ClassicHomeView: View {
         .task { await runDemo() }
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
-            if url.host == "garden" { showGarden = true }
+            if url.host == "week" { showWeek = true }
             if SurveyRule.isAnswerLink(url) {
                 SurveyRule.markAnswered()
                 withAnimation { surveyHidden = true }
@@ -191,7 +200,7 @@ struct ClassicHomeView: View {
         case "history": showHistory = true
         case "widgets", "lock": showDemoWidgets = true
         case "plus": plusReason = .menu
-        case "garden": showGarden = true
+        case "week": showWeek = true
         case "widgetsGallery": showWidgets = true
         default: break
         }
@@ -216,20 +225,25 @@ struct ClassicHomeView: View {
 
     // MARK: Aujourd'hui
 
-    /// Vert d'eau sous la limite, orange à l'approche (80 %), rouge au-delà.
+    /// Sans limite : la couleur d'accent. Avec une limite : vert d'eau dessous, orange à l'approche (80 %), rouge au-delà.
     private var statusColor: Color {
         let s = model.stats
-        guard s.goal > 0 else { return .dfAccent }
-        if s.today > s.goal { return .dfOver }
-        if Double(s.today) >= 0.8 * Double(s.goal) { return .dfWarning }
+        let limit = s.activeLimit
+        guard limit > 0 else { return .dfAccent }
+        if s.today > limit { return .dfOver }
+        if Double(s.today) >= 0.8 * Double(limit) { return .dfWarning }
         return .dfAccent
     }
 
     private var status: Text {
-        let left = model.stats.left()
-        if left > 0 { return Text("\(left) left today") }
-        if left == 0 { return Text("Limit reached") }
-        return Text("\(-left) over the limit")
+        let s = model.stats
+        if s.goalOn {
+            let left = s.left()
+            if left > 0 { return Text("\(left) left today") }
+            if left == 0 { return Text("Limit reached") }
+            return Text("\(-left) over the limit")
+        }
+        return AverageText.status(today: s.today, average: s.averageRef())
     }
 
     private var today: some View {
@@ -308,7 +322,11 @@ struct ClassicHomeView: View {
             status
                 .font(.headline)
                 .foregroundStyle(statusColor)
-            stat(Text("Daily limit"), "\(model.stats.goal)")
+            if model.stats.goalOn {
+                stat(Text("Daily limit"), "\(model.stats.goal)")
+            } else {
+                stat(Text("Daily average"), model.stats.averageRef().map { "\($0)" } ?? "—")
+            }
             stat(Text("Yesterday"), "\(model.stats.yesterday())")
         }
     }
@@ -468,7 +486,7 @@ struct ClassicHomeView: View {
         ClassicCard {
             VStack(alignment: .leading, spacing: 12) {
                 ClassicCardTitle(Text("This week"), symbol: "chart.bar.fill")
-                ClapetWeekChart(days: model.stats.lastWeek(), goal: model.stats.goal)
+                ClapetWeekChart(days: model.stats.lastWeek(), goal: model.stats.activeLimit, average: model.stats.averageRef())
                     .frame(height: 150)
             }
         }
@@ -580,11 +598,11 @@ struct ClassicHomeView: View {
 
     // MARK: Historique et alertes
 
-    private var phoneDown: some View {
+    private var closedTime: some View {
         ClassicCard {
             VStack(alignment: .leading, spacing: 10) {
-                ClassicCardTitle(Text("Phone down"), symbol: "leaf.fill")
-                PhoneDownContent(stats: model.stats) { showGarden = true }
+                ClassicCardTitle(Text("Time closed"), symbol: "moon.zzz.fill")
+                ClosedTimeContent(stats: model.stats)
             }
         }
     }
@@ -623,13 +641,18 @@ struct ClassicHomeView: View {
                 if liveOn { LiveCounter.stop(); liveOn = false } else { liveOn = LiveCounter.start(model.stats) }
             }
             Divider().padding(.leading, 52)
+            row("chart.bar.doc.horizontal", Text("Weekly recap"), Text("Your week, compared with the week before"), locked: false) {
+                showWeek = true
+            }
+            Divider().padding(.leading, 52)
             row("calendar", Text("History"), Text("30 days, 12 months, records"), locked: !store.hasPlus) {
                 if store.hasPlus { showHistory = true } else { plusReason = .history }
             }
             Divider().padding(.leading, 52)
-            row("bell.badge", Text("Limit alerts"), model.alertsOn && store.hasPlus ? Text("On") : Text("At 80 % and 100 % of your limit"),
-                locked: !store.hasPlus) {
-                if store.hasPlus { showSettings = true } else { plusReason = .alerts }
+            row("target", Text("Daily limit"),
+                model.stats.goalOn ? Text("On: \(model.stats.goal) a day") : Text("Off: each day is compared with your average"),
+                locked: false) {
+                showSettings = true
             }
         }
         .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfCard))
@@ -675,10 +698,12 @@ struct ClassicHomeView: View {
     }
 }
 
-/// Les 7 derniers jours en barres : vert d'eau sous la limite, rouge au-dessus, la limite en pointillés.
+/// Les 7 derniers jours en barres. Avec une limite : rouge au-dessus, la limite en pointillés.
+/// Sans limite : la moyenne en pointillés.
 struct ClapetWeekChart: View {
     let days: [(date: Date, closes: Int)]
     let goal: Int
+    var average: Int? = nil
 
     var body: some View {
         Chart {
@@ -690,6 +715,10 @@ struct ClapetWeekChart: View {
             }
             if goal > 0 {
                 RuleMark(y: .value("Limit", goal))
+                    .foregroundStyle(Color.secondary)
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+            } else if let average, average > 0 {
+                RuleMark(y: .value("Average", average))
                     .foregroundStyle(Color.secondary)
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
             }
@@ -705,5 +734,15 @@ struct ClapetWeekChart: View {
                 AxisValueLabel()
             }
         }
+    }
+}
+
+/// Aujourd'hui comparé à la moyenne, quand la limite est désactivée.
+enum AverageText {
+    static func status(today: Int, average: Int?) -> Text {
+        guard let average else { return Text("Your average shows up tomorrow") }
+        if today < average { return Text("\(average - today) below your average") }
+        if today > average { return Text("\(today - average) above your average") }
+        return Text("Right on your average")
     }
 }

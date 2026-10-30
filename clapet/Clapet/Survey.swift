@@ -98,7 +98,7 @@ struct SurveyScreen: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.dfAccent)
-                .foregroundStyle(DFLook.current == .night ? Color.black : Color.white)
+                .foregroundStyle(Color.dfOnAccent)
                 Button(action: onLater) {
                     Text("Later")
                         .font(.subheadline.weight(.medium))
@@ -166,7 +166,7 @@ struct SurveyPromo: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(.dfAccent)
-            .foregroundStyle(DFLook.current == .night ? Color.black : Color.white)
+            .foregroundStyle(Color.dfOnAccent)
         }
     }
 }

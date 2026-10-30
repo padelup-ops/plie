@@ -46,10 +46,10 @@ struct ClapetProvider: TimelineProvider {
         s.hourly[9] = 3
         s.hourly[15] = 2
         s.lastClose = Date().addingTimeInterval(-27 * 60)
-        // Téléphone posé : 2 h 10 aujourd'hui, 5 plantes.
+        // Aujourd'hui : 2 h 10 fermé, 1 h 25 ouvert.
         var today = s.days[ClapetStats.key()] ?? DayCount()
         today.downSeconds = 130 * 60
-        today.plants = 5
+        today.openSeconds = 85 * 60
         s.days[ClapetStats.key()] = today
         return s
     }
@@ -64,12 +64,12 @@ struct ClapetWidget: Widget {
             ClapetWidgetView(entry: entry)
         }
         .configurationDisplayName(Text("Folds today"))
-        .description(Text("Your folds today, your daily limit and your week, like your steps in Health."))
+        .description(Text("Your folds today, compared with your average, and your week, like your steps in Health."))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }
 
-/// Le widget « Téléphone posé » : le temps fermé, l'objectif et le jardin.
+/// Le widget « Ouvert / fermé » : le temps passé ouvert et fermé aujourd'hui (type inchangé pour les widgets déjà installés).
 struct PhoneDownWidget: Widget {
     let kind = "FoldlyPhoneDown"
 
@@ -77,8 +77,8 @@ struct PhoneDownWidget: Widget {
         StaticConfiguration(kind: kind, provider: ClapetProvider()) { entry in
             PhoneDownWidgetView(entry: entry)
         }
-        .configurationDisplayName(Text("Phone down"))
-        .description(Text("Time with your phone closed today, and the plants growing in your garden."))
+        .configurationDisplayName(Text("Open & closed"))
+        .description(Text("How long your phone stayed open and closed today, with a timer on the Lock Screen."))
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }

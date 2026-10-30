@@ -33,8 +33,8 @@ struct PlusView: View {
                     }
                     VStack(alignment: .leading, spacing: 16) {
                         perk("rectangle.3.group", Text("Every widget"), Text("The big Health-style widget, the medium one and the Lock Screen ones: your folds at a glance."))
-                        perk("bell.badge", Text("Limit alerts"), Text("A notification at 80 % and at 100 % of your daily limit."))
-                        perk("calendar", Text("Your full history"), Text("30 days, 12 months, the calendar of days under your limit, your trends and records."))
+                        perk("bell.badge", Text("Limit alerts"), Text("If you set a daily limit: a notification at 80 % and at 100 %."))
+                        perk("calendar", Text("Your full history"), Text("30 days, 12 months, the calendar of your days, your trends and records."))
                         perk("paintpalette", Text("Widget colors"), Text("Five colors for your widgets."))
                         perk("square.and.arrow.up", Text("Export"), Text("Your history as a spreadsheet (CSV)."))
                     }
@@ -78,7 +78,7 @@ struct PlusView: View {
                             .foregroundStyle(Color.dfWarning)
                             .multilineTextAlignment(.center)
                     }
-                    Text("One-time purchase, linked to your Apple Account. Counting, the daily limit, the week, the milestones and the small widget stay free.")
+                    Text("One-time purchase, linked to your Apple Account. Counting, the weekly recap, the week, the milestones and the small widget stay free.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)

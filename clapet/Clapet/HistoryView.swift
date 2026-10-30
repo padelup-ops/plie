@@ -134,7 +134,7 @@ struct HistoryView: View {
                     } else {
                         let i = cell - lead
                         let v = values[i]
-                        let over = model.stats.goal > 0 && v > model.stats.goal
+                        let over = model.stats.activeLimit > 0 && v > model.stats.activeLimit
                         ZStack {
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
                                 .fill(v == 0 ? Color.dfFill : (over ? Color.dfOver : mint).opacity(0.25 + 0.75 * Double(v) / Double(top)))
@@ -148,14 +148,20 @@ struct HistoryView: View {
                     }
                 }
             }
-            HStack(spacing: 14) {
-                HStack(spacing: 4) {
-                    RoundedRectangle(cornerRadius: 3).fill(mint).frame(width: 12, height: 12)
-                    Text("Under the limit")
-                }
-                HStack(spacing: 4) {
-                    RoundedRectangle(cornerRadius: 3).fill(Color.dfOver).frame(width: 12, height: 12)
-                    Text("Over the limit")
+            Group {
+                if model.stats.goalOn {
+                    HStack(spacing: 14) {
+                        HStack(spacing: 4) {
+                            RoundedRectangle(cornerRadius: 3).fill(mint).frame(width: 12, height: 12)
+                            Text("Under the limit")
+                        }
+                        HStack(spacing: 4) {
+                            RoundedRectangle(cornerRadius: 3).fill(Color.dfOver).frame(width: 12, height: 12)
+                            Text("Over the limit")
+                        }
+                    }
+                } else {
+                    Text("The darker the day, the more folds.")
                 }
             }
             .font(.system(.caption, weight: .semibold))
@@ -180,14 +186,21 @@ struct HistoryView: View {
         let change = s.weekChange()
         let dateStyle = Date.FormatStyle.dateTime.day().month(.abbreviated)
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-            record("flame.fill", mint, "\(s.currentStreak())", Text("Days under the limit in a row"), nil)
-            record("crown.fill", .dfWarning, "\(s.longestStreak())", Text("Longest streak"), nil)
+            if s.goalOn {
+                record("flame.fill", mint, "\(s.currentStreak())", Text("Days under the limit in a row"), nil)
+                record("crown.fill", .dfWarning, "\(s.longestStreak())", Text("Longest streak"), nil)
+            } else {
+                let closedDays = s.lastDays(30).map { s.closedTime($0.date) }.filter { $0 > 0 }
+                let closedAverage = closedDays.isEmpty ? 0 : closedDays.reduce(0, +) / Double(closedDays.count)
+                record("moon.zzz.fill", mint, closedDays.isEmpty ? "–" : TimeFormat.short(closedAverage), Text("Closed per day (30 days)"), nil)
+                record("eye.fill", .dfWarning, "\(s.lastDays(30).reduce(0) { $0 + s.peeks($1.date) })", Text("Quick checks (30 days)"), nil)
+            }
             record(change.map { $0 <= 0 ? "chart.line.downtrend.xyaxis" : "chart.line.uptrend.xyaxis" } ?? "chart.line.flattrend.xyaxis",
-                   change.map { $0 <= 0 ? mint : Color.dfOver } ?? .secondary,
+                   change.map { $0 <= 0 || !s.goalOn ? mint : Color.dfOver } ?? .secondary,
                    change.map { $0.formatted(.percent.precision(.fractionLength(0)).sign(strategy: .always(includingZero: false))) } ?? "–",
                    Text("This week vs last week"), nil)
             record("chart.line.flattrend.xyaxis", .dfAccent, s.dailyAverage().formatted(.number.precision(.fractionLength(0...1))), Text("Average per day"), nil)
-            record("leaf.fill", mint, "\(calmest?.closes ?? 0)", Text("Calmest day"), calmest.map { Text($0.date, format: dateStyle) })
+            record("arrow.down.circle.fill", mint, "\(calmest?.closes ?? 0)", Text("Calmest day"), calmest.map { Text($0.date, format: dateStyle) })
             record("chart.bar.fill", .dfOver, "\(busiest?.closes ?? 0)", Text("Busiest day"), busiest.map { Text($0.date, format: dateStyle) })
             record("clock.fill", .dfWarning, "\(s.recordHour)", Text("Busiest hour"), nil)
             record("calendar.badge.checkmark", .secondary, "\(s.daysCounted)", Text("Days tracked"), nil)

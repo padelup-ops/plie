@@ -134,7 +134,7 @@ struct WidgetsPromo: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Put Foldly on your Home Screen")
                         .font(.headline)
-                    Text("Your folds and your phone-down time at a glance, without opening the app.")
+                    Text("Your folds and your time open and closed at a glance, without opening the app.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -168,7 +168,7 @@ struct WidgetsPromo: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(.dfAccent)
-            .foregroundStyle(DFLook.current == .night ? Color.black : Color.white)
+            .foregroundStyle(Color.dfOnAccent)
         }
     }
 }
@@ -219,7 +219,7 @@ struct WidgetsHelpView: View {
                     .pickerStyle(.segmented)
 
                     if place == .home {
-                        section(Text("Folds today"), Text("Your folds, your daily limit and your week."), symbol: "rectangle.compress.vertical") {
+                        section(Text("Folds today"), Text("Your folds, compared with your average, and your week."), symbol: "rectangle.compress.vertical") {
                             WidgetThumb(kind: .folds, family: .systemSmall, entry: entry)
                             FitWidth(size: WidgetThumb.size(.systemMedium)) { k in
                                 WidgetThumb(kind: .folds, family: .systemMedium, entry: entry, scale: k)
@@ -228,7 +228,7 @@ struct WidgetsHelpView: View {
                                 WidgetThumb(kind: .folds, family: .systemLarge, entry: entry, scale: k)
                             }
                         }
-                        section(Text("Phone down"), Text("Time with your phone closed today, and the plants growing in your garden."), symbol: "leaf.fill") {
+                        section(Text("Open & closed"), Text("How long your phone stayed open and closed today."), symbol: "moon.zzz.fill") {
                             WidgetThumb(kind: .phoneDown, family: .systemSmall, entry: entry)
                             FitWidth(size: WidgetThumb.size(.systemMedium)) { k in
                                 WidgetThumb(kind: .phoneDown, family: .systemMedium, entry: entry, scale: k)
@@ -237,7 +237,7 @@ struct WidgetsHelpView: View {
                     } else {
                         VStack(alignment: .leading, spacing: 12) {
                             LockScreenMock(entry: entry)
-                            Text("They show on the outer screen too, when your phone is closed: a timer runs while it stays down.")
+                            Text("They show on the outer screen too, when your phone is closed: a timer shows how long it has been closed.")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -331,7 +331,7 @@ struct WidgetsHelpView: View {
             } else {
                 step(1, Text("Touch and hold your Lock Screen, then tap Customize."))
                 step(2, Text("Tap Lock Screen, then the area under the clock."))
-                step(3, Text("Pick Foldly: Folds today or Phone down."))
+                step(3, Text("Pick Foldly: Folds today or Open & closed."))
             }
         }
     }
@@ -341,7 +341,7 @@ struct WidgetsHelpView: View {
             Text(verbatim: "\(n)")
                 .font(.subheadline.weight(.bold))
                 .monospacedDigit()
-                .foregroundStyle(DFLook.current == .night ? Color.black : Color.white)
+                .foregroundStyle(Color.dfOnAccent)
                 .frame(width: 26, height: 26)
                 .background(Circle().fill(Color.dfAccent))
                 .accessibilityHidden(true)

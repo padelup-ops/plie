@@ -37,14 +37,16 @@ struct ShareCard: View {
                     .foregroundStyle(.white.opacity(0.7))
             }
             Group {
-                if stats.goal > 0 && left >= 0 {
+                if stats.goalOn && left >= 0 {
                     Text("Under my daily limit of \(stats.goal) 🎯")
-                } else if stats.goal > 0 {
+                } else if stats.goalOn {
                     Text("\(-left) over my daily limit")
+                } else if let avg = stats.averageRef(now: date) {
+                    Text("My average: \(avg) a day")
                 }
             }
             .font(.system(size: 16, weight: .semibold))
-            .foregroundStyle(left >= 0 ? mint : over)
+            .foregroundStyle(stats.goalOn && left < 0 ? over : mint)
             Spacer(minLength: 18)
             HStack(alignment: .bottom, spacing: 8) {
                 ForEach(0..<week.count, id: \.self) { i in
@@ -106,7 +108,7 @@ struct ShareDaySheet: View {
                                 .frame(maxWidth: 320)
                                 .padding(.vertical, 14)
                                 .background(Capsule().fill(Color.dfAccent))
-                                .foregroundStyle(.black)
+                                .foregroundStyle(Color.dfOnAccent)
                         }
                     } else {
                         ProgressView()

@@ -76,14 +76,22 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• A 1-minute survey: tell us which feature Foldly should get next (blocking distracting apps when you go over your limit, a bedtime, rare plants to collect, a weekly recap…). It shows up when you open the app, and you can always answer later.
+• Foldly is now all about your numbers: no more plants, and no limit by default. Each day is compared with your own average.
+• NEW Weekly recap: at the end of each week, your folds compared with the week before, time open and closed, your busiest and calmest days, and a card to share.
+• NEW Minimal theme: just your numbers, black on white (or white on black). Settings > Theme.
+• The "Phone down" widget becomes "Open & closed": time open and closed today, with a timer on the Lock Screen.
+• The daily limit is still there if you want one: Settings > Daily limit.
 
-Please test: answer the survey. It's 6 questions and it decides what we build next. Then keep using the widgets and the plant challenge.""",
+Please test: try the Minimal theme, and open your weekly recap (Weekly recap in the menu).""",
     "fr-FR": """Nouveautés de ce build :
 
-• Un sondage d'1 minute : dis-nous quelle nouveauté Foldly doit avoir en premier (bloquer les applis qui font perdre du temps quand tu dépasses ta limite, une heure de coucher, des plantes rares à collectionner, un bilan de la semaine…). Il s'affiche à l'ouverture de l'app, et tu peux toujours répondre plus tard.
+• Foldly se concentre sur tes chiffres : plus de plantes, et plus de limite par défaut. Chaque journée est comparée à ta propre moyenne.
+• NOUVEAU Bilan de la semaine : à la fin de chaque semaine, tes plis comparés à la semaine d'avant, ton temps ouvert et fermé, ton jour le plus chargé et le plus calme, et une carte à partager.
+• NOUVEAU thème Épuré : juste tes chiffres, noir sur blanc (ou blanc sur noir). Réglages > Thème.
+• Le widget « Téléphone posé » devient « Ouvert / fermé » : ton temps ouvert et fermé aujourd'hui, avec un chrono sur l'écran verrouillé.
+• La limite du jour existe toujours si tu en veux une : Réglages > Limite du jour.
 
-À tester : réponds au sondage : 6 questions, et c'est lui qui décide de la suite. Puis continue avec les widgets et le défi des plantes.""",
+À tester : essaie le thème Épuré, et ouvre ton bilan de la semaine (Bilan de la semaine dans le menu).""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

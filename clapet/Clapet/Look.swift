@@ -5,10 +5,11 @@ import UIKit
 //
 // « Classique » : comme l'app Santé, clair ou sombre selon l'iPhone.
 // « Moderne » : sombre, grands chiffres, jauge, onglets Aujourd'hui / Semaine.
+// « Épuré » : noir sur blanc (ou blanc sur noir), un grand chiffre fin, aucune carte ni couleur.
 // Choisi au premier lancement, modifiable dans les Réglages.
 
 enum DFLook: String, CaseIterable, Identifiable {
-    case classic, night
+    case classic, night, minimal
 
     var id: String { rawValue }
 
@@ -20,6 +21,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         switch self {
         case .classic: return Text("Classic")
         case .night: return Text("Modern")
+        case .minimal: return Text("Minimal")
         }
     }
 
@@ -27,6 +29,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         switch self {
         case .classic: return Text("Cards and a ring, like the Health app")
         case .night: return Text("Big numbers, hinge gauge, Today and Week tabs")
+        case .minimal: return Text("Just your numbers, nothing else")
         }
     }
 }
@@ -34,15 +37,39 @@ enum DFLook: String, CaseIterable, Identifiable {
 /// Les couleurs suivent le look choisi.
 extension Color {
     private static var night: Bool { DFLook.current == .night }
+    private static var minimal: Bool { DFLook.current == .minimal }
 
-    static var dfAccent: Color { night ? Color(red: 0.36, green: 0.89, blue: 0.78) : Color.accentColor }
-    static var dfBackground: Color { night ? Color(red: 0.055, green: 0.078, blue: 0.078) : Color(uiColor: .systemGroupedBackground) }
-    static var dfCard: Color { night ? Color(red: 0.135, green: 0.16, blue: 0.157) : Color(uiColor: .secondarySystemGroupedBackground) }
-    static var dfFill: Color { night ? Color.white.opacity(0.08) : Color(uiColor: .tertiarySystemFill) }
-    static var dfOutline: Color { night ? Color.white.opacity(0.17) : Color(uiColor: .separator) }
-    static var dfBar: Color { night ? Color(red: 0.08, green: 0.36, blue: 0.32) : Color.accentColor.opacity(0.55) }
+    static var dfAccent: Color {
+        if minimal { return Color.primary }
+        return night ? Color(red: 0.36, green: 0.89, blue: 0.78) : Color.accentColor
+    }
+    static var dfBackground: Color {
+        if minimal { return Color(uiColor: .systemBackground) }
+        return night ? Color(red: 0.055, green: 0.078, blue: 0.078) : Color(uiColor: .systemGroupedBackground)
+    }
+    static var dfCard: Color {
+        if minimal { return Color(uiColor: .secondarySystemBackground) }
+        return night ? Color(red: 0.135, green: 0.16, blue: 0.157) : Color(uiColor: .secondarySystemGroupedBackground)
+    }
+    static var dfFill: Color {
+        if minimal { return Color.primary.opacity(0.08) }
+        return night ? Color.white.opacity(0.08) : Color(uiColor: .tertiarySystemFill)
+    }
+    static var dfOutline: Color {
+        if minimal { return Color.primary.opacity(0.14) }
+        return night ? Color.white.opacity(0.17) : Color(uiColor: .separator)
+    }
+    static var dfBar: Color {
+        if minimal { return Color.primary.opacity(0.22) }
+        return night ? Color(red: 0.08, green: 0.36, blue: 0.32) : Color.accentColor.opacity(0.55)
+    }
     static var dfWarning: Color { night ? Color(red: 1.0, green: 0.71, blue: 0.36) : Color.orange }
     static var dfOver: Color { night ? Color(red: 1.0, green: 0.45, blue: 0.42) : Color.red }
+    /// Le texte posé sur la couleur d'accent (boutons pleins).
+    static var dfOnAccent: Color {
+        if minimal { return Color(uiColor: .systemBackground) }
+        return night ? Color.black : Color.white
+    }
 }
 
 /// L'écran principal, dans le look choisi.
@@ -50,8 +77,6 @@ struct ContentView: View {
     @Environment(ClapetModel.self) private var model
     @AppStorage(DFLook.key) private var lookRaw = ""
     @State private var askLook = false
-    @State private var pause = PauseCenter.shared
-    @State private var newBadges: BadgeBatch?
     @Environment(ClapetStore.self) private var store
     @Environment(\.openURL) private var openURL
     @State private var showSurvey = false
@@ -62,6 +87,7 @@ struct ContentView: View {
             switch look {
             case .classic: ClassicHomeView()
             case .night: NightHomeView()
+            case .minimal: MinimalHomeView()
             }
         }
         .preferredColorScheme(look == .night ? .dark : nil)
@@ -69,11 +95,8 @@ struct ContentView: View {
             // Première ouverture : on propose de choisir (pas pendant le tournage des vidéos).
             if lookRaw.isEmpty && !Demo.seeded && Demo.screen == nil { askLook = true }
         }
-        .fullScreenCover(isPresented: Binding(get: { pause.pending }, set: { pause.pending = $0 })) {
-            PauseView().environment(model)
-        }
         // Bêta : « Ton avis en 1 minute », une fois par jour au plus, tant que le testeur n'a pas répondu.
-        .fullScreenCover(isPresented: $showSurvey, onDismiss: { checkBadges() }) {
+        .fullScreenCover(isPresented: $showSurvey) {
             SurveyScreen {
                 showSurvey = false
                 openURL(SurveyRule.url)
@@ -84,54 +107,27 @@ struct ContentView: View {
         .sheet(isPresented: $askLook, onDismiss: {
             if lookRaw.isEmpty { lookRaw = DFLook.classic.rawValue }
             checkSurvey()
-            checkBadges()
         }) {
             LookPickerView()
                 .presentationDetents([.medium, .large])
         }
-        // Un badge gagné (jardin, objectif tenu, ouvertures évitées) : on le fête à l'ouverture.
-        .sheet(item: $newBadges) { batch in
-            BadgeUnlockedView(badges: batch.badges)
-                .presentationDetents([.medium, .large])
-        }
         .task {
-            // Tournage de la vidéo : la pause à l'ouverture, ou l'écran « Nouveau badge ! ».
-            if Demo.screen == "pause" || Demo.screen == "badge" {
-                try? await Task.sleep(nanoseconds: UInt64(Demo.delay * 1_000_000_000))
-                _ = Demo.markOrigin()
-                if Demo.screen == "pause" {
-                    pause.pending = true
-                } else {
-                    let ids = ["goal7", "plant100"]
-                    newBadges = BadgeBatch(badges: GardenBadges.all(model.stats).filter { ids.contains($0.id) })
-                }
-                return
-            }
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             checkSurvey()
-            checkBadges()
+            WeekRecapNotice.schedule(model.stats)
         }
-        .onChange(of: model.stats.totalPlants) { _, _ in checkBadges() }
-        .onChange(of: pause.pending) { _, pending in if !pending { checkBadges() } }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             InstalledWidgets.shared.refresh()
             checkSurvey()
-            checkBadges()
         }
     }
 
     private func checkSurvey() {
-        guard !askLook, !pause.pending, newBadges == nil, !showSurvey else { return }
+        guard !askLook, !showSurvey else { return }
         if SurveyRule.shouldPresent(isTestBuild: store.isTestBuild) {
             SurveyRule.markPresented()
             showSurvey = true
         }
-    }
-
-    private func checkBadges() {
-        guard !Demo.seeded, Demo.screen == nil, !askLook, !pause.pending, newBadges == nil, !showSurvey else { return }
-        let fresh = GardenBadges.newlyUnlocked(model.stats)
-        if !fresh.isEmpty { newBadges = BadgeBatch(badges: fresh) }
     }
 
     static func duration(_ t: TimeInterval) -> String { NightHomeView.duration(t) }
@@ -171,13 +167,13 @@ struct LookPickerView: View {
     }
 }
 
-/// Les deux looks côte à côte, avec un aperçu.
+/// Les looks côte à côte, avec un aperçu (deux colonnes sur l'écran extérieur).
 struct LookChoice: View {
     @Binding var lookRaw: String
 
     var body: some View {
         let current = DFLook(rawValue: lookRaw) ?? .classic
-        HStack(spacing: 14) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 12)], spacing: 12) {
             ForEach(DFLook.allCases) { look in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { lookRaw = look.rawValue }
@@ -185,6 +181,7 @@ struct LookChoice: View {
                     VStack(spacing: 8) {
                         LookThumbnail(look: look)
                             .frame(height: 120)
+                            .frame(maxWidth: .infinity)
                         look.title
                             .font(.headline)
                             .foregroundStyle(.primary)
@@ -195,7 +192,7 @@ struct LookChoice: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .padding(10)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color(uiColor: .secondarySystemBackground)))
                     .overlay(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
@@ -215,6 +212,42 @@ struct LookThumbnail: View {
     let look: DFLook
 
     var body: some View {
+        if look == .minimal {
+            minimalThumb
+        } else {
+            cardsThumb
+        }
+    }
+
+    /// Épuré : un grand chiffre fin, un trait, sept traits pour la semaine.
+    private var minimalThumb: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color(uiColor: .systemBackground))
+            RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.12), lineWidth: 1)
+            VStack(spacing: 7) {
+                Text(verbatim: "12")
+                    .font(.system(size: 34, weight: .ultraLight))
+                    .foregroundStyle(Color.primary)
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.primary.opacity(0.12))
+                    Capsule().fill(Color.primary).frame(width: 30)
+                }
+                .frame(width: 52, height: 2)
+                HStack(alignment: .bottom, spacing: 4) {
+                    ForEach(0..<7, id: \.self) { i in
+                        Capsule()
+                            .fill(Color.primary.opacity(i == 6 ? 1 : 0.3))
+                            .frame(width: 2, height: CGFloat([14, 9, 8, 16, 9, 12, 6][i]))
+                    }
+                }
+                .frame(height: 16, alignment: .bottom)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    @ViewBuilder
+    private var cardsThumb: some View {
         let night = look == .night
         let background = night ? Color(red: 0.055, green: 0.078, blue: 0.078) : Color(uiColor: .systemGroupedBackground)
         let card = night ? Color(red: 0.135, green: 0.16, blue: 0.157) : Color(uiColor: .secondarySystemGroupedBackground)
