@@ -33,6 +33,7 @@ button:disabled{opacity:.6}
 <input type="hidden" name="langue" value="en">
 <input type="hidden" name="source" value="">
 <input type="hidden" name="build" value="">
+<input type="hidden" name="version" value="2">
 <p class="hidden"><label>Leave empty <input name="piege"></label></p>
 
 <fieldset><legend>1. How often do you open Foldly?</legend>
@@ -43,27 +44,32 @@ button:disabled{opacity:.6}
 </fieldset>
 
 <fieldset><legend>2. What's most useful to you today?<small>Pick as many as you like</small></legend>
-<label class="opt"><input type="checkbox" name="utile" value="compteur"> The unfold counter</label>
+<label class="opt"><input type="checkbox" name="utile" value="compteur"> The fold counter</label>
+<label class="opt"><input type="checkbox" name="utile" value="temps-ouvert-ferme"> Open and closed time</label>
+<label class="opt"><input type="checkbox" name="utile" value="bilan-semaine"> The weekly recap</label>
+<label class="opt"><input type="checkbox" name="utile" value="widgets"> The widgets (Home Screen, Lock Screen, StandBy)</label>
+<label class="opt"><input type="checkbox" name="utile" value="activite-direct"> The live count on the Lock Screen and the outer display</label>
 <label class="opt"><input type="checkbox" name="utile" value="limite"> The daily limit</label>
-<label class="opt"><input type="checkbox" name="utile" value="plantes"> Plants growing while the phone stays closed</label>
-<label class="opt"><input type="checkbox" name="utile" value="badges"> Badges</label>
-<label class="opt"><input type="checkbox" name="utile" value="widgets"> Widgets</label>
+<label class="opt"><input type="checkbox" name="utile" value="comptage-auto"> Automatic counting (Shortcuts)</label>
 </fieldset>
 
 <fieldset><legend>3. Which new feature do you want first?<small>Pick one</small></legend>
-<label class="opt"><input type="radio" name="priorite" value="bloquer-applis" required> Block my apps (TikTok, Instagram…) when I go over my limit</label>
-<label class="opt"><input type="radio" name="priorite" value="grand-ecran-sans-reseaux"> A big screen without social media: they stay on the cover screen</label>
+<label class="opt"><input type="radio" name="priorite" value="heures" required> My hours: what time of day I unfold the most</label>
+<label class="opt"><input type="radio" name="priorite" value="bilan-mois"> A monthly recap, on top of the weekly one</label>
+<label class="opt"><input type="radio" name="priorite" value="objectif-ferme"> Closed-time challenges (for example 1 hour without unfolding)</label>
 <label class="opt"><input type="radio" name="priorite" value="heure-coucher"> A bedtime: after it, my phone reminds me</label>
-<label class="opt"><input type="radio" name="priorite" value="herbier"> A plant book with rare plants to collect</label>
-<label class="opt"><input type="radio" name="priorite" value="bilan-dimanche"> A recap of my week every Sunday</label>
+<label class="opt"><input type="radio" name="priorite" value="montre"> My count on Apple Watch</label>
+<label class="opt"><input type="radio" name="priorite" value="widgets"> More widgets and colors</label>
 <label class="opt"><input type="radio" name="priorite" value="autre" id="autre"> Something else</label>
 <input type="text" id="autre-texte" name="priorite-autre" placeholder="What would it be?" maxlength="300">
 </fieldset>
 
-<fieldset><legend>4. Would you pay €4.99 once for Foldly+?<small>Foldly+: every widget, limit alerts, full history, colors and export</small></legend>
-<label class="opt"><input type="radio" name="prix" value="oui"> Yes</label>
-<label class="opt"><input type="radio" name="prix" value="peut-etre"> Maybe</label>
-<label class="opt"><input type="radio" name="prix" value="non"> No</label>
+<fieldset><legend>4. What feels like a fair one-time price for Foldly+?<small>Foldly+: every widget, full history, colors, export and limit alerts</small></legend>
+<label class="opt"><input type="radio" name="prix" value="0,99"> €0.99</label>
+<label class="opt"><input type="radio" name="prix" value="1,99"> €1.99</label>
+<label class="opt"><input type="radio" name="prix" value="2,99"> €2.99</label>
+<label class="opt"><input type="radio" name="prix" value="4,99"> €4.99</label>
+<label class="opt"><input type="radio" name="prix" value="non"> I wouldn't pay</label>
 </fieldset>
 
 <fieldset><legend>5. A bug, or something that annoys you?</legend>
@@ -79,7 +85,7 @@ button:disabled{opacity:.6}
 <p class="note">Your answers are only used to improve Foldly. They're anonymous unless you leave your email. <a href="privacy.html">Privacy</a></p>
 </form>
 
-<div id="merci" class="hidden"><h2>Thank you 🌱</h2><p>Your answer was received. You can go back to Foldly.</p><p id="retour" class="hidden"><a class="btn" href="clapet://sondage-fait">Back to Foldly</a></p></div>
+<div id="merci" class="hidden"><h2>Thank you!</h2><p>Your answer was received. You can go back to Foldly.</p><p id="retour" class="hidden"><a class="btn" href="clapet://sondage-fait">Back to Foldly</a></p></div>
 </main>
 <script>
 (function(){

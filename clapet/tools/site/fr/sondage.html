@@ -33,6 +33,7 @@ button:disabled{opacity:.6}
 <input type="hidden" name="langue" value="fr">
 <input type="hidden" name="source" value="">
 <input type="hidden" name="build" value="">
+<input type="hidden" name="version" value="2">
 <p class="hidden"><label>Ne pas remplir <input name="piege"></label></p>
 
 <fieldset><legend>1. Tu ouvres Foldly combien de fois ?</legend>
@@ -43,27 +44,32 @@ button:disabled{opacity:.6}
 </fieldset>
 
 <fieldset><legend>2. Qu'est-ce qui t'est le plus utile aujourd'hui ?<small>Plusieurs réponses possibles</small></legend>
-<label class="opt"><input type="checkbox" name="utile" value="compteur"> Le compteur de dépliages</label>
-<label class="opt"><input type="checkbox" name="utile" value="limite"> La limite par jour</label>
-<label class="opt"><input type="checkbox" name="utile" value="plantes"> Les plantes quand le téléphone est fermé</label>
-<label class="opt"><input type="checkbox" name="utile" value="badges"> Les badges</label>
-<label class="opt"><input type="checkbox" name="utile" value="widgets"> Les widgets</label>
+<label class="opt"><input type="checkbox" name="utile" value="compteur"> Le compteur de plis</label>
+<label class="opt"><input type="checkbox" name="utile" value="temps-ouvert-ferme"> Le temps ouvert et fermé</label>
+<label class="opt"><input type="checkbox" name="utile" value="bilan-semaine"> Le bilan de la semaine</label>
+<label class="opt"><input type="checkbox" name="utile" value="widgets"> Les widgets (accueil, écran verrouillé, mode veille)</label>
+<label class="opt"><input type="checkbox" name="utile" value="activite-direct"> Le compteur en direct sur l'écran verrouillé et l'écran extérieur</label>
+<label class="opt"><input type="checkbox" name="utile" value="limite"> La limite du jour</label>
+<label class="opt"><input type="checkbox" name="utile" value="comptage-auto"> Le comptage automatique (Raccourcis)</label>
 </fieldset>
 
 <fieldset><legend>3. Quelle nouveauté veux-tu en premier ?<small>Une seule réponse</small></legend>
-<label class="opt"><input type="radio" name="priorite" value="bloquer-applis" required> Bloquer mes applis (TikTok, Instagram…) quand je dépasse ma limite</label>
-<label class="opt"><input type="radio" name="priorite" value="grand-ecran-sans-reseaux"> Le grand écran sans réseaux sociaux : ils restent sur l'écran extérieur</label>
+<label class="opt"><input type="radio" name="priorite" value="heures" required> Mes heures : à quel moment de la journée je déplie le plus</label>
+<label class="opt"><input type="radio" name="priorite" value="bilan-mois"> Un bilan du mois, en plus de celui de la semaine</label>
+<label class="opt"><input type="radio" name="priorite" value="objectif-ferme"> Des défis de temps fermé (par exemple 1 h sans déplier)</label>
 <label class="opt"><input type="radio" name="priorite" value="heure-coucher"> Une heure de coucher : après, le téléphone me le rappelle</label>
-<label class="opt"><input type="radio" name="priorite" value="herbier"> Un herbier avec des plantes rares à collectionner</label>
-<label class="opt"><input type="radio" name="priorite" value="bilan-dimanche"> Un bilan de ma semaine chaque dimanche</label>
+<label class="opt"><input type="radio" name="priorite" value="montre"> Mon compteur sur l'Apple Watch</label>
+<label class="opt"><input type="radio" name="priorite" value="widgets"> Plus de widgets et de couleurs</label>
 <label class="opt"><input type="radio" name="priorite" value="autre" id="autre"> Autre chose</label>
 <input type="text" id="autre-texte" name="priorite-autre" placeholder="Laquelle ?" maxlength="300">
 </fieldset>
 
-<fieldset><legend>4. Paierais-tu 4,99 € une seule fois pour Foldly+ ?<small>Foldly+ : tous les widgets, les alertes de limite, l'historique complet, les couleurs et l'export</small></legend>
-<label class="opt"><input type="radio" name="prix" value="oui"> Oui</label>
-<label class="opt"><input type="radio" name="prix" value="peut-etre"> Peut-être</label>
-<label class="opt"><input type="radio" name="prix" value="non"> Non</label>
+<fieldset><legend>4. Quel prix te paraît juste pour Foldly+, payé une seule fois ?<small>Foldly+ : tous les widgets, l'historique complet, les couleurs, l'export et les alertes de limite</small></legend>
+<label class="opt"><input type="radio" name="prix" value="0,99"> 0,99 €</label>
+<label class="opt"><input type="radio" name="prix" value="1,99"> 1,99 €</label>
+<label class="opt"><input type="radio" name="prix" value="2,99"> 2,99 €</label>
+<label class="opt"><input type="radio" name="prix" value="4,99"> 4,99 €</label>
+<label class="opt"><input type="radio" name="prix" value="non"> Je ne paierais pas</label>
 </fieldset>
 
 <fieldset><legend>5. Un bug, ou quelque chose qui t'énerve ?</legend>
@@ -79,7 +85,7 @@ button:disabled{opacity:.6}
 <p class="note">Tes réponses servent seulement à améliorer Foldly. Elles sont anonymes, sauf si tu laisses ton e-mail. <a href="privacy.html">Confidentialité</a></p>
 </form>
 
-<div id="merci" class="hidden"><h2>Merci 🌱</h2><p>Ta réponse est bien arrivée. Tu peux revenir dans Foldly.</p><p id="retour" class="hidden"><a class="btn" href="clapet://sondage-fait">Revenir dans Foldly</a></p></div>
+<div id="merci" class="hidden"><h2>Merci !</h2><p>Ta réponse est bien arrivée. Tu peux revenir dans Foldly.</p><p id="retour" class="hidden"><a class="btn" href="clapet://sondage-fait">Revenir dans Foldly</a></p></div>
 </main>
 <script>
 (function(){
