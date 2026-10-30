@@ -25,8 +25,8 @@ NAMES = {
 }
 SUBTITLE = {"en-US": "Keep your folds under control", "fr-FR": "Garde tes plis sous contrôle"}
 KEYWORDS = {
-    "en-US": "fold,hinge,counter,foldable,stats,widget,standby,desk,weekly,recap,tracker,habits,open,closed",
-    "fr-FR": "pli,charnière,compteur,pliable,statistiques,widget,veille,bureau,bilan,semaine,suivi,habitudes",
+    "en-US": "fold,hinge,counter,foldable,stats,widget,standby,weekly,recap,tracker,habits,open,closed",
+    "fr-FR": "pli,charnière,compteur,pliable,statistiques,widget,veille,bilan,semaine,suivi,habitudes",
 }
 PROMO = {
     "en-US": "How many times a day do you unfold your phone? Foldly counts every fold and shows your time open and closed, your week and your records.",
@@ -41,8 +41,7 @@ Keep Foldly on screen, on the inner or the outer display: every time you close y
 • Folds and opens today, the last 7 days and your total
 • Time open and time closed, every day
 • Weekly recap: your week compared with the week before, your busiest and calmest days, and a card to share
-• Desk mode: stand your phone in an L and see the time and your numbers, big
-• Widgets for the Home Screen, the Lock Screen and StandBy
+• Widgets for the Home Screen, the Lock Screen and StandBy: stand your phone folded in an L and see your numbers, big
 • Today hour by hour, your week hour by hour, and your lifetime milestones
 • Three themes: Classic, Modern and Minimal
 • Shortcuts actions "Count a fold" and "Count an opening", to count automatically, even when the app is closed
@@ -57,8 +56,7 @@ Garde Foldly à l'écran, sur l'écran intérieur ou extérieur : chaque fois qu
 • Fermetures et ouvertures du jour, les 7 derniers jours et ton total
 • Le temps ouvert et le temps fermé, chaque jour
 • Le bilan de la semaine : ta semaine comparée à la précédente, ton jour le plus chargé et le plus calme, et une image à partager
-• Le mode bureau : pose ton téléphone plié en L et vois l'heure et tes chiffres en grand
-• Des widgets pour l'écran d'accueil, l'écran verrouillé et le mode veille
+• Des widgets pour l'écran d'accueil, l'écran verrouillé et le mode veille : pose ton téléphone plié en L et vois tes chiffres en grand
 • Ta journée heure par heure, ta semaine heure par heure, et tes paliers depuis le début
 • Trois thèmes : Classique, Moderne et Épuré
 • Des actions Raccourcis « Compter un pli » et « Compter une ouverture », pour compter automatiquement, même app fermée

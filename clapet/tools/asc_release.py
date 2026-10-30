@@ -199,13 +199,11 @@ RELEASE_NOTES = {
         "en-US": "• Foldly is now free. Foldly+ is a one-time purchase, and it's already yours if you bought Foldly before.\n"
                  "• All about your numbers: each day is compared with your own average. The daily limit is optional.\n"
                  "• NEW Weekly recap: your week compared with the week before, your busiest and calmest days, and a card to share.\n"
-                 "• NEW Desk mode: stand your phone in an L to see the time and your numbers, big.\n"
-                 "• NEW Minimal theme, a new Open & closed widget, and widgets that look great in StandBy.",
+                 "• NEW Minimal theme, a new Open & closed widget, and widgets that show big in StandBy when your phone stands in an L.",
         "fr-FR": "• Foldly est maintenant gratuit. Foldly+ est un achat unique, et il est déjà à toi si tu avais acheté Foldly.\n"
                  "• Tout pour tes chiffres : chaque journée est comparée à ta propre moyenne. La limite du jour est facultative.\n"
                  "• NOUVEAU Bilan de la semaine : ta semaine comparée à la précédente, ton jour le plus chargé et le plus calme, et une image à partager.\n"
-                 "• NOUVEAU Mode bureau : pose ton téléphone plié en L pour voir l'heure et tes chiffres en grand.\n"
-                 "• NOUVEAU thème Épuré, un nouveau widget Ouvert / fermé, et des widgets qui s'affichent en grand en mode veille.",
+                 "• NOUVEAU thème Épuré, un nouveau widget Ouvert / fermé, et des widgets qui s'affichent en grand en mode veille quand ton téléphone est posé en L.",
     },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
