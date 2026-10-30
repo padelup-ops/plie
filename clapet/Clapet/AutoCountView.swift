@@ -48,22 +48,9 @@ struct AutoCountView: View {
                     step(4, Text("Tap **Next**, then add the action **Count a fold** (Foldly)."))
                     step(5, Text("Tap the action, open it with the little arrow and turn **Show When Run** off: nothing will show up, it counts silently."))
                     step(6, Text("Back in the list, check that the automation is **turned on**. iOS sometimes adds it switched off."))
-                    step(7, Text("Do it again with **Opened** and the action **Count an opening**: Foldly then also measures how long your phone stays open."))
+                    step(7, Text("Do it again with **Opened** and the action **Count an opening**: Foldly then also measures how long your phone stays open and closed."))
                 } header: {
                     Text("Or set it up by hand")
-                }
-
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label { Text("Want to unfold less?").font(.headline) } icon: { Image(systemName: "wind").foregroundStyle(Color.dfAccent) }
-                        Text("In your “Opened” automation, replace “Count an opening” with “Pause when opened”. Each time you open your phone, Foldly shows up for 3 seconds: breathe, then carry on or close it. Closing it counts as an unfold resisted, and the opening is still counted.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(.vertical, 4)
-                } header: {
-                    Text("Mindful pause (optional)")
                 }
 
                 Section {

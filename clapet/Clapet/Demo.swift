@@ -6,11 +6,12 @@ import WidgetKit
 // Arguments de lancement :
 //   -demoSeed 1             un historique réaliste (45 jours) au lieu des vrais chiffres
 //   -demoToday 44           les plis d'aujourd'hui au départ
-//   -demoLimit 60           la limite du jour
+//   -demoLimit 60           le niveau moyen de plis par jour (et la limite, si -demoGoalOn 1)
+//   -demoGoalOn 1           limite du jour activée
 //   -demoPlus 1             Foldly+ débloqué
 //   -demoHinge "t:a,t:a"    charnière simulée : à t secondes, angle a en degrés (interpolé entre deux)
 //   -demoDelay 2            secondes avant le temps zéro de la démo (écrit dans Documents/demo-origin.txt)
-//   -screen home|history|widgets|plus
+//   -screen home|history|widgets|plus|week
 //   -demoScroll "records@2.5"  fait défiler l'écran jusqu'à une section à cet instant
 
 enum Demo {
@@ -63,27 +64,27 @@ enum Demo {
         return now
     }
 
-    /// Un historique crédible : 45 jours autour de la limite, qui baisse doucement.
+    /// Un historique crédible : 45 jours autour d'un même niveau, qui baisse doucement.
     static func seed(_ stats: inout ClapetStats) {
         let limit = value("demoLimit").flatMap(Int.init) ?? 60
         let today = value("demoToday").flatMap(Int.init) ?? 44
         var s = ClapetStats()
         s.goal = limit
+        s.goalOn = value("demoGoalOn") == "1"
         let cal = Calendar.current
         let now = Date()
         var total = 1180
         let pattern = [1.1, 0.9, 1.0, 0.8, 1.15, 0.85, 0.75, 1.0, 0.88, 1.05, 0.8, 0.92, 1.12, 0.7]
         for back in (1...45).reversed() {
             guard let d = cal.date(byAdding: .day, value: -back, to: now) else { continue }
-            // Au début on dépasse souvent la limite, puis on reste en dessous : l'habitude change.
+            // Un peu plus au début, un peu moins ensuite : l'habitude change.
             let trend = 0.78 + Double(back) / 70.0
             let n = Int((Double(limit) * trend * pattern[back % pattern.count]).rounded())
             var day = DayCount(closes: n, opens: n + (back % 3))
-            // Téléphone posé : objectif (3 h) tenu les 9 derniers jours, plus irrégulier avant.
+            // Temps fermé et ouvert : une journée type.
             let hours = back <= 9 ? 3.4 + 0.25 * Double(back % 4) : 2.2 + 0.5 * pattern[back % pattern.count]
             day.downSeconds = hours * 3600
-            day.plants = Int(hours * 60 / 25 * 0.82)
-            day.resisted = back % 3
+            day.openSeconds = (2.1 + 0.3 * pattern[back % pattern.count]) * 3600
             day.peeks = 4 + back % 5
             day.longestBreak = 3600 * (1.2 + 0.1 * Double(back % 5))
             s.days[ClapetStats.key(d)] = day
@@ -91,13 +92,11 @@ enum Demo {
         }
         var day = DayCount(closes: today, opens: today)
         day.downSeconds = 2.6 * 3600
-        day.plants = 5
-        day.resisted = 2
+        day.openSeconds = 1.7 * 3600
         day.peeks = 6
         s.days[ClapetStats.key(now)] = day
-        // Une session en cours depuis 17 minutes : la prochaine plante pousse.
+        // Fermé depuis 17 minutes.
         s.autoLast = now.addingTimeInterval(-17 * 60)
-        s.downGoalMinutes = 180
         s.totalCloses = total + today
         s.totalOpens = s.totalCloses
         s.firstDay = cal.date(byAdding: .day, value: -45, to: now).map { ClapetStats.key($0) }

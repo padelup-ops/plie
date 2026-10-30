@@ -1,0 +1,103 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Foldly — Your feedback</title><link rel="icon" href="../icon.png"><style>
+:root{--bg:#f2f2f7;--card:#fff;--text:#111;--muted:#6b6b70;--accent:#179e78;--line:#e3e3e8;--chip:#f4f4f7}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1013;--card:#1b1d22;--text:#f2f2f2;--muted:#9a9aa2;--accent:#6ed6a6;--line:#2a2c33;--chip:#23262c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+header{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+header img{width:56px;height:56px;border-radius:13px}
+h1{font-size:26px;margin:0;letter-spacing:-.01em}.sub{color:var(--muted);margin:2px 0 0;font-size:16px}
+fieldset{background:var(--card);border:0;border-radius:18px;padding:18px 18px 14px;margin:12px 0}
+legend{float:left;width:100%;padding:0;font-weight:600;margin-bottom:10px}
+legend small{display:block;font-weight:400;color:var(--muted);font-size:14px}
+.opt{display:flex;align-items:center;gap:10px;background:var(--chip);border:1.5px solid transparent;border-radius:12px;padding:11px 12px;margin:7px 0;cursor:pointer}
+.opt:has(input:checked){border-color:var(--accent)}
+.opt input{accent-color:var(--accent);width:19px;height:19px;margin:0;flex:none}
+textarea,input[type=email],input[type=text]{width:100%;font:inherit;color:inherit;background:var(--chip);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px}
+textarea{min-height:96px;resize:vertical}
+textarea:focus,input:focus{outline:none;border-color:var(--accent)}
+#autre-texte{margin-top:4px;display:none}
+button{width:100%;font:inherit;font-weight:600;color:#fff;background:var(--accent);border:0;border-radius:14px;padding:15px;margin-top:8px;cursor:pointer}
+@media (prefers-color-scheme:dark){button{color:#0f1013}}
+button:disabled{opacity:.6}
+.note{color:var(--muted);font-size:14px;margin:14px 4px}
+.hidden{display:none}a{color:var(--accent)}
+#merci{background:var(--card);border-radius:18px;padding:26px 20px;text-align:center}
+#merci h2{margin:.2em 0}.btn{display:inline-block;margin-top:14px;padding:13px 22px;border-radius:14px;background:var(--accent);color:#fff;font-weight:600;text-decoration:none}@media (prefers-color-scheme:dark){.btn{color:#0f1013}}
+.err{color:#d0453a;font-size:15px;margin:8px 4px;display:none}
+</style></head><body><main>
+<header><img src="../icon.png" alt=""><div><h1>Your take on Foldly</h1><p class="sub">1 minute, 6 questions. It helps me decide what comes next.</p></div></header>
+
+<form id="f" name="sondage-beta" method="POST" action="thanks.html" data-netlify="true" netlify-honeypot="piege">
+<input type="hidden" name="form-name" value="sondage-beta">
+<input type="hidden" name="langue" value="en">
+<input type="hidden" name="source" value="">
+<input type="hidden" name="build" value="">
+<p class="hidden"><label>Leave empty <input name="piege"></label></p>
+
+<fieldset><legend>1. How often do you open Foldly?</legend>
+<label class="opt"><input type="radio" name="frequence" value="tous-les-jours" required> Every day</label>
+<label class="opt"><input type="radio" name="frequence" value="plusieurs-fois-par-semaine"> A few times a week</label>
+<label class="opt"><input type="radio" name="frequence" value="rarement"> Rarely</label>
+<label class="opt"><input type="radio" name="frequence" value="plus-du-tout"> I don't use it anymore</label>
+</fieldset>
+
+<fieldset><legend>2. What's most useful to you today?<small>Pick as many as you like</small></legend>
+<label class="opt"><input type="checkbox" name="utile" value="compteur"> The unfold counter</label>
+<label class="opt"><input type="checkbox" name="utile" value="limite"> The daily limit</label>
+<label class="opt"><input type="checkbox" name="utile" value="plantes"> Plants growing while the phone stays closed</label>
+<label class="opt"><input type="checkbox" name="utile" value="badges"> Badges</label>
+<label class="opt"><input type="checkbox" name="utile" value="widgets"> Widgets</label>
+</fieldset>
+
+<fieldset><legend>3. Which new feature do you want first?<small>Pick one</small></legend>
+<label class="opt"><input type="radio" name="priorite" value="bloquer-applis" required> Block my apps (TikTok, Instagram…) when I go over my limit</label>
+<label class="opt"><input type="radio" name="priorite" value="grand-ecran-sans-reseaux"> A big screen without social media: they stay on the cover screen</label>
+<label class="opt"><input type="radio" name="priorite" value="heure-coucher"> A bedtime: after it, my phone reminds me</label>
+<label class="opt"><input type="radio" name="priorite" value="herbier"> A plant book with rare plants to collect</label>
+<label class="opt"><input type="radio" name="priorite" value="bilan-dimanche"> A recap of my week every Sunday</label>
+<label class="opt"><input type="radio" name="priorite" value="autre" id="autre"> Something else</label>
+<input type="text" id="autre-texte" name="priorite-autre" placeholder="What would it be?" maxlength="300">
+</fieldset>
+
+<fieldset><legend>4. Would you pay €4.99 once for Foldly+?<small>Foldly+: every widget, limit alerts, full history, colors and export</small></legend>
+<label class="opt"><input type="radio" name="prix" value="oui"> Yes</label>
+<label class="opt"><input type="radio" name="prix" value="peut-etre"> Maybe</label>
+<label class="opt"><input type="radio" name="prix" value="non"> No</label>
+</fieldset>
+
+<fieldset><legend>5. A bug, or something that annoys you?</legend>
+<textarea name="probleme" maxlength="2000" placeholder="Optional"></textarea>
+</fieldset>
+
+<fieldset><legend>6. Your email, if you'd like a reply<small>Optional</small></legend>
+<input type="email" name="email" autocomplete="email" placeholder="you@example.com" maxlength="200">
+</fieldset>
+
+<p class="err" id="err">Sending failed. Check your connection and try again.</p>
+<button type="submit" id="go">Send</button>
+<p class="note">Your answers are only used to improve Foldly. They're anonymous unless you leave your email. <a href="privacy.html">Privacy</a></p>
+</form>
+
+<div id="merci" class="hidden"><h2>Thank you 🌱</h2><p>Your answer was received. You can go back to Foldly.</p><p id="retour" class="hidden"><a class="btn" href="clapet://sondage-fait">Back to Foldly</a></p></div>
+</main>
+<script>
+(function(){
+  var f=document.getElementById('f'),q=new URLSearchParams(location.search);
+  f.source.value=q.get('src')||'web'; f.build.value=q.get('build')||'';
+  var autre=document.getElementById('autre'),txt=document.getElementById('autre-texte');
+  f.addEventListener('change',function(){txt.style.display=autre.checked?'block':'none'});
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var d=new FormData(f),body=new URLSearchParams();
+    var multi={};
+    d.forEach(function(v,k){ if(k==='utile'){(multi[k]=multi[k]||[]).push(v)} else body.append(k,v) });
+    body.append('utile',(multi.utile||[]).join(', '));
+    var go=document.getElementById('go'); go.disabled=true; document.getElementById('err').style.display='none';
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()})
+      .then(function(r){ if(!r.ok) throw r; f.classList.add('hidden'); document.getElementById('merci').classList.remove('hidden'); scrollTo(0,0); if(f.source.value==='app'){ document.getElementById('retour').classList.remove('hidden'); setTimeout(function(){ location.href='clapet://sondage-fait' },800) } })
+      .catch(function(){ go.disabled=false; document.getElementById('err').style.display='block' });
+  });
+})();
+</script>
+</body></html>

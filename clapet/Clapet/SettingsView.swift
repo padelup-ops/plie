@@ -11,6 +11,8 @@ struct SettingsView: View {
     @AppStorage(DFLook.key) private var lookRaw = ""
     @State private var liveOn = LiveCounter.isOn
     @State private var eveningOn = EveningSummary.isOn
+    @State private var weekOn = WeekRecapNotice.isOn
+    @State private var notificationsDenied = false
     @State private var liveDenied = false
 
     var body: some View {
@@ -79,43 +81,61 @@ struct SettingsView: View {
                     Text("Widget color")
                 }
                 Section {
-                    Stepper(value: Binding(get: { model.stats.goal }, set: { model.setGoal($0) }), in: 10...2000, step: 10) {
-                        Text("Daily limit: \(model.stats.goal)")
+                    Toggle(isOn: Binding(get: { model.stats.goalOn }, set: { model.setGoalOn($0) })) {
+                        Text("Daily limit")
                     }
-                    Toggle(isOn: Binding(get: { model.alertsOn && store.hasPlus }, set: { on in
-                        guard store.hasPlus else { showPlus = true; return }
-                        Task { if !(await model.setAlerts(on)) { alertsDenied = true } }
-                    })) {
-                        HStack(spacing: 6) {
-                            Text("Limit alerts")
-                            if !store.hasPlus { PlusBadge() }
+                    if model.stats.goalOn {
+                        Stepper(value: Binding(get: { model.stats.goal }, set: { model.setGoal($0) }), in: 10...2000, step: 10) {
+                            Text("Limit: \(model.stats.goal) a day")
+                        }
+                        Toggle(isOn: Binding(get: { model.alertsOn && store.hasPlus }, set: { on in
+                            guard store.hasPlus else { showPlus = true; return }
+                            Task { if !(await model.setAlerts(on)) { alertsDenied = true } }
+                        })) {
+                            HStack(spacing: 6) {
+                                Text("Limit alerts")
+                                if !store.hasPlus { PlusBadge() }
+                            }
                         }
                     }
                 } header: {
                     Text("Daily limit")
                 } footer: {
-                    if alertsDenied {
+                    if !model.stats.goalOn {
+                        Text("Off: Foldly compares each day with your average. Turn it on to set a limit of your own.")
+                    } else if alertsDenied {
                         Text("Notifications are off for Foldly. Turn them on in the Settings app.")
                     } else {
                         Text("A notification at 80 % and at 100 % of your limit.")
                     }
                 }
                 Section {
-                    Stepper(value: Binding(get: { model.stats.downGoalMinutes }, set: { model.setDownGoal($0) }), in: 30...720, step: 30) {
-                        Text("Daily goal: \(PhoneDownContent.format(Double(model.stats.downGoalMinutes) * 60))")
+                    Toggle(isOn: Binding(get: { weekOn }, set: { on in
+                        Task {
+                            let ok = await WeekRecapNotice.setOn(on)
+                            weekOn = ok && on
+                            notificationsDenied = on && !ok
+                        }
+                    })) {
+                        Text("Weekly recap")
                     }
                     Toggle(isOn: Binding(get: { eveningOn }, set: { on in
                         Task {
                             let ok = await EveningSummary.setOn(on, stats: model.stats)
                             eveningOn = ok && on
+                            notificationsDenied = on && !ok
                         }
                     })) {
                         Text("Evening summary (9:30 pm)")
                     }
                 } header: {
-                    Text("Phone down")
+                    Text("Summaries")
                 } footer: {
-                    Text("Time with your phone closed counts toward the goal, and every 25 minutes in a row grows a plant.")
+                    if notificationsDenied {
+                        Text("Notifications are off for Foldly. Turn them on in the Settings app.")
+                    } else {
+                        Text("The weekly recap arrives on the last day of the week at 7 pm. The evening summary gives your folds and your time open and closed.")
+                    }
                 }
                 Section {
                     Toggle(isOn: Binding(get: { liveOn }, set: { on in

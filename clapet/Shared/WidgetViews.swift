@@ -171,7 +171,7 @@ struct ClapetWidgetView: View {
                 if today != yesterday {
                     Text("\(today > yesterday ? "↑" : "↓") \(abs(today - yesterday))")
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(today > yesterday ? Palette.red : accent)
+                        .foregroundStyle(today > yesterday ? upColor : accent)
                 }
             }
             Text("today vs yesterday")
@@ -209,7 +209,7 @@ struct ClapetWidgetView: View {
                             .minimumScaleFactor(0.6)
                     }
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        .fill(stats.goal > 0 && days[i].closes > stats.goal ? Palette.red.opacity(isToday ? 1 : 0.6) : (isToday ? accent : Palette.bar))
+                        .fill(stats.activeLimit > 0 && days[i].closes > stats.activeLimit ? Palette.red.opacity(isToday ? 1 : 0.6) : (isToday ? accent : Palette.bar))
                         .frame(height: max(5, height * CGFloat(days[i].closes) / CGFloat(top)))
                     Text(days[i].date, format: .dateTime.weekday(.narrow))
                         .font(.system(size: 11, weight: isToday ? .bold : .medium))
@@ -281,38 +281,50 @@ struct ClapetWidgetView: View {
         }
     }
 
-    /// Vert sous la limite, orange à 80 %, rouge au-delà.
+    /// Sans limite, la couleur reste celle du widget. Avec une limite : vert dessous, orange à 80 %, rouge au-delà.
     private var statusColor: Color {
-        guard stats.goal > 0 else { return accent }
-        if today > stats.goal { return Palette.red }
-        if Double(today) >= 0.8 * Double(stats.goal) { return Palette.orange }
+        let limit = stats.activeLimit
+        guard limit > 0 else { return accent }
+        if today > limit { return Palette.red }
+        if Double(today) >= 0.8 * Double(limit) { return Palette.orange }
         return accent
     }
 
-    /// La limite du jour : une barre et ce qui reste.
-    private var limitBar: some View {
+    /// Plus qu'hier : rouge seulement si une limite est activée.
+    private var upColor: Color { stats.goalOn ? Palette.red : Color.white.opacity(0.75) }
+
+    /// Le repère du jour (la moyenne, ou la limite si elle est activée).
+    private var reference: Int? { stats.reference(now: entry.date) }
+
+    /// Une barre jusqu'au repère, et ce qu'il signifie.
+    private var refBar: some View {
         let left = stats.goal - today
+        let ref = reference ?? 0
         return VStack(alignment: .leading, spacing: 4) {
             GeometryReader { g in
                 ZStack(alignment: .leading) {
                     Capsule().fill(Palette.bar)
                     Capsule().fill(statusColor)
-                        .frame(width: max(5, g.size.width * CGFloat(min(1, Double(today) / Double(max(1, stats.goal))))))
+                        .frame(width: max(5, g.size.width * CGFloat(ref > 0 ? min(1, Double(today) / Double(ref)) : 0)))
                         .widgetAccentable()
                 }
             }
             .frame(height: 5)
             Group {
-                if left > 0 {
-                    Text("\(left) left today")
-                } else if left == 0 {
-                    Text("Limit reached")
+                if stats.goalOn {
+                    if left > 0 {
+                        Text("\(left) left today")
+                    } else if left == 0 {
+                        Text("Limit reached")
+                    } else {
+                        Text("\(-left) over the limit")
+                    }
                 } else {
-                    Text("\(-left) over the limit")
+                    Text("Average \(ref) a day")
                 }
             }
             .font(.system(size: 11, weight: .semibold))
-            .foregroundStyle(left >= 0 ? Palette.secondary : Palette.red)
+            .foregroundStyle(stats.goalOn && left < 0 ? Palette.red : Palette.secondary)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
         }
@@ -324,29 +336,28 @@ struct ClapetWidgetView: View {
                 .foregroundStyle(Palette.secondary)
             if today != yesterday {
                 Text("\(today > yesterday ? "↑" : "↓") \(abs(today - yesterday))")
-                    .foregroundStyle(today > yesterday ? Palette.red : accent)
+                    .foregroundStyle(today > yesterday ? upColor : accent)
             }
         }
         .font(.system(size: 13, weight: .semibold))
         .lineLimit(1)
     }
 
-    /// Téléphone posé aujourd'hui, en une ligne (grand widget).
-    private var phoneDownLine: some View {
-        let down = stats.downTime(now: entry.date)
-        let plants = stats.plants(now: entry.date)
+    /// Temps ouvert et fermé aujourd'hui, en une ligne (grand widget).
+    private var openClosedLine: some View {
+        let open = stats.openTime(entry.date, now: entry.date)
+        let closed = stats.closedTime(entry.date, now: entry.date)
         return HStack(spacing: 8) {
-            Image(systemName: "leaf.fill")
+            Image(systemName: "rectangle.expand.vertical")
                 .foregroundStyle(accent)
                 .widgetAccentable()
-            Text("\(Garden.format(down)) phone down")
+            Text("\(TimeFormat.short(open)) open")
                 .foregroundStyle(.white)
             Spacer(minLength: 4)
-            Text("\(plants)")
-                .foregroundStyle(.white)
-                .monospacedDigit()
-            Image(systemName: "camera.macro")
+            Image(systemName: "rectangle.compress.vertical")
                 .foregroundStyle(accent)
+            Text("\(TimeFormat.short(closed)) closed")
+                .foregroundStyle(.white)
         }
         .font(.system(size: 12, weight: .semibold))
         .lineLimit(1)
@@ -368,8 +379,8 @@ struct ClapetWidgetView: View {
                 .widgetAccentable()
             todayLine
             Spacer(minLength: 6)
-            if stats.goal > 0 {
-                limitBar
+            if reference != nil {
+                refBar
             } else if let last = stats.lastClose {
                 Text("Last fold \(Self.ago(last, from: entry.date))")
                     .font(.system(size: 11, weight: .medium))
@@ -395,7 +406,7 @@ struct ClapetWidgetView: View {
                         .widgetAccentable()
                     todayLine
                     Spacer(minLength: 6)
-                    if stats.goal > 0 { limitBar }
+                    if reference != nil { refBar }
                 }
                 .frame(width: 112, alignment: .leading)
                 week(height: 52, showValues: true)
@@ -430,16 +441,16 @@ struct ClapetWidgetView: View {
                         .foregroundStyle(Palette.secondary)
                 }
             }
-            if stats.goal > 0 { limitBar }
+            if reference != nil { refBar }
             week(height: 56, showValues: true)
             byHour
             Spacer(minLength: 0)
-            phoneDownLine
+            openClosedLine
         }
     }
 
     private var circular: some View {
-        Gauge(value: stats.goal > 0 ? min(1, Double(today) / Double(stats.goal)) : 0) {
+        Gauge(value: stats.refProgress(now: entry.date)) {
             Image(systemName: "iphone.gen3")
         } currentValueLabel: {
             Text("\(today)")
@@ -458,8 +469,8 @@ struct ClapetWidgetView: View {
             Text("\(today) folds today")
                 .font(.system(.body, weight: .semibold))
                 .widgetAccentable()
-            if stats.goal > 0 {
-                Gauge(value: min(1, Double(today) / Double(stats.goal))) { EmptyView() }
+            if reference != nil {
+                Gauge(value: stats.refProgress(now: entry.date)) { EmptyView() }
                     .gaugeStyle(.accessoryLinearCapacity)
             } else {
                 Text("\(stats.totalCloses) all time")
@@ -480,10 +491,11 @@ struct ClapetWidgetView: View {
 }
 
 
-// MARK: - Le widget « Téléphone posé »
+// MARK: - Le widget « Ouvert / fermé »
 //
-// Le temps passé téléphone fermé aujourd'hui, l'objectif, et le jardin. Sur l'écran verrouillé
-// (et l'écran extérieur du téléphone plié), un chrono tourne pendant que le téléphone est posé.
+// Le temps passé ouvert et fermé aujourd'hui. Sur l'écran verrouillé (et l'écran extérieur du téléphone plié),
+// un chrono montre depuis combien de temps le téléphone est fermé (ou ouvert).
+// (Le type reste « PhoneDownWidgetView » : les widgets déjà installés continuent de marcher.)
 
 struct PhoneDownWidgetView: View {
     @Environment(\.widgetFamily) private var envFamily
@@ -497,11 +509,18 @@ struct PhoneDownWidgetView: View {
 
     private var family: WidgetFamily { familyOverride ?? envFamily }
     private var stats: ClapetStats { entry.stats }
-    private var down: TimeInterval { stats.downTime(now: entry.date) }
-    private var goal: TimeInterval { Double(stats.downGoalMinutes) * 60 }
-    private var plants: Int { stats.plants(now: entry.date) }
-    private var since: Date? { stats.downSince(now: entry.date) }
-    private var progress: Double { goal > 0 ? min(1, down / goal) : 0 }
+    private var closed: TimeInterval { stats.closedTime(entry.date, now: entry.date) }
+    private var open: TimeInterval { stats.openTime(entry.date, now: entry.date) }
+    private var closedSince: Date? { stats.downSince(now: entry.date) }
+    private var openSince: Date? {
+        guard let s = stats.openSince, entry.date.timeIntervalSince(s) < ClapetStats.maxOpenSession else { return nil }
+        return s
+    }
+    /// La part du temps mesuré passée fermé.
+    private var closedShare: Double {
+        let total = open + closed
+        return total > 0 ? closed / total : 0
+    }
 
     private var accent: Color {
         stats.plus || DuoFolds.paidApp ? (ClapetTheme(rawValue: stats.theme) ?? .mint).color : Palette.mint
@@ -538,7 +557,7 @@ struct PhoneDownWidgetView: View {
                 Palette.background
             }
         }
-        .widgetURL(URL(string: locked ? "clapet://plus" : "clapet://garden"))
+        .widgetURL(locked ? URL(string: "clapet://plus") : nil)
     }
 
     @ViewBuilder
@@ -583,11 +602,11 @@ struct PhoneDownWidgetView: View {
 
     private var header: some View {
         HStack(spacing: 6) {
-            Image(systemName: "leaf.fill")
+            Image(systemName: "iphone.gen3")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(accent)
                 .widgetAccentable()
-            Text("Phone down")
+            Text("Open & closed")
                 .font(.system(size: 13, weight: .bold))
                 .textCase(.uppercase)
                 .tracking(0.6)
@@ -598,55 +617,73 @@ struct PhoneDownWidgetView: View {
         }
     }
 
-    private var bar: some View {
+    /// Fermé (couleur du widget) puis ouvert (gris), à proportion.
+    private var split: some View {
         GeometryReader { g in
-            ZStack(alignment: .leading) {
-                Capsule().fill(Palette.bar)
+            HStack(spacing: 3) {
                 Capsule().fill(accent)
-                    .frame(width: max(5, g.size.width * CGFloat(progress)))
+                    .frame(width: max(5, (g.size.width - 3) * CGFloat(closedShare)))
                     .widgetAccentable()
+                Capsule().fill(Color.white.opacity(0.28))
             }
         }
         .frame(height: 5)
     }
 
-    /// Le chrono de la session en cours (il tourne tout seul, sans recharger le widget).
-    private func sessionTimer(_ since: Date) -> some View {
+    /// Le chrono de l'état en cours (il tourne tout seul, sans recharger le widget).
+    @ViewBuilder
+    private var stateTimer: some View {
+        if let since = closedSince {
+            timer(Text("Closed"), since: since)
+        } else if let since = openSince {
+            timer(Text("Open"), since: since)
+        }
+    }
+
+    private func timer(_ label: Text, since: Date) -> some View {
         HStack(spacing: 4) {
             Circle().fill(accent).frame(width: 6, height: 6)
+            label
             Text(timerInterval: since...Date.distantFuture, countsDown: false)
                 .monospacedDigit()
         }
         .font(.system(size: 12, weight: .semibold))
         .foregroundStyle(accent)
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
     }
 
-    private var small: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            header
-            Spacer(minLength: 0)
-            Text(Garden.format(down))
-                .font(.system(size: 30, weight: .bold))
+    private func value(_ t: TimeInterval, _ label: Text, size: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(TimeFormat.short(t))
+                .font(.system(size: size, weight: .bold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .foregroundStyle(.white)
-                .widgetAccentable()
-            Text("of \(Garden.format(goal))")
+            label
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(Palette.secondary)
+                .lineLimit(1)
+        }
+    }
+
+    private var small: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            header
+            Spacer(minLength: 0)
+            value(closed, Text("closed today"), size: 26)
+                .widgetAccentable()
+            value(open, Text("open today"), size: 17)
             Spacer(minLength: 6)
-            bar
-            Spacer(minLength: 6)
-            if plants > 0 {
-                GardenStrip(plants: plants, color: accent, size: 15)
-            } else if let since {
-                sessionTimer(since)
+            split
+            Spacer(minLength: 4)
+            if closedSince != nil || openSince != nil {
+                stateTimer
             } else {
-                Text("No plant yet today")
+                Text("\(stats.day(entry.date).closes) folds today")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(Palette.secondary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -656,59 +693,38 @@ struct PhoneDownWidgetView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 header
-                if let since { sessionTimer(since) }
+                stateTimer
             }
             HStack(alignment: .bottom, spacing: 16) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(Garden.format(down))
-                        .font(.system(size: 34, weight: .bold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .foregroundStyle(.white)
-                        .widgetAccentable()
-                    Text("of \(Garden.format(goal))")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Palette.secondary)
-                    Spacer(minLength: 6)
-                    bar
-                }
-                .frame(width: 128, alignment: .leading)
-                VStack(alignment: .leading, spacing: 6) {
-                    Group {
-                        if plants == 0 {
-                            Text("No plant yet today")
-                        } else if plants == 1 {
-                            Text("1 plant today")
-                        } else {
-                            Text("\(plants) plants today")
-                        }
-                    }
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                    GardenStrip(plants: max(plants, 0), color: accent, size: 17)
-                        .opacity(plants > 0 ? 1 : 0)
-                    Spacer(minLength: 0)
-                    Text("\(stats.totalPlants) in your garden")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(Palette.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
+                value(closed, Text("closed today"), size: 32)
+                    .widgetAccentable()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                value(open, Text("open today"), size: 32)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            split
+            HStack {
+                Text("\(stats.day(entry.date).closes) folds")
+                Spacer(minLength: 4)
+                Text("Longest break \(TimeFormat.short(stats.longestBreak(entry.date, now: entry.date)))")
+            }
+            .font(.system(size: 11, weight: .medium))
+            .foregroundStyle(Palette.secondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
         }
     }
 
     private var circular: some View {
-        Gauge(value: progress) {
-            Image(systemName: "leaf.fill")
+        Gauge(value: closedShare) {
+            Image(systemName: "iphone.gen3")
         } currentValueLabel: {
             VStack(spacing: 0) {
-                Image(systemName: "leaf.fill")
-                    .font(.system(size: 10, weight: .bold))
-                Text("\(plants)")
-                    .font(.system(.body, weight: .bold))
+                Image(systemName: "rectangle.compress.vertical")
+                    .font(.system(size: 9, weight: .bold))
+                Text(TimeFormat.compact(closed))
+                    .font(.system(.caption, weight: .bold))
+                    .minimumScaleFactor(0.6)
             }
         }
         .gaugeStyle(.accessoryCircularCapacity)
@@ -717,38 +733,39 @@ struct PhoneDownWidgetView: View {
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 4) {
-                Image(systemName: "leaf.fill")
-                Text("Phone down")
-                    .font(.system(.headline, weight: .bold))
+                Image(systemName: "iphone.gen3")
+                if closedSince != nil {
+                    Text("Closed for").font(.system(.headline, weight: .bold))
+                } else if openSince != nil {
+                    Text("Open for").font(.system(.headline, weight: .bold))
+                } else {
+                    Text("Foldly").font(.system(.headline, weight: .bold))
+                }
             }
-            if let since {
+            if let since = closedSince ?? openSince {
                 Text(timerInterval: since...Date.distantFuture, countsDown: false)
                     .font(.system(.body, weight: .semibold))
                     .monospacedDigit()
                     .widgetAccentable()
             } else {
-                Text("\(Garden.format(down)) today")
+                Text("\(TimeFormat.short(closed)) closed")
                     .font(.system(.body, weight: .semibold))
                     .widgetAccentable()
             }
-            Group {
-                if plants == 1 {
-                    Text("1 plant today")
-                } else {
-                    Text("\(plants) plants today")
-                }
-            }
-            .font(.system(.caption, weight: .medium))
-            .foregroundStyle(.secondary)
+            Text("Today: \(TimeFormat.short(closed)) closed · \(TimeFormat.short(open)) open")
+                .font(.system(.caption, weight: .medium))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var inline: some View {
         Label {
-            Text("\(Garden.format(down)) phone down")
+            Text("\(TimeFormat.short(closed)) closed · \(TimeFormat.short(open)) open")
         } icon: {
-            Image(systemName: "leaf.fill")
+            Image(systemName: "iphone.gen3")
         }
     }
 }

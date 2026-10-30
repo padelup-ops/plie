@@ -151,15 +151,17 @@ final class ClapetModel {
         let before = stats.today
         stats.addClose()
         stats.endOpen(event: true)
-        LimitAlerts.check(before: before, after: stats.today, limit: stats.goal, plus: stats.plus)
+        LimitAlerts.check(before: before, after: stats.today, limit: stats.activeLimit, plus: stats.plus)
         claps += 1
         lastClapAt = Date()
         changed()
     }
 
-    func setDownGoal(_ minutes: Int) {
-        stats.downGoalMinutes = max(30, min(720, minutes))
-        flush()
+    /// La limite du jour, facultative (désactivée par défaut : Foldly compare à la moyenne).
+    func setGoalOn(_ on: Bool) {
+        stats.goalOn = on
+        changed()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     func setGoal(_ g: Int) {
@@ -175,15 +177,10 @@ final class ClapetModel {
         flush()
     }
 
-    /// Après la pause, le téléphone a été refermé : une ouverture évitée.
-    func recordResisted() {
-        stats.addResisted()
-        flush()
-    }
-
     func reset() {
         var fresh = ClapetStats()
         fresh.goal = stats.goal
+        fresh.goalOn = stats.goalOn
         fresh.plus = stats.plus
         fresh.theme = stats.theme
         stats = fresh

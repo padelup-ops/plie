@@ -32,9 +32,9 @@ struct PlusView: View {
                             .multilineTextAlignment(.center)
                     }
                     VStack(alignment: .leading, spacing: 16) {
-                        perk("rectangle.3.group", Text("Every widget"), Text("Folds today in large and medium, Phone down in medium, and the Lock Screen ones with the timer while your phone stays down."))
-                        perk("bell.badge", Text("Limit alerts"), Text("A notification at 80 % and at 100 % of your daily limit."))
-                        perk("calendar", Text("Your full history"), Text("30 days, 12 months, the calendar of days under your limit, your trends and records."))
+                        perk("rectangle.3.group", Text("Every widget"), Text("Folds today in large and medium, Open & closed in medium, and the Lock Screen ones with the timer."))
+                        perk("bell.badge", Text("Limit alerts"), Text("If you set a daily limit: a notification at 80 % and at 100 %."))
+                        perk("calendar", Text("Your full history"), Text("30 days, 12 months, the calendar of your days, your trends and records."))
                         perk("paintpalette", Text("Widget colors"), Text("Five colors for your widgets."))
                         perk("square.and.arrow.up", Text("Export"), Text("Your history as a spreadsheet (CSV)."))
                     }
@@ -84,7 +84,7 @@ struct PlusView: View {
                             .foregroundStyle(Color.dfWarning)
                             .multilineTextAlignment(.center)
                     }
-                    Text("One-time purchase, linked to your Apple Account. Counting, the daily limit, phone down, your garden, the badges, the mindful pause and the small widgets stay free.")
+                    Text("One-time purchase, linked to your Apple Account. Counting, time open and closed, the weekly recap, the themes and the small widgets stay free.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)

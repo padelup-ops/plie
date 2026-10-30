@@ -70,6 +70,8 @@ struct ClapetStats: Codable, Equatable {
     var downCredited: Date?
     /// Une plante pousse toutes les 25 minutes d'affilée téléphone fermé.
     static let plantMinutes: Double = 25
+    /// Limite du jour activée ? Par défaut non : chaque journée est comparée à la moyenne.
+    var goalOn = false
     /// Les plis par jour de la semaine et par heure, depuis le début : 7 × 24 cases (dimanche d'abord).
     var weekHours: [Int] = Array(repeating: 0, count: 168)
     /// Au-delà, une ouverture sans fermeture vue est oubliée (une fermeture a dû nous échapper).
@@ -78,7 +80,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -101,6 +103,7 @@ struct ClapetStats: Codable, Equatable {
         openFromEvent = try c.decodeIfPresent(Bool.self, forKey: .openFromEvent) ?? false
         downGoalMinutes = try c.decodeIfPresent(Int.self, forKey: .downGoalMinutes) ?? 180
         downCredited = try c.decodeIfPresent(Date.self, forKey: .downCredited)
+        goalOn = try c.decodeIfPresent(Bool.self, forKey: .goalOn) ?? false
         if let saved = try c.decodeIfPresent([Int].self, forKey: .weekHours), saved.count == 168 {
             weekHours = saved
         } else if let key = hourlyDay, let d = Self.date(key) {
@@ -132,7 +135,26 @@ struct ClapetStats: Codable, Equatable {
     /// Un « clapet », c'est une fermeture du téléphone.
     var today: Int { day().closes }
 
-    var progress: Double { goal > 0 ? min(1, Double(today) / Double(goal)) : 0 }
+    var progress: Double { refProgress() }
+
+    /// La limite, seulement si elle est activée (0 sinon).
+    var activeLimit: Int { goalOn ? goal : 0 }
+
+    /// La moyenne par jour, arrondie (30 derniers jours) : le repère quand la limite est désactivée. nil le premier jour.
+    func averageRef(now: Date = Date()) -> Int? {
+        recentAverage(now: now).map { max(1, Int($0.rounded())) }
+    }
+
+    /// Le repère du jour : la limite si elle est activée, sinon la moyenne.
+    func reference(now: Date = Date()) -> Int? {
+        goalOn ? (goal > 0 ? goal : nil) : averageRef(now: now)
+    }
+
+    /// Aujourd'hui comparé au repère, de 0 à 1.
+    func refProgress(now: Date = Date()) -> Double {
+        guard let r = reference(now: now), r > 0 else { return 0 }
+        return min(1, Double(day(now).closes) / Double(r))
+    }
 
     var best: Int { days.values.map(\.closes).max() ?? 0 }
 
@@ -250,7 +272,10 @@ struct ClapetStats: Codable, Equatable {
         return closed
     }
 
-    /// Temps posé d'une journée, en comptant la session en cours pour aujourd'hui.
+    /// Temps fermé d'une journée (même chose que `downTime`).
+    func closedTime(_ date: Date = Date(), now: Date = Date()) -> TimeInterval { downTime(date, now: now) }
+
+    /// Temps posé (fermé) d'une journée, en comptant la session en cours pour aujourd'hui.
     func downTime(_ date: Date = Date(), now: Date = Date()) -> TimeInterval {
         var t = day(date).downSeconds
         if Self.key(date) == Self.key(now), let since = downSince(now: now), downCredited != since {
@@ -577,5 +602,90 @@ enum ClapetVault {
         add[kSecValueData as String] = data
         add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
         return SecItemAdd(add as CFDictionary, nil)
+    }
+}
+
+// MARK: - Le bilan de la semaine
+
+struct WeekRecap {
+    struct Day {
+        let date: Date
+        let closes: Int
+        let open: TimeInterval
+        let closed: TimeInterval
+    }
+
+    /// Le dernier jour de la semaine résumée (sert d'identifiant).
+    let id: String
+    let days: [Day]
+    let total: Int
+    let previousTotal: Int
+    let open: TimeInterval
+    let previousOpen: TimeInterval
+    let closed: TimeInterval
+    let peeks: Int
+    let longestBreak: TimeInterval
+    /// Jours où au moins un pli a été compté.
+    let tracked: Int
+
+    var start: Date { days.first?.date ?? Date() }
+    var end: Date { days.last?.date ?? Date() }
+
+    /// Par jour suivi.
+    var perDay: Int { tracked > 0 ? Int((Double(total) / Double(tracked)).rounded()) : 0 }
+
+    /// Comparé à la semaine d'avant (nil sans semaine d'avant).
+    var change: Double? { previousTotal > 0 ? Double(total - previousTotal) / Double(previousTotal) : nil }
+
+    var openChange: Double? { previousOpen > 60 ? (open - previousOpen) / previousOpen : nil }
+
+    /// Le jour où l'on a le plus plié, et le plus calme (parmi les jours suivis).
+    var busiest: Day? { days.filter { $0.closes > 0 }.max { $0.closes < $1.closes } }
+    var calmest: Day? {
+        let counted = days.filter { $0.closes > 0 }
+        guard counted.count > 1 else { return nil }
+        return counted.min { $0.closes < $1.closes }
+    }
+
+    var isEmpty: Bool { tracked == 0 }
+}
+
+extension ClapetStats {
+    /// Le dernier jour de la semaine à résumer : aujourd'hui si c'est le dernier jour de la semaine et qu'il est 18 h passées,
+    /// sinon le dernier jour de la semaine précédente.
+    static func recapEnd(now: Date = Date()) -> Date {
+        let cal = Calendar.current
+        guard let week = cal.dateInterval(of: .weekOfYear, for: now),
+              let lastDay = cal.date(byAdding: .day, value: -1, to: week.end),
+              let previous = cal.date(byAdding: .day, value: -1, to: week.start) else { return now }
+        if cal.isDate(now, inSameDayAs: lastDay) && cal.component(.hour, from: now) >= 18 { return now }
+        return previous
+    }
+
+    /// Le jour de la semaine (1 = dimanche … 7 = samedi) où tombe le bilan : le dernier jour de la semaine.
+    static var recapWeekday: Int { (Calendar.current.firstWeekday + 5) % 7 + 1 }
+
+    /// Les 7 jours qui finissent `end` (compris), comparés aux 7 d'avant.
+    func weekRecap(endingOn end: Date, now: Date = Date()) -> WeekRecap {
+        let cal = Calendar.current
+        let anchor = cal.startOfDay(for: end).addingTimeInterval(12 * 3600)
+        func dates(from back: Int) -> [Date] {
+            (0..<7).reversed().compactMap { cal.date(byAdding: .day, value: -(back + $0), to: anchor) }
+        }
+        let current = dates(from: 0).map { d in
+            WeekRecap.Day(date: d, closes: day(d).closes, open: openTime(d, now: now), closed: downTime(d, now: now))
+        }
+        let previous = dates(from: 7)
+        return WeekRecap(
+            id: Self.key(end),
+            days: current,
+            total: current.reduce(0) { $0 + $1.closes },
+            previousTotal: previous.reduce(0) { $0 + day($1).closes },
+            open: current.reduce(0) { $0 + $1.open },
+            previousOpen: previous.reduce(0) { $0 + openTime($1, now: now) },
+            closed: current.reduce(0) { $0 + $1.closed },
+            peeks: current.reduce(0) { $0 + day($1.date).peeks },
+            longestBreak: current.map { longestBreak($0.date, now: now) }.max() ?? 0,
+            tracked: current.filter { $0.closes > 0 }.count)
     }
 }

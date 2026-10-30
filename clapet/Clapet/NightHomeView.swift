@@ -56,11 +56,14 @@ struct NightHomeView: View {
     @State private var showAuto = false
     @State private var showAdjust = false
     @State private var showShare = false
-    @State private var showGarden = false
+    @State private var showWeek = false
+    @State private var weekHidden = false
     @State private var liveOn = LiveCounter.isOn
     @State private var showWidgets = false
     @State private var widgets = InstalledWidgets.shared
     @State private var promoHidden = false
+    @State private var surveyHidden = false
+    @Environment(\.openURL) private var openURL
     @State private var bump = false
     /// Sans charnière : l'angle du dessin, qu'on « ferme » d'un toucher.
     @State private var tapAngle = 112.0
@@ -98,8 +101,8 @@ struct NightHomeView: View {
         .sheet(isPresented: $showAuto) {
             AutoCountView().environment(model)
         }
-        .sheet(isPresented: $showGarden) {
-            GardenView().environment(model)
+        .sheet(isPresented: $showWeek, onDismiss: { weekHidden = !WeekRecapRule.shouldShowCard(model.stats) }) {
+            WeekRecapView().environment(model)
         }
         .sheet(isPresented: $showShare) {
             ShareDaySheet().environment(model)
@@ -123,7 +126,11 @@ struct NightHomeView: View {
         .task { await runDemo() }
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
-            if url.host == "garden" { showGarden = true }
+            if url.host == "week" { showWeek = true }
+            if SurveyRule.isAnswerLink(url) {
+                SurveyRule.markAnswered()
+                withAnimation { surveyHidden = true }
+            }
         }
         .onAppear { widgets.refresh() }
         .task {
@@ -162,7 +169,7 @@ struct NightHomeView: View {
         case "history": showHistory = true
         case "widgets", "lock": showDemoWidgets = true
         case "plus": plusReason = .menu
-        case "garden": showGarden = true
+        case "week": showWeek = true
         case "widgetsGallery": showWidgets = true
         default: break
         }
@@ -224,6 +231,7 @@ struct NightHomeView: View {
                     Button { showShare = true } label: { Label { Text("Share my day") } icon: { Image(systemName: "square.and.arrow.up") } }
                     Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
                 }
+                Button { showWeek = true } label: { Label { Text("Weekly recap") } icon: { Image(systemName: "chart.bar.doc.horizontal") } }
                 Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
                 Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
                 Button {
@@ -286,10 +294,26 @@ struct NightHomeView: View {
             }
             trend
             if s.autoLast == nil && !Demo.seeded { autoBanner }
+            if !weekHidden && WeekRecapRule.shouldShowCard(s) {
+                Card(filled: true) {
+                    WeekRecapPromo(recap: WeekRecapRule.current(s)) { showWeek = true } onHide: {
+                        WeekRecapRule.markSeen(WeekRecapRule.current(s))
+                        withAnimation { weekHidden = true }
+                    }
+                }
+            }
             Card {
                 VStack(alignment: .leading, spacing: 12) {
-                    CardTitle(Text("Phone down"))
-                    PhoneDownContent(stats: model.stats) { showGarden = true }
+                    CardTitle(Text("Time closed"))
+                    ClosedTimeContent(stats: model.stats)
+                }
+            }
+            if !surveyHidden && SurveyRule.shouldShowCard(isTestBuild: store.isTestBuild) {
+                Card(filled: true) {
+                    SurveyPromo { openURL(SurveyRule.url) } onHide: {
+                        SurveyRule.hideCard()
+                        withAnimation { surveyHidden = true }
+                    }
                 }
             }
             if !promoHidden && WidgetsPromoRule.shouldShow(installed: widgets.count) {
@@ -347,7 +371,7 @@ struct NightHomeView: View {
                 symbol = "chart.line.downtrend.xyaxis"; color = .dfAccent
                 text = Text("\(-diff) below your \(avg)/day average")
             } else if diff > 0 {
-                symbol = "chart.line.uptrend.xyaxis"; color = .dfWarning
+                symbol = "chart.line.uptrend.xyaxis"; color = s.goalOn ? .dfWarning : .dfAccent
                 text = Text("\(diff) above your \(avg)/day average")
             } else {
                 symbol = "chart.line.flattrend.xyaxis"; color = .dfAccent
@@ -415,9 +439,13 @@ struct NightHomeView: View {
             tile(Text("All time"), "\(s.totalCloses)")
             tile(Text("Last 7 days"), "\(s.weekTotal)")
             tile(Text("Opened today"), "\(s.day().opens)")
-            tile(Text("Daily limit"), "\(s.goal)",
-                 detail: left > 0 ? Text("\(left) left today") : (left == 0 ? Text("Limit reached") : Text("\(-left) over the limit")),
-                 color: statusColor)
+            if s.goalOn {
+                tile(Text("Daily limit"), "\(s.goal)",
+                     detail: left > 0 ? Text("\(left) left today") : (left == 0 ? Text("Limit reached") : Text("\(-left) over the limit")),
+                     color: statusColor)
+            } else {
+                tile(Text("Daily average"), s.averageRef().map { "\($0)" } ?? "—", detail: Text("Last 30 days"))
+            }
             tile(Text("Quick checks"), "\(s.peeks())", detail: Text("Opened less than 10 s"))
             TimelineView(.periodic(from: .now, by: 60)) { context in
                 tile(Text("Longest break"), Self.duration(s.longestBreak(now: context.date)), detail: Text("Kept closed today"))
@@ -425,12 +453,13 @@ struct NightHomeView: View {
         }
     }
 
-    /// Vert d'eau sous la limite, orange à l'approche (80 %), rouge au-delà.
+    /// Sans limite : la couleur d'accent. Avec une limite : vert d'eau dessous, orange à l'approche (80 %), rouge au-delà.
     private var statusColor: Color {
         let s = model.stats
-        guard s.goal > 0 else { return .dfAccent }
-        if s.today > s.goal { return .dfOver }
-        if Double(s.today) >= 0.8 * Double(s.goal) { return .dfWarning }
+        let limit = s.activeLimit
+        guard limit > 0 else { return .dfAccent }
+        if s.today > limit { return .dfOver }
+        if Double(s.today) >= 0.8 * Double(limit) { return .dfWarning }
         return .dfAccent
     }
 
@@ -503,7 +532,7 @@ struct NightHomeView: View {
     }
 
     private func weekBars(_ days: [(date: Date, closes: Int)], perDay: Double) -> some View {
-        let goal = model.stats.goal
+        let goal = model.stats.activeLimit
         let top = max(1, days.map(\.closes).max() ?? 1, Int(perDay.rounded()))
         return Card {
             VStack(alignment: .leading, spacing: 14) {
@@ -770,13 +799,18 @@ struct NightHomeView: View {
                 if liveOn { LiveCounter.stop(); liveOn = false } else { liveOn = LiveCounter.start(model.stats) }
             }
             Divider().overlay(Color.dfOutline).padding(.leading, 56)
+            row("chart.bar.doc.horizontal", Text("Weekly recap"), Text("Your week, compared with the week before"), locked: false) {
+                showWeek = true
+            }
+            Divider().overlay(Color.dfOutline).padding(.leading, 56)
             row("calendar", Text("History"), Text("30 days, 12 months, records"), locked: !store.hasPlus) {
                 if store.hasPlus { showHistory = true } else { plusReason = .history }
             }
             Divider().overlay(Color.dfOutline).padding(.leading, 56)
-            row("bell.badge", Text("Limit alerts"), model.alertsOn && store.hasPlus ? Text("On") : Text("At 80 % and 100 % of your limit"),
-                locked: !store.hasPlus) {
-                if store.hasPlus { showSettings = true } else { plusReason = .alerts }
+            row("target", Text("Daily limit"),
+                model.stats.goalOn ? Text("On: \(model.stats.goal) a day") : Text("Off: each day is compared with your average"),
+                locked: false) {
+                showSettings = true
             }
         }
         .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Color.dfOutline, lineWidth: 1))

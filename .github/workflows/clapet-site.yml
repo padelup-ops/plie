@@ -35,6 +35,6 @@ jobs:
       - name: Vérifier
         run: |
           sleep 10
-          for p in "" fr/ en/ fr/privacy.html en/privacy.html; do
+          for p in "" fr/ en/ fr/privacy.html en/privacy.html fr/sondage.html en/survey.html; do
             echo "$(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/$p) ${{ inputs.url }}/$p"
           done

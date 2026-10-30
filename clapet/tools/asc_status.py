@@ -7,10 +7,15 @@ token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()),
                    headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
 def call(path):
     req = urllib.request.Request(API + path, headers={"Authorization": "Bearer " + token})
-    try:
-        return json.load(urllib.request.urlopen(req))
-    except urllib.error.HTTPError as e:
-        return {"error": e.code, "detail": e.read().decode()[:500]}
+    for attempt in range(4):
+        try:
+            return json.load(urllib.request.urlopen(req, timeout=60))
+        except urllib.error.HTTPError as e:
+            return {"error": e.code, "detail": e.read().decode()[:500]}
+        except Exception as e:  # coupure réseau passagère : on réessaie
+            if attempt == 3:
+                return {"error": "réseau", "detail": str(e)[:200]}
+            time.sleep(3 * (attempt + 1))
 app = call("/v1/apps?filter[bundleId]=" + os.environ.get("APP_BUNDLE", "com.padelup.clapet"))["data"][0]
 print("APP", app["id"], app["attributes"]["name"])
 for b in call(f"/v1/builds?filter[app]={app['id']}&sort=-uploadedDate&limit=8&include=buildBetaDetail").get("data", []):
@@ -55,6 +60,37 @@ print("prix :", [x.get("relationships", {}).get("appPricePoint", {}).get("data",
 print("disponibilité :", "oui" if call(f"/v1/apps/{app['id']}/appAvailabilityV2").get("data") else "non")
 iaps = call(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=10").get("data", [])
 print("achats intégrés :", [(i["attributes"].get("productId"), i["attributes"].get("state")) for i in iaps])
+
+# Installations et sessions par build (statistiques TestFlight d'Apple).
+for b in call(f"/v1/builds?filter[app]={app['id']}&sort=-uploadedDate&limit=4").get("data", []):
+    m = call(f"/v1/builds/{b['id']}/metrics/betaBuildUsages")
+    vals = {}
+    for d in m.get("data", []):
+        for pt in d.get("dataPoints", []):
+            for k, v in (pt.get("values") or {}).items():
+                vals[k] = vals.get(k, 0) + (v or 0)
+    print(f"usage build {b['attributes'].get('version')} :", vals or m.get("error") or m.get("detail") or "rien")
+
+# Testeurs TestFlight : par groupe, puis au total (sans doublons), avec leur état d'invitation.
+from collections import Counter
+everyone = {}
+for g in call(f"/v1/betaGroups?filter[app]={app['id']}&limit=50").get("data", []):
+    a = g["attributes"]
+    testers, path = [], f"/v1/betaGroups/{g['id']}/betaTesters?limit=200"
+    while path:
+        page = call(path)
+        testers += page.get("data", [])
+        nxt = (page.get("links") or {}).get("next")
+        path = nxt.replace(API, "") if nxt else None
+    for t in testers:
+        everyone[t["id"]] = t["attributes"]
+    kinds = Counter(t["attributes"].get("inviteType") for t in testers)
+    states = Counter(t["attributes"].get("state") for t in testers)
+    print(f"testeurs groupe « {a.get('name')} » ({'interne' if a.get('isInternalGroup') else 'externe'}) : {len(testers)}"
+          f" · invitation {dict(kinds)} · état {dict(states)}"
+          + (f" · lien public {'actif' if a.get('publicLinkEnabled') else 'coupé'}, limite {a.get('publicLinkLimit')}" if a.get("publicLink") else ""))
+print(f"testeurs au total : {len(everyone)} · état {dict(Counter(t.get('state') for t in everyone.values()))}"
+      f" · invitation {dict(Counter(t.get('inviteType') for t in everyone.values()))}")
 
 # Sonde : quel type de captures pour l'iPhone Duo ? (l'erreur d'Apple liste les valeurs acceptées)
 if os.environ.get("PROBE") == "2":
