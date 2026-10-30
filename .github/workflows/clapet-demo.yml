@@ -89,7 +89,20 @@ jobs:
         run: |
           # scène | écran | durée (s) | charnière simulée | autres arguments
           FOLDS="0:176,0.9:176,1.15:5,1.4:5,1.7:176,2.5:176,2.75:5,3.0:5,3.3:176,4.1:176,4.35:5,4.6:5,4.9:176,5.7:176,5.95:5,6.2:5,6.5:176"
-          if [ "${{ github.event.inputs.set }}" = "v1" ]; then
+          FOLDS3="0:176,1.4:176,2.3:4,2.9:4,3.8:176,5.6:176,6.5:4,7.1:4,8.0:176"
+          if [ "${{ github.event.inputs.set }}" = "v3" ]; then
+          # Vidéo 3 (modèle « Introducing … for iPhone Duo ») : les écrans de la version actuelle
+          cat > scenes.txt <<EOF
+          open|home|6||-demoToday 46 -look classic -demoOpening 1
+          count|home|10|$FOLDS3|-demoToday 44 -look classic
+          classic|home|4||-demoToday 47 -look classic
+          night|home|4||-demoToday 47 -look night
+          minimal|home|4||-demoToday 47 -look minimal
+          week|week|6||-demoToday 47 -look classic
+          widgets|widgets|5||-demoToday 47 -look classic
+          history|history|5||-demoToday 47 -look classic
+          EOF
+          elif [ "${{ github.event.inputs.set }}" = "v1" ]; then
           cat > scenes.txt <<EOF
           count|home|8|$FOLDS|-demoToday 44
           limit|home|8|$FOLDS|-demoToday 57
@@ -110,6 +123,9 @@ jobs:
           fi
           xcrun simctl launch "$UDID" "$BID" > /dev/null 2>&1 || true
           sleep 6
+          xcrun simctl io "$UDID" enumerate > rushes/ecrans.txt 2>&1 || true
+          xcrun simctl help > rushes/simctl-aide.txt 2>&1 || true
+          xcrun simctl list devicetypes -j > rushes/types.json 2>&1 || true
           for L in ${{ github.event.inputs.langs }}; do
             while IFS='|' read -r S R D HG X; do
               S=$(echo "$S" | xargs)
@@ -130,6 +146,9 @@ jobs:
               xcrun simctl launch "$UDID" "$BID" "${ARGS[@]}" > "rushes/$L-$S.launch.txt" 2>&1 || true
               python3 -c "import time; print('%.3f' % time.time())" > "rushes/$L-$S.launchtime"
               sleep "$D"
+              # Les deux écrans en photo (pour savoir ce que montre l'écran extérieur)
+              xcrun simctl io "$UDID" screenshot --display=0 --mask=black "rushes/$L-$S-ecran0.png" > /dev/null 2>&1 || true
+              xcrun simctl io "$UDID" screenshot --display=1 --mask=black "rushes/$L-$S-ecran1.png" > /dev/null 2>&1 || true
               sleep 8
               kill -INT $REC
               wait $REC || true
@@ -138,6 +157,23 @@ jobs:
             done < scenes.txt
           done
           cat rushes/fichiers.txt
+
+      - name: Voix off (macOS say)
+        if: ${{ github.event.inputs.set == 'v3' }}
+        run: |
+          mkdir -p rushes/voix
+          say -v '?' > rushes/voix/voix-disponibles.txt 2>&1 || true
+          VOICE=""
+          for V in "Ava (Premium)" "Zoe (Premium)" "Evan (Premium)" "Ava (Enhanced)" "Zoe (Enhanced)" "Samantha (Enhanced)" "Samantha"; do
+            if grep -q "^$V " rushes/voix/voix-disponibles.txt; then VOICE="$V"; break; fi
+          done
+          echo "voix : ${VOICE:-défaut}" | tee rushes/voix/voix.txt
+          while IFS='|' read -r ID TXT; do
+            [ -z "$ID" ] && continue
+            if [ -n "$VOICE" ]; then say -v "$VOICE" -r 175 -o "rushes/voix/$ID.aiff" "$TXT"; else say -r 175 -o "rushes/voix/$ID.aiff" "$TXT"; fi
+            afconvert -f WAVE -d LEI16@48000 "rushes/voix/$ID.aiff" "rushes/voix/$ID.wav" && rm -f "rushes/voix/$ID.aiff"
+          done < clapet/tools/video/voice-en.txt
+          ls -la rushes/voix
 
       - name: Réduire les vidéos
         run: |

@@ -70,6 +70,7 @@ struct MinimalHomeView: View {
                 withAnimation { surveyHidden = true }
             }
         }
+        .task { await runDemo() }
         .task {
             // Une seule fois, après 3 jours suivis : on présente Foldly+ (sans insister).
             try? await Task.sleep(nanoseconds: 2_500_000_000)
@@ -85,6 +86,34 @@ struct MinimalHomeView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                 withAnimation(.easeOut(duration: 0.3)) { bump = false }
             }
+        }
+    }
+
+    // MARK: Mode démo (vidéo)
+
+    private func runDemo() async {
+        switch Demo.screen {
+        case "history": showHistory = true
+        case "week": showWeek = true
+        case "widgetsGallery": showWidgets = true
+        default: break
+        }
+        let keys = Demo.hinge
+        guard !keys.isEmpty else {
+            if Demo.screen != nil || Demo.seeded {
+                try? await Task.sleep(nanoseconds: UInt64(Demo.delay * 1_000_000_000))
+                _ = Demo.markOrigin()
+            }
+            return
+        }
+        try? await Task.sleep(nanoseconds: UInt64(Demo.delay * 1_000_000_000))
+        let origin = Demo.markOrigin()
+        let end = (keys.last?.t ?? 0) + 0.5
+        while !Task.isCancelled {
+            let t = Date().timeIntervalSince(origin)
+            model.hinge(closed: nil, degrees: Demo.angle(at: t, in: keys))
+            if t > end { break }
+            try? await Task.sleep(nanoseconds: 16_000_000)
         }
     }
 

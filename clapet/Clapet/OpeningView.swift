@@ -16,7 +16,9 @@ enum OpeningRule {
     /// Au lancement seulement, et jamais au tout premier (le choix du look passe d'abord),
     /// ni pendant le tournage des vidéos et des captures.
     static func shouldShow(lookChosen: Bool) -> Bool {
-        isOn && lookChosen && !UIAccessibility.isReduceMotionEnabled && !Demo.seeded && Demo.screen == nil
+        // Tournage de la vidéo : on peut la forcer.
+        if Demo.value("demoOpening") == "1" { return true }
+        return isOn && lookChosen && !UIAccessibility.isReduceMotionEnabled && !Demo.seeded && Demo.screen == nil
     }
 }
 

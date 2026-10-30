@@ -1,0 +1,20 @@
+v01|Introducing Foldly,
+v02|for iPhone Duo.
+v03|Every fold you make,
+v04|counted on the biggest iPhone screen ever.
+v05|Closed, it's an iPhone that fits your pocket.
+v06|Open it, and your day unfolds.
+v07|Fold it, and it counts.
+v08|Every single time.
+v09|One tap changes the whole look.
+v10|Your open and closed time,
+v11|and your week, at a glance.
+v12|Fold it halfway, and it stands on your desk,
+v13|like a little dashboard.
+v14|It works with widgets, StandBy and Live Activities,
+v15|set up in a few taps.
+v16|No account. No ads.
+v17|It all stays on your iPhone.
+v18|The public beta is live on TestFlight.
+v19|Open the link, and get Foldly.
+v20|Foldly. For iPhone Duo.
