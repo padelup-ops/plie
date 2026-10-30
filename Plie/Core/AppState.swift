@@ -29,6 +29,9 @@ enum Route: Equatable {
     case ecole
     case duels
     case mots
+    case chifoumi
+    case doigts
+    case sourire
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -103,6 +106,11 @@ final class AppState {
     private(set) var motsBest = 0
 
     private(set) var soleilGames = 0
+    private(set) var chifoumiGames = 0
+    /// Étoiles de CALCUL AUX DOIGTS, par niveau (0 compter, 1 additions, 2 soustractions).
+    private(set) var doigtsStars: [Int: Int] = [:]
+    /// Record de PAS DE SOURIRE !, en secondes.
+    private(set) var sourireBest: Double = 0
 
     /// LUCIOLE : meilleur total de lumières et voyages terminés.
     private(set) var lucioleBest = 0
@@ -163,6 +171,9 @@ final class AppState {
         case "morpion": route = .morpion
         case "puissance": route = .puissance
         case "soleil": route = .soleil
+        case "chifoumi": route = .chifoumi
+        case "doigts": route = .doigts
+        case "sourire": route = .sourire
         case "billard": route = .billard
         case "luciole": route = .luciole
         case "ecole": route = .ecole
@@ -564,6 +575,29 @@ final class AppState {
         save()
     }
 
+    // MARK: Jeux sans toucher
+
+    func recordChifoumi() {
+        gamePlayed()
+        celebrate()
+        chifoumiGames += 1
+        save()
+    }
+
+    func recordDoigts(level: Int, stars: Int) {
+        gamePlayed()
+        if stars >= 2 { celebrate() }
+        doigtsStars[level] = max(doigtsStars[level] ?? 0, stars)
+        save()
+    }
+
+    func recordSourire(best: Double) {
+        gamePlayed()
+        celebrate()
+        sourireBest = max(sourireBest, best)
+        save()
+    }
+
     // MARK: Sauvegarde
 
     private enum Keys {
@@ -602,6 +636,9 @@ final class AppState {
         static let motsRounds = "mots.rounds"
         static let motsBest = "mots.best"
         static let soleilGames = "soleil.games"
+        static let chifoumiGames = "chifoumi.games"
+        static let doigtsStars = "doigts.stars"
+        static let sourireBest = "sourire.best"
         static let lucioleBest = "luciole.best"
         static let lucioleVoyages = "luciole.voyages"
         static let ecoleStars = "ecole.stars"
@@ -668,6 +705,9 @@ final class AppState {
         motsRounds = defaults.integer(forKey: Keys.motsRounds)
         motsBest = defaults.integer(forKey: Keys.motsBest)
         soleilGames = defaults.integer(forKey: Keys.soleilGames)
+        chifoumiGames = defaults.integer(forKey: Keys.chifoumiGames)
+        doigtsStars = decode(Keys.doigtsStars).mapValues { Int($0) }
+        sourireBest = defaults.double(forKey: Keys.sourireBest)
         lucioleBest = defaults.integer(forKey: Keys.lucioleBest)
         lucioleVoyages = defaults.integer(forKey: Keys.lucioleVoyages)
         ecoleStars = decode(Keys.ecoleStars).mapValues { Int($0) }
@@ -712,6 +752,9 @@ final class AppState {
         defaults.set(motsRounds, forKey: Keys.motsRounds)
         defaults.set(motsBest, forKey: Keys.motsBest)
         defaults.set(soleilGames, forKey: Keys.soleilGames)
+        defaults.set(chifoumiGames, forKey: Keys.chifoumiGames)
+        encode(doigtsStars.mapValues { Double($0) }, Keys.doigtsStars)
+        defaults.set(sourireBest, forKey: Keys.sourireBest)
         defaults.set(lucioleBest, forKey: Keys.lucioleBest)
         defaults.set(lucioleVoyages, forKey: Keys.lucioleVoyages)
         encode(ecoleStars.mapValues { Double($0) }, Keys.ecoleStars)

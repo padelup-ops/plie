@@ -98,6 +98,12 @@ struct RootView: View {
                 EcoleView()
             case .duels:
                 DuelsView()
+            case .chifoumi:
+                ChifoumiView()
+            case .doigts:
+                DoigtsView()
+            case .sourire:
+                SourireView()
             case .mots:
                 MotsView()
             }
@@ -234,6 +240,12 @@ struct RootView: View {
             return [Theme.duelsA, Theme.duelsB, Theme.duels]
         case .mots:
             return [Theme.motsTeamA, Theme.motsTeamB, Theme.gold]
+        case .chifoumi:
+            return [Theme.chifoumi, Theme.sun, Theme.gold]
+        case .doigts:
+            return [Theme.doigts, Theme.gold, Theme.coral]
+        case .sourire:
+            return [Theme.sourire, Theme.paint, Theme.gold]
         }
     }
 
@@ -248,7 +260,7 @@ struct RootView: View {
     /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
     private var fullScreen: Bool {
         switch app.route {
-        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .duels, .mots: return true
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .duels, .mots, .chifoumi, .doigts, .sourire: return true
         default: return false
         }
     }

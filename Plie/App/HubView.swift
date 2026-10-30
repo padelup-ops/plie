@@ -21,14 +21,14 @@ struct HubView: View {
     @State private var showPostures = false
     @AppStorage("hub.shelf") private var shelfID = "all"
 
-    static let newGames: Set<GameID> = [.duels, .mots, .briques, .bonneteau]
+    static let newGames: Set<GameID> = [.chifoumi, .doigts, .sourire, .duels, .mots]
 
     /// Les jeux à la une : ceux qui donnent le plus envie, et qui montrent ce que le Duo sait faire.
-    static let featured: [GameID] = [.duels, .boite, .croco, .mots, .coupDoeil]
+    static let featured: [GameID] = [.duels, .chifoumi, .boite, .croco, .sourire, .mots, .coupDoeil]
 
     /// L'ordre de « Tous » : les plus parlants d'abord.
     static let allOrder: [GameID] = {
-        let curated: [GameID] = [.duels, .boite, .mots, .croco, .coupDoeil, .rayon, .airHockey, .dessine, .bombe,
+        let curated: [GameID] = [.duels, .chifoumi, .boite, .mots, .sourire, .croco, .coupDoeil, .doigts, .rayon, .airHockey, .dessine, .bombe,
                                  .puissance, .briques, .bonneteau, .pliou, .luciole, .morpion, .billard, .filet,
                                  .bascule, .chess, .draughts, .soleil, .ferme, .ecole, .piano]
         return curated + GameID.allCases.filter { !curated.contains($0) }
@@ -45,15 +45,15 @@ struct HubView: View {
         [
             Shelf(id: "all", title: L("Tous"), symbol: "square.grid.2x2.fill", games: Self.allOrder),
             Shelf(id: "duo", title: L("À deux"), symbol: "person.2.fill",
-                  games: [.duels, .airHockey, .puissance, .morpion, .billard, .chess, .draughts, .bonneteau]),
+                  games: [.duels, .chifoumi, .airHockey, .puissance, .morpion, .billard, .chess, .draughts, .bonneteau]),
             Shelf(id: "party", title: L("En soirée"), symbol: "party.popper.fill",
-                  games: [.mots, .croco, .dessine, .bombe, .soleil]),
+                  games: [.mots, .sourire, .croco, .dessine, .bombe, .chifoumi, .soleil]),
             Shelf(id: "magic", title: L("La magie du Duo"), symbol: "sparkles",
-                  games: [.boite, .coupDoeil, .luciole, .pliou, .ferme]),
+                  games: [.boite, .coupDoeil, .chifoumi, .sourire, .doigts, .luciole, .pliou, .ferme]),
             Shelf(id: "fold", title: L("Seul"), symbol: "person.fill",
                   games: [.rayon, .bascule, .briques, .filet, .boite, .coupDoeil, .pliou, .ferme]),
             Shelf(id: "kids", title: L("Enfants"), symbol: "graduationcap.fill",
-                  games: [.ecole, .piano, .croco, .pliou, .morpion, .puissance])
+                  games: [.doigts, .ecole, .chifoumi, .piano, .croco, .pliou, .morpion, .puissance])
         ]
     }
 
@@ -369,6 +369,9 @@ struct HubView: View {
         case .bascule: return L("\(app.basculeStars.count) / \(BasculeLevel.all.count) niveaux")
         case .duels: return app.duelsGames > 0 ? L("\(app.duelsGames) partie\(app.duelsGames > 1 ? "s" : "")") : L("\(DuelsGame.Kind.allCases.count) mini-duels")
         case .mots: return app.motsBest > 0 ? L("Record : \(app.motsBest) mots") : L("En équipes")
+        case .chifoumi: return app.chifoumiGames > 0 ? L("\(app.chifoumiGames) partie\(app.chifoumiGames > 1 ? "s" : "")") : L("Sans toucher l'écran")
+        case .doigts: return app.doigtsStars.isEmpty ? L("3 niveaux") : L("\(app.doigtsStars.values.reduce(0, +)) / 9 étoiles")
+        case .sourire: return app.sourireBest > 0 ? L("Record : \(String(format: "%.1f", app.sourireBest)) s") : L("2 joueurs et plus")
         case .boite: return L("\(app.boiteStars.count) / \(BoiteLevel.count) boîtes")
         case .croco: return app.crocoBest > 0 ? L("Record : \(app.crocoBest) dents") : L("1 à 6 joueurs")
         case .coupDoeil: return app.oeilStreak > 0 ? L("Série : \(app.oeilStreak) jour\(app.oeilStreak > 1 ? "s" : "")") : L("Un défi par jour")
@@ -847,7 +850,7 @@ struct SettingsView: View {
                 }
                 Section(L("iPhone Duo")) {
                     Text(DuoSupport.apisAvailable
-                         ? L("Sur iPhone Duo, LA BOÎTE et CROCO commencent fermés : il faut ouvrir le Duo pour jouer. COUP D'ŒIL, BOMBE, PLIOU et LUCIOLE passent d'un écran à l'autre ; DESSINE-MOI, BONNETEAU et MOTS INTERDITS montrent le jeu sur l'écran extérieur, face aux autres joueurs. RAYON et BASCULE se jouent avec la charnière ; FILET, ÉCOLE, PIANO, PUISSANCE 4 et CASSE-BRIQUES plié en L ; AIR HOCKEY, BILLARD, ÉCHECS, DAMES, MORPION et DUELS à plat ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
+                         ? L("Sur iPhone Duo, LA BOÎTE et CROCO commencent fermés : il faut ouvrir le Duo pour jouer. COUP D'ŒIL, BOMBE, PLIOU et LUCIOLE passent d'un écran à l'autre ; DESSINE-MOI, BONNETEAU et MOTS INTERDITS montrent le jeu sur l'écran extérieur, face aux autres joueurs ; dans CHIFOUMI, CALCUL AUX DOIGTS et PAS DE SOURIRE !, la personne en face joue avec ses mains ou son visage, devant la caméra. RAYON et BASCULE se jouent avec la charnière ; FILET, ÉCOLE, PIANO, PUISSANCE 4 et CASSE-BRIQUES plié en L ; AIR HOCKEY, BILLARD, ÉCHECS, DAMES, MORPION et DUELS à plat ; FERME se joue fermé. Chaque jeu a son mode d'emploi : touche « ? ».")
                          : L("Cet iPhone n'a pas de charnière : tous les jeux se jouent au doigt. Chaque jeu a son mode d'emploi : touche « ? »."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
@@ -862,7 +865,7 @@ struct SettingsView: View {
                     .labelsHidden()
                 }
                 Section(L("Vie privée")) {
-                    Text(L("Dans 1, 2, 3… Soleil !, DESSINE-MOI, BONNETEAU et MOTS INTERDITS, la caméra sert, directement sur le téléphone, à repérer les mouvements, à prendre en photo ceux qui devinent, ou simplement à allumer l'écran extérieur. Les photos restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis. Quand ton jardin de FERME est complet, l'app envoie un seul message anonyme pour compter l'arbre à planter : rien ne permet de savoir qui tu es."))
+                    Text(L("Dans 1, 2, 3… Soleil !, DESSINE-MOI, BONNETEAU, MOTS INTERDITS, CHIFOUMI, CALCUL AUX DOIGTS et PAS DE SOURIRE !, la caméra sert, directement sur le téléphone, à repérer les mouvements, à lire une main ou un sourire, à prendre en photo ceux qui devinent, ou simplement à allumer l'écran extérieur. Les photos restent dans l'app le temps de la partie, et ne sont partagées que si tu le choisis. Quand ton jardin de FERME est complet, l'app envoie un seul message anonyme pour compter l'arbre à planter : rien ne permet de savoir qui tu es."))
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
                 }

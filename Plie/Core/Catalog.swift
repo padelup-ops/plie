@@ -75,7 +75,7 @@ struct HowToStep: Identifiable {
 }
 
 enum GameID: String, CaseIterable, Identifiable {
-    case duels, mots
+    case duels, mots, chifoumi, doigts, sourire
     case boite, croco, bonneteau, coupDoeil, bombe, dessine, pliou, luciole
     case briques, morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme
 
@@ -85,6 +85,9 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .duels: return L("DUELS")
         case .mots: return L("MOTS INTERDITS")
+        case .chifoumi: return L("CHIFOUMI")
+        case .doigts: return L("CALCUL AUX DOIGTS")
+        case .sourire: return L("PAS DE SOURIRE !")
         case .boite: return L("LA BOÎTE")
         case .briques: return L("CASSE-BRIQUES")
         case .bonneteau: return L("BONNETEAU")
@@ -115,6 +118,9 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .duels: return L("10 mini-duels express, face à face")
         case .mots: return L("Fais deviner sans dire les mots interdits")
+        case .chifoumi: return L("En face, on joue avec sa main, sans toucher")
+        case .doigts: return L("Le calcul dehors, la réponse avec les doigts")
+        case .sourire: return L("Fais-le craquer : la caméra guette le sourire")
         case .boite: return L("Fermée, l'indice. Ouverte, la serrure.")
         case .briques: return L("Le mur debout, la raquette à plat")
         case .bonneteau: return L("Suis la boule… sur l'autre écran")
@@ -144,6 +150,9 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .duels: return Theme.duels
         case .mots: return Theme.mots
+        case .chifoumi: return Theme.chifoumi
+        case .doigts: return Theme.doigts
+        case .sourire: return Theme.sourire
         case .boite: return Theme.boite
         case .briques: return Theme.briques
         case .bonneteau: return Theme.bonneteau
@@ -173,6 +182,9 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .duels: return "bolt.fill"
         case .mots: return "text.bubble.fill"
+        case .chifoumi: return "hand.raised.fill"
+        case .doigts: return "hand.raised.fingers.spread.fill"
+        case .sourire: return "face.smiling.inverse"
         case .boite: return "shippingbox.fill"
         case .briques: return "square.grid.3x2.fill"
         case .bonneteau: return "eyes"
@@ -204,7 +216,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .duels: return .flat
         case .mots: return .book
         case .coupDoeil, .bombe, .pliou, .luciole: return .openClose
-        case .dessine, .bonneteau: return .book
+        case .dessine, .bonneteau, .chifoumi, .doigts, .sourire: return .book
         case .rayon, .bascule: return .fold
         case .filet, .ecole, .piano, .puissance, .briques: return .lShape
         case .airHockey, .billard, .chess, .draughts, .morpion: return .flat
@@ -218,6 +230,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme, .briques: return L("Seul")
         case .croco: return L("1 à 6 joueurs")
         case .duels: return L("2 joueurs")
+        case .chifoumi: return L("1 ou 2 joueurs")
+        case .doigts: return L("Dès 4 ans")
+        case .sourire: return L("2 joueurs et plus")
         case .mots: return L("4 joueurs et plus")
         case .bombe: return L("3 à 8 joueurs")
         case .dessine: return L("3 joueurs et plus")
@@ -234,6 +249,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .croco: return [.twoScreens, .family, .kids, .solo]
         case .duels: return [.duo, .family, .kids]
         case .mots: return [.twoScreens, .family]
+        case .chifoumi: return [.twoScreens, .duo, .solo, .family, .kids]
+        case .doigts: return [.twoScreens, .kids, .solo]
+        case .sourire: return [.twoScreens, .duo, .family]
         case .briques: return [.solo, .kids]
         case .bonneteau: return [.twoScreens, .duo, .solo, .family]
         case .morpion, .puissance: return [.solo, .duo, .family, .kids]
@@ -254,6 +272,9 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .duels: return .duels
         case .mots: return .mots
+        case .chifoumi: return .chifoumi
+        case .doigts: return .doigts
+        case .sourire: return .sourire
         case .boite: return .boite
         case .croco: return .croco
         case .briques: return .briques
@@ -285,6 +306,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .hub: return nil
         case .duels: return .duels
         case .mots: return .mots
+        case .chifoumi: return .chifoumi
+        case .doigts: return .doigts
+        case .sourire: return .sourire
         case .boite: return .boite
         case .croco: return .croco
         case .briques: return .briques
@@ -329,6 +353,30 @@ enum GameID: String, CaseIterable, Identifiable {
                 HowToStep(symbol: "checkmark.circle.fill", text: L("« Trouvé ! » : un point, et la caméra prend la photo de ceux qui ont trouvé. « Mot interdit » : un point de moins.")),
                 duo ? HowToStep(symbol: "timer", text: L("En face, l'écran extérieur montre le chrono et le score. À la fin du temps, on passe le Duo à l'autre équipe."))
                     : HowToStep(symbol: "timer", text: L("À la fin du chrono, on passe le téléphone à l'autre équipe."))
+            ]
+        case .chifoumi:
+            return [
+                duo ? HowToStep(symbol: "book.fill", text: L("À deux : ouvre le Duo comme un livre. Tu tiens l'écran intérieur, l'autre joueur regarde l'écran extérieur, face à la caméra du dos."))
+                    : HowToStep(symbol: "person.2.fill", text: L("À deux : tourne le dos du téléphone vers l'autre joueur, face à la caméra.")),
+                HowToStep(symbol: "hand.tap.fill", text: L("Toi, tu choisis en secret pierre, feuille ou ciseaux sur ton écran, avant « MI ! ».")),
+                HowToStep(symbol: "hand.raised.fill", text: L("En face, on suit « Chi… Fou… MI ! » et on montre sa main à la caméra. Pas besoin de toucher : la caméra lit la main.")),
+                HowToStep(symbol: "iphone", text: L("Seul : montre ta main à la caméra de devant, contre le téléphone. Le premier à 3 points gagne (ou 5)."))
+            ]
+        case .doigts:
+            return [
+                duo ? HowToStep(symbol: "book.fill", text: L("L'adulte tient le Duo ouvert comme un livre. L'enfant, en face, voit le calcul sur l'écran extérieur."))
+                    : HowToStep(symbol: "iphone", text: L("Tourne le dos du téléphone vers l'enfant : il montre ses doigts à la caméra.")),
+                HowToStep(symbol: "hand.raised.fingers.spread.fill", text: L("L'enfant répond en levant ses doigts devant la caméra, et les garde levés un instant. Jusqu'à 10 : avec les deux mains.")),
+                HowToStep(symbol: "checkmark.circle.fill", text: L("La caméra compte toute seule. Si elle se trompe, l'adulte touche « C'est juste » ou « Passer ».")),
+                HowToStep(symbol: "star.fill", text: L("Trois niveaux : compter des dessins, les additions et les soustractions. 10 questions, jusqu'à 3 étoiles."))
+            ]
+        case .sourire:
+            return [
+                duo ? HowToStep(symbol: "book.fill", text: L("Ouvre le Duo comme un livre. Le joueur sérieux se place en face, devant la caméra du dos : il voit son chrono sur l'écran extérieur."))
+                    : HowToStep(symbol: "iphone", text: L("Tourne le dos du téléphone vers le joueur sérieux : la caméra regarde son visage.")),
+                HowToStep(symbol: "face.smiling", text: L("Toi, tu fais le clown : grimaces, blagues, sons rigolos. L'app te donne des idées.")),
+                HowToStep(symbol: "camera.fill", text: L("Au premier sourire, la caméra prend une photo et arrête le chrono. Le chrono attend si le visage sort de l'image.")),
+                HowToStep(symbol: "trophy.fill", text: L("Chacun son tour. Celui qui tient le plus longtemps sans sourire gagne. 60 secondes : imbattable !"))
             ]
         case .boite:
             return [

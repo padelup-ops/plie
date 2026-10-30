@@ -22,20 +22,20 @@ INTERNAL_ONLY = os.environ.get("INTERNAL_ONLY", "").strip() in ("1", "true", "ye
 RESEND = os.environ.get("RESEND", "").strip() in ("1", "true", "yes")
 
 WHATS_NEW = {
-    "fr-FR": """Origamo 1.1 : tout nouveau look, en papier et origami.
+    "fr-FR": """Nouveau : 3 jeux où la personne en face joue sans toucher l'écran, avec ses mains ou son visage devant la caméra. Ouvre le Duo comme un livre : l'écran extérieur lui montre le jeu.
 
-• Accueil refait : fond de papier, jeux à la une en feuilles qu'on fait glisser, « Reprendre », et tous les jeux en cartes pliées, triés d'un geste (à deux, en soirée, la magie du Duo, seul, enfants).
-• Réglages, modes d'emploi et Pass en papier.
-• Dans les jeux : boutons en papier, conseils en pense-bête, cartes de fin de partie et de pause collées sur le jeu.
+- CHIFOUMI : tu choisis en secret, en face on montre pierre, feuille ou ciseaux à la caméra au « MI ! ». Seul, contre le téléphone avec la caméra de devant.
+- CALCUL AUX DOIGTS (enfants) : le calcul s'affiche dehors, l'enfant répond en levant ses doigts. Compter, additions, soustractions.
+- PAS DE SOURIRE ! : fais rire le joueur en face. Au premier sourire, photo et chrono arrêté. Le plus sérieux gagne.
 
-À tester en priorité : l'accueil, les filtres, et les écrans de fin de partie. Dites-nous ce qui vous plaît ou pas !""",
-    "en-US": """Origamo 1.1: a brand-new paper and origami look.
+À tester : est-ce que la caméra lit bien vos mains et vos sourires (lumière, distance) ? Dites-nous !""",
+    "en-US": """New: 3 games where the player opposite plays without touching the screen, using their hands or face in front of the camera. Open the Duo like a book: the outer screen shows them the game.
 
-• New home screen: paper background, featured games as sheets you swipe, "Resume", and every game as a folded card, sorted in one tap (for two, party, Duo magic, solo, kids).
-• Settings, how-to-play screens and the Pass on paper.
-• In the games: paper buttons, tips as sticky notes, end-of-game and pause cards taped onto the game.
+- ROCK PAPER SCISSORS: you pick in secret, the player opposite shows rock, paper or scissors to the camera on "SHOOT!". Solo: against the phone with the front camera.
+- FINGER MATH (kids): the sum shows outside, the child answers by raising fingers. Counting, addition, subtraction.
+- NO SMILING!: make the player opposite laugh. At the first smile: photo and the timer stops. The straightest face wins.
 
-Please test first: the home screen, the filters and the end-of-game screens. Tell us what you like and what you don't!""",
+Please test: does the camera read your hands and smiles well (light, distance)? Tell us!""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
