@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var eveningOn = EveningSummary.isOn
     @State private var weekOn = WeekRecapNotice.isOn
     @State private var notificationsDenied = false
+    @State private var deskAuto = DeskRule.autoOn
     @State private var liveDenied = false
 
     var body: some View {
@@ -136,6 +137,18 @@ struct SettingsView: View {
                     } else {
                         Text("The weekly recap arrives on the last day of the week at 7 pm. The evening summary gives your folds and your time open and closed.")
                     }
+                }
+                Section {
+                    Toggle(isOn: Binding(get: { deskAuto }, set: { on in
+                        DeskRule.autoOn = on
+                        deskAuto = on
+                    })) {
+                        Text("Open when stood in an L")
+                    }
+                } header: {
+                    Text("Desk mode")
+                } footer: {
+                    Text("Stand your phone folded in an L with Foldly on screen: the top half shows the time and your numbers, big, and the screen stays on.")
                 }
                 Section {
                     Toggle(isOn: Binding(get: { liveOn }, set: { on in

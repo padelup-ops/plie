@@ -196,16 +196,16 @@ else:
 # Les nouveautés affichées sur l'App Store, par version.
 RELEASE_NOTES = {
     "1.0.1": {
-        "en-US": "• Phone down: a timer runs on the outer screen while your phone stays closed, and a plant grows every 25 minutes. Build your garden and set a daily goal.\n"
-                 "• Badges for the plant challenge: first sprout, 25, 100 and 500 plants, goal met several days in a row.\n"
-                 "• New Phone down widget, and a better Folds today widget with your daily limit.\n"
-                 "• Mindful pause: a 3-second breath before you unfold, if you want it.\n"
-                 "• Live counter on the Lock Screen, quick checks, longest break, and a card to share your day.",
-        "fr-FR": "• Téléphone posé : un chrono tourne sur l'écran extérieur tant que ton téléphone reste fermé, et une plante pousse toutes les 25 minutes. Fais grandir ton jardin et fixe-toi un objectif.\n"
-                 "• Des badges pour le défi des plantes : première pousse, 25, 100 et 500 plantes, objectif tenu plusieurs jours d'affilée.\n"
-                 "• Nouveau widget Téléphone posé, et widget Plis du jour amélioré avec ta limite.\n"
-                 "• Pause consciente : 3 secondes pour respirer avant d'ouvrir, si tu le souhaites.\n"
-                 "• Compteur en direct sur l'écran verrouillé, coups d'œil, plus longue pause, et une image pour partager ta journée.",
+        "en-US": "• Foldly is now free. Foldly+ is a one-time purchase, and it's already yours if you bought Foldly before.\n"
+                 "• All about your numbers: each day is compared with your own average. The daily limit is optional.\n"
+                 "• NEW Weekly recap: your week compared with the week before, your busiest and calmest days, and a card to share.\n"
+                 "• NEW Desk mode: stand your phone in an L to see the time and your numbers, big.\n"
+                 "• NEW Minimal theme, a new Open & closed widget, and widgets that look great in StandBy.",
+        "fr-FR": "• Foldly est maintenant gratuit. Foldly+ est un achat unique, et il est déjà à toi si tu avais acheté Foldly.\n"
+                 "• Tout pour tes chiffres : chaque journée est comparée à ta propre moyenne. La limite du jour est facultative.\n"
+                 "• NOUVEAU Bilan de la semaine : ta semaine comparée à la précédente, ton jour le plus chargé et le plus calme, et une image à partager.\n"
+                 "• NOUVEAU Mode bureau : pose ton téléphone plié en L pour voir l'heure et tes chiffres en grand.\n"
+                 "• NOUVEAU thème Épuré, un nouveau widget Ouvert / fermé, et des widgets qui s'affichent en grand en mode veille.",
     },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()

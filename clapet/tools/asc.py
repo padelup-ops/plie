@@ -25,73 +25,67 @@ NAMES = {
 }
 SUBTITLE = {"en-US": "Keep your folds under control", "fr-FR": "Garde tes plis sous contrôle"}
 KEYWORDS = {
-    "en-US": "fold,hinge,counter,foldable,folding,widget,limit,habit,screen time,tracker,stats,digital wellbeing",
-    "fr-FR": "pli,charnière,compteur,pliable,pliant,widget,limite,habitude,temps d'écran,suivi,statistiques",
+    "en-US": "fold,hinge,counter,foldable,stats,widget,standby,desk,weekly,recap,tracker,habits,open,closed",
+    "fr-FR": "pli,charnière,compteur,pliable,statistiques,widget,veille,bureau,bilan,semaine,suivi,habitudes",
 }
 PROMO = {
-    "en-US": "How many times a day do you open your phone? Set a daily limit and keep an eye on your folds, right from your Home Screen.",
-    "fr-FR": "Combien de fois par jour ouvres-tu ton téléphone ? Fixe une limite et garde un œil sur tes plis, directement sur ton écran d'accueil.",
+    "en-US": "How many times a day do you unfold your phone? Foldly counts every fold and shows your time open and closed, your week and your records.",
+    "fr-FR": "Combien de fois par jour déplies-tu ton téléphone ? Foldly compte chaque pli et te montre ton temps ouvert et fermé, ta semaine et tes records.",
 }
 PRICE_EUR = os.environ.get("APP_PRICE", "2.99")
 DESCRIPTION = {
-    "en-US": """Every time you unfold your phone, you glance at it. Foldly counts your folds, so you can see your habits and keep them under control.
+    "en-US": """Every time you unfold your phone, Foldly counts it. See how you really use your foldable: your folds, your time open and closed, your busiest hours, your week and your records.
 
-Keep Foldly on screen, on the inner or the outer display: every time you close your phone, it counts. Set a daily limit and watch the ring: green while you're under it, orange when you get close, red when you're over.
+Keep Foldly on screen, on the inner or the outer display: every time you close your phone, it counts. Each day is compared with your own average. Want a limit? Set one, it's optional.
 
 • Folds and opens today, the last 7 days and your total
-• Time open: how long your phone stays open each day
-• A daily limit, and how many folds you have left
-• Limit alerts: a notification at 80 % and at 100 % of your limit
-• Today hour by hour, and your lifetime milestones
-• Widgets for the Home Screen and the Lock Screen, including a big Health-style widget
-• Your full history: 30 days, 12 months, the calendar of days under your limit, your trends and records
-• Five widget colors, and your history as a spreadsheet (CSV)
+• Time open and time closed, every day
+• Weekly recap: your week compared with the week before, your busiest and calmest days, and a card to share
+• Desk mode: stand your phone in an L and see the time and your numbers, big
+• Widgets for the Home Screen, the Lock Screen and StandBy
+• Today hour by hour, your week hour by hour, and your lifetime milestones
+• Three themes: Classic, Modern and Minimal
 • Shortcuts actions "Count a fold" and "Count an opening", to count automatically, even when the app is closed
 
-One purchase, everything included. No subscription, no ads, no account.
+Foldly is free. Foldly+ is a one-time purchase: every widget, your full history (30 days, 12 months, records), widget colors, limit alerts and export. No subscription, no ads, no account.
 
 Counting all day: on screen, Foldly reads the hinge itself. To count when it isn't on screen, plug its "Count a fold" action into the Shortcuts automation "When iPhone is Closed": the app shows you how, step by step. Your numbers stay on your iPhone.""",
-    "fr-FR": """Chaque fois que tu déplies ton téléphone, tu y jettes un œil. Foldly compte tes plis, pour que tu voies tes habitudes et que tu les gardes sous contrôle.
+    "fr-FR": """Chaque fois que tu déplies ton téléphone, Foldly le compte. Vois comment tu utilises vraiment ton pliable : tes plis, ton temps ouvert et fermé, tes heures les plus chargées, ta semaine et tes records.
 
-Garde Foldly à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton téléphone, il compte. Fixe une limite par jour et regarde l'anneau : vert tant que tu es en dessous, orange quand tu t'en approches, rouge quand tu la dépasses.
+Garde Foldly à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton téléphone, il compte. Chaque journée est comparée à ta propre moyenne. Envie d'une limite ? Fixe-la, c'est facultatif.
 
 • Fermetures et ouvertures du jour, les 7 derniers jours et ton total
-• Le temps ouvert : combien de temps ton téléphone reste ouvert chaque jour
-• Une limite par jour, et combien de plis il te reste
-• Des alertes de limite : une notification à 80 % et à 100 % de ta limite
-• Ta journée heure par heure, et tes paliers depuis le début
-• Des widgets pour l'écran d'accueil et l'écran verrouillé, dont un grand widget façon Santé
-• Tout l'historique : 30 jours, 12 mois, le calendrier des jours sous ta limite, tes tendances et tes records
-• Cinq couleurs de widgets, et ton historique en tableur (CSV)
+• Le temps ouvert et le temps fermé, chaque jour
+• Le bilan de la semaine : ta semaine comparée à la précédente, ton jour le plus chargé et le plus calme, et une image à partager
+• Le mode bureau : pose ton téléphone plié en L et vois l'heure et tes chiffres en grand
+• Des widgets pour l'écran d'accueil, l'écran verrouillé et le mode veille
+• Ta journée heure par heure, ta semaine heure par heure, et tes paliers depuis le début
+• Trois thèmes : Classique, Moderne et Épuré
 • Des actions Raccourcis « Compter un pli » et « Compter une ouverture », pour compter automatiquement, même app fermée
 
-Un seul achat, tout est inclus. Sans abonnement, sans pub, sans compte.
+Foldly est gratuit. Foldly+ est un achat unique : tous les widgets, tout l'historique (30 jours, 12 mois, records), les couleurs des widgets, les alertes de limite et l'export. Sans abonnement, sans pub, sans compte.
 
 Compter toute la journée : à l'écran, Foldly lit lui-même la charnière. Pour compter quand il n'est pas à l'écran, branche son action « Compter un pli » sur l'automatisation Raccourcis « iPhone fermé » : l'app te montre comment, pas à pas. Tes chiffres restent sur ton iPhone.""",
 }
 BETA_DESCRIPTION = {
-    "en-US": "Foldly counts how many times you close and open your foldable phone, with a daily limit and widgets like the steps in Health.",
-    "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec une limite par jour et des widgets comme les pas dans Santé.",
+    "en-US": "Foldly counts how many times you close and open your foldable phone, with your time open and closed, a weekly recap and widgets like the steps in Health.",
+    "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec ton temps ouvert et fermé, un bilan de la semaine et des widgets comme les pas dans Santé.",
 }
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• Foldly is now all about your numbers: no more plants, and no limit by default. Each day is compared with your own average.
-• NEW Weekly recap: at the end of each week, your folds compared with the week before, time open and closed, your busiest and calmest days, and a card to share.
-• NEW Minimal theme: just your numbers, black on white (or white on black). Settings > Theme.
-• The "Phone down" widget becomes "Open & closed": time open and closed today, with a timer on the Lock Screen.
-• The daily limit is still there if you want one: Settings > Daily limit.
+• NEW Desk mode: stand your phone folded in an L with Foldly on screen. The top half shows the time and your numbers, big, and the screen stays on. Also in the menu.
+• Widgets in StandBy: the small Foldly widgets now show big and without a background in StandBy.
+• Since the last update: Foldly is all about your numbers (no more plants, the daily limit is optional), with a weekly recap and a new Minimal theme.
 
-Please test: try the Minimal theme, and open your weekly recap (Weekly recap in the menu).""",
+Please test: stand your phone in an L with Foldly open, add a Foldly widget to StandBy, and open your weekly recap.""",
     "fr-FR": """Nouveautés de ce build :
 
-• Foldly se concentre sur tes chiffres : plus de plantes, et plus de limite par défaut. Chaque journée est comparée à ta propre moyenne.
-• NOUVEAU Bilan de la semaine : à la fin de chaque semaine, tes plis comparés à la semaine d'avant, ton temps ouvert et fermé, ton jour le plus chargé et le plus calme, et une carte à partager.
-• NOUVEAU thème Épuré : juste tes chiffres, noir sur blanc (ou blanc sur noir). Réglages > Thème.
-• Le widget « Téléphone posé » devient « Ouvert / fermé » : ton temps ouvert et fermé aujourd'hui, avec un chrono sur l'écran verrouillé.
-• La limite du jour existe toujours si tu en veux une : Réglages > Limite du jour.
+• NOUVEAU Mode bureau : pose ton téléphone plié en L avec Foldly à l'écran. La moitié du haut affiche l'heure et tes chiffres en grand, et l'écran reste allumé. Aussi dans le menu.
+• Widgets en mode veille (StandBy) : les petits widgets Foldly s'affichent en grand et sans fond.
+• Depuis la dernière mise à jour : Foldly se concentre sur tes chiffres (plus de plantes, la limite du jour est facultative), avec un bilan de la semaine et un nouveau thème Épuré.
 
-À tester : essaie le thème Épuré, et ouvre ton bilan de la semaine (Bilan de la semaine dans le menu).""",
+À tester : pose ton téléphone en L avec Foldly ouvert, ajoute un widget Foldly au mode veille, et ouvre ton bilan de la semaine.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
