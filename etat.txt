@@ -1,0 +1,35 @@
+APP 6827349081 Foldly : compteur de plis
+build 40 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe IN_BETA_TESTING | envoyé 2026-10-30T00:41
+build 38 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe BETA_APPROVED | envoyé 2026-10-29T23:39
+build 37 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-10-29T23:28
+build 36 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe BETA_APPROVED | envoyé 2026-10-29T23:18
+build 35 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe BETA_APPROVED | envoyé 2026-10-29T23:05
+build 34 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe BETA_APPROVED | envoyé 2026-10-29T07:44
+build 33 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-10-28T17:48
+build 32 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-10-28T17:36
+vérification bêta a0b9058b-6b99-4f95-9beb-013946ab61f7 APPROVED None
+vérification bêta 950771e9-6194-487e-827e-fbc19cfc4cd3 APPROVED None
+vérification bêta bf0ac8c1-b8f0-4cf8-86f0-22c26997b8a3 APPROVED None
+vérification bêta 236fac1d-f309-4c4e-9273-b6b879b07915 APPROVED None
+vérification bêta 95365ecc-9c65-4f8d-b482-ebce631c7da8 APPROVED None
+envoi 6 1.0 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 18 1.0 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 17 1.0 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 40 1.0 | COMPLETE | {"errors": [], "warnings": [], "infos": [], "state": "COMPLETE"}
+envoi 38 1.0 | COMPLETE | {"errors": [], "warnings": [], "infos": [], "state": "COMPLETE"}
+envoi 37 1.0.1 | COMPLETE | {"errors": [], "warnings": [], "infos": [], "state": "COMPLETE"}
+version App Store 1.0 | WAITING_FOR_REVIEW
+captures 1.0 en-US ['APP_IPHONE_DUO:6', 'APP_IPHONE_67:6']
+captures 1.0 fr-FR ['APP_IPHONE_DUO:6', 'APP_IPHONE_67:6']
+build choisi 1.0 22
+prix : ['']
+disponibilité : oui
+achats intégrés : [('com.padelup.clapet.plus', 'READY_TO_SUBMIT')]
+usage build 40 : {'installCount': 1, 'crashCount': 0, 'sessionCount': 0, 'inviteCount': 32, 'feedbackCount': 0}
+usage build 38 : {'installCount': 1, 'crashCount': 0, 'sessionCount': 5, 'inviteCount': 2, 'feedbackCount': 0}
+usage build 37 : {'installCount': 0, 'crashCount': 0, 'sessionCount': 0, 'inviteCount': 2, 'feedbackCount': 0}
+usage build 36 : {'installCount': 1, 'crashCount': 0, 'sessionCount': 0, 'inviteCount': 2, 'feedbackCount': 0}
+testeurs groupe « Clapet interne » (interne) : 2 · invitation {'EMAIL': 2} · état {'INSTALLED': 2}
+testeurs groupe « Clapet interne » (interne) : 0 · invitation {} · état {}
+testeurs groupe « Duofolds extern testers » (externe) : 32 · invitation {'PUBLIC_LINK': 30, 'EMAIL': 2} · état {'INSTALLED': 32} · lien public actif, limite None
+testeurs au total : 32 · état {'INSTALLED': 32} · invitation {'EMAIL': 2, 'PUBLIC_LINK': 30}
