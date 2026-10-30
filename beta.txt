@@ -1,0 +1,16 @@
+APP_ID 6825605393
+build pas encore visible
+build pas encore visible
+build pas encore visible
+build 45 prêt
+ok     notes À tester fr-FR
+ok     notes À tester en-US
+groupe « test_hamza » (interne) : 2 testeur(s) · reçoit tous les builds
+groupe « test_externe » (externe) : 16 testeur(s) · lien public https://testflight.apple.com/join/BJdP3yV4
+ok     build ajouté au groupe « test_externe »
+état pour les testeurs externes : READY_FOR_BETA_SUBMISSION
+ok     envoi à la vérification bêta d'Apple
+état final pour les testeurs externes : IN_BETA_TESTING
+état pour les testeurs internes : IN_BETA_TESTING
+
+BUILD DISTRIBUÉ
