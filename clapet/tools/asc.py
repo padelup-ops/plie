@@ -74,18 +74,16 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-• NEW Desk mode: stand your phone folded in an L with Foldly on screen. The top half shows the time and your numbers, big, and the screen stays on. Also in the menu.
-• Widgets in StandBy: the small Foldly widgets now show big and without a background in StandBy.
+• Widgets in StandBy: the small Foldly widgets now show big and without a background in StandBy (stand your phone folded in an L, then add a Foldly widget).
 • Since the last update: Foldly is all about your numbers (no more plants, the daily limit is optional), with a weekly recap and a new Minimal theme.
 
-Please test: stand your phone in an L with Foldly open, add a Foldly widget to StandBy, and open your weekly recap.""",
+Please test: add a Foldly widget to StandBy, try the Minimal theme, and open your weekly recap.""",
     "fr-FR": """Nouveautés de ce build :
 
-• NOUVEAU Mode bureau : pose ton téléphone plié en L avec Foldly à l'écran. La moitié du haut affiche l'heure et tes chiffres en grand, et l'écran reste allumé. Aussi dans le menu.
-• Widgets en mode veille (StandBy) : les petits widgets Foldly s'affichent en grand et sans fond.
+• Widgets en mode veille (StandBy) : les petits widgets Foldly s'affichent en grand et sans fond (pose ton téléphone plié en L, puis ajoute un widget Foldly).
 • Depuis la dernière mise à jour : Foldly se concentre sur tes chiffres (plus de plantes, la limite du jour est facultative), avec un bilan de la semaine et un nouveau thème Épuré.
 
-À tester : pose ton téléphone en L avec Foldly ouvert, ajoute un widget Foldly au mode veille, et ouvre ton bilan de la semaine.""",
+À tester : ajoute un widget Foldly au mode veille, essaie le thème Épuré, et ouvre ton bilan de la semaine.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

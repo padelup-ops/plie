@@ -645,10 +645,6 @@ struct ClassicHomeView: View {
                 showWeek = true
             }
             Divider().padding(.leading, 52)
-            row("laptopcomputer", Text("Desk mode"), Text("Stand your phone in an L: the time and your numbers, big"), locked: false) {
-                DeskCenter.shared.showing = true
-            }
-            Divider().padding(.leading, 52)
             row("calendar", Text("History"), Text("30 days, 12 months, records"), locked: !store.hasPlus) {
                 if store.hasPlus { showHistory = true } else { plusReason = .history }
             }
