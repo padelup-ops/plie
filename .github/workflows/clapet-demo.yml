@@ -131,8 +131,8 @@ jobs:
           echo "BID=$BID" >> "$GITHUB_ENV"
           gzip -f ../rushes/build.log
 
-      - name: Écran intérieur sur iPad (v9)
-        if: ${{ github.event.inputs.set == 'v9' }}
+      - name: Écran intérieur sur iPad (v9, v10)
+        if: ${{ github.event.inputs.set == 'v9' || github.event.inputs.set == 'v10' }}
         run: |
           mkdir -p rushes/interieur
           # Taille en points de l'écran intérieur du Duo (2007 x 2853 pixels), d'après le profil du simulateur
@@ -165,25 +165,30 @@ jobs:
           # Le runtime n'a pas d'iPad : le cadre de l'écran intérieur est réduit dans l'écran extérieur du Duo
           for L in ${{ github.event.inputs.langs }}; do
             LOC=fr_FR; [ "$L" = "en" ] && LOC=en_US
-            for SHOT in classic:home night:home minimal:home classic:hours night:hours classic:week night:week classic:month; do
-              LOOK=${SHOT%%:*}; ROOT=${SHOT##*:}
+            SHOTS="classic:home:47 night:home:47 minimal:home:47 classic:hours:47 night:hours:47 classic:week:47 night:week:47 classic:month:47"
+            if [ "${{ github.event.inputs.set }}" = "v10" ]; then
+              SHOTS="night:home:44 night:home:45 night:home:46 night:home:47 classic:home:47 minimal:home:47 minimal:hours:47 minimal:week:47"
+            fi
+            for SHOT in $SHOTS; do
+              LOOK=$(echo "$SHOT" | cut -d: -f1); ROOT=$(echo "$SHOT" | cut -d: -f2); TODAY=$(echo "$SHOT" | cut -d: -f3)
+              TAG="$LOOK-$ROOT-$TODAY"
               # Intérieur : image de la fenêtre à la taille de l'écran intérieur, écrite par l'app
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
               DATA=$(xcrun simctl get_app_container "$UDID" "$BID" data 2>/dev/null || true)
               rm -f "$DATA/Documents/inner.png"
-              xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday 47 -look "$LOOK" \
+              xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday "$TODAY" -look "$LOOK" \
                 -demoNoCards 1 -demoHinge "0:176,300:176" -demoDelay 0 \
                 -innerSize "${IW}x${IH}" -innerRoot "$ROOT" -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
               for i in $(seq 1 30); do [ -f "$DATA/Documents/inner.png" ] && break; sleep 1; done
               sleep 1
-              cp "$DATA/Documents/inner.png" "rushes/interieur/$L-$LOOK-$ROOT.png" 2>/dev/null || echo "pas d'image $L-$LOOK-$ROOT" >> rushes/interieur/profil.txt
+              cp "$DATA/Documents/inner.png" "rushes/interieur/$L-$TAG.png" 2>/dev/null || echo "pas d'image $L-$TAG" >> rushes/interieur/profil.txt
               # Extérieur (Duo fermé), même état, pour les écrans d'accueil
               if [ "$ROOT" = "home" ]; then
                 xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
-                xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday 47 -look "$LOOK" \
+                xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday "$TODAY" -look "$LOOK" \
                   -demoNoCards 1 -demoHinge "0:5,300:5" -demoDelay 0 -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
                 sleep 7
-                xcrun simctl io "$UDID" screenshot --display=1 --mask=black "rushes/interieur/$L-$LOOK-exterieur.png" > /dev/null 2>&1 || true
+                xcrun simctl io "$UDID" screenshot --display=1 --mask=black "rushes/interieur/$L-$LOOK-exterieur-$TODAY.png" > /dev/null 2>&1 || true
               fi
             done
           done
@@ -341,7 +346,7 @@ jobs:
           cat rushes/fichiers.txt
 
       - name: Voix off (macOS say)
-        if: ${{ github.event.inputs.set == 'v3' }}
+        if: ${{ github.event.inputs.set == 'v3' || github.event.inputs.set == 'v10' }}
         run: |
           mkdir -p rushes/voix
           say -v '?' > rushes/voix/voix-disponibles.txt 2>&1 || true
