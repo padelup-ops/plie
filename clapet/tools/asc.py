@@ -295,6 +295,9 @@ if internal and wanted:
 
 # ------------------------------------------------------------ 6. Les testeurs externes
 external = [g for g in call(f"GET", f"/v1/apps/{app_id}/betaGroups?limit=50").get("data", []) if not g["attributes"].get("isInternalGroup")]
+if external and os.environ.get("NO_PUBLIC_BETA") == "1":
+    print("       testeurs externes : on n'envoie pas ce build (NO_PUBLIC_BETA=1)")
+    external = []
 if external:
     # Coordonnées pour la vérification bêta d'Apple : les mêmes que pour Origamo si elles manquent.
     mine = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {})

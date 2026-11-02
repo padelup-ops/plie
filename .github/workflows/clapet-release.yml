@@ -54,7 +54,7 @@ jobs:
           if [ "${{ inputs.app }}" = "origamo" ]; then
             python3 tools/asc_fiche.py 2>&1 | tee fiche.txt || true
           else
-            SKIP_NOTES=1 BUILD_NUMBER=${{ inputs.build }} timeout 600 python3 clapet/tools/asc.py 2>&1 | grep -v "attente du traitement" | tee fiche.txt || true
+            NO_PUBLIC_BETA=1 SKIP_NOTES=1 BUILD_NUMBER=${{ inputs.build }} timeout 600 python3 clapet/tools/asc.py 2>&1 | grep -v "attente du traitement" | tee fiche.txt || true
           fi
       - name: Creative assets (vidéo d'en-tête et de recherche, iOS 27)
         if: inputs.withdraw != '1'
