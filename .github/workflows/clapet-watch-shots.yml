@@ -50,21 +50,26 @@ jobs:
 
       - name: Simulateur Apple Watch
         run: |
-          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "
+          SDK=$(xcrun --sdk watchsimulator --show-sdk-version)
+          echo "SDK watchOS $SDK"
+          pick_runtime() {
+            xcrun simctl list runtimes -j | python3 -c "
           import json, sys
+          sdk = sys.argv[1]
           rs = [r for r in json.load(sys.stdin)['runtimes'] if r.get('platform') == 'watchOS' and r.get('isAvailable')]
-          print(rs[-1]['identifier'] if rs else '')")
+          ok = [r for r in rs if r.get('version', '').startswith(sdk)]
+          print(ok[-1]['identifier'] if ok else '')" "$SDK"
+          }
+          RUNTIME=$(pick_runtime)
           if [ -z "$RUNTIME" ]; then
             xcodebuild -downloadPlatform watchOS 2>&1 | tail -3
-            RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "
-          import json, sys
-          rs = [r for r in json.load(sys.stdin)['runtimes'] if r.get('platform') == 'watchOS' and r.get('isAvailable')]
-          print(rs[-1]['identifier'] if rs else '')")
+            RUNTIME=$(pick_runtime)
           fi
+          xcrun simctl list runtimes | grep -i watch | tee shots/runtimes.txt
           TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
           import json, sys
           d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Apple Watch' in x['name']]
-          pick = [x for x in d if 'Series' in x['name'] and '46' in x['name']] or [x for x in d if 'Series' in x['name']] or d
+          pick = [x for x in d if 'Ultra' in x['name']] or [x for x in d if 'Series' in x['name']] or d
           print(pick[-1]['identifier'])")
           echo "runtime=$RUNTIME type=$TYPE" | tee shots/simulateur.txt
           UDID=$(xcrun simctl create "Foldly Watch" "$TYPE" "$RUNTIME")
