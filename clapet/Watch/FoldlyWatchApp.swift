@@ -58,7 +58,26 @@ final class WatchStore: NSObject, WCSessionDelegate {
 struct WatchRootView: View {
     @Environment(WatchStore.self) private var store
 
+    /// Captures de la vidéo : `-demoWatchPage today|week|time|face` montre une seule page avec les chiffres d'exemple.
+    private var demoPage: String? { UserDefaults.standard.string(forKey: "demoWatchPage") }
+
     var body: some View {
+        if let page = demoPage {
+            let data = FoldlyWatchData.sample
+            switch page {
+            case "week": WeekPage(data: data)
+            case "time": TimePage(data: data, now: Date())
+            #if DEMO_FACE
+            case "face": DemoFace(data: data)
+            #endif
+            default: TodayPage(data: data)
+            }
+        } else {
+            live
+        }
+    }
+
+    private var live: some View {
         TimelineView(.periodic(from: .now, by: 60)) { context in
             if let data = store.data?.current(at: context.date) {
                 TabView {
@@ -230,3 +249,34 @@ struct WaitingPage: View {
         .padding()
     }
 }
+
+#if DEMO_FACE
+/// Un cadran d'exemple avec les vraies complications de Foldly (pour la vidéo uniquement).
+struct DemoFace: View {
+    let data: FoldlyWatchData
+
+    var body: some View {
+        let entry = WatchEntry(date: Date(), data: data)
+        VStack(spacing: 6) {
+            HStack(alignment: .top) {
+                FoldlyComplicationView(entry: entry, forced: .accessoryCircular)
+                    .frame(width: 52, height: 52)
+                Spacer()
+                Text(verbatim: "MON 2")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(WatchPalette.mint)
+            }
+            Text(verbatim: "10:09")
+                .font(.system(size: 62, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            FoldlyComplicationView(entry: entry, forced: .accessoryRectangular)
+                .frame(height: 52)
+        }
+        .padding(.horizontal, 6)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black)
+        .ignoresSafeArea()
+    }
+}
+#endif

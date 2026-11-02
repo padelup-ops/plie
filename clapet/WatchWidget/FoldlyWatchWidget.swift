@@ -36,8 +36,11 @@ struct WatchProvider: TimelineProvider {
 }
 
 struct FoldlyComplicationView: View {
-    @Environment(\.widgetFamily) private var family
+    @Environment(\.widgetFamily) private var widgetFamily
     let entry: WatchEntry
+    /// Pour les captures de la vidéo : force une famille hors d'un vrai cadran.
+    var forced: WidgetFamily? = nil
+    private var family: WidgetFamily { forced ?? widgetFamily }
 
     private var data: FoldlyWatchData? { entry.data?.current(at: entry.date) }
 
