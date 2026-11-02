@@ -80,14 +80,24 @@ Install it from the App Store to keep your data: it simply replaces this beta. T
 
 Thank you so much for testing Foldly and for all your ideas!
 
-In this build: break reminder, numbers on Apple Watch, desk mode.""",
+New in this build: set your own daily limit (tap the number in Settings), break reminder, numbers on Apple Watch, desk mode.
+
+Before you switch, a 2-minute test helps a lot:
+1. Close Foldly, fold your Duo 10 times, then compare the app, the widget and the Apple Watch complication. Same number?
+2. Desk mode: try it held like a book, then set on the table. Which one would you really use?
+3. Reply with your iPhone model.""",
     "fr-FR": """Foldly est disponible sur l'App Store 🎉
 
 Installe-le depuis l'App Store pour garder tes données : il remplace simplement cette bêta. La bêta s'arrête le 9 novembre.
 
 Merci pour ton aide et pour toutes tes idées !
 
-Dans ce build : rappel de pause, chiffres sur l'Apple Watch, mode bureau.""",
+Nouveau dans ce build : fixe ta propre limite par jour (touche le chiffre dans Réglages), rappel de pause, chiffres sur l'Apple Watch, mode bureau.
+
+Avant de changer, un test de 2 minutes nous aide beaucoup :
+1. Ferme Foldly, plie ton Duo 10 fois, puis compare l'app, le widget et la complication de l'Apple Watch. Même chiffre ?
+2. Mode bureau : essaie-le tenu comme un livre, puis posé sur la table. Lequel utiliserais-tu vraiment ?
+3. Réponds en indiquant ton modèle d'iPhone.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

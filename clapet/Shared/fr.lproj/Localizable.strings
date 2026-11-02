@@ -1,4 +1,10 @@
 /* Foldly (écrit par clapet/tools/strings.py) */
+"Foldly is on the App Store!" = "Foldly est sur l'App Store !";
+"Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta." = "Merci de l'avoir testé. Installe la version App Store pour garder tes données : elle remplace simplement cette bêta.";
+"The beta ends on November 9." = "La bêta s'arrête le 9 novembre.";
+"Get it on the App Store" = "Télécharger sur l'App Store";
+"Later" = "Plus tard";
+"Limit a day" = "Limite par jour";
 "Foldly is now on the App Store" = "Foldly est sur l'App Store";
 "Install it to keep your data. The beta ends on November 9." = "Installe-le pour garder tes données. La bêta s'arrête le 9 novembre.";
 "Install" = "Installer";
@@ -472,7 +478,6 @@
 "6 questions, about 1 minute" = "6 questions, environ 1 minute";
 "Anonymous, unless you leave your email" = "Anonyme, sauf si tu laisses ton e-mail";
 "You pick the next feature" = "Tu choisis la prochaine nouveauté";
-"Later" = "Plus tard";
 "Add a widget" = "Ajouter un widget";
 "Home Screen and Lock Screen" = "Écran d'accueil et écran verrouillé";
 "1 widget on your screens" = "1 widget sur tes écrans";

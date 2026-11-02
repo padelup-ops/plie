@@ -165,7 +165,7 @@ final class ClapetModel {
     }
 
     func setGoal(_ g: Int) {
-        stats.goal = max(10, min(2000, g))
+        stats.goal = max(5, min(2000, g))
         changed()
     }
 

@@ -8,6 +8,9 @@ struct ClapetApp: App {
     @State private var model = ClapetModel()
     @State private var store = ClapetStore()
     @Environment(\.scenePhase) private var phase
+    /// Version TestFlight : l'écran de fête « Foldly est sur l'App Store », une fois.
+    @AppStorage("launchPartySeen") private var partySeen = false
+    @State private var party = false
 
     init() {
         UNUserNotificationCenter.current().delegate = AlertPresenter.shared
@@ -17,6 +20,8 @@ struct ClapetApp: App {
         WindowGroup {
             ContentView()
                 .safeAreaInset(edge: .bottom) { BetaBanner() }
+                .fullScreenCover(isPresented: $party, onDismiss: { partySeen = true }) { LaunchCelebration() }
+                .onAppear { if BetaBanner.isTestFlight && !partySeen { party = true } }
                 .environment(model)
                 .environment(store)
                 .task {

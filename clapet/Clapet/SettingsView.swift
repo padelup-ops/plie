@@ -89,8 +89,18 @@ struct SettingsView: View {
                         Text("Daily limit")
                     }
                     if model.stats.goalOn {
-                        Stepper(value: Binding(get: { model.stats.goal }, set: { model.setGoal($0) }), in: 10...2000, step: 10) {
-                            Text("Limit: \(model.stats.goal) a day")
+                        // Ta propre limite : tape le chiffre, ou ajuste de 5 en 5.
+                        let goal = Binding(get: { model.stats.goal }, set: { model.setGoal(min(2000, max(5, $0))) })
+                        Stepper(value: goal, in: 5...2000, step: 5) {
+                            HStack {
+                                Text("Limit a day")
+                                Spacer()
+                                TextField("Limit a day", value: goal, format: .number)
+                                    .keyboardType(.numberPad)
+                                    .multilineTextAlignment(.trailing)
+                                    .font(.body.monospacedDigit().weight(.semibold))
+                                    .frame(width: 64)
+                            }
                         }
                         Toggle(isOn: Binding(get: { model.alertsOn && store.hasPlus }, set: { on in
                             guard store.hasPlus else { showPlus = true; return }
