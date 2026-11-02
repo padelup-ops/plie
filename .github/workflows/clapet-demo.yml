@@ -157,25 +157,13 @@ jobs:
               pass
           s = next((x for x in found if x), None) or 3
           w, h = round(2853 / s), round(2007 / s)
-          k = min(1.0, 1000 / w, 1300 / h)
+          k = min(1.0, 460 / w, 660 / h)
           print(w, h, round(k, 4))
           PY
           )
           echo "écran intérieur : ${IW}x${IH} points, échelle $IK" | tee -a rushes/interieur/profil.txt
-          # Un iPad pris en charge par le runtime iOS (le plus grand, de préférence un iPad Pro 13 pouces)
-          IPAD_TYPE=$(xcrun simctl list runtimes -j | python3 -c "
-          import json, sys, os
-          r = [x for x in json.load(sys.stdin)['runtimes'] if x['identifier'] == os.environ['RUNTIME']][0]
-          d = [x for x in r.get('supportedDeviceTypes', []) if x['name'].startswith('iPad')]
-          best = [x for x in d if 'Pro' in x['name'] and '13' in x['name']] or [x for x in d if 'Air' in x['name'] and '13' in x['name']] or d
-          print(best[-1]['identifier'] if best else '')")
-          echo "iPad : $IPAD_TYPE" | tee -a rushes/interieur/profil.txt
-          IPAD=$(xcrun simctl create "Duo ouvert" "$IPAD_TYPE" "$RUNTIME")
-          xcrun simctl boot "$IPAD"
-          xcrun simctl bootstatus "$IPAD" -b
-          xcrun simctl status_bar "$IPAD" override --time 9:41 --batteryState charged --batteryLevel 100 --wifiBars 3 --cellularBars 4 || true
-          APP=clapet/build/Build/Products/Debug-iphonesimulator/Clapet.app
-          xcrun simctl install "$IPAD" "$APP"
+          # Le runtime n'a pas d'iPad : le cadre de l'écran intérieur est réduit dans l'écran extérieur du Duo
+          IPAD="$UDID"
           for L in ${{ github.event.inputs.langs }}; do
             LOC=fr_FR; [ "$L" = "en" ] && LOC=en_US
             for SHOT in classic:home night:home minimal:home classic:hours night:hours classic:week night:week classic:month; do
@@ -185,7 +173,7 @@ jobs:
               xcrun simctl launch "$IPAD" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday 47 -look "$LOOK" \
                 -innerSize "${IW}x${IH}" -innerScale "$IK" -innerRoot "$ROOT" -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
               sleep 7
-              xcrun simctl io "$IPAD" screenshot "rushes/interieur/$L-$LOOK-$ROOT.png" > /dev/null 2>&1 || true
+              xcrun simctl io "$IPAD" screenshot --display=1 --mask=black "rushes/interieur/$L-$LOOK-$ROOT.png" > /dev/null 2>&1 || true
               # Extérieur (Duo fermé), même état, pour les écrans d'accueil
               if [ "$ROOT" = "home" ]; then
                 xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
