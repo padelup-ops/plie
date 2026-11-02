@@ -1,0 +1,30 @@
+# Utilisateurs App Store Connect : liste, et retrait de ceux demandés (apply=1)
+name: Clapet - utilisateurs
+on:
+  workflow_dispatch:
+    inputs:
+      remove:
+        description: "E-mails ou prénoms à retirer, séparés par des virgules"
+        required: false
+        default: ""
+      apply:
+        description: "1 = retirer pour de vrai"
+        required: false
+        default: "0"
+jobs:
+  users:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      REMOVE: ${{ inputs.remove }}
+      APPLY: ${{ inputs.apply }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Utilisateurs
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_users.py 2>&1 | tee users.txt
