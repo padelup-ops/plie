@@ -74,24 +74,36 @@ BETA_DESCRIPTION = {
     "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec ton temps ouvert et fermé, un bilan de la semaine et des widgets comme les pas dans Santé.",
 }
 WHATS_NEW = {
-    "en-US": """New: Desk mode.
+    "en-US": """New: Break reminder. When your Duo stays open for a while (30 min by default), Foldly suggests a short break, on your iPhone or your Apple Watch. Turn it on in Settings > Summaries.
 
-Open your iPhone Duo halfway and set it on the table like a little laptop. Foldly splits the inner screen at the hinge: today's count and the hinge angle stand on top, your time closed, yesterday, the last 7 days and shortcuts lie on the bottom half.
+New on Apple Watch: each day of the week now shows its number above the bar, like on iPhone (thanks for the idea!).
+
+New: Desk mode.
+
+Open your iPhone Duo halfway. Held like a book, Foldly turns into two pages: today's count and the hinge angle on the left, your time closed, yesterday, the last 7 days and shortcuts on the right. Set it on the table like a little laptop: the count stands on top, the details lie below.
+
+On the inner screen, Foldly now also turns sideways when you hold your Duo wide.
 
 You can turn it off in Settings > Feel.
 
 Also in recent builds: Apple Watch app and complications, Your hours, Monthly recap, new widgets.
 
-Please test: open Foldly, fold your Duo to about 90° and set it down. Does the screen switch? Is it readable?""",
-    "fr-FR": """Nouveau : le mode bureau.
+Please test: open Foldly, fold your Duo to about 90° like a book, then set it on the table. Does the screen switch? Is it readable?""",
+    "fr-FR": """Nouveau : le rappel de pause. Quand ton Duo reste ouvert longtemps (30 min par défaut), Foldly te propose une petite pause, sur ton iPhone ou ton Apple Watch. À activer dans Réglages > Bilans.
 
-Ouvre ton iPhone Duo à moitié et pose-le sur la table comme un petit portable. Foldly coupe l'écran intérieur au niveau de la charnière : le chiffre du jour et l'angle se tiennent en haut, ton temps fermé, hier, les 7 derniers jours et des raccourcis sont posés en bas.
+Nouveau sur l'Apple Watch : chaque jour de la semaine affiche son chiffre au-dessus de la barre, comme sur l'iPhone (merci pour l'idée !).
+
+Nouveau : le mode bureau.
+
+Ouvre ton iPhone Duo à moitié. Tenu comme un livre, Foldly devient deux pages : le chiffre du jour et l'angle à gauche, ton temps fermé, hier, les 7 derniers jours et des raccourcis à droite. Posé sur la table comme un petit portable : le chiffre se tient en haut, les détails sont posés en bas.
+
+Sur l'écran intérieur, Foldly tourne maintenant aussi quand tu tiens ton Duo en largeur.
 
 Tu peux le désactiver dans Réglages > Ressenti.
 
 Aussi dans les derniers builds : app Apple Watch et complications, Tes heures, Bilan du mois, nouveaux widgets.
 
-À tester : ouvre Foldly, plie ton Duo à environ 90° et pose-le. L'écran change-t-il ? Est-ce lisible ?""",
+À tester : ouvre Foldly, plie ton Duo à environ 90° comme un livre, puis pose-le sur la table. L'écran change-t-il ? Est-ce lisible ?""",
 }
 SUBTITLE = {"en-US": "Keep your folds under control", "fr-FR": "Garde tes plis sous contrôle"}
 KEYWORDS = {

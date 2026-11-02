@@ -25,6 +25,7 @@ enum AutomaticCounter {
         WidgetCenter.shared.reloadAllTimelines()
         LiveCounter.refresh(stats)
         EveningSummary.schedule(stats)
+        BreakReminder.schedule(stats)
         WatchSync.shared.push(stats)
         return stats.today
     }
@@ -43,6 +44,7 @@ enum AutomaticCounter {
         WidgetCenter.shared.reloadAllTimelines()
         LiveCounter.refresh(stats)
         EveningSummary.schedule(stats)
+        BreakReminder.schedule(stats)
         WatchSync.shared.push(stats)
     }
 }

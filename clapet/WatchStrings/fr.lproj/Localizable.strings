@@ -1,5 +1,11 @@
 /* Foldly Watch (écrit par clapet/tools/strings.py) */
-"Desk mode: open your iPhone Duo halfway and set it on the table. The count stands on top, the details lie below." = "Mode bureau : ouvre ton iPhone Duo à moitié et pose-le sur la table. Le chiffre se tient en haut, les détails sont posés en bas.";
+"Time for a break?" = "Une petite pause ?";
+"Your iPhone Duo has been open for %lld min. Fold it for a moment." = "Ton iPhone Duo est ouvert depuis %lld min. Replie-le un moment.";
+"After %lld min open" = "Après %lld min ouvert";
+"Break reminder" = "Rappel de pause";
+"Remind me" = "Me le rappeler";
+"When your Duo stays open for a while, Foldly suggests a short break. It also shows up on your Apple Watch when your iPhone is locked." = "Quand ton Duo reste ouvert longtemps, Foldly te propose une petite pause. Le rappel arrive aussi sur ton Apple Watch quand ton iPhone est verrouillé.";
+"Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top." = "Mode bureau : ouvre ton iPhone Duo à moitié. Tenu comme un livre, le chiffre du jour est sur la page de gauche et les détails sur celle de droite. Posé sur la table, le chiffre se tient en haut.";
 "Monthly recap" = "Bilan du mois";
 "Your hours" = "Tes heures";
 "Your month, compared with the month before" = "Ton mois, comparé au mois d'avant";

@@ -76,7 +76,7 @@ final class ClapetModel {
         guard let nowClosed else { return }
         isClosed = nowClosed
         // Vu ouvert sans ouverture en cours (app lancée Duo ouvert) : on commence à mesurer.
-        if !nowClosed && stats.openSince == nil && (state != false || resumed) { stats.startOpen() }
+        if !nowClosed && stats.openSince == nil && (state != false || resumed) { stats.startOpen(); BreakReminder.schedule(stats) }
         resumed = false
         defer { state = nowClosed }
         guard let previous = state, previous != nowClosed else { return }
@@ -240,6 +240,7 @@ final class ClapetModel {
         LiveCounter.refresh(stats)
         WatchSync.shared.push(stats)
         EveningSummary.schedule(stats)
+        BreakReminder.schedule(stats)
         // Les widgets suivent, sans les recharger à chaque clapet.
         let wait = 1.5 - Date().timeIntervalSince(lastWidgetReload)
         if wait <= 0 {

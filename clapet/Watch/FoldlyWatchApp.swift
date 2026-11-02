@@ -129,6 +129,13 @@ struct WeekPage: View {
                     let day = cal.date(byAdding: .day, value: i - 6, to: Date()) ?? Date()
                     let wd = cal.component(.weekday, from: day) - 1
                     VStack(spacing: 3) {
+                        // Le chiffre au-dessus de la barre, comme sur l'iPhone
+                        Text(week[i], format: .number)
+                            .font(.system(size: 10, weight: i == 6 ? .bold : .medium, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(i == 6 ? WatchPalette.mint : .secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
                         Capsule()
                             .fill(i == 6 ? WatchPalette.mint : WatchPalette.track)
                             .frame(height: max(4, 64 * CGFloat(week[i]) / CGFloat(top)))
@@ -139,7 +146,7 @@ struct WeekPage: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .frame(height: 84, alignment: .bottom)
+            .frame(height: 98, alignment: .bottom)
             Text("\(week.reduce(0, +)) this week")
                 .font(.footnote)
                 .foregroundStyle(.secondary)

@@ -13,6 +13,8 @@ struct SettingsView: View {
     @AppStorage(DFLook.key) private var lookRaw = ""
     @State private var liveOn = LiveCounter.isOn
     @State private var eveningOn = EveningSummary.isOn
+    @State private var breakOn = BreakReminder.isOn
+    @State private var breakMinutes = BreakReminder.minutes
     @State private var weekOn = WeekRecapNotice.isOn
     @State private var notificationsDenied = false
     @State private var liveDenied = false
@@ -141,6 +143,32 @@ struct SettingsView: View {
                     }
                 }
                 Section {
+                    Toggle(isOn: Binding(get: { breakOn }, set: { on in
+                        Task {
+                            let ok = on ? await LimitAlerts.requestPermission() : true
+                            BreakReminder.setOn(ok && on, stats: model.stats)
+                            breakOn = ok && on
+                            notificationsDenied = on && !ok
+                        }
+                    })) {
+                        Text("Break reminder")
+                    }
+                    if breakOn {
+                        Picker(selection: Binding(get: { breakMinutes }, set: { m in
+                            breakMinutes = m
+                            BreakReminder.setMinutes(m, stats: model.stats)
+                        })) {
+                            ForEach(BreakReminder.choices, id: \.self) { m in
+                                Text("After \(m) min open").tag(m)
+                            }
+                        } label: {
+                            Text("Remind me")
+                        }
+                    }
+                } footer: {
+                    Text("When your Duo stays open for a while, Foldly suggests a short break. It also shows up on your Apple Watch when your iPhone is locked.")
+                }
+                Section {
                     Toggle(isOn: Binding(get: { liveOn }, set: { on in
                         if on {
                             liveOn = LiveCounter.start(model.stats)
@@ -169,7 +197,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Feel")
                 } footer: {
-                    Text("Desk mode: open your iPhone Duo halfway and set it on the table. The count stands on top, the details lie below.")
+                    Text("Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top.")
                 }
                 Section {
                     Text("On screen, Foldly reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.")
