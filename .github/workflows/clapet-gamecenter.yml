@@ -1,0 +1,23 @@
+# Game Center : classements de Foldly dans App Store Connect
+name: Clapet - Game Center
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version à lier (ex. 1.0.2), vide = seulement les classements"
+        required: false
+        default: ""
+jobs:
+  gc:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Game Center
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_gamecenter.py 2>&1 | tee gc.txt

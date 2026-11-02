@@ -26,12 +26,14 @@ struct ClapetApp: App {
                 .environment(store)
                 .task {
                     store.onChange = { [model] has in model.setPlus(has) }
+                    GameCenter.shared.start()
                     await store.load()
                 }
                 .onChange(of: phase) { _, p in
                     if p == .active {
                         model.reload()
                         LiveCounter.resume(model.stats)
+                        GameCenter.shared.submit(model.stats)
                         Task { await store.refresh() }
                     } else {
                         model.leavingScreen()

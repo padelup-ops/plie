@@ -8,6 +8,8 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var confirmReset = false
     @State private var showPlus = false
+    @State private var gameCenter = GameCenter.shared
+    @State private var leaderboard: String?
     @State private var alertsDenied = false
     @State private var showAuto = false
     @AppStorage(DFLook.key) private var lookRaw = ""
@@ -121,6 +123,29 @@ struct SettingsView: View {
                         Text("Notifications are off for Foldly. Turn them on in the Settings app.")
                     } else {
                         Text("A notification at 80 % and at 100 % of your limit.")
+                    }
+                }
+                Section {
+                    Toggle(isOn: Binding(get: { gameCenter.on }, set: { gameCenter.setOn($0); if $0 { gameCenter.submit(model.stats) } })) {
+                        Text("Join the leaderboard")
+                    }
+                    if gameCenter.on && gameCenter.signedIn {
+                        Button { leaderboard = GameCenter.streakID } label: {
+                            Label("Longest streak under your limit", systemImage: "flame.fill")
+                        }
+                        Button { leaderboard = GameCenter.monthID } label: {
+                            Label("Days under your limit this month", systemImage: "calendar")
+                        }
+                    }
+                } header: {
+                    Text("Leaderboard")
+                } footer: {
+                    if let problem = gameCenter.problem {
+                        Text(problem)
+                    } else if !model.stats.goalOn {
+                        Text("Turn on a daily limit to get a score. Only days when you used your Duo count.")
+                    } else {
+                        Text("With Game Center, compare your streak and your month with other Foldly users and your friends. Only your two scores are shared, through Apple. Off by default.")
                     }
                 }
                 Section {
@@ -247,6 +272,9 @@ struct SettingsView: View {
             .sheet(isPresented: $showAuto) {
                 AutoCountView().environment(model)
             }
+            .sheet(item: Binding(get: { leaderboard.map(LeaderboardID.init) }, set: { leaderboard = $0?.id })) { item in
+                LeaderboardScreen(leaderboardID: item.id).ignoresSafeArea()
+            }
             .sheet(isPresented: $showPlus) {
                 PlusView().environment(model).environment(store)
             }
@@ -259,3 +287,5 @@ struct SettingsView: View {
         }
     }
 }
+
+private struct LeaderboardID: Identifiable { let id: String }

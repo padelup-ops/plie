@@ -15,6 +15,14 @@ FR = {
     # Look Aurore
     "Aurora": "Aurore",
     "Northern lights that move with your hinge": "Des aurores boréales qui bougent avec ta charnière",
+    # Classements Game Center
+    "Join the leaderboard": "Rejoindre le classement",
+    "Leaderboard": "Classement",
+    "Longest streak under your limit": "Plus longue série sous ta limite",
+    "Days under your limit this month": "Jours sous ta limite ce mois-ci",
+    "Turn on a daily limit to get a score. Only days when you used your Duo count.": "Active une limite par jour pour avoir un score. Seuls les jours où tu as utilisé ton Duo comptent.",
+    "With Game Center, compare your streak and your month with other Foldly users and your friends. Only your two scores are shared, through Apple. Off by default.": "Avec Game Center, compare ta série et ton mois avec les autres utilisateurs de Foldly et tes amis. Seuls tes deux scores sont partagés, via Apple. Désactivé par défaut.",
+    "Sign in to Game Center in the Settings app to join the leaderboard.": "Connecte-toi à Game Center dans l'app Réglages pour rejoindre le classement.",
     # Bandeau de la bêta (TestFlight)
     "Foldly is on the App Store!": "Foldly est sur l'App Store !",
     "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta.": "Merci de l'avoir testé. Installe la version App Store pour garder tes données : elle remplace simplement cette bêta.",

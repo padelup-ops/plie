@@ -241,6 +241,8 @@ final class ClapetModel {
         WatchSync.shared.push(stats)
         EveningSummary.schedule(stats)
         BreakReminder.schedule(stats)
+        let snapshot = stats
+        Task { @MainActor in GameCenter.shared.submit(snapshot) }
         // Les widgets suivent, sans les recharger à chaque clapet.
         let wait = 1.5 - Date().timeIntervalSince(lastWidgetReload)
         if wait <= 0 {

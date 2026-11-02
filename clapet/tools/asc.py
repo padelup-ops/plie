@@ -80,7 +80,7 @@ Install it from the App Store to keep your data: it simply replaces this beta. T
 
 Thank you so much for testing Foldly and for all your ideas!
 
-New in this build: the Aurora theme (Settings > Theme), set your own daily limit (tap the number in Settings), break reminder, numbers on Apple Watch, desk mode.
+New in this build: leaderboards with Game Center (Settings > Leaderboard, thanks Matthew for the idea!), the Aurora theme (Settings > Theme), set your own daily limit (tap the number in Settings), break reminder, numbers on Apple Watch, desk mode.
 
 Before you switch, a 2-minute test helps a lot:
 1. Close Foldly, fold your Duo 10 times, then compare the app, the widget and the Apple Watch complication. Same number?
@@ -92,7 +92,7 @@ Installe-le depuis l'App Store pour garder tes données : il remplace simplement
 
 Merci pour ton aide et pour toutes tes idées !
 
-Nouveau dans ce build : le thème Aurore (Réglages > Thème), fixe ta propre limite par jour (touche le chiffre dans Réglages), rappel de pause, chiffres sur l'Apple Watch, mode bureau.
+Nouveau dans ce build : les classements Game Center (Réglages > Classement, merci Matthew pour l'idée !), le thème Aurore (Réglages > Thème), fixe ta propre limite par jour (touche le chiffre dans Réglages), rappel de pause, chiffres sur l'Apple Watch, mode bureau.
 
 Avant de changer, un test de 2 minutes nous aide beaucoup :
 1. Ferme Foldly, plie ton Duo 10 fois, puis compare l'app, le widget et la complication de l'Apple Watch. Même chiffre ?
