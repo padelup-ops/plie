@@ -1,0 +1,7 @@
+-rw-r--r--@ 1 runner  staff  2319660 Nov  2 09:23 rushes/en-phonedown.mov
+-rw-r--r--@ 1 runner  staff  2142361 Nov  2 09:23 rushes/en-pause.mov
+-rw-r--r--@ 1 runner  staff  2172509 Nov  2 09:23 rushes/en-garden.mov
+-rw-r--r--@ 1 runner  staff  2288679 Nov  2 09:23 rushes/en-badge.mov
+-rw-r--r--@ 1 runner  staff  5762341 Nov  2 09:24 rushes/en-widgets.mov
+-rw-r--r--@ 1 runner  staff  4642237 Nov  2 09:24 rushes/en-lock.mov
+-rw-r--r--@ 1 runner  staff  4440660 Nov  2 09:24 rushes/en-gallery.mov

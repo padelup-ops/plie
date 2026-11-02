@@ -1,0 +1,1 @@
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-27-1 devicetype=com.apple.CoreSimulator.SimDeviceType.iPhone-Duo
