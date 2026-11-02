@@ -90,7 +90,32 @@ jobs:
           # scène | écran | durée (s) | charnière simulée | autres arguments
           FOLDS="0:176,0.9:176,1.15:5,1.4:5,1.7:176,2.5:176,2.75:5,3.0:5,3.3:176,4.1:176,4.35:5,4.6:5,4.9:176,5.7:176,5.95:5,6.2:5,6.5:176"
           FOLDS3="0:176,1.4:176,2.3:4,2.9:4,3.8:176,5.6:176,6.5:4,7.1:4,8.0:176"
-          if [ "${{ github.event.inputs.set }}" = "v4" ]; then
+          DISP=1
+          if [ "${{ github.event.inputs.set }}" = "v5" ]; then
+          # Le Duo « ouvert » : on allume l'écran intérieur (3, LCD-1) et on éteint l'extérieur (1)
+          DISP=3
+          {
+            echo "== power on 3"; xcrun simctl io "$UDID" screenConfig --display=3 power on 2>&1
+            echo "== power off 1"; xcrun simctl io "$UDID" screenConfig --display=1 power off 2>&1
+            xcrun simctl io "$UDID" enumerate 2>&1 | grep -E "Screen ID|Name:|Power" 
+          } > rushes/ouverture.txt 2>&1 || true
+          sleep 4
+          xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+          xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoToday 47 -look classic > /dev/null 2>&1 || true
+          sleep 8
+          xcrun simctl io "$UDID" screenshot --display=3 --mask=black rushes/test-interieur.png >> rushes/ouverture.txt 2>&1 || true
+          xcrun simctl io "$UDID" screenshot --display=1 --mask=black rushes/test-exterieur.png >> rushes/ouverture.txt 2>&1 || true
+          cat > scenes.txt <<EOF
+          count|home|10|$FOLDS3|-demoToday 44 -look classic
+          classic|home|4||-demoToday 47 -look classic
+          night|home|4||-demoToday 47 -look night
+          minimal|home|4||-demoToday 47 -look minimal
+          week|week|6||-demoToday 47 -look classic
+          widgets|widgets|5||-demoToday 47 -look classic
+          history|history|5||-demoToday 47 -look classic
+          open|home|6||-demoToday 46 -look classic -demoOpening 1
+          EOF
+          elif [ "${{ github.event.inputs.set }}" = "v4" ]; then
           # Exploration : trouver comment filmer l'écran intérieur (Duo ouvert)
           {
             echo "== simctl help io"; xcrun simctl help io 2>&1
@@ -160,7 +185,7 @@ jobs:
               rm -f "$DATA/Documents/demo-origin.txt"
               sleep 1
               OUT="rushes/$L-$S.mov"
-              xcrun simctl io "$UDID" recordVideo --codec=h264 --display=1 --mask=black --force "$OUT" 2> "rushes/$L-$S.rec.log" &
+              xcrun simctl io "$UDID" recordVideo --codec=h264 --display=$DISP --mask=black --force "$OUT" 2> "rushes/$L-$S.rec.log" &
               REC=$!
               for i in $(seq 1 50); do grep -q "Recording started" "rushes/$L-$S.rec.log" && break; sleep 0.2; done
               python3 -c "import time; print('%.3f' % time.time())" > "rushes/$L-$S.recstart"
@@ -172,8 +197,7 @@ jobs:
               python3 -c "import time; print('%.3f' % time.time())" > "rushes/$L-$S.launchtime"
               sleep "$D"
               # Les deux écrans en photo (pour savoir ce que montre l'écran extérieur)
-              xcrun simctl io "$UDID" screenshot --display=0 --mask=black "rushes/$L-$S-ecran0.png" > /dev/null 2>&1 || true
-              xcrun simctl io "$UDID" screenshot --display=1 --mask=black "rushes/$L-$S-ecran1.png" > /dev/null 2>&1 || true
+              xcrun simctl io "$UDID" screenshot --display=$DISP --mask=black "rushes/$L-$S-ecran$DISP.png" > /dev/null 2>&1 || true
               sleep 8
               kill -INT $REC
               wait $REC || true
