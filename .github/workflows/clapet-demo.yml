@@ -125,7 +125,32 @@ jobs:
           FOLDS="0:176,0.9:176,1.15:5,1.4:5,1.7:176,2.5:176,2.75:5,3.0:5,3.3:176,4.1:176,4.35:5,4.6:5,4.9:176,5.7:176,5.95:5,6.2:5,6.5:176"
           FOLDS3="0:176,1.4:176,2.3:4,2.9:4,3.8:176,5.6:176,6.5:4,7.1:4,8.0:176"
           DISP=1
-          if [ "${{ github.event.inputs.set }}" = "v5" ]; then
+          if [ "${{ github.event.inputs.set }}" = "v8" ]; then
+          # Ouvrir le Duo par l'interface du Simulateur (boutons Closed / Partially Open / Open)
+          open -a Simulator --args -CurrentDeviceUDID "$UDID" || true
+          sleep 15
+          screencapture -x rushes/ecran-mac-1.png || true
+          osascript -e 'tell application "System Events" to tell process "Simulator" to get name of every window' > rushes/ui.txt 2>&1 || true
+          osascript -e 'tell application "System Events" to tell process "Simulator" to get entire contents of front window' >> rushes/ui.txt 2>&1 || true
+          osascript -e 'tell application "System Events" to tell process "Simulator" to get name of every menu item of every menu of menu bar 1' >> rushes/ui.txt 2>&1 || true
+          for B in "Open" "Opened" "Unfolded"; do
+            osascript -e "tell application \"System Events\" to tell process \"Simulator\" to click (first button of front window whose name is \"$B\" or description is \"$B\")" >> rushes/ui.txt 2>&1 || true
+          done
+          # Menu « Device » : chercher un élément Open / Unfold
+          osascript -e 'tell application "System Events" to tell process "Simulator" to get name of every menu item of menu "Device" of menu bar 1' >> rushes/ui.txt 2>&1 || true
+          for M in "Open" "Unfold" "Open Device" "Posture"; do
+            osascript -e "tell application \"System Events\" to tell process \"Simulator\" to click menu item \"$M\" of menu \"Device\" of menu bar 1" >> rushes/ui.txt 2>&1 || true
+          done
+          sleep 6
+          screencapture -x rushes/ecran-mac-2.png || true
+          xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoToday 47 -look classic > /dev/null 2>&1 || true
+          sleep 8
+          xcrun simctl io "$UDID" screenshot --display=3 --mask=black rushes/v8-interieur.png >> rushes/ui.txt 2>&1 || true
+          xcrun simctl io "$UDID" screenshot --display=1 --mask=black rushes/v8-exterieur.png >> rushes/ui.txt 2>&1 || true
+          screencapture -x rushes/ecran-mac-3.png || true
+          cat > scenes.txt <<EOF
+          EOF
+          elif [ "${{ github.event.inputs.set }}" = "v5" ]; then
           # Le Duo « ouvert » : on allume l'écran intérieur (3, LCD-1) et on éteint l'extérieur (1)
           DISP=3
           {
