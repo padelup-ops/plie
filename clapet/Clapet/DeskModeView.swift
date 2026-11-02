@@ -61,7 +61,7 @@ struct DeskModeView: View {
             }
             .ignoresSafeArea()
         }
-        .background(Color.dfBackground.ignoresSafeArea())
+        .background(DFBackdrop().ignoresSafeArea())
         .accessibilityElement(children: .contain)
     }
 

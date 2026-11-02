@@ -196,12 +196,14 @@ else:
 # Les nouveautés affichées sur l'App Store, par version.
 RELEASE_NOTES = {
     "1.0.1": {
-        "en-US": "• Apple Watch app: today's folds on your wrist, your week with the number of each day, your time open and closed, and complications for your watch face.\n"
+        "en-US": "• New Aurora theme: a night sky with northern lights that sway with your hinge, and glowing numbers.\n"
+                 "• Apple Watch app: today's folds on your wrist, your week with the number of each day, your time open and closed, and complications for your watch face.\n"
                  "• Break reminder: when your Duo stays open for a while, Foldly suggests a short break, on your iPhone or your Apple Watch.\n"
                  "• Desk mode: open your Duo halfway, like a book or a little laptop, and Foldly shows your count and details on two pages.\n"
                  "• Your hours and Monthly recap: see when you unfold the most, and how your month compares.\n"
                  "• New widgets, a Count a fold button for Control Center, and Foldly+ to unlock everything with a single purchase. Bought Foldly 1.0? You keep everything, nothing to pay.",
-        "fr-FR": "• App Apple Watch : les plis du jour au poignet, ta semaine avec le chiffre de chaque jour, ton temps ouvert et fermé, et des complications pour ton cadran.\n"
+        "fr-FR": "• Nouveau thème Aurore : un ciel de nuit avec des aurores boréales qui ondulent avec ta charnière, et des chiffres lumineux.\n"
+                 "• App Apple Watch : les plis du jour au poignet, ta semaine avec le chiffre de chaque jour, ton temps ouvert et fermé, et des complications pour ton cadran.\n"
                  "• Rappel de pause : quand ton Duo reste ouvert longtemps, Foldly te propose une petite pause, sur ton iPhone ou ton Apple Watch.\n"
                  "• Mode bureau : ouvre ton Duo à moitié, comme un livre ou un petit portable, et Foldly affiche ton chiffre et tes détails sur deux pages.\n"
                  "• Tes heures et Bilan du mois : vois quand tu déplies le plus, et compare ton mois au précédent.\n"

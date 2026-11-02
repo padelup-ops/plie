@@ -40,7 +40,7 @@ struct OpeningView: View {
 
     var body: some View {
         ZStack {
-            background.ignoresSafeArea()
+            DFBackdrop().ignoresSafeArea()
             ZStack {
                 // L'anneau, comme sur l'icône.
                 Circle()
@@ -127,12 +127,12 @@ struct OpeningView: View {
 
     private var background: Color { Color.dfBackground }
 
-    private var armColor: Color { look == .night ? .white : .primary }
+    private var armColor: Color { look.isDark ? .white : .primary }
 
     private var trackColor: Color {
         switch look {
         case .minimal: return Color.primary.opacity(0.1)
-        case .night: return Color.white.opacity(0.1)
+        case .night, .aurora: return Color.white.opacity(0.1)
         case .classic: return Color(uiColor: .tertiarySystemFill)
         }
     }
@@ -141,13 +141,14 @@ struct OpeningView: View {
         switch look {
         case .minimal: return [Color.primary, Color.primary]
         case .night: return [Color(red: 0.43, green: 0.84, blue: 0.65), Color(red: 0.36, green: 0.89, blue: 0.85)]
+        case .aurora: return [Aurora.mint, Aurora.violet, Aurora.pink]
         case .classic: return [Color.accentColor.opacity(0.75), Color.accentColor]
         }
     }
 
     private var numberFont: Font {
         switch look {
-        case .minimal, .night: return .system(size: 60, weight: .light).monospacedDigit()
+        case .minimal, .night, .aurora: return .system(size: 60, weight: .light).monospacedDigit()
         case .classic: return .system(size: 56, weight: .bold, design: .rounded).monospacedDigit()
         }
     }

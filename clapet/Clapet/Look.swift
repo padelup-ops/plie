@@ -9,7 +9,10 @@ import UIKit
 // Choisi au premier lancement, modifiable dans les Réglages.
 
 enum DFLook: String, CaseIterable, Identifiable {
-    case classic, night, minimal
+    case classic, night, minimal, aurora
+
+    /// Les looks sombres (Moderne et Aurore) partagent la mise en page du Moderne.
+    var isDark: Bool { self == .night || self == .aurora }
 
     var id: String { rawValue }
 
@@ -22,6 +25,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .classic: return Text("Classic")
         case .night: return Text("Modern")
         case .minimal: return Text("Minimal")
+        case .aurora: return Text("Aurora")
         }
     }
 
@@ -30,6 +34,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .classic: return Text("Cards and a ring, like the Health app")
         case .night: return Text("Big numbers, hinge gauge, Today and Week tabs")
         case .minimal: return Text("Just your numbers, nothing else")
+        case .aurora: return Text("Northern lights that move with your hinge")
         }
     }
 }
@@ -38,36 +43,44 @@ enum DFLook: String, CaseIterable, Identifiable {
 extension Color {
     private static var night: Bool { DFLook.current == .night }
     private static var minimal: Bool { DFLook.current == .minimal }
+    private static var aurora: Bool { DFLook.current == .aurora }
 
     static var dfAccent: Color {
         if minimal { return Color.primary }
+        if aurora { return Aurora.accent }
         return night ? Color(red: 0.36, green: 0.89, blue: 0.78) : Color.accentColor
     }
     static var dfBackground: Color {
         if minimal { return Color(uiColor: .systemBackground) }
+        if aurora { return Aurora.night }
         return night ? Color(red: 0.055, green: 0.078, blue: 0.078) : Color(uiColor: .systemGroupedBackground)
     }
     static var dfCard: Color {
         if minimal { return Color(uiColor: .secondarySystemBackground) }
+        if aurora { return Color.white.opacity(0.075) }
         return night ? Color(red: 0.135, green: 0.16, blue: 0.157) : Color(uiColor: .secondarySystemGroupedBackground)
     }
     static var dfFill: Color {
         if minimal { return Color.primary.opacity(0.08) }
+        if aurora { return Color.white.opacity(0.09) }
         return night ? Color.white.opacity(0.08) : Color(uiColor: .tertiarySystemFill)
     }
     static var dfOutline: Color {
         if minimal { return Color.primary.opacity(0.14) }
+        if aurora { return Color.white.opacity(0.16) }
         return night ? Color.white.opacity(0.17) : Color(uiColor: .separator)
     }
     static var dfBar: Color {
         if minimal { return Color.primary.opacity(0.22) }
+        if aurora { return Aurora.violet.opacity(0.55) }
         return night ? Color(red: 0.08, green: 0.36, blue: 0.32) : Color.accentColor.opacity(0.55)
     }
-    static var dfWarning: Color { night ? Color(red: 1.0, green: 0.71, blue: 0.36) : Color.orange }
-    static var dfOver: Color { night ? Color(red: 1.0, green: 0.45, blue: 0.42) : Color.red }
+    static var dfWarning: Color { night || aurora ? Color(red: 1.0, green: 0.71, blue: 0.36) : Color.orange }
+    static var dfOver: Color { night || aurora ? Color(red: 1.0, green: 0.45, blue: 0.42) : Color.red }
     /// Le texte posé sur la couleur d'accent (boutons pleins).
     static var dfOnAccent: Color {
         if minimal { return Color(uiColor: .systemBackground) }
+        if aurora { return Aurora.night }
         return night ? Color.black : Color.white
     }
 }
@@ -92,7 +105,7 @@ struct ContentView: View {
                 Group {
                     switch look {
                     case .classic: ClassicHomeView()
-                    case .night: NightHomeView()
+                    case .night, .aurora: NightHomeView()
                     case .minimal: MinimalHomeView()
                     }
                 }
@@ -115,7 +128,7 @@ struct ContentView: View {
                 }
             }
         }
-        .preferredColorScheme(look == .night ? .dark : nil)
+        .preferredColorScheme(look.isDark ? .dark : nil)
         .onAppear {
             // Première ouverture : on propose de choisir (pas pendant le tournage des vidéos).
             if lookRaw.isEmpty && !Demo.seeded && Demo.screen == nil { askLook = true }
@@ -242,9 +255,33 @@ struct LookThumbnail: View {
     var body: some View {
         if look == .minimal {
             minimalThumb
+        } else if look == .aurora {
+            auroraThumb
         } else {
             cardsThumb
         }
+    }
+
+    /// Aurore : un ciel de nuit, des aurores boréales et un grand chiffre lumineux.
+    private var auroraThumb: some View {
+        ZStack {
+            AuroraBackdrop(animated: false)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            VStack(spacing: 6) {
+                Text(verbatim: "12")
+                    .font(.system(size: 34, weight: .light, design: .rounded))
+                    .foregroundStyle(Aurora.glow)
+                HStack(alignment: .bottom, spacing: 3) {
+                    ForEach(0..<7, id: \.self) { i in
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(i == 6 ? AnyShapeStyle(Aurora.glow) : AnyShapeStyle(Color.white.opacity(0.22)))
+                            .frame(width: 6, height: CGFloat([18, 12, 10, 20, 11, 16, 7][i]))
+                    }
+                }
+                .frame(height: 22, alignment: .bottom)
+            }
+        }
+        .accessibilityHidden(true)
     }
 
     /// Épuré : un grand chiffre fin, un trait, sept traits pour la semaine.

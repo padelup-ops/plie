@@ -98,7 +98,7 @@ struct NightHomeView: View {
                 }
             }
         }
-        .background(Color.dfBackground.ignoresSafeArea())
+        .background(DFBackdrop(degrees: model.degrees).ignoresSafeArea())
         .tint(.dfAccent)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
         .sheet(isPresented: $showSettings) {
@@ -356,8 +356,10 @@ struct NightHomeView: View {
     private var bigNumber: some View {
         HStack(alignment: .firstTextBaseline, spacing: 14) {
             Text("\(model.stats.today)")
-                .font(.system(size: 112, weight: .light))
+                .font(.system(size: 112, weight: .light, design: DFLook.current == .aurora ? .rounded : .default))
                 .monospacedDigit()
+                .foregroundStyle(DFLook.current == .aurora ? AnyShapeStyle(Aurora.glow) : AnyShapeStyle(.primary))
+                .shadow(color: DFLook.current == .aurora ? Aurora.teal.opacity(0.55) : .clear, radius: 18)
                 .contentTransition(.numericText())
                 .animation(.easeOut(duration: 0.25), value: model.stats.today)
                 .overlay(alignment: .topTrailing) {
