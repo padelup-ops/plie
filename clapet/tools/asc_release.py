@@ -196,9 +196,9 @@ else:
 # Les nouveautés affichées sur l'App Store, par version.
 RELEASE_NOTES = {
     "1.0.2": {
-        "en-US": "• Leaderboards with Game Center: compare your longest streak under your limit, and your days under your limit this month, with other Foldly users and your friends. Off by default, only your two scores are shared, through Apple.\n"
+        "en-US": "• Leaderboards with Game Center: compare your longest streak under your limit, and your days under your limit over 30 days, with other Foldly users and your friends. Off by default, only your two scores are shared, through Apple.\n"
                  "• Thanks to our beta testers for the idea!",
-        "fr-FR": "• Classements avec Game Center : compare ta plus longue série sous ta limite, et tes jours sous ta limite ce mois-ci, avec les autres utilisateurs de Foldly et tes amis. Désactivé par défaut, seuls tes deux scores sont partagés, via Apple.\n"
+        "fr-FR": "• Classements avec Game Center : compare ta plus longue série sous ta limite, et tes jours sous ta limite sur 30 jours, avec les autres utilisateurs de Foldly et tes amis. Désactivé par défaut, seuls tes deux scores sont partagés, via Apple.\n"
                  "• Merci à nos bêta-testeurs pour l'idée !",
     },
     "1.0.1": {

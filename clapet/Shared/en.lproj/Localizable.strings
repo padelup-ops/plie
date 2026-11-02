@@ -4,9 +4,9 @@
 "Join the leaderboard" = "Join the leaderboard";
 "Leaderboard" = "Leaderboard";
 "Longest streak under your limit" = "Longest streak under your limit";
-"Days under your limit this month" = "Days under your limit this month";
+"Days under your limit, last 30 days" = "Days under your limit, last 30 days";
 "Turn on a daily limit to get a score. Only days when you used your Duo count." = "Turn on a daily limit to get a score. Only days when you used your Duo count.";
-"With Game Center, compare your streak and your month with other Foldly users and your friends. Only your two scores are shared, through Apple. Off by default." = "With Game Center, compare your streak and your month with other Foldly users and your friends. Only your two scores are shared, through Apple. Off by default.";
+"With Game Center, compare your streak and your last 30 days with other Foldly users and your friends. Only your two scores are shared, through Apple. Off by default." = "With Game Center, compare your streak and your last 30 days with other Foldly users and your friends. Only your two scores are shared, through Apple. Off by default.";
 "Sign in to Game Center in the Settings app to join the leaderboard." = "Sign in to Game Center in the Settings app to join the leaderboard.";
 "Foldly is on the App Store!" = "Foldly is on the App Store!";
 "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta." = "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta.";

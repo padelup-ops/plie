@@ -49,16 +49,25 @@ final class GameCenter {
     }
 
     @ObservationIgnored private var lastSent: (streak: Int, month: Int, monthKey: String)?
+    @ObservationIgnored private var periodStart: Date?
+    @ObservationIgnored private var periodEnd: Date?
 
     /// Envoie les scores du jour (seulement s'ils ont changé).
     func submit(_ stats: ClapetStats, now: Date = Date()) {
         guard on, GKLocalPlayer.local.isAuthenticated, stats.goalOn else { return }
         let streak = stats.leaderboardStreak(now: now)
-        let month = stats.daysUnderLimitThisMonth(now: now)
-        let monthKey = String(ClapetStats.key(now).prefix(7))
-        if let last = lastSent, last.streak == streak, last.month == month, last.monthKey == monthKey { return }
-        lastSent = (streak, month, monthKey)
         Task {
+            // Le classement « 30 jours » repart à zéro tous les 30 jours : on compte depuis le début de la période en cours.
+            if periodStart == nil || (periodEnd.map { now >= $0 } ?? true) {
+                if let board = try? await GKLeaderboard.loadLeaderboards(IDs: [Self.monthID]).first {
+                    periodStart = board.startDate
+                    periodEnd = board.startDate.map { $0.addingTimeInterval(board.duration) }
+                }
+            }
+            let month = stats.daysUnderLimit(since: periodStart ?? Calendar.current.date(byAdding: .day, value: -29, to: now)!, now: now)
+            let monthKey = periodStart.map { ClapetStats.key($0) } ?? ""
+            if let last = lastSent, last.streak == streak, last.month == month, last.monthKey == monthKey { return }
+            lastSent = (streak, month, monthKey)
             do {
                 try await GKLeaderboard.submitScore(streak, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [Self.streakID])
                 try await GKLeaderboard.submitScore(month, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [Self.monthID])
@@ -94,11 +103,11 @@ extension ClapetStats {
         return best
     }
 
-    /// Pour le classement du mois : les jours de ce mois sous la limite (avec au moins un pli).
-    func daysUnderLimitThisMonth(now: Date = Date()) -> Int {
+    /// Pour le classement « 30 jours » : les jours sous la limite (avec au moins un pli) depuis le début de la période.
+    func daysUnderLimit(since start: Date, now: Date = Date()) -> Int {
         guard goal > 0 else { return 0 }
-        let month = String(Self.key(now).prefix(7))
-        return days.filter { $0.key.hasPrefix(month) && $0.value.closes > 0 && $0.value.closes <= goal }.count
+        let from = Self.key(start), to = Self.key(now)
+        return days.filter { $0.key >= from && $0.key <= to && $0.value.closes > 0 && $0.value.closes <= goal }.count
     }
 }
 

@@ -134,7 +134,7 @@ struct SettingsView: View {
                             Label("Longest streak under your limit", systemImage: "flame.fill")
                         }
                         Button { leaderboard = GameCenter.monthID } label: {
-                            Label("Days under your limit this month", systemImage: "calendar")
+                            Label("Days under your limit, last 30 days", systemImage: "calendar")
                         }
                     }
                 } header: {
@@ -145,7 +145,7 @@ struct SettingsView: View {
                     } else if !model.stats.goalOn {
                         Text("Turn on a daily limit to get a score. Only days when you used your Duo count.")
                     } else {
-                        Text("With Game Center, compare your streak and your month with other Foldly users and your friends. Only your two scores are shared, through Apple. Off by default.")
+                        Text("With Game Center, compare your streak and your last 30 days with other Foldly users and your friends. Only your two scores are shared, through Apple. Off by default.")
                     }
                 }
                 Section {

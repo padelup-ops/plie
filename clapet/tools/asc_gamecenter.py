@@ -32,8 +32,8 @@ print("Game Center", gcd["id"])
 BOARDS = [
     {"vendorIdentifier": "foldly.streak", "referenceName": "Longest streak under limit", "monthly": False,
      "en-US": ("Longest streak under limit", "days", "day"), "fr-FR": ("Plus longue série sous limite", "jours", "jour")},
-    {"vendorIdentifier": "foldly.month", "referenceName": "Days under limit this month", "monthly": True,
-     "en-US": ("Days under limit this month", "days", "day"), "fr-FR": ("Jours sous la limite ce mois", "jours", "jour")},
+    {"vendorIdentifier": "foldly.month", "referenceName": "Days under limit, 30 days", "monthly": True,
+     "en-US": ("Days under limit (30 days)", "days", "day"), "fr-FR": ("Jours sous limite (30 jours)", "jours", "jour")},
 ]
 have = {b["attributes"]["vendorIdentifier"]: b for b in call("GET", f"/v1/gameCenterDetails/{gcd['id']}/gameCenterLeaderboards?limit=50").get("data", [])}
 for b in BOARDS:
@@ -43,8 +43,8 @@ for b in BOARDS:
                  "submissionType": "BEST_SCORE", "scoreSortType": "DESC", "scoreRangeStart": "0", "scoreRangeEnd": "100000"}
         tries = [{}]
         if b["monthly"]:
-            tries = [{"recurrenceStartDate": "2026-11-03T23:00:00Z", "recurrenceDuration": d, "recurrenceRule": "FREQ=MONTHLY;INTERVAL=1"}
-                     for d in ("PT744H", "PT720H", "PT672H")]
+            tries = [{"recurrenceStartDate": "2026-11-03T23:00:00Z", "recurrenceDuration": d, "recurrenceRule": "FREQ=DAILY;INTERVAL=30"}
+                     for d in ("PT720H",)]
         for extra in tries:
             r = call("POST", "/v1/gameCenterLeaderboards", {"data": {"type": "gameCenterLeaderboards",
                 "attributes": {**attrs, **extra}, "relationships": {"gameCenterDetail": {"data": {"type": "gameCenterDetails", "id": gcd["id"]}}}}})
