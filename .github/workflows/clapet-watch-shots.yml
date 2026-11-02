@@ -66,13 +66,14 @@ jobs:
             RUNTIME=$(pick_runtime)
           fi
           xcrun simctl list runtimes | grep -i watch | tee shots/runtimes.txt
-          TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
+          # Une montre déjà fournie par Xcode (une Ultra de préférence)
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
           import json, sys
-          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Apple Watch' in x['name']]
-          pick = [x for x in d if 'Ultra' in x['name']] or [x for x in d if 'Series' in x['name']] or d
-          print(pick[-1]['identifier'])")
-          echo "runtime=$RUNTIME type=$TYPE" | tee shots/simulateur.txt
-          UDID=$(xcrun simctl create "Foldly Watch" "$TYPE" "$RUNTIME")
+          devs = [d for rt, ds in json.load(sys.stdin)['devices'].items() if 'watchOS' in rt for d in ds]
+          pick = [d for d in devs if 'Ultra' in d['name']] or [d for d in devs if 'Series' in d['name']] or devs
+          print(pick[-1]['udid'] if pick else '')")
+          xcrun simctl list devices available | grep -i watch | tee shots/simulateur.txt
+          echo "UDID=$UDID" | tee -a shots/simulateur.txt
           echo "UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
