@@ -162,14 +162,13 @@ jobs:
           PY
           )
           echo "écran intérieur : ${IW}x${IH} points, échelle $IK" | tee -a rushes/interieur/profil.txt
-          IPAD_TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
-          import json, sys
-          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'iPad Pro' in x['name'] and '13' in x['name']]
-          print(d[-1]['identifier'] if d else '')")
-          [ -z "$IPAD_TYPE" ] && IPAD_TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
-          import json, sys
-          d = [x for x in json.load(sys.stdin)['devicetypes'] if x['name'].startswith('iPad')]
-          print(d[-1]['identifier'] if d else '')")
+          # Un iPad pris en charge par le runtime iOS (le plus grand, de préférence un iPad Pro 13 pouces)
+          IPAD_TYPE=$(xcrun simctl list runtimes -j | python3 -c "
+          import json, sys, os
+          r = [x for x in json.load(sys.stdin)['runtimes'] if x['identifier'] == os.environ['RUNTIME']][0]
+          d = [x for x in r.get('supportedDeviceTypes', []) if x['name'].startswith('iPad')]
+          best = [x for x in d if 'Pro' in x['name'] and '13' in x['name']] or [x for x in d if 'Air' in x['name'] and '13' in x['name']] or d
+          print(best[-1]['identifier'] if best else '')")
           echo "iPad : $IPAD_TYPE" | tee -a rushes/interieur/profil.txt
           IPAD=$(xcrun simctl create "Duo ouvert" "$IPAD_TYPE" "$RUNTIME")
           xcrun simctl boot "$IPAD"
