@@ -43,7 +43,7 @@ for b in BOARDS:
                  "submissionType": "BEST_SCORE", "scoreSortType": "DESC", "scoreRangeStart": "0", "scoreRangeEnd": "100000"}
         tries = [{}]
         if b["monthly"]:
-            tries = [{"recurrenceStartDate": "2026-11-01T00:00:00Z", "recurrenceDuration": d, "recurrenceRule": "FREQ=MONTHLY;INTERVAL=1"}
+            tries = [{"recurrenceStartDate": "2026-11-03T23:00:00Z", "recurrenceDuration": d, "recurrenceRule": "FREQ=MONTHLY;INTERVAL=1"}
                      for d in ("PT744H", "PT720H", "PT672H")]
         for extra in tries:
             r = call("POST", "/v1/gameCenterLeaderboards", {"data": {"type": "gameCenterLeaderboards",
