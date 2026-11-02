@@ -13,7 +13,7 @@ struct ClapetApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            DemoInner { ContentView() }
                 .environment(model)
                 .environment(store)
                 .task {

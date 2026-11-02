@@ -76,6 +76,17 @@ jobs:
             echo "$RUNNER_TEMP/xg/xcodegen/bin" >> "$GITHUB_PATH"
             export PATH="$RUNNER_TEMP/xg/xcodegen/bin:$PATH"
           fi
+          if [ "${{ github.event.inputs.set }}" = "v9" ]; then
+            # Écran intérieur rendu sur un simulateur iPad : l'app doit accepter l'iPad (et sans l'app Watch)
+            python3 - <<'PY'
+          p = 'clapet/project.yml'
+          s = open(p).read()
+          s = s.replace('TARGETED_DEVICE_FAMILY: "1"\n', 'TARGETED_DEVICE_FAMILY: "1,2"\n')
+          s = s.replace('      - target: FoldlyWatch\n        embed: true\n', '')
+          open(p, 'w').write(s)
+          PY
+            grep -n "TARGETED_DEVICE_FAMILY\|FoldlyWatch" clapet/project.yml | head
+          fi
           cd clapet && xcodegen generate
 
       - name: Préparer le simulateur iPhone Duo
@@ -99,6 +110,7 @@ jobs:
           d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Duo' in x['name']]
           print(d[0]['identifier'] if d else '')")
           echo "runtime=$RUNTIME devicetype=$DEVICE_TYPE" | tee rushes/simulateur.txt
+          echo "RUNTIME=$RUNTIME" >> "$GITHUB_ENV"
           UDID=$(xcrun simctl create "Duo Folds" "$DEVICE_TYPE" "$RUNTIME")
           echo "UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID"
@@ -119,13 +131,85 @@ jobs:
           echo "BID=$BID" >> "$GITHUB_ENV"
           gzip -f ../rushes/build.log
 
+      - name: Écran intérieur sur iPad (v9)
+        if: ${{ github.event.inputs.set == 'v9' }}
+        run: |
+          mkdir -p rushes/interieur
+          # Taille en points de l'écran intérieur du Duo (2007 x 2853 pixels), d'après le profil du simulateur
+          PROFILE=$(find /Library/Developer/CoreSimulator/Profiles/DeviceTypes "$(xcode-select -p)/Platforms/iPhoneOS.platform" -path "*iPhone Duo.simdevicetype/Contents/Resources/profile.plist" 2>/dev/null | head -1)
+          echo "profil : $PROFILE" > rushes/interieur/profil.txt
+          [ -n "$PROFILE" ] && plutil -p "$PROFILE" >> rushes/interieur/profil.txt 2>&1 || true
+          read IW IH IK < <(python3 - "$PROFILE" <<'PY'
+          import plistlib, sys
+          found = []
+          def walk(o):
+              if isinstance(o, dict):
+                  vals = [v for v in o.values() if isinstance(v, (int, float))]
+                  if 2007 in vals or 2853 in vals:
+                      sc = [v for k, v in o.items() if 'scale' in k.lower() and isinstance(v, (int, float))]
+                      found.append(sc[0] if sc else None)
+                  for v in o.values(): walk(v)
+              elif isinstance(o, list):
+                  for v in o: walk(v)
+          try:
+              walk(plistlib.load(open(sys.argv[1], 'rb')))
+          except Exception:
+              pass
+          s = next((x for x in found if x), None) or 3
+          w, h = round(2853 / s), round(2007 / s)
+          k = min(1.0, 1000 / w, 1300 / h)
+          print(w, h, round(k, 4))
+          PY
+          )
+          echo "écran intérieur : ${IW}x${IH} points, échelle $IK" | tee -a rushes/interieur/profil.txt
+          IPAD_TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'iPad Pro' in x['name'] and '13' in x['name']]
+          print(d[-1]['identifier'] if d else '')")
+          [ -z "$IPAD_TYPE" ] && IPAD_TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if x['name'].startswith('iPad')]
+          print(d[-1]['identifier'] if d else '')")
+          echo "iPad : $IPAD_TYPE" | tee -a rushes/interieur/profil.txt
+          IPAD=$(xcrun simctl create "Duo ouvert" "$IPAD_TYPE" "$RUNTIME")
+          xcrun simctl boot "$IPAD"
+          xcrun simctl bootstatus "$IPAD" -b
+          xcrun simctl status_bar "$IPAD" override --time 9:41 --batteryState charged --batteryLevel 100 --wifiBars 3 --cellularBars 4 || true
+          APP=clapet/build/Build/Products/Debug-iphonesimulator/Clapet.app
+          xcrun simctl install "$IPAD" "$APP"
+          for L in ${{ github.event.inputs.langs }}; do
+            LOC=fr_FR; [ "$L" = "en" ] && LOC=en_US
+            for SHOT in classic:home night:home minimal:home classic:hours night:hours classic:week night:week classic:month; do
+              LOOK=${SHOT%%:*}; ROOT=${SHOT##*:}
+              # Intérieur (iPad, cadre de l'écran intérieur)
+              xcrun simctl terminate "$IPAD" "$BID" 2>/dev/null || true
+              xcrun simctl launch "$IPAD" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday 47 -look "$LOOK" \
+                -innerSize "${IW}x${IH}" -innerScale "$IK" -innerRoot "$ROOT" -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
+              sleep 7
+              xcrun simctl io "$IPAD" screenshot "rushes/interieur/$L-$LOOK-$ROOT.png" > /dev/null 2>&1 || true
+              # Extérieur (Duo fermé), même état, pour les écrans d'accueil
+              if [ "$ROOT" = "home" ]; then
+                xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+                xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday 47 -look "$LOOK" \
+                  -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
+                sleep 7
+                xcrun simctl io "$UDID" screenshot --display=1 --mask=black "rushes/interieur/$L-$LOOK-exterieur.png" > /dev/null 2>&1 || true
+              fi
+            done
+          done
+          echo "${IW} ${IH} ${IK}" > rushes/interieur/cadre.txt
+          ls -la rushes/interieur
+
       - name: Filmer les scènes
         run: |
           # scène | écran | durée (s) | charnière simulée | autres arguments
           FOLDS="0:176,0.9:176,1.15:5,1.4:5,1.7:176,2.5:176,2.75:5,3.0:5,3.3:176,4.1:176,4.35:5,4.6:5,4.9:176,5.7:176,5.95:5,6.2:5,6.5:176"
           FOLDS3="0:176,1.4:176,2.3:4,2.9:4,3.8:176,5.6:176,6.5:4,7.1:4,8.0:176"
           DISP=1
-          if [ "${{ github.event.inputs.set }}" = "v8" ]; then
+          if [ "${{ github.event.inputs.set }}" = "v9" ]; then
+          cat > scenes.txt <<EOF
+          EOF
+          elif [ "${{ github.event.inputs.set }}" = "v8" ]; then
           # Ouvrir le Duo par l'interface du Simulateur (boutons Closed / Partially Open / Open)
           open -a Simulator --args -CurrentDeviceUDID "$UDID" || true
           sleep 15

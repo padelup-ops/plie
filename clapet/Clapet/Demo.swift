@@ -27,6 +27,14 @@ enum Demo {
     static var screen: String? { value("screen") }
     static var delay: Double { value("demoDelay").flatMap(Double.init) ?? 2 }
 
+    /// Écran intérieur du Duo (tournage sur iPad) : -innerSize 951x669 (points), -innerScale 1
+    static var innerSize: CGSize? {
+        guard let v = value("innerSize") else { return nil }
+        let p = v.split(separator: "x").compactMap { Double($0) }
+        return p.count == 2 ? CGSize(width: p[0], height: p[1]) : nil
+    }
+    static var innerScale: Double { value("innerScale").flatMap(Double.init) ?? 1 }
+
     static var hinge: [(t: Double, a: Double)] {
         (value("demoHinge") ?? "").split(separator: ",").compactMap { pair -> (t: Double, a: Double)? in
             let p = pair.split(separator: ":").compactMap { Double($0) }
@@ -126,6 +134,36 @@ enum Demo {
         s.plus = plus
         s.theme = 0
         stats = s
+    }
+}
+
+/// Le Duo ouvert, pour le tournage : l'app dans un cadre de la taille de l'écran intérieur
+/// (lancé sur un simulateur iPad, le simulateur du Duo n'affiche pas son écran intérieur).
+/// -innerRoot hours|week|month met directement cet écran dans le cadre.
+struct DemoInner<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        if let size = Demo.innerSize {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                Group {
+                    switch Demo.value("innerRoot") {
+                    case "hours": HoursSheet()
+                    case "week": WeekRecapView()
+                    case "month": MonthRecapView()
+                    default: content
+                    }
+                }
+                .safeAreaPadding(.top, Double(Demo.value("innerTop") ?? "") ?? 20)
+                .frame(width: size.width, height: size.height)
+                .clipped()
+                .scaleEffect(Demo.innerScale)
+                .frame(width: size.width * Demo.innerScale, height: size.height * Demo.innerScale)
+            }
+        } else {
+            content
+        }
     }
 }
 
