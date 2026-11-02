@@ -55,6 +55,9 @@ struct ClassicHomeView: View {
     @State private var showShare = false
     @State private var showWeek = false
     @State private var weekHidden = false
+    @State private var showMonth = false
+    @State private var monthHidden = false
+    @State private var showHours = false
     @State private var showWidgets = false
     @State private var widgets = InstalledWidgets.shared
     @State private var promoHidden = false
@@ -83,6 +86,14 @@ struct ClassicHomeView: View {
                             }
                         }
                     }
+                    if !monthHidden && MonthRecapRule.shouldShowCard(model.stats) {
+                        ClassicCard {
+                            MonthRecapPromo(recap: MonthRecapRule.current(model.stats)) { showMonth = true } onHide: {
+                                MonthRecapRule.markSeen(MonthRecapRule.current(model.stats))
+                                withAnimation { monthHidden = true }
+                            }
+                        }
+                    }
                     closedTime
                     if !surveyHidden && SurveyRule.shouldShowCard(isTestBuild: store.isTestBuild) {
                         ClassicCard {
@@ -103,6 +114,7 @@ struct ClassicHomeView: View {
                     numbers
                     timeOpen
                     week
+                    hours
                     byHour
                     lifetime
                     hingeHealth
@@ -149,6 +161,12 @@ struct ClassicHomeView: View {
         .sheet(isPresented: $showWidgets) {
             WidgetsHelpView().environment(model).environment(store)
         }
+        .sheet(isPresented: $showMonth, onDismiss: { monthHidden = !MonthRecapRule.shouldShowCard(model.stats) }) {
+            MonthRecapView().environment(model)
+        }
+        .sheet(isPresented: $showHours) {
+            HoursSheet().environment(model)
+        }
         .onAppear { widgets.refresh() }
         .sheet(isPresented: $showShare) {
             ShareDaySheet().environment(model)
@@ -170,6 +188,8 @@ struct ClassicHomeView: View {
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
             if url.host == "week" { showWeek = true }
+            if url.host == "month" { showMonth = true }
+            if url.host == "hours" { showHours = true }
             if SurveyRule.isAnswerLink(url) {
                 SurveyRule.markAnswered()
                 withAnimation { surveyHidden = true }
@@ -492,6 +512,17 @@ struct ClassicHomeView: View {
         }
     }
 
+    // MARK: Tes heures
+
+    private var hours: some View {
+        ClassicCard {
+            VStack(alignment: .leading, spacing: 12) {
+                ClassicCardTitle(Text("Your hours"), symbol: "clock.badge.checkmark")
+                HoursContent(stats: model.stats)
+            }
+        }
+    }
+
     // MARK: Heure par heure
 
     private var byHour: some View {
@@ -643,6 +674,10 @@ struct ClassicHomeView: View {
             Divider().padding(.leading, 52)
             row("chart.bar.doc.horizontal", Text("Weekly recap"), Text("Your week, compared with the week before"), locked: false) {
                 showWeek = true
+            }
+            Divider().padding(.leading, 52)
+            row("calendar.badge.checkmark", Text("Monthly recap"), Text("Your month, compared with the month before"), locked: false) {
+                showMonth = true
             }
             Divider().padding(.leading, 52)
             row("calendar", Text("History"), Text("30 days, 12 months, records"), locked: !store.hasPlus) {

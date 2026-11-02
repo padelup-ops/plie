@@ -232,11 +232,13 @@ final class ClapetModel {
         ClapetVault.save(stats)
         WidgetCenter.shared.reloadAllTimelines()
         LiveCounter.refresh(stats)
+        WatchSync.shared.push(stats)
     }
 
     private func changed() {
         ClapetVault.save(stats)
         LiveCounter.refresh(stats)
+        WatchSync.shared.push(stats)
         EveningSummary.schedule(stats)
         // Les widgets suivent, sans les recharger à chaque clapet.
         let wait = 1.5 - Date().timeIntervalSince(lastWidgetReload)

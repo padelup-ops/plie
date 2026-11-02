@@ -115,10 +115,11 @@ struct SettingsView: View {
                         Task {
                             let ok = await WeekRecapNotice.setOn(on)
                             weekOn = ok && on
+                            if weekOn { MonthRecapNotice.schedule() } else { MonthRecapNotice.cancel() }
                             notificationsDenied = on && !ok
                         }
                     })) {
-                        Text("Weekly recap")
+                        Text("Weekly and monthly recaps")
                     }
                     Toggle(isOn: Binding(get: { eveningOn }, set: { on in
                         Task {

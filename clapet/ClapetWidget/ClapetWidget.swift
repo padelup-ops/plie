@@ -88,6 +88,11 @@ struct ClapetWidgetBundle: WidgetBundle {
     var body: some Widget {
         ClapetWidget()
         PhoneDownWidget()
+        HoursWidget()
+        LifetimeWidget()
         FoldLiveActivity()
+        if #available(iOS 18.0, *) {
+            CountFoldControl()
+        }
     }
 }

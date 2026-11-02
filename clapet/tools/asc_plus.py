@@ -16,7 +16,7 @@ import jwt
 API = "https://api.appstoreconnect.apple.com"
 BUNDLE = "com.padelup.clapet"
 PRODUCT_ID = "com.padelup.clapet.plus"
-PRICE_EUR = os.environ.get("PLUS_PRICE", "2.99")
+PRICE_EUR = os.environ.get("PLUS_PRICE", "1.99")  # le prix le plus choisi dans le sondage
 SCREENSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "review", "plus_review.png")
 LOCALES = {
     "en-US": ("Foldly+", "Every widget, limit alerts, full history"),

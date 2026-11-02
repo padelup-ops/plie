@@ -11,6 +11,49 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(HERE, "..")
 
 FR = {
+    # Sondage : tes heures, bilan du mois, nouveaux widgets, Apple Watch
+    "Monthly recap": "Bilan du mois",
+    "Your hours": "Tes heures",
+    "Your month, compared with the month before": "Ton mois, comparé au mois d'avant",
+    "Busiest moment: %@, around %@": "Moment le plus chargé : %1$@, vers %2$@",
+    "Calmest while you're awake: around %@": "Le plus calme dans la journée : vers %@",
+    "Counted since your first day with Foldly, on every day of the week.": "Calculé depuis ton premier jour avec Foldly, sur tous les jours de la semaine.",
+    "You fold the most around %@": "Tu plies le plus vers %@",
+    "%@ of your folds come after %@": "%1$@ de tes plis ont lieu après %2$@",
+    "Your month is ready": "Ton mois est prêt",
+    "Hide": "Masquer",
+    "Next month": "Mois suivant",
+    "Previous month": "Mois précédent",
+    "No folds counted this month.": "Aucun pli compté ce mois-ci.",
+    "Same as the month before": "Comme le mois d'avant",
+    "See my month": "Voir mon mois",
+    "Your %@ is ready": "Ton bilan de %@ est prêt",
+    "Your first month with Foldly": "Ton premier mois avec Foldly",
+    "Your month": "Ton mois",
+    "Your month with Foldly": "Ton mois avec Foldly",
+    "Your monthly recap is ready: your folds, your busiest day and the hour you unfold the most.": "Ton bilan du mois est prêt : tes plis, ton jour le plus chargé et l'heure où tu déplies le plus.",
+    "%@ less than the month before": "%@ de moins que le mois d'avant",
+    "%@ more than the month before": "%@ de plus que le mois d'avant",
+    "%lld folds. %@": "%1$lld plis. %2$@",
+    "Weekly and monthly recaps": "Bilans de la semaine et du mois",
+    "Every fold since you started, like an odometer for your hinge.": "Tous tes plis depuis le début, comme un compteur kilométrique pour ta charnière.",
+    "Next: %@": "Prochain : %@",
+    "SINCE DAY ONE": "DEPUIS LE DÉBUT",
+    "Next milestone: %@": "Prochain palier : %@",
+    "Since day one": "Depuis le début",
+    "When you unfold the most: your typical week, hour by hour.": "Quand tu déplies le plus : ta semaine type, heure par heure.",
+    "YOUR HOURS": "TES HEURES",
+    "%@ folds since day one": "%@ plis depuis le début",
+    "%lld folds since day one": "%lld plis depuis le début",
+    "Folds by day and hour": "Plis par jour et par heure",
+    "Folds by hour of the day": "Plis par heure de la journée",
+    "Most folds around %@": "Le plus de plis vers %@",
+    "Open Foldly on your iPhone": "Ouvre Foldly sur ton iPhone",
+    "Open since %@": "Ouvert depuis %@",
+    "Open today": "Ouvert aujourd'hui",
+    "Your folds show up here in a few seconds.": "Tes plis s'affichent ici en quelques secondes.",
+    "Your first days": "Tes premiers jours",
+    "Today's folds from your iPhone, compared with your average.": "Les plis du jour de ton iPhone, comparés à ta moyenne.",
     # Accueil
     "Foldly": "Foldly",
     "Foldly+": "Foldly+",
@@ -541,6 +584,11 @@ def write(path, pairs, header):
 
 write(os.path.join(ROOT, "Shared/en.lproj/Localizable.strings"), [(k, k) for k in FR], "Foldly")
 write(os.path.join(ROOT, "Shared/fr.lproj/Localizable.strings"), list(FR.items()), "Foldly")
+# L'Apple Watch (app et complications) : les mêmes textes
+os.makedirs(os.path.join(ROOT, "WatchStrings/en.lproj"), exist_ok=True)
+os.makedirs(os.path.join(ROOT, "WatchStrings/fr.lproj"), exist_ok=True)
+write(os.path.join(ROOT, "WatchStrings/en.lproj/Localizable.strings"), [(k, k) for k in FR], "Foldly Watch")
+write(os.path.join(ROOT, "WatchStrings/fr.lproj/Localizable.strings"), list(FR.items()), "Foldly Watch")
 write(os.path.join(ROOT, "Clapet/en.lproj/AppShortcuts.strings"), [(k, k) for k in SHORTCUTS_FR], "Raccourcis")
 write(os.path.join(ROOT, "Clapet/fr.lproj/AppShortcuts.strings"), list(SHORTCUTS_FR.items()), "Raccourcis")
 

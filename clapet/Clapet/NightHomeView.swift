@@ -58,6 +58,9 @@ struct NightHomeView: View {
     @State private var showShare = false
     @State private var showWeek = false
     @State private var weekHidden = false
+    @State private var showMonth = false
+    @State private var monthHidden = false
+    @State private var showHours = false
     @State private var liveOn = LiveCounter.isOn
     @State private var showWidgets = false
     @State private var widgets = InstalledWidgets.shared
@@ -84,13 +87,16 @@ struct NightHomeView: View {
                 .padding(.bottom, 4)
                 .frame(maxWidth: 640)
                 .frame(maxWidth: .infinity)
-            TabView(selection: $page) {
-                ScrollView { pane { todayPane } }
-                    .tag(Page.today)
-                ScrollView { pane { weekPane } }
-                    .tag(Page.week)
+            // Une seule page (retour d'un testeur : le Moderne cachait la moitié des infos dans l'onglet Semaine).
+            ScrollView {
+                pane {
+                    todayPane
+                    Text("This week")
+                        .font(.title2.weight(.semibold))
+                        .padding(.top, 14)
+                    weekPane
+                }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .background(Color.dfBackground.ignoresSafeArea())
         .tint(.dfAccent)
@@ -106,6 +112,12 @@ struct NightHomeView: View {
         }
         .sheet(isPresented: $showShare) {
             ShareDaySheet().environment(model)
+        }
+        .sheet(isPresented: $showMonth, onDismiss: { monthHidden = !MonthRecapRule.shouldShowCard(model.stats) }) {
+            MonthRecapView().environment(model)
+        }
+        .sheet(isPresented: $showHours) {
+            HoursSheet().environment(model)
         }
         .sheet(isPresented: $showAdjust) {
             AdjustCountView().environment(model)
@@ -127,6 +139,8 @@ struct NightHomeView: View {
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
             if url.host == "week" { showWeek = true }
+            if url.host == "month" { showMonth = true }
+            if url.host == "hours" { showHours = true }
             if SurveyRule.isAnswerLink(url) {
                 SurveyRule.markAnswered()
                 withAnimation { surveyHidden = true }
@@ -205,12 +219,10 @@ struct NightHomeView: View {
 
     private func bar(compact: Bool) -> some View {
         HStack(spacing: 2) {
-            HStack(spacing: 2) {
-                tab(Text("Today"), .today)
-                tab(Text("Week"), .week)
-            }
-            .padding(4)
-            .background(Capsule().fill(Color.dfCard))
+            Text("Foldly")
+                .font(.title2.weight(.bold))
+                .lineLimit(1)
+                .fixedSize()
             Spacer(minLength: 4)
             if !compact {
                 Button { showShare = true } label: {
@@ -232,6 +244,8 @@ struct NightHomeView: View {
                     Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
                 }
                 Button { showWeek = true } label: { Label { Text("Weekly recap") } icon: { Image(systemName: "chart.bar.doc.horizontal") } }
+                Button { showMonth = true } label: { Label { Text("Monthly recap") } icon: { Image(systemName: "calendar.badge.checkmark") } }
+                Button { showHours = true } label: { Label { Text("Your hours") } icon: { Image(systemName: "clock.badge.checkmark") } }
                 Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
                 Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
                 Button {
@@ -299,6 +313,14 @@ struct NightHomeView: View {
                     WeekRecapPromo(recap: WeekRecapRule.current(s)) { showWeek = true } onHide: {
                         WeekRecapRule.markSeen(WeekRecapRule.current(s))
                         withAnimation { weekHidden = true }
+                    }
+                }
+            }
+            if !monthHidden && MonthRecapRule.shouldShowCard(s) {
+                Card(filled: true) {
+                    MonthRecapPromo(recap: MonthRecapRule.current(s)) { showMonth = true } onHide: {
+                        MonthRecapRule.markSeen(MonthRecapRule.current(s))
+                        withAnimation { monthHidden = true }
                     }
                 }
             }

@@ -19,6 +19,9 @@ struct MinimalHomeView: View {
     @State private var showWidgets = false
     @State private var plusReason: PlusReason?
     @State private var weekHidden = false
+    @State private var showMonth = false
+    @State private var monthHidden = false
+    @State private var showHours = false
     @State private var surveyHidden = false
     @State private var bump = false
 
@@ -53,6 +56,10 @@ struct MinimalHomeView: View {
             WeekRecapView().environment(model)
         }
         .sheet(isPresented: $showShare) { ShareDaySheet().environment(model) }
+        .sheet(isPresented: $showMonth, onDismiss: { monthHidden = !MonthRecapRule.shouldShowCard(model.stats) }) {
+            MonthRecapView().environment(model)
+        }
+        .sheet(isPresented: $showHours) { HoursSheet().environment(model) }
         .sheet(isPresented: $showAdjust) {
             AdjustCountView().environment(model)
                 .presentationDetents([.medium, .large])
@@ -65,6 +72,8 @@ struct MinimalHomeView: View {
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
             if url.host == "week" { showWeek = true }
+            if url.host == "month" { showMonth = true }
+            if url.host == "hours" { showHours = true }
             if SurveyRule.isAnswerLink(url) {
                 SurveyRule.markAnswered()
                 withAnimation { surveyHidden = true }
@@ -132,6 +141,7 @@ struct MinimalHomeView: View {
             Menu {
                 Button { showShare = true } label: { Label { Text("Share my day") } icon: { Image(systemName: "square.and.arrow.up") } }
                 Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
+                Button { showMonth = true } label: { Label { Text("Monthly recap") } icon: { Image(systemName: "calendar.badge.checkmark") } }
                 Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
                 Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
                 if !store.hasPlus {
@@ -304,6 +314,9 @@ struct MinimalHomeView: View {
             if !weekHidden && WeekRecapRule.shouldShowCard(s) {
                 notice(Text("Your week is ready")) { showWeek = true }
             }
+            if !monthHidden && MonthRecapRule.shouldShowCard(s) {
+                notice(Text("Your month is ready")) { showMonth = true }
+            }
             if !surveyHidden && SurveyRule.shouldShowCard(isTestBuild: store.isTestBuild) {
                 notice(Text("Your take in 1 minute")) { openURL(SurveyRule.url) }
             }
@@ -341,6 +354,7 @@ struct MinimalHomeView: View {
     @ViewBuilder
     private var linkButtons: some View {
         Button { showWeek = true } label: { Text("Weekly recap") }
+        Button { showHours = true } label: { Text("Your hours") }
         Button {
             if store.hasPlus { showHistory = true } else { plusReason = .history }
         } label: { Text("History") }

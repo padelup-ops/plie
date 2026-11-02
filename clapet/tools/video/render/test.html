@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#f3f4f7}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"./lib/three.module.js","three/addons/":"./lib/addons/"}}</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
+import { createDuo } from './duo.js';
+const S = 600;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(S, S);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+const key = new THREE.DirectionalLight(0xffffff, 1.2); key.position.set(2, 3, 4); scene.add(key);
+const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
+camera.position.set(0, 0, 4.2); camera.lookAt(0, 0, 0);
+const duo = createDuo();
+scene.add(duo.root);
+const loader = new THREE.TextureLoader();
+const load = (u) => new Promise(r => loader.load(u, t => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; r(t); }));
+window.ready = (async () => {
+  duo.setInner(await load('tex/outer-classic.jpg'));
+  duo.setOuter(await load('tex/outer-count.jpg'));
+})();
+window.pose = (fold, rx, ry, rz) => {
+  duo.setFold(fold);
+  duo.root.rotation.set(rx * Math.PI / 180, ry * Math.PI / 180, rz * Math.PI / 180);
+  // centre le Duo : fermé il ne fait qu'une moitié
+  const k = Math.min(1, fold / 180);
+  duo.device.position.y = 0;
+  renderer.render(scene, camera);
+  return true;
+};
+</script></body></html>
