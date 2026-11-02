@@ -76,8 +76,8 @@ jobs:
             echo "$RUNNER_TEMP/xg/xcodegen/bin" >> "$GITHUB_PATH"
             export PATH="$RUNNER_TEMP/xg/xcodegen/bin:$PATH"
           fi
-          if [ "${{ github.event.inputs.set }}" = "v9" ]; then
-            # Écran intérieur rendu sur un simulateur iPad : l'app doit accepter l'iPad (et sans l'app Watch)
+          if true; then
+            # Tournage : sans l'app Watch (compilée sinon avec le SDK iOS du simulateur) ; écran intérieur rendu sur un simulateur iPad : l'app doit accepter l'iPad (et sans l'app Watch)
             python3 - <<'PY'
           p = 'clapet/project.yml'
           s = open(p).read()
