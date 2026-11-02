@@ -72,9 +72,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .film { max-width: 760px; margin: 28px auto 0; display: flex; flex-direction: column; align-items: center; gap: 18px }
 .orb { position: relative; width: min(100%, 560px); aspect-ratio: 1; border-radius: 50% }
 .orb::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(closest-side, #161618 0%, #0d0d0e 55%, rgba(0,0,0,0) 100%) }
-.orb canvas { position: absolute; inset: -6%; width: 112%; height: 112%; display: block }
-.orb .fallback { position: absolute; inset: 18% 30%; width: 40%; height: auto; border-radius: 22px; display: none }
-.no-gl .orb canvas { display: none } .no-gl .orb .fallback { display: block }
+.orb video { position: absolute; inset: -6%; width: 112%; height: 112%; display: block; object-fit: contain; mix-blend-mode: screen; transition: opacity .25s }
 .cap { min-height: 3.2em; font-size: 19px; color: var(--muted); text-align: center; max-width: 25em; transition: opacity .35s }
 .cap b { font-weight: 600 }
 .chapters { display: flex; align-items: center; gap: 10px }
@@ -165,8 +163,7 @@ footer a { color: var(--soft) }
 
   <section class="film" aria-label="Foldly on iPhone Duo">
     <div class="orb">
-      <canvas id="duo" aria-hidden="true"></canvas>
-      <img class="fallback" src="img/screen-classic.jpg" alt="Foldly on the iPhone Duo outer display: 47 folds today">
+      <video id="duo" muted playsinline preload="auto" poster="film/closed.jpg" aria-label="Foldly on iPhone Duo"></video>
     </div>
     <p class="cap" id="cap" aria-live="polite"></p>
     <div class="chapters">
@@ -208,7 +205,7 @@ footer a { color: var(--soft) }
   <section class="sec" id="iphone-duo" aria-labelledby="duo-h">
     <p class="eyebrow">iPhone Duo</p>
     <h2 id="duo-h">Ready for iPhone Duo. <span>Every pose.</span></h2>
-    <p class="body">Closed, Foldly runs on the outer display like on any iPhone. Open, it takes the big screen. Half open, <b>it stands on your desk</b> like a little dashboard. Watch the film above, or <button class="link-btn" type="button" id="replay">play it again</button></p>
+    <p class="body">Closed, Foldly runs on the outer display like on any iPhone. Open, it takes the big screen. Half open, it reads like a book, or <b>stands on your desk</b> like a little dashboard. Watch the film above, or <button class="link-btn" type="button" id="replay">play it again</button></p>
     <div class="grid">
       <div class="card"><b>Outer display</b><p>Today's count, your average and the time it rests, right by the camera.</p></div>
       <div class="card"><b>Live Activity</b><p>Your count on the Lock Screen and the outer display, updated at every fold.</p></div>
@@ -288,36 +285,21 @@ footer a { color: var(--soft) }
   <p>Copyright © 2026 Foldly. <a href="https://foldly.netlify.app/en/privacy.html">Privacy</a></p>
 </footer>
 
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module">
-import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { createDuo } from './duo.js';
-
+<script>
+// The film: one short clip per chapter, rendered from a 3D iPhone Duo with real Foldly screens.
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const canvas = document.getElementById('duo');
+const video = document.getElementById('duo');
 const capEl = document.getElementById('cap');
 const bar = document.getElementById('bar');
 const playBtn = document.getElementById('play');
-
-// Chapters: the pose of the Duo, the screen it shows, and the caption.
-// fold: 0 closed, 98 half open (an L), 180 flat. rz 90: closed and held upright. ry 180: seen from the back.
 const CHAPTERS = [
-  { id: 'closed', label: 'Closed', dur: 4.6, fold: 0, rx: -4, ry: -18, rz: 90, outer: 'count',
-    cap: '<b>Closed, it\'s an iPhone.</b> Today\'s count sits on the outer display.' },
-  { id: 'open', label: 'Open', dur: 5.2, fold: 180, rx: -10, ry: 14, rz: 0, inner: 'classic', outer: 'count', pulse: true,
-    cap: '<b>Open it, and it counts.</b> Every opening adds one, live.' },
-  { id: 'upright', label: 'Upright', dur: 4.6, fold: 180, rx: -6, ry: -12, rz: 0, inner: 'night', outer: 'count',
-    cap: '<b>The big screen, for your day.</b> Open and closed time, your average, your week.' },
-  { id: 'desk', label: 'Desk', dur: 5, fold: 98, rx: -26, ry: 28, rz: 0, inner: 'classic', outer: 'count',
-    cap: '<b>Fold it halfway.</b> It stands on your desk, like a little dashboard.' },
-  { id: 'week', label: 'Week', dur: 4.6, fold: 0, rx: -4, ry: 16, rz: 90, outer: 'week',
-    cap: '<b>Every Sunday, your week.</b> The total, the change, your calmest day.' },
-  { id: 'back', label: 'Outer display', dur: 5, fold: 0, rx: -4, ry: -20, rz: 90, outer: 'widgets', spinBack: true,
-    cap: '<b>Close it, and it\'s still there.</b> Widgets and a Live Activity keep your count in view.' },
+  { id: 'closed', label: 'Closed', cap: '<b>Closed, it\'s an iPhone.</b> Today\'s count sits on the outer display.' },
+  { id: 'open', label: 'Open', cap: '<b>Open it, and it counts.</b> Every fold adds one, live.' },
+  { id: 'looks', label: 'Looks', cap: '<b>One tap, a new look.</b> Modern, Classic or Minimal.' },
+  { id: 'desk', label: 'Desk', cap: '<b>Fold it halfway.</b> The count stands on top, the details lie below.' },
+  { id: 'hours', label: 'Your hours', cap: '<b>Your hours.</b> When you fold the most, hour by hour.' },
+  { id: 'week', label: 'Week', cap: '<b>Every Sunday, your week.</b> The total, the change, your calmest day.' },
 ];
-
-// Chapter bar
 CHAPTERS.forEach((c, i) => {
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'chip'; b.id = 'chapter-' + c.id;
@@ -327,34 +309,39 @@ CHAPTERS.forEach((c, i) => {
   bar.appendChild(b);
 });
 const chips = [...bar.children];
-
-let renderer;
-try {
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-} catch (e) {
-  document.documentElement.classList.add('no-gl');
-}
-
-let index = 0, t = 0, playing = !reduce, inView = true;
-function setCaption(i) {
-  capEl.style.opacity = 0;
-  setTimeout(() => { capEl.innerHTML = CHAPTERS[i].cap; capEl.style.opacity = 1; }, reduce ? 0 : 180);
-  chips.forEach((c, k) => c.toggleAttribute('aria-current', k === i) || (k === i && c.setAttribute('aria-current', 'step')));
-  chips.forEach((c, k) => { if (k === i) c.setAttribute('aria-current', 'step'); else c.removeAttribute('aria-current'); });
-}
+let index = 0, playing = !reduce;
 function setPlaying(p) {
   playing = p;
   document.getElementById('ico-pause').hidden = !p;
   document.getElementById('ico-play').hidden = p;
   playBtn.setAttribute('aria-label', p ? 'Pause' : 'Play');
+  if (p) video.play().catch(() => {}); else video.pause();
 }
+function go(i, user) {
+  index = i;
+  const c = CHAPTERS[i];
+  capEl.style.opacity = 0;
+  setTimeout(() => { capEl.innerHTML = c.cap; capEl.style.opacity = 1; }, reduce ? 0 : 180);
+  chips.forEach((chip, k) => { if (k === i) chip.setAttribute('aria-current', 'step'); else chip.removeAttribute('aria-current'); });
+  video.poster = `film/${c.id}.jpg`;
+  video.src = `film/${c.id}.mp4`;
+  if (playing) video.play().catch(() => {});
+}
+video.addEventListener('ended', () => { if (playing) go((index + 1) % CHAPTERS.length); });
+video.addEventListener('timeupdate', () => {
+  chips.forEach((chip, k) => { chip.firstChild.style.width = k === index && video.duration ? (video.currentTime / video.duration * 100) + '%' : '0'; });
+});
 playBtn.addEventListener('click', () => setPlaying(!playing));
 document.getElementById('replay').addEventListener('click', () => {
-  go(0, false); setPlaying(true);
+  go(0); setPlaying(true);
   document.querySelector('.film').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
 });
+// Only plays while the film is on screen.
+new IntersectionObserver(([e]) => { if (!e.isIntersecting) video.pause(); else if (playing) video.play().catch(() => {}); }, { threshold: 0.1 }).observe(video);
+go(0);
 setPlaying(playing);
-setCaption(0);
+// Preload the next clips
+CHAPTERS.slice(1).forEach(c => { const l = document.createElement('link'); l.rel = 'prefetch'; l.href = `film/${c.id}.mp4`; document.head.appendChild(l); });
 
 // Share
 document.getElementById('share').addEventListener('click', async () => {
@@ -363,112 +350,4 @@ document.getElementById('share').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(url); out.textContent = 'Link copied: ' + url; }
   catch { out.textContent = url; }
 });
-
-let go = (i) => { index = i; t = 0; setCaption(i); };
-if (renderer) {
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.0;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  const scene = new THREE.Scene();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(3, 4, 5); scene.add(key);
-  const back = new THREE.DirectionalLight(0xffffff, 0.8); back.position.set(-4, 2, -3); scene.add(back);
-  const camera = new THREE.PerspectiveCamera(24, 1, 0.1, 50);
-  camera.position.set(0, 0, 5.2);
-
-  // Natural titanium, like the film
-  const duo = createDuo({ color: 0xc9c0b2 });
-  scene.add(duo.root);
-
-  const loader = new THREE.TextureLoader();
-  const tex = {};
-  const T = (name) => {
-    if (!tex[name]) {
-      tex[name] = loader.load(`tex/outer-${name}.jpg`);
-      tex[name].colorSpace = THREE.SRGBColorSpace;
-      tex[name].anisotropy = renderer.capabilities.getMaxAnisotropy();
-    }
-    return tex[name];
-  };
-  const INNER = (name) => T(name); // inner display screens (to be replaced by real inner captures)
-  ['count', 'classic', 'night', 'week', 'widgets'].forEach(T);
-  duo.setOuter(T('count'));
-  duo.setInner(INNER('classic'));
-
-  const cur = { fold: 0, rx: -4, ry: -18, rz: 90, spin: 0 };
-  let spinTarget = 0;
-  let outerNow = 'count', outerWanted = 'count', innerNow = 'classic';
-
-  go = (i, user) => {
-    const prev = CHAPTERS[index];
-    index = i; t = 0;
-    const c = CHAPTERS[i];
-    setCaption(i);
-    if (user) setPlaying(playing);
-    // A full turn when the outer screen changes: it swaps while the back faces you.
-    if (c.outer && c.outer !== outerWanted) {
-      outerWanted = c.outer;
-      if (reduce || c.fold > 60 || prev.fold > 60) { outerNow = c.outer; duo.setOuter(T(c.outer)); }
-      else spinTarget += Math.PI * 2;
-    }
-    if (c.spinBack && !reduce) spinTarget += Math.PI * 2;
-    if (c.inner && c.inner !== innerNow) { innerNow = c.inner; duo.setInner(INNER(c.inner)); }
-  };
-
-  function resize() {
-    const r = canvas.getBoundingClientRect();
-    const w = Math.max(1, r.width), h = Math.max(1, r.height);
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  }
-  new ResizeObserver(resize).observe(canvas);
-  resize();
-
-  new IntersectionObserver(([e]) => { inView = e.isIntersecting; }, { threshold: 0.05 }).observe(canvas);
-
-  const D = Math.PI / 180;
-  let last = performance.now();
-  const start = last;
-  function frame(now) {
-    requestAnimationFrame(frame);
-    const dt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    if (!inView) return;
-    const c = CHAPTERS[index];
-    if (playing) {
-      t += dt;
-      if (t >= c.dur) go((index + 1) % CHAPTERS.length, false);
-    }
-    chips.forEach((chip, k) => {
-      const fill = chip.firstChild;
-      fill.style.width = k === index ? Math.min(100, (t / c.dur) * 100) + '%' : '0';
-    });
-    const time = (now - start) / 1000;
-    const goal = { fold: c.fold, rx: c.rx, ry: c.ry, rz: c.rz };
-    if (!reduce) {
-      goal.ry += Math.sin(time * 0.5) * 6;
-      goal.rx += Math.sin(time * 0.37 + 1) * 2;
-      if (c.pulse && t > 2.2 && t < 3.6) goal.fold = 180 - 110 * Math.sin((t - 2.2) / 1.4 * Math.PI);
-    }
-    const a = reduce ? 1 : 1 - Math.exp(-dt * 3.6);
-    cur.fold += (goal.fold - cur.fold) * a;
-    cur.rx += (goal.rx - cur.rx) * a;
-    cur.ry += (goal.ry - cur.ry) * a;
-    cur.rz += (goal.rz - cur.rz) * a;
-    cur.spin += (spinTarget - cur.spin) * (reduce ? 1 : 1 - Math.exp(-dt * 2.8));
-    if (outerNow !== outerWanted && Math.abs(spinTarget - cur.spin) < Math.PI) {
-      outerNow = outerWanted; duo.setOuter(T(outerNow));
-    }
-    duo.setFold(Math.max(0, Math.min(180, cur.fold)));
-    duo.root.rotation.set(cur.rx * D, cur.ry * D + cur.spin, cur.rz * D, 'YXZ');
-    renderer.render(scene, camera);
-  }
-  requestAnimationFrame(frame);
-} else {
-  // Without WebGL: the chapters still play, over a still screenshot.
-  setInterval(() => { if (playing) { t += 0.25; if (t >= CHAPTERS[index].dur) go((index + 1) % CHAPTERS.length); } }, 250);
-}
 </script>
