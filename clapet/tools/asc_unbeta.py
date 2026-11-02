@@ -14,6 +14,7 @@ def call(method, path, body=None):
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
         return {"error": e.code, "detail": e.read().decode()[:600]}
+app = call("GET", "/v1/apps?filter[bundleId]=com.padelup.clapet")["data"][0]
 BUILD = os.environ["BUILD_NUMBER"].strip()
 b = call("GET", f"/v1/builds?filter[app]={app['id']}&filter[version]={BUILD}&limit=5").get("data", [])
 if not b:
