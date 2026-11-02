@@ -221,8 +221,9 @@ struct MinimalHomeView: View {
             let now = context.date
             let s = model.stats
             HStack(alignment: .top, spacing: 0) {
-                figure(Text("Open"), TimeFormat.short(s.openTime(now, now: now)))
-                figure(Text("Closed"), s.autoLast == nil && s.closedTime(now, now: now) == 0 ? "—" : TimeFormat.short(s.closedTime(now, now: now)))
+                // Format court : sur l'écran extérieur, « 1 hr, 42 min » débordait sur le chiffre d'à côté.
+                figure(Text("Open"), TimeFormat.narrow(s.openTime(now, now: now)))
+                figure(Text("Closed"), s.autoLast == nil && s.closedTime(now, now: now) == 0 ? "—" : TimeFormat.narrow(s.closedTime(now, now: now)))
                 figure(Text("Yesterday"), "\(s.yesterday(now))")
             }
         }
@@ -239,9 +240,11 @@ struct MinimalHomeView: View {
                 .font(.system(size: 22, weight: .light))
                 .monospacedDigit()
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
+                .minimumScaleFactor(0.5)
+                .allowsTightening(true)
         }
         .frame(maxWidth: .infinity)
+        .padding(.horizontal, 4)
         .accessibilityElement(children: .combine)
     }
 

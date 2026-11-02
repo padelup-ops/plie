@@ -76,16 +76,16 @@ BETA_DESCRIPTION = {
 WHATS_NEW = {
     "en-US": """New in this build:
 
-- Opening animation: when you launch Foldly, the hinge in the logo unfolds, then your count for today rolls up to its number. Tap to skip it, or turn it off in Settings > Feel.
-- Still here: StandBy widgets, the weekly recap and the Minimal theme.
+- Opening animation: your count now stays on screen half a second longer, so you have time to read it (thanks for the feedback!).
+- Minimal look: open and closed times no longer overlap on the outer display.
 
-Please test: launch Foldly in each theme (Classic, Modern, Minimal) and tell us if the animation feels too long or just right.""",
+Please test: launch Foldly a few times and tell us if the count now stays long enough to read.""",
     "fr-FR": """Nouveautés de ce build :
 
-- Animation d'ouverture : au lancement, la charnière du logo se déplie, puis ton chiffre du jour défile jusqu'à sa valeur. Touche l'écran pour la passer, ou coupe-la dans Réglages > Ressenti.
-- Toujours là : les widgets en mode veille, le bilan de la semaine et le thème Épuré.
+- Animation d'ouverture : ton chiffre reste une demi-seconde de plus à l'écran, le temps de le lire (merci pour le retour !).
+- Thème Épuré : les temps ouvert et fermé ne se chevauchent plus sur l'écran extérieur.
 
-À tester : lance Foldly dans chaque thème (Classique, Moderne, Épuré) et dis-nous si l'animation est trop longue ou juste bien.""",
+À tester : lance Foldly plusieurs fois et dis-nous si le chiffre reste assez longtemps pour le lire.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,

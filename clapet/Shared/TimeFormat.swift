@@ -8,6 +8,13 @@ enum TimeFormat {
         return Duration.seconds(Double(minutes * 60)).formatted(.units(allowed: allowed, width: .abbreviated))
     }
 
+    /// Heures et minutes en version courte (« 1h 42m »), pour les chiffres côte à côte.
+    static func narrow(_ t: TimeInterval) -> String {
+        let minutes = Int(max(0, t) / 60)
+        let allowed: Set<Duration.UnitsFormatStyle.Unit> = minutes >= 60 ? [.hours, .minutes] : [.minutes]
+        return Duration.seconds(Double(minutes * 60)).formatted(.units(allowed: allowed, width: .narrow))
+    }
+
     /// En heures seulement, pour les petites places (« 5 h », « 40 min »).
     static func compact(_ t: TimeInterval) -> String {
         let minutes = Int(max(0, t) / 60)

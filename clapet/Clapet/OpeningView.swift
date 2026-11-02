@@ -5,7 +5,7 @@ import UIKit
 //
 // Au lancement, le logo de Foldly prend vie : la charnière (le trait en angle) est fermée, puis se déplie
 // avec un petit « clic », pendant que l'anneau fait le tour. Ensuite l'angle laisse la place au chiffre
-// du jour, qui monte jusqu'à sa valeur, et l'écran d'accueil apparaît. Environ 1,6 seconde.
+// du jour, qui monte jusqu'à sa valeur, et l'écran d'accueil apparaît. Environ 2 secondes.
 // Un toucher la passe. Coupée avec « Réduire les animations », et désactivable dans les Réglages.
 
 enum OpeningRule {
@@ -113,8 +113,8 @@ struct OpeningView: View {
         withAnimation(.easeOut(duration: today > 0 ? 0.6 : 0.01).delay(0.1)) { count = Double(today) }
         withAnimation(.easeInOut(duration: 0.6).delay(0.1)) { ring = 1 }
 
-        // 3. Le logo s'ouvre sur l'accueil.
-        try? await Task.sleep(nanoseconds: 850_000_000)
+        // 3. Une demi-seconde de plus pour lire le chiffre (retour d'un testeur), puis le logo s'ouvre sur l'accueil.
+        try? await Task.sleep(nanoseconds: 1_350_000_000)
         finish(fast: false)
     }
 
