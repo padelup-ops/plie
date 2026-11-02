@@ -200,12 +200,12 @@ RELEASE_NOTES = {
                  "• Break reminder: when your Duo stays open for a while, Foldly suggests a short break, on your iPhone or your Apple Watch.\n"
                  "• Desk mode: open your Duo halfway, like a book or a little laptop, and Foldly shows your count and details on two pages.\n"
                  "• Your hours and Monthly recap: see when you unfold the most, and how your month compares.\n"
-                 "• New widgets, a Count a fold button for Control Center, and Foldly+ to unlock everything with a single purchase.",
+                 "• New widgets, a Count a fold button for Control Center, and Foldly+ to unlock everything with a single purchase. Bought Foldly 1.0? You keep everything, nothing to pay.",
         "fr-FR": "• App Apple Watch : les plis du jour au poignet, ta semaine avec le chiffre de chaque jour, ton temps ouvert et fermé, et des complications pour ton cadran.\n"
                  "• Rappel de pause : quand ton Duo reste ouvert longtemps, Foldly te propose une petite pause, sur ton iPhone ou ton Apple Watch.\n"
                  "• Mode bureau : ouvre ton Duo à moitié, comme un livre ou un petit portable, et Foldly affiche ton chiffre et tes détails sur deux pages.\n"
                  "• Tes heures et Bilan du mois : vois quand tu déplies le plus, et compare ton mois au précédent.\n"
-                 "• Nouveaux widgets, un bouton Compter un pli dans le Centre de contrôle, et Foldly+ pour tout débloquer en un seul achat.",
+                 "• Nouveaux widgets, un bouton Compter un pli dans le Centre de contrôle, et Foldly+ pour tout débloquer en un seul achat. Tu as acheté Foldly 1.0 ? Tu gardes tout, sans rien payer.",
     },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
@@ -216,7 +216,7 @@ if NEW_VERSION:
         new_vid = existing[0]["id"]
     else:
         r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                 "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "AFTER_APPROVAL"},
+                 "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL"},
                  "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
         new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -261,7 +261,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})

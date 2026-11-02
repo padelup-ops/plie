@@ -24,7 +24,10 @@ final class ClapetStore {
     private(set) var simulatePlus = UserDefaults.standard.bool(forKey: "tester.simulatePlus")
 
     /// Foldly+ : acheté, ou simulé dans une version de test.
-    var hasPlus: Bool { DuoFolds.paidApp || owned || (isTestBuild && simulatePlus) || Demo.plus }
+    /// A acheté la 1.0, quand Foldly était payante : garde tout, sans repayer.
+    private(set) var earlyBuyer = UserDefaults.standard.bool(forKey: "earlyBuyer")
+
+    var hasPlus: Bool { DuoFolds.paidApp || owned || earlyBuyer || (isTestBuild && simulatePlus) || Demo.plus }
 
     /// Appelé quand `hasPlus` change (pour prévenir les widgets).
     @ObservationIgnored var onChange: ((Bool) -> Void)?
@@ -69,7 +72,19 @@ final class ClapetStore {
             }
         }
         owned = has
+        await checkEarlyBuyer()
         onChange?(hasPlus)
+    }
+
+    /// Le premier téléchargement de l'app (son numéro de build) dit si la personne a payé la 1.0.
+    @MainActor
+    private func checkEarlyBuyer() async {
+        guard !earlyBuyer, !isTestBuild else { return }
+        guard let result = try? await AppTransaction.shared, case .verified(let app) = result else { return }
+        if let build = Int(app.originalAppVersion), build < DuoFolds.firstFreeBuild {
+            earlyBuyer = true
+            UserDefaults.standard.set(true, forKey: "earlyBuyer")
+        }
     }
 
     @MainActor
@@ -110,7 +125,7 @@ final class ClapetStore {
             message = String(localized: "Purchases can't be restored right now.")
         }
         await refresh()
-        if !owned && message == nil {
+        if !owned && !earlyBuyer && message == nil {
             message = String(localized: "No purchase to restore on this Apple Account.")
         }
     }

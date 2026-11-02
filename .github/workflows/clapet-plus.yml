@@ -1,0 +1,30 @@
+# Foldly+ (achat intégré) : textes, prix de lancement puis prix normal, disponibilité, capture
+name: Clapet - Foldly+
+on:
+  workflow_dispatch:
+    inputs:
+      price:
+        description: "Prix de lancement (€)"
+        default: "2.99"
+      later:
+        description: "Prix normal (€), vide = pas de changement"
+        default: "3.99"
+      date:
+        description: "Date du prix normal (AAAA-MM-JJ)"
+        default: "2026-11-13"
+jobs:
+  plus:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      PLUS_PRICE: ${{ inputs.price }}
+      PLUS_PRICE_LATER: ${{ inputs.later }}
+      PLUS_LATER_DATE: ${{ inputs.date }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Foldly+
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_plus.py 2>&1 | tee plus.txt

@@ -32,7 +32,7 @@ PROMO = {
     "en-US": "How many times a day do you open your phone? Set a daily limit and keep an eye on your folds, right from your Home Screen.",
     "fr-FR": "Combien de fois par jour ouvres-tu ton téléphone ? Fixe une limite et garde un œil sur tes plis, directement sur ton écran d'accueil.",
 }
-PRICE_EUR = os.environ.get("APP_PRICE", "2.99")
+PRICE_EUR = os.environ.get("APP_PRICE", "").strip()  # vide = on ne touche pas au prix ; "0" = gratuite
 DESCRIPTION = {
     "en-US": """Every time you unfold your phone, you glance at it. Foldly counts your folds, so you can see your habits and keep them under control.
 
@@ -177,30 +177,33 @@ else:
     print("pas de version modifiable pour la description")
 
 # ------------------------------------------------------------ 2 bis. Le prix de l'app (base France)
-current = call("GET", f"/v1/apps/{app_id}/appPriceSchedule?include=manualPrices,baseTerritory")
-have = [x for x in current.get("included", []) if x["type"] == "appPrices"]
-point = None
-url = f"/v1/apps/{app_id}/appPricePoints?filter[territory]=FRA&limit=200"
-while url and not point:
-    page = call("GET", url)
-    point = next((p for p in page.get("data", []) if p["attributes"].get("customerPrice") == PRICE_EUR), None)
-    nxt = page.get("links", {}).get("next")
-    url = nxt.replace(API, "") if nxt else None
-if not point:
-    problems.append("prix")
-    print("ÉCHEC  aucun palier à", PRICE_EUR, "€ pour l'app")
+if not PRICE_EUR:
+    print("       prix de l'app inchangé (APP_PRICE vide)")
 else:
-    already = any(x.get("relationships", {}).get("appPricePoint", {}).get("data", {}).get("id") == point["id"] for x in have)
-    if already:
-        print(f"ok     prix de l'app {PRICE_EUR} € (déjà en place)")
+    current = call("GET", f"/v1/apps/{app_id}/appPriceSchedule?include=manualPrices,baseTerritory")
+    have = [x for x in current.get("included", []) if x["type"] == "appPrices"]
+    point = None
+    url = f"/v1/apps/{app_id}/appPricePoints?filter[territory]=FRA&limit=200"
+    while url and not point:
+        page = call("GET", url)
+        point = next((p for p in page.get("data", []) if float(p["attributes"].get("customerPrice") or 0) == float(PRICE_EUR)), None)
+        nxt = page.get("links", {}).get("next")
+        url = nxt.replace(API, "") if nxt else None
+    if not point:
+        problems.append("prix")
+        print("ÉCHEC  aucun palier à", PRICE_EUR, "€ pour l'app")
     else:
-        step(f"prix de l'app {PRICE_EUR} € (base France)", call("POST", "/v1/appPriceSchedules", {
-            "data": {"type": "appPriceSchedules", "relationships": {
-                "app": {"data": {"type": "apps", "id": app_id}},
-                "baseTerritory": {"data": {"type": "territories", "id": "FRA"}},
-                "manualPrices": {"data": [{"type": "appPrices", "id": "${prix}"}]}}},
-            "included": [{"type": "appPrices", "id": "${prix}", "attributes": {"startDate": None},
-                          "relationships": {"appPricePoint": {"data": {"type": "appPricePoints", "id": point["id"]}}}}]}))
+        already = any(x.get("relationships", {}).get("appPricePoint", {}).get("data", {}).get("id") == point["id"] for x in have)
+        if already:
+            print(f"ok     prix de l'app {PRICE_EUR} € (déjà en place)")
+        else:
+            step(f"prix de l'app {PRICE_EUR} € (base France)", call("POST", "/v1/appPriceSchedules", {
+                "data": {"type": "appPriceSchedules", "relationships": {
+                    "app": {"data": {"type": "apps", "id": app_id}},
+                    "baseTerritory": {"data": {"type": "territories", "id": "FRA"}},
+                    "manualPrices": {"data": [{"type": "appPrices", "id": "${prix}"}]}}},
+                "included": [{"type": "appPrices", "id": "${prix}", "attributes": {"startDate": None},
+                              "relationships": {"appPricePoint": {"data": {"type": "appPricePoints", "id": point["id"]}}}}]}))
 
 # ------------------------------------------------------------ 3. Le texte TestFlight
 existing = {l["attributes"]["locale"]: l for l in call("GET", f"/v1/apps/{app_id}/betaAppLocalizations").get("data", [])}

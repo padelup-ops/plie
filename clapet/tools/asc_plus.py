@@ -16,7 +16,9 @@ import jwt
 API = "https://api.appstoreconnect.apple.com"
 BUNDLE = "com.padelup.clapet"
 PRODUCT_ID = "com.padelup.clapet.plus"
-PRICE_EUR = os.environ.get("PLUS_PRICE", "1.99")  # le prix le plus choisi dans le sondage
+PRICE_EUR = os.environ.get("PLUS_PRICE", "2.99")        # prix de lancement
+LATER_EUR = os.environ.get("PLUS_PRICE_LATER", "3.99")  # prix normal...
+LATER_DATE = os.environ.get("PLUS_LATER_DATE", "2026-11-13")  # ...à partir de cette date
 SCREENSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "review", "plus_review.png")
 LOCALES = {
     "en-US": ("Foldly+", "Every widget, limit alerts, full history"),
@@ -107,20 +109,28 @@ for locale, (name, desc) in LOCALES.items():
              "attributes": {"locale": locale, "name": name, "description": desc},
              "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": iap_id}}}}}))
 
-# 3. Prix
+# 3. Prix : prix de lancement, puis prix normal à partir de LATER_DATE
 points = get_all(f"/v2/inAppPurchases/{iap_id}/pricePoints?filter[territory]=FRA&limit=200")
-point = next((p for p in points if p["attributes"].get("customerPrice") == PRICE_EUR), None)
-if not point:
+def find(eur):
+    return next((p for p in points if float(p["attributes"].get("customerPrice") or 0) == float(eur)), None)
+now_p, later_p = find(PRICE_EUR), (find(LATER_EUR) if LATER_EUR and LATER_DATE else None)
+if not now_p or (LATER_EUR and LATER_DATE and not later_p):
     problems.append("prix")
-    print("ÉCHEC  aucun palier à", PRICE_EUR, "€")
+    print("ÉCHEC  palier introuvable :", PRICE_EUR, LATER_EUR)
 else:
-    step(f"prix {PRICE_EUR} € (base France)", call("POST", "/v1/inAppPurchasePriceSchedules", {
+    prices = [{"type": "inAppPurchasePrices", "id": "${p1}", "attributes": {"startDate": None, "endDate": LATER_DATE if later_p else None},
+               "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": now_p["id"]}}}}]
+    if later_p:
+        prices.append({"type": "inAppPurchasePrices", "id": "${p2}", "attributes": {"startDate": LATER_DATE, "endDate": None},
+                       "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": later_p["id"]}}}})
+    label = f"prix {PRICE_EUR} €" + (f", puis {LATER_EUR} € dès le {LATER_DATE}" if later_p else "") + " (base France)"
+    step(label, call("POST", "/v1/inAppPurchasePriceSchedules", {
         "data": {"type": "inAppPurchasePriceSchedules", "relationships": {
             "inAppPurchase": {"data": {"type": "inAppPurchases", "id": iap_id}},
             "baseTerritory": {"data": {"type": "territories", "id": "FRA"}},
-            "manualPrices": {"data": [{"type": "inAppPurchasePrices", "id": "${prix}"}]}}},
-        "included": [{"type": "inAppPurchasePrices", "id": "${prix}", "attributes": {"startDate": None},
-                      "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": point["id"]}}}}]}))
+            "manualPrices": {"data": [{"type": "inAppPurchasePrices", "id": x["id"]} for x in prices]}}},
+        "included": prices}))
+    print("       prix réglé :", [(x["attributes"].get("startDate"), x["attributes"].get("endDate")) for x in prices])
 
 # 4. Disponibilité
 territories = [t["id"] for t in get_all("/v1/territories?limit=200")]
