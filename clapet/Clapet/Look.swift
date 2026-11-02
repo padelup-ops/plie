@@ -125,6 +125,8 @@ struct ContentView: View {
             try? await Task.sleep(nanoseconds: 2_800_000_000)
             checkSurvey()
             WeekRecapNotice.schedule(model.stats)
+            MonthRecapNotice.schedule()
+            WatchSync.shared.start(model.stats)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             InstalledWidgets.shared.refresh()

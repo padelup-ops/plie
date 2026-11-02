@@ -14,6 +14,9 @@ on:
       - "clapet/Clapet/**"
       - "clapet/ClapetWidget/**"
       - "clapet/Shared/**"
+      - "clapet/Watch/**"
+      - "clapet/WatchWidget/**"
+      - "clapet/WatchShared/**"
       - "clapet/project.yml"
   workflow_dispatch:
 
@@ -124,6 +127,27 @@ jobs:
           </plist>
           EOF
           /usr/libexec/PlistBuddy -c "Print" "$RUNNER_TEMP/shared.entitlements" >/dev/null
+          # L'Apple Watch : l'app et ses complications partagent le dernier résumé reçu de l'iPhone.
+          WATCH="$APP/Watch/FoldlyWatch.app"
+          if [ -d "$WATCH" ]; then
+            cat > "$RUNNER_TEMP/watch.entitlements" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>keychain-access-groups</key>
+            <array>
+              <string>${APPLE_TEAM_ID}.com.padelup.clapet.watch</string>
+            </array>
+          </dict>
+          </plist>
+          EOF
+            ls "$WATCH" "$WATCH/PlugIns" || true
+            for X in "$WATCH"/PlugIns/*.appex; do codesign -f -s - --entitlements "$RUNNER_TEMP/watch.entitlements" "$X"; done
+            codesign -f -s - --entitlements "$RUNNER_TEMP/watch.entitlements" "$WATCH"
+          else
+            echo "::warning::Pas d'app Apple Watch dans l'archive"
+          fi
           codesign -f -s - --entitlements "$RUNNER_TEMP/shared.entitlements" "$WIDGET"
           codesign -f -s - --entitlements "$RUNNER_TEMP/shared.entitlements" "$APP"
           /usr/libexec/PlistBuddy -c "Print :ClapetKeychainGroup" "$APP/Info.plist"

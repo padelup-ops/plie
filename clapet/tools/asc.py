@@ -74,18 +74,26 @@ BETA_DESCRIPTION = {
     "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec ton temps ouvert et fermé, un bilan de la semaine et des widgets comme les pas dans Santé.",
 }
 WHATS_NEW = {
-    "en-US": """New in this build:
+    "en-US": """New in this build, straight from your survey answers:
 
-- Opening animation: your count now stays on screen half a second longer, so you have time to read it (thanks for the feedback!).
-- Minimal look: open and closed times no longer overlap on the outer display.
+- Apple Watch: today's folds on your wrist, your week and your open/closed time, plus complications for your watch face.
+- Your hours: see when you unfold the most (your typical day and week, hour by hour).
+- Monthly recap: your month compared with the one before, your busiest and calmest days.
+- New widgets: Your hours, Since day one (an odometer for your hinge), and a Count a fold button for Control Center (iOS 18).
+- Modern look: everything on one page.
+- The opening animation keeps your count on screen a little longer.
 
-Please test: launch Foldly a few times and tell us if the count now stays long enough to read.""",
-    "fr-FR": """Nouveautés de ce build :
+Please test: install Foldly on your Apple Watch from the Watch app on your iPhone, add a complication, and tell us what you think.""",
+    "fr-FR": """Nouveautés de ce build, tout droit sorties de vos réponses au sondage :
 
-- Animation d'ouverture : ton chiffre reste une demi-seconde de plus à l'écran, le temps de le lire (merci pour le retour !).
-- Thème Épuré : les temps ouvert et fermé ne se chevauchent plus sur l'écran extérieur.
+- Apple Watch : les plis du jour au poignet, ta semaine et ton temps ouvert/fermé, et des complications pour ton cadran.
+- Tes heures : vois quand tu déplies le plus (ta journée et ta semaine types, heure par heure).
+- Bilan du mois : ton mois comparé au précédent, tes jours les plus chargés et les plus calmes.
+- Nouveaux widgets : Tes heures, Depuis le début (un compteur kilométrique pour ta charnière), et un bouton Compter un pli dans le Centre de contrôle (iOS 18).
+- Look Moderne : tout sur une seule page.
+- L'animation d'ouverture garde ton chiffre un peu plus longtemps à l'écran.
 
-À tester : lance Foldly plusieurs fois et dis-nous si le chiffre reste assez longtemps pour le lire.""",
+À tester : installe Foldly sur ton Apple Watch depuis l'app Watch de l'iPhone, ajoute une complication, et dis-nous ce que tu en penses.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
