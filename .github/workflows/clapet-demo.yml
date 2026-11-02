@@ -169,7 +169,7 @@ jobs:
             if [ "${{ github.event.inputs.set }}" = "v11" ]; then
               # Duo à moitié plié (posé comme un portable) : écran intérieur en portrait
               T=$IW; IW=$IH; IH=$T
-              SHOTS="night:home:47 night:hours:47 minimal:home:47 classic:week:47"
+              SHOTS="night:desk:47 classic:desk:47 minimal:desk:47 night:home:47"
             fi
             if [ "${{ github.event.inputs.set }}" = "v10" ]; then
               SHOTS="night:home:44 night:home:45 night:home:46 night:home:47 classic:home:47 minimal:home:47 minimal:hours:47 minimal:week:47"
@@ -183,7 +183,7 @@ jobs:
               rm -f "$DATA/Documents/inner.png"
               xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday "$TODAY" -look "$LOOK" \
                 -demoNoCards 1 -demoHinge "0:176,300:176" -demoDelay 0 \
-                -innerSize "${IW}x${IH}" -innerRoot "$ROOT" -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
+                -innerSize "${IW}x${IH}" -innerRoot "$ROOT" $([ "$ROOT" = desk ] && echo "-demoDesk 1") -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
               for i in $(seq 1 30); do [ -f "$DATA/Documents/inner.png" ] && break; sleep 1; done
               sleep 1
               cp "$DATA/Documents/inner.png" "rushes/interieur/$L-$TAG.png" 2>/dev/null || echo "pas d'image $L-$TAG" >> rushes/interieur/profil.txt
