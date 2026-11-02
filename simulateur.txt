@@ -1,0 +1,7 @@
+-- watchOS 27.0 --
+    Apple Watch Series 12 (46mm) (4DA5F4CB-FB8D-4FFF-8A66-E222F1B25593) (Shutdown) 
+    Apple Watch Series 12 (42mm) (6D41AACB-33F7-4F31-B952-4C668B3AA3EA) (Shutdown) 
+    Apple Watch Ultra 4 (49mm) (CF758108-3646-4617-8F13-274523054C36) (Shutdown) 
+    Apple Watch SE 3 (44mm) (906B089D-AFAC-4EA7-9B2F-67F4A10F2EB9) (Shutdown) 
+    Apple Watch SE 3 (40mm) (1C2926AF-98D4-4774-9D82-8C95212160C4) (Shutdown) 
+UDID=CF758108-3646-4617-8F13-274523054C36
