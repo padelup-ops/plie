@@ -90,7 +90,32 @@ jobs:
           # scène | écran | durée (s) | charnière simulée | autres arguments
           FOLDS="0:176,0.9:176,1.15:5,1.4:5,1.7:176,2.5:176,2.75:5,3.0:5,3.3:176,4.1:176,4.35:5,4.6:5,4.9:176,5.7:176,5.95:5,6.2:5,6.5:176"
           FOLDS3="0:176,1.4:176,2.3:4,2.9:4,3.8:176,5.6:176,6.5:4,7.1:4,8.0:176"
-          if [ "${{ github.event.inputs.set }}" = "v3" ]; then
+          if [ "${{ github.event.inputs.set }}" = "v4" ]; then
+          # Exploration : trouver comment filmer l'écran intérieur (Duo ouvert)
+          {
+            echo "== simctl help io"; xcrun simctl help io 2>&1
+            echo "== simctl help ui"; xcrun simctl help ui 2>&1
+            echo "== simctl ui"; xcrun simctl ui "$UDID" 2>&1
+            for K in posture fold hinge devicePosture; do echo "== ui $K"; xcrun simctl ui "$UDID" $K 2>&1; done
+          } > rushes/exploration.txt 2>&1 || true
+          xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+          xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoToday 47 -look classic > /dev/null 2>&1 || true
+          sleep 8
+          for DSP in 0 1 2 3 4 5 internal external; do
+            echo "== screenshot display $DSP" >> rushes/exploration.txt
+            xcrun simctl io "$UDID" screenshot --display=$DSP --mask=black "rushes/essai-ecran-$DSP.png" >> rushes/exploration.txt 2>&1 || true
+          done
+          for P in open opened unfolded flat half closed; do
+            for C in "ui $UDID posture $P" "ui $UDID fold $P" "io $UDID posture $P"; do
+              echo "== simctl $C" >> rushes/exploration.txt
+              xcrun simctl $C >> rushes/exploration.txt 2>&1 || true
+            done
+          done
+          sleep 3
+          for DSP in 0 1 2; do xcrun simctl io "$UDID" screenshot --display=$DSP --mask=black "rushes/apres-ecran-$DSP.png" >> rushes/exploration.txt 2>&1 || true; done
+          cat > scenes.txt <<EOF
+          EOF
+          elif [ "${{ github.event.inputs.set }}" = "v3" ]; then
           # Vidéo 3 (modèle « Introducing … for iPhone Duo ») : les écrans de la version actuelle
           cat > scenes.txt <<EOF
           open|home|6||-demoToday 46 -look classic -demoOpening 1
