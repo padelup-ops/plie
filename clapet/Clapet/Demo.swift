@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import WidgetKit
 
 // MARK: - Mode démo (tournage de la vidéo de présentation sur le simulateur)
@@ -137,32 +138,65 @@ enum Demo {
     }
 }
 
-/// Le Duo ouvert, pour le tournage : l'app dans un cadre de la taille de l'écran intérieur
-/// (lancé sur un simulateur iPad, le simulateur du Duo n'affiche pas son écran intérieur).
-/// -innerRoot hours|week|month met directement cet écran dans le cadre.
+/// Le Duo ouvert, pour le tournage : l'app est dessinée dans une seconde fenêtre de la taille
+/// de l'écran intérieur (le simulateur du Duo n'affiche pas son écran intérieur), puis enregistrée
+/// en image dans Documents/inner.png (×3, comme l'écran intérieur).
+/// -innerSize 951x669 · -innerRoot hours|week|month met directement cet écran.
 struct DemoInner<Content: View>: View {
     @ViewBuilder var content: Content
+    @Environment(ClapetModel.self) private var model
+    @Environment(ClapetStore.self) private var store
+    @AppStorage(DFLook.key) private var lookRaw = ""
 
     var body: some View {
         if let size = Demo.innerSize {
-            ZStack {
-                Color.black.ignoresSafeArea()
-                Group {
-                    switch Demo.value("innerRoot") {
-                    case "hours": HoursSheet()
-                    case "week": WeekRecapView()
-                    case "month": MonthRecapView()
-                    default: content
-                    }
-                }
-                .safeAreaPadding(.top, Double(Demo.value("innerTop") ?? "") ?? 20)
-                .frame(width: size.width, height: size.height)
-                .clipped()
-                .scaleEffect(Demo.innerScale)
-                .frame(width: size.width * Demo.innerScale, height: size.height * Demo.innerScale)
+            content.task {
+                await DemoInnerSnap.run(size: size, view: AnyView(
+                    root
+                        .safeAreaPadding(.top, Double(Demo.value("innerTop") ?? "") ?? 20)
+                        .environment(model)
+                        .environment(store)
+                        .preferredColorScheme(lookRaw == DFLook.night.rawValue ? .dark : nil)
+                ))
             }
         } else {
             content
+        }
+    }
+
+    @ViewBuilder private var root: some View {
+        switch Demo.value("innerRoot") {
+        case "hours": HoursSheet()
+        case "week": WeekRecapView()
+        case "month": MonthRecapView()
+        default: content
+        }
+    }
+}
+
+@MainActor
+enum DemoInnerSnap {
+    static var window: UIWindow?
+
+    static func run(size: CGSize, view: AnyView) async {
+        try? await Task.sleep(nanoseconds: 800_000_000)
+        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
+        let host = UIHostingController(rootView: view)
+        host.safeAreaRegions = []
+        let w = UIWindow(windowScene: scene)
+        w.frame = CGRect(origin: .zero, size: size)
+        w.rootViewController = host
+        w.isHidden = false
+        window = w
+        try? await Task.sleep(nanoseconds: 4_500_000_000)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 3
+        format.opaque = true
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            _ = w.drawHierarchy(in: CGRect(origin: .zero, size: size), afterScreenUpdates: true)
+        }
+        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            try? image.pngData()?.write(to: dir.appendingPathComponent("inner.png"))
         }
     }
 }

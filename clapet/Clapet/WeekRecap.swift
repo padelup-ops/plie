@@ -18,6 +18,7 @@ enum WeekRecapRule {
 
     /// La carte « Ta semaine est prête » : jusqu'à 3 jours après la fin de la semaine, tant qu'on ne l'a pas ouverte.
     static func shouldShowCard(_ stats: ClapetStats, now: Date = Date()) -> Bool {
+        if Demo.value("demoNoCards") == "1" { return false }
         let recap = current(stats, now: now)
         guard !recap.isEmpty, UserDefaults.standard.string(forKey: seenKey) != recap.id else { return false }
         let cal = Calendar.current

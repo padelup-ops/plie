@@ -163,22 +163,25 @@ jobs:
           )
           echo "écran intérieur : ${IW}x${IH} points, échelle $IK" | tee -a rushes/interieur/profil.txt
           # Le runtime n'a pas d'iPad : le cadre de l'écran intérieur est réduit dans l'écran extérieur du Duo
-          IPAD="$UDID"
           for L in ${{ github.event.inputs.langs }}; do
             LOC=fr_FR; [ "$L" = "en" ] && LOC=en_US
             for SHOT in classic:home night:home minimal:home classic:hours night:hours classic:week night:week classic:month; do
               LOOK=${SHOT%%:*}; ROOT=${SHOT##*:}
-              # Intérieur (iPad, cadre de l'écran intérieur)
-              xcrun simctl terminate "$IPAD" "$BID" 2>/dev/null || true
-              xcrun simctl launch "$IPAD" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday 47 -look "$LOOK" \
-                -innerSize "${IW}x${IH}" -innerScale "$IK" -innerRoot "$ROOT" -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
-              sleep 7
-              xcrun simctl io "$IPAD" screenshot --display=1 --mask=black "rushes/interieur/$L-$LOOK-$ROOT.png" > /dev/null 2>&1 || true
+              # Intérieur : image de la fenêtre à la taille de l'écran intérieur, écrite par l'app
+              xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+              DATA=$(xcrun simctl get_app_container "$UDID" "$BID" data 2>/dev/null || true)
+              rm -f "$DATA/Documents/inner.png"
+              xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday 47 -look "$LOOK" \
+                -demoNoCards 1 -demoHinge "0:176,300:176" -demoDelay 0 \
+                -innerSize "${IW}x${IH}" -innerRoot "$ROOT" -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
+              for i in $(seq 1 30); do [ -f "$DATA/Documents/inner.png" ] && break; sleep 1; done
+              sleep 1
+              cp "$DATA/Documents/inner.png" "rushes/interieur/$L-$LOOK-$ROOT.png" 2>/dev/null || echo "pas d'image $L-$LOOK-$ROOT" >> rushes/interieur/profil.txt
               # Extérieur (Duo fermé), même état, pour les écrans d'accueil
               if [ "$ROOT" = "home" ]; then
                 xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
                 xcrun simctl launch "$UDID" "$BID" -screen home -demoSeed 1 -demoPlus 1 -demoLimit 60 -demoToday 47 -look "$LOOK" \
-                  -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
+                  -demoNoCards 1 -demoHinge "0:5,300:5" -demoDelay 0 -AppleLanguages "($L)" -AppleLocale "$LOC" > /dev/null 2>&1 || true
                 sleep 7
                 xcrun simctl io "$UDID" screenshot --display=1 --mask=black "rushes/interieur/$L-$LOOK-exterieur.png" > /dev/null 2>&1 || true
               fi
@@ -357,6 +360,7 @@ jobs:
       - name: Réduire les vidéos
         run: |
           cd rushes
+          shopt -s nullglob
           for f in *.mov; do
             avconvert --source "$f" --preset Preset1920x1080 --output "${f%.mov}.mp4" --replace > /dev/null 2>&1 \
               || cp "$f" "${f%.mov}.mp4"

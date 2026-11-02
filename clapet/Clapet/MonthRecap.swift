@@ -58,6 +58,7 @@ enum MonthRecapRule {
 
     /// La carte « Ton mois est prêt » : les 5 premiers jours du mois, tant qu'on ne l'a pas ouverte.
     static func shouldShowCard(_ stats: ClapetStats, now: Date = Date()) -> Bool {
+        if Demo.value("demoNoCards") == "1" { return false }
         let recap = current(stats, now: now)
         guard recap.tracked >= 3, UserDefaults.standard.string(forKey: seenKey) != recap.id else { return false }
         return Calendar.current.component(.day, from: now) <= 5
