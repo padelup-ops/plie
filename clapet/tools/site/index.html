@@ -3,12 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<style>*,*::before,*::after{box-sizing:border-box}body{margin:0;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<script>
+try { const l = localStorage.getItem('foldly-lang'); if ((l === 'fr' || (!l && (navigator.language || '').toLowerCase().startsWith('fr'))) && !location.hash) location.replace('accueil/'); } catch {}
+</script>
 <title>Foldly for iPhone Duo</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Foldly counts every time you open your iPhone Duo. See how often you unfold, how long it rests, and how your week compares. Public beta on TestFlight.">
 <link rel="icon" href="icon.png">
 <style>
+*,*::before,*::after{box-sizing:border-box}body{margin:0;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}img{max-width:100%}[hidden]{display:none!important}
+.lang{font-size:12px;font-weight:600;color:var(--soft);text-decoration:none;padding:6px 8px;border-radius:999px}.lang:hover{color:var(--fg)}
+
 /* Layout: one centered column on black, like a product film. A 3D iPhone Duo plays chapters under the hero; sections follow, centered. */
 :root {
   color-scheme: dark;
@@ -145,6 +150,8 @@ footer a { color: var(--soft) }
 }
 @media (prefers-reduced-motion: reduce) { .chip, .cap { transition: none } }
 </style>
+<link rel="alternate" hreflang="en" href="https://foldly.netlify.app/">
+<link rel="alternate" hreflang="fr" href="https://foldly.netlify.app/accueil/">
 </head>
 <body>
 
@@ -154,7 +161,7 @@ footer a { color: var(--soft) }
     <nav class="links" aria-label="Sections">
       <a href="#counter">Counter</a><a href="#time">Time</a><a href="#week">Week</a><a href="#iphone-duo">iPhone Duo</a><a href="#looks">Looks</a><a href="#privacy">Privacy</a><a href="#questions">Questions</a>
     </nav>
-    <a class="pill-btn" href="#beta">Join the beta <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h9M8.5 4l4 4-4 4"/></svg></a>
+    <a class="lang" href="accueil/" data-lang="fr">FR</a><a class="pill-btn" href="#beta">Join the beta <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h9M8.5 4l4 4-4 4"/></svg></a>
   </div>
 </header>
 
@@ -290,7 +297,7 @@ footer a { color: var(--soft) }
 
 <footer>
   <p>Apple, iPhone, iPhone Duo, StandBy and TestFlight are trademarks of Apple Inc. Foldly is an independent app, not affiliated with or endorsed by Apple.</p>
-  <p>Copyright © 2026 Foldly. <a href="https://foldly.netlify.app/en/privacy.html">Privacy</a> · <a href="https://foldly.netlify.app/en/">Support</a> · <a href="https://foldly.netlify.app/fr/">Français</a> · <a href="https://foldly.netlify.app/press/">Press</a></p>
+  <p>Copyright © 2026 Foldly. <a href="https://foldly.netlify.app/en/privacy.html">Privacy</a> · <a href="https://foldly.netlify.app/en/">Support</a> · <a href="accueil/" data-lang="fr">Français</a> · <a href="https://foldly.netlify.app/press/">Press</a></p>
 </footer>
 
 <script>
@@ -358,6 +365,8 @@ document.getElementById('share').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(url); out.textContent = 'Link copied: ' + url; }
   catch { out.textContent = url; }
 });
+
+document.querySelectorAll('[data-lang]').forEach(a => a.addEventListener('click', () => { try { localStorage.setItem('foldly-lang', a.dataset.lang); } catch {} }));
 </script>
 
 </body>
