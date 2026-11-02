@@ -44,7 +44,7 @@ for b in BOARDS:
         tries = [{}]
         if b["monthly"]:
             tries = [{"recurrenceStartDate": "2026-11-01T00:00:00Z", "recurrenceDuration": d, "recurrenceRule": "FREQ=MONTHLY;INTERVAL=1"}
-                     for d in ("P1MT0H", "P1MT0S", "P0Y1M0DT0H0M0S", "P30DT0H")]
+                     for d in ("PT744H", "PT720H", "PT672H")]
         for extra in tries:
             r = call("POST", "/v1/gameCenterLeaderboards", {"data": {"type": "gameCenterLeaderboards",
                 "attributes": {**attrs, **extra}, "relationships": {"gameCenterDetail": {"data": {"type": "gameCenterDetails", "id": gcd["id"]}}}}})
