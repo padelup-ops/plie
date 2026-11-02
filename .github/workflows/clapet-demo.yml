@@ -131,8 +131,8 @@ jobs:
           echo "BID=$BID" >> "$GITHUB_ENV"
           gzip -f ../rushes/build.log
 
-      - name: Écran intérieur sur iPad (v9, v10)
-        if: ${{ github.event.inputs.set == 'v9' || github.event.inputs.set == 'v10' }}
+      - name: Écran intérieur sur iPad (v9, v10, v11)
+        if: ${{ github.event.inputs.set == 'v9' || github.event.inputs.set == 'v10' || github.event.inputs.set == 'v11' }}
         run: |
           mkdir -p rushes/interieur
           # Taille en points de l'écran intérieur du Duo (2007 x 2853 pixels), d'après le profil du simulateur
@@ -166,6 +166,11 @@ jobs:
           for L in ${{ github.event.inputs.langs }}; do
             LOC=fr_FR; [ "$L" = "en" ] && LOC=en_US
             SHOTS="classic:home:47 night:home:47 minimal:home:47 classic:hours:47 night:hours:47 classic:week:47 night:week:47 classic:month:47"
+            if [ "${{ github.event.inputs.set }}" = "v11" ]; then
+              # Duo à moitié plié (posé comme un portable) : écran intérieur en portrait
+              T=$IW; IW=$IH; IH=$T
+              SHOTS="night:home:47 night:hours:47 minimal:home:47 classic:week:47"
+            fi
             if [ "${{ github.event.inputs.set }}" = "v10" ]; then
               SHOTS="night:home:44 night:home:45 night:home:46 night:home:47 classic:home:47 minimal:home:47 minimal:hours:47 minimal:week:47"
             fi
