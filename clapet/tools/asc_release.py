@@ -196,16 +196,16 @@ else:
 # Les nouveautés affichées sur l'App Store, par version.
 RELEASE_NOTES = {
     "1.0.1": {
-        "en-US": "• Phone down: a timer runs on the outer screen while your phone stays closed, and a plant grows every 25 minutes. Build your garden and set a daily goal.\n"
-                 "• Badges for the plant challenge: first sprout, 25, 100 and 500 plants, goal met several days in a row.\n"
-                 "• New Phone down widget, and a better Folds today widget with your daily limit.\n"
-                 "• Mindful pause: a 3-second breath before you unfold, if you want it.\n"
-                 "• Live counter on the Lock Screen, quick checks, longest break, and a card to share your day.",
-        "fr-FR": "• Téléphone posé : un chrono tourne sur l'écran extérieur tant que ton téléphone reste fermé, et une plante pousse toutes les 25 minutes. Fais grandir ton jardin et fixe-toi un objectif.\n"
-                 "• Des badges pour le défi des plantes : première pousse, 25, 100 et 500 plantes, objectif tenu plusieurs jours d'affilée.\n"
-                 "• Nouveau widget Téléphone posé, et widget Plis du jour amélioré avec ta limite.\n"
-                 "• Pause consciente : 3 secondes pour respirer avant d'ouvrir, si tu le souhaites.\n"
-                 "• Compteur en direct sur l'écran verrouillé, coups d'œil, plus longue pause, et une image pour partager ta journée.",
+        "en-US": "• Apple Watch app: today's folds on your wrist, your week with the number of each day, your time open and closed, and complications for your watch face.\n"
+                 "• Break reminder: when your Duo stays open for a while, Foldly suggests a short break, on your iPhone or your Apple Watch.\n"
+                 "• Desk mode: open your Duo halfway, like a book or a little laptop, and Foldly shows your count and details on two pages.\n"
+                 "• Your hours and Monthly recap: see when you unfold the most, and how your month compares.\n"
+                 "• New widgets, a Count a fold button for Control Center, and Foldly+ to unlock everything with a single purchase.",
+        "fr-FR": "• App Apple Watch : les plis du jour au poignet, ta semaine avec le chiffre de chaque jour, ton temps ouvert et fermé, et des complications pour ton cadran.\n"
+                 "• Rappel de pause : quand ton Duo reste ouvert longtemps, Foldly te propose une petite pause, sur ton iPhone ou ton Apple Watch.\n"
+                 "• Mode bureau : ouvre ton Duo à moitié, comme un livre ou un petit portable, et Foldly affiche ton chiffre et tes détails sur deux pages.\n"
+                 "• Tes heures et Bilan du mois : vois quand tu déplies le plus, et compare ton mois au précédent.\n"
+                 "• Nouveaux widgets, un bouton Compter un pli dans le Centre de contrôle, et Foldly+ pour tout débloquer en un seul achat.",
     },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
@@ -410,6 +410,14 @@ if SUBMIT:
                  "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
                  "appAssetLibraryVideo": {"data": {"type": "appAssetLibraryVideos", "id": v_["id"]}}}}}),
              tolerate=("already", "ENTITY_ERROR", "STATE_ERROR"))
+    # Le premier achat intégré (Foldly+) part avec cette version.
+    for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
+        st = x["attributes"].get("state")
+        print("       achat", x["attributes"].get("productId"), st)
+        if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
+            step(f"achat {x['attributes'].get('productId')} envoyé avec la version", call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
+                 "type": "inAppPurchaseSubmissions", "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}}),
+                 tolerate=("already", "STATE_ERROR"))
     r = step("ENVOI À LA VÉRIFICATION D'APPLE", call("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
          "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}}))
     v = call("GET", f"/v1/appStoreVersions/{vid}").get("data", {}).get("attributes", {})

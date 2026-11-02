@@ -16,6 +16,7 @@ struct ClapetApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .safeAreaInset(edge: .bottom) { BetaBanner() }
                 .environment(model)
                 .environment(store)
                 .task {

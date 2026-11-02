@@ -7,18 +7,18 @@ src = open(os.path.join(L, 'index.html')).read()
 
 PAIRS = [
  ('<title>Foldly for iPhone Duo</title>', '<title>Foldly pour iPhone Duo</title>'),
- ('content="Foldly counts every time you open your iPhone Duo. See how often you unfold, how long it rests, and how your week compares. Public beta on TestFlight."',
-  'content="Foldly compte chaque ouverture de votre iPhone Duo. Voyez combien de fois vous le dépliez, combien de temps il reste fermé et comment votre semaine se compare. Bêta publique sur TestFlight."'),
+ ('content="Foldly counts every time you open your iPhone Duo. See how often you unfold, how long it rests, and how your week compares. Free on the App Store."',
+  'content="Foldly compte chaque ouverture de votre iPhone Duo. Voyez combien de fois vous le dépliez, combien de temps il reste fermé et comment votre semaine se compare. Gratuit sur l’App Store."'),
  ('<a href="#counter">Counter</a><a href="#time">Time</a><a href="#week">Week</a><a href="#iphone-duo">iPhone Duo</a><a href="#looks">Looks</a><a href="#privacy">Privacy</a><a href="#questions">Questions</a>',
   '<a href="#counter">Compteur</a><a href="#time">Temps</a><a href="#week">Semaine</a><a href="#iphone-duo">iPhone Duo</a><a href="#looks">Styles</a><a href="#privacy">Confidentialité</a><a href="#questions">Questions</a>'),
- ('<a class="pill-btn" href="#beta">Join the beta', '<a class="lang" href="../" data-lang="en">EN</a><a class="pill-btn" href="#beta">Rejoindre la bêta'),
+ ('<a class="pill-btn" href="#beta">Get the app', '<a class="lang" href="../" data-lang="en">EN</a><a class="pill-btn" href="#beta">Télécharger l’app'),
  ('alt="Foldly app icon"', 'alt="Icône de l’app Foldly"'),
  ('Every fold, counted. <span>Made for iPhone Duo.</span>', 'Chaque pli, compté. <span>Pensé pour l’iPhone Duo.</span>'),
  ('Each time you open your Duo, Foldly counts it. <b>See how often you unfold,</b> how long it rests, and how your week compares.',
   'À chaque ouverture de votre Duo, Foldly compte. <b>Voyez combien de fois vous le dépliez,</b> combien de temps il reste fermé et comment se passe votre semaine.'),
- ('<small>Beta</small>', '<small>Bêta</small>'),
- ('<b>Public beta</b><span>Open now on TestFlight</span>', '<b>Bêta publique</b><span>Ouverte sur TestFlight</span>'),
- ('<a class="pill-btn big" href="#beta">Join the beta', '<a class="pill-btn big" href="#beta">Rejoindre la bêta'),
+ ('<small>New</small>', '<small>Nouveau</small>'),
+ ('<b>Now on the App Store</b><span>Free for iPhone Duo</span>', '<b>Sur l’App Store</b><span>Gratuit pour l’iPhone Duo</span>'),
+ ('<a class="pill-btn big" href="#beta">Get the app', '<a class="pill-btn big" href="#beta">Télécharger l’app'),
  ('aria-label="Foldly on iPhone Duo">\n', 'aria-label="Foldly sur iPhone Duo">\n'),
  ('aria-label="Foldly on iPhone Duo"></video>', 'aria-label="Foldly sur iPhone Duo"></video>'),
  ('aria-label="Chapters"', 'aria-label="Chapitres"'),
@@ -93,19 +93,19 @@ PAIRS = [
   '<summary>Foldly va-t-il limiter mon usage du téléphone ?</summary><p>Non. Il compte, c’est tout. La limite quotidienne est facultative et désactivée par défaut ; sans elle, Foldly compare aujourd’hui à votre propre moyenne.</p>'),
  ("<summary>Where do my numbers go?</summary><p>Nowhere. They stay on your iPhone, shared only with Foldly's widgets. There is no account and no server.</p>",
   '<summary>Où vont mes chiffres ?</summary><p>Nulle part. Ils restent sur votre iPhone, partagés uniquement avec les widgets de Foldly. Il n’y a ni compte ni serveur.</p>'),
- ('<summary>What does it cost?</summary><p>The beta is free. Foldly+ is a one-time purchase for the full history, every widget, widget colors, limit alerts and export. No subscription.</p>',
-  '<summary>Combien ça coûte ?</summary><p>La bêta est gratuite. Foldly+ est un achat unique pour l’historique complet, tous les widgets, leurs couleurs, les alertes de limite et l’export. Sans abonnement.</p>'),
+ ('<summary>What does it cost?</summary><p>Foldly is free. Foldly+ is a one-time purchase for the full history, every widget, widget colors, limit alerts and export. No subscription.</p>',
+  '<summary>Combien ça coûte ?</summary><p>Foldly est gratuit. Foldly+ est un achat unique pour l’historique complet, tous les widgets, leurs couleurs, les alertes de limite et l’export. Sans abonnement.</p>'),
  ("<summary>Which languages?</summary><p>English and French. Foldly follows your iPhone's language.</p>",
   '<summary>Quelles langues ?</summary><p>Français et anglais. Foldly suit la langue de votre iPhone.</p>'),
- ('<summary>When can I try it?</summary><p>Now. Install TestFlight from the App Store, then open the beta link on your iPhone.</p>',
-  '<summary>Quand puis-je l’essayer ?</summary><p>Maintenant. Installez TestFlight depuis l’App Store, puis ouvrez le lien de la bêta sur votre iPhone.</p>'),
- ('<h2 id="beta-h">The beta is open.</h2>', '<h2 id="beta-h">La bêta est ouverte.</h2>'),
- ('Install TestFlight, open the link on your iPhone, and <b>Foldly is yours to try.</b>', 'Installez TestFlight, ouvrez le lien sur votre iPhone, et <b>Foldly est à vous.</b>'),
- ('>Join on TestFlight</a>', '>Rejoindre sur TestFlight</a>'),
+ ('<summary>When can I try it?</summary><p>Now. Download Foldly for free from the App Store on your iPhone.</p>',
+  '<summary>Quand puis-je l’essayer ?</summary><p>Maintenant. Téléchargez Foldly gratuitement sur l’App Store depuis votre iPhone.</p>'),
+ ('<h2 id="beta-h">Foldly is on the App Store.</h2>', '<h2 id="beta-h">Foldly est sur l’App Store.</h2>'),
+ ('Download it on your iPhone, and <b>Foldly is yours.</b>', 'Téléchargez-le sur votre iPhone, et <b>Foldly est à vous.</b>'),
+ ('>Download on the App Store</a>', '>Télécharger sur l’App Store</a>'),
  ('<small>iPhone · iOS 17 or later</small>', '<small>iPhone · iOS 17 ou plus récent</small>'),
  ('id="share">Share Foldly with a friend</button>', 'id="share">Partager Foldly avec un ami</button>'),
- ('<p>Apple, iPhone, iPhone Duo, StandBy and TestFlight are trademarks of Apple Inc. Foldly is an independent app, not affiliated with or endorsed by Apple.</p>',
-  '<p>Apple, iPhone, iPhone Duo, StandBy et TestFlight sont des marques d’Apple Inc. Foldly est une app indépendante, ni affiliée à Apple ni approuvée par Apple.</p>'),
+ ('<p>Apple, iPhone, iPhone Duo and StandBy are trademarks of Apple Inc. Foldly is an independent app, not affiliated with or endorsed by Apple.</p>',
+  '<p>Apple, iPhone, iPhone Duo et StandBy sont des marques d’Apple Inc. Foldly est une app indépendante, ni affiliée à Apple ni approuvée par Apple.</p>'),
  ('<a href="https://foldly.netlify.app/en/privacy.html">Privacy</a> · <a href="https://foldly.netlify.app/en/">Support</a> · <a href="https://foldly.netlify.app/fr/">Français</a> · <a href="https://foldly.netlify.app/press/">Press</a>',
   '<a href="https://foldly.netlify.app/fr/privacy.html">Confidentialité</a> · <a href="https://foldly.netlify.app/fr/">Assistance</a> · <a href="../" data-lang="en">English</a> · <a href="https://foldly.netlify.app/press/">Presse</a>'),
  ("label: 'Closed', cap: '<b>Closed, it\\'s an iPhone.</b> Today\\'s count sits on the outer display.'", "label: 'Fermé', cap: '<b>Fermé, c\\'est un iPhone.</b> Le compte du jour est sur l\\'écran extérieur.'"),
@@ -142,7 +142,7 @@ def wrap(html, lang, extra_head=''):
             f'</head>\n<body>{body}\n</body>\n</html>\n')
 
 # EN : ajoute le lien FR dans l'en-tête et le pied
-en = src.replace('<a class="pill-btn" href="#beta">Join the beta', '<a class="lang" href="accueil/" data-lang="fr">FR</a><a class="pill-btn" href="#beta">Join the beta', 1)
+en = src.replace('<a class="pill-btn" href="#beta">Get the app', '<a class="lang" href="accueil/" data-lang="fr">FR</a><a class="pill-btn" href="#beta">Get the app', 1)
 en = en.replace('<a href="https://foldly.netlify.app/fr/">Français</a>', '<a href="accueil/" data-lang="fr">Français</a>')
 open(os.path.join(SITE, 'index.html'), 'w').write(wrap(en, 'en', REDIRECT_EN))
 

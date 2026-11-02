@@ -12,6 +12,10 @@ ROOT = os.path.join(HERE, "..")
 
 FR = {
     # Sondage : tes heures, bilan du mois, nouveaux widgets, Apple Watch
+    # Bandeau de la bêta (TestFlight)
+    "Foldly is now on the App Store": "Foldly est sur l'App Store",
+    "Install it to keep your data. The beta ends on November 9.": "Installe-le pour garder tes données. La bêta s'arrête le 9 novembre.",
+    "Install": "Installer",
     # Rappel de pause
     "Time for a break?": "Une petite pause ?",
     "Your iPhone Duo has been open for %lld min. Fold it for a moment.": "Ton iPhone Duo est ouvert depuis %lld min. Replie-le un moment.",

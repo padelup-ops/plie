@@ -1,4 +1,7 @@
 /* Foldly (écrit par clapet/tools/strings.py) */
+"Foldly is now on the App Store" = "Foldly est sur l'App Store";
+"Install it to keep your data. The beta ends on November 9." = "Installe-le pour garder tes données. La bêta s'arrête le 9 novembre.";
+"Install" = "Installer";
 "Time for a break?" = "Une petite pause ?";
 "Your iPhone Duo has been open for %lld min. Fold it for a moment." = "Ton iPhone Duo est ouvert depuis %lld min. Replie-le un moment.";
 "After %lld min open" = "Après %lld min ouvert";
