@@ -1,0 +1,21 @@
+# Retire un build des testeurs externes
+name: Clapet - retirer un build
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Numéro du build"
+        required: true
+jobs:
+  unbeta:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      BUILD_NUMBER: ${{ inputs.build }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_unbeta.py
