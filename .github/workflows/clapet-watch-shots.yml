@@ -1,0 +1,107 @@
+# Captures de l'app Foldly sur l'Apple Watch (pour la vidéo) : aujourd'hui, la semaine, le temps, et un cadran
+# avec les vraies complications. Publiées dans la branche ci-clapet-watch.
+name: Clapet - captures montre
+on:
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: "Langue (en ou fr)"
+        required: false
+        default: "en"
+jobs:
+  shots:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          xcodebuild -version
+
+      - name: Projet (cadran d'exemple compilé dans l'app montre)
+        run: |
+          mkdir -p shots
+          command -v xcodegen >/dev/null || brew install xcodegen >/dev/null 2>&1 || true
+          if ! command -v xcodegen >/dev/null; then
+            curl -sSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/latest/download/xcodegen.zip
+            unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP/xg"
+            export PATH="$RUNNER_TEMP/xg/xcodegen/bin:$PATH"
+            echo "$RUNNER_TEMP/xg/xcodegen/bin" >> "$GITHUB_PATH"
+          fi
+          cd clapet
+          # Les vues des complications, sans leur point d'entrée, dans l'app montre
+          mkdir -p WatchDemo
+          sed 's/^@main$//' WatchWidget/FoldlyWatchWidget.swift > WatchDemo/ComplicationViews.swift
+          python3 - <<'PY'
+          s = open('project.yml').read()
+          a = "      - path: Watch\n      - path: WatchShared\n      - path: WatchStrings\n"
+          assert a in s, 'sources montre introuvables'
+          s = s.replace(a, a + "      - path: WatchDemo\n", 1)
+          b = "        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.clapet.watchkitapp\n"
+          s = s.replace(b, b + "        SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG DEMO_FACE\n", 1)
+          open('project.yml', 'w').write(s)
+          PY
+          xcodegen generate
+
+      - name: Simulateur Apple Watch
+        run: |
+          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes'] if r.get('platform') == 'watchOS' and r.get('isAvailable')]
+          print(rs[-1]['identifier'] if rs else '')")
+          if [ -z "$RUNTIME" ]; then
+            xcodebuild -downloadPlatform watchOS 2>&1 | tail -3
+            RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes'] if r.get('platform') == 'watchOS' and r.get('isAvailable')]
+          print(rs[-1]['identifier'] if rs else '')")
+          fi
+          TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Apple Watch' in x['name']]
+          pick = [x for x in d if 'Series' in x['name'] and '46' in x['name']] or [x for x in d if 'Series' in x['name']] or d
+          print(pick[-1]['identifier'])")
+          echo "runtime=$RUNTIME type=$TYPE" | tee shots/simulateur.txt
+          UDID=$(xcrun simctl create "Foldly Watch" "$TYPE" "$RUNTIME")
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 10:09 || true
+
+      - name: Compiler et capturer
+        run: |
+          set -o pipefail
+          cd clapet
+          xcodebuild build -project Clapet.xcodeproj -scheme FoldlyWatch -configuration Debug \
+            -destination "id=$UDID" -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee ../shots/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" ../shots/build.log
+          APP=$(ls -d build/Build/Products/Debug-watchsimulator/*.app | head -1)
+          xcrun simctl install "$UDID" "$APP"
+          BID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist")
+          L="${{ github.event.inputs.lang || 'en' }}"
+          for P in today week time face; do
+            xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1 || true
+            xcrun simctl launch "$UDID" "$BID" -demoWatchPage "$P" -AppleLanguages "($L)" -AppleLocale "$L" >/dev/null
+            sleep 6
+            xcrun simctl io "$UDID" screenshot "../shots/watch-$L-$P.png"
+          done
+          ls -la ../shots
+
+      - name: Publier dans la branche ci-clapet-watch
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd shots
+          git init -q -b ci-clapet-watch
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -qm "Captures montre ${{ github.run_number }}"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-watch
