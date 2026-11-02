@@ -56,6 +56,14 @@ jobs:
             sz=$(stat -f %z "$f" 2>/dev/null || echo 0)
             if [ "$sz" -lt 60000000 ]; then cp "$f" "rushes/modele/$(echo "$f" | md5 | cut -c1-6)-$(basename "$f")"; echo "$f -> $sz" >> rushes/modele/copies.txt; fi
           done
+          # Les cadres 2D de l'iPhone Duo dans le simulateur (écran extérieur = phone15, intérieur = phone14)
+          for C in phone14 phone15; do
+            mkdir -p "rushes/modele/$C"
+            cp -R "/Library/Developer/DeviceKit/Chrome/$C.devicechrome/Contents/Resources/." "rushes/modele/$C/" 2>/dev/null || true
+          done
+          cp -R "/Library/Developer/CoreSimulator/Profiles/DeviceTypes/iPhone Duo.simdevicetype/Contents/Resources/." rushes/modele/simdevicetype/ 2>/dev/null || { mkdir -p rushes/modele/simdevicetype; cp -R "/Library/Developer/CoreSimulator/Profiles/DeviceTypes/iPhone Duo.simdevicetype/Contents/Resources/." rushes/modele/simdevicetype/; }
+          find rushes/modele -type f | head -100
+          du -sh rushes/modele
           ls -la rushes/modele
           exit 1
 
