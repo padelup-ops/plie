@@ -74,7 +74,9 @@ BETA_DESCRIPTION = {
     "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec ton temps ouvert et fermé, un bilan de la semaine et des widgets comme les pas dans Santé.",
 }
 WHATS_NEW = {
-    "en-US": """New on Apple Watch: each day of the week now shows its number above the bar, like on iPhone (thanks for the idea!).
+    "en-US": """New: Break reminder. When your Duo stays open for a while (30 min by default), Foldly suggests a short break, on your iPhone or your Apple Watch. Turn it on in Settings > Summaries.
+
+New on Apple Watch: each day of the week now shows its number above the bar, like on iPhone (thanks for the idea!).
 
 New: Desk mode.
 
@@ -87,7 +89,9 @@ You can turn it off in Settings > Feel.
 Also in recent builds: Apple Watch app and complications, Your hours, Monthly recap, new widgets.
 
 Please test: open Foldly, fold your Duo to about 90° like a book, then set it on the table. Does the screen switch? Is it readable?""",
-    "fr-FR": """Nouveau sur l'Apple Watch : chaque jour de la semaine affiche son chiffre au-dessus de la barre, comme sur l'iPhone (merci pour l'idée !).
+    "fr-FR": """Nouveau : le rappel de pause. Quand ton Duo reste ouvert longtemps (30 min par défaut), Foldly te propose une petite pause, sur ton iPhone ou ton Apple Watch. À activer dans Réglages > Bilans.
+
+Nouveau sur l'Apple Watch : chaque jour de la semaine affiche son chiffre au-dessus de la barre, comme sur l'iPhone (merci pour l'idée !).
 
 Nouveau : le mode bureau.
 

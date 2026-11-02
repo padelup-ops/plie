@@ -13,6 +13,8 @@ struct SettingsView: View {
     @AppStorage(DFLook.key) private var lookRaw = ""
     @State private var liveOn = LiveCounter.isOn
     @State private var eveningOn = EveningSummary.isOn
+    @State private var breakOn = BreakReminder.isOn
+    @State private var breakMinutes = BreakReminder.minutes
     @State private var weekOn = WeekRecapNotice.isOn
     @State private var notificationsDenied = false
     @State private var liveDenied = false
@@ -139,6 +141,32 @@ struct SettingsView: View {
                     } else {
                         Text("The weekly recap arrives on the last day of the week at 7 pm. The evening summary gives your folds and your time open and closed.")
                     }
+                }
+                Section {
+                    Toggle(isOn: Binding(get: { breakOn }, set: { on in
+                        Task {
+                            let ok = on ? await LimitAlerts.requestPermission() : true
+                            BreakReminder.setOn(ok && on, stats: model.stats)
+                            breakOn = ok && on
+                            notificationsDenied = on && !ok
+                        }
+                    })) {
+                        Text("Break reminder")
+                    }
+                    if breakOn {
+                        Picker(selection: Binding(get: { breakMinutes }, set: { m in
+                            breakMinutes = m
+                            BreakReminder.setMinutes(m, stats: model.stats)
+                        })) {
+                            ForEach(BreakReminder.choices, id: \.self) { m in
+                                Text("After \(m) min open").tag(m)
+                            }
+                        } label: {
+                            Text("Remind me")
+                        }
+                    }
+                } footer: {
+                    Text("When your Duo stays open for a while, Foldly suggests a short break. It also shows up on your Apple Watch when your iPhone is locked.")
                 }
                 Section {
                     Toggle(isOn: Binding(get: { liveOn }, set: { on in

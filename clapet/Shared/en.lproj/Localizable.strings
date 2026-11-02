@@ -1,4 +1,10 @@
 /* Foldly (écrit par clapet/tools/strings.py) */
+"Time for a break?" = "Time for a break?";
+"Your iPhone Duo has been open for %lld min. Fold it for a moment." = "Your iPhone Duo has been open for %lld min. Fold it for a moment.";
+"After %lld min open" = "After %lld min open";
+"Break reminder" = "Break reminder";
+"Remind me" = "Remind me";
+"When your Duo stays open for a while, Foldly suggests a short break. It also shows up on your Apple Watch when your iPhone is locked." = "When your Duo stays open for a while, Foldly suggests a short break. It also shows up on your Apple Watch when your iPhone is locked.";
 "Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top." = "Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top.";
 "Monthly recap" = "Monthly recap";
 "Your hours" = "Your hours";
