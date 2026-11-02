@@ -19,6 +19,7 @@ def ok(label, r):
     print(("ÉCHEC  " + label + f" -> {r['error']} {r['detail'][:400]}") if "error" in r else ("ok     " + label))
     return r
 
+app = call("GET", "/v1/apps?filter[bundleId]=com.padelup.clapet")["data"][0]
 app_id = app["id"]
 gcd = call("GET", f"/v1/apps/{app_id}/gameCenterDetail").get("data")
 if not gcd:
