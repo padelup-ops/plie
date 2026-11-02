@@ -31,9 +31,9 @@ print("Game Center", gcd["id"])
 
 BOARDS = [
     {"vendorIdentifier": "foldly.streak", "referenceName": "Longest streak under limit", "monthly": False,
-     "en-US": ("Longest streak under your limit", "days", "day"), "fr-FR": ("Plus longue série sous ta limite", "jours", "jour")},
+     "en-US": ("Longest streak under limit", "days", "day"), "fr-FR": ("Plus longue série sous limite", "jours", "jour")},
     {"vendorIdentifier": "foldly.month", "referenceName": "Days under limit this month", "monthly": True,
-     "en-US": ("Days under your limit this month", "days", "day"), "fr-FR": ("Jours sous ta limite ce mois-ci", "jours", "jour")},
+     "en-US": ("Days under limit this month", "days", "day"), "fr-FR": ("Jours sous la limite ce mois", "jours", "jour")},
 ]
 have = {b["attributes"]["vendorIdentifier"]: b for b in call("GET", f"/v1/gameCenterDetails/{gcd['id']}/gameCenterLeaderboards?limit=50").get("data", [])}
 for b in BOARDS:
@@ -41,10 +41,16 @@ for b in BOARDS:
     if not lb:
         attrs = {"referenceName": b["referenceName"], "vendorIdentifier": b["vendorIdentifier"], "defaultFormatter": "INTEGER",
                  "submissionType": "BEST_SCORE", "scoreSortType": "DESC", "scoreRangeStart": "0", "scoreRangeEnd": "100000"}
+        tries = [{}]
         if b["monthly"]:
-            attrs.update({"recurrenceStartDate": "2026-11-01T00:00:00Z", "recurrenceDuration": "P1M", "recurrenceRule": "FREQ=MONTHLY;INTERVAL=1"})
-        lb = ok("classement " + b["vendorIdentifier"], call("POST", "/v1/gameCenterLeaderboards", {"data": {"type": "gameCenterLeaderboards",
-            "attributes": attrs, "relationships": {"gameCenterDetail": {"data": {"type": "gameCenterDetails", "id": gcd["id"]}}}}})).get("data")
+            tries = [{"recurrenceStartDate": "2026-11-01T00:00:00Z", "recurrenceDuration": d, "recurrenceRule": "FREQ=MONTHLY;INTERVAL=1"}
+                     for d in ("P1MT0H", "P1MT0S", "P0Y1M0DT0H0M0S", "P30DT0H")]
+        for extra in tries:
+            r = call("POST", "/v1/gameCenterLeaderboards", {"data": {"type": "gameCenterLeaderboards",
+                "attributes": {**attrs, **extra}, "relationships": {"gameCenterDetail": {"data": {"type": "gameCenterDetails", "id": gcd["id"]}}}}})
+            lb = ok("classement " + b["vendorIdentifier"] + (" " + extra.get("recurrenceDuration", "") if extra else ""), r).get("data")
+            if lb:
+                break
     else:
         print("ok     classement " + b["vendorIdentifier"] + " (déjà créé)")
     if not lb:
