@@ -88,6 +88,9 @@ jobs:
             CODE_SIGNING_ALLOWED=NO 2>&1 | tee ../shots/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
           grep -q "BUILD SUCCEEDED" ../shots/build.log
           APP=$(ls -d build/Build/Products/Debug-watchsimulator/*.app | head -1)
+          xcrun simctl boot "$UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 10:09 || true
           xcrun simctl install "$UDID" "$APP"
           BID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist")
           L="${{ github.event.inputs.lang || 'en' }}"
