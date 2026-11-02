@@ -33,6 +33,32 @@ jobs:
           sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
           xcodebuild -version
 
+      - name: Chercher le modèle 3D de l'iPhone Duo du simulateur (v6)
+        if: ${{ github.event.inputs.set == 'v6' }}
+        run: |
+          mkdir -p rushes/modele
+          X=$(xcode-select -p)/../..
+          {
+            echo "== Xcode : $X"
+            for root in "$X" /Library/Developer /System/Library/CoreServices "$HOME/Library/Developer"; do
+              find "$root" \( -iname "*.usdz" -o -iname "*.usdc" -o -iname "*.usda" -o -iname "*.scn" -o -iname "*.scnz" -o -iname "*.dae" -o -iname "*.glb" -o -iname "*.gltf" -o -iname "*.obj" -o -iname "*.reality" \) 2>/dev/null
+            done | grep -v -i "/Templates/" | head -400
+            echo "== devicekit chrome"
+            find "$X" /Library/Developer -path "*DeviceKit*" -iname "*phone1[45]*" 2>/dev/null | head -50
+            find "$X" /Library/Developer -ipath "*chrome*" -maxdepth 12 -type d 2>/dev/null | head -50
+            echo "== duo"
+            find "$X" /Library/Developer -ipath "*duo*" 2>/dev/null | head -100
+            echo "== fold"
+            find "$X" /Library/Developer -ipath "*fold*" 2>/dev/null | grep -v -i "folder" | head -100
+          } > rushes/modele/liste.txt 2>&1
+          # Copie des modèles 3D liés au téléphone (petits fichiers seulement)
+          grep -i -E "duo|fold|hinge|phone|iphone|device" rushes/modele/liste.txt | grep -i -E "\.(usdz|usdc|usda|scn|scnz|dae|glb|gltf|obj|reality)$" | while read -r f; do
+            sz=$(stat -f %z "$f" 2>/dev/null || echo 0)
+            if [ "$sz" -lt 60000000 ]; then cp "$f" "rushes/modele/$(echo "$f" | md5 | cut -c1-6)-$(basename "$f")"; echo "$f -> $sz" >> rushes/modele/copies.txt; fi
+          done
+          ls -la rushes/modele
+          exit 1
+
       - name: Générer le projet
         run: |
           command -v xcodegen >/dev/null || brew install xcodegen >/dev/null 2>&1 || true
