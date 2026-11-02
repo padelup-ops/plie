@@ -80,17 +80,30 @@ struct ContentView: View {
     @Environment(ClapetStore.self) private var store
     @Environment(\.openURL) private var openURL
     @State private var showSurvey = false
+    @AppStorage(DeskRule.key) private var deskOn = true
     /// L'animation d'ouverture, au lancement de l'app seulement.
     @State private var opening = OpeningRule.shouldShow(lookChosen: !(UserDefaults.standard.string(forKey: DFLook.key) ?? "").isEmpty)
 
     var body: some View {
         let look = DFLook(rawValue: lookRaw) ?? .classic
-        Group {
-            switch look {
-            case .classic: ClassicHomeView()
-            case .night: NightHomeView()
-            case .minimal: MinimalHomeView()
+        GeometryReader { g in
+            let desk = DeskRule.active(degrees: model.degrees, size: g.size) && deskOn
+            ZStack {
+                Group {
+                    switch look {
+                    case .classic: ClassicHomeView()
+                    case .night: NightHomeView()
+                    case .minimal: MinimalHomeView()
+                    }
+                }
+                // Mode bureau : la vue d'accueil reste dessous (elle lit la charnière et ouvre les feuilles).
+                if desk {
+                    DeskModeView(look: look)
+                        .transition(.opacity)
+                }
             }
+            .frame(width: g.size.width, height: g.size.height)
+            .animation(.easeInOut(duration: 0.3), value: desk)
         }
         .overlay {
             if opening {

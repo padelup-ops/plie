@@ -25,6 +25,8 @@ enum Demo {
     static var seeded: Bool { value("demoSeed") == "1" }
     static var plus: Bool { value("demoPlus") == "1" }
     static var screen: String? { value("screen") }
+    /// -demoDesk 1 : mode bureau forcé (vidéo)
+    static var desk: Bool { value("demoDesk") == "1" }
     static var delay: Double { value("demoDelay").flatMap(Double.init) ?? 2 }
 
     static var hinge: [(t: Double, a: Double)] {

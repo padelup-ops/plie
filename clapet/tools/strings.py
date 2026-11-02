@@ -12,6 +12,8 @@ ROOT = os.path.join(HERE, "..")
 
 FR = {
     # Sondage : tes heures, bilan du mois, nouveaux widgets, Apple Watch
+    # Mode bureau
+    "Desk mode: open your iPhone Duo halfway and set it on the table. The count stands on top, the details lie below.": "Mode bureau : ouvre ton iPhone Duo à moitié et pose-le sur la table. Le chiffre se tient en haut, les détails sont posés en bas.",
     "Monthly recap": "Bilan du mois",
     "Your hours": "Tes heures",
     "Your month, compared with the month before": "Ton mois, comparé au mois d'avant",

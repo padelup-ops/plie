@@ -74,6 +74,76 @@ BETA_DESCRIPTION = {
     "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec ton temps ouvert et fermé, un bilan de la semaine et des widgets comme les pas dans Santé.",
 }
 WHATS_NEW = {
+    "en-US": """New: Desk mode.
+
+Open your iPhone Duo halfway and set it on the table like a little laptop. Foldly splits the inner screen at the hinge: today's count and the hinge angle stand on top, your time closed, yesterday, the last 7 days and shortcuts lie on the bottom half.
+
+You can turn it off in Settings > Feel.
+
+Also in recent builds: Apple Watch app and complications, Your hours, Monthly recap, new widgets.
+
+Please test: open Foldly, fold your Duo to about 90° and set it down. Does the screen switch? Is it readable?""",
+    "fr-FR": """Nouveau : le mode bureau.
+
+Ouvre ton iPhone Duo à moitié et pose-le sur la table comme un petit portable. Foldly coupe l'écran intérieur au niveau de la charnière : le chiffre du jour et l'angle se tiennent en haut, ton temps fermé, hier, les 7 derniers jours et des raccourcis sont posés en bas.
+
+Tu peux le désactiver dans Réglages > Ressenti.
+
+Aussi dans les derniers builds : app Apple Watch et complications, Tes heures, Bilan du mois, nouveaux widgets.
+
+À tester : ouvre Foldly, plie ton Duo à environ 90° et pose-le. L'écran change-t-il ? Est-ce lisible ?""",
+}
+SUBTITLE = {"en-US": "Keep your folds under control", "fr-FR": "Garde tes plis sous contrôle"}
+KEYWORDS = {
+    "en-US": "fold,hinge,counter,foldable,folding,widget,limit,habit,screen time,tracker,stats,digital wellbeing",
+    "fr-FR": "pli,charnière,compteur,pliable,pliant,widget,limite,habitude,temps d'écran,suivi,statistiques",
+}
+PROMO = {
+    "en-US": "How many times a day do you open your phone? Set a daily limit and keep an eye on your folds, right from your Home Screen.",
+    "fr-FR": "Combien de fois par jour ouvres-tu ton téléphone ? Fixe une limite et garde un œil sur tes plis, directement sur ton écran d'accueil.",
+}
+PRICE_EUR = os.environ.get("APP_PRICE", "2.99")
+DESCRIPTION = {
+    "en-US": """Every time you unfold your phone, you glance at it. Foldly counts your folds, so you can see your habits and keep them under control.
+
+Keep Foldly on screen, on the inner or the outer display: every time you close your phone, it counts. Set a daily limit and watch the ring: green while you're under it, orange when you get close, red when you're over.
+
+• Folds and opens today, the last 7 days and your total
+• Time open: how long your phone stays open each day
+• A daily limit, and how many folds you have left
+• Limit alerts: a notification at 80 % and at 100 % of your limit
+• Today hour by hour, and your lifetime milestones
+• Widgets for the Home Screen and the Lock Screen, including a big Health-style widget
+• Your full history: 30 days, 12 months, the calendar of days under your limit, your trends and records
+• Five widget colors, and your history as a spreadsheet (CSV)
+• Shortcuts actions "Count a fold" and "Count an opening", to count automatically, even when the app is closed
+
+One purchase, everything included. No subscription, no ads, no account.
+
+Counting all day: on screen, Foldly reads the hinge itself. To count when it isn't on screen, plug its "Count a fold" action into the Shortcuts automation "When iPhone is Closed": the app shows you how, step by step. Your numbers stay on your iPhone.""",
+    "fr-FR": """Chaque fois que tu déplies ton téléphone, tu y jettes un œil. Foldly compte tes plis, pour que tu voies tes habitudes et que tu les gardes sous contrôle.
+
+Garde Foldly à l'écran, sur l'écran intérieur ou extérieur : chaque fois que tu fermes ton téléphone, il compte. Fixe une limite par jour et regarde l'anneau : vert tant que tu es en dessous, orange quand tu t'en approches, rouge quand tu la dépasses.
+
+• Fermetures et ouvertures du jour, les 7 derniers jours et ton total
+• Le temps ouvert : combien de temps ton téléphone reste ouvert chaque jour
+• Une limite par jour, et combien de plis il te reste
+• Des alertes de limite : une notification à 80 % et à 100 % de ta limite
+• Ta journée heure par heure, et tes paliers depuis le début
+• Des widgets pour l'écran d'accueil et l'écran verrouillé, dont un grand widget façon Santé
+• Tout l'historique : 30 jours, 12 mois, le calendrier des jours sous ta limite, tes tendances et tes records
+• Cinq couleurs de widgets, et ton historique en tableur (CSV)
+• Des actions Raccourcis « Compter un pli » et « Compter une ouverture », pour compter automatiquement, même app fermée
+
+Un seul achat, tout est inclus. Sans abonnement, sans pub, sans compte.
+
+Compter toute la journée : à l'écran, Foldly lit lui-même la charnière. Pour compter quand il n'est pas à l'écran, branche son action « Compter un pli » sur l'automatisation Raccourcis « iPhone fermé » : l'app te montre comment, pas à pas. Tes chiffres restent sur ton iPhone.""",
+}
+BETA_DESCRIPTION = {
+    "en-US": "Foldly counts how many times you close and open your foldable phone, with your time open and closed, a weekly recap and widgets like the steps in Health.",
+    "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec ton temps ouvert et fermé, un bilan de la semaine et des widgets comme les pas dans Santé.",
+}
+WHATS_NEW = {
     "en-US": """New in this build, straight from your survey answers:
 
 - Apple Watch: today's folds on your wrist, your week and your open/closed time, plus complications for your watch face.

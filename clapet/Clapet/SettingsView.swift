@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage(OpeningRule.key) private var openingOn = true
+    @AppStorage(DeskRule.key) private var deskOn = true
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -164,8 +165,11 @@ struct SettingsView: View {
                     Toggle(isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })) { Text("Sounds") }
                     Toggle(isOn: Binding(get: { model.hapticsOn }, set: { model.setHaptics($0) })) { Text("Vibrations") }
                     Toggle(isOn: $openingOn) { Text("Opening animation") }
+                    Toggle(isOn: $deskOn) { Text("Desk mode") }
                 } header: {
                     Text("Feel")
+                } footer: {
+                    Text("Desk mode: open your iPhone Duo halfway and set it on the table. The count stands on top, the details lie below.")
                 }
                 Section {
                     Text("On screen, Foldly reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.")
