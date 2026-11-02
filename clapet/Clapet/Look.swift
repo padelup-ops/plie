@@ -122,7 +122,7 @@ struct ContentView: View {
         }
         .task {
             // Après l'animation d'ouverture.
-            try? await Task.sleep(nanoseconds: 2_200_000_000)
+            try? await Task.sleep(nanoseconds: 2_800_000_000)
             checkSurvey()
             WeekRecapNotice.schedule(model.stats)
         }
