@@ -1,21 +1,22 @@
 import SwiftUI
 
-// MARK: - Mode bureau
+// MARK: - Mode bureau / livre
 //
-// L'iPhone Duo ouvert à moitié et posé sur la table, comme un petit portable : l'écran intérieur
-// est en portrait, la charnière le coupe en deux à l'horizontale. La moitié du haut (debout)
-// montre le chiffre du jour et la charnière ; la moitié posée, les détails et les raccourcis.
+// L'iPhone Duo ouvert à moitié. Tenu comme un livre (écran intérieur en largeur, pli vertical) :
+// le chiffre du jour sur la page de gauche, les détails sur celle de droite. Posé sur la table
+// comme un petit portable (écran en hauteur, pli horizontal) : le chiffre debout en haut,
+// les détails posés en bas.
 
 enum DeskRule {
     static let key = "deskMode"
 
     static var isOn: Bool { UserDefaults.standard.object(forKey: key) as? Bool ?? true }
 
-    /// Écran intérieur (large) en portrait et charnière entre 60° et 150°.
+    /// Écran intérieur (assez grand) et charnière entre 60° et 150°.
     static func active(degrees: Double?, size: CGSize) -> Bool {
         if Demo.desk { return true }
         guard isOn, let d = degrees, (60...150).contains(d) else { return false }
-        return size.width >= 560 && size.height > size.width
+        return max(size.width, size.height) >= 800
     }
 }
 
@@ -32,14 +33,30 @@ struct DeskModeView: View {
         GeometryReader { safe in
             let insets = safe.safeAreaInsets
             GeometryReader { full in
-                VStack(spacing: 0) {
-                    upright
-                        .padding(.top, insets.top)
-                        .frame(width: full.size.width, height: full.size.height / 2)
-                    flat
-                        .padding(.bottom, insets.bottom)
-                        .frame(width: full.size.width, height: full.size.height / 2)
-                        .background(Color.dfCard.opacity(look == .minimal ? 0 : 0.55))
+                if full.size.width > full.size.height {
+                    // Comme un livre : deux pages de part et d'autre du pli.
+                    HStack(spacing: 0) {
+                        upright
+                            .padding(.leading, insets.leading)
+                            .padding(.vertical, max(insets.top, 12))
+                            .frame(width: full.size.width / 2, height: full.size.height)
+                        flat
+                            .padding(.trailing, insets.trailing)
+                            .padding(.vertical, max(insets.top, 12))
+                            .frame(width: full.size.width / 2, height: full.size.height)
+                            .background(Color.dfCard.opacity(look == .minimal ? 0 : 0.55))
+                    }
+                } else {
+                    // Posé sur la table : le haut se tient debout, le bas est posé.
+                    VStack(spacing: 0) {
+                        upright
+                            .padding(.top, insets.top)
+                            .frame(width: full.size.width, height: full.size.height / 2)
+                        flat
+                            .padding(.bottom, insets.bottom)
+                            .frame(width: full.size.width, height: full.size.height / 2)
+                            .background(Color.dfCard.opacity(look == .minimal ? 0 : 0.55))
+                    }
                 }
             }
             .ignoresSafeArea()
@@ -51,44 +68,52 @@ struct DeskModeView: View {
     // MARK: Moitié debout : le chiffre du jour
 
     private var upright: some View {
-        let s = model.stats
-        return VStack(spacing: 18) {
+        VStack(spacing: 18) {
             Spacer(minLength: 0)
             Text(Date(), format: .dateTime.weekday(.wide).day().month(.wide))
                 .font(.title3.weight(.medium))
                 .foregroundStyle(.secondary)
                 .textCase(look == .minimal ? .uppercase : nil)
-            HStack(alignment: .center, spacing: 36) {
-                VStack(spacing: 2) {
-                    Text("\(s.today)")
-                        .font(.system(size: 150, weight: numberWeight))
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                        .animation(.easeOut(duration: 0.25), value: s.today)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                    Text("folds today")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-                }
-                VStack(spacing: 6) {
-                    HingeArc(degrees: angle, closedBelow: closedBelow, line: 14)
-                        .frame(width: 190, height: 104)
-                        .overlay(alignment: .bottom) {
-                            Text("\(Int(angle.rounded()))°")
-                                .font(.system(size: 36, weight: .light))
-                                .monospacedDigit()
-                        }
-                    Text("Desk mode")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(Color.dfAccent)
-                }
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .center, spacing: 36) { number; gauge }
+                VStack(spacing: 14) { number; gauge }
             }
             trend
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 28)
         .padding(.bottom, 18)
+    }
+
+    private var number: some View {
+        let s = model.stats
+        return VStack(spacing: 2) {
+            Text("\(s.today)")
+                .font(.system(size: 150, weight: numberWeight))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .animation(.easeOut(duration: 0.25), value: s.today)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+            Text("folds today")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var gauge: some View {
+        VStack(spacing: 6) {
+            HingeArc(degrees: angle, closedBelow: closedBelow, line: 14)
+                .frame(width: 190, height: 104)
+                .overlay(alignment: .bottom) {
+                    Text("\(Int(angle.rounded()))°")
+                        .font(.system(size: 36, weight: .light))
+                        .monospacedDigit()
+                }
+            Text("Desk mode")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Color.dfAccent)
+        }
     }
 
     private var trend: some View {

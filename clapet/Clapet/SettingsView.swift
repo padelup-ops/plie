@@ -169,7 +169,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Feel")
                 } footer: {
-                    Text("Desk mode: open your iPhone Duo halfway and set it on the table. The count stands on top, the details lie below.")
+                    Text("Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top.")
                 }
                 Section {
                     Text("On screen, Foldly reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.")

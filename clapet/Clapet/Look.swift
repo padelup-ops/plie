@@ -104,6 +104,9 @@ struct ContentView: View {
             }
             .frame(width: g.size.width, height: g.size.height)
             .animation(.easeInOut(duration: 0.3), value: desk)
+            .onChange(of: max(g.size.width, g.size.height) >= 800) { _, _ in
+                FoldlyAppDelegate.refreshOrientations()
+            }
         }
         .overlay {
             if opening {
