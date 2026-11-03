@@ -47,6 +47,7 @@ struct ClassicHomeView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
     @State private var showSettings = false
+    @State private var showBoards = false
     @State private var showHistory = false
     @State private var plusReason: PlusReason?
     @State private var showDemoWidgets = false
@@ -136,6 +137,7 @@ struct ClassicHomeView: View {
                         }
                         .accessibilityLabel(Text("Foldly+"))
                     }
+                    LeaderboardButton(show: $showBoards)
                     Button { showShare = true } label: {
                         Image(systemName: "square.and.arrow.up")
                     }
@@ -149,6 +151,7 @@ struct ClassicHomeView: View {
         }
         .tint(.dfAccent)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
+        .sheet(isPresented: $showBoards) { LeaderboardView().environment(model) }
         .sheet(isPresented: $showSettings) {
             SettingsView().environment(model).environment(store)
         }

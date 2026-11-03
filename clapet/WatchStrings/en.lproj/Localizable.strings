@@ -19,7 +19,6 @@
 "Settings › Daily limit" = "Settings › Daily limit";
 "Leaderboards" = "Leaderboards";
 "Compare your longest streak under your limit, and your last 30 days, with other Foldly users and friends, through Game Center. Off until you turn it on." = "Compare your longest streak under your limit, and your last 30 days, with other Foldly users and friends, through Game Center. Off until you turn it on.";
-"Settings › Leaderboard" = "Settings › Leaderboard";
 "Desk mode" = "Desk mode";
 "Open your Duo halfway. Held like a book, you get two pages. Set on the table, the count stands on top." = "Open your Duo halfway. Held like a book, you get two pages. Set on the table, the count stands on top.";
 "Just open your Duo halfway" = "Just open your Duo halfway";
@@ -33,6 +32,19 @@
 "Next" = "Next";
 "Let's go" = "Let's go";
 "Guided tour: where to find everything" = "Guided tour: where to find everything";
+"The trophy at the top of the home screen" = "The trophy at the top of the home screen";
+"Only days when you used your Duo count. Only your two scores are shared, through Apple's Game Center. You can leave anytime." = "Only days when you used your Duo count. Only your two scores are shared, through Apple's Game Center. You can leave anytime.";
+"Leave the leaderboard" = "Leave the leaderboard";
+"How do you compare?" = "How do you compare?";
+"Stay under your daily limit, day after day, and climb the leaderboards with other Foldly users and your friends." = "Stay under your daily limit, day after day, and climb the leaderboards with other Foldly users and your friends.";
+"day" = "day";
+"days" = "days";
+"Rank" = "Rank";
+"Set a daily limit first: your score is the number of days you stay under it." = "Set a daily limit first: your score is the number of days you stay under it.";
+"Turn on my daily limit" = "Turn on my daily limit";
+"Join with Game Center" = "Join with Game Center";
+"See the full leaderboards" = "See the full leaderboards";
+"Open the leaderboards" = "Open the leaderboards";
 "Foldly is on the App Store!" = "Foldly is on the App Store!";
 "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta." = "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta.";
 "The beta ends on November 9." = "The beta ends on November 9.";

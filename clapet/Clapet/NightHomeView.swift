@@ -50,6 +50,7 @@ struct NightHomeView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
     @State private var showSettings = false
+    @State private var showBoards = false
     @State private var showHistory = false
     @State private var plusReason: PlusReason?
     @State private var showDemoWidgets = false
@@ -101,6 +102,7 @@ struct NightHomeView: View {
         .background(DFBackdrop(degrees: model.degrees).ignoresSafeArea())
         .tint(.dfAccent)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
+        .sheet(isPresented: $showBoards) { LeaderboardView().environment(model) }
         .sheet(isPresented: $showSettings) {
             SettingsView().environment(model).environment(store)
         }
@@ -224,6 +226,9 @@ struct NightHomeView: View {
                 .lineLimit(1)
                 .fixedSize()
             Spacer(minLength: 4)
+            LeaderboardButton(show: $showBoards)
+                .font(.title3)
+                .frame(width: 38, height: 44)
             if !compact {
                 Button { showShare = true } label: {
                     Image(systemName: "square.and.arrow.up")

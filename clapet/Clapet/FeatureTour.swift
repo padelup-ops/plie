@@ -3,7 +3,7 @@ import SwiftUI
 /// La visite guidée : où trouver chaque chose dans Foldly.
 /// Une fois après le choix du thème (nouveaux utilisateurs) ou après la mise à jour, et à revoir depuis les Réglages.
 enum TourRule {
-    static let key = "tourSeen.1.0.2"
+    static let key = "tourSeen.1.0.3"
     static var seen: Bool { UserDefaults.standard.bool(forKey: key) }
     static func markSeen() { UserDefaults.standard.set(true, forKey: key) }
 }
@@ -38,7 +38,7 @@ struct FeatureTour: View {
             Stop(icon: "trophy.fill", color: .yellow,
                  title: Text("Leaderboards"),
                  body: Text("Compare your longest streak under your limit, and your last 30 days, with other Foldly users and friends, through Game Center. Off until you turn it on."),
-                 place: Text("Settings › Leaderboard")),
+                 place: Text("The trophy at the top of the home screen")),
             Stop(icon: "laptopcomputer", color: .blue,
                  title: Text("Desk mode"),
                  body: Text("Open your Duo halfway. Held like a book, you get two pages. Set on the table, the count stands on top."),

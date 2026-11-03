@@ -11,6 +11,7 @@ struct MinimalHomeView: View {
     @Environment(ClapetStore.self) private var store
     @Environment(\.openURL) private var openURL
     @State private var showSettings = false
+    @State private var showBoards = false
     @State private var showHistory = false
     @State private var showWeek = false
     @State private var showAuto = false
@@ -51,6 +52,7 @@ struct MinimalHomeView: View {
         .tint(.primary)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
         .sheet(isPresented: $showSettings) { SettingsView().environment(model).environment(store) }
+        .sheet(isPresented: $showBoards) { LeaderboardView().environment(model) }
         .sheet(isPresented: $showAuto) { AutoCountView().environment(model) }
         .sheet(isPresented: $showWeek, onDismiss: { weekHidden = !WeekRecapRule.shouldShowCard(model.stats) }) {
             WeekRecapView().environment(model)
@@ -329,6 +331,7 @@ struct MinimalHomeView: View {
         Button {
             if store.hasPlus { showHistory = true } else { plusReason = .history }
         } label: { Text("History") }
+        Button { showBoards = true } label: { Text("Leaderboards") }
         Button { showSettings = true } label: { Text("Settings") }
     }
 }

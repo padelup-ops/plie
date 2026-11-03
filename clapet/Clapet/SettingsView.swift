@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var confirmReset = false
     @State private var showPlus = false
     @State private var showTour = false
+    @State private var showBoards = false
     @State private var gameCenter = GameCenter.shared
     @State private var leaderboard: String?
     @State private var alertsDenied = false
@@ -127,16 +128,8 @@ struct SettingsView: View {
                     }
                 }
                 Section {
-                    Toggle(isOn: Binding(get: { gameCenter.on }, set: { gameCenter.setOn($0); if $0 { gameCenter.submit(model.stats) } })) {
-                        Text("Join the leaderboard")
-                    }
-                    if gameCenter.on && gameCenter.signedIn {
-                        Button { leaderboard = GameCenter.streakID } label: {
-                            Label("Longest streak under your limit", systemImage: "flame.fill")
-                        }
-                        Button { leaderboard = GameCenter.monthID } label: {
-                            Label("Days under your limit, last 30 days", systemImage: "calendar")
-                        }
+                    Button { showBoards = true } label: {
+                        Label { Text("Open the leaderboards") } icon: { Image(systemName: "trophy.fill").foregroundStyle(.orange) }
                     }
                 } header: {
                     Text("Leaderboard")
@@ -280,6 +273,7 @@ struct SettingsView: View {
                 LeaderboardScreen(leaderboardID: item.id).ignoresSafeArea()
             }
             .fullScreenCover(isPresented: $showTour) { FeatureTour() }
+            .sheet(isPresented: $showBoards) { LeaderboardView().environment(model) }
             .sheet(isPresented: $showPlus) {
                 PlusView().environment(model).environment(store)
             }
