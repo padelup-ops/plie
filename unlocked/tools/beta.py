@@ -139,6 +139,20 @@ if origamo:
             for t in call("GET", f"/v1/betaGroups/{g['id']}/betaTesters?limit=200").get("data", []):
                 wanted[t["id"]] = t
 print(f"{len(wanted)} testeur(s) interne(s) chez Origamo")
+# Les membres du compte App Store Connect peuvent toujours tester en interne : on les ajoute par leur adresse.
+for u in call("GET", "/v1/users?limit=50").get("data", []):
+    ua = u["attributes"]
+    email = ua.get("username") or ua.get("email")
+    if not email or not internal:
+        continue
+    have = {t["attributes"].get("email") for t in call("GET", f"/v1/betaGroups/{internal[0]['id']}/betaTesters?limit=200").get("data", [])}
+    if email in have:
+        print("ok     membre du compte déjà testeur interne")
+        continue
+    body = {"data": {"type": "betaTesters", "attributes": {"email": email, "firstName": ua.get("firstName") or "", "lastName": ua.get("lastName") or ""},
+                     "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": internal[0]["id"]}]}}}}
+    r = call("POST", "/v1/betaTesters", body)
+    print("ok     membre du compte ajouté comme testeur interne" if "data" in r else f"       membre du compte : {r.get('detail', '')[:300]}")
 for g in internal:
     have = {t["id"] for t in call("GET", f"/v1/betaGroups/{g['id']}/betaTesters?limit=200").get("data", [])}
     missing = [tid for tid in wanted if tid not in have]

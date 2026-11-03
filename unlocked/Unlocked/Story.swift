@@ -37,6 +37,7 @@ struct Conversation: Identifiable {
 
 enum Illustration: String {
     case pixelSleeping, polaroidPixel, birthday, loireSunset, studio, coffee, trainWindow, flowers, catOnDesk
+    case streetStudio, streetHome, parkGate, station
 }
 
 struct PhotoItem: Identifiable {
@@ -46,6 +47,36 @@ struct PhotoItem: Identifiable {
     let place: String
     /// Ce qui est écrit au dos (on retourne la photo d'un toucher).
     var back: String? = nil
+    /// Une voiture garée dans le décor, à cet endroit (0…1) : on la touche pour relever sa plaque.
+    var car: CGPoint? = nil
+}
+
+/// Un album protégé par un code.
+struct HiddenAlbum {
+    let title: String
+    let code: String
+    let hints: [String]
+    let photos: [PhotoItem]
+    let plate: String
+}
+
+/// Un rendez-vous de l'agenda.
+struct CalendarEvent: Identifiable {
+    let id: String
+    let day: String
+    let time: String
+    let title: String
+    var detail: String = ""
+    var color: Color = .blue
+}
+
+/// Un chapitre : le fait qui le termine, et la carte de fin.
+struct Chapter {
+    let title: String
+    let end: String
+    let endText: String
+    /// Le fait posé quand le chapitre commence (les messages en direct du chapitre en dépendent).
+    let start: String
 }
 
 struct Note: Identifiable {
@@ -156,8 +187,11 @@ struct PhoneStory {
     let replies: [ReplyChoice]
     /// Les notifications montrées sur l'écran verrouillé au début.
     let lockNotifications: [Message]
-    /// Le fait qui termine le chapitre 1.
-    let chapterOneEnd: String
+    let events: [CalendarEvent]
+    let hiddenAlbum: HiddenAlbum?
+    let chapters: [Chapter]
+    /// Nombre de chapitres gratuits ; la suite s'achète une fois.
+    let freeChapters: Int
 
     func contact(_ id: String) -> Contact {
         contacts.first { $0.id == id } ?? Contact(id: id, name: id, color: .gray)

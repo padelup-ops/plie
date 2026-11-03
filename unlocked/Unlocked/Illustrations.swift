@@ -21,6 +21,12 @@ struct ArtView: View {
                 case .trainWindow: train(w, h)
                 case .flowers: flowers(w, h)
                 case .catOnDesk: catDesk(w, h)
+                case .streetStudio: street(w, h, sky: [Color(red: 0.62, green: 0.75, blue: 0.9), Color(red: 0.85, green: 0.88, blue: 0.92)],
+                                           walls: [Color(red: 0.9, green: 0.85, blue: 0.75), Color(red: 0.75, green: 0.55, blue: 0.45), Color(red: 0.85, green: 0.8, blue: 0.7)], sign: "LUMEN")
+                case .streetHome: street(w, h, sky: [Color(red: 0.95, green: 0.7, blue: 0.5), Color(red: 0.98, green: 0.88, blue: 0.7)],
+                                         walls: [Color(red: 0.95, green: 0.92, blue: 0.85), Color(red: 0.88, green: 0.86, blue: 0.8), Color(red: 0.7, green: 0.62, blue: 0.55)], sign: nil)
+                case .parkGate: park(w, h)
+                case .station: station(w, h)
                 }
             }
             .frame(width: w, height: h)
@@ -211,7 +217,93 @@ struct ArtView: View {
             cat(color: Color(red: 0.93, green: 0.6, blue: 0.3), size: w * 0.45).offset(x: w * 0.05, y: h * 0.25)
         }
     }
+    // MARK: Les photos de l'album masqué (la voiture est ajoutée par-dessus)
+
+    private func street(_ w: CGFloat, _ h: CGFloat, sky: [Color], walls: [Color], sign: String?) -> some View {
+        ZStack {
+            LinearGradient(colors: sky, startPoint: .top, endPoint: .bottom)
+            HStack(alignment: .bottom, spacing: 0) {
+                ForEach(0..<3) { i in
+                    ZStack {
+                        Rectangle().fill(walls[i])
+                        VStack(spacing: h * 0.05) {
+                            ForEach(0..<3) { _ in
+                                HStack(spacing: w * 0.05) {
+                                    ForEach(0..<2) { _ in
+                                        RoundedRectangle(cornerRadius: 2).fill(Color(red: 0.35, green: 0.45, blue: 0.6).opacity(0.75))
+                                            .frame(width: w * 0.08, height: h * 0.09)
+                                    }
+                                }
+                            }
+                        }
+                        .offset(y: -h * 0.04)
+                    }
+                    .frame(width: w / 3, height: h * (0.55 + CGFloat((i * 7) % 3) * 0.07))
+                }
+            }
+            .frame(maxHeight: .infinity, alignment: .bottom)
+            .padding(.bottom, h * 0.22)
+            if let sign {
+                Text(sign)
+                    .font(.system(size: w * 0.06, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, w * 0.03)
+                    .background(Color(red: 0.2, green: 0.2, blue: 0.25))
+                    .offset(x: -w * 0.33, y: h * 0.12)
+            }
+            // trottoir et rue
+            Rectangle().fill(Color(white: 0.7)).frame(height: h * 0.05).offset(y: h * 0.255)
+            Rectangle().fill(Color(white: 0.35)).frame(height: h * 0.22).offset(y: h * 0.39)
+            ForEach(0..<4) { i in
+                Rectangle().fill(Color.white.opacity(0.7)).frame(width: w * 0.1, height: h * 0.01)
+                    .offset(x: (CGFloat(i) - 1.5) * w * 0.26, y: h * 0.42)
+            }
+        }
+    }
+
+    private func park(_ w: CGFloat, _ h: CGFloat) -> some View {
+        ZStack {
+            LinearGradient(colors: [Color(red: 0.7, green: 0.82, blue: 0.95), Color(red: 0.9, green: 0.93, blue: 0.95)], startPoint: .top, endPoint: .bottom)
+            ForEach(0..<5) { i in
+                Circle().fill(Color(red: 0.3, green: 0.55 + CGFloat(i % 2) * 0.1, blue: 0.3))
+                    .frame(width: w * 0.32)
+                    .offset(x: (CGFloat(i) - 2) * w * 0.22, y: -h * 0.02 - CGFloat(i % 2) * h * 0.06)
+            }
+            // grille du jardin
+            ForEach(0..<14) { i in
+                Rectangle().fill(Color(white: 0.15)).frame(width: 2, height: h * 0.2)
+                    .offset(x: (CGFloat(i) - 6.5) * w * 0.075, y: h * 0.14)
+            }
+            Rectangle().fill(Color(white: 0.15)).frame(height: 3).offset(y: h * 0.05)
+            Rectangle().fill(Color(red: 0.82, green: 0.78, blue: 0.68)).frame(height: h * 0.07).offset(y: h * 0.27)
+            Rectangle().fill(Color(white: 0.38)).frame(height: h * 0.2).offset(y: h * 0.4)
+        }
+    }
+
+    private func station(_ w: CGFloat, _ h: CGFloat) -> some View {
+        ZStack {
+            LinearGradient(colors: [Color(red: 0.55, green: 0.6, blue: 0.7), Color(red: 0.8, green: 0.8, blue: 0.82)], startPoint: .top, endPoint: .bottom)
+            RoundedRectangle(cornerRadius: 4).fill(Color(red: 0.88, green: 0.85, blue: 0.8))
+                .frame(width: w * 0.9, height: h * 0.45).offset(y: -h * 0.02)
+            HStack(spacing: w * 0.04) {
+                ForEach(0..<5) { _ in
+                    UnevenRoundedRectangle(topLeadingRadius: w * 0.05, topTrailingRadius: w * 0.05)
+                        .fill(Color(red: 0.3, green: 0.4, blue: 0.55).opacity(0.8))
+                        .frame(width: w * 0.12, height: h * 0.25)
+                }
+            }
+            .offset(y: h * 0.04)
+            Text(T("GARE", "GARE"))
+                .font(.system(size: w * 0.06, weight: .heavy, design: .serif))
+                .foregroundStyle(Color(red: 0.2, green: 0.25, blue: 0.35))
+                .offset(y: -h * 0.18)
+            // horloge
+            Circle().fill(Color.white).frame(width: w * 0.08).overlay(Circle().stroke(Color.black, lineWidth: 1.5)).offset(x: w * 0.3, y: -h * 0.18)
+            Rectangle().fill(Color(white: 0.4)).frame(height: h * 0.22).offset(y: h * 0.39)
+        }
+    }
 }
+
 
 struct Triangle: Shape {
     func path(in r: CGRect) -> Path {

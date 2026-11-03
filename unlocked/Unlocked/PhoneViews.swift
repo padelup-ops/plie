@@ -199,7 +199,7 @@ struct HomeScreen: View {
                     ForEach(AppKind.allCases) { app in
                         AppIcon(app: app, locked: app.chapter > state.chapter, badge: badge(app)) {
                             if app.chapter > state.chapter {
-                                state.lockedAppAlert = app
+                                if state.needsPurchase { state.showPaywall = true } else { state.lockedAppAlert = app }
                             } else {
                                 state.openApp = app
                             }
@@ -305,6 +305,7 @@ struct AppContainer: View {
                 case .photos: PhotosApp()
                 case .notes: NotesApp()
                 case .phone: PhoneApp()
+                case .calendar: CalendarApp()
                 default: Text(T("Bientôt", "Soon"))
                 }
             }
@@ -457,6 +458,25 @@ struct PhotosApp: View {
 
     var body: some View {
         ScrollView {
+            if let album = state.story.hiddenAlbum, state.chapter >= 2 {
+                NavigationLink(value: "album") {
+                    HStack(spacing: 12) {
+                        Image(systemName: state.albumOpen ? "eye.fill" : "eye.slash.fill")
+                            .font(.system(size: 22, weight: .semibold))
+                            .frame(width: 54, height: 54)
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray5)))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(album.title).font(.body.weight(.semibold))
+                            Text(state.albumOpen ? T("\(album.photos.count) photos", "\(album.photos.count) photos") : T("Verrouillé", "Locked"))
+                                .font(.footnote).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: state.albumOpen ? "chevron.right" : "lock.fill").foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                }
+                .buttonStyle(.plain)
+            }
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 3), spacing: 2) {
                 ForEach(state.story.photos) { p in
                     NavigationLink(value: p.id) {
@@ -469,7 +489,11 @@ struct PhotosApp: View {
             }
         }
         .navigationDestination(for: String.self) { id in
-            if let p = state.story.photos.first(where: { $0.id == id }) { PhotoDetail(photo: p) }
+            if id == "album" {
+                HiddenAlbumView()
+            } else if let p = (state.story.photos + (state.story.hiddenAlbum?.photos ?? [])).first(where: { $0.id == id }) {
+                PhotoDetail(photo: p)
+            }
         }
     }
 }
@@ -484,6 +508,19 @@ struct PhotoDetail: View {
             Spacer()
             ZStack {
                 ArtView(art: photo.art)
+                    .overlay {
+                        if let c = photo.car {
+                            GeometryReader { g in
+                                let spotted = state.has("car_" + photo.id)
+                                GreyCar(plate: state.story.hiddenAlbum?.plate ?? "", showPlate: spotted)
+                                    .frame(width: g.size.width * 0.3, height: g.size.width * 0.15)
+                                    .position(x: c.x * g.size.width, y: c.y * g.size.height)
+                                    .onTapGesture { state.spotCar(on: photo) }
+                                    .accessibilityLabel(T("Une voiture grise", "A grey car"))
+                                    .accessibilityAddTraits(.isButton)
+                            }
+                        }
+                    }
                     .opacity(flipped ? 0 : 1)
                 // Le dos de la photo, écrit à la main
                 RoundedRectangle(cornerRadius: 6)
@@ -509,6 +546,12 @@ struct PhotoDetail: View {
             VStack(spacing: 4) {
                 Text(photo.date).font(.headline)
                 Text(photo.place).font(.subheadline).foregroundStyle(.secondary)
+                if photo.car != nil && state.has("car_" + photo.id) {
+                    Text(T("Plaque relevée : \(state.story.hiddenAlbum?.plate ?? "") (\(state.carsSpotted)/\(state.carsTotal))",
+                           "Plate noted: \(state.story.hiddenAlbum?.plate ?? "") (\(state.carsSpotted)/\(state.carsTotal))"))
+                        .font(.footnote.weight(.bold))
+                        .foregroundStyle(.orange)
+                }
             }
             if photo.back != nil {
                 Button { flip() } label: {
@@ -678,34 +721,51 @@ struct BannerView: View {
 
 struct ChapterEndCard: View {
     @Environment(GameState.self) private var state
+    let number: Int
 
     var body: some View {
+        let chapter = state.story.chapters[max(0, min(number - 1, state.story.chapters.count - 1))]
+        let last = number >= state.story.chapters.count
         ZStack {
             Color.black.opacity(0.75).ignoresSafeArea()
             VStack(spacing: 16) {
-                Text(T("FIN DU CHAPITRE 1", "END OF CHAPTER 1"))
+                Text(last ? T("FIN", "THE END") : T("FIN DU CHAPITRE \(number)", "END OF CHAPTER \(number)"))
                     .font(.system(.footnote, design: .rounded, weight: .heavy))
                     .tracking(2)
                     .foregroundStyle(.secondary)
-                Text(T("Trouvé", "Found"))
+                Text(chapter.title)
                     .font(.system(size: 40, weight: .black, design: .rounded))
-                Text(T("Nina savait que quelqu'un lirait sa note. Elle comptait sur toi.\nLe chapitre 2 ouvre son agenda.",
-                       "Nina knew someone would read her note. She was counting on you.\nChapter 2 opens her calendar."))
+                    .multilineTextAlignment(.center)
+                Text(chapter.endText)
                     .multilineTextAlignment(.center)
                     .font(.system(.body, design: .rounded))
-                Text(T("La suite arrive bientôt.", "More is coming soon."))
-                    .font(.system(.callout, design: .rounded, weight: .semibold))
-                    .foregroundStyle(.secondary)
-                Button {
-                    state.showChapterEnd = false
-                } label: {
-                    Text(T("Continuer", "Continue"))
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 50)
-                        .background(Capsule().fill(Color.white))
-                        .foregroundStyle(ink)
+                if state.needsPurchase && number == state.story.freeChapters {
+                    Button {
+                        state.showChapterEnd = nil
+                        state.showPaywall = true
+                    } label: {
+                        Text(T("Lire la suite", "Keep reading"))
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .background(Capsule().fill(Color.white))
+                            .foregroundStyle(ink)
+                    }
+                    .buttonStyle(.plain)
+                    Button(T("Plus tard", "Later")) { state.showChapterEnd = nil }
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                } else {
+                    Button {
+                        state.showChapterEnd = nil
+                    } label: {
+                        Text(T("Continuer", "Continue"))
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .background(Capsule().fill(Color.white))
+                            .foregroundStyle(ink)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
             .padding(28)
             .frame(maxWidth: 360)

@@ -109,7 +109,11 @@ enum NinaStory {
             Note(id: "n2", title: T("Vendredi", "Friday"),
                  body: T("Papiers ✔︎\nChargeur ✔︎\nClé → pot\n18h\nLe reste reste ici.", "Papers ✔︎\nCharger ✔︎\nKey → pot\n6pm\nEverything else stays here."), date: T("Jeu.", "Thu")),
             Note(id: "n3", title: T("Idées photos", "Photo ideas"),
-                 body: T("- le pont Anne-de-Bretagne au lever du soleil\n- les grues jaunes de l'île de Nantes sous la pluie\n- Pixel dans un carton (classique)\n- portrait de maman dans son jardin", "- Anne-de-Bretagne bridge at sunrise\n- the yellow cranes of Île de Nantes in the rain\n- Pixel in a box (a classic)\n- portrait of mom in her garden"), date: "21/10")
+                 body: T("- le pont Anne-de-Bretagne au lever du soleil\n- les grues jaunes de l'île de Nantes sous la pluie\n- Pixel dans un carton (classique)\n- portrait de maman dans son jardin", "- Anne-de-Bretagne bridge at sunrise\n- the yellow cranes of Île de Nantes in the rain\n- Pixel in a box (a classic)\n- portrait of mom in her garden"), date: "21/10"),
+            Note(id: "n4", title: T("Pour moi", "For me"),
+                 body: T("Code de l'album : mon chiffre porte-bonheur × le numéro de chez maman.\n(Comme ça je l'oublie jamais.)",
+                         "Album code: my lucky number × mom's house number.\n(That way I never forget it.)"),
+                 date: "06/09", requires: "ch2")
         ],
         voicemails: [
             Voicemail(id: "v1", contact: "maman", date: T("Dim. 19:42", "Sun 7:42 PM"), seconds: 38,
@@ -135,13 +139,25 @@ enum NinaStory {
             LiveMessage(id: "l10", after: "h_found", delay: 9, message: Message(id: "li8", thread: "ines", fromMe: false, text: T("Elle avait peur de lui ces derniers temps. Elle me l'a dit une fois, et puis plus rien.", "She was scared of him lately. She told me once, then nothing."), time: T("maintenant", "now"))),
             LiveMessage(id: "l11", after: "h_found", delay: 15, message: Message(id: "li9", thread: "ines", fromMe: false, text: T("Elle notait tout dans ses notes. Regardez, s'il vous plaît.", "She wrote everything down in her notes. Please look."), time: T("maintenant", "now")), sets: "note_unlocked"),
             LiveMessage(id: "l12", after: "h_found", delay: 22, message: Message(id: "lh3", thread: "h", fromMe: false, text: T("Qui a ton téléphone ?", "Who has your phone?"), time: T("maintenant", "now")))
+            // Chapitre 2 — Les photos
+            LiveMessage(id: "c1", after: "ch2", delay: 5, message: Message(id: "c2i1", thread: "ines", fromMe: false, text: T("Vous avez lu ses notes ? Elle a laissé quelque chose ?", "Did you read her notes? Did she leave anything?"), time: T("maintenant", "now")), sets: "ines_note_ask"),
+            LiveMessage(id: "c2", after: "note_told", delay: 4, message: Message(id: "c2i2", thread: "ines", fromMe: false, text: T("Elle va bien… J'ose pas y croire.", "She's ok… I can't believe it."), time: T("maintenant", "now"))),
+            LiveMessage(id: "c3", after: "note_told", delay: 11, message: Message(id: "c2i3", thread: "ines", fromMe: false, text: T("Elle avait un album caché dans ses photos, elle me l'a montré une fois. Le code venait d'un truc avec sa mère, un chiffre porte-bonheur.", "She had a hidden album in her photos, she showed me once. The code came from something with her mom, a lucky number."), time: T("maintenant", "now")), sets: "album_hint"),
+            LiveMessage(id: "c4", after: "album_open", delay: 8, message: Message(id: "c2h1", thread: "h", fromMe: false, text: T("Arrête de fouiller dans ses affaires.", "Stop going through her things."), time: T("maintenant", "now"))),
+            LiveMessage(id: "c5", after: "car_told", delay: 4, message: Message(id: "c2i4", thread: "ines", fromMe: false, text: T("Hugo a une Clio grise. Je l'ai vue cent fois devant chez elle.", "Hugo drives a grey Clio. I've seen it outside her place a hundred times."), time: T("maintenant", "now"))),
+            LiveMessage(id: "c6", after: "car_told", delay: 12, message: Message(id: "c2i5", thread: "ines", fromMe: false, text: T("Elle le prenait en photo. Pour avoir des preuves. Et elle ne m'a rien dit…", "She was taking photos of him. To have proof. And she never told me…"), time: T("maintenant", "now"))),
+            LiveMessage(id: "c7", after: "car_told", delay: 22, message: Message(id: "c2s1", thread: "samir", fromMe: false, text: T("Nina ? C'est toi ? J'ai toujours ce que tu m'as donné. Dans mon casier, comme promis.", "Nina? Is that you? I still have what you gave me. In my locker, like I promised."), time: T("maintenant", "now"))),
+            LiveMessage(id: "c8", after: "car_told", delay: 32, message: Message(id: "c2h2", thread: "h", fromMe: false, text: T("Je vais venir le chercher, ce téléphone.", "I'm coming to get that phone."), time: T("maintenant", "now")), sets: "ch2_done")
         ],
         replies: [
             ReplyChoice(id: "r1", thread: "ines", when: ["ines_asks"], until: "ines_told", text: T("Oui. Je l'ai trouvé sur un siège du TER, ce matin.", "Yes. I found it on a seat on the train this morning."), sets: "ines_told"),
             ReplyChoice(id: "r2", thread: "ines", when: ["ines_asks"], until: "ines_told", text: T("Je l'ai trouvé dans le train. Je veux aider.", "I found it on the train. I want to help."), sets: "ines_told"),
             ReplyChoice(id: "r3", thread: "ines", when: ["ask_h"], until: "h_found", text: T("C'est Samir, je crois.", "It's Samir, I think."), sets: "h_no_samir"),
             ReplyChoice(id: "r4", thread: "ines", when: ["ask_h"], until: "h_found", text: T("Aucune idée.", "No idea."), sets: "h_no_idea"),
-            ReplyChoice(id: "r5", thread: "ines", when: ["ask_h", "seen_back_p3"], until: "h_found", text: T("C'est Hugo. Il est sur une photo d'anniversaire.", "It's Hugo. He's in a birthday photo."), sets: "h_found")
+            ReplyChoice(id: "r5", thread: "ines", when: ["ask_h", "seen_back_p3"], until: "h_found", text: T("C'est Hugo. Il est sur une photo d'anniversaire.", "It's Hugo. He's in a birthday photo."), sets: "h_found"),
+            ReplyChoice(id: "r6", thread: "ines", when: ["ines_note_ask"], until: "note_told", text: T("Oui. Elle dit qu'elle va bien, de ne pas répondre à H, et de regarder ses photos.", "Yes. She says she's ok, not to answer H, and to look at her photos."), sets: "note_told"),
+            ReplyChoice(id: "r7", thread: "ines", when: ["ines_note_ask"], until: "note_told", text: T("Elle dit qu'elle va bien.", "She says she's ok."), sets: "note_told"),
+            ReplyChoice(id: "r8", thread: "ines", when: ["car_all"], until: "car_told", text: T("Dans son album caché, la même voiture grise revient sur chaque photo. Plaque GX-417-HL.", "In her hidden album, the same grey car is in every photo. Plate GX-417-HL."), sets: "car_told")
         ],
         lockNotifications: [
             Message(id: "ln1", thread: "ines", fromMe: false, text: T("T'es où ??", "Where are you??"), time: "07:58"),
@@ -149,6 +165,42 @@ enum NinaStory {
             Message(id: "ln3", thread: "samir", fromMe: false, text: T("T'es pas venue ce matin, le boss demande. Ça va ?", "You didn't come in this morning, the boss is asking. You ok?"), time: "08:05"),
             Message(id: "ln4", thread: "h", fromMe: false, text: T("Bonne nuit ma belle ❤", "Good night beautiful ❤"), time: T("hier", "yesterday"))
         ],
-        chapterOneEnd: "read_n0"
+        events: [
+            CalendarEvent(id: "e1", day: T("Mercredi 29 octobre", "Wednesday, October 29"), time: "17:30", title: T("Véto Pixel (vaccin)", "Vet for Pixel (shots)"), color: .green),
+            CalendarEvent(id: "e2", day: T("Jeudi 30 octobre", "Thursday, October 30"), time: "09:00", title: T("Shooting Brioches Lebrun", "Lebrun Bakery shoot"), detail: T("Studio B. Prendre le 50 mm et les deux softbox.", "Studio B. Bring the 50mm and both softboxes."), color: .orange),
+            CalendarEvent(id: "e3", day: T("Vendredi 31 octobre", "Friday, October 31"), time: "18:00", title: "R.",
+                          detail: T("Papiers.\nRien d'autre.", "Papers.\nNothing else."), color: .purple),
+            CalendarEvent(id: "e4", day: T("Dimanche 2 novembre", "Sunday, November 2"), time: "12:30", title: T("Déjeuner chez maman", "Lunch at mom's"),
+                          detail: T("112 rue Saint-Aubin, Angers\n(gâteau aux pommes 🍎)", "112 rue Saint-Aubin, Angers\n(apple cake 🍎)"), color: .pink),
+            CalendarEvent(id: "e5", day: T("Lundi 3 novembre", "Monday, November 3"), time: "09:00", title: T("Studio", "Studio"), color: .orange)
+        ],
+        hiddenAlbum: HiddenAlbum(
+            title: T("Masqué", "Hidden"),
+            code: "784",
+            hints: [
+                T("Écoute la messagerie : sa mère parle d'un chiffre porte-bonheur.", "Listen to the voicemails: her mom mentions a lucky number."),
+                T("L'adresse de sa mère est dans l'agenda.", "Her mom's address is in the calendar."),
+                T("7 × 112.", "7 × 112.")
+            ],
+            photos: [
+                PhotoItem(id: "a1", art: .streetStudio, date: T("12 septembre 2025", "September 12, 2025"), place: T("Devant le studio", "Outside the studio"), car: CGPoint(x: 0.72, y: 0.8)),
+                PhotoItem(id: "a2", art: .streetHome, date: T("27 septembre 2025", "September 27, 2025"), place: T("En bas de chez moi", "Outside my place"), car: CGPoint(x: 0.3, y: 0.82)),
+                PhotoItem(id: "a3", art: .parkGate, date: T("11 octobre 2025", "October 11, 2025"), place: T("Jardin des Plantes", "Jardin des Plantes"), car: CGPoint(x: 0.78, y: 0.84)),
+                PhotoItem(id: "a4", art: .station, date: T("24 octobre 2025", "October 24, 2025"), place: T("Gare de Nantes", "Nantes station"),
+                          back: T("Encore lui. 24/10. Je garde tout.", "Him again. 24/10. I'm keeping everything."), car: CGPoint(x: 0.25, y: 0.83))
+            ],
+            plate: "GX-417-HL"
+        ),
+        chapters: [
+            Chapter(title: T("Trouvé", "Found"), end: "read_n0",
+                    endText: T("Nina savait que quelqu'un lirait sa note. Elle comptait sur toi.\nAu chapitre 2, son agenda s'ouvre, et un album caché attend dans ses photos.",
+                               "Nina knew someone would read her note. She was counting on you.\nIn chapter 2, her calendar opens, and a hidden album is waiting in her photos."),
+                    start: "unlocked"),
+            Chapter(title: T("Les photos", "The photos"), end: "ch2_done",
+                    endText: T("Nina photographiait Hugo depuis des semaines. Des preuves.\nEt maintenant, il sait que quelqu'un a son téléphone.\nLe chapitre 3 arrive bientôt.",
+                               "Nina had been photographing Hugo for weeks. Proof.\nAnd now he knows someone has her phone.\nChapter 3 is coming soon."),
+                    start: "ch2")
+        ],
+        freeChapters: 1
     )
 }

@@ -20,8 +20,14 @@ final class GameState {
     var banner: Message?
     var openApp: AppKind?
     var openThread: String?
-    var showChapterEnd = false
+    /// Le numéro du chapitre qui vient de se terminer (la carte de fin s'affiche).
+    var showChapterEnd: Int?
+    /// L'histoire complète a été achetée.
+    var fullStory = false {
+        didSet { startChapters() }
+    }
     var lockedAppAlert: AppKind?
+    var showPaywall = false
 
     private var timer: Timer?
     private let speech = AVSpeechSynthesizer()
@@ -40,12 +46,65 @@ final class GameState {
     func set(_ fact: String) {
         guard facts[fact] == nil else { return }
         facts[fact] = Date()
-        if fact == story.chapterOneEnd { showChapterEnd = true }
+        if let i = story.chapters.firstIndex(where: { $0.end == fact }) { showChapterEnd = i + 1 }
         save()
+        startChapters()
     }
 
     var unlocked: Bool { has("unlocked") }
-    var chapter: Int { has(story.chapterOneEnd) ? 2 : 1 }
+
+    /// Les chapitres terminés, dans l'ordre.
+    var chaptersDone: Int {
+        var n = 0
+        for c in story.chapters { if has(c.end) { n += 1 } else { break } }
+        return n
+    }
+
+    /// Le chapitre où l'on en est (on reste au dernier chapitre gratuit tant que la suite n'est pas achetée).
+    var chapter: Int {
+        let next = min(chaptersDone + 1, story.chapters.count)
+        return fullStory ? next : min(next, story.freeChapters)
+    }
+
+    /// Le chapitre gratuit est fini et la suite n'est pas achetée.
+    var needsPurchase: Bool { !fullStory && chaptersDone >= story.freeChapters }
+
+    /// Toute l'histoire est terminée.
+    var finished: Bool { chaptersDone >= story.chapters.count }
+
+    /// Pose le fait de début de chaque chapitre ouvert (ses messages en direct démarrent).
+    private func startChapters() {
+        guard unlocked else { return }
+        for (i, c) in story.chapters.enumerated() where i < chapter && facts[c.start] == nil {
+            facts[c.start] = Date()
+            save()
+        }
+    }
+
+    // MARK: L'album masqué
+
+    var albumOpen: Bool { has("album_open") }
+
+    func tryAlbum(_ code: String) -> Bool {
+        guard let album = story.hiddenAlbum, code == album.code else {
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+            return false
+        }
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        set("album_open")
+        return true
+    }
+
+    /// Le joueur a touché la voiture sur cette photo.
+    func spotCar(on photo: PhotoItem) {
+        set("car_" + photo.id)
+        UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+        let all = (story.hiddenAlbum?.photos ?? []).filter { $0.car != nil }
+        if !all.isEmpty, all.allSatisfy({ has("car_" + $0.id) }) { set("car_all") }
+    }
+
+    var carsSpotted: Int { (story.hiddenAlbum?.photos ?? []).filter { has("car_" + $0.id) }.count }
+    var carsTotal: Int { (story.hiddenAlbum?.photos ?? []).filter { $0.car != nil }.count }
 
     // MARK: Déverrouillage
 
@@ -151,7 +210,8 @@ final class GameState {
         banner = nil
         openApp = nil
         openThread = nil
-        showChapterEnd = false
+        showChapterEnd = nil
+        showPaywall = false
         save()
     }
 
