@@ -197,15 +197,15 @@ else:
 RELEASE_NOTES = {
     "1.0.3": {
         "en-US": "• Foldly is now free! Foldly+ unlocks everything with a single purchase. Bought Foldly 1.0? You keep everything, nothing to pay.\n"
-                 "• Leaderboards with Game Center: your longest streak under your limit, and your days under your limit over 30 days. Off by default, only your two scores are shared, through Apple.\n"
+                 "• With Foldly+: leaderboards with Game Center (your longest streak under your limit, and your days under your limit over 30 days. Off by default, only your two scores are shared, through Apple), and My theme: your own colors for the whole app.\n"
                  "• New Aurora theme: a night sky with northern lights that sway with your hinge, and glowing numbers.\n"
                  "• Apple Watch app: today's folds on your wrist, your week with the number of each day, and complications.\n"
-                 "• Break reminder, desk mode, your own daily limit to the fold, Your hours, Monthly recap, new widgets, and a guided tour to find everything.",
+                 "• Just the essentials on the outer screen, a richer desk mode, break reminder, your own daily limit to the fold, Your hours, Monthly recap, new widgets, and a guided tour to find everything.",
         "fr-FR": "• Foldly est maintenant gratuit ! Foldly+ débloque tout en un seul achat. Tu as acheté Foldly 1.0 ? Tu gardes tout, sans rien payer.\n"
-                 "• Classements avec Game Center : ta plus longue série sous ta limite, et tes jours sous ta limite sur 30 jours. Désactivé par défaut, seuls tes deux scores sont partagés, via Apple.\n"
+                 "• Avec Foldly+ : les classements Game Center (ta plus longue série sous ta limite, et tes jours sous ta limite sur 30 jours. Désactivé par défaut, seuls tes deux scores sont partagés, via Apple), et Mon thème : tes propres couleurs pour toute l'app.\n"
                  "• Nouveau thème Aurore : un ciel de nuit avec des aurores boréales qui ondulent avec ta charnière, et des chiffres lumineux.\n"
                  "• App Apple Watch : les plis du jour au poignet, ta semaine avec le chiffre de chaque jour, et des complications.\n"
-                 "• Rappel de pause, mode bureau, ta propre limite au pli près, Tes heures, Bilan du mois, nouveaux widgets, et une visite guidée pour tout trouver.",
+                 "• L'essentiel sur l'écran extérieur, un mode bureau plus complet, rappel de pause, ta propre limite au pli près, Tes heures, Bilan du mois, nouveaux widgets, et une visite guidée pour tout trouver.",
     },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()

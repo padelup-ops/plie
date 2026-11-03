@@ -25,7 +25,11 @@ struct ClapetApp: App {
                 .environment(model)
                 .environment(store)
                 .task {
-                    store.onChange = { [model] has in model.setPlus(has) }
+                    store.onChange = { [model] has in
+                        model.setPlus(has)
+                        UserDefaults.standard.set(has, forKey: "plusActive")
+                        GameCenter.shared.plus = has
+                    }
                     GameCenter.shared.start()
                     await store.load()
                 }

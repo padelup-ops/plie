@@ -22,6 +22,8 @@ struct DFBackdrop: View {
     var body: some View {
         if DFLook.current == .aurora {
             AuroraBackdrop(degrees: degrees)
+        } else if DFLook.current == .custom {
+            CustomBackdrop()
         } else {
             Color.dfBackground
         }

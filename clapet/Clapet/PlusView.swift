@@ -32,6 +32,8 @@ struct PlusView: View {
                             .multilineTextAlignment(.center)
                     }
                     VStack(alignment: .leading, spacing: 16) {
+                        perk("trophy.fill", Text("Leaderboards"), Text("Your streak and your last 30 days against other Foldly users and your friends, with Game Center."))
+                        perk("swatchpalette.fill", Text("My theme"), Text("Pick your own colors for the whole app: the accent and the background."))
                         perk("rectangle.3.group", Text("Every widget"), Text("The big Health-style widget, the medium one and the Lock Screen ones: your folds at a glance."))
                         perk("bell.badge", Text("Limit alerts"), Text("If you set a daily limit: a notification at 80 % and at 100 %."))
                         perk("calendar", Text("Your full history"), Text("30 days, 12 months, the calendar of your days, your trends and records."))

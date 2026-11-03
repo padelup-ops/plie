@@ -97,13 +97,22 @@ struct SettingsView: View {
 
                 // 2. Apparence
                 Section {
-                    Picker(selection: Binding(get: { DFLook(rawValue: lookRaw)?.rawValue ?? DFLook.classic.rawValue },
-                                              set: { lookRaw = $0 })) {
+                    Picker(selection: Binding(get: { DFLook.resolved(lookRaw).rawValue },
+                                              set: { raw in
+                                                  if raw == DFLook.custom.rawValue && !store.hasPlus { showPlus = true } else { lookRaw = raw }
+                                              })) {
                         ForEach(DFLook.allCases) { look in
-                            look.title.tag(look.rawValue)
+                            if look == .custom && !store.hasPlus {
+                                Text("My theme (Foldly+)").tag(look.rawValue)
+                            } else {
+                                look.title.tag(look.rawValue)
+                            }
                         }
                     } label: {
                         Text("Theme")
+                    }
+                    if DFLook.resolved(lookRaw) == .custom {
+                        CustomThemeEditor()
                     }
                     HStack(spacing: 12) {
                         Text("Widget color")
@@ -129,7 +138,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Appearance")
                 } footer: {
-                    (DFLook(rawValue: lookRaw) ?? .classic).subtitle
+                    DFLook.resolved(lookRaw).subtitle
                 }
 
                 // 3. Notifications
@@ -234,7 +243,7 @@ struct SettingsView: View {
                 }
                 tourPending = nil
             }) { FeatureTour { tourPending = $0 } }
-            .sheet(isPresented: $showBoards) { LeaderboardView().environment(model) }
+            .sheet(isPresented: $showBoards) { LeaderboardView().environment(model).environment(store) }
             .sheet(isPresented: $showPlus) {
                 PlusView().environment(model).environment(store)
             }

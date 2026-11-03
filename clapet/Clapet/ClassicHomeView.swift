@@ -145,7 +145,7 @@ struct ClassicHomeView: View {
         }
         .tint(.dfAccent)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
-        .sheet(isPresented: $showBoards) { LeaderboardView().environment(model) }
+        .sheet(isPresented: $showBoards) { LeaderboardView().environment(model).environment(store) }
         .sheet(isPresented: $showSettings) {
             SettingsView().environment(model).environment(store)
         }
@@ -187,6 +187,9 @@ struct ClassicHomeView: View {
             if url.host == "week" { showWeek = true }
             if url.host == "month" { showMonth = true }
             if url.host == "hours" { showHours = true }
+            if url.host == "boards" { showBoards = true }
+            if url.host == "share" { showShare = true }
+            if url.host == "settings" { showSettings = true }
             if SurveyRule.isAnswerLink(url) {
                 SurveyRule.markAnswered()
                 withAnimation { surveyHidden = true }

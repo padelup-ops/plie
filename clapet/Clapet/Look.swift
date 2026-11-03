@@ -9,16 +9,22 @@ import UIKit
 // Choisi au premier lancement, modifiable dans les Réglages.
 
 enum DFLook: String, CaseIterable, Identifiable {
-    case classic, night, minimal, aurora
+    case classic, night, minimal, aurora, custom
 
     /// Les looks sombres (Moderne et Aurore) partagent la mise en page du Moderne.
-    var isDark: Bool { self == .night || self == .aurora }
+    var isDark: Bool { self == .night || self == .aurora || (self == .custom && CustomTheme.isDark) }
+
+    /// « Mon thème » demande Foldly+ ; sans lui, on revient au Moderne.
+    static func resolved(_ raw: String) -> DFLook {
+        let look = DFLook(rawValue: raw) ?? .classic
+        return look == .custom && !UserDefaults.standard.bool(forKey: "plusActive") ? .night : look
+    }
 
     var id: String { rawValue }
 
     static let key = "look"
 
-    static var current: DFLook { DFLook(rawValue: UserDefaults.standard.string(forKey: key) ?? "") ?? .classic }
+    static var current: DFLook { resolved(UserDefaults.standard.string(forKey: key) ?? "") }
 
     var title: Text {
         switch self {
@@ -26,6 +32,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .night: return Text("Modern")
         case .minimal: return Text("Minimal")
         case .aurora: return Text("Aurora")
+        case .custom: return Text("My theme")
         }
     }
 
@@ -35,6 +42,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .night: return Text("Big numbers, hinge gauge, Today and Week tabs")
         case .minimal: return Text("Just your numbers, nothing else")
         case .aurora: return Text("Northern lights that move with your hinge")
+        case .custom: return Text("Your own colors, with Foldly+")
         }
     }
 }
@@ -44,43 +52,51 @@ extension Color {
     private static var night: Bool { DFLook.current == .night }
     private static var minimal: Bool { DFLook.current == .minimal }
     private static var aurora: Bool { DFLook.current == .aurora }
+    private static var custom: Bool { DFLook.current == .custom }
 
     static var dfAccent: Color {
         if minimal { return Color.primary }
         if aurora { return Aurora.accent }
+        if custom { return CustomTheme.accent }
         return night ? Color(red: 0.36, green: 0.89, blue: 0.78) : Color.accentColor
     }
     static var dfBackground: Color {
         if minimal { return Color(uiColor: .systemBackground) }
         if aurora { return Aurora.night }
+        if custom { return CustomTheme.solid }
         return night ? Color(red: 0.055, green: 0.078, blue: 0.078) : Color(uiColor: .systemGroupedBackground)
     }
     static var dfCard: Color {
         if minimal { return Color(uiColor: .secondarySystemBackground) }
         if aurora { return Color.white.opacity(0.075) }
+        if custom { return CustomTheme.card }
         return night ? Color(red: 0.135, green: 0.16, blue: 0.157) : Color(uiColor: .secondarySystemGroupedBackground)
     }
     static var dfFill: Color {
         if minimal { return Color.primary.opacity(0.08) }
         if aurora { return Color.white.opacity(0.09) }
+        if custom { return CustomTheme.card }
         return night ? Color.white.opacity(0.08) : Color(uiColor: .tertiarySystemFill)
     }
     static var dfOutline: Color {
         if minimal { return Color.primary.opacity(0.14) }
         if aurora { return Color.white.opacity(0.16) }
+        if custom { return Color.primary.opacity(0.16) }
         return night ? Color.white.opacity(0.17) : Color(uiColor: .separator)
     }
     static var dfBar: Color {
         if minimal { return Color.primary.opacity(0.22) }
         if aurora { return Aurora.violet.opacity(0.55) }
+        if custom { return CustomTheme.accent.opacity(0.45) }
         return night ? Color(red: 0.08, green: 0.36, blue: 0.32) : Color.accentColor.opacity(0.55)
     }
-    static var dfWarning: Color { night || aurora ? Color(red: 1.0, green: 0.71, blue: 0.36) : Color.orange }
-    static var dfOver: Color { night || aurora ? Color(red: 1.0, green: 0.45, blue: 0.42) : Color.red }
+    static var dfWarning: Color { night || aurora || custom ? Color(red: 1.0, green: 0.71, blue: 0.36) : Color.orange }
+    static var dfOver: Color { night || aurora || custom ? Color(red: 1.0, green: 0.45, blue: 0.42) : Color.red }
     /// Le texte posé sur la couleur d'accent (boutons pleins).
     static var dfOnAccent: Color {
         if minimal { return Color(uiColor: .systemBackground) }
         if aurora { return Aurora.night }
+        if custom { return CustomTheme.accent.luminance > 0.6 ? Color.black : Color.white }
         return night ? Color.black : Color.white
     }
 }
@@ -104,7 +120,7 @@ struct ContentView: View {
     @State private var opening = OpeningRule.shouldShow(lookChosen: !(UserDefaults.standard.string(forKey: DFLook.key) ?? "").isEmpty)
 
     var body: some View {
-        let look = DFLook(rawValue: lookRaw) ?? .classic
+        let look = DFLook.resolved(lookRaw)
         GeometryReader { g in
             let desk = DeskRule.active(degrees: model.degrees, size: g.size) && deskOn
             let outer = max(g.size.width, g.size.height) < 800 && glanceOn && Demo.screen == nil && !Demo.seeded
@@ -112,7 +128,7 @@ struct ContentView: View {
                 Group {
                     switch look {
                     case .classic: ClassicHomeView()
-                    case .night, .aurora: NightHomeView()
+                    case .night, .aurora, .custom: NightHomeView()
                     case .minimal: MinimalHomeView()
                     }
                 }
@@ -141,7 +157,7 @@ struct ContentView: View {
                 }
             }
         }
-        .preferredColorScheme(look.isDark ? .dark : nil)
+        .preferredColorScheme(look.isDark ? .dark : (look == .custom ? .light : nil))
         .onAppear {
             // Première ouverture : on propose de choisir (pas pendant le tournage des vidéos).
             if lookRaw.isEmpty && !Demo.seeded && Demo.screen == nil { askLook = true }
@@ -162,7 +178,7 @@ struct ContentView: View {
             switch target {
             case .autoCount: AutoCountView().environment(model)
             case .settings: SettingsView().environment(model).environment(store)
-            case .leaderboards: LeaderboardView().environment(model)
+            case .leaderboards: LeaderboardView().environment(model).environment(store)
             }
         }
         .sheet(isPresented: $askLook, onDismiss: {
@@ -240,7 +256,7 @@ struct LookChoice: View {
     var body: some View {
         let current = DFLook(rawValue: lookRaw) ?? .classic
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 12)], spacing: 12) {
-            ForEach(DFLook.allCases) { look in
+            ForEach(DFLook.allCases.filter { $0 != .custom }) { look in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { lookRaw = look.rawValue }
                 } label: {

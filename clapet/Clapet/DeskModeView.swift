@@ -137,21 +137,72 @@ struct DeskModeView: View {
 
     private var flat: some View {
         let s = model.stats
-        return VStack(spacing: 16) {
-            HStack(spacing: 12) {
-                tile(Text("Time closed"), TimeFormat.narrow(s.closedTime()))
-                tile(Text("Yesterday"), "\(s.yesterday())")
-                tile(Text("Last 7 days"), "\(s.weekTotal)")
+        return ScrollView {
+            VStack(spacing: 16) {
+                HStack(spacing: 12) {
+                    tile(Text("Time closed"), TimeFormat.narrow(s.closedTime()))
+                    tile(Text("Yesterday"), "\(s.yesterday())")
+                    tile(Text("Last 7 days"), "\(s.weekTotal)")
+                }
+                weekBars
+                HStack(spacing: 12) {
+                    tile(Text("Time open"), TimeFormat.narrow(s.openTime()))
+                    if s.goalOn {
+                        tile(Text("Streak"), "\(s.currentStreak()) 🔥")
+                        tile(Text("Left today"), "\(max(0, s.left()))")
+                    } else {
+                        tile(Text("Record"), "\(s.best)")
+                        tile(Text("Average"), s.recentAverage().map { "\(Int($0.rounded()))" } ?? "–")
+                    }
+                }
+                todayByHour
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                    shortcut(Text("Weekly recap"), "chart.bar.doc.horizontal", "week")
+                    shortcut(Text("Monthly recap"), "calendar.badge.checkmark", "month")
+                    shortcut(Text("Your hours"), "clock.badge.checkmark", "hours")
+                    shortcut(Text("Leaderboards"), "trophy.fill", "boards")
+                    shortcut(Text("Share my day"), "square.and.arrow.up", "share")
+                    shortcut(Text("Settings"), "gearshape", "settings")
+                }
             }
-            weekBars
-            HStack(spacing: 12) {
-                shortcut(Text("Weekly recap"), "chart.bar.doc.horizontal", "week")
-                shortcut(Text("Your hours"), "clock.badge.checkmark", "hours")
+            .padding(.horizontal, 24)
+            .padding(.vertical, 22)
+        }
+        .scrollIndicators(.hidden)
+        .frame(maxHeight: .infinity, alignment: .top)
+    }
+
+    /// Aujourd'hui, heure par heure (24 petites barres).
+    private var todayByHour: some View {
+        let hours = model.stats.hours()
+        let top = max(1, hours.max() ?? 1)
+        let now = Calendar.current.component(.hour, from: Date())
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Today, hour by hour")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            HStack(alignment: .bottom, spacing: 3) {
+                ForEach(0..<24, id: \.self) { h in
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .fill(h == now ? Color.dfAccent : Color.dfAccent.opacity(h < now ? 0.45 : 0.15))
+                        .frame(height: max(3, 54 * CGFloat(h < hours.count ? hours[h] : 0) / CGFloat(top)))
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .frame(height: 56, alignment: .bottom)
+            HStack {
+                ForEach([0, 6, 12, 18], id: \.self) { h in
+                    Text(ContentView.hourLabel(h))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.top, 22)
-        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.dfCard))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Today, hour by hour"))
     }
 
     private func tile(_ title: Text, _ value: String) -> some View {

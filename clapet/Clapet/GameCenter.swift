@@ -14,11 +14,13 @@ final class GameCenter {
 
     private(set) var on = UserDefaults.standard.bool(forKey: "gameCenterOn")
     private(set) var signedIn = false
+    /// Les classements font partie de Foldly+.
+    var plus = UserDefaults.standard.bool(forKey: "plusActive")
     var problem: String?
 
     /// À l'ouverture de l'app : reconnecte le joueur s'il a activé le classement.
     func start() {
-        guard on else { return }
+        guard on, plus else { return }
         authenticate()
     }
 
@@ -54,7 +56,7 @@ final class GameCenter {
 
     /// Envoie les scores du jour (seulement s'ils ont changé).
     func submit(_ stats: ClapetStats, now: Date = Date()) {
-        guard on, GKLocalPlayer.local.isAuthenticated, stats.goalOn else { return }
+        guard plus, on, GKLocalPlayer.local.isAuthenticated, stats.goalOn else { return }
         let streak = stats.leaderboardStreak(now: now)
         Task {
             // Le classement « 30 jours » repart à zéro tous les 30 jours : on compte depuis le début de la période en cours.

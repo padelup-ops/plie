@@ -4,6 +4,8 @@ import SwiftUI
 /// L'écran des classements (Game Center), ouvert depuis le trophée de l'écran d'accueil.
 struct LeaderboardView: View {
     @Environment(ClapetModel.self) private var model
+    @Environment(ClapetStore.self) private var store
+    @State private var showPlus = false
     @Environment(\.dismiss) private var dismiss
     @State private var gameCenter = GameCenter.shared
     @State private var board: String?
@@ -51,6 +53,9 @@ struct LeaderboardView: View {
                 LeaderboardScreen(leaderboardID: item.id).ignoresSafeArea()
             }
             .task(id: gameCenter.signedIn) { await loadRanks() }
+            .sheet(isPresented: $showPlus) {
+                PlusView(reason: Text("Leaderboards are part of Foldly+")).environment(model).environment(store)
+            }
             .onAppear {
                 seen = true
                 gameCenter.submit(stats)
@@ -125,7 +130,26 @@ struct LeaderboardView: View {
 
     @ViewBuilder
     private var action: some View {
-        if !stats.goalOn {
+        if !store.hasPlus {
+            VStack(spacing: 10) {
+                HStack(spacing: 6) {
+                    Text("Leaderboards are part of Foldly+")
+                    PlusBadge()
+                }
+                .font(.subheadline.weight(.semibold))
+                Button {
+                    showPlus = true
+                } label: {
+                    Label("Unlock Foldly+", systemImage: "sparkles")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .buttonBorderShape(.capsule)
+            }
+        } else if !stats.goalOn {
             VStack(spacing: 10) {
                 Text("Set a daily limit first: your score is the number of days you stay under it.")
                     .font(.subheadline)

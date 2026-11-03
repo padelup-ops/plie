@@ -109,6 +109,6 @@ struct OuterGlance: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DFBackdrop(degrees: model.degrees).ignoresSafeArea())
         .sheet(isPresented: $showSettings) { SettingsView().environment(model).environment(store) }
-        .sheet(isPresented: $showBoards) { LeaderboardView().environment(model) }
+        .sheet(isPresented: $showBoards) { LeaderboardView().environment(model).environment(store) }
     }
 }
