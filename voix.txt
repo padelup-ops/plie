@@ -1,0 +1,8 @@
+ok    vm_v1_fr.m4a  (maman, fr_FR-upmc-medium)
+ok    vm_v1_en.m4a  (maman, kokoro af_sarah)
+ok    vm_v2_fr.m4a  (h, fr_FR-tom-medium)
+ok    vm_v2_en.m4a  (h, kokoro am_onyx)
+ok    vm_v3_fr.m4a  (samir, fr_FR-upmc-medium)
+ok    vm_v3_en.m4a  (samir, kokoro am_michael)
+ok    vm_v4_fr.m4a  (lea, fr_FR-siwis-medium)
+ok    vm_v4_en.m4a  (lea, kokoro af_heart)
