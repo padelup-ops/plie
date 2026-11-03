@@ -409,6 +409,9 @@ if os.environ.get("SUBMIT") == "1":
 
 # ---------------------------------------------------------------- envoi à Apple
 if SUBMIT:
+    # Sur une mise à jour d'une app déjà en ligne, la fiche (catégories, âge, confidentialité) est figée et déjà remplie.
+    if NEW_VERSION:
+        problems = [x for x in problems if not x.startswith(("catégories", "classification", "confidentialité"))]
     if problems:
         print("\nPAS ENVOYÉ : il reste des points à régler :", ", ".join(problems))
         sys.exit(1)
