@@ -63,7 +63,7 @@ jobs:
             if [ "$R" = "home" ]; then ARGS="-shot home"; else ARGS="-shot $R"; fi
             xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" $ARGS > /dev/null 2>&1 || true
             sleep 6
-            xcrun simctl io "$UDID" screenshot --mask=black "shots/$(printf %02d $N)-$R.png" 2>>shots/erreurs.txt || true
+            xcrun simctl io "$UDID" screenshot --display=3 --mask=black "shots/$(printf %02d $N)-$R.png" || xcrun simctl io "$UDID" screenshot --display=1 --mask=black "shots/$(printf %02d $N)-$R.png" 2>>shots/erreurs.txt || true
           done
       - name: Publier
         if: always()
