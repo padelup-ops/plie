@@ -145,7 +145,7 @@ final class DessineGame {
         let english = Lang.shared.isEnglish
         let themes: [WordTheme] = categories.isEmpty ? [.animals, .objects] : Array(categories)
         let pool = themes.flatMap { $0.words }
-        deck = pool.map { english ? $0.1 : $0.0 }.shuffled()
+        deck = pool.map { english ? Lang.content($0.1) : $0.0 }.shuffled()
     }
 
     func backToMenu() {

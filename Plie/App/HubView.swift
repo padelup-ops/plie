@@ -857,9 +857,9 @@ struct SettingsView: View {
                 }
                 Section("Langue · Language") {
                     Picker("Langue · Language", selection: Binding(get: { Lang.shared.choice }, set: { Lang.shared.choice = $0 })) {
-                        Text(verbatim: "Automatique · Automatic").tag(Lang.Choice.auto)
-                        Text(verbatim: "Français").tag(Lang.Choice.fr)
-                        Text(verbatim: "English").tag(Lang.Choice.en)
+                        ForEach(Lang.Choice.allCases) { c in
+                            Text(verbatim: c.nativeName).tag(c)
+                        }
                     }
                     .pickerStyle(.inline)
                     .labelsHidden()

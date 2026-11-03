@@ -164,7 +164,7 @@ final class MotsGame {
     private func drawCard() {
         let cards = MotsCards.current
         guard !cards.isEmpty else { return }
-        let lang = Lang.shared.isEnglish ? "en" : "fr"
+        let lang = Lang.shared.isFrench ? "fr" : "en"
         let orderKey = "mots.order.\(lang)", posKey = "mots.pos.\(lang)"
         let defaults = UserDefaults.standard
         var order = defaults.array(forKey: orderKey) as? [Int] ?? []

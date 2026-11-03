@@ -59,7 +59,12 @@ final class ChessMatch {
     }
 
     var letters: [String] {
-        Lang.shared.isEnglish ? ["N", "B", "R", "Q", "K"] : ["C", "F", "T", "D", "R"]
+        switch Lang.shared.current {
+        case .fr: return ["C", "F", "T", "D", "R"]
+        case .de: return ["S", "L", "T", "D", "K"]
+        case .es: return ["C", "A", "T", "D", "R"]
+        default: return ["N", "B", "R", "Q", "K"]
+        }
     }
 
     // MARK: Début, reprise, sauvegarde

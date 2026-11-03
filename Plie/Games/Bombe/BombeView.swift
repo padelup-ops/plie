@@ -36,12 +36,12 @@ enum BombeDeck {
 
     static func draw(lettersOnly: Bool) -> BombeChallenge {
         let english = Lang.shared.isEnglish
-        if lettersOnly || Bool.random() && Int.random(in: 0..<3) == 0 {
+        if !Lang.shared.isCJK, lettersOnly || Bool.random() && Int.random(in: 0..<3) == 0 {
             let letter = (english ? lettersEN : lettersFR).randomElement() ?? "A"
             return BombeChallenge(text: L("Un mot qui commence par \(letter)"))
         }
         let theme = themes.randomElement() ?? themes[0]
-        return BombeChallenge(text: english ? theme.1 : theme.0)
+        return BombeChallenge(text: english ? Lang.content(theme.1) : theme.0)
     }
 }
 
@@ -227,11 +227,13 @@ struct BombeView: View {
                         .font(.plie(18, weight: .bold))
                 }
                 .frame(maxWidth: 340)
-                Toggle(isOn: Binding(get: { game.lettersOnly }, set: { game.lettersOnly = $0 })) {
-                    Text(L("Seulement des lettres (plus dur)")).font(.plie(16, weight: .bold))
+                if !Lang.shared.isCJK {
+                    Toggle(isOn: Binding(get: { game.lettersOnly }, set: { game.lettersOnly = $0 })) {
+                        Text(L("Seulement des lettres (plus dur)")).font(.plie(16, weight: .bold))
+                    }
+                    .tint(Theme.bombe)
+                    .frame(maxWidth: 340)
                 }
-                .tint(Theme.bombe)
-                .frame(maxWidth: 340)
                 Button {
                     game.start(players: players)
                 } label: {

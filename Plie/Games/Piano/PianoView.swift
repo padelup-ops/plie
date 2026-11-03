@@ -80,7 +80,7 @@ enum NoteName {
     static func name(_ midi: Int) -> String {
         let fr = ["Do", "Do♯", "Ré", "Ré♯", "Mi", "Fa", "Fa♯", "Sol", "Sol♯", "La", "La♯", "Si"]
         let en = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
-        return (Lang.shared.isEnglish ? en : fr)[midi % 12]
+        return (Lang.shared.usesSolfege ? fr : en)[midi % 12]
     }
 
     static func isBlack(_ midi: Int) -> Bool {
@@ -517,7 +517,7 @@ struct PianoView: View {
             Button {
                 model.showNames.toggle()
             } label: {
-                Text(Lang.shared.isEnglish ? "ABC" : "Do Ré")
+                Text(Lang.shared.usesSolfege ? "Do Ré" : "ABC")
                     .font(.plie(13, weight: .bold))
                     .foregroundStyle(model.showNames ? Theme.ink : .white)
                     .padding(.horizontal, 10)

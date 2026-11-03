@@ -16,7 +16,13 @@ struct MotsCard {
 }
 
 enum MotsCards {
-    static var current: [MotsCard] { Lang.shared.isEnglish ? en : fr }
+    static var current: [MotsCard] {
+        switch Lang.shared.current {
+        case .fr: return fr
+        case .en: return en
+        default: return en.map { MotsCard(Lang.content($0.word), $0.banned.map(Lang.content)) }
+        }
+    }
 
     static let fr: [MotsCard] = [
         MotsCard("Pizza", ["Italie", "Fromage", "Four", "Pâte", "Tomate"]),

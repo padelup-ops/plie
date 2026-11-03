@@ -564,7 +564,7 @@ final class DuelsGame {
     /// Deux décimales, avec la virgule en français.
     static func secs(_ v: Double) -> String {
         let s = String(format: "%.2f", v)
-        return Lang.shared.isEnglish ? s : s.replacingOccurrences(of: ".", with: ",")
+        return Lang.shared.decimalComma ? s.replacingOccurrences(of: ".", with: ",") : s
     }
 
     // MARK: Taupes
