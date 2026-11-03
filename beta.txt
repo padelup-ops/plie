@@ -1,0 +1,23 @@
+APP 6830173446 | Unlocked: Found Phones | langue principale fr-FR
+ok     texte TestFlight fr-FR
+ok     texte TestFlight en-US
+build 3 prêt
+ok     notes À tester fr-FR
+ok     notes À tester en-US
+2 testeur(s) interne(s) chez Origamo
+ok     membre du compte ajouté comme testeur interne
+ok     membre du compte ajouté comme testeur interne
+ok     membre du compte ajouté comme testeur interne
+ok     membre du compte ajouté comme testeur interne
+ok     membre du compte ajouté comme testeur interne
+       membre du compte : STATE_ERROR: Tester(s) cannot be assigned
+ok     membre du compte ajouté comme testeur interne
+ok     2 testeur(s) ajouté(s) au groupe « Unlocked interne » (déjà fait)
+groupe « Unlocked interne » (interne) : 6 testeur(s)
+ok     2 testeur(s) ajouté(s) au groupe « Unlocked interne » (déjà fait)
+groupe « Unlocked interne » (interne) : 0 testeur(s)
+ok     2 testeur(s) ajouté(s) au groupe « Unlocked interne » (déjà fait)
+groupe « Unlocked interne » (interne) : 0 testeur(s)
+état pour les testeurs internes : IN_BETA_TESTING
+
+BUILD DISTRIBUÉ
