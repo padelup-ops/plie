@@ -117,16 +117,16 @@ enum NinaStory {
                  date: "06/09", requires: "ch2")
         ],
         voicemails: [
-            Voicemail(id: "v1", contact: "maman", date: T("Dim. 19:42", "Sun 7:42 PM"), seconds: 38,
+            Voicemail(id: "v1", contact: "maman", date: T("Dim. 19:42", "Sun 7:42 PM"), seconds: 20,
                       transcript: T("Nina, c'est maman. Je ne sais pas pourquoi tu ne réponds pas. Inès est passée voir Pixel, il va bien. Tu te souviens, quand tu étais petite, tu disais que le sept te portait bonheur ? J'ai allumé une bougie. Rappelle-moi, ma chérie. N'importe quand.",
                                     "Nina, it's mom. I don't know why you're not answering. Inès went to see Pixel, he's fine. Do you remember, when you were little, you used to say seven was your lucky number? I lit a candle. Call me back, sweetheart. Anytime.")),
-            Voicemail(id: "v2", contact: "h", date: T("Sam. 02:13", "Sat 2:13 AM"), seconds: 21,
+            Voicemail(id: "v2", contact: "h", date: T("Sam. 02:13", "Sat 2:13 AM"), seconds: 10,
                       transcript: T("C'est moi. Je suis en bas de chez toi. La lumière est éteinte. Je veux juste parler. Rappelle-moi.",
                                     "It's me. I'm outside your place. The light is off. I just want to talk. Call me back.")),
-            Voicemail(id: "v3", contact: "samir", date: T("Ven. 20:05", "Fri 8:05 PM"), seconds: 12,
+            Voicemail(id: "v3", contact: "samir", date: T("Ven. 20:05", "Fri 8:05 PM"), seconds: 7,
                       transcript: T("Hé, c'est Samir. Je l'ai mis dans mon casier. Personne n'y touche. Prends soin de toi.",
                                     "Hey, it's Samir. I put it in my locker. Nobody touches it. Take care of yourself.")),
-            Voicemail(id: "v4", contact: "lea", date: T("Jeu. 14:20", "Thu 2:20 PM"), seconds: 26,
+            Voicemail(id: "v4", contact: "lea", date: T("Jeu. 14:20", "Thu 2:20 PM"), seconds: 17,
                       transcript: T("Bonjour Nina, c'est Léa, de l'association Refuge. Je vous confirme notre rendez-vous de vendredi, 18 heures, devant la gare. Prenez seulement vos papiers. Et comme on a dit : pas votre téléphone. À vendredi. Vous avez bien fait d'appeler.",
                                     "Hello Nina, it's Léa, from the Refuge association. I'm confirming our meeting on Friday, 6 pm, outside the station. Bring only your papers. And like we said: not your phone. See you Friday. You did the right thing by calling."),
                       requires: "ch3")

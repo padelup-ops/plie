@@ -235,17 +235,52 @@ final class GameState {
 
     // MARK: Messagerie vocale
 
+    /// Le message vocal en cours de lecture, et où on en est (0…1).
+    private(set) var playing: String?
+    private(set) var progress: Double = 0
+    private var player: AVAudioPlayer?
+    private var progressTimer: Timer?
+
     func play(_ voicemail: Voicemail) {
-        speech.stopSpeaking(at: .immediate)
-        let u = AVSpeechUtterance(string: voicemail.transcript)
-        u.voice = AVSpeechSynthesisVoice(language: Lang.french ? "fr-FR" : "en-US")
-        u.rate = 0.48
-        u.pitchMultiplier = voicemail.contact == "h" ? 0.8 : 1.05
-        speech.speak(u)
+        stopVoice()
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
+        try? AVAudioSession.sharedInstance().setActive(true)
+        let lang = Lang.french ? "fr" : "en"
+        if let url = Bundle.main.url(forResource: "vm_\(voicemail.id)_\(lang)", withExtension: "m4a"),
+           let p = try? AVAudioPlayer(contentsOf: url) {
+            // Le vrai enregistrement (voix fabriquée à l'avance, son de téléphone)
+            player = p
+            p.play()
+            playing = voicemail.id
+            progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] t in
+                guard let self, let p = self.player else { t.invalidate(); return }
+                self.progress = p.duration > 0 ? p.currentTime / p.duration : 0
+                if !p.isPlaying { self.progress = 1; self.playing = nil; t.invalidate() }
+            }
+        } else {
+            let u = AVSpeechUtterance(string: voicemail.transcript)
+            u.voice = Self.bestVoice(Lang.french ? "fr-FR" : "en-US")
+            u.rate = 0.48
+            speech.speak(u)
+            playing = voicemail.id
+        }
         set("heard_" + voicemail.id)
     }
 
-    func stopVoice() { speech.stopSpeaking(at: .immediate) }
+    /// La meilleure voix installée sur l'appareil (premium, puis améliorée).
+    private static func bestVoice(_ lang: String) -> AVSpeechSynthesisVoice? {
+        let voices = AVSpeechSynthesisVoice.speechVoices().filter { $0.language == lang }
+        return voices.first { $0.quality == .premium } ?? voices.first { $0.quality == .enhanced } ?? AVSpeechSynthesisVoice(language: lang)
+    }
+
+    func stopVoice() {
+        speech.stopSpeaking(at: .immediate)
+        player?.stop()
+        player = nil
+        progressTimer?.invalidate()
+        playing = nil
+        progress = 0
+    }
 
     // MARK: Recommencer
 

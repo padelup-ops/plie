@@ -41,7 +41,7 @@ jobs:
           DT=$(xcrun simctl list runtimes -j | RT="$RUNTIME" python3 -c "
           import json,sys,os
           r=[x for x in json.load(sys.stdin)['runtimes'] if x['identifier']==os.environ['RT']][0]
-          d=[x for x in r.get('supportedDeviceTypes',[]) if x['name'].startswith('iPhone') and 'Pro' in x['name'] and 'Max' not in x['name']]
+          d=[x for x in r.get('supportedDeviceTypes',[]) if x['name'].startswith('iPhone') and 'Pro' in x['name'] and 'Max' not in x['name'] and 'Duo' not in x['name']]
           print(d[-1]['identifier'] if d else r['supportedDeviceTypes'][0]['identifier'])")
           echo "runtime=$RUNTIME device=$DT" | tee ../shots/simulateur.txt
           UDID=$(xcrun simctl create "Unlocked" "$DT" "$RUNTIME")

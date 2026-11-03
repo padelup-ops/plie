@@ -741,9 +741,13 @@ struct VoicemailRow: View {
                 Text(state.has("heard_" + voicemail.id) ? voicemail.transcript : T("Écoute le message pour voir la transcription.", "Play the message to see the transcription."))
                     .font(.system(size: 15))
                 HStack(spacing: 18) {
-                    Button { state.play(voicemail) } label: { Image(systemName: "play.fill").font(.system(size: 22)) }
-                    ProgressView(value: 0).tint(bubbleBlue)
-                    Button { state.stopVoice() } label: { Image(systemName: "speaker.wave.2.fill").font(.system(size: 18)) }
+                    Button {
+                        if state.playing == voicemail.id { state.stopVoice() } else { state.play(voicemail) }
+                    } label: {
+                        Image(systemName: state.playing == voicemail.id ? "pause.fill" : "play.fill").font(.system(size: 22))
+                    }
+                    ProgressView(value: state.playing == voicemail.id ? state.progress : 0).tint(bubbleBlue)
+                    Image(systemName: "speaker.wave.2.fill").font(.system(size: 18))
                     Image(systemName: "phone.fill").foregroundStyle(.green)
                 }
                 .foregroundStyle(bubbleBlue)
