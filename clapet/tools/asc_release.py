@@ -289,7 +289,7 @@ else:
     print("       pas encore de site (SITE_URL) : assistance et confidentialité à faire")
 
 # Captures d'écran : iPhone 6,7" et iPhone Duo (le badge « conçu pour l'iPhone Duo » demande ces dernières)
-SHOT_SETS = [(SHOT_TYPE, ""), ("APP_IPHONE_DUO", "duo-")]
+SHOT_SETS = [(SHOT_TYPE, ""), ("APP_IPHONE_DUO", "duo-"), ("APP_WATCH_ULTRA", "watch-")]
 for l in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations").get("data", []):
     lang = LOCALES.get(l["attributes"]["locale"])
     if not lang:

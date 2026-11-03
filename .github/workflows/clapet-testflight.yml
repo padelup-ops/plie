@@ -149,7 +149,10 @@ jobs:
             echo "::warning::Pas d'app Apple Watch dans l'archive"
           fi
           codesign -f -s - --entitlements "$RUNNER_TEMP/shared.entitlements" "$WIDGET"
-          codesign -f -s - --entitlements "$RUNNER_TEMP/shared.entitlements" "$APP"
+          # L'app iPhone a en plus Game Center (les classements)
+          cp "$RUNNER_TEMP/shared.entitlements" "$RUNNER_TEMP/app.entitlements"
+          /usr/libexec/PlistBuddy -c "Add :com.apple.developer.game-center bool true" "$RUNNER_TEMP/app.entitlements"
+          codesign -f -s - --entitlements "$RUNNER_TEMP/app.entitlements" "$APP"
           /usr/libexec/PlistBuddy -c "Print :ClapetKeychainGroup" "$APP/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP/Info.plist"
 
