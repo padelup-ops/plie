@@ -16,6 +16,12 @@ enum AutomaticCounter {
             return model.stats.today
         }
         var stats = ClapetVault.load()
+        // Déjà compté par l'app au moment où elle a quitté l'écran ?
+        if stats.isRepeatClose() {
+            stats.autoLast = Date()
+            ClapetVault.save(stats)
+            return stats.today
+        }
         let before = stats.today
         stats.addClose()
         stats.endOpen(event: true)

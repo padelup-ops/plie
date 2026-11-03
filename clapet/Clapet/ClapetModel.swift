@@ -127,7 +127,7 @@ final class ClapetModel {
     func automationClose() {
         lastAutoClose = Date()
         stats.autoLast = Date()
-        if Date().timeIntervalSince(lastHingeClose) > sameFold {
+        if Date().timeIntervalSince(lastHingeClose) > sameFold && !stats.isRepeatClose() {
             countClose()
         } else {
             changed()

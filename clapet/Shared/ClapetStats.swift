@@ -53,6 +53,8 @@ struct ClapetStats: Codable, Equatable {
     var hourlyDay: String?
     var hourly: [Int] = Array(repeating: 0, count: 24)
     var lastClose: Date?
+    /// La dernière ouverture comptée (pour reconnaître un même pli compté deux fois).
+    var lastOpen: Date?
     /// Le record de plis en une heure.
     var recordHour = 0
     /// Foldly+ acheté (écrit par l'app, lu par les widgets).
@@ -80,7 +82,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -95,6 +97,7 @@ struct ClapetStats: Codable, Equatable {
         hourly = try c.decodeIfPresent([Int].self, forKey: .hourly) ?? Array(repeating: 0, count: 24)
         if hourly.count != 24 { hourly = Array(repeating: 0, count: 24) }
         lastClose = try c.decodeIfPresent(Date.self, forKey: .lastClose)
+        lastOpen = try c.decodeIfPresent(Date.self, forKey: .lastOpen)
         recordHour = try c.decodeIfPresent(Int.self, forKey: .recordHour) ?? 0
         plus = try c.decodeIfPresent(Bool.self, forKey: .plus) ?? false
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
@@ -222,8 +225,17 @@ struct ClapetStats: Codable, Equatable {
         d.opens += 1
         days[Self.key(date)] = d
         totalOpens += 1
+        lastOpen = date
         if firstDay == nil { firstDay = Self.key(date) }
         trim()
+    }
+
+    /// Une fermeture arrive alors qu'un pli vient d'être compté, sans ouverture entre les deux :
+    /// c'est le même pli, vu deux fois (l'app qui quitte l'écran puis l'automatisation Raccourcis, en retard).
+    func isRepeatClose(_ date: Date = Date(), within seconds: TimeInterval = 10) -> Bool {
+        guard let closed = lastClose, date.timeIntervalSince(closed) >= 0, date.timeIntervalSince(closed) < seconds else { return false }
+        if let opened = lastOpen, opened > closed { return false }
+        return true
     }
 
     // MARK: Temps ouvert
