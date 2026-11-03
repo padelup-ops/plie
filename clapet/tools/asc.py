@@ -332,9 +332,13 @@ if external:
         n = len(call("GET", f"/v1/betaGroups/{g['id']}/betaTesters?limit=200").get("data", []))
         link = a.get("publicLink") if a.get("publicLinkEnabled") else None
         print(f"groupe « {a.get('name')} » (externe) : {n} testeur(s)" + (f" · lien public {link}" if link else " · pas de lien public"))
-        step(f"build ajouté au groupe « {a.get('name')} »",
-             call("POST", f"/v1/betaGroups/{g['id']}/relationships/builds", {"data": [{"type": "builds", "id": bid}]}),
-             tolerate=("already",))
+        r_ = call("POST", f"/v1/betaGroups/{g['id']}/relationships/builds", {"data": [{"type": "builds", "id": bid}]})
+        if isinstance(r_, dict) and r_.get("error") == 404:
+            # Autre chemin d'Apple pour la même chose (le premier répond parfois 404)
+            r_ = call("POST", f"/v1/builds/{bid}/relationships/betaGroups", {"data": [{"type": "betaGroups", "id": g["id"]}]})
+        step(f"build ajouté au groupe « {a.get('name')} »", r_, tolerate=("already",))
+        in_group = [x["id"] for x in call("GET", f"/v1/builds/{bid}/betaGroups?limit=50").get("data", [])]
+        print(f"       le build est dans le groupe : {'oui' if g['id'] in in_group else 'NON'}")
     detail = call("GET", f"/v1/builds/{bid}/buildBetaDetail").get("data", {})
     ext_state = detail.get("attributes", {}).get("externalBuildState")
     print("état pour les testeurs externes :", ext_state)
