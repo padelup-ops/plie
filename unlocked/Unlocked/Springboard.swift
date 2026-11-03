@@ -204,7 +204,7 @@ struct IconPressStyle: ButtonStyle {
 struct LockScreen: View {
     @Environment(GameState.self) private var state
     @State private var drag: CGFloat = 0
-    @State private var showPad = false
+    @State private var showPad = UserDefaults.standard.string(forKey: "shot") == "pad"
     @State private var torch = false
 
     var body: some View {
@@ -616,7 +616,7 @@ struct AppScreen: View {
     }
 
     private func openPending() {
-        guard app == .messages, let t = state.pendingThread else { return }
+        guard let t = state.pendingThread else { return }
         state.pendingThread = nil
         path = [t]
     }

@@ -56,6 +56,29 @@ final class GameState {
         }
     }
 
+    // MARK: Captures d'écran (argument de lancement « -shot nom »)
+
+    func prepareShot(_ name: String) {
+        facts = [:]; extra = []; readThreads = []
+        guard !["lock", "pad"].contains(name) else { return }
+        let now = Date().addingTimeInterval(-3600)
+        for f in ["unlocked", "ines_asks", "ines_told", "ask_h", "seen_back_p3", "h_found", "note_unlocked", "read_n0", "ch2",
+                  "album_open", "car_all", "car_told", "ch2_done", "ch3", "ines_where"] { facts[f] = now }
+        fullStory = true
+        extra = story.live.filter { facts[$0.after] != nil && ["l1", "l2", "l3", "l4", "l5", "l6", "l9", "l10", "l11", "l12", "c1", "d1"].contains($0.id) }.map(\.message)
+        readThreads = ["maman", "samir", "studio"]
+        let route: [String: (AppKind, String?)] = [
+            "messages": (.messages, nil), "thread": (.messages, "ines"), "threadh": (.messages, "h"),
+            "photos": (.photos, nil), "photo": (.photos, "p3"), "album": (.photos, "a2"),
+            "notes": (.notes, nil), "note": (.notes, "n0"), "phone": (.phone, nil), "calendar": (.calendar, nil),
+            "maps": (.maps, nil), "trip": (.maps, "t4"), "weather": (.weather, nil), "settings": (.settings, nil), "spy": (.settings, "app_weather")
+        ]
+        if let r = route[name] {
+            pendingThread = r.1
+            openApp = r.0
+        }
+    }
+
     // MARK: Faits
 
     func has(_ fact: String) -> Bool { facts[fact] != nil }

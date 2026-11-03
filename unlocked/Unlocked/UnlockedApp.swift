@@ -14,7 +14,11 @@ struct UnlockedApp: App {
                 .environment(store)
                 .task {
                     await store.start()
-                    state.fullStory = store.purchased
+                    if let shot = UserDefaults.standard.string(forKey: "shot") {
+                        state.prepareShot(shot)
+                    } else {
+                        state.fullStory = store.purchased
+                    }
                 }
                 .onChange(of: store.purchased) { _, owned in
                     state.fullStory = owned
