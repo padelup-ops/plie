@@ -77,29 +77,29 @@ BETA_DESCRIPTION = {
     "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec ton temps ouvert et fermé, un bilan de la semaine et des widgets comme les pas dans Santé.",
 }
 WHATS_NEW = {
-    "en-US": """Foldly is now on the App Store 🎉
+    "en-US": """Foldly is now free on the App Store!
 
 Install it from the App Store to keep your data: it simply replaces this beta. The beta ends on November 9.
 
 Thank you so much for testing Foldly and for all your ideas!
 
-New in this build: a simpler app: just the essentials on the outer screen (unfold for everything), and a short guided tour (Settings > Help), leaderboards with Game Center and My theme, both with Foldly+ (tap the 🏆 trophy on the home screen, thanks Matthew for the idea!), the Aurora theme (Settings > Theme), set your own daily limit (tap the number in Settings), break reminder, numbers on Apple Watch, desk mode.
+This build is the same as the App Store version 1.0.3: Foldly is free, and Foldly+ unlocks leaderboards with Game Center, My theme, the Aurora theme and more with a single purchase. Bought Foldly 1.0? You keep everything.
 
-Before you switch, a 2-minute test helps a lot:
+A 2-minute test helps a lot:
 1. Close Foldly, fold your Duo 10 times, then compare the app, the widget and the Apple Watch complication. Same number?
-2. Desk mode: try it held like a book, then set on the table. Which one would you really use?
+2. Try the guided tour (Settings > Help). Is anything still hard to find?
 3. Reply with your iPhone model.""",
-    "fr-FR": """Foldly est disponible sur l'App Store 🎉
+    "fr-FR": """Foldly est maintenant gratuit sur l'App Store !
 
 Installe-le depuis l'App Store pour garder tes données : il remplace simplement cette bêta. La bêta s'arrête le 9 novembre.
 
 Merci pour ton aide et pour toutes tes idées !
 
-Nouveau dans ce build : une app plus simple : l'essentiel sur l'écran extérieur (déplie pour tout voir), et une courte visite guidée (Réglages > Aide), les classements Game Center et Mon thème, avec Foldly+ (touche le trophée 🏆 sur l'écran d'accueil, merci Matthew pour l'idée !), le thème Aurore (Réglages > Thème), fixe ta propre limite par jour (touche le chiffre dans Réglages), rappel de pause, chiffres sur l'Apple Watch, mode bureau.
+Ce build est le même que la version 1.0.3 de l'App Store : Foldly est gratuit, et Foldly+ débloque les classements Game Center, Mon thème, le thème Aurore et plus, en un seul achat. Tu as acheté Foldly 1.0 ? Tu gardes tout.
 
-Avant de changer, un test de 2 minutes nous aide beaucoup :
+Un test de 2 minutes nous aide beaucoup :
 1. Ferme Foldly, plie ton Duo 10 fois, puis compare l'app, le widget et la complication de l'Apple Watch. Même chiffre ?
-2. Mode bureau : essaie-le tenu comme un livre, puis posé sur la table. Lequel utiliserais-tu vraiment ?
+2. Essaie la visite guidée (Réglages > Aide). Quelque chose est encore difficile à trouver ?
 3. Réponds en indiquant ton modèle d'iPhone.""",
 }
 
