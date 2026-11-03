@@ -1,15 +1,48 @@
 import SwiftUI
 
-/// L'image à partager : la journée en un coup d'œil. Couleurs fixes, pour qu'elle rende pareil partout.
+/// Les couleurs de la carte, selon le thème choisi (couleurs fixes, pour qu'elle rende pareil partout).
+struct ShareCardPalette {
+    var top: Color
+    var bottom: Color
+    var accent: Color
+    var bar: Color
+    var ink: Color
+    var over = Color(red: 1.0, green: 0.45, blue: 0.42)
+    var aurora = false
+
+    static func of(_ look: DFLook) -> ShareCardPalette {
+        switch look {
+        case .night:
+            return .init(top: Color(red: 0.055, green: 0.078, blue: 0.078), bottom: Color(red: 0.05, green: 0.21, blue: 0.19),
+                         accent: Color(red: 0.36, green: 0.89, blue: 0.78), bar: Color(red: 0.12, green: 0.42, blue: 0.37), ink: .white)
+        case .classic:
+            return .init(top: Color(red: 0.97, green: 0.98, blue: 0.98), bottom: Color(red: 0.86, green: 0.94, blue: 0.92),
+                         accent: Color(red: 0.2, green: 0.62, blue: 0.55), bar: Color(red: 0.2, green: 0.62, blue: 0.55).opacity(0.35),
+                         ink: Color(red: 0.08, green: 0.1, blue: 0.1), over: Color(red: 0.86, green: 0.25, blue: 0.22))
+        case .minimal:
+            return .init(top: .white, bottom: Color(white: 0.95), accent: .black, bar: Color.black.opacity(0.18), ink: .black,
+                         over: Color(red: 0.86, green: 0.25, blue: 0.22))
+        case .aurora:
+            return .init(top: Aurora.deep, bottom: Aurora.night, accent: Aurora.mint, bar: Color.white.opacity(0.22), ink: .white, aurora: true)
+        case .custom:
+            let dark = CustomTheme.isDark
+            return .init(top: CustomTheme.top, bottom: CustomTheme.bottom, accent: CustomTheme.accent,
+                         bar: CustomTheme.accent.opacity(0.4), ink: dark ? .white : Color(red: 0.08, green: 0.08, blue: 0.1))
+        }
+    }
+}
+
+/// L'image à partager : la journée en un coup d'œil, aux couleurs du thème.
 struct ShareCard: View {
     let stats: ClapetStats
     let date: Date
+    var palette: ShareCardPalette = .of(DFLook.current)
 
-    private let top = Color(red: 0.055, green: 0.078, blue: 0.078)
-    private let bottom = Color(red: 0.05, green: 0.21, blue: 0.19)
-    private let mint = Color(red: 0.36, green: 0.89, blue: 0.78)
-    private let bar = Color(red: 0.12, green: 0.42, blue: 0.37)
-    private let over = Color(red: 1.0, green: 0.45, blue: 0.42)
+    private var top: Color { palette.top }
+    private var bottom: Color { palette.bottom }
+    private var mint: Color { palette.accent }
+    private var bar: Color { palette.bar }
+    private var over: Color { palette.over }
 
     var body: some View {
         let today = stats.day(date).closes
@@ -24,17 +57,17 @@ struct ShareCard: View {
             Spacer(minLength: 12)
             Text("Today I folded my phone")
                 .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(.white.opacity(0.85))
+                .foregroundStyle(palette.ink.opacity(0.85))
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text("\(today)")
                     .font(.system(size: 96, weight: .light))
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(palette.aurora ? AnyShapeStyle(Aurora.glow) : AnyShapeStyle(palette.ink))
                 Text("times")
                     .font(.system(size: 26))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(palette.ink.opacity(0.7))
             }
             Group {
                 if stats.goalOn && left >= 0 {
@@ -56,7 +89,7 @@ struct ShareCard: View {
                             .frame(height: max(6, 88 * CGFloat(week[i].closes) / CGFloat(highest)))
                         Text(week[i].date, format: .dateTime.weekday(.narrow))
                             .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(palette.ink.opacity(0.6))
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -71,16 +104,23 @@ struct ShareCard: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(verbatim: "Foldly")
                         .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(palette.ink)
                     Text("The fold counter · App Store")
                         .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(palette.ink.opacity(0.6))
                 }
             }
         }
         .padding(26)
         .frame(width: 360, height: 450)
-        .background(LinearGradient(colors: [top, bottom], startPoint: .top, endPoint: .bottom))
+        .background {
+            if palette.aurora {
+                AuroraBackdrop(animated: false)
+            } else {
+                LinearGradient(colors: [top, bottom], startPoint: .top, endPoint: .bottom)
+            }
+        }
+        .environment(\.colorScheme, palette.ink == .white ? .dark : .light)
     }
 }
 
