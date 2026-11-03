@@ -1,0 +1,49 @@
+# Vérifie que Foldly est visible sur l'App Store (FR et US). Avec build, envoie ce build aux testeurs dès que c'est le cas.
+name: Clapet - lien App Store
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Build à envoyer aux testeurs dès que le lien marche (vide = vérifier seulement)"
+        required: false
+        default: ""
+      hours:
+        description: "Combien d'heures attendre au plus"
+        required: false
+        default: "5"
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      ORIGAMO_BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Attendre que Foldly soit sur l'App Store
+        run: |
+          end=$(( $(date +%s) + ${{ inputs.hours }} * 3600 ))
+          while :; do
+            ok=1
+            for c in fr us; do
+              n=$(curl -s "https://itunes.apple.com/lookup?id=6827349081&country=$c" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d.get('results') or [{}]; print(d.get('resultCount',0), r[0].get('trackName',''), r[0].get('formattedPrice',''))")
+              code=$(curl -s -o /dev/null -w "%{http_code}" -L "https://apps.apple.com/$c/app/id6827349081")
+              echo "$(date -u +%H:%M) $c : recherche « $n » · page $code"
+              case "$n" in 0*) ok=0;; esac
+              [ "$code" = 200 ] || ok=0
+            done
+            [ $ok = 1 ] && { echo "LIEN OK"; echo "live=1" >> "$GITHUB_ENV"; break; }
+            [ $(date +%s) -ge $end ] && { echo "PAS ENCORE EN LIGNE"; break; }
+            sleep 600
+          done
+      - name: Envoyer le build aux testeurs
+        if: env.live == '1' && inputs.build != ''
+        env:
+          BUILD_NUMBER: ${{ inputs.build }}
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc.py 2>&1 | tee beta.txt
