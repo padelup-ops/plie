@@ -37,7 +37,10 @@ REVIEW_NOTES = (
     "\"When iPhone is Closed\" (Shortcuts > Automation). The app shows these steps under \"Count even when the app is closed\".\n\n"
     "Following Guideline 5.2.5, the app was renamed from DUO FOLDS to Foldly: the Apple product name is no longer used "
     "in the app name, the name shown on the device or the metadata.\n\n"
-    "Paid app: everything is included, there is no in-app purchase, no account, no ads and no data collection. "
+    "Free app with one optional in-app purchase, Foldly+ (non-consumable, com.padelup.clapet.plus). Open it from the \"Plus\" "
+    "button at the top of the main screen, or tap a locked widget or the full history. It unlocks the medium, large and Lock Screen "
+    "widgets, limit alerts, the full history and records, widget colors and CSV export. Restore Purchases is on the same screen "
+    "and in Settings. People who bought the paid version 1.0 keep everything without paying again. No account, no ads, no data collection. "
     "Numbers stay on the device (shared with the widgets through the keychain).")
 
 if os.environ.get("LISTING_JSON"):
@@ -198,6 +201,15 @@ else:
 # Les nouveautés affichées sur l'App Store, par version.
 RELEASE_NOTES = {
     "1.0.3": WHATS_NEW_103,
+    "1.0.4": {
+        "en-US": "• Foldly+ is now available: every widget, limit alerts, your full history, widget colors and CSV export, in one purchase.\n• Fixes and improvements.",
+        "fr-FR": "• Foldly+ est maintenant disponible : tous les widgets, les alertes de limite, tout l'historique, les couleurs des widgets et l'export CSV, en un seul achat.\n• Corrections et améliorations.",
+        "de-DE": "• Foldly+ ist jetzt verfügbar: alle Widgets, Limit-Hinweise, dein ganzer Verlauf, Widget-Farben und CSV-Export, mit einem einzigen Kauf.\n• Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• Foldly+ ya está disponible: todos los widgets, avisos de límite, todo tu historial, colores de widgets y exportación CSV, en una sola compra.\n• Correcciones y mejoras.",
+        "ja": "• Foldly+が利用可能になりました：すべてのウィジェット、上限の通知、全履歴、ウィジェットの色、CSV書き出しを一度の購入で。\n• 不具合の修正と改善。",
+        "ko": "• 이제 Foldly+를 이용할 수 있습니다: 모든 위젯, 한도 알림, 전체 기록, 위젯 색상, CSV 내보내기를 한 번의 구입으로.\n• 버그 수정 및 개선.",
+        "zh-Hans": "• Foldly+ 现已推出：所有小组件、限额提醒、完整历史、小组件颜色和 CSV 导出，一次购买即可。\n• 问题修复和改进。",
+    },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
 if NEW_VERSION:
@@ -217,7 +229,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION != "1.0.4" else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -262,7 +274,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION != "1.0.4" else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
@@ -433,9 +445,13 @@ if SUBMIT:
         st = x["attributes"].get("state")
         print("       achat", x["attributes"].get("productId"), st)
         if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
-            step(f"achat {x['attributes'].get('productId')} envoyé avec la version", call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
+            r_iap = step(f"achat {x['attributes'].get('productId')} envoyé avec la version", call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
                  "type": "inAppPurchaseSubmissions", "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}}),
-                 tolerate=("already", "STATE_ERROR"))
+                 tolerate=("already",))
+            if isinstance(r_iap, dict) and "error" in r_iap and "already" not in r_iap.get("detail", ""):
+                print(r_iap.get("detail", "")[:3000])
+                print("\nPAS ENVOYÉ : l'achat intégré n'a pas pu partir avec la version")
+                sys.exit(1)
     r = step("ENVOI À LA VÉRIFICATION D'APPLE", call("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
          "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}}))
     v = call("GET", f"/v1/appStoreVersions/{vid}").get("data", {}).get("attributes", {})
