@@ -78,7 +78,8 @@ step("catégories", call("PATCH", f"/v1/appInfos/{info['id']}", {"data": {"type"
 
 # 3. Version en préparation : description, mots-clés, texte promotionnel
 versions = call("GET", f"/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS&limit=10").get("data", [])
-version = next((x for x in versions if x["attributes"].get("appStoreState") == "PREPARE_FOR_SUBMISSION"), None)
+EDITABLE = ("PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED", "INVALID_BINARY")
+version = next((x for x in versions if x["attributes"].get("appStoreState") in EDITABLE), None)
 if not version:
     print("aucune version en préparation :", [(x["attributes"].get("versionString"), x["attributes"].get("appStoreState")) for x in versions])
     sys.exit(1)
