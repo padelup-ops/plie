@@ -1,0 +1,4 @@
+2026-11-03 14:12:14.912 xcodebuild[4218:16149] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/Unlocked_2026-11-03_14-12-14.910.xcdistributionlogs".
+Exported Unlocked to: /Users/runner/work/_temp/local
+** EXPORT SUCCEEDED **
+
