@@ -82,7 +82,7 @@ jobs:
           # scène | écran | durée (s) | charnière simulée
           cat > scenes.txt <<'EOF'
           hub|hub|6|
-          boite|boite|8.5|0:4,3.0:4,3.6:178
+          boite|boite|15|0:4,3.0:4,3.6:178
           croco|croco|9|0:4,2.6:4,3.2:178
           coupDoeil|coupDoeil|10.5|0:178,3.6:178,4.1:4,7.4:4,7.9:178
           puissance|puissance|10|
