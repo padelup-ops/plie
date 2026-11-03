@@ -1,0 +1,34 @@
+# Publie la version validée (sortie manuelle) et passe l'app en gratuit ; puis envoie le build aux testeurs publics.
+name: Clapet - publier
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version validée à publier"
+        default: "1.0.3"
+      beta_build:
+        description: "Build à envoyer ensuite aux testeurs publics (vide = aucun)"
+        default: ""
+jobs:
+  golive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      ORIGAMO_BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Publier et passer en gratuit
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_golive.py 2>&1 | tee golive.txt
+          grep -q "PUBLIÉE" golive.txt && echo "published=1" >> "$GITHUB_ENV" || true
+      - name: Envoyer le build aux testeurs publics
+        if: env.published == '1' && inputs.beta_build != ''
+        env:
+          BUILD_NUMBER: ${{ inputs.beta_build }}
+          SKIP_NOTES: "0"
+        run: python3 clapet/tools/asc.py 2>&1 | tee beta.txt
