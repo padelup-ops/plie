@@ -222,6 +222,10 @@ struct ClassicHomeView: View {
         case "plus": plusReason = .menu
         case "week": showWeek = true
         case "widgetsGallery": showWidgets = true
+        case "boards": showBoards = true
+        case "hours": showHours = true
+        case "month": showMonth = true
+        case "share": showShare = true
         default: break
         }
         let keys = Demo.hinge

@@ -1,0 +1,121 @@
+# Foldly : captures des écrans de l'app sur le simulateur iPhone Duo (mode démo), dans chaque langue,
+# pour les captures App Store (posées ensuite sur le modèle 3D). Publiées dans la branche ci-clapet-shots.
+
+name: Clapet - captures App Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      langs:
+        description: "Langues"
+        required: false
+        default: "en fr de es ja ko zh-Hans"
+jobs:
+  film:
+    runs-on: xcode-27
+    timeout-minutes: 75
+    permissions:
+      contents: write
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v5
+
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          xcodebuild -version
+
+      - name: Générer le projet
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen >/dev/null 2>&1 || true
+          if ! command -v xcodegen >/dev/null; then
+            curl -sSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/latest/download/xcodegen.zip
+            unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP/xg"
+            echo "$RUNNER_TEMP/xg/xcodegen/bin" >> "$GITHUB_PATH"
+            export PATH="$RUNNER_TEMP/xg/xcodegen/bin:$PATH"
+          fi
+          cd clapet && xcodegen generate
+
+      - name: Préparer le simulateur iPhone Duo
+        run: |
+          mkdir -p rushes
+          find_runtime() {
+            xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes']
+                if r.get('platform') == 'iOS' and r.get('isAvailable')
+                and any('Duo' in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
+          print(rs[-1]['identifier'] if rs else '')"
+          }
+          RUNTIME=$(find_runtime)
+          if [ -z "$RUNTIME" ]; then
+            xcodebuild -downloadPlatform iOS 2>&1 | tail -5
+            RUNTIME=$(find_runtime)
+          fi
+          DEVICE_TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Duo' in x['name']]
+          print(d[0]['identifier'] if d else '')")
+          echo "runtime=$RUNTIME devicetype=$DEVICE_TYPE" | tee rushes/simulateur.txt
+          UDID=$(xcrun simctl create "Duo Folds" "$DEVICE_TYPE" "$RUNTIME")
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 --wifiBars 3 --cellularBars 4 || true
+
+      - name: Compiler et installer l'app
+        run: |
+          set -o pipefail
+          cd clapet
+          xcodebuild build -project Clapet.xcodeproj -scheme Clapet -configuration Debug \
+            -sdk iphonesimulator -destination "id=$UDID" -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee ../rushes/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" ../rushes/build.log
+          APP=build/Build/Products/Debug-iphonesimulator/Clapet.app
+          xcrun simctl install "$UDID" "$APP"
+          BID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist")
+          echo "BID=$BID" >> "$GITHUB_ENV"
+          gzip -f ../rushes/build.log
+
+      - name: Capturer les écrans
+        run: |
+          mkdir -p shots
+          # scène | écran | arguments
+          cat > scenes.txt <<EOF
+          home|home|-look classic -demoToday 46
+          limit|home|-look night -demoToday 57
+          aurora|home|-look aurora -demoToday 23
+          desk|home|-look aurora -demoToday 23 -demoDesk 1
+          boards|boards|-look night -demoToday 23
+          history|history|-look classic -demoToday 46
+          hours|hours|-look classic -demoToday 46
+          EOF
+          for L in ${{ github.event.inputs.langs }}; do
+            LOC=$(echo "$L" | sed 's/-/_/'); case "$L" in en) LOC=en_US;; fr) LOC=fr_FR;; de) LOC=de_DE;; es) LOC=es_ES;; ja) LOC=ja_JP;; ko) LOC=ko_KR;; zh-Hans) LOC=zh_CN;; esac
+            while IFS='|' read -r S R X; do
+              S=$(echo "$S" | xargs); [ -z "$S" ] && continue
+              xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+              sleep 1
+              xcrun simctl launch "$UDID" "$BID" -screen "$R" -demoSeed 1 -demoPlus 1 -demoGoalOn 1 -demoLimit 60 -demoDelay 1 \
+                -AppleLanguages "($L)" -AppleLocale "$LOC" -tourSeen.1.0.3 YES -launchPartySeen YES -boardsSeen YES $X > /dev/null 2>&1 || true
+              sleep 9
+              for D in 0 1; do xcrun simctl io "$UDID" screenshot --display=$D "shots/$L-$S-d$D.png" > /dev/null 2>&1 || true; done
+            done < scenes.txt
+          done
+          ls -la shots | head -80
+
+      - name: Publier dans la branche ci-clapet-shots
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp clapet/build.log shots/ 2>/dev/null || true
+          cd shots
+          git init -q -b ci-clapet-shots
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -qm "Captures Foldly ${{ github.run_number }}"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-shots
