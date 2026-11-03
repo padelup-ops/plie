@@ -213,6 +213,11 @@ struct SettingsView: View {
                     Button { showTour = true } label: {
                         Label { Text("Guided tour") } icon: { Image(systemName: "map") }
                     }
+                    if !store.isTestBuild {
+                        Link(destination: ReviewRule.writeReviewURL) {
+                            Label { Text("Rate Foldly on the App Store") } icon: { Image(systemName: "star.fill").foregroundStyle(.yellow) }
+                        }
+                    }
                     NavigationLink {
                         advanced
                     } label: {

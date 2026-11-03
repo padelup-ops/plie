@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 import UIKit
 
 // MARK: - Le look de l'app, au choix
@@ -108,6 +109,7 @@ struct ContentView: View {
     @State private var askLook = false
     @Environment(ClapetStore.self) private var store
     @Environment(\.openURL) private var openURL
+    @Environment(\.requestReview) private var requestReview
     @State private var showSurvey = false
     @State private var showTour = false
     /// Écran extérieur : « Voir le détail » montre l'accueil complet (jusqu'au prochain pli).
@@ -194,6 +196,12 @@ struct ContentView: View {
             // Après une mise à jour : la visite guidée, une fois (pas pendant le choix du thème ni le tournage).
             if !askLook && !lookRaw.isEmpty && !TourRule.seen && !Demo.seeded && Demo.screen == nil { showTour = true }
             checkSurvey()
+            // La note sur l'App Store : un peu plus tard, si rien d'autre n'est ouvert.
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            if !askLook && !showSurvey && !showTour && ReviewRule.shouldAsk(model.stats, isTestBuild: store.isTestBuild) {
+                ReviewRule.markAsked()
+                requestReview()
+            }
             WeekRecapNotice.schedule(model.stats)
             MonthRecapNotice.schedule()
             WatchSync.shared.start(model.stats)
