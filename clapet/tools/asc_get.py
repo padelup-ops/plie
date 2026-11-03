@@ -22,3 +22,5 @@ for path in os.environ["ASC_PATHS"].split():
     for d in (r.get("data") if isinstance(r.get("data"), list) else [r.get("data") or r]):
         if isinstance(d, dict):
             print(d.get("type"), d.get("id"), json.dumps(d.get("attributes", d), ensure_ascii=False)[:600])
+    for d in r.get("included", []) or []:
+        print("inclus", d.get("type"), d.get("id"), json.dumps(d.get("attributes", {}), ensure_ascii=False)[:1500])
