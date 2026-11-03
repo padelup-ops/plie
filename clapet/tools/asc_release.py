@@ -287,12 +287,24 @@ if SITE:
         print(f"       {SITE}/{path} -> {code}")
         if code != 200:
             problems.append(f"page {path}")
+    _site_ok = {}
+
+    def site_lang(locale):
+        """La langue du site pour cette langue de fiche (l'anglais si le site n'a pas cette langue)."""
+        lang = LOCALES.get(locale, "en")
+        if lang not in _site_ok:
+            try:
+                _site_ok[lang] = urllib.request.urlopen(f"{SITE}/{lang}/privacy.html", timeout=20).getcode() == 200
+            except Exception:
+                _site_ok[lang] = False
+        return lang if _site_ok[lang] else "en"
+
     for l in call("GET", f"/v1/appInfos/{info_id}/appInfoLocalizations").get("data", []):
-        lang = LOCALES.get(l["attributes"]["locale"], "en")
+        lang = site_lang(l["attributes"]["locale"])
         step(f"confidentialité {l['attributes']['locale']}", call("PATCH", f"/v1/appInfoLocalizations/{l['id']}", {"data": {
             "type": "appInfoLocalizations", "id": l["id"], "attributes": {"privacyPolicyUrl": f"{SITE}/{lang}/privacy.html"}}}))
     for l in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations").get("data", []):
-        lang = LOCALES.get(l["attributes"]["locale"], "en")
+        lang = site_lang(l["attributes"]["locale"])
         step(f"assistance {l['attributes']['locale']}", call("PATCH", f"/v1/appStoreVersionLocalizations/{l['id']}", {"data": {
             "type": "appStoreVersionLocalizations", "id": l["id"], "attributes": {"supportUrl": f"{SITE}/{lang}/", "marketingUrl": f"{SITE}/{lang}/"}}}))
 else:
