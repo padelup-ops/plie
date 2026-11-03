@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var confirmReset = false
     @State private var showPlus = false
+    @State private var showTour = false
     @State private var gameCenter = GameCenter.shared
     @State private var leaderboard: String?
     @State private var alertsDenied = false
@@ -239,6 +240,9 @@ struct SettingsView: View {
                     Button { showAuto = true } label: {
                         Label { Text("Set up automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") }
                     }
+                    Button { showTour = true } label: {
+                        Label { Text("Guided tour: where to find everything") } icon: { Image(systemName: "map") }
+                    }
                 } header: {
                     Text("How it counts")
                 }
@@ -275,6 +279,7 @@ struct SettingsView: View {
             .sheet(item: Binding(get: { leaderboard.map(LeaderboardID.init) }, set: { leaderboard = $0?.id })) { item in
                 LeaderboardScreen(leaderboardID: item.id).ignoresSafeArea()
             }
+            .fullScreenCover(isPresented: $showTour) { FeatureTour() }
             .sheet(isPresented: $showPlus) {
                 PlusView().environment(model).environment(store)
             }

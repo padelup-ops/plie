@@ -93,6 +93,7 @@ struct ContentView: View {
     @Environment(ClapetStore.self) private var store
     @Environment(\.openURL) private var openURL
     @State private var showSurvey = false
+    @State private var showTour = false
     @AppStorage(DeskRule.key) private var deskOn = true
     /// L'animation d'ouverture, au lancement de l'app seulement.
     @State private var opening = OpeningRule.shouldShow(lookChosen: !(UserDefaults.standard.string(forKey: DFLook.key) ?? "").isEmpty)
@@ -142,9 +143,10 @@ struct ContentView: View {
                 showSurvey = false
             }
         }
+        .fullScreenCover(isPresented: $showTour, onDismiss: { checkSurvey() }) { FeatureTour() }
         .sheet(isPresented: $askLook, onDismiss: {
             if lookRaw.isEmpty { lookRaw = DFLook.classic.rawValue }
-            checkSurvey()
+            if !TourRule.seen { showTour = true } else { checkSurvey() }
         }) {
             LookPickerView()
                 .presentationDetents([.medium, .large])
@@ -152,6 +154,8 @@ struct ContentView: View {
         .task {
             // Après l'animation d'ouverture.
             try? await Task.sleep(nanoseconds: 2_800_000_000)
+            // Après une mise à jour : la visite guidée, une fois (pas pendant le choix du thème ni le tournage).
+            if !askLook && !lookRaw.isEmpty && !TourRule.seen && !Demo.seeded && Demo.screen == nil { showTour = true }
             checkSurvey()
             WeekRecapNotice.schedule(model.stats)
             MonthRecapNotice.schedule()
@@ -164,7 +168,7 @@ struct ContentView: View {
     }
 
     private func checkSurvey() {
-        guard !askLook, !showSurvey, !opening else { return }
+        guard !askLook, !showSurvey, !opening, !showTour else { return }
         if SurveyRule.shouldPresent(isTestBuild: store.isTestBuild) {
             SurveyRule.markPresented()
             showSurvey = true

@@ -195,25 +195,17 @@ else:
 # ---------------------------------------------------------------- nouvelle version (NEW_VERSION=1.0.1…)
 # Les nouveautés affichées sur l'App Store, par version.
 RELEASE_NOTES = {
-    "1.0.2": {
-        "en-US": "• Leaderboards with Game Center: compare your longest streak under your limit, and your days under your limit over 30 days, with other Foldly users and your friends. Off by default, only your two scores are shared, through Apple.\n"
-                 "• Thanks to our beta testers for the idea!",
-        "fr-FR": "• Classements avec Game Center : compare ta plus longue série sous ta limite, et tes jours sous ta limite sur 30 jours, avec les autres utilisateurs de Foldly et tes amis. Désactivé par défaut, seuls tes deux scores sont partagés, via Apple.\n"
-                 "• Merci à nos bêta-testeurs pour l'idée !",
-    },
-    "1.0.1": {
-        "en-US": "• New Aurora theme: a night sky with northern lights that sway with your hinge, and glowing numbers.\n"
-                 "• Apple Watch app: today's folds on your wrist, your week with the number of each day, your time open and closed, and complications for your watch face.\n"
-                 "• Break reminder: when your Duo stays open for a while, Foldly suggests a short break, on your iPhone or your Apple Watch.\n"
-                 "• Desk mode: open your Duo halfway, like a book or a little laptop, and Foldly shows your count and details on two pages.\n"
-                 "• Your hours and Monthly recap: see when you unfold the most, and how your month compares.\n"
-                 "• New widgets, a Count a fold button for Control Center, and Foldly+ to unlock everything with a single purchase. Bought Foldly 1.0? You keep everything, nothing to pay.",
-        "fr-FR": "• Nouveau thème Aurore : un ciel de nuit avec des aurores boréales qui ondulent avec ta charnière, et des chiffres lumineux.\n"
-                 "• App Apple Watch : les plis du jour au poignet, ta semaine avec le chiffre de chaque jour, ton temps ouvert et fermé, et des complications pour ton cadran.\n"
-                 "• Rappel de pause : quand ton Duo reste ouvert longtemps, Foldly te propose une petite pause, sur ton iPhone ou ton Apple Watch.\n"
-                 "• Mode bureau : ouvre ton Duo à moitié, comme un livre ou un petit portable, et Foldly affiche ton chiffre et tes détails sur deux pages.\n"
-                 "• Tes heures et Bilan du mois : vois quand tu déplies le plus, et compare ton mois au précédent.\n"
-                 "• Nouveaux widgets, un bouton Compter un pli dans le Centre de contrôle, et Foldly+ pour tout débloquer en un seul achat. Tu as acheté Foldly 1.0 ? Tu gardes tout, sans rien payer.",
+    "1.0.3": {
+        "en-US": "• Foldly is now free! Foldly+ unlocks everything with a single purchase. Bought Foldly 1.0? You keep everything, nothing to pay.\n"
+                 "• Leaderboards with Game Center: your longest streak under your limit, and your days under your limit over 30 days. Off by default, only your two scores are shared, through Apple.\n"
+                 "• New Aurora theme: a night sky with northern lights that sway with your hinge, and glowing numbers.\n"
+                 "• Apple Watch app: today's folds on your wrist, your week with the number of each day, and complications.\n"
+                 "• Break reminder, desk mode, your own daily limit to the fold, Your hours, Monthly recap, new widgets, and a guided tour to find everything.",
+        "fr-FR": "• Foldly est maintenant gratuit ! Foldly+ débloque tout en un seul achat. Tu as acheté Foldly 1.0 ? Tu gardes tout, sans rien payer.\n"
+                 "• Classements avec Game Center : ta plus longue série sous ta limite, et tes jours sous ta limite sur 30 jours. Désactivé par défaut, seuls tes deux scores sont partagés, via Apple.\n"
+                 "• Nouveau thème Aurore : un ciel de nuit avec des aurores boréales qui ondulent avec ta charnière, et des chiffres lumineux.\n"
+                 "• App Apple Watch : les plis du jour au poignet, ta semaine avec le chiffre de chaque jour, et des complications.\n"
+                 "• Rappel de pause, mode bureau, ta propre limite au pli près, Tes heures, Bilan du mois, nouveaux widgets, et une visite guidée pour tout trouver.",
     },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
