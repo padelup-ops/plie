@@ -2,6 +2,17 @@
 
 enum KoreanStrings {
     static let table: [String: String] = [
+        "TAPE-TAPE": "연타 대결",
+        "Qui tape le plus vite ?": "누가 가장 빨리 탭할까?",
+        "À deux, chacun sa moitié : tape le plus de fois possible avant la fin du chrono.": "둘이서 절반씩: 시간이 끝나기 전에 최대한 많이 탭하세요.",
+        "Record : {} tapes": "기록: {}번",
+        "Tape !": "탭!",
+        "{} tapes": "{}번",
+        "Choisis la durée : 10, 20 ou 30 secondes.": "시간을 고르세요: 10초, 20초, 30초.",
+        "Au top, tape ta moitié le plus vite possible, avec un ou plusieurs doigts.": "출발 신호에 맞춰 한 손가락이든 여러 손가락이든 내 쪽을 최대한 빨리 탭하세요.",
+        "Celui qui a tapé le plus de fois gagne.": "가장 많이 탭한 사람이 승리.",
+        "Tous les iPhone": "모든 iPhone",
+        "Pensé pour le Duo": "Duo 전용",
         "{} / {} plantes": "식물 {} / {}",
         "Fais fleurir les 8 plantes pour compléter ton jardin.": "식물 8개를 모두 피워 정원을 완성하세요.",
         "+1 pour toi !": "나에게 +1!",

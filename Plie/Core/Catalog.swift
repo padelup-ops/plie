@@ -75,7 +75,7 @@ struct HowToStep: Identifiable {
 }
 
 enum GameID: String, CaseIterable, Identifiable {
-    case duels, mots, chifoumi, doigts, sourire
+    case tape, duels, mots, chifoumi, doigts, sourire
     case boite, croco, bonneteau, coupDoeil, bombe, dessine, pliou, luciole
     case briques, morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme
 
@@ -83,6 +83,7 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .tape: return L("TAPE-TAPE")
         case .duels: return L("DUELS")
         case .mots: return L("MOTS INTERDITS")
         case .chifoumi: return L("CHIFOUMI")
@@ -116,6 +117,7 @@ enum GameID: String, CaseIterable, Identifiable {
     /// Une phrase courte pour la vignette de l'accueil.
     var tagline: String {
         switch self {
+        case .tape: return L("Qui tape le plus vite ?")
         case .duels: return L("10 mini-duels express, face à face")
         case .mots: return L("Fais deviner sans dire les mots interdits")
         case .chifoumi: return L("En face, on joue avec sa main, sans toucher")
@@ -148,6 +150,7 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
+        case .tape: return Theme.tape
         case .duels: return Theme.duels
         case .mots: return Theme.mots
         case .chifoumi: return Theme.chifoumi
@@ -180,6 +183,7 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var symbol: String {
         switch self {
+        case .tape: return "hand.tap.fill"
         case .duels: return "bolt.fill"
         case .mots: return "text.bubble.fill"
         case .chifoumi: return "hand.raised.fill"
@@ -213,7 +217,7 @@ enum GameID: String, CaseIterable, Identifiable {
     var posture: Posture {
         switch self {
         case .boite, .croco: return .closedOpen
-        case .duels: return .flat
+        case .duels, .tape: return .flat
         case .mots: return .book
         case .coupDoeil, .bombe, .pliou, .luciole: return .openClose
         case .dessine, .bonneteau, .chifoumi, .doigts, .sourire: return .book
@@ -229,7 +233,7 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme, .briques: return L("Seul")
         case .croco: return L("1 à 6 joueurs")
-        case .duels: return L("2 joueurs")
+        case .duels, .tape: return L("2 joueurs")
         case .chifoumi: return L("1 ou 2 joueurs")
         case .doigts: return L("Dès 4 ans")
         case .sourire: return L("2 joueurs et plus")
@@ -247,7 +251,7 @@ enum GameID: String, CaseIterable, Identifiable {
         switch self {
         case .boite, .coupDoeil, .pliou: return [.twoScreens, .solo, .kids]
         case .croco: return [.twoScreens, .family, .kids, .solo]
-        case .duels: return [.duo, .family, .kids]
+        case .duels, .tape: return [.duo, .family, .kids]
         case .mots: return [.twoScreens, .family]
         case .chifoumi: return [.twoScreens, .duo, .solo, .family, .kids]
         case .doigts: return [.twoScreens, .kids, .solo]
@@ -268,8 +272,18 @@ enum GameID: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Vrai si le jeu est aussi bien sur un iPhone sans charnière ; faux s'il est pensé pour le Duo
+    /// (il reste jouable au doigt partout).
+    var playsEverywhere: Bool {
+        switch self {
+        case .boite, .coupDoeil, .pliou, .luciole, .ferme, .rayon, .bascule: return false
+        default: return true
+        }
+    }
+
     var route: Route {
         switch self {
+        case .tape: return .tape
         case .duels: return .duels
         case .mots: return .mots
         case .chifoumi: return .chifoumi
@@ -304,6 +318,7 @@ enum GameID: String, CaseIterable, Identifiable {
     static func of(_ route: Route) -> GameID? {
         switch route {
         case .hub: return nil
+        case .tape: return .tape
         case .duels: return .duels
         case .mots: return .mots
         case .chifoumi: return .chifoumi
@@ -337,6 +352,14 @@ enum GameID: String, CaseIterable, Identifiable {
     /// Mode d'emploi, étape par étape. `duo` : l'appareil a une charnière.
     func howTo(duo: Bool) -> [HowToStep] {
         switch self {
+        case .tape:
+            return [
+                duo ? HowToStep(symbol: "rectangle.split.1x2.fill", text: L("Déplie le Duo à plat entre vous deux : chacun sa moitié, tournée vers lui."))
+                    : HowToStep(symbol: "iphone", text: L("Posez le téléphone à plat entre vous deux : chacun sa moitié.")),
+                HowToStep(symbol: "timer", text: L("Choisis la durée : 10, 20 ou 30 secondes.")),
+                HowToStep(symbol: "hand.tap.fill", text: L("Au top, tape ta moitié le plus vite possible, avec un ou plusieurs doigts.")),
+                HowToStep(symbol: "trophy.fill", text: L("Celui qui a tapé le plus de fois gagne."))
+            ]
         case .duels:
             return [
                 duo ? HowToStep(symbol: "rectangle.split.1x2.fill", text: L("Déplie le Duo à plat entre vous deux : chacun sa moitié, tournée vers lui."))

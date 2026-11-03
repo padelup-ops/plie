@@ -21,14 +21,14 @@ struct HubView: View {
     @State private var showPostures = false
     @AppStorage("hub.shelf") private var shelfID = "all"
 
-    static let newGames: Set<GameID> = [.chifoumi, .doigts, .sourire, .duels, .mots]
+    static let newGames: Set<GameID> = [.tape, .chifoumi, .doigts, .sourire, .duels, .mots]
 
     /// Les jeux à la une : ceux qui donnent le plus envie, et qui montrent ce que le Duo sait faire.
-    static let featured: [GameID] = [.duels, .chifoumi, .boite, .croco, .sourire, .mots, .coupDoeil]
+    static let featured: [GameID] = [.duels, .tape, .chifoumi, .boite, .croco, .sourire, .mots, .coupDoeil]
 
     /// L'ordre de « Tous » : les plus parlants d'abord.
     static let allOrder: [GameID] = {
-        let curated: [GameID] = [.duels, .chifoumi, .boite, .mots, .sourire, .croco, .coupDoeil, .doigts, .rayon, .airHockey, .dessine, .bombe,
+        let curated: [GameID] = [.duels, .tape, .chifoumi, .boite, .mots, .sourire, .croco, .coupDoeil, .doigts, .rayon, .airHockey, .dessine, .bombe,
                                  .puissance, .briques, .bonneteau, .pliou, .luciole, .morpion, .billard, .filet,
                                  .bascule, .chess, .draughts, .soleil, .ferme, .ecole, .piano]
         return curated + GameID.allCases.filter { !curated.contains($0) }
@@ -44,10 +44,12 @@ struct HubView: View {
     private var shelves: [Shelf] {
         [
             Shelf(id: "all", title: L("Tous"), symbol: "square.grid.2x2.fill", games: Self.allOrder),
+            Shelf(id: "everywhere", title: L("Tous les iPhone"), symbol: "iphone",
+                  games: Self.allOrder.filter { $0.playsEverywhere }),
             Shelf(id: "duo", title: L("À deux"), symbol: "person.2.fill",
-                  games: [.duels, .chifoumi, .airHockey, .puissance, .morpion, .billard, .chess, .draughts, .bonneteau]),
+                  games: [.duels, .tape, .chifoumi, .airHockey, .puissance, .morpion, .billard, .chess, .draughts, .bonneteau]),
             Shelf(id: "party", title: L("En soirée"), symbol: "party.popper.fill",
-                  games: [.mots, .sourire, .croco, .dessine, .bombe, .chifoumi, .soleil]),
+                  games: [.tape, .mots, .sourire, .croco, .dessine, .bombe, .chifoumi, .soleil]),
             Shelf(id: "magic", title: L("La magie du Duo"), symbol: "sparkles",
                   games: [.boite, .coupDoeil, .chifoumi, .sourire, .doigts, .luciole, .pliou, .ferme]),
             Shelf(id: "fold", title: L("Seul"), symbol: "person.fill",
@@ -367,6 +369,7 @@ struct HubView: View {
         switch game {
         case .rayon: return L("\(app.rayonSolved.count) / \(RayonLevel.all.count) niveaux")
         case .bascule: return L("\(app.basculeStars.count) / \(BasculeLevel.all.count) niveaux")
+        case .tape: return (app.tapeBest.values.max() ?? 0) > 0 ? L("Record : \(app.tapeBest.values.max() ?? 0) tapes") : L("2 joueurs")
         case .duels: return app.duelsGames > 0 ? L("\(app.duelsGames) partie\(app.duelsGames > 1 ? "s" : "")") : L("\(DuelsGame.Kind.allCases.count) mini-duels")
         case .mots: return app.motsBest > 0 ? L("Record : \(app.motsBest) mots") : L("En équipes")
         case .chifoumi: return app.chifoumiGames > 0 ? L("\(app.chifoumiGames) partie\(app.chifoumiGames > 1 ? "s" : "")") : L("Sans toucher l'écran")
@@ -587,6 +590,7 @@ struct GameCard: View {
                     .font(.system(.caption, design: .rounded, weight: .bold))
                     .foregroundStyle(Paper.ink.opacity(0.66))
                     .lineLimit(2)
+                CompatibilityTag(everywhere: game.playsEverywhere)
             }
             .padding(14)
             .frame(maxWidth: .infinity, minHeight: 178, alignment: .topLeading)
@@ -614,6 +618,25 @@ struct GameCard: View {
         .accessibilityLabel(L("\(game.title). \(game.tagline). \(game.posture.label), \(game.players)."))
         .accessibilityHint(locked ? L("Jeu à débloquer") : L("Ouvre le jeu"))
         .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// Sur quels iPhone le jeu se joue le mieux : tous, ou pensé pour le Duo (jouable au doigt ailleurs).
+struct CompatibilityTag: View {
+    let everywhere: Bool
+
+    var body: some View {
+        Label(everywhere ? L("Tous les iPhone") : L("Pensé pour le Duo"),
+              systemImage: everywhere ? "iphone" : "rectangle.portrait.on.rectangle.portrait.fill")
+            .font(.system(size: 10.5, weight: .heavy, design: .rounded))
+            .labelStyle(.titleAndIcon)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .padding(.horizontal, 7)
+            .frame(height: 20)
+            .background(Capsule().fill(everywhere ? Color(hex: 0x1F9D6B).opacity(0.16) : Color(hex: 0x7A4DFF).opacity(0.16)))
+            .foregroundStyle(everywhere ? Color(hex: 0x15734E) : Color(hex: 0x5A2FD9))
+            .accessibilityHidden(true)
     }
 }
 

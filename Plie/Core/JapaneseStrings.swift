@@ -2,6 +2,17 @@
 
 enum JapaneseStrings {
     static let table: [String: String] = [
+        "TAPE-TAPE": "連打バトル",
+        "Qui tape le plus vite ?": "いちばん速く連打するのは？",
+        "À deux, chacun sa moitié : tape le plus de fois possible avant la fin du chrono.": "2人で半分ずつ：時間切れまでにできるだけたくさんタップしよう。",
+        "Record : {} tapes": "記録：{}回",
+        "Tape !": "連打！",
+        "{} tapes": "{}回",
+        "Choisis la durée : 10, 20 ou 30 secondes.": "時間を選ぼう：10秒、20秒、30秒。",
+        "Au top, tape ta moitié le plus vite possible, avec un ou plusieurs doigts.": "スタートの合図で、1本でも何本の指でもいいので自分の側をできるだけ速くタップ。",
+        "Celui qui a tapé le plus de fois gagne.": "いちばん多くタップした人の勝ち。",
+        "Tous les iPhone": "すべてのiPhone",
+        "Pensé pour le Duo": "Duo向け",
         "{} / {} plantes": "{} / {} 本の植物",
         "Fais fleurir les 8 plantes pour compléter ton jardin.": "8本の植物をすべて咲かせて、庭を完成させよう。",
         "+1 pour toi !": "あなたに+1！",

@@ -32,6 +32,7 @@ enum Route: Equatable {
     case chifoumi
     case doigts
     case sourire
+    case tape
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -111,6 +112,8 @@ final class AppState {
     private(set) var doigtsStars: [Int: Int] = [:]
     /// Record de PAS DE SOURIRE !, en secondes.
     private(set) var sourireBest: Double = 0
+    /// TAPE-TAPE : le meilleur score pour chaque durée (10, 20, 30 s).
+    private(set) var tapeBest: [Int: Int] = [:]
 
     /// LUCIOLE : meilleur total de lumières et voyages terminés.
     private(set) var lucioleBest = 0
@@ -174,6 +177,7 @@ final class AppState {
         case "chifoumi": route = .chifoumi
         case "doigts": route = .doigts
         case "sourire": route = .sourire
+        case "tape": route = .tape
         case "billard": route = .billard
         case "luciole": route = .luciole
         case "ecole": route = .ecole
@@ -207,7 +211,7 @@ final class AppState {
     // à la fin de sa première partie, puis toutes les 3 parties, et on choisit le jeu à ouvrir.
     // Le Pass Origamo ouvre tout, tout de suite.
 
-    static let starterGames: [GameID] = [.duels, .boite, .croco, .mots, .coupDoeil, .rayon]
+    static let starterGames: [GameID] = [.tape, .duels, .boite, .croco, .mots, .coupDoeil, .rayon]
 
     /// Parties à jouer pour gagner la prochaine clé.
     var gamesPerKey: Int { keysEarned == 0 ? 1 : 3 }
@@ -591,6 +595,12 @@ final class AppState {
         save()
     }
 
+    func recordTape(best: Int, seconds: Int) {
+        gamePlayed()
+        tapeBest[seconds] = max(tapeBest[seconds] ?? 0, best)
+        save()
+    }
+
     func recordSourire(best: Double) {
         gamePlayed()
         celebrate()
@@ -639,6 +649,7 @@ final class AppState {
         static let chifoumiGames = "chifoumi.games"
         static let doigtsStars = "doigts.stars"
         static let sourireBest = "sourire.best"
+        static let tapeBest = "tape.best"
         static let lucioleBest = "luciole.best"
         static let lucioleVoyages = "luciole.voyages"
         static let ecoleStars = "ecole.stars"
@@ -708,6 +719,7 @@ final class AppState {
         chifoumiGames = defaults.integer(forKey: Keys.chifoumiGames)
         doigtsStars = decode(Keys.doigtsStars).mapValues { Int($0) }
         sourireBest = defaults.double(forKey: Keys.sourireBest)
+        tapeBest = decode(Keys.tapeBest).mapValues { Int($0) }
         lucioleBest = defaults.integer(forKey: Keys.lucioleBest)
         lucioleVoyages = defaults.integer(forKey: Keys.lucioleVoyages)
         ecoleStars = decode(Keys.ecoleStars).mapValues { Int($0) }
@@ -755,6 +767,7 @@ final class AppState {
         defaults.set(chifoumiGames, forKey: Keys.chifoumiGames)
         encode(doigtsStars.mapValues { Double($0) }, Keys.doigtsStars)
         defaults.set(sourireBest, forKey: Keys.sourireBest)
+        encode(tapeBest.mapValues { Double($0) }, Keys.tapeBest)
         defaults.set(lucioleBest, forKey: Keys.lucioleBest)
         defaults.set(lucioleVoyages, forKey: Keys.lucioleVoyages)
         encode(ecoleStars.mapValues { Double($0) }, Keys.ecoleStars)

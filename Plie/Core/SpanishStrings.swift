@@ -2,6 +2,17 @@
 
 enum SpanishStrings {
     static let table: [String: String] = [
+        "TAPE-TAPE": "TAP-TAP",
+        "Qui tape le plus vite ?": "¿Quién toca más rápido?",
+        "À deux, chacun sa moitié : tape le plus de fois possible avant la fin du chrono.": "A dos, cada uno su mitad: toca el máximo de veces antes de que se acabe el tiempo.",
+        "Record : {} tapes": "Récord: {} toques",
+        "Tape !": "¡Toca!",
+        "{} tapes": "{} toques",
+        "Choisis la durée : 10, 20 ou 30 secondes.": "Elige la duración: 10, 20 o 30 segundos.",
+        "Au top, tape ta moitié le plus vite possible, avec un ou plusieurs doigts.": "A la señal, toca tu mitad lo más rápido posible, con uno o varios dedos.",
+        "Celui qui a tapé le plus de fois gagne.": "Gana quien haya tocado más veces.",
+        "Tous les iPhone": "Todos los iPhone",
+        "Pensé pour le Duo": "Pensado para el Duo",
         "{} / {} plantes": "{} / {} plantas",
         "Fais fleurir les 8 plantes pour compléter ton jardin.": "Haz florecer las 8 plantas para completar tu jardín.",
         "+1 pour toi !": "¡+1 para ti!",

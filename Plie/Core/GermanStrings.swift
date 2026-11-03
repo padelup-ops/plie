@@ -2,6 +2,17 @@
 
 enum GermanStrings {
     static let table: [String: String] = [
+        "TAPE-TAPE": "TIPP-DUELL",
+        "Qui tape le plus vite ?": "Wer tippt am schnellsten?",
+        "À deux, chacun sa moitié : tape le plus de fois possible avant la fin du chrono.": "Zu zweit, jeder eine Hälfte: Tippe so oft wie möglich, bevor die Zeit um ist.",
+        "Record : {} tapes": "Rekord: {} Tipps",
+        "Tape !": "Tippen!",
+        "{} tapes": "{} Tipps",
+        "Choisis la durée : 10, 20 ou 30 secondes.": "Wähl die Dauer: 10, 20 oder 30 Sekunden.",
+        "Au top, tape ta moitié le plus vite possible, avec un ou plusieurs doigts.": "Bei LOS tippst du so schnell wie möglich auf deine Hälfte, mit einem oder mehreren Fingern.",
+        "Celui qui a tapé le plus de fois gagne.": "Wer am öftesten getippt hat, gewinnt.",
+        "Tous les iPhone": "Alle iPhones",
+        "Pensé pour le Duo": "Fürs Duo gemacht",
         "{} / {} plantes": "{} / {} Pflanzen",
         "Fais fleurir les 8 plantes pour compléter ton jardin.": "Lass alle 8 Pflanzen blühen, um deinen Garten zu vervollständigen.",
         "+1 pour toi !": "+1 für dich!",

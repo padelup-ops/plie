@@ -2,6 +2,17 @@
 
 enum EnglishStrings {
     static let table: [String: String] = [
+        "TAPE-TAPE": "TAP BATTLE",
+        "Qui tape le plus vite ?": "Who taps the fastest?",
+        "À deux, chacun sa moitié : tape le plus de fois possible avant la fin du chrono.": "Two players, one half each: tap as many times as you can before time runs out.",
+        "Record : {} tapes": "Record: {} taps",
+        "Tape !": "Tap!",
+        "{} tapes": "{} taps",
+        "Choisis la durée : 10, 20 ou 30 secondes.": "Pick the time: 10, 20 or 30 seconds.",
+        "Au top, tape ta moitié le plus vite possible, avec un ou plusieurs doigts.": "On GO, tap your half as fast as you can, with one or more fingers.",
+        "Celui qui a tapé le plus de fois gagne.": "Whoever tapped the most wins.",
+        "Tous les iPhone": "Every iPhone",
+        "Pensé pour le Duo": "Made for Duo",
         "{} / {} plantes": "{} / {} plants",
         "Fais fleurir les 8 plantes pour compléter ton jardin.": "Grow all 8 plants to complete your garden.",
         "+1 pour toi !": "+1 for you!",

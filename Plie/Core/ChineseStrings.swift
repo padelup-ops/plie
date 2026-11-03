@@ -2,6 +2,17 @@
 
 enum ChineseStrings {
     static let table: [String: String] = [
+        "TAPE-TAPE": "连点大战",
+        "Qui tape le plus vite ?": "谁点得最快？",
+        "À deux, chacun sa moitié : tape le plus de fois possible avant la fin du chrono.": "两人各一半：在时间结束前尽可能多地点。",
+        "Record : {} tapes": "纪录：{} 下",
+        "Tape !": "点！",
+        "{} tapes": "{} 下",
+        "Choisis la durée : 10, 20 ou 30 secondes.": "选择时长：10、20 或 30 秒。",
+        "Au top, tape ta moitié le plus vite possible, avec un ou plusieurs doigts.": "开始后，用一根或几根手指尽快点你那一半。",
+        "Celui qui a tapé le plus de fois gagne.": "点得最多的人获胜。",
+        "Tous les iPhone": "所有 iPhone",
+        "Pensé pour le Duo": "为 Duo 打造",
         "{} / {} plantes": "{} / {} 株植物",
         "Fais fleurir les 8 plantes pour compléter ton jardin.": "让 8 株植物全部开花，完成你的花园。",
         "+1 pour toi !": "你 +1！",
