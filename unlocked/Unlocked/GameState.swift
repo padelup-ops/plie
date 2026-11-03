@@ -28,6 +28,8 @@ final class GameState {
     }
     var lockedAppAlert: AppKind?
     var showPaywall = false
+    /// La conversation à ouvrir en arrivant dans Messages (en touchant une bannière).
+    var pendingThread: String?
 
     private var timer: Timer?
     private let speech = AVSpeechSynthesizer()
@@ -37,6 +39,21 @@ final class GameState {
         self.key = key
         load()
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in self?.tick() }
+    }
+
+    // MARK: Ouvrir et fermer les applis
+
+    func launch(_ app: AppKind) {
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) { openApp = app }
+    }
+
+    func goHome() {
+        stopVoice()
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.9)) {
+            openApp = nil
+            openThread = nil
+        }
     }
 
     // MARK: Faits
@@ -218,6 +235,7 @@ final class GameState {
         openThread = nil
         showChapterEnd = nil
         showPaywall = false
+        GameClock.reset()
         save()
     }
 

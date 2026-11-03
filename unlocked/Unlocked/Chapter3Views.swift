@@ -36,9 +36,6 @@ struct MapsApp: View {
                 }
             }
         }
-        .navigationDestination(for: String.self) { id in
-            if let t = trips.first(where: { $0.id == id }) { TripDetail(trip: t) }
-        }
     }
 }
 
@@ -190,34 +187,76 @@ struct WeatherApp: View {
 
 struct SettingsApp: View {
     @Environment(GameState.self) private var state
+    @State private var search = ""
 
     var body: some View {
         List {
             Section {
-                Toggle(isOn: Binding(get: { state.has("airplane") }, set: { on in state.setAirplane(on) })) {
-                    Label(T("Mode avion", "Airplane Mode"), systemImage: "airplane")
+                HStack(spacing: 14) {
+                    Avatar(contact: Contact(id: "me", name: "Nina Perrin", color: Color(white: 0.6)), size: 58)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Nina Perrin").font(.title3.weight(.semibold))
+                        Text(T("Compte, sauvegardes et achats", "Account, backups and purchases")).font(.footnote).foregroundStyle(.secondary)
+                    }
                 }
-                .disabled(state.chapter < 4)
-                Label("Wi-Fi", systemImage: "wifi").badge(T("Non connecté", "Not connected"))
-                Label("Bluetooth", systemImage: "dot.radiowaves.left.and.right").badge(T("Oui", "On"))
+                .padding(.vertical, 4)
             }
             Section {
-                NavigationLink(value: "battery") { Label(T("Batterie", "Battery"), systemImage: "battery.25") }
-                NavigationLink(value: "location") { Label(T("Confidentialité · Position", "Privacy · Location"), systemImage: "location.fill") }
+                HStack(spacing: 14) {
+                    SettingsIcon(symbol: "airplane", color: .orange)
+                    Toggle(T("Mode avion", "Airplane Mode"), isOn: Binding(get: { state.has("airplane") }, set: { on in state.setAirplane(on) }))
+                        .disabled(state.chapter < 4)
+                }
+                SettingsRow(symbol: "wifi", color: .blue, title: "Wi-Fi", value: T("Non connecté", "Not Connected"))
+                SettingsRow(symbol: "dot.radiowaves.left.and.right", color: .blue, title: "Bluetooth", value: T("Oui", "On"))
+                SettingsRow(symbol: "antenna.radiowaves.left.and.right", color: .green, title: T("Données cellulaires", "Cellular"), value: "")
             }
-            Section(T("Applis", "Apps")) {
+            Section {
+                SettingsRow(symbol: "bell.badge.fill", color: .red, title: T("Notifications", "Notifications"), value: "")
+                SettingsRow(symbol: "speaker.wave.3.fill", color: .pink, title: T("Sons et vibrations", "Sounds & Haptics"), value: "")
+                SettingsRow(symbol: "hourglass", color: .indigo, title: T("Temps d'écran", "Screen Time"), value: "")
+            }
+            Section {
+                SettingsRow(symbol: "gear", color: .gray, title: T("Général", "General"), value: "")
+                NavigationLink(value: "battery") { SettingsRow(symbol: "battery.25", color: .green, title: T("Batterie", "Battery"), value: "", chevron: false) }
+                NavigationLink(value: "location") { SettingsRow(symbol: "hand.raised.fill", color: .blue, title: T("Confidentialité et sécurité", "Privacy & Security"), value: "", chevron: false) }
+            }
+            Section {
                 ForEach(state.story.usage) { u in
-                    NavigationLink(value: "app_" + u.id) { Label(u.name, systemImage: u.symbol) }
+                    NavigationLink(value: "app_" + u.id) { SettingsRow(symbol: u.symbol, color: u.spy ? .cyan : .gray, title: u.name, value: "", chevron: false) }
                 }
             }
         }
-        .navigationDestination(for: String.self) { id in
-            switch id {
-            case "battery": BatteryView()
-            case "location": LocationView()
-            default:
-                if let u = state.story.usage.first(where: { "app_" + $0.id == id }) { AppUsageDetail(usage: u) }
-            }
+        .searchable(text: $search, prompt: T("Rechercher", "Search"))
+    }
+}
+
+struct SettingsIcon: View {
+    let symbol: String
+    let color: Color
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 7, style: .continuous)
+            .fill(color.gradient)
+            .frame(width: 29, height: 29)
+            .overlay(Image(systemName: symbol).font(.system(size: 15, weight: .semibold)).foregroundStyle(.white))
+    }
+}
+
+struct SettingsRow: View {
+    let symbol: String
+    let color: Color
+    let title: String
+    let value: String
+    var chevron = true
+
+    var body: some View {
+        HStack(spacing: 14) {
+            SettingsIcon(symbol: symbol, color: color)
+            Text(title)
+            Spacer()
+            if !value.isEmpty { Text(value).foregroundStyle(.secondary) }
+            if chevron { Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Color(.tertiaryLabel)) }
         }
     }
 }

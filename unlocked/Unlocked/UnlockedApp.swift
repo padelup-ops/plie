@@ -32,17 +32,28 @@ struct RootView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
+            Color.black.ignoresSafeArea()
+
             if state.unlocked {
                 HomeScreen()
-                    .transition(.opacity)
+                    .scaleEffect(state.openApp == nil ? 1 : 0.92)
+                    .blur(radius: state.openApp == nil ? 0 : 6)
+                    .transition(.asymmetric(insertion: .scale(scale: 1.15).combined(with: .opacity), removal: .opacity))
             } else {
                 LockScreen()
-                    .transition(.opacity)
+                    .transition(.asymmetric(insertion: .opacity, removal: .scale(scale: 1.1).combined(with: .opacity)))
+            }
+
+            if let app = state.openApp {
+                AppScreen(app: app)
+                    .id(app)
+                    .transition(.scale(scale: 0.15).combined(with: .opacity))
+                    .zIndex(5)
             }
 
             if let m = state.banner {
                 BannerView(message: m)
-                    .padding(.top, 8)
+                    .padding(.top, 6)
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .zIndex(10)
             }
@@ -59,25 +70,12 @@ struct RootView: View {
                     .zIndex(30)
             }
         }
-        .animation(.easeInOut(duration: 0.35), value: state.unlocked)
+        .animation(.easeInOut(duration: 0.45), value: state.unlocked)
+        .animation(.spring(response: 0.42, dampingFraction: 0.86), value: state.openApp)
         .animation(.spring(duration: 0.4), value: state.banner?.id)
         .animation(.easeInOut, value: state.showChapterEnd)
         .animation(.easeInOut, value: state.showPaywall)
-        .fullScreenCover(item: Binding(get: { state.openApp }, set: { state.openApp = $0 })) { app in
-            AppContainer(app: app)
-                .environment(state)
-                .environment(store)
-                .overlay(alignment: .top) {
-                    if let m = state.banner {
-                        BannerView(message: m)
-                            .environment(state)
-                            .padding(.top, 8)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                    }
-                }
-                .overlay {
-                    if let n = state.showChapterEnd { ChapterEndCard(number: n).environment(state) }
-                }
-        }
+        .persistentSystemOverlays(.hidden)
+        .defersSystemGestures(on: .bottom)
     }
 }

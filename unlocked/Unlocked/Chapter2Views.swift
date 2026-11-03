@@ -170,21 +170,38 @@ struct CalendarApp: View {
                 }
             }
         }
-        .navigationDestination(for: String.self) { id in
-            if let e = state.story.events.first(where: { $0.id == id }) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(e.title).font(.title2.weight(.bold))
-                        Label(e.day + " · " + e.time, systemImage: "clock").foregroundStyle(.secondary)
-                        if !e.detail.isEmpty {
-                            Text(e.detail).padding(.top, 8)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(20)
+
+    }
+}
+
+struct EventDetail: View {
+    @Environment(GameState.self) private var state
+    let event: CalendarEvent
+
+    var body: some View {
+        List {
+            Section {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(event.title).font(.title2.weight(.bold))
+                    Text(event.day).foregroundStyle(.secondary)
+                    Text(event.time).foregroundStyle(.secondary)
                 }
-                .onAppear { state.set("seen_event_" + e.id) }
+                .padding(.vertical, 6)
+            }
+            Section {
+                LabeledContent(T("Calendrier", "Calendar")) {
+                    HStack(spacing: 6) {
+                        Circle().fill(event.color).frame(width: 10, height: 10)
+                        Text(T("Personnel", "Personal"))
+                    }
+                }
+                LabeledContent(T("Alerte", "Alert"), value: T("30 minutes avant", "30 minutes before"))
+            }
+            if !event.detail.isEmpty {
+                Section(T("Notes", "Notes")) { Text(event.detail) }
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear { state.set("seen_event_" + event.id) }
     }
 }
