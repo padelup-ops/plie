@@ -131,12 +131,6 @@ struct ClassicHomeView: View {
             .navigationTitle(Text("Foldly"))
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    if !store.hasPlus {
-                        Button { plusReason = .menu } label: {
-                            Text("Plus").font(.subheadline.weight(.semibold))
-                        }
-                        .accessibilityLabel(Text("Foldly+"))
-                    }
                     LeaderboardButton(show: $showBoards)
                     Button { showShare = true } label: {
                         Image(systemName: "square.and.arrow.up")

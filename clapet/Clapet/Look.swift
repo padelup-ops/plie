@@ -94,6 +94,8 @@ struct ContentView: View {
     @Environment(\.openURL) private var openURL
     @State private var showSurvey = false
     @State private var showTour = false
+    @State private var tourPending: TourTarget?
+    @State private var tourTarget: TourTarget?
     @AppStorage(DeskRule.key) private var deskOn = true
     /// L'animation d'ouverture, au lancement de l'app seulement.
     @State private var opening = OpeningRule.shouldShow(lookChosen: !(UserDefaults.standard.string(forKey: DFLook.key) ?? "").isEmpty)
@@ -143,7 +145,16 @@ struct ContentView: View {
                 showSurvey = false
             }
         }
-        .fullScreenCover(isPresented: $showTour, onDismiss: { checkSurvey() }) { FeatureTour() }
+        .fullScreenCover(isPresented: $showTour, onDismiss: {
+            if let t = tourPending { tourPending = nil; tourTarget = t } else { checkSurvey() }
+        }) { FeatureTour { tourPending = $0 } }
+        .sheet(item: $tourTarget) { target in
+            switch target {
+            case .autoCount: AutoCountView().environment(model)
+            case .settings: SettingsView().environment(model).environment(store)
+            case .leaderboards: LeaderboardView().environment(model)
+            }
+        }
         .sheet(isPresented: $askLook, onDismiss: {
             if lookRaw.isEmpty { lookRaw = DFLook.classic.rawValue }
             if !TourRule.seen { showTour = true } else { checkSurvey() }

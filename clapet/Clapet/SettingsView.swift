@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var confirmReset = false
     @State private var showPlus = false
     @State private var showTour = false
+    @State private var tourPending: TourTarget?
     @State private var showBoards = false
     @State private var gameCenter = GameCenter.shared
     @State private var leaderboard: String?
@@ -49,45 +50,7 @@ struct SettingsView: View {
                     Text("Foldly+")
                 }
                 }
-                Section {
-                    Picker(selection: Binding(get: { DFLook(rawValue: lookRaw)?.rawValue ?? DFLook.classic.rawValue },
-                                              set: { lookRaw = $0 })) {
-                        ForEach(DFLook.allCases) { look in
-                            look.title.tag(look.rawValue)
-                        }
-                    } label: {
-                        Text("Theme")
-                    }
-                    .pickerStyle(.segmented)
-                } header: {
-                    Text("Theme")
-                } footer: {
-                    (DFLook(rawValue: lookRaw) ?? .classic).subtitle
-                }
-                Section {
-                    HStack(spacing: 12) {
-                        ForEach(ClapetTheme.allCases) { theme in
-                            Button {
-                                if store.hasPlus { model.setTheme(theme) } else { showPlus = true }
-                            } label: {
-                                Circle()
-                                    .fill(theme.color)
-                                    .frame(width: 34, height: 34)
-                                    .overlay(Circle().stroke(Color.primary, lineWidth: model.stats.theme == theme.rawValue ? 3 : 0))
-                                    .overlay {
-                                        if !store.hasPlus && theme != .mint {
-                                            Image(systemName: "lock.fill").font(.system(size: 12, weight: .bold)).foregroundStyle(.black.opacity(0.6))
-                                        }
-                                    }
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(Text(theme.name))
-                        }
-                    }
-                    .padding(.vertical, 4)
-                } header: {
-                    Text("Widget color")
-                }
+                // 1. Mon objectif
                 Section {
                     Toggle(isOn: Binding(get: { model.stats.goalOn }, set: { model.setGoalOn($0) })) {
                         Text("Daily limit")
@@ -116,61 +79,59 @@ struct SettingsView: View {
                             }
                         }
                     }
-                } header: {
-                    Text("Daily limit")
-                } footer: {
-                    if !model.stats.goalOn {
-                        Text("Off: Foldly compares each day with your average. Turn it on to set a limit of your own.")
-                    } else if alertsDenied {
-                        Text("Notifications are off for Foldly. Turn them on in the Settings app.")
-                    } else {
-                        Text("A notification at 80 % and at 100 % of your limit.")
-                    }
-                }
-                Section {
                     Button { showBoards = true } label: {
-                        Label { Text("Open the leaderboards") } icon: { Image(systemName: "trophy.fill").foregroundStyle(.orange) }
+                        Label { Text("Leaderboards") } icon: { Image(systemName: "trophy.fill").foregroundStyle(.orange) }
                     }
                 } header: {
-                    Text("Leaderboard")
+                    Text("My goal")
                 } footer: {
-                    if let problem = gameCenter.problem {
-                        Text(problem)
-                    } else if !model.stats.goalOn {
-                        Text("Turn on a daily limit to get a score. Only days when you used your Duo count.")
-                    } else {
-                        Text("With Game Center, compare your streak and your last 30 days with other Foldly users and your friends. Only your two scores are shared, through Apple. Off by default.")
-                    }
-                }
-                Section {
-                    Toggle(isOn: Binding(get: { weekOn }, set: { on in
-                        Task {
-                            let ok = await WeekRecapNotice.setOn(on)
-                            weekOn = ok && on
-                            if weekOn { MonthRecapNotice.schedule() } else { MonthRecapNotice.cancel() }
-                            notificationsDenied = on && !ok
-                        }
-                    })) {
-                        Text("Weekly and monthly recaps")
-                    }
-                    Toggle(isOn: Binding(get: { eveningOn }, set: { on in
-                        Task {
-                            let ok = await EveningSummary.setOn(on, stats: model.stats)
-                            eveningOn = ok && on
-                            notificationsDenied = on && !ok
-                        }
-                    })) {
-                        Text("Evening summary (9:30 pm)")
-                    }
-                } header: {
-                    Text("Summaries")
-                } footer: {
-                    if notificationsDenied {
+                    if alertsDenied {
                         Text("Notifications are off for Foldly. Turn them on in the Settings app.")
+                    } else if model.stats.goalOn {
+                        Text("Tap the number to type your own limit.")
                     } else {
-                        Text("The weekly recap arrives on the last day of the week at 7 pm. The evening summary gives your folds and your time open and closed.")
+                        Text("Off: Foldly compares each day with your average.")
                     }
                 }
+
+                // 2. Apparence
+                Section {
+                    Picker(selection: Binding(get: { DFLook(rawValue: lookRaw)?.rawValue ?? DFLook.classic.rawValue },
+                                              set: { lookRaw = $0 })) {
+                        ForEach(DFLook.allCases) { look in
+                            look.title.tag(look.rawValue)
+                        }
+                    } label: {
+                        Text("Theme")
+                    }
+                    HStack(spacing: 12) {
+                        Text("Widget color")
+                        Spacer(minLength: 4)
+                        ForEach(ClapetTheme.allCases) { theme in
+                            Button {
+                                if store.hasPlus { model.setTheme(theme) } else { showPlus = true }
+                            } label: {
+                                Circle()
+                                    .fill(theme.color)
+                                    .frame(width: 26, height: 26)
+                                    .overlay(Circle().stroke(Color.primary, lineWidth: model.stats.theme == theme.rawValue ? 2.5 : 0))
+                                    .overlay {
+                                        if !store.hasPlus && theme != .mint {
+                                            Image(systemName: "lock.fill").font(.system(size: 9, weight: .bold)).foregroundStyle(.black.opacity(0.6))
+                                        }
+                                    }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(Text(theme.name))
+                        }
+                    }
+                } header: {
+                    Text("Appearance")
+                } footer: {
+                    (DFLook(rawValue: lookRaw) ?? .classic).subtitle
+                }
+
+                // 3. Notifications
                 Section {
                     Toggle(isOn: Binding(get: { breakOn }, set: { on in
                         Task {
@@ -194,10 +155,25 @@ struct SettingsView: View {
                             Text("Remind me")
                         }
                     }
-                } footer: {
-                    Text("When your Duo stays open for a while, Foldly suggests a short break. It also shows up on your Apple Watch when your iPhone is locked.")
-                }
-                Section {
+                    Toggle(isOn: Binding(get: { eveningOn }, set: { on in
+                        Task {
+                            let ok = await EveningSummary.setOn(on, stats: model.stats)
+                            eveningOn = ok && on
+                            notificationsDenied = on && !ok
+                        }
+                    })) {
+                        Text("Evening summary (9:30 pm)")
+                    }
+                    Toggle(isOn: Binding(get: { weekOn }, set: { on in
+                        Task {
+                            let ok = await WeekRecapNotice.setOn(on)
+                            weekOn = ok && on
+                            if weekOn { MonthRecapNotice.schedule() } else { MonthRecapNotice.cancel() }
+                            notificationsDenied = on && !ok
+                        }
+                    })) {
+                        Text("Weekly and monthly recaps")
+                    }
                     Toggle(isOn: Binding(get: { liveOn }, set: { on in
                         if on {
                             liveOn = LiveCounter.start(model.stats)
@@ -207,56 +183,33 @@ struct SettingsView: View {
                             liveOn = false
                         }
                     })) {
-                        Text("Live counter")
+                        Text("Count on the Lock Screen")
                     }
                 } header: {
-                    Text("Lock Screen")
+                    Text("Notifications")
                 } footer: {
-                    if liveDenied {
+                    if notificationsDenied {
+                        Text("Notifications are off for Foldly. Turn them on in the Settings app.")
+                    } else if liveDenied {
                         Text("Live Activities are off for Foldly. Turn them on in the Settings app.")
-                    } else {
-                        Text("Your count on the Lock Screen and the outer display, updated at every fold.")
                     }
                 }
+
+                // Aide
                 Section {
-                    Toggle(isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })) { Text("Sounds") }
-                    Toggle(isOn: Binding(get: { model.hapticsOn }, set: { model.setHaptics($0) })) { Text("Vibrations") }
-                    Toggle(isOn: $openingOn) { Text("Opening animation") }
-                    Toggle(isOn: $deskOn) { Text("Desk mode") }
-                } header: {
-                    Text("Feel")
-                } footer: {
-                    Text("Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top.")
-                }
-                Section {
-                    Text("On screen, Foldly reads the hinge itself. When it's not on screen, iOS doesn't tell it anything: the Shortcuts automation “When iPhone is Closed” with the action “Count a fold” takes over.")
                     Button { showAuto = true } label: {
-                        Label { Text("Set up automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") }
+                        Label { Text("Count even when the app is closed") } icon: { Image(systemName: "bolt.badge.automatic") }
                     }
                     Button { showTour = true } label: {
-                        Label { Text("Guided tour: where to find everything") } icon: { Image(systemName: "map") }
+                        Label { Text("Guided tour") } icon: { Image(systemName: "map") }
+                    }
+                    NavigationLink {
+                        advanced
+                    } label: {
+                        Label { Text("Advanced") } icon: { Image(systemName: "slider.horizontal.3") }
                     }
                 } header: {
-                    Text("How it counts")
-                }
-                .font(.footnote)
-                if store.isTestBuild && !DuoFolds.paidApp {
-                    Section {
-                        Toggle(isOn: Binding(get: { store.simulatePlus }, set: { store.setSimulatePlus($0) })) {
-                            Text("Simulate Foldly+")
-                        }
-                    } header: {
-                        Text("Test version")
-                    } footer: {
-                        Text("Only in TestFlight. In TestFlight, the purchase is free too (Apple's test mode).")
-                    }
-                }
-                Section {
-                    Button(role: .destructive) {
-                        confirmReset = true
-                    } label: {
-                        Text("Reset all folds")
-                    }
+                    Text("Help")
                 }
             }
             .navigationTitle(Text("Settings"))
@@ -272,17 +225,58 @@ struct SettingsView: View {
             .sheet(item: Binding(get: { leaderboard.map(LeaderboardID.init) }, set: { leaderboard = $0?.id })) { item in
                 LeaderboardScreen(leaderboardID: item.id).ignoresSafeArea()
             }
-            .fullScreenCover(isPresented: $showTour) { FeatureTour() }
+            .fullScreenCover(isPresented: $showTour, onDismiss: {
+                switch tourPending {
+                case .autoCount: showAuto = true
+                case .leaderboards: showBoards = true
+                default: break
+                }
+                tourPending = nil
+            }) { FeatureTour { tourPending = $0 } }
             .sheet(isPresented: $showBoards) { LeaderboardView().environment(model) }
             .sheet(isPresented: $showPlus) {
                 PlusView().environment(model).environment(store)
             }
-            .alert(Text("Reset all folds?"), isPresented: $confirmReset) {
-                Button(role: .destructive) { model.reset() } label: { Text("Reset") }
-                Button(role: .cancel) {} label: { Text("Cancel") }
-            } message: {
-                Text("Your history and records will be erased.")
+        }
+    }
+
+    /// Les réglages rarement utiles, à part pour garder la page principale simple.
+    private var advanced: some View {
+        Form {
+            Section {
+                Toggle(isOn: $deskOn) { Text("Desk mode") }
+                Toggle(isOn: $openingOn) { Text("Opening animation") }
+                Toggle(isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })) { Text("Sounds") }
+                Toggle(isOn: Binding(get: { model.hapticsOn }, set: { model.setHaptics($0) })) { Text("Vibrations") }
+            } footer: {
+                Text("Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top.")
             }
+            if store.isTestBuild && !DuoFolds.paidApp {
+                Section {
+                    Toggle(isOn: Binding(get: { store.simulatePlus }, set: { store.setSimulatePlus($0) })) {
+                        Text("Simulate Foldly+")
+                    }
+                } header: {
+                    Text("Test version")
+                } footer: {
+                    Text("Only in TestFlight. In TestFlight, the purchase is free too (Apple's test mode).")
+                }
+            }
+            Section {
+                Button(role: .destructive) {
+                    confirmReset = true
+                } label: {
+                    Text("Reset all folds")
+                }
+            }
+        }
+        .navigationTitle(Text("Advanced"))
+        .navigationBarTitleDisplayMode(.inline)
+        .alert(Text("Reset all folds?"), isPresented: $confirmReset) {
+            Button(role: .destructive) { model.reset() } label: { Text("Reset") }
+            Button(role: .cancel) {} label: { Text("Cancel") }
+        } message: {
+            Text("Your history and records will be erased.")
         }
     }
 }

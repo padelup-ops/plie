@@ -236,30 +236,25 @@ struct NightHomeView: View {
                         .frame(width: 38, height: 44)
                 }
                 .accessibilityLabel(Text("Share my day"))
-                Button { showWidgets = true } label: {
-                    Image(systemName: "square.grid.2x2.fill")
-                        .font(.title3)
-                        .frame(width: 38, height: 44)
-                }
-                .accessibilityLabel(Text("Widgets"))
             }
+            Button { showSettings = true } label: {
+                Image(systemName: "gearshape")
+                    .font(.title3)
+                    .frame(width: 38, height: 44)
+            }
+            .accessibilityLabel(Text("Settings"))
             Menu {
-                if compact {
-                    Button { showShare = true } label: { Label { Text("Share my day") } icon: { Image(systemName: "square.and.arrow.up") } }
-                    Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
-                }
-                Button { showWeek = true } label: { Label { Text("Weekly recap") } icon: { Image(systemName: "chart.bar.doc.horizontal") } }
-                Button { showMonth = true } label: { Label { Text("Monthly recap") } icon: { Image(systemName: "calendar.badge.checkmark") } }
-                Button { showHours = true } label: { Label { Text("Your hours") } icon: { Image(systemName: "clock.badge.checkmark") } }
-                Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
-                Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
                 Button {
                     if store.hasPlus { showHistory = true } else { plusReason = .history }
                 } label: { Label { Text("History") } icon: { Image(systemName: "calendar") } }
-                if !store.hasPlus {
-                    Button { plusReason = .menu } label: { Label { Text("Foldly+") } icon: { Image(systemName: "plus.circle") } }
+                Button { showWeek = true } label: { Label { Text("Weekly recap") } icon: { Image(systemName: "chart.bar.doc.horizontal") } }
+                Button { showMonth = true } label: { Label { Text("Monthly recap") } icon: { Image(systemName: "calendar.badge.checkmark") } }
+                Button { showHours = true } label: { Label { Text("Your hours") } icon: { Image(systemName: "clock.badge.checkmark") } }
+                Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
+                if compact {
+                    Button { showShare = true } label: { Label { Text("Share my day") } icon: { Image(systemName: "square.and.arrow.up") } }
                 }
-                Button { showSettings = true } label: { Label { Text("Settings") } icon: { Image(systemName: "gearshape") } }
+                Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.title3.weight(.semibold))

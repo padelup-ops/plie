@@ -111,15 +111,21 @@ struct MinimalHomeView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             Spacer()
+            LeaderboardButton(show: $showBoards)
+                .font(.body)
+                .frame(width: 40, height: 44)
+            Button { showSettings = true } label: {
+                Image(systemName: "gearshape")
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 40, height: 44)
+            }
+            .accessibilityLabel(Text("Settings"))
             Menu {
                 Button { showShare = true } label: { Label { Text("Share my day") } icon: { Image(systemName: "square.and.arrow.up") } }
                 Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
                 Button { showMonth = true } label: { Label { Text("Monthly recap") } icon: { Image(systemName: "calendar.badge.checkmark") } }
                 Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
-                Button { showAuto = true } label: { Label { Text("Automatic counting") } icon: { Image(systemName: "bolt.badge.automatic") } }
-                if !store.hasPlus {
-                    Button { plusReason = .menu } label: { Label { Text("Foldly+") } icon: { Image(systemName: "plus.circle") } }
-                }
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.body.weight(.medium))
@@ -331,7 +337,5 @@ struct MinimalHomeView: View {
         Button {
             if store.hasPlus { showHistory = true } else { plusReason = .history }
         } label: { Text("History") }
-        Button { showBoards = true } label: { Text("Leaderboards") }
-        Button { showSettings = true } label: { Text("Settings") }
     }
 }
