@@ -144,7 +144,9 @@ jobs:
           EOF
             ls "$WATCH" "$WATCH/PlugIns" || true
             for X in "$WATCH"/PlugIns/*.appex; do codesign -f -s - --entitlements "$RUNNER_TEMP/watch.entitlements" "$X"; done
-            codesign -f -s - --entitlements "$RUNNER_TEMP/watch.entitlements" "$WATCH"
+            cp "$RUNNER_TEMP/watch.entitlements" "$RUNNER_TEMP/watchapp.entitlements"
+            /usr/libexec/PlistBuddy -c "Add :com.apple.developer.game-center bool true" "$RUNNER_TEMP/watchapp.entitlements"
+            codesign -f -s - --entitlements "$RUNNER_TEMP/watchapp.entitlements" "$WATCH"
           else
             echo "::warning::Pas d'app Apple Watch dans l'archive"
           fi
