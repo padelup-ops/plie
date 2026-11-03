@@ -1,0 +1,4 @@
+déjà utilisateur App Store Connect : ['MARKETING']
+ok     ajouté au groupe interne
+testeur TestFlight : matthewbrr@yahoo.com | état None | invité par EMAIL
+ok     e-mail d'invitation TestFlight renvoyé
