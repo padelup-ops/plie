@@ -1,0 +1,14 @@
+APP_ID 6830173446
+ok     création de l'achat com.padelup.unlocked.nina.full
+ok     textes en-US
+ok     textes fr-FR
+ok     prix 3.99 € (base France)
+       prix réglé : [(None, None)]
+ok     disponibilité (175 pays)
+       pas encore de capture pour la vérification (à ajouter avant la soumission)
+
+achat com.padelup.unlocked.nina.full | Nina full story | type NON_CONSUMABLE | état MISSING_METADATA
+   fr-FR | Nina : l'histoire complète | Les chapitres 2 à 4 et toutes les fins
+   en-US | Nina's Phone: full story | Chapters 2 to 4 and every ending
+
+ACHAT PRÊT
