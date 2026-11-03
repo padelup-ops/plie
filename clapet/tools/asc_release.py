@@ -388,9 +388,14 @@ if SUBMIT:
         if "error" in r:
             sys.exit(1)
         sub_id = r["data"]["id"]
-    step("version 1.0 ajoutée à la demande", call("POST", "/v1/reviewSubmissionItems", {"data": {"type": "reviewSubmissionItems",
+    r_ = step("version ajoutée à la demande", call("POST", "/v1/reviewSubmissionItems", {"data": {"type": "reviewSubmissionItems",
          "relationships": {"reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
                            "appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}}), tolerate=("already",))
+    if "error" in r_ and "already" not in r_.get("detail", ""):
+        # Jamais d'envoi sans la version (sinon les vidéos partent seules).
+        print(r_.get("detail", "")[:4000])
+        print("\nPAS ENVOYÉ : la version n'a pas pu être ajoutée")
+        sys.exit(1)
     # Les vidéos d'en-tête et de recherche (iOS 27) placées sur cette version partent avec elle.
     for v_ in call("GET", f"/v1/appAssetLibraries/{app_id}/videos?limit=50").get("data", []):
         st = str(v_["attributes"].get("state") or "")
