@@ -1,6 +1,6 @@
 /* Foldly de (écrit par clapet/tools/strings.py) */
 "Aurora" = "Polarlicht";
-"Northern lights that move with your hinge" = "Nordlichter, die sich mit deinem Scharnier bewegen";
+"Northern lights that move with your hinge, with Foldly+" = "Nordlichter, die sich mit deinem Scharnier bewegen, mit Foldly+";
 "Join the leaderboard" = "Der Bestenliste beitreten";
 "Leaderboard" = "Bestenliste";
 "Longest streak under your limit" = "Längste Serie unter deinem Limit";
@@ -512,7 +512,7 @@
 "Last 30 days" = "Letzte 30 Tage";
 "30 days, 12 months, the calendar of your days, your trends and records." = "30 Tage, 12 Monate, der Kalender deiner Tage, deine Trends und Rekorde.";
 "If you set a daily limit: a notification at 80 % and at 100 %." = "Wenn du ein Tageslimit festlegst: eine Mitteilung bei 80 % und bei 100 %.";
-"One-time purchase, linked to your Apple Account. Counting, the weekly recap, the week, the milestones and the small widget stay free." = "Einmaliger Kauf, verknüpft mit deinem Apple Account. Zählen, der Wochenrückblick, die Woche, die Meilensteine und das kleine Widget bleiben kostenlos.";
+"One-time purchase, linked to your Apple Account. Counting, the daily limit, desk mode, the Apple Watch app, the weekly recap and the small widget stay free." = "Einmaliger Kauf, verknüpft mit deinem Apple Account. Zählen, das Tageslimit, der Schreibtischmodus, die Apple Watch-App, der Wochenrückblick und das kleine Widget bleiben kostenlos.";
 "Limit: %lld a day" = "Limit: %lld pro Tag";
 "Off: Foldly compares each day with your average. Turn it on to set a limit of your own." = "Aus: Foldly vergleicht jeden Tag mit deinem Durchschnitt. Aktiviere es, um ein eigenes Limit festzulegen.";
 "Summaries" = "Bilanzen";
@@ -597,3 +597,13 @@
 "Reach your goal 30 days in a row" = "Erreiche dein Ziel 30 Tage in Folge";
 "Strong will" = "Eiserner Wille";
 "Close your phone 10 times after the pause" = "Klapp dein Handy nach der Pause 10 Mal zu";
+"The monthly recap is part of Foldly+." = "Der Monatsrückblick ist Teil von Foldly+.";
+"Your hours are part of Foldly+." = "Deine Stunden sind Teil von Foldly+.";
+"Aurora (Foldly+)" = "Polarlicht (Foldly+)";
+"Aurora and My theme" = "Polarlicht und Mein Design";
+"The Aurora theme with its northern lights, and your own colors for the whole app." = "Das Design Polarlicht mit seinen Nordlichtern und deine eigenen Farben für die ganze App.";
+"Your hours and monthly recap" = "Deine Stunden und Monatsrückblick";
+"When you unfold the most, and your month compared with the one before." = "Wann du am meisten aufklappst und dein Monat im Vergleich zum Vormonat.";
+"Apple Watch complications" = "Apple Watch-Komplikationen";
+"Your folds right on your watch face." = "Deine Faltungen direkt auf deinem Zifferblatt.";
+"Unlock on your iPhone" = "Auf deinem iPhone freischalten";

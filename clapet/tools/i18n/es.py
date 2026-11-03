@@ -1,8 +1,7 @@
-# Español — en el orden de las claves de strings.py (FR), luego los Atajos.
+# es — même ordre que les clés de strings.py (FR), puis les Raccourcis.
 T = [
-# 0
 "Aurora",
-"Auroras boreales que se mueven con tu bisagra",
+"Auroras boreales que se mueven con tu bisagra, con Foldly+",
 "Unirme a la clasificación",
 "Clasificación",
 "Racha más larga bajo tu límite",
@@ -11,7 +10,6 @@ T = [
 "Con Game Center, compara tu racha y tus últimos 30 días con otros usuarios de Foldly y tus amigos. Solo se comparten tus dos puntuaciones, a través de Apple. Desactivado por defecto.",
 "Inicia sesión en Game Center en la app Ajustes para unirte a la clasificación.",
 "Te damos la bienvenida a Foldly",
-# 10
 "Foldly cuenta cada vez que pliegas tu iPhone Duo, para que veas tu hábito y lo mantengas bajo control. Aquí tienes dónde está todo.",
 "Desliza para continuar",
 "Tu cuenta, todo el día",
@@ -22,7 +20,6 @@ T = [
 "Ajustes › Límite diario",
 "Clasificaciones",
 "Compara tu racha más larga bajo tu límite y tus últimos 30 días con otros usuarios de Foldly y amigos, a través de Game Center. Desactivado hasta que lo actives.",
-# 20
 "Modo escritorio",
 "Abre tu Duo hasta la mitad. Sostenido como un libro, tienes dos páginas. Sobre la mesa, la cuenta queda arriba.",
 "Solo abre tu Duo hasta la mitad",
@@ -33,7 +30,6 @@ T = [
 "Cuando tu Duo queda abierto un buen rato, Foldly puede sugerirte una pausa corta, en tu iPhone o tu Apple Watch.",
 "Ajustes › Recordatorio de pausa",
 "Omitir",
-# 30
 "Siguiente",
 "Vamos",
 "Recorrido guiado: dónde encontrar todo",
@@ -44,7 +40,6 @@ T = [
 "Mantente bajo tu límite diario, día tras día, y sube en las clasificaciones con otros usuarios de Foldly y tus amigos.",
 "día",
 "días",
-# 40
 "Puesto",
 "Primero fija un límite diario: tu puntuación es el número de días que te mantienes por debajo.",
 "Activar mi límite diario",
@@ -55,7 +50,6 @@ T = [
 "Toca el número para escribir tu propio límite.",
 "Desactivado: Foldly compara cada día con tu promedio.",
 "Apariencia",
-# 50
 "Notificaciones",
 "Contador en la pantalla de bloqueo",
 "Contar incluso con la app cerrada",
@@ -66,7 +60,6 @@ T = [
 "Foldly cuenta solo mientras está en pantalla. Una configuración corta y cuenta incluso con la app cerrada.",
 "Fija tu límite diario",
 "Elige cuántos pliegues al día te bastan. Foldly te avisa cuando te acercas.",
-# 60
 "Sube en las clasificaciones",
 "Mantente bajo tu límite día tras día y compárate con otros usuarios de Foldly. Toca el trofeo de arriba.",
 "Hazlo tuyo",
@@ -77,7 +70,6 @@ T = [
 "%lld días seguidos bajo tu límite",
 "Despliega tu Duo para verlo todo",
 "Ver detalles",
-# 70
 "Solo lo esencial en la pantalla exterior",
 "Racha",
 "Quedan hoy",
@@ -88,7 +80,6 @@ T = [
 "Mi tema (Foldly+)",
 "Color de acento",
 "Fondo, arriba",
-# 80
 "Fondo, abajo",
 "Atardecer",
 "Océano",
@@ -99,7 +90,6 @@ T = [
 "Tu racha y tus últimos 30 días frente a otros usuarios de Foldly y tus amigos, con Game Center.",
 "Elige tus propios colores para toda la app: el acento y el fondo.",
 "Valorar Foldly en el App Store",
-# 90
 "¡Foldly está en el App Store!",
 "Gracias por probarlo. Instala la versión del App Store para conservar tus datos: simplemente reemplaza esta beta.",
 "La beta termina el 9 de noviembre.",
@@ -110,7 +100,6 @@ T = [
 "Instálalo para conservar tus datos. La beta termina el 9 de noviembre.",
 "Instalar",
 "¿Hora de una pausa?",
-# 100
 "Tu iPhone Duo lleva %lld min abierto. Ciérralo un momento.",
 "Tras %lld min abierto",
 "Recordarme",
@@ -121,7 +110,6 @@ T = [
 "Tu mes, comparado con el anterior",
 "Momento más intenso: %1$@, hacia las %2$@",
 "Lo más tranquilo mientras estás despierto: hacia las %@",
-# 110
 "Contado desde tu primer día con Foldly, todos los días de la semana.",
 "Pliegas más hacia las %@",
 "El %1$@ de tus pliegues llega después de las %2$@",
@@ -132,7 +120,6 @@ T = [
 "Ningún pliegue contado este mes.",
 "Igual que el mes anterior",
 "Ver mi mes",
-# 120
 "Tu %@ está listo",
 "Tu primer mes con Foldly",
 "Tu mes",
@@ -143,7 +130,6 @@ T = [
 "%lld pliegues. %@",
 "Resúmenes semanales y mensuales",
 "Cada pliegue desde que empezaste, como un cuentakilómetros para tu bisagra.",
-# 130
 "Siguiente: %@",
 "DESDE EL PRIMER DÍA",
 "Próximo hito: %@",
@@ -154,7 +140,6 @@ T = [
 "%lld pliegues desde el primer día",
 "Pliegues por día y hora",
 "Pliegues por hora del día",
-# 140
 "Más pliegues hacia las %@",
 "Abre Foldly en tu iPhone",
 "Abierto desde %@",
@@ -165,7 +150,6 @@ T = [
 "Foldly",
 "Foldly+",
 "Ajustes",
-# 150
 "pliegues",
 "Hoy",
 "Quedan %lld hoy",
@@ -176,7 +160,6 @@ T = [
 "Últimos 7 días",
 "Total",
 "Avisos de límite",
-# 160
 "Historial",
 "30 días, 12 meses, récords",
 "Esta semana",
@@ -187,7 +170,6 @@ T = [
 "Tu historial completo y tus récords son parte de Foldly+.",
 "Día",
 "Pliegues",
-# 170
 "Límite",
 "Límite diario alcanzado",
 "%lld pliegues hoy. ¿Una pausa del teléfono?",
@@ -198,7 +180,6 @@ T = [
 "30 días",
 "12 meses",
 "Periodo",
-# 180
 "pliegues en 30 días",
 "pliegues en 12 meses",
 "Bajo el límite",
@@ -209,7 +190,6 @@ T = [
 "Promedio por día",
 "Día más tranquilo",
 "Día más intenso",
-# 190
 "Hora más intensa",
 "Días registrados",
 "Añade un pliegue a la cuenta de hoy.",
@@ -220,7 +200,6 @@ T = [
 "Cerrar",
 "Paga una vez y es tuyo para siempre. Sin suscripción.",
 "Todos los widgets",
-# 200
 "El widget grande estilo Salud, el mediano y los de la pantalla de bloqueo: tus pliegues de un vistazo.",
 "Una notificación al 80 % y al 100 % de tu límite diario.",
 "Tu historial completo",
@@ -231,7 +210,6 @@ T = [
 "Tu historial como hoja de cálculo (CSV).",
 "Foldly+ está desbloqueado. ¡Gracias!",
 "Desbloquear por %@",
-# 210
 "Desbloquear Foldly+",
 "Restaurar compras",
 "FOLDLY",
@@ -242,7 +220,6 @@ T = [
 "La compra no se completó. Inténtalo de nuevo en un momento.",
 "No se pueden restaurar las compras ahora mismo.",
 "No hay compras que restaurar en esta cuenta de Apple.",
-# 220
 "Color del widget",
 "Límite diario: %lld",
 "Límite diario",
@@ -253,7 +230,6 @@ T = [
 "Sensaciones",
 "Animación de apertura",
 "iOS solo informa a una app sobre la bisagra mientras está en pantalla. Foldly cuenta mientras está abierto, en la pantalla interior o exterior.",
-# 230
 "En Atajos, la acción «Contar un pliegue» añade un pliegue. Si tu teléfono ofrece una automatización al plegarse, úsala ahí para contar todo el día.",
 "Cómo cuenta",
 "Simular Foldly+",
@@ -264,7 +240,6 @@ T = [
 "Restablecer",
 "Cancelar",
 "Se borrarán tu historial y tus récords.",
-# 240
 "Toca para desbloquear",
 "Toca para desbloquear este widget",
 "PLUS",
@@ -275,7 +250,6 @@ T = [
 "Cuántas veces cerraste tu teléfono, como tus pasos en Salud.",
 "Menta",
 "Naranja",
-# 250
 "Rosa",
 "Azul",
 "Limón",
@@ -286,7 +260,6 @@ T = [
 "+1",
 "Activado",
 "Bisagra %lld°",
-# 260
 "Ayer",
 "Desde siempre",
 "Próximo hito: %lld",
@@ -297,7 +270,6 @@ T = [
 "Foldly cuenta mientras está en pantalla, en la pantalla interior o exterior.",
 "Aquí no hay bisagra: toca el dibujo del teléfono para contar.",
 "Añade los widgets desde tu pantalla de inicio o de bloqueo: mantén pulsado, Editar y luego Foldly.",
-# 270
 "Tres días registrados. Sigue tus pliegues directamente desde tu pantalla de inicio.",
 "Compra única, vinculada a tu cuenta de Apple. Contar, el límite diario, la semana, los hitos y el widget pequeño siguen siendo gratis.",
 "Recuento automático",
@@ -308,7 +280,6 @@ T = [
 "Selecciona **Ejecutar inmediatamente** y desactiva **Notificar al ejecutar**.",
 "Toca **Siguiente** y añade la acción **Contar un pliegue** (Foldly).",
 "De vuelta en la lista, comprueba que la automatización está **activada**. iOS a veces la añade desactivada.",
-# 280
 "Configurar",
 "Opcional: una segunda automatización en **Abierto** con la acción **Contar una apertura** también cuenta tus aperturas.",
 "Abrir Atajos",
@@ -319,7 +290,6 @@ T = [
 "Configura la automatización de Atajos en un minuto.",
 "Desactivado: solo cuenta mientras la app está en pantalla",
 "Activado, con Atajos",
-# 290
 "Sin la automatización, Foldly solo cuenta mientras está en pantalla, en la pantalla interior o exterior.",
 "Añade un pliegue a la cuenta de hoy. Úsalo en una automatización de Atajos que se ejecute al cerrar tu teléfono.",
 "Añade una apertura a la cuenta de hoy. Úsalo en una automatización de Atajos que se ejecute al abrir tu teléfono.",
@@ -330,7 +300,6 @@ T = [
 "Abierto ahora",
 "ayer",
 "por día, 7 días",
-# 300
 "Horas",
 "%lld h",
 "Solo se mide mientras Foldly está en pantalla. Configura las dos automatizaciones de Atajos para medir todo el día.",
@@ -341,7 +310,6 @@ T = [
 "Abre **Atajos** y toca **Automatización**.",
 "Toca **+** para crear una automatización.",
 "Elige **El iPhone se abre o se cierra**.",
-# 310
 "Deja solo **Cerrado**, elige **Ejecutar inmediatamente** y luego **Siguiente**.",
 "Busca **Foldly**, elige **Contar un pliegue** y desactiva **Mostrar al ejecutar**.",
 "Comprueba que la automatización está **activada**. ¡Listo!",
@@ -352,7 +320,6 @@ T = [
 "Automatización",
 "Galería",
 "Nueva automatización",
-# 320
 "Buscar",
 "Hora del día",
 "Alarma",
@@ -363,7 +330,6 @@ T = [
 "Cerrado",
 "Abierto o cerrado",
 "Ejecutar tras confirmar",
-# 330
 "Ejecutar inmediatamente",
 "Notificar al ejecutar",
 "Añadir acción",
@@ -374,7 +340,6 @@ T = [
 "Aparece algo cada vez que abro mi teléfono.",
 "En Atajos, abre la automatización, toca la acción y desactiva **Mostrar al ejecutar**. Comprueba también que **Notificar al ejecutar** está desactivado y que **Ejecutar inmediatamente** está seleccionado. Hazlo en las dos automatizaciones.",
 "¿Por qué dejar solo «Cerrado»?",
-# 340
 "Con «Abierto o cerrado», cada apertura contaría también como pliegue. Usa dos automatizaciones: **Cerrado** con Contar un pliegue, **Abierto** con Contar una apertura.",
 "¿Se cuenta un pliegue dos veces si la app está abierta?",
 "No. Cuando Foldly está en pantalla y la automatización también se ejecuta, el pliegue se cuenta una sola vez.",
@@ -385,7 +350,6 @@ T = [
 "Ya no cuenta.",
 "Comprueba en Atajos que las dos automatizaciones siguen activadas. Si «Funciona» arriba no es reciente, cierra tu teléfono una vez y vuelve aquí.",
 "Ajustar la cuenta",
-# 350
 "Escribe los pliegues de hoy o tu total",
 "Escribe el número que quieras o usa − y +. El total sigue el mismo cambio.",
 "Útil si ya contabas antes de Foldly. No puede ser menor que los pliegues de hoy.",
@@ -396,7 +360,6 @@ T = [
 "%lld°",
 "Se llena a medida que pliegas, hora a hora.",
 "Primera semana",
-# 360
 "Bisagra ahora",
 "Más",
 "Más pliegues: %1$@, hacia las %2$@",
@@ -407,7 +370,6 @@ T = [
 "Igual que el periodo anterior",
 "Busca Foldly y elige un tamaño.",
 "Toca Editar y luego Añadir widget.",
-# 370
 "Toca para contar",
 "Mantén pulsado un espacio vacío de tu pantalla de inicio.",
 "Mantén pulsado para ajustar la cuenta",
@@ -418,7 +380,6 @@ T = [
 "%1$lld por encima de tu promedio de %2$lld/día",
 "%@ menos que el periodo anterior",
 "%@ más que el periodo anterior",
-# 380
 "%lld al día",
 "%1$@ · %2$@",
 "pliegues · %@",
@@ -429,7 +390,6 @@ T = [
 "Objetivo alcanzado",
 "Deja tu teléfono cerrado 25 minutos seguidos: crece una planta.",
 "+%lld",
-# 390
 "%lld hoy",
 "Mi jardín",
 "Necesita las dos automatizaciones de Atajos (Cerrado y Abierto) para medir el tiempo que tu teléfono queda a un lado.",
@@ -440,7 +400,6 @@ T = [
 "Objetivo diario: %@",
 "Resumen de la noche (21:30)",
 "El tiempo con tu teléfono cerrado cuenta para el objetivo, y cada 25 minutos seguidos crece una planta.",
-# 400
 "Tu día con Foldly",
 "%1$@ a un lado · %2$lld plantas · %3$lld pliegues",
 "Mira cuánto tiempo estuvo tu teléfono a un lado hoy.",
@@ -451,7 +410,6 @@ T = [
 "Ciérralo 🙂",
 "Tú decides",
 "Respira",
-# 410
 "Cierra tu teléfono ahora: cuenta como un despliegue resistido.",
 "Despliegue n.º %lld hoy",
 "%1$lld pliegues · límite %2$lld",
@@ -462,7 +420,6 @@ T = [
 "¿Quieres desplegar menos?",
 "En tu automatización «Abierto», reemplaza «Contar una apertura» por «Pausa al abrir». Cada vez que abras tu teléfono, Foldly aparece 3 segundos: respira y luego sigue o ciérralo. Cerrarlo cuenta como un despliegue resistido, y la apertura se cuenta igualmente.",
 "Pausa consciente (opcional)",
-# 420
 "Compartir mi día",
 "Compartir",
 "Hoy he plegado mi teléfono",
@@ -473,7 +430,6 @@ T = [
 "Mis pliegues de hoy con Foldly: %@",
 "Una tarjeta para tus historias y mensajes",
 "Contador en vivo",
-# 430
 "En la pantalla de bloqueo",
 "Pliegues de hoy, en la pantalla de bloqueo",
 "Pantalla de bloqueo",
@@ -484,7 +440,6 @@ T = [
 "Límite %lld",
 "Vistazos rápidos",
 "Abierto menos de 10 s",
-# 440
 "Pausa más larga",
 "Cerrado hoy",
 "Bisagra y pliegue",
@@ -495,7 +450,6 @@ T = [
 "10 pliegues menos al día son 3650 menos al año: menos desgaste en la bisagra y el pliegue.",
 "Instalar con un toque",
 "Instalar la automatización «Cerrado»",
-# 450
 "Cuenta cada pliegue.",
 "Instalar la automatización «Abierto»",
 "Mide cuánto tiempo queda abierto tu teléfono.",
@@ -506,7 +460,6 @@ T = [
 "Tema",
 "Tarjetas y un anillo, como la app Salud",
 "Números grandes, indicador de bisagra, pestañas Hoy y Semana",
-# 460
 "Elige tu tema",
 "Puedes cambiarlo cuando quieras en Ajustes.",
 "Continuar",
@@ -517,7 +470,6 @@ T = [
 "%@ hoy",
 "1 planta hoy",
 "Todavía ninguna planta hoy",
-# 470
 "Próxima planta en %lld min",
 "%lld en tu jardín",
 "Pon Foldly en tu pantalla de inicio",
@@ -528,7 +480,6 @@ T = [
 "Abierto en forma de L",
 "Pon tu teléfono plegado en L con Foldly en pantalla: la mitad superior muestra la hora y tus cifras, en grande, y la pantalla sigue encendida.",
 "Pon tu teléfono en L: la hora y tus cifras, en grande",
-# 480
 "Repítelo con **Abierto** y la acción **Contar una apertura**: Foldly mide también cuánto tiempo queda tu teléfono abierto y cerrado.",
 "Promedio diario",
 "Desactivado: cada día se compara con tu promedio",
@@ -539,7 +490,6 @@ T = [
 "Tu promedio aparece mañana",
 "Tu semana, comparada con la anterior",
 "%lld por debajo de tu promedio",
-# 490
 "%lld por encima de tu promedio",
 "Cerrado %@",
 "Cerrado desde hace %@",
@@ -550,7 +500,6 @@ T = [
 "abierto hoy",
 "Tus pliegues y tu tiempo abierto y cerrado de hoy.",
 "%1$lld pliegues · %2$@ abierto · %3$@ cerrado",
-# 500
 "Cerrado por día (30 días)",
 "Vistazos rápidos (30 días)",
 "Cuanto más oscuro el día, más pliegues.",
@@ -561,18 +510,16 @@ T = [
 "Abrir",
 "Tu semana está lista",
 "%lld esta semana",
-# 510
 "Últimos 30 días",
 "30 días, 12 meses, el calendario de tus días, tus tendencias y récords.",
 "Si fijas un límite diario: una notificación al 80 % y al 100 %.",
-"Compra única, vinculada a tu cuenta de Apple. Contar, el resumen semanal, la semana, los hitos y el widget pequeño siguen siendo gratis.",
+"Compra única, vinculada a tu cuenta de Apple. Contar, el límite diario, el modo escritorio, la app para Apple Watch, el resumen semanal y el widget pequeño siguen siendo gratis.",
 "Límite: %lld al día",
 "Desactivado: Foldly compara cada día con tu promedio. Actívalo para fijar tu propio límite.",
 "Resúmenes",
 "El resumen semanal llega el último día de la semana a las 19:00. El resumen de la noche te da tus pliegues y tu tiempo abierto y cerrado.",
 "Mi promedio: %lld al día",
 "Días contados",
-# 520
 "Mi semana con Foldly: %@",
 "Necesita las automatizaciones de Atajos",
 "Semana siguiente",
@@ -583,7 +530,6 @@ T = [
 "Ver mi semana",
 "Compartir mi semana",
 "Esta semana he plegado mi teléfono",
-# 530
 "Tu primera semana con Foldly",
 "Tu semana",
 "Tu semana con Foldly",
@@ -594,7 +540,6 @@ T = [
 "%@ menos que la semana anterior",
 "%@ más que la semana anterior",
 "%1$lld pliegues · %2$@",
-# 540
 "en los días contados",
 "Cuánto tiempo estuvo tu teléfono abierto y cerrado hoy.",
 "Abierto y cerrado",
@@ -605,7 +550,6 @@ T = [
 "Cuánto tiempo estuvo tu teléfono abierto y cerrado hoy, con un temporizador en la pantalla de bloqueo.",
 "Tus pliegues de hoy, comparados con tu promedio, y tu semana, como tus pasos en Salud.",
 "Promedio %lld",
-# 550
 "Cerrado desde",
 "Abierto desde",
 "%lld al día de promedio",
@@ -616,7 +560,6 @@ T = [
 "Tu opinión en 1 minuto",
 "6 preguntas rápidas para elegir lo próximo de Foldly.",
 "Responder la encuesta",
-# 560
 "Foldly sigue en beta y eres uno de sus primeros usuarios. 6 preguntas rápidas me ayudan a elegir qué crear a continuación.",
 "6 preguntas, 1 minuto aprox.",
 "Anónima, salvo que dejes tu correo",
@@ -627,7 +570,6 @@ T = [
 "%lld widgets en tus pantallas",
 "Pantalla de inicio",
 "Tus pliegues, tu límite diario y tu semana.",
-# 570
 "También aparecen en la pantalla exterior cuando tu teléfono está cerrado: un temporizador corre mientras está a un lado.",
 "Cómo añadirlos",
 "Mantén pulsada tu pantalla de bloqueo y toca Personalizar.",
@@ -638,7 +580,6 @@ T = [
 "Desbloqueada",
 "¡Nueva insignia!",
 "¡%lld insignias nuevas!",
-# 580
 "Genial",
 "Primer brote",
 "Haz crecer tu primera planta",
@@ -649,7 +590,6 @@ T = [
 "Haz crecer 500 plantas",
 "Objetivo cumplido",
 "Alcanza tu objetivo de teléfono a un lado",
-# 590
 "3 días seguidos",
 "Alcanza tu objetivo 3 días seguidos",
 "Semana verde",
@@ -658,6 +598,16 @@ T = [
 "Alcanza tu objetivo 30 días seguidos",
 "Voluntad de hierro",
 "Cierra tu teléfono 10 veces después de la pausa",
+"El resumen del mes es parte de Foldly+.",
+"Tus horas son parte de Foldly+.",
+"Aurora (Foldly+)",
+"Aurora y Mi tema",
+"El tema Aurora con sus auroras boreales, y tus propios colores para toda la app.",
+"Tus horas y el resumen del mes",
+"Cuándo despliegas más, y tu mes comparado con el anterior.",
+"Complicaciones de Apple Watch",
+"Tus pliegues directamente en tu esfera.",
+"Desbloquéalo en tu iPhone",
 ]
 S = [
 "Hacer una pausa con ${applicationName}",

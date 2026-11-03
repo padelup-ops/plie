@@ -43,14 +43,41 @@ struct FoldlyComplicationView: View {
 
     var body: some View {
         Group {
-            switch family {
-            case .accessoryCircular: circular
+            if data?.plus == false {
+                locked
+            } else {
+                switch family {
+                case .accessoryCircular: circular
             case .accessoryRectangular: rectangular
             case .accessoryCorner: corner
-            default: inline
+                default: inline
+                }
             }
         }
         .containerBackground(for: .widget) { Color.clear }
+    }
+
+    /// Sans Foldly+ : les complications sont verrouillées (l'app montre reste gratuite).
+    @ViewBuilder
+    private var locked: some View {
+        switch family {
+        case .accessoryRectangular:
+            VStack(alignment: .leading, spacing: 2) {
+                Label { Text(verbatim: "Foldly+") } icon: { Image(systemName: "lock.fill") }
+                    .font(.headline)
+                Text("Unlock on your iPhone")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        case .accessoryInline:
+            Label { Text(verbatim: "Foldly+") } icon: { Image(systemName: "lock.fill") }
+        default:
+            ZStack {
+                AccessoryWidgetBackground()
+                Image(systemName: "lock.fill").font(.title3)
+            }
+        }
     }
 
     private var today: Int { data?.today ?? 0 }

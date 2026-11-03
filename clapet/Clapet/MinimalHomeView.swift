@@ -59,9 +59,9 @@ struct MinimalHomeView: View {
         }
         .sheet(isPresented: $showShare) { ShareDaySheet().environment(model) }
         .sheet(isPresented: $showMonth, onDismiss: { monthHidden = !MonthRecapRule.shouldShowCard(model.stats) }) {
-            MonthRecapView().environment(model)
+            if store.hasPlus { MonthRecapView().environment(model) } else { PlusView(reason: Text("The monthly recap is part of Foldly+.")).environment(model).environment(store) }
         }
-        .sheet(isPresented: $showHours) { HoursSheet().environment(model) }
+        .sheet(isPresented: $showHours) { if store.hasPlus { HoursSheet().environment(model) } else { PlusView(reason: Text("Your hours are part of Foldly+.")).environment(model).environment(store) } }
         .sheet(isPresented: $showAdjust) {
             AdjustCountView().environment(model)
                 .presentationDetents([.medium, .large])

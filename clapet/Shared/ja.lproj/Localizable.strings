@@ -1,6 +1,6 @@
 /* Foldly ja (écrit par clapet/tools/strings.py) */
 "Aurora" = "オーロラ";
-"Northern lights that move with your hinge" = "ヒンジの動きに合わせて揺れるオーロラ";
+"Northern lights that move with your hinge, with Foldly+" = "ヒンジの動きに合わせて揺れるオーロラ（Foldly+）";
 "Join the leaderboard" = "ランキングに参加";
 "Leaderboard" = "ランキング";
 "Longest streak under your limit" = "上限内の最長連続日数";
@@ -512,7 +512,7 @@
 "Last 30 days" = "直近30日";
 "30 days, 12 months, the calendar of your days, your trends and records." = "30日、12か月、日ごとのカレンダー、傾向と記録。";
 "If you set a daily limit: a notification at 80 % and at 100 %." = "1日の上限を設定すると：80%と100%で通知します。";
-"One-time purchase, linked to your Apple Account. Counting, the weekly recap, the week, the milestones and the small widget stay free." = "一度だけの購入で、Apple Accountに紐づきます。カウント、週間まとめ、週の表示、マイルストーン、小さいウィジェットは無料のままです。";
+"One-time purchase, linked to your Apple Account. Counting, the daily limit, desk mode, the Apple Watch app, the weekly recap and the small widget stay free." = "一度だけの購入で、Apple Accountに紐づきます。カウント、1日の上限、デスクモード、Apple Watchアプリ、週間まとめ、小さいウィジェットは無料のままです。";
 "Limit: %lld a day" = "上限：1日%lld回";
 "Off: Foldly compares each day with your average. Turn it on to set a limit of your own." = "オフ：毎日を平均と比較します。オンにすると自分の上限を設定できます。";
 "Summaries" = "まとめ";
@@ -597,3 +597,13 @@
 "Reach your goal 30 days in a row" = "30日連続で目標を達成する";
 "Strong will" = "強い意志";
 "Close your phone 10 times after the pause" = "一時停止のあとにスマホを10回閉じる";
+"The monthly recap is part of Foldly+." = "月間まとめはFoldly+の機能です。";
+"Your hours are part of Foldly+." = "あなたの時間帯はFoldly+の機能です。";
+"Aurora (Foldly+)" = "オーロラ（Foldly+）";
+"Aurora and My theme" = "オーロラとマイテーマ";
+"The Aurora theme with its northern lights, and your own colors for the whole app." = "オーロラが揺れるテーマ「オーロラ」と、アプリ全体を自分の色にするマイテーマ。";
+"Your hours and monthly recap" = "あなたの時間帯と月間まとめ";
+"When you unfold the most, and your month compared with the one before." = "最も開く時間帯と、先月と比べた今月。";
+"Apple Watch complications" = "Apple Watchのコンプリケーション";
+"Your folds right on your watch face." = "文字盤に折りたたみ回数を表示。";
+"Unlock on your iPhone" = "iPhoneでロック解除";

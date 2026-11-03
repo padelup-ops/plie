@@ -1,8 +1,7 @@
-# Deutsch — in der Reihenfolge der Schlüssel von strings.py (FR), dann die Kurzbefehle.
+# de — même ordre que les clés de strings.py (FR), puis les Raccourcis.
 T = [
-# 0
 "Polarlicht",
-"Nordlichter, die sich mit deinem Scharnier bewegen",
+"Nordlichter, die sich mit deinem Scharnier bewegen, mit Foldly+",
 "Der Bestenliste beitreten",
 "Bestenliste",
 "Längste Serie unter deinem Limit",
@@ -11,7 +10,6 @@ T = [
 "Vergleiche mit Game Center deine Serie und deine letzten 30 Tage mit anderen Foldly-Nutzern und deinen Freunden. Nur deine zwei Werte werden über Apple geteilt. Standardmäßig aus.",
 "Melde dich in der App „Einstellungen“ bei Game Center an, um der Bestenliste beizutreten.",
 "Willkommen bei Foldly",
-# 10
 "Foldly zählt jedes Mal, wenn du dein iPhone Duo faltest, damit du deine Gewohnheit siehst und im Griff behältst. Hier findest du alles.",
 "Wische, um fortzufahren",
 "Dein Zähler, den ganzen Tag",
@@ -22,7 +20,6 @@ T = [
 "Einstellungen › Tageslimit",
 "Bestenlisten",
 "Vergleiche deine längste Serie unter deinem Limit und deine letzten 30 Tage mit anderen Foldly-Nutzern und Freunden, über Game Center. Aus, bis du es aktivierst.",
-# 20
 "Schreibtischmodus",
 "Öffne dein Duo zur Hälfte. Wie ein Buch gehalten, bekommst du zwei Seiten. Auf dem Tisch steht der Zähler oben.",
 "Öffne dein Duo einfach zur Hälfte",
@@ -33,7 +30,6 @@ T = [
 "Wenn dein Duo eine Weile offen bleibt, kann Foldly eine kurze Pause vorschlagen, auf deinem iPhone oder deiner Apple Watch.",
 "Einstellungen › Pausenerinnerung",
 "Überspringen",
-# 30
 "Weiter",
 "Los geht's",
 "Rundgang: Wo du alles findest",
@@ -44,7 +40,6 @@ T = [
 "Bleib Tag für Tag unter deinem Tageslimit und steig in den Bestenlisten mit anderen Foldly-Nutzern und deinen Freunden auf.",
 "Tag",
 "Tage",
-# 40
 "Rang",
 "Lege zuerst ein Tageslimit fest: Deine Punktzahl ist die Anzahl der Tage, an denen du darunter bleibst.",
 "Mein Tageslimit aktivieren",
@@ -55,7 +50,6 @@ T = [
 "Tippe auf die Zahl, um dein eigenes Limit einzugeben.",
 "Aus: Foldly vergleicht jeden Tag mit deinem Durchschnitt.",
 "Darstellung",
-# 50
 "Mitteilungen",
 "Zähler auf dem Sperrbildschirm",
 "Auch bei geschlossener App zählen",
@@ -66,7 +60,6 @@ T = [
 "Foldly zählt von selbst, solange es auf dem Bildschirm ist. Eine kurze Einrichtung, und es zählt auch bei geschlossener App.",
 "Lege dein Tageslimit fest",
 "Wähle, wie viele Faltungen pro Tag dir reichen. Foldly sagt dir, wenn du dich näherst.",
-# 60
 "Steig in den Bestenlisten auf",
 "Bleib Tag für Tag unter deinem Limit und vergleiche dich mit anderen Foldly-Nutzern. Tippe oben auf den Pokal.",
 "Ganz nach deinem Stil",
@@ -77,7 +70,6 @@ T = [
 "%lld Tage in Folge unter deinem Limit",
 "Klapp dein Duo auf, um alles zu sehen",
 "Details ansehen",
-# 70
 "Nur das Wichtigste auf dem Außendisplay",
 "Serie",
 "Heute übrig",
@@ -88,7 +80,6 @@ T = [
 "Mein Design (Foldly+)",
 "Akzentfarbe",
 "Hintergrund, oben",
-# 80
 "Hintergrund, unten",
 "Sonnenuntergang",
 "Ozean",
@@ -99,7 +90,6 @@ T = [
 "Deine Serie und deine letzten 30 Tage im Vergleich mit anderen Foldly-Nutzern und deinen Freunden, mit Game Center.",
 "Wähle deine eigenen Farben für die ganze App: den Akzent und den Hintergrund.",
 "Foldly im App Store bewerten",
-# 90
 "Foldly ist im App Store!",
 "Danke fürs Testen. Installiere die App-Store-Version, um deine Daten zu behalten: Sie ersetzt einfach diese Beta.",
 "Die Beta endet am 9. November.",
@@ -110,7 +100,6 @@ T = [
 "Installiere sie, um deine Daten zu behalten. Die Beta endet am 9. November.",
 "Installieren",
 "Zeit für eine Pause?",
-# 100
 "Dein iPhone Duo ist seit %lld Min. offen. Klapp es kurz zu.",
 "Nach %lld Min. offen",
 "Erinnern",
@@ -121,7 +110,6 @@ T = [
 "Dein Monat im Vergleich zum Vormonat",
 "Meiste Zeit: %1$@, gegen %2$@",
 "Am ruhigsten, wenn du wach bist: gegen %@",
-# 110
 "Gezählt seit deinem ersten Tag mit Foldly, an jedem Wochentag.",
 "Am meisten faltest du gegen %@",
 "%1$@ deiner Faltungen kommen nach %2$@",
@@ -132,7 +120,6 @@ T = [
 "Diesen Monat wurden keine Faltungen gezählt.",
 "Gleich wie im Vormonat",
 "Meinen Monat ansehen",
-# 120
 "Dein %@ ist bereit",
 "Dein erster Monat mit Foldly",
 "Dein Monat",
@@ -143,7 +130,6 @@ T = [
 "%lld Faltungen. %@",
 "Wochen- und Monatsrückblicke",
 "Jede Faltung seit Beginn, wie ein Kilometerzähler für dein Scharnier.",
-# 130
 "Nächste: %@",
 "SEIT TAG EINS",
 "Nächster Meilenstein: %@",
@@ -154,7 +140,6 @@ T = [
 "%lld Faltungen seit Tag eins",
 "Faltungen nach Tag und Stunde",
 "Faltungen nach Tageszeit",
-# 140
 "Die meisten Faltungen gegen %@",
 "Öffne Foldly auf deinem iPhone",
 "Offen seit %@",
@@ -165,7 +150,6 @@ T = [
 "Foldly",
 "Foldly+",
 "Einstellungen",
-# 150
 "Faltungen",
 "Heute",
 "Heute noch %lld",
@@ -176,7 +160,6 @@ T = [
 "Letzte 7 Tage",
 "Gesamt",
 "Limit-Hinweise",
-# 160
 "Verlauf",
 "30 Tage, 12 Monate, Rekorde",
 "Diese Woche",
@@ -187,7 +170,6 @@ T = [
 "Dein vollständiger Verlauf und deine Rekorde sind Teil von Foldly+.",
 "Tag",
 "Faltungen",
-# 170
 "Limit",
 "Tageslimit erreicht",
 "%lld Faltungen heute. Zeit für eine Pause vom Handy?",
@@ -198,7 +180,6 @@ T = [
 "30 Tage",
 "12 Monate",
 "Zeitraum",
-# 180
 "Faltungen in 30 Tagen",
 "Faltungen in 12 Monaten",
 "Unter dem Limit",
@@ -209,7 +190,6 @@ T = [
 "Durchschnitt pro Tag",
 "Ruhigster Tag",
 "Vollster Tag",
-# 190
 "Vollste Stunde",
 "Erfasste Tage",
 "Fügt dem heutigen Zähler eine Faltung hinzu.",
@@ -220,7 +200,6 @@ T = [
 "Schließen",
 "Einmal zahlen, für immer behalten. Kein Abo.",
 "Alle Widgets",
-# 200
 "Das große Widget im Stil von Health, das mittlere und die für den Sperrbildschirm: deine Faltungen auf einen Blick.",
 "Eine Mitteilung bei 80 % und bei 100 % deines Tageslimits.",
 "Dein vollständiger Verlauf",
@@ -231,7 +210,6 @@ T = [
 "Dein Verlauf als Tabelle (CSV).",
 "Foldly+ ist freigeschaltet. Danke!",
 "Freischalten für %@",
-# 210
 "Foldly+ freischalten",
 "Käufe wiederherstellen",
 "FOLDLY",
@@ -242,7 +220,6 @@ T = [
 "Der Kauf hat nicht geklappt. Versuch es gleich noch einmal.",
 "Käufe können gerade nicht wiederhergestellt werden.",
 "Kein Kauf zum Wiederherstellen für diesen Apple Account.",
-# 220
 "Widget-Farbe",
 "Tageslimit: %lld",
 "Tageslimit",
@@ -253,7 +230,6 @@ T = [
 "Gefühl",
 "Startanimation",
 "iOS informiert eine App nur über das Scharnier, solange sie auf dem Bildschirm ist. Foldly zählt, solange es offen ist, auf dem inneren oder äußeren Display.",
-# 230
 "In Kurzbefehle fügt die Aktion „Faltung zählen“ eine Faltung hinzu. Wenn dein Handy eine Automation beim Zuklappen anbietet, nutze sie dort, um den ganzen Tag zu zählen.",
 "So wird gezählt",
 "Foldly+ simulieren",
@@ -264,7 +240,6 @@ T = [
 "Zurücksetzen",
 "Abbrechen",
 "Dein Verlauf und deine Rekorde werden gelöscht.",
-# 240
 "Zum Freischalten tippen",
 "Tippe, um dieses Widget freizuschalten",
 "PLUS",
@@ -275,7 +250,6 @@ T = [
 "Wie oft du dein Handy zugeklappt hast, wie deine Schritte in Health.",
 "Minze",
 "Orange",
-# 250
 "Pink",
 "Blau",
 "Zitrone",
@@ -286,7 +260,6 @@ T = [
 "+1",
 "An",
 "Scharnier %lld°",
-# 260
 "Gestern",
 "Insgesamt",
 "Nächster Meilenstein: %lld",
@@ -297,7 +270,6 @@ T = [
 "Foldly zählt, solange es auf dem Bildschirm ist, auf dem inneren oder äußeren Display.",
 "Kein Scharnier hier: Tippe auf die Handy-Zeichnung, um zu zählen.",
 "Füge die Widgets auf deinem Home- oder Sperrbildschirm hinzu: lange drücken, Bearbeiten, dann Foldly.",
-# 270
 "Drei Tage erfasst. Behalte deine Faltungen direkt auf deinem Home-Bildschirm im Blick.",
 "Einmaliger Kauf, verknüpft mit deinem Apple Account. Zählen, das Tageslimit, die Woche, die Meilensteine und das kleine Widget bleiben kostenlos.",
 "Automatisches Zählen",
@@ -308,7 +280,6 @@ T = [
 "Wähle **Sofort ausführen** und deaktiviere **Bei Ausführung mitteilen**.",
 "Tippe auf **Weiter** und füge dann die Aktion **Faltung zählen** (Foldly) hinzu.",
 "Prüfe in der Liste, dass die Automation **aktiviert** ist. iOS fügt sie manchmal ausgeschaltet hinzu.",
-# 280
 "Einrichten",
 "Optional: Eine zweite Automation bei **Geöffnet** mit der Aktion **Öffnung zählen** zählt auch deine Öffnungen.",
 "Kurzbefehle öffnen",
@@ -319,7 +290,6 @@ T = [
 "Richte die Kurzbefehle-Automation in einer Minute ein.",
 "Aus: zählt nur, solange die App auf dem Bildschirm ist",
 "An, mit Kurzbefehlen",
-# 290
 "Ohne die Automation zählt Foldly nur, solange es auf dem Bildschirm ist, auf dem inneren oder äußeren Display.",
 "Fügt dem heutigen Zähler eine Faltung hinzu. Nutze es in einer Kurzbefehle-Automation, die beim Zuklappen deines Handys läuft.",
 "Fügt dem heutigen Zähler eine Öffnung hinzu. Nutze es in einer Kurzbefehle-Automation, die beim Aufklappen deines Handys läuft.",
@@ -330,7 +300,6 @@ T = [
 "Jetzt offen",
 "gestern",
 "pro Tag, 7 Tage",
-# 300
 "Stunden",
 "%lld Std.",
 "Nur gemessen, solange Foldly auf dem Bildschirm ist. Richte die zwei Kurzbefehle-Automationen ein, um den ganzen Tag zu messen.",
@@ -341,7 +310,6 @@ T = [
 "Öffne **Kurzbefehle** und tippe auf **Automation**.",
 "Tippe auf **+**, um eine Automation zu erstellen.",
 "Wähle **iPhone geöffnet oder geschlossen**.",
-# 310
 "Behalte nur **Geschlossen**, wähle **Sofort ausführen** und dann **Weiter**.",
 "Suche **Foldly**, wähle **Faltung zählen** und deaktiviere **Bei Ausführung anzeigen**.",
 "Prüfe, dass die Automation **an** ist. Fertig!",
@@ -352,7 +320,6 @@ T = [
 "Automation",
 "Galerie",
 "Neue Automation",
-# 320
 "Suchen",
 "Tageszeit",
 "Wecker",
@@ -363,7 +330,6 @@ T = [
 "Geschlossen",
 "Geöffnet oder geschlossen",
 "Nach Bestätigung ausführen",
-# 330
 "Sofort ausführen",
 "Bei Ausführung mitteilen",
 "Aktion hinzufügen",
@@ -374,7 +340,6 @@ T = [
 "Bei jedem Öffnen meines Handys erscheint etwas.",
 "Öffne in Kurzbefehle die Automation, tippe auf die Aktion und deaktiviere **Bei Ausführung anzeigen**. Prüfe auch, dass **Bei Ausführung mitteilen** aus und **Sofort ausführen** gewählt ist. Mach das für beide Automationen.",
 "Warum nur „Geschlossen“ behalten?",
-# 340
 "Mit „Geöffnet oder geschlossen“ würde jedes Öffnen auch als Faltung zählen. Nutze zwei Automationen: **Geschlossen** mit Faltung zählen, **Geöffnet** mit Öffnung zählen.",
 "Wird eine Faltung doppelt gezählt, wenn die App offen ist?",
 "Nein. Wenn Foldly auf dem Bildschirm ist und die Automation auch läuft, wird die Faltung nur einmal gezählt.",
@@ -385,7 +350,6 @@ T = [
 "Es zählt nicht mehr.",
 "Prüfe in Kurzbefehle, dass beide Automationen noch aktiviert sind. Wenn „Funktioniert“ oben nicht aktuell ist, klapp dein Handy einmal zu und komm hierher zurück.",
 "Zähler anpassen",
-# 350
 "Gib die heutigen Faltungen oder deine Gesamtzahl ein",
 "Gib die gewünschte Zahl ein oder nutze − und +. Die Gesamtzahl folgt derselben Änderung.",
 "Praktisch, wenn du schon vor Foldly gezählt hast. Sie kann nicht niedriger sein als die heutigen Faltungen.",
@@ -396,7 +360,6 @@ T = [
 "%lld°",
 "Füllt sich, während du faltest, Stunde für Stunde.",
 "Erste Woche",
-# 360
 "Scharnier jetzt",
 "Mehr",
 "Die meisten Faltungen: %1$@, gegen %2$@",
@@ -407,7 +370,6 @@ T = [
 "Gleich wie im vorherigen Zeitraum",
 "Suche nach Foldly und wähle eine Größe.",
 "Tippe auf Bearbeiten und dann auf Widget hinzufügen.",
-# 370
 "Zum Zählen tippen",
 "Drücke lange auf eine leere Stelle deines Home-Bildschirms.",
 "Lange drücken, um den Zähler anzupassen",
@@ -418,7 +380,6 @@ T = [
 "%1$lld über deinem Durchschnitt von %2$lld/Tag",
 "%@ weniger als im vorherigen Zeitraum",
 "%@ mehr als im vorherigen Zeitraum",
-# 380
 "%lld pro Tag",
 "%1$@ · %2$@",
 "Faltungen · %@",
@@ -429,7 +390,6 @@ T = [
 "Ziel erreicht",
 "Lass dein Handy 25 Minuten am Stück zu: Eine Pflanze wächst.",
 "+%lld",
-# 390
 "%lld heute",
 "Mein Garten",
 "Benötigt die zwei Kurzbefehle-Automationen (Geschlossen und Geöffnet), um zu messen, wie lange dein Handy weggelegt bleibt.",
@@ -440,7 +400,6 @@ T = [
 "Tagesziel: %@",
 "Abendbilanz (21:30)",
 "Die Zeit mit zugeklapptem Handy zählt für das Ziel, und alle 25 Minuten am Stück wächst eine Pflanze.",
-# 400
 "Dein Tag mit Foldly",
 "%1$@ Handy weg · %2$lld Pflanzen · %3$lld Faltungen",
 "Sieh, wie lange dein Handy heute weggelegt war.",
@@ -451,7 +410,6 @@ T = [
 "Klapp es zu 🙂",
 "Deine Entscheidung",
 "Atme",
-# 410
 "Klapp dein Handy jetzt zu: Das zählt als widerstandenes Aufklappen.",
 "Aufklappen Nr. %lld heute",
 "%1$lld Faltungen · Limit %2$lld",
@@ -462,7 +420,6 @@ T = [
 "Möchtest du seltener aufklappen?",
 "Ersetze in deiner „Geöffnet“-Automation „Öffnung zählen“ durch „Pause beim Öffnen“. Jedes Mal, wenn du dein Handy öffnest, erscheint Foldly für 3 Sekunden: atme, dann mach weiter oder klapp es zu. Zuklappen zählt als widerstandenes Aufklappen, und die Öffnung wird trotzdem gezählt.",
 "Achtsame Pause (optional)",
-# 420
 "Meinen Tag teilen",
 "Teilen",
 "Heute habe ich mein Handy gefaltet",
@@ -473,7 +430,6 @@ T = [
 "Meine Faltungen heute mit Foldly: %@",
 "Eine Karte für deine Storys und Nachrichten",
 "Live-Zähler",
-# 430
 "Auf dem Sperrbildschirm",
 "Faltungen heute, direkt auf dem Sperrbildschirm",
 "Sperrbildschirm",
@@ -484,7 +440,6 @@ T = [
 "Limit %lld",
 "Kurze Blicke",
 "Weniger als 10 s geöffnet",
-# 440
 "Längste Pause",
 "Heute zugeklappt gelassen",
 "Scharnier & Falz",
@@ -495,7 +450,6 @@ T = [
 "10 Faltungen weniger pro Tag sind 3.650 weniger im Jahr: weniger Verschleiß an Scharnier und Falz.",
 "Mit einem Tippen installieren",
 "Die Automation „Geschlossen“ installieren",
-# 450
 "Zählt jede Faltung.",
 "Die Automation „Geöffnet“ installieren",
 "Misst, wie lange dein Handy offen bleibt.",
@@ -506,7 +460,6 @@ T = [
 "Design",
 "Karten und ein Ring, wie in der Health-App",
 "Große Zahlen, Scharnieranzeige, Tabs Heute und Woche",
-# 460
 "Wähle dein Design",
 "Du kannst es jederzeit in den Einstellungen ändern.",
 "Fortfahren",
@@ -517,7 +470,6 @@ T = [
 "%@ heute",
 "1 Pflanze heute",
 "Heute noch keine Pflanze",
-# 470
 "Nächste Pflanze in %lld Min.",
 "%lld in deinem Garten",
 "Leg Foldly auf deinen Home-Bildschirm",
@@ -528,7 +480,6 @@ T = [
 "Offen, wenn als L aufgestellt",
 "Stell dein Handy als L gefaltet auf, mit Foldly auf dem Bildschirm: Die obere Hälfte zeigt die Uhrzeit und deine Zahlen, groß, und der Bildschirm bleibt an.",
 "Stell dein Handy als L auf: die Uhrzeit und deine Zahlen, groß",
-# 480
 "Wiederhole es mit **Geöffnet** und der Aktion **Öffnung zählen**: Foldly misst dann auch, wie lange dein Handy offen und zu bleibt.",
 "Tagesdurchschnitt",
 "Aus: Jeder Tag wird mit deinem Durchschnitt verglichen",
@@ -539,7 +490,6 @@ T = [
 "Dein Durchschnitt erscheint morgen",
 "Deine Woche im Vergleich zur Vorwoche",
 "%lld unter deinem Durchschnitt",
-# 490
 "%lld über deinem Durchschnitt",
 "Zu %@",
 "Zu seit %@",
@@ -550,7 +500,6 @@ T = [
 "heute offen",
 "Deine Faltungen und deine Zeit offen und zu heute.",
 "%1$lld Faltungen · %2$@ offen · %3$@ zu",
-# 500
 "Zu pro Tag (30 Tage)",
 "Kurze Blicke (30 Tage)",
 "Je dunkler der Tag, desto mehr Faltungen.",
@@ -561,18 +510,16 @@ T = [
 "Öffnen",
 "Deine Woche ist bereit",
 "%lld diese Woche",
-# 510
 "Letzte 30 Tage",
 "30 Tage, 12 Monate, der Kalender deiner Tage, deine Trends und Rekorde.",
 "Wenn du ein Tageslimit festlegst: eine Mitteilung bei 80 % und bei 100 %.",
-"Einmaliger Kauf, verknüpft mit deinem Apple Account. Zählen, der Wochenrückblick, die Woche, die Meilensteine und das kleine Widget bleiben kostenlos.",
+"Einmaliger Kauf, verknüpft mit deinem Apple Account. Zählen, das Tageslimit, der Schreibtischmodus, die Apple Watch-App, der Wochenrückblick und das kleine Widget bleiben kostenlos.",
 "Limit: %lld pro Tag",
 "Aus: Foldly vergleicht jeden Tag mit deinem Durchschnitt. Aktiviere es, um ein eigenes Limit festzulegen.",
 "Bilanzen",
 "Der Wochenrückblick kommt am letzten Tag der Woche um 19 Uhr. Die Abendbilanz zeigt deine Faltungen und deine Zeit offen und zu.",
 "Mein Durchschnitt: %lld pro Tag",
 "Gezählte Tage",
-# 520
 "Meine Woche mit Foldly: %@",
 "Benötigt die Kurzbefehle-Automationen",
 "Nächste Woche",
@@ -583,7 +530,6 @@ T = [
 "Meine Woche ansehen",
 "Meine Woche teilen",
 "Diese Woche habe ich mein Handy gefaltet",
-# 530
 "Deine erste Woche mit Foldly",
 "Deine Woche",
 "Deine Woche mit Foldly",
@@ -594,7 +540,6 @@ T = [
 "%@ weniger als in der Vorwoche",
 "%@ mehr als in der Vorwoche",
 "%1$lld Faltungen · %2$@",
-# 540
 "an den gezählten Tagen",
 "Wie lange dein Handy heute offen und zu war.",
 "Offen & zu",
@@ -605,7 +550,6 @@ T = [
 "Wie lange dein Handy heute offen und zu war, mit einem Timer auf dem Sperrbildschirm.",
 "Deine Faltungen heute im Vergleich zu deinem Durchschnitt und deine Woche, wie deine Schritte in Health.",
 "Durchschnitt %lld",
-# 550
 "Zu seit",
 "Offen seit",
 "%lld pro Tag im Schnitt",
@@ -616,7 +560,6 @@ T = [
 "Deine Meinung in 1 Minute",
 "6 kurze Fragen, um zu wählen, was Foldly als Nächstes bekommt.",
 "An der Umfrage teilnehmen",
-# 560
 "Foldly ist noch in der Beta und du bist einer der ersten Nutzer. 6 kurze Fragen helfen mir zu entscheiden, was ich als Nächstes baue.",
 "6 Fragen, etwa 1 Minute",
 "Anonym, außer du hinterlässt deine E-Mail",
@@ -627,7 +570,6 @@ T = [
 "%lld Widgets auf deinen Bildschirmen",
 "Home-Bildschirm",
 "Deine Faltungen, dein Tageslimit und deine Woche.",
-# 570
 "Sie erscheinen auch auf dem Außendisplay, wenn dein Handy zu ist: Ein Timer läuft, solange es weggelegt bleibt.",
 "So fügst du sie hinzu",
 "Drücke lange auf deinen Sperrbildschirm und tippe dann auf Anpassen.",
@@ -638,7 +580,6 @@ T = [
 "Freigeschaltet",
 "Neues Abzeichen!",
 "%lld neue Abzeichen!",
-# 580
 "Super",
 "Erster Spross",
 "Lass deine erste Pflanze wachsen",
@@ -649,7 +590,6 @@ T = [
 "Lass 500 Pflanzen wachsen",
 "Ziel erreicht",
 "Erreiche dein Handy-weg-Ziel",
-# 590
 "3 Tage in Folge",
 "Erreiche dein Ziel 3 Tage in Folge",
 "Grüne Woche",
@@ -658,6 +598,16 @@ T = [
 "Erreiche dein Ziel 30 Tage in Folge",
 "Eiserner Wille",
 "Klapp dein Handy nach der Pause 10 Mal zu",
+"Der Monatsrückblick ist Teil von Foldly+.",
+"Deine Stunden sind Teil von Foldly+.",
+"Polarlicht (Foldly+)",
+"Polarlicht und Mein Design",
+"Das Design Polarlicht mit seinen Nordlichtern und deine eigenen Farben für die ganze App.",
+"Deine Stunden und Monatsrückblick",
+"Wann du am meisten aufklappst und dein Monat im Vergleich zum Vormonat.",
+"Apple Watch-Komplikationen",
+"Deine Faltungen direkt auf deinem Zifferblatt.",
+"Auf deinem iPhone freischalten",
 ]
 S = [
 "Mit ${applicationName} eine Pause machen",

@@ -24,6 +24,8 @@ struct FoldlyWatchData: Codable, Equatable {
     /// L'heure où l'on plie le plus (journée type), nil au début.
     var peakHour: Int?
     var updated: Date
+    /// Foldly+ débloqué sur l'iPhone (les complications en font partie). nil : ancienne version de l'app iPhone.
+    var plus: Bool? = nil
 
     static func key(_ date: Date = Date()) -> String {
         let c = Calendar.current.dateComponents([.year, .month, .day], from: date)
@@ -55,5 +57,5 @@ struct FoldlyWatchData: Codable, Equatable {
     static let sample = FoldlyWatchData(day: key(), today: 47, yesterday: 43, reference: 56, limitOn: false,
                                         week: [39, 43, 58, 39, 49, 43, 47], closedSeconds: 9540, openSeconds: 6120,
                                         openSince: nil, lastClose: Date().addingTimeInterval(-17 * 60), total: 4006,
-                                        peakHour: 21, updated: Date())
+                                        peakHour: 21, updated: Date(), plus: true)
 }

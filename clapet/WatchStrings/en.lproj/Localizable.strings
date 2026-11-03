@@ -1,6 +1,6 @@
 /* Foldly Watch (écrit par clapet/tools/strings.py) */
 "Aurora" = "Aurora";
-"Northern lights that move with your hinge" = "Northern lights that move with your hinge";
+"Northern lights that move with your hinge, with Foldly+" = "Northern lights that move with your hinge, with Foldly+";
 "Join the leaderboard" = "Join the leaderboard";
 "Leaderboard" = "Leaderboard";
 "Longest streak under your limit" = "Longest streak under your limit";
@@ -512,7 +512,7 @@
 "Last 30 days" = "Last 30 days";
 "30 days, 12 months, the calendar of your days, your trends and records." = "30 days, 12 months, the calendar of your days, your trends and records.";
 "If you set a daily limit: a notification at 80 % and at 100 %." = "If you set a daily limit: a notification at 80 % and at 100 %.";
-"One-time purchase, linked to your Apple Account. Counting, the weekly recap, the week, the milestones and the small widget stay free." = "One-time purchase, linked to your Apple Account. Counting, the weekly recap, the week, the milestones and the small widget stay free.";
+"One-time purchase, linked to your Apple Account. Counting, the daily limit, desk mode, the Apple Watch app, the weekly recap and the small widget stay free." = "One-time purchase, linked to your Apple Account. Counting, the daily limit, desk mode, the Apple Watch app, the weekly recap and the small widget stay free.";
 "Limit: %lld a day" = "Limit: %lld a day";
 "Off: Foldly compares each day with your average. Turn it on to set a limit of your own." = "Off: Foldly compares each day with your average. Turn it on to set a limit of your own.";
 "Summaries" = "Summaries";
@@ -597,3 +597,13 @@
 "Reach your goal 30 days in a row" = "Reach your goal 30 days in a row";
 "Strong will" = "Strong will";
 "Close your phone 10 times after the pause" = "Close your phone 10 times after the pause";
+"The monthly recap is part of Foldly+." = "The monthly recap is part of Foldly+.";
+"Your hours are part of Foldly+." = "Your hours are part of Foldly+.";
+"Aurora (Foldly+)" = "Aurora (Foldly+)";
+"Aurora and My theme" = "Aurora and My theme";
+"The Aurora theme with its northern lights, and your own colors for the whole app." = "The Aurora theme with its northern lights, and your own colors for the whole app.";
+"Your hours and monthly recap" = "Your hours and monthly recap";
+"When you unfold the most, and your month compared with the one before." = "When you unfold the most, and your month compared with the one before.";
+"Apple Watch complications" = "Apple Watch complications";
+"Your folds right on your watch face." = "Your folds right on your watch face.";
+"Unlock on your iPhone" = "Unlock on your iPhone";

@@ -81,6 +81,7 @@ extension ClapetStats {
             lastClose: lastClose,
             total: totalCloses,
             peakHour: peakHour,
-            updated: now)
+            updated: now,
+            plus: plus || DuoFolds.paidApp)
     }
 }

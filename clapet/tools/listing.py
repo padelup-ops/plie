@@ -53,12 +53,13 @@ Made for iPhone Duo. On screen, Foldly reads the hinge itself: every time you cl
 • Apple Watch app and complications
 • Widgets for the Home Screen and the Lock Screen
 • Break reminder when your Duo stays open for a while
-• Themes, including the new Aurora theme
+• Three themes: Classic, Modern and Minimal
 • A short guided tour to find everything
 
 Foldly is free. Foldly+ unlocks everything with a single purchase, no subscription:
 • Leaderboards with Game Center: your longest streak under your limit, and your last 30 days
-• My theme: your own colors for the whole app
+• The Aurora theme and My theme: your own colors
+• Your hours, the monthly recap and Apple Watch complications
 • Every widget and widget colors
 • Limit alerts at 80 % and 100 %
 • Your full history, trends and records, and export (CSV)
@@ -75,12 +76,13 @@ Conçu pour l'iPhone Duo. À l'écran, Foldly lit lui-même la charnière : chaq
 • App Apple Watch et complications
 • Widgets pour l'écran d'accueil et l'écran verrouillé
 • Rappel de pause quand ton Duo reste ouvert longtemps
-• Des thèmes, dont le nouveau thème Aurore
+• Trois thèmes : Classique, Moderne et Épuré
 • Une courte visite guidée pour tout trouver
 
 Foldly est gratuit. Foldly+ débloque tout en un seul achat, sans abonnement :
 • Classements avec Game Center : ta plus longue série sous ta limite, et tes 30 derniers jours
-• Mon thème : tes propres couleurs pour toute l'app
+• Le thème Aurore et Mon thème : tes propres couleurs
+• Tes heures, le bilan du mois et les complications Apple Watch
 • Tous les widgets et leurs couleurs
 • Alertes de limite à 80 % et 100 %
 • Tout l'historique, tes tendances et records, et l'export (CSV)
@@ -97,12 +99,13 @@ Gemacht für das iPhone Duo. Auf dem Bildschirm liest Foldly das Scharnier selbs
 • Apple Watch-App und Komplikationen
 • Widgets für Home- und Sperrbildschirm
 • Pausenerinnerung, wenn dein Duo länger offen bleibt
-• Designs, darunter das neue Design Polarlicht
+• Drei Designs: Klassisch, Modern und Minimal
 • Ein kurzer Rundgang, um alles zu finden
 
 Foldly ist kostenlos. Foldly+ schaltet alles mit einem einzigen Kauf frei, ohne Abo:
 • Bestenlisten mit Game Center: deine längste Serie unter deinem Limit und deine letzten 30 Tage
-• Mein Design: deine eigenen Farben für die ganze App
+• Das Design Polarlicht und Mein Design: deine eigenen Farben
+• Deine Stunden, der Monatsrückblick und Apple Watch-Komplikationen
 • Alle Widgets und Widget-Farben
 • Limit-Hinweise bei 80 % und 100 %
 • Dein vollständiger Verlauf, Trends und Rekorde sowie Export (CSV)
@@ -119,12 +122,13 @@ Hecho para iPhone Duo. En pantalla, Foldly lee la bisagra por sí mismo: cada ve
 • App para Apple Watch y complicaciones
 • Widgets para la pantalla de inicio y de bloqueo
 • Recordatorio de pausa cuando tu Duo queda abierto un buen rato
-• Temas, incluido el nuevo tema Aurora
+• Tres temas: Clásico, Moderno y Minimalista
 • Un breve recorrido guiado para encontrarlo todo
 
 Foldly es gratis. Foldly+ lo desbloquea todo con una sola compra, sin suscripción:
 • Clasificaciones con Game Center: tu racha más larga bajo tu límite y tus últimos 30 días
-• Mi tema: tus propios colores para toda la app
+• El tema Aurora y Mi tema: tus propios colores
+• Tus horas, el resumen del mes y las complicaciones de Apple Watch
 • Todos los widgets y sus colores
 • Avisos de límite al 80 % y al 100 %
 • Tu historial completo, tendencias y récords, y exportación (CSV)
@@ -141,12 +145,13 @@ iPhone Duoのために作りました。画面に表示中は、Foldlyが自分�
 • Apple Watchアプリとコンプリケーション
 • ホーム画面とロック画面のウィジェット
 • Duoを開いたままのときの休憩リマインダー
-• 新しいテーマ「オーロラ」を含むテーマ
+• 3つのテーマ：クラシック、モダン、ミニマル
 • すべての場所がわかる短いガイドツアー
 
 Foldlyは無料です。Foldly+は一度の購入ですべてを解放します（サブスクリプションなし）：
 • Game Centerのランキング：上限内の最長連続日数と直近30日
-• マイテーマ：アプリ全体を自分の色に
+• テーマ「オーロラ」とマイテーマ：自分だけの色
+• あなたの時間帯、月間まとめ、Apple Watchのコンプリケーション
 • すべてのウィジェットとウィジェットの色
 • 80%と100%の上限アラート
 • すべての履歴、傾向と記録、書き出し（CSV）
@@ -163,12 +168,13 @@ iPhone Duo를 위해 만들었습니다. 화면에 있을 때 Foldly가 직접 �
 • Apple Watch 앱과 컴플리케이션
 • 홈 화면과 잠금 화면 위젯
 • Duo를 한동안 열어 두면 휴식 알림
-• 새 오로라 테마를 포함한 테마
+• 세 가지 테마: 클래식, 모던, 미니멀
 • 모든 기능을 찾을 수 있는 짧은 둘러보기
 
 Foldly는 무료입니다. Foldly+는 한 번의 구입으로 모든 기능을 엽니다(구독 없음):
 • Game Center 순위표: 한도 이내 최장 연속 기록과 최근 30일
-• 나의 테마: 앱 전체를 나만의 색으로
+• 오로라 테마와 나의 테마: 나만의 색상
+• 나의 시간대, 월간 요약, Apple Watch 컴플리케이션
 • 모든 위젯과 위젯 색상
 • 80%와 100% 한도 알림
 • 전체 기록, 추세와 최고 기록, 내보내기(CSV)
@@ -185,12 +191,13 @@ Foldly는 무료입니다. Foldly+는 한 번의 구입으로 모든 기능을 �
 • Apple Watch App 和复杂功能
 • 主屏幕和锁定屏幕小组件
 • Duo 打开较久时的休息提醒
-• 多款主题，包括全新的“极光”主题
+• 三款主题：经典、现代和极简
 • 简短导览，帮你找到一切
 
 Foldly 免费。Foldly+ 一次购买即可解锁全部功能，无需订阅：
 • Game Center 排行榜：上限内最长连续天数和最近 30 天
-• 我的主题：为整个 App 设置你自己的颜色
+• “极光”主题和我的主题：你自己的颜色
+• 你的时段、月度回顾和 Apple Watch 复杂功能
 • 所有小组件和小组件颜色
 • 80% 和 100% 的上限提醒
 • 完整历史记录、趋势和纪录，以及导出（CSV）

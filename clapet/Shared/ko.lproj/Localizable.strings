@@ -1,6 +1,6 @@
 /* Foldly ko (écrit par clapet/tools/strings.py) */
 "Aurora" = "오로라";
-"Northern lights that move with your hinge" = "힌지를 따라 움직이는 오로라";
+"Northern lights that move with your hinge, with Foldly+" = "힌지를 따라 움직이는 오로라, Foldly+";
 "Join the leaderboard" = "순위표 참여";
 "Leaderboard" = "순위표";
 "Longest streak under your limit" = "한도 이내 최장 연속 기록";
@@ -512,7 +512,7 @@
 "Last 30 days" = "최근 30일";
 "30 days, 12 months, the calendar of your days, your trends and records." = "30일, 12개월, 날짜별 달력, 추세와 최고 기록.";
 "If you set a daily limit: a notification at 80 % and at 100 %." = "하루 한도를 설정하면: 80%와 100%에서 알림.";
-"One-time purchase, linked to your Apple Account. Counting, the weekly recap, the week, the milestones and the small widget stay free." = "한 번만 결제하며 Apple 계정에 연결됩니다. 카운트, 주간 요약, 주간 보기, 목표, 작은 위젯은 계속 무료입니다.";
+"One-time purchase, linked to your Apple Account. Counting, the daily limit, desk mode, the Apple Watch app, the weekly recap and the small widget stay free." = "한 번만 결제하며 Apple 계정에 연결됩니다. 카운트, 하루 한도, 데스크 모드, Apple Watch 앱, 주간 요약, 작은 위젯은 계속 무료입니다.";
 "Limit: %lld a day" = "한도: 하루 %lld번";
 "Off: Foldly compares each day with your average. Turn it on to set a limit of your own." = "끔: Foldly가 매일을 평균과 비교합니다. 켜면 나만의 한도를 설정할 수 있어요.";
 "Summaries" = "요약";
@@ -597,3 +597,13 @@
 "Reach your goal 30 days in a row" = "30일 연속 목표 달성하기";
 "Strong will" = "강철 의지";
 "Close your phone 10 times after the pause" = "멈춤 후 휴대폰을 10번 닫기";
+"The monthly recap is part of Foldly+." = "월간 요약은 Foldly+ 기능입니다.";
+"Your hours are part of Foldly+." = "나의 시간대는 Foldly+ 기능입니다.";
+"Aurora (Foldly+)" = "오로라 (Foldly+)";
+"Aurora and My theme" = "오로라와 나의 테마";
+"The Aurora theme with its northern lights, and your own colors for the whole app." = "오로라가 펼쳐지는 오로라 테마와 앱 전체를 위한 나만의 색상.";
+"Your hours and monthly recap" = "나의 시간대와 월간 요약";
+"When you unfold the most, and your month compared with the one before." = "가장 많이 펼치는 때와 지난달과 비교한 이번 달.";
+"Apple Watch complications" = "Apple Watch 컴플리케이션";
+"Your folds right on your watch face." = "워치 페이스에 바로 표시되는 접은 횟수.";
+"Unlock on your iPhone" = "iPhone에서 잠금 해제";

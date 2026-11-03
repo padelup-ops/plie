@@ -1,6 +1,6 @@
 /* Foldly zh-Hans (écrit par clapet/tools/strings.py) */
 "Aurora" = "极光";
-"Northern lights that move with your hinge" = "随铰链摆动的极光";
+"Northern lights that move with your hinge, with Foldly+" = "随铰链摆动的极光，Foldly+ 专享";
 "Join the leaderboard" = "加入排行榜";
 "Leaderboard" = "排行榜";
 "Longest streak under your limit" = "上限内最长连续天数";
@@ -512,7 +512,7 @@
 "Last 30 days" = "最近 30 天";
 "30 days, 12 months, the calendar of your days, your trends and records." = "30 天、12 个月、你的每日日历、趋势和纪录。";
 "If you set a daily limit: a notification at 80 % and at 100 %." = "如果你设置了每日上限：在 80% 和 100% 时通知。";
-"One-time purchase, linked to your Apple Account. Counting, the weekly recap, the week, the milestones and the small widget stay free." = "一次性购买，关联你的 Apple 账户。计数、每周回顾、本周、里程碑和小号小组件仍然免费。";
+"One-time purchase, linked to your Apple Account. Counting, the daily limit, desk mode, the Apple Watch app, the weekly recap and the small widget stay free." = "一次性购买，关联你的 Apple 账户。计数、每日上限、桌面模式、Apple Watch App、每周回顾和小号小组件仍然免费。";
 "Limit: %lld a day" = "上限：每天 %lld 次";
 "Off: Foldly compares each day with your average. Turn it on to set a limit of your own." = "关闭：Foldly 会把每天与你的平均值比较。开启后即可设置你自己的上限。";
 "Summaries" = "总结";
@@ -597,3 +597,13 @@
 "Reach your goal 30 days in a row" = "连续 30 天达成目标";
 "Strong will" = "意志坚定";
 "Close your phone 10 times after the pause" = "暂停后合上手机 10 次";
+"The monthly recap is part of Foldly+." = "月度回顾是 Foldly+ 的功能。";
+"Your hours are part of Foldly+." = "你的时段是 Foldly+ 的功能。";
+"Aurora (Foldly+)" = "极光（Foldly+）";
+"Aurora and My theme" = "极光与我的主题";
+"The Aurora theme with its northern lights, and your own colors for the whole app." = "带有极光的“极光”主题，以及整个 App 的自定义颜色。";
+"Your hours and monthly recap" = "你的时段和月度回顾";
+"When you unfold the most, and your month compared with the one before." = "你最常展开的时候，以及与上个月相比的这个月。";
+"Apple Watch complications" = "Apple Watch 复杂功能";
+"Your folds right on your watch face." = "折叠次数直接显示在表盘上。";
+"Unlock on your iPhone" = "在 iPhone 上解锁";

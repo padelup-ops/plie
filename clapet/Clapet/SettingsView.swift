@@ -99,11 +99,13 @@ struct SettingsView: View {
                 Section {
                     Picker(selection: Binding(get: { DFLook.resolved(lookRaw).rawValue },
                                               set: { raw in
-                                                  if raw == DFLook.custom.rawValue && !store.hasPlus { showPlus = true } else { lookRaw = raw }
+                                                  if (DFLook(rawValue: raw)?.needsPlus ?? false) && !store.hasPlus { showPlus = true } else { lookRaw = raw }
                                               })) {
                         ForEach(DFLook.allCases) { look in
                             if look == .custom && !store.hasPlus {
                                 Text("My theme (Foldly+)").tag(look.rawValue)
+                            } else if look == .aurora && !store.hasPlus {
+                                Text("Aurora (Foldly+)").tag(look.rawValue)
                             } else {
                                 look.title.tag(look.rawValue)
                             }

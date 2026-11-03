@@ -15,10 +15,13 @@ enum DFLook: String, CaseIterable, Identifiable {
     /// Les looks sombres (Moderne et Aurore) partagent la mise en page du Moderne.
     var isDark: Bool { self == .night || self == .aurora || (self == .custom && CustomTheme.isDark) }
 
-    /// « Mon thème » demande Foldly+ ; sans lui, on revient au Moderne.
+    /// Aurore et « Mon thème » font partie de Foldly+.
+    var needsPlus: Bool { self == .aurora || self == .custom }
+
+    /// Sans Foldly+, Aurore et « Mon thème » reviennent au Moderne.
     static func resolved(_ raw: String) -> DFLook {
         let look = DFLook(rawValue: raw) ?? .classic
-        return look == .custom && !UserDefaults.standard.bool(forKey: "plusActive") ? .night : look
+        return look.needsPlus && !UserDefaults.standard.bool(forKey: "plusActive") ? .night : look
     }
 
     var id: String { rawValue }
@@ -42,7 +45,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .classic: return Text("Cards and a ring, like the Health app")
         case .night: return Text("Big numbers, hinge gauge, Today and Week tabs")
         case .minimal: return Text("Just your numbers, nothing else")
-        case .aurora: return Text("Northern lights that move with your hinge")
+        case .aurora: return Text("Northern lights that move with your hinge, with Foldly+")
         case .custom: return Text("Your own colors, with Foldly+")
         }
     }
@@ -279,7 +282,7 @@ struct LookChoice: View {
     var body: some View {
         let current = DFLook(rawValue: lookRaw) ?? .classic
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 12)], spacing: 12) {
-            ForEach(DFLook.allCases.filter { $0 != .custom }) { look in
+            ForEach(DFLook.allCases.filter { !$0.needsPlus }) { look in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { lookRaw = look.rawValue }
                 } label: {
