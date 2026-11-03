@@ -178,13 +178,13 @@ struct ShareDaySheet: View {
     }
 }
 
-/// La santé de la charnière : le total, et à ce rythme, quand on atteint 32 000 plis
-/// (un test public d'endurance a plié ce téléphone 32 000 fois).
+/// La santé de la charnière : le total, et à ce rythme, quand on atteint 100 000 plis
+/// (le test public d'endurance de CNET a passé 100 000 ouvertures-fermetures sans panne, fin octobre 2026).
 struct HingeHealthContent: View {
     let stats: ClapetStats
     var accent: Color = .dfAccent
 
-    static let benchmark = 32_000
+    static let benchmark = 100_000
 
     var body: some View {
         let total = stats.totalCloses
