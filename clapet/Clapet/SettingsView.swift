@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage(OpeningRule.key) private var openingOn = true
     @AppStorage(DeskRule.key) private var deskOn = true
+    @AppStorage(GlanceRule.key) private var glanceOn = true
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -245,6 +246,7 @@ struct SettingsView: View {
         Form {
             Section {
                 Toggle(isOn: $deskOn) { Text("Desk mode") }
+                Toggle(isOn: $glanceOn) { Text("Just the essentials on the outer screen") }
                 Toggle(isOn: $openingOn) { Text("Opening animation") }
                 Toggle(isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })) { Text("Sounds") }
                 Toggle(isOn: Binding(get: { model.hapticsOn }, set: { model.setHaptics($0) })) { Text("Vibrations") }

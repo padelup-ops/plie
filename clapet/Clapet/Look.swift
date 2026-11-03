@@ -94,6 +94,9 @@ struct ContentView: View {
     @Environment(\.openURL) private var openURL
     @State private var showSurvey = false
     @State private var showTour = false
+    /// Écran extérieur : « Voir le détail » montre l'accueil complet (jusqu'au prochain pli).
+    @State private var outerDetails = false
+    @AppStorage(GlanceRule.key) private var glanceOn = true
     @State private var tourPending: TourTarget?
     @State private var tourTarget: TourTarget?
     @AppStorage(DeskRule.key) private var deskOn = true
@@ -104,6 +107,7 @@ struct ContentView: View {
         let look = DFLook(rawValue: lookRaw) ?? .classic
         GeometryReader { g in
             let desk = DeskRule.active(degrees: model.degrees, size: g.size) && deskOn
+            let outer = max(g.size.width, g.size.height) < 800 && glanceOn && Demo.screen == nil && !Demo.seeded
             ZStack {
                 Group {
                     switch look {
@@ -111,6 +115,11 @@ struct ContentView: View {
                     case .night, .aurora: NightHomeView()
                     case .minimal: MinimalHomeView()
                     }
+                }
+                // Petit écran extérieur : l'essentiel par-dessus (la vue d'accueil reste dessous).
+                if outer && !outerDetails && !desk {
+                    OuterGlance(look: look) { withAnimation { outerDetails = true } }
+                        .transition(.opacity)
                 }
                 // Mode bureau : la vue d'accueil reste dessous (elle lit la charnière et ouvre les feuilles).
                 if desk {
@@ -121,6 +130,7 @@ struct ContentView: View {
             .frame(width: g.size.width, height: g.size.height)
             .animation(.easeInOut(duration: 0.3), value: desk)
             .onChange(of: max(g.size.width, g.size.height) >= 800) { _, _ in
+                outerDetails = false
                 FoldlyAppDelegate.refreshOrientations()
             }
         }
@@ -396,4 +406,9 @@ struct LookThumbnail: View {
             .frame(width: width, height: width)
             .frame(height: width / 2 + 2, alignment: .top)
     }
+}
+
+/// L'essentiel sur l'écran extérieur (réglable dans Réglages > Avancé).
+enum GlanceRule {
+    static let key = "outerGlance"
 }

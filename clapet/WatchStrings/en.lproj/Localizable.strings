@@ -64,6 +64,12 @@
 "Make it yours" = "Make it yours";
 "Try the new Aurora theme, and add Foldly widgets to your Home Screen and your Apple Watch." = "Try the new Aurora theme, and add Foldly widgets to your Home Screen and your Apple Watch.";
 "Try it" = "Try it";
+"fold today" = "fold today";
+"folds today" = "folds today";
+"%lld days in a row under your limit" = "%lld days in a row under your limit";
+"Unfold your Duo to see everything" = "Unfold your Duo to see everything";
+"See details" = "See details";
+"Just the essentials on the outer screen" = "Just the essentials on the outer screen";
 "Foldly is on the App Store!" = "Foldly is on the App Store!";
 "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta." = "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta.";
 "The beta ends on November 9." = "The beta ends on November 9.";
@@ -409,7 +415,6 @@
 "Lock Screen" = "Lock Screen";
 "Live Activities are off for Foldly. Turn them on in the Settings app." = "Live Activities are off for Foldly. Turn them on in the Settings app.";
 "Your count on the Lock Screen and the outer display, updated at every fold." = "Your count on the Lock Screen and the outer display, updated at every fold.";
-"folds today" = "folds today";
 "%lld left" = "%lld left";
 "%lld over" = "%lld over";
 "Limit %lld" = "Limit %lld";

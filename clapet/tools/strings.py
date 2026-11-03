@@ -82,6 +82,13 @@ FR = {
     "Make it yours": "À ton image",
     "Try the new Aurora theme, and add Foldly widgets to your Home Screen and your Apple Watch.": "Essaie le nouveau thème Aurore, et ajoute les widgets Foldly à ton écran d'accueil et à ton Apple Watch.",
     "Try it": "Essayer",
+    # Écran extérieur : l'essentiel
+    "fold today": "pli aujourd'hui",
+    "folds today": "plis aujourd'hui",
+    "%lld days in a row under your limit": "%lld jours d'affilée sous ta limite",
+    "Unfold your Duo to see everything": "Déplie ton Duo pour tout voir",
+    "See details": "Voir le détail",
+    "Just the essentials on the outer screen": "L'essentiel sur l'écran extérieur",
     # Bandeau de la bêta (TestFlight)
     "Foldly is on the App Store!": "Foldly est sur l'App Store !",
     "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta.": "Merci de l'avoir testé. Installe la version App Store pour garder tes données : elle remplace simplement cette bêta.",
