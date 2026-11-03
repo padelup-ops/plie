@@ -81,6 +81,12 @@ final class GameState {
         }
     }
 
+    /// Le mode avion se met et s'enlève.
+    func setAirplane(_ on: Bool) {
+        if on { set("airplane") } else { facts.removeValue(forKey: "airplane"); save() }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
+
     // MARK: L'album masqué
 
     var albumOpen: Bool { has("album_open") }

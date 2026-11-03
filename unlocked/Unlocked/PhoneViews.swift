@@ -306,6 +306,9 @@ struct AppContainer: View {
                 case .notes: NotesApp()
                 case .phone: PhoneApp()
                 case .calendar: CalendarApp()
+                case .maps: MapsApp()
+                case .weather: WeatherApp()
+                case .settings: SettingsApp()
                 default: Text(T("Bientôt", "Soon"))
                 }
             }
@@ -634,7 +637,7 @@ struct PhoneApp: View {
     var body: some View {
         List {
             Section(T("Messagerie", "Voicemail")) {
-                ForEach(state.story.voicemails) { v in
+                ForEach(state.story.voicemails.filter { v in v.requires.map { state.has($0) } ?? true }) { v in
                     VoicemailRow(voicemail: v)
                 }
             }

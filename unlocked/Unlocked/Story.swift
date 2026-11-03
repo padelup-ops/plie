@@ -51,6 +51,38 @@ struct PhotoItem: Identifiable {
     var car: CGPoint? = nil
 }
 
+/// Un trajet de l'historique des Plans. `stops` : les arrêts dans l'ordre, repérés sur la carte.
+struct Trip: Identifiable {
+    let id: String
+    let day: String
+    let time: String
+    let title: String
+    let stops: [String]
+    let mode: String
+    /// Le nombre de pas pendant le trajet (montré dans le détail).
+    let steps: Int
+    var detail: String = ""
+}
+
+/// Un lieu de la carte, en coordonnées 0…1.
+struct MapPlace: Identifiable {
+    let id: String
+    let name: String
+    let point: CGPoint
+}
+
+/// Une appli vue dans Réglages (batterie, position).
+struct AppUsage: Identifiable {
+    let id: String
+    let name: String
+    let symbol: String
+    let battery: Int
+    let location: String
+    /// Ce que montre la fiche de l'appli dans Réglages (les lignes suspectes de l'espion).
+    var details: [String] = []
+    var spy = false
+}
+
 /// Un album protégé par un code.
 struct HiddenAlbum {
     let title: String
@@ -95,6 +127,8 @@ struct Voicemail: Identifiable {
     let date: String
     let seconds: Int
     let transcript: String
+    /// Le message n'apparaît qu'une fois ce fait connu.
+    var requires: String? = nil
 }
 
 /// Un message qui arrive en direct, `delay` secondes après que `after` est devenu vrai.
@@ -118,7 +152,7 @@ struct ReplyChoice: Identifiable {
 
 /// Un appareil de l'écran d'accueil.
 enum AppKind: String, CaseIterable, Identifiable {
-    case messages, photos, notes, phone, calendar, maps, mail, settings
+    case messages, photos, notes, phone, calendar, maps, weather, mail, settings
     var id: String { rawValue }
 
     var title: String {
@@ -131,6 +165,7 @@ enum AppKind: String, CaseIterable, Identifiable {
         case .maps: return T("Plans", "Maps")
         case .mail: return T("Mail", "Mail")
         case .settings: return T("Réglages", "Settings")
+        case .weather: return "Météo+"
         }
     }
 
@@ -144,6 +179,7 @@ enum AppKind: String, CaseIterable, Identifiable {
         case .maps: return "map.fill"
         case .mail: return "envelope.fill"
         case .settings: return "gearshape.fill"
+        case .weather: return "cloud.sun.fill"
         }
     }
 
@@ -157,6 +193,7 @@ enum AppKind: String, CaseIterable, Identifiable {
         case .maps: return [Color(red: 0.4, green: 0.75, blue: 1.0), Color(red: 0.2, green: 0.55, blue: 0.95)]
         case .mail: return [Color(red: 0.35, green: 0.7, blue: 1.0), Color(red: 0.1, green: 0.45, blue: 0.95)]
         case .settings: return [Color(white: 0.62), Color(white: 0.42)]
+        case .weather: return [Color(red: 0.35, green: 0.62, blue: 1.0), Color(red: 0.2, green: 0.35, blue: 0.85)]
         }
     }
 
@@ -165,7 +202,7 @@ enum AppKind: String, CaseIterable, Identifiable {
         switch self {
         case .messages, .photos, .notes, .phone: return 1
         case .calendar: return 2
-        case .maps, .settings: return 3
+        case .maps, .settings, .weather: return 3
         case .mail: return 4
         }
     }
@@ -188,6 +225,9 @@ struct PhoneStory {
     /// Les notifications montrées sur l'écran verrouillé au début.
     let lockNotifications: [Message]
     let events: [CalendarEvent]
+    let places: [MapPlace]
+    let trips: [Trip]
+    let usage: [AppUsage]
     let hiddenAlbum: HiddenAlbum?
     let chapters: [Chapter]
     /// Nombre de chapitres gratuits ; la suite s'achète une fois.

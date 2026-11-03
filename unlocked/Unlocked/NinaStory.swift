@@ -19,7 +19,8 @@ enum NinaStory {
             Contact(id: "maman", name: T("Maman", "Mom"), color: Color(red: 0.55, green: 0.6, blue: 0.95)),
             Contact(id: "h", name: "H ♡", color: Color(red: 0.5, green: 0.5, blue: 0.55)),
             Contact(id: "samir", name: "Samir Studio", color: Color(red: 0.3, green: 0.75, blue: 0.7)),
-            Contact(id: "studio", name: "Studio Lumen 📷", color: Color(red: 0.95, green: 0.7, blue: 0.3))
+            Contact(id: "studio", name: "Studio Lumen 📷", color: Color(red: 0.95, green: 0.7, blue: 0.3)),
+            Contact(id: "lea", name: T("Léa (Refuge)", "Léa (Refuge)"), color: Color(red: 0.6, green: 0.45, blue: 0.85))
         ],
         conversations: [
             Conversation(id: "ines", contact: "ines", history: [
@@ -124,7 +125,11 @@ enum NinaStory {
                                     "It's me. I'm outside your place. The light is off. I just want to talk. Call me back.")),
             Voicemail(id: "v3", contact: "samir", date: T("Ven. 20:05", "Fri 8:05 PM"), seconds: 12,
                       transcript: T("Hé, c'est Samir. Je l'ai mis dans mon casier. Personne n'y touche. Prends soin de toi.",
-                                    "Hey, it's Samir. I put it in my locker. Nobody touches it. Take care of yourself."))
+                                    "Hey, it's Samir. I put it in my locker. Nobody touches it. Take care of yourself.")),
+            Voicemail(id: "v4", contact: "lea", date: T("Jeu. 14:20", "Thu 2:20 PM"), seconds: 26,
+                      transcript: T("Bonjour Nina, c'est Léa, de l'association Refuge. Je vous confirme notre rendez-vous de vendredi, 18 heures, devant la gare. Prenez seulement vos papiers. Et comme on a dit : pas votre téléphone. À vendredi. Vous avez bien fait d'appeler.",
+                                    "Hello Nina, it's Léa, from the Refuge association. I'm confirming our meeting on Friday, 6 pm, outside the station. Bring only your papers. And like we said: not your phone. See you Friday. You did the right thing by calling."),
+                      requires: "ch3")
         ],
         live: [
             LiveMessage(id: "l1", after: "unlocked", delay: 6, message: Message(id: "li1", thread: "ines", fromMe: false, text: T("…Nina ? Ton téléphone vient de se rallumer ?", "…Nina? Your phone just came back on?"), time: T("maintenant", "now"))),
@@ -147,7 +152,19 @@ enum NinaStory {
             LiveMessage(id: "c5", after: "car_told", delay: 4, message: Message(id: "c2i4", thread: "ines", fromMe: false, text: T("Hugo a une Clio grise. Je l'ai vue cent fois devant chez elle.", "Hugo drives a grey Clio. I've seen it outside her place a hundred times."), time: T("maintenant", "now"))),
             LiveMessage(id: "c6", after: "car_told", delay: 12, message: Message(id: "c2i5", thread: "ines", fromMe: false, text: T("Elle le prenait en photo. Pour avoir des preuves. Et elle ne m'a rien dit…", "She was taking photos of him. To have proof. And she never told me…"), time: T("maintenant", "now"))),
             LiveMessage(id: "c7", after: "car_told", delay: 22, message: Message(id: "c2s1", thread: "samir", fromMe: false, text: T("Nina ? C'est toi ? J'ai toujours ce que tu m'as donné. Dans mon casier, comme promis.", "Nina? Is that you? I still have what you gave me. In my locker, like I promised."), time: T("maintenant", "now"))),
-            LiveMessage(id: "c8", after: "car_told", delay: 32, message: Message(id: "c2h2", thread: "h", fromMe: false, text: T("Je vais venir le chercher, ce téléphone.", "I'm coming to get that phone."), time: T("maintenant", "now")), sets: "ch2_done")
+            LiveMessage(id: "c8", after: "car_told", delay: 32, message: Message(id: "c2h2", thread: "h", fromMe: false, text: T("Je vais venir le chercher, ce téléphone.", "I'm coming to get that phone."), time: T("maintenant", "now")), sets: "ch2_done"),
+            // Chapitre 3 — La carte
+            LiveMessage(id: "d1", after: "ch3", delay: 6, message: Message(id: "c3i1", thread: "ines", fromMe: false, text: T("Hugo vient de m'écrire. Il dit qu'il « voit » Nina : à Saint-Nazaire, puis au Croisic, puis à Nantes. Elle bouge tout le temps. Il la suit ??", "Hugo just texted me. He says he can \"see\" Nina: in Saint-Nazaire, then Le Croisic, then Nantes. She keeps moving. Is he following her??"), time: T("maintenant", "now")), sets: "ines_where"),
+            LiveMessage(id: "d2", after: "ch3", delay: 24, message: Message(id: "c3h1", thread: "h", fromMe: false, text: T("Pourquoi tu es à la gare de Savenay ?", "Why are you at Savenay station?"), time: T("maintenant", "now"))),
+            LiveMessage(id: "d3", after: "train_wrong", delay: 3, message: Message(id: "c3i2", thread: "ines", fromMe: false, text: T("Mais elle irait faire quoi là-bas, trois jours de suite ? Regardez ses trajets dans Plans… et ce qu'elle faisait vraiment pendant ces trajets.", "But what would she do there, three days in a row? Look at her trips in Maps… and what she was actually doing during them."), time: T("maintenant", "now"))),
+            LiveMessage(id: "d4", after: "train_told", delay: 4, message: Message(id: "c3i3", thread: "ines", fromMe: false, text: T("Donc elle a laissé son téléphone dans le train… exprès ?", "So she left her phone on the train… on purpose?"), time: T("maintenant", "now"))),
+            LiveMessage(id: "d5", after: "train_told", delay: 12, message: Message(id: "c3i4", thread: "ines", fromMe: false, text: T("Mais alors comment Hugo sait où est ce téléphone ? Il y a un truc dedans, c'est pas possible.", "But then how does Hugo know where the phone is? There's something on it, there has to be."), time: T("maintenant", "now")), sets: "ines_how"),
+            LiveMessage(id: "d6", after: "spy_told", delay: 5, message: Message(id: "c3i5", thread: "ines", fromMe: false, text: T("Il l'espionnait. Depuis septembre. Je vais vomir.", "He was spying on her. Since September. I feel sick."), time: T("maintenant", "now"))),
+            LiveMessage(id: "d7", after: "spy_told", delay: 13, message: Message(id: "c3i6", thread: "ines", fromMe: false, text: T("Et vendredi 18 h, son « truc »… Elle avait rendez-vous avec qui ? Le « R. » de son agenda ?", "And Friday 6 pm, her \"thing\"… Who was she meeting? The \"R.\" in her calendar?"), time: T("maintenant", "now")), sets: "ines_r"),
+            LiveMessage(id: "d8", after: "r_unknown", delay: 3, message: Message(id: "c3i7", thread: "ines", fromMe: false, text: T("Sa messagerie ? Quelqu'un a peut-être laissé un message cette semaine.", "Her voicemail? Maybe someone left a message this week."), time: T("maintenant", "now"))),
+            LiveMessage(id: "d9", after: "refuge_told", delay: 4, message: Message(id: "c3i8", thread: "ines", fromMe: false, text: T("Elle est à l'abri… 😭 Elle a tout préparé toute seule. Merci. Vraiment.", "She's safe… 😭 She planned all of it on her own. Thank you. Really."), time: T("maintenant", "now"))),
+            LiveMessage(id: "d10", after: "refuge_told", delay: 12, message: Message(id: "c3h2", thread: "h", fromMe: false, text: T("Tu ne bouges plus. Je sais exactement où tu es.", "You've stopped moving. I know exactly where you are."), time: T("maintenant", "now"))),
+            LiveMessage(id: "d11", after: "refuge_told", delay: 20, message: Message(id: "c3h3", thread: "h", fromMe: false, text: T("J'arrive.", "I'm coming."), time: T("maintenant", "now")), sets: "ch3_done")
         ],
         replies: [
             ReplyChoice(id: "r1", thread: "ines", when: ["ines_asks"], until: "ines_told", text: T("Oui. Je l'ai trouvé sur un siège du TER, ce matin.", "Yes. I found it on a seat on the train this morning."), sets: "ines_told"),
@@ -157,7 +174,12 @@ enum NinaStory {
             ReplyChoice(id: "r5", thread: "ines", when: ["ask_h", "seen_back_p3"], until: "h_found", text: T("C'est Hugo. Il est sur une photo d'anniversaire.", "It's Hugo. He's in a birthday photo."), sets: "h_found"),
             ReplyChoice(id: "r6", thread: "ines", when: ["ines_note_ask"], until: "note_told", text: T("Oui. Elle dit qu'elle va bien, de ne pas répondre à H, et de regarder ses photos.", "Yes. She says she's ok, not to answer H, and to look at her photos."), sets: "note_told"),
             ReplyChoice(id: "r7", thread: "ines", when: ["ines_note_ask"], until: "note_told", text: T("Elle dit qu'elle va bien.", "She says she's ok."), sets: "note_told"),
-            ReplyChoice(id: "r8", thread: "ines", when: ["car_all"], until: "car_told", text: T("Dans son album caché, la même voiture grise revient sur chaque photo. Plaque GX-417-HL.", "In her hidden album, the same grey car is in every photo. Plate GX-417-HL."), sets: "car_told")
+            ReplyChoice(id: "r8", thread: "ines", when: ["car_all"], until: "car_told", text: T("Dans son album caché, la même voiture grise revient sur chaque photo. Plaque GX-417-HL.", "In her hidden album, the same grey car is in every photo. Plate GX-417-HL."), sets: "car_told"),
+            ReplyChoice(id: "r9", thread: "ines", when: ["ines_where", "seen_steps"], until: "train_told", text: T("Elle n'a jamais pris ce train. Le téléphone fait des allers-retours tout seul depuis vendredi 18 h 42 : zéro pas.", "She never took that train. The phone has been going back and forth on its own since Friday 6:42 pm: zero steps."), sets: "train_told"),
+            ReplyChoice(id: "r10", thread: "ines", when: ["ines_where"], until: "train_told", text: T("Elle est sûrement au Croisic.", "She's probably in Le Croisic."), sets: "train_wrong"),
+            ReplyChoice(id: "r11", thread: "ines", when: ["ines_how", "spy_found"], until: "spy_told", text: T("Une fausse appli météo, Météo+. Elle envoie la position du téléphone à « H », en permanence.", "A fake weather app, Météo+. It sends the phone's location to \"H\", all the time."), sets: "spy_told"),
+            ReplyChoice(id: "r12", thread: "ines", when: ["ines_r", "heard_v4"], until: "refuge_told", text: T("« R. », c'est Refuge, une association d'aide. Elle avait rendez-vous vendredi 18 h devant la gare. Elle s'est mise à l'abri.", "\"R.\" is Refuge, a support association. She was meeting them Friday 6 pm outside the station. She went somewhere safe."), sets: "refuge_told"),
+            ReplyChoice(id: "r13", thread: "ines", when: ["ines_r"], until: "refuge_told", text: T("Aucune idée de qui est « R. ».", "No idea who \"R.\" is."), sets: "r_unknown")
         ],
         lockNotifications: [
             Message(id: "ln1", thread: "ines", fromMe: false, text: T("T'es où ??", "Where are you??"), time: "07:58"),
@@ -173,6 +195,38 @@ enum NinaStory {
             CalendarEvent(id: "e4", day: T("Dimanche 2 novembre", "Sunday, November 2"), time: "12:30", title: T("Déjeuner chez maman", "Lunch at mom's"),
                           detail: T("112 rue Saint-Aubin, Angers\n(gâteau aux pommes 🍎)", "112 rue Saint-Aubin, Angers\n(apple cake 🍎)"), color: .pink),
             CalendarEvent(id: "e5", day: T("Lundi 3 novembre", "Monday, November 3"), time: "09:00", title: T("Studio", "Studio"), color: .orange)
+        ],
+        places: [
+            MapPlace(id: "croisic", name: "Le Croisic", point: CGPoint(x: 0.13, y: 0.5)),
+            MapPlace(id: "baule", name: "La Baule", point: CGPoint(x: 0.24, y: 0.44)),
+            MapPlace(id: "nazaire", name: "Saint-Nazaire", point: CGPoint(x: 0.36, y: 0.56)),
+            MapPlace(id: "savenay", name: "Savenay", point: CGPoint(x: 0.53, y: 0.38)),
+            MapPlace(id: "nantes", name: "Nantes", point: CGPoint(x: 0.76, y: 0.62)),
+            MapPlace(id: "angers", name: "Angers", point: CGPoint(x: 0.93, y: 0.3))
+        ],
+        trips: [
+            Trip(id: "t1", day: T("Dimanche 26 octobre", "Sunday, October 26"), time: "10:12 – 10:52", title: T("TER Nantes → Angers", "Train Nantes → Angers"), stops: ["nantes", "angers"], mode: "tram.fill", steps: 312),
+            Trip(id: "t2", day: T("Jeudi 30 octobre", "Thursday, October 30"), time: "08:31 – 08:52", title: T("Domicile → Studio Lumen", "Home → Studio Lumen"), stops: ["nantes"], mode: "figure.walk", steps: 2140),
+            Trip(id: "t3", day: T("Vendredi 31 octobre", "Friday, October 31"), time: "17:41 – 18:05", title: T("Domicile → Gare de Nantes", "Home → Nantes station"), stops: ["nantes"], mode: "figure.walk", steps: 1980,
+                 detail: T("Arrivée à la gare à 18:05. Le téléphone reste ensuite immobile 37 minutes.", "Arrived at the station at 6:05 pm. The phone then stays still for 37 minutes.")),
+            Trip(id: "t4", day: T("Vendredi 31 octobre", "Friday, October 31"), time: "18:42 – 20:01", title: T("TER Nantes → Le Croisic", "Train Nantes → Le Croisic"), stops: ["nantes", "savenay", "nazaire", "baule", "croisic"], mode: "tram.fill", steps: 0,
+                 detail: T("Aucun pas pendant le trajet, ni à l'arrivée.", "No steps during the trip, nor after arriving.")),
+            Trip(id: "t5", day: T("Samedi 1er novembre", "Saturday, November 1"), time: "09:15 – 10:31", title: T("TER Le Croisic → Nantes", "Train Le Croisic → Nantes"), stops: ["croisic", "baule", "nazaire", "savenay", "nantes"], mode: "tram.fill", steps: 0),
+            Trip(id: "t6", day: T("Samedi 1er novembre", "Saturday, November 1"), time: "14:30 – 15:49", title: T("TER Nantes → Le Croisic", "Train Nantes → Le Croisic"), stops: ["nantes", "savenay", "nazaire", "baule", "croisic"], mode: "tram.fill", steps: 0),
+            Trip(id: "t7", day: T("Dimanche 2 novembre", "Sunday, November 2"), time: T("toute la journée", "all day"), title: T("4 trajets en TER", "4 train trips"), stops: ["croisic", "baule", "nazaire", "savenay", "nantes"], mode: "tram.fill", steps: 0),
+            Trip(id: "t8", day: T("Lundi 3 novembre", "Monday, November 3"), time: T("07:40 – en cours", "7:40 am – ongoing"), title: T("TER Le Croisic → Nantes", "Train Le Croisic → Nantes"), stops: ["croisic", "baule", "nazaire", "savenay"], mode: "tram.fill", steps: 0,
+                 detail: T("Position actuelle : près de Savenay.", "Current location: near Savenay."))
+        ],
+        usage: [
+            AppUsage(id: "weather", name: "Météo+", symbol: "cloud.sun.fill", battery: 41, location: T("Toujours", "Always"),
+                     details: [T("Installée le 12 septembre 2025", "Installed on September 12, 2025"),
+                               T("Activité en arrière-plan : en permanence", "Background activity: all the time"),
+                               T("Partage de position en direct : 1 appareil (« H »)", "Live location sharing: 1 device (\"H\")")],
+                     spy: true),
+            AppUsage(id: "messages", name: "Messages", symbol: "message.fill", battery: 14, location: T("Jamais", "Never")),
+            AppUsage(id: "maps", name: T("Plans", "Maps"), symbol: "map.fill", battery: 11, location: T("Pendant l'utilisation", "While using")),
+            AppUsage(id: "photos", name: "Photos", symbol: "photo.on.rectangle.angled", battery: 8, location: T("Pendant l'utilisation", "While using")),
+            AppUsage(id: "camera", name: T("Appareil photo", "Camera"), symbol: "camera.fill", battery: 6, location: T("Pendant l'utilisation", "While using"))
         ],
         hiddenAlbum: HiddenAlbum(
             title: T("Masqué", "Hidden"),
@@ -197,9 +251,13 @@ enum NinaStory {
                                "Nina knew someone would read her note. She was counting on you.\nIn chapter 2, her calendar opens, and a hidden album is waiting in her photos."),
                     start: "unlocked"),
             Chapter(title: T("Les photos", "The photos"), end: "ch2_done",
-                    endText: T("Nina photographiait Hugo depuis des semaines. Des preuves.\nEt maintenant, il sait que quelqu'un a son téléphone.\nLe chapitre 3 arrive bientôt.",
-                               "Nina had been photographing Hugo for weeks. Proof.\nAnd now he knows someone has her phone.\nChapter 3 is coming soon."),
-                    start: "ch2")
+                    endText: T("Nina photographiait Hugo depuis des semaines. Des preuves.\nEt maintenant, il sait que quelqu'un a son téléphone.\nAu chapitre 3, Plans, Météo+ et Réglages s'ouvrent.",
+                               "Nina had been photographing Hugo for weeks. Proof.\nAnd now he knows someone has her phone.\nIn chapter 3, Maps, Météo+ and Settings open up."),
+                    start: "ch2"),
+            Chapter(title: T("La carte", "The map"), end: "ch3_done",
+                    endText: T("Nina ne s'est pas enfuie au hasard : elle s'est mise à l'abri, et a envoyé son téléphone sur une fausse piste.\nMais Hugo suit toujours ce téléphone. Et il arrive.\nLe chapitre 4 arrive bientôt.",
+                               "Nina didn't just run: she got herself to safety, and sent her phone down a false trail.\nBut Hugo is still tracking this phone. And he's coming.\nChapter 4 is coming soon."),
+                    start: "ch3")
         ],
         freeChapters: 1
     )
