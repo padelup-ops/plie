@@ -205,8 +205,8 @@ Foldly 免费。Foldly+ 一次购买即可解锁全部功能，无需订阅：
 全天计数：若想在 Foldly 不在屏幕上时也计数，把它的“计数一次折叠”操作接入快捷指令自动化“iPhone 合上时”：App 会教你怎么做。无广告，无需账户。你的数据只保存在你的 iPhone 上。""",
 }
 
-# Les captures d'écran de chaque langue (en attendant des captures traduites : l'anglais)
-SHOT_LANG = {"en-US": "en", "fr-FR": "fr", "de-DE": "en", "es-ES": "en", "ja": "en", "ko": "en", "zh-Hans": "en"}
+# Les captures d'écran de chaque langue (clapet/tools/store/<langue>-N.png et duo-<langue>-N.png)
+SHOT_LANG = {"en-US": "en", "fr-FR": "fr", "de-DE": "de", "es-ES": "es", "ja": "ja", "ko": "ko", "zh-Hans": "zh-Hans"}
 
 # Les nouveautés de la 1.0.3
 WHATS_NEW_103 = {
