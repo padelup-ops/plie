@@ -1,0 +1,21 @@
+# Lecture seule d'App Store Connect (diagnostic)
+name: Clapet - lecture ASC
+on:
+  workflow_dispatch:
+    inputs:
+      paths:
+        description: "Routes GET séparées par des espaces ({app} = id de Foldly)"
+        required: true
+jobs:
+  get:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      ASC_PATHS: ${{ inputs.paths }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_get.py
