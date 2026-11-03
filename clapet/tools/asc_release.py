@@ -206,10 +206,20 @@ if NEW_VERSION:
         print(f"ok     version {NEW_VERSION} déjà créée ({existing[0]['attributes'].get('appStoreState')})")
         new_vid = existing[0]["id"]
     else:
-        r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                 "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL"},
-                 "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
-        new_vid = r.get("data", {}).get("id")
+        # Une app jamais publiée garde sa première version modifiable : on la renomme plutôt que d'en créer une autre.
+        all_v = call("GET", f"/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS&limit=10").get("data", [])
+        never_live = not any(x["attributes"].get("appStoreState") in ("READY_FOR_SALE", "READY_FOR_DISTRIBUTION") for x in all_v)
+        editable_v = [x for x in all_v if x["attributes"].get("appStoreState") in ("PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED")]
+        if never_live and editable_v:
+            ev = editable_v[0]
+            r = step(f"version {ev['attributes']['versionString']} renommée en {NEW_VERSION}", call("PATCH", f"/v1/appStoreVersions/{ev['id']}",
+                     {"data": {"type": "appStoreVersions", "id": ev["id"], "attributes": {"versionString": NEW_VERSION}}}))
+            new_vid = ev["id"]
+        else:
+            r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" else "AFTER_APPROVAL"},
+                     "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
+            new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
     if new_vid and notes:
         for l in call("GET", f"/v1/appStoreVersions/{new_vid}/appStoreVersionLocalizations").get("data", []):
@@ -252,7 +262,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
