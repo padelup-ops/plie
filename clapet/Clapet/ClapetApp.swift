@@ -29,6 +29,11 @@ struct ClapetApp: App {
                         model.setPlus(has)
                         UserDefaults.standard.set(has, forKey: "plusActive")
                         GameCenter.shared.plus = has
+                        // Sans Foldly+ : le compteur de l'écran verrouillé et le bilan du soir s'arrêtent.
+                        if !has {
+                            if LiveCounter.isOn { LiveCounter.stop() }
+                            if EveningSummary.isOn { Task { _ = await EveningSummary.setOn(false, stats: model.stats) } }
+                        }
                     }
                     GameCenter.shared.start()
                     await store.load()

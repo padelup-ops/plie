@@ -608,6 +608,8 @@ T = [
 "Complicaciones de Apple Watch",
 "Tus pliegues directamente en tu esfera.",
 "Desbloquéalo en tu iPhone",
+"Contador en la pantalla de bloqueo y resumen de la noche",
+"Tu cuenta en directo en la pantalla de bloqueo y tu día resumido a las 21:30.",
 ]
 S = [
 "Hacer una pausa con ${applicationName}",

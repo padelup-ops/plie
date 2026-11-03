@@ -673,7 +673,7 @@ struct ClassicHomeView: View {
             Divider().padding(.leading, 52)
             row("dot.radiowaves.left.and.right", Text("Live counter"),
                 liveOn ? Text("On the Lock Screen") : Text("Folds today, right on the Lock Screen"), locked: false) {
-                if liveOn { LiveCounter.stop(); liveOn = false } else { liveOn = LiveCounter.start(model.stats) }
+                if !store.hasPlus { plusReason = .menu } else if liveOn { LiveCounter.stop(); liveOn = false } else { liveOn = LiveCounter.start(model.stats) }
             }
             Divider().padding(.leading, 52)
             row("chart.bar.doc.horizontal", Text("Weekly recap"), Text("Your week, compared with the week before"), locked: false) {

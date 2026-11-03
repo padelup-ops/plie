@@ -167,14 +167,18 @@ struct SettingsView: View {
                             Text("Remind me")
                         }
                     }
-                    Toggle(isOn: Binding(get: { eveningOn }, set: { on in
+                    Toggle(isOn: Binding(get: { eveningOn && store.hasPlus }, set: { on in
+                        guard store.hasPlus else { showPlus = true; return }
                         Task {
                             let ok = await EveningSummary.setOn(on, stats: model.stats)
                             eveningOn = ok && on
                             notificationsDenied = on && !ok
                         }
                     })) {
-                        Text("Evening summary (9:30 pm)")
+                        HStack(spacing: 6) {
+                            Text("Evening summary (9:30 pm)")
+                            if !store.hasPlus { PlusBadge() }
+                        }
                     }
                     Toggle(isOn: Binding(get: { weekOn }, set: { on in
                         Task {
@@ -186,7 +190,8 @@ struct SettingsView: View {
                     })) {
                         Text("Weekly and monthly recaps")
                     }
-                    Toggle(isOn: Binding(get: { liveOn }, set: { on in
+                    Toggle(isOn: Binding(get: { liveOn && store.hasPlus }, set: { on in
+                        guard store.hasPlus else { showPlus = true; return }
                         if on {
                             liveOn = LiveCounter.start(model.stats)
                             liveDenied = !liveOn
@@ -195,7 +200,10 @@ struct SettingsView: View {
                             liveOn = false
                         }
                     })) {
-                        Text("Count on the Lock Screen")
+                        HStack(spacing: 6) {
+                            Text("Count on the Lock Screen")
+                            if !store.hasPlus { PlusBadge() }
+                        }
                     }
                 } header: {
                     Text("Notifications")

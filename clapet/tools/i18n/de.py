@@ -608,6 +608,8 @@ T = [
 "Apple Watch-Komplikationen",
 "Deine Faltungen direkt auf deinem Zifferblatt.",
 "Auf deinem iPhone freischalten",
+"Sperrbildschirm-Zähler und Abendbilanz",
+"Dein Zähler live auf dem Sperrbildschirm und dein Tag um 21:30 zusammengefasst.",
 ]
 S = [
 "Mit ${applicationName} eine Pause machen",

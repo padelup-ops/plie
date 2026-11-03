@@ -36,6 +36,7 @@ struct PlusView: View {
                         perk("swatchpalette.fill", Text("Aurora and My theme"), Text("The Aurora theme with its northern lights, and your own colors for the whole app."))
                         perk("chart.bar.xaxis", Text("Your hours and monthly recap"), Text("When you unfold the most, and your month compared with the one before."))
                         perk("applewatch", Text("Apple Watch complications"), Text("Your folds right on your watch face."))
+                        perk("lock.rectangle.on.rectangle", Text("Lock Screen counter and evening summary"), Text("Your count live on the Lock Screen, and your day summed up at 9:30 pm."))
                         perk("rectangle.3.group", Text("Every widget"), Text("The big Health-style widget, the medium one and the Lock Screen ones: your folds at a glance."))
                         perk("bell.badge", Text("Limit alerts"), Text("If you set a daily limit: a notification at 80 % and at 100 %."))
                         perk("calendar", Text("Your full history"), Text("30 days, 12 months, the calendar of your days, your trends and records."))

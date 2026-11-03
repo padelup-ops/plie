@@ -687,6 +687,8 @@ FR = {
     "Apple Watch complications": "Complications Apple Watch",
     "Your folds right on your watch face.": "Tes plis directement sur ton cadran.",
     "Unlock on your iPhone": "Débloque sur ton iPhone",
+    "Lock Screen counter and evening summary": "Compteur sur l'écran verrouillé et bilan du soir",
+    "Your count live on the Lock Screen, and your day summed up at 9:30 pm.": "Ton compteur en direct sur l'écran verrouillé, et ta journée résumée à 21 h 30.",
 }
 
 SHORTCUTS_FR = {
