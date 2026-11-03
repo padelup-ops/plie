@@ -13,6 +13,7 @@ def call(method, path, body=None):
             raw = r.read()
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
+        return {"error": e.code, "detail": e.read().decode()[:600]}
 app = call("GET", "/v1/apps?filter[bundleId]=com.padelup.clapet")["data"][0]
 for path in os.environ["ASC_PATHS"].split():
     path = path.replace("{app}", app["id"])
