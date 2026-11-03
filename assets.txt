@@ -1,0 +1,31 @@
+APP 6825605393 Origamo: Folding Mini Games
+bibliothèque : {"data": {"type": "appAssetLibraries", "id": "6825605393", "relationships": {"images": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/relationships/images", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/images"}}, "videos": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/relationships/videos", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/videos"}}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393"}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/apps/6825605393/assetLibrary"}}
+0 vidéo(s) déjà dans la bibliothèque
+envoi  header en-US (6149 Ko)
+       réservée (relation « assetLibrary », attributs ['category', 'fileName', 'fileSize', 'referenceName'])
+       2 morceau(x) envoyé(s)
+       image d'affiche 00:00:00:15 ok
+       état COMPLETE · spécification None · {"category": "CREATIVE_ASSETS", "createdDate": "2026-11-03T08:40:26.662034Z", "lastModifiedDate": "2026-11-03T08:40:29.953008Z", "fileName": "header.mp4", "fileSize": 6297433, "previewFrameImage": {"image": null, "state": {"errors": null, "warnings": null, "state": "PROCESSING"}}, "previewFrameTimeCode": "00:00:00:15", "referenceName": "header-en-US-5847e7d6e577", "specId": null, "state": "COMPLETE", "stateDetails": null, "videoAsset": null}
+envoi  search en-US (3624 Ko)
+       réservée (relation « assetLibrary », attributs ['category', 'fileName', 'fileSize', 'referenceName'])
+       1 morceau(x) envoyé(s)
+       image d'affiche 00:00:00:15 ok
+       état COMPLETE · spécification None · {"category": "CREATIVE_ASSETS", "createdDate": "2026-11-03T08:40:44.523101Z", "lastModifiedDate": "2026-11-03T08:43:10.551957Z", "fileName": "search.mp4", "fileSize": 3711961, "previewFrameImage": {"image": null, "state": {"errors": null, "warnings": null, "state": "PROCESSING"}}, "previewFrameTimeCode": "00:00:00:15", "referenceName": "search-en-US-8630619ae655", "specId": null, "state": "COMPLETE", "stateDetails": null, "videoAsset": null}
+envoi  header fr-FR (6152 Ko)
+       réservée (relation « assetLibrary », attributs ['category', 'fileName', 'fileSize', 'referenceName'])
+       2 morceau(x) envoyé(s)
+       image d'affiche 00:00:00:15 ok
+       état COMPLETE · spécification None · {"category": "CREATIVE_ASSETS", "createdDate": "2026-11-03T08:43:17.599419Z", "lastModifiedDate": "2026-11-03T08:43:29.086792Z", "fileName": "header.mp4", "fileSize": 6299767, "previewFrameImage": {"image": null, "state": {"errors": null, "warnings": null, "state": "PROCESSING"}}, "previewFrameTimeCode": "00:00:00:15", "referenceName": "header-fr-FR-d6a4124866d3", "specId": null, "state": "COMPLETE", "stateDetails": null, "videoAsset": null}
+envoi  search fr-FR (3574 Ko)
+       réservée (relation « assetLibrary », attributs ['category', 'fileName', 'fileSize', 'referenceName'])
+       1 morceau(x) envoyé(s)
+       image d'affiche 00:00:00:15 ok
+       état COMPLETE · spécification None · {"category": "CREATIVE_ASSETS", "createdDate": "2026-11-03T08:43:35.323943Z", "lastModifiedDate": "2026-11-03T08:43:38.05046Z", "fileName": "search.mp4", "fileSize": 3660194, "previewFrameImage": {"image": null, "state": {"errors": null, "warnings": null, "state": "PROCESSING"}}, "previewFrameTimeCode": "00:00:00:15", "referenceName": "search-fr-FR-eb3e6d02e26f", "specId": null, "state": "COMPLETE", "stateDetails": null, "videoAsset": null}
+
+Bibliothèque :
+  header-en-US-5847e7d6e577 · PREPARE_FOR_SUBMISSION · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-en-US-8630619ae655 · PREPARE_FOR_SUBMISSION · spécification a28b6440-2fe2-58f0-9da3-354cb54cab57 · affiche 00:00:00:15
+  header-fr-FR-d6a4124866d3 · PREPARE_FOR_SUBMISSION · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-fr-FR-eb3e6d02e26f · COMPLETE · spécification None · affiche 00:00:00:15
+
+ENVOYÉ DANS LA BIBLIOTHÈQUE
