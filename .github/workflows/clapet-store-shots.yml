@@ -36,7 +36,15 @@ jobs:
             echo "$RUNNER_TEMP/xg/xcodegen/bin" >> "$GITHUB_PATH"
             export PATH="$RUNNER_TEMP/xg/xcodegen/bin:$PATH"
           fi
-          cd clapet && xcodegen generate
+          cd clapet
+          # Captures de l'iPhone seulement : sans l'app montre (elle ne se compile pas pour le simulateur iPhone)
+          python3 - <<'PY2'
+          s = open('project.yml').read()
+          a = "      - target: FoldlyWatch\n        embed: true\n"
+          assert a in s
+          open('project.yml', 'w').write(s.replace(a, "", 1))
+          PY2
+          xcodegen generate
 
       - name: Préparer le simulateur iPhone Duo
         run: |
@@ -111,7 +119,7 @@ jobs:
         env:
           GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp clapet/build.log shots/ 2>/dev/null || true
+          mkdir -p shots; cp rushes/*.gz shots/ 2>/dev/null || true
           cd shots
           git init -q -b ci-clapet-shots
           git config user.name "github-actions"
