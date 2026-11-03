@@ -27,6 +27,7 @@ on:
       - ".github/workflows/demo-video.yml"
       - ".github/workflows/clapet-*.yml"
       - "clapet/**"
+      - "nina/**"
   workflow_dispatch:
 
 concurrency:
