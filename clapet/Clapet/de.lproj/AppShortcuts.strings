@@ -1,0 +1,7 @@
+/* Raccourcis de (écrit par clapet/tools/strings.py) */
+"Take a pause with ${applicationName}" = "Mit ${applicationName} eine Pause machen";
+"Count a fold in ${applicationName}" = "In ${applicationName} eine Faltung zählen";
+"Add a fold in ${applicationName}" = "In ${applicationName} eine Faltung hinzufügen";
+"How many folds today in ${applicationName}" = "Wie viele Faltungen heute in ${applicationName}";
+"My folds in ${applicationName}" = "Meine Faltungen in ${applicationName}";
+"Count an opening in ${applicationName}" = "In ${applicationName} eine Öffnung zählen";

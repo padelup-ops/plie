@@ -69,6 +69,9 @@ Un seul achat, tout est inclus. Sans abonnement, sans pub, sans compte.
 
 Compter toute la journée : à l'écran, Foldly lit lui-même la charnière. Pour compter quand il n'est pas à l'écran, branche son action « Compter un pli » sur l'automatisation Raccourcis « iPhone fermé » : l'app te montre comment, pas à pas. Tes chiffres restent sur ton iPhone.""",
 }
+# La fiche dans toutes les langues (remplace les textes ci-dessus)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from listing import NAMES, SUBTITLE, KEYWORDS, PROMO, DESCRIPTION  # noqa: E402
 BETA_DESCRIPTION = {
     "en-US": "Foldly counts how many times you close and open your foldable phone, with your time open and closed, a weekly recap and widgets like the steps in Health.",
     "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec ton temps ouvert et fermé, un bilan de la semaine et des widgets comme les pas dans Santé.",

@@ -1,0 +1,7 @@
+/* Raccourcis ko (écrit par clapet/tools/strings.py) */
+"Take a pause with ${applicationName}" = "${applicationName}로 잠시 쉬기";
+"Count a fold in ${applicationName}" = "${applicationName}에서 1번 세기";
+"Add a fold in ${applicationName}" = "${applicationName}에 1번 더하기";
+"How many folds today in ${applicationName}" = "${applicationName}에서 오늘 몇 번";
+"My folds in ${applicationName}" = "${applicationName}에서 나의 횟수";
+"Count an opening in ${applicationName}" = "${applicationName}에서 열기 세기";

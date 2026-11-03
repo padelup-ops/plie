@@ -699,6 +699,30 @@ def write(path, pairs, header):
             f.write(f'"{esc(k)}" = "{esc(v)}";\n')
 
 
+# Les autres langues : clapet/tools/i18n/<langue>.py, une liste T dans l'ordre des clés de FR (et S pour les Raccourcis).
+LANGS = ["de", "es", "ja", "ko", "zh-Hans"]
+EXTRA = {}
+_spec = re.compile(r"%(?:\d+\$)?(lld|@|d)")
+def _sig(x):
+    return (sorted(_spec.findall(x)), x.count("**"), x.count("${applicationName}"))
+for lang in LANGS:
+    path = os.path.join(HERE, "i18n", lang + ".py")
+    if not os.path.exists(path):
+        continue
+    ns = {}
+    exec(open(path).read(), ns)
+    T, S = ns["T"], ns["S"]
+    keys = list(FR)
+    if len(T) != len(keys) or len(S) != len(SHORTCUTS_FR):
+        sys.exit(f"{lang} : {len(T)} textes pour {len(keys)} clés, {len(S)} raccourcis pour {len(SHORTCUTS_FR)}")
+    bad = [(i, k, v) for i, (k, v) in enumerate(zip(keys, T)) if _sig(k) != _sig(v)]
+    bad += [(i, k, v) for i, (k, v) in enumerate(zip(SHORTCUTS_FR, S)) if _sig(k) != _sig(v)]
+    for i, k, v in bad:
+        print(f"{lang} {i} : « {k} » ≠ « {v} »")
+    if bad:
+        sys.exit(1)
+    EXTRA[lang] = (dict(zip(keys, T)), dict(zip(SHORTCUTS_FR, S)))
+
 write(os.path.join(ROOT, "Shared/en.lproj/Localizable.strings"), [(k, k) for k in FR], "Foldly")
 write(os.path.join(ROOT, "Shared/fr.lproj/Localizable.strings"), list(FR.items()), "Foldly")
 # L'Apple Watch (app et complications) : les mêmes textes
@@ -708,6 +732,13 @@ write(os.path.join(ROOT, "WatchStrings/en.lproj/Localizable.strings"), [(k, k) f
 write(os.path.join(ROOT, "WatchStrings/fr.lproj/Localizable.strings"), list(FR.items()), "Foldly Watch")
 write(os.path.join(ROOT, "Clapet/en.lproj/AppShortcuts.strings"), [(k, k) for k in SHORTCUTS_FR], "Raccourcis")
 write(os.path.join(ROOT, "Clapet/fr.lproj/AppShortcuts.strings"), list(SHORTCUTS_FR.items()), "Raccourcis")
+for lang, (tr, sh) in EXTRA.items():
+    for folder in ("Shared", "WatchStrings"):
+        os.makedirs(os.path.join(ROOT, f"{folder}/{lang}.lproj"), exist_ok=True)
+        write(os.path.join(ROOT, f"{folder}/{lang}.lproj/Localizable.strings"), list(tr.items()), "Foldly " + lang)
+    os.makedirs(os.path.join(ROOT, f"Clapet/{lang}.lproj"), exist_ok=True)
+    write(os.path.join(ROOT, f"Clapet/{lang}.lproj/AppShortcuts.strings"), list(sh.items()), "Raccourcis " + lang)
+print("langues :", "en, fr, " + ", ".join(EXTRA))
 
 # Vérification : chaque texte écrit dans le code a sa traduction.
 pat = re.compile(r'(?:Text|String\(localized:|LocalizedStringResource|IntentDescription|dialog:|Label|Toggle|Button|shortTitle:|'

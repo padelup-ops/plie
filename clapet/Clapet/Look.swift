@@ -114,6 +114,8 @@ struct ContentView: View {
     @State private var showTour = false
     /// Écran extérieur : « Voir le détail » montre l'accueil complet (jusqu'au prochain pli).
     @State private var outerDetails = false
+    @State private var deskSettled = false
+    @State private var deskTimer: Task<Void, Never>?
     @AppStorage(GlanceRule.key) private var glanceOn = true
     @State private var tourPending: TourTarget?
     @State private var tourTarget: TourTarget?
@@ -124,7 +126,9 @@ struct ContentView: View {
     var body: some View {
         let look = DFLook.resolved(lookRaw)
         GeometryReader { g in
-            let desk = DeskRule.active(degrees: model.degrees, size: g.size) && deskOn
+            // Le mode livre/bureau n'apparaît qu'après 1,5 s dans la bonne position (pas en passant, quand on plie).
+            let deskPose = DeskRule.active(degrees: model.degrees, size: g.size) && deskOn
+            let desk = deskPose && (deskSettled || Demo.desk)
             let outer = max(g.size.width, g.size.height) < 800 && glanceOn && Demo.screen == nil && !Demo.seeded
             ZStack {
                 Group {
@@ -147,6 +151,17 @@ struct ContentView: View {
             }
             .frame(width: g.size.width, height: g.size.height)
             .animation(.easeInOut(duration: 0.3), value: desk)
+            .onChange(of: deskPose, initial: true) { _, on in
+                deskTimer?.cancel()
+                if on {
+                    deskTimer = Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 1_500_000_000)
+                        if !Task.isCancelled { deskSettled = true }
+                    }
+                } else {
+                    deskSettled = false
+                }
+            }
             .onChange(of: max(g.size.width, g.size.height) >= 800) { _, _ in
                 outerDetails = false
                 FoldlyAppDelegate.refreshOrientations()

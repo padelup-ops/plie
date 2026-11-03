@@ -1,0 +1,7 @@
+/* Raccourcis ja (écrit par clapet/tools/strings.py) */
+"Take a pause with ${applicationName}" = "${applicationName}でひと休み";
+"Count a fold in ${applicationName}" = "${applicationName}で1回カウント";
+"Add a fold in ${applicationName}" = "${applicationName}に1回追加";
+"How many folds today in ${applicationName}" = "${applicationName}で今日は何回";
+"My folds in ${applicationName}" = "${applicationName}のわたしの回数";
+"Count an opening in ${applicationName}" = "${applicationName}で開いた回数をカウント";

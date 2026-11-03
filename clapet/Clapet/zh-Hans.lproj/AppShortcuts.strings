@@ -1,0 +1,7 @@
+/* Raccourcis zh-Hans (écrit par clapet/tools/strings.py) */
+"Take a pause with ${applicationName}" = "用${applicationName}休息一下";
+"Count a fold in ${applicationName}" = "在${applicationName}中计数一次折叠";
+"Add a fold in ${applicationName}" = "在${applicationName}中添加一次折叠";
+"How many folds today in ${applicationName}" = "今天在${applicationName}中折叠了几次";
+"My folds in ${applicationName}" = "我在${applicationName}中的折叠次数";
+"Count an opening in ${applicationName}" = "在${applicationName}中计数一次打开";

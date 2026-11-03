@@ -29,7 +29,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [en, fr]
+        CFBundleLocalizations: [en, fr, de, es, ja, ko, zh-Hans]
         CFBundleAllowMixedLocalizations: true
         UILaunchScreen: {}
         CFBundleURLTypes:
@@ -66,7 +66,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [en, fr]
+        CFBundleLocalizations: [en, fr, de, es, ja, ko, zh-Hans]
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         ClapetKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.clapet.shared
@@ -92,7 +92,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [en, fr]
+        CFBundleLocalizations: [en, fr, de, es, ja, ko, zh-Hans]
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.padelup.clapet
         FoldlyKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.clapet.watch
@@ -122,7 +122,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [en, fr]
+        CFBundleLocalizations: [en, fr, de, es, ja, ko, zh-Hans]
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         FoldlyKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.clapet.watch
