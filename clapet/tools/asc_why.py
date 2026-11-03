@@ -19,7 +19,14 @@ print("version", v["id"], v["attributes"].get("appStoreState"))
 subs = call("GET", f"/v1/reviewSubmissions?filter[app]={app['id']}&limit=10").get("data", [])
 for s in subs:
     print("demande", s["id"], s["attributes"])
-open_ = [s for s in subs if s["attributes"]["state"] in ("READY_FOR_REVIEW", "UNRESOLVED_ISSUES", "WAITING_FOR_REVIEW", "IN_REVIEW")]
+# La demande partie sans la version (vidéos seules) : on l'annule pour tout renvoyer ensemble.
+for x in subs:
+    if x["attributes"]["state"] == "WAITING_FOR_REVIEW":
+        r = call("PATCH", f"/v1/reviewSubmissions/{x['id']}", {"data": {"type": "reviewSubmissions", "id": x["id"], "attributes": {"canceled": True}}})
+        print("annulation", x["id"], r.get("data", {}).get("attributes", r.get("detail", "")[:300]))
+time.sleep(10)
+subs = call("GET", f"/v1/reviewSubmissions?filter[app]={app['id']}&limit=10").get("data", [])
+open_ = [s for s in subs if s["attributes"]["state"] in ("READY_FOR_REVIEW", "UNRESOLVED_ISSUES")]
 sid = open_[0]["id"] if open_ else None
 if not sid:
     r = call("POST", "/v1/reviewSubmissions", {"data": {"type": "reviewSubmissions", "attributes": {"platform": "IOS"},
