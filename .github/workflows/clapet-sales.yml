@@ -1,0 +1,27 @@
+# Lecture des ventes (rapports quotidiens d'App Store Connect)
+name: Clapet - ventes
+on:
+  workflow_dispatch:
+    inputs:
+      vendor:
+        description: "Numéro de fournisseur (facultatif)"
+        required: false
+        default: ""
+      days:
+        description: "Nombre de jours"
+        required: false
+        default: "10"
+jobs:
+  sales:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      VENDOR: ${{ inputs.vendor }}
+      DAYS: ${{ inputs.days }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_sales.py
