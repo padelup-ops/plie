@@ -1,6 +1,6 @@
-# NINA : « Le téléphone de Nina », un jeu d'enquête dans un faux téléphone (tout iPhone, plus sur iPhone Duo).
+# UNLOCKED : des histoires de téléphones trouvés. Un jeu d'enquête dans un faux téléphone (tout iPhone, plus sur iPhone Duo).
 # Projet Xcode généré par XcodeGen sur le Mac de GitHub : `xcodegen generate` dans ce dossier.
-name: Nina
+name: Unlocked
 options:
   bundleIdPrefix: com.padelup
   developmentLanguage: en
@@ -15,15 +15,15 @@ settings:
     TARGETED_DEVICE_FAMILY: "1"
     LOCALIZATION_PREFERS_STRING_CATALOGS: NO
 targets:
-  Nina:
+  Unlocked:
     type: application
     platform: iOS
     sources:
-      - path: Nina
+      - path: Unlocked
     info:
-      path: Nina/Info.plist
+      path: Unlocked/Info.plist
       properties:
-        CFBundleDisplayName: Nina
+        CFBundleDisplayName: Unlocked
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
@@ -36,7 +36,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.nina
+        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.unlocked
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     scheme: {}

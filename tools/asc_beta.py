@@ -22,20 +22,20 @@ INTERNAL_ONLY = os.environ.get("INTERNAL_ONLY", "").strip() in ("1", "true", "ye
 RESEND = os.environ.get("RESEND", "").strip() in ("1", "true", "yes")
 
 WHATS_NEW = {
-    "fr-FR": """Nouveau : 3 jeux où la personne en face joue sans toucher l'écran, avec ses mains ou son visage devant la caméra. Ouvre le Duo comme un livre : l'écran extérieur lui montre le jeu.
+    "fr-FR": """Nouveau dans cette version :
 
-- CHIFOUMI : tu choisis en secret, en face on montre pierre, feuille ou ciseaux à la caméra au « MI ! ». Seul, contre le téléphone avec la caméra de devant.
-- CALCUL AUX DOIGTS (enfants) : le calcul s'affiche dehors, l'enfant répond en levant ses doigts. Compter, additions, soustractions.
-- PAS DE SOURIRE ! : fais rire le joueur en face. Au premier sourire, photo et chrono arrêté. Le plus sérieux gagne.
+- TAPE-TAPE : à deux, chacun sa moitié de l'écran. Choisissez 10, 20 ou 30 secondes : celui qui tape le plus de fois gagne. Merci Yassine pour l'idée !
+- Chaque jeu indique s'il se joue sur tous les iPhone, ou s'il est pensé pour l'iPhone Duo (il reste jouable au doigt partout). Nouveau rayon « Tous les iPhone » sur l'accueil.
+- Origamo parle maintenant 7 langues : français, anglais, allemand, espagnol, japonais, coréen et chinois.
 
-À tester : est-ce que la caméra lit bien vos mains et vos sourires (lumière, distance) ? Dites-nous !""",
-    "en-US": """New: 3 games where the player opposite plays without touching the screen, using their hands or face in front of the camera. Open the Duo like a book: the outer screen shows them the game.
+À tester : TAPE-TAPE à deux (est-ce que tous vos taps comptent, même très vite ?), et dites-nous si un texte est mal traduit.""",
+    "en-US": """New in this version:
 
-- ROCK PAPER SCISSORS: you pick in secret, the player opposite shows rock, paper or scissors to the camera on "SHOOT!". Solo: against the phone with the front camera.
-- FINGER MATH (kids): the sum shows outside, the child answers by raising fingers. Counting, addition, subtraction.
-- NO SMILING!: make the player opposite laugh. At the first smile: photo and the timer stops. The straightest face wins.
+- TAP BATTLE: two players, one half of the screen each. Pick 10, 20 or 30 seconds: whoever taps the most wins. Thanks Yassine for the idea!
+- Every game now shows whether it plays on every iPhone, or is made for iPhone Duo (it still plays by touch everywhere). New "Every iPhone" shelf on the home screen.
+- Origamo now speaks 7 languages: French, English, German, Spanish, Japanese, Korean and Chinese.
 
-Please test: does the camera read your hands and smiles well (light, distance)? Tell us!""",
+Please test: TAP BATTLE with two players (do all your taps count, even very fast?), and tell us if any text is badly translated.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
