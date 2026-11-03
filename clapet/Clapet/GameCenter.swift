@@ -41,7 +41,9 @@ final class GameCenter {
                 }
                 self.signedIn = GKLocalPlayer.local.isAuthenticated
                 if !self.signedIn && self.on {
-                    self.problem = String(localized: "Sign in to Game Center in the Settings app to join the leaderboard.")
+                    // Le vrai message d'Apple aide à comprendre (compte pas connecté, jeu pas encore reconnu…).
+                    let base = String(localized: "Sign in to Game Center in the Settings app to join the leaderboard.")
+                    self.problem = error.map { base + "\n(" + $0.localizedDescription + ")" } ?? base
                 } else {
                     self.problem = nil
                     self.lastSent = nil
