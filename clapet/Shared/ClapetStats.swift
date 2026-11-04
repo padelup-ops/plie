@@ -43,6 +43,25 @@ struct DayCount: Codable, Equatable {
     }
 }
 
+/// « Pourquoi tu l'ouvres ? » : la raison donnée en un toucher quand on déplie le Duo (Foldly+).
+enum WhyReason: Int, CaseIterable, Codable {
+    case notification, boredom, work, someone
+
+    var emoji: String {
+        switch self {
+        case .notification: return "🔔"
+        case .boredom: return "😴"
+        case .work: return "💼"
+        case .someone: return "❤️"
+        }
+    }
+}
+
+struct WhyEntry: Codable, Equatable {
+    var t: Date
+    var r: Int
+}
+
 struct ClapetStats: Codable, Equatable {
     var days: [String: DayCount] = [:]
     var goal = 100
@@ -55,6 +74,8 @@ struct ClapetStats: Codable, Equatable {
     var lastClose: Date?
     /// La dernière ouverture comptée (pour reconnaître un même pli compté deux fois).
     var lastOpen: Date?
+    /// Les raisons données à l'ouverture (60 derniers jours).
+    var whyLog: [WhyEntry] = []
     /// Le record de plis en une heure.
     var recordHour = 0
     /// Foldly+ acheté (écrit par l'app, lu par les widgets).
@@ -82,7 +103,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -98,6 +119,7 @@ struct ClapetStats: Codable, Equatable {
         if hourly.count != 24 { hourly = Array(repeating: 0, count: 24) }
         lastClose = try c.decodeIfPresent(Date.self, forKey: .lastClose)
         lastOpen = try c.decodeIfPresent(Date.self, forKey: .lastOpen)
+        whyLog = try c.decodeIfPresent([WhyEntry].self, forKey: .whyLog) ?? []
         recordHour = try c.decodeIfPresent(Int.self, forKey: .recordHour) ?? 0
         plus = try c.decodeIfPresent(Bool.self, forKey: .plus) ?? false
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
@@ -228,6 +250,39 @@ struct ClapetStats: Codable, Equatable {
         lastOpen = date
         if firstDay == nil { firstDay = Self.key(date) }
         trim()
+    }
+
+    // MARK: Pourquoi tu l'ouvres ?
+
+    mutating func addWhy(_ reason: WhyReason, _ date: Date = Date()) {
+        whyLog.append(WhyEntry(t: date, r: reason.rawValue))
+        let cut = date.addingTimeInterval(-60 * 86400)
+        whyLog.removeAll { $0.t < cut }
+        if whyLog.count > 1500 { whyLog.removeFirst(whyLog.count - 1500) }
+    }
+
+    /// Les réponses des `days` derniers jours.
+    func whyEntries(days: Int = 7, now: Date = Date()) -> [WhyEntry] {
+        let cut = now.addingTimeInterval(-Double(days) * 86400)
+        return whyLog.filter { $0.t >= cut && $0.t <= now }
+    }
+
+    /// Le nombre de réponses par raison, dans l'ordre de WhyReason.
+    func whyCounts(days: Int = 7, now: Date = Date()) -> [Int] {
+        var c = Array(repeating: 0, count: WhyReason.allCases.count)
+        for e in whyEntries(days: days, now: now) where c.indices.contains(e.r) { c[e.r] += 1 }
+        return c
+    }
+
+    /// L'heure de début des deux heures où cette raison revient le plus (au moins 3 réponses).
+    func whyPeak(_ reason: WhyReason, days: Int = 7, now: Date = Date()) -> Int? {
+        var h = Array(repeating: 0, count: 24)
+        for e in whyEntries(days: days, now: now) where e.r == reason.rawValue {
+            h[Calendar.current.component(.hour, from: e.t)] += 1
+        }
+        guard h.reduce(0, +) >= 3 else { return nil }
+        let best = (0..<24).max { h[$0] + h[($0 + 1) % 24] < h[$1] + h[($1 + 1) % 24] } ?? 0
+        return best
     }
 
     /// Une fermeture arrive alors qu'un pli vient d'être compté, sans ouverture entre les deux :

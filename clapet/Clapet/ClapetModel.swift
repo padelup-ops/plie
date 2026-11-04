@@ -30,6 +30,8 @@ final class ClapetModel {
         UserDefaults.standard.set(on, forKey: "haptics")
     }
 
+    /// « Pourquoi tu l'ouvres ? » est à l'écran.
+    var askWhy = false
     @ObservationIgnored private var state: Bool?   // vrai : fermé, faux : ouvert, nil : pas encore vu
     /// La charnière était en train de se refermer (pour l'écran qui s'éteint avant la fin du geste).
     @ObservationIgnored private var closing = false
@@ -121,6 +123,15 @@ final class ClapetModel {
         stats.noteOpen()
         stats.startOpen(event: true)
         changed()
+        if WhyRule.claim(plus: stats.plus) { askWhy = true }
+    }
+
+    /// La raison donnée à l'ouverture (Foldly+).
+    func recordWhy(_ reason: WhyReason) {
+        stats.addWhy(reason)
+        askWhy = false
+        if hapticsOn { ClapetHaptics.tick() }
+        changed()
     }
 
     /// Un pli envoyé par l'automatisation Raccourcis « iPhone fermé ».
@@ -144,6 +155,7 @@ final class ClapetModel {
         stats.noteOpen()
         stats.startOpen(event: true)
         changed()
+        WhyRule.askByNotification(plus: stats.plus)
         WidgetCenter.shared.reloadAllTimelines()
     }
 

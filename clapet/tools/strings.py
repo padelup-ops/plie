@@ -689,6 +689,24 @@ FR = {
     "Unlock on your iPhone": "Débloque sur ton iPhone",
     "Lock Screen counter and evening summary": "Compteur sur l'écran verrouillé et bilan du soir",
     "Your count live on the Lock Screen, and your day summed up at 9:30 pm.": "Ton compteur en direct sur l'écran verrouillé, et ta journée résumée à 21 h 30.",
+    # Pourquoi tu l'ouvres ?
+    "A notification": "Une notif",
+    "Boredom": "L'ennui",
+    "Work": "Le boulot",
+    "Someone": "Quelqu'un",
+    "Why did you open it?": "Pourquoi tu l'ouvres ?",
+    "Touch and hold to answer in one tap.": "Appuie longuement pour répondre en un toucher.",
+    "WHY YOU OPEN IT": "POURQUOI TU L'OUVRES",
+    "Each time you unfold your Duo, answer in one tap: a notification, boredom, work or someone. See the real reasons behind your opens.": "Chaque fois que tu déplies ton Duo, réponds en un toucher : une notif, l'ennui, le boulot ou quelqu'un. Découvre la vraie raison de tes ouvertures.",
+    "When you unfold your Duo, answer the question in one tap. Your reasons for the week show up here.": "Quand tu déplies ton Duo, réponds à la question en un toucher. Tes raisons de la semaine s'affichent ici.",
+    "Your number one reason this week": "Ta raison n° 1 cette semaine",
+    "Mostly between %@ and %@": "Surtout entre %@ et %@",
+    "%lld answers in the last 7 days": "%lld réponses sur les 7 derniers jours",
+    "Why you open it": "Pourquoi tu l'ouvres",
+    "Answer in one tap when you unfold your Duo, and see the real reasons behind your opens.": "Réponds en un toucher quand tu déplies ton Duo, et découvre la vraie raison de tes ouvertures.",
+    "Ask why I open it": "Demander pourquoi je l'ouvre",
+    "Also when Foldly is closed": "Aussi quand Foldly est fermé",
+    "When you unfold your Duo, one tap: a notification, boredom, work or someone. Your answers stay on your iPhone. When Foldly is closed, the question comes as a notification.": "Quand tu déplies ton Duo, un toucher : une notif, l'ennui, le boulot ou quelqu'un. Tes réponses restent sur ton iPhone. Quand Foldly est fermé, la question arrive en notification.",
 }
 
 SHORTCUTS_FR = {

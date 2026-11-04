@@ -44,4 +44,14 @@ final class AlertPresenter: NSObject, UNUserNotificationCenterDelegate {
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .sound, .list])
     }
+
+    /// Une réponse à « Pourquoi tu l'ouvres ? » depuis la notification.
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        let action = response.actionIdentifier
+        Task { @MainActor in
+            WhyRule.handle(action: action)
+            completionHandler()
+        }
+    }
 }

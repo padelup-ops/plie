@@ -170,6 +170,24 @@ struct ContentView: View {
                 FoldlyAppDelegate.refreshOrientations()
             }
         }
+        .overlay(alignment: .bottom) {
+            if model.askWhy && !opening {
+                GeometryReader { g in
+                    if max(g.size.width, g.size.height) >= 800 {
+                        WhyPrompt()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                }
+            }
+        }
+        .animation(.spring(duration: 0.4), value: model.askWhy)
+        .task {
+            if Demo.askWhy {
+                try? await Task.sleep(nanoseconds: 3_200_000_000)
+                model.askWhy = true
+            }
+        }
         .overlay {
             if opening {
                 OpeningView(today: model.stats.today, look: look, haptics: model.hapticsOn) {

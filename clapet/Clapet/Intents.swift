@@ -47,6 +47,7 @@ enum AutomaticCounter {
         stats.startOpen(event: true)
         stats.autoLast = Date()
         ClapetVault.save(stats)
+        WhyRule.askByNotification(plus: stats.plus)
         WidgetCenter.shared.reloadAllTimelines()
         LiveCounter.refresh(stats)
         EveningSummary.schedule(stats)

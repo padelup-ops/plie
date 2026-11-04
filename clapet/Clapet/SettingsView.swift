@@ -24,6 +24,8 @@ struct SettingsView: View {
     @State private var weekOn = WeekRecapNotice.isOn
     @State private var notificationsDenied = false
     @State private var liveDenied = false
+    @AppStorage(WhyRule.key) private var whyOn = true
+    @AppStorage(WhyRule.closedKey) private var whyClosedOn = false
 
     var body: some View {
         NavigationStack {
@@ -141,6 +143,34 @@ struct SettingsView: View {
                     Text("Appearance")
                 } footer: {
                     DFLook.resolved(lookRaw).subtitle
+                }
+
+                // « Pourquoi tu l'ouvres ? »
+                Section {
+                    Toggle(isOn: Binding(get: { whyOn && store.hasPlus }, set: { on in
+                        guard store.hasPlus else { showPlus = true; return }
+                        whyOn = on
+                    })) {
+                        HStack(spacing: 6) {
+                            Text("Ask why I open it")
+                            if !store.hasPlus { PlusBadge() }
+                        }
+                    }
+                    if whyOn && store.hasPlus {
+                        Toggle(isOn: Binding(get: { whyClosedOn }, set: { on in
+                            Task {
+                                let ok = on ? await LimitAlerts.requestPermission() : true
+                                whyClosedOn = ok && on
+                                notificationsDenied = on && !ok
+                            }
+                        })) {
+                            Text("Also when Foldly is closed")
+                        }
+                    }
+                } header: {
+                    Text("Why you open it")
+                } footer: {
+                    Text("When you unfold your Duo, one tap: a notification, boredom, work or someone. Your answers stay on your iPhone. When Foldly is closed, the question comes as a notification.")
                 }
 
                 // 3. Notifications

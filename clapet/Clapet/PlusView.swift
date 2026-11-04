@@ -32,6 +32,7 @@ struct PlusView: View {
                             .multilineTextAlignment(.center)
                     }
                     VStack(alignment: .leading, spacing: 16) {
+                        perk("questionmark.bubble.fill", Text("Why you open it"), Text("Answer in one tap when you unfold your Duo, and see the real reasons behind your opens."))
                         perk("trophy.fill", Text("Leaderboards"), Text("Your streak and your last 30 days against other Foldly users and your friends, with Game Center."))
                         perk("swatchpalette.fill", Text("Aurora and My theme"), Text("The Aurora theme with its northern lights, and your own colors for the whole app."))
                         perk("chart.bar.xaxis", Text("Your hours and monthly recap"), Text("When you unfold the most, and your month compared with the one before."))

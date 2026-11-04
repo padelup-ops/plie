@@ -17,6 +17,7 @@ struct HistoryView: View {
                 ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 16) {
+                        WhyCard(stats: model.stats).id("why")
                         chartCard
                         calendarCard.id("calendar")
                         records.id("records")

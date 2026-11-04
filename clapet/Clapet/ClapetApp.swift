@@ -14,6 +14,7 @@ struct ClapetApp: App {
 
     init() {
         UNUserNotificationCenter.current().delegate = AlertPresenter.shared
+        WhyRule.registerCategory()
     }
 
     var body: some Scene {

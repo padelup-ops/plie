@@ -23,6 +23,8 @@ enum Demo {
     }
 
     static var seeded: Bool { value("demoSeed") == "1" }
+    /// -demoWhy : la question « Pourquoi tu l'ouvres ? » reste à l'écran (captures).
+    static var askWhy: Bool { args.contains("-demoWhy") }
     static var plus: Bool { value("demoPlus") == "1" }
     static var screen: String? { value("screen") }
     /// -demoDesk 1 : mode bureau forcé (vidéo)
@@ -127,6 +129,17 @@ enum Demo {
         s.lastClose = Demo.screen == "home" || Demo.screen == nil ? now.addingTimeInterval(-180) : now.addingTimeInterval(-17 * 60)
         s.plus = plus
         s.theme = 0
+        // « Pourquoi tu l'ouvres ? » : une semaine de réponses (l'ennui le soir).
+        var rng = SystemRandomNumberGenerator()
+        for back in 0..<7 {
+            guard let day = cal.date(byAdding: .day, value: -back, to: cal.startOfDay(for: now)) else { continue }
+            for _ in 0..<9 {
+                let roll = Int.random(in: 0..<100, using: &rng)
+                let r: WhyReason = roll < 46 ? .boredom : roll < 72 ? .notification : roll < 88 ? .work : .someone
+                let hour = r == .boredom ? Int.random(in: 20...22, using: &rng) : Int.random(in: 8...19, using: &rng)
+                if let t = cal.date(bySettingHour: hour, minute: Int.random(in: 0...59, using: &rng), second: 0, of: day), t < now { s.addWhy(r, t) }
+            }
+        }
         stats = s
     }
 }
