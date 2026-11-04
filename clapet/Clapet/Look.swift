@@ -172,20 +172,14 @@ struct ContentView: View {
         }
         .overlay(alignment: .bottom) {
             if model.askWhy && !opening {
-                GeometryReader { g in
-                    if max(g.size.width, g.size.height) >= 800 {
-                        WhyPrompt()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                    }
-                }
+                WhyPrompt()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .animation(.spring(duration: 0.4), value: model.askWhy)
-        .task {
+        .onAppear {
             if Demo.askWhy {
-                try? await Task.sleep(nanoseconds: 3_200_000_000)
-                model.askWhy = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.2) { model.askWhy = true }
             }
         }
         .overlay {
