@@ -14,6 +14,10 @@ settings:
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1"
     LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+packages:
+  AppsFlyerLib:
+    url: https://github.com/AppsFlyerSDK/AppsFlyerFramework
+    from: "6.15.0"
 targets:
   Clapet:
     type: application
@@ -48,6 +52,8 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         CODE_SIGN_ENTITLEMENTS: Clapet/Clapet.entitlements
     dependencies:
+      - package: AppsFlyerLib
+        product: AppsFlyerLib-Static
       - target: ClapetWidget
         embed: true
       - target: FoldlyWatch
