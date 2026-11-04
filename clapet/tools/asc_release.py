@@ -40,7 +40,7 @@ REVIEW_NOTES = (
     "Free app with one optional in-app purchase, Foldly+ (non-consumable, com.padelup.clapet.plus). Open it from the \"Plus\" "
     "button at the top of the main screen, or tap a locked widget or the full history. It unlocks the medium, large and Lock Screen "
     "widgets, limit alerts, the full history and records, widget colors and CSV export. Restore Purchases is on the same screen "
-    "and in Settings. People who bought the paid version 1.0 keep everything without paying again. No account, no ads, no data collection. "
+    "and in Settings. Foldly+ also adds \"Why you open it\": right after the Duo is unfolded, a card asks why in one tap (it can be dismissed and goes away by itself), and the answers are summed up at the top of History. People who bought the paid version 1.0 keep everything without paying again. No account, no ads, no data collection. "
     "Numbers stay on the device (shared with the widgets through the keychain).")
 
 if os.environ.get("LISTING_JSON"):
@@ -211,13 +211,13 @@ RELEASE_NOTES = {
         "zh-Hans": "• Foldly+ 现已推出：所有小组件、限额提醒、完整历史、小组件颜色和 CSV 导出，一次购买即可。\n• 问题修复和改进。",
     },
     "1.0.5": {
-        "en-US": "• Fixed: a single fold could sometimes be counted twice when you closed your phone with Foldly on screen. Thanks to everyone who reported it!",
-        "fr-FR": "• Corrigé : un même pli pouvait parfois être compté deux fois quand tu fermais ton téléphone avec Foldly à l'écran. Merci à ceux qui l'ont signalé !",
-        "de-DE": "• Behoben: Ein einzelnes Falten wurde manchmal doppelt gezählt, wenn du dein Telefon mit Foldly auf dem Bildschirm geschlossen hast. Danke für eure Hinweise!",
-        "es-ES": "• Corregido: un mismo pliegue a veces se contaba dos veces al cerrar el teléfono con Foldly en pantalla. ¡Gracias a quienes lo avisasteis!",
-        "ja": "• 修正：Foldlyを表示したまま閉じたとき、1回の折りたたみが2回数えられることがある問題を修正しました。ご報告ありがとうございました！",
-        "ko": "• 수정: Foldly를 화면에 띄운 채 휴대폰을 닫으면 한 번 접은 것이 가끔 두 번 세어지던 문제를 고쳤어요. 알려 주셔서 감사합니다!",
-        "zh-Hans": "• 已修复：在 Foldly 显示时合上手机，一次折叠有时会被计为两次。感谢所有反馈的朋友！",
+        "en-US": "• New with Foldly+: Why you open it. When you unfold your Duo, answer in one tap (a notification, boredom, work or someone) and see the real reasons behind your opens in your history.\n• Fixed: a single fold could sometimes be counted twice when you closed your phone with Foldly on screen. Thanks to everyone who reported it!",
+        "fr-FR": "• Nouveau avec Foldly+ : Pourquoi tu l'ouvres. Quand tu déplies ton Duo, réponds en un toucher (une notif, l'ennui, le boulot ou quelqu'un) et découvre dans l'historique la vraie raison de tes ouvertures.\n• Corrigé : un même pli pouvait parfois être compté deux fois quand tu fermais ton téléphone avec Foldly à l'écran. Merci à ceux qui l'ont signalé !",
+        "de-DE": "• Neu mit Foldly+: Warum du es öffnest. Beim Aufklappen deines Duo antwortest du mit einem Tippen (Mitteilung, Langeweile, Arbeit oder jemand) und siehst im Verlauf die wahren Gründe für deine Öffnungen.\n• Behoben: Ein einzelnes Falten wurde manchmal doppelt gezählt, wenn du dein Telefon mit Foldly auf dem Bildschirm geschlossen hast. Danke für eure Hinweise!",
+        "es-ES": "• Nuevo con Foldly+: Por qué lo abres. Al desplegar tu Duo, responde con un toque (una notificación, aburrimiento, trabajo o alguien) y descubre en el historial las verdaderas razones de tus aperturas.\n• Corregido: un mismo pliegue a veces se contaba dos veces al cerrar el teléfono con Foldly en pantalla. ¡Gracias a quienes lo avisasteis!",
+        "ja": "• Foldly+の新機能「開く理由」：Duoを開いたら1タップで答える（通知、退屈、仕事、誰か）と、開く本当の理由が履歴でわかります。\n• 修正：Foldlyを表示したまま閉じたとき、1回の折りたたみが2回数えられることがある問題を修正しました。ご報告ありがとうございました！",
+        "ko": "• Foldly+ 새 기능 '여는 이유': Duo를 펼칠 때 한 번 탭으로 답하면(알림, 심심해서, 일, 누군가) 기록에서 여는 진짜 이유를 볼 수 있어요.\n• 수정: Foldly를 화면에 띄운 채 휴대폰을 닫으면 한 번 접은 것이 가끔 두 번 세어지던 문제를 고쳤어요. 알려 주셔서 감사합니다!",
+        "zh-Hans": "• Foldly+ 新功能“打开的原因”：展开 Duo 时轻点一下回答（通知、无聊、工作或某个人），在历史中看清你打开手机的真正原因。\n• 已修复：在 Foldly 显示时合上手机，一次折叠有时会被计为两次。感谢所有反馈的朋友！",
     },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
