@@ -109,6 +109,22 @@ jobs:
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" 2>&1 | tee ../archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
           grep -q "ARCHIVE SUCCEEDED" ../archive.log
 
+      - name: Frameworks embarqués (AppsFlyer)
+        run: |
+          APP="$RUNNER_TEMP/Clapet.xcarchive/Products/Applications/Clapet.app"
+          for F in "$APP"/Frameworks/*.framework; do
+            [ -d "$F" ] || continue
+            BIN="$F/$(basename "$F" .framework)"
+            file "$BIN"
+            if file "$BIN" | grep -q "ar archive"; then
+              echo "bibliothèque statique déjà liée dans l'app : on retire $F"
+              rm -rf "$F"
+            else
+              codesign -f -s - "$F"
+            fi
+          done
+          ls "$APP/Frameworks" 2>/dev/null || echo "pas de dossier Frameworks"
+
       - name: Donner aux widgets l'accès aux chiffres (groupe de trousseau)
         run: |
           APP="$RUNNER_TEMP/Clapet.xcarchive/Products/Applications/Clapet.app"
