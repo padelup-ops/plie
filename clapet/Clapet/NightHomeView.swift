@@ -306,12 +306,20 @@ struct NightHomeView: View {
                 .font(.title3.weight(.medium))
                 .foregroundStyle(Color.primary.opacity(0.85))
                 .padding(.top, 8)
-            HStack(alignment: .center, spacing: 8) {
-                bigNumber
-                    .layoutPriority(1)
-                // La jauge, centrée dans l'espace à droite du nombre.
-                miniGauge
-                    .frame(maxWidth: .infinity)
+            // Sur l'écran extérieur (étroit), la jauge passe sous le nombre : le nombre n'est jamais coupé.
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .center, spacing: 8) {
+                    bigNumber
+                        .fixedSize()
+                    // La jauge, centrée dans l'espace à droite du nombre.
+                    miniGauge
+                        .frame(maxWidth: .infinity)
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    bigNumber
+                    miniGauge
+                        .frame(maxWidth: .infinity)
+                }
             }
             trend
             if s.autoLast == nil && !Demo.seeded { autoBanner }
