@@ -281,7 +281,15 @@ struct ClapetStats: Codable, Equatable {
             h[Calendar.current.component(.hour, from: e.t)] += 1
         }
         guard h.reduce(0, +) >= 3 else { return nil }
-        let best = (0..<24).max { h[$0] + h[($0 + 1) % 24] < h[$1] + h[($1 + 1) % 24] } ?? 0
+        var best = 0
+        var bestScore = -1
+        for start in 0..<24 {
+            let score: Int = h[start] + h[(start + 1) % 24]
+            if score > bestScore {
+                bestScore = score
+                best = start
+            }
+        }
         return best
     }
 
