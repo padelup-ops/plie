@@ -315,8 +315,9 @@ struct NightHomeView: View {
                     miniGauge
                         .frame(maxWidth: .infinity)
                 }
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .center, spacing: 10) {
                     bigNumber
+                        .frame(maxWidth: .infinity)
                     miniGauge
                         .frame(maxWidth: .infinity)
                 }
