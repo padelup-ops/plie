@@ -53,7 +53,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Clapet/Clapet.entitlements
     dependencies:
       - package: AppsFlyerLib
-        product: AppsFlyerLib-Static
+        product: AppsFlyerLib
       - target: ClapetWidget
         embed: true
       - target: FoldlyWatch
