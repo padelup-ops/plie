@@ -210,6 +210,15 @@ RELEASE_NOTES = {
         "ko": "• 이제 Foldly+를 이용할 수 있습니다: 모든 위젯, 한도 알림, 전체 기록, 위젯 색상, CSV 내보내기를 한 번의 구입으로.\n• 버그 수정 및 개선.",
         "zh-Hans": "• Foldly+ 现已推出：所有小组件、限额提醒、完整历史、小组件颜色和 CSV 导出，一次购买即可。\n• 问题修复和改进。",
     },
+    "1.0.5": {
+        "en-US": "• Fixed: a single fold could sometimes be counted twice when you closed your phone with Foldly on screen. Thanks to everyone who reported it!",
+        "fr-FR": "• Corrigé : un même pli pouvait parfois être compté deux fois quand tu fermais ton téléphone avec Foldly à l'écran. Merci à ceux qui l'ont signalé !",
+        "de-DE": "• Behoben: Ein einzelnes Falten wurde manchmal doppelt gezählt, wenn du dein Telefon mit Foldly auf dem Bildschirm geschlossen hast. Danke für eure Hinweise!",
+        "es-ES": "• Corregido: un mismo pliegue a veces se contaba dos veces al cerrar el teléfono con Foldly en pantalla. ¡Gracias a quienes lo avisasteis!",
+        "ja": "• 修正：Foldlyを表示したまま閉じたとき、1回の折りたたみが2回数えられることがある問題を修正しました。ご報告ありがとうございました！",
+        "ko": "• 수정: Foldly를 화면에 띄운 채 휴대폰을 닫으면 한 번 접은 것이 가끔 두 번 세어지던 문제를 고쳤어요. 알려 주셔서 감사합니다!",
+        "zh-Hans": "• 已修复：在 Foldly 显示时合上手机，一次折叠有时会被计为两次。感谢所有反馈的朋友！",
+    },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
 if NEW_VERSION:
@@ -229,7 +238,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION != "1.0.4" else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -274,7 +283,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION != "1.0.4" else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
