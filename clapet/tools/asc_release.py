@@ -146,7 +146,7 @@ if PRICE_EUR:
     point, url = None, f"/v1/apps/{app_id}/appPricePoints?filter[territory]=FRA&limit=200"
     while url and not point:
         page = call("GET", url)
-        point = next((p for p in page.get("data", []) if p["attributes"].get("customerPrice") == PRICE_EUR), None)
+        point = next((p for p in page.get("data", []) if float(p["attributes"].get("customerPrice") or -1) == float(PRICE_EUR)), None)
         url = page.get("links", {}).get("next")
     if not point:
         problems.append("prix")
