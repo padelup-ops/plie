@@ -1,7 +1,6 @@
 import SwiftUI
 import UIKit
 import UserNotifications
-import AppsFlyerLib
 
 @main
 struct ClapetApp: App {
@@ -41,7 +40,6 @@ struct ClapetApp: App {
                 }
                 .onChange(of: phase) { _, p in
                     if p == .active {
-                        AppsFlyerLib.shared().start()   // une installation la première fois, puis chaque ouverture
                         model.reload()
                         LiveCounter.resume(model.stats)
                         GameCenter.shared.submit(model.stats)
@@ -58,14 +56,6 @@ struct ClapetApp: App {
 /// Orientation : l'écran extérieur reste en portrait ; l'écran intérieur (grand) tourne,
 /// pour lire Foldly comme un livre quand le Duo est tenu en largeur.
 final class FoldlyAppDelegate: NSObject, UIApplicationDelegate {
-    /// AppsFlyer : mesure des installations et des ouvertures (attribution), configuré au lancement.
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        let af = AppsFlyerLib.shared()
-        af.appsFlyerDevKey = "bTMCaKzq75sAF5TSGTyAHP"
-        af.appleAppID = "6827349081"
-        return true
-    }
-
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         Self.isLargeScreen(window) ? .allButUpsideDown : .portrait
     }
