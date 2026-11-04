@@ -25,7 +25,7 @@ final class InstalledWidgets {
 
 /// Un widget dessiné dans l'app, à sa vraie taille (ou réduit).
 struct WidgetThumb: View {
-    enum Kind { case folds, phoneDown }
+    enum Kind { case folds, phoneDown, hours, lifetime }
 
     let kind: Kind
     let family: WidgetFamily
@@ -53,6 +53,8 @@ struct WidgetThumb: View {
             switch kind {
             case .folds: ClapetWidgetView(entry: entry, family: family)
             case .phoneDown: PhoneDownWidgetView(entry: entry, family: family)
+            case .hours: HoursWidgetView(entry: entry, familyOverride: family)
+            case .lifetime: LifetimeWidgetView(entry: entry, familyOverride: family)
             }
         }
         .padding(isAccessory ? 0 : 16)

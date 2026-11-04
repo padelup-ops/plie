@@ -10,6 +10,10 @@ on:
         description: "Langues"
         required: false
         default: "en fr de es ja ko zh-Hans"
+      scenes:
+        description: "Scènes à la place des scènes App Store (« nom|écran|arguments » séparés par ;)"
+        required: false
+        default: ""
 jobs:
   film:
     runs-on: xcode-27
@@ -100,6 +104,8 @@ jobs:
           history|history|-look classic -demoToday 46
           hours|hours|-look classic -demoToday 46
           EOF
+          if [ -n "${{ github.event.inputs.scenes }}" ]; then echo "${{ github.event.inputs.scenes }}" | tr ';' '\n' > scenes.txt; fi
+          cat scenes.txt
           for L in ${{ github.event.inputs.langs }}; do
             LOC=$(echo "$L" | sed 's/-/_/'); case "$L" in en) LOC=en_US;; fr) LOC=fr_FR;; de) LOC=de_DE;; es) LOC=es_ES;; ja) LOC=ja_JP;; ko) LOC=ko_KR;; zh-Hans) LOC=zh_CN;; esac
             while IFS='|' read -r S R X; do

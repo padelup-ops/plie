@@ -144,7 +144,14 @@ struct DemoWidgetsView: View {
                                         Color(red: 0.93, green: 0.52, blue: 0.46)],
                                startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
-                if Demo.screen == "lock" {
+                if Demo.screen == "allwidgets" {
+                    AllHomeWidgets(entry: entry, scale: min(g.size.width / 760, g.size.height / 960))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if Demo.screen == "alllock" {
+                    AllLockWidgets(entry: entry, scale: min(g.size.width / 520, g.size.height / 700))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .environment(\.colorScheme, .dark)
+                } else if Demo.screen == "lock" {
                     VStack(spacing: 14 * scale) {
                         WidgetThumb(kind: .phoneDown, family: .accessoryInline, entry: entry, scale: 1.3 * scale)
                         Text(Date(), format: .dateTime.hour().minute())
@@ -186,5 +193,87 @@ struct DemoWidgetsView: View {
             .fill(Color.white.opacity(0.92))
             .frame(width: 66 * scale, height: 66 * scale)
             .overlay(Image(systemName: symbol).font(.system(size: 28 * scale, weight: .semibold)).foregroundStyle(color))
+    }
+}
+
+/// Tous les widgets de l'écran d'accueil, pour une image de présentation (-screen allwidgets).
+struct AllHomeWidgets: View {
+    let entry: ClapetEntry
+    let scale: CGFloat
+    private let gap: CGFloat = 22
+
+    private func w(_ k: WidgetThumb.Kind, _ f: WidgetFamily) -> some View {
+        let size = WidgetThumb.size(f)
+        return WidgetThumb(kind: k, family: f, entry: entry, scale: scale)
+            .frame(width: size.width * scale, height: size.height * scale, alignment: .topLeading)
+    }
+
+    var body: some View {
+        VStack(spacing: gap * scale) {
+            HStack(alignment: .top, spacing: gap * scale) {
+                w(.folds, .systemLarge)
+                VStack(spacing: gap * scale) {
+                    HStack(spacing: gap * scale) { w(.folds, .systemSmall); w(.phoneDown, .systemSmall) }
+                    HStack(spacing: gap * scale) { w(.lifetime, .systemSmall); CountFoldButton(scale: scale) }
+                }
+            }
+            HStack(spacing: gap * scale) { w(.folds, .systemMedium); w(.phoneDown, .systemMedium) }
+            HStack(alignment: .top, spacing: gap * scale) {
+                w(.hours, .systemLarge)
+                w(.hours, .systemMedium)
+            }
+        }
+    }
+}
+
+/// Le bouton « Compter un pli » (Centre de contrôle), dessiné comme dans iOS.
+struct CountFoldButton: View {
+    let scale: CGFloat
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 24 * scale, style: .continuous)
+            .fill(Color.white.opacity(0.18))
+            .frame(width: 158 * scale, height: 158 * scale)
+            .overlay {
+                VStack(spacing: 10 * scale) {
+                    Circle().fill(Palette.mint)
+                        .frame(width: 64 * scale, height: 64 * scale)
+                        .overlay(Image(systemName: "plus").font(.system(size: 30 * scale, weight: .bold)).foregroundStyle(.black))
+                    Text("Count a fold").font(.system(size: 14 * scale, weight: .semibold)).foregroundStyle(.white)
+                }
+            }
+    }
+}
+
+/// Tous les widgets de l'écran verrouillé (-screen alllock).
+struct AllLockWidgets: View {
+    let entry: ClapetEntry
+    let scale: CGFloat
+
+    private func w(_ k: WidgetThumb.Kind, _ f: WidgetFamily, _ extra: CGFloat = 1.3) -> some View {
+        let size = WidgetThumb.size(f)
+        return WidgetThumb(kind: k, family: f, entry: entry, scale: scale * extra)
+            .frame(width: size.width * scale * extra, height: size.height * scale * extra, alignment: .topLeading)
+    }
+
+    var body: some View {
+        VStack(spacing: 26 * scale) {
+            w(.folds, .accessoryInline)
+            w(.phoneDown, .accessoryInline)
+            w(.lifetime, .accessoryInline)
+            Text(Date(), format: .dateTime.hour().minute())
+                .font(.system(size: 110 * scale, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.94))
+            HStack(spacing: 22 * scale) {
+                w(.folds, .accessoryCircular)
+                w(.phoneDown, .accessoryCircular)
+            }
+            HStack(spacing: 22 * scale) {
+                w(.folds, .accessoryRectangular, 1.1)
+                w(.phoneDown, .accessoryRectangular, 1.1)
+            }
+            w(.lifetime, .accessoryRectangular, 1.1)
+        }
+        .foregroundStyle(.white)
     }
 }

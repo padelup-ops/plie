@@ -218,7 +218,7 @@ struct ClassicHomeView: View {
     private func runDemo() async {
         switch Demo.screen {
         case "history": showHistory = true
-        case "widgets", "lock": showDemoWidgets = true
+        case "widgets", "lock", "allwidgets", "alllock": showDemoWidgets = true
         case "plus": plusReason = .menu
         case "week": showWeek = true
         case "widgetsGallery": showWidgets = true
