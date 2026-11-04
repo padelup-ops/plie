@@ -1,0 +1,26 @@
+APP_ID 6825605393
+ok     achat déjà créé, état MISSING_METADATA
+ok     nom de référence et note pour la vérification
+ok     textes en-US
+ok     textes fr-FR
+ok     textes de-DE
+ok     textes es-ES
+ok     textes ja
+ok     textes ko
+ok     textes zh-Hans
+ok     prix 3.99 € (base France)
+       prix réglé : [(None, None)]
+ok     disponibilité (175 pays)
+ok     réservation de la capture
+ok     capture envoyée
+
+achat plie.pass.complet | Pass Origamo | type NON_CONSUMABLE | état READY_TO_SUBMIT
+   en-US | Origamo Pass | All 25 games, every level and duel, forever
+   zh-Hans | Origamo 通行证 | 全部 25 款游戏、所有关卡和对决，永久解锁
+   ko | Origamo 패스 | 게임 25개, 모든 레벨과 대결을 영구히
+   de-DE | Origamo-Pass | Alle 25 Spiele, alle Level und Duelle, für immer
+   ja | Origamoパス | 25のゲーム、全レベルと全決闘がずっと遊べる
+   es-ES | Pase Origamo | Los 25 juegos, todos los niveles y duelos, siempre
+   fr-FR | Pass Origamo | Les 25 jeux, tous les niveaux et duels, pour toujours
+
+PASS PRÊT
