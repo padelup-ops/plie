@@ -54,6 +54,7 @@ targets:
     dependencies:
       - package: AppsFlyerLib
         product: AppsFlyerLib
+        embed: false   # bibliothèque statique : liée dans l'app, rien à copier dans Frameworks/
       - target: ClapetWidget
         embed: true
       - target: FoldlyWatch
