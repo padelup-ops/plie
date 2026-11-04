@@ -33,6 +33,24 @@ NOTES = (
     "several features (manual count adjustment, one-tap automations, a larger hinge gauge). Press kit with "
     "screenshots, icon and a 30-second video: https://foldly.netlify.app/press/"
 )
+# Deuxième demande : la mise à jour (Foldly est en ligne, gratuit avec Foldly+)
+if os.environ.get("KIND") == "update":
+    NAME = "Foldly 1.0.4 - Now free, Foldly+ and Apple Watch"
+    DESCRIPTION = (
+        "Foldly, the fold counter made for iPhone Duo, is now on the App Store and free. It reads the hinge live and "
+        "counts every fold and unfold, like a step counter for the Duo's signature gesture, with a daily limit, open "
+        "and closed time, a desk mode when the Duo stands half-folded, and a calm three-second pause before unfolding. "
+        "This update adds Foldly+, a single optional purchase (no subscription) for every widget, limit alerts, the "
+        "full history and records, widget colors and CSV export. Also new: an Apple Watch app with complications, "
+        "Live Activities, a Control Center button, Game Center leaderboards, and seven languages (English, French, "
+        "German, Spanish, Japanese, Korean and Simplified Chinese). No account, no ads, no data collected."
+    )
+    NOTES = (
+        "Independent developer based in France. Built specifically for the iPhone Duo hinge (SwiftUI onHingeChange) "
+        "with dedicated iPhone Duo screenshots and an iOS 27 header video. Digital wellbeing angle: it helps people "
+        "notice how often they reach for their phone. 58 public TestFlight testers shaped the update (double-count fix, "
+        "one-tap automations, watch app). Press kit: https://foldly.netlify.app/press/"
+    )
 MATERIALS = ["https://foldly.netlify.app/press/", "https://testflight.apple.com/join/F3SbgAp2"]
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
@@ -67,15 +85,15 @@ for state in ("SUBMITTED", "DRAFT"):
         if nom is None and n["attributes"].get("name") == NAME:
             nom = n
 
-start = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=22)).strftime("%Y-%m-%dT00:00:00Z")
+start = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=14 if os.environ.get("KIND") == "update" else 22)).strftime("%Y-%m-%dT00:00:00Z")
 attrs = {
     "name": NAME,
-    "type": "APP_LAUNCH",
+    "type": "APP_ENHANCEMENTS" if os.environ.get("KIND") == "update" else "APP_LAUNCH",
     "description": DESCRIPTION[:1000],
     "notes": NOTES[:1000],
     "publishStartDate": start,
     "deviceFamilies": ["IPHONE"],
-    "locales": ["en-US", "fr-FR"],
+    "locales": ["en-US", "fr-FR", "de-DE", "es-ES", "ja", "ko", "zh-Hans"] if os.environ.get("KIND") == "update" else ["en-US", "fr-FR"],
     "supplementalMaterialsUris": MATERIALS,
     "hasInAppEvents": False,
     "launchInSelectMarketsFirst": False,

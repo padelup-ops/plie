@@ -7,6 +7,10 @@ on:
         description: "1 = envoyer à Apple (sinon brouillon)"
         required: false
         default: "1"
+      kind:
+        description: "launch (lancement) ou update (mise à jour)"
+        required: false
+        default: "launch"
 jobs:
   nominate:
     runs-on: ubuntu-latest
@@ -17,6 +21,7 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
       SUBMIT: ${{ inputs.submit }}
+      KIND: ${{ inputs.kind }}
     steps:
       - uses: actions/checkout@v5
       - name: Mise en avant
