@@ -219,6 +219,15 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 '여는 이유': Duo를 펼칠 때 한 번 탭으로 답하면(알림, 심심해서, 일, 누군가) 기록에서 여는 진짜 이유를 볼 수 있어요.\n• 수정: Foldly를 화면에 띄운 채 휴대폰을 닫으면 한 번 접은 것이 가끔 두 번 세어지던 문제를 고쳤어요. 알려 주셔서 감사합니다!",
         "zh-Hans": "• Foldly+ 新功能“打开的原因”：展开 Duo 时轻点一下回答（通知、无聊、工作或某个人），在历史中看清你打开手机的真正原因。\n• 已修复：在 Foldly 显示时合上手机，一次折叠有时会被计为两次。感谢所有反馈的朋友！",
     },
+    "1.0.6": {
+        "en-US": "• Fixed: on the outer screen with the Modern look, the fold count could be cut to “…” (especially with a larger display setting). The hinge gauge now moves under the number when space is tight. Thanks Matthew for reporting it!",
+        "fr-FR": "• Corrigé : sur l'écran extérieur avec le look Moderne, le nombre de plis pouvait être coupé en « … » (surtout avec un affichage agrandi). La jauge de la charnière passe maintenant sous le nombre quand la place manque. Merci à Matthew pour le signalement !",
+        "de-DE": "• Behoben: Auf dem Außendisplay im Look Modern konnte die Anzahl der Faltungen zu „…“ abgeschnitten werden (vor allem mit vergrößerter Anzeige). Die Scharnieranzeige rückt jetzt unter die Zahl, wenn der Platz knapp ist. Danke für den Hinweis!",
+        "es-ES": "• Corregido: en la pantalla exterior con el aspecto Moderno, el número de pliegues podía cortarse en «…» (sobre todo con la pantalla ampliada). Ahora el indicador de la bisagra se coloca debajo del número cuando falta espacio. ¡Gracias por avisar!",
+        "ja": "• 修正：外側の画面でモダンの見た目のとき、折りたたみ回数が「…」と切れて表示されることがある問題（特に画面表示を拡大している場合）。スペースが足りないときは、ヒンジのゲージが数字の下に移動します。ご報告ありがとうございました！",
+        "ko": "• 수정: 바깥 화면에서 모던 모양을 쓸 때 접은 횟수가 “…”로 잘려 보일 수 있던 문제(특히 화면 확대 설정 시). 이제 공간이 부족하면 힌지 게이지가 숫자 아래로 이동해요. 알려 주셔서 감사합니다!",
+        "zh-Hans": "• 已修复：在外屏使用“现代”外观时，折叠次数可能被截断为“…”（尤其是放大显示时）。现在空间不足时，铰链仪表会移到数字下方。感谢反馈！",
+    },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
 if NEW_VERSION:
@@ -238,7 +247,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -283,7 +292,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
