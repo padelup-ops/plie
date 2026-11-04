@@ -77,30 +77,24 @@ BETA_DESCRIPTION = {
     "fr-FR": "Foldly compte combien de fois tu fermes et ouvres ton téléphone pliable, avec ton temps ouvert et fermé, un bilan de la semaine et des widgets comme les pas dans Santé.",
 }
 WHATS_NEW = {
-    "en-US": """Foldly is now free on the App Store!
+    "en-US": """Thank you! The Foldly beta ends on November 9.
 
-Install it from the App Store to keep your data: it simply replaces this beta. The beta ends on November 9.
+Foldly is now on the App Store, free. Install it from the App Store before November 9: it replaces this beta and keeps all your folds and history.
 
-Thank you so much for testing Foldly and for all your ideas!
+Thank you so much for testing Foldly. Many of your ideas are in the app: the one-tap automations, the count correction, the double-count fix, the Apple Watch app...
 
-This build is the same as the App Store version 1.0.3: Foldly is free, and Foldly+ unlocks leaderboards with Game Center, My theme, the Aurora theme and more with a single purchase. Bought Foldly 1.0? You keep everything.
+Foldly+ now works on the App Store, and version 1.0.5 is on its way with "Why you open it": answer in one tap when you unfold your Duo, and see the real reasons behind your opens.
 
-A 2-minute test helps a lot:
-1. Close Foldly, fold your Duo 10 times, then compare the app, the widget and the Apple Watch complication. Same number?
-2. Try the guided tour (Settings > Help). Is anything still hard to find?
-3. Reply with your iPhone model.""",
-    "fr-FR": """Foldly est maintenant gratuit sur l'App Store !
+One last favor: if you like Foldly, a rating on the App Store helps a lot.""",
+    "fr-FR": """Merci ! La bêta de Foldly s'arrête le 9 novembre.
 
-Installe-le depuis l'App Store pour garder tes données : il remplace simplement cette bêta. La bêta s'arrête le 9 novembre.
+Foldly est maintenant sur l'App Store, gratuit. Installe-le depuis l'App Store avant le 9 novembre : il remplace cette bêta et garde tous tes plis et ton historique.
 
-Merci pour ton aide et pour toutes tes idées !
+Merci beaucoup d'avoir testé Foldly. Beaucoup de tes idées sont dans l'app : les automatisations en un toucher, la correction du compteur, la correction du double pli, l'app Apple Watch…
 
-Ce build est le même que la version 1.0.3 de l'App Store : Foldly est gratuit, et Foldly+ débloque les classements Game Center, Mon thème, le thème Aurore et plus, en un seul achat. Tu as acheté Foldly 1.0 ? Tu gardes tout.
+Foldly+ fonctionne maintenant sur l'App Store, et la version 1.0.5 arrive avec « Pourquoi tu l'ouvres » : réponds en un toucher quand tu déplies ton Duo, et découvre la vraie raison de tes ouvertures.
 
-Un test de 2 minutes nous aide beaucoup :
-1. Ferme Foldly, plie ton Duo 10 fois, puis compare l'app, le widget et la complication de l'Apple Watch. Même chiffre ?
-2. Essaie la visite guidée (Réglages > Aide). Quelque chose est encore difficile à trouver ?
-3. Réponds en indiquant ton modèle d'iPhone.""",
+Un dernier service : si tu aimes Foldly, une note sur l'App Store aide énormément.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
