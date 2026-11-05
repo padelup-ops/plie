@@ -634,3 +634,8 @@
 "Launch price until November 13" = "11月13日までリリース記念価格";
 "Your number one reason: ???" = "一番の理由：？？？";
 "After that, Foldly+ goes up. You keep it for life either way." = "その後Foldly+は値上がりします。どちらでもずっと使えます。";
+"A past day" = "過去の日";
+"Add the days you tracked before Foldly (with Scriptable or another app): they show up in your history, records and totals. After each day, the day before comes up." = "Foldlyの前に記録していた日（Scriptableや別のアプリ）を追加すると、履歴・記録・合計に反映されます。1日追加するごとに前日が表示されます。";
+"Unfolds" = "開いた回数";
+"Add this day" = "この日を追加";
+"%@ added." = "%@を追加しました。";

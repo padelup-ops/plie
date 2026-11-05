@@ -11,10 +11,20 @@ struct AdjustCountView: View {
     @State private var startToday = 0
     @State private var startTotal = 0
     @State private var totalEdited = false
+    @State private var opensText = ""
+    @State private var startOpens = 0
+    @State private var opensEdited = false
+    // Une journée passée (stats d'avant Foldly, ou une journée à corriger)
+    @State private var pastDate = Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+    @State private var pastClosesText = ""
+    @State private var pastOpensText = ""
+    @State private var pastStart = (closes: 0, opens: 0)
+    @State private var pastEdited = false
+    @State private var added: String?
     @State private var loaded = false
     @FocusState private var focus: Field?
 
-    private enum Field { case today, total }
+    private enum Field { case today, total, opens, pastCloses, pastOpens }
 
     private var today: Int { Self.number(todayText) }
     private var total: Int { Self.number(totalText) }
@@ -24,7 +34,20 @@ struct AdjustCountView: View {
     }
 
     /// Le total tant qu'on ne l'a pas touché : il suit la correction d'aujourd'hui.
-    private var followingTotal: Int { max(today, startTotal + (today - startToday)) }
+    private var followingTotal: Int { max(today, startTotal + (today - startToday) + pastDelta.closes) }
+    private var followingOpens: Int { max(0, startOpens + pastDelta.opens) }
+    private var pastDelta: (closes: Int, opens: Int) {
+        pastEdited ? (Self.number(pastClosesText) - pastStart.closes, Self.number(pastOpensText) - pastStart.opens) : (0, 0)
+    }
+    private var yesterday: Date { Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date() }
+
+    private func loadPast() {
+        let d = model.stats.day(pastDate)
+        pastStart = (d.closes, d.opens)
+        pastClosesText = String(d.closes)
+        pastOpensText = String(d.opens)
+        pastEdited = false
+    }
 
     var body: some View {
         NavigationStack {
@@ -38,11 +61,29 @@ struct AdjustCountView: View {
                 }
 
                 Section {
-                    numberRow(text: $totalText, range: 0...10_000_000, field: .total)
+                    LabeledContent { numberRow(text: $totalText, range: 0...10_000_000, field: .total) } label: { Text("Folds") }
+                    LabeledContent { numberRow(text: $opensText, range: 0...10_000_000, field: .opens) } label: { Text("Unfolds") }
                 } header: {
                     Text("All time")
                 } footer: {
                     Text("Useful if you were counting before Foldly. It can't be lower than today's folds.")
+                }
+
+                Section {
+                    DatePicker(selection: $pastDate, in: ...yesterday, displayedComponents: .date) { Text("Day") }
+                    LabeledContent { numberRow(text: $pastClosesText, range: 0...100_000, field: .pastCloses) } label: { Text("Folds") }
+                    LabeledContent { numberRow(text: $pastOpensText, range: 0...100_000, field: .pastOpens) } label: { Text("Unfolds") }
+                    Button { addPastDay() } label: {
+                        Label { Text("Add this day") } icon: { Image(systemName: "plus.circle.fill") }
+                    }
+                    .disabled(!pastEdited)
+                    if let added {
+                        Text(added).font(.footnote).foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("A past day")
+                } footer: {
+                    Text("Add the days you tracked before Foldly (with Scriptable or another app): they show up in your history, records and totals. After each day, the day before comes up.")
                 }
             }
             .navigationTitle(Text("Adjust the count"))
@@ -64,6 +105,9 @@ struct AdjustCountView: View {
                 loaded = true
                 startToday = model.stats.today
                 startTotal = model.stats.totalCloses
+                startOpens = model.stats.totalOpens
+                opensText = String(startOpens)
+                loadPast()
                 todayText = String(startToday)
                 totalText = String(startTotal)
                 focus = .today
@@ -74,6 +118,16 @@ struct AdjustCountView: View {
             .onChange(of: totalText) { _, _ in
                 if total != followingTotal { totalEdited = true }
             }
+            .onChange(of: opensText) { _, _ in
+                if Self.number(opensText) != followingOpens { opensEdited = true }
+            }
+            .onChange(of: pastDate) { _, _ in
+                loadPast()
+                if !totalEdited { totalText = String(followingTotal) }
+                if !opensEdited { opensText = String(followingOpens) }
+            }
+            .onChange(of: pastClosesText) { _, _ in pastChanged() }
+            .onChange(of: pastOpensText) { _, _ in pastChanged() }
         }
         .tint(.dfAccent)
     }
@@ -95,10 +149,31 @@ struct AdjustCountView: View {
         .padding(.vertical, 4)
     }
 
+    private func pastChanged() {
+        pastEdited = Self.number(pastClosesText) != pastStart.closes || Self.number(pastOpensText) != pastStart.opens
+        if !totalEdited { totalText = String(followingTotal) }
+        if !opensEdited { opensText = String(followingOpens) }
+    }
+
+    /// Enregistre la journée tout de suite, puis passe à la veille (pour en ajouter plusieurs à la suite).
+    private func addPastDay() {
+        let date = pastDate
+        model.adjust(today: nil, total: nil, past: (date, Self.number(pastClosesText), Self.number(pastOpensText)))
+        added = String(localized: "\(date.formatted(date: .abbreviated, time: .omitted)) added.")
+        if !totalEdited { startTotal = model.stats.totalCloses }
+        if !opensEdited { startOpens = model.stats.totalOpens }
+        pastDate = Calendar.current.date(byAdding: .day, value: -1, to: date) ?? date
+        loadPast()
+        if !totalEdited { totalText = String(followingTotal) }
+        if !opensEdited { opensText = String(followingOpens) }
+    }
+
     private func save() {
         let newToday = max(0, today)
         model.adjust(today: newToday != startToday ? newToday : nil,
-                     total: totalEdited ? max(newToday, total) : nil)
+                     total: totalEdited ? max(newToday, total) : nil,
+                     totalOpens: opensEdited ? Self.number(opensText) : nil,
+                     past: pastEdited ? (pastDate, Self.number(pastClosesText), Self.number(pastOpensText)) : nil)
         dismiss()
     }
 }

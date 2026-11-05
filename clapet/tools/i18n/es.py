@@ -635,6 +635,11 @@ T = [
 "Precio de lanzamiento hasta el 13 de noviembre",
 "Tu razón n.º 1: ???",
 "Después, Foldly+ sube de precio. En cualquier caso, es tuyo para siempre.",
+"Un día pasado",
+"Añade los días que registraste antes de Foldly (con Scriptable u otra app): aparecen en tu historial, récords y totales. Tras cada día, aparece el anterior.",
+"Aperturas",
+"Añadir este día",
+"%@ añadido.",
 ]
 S = [
 "Hacer una pausa con ${applicationName}",

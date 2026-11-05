@@ -634,3 +634,8 @@
 "Launch price until November 13" = "Einführungspreis bis 13. November";
 "Your number one reason: ???" = "Dein Grund Nr. 1: ???";
 "After that, Foldly+ goes up. You keep it for life either way." = "Danach wird Foldly+ teurer. So oder so behältst du es für immer.";
+"A past day" = "Ein vergangener Tag";
+"Add the days you tracked before Foldly (with Scriptable or another app): they show up in your history, records and totals. After each day, the day before comes up." = "Füge die Tage hinzu, die du vor Foldly erfasst hast (mit Scriptable oder einer anderen App): Sie erscheinen in Verlauf, Rekorden und Summen. Nach jedem Tag kommt der Vortag.";
+"Unfolds" = "Aufklappen";
+"Add this day" = "Diesen Tag hinzufügen";
+"%@ added." = "%@ hinzugefügt.";

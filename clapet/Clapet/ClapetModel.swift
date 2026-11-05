@@ -183,9 +183,11 @@ final class ClapetModel {
 
     /// Corrections à la main : les plis d'aujourd'hui et le total depuis le début.
     /// `nil` : pas touché. Sans total donné, le total suit la correction d'aujourd'hui.
-    func adjust(today: Int?, total: Int?) {
+    func adjust(today: Int?, total: Int?, totalOpens: Int? = nil, past: (date: Date, closes: Int, opens: Int)? = nil) {
+        if let past { stats.setPastDay(closes: past.closes, opens: past.opens, on: past.date) }
         if let today { stats.setCloses(today) }
         if let total { stats.setTotal(total) }
+        if let totalOpens { stats.setTotalOpens(totalOpens) }
         flush()
     }
 

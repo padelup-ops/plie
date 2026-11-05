@@ -634,3 +634,8 @@
 "Launch price until November 13" = "首发价至 11 月 13 日";
 "Your number one reason: ???" = "你的头号原因：？？？";
 "After that, Foldly+ goes up. You keep it for life either way." = "之后 Foldly+ 会涨价。无论何时购买，都可永久使用。";
+"A past day" = "过去的某一天";
+"Add the days you tracked before Foldly (with Scriptable or another app): they show up in your history, records and totals. After each day, the day before comes up." = "添加使用 Foldly 之前记录的日子（Scriptable 或其他应用）：它们会出现在历史、纪录和总数中。每添加一天，会接着显示前一天。";
+"Unfolds" = "展开";
+"Add this day" = "添加这一天";
+"%@ added." = "已添加 %@。";

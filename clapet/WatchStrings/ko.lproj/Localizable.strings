@@ -634,3 +634,8 @@
 "Launch price until November 13" = "11월 13일까지 출시 기념 가격";
 "Your number one reason: ???" = "1위 이유: ???";
 "After that, Foldly+ goes up. You keep it for life either way." = "이후 Foldly+ 가격이 올라요. 어느 쪽이든 평생 쓸 수 있어요.";
+"A past day" = "지난 날";
+"Add the days you tracked before Foldly (with Scriptable or another app): they show up in your history, records and totals. After each day, the day before comes up." = "Foldly 전에 기록한 날(Scriptable이나 다른 앱)을 추가하면 기록, 최고 기록, 합계에 나타나요. 하루를 추가할 때마다 전날이 나와요.";
+"Unfolds" = "펼침";
+"Add this day" = "이 날 추가";
+"%@ added." = "%@ 추가됨.";

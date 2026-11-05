@@ -242,6 +242,25 @@ struct ClapetStats: Codable, Equatable {
         if firstDay == nil && totalCloses > 0 { firstDay = Self.key(now) }
     }
 
+    /// Ajoute ou corrige une journée passée (stats d'avant Foldly) : plis et ouvertures, les totaux suivent.
+    mutating func setPastDay(closes: Int, opens: Int, on date: Date) {
+        let key = Self.key(date)
+        var d = day(date)
+        let c = max(0, min(100_000, closes)), o = max(0, min(100_000, opens))
+        totalCloses = max(0, totalCloses + c - d.closes)
+        totalOpens = max(0, totalOpens + o - d.opens)
+        d.closes = c
+        d.opens = o
+        days[key] = d
+        if c > 0 || o > 0, firstDay.map({ key < $0 }) ?? true { firstDay = key }
+        trim()
+    }
+
+    /// Corrige à la main le total des ouvertures depuis le début.
+    mutating func setTotalOpens(_ value: Int, now: Date = Date()) {
+        totalOpens = max(day(now).opens, min(10_000_000, value))
+    }
+
     mutating func addOpen(_ date: Date = Date()) {
         var d = day(date)
         d.opens += 1

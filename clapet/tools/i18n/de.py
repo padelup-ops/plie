@@ -635,6 +635,11 @@ T = [
 "Einführungspreis bis 13. November",
 "Dein Grund Nr. 1: ???",
 "Danach wird Foldly+ teurer. So oder so behältst du es für immer.",
+"Ein vergangener Tag",
+"Füge die Tage hinzu, die du vor Foldly erfasst hast (mit Scriptable oder einer anderen App): Sie erscheinen in Verlauf, Rekorden und Summen. Nach jedem Tag kommt der Vortag.",
+"Aufklappen",
+"Diesen Tag hinzufügen",
+"%@ hinzugefügt.",
 ]
 S = [
 "Mit ${applicationName} eine Pause machen",
