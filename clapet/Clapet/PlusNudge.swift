@@ -212,3 +212,130 @@ struct ImportPromo: View {
         }
     }
 }
+
+// MARK: - Mise à jour disponible
+//
+// Apple ne permet pas de forcer une mise à jour : Foldly regarde lui-même la version sur l'App Store
+// et propose de mettre à jour (bandeau qu'on peut fermer). Si foldly.netlify.app/app.json donne
+// { "minVersion": "1.0.7" }, les versions plus anciennes affichent un écran plein (cas d'un bug grave).
+
+@Observable
+final class UpdateCheck {
+    static let shared = UpdateCheck()
+    static let appID = "6827349081"
+    static var storeURL: URL { URL(string: "https://apps.apple.com/app/id\(appID)")! }
+
+    var latest: String?
+    var minimum: String?
+    private var checked = false
+
+    static var current: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0" }
+    private static let hiddenKey = "updateHiddenFor"
+
+    /// -demoUpdate : le bandeau s'affiche (captures).
+    static var demo: Bool { ProcessInfo.processInfo.arguments.contains("-demoUpdate") }
+
+    var showBanner: Bool {
+        if Self.demo { return true }
+        guard let latest, Self.isOlder(Self.current, than: latest) else { return false }
+        return UserDefaults.standard.string(forKey: Self.hiddenKey) != latest
+    }
+
+    var mustUpdate: Bool {
+        guard let minimum else { return false }
+        return Self.isOlder(Self.current, than: minimum)
+    }
+
+    func hide() {
+        if let latest { UserDefaults.standard.set(latest, forKey: Self.hiddenKey) }
+    }
+
+    static func isOlder(_ a: String, than b: String) -> Bool {
+        let x = a.split(separator: ".").map { Int($0) ?? 0 }, y = b.split(separator: ".").map { Int($0) ?? 0 }
+        for i in 0..<max(x.count, y.count) {
+            let p = i < x.count ? x[i] : 0, q = i < y.count ? y[i] : 0
+            if p != q { return p < q }
+        }
+        return false
+    }
+
+    @MainActor
+    func run() async {
+        guard !checked, !Demo.seeded else { return }
+        checked = true
+        let country = Locale.current.region?.identifier.lowercased() ?? "us"
+        if let url = URL(string: "https://itunes.apple.com/lookup?id=\(Self.appID)&country=\(country)&t=\(Int(Date().timeIntervalSince1970 / 3600))"),
+           let (data, _) = try? await URLSession.shared.data(from: url),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let first = (json["results"] as? [[String: Any]])?.first,
+           let v = first["version"] as? String {
+            latest = v
+        }
+        if let url = URL(string: "https://foldly.netlify.app/app.json"),
+           let (data, resp) = try? await URLSession.shared.data(from: url),
+           (resp as? HTTPURLResponse)?.statusCode == 200,
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let m = json["minVersion"] as? String {
+            minimum = m
+        }
+    }
+}
+
+struct UpdateBanner: View {
+    @Environment(\.openURL) private var openURL
+    var onHide: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "arrow.down.app.fill")
+                .font(.title2)
+                .foregroundStyle(Color.dfAccent)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("A new version is available").font(.subheadline.weight(.bold))
+                Text("Update Foldly to get the latest features and fixes.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 6)
+            Button { openURL(UpdateCheck.storeURL) } label: {
+                Text("Update").font(.subheadline.weight(.bold))
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.dfAccent)
+            .foregroundStyle(Color.dfOnAccent)
+            Button(action: onHide) {
+                Image(systemName: "xmark").font(.caption.weight(.bold)).foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Not now"))
+        }
+    }
+}
+
+/// Écran plein, seulement si une version minimale est fixée (bug grave).
+struct MustUpdateView: View {
+    @Environment(\.openURL) private var openURL
+
+    var body: some View {
+        VStack(spacing: 18) {
+            Spacer()
+            Image(systemName: "arrow.down.app.fill").font(.system(size: 60)).foregroundStyle(Color.dfAccent)
+            Text("Please update Foldly").font(.title.weight(.bold)).multilineTextAlignment(.center)
+            Text("This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone.")
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+            Button { openURL(UpdateCheck.storeURL) } label: {
+                Text("Update").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 6)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.dfAccent)
+            .foregroundStyle(Color.dfOnAccent)
+            Spacer()
+        }
+        .padding(28)
+        .frame(maxWidth: 480)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.dfBackground.ignoresSafeArea())
+    }
+}

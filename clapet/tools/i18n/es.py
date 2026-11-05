@@ -655,6 +655,11 @@ T = [
 "Lo pedisteis: importa tu historial desde Scriptable, un atajo u otra app, día a día, o añade días a mano.",
 "Importar mi historial",
 "Nuevo: importa tus pliegues anteriores",
+"Hay una nueva versión disponible",
+"Actualiza Foldly para tener las últimas novedades y correcciones.",
+"Actualizar",
+"Actualiza Foldly",
+"Esta versión tiene un problema corregido en la última. Tus pliegues están a salvo y se quedan en tu iPhone.",
 ]
 S = [
 "Hacer una pausa con ${applicationName}",

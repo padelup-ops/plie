@@ -655,6 +655,11 @@ T = [
 "Ihr habt es gewünscht: Importiere deinen Verlauf aus Scriptable, einem Kurzbefehl oder einer anderen App, Tag für Tag, oder füge Tage von Hand hinzu.",
 "Meinen Verlauf importieren",
 "Neu: alte Faltungen importieren",
+"Eine neue Version ist verfügbar",
+"Aktualisiere Foldly für die neuesten Funktionen und Korrekturen.",
+"Aktualisieren",
+"Bitte aktualisiere Foldly",
+"Diese Version hat ein Problem, das in der neuesten behoben ist. Deine Faltungen sind sicher und bleiben auf deinem iPhone.",
 ]
 S = [
 "Mit ${applicationName} eine Pause machen",

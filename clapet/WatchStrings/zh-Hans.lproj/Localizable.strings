@@ -654,3 +654,8 @@
 "You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "应大家要求：从 Scriptable、快捷指令或其他应用按天导入历史，或手动添加日子。";
 "Import my history" = "导入我的历史";
 "New: import your past folds" = "新功能：导入以前的折叠";
+"A new version is available" = "有新版本可用";
+"Update Foldly to get the latest features and fixes." = "更新 Foldly，获取最新功能和修复。";
+"Update" = "更新";
+"Please update Foldly" = "请更新 Foldly";
+"This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "此版本存在问题，已在最新版本中修复。你的折叠记录安全地保存在 iPhone 上。";

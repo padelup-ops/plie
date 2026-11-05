@@ -21,6 +21,8 @@ struct ClapetApp: App {
         WindowGroup {
             ContentView()
                 .safeAreaInset(edge: .bottom) { BetaBanner() }
+                .overlay { if UpdateCheck.shared.mustUpdate { MustUpdateView() } }
+                .task { await UpdateCheck.shared.run() }
                 .fullScreenCover(isPresented: $party, onDismiss: { partySeen = true }) { LaunchCelebration() }
                 .onAppear { if BetaBanner.isTestFlight && !partySeen { party = true } }
                 .environment(model)

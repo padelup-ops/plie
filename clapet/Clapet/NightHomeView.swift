@@ -70,6 +70,7 @@ struct NightHomeView: View {
     @State private var surveyHidden = false
     @State private var nudgeHidden = false
     @State private var importHidden = false
+    @State private var updateHidden = false
     @Environment(\.openURL) private var openURL
     @State private var bump = false
     /// Sans charnière : l'angle du dessin, qu'on « ferme » d'un toucher.
@@ -354,6 +355,11 @@ struct NightHomeView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     CardTitle(Text("Time closed"))
                     ClosedTimeContent(stats: model.stats)
+                }
+            }
+            if !updateHidden && UpdateCheck.shared.showBanner {
+                Card(filled: true) {
+                    UpdateBanner { UpdateCheck.shared.hide(); withAnimation { updateHidden = true } }
                 }
             }
             if !importHidden && ImportPromoRule.shouldShow {

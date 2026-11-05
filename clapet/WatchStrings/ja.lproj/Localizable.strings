@@ -654,3 +654,8 @@
 "You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "ご要望にお応えして：Scriptable、ショートカット、別のアプリから履歴を1日ずつ読み込んだり、手動で日を追加したりできます。";
 "Import my history" = "履歴を読み込む";
 "New: import your past folds" = "新機能：以前の記録を読み込む";
+"A new version is available" = "新しいバージョンがあります";
+"Update Foldly to get the latest features and fixes." = "Foldlyをアップデートして最新の機能と修正を入手しましょう。";
+"Update" = "アップデート";
+"Please update Foldly" = "Foldlyをアップデートしてください";
+"This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "このバージョンには最新版で修正された問題があります。記録は安全にiPhoneに残ります。";

@@ -735,6 +735,11 @@ FR = {
     "You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand.": "Vous l'avez demandé : importe ton historique depuis Scriptable, un raccourci ou une autre app, jour par jour, ou ajoute des jours à la main.",
     "Import my history": "Importer mon historique",
     "New: import your past folds": "Nouveau : importe tes anciens plis",
+    "A new version is available": "Une nouvelle version est disponible",
+    "Update Foldly to get the latest features and fixes.": "Mets à jour Foldly pour profiter des nouveautés et corrections.",
+    "Update": "Mettre à jour",
+    "Please update Foldly": "Mets à jour Foldly",
+    "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone.": "Cette version a un problème corrigé dans la dernière. Tes plis sont en sécurité et restent sur ton iPhone.",
 }
 
 SHORTCUTS_FR = {
