@@ -1,0 +1,10 @@
+achat 6827359818 APPROVED
+images : {"data": [], "links": {"self": "https://api.appstoreconnect.apple.com/v2/inAppPurchases/6827359818/images"}, "meta": {"paging": {"total": 0, "limit": 50}}}
+ok     réservation de l'image
+ok     image envoyée
+mis en avant : {"data": [], "included": [], "links": {"self": "https://api.appstoreconnect.apple.com/v1/apps/6827349081/promotedPurchases?include=inAppPurchaseV2"}, "meta": {"paging": {"total": 0, "limit": 50}}}
+ok     achat mis en avant (création)
+ok     ordre des achats mis en avant
+  promo 1cbb67bd-6900-41fe-9731-c3c837c68283 {"visibleForAllUsers": true, "enabled": true, "state": "PREPARE_FOR_SUBMISSION"}
+
+MISE EN AVANT PRÊTE
