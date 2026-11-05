@@ -639,3 +639,13 @@
 "Unfolds" = "Aufklappen";
 "Add this day" = "Diesen Tag hinzufügen";
 "%@ added." = "%@ hinzugefügt.";
+"Import a file" = "Datei importieren";
+"%lld days found, %lld folds" = "%lld Tage gefunden, %lld Faltungen";
+"From %@ to %@" = "Vom %@ bis %@";
+"%lld days already counted by Foldly stay as they are." = "%lld Tage, die Foldly schon gezählt hat, bleiben unverändert.";
+"Add these days" = "Diese Tage hinzufügen";
+"Import your history" = "Verlauf importieren";
+"A CSV, text or JSON file from Scriptable, a shortcut or another app: one line per day (date, folds, unfolds) or one line per fold (its date and time). Days already counted by Foldly are never counted twice." = "Eine CSV-, Text- oder JSON-Datei aus Scriptable, einem Kurzbefehl oder einer anderen App: eine Zeile pro Tag (Datum, Faltungen, Aufklappen) oder eine Zeile pro Faltung (Datum und Uhrzeit). Tage, die Foldly schon gezählt hat, werden nie doppelt gezählt.";
+"This file can't be read." = "Diese Datei kann nicht gelesen werden.";
+"No dates found in this file. Its format isn't supported yet." = "Keine Daten in dieser Datei gefunden. Ihr Format wird noch nicht unterstützt.";
+"%lld days added to your history." = "%lld Tage zu deinem Verlauf hinzugefügt.";

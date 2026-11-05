@@ -640,6 +640,16 @@ T = [
 "Aufklappen",
 "Diesen Tag hinzufügen",
 "%@ hinzugefügt.",
+"Datei importieren",
+"%lld Tage gefunden, %lld Faltungen",
+"Vom %@ bis %@",
+"%lld Tage, die Foldly schon gezählt hat, bleiben unverändert.",
+"Diese Tage hinzufügen",
+"Verlauf importieren",
+"Eine CSV-, Text- oder JSON-Datei aus Scriptable, einem Kurzbefehl oder einer anderen App: eine Zeile pro Tag (Datum, Faltungen, Aufklappen) oder eine Zeile pro Faltung (Datum und Uhrzeit). Tage, die Foldly schon gezählt hat, werden nie doppelt gezählt.",
+"Diese Datei kann nicht gelesen werden.",
+"Keine Daten in dieser Datei gefunden. Ihr Format wird noch nicht unterstützt.",
+"%lld Tage zu deinem Verlauf hinzugefügt.",
 ]
 S = [
 "Mit ${applicationName} eine Pause machen",

@@ -639,3 +639,13 @@
 "Unfolds" = "開いた回数";
 "Add this day" = "この日を追加";
 "%@ added." = "%@を追加しました。";
+"Import a file" = "ファイルを読み込む";
+"%lld days found, %lld folds" = "%lld日分、%lld回が見つかりました";
+"From %@ to %@" = "%@ 〜 %@";
+"%lld days already counted by Foldly stay as they are." = "Foldlyで記録済みの%lld日はそのままです。";
+"Add these days" = "これらの日を追加";
+"Import your history" = "履歴を読み込む";
+"A CSV, text or JSON file from Scriptable, a shortcut or another app: one line per day (date, folds, unfolds) or one line per fold (its date and time). Days already counted by Foldly are never counted twice." = "Scriptable、ショートカット、別のアプリのCSV・テキスト・JSONファイル：1日1行（日付、折りたたみ、開いた回数）または1回1行（日時）。Foldlyで記録済みの日が二重に数えられることはありません。";
+"This file can't be read." = "このファイルは読み込めません。";
+"No dates found in this file. Its format isn't supported yet." = "このファイルに日付が見つかりません。この形式にはまだ対応していません。";
+"%lld days added to your history." = "%lld日分を履歴に追加しました。";

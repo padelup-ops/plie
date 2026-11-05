@@ -639,3 +639,13 @@
 "Unfolds" = "展开";
 "Add this day" = "添加这一天";
 "%@ added." = "已添加 %@。";
+"Import a file" = "导入文件";
+"%lld days found, %lld folds" = "找到 %lld 天，%lld 次折叠";
+"From %@ to %@" = "从 %@ 到 %@";
+"%lld days already counted by Foldly stay as they are." = "Foldly 已记录的 %lld 天保持不变。";
+"Add these days" = "添加这些日子";
+"Import your history" = "导入你的历史";
+"A CSV, text or JSON file from Scriptable, a shortcut or another app: one line per day (date, folds, unfolds) or one line per fold (its date and time). Days already counted by Foldly are never counted twice." = "来自 Scriptable、快捷指令或其他应用的 CSV、文本或 JSON 文件：每天一行（日期、折叠、展开）或每次折叠一行（日期和时间）。Foldly 已记录的日子绝不会重复计算。";
+"This file can't be read." = "无法读取此文件。";
+"No dates found in this file. Its format isn't supported yet." = "此文件中未找到日期。暂不支持该格式。";
+"%lld days added to your history." = "已将 %lld 天添加到你的历史。";

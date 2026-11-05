@@ -640,6 +640,16 @@ T = [
 "Aperturas",
 "Añadir este día",
 "%@ añadido.",
+"Importar un archivo",
+"%lld días encontrados, %lld pliegues",
+"Del %@ al %@",
+"%lld días ya contados por Foldly se quedan igual.",
+"Añadir estos días",
+"Importa tu historial",
+"Un archivo CSV, de texto o JSON de Scriptable, un atajo u otra app: una línea por día (fecha, pliegues, aperturas) o una línea por pliegue (su fecha y hora). Los días ya contados por Foldly nunca se cuentan dos veces.",
+"No se puede leer este archivo.",
+"No se encontraron fechas en este archivo. Su formato aún no es compatible.",
+"%lld días añadidos a tu historial.",
 ]
 S = [
 "Hacer una pausa con ${applicationName}",

@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Corriger le compteur à la main : taper directement les plis d'aujourd'hui, ou le total depuis le début.
 struct AdjustCountView: View {
@@ -21,6 +22,9 @@ struct AdjustCountView: View {
     @State private var pastStart = (closes: 0, opens: 0)
     @State private var pastEdited = false
     @State private var added: String?
+    @State private var picking = false
+    @State private var found: HistoryImport?
+    @State private var importNote: String?
     @State private var loaded = false
     @FocusState private var focus: Field?
 
@@ -67,6 +71,37 @@ struct AdjustCountView: View {
                     Text("All time")
                 } footer: {
                     Text("Useful if you were counting before Foldly. It can't be lower than today's folds.")
+                }
+
+                Section {
+                    Button { picking = true } label: {
+                        Label { Text("Import a file") } icon: { Image(systemName: "square.and.arrow.down") }
+                    }
+                    if let found {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(found.days.count) days found, \(found.totalCloses) folds")
+                                .font(.subheadline.weight(.semibold))
+                            if let a = found.first.flatMap(ClapetStats.date), let b = found.last.flatMap(ClapetStats.date) {
+                                Text("From \(a.formatted(date: .abbreviated, time: .omitted)) to \(b.formatted(date: .abbreviated, time: .omitted))")
+                                    .font(.footnote).foregroundStyle(.secondary)
+                            }
+                            let overlap = model.stats.importOverlap(found)
+                            if overlap > 0 {
+                                Text("\(overlap) days already counted by Foldly stay as they are.")
+                                    .font(.footnote).foregroundStyle(.secondary)
+                            }
+                        }
+                        Button { runImport(found) } label: {
+                            Label { Text("Add these days") } icon: { Image(systemName: "checkmark.circle.fill") }
+                        }
+                    }
+                    if let importNote {
+                        Text(importNote).font(.footnote).foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("Import your history")
+                } footer: {
+                    Text("A CSV, text or JSON file from Scriptable, a shortcut or another app: one line per day (date, folds, unfolds) or one line per fold (its date and time). Days already counted by Foldly are never counted twice.")
                 }
 
                 Section {
@@ -118,6 +153,9 @@ struct AdjustCountView: View {
             .onChange(of: totalText) { _, _ in
                 if total != followingTotal { totalEdited = true }
             }
+            .fileImporter(isPresented: $picking, allowedContentTypes: [.commaSeparatedText, .tabSeparatedText, .plainText, .json, .text, .data]) { result in
+                readFile(result)
+            }
             .onChange(of: opensText) { _, _ in
                 if Self.number(opensText) != followingOpens { opensEdited = true }
             }
@@ -166,6 +204,36 @@ struct AdjustCountView: View {
         loadPast()
         if !totalEdited { totalText = String(followingTotal) }
         if !opensEdited { opensText = String(followingOpens) }
+    }
+
+    private func readFile(_ result: Result<URL, Error>) {
+        found = nil
+        guard case .success(let url) = result else { return }
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        guard let data = try? Data(contentsOf: url),
+              let text = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .utf16) ?? String(data: data, encoding: .isoLatin1) else {
+            importNote = String(localized: "This file can't be read.")
+            return
+        }
+        let r = HistoryImport.parse(text)
+        if r.isEmpty {
+            importNote = String(localized: "No dates found in this file. Its format isn't supported yet.")
+        } else {
+            importNote = nil
+            found = r
+        }
+    }
+
+    private func runImport(_ r: HistoryImport) {
+        let n = model.importHistory(r)
+        found = nil
+        importNote = String(localized: "\(n) days added to your history.")
+        startTotal = model.stats.totalCloses
+        startOpens = model.stats.totalOpens
+        if !totalEdited { totalText = String(followingTotal) }
+        if !opensEdited { opensText = String(followingOpens) }
+        loadPast()
     }
 
     private func save() {

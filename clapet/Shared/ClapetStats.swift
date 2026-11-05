@@ -573,10 +573,12 @@ struct ClapetStats: Codable, Equatable {
         return out
     }
 
-    /// On garde un peu plus d'un an d'historique.
+    /// On garde environ trois ans d'historique (assez pour un historique importé).
+    mutating func keepRecentDays() { trim() }
+
     private mutating func trim() {
-        guard days.count > 420 else { return }
-        let keep = Set(days.keys.sorted().suffix(400))
+        guard days.count > 1120 else { return }
+        let keep = Set(days.keys.sorted().suffix(1100))
         days = days.filter { keep.contains($0.key) }
     }
 }

@@ -191,6 +191,14 @@ final class ClapetModel {
         flush()
     }
 
+    /// Un historique importé (fichier) : rend le nombre de jours ajoutés.
+    @discardableResult
+    func importHistory(_ imp: HistoryImport) -> Int {
+        let n = stats.importHistory(imp)
+        flush()
+        return n
+    }
+
     func reset() {
         var fresh = ClapetStats()
         fresh.goal = stats.goal
