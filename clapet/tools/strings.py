@@ -707,6 +707,14 @@ FR = {
     "Ask why I open it": "Demander pourquoi je l'ouvre",
     "Also when Foldly is closed": "Aussi quand Foldly est fermé",
     "When you unfold your Duo, one tap: a notification, boredom, work or someone. Your answers stay on your iPhone. When Foldly is closed, the question comes as a notification.": "Quand tu déplies ton Duo, un toucher : une notif, l'ennui, le boulot ou quelqu'un. Tes réponses restent sur ton iPhone. Quand Foldly est fermé, la question arrive en notification.",
+    "Your first 3 days: %lld folds, your peak is at %@. Unlock your trends with Foldly+.": "Tes 3 premiers jours : %lld plis, ton pic est à %@. Débloque tes tendances avec Foldly+.",
+    "You went past your limit today. With Foldly+, get a heads-up at 80 % and at 100 %, before it happens.": "Tu as dépassé ta limite aujourd'hui. Avec Foldly+, sois prévenu à 80 % et à 100 %, avant que ça arrive.",
+    "%lld folds so far, your peak is at %@.": "%lld plis pour l'instant, ton pic est à %@.",
+    "%lld folds so far.": "%lld plis pour l'instant.",
+    "Unlock your trends": "Débloque tes tendances",
+    "Launch price until November 13": "Prix de lancement jusqu'au 13 novembre",
+    "Your number one reason: ???": "Ta raison n° 1 : ???",
+    "After that, Foldly+ goes up. You keep it for life either way.": "Après, Foldly+ augmente. Dans tous les cas, tu le gardes à vie.",
 }
 
 SHORTCUTS_FR = {

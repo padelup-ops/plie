@@ -18,12 +18,14 @@ struct MinimalHomeView: View {
     @State private var showAdjust = false
     @State private var showShare = false
     @State private var showWidgets = false
+    @Environment(\.scenePhase) private var scenePhase
     @State private var plusReason: PlusReason?
     @State private var weekHidden = false
     @State private var showMonth = false
     @State private var monthHidden = false
     @State private var showHours = false
     @State private var surveyHidden = false
+    @State private var nudgeHidden = false
     @State private var bump = false
 
     var body: some View {
@@ -69,7 +71,7 @@ struct MinimalHomeView: View {
         .sheet(isPresented: $showWidgets) { WidgetsHelpView().environment(model).environment(store) }
         .sheet(isPresented: $showHistory) { HistoryView().environment(model) }
         .sheet(item: $plusReason) { reason in
-            PlusView(reason: reason.text).environment(model).environment(store)
+            PlusView(reason: reason.text(model.stats)).environment(model).environment(store)
         }
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
@@ -91,6 +93,13 @@ struct MinimalHomeView: View {
             if !Demo.seeded && !store.hasPlus && model.stats.daysCounted >= 3 && !d.bool(forKey: "plusPromptShown") {
                 d.set(true, forKey: "plusPromptShown")
                 plusReason = .tracking
+            } else if PlusNudgeRule.claimLimit(model.stats, hasPlus: store.hasPlus) {
+                plusReason = .limit
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active && plusReason == nil && PlusNudgeRule.claimLimit(model.stats, hasPlus: store.hasPlus) {
+                plusReason = .limit
             }
         }
         .onChange(of: model.claps) { _, _ in
@@ -298,6 +307,9 @@ struct MinimalHomeView: View {
             }
             if !monthHidden && MonthRecapRule.shouldShowCard(s) {
                 notice(Text("Your month is ready")) { showMonth = true }
+            }
+            if !nudgeHidden && PlusNudgeRule.shouldShowCard(s, hasPlus: store.hasPlus) {
+                notice(Text("Unlock your trends")) { plusReason = .menu }
             }
             if !surveyHidden && SurveyRule.shouldShowCard(isTestBuild: store.isTestBuild) {
                 notice(Text("Your take in 1 minute")) { openURL(SurveyRule.url) }

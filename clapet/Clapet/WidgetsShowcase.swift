@@ -271,7 +271,7 @@ struct WidgetsHelpView: View {
         .onAppear { installed.refresh() }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in installed.refresh() }
         .sheet(isPresented: $showPlus) {
-            PlusView(reason: PlusReason.widget.text).environment(model).environment(store)
+            PlusView(reason: PlusReason.widget.text(model.stats)).environment(model).environment(store)
         }
     }
 

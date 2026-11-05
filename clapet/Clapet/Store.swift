@@ -32,6 +32,7 @@ final class ClapetStore {
     /// Appelé quand `hasPlus` change (pour prévenir les widgets).
     @ObservationIgnored var onChange: ((Bool) -> Void)?
     @ObservationIgnored private var updatesTask: Task<Void, Never>?
+    @ObservationIgnored private var intentsTask: Task<Void, Never>?
 
     init() {
         updatesTask = Task { @MainActor [weak self] in
@@ -40,6 +41,14 @@ final class ClapetStore {
                     await transaction.finish()
                 }
                 await self?.refresh()
+            }
+        }
+        // Achat lancé depuis la fiche App Store (achat mis en avant) : on le termine dans l'app.
+        intentsTask = Task { @MainActor [weak self] in
+            for await intent in PurchaseIntent.intents {
+                guard let self, intent.product.id == Self.plusID else { continue }
+                self.product = intent.product
+                await self.buy()
             }
         }
     }

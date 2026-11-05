@@ -228,6 +228,15 @@ RELEASE_NOTES = {
         "ko": "• 수정: 바깥 화면에서 모던 모양을 쓸 때 접은 횟수가 “…”로 잘려 보일 수 있던 문제(특히 화면 확대 설정 시). 이제 공간이 부족하면 힌지 게이지가 숫자 아래로 이동해요. 알려 주셔서 감사합니다!",
         "zh-Hans": "• 已修复：在外屏使用“现代”外观时，折叠次数可能被截断为“…”（尤其是放大显示时）。现在空间不足时，铰链仪表会移到数字下方。感谢反馈！",
     },
+    "1.0.7": {
+        "en-US": "• Foldly+ is at its launch price until November 13: pay once, keep it for life.\n• After 3 days, Foldly sums up your first folds and your peak hour.\n• You can now buy Foldly+ straight from the App Store page.\n• Small fixes and improvements.",
+        "fr-FR": "• Foldly+ est à son prix de lancement jusqu'au 13 novembre : un seul achat, à vie.\n• Après 3 jours, Foldly résume tes premiers plis et ton heure de pointe.\n• Tu peux maintenant acheter Foldly+ directement depuis la fiche App Store.\n• Petites corrections et améliorations.",
+        "de-DE": "• Foldly+ gibt es bis 13. November zum Einführungspreis: einmal kaufen, für immer behalten.\n• Nach 3 Tagen fasst Foldly deine ersten Faltungen und deine Spitzenzeit zusammen.\n• Du kannst Foldly+ jetzt direkt auf der App Store-Seite kaufen.\n• Kleine Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• Foldly+ tiene precio de lanzamiento hasta el 13 de noviembre: un solo pago, para siempre.\n• Tras 3 días, Foldly resume tus primeros pliegues y tu hora pico.\n• Ahora puedes comprar Foldly+ directamente desde la página del App Store.\n• Pequeñas correcciones y mejoras.",
+        "ja": "• Foldly+は11月13日までリリース記念価格：一度の購入でずっと使えます。\n• 3日後、最初の折りたたみ回数とピークの時間をまとめてお見せします。\n• App StoreのページからFoldly+を直接購入できるようになりました。\n• 細かな修正と改善。",
+        "ko": "• Foldly+를 11월 13일까지 출시 기념 가격으로: 한 번 구입으로 평생 사용.\n• 3일이 지나면 처음 접은 횟수와 가장 많이 접는 시간을 정리해 드려요.\n• 이제 App Store 페이지에서 바로 Foldly+를 구입할 수 있어요.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• Foldly+ 首发价至 11 月 13 日：一次购买，永久使用。\n• 使用 3 天后，Foldly 会总结你最初的折叠次数和高峰时段。\n• 现在可以直接在 App Store 页面购买 Foldly+。\n• 小问题修复和改进。",
+    },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
 if NEW_VERSION:
@@ -247,7 +256,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -292,7 +301,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})

@@ -627,6 +627,14 @@ T = [
 "Fragen, warum ich es öffne",
 "Auch wenn Foldly geschlossen ist",
 "Wenn du dein Duo aufklappst, ein Tippen: eine Mitteilung, Langeweile, Arbeit oder jemand. Deine Antworten bleiben auf deinem iPhone. Ist Foldly geschlossen, kommt die Frage als Mitteilung.",
+"Deine ersten 3 Tage: %lld Faltungen, dein Höhepunkt ist um %@. Schalte deine Trends mit Foldly+ frei.",
+"Du hast heute dein Limit überschritten. Mit Foldly+ wirst du bei 80 % und 100 % gewarnt, bevor es passiert.",
+"Bisher %lld Faltungen, dein Höhepunkt ist um %@.",
+"Bisher %lld Faltungen.",
+"Trends freischalten",
+"Einführungspreis bis 13. November",
+"Dein Grund Nr. 1: ???",
+"Danach wird Foldly+ teurer. So oder so behältst du es für immer.",
 ]
 S = [
 "Mit ${applicationName} eine Pause machen",

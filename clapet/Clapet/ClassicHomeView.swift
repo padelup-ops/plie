@@ -49,6 +49,7 @@ struct ClassicHomeView: View {
     @State private var showSettings = false
     @State private var showBoards = false
     @State private var showHistory = false
+    @Environment(\.scenePhase) private var scenePhase
     @State private var plusReason: PlusReason?
     @State private var showDemoWidgets = false
     @State private var showAuto = false
@@ -63,6 +64,7 @@ struct ClassicHomeView: View {
     @State private var widgets = InstalledWidgets.shared
     @State private var promoHidden = false
     @State private var surveyHidden = false
+    @State private var nudgeHidden = false
     @Environment(\.openURL) private var openURL
     @State private var liveOn = LiveCounter.isOn
     @State private var bump = false
@@ -92,6 +94,14 @@ struct ClassicHomeView: View {
                             MonthRecapPromo(recap: MonthRecapRule.current(model.stats)) { showMonth = true } onHide: {
                                 MonthRecapRule.markSeen(MonthRecapRule.current(model.stats))
                                 withAnimation { monthHidden = true }
+                            }
+                        }
+                    }
+                    if !nudgeHidden && PlusNudgeRule.shouldShowCard(model.stats, hasPlus: store.hasPlus) {
+                        ClassicCard {
+                            PlusNudgeCard(stats: model.stats) { plusReason = .menu } onHide: {
+                                PlusNudgeRule.hide()
+                                withAnimation { nudgeHidden = true }
                             }
                         }
                     }
@@ -176,7 +186,7 @@ struct ClassicHomeView: View {
             HistoryView().environment(model)
         }
         .sheet(item: $plusReason) { reason in
-            PlusView(reason: reason.text).environment(model).environment(store)
+            PlusView(reason: reason.text(model.stats)).environment(model).environment(store)
         }
         .fullScreenCover(isPresented: $showDemoWidgets) {
             DemoWidgetsView().environment(model)
@@ -202,6 +212,13 @@ struct ClassicHomeView: View {
             if !Demo.seeded && !store.hasPlus && model.stats.daysCounted >= 3 && !d.bool(forKey: "plusPromptShown") {
                 d.set(true, forKey: "plusPromptShown")
                 plusReason = .tracking
+            } else if PlusNudgeRule.claimLimit(model.stats, hasPlus: store.hasPlus) {
+                plusReason = .limit
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active && plusReason == nil && PlusNudgeRule.claimLimit(model.stats, hasPlus: store.hasPlus) {
+                plusReason = .limit
             }
         }
         .onChange(of: model.claps) { _, _ in

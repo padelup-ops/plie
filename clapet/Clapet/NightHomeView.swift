@@ -52,6 +52,7 @@ struct NightHomeView: View {
     @State private var showSettings = false
     @State private var showBoards = false
     @State private var showHistory = false
+    @Environment(\.scenePhase) private var scenePhase
     @State private var plusReason: PlusReason?
     @State private var showDemoWidgets = false
     @State private var showAuto = false
@@ -67,6 +68,7 @@ struct NightHomeView: View {
     @State private var widgets = InstalledWidgets.shared
     @State private var promoHidden = false
     @State private var surveyHidden = false
+    @State private var nudgeHidden = false
     @Environment(\.openURL) private var openURL
     @State private var bump = false
     /// Sans charnière : l'angle du dessin, qu'on « ferme » d'un toucher.
@@ -132,7 +134,7 @@ struct NightHomeView: View {
             HistoryView().environment(model)
         }
         .sheet(item: $plusReason) { reason in
-            PlusView(reason: reason.text).environment(model).environment(store)
+            PlusView(reason: reason.text(model.stats)).environment(model).environment(store)
         }
         .fullScreenCover(isPresented: $showDemoWidgets) {
             DemoWidgetsView().environment(model)
@@ -159,6 +161,13 @@ struct NightHomeView: View {
             if !Demo.seeded && !store.hasPlus && model.stats.daysCounted >= 3 && !d.bool(forKey: "plusPromptShown") {
                 d.set(true, forKey: "plusPromptShown")
                 plusReason = .tracking
+            } else if PlusNudgeRule.claimLimit(model.stats, hasPlus: store.hasPlus) {
+                plusReason = .limit
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active && plusReason == nil && PlusNudgeRule.claimLimit(model.stats, hasPlus: store.hasPlus) {
+                plusReason = .limit
             }
         }
         .onChange(of: model.claps) { _, _ in
@@ -344,6 +353,14 @@ struct NightHomeView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     CardTitle(Text("Time closed"))
                     ClosedTimeContent(stats: model.stats)
+                }
+            }
+            if !nudgeHidden && PlusNudgeRule.shouldShowCard(model.stats, hasPlus: store.hasPlus) {
+                Card(filled: true) {
+                    PlusNudgeCard(stats: model.stats) { plusReason = .menu } onHide: {
+                        PlusNudgeRule.hide()
+                        withAnimation { nudgeHidden = true }
+                    }
                 }
             }
             if !surveyHidden && SurveyRule.shouldShowCard(isTestBuild: store.isTestBuild) {
@@ -942,16 +959,21 @@ struct HingeArc: View {
 
 /// Pourquoi l'écran Foldly+ s'ouvre.
 enum PlusReason: String, Identifiable {
-    case menu, widget, tracking, history, alerts
+    case menu, widget, tracking, history, alerts, limit
 
     var id: String { rawValue }
 
-    var text: Text? {
+    func text(_ stats: ClapetStats) -> Text? {
         switch self {
         case .menu: return nil
         case .widget: return Text("This widget is part of Foldly+.")
-        case .tracking: return Text("Three days of tracking. Keep an eye on your folds right from your Home Screen.")
+        case .tracking:
+            if let peak = stats.peakHour {
+                return Text("Your first 3 days: \(stats.totalCloses) folds, your peak is at \(HoursText.hour(peak)). Unlock your trends with Foldly+.")
+            }
+            return Text("Three days of tracking. Keep an eye on your folds right from your Home Screen.")
         case .alerts: return Text("Limit alerts are part of Foldly+.")
+        case .limit: return Text("You went past your limit today. With Foldly+, get a heads-up at 80 % and at 100 %, before it happens.")
         case .history: return Text("Your full history and records are part of Foldly+.")
         }
     }

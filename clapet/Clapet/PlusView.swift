@@ -54,6 +54,23 @@ struct PlusView: View {
                             .foregroundStyle(Color.dfAccent)
                             .padding(.vertical, 8)
                     } else {
+                        if LaunchPrice.isOn {
+                            HStack(spacing: 10) {
+                                Image(systemName: "clock.badge.exclamationmark.fill")
+                                    .font(.title3)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Launch price until November 13")
+                                        .font(.subheadline.weight(.bold))
+                                    Text("After that, Foldly+ goes up. You keep it for life either way.")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer(minLength: 0)
+                            }
+                            .foregroundStyle(Color.dfAccent)
+                            .padding(14)
+                            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.dfAccent.opacity(0.12)))
+                        }
                         Button {
                             Task { await store.buy() }
                         } label: {

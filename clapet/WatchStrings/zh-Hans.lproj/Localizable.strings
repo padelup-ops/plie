@@ -626,3 +626,11 @@
 "Ask why I open it" = "询问我为什么打开";
 "Also when Foldly is closed" = "Foldly 关闭时也询问";
 "When you unfold your Duo, one tap: a notification, boredom, work or someone. Your answers stay on your iPhone. When Foldly is closed, the question comes as a notification." = "展开 Duo 时轻点一下：通知、无聊、工作或某个人。你的回答只保存在你的 iPhone 上。Foldly 关闭时，问题会以通知形式出现。";
+"Your first 3 days: %lld folds, your peak is at %@. Unlock your trends with Foldly+." = "你的前 3 天：%lld 次折叠，高峰在 %@。用 Foldly+ 解锁你的趋势。";
+"You went past your limit today. With Foldly+, get a heads-up at 80 % and at 100 %, before it happens." = "你今天超出了限额。有了 Foldly+，在 80 % 和 100 % 时提前提醒你。";
+"%lld folds so far, your peak is at %@." = "目前 %lld 次折叠，高峰在 %@。";
+"%lld folds so far." = "目前 %lld 次折叠。";
+"Unlock your trends" = "解锁你的趋势";
+"Launch price until November 13" = "首发价至 11 月 13 日";
+"Your number one reason: ???" = "你的头号原因：？？？";
+"After that, Foldly+ goes up. You keep it for life either way." = "之后 Foldly+ 会涨价。无论何时购买，都可永久使用。";

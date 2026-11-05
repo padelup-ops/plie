@@ -626,3 +626,11 @@
 "Ask why I open it" = "開く理由を聞く";
 "Also when Foldly is closed" = "Foldlyを閉じているときも";
 "When you unfold your Duo, one tap: a notification, boredom, work or someone. Your answers stay on your iPhone. When Foldly is closed, the question comes as a notification." = "Duoを開いたら1タップ：通知、退屈、仕事、誰か。回答はiPhoneの中だけに保存されます。Foldlyを閉じているときは、質問が通知で届きます。";
+"Your first 3 days: %lld folds, your peak is at %@. Unlock your trends with Foldly+." = "最初の3日間：%lld回、ピークは%@。Foldly+で傾向をチェック。";
+"You went past your limit today. With Foldly+, get a heads-up at 80 % and at 100 %, before it happens." = "今日は上限を超えました。Foldly+なら80 %と100 %で事前にお知らせします。";
+"%lld folds so far, your peak is at %@." = "これまで%lld回、ピークは%@。";
+"%lld folds so far." = "これまで%lld回。";
+"Unlock your trends" = "傾向をチェック";
+"Launch price until November 13" = "11月13日までリリース記念価格";
+"Your number one reason: ???" = "一番の理由：？？？";
+"After that, Foldly+ goes up. You keep it for life either way." = "その後Foldly+は値上がりします。どちらでもずっと使えます。";

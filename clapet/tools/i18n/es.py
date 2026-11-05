@@ -627,6 +627,14 @@ T = [
 "Preguntar por qué lo abro",
 "También con Foldly cerrado",
 "Al desplegar tu Duo, un toque: una notificación, aburrimiento, trabajo o alguien. Tus respuestas se quedan en tu iPhone. Con Foldly cerrado, la pregunta llega como notificación.",
+"Tus 3 primeros días: %lld pliegues, tu pico es a las %@. Desbloquea tus tendencias con Foldly+.",
+"Hoy has superado tu límite. Con Foldly+, recibe un aviso al 80 % y al 100 %, antes de que pase.",
+"%lld pliegues hasta ahora, tu pico es a las %@.",
+"%lld pliegues hasta ahora.",
+"Desbloquea tus tendencias",
+"Precio de lanzamiento hasta el 13 de noviembre",
+"Tu razón n.º 1: ???",
+"Después, Foldly+ sube de precio. En cualquier caso, es tuyo para siempre.",
 ]
 S = [
 "Hacer una pausa con ${applicationName}",
