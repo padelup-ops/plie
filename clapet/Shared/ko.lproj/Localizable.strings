@@ -649,3 +649,8 @@
 "This file can't be read." = "이 파일을 읽을 수 없어요.";
 "No dates found in this file. Its format isn't supported yet." = "이 파일에서 날짜를 찾지 못했어요. 아직 지원하지 않는 형식이에요.";
 "%lld days added to your history." = "기록에 %lld일을 추가했어요.";
+"NEW" = "새 기능";
+"Bring your past folds" = "예전 기록 가져오기";
+"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "요청하신 기능이에요: Scriptable, 단축어 또는 다른 앱에서 기록을 하루 단위로 가져오거나 직접 날짜를 추가하세요.";
+"Import my history" = "내 기록 가져오기";
+"New: import your past folds" = "새 기능: 예전 기록 가져오기";

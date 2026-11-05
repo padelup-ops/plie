@@ -649,3 +649,8 @@
 "This file can't be read." = "このファイルは読み込めません。";
 "No dates found in this file. Its format isn't supported yet." = "このファイルに日付が見つかりません。この形式にはまだ対応していません。";
 "%lld days added to your history." = "%lld日分を履歴に追加しました。";
+"NEW" = "新機能";
+"Bring your past folds" = "以前の記録を取り込む";
+"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "ご要望にお応えして：Scriptable、ショートカット、別のアプリから履歴を1日ずつ読み込んだり、手動で日を追加したりできます。";
+"Import my history" = "履歴を読み込む";
+"New: import your past folds" = "新機能：以前の記録を読み込む";

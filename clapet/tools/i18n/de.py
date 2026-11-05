@@ -650,6 +650,11 @@ T = [
 "Diese Datei kann nicht gelesen werden.",
 "Keine Daten in dieser Datei gefunden. Ihr Format wird noch nicht unterstützt.",
 "%lld Tage zu deinem Verlauf hinzugefügt.",
+"NEU",
+"Deine alten Faltungen übernehmen",
+"Ihr habt es gewünscht: Importiere deinen Verlauf aus Scriptable, einem Kurzbefehl oder einer anderen App, Tag für Tag, oder füge Tage von Hand hinzu.",
+"Meinen Verlauf importieren",
+"Neu: alte Faltungen importieren",
 ]
 S = [
 "Mit ${applicationName} eine Pause machen",

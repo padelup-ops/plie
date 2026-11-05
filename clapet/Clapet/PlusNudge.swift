@@ -149,3 +149,66 @@ struct WhyTeaser: View {
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.05)))
     }
 }
+
+// MARK: - Nouveau : importer ses anciennes stats (demandé par plusieurs utilisateurs)
+
+enum ImportPromoRule {
+    private static let key = "importPromoHidden"
+    /// -demoImport : la carte s'affiche même avec l'historique de démo (captures).
+    static var demo: Bool { ProcessInfo.processInfo.arguments.contains("-demoImport") }
+
+    static var shouldShow: Bool {
+        if demo { return true }
+        return !Demo.seeded && !UserDefaults.standard.bool(forKey: key)
+    }
+
+    static func hide() { UserDefaults.standard.set(true, forKey: key) }
+}
+
+struct ImportPromo: View {
+    var onOpen: () -> Void
+    var onHide: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "square.and.arrow.down.on.square.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.dfAccent)
+                    .frame(width: 34)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text("NEW").font(.caption2.weight(.heavy)).tracking(0.8)
+                            .padding(.horizontal, 6).padding(.vertical, 2)
+                            .background(Capsule().fill(Color.dfAccent))
+                            .foregroundStyle(Color.dfOnAccent)
+                        Text("Bring your past folds").font(.headline)
+                    }
+                    Text("You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 8)
+                Button(action: onHide) {
+                    Image(systemName: "xmark")
+                        .font(.footnote.weight(.bold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 30, height: 30)
+                        .background(Circle().fill(Color.dfFill))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Not now"))
+            }
+            Button(action: onOpen) {
+                Label { Text("Import my history") } icon: { Image(systemName: "tray.and.arrow.down.fill") }
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.dfAccent)
+            .foregroundStyle(Color.dfOnAccent)
+        }
+    }
+}

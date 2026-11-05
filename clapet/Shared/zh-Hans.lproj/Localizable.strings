@@ -649,3 +649,8 @@
 "This file can't be read." = "无法读取此文件。";
 "No dates found in this file. Its format isn't supported yet." = "此文件中未找到日期。暂不支持该格式。";
 "%lld days added to your history." = "已将 %lld 天添加到你的历史。";
+"NEW" = "新";
+"Bring your past folds" = "导入以前的折叠";
+"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "应大家要求：从 Scriptable、快捷指令或其他应用按天导入历史，或手动添加日子。";
+"Import my history" = "导入我的历史";
+"New: import your past folds" = "新功能：导入以前的折叠";

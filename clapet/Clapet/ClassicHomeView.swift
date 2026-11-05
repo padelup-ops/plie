@@ -65,6 +65,7 @@ struct ClassicHomeView: View {
     @State private var promoHidden = false
     @State private var surveyHidden = false
     @State private var nudgeHidden = false
+    @State private var importHidden = false
     @Environment(\.openURL) private var openURL
     @State private var liveOn = LiveCounter.isOn
     @State private var bump = false
@@ -94,6 +95,14 @@ struct ClassicHomeView: View {
                             MonthRecapPromo(recap: MonthRecapRule.current(model.stats)) { showMonth = true } onHide: {
                                 MonthRecapRule.markSeen(MonthRecapRule.current(model.stats))
                                 withAnimation { monthHidden = true }
+                            }
+                        }
+                    }
+                    if !importHidden && ImportPromoRule.shouldShow {
+                        ClassicCard {
+                            ImportPromo { ImportPromoRule.hide(); importHidden = true; showAdjust = true } onHide: {
+                                ImportPromoRule.hide()
+                                withAnimation { importHidden = true }
                             }
                         }
                     }

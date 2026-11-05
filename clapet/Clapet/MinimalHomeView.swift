@@ -26,6 +26,7 @@ struct MinimalHomeView: View {
     @State private var showHours = false
     @State private var surveyHidden = false
     @State private var nudgeHidden = false
+    @State private var importHidden = false
     @State private var bump = false
 
     var body: some View {
@@ -307,6 +308,9 @@ struct MinimalHomeView: View {
             }
             if !monthHidden && MonthRecapRule.shouldShowCard(s) {
                 notice(Text("Your month is ready")) { showMonth = true }
+            }
+            if !importHidden && ImportPromoRule.shouldShow {
+                notice(Text("New: import your past folds")) { ImportPromoRule.hide(); importHidden = true; showAdjust = true }
             }
             if !nudgeHidden && PlusNudgeRule.shouldShowCard(s, hasPlus: store.hasPlus) {
                 notice(Text("Unlock your trends")) { plusReason = .menu }

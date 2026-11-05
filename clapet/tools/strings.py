@@ -730,6 +730,11 @@ FR = {
     "This file can't be read.": "Ce fichier ne peut pas être lu.",
     "No dates found in this file. Its format isn't supported yet.": "Aucune date trouvée dans ce fichier. Son format n'est pas encore pris en charge.",
     "%lld days added to your history.": "%lld jours ajoutés à ton historique.",
+    "NEW": "NOUVEAU",
+    "Bring your past folds": "Reprends tes anciens plis",
+    "You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand.": "Vous l'avez demandé : importe ton historique depuis Scriptable, un raccourci ou une autre app, jour par jour, ou ajoute des jours à la main.",
+    "Import my history": "Importer mon historique",
+    "New: import your past folds": "Nouveau : importe tes anciens plis",
 }
 
 SHORTCUTS_FR = {

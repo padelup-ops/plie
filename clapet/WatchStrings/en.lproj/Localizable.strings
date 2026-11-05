@@ -649,3 +649,8 @@
 "This file can't be read." = "This file can't be read.";
 "No dates found in this file. Its format isn't supported yet." = "No dates found in this file. Its format isn't supported yet.";
 "%lld days added to your history." = "%lld days added to your history.";
+"NEW" = "NEW";
+"Bring your past folds" = "Bring your past folds";
+"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand.";
+"Import my history" = "Import my history";
+"New: import your past folds" = "New: import your past folds";

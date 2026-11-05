@@ -650,6 +650,11 @@ T = [
 "No se puede leer este archivo.",
 "No se encontraron fechas en este archivo. Su formato aún no es compatible.",
 "%lld días añadidos a tu historial.",
+"NUEVO",
+"Trae tus pliegues anteriores",
+"Lo pedisteis: importa tu historial desde Scriptable, un atajo u otra app, día a día, o añade días a mano.",
+"Importar mi historial",
+"Nuevo: importa tus pliegues anteriores",
 ]
 S = [
 "Hacer una pausa con ${applicationName}",

@@ -649,3 +649,8 @@
 "This file can't be read." = "Diese Datei kann nicht gelesen werden.";
 "No dates found in this file. Its format isn't supported yet." = "Keine Daten in dieser Datei gefunden. Ihr Format wird noch nicht unterstützt.";
 "%lld days added to your history." = "%lld Tage zu deinem Verlauf hinzugefügt.";
+"NEW" = "NEU";
+"Bring your past folds" = "Deine alten Faltungen übernehmen";
+"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "Ihr habt es gewünscht: Importiere deinen Verlauf aus Scriptable, einem Kurzbefehl oder einer anderen App, Tag für Tag, oder füge Tage von Hand hinzu.";
+"Import my history" = "Meinen Verlauf importieren";
+"New: import your past folds" = "Neu: alte Faltungen importieren";
