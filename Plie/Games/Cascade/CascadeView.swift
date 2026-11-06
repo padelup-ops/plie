@@ -241,7 +241,7 @@ struct CascadeField: View {
             // Les rails sur les côtés
             let wall = CascadeGame.wall * s
             for x in [0, s - wall] {
-                context.fill(Path(CGRect(x: x, y: 0, width: wall, height: size.height)),
+                context.fill(Path(CGRect(x: x, y: 0, width: wall, height: halfY)),
                              with: .linearGradient(Gradient(colors: [Color(hex: 0xFFB13D), Color(hex: 0xC2661A)]),
                                                    startPoint: CGPoint(x: x, y: 0), endPoint: CGPoint(x: x + wall, y: 0)))
             }
@@ -275,41 +275,102 @@ struct CascadeField: View {
             hinge.addLine(to: CGPoint(x: s, y: halfY))
             context.stroke(hinge, with: .color(.white.opacity(0.12)), style: StrokeStyle(lineWidth: 2, dash: [8, 10]))
 
-            // Le plateau : le bord avant, et les trous sur les côtés
+            // Le plateau, vu en perspective : le fond (près de la charnière) est plus étroit que le bord avant.
             let edgeY = game.bedEdge * s
-            context.fill(Path(CGRect(x: wall, y: edgeY, width: s - 2 * wall, height: size.height - edgeY)), with: .color(.black.opacity(0.45)))
-            for x in [wall, s - wall - 0.09 * s] {
-                context.fill(Path(CGRect(x: x, y: edgeY - 0.06 * s, width: 0.09 * s, height: 0.06 * s)), with: .color(.black.opacity(0.35)))
+            let span = max(1, game.bedEdge - game.bedTop)
+            func depth(_ y: Double) -> Double { min(1.08, max(0, (y - game.bedTop) / span)) }
+            func scaleAt(_ t: Double) -> Double { 0.62 + 0.38 * t }
+            func bedPoint(_ x: Double, _ y: Double) -> CGPoint {
+                let t = depth(y)
+                return CGPoint(x: s * (0.5 + (x - 0.5) * scaleAt(t)), y: halfY + (edgeY - halfY) * t)
+            }
+            let inner = 0.5 - CascadeGame.wall
+            let farL = bedPoint(0.5 - inner, game.bedTop), farR = bedPoint(0.5 + inner, game.bedTop)
+            let nearL = bedPoint(0.5 - inner, game.bedEdge), nearR = bedPoint(0.5 + inner, game.bedEdge)
+            var floor = Path()
+            floor.addLines([farL, farR, nearR, nearL])
+            floor.closeSubpath()
+            context.fill(floor, with: .linearGradient(Gradient(colors: [Color(hex: 0x0D3D46), Color(hex: 0x17707A)]),
+                                                      startPoint: CGPoint(x: 0, y: halfY), endPoint: CGPoint(x: 0, y: edgeY)))
+            // Les lignes du tapis
+            for k in 1..<6 {
+                let x = 0.5 - inner + 2 * inner * Double(k) / 6
+                var line = Path()
+                line.move(to: bedPoint(x, game.bedTop))
+                line.addLine(to: bedPoint(x, game.bedEdge))
+                context.stroke(line, with: .color(.white.opacity(0.05)), lineWidth: 1)
+            }
+            // Les parois en biais
+            for (top, bottom, outer) in [(farL, nearL, CGPoint(x: 0, y: edgeY)), (farR, nearR, CGPoint(x: s, y: edgeY))] {
+                var side = Path()
+                side.addLines([top, bottom, outer, CGPoint(x: outer.x, y: halfY)])
+                side.closeSubpath()
+                context.fill(side, with: .linearGradient(Gradient(colors: [Color(hex: 0xC2661A), Color(hex: 0xFFB13D)]),
+                                                         startPoint: CGPoint(x: 0, y: halfY), endPoint: CGPoint(x: 0, y: edgeY)))
+            }
+            // Le vide, devant le bord, et les trous sur les côtés
+            context.fill(Path(CGRect(x: 0, y: edgeY, width: s, height: size.height - edgeY)), with: .color(Color(hex: 0x05090F).opacity(0.85)))
+            for (x0, x1) in [(0.5 - inner, 0.5 - inner + 0.09), (0.5 + inner - 0.09, 0.5 + inner)] {
+                var hole = Path()
+                hole.addLines([bedPoint(x0, game.bedEdge - 0.05), bedPoint(x1, game.bedEdge - 0.05), bedPoint(x1, game.bedEdge), bedPoint(x0, game.bedEdge)])
+                hole.closeSubpath()
+                context.fill(hole, with: .color(.black.opacity(0.4)))
             }
             var edge = Path()
-            edge.move(to: CGPoint(x: wall, y: edgeY))
-            edge.addLine(to: CGPoint(x: s - wall, y: edgeY))
-            context.stroke(edge, with: .color(Theme.cascade.opacity(0.9)), lineWidth: 3)
+            edge.move(to: nearL)
+            edge.addLine(to: nearR)
+            context.stroke(edge, with: .color(Theme.cascade.opacity(0.95)), lineWidth: 3)
 
-            // Les pièces sur le plateau
-            for c in game.bed { drawCoin(&context, c, at: pt(c.x, c.y), r: CascadeGame.coinR * s, squash: 1) }
+            // Le poussoir : une plaque qui avance vers nous
+            let pf = game.pusherFront
+            let pL = bedPoint(0.5 - inner, pf), pR = bedPoint(0.5 + inner, pf)
+            var plate = Path()
+            plate.addLines([farL, farR, pR, pL])
+            plate.closeSubpath()
+            context.fill(plate, with: .linearGradient(Gradient(colors: [Color(hex: 0x5A6580), Color(hex: 0xB9C3DA)]),
+                                                      startPoint: CGPoint(x: 0, y: halfY), endPoint: CGPoint(x: 0, y: pL.y)))
+            let lip = max(4, (pL.y - halfY) * 0.18 + 4)
+            context.fill(Path(CGRect(x: pL.x, y: pL.y, width: pR.x - pL.x, height: lip)), with: .color(Color(hex: 0x3C4660)))
+            context.fill(Path(CGRect(x: pL.x, y: pL.y - 2, width: pR.x - pL.x, height: 2)), with: .color(.white.opacity(0.9)))
 
-            // Le poussoir
-            let front = game.pusherFront * s
-            let pusher = CGRect(x: wall, y: halfY, width: s - 2 * wall, height: max(0, front - halfY))
-            context.fill(Path(pusher), with: .linearGradient(Gradient(colors: [Color(hex: 0x6E7A99), Color(hex: 0xC9D2E8)]),
-                                                             startPoint: CGPoint(x: 0, y: halfY), endPoint: CGPoint(x: 0, y: front)))
-            context.fill(Path(CGRect(x: wall, y: front - 4, width: s - 2 * wall, height: 4)), with: .color(.white.opacity(0.85)))
+            // Les pièces sur le plateau, du fond vers l'avant (celles de devant passent par-dessus)
+            for c in game.bed.sorted(by: { $0.y < $1.y }) {
+                let t = depth(c.y)
+                let p = bedPoint(c.x, c.y)
+                drawFlatCoin(&context, c, at: p, r: CascadeGame.coinR * s * scaleAt(t) * 1.05)
+            }
 
             // Les pièces qui tombent
             for c in game.falling {
-                drawCoin(&context, c, at: pt(c.x, c.y), r: CascadeGame.coinR * 0.8 * s, squash: max(0.25, abs(cos(c.spin))))
+                drawCoin(&context, c, at: pt(c.x, c.y), r: CascadeGame.fallR * s, squash: max(0.25, abs(cos(c.spin))))
             }
 
             // Les gains qui s'envolent
             for p in game.pops {
                 context.opacity = min(1, p.life * 2)
                 context.draw(Text(verbatim: p.text).font(.system(size: 13, weight: .black, design: .rounded))
-                    .foregroundColor(p.gold ? Color(hex: 0xFFE07A) : .white), at: pt(p.x, p.y))
+                    .foregroundColor(p.gold ? Color(hex: 0xFFE07A) : .white), at: p.y >= game.bedTop ? bedPoint(p.x, p.y) : pt(p.x, p.y))
             }
             context.opacity = 1
         }
         .accessibilityLabel(L("La machine à pièces"))
+    }
+
+    /// Une pièce couchée sur le plateau : une ellipse, avec sa tranche.
+    private func drawFlatCoin(_ context: inout GraphicsContext, _ c: CascadeCoin, at p: CGPoint, r: CGFloat) {
+        let h = r * 0.58
+        let face = CGRect(x: p.x - r, y: p.y - h, width: 2 * r, height: 2 * h)
+        let colors: [Color]
+        let side: Color
+        switch c.kind {
+        case .gold: colors = [Color(hex: 0xFFE58A), Color(hex: 0xE39A22)]; side = Color(hex: 0x9A5A0C)
+        case .silver: colors = [Color(hex: 0xF4F6FB), Color(hex: 0xA3ACC2)]; side = Color(hex: 0x5D6680)
+        case .gem: colors = [Color(hex: 0xFF9BFF), Color(hex: 0x7A3DFF)]; side = Color(hex: 0x3A1580)
+        }
+        context.fill(Path(ellipseIn: face.offsetBy(dx: 0, dy: h * 0.45)), with: .color(side))
+        context.fill(Path(ellipseIn: face), with: .linearGradient(Gradient(colors: colors),
+                                                                  startPoint: CGPoint(x: p.x, y: face.minY), endPoint: CGPoint(x: p.x, y: face.maxY)))
+        context.stroke(Path(ellipseIn: face.insetBy(dx: r * 0.25, dy: h * 0.25)), with: .color(.white.opacity(0.4)), lineWidth: 0.8)
     }
 
     private func drawCoin(_ context: inout GraphicsContext, _ c: CascadeCoin, at p: CGPoint, r: CGFloat, squash: Double) {

@@ -84,11 +84,13 @@ enum CascadeUpgrade: String, CaseIterable, Identifiable {
 
 @Observable
 final class CascadeGame {
-    static let coinR = 0.026
-    static let pegR = 0.011
+    static let coinR = 0.021
+    /// Les pièces qui tombent sont dessinées plus grosses (elles sont plus près de nous).
+    static let fallR = 0.03
+    static let pegR = 0.008
     static let wall = 0.05
-    static let maxBedCoins = 340
-    static let maxFalling = 90
+    static let maxBedCoins = 460
+    static let maxFalling = 160
 
     // Économie
     private(set) var balance: Double = 0
@@ -142,13 +144,13 @@ final class CascadeGame {
 
     func level(_ u: CascadeUpgrade) -> Int { levels[u] ?? 0 }
 
-    var dropInterval: Double { max(0.05, 0.42 * pow(0.86, Double(level(.dropSpeed)))) }
+    var dropInterval: Double { max(0.04, 0.3 * pow(0.86, Double(level(.dropSpeed)))) }
     var autoRate: Double { Double(level(.auto)) * 0.55 * (frenzy > 0 ? 3 : 1) }
     var pushPeriod: Double { max(0.75, 2.6 * pow(0.925, Double(level(.pushSpeed)))) }
     var pushReach: Double { min(0.42, 0.16 + 0.017 * Double(level(.pushReach))) * half }
     var coinValue: Double { pow(1.32, Double(level(.value))) }
     var goldChance: Double { min(0.45, 0.04 + 0.02 * Double(level(.gold))) }
-    var comboMultiplier: Double { min(4, 1 + Double(combo) / 25) }
+    var comboMultiplier: Double { min(5, 1 + Double(combo) / 400) }
 
     func canBuy(_ u: CascadeUpgrade) -> Bool {
         level(u) < u.maxLevel && balance >= u.cost(level(u))
@@ -263,12 +265,12 @@ final class CascadeGame {
         var p: [CGPoint] = []
         let top = 0.2 * half + 0.05
         let bottom = half * 0.82
-        let rows = max(4, Int((bottom - top) / 0.075))
+        let rows = max(5, Int((bottom - top) / 0.062))
         for r in 0..<rows {
             let y = top + (bottom - top) * Double(r) / Double(max(1, rows - 1))
-            let cols = r % 2 == 0 ? 8 : 7
+            let cols = r % 2 == 0 ? 10 : 9
             for c in 0..<cols {
-                let x = Self.wall + 0.07 + (1 - 2 * Self.wall - 0.14) * (Double(c) + (r % 2 == 0 ? 0 : 0.5)) / 7
+                let x = Self.wall + 0.07 + (1 - 2 * Self.wall - 0.14) * (Double(c) + (r % 2 == 0 ? 0 : 0.5)) / 9
                 p.append(CGPoint(x: x, y: y))
             }
         }
@@ -288,10 +290,11 @@ final class CascadeGame {
 
     private func stepFalling(_ dt: Double) {
         let g = 2.4
-        let r = Self.coinR * 0.8
+        let r = Self.fallR
         let gateY = half * 0.92
         var landed: [CascadeCoin] = []
         var bursts: [Double] = []
+        var pegPaid = 0.0
         for i in falling.indices.reversed() {
             var c = falling[i]
             let oldY = c.y
@@ -319,6 +322,14 @@ final class CascadeGame {
                         c.vx += Double.random(in: -0.05...0.05)
                         c.vx *= 0.8
                         c.vy *= 0.6
+                        // Chaque clou touché rapporte un peu (et nourrit le combo).
+                        let hit = 0.2 * coinValue * (c.kind == .gold ? 10 : 1) * comboMultiplier * (frenzy > 0 ? 2 : 1)
+                        pegPaid += hit
+                        combo += 1
+                        comboTime = 1.6
+                        if pops.count < 50 && Double.random(in: 0...1) < 0.35 {
+                            pops.append(CascadePop(x: p.x, y: p.y - 0.02, text: "+" + Self.format(hit), life: 0.6, gold: c.kind != .silver))
+                        }
                         if soundBudget > 1 && Double.random(in: 0...1) < 0.25 {
                             soundBudget -= 1
                             SoundPlayer.shared.play(.tock, volume: 0.18)
@@ -336,6 +347,10 @@ final class CascadeGame {
             } else {
                 falling[i] = c
             }
+        }
+        if pegPaid > 0 {
+            balance += pegPaid
+            earnedWindow.append((time, pegPaid))
         }
         for x in bursts {
             for _ in 0..<4 { spawn(x: x, y: gateY - 0.02, burst: true) }
@@ -387,7 +402,7 @@ final class CascadeGame {
                         for j in list where j > i {
                             let dx = bed[j].x - bed[i].x, dy = bed[j].y - bed[i].y
                             let d2 = dx * dx + dy * dy
-                            let lim = 2 * r * 0.92
+                            let lim = 2 * r * 0.86
                             if d2 < lim * lim {
                                 let d = max(0.0001, sqrt(d2))
                                 let push = (lim - d) / 2
@@ -432,13 +447,13 @@ final class CascadeGame {
         if count > 0 {
             balance += paid
             earnedWindow.append((time, paid))
-            combo += count
-            comboTime = 1.4
+            combo += count * 5
+            comboTime = 1.6
             if soundBudget > 1 {
                 soundBudget -= 1
                 SoundPlayer.shared.play(.clack, volume: 0.45)
             }
-            if combo > 0 && combo % 50 < count { show(L("COMBO \(combo) !")) }
+            if combo >= 1000 && combo % 1000 < count + 8 && bannerTime <= 0 { show(L("COMBO \(combo) !")) }
         }
         if gem {
             frenzy = 12
@@ -459,7 +474,7 @@ final class CascadeGame {
         let r = Self.coinR
         var y = bedTop + 0.05 * half + r
         var row = 0
-        while y < bedEdge - 0.02 && bed.count < 140 {
+        while y < bedEdge - 0.02 && bed.count < 260 {
             var x = Self.wall + r + (row % 2 == 0 ? 0 : r)
             while x < 1 - Self.wall - r {
                 let kind: CascadeCoin.Kind = Double.random(in: 0...1) < 0.08 ? .gold : .silver
@@ -505,6 +520,7 @@ final class CascadeGame {
     private func load() {
         let d = UserDefaults.standard
         balance = d.double(forKey: Keys.balance)
+        if d.object(forKey: Keys.levels) == nil { levels[.auto] = 1 }
         if let raw = d.dictionary(forKey: Keys.levels) as? [String: Int] {
             for (k, v) in raw { if let u = CascadeUpgrade(rawValue: k) { levels[u] = v } }
         }
