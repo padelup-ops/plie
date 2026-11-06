@@ -77,7 +77,7 @@ struct HowToStep: Identifiable {
 enum GameID: String, CaseIterable, Identifiable {
     case tape, duels, mots, chifoumi, doigts, sourire
     case boite, croco, bonneteau, coupDoeil, bombe, dessine, pliou, luciole
-    case briques, morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme
+    case briques, morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme, cascade
 
     var id: String { rawValue }
 
@@ -111,6 +111,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .piano: return L("PIANO")
         case .soleil: return L("1, 2, 3… SOLEIL !")
         case .ferme: return L("FERME")
+        case .cascade: return L("CASCADE")
         }
     }
 
@@ -145,6 +146,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .piano: return L("Le clavier à plat, la partition debout")
         case .soleil: return L("Le téléphone fait l'arbitre")
         case .ferme: return L("Ferme le Duo, ta plante pousse")
+        case .cascade: return L("Les pièces tombent, le plateau pousse")
         }
     }
 
@@ -178,6 +180,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .piano: return Color(hex: 0xC59BFF)
         case .soleil: return Color(hex: 0xFF8A2F)
         case .ferme: return Color(hex: 0x5FD3A0)
+        case .cascade: return Theme.cascade
         }
     }
 
@@ -211,6 +214,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .piano: return "pianokeys"
         case .soleil: return "sun.max.fill"
         case .ferme: return "leaf.fill"
+        case .cascade: return "dollarsign.circle.fill"
         }
     }
 
@@ -222,7 +226,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .coupDoeil, .bombe, .pliou, .luciole: return .openClose
         case .dessine, .bonneteau, .chifoumi, .doigts, .sourire: return .book
         case .rayon, .bascule: return .fold
-        case .filet, .ecole, .piano, .puissance, .briques: return .lShape
+        case .filet, .ecole, .piano, .puissance, .briques, .cascade: return .lShape
         case .airHockey, .billard, .chess, .draughts, .morpion: return .flat
         case .soleil: return .standing
         case .ferme: return .closed
@@ -231,7 +235,7 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var players: String {
         switch self {
-        case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme, .briques: return L("Seul")
+        case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme, .briques, .cascade: return L("Seul")
         case .croco: return L("1 à 6 joueurs")
         case .duels, .tape: return L("2 joueurs")
         case .chifoumi: return L("1 ou 2 joueurs")
@@ -269,6 +273,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .piano: return [.solo, .kids]
         case .soleil: return [.family, .kids]
         case .ferme: return [.twoScreens, .solo]
+        case .cascade: return [.twoScreens, .solo]
         }
     }
 
@@ -311,6 +316,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .piano: return .piano
         case .soleil: return .soleil
         case .ferme: return .ferme
+        case .cascade: return .cascade
         }
     }
 
@@ -346,6 +352,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .piano: return .piano
         case .soleil: return .soleil
         case .ferme: return .ferme
+        case .cascade: return .cascade
         }
     }
 
@@ -581,6 +588,16 @@ enum GameID: String, CaseIterable, Identifiable {
                 HowToStep(symbol: "exclamationmark.triangle.fill", text: L("Rouvert trop tôt ? Tu as 10 secondes pour refermer, sinon la plante fane.")),
                 HowToStep(symbol: "tree.fill", text: BuildFlags.realTrees ? L("Fais fleurir les 8 plantes : on plante un vrai arbre pour toi.")
                                                                           : L("Fais fleurir les 8 plantes pour compléter ton jardin."))
+            ]
+        case .cascade:
+            return [
+                HowToStep(symbol: "dollarsign.circle.fill", text: L("But : faire tomber le plus de pièces possible du bord du plateau, et améliorer ta machine.")),
+                duo ? HowToStep(symbol: "laptopcomputer", text: L("Plie le Duo en L : les pièces tombent sur la moitié debout, rebondissent sur les clous et atterrissent sur le plateau posé à plat."))
+                    : HowToStep(symbol: "iphone", text: L("Les pièces tombent en haut et atterrissent sur le plateau en bas.")),
+                HowToStep(symbol: "hand.tap.fill", text: L("Touche LÂCHER (ou le plateau) pour lâcher une pièce. Le poussoir les fait glisser : celles qui tombent devant rapportent, celles qui tombent sur les côtés sont perdues.")),
+                HowToStep(symbol: "sparkles", text: L("Vise la cible rose : une pièce qui la traverse en lâche 4. Les pièces d'or valent 10, et un diamant lance la CASCADE : tout vaut double.")),
+                duo ? HowToStep(symbol: "arrow.up.and.down.and.sparkles", text: L("Plie et déplie le Duo d'un coup pour secouer le plateau."))
+                    : HowToStep(symbol: "arrow.up.and.down.and.sparkles", text: L("Touche « Secouer » pour bousculer le plateau."))
             ]
         }
     }

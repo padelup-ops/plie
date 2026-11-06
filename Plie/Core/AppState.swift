@@ -33,6 +33,7 @@ enum Route: Equatable {
     case doigts
     case sourire
     case tape
+    case cascade
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -178,6 +179,7 @@ final class AppState {
         case "doigts": route = .doigts
         case "sourire": route = .sourire
         case "tape": route = .tape
+        case "cascade": route = .cascade
         case "billard": route = .billard
         case "luciole": route = .luciole
         case "ecole": route = .ecole

@@ -58,6 +58,8 @@ struct RootView: View {
                     .id(number)
             case .ferme:
                 FermeView()
+            case .cascade:
+                CascadeView()
             case .airHockey:
                 AirHockeyView()
             case .filet:
@@ -198,6 +200,8 @@ struct RootView: View {
             return [Color(hex: 0x6A3DE8), Theme.laser, Color(hex: 0x1F4FC9)]
         case .basculeLevels, .bascule:
             return [Color(hex: 0x3DB8FF), Color(hex: 0x8BDB4F), Theme.gold]
+        case .cascade:
+            return [Theme.cascade, Color(hex: 0x7A3DFF), Color(hex: 0x0F4A52)]
         case .ferme:
             return [Color(hex: 0x4FD18B), Color(hex: 0xC7E86B), Color(hex: 0xFF9AC4)]
         case .airHockey:
@@ -264,7 +268,7 @@ struct RootView: View {
     /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
     private var fullScreen: Bool {
         switch app.route {
-        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .duels, .mots, .chifoumi, .doigts, .sourire, .tape: return true
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .duels, .mots, .chifoumi, .doigts, .sourire, .tape, .cascade: return true
         default: return false
         }
     }
