@@ -20,6 +20,11 @@ BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 INTERNAL_ONLY = os.environ.get("INTERNAL_ONLY", "").strip() in ("1", "true", "yes")
 # RESEND : renvoie l'invitation TestFlight (e-mail) aux testeurs des groupes concernés, et le mail « nouveau build ».
 RESEND = os.environ.get("RESEND", "").strip() in ("1", "true", "yes")
+# ONLY_EMAIL : renvoie l'invitation à cette seule adresse (ajoutée au groupe externe si besoin), et à personne d'autre.
+ONLY_EMAIL = os.environ.get("ONLY_EMAIL", "").strip().lower()
+if ONLY_EMAIL:
+    RESEND = True
+found_only = False
 
 WHATS_NEW = {
     "fr-FR": """Nouveau dans cette version :
@@ -148,12 +153,25 @@ for g in groups:
         for t in testers:
             ta = t["attributes"]
             mail = ta.get("email") or ""
+            if ONLY_EMAIL and mail.lower() != ONLY_EMAIL:
+                continue
+            found_only = True
             hidden = (mail[:2] + "***" + mail[mail.find("@"):]) if "@" in mail else "?"
             print(f"   testeur {hidden} · état {ta.get('state')} · invitation {ta.get('inviteType')}")
             step(f"invitation renvoyée à {hidden}", call("POST", "/v1/betaTesterInvitations", {"data": {
                 "type": "betaTesterInvitations",
                 "relationships": {"app": {"data": {"type": "apps", "id": app_id}},
                                   "betaTester": {"data": {"type": "betaTesters", "id": t["id"]}}}}}))
+
+# Adresse demandée mais dans aucun groupe : on l'ajoute au groupe externe (Apple envoie l'invitation).
+if ONLY_EMAIL and not found_only:
+    ext = [g for g in groups if not g["attributes"].get("isInternalGroup")]
+    if ext:
+        step("testeur ajouté au groupe externe (invitation envoyée)", call("POST", "/v1/betaTesters", {"data": {
+            "type": "betaTesters", "attributes": {"email": ONLY_EMAIL},
+            "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": ext[0]["id"]}]}}}}))
+    else:
+        problems.append("aucun groupe externe pour ajouter le testeur")
 
 # 4. Vérification bêta d'Apple (obligatoire pour les testeurs externes)
 if external:
@@ -172,7 +190,7 @@ else:
     detail = call("GET", f"/v1/builds/{bid}/buildBetaDetail").get("data", {})
     print("état pour les testeurs internes :", detail.get("attributes", {}).get("internalBuildState"))
 
-if RESEND:
+if RESEND and not ONLY_EMAIL:
     step("mail « nouveau build » envoyé aux testeurs", call("POST", "/v1/buildBetaNotifications",
          {"data": {"type": "buildBetaNotifications", "relationships": {"build": {"data": {"type": "builds", "id": bid}}}}}),
          tolerate=("already",))

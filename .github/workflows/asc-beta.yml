@@ -18,6 +18,10 @@ on:
         description: "1 = renvoyer l'e-mail d'invitation et de nouveau build"
         required: false
         default: ""
+      email:
+        description: "Renvoyer l'invitation à cette seule adresse"
+        required: false
+        default: ""
 
 jobs:
   beta:
@@ -33,6 +37,7 @@ jobs:
       BUILD_NUMBER: ${{ inputs.build }}
       INTERNAL_ONLY: ${{ inputs.internal_only }}
       RESEND: ${{ inputs.resend }}
+      ONLY_EMAIL: ${{ inputs.email }}
     steps:
       - uses: actions/checkout@v4
       - name: Distribuer le build
