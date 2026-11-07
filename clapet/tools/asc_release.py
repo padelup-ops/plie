@@ -247,13 +247,13 @@ RELEASE_NOTES = {
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 小问题修复和改进。",
     },
     "1.0.9": {
-        "en-US": "• A calmer, cleaner look: simpler titles, line icons instead of emoji, and shorter durations in Your sessions so everything fits.\n• Small fixes and improvements.",
-        "fr-FR": "• Un design plus calme et plus net : des titres plus simples, des icônes à la place des emojis, et des durées plus courtes dans Tes sessions pour que tout tienne.\n• Petites corrections et améliorations.",
-        "de-DE": "• Ein ruhigeres, klareres Design: einfachere Titel, Symbole statt Emojis und kürzere Zeitangaben in Deine Sitzungen, damit alles passt.\n• Kleine Fehlerbehebungen und Verbesserungen.",
-        "es-ES": "• Un diseño más tranquilo y limpio: títulos más sencillos, iconos en lugar de emojis y duraciones más cortas en Tus sesiones para que todo quepa.\n• Pequeñas correcciones y mejoras.",
-        "ja": "• より落ち着いたすっきりデザインに：シンプルな見出し、絵文字の代わりにアイコン、セッションの時間表示を短くしました。\n• 細かな修正と改善。",
-        "ko": "• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
-        "zh-Hans": "• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
+        "en-US": "• New in Foldly+: Your sessions. See how long your Duo stays open each time: your average session, short vs long sessions, your longest one, weekdays vs weekends, and how much of your waking day you spend unfolded. Thanks BraXzy for the idea!\n• A calmer, cleaner look: simpler titles, line icons instead of emoji, and shorter durations in Your sessions so everything fits.\n• Small fixes and improvements.",
+        "fr-FR": "• Nouveau dans Foldly+ : Tes sessions. Combien de temps ton Duo reste ouvert à chaque fois : ta session moyenne, les courtes et les longues, la plus longue, la semaine contre le week-end, et la part de ta journée passée déplié. Merci BraXzy pour l'idée !\n• Un design plus calme et plus net : des titres plus simples, des icônes à la place des emojis, et des durées plus courtes dans Tes sessions pour que tout tienne.\n• Petites corrections et améliorations.",
+        "de-DE": "• Neu in Foldly+: Deine Sitzungen. Wie lange dein Duo jedes Mal offen bleibt: deine durchschnittliche Sitzung, kurze und lange Sitzungen, die längste, Wochentage gegen Wochenende und wie viel deines wachen Tages du aufgeklappt verbringst.\n• Ein ruhigeres, klareres Design: einfachere Titel, Symbole statt Emojis und kürzere Zeitangaben in Deine Sitzungen, damit alles passt.\n• Kleine Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• Nuevo en Foldly+: Tus sesiones. Cuánto tiempo sigue abierto tu Duo cada vez: tu sesión media, sesiones cortas y largas, la más larga, entre semana frente a fin de semana, y cuánto de tu día pasas con él desplegado.\n• Un diseño más tranquilo y limpio: títulos más sencillos, iconos en lugar de emojis y duraciones más cortas en Tus sesiones para que todo quepa.\n• Pequeñas correcciones y mejoras.",
+        "ja": "• Foldly+の新機能「セッション」：Duoを開くたびに開いている時間を表示。平均時間、短い／長いセッション、最長記録、平日と週末の比較、起きている時間のうち開いていた割合が分かります。\n• より落ち着いたすっきりデザインに：シンプルな見出し、絵文字の代わりにアイコン、セッションの時間表示を短くしました。\n• 細かな修正と改善。",
+        "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
