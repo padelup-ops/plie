@@ -1,0 +1,4 @@
+bataille : l'app tourne
+carres : l'app tourne
+mines : l'app tourne
+cascade : l'app tourne
