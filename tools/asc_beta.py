@@ -27,20 +27,20 @@ if ONLY_EMAIL:
 found_only = False
 
 WHATS_NEW = {
-    "fr-FR": """Nouveau dans cette version :
+    "fr-FR": """Origamo est sorti sur l'App Store ! 🎉
 
-- TAPE-TAPE : à deux, chacun sa moitié de l'écran. Choisissez 10, 20 ou 30 secondes : celui qui tape le plus de fois gagne. Merci Yassine pour l'idée !
-- Chaque jeu indique s'il se joue sur tous les iPhone, ou s'il est pensé pour l'iPhone Duo (il reste jouable au doigt partout). Nouveau rayon « Tous les iPhone » sur l'accueil.
-- Origamo parle maintenant 7 langues : français, anglais, allemand, espagnol, japonais, coréen et chinois.
+Merci énormément d'avoir testé le jeu : vos retours l'ont rendu bien meilleur.
 
-À tester : TAPE-TAPE à deux (est-ce que tous vos taps comptent, même très vite ?), et dites-nous si un texte est mal traduit.""",
-    "en-US": """New in this version:
+La bêta se termine dans 2 jours (le 9 novembre). Installez dès maintenant la version de l'App Store pour continuer à jouer : https://apps.apple.com/app/id6825605393
 
-- TAP BATTLE: two players, one half of the screen each. Pick 10, 20 or 30 seconds: whoever taps the most wins. Thanks Yassine for the idea!
-- Every game now shows whether it plays on every iPhone, or is made for iPhone Duo (it still plays by touch everywhere). New "Every iPhone" shelf on the home screen.
-- Origamo now speaks 7 languages: French, English, German, Spanish, Japanese, Korean and Chinese.
+Vos parties sont gardées quand vous passez à la version de l'App Store. Et si le jeu vous plaît, une note ou un avis sur l'App Store nous aide énormément.""",
+    "en-US": """Origamo is out on the App Store! 🎉
 
-Please test: TAP BATTLE with two players (do all your taps count, even very fast?), and tell us if any text is badly translated.""",
+Thank you so much for testing the game: your feedback made it much better.
+
+The beta ends in 2 days (November 9). Install the App Store version now to keep playing: https://apps.apple.com/app/id6825605393
+
+Your progress is kept when you switch to the App Store version. And if you enjoy the game, a rating or review on the App Store helps us a lot.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
