@@ -30,7 +30,8 @@ token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()),
 def call(method, path, body=None, raw=False):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(API + path, data=data, method=method,
-                                 headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
+                                 headers={"Authorization": "Bearer " + token, "Content-Type": "application/json",
+                                          "Accept": "text/csv" if raw else "application/json"})
     try:
         with urllib.request.urlopen(req) as r:
             b = r.read()
@@ -119,7 +120,7 @@ if "error" in r:
     sys.exit("ÉCHEC création des codes")
 cid = r["data"]["id"]
 values = ""
-for _ in range(30):
+for _ in range(6):
     values = call("GET", f"/v1/inAppPurchaseOfferCodeOneTimeUseCodes/{cid}/values", raw=True)
     if isinstance(values, str) and values.strip():
         break
