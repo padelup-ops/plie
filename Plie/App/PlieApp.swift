@@ -1,8 +1,11 @@
 import SwiftUI
 import StoreKit
+import AppsFlyerLib
 
 @main
 struct PlieApp: App {
+    @UIApplicationDelegateAdaptor(OrigamoAppDelegate.self) private var delegate
+    @Environment(\.scenePhase) private var phase
     @State private var app = AppState()
     @State private var store = StoreManager()
 
@@ -16,7 +19,24 @@ struct PlieApp: App {
                 .environment(app)
                 .environment(store)
                 .task { await store.load() }
+                .onChange(of: phase) { _, p in
+                    // AppsFlyer (TEST seulement, branche test-appsflyer-origamo) : installation puis chaque ouverture
+                    if p == .active { AppsFlyerLib.shared().start() }
+                }
         }
+    }
+}
+
+/// AppsFlyer : configuré au lancement. Build de test uniquement, jamais en production.
+final class OrigamoAppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        let af = AppsFlyerLib.shared()
+        af.appsFlyerDevKey = "bTMCaKzq75sAF5TSGTyAHP"
+        af.appleAppID = "6825605393"
+        #if DEBUG
+        af.isDebug = true
+        #endif
+        return true
     }
 }
 

@@ -140,6 +140,18 @@ jobs:
             $EXTRA 2>&1 | tee archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
           grep -q "ARCHIVE SUCCEEDED" archive.log
 
+      - name: Frameworks embarqués (AppsFlyer)
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          APP="$RUNNER_TEMP/Plie.xcarchive/Products/Applications/Plie.app"
+          for F in "$APP"/Frameworks/*.framework; do
+            [ -d "$F" ] || continue
+            BIN="$F/$(basename "$F" .framework)"
+            file "$BIN"
+            if file "$BIN" | grep -q "ar archive"; then rm -rf "$F"; else codesign -f -s - "$F"; fi
+          done
+          ls "$APP/Frameworks" 2>/dev/null || echo "pas de dossier Frameworks"
+
       - name: Envoyer sur App Store Connect (TestFlight)
         if: steps.secrets.outputs.ready == 'true'
         run: |

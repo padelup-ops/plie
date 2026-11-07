@@ -21,6 +21,10 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXBuildFile section */
+		5E1A0000000000000000AF01 /* AppsFlyerLib in Frameworks */ = {isa = PBXBuildFile; productRef = 5E1A0000000000000000AF02 /* AppsFlyerLib */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5E1A00000000000000000003 /* Plie */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -37,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5E1A0000000000000000AF01 /* AppsFlyerLib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,6 +85,7 @@
 			);
 			name = Plie;
 			packageProductDependencies = (
+				5E1A0000000000000000AF02 /* AppsFlyerLib */,
 			);
 			productName = Plie;
 			productReference = 5E1A00000000000000000000 /* Plie.app */;
@@ -115,6 +121,9 @@
 			);
 			mainGroup = 5E1A00000000000000000008;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5E1A0000000000000000AF03 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5E1A00000000000000000009 /* Products */;
 			projectDirPath = "";
@@ -357,6 +366,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5E1A0000000000000000AF03 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.15.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5E1A0000000000000000AF02 /* AppsFlyerLib */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5E1A0000000000000000AF03 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */;
+			productName = AppsFlyerLib;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5E1A0000000000000000000A /* Project object */;
 }
