@@ -106,19 +106,26 @@ else:
     oid = r["data"]["id"]
 
 exp = (datetime.date.today() + datetime.timedelta(days=DAYS)).isoformat()
-r = call("POST", "/v1/inAppPurchaseOfferCodeOneTimeUseCodes", {"data": {"type": "inAppPurchaseOfferCodeOneTimeUseCodes",
+if MODE == "fetch":
+    lots = call("GET", f"/v1/inAppPurchaseOfferCodes/{oid}/oneTimeUseCodes?limit=20").get("data", [])
+    show("lots", lots)
+    r = {"data": lots[-1]} if lots else {"error": 0, "detail": "aucun lot"}
+else:
+  r = call("POST", "/v1/inAppPurchaseOfferCodeOneTimeUseCodes", {"data": {"type": "inAppPurchaseOfferCodeOneTimeUseCodes",
          "attributes": {"numberOfCodes": COUNT, "expirationDate": exp},
          "relationships": {"offerCode": {"data": {"type": "inAppPurchaseOfferCodes", "id": oid}}}}})
-show("création des codes", r)
+  show("création des codes", r)
 if "error" in r:
     sys.exit("ÉCHEC création des codes")
 cid = r["data"]["id"]
 values = ""
 for _ in range(30):
     values = call("GET", f"/v1/inAppPurchaseOfferCodeOneTimeUseCodes/{cid}/values", raw=True)
-    if isinstance(values, str) and values.strip() and "error" not in values[:20]:
+    if isinstance(values, str) and values.strip():
         break
+    print("valeurs pas encore prêtes :", str(values)[:300])
     time.sleep(20)
+values = values if isinstance(values, str) else ""
 codes = [l.strip().split(",")[0] for l in values.splitlines() if l.strip()]
 codes = [c for c in codes if c and c.lower() != "code" and len(c) >= 8]
 apple_id = app["id"]
