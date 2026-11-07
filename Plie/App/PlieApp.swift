@@ -128,6 +128,7 @@ struct RootView: View {
                     #if DEBUG
                     // Pendant le tournage de la démo, pas de mode d'emploi par-dessus le jeu.
                     if Demo.scene != nil { return }
+                    if UserDefaults.standard.string(forKey: "screenshotRoute") != nil { return }
                     #endif
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { howTo = game }
                 }

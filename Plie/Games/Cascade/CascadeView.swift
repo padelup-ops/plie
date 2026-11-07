@@ -51,6 +51,7 @@ struct CascadeView: View {
         .onAppear {
             #if DEBUG
             Demo.schedule("cascade", [(0.0, { game.demoRich() })])
+            if UserDefaults.standard.string(forKey: "boardDemo") == "rich" { game.demoRich() }
             #endif
         }
     }
