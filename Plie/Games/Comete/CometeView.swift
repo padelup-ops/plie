@@ -24,12 +24,11 @@ final class CometeRenderer {
     ]
     private static let art: [CometeGame.Kind: ([String], [Character: UInt32])] = [
         .drone: ([
-            ".ggggg.",
-            "gGgggGg",
-            "ggkgkgg",
-            ".ggggg.",
-            "g.g.g.g",
-            "g.....g",
+            "..ggg..",
+            ".gGGGg.",
+            "gggkggg",
+            "ggggggg",
+            ".g.g.g.",
         ], ["g": 0x7AE85A, "G": 0xC8FF9A, "k": 0x07040F]),
         .zigzag: ([
             "...y...",

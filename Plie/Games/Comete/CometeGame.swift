@@ -330,7 +330,7 @@ final class CometeGame {
 
     static func hitbox(_ k: Kind) -> (w: Double, h: Double) {
         switch k {
-        case .drone: return (7, 6)
+        case .drone: return (7, 5)
         case .zigzag: return (7, 7)
         case .shooter: return (9, 7)
         case .tank: return (11, 8)
