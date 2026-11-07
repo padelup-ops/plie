@@ -110,15 +110,23 @@ final class CascadeGame {
     /// Où s'arrête le plateau (au-dessus du tableau de bord).
     var edgeFraction = 0.78
 
-    private(set) var falling: [CascadeCoin] = []
-    private(set) var bed: [CascadeCoin] = []
-    private(set) var pops: [CascadePop] = []
-    private(set) var pegs: [CGPoint] = []
-    private(set) var dropperX = 0.5
-    private(set) var pusherFront = 0.0
-    private(set) var time = 0.0
+    // La simulation bouge à chaque image : elle n'est pas observée pièce par pièce
+    // (des milliers de notifications par image rendaient le jeu saccadé). Le dessin suit `frame`.
+    @ObservationIgnored private(set) var falling: [CascadeCoin] = []
+    @ObservationIgnored private(set) var bed: [CascadeCoin] = []
+    @ObservationIgnored private(set) var pops: [CascadePop] = []
+    @ObservationIgnored private(set) var pegs: [CGPoint] = []
+    @ObservationIgnored private(set) var dropperX = 0.5
+    @ObservationIgnored private(set) var pusherFront = 0.0
+    @ObservationIgnored private(set) var time = 0.0
     /// La cible qui glisse en bas de la moitié debout : la traverser lâche une pluie de pièces.
-    private(set) var gateX = 0.5
+    @ObservationIgnored private(set) var gateX = 0.5
+    /// Change à chaque image : c'est ce que le dessin observe.
+    private(set) var frame = 0
+    /// Secousse en cours (pour faire trembler l'image).
+    @ObservationIgnored private(set) var shakeTime = 0.0
+    @ObservationIgnored private var gridHead: [Int] = []
+    @ObservationIgnored private var gridNext: [Int] = []
 
     @ObservationIgnored private var dropCooldown = 0.0
     @ObservationIgnored private var autoAccumulator = 0.0
@@ -198,6 +206,7 @@ final class CascadeGame {
             bed[i].vx += Double.random(in: -0.12...0.12)
         }
         show(L("SECOUSSE !"))
+        shakeTime = 0.45
         Haptics.success()
         SoundPlayer.shared.play(.thud)
     }
@@ -213,6 +222,7 @@ final class CascadeGame {
             if shakeCooldown <= 0 { shakeReady = true }
         }
         if frenzy > 0 { frenzy = max(0, frenzy - dt) }
+        if shakeTime > 0 { shakeTime = max(0, shakeTime - dt) }
         if bannerTime > 0 {
             bannerTime -= dt
             if bannerTime <= 0 { banner = nil }
@@ -258,6 +268,7 @@ final class CascadeGame {
             saveTimer = 0
             save()
         }
+        frame &+= 1
     }
 
     private func layoutPegs() {
@@ -385,44 +396,63 @@ final class CascadeGame {
             if c.x > 1 - Self.wall - r { c.x = 1 - Self.wall - r; c.vx = 0 }
             bed[i] = c
         }
-        // Les pièces se poussent entre elles (grille pour aller vite).
+        // Les pièces se poussent entre elles. Grille fixe (listes chaînées dans des tableaux) :
+        // aucune allocation par image, pour rester fluide avec des centaines de pièces.
         let cell = 2 * r
+        let cols = Int(1 / cell) + 2
+        let rows = Int(height / cell) + 2
+        let n = bed.count
+        let lim = 2 * r * 0.86
+        let blockY = pusherFront + r + 0.0005
         for _ in 0..<2 {
-            var grid: [Int: [Int]] = [:]
-            for (i, c) in bed.enumerated() {
-                let key = Int(c.x / cell) * 4096 + Int(c.y / cell)
-                grid[key, default: []].append(i)
+            if gridHead.count != cols * rows { gridHead = Array(repeating: -1, count: cols * rows) }
+            else { for k in gridHead.indices { gridHead[k] = -1 } }
+            if gridNext.count < n { gridNext = Array(repeating: -1, count: n + 64) }
+            for i in 0..<n {
+                let cx = min(cols - 1, max(0, Int(bed[i].x / cell))), cy = min(rows - 1, max(0, Int(bed[i].y / cell)))
+                let k = cy * cols + cx
+                gridNext[i] = gridHead[k]
+                gridHead[k] = i
             }
-            for i in bed.indices {
-                let c = bed[i]
-                let gx = Int(c.x / cell), gy = Int(c.y / cell)
-                for ox in -1...1 {
-                    for oy in -1...1 {
-                        guard let list = grid[(gx + ox) * 4096 + gy + oy] else { continue }
-                        for j in list where j > i {
-                            let dx = bed[j].x - bed[i].x, dy = bed[j].y - bed[i].y
-                            let d2 = dx * dx + dy * dy
-                            let lim = 2 * r * 0.86
-                            if d2 < lim * lim {
-                                let d = max(0.0001, sqrt(d2))
-                                let push = (lim - d) / 2
-                                let nx = d2 < 0.0000001 ? 1 : dx / d, ny = d2 < 0.0000001 ? 0 : dy / d
-                                // La pièce contre le poussoir ne recule pas : l'autre prend tout.
-                                let iBlocked = bed[i].y <= pusherFront + r + 0.0005
-                                let jBlocked = bed[j].y <= pusherFront + r + 0.0005
-                                let wi = iBlocked && !jBlocked ? 0.0 : (jBlocked && !iBlocked ? 2.0 : 1.0)
-                                let wj = 2 - wi
-                                bed[i].x -= nx * push * wi
-                                bed[i].y -= ny * push * wi
-                                bed[j].x += nx * push * wj
-                                bed[j].y += ny * push * wj
-                                // Un peu de vitesse passe d'une pièce à l'autre.
-                                let rel = (bed[i].vy - bed[j].vy) * 0.5
-                                if rel > 0 { bed[j].vy += rel; bed[i].vy -= rel }
+            for i in 0..<n {
+                let gx = min(cols - 1, max(0, Int(bed[i].x / cell))), gy = min(rows - 1, max(0, Int(bed[i].y / cell)))
+                for oy in -1...1 {
+                    let yy = gy + oy
+                    if yy < 0 || yy >= rows { continue }
+                    for ox in -1...1 {
+                        let xx = gx + ox
+                        if xx < 0 || xx >= cols { continue }
+                        var j = gridHead[yy * cols + xx]
+                        while j >= 0 {
+                            if j > i {
+                                let dx = bed[j].x - bed[i].x, dy = bed[j].y - bed[i].y
+                                let d2 = dx * dx + dy * dy
+                                if d2 < lim * lim {
+                                    let d = max(0.0001, sqrt(d2))
+                                    let push = (lim - d) / 2
+                                    let nx = d2 < 0.0000001 ? 1 : dx / d, ny = d2 < 0.0000001 ? 0 : dy / d
+                                    // La pièce contre le poussoir ne recule pas : l'autre prend tout.
+                                    let iBlocked = bed[i].y <= blockY, jBlocked = bed[j].y <= blockY
+                                    let wi = iBlocked && !jBlocked ? 0.0 : (jBlocked && !iBlocked ? 2.0 : 1.0)
+                                    let wj = 2 - wi
+                                    bed[i].x -= nx * push * wi
+                                    bed[i].y -= ny * push * wi
+                                    bed[j].x += nx * push * wj
+                                    bed[j].y += ny * push * wj
+                                    let rel = (bed[i].vy - bed[j].vy) * 0.5
+                                    if rel > 0 { bed[j].vy += rel; bed[i].vy -= rel }
+                                }
                             }
+                            j = gridNext[j]
                         }
                     }
                 }
+            }
+            // Personne ne passe à travers les murs après les poussées.
+            for i in 0..<n {
+                if bed[i].x < Self.wall + r { bed[i].x = Self.wall + r }
+                if bed[i].x > 1 - Self.wall - r { bed[i].x = 1 - Self.wall - r }
+                if bed[i].y < pusherFront + r { bed[i].y = pusherFront + r }
             }
         }
         // Le bord avant : ça rapporte. Les côtés, près du bord : perdues.

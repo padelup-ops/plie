@@ -1,54 +1,71 @@
 import SwiftUI
 
+// MARK: - CASCADE, en pixel art
+//
+// Le Duo plié en L : la charnière tombe pile au milieu de l'écran entier. Le terrain est donc
+// calculé sur l'écran entier (sans les marges du système), pour que la ligne de pli du dessin
+// soit exactement sur le pli du téléphone.
+
 struct CascadeView: View {
     @Environment(AppState.self) private var app
     @State private var game = CascadeGame()
+    @State private var renderer = CascadeRenderer()
+    @State private var fullSize: CGSize = .zero
 
     /// Hauteur du tableau de bord, en points, au bas de la moitié à plat.
-    private let panelHeight: CGFloat = 196
+    private let panelHeight: CGFloat = 200
 
     var body: some View {
-        GeometryReader { proxy in
-            let size = proxy.size
+        GeometryReader { safe in
             ZStack {
-                CascadeField(game: game)
-                    .ignoresSafeArea()
-                    .onAppear { layout(size, proxy.safeAreaInsets.bottom) }
-                    .onChange(of: size) { _, s in layout(s, proxy.safeAreaInsets.bottom) }
-                    .onTapGesture { game.drop() }
+                // Le terrain, sur l'écran entier
+                GeometryReader { full in
+                    CascadeField(game: game, renderer: renderer)
+                        .frame(width: full.size.width, height: full.size.height)
+                        .contentShape(Rectangle())
+                        .onTapGesture { game.drop() }
+                        .onAppear { layout(full.size, safe.safeAreaInsets.bottom) }
+                        .onChange(of: full.size) { _, s in layout(s, safe.safeAreaInsets.bottom) }
+                }
+                .ignoresSafeArea()
+
                 VStack(spacing: 0) {
                     topBar
-                        .padding(.horizontal, 14)
-                        .padding(.top, max(8, proxy.safeAreaInsets.top))
+                        .padding(.horizontal, 12)
+                        .padding(.top, 6)
                     Spacer()
-                    if let banner = game.banner {
-                        Text(banner)
-                            .font(.plie(40, weight: .black))
-                            .foregroundStyle(Theme.cascade)
-                            .shadow(color: .black.opacity(0.5), radius: 6, y: 3)
-                            .transition(.scale.combined(with: .opacity))
-                            .frame(height: 60)
-                    }
-                    Spacer()
-                    Color.clear.frame(height: size.height / 2)
                 }
+
+                if let banner = game.banner {
+                    // Au-dessus de la charnière, dans la moitié debout
+                    Text(banner)
+                        .font(PixelFont.font(26))
+                        .foregroundStyle(Color(hex: 0xFFE066))
+                        .shadow(color: Color(hex: 0x07040F), radius: 0, x: 3, y: 3)
+                        .position(x: safe.size.width / 2, y: max(80, fullSize.height / 2 - safe.safeAreaInsets.top - 60))
+                        .transition(.opacity)
+                        .allowsHitTesting(false)
+                }
+
                 VStack {
                     Spacer()
                     panel
-                        .padding(.horizontal, 12)
-                        .padding(.bottom, max(10, proxy.safeAreaInsets.bottom))
+                        .padding(.horizontal, 10)
+                        .padding(.bottom, 8)
                 }
+
                 if let gain = game.welcomeBack {
                     welcome(gain)
                 }
             }
-            .animation(.spring(duration: 0.3), value: game.banner)
         }
         .foregroundStyle(.white)
+        .background(Color(hex: 0x07040F).ignoresSafeArea())
         .onFrame { dt in game.tick(dt: dt) }
         .onHingeAngle { game.hinge($0) }
         .onDisappear { game.save() }
         .onAppear {
+            PixelFont.register()
             #if DEBUG
             Demo.schedule("cascade", [(0.0, { game.demoRich() })])
             if UserDefaults.standard.string(forKey: "boardDemo") == "rich" { game.demoRich() }
@@ -57,47 +74,52 @@ struct CascadeView: View {
     }
 
     private func layout(_ size: CGSize, _ safeBottom: CGFloat) {
-        guard size.width > 0 else { return }
+        guard size.width > 0, size.height > 0 else { return }
+        fullSize = size
         let halfPts = size.height / 2
-        game.edgeFraction = Double(max(0.45, 1 - (panelHeight + max(10, safeBottom) + 8) / max(1, halfPts)))
+        game.edgeFraction = Double(max(0.42, 1 - (panelHeight + max(8, safeBottom) + 14) / max(1, halfPts)))
         game.height = Double(size.height / size.width)
     }
 
     // MARK: En haut : le titre et le compteur
 
     private var topBar: some View {
-        HStack(spacing: 10) {
-            IconButton(symbol: "chevron.left", label: L("Retour")) {
+        HStack(spacing: 8) {
+            PixelButton(fill: Color(hex: 0x2C1B5C)) {
                 game.save()
                 app.route = .hub
+            } label: {
+                Image(systemName: "chevron.left").font(.system(size: 16, weight: .black)).frame(width: 34, height: 34)
             }
+            .accessibilityLabel(L("Retour"))
             HowToButton(game: .cascade)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(L("CASCADE")).font(.plie(18, weight: .black))
+            VStack(alignment: .leading, spacing: 5) {
+                Text(L("CASCADE")).font(PixelFont.font(14))
                 Text(game.frenzy > 0 ? L("Cascade : ×2 pendant \(Int(game.frenzy.rounded(.up))) s") : L("Combo \(game.combo) · ×\(String(format: "%.1f", game.comboMultiplier))"))
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundStyle(game.frenzy > 0 ? Theme.cascade : .white.opacity(0.7))
-                    .monospacedDigit()
+                    .font(PixelFont.font(8))
+                    .foregroundStyle(game.frenzy > 0 ? Color(hex: 0xFF7BEA) : Color.white.opacity(0.75))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
             }
-            Spacer(minLength: 6)
-            VStack(alignment: .trailing, spacing: 0) {
-                HStack(spacing: 5) {
-                    CoinDot(gold: true).frame(width: 18, height: 18)
+            Spacer(minLength: 4)
+            VStack(alignment: .trailing, spacing: 5) {
+                HStack(spacing: 6) {
+                    CoinDot().frame(width: 16, height: 16)
                     Text(verbatim: CascadeGame.format(game.balance))
-                        .font(.plie(26, weight: .black))
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
+                        .font(PixelFont.font(18))
+                        .foregroundStyle(Color(hex: 0xFFE066))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                 }
                 Text(L("+\(CascadeGame.format(game.perSecond)) / s"))
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.7))
-                    .monospacedDigit()
+                    .font(PixelFont.font(8))
+                    .foregroundStyle(.white.opacity(0.75))
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(L("\(CascadeGame.format(game.balance)) pièces"))
         }
-        .padding(10)
-        .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(.black.opacity(0.35)))
+        .padding(8)
+        .pixelBox(fill: Color(hex: 0x120B26).opacity(0.92), border: Color(hex: 0xF2A33A))
     }
 
     // MARK: En bas : lâcher et améliorer
@@ -105,27 +127,26 @@ struct CascadeView: View {
     private var panel: some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
-                Button { game.drop() } label: {
-                    VStack(spacing: 1) {
-                        Text(L("LÂCHER")).font(.plie(24, weight: .black))
-                        Text(L("Touche aussi le plateau")).font(.system(size: 11, weight: .semibold, design: .rounded)).opacity(0.75)
+                PixelButton(fill: Color(hex: 0xFFC93C), border: Color(hex: 0x8A4B0C)) {
+                    game.drop()
+                } label: {
+                    VStack(spacing: 4) {
+                        Text(L("LÂCHER")).font(PixelFont.font(16))
+                        Text(L("Touche aussi le plateau")).font(PixelFont.font(7)).opacity(0.75).lineLimit(1).minimumScaleFactor(0.6)
                     }
-                    .frame(maxWidth: .infinity, minHeight: 58)
-                    .background(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(LinearGradient(colors: [Color(hex: 0xFFC94D), Color(hex: 0xFF8A2F)], startPoint: .top, endPoint: .bottom)))
                     .foregroundStyle(Color(hex: 0x3A1D00))
+                    .frame(maxWidth: .infinity, minHeight: 50)
                 }
-                .buttonStyle(PressableStyle())
-                Button { game.shake() } label: {
-                    VStack(spacing: 2) {
-                        Image(systemName: "arrow.up.and.down.and.sparkles").font(.system(size: 20, weight: .bold))
-                        Text(L("Secouer")).font(.system(size: 11, weight: .bold, design: .rounded))
+                PixelButton(fill: Color(hex: game.shakeReady ? 0x2C1B5C : 0x18102F)) {
+                    game.shake()
+                } label: {
+                    VStack(spacing: 5) {
+                        Image(systemName: "arrow.up.and.down").font(.system(size: 15, weight: .black))
+                        Text(L("Secouer")).font(PixelFont.font(7)).lineLimit(1).minimumScaleFactor(0.6)
                     }
-                    .frame(width: 76, height: 58)
-                    .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(.white.opacity(game.shakeReady ? 0.16 : 0.06)))
+                    .frame(width: 70, height: 50)
                     .opacity(game.shakeReady ? 1 : 0.45)
                 }
-                .buttonStyle(PressableStyle())
                 .disabled(!game.shakeReady)
                 .accessibilityHint(L("Ou plie et déplie le Duo d'un coup"))
             }
@@ -135,7 +156,7 @@ struct CascadeView: View {
                 }
             }
         }
-        .frame(height: panelHeight - 10)
+        .frame(height: panelHeight - 8)
         .frame(maxWidth: 640)
     }
 
@@ -143,31 +164,29 @@ struct CascadeView: View {
         let lvl = game.level(u)
         let maxed = lvl >= u.maxLevel
         let ok = game.canBuy(u)
-        return Button { game.buy(u) } label: {
-            VStack(alignment: .leading, spacing: 2) {
+        return PixelButton(fill: Color(hex: ok ? 0x3B2A7A : 0x1A1236), border: ok ? Color(hex: 0xF2A33A) : Color(hex: 0x3A2C66)) {
+            game.buy(u)
+        } label: {
+            VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 4) {
-                    Image(systemName: u.symbol).font(.system(size: 11, weight: .bold))
-                    Text(u.title).font(.system(size: 12, weight: .heavy, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
+                    Text(u.title).font(PixelFont.font(8)).lineLimit(1).minimumScaleFactor(0.6)
                     Spacer(minLength: 0)
-                    Text(maxed ? L("MAX") : L("niv. \(lvl)")).font(.system(size: 10, weight: .bold, design: .rounded)).opacity(0.7)
+                    Text(maxed ? L("MAX") : L("niv. \(lvl)")).font(PixelFont.font(6)).opacity(0.7).lineLimit(1)
                 }
-                Text(effect(u)).font(.system(size: 11, weight: .semibold, design: .rounded)).opacity(0.8).lineLimit(1).minimumScaleFactor(0.7)
-                HStack(spacing: 3) {
-                    if !maxed { CoinDot(gold: true).frame(width: 10, height: 10) }
-                    Text(verbatim: maxed ? "—" : CascadeGame.format(u.cost(lvl)))
-                        .font(.system(size: 13, weight: .black, design: .rounded))
-                        .monospacedDigit()
+                Text(effect(u)).font(PixelFont.font(6)).opacity(0.8).lineLimit(1).minimumScaleFactor(0.5)
+                HStack(spacing: 4) {
+                    if !maxed { CoinDot().frame(width: 9, height: 9) }
+                    Text(verbatim: maxed ? "-" : CascadeGame.format(u.cost(lvl)))
+                        .font(PixelFont.font(9))
+                        .foregroundStyle(Color(hex: ok ? 0xFFE066 : 0xB9A8FF))
+                        .lineLimit(1).minimumScaleFactor(0.6)
                 }
             }
-            .padding(.horizontal, 9)
-            .padding(.vertical, 7)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 6)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(ok ? Color(hex: 0x3B2A7A) : Color.white.opacity(0.07)))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(ok ? Theme.cascade.opacity(0.7) : .clear, lineWidth: 1.5))
-            .opacity(ok || maxed ? 1 : 0.6)
+            .opacity(ok || maxed ? 1 : 0.65)
         }
-        .buttonStyle(PressableStyle())
         .accessibilityLabel(L("\(u.title), niveau \(lvl)"))
     }
 
@@ -184,35 +203,97 @@ struct CascadeView: View {
 
     private func welcome(_ gain: Double) -> some View {
         ZStack {
-            Color.black.opacity(0.55).ignoresSafeArea()
-            VStack(spacing: 14) {
-                CoinDot(gold: true).frame(width: 56, height: 56)
-                Text(L("Pendant ton absence")).font(.plie(22))
-                Text(verbatim: "+" + CascadeGame.format(gain)).font(.plie(40, weight: .black)).foregroundStyle(Theme.cascade)
-                Text(L("Le lâcher automatique a continué sans toi.")).font(.system(size: 15, weight: .medium, design: .rounded)).foregroundStyle(.white.opacity(0.75)).multilineTextAlignment(.center)
-                Button { game.dismissWelcome() } label: {
-                    Text(L("Super !")).font(.plie(18)).frame(maxWidth: .infinity, minHeight: 50)
-                        .background(Capsule().fill(Theme.cascade)).foregroundStyle(Color(hex: 0x3A1D00))
+            Color.black.opacity(0.6).ignoresSafeArea()
+            VStack(spacing: 16) {
+                CoinDot().frame(width: 44, height: 44)
+                Text(L("Pendant ton absence")).font(PixelFont.font(12)).multilineTextAlignment(.center)
+                Text(verbatim: "+" + CascadeGame.format(gain)).font(PixelFont.font(28)).foregroundStyle(Color(hex: 0xFFE066))
+                Text(L("Le lâcher automatique a continué sans toi.")).font(PixelFont.font(8)).lineSpacing(6).foregroundStyle(.white.opacity(0.8)).multilineTextAlignment(.center)
+                PixelButton(fill: Color(hex: 0xFFC93C), border: Color(hex: 0x8A4B0C)) {
+                    game.dismissWelcome()
+                } label: {
+                    Text(L("Super !")).font(PixelFont.font(12)).foregroundStyle(Color(hex: 0x3A1D00)).frame(maxWidth: .infinity, minHeight: 46)
                 }
-                .buttonStyle(PressableStyle())
             }
-            .padding(26)
+            .padding(22)
             .frame(maxWidth: 340)
-            .background(RoundedRectangle(cornerRadius: 28, style: .continuous).fill(Color(hex: 0x1E1640)))
+            .pixelBox(fill: Color(hex: 0x1E1640), border: Color(hex: 0xF2A33A))
         }
     }
 }
 
-/// Une petite pièce dessinée (compteur, prix).
-struct CoinDot: View {
-    var gold: Bool
+// MARK: - Pièces d'interface pixel
+
+/// Une boîte pixel : fond plein, bordure épaisse, ombre dure décalée (pas de flou, pas d'arrondi).
+struct PixelBox: ViewModifier {
+    var fill: Color
+    var border: Color
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                ZStack {
+                    Rectangle().fill(Color(hex: 0x07040F)).offset(x: 3, y: 3)
+                    Rectangle().fill(fill)
+                    Rectangle().strokeBorder(border, lineWidth: 3)
+                }
+            )
+    }
+}
+
+extension View {
+    func pixelBox(fill: Color, border: Color) -> some View { modifier(PixelBox(fill: fill, border: border)) }
+}
+
+/// Bouton pixel : il s'enfonce de 3 pixels quand on appuie.
+struct PixelButton<Label: View>: View {
+    var fill: Color
+    var border: Color = Color(hex: 0x6E5BC4)
+    var action: () -> Void
+    @ViewBuilder var label: () -> Label
 
     var body: some View {
-        Circle()
-            .fill(LinearGradient(colors: gold ? [Color(hex: 0xFFE07A), Color(hex: 0xE0921C)] : [Color(hex: 0xF2F4FA), Color(hex: 0x9AA3B8)],
-                                 startPoint: .top, endPoint: .bottom))
-            .overlay(Circle().inset(by: 2.5).stroke(.white.opacity(0.55), lineWidth: 1))
-            .accessibilityHidden(true)
+        Button(action: action) { label() }
+            .buttonStyle(PixelPressStyle(fill: fill, border: border))
+    }
+}
+
+struct PixelPressStyle: ButtonStyle {
+    var fill: Color
+    var border: Color
+
+    func makeBody(configuration: Configuration) -> some View {
+        let down = configuration.isPressed
+        configuration.label
+            .background(
+                ZStack {
+                    Rectangle().fill(fill)
+                    Rectangle().strokeBorder(border, lineWidth: 3)
+                    // Reflet en haut, comme un bouton de borne
+                    VStack { Rectangle().fill(.white.opacity(down ? 0 : 0.18)).frame(height: 3).padding(.horizontal, 3).padding(.top, 3); Spacer() }
+                }
+            )
+            .offset(x: down ? 3 : 0, y: down ? 3 : 0)
+            .background(Rectangle().fill(Color(hex: 0x07040F)).offset(x: 3, y: 3))
+            .animation(nil, value: down)
+    }
+}
+
+/// Une petite pièce pixel (compteur, prix).
+struct CoinDot: View {
+    var body: some View {
+        Canvas { ctx, size in
+            let p = size.width / 7
+            let rows = ["0011100", "0122210", "1223221", "1222221", "1222221", "0122210", "0011100"]
+            let cols: [Character: Color] = ["1": Color(hex: 0x8A4B0C), "2": Color(hex: 0xFFC93C), "3": Color(hex: 0xFFF2A8)]
+            for (y, line) in rows.enumerated() {
+                for (x, ch) in line.enumerated() {
+                    guard let c = cols[ch] else { continue }
+                    ctx.fill(Path(CGRect(x: CGFloat(x) * p, y: CGFloat(y) * p, width: p + 0.5, height: p + 0.5)), with: .color(c))
+                }
+            }
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -220,179 +301,18 @@ struct CoinDot: View {
 
 struct CascadeField: View {
     let game: CascadeGame
+    let renderer: CascadeRenderer
 
     var body: some View {
-        Canvas { context, size in
-            let s = size.width
-            let halfY = size.height / 2
-            func pt(_ x: Double, _ y: Double) -> CGPoint { CGPoint(x: x * s, y: y * s) }
-
-            // Le fond : la vitrine debout, puis le plateau à plat.
-            context.fill(Path(CGRect(x: 0, y: 0, width: s, height: halfY)),
-                         with: .linearGradient(Gradient(colors: [Color(hex: 0x231650), Color(hex: 0x3A1F6B)]),
-                                               startPoint: .zero, endPoint: CGPoint(x: 0, y: halfY)))
-            context.fill(Path(CGRect(x: 0, y: halfY, width: s, height: halfY)),
-                         with: .linearGradient(Gradient(colors: [Color(hex: 0x0F4A52), Color(hex: 0x0A2F3A)]),
-                                               startPoint: CGPoint(x: 0, y: halfY), endPoint: CGPoint(x: 0, y: size.height)))
-            if game.frenzy > 0 {
-                let pulse = 0.12 + 0.08 * sin(game.time * 10)
-                context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Theme.cascade.opacity(pulse)))
-            }
-
-            // Les rails sur les côtés
-            let wall = CascadeGame.wall * s
-            for x in [0, s - wall] {
-                context.fill(Path(CGRect(x: x, y: 0, width: wall, height: halfY)),
-                             with: .linearGradient(Gradient(colors: [Color(hex: 0xFFB13D), Color(hex: 0xC2661A)]),
-                                                   startPoint: CGPoint(x: x, y: 0), endPoint: CGPoint(x: x + wall, y: 0)))
-            }
-
-            // Les clous
-            for p in game.pegs {
-                let r = CascadeGame.pegR * s
-                context.fill(Path(ellipseIn: CGRect(x: p.x * s - r, y: p.y * s - r, width: 2 * r, height: 2 * r)), with: .color(Color(hex: 0xBFD7FF)))
-                context.fill(Path(ellipseIn: CGRect(x: p.x * s - r * 0.4, y: p.y * s - r * 0.7, width: r * 0.8, height: r * 0.6)), with: .color(.white.opacity(0.8)))
-            }
-
-            // La trémie, en haut
-            let dw = 0.12 * s
-            let dy = game.half * 0.1 * s
-            context.fill(Path(roundedRect: CGRect(x: game.dropperX * s - dw / 2, y: dy - 10, width: dw, height: 16), cornerRadius: 6),
-                         with: .linearGradient(Gradient(colors: [Color(hex: 0xFFE07A), Color(hex: 0xFF8A2F)]),
-                                               startPoint: CGPoint(x: 0, y: dy - 10), endPoint: CGPoint(x: 0, y: dy + 6)))
-
-            // La cible mobile
-            let gy = game.half * 0.92 * s
-            let gw = 0.14 * s
-            let gate = Path(roundedRect: CGRect(x: game.gateX * s - gw / 2, y: gy - 4, width: gw, height: 8), cornerRadius: 4)
-            context.fill(gate, with: .color(Color(hex: 0xFF4FD8)))
-            context.stroke(gate, with: .color(Color(hex: 0xFF4FD8).opacity(0.4)), lineWidth: 6)
-            context.draw(Text(verbatim: "×4").font(.system(size: 11, weight: .black, design: .rounded)).foregroundColor(.white),
-                         at: CGPoint(x: game.gateX * s, y: gy - 14))
-
-            // La charnière
-            var hinge = Path()
-            hinge.move(to: CGPoint(x: 0, y: halfY))
-            hinge.addLine(to: CGPoint(x: s, y: halfY))
-            context.stroke(hinge, with: .color(.white.opacity(0.12)), style: StrokeStyle(lineWidth: 2, dash: [8, 10]))
-
-            // Le plateau, vu en perspective : le fond (près de la charnière) est plus étroit que le bord avant.
-            let edgeY = game.bedEdge * s
-            let span = max(1, game.bedEdge - game.bedTop)
-            func depth(_ y: Double) -> Double { min(1.08, max(0, (y - game.bedTop) / span)) }
-            func scaleAt(_ t: Double) -> Double { 0.62 + 0.38 * t }
-            func bedPoint(_ x: Double, _ y: Double) -> CGPoint {
-                let t = depth(y)
-                return CGPoint(x: s * (0.5 + (x - 0.5) * scaleAt(t)), y: halfY + (edgeY - halfY) * t)
-            }
-            let inner = 0.5 - CascadeGame.wall
-            let farL = bedPoint(0.5 - inner, game.bedTop), farR = bedPoint(0.5 + inner, game.bedTop)
-            let nearL = bedPoint(0.5 - inner, game.bedEdge), nearR = bedPoint(0.5 + inner, game.bedEdge)
-            var floor = Path()
-            floor.addLines([farL, farR, nearR, nearL])
-            floor.closeSubpath()
-            context.fill(floor, with: .linearGradient(Gradient(colors: [Color(hex: 0x0D3D46), Color(hex: 0x17707A)]),
-                                                      startPoint: CGPoint(x: 0, y: halfY), endPoint: CGPoint(x: 0, y: edgeY)))
-            // Les lignes du tapis
-            for k in 1..<6 {
-                let x = 0.5 - inner + 2 * inner * Double(k) / 6
-                var line = Path()
-                line.move(to: bedPoint(x, game.bedTop))
-                line.addLine(to: bedPoint(x, game.bedEdge))
-                context.stroke(line, with: .color(.white.opacity(0.05)), lineWidth: 1)
-            }
-            // Les parois en biais
-            for (top, bottom, outer) in [(farL, nearL, CGPoint(x: 0, y: edgeY)), (farR, nearR, CGPoint(x: s, y: edgeY))] {
-                var side = Path()
-                side.addLines([top, bottom, outer, CGPoint(x: outer.x, y: halfY)])
-                side.closeSubpath()
-                context.fill(side, with: .linearGradient(Gradient(colors: [Color(hex: 0xC2661A), Color(hex: 0xFFB13D)]),
-                                                         startPoint: CGPoint(x: 0, y: halfY), endPoint: CGPoint(x: 0, y: edgeY)))
-            }
-            // Le vide, devant le bord, et les trous sur les côtés
-            context.fill(Path(CGRect(x: 0, y: edgeY, width: s, height: size.height - edgeY)), with: .color(Color(hex: 0x05090F).opacity(0.85)))
-            for (x0, x1) in [(0.5 - inner, 0.5 - inner + 0.09), (0.5 + inner - 0.09, 0.5 + inner)] {
-                var hole = Path()
-                hole.addLines([bedPoint(x0, game.bedEdge - 0.05), bedPoint(x1, game.bedEdge - 0.05), bedPoint(x1, game.bedEdge), bedPoint(x0, game.bedEdge)])
-                hole.closeSubpath()
-                context.fill(hole, with: .color(.black.opacity(0.4)))
-            }
-            var edge = Path()
-            edge.move(to: nearL)
-            edge.addLine(to: nearR)
-            context.stroke(edge, with: .color(Theme.cascade.opacity(0.95)), lineWidth: 3)
-
-            // Le poussoir : une plaque qui avance vers nous
-            let pf = game.pusherFront
-            let pL = bedPoint(0.5 - inner, pf), pR = bedPoint(0.5 + inner, pf)
-            var plate = Path()
-            plate.addLines([farL, farR, pR, pL])
-            plate.closeSubpath()
-            context.fill(plate, with: .linearGradient(Gradient(colors: [Color(hex: 0x5A6580), Color(hex: 0xB9C3DA)]),
-                                                      startPoint: CGPoint(x: 0, y: halfY), endPoint: CGPoint(x: 0, y: pL.y)))
-            let lip = max(4, (pL.y - halfY) * 0.18 + 4)
-            context.fill(Path(CGRect(x: pL.x, y: pL.y, width: pR.x - pL.x, height: lip)), with: .color(Color(hex: 0x3C4660)))
-            context.fill(Path(CGRect(x: pL.x, y: pL.y - 2, width: pR.x - pL.x, height: 2)), with: .color(.white.opacity(0.9)))
-
-            // Les pièces sur le plateau, du fond vers l'avant (celles de devant passent par-dessus)
-            for c in game.bed.sorted(by: { $0.y < $1.y }) {
-                let t = depth(c.y)
-                let p = bedPoint(c.x, c.y)
-                drawFlatCoin(&context, c, at: p, r: CascadeGame.coinR * s * scaleAt(t) * 1.05)
-            }
-
-            // Les pièces qui tombent
-            for c in game.falling {
-                drawCoin(&context, c, at: pt(c.x, c.y), r: CascadeGame.fallR * s, squash: max(0.25, abs(cos(c.spin))))
-            }
-
-            // Les gains qui s'envolent
-            for p in game.pops {
-                context.opacity = min(1, p.life * 2)
-                context.draw(Text(verbatim: p.text).font(.system(size: 13, weight: .black, design: .rounded))
-                    .foregroundColor(p.gold ? Color(hex: 0xFFE07A) : .white), at: p.y >= game.bedTop ? bedPoint(p.x, p.y) : pt(p.x, p.y))
-            }
-            context.opacity = 1
-        }
-        .accessibilityLabel(L("La machine à pièces"))
-    }
-
-    /// Une pièce couchée sur le plateau : une ellipse, avec sa tranche.
-    private func drawFlatCoin(_ context: inout GraphicsContext, _ c: CascadeCoin, at p: CGPoint, r: CGFloat) {
-        let h = r * 0.58
-        let face = CGRect(x: p.x - r, y: p.y - h, width: 2 * r, height: 2 * h)
-        let colors: [Color]
-        let side: Color
-        switch c.kind {
-        case .gold: colors = [Color(hex: 0xFFE58A), Color(hex: 0xE39A22)]; side = Color(hex: 0x9A5A0C)
-        case .silver: colors = [Color(hex: 0xF4F6FB), Color(hex: 0xA3ACC2)]; side = Color(hex: 0x5D6680)
-        case .gem: colors = [Color(hex: 0xFF9BFF), Color(hex: 0x7A3DFF)]; side = Color(hex: 0x3A1580)
-        }
-        context.fill(Path(ellipseIn: face.offsetBy(dx: 0, dy: h * 0.45)), with: .color(side))
-        context.fill(Path(ellipseIn: face), with: .linearGradient(Gradient(colors: colors),
-                                                                  startPoint: CGPoint(x: p.x, y: face.minY), endPoint: CGPoint(x: p.x, y: face.maxY)))
-        context.stroke(Path(ellipseIn: face.insetBy(dx: r * 0.25, dy: h * 0.25)), with: .color(.white.opacity(0.4)), lineWidth: 0.8)
-    }
-
-    private func drawCoin(_ context: inout GraphicsContext, _ c: CascadeCoin, at p: CGPoint, r: CGFloat, squash: Double) {
-        let rect = CGRect(x: p.x - r * squash, y: p.y - r, width: 2 * r * squash, height: 2 * r)
-        switch c.kind {
-        case .gem:
-            var d = Path()
-            d.move(to: CGPoint(x: p.x, y: p.y - r * 1.1))
-            d.addLine(to: CGPoint(x: p.x + r * squash, y: p.y))
-            d.addLine(to: CGPoint(x: p.x, y: p.y + r * 1.1))
-            d.addLine(to: CGPoint(x: p.x - r * squash, y: p.y))
-            d.closeSubpath()
-            context.fill(d, with: .linearGradient(Gradient(colors: [Color(hex: 0xFF9BFF), Color(hex: 0x7A3DFF)]),
-                                                  startPoint: CGPoint(x: p.x, y: p.y - r), endPoint: CGPoint(x: p.x, y: p.y + r)))
-            context.stroke(d, with: .color(.white.opacity(0.7)), lineWidth: 1)
-        case .gold, .silver:
-            let colors = c.kind == .gold ? [Color(hex: 0xFFE07A), Color(hex: 0xD98A16)] : [Color(hex: 0xF4F6FB), Color(hex: 0x8C96AD)]
-            context.fill(Path(ellipseIn: rect.offsetBy(dx: 0, dy: r * 0.18)), with: .color(.black.opacity(0.25)))
-            context.fill(Path(ellipseIn: rect), with: .linearGradient(Gradient(colors: colors),
-                                                                      startPoint: CGPoint(x: p.x, y: rect.minY), endPoint: CGPoint(x: p.x, y: rect.maxY)))
-            context.stroke(Path(ellipseIn: rect.insetBy(dx: r * 0.28 * squash, dy: r * 0.28)), with: .color(.white.opacity(0.45)), lineWidth: 1)
+        // `frame` change à chaque image : on redessine l'image pixel.
+        let _ = game.frame
+        if let img = renderer.render(game) {
+            Image(decorative: img, scale: 1)
+                .interpolation(.none)
+                .resizable()
+                .accessibilityLabel(L("La machine à pièces"))
+        } else {
+            Color(hex: 0x07040F)
         }
     }
 }
