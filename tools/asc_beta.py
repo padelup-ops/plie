@@ -27,14 +27,14 @@ if ONLY_EMAIL:
 found_only = False
 
 WHATS_NEW = {
-    "fr-FR": """Origamo est sorti sur l'App Store ! 🎉
+    "fr-FR": """Origamo est sorti sur l'App Store !
 
 Merci énormément d'avoir testé le jeu : vos retours l'ont rendu bien meilleur.
 
 La bêta se termine dans 2 jours (le 9 novembre). Installez dès maintenant la version de l'App Store pour continuer à jouer : https://apps.apple.com/app/id6825605393
 
 Vos parties sont gardées quand vous passez à la version de l'App Store. Et si le jeu vous plaît, une note ou un avis sur l'App Store nous aide énormément.""",
-    "en-US": """Origamo is out on the App Store! 🎉
+    "en-US": """Origamo is out on the App Store!
 
 Thank you so much for testing the game: your feedback made it much better.
 
