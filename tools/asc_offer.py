@@ -74,7 +74,7 @@ avail = call("GET", f"/v2/inAppPurchases/{iap_id}/inAppPurchaseAvailability?incl
 for t in avail.get("included", []):
     if t["type"] == "territories": terr.append(t["id"])
 if not terr:
-    terr = ["FRA", "USA", "GBR", "DEU", "ESP", "ITA", "CAN", "JPN", "KOR", "CHN", "BEL", "CHE", "NLD", "AUS"]
+    terr = [t["id"] for t in call("GET", "/v1/territories?limit=200").get("data", [])]
 print(len(terr), "territoires")
 
 existing = [o for o in offers.get("data", []) if o["attributes"].get("name") == NAME]
@@ -90,7 +90,7 @@ else:
                          "relationships": {"territory": {"data": {"type": "territories", "id": t}},
                                            "pricePoint": {"data": None}}})
     body = {"data": {"type": "inAppPurchaseOfferCodes",
-                     "attributes": {"name": NAME, "customerEligibilities": ["NON_SPENDER", "ACTIVE_SPENDER", "CHURNED_SPENDER"]},
+                     "attributes": {"name": NAME, "customerEligibilities": ["NON_SPENDER"]},
                      "relationships": {"inAppPurchase": {"data": {"type": "inAppPurchases", "id": iap_id}},
                                        "prices": {"data": prices}}},
             "included": included}
