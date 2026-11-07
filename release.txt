@@ -1,0 +1,67 @@
+APP 6825605393 Origamo: Folding Mini Games
+ok     catégories GAMES / GAMES_PUZZLE / GAMES_BOARD
+ok     prix 0 € (base France)
+ok     classification par âge (aucun contenu sensible)
+ok     droits sur le contenu (aucun contenu de tiers)
+ok     disponibilité déjà définie
+ok     version 1.3 renommée en 1.4
+ok     nouveautés zh-Hans
+ok     nouveautés es-ES
+ok     nouveautés ja
+ok     nouveautés en-US
+ok     nouveautés fr-FR
+ok     nouveautés de-DE
+ok     nouveautés ko
+VERSION 1.4 PREPARE_FOR_SUBMISSION
+ok     copyright « 2026 PadelUp » et sortie dès l'accord d'Apple
+ok     coordonnées et notes pour la vérification
+       https://origamo.netlify.app/fr/ -> 200
+       https://origamo.netlify.app/en/ -> 200
+       https://origamo.netlify.app/fr/privacy.html -> 200
+       https://origamo.netlify.app/en/privacy.html -> 200
+ok     confidentialité ko
+ok     confidentialité de-DE
+ok     confidentialité fr-FR
+ok     confidentialité es-ES
+ok     confidentialité ja
+ok     confidentialité en-US
+ok     confidentialité zh-Hans
+ok     assistance zh-Hans
+ok     assistance es-ES
+ok     assistance ja
+ok     assistance en-US
+ok     assistance fr-FR
+ok     assistance de-DE
+ok     assistance ko
+ok     6 capture(s) zh-Hans (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) zh-Hans (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) es-ES (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) es-ES (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) ja (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) ja (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) en-US (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-US (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) fr-FR (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) fr-FR (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) de-DE (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) de-DE (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) ko (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) ko (APP_IPHONE_DUO) déjà à jour
+ok     build 65 choisi pour la version 1.0
+       APP 6825605393 Origamo: Folding Mini Games
+       bibliothèque : {"data": {"type": "appAssetLibraries", "id": "6825605393", "relationships": {"images": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/relationships/images", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/images"}}, "videos": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/relationships/videos", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/videos"}}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393"}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/apps/6825605393/assetLibrary"}}
+       VERSION 1.4 PREPARE_FOR_SUBMISSION
+       ok     header en-US placée sur la version
+       ok     search en-US placée sur la version
+       ok     header fr-FR placée sur la version
+       ok     search fr-FR placée sur la version
+       
+       PLACÉES
+ok     captures traitées par Apple
+ok     demande de vérification créée
+ok     version ajoutée à la demande
+       achat plie.pass.complet APPROVED
+ok     ENVOI À LA VÉRIFICATION D'APPLE
+état de la version : WAITING_FOR_REVIEW
+
+PRÊT

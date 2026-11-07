@@ -1,0 +1,37 @@
+APP_ID 6825605393
+ok     nom et sous-titre en-US
+ok     nom et sous-titre fr-FR
+ok     nom et sous-titre de-DE
+ok     nom et sous-titre es-ES
+ok     nom et sous-titre ja
+ok     nom et sous-titre ko
+ok     nom et sous-titre zh-Hans
+ok     catégories
+version 1.3 d6a77eb2-f3a0-44b5-83d4-a71389aa3489
+ok     description en-US
+ok     description fr-FR
+ok     description de-DE
+ok     description es-ES
+ok     description ja
+ok     description ko
+ok     description zh-Hans
+ok     build 48 choisi pour la version
+ok     notes pour App Review
+
+fiche ko | Origamo: 접어서 하는 미니게임 | 접어서 즐기는 게임 25개
+fiche de-DE | Origamo: Falt-Minispiele | 25 Spiele zum Falten
+fiche fr-FR | Origamo : mini-jeux pliés | 25 jeux à jouer en pliant
+fiche es-ES | Origamo: Minijuegos plegables | 25 juegos para plegar
+fiche ja | Origamo：折りたたみミニゲーム | 折りたたんで遊ぶ25のゲーム
+fiche en-US | Origamo: Folding Mini Games | 25 games you play by folding
+fiche zh-Hans | Origamo：折叠迷你游戏 | 25 款折叠着玩的游戏
+version zh-Hans | description 1277 car. | mots-clés iPhone Duo,折叠屏,益智,画画,记忆,国际象棋,跳棋,钢琴,台球,乒乓球,儿童,派对
+version es-ES | description 3817 car. | mots-clés iphone duo,plegable,puzle,dibujo,memoria,ajedrez,damas,piano,billar,ping pong,niños
+version ja | description 1586 car. | mots-clés iPhone Duo,折りたたみ,パズル,お絵かき,記憶,チェス,チェッカー,ピアノ,ビリヤード,卓球,子ども,パーティー
+version en-US | description 3628 car. | mots-clés iphone duo,foldable,puzzle,drawing,memory,chess,checkers,piano,pool,ping pong,air hockey,kids
+version fr-FR | description 3793 car. | mots-clés iphone duo,pliable,énigme,dessin,mémoire,échecs,dames,piano,billard,ping-pong,air hockey,enfants
+version de-DE | description 3994 car. | mots-clés iphone duo,faltbar,rätsel,zeichnen,gedächtnis,schach,dame,klavier,billard,pingpong,kinder
+version ko | description 1777 car. | mots-clés iPhone Duo,폴더블,퍼즐,그림,기억력,체스,체커,피아노,당구,탁구,어린이,파티
+build choisi : 48
+
+TOUT EST À JOUR

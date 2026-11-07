@@ -1,0 +1,15 @@
+APP 6825605393 Origamo: Folding Mini Games
+bibliothèque : {"data": {"type": "appAssetLibraries", "id": "6825605393", "relationships": {"images": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/relationships/images", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/images"}}, "videos": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/relationships/videos", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393/videos"}}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6825605393"}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/apps/6825605393/assetLibrary"}}
+4 vidéo(s) déjà dans la bibliothèque
+ok     header en-US déjà envoyée (7a800019-6d67-8911-812d-03ffa824ccb9, APPROVED)
+ok     search en-US déjà envoyée (0b800019-6d67-8911-813a-df60f9727025, APPROVED)
+ok     header fr-FR déjà envoyée (73800019-6d67-8911-8126-6beb67bfdd76, APPROVED)
+ok     search fr-FR déjà envoyée (d8400019-6d67-8911-8113-1354876d9e5d, APPROVED)
+
+Bibliothèque :
+  header-en-US-5847e7d6e577 · APPROVED · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-en-US-8630619ae655 · APPROVED · spécification a28b6440-2fe2-58f0-9da3-354cb54cab57 · affiche 00:00:00:15
+  header-fr-FR-d6a4124866d3 · APPROVED · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-fr-FR-eb3e6d02e26f · APPROVED · spécification a28b6440-2fe2-58f0-9da3-354cb54cab57 · affiche 00:00:00:15
+
+ENVOYÉ DANS LA BIBLIOTHÈQUE
