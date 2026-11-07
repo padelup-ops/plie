@@ -18,6 +18,7 @@ struct HistoryView: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         WhyCard(stats: model.stats).id("why")
+                        SessionCard(stats: model.stats).id("sessions")
                         chartCard
                         calendarCard.id("calendar")
                         records.id("records")

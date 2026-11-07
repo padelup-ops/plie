@@ -659,3 +659,16 @@
 "Update" = "アップデート";
 "Please update Foldly" = "Foldlyをアップデートしてください";
 "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "このバージョンには最新版で修正された問題があります。記録は安全にiPhoneに残ります。";
+"YOUR SESSIONS" = "セッション";
+"Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here." = "Duoを開くたびに、開いている時間をFoldlyが計ります。セッションはここに表示されます。";
+"Open on average, each time" = "1回あたりの平均オープン時間";
+"Estimated from your daily totals. Exact sessions are recorded from now on." = "1日の合計からの推定です。正確なセッションは今後記録されます。";
+"%lld sessions · half last less than %@" = "%lld セッション・半分は %@ 未満";
+"Weekdays" = "平日";
+"Weekends" = "週末";
+"Longest" = "最長";
+"Open while you're awake" = "起きている間のオープン時間";
+"Share of 7 am – 11 pm spent with your Duo open." = "7時〜23時のうちDuoを開いていた割合。";
+"Under 1 min" = "1分未満";
+"1 to 10 min" = "1〜10分";
+"Over 10 min" = "10分以上";

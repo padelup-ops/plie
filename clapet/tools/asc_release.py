@@ -237,6 +237,15 @@ RELEASE_NOTES = {
         "ko": "• 예전 기록 가져오기: '횟수 조정'에서 Foldly 이전에 기록한 날(접힘·펼침)과 전체 펼친 횟수를 추가할 수 있어요.\n• Foldly+를 11월 13일까지 출시 기념 가격으로: 한 번 구입으로 평생 사용.\n• 3일이 지나면 처음 접은 횟수와 가장 많이 접는 시간을 정리해 드려요.\n• 이제 App Store 페이지에서 바로 Foldly+를 구입할 수 있어요.\n• 작은 수정 및 개선.",
         "zh-Hans": "• 导入以前的数据：在“调整计数”中添加使用 Foldly 之前记录的日子（折叠和展开），以及展开总次数。\n• Foldly+ 首发价至 11 月 13 日：一次购买，永久使用。\n• 使用 3 天后，Foldly 会总结你最初的折叠次数和高峰时段。\n• 现在可以直接在 App Store 页面购买 Foldly+。\n• 小问题修复和改进。",
     },
+    "1.0.8": {
+        "en-US": "• New in Foldly+: Your sessions. See how long your Duo stays open each time: your average session, short vs long sessions, your longest one, weekdays vs weekends, and how much of your waking day you spend unfolded. Thanks BraXzy for the idea!\n• Small fixes and improvements.",
+        "fr-FR": "• Nouveau dans Foldly+ : Tes sessions. Combien de temps ton Duo reste ouvert à chaque fois : ta session moyenne, les courtes et les longues, la plus longue, la semaine contre le week-end, et la part de ta journée passée déplié. Merci BraXzy pour l'idée !\n• Petites corrections et améliorations.",
+        "de-DE": "• Neu in Foldly+: Deine Sitzungen. Wie lange dein Duo jedes Mal offen bleibt: deine durchschnittliche Sitzung, kurze und lange Sitzungen, die längste, Wochentage gegen Wochenende und wie viel deines wachen Tages du aufgeklappt verbringst.\n• Kleine Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• Nuevo en Foldly+: Tus sesiones. Cuánto tiempo sigue abierto tu Duo cada vez: tu sesión media, sesiones cortas y largas, la más larga, entre semana frente a fin de semana, y cuánto de tu día pasas con él desplegado.\n• Pequeñas correcciones y mejoras.",
+        "ja": "• Foldly+の新機能「セッション」：Duoを開くたびに開いている時間を表示。平均時間、短い／長いセッション、最長記録、平日と週末の比較、起きている時間のうち開いていた割合が分かります。\n• 細かな修正と改善。",
+        "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 小问题修复和改进。",
+    },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
 if NEW_VERSION:
@@ -257,7 +266,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -302,7 +311,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})

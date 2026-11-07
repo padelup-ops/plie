@@ -659,3 +659,16 @@
 "Update" = "Update";
 "Please update Foldly" = "Please update Foldly";
 "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone.";
+"YOUR SESSIONS" = "YOUR SESSIONS";
+"Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here." = "Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here.";
+"Open on average, each time" = "Open on average, each time";
+"Estimated from your daily totals. Exact sessions are recorded from now on." = "Estimated from your daily totals. Exact sessions are recorded from now on.";
+"%lld sessions · half last less than %@" = "%lld sessions · half last less than %@";
+"Weekdays" = "Weekdays";
+"Weekends" = "Weekends";
+"Longest" = "Longest";
+"Open while you're awake" = "Open while you're awake";
+"Share of 7 am – 11 pm spent with your Duo open." = "Share of 7 am – 11 pm spent with your Duo open.";
+"Under 1 min" = "Under 1 min";
+"1 to 10 min" = "1 to 10 min";
+"Over 10 min" = "Over 10 min";

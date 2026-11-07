@@ -7,6 +7,12 @@ import SwiftUI
 // Partagés entre l'app et ses widgets dans le trousseau (un groupe de trousseau commun aux deux) :
 // pas besoin de groupe d'app à déclarer chez Apple.
 
+/// Une ouverture : quand elle a commencé, et combien de secondes le Duo est resté ouvert.
+struct OpenSession: Codable, Equatable {
+    var t: Date
+    var s: Double
+}
+
 struct DayCount: Codable, Equatable {
     var closes = 0
     var opens = 0
@@ -76,6 +82,8 @@ struct ClapetStats: Codable, Equatable {
     var lastOpen: Date?
     /// Les raisons données à l'ouverture (60 derniers jours).
     var whyLog: [WhyEntry] = []
+    /// Chaque ouverture vue de bout en bout (début, durée en secondes) : 90 derniers jours.
+    var sessionLog: [OpenSession] = []
     /// Le record de plis en une heure.
     var recordHour = 0
     /// Foldly+ acheté (écrit par l'app, lu par les widgets).
@@ -103,7 +111,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog
+        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -120,6 +128,7 @@ struct ClapetStats: Codable, Equatable {
         lastClose = try c.decodeIfPresent(Date.self, forKey: .lastClose)
         lastOpen = try c.decodeIfPresent(Date.self, forKey: .lastOpen)
         whyLog = try c.decodeIfPresent([WhyEntry].self, forKey: .whyLog) ?? []
+        sessionLog = try c.decodeIfPresent([OpenSession].self, forKey: .sessionLog) ?? []
         recordHour = try c.decodeIfPresent(Int.self, forKey: .recordHour) ?? 0
         plus = try c.decodeIfPresent(Bool.self, forKey: .plus) ?? false
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
@@ -423,8 +432,11 @@ struct ClapetStats: Codable, Equatable {
             d.peeks += 1
             days[Self.key(start)] = d
         }
+        let seen = event && openFromEvent
         openFromEvent = false
         guard total > 0, total < Self.maxOpenSession else { return }
+        // Une vraie ouverture, vue du début à la fin : on la garde pour les stats de sessions.
+        if seen { addSession(start: start, seconds: total) }
         let cal = Calendar.current
         var s = start
         while s < date {
@@ -435,6 +447,13 @@ struct ClapetStats: Codable, Equatable {
             days[Self.key(s)] = d
             s = end
         }
+    }
+
+    mutating func addSession(start: Date, seconds: Double) {
+        sessionLog.append(OpenSession(t: start, s: seconds))
+        let cut = start.addingTimeInterval(-90 * 86400)
+        sessionLog.removeAll { $0.t < cut }
+        if sessionLog.count > 6000 { sessionLog.removeFirst(sessionLog.count - 6000) }
     }
 
     /// Temps ouvert d'une journée, en comptant l'ouverture en cours pour aujourd'hui.
@@ -783,5 +802,81 @@ extension ClapetStats {
             peeks: current.reduce(0) { $0 + day($1.date).peeks },
             longestBreak: current.map { longestBreak($0.date, now: now) }.max() ?? 0,
             tracked: current.filter { $0.closes > 0 }.count)
+    }
+}
+
+
+// MARK: - Sessions (Foldly+) : combien de temps le Duo reste ouvert à chaque fois
+
+struct SessionSummary {
+    var count = 0
+    var average: TimeInterval = 0
+    var median: TimeInterval = 0
+    var longest: OpenSession?
+    /// Moins d'1 min, 1 à 10 min, plus de 10 min (nombre de sessions).
+    var short = 0, medium = 0, long = 0
+    var weekdayAverage: TimeInterval?
+    var weekendAverage: TimeInterval?
+    /// Part du temps éveillé (7 h – 23 h) passée ouvert, sur les jours mesurés.
+    var awakeShare: Double?
+    /// Calculé à partir des totaux du jour (ouvertures d'avant la mise à jour) : moyenne seulement.
+    var estimated = false
+}
+
+extension ClapetStats {
+    func sessionSummary(days count: Int = 7, now: Date = Date()) -> SessionSummary {
+        let cal = Calendar.current
+        let from = cal.date(byAdding: .day, value: -(count - 1), to: cal.startOfDay(for: now)) ?? now
+        let list = sessionLog.filter { $0.t >= from }
+        var r = SessionSummary()
+        guard !list.isEmpty else {
+            // Pas encore de sessions enregistrées : la moyenne vient des totaux du jour.
+            let ds = lastDays(count, now: now).map { day($0.date) }.filter { $0.opens > 0 && $0.openSeconds > 0 }
+            let opens = ds.reduce(0) { $0 + $1.opens }
+            if opens > 0 {
+                r.count = opens
+                r.average = ds.reduce(0) { $0 + $1.openSeconds } / Double(opens)
+                r.estimated = true
+            }
+            return r
+        }
+        let secs = list.map(\.s).sorted()
+        r.count = list.count
+        r.average = secs.reduce(0, +) / Double(secs.count)
+        r.median = secs.count % 2 == 1 ? secs[secs.count / 2] : (secs[secs.count / 2 - 1] + secs[secs.count / 2]) / 2
+        r.longest = list.max { $0.s < $1.s }
+        for x in secs {
+            if x < 60 { r.short += 1 } else if x <= 600 { r.medium += 1 } else { r.long += 1 }
+        }
+        let weekend = list.filter { cal.isDateInWeekend($0.t) }, weekday = list.filter { !cal.isDateInWeekend($0.t) }
+        if !weekday.isEmpty { r.weekdayAverage = weekday.reduce(0) { $0 + $1.s } / Double(weekday.count) }
+        if !weekend.isEmpty { r.weekendAverage = weekend.reduce(0) { $0 + $1.s } / Double(weekend.count) }
+        // Temps éveillé : de 7 h à 23 h, sur les jours où au moins une session a été vue.
+        var awake: [String: Double] = [:]
+        for x in list {
+            var a = x.t
+            let end = x.t.addingTimeInterval(x.s)
+            while a < end {
+                let dayStart = cal.startOfDay(for: a)
+                let w0 = dayStart.addingTimeInterval(7 * 3600), w1 = dayStart.addingTimeInterval(23 * 3600)
+                let next = cal.date(byAdding: .day, value: 1, to: dayStart) ?? end
+                let segEnd = min(end, next)
+                let overlap = max(0, min(segEnd, w1).timeIntervalSince(max(a, w0)))
+                awake[Self.key(a), default: 0] += overlap
+                a = segEnd
+            }
+        }
+        if !awake.isEmpty {
+            // Aujourd'hui ne compte que jusqu'à maintenant.
+            var possible = 0.0
+            for k in awake.keys {
+                if k == Self.key(now) {
+                    let d0 = cal.startOfDay(for: now)
+                    possible += max(60, min(now, d0.addingTimeInterval(23 * 3600)).timeIntervalSince(d0.addingTimeInterval(7 * 3600)))
+                } else { possible += 16 * 3600 }
+            }
+            r.awakeShare = min(1, awake.values.reduce(0, +) / max(1, possible))
+        }
+        return r
     }
 }

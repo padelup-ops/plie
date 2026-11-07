@@ -659,3 +659,16 @@
 "Update" = "更新";
 "Please update Foldly" = "请更新 Foldly";
 "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "此版本存在问题，已在最新版本中修复。你的折叠记录安全地保存在 iPhone 上。";
+"YOUR SESSIONS" = "你的使用时段";
+"Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here." = "每次展开 Duo，Foldly 都会计时它保持展开多久。你的使用时段会显示在这里。";
+"Open on average, each time" = "平均每次展开时长";
+"Estimated from your daily totals. Exact sessions are recorded from now on." = "根据每日总数估算。从现在起会记录精确的使用时段。";
+"%lld sessions · half last less than %@" = "%lld 次 · 一半不到 %@";
+"Weekdays" = "工作日";
+"Weekends" = "周末";
+"Longest" = "最长";
+"Open while you're awake" = "清醒时展开的比例";
+"Share of 7 am – 11 pm spent with your Duo open." = "早上 7 点到晚上 11 点之间 Duo 展开的时间占比。";
+"Under 1 min" = "不到 1 分钟";
+"1 to 10 min" = "1 到 10 分钟";
+"Over 10 min" = "超过 10 分钟";

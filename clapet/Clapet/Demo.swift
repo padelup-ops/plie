@@ -139,7 +139,15 @@ enum Demo {
                 let hour = r == .boredom ? Int.random(in: 20...22, using: &rng) : Int.random(in: 8...19, using: &rng)
                 if let t = cal.date(bySettingHour: hour, minute: Int.random(in: 0...59, using: &rng), second: 0, of: day), t < now { s.addWhy(r, t) }
             }
+            // Les sessions : beaucoup de courtes, quelques longues le soir.
+            for _ in 0..<14 {
+                let roll = Int.random(in: 0..<100, using: &rng)
+                let secs = roll < 45 ? Double.random(in: 8...55, using: &rng) : roll < 85 ? Double.random(in: 70...560, using: &rng) : Double.random(in: 900...3400, using: &rng)
+                let hour = Int.random(in: 7...22, using: &rng)
+                if let t = cal.date(bySettingHour: hour, minute: Int.random(in: 0...59, using: &rng), second: 0, of: day), t < now { s.addSession(start: t, seconds: secs) }
+            }
         }
+        s.sessionLog.sort { $0.t < $1.t }
         stats = s
     }
 }

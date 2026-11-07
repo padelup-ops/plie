@@ -659,3 +659,16 @@
 "Update" = "Actualizar";
 "Please update Foldly" = "Actualiza Foldly";
 "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "Esta versión tiene un problema corregido en la última. Tus pliegues están a salvo y se quedan en tu iPhone.";
+"YOUR SESSIONS" = "TUS SESIONES";
+"Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here." = "Cada vez que abres tu Duo, Foldly mide cuánto tiempo sigue abierto. Tus sesiones aparecen aquí.";
+"Open on average, each time" = "Abierto de media, cada vez";
+"Estimated from your daily totals. Exact sessions are recorded from now on." = "Estimado a partir de tus totales diarios. Las sesiones exactas se registran a partir de ahora.";
+"%lld sessions · half last less than %@" = "%lld sesiones · la mitad dura menos de %@";
+"Weekdays" = "Entre semana";
+"Weekends" = "Fines de semana";
+"Longest" = "La más larga";
+"Open while you're awake" = "Abierto mientras estás despierto";
+"Share of 7 am – 11 pm spent with your Duo open." = "Parte de 7:00 a 23:00 con tu Duo abierto.";
+"Under 1 min" = "Menos de 1 min";
+"1 to 10 min" = "De 1 a 10 min";
+"Over 10 min" = "Más de 10 min";
