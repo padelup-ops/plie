@@ -255,6 +255,15 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.3": {
+        "en-US": "• New game: CASCADE! A pixel-art coin pusher made for the Duo folded into an L: coins rain down the standing half, bounce off the pins and land on the flat board, where the pusher shoves them off the edge. Upgrade your machine, aim for the pink target, find the diamond, and fold-unfold the Duo to shake the board.\n• Small fixes and improvements.",
+        "fr-FR": "• Nouveau jeu : CASCADE ! Une machine à pièces en pixel art, faite pour le Duo plié en L : les pièces pleuvent sur la moitié debout, rebondissent sur les clous et tombent sur le plateau à plat, où le poussoir les fait tomber du bord. Améliore ta machine, vise la cible rose, trouve le diamant, et plie-déplie le Duo pour secouer le plateau.\n• Petites corrections et améliorations.",
+        "de-DE": "• Neues Spiel: CASCADE! Ein Münzschieber in Pixel-Art für den Duo im L-Modus: Münzen regnen über die stehende Hälfte, prallen an den Stiften ab und landen auf dem flachen Brett, wo der Schieber sie über die Kante schiebt. Verbessere deinen Automaten, triff das pinke Ziel, finde den Diamanten und klappe den Duo zu und auf, um das Brett zu rütteln.\n• Kleine Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• ¡Nuevo juego: CASCADA! Una máquina de monedas en pixel art pensada para el Duo plegado en L: las monedas caen por la mitad de pie, rebotan en los clavos y aterrizan en el tablero plano, donde el empujador las tira por el borde. Mejora tu máquina, apunta a la diana rosa, encuentra el diamante y pliega y despliega el Duo para sacudir el tablero.\n• Pequeñas correcciones y mejoras.",
+        "ja": "• 新ゲーム「カスケード」！L字に折ったDuoのためのピクセルアートのコインプッシャー。立てた側をコインが落ち、ピンで跳ねて平らな台へ。プッシャーで端から押し出そう。マシンを強化し、ピンクのターゲットを狙い、ダイヤを見つけ、Duoを折って戻すと台が揺れます。\n• 細かな修正と改善。",
+        "ko": "• 새 게임: 캐스케이드! L자로 접은 Duo를 위한 픽셀 아트 코인 푸셔. 코인이 세운 쪽으로 쏟아져 핀에 튕기고, 평평한 판에 떨어지면 푸셔가 가장자리로 밀어내요. 머신을 업그레이드하고, 분홍 타깃을 노리고, 다이아몬드를 찾고, Duo를 접었다 펴서 판을 흔드세요.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• 新游戏：瀑布！专为折成 L 形的 Duo 打造的像素风推币机：硬币从竖起的一半落下，在钉子上弹跳，落到平放的平台上，推板把它们推下边缘。升级你的机器，瞄准粉色目标，找到钻石，快速折叠再展开 Duo 来摇晃平台。\n• 小问题修复和改进。",
+    },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
 if NEW_VERSION:
