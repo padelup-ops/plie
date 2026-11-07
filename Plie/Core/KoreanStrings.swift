@@ -2794,6 +2794,7 @@ enum KoreanStrings {
         "{} · {} carrés": "{} · 상자 {}개",
         "Ton initiale": "내 이니셜",
         "{} carrés": "상자 {}개",
+        "1 carré": "상자 1개",
         "Ordinateur": "컴퓨터",
         "Attends ton tour": "차례를 기다리세요",
         "{} gagne {} à {} !": "{} 승리, {} 대 {}!",

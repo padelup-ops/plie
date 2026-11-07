@@ -1975,6 +1975,7 @@ enum EnglishStrings {
         "{} · {} carrés": "{} · {} boxes",
         "Ton initiale": "Your initial",
         "{} carrés": "{} boxes",
+        "1 carré": "1 box",
         "Ordinateur": "Computer",
         "Attends ton tour": "Wait for your turn",
         "{} gagne {} à {} !": "{} wins {} to {}!",

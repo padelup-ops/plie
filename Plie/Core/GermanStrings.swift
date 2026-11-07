@@ -2794,6 +2794,7 @@ enum GermanStrings {
         "{} · {} carrés": "{} · {} Kästchen",
         "Ton initiale": "Dein Anfangsbuchstabe",
         "{} carrés": "{} Kästchen",
+        "1 carré": "1 Kästchen",
         "Ordinateur": "Computer",
         "Attends ton tour": "Warte, bis du dran bist",
         "{} gagne {} à {} !": "{} gewinnt {} zu {}!",

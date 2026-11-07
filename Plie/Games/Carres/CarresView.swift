@@ -257,7 +257,7 @@ struct CarresView: View {
                 .buttonStyle(PressableStyle())
                 .accessibilityLabel(L("Ton initiale"))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(L("\(game.score(p)) carrés")).font(.plie(22))
+                    Text(game.score(p) == 1 ? L("1 carré") : L("\(game.score(p)) carrés")).font(.plie(22))
                     Text(p == 1 && game.vsComputer ? (mine ? L("L'ordinateur réfléchit…") : L("Ordinateur")) : (mine ? L("À toi de jouer") : L("Attends ton tour")))
                         .font(.plie(14, weight: .bold))
                         .foregroundStyle(mine ? CarresGame.colors[p] : Color(hex: 0x2A2438, opacity: 0.5))

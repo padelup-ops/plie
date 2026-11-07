@@ -2794,6 +2794,7 @@ enum ChineseStrings {
         "{} · {} carrés": "{} · {} 格",
         "Ton initiale": "你的首字母",
         "{} carrés": "{} 格",
+        "1 carré": "1 格",
         "Ordinateur": "电脑",
         "Attends ton tour": "等你的回合",
         "{} gagne {} à {} !": "{} 以 {} 比 {} 获胜！",

@@ -2794,6 +2794,7 @@ enum JapaneseStrings {
         "{} · {} carrés": "{}・{}マス",
         "Ton initiale": "あなたのイニシャル",
         "{} carrés": "{}マス",
+        "1 carré": "1マス",
         "Ordinateur": "コンピュータ",
         "Attends ton tour": "順番を待とう",
         "{} gagne {} à {} !": "{}の勝ち、{}対{}！",

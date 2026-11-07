@@ -2794,6 +2794,7 @@ enum SpanishStrings {
         "{} · {} carrés": "{} · {} cuadrados",
         "Ton initiale": "Tu inicial",
         "{} carrés": "{} cuadrados",
+        "1 carré": "1 cuadrado",
         "Ordinateur": "Ordenador",
         "Attends ton tour": "Espera tu turno",
         "{} gagne {} à {} !": "¡{} gana {} a {}!",
