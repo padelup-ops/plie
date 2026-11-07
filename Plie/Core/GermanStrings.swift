@@ -2824,5 +2824,9 @@ enum GermanStrings {
         "Appui long ou bouton Drapeau pour marquer une mine.": "Lange drücken oder Flaggen-Taste, um eine Mine zu markieren.",
         "Le premier toucher n'est jamais une mine.": "Dein erstes Tippen ist nie eine Mine.",
         "Trois tailles de grille": "Drei Feldgrößen",
+        "Nouveautés": "Neu",
+        "Chercher un jeu": "Spiel suchen",
+        "Aucun jeu ne correspond.": "Kein Spiel passt.",
+        "{} jeux trouvés": "{} Spiele gefunden",
     ]
 }

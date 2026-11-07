@@ -2824,5 +2824,9 @@ enum ChineseStrings {
         "Appui long ou bouton Drapeau pour marquer une mine.": "长按或点“插旗”按钮标记地雷。",
         "Le premier toucher n'est jamais une mine.": "第一次点击绝不会是地雷。",
         "Trois tailles de grille": "三种棋盘尺寸",
+        "Nouveautés": "新游戏",
+        "Chercher un jeu": "搜索游戏",
+        "Aucun jeu ne correspond.": "没有匹配的游戏。",
+        "{} jeux trouvés": "找到 {} 款游戏",
     ]
 }

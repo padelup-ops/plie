@@ -20,8 +20,10 @@ struct HubView: View {
     @State private var lastSwipe = Date.distantPast
     @State private var showPostures = false
     @AppStorage("hub.shelf") private var shelfID = "all"
+    @State private var query = ""
+    @FocusState private var searching: Bool
 
-    static let newGames: Set<GameID> = [.tape, .chifoumi, .doigts, .sourire, .duels, .mots]
+    static let newGames: Set<GameID> = [.cascade, .bataille, .carres, .mines]
 
     /// Les jeux à la une : ceux qui donnent le plus envie, et qui montrent ce que le Duo sait faire.
     static let featured: [GameID] = [.duels, .tape, .chifoumi, .boite, .croco, .sourire, .mots, .coupDoeil]
@@ -44,6 +46,7 @@ struct HubView: View {
     private var shelves: [Shelf] {
         [
             Shelf(id: "all", title: L("Tous"), symbol: "square.grid.2x2.fill", games: Self.allOrder),
+            Shelf(id: "new", title: L("Nouveautés"), symbol: "sparkle", games: Self.allOrder.filter { Self.newGames.contains($0) }),
             Shelf(id: "everywhere", title: L("Tous les iPhone"), symbol: "iphone",
                   games: Self.allOrder.filter { $0.playsEverywhere }),
             Shelf(id: "duo", title: L("À deux"), symbol: "person.2.fill",
@@ -318,8 +321,44 @@ struct HubView: View {
 
     // MARK: Les jeux
 
+    /// Recherche : sans tenir compte des majuscules ni des accents, dans le nom, la phrase d'accroche et le nombre de joueurs.
+    private var results: [GameID] {
+        let q = query.trimmingCharacters(in: .whitespaces).folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        guard !q.isEmpty else { return shelf.games }
+        return Self.allOrder.filter { g in
+            [g.title, g.tagline, g.players].contains { $0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current).contains(q) }
+        }
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass").foregroundStyle(Paper.ink.opacity(0.5))
+            TextField(L("Chercher un jeu"), text: $query)
+                .focused($searching)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .submitLabel(.search)
+                .foregroundStyle(Paper.ink)
+            if !query.isEmpty {
+                Button { query = ""; searching = false } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(Paper.ink.opacity(0.4))
+                }
+                .accessibilityLabel(L("Effacer"))
+            }
+        }
+        .font(.system(.body, design: .rounded, weight: .semibold))
+        .padding(.horizontal, 14)
+        .frame(height: 44)
+        .background(Capsule().fill(Paper.sheet).shadow(color: Paper.shadow.opacity(0.10), radius: 3, y: 2))
+        .overlay(Capsule().stroke(Paper.shadow.opacity(0.08), lineWidth: 0.75))
+        .padding(.horizontal, 20)
+    }
+
     private var library: some View {
         VStack(alignment: .leading, spacing: 4) {
+            searchField
+                .padding(.bottom, 4)
+            if query.isEmpty {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(shelves) { item in
@@ -349,9 +388,22 @@ struct HubView: View {
                 .padding(.vertical, 8)
             }
             .scrollClipDisabled()
+            } else if results.isEmpty {
+                Text(L("Aucun jeu ne correspond."))
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(Paper.ink.opacity(0.6))
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+            } else {
+                Text(L("\(results.count) jeux trouvés"))
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(Paper.ink.opacity(0.6))
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 6)
+            }
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150, maximum: 260), spacing: 14)], spacing: 14) {
-                ForEach(shelf.games) { game in
+                ForEach(results) { game in
                     GameCard(game: game, locked: !unlocked(game), isNew: Self.newGames.contains(game), progress: progress(for: game)) {
                         open(game)
                     } onHelp: {

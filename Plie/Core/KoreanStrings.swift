@@ -2824,5 +2824,9 @@ enum KoreanStrings {
         "Appui long ou bouton Drapeau pour marquer une mine.": "길게 누르거나 깃발 버튼으로 지뢰를 표시해요.",
         "Le premier toucher n'est jamais une mine.": "첫 번째 터치는 절대 지뢰가 아니에요.",
         "Trois tailles de grille": "세 가지 판 크기",
+        "Nouveautés": "새로 나온",
+        "Chercher un jeu": "게임 검색",
+        "Aucun jeu ne correspond.": "일치하는 게임이 없어요.",
+        "{} jeux trouvés": "게임 {}개",
     ]
 }

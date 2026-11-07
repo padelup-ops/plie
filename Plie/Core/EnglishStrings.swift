@@ -2005,5 +2005,9 @@ enum EnglishStrings {
         "Appui long ou bouton Drapeau pour marquer une mine.": "Long press or the Flag button to mark a mine.",
         "Le premier toucher n'est jamais une mine.": "Your first tap is never a mine.",
         "Trois tailles de grille": "Three grid sizes",
+        "Nouveautés": "New",
+        "Chercher un jeu": "Search games",
+        "Aucun jeu ne correspond.": "No game matches.",
+        "{} jeux trouvés": "{} games found",
     ]
 }

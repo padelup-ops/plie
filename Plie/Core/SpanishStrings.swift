@@ -2824,5 +2824,9 @@ enum SpanishStrings {
         "Appui long ou bouton Drapeau pour marquer une mine.": "Mantén pulsado o usa el botón Bandera para marcar una mina.",
         "Le premier toucher n'est jamais une mine.": "Tu primer toque nunca es una mina.",
         "Trois tailles de grille": "Tres tamaños de tablero",
+        "Nouveautés": "Novedades",
+        "Chercher un jeu": "Buscar un juego",
+        "Aucun jeu ne correspond.": "Ningún juego coincide.",
+        "{} jeux trouvés": "{} juegos encontrados",
     ]
 }

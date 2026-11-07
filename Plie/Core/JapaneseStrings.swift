@@ -2824,5 +2824,9 @@ enum JapaneseStrings {
         "Appui long ou bouton Drapeau pour marquer une mine.": "長押しか旗ボタンで地雷に印をつけよう。",
         "Le premier toucher n'est jamais une mine.": "最初のタップは絶対に地雷ではありません。",
         "Trois tailles de grille": "3つのグリッドサイズ",
+        "Nouveautés": "新着",
+        "Chercher un jeu": "ゲームを検索",
+        "Aucun jeu ne correspond.": "一致するゲームはありません。",
+        "{} jeux trouvés": "{}件のゲーム",
     ]
 }
