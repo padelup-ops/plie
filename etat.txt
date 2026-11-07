@@ -1,0 +1,56 @@
+APP 6827349081 Foldly : compteur de plis
+build 90 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-06T17:07
+build 88 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-05T11:47
+build 87 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-05T11:31
+build 82 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-04T16:51
+build 81 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-04T14:26
+build 80 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-04T14:10
+build 78 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-04T03:41
+build 77 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-04T02:51
+envoi 6 1.0 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 72 1.0.5 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 47 1.0 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 52 1.0.2 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 62 1.0.3 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 63 1.0.3 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+version App Store 1.0.7 | READY_FOR_SALE
+version App Store 1.0.6 | READY_FOR_SALE
+version App Store 1.0.5 | READY_FOR_SALE
+version App Store 1.0.4 | READY_FOR_SALE
+version App Store 1.0.3 | READY_FOR_SALE
+captures 1.0.7 ja ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.7 de-DE ['APP_IPHONE_DUO:6', 'APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.7 fr-FR ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.7 zh-Hans ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.7 es-ES ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.7 en-US ['APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6', 'APP_IPHONE_67:6']
+captures 1.0.7 ko ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+build choisi 1.0.7 88
+captures 1.0.6 de-DE ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.6 fr-FR ['APP_IPHONE_DUO:6', 'APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.6 ja ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.6 en-US ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.6 es-ES ['APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6', 'APP_IPHONE_67:6']
+captures 1.0.6 zh-Hans ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+captures 1.0.6 ko ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+build choisi 1.0.6 81
+captures 1.0.5 fr-FR ['APP_IPHONE_DUO:6', 'APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.5 zh-Hans ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+captures 1.0.5 ja ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.5 ko ['APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6', 'APP_IPHONE_67:6']
+captures 1.0.5 es-ES ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.5 de-DE ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.5 en-US ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+build choisi 1.0.5 78
+prix : ['']
+disponibilité : oui
+achats intégrés : [('com.padelup.clapet.plus', 'APPROVED')]
+usage build 90 : {'installCount': 0, 'crashCount': 0, 'sessionCount': 0, 'inviteCount': 2, 'feedbackCount': 0}
+usage build 88 : {'installCount': 2, 'crashCount': 0, 'sessionCount': 6, 'inviteCount': 2, 'feedbackCount': 0}
+usage build 87 : {'installCount': 1, 'crashCount': 0, 'sessionCount': 2, 'inviteCount': 2, 'feedbackCount': 0}
+usage build 82 : {'installCount': 1, 'crashCount': 0, 'sessionCount': 4, 'inviteCount': 2, 'feedbackCount': 0}
+testeurs groupe « Clapet interne » (interne) : 2 · invitation {'EMAIL': 2} · état {'INSTALLED': 2}
+testeurs groupe « Clapet interne » (interne) : 0 · invitation {} · état {}
+testeurs groupe « Clapet interne » (interne) : 0 · invitation {} · état {}
+testeurs groupe « Duofolds extern testers » (externe) : 63 · invitation {'PUBLIC_LINK': 61, 'EMAIL': 2} · état {'INSTALLED': 63} · lien public actif, limite None
+testeurs au total : 63 · état {'INSTALLED': 63} · invitation {'EMAIL': 2, 'PUBLIC_LINK': 61}
