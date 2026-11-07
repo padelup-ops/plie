@@ -27,20 +27,20 @@ if ONLY_EMAIL:
 found_only = False
 
 WHATS_NEW = {
-    "fr-FR": """Nouveau jeu à tester : CASCADE !
+    "fr-FR": """Origamo est sorti sur l'App Store !
 
-Plie le Duo en L : les pièces tombent sur la moitié debout, rebondissent sur les clous et atterrissent sur le plateau à plat, où le poussoir les fait tomber. Améliore ta machine, vise la cible rose, trouve le diamant... Et plie-déplie le Duo d'un coup pour secouer le plateau.
+Merci énormément d'avoir testé le jeu : vos retours l'ont rendu bien meilleur.
 
-Dites-nous si c'est trop facile, trop lent, ou si les pièces se comportent bizarrement.
+La bêta se termine dans 2 jours (le 9 novembre). Installez dès maintenant la version de l'App Store pour continuer à jouer : https://apps.apple.com/app/id6825605393
 
-Rappel : Origamo est sorti sur l'App Store : https://apps.apple.com/app/id6825605393""",
-    "en-US": """New game to test: CASCADE!
+Vos parties sont gardées quand vous passez à la version de l'App Store. Et si le jeu vous plaît, une note ou un avis sur l'App Store nous aide énormément.""",
+    "en-US": """Origamo is out on the App Store!
 
-Fold the Duo into an L: coins fall down the standing half, bounce off the pins and land on the flat board, where the pusher shoves them off. Upgrade your machine, aim for the pink target, find the diamond... And fold-unfold the Duo quickly to shake the board.
+Thank you so much for testing the game: your feedback made it much better.
 
-Tell us if it feels too easy, too slow, or if the coins behave strangely.
+The beta ends in 2 days (November 9). Install the App Store version now to keep playing: https://apps.apple.com/app/id6825605393
 
-Reminder: Origamo is out on the App Store: https://apps.apple.com/app/id6825605393""",
+Your progress is kept when you switch to the App Store version. And if you enjoy the game, a rating or review on the App Store helps us a lot.""",
 }
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
