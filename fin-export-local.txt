@@ -1,0 +1,4 @@
+2026-11-07 01:59:49.350 xcodebuild[44576:107882] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/Clapet_2026-11-07_01-59-49.348.xcdistributionlogs".
+Exported Clapet to: /Users/runner/work/_temp/local
+** EXPORT SUCCEEDED **
+
