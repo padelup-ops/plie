@@ -443,10 +443,10 @@ final class PecheGame {
         let fast = tooFast
         tooFastWarning = fast
         let target = (r * (0.3 + pull) + (fast ? 0.9 : 0)) / rodStrength
-        tension += (target - tension) * min(1, dt * 5)
+        tension += (target - tension) * min(1, dt * 3.5)
         if tension > 1 {
             overload += dt
-            if overload > 0.25 { snap(); return }
+            if overload > 0.5 { snap(); return }
         } else {
             overload = max(0, overload - dt)
         }

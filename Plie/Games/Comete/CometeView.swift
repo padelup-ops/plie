@@ -164,6 +164,9 @@ final class CometeRenderer {
 
         // Les étincelles
         for s in g.sparks { c.dot(Int(s.x), Int(s.y), PX.c(s.color)) }
+        // La limite du bas (sous elle, le bouton BOMBE)
+        let limit = Int(g.bottomLimit) + 3
+        for x in stride(from: 0, to: g.cols, by: 3) { c.dot(x, limit, PX.c(0x3A2A7A)) }
         c.ctx.restoreGState()
 
         // L'éclair de la bombe
@@ -321,7 +324,7 @@ struct CometeView: View {
         let ptPerPx = size.width / CGFloat(game.cols)
         game.configure(rows: Int((size.height / ptPerPx).rounded()),
                        topReserve: Double((safe.safeAreaInsets.top + 60) / ptPerPx),
-                       bottomReserve: Double((safe.safeAreaInsets.bottom + 12) / ptPerPx))
+                       bottomReserve: Double((safe.safeAreaInsets.bottom + 72) / ptPerPx))
     }
 
     private var hud: some View {
