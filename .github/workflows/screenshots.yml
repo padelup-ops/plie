@@ -81,11 +81,15 @@ jobs:
           for ITEM in ${{ github.event.inputs.routes }}; do
             R=${ITEM%%+*}
             EXTRA=""
-            if [ "$ITEM" != "$R" ]; then EXTRA="-boardDemo ${ITEM#*+}"; fi
+            if [ "$ITEM" != "$R" ]; then
+              A=${ITEM#*+}
+              # « +demo » lance la partie automatique du jeu (mode démo), sinon -boardDemo
+              if [ "$A" = "demo" ]; then EXTRA="-demo $R"; else EXTRA="-boardDemo $A"; fi
+            fi
             N=$(echo "$ITEM" | tr ':+' '--')
             xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
             xcrun simctl launch "$UDID" "$BID" -screenshotRoute "$R" $EXTRA > "shots/lancement-$N.txt" 2>&1 || true
-            sleep 6
+            if [ "${ITEM#*+}" = "demo" ]; then sleep 14; else sleep 6; fi
             xcrun simctl io "$UDID" screenshot --display=1 --mask=black "shots/$N-ecran1.png" 2>>shots/erreurs-captures.txt || true
             if xcrun simctl spawn "$UDID" launchctl list | grep -q "$BID"; then
               echo "$R : l'app tourne" >> shots/etat.txt
