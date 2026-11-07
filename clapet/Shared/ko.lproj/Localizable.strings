@@ -639,7 +639,7 @@
 "Import a file" = "파일 가져오기";
 "%lld days found, %lld folds" = "%lld일, %lld번 찾음";
 "From %@ to %@" = "%@부터 %@까지";
-"%lld days already counted by Foldly stay as they are." = "Foldly가 이미 센 %lld일은 그대로 유지돼요.";
+"%lld days already counted by Foldly keep the higher of the two counts." = "Foldly가 이미 센 %lld일은 두 숫자 중 큰 쪽을 남겨요.";
 "Add these days" = "이 날들 추가";
 "Import your history" = "기록 가져오기";
 "A CSV, text or JSON file from Scriptable, a shortcut or another app: one line per day (date, folds, unfolds) or one line per fold (its date and time). Days already counted by Foldly are never counted twice." = "Scriptable, 단축어 또는 다른 앱의 CSV, 텍스트, JSON 파일: 하루에 한 줄(날짜, 접힘, 펼침) 또는 한 번에 한 줄(날짜와 시간). Foldly가 이미 센 날은 두 번 세지 않아요.";

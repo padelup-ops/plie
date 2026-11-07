@@ -639,7 +639,7 @@
 "Import a file" = "Datei importieren";
 "%lld days found, %lld folds" = "%lld Tage gefunden, %lld Faltungen";
 "From %@ to %@" = "Vom %@ bis %@";
-"%lld days already counted by Foldly stay as they are." = "%lld Tage, die Foldly schon gezählt hat, bleiben unverändert.";
+"%lld days already counted by Foldly keep the higher of the two counts." = "%lld Tage, die Foldly schon gezählt hat, behalten die höhere der beiden Zahlen.";
 "Add these days" = "Diese Tage hinzufügen";
 "Import your history" = "Verlauf importieren";
 "A CSV, text or JSON file from Scriptable, a shortcut or another app: one line per day (date, folds, unfolds) or one line per fold (its date and time). Days already counted by Foldly are never counted twice." = "Eine CSV-, Text- oder JSON-Datei aus Scriptable, einem Kurzbefehl oder einer anderen App: eine Zeile pro Tag (Datum, Faltungen, Aufklappen) oder eine Zeile pro Faltung (Datum und Uhrzeit). Tage, die Foldly schon gezählt hat, werden nie doppelt gezählt.";

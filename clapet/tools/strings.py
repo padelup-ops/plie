@@ -720,7 +720,7 @@ FR = {
     "Import a file": "Importer un fichier",
     "%lld days found, %lld folds": "%lld jours trouvés, %lld plis",
     "From %@ to %@": "Du %@ au %@",
-    "%lld days already counted by Foldly stay as they are.": "%lld jours déjà comptés par Foldly restent tels quels.",
+    "%lld days already counted by Foldly keep the higher of the two counts.": "%lld jours déjà comptés par Foldly gardent le plus grand des deux nombres.",
     "Add these days": "Ajouter ces jours",
     "Import your history": "Importer ton historique",
     "A CSV, text or JSON file from Scriptable, a shortcut or another app: one line per day (date, folds, unfolds) or one line per fold (its date and time). Days already counted by Foldly are never counted twice.": "Un fichier CSV, texte ou JSON venant de Scriptable, d'un raccourci ou d'une autre app : une ligne par jour (date, plis, ouvertures) ou une ligne par pli (sa date et son heure). Les jours déjà comptés par Foldly ne sont jamais comptés deux fois.",

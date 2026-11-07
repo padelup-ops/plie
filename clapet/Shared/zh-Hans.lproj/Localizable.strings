@@ -639,7 +639,7 @@
 "Import a file" = "导入文件";
 "%lld days found, %lld folds" = "找到 %lld 天，%lld 次折叠";
 "From %@ to %@" = "从 %@ 到 %@";
-"%lld days already counted by Foldly stay as they are." = "Foldly 已记录的 %lld 天保持不变。";
+"%lld days already counted by Foldly keep the higher of the two counts." = "Foldly 已记录的 %lld 天保留两者中较大的数字。";
 "Add these days" = "添加这些日子";
 "Import your history" = "导入你的历史";
 "A CSV, text or JSON file from Scriptable, a shortcut or another app: one line per day (date, folds, unfolds) or one line per fold (its date and time). Days already counted by Foldly are never counted twice." = "来自 Scriptable、快捷指令或其他应用的 CSV、文本或 JSON 文件：每天一行（日期、折叠、展开）或每次折叠一行（日期和时间）。Foldly 已记录的日子绝不会重复计算。";

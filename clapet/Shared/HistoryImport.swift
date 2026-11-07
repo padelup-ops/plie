@@ -79,9 +79,15 @@ struct HistoryImport {
                 else if let sub = v as? [String: Any] { fromObject(sub, dateHint: k) }
             }
             if !dated {
-                for v in o.values {
-                    if v is [Any] { let sub = parseJSON(v); if !sub.isEmpty { return sub } }
+                // Un historique rangé plus bas : { "history": [...] } ou, comme Scriptable,
+                // { "total": 493, "days": { "2026-10-27": 47, … }, "hours": { … } }.
+                // On garde la partie qui donne le plus de jours (pas « hours », qui ne parle que d'aujourd'hui).
+                var best: HistoryImport?
+                for v in o.values where v is [Any] || v is [String: Any] {
+                    let sub = parseJSON(v)
+                    if !sub.isEmpty, sub.days.count > (best?.days.count ?? 0) { best = sub }
                 }
+                if let best { return best }
                 fromObject(o)
             }
         }
@@ -230,21 +236,24 @@ enum DateReader {
 }
 
 extension ClapetStats {
-    /// Ajoute un historique importé. Les jours déjà comptés par Foldly sont gardés tels quels (pas de double compte).
-    /// Rend le nombre de jours ajoutés.
+    /// Ajoute un historique importé. Foldly et l'autre outil ont compté les mêmes plis : pour chaque jour,
+    /// on garde le plus grand des deux nombres (jamais la somme). Aujourd'hui compris : si l'autre outil
+    /// tournait avant l'installation de Foldly, ses plis du matin ne sont pas perdus.
+    /// Rend le nombre de jours ajoutés ou complétés.
     @discardableResult
     mutating func importHistory(_ imp: HistoryImport) -> Int {
         let today = Self.key()
         var added = 0
-        for (key, d) in imp.days where key < today {
-            let mine = days[key] ?? DayCount()
-            guard mine.closes == 0 && mine.opens == 0 else { continue }
-            var n = mine
-            n.closes = d.closes
-            n.opens = d.opens
+        for (key, d) in imp.days where key <= today {
+            var n = days[key] ?? DayCount()
+            let moreCloses = max(0, d.closes - n.closes)
+            let moreOpens = max(0, d.opens - n.opens)
+            guard moreCloses > 0 || moreOpens > 0 else { continue }
+            n.closes += moreCloses
+            n.opens += moreOpens
             days[key] = n
-            totalCloses += d.closes
-            totalOpens += d.opens
+            totalCloses += moreCloses
+            totalOpens += moreOpens
             added += 1
             if firstDay.map({ key < $0 }) ?? true { firstDay = key }
         }
@@ -252,11 +261,8 @@ extension ClapetStats {
         return added
     }
 
-    /// Combien de jours du fichier seraient gardés tels quels (déjà dans Foldly, ou aujourd'hui).
+    /// Combien de jours du fichier Foldly a déjà comptés (on y garde le plus grand des deux nombres).
     func importOverlap(_ imp: HistoryImport) -> Int {
-        let today = Self.key()
-        return imp.days.keys.filter { key in
-            key >= today || ((days[key]?.closes ?? 0) > 0 || (days[key]?.opens ?? 0) > 0)
-        }.count
+        imp.days.keys.filter { key in (days[key]?.closes ?? 0) > 0 || (days[key]?.opens ?? 0) > 0 }.count
     }
 }

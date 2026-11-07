@@ -639,7 +639,7 @@
 "Import a file" = "ファイルを読み込む";
 "%lld days found, %lld folds" = "%lld日分、%lld回が見つかりました";
 "From %@ to %@" = "%@ 〜 %@";
-"%lld days already counted by Foldly stay as they are." = "Foldlyで記録済みの%lld日はそのままです。";
+"%lld days already counted by Foldly keep the higher of the two counts." = "Foldlyで記録済みの%lld日は、多い方の数を残します。";
 "Add these days" = "これらの日を追加";
 "Import your history" = "履歴を読み込む";
 "A CSV, text or JSON file from Scriptable, a shortcut or another app: one line per day (date, folds, unfolds) or one line per fold (its date and time). Days already counted by Foldly are never counted twice." = "Scriptable、ショートカット、別のアプリのCSV・テキスト・JSONファイル：1日1行（日付、折りたたみ、開いた回数）または1回1行（日時）。Foldlyで記録済みの日が二重に数えられることはありません。";

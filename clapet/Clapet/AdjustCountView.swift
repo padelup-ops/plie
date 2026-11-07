@@ -87,7 +87,7 @@ struct AdjustCountView: View {
                             }
                             let overlap = model.stats.importOverlap(found)
                             if overlap > 0 {
-                                Text("\(overlap) days already counted by Foldly stay as they are.")
+                                Text("\(overlap) days already counted by Foldly keep the higher of the two counts.")
                                     .font(.footnote).foregroundStyle(.secondary)
                             }
                         }
