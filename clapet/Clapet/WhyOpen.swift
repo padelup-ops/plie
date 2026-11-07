@@ -120,7 +120,7 @@ struct WhyPrompt: View {
                         withAnimation(.spring(duration: 0.35)) { model.recordWhy(r) }
                     } label: {
                         VStack(spacing: 6) {
-                            Text(r.emoji).font(.system(size: 30))
+                            Image(systemName: r.symbol).font(.system(size: 24, weight: .regular)).foregroundStyle(WhyRule.color(r)).frame(height: 32)
                             Text(WhyRule.label(r))
                                 .font(.system(.caption, design: .rounded, weight: .semibold))
                                 .lineLimit(1)
@@ -163,11 +163,11 @@ struct WhyCard: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 6) {
                 Image(systemName: "questionmark.bubble.fill")
-                Text("WHY YOU OPEN IT").tracking(0.8)
+                Text("Why you open it")
                 Spacer()
                 if locked { PlusBadge() }
             }
-            .font(.system(size: 12, weight: .bold))
+            .font(.subheadline.weight(.semibold))
             .foregroundStyle(.secondary)
 
             if locked {
@@ -188,7 +188,7 @@ struct WhyCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Your number one reason this week").font(.subheadline).foregroundStyle(.secondary)
                     HStack(alignment: .firstTextBaseline, spacing: 10) {
-                        Text(verbatim: "\(top.emoji) ") + Text(WhyRule.label(top))
+                        Text(WhyRule.label(top))
                         Spacer()
                         Text(verbatim: "\(pct) %").foregroundStyle(WhyRule.color(top))
                     }
@@ -203,7 +203,7 @@ struct WhyCard: View {
                     ForEach(WhyReason.allCases, id: \.self) { r in
                         let n = counts[r.rawValue]
                         HStack(spacing: 10) {
-                            Text(r.emoji).frame(width: 26)
+                            Image(systemName: r.symbol).font(.subheadline).foregroundStyle(.secondary).frame(width: 26)
                             Text(WhyRule.label(r)).font(.subheadline.weight(.medium)).frame(width: 120, alignment: .leading)
                             GeometryReader { g in
                                 ZStack(alignment: .leading) {

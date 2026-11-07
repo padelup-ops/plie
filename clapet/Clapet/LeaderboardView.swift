@@ -67,7 +67,7 @@ struct LeaderboardView: View {
         VStack(spacing: 10) {
             Image(systemName: "trophy.fill")
                 .font(.system(size: 46))
-                .foregroundStyle(LinearGradient(colors: [.yellow, .orange], startPoint: .top, endPoint: .bottom))
+                .foregroundStyle(Color.orange)
                 .frame(width: 92, height: 92)
                 .background(Color.yellow.opacity(0.15), in: Circle())
             Text("How do you compare?")
@@ -109,7 +109,7 @@ struct LeaderboardView: View {
                 if let rank = ranks[id] {
                     VStack(spacing: 0) {
                         Text(verbatim: "#\(rank)")
-                            .font(.system(.title3, design: .rounded).weight(.heavy))
+                            .font(.system(.title3, design: .rounded).weight(.bold))
                             .foregroundStyle(color)
                         Text("Rank")
                             .font(.caption2)
@@ -223,7 +223,7 @@ struct LeaderboardButton: View {
     var body: some View {
         Button { show = true } label: {
             Image(systemName: "trophy.fill")
-                .foregroundStyle(LinearGradient(colors: [.yellow, .orange], startPoint: .top, endPoint: .bottom))
+                .foregroundStyle(Color.orange)
                 .overlay(alignment: .topTrailing) {
                     if !seen {
                         Circle().fill(.red).frame(width: 9, height: 9).offset(x: 5, y: -4)

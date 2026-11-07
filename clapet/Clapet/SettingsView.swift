@@ -33,7 +33,7 @@ struct SettingsView: View {
                 if !DuoFolds.paidApp {
                 Section {
                     if store.hasPlus {
-                        Label { Text("Foldly+ is unlocked. Thank you!") } icon: {
+                        Label { Text("Foldly+ is unlocked. Thank you.") } icon: {
                             Image(systemName: "checkmark.seal.fill").foregroundStyle(Color(red: 0.43, green: 0.84, blue: 0.65))
                         }
                     } else {

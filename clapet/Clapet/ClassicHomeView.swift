@@ -37,9 +37,8 @@ struct ClassicCardTitle: View {
             if let symbol { Image(systemName: symbol) }
             text
         }
-        .font(.footnote.weight(.semibold))
+        .font(.subheadline.weight(.semibold))
         .foregroundStyle(Color.dfAccent)
-        .textCase(.uppercase)
     }
 }
 

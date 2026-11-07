@@ -246,6 +246,15 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 小问题修复和改进。",
     },
+    "1.0.9": {
+        "en-US": "• A calmer, cleaner look: simpler titles, line icons instead of emoji, and shorter durations in Your sessions so everything fits.\n• Small fixes and improvements.",
+        "fr-FR": "• Un design plus calme et plus net : des titres plus simples, des icônes à la place des emojis, et des durées plus courtes dans Tes sessions pour que tout tienne.\n• Petites corrections et améliorations.",
+        "de-DE": "• Ein ruhigeres, klareres Design: einfachere Titel, Symbole statt Emojis und kürzere Zeitangaben in Deine Sitzungen, damit alles passt.\n• Kleine Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• Un diseño más tranquilo y limpio: títulos más sencillos, iconos en lugar de emojis y duraciones más cortas en Tus sesiones para que todo quepa.\n• Pequeñas correcciones y mejoras.",
+        "ja": "• より落ち着いたすっきりデザインに：シンプルな見出し、絵文字の代わりにアイコン、セッションの時間表示を短くしました。\n• 細かな修正と改善。",
+        "ko": "• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
+    },
 }
 NEW_VERSION = os.environ.get("NEW_VERSION", "").strip()
 if NEW_VERSION:
@@ -266,7 +275,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -311,7 +320,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})

@@ -89,7 +89,7 @@
 "Your streak and your last 30 days against other Foldly users and your friends, with Game Center." = "連続日数と直近30日を、Game Centerでほかのユーザーや友達と比べられます。";
 "Pick your own colors for the whole app: the accent and the background." = "アプリ全体の色を自分で選べます：アクセントと背景。";
 "Rate Foldly on the App Store" = "App StoreでFoldlyを評価";
-"Foldly is on the App Store!" = "FoldlyがApp Storeに登場！";
+"Foldly is on the App Store" = "FoldlyがApp Storeに登場";
 "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta." = "テストにご協力いただきありがとうございます。データを残すにはApp Store版をインストールしてください。このベータ版と入れ替わるだけです。";
 "The beta ends on November 9." = "ベータ版は11月9日に終了します。";
 "Get it on the App Store" = "App Storeで入手";
@@ -130,11 +130,9 @@
 "Weekly and monthly recaps" = "週間・月間まとめ";
 "Every fold since you started, like an odometer for your hinge." = "使い始めてからのすべての折りたたみ。ヒンジの走行距離計のように。";
 "Next: %@" = "次：%@";
-"SINCE DAY ONE" = "初日から";
 "Next milestone: %@" = "次のマイルストーン：%@";
 "Since day one" = "初日から";
 "When you unfold the most: your typical week, hour by hour." = "最も開く時間帯：典型的な1週間を1時間ごとに。";
-"YOUR HOURS" = "あなたの時間帯";
 "%@ folds since day one" = "初日から%@回";
 "%lld folds since day one" = "初日から%lld回";
 "Folds by day and hour" = "曜日・時間ごとの回数";
@@ -207,7 +205,7 @@
 "Five colors for your widgets." = "ウィジェット用の5色。";
 "Export" = "書き出し";
 "Your history as a spreadsheet (CSV)." = "履歴をスプレッドシート（CSV）で。";
-"Foldly+ is unlocked. Thank you!" = "Foldly+のロックが解除されました。ありがとうございます！";
+"Foldly+ is unlocked. Thank you." = "Foldly+のロックが解除されました。ありがとうございます。";
 "Unlock for %@" = "%@でロック解除";
 "Unlock Foldly+" = "Foldly+のロックを解除";
 "Restore purchases" = "購入を復元";
@@ -311,7 +309,7 @@
 "Choose **iPhone Opened or Closed**." = "**iPhoneを開いたときまたは閉じたとき**を選びます。";
 "Keep **Closed** only, choose **Run Immediately**, then **Next**." = "**閉じたとき**だけを残し、**すぐに実行**を選んで**次へ**。";
 "Search **Foldly**, pick **Count a fold**, then turn off **Show When Run**." = "**Foldly**を検索し、**1回カウント**を選んで**実行時に表示**をオフにします。";
-"Check that the automation is **on**. Done!" = "オートメーションが**オン**か確認します。完了！";
+"Check that the automation is **on**. Done." = "オートメーションが**オン**か確認します。完了。";
 "Do the same with **Opened** and **Count an opening** to measure the time open." = "**開いたとき**と**開いた回数をカウント**でも同じように設定すると、開いていた時間を計測します。";
 "Tap the video to start again" = "動画をタップして最初から再生";
 "Animated guide: create the automation in Shortcuts." = "アニメーションガイド：ショートカットでオートメーションを作成。";
@@ -577,8 +575,8 @@
 "Badges" = "バッジ";
 "%lld of %lld unlocked" = "%2$lld個中%1$lld個解除";
 "Unlocked" = "解除済み";
-"New badge!" = "新しいバッジ！";
-"%lld new badges!" = "新しいバッジが%lld個！";
+"New badge" = "新しいバッジ";
+"%lld new badges" = "新しいバッジが%lld個";
 "Great" = "やった";
 "First sprout" = "最初の芽";
 "Grow your first plant" = "最初の植物を育てる";
@@ -615,7 +613,6 @@
 "Someone" = "誰か";
 "Why did you open it?" = "なぜ開いたの？";
 "Touch and hold to answer in one tap." = "長押しすると1タップで答えられます。";
-"WHY YOU OPEN IT" = "開く理由";
 "Each time you unfold your Duo, answer in one tap: a notification, boredom, work or someone. See the real reasons behind your opens." = "Duoを開くたびに、1タップで答えよう：通知、退屈、仕事、誰か。開く本当の理由がわかります。";
 "When you unfold your Duo, answer the question in one tap. Your reasons for the week show up here." = "Duoを開いたら、1タップで質問に答えよう。今週の理由がここに表示されます。";
 "Your number one reason this week" = "今週のいちばんの理由";
@@ -651,7 +648,7 @@
 "%lld days added to your history." = "%lld日分を履歴に追加しました。";
 "NEW" = "新機能";
 "Bring your past folds" = "以前の記録を取り込む";
-"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "ご要望にお応えして：Scriptable、ショートカット、別のアプリから履歴を1日ずつ読み込んだり、手動で日を追加したりできます。";
+"Import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "Scriptable、ショートカット、別のアプリから履歴を1日ずつ読み込んだり、手動で日を追加したりできます。";
 "Import my history" = "履歴を読み込む";
 "New: import your past folds" = "新機能：以前の記録を読み込む";
 "A new version is available" = "新しいバージョンがあります";
@@ -659,7 +656,7 @@
 "Update" = "アップデート";
 "Please update Foldly" = "Foldlyをアップデートしてください";
 "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "このバージョンには最新版で修正された問題があります。記録は安全にiPhoneに残ります。";
-"YOUR SESSIONS" = "セッション";
+"Your sessions" = "セッション";
 "Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here." = "Duoを開くたびに、開いている時間をFoldlyが計ります。セッションはここに表示されます。";
 "Open on average, each time" = "1回あたりの平均オープン時間";
 "Estimated from your daily totals. Exact sessions are recorded from now on." = "1日の合計からの推定です。正確なセッションは今後記録されます。";
@@ -672,3 +669,4 @@
 "Under 1 min" = "1分未満";
 "1 to 10 min" = "1〜10分";
 "Over 10 min" = "10分以上";
+"New" = "新機能";

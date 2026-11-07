@@ -22,7 +22,7 @@ struct HoursWidgetView: View {
         VStack(alignment: .leading, spacing: family == .systemLarge ? 12 : 7) {
             HStack(spacing: 5) {
                 Image(systemName: "clock.badge.checkmark")
-                Text("YOUR HOURS").tracking(0.8)
+                Text("Your hours")
                 Spacer(minLength: 0)
                 if let peak = s.peakHour {
                     Text("Peak \(HoursText.hour(peak))")
@@ -82,7 +82,7 @@ struct LifetimeWidgetView: View {
             switch family {
             case .accessoryRectangular:
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("SINCE DAY ONE")
+                    Text("Since day one")
                         .font(.system(size: 11, weight: .bold))
                         .widgetAccentable()
                     Text(total.formatted())
@@ -101,7 +101,7 @@ struct LifetimeWidgetView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 5) {
                         Image(systemName: "gauge.with.needle")
-                        Text("SINCE DAY ONE").tracking(0.8)
+                        Text("Since day one")
                     }
                     .font(.system(size: 12, weight: .bold))
                     .foregroundStyle(Palette.secondary)

@@ -115,17 +115,17 @@ struct WhyTeaser: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "questionmark.bubble.fill")
-                Text("WHY YOU OPEN IT").tracking(0.8)
+                Text("Why you open it")
                 Spacer()
                 PlusBadge()
             }
-            .font(.system(size: 11, weight: .bold))
+            .font(.footnote.weight(.semibold))
             .foregroundStyle(.secondary)
             ZStack {
                 VStack(spacing: 7) {
                     ForEach(sample, id: \.0) { r, v in
                         HStack(spacing: 8) {
-                            Text(r.emoji).frame(width: 22)
+                            Image(systemName: r.symbol).font(.footnote).foregroundStyle(.secondary).frame(width: 22)
                             GeometryReader { g in
                                 ZStack(alignment: .leading) {
                                     Capsule().fill(Color.primary.opacity(0.08))
@@ -178,13 +178,10 @@ struct ImportPromo: View {
                     .frame(width: 34)
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
-                        Text("NEW").font(.caption2.weight(.heavy)).tracking(0.8)
-                            .padding(.horizontal, 6).padding(.vertical, 2)
-                            .background(Capsule().fill(Color.dfAccent))
-                            .foregroundStyle(Color.dfOnAccent)
                         Text("Bring your past folds").font(.headline)
+                        Text("New").font(.footnote.weight(.medium)).foregroundStyle(Color.dfAccent)
                     }
-                    Text("You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand.")
+                    Text("Import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)

@@ -14,7 +14,7 @@ struct ShortcutTutorialView: View {
         Text("Choose **iPhone Opened or Closed**."),
         Text("Keep **Closed** only, choose **Run Immediately**, then **Next**."),
         Text("Search **Foldly**, pick **Count a fold**, then turn off **Show When Run**."),
-        Text("Check that the automation is **on**. Done!"),
+        Text("Check that the automation is **on**. Done."),
         Text("Do the same with **Opened** and **Count an opening** to measure the time open."),
     ]
 

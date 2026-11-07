@@ -49,7 +49,7 @@ struct PlusView: View {
                     .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfCard))
 
                     if store.hasPlus {
-                        Label { Text("Foldly+ is unlocked. Thank you!") } icon: { Image(systemName: "checkmark.seal.fill") }
+                        Label { Text("Foldly+ is unlocked. Thank you.") } icon: { Image(systemName: "checkmark.seal.fill") }
                             .font(.headline)
                             .foregroundStyle(Color.dfAccent)
                             .padding(.vertical, 8)
@@ -136,7 +136,7 @@ struct PlusView: View {
         return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: "iphone.gen3")
-                Text("FOLDLY").tracking(0.6)
+                Text(verbatim: "Foldly")
                 Spacer()
             }
             .font(.system(size: 12, weight: .semibold))

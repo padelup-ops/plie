@@ -368,8 +368,7 @@ struct WeekShareCard: View {
         let busiest = recap.busiest.map { ClapetStats.key($0.date) }
         VStack(alignment: .leading, spacing: 0) {
             Text((recap.start..<recap.end).formatted(.interval.day().month(.wide)))
-                .font(.system(size: 14, weight: .bold))
-                .textCase(.uppercase)
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(mint)
             Spacer(minLength: 12)
             Text("This week I folded my phone")

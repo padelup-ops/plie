@@ -96,7 +96,7 @@ struct ClapetWidgetView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 5) {
                 Image(systemName: "iphone.gen3")
-                Text("FOLDLY").tracking(0.8)
+                Text(verbatim: "Foldly")
             }
             .font(.system(size: 12, weight: .bold))
             .foregroundStyle(.secondary)
@@ -169,9 +169,8 @@ struct ClapetWidgetView: View {
         HStack(spacing: 6) {
             Image(systemName: "iphone.gen3")
                 .font(.system(size: 13, weight: .semibold))
-            Text("FOLDLY")
-                .font(.system(size: 13, weight: .bold))
-                .tracking(0.8)
+            Text(verbatim: "Foldly")
+                .font(.system(size: 13, weight: .semibold))
                 .lineLimit(1)
             if !DuoFolds.paidApp && needsPlus && !stats.plus && entry.preview {
                 Text("PLUS")
@@ -593,9 +592,7 @@ struct PhoneDownWidgetView: View {
                 .foregroundStyle(accent)
                 .widgetAccentable()
             Text("Open & closed")
-                .font(.system(size: 13, weight: .bold))
-                .textCase(.uppercase)
-                .tracking(0.6)
+                .font(.system(size: 13, weight: .semibold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .foregroundStyle(Palette.secondary)

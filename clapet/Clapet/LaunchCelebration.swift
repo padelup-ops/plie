@@ -23,8 +23,8 @@ struct LaunchCelebration: View {
                     .scaleEffect(appear ? 1 : 0.3)
                     .rotationEffect(.degrees(appear ? 0 : -30))
                 VStack(spacing: 10) {
-                    Text("Foldly is on the App Store!")
-                        .font(.system(.largeTitle, design: .rounded).weight(.heavy))
+                    Text("Foldly is on the App Store")
+                        .font(.system(.largeTitle, design: .rounded).weight(.bold))
                         .multilineTextAlignment(.center)
                     Text("Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta.")
                         .font(.title3)

@@ -61,6 +61,16 @@ enum WhyReason: Int, CaseIterable, Codable {
         case .someone: return "❤️"
         }
     }
+
+    /// L'icône (SF Symbols) affichée dans l'app ; l'emoji reste pour les notifications.
+    var symbol: String {
+        switch self {
+        case .notification: return "bell"
+        case .boredom: return "moon.zzz"
+        case .work: return "briefcase"
+        case .someone: return "person.2"
+        }
+    }
 }
 
 struct WhyEntry: Codable, Equatable {

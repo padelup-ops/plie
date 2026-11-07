@@ -89,7 +89,7 @@
 "Your streak and your last 30 days against other Foldly users and your friends, with Game Center." = "Game Center로 연속 기록과 최근 30일을 다른 Foldly 사용자 및 친구와 비교하세요.";
 "Pick your own colors for the whole app: the accent and the background." = "앱 전체의 색상을 직접 고르세요: 강조 색상과 배경.";
 "Rate Foldly on the App Store" = "App Store에서 Foldly 평가하기";
-"Foldly is on the App Store!" = "Foldly가 App Store에 출시되었습니다!";
+"Foldly is on the App Store" = "Foldly가 App Store에 출시되었습니다";
 "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta." = "테스트해 주셔서 감사합니다. 데이터를 유지하려면 App Store 버전을 설치하세요. 이 베타를 그대로 대체합니다.";
 "The beta ends on November 9." = "베타는 11월 9일에 종료됩니다.";
 "Get it on the App Store" = "App Store에서 받기";
@@ -130,11 +130,9 @@
 "Weekly and monthly recaps" = "주간·월간 요약";
 "Every fold since you started, like an odometer for your hinge." = "시작한 뒤로 접은 모든 횟수, 힌지의 주행 거리계처럼.";
 "Next: %@" = "다음: %@";
-"SINCE DAY ONE" = "첫날부터";
 "Next milestone: %@" = "다음 목표: %@";
 "Since day one" = "첫날부터";
 "When you unfold the most: your typical week, hour by hour." = "가장 많이 펼치는 때: 평소 일주일을 시간대별로.";
-"YOUR HOURS" = "나의 시간대";
 "%@ folds since day one" = "첫날부터 %@번";
 "%lld folds since day one" = "첫날부터 %lld번";
 "Folds by day and hour" = "요일·시간별 횟수";
@@ -207,7 +205,7 @@
 "Five colors for your widgets." = "위젯용 5가지 색상.";
 "Export" = "내보내기";
 "Your history as a spreadsheet (CSV)." = "기록을 스프레드시트(CSV)로.";
-"Foldly+ is unlocked. Thank you!" = "Foldly+가 잠금 해제되었습니다. 감사합니다!";
+"Foldly+ is unlocked. Thank you." = "Foldly+가 잠금 해제되었습니다. 감사합니다";
 "Unlock for %@" = "%@에 잠금 해제";
 "Unlock Foldly+" = "Foldly+ 잠금 해제";
 "Restore purchases" = "구입 내역 복원";
@@ -311,7 +309,7 @@
 "Choose **iPhone Opened or Closed**." = "**iPhone을 열거나 닫을 때**를 선택하세요.";
 "Keep **Closed** only, choose **Run Immediately**, then **Next**." = "**닫을 때**만 남기고 **즉시 실행**을 선택한 뒤 **다음**을 탭하세요.";
 "Search **Foldly**, pick **Count a fold**, then turn off **Show When Run**." = "**Foldly**를 검색해 **1번 세기**를 선택하고 **실행 시 보기**를 끄세요.";
-"Check that the automation is **on**. Done!" = "자동화가 **켜져** 있는지 확인하세요. 완료!";
+"Check that the automation is **on**. Done." = "자동화가 **켜져** 있는지 확인하세요. 완료";
 "Do the same with **Opened** and **Count an opening** to measure the time open." = "**열 때**와 **열기 세기**로 똑같이 하면 열린 시간을 측정합니다.";
 "Tap the video to start again" = "동영상을 탭해 처음부터 다시 보기";
 "Animated guide: create the automation in Shortcuts." = "애니메이션 가이드: 단축어에서 자동화 만들기.";
@@ -577,8 +575,8 @@
 "Badges" = "배지";
 "%lld of %lld unlocked" = "%2$lld개 중 %1$lld개 획득";
 "Unlocked" = "획득함";
-"New badge!" = "새 배지!";
-"%lld new badges!" = "새 배지 %lld개!";
+"New badge" = "새 배지";
+"%lld new badges" = "새 배지 %lld개";
 "Great" = "좋아요";
 "First sprout" = "첫 새싹";
 "Grow your first plant" = "첫 식물 키우기";
@@ -615,7 +613,6 @@
 "Someone" = "누군가";
 "Why did you open it?" = "왜 열었어요?";
 "Touch and hold to answer in one tap." = "길게 눌러 한 번에 답하세요.";
-"WHY YOU OPEN IT" = "여는 이유";
 "Each time you unfold your Duo, answer in one tap: a notification, boredom, work or someone. See the real reasons behind your opens." = "Duo를 펼칠 때마다 한 번 탭으로 답하세요: 알림, 심심해서, 일, 누군가. 여는 진짜 이유를 알아보세요.";
 "When you unfold your Duo, answer the question in one tap. Your reasons for the week show up here." = "Duo를 펼치면 한 번 탭으로 질문에 답하세요. 이번 주의 이유가 여기에 표시돼요.";
 "Your number one reason this week" = "이번 주 1위 이유";
@@ -651,7 +648,7 @@
 "%lld days added to your history." = "기록에 %lld일을 추가했어요.";
 "NEW" = "새 기능";
 "Bring your past folds" = "예전 기록 가져오기";
-"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "요청하신 기능이에요: Scriptable, 단축어 또는 다른 앱에서 기록을 하루 단위로 가져오거나 직접 날짜를 추가하세요.";
+"Import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "Scriptable, 단축어 또는 다른 앱에서 기록을 하루 단위로 가져오거나 직접 날짜를 추가하세요.";
 "Import my history" = "내 기록 가져오기";
 "New: import your past folds" = "새 기능: 예전 기록 가져오기";
 "A new version is available" = "새 버전이 있어요";
@@ -659,7 +656,7 @@
 "Update" = "업데이트";
 "Please update Foldly" = "Foldly를 업데이트해 주세요";
 "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "이 버전에는 최신 버전에서 고친 문제가 있어요. 기록은 안전하게 iPhone에 남아 있어요.";
-"YOUR SESSIONS" = "내 세션";
+"Your sessions" = "내 세션";
 "Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here." = "Duo를 펼칠 때마다 Foldly가 열려 있는 시간을 재요. 세션이 여기에 표시돼요.";
 "Open on average, each time" = "한 번 열 때 평균";
 "Estimated from your daily totals. Exact sessions are recorded from now on." = "하루 합계로 추정했어요. 지금부터 정확한 세션이 기록돼요.";
@@ -672,3 +669,4 @@
 "Under 1 min" = "1분 미만";
 "1 to 10 min" = "1~10분";
 "Over 10 min" = "10분 이상";
+"New" = "새 기능";

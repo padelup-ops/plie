@@ -89,7 +89,7 @@
 "Your streak and your last 30 days against other Foldly users and your friends, with Game Center." = "通过 Game Center，将你的连续天数和最近 30 天与其他 Foldly 用户及好友比较。";
 "Pick your own colors for the whole app: the accent and the background." = "为整个 App 选择你自己的颜色：强调色和背景。";
 "Rate Foldly on the App Store" = "在 App Store 为 Foldly 评分";
-"Foldly is on the App Store!" = "Foldly 已上架 App Store！";
+"Foldly is on the App Store" = "Foldly 已上架 App Store";
 "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta." = "感谢你参与测试。安装 App Store 版本即可保留数据：它会直接替换这个测试版。";
 "The beta ends on November 9." = "测试版将于 11 月 9 日结束。";
 "Get it on the App Store" = "在 App Store 获取";
@@ -130,11 +130,9 @@
 "Weekly and monthly recaps" = "每周和每月回顾";
 "Every fold since you started, like an odometer for your hinge." = "从开始以来的每一次折叠，就像铰链的里程表。";
 "Next: %@" = "下一个：%@";
-"SINCE DAY ONE" = "从第一天起";
 "Next milestone: %@" = "下一个里程碑：%@";
 "Since day one" = "从第一天起";
 "When you unfold the most: your typical week, hour by hour." = "你最常展开的时候：典型的一周，按小时。";
-"YOUR HOURS" = "你的时段";
 "%@ folds since day one" = "从第一天起 %@ 次";
 "%lld folds since day one" = "从第一天起 %lld 次";
 "Folds by day and hour" = "按日期和小时的折叠次数";
@@ -207,7 +205,7 @@
 "Five colors for your widgets." = "五种小组件颜色。";
 "Export" = "导出";
 "Your history as a spreadsheet (CSV)." = "将历史记录导出为电子表格（CSV）。";
-"Foldly+ is unlocked. Thank you!" = "Foldly+ 已解锁。谢谢你！";
+"Foldly+ is unlocked. Thank you." = "Foldly+ 已解锁。谢谢你。";
 "Unlock for %@" = "以 %@ 解锁";
 "Unlock Foldly+" = "解锁 Foldly+";
 "Restore purchases" = "恢复购买";
@@ -311,7 +309,7 @@
 "Choose **iPhone Opened or Closed**." = "选择**iPhone 打开或合上时**。";
 "Keep **Closed** only, choose **Run Immediately**, then **Next**." = "只保留**合上**，选择**立即运行**，然后轻点**下一步**。";
 "Search **Foldly**, pick **Count a fold**, then turn off **Show When Run**." = "搜索**Foldly**，选择**计数一次折叠**，然后关闭**运行时显示**。";
-"Check that the automation is **on**. Done!" = "确认自动化已**开启**。完成！";
+"Check that the automation is **on**. Done." = "确认自动化已**开启**。完成。";
 "Do the same with **Opened** and **Count an opening** to measure the time open." = "用**打开**和**计数一次打开**做同样设置，以测量打开时长。";
 "Tap the video to start again" = "轻点视频重新播放";
 "Animated guide: create the automation in Shortcuts." = "动画指南：在快捷指令中创建自动化。";
@@ -577,8 +575,8 @@
 "Badges" = "徽章";
 "%lld of %lld unlocked" = "已解锁 %1$lld/%2$lld";
 "Unlocked" = "已解锁";
-"New badge!" = "新徽章！";
-"%lld new badges!" = "%lld 枚新徽章！";
+"New badge" = "新徽章";
+"%lld new badges" = "%lld 枚新徽章";
 "Great" = "太棒了";
 "First sprout" = "第一株嫩芽";
 "Grow your first plant" = "种出你的第一株植物";
@@ -615,7 +613,6 @@
 "Someone" = "某个人";
 "Why did you open it?" = "你为什么打开它？";
 "Touch and hold to answer in one tap." = "长按即可一键回答。";
-"WHY YOU OPEN IT" = "打开的原因";
 "Each time you unfold your Duo, answer in one tap: a notification, boredom, work or someone. See the real reasons behind your opens." = "每次展开 Duo，只需轻点一下回答：通知、无聊、工作或某个人。看清你打开手机的真正原因。";
 "When you unfold your Duo, answer the question in one tap. Your reasons for the week show up here." = "展开 Duo 时，轻点一下回答问题。你本周的原因会显示在这里。";
 "Your number one reason this week" = "你本周的头号原因";
@@ -651,7 +648,7 @@
 "%lld days added to your history." = "已将 %lld 天添加到你的历史。";
 "NEW" = "新";
 "Bring your past folds" = "导入以前的折叠";
-"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "应大家要求：从 Scriptable、快捷指令或其他应用按天导入历史，或手动添加日子。";
+"Import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "从 Scriptable、快捷指令或其他应用按天导入历史，或手动添加日子。";
 "Import my history" = "导入我的历史";
 "New: import your past folds" = "新功能：导入以前的折叠";
 "A new version is available" = "有新版本可用";
@@ -659,7 +656,7 @@
 "Update" = "更新";
 "Please update Foldly" = "请更新 Foldly";
 "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "此版本存在问题，已在最新版本中修复。你的折叠记录安全地保存在 iPhone 上。";
-"YOUR SESSIONS" = "你的使用时段";
+"Your sessions" = "你的使用时段";
 "Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here." = "每次展开 Duo，Foldly 都会计时它保持展开多久。你的使用时段会显示在这里。";
 "Open on average, each time" = "平均每次展开时长";
 "Estimated from your daily totals. Exact sessions are recorded from now on." = "根据每日总数估算。从现在起会记录精确的使用时段。";
@@ -672,3 +669,4 @@
 "Under 1 min" = "不到 1 分钟";
 "1 to 10 min" = "1 到 10 分钟";
 "Over 10 min" = "超过 10 分钟";
+"New" = "新";

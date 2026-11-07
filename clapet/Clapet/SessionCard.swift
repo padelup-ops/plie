@@ -14,11 +14,11 @@ struct SessionCard: View {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(spacing: 6) {
                     Image(systemName: "timer")
-                    Text("YOUR SESSIONS").tracking(0.8)
+                    Text("Your sessions")
                     Spacer()
                     Text("Last 7 days").textCase(nil)
                 }
-                .font(.system(size: 12, weight: .bold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
 
                 if r.count == 0 {
@@ -123,9 +123,10 @@ struct SessionCard: View {
 
     /// 45 s, 12 min, 1 h 20 min.
     static func duration(_ t: TimeInterval) -> String {
+        // Une seule unité sous l'heure (45 s, 7 min) : ça tient dans les petites cases.
         let s = max(0, t.rounded())
-        let allowed: Set<Duration.UnitsFormatStyle.Unit> = s < 60 ? [.seconds] : (s < 3600 ? [.minutes, .seconds] : [.hours, .minutes])
-        let rounded = s < 60 ? s : (s < 600 ? (s / 10).rounded() * 10 : (s / 60).rounded() * 60)
+        let allowed: Set<Duration.UnitsFormatStyle.Unit> = s < 60 ? [.seconds] : (s < 3600 ? [.minutes] : [.hours, .minutes])
+        let rounded = s < 60 ? s : (s / 60).rounded() * 60
         return Duration.seconds(rounded).formatted(.units(allowed: allowed, width: .abbreviated, maximumUnitCount: 2))
     }
 }

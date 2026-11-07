@@ -89,7 +89,7 @@
 "Your streak and your last 30 days against other Foldly users and your friends, with Game Center." = "Tu racha y tus últimos 30 días frente a otros usuarios de Foldly y tus amigos, con Game Center.";
 "Pick your own colors for the whole app: the accent and the background." = "Elige tus propios colores para toda la app: el acento y el fondo.";
 "Rate Foldly on the App Store" = "Valorar Foldly en el App Store";
-"Foldly is on the App Store!" = "¡Foldly está en el App Store!";
+"Foldly is on the App Store" = "Foldly está en el App Store";
 "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta." = "Gracias por probarlo. Instala la versión del App Store para conservar tus datos: simplemente reemplaza esta beta.";
 "The beta ends on November 9." = "La beta termina el 9 de noviembre.";
 "Get it on the App Store" = "Descárgalo en el App Store";
@@ -130,11 +130,9 @@
 "Weekly and monthly recaps" = "Resúmenes semanales y mensuales";
 "Every fold since you started, like an odometer for your hinge." = "Cada pliegue desde que empezaste, como un cuentakilómetros para tu bisagra.";
 "Next: %@" = "Siguiente: %@";
-"SINCE DAY ONE" = "DESDE EL PRIMER DÍA";
 "Next milestone: %@" = "Próximo hito: %@";
 "Since day one" = "Desde el primer día";
 "When you unfold the most: your typical week, hour by hour." = "Cuándo despliegas más: tu semana típica, hora a hora.";
-"YOUR HOURS" = "TUS HORAS";
 "%@ folds since day one" = "%@ pliegues desde el primer día";
 "%lld folds since day one" = "%lld pliegues desde el primer día";
 "Folds by day and hour" = "Pliegues por día y hora";
@@ -207,7 +205,7 @@
 "Five colors for your widgets." = "Cinco colores para tus widgets.";
 "Export" = "Exportar";
 "Your history as a spreadsheet (CSV)." = "Tu historial como hoja de cálculo (CSV).";
-"Foldly+ is unlocked. Thank you!" = "Foldly+ está desbloqueado. ¡Gracias!";
+"Foldly+ is unlocked. Thank you." = "Foldly+ está desbloqueado. Gracias.";
 "Unlock for %@" = "Desbloquear por %@";
 "Unlock Foldly+" = "Desbloquear Foldly+";
 "Restore purchases" = "Restaurar compras";
@@ -311,7 +309,7 @@
 "Choose **iPhone Opened or Closed**." = "Elige **El iPhone se abre o se cierra**.";
 "Keep **Closed** only, choose **Run Immediately**, then **Next**." = "Deja solo **Cerrado**, elige **Ejecutar inmediatamente** y luego **Siguiente**.";
 "Search **Foldly**, pick **Count a fold**, then turn off **Show When Run**." = "Busca **Foldly**, elige **Contar un pliegue** y desactiva **Mostrar al ejecutar**.";
-"Check that the automation is **on**. Done!" = "Comprueba que la automatización está **activada**. ¡Listo!";
+"Check that the automation is **on**. Done." = "Comprueba que la automatización está **activada**. Listo.";
 "Do the same with **Opened** and **Count an opening** to measure the time open." = "Haz lo mismo con **Abierto** y **Contar una apertura** para medir el tiempo abierto.";
 "Tap the video to start again" = "Toca el vídeo para volver a empezar";
 "Animated guide: create the automation in Shortcuts." = "Guía animada: crea la automatización en Atajos.";
@@ -577,8 +575,8 @@
 "Badges" = "Insignias";
 "%lld of %lld unlocked" = "%1$lld de %2$lld desbloqueadas";
 "Unlocked" = "Desbloqueada";
-"New badge!" = "¡Nueva insignia!";
-"%lld new badges!" = "¡%lld insignias nuevas!";
+"New badge" = "Nueva insignia";
+"%lld new badges" = "%lld insignias nuevas";
 "Great" = "Genial";
 "First sprout" = "Primer brote";
 "Grow your first plant" = "Haz crecer tu primera planta";
@@ -615,7 +613,6 @@
 "Someone" = "Alguien";
 "Why did you open it?" = "¿Por qué lo has abierto?";
 "Touch and hold to answer in one tap." = "Mantén pulsado para responder con un toque.";
-"WHY YOU OPEN IT" = "POR QUÉ LO ABRES";
 "Each time you unfold your Duo, answer in one tap: a notification, boredom, work or someone. See the real reasons behind your opens." = "Cada vez que despliegas tu Duo, responde con un toque: una notificación, aburrimiento, trabajo o alguien. Descubre las verdaderas razones de tus aperturas.";
 "When you unfold your Duo, answer the question in one tap. Your reasons for the week show up here." = "Cuando despliegues tu Duo, responde a la pregunta con un toque. Tus razones de la semana aparecen aquí.";
 "Your number one reason this week" = "Tu razón número uno esta semana";
@@ -651,7 +648,7 @@
 "%lld days added to your history." = "%lld días añadidos a tu historial.";
 "NEW" = "NUEVO";
 "Bring your past folds" = "Trae tus pliegues anteriores";
-"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "Lo pedisteis: importa tu historial desde Scriptable, un atajo u otra app, día a día, o añade días a mano.";
+"Import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "Importa tu historial desde Scriptable, un atajo u otra app, día a día, o añade días a mano.";
 "Import my history" = "Importar mi historial";
 "New: import your past folds" = "Nuevo: importa tus pliegues anteriores";
 "A new version is available" = "Hay una nueva versión disponible";
@@ -659,7 +656,7 @@
 "Update" = "Actualizar";
 "Please update Foldly" = "Actualiza Foldly";
 "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "Esta versión tiene un problema corregido en la última. Tus pliegues están a salvo y se quedan en tu iPhone.";
-"YOUR SESSIONS" = "TUS SESIONES";
+"Your sessions" = "Tus sesiones";
 "Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here." = "Cada vez que abres tu Duo, Foldly mide cuánto tiempo sigue abierto. Tus sesiones aparecen aquí.";
 "Open on average, each time" = "Abierto de media, cada vez";
 "Estimated from your daily totals. Exact sessions are recorded from now on." = "Estimado a partir de tus totales diarios. Las sesiones exactas se registran a partir de ahora.";
@@ -672,3 +669,4 @@
 "Under 1 min" = "Menos de 1 min";
 "1 to 10 min" = "De 1 a 10 min";
 "Over 10 min" = "Más de 10 min";
+"New" = "Nuevo";

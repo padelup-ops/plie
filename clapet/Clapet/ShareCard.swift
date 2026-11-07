@@ -51,8 +51,7 @@ struct ShareCard: View {
         let left = stats.goal - today
         VStack(alignment: .leading, spacing: 0) {
             Text(date, format: .dateTime.weekday(.wide).day().month(.wide))
-                .font(.system(size: 14, weight: .bold))
-                .textCase(.uppercase)
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(mint)
             Spacer(minLength: 12)
             Text("Today I folded my phone")

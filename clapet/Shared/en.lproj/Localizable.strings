@@ -89,7 +89,7 @@
 "Your streak and your last 30 days against other Foldly users and your friends, with Game Center." = "Your streak and your last 30 days against other Foldly users and your friends, with Game Center.";
 "Pick your own colors for the whole app: the accent and the background." = "Pick your own colors for the whole app: the accent and the background.";
 "Rate Foldly on the App Store" = "Rate Foldly on the App Store";
-"Foldly is on the App Store!" = "Foldly is on the App Store!";
+"Foldly is on the App Store" = "Foldly is on the App Store";
 "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta." = "Thank you for testing it. Install the App Store version to keep your data: it simply replaces this beta.";
 "The beta ends on November 9." = "The beta ends on November 9.";
 "Get it on the App Store" = "Get it on the App Store";
@@ -130,11 +130,9 @@
 "Weekly and monthly recaps" = "Weekly and monthly recaps";
 "Every fold since you started, like an odometer for your hinge." = "Every fold since you started, like an odometer for your hinge.";
 "Next: %@" = "Next: %@";
-"SINCE DAY ONE" = "SINCE DAY ONE";
 "Next milestone: %@" = "Next milestone: %@";
 "Since day one" = "Since day one";
 "When you unfold the most: your typical week, hour by hour." = "When you unfold the most: your typical week, hour by hour.";
-"YOUR HOURS" = "YOUR HOURS";
 "%@ folds since day one" = "%@ folds since day one";
 "%lld folds since day one" = "%lld folds since day one";
 "Folds by day and hour" = "Folds by day and hour";
@@ -207,7 +205,7 @@
 "Five colors for your widgets." = "Five colors for your widgets.";
 "Export" = "Export";
 "Your history as a spreadsheet (CSV)." = "Your history as a spreadsheet (CSV).";
-"Foldly+ is unlocked. Thank you!" = "Foldly+ is unlocked. Thank you!";
+"Foldly+ is unlocked. Thank you." = "Foldly+ is unlocked. Thank you.";
 "Unlock for %@" = "Unlock for %@";
 "Unlock Foldly+" = "Unlock Foldly+";
 "Restore purchases" = "Restore purchases";
@@ -311,7 +309,7 @@
 "Choose **iPhone Opened or Closed**." = "Choose **iPhone Opened or Closed**.";
 "Keep **Closed** only, choose **Run Immediately**, then **Next**." = "Keep **Closed** only, choose **Run Immediately**, then **Next**.";
 "Search **Foldly**, pick **Count a fold**, then turn off **Show When Run**." = "Search **Foldly**, pick **Count a fold**, then turn off **Show When Run**.";
-"Check that the automation is **on**. Done!" = "Check that the automation is **on**. Done!";
+"Check that the automation is **on**. Done." = "Check that the automation is **on**. Done.";
 "Do the same with **Opened** and **Count an opening** to measure the time open." = "Do the same with **Opened** and **Count an opening** to measure the time open.";
 "Tap the video to start again" = "Tap the video to start again";
 "Animated guide: create the automation in Shortcuts." = "Animated guide: create the automation in Shortcuts.";
@@ -577,8 +575,8 @@
 "Badges" = "Badges";
 "%lld of %lld unlocked" = "%lld of %lld unlocked";
 "Unlocked" = "Unlocked";
-"New badge!" = "New badge!";
-"%lld new badges!" = "%lld new badges!";
+"New badge" = "New badge";
+"%lld new badges" = "%lld new badges";
 "Great" = "Great";
 "First sprout" = "First sprout";
 "Grow your first plant" = "Grow your first plant";
@@ -615,7 +613,6 @@
 "Someone" = "Someone";
 "Why did you open it?" = "Why did you open it?";
 "Touch and hold to answer in one tap." = "Touch and hold to answer in one tap.";
-"WHY YOU OPEN IT" = "WHY YOU OPEN IT";
 "Each time you unfold your Duo, answer in one tap: a notification, boredom, work or someone. See the real reasons behind your opens." = "Each time you unfold your Duo, answer in one tap: a notification, boredom, work or someone. See the real reasons behind your opens.";
 "When you unfold your Duo, answer the question in one tap. Your reasons for the week show up here." = "When you unfold your Duo, answer the question in one tap. Your reasons for the week show up here.";
 "Your number one reason this week" = "Your number one reason this week";
@@ -651,7 +648,7 @@
 "%lld days added to your history." = "%lld days added to your history.";
 "NEW" = "NEW";
 "Bring your past folds" = "Bring your past folds";
-"You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "You asked for it: import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand.";
+"Import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand." = "Import your history from Scriptable, a shortcut or another app, day by day, or add past days by hand.";
 "Import my history" = "Import my history";
 "New: import your past folds" = "New: import your past folds";
 "A new version is available" = "A new version is available";
@@ -659,7 +656,7 @@
 "Update" = "Update";
 "Please update Foldly" = "Please update Foldly";
 "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone." = "This version has a problem that is fixed in the latest one. Your folds are safe and stay on your iPhone.";
-"YOUR SESSIONS" = "YOUR SESSIONS";
+"Your sessions" = "Your sessions";
 "Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here." = "Each time you unfold your Duo, Foldly times how long it stays open. Your sessions show up here.";
 "Open on average, each time" = "Open on average, each time";
 "Estimated from your daily totals. Exact sessions are recorded from now on." = "Estimated from your daily totals. Exact sessions are recorded from now on.";
@@ -672,3 +669,4 @@
 "Under 1 min" = "Under 1 min";
 "1 to 10 min" = "1 to 10 min";
 "Over 10 min" = "Over 10 min";
+"New" = "New";
