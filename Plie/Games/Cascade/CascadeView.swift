@@ -77,7 +77,7 @@ struct CascadeView: View {
         guard size.width > 0, size.height > 0 else { return }
         fullSize = size
         let halfPts = size.height / 2
-        game.edgeFraction = Double(max(0.42, 1 - (panelHeight + max(8, safeBottom) + 14) / max(1, halfPts)))
+        game.edgeFraction = Double(max(0.42, 1 - (panelHeight + max(8, safeBottom) + 34) / max(1, halfPts)))
         game.height = Double(size.height / size.width)
     }
 

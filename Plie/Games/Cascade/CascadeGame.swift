@@ -338,7 +338,7 @@ final class CascadeGame {
                         pegPaid += hit
                         combo += 1
                         comboTime = 1.6
-                        if pops.count < 50 && Double.random(in: 0...1) < 0.35 {
+                        if pops.count < 14 && Double.random(in: 0...1) < 0.08 {
                             pops.append(CascadePop(x: p.x, y: p.y - 0.02, text: "+" + Self.format(hit), life: 0.6, gold: c.kind != .silver))
                         }
                         if soundBudget > 1 && Double.random(in: 0...1) < 0.25 {
@@ -469,7 +469,7 @@ final class CascadeGame {
             paid += v
             count += 1
             if c.kind == .gem { gem = true }
-            if pops.count < 40 {
+            if pops.count < 18 {
                 pops.append(CascadePop(x: c.x, y: edge, text: "+" + Self.format(v), life: 0.8, gold: c.kind != .silver))
             }
             return true

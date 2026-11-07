@@ -324,18 +324,19 @@ final class CascadeRenderer {
         let edgeY = Int((game.bedEdge * Double(cols)).rounded())
         let wall = Int((CascadeGame.wall * Double(cols)).rounded())
 
-        // Le ciel (moitié debout) : deux tons en damier, et des étoiles fixes
-        for y in 0..<half {
-            for x in stride(from: 0, to: cols, by: 1) where (x + y) % 2 == 0 && y > half / 3 {
-                fill(ctx, x, y, 1, 1, PX.night2)
+        // Le ciel (moitié debout) : un fond calme en trois bandes, une transition tramée, quelques étoiles
+        let bands = [PX.night, PX.night2, PX.c(0x2E1A57)]
+        for (k, col) in bands.enumerated() {
+            let y0 = half * k / 3, y1 = half * (k + 1) / 3
+            fill(ctx, 0, y0, cols, y1 - y0, col)
+            if k > 0 {
+                // trame d'une ligne sur deux entre deux bandes
+                for x in stride(from: (y0 % 2), to: cols, by: 2) { fill(ctx, x, y0, 1, 1, bands[k - 1]) }
             }
         }
-        ctx.setFillColor(PX.night)
-        ctx.fill(CGRect(x: 0, y: 0, width: cols, height: half / 3))
-        for y in half / 3..<half where y % 2 == 1 { fill(ctx, 0, y, cols, 1, PX.night) }
         var seed: UInt64 = 7
         func rnd(_ n: Int) -> Int { seed = seed &* 6364136223846793005 &+ 1442695040888963407; return Int((seed >> 33) % UInt64(max(1, n))) }
-        for _ in 0..<70 { fill(ctx, wall + rnd(cols - 2 * wall), rnd(half), 1, 1, rnd(4) == 0 ? PX.star2 : PX.star) }
+        for _ in 0..<22 { fill(ctx, wall + 2 + rnd(cols - 2 * wall - 4), 2 + rnd(half / 2), 1, 1, rnd(3) == 0 ? PX.star2 : PX.star) }
 
         // Les rails sur les côtés (briques dorées)
         for x in [0, cols - wall] {
@@ -376,8 +377,10 @@ final class CascadeRenderer {
         // Les trous des côtés, près du bord avant (là, les pièces sont perdues)
         let ha = Int(((0.5 - inner) * Double(cols)).rounded()), hb = Int(((0.5 + inner) * Double(cols)).rounded())
         let holeW = Int((0.09 * Double(cols)).rounded())
-        fill(ctx, ha, edgeY - 6, holeW, 6, PX.hole)
-        fill(ctx, hb - holeW, edgeY - 6, holeW, 6, PX.hole)
+        for (x0, w0) in [(ha, holeW), (hb - holeW, holeW)] {
+            fill(ctx, x0, edgeY - 6, w0, 6, PX.c(0x062A30))
+            fill(ctx, x0, edgeY - 6, w0, 1, PX.c(0x03181C))
+        }
         // Le bord avant, puis le vide
         fill(ctx, 0, edgeY, cols, rows - edgeY, PX.void)
         fill(ctx, ha, edgeY, hb - ha, 2, PX.rail)
