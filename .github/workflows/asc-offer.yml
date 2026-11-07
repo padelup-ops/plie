@@ -1,0 +1,50 @@
+# Codes d'offre (usage unique) pour un achat intégré. Les codes vont dans la branche privée ci-offer-codes.
+name: Codes d'offre
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "origamo ou foldly"
+        required: false
+        default: "origamo"
+      mode:
+        description: "probe ou create"
+        required: false
+        default: "probe"
+      count:
+        description: "Nombre de codes"
+        required: false
+        default: "50"
+      name:
+        description: "Nom de l'offre"
+        required: false
+        default: "Launch giveaway"
+jobs:
+  offer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      MODE: ${{ inputs.mode }}
+      COUNT: ${{ inputs.count }}
+      NAME: ${{ inputs.name }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Codes
+        env:
+          ORIGAMO_BUNDLE: ${{ secrets.BUNDLE_ID }}
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          if [ "${{ inputs.app }}" = "foldly" ]; then export BUNDLE_ID=com.padelup.clapet PRODUCT_ID=com.padelup.clapet.plus; else export BUNDLE_ID="$ORIGAMO_BUNDLE" PRODUCT_ID=plie.pass.complet; fi
+          python3 tools/asc_offer.py 2>&1 | tee offer.txt || true
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && touch offer.txt && cp offer.txt "$RUNNER_TEMP/r/" && (cp codes.csv "$RUNNER_TEMP/r/" 2>/dev/null || true) && cd "$RUNNER_TEMP/r"
+          git init -q -b ci-offer-codes && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Codes d'offre" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-offer-codes
