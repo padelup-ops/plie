@@ -404,6 +404,9 @@ struct LucioleView: View {
             .onChange(of: proxy.size) { _, s in game.size = s }
         }
         .ignoresSafeArea()
+        #if DEBUG
+        .onAppear { Demo.schedule("luciole", [(0.6, { game.start() })]) }
+        #endif
         .onHingeAngle { degrees in
             guard let degrees else { return }
             game.setClosed(degrees < 20, fromHinge: true)

@@ -89,6 +89,10 @@ jobs:
           briques|briques|9|
           morpion|morpion|9|
           bonneteau|bonneteau|10|
+          cascade|cascade|11|
+          rayon|rayon:16|10|0:160,2.5:160,5:118,7.5:150,10:128
+          bascule|bascule:1|12|0:175,2.5:132,3.3:132,6.5:118,8.1:118
+          luciole|luciole|10|
           EOF
           # Une première ouverture pour que l'app soit « déjà lancée » (pas d'écran de bienvenue)
           xcrun simctl launch "$UDID" "$BID" > /dev/null 2>&1 || true

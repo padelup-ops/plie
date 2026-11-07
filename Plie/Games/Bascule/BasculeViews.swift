@@ -167,6 +167,12 @@ struct BasculePlayView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+        #if DEBUG
+        .onAppear {
+            // Vidéo : la bille part une fois la rampe réglée, puis on relance.
+            Demo.schedule("bascule", [(3.4, { session.launch() }), (8.2, { session.launch() })])
+        }
+        #endif
         .onHingeAngle { degrees in
             guard let degrees, HingeMapping.isOpen(degrees) else {
                 usesHinge = false
