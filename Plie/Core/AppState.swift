@@ -34,6 +34,9 @@ enum Route: Equatable {
     case sourire
     case tape
     case cascade
+    case bataille
+    case carres
+    case mines
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -180,6 +183,9 @@ final class AppState {
         case "sourire": route = .sourire
         case "tape": route = .tape
         case "cascade": route = .cascade
+        case "bataille": route = .bataille
+        case "carres": route = .carres
+        case "mines": route = .mines
         case "billard": route = .billard
         case "luciole": route = .luciole
         case "ecole": route = .ecole

@@ -77,7 +77,7 @@ struct HowToStep: Identifiable {
 enum GameID: String, CaseIterable, Identifiable {
     case tape, duels, mots, chifoumi, doigts, sourire
     case boite, croco, bonneteau, coupDoeil, bombe, dessine, pliou, luciole
-    case briques, morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme, cascade
+    case briques, morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme, cascade, bataille, carres, mines
 
     var id: String { rawValue }
 
@@ -112,6 +112,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .soleil: return L("1, 2, 3… SOLEIL !")
         case .ferme: return L("FERME")
         case .cascade: return L("CASCADE")
+        case .bataille: return L("BATAILLE NAVALE")
+        case .carres: return L("CARRÉS")
+        case .mines: return L("DÉMINEUR")
         }
     }
 
@@ -147,6 +150,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .soleil: return L("Le téléphone fait l'arbitre")
         case .ferme: return L("Ferme le Duo, ta plante pousse")
         case .cascade: return L("Les pièces tombent, le plateau pousse")
+        case .bataille: return L("Ferme le Duo pour cacher ta flotte")
+        case .carres: return L("Ferme un carré, il est à toi")
+        case .mines: return L("Plie un peu pour poser un drapeau")
         }
     }
 
@@ -181,6 +187,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .soleil: return Color(hex: 0xFF8A2F)
         case .ferme: return Color(hex: 0x5FD3A0)
         case .cascade: return Theme.cascade
+        case .bataille: return Theme.bataille
+        case .carres: return Theme.carres
+        case .mines: return Theme.mines
         }
     }
 
@@ -215,6 +224,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .soleil: return "sun.max.fill"
         case .ferme: return "leaf.fill"
         case .cascade: return "dollarsign.circle.fill"
+        case .bataille: return "scope"
+        case .carres: return "square.grid.3x3.square"
+        case .mines: return "flag.fill"
         }
     }
 
@@ -225,9 +237,10 @@ enum GameID: String, CaseIterable, Identifiable {
         case .mots: return .book
         case .coupDoeil, .bombe, .pliou, .luciole: return .openClose
         case .dessine, .bonneteau, .chifoumi, .doigts, .sourire: return .book
-        case .rayon, .bascule: return .fold
+        case .rayon, .bascule, .mines: return .fold
+        case .bataille: return .openClose
         case .filet, .ecole, .piano, .puissance, .briques, .cascade: return .lShape
-        case .airHockey, .billard, .chess, .draughts, .morpion: return .flat
+        case .airHockey, .billard, .chess, .draughts, .morpion, .carres: return .flat
         case .soleil: return .standing
         case .ferme: return .closed
         }
@@ -235,7 +248,7 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var players: String {
         switch self {
-        case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme, .briques, .cascade: return L("Seul")
+        case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme, .briques, .cascade, .mines: return L("Seul")
         case .croco: return L("1 à 6 joueurs")
         case .duels, .tape: return L("2 joueurs")
         case .chifoumi: return L("1 ou 2 joueurs")
@@ -245,7 +258,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bombe: return L("3 à 8 joueurs")
         case .dessine: return L("3 joueurs et plus")
         case .filet: return L("Contre l'ordi")
-        case .airHockey, .billard, .chess, .draughts, .morpion, .puissance, .bonneteau: return L("1 ou 2 joueurs")
+        case .airHockey, .billard, .chess, .draughts, .morpion, .puissance, .bonneteau, .bataille, .carres: return L("1 ou 2 joueurs")
         case .ecole: return L("Dès 4 ans")
         case .soleil: return L("2 joueurs et plus")
         }
@@ -263,6 +276,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .briques: return [.solo, .kids]
         case .bonneteau: return [.twoScreens, .duo, .solo, .family]
         case .morpion, .puissance: return [.solo, .duo, .family, .kids]
+        case .bataille: return [.twoScreens, .solo, .duo, .family]
+        case .carres: return [.solo, .duo, .family, .kids]
+        case .mines: return [.solo, .kids]
         case .bombe, .dessine: return [.twoScreens, .family]
         case .luciole: return [.twoScreens, .solo, .kids]
         case .rayon, .bascule: return [.solo, .kids]
@@ -317,6 +333,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .soleil: return .soleil
         case .ferme: return .ferme
         case .cascade: return .cascade
+        case .bataille: return .bataille
+        case .carres: return .carres
+        case .mines: return .mines
         }
     }
 
@@ -353,6 +372,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .soleil: return .soleil
         case .ferme: return .ferme
         case .cascade: return .cascade
+        case .bataille: return .bataille
+        case .carres: return .carres
+        case .mines: return .mines
         }
     }
 
@@ -588,6 +610,29 @@ enum GameID: String, CaseIterable, Identifiable {
                 HowToStep(symbol: "exclamationmark.triangle.fill", text: L("Rouvert trop tôt ? Tu as 10 secondes pour refermer, sinon la plante fane.")),
                 HowToStep(symbol: "tree.fill", text: BuildFlags.realTrees ? L("Fais fleurir les 8 plantes : on plante un vrai arbre pour toi.")
                                                                           : L("Fais fleurir les 8 plantes pour compléter ton jardin."))
+            ]
+        case .bataille:
+            return [
+                HowToStep(symbol: "scope", text: L("But : couler les 5 bateaux de l'autre avant qu'il coule les tiens.")),
+                HowToStep(symbol: "shuffle", text: L("Chacun place sa flotte en secret : touche Mélanger jusqu'à ce qu'elle te plaise.")),
+                HowToStep(symbol: "hand.tap.fill", text: L("En haut, la mer d'en face : touche une case pour tirer. En bas, ta flotte et les tirs reçus.")),
+                duo ? HowToStep(symbol: "iphone.gen3", text: L("À deux : après ton tir, ferme le Duo et passe-le. L'autre le rouvre pour jouer : le pli cache les grilles."))
+                    : HowToStep(symbol: "hand.raised.fill", text: L("À deux : après ton tir, passe le téléphone sans regarder."))
+            ]
+        case .carres:
+            return [
+                HowToStep(symbol: "square.grid.3x3.square", text: L("But : prendre le plus de carrés.")),
+                HowToStep(symbol: "hand.tap.fill", text: L("À ton tour, touche entre deux points pour tracer un trait.")),
+                HowToStep(symbol: "square.fill", text: L("Tu fermes un carré ? Il prend ta couleur et ton initiale, et tu rejoues.")),
+                HowToStep(symbol: "person.2.fill", text: L("Duo ouvert à plat entre vous deux. Touche ton initiale avant de commencer pour la changer."))
+            ]
+        case .mines:
+            return [
+                HowToStep(symbol: "flag.checkered", text: L("But : ouvrir toutes les cases sans mine.")),
+                HowToStep(symbol: "number", text: L("Un chiffre dit combien de mines touchent la case.")),
+                duo ? HowToStep(symbol: "iphone.gen3", text: L("Duo à plat : tu creuses. Plie-le un peu : tu poses des drapeaux."))
+                    : HowToStep(symbol: "flag.fill", text: L("Appui long ou bouton Drapeau pour marquer une mine.")),
+                HowToStep(symbol: "hand.point.up.left.fill", text: L("Le premier toucher n'est jamais une mine."))
             ]
         case .cascade:
             return [

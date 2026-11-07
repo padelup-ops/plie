@@ -28,9 +28,9 @@ struct HubView: View {
 
     /// L'ordre de « Tous » : les plus parlants d'abord.
     static let allOrder: [GameID] = {
-        let curated: [GameID] = [.duels, .tape, .chifoumi, .boite, .mots, .sourire, .croco, .coupDoeil, .doigts, .rayon, .airHockey, .dessine, .bombe,
+        let curated: [GameID] = [.cascade, .bataille, .carres, .mines, .duels, .tape, .chifoumi, .boite, .mots, .sourire, .croco, .coupDoeil, .doigts, .rayon, .airHockey, .dessine, .bombe,
                                  .puissance, .briques, .bonneteau, .pliou, .luciole, .morpion, .billard, .filet,
-                                 .bascule, .chess, .draughts, .soleil, .ferme, .ecole, .piano, .cascade]
+                                 .bascule, .chess, .draughts, .soleil, .ferme, .ecole, .piano]
         return curated + GameID.allCases.filter { !curated.contains($0) }
     }()
 
@@ -47,15 +47,15 @@ struct HubView: View {
             Shelf(id: "everywhere", title: L("Tous les iPhone"), symbol: "iphone",
                   games: Self.allOrder.filter { $0.playsEverywhere }),
             Shelf(id: "duo", title: L("À deux"), symbol: "person.2.fill",
-                  games: [.duels, .tape, .chifoumi, .airHockey, .puissance, .morpion, .billard, .chess, .draughts, .bonneteau]),
+                  games: [.bataille, .carres, .duels, .tape, .chifoumi, .airHockey, .puissance, .morpion, .billard, .chess, .draughts, .bonneteau]),
             Shelf(id: "party", title: L("En soirée"), symbol: "party.popper.fill",
                   games: [.tape, .mots, .sourire, .croco, .dessine, .bombe, .chifoumi, .soleil]),
             Shelf(id: "magic", title: L("La magie du Duo"), symbol: "sparkles",
                   games: [.boite, .coupDoeil, .chifoumi, .sourire, .doigts, .luciole, .pliou, .ferme]),
             Shelf(id: "fold", title: L("Seul"), symbol: "person.fill",
-                  games: [.cascade, .rayon, .bascule, .briques, .filet, .boite, .coupDoeil, .pliou, .ferme]),
+                  games: [.cascade, .mines, .rayon, .bascule, .briques, .filet, .boite, .coupDoeil, .pliou, .ferme]),
             Shelf(id: "kids", title: L("Enfants"), symbol: "graduationcap.fill",
-                  games: [.doigts, .ecole, .chifoumi, .piano, .croco, .pliou, .morpion, .puissance])
+                  games: [.mines, .carres, .doigts, .ecole, .chifoumi, .piano, .croco, .pliou, .morpion, .puissance])
         ]
     }
 
@@ -394,6 +394,9 @@ struct HubView: View {
         case .ecole: return app.ecoleLessons > 0 ? L("\(app.ecoleLessons) leçon\(app.ecoleLessons > 1 ? "s" : "")") : L("5 classes")
         case .piano: return L("\(PianoSong.all.count) morceaux")
         case .soleil: return app.soleilGames > 0 ? L("\(app.soleilGames) partie\(app.soleilGames > 1 ? "s" : "")") : nil
+        case .bataille: return L("Contre l'ordi ou à deux")
+        case .carres: return L("Contre l'ordi ou à deux")
+        case .mines: return L("Trois tailles de grille")
         case .cascade: return CascadeGame.format(UserDefaults.standard.double(forKey: "cascade.balance")) == "0" ? L("Ta machine à pièces") : L("\(CascadeGame.format(UserDefaults.standard.double(forKey: "cascade.balance"))) pièces")
         case .ferme: return BuildFlags.realTrees ? L("\(app.fermeSpecies.count) / \(FermePlant.all.count) plantes · un vrai arbre")
                                                  : L("\(app.fermeSpecies.count) / \(FermePlant.all.count) plantes")
