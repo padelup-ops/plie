@@ -19,6 +19,14 @@ on:
         description: "Nom de l'offre"
         required: false
         default: "Launch giveaway"
+      price:
+        description: "Prix réduit en euros (vide = gratuit)"
+        required: false
+        default: ""
+      custom:
+        description: "Code réutilisable (vide = codes uniques)"
+        required: false
+        default: ""
 jobs:
   offer:
     runs-on: ubuntu-latest
@@ -31,6 +39,8 @@ jobs:
       MODE: ${{ inputs.mode }}
       COUNT: ${{ inputs.count }}
       NAME: ${{ inputs.name }}
+      PRICE: ${{ inputs.price }}
+      CUSTOM: ${{ inputs.custom }}
     steps:
       - uses: actions/checkout@v5
       - name: Codes

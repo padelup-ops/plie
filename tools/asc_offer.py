@@ -19,6 +19,9 @@ BUNDLE = os.environ["BUNDLE_ID"]
 PRODUCT_ID = os.environ.get("PRODUCT_ID", "plie.pass.complet")
 MODE = os.environ.get("MODE", "probe")
 NAME = os.environ.get("NAME", "Launch giveaway")
+# PRICE : prix réduit en euros (ex. "1.99") ; vide = gratuit. CUSTOM : un code réutilisable (ex. ORIGAMO199) au lieu de codes uniques.
+PRICE = os.environ.get("PRICE", "").strip()
+CUSTOM = os.environ.get("CUSTOM", "").strip().upper()
 COUNT = int(os.environ.get("COUNT", "50"))
 DAYS = int(os.environ.get("DAYS", "60"))
 
@@ -83,13 +86,36 @@ if existing:
     oid = existing[0]["id"]
     print("offre déjà là", oid)
 else:
+    # Prix réduit : le point de prix français, puis ses équivalents dans chaque pays.
+    points = {}
+    if PRICE:
+        url = f"/v2/inAppPurchases/{iap_id}/pricePoints?filter[territory]=FRA&limit=200"
+        fra = None
+        while url and not fra:
+            page = call("GET", url)
+            for pp in page.get("data", []):
+                if abs(float(pp["attributes"].get("customerPrice", "0")) - float(PRICE)) < 0.001: fra = pp["id"]; break
+            nxt = page.get("links", {}).get("next")
+            url = nxt.replace(API, "") if nxt else None
+        if not fra: sys.exit(f"ÉCHEC point de prix {PRICE} € introuvable")
+        points["FRA"] = fra
+        url = f"/v1/inAppPurchasePricePoints/{fra}/equalizations?limit=200&include=territory"
+        while url:
+            page = call("GET", url)
+            for pp in page.get("data", []):
+                t = (pp.get("relationships", {}).get("territory", {}).get("data") or {}).get("id")
+                if t: points[t] = pp["id"]
+            nxt = page.get("links", {}).get("next")
+            url = nxt.replace(API, "") if nxt else None
+        terr = [t for t in terr if t in points]
+        print(len(points), "points de prix,", len(terr), "territoires gardés")
     prices, included = [], []
     for k, t in enumerate(terr):
         lid = f"${{p{k}}}"
         prices.append({"type": "inAppPurchaseOfferPrices", "id": lid})
         included.append({"type": "inAppPurchaseOfferPrices", "id": lid, "attributes": {},
                          "relationships": {"territory": {"data": {"type": "territories", "id": t}},
-                                           "pricePoint": {"data": None}}})
+                                           "pricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": points[t]} if PRICE else None}}})
     body = {"data": {"type": "inAppPurchaseOfferCodes",
                      "attributes": {"name": NAME, "customerEligibilities": ["NON_SPENDER"]},
                      "relationships": {"inAppPurchase": {"data": {"type": "inAppPurchases", "id": iap_id}},
@@ -107,6 +133,15 @@ else:
     oid = r["data"]["id"]
 
 exp = (datetime.date.today() + datetime.timedelta(days=DAYS)).isoformat()
+if CUSTOM:
+    r = call("POST", "/v1/inAppPurchaseOfferCodeCustomCodes", {"data": {"type": "inAppPurchaseOfferCodeCustomCodes",
+             "attributes": {"customCode": CUSTOM, "numberOfCodes": COUNT, "expirationDate": exp},
+             "relationships": {"offerCode": {"data": {"type": "inAppPurchaseOfferCodes", "id": oid}}}}})
+    show("code personnalisé", r)
+    if "error" in r: sys.exit("ÉCHEC code personnalisé")
+    print(f"\nCODE {CUSTOM} : {COUNT} utilisations, valable jusqu'au {exp}")
+    print(f"LIEN https://apps.apple.com/redeem?ctx=offercodes&id={app['id']}&code={CUSTOM}")
+    sys.exit(0)
 if MODE == "fetch":
     lots = call("GET", f"/v1/inAppPurchaseOfferCodes/{oid}/oneTimeUseCodes?limit=20").get("data", [])
     show("lots", lots)
