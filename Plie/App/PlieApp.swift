@@ -66,6 +66,12 @@ struct RootView: View {
                 CarresView()
             case .mines:
                 MinesView()
+            case .peche:
+                PecheView()
+            case .golf:
+                GolfView()
+            case .comete:
+                CometeView()
             case .airHockey:
                 AirHockeyView()
             case .filet:
@@ -213,6 +219,12 @@ struct RootView: View {
             return [Color(hex: 0x3D8BFF), Color(hex: 0xFF4F7B), Theme.carres]
         case .mines:
             return [Color(hex: 0x3F8F6A), Theme.mines, Theme.coral]
+        case .peche:
+            return [Theme.peche, Color(hex: 0x0D335E), Color(hex: 0xFFC93C)]
+        case .golf:
+            return [Theme.golf, Color(hex: 0x16301E), Color(hex: 0xFF4F4F)]
+        case .comete:
+            return [Theme.comete, Color(hex: 0x07061A), Color(hex: 0xFF5AD8)]
         case .cascade:
             return [Theme.cascade, Color(hex: 0x7A3DFF), Color(hex: 0x0F4A52)]
         case .ferme:
@@ -281,7 +293,7 @@ struct RootView: View {
     /// Écrans qui couvrent tout : le fond animé ne servirait à rien.
     private var fullScreen: Bool {
         switch app.route {
-        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .duels, .mots, .chifoumi, .doigts, .sourire, .tape, .cascade, .bataille, .carres, .mines: return true
+        case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .duels, .mots, .chifoumi, .doigts, .sourire, .tape, .cascade, .bataille, .carres, .mines, .peche, .golf, .comete: return true
         default: return false
         }
     }

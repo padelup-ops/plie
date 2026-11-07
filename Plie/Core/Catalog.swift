@@ -77,7 +77,7 @@ struct HowToStep: Identifiable {
 enum GameID: String, CaseIterable, Identifiable {
     case tape, duels, mots, chifoumi, doigts, sourire
     case boite, croco, bonneteau, coupDoeil, bombe, dessine, pliou, luciole
-    case briques, morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme, cascade, bataille, carres, mines
+    case briques, morpion, puissance, rayon, bascule, billard, airHockey, filet, chess, draughts, ecole, piano, soleil, ferme, cascade, bataille, carres, mines, peche, golf, comete
 
     var id: String { rawValue }
 
@@ -115,6 +115,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bataille: return L("BATAILLE NAVALE")
         case .carres: return L("CARRÉS")
         case .mines: return L("DÉMINEUR")
+        case .peche: return L("PÊCHE")
+        case .golf: return L("MINIGOLF")
+        case .comete: return L("COMÈTE")
         }
     }
 
@@ -153,6 +156,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bataille: return L("Ferme le Duo pour cacher ta flotte")
         case .carres: return L("Ferme un carré, il est à toi")
         case .mines: return L("Plie un peu pour poser un drapeau")
+        case .peche: return L("La charnière est la ligne de l'eau")
+        case .golf: return L("Plie le Duo : le terrain penche")
+        case .comete: return L("Plie à moitié : bombe !")
         }
     }
 
@@ -190,6 +196,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bataille: return Theme.bataille
         case .carres: return Theme.carres
         case .mines: return Theme.mines
+        case .peche: return Theme.peche
+        case .golf: return Theme.golf
+        case .comete: return Theme.comete
         }
     }
 
@@ -227,6 +236,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bataille: return "scope"
         case .carres: return "square.grid.3x3.square"
         case .mines: return "flag.fill"
+        case .peche: return "fish.fill"
+        case .golf: return "figure.golf"
+        case .comete: return "moon.stars.fill"
         }
     }
 
@@ -237,9 +249,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .mots: return .book
         case .coupDoeil, .bombe, .pliou, .luciole: return .openClose
         case .dessine, .bonneteau, .chifoumi, .doigts, .sourire: return .book
-        case .rayon, .bascule, .mines: return .fold
+        case .rayon, .bascule, .mines, .golf, .comete: return .fold
         case .bataille: return .openClose
-        case .filet, .ecole, .piano, .puissance, .briques, .cascade: return .lShape
+        case .filet, .ecole, .piano, .puissance, .briques, .cascade, .peche: return .lShape
         case .airHockey, .billard, .chess, .draughts, .morpion, .carres: return .flat
         case .soleil: return .standing
         case .ferme: return .closed
@@ -248,7 +260,7 @@ enum GameID: String, CaseIterable, Identifiable {
 
     var players: String {
         switch self {
-        case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme, .briques, .cascade, .mines: return L("Seul")
+        case .boite, .coupDoeil, .pliou, .rayon, .bascule, .luciole, .piano, .ferme, .briques, .cascade, .mines, .peche, .comete: return L("Seul")
         case .croco: return L("1 à 6 joueurs")
         case .duels, .tape: return L("2 joueurs")
         case .chifoumi: return L("1 ou 2 joueurs")
@@ -258,7 +270,7 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bombe: return L("3 à 8 joueurs")
         case .dessine: return L("3 joueurs et plus")
         case .filet: return L("Contre l'ordi")
-        case .airHockey, .billard, .chess, .draughts, .morpion, .puissance, .bonneteau, .bataille, .carres: return L("1 ou 2 joueurs")
+        case .airHockey, .billard, .chess, .draughts, .morpion, .puissance, .bonneteau, .bataille, .carres, .golf: return L("1 ou 2 joueurs")
         case .ecole: return L("Dès 4 ans")
         case .soleil: return L("2 joueurs et plus")
         }
@@ -279,6 +291,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bataille: return [.twoScreens, .solo, .duo, .family]
         case .carres: return [.solo, .duo, .family, .kids]
         case .mines: return [.solo, .kids]
+        case .peche: return [.twoScreens, .solo, .kids]
+        case .golf: return [.solo, .duo, .family, .kids]
+        case .comete: return [.solo]
         case .bombe, .dessine: return [.twoScreens, .family]
         case .luciole: return [.twoScreens, .solo, .kids]
         case .rayon, .bascule: return [.solo, .kids]
@@ -336,6 +351,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bataille: return .bataille
         case .carres: return .carres
         case .mines: return .mines
+        case .peche: return .peche
+        case .golf: return .golf
+        case .comete: return .comete
         }
     }
 
@@ -375,6 +393,9 @@ enum GameID: String, CaseIterable, Identifiable {
         case .bataille: return .bataille
         case .carres: return .carres
         case .mines: return .mines
+        case .peche: return .peche
+        case .golf: return .golf
+        case .comete: return .comete
         }
     }
 
@@ -633,6 +654,33 @@ enum GameID: String, CaseIterable, Identifiable {
                 duo ? HowToStep(symbol: "iphone.gen3", text: L("Duo à plat : tu creuses. Plie-le un peu : tu poses des drapeaux."))
                     : HowToStep(symbol: "flag.fill", text: L("Appui long ou bouton Drapeau pour marquer une mine.")),
                 HowToStep(symbol: "hand.point.up.left.fill", text: L("Le premier toucher n'est jamais une mine."))
+            ]
+        case .peche:
+            return [
+                duo ? HowToStep(symbol: "laptopcomputer", text: L("Plie le Duo en L : en haut le ciel et ta barque, en bas le fond de l'eau. La charnière, c'est la surface."))
+                    : HowToStep(symbol: "iphone", text: L("En haut le ciel et ta barque, en bas le fond de l'eau.")),
+                duo ? HowToStep(symbol: "arrow.up.and.down", text: L("Pour lancer, referme et rouvre le Duo d'un coup (ou touche LANCER). Plus tu laisses couler, plus c'est profond et rare."))
+                    : HowToStep(symbol: "hand.tap.fill", text: L("Touche LANCER, puis STOP au bon moment. Plus tu laisses couler, plus c'est profond et rare.")),
+                HowToStep(symbol: "exclamationmark", text: L("Ça mord ? Touche FERRER tout de suite, ou donne un petit coup de charnière.")),
+                duo ? HowToStep(symbol: "dial.medium.fill", text: L("Mouline en pliant et dépliant doucement, ou garde MOULINER appuyé. Trop vite, ou trop fort quand le poisson tire : la ligne casse."))
+                    : HowToStep(symbol: "dial.medium.fill", text: L("Garde MOULINER appuyé, et relâche quand la ligne devient rouge, sinon elle casse.")),
+                HowToStep(symbol: "book.closed.fill", text: L("Chaque prise rapporte des pièces pour améliorer canne, moulinet et appât. Complète ton carnet : 15 prises à trouver."))
+            ]
+        case .golf:
+            return [
+                HowToStep(symbol: "figure.golf", text: L("But : mettre la balle dans le trou en un minimum de coups, sur 9 trous.")),
+                HowToStep(symbol: "hand.draw.fill", text: L("Tire le doigt en arrière, comme un lance-pierre, puis lâche. Plus tu tires loin, plus c'est fort.")),
+                duo ? HowToStep(symbol: "laptopcomputer", text: L("Plie le Duo : la moitié du haut se relève et penche. La balle y roule vers la charnière. Sers-t'en pour la ramener !"))
+                    : HowToStep(symbol: "iphone", text: L("Le parcours passe du haut au bas de l'écran.")),
+                HowToStep(symbol: "drop.fill", text: L("Le sable freine, l'eau coûte un coup. À deux, chacun joue le trou à son tour."))
+            ]
+        case .comete:
+            return [
+                HowToStep(symbol: "hand.draw.fill", text: L("Glisse le doigt n'importe où pour piloter ton vaisseau. Il tire tout seul.")),
+                duo ? HowToStep(symbol: "iphone.gen3", text: L("Plie le Duo à moitié puis rouvre-le : une bombe efface tous les tirs et frappe tous les ennemis."))
+                    : HowToStep(symbol: "burst.fill", text: L("Touche BOMBE pour effacer tous les tirs et frapper tous les ennemis.")),
+                HowToStep(symbol: "star.fill", text: L("Attrape les bonus : tir plus puissant, bouclier, bombe en plus.")),
+                HowToStep(symbol: "exclamationmark.triangle.fill", text: L("Toutes les 5 vagues, un vaisseau mère. Tu as 3 vies."))
             ]
         case .cascade:
             return [

@@ -37,6 +37,9 @@ enum Route: Equatable {
     case bataille
     case carres
     case mines
+    case peche
+    case golf
+    case comete
 }
 
 /// Navigation, réglages et progression des joueurs (sauvegardés sur l'appareil).
@@ -186,6 +189,9 @@ final class AppState {
         case "bataille": route = .bataille
         case "carres": route = .carres
         case "mines": route = .mines
+        case "peche": route = .peche
+        case "golf": route = .golf
+        case "comete": route = .comete
         case "billard": route = .billard
         case "luciole": route = .luciole
         case "ecole": route = .ecole

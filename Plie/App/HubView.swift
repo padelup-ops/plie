@@ -23,14 +23,14 @@ struct HubView: View {
     @State private var query = ""
     @FocusState private var searching: Bool
 
-    static let newGames: Set<GameID> = [.cascade, .bataille, .carres, .mines]
+    static let newGames: Set<GameID> = [.peche, .golf, .comete, .cascade, .bataille, .carres, .mines]
 
     /// Les jeux à la une : ceux qui donnent le plus envie, et qui montrent ce que le Duo sait faire.
     static let featured: [GameID] = [.duels, .tape, .chifoumi, .boite, .croco, .sourire, .mots, .coupDoeil]
 
     /// L'ordre de « Tous » : les plus parlants d'abord.
     static let allOrder: [GameID] = {
-        let curated: [GameID] = [.cascade, .bataille, .carres, .mines, .duels, .tape, .chifoumi, .boite, .mots, .sourire, .croco, .coupDoeil, .doigts, .rayon, .airHockey, .dessine, .bombe,
+        let curated: [GameID] = [.peche, .golf, .comete, .cascade, .bataille, .carres, .mines, .duels, .tape, .chifoumi, .boite, .mots, .sourire, .croco, .coupDoeil, .doigts, .rayon, .airHockey, .dessine, .bombe,
                                  .puissance, .briques, .bonneteau, .pliou, .luciole, .morpion, .billard, .filet,
                                  .bascule, .chess, .draughts, .soleil, .ferme, .ecole, .piano]
         return curated + GameID.allCases.filter { !curated.contains($0) }
@@ -50,16 +50,22 @@ struct HubView: View {
             Shelf(id: "everywhere", title: L("Tous les iPhone"), symbol: "iphone",
                   games: Self.allOrder.filter { $0.playsEverywhere }),
             Shelf(id: "duo", title: L("À deux"), symbol: "person.2.fill",
-                  games: [.bataille, .carres, .duels, .tape, .chifoumi, .airHockey, .puissance, .morpion, .billard, .chess, .draughts, .bonneteau]),
+                  games: [.golf, .bataille, .carres, .duels, .tape, .chifoumi, .airHockey, .puissance, .morpion, .billard, .chess, .draughts, .bonneteau]),
             Shelf(id: "party", title: L("En soirée"), symbol: "party.popper.fill",
                   games: [.tape, .mots, .sourire, .croco, .dessine, .bombe, .chifoumi, .soleil]),
             Shelf(id: "magic", title: L("La magie du Duo"), symbol: "sparkles",
                   games: [.boite, .coupDoeil, .chifoumi, .sourire, .doigts, .luciole, .pliou, .ferme]),
             Shelf(id: "fold", title: L("Seul"), symbol: "person.fill",
-                  games: [.cascade, .mines, .rayon, .bascule, .briques, .filet, .boite, .coupDoeil, .pliou, .ferme]),
+                  games: [.peche, .comete, .cascade, .mines, .golf, .rayon, .bascule, .briques, .filet, .boite, .coupDoeil, .pliou, .ferme]),
             Shelf(id: "kids", title: L("Enfants"), symbol: "graduationcap.fill",
-                  games: [.mines, .carres, .doigts, .ecole, .chifoumi, .piano, .croco, .pliou, .morpion, .puissance])
+                  games: [.peche, .golf, .mines, .carres, .doigts, .ecole, .chifoumi, .piano, .croco, .pliou, .morpion, .puissance])
         ]
+    }
+
+    static func fishCaught() -> Int {
+        guard let data = UserDefaults.standard.data(forKey: "peche.best"),
+              let d = try? JSONDecoder().decode([String: Int].self, from: data) else { return 0 }
+        return d.count
     }
 
     private var shelf: Shelf { shelves.first { $0.id == shelfID } ?? shelves[0] }
@@ -449,6 +455,15 @@ struct HubView: View {
         case .bataille: return L("Contre l'ordi ou à deux")
         case .carres: return L("Contre l'ordi ou à deux")
         case .mines: return L("Trois tailles de grille")
+        case .peche:
+            let n = Self.fishCaught()
+            return n > 0 ? L("\(n) / \(FishSpecies.all.count) espèces") : L("15 prises à trouver")
+        case .golf:
+            let b = UserDefaults.standard.integer(forKey: "golf.best")
+            return b > 0 ? L("Record : \(b) coups") : L("9 trous, seul ou à deux")
+        case .comete:
+            let b = UserDefaults.standard.integer(forKey: "comete.best")
+            return b > 0 ? L("Record : \(b)") : L("Un shoot'em up pixel")
         case .cascade: return CascadeGame.format(UserDefaults.standard.double(forKey: "cascade.balance")) == "0" ? L("Ta machine à pièces") : L("\(CascadeGame.format(UserDefaults.standard.double(forKey: "cascade.balance"))) pièces")
         case .ferme: return BuildFlags.realTrees ? L("\(app.fermeSpecies.count) / \(FermePlant.all.count) plantes · un vrai arbre")
                                                  : L("\(app.fermeSpecies.count) / \(FermePlant.all.count) plantes")
