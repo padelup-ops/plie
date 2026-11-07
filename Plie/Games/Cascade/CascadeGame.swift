@@ -338,7 +338,7 @@ final class CascadeGame {
                         pegPaid += hit
                         combo += 1
                         comboTime = 1.6
-                        if pops.count < 14 && Double.random(in: 0...1) < 0.08 {
+                        if pops.count < 6 && Double.random(in: 0...1) < 0.05 {
                             pops.append(CascadePop(x: p.x, y: p.y - 0.02, text: "+" + Self.format(hit), life: 0.6, gold: c.kind != .silver))
                         }
                         if soundBudget > 1 && Double.random(in: 0...1) < 0.25 {
@@ -365,7 +365,10 @@ final class CascadeGame {
         }
         for x in bursts {
             for _ in 0..<4 { spawn(x: x, y: gateY - 0.02, burst: true) }
-            pops.append(CascadePop(x: x, y: gateY, text: "×4", life: 0.9, gold: true))
+            // Un seul « ×4 » à la fois : sinon, en CASCADE, ils s'empilent en une tache jaune.
+            if !pops.contains(where: { $0.text == "×4" }) {
+                pops.append(CascadePop(x: x, y: gateY, text: "×4", life: 0.9, gold: true))
+            }
             Haptics.tap()
             if soundBudget > 1 { soundBudget -= 1; SoundPlayer.shared.play(.pop, volume: 0.5) }
         }
@@ -469,7 +472,7 @@ final class CascadeGame {
             paid += v
             count += 1
             if c.kind == .gem { gem = true }
-            if pops.count < 18 {
+            if pops.count < 8 {
                 pops.append(CascadePop(x: c.x, y: edge, text: "+" + Self.format(v), life: 0.8, gold: c.kind != .silver))
             }
             return true
