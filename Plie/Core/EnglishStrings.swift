@@ -2120,5 +2120,18 @@ enum EnglishStrings {
         "Poisson doré": "Golden fish",
         "Vieille botte": "Old boot",
         "Coffre au trésor": "Treasure chest",
+        "Gratuit pour tout le monde aujourd'hui": "Free for everyone today",
+        "Jeu du jour : {}, gratuit aujourd'hui": "Game of the day: {}, free today",
+        "Gratuit aujourd'hui": "Free today",
+        "Essai gratuit": "Free trial",
+        "Essayer gratuitement · 3 min": "Try for free · 3 min",
+        "Essayer gratuitement · 1 partie": "Try for free · 1 game",
+        "Tu as déjà utilisé ton essai gratuit de ce jeu.": "You've already used your free trial of this game.",
+        "DU JOUR": "TODAY",
+        "Jeu du jour, gratuit aujourd'hui": "Game of the day, free today",
+        "Fin de l'essai": "Trial over",
+        "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "Did you like it? Keep it forever with a key, or open every game with the Pass.",
+        "Garder ce jeu avec une clé": "Keep this game with a key",
+        "Plus tard": "Later",
     ]
 }

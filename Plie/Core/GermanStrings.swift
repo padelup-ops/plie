@@ -2120,6 +2120,19 @@ enum GermanStrings {
         "Poisson doré": "Goldfisch",
         "Vieille botte": "Alter Stiefel",
         "Coffre au trésor": "Schatztruhe",
+        "Gratuit pour tout le monde aujourd'hui": "Heute für alle gratis",
+        "Jeu du jour : {}, gratuit aujourd'hui": "Spiel des Tages: {}, heute gratis",
+        "Gratuit aujourd'hui": "Heute gratis",
+        "Essai gratuit": "Gratis testen",
+        "Essayer gratuitement · 3 min": "Gratis testen · 3 Min.",
+        "Essayer gratuitement · 1 partie": "Gratis testen · 1 Partie",
+        "Tu as déjà utilisé ton essai gratuit de ce jeu.": "Du hast dieses Spiel schon gratis getestet.",
+        "DU JOUR": "HEUTE",
+        "Jeu du jour, gratuit aujourd'hui": "Spiel des Tages, heute gratis",
+        "Fin de l'essai": "Test vorbei",
+        "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "Hat's dir gefallen? Behalte es mit einem Schlüssel für immer oder öffne alle Spiele mit dem Pass.",
+        "Garder ce jeu avec une clé": "Mit einem Schlüssel behalten",
+        "Plus tard": "Später",
     ]
 
     /// Mots des jeux (clé = mot anglais).

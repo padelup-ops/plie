@@ -2120,6 +2120,19 @@ enum SpanishStrings {
         "Poisson doré": "Pez dorado",
         "Vieille botte": "Bota vieja",
         "Coffre au trésor": "Cofre del tesoro",
+        "Gratuit pour tout le monde aujourd'hui": "Gratis para todos hoy",
+        "Jeu du jour : {}, gratuit aujourd'hui": "Juego del día: {}, gratis hoy",
+        "Gratuit aujourd'hui": "Gratis hoy",
+        "Essai gratuit": "Prueba gratis",
+        "Essayer gratuitement · 3 min": "Probar gratis · 3 min",
+        "Essayer gratuitement · 1 partie": "Probar gratis · 1 partida",
+        "Tu as déjà utilisé ton essai gratuit de ce jeu.": "Ya usaste tu prueba gratis de este juego.",
+        "DU JOUR": "DEL DÍA",
+        "Jeu du jour, gratuit aujourd'hui": "Juego del día, gratis hoy",
+        "Fin de l'essai": "Fin de la prueba",
+        "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "¿Te gustó? Quédatelo para siempre con una llave, o abre todos los juegos con el Pase.",
+        "Garder ce jeu avec une clé": "Quedártelo con una llave",
+        "Plus tard": "Más tarde",
     ]
 
     /// Mots des jeux (clé = mot anglais).

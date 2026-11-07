@@ -2120,6 +2120,19 @@ enum ChineseStrings {
         "Poisson doré": "金色鱼",
         "Vieille botte": "旧靴子",
         "Coffre au trésor": "宝箱",
+        "Gratuit pour tout le monde aujourd'hui": "今天所有人免费",
+        "Jeu du jour : {}, gratuit aujourd'hui": "今日游戏：{}，今天免费",
+        "Gratuit aujourd'hui": "今天免费",
+        "Essai gratuit": "免费试玩",
+        "Essayer gratuitement · 3 min": "免费试玩 · 3 分钟",
+        "Essayer gratuitement · 1 partie": "免费试玩 · 1 局",
+        "Tu as déjà utilisé ton essai gratuit de ce jeu.": "你已经用过这个游戏的免费试玩了。",
+        "DU JOUR": "今日",
+        "Jeu du jour, gratuit aujourd'hui": "今日游戏，今天免费",
+        "Fin de l'essai": "试玩结束",
+        "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "喜欢吗？用一把钥匙永久保留它，或用通行证解锁全部游戏。",
+        "Garder ce jeu avec une clé": "用钥匙保留这个游戏",
+        "Plus tard": "以后再说",
     ]
 
     /// Mots des jeux (clé = mot anglais).

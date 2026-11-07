@@ -2120,6 +2120,19 @@ enum JapaneseStrings {
         "Poisson doré": "黄金の魚",
         "Vieille botte": "古いブーツ",
         "Coffre au trésor": "宝箱",
+        "Gratuit pour tout le monde aujourd'hui": "今日はみんな無料",
+        "Jeu du jour : {}, gratuit aujourd'hui": "今日のゲーム：{}、今日は無料",
+        "Gratuit aujourd'hui": "今日は無料",
+        "Essai gratuit": "無料でお試し",
+        "Essayer gratuitement · 3 min": "無料で試す・3分",
+        "Essayer gratuitement · 1 partie": "無料で試す・1プレイ",
+        "Tu as déjà utilisé ton essai gratuit de ce jeu.": "このゲームの無料お試しは使用済みです。",
+        "DU JOUR": "今日",
+        "Jeu du jour, gratuit aujourd'hui": "今日のゲーム、今日は無料",
+        "Fin de l'essai": "お試し終了",
+        "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "気に入った？カギでずっと遊べるようにするか、パスで全部のゲームを開けよう。",
+        "Garder ce jeu avec une clé": "カギでこのゲームを残す",
+        "Plus tard": "あとで",
     ]
 
     /// Mots des jeux (clé = mot anglais).

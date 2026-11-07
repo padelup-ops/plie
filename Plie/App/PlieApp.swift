@@ -1,5 +1,6 @@
 import SwiftUI
 import StoreKit
+import Combine
 
 @main
 struct PlieApp: App {
@@ -27,6 +28,7 @@ struct RootView: View {
     /// Mode d'emploi montré automatiquement à la première visite de chaque jeu.
     @State private var howTo: GameID?
     @State private var keyToast = false
+    private let trialTicker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         @Bindable var app = app
@@ -147,6 +149,12 @@ struct RootView: View {
             }
         }
         .sheet(item: $howTo) { game in HowToSheet(game: game) }
+        .sheet(item: Binding(get: { app.trialOver }, set: { if $0 == nil { app.closeTrialOver() } })) { game in
+            TrialOverSheet(game: game)
+                .environment(app)
+                .environment(store)
+        }
+        .onReceive(trialTicker) { _ in app.checkTrial(hasPass: store.hasEverything) }
         .overlay(alignment: .top) {
             if keyToast {
                 HStack(spacing: 10) {
@@ -295,6 +303,85 @@ struct RootView: View {
         switch app.route {
         case .airHockey, .billard, .filet, .piano, .luciole, .ecole, .soleil, .chess, .draughts, .boite, .croco, .pliou, .bombe, .coupDoeil, .dessine, .briques, .bonneteau, .morpion, .puissance, .duels, .mots, .chifoumi, .doigts, .sourire, .tape, .cascade, .bataille, .carres, .mines, .peche, .golf, .comete: return true
         default: return false
+        }
+    }
+}
+
+
+/// Fin de l'essai gratuit : on propose de garder le jeu (clé ou Pass), sans insister.
+struct TrialOverSheet: View {
+    let game: GameID
+    @Environment(AppState.self) private var app
+    @Environment(StoreManager.self) private var store
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 18) {
+                HStack {
+                    Spacer()
+                    IconButton(symbol: "xmark", label: L("Fermer")) { dismiss() }
+                }
+                ZStack {
+                    PaperSheet(color: game.paper, cornerRadius: 30, ear: 32, lift: 1.2)
+                    VStack(spacing: 10) {
+                        Image(systemName: game.symbol).font(.system(size: 46, weight: .bold))
+                        Text(L("Fin de l'essai")).font(.system(.headline, design: .rounded, weight: .heavy)).opacity(0.7)
+                        Text(game.title).font(.paperTitle(32)).minimumScaleFactor(0.5).lineLimit(1)
+                        Text(L("Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass."))
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                            .multilineTextAlignment(.center)
+                            .opacity(0.8)
+                    }
+                    .foregroundStyle(Paper.ink)
+                    .padding(22)
+                }
+                .frame(minHeight: 230)
+
+                Button {
+                    dismiss()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { app.showPass = true }
+                } label: {
+                    Label(store.pass.map { L("Tout débloquer · \($0.displayPrice)") } ?? L("Tout débloquer avec le Pass"), systemImage: "crown.fill")
+                }
+                .buttonStyle(ChunkyButtonStyle(color: Theme.gold.paperTone(), textColor: Paper.ink, height: 60))
+
+                if app.keys > 0 {
+                    Button {
+                        if app.unlock(game) {
+                            SoundPlayer.shared.play(.vault, volume: 0.8)
+                            Haptics.success()
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { app.route = game.route }
+                        }
+                    } label: {
+                        Label(L("Garder ce jeu avec une clé"), systemImage: "key.fill")
+                    }
+                    .buttonStyle(ChunkyButtonStyle(color: game.paper, textColor: Paper.ink, height: 56))
+                } else {
+                    let left = app.gamesPerKey - app.keyProgress
+                    Text(left > 1 ? L("Joue encore \(left) parties pour gagner une clé") : L("Joue encore 1 partie pour gagner une clé"))
+                        .font(.system(.footnote, design: .rounded, weight: .semibold))
+                        .foregroundStyle(Theme.muted)
+                        .multilineTextAlignment(.center)
+                }
+
+                Button(L("Plus tard")) { dismiss() }
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundStyle(Paper.ink.opacity(0.7))
+                    .padding(.top, 4)
+            }
+            .padding(22)
+            .frame(maxWidth: 560)
+            .frame(maxWidth: .infinity)
+        }
+        .paperScreen()
+        .onAppear {
+            // Déjà débloqué entre-temps (Pass acheté pendant l'essai) : rien à proposer.
+            if store.hasEverything || app.isUnlocked(game, hasPass: false) { dismiss() }
+        }
+        .task {
+            if store.pass == nil { await store.load() }
         }
     }
 }

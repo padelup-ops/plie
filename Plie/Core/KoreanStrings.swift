@@ -2120,6 +2120,19 @@ enum KoreanStrings {
         "Poisson doré": "황금 물고기",
         "Vieille botte": "낡은 장화",
         "Coffre au trésor": "보물 상자",
+        "Gratuit pour tout le monde aujourd'hui": "오늘은 모두 무료",
+        "Jeu du jour : {}, gratuit aujourd'hui": "오늘의 게임: {}, 오늘 무료",
+        "Gratuit aujourd'hui": "오늘 무료",
+        "Essai gratuit": "무료 체험",
+        "Essayer gratuitement · 3 min": "무료 체험 · 3분",
+        "Essayer gratuitement · 1 partie": "무료 체험 · 1판",
+        "Tu as déjà utilisé ton essai gratuit de ce jeu.": "이 게임의 무료 체험은 이미 사용했어요.",
+        "DU JOUR": "오늘",
+        "Jeu du jour, gratuit aujourd'hui": "오늘의 게임, 오늘 무료",
+        "Fin de l'essai": "체험 종료",
+        "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "마음에 들었나요? 열쇠로 영원히 갖거나, 패스로 모든 게임을 열어요.",
+        "Garder ce jeu avec une clé": "열쇠로 이 게임 갖기",
+        "Plus tard": "나중에",
     ]
 
     /// Mots des jeux (clé = mot anglais).

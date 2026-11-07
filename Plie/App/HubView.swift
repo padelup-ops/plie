@@ -73,9 +73,11 @@ struct HubView: View {
     private var hasPass: Bool { store.hasEverything }
 
     private func unlocked(_ game: GameID) -> Bool { app.isUnlocked(game, hasPass: hasPass) }
+    private func playable(_ game: GameID) -> Bool { app.isPlayable(game, hasPass: hasPass) }
+    private var daily: GameID? { app.dailyGame(hasPass: hasPass) }
 
     private func open(_ game: GameID) {
-        if unlocked(game) {
+        if playable(game) {
             app.route = game.route
         } else {
             unlocking = game
@@ -91,6 +93,10 @@ struct HubView: View {
                 featured
                 if !hasPass && app.lockedCount > 0 {
                     keysCard
+                        .padding(.horizontal, 20)
+                }
+                if let d = daily {
+                    dailyCard(d)
                         .padding(.horizontal, 20)
                 }
                 if let last = app.lastPlayed, unlocked(last) {
@@ -195,7 +201,7 @@ struct HubView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
                     ForEach(Self.featured) { game in
-                        HeroCard(game: game, locked: !unlocked(game), isNew: Self.newGames.contains(game),
+                        HeroCard(game: game, locked: !playable(game), isNew: Self.newGames.contains(game),
                                  daily: game == .coupDoeil, animate: !reduceMotion) {
                             open(game)
                         }
@@ -241,6 +247,33 @@ struct HubView: View {
     }
 
     // MARK: Clés
+
+    private func dailyCard(_ game: GameID) -> some View {
+        Button {
+            open(game)
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: game.symbol)
+                    .font(.system(size: 26, weight: .bold))
+                    .frame(width: 52, height: 52)
+                    .background(Circle().fill(.white.opacity(0.5)))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(L("Jeu du jour")).font(.system(.caption, design: .rounded, weight: .heavy)).opacity(0.7)
+                    Text(game.title).font(.paperTitle(22)).lineLimit(1).minimumScaleFactor(0.6)
+                    Text(L("Gratuit pour tout le monde aujourd'hui")).font(.system(.caption, design: .rounded, weight: .bold)).opacity(0.7)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "play.fill").font(.system(size: 18, weight: .black))
+            }
+            .foregroundStyle(Paper.ink)
+            .padding(14)
+            .background(PaperSheet(color: game.paper, cornerRadius: 22, lift: 0.8))
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L("Jeu du jour : \(game.title), gratuit aujourd'hui"))
+        .accessibilityAddTraits(.isButton)
+    }
 
     private var keysCard: some View {
         let need = app.gamesPerKey
@@ -410,7 +443,9 @@ struct HubView: View {
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150, maximum: 260), spacing: 14)], spacing: 14) {
                 ForEach(results) { game in
-                    GameCard(game: game, locked: !unlocked(game), isNew: Self.newGames.contains(game), progress: progress(for: game)) {
+                    GameCard(game: game, locked: !playable(game), isNew: Self.newGames.contains(game),
+                             progress: game == daily ? L("Gratuit aujourd'hui") : progress(for: game),
+                             note: app.canTry(game) ? L("Essai gratuit") : nil, daily: game == daily) {
                         open(game)
                     } onHelp: {
                         howTo = game
@@ -622,6 +657,9 @@ struct GameCard: View {
     let locked: Bool
     let isNew: Bool
     let progress: String?
+    /// Sous un jeu fermé (ex. « Essai gratuit »).
+    var note: String? = nil
+    var daily = false
     let onPlay: () -> Void
     let onHelp: () -> Void
 
@@ -642,6 +680,8 @@ struct GameCard: View {
                             .foregroundStyle(Paper.sheet)
                             .frame(width: 28, height: 28)
                             .background(Circle().fill(Paper.ink))
+                    } else if daily {
+                        DailyBadge()
                     } else if isNew {
                         NewBadge()
                     }
@@ -657,7 +697,7 @@ struct GameCard: View {
                     .foregroundStyle(Paper.ink)
                     .lineLimit(2)
                     .minimumScaleFactor(0.6)
-                Text(locked ? L("Une clé pour l'ouvrir") : (progress ?? game.players))
+                Text(locked ? (note ?? L("Une clé pour l'ouvrir")) : (progress ?? game.players))
                     .font(.system(.caption, design: .rounded, weight: .bold))
                     .foregroundStyle(Paper.ink.opacity(0.66))
                     .lineLimit(2)
@@ -765,6 +805,22 @@ struct UnlockSheet: View {
                 .padding(16)
                 .background(PaperSheet(color: Paper.sheet, cornerRadius: 20, lift: 0.6))
 
+                if app.canTry(game) {
+                    Button {
+                        dismiss()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { app.startTrial(game) }
+                    } label: {
+                        Label(AppState.endlessGames.contains(game) ? L("Essayer gratuitement · 3 min") : L("Essayer gratuitement · 1 partie"),
+                              systemImage: "play.fill")
+                    }
+                    .buttonStyle(ChunkyButtonStyle(color: Paper.ink, textColor: Paper.sheet, height: 60))
+                } else {
+                    Text(L("Tu as déjà utilisé ton essai gratuit de ce jeu."))
+                        .font(.system(.footnote, design: .rounded, weight: .semibold))
+                        .foregroundStyle(Theme.muted)
+                        .multilineTextAlignment(.center)
+                }
+
                 if app.keys > 0 {
                     Button {
                         if app.unlock(game) {
@@ -843,6 +899,18 @@ struct ChooseGameSheet: View {
             .frame(maxWidth: .infinity)
         }
         .paperScreen()
+    }
+}
+
+struct DailyBadge: View {
+    var body: some View {
+        Text(L("DU JOUR"))
+            .font(.system(.caption, design: .rounded, weight: .black))
+            .padding(.horizontal, 9)
+            .padding(.vertical, 4)
+            .background(Capsule().fill(Paper.gold))
+            .foregroundStyle(Paper.ink)
+            .accessibilityLabel(L("Jeu du jour, gratuit aujourd'hui"))
     }
 }
 

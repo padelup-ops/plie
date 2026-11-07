@@ -219,6 +219,72 @@ final class AppState {
         if [4, 15, 40].contains(happyMoments) { reviewRequest += 1 }
     }
 
+    // MARK: Essai gratuit et jeu du jour
+    //
+    // Un jeu fermé s'essaie une fois : une partie entière (ou 3 minutes pour les jeux sans fin),
+    // puis on propose de le garder avec une clé ou le Pass. Et chaque jour, un jeu fermé est
+    // ouvert à tous jusqu'à minuit.
+
+    private(set) var triedGames: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "trial.tried") ?? [])
+    /// Le jeu en cours d'essai.
+    private(set) var trial: GameID?
+    /// L'essai qui vient de finir : on propose de garder le jeu.
+    private(set) var trialOver: GameID?
+    @ObservationIgnored private var trialStart: Date?
+
+    /// Jeux sans fin de partie : l'essai dure 3 minutes. Les autres : une partie (8 minutes au plus).
+    static let endlessGames: Set<GameID> = [.cascade, .peche, .pliou, .ferme, .piano, .luciole, .ecole, .rayon, .bascule]
+
+    func canTry(_ game: GameID) -> Bool { !triedGames.contains(game.rawValue) }
+
+    func startTrial(_ game: GameID) {
+        triedGames.insert(game.rawValue)
+        defaults.set(Array(triedGames), forKey: "trial.tried")
+        trial = game
+        trialStart = Date()
+        route = game.route
+    }
+
+    /// Chaque seconde : l'essai s'arrête quand le temps est écoulé ou qu'on a quitté le jeu.
+    func checkTrial(hasPass: Bool) {
+        guard let game = trial, let start = trialStart else { return }
+        if hasPass || unlockedGames.contains(game.rawValue) {
+            trial = nil
+            trialStart = nil
+            return
+        }
+        let limit: TimeInterval = Self.endlessGames.contains(game) ? 180 : 480
+        if GameID.of(route) != game || Date().timeIntervalSince(start) > limit { finishTrial() }
+    }
+
+    func finishTrial() {
+        guard let game = trial else { return }
+        trial = nil
+        trialStart = nil
+        trialOver = game
+        route = .hub
+    }
+
+    func closeTrialOver() { trialOver = nil }
+
+    /// Le jeu du jour : le même toute la journée, choisi parmi ceux qui sont encore fermés.
+    func dailyGame(hasPass: Bool) -> GameID? {
+        guard !hasPass else { return nil }
+        let pool = GameID.allCases.filter { !Self.starterGames.contains($0) }
+        guard !pool.isEmpty else { return nil }
+        let day = Calendar.current.dateComponents([.day], from: Date(timeIntervalSince1970: 0), to: Date()).day ?? 0
+        for k in 0..<pool.count {
+            let game = pool[(day + k) % pool.count]
+            if !unlockedGames.contains(game.rawValue) { return game }
+        }
+        return nil
+    }
+
+    /// Ouvert pour de bon, ou jeu du jour.
+    func isPlayable(_ game: GameID, hasPass: Bool) -> Bool {
+        isUnlocked(game, hasPass: hasPass) || game == dailyGame(hasPass: hasPass)
+    }
+
     // MARK: Jeux à débloquer
     //
     // Six jeux sont ouverts dès le départ. Les autres se débloquent avec des clés : on gagne une clé
@@ -240,6 +306,12 @@ final class AppState {
 
     /// Une partie terminée : on avance vers la prochaine clé.
     func gamePlayed() {
+        // Fin de la partie d'essai : on laisse voir le résultat, puis on propose de garder le jeu.
+        if let game = trial, !Self.endlessGames.contains(game) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+                if self?.trial == game { self?.finishTrial() }
+            }
+        }
         guard lockedCount > keys else { return }
         keyProgress += 1
         if keyProgress >= gamesPerKey {
