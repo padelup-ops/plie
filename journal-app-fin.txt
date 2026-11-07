@@ -1,0 +1,1439 @@
+lure [shared UUID]>
+2026-11-07 01:27:10.760 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.760 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.767 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.767 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.767 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.767 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.767 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.768 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.776 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.776 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.776 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.777 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.777 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.778 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.785 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.785 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.786 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.786 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.786 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.786 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.786 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.786 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.786 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.786 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.786 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.787 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.787 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.787 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.787 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.787 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.787 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.787 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.795 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.795 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.795 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.796 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.796 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.796 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.796 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.796 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.796 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.797 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.797 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.797 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.797 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.797 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.797 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.797 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.797 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.797 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.804 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.804 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.804 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.805 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.813 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.813 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.813 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.813 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.813 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.814 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.821 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.821 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.821 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.822 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.822 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.822 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.822 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.822 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.822 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.822 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.822 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.822 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.823 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.823 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.823 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.823 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.823 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.823 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.832 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.832 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.833 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.833 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.833 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.834 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.835 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.835 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.842 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.842 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.842 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.842 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.842 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.842 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.842 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.842 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.842 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.843 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.843 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.843 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.843 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.843 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.843 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.843 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.843 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.843 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.851 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.851 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.851 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.851 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.851 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.853 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.853 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.853 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.854 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.854 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.854 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.854 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.854 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.854 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.854 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.854 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.854 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.855 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.862 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.863 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.863 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.863 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.863 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.870 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.870 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.871 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.871 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.871 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.871 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.871 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.871 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.871 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.878 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.878 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.878 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.879 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.880 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.880 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.880 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.880 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.887 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.887 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.888 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.888 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.888 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.888 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.888 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.888 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.888 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.896 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.896 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.896 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.896 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.896 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.896 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.896 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.896 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.896 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.896 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.897 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.897 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.897 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.897 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.897 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.897 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.897 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.897 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.905 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.905 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.905 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.905 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.905 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.905 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.905 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.906 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.914 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.914 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.914 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.914 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.914 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.916 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.923 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.923 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.923 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.923 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.923 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.924 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.924 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.924 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.924 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.924 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.924 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.924 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.925 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.925 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.925 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.925 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.925 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.925 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.932 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.932 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.932 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.932 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.932 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.933 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.933 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.933 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.933 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.933 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.934 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.934 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.934 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.934 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.934 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.934 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.934 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.934 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.941 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.941 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.941 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.941 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.941 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.941 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.941 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.941 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.941 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.941 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.942 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.942 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.942 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.942 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.942 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.942 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.942 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.942 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.949 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.949 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.949 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.950 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.958 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.959 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.966 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.966 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.966 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.966 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.966 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.967 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.968 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.968 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.968 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.975 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.975 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.975 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.975 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.975 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.976 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.982 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.982 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.982 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.983 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.990 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.990 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.990 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.990 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.990 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.991 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.998 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:10.998 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:10.998 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:10.998 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:10.998 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:10.999 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.006 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.006 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.006 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.006 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.006 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.007 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.014 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.014 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.014 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.014 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.014 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.015 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.022 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.022 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.022 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.022 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.022 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.023 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.029 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.029 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.029 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.029 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.029 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.030 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.037 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.037 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.037 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.037 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.037 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.037 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.038 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.045 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.045 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.045 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.045 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.045 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.045 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.045 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.045 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.046 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.052 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.053 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.060 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.060 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.060 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.060 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.060 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.061 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.069 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.069 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.069 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.069 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.069 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.069 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.070 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.071 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.071 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.071 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.071 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.071 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.071 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.072 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.078 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.078 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.078 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.078 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.078 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.078 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.079 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.086 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.086 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.086 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.086 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.086 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.086 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.087 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.094 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.094 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.094 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.094 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.094 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.094 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.095 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.102 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.103 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.103 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.103 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.103 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.103 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.104 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.113 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.113 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.113 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.113 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.113 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.113 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.114 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.114 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.114 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.114 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.115 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.115 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.115 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.115 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.115 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.116 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.116 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.116 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.116 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.123 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.124 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.124 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.124 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.124 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.124 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.126 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.126 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.127 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.127 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.127 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.127 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.127 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.127 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.128 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.128 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.128 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.128 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.128 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.135 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.135 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.135 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.135 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.135 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.135 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.136 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.144 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.144 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.144 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.144 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.144 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.144 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.146 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.153 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.153 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.153 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.153 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.154 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.155 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.155 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.155 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.155 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.155 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.160 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.160 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.160 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.160 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.161 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.162 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.162 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.162 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.168 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.168 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.168 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.168 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.169 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.176 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.176 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.176 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.176 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.177 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.177 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.178 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.185 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.185 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.185 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.185 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.185 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.185 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.186 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.193 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.193 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.193 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.193 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.194 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.195 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.195 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.195 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.195 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.195 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.202 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.202 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.202 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.202 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.202 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.202 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.203 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.210 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.210 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.210 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.210 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.210 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.210 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.211 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.218 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.218 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.218 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.218 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.218 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.218 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.219 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.226 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.226 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.226 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.226 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.226 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.226 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.227 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.233 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.233 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.233 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.233 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.234 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.235 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.241 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.241 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.241 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.241 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.241 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.241 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.242 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.249 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.249 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.249 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.249 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.249 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.249 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.250 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.257 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.257 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.257 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.257 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.257 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.257 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.258 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.265 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.265 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.265 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.265 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.265 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.265 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.266 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.272 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.273 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.274 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.274 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.274 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.274 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.274 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.280 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.280 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.280 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.281 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.282 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.282 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.282 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.289 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.289 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.289 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.289 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.289 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.289 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.290 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.291 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.291 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.291 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.300 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.300 F  Plie[51502:20ee9] [com.apple.runtime-issues:AVAudioSession Hang Risk] <compose failure [shared UUID]>
+2026-11-07 01:27:11.300 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.300 Df Plie[51502:20ee9] [com.apple.coreaudio:ddagg] <compose failure [shared UUID]>
+2026-11-07 01:27:11.301 Df Plie[51502:20ee9] [com.apple.coreaudio:ac] <compose failure [shared UUID]>
+2026-11-07 01:27:11.301 Df Plie[51502:20ee9] [com.apple.coreaudio:ac] <compose failure [shared UUID]>
+2026-11-07 01:27:11.303 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.303 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.303 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.307 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.307 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.307 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.307 Df Plie[51502:20ee9] [com.apple.coreaudio:ac] <compose failure [shared UUID]>
+2026-11-07 01:27:11.308 Df Plie[51502:20ee9] [com.apple.coreaudio:ac] <compose failure [shared UUID]>
+2026-11-07 01:27:11.308 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.308 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.308 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.309 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.309 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.309 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.309 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.309 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.309 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.309 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.309 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.309 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.311 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.313 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.313 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.313 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.313 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 Df Plie[51502:20ee9] [com.apple.coreaudio:ac] <compose failure [shared UUID]>
+2026-11-07 01:27:11.314 Df Plie[51502:20ee9] [com.apple.coreaudio:ac] <compose failure [shared UUID]>
+2026-11-07 01:27:11.315 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.315 E  Plie[51502:20ee9] [com.apple.audioanalytics:carc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.315 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.317 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.317 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.317 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.317 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.317 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.317 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 E  Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.318 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.319 Df Plie[51502:20ee9] [com.apple.coreaudio:AudioConverter] <compose failure [shared UUID]>
+2026-11-07 01:27:11.325 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.326 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.326 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.341 Df Plie[51502:21038] [com.apple.coreaudio:default] <compose failure [shared UUID]>
+2026-11-07 01:27:11.384 Df Plie[51502:20ee9] [com.apple.UIKit:Orientation] <compose failure [shared UUID]>
+2026-11-07 01:27:11.385 Df Plie[51502:20ee9] [com.apple.UIKit:KeyWindow] <compose failure [shared UUID]>
+2026-11-07 01:27:11.385 Df Plie[51502:20ee9] [com.apple.UIKit:KeyWindow] <compose failure [shared UUID]>
+2026-11-07 01:27:11.385 Df Plie[51502:20ee9] [com.apple.UIKit:KeyWindow] <compose failure [shared UUID]>
+2026-11-07 01:27:11.385 Df Plie[51502:20ee9] [com.apple.UIKit:KeyWindow] <compose failure [shared UUID]>
+2026-11-07 01:27:11.385 Df Plie[51502:20ee9] [com.apple.UIKit:EventDeferring] <compose failure [shared UUID]>
+2026-11-07 01:27:11.386 Df Plie[51502:20ee9] [com.apple.UIKit:EventDeferring] <compose failure [shared UUID]>
+2026-11-07 01:27:11.386 Df Plie[51502:20ee9] [com.apple.UIKit:EventDeferring] <compose failure [shared UUID]>
+2026-11-07 01:27:11.386 Df Plie[51502:21038] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:11.389 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:11.390 Df Plie[51502:20ee9] [com.apple.UIKit:AppLifecycle] <compose failure [shared UUID]>
+2026-11-07 01:27:11.390 Df Plie[51502:20ee9] [com.apple.UIKit:Application] <compose failure [shared UUID]>
+2026-11-07 01:27:11.390 Df Plie[51502:20ee9] [com.apple.UIKit:Application] <compose failure [shared UUID]>
+2026-11-07 01:27:11.390 Df Plie[51502:20ee9] [com.apple.UIKit:Application] <compose failure [shared UUID]>
+2026-11-07 01:27:11.390 Df Plie[51502:20ee9] [com.apple.FrontBoard:SceneExtension] <compose failure [shared UUID]>
+2026-11-07 01:27:11.391 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:11.391 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:11.391 Df Plie[51502:21052] [com.apple.UIIntelligenceSupport:xpc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.391 Df Plie[51502:21052] [com.apple.xpc:session] <compose failure [shared UUID]>
+2026-11-07 01:27:11.391 Df Plie[51502:21052] [com.apple.xpc:session] <compose failure [shared UUID]>
+2026-11-07 01:27:11.391 Df Plie[51502:21052] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:11.391 Df Plie[51502:21052] [com.apple.xpc:session] <compose failure [shared UUID]>
+2026-11-07 01:27:11.392 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:11.392 Df Plie[51502:20ee9] [com.apple.FrontBoard:SceneExtension] <compose failure [shared UUID]>
+2026-11-07 01:27:11.393 Df Plie[51502:21038] [com.apple.UIIntelligenceSupport:xpc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.394 Df Plie[51502:20ee9] [com.apple.FrontBoard:SceneExtension] <compose failure [shared UUID]>
+2026-11-07 01:27:11.395 Df Plie[51502:20ee9] [com.apple.UIKit:ScenePostSettingsUpdateResponse] <compose failure [shared UUID]>
+2026-11-07 01:27:11.395 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:11.402 A  Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.548 Df Plie[51502:2104f] [com.apple.UIKit:BackgroundTask] <compose failure [shared UUID]>
+2026-11-07 01:27:11.549 Df Plie[51502:2104f] [com.apple.UIKit:BackgroundTask] <compose failure [shared UUID]>
+2026-11-07 01:27:11.549 Df Plie[51502:2104f] [com.apple.UIKit:BackgroundTask] <compose failure [shared UUID]>
+2026-11-07 01:27:11.549 Df Plie[51502:2104f] [com.apple.UIKit:BackgroundTask] <compose failure [shared UUID]>
+2026-11-07 01:27:11.593 Df Plie[51502:2104f] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:11.660 A  Plie[51502:21052] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.751 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:11.751 A  Plie[51502:2104f] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.752 Df Plie[51502:21052] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:11.753 Df Plie[51502:2104f] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:11.753 Df Plie[51502:21052] [com.apple.storekit:Default] <compose failure [shared UUID]>
+2026-11-07 01:27:11.841 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.841 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:11.841 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:11.853 Df Plie[51502:2104f] [com.apple.coreaudio:default] <compose failure [shared UUID]>
+2026-11-07 01:27:11.861 Df Plie[51502:20ee9] [com.apple.UIKit:SceneTargetingInteraction] <compose failure [shared UUID]>
+2026-11-07 01:27:11.861 Df Plie[51502:20ee9] [com.apple.FrontBoard:SceneClient] <compose failure [shared UUID]>
+2026-11-07 01:27:11.862 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:11.879 Df Plie[51502:20ee9] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:11.880 Df Plie[51502:20ee9] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:11.880 Df Plie[51502:20ee9] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:11.893 Df Plie[51502:20ee9] [com.apple.renderbox:misc] <compose failure [shared UUID]>
+2026-11-07 01:27:11.893 Df Plie[51502:20ee9] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:11.993 A  Plie[51502:2104f] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:11.997 A  Plie[51502:2104d] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:12.029 Df Plie[51502:20ee9] [com.apple.network:activity] <compose failure [shared UUID]>
+2026-11-07 01:27:12.029 Df Plie[51502:20ee9] [com.apple.network:activity] <compose failure [shared UUID]>
+2026-11-07 01:27:12.029 Df Plie[51502:20ee9] [com.apple.network:activity] <compose failure [shared UUID]>
+2026-11-07 01:27:12.031 Df Plie[51502:20ee9] [com.apple.Accessibility:AXCommon] <compose failure [shared UUID]>
+2026-11-07 01:27:12.032 A  Plie[51502:2104f] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:12.032 A  Plie[51502:2104f] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:12.036 A  Plie[51502:2104d] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:12.036 Df Plie[51502:20ee9] [com.apple.UIKit:AppLifecycle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.037 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.038 Df Plie[51502:2104d] [com.apple.storekit:Default] <compose failure [shared UUID]>
+2026-11-07 01:27:12.038 A  Plie[51502:2104d] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:12.039 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.040 Df Plie[51502:20ee9] [com.apple.UIKit:AppLifecycle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.040 Df Plie[51502:20ee9] [com.apple.UIKit:Application] <compose failure [shared UUID]>
+2026-11-07 01:27:12.040 Df Plie[51502:20ee9] [com.apple.KeyboardArbiter:Client] <compose failure [shared UUID]>
+2026-11-07 01:27:12.041 Df Plie[51502:20ee9] [com.apple.UIKit:Application] <compose failure [shared UUID]>
+2026-11-07 01:27:12.041 Df Plie[51502:20ee9] [com.apple.KeyboardArbiter:Client] <compose failure [shared UUID]>
+2026-11-07 01:27:12.046 Df Plie[51502:21052] [com.apple.storekit:Default] <compose failure [shared UUID]>
+2026-11-07 01:27:12.047 Df Plie[51502:2104f] [com.apple.storekit:Default] <compose failure [shared UUID]>
+2026-11-07 01:27:12.052 Df Plie[51502:21052] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.056 Df Plie[51502:2104f] [com.apple.storekit:Default] <compose failure [shared UUID]>
+2026-11-07 01:27:12.058 Df Plie[51502:21052] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.058 Df Plie[51502:21052] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.058 Df Plie[51502:21052] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.058 Df Plie[51502:21052] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.058 Df Plie[51502:21052] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.099 Df Plie[51502:20ee9] [com.apple.UIKit:AppLifecycle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.101 Df Plie[51502:20ee9] [com.apple.UIKit:ScenePostSettingsUpdateResponse] <compose failure [shared UUID]>
+2026-11-07 01:27:12.102 A  Plie[51502:2104f] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:12.132 Df Plie[51502:20ee9] (AD07748C-2278-31F0-8477-83CBF21E3292) <compose failure [shared UUID]>
+2026-11-07 01:27:12.132 Df Plie[51502:20ee9] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:12.276 Df Plie[51502:20ee9] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:12.276 A  Plie[51502:21052] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:12.702 A  Plie[51502:21052] (AD07748C-2278-31F0-8477-83CBF21E3292) 
+2026-11-07 01:27:12.707 Df Plie[51502:2104d] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:12.718 Df Plie[51502:2104d] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:12.718 Df Plie[51502:2104d] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:12.731 E  Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:12.759 Df Plie[51502:20ee9] [com.apple.UIKit:UIScreen] <compose failure [shared UUID]>
+2026-11-07 01:27:12.759 Df Plie[51502:20ee9] [com.apple.UIKit:UIScreen] <compose failure [shared UUID]>
+2026-11-07 01:27:12.760 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.760 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.761 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.761 Df Plie[51502:20ee9] [com.apple.UIKit:HomeAffordanceObservation] <compose failure [shared UUID]>
+2026-11-07 01:27:12.761 Df Plie[51502:20ee9] [com.apple.BacklightServices:scenes] <compose failure [shared UUID]>
+2026-11-07 01:27:12.761 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.761 Df Plie[51502:20ee9] [com.apple.UIKit:EventDeferring] <compose failure [shared UUID]>
+2026-11-07 01:27:12.762 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.762 Df Plie[51502:20ee9] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.762 Df Plie[51502:20ee9] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.762 Df Plie[51502:20ee9] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.762 Df Plie[51502:21050] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.762 Df Plie[51502:20ee9] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.762 Df Plie[51502:20ee9] [com.apple.BackBoard:EventDelivery] <compose failure [shared UUID]>
+2026-11-07 01:27:12.762 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.762 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.763 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.763 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.763 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.763 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.763 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.763 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.763 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.765 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.765 Df Plie[51502:20ee9] [com.apple.UIKit:AppLifecycle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.765 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.765 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.765 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardScene] <compose failure [shared UUID]>
+2026-11-07 01:27:12.765 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.765 Df Plie[51502:20ee9] [com.apple.UIKit:ScenePostSettingsUpdateResponse] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:ScenePostSettingsUpdateResponse] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:KeyWindow] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:EventDeferring] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:EventDeferring] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:KeyWindow] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:KeyWindow] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:KeyWindow] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardFocusAssistant] <compose failure [shared UUID]>
+2026-11-07 01:27:12.766 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardSceneDelegate] <compose failure [shared UUID]>
+2026-11-07 01:27:12.769 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardArbiterClientLog] <compose failure [shared UUID]>
+2026-11-07 01:27:12.769 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardArbiterClientLog] <compose failure [shared UUID]>
+2026-11-07 01:27:12.770 Df Plie[51502:20ee9] [com.apple.runningboard:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:12.770 Df Plie[51502:20ee9] [com.apple.xpc:connection] <compose failure [shared UUID]>
+2026-11-07 01:27:12.770 Df Plie[51502:20ee9] [com.apple.runningboard:process] <compose failure [shared UUID]>
+2026-11-07 01:27:12.774 Df Plie[51502:20ee9] [com.apple.KeyboardArbiter:Client] <compose failure [shared UUID]>
+2026-11-07 01:27:12.774 Df Plie[51502:20ee9] [com.apple.KeyboardArbiter:Client] <compose failure [shared UUID]>
+2026-11-07 01:27:12.774 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardArbiterClientLog] <compose failure [shared UUID]>
+2026-11-07 01:27:12.774 Df Plie[51502:20ee9] [com.apple.KeyboardArbiter:Client] <compose failure [shared UUID]>
+2026-11-07 01:27:12.774 Df Plie[51502:20ee9] [com.apple.KeyboardArbiter:Client] <compose failure [shared UUID]>
+2026-11-07 01:27:12.777 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardSceneDelegate] <compose failure [shared UUID]>
+2026-11-07 01:27:12.777 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:12.777 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:12.778 Df Plie[51502:20ee9] [com.apple.KeyboardArbiter:Client] <compose failure [shared UUID]>
+2026-11-07 01:27:12.779 Df Plie[51502:20ee9] [com.apple.FrontBoard:SceneExtension] <compose failure [shared UUID]>
+2026-11-07 01:27:12.779 Df Plie[51502:20ee9] [com.apple.FrontBoard:SceneExtension] <compose failure [shared UUID]>
+2026-11-07 01:27:12.779 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.780 Df Plie[51502:20ee9] [com.apple.UIKit:AppLifecycle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.781 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardScene] <compose failure [shared UUID]>
+2026-11-07 01:27:12.818 Sd Plie[51502:0] (DFCCEAC9-4B53-3068-9B85-C706F23F9A23) IOHIDManager State
+{
+    DispatchQueue = 0;
+    RunLoop = 1;
+    createOptions = 0;
+    isOpen = 0;
+    openOptions = 0;
+}
+2026-11-07 01:27:12.827 Df Plie[51502:20ee9] [com.apple.FrontBoard:SceneExtension] <compose failure [shared UUID]>
+2026-11-07 01:27:12.829 Df Plie[51502:20ee9] [com.apple.FrontBoard:SceneExtension] <compose failure [shared UUID]>
+2026-11-07 01:27:12.837 Df Plie[51502:20ee9] [com.apple.UIKit:AppLifecycle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.837 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.837 Df Plie[51502:20ee9] [com.apple.UIKit:InterfaceStyle] <compose failure [shared UUID]>
+2026-11-07 01:27:12.838 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardScene] <compose failure [shared UUID]>
+2026-11-07 01:27:12.838 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardScene] <compose failure [shared UUID]>
+2026-11-07 01:27:12.838 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardSceneDelegate] <compose failure [shared UUID]>
+2026-11-07 01:27:12.838 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardSceneDelegate] <compose failure [shared UUID]>
+2026-11-07 01:27:12.839 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardSceneDelegate] <compose failure [shared UUID]>
+2026-11-07 01:27:12.841 Df Plie[51502:20ee9] [com.apple.UIKit:KeyboardSceneDelegate] <compose failure [shared UUID]>
+2026-11-07 01:27:12.841 Df Plie[51502:20ee9] [com.apple.KeyboardArbiter:Client] <compose failure [shared UUID]>
+2026-11-07 01:27:12.842 Sd Plie[51502:0] (7C121EA6-AADD-382B-8110-43FABEBB6C68) UAUserActivity
+UAUserActivityManager supportsActivityContinuation=1 isEnabled=1 serverPid=0 PROJECT:UserActivity-551
+2026-11-07 01:27:13.305 Df Plie[51502:20ee9] [com.apple.network:] <compose failure [shared UUID]>
+2026-11-07 01:27:13.305 Df Plie[51502:20ee9] [com.apple.network:] <compose failure [shared UUID]>
+2026-11-07 01:27:13.305 Df Plie[51502:20ee9] [com.apple.network:activity] <compose failure [shared UUID]>
+2026-11-07 01:27:13.305 Df Plie[51502:20ee9] [com.apple.network:activity] <compose failure [shared UUID]>
+2026-11-07 01:27:13.305 Df Plie[51502:20ee9] [com.apple.network:activity] <compose failure [shared UUID]>
+2026-11-07 01:27:13.306 Df Plie[51502:20ee9] [com.apple.network:activity] <compose failure [shared UUID]>
+2026-11-07 01:27:13.306 Df Plie[51502:20ee9] [com.apple.app_launch_measurement:ApplicationLaunch] <compose failure [shared UUID]>
+2026-11-07 01:27:14.476 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:14.477 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:14.477 Df Plie[51502:20ee9] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:14.488 Df Plie[51502:21037] [com.apple.coreaudio:default] <compose failure [shared UUID]>
+2026-11-07 01:27:16.296 Df Plie[51502:2104f] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:16.307 Df Plie[51502:2104f] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:16.307 Df Plie[51502:2104f] [com.apple.coreaudio:aqme] <compose failure [shared UUID]>
+2026-11-07 01:27:16.307 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:16.308 Df Plie[51502:20ee9] [com.apple.coreaudio:AQ] <compose failure [shared UUID]>
+2026-11-07 01:27:17.901 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:17.902 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:22.483 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:22.483 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:23.202 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:23.202 E  Plie[51502:2104d] [com.apple.coreaudio:AMCP] <compose failure [shared UUID]>
+2026-11-07 01:27:23.202 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:28.367 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:28.367 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:29.000 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-07 01:27:29.000 Df Plie[51502:20ee9] [com.apple.renderbox:error] <compose failure [shared UUID]>

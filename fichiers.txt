@@ -1,0 +1,10 @@
+-rw-r--r--@ 1 runner  staff  15256470 Nov  7 01:19 rushes/en-hub.mov
+-rw-r--r--@ 1 runner  staff  6534016 Nov  7 01:19 rushes/en-croco.mov
+-rw-r--r--@ 1 runner  staff  5096408 Nov  7 01:24 rushes/en-coupDoeil.mov
+-rw-r--r--@ 1 runner  staff  17238085 Nov  7 01:24 rushes/en-puissance.mov
+-rw-r--r--@ 1 runner  staff  30008042 Nov  7 01:25 rushes/en-briques.mov
+-rw-r--r--@ 1 runner  staff  23357126 Nov  7 01:25 rushes/en-morpion.mov
+-rw-r--r--@ 1 runner  staff  40746639 Nov  7 01:26 rushes/en-cascade.mov
+-rw-r--r--@ 1 runner  staff  38824666 Nov  7 01:26 rushes/en-rayon.mov
+-rw-r--r--@ 1 runner  staff  33858169 Nov  7 01:26 rushes/en-bascule.mov
+-rw-r--r--@ 1 runner  staff  29806154 Nov  7 01:27 rushes/en-luciole.mov
