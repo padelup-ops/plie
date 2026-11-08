@@ -215,7 +215,7 @@ struct RootView: View {
             #if DEBUG
             switch UserDefaults.standard.string(forKey: "shot") ?? "" {
             case "paywall": showPaywall = true
-            case "pour", "poured", "assemble", "topping", "cook", "closed", "result", "summary": screen = .play(day: 3)
+            case "ready", "pour", "poured", "assemble", "topping", "cook", "closed", "result", "summary": screen = .play(day: 3)
             default: break
             }
             #endif

@@ -314,8 +314,8 @@ struct TrayView: View {
                         Text(T("Verser la pâte", "Pour the batter")).font(.toon(22)).foregroundStyle(Ink.line)
                     }
                     .padding(.horizontal, 30).padding(.vertical, 12)
-                    .background(RoundedRectangle(cornerRadius: 28).fill(Ink.line).offset(y: 5))
                     .background(RoundedRectangle(cornerRadius: 28).fill(Color(hex: 0xFFE3A8)))
+                    .background(RoundedRectangle(cornerRadius: 28).fill(Ink.line).offset(y: 5))
                     .overlay(RoundedRectangle(cornerRadius: 28).strokeBorder(Ink.line, lineWidth: 3))
                 }
                 .buttonStyle(Squish())
@@ -496,8 +496,8 @@ struct ResultCard: View {
         }
         .padding(.horizontal, 22)
         .padding(.vertical, 14)
-        .background(RoundedRectangle(cornerRadius: 22).fill(Ink.line).offset(y: 5))
         .background(RoundedRectangle(cornerRadius: 22).fill(Ink.paper))
+        .background(RoundedRectangle(cornerRadius: 22).fill(Ink.line).offset(y: 5))
         .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(Ink.line, lineWidth: 3))
     }
 }
@@ -544,8 +544,8 @@ struct StartCard: View {
             }
             .padding(24)
             .frame(maxWidth: 380)
-            .background(RoundedRectangle(cornerRadius: 30).fill(Ink.line).offset(y: 6))
             .background(RoundedRectangle(cornerRadius: 30).fill(Ink.paper))
+            .background(RoundedRectangle(cornerRadius: 30).fill(Ink.line).offset(y: 6))
             .overlay(RoundedRectangle(cornerRadius: 30).strokeBorder(Ink.line, lineWidth: 3.5))
             .padding(22)
         }
@@ -603,8 +603,8 @@ struct SummaryCard: View {
             }
             .padding(24)
             .frame(maxWidth: 380)
-            .background(RoundedRectangle(cornerRadius: 30).fill(Ink.line).offset(y: 6))
             .background(RoundedRectangle(cornerRadius: 30).fill(Ink.paper))
+            .background(RoundedRectangle(cornerRadius: 30).fill(Ink.line).offset(y: 6))
             .overlay(RoundedRectangle(cornerRadius: 30).strokeBorder(Ink.line, lineWidth: 3.5))
             .padding(22)
         }

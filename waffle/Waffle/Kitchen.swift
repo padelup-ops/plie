@@ -177,6 +177,8 @@ final class Kitchen {
     @ObservationIgnored private var hintLeft: Double = 0
     @ObservationIgnored private var lastCustomer = -1
     @ObservationIgnored private var orderNumber = 0
+    /// Captures d'écran : tout est figé.
+    @ObservationIgnored private var frozen = false
 
     init(day: Int, rush: Bool = false) {
         self.day = rush ? Kitchen.lastDay : day
@@ -286,6 +288,10 @@ final class Kitchen {
     // MARK: Le gaufrier (la charnière)
 
     func hinge(_ degrees: Double?) {
+        #if DEBUG
+        // Captures : le simulateur donne un angle de charnière qui fermerait le gaufrier.
+        if UserDefaults.standard.string(forKey: "shot") != nil { return }
+        #endif
         guard let degrees else { hasHinge = false; return }
         hasHinge = true
         setClosed(degrees < 35)
@@ -355,6 +361,7 @@ final class Kitchen {
     // MARK: Le temps
 
     func tick(_ dt: Double) {
+        if frozen { return }
         if hintLeft > 0 {
             hintLeft -= dt
             if hintLeft <= 0 { hint = nil }
@@ -410,6 +417,7 @@ final class Kitchen {
 
     func demo(_ step: String) {
         start()
+        frozen = step != "summary"
         guard let order else { return }
         switch step {
         case "pour":

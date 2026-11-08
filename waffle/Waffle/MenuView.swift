@@ -85,6 +85,7 @@ struct MenuView: View {
                     .padding(.top, 30)
 
                     ZStack {
+                        Steam(active: true, burnt: false).frame(width: 220, height: 120).offset(y: -96)
                         Image("iron_closed").resizable().scaledToFit().frame(width: 250)
                             .offset(y: 46)
                         ZStack {
@@ -95,7 +96,6 @@ struct MenuView: View {
                         .frame(width: 150)
                             .rotationEffect(.degrees(float ? -6 : 6))
                             .offset(y: float ? -40 : -24)
-                        Steam(active: true, burnt: false).frame(width: 200, height: 110).offset(y: -70)
                     }
                     .frame(height: 230)
                     .onAppear {
@@ -161,8 +161,8 @@ struct MenuView: View {
             }
         }
         .padding(16)
-        .background(RoundedRectangle(cornerRadius: 26).fill(Ink.line).offset(y: 5))
         .background(RoundedRectangle(cornerRadius: 26).fill(Ink.paper))
+        .background(RoundedRectangle(cornerRadius: 26).fill(Ink.line).offset(y: 5))
         .overlay(RoundedRectangle(cornerRadius: 26).strokeBorder(Ink.line, lineWidth: 3))
     }
 
@@ -254,8 +254,8 @@ struct PaywallView: View {
             }
             .padding(22)
             .frame(maxWidth: 390)
-            .background(RoundedRectangle(cornerRadius: 30).fill(Ink.line).offset(y: 6))
             .background(RoundedRectangle(cornerRadius: 30).fill(Ink.paper))
+            .background(RoundedRectangle(cornerRadius: 30).fill(Ink.line).offset(y: 6))
             .overlay(RoundedRectangle(cornerRadius: 30).strokeBorder(Ink.line, lineWidth: 3.5))
             .padding(20)
         }
