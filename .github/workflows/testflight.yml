@@ -141,6 +141,11 @@ jobs:
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             $EXTRA 2>&1 | tee archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
           grep -q "ARCHIVE SUCCEEDED" archive.log
+          # L'archive n'est pas signée : on y inscrit les autorisations (Game Center) avec une signature
+          # provisoire ; l'export les reprend en signant pour l'App Store.
+          APP=$(ls -d "$RUNNER_TEMP/Plie.xcarchive/Products/Applications/"*.app | head -1)
+          /usr/bin/codesign --force --sign - --entitlements Origamo.entitlements --timestamp=none "$APP"
+          /usr/bin/codesign -d --entitlements - "$APP" 2>/dev/null | grep -q "game-center" && echo "Game Center inscrit"
 
       - name: Envoyer sur App Store Connect (TestFlight)
         if: steps.secrets.outputs.ready == 'true'
