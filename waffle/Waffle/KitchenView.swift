@@ -22,15 +22,20 @@ struct KitchenView: View {
 
     var body: some View {
         GeometryReader { geo in
-            let size = geo.size
-            ZStack {
-                if kitchen.closed {
-                    CookingView(kitchen: kitchen)
-                } else {
-                    openKitchen(size, safe: geo.safeAreaInsets)
-                }
+            let real = geo.size
+            if kitchen.closed {
+                CookingView(kitchen: kitchen)
+                    .frame(width: real.width, height: real.height)
+            } else {
+                // Captures : on peut dessiner l'écran déplié (ex. 667×469) sur le simulateur.
+                let size = Self.previewSize ?? real
+                let k = min(real.width / size.width, real.height / size.height)
+                openKitchen(size, safe: Self.previewSize == nil ? geo.safeAreaInsets : EdgeInsets())
+                    .frame(width: size.width, height: size.height)
+                    .scaleEffect(k)
+                    .frame(width: real.width, height: real.height)
+                    .background(Color.black)
             }
-            .frame(width: size.width, height: size.height)
         }
         .ignoresSafeArea()
         .onReceive(ticker) { _ in kitchen.tick(1.0 / 30.0) }
@@ -48,57 +53,78 @@ struct KitchenView: View {
         }
     }
 
+    static var previewSize: CGSize? {
+        #if DEBUG
+        if let v = UserDefaults.standard.string(forKey: "previewSize") {
+            let p = v.split(separator: "x").compactMap { Double($0) }
+            if p.count == 2 { return CGSize(width: p[0], height: p[1]) }
+        }
+        #endif
+        return nil
+    }
+
     // MARK: Duo ouvert (posé en L)
     //
-    // En haut (l'écran debout) : le client, son ticket, et le comptoir avec les garnitures.
-    // En bas (l'écran à plat sur la table) : le gaufrier ouvert, avec la gaufre en grand.
+    // L'écran déplié est coupé en deux par la charnière (au milieu du grand côté).
+    // D'un côté : le client, son ticket, et le comptoir avec les garnitures.
+    // De l'autre : le gaufrier ouvert, avec la gaufre en grand.
 
     private func openKitchen(_ size: CGSize, safe: EdgeInsets) -> some View {
-        let W = size.width, H = size.height, half = H / 2
-        let top = max(safe.top, 12) + 54
-        let trayH = min(half * 0.4, 150)
-        let counterTop = half - trayH - 6
-        let bottomPad = max(safe.bottom, 8) + 4
-        let ironRect = CGRect(x: 10, y: half + 10, width: W - 20, height: half - 10 - bottomPad)
+        let W = size.width, H = size.height
+        // Charnière verticale si l'écran est plus large que haut : gauche / droite. Sinon : haut / bas.
+        let sideBySide = W > H
+        let info = sideBySide ? CGRect(x: 0, y: 0, width: W / 2, height: H) : CGRect(x: 0, y: 0, width: W, height: H / 2)
+        let cook = sideBySide ? CGRect(x: W / 2, y: 0, width: W / 2, height: H) : CGRect(x: 0, y: H / 2, width: W, height: H / 2)
+        let top = info.minY + max(safe.top, 12) + 54
+        let trayH = min(info.height * 0.36, 150)
+        let counterTop = info.maxY - trayH - 6
+        let pad: CGFloat = 10
+        let ironRect = CGRect(x: cook.minX + pad, y: cook.minY + (sideBySide ? max(safe.top, 12) + 4 : pad),
+                              width: cook.width - pad * 2,
+                              height: cook.height - (sideBySide ? max(safe.top, 12) + 4 : pad) - max(safe.bottom, 8) - 4)
         // L'image de la gaufre a des marges (84 % de large, 72 % de haut) : on la grossit pour remplir la plaque.
         let waffle = min(ironRect.width * 0.9 / 0.84, ironRect.height * 0.84 / 0.72)
+        let custX = info.minX + info.width * 0.2
+        let custY = counterTop - 40
         return ZStack(alignment: .topLeading) {
-            // ----- En haut : le mur, le client, le ticket, le comptoir et les garnitures
+            // ----- Les recettes : le mur, le client, le ticket, le comptoir et les garnitures
             WallBackground()
-                .frame(width: W, height: half)
+                .frame(width: info.width, height: info.height)
+                .offset(x: info.minX, y: info.minY)
             if let order = kitchen.order {
-                let custH = max(60, min(counterTop - top + 14, W * 0.36 * 1.0667))
+                let custH = max(60, min(counterTop - top + 14, info.width * 0.36 * 1.0667))
                 let custW = custH / 1.0667
                 Image("cust\(order.customer)_\(kitchen.customerMood)")
                     .resizable().scaledToFit()
                     .frame(width: custW)
-                    .position(x: W * 0.2, y: counterTop - custH / 2 + custH * 0.08)
+                    .position(x: custX, y: counterTop - custH / 2 + custH * 0.08)
                     .id(order.customer)
                     .transition(.move(edge: .leading).combined(with: .opacity))
                 PatienceBar(value: kitchen.patienceLeft)
                     .frame(width: min(custW * 0.9, 110), height: 10)
-                    .position(x: W * 0.2, y: max(top - 4, counterTop - custH + 2))
+                    .position(x: custX, y: max(top - 4, counterTop - custH + 2))
                 TicketView(kitchen: kitchen, order: order, height: counterTop - top - 4)
-                    .frame(width: W * 0.56)
-                    .position(x: W * 0.69, y: (top + counterTop - 4) / 2)
+                    .frame(width: info.width * 0.56)
+                    .position(x: info.minX + info.width * 0.69, y: (top + counterTop - 4) / 2)
                     .id(order.number)
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .move(edge: .trailing).combined(with: .opacity)))
             }
             Counter()
-                .frame(width: W, height: half - counterTop)
-                .offset(y: counterTop)
+                .frame(width: info.width, height: info.maxY - counterTop)
+                .offset(x: info.minX, y: counterTop)
             TrayView(kitchen: kitchen)
-                .frame(width: W - 20, height: trayH - 16)
-                .position(x: W / 2, y: counterTop + 16 + (trayH - 16) / 2)
+                .frame(width: info.width - 20, height: trayH - 16 - (sideBySide ? max(safe.bottom, 8) : 0))
+                .position(x: info.midX, y: counterTop + 16 + (trayH - 16 - (sideBySide ? max(safe.bottom, 8) : 0)) / 2)
 
-            // ----- En bas : le gaufrier ouvert, en grand
+            // ----- Le gaufrier ouvert, en grand
             Worktop()
-                .frame(width: W, height: half)
-                .offset(y: half)
-            IronPlate()
+                .frame(width: cook.width, height: cook.height)
+                .offset(x: cook.minX, y: cook.minY)
+            IronPlate(hingeEdge: sideBySide ? .leading : .top)
                 .frame(width: ironRect.width, height: ironRect.height)
                 .position(x: ironRect.midX, y: ironRect.midY)
-            PlateView(kitchen: kitchen, size: waffle, lift: ironRect.midY - top - (counterTop - top) * 0.45)
+            PlateView(kitchen: kitchen, size: waffle,
+                      lift: CGSize(width: ironRect.midX - custX, height: ironRect.midY - waffle * 0.033 - custY))
                 .position(x: ironRect.midX, y: ironRect.midY - waffle * 0.033)
                 .modifier(Shake(amount: 8, shakes: CGFloat(kitchen.shake)))
                 .animation(.default, value: kitchen.shake)
@@ -106,17 +132,18 @@ struct KitchenView: View {
             // ----- Par-dessus
             HUD(kitchen: kitchen, onExit: onExit)
                 .padding(.leading, 14)
-                .padding(.trailing, 52)   // la caméra du Duo, en haut à droite
+                .padding(.trailing, sideBySide ? 14 : 52)   // la caméra du Duo, en haut à droite
                 .padding(.top, max(safe.top, 12) + 4)
-                .frame(width: W)
+                .frame(width: info.width)
+                .offset(x: info.minX, y: info.minY)
             if let hint = kitchen.hint {
                 Bubble(text: hint)
-                    .position(x: W / 2, y: half + 30)
+                    .position(x: cook.midX, y: sideBySide ? cook.maxY - max(safe.bottom, 8) - 34 : cook.minY + 30)
                     .transition(.scale.combined(with: .opacity))
             }
             if kitchen.phase == .served || kitchen.phase == .gone, let s = kitchen.last {
                 ResultCard(served: s)
-                    .position(x: W / 2, y: (top + counterTop) / 2)
+                    .position(x: info.midX, y: (top + counterTop) / 2)
                     .transition(.scale(scale: 0.6).combined(with: .opacity))
             }
             if kitchen.phase == .ready {
@@ -128,6 +155,7 @@ struct KitchenView: View {
                     .frame(width: W, height: H)
             }
         }
+        .frame(width: W, height: H, alignment: .topLeading)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: kitchen.phase)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: kitchen.hint)
     }
@@ -135,6 +163,9 @@ struct KitchenView: View {
 
 /// La moitié basse du gaufrier ouvert : elle remplit l'écran du bas, posé sur la table.
 struct IronPlate: View {
+    /// Le côté de la charnière du Duo (là où le gaufrier s'articule).
+    var hingeEdge: Edge = .top
+
     var body: some View {
         GeometryReader { g in
             let W = g.size.width, H = g.size.height
@@ -171,10 +202,12 @@ struct IronPlate: View {
                     .frame(width: pr.width, height: pr.height)
                     .position(x: pr.midX, y: pr.midY)
                 // la charnière, contre le pli du Duo
+                let alongX = hingeEdge == .top || hingeEdge == .bottom
                 Capsule().fill(LinearGradient(colors: [Color(hex: 0xF4F6FA), Color(hex: 0xA8AEBC)], startPoint: .top, endPoint: .bottom))
                     .overlay(Capsule().strokeBorder(Ink.line, lineWidth: 4))
-                    .frame(width: W * 0.34, height: 18)
-                    .position(x: W / 2, y: 0)
+                    .frame(width: alongX ? W * 0.34 : 18, height: alongX ? 18 : H * 0.34)
+                    .position(x: hingeEdge == .leading ? 0 : (hingeEdge == .trailing ? W : W / 2),
+                              y: hingeEdge == .top ? 0 : (hingeEdge == .bottom ? H : H / 2))
                 // le voyant
                 Circle().fill(Color(hex: 0xFF6B5A)).overlay(Circle().strokeBorder(Ink.line, lineWidth: 4))
                     .overlay(Circle().fill(.white.opacity(0.8)).frame(width: 6, height: 6).offset(x: -3, y: -3))
@@ -245,8 +278,8 @@ struct Worktop: View {
 struct PlateView: View {
     let kitchen: Kitchen
     let size: CGFloat
-    /// De combien la gaufre monte quand on la sert (vers le client, en haut).
-    var lift: CGFloat = 300
+    /// Le trajet de la gaufre quand on la sert (vers le client).
+    var lift: CGSize = CGSize(width: 0, height: 300)
 
     var body: some View {
         ZStack {
@@ -266,7 +299,7 @@ struct PlateView: View {
                 .frame(width: size, height: size)
                 // Servie : la gaufre rapetisse et monte vers le client, par-dessus la charnière.
                 .scaleEffect(kitchen.phase == .served ? 0.4 : 1)
-                .offset(y: kitchen.phase == .served ? -lift : 0)
+                .offset(x: kitchen.phase == .served ? -lift.width : 0, y: kitchen.phase == .served ? -lift.height : 0)
                 .transition(.opacity)
             default:
                 EmptyView()
@@ -686,44 +719,147 @@ struct CookingView: View {
     var body: some View {
         GeometryReader { g in
             let W = g.size.width, H = g.size.height
-            let unit = min(W, H * 0.7)
+            let safeTop = max(g.safeAreaInsets.top, 14)
+            let safeBottom = max(g.safeAreaInsets.bottom, 14)
+            let buttonH: CGFloat = kitchen.hasHinge ? 0 : 76
+            ZStack(alignment: .topLeading) {
+                Worktop().ignoresSafeArea()
+                LidTop(kitchen: kitchen)
+                    .frame(width: W - 28, height: H - safeTop - safeBottom - buttonH - 8)
+                    .position(x: W / 2, y: safeTop + (H - safeTop - safeBottom - buttonH - 8) / 2)
+                if !kitchen.hasHinge {
+                    Button {
+                        kitchen.toggleLid()
+                    } label: {
+                        Label(T("OUVRIR", "OPEN"), systemImage: "arrow.up.to.line").font(.toon(22)).frame(maxWidth: .infinity, minHeight: 58)
+                    }
+                    .buttonStyle(ToonButton(color: Ink.green))
+                    .frame(width: W * 0.8)
+                    .position(x: W / 2, y: H - safeBottom - 34)
+                }
+            }
+            .frame(width: W, height: H)
+        }
+        .ignoresSafeArea()
+    }
+}
+
+/// Le dessus du gaufrier fermé, vu d'en haut, sur l'écran extérieur du Duo.
+/// La charnière est du côté de celle du Duo ; la poignée de l'autre côté.
+/// En bas, le panneau de chauffe : la jauge (rouge, jaune, vert, jaune, rouge) et le voyant.
+/// Rien ne dit quand ouvrir : c'est au cuisinier de juger.
+struct LidTop: View {
+    let kitchen: Kitchen
+
+    var body: some View {
+        GeometryReader { g in
+            let W = g.size.width, H = g.size.height
             let cooking = kitchen.phase == .cooking
             let zone = kitchen.cursorZone
-            ZStack {
-                RadialGradient(colors: [Color(hex: 0xFFD08A), Color(hex: 0xFF8A3D)], center: .center, startRadius: 10, endRadius: max(W, H))
-                    .ignoresSafeArea()
-                VStack(spacing: unit * 0.05) {
-                    Text(cooking ? (zone == .green ? T("MAINTENANT ! Ouvre !", "NOW! Open it!") : T("Ouvre quand c'est vert", "Open when it's green"))
-                                 : T("Verse la pâte d'abord !", "Pour the batter first!"))
-                        .font(.toon(unit * 0.075, .black))
-                        .foregroundStyle(cooking && zone == .green ? Color(hex: 0x1F7A2E) : Ink.line)
-                        .scaleEffect(cooking && zone == .green ? 1.08 : 1)
-                        .animation(.spring(response: 0.15, dampingFraction: 0.5), value: zone == .green)
-                    ZStack {
-                        Steam(active: cooking, burnt: false)
-                            .frame(width: unit * 0.8, height: unit * 0.35)
-                            .offset(y: -unit * 0.3)
-                        IronClosed(light: cooking ? zone : .red, width: unit * 0.9)
-                    }
-                    if cooking, kitchen.order != nil {
-                        TimingGauge(kitchen: kitchen)
-                            .frame(width: unit * 0.92, height: unit * 0.14)
-                        PatienceBar(value: kitchen.patienceLeft).frame(width: unit * 0.6, height: unit * 0.035)
-                    }
-                    if !kitchen.hasHinge {
-                        Button {
-                            kitchen.toggleLid()
-                        } label: {
-                            Label(T("OUVRIR", "OPEN"), systemImage: "arrow.up.to.line").font(.toon(22)).frame(maxWidth: .infinity, minHeight: 58)
+            let panelH = min(H * 0.26, 170)
+            let panel = CGRect(x: W * 0.09, y: H - panelH - H * 0.05, width: W * 0.82, height: panelH)
+            let embossed = CGRect(x: W * 0.12, y: H * 0.07, width: W * 0.68, height: panel.minY - H * 0.12)
+            ZStack(alignment: .topLeading) {
+                // le corps
+                RoundedRectangle(cornerRadius: 48, style: .continuous).fill(Ink.line).offset(y: 8)
+                RoundedRectangle(cornerRadius: 48, style: .continuous)
+                    .fill(RadialGradient(colors: [Color(hex: 0x8FEADF), Color(hex: 0x39B1A7), Color(hex: 0x2A978E)],
+                                         center: UnitPoint(x: 0.35, y: 0.25), startRadius: 10, endRadius: max(W, H)))
+                RoundedRectangle(cornerRadius: 48, style: .continuous).strokeBorder(Ink.line, lineWidth: 6)
+                // le reflet
+                Capsule().fill(.white.opacity(0.35)).frame(width: W * 0.42, height: 9).offset(x: W * 0.14, y: H * 0.03)
+                // le motif gaufré en relief, sur le couvercle
+                EmbossedGrid()
+                    .frame(width: embossed.width, height: embossed.height)
+                    .offset(x: embossed.minX, y: embossed.minY)
+                // la charnière (côté pli du Duo) et la poignée (de l'autre côté)
+                Capsule().fill(LinearGradient(colors: [Color(hex: 0xF4F6FA), Color(hex: 0xA8AEBC)], startPoint: .leading, endPoint: .trailing))
+                    .overlay(Capsule().strokeBorder(Ink.line, lineWidth: 4))
+                    .frame(width: 20, height: H * 0.5)
+                    .offset(x: -6, y: H * 0.18)
+                Capsule().fill(LinearGradient(colors: [Color(hex: 0x4A4650), Color(hex: 0x2B2830)], startPoint: .leading, endPoint: .trailing))
+                    .overlay(Capsule().strokeBorder(Ink.line, lineWidth: 5))
+                    .overlay(Capsule().fill(.white.opacity(0.25)).frame(width: 5).padding(.vertical, 16).offset(x: -6))
+                    .frame(width: 30, height: H * 0.34)
+                    .offset(x: W - 30 - W * 0.025, y: embossed.midY - H * 0.17)
+                // le panneau de chauffe
+                ZStack {
+                    RoundedRectangle(cornerRadius: 26, style: .continuous).fill(Color(hex: 0x2B2830))
+                    RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(Ink.line, lineWidth: 5)
+                    VStack(spacing: panelH * 0.1) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "flame.fill").font(.system(size: panelH * 0.15, weight: .black))
+                                .foregroundStyle(cooking ? Color(hex: 0xFF8A3D) : Color.white.opacity(0.3))
+                            Text(cooking ? T("Cuisson", "Cooking") : T("Verse la pâte d'abord", "Pour the batter first"))
+                                .font(.toon(panelH * 0.13)).foregroundStyle(.white.opacity(0.85))
+                                .lineLimit(1).minimumScaleFactor(0.6)
+                            Spacer(minLength: 6)
+                            Indicator(zone: cooking ? zone : nil, size: panelH * 0.24)
                         }
-                        .buttonStyle(ToonButton(color: Ink.green))
-                        .frame(width: unit * 0.8)
-                        .padding(.top, 6)
+                        if cooking {
+                            TimingGauge(kitchen: kitchen)
+                                .frame(height: panelH * 0.3)
+                        } else {
+                            RoundedRectangle(cornerRadius: panelH * 0.12).fill(Color.white.opacity(0.08))
+                                .frame(height: panelH * 0.3)
+                        }
                     }
+                    .padding(.horizontal, panelH * 0.16)
+                    .padding(.top, panelH * 0.06)
                 }
-                .frame(width: W, height: H)
+                .frame(width: panel.width, height: panel.height)
+                .offset(x: panel.minX, y: panel.minY)
+                // la vapeur qui s'échappe
+                Steam(active: cooking, burnt: false)
+                    .frame(width: W * 0.8, height: H * 0.4)
+                    .offset(x: W * 0.1, y: H * 0.02)
+                if cooking {
+                    PatienceBar(value: kitchen.patienceLeft)
+                        .frame(width: W * 0.4, height: 10)
+                        .offset(x: W * 0.3, y: H - H * 0.035)
+                }
             }
         }
+    }
+}
+
+/// Le motif gaufré, en relief sur le couvercle.
+struct EmbossedGrid: View {
+    var body: some View {
+        Canvas { ctx, size in
+            let cols = 5.0, rows = max(4.0, (size.height / (size.width / cols)).rounded())
+            let cw = size.width / cols, rh = size.height / rows
+            let s = min(cw, rh)
+            for c in 0..<Int(cols) { for r in 0..<Int(rows) {
+                let rect = CGRect(x: Double(c) * cw + (cw - s * 0.78) / 2, y: Double(r) * rh + (rh - s * 0.78) / 2, width: s * 0.78, height: s * 0.78)
+                ctx.fill(Path(roundedRect: rect.offsetBy(dx: 0, dy: 3), cornerRadius: s * 0.16), with: .color(Color(hex: 0x1E6F69).opacity(0.55)))
+                ctx.fill(Path(roundedRect: rect, cornerRadius: s * 0.16), with: .color(Color(hex: 0x6FD8CC)))
+                ctx.fill(Path(roundedRect: rect.insetBy(dx: s * 0.1, dy: s * 0.1).offsetBy(dx: -s * 0.03, dy: -s * 0.03), cornerRadius: s * 0.1),
+                         with: .color(.white.opacity(0.22)))
+            } }
+        }
+    }
+}
+
+/// Le voyant de chauffe : rouge, jaune ou vert selon le curseur (éteint sans cuisson).
+struct Indicator: View {
+    let zone: Kitchen.Zone?
+    let size: CGFloat
+
+    var body: some View {
+        let color: Color = switch zone {
+        case .green: Color(hex: 0x3DDC5A)
+        case .yellow: Color(hex: 0xFFD23C)
+        case .red: Color(hex: 0xFF5A4A)
+        case nil: Color(hex: 0x5A5560)
+        }
+        ZStack {
+            if zone != nil { Circle().fill(color.opacity(0.5)).frame(width: size * 1.9, height: size * 1.9).blur(radius: size * 0.4) }
+            Circle().fill(color).overlay(Circle().strokeBorder(Ink.line, lineWidth: max(3, size * 0.13)))
+            Circle().fill(.white.opacity(0.75)).frame(width: size * 0.3, height: size * 0.3).offset(x: -size * 0.17, y: -size * 0.17)
+        }
+        .frame(width: size, height: size)
+        .animation(.easeOut(duration: 0.08), value: zone)
     }
 }
 

@@ -8,6 +8,10 @@ on:
         description: "Écrans à capturer"
         required: false
         default: "menu ready pour assemble cook result summary paywall"
+      size:
+        description: "Taille de l'écran déplié à dessiner (ex. 667x469), vide = l'écran du simulateur"
+        required: false
+        default: ""
       lang:
         description: "Langue (fr ou en)"
         required: false
@@ -65,7 +69,7 @@ jobs:
           for R in ${{ inputs.routes }}; do
             N=$((N+1))
             xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
-            xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" $([ "$R" = paywall ] || echo "-unlockAll YES") > /dev/null 2>&1 || true
+            xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" $([ "$R" = paywall ] || echo "-unlockAll YES") $([ -n "${{ inputs.size }}" ] && echo "-previewSize ${{ inputs.size }}") > /dev/null 2>&1 || true
             sleep 7
             xcrun simctl io "$UDID" screenshot --display=1 --mask=black "shots/$(printf %02d $N)-$R.png" 2>>shots/erreurs-captures.txt || true
           done

@@ -175,7 +175,6 @@ final class Kitchen {
     private(set) var hasHinge = false
 
     @ObservationIgnored private var cursorDir: Double = 1
-    @ObservationIgnored private var wasGreen = false
     @ObservationIgnored private var nextIn: Double = 0
     @ObservationIgnored private var hintLeft: Double = 0
     @ObservationIgnored private var lastCustomer = -1
@@ -344,7 +343,6 @@ final class Kitchen {
             if phase == .poured {
                 cursor = 0
                 cursorDir = 1
-                wasGreen = false
                 phase = .cooking
                 Sound.loop(.sizzle, volume: 0.55)
             }
@@ -425,9 +423,6 @@ final class Kitchen {
                 cursor += cursorDir * dt / sweepTime
                 if cursor >= 1 { cursor = 1; cursorDir = -1 }
                 if cursor <= 0 { cursor = 0; cursorDir = 1 }
-                let green = cursorZone == .green
-                if green && !wasGreen { Haptics.tap() }
-                wasGreen = green
             }
             if patienceLeft <= 0 {
                 // Le client s'en va.
