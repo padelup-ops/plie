@@ -157,7 +157,8 @@ final class Kitchen {
     private(set) var order: Order?
     /// Les garnitures déjà posées.
     private(set) var stack: [Ingredient] = []
-    private(set) var cook: Double = 0
+    /// Le curseur de cuisson (0…1) : il va et vient dans la jauge tant que le gaufrier est fermé.
+    private(set) var cursor: Double = 0
     private(set) var cooked: Doneness = .raw
     private(set) var patienceLeft: Double = 1
     private(set) var shiftLeft: Double = Kitchen.shiftLength
@@ -173,6 +174,8 @@ final class Kitchen {
     private(set) var closed = false
     private(set) var hasHinge = false
 
+    @ObservationIgnored private var cursorDir: Double = 1
+    @ObservationIgnored private var wasGreen = false
     @ObservationIgnored private var nextIn: Double = 0
     @ObservationIgnored private var hintLeft: Double = 0
     @ObservationIgnored private var lastCustomer = -1
@@ -203,6 +206,38 @@ final class Kitchen {
         return 0
     }
 
+    // MARK: La jauge de cuisson
+    //
+    // Rouge aux deux bouts, puis jaune, et vert au milieu. Le curseur fait des allers-retours ;
+    // il faut rouvrir le Duo quand il est dans le vert. À gauche c'est pas assez cuit, à droite trop.
+
+    enum Zone { case red, yellow, green }
+
+    /// Demi-largeur de la zone verte (elle rétrécit avec les jours).
+    var greenHalf: Double {
+        rush ? max(0.05, 0.085 - Double(servedCount) * 0.002) : max(0.055, 0.095 - Double(day) * 0.0027)
+    }
+    var yellowHalf: Double { greenHalf + 0.14 }
+    /// Durée d'un aller du curseur, en secondes (il accélère avec les jours).
+    var sweepTime: Double {
+        rush ? max(0.7, 1.5 - Double(servedCount) * 0.04) : max(0.8, 1.7 - Double(day) * 0.06)
+    }
+
+    func zone(_ x: Double) -> Zone {
+        let d = abs(x - 0.5)
+        return d <= greenHalf ? .green : (d <= yellowHalf ? .yellow : .red)
+    }
+
+    func doneness(at x: Double) -> Doneness {
+        switch zone(x) {
+        case .green: return .golden
+        case .yellow: return x < 0.5 ? .light : .dark
+        case .red: return x < 0.5 ? .raw : .burnt
+        }
+    }
+
+    var cursorZone: Zone { zone(cursor) }
+
     // MARK: Le service
 
     func start() {
@@ -228,7 +263,7 @@ final class Kitchen {
             let extra: Ingredient = [.sugar, .cream, .sprinkles, .chocmelt].filter { !layers.contains($0) }.randomElement() ?? .sugar
             layers.append(extra)
         }
-        let wish: Doneness = day >= 3 && Int.random(in: 0..<10) < 3 ? .dark : .golden
+        let wish: Doneness = .golden
         var customer = Int.random(in: 0..<5)
         if customer == lastCustomer { customer = (customer + 1) % 5 }
         lastCustomer = customer
@@ -237,7 +272,7 @@ final class Kitchen {
         let patience = max(16, 30 - Double(day) * 0.7 - speedUp) + 2.5 * Double(layers.count)
         order = Order(number: orderNumber, recipe: recipe, layers: layers, wish: wish, customer: customer, patience: patience)
         stack = []
-        cook = 0
+        cursor = 0
         cooked = .raw
         mistakes = 0
         patienceLeft = 1
@@ -294,7 +329,8 @@ final class Kitchen {
         #endif
         guard let degrees else { hasHinge = false; return }
         hasHinge = true
-        setClosed(degrees < 35)
+        // Fermé sous 12° ; on le considère rouvert dès 16°, pour que le curseur s'arrête au tout début du geste.
+        if closed { if degrees > 16 { setClosed(false) } } else if degrees < 12 { setClosed(true) }
     }
 
     /// Sans charnière : le bouton Fermer / Ouvrir.
@@ -306,19 +342,30 @@ final class Kitchen {
         if c {
             Sound.play(.clunk, volume: 0.8)
             if phase == .poured {
+                cursor = 0
+                cursorDir = 1
+                wasGreen = false
                 phase = .cooking
-                Sound.loop(.sizzle, volume: 0.45)
+                Sound.loop(.sizzle, volume: 0.55)
             }
         } else {
             Sound.stopLoop()
             Sound.play(.clack, volume: 0.6)
             if phase == .cooking {
-                cooked = Doneness.of(cook)
+                cooked = doneness(at: cursor)
                 if cooked == .burnt {
                     serve()
                 } else {
                     phase = .topping
-                    say(T("Garnis-la comme sur le ticket !", "Top it like the ticket says!"))
+                    switch cooked {
+                    case .golden:
+                        Sound.play(.pop, volume: 0.6)
+                        Haptics.success()
+                        say(T("Pile dans le vert ! Garnis-la !", "Right in the green! Top it!"))
+                    case .raw: say(T("Trop tôt ! Pas assez cuite…", "Too early! Undercooked…"))
+                    case .light: say(T("Un peu tôt… Garnis-la !", "A bit early… Top it!"))
+                    default: say(T("Un peu tard… Garnis-la !", "A bit late… Top it!"))
+                    }
                 }
             }
         }
@@ -373,7 +420,15 @@ final class Kitchen {
         switch phase {
         case .pour, .poured, .cooking, .topping:
             if let order { patienceLeft = max(0, patienceLeft - dt / order.patience) }
-            if phase == .cooking { cook += dt / 7.5 }
+            if phase == .cooking {
+                // Le curseur fait des allers-retours entre les deux bords.
+                cursor += cursorDir * dt / sweepTime
+                if cursor >= 1 { cursor = 1; cursorDir = -1 }
+                if cursor <= 0 { cursor = 0; cursorDir = 1 }
+                let green = cursorZone == .green
+                if green && !wasGreen { Haptics.tap() }
+                wasGreen = green
+            }
             if patienceLeft <= 0 {
                 // Le client s'en va.
                 Sound.stopLoop()
@@ -431,7 +486,7 @@ final class Kitchen {
             if stack.count == order.layers.count { stack.removeLast() }
         case "cook", "closed":
             phase = .cooking
-            cook = 0.58
+            cursor = 0.47
             closed = true
         case "result":
             cooked = order.wish

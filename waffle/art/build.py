@@ -17,14 +17,14 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Waffle", 
 def items():
     out = {}
     for lvl in range(5):
-        out[f"waffle{lvl}"] = (art.waffle(lvl), 3)
-    out["batter"] = (art.batter(), 3)
+        out[f"waffle{lvl}"] = (art.waffle(lvl), 1)   # en grand sur l'écran du bas
+    out["batter"] = (art.batter(), 1)
     out["jug"] = (art.jug(), 3)
     for name, fn in art.INGREDIENTS.items():
-        out[f"ing_{name}"] = (fn(), 3)
+        out[f"ing_{name}"] = (fn(), 1)
     out["iron_base"] = (art.iron("base"), 2)
     out["iron_lid"] = (art.iron("lid"), 2)
-    out["iron_closed"] = (art.iron_closed(), 2)
+    out["iron_closed"] = (art.iron_closed(), 1)
     for i in range(len(art.CUSTOMERS)):
         for mood in ("wait", "happy", "angry"):
             out[f"cust{i}_{mood}"] = (art.customer(i, mood), 2)

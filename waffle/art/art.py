@@ -210,9 +210,11 @@ def iron_closed():
             '<path d="M250,64 L250,40 Q250,28 262,28 L338,28 Q350,28 350,40 L350,64" fill="none" stroke="#3A3640" stroke-width="10" stroke-linecap="round"/>'
             '<path d="M130,110 Q300,76 470,110" stroke="#fff" stroke-width="12" fill="none" opacity="0.4" stroke-linecap="round"/>'
             '<path d="M110,200 Q300,186 490,200" stroke="#fff" stroke-width="10" fill="none" opacity="0.3" stroke-linecap="round"/>'
-            f'<circle cx="470" cy="270" r="15" fill="#FF6B5A" stroke="{OL}" stroke-width="6"/><circle cx="465" cy="265" r="5" fill="#fff" opacity="0.8"/>'
-            f'<rect x="120" y="258" width="200" height="26" rx="13" fill="#2B2830" stroke="{OL}" stroke-width="5"/>'
-            '<rect x="134" y="265" width="120" height="12" rx="6" fill="#FFC93C"/>')
+            # le voyant est dessiné par l'app (il change de couleur) ; ici, son socle chromé
+            f'<circle cx="470" cy="270" r="24" fill="url(#chrome)" stroke="{OL}" stroke-width="6"/>'
+            # deux boutons de réglage
+            f'<circle cx="140" cy="270" r="17" fill="url(#dark)" stroke="{OL}" stroke-width="6"/><rect x="137" y="256" width="6" height="12" rx="3" fill="#fff" opacity="0.8"/>'
+            f'<circle cx="196" cy="270" r="17" fill="url(#dark)" stroke="{OL}" stroke-width="6"/><rect x="193" y="256" width="6" height="12" rx="3" fill="#fff" opacity="0.8"/>')
     return svg(600, 350, body, defs)
 
 # ---------------------------------------------------------------- les clients
