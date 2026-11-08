@@ -503,6 +503,11 @@ final class PecheGame {
         best[sp.id] = max(size, old ?? 0)
         coins += value
         save()
+        if !sp.junk {
+            let total = defaults.integer(forKey: "peche.total") + 1
+            defaults.set(total, forKey: "peche.total")
+            GameCenter.shared.submit(total, to: .peche)
+        }
         fish.remove(at: h)
         hooked = nil
         tension = 0

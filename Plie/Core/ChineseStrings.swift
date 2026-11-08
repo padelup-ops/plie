@@ -2137,6 +2137,8 @@ enum ChineseStrings {
         "Clair": "浅色",
         "Sombre": "深色",
         "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "自动会跟随 iPhone 的浅色或深色模式。游戏画面始终保持深色。",
+        "Classements": "排行榜",
+        "Les classements passent par Game Center. Connecte-toi dans Réglages de l'iPhone, puis Game Center, et reviens ici.": "排行榜使用 Game Center。请在 iPhone 的设置中登录 Game Center，然后回到这里。",
     ]
 
     /// Mots des jeux (clé = mot anglais).

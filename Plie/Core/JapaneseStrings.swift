@@ -2137,6 +2137,8 @@ enum JapaneseStrings {
         "Clair": "ライト",
         "Sombre": "ダーク",
         "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "自動はiPhoneのライト／ダークに合わせます。ゲーム画面はいつも暗いままです。",
+        "Classements": "ランキング",
+        "Les classements passent par Game Center. Connecte-toi dans Réglages de l'iPhone, puis Game Center, et reviens ici.": "ランキングはGame Centerを使います。iPhoneの設定からGame Centerにサインインして、ここに戻ってきてね。",
     ]
 
     /// Mots des jeux (clé = mot anglais).

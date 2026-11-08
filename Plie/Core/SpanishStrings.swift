@@ -2137,6 +2137,8 @@ enum SpanishStrings {
         "Clair": "Claro",
         "Sombre": "Oscuro",
         "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "Auto sigue el modo claro u oscuro del iPhone. Los juegos siempre se quedan en la noche.",
+        "Classements": "Clasificaciones",
+        "Les classements passent par Game Center. Connecte-toi dans Réglages de l'iPhone, puis Game Center, et reviens ici.": "Las clasificaciones usan Game Center. Inicia sesión en Ajustes del iPhone, luego Game Center, y vuelve aquí.",
     ]
 
     /// Mots des jeux (clé = mot anglais).

@@ -345,6 +345,23 @@ final class AppState {
 
     var lastPlayed: GameID? { lastGame.flatMap { GameID(rawValue: $0) } }
 
+    /// À la connexion Game Center : on envoie les records déjà faits (les joueurs d'avant la 1.6 apparaissent aussi).
+    func submitAllRecords() {
+        let gc = GameCenter.shared
+        let d = UserDefaults.standard
+        gc.submit(rayonSolved.count, to: .rayon)
+        gc.submit(lucioleBest, to: .luciole)
+        gc.submit(crocoBest, to: .croco)
+        gc.submit(bonneteauBest, to: .bonneteau)
+        gc.submit(d.integer(forKey: "comete.best"), to: .comete)
+        gc.submit(d.integer(forKey: "golf.best"), to: .golf)
+        gc.submit(d.integer(forKey: "peche.total"), to: .peche)
+        for (key, board) in [(0, Leaderboard.minesKids), (1, .minesNormal), (2, .minesHard)] {
+            let t = d.double(forKey: "mines.best.\(key)")
+            if t > 0 { gc.submit(Int((t * 100).rounded()), to: board) }
+        }
+    }
+
     // MARK: Apparence (mode sombre du papier)
 
     /// 0 : comme l'iPhone, 1 : toujours clair, 2 : toujours sombre.
@@ -392,6 +409,7 @@ final class AppState {
         gamePlayed()
         celebrate()
         rayonSolved.insert(number)
+        GameCenter.shared.submit(rayonSolved.count, to: .rayon)
         if let best = rayonBest[number] {
             rayonBest[number] = min(best, time)
         } else {
@@ -456,6 +474,7 @@ final class AppState {
         celebrate()
         lucioleVoyages += 1
         lucioleBest = max(lucioleBest, lights)
+        GameCenter.shared.submit(lucioleBest, to: .luciole)
         save()
     }
 
@@ -554,6 +573,7 @@ final class AppState {
         if streak > crocoBest {
             crocoBest = streak
             celebrate()
+            GameCenter.shared.submit(crocoBest, to: .croco)
         }
         save()
     }
@@ -656,6 +676,7 @@ final class AppState {
         if level > bonneteauBest {
             bonneteauBest = level
             celebrate()
+            GameCenter.shared.submit(bonneteauBest, to: .bonneteau)
         }
         save()
     }

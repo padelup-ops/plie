@@ -10,6 +10,7 @@ struct HubView: View {
     @Environment(AppState.self) private var app
     @Environment(StoreManager.self) private var store
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var showLeaderboardHelp = false
     @State private var showSettings = false
     @State private var howTo: GameID?
     @State private var unlocking: GameID?
@@ -190,7 +191,15 @@ struct HubView: View {
                 .buttonStyle(PressableStyle())
                 .accessibilityLabel(L("Pass Origamo"))
             }
+            IconButton(symbol: "trophy.fill", label: L("Classements")) {
+                if !GameCenter.shared.show() { showLeaderboardHelp = true }
+            }
             IconButton(symbol: "gearshape.fill", label: L("Réglages")) { showSettings = true }
+        }
+        .alert(L("Classements"), isPresented: $showLeaderboardHelp) {
+            Button(L("OK"), role: .cancel) {}
+        } message: {
+            Text(L("Les classements passent par Game Center. Connecte-toi dans Réglages de l'iPhone, puis Game Center, et reviens ici."))
         }
     }
 

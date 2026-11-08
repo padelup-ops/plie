@@ -305,6 +305,7 @@ struct CometeView: View {
         .onHingeAngle { game.hinge($0) }
         .onChange(of: game.phase) { _, p in
             if p == .over {
+                GameCenter.shared.submit(game.score, to: .comete)
                 app.gamePlayed()
                 if game.score >= game.best && game.score > 0 { app.celebrate() }
             }

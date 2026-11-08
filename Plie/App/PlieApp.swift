@@ -135,6 +135,10 @@ struct RootView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { app.refreshSystemAppearance() }
         }
+        .task {
+            // Game Center, sans écran au lancement : la connexion se fait en touchant « Classements ».
+            GameCenter.shared.start { app.submitAllRecords() }
+        }
         .animation(.easeInOut(duration: 0.24), value: app.route)
         .onChange(of: app.route) { _, route in
             SoundPlayer.shared.play(.pop, volume: 0.35)

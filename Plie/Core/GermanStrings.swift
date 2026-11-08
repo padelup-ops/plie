@@ -2137,6 +2137,8 @@ enum GermanStrings {
         "Clair": "Hell",
         "Sombre": "Dunkel",
         "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "Auto folgt dem hellen oder dunklen Modus des iPhone. Die Spiele bleiben immer dunkel.",
+        "Classements": "Bestenlisten",
+        "Les classements passent par Game Center. Connecte-toi dans Réglages de l'iPhone, puis Game Center, et reviens ici.": "Die Bestenlisten laufen über Game Center. Melde dich in den iPhone-Einstellungen unter Game Center an und komm zurück.",
     ]
 
     /// Mots des jeux (clé = mot anglais).

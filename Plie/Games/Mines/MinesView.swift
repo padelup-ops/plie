@@ -145,6 +145,8 @@ final class MinesGame {
             let key = "mines.best.\(size.rawValue)"
             let old = UserDefaults.standard.double(forKey: key)
             if old == 0 || t < old { UserDefaults.standard.set(t, forKey: key) }
+            let board: Leaderboard = size == .kids ? .minesKids : (size == .hard ? .minesHard : .minesNormal)
+            GameCenter.shared.submit(Int((t * 100).rounded()), to: board)
             phase = .won
             SoundPlayer.shared.play(.win, volume: 0.8)
             Haptics.success()

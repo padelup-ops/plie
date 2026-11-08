@@ -2137,6 +2137,8 @@ enum KoreanStrings {
         "Clair": "라이트",
         "Sombre": "다크",
         "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "자동은 iPhone의 라이트/다크 모드를 따라요. 게임 화면은 항상 어두워요.",
+        "Classements": "순위표",
+        "Les classements passent par Game Center. Connecte-toi dans Réglages de l'iPhone, puis Game Center, et reviens ici.": "순위표는 Game Center를 사용해요. iPhone 설정에서 Game Center에 로그인한 뒤 다시 와 주세요.",
     ]
 
     /// Mots des jeux (clé = mot anglais).

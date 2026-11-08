@@ -2137,5 +2137,7 @@ enum EnglishStrings {
         "Clair": "Light",
         "Sombre": "Dark",
         "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "Auto follows your iPhone's light or dark mode. Games always stay in the dark.",
+        "Classements": "Leaderboards",
+        "Les classements passent par Game Center. Connecte-toi dans Réglages de l'iPhone, puis Game Center, et reviens ici.": "Leaderboards use Game Center. Sign in from your iPhone's Settings, then Game Center, and come back here.",
     ]
 }

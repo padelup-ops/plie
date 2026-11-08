@@ -1,0 +1,41 @@
+# Classements Game Center d Origamo (rapport dans la branche ci-gamecenter).
+name: Classements Game Center
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "probe ou create"
+        required: false
+        default: "probe"
+      version:
+        description: "Version à laquelle rattacher Game Center (ex. 1.6)"
+        required: false
+        default: ""
+jobs:
+  offer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      MODE: ${{ inputs.mode }}
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Codes
+        env:
+          ORIGAMO_BUNDLE: ${{ secrets.BUNDLE_ID }}
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          export BUNDLE_ID="$ORIGAMO_BUNDLE"
+          python3 tools/asc_gamecenter.py 2>&1 | tee gc.txt || true
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && touch gc.txt && cp gc.txt "$RUNNER_TEMP/r/" && cd "$RUNNER_TEMP/r"
+          git init -q -b ci-gamecenter && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Classements" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-gamecenter

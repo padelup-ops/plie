@@ -237,6 +237,7 @@ struct GolfView: View {
         .onHingeAngle { game.hinge($0) }
         .onChange(of: game.phase) { _, p in
             if p == .finished {
+                if game.players == 1 { GameCenter.shared.submit(game.total(0), to: .golf) }
                 app.gamePlayed()
                 if game.total(0) <= game.totalPar { app.celebrate() }
             }
