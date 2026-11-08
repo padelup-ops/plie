@@ -18,4 +18,11 @@ enum ReviewRule {
     }
 
     static func markAsked(now: Date = Date()) { UserDefaults.standard.set(now, forKey: lastKey) }
+
+    /// Juste après l'achat de Foldly+ : on demande une note (pas plus d'une fois par mois).
+    static func shouldAskAfterPurchase(isTestBuild: Bool, now: Date = Date()) -> Bool {
+        guard !isTestBuild, !Demo.seeded, Demo.screen == nil else { return false }
+        if let last = UserDefaults.standard.object(forKey: lastKey) as? Date, now.timeIntervalSince(last) < 30 * 86_400 { return false }
+        return true
+    }
 }

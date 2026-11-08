@@ -276,6 +276,20 @@ struct SettingsView: View {
                 } header: {
                     Text("Help")
                 }
+
+                // Notre autre app pour le Duo
+                Section {
+                    Link(destination: URL(string: "https://apps.apple.com/app/id6825605393")!) {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(verbatim: "Origamo")
+                                Text("Mini games you play by folding your Duo").font(.caption).foregroundStyle(.secondary)
+                            }
+                        } icon: { Image(systemName: "gamecontroller.fill") }
+                    }
+                } header: {
+                    Text("Also for your Duo")
+                }
             }
             .navigationTitle(Text("Settings"))
             .navigationBarTitleDisplayMode(.inline)

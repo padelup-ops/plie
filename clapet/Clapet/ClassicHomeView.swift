@@ -64,6 +64,7 @@ struct ClassicHomeView: View {
     @State private var promoHidden = false
     @State private var surveyHidden = false
     @State private var nudgeHidden = false
+    @State private var giftHidden = false
     @State private var importHidden = false
     @State private var updateHidden = false
     @Environment(\.openURL) private var openURL
@@ -111,7 +112,14 @@ struct ClassicHomeView: View {
                             }
                         }
                     }
-                    if !nudgeHidden && PlusNudgeRule.shouldShowCard(model.stats, hasPlus: store.hasPlus) {
+                    if !giftHidden && GiftOffer.shouldShow(model.stats, hasPlus: store.hasPlus) {
+                        ClassicCard {
+                            GiftCard { openURL(GiftOffer.redeemURL) } onHide: {
+                                GiftOffer.hide()
+                                withAnimation { giftHidden = true }
+                            }
+                        }
+                    } else if !nudgeHidden && PlusNudgeRule.shouldShowCard(model.stats, hasPlus: store.hasPlus) {
                         ClassicCard {
                             PlusNudgeCard(stats: model.stats) { plusReason = .menu } onHide: {
                                 PlusNudgeRule.hide()

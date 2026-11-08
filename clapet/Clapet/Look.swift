@@ -234,7 +234,21 @@ struct ContentView: View {
             }
             WeekRecapNotice.schedule(model.stats)
             MonthRecapNotice.schedule()
+            GiftOffer.scheduleReminder(model.stats, hasPlus: store.hasPlus)
             WatchSync.shared.start(model.stats)
+        }
+        .onChange(of: store.justBought) { _, bought in
+            guard bought else { return }
+            store.justBought = false
+            GiftOffer.cancelReminder()
+            Task { @MainActor in
+                // Le temps que la fenêtre d'achat se ferme.
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                if ReviewRule.shouldAskAfterPurchase(isTestBuild: store.isTestBuild) {
+                    ReviewRule.markAsked()
+                    requestReview()
+                }
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             InstalledWidgets.shared.refresh()

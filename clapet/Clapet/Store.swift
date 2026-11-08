@@ -10,6 +10,8 @@ final class ClapetStore {
     /// Foldly+ vraiment acheté.
     private(set) var owned = false
     var isPurchasing = false
+    /// Vient d'acheter (ou d'utiliser un code) : on demande une note juste après.
+    var justBought = false
     var message: String?
 
     /// Version de test (TestFlight ou Xcode) : on peut simuler l'achat pour voir les deux modes.
@@ -38,6 +40,11 @@ final class ClapetStore {
         updatesTask = Task { @MainActor [weak self] in
             for await update in Transaction.updates {
                 if case .verified(let transaction) = update {
+                    // Code d'offre ou achat terminé hors de l'app : un achat de moins de 10 min.
+                    if transaction.productID == Self.plusID, transaction.revocationDate == nil,
+                       Date().timeIntervalSince(transaction.purchaseDate) < 600 {
+                        self?.justBought = true
+                    }
                     await transaction.finish()
                 }
                 await self?.refresh()
@@ -111,6 +118,7 @@ final class ClapetStore {
                 if case .verified(let transaction) = verification {
                     await transaction.finish()
                     await refresh()
+                    justBought = true
                 } else {
                     message = String(localized: "The purchase couldn't be verified.")
                 }

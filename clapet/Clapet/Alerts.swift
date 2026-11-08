@@ -1,3 +1,4 @@
+import UIKit
 import UserNotifications
 
 /// Alertes de limite (Foldly+) : une notification à 80 % puis à 100 % de la limite du jour.
@@ -49,7 +50,9 @@ final class AlertPresenter: NSObject, UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         let action = response.actionIdentifier
+        let link = (response.notification.request.content.userInfo["url"] as? String).flatMap(URL.init(string:))
         Task { @MainActor in
+            if let link, action == UNNotificationDefaultActionIdentifier { UIApplication.shared.open(link) }
             WhyRule.handle(action: action)
             completionHandler()
         }
