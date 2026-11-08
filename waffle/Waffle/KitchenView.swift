@@ -52,24 +52,33 @@ struct KitchenView: View {
 
     private func openKitchen(_ size: CGSize, safe: EdgeInsets) -> some View {
         let W = size.width, H = size.height, half = H / 2
-        let plateW = min(W * 0.9, half * 0.84)
-        let plateH = plateW / 2
-        let counterTop = half - plateH - 22
+        // Le couvercle (en haut) reste discret pour laisser la place au client et au ticket ;
+        // la plaque (en bas) est plus grande : c'est là qu'on travaille.
+        let lidH = min(half * 0.3, W * 0.42 / 2)
+        let lidW = lidH * 2
+        let plateH = min(half * 0.5, W * 0.88 / 2)
+        let plateW = plateH * 2
+        let counterTop = half - lidH - 14
+        let top = max(safe.top, 12) + 54
         return ZStack(alignment: .topLeading) {
             // ----- En haut : le mur, le client, le comptoir, le couvercle
             WallBackground()
                 .frame(width: W, height: half)
             if let order = kitchen.order {
-                let custW = min(W * 0.44, (counterTop - safe.top - 60) * 0.95)
+                let custH = max(60, min(counterTop - top + 18, W * 0.42 * 1.0667))
+                let custW = custH / 1.0667
                 Image("cust\(order.customer)_\(kitchen.customerMood)")
                     .resizable().scaledToFit()
                     .frame(width: custW)
-                    .position(x: W * 0.27, y: counterTop - custW * 1.0667 / 2 + custW * 0.12)
+                    .position(x: W * 0.24, y: counterTop - custH / 2 + custH * 0.1)
                     .id(order.customer)
                     .transition(.move(edge: .leading).combined(with: .opacity))
-                TicketView(kitchen: kitchen, order: order)
-                    .frame(width: W * 0.46)
-                    .position(x: W * 0.73, y: (safe.top + 58 + counterTop) / 2 + 4)
+                PatienceBar(value: kitchen.patienceLeft)
+                    .frame(width: min(custW * 0.9, 120), height: 10)
+                    .position(x: W * 0.24, y: max(top, counterTop - custH + 4))
+                TicketView(kitchen: kitchen, order: order, height: counterTop - top - 6)
+                    .frame(width: W * 0.5)
+                    .position(x: W * 0.71, y: (top + counterTop - 6) / 2)
                     .id(order.number)
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .move(edge: .trailing).combined(with: .opacity)))
             }
@@ -78,8 +87,8 @@ struct KitchenView: View {
                 .offset(y: counterTop)
             Image("iron_lid")
                 .resizable().scaledToFit()
-                .frame(width: plateW, height: plateH)
-                .position(x: W / 2, y: half - plateH / 2)
+                .frame(width: lidW, height: lidH)
+                .position(x: W / 2, y: half - lidH / 2)
 
             // ----- En bas : le plan de travail, la plaque, le plateau
             Worktop()
@@ -99,7 +108,8 @@ struct KitchenView: View {
 
             // ----- Par-dessus
             HUD(kitchen: kitchen, onExit: onExit)
-                .padding(.horizontal, 14)
+                .padding(.leading, 14)
+                .padding(.trailing, 52)   // la caméra du Duo, en haut à droite
                 .padding(.top, max(safe.top, 12) + 4)
                 .frame(width: W)
             if let hint = kitchen.hint {
@@ -221,62 +231,63 @@ struct PlateView: View {
 struct TicketView: View {
     let kitchen: Kitchen
     let order: Order
+    var height: CGFloat = 200
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(order.recipe.name)
-                .font(.toon(16))
-                .foregroundStyle(Ink.line)
-                .lineLimit(2)
-                .minimumScaleFactor(0.6)
+        let n = CGFloat(order.layers.count)
+        let row = max(14, min(26, (height - 66) / max(1, n)))
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+                Text(order.recipe.name)
+                    .font(.toon(min(16, row * 0.75)))
+                    .foregroundStyle(Ink.line)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                Spacer(minLength: 0)
+            }
             ForEach(Array(order.layers.enumerated()), id: \.offset) { i, ing in
-                HStack(spacing: 6) {
+                HStack(spacing: 5) {
                     ZStack {
                         if i < kitchen.stack.count {
                             Image(systemName: "checkmark.circle.fill").foregroundStyle(Ink.green)
-                        } else if i == kitchen.stack.count {
+                        } else if i == kitchen.stack.count && kitchen.phase == .topping {
                             Image(systemName: "arrowtriangle.right.fill").foregroundStyle(Ink.orange)
                         } else {
-                            Text("\(i + 1)").font(.toon(12)).foregroundStyle(Ink.line.opacity(0.5))
+                            Text("\(i + 1)").font(.toon(row * 0.45)).foregroundStyle(Ink.line.opacity(0.5))
                         }
                     }
-                    .font(.system(size: 13, weight: .black))
-                    .frame(width: 16)
-                    Image(ing.image).resizable().scaledToFit().frame(width: 26, height: 26)
-                    Text(ing.name).font(.toon(13, .bold)).foregroundStyle(Ink.line.opacity(i < kitchen.stack.count ? 0.4 : 1))
+                    .font(.system(size: row * 0.5, weight: .black))
+                    .frame(width: row * 0.6)
+                    Image(ing.image).resizable().scaledToFit().frame(width: row, height: row)
+                    Text(ing.name).font(.toon(row * 0.52, .bold)).foregroundStyle(Ink.line.opacity(i < kitchen.stack.count ? 0.4 : 1))
                         .strikethrough(i < kitchen.stack.count, color: Ink.line.opacity(0.4))
                         .lineLimit(1).minimumScaleFactor(0.6)
                 }
+                .frame(height: row)
             }
-            HStack(spacing: 6) {
-                Image(order.wish.image).resizable().scaledToFit().frame(width: 24, height: 24)
-                Text(order.wish.label).font(.toon(13)).foregroundStyle(order.wish == .dark ? Color(hex: 0xA8601F) : Color(hex: 0xD98A1E))
+            HStack(spacing: 5) {
+                Image(order.wish.image).resizable().scaledToFit().frame(width: row * 0.9, height: row * 0.9)
+                Text(order.wish.label).font(.toon(row * 0.55)).foregroundStyle(order.wish == .dark ? Color(hex: 0xA8601F) : Color(hex: 0xD98A1E))
             }
-            .padding(.top, 2)
-            PatienceBar(value: kitchen.patienceLeft)
-                .frame(height: 12)
-                .padding(.top, 2)
         }
-        .padding(12)
-        .padding(.top, 6)
+        .padding(.horizontal, 10)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
+        .frame(maxHeight: height)
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: 10).fill(Ink.line).offset(x: 3, y: 4)
                 RoundedRectangle(cornerRadius: 10).fill(Ink.paper)
                 RoundedRectangle(cornerRadius: 10).strokeBorder(Ink.line, lineWidth: 3)
-                VStack(spacing: 5) {
-                    ForEach(0..<10, id: \.self) { _ in Rectangle().fill(Color(hex: 0x9CC8E8).opacity(0.22)).frame(height: 1) }
-                }
-                .padding(.horizontal, 10).padding(.vertical, 26)
             }
         )
         .overlay(alignment: .top) {
-            Circle().fill(Ink.red).frame(width: 16, height: 16)
+            Circle().fill(Ink.red).frame(width: 14, height: 14)
                 .overlay(Circle().strokeBorder(Ink.line, lineWidth: 3))
-                .overlay(Circle().fill(.white.opacity(0.6)).frame(width: 5, height: 5).offset(x: -2, y: -2))
-                .offset(y: -6)
+                .overlay(Circle().fill(.white.opacity(0.6)).frame(width: 4, height: 4).offset(x: -2, y: -2))
+                .offset(y: -5)
         }
-        .rotationEffect(.degrees(2))
+        .rotationEffect(.degrees(1.5))
     }
 }
 
@@ -380,7 +391,7 @@ struct IngredientButton: View {
             VStack(spacing: 2) {
                 ZStack {
                     Circle().fill(Ink.line).offset(y: 4)
-                    Circle().fill(highlight ? Color(hex: 0xFFE3A8) : Ink.paper)
+                    Circle().fill(highlight ? Color(hex: 0xFFE3A8) : Color(hex: 0xF3DFC0))
                     Circle().strokeBorder(highlight ? Ink.orange : Ink.line, lineWidth: highlight ? 4 : 3)
                     Image(image).resizable().scaledToFit().padding(size * 0.12)
                 }
