@@ -131,7 +131,6 @@ struct RootView: View {
             .tint(onPaper ? Paper.accent : Theme.laser)
             .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.98)), removal: .opacity))
         }
-        .environment(\.paperNight, app.paperNight)
         .preferredColorScheme(onPaper ? paperScheme : .dark)
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { app.refreshSystemAppearance() }
@@ -215,6 +214,8 @@ struct RootView: View {
             PassView()
                 .environment(store)
         }
+        // Tout en dernier : les feuilles (Pass, modes d'emploi…) héritent aussi du papier de nuit.
+        .environment(\.paperNight, app.paperNight)
     }
 
     /// Les couleurs du fond lumineux changent avec le jeu.
