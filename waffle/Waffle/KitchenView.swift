@@ -530,6 +530,13 @@ struct HUD: View {
                     Text("\(Int(kitchen.shiftLeft.rounded(.up)))").monospacedDigit()
                 }
             }
+            if kitchen.combo >= 2 {
+                Pill {
+                    Image(systemName: "flame.fill").foregroundStyle(Ink.orange)
+                    Text("×\(kitchen.combo)").monospacedDigit()
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
             Spacer(minLength: 4)
             Pill {
                 Image("coin").resizable().frame(width: 22, height: 22)
@@ -584,6 +591,15 @@ struct ResultCard: View {
                 }
             }
             Text(served.comment).font(.toon(24)).foregroundStyle(Ink.line)
+            if served.combo >= 2 {
+                HStack(spacing: 4) {
+                    Image(systemName: "flame.fill").foregroundStyle(Ink.orange)
+                    Text(T("Combo ×\(served.combo)", "Combo ×\(served.combo)"))
+                }
+                .font(.toon(20, .black))
+                .foregroundStyle(Ink.red)
+                .transition(.scale(scale: 1.6).combined(with: .opacity))
+            }
             if served.coins > 0 {
                 HStack(spacing: 6) {
                     Image("coin").resizable().frame(width: 26, height: 26)
@@ -675,7 +691,7 @@ struct SummaryCard: View {
                     Text("\(kitchen.coins)").font(.toon(38, .black)).foregroundStyle(Color(hex: 0xD98A1E))
                     if !kitchen.rush { Text("/ \(kitchen.target)").font(.toon(20, .bold)).foregroundStyle(Ink.line.opacity(0.5)) }
                 }
-                Text(T("\(kitchen.servedCount) gaufres servies · \(kitchen.perfectCount) parfaites", "\(kitchen.servedCount) served · \(kitchen.perfectCount) perfect"))
+                Text(T("\(kitchen.servedCount) gaufres servies · \(kitchen.perfectCount) parfaites · meilleur combo ×\(kitchen.bestCombo)", "\(kitchen.servedCount) served · \(kitchen.perfectCount) perfect · best combo ×\(kitchen.bestCombo)"))
                     .font(.toon(15, .bold)).foregroundStyle(Ink.line.opacity(0.75))
                 if !kitchen.rush && kitchen.dayStars > 0 && kitchen.day < Kitchen.lastDay {
                     Button(action: onNext) {

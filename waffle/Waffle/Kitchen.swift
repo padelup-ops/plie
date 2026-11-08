@@ -98,6 +98,7 @@ struct Served {
     let coins: Int
     let doneness: Doneness
     let comment: String
+    var combo: Int = 0
 }
 
 /// Ce qu'on garde d'une partie à l'autre.
@@ -168,6 +169,9 @@ final class Kitchen {
     private(set) var lostCount = 0
     private(set) var last: Served?
     private(set) var mistakes = 0
+    /// Gaufres parfaites d'affilée : chaque parfaite de plus rapporte davantage.
+    private(set) var combo = 0
+    private(set) var bestCombo = 0
     private(set) var shake = 0
     private(set) var hint: String?
     /// Le gaufrier est fermé (Duo fermé, ou bouton « Fermer » sans charnière).
@@ -391,12 +395,15 @@ final class Kitchen {
         let base = 6 + 3 * order.layers.count
         let mult = [0.0, 0.4, 0.75, 1.0][stars]
         let tip = stars >= 2 ? Int((patienceLeft * 8).rounded()) : 0
-        let earned = Int((Double(base) * mult).rounded()) + tip
+        if stars == 3 { combo += 1; bestCombo = max(bestCombo, combo) } else { combo = 0 }
+        // Combo : +25 % par parfaite d'affilée (jusqu'à ×2).
+        let comboBonus = 1 + 0.25 * Double(min(4, max(0, combo - 1)))
+        let earned = Int(((Double(base) * mult + Double(tip)) * comboBonus).rounded())
         coins += earned
         servedCount += 1
         if stars == 3 { perfectCount += 1 }
         if stars == 0 && rush { lostCount += 1 }
-        last = Served(stars: stars, coins: earned, doneness: d, comment: comment)
+        last = Served(stars: stars, coins: earned, doneness: d, comment: comment, combo: stars == 3 ? combo : 0)
         phase = .served
         nextIn = 1.8
         Sound.play(stars >= 2 ? .win : .wrong, volume: 0.6)
@@ -428,6 +435,7 @@ final class Kitchen {
                 // Le client s'en va.
                 Sound.stopLoop()
                 lostCount += 1
+                combo = 0
                 last = Served(stars: 0, coins: 0, doneness: cooked, comment: T("Trop long ! Il est parti.", "Too slow! They left."))
                 phase = .gone
                 nextIn = 1.8
