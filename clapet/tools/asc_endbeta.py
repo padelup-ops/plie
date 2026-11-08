@@ -25,13 +25,22 @@ app = call("GET", "/v1/apps?filter[bundleId]=com.padelup.clapet")["data"][0]
 aid = app["id"]
 
 # Les builds liés à une version App Store (en ligne, en revue…) : on ne les expire pas.
+# On garde seulement la version en ligne la plus récente et celles en cours (revue, en attente).
 keep = {}
+live_seen = False
 for v in call("GET", f"/v1/apps/{aid}/appStoreVersions?limit=10&include=build").get("data", []):
     st = v["attributes"].get("appStoreState") or v["attributes"].get("appVersionState")
     b = (v.get("relationships", {}).get("build", {}) or {}).get("data")
     print("version", v["attributes"]["versionString"], st, "build id", b and b["id"])
-    if b and st not in ("REPLACED_WITH_NEW_VERSION", "REMOVED_FROM_SALE"):
-        keep[b["id"]] = f'{v["attributes"]["versionString"]} {st}'
+    if not b:
+        continue
+    if st == "READY_FOR_SALE":
+        if live_seen:
+            continue
+        live_seen = True
+    elif st in ("REPLACED_WITH_NEW_VERSION", "REMOVED_FROM_SALE", "DEVELOPER_REMOVED_FROM_SALE"):
+        continue
+    keep[b["id"]] = f'{v["attributes"]["versionString"]} {st}'
 
 groups = [g for g in call("GET", f"/v1/apps/{aid}/betaGroups?limit=50").get("data", [])]
 external = [g for g in groups if not g["attributes"].get("isInternalGroup")]
