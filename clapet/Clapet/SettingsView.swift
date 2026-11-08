@@ -60,8 +60,10 @@ struct SettingsView: View {
                     }
                     if model.stats.goalOn {
                         // Ta propre limite : tape le chiffre, ou ajuste de 5 en 5.
-                        let goal = Binding(get: { model.stats.goal }, set: { model.setGoal(min(2000, max(5, $0))) })
-                        Stepper(value: goal, in: 5...2000, step: 5) {
+                        // Affichée dans l'unité choisie (doublée si chaque mouvement compte).
+                        let unit = model.stats.eachMove ? 2 : 1
+                        let goal = Binding(get: { model.stats.goal * unit }, set: { model.setGoal(min(2000, max(5, $0 / unit))) })
+                        Stepper(value: goal, in: (5 * unit)...(2000 * unit), step: 5 * unit) {
                             HStack {
                                 Text("Limit a day")
                                 Spacer()
@@ -85,11 +87,19 @@ struct SettingsView: View {
                     Button { showBoards = true } label: {
                         Label { Text("Leaderboards") } icon: { Image(systemName: "trophy.fill").foregroundStyle(.orange) }
                     }
+                    Picker(selection: Binding(get: { model.stats.eachMove }, set: { model.setEachMove($0) })) {
+                        Text("Open + close = 1 fold").tag(false)
+                        Text("Each movement counts").tag(true)
+                    } label: {
+                        Text("How to count")
+                    }
                 } header: {
                     Text("My goal")
                 } footer: {
                     if alertsDenied {
                         Text("Notifications are off for Foldly. Turn them on in the Settings app.")
+                    } else if model.stats.eachMove {
+                        Text("Each movement counts: opening and closing count as 2. Your history follows too.")
                     } else if model.stats.goalOn {
                         Text("Tap the number to type your own limit.")
                     } else {

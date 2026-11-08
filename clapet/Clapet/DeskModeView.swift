@@ -88,7 +88,7 @@ struct DeskModeView: View {
     private var number: some View {
         let s = model.stats
         return VStack(spacing: 2) {
-            Text("\(s.today)")
+            Text("\(FoldUnit.shown(s.today))")
                 .font(.system(size: 150, weight: numberWeight))
                 .monospacedDigit()
                 .contentTransition(.numericText())
@@ -122,9 +122,9 @@ struct DeskModeView: View {
         let text: Text
         if let avg = s.recentAverage().map({ Int($0.rounded()) }) {
             let diff = today - avg
-            if diff < 0 { text = Text("\(-diff) below your \(avg)/day average") }
-            else if diff > 0 { text = Text("\(diff) above your \(avg)/day average") }
-            else { text = Text("Right on your \(avg)/day average") }
+            if diff < 0 { text = Text("\(FoldUnit.shown(-diff)) below your \(FoldUnit.shown(avg))/day average") }
+            else if diff > 0 { text = Text("\(FoldUnit.shown(diff)) above your \(FoldUnit.shown(avg))/day average") }
+            else { text = Text("Right on your \(FoldUnit.shown(avg))/day average") }
         } else {
             text = Text("Your daily average shows up tomorrow")
         }

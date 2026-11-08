@@ -70,7 +70,7 @@ struct HistoryView: View {
             }
             .pickerStyle(.segmented)
             HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text("\(total)")
+                Text("\(FoldUnit.shown(total))")
                     .font(.system(size: 34, weight: .bold))
                     .monospacedDigit()
                 (range == 0 ? Text("folds in 30 days") : Text("folds in 12 months"))
@@ -80,7 +80,7 @@ struct HistoryView: View {
             Chart {
                 ForEach(0..<data.count, id: \.self) { i in
                     BarMark(x: .value("Day", data[i].date, unit: range == 0 ? .day : .month),
-                            y: .value("Folds", data[i].closes))
+                            y: .value("Folds", FoldUnit.shown(data[i].closes)))
                         .foregroundStyle(i == data.count - 1 ? mint : mint.opacity(0.45))
                         .cornerRadius(3)
                 }
@@ -202,8 +202,8 @@ struct HistoryView: View {
                    change.map { $0.formatted(.percent.precision(.fractionLength(0)).sign(strategy: .always(includingZero: false))) } ?? "–",
                    Text("This week vs last week"), nil)
             record("chart.line.flattrend.xyaxis", .dfAccent, s.dailyAverage().formatted(.number.precision(.fractionLength(0...1))), Text("Average per day"), nil)
-            record("arrow.down.circle.fill", mint, "\(calmest?.closes ?? 0)", Text("Calmest day"), calmest.map { Text($0.date, format: dateStyle) })
-            record("chart.bar.fill", .dfOver, "\(busiest?.closes ?? 0)", Text("Busiest day"), busiest.map { Text($0.date, format: dateStyle) })
+            record("arrow.down.circle.fill", mint, "\(FoldUnit.shown(calmest?.closes ?? 0))", Text("Calmest day"), calmest.map { Text($0.date, format: dateStyle) })
+            record("chart.bar.fill", .dfOver, "\(FoldUnit.shown(busiest?.closes ?? 0))", Text("Busiest day"), busiest.map { Text($0.date, format: dateStyle) })
             record("clock.fill", .dfWarning, "\(s.recordHour)", Text("Busiest hour"), nil)
             record("calendar.badge.checkmark", .secondary, "\(s.daysCounted)", Text("Days tracked"), nil)
             record("hourglass", mint, ContentView.duration(s.averageOpen(days: 30)), Text("Open per day (30 days)"), nil)

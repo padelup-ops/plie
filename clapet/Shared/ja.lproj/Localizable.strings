@@ -670,3 +670,7 @@
 "1 to 10 min" = "1〜10分";
 "Over 10 min" = "10分以上";
 "New" = "新機能";
+"Open + close = 1 fold" = "開く＋閉じる＝1回";
+"Each movement counts" = "動きごとに数える";
+"How to count" = "数え方";
+"Each movement counts: opening and closing count as 2. Your history follows too." = "動きごとに数えます：開いて閉じると2回。履歴も同じ数え方になります。";

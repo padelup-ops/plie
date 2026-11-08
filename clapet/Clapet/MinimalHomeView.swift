@@ -155,7 +155,7 @@ struct MinimalHomeView: View {
     private var hero: some View {
         let s = model.stats
         return VStack(spacing: 10) {
-            Text("\(s.today)")
+            Text("\(FoldUnit.shown(s.today))")
                 .font(.system(size: 128, weight: .ultraLight))
                 .monospacedDigit()
                 .lineLimit(1)
@@ -197,9 +197,9 @@ struct MinimalHomeView: View {
         let s = model.stats
         if s.goalOn {
             let left = s.left()
-            if left > 0 { return Text("\(left) left today") }
+            if left > 0 { return Text("\(FoldUnit.shown(left)) left today") }
             if left == 0 { return Text("Limit reached") }
-            return Text("\(-left) over the limit")
+            return Text("\(FoldUnit.shown(-left)) over the limit")
         }
         return AverageText.status(today: s.today, average: s.averageRef())
     }

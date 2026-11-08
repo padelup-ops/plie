@@ -101,7 +101,7 @@ struct ClapetWidgetView: View {
             .font(.system(size: 12, weight: .bold))
             .foregroundStyle(.secondary)
             Spacer(minLength: 0)
-            Text("\(today)")
+            Text("\(FoldUnit.shown(today))")
                 .font(.system(size: 76, weight: .semibold, design: .rounded))
                 .monospacedDigit()
                 .minimumScaleFactor(0.4)
@@ -199,11 +199,11 @@ struct ClapetWidgetView: View {
     private var versusYesterday: some View {
         VStack(alignment: .trailing, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: 5) {
-                Text("\(today)")
+                Text("\(FoldUnit.shown(today))")
                     .font(.system(size: 26, weight: .bold))
                     .foregroundStyle(.white)
                 if today != yesterday {
-                    Text("\(today > yesterday ? "↑" : "↓") \(abs(today - yesterday))")
+                    Text("\(today > yesterday ? "↑" : "↓") \(FoldUnit.shown(abs(today - yesterday)))")
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(today > yesterday ? upColor : accent)
                 }
@@ -216,7 +216,7 @@ struct ClapetWidgetView: View {
 
     private var allTime: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("\(stats.totalCloses)")
+            Text("\(FoldUnit.shown(stats.totalCloses))")
                 .font(.system(size: 52, weight: .bold))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
@@ -236,7 +236,7 @@ struct ClapetWidgetView: View {
                 let isToday = i == days.count - 1
                 VStack(spacing: 4) {
                     if showValues {
-                        Text("\(days[i].closes)")
+                        Text("\(FoldUnit.shown(days[i].closes))")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(isToday ? .white : Palette.secondary)
                             .lineLimit(1)
@@ -292,13 +292,13 @@ struct ClapetWidgetView: View {
         return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 if let next = level.next {
-                    Text("Next milestone: \(next)")
+                    Text("Next milestone: \(FoldUnit.shown(next))")
                         .foregroundStyle(.white)
                     Spacer(minLength: 4)
-                    Text("\(next - stats.totalCloses) to go")
+                    Text("\(FoldUnit.shown(next - stats.totalCloses)) to go")
                         .foregroundStyle(Palette.secondary)
                 } else {
-                    Text("\(stats.totalCloses) folds")
+                    Text("\(FoldUnit.shown(stats.totalCloses)) folds")
                         .foregroundStyle(.white)
                 }
             }
@@ -347,11 +347,11 @@ struct ClapetWidgetView: View {
             Group {
                 if stats.goalOn {
                     if left > 0 {
-                        Text("\(left) left today")
+                        Text("\(FoldUnit.shown(left)) left today")
                     } else if left == 0 {
                         Text("Limit reached")
                     } else {
-                        Text("\(-left) over the limit")
+                        Text("\(FoldUnit.shown(-left)) over the limit")
                     }
                 } else {
                     Text("Average \(ref) a day")
@@ -369,7 +369,7 @@ struct ClapetWidgetView: View {
             Text("today")
                 .foregroundStyle(Palette.secondary)
             if today != yesterday {
-                Text("\(today > yesterday ? "↑" : "↓") \(abs(today - yesterday))")
+                Text("\(today > yesterday ? "↑" : "↓") \(FoldUnit.shown(abs(today - yesterday)))")
                     .foregroundStyle(today > yesterday ? upColor : accent)
             }
         }
@@ -404,7 +404,7 @@ struct ClapetWidgetView: View {
         VStack(alignment: .leading, spacing: 2) {
             header
             Spacer(minLength: 0)
-            Text("\(today)")
+            Text("\(FoldUnit.shown(today))")
                 .font(.system(size: 46, weight: .bold))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
@@ -431,7 +431,7 @@ struct ClapetWidgetView: View {
             header
             HStack(alignment: .bottom, spacing: 14) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(today)")
+                    Text("\(FoldUnit.shown(today))")
                         .font(.system(size: 40, weight: .bold))
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
@@ -455,7 +455,7 @@ struct ClapetWidgetView: View {
             header
             HStack(alignment: .lastTextBaseline) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("\(today)")
+                    Text("\(FoldUnit.shown(today))")
                         .font(.system(size: 44, weight: .bold))
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
@@ -465,7 +465,7 @@ struct ClapetWidgetView: View {
                 }
                 Spacer(minLength: 8)
                 VStack(alignment: .trailing, spacing: 0) {
-                    Text("\(stats.totalCloses)")
+                    Text("\(FoldUnit.shown(stats.totalCloses))")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(.white)
                         .lineLimit(1)
@@ -487,7 +487,7 @@ struct ClapetWidgetView: View {
         Gauge(value: stats.refProgress(now: entry.date)) {
             Image(systemName: "iphone.gen3")
         } currentValueLabel: {
-            Text("\(today)")
+            Text("\(FoldUnit.shown(today))")
                 .font(.system(.body, weight: .bold))
         }
         .gaugeStyle(.accessoryCircularCapacity)
@@ -500,14 +500,14 @@ struct ClapetWidgetView: View {
                 Text("Foldly")
                     .font(.system(.headline, weight: .bold))
             }
-            Text("\(today) folds today")
+            Text("\(FoldUnit.shown(today)) folds today")
                 .font(.system(.body, weight: .semibold))
                 .widgetAccentable()
             if reference != nil {
                 Gauge(value: stats.refProgress(now: entry.date)) { EmptyView() }
                     .gaugeStyle(.accessoryLinearCapacity)
             } else {
-                Text("\(stats.totalCloses) all time")
+                Text("\(FoldUnit.shown(stats.totalCloses)) all time")
                     .font(.system(.caption, weight: .medium))
                     .foregroundStyle(.secondary)
             }
@@ -517,7 +517,7 @@ struct ClapetWidgetView: View {
 
     private var inline: some View {
         Label {
-            Text("\(today) folds today")
+            Text("\(FoldUnit.shown(today)) folds today")
         } icon: {
             Image(systemName: "iphone.gen3")
         }
@@ -703,7 +703,7 @@ struct PhoneDownWidgetView: View {
             if closedSince != nil || openSince != nil {
                 stateTimer
             } else {
-                Text("\(stats.day(entry.date).closes) folds today")
+                Text("\(FoldUnit.shown(stats.day(entry.date).closes)) folds today")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(Palette.secondary)
                     .lineLimit(1)
@@ -727,7 +727,7 @@ struct PhoneDownWidgetView: View {
             }
             split
             HStack {
-                Text("\(stats.day(entry.date).closes) folds")
+                Text("\(FoldUnit.shown(stats.day(entry.date).closes)) folds")
                 Spacer(minLength: 4)
                 Text("Longest break \(TimeFormat.short(stats.longestBreak(entry.date, now: entry.date)))")
             }

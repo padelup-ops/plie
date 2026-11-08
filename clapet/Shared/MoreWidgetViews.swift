@@ -85,18 +85,18 @@ struct LifetimeWidgetView: View {
                     Text("Since day one")
                         .font(.system(size: 11, weight: .bold))
                         .widgetAccentable()
-                    Text(total.formatted())
+                    Text(FoldUnit.shown(total).formatted())
                         .font(.system(.title2, design: .rounded).weight(.semibold))
                         .monospacedDigit()
                     if let next = level.next {
                         ProgressView(value: level.progress(total)) { EmptyView() } currentValueLabel: {
-                            Text("Next: \(next.formatted())")
+                            Text("Next: \(FoldUnit.shown(next).formatted())")
                         }
                         .font(.system(size: 11))
                     }
                 }
             case .accessoryInline:
-                Text("\(total.formatted()) folds since day one")
+                Text("\(FoldUnit.shown(total).formatted()) folds since day one")
             default:
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 5) {
@@ -113,7 +113,7 @@ struct LifetimeWidgetView: View {
                     if let next = level.next {
                         ProgressView(value: level.progress(total))
                             .tint(accent)
-                        Text("Next milestone: \(next.formatted())")
+                        Text("Next milestone: \(FoldUnit.shown(next).formatted())")
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(Palette.secondary)
                             .lineLimit(1)
@@ -152,7 +152,7 @@ struct Odometer: View {
         }
         .contentTransition(.numericText())
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("\(value) folds since day one"))
+        .accessibilityLabel(Text("\(FoldUnit.shown(value)) folds since day one"))
     }
 }
 

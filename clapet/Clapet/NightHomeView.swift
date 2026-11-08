@@ -403,7 +403,7 @@ struct NightHomeView: View {
 
     private var bigNumber: some View {
         HStack(alignment: .firstTextBaseline, spacing: 14) {
-            Text("\(model.stats.today)")
+            Text("\(FoldUnit.shown(model.stats.today))")
                 .font(.system(size: 112, weight: .light, design: DFLook.current == .aurora ? .rounded : .default))
                 .monospacedDigit()
                 .foregroundStyle(DFLook.current == .aurora ? AnyShapeStyle(Aurora.glow) : AnyShapeStyle(.primary))
@@ -441,13 +441,13 @@ struct NightHomeView: View {
             let diff = today - avg
             if diff < 0 {
                 symbol = "chart.line.downtrend.xyaxis"; color = .dfAccent
-                text = Text("\(-diff) below your \(avg)/day average")
+                text = Text("\(FoldUnit.shown(-diff)) below your \(FoldUnit.shown(avg))/day average")
             } else if diff > 0 {
                 symbol = "chart.line.uptrend.xyaxis"; color = s.goalOn ? .dfWarning : .dfAccent
-                text = Text("\(diff) above your \(avg)/day average")
+                text = Text("\(FoldUnit.shown(diff)) above your \(FoldUnit.shown(avg))/day average")
             } else {
                 symbol = "chart.line.flattrend.xyaxis"; color = .dfAccent
-                text = Text("Right on your \(avg)/day average")
+                text = Text("Right on your \(FoldUnit.shown(avg))/day average")
             }
         } else {
             symbol = "chart.line.flattrend.xyaxis"; color = .dfAccent
@@ -508,12 +508,12 @@ struct NightHomeView: View {
         let s = model.stats
         let left = s.left()
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-            tile(Text("All time"), "\(s.totalCloses)")
+            tile(Text("All time"), "\(FoldUnit.shown(s.totalCloses))")
             tile(Text("Last 7 days"), "\(s.weekTotal)")
             tile(Text("Opened today"), "\(s.day().opens)")
             if s.goalOn {
-                tile(Text("Daily limit"), "\(s.goal)",
-                     detail: left > 0 ? Text("\(left) left today") : (left == 0 ? Text("Limit reached") : Text("\(-left) over the limit")),
+                tile(Text("Daily limit"), "\(FoldUnit.shown(s.goal))",
+                     detail: left > 0 ? Text("\(FoldUnit.shown(left)) left today") : (left == 0 ? Text("Limit reached") : Text("\(FoldUnit.shown(-left)) over the limit")),
                      color: statusColor)
             } else {
                 tile(Text("Daily average"), s.averageRef().map { "\($0)" } ?? "—", detail: Text("Last 30 days"))
@@ -567,10 +567,10 @@ struct NightHomeView: View {
         let cal = Calendar.current
         let start = cal.date(byAdding: .day, value: -6, to: cal.startOfDay(for: Date())) ?? Date()
         let range = (start..<max(Date(), start.addingTimeInterval(60))).formatted(.interval.day().month(.abbreviated).year())
-        let perDayText = Text("\(perDay) per day")
+        let perDayText = Text("\(FoldUnit.shown(perDay)) per day")
         return Group {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text("\(total)")
+                Text("\(FoldUnit.shown(total))")
                     .font(.system(size: 76, weight: .light))
                     .monospacedDigit()
                     .lineLimit(1)
@@ -792,14 +792,14 @@ struct NightHomeView: View {
             VStack(alignment: .leading, spacing: 10) {
                 CardTitle(Text("Lifetime"))
                 HStack(alignment: .firstTextBaseline) {
-                    Text("\(total)")
+                    Text("\(FoldUnit.shown(total))")
                         .font(.system(size: 34, weight: .light))
                         .monospacedDigit()
                     Text("folds")
                         .foregroundStyle(.secondary)
                     Spacer()
                     if let next = level.next {
-                        Text("Next milestone: \(next)")
+                        Text("Next milestone: \(FoldUnit.shown(next))")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
@@ -807,7 +807,7 @@ struct NightHomeView: View {
                 ProgressView(value: level.progress(total))
                     .tint(.dfAccent)
                 if let next = level.next {
-                    Text("\(next - total) folds to the next milestone")
+                    Text("\(FoldUnit.shown(next - total)) folds to the next milestone")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -880,7 +880,7 @@ struct NightHomeView: View {
             }
             Divider().overlay(Color.dfOutline).padding(.leading, 56)
             row("target", Text("Daily limit"),
-                model.stats.goalOn ? Text("On: \(model.stats.goal) a day") : Text("Off: each day is compared with your average"),
+                model.stats.goalOn ? Text("On: \(FoldUnit.shown(model.stats.goal)) a day") : Text("Off: each day is compared with your average"),
                 locked: false) {
                 showSettings = true
             }
@@ -984,7 +984,7 @@ enum PlusReason: String, Identifiable {
         case .widget: return Text("This widget is part of Foldly+.")
         case .tracking:
             if let peak = stats.peakHour {
-                return Text("Your first 3 days: \(stats.totalCloses) folds, your peak is at \(HoursText.hour(peak)). Unlock your trends with Foldly+.")
+                return Text("Your first 3 days: \(FoldUnit.shown(stats.totalCloses)) folds, your peak is at \(HoursText.hour(peak)). Unlock your trends with Foldly+.")
             }
             return Text("Three days of tracking. Keep an eye on your folds right from your Home Screen.")
         case .alerts: return Text("Limit alerts are part of Foldly+.")

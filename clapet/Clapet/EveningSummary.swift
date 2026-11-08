@@ -33,7 +33,7 @@ enum EveningSummary {
             let open = TimeFormat.short(stats.openTime(now, now: now))
             let closed = TimeFormat.short(stats.closedTime(now, now: now))
             let day = stats.day(now)
-            content.body = String(localized: "\(day.closes) folds · \(open) open · \(closed) closed")
+            content.body = String(localized: "\(FoldUnit.shown(day.closes)) folds · \(open) open · \(closed) closed")
         } else {
             // Déjà passé 21 h 30 : demain, sans chiffres (ils seront mis à jour au premier pli).
             at = cal.dateComponents([.year, .month, .day], from: cal.date(byAdding: .day, value: 1, to: now) ?? now)

@@ -670,3 +670,7 @@
 "1 to 10 min" = "1~10분";
 "Over 10 min" = "10분 이상";
 "New" = "새 기능";
+"Open + close = 1 fold" = "열고 닫기 = 1회";
+"Each movement counts" = "동작마다 세기";
+"How to count" = "세는 방법";
+"Each movement counts: opening and closing count as 2. Your history follows too." = "동작마다 셉니다: 열고 닫으면 2회. 기록도 같이 바뀌어요.";

@@ -255,6 +255,15 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.11": {
+        "en-US": "• New setting: count each movement. Opening and closing then count as 2 instead of 1. Your history, widgets and watch follow too.\n• Small fixes and improvements.",
+        "fr-FR": "• Nouveau réglage : compter chaque mouvement. Ouvrir puis fermer compte alors pour 2 au lieu de 1. L'historique, les widgets et la montre suivent aussi.\n• Petites corrections et améliorations.",
+        "de-DE": "• Neue Einstellung: jede Bewegung zählen. Öffnen und Schließen zählen dann als 2 statt 1. Verlauf, Widgets und Uhr passen sich an.\n• Kleine Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• Nuevo ajuste: contar cada movimiento. Abrir y cerrar cuentan entonces como 2 en lugar de 1. El historial, los widgets y el reloj también.\n• Pequeñas correcciones y mejoras.",
+        "ja": "• 新しい設定：動きごとに数える。開いて閉じると1回ではなく2回に。履歴、ウィジェット、Apple Watchも同じ数え方に。\n• 細かな修正と改善。",
+        "ko": "• 새 설정: 동작마다 세기. 열고 닫으면 1회가 아니라 2회로 셉니다. 기록, 위젯, 워치도 함께 바뀌어요.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• 新设置：每个动作都计数。打开再合上将算作 2 次而不是 1 次。历史、小组件和手表也会同步。\n• 小问题修复和改进。",
+    },
     "1.0.10": {
         "en-US": "• Importing your history works with Scriptable files as they are, no need to convert them first.\n• When a day was counted both by Foldly and by your old tool, Foldly now keeps the higher count, today included, so no fold gets lost.\n• Small fixes and improvements.",
         "fr-FR": "• L'import de ton historique lit directement les fichiers Scriptable, plus besoin de les convertir.\n• Quand un jour a été compté à la fois par Foldly et par ton ancien outil, Foldly garde le plus grand des deux nombres, aujourd'hui compris : aucun pli n'est perdu.\n• Petites corrections et améliorations.",
@@ -320,7 +329,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.6") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.6") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -365,7 +374,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.6") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.6") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})

@@ -101,9 +101,9 @@ struct PlusNudgeCard: View {
 
     private var summary: Text {
         if let peak = stats.peakHour {
-            return Text("\(stats.totalCloses) folds so far, your peak is at \(HoursText.hour(peak)).")
+            return Text("\(FoldUnit.shown(stats.totalCloses)) folds so far, your peak is at \(HoursText.hour(peak)).")
         }
-        return Text("\(stats.totalCloses) folds so far.")
+        return Text("\(FoldUnit.shown(stats.totalCloses)) folds so far.")
     }
 }
 

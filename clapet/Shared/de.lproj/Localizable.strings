@@ -670,3 +670,7 @@
 "1 to 10 min" = "1 bis 10 Min.";
 "Over 10 min" = "Über 10 Min.";
 "New" = "Neu";
+"Open + close = 1 fold" = "Öffnen + schließen = 1 Mal";
+"Each movement counts" = "Jede Bewegung zählt";
+"How to count" = "Zählweise";
+"Each movement counts: opening and closing count as 2. Your history follows too." = "Jede Bewegung zählt: Öffnen und Schließen zählen als 2. Dein Verlauf passt sich an.";

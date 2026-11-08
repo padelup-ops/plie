@@ -58,7 +58,7 @@ struct ShareCard: View {
                 .font(.system(size: 20, weight: .medium))
                 .foregroundStyle(palette.ink.opacity(0.85))
             HStack(alignment: .firstTextBaseline, spacing: 10) {
-                Text("\(today)")
+                Text("\(FoldUnit.shown(today))")
                     .font(.system(size: 96, weight: .light))
                     .monospacedDigit()
                     .lineLimit(1)
@@ -70,11 +70,11 @@ struct ShareCard: View {
             }
             Group {
                 if stats.goalOn && left >= 0 {
-                    Text("Under my daily limit of \(stats.goal) 🎯")
+                    Text("Under my daily limit of \(FoldUnit.shown(stats.goal)) 🎯")
                 } else if stats.goalOn {
-                    Text("\(-left) over my daily limit")
+                    Text("\(FoldUnit.shown(-left)) over my daily limit")
                 } else if let avg = stats.averageRef(now: date) {
-                    Text("My average: \(avg) a day")
+                    Text("My average: \(FoldUnit.shown(avg)) a day")
                 }
             }
             .font(.system(size: 16, weight: .semibold))
@@ -191,7 +191,7 @@ struct HingeHealthContent: View {
         let bench = Self.benchmark.formatted()
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
-                Text("\(total)")
+                Text("\(FoldUnit.shown(total))")
                     .font(.system(size: 30, weight: .bold))
                     .monospacedDigit()
                 Text("folds since you started counting")

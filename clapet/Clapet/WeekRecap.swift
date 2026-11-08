@@ -237,11 +237,11 @@ struct WeekRecapView: View {
         return Chart {
             ForEach(0..<recap.days.count, id: \.self) { i in
                 let d = recap.days[i]
-                BarMark(x: .value("Day", d.date, unit: .day), y: .value("Folds", d.closes), width: .ratio(0.7))
+                BarMark(x: .value("Day", d.date, unit: .day), y: .value("Folds", FoldUnit.shown(d.closes)), width: .ratio(0.7))
                     .foregroundStyle(ClapetStats.key(d.date) == busiest ? Color.dfAccent : Color.dfBar)
                     .cornerRadius(5)
                     .annotation(position: .top, spacing: 4) {
-                        Text("\(d.closes)")
+                        Text("\(FoldUnit.shown(d.closes))")
                             .font(.caption.weight(.medium))
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
@@ -305,11 +305,11 @@ struct WeekRecapView: View {
         VStack(alignment: .leading, spacing: 12) {
             if let b = recap.busiest {
                 highlight("arrow.up.circle.fill", Text("Busiest day"),
-                          Text("\(Text(b.date, format: .dateTime.weekday(.wide))) · \(b.closes) folds"))
+                          Text("\(Text(b.date, format: .dateTime.weekday(.wide))) · \(FoldUnit.shown(b.closes)) folds"))
             }
             if let c = recap.calmest {
                 highlight("arrow.down.circle.fill", Text("Calmest day"),
-                          Text("\(Text(c.date, format: .dateTime.weekday(.wide))) · \(c.closes) folds"))
+                          Text("\(Text(c.date, format: .dateTime.weekday(.wide))) · \(FoldUnit.shown(c.closes)) folds"))
             }
         }
         .padding(16)

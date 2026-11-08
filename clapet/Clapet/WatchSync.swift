@@ -70,16 +70,17 @@ extension ClapetStats {
     func watchData(now: Date = Date()) -> FoldlyWatchData {
         FoldlyWatchData(
             day: FoldlyWatchData.key(now),
-            today: day(now).closes,
-            yesterday: yesterday(now),
-            reference: reference(now: now),
+            // Les nombres partent déjà au format choisi (chaque mouvement compte, ou non).
+            today: FoldUnit.shown(day(now).closes),
+            yesterday: FoldUnit.shown(yesterday(now)),
+            reference: reference(now: now).map(FoldUnit.shown),
             limitOn: goalOn,
-            week: lastWeek(now: now).map { $0.closes },
+            week: lastWeek(now: now).map { FoldUnit.shown($0.closes) },
             closedSeconds: downTime(now, now: now),
             openSeconds: openTime(now, now: now),
             openSince: openSince,
             lastClose: lastClose,
-            total: totalCloses,
+            total: FoldUnit.shown(totalCloses),
             peakHour: peakHour,
             updated: now,
             plus: plus || DuoFolds.paidApp)

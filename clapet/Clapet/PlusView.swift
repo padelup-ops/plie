@@ -143,7 +143,7 @@ struct PlusView: View {
             .foregroundStyle(.white.opacity(0.5))
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("\(model.stats.totalCloses)")
+                    Text("\(FoldUnit.shown(model.stats.totalCloses))")
                         .font(.system(size: 38, weight: .bold))
                         .foregroundStyle(.white)
                     Text("all time")
@@ -160,7 +160,7 @@ struct PlusView: View {
                 }
             }
             if let next = level.next {
-                Text("Next milestone: \(next)")
+                Text("Next milestone: \(FoldUnit.shown(next))")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.white.opacity(0.6))
             }

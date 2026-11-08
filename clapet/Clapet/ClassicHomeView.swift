@@ -294,9 +294,9 @@ struct ClassicHomeView: View {
         let s = model.stats
         if s.goalOn {
             let left = s.left()
-            if left > 0 { return Text("\(left) left today") }
+            if left > 0 { return Text("\(FoldUnit.shown(left)) left today") }
             if left == 0 { return Text("Limit reached") }
-            return Text("\(-left) over the limit")
+            return Text("\(FoldUnit.shown(-left)) over the limit")
         }
         return AverageText.status(today: s.today, average: s.averageRef())
     }
@@ -349,7 +349,7 @@ struct ClassicHomeView: View {
                 .rotationEffect(.degrees(-90))
                 .animation(.easeInOut(duration: 0.4), value: model.stats.progress)
             VStack(spacing: 0) {
-                Text("\(model.stats.today)")
+                Text("\(FoldUnit.shown(model.stats.today))")
                     .font(.system(size: 40, weight: .bold))
                     .monospacedDigit()
                     .contentTransition(.numericText())
@@ -378,7 +378,7 @@ struct ClassicHomeView: View {
                 .font(.headline)
                 .foregroundStyle(statusColor)
             if model.stats.goalOn {
-                stat(Text("Daily limit"), "\(model.stats.goal)")
+                stat(Text("Daily limit"), "\(FoldUnit.shown(model.stats.goal))")
             } else {
                 stat(Text("Daily average"), model.stats.averageRef().map { "\($0)" } ?? "—")
             }
@@ -428,10 +428,10 @@ struct ClassicHomeView: View {
     private var numbers: some View {
         let d = model.stats.day()
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-            tile(Text("Closed today"), value: d.closes, symbol: "rectangle.compress.vertical")
+            tile(Text("Closed today"), value: FoldUnit.shown(d.closes), symbol: "rectangle.compress.vertical")
             tile(Text("Opened today"), value: d.opens, symbol: "rectangle.expand.vertical")
             tile(Text("Last 7 days"), value: model.stats.weekTotal, symbol: "calendar")
-            tile(Text("All time"), value: model.stats.totalCloses, symbol: "sum")
+            tile(Text("All time"), value: FoldUnit.shown(model.stats.totalCloses), symbol: "sum")
             tile(Text("Quick checks"), value: model.stats.peeks(), symbol: "eye")
             TimelineView(.periodic(from: .now, by: 60)) { context in
                 tile(Text("Longest break"), text: Self.duration(model.stats.longestBreak(now: context.date)), symbol: "moon.zzz")
@@ -611,14 +611,14 @@ struct ClassicHomeView: View {
             VStack(alignment: .leading, spacing: 10) {
                 ClassicCardTitle(Text("Lifetime"), symbol: "infinity")
                 HStack(alignment: .firstTextBaseline) {
-                    Text("\(total)")
+                    Text("\(FoldUnit.shown(total))")
                         .font(.system(size: 30, weight: .bold))
                         .monospacedDigit()
                     Text("folds")
                         .foregroundStyle(.secondary)
                     Spacer()
                     if let next = level.next {
-                        Text("Next milestone: \(next)")
+                        Text("Next milestone: \(FoldUnit.shown(next))")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
@@ -626,7 +626,7 @@ struct ClassicHomeView: View {
                 ProgressView(value: level.progress(total))
                     .tint(.dfAccent)
                 if let next = level.next {
-                    Text("\(next - total) folds to the next milestone")
+                    Text("\(FoldUnit.shown(next - total)) folds to the next milestone")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -720,7 +720,7 @@ struct ClassicHomeView: View {
             }
             Divider().padding(.leading, 52)
             row("target", Text("Daily limit"),
-                model.stats.goalOn ? Text("On: \(model.stats.goal) a day") : Text("Off: each day is compared with your average"),
+                model.stats.goalOn ? Text("On: \(FoldUnit.shown(model.stats.goal)) a day") : Text("Off: each day is compared with your average"),
                 locked: false) {
                 showSettings = true
             }
@@ -779,7 +779,7 @@ struct ClapetWeekChart: View {
         Chart {
             ForEach(0..<days.count, id: \.self) { i in
                 BarMark(x: .value("Day", days[i].date, unit: .day),
-                        y: .value("Folds", days[i].closes))
+                        y: .value("Folds", FoldUnit.shown(days[i].closes)))
                     .foregroundStyle((goal > 0 && days[i].closes > goal ? Color.dfOver : Color.dfAccent).opacity(i == days.count - 1 ? 1 : 0.55))
                     .cornerRadius(4)
             }
@@ -811,8 +811,8 @@ struct ClapetWeekChart: View {
 enum AverageText {
     static func status(today: Int, average: Int?) -> Text {
         guard let average else { return Text("Your average shows up tomorrow") }
-        if today < average { return Text("\(average - today) below your average") }
-        if today > average { return Text("\(today - average) above your average") }
+        if today < average { return Text("\(FoldUnit.shown(average - today)) below your average") }
+        if today > average { return Text("\(FoldUnit.shown(today - average)) above your average") }
         return Text("Right on your average")
     }
 }

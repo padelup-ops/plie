@@ -78,8 +78,19 @@ struct WhyEntry: Codable, Equatable {
     var r: Int
 }
 
+/// Comment on affiche les plis. Par défaut, 1 pli = 1 ouverture + 1 fermeture.
+/// Avec « chaque mouvement compte », ouvrir et fermer comptent chacun : les nombres affichés
+/// sont doublés (aujourd'hui, l'historique, les widgets, la montre). Les données ne changent pas,
+/// et les classements Game Center restent en plis complets.
+enum FoldUnit {
+    static var eachMove = false
+    static func shown(_ n: Int) -> Int { eachMove ? n * 2 : n }
+}
+
 struct ClapetStats: Codable, Equatable {
     var days: [String: DayCount] = [:]
+    /// Réglage : chaque mouvement compte (voir FoldUnit).
+    var eachMove = false { didSet { FoldUnit.eachMove = eachMove } }
     var goal = 100
     var totalCloses = 0
     var totalOpens = 0
@@ -121,7 +132,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog
+        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -148,6 +159,8 @@ struct ClapetStats: Codable, Equatable {
         downGoalMinutes = try c.decodeIfPresent(Int.self, forKey: .downGoalMinutes) ?? 180
         downCredited = try c.decodeIfPresent(Date.self, forKey: .downCredited)
         goalOn = try c.decodeIfPresent(Bool.self, forKey: .goalOn) ?? false
+        eachMove = try c.decodeIfPresent(Bool.self, forKey: .eachMove) ?? false
+        FoldUnit.eachMove = eachMove
         if let saved = try c.decodeIfPresent([Int].self, forKey: .weekHours), saved.count == 168 {
             weekHours = saved
         } else if let key = hourlyDay, let d = Self.date(key) {

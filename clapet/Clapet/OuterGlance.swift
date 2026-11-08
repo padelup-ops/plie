@@ -38,7 +38,7 @@ struct OuterGlance: View {
 
             // Le chiffre du jour
             VStack(spacing: 2) {
-                Text("\(stats.today)")
+                Text("\(FoldUnit.shown(stats.today))")
                     .font(.system(size: 120, weight: look == .classic ? .bold : .light,
                                   design: look == .aurora || look == .classic ? .rounded : .default))
                     .monospacedDigit()
@@ -47,7 +47,7 @@ struct OuterGlance: View {
                     .foregroundStyle(look == .aurora ? AnyShapeStyle(Aurora.glow) : AnyShapeStyle(Color.primary))
                     .contentTransition(.numericText())
                     .animation(.easeOut(duration: 0.25), value: stats.today)
-                Text(stats.today == 1 ? "fold today" : "folds today")
+                Text(FoldUnit.shown(stats.today) == 1 ? "fold today" : "folds today")
                     .font(.title3.weight(.medium))
                     .foregroundStyle(.secondary)
             }
@@ -62,11 +62,11 @@ struct OuterGlance: View {
                         .scaleEffect(x: 1, y: 2, anchor: .center)
                     Group {
                         if left > 0 {
-                            Text("\(left) left today")
+                            Text("\(FoldUnit.shown(left)) left today")
                         } else if left == 0 {
                             Text("Limit reached")
                         } else {
-                            Text("\(-left) over the limit")
+                            Text("\(FoldUnit.shown(-left)) over the limit")
                         }
                     }
                     .font(.headline)

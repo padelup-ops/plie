@@ -176,6 +176,13 @@ final class ClapetModel {
         WidgetCenter.shared.reloadAllTimelines()
     }
 
+    /// Chaque mouvement compte (ouvrir + fermer = 2) : seul l'affichage change.
+    func setEachMove(_ on: Bool) {
+        stats.eachMove = on
+        changed()
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
     func setGoal(_ g: Int) {
         stats.goal = max(5, min(2000, g))
         changed()

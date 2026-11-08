@@ -240,7 +240,7 @@ struct MonthRecapView: View {
         return Chart {
             ForEach(0..<recap.days.count, id: \.self) { i in
                 let d = recap.days[i]
-                BarMark(x: .value("Day", d.date, unit: .day), y: .value("Folds", d.closes))
+                BarMark(x: .value("Day", d.date, unit: .day), y: .value("Folds", FoldUnit.shown(d.closes)))
                     .foregroundStyle(ClapetStats.key(d.date) == busiest ? Color.dfAccent : Color.dfBar)
                     .cornerRadius(3)
             }
@@ -300,11 +300,11 @@ struct MonthRecapView: View {
         VStack(alignment: .leading, spacing: 12) {
             if let b = recap.busiest {
                 row("arrow.up.circle.fill", Text("Busiest day"),
-                    Text("\(Text(b.date, format: .dateTime.weekday(.wide).day().month(.wide))) · \(b.closes) folds"))
+                    Text("\(Text(b.date, format: .dateTime.weekday(.wide).day().month(.wide))) · \(FoldUnit.shown(b.closes)) folds"))
             }
             if let c = recap.calmest {
                 row("arrow.down.circle.fill", Text("Calmest day"),
-                    Text("\(Text(c.date, format: .dateTime.weekday(.wide).day().month(.wide))) · \(c.closes) folds"))
+                    Text("\(Text(c.date, format: .dateTime.weekday(.wide).day().month(.wide))) · \(FoldUnit.shown(c.closes)) folds"))
             }
         }
         .padding(16)

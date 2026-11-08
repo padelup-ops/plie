@@ -670,3 +670,7 @@
 "1 to 10 min" = "1 到 10 分钟";
 "Over 10 min" = "超过 10 分钟";
 "New" = "新";
+"Open + close = 1 fold" = "打开 + 合上 = 1 次";
+"Each movement counts" = "每个动作都计数";
+"How to count" = "计数方式";
+"Each movement counts: opening and closing count as 2. Your history follows too." = "每个动作都计数：打开再合上算 2 次。历史记录也会同步。";
