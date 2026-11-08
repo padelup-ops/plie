@@ -1,0 +1,20 @@
+app 6825605393 Origamo: Folding Mini Games
+--- gameCenterDetail
+{"data": {"type": "gameCenterDetails", "id": "3b4555bd-4931-4acf-a9ce-3600f4548eb0", "attributes": {"arcadeEnabled": false}, "relationships": {"gameCenterAppVersions": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/relationships/gameCenterAppVersions", "related": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/gameCenterAppVersions"}}, "gameCenterGroup": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/relationships/gameCenterGroup", "related": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/gameCenterGroup"}}, "gameCenterLeaderboards": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/relationships/gameCenterLeaderboards", "related": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/gameCenterLeaderboards"}}, "gameCenterLeaderboardsV2": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/relationships/gameCenterLeaderboardsV2", "related": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/gameCenterLeaderboardsV2"}}, "gameCenterLeaderboardSets": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/relationships/gameCenterLeaderboardSets", "related": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/gameCenterLeaderboardSets"}}, "gameCenterLeaderboardSetsV2": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/relationships/gameCenterLeaderboardSetsV2", "related": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/gameCenterLeaderboardSetsV2"}}, "gameCenterAchievements": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/relationships/gameCenterAchievements", "related": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f4548eb0/gameCenterAchievements"}}, "gameCenterAchievementsV2": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterDetails/3b4555bd-4931-4acf-a9ce-3600f454
+
+classements existants : ['origamo.comete', 'origamo.golf', 'origamo.mines.kids', 'origamo.mines.normal', 'origamo.mines.hard', 'origamo.peche', 'origamo.croco', 'origamo.bonneteau', 'origamo.luciole', 'origamo.rayon']
+déjà là : origamo.comete
+déjà là : origamo.golf
+déjà là : origamo.mines.kids
+déjà là : origamo.mines.normal
+déjà là : origamo.mines.hard
+déjà là : origamo.peche
+déjà là : origamo.croco
+déjà là : origamo.bonneteau
+déjà là : origamo.luciole
+déjà là : origamo.rayon
+--- Game Center rattaché à la version 1.6
+{"data": {"type": "gameCenterAppVersions", "id": "ec205055-043b-41ef-aee7-0ff99da9d4e0", "attributes": {"enabled": true}, "relationships": {"compatibilityVersions": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterAppVersions/ec205055-043b-41ef-aee7-0ff99da9d4e0/relationships/compatibilityVersions", "related": "https://api.appstoreconnect.apple.com/v1/gameCenterAppVersions/ec205055-043b-41ef-aee7-0ff99da9d4e0/compatibilityVersions"}}, "appStoreVersion": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterAppVersions/ec205055-043b-41ef-aee7-0ff99da9d4e0/relationships/appStoreVersion", "related": "https://api.appstoreconnect.apple.com/v1/gameCenterAppVersions/ec205055-043b-41ef-aee7-0ff99da9d4e0/appStoreVersion"}}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterAppVersions/ec205055-043b-41ef-aee7-0ff99da9d4e0"}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/gameCenterAppVersions"}}
+
+
+CLASSEMENTS : 10 / 10
