@@ -1,0 +1,82 @@
+# TOASTIE FOLD : lance le jeu sur le simulateur iPhone Duo et capture les écrans (branche ci-toastie-shots).
+name: Toastie - captures
+
+on:
+  workflow_dispatch:
+    inputs:
+      routes:
+        description: "Écrans à capturer"
+        required: false
+        default: "menu ready assemble cook result summary paywall"
+      lang:
+        description: "Langue (fr ou en)"
+        required: false
+        default: "fr"
+
+jobs:
+  shots:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+      - name: Générer, compiler, installer sur le simulateur Duo
+        run: |
+          mkdir -p shots
+          command -v xcodegen >/dev/null || brew install xcodegen >/dev/null 2>&1
+          cd toastie && xcodegen generate && cd ..
+          find_runtime() {
+            xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes']
+                if r.get('platform') == 'iOS' and r.get('isAvailable')
+                and any('Duo' in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
+          print(rs[-1]['identifier'] if rs else '')"
+          }
+          RUNTIME=$(find_runtime)
+          if [ -z "$RUNTIME" ]; then xcodebuild -downloadPlatform iOS 2>&1 | tail -3; RUNTIME=$(find_runtime); fi
+          DT=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Duo' in x['name']]
+          print(d[0]['identifier'] if d else '')")
+          echo "runtime=$RUNTIME device=$DT" | tee shots/simulateur.txt
+          UDID=$(xcrun simctl create "Toastie Duo" "$DT" "$RUNTIME")
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+          set -o pipefail
+          xcodebuild build -project toastie/Toastie.xcodeproj -scheme Toastie -configuration Debug -sdk iphonesimulator \
+            -destination "id=$UDID" -derivedDataPath build CODE_SIGNING_ALLOWED=NO 2>&1 | tee shots/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -n -E "error:" shots/build.log | head -60 > shots/erreurs.txt || true
+          grep -q "BUILD SUCCEEDED" shots/build.log
+          APP=$(find build -name "Toastie.app" -path "*iphonesimulator*" | head -1)
+          xcrun simctl install "$UDID" "$APP"
+      - name: Capturer
+        run: |
+          BID=com.padelup.toastie
+          L="${{ inputs.lang }}"
+          [ "$L" = "en" ] && LANGS="(en)" || LANGS="(fr)"
+          N=0
+          for R in ${{ inputs.routes }}; do
+            N=$((N+1))
+            xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+            xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" $([ "$R" = paywall ] || echo "-unlockAll YES") > /dev/null 2>&1 || true
+            sleep 7
+            xcrun simctl io "$UDID" screenshot --display=1 --mask=black "shots/$(printf %02d $N)-$R.png" 2>>shots/erreurs-captures.txt || true
+          done
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p shots && cd shots
+          git init -q -b ci-toastie-shots
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Captures Toastie"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-toastie-shots

@@ -1,0 +1,36 @@
+# TOASTIE FOLD : l'achat intégré « cuisine complète » (textes, prix, disponibilité, capture)
+name: Toastie - achat
+on:
+  workflow_dispatch:
+    inputs:
+      price:
+        description: "Prix (€)"
+        default: "2.99"
+jobs:
+  iap:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      PLUS_PRICE: ${{ inputs.price }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Achat
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 toastie/tools/iap.py 2>&1 | tee iap.txt
+      - name: Publier le rapport
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && cp iap.txt "$RUNNER_TEMP/r/" 2>/dev/null || echo "pas de rapport" > "$RUNNER_TEMP/r/iap.txt"
+          cd "$RUNNER_TEMP/r"
+          git init -q -b ci-toastie-iap
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Rapport achat Toastie"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-toastie-iap
