@@ -93,12 +93,25 @@ struct Order {
     let patience: Double
 }
 
+/// La note d'une gaufre : chaque critère sur 5, et la note finale (0 à 5 étoiles).
+struct Grade {
+    var recipe = 0
+    var cooking = 0
+    var speed = 0
+    var total: Int {
+        guard cooking > 0 else { return 0 }   // brûlée : zéro
+        return Int((Double(recipe + cooking + speed) / 3).rounded())
+    }
+}
+
 struct Served {
     let stars: Int
     let coins: Int
     let doneness: Doneness
     let comment: String
     var combo: Int = 0
+    var grade = Grade()
+    var recipeID = ""
 }
 
 /// Ce qu'on garde d'une partie à l'autre.
@@ -106,6 +119,11 @@ struct Served {
 final class Career {
     private(set) var stars: [Int: Int]
     private(set) var bestRush: Int
+    /// Les pièces gagnées en tout (pour la déco).
+    private(set) var wallet: Int
+    /// Meilleure note (sur 5) de chaque recette ; 5 = carte dorée.
+    private(set) var recipeBest: [String: Int]
+    private(set) var creations: [Creation]
 
     init() {
         let d = UserDefaults.standard
@@ -113,6 +131,41 @@ final class Career {
         for day in 1...Kitchen.lastDay { let v = d.integer(forKey: "waffle.stars.\(day)"); if v > 0 { s[day] = v } }
         stars = s
         bestRush = d.integer(forKey: "waffle.rush")
+        wallet = d.integer(forKey: "waffle.wallet")
+        recipeBest = (d.dictionary(forKey: "waffle.recipes") as? [String: Int]) ?? [:]
+        creations = (d.data(forKey: "waffle.creations")).flatMap { try? JSONDecoder().decode([Creation].self, from: $0) } ?? []
+    }
+
+    func earn(_ n: Int) {
+        guard n > 0 else { return }
+        wallet += n
+        UserDefaults.standard.set(wallet, forKey: "waffle.wallet")
+    }
+
+    func spend(_ n: Int) -> Bool {
+        guard wallet >= n else { return false }
+        wallet -= n
+        UserDefaults.standard.set(wallet, forKey: "waffle.wallet")
+        return true
+    }
+
+    func recordRecipe(_ id: String, stars n: Int) {
+        guard !id.isEmpty, n > (recipeBest[id] ?? 0) else { return }
+        recipeBest[id] = n
+        UserDefaults.standard.set(recipeBest, forKey: "waffle.recipes")
+    }
+
+    var goldenCards: Int { recipeBest.values.filter { $0 >= 5 }.count }
+
+    func save(_ c: Creation) {
+        creations.insert(c, at: 0)
+        if creations.count > 60 { creations.removeLast(creations.count - 60) }
+        UserDefaults.standard.set(try? JSONEncoder().encode(creations), forKey: "waffle.creations")
+    }
+
+    func delete(_ c: Creation) {
+        creations.removeAll { $0.id == c.id }
+        UserDefaults.standard.set(try? JSONEncoder().encode(creations), forKey: "waffle.creations")
     }
 
     func record(day: Int, stars n: Int) {
@@ -144,6 +197,8 @@ final class Kitchen {
         /// La gaufre est cuite : on la garnit.
         case topping
         case served, gone, dayOver
+        /// Atelier libre : la création est finie, on la nomme.
+        case created
     }
 
     static let lastDay = 15
@@ -161,6 +216,8 @@ final class Kitchen {
     /// Le curseur de cuisson (0…1) : il va et vient dans la jauge tant que le gaufrier est fermé.
     private(set) var cursor: Double = 0
     private(set) var cooked: Doneness = .raw
+    /// Écart au centre du vert quand on a rouvert (0 = pile au milieu).
+    @ObservationIgnored private var cookOffset: Double = 0.5
     private(set) var patienceLeft: Double = 1
     private(set) var shiftLeft: Double = Kitchen.shiftLength
     private(set) var coins = 0
@@ -186,9 +243,14 @@ final class Kitchen {
     /// Captures d'écran : tout est figé.
     @ObservationIgnored private var frozen = false
 
-    init(day: Int, rush: Bool = false) {
-        self.day = rush ? Kitchen.lastDay : day
+    /// Atelier libre : pas de client, pas de chrono, toutes les garnitures.
+    let free: Bool
+    static let freeLayers = 6
+
+    init(day: Int, rush: Bool = false, free: Bool = false) {
+        self.day = rush || free ? Kitchen.lastDay : day
         self.rush = rush
+        self.free = free
     }
 
     // MARK: Le menu du jour
@@ -197,6 +259,7 @@ final class Kitchen {
 
     /// Les garnitures du plateau (dans un ordre fixe).
     var tray: [Ingredient] {
+        if free { return Ingredient.allCases }
         let used = Set(recipes.flatMap(\.layers))
         return Ingredient.allCases.filter { used.contains($0) }
     }
@@ -247,7 +310,42 @@ final class Kitchen {
         guard phase == .ready else { return }
         coins = 0
         shiftLeft = Self.shiftLength
-        newOrder()
+        if free { newCreation() } else { newOrder() }
+    }
+
+    /// Atelier libre : une nouvelle gaufre à inventer.
+    func newCreation() {
+        orderNumber += 1
+        let blank = Recipe(id: "", fr: "Création libre", en: "Free creation", layers: [], day: 1)
+        order = Order(number: orderNumber, recipe: blank, layers: [], wish: .golden, customer: -1, patience: .infinity)
+        stack = []
+        cursor = 0
+        cooked = .raw
+        mistakes = 0
+        patienceLeft = 1
+        phase = .pour
+    }
+
+    /// Atelier libre : on a fini de garnir.
+    func finishCreation() {
+        guard free, phase == .topping else { return }
+        phase = .created
+        Sound.play(.win, volume: 0.6)
+        Haptics.success()
+    }
+
+    /// Le mot du chef sur une création libre.
+    var chefComment: String {
+        let s = Set(stack)
+        if cooked == .burnt { return T("Euh… c'est du charbon !", "Uh… that's charcoal!") }
+        if cooked == .raw { return T("Un peu molle, mais l'idée est là !", "A bit soft, but nice idea!") }
+        if stack.isEmpty { return T("Nature : la classique !", "Plain: a classic!") }
+        if stack.count >= 5 { return T("Une montagne de gourmandise !", "A mountain of treats!") }
+        if s.contains(.spread) && s.contains(.banana) { return T("Le duo gagnant !", "The winning duo!") }
+        if s.contains(.strawberry) && s.contains(.cream) { return T("Un grand classique, parfait !", "A true classic, perfect!") }
+        if s.contains(.icecream) { return T("Chaud-froid : bien vu !", "Hot and cold: nice!") }
+        let all = [T("Le chef approuve !", "The chef approves!"), T("Audacieux !", "Bold!"), T("Ça donne faim !", "Looks delicious!")]
+        return all[stack.count % all.count]
     }
 
     private func newOrder() {
@@ -299,6 +397,13 @@ final class Kitchen {
 
     func add(_ ing: Ingredient) {
         guard phase == .topping, let order else { return }
+        if free {
+            guard stack.count < Self.freeLayers else { say(T("Elle est déjà bien garnie !", "It's already loaded!")); return }
+            stack.append(ing)
+            Sound.play(.pop, volume: 0.6)
+            Haptics.tap()
+            return
+        }
         if stack.count < order.layers.count && order.layers[stack.count] == ing {
             stack.append(ing)
             Sound.play(.pop, volume: 0.6)
@@ -355,7 +460,8 @@ final class Kitchen {
             Sound.play(.clack, volume: 0.6)
             if phase == .cooking {
                 cooked = doneness(at: cursor)
-                if cooked == .burnt {
+                cookOffset = abs(cursor - 0.5)
+                if cooked == .burnt && !free {
                     serve()
                 } else {
                     phase = .topping
@@ -373,41 +479,49 @@ final class Kitchen {
         }
     }
 
+    /// La note détaillée : recette, cuisson, rapidité.
+    private func grade() -> Grade {
+        var g = Grade()
+        g.recipe = max(1, 5 - mistakes)
+        switch cooked {
+        case .golden: g.cooking = cookOffset <= greenHalf * 0.45 ? 5 : 4
+        case .light, .dark: g.cooking = 3
+        case .raw: g.cooking = 1
+        case .burnt: g.cooking = 0
+        }
+        g.speed = patienceLeft > 0.66 ? 5 : patienceLeft > 0.5 ? 4 : patienceLeft > 0.33 ? 3 : patienceLeft > 0.15 ? 2 : 1
+        return g
+    }
+
     private func serve() {
         guard let order else { return }
         let d = cooked
-        var stars: Int
-        var comment: String
-        if d == .burnt {
-            stars = 0
-            comment = T("Brûlée !", "Burnt!")
-        } else if d == order.wish {
-            stars = 3
-            comment = mistakes == 0 ? T("Parfaite !", "Perfect!") : T("Très bonne !", "Very good!")
-        } else if abs(d.rawValue - order.wish.rawValue) == 1 {
-            stars = 2
-            comment = d.rawValue < order.wish.rawValue ? T("Un peu pâle…", "A bit pale…") : T("Un peu trop cuite…", "A bit overdone…")
-        } else {
-            stars = 1
-            comment = T("Pas assez cuite !", "Undercooked!")
+        let g = grade()
+        let stars = g.total
+        let comment: String
+        switch stars {
+        case 5: comment = T("Parfaite !", "Perfect!")
+        case 4: comment = T("Excellente !", "Excellent!")
+        case 3: comment = d == .light ? T("Un peu pâle…", "A bit pale…") : d == .dark ? T("Un peu trop cuite…", "A bit overdone…") : T("Pas mal !", "Not bad!")
+        case 1, 2: comment = d == .raw ? T("Pas assez cuite !", "Undercooked!") : T("Bof…", "Meh…")
+        default: comment = T("Brûlée !", "Burnt!")
         }
-        if mistakes > 0 { stars = min(stars, 2) }
         let base = 6 + 3 * order.layers.count
-        let mult = [0.0, 0.4, 0.75, 1.0][stars]
-        let tip = stars >= 2 ? Int((patienceLeft * 8).rounded()) : 0
-        if stars == 3 { combo += 1; bestCombo = max(bestCombo, combo) } else { combo = 0 }
+        let mult = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0][stars]
+        let tip = stars >= 4 ? Int((patienceLeft * 8).rounded()) : 0
+        if stars == 5 { combo += 1; bestCombo = max(bestCombo, combo) } else { combo = 0 }
         // Combo : +25 % par parfaite d'affilée (jusqu'à ×2).
         let comboBonus = 1 + 0.25 * Double(min(4, max(0, combo - 1)))
         let earned = Int(((Double(base) * mult + Double(tip)) * comboBonus).rounded())
         coins += earned
         servedCount += 1
-        if stars == 3 { perfectCount += 1 }
+        if stars == 5 { perfectCount += 1 }
         if stars == 0 && rush { lostCount += 1 }
-        last = Served(stars: stars, coins: earned, doneness: d, comment: comment, combo: stars == 3 ? combo : 0)
+        last = Served(stars: stars, coins: earned, doneness: d, comment: comment, combo: stars == 5 ? combo : 0, grade: g, recipeID: order.recipe.id)
         phase = .served
-        nextIn = 1.8
-        Sound.play(stars >= 2 ? .win : .wrong, volume: 0.6)
-        if stars >= 2 { Haptics.success() } else { Haptics.error() }
+        nextIn = 2.2
+        Sound.play(stars >= 3 ? .win : .wrong, volume: 0.6)
+        if stars >= 3 { Haptics.success() } else { Haptics.error() }
     }
 
     // MARK: Le temps
@@ -419,6 +533,14 @@ final class Kitchen {
             if hintLeft <= 0 { hint = nil }
         }
         guard phase != .ready && phase != .dayOver else { return }
+        if free {
+            if phase == .cooking {
+                cursor += cursorDir * dt / sweepTime
+                if cursor >= 1 { cursor = 1; cursorDir = -1 }
+                if cursor <= 0 { cursor = 0; cursorDir = 1 }
+            }
+            return
+        }
         if !rush && phase != .served && phase != .gone {
             shiftLeft = max(0, shiftLeft - dt)
         }
@@ -465,7 +587,7 @@ final class Kitchen {
 
     var customerMood: String {
         switch phase {
-        case .served: return (last?.stars ?? 0) >= 2 ? "happy" : "angry"
+        case .served: return (last?.stars ?? 0) >= 3 ? "happy" : "angry"
         case .gone: return "angry"
         default: return patienceLeft < 0.3 ? "angry" : "wait"
         }
@@ -476,6 +598,9 @@ final class Kitchen {
     func demo(_ step: String) {
         start()
         frozen = step != "summary"
+        if free && step == "created" {
+            phase = .topping; cooked = .golden; stack = [.spread, .banana, .cream, .sprinkles]; phase = .created; return
+        }
         guard let order else { return }
         switch step {
         case "pour":
@@ -493,8 +618,13 @@ final class Kitchen {
             closed = true
         case "result":
             cooked = order.wish
+            cookOffset = 0
             stack = order.layers
             serve()
+        case "free":
+            phase = .topping
+            cooked = .golden
+            stack = [.strawberry, .cream, .sprinkles]
         case "summary":
             coins = target + 12
             servedCount = 9

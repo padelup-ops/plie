@@ -9,6 +9,7 @@ import SwiftUI
 struct KitchenView: View {
     @Environment(Career.self) private var progress
     @State private var kitchen: Kitchen
+    @State private var credited = 0
     let onExit: () -> Void
     let onNext: () -> Void
 
@@ -41,10 +42,19 @@ struct KitchenView: View {
         .onReceive(ticker) { _ in kitchen.tick(1.0 / 30.0) }
         .onHinge { kitchen.hinge($0) }
         .onDisappear { Sound.stopLoop() }
+        .onAppear { if kitchen.free { kitchen.start() } }
         .onChange(of: kitchen.phase) { _, p in
+            if p == .served, let s = kitchen.last { progress.recordRecipe(s.recipeID, stars: s.stars) }
             if p == .dayOver {
                 if kitchen.rush { progress.recordRush(kitchen.coins) } else { progress.record(day: kitchen.day, stars: kitchen.dayStars) }
+                progress.earn(kitchen.coins - credited)
+                credited = kitchen.coins
             }
+        }
+        .onDisappear {
+            // Partie quittée en cours : les pièces gagnées sont gardées pour la déco.
+            progress.earn(kitchen.coins - credited)
+            credited = kitchen.coins
         }
         .onAppear {
             #if DEBUG
@@ -91,7 +101,11 @@ struct KitchenView: View {
             WallBackground()
                 .frame(width: info.width, height: info.height)
                 .offset(x: info.minX, y: info.minY)
-            if let order = kitchen.order {
+            if kitchen.free {
+                FreePanel(kitchen: kitchen, height: counterTop - top - 4)
+                    .frame(width: info.width - 28)
+                    .position(x: info.midX, y: (top + counterTop - 4) / 2)
+            } else if let order = kitchen.order {
                 let custH = max(60, min(counterTop - top + 14, info.width * 0.36 * 1.0667))
                 let custW = custH / 1.0667
                 Image("cust\(order.customer)_\(kitchen.customerMood)")
@@ -150,6 +164,11 @@ struct KitchenView: View {
                 StartCard(kitchen: kitchen)
                     .frame(width: W, height: H)
             }
+            if kitchen.phase == .created {
+                CreatedCard(kitchen: kitchen, onExit: onExit)
+                    .frame(width: W, height: H)
+                    .transition(.opacity)
+            }
             if kitchen.phase == .dayOver {
                 SummaryCard(kitchen: kitchen, onExit: onExit, onNext: onNext, onAgain: { kitchen = Kitchen(day: kitchen.day, rush: kitchen.rush) })
                     .frame(width: W, height: H)
@@ -174,7 +193,7 @@ struct IronPlate: View {
                 // l'ombre et le corps
                 RoundedRectangle(cornerRadius: 40, style: .continuous).fill(Ink.line).offset(y: 6)
                 RoundedRectangle(cornerRadius: 40, style: .continuous)
-                    .fill(LinearGradient(colors: [Color(hex: 0x7FE0D6), Color(hex: 0x2FA79E)], startPoint: .top, endPoint: .bottom))
+                    .fill(LinearGradient(colors: [Decor.shared.color(.iron, 0), Decor.shared.color(.iron, 1)], startPoint: .top, endPoint: .bottom))
                 RoundedRectangle(cornerRadius: 40, style: .continuous).strokeBorder(Ink.line, lineWidth: 5)
                 // reflet
                 Capsule().fill(.white.opacity(0.35))
@@ -223,8 +242,8 @@ struct IronPlate: View {
 struct WallBackground: View {
     var body: some View {
         ZStack {
-            Color(hex: 0xF4E6CF)
-            Image("wall_tile").resizable(resizingMode: .tile).opacity(0.9)
+            Decor.shared.color(.wall, 0)
+            Image("wall_tile").resizable(resizingMode: .tile).colorMultiply(Decor.shared.color(.wall, 1)).opacity(0.9)
             LinearGradient(colors: [Color(hex: 0xFFE2B0).opacity(0.5), .clear, Color(hex: 0x8A5530).opacity(0.18)], startPoint: .top, endPoint: .bottom)
         }
         .clipped()
@@ -242,7 +261,7 @@ struct Counter: View {
             .overlay(Rectangle().frame(height: 3).foregroundStyle(Ink.line), alignment: .top)
             .overlay(Rectangle().frame(height: 3).foregroundStyle(Ink.line), alignment: .bottom)
             ZStack {
-                Color(hex: 0xE8453C)
+                Decor.shared.color(.awning)
                 HStack(spacing: 18) {
                     ForEach(0..<30, id: \.self) { _ in Rectangle().fill(.white.opacity(0.9)).frame(width: 18) }
                 }
@@ -257,7 +276,7 @@ struct Counter: View {
 struct Worktop: View {
     var body: some View {
         ZStack {
-            LinearGradient(colors: [Color(hex: 0xEDE4D6), Color(hex: 0xDCCDB8)], startPoint: .top, endPoint: .bottom)
+            LinearGradient(colors: [Decor.shared.color(.worktop, 0), Decor.shared.color(.worktop, 1)], startPoint: .top, endPoint: .bottom)
             Canvas { ctx, size in
                 var seed: UInt64 = 7
                 func r() -> Double { seed = seed &* 6364136223846793005 &+ 1442695040888963407; return Double(seed >> 33) / Double(UInt32.max) }
@@ -518,7 +537,10 @@ struct HUD: View {
             .buttonStyle(ToonButton(color: Ink.paper, text: Ink.line, radius: 19, depth: 3))
             .accessibilityLabel(T("Quitter", "Quit"))
             Pill {
-                if kitchen.rush {
+                if kitchen.free {
+                    Image(systemName: "paintbrush.pointed.fill").foregroundStyle(Ink.orange)
+                    Text(T("Atelier libre", "Free kitchen"))
+                } else if kitchen.rush {
                     Image(systemName: "flame.fill").foregroundStyle(Ink.orange)
                     Text("Rush")
                     ForEach(0..<3, id: \.self) { i in
@@ -538,6 +560,7 @@ struct HUD: View {
                 .transition(.scale.combined(with: .opacity))
             }
             Spacer(minLength: 4)
+            if !kitchen.free {
             Pill {
                 Image("coin").resizable().frame(width: 22, height: 22)
                 Text("\(kitchen.coins)").monospacedDigit().contentTransition(.numericText())
@@ -546,6 +569,7 @@ struct HUD: View {
                 }
             }
             .animation(.spring, value: kitchen.coins)
+            }
         }
     }
 }
@@ -583,35 +607,56 @@ struct ResultCard: View {
     let served: Served
 
     var body: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 4) {
-                ForEach(0..<3, id: \.self) { i in
-                    Image(i < served.stars ? "star_on" : "star_off").resizable().frame(width: 40, height: 40)
+        VStack(spacing: 6) {
+            HStack(spacing: 2) {
+                ForEach(0..<5, id: \.self) { i in
+                    Image(i < served.stars ? "star_on" : "star_off").resizable().frame(width: 32, height: 32)
                         .scaleEffect(i < served.stars ? 1 : 0.85)
+                        .offset(y: i == 2 ? -4 : (i == 1 || i == 3 ? -2 : 0))
                 }
             }
-            Text(served.comment).font(.toon(24)).foregroundStyle(Ink.line)
+            Text(served.comment).font(.toon(22)).foregroundStyle(Ink.line)
+            if served.grade.cooking + served.grade.recipe > 0 {
+                VStack(spacing: 3) {
+                    criterion(T("Recette", "Recipe"), served.grade.recipe)
+                    criterion(T("Cuisson", "Cooking"), served.grade.cooking)
+                    criterion(T("Rapidité", "Speed"), served.grade.speed)
+                }
+                .padding(.vertical, 2)
+            }
             if served.combo >= 2 {
                 HStack(spacing: 4) {
                     Image(systemName: "flame.fill").foregroundStyle(Ink.orange)
                     Text(T("Combo ×\(served.combo)", "Combo ×\(served.combo)"))
                 }
-                .font(.toon(20, .black))
+                .font(.toon(18, .black))
                 .foregroundStyle(Ink.red)
                 .transition(.scale(scale: 1.6).combined(with: .opacity))
             }
             if served.coins > 0 {
                 HStack(spacing: 6) {
-                    Image("coin").resizable().frame(width: 26, height: 26)
-                    Text("+\(served.coins)").font(.toon(24)).foregroundStyle(Color(hex: 0xD98A1E))
+                    Image("coin").resizable().frame(width: 24, height: 24)
+                    Text("+\(served.coins)").font(.toon(22)).foregroundStyle(Color(hex: 0xD98A1E))
                 }
             }
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 14)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
         .background(RoundedRectangle(cornerRadius: 22).fill(Ink.paper))
         .background(RoundedRectangle(cornerRadius: 22).fill(Ink.line).offset(y: 5))
         .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(Ink.line, lineWidth: 3))
+    }
+
+    private func criterion(_ name: String, _ v: Int) -> some View {
+        HStack(spacing: 6) {
+            Text(name).font(.toon(12, .bold)).foregroundStyle(Ink.line.opacity(0.7)).frame(width: 66, alignment: .leading)
+            HStack(spacing: 2) {
+                ForEach(0..<5, id: \.self) { i in
+                    Capsule().fill(i < v ? (v >= 4 ? Ink.green : v >= 3 ? Ink.gold : Ink.red) : Ink.line.opacity(0.12))
+                        .frame(width: 14, height: 7)
+                }
+            }
+        }
     }
 }
 
@@ -779,7 +824,7 @@ struct LidTop: View {
                 // le corps
                 RoundedRectangle(cornerRadius: 48, style: .continuous).fill(Ink.line).offset(y: 8)
                 RoundedRectangle(cornerRadius: 48, style: .continuous)
-                    .fill(RadialGradient(colors: [Color(hex: 0x8FEADF), Color(hex: 0x39B1A7), Color(hex: 0x2A978E)],
+                    .fill(RadialGradient(colors: [Decor.shared.color(.iron, 0).opacity(0.85), Decor.shared.color(.iron, 0), Decor.shared.color(.iron, 1)],
                                          center: UnitPoint(x: 0.35, y: 0.25), startRadius: 10, endRadius: max(W, H)))
                 RoundedRectangle(cornerRadius: 48, style: .continuous).strokeBorder(Ink.line, lineWidth: 6)
                 // le reflet
@@ -848,8 +893,8 @@ struct EmbossedGrid: View {
             let s = min(cw, rh)
             for c in 0..<Int(cols) { for r in 0..<Int(rows) {
                 let rect = CGRect(x: Double(c) * cw + (cw - s * 0.78) / 2, y: Double(r) * rh + (rh - s * 0.78) / 2, width: s * 0.78, height: s * 0.78)
-                ctx.fill(Path(roundedRect: rect.offsetBy(dx: 0, dy: 3), cornerRadius: s * 0.16), with: .color(Color(hex: 0x1E6F69).opacity(0.55)))
-                ctx.fill(Path(roundedRect: rect, cornerRadius: s * 0.16), with: .color(Color(hex: 0x6FD8CC)))
+                ctx.fill(Path(roundedRect: rect.offsetBy(dx: 0, dy: 3), cornerRadius: s * 0.16), with: .color(Color.black.opacity(0.22)))
+                ctx.fill(Path(roundedRect: rect, cornerRadius: s * 0.16), with: .color(Decor.shared.color(.iron, 0).opacity(0.9)))
                 ctx.fill(Path(roundedRect: rect.insetBy(dx: s * 0.1, dy: s * 0.1).offsetBy(dx: -s * 0.03, dy: -s * 0.03), cornerRadius: s * 0.1),
                          with: .color(.white.opacity(0.22)))
             } }

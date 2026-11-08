@@ -172,12 +172,15 @@ enum Screen: Equatable {
     case menu
     case play(day: Int)
     case rush
+    case free
 }
 
 struct RootView: View {
     @Environment(Store.self) private var store
     @State private var screen: Screen = .menu
     @State private var showPaywall = false
+    @State private var showBook = false
+    @State private var showDecor = false
 
     var body: some View {
         ZStack {
@@ -187,7 +190,8 @@ struct RootView: View {
                     if day > Kitchen.freeDays && !store.purchased { showPaywall = true } else { screen = .play(day: day) }
                 }, onRush: {
                     if store.purchased { screen = .rush } else { showPaywall = true }
-                }, onShop: { showPaywall = true })
+                }, onShop: { showPaywall = true },
+                   onFree: { screen = .free }, onBook: { showBook = true }, onDecor: { showDecor = true })
                 .transition(.opacity)
             case .play(let day):
                 KitchenView(kitchen: Kitchen(day: day), onExit: { screen = .menu }, onNext: {
@@ -202,6 +206,16 @@ struct RootView: View {
                 KitchenView(kitchen: Kitchen(day: Kitchen.lastDay, rush: true), onExit: { screen = .menu }, onNext: { screen = .menu })
                     .id("rush")
                     .transition(.opacity)
+            case .free:
+                KitchenView(kitchen: Kitchen(day: Kitchen.lastDay, free: true), onExit: { screen = .menu }, onNext: { screen = .menu })
+                    .id("free")
+                    .transition(.opacity)
+            }
+            if showBook {
+                RecipeBookView(onClose: { showBook = false }).transition(.move(edge: .bottom))
+            }
+            if showDecor {
+                DecorView(onClose: { showDecor = false }).transition(.move(edge: .bottom))
             }
             if showPaywall {
                 PaywallView(onClose: { showPaywall = false })
@@ -210,11 +224,16 @@ struct RootView: View {
         }
         .animation(.easeInOut(duration: 0.25), value: screen)
         .animation(.easeInOut(duration: 0.2), value: showPaywall)
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: showBook)
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: showDecor)
         .onChange(of: store.purchased) { _, owned in if owned { showPaywall = false } }
         .onAppear {
             #if DEBUG
             switch UserDefaults.standard.string(forKey: "shot") ?? "" {
             case "paywall": showPaywall = true
+            case "free", "created": screen = .free
+            case "book": showBook = true
+            case "decor": showDecor = true
             case "ready", "pour", "poured", "assemble", "topping", "cook", "closed", "result", "summary": screen = .play(day: 3)
             default: break
             }

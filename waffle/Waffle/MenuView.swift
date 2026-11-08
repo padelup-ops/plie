@@ -58,12 +58,26 @@ struct MenuView: View {
     let onPlay: (Int) -> Void
     let onRush: () -> Void
     let onShop: () -> Void
+    var onFree: () -> Void = {}
+    var onBook: () -> Void = {}
+    var onDecor: () -> Void = {}
     @State private var float = false
 
     /// Le prochain jour à jouer : le premier ouvert qui n'a pas 3 étoiles.
     private var nextDay: Int {
         (1...Kitchen.lastDay).first { progress.isOpen($0) && (progress.stars[$0] ?? 0) < 3 && (store.purchased || $0 <= Kitchen.freeDays) }
             ?? min(Kitchen.lastDay, max(1, progress.stars.keys.max() ?? 1))
+    }
+
+    private func smallButton(_ title: String, _ icon: String, _ color: Color, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: icon).font(.system(size: 22, weight: .black))
+                Text(title).font(.toon(13)).lineLimit(1).minimumScaleFactor(0.6)
+            }
+            .frame(maxWidth: .infinity, minHeight: 66)
+        }
+        .buttonStyle(ToonButton(color: color, radius: 20))
     }
 
     var body: some View {
@@ -130,6 +144,13 @@ struct MenuView: View {
                         .frame(maxWidth: .infinity, minHeight: 60)
                     }
                     .buttonStyle(ToonButton(color: Ink.red, radius: 22))
+                    .padding(.horizontal, 30)
+
+                    HStack(spacing: 10) {
+                        smallButton(T("Atelier libre", "Free kitchen"), "paintbrush.pointed.fill", Ink.orange, onFree)
+                        smallButton(T("Recettes", "Recipes"), "book.closed.fill", Color(hex: 0x3C7FE8), onBook)
+                        smallButton(T("Déco", "Decor"), "paintpalette.fill", Color(hex: 0x8E5BE0), onDecor)
+                    }
                     .padding(.horizontal, 30)
 
                     if !store.purchased {
