@@ -20,6 +20,8 @@ struct CascadeCoin {
     var kind: Kind
     /// Le disque tourne en tombant (pour le dessin).
     var spin: Double = 0
+    /// Née de la cible ×4 : elle ne peut pas la redéclencher (sinon réaction en chaîne sans fin).
+    var bonus = false
 }
 
 struct CascadePop {
@@ -296,7 +298,7 @@ final class CascadeGame {
                                    y: y ?? 0.12 * half,
                                    vx: burst ? Double.random(in: -0.35...0.35) : Double.random(in: -0.04...0.04),
                                    vy: burst ? Double.random(in: -0.5 ... -0.1) : 0.05,
-                                   kind: kind))
+                                   kind: kind, bonus: burst))
     }
 
     private func stepFalling(_ dt: Double) {
@@ -349,7 +351,7 @@ final class CascadeGame {
                 }
             }
             // La cible mobile
-            if oldY < gateY && c.y >= gateY && abs(c.x - gateX) < 0.07 {
+            if !c.bonus && oldY < gateY && c.y >= gateY && abs(c.x - gateX) < 0.07 {
                 bursts.append(c.x)
             }
             if c.y >= half {
