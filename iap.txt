@@ -1,0 +1,14 @@
+APP_ID 6832373850
+ok     création de l'achat com.padelup.waffle.full
+ok     textes en-US
+ÉCHEC  textes fr-FR -> HTTP 500 UNEXPECTED_ERROR: An unexpected error occurred on the server side. If this issue continues, contact us at https://developer.apple.com/contact/.
+ok     prix 2.99 € (base France)
+       prix réglé : [(None, None)]
+ok     disponibilité (175 pays)
+       pas encore de capture pour la vérification (à ajouter avant la soumission)
+
+achat com.padelup.waffle.full | Waffle full kitchen | type NON_CONSUMABLE | état MISSING_METADATA
+   fr-FR | Waffle Fold : la cuisine complète | Tous les jours, recettes et le rush infini
+   en-US | Waffle Fold: full kitchen | Every day, every recipe and endless rush
+
+À REVOIR : textes fr-FR
