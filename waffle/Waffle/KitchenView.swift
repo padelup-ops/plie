@@ -60,7 +60,8 @@ struct KitchenView: View {
         let counterTop = half - trayH - 6
         let bottomPad = max(safe.bottom, 8) + 4
         let ironRect = CGRect(x: 10, y: half + 10, width: W - 20, height: half - 10 - bottomPad)
-        let waffle = min(ironRect.width * 0.86, ironRect.height * 0.86)
+        // L'image de la gaufre a des marges (84 % de large, 72 % de haut) : on la grossit pour remplir la plaque.
+        let waffle = min(ironRect.width * 0.9 / 0.84, ironRect.height * 0.84 / 0.72)
         return ZStack(alignment: .topLeading) {
             // ----- En haut : le mur, le client, le ticket, le comptoir et les garnitures
             WallBackground()
@@ -98,7 +99,7 @@ struct KitchenView: View {
                 .frame(width: ironRect.width, height: ironRect.height)
                 .position(x: ironRect.midX, y: ironRect.midY)
             PlateView(kitchen: kitchen, size: waffle, lift: ironRect.midY - top - (counterTop - top) * 0.45)
-                .position(x: ironRect.midX, y: ironRect.midY)
+                .position(x: ironRect.midX, y: ironRect.midY - waffle * 0.033)
                 .modifier(Shake(amount: 8, shakes: CGFloat(kitchen.shake)))
                 .animation(.default, value: kitchen.shake)
 
