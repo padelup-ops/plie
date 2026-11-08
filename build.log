@@ -1,0 +1,577 @@
+Command line invocation:
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/xcodebuild build -project toastie/Toastie.xcodeproj -scheme Toastie -configuration Debug -sdk iphonesimulator -destination id=4D0EB9D1-27DE-44CE-B0B9-2435268AD881 -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+    SDKROOT = iphonesimulator27.1
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'Toastie' in project 'Toastie' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/plie/plie/toastie/Toastie/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: e93726622924a4f48c6ac15043e89a18
+Build description path: /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/XCBuildData/e93726622924a4f48c6ac15043e89a18.xcbuilddata
+CreateBuildDirectory /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/ModuleCache.noindex
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/ModuleCache.noindex
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/CompilationCache.noindex
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/CompilationCache.noindex
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Products
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Products
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex
+
+ClangStatCache /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie-7a5ebe0506a44f85310d5b31e9d3fa62-VFS-iphonesimulator/all-product-headers.yaml
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie-7a5ebe0506a44f85310d5b31e9d3fa62-VFS-iphonesimulator/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/PrecompiledHeaders
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/PrecompiledHeaders
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+    cd /Users/runner/work/plie/plie/toastie/Toastie.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie.hmap (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie.DependencyStaticMetadataFileList (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie.DependencyMetadataFileList (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-project-headers.hmap (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-own-target-headers.hmap (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-generated-files.hmap (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-all-target-headers.hmap (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-all-non-framework-target-headers.hmap (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-DebugDylibPath-normal-arm64.txt (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-DebugDylibInstallName-normal-arm64.txt (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-DebugDylibInstallName-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie_const_extract_protocols.json (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.SwiftFileList (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.SwiftConstValuesFileList (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.LinkFileList (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-OutputFileMap.json (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-OutputFileMap.json
+
+MkDir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/__preview.dylib normal (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0-simulator -dynamiclib -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -install_name @rpath/Toastie.debug.dylib -Xlinker -dead_strip -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie_dependency_info.dat -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/__preview.dylib
+
+MkDir /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/unthinned (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/unthinned
+
+MkDir /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/thinned (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/thinned
+
+GenerateAssetSymbols /Users/runner/work/plie/plie/toastie/Toastie/Assets.xcassets (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool /Users/runner/work/plie/plie/toastie/Toastie/Assets.xcassets --compile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_dependencies --output-partial-info-plist /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_generated_info.plist --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --minimum-deployment-target 17.0 --platform iphonesimulator --bundle-identifier com.padelup.toastie --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/wrong.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/wrong.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/wrong.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/win.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/win.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/win.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/whoosh.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/whoosh.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/whoosh.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/tock.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/tock.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/tock.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/sizzle.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/sizzle.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/sizzle.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/pop.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/pop.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/pop.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/clunk.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/clunk.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/clunk.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/clack.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/clack.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/clack.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/chomp.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/chomp.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/chomp.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/chime.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/chime.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/chime.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/buzzer.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/buzzer.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/buzzer.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/bell.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/bell.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/bell.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/applause.wav /Users/runner/work/plie/plie/toastie/Toastie/Sounds/applause.wav (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/toastie/Toastie/Sounds/applause.wav /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+CompileAssetCatalogVariant thinned /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app /Users/runner/work/plie/plie/toastie/Toastie/Assets.xcassets (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool /Users/runner/work/plie/plie/toastie/Toastie/Assets.xcassets --compile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --filter-for-thinning-device-configuration iPhone19,4 --filter-for-device-os-version 27.2 --development-region en --target-device iphone --minimum-deployment-target 17.0 --platform iphonesimulator
+/* com.apple.actool.compilation-results */
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_generated_info.plist_thinned
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/thinned/Assets.car
+
+
+SwiftDriver Toastie normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-SwiftDriver -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Toastie -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.SwiftFileList -DDEBUG -DDUO_SDK -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-Swift.h -working-directory /Users/runner/work/plie/plie/toastie -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stddef-6O64K3YL5V1FNSF89DNPSSJ8L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdarg-4N166226I9IPRC4C37E2OF6EQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_float-7FGKEOQ02SHV8W6Q46X00AIRR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdbool-3TZ3L8LN3E8PTNUG05JZ7VE1Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/DeveloperToolsSupport-5KZ9Q48FN1BSHJ8304EVPL7MV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftShims-3IV7UOM1M27T5VRIHIRLIO9NU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_AvailabilityInternal-BPTRYEZ33OXM2G2Y8FYXQK98O.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ptrauth-2MPBLDP84RI6609APGRMYLY1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_StoreKit_SwiftUI-6LVIJGCY0SVUJ4DVXEPZLOF6T.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ptrcheck-1PO0EI0OVMDPU8AYGFI7JDXZB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_SwiftConcurrencyShims-7CIOZ8H9Y9EU5NWTRME8HR4O6.pcm
+
+LinkAssetCatalog /Users/runner/work/plie/plie/toastie/Toastie/Assets.xcassets (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-linkAssetCatalog --thinned /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/thinned --thinned-dependencies /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_generated_info.plist_thinned --unthinned /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_output/unthinned --unthinned-dependencies /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_generated_info.plist_unthinned --output /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app --plist-output /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_generated_info.plist
+note: Emplaced /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Assets.car (in target 'Toastie' from project 'Toastie')
+note: Emplaced /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/AppIcon60x60@2x.png (in target 'Toastie' from project 'Toastie')
+note: Emplaced /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/AppIcon76x76@2x~ipad.png (in target 'Toastie' from project 'Toastie')
+
+ProcessInfoPlistFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Info.plist /Users/runner/work/plie/plie/toastie/Toastie/Info.plist (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-infoPlistUtility /Users/runner/work/plie/plie/toastie/Toastie/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/assetcatalog_generated_info.plist -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Info.plist
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation1-8QPKD9VWD8PSJ36OKPM1L0OJW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_limits-7IHOVTMG907I9MREALENE6AEJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation2-EFMSZ6KGUHXZQ6OIEJTC02N5G.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ExtensionFoundation-27MYXC6R786Q5LIZD4Y04PALY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_tgmath-520I0NTBBI1VK9I2DQP4BMM6M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/sys_types-CO6QRXICCCDQXJUMDBCCXNK56.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/string_h-9JAX7M3YQQZJ96UG57Y1ER8NJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdint-808RZWEAAP051ZXO5CVQ5YXD1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_intrinsics-862I89NLLBT9OMIJ970EIF7PV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation3-A2XG56O3105RZ5G26HTC0H2W6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdatomic-B1FSCBX1YQJJ1FCTRQNMOLMQF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_inttypes-5OBB2B32423CI9H9K1KQQKFXO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Darwin-CUIDK6GSEFAXPUQCLJ8XM82ES.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/simd-DLMXX803VTC52UHPI50XSUR84.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Spatial-AK4XXVAG4M718S35SHKIQ3IO6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/MachO-E1OEN29B11NFLGEXEGQQPFNJP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ObjectiveC-1W2AD6QUZY0R3QVOVJ09TNOCE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os_object-APBECTPTMBE7KIPV8ASOTXW51.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os_workgroup-5GC35BHKN47GUXFAOAR8R37D2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Dispatch-DCD8Q1H8BC6YGC2DVY1QF3ARW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreFoundation-12VAY89122Y3BFAH0V9SWQWPC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/dnssd-O09ZN1URBIH7JY9B1F82VN9P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/XPC-CQG6TE7P8QO6X9WZYMTFKLEE4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os-8ZWLKR2801XC9U03QJWW1223.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Security-4IY63BX5H2X2FWOT7J7JQM82R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreGraphics-7AJD786PU93BTIBW9PJFZMV7L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreAudioTypes-1CJ0UTVLFAIHU02VC9ILV132M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CFNetwork-AQ0XMNFSCLDFUT2H83LFOAFDC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreAudio-2CK2WXE0HPJOPLF5R4BYRSFCF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ImageIO-6ZK982UNZ4OWBYM7NO2YTH68P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreText-DV8PJ6POS1BZMGRVBEI195QNK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Foundation-9YD536RNHCV5VGSVUIZ0KEC0K.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Network-ADPMG3I0F2G5K1R1SFGOJUNSS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UserNotifications-A0L42F2WNL7AW6BRH3GSFIOWD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Symbols-4BRZQ0GUV97PUIWSZ4FB5Y5Q2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreData-GPG8L1PDV8R7EO28DO17K63Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreTransferable-AU0P4VY2805TSZLAECJSF24Z4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMIDI-7JWGBUGH6EJODZJJGUVRV6HVL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AVRouting-53W2DI0ZQ9BQW5Y4ZIN668V00.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/DataDetection-1BIB9EUI2FU3BM5Q52HJDH1UK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/OpenGLES-8EIF2UV8ZYM0PIBP6P9V5WGZ2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/BackgroundAssets-1QJPSYLVT5N2WD8HPS2OYXMZE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AudioToolbox-E7954FEST3BWS1RH3AKCADGFX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UniformTypeIdentifiers-5BY1T43KNJPCEY77LJGRI17XF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/FileProvider-D8MW4XW319T7XKMWRHHEJSB37.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/LocalAuthentication-CM48CK3M60A22BVX5742HD95V.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_LocationEssentials-6S5YHF7TV3A3TGZ8A98XVJWCM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/OSLog-4JB1IXNKK5CX5GFBENAWL4UKG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UIUtilities-AK3KH5CJUIDRN563BDYNHSM9R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Accessibility-AE2Y8UW87BCN9H9GOSYG2J4ZJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreLocation-287F8U9TDTTS1NP4JB3425UMS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/IOSurface-7PK4SQYFAV25ZOSNLLAYRL2SE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMotion-6KTDSP71BRH6TC222PTV6NGLG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Metal-CKNTU7CX35RE9F8IUZI173F1X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreVideo-BV6IRPBIPBWZ3PF81SEBQ66BE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMedia-2NENXKHR4CN4I8PXLQOPYI8OY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreImage-40BX1GHRTFJL8LE3RR84537AT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/QuartzCore-ADY9QN6L7SONOPDTG61L04YT9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftUICore-E3PSZGXUUBGHDTUN5RMJOAPLH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UIKit-6V75ONLGQ5CR2AHAT3XRTRUHY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AVFAudio-EOGUMXVFHPXNM2ADLF0QX6067.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/VideoToolbox-5U1Y9NCGF3HXOCS6LF7IMHVNX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/MediaToolbox-C5MCDGJ5UXCDWPSZ8WV0VQ9YG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AVFoundation-75HOANUQ5NSH42BWQHAJDFXB6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/StoreKit-UQHCY4J0V3DEWAO4VFQ64BM2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftUI-8X3JZ6264TJZRL8ZO3HJ1DNHD.pcm
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ Toastie (in target 'Toastie' from project 'Toastie')
+
+SwiftCompile normal arm64 (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    
+
+/Users/runner/work/plie/plie/toastie/Toastie/KitchenView.swift:21:17: warning: cannot use generic class 'Autoconnect' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+ 19 |     }
+ 20 | 
+ 21 |     private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
+    |                 `- warning: cannot use generic class 'Autoconnect' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+ 22 | 
+ 23 |     var body: some View {
+
+Combine.Publishers.Autoconnect:2:14: note: generic class declared here
+ 1 | enum Publishers {
+ 2 | public class Autoconnect<Upstream> : Publisher where Upstream : ConnectablePublisher {
+   |              `- note: generic class declared here
+ 3 |     public typealias Output = Upstream.Output
+ 4 |     public typealias Failure = Upstream.Failure
+
+/Users/runner/work/plie/plie/toastie/Toastie/KitchenView.swift:21:17: warning: cannot use enum 'Publishers' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+ 19 |     }
+ 20 | 
+ 21 |     private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
+    |                 `- warning: cannot use enum 'Publishers' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+ 22 | 
+ 23 |     var body: some View {
+
+Combine.Publishers:2:13: note: enum declared here
+1 | @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+2 | public enum Publishers {
+  |             `- note: enum declared here
+3 | }
+SwiftCompile normal arm64 Compiling\ GeneratedAssetSymbols.swift /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Toastie' from project 'Toastie')
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftCompile normal arm64 Compiling\ MenuView.swift,\ ToastieApp.swift /Users/runner/work/plie/plie/toastie/Toastie/MenuView.swift /Users/runner/work/plie/plie/toastie/Toastie/ToastieApp.swift (in target 'Toastie' from project 'Toastie')
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/toastie/Toastie/MenuView.swift (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-SwiftPerFileCompile MenuView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/toastie/Toastie/ToastieApp.swift (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-SwiftPerFileCompile ToastieApp.swift
+
+SwiftCompile normal arm64 Compiling\ Kitchen.swift,\ KitchenView.swift /Users/runner/work/plie/plie/toastie/Toastie/Kitchen.swift /Users/runner/work/plie/plie/toastie/Toastie/KitchenView.swift (in target 'Toastie' from project 'Toastie')
+/Users/runner/work/plie/plie/toastie/Toastie/KitchenView.swift:21:17: warning: cannot use generic class 'Autoconnect' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+ 19 |     }
+ 20 | 
+ 21 |     private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
+    |                 `- warning: cannot use generic class 'Autoconnect' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+ 22 | 
+ 23 |     var body: some View {
+
+Combine.Publishers.Autoconnect:2:14: note: generic class declared here
+ 1 | enum Publishers {
+ 2 | public class Autoconnect<Upstream> : Publisher where Upstream : ConnectablePublisher {
+   |              `- note: generic class declared here
+ 3 |     public typealias Output = Upstream.Output
+ 4 |     public typealias Failure = Upstream.Failure
+
+/Users/runner/work/plie/plie/toastie/Toastie/KitchenView.swift:21:17: warning: cannot use enum 'Publishers' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+ 19 |     }
+ 20 | 
+ 21 |     private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
+    |                 `- warning: cannot use enum 'Publishers' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+ 22 | 
+ 23 |     var body: some View {
+
+Combine.Publishers:2:13: note: enum declared here
+1 | @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+2 | public enum Publishers {
+  |             `- note: enum declared here
+3 | }
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/toastie/Toastie/Kitchen.swift (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-SwiftPerFileCompile Kitchen.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/toastie/Toastie/KitchenView.swift (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-SwiftPerFileCompile KitchenView.swift
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for Toastie (in target 'Toastie' from project 'Toastie')
+
+SwiftDriver\ Compilation\ Requirements Toastie normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Toastie -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.SwiftFileList -DDEBUG -DDUO_SDK -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-Swift.h -working-directory /Users/runner/work/plie/plie/toastie -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling GeneratedAssetSymbols.swift (in target 'Toastie' from project 'Toastie')
+
+SwiftMergeGeneratedHeaders /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/Toastie-Swift.h /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-Swift.h (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-Swift.h -o /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/Toastie-Swift.h
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftmodule (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftmodule /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.swiftmodule/arm64-apple-ios-simulator.swiftdoc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftdoc (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftdoc /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.abi.json (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.abi.json /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftsourceinfo (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftsourceinfo /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling Kitchen.swift, KitchenView.swift (in target 'Toastie' from project 'Toastie')
+
+SwiftDriverJobDiscovery normal arm64 Compiling MenuView.swift, ToastieApp.swift (in target 'Toastie' from project 'Toastie')
+
+SwiftDriver\ Compilation Toastie normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-Swift-Compilation -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Toastie -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.SwiftFileList -DDEBUG -DDUO_SDK -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie-Swift.h -working-directory /Users/runner/work/plie/plie/toastie -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Toastie.debug.dylib normal (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0-simulator -dynamiclib -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -filelist /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.LinkFileList -install_name @rpath/Toastie.debug.dylib -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Toastie.debug.dylib
+
+ConstructStubExecutorLinkFileList /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-ExecutorLinkFileList-normal-arm64.txt (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    construct-stub-executor-link-file-list /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Toastie.debug.dylib /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'Toastie' from project 'Toastie')
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Toastie normal (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @executable_path/Frameworks -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie-ExecutorLinkFileList-normal-arm64.txt /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Toastie.debug.dylib -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Toastie
+
+ExtractAppIntentsMetadata (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.iSuYkr/Metal.xctoolchain --module-name Toastie --sdk-root /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 17.0 --bundle-identifier com.padelup.toastie --output /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app --target-triple arm64-apple-ios17.0-simulator --binary-file /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Toastie --dependency-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie_dependency_info.dat --stringsdata-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.SwiftFileList --metadata-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Objects-normal/arm64/Toastie.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-11-08 00:16:14.235 appintentsmetadataprocessor[49573:122007] Starting appintentsmetadataprocessor export
+2026-11-08 00:16:14.326 appintentsmetadataprocessor[49573:122007] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+CopySwiftLibs /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Toastie.debug.dylib --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Frameworks --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/PlugIns --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/SystemExtensions --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.iSuYkr/Metal.xctoolchain --toolchain /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+AppIntentsSSUTraining (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Info.plist --temp-dir-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/ssu --bundle-id com.padelup.toastie --product-path /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app --extracted-metadata-path /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Metadata.appintents --metadata-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Toastie.build/Debug-iphonesimulator/Toastie.build/Toastie.DependencyMetadataFileList --source-file /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app/Info.plist --archive-ssu-assets
+2026-11-08 00:16:14.462 appintentsnltrainingprocessor[49586:122037] Parsing options for appintentsnltrainingprocessor
+2026-11-08 00:16:14.463 appintentsnltrainingprocessor[49586:122037] Starting AppIntents SSU YAML Generation
+2026-11-08 00:16:14.473 appintentsnltrainingprocessor[49586:122037] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-RegisterExecutionPolicyException /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+Validate /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    builtin-validationUtility /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app (in target 'Toastie' from project 'Toastie')
+    cd /Users/runner/work/plie/plie/toastie
+    /usr/bin/touch -c /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Toastie.app
+
+PruneExplicitPrecompiledModules /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

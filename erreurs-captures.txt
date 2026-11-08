@@ -1,0 +1,14 @@
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/01-menu.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/02-ready.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/03-assemble.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/04-cook.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/05-result.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/06-summary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/07-paywall.png
