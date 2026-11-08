@@ -25,6 +25,7 @@ struct RootView: View {
     @Environment(AppState.self) private var app
     @Environment(StoreManager.self) private var store
     @Environment(\.requestReview) private var requestReview
+    @Environment(\.scenePhase) private var scenePhase
     /// Mode d'emploi montré automatiquement à la première visite de chaque jeu.
     @State private var howTo: GameID?
     @State private var keyToast = false
@@ -126,11 +127,15 @@ struct RootView: View {
                 MotsView()
             }
             }
-            .environment(\.colorScheme, onPaper ? .light : .dark)
+            .environment(\.colorScheme, onPaper ? paperScheme : .dark)
             .tint(onPaper ? Paper.accent : Theme.laser)
             .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.98)), removal: .opacity))
         }
-        .preferredColorScheme(onPaper ? .light : .dark)
+        .environment(\.paperNight, app.paperNight)
+        .preferredColorScheme(onPaper ? paperScheme : .dark)
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { app.refreshSystemAppearance() }
+        }
         .animation(.easeInOut(duration: 0.24), value: app.route)
         .onChange(of: app.route) { _, route in
             SoundPlayer.shared.play(.pop, volume: 0.35)
@@ -290,7 +295,10 @@ struct RootView: View {
         }
     }
 
-    /// L'accueil et les listes de niveaux : en papier, en mode clair.
+    /// Le papier : clair, ou de nuit (mode sombre).
+    private var paperScheme: ColorScheme { app.paperNight ? .dark : .light }
+
+    /// L'accueil et les listes de niveaux : en papier.
     private var onPaper: Bool {
         switch app.route {
         case .hub, .rayonLevels, .basculeLevels: return true

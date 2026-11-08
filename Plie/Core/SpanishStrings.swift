@@ -2133,6 +2133,10 @@ enum SpanishStrings {
         "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "¿Te gustó? Quédatelo para siempre con una llave, o abre todos los juegos con el Pase.",
         "Garder ce jeu avec une clé": "Quedártelo con una llave",
         "Plus tard": "Más tarde",
+        "Apparence": "Apariencia",
+        "Clair": "Claro",
+        "Sombre": "Oscuro",
+        "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "Auto sigue el modo claro u oscuro del iPhone. Los juegos siempre se quedan en la noche.",
     ]
 
     /// Mots des jeux (clé = mot anglais).

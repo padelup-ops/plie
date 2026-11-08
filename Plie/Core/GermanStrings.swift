@@ -2133,6 +2133,10 @@ enum GermanStrings {
         "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "Hat's dir gefallen? Behalte es mit einem Schlüssel für immer oder öffne alle Spiele mit dem Pass.",
         "Garder ce jeu avec une clé": "Mit einem Schlüssel behalten",
         "Plus tard": "Später",
+        "Apparence": "Darstellung",
+        "Clair": "Hell",
+        "Sombre": "Dunkel",
+        "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "Auto folgt dem hellen oder dunklen Modus des iPhone. Die Spiele bleiben immer dunkel.",
     ]
 
     /// Mots des jeux (clé = mot anglais).

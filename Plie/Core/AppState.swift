@@ -345,6 +345,26 @@ final class AppState {
 
     var lastPlayed: GameID? { lastGame.flatMap { GameID(rawValue: $0) } }
 
+    // MARK: Apparence (mode sombre du papier)
+
+    /// 0 : comme l'iPhone, 1 : toujours clair, 2 : toujours sombre.
+    private(set) var appearance: Int = UserDefaults.standard.integer(forKey: "appearance")
+    private(set) var systemDark = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+
+    /// L'accueil et les menus passent en papier de nuit.
+    var paperNight: Bool { appearance == 2 || (appearance == 0 && systemDark) }
+
+    func setAppearance(_ value: Int) {
+        appearance = value
+        defaults.set(value, forKey: "appearance")
+    }
+
+    /// Le réglage de l'iPhone (l'écran garde le vrai mode, même quand l'app force le sien).
+    func refreshSystemAppearance() {
+        let dark = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+        if dark != systemDark { systemDark = dark }
+    }
+
     func setMusic(_ on: Bool) {
         musicOn = on
         MusicPlayer.shared.setEnabled(on)

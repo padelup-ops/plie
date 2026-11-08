@@ -2133,6 +2133,10 @@ enum JapaneseStrings {
         "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "気に入った？カギでずっと遊べるようにするか、パスで全部のゲームを開けよう。",
         "Garder ce jeu avec une clé": "カギでこのゲームを残す",
         "Plus tard": "あとで",
+        "Apparence": "外観",
+        "Clair": "ライト",
+        "Sombre": "ダーク",
+        "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "自動はiPhoneのライト／ダークに合わせます。ゲーム画面はいつも暗いままです。",
     ]
 
     /// Mots des jeux (clé = mot anglais).

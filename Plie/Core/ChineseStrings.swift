@@ -2133,6 +2133,10 @@ enum ChineseStrings {
         "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "喜欢吗？用一把钥匙永久保留它，或用通行证解锁全部游戏。",
         "Garder ce jeu avec une clé": "用钥匙保留这个游戏",
         "Plus tard": "以后再说",
+        "Apparence": "外观",
+        "Clair": "浅色",
+        "Sombre": "深色",
+        "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "自动会跟随 iPhone 的浅色或深色模式。游戏画面始终保持深色。",
     ]
 
     /// Mots des jeux (clé = mot anglais).

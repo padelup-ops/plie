@@ -2133,5 +2133,9 @@ enum EnglishStrings {
         "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "Did you like it? Keep it forever with a key, or open every game with the Pass.",
         "Garder ce jeu avec une clé": "Keep this game with a key",
         "Plus tard": "Later",
+        "Apparence": "Appearance",
+        "Clair": "Light",
+        "Sombre": "Dark",
+        "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "Auto follows your iPhone's light or dark mode. Games always stay in the dark.",
     ]
 }

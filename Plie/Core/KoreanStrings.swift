@@ -2133,6 +2133,10 @@ enum KoreanStrings {
         "Ça t'a plu ? Garde-le pour toujours avec une clé, ou ouvre tous les jeux avec le Pass.": "마음에 들었나요? 열쇠로 영원히 갖거나, 패스로 모든 게임을 열어요.",
         "Garder ce jeu avec une clé": "열쇠로 이 게임 갖기",
         "Plus tard": "나중에",
+        "Apparence": "화면 모드",
+        "Clair": "라이트",
+        "Sombre": "다크",
+        "Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit.": "자동은 iPhone의 라이트/다크 모드를 따라요. 게임 화면은 항상 어두워요.",
     ]
 
     /// Mots des jeux (clé = mot anglais).

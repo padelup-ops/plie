@@ -978,6 +978,17 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section(L("Apparence")) {
+                    Picker(L("Apparence"), selection: Binding(get: { app.appearance }, set: { app.setAppearance($0) })) {
+                        Text(L("Auto")).tag(0)
+                        Text(L("Clair")).tag(1)
+                        Text(L("Sombre")).tag(2)
+                    }
+                    .pickerStyle(.segmented)
+                    Text(L("Auto suit le mode clair ou sombre de l'iPhone. Les jeux restent toujours dans la nuit."))
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.muted)
+                }
                 Section(L("Ressenti")) {
                     Toggle(L("Musique"), isOn: Binding(get: { app.musicOn }, set: { app.setMusic($0) }))
                     Toggle(L("Sons"), isOn: Binding(get: { app.soundOn }, set: { app.setSound($0) }))
@@ -1043,7 +1054,7 @@ struct SettingsView: View {
             }
         }
         .tint(Paper.accent)
-        .environment(\.colorScheme, .light)
+        .paperScheme()
     }
 }
 

@@ -23,7 +23,7 @@ struct GestesScreen<Content: View>: View {
             content()
         }
         .foregroundStyle(Paper.ink)
-        .environment(\.colorScheme, .light)
+        .paperScheme()
     }
 }
 
@@ -133,7 +133,7 @@ struct GestesOuterScreen<Content: View>: View {
                 .padding(24)
         }
         .foregroundStyle(Color(hex: 0x2A2438))
-        .environment(\.colorScheme, .light)
+        .paperScheme()
     }
 }
 

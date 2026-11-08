@@ -227,7 +227,7 @@ struct WinCardModifier: ViewModifier {
             .overlay(alignment: .top) {
                 WashiTape(color: accent).offset(y: -13)
             }
-            .environment(\.colorScheme, .light)
+            .paperScheme()
     }
 }
 

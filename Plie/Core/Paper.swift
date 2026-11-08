@@ -11,22 +11,50 @@ import UIKit
 // encre sur papier en mode clair, blanc sur nuit en mode sombre. Une carte de papier posée
 // sur un jeu passe donc son contenu en mode clair (`.environment(\.colorScheme, .light)`).
 
+// Mode sombre : le papier passe « de nuit » (encre claire sur papier bleu nuit). Les couleurs
+// ci-dessous suivent le mode de l'écran ; les écrans de papier choisissent leur mode avec
+// `.paperScheme()` (clair, ou sombre si le joueur l'a choisi / si l'iPhone est en mode sombre).
+
 enum Paper {
-    static let cream = Color(hex: 0xF6F0E4)
-    static let creamDeep = Color(hex: 0xEEE5D4)
-    /// Une feuille blanche, un peu chaude.
-    static let sheet = Color(hex: 0xFFFCF6)
-    /// L'encre : un violet presque noir.
-    static let ink = Color(hex: 0x2A2438)
-    static let inkSoft = Color(hex: 0x2A2438, opacity: 0.64)
+    static let cream = Color(paper: 0xF6F0E4, night: 0x191B2E)
+    static let creamDeep = Color(paper: 0xEEE5D4, night: 0x121424)
+    /// Une feuille blanche, un peu chaude (bleu nuit dans le noir).
+    static let sheet = Color(paper: 0xFFFCF6, night: 0x272B46)
+    /// L'encre : un violet presque noir (crème la nuit).
+    static let ink = Color(paper: 0x2A2438, night: 0xF4EFE6)
+    static let inkSoft = Color(paper: 0x2A2438, 0.64, night: 0xF4EFE6, 0.66)
     /// Le rouge du papier origami : badges, rappels, interrupteurs.
-    static let accent = Color(hex: 0xE0533A)
+    static let accent = Color(paper: 0xE0533A, night: 0xFF6E52)
     /// Le pense-bête jaune des conseils.
-    static let note = Color(hex: 0xFFF0BC)
+    static let note = Color(paper: 0xFFF0BC, night: 0x4A4126)
     /// L'or des étoiles et des clés, assez foncé pour se voir sur le papier.
-    static let gold = Color(hex: 0xE4A11B)
-    /// Ombre chaude (jamais noire) des feuilles posées sur la table.
-    static let shadow = Color(hex: 0x3A2C1A)
+    static let gold = Color(paper: 0xE4A11B, night: 0xFFC53D)
+    /// Ombre chaude (jamais noire) des feuilles posées sur la table ; noire la nuit.
+    static let shadow = Color(paper: 0x3A2C1A, night: 0x000000)
+}
+
+/// Le papier est-il « de nuit » (mode sombre de l'app) ?
+private struct PaperNightKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var paperNight: Bool {
+        get { self[PaperNightKey.self] }
+        set { self[PaperNightKey.self] = newValue }
+    }
+}
+
+/// Met un écran de papier en mode clair, ou sombre si le papier est de nuit.
+struct PaperSchemeModifier: ViewModifier {
+    @Environment(\.paperNight) private var night
+    func body(content: Content) -> some View {
+        content.environment(\.colorScheme, night ? .dark : .light)
+    }
+}
+
+extension View {
+    func paperScheme() -> some View { modifier(PaperSchemeModifier()) }
 }
 
 extension UIColor {
@@ -61,7 +89,12 @@ extension GameID {
     /// La couleur du jeu, en papier.
     var paper: Color { Self.paperColors[self] ?? color }
 
-    private static let paperColors: [GameID: Color] = Dictionary(uniqueKeysWithValues: allCases.map { ($0, $0.color.paperTone()) })
+    /// En papier clair : la couleur adoucie. La nuit : la même couleur, profonde (l'encre claire s'y lit).
+    private static let paperColors: [GameID: Color] = Dictionary(uniqueKeysWithValues: allCases.map { game in
+        let day = UIColor(game.color.paperTone())
+        let night = UIColor(game.color.paperTone(saturation: 0.62, brightness: 0.44))
+        return (game, Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? night : day }))
+    })
 }
 
 extension Font {
@@ -179,11 +212,14 @@ struct PaperSheet: View {
 /// Le fond des écrans en papier : une grande feuille crème, avec son grain et les plis
 /// d'une base d'origami (diagonales et médianes), à peine marqués.
 struct PaperBackdrop: View {
+    @Environment(\.colorScheme) private var scheme
+
     var body: some View {
+        let night = scheme == .dark
         Canvas { context, size in
             let rect = CGRect(origin: .zero, size: size)
             context.fill(Path(rect), with: .linearGradient(
-                Gradient(colors: [Color(hex: 0xF8F3EA), Color(hex: 0xF0E8D9)]),
+                Gradient(colors: night ? [Color(hex: 0x1D2035), Color(hex: 0x14162A)] : [Color(hex: 0xF8F3EA), Color(hex: 0xF0E8D9)]),
                 startPoint: .zero, endPoint: CGPoint(x: size.width * 0.35, y: size.height)))
 
             // Les plis : un creux sombre et son arête claire, un point plus bas.
@@ -203,9 +239,9 @@ struct PaperBackdrop: View {
             var middle = Path()
             middle.move(to: CGPoint(x: w / 2, y: 0))
             middle.addLine(to: CGPoint(x: w / 2, y: size.height))
-            context.stroke(dark.offsetBy(dx: 0, dy: 1), with: .color(.white.opacity(0.7)), lineWidth: 1)
+            context.stroke(dark.offsetBy(dx: 0, dy: 1), with: .color(.white.opacity(night ? 0.05 : 0.7)), lineWidth: 1)
             context.stroke(dark, with: .color(Paper.shadow.opacity(0.05)), lineWidth: 1)
-            context.stroke(middle.offsetBy(dx: 1, dy: 0), with: .color(.white.opacity(0.6)), lineWidth: 1)
+            context.stroke(middle.offsetBy(dx: 1, dy: 0), with: .color(.white.opacity(night ? 0.04 : 0.6)), lineWidth: 1)
             context.stroke(middle, with: .color(Paper.shadow.opacity(0.035)), lineWidth: 1)
 
             Draw.paperGrain(&context, in: rect, seed: 11, density: Int(size.width * size.height / 700))
@@ -293,7 +329,7 @@ extension View {
             .foregroundStyle(Paper.ink)
             .background(PaperBackdrop())
             .tint(Paper.accent)
-            .environment(\.colorScheme, .light)
+            .paperScheme()
             .presentationBackground(Paper.cream)
             .presentationDragIndicator(.visible)
     }
@@ -301,5 +337,9 @@ extension View {
 
 extension Color {
     /// La même teinte, assez foncée pour être lue sur le papier (textes de couleur).
-    func readableOnPaper() -> Color { paperTone(saturation: 0.95, brightness: 0.52) }
+    func readableOnPaper() -> Color {
+        let day = UIColor(paperTone(saturation: 0.95, brightness: 0.52))
+        let night = UIColor(paperTone(saturation: 0.7, brightness: 0.96))
+        return Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? night : day })
+    }
 }
