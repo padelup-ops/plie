@@ -1,0 +1,22 @@
+# Foldly : fin de la bêta TestFlight
+name: Clapet - fin de la bêta
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "probe (voir) ou apply (arrêter)"
+        required: true
+        default: "probe"
+jobs:
+  endbeta:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      MODE: ${{ inputs.mode }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 clapet/tools/asc_endbeta.py
