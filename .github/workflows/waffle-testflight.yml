@@ -1,18 +1,18 @@
-# TOASTIE FOLD : compile le jeu sur un Mac de GitHub et l'envoie sur TestFlight (quand la fiche existe sur App Store Connect).
-# Projet Xcode généré par XcodeGen depuis toastie/project.yml.
+# WAFFLE FOLD : compile le jeu sur un Mac de GitHub et l'envoie sur TestFlight (quand la fiche existe sur App Store Connect).
+# Projet Xcode généré par XcodeGen depuis waffle/project.yml.
 
-name: Toastie - TestFlight
+name: Waffle - TestFlight
 
 on:
   push:
     branches: [main]
     paths:
-      - "toastie/Toastie/**"
-      - "toastie/project.yml"
+      - "waffle/Waffle/**"
+      - "waffle/project.yml"
   workflow_dispatch:
 
 concurrency:
-  group: toastie-testflight
+  group: waffle-testflight
   cancel-in-progress: true
 
 jobs:
@@ -53,15 +53,15 @@ jobs:
             export PATH="$RUNNER_TEMP/xg/xcodegen/bin:$PATH"
           fi
           xcodegen --version
-          cd toastie && xcodegen generate
+          cd waffle && xcodegen generate
           ls
 
       - name: Vérifier que l'app compile
         run: |
           set -o pipefail
-          cd toastie
+          cd waffle
           xcodebuild build \
-            -project Toastie.xcodeproj -scheme Toastie -configuration Release \
+            -project Waffle.xcodeproj -scheme Waffle -configuration Release \
             -destination 'generic/platform=iOS' \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             CODE_SIGNING_ALLOWED=NO 2>&1 | tee ../build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
@@ -78,23 +78,23 @@ jobs:
           printf '%s\n' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
           echo "ASC_KEY_PATH=$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" >> "$GITHUB_ENV"
           python3 -m pip install --quiet --user pyjwt cryptography >/dev/null 2>&1 || python3 -m pip install --quiet --break-system-packages pyjwt cryptography >/dev/null 2>&1 || true
-          python3 toastie/tools/setup.py 2>&1 | tee fiche.txt || true
+          python3 waffle/tools/setup.py 2>&1 | tee fiche.txt || true
           if grep -q "^FICHE  ok" fiche.txt; then
             echo "record=true" >> "$GITHUB_OUTPUT"
           else
             echo "record=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::La fiche Toastie Fold n'existe pas encore sur App Store Connect : le build est signé mais pas envoyé."
+            echo "::warning::La fiche Waffle Fold n'existe pas encore sur App Store Connect : le build est signé mais pas envoyé."
           fi
 
       # Archive sans signature : aucun certificat de développement n'est créé à chaque build.
       - name: Archiver
         run: |
           set -o pipefail
-          cd toastie
+          cd waffle
           xcodebuild archive \
-            -project Toastie.xcodeproj -scheme Toastie -configuration Release \
+            -project Waffle.xcodeproj -scheme Waffle -configuration Release \
             -destination 'generic/platform=iOS' \
-            -archivePath "$RUNNER_TEMP/Toastie.xcarchive" \
+            -archivePath "$RUNNER_TEMP/Waffle.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" 2>&1 | tee ../archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
@@ -117,7 +117,7 @@ jobs:
           </plist>
           EOF
           xcodebuild -exportArchive \
-            -archivePath "$RUNNER_TEMP/Toastie.xcarchive" \
+            -archivePath "$RUNNER_TEMP/Waffle.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportLocal.plist" \
             -exportPath "$RUNNER_TEMP/local" \
             -allowProvisioningUpdates \
@@ -145,7 +145,7 @@ jobs:
           </plist>
           EOF
           xcodebuild -exportArchive \
-            -archivePath "$RUNNER_TEMP/Toastie.xcarchive" \
+            -archivePath "$RUNNER_TEMP/Waffle.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportUpload.plist" \
             -exportPath "$RUNNER_TEMP/upload" \
             -allowProvisioningUpdates \
@@ -153,19 +153,19 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export.log
           grep -q -E "EXPORT SUCCEEDED|Upload succeeded|Uploaded" export.log
-          echo "::notice::Toastie build $BUILD_NUMBER envoyé. Il apparaît dans TestFlight après 15 à 30 minutes de traitement."
+          echo "::notice::Waffle build $BUILD_NUMBER envoyé. Il apparaît dans TestFlight après 15 à 30 minutes de traitement."
 
       - name: Afficher les erreurs de signature ou d'envoi
         if: failure()
         run: grep -n -E "error:|Error|failed" archive.log export-local.log export.log 2>/dev/null | head -60 || true
 
-      - name: Publier les journaux dans la branche ci-toastie-logs
+      - name: Publier les journaux dans la branche ci-waffle-logs
         if: always()
         env:
           GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p "$RUNNER_TEMP/ci" && cd "$RUNNER_TEMP/ci"
-          git init -q -b ci-toastie-logs
+          git init -q -b ci-waffle-logs
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           for f in fiche.txt; do [ -f "$GITHUB_WORKSPACE/$f" ] && cp "$GITHUB_WORKSPACE/$f" .; done
@@ -177,8 +177,8 @@ jobs:
           done
           echo "build $BUILD_NUMBER - commit ${{ github.sha }} - $(date -u)" > build.txt
           git add -A
-          git commit -qm "Journaux Toastie build $BUILD_NUMBER"
-          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-toastie-logs || echo "::warning::Impossible de publier les journaux"
+          git commit -qm "Journaux Waffle build $BUILD_NUMBER"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-waffle-logs || echo "::warning::Impossible de publier les journaux"
 
       - name: Effacer la clé
         if: always()

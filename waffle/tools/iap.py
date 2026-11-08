@@ -1,4 +1,4 @@
-"""Crée l'achat intégré « La cuisine complète » (non consommable) de Toastie Fold.
+"""Crée l'achat intégré « La cuisine complète » (non consommable) de Waffle Fold.
 
 Nom et description en anglais et en français, 2,99 € (base France), tous les pays, capture si elle existe.
 Peut être relancé sans risque : ce qui existe déjà est conservé et complété. Ne soumet rien à Apple.
@@ -14,15 +14,15 @@ import urllib.request
 import jwt
 
 API = "https://api.appstoreconnect.apple.com"
-BUNDLE = "com.padelup.toastie"
-PRODUCT_ID = "com.padelup.toastie.full"
+BUNDLE = "com.padelup.waffle"
+PRODUCT_ID = "com.padelup.waffle.full"
 PRICE_EUR = os.environ.get("PLUS_PRICE", "2.99")
 LATER_EUR = ""
 LATER_DATE = ""
 SCREENSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "review", "full_review.png")
 LOCALES = {
-    "en-US": ("Toastie Fold: full kitchen", "Every day, every recipe and endless rush"),
-    "fr-FR": ("Toastie Fold : la cuisine complète", "Tous les jours, recettes et le rush infini"),
+    "en-US": ("Waffle Fold: full kitchen", "Every day, every recipe and endless rush"),
+    "fr-FR": ("Waffle Fold : la cuisine complète", "Tous les jours, recettes et le rush infini"),
 }
 REVIEW_NOTE = ("One-time purchase. Days 1 to 3 are free. Tapping a locked day on the menu, or finishing day 3, "
                "opens this purchase. It unlocks every day, every recipe and the endless Rush mode. A Restore button is on the same screen.")
@@ -87,7 +87,7 @@ if existing:
     print("ok     achat déjà créé, état", iap["attributes"].get("state"))
 else:
     r = step("création de l'achat " + PRODUCT_ID, call("POST", "/v2/inAppPurchases", {"data": {"type": "inAppPurchases",
-        "attributes": {"name": "Toastie full kitchen", "productId": PRODUCT_ID, "inAppPurchaseType": "NON_CONSUMABLE",
+        "attributes": {"name": "Waffle full kitchen", "productId": PRODUCT_ID, "inAppPurchaseType": "NON_CONSUMABLE",
                        "reviewNote": REVIEW_NOTE, "familySharable": False},
         "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
     if "error" in r:

@@ -3,8 +3,8 @@ import SwiftUI
 // MARK: - La cuisine, à l'écran
 //
 // Duo ouvert : en haut le client, son ticket, et le couvercle de l'appareil (sa charnière tombe
-// pile sur celle du Duo). En bas la plaque avec le croque, puis le plateau des garnitures.
-// Duo fermé : l'écran extérieur montre l'appareil fermé qui grésille et la jauge de cuisson.
+// pile sur celle du Duo). En bas la plaque avec la gaufre, puis le plateau des garnitures.
+// Duo fermé : l'écran extérieur montre le gaufrier fermé qui grésille et la jauge de cuisson.
 
 struct KitchenView: View {
     @Environment(Career.self) private var progress
@@ -70,11 +70,13 @@ struct KitchenView: View {
                 TicketView(kitchen: kitchen, order: order)
                     .frame(width: W * 0.46)
                     .position(x: W * 0.73, y: (safe.top + 58 + counterTop) / 2 + 4)
+                    .id(order.number)
+                    .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .move(edge: .trailing).combined(with: .opacity)))
             }
             Counter()
                 .frame(width: W, height: half - counterTop)
                 .offset(y: counterTop)
-            Image("press_lid")
+            Image("iron_lid")
                 .resizable().scaledToFit()
                 .frame(width: plateW, height: plateH)
                 .position(x: W / 2, y: half - plateH / 2)
@@ -83,12 +85,12 @@ struct KitchenView: View {
             Worktop()
                 .frame(width: W, height: half)
                 .offset(y: half)
-            Image("press_base")
+            Image("iron_base")
                 .resizable().scaledToFit()
                 .frame(width: plateW, height: plateH)
                 .position(x: W / 2, y: half + plateH / 2)
-            SandwichView(kitchen: kitchen, size: plateH * 0.66)
-                .position(x: W / 2, y: half + plateH * 0.52)
+            PlateView(kitchen: kitchen, size: plateH * 0.98)
+                .position(x: W / 2, y: half + plateH * 0.53)
                 .modifier(Shake(amount: 8, shakes: CGFloat(kitchen.shake)))
                 .animation(.default, value: kitchen.shake)
             TrayView(kitchen: kitchen)
@@ -179,34 +181,38 @@ struct Worktop: View {
     }
 }
 
-// MARK: - Le croque sur la plaque
+// MARK: - La gaufre sur la plaque
 
-struct SandwichView: View {
+struct PlateView: View {
     let kitchen: Kitchen
     let size: CGFloat
 
     var body: some View {
         ZStack {
-            Image("bread0").resizable().scaledToFit().frame(width: size)
-            ForEach(Array(kitchen.stack.enumerated()), id: \.offset) { i, ing in
-                Image(ing.image)
-                    .resizable().scaledToFit()
-                    .frame(width: size * 0.82)
-                    .rotationEffect(.degrees(Double((i * 37) % 17) - 8))
-                    .offset(x: CGFloat((i * 13) % 9) - 4, y: -CGFloat(i) * size * 0.035)
-                    .transition(.asymmetric(insertion: .offset(y: -size * 0.8).combined(with: .opacity), removal: .opacity))
-            }
-            if kitchen.topBread {
-                Image(Doneness.of(kitchen.cook).image)
-                    .resizable().scaledToFit()
-                    .frame(width: size)
-                    .offset(y: -CGFloat(kitchen.stack.count) * size * 0.035 - 4)
-                    .transition(.offset(y: -size).combined(with: .opacity))
+            switch kitchen.phase {
+            case .poured, .cooking:
+                Image("batter").resizable().scaledToFit()
+                    .frame(width: size * 0.85)
+                    .transition(.scale(scale: 0.2).combined(with: .opacity))
+            case .topping, .served:
+                ZStack {
+                    Image(kitchen.cooked.image).resizable().scaledToFit()
+                    ForEach(Array(kitchen.stack.enumerated()), id: \.offset) { _, ing in
+                        Image(ing.image).resizable().scaledToFit()
+                            .transition(.asymmetric(insertion: .scale(scale: 1.5).combined(with: .opacity), removal: .opacity))
+                    }
+                }
+                .frame(width: size, height: size)
+                // Servie : la gaufre monte vers le client, par-dessus la charnière.
+                .offset(y: kitchen.phase == .served ? -size * 1.7 : 0)
+                .scaleEffect(kitchen.phase == .served ? 0.75 : 1)
+                .transition(.opacity)
+            default:
+                EmptyView()
             }
         }
+        .animation(.spring(response: 0.45, dampingFraction: 0.7), value: kitchen.phase)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: kitchen.stack.count)
-        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: kitchen.topBread)
-        .opacity(kitchen.order == nil ? 0 : 1)
     }
 }
 
@@ -296,38 +302,65 @@ struct TrayView: View {
     let kitchen: Kitchen
 
     var body: some View {
+        ZStack {
+            switch kitchen.phase {
+            case .pour:
+                Button {
+                    kitchen.pour()
+                } label: {
+                    VStack(spacing: 6) {
+                        Image("jug").resizable().scaledToFit().frame(height: 120)
+                            .rotationEffect(.degrees(-14))
+                        Text(T("Verser la pâte", "Pour the batter")).font(.toon(22)).foregroundStyle(Ink.line)
+                    }
+                    .padding(.horizontal, 30).padding(.vertical, 12)
+                    .background(RoundedRectangle(cornerRadius: 28).fill(Ink.line).offset(y: 5))
+                    .background(RoundedRectangle(cornerRadius: 28).fill(Color(hex: 0xFFE3A8)))
+                    .overlay(RoundedRectangle(cornerRadius: 28).strokeBorder(Ink.line, lineWidth: 3))
+                }
+                .buttonStyle(Squish())
+                .transition(.scale.combined(with: .opacity))
+            case .poured:
+                VStack(spacing: 14) {
+                    if kitchen.hasHinge {
+                        Image(systemName: "iphone.gen3").font(.system(size: 44, weight: .bold)).foregroundStyle(Ink.line)
+                            .symbolEffect(.bounce, options: .repeating)
+                        Text(T("Ferme le Duo pour fermer le gaufrier", "Close the Duo to close the waffle iron"))
+                            .font(.toon(20)).foregroundStyle(Ink.line).multilineTextAlignment(.center)
+                    } else {
+                        Button {
+                            kitchen.toggleLid()
+                        } label: {
+                            Label(T("FERMER LE GAUFRIER", "CLOSE THE IRON"), systemImage: "arrow.down.to.line")
+                                .font(.toon(20)).frame(maxWidth: .infinity, minHeight: 62)
+                        }
+                        .buttonStyle(ToonButton(color: Ink.red))
+                    }
+                }
+                .padding(.horizontal, 12)
+                .transition(.opacity)
+            default:
+                toppings
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: kitchen.phase)
+    }
+
+    private var toppings: some View {
         let items = kitchen.tray
-        let cols = items.count + 1 > 8 ? 5 : 4
-        GeometryReader { g in
-            let rows = Int(ceil(Double(items.count + 1) / Double(cols)))
-            let cell = min((g.size.width - CGFloat(cols - 1) * 10) / CGFloat(cols), (g.size.height - CGFloat(rows - 1) * 8) / CGFloat(rows))
+        let cols = items.count > 8 ? 5 : 4
+        return GeometryReader { g in
+            let rows = Int(ceil(Double(items.count) / Double(cols)))
+            let cell = min((g.size.width - CGFloat(cols - 1) * 10) / CGFloat(cols), (g.size.height - CGFloat(max(0, rows - 1)) * 8) / CGFloat(max(1, rows)), 96)
             LazyVGrid(columns: Array(repeating: GridItem(.fixed(cell), spacing: 10), count: cols), spacing: 8) {
                 ForEach(items) { ing in
                     IngredientButton(image: ing.image, name: ing.name, highlight: false, size: cell) { kitchen.add(ing) }
                 }
-                IngredientButton(image: "bread0", name: T("Pain", "Bread"), highlight: kitchen.nextNeeded == nil && !kitchen.topBread && kitchen.order != nil, size: cell) {
-                    kitchen.addTopBread()
-                }
             }
             .frame(width: g.size.width, height: g.size.height, alignment: .center)
         }
-        .overlay(alignment: .bottom) {
-            // Sans charnière : un bouton pour fermer l'appareil
-            if !kitchen.hasHinge && kitchen.topBread && kitchen.phase == .assembling {
-                Button {
-                    kitchen.toggleLid()
-                } label: {
-                    Label(T("FERMER L'APPAREIL", "CLOSE THE PRESS"), systemImage: "arrow.down.to.line")
-                        .font(.toon(20))
-                        .frame(maxWidth: .infinity, minHeight: 58)
-                }
-                .buttonStyle(ToonButton(color: Ink.red))
-                .padding(.horizontal, 10)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
-        }
-        .opacity(kitchen.phase == .assembling || kitchen.phase == .cooking ? 1 : 0.5)
-        .allowsHitTesting(kitchen.phase == .assembling)
+        .opacity(kitchen.phase == .topping ? 1 : 0.45)
+        .allowsHitTesting(kitchen.phase == .topping)
     }
 }
 
@@ -499,8 +532,8 @@ struct StartCard: View {
                     .padding(12)
                     .background(RoundedRectangle(cornerRadius: 16).fill(Color(hex: 0xFFF1D6)))
                 }
-                Text(T("Garnis dans l'ordre du ticket, ajoute le pain, puis ferme le Duo pour cuire. Rouvre quand c'est doré !",
-                       "Fill in the ticket's order, add the bread, then close the Duo to toast. Open it when it's golden!"))
+                Text(T("Verse la pâte, ferme le Duo pour cuire, rouvre quand c'est doré, puis garnis comme sur le ticket !",
+                       "Pour the batter, close the Duo to cook, open it when it's golden, then top it like the ticket!"))
                     .font(.toon(14, .semibold)).foregroundStyle(Ink.line.opacity(0.75)).multilineTextAlignment(.center)
                 Button {
                     kitchen.start()
@@ -545,7 +578,7 @@ struct SummaryCard: View {
                     Text("\(kitchen.coins)").font(.toon(38, .black)).foregroundStyle(Color(hex: 0xD98A1E))
                     if !kitchen.rush { Text("/ \(kitchen.target)").font(.toon(20, .bold)).foregroundStyle(Ink.line.opacity(0.5)) }
                 }
-                Text(T("\(kitchen.servedCount) croques servis · \(kitchen.perfectCount) parfaits", "\(kitchen.servedCount) served · \(kitchen.perfectCount) perfect"))
+                Text(T("\(kitchen.servedCount) gaufres servies · \(kitchen.perfectCount) parfaites", "\(kitchen.servedCount) served · \(kitchen.perfectCount) perfect"))
                     .font(.toon(15, .bold)).foregroundStyle(Ink.line.opacity(0.75))
                 if !kitchen.rush && kitchen.dayStars > 0 && kitchen.day < Kitchen.lastDay {
                     Button(action: onNext) {
@@ -599,13 +632,13 @@ struct CookingView: View {
                         }
                         .foregroundStyle(Ink.line)
                     } else {
-                        Text(T("Garnis le croque d'abord !", "Fill the toastie first!")).font(.toon(unit * 0.06)).foregroundStyle(Ink.line)
+                        Text(T("Verse la pâte d'abord !", "Pour the batter first!")).font(.toon(unit * 0.06)).foregroundStyle(Ink.line)
                     }
                     ZStack {
                         Steam(active: kitchen.phase == .cooking, burnt: Doneness.of(kitchen.cook) == .burnt)
                             .frame(width: unit * 0.8, height: unit * 0.35)
                             .offset(y: -unit * 0.3)
-                        Image("press_closed").resizable().scaledToFit().frame(width: unit * 0.85)
+                        Image("iron_closed").resizable().scaledToFit().frame(width: unit * 0.85)
                     }
                     if kitchen.phase == .cooking, let order = kitchen.order {
                         CookMeter(cook: kitchen.cook, wish: order.wish)

@@ -1,10 +1,10 @@
 import SwiftUI
 import AVFoundation
 
-// MARK: - Toastie Fold
+// MARK: - Waffle Fold
 
 @main
-struct ToastieApp: App {
+struct WaffleApp: App {
     @State private var store = Store()
     @State private var progress = Career()
 
@@ -215,7 +215,7 @@ struct RootView: View {
             #if DEBUG
             switch UserDefaults.standard.string(forKey: "shot") ?? "" {
             case "paywall": showPaywall = true
-            case "assemble", "cook", "closed", "result", "summary": screen = .play(day: 3)
+            case "pour", "poured", "assemble", "topping", "cook", "closed", "result", "summary": screen = .play(day: 3)
             default: break
             }
             #endif

@@ -1,6 +1,6 @@
-# TOASTIE FOLD : un jeu de croque-monsieur. La commande s'affiche en haut, on garnit en bas,
+# WAFFLE FOLD : un jeu de croque-monsieur. La commande s'affiche en haut, on garnit en bas,
 # et on ferme l'iPhone Duo pour fermer l'appareil à croque. Projet généré par XcodeGen : `xcodegen generate` dans ce dossier.
-name: Toastie
+name: Waffle
 options:
   bundleIdPrefix: com.padelup
   developmentLanguage: en
@@ -15,15 +15,15 @@ settings:
     TARGETED_DEVICE_FAMILY: "1"
     LOCALIZATION_PREFERS_STRING_CATALOGS: NO
 targets:
-  Toastie:
+  Waffle:
     type: application
     platform: iOS
     sources:
-      - path: Toastie
+      - path: Waffle
     info:
-      path: Toastie/Info.plist
+      path: Waffle/Info.plist
       properties:
-        CFBundleDisplayName: Toastie Fold
+        CFBundleDisplayName: Waffle Fold
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
@@ -36,7 +36,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.toastie
+        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.waffle
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DUO_SDK"

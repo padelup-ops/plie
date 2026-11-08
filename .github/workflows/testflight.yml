@@ -29,8 +29,8 @@ on:
       - "clapet/**"
       - "unlocked/**"
       - ".github/workflows/unlocked-*.yml"
-      - "toastie/**"
-      - ".github/workflows/toastie-*.yml"
+      - "waffle/**"
+      - ".github/workflows/waffle-*.yml"
   workflow_dispatch:
 
 concurrency:

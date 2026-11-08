@@ -72,7 +72,7 @@ struct MenuView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 18) {
                     VStack(spacing: -6) {
-                        Outlined(text: "Toastie", size: 58)
+                        Outlined(text: "Waffle", size: 58)
                         Text("FOLD")
                             .font(.system(size: 22, weight: .black, design: .rounded))
                             .kerning(6)
@@ -85,9 +85,14 @@ struct MenuView: View {
                     .padding(.top, 30)
 
                     ZStack {
-                        Image("press_closed").resizable().scaledToFit().frame(width: 250)
+                        Image("iron_closed").resizable().scaledToFit().frame(width: 250)
                             .offset(y: 46)
-                        Image("bread2").resizable().scaledToFit().frame(width: 130)
+                        ZStack {
+                            Image("waffle2").resizable().scaledToFit()
+                            Image("ing_spread").resizable().scaledToFit()
+                            Image("ing_banana").resizable().scaledToFit()
+                        }
+                        .frame(width: 150)
                             .rotationEffect(.degrees(float ? -6 : 6))
                             .offset(y: float ? -40 : -24)
                         Steam(active: true, burnt: false).frame(width: 200, height: 110).offset(y: -70)
@@ -214,14 +219,15 @@ struct PaywallView: View {
                     .accessibilityLabel(T("Fermer", "Close"))
                 }
                 HStack(spacing: -18) {
-                    Image("bread2").resizable().scaledToFit().frame(width: 74).rotationEffect(.degrees(-12))
-                    Image("ing_egg").resizable().scaledToFit().frame(width: 70).offset(y: -10)
-                    Image("ing_pineapple").resizable().scaledToFit().frame(width: 66).rotationEffect(.degrees(10))
+                    ZStack { Image("waffle2").resizable().scaledToFit(); Image("ing_strawberry").resizable().scaledToFit(); Image("ing_cream").resizable().scaledToFit() }
+                        .frame(width: 96).rotationEffect(.degrees(-10))
+                    ZStack { Image("waffle2").resizable().scaledToFit(); Image("ing_icecream").resizable().scaledToFit(); Image("ing_chocmelt").resizable().scaledToFit() }
+                        .frame(width: 96).rotationEffect(.degrees(10)).offset(y: -8)
                 }
                 Text(T("La cuisine complète", "The full kitchen")).font(.toon(28, .black)).foregroundStyle(Ink.line).multilineTextAlignment(.center)
                 VStack(alignment: .leading, spacing: 10) {
                     perk("calendar", T("12 journées de plus, jusqu'au jour 15", "12 more days, up to day 15"))
-                    perk("fork.knife", T("Toutes les recettes : madame, hawaïen, savoyard, choco-banane…", "Every recipe: madame, Hawaiian, alpine, choc-banana…"))
+                    perk("fork.knife", T("Toutes les gaufres : la gourmande, dame blanche, miel-amandes, la totale…", "Every waffle: the greedy one, sundae, honey & almonds, the works…"))
                     perk("flame.fill", T("Le rush infini, pour battre ton record", "Endless rush, to beat your best"))
                     perk("checkmark.seal.fill", T("Un seul achat. Pas d'abonnement, pas de pub.", "One purchase. No subscription, no ads."))
                 }
@@ -268,10 +274,10 @@ struct PaywallView: View {
 @MainActor
 @Observable
 final class Store {
-    static let fullID = "com.padelup.toastie.full"
+    static let fullID = "com.padelup.waffle.full"
 
     private(set) var product: Product?
-    private(set) var purchased = UserDefaults.standard.bool(forKey: "toastie.owned")
+    private(set) var purchased = UserDefaults.standard.bool(forKey: "waffle.owned")
     private(set) var busy = false
     var message: String?
     private var updates: Task<Void, Never>?
@@ -302,7 +308,7 @@ final class Store {
         if UserDefaults.standard.bool(forKey: "unlockAll") { owned = true }
         #endif
         purchased = owned
-        UserDefaults.standard.set(owned, forKey: "toastie.owned")
+        UserDefaults.standard.set(owned, forKey: "waffle.owned")
     }
 
     var price: String { product?.displayPrice ?? T("2,99 €", "$2.99") }
@@ -322,7 +328,7 @@ final class Store {
                 if case .verified(let t) = result {
                     await t.finish()
                     purchased = true
-                    UserDefaults.standard.set(true, forKey: "toastie.owned")
+                    UserDefaults.standard.set(true, forKey: "waffle.owned")
                 }
             case .pending:
                 message = T("Achat en attente d'accord.", "Purchase waiting for approval.")

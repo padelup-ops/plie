@@ -1,6 +1,6 @@
-"""Dessine les illustrations de Toastie Fold en PNG dans Toastie/Assets.xcassets.
+"""Dessine les illustrations de Waffle Fold en PNG dans Waffle/Assets.xcassets.
 
-python3 toastie/art/build.py [--sheet planche.png]
+python3 waffle/art/build.py [--sheet planche.png]
 """
 import json
 import os
@@ -11,18 +11,20 @@ from playwright.sync_api import sync_playwright
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import art  # noqa: E402
 
-ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Toastie", "Assets.xcassets")
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Waffle", "Assets.xcassets")
 
 
 def items():
     out = {}
     for lvl in range(5):
-        out[f"bread{lvl}"] = (art.bread(lvl), 3)
+        out[f"waffle{lvl}"] = (art.waffle(lvl), 3)
+    out["batter"] = (art.batter(), 3)
+    out["jug"] = (art.jug(), 3)
     for name, fn in art.INGREDIENTS.items():
         out[f"ing_{name}"] = (fn(), 3)
-    out["press_base"] = (art.press("base"), 2)
-    out["press_lid"] = (art.press("lid"), 2)
-    out["press_closed"] = (art.press_closed(), 2)
+    out["iron_base"] = (art.iron("base"), 2)
+    out["iron_lid"] = (art.iron("lid"), 2)
+    out["iron_closed"] = (art.iron_closed(), 2)
     for i in range(len(art.CUSTOMERS)):
         for mood in ("wait", "happy", "angry"):
             out[f"cust{i}_{mood}"] = (art.customer(i, mood), 2)

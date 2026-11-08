@@ -22,190 +22,197 @@ def rgrad(id_, c1, c2, cx=0.4, cy=0.35, r=0.75):
     return (f'<radialGradient id="{id_}" cx="{cx}" cy="{cy}" r="{r}">'
             f'<stop offset="0" stop-color="{c1}"/><stop offset="1" stop-color="{c2}"/></radialGradient>')
 
-# ---------------------------------------------------------------- le pain
+# ---------------------------------------------------------------- la gaufre
 
-BREAD = "M28,72 C26,34 58,20 100,30 C142,20 174,34 172,72 L172,160 Q172,182 150,182 L50,182 Q28,182 28,160 Z"
-CRUMB = "M44,76 C44,48 68,40 100,48 C132,40 156,48 156,76 L156,154 Q156,166 144,166 L56,166 Q44,166 44,154 Z"
-
-# cru, clair, doré, foncé, brûlé
+# (arêtes, alvéoles, bord) : pâte crue, pâle, dorée, bien cuite, brûlée
 DONENESS = [
-    ("#F8E6BC", "#FFF3D6", "#D9A55A"),
-    ("#F4D08E", "#FBE3B0", "#C98A3C"),
-    ("#E8A24C", "#F6C46E", "#A8601F"),
-    ("#BE6A28", "#D88A40", "#7A3E14"),
-    ("#4A2E1E", "#5E3A24", "#24140C"),
+    ("#FCEFC2", "#F2DC9C", "#E8CF8A"),
+    ("#F8DE9A", "#EBC473", "#DDB063"),
+    ("#F6BE5C", "#DC9030", "#C87A22"),
+    ("#CC7A30", "#A3581C", "#8A4614"),
+    ("#5A3622", "#3E2416", "#2A180E"),
 ]
+WX, WY, WW, WH = 20, 38, 160, 124   # la gaufre dans sa boîte de 200×200
 
-def bread(level):
-    crumb, light, crust = DONENESS[level]
-    defs = grad("cr", light, crumb) + grad("cu", crust, "#000000")
-    pores = "".join(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{ry}" fill="{crust}" opacity="0.28"/>'
-                    for x, y, rx, ry in [(70, 80, 4, 3), (118, 72, 3, 2.5), (92, 104, 5, 3.5), (132, 118, 4, 3), (66, 132, 3.5, 3),
-                                          (104, 146, 4, 2.5), (140, 150, 3, 2.5), (80, 160, 3, 2)])
-    marks = ""
-    if level >= 2:
-        op = 0.22 if level == 2 else 0.32
-        marks = "".join(f'<path d="M{x},{48} L{x - 70},{170}" stroke="{crust}" stroke-width="9" opacity="{op}" stroke-linecap="round"/>'
-                        for x in (110, 140, 170, 200))
+def waffle(level):
+    ridge, pocket, rim = DONENESS[level]
+    cols, rows = 6, 4
+    pw, ph = (WW - 22) / cols, (WH - 22) / rows
+    cells = ""
+    for r in range(rows):
+        for c in range(cols):
+            x = WX + 11 + c * pw + 3
+            y = WY + 11 + r * ph + 3
+            cells += (f'<rect x="{x:.1f}" y="{y:.1f}" width="{pw - 6:.1f}" height="{ph - 6:.1f}" rx="4" fill="{pocket}"/>'
+                      f'<rect x="{x:.1f}" y="{y + ph - 9:.1f}" width="{pw - 6:.1f}" height="3" rx="1.5" fill="#fff" opacity="0.18"/>'
+                      f'<rect x="{x:.1f}" y="{y:.1f}" width="{pw - 6:.1f}" height="3.5" rx="1.5" fill="#000" opacity="0.12"/>')
     smoke = ""
     if level == 4:
-        smoke = '<path d="M60,120 q10,-20 0,-40 M140,110 q-10,-20 0,-40" stroke="#888" stroke-width="5" fill="none" opacity="0.35"/>'
-    body = (shadow(104, 186, 74, 10) +
-            f'<path d="{BREAD}" fill="{crust}" stroke="{OL}" stroke-width="{SW}" stroke-linejoin="round"/>'
-            f'<clipPath id="cc"><path d="{CRUMB}"/></clipPath>'
-            f'<path d="{CRUMB}" fill="url(#cr)"/>'
-            f'<g clip-path="url(#cc)">{marks}{pores}</g>'
-            f'<path d="M58,62 C70,52 84,52 96,56" stroke="#fff" stroke-width="6" fill="none" opacity="0.45" stroke-linecap="round"/>'
-            + smoke)
-    return svg(200, 200, body, defs)
+        smoke = '<path d="M60,40 q12,-18 0,-34 M140,40 q-12,-18 0,-34" stroke="#777" stroke-width="6" fill="none" opacity="0.4" stroke-linecap="round"/>'
+    body = (shadow(102, 170, 82, 9) +
+            f'<rect x="{WX}" y="{WY}" width="{WW}" height="{WH}" rx="20" fill="{rim}" stroke="{OL}" stroke-width="{SW}"/>'
+            f'<rect x="{WX + 8}" y="{WY + 8}" width="{WW - 16}" height="{WH - 16}" rx="13" fill="{ridge}"/>' + cells +
+            f'<path d="M{WX + 16},{WY + 12} L{WX + 70},{WY + 12}" stroke="#fff" stroke-width="6" opacity="0.45" stroke-linecap="round"/>' + smoke)
+    return svg(200, 200, body)
 
-# ---------------------------------------------------------------- les garnitures
-
-def ham():
-    defs = rgrad("h", "#FFB8C2", "#EE7F93")
-    marb = "".join(f'<path d="{d}" stroke="#FFD9DF" stroke-width="4" fill="none" opacity="0.7" stroke-linecap="round"/>'
-                   for d in ["M70,90 q20,-10 40,4", "M90,130 q24,6 38,-10", "M60,118 q8,12 22,10"])
-    return svg(200, 200, shadow(102, 176, 70, 10) +
-               f'<circle cx="100" cy="100" r="76" fill="#FCE3E6" stroke="{OL}" stroke-width="{SW}"/>'
-               f'<circle cx="100" cy="100" r="62" fill="url(#h)"/>' + marb +
-               '<path d="M58,78 a50,50 0 0 1 34,-26" stroke="#fff" stroke-width="7" fill="none" opacity="0.5" stroke-linecap="round"/>', defs)
-
-def cheese(color="#FFD34D", dark="#F0A91E", light="#FFE88A", melty=False):
-    defs = grad("c", light, color)
-    holes = "".join(f'<ellipse cx="{x}" cy="{y}" rx="{r}" ry="{r * 0.8}" fill="{dark}" opacity="0.8"/>'
-                    for x, y, r in [(72, 78, 10), (126, 70, 7), (110, 116, 13), (68, 132, 7), (140, 140, 9)])
-    drips = ""
-    if melty:
-        drips = (f'<path d="M48,150 q4,26 14,0 M100,156 q6,30 16,0 M140,152 q4,20 12,0" fill="{color}" stroke="{OL}" stroke-width="5" stroke-linejoin="round"/>')
-    return svg(200, 200, shadow(100, 178, 72, 10) + drips +
-               f'<g transform="rotate(-6 100 100)"><rect x="34" y="34" width="132" height="128" rx="14" fill="url(#c)" stroke="{OL}" stroke-width="{SW}"/>'
-               + holes + '<path d="M50,52 L96,48" stroke="#fff" stroke-width="7" opacity="0.5" stroke-linecap="round"/></g>', defs)
-
-def bechamel():
-    return svg(200, 200, shadow(100, 176, 70, 9) +
-               f'<path d="M40,96 C30,60 70,40 98,52 C126,36 172,58 160,96 C178,124 150,160 118,150 C98,170 60,166 54,140 C30,136 28,112 40,96 Z" fill="#FFF7EA" stroke="{OL}" stroke-width="{SW}" stroke-linejoin="round"/>'
-               '<path d="M70,80 q20,-12 40,0 M84,118 q22,10 44,-4" stroke="#EADBC2" stroke-width="5" fill="none" stroke-linecap="round"/>'
-               '<circle cx="66" cy="70" r="7" fill="#fff"/><circle cx="82" cy="62" r="4" fill="#fff"/>'
-               + "".join(f'<circle cx="{x}" cy="{y}" r="2.2" fill="#3B2418" opacity="0.35"/>' for x, y in [(110, 90), (130, 110), (90, 132), (72, 104)]))
-
-def egg():
-    return svg(200, 200, shadow(100, 176, 72, 10) +
-               f'<path d="M36,104 C26,64 66,34 104,44 C146,30 180,70 166,108 C176,146 132,174 98,162 C60,176 30,146 36,104 Z" fill="#FFFDF7" stroke="{OL}" stroke-width="{SW}" stroke-linejoin="round"/>'
-               f'<circle cx="104" cy="102" r="34" fill="#FFB12A" stroke="{OL}" stroke-width="6"/>'
-               '<circle cx="104" cy="102" r="26" fill="#FFC64A"/>'
-               '<ellipse cx="94" cy="90" rx="10" ry="7" fill="#fff" opacity="0.75"/>')
-
-def tomato():
-    def slice_(cx, cy, r):
-        seeds = "".join(f'<ellipse cx="{cx + dx}" cy="{cy + dy}" rx="4" ry="2.6" fill="#FFE7A8" transform="rotate({a} {cx + dx} {cy + dy})"/>'
-                        for dx, dy, a in [(-r * 0.4, -r * 0.2, 30), (r * 0.35, -r * 0.3, -30), (0, r * 0.42, 90), (-r * 0.3, r * 0.25, 60), (r * 0.38, r * 0.2, -60)])
-        return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#E8453C" stroke="{OL}" stroke-width="6"/>'
-                f'<circle cx="{cx}" cy="{cy}" r="{r - 8}" fill="#FF6B5A"/>'
-                f'<path d="M{cx},{cy - r + 10} L{cx},{cy + r - 10} M{cx - r + 10},{cy} L{cx + r - 10},{cy}" stroke="#E8453C" stroke-width="4" opacity="0.6"/>'
-                + seeds + f'<path d="M{cx - r * 0.6},{cy - r * 0.5} a{r * 0.7},{r * 0.7} 0 0 1 {r * 0.5},{-r * 0.3}" stroke="#fff" stroke-width="5" fill="none" opacity="0.55" stroke-linecap="round"/>')
-    return svg(200, 200, shadow(100, 178, 72, 9) + slice_(70, 74, 40) + slice_(132, 86, 40) + slice_(96, 136, 40))
-
-def mushroom():
-    def m(x, y, s, a):
-        return (f'<g transform="translate({x} {y}) rotate({a}) scale({s})">'
-                f'<path d="M-34,0 C-34,-30 34,-30 34,0 Q34,8 22,8 L12,8 L14,30 Q14,38 0,38 Q-14,38 -14,30 L-12,8 L-22,8 Q-34,8 -34,0 Z" fill="#E8D2B4" stroke="{OL}" stroke-width="6" stroke-linejoin="round"/>'
-                f'<path d="M-30,-2 C-28,-24 28,-24 30,-2 Z" fill="#B07A4A"/>'
-                f'<path d="M-18,-14 q10,-8 22,-6" stroke="#fff" stroke-width="4" fill="none" opacity="0.5" stroke-linecap="round"/></g>')
-    return svg(200, 200, shadow(100, 178, 72, 9) + m(66, 74, 1.0, -12) + m(134, 84, 1.0, 14) + m(98, 134, 1.05, 4))
-
-def goat():
-    def g(cx, cy, r):
-        return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#ECE6DA" stroke="{OL}" stroke-width="6"/>'
-                f'<circle cx="{cx}" cy="{cy}" r="{r - 9}" fill="#FFFDF8"/>'
-                f'<circle cx="{cx - r * 0.3}" cy="{cy - r * 0.3}" r="{r * 0.18}" fill="#fff"/>')
-    return svg(200, 200, shadow(100, 178, 72, 9) + g(68, 78, 38) + g(136, 82, 38) + g(100, 138, 40))
-
-def honey():
+def batter():
+    """La pâte versée sur la plaque, pas encore cuite."""
     return svg(200, 200,
-               f'<path d="M36,70 C60,40 70,110 96,74 C120,42 128,118 150,80 C166,56 172,98 164,112" stroke="{OL}" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
-               '<path d="M36,70 C60,40 70,110 96,74 C120,42 128,118 150,80 C166,56 172,98 164,112" stroke="#F6B21B" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
-               f'<path d="M58,126 C40,150 60,170 78,160 C92,152 84,134 58,126 Z" fill="#F6B21B" stroke="{OL}" stroke-width="6"/>'
-               f'<path d="M120,128 C106,150 122,168 138,160 C152,150 142,136 120,128 Z" fill="#FFC93C" stroke="{OL}" stroke-width="6"/>'
-               '<path d="M44,62 C54,52 60,60 64,70" stroke="#FFF2B8" stroke-width="4" fill="none" stroke-linecap="round"/>'
-               '<circle cx="66" cy="146" r="4" fill="#fff" opacity="0.7"/><circle cx="128" cy="146" r="4" fill="#fff" opacity="0.7"/>')
+               f'<path d="M34,96 C30,60 70,42 102,50 C138,38 174,62 168,98 C176,132 146,160 108,152 C74,166 30,146 34,112 Z" fill="#FCEBB4" stroke="{OL}" stroke-width="6" stroke-linejoin="round"/>'
+               '<path d="M52,88 C60,64 90,58 108,64" stroke="#fff" stroke-width="7" fill="none" opacity="0.7" stroke-linecap="round"/>'
+               '<ellipse cx="128" cy="118" rx="12" ry="7" fill="#F4D98E"/><ellipse cx="80" cy="128" rx="8" ry="5" fill="#F4D98E"/>')
 
-def pineapple():
-    rays = "".join(f'<path d="M100,100 L{100 + 52 * __import__("math").cos(a)},{100 + 52 * __import__("math").sin(a)}" stroke="#F0B41C" stroke-width="4"/>'
-                   for a in [i * 0.5236 for i in range(12)])
-    return svg(200, 200, shadow(100, 178, 72, 10) +
-               f'<circle cx="100" cy="100" r="74" fill="#FFE070" stroke="{OL}" stroke-width="{SW}"/>'
-               f'<circle cx="100" cy="100" r="62" fill="#FFD447"/>' + rays +
-               f'<circle cx="100" cy="100" r="22" fill="#F7E7C0" stroke="{OL}" stroke-width="6"/>'
-               '<path d="M50,74 a56,56 0 0 1 30,-26" stroke="#fff" stroke-width="7" fill="none" opacity="0.55" stroke-linecap="round"/>')
+def jug():
+    """Le pichet de pâte (bouton « Verser »)."""
+    defs = grad("j", "#FFFFFF", "#DCE6F0")
+    return svg(200, 200, shadow(100, 182, 60, 9) +
+               f'<path d="M58,40 L142,40 L150,170 Q150,180 140,180 L60,180 Q50,180 50,170 Z" fill="url(#j)" stroke="{OL}" stroke-width="{SW}" stroke-linejoin="round"/>'
+               f'<path d="M58,40 L42,24 L70,30" fill="#fff" stroke="{OL}" stroke-width="6" stroke-linejoin="round"/>'
+               f'<path d="M146,70 C182,70 182,140 148,140" fill="none" stroke="{OL}" stroke-width="12" stroke-linecap="round"/>'
+               f'<path d="M146,70 C182,70 182,140 148,140" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>'
+               '<path d="M56,96 L144,96 L149,170 Q149,176 141,176 L59,176 Q51,176 51,170 Z" fill="#FCE3A0"/>'
+               '<path d="M56,96 L144,96" stroke="#F0C870" stroke-width="5"/>'
+               '<path d="M68,52 L66,150" stroke="#fff" stroke-width="7" opacity="0.8" stroke-linecap="round"/>')
 
-def chicken():
-    def s(x, y, a):
-        return (f'<g transform="translate({x} {y}) rotate({a})"><rect x="-60" y="-16" width="120" height="32" rx="14" fill="#E9C08A" stroke="{OL}" stroke-width="6"/>'
-                f'<path d="M-36,-14 L-48,14 M-6,-14 L-18,14 M24,-14 L12,14 M52,-12 L42,12" stroke="#A8692E" stroke-width="5" opacity="0.6"/>'
-                '<path d="M-50,-8 L10,-8" stroke="#fff" stroke-width="4" opacity="0.45" stroke-linecap="round"/></g>')
-    return svg(200, 200, shadow(100, 178, 72, 9) + s(96, 66, -10) + s(104, 104, 6) + s(94, 144, -4))
+# ---------------------------------------------------------------- les garnitures (posées sur la gaufre)
 
-def spinach():
-    def leaf(x, y, a, c):
-        return (f'<g transform="translate({x} {y}) rotate({a})"><path d="M0,-46 C34,-30 34,30 0,46 C-34,30 -34,-30 0,-46 Z" fill="{c}" stroke="{OL}" stroke-width="6" stroke-linejoin="round"/>'
-                '<path d="M0,-38 L0,40 M0,-10 L14,-20 M0,8 L-14,-2 M0,22 L12,14" stroke="#9BE08A" stroke-width="3.5" fill="none" stroke-linecap="round"/></g>')
-    return svg(200, 200, shadow(100, 178, 72, 9) + leaf(70, 88, -30, "#3FA34D") + leaf(130, 86, 34, "#2F8E3E") + leaf(100, 126, 4, "#48B456"))
+def _rng(seed):
+    import random
+    r = random.Random(seed)
+    return r
 
-def chocolate():
-    sq = "".join(f'<rect x="{46 + c * 38}" y="{50 + r * 38}" width="32" height="32" rx="5" fill="#7A4424"/>'
-                 f'<path d="M{50 + c * 38},{54 + r * 38} l20,0" stroke="#A0653E" stroke-width="4" stroke-linecap="round"/>'
-                 for r in range(3) for c in range(3))
-    return svg(200, 200, shadow(100, 178, 72, 10) +
-               f'<g transform="rotate(5 100 100)"><rect x="38" y="42" width="124" height="122" rx="12" fill="#5A2E16" stroke="{OL}" stroke-width="{SW}"/>{sq}</g>')
+def sugar():
+    r = _rng(1)
+    dots = "".join(f'<circle cx="{r.uniform(30, 170):.1f}" cy="{r.uniform(44, 156):.1f}" r="{r.uniform(1.8, 3.6):.1f}" fill="#FFFFFF" opacity="{r.uniform(0.75, 1):.2f}"/>' for _ in range(160))
+    return svg(200, 200, dots + '<ellipse cx="104" cy="98" rx="30" ry="18" fill="#fff" opacity="0.85"/><ellipse cx="96" cy="94" rx="14" ry="7" fill="#fff"/>')
+
+def spread():
+    """Pâte choco-noisette étalée."""
+    return svg(200, 200,
+               f'<path d="M44,70 C60,48 100,60 120,52 C150,44 170,70 158,96 C168,124 140,146 110,138 C84,154 46,142 46,118 C30,104 32,84 44,70 Z" fill="#6B3A1E" stroke="{OL}" stroke-width="6" stroke-linejoin="round"/>'
+               '<path d="M66,84 C86,70 116,86 136,74 M70,112 C92,100 118,124 140,108" stroke="#8C5230" stroke-width="7" fill="none" stroke-linecap="round"/>'
+               '<path d="M58,74 C66,64 78,62 88,64" stroke="#C08A60" stroke-width="5" fill="none" opacity="0.8" stroke-linecap="round"/>'
+               '<circle cx="128" cy="120" r="5" fill="#C08A60" opacity="0.7"/><ellipse cx="74" cy="126" rx="6" ry="3" fill="#C08A60" opacity="0.6"/>')
+
+def cream():
+    def swirl(cx, cy, s):
+        return (f'<g transform="translate({cx} {cy}) scale({s})">'
+                f'<path d="M-30,10 C-34,-8 -18,-16 -10,-10 C-12,-26 12,-30 14,-14 C26,-20 38,-6 28,6 C34,18 18,26 6,20 C-4,28 -24,26 -30,10 Z" fill="#FFFDF6" stroke="{OL}" stroke-width="5.5" stroke-linejoin="round"/>'
+                '<path d="M-18,4 C-10,-6 6,-4 12,4 M-8,-6 C0,-14 10,-12 14,-6" stroke="#EADFCB" stroke-width="3.5" fill="none" stroke-linecap="round"/>'
+                '<path d="M4,-20 Q8,-30 2,-34" stroke="#FFFDF6" stroke-width="7" fill="none" stroke-linecap="round"/>'
+                f'<path d="M4,-20 Q8,-30 2,-34" stroke="{OL}" stroke-width="2" fill="none" opacity="0.0"/>'
+                '<circle cx="-12" cy="-6" r="4" fill="#fff"/></g>')
+    return svg(200, 200, swirl(66, 82, 1.0) + swirl(136, 86, 1.0) + swirl(100, 126, 1.15))
+
+def strawberry():
+    def s(cx, cy, a):
+        seeds = "".join(f'<ellipse cx="{dx}" cy="{dy}" rx="1.6" ry="2.6" fill="#FFE7A8"/>' for dx, dy in [(-8, -6), (6, -10), (-4, 6), (8, 4), (0, 16), (-12, 10)])
+        return (f'<g transform="translate({cx} {cy}) rotate({a})">'
+                f'<path d="M0,-26 C22,-26 28,-6 20,10 C14,22 6,30 0,32 C-6,30 -14,22 -20,10 C-28,-6 -22,-26 0,-26 Z" fill="#E8303C" stroke="{OL}" stroke-width="5.5" stroke-linejoin="round"/>'
+                '<path d="M0,-18 C14,-18 18,-4 12,8 C8,16 4,22 0,24 C-4,22 -8,16 -12,8 C-18,-4 -14,-18 0,-18 Z" fill="#FF7A84"/>'
+                '<path d="M0,-16 L0,20" stroke="#FFC2C6" stroke-width="3"/>' + seeds +
+                '<path d="M-12,-18 q4,-6 10,-6" stroke="#fff" stroke-width="3.5" fill="none" opacity="0.7" stroke-linecap="round"/></g>')
+    return svg(200, 200, s(62, 82, -20) + s(104, 70, 6) + s(144, 92, 24) + s(82, 128, -8) + s(128, 134, 16))
 
 def banana():
     def b(cx, cy, r):
-        seeds = "".join(f'<circle cx="{cx + dx}" cy="{cy + dy}" r="2.4" fill="#8A6A3A"/>' for dx, dy in [(-6, -4), (6, -4), (0, 7)])
-        return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#FFF0B0" stroke="{OL}" stroke-width="6"/>'
-                f'<circle cx="{cx}" cy="{cy}" r="{r - 9}" fill="#FFF7D6"/>' + seeds)
-    return svg(200, 200, shadow(100, 178, 72, 9) + b(64, 72, 30) + b(130, 70, 30) + b(96, 112, 30) + b(60, 142, 28) + b(140, 136, 30))
+        seeds = "".join(f'<circle cx="{cx + dx}" cy="{cy + dy}" r="2.2" fill="#8A6A3A"/>' for dx, dy in [(-5, -3), (5, -3), (0, 6)])
+        return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#FFF0B0" stroke="{OL}" stroke-width="5.5"/>'
+                f'<circle cx="{cx}" cy="{cy}" r="{r - 7}" fill="#FFF7D6"/>' + seeds)
+    return svg(200, 200, b(58, 76, 22) + b(104, 70, 22) + b(148, 80, 22) + b(78, 122, 22) + b(124, 124, 22))
+
+def drizzle(color, light, seed):
+    path = "M30,64 C60,40 70,96 96,70 C120,46 128,104 152,78 C168,62 176,96 160,112 C140,132 120,92 98,118 C78,140 64,104 44,128"
+    return svg(200, 200,
+               f'<path d="{path}" stroke="{OL}" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+               f'<path d="{path}" stroke="{color}" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+               f'<path d="M36,60 C46,52 54,56 60,64" stroke="{light}" stroke-width="4" fill="none" stroke-linecap="round"/>'
+               f'<circle cx="160" cy="112" r="9" fill="{color}" stroke="{OL}" stroke-width="5"/>')
+
+def jam():
+    return svg(200, 200,
+               f'<path d="M54,82 C50,56 86,48 102,58 C124,44 158,60 150,88 C162,112 136,136 108,128 C88,146 52,134 56,110 C40,102 42,88 54,82 Z" fill="#D9263A" stroke="{OL}" stroke-width="6" stroke-linejoin="round"/>'
+               '<path d="M70,74 C80,64 96,64 104,70" stroke="#FF8A98" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.9"/>'
+               '<circle cx="120" cy="104" r="6" fill="#A8182A"/><circle cx="84" cy="112" r="4" fill="#A8182A"/><circle cx="130" cy="80" r="3.5" fill="#FF8A98"/>')
+
+def icecream():
+    return svg(200, 200, shadow(100, 150, 46, 8, 0.15) +
+               f'<path d="M58,110 C48,70 76,46 100,48 C126,46 154,70 142,110 C150,118 140,132 128,124 C120,134 108,128 100,134 C92,128 80,134 72,124 C60,132 50,118 58,110 Z" fill="#FFF6DA" stroke="{OL}" stroke-width="6" stroke-linejoin="round"/>'
+               '<path d="M74,72 C82,60 96,56 108,58" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/>'
+               + "".join(f'<ellipse cx="{x}" cy="{y}" rx="2" ry="1.4" fill="#3B2418" opacity="0.6"/>' for x, y in [(90, 88), (114, 96), (102, 110), (126, 80), (78, 104)]))
+
+def sprinkles():
+    import random
+    r = random.Random(7)
+    cols = ["#FF4F7B", "#3FB5E8", "#FFD23A", "#5BC25A", "#C48AFF", "#FF8A3D", "#FFFFFF"]
+    bits = ""
+    for _ in range(70):
+        x, y, a = r.uniform(34, 166), r.uniform(48, 152), r.uniform(0, 180)
+        c = r.choice(cols)
+        bits += (f'<g transform="translate({x:.1f} {y:.1f}) rotate({a:.0f})"><rect x="-7" y="-2.6" width="14" height="5.2" rx="2.6" fill="{OL}"/>'
+                 f'<rect x="-5.8" y="-1.6" width="11.6" height="3.2" rx="1.6" fill="{c}"/></g>')
+    return svg(200, 200, bits)
+
+def almonds():
+    import random
+    r = random.Random(3)
+    flakes = ""
+    for _ in range(14):
+        x, y, a = r.uniform(42, 158), r.uniform(56, 144), r.uniform(0, 180)
+        flakes += (f'<g transform="translate({x:.1f} {y:.1f}) rotate({a:.0f})"><path d="M-12,0 C-8,-9 8,-9 12,0 C8,7 -8,7 -12,0 Z" fill="#F4DDB4" stroke="{OL}" stroke-width="3.5"/>'
+                   '<path d="M-6,-2 L6,-2" stroke="#D9B47E" stroke-width="2"/></g>')
+    return svg(200, 200, flakes)
 
 INGREDIENTS = {
-    "ham": ham, "cheese": cheese, "bechamel": bechamel, "egg": egg, "tomato": tomato, "mushroom": mushroom,
-    "goat": goat, "honey": honey, "pineapple": pineapple, "chicken": chicken, "spinach": spinach,
-    "raclette": lambda: cheese("#FFB938", "#E8861A", "#FFD27A", melty=True), "chocolate": chocolate, "banana": banana,
+    "sugar": sugar, "spread": spread, "cream": cream, "strawberry": strawberry, "banana": banana,
+    "caramel": lambda: drizzle("#E8941A", "#FFD27A", 1), "honey": lambda: drizzle("#F6B21B", "#FFF2B8", 2),
+    "chocmelt": lambda: drizzle("#4A2414", "#8C5230", 3), "jam": jam, "icecream": icecream, "sprinkles": sprinkles, "almonds": almonds,
 }
 
-# ---------------------------------------------------------------- l'appareil à croque
+# ---------------------------------------------------------------- le gaufrier
 
-def press(part):
+def iron(part):
     """part = 'base' (plaque du bas, charnière en haut) ou 'lid' (couvercle, charnière en bas)."""
     w, h = 600, 300
-    ridges = "".join(f'<path d="M{x},60 L{x - 120},250" stroke="#4A4650" stroke-width="10" stroke-linecap="round"/>' for x in range(150, 640, 44))
-    plate = (f'<clipPath id="pl"><rect x="96" y="44" width="408" height="212" rx="34"/></clipPath>'
-             f'<rect x="96" y="44" width="408" height="212" rx="34" fill="#2B2830"/>'
-             f'<g clip-path="url(#pl)">{ridges}<rect x="96" y="44" width="408" height="60" fill="#fff" opacity="0.05"/></g>'
-             f'<rect x="96" y="44" width="408" height="212" rx="34" fill="none" stroke="{OL}" stroke-width="7"/>')
-    defs = grad("red", "#FF6B5A", "#D93A2E") + grad("chrome", "#F4F6FA", "#A8AEBC")
-    body = (f'<rect x="40" y="16" width="520" height="268" rx="70" fill="url(#red)" stroke="{OL}" stroke-width="9"/>'
-            '<path d="M86,40 Q300,22 514,40" stroke="#fff" stroke-width="10" fill="none" opacity="0.35" stroke-linecap="round"/>'
+    cells = ""
+    cols, rows = 7, 4
+    px0, py0, pw, ph = 112, 58, 376, 184
+    cw, ch = pw / cols, ph / rows
+    for r in range(rows):
+        for c in range(cols):
+            cells += (f'<rect x="{px0 + c * cw + 5:.1f}" y="{py0 + r * ch + 5:.1f}" width="{cw - 10:.1f}" height="{ch - 10:.1f}" rx="5" fill="#3A3640"/>'
+                      f'<rect x="{px0 + c * cw + 5:.1f}" y="{py0 + r * ch + 5:.1f}" width="{cw - 10:.1f}" height="4" rx="2" fill="#000" opacity="0.35"/>')
+    plate = (f'<rect x="96" y="44" width="408" height="212" rx="30" fill="#55505C" stroke="{OL}" stroke-width="7"/>'
+             f'<rect x="{px0}" y="{py0}" width="{pw}" height="{ph}" rx="14" fill="#6A6474"/>' + cells +
+             '<path d="M120,56 L300,56" stroke="#fff" stroke-width="5" opacity="0.18" stroke-linecap="round"/>')
+    defs = grad("body", "#7FE0D6", "#2FA79E") + grad("chrome", "#F4F6FA", "#A8AEBC")
+    body = (f'<rect x="40" y="16" width="520" height="268" rx="64" fill="url(#body)" stroke="{OL}" stroke-width="9"/>'
+            '<path d="M86,40 Q300,22 514,40" stroke="#fff" stroke-width="10" fill="none" opacity="0.4" stroke-linecap="round"/>'
             + plate)
     hinge = (f'<rect x="200" y="0" width="200" height="30" rx="12" fill="url(#chrome)" stroke="{OL}" stroke-width="6"/>'
              '<rect x="214" y="8" width="172" height="6" rx="3" fill="#fff" opacity="0.7"/>')
-    lamp = (f'<circle cx="520" cy="256" r="12" fill="#7CFF6B" stroke="{OL}" stroke-width="5"/>'
-            '<circle cx="516" cy="252" r="4" fill="#fff" opacity="0.8"/>')
+    lamp = (f'<circle cx="524" cy="258" r="12" fill="#FF6B5A" stroke="{OL}" stroke-width="5"/>'
+            '<circle cx="520" cy="254" r="4" fill="#fff" opacity="0.8"/>')
     g = body + hinge + lamp
     if part == "lid":
         g = f'<g transform="translate(0 {h}) scale(1 -1)">{body + hinge}</g>'
     return svg(w, h, g, defs)
 
-def press_closed():
-    """L'appareil fermé, vu de face (pendant la cuisson)."""
-    defs = grad("red", "#FF6B5A", "#D93A2E") + grad("chrome", "#F4F6FA", "#A8AEBC") + grad("dark", "#4A4650", "#2B2830")
+def iron_closed():
+    """Le gaufrier fermé, vu de face (pendant la cuisson)."""
+    defs = grad("body", "#7FE0D6", "#2FA79E") + grad("chrome", "#F4F6FA", "#A8AEBC") + grad("dark", "#4A4650", "#2B2830")
     body = (shadow(300, 330, 230, 18, 0.25) +
-            f'<rect x="60" y="150" width="480" height="170" rx="60" fill="url(#red)" stroke="{OL}" stroke-width="9"/>'
-            f'<path d="M70,160 C70,60 530,60 530,160 Z" fill="url(#red)" stroke="{OL}" stroke-width="9" stroke-linejoin="round"/>'
-            f'<rect x="76" y="154" width="448" height="18" fill="url(#dark)" stroke="{OL}" stroke-width="6"/>'
-            f'<rect x="220" y="56" width="160" height="36" rx="18" fill="url(#chrome)" stroke="{OL}" stroke-width="7"/>'
-            '<path d="M130,110 Q300,76 470,110" stroke="#fff" stroke-width="12" fill="none" opacity="0.35" stroke-linecap="round"/>'
-            '<path d="M110,200 Q300,186 490,200" stroke="#fff" stroke-width="10" fill="none" opacity="0.25" stroke-linecap="round"/>'
-            f'<circle cx="470" cy="270" r="15" fill="#FF8A3D" stroke="{OL}" stroke-width="6"/><circle cx="465" cy="265" r="5" fill="#fff" opacity="0.8"/>'
-            f'<rect x="120" y="258" width="200" height="26" rx="13" fill="#2B2830" stroke="{OL}" stroke-width="5"/>')
+            f'<rect x="60" y="150" width="480" height="170" rx="60" fill="url(#body)" stroke="{OL}" stroke-width="9"/>'
+            f'<path d="M70,160 C70,60 530,60 530,160 Z" fill="url(#body)" stroke="{OL}" stroke-width="9" stroke-linejoin="round"/>'
+            f'<rect x="76" y="152" width="448" height="20" fill="url(#dark)" stroke="{OL}" stroke-width="6"/>'
+            + "".join(f'<rect x="{90 + k * 30}" y="157" width="18" height="10" rx="3" fill="#F6BE5C" opacity="0.9"/>' for k in range(15)) +
+            f'<path d="M250,64 L250,40 Q250,28 262,28 L338,28 Q350,28 350,40 L350,64" fill="none" stroke="{OL}" stroke-width="18" stroke-linecap="round"/>'
+            '<path d="M250,64 L250,40 Q250,28 262,28 L338,28 Q350,28 350,40 L350,64" fill="none" stroke="#3A3640" stroke-width="10" stroke-linecap="round"/>'
+            '<path d="M130,110 Q300,76 470,110" stroke="#fff" stroke-width="12" fill="none" opacity="0.4" stroke-linecap="round"/>'
+            '<path d="M110,200 Q300,186 490,200" stroke="#fff" stroke-width="10" fill="none" opacity="0.3" stroke-linecap="round"/>'
+            f'<circle cx="470" cy="270" r="15" fill="#FF6B5A" stroke="{OL}" stroke-width="6"/><circle cx="465" cy="265" r="5" fill="#fff" opacity="0.8"/>'
+            f'<rect x="120" y="258" width="200" height="26" rx="13" fill="#2B2830" stroke="{OL}" stroke-width="5"/>'
+            '<rect x="134" y="265" width="120" height="12" rx="6" fill="#FFC93C"/>')
     return svg(600, 350, body, defs)
 
 # ---------------------------------------------------------------- les clients
@@ -290,23 +297,16 @@ def wall_tile():
                         '<rect x="-57" y="33" width="114" height="24" rx="6" fill="#FFF6E6"/><rect x="63" y="33" width="114" height="24" rx="6" fill="#FFF6E6"/>')
 
 def icon(size=1024):
-    """L'icône de l'app : un croque doré qui sort de l'appareil, sur fond orange."""
-    s = size / 1024
-    defs = grad("bg", "#FFB347", "#FF6A3D") + grad("red", "#FF6B5A", "#D93A2E") + grad("cr", "#F6C46E", "#E8A24C")
+    """L'icône : une gaufre dorée, chocolat, chantilly et fraise, sur fond orange."""
+    defs = grad("bg", "#FFB347", "#FF6A3D")
+    inner = waffle(2).split('<defs></defs>')[1].replace('</svg>', '')
+    choco = drizzle("#4A2414", "#8C5230", 3).split('<defs></defs>')[1].replace('</svg>', '')
+    cr = cream().split('<defs></defs>')[1].replace('</svg>', '')
+    st = strawberry().split('<defs></defs>')[1].replace('</svg>', '')
     body = (f'<rect width="1024" height="1024" fill="url(#bg)"/>'
-            '<circle cx="820" cy="180" r="260" fill="#fff" opacity="0.12"/>'
-            # l'appareil, ouvert, de biais
-            f'<g transform="translate(512 640) rotate(-8)">'
-            f'<rect x="-380" y="-60" width="760" height="300" rx="110" fill="url(#red)" stroke="{OL}" stroke-width="18"/>'
-            f'<rect x="-310" y="-20" width="620" height="210" rx="60" fill="#2B2830" stroke="{OL}" stroke-width="12"/>'
-            '<path d="M-330,-30 Q0,-56 330,-30" stroke="#fff" stroke-width="18" fill="none" opacity="0.3" stroke-linecap="round"/></g>'
-            # le croque
-            f'<g transform="translate(512 470) rotate(-8) scale(2.6) translate(-100 -105)">'
-            f'<path d="{BREAD}" fill="#A8601F" stroke="{OL}" stroke-width="7" stroke-linejoin="round"/>'
-            f'<path d="M36,150 q20,26 40,0 q20,26 40,0 q20,26 40,0" fill="#FFD34D" stroke="{OL}" stroke-width="6" stroke-linejoin="round"/>'
-            f'<clipPath id="ic"><path d="{CRUMB}"/></clipPath><path d="{CRUMB}" fill="url(#cr)"/>'
-            '<g clip-path="url(#ic)">' + "".join(f'<path d="M{x},48 L{x - 70},170" stroke="#A8601F" stroke-width="10" opacity="0.3"/>' for x in (110, 140, 170, 200)) + '</g>'
-            '<path d="M58,62 C70,52 84,52 96,56" stroke="#fff" stroke-width="6" fill="none" opacity="0.5" stroke-linecap="round"/></g>'
-            # la vapeur
-            '<path d="M380,250 q-30,-50 0,-100 q30,-50 0,-100 M512,230 q-30,-50 0,-100 q30,-50 0,-100 M644,250 q-30,-50 0,-100 q30,-50 0,-100" stroke="#fff" stroke-width="26" fill="none" opacity="0.7" stroke-linecap="round"/>')
+            '<circle cx="840" cy="170" r="260" fill="#fff" opacity="0.12"/><circle cx="150" cy="900" r="220" fill="#fff" opacity="0.08"/>'
+            f'<g transform="translate(512 560) rotate(-10) scale(4.3) translate(-100 -100)">{inner}{choco}'
+            f'<g transform="translate(100 100) scale(0.62) translate(-100 -100)">{cr}</g>'
+            f'<g transform="translate(150 70) scale(0.42) translate(-100 -100)">{st}</g></g>'
+            '<path d="M330,230 q-30,-50 0,-100 M512,200 q-30,-50 0,-100 M694,230 q-30,-50 0,-100" stroke="#fff" stroke-width="26" fill="none" opacity="0.7" stroke-linecap="round"/>')
     return svg(1024, 1024, body, defs)
