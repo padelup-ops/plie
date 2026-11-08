@@ -27,6 +27,10 @@ on:
         description: "Code réutilisable (vide = codes uniques)"
         required: false
         default: ""
+      days:
+        description: "Jours de validité"
+        required: false
+        default: "60"
 jobs:
   offer:
     runs-on: ubuntu-latest
@@ -41,6 +45,7 @@ jobs:
       NAME: ${{ inputs.name }}
       PRICE: ${{ inputs.price }}
       CUSTOM: ${{ inputs.custom }}
+      DAYS: ${{ inputs.days }}
     steps:
       - uses: actions/checkout@v5
       - name: Codes

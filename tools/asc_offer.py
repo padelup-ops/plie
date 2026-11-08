@@ -70,6 +70,27 @@ if MODE == "probe":
     show("points de prix (extrait)", call("GET", f"/v2/inAppPurchases/{iap_id}/pricePoints?filter[territory]=FRA&limit=3"))
     sys.exit(0)
 
+# PRICE=half : moitié du prix actuel (France), arrondie au point de prix juste en dessous.
+if PRICE.lower() == "half":
+    mp = call("GET", f"/v1/inAppPurchasePriceSchedules/{iap_id}/manualPrices?include=inAppPurchasePricePoint&filter[territory]=FRA&limit=50")
+    pts = {x["id"]: x for x in mp.get("included", []) if x["type"] == "inAppPurchasePricePoints"}
+    base = None
+    for p in mp.get("data", []):
+        if not p["attributes"].get("endDate"):
+            base = float(pts[p["relationships"]["inAppPurchasePricePoint"]["data"]["id"]]["attributes"]["customerPrice"])
+    if base is None: sys.exit("ÉCHEC prix actuel introuvable")
+    target, best = base / 2, None
+    url = f"/v2/inAppPurchases/{iap_id}/pricePoints?filter[territory]=FRA&limit=200"
+    while url:
+        page = call("GET", url)
+        for pp in page.get("data", []):
+            c = float(pp["attributes"].get("customerPrice", "0"))
+            if 0 < c <= target + 0.001 and (best is None or c > best): best = c
+        nxt = page.get("links", {}).get("next")
+        url = nxt.replace(API, "") if nxt else None
+    PRICE = f"{best:.2f}"
+    print(f"PRIX ACTUEL {base:.2f} € -> PRIX OFFRE {PRICE} €")
+
 # --- MODE create
 # Territoires où l'achat est vendu
 terr = []
