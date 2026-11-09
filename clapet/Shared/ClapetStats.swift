@@ -503,7 +503,13 @@ struct ClapetStats: Codable, Equatable {
     }
 
     /// Temps ouvert d'une journée, en comptant l'ouverture en cours pour aujourd'hui.
+    /// Le temps ouvert sans le repos (heures de repos, mode Repos) : c'est celui qu'on montre.
     func openTime(_ date: Date = Date(), now: Date = Date()) -> TimeInterval {
+        max(0, rawOpenTime(date, now: now) - restTime(date, now: now))
+    }
+
+    /// Tout le temps ouvert, repos compris.
+    func rawOpenTime(_ date: Date = Date(), now: Date = Date()) -> TimeInterval {
         var t = day(date).openSeconds
         if Self.key(date) == Self.key(now), let s = openSince, now.timeIntervalSince(s) < Self.maxOpenSession {
             t += max(0, now.timeIntervalSince(max(s, Calendar.current.startOfDay(for: now))))
@@ -585,7 +591,7 @@ struct ClapetStats: Codable, Equatable {
             let from = max(s, Calendar.current.startOfDay(for: now))
             t += restSpans(from: from, to: now).reduce(0) { $0 + $1.b.timeIntervalSince($1.a) }
         }
-        return min(t, openTime(date, now: now))
+        return min(t, rawOpenTime(date, now: now))
     }
 
     /// Moyenne de temps ouvert par jour, sur les jours mesurés des `count` derniers jours.

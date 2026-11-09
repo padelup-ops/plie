@@ -741,3 +741,6 @@
 "Set rest hours" = "Ruhezeiten festlegen";
 "Open, but at rest" = "Offen, aber in Ruhe";
 "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "Lege deine Ruhezeiten in den Einstellungen fest: Offene Zeit zählt dann als Ruhe. Du kannst auch die beiden Kurzbefehle für den Schlaf-Fokus hinzufügen.";
+
+/* Repos non compté */
+"Not counted: %@ at rest today" = "Nicht gezählt: %@ heute im Ruhemodus";

@@ -741,3 +741,6 @@
 "Set rest hours" = "휴식 시간대 설정";
 "Open, but at rest" = "열려 있지만 휴식 중";
 "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "설정에서 휴식 시간대를 정하면 그 시간에 열려 있는 시간은 휴식으로 계산돼요. 수면 집중 모드용 단축어 2개도 추가할 수 있어요.";
+
+/* Repos non compté */
+"Not counted: %@ at rest today" = "제외됨: 오늘 휴식 중 %@";

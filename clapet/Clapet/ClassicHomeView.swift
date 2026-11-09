@@ -524,7 +524,7 @@ struct ClassicHomeView: View {
                         .padding(.leading, 14)
                     }
                     if s.restTime(now, now: now) >= 60 {
-                        Text("\(Self.duration(s.restTime(now, now: now))) of it at rest today")
+                        Text("Not counted: \(Self.duration(s.restTime(now, now: now))) at rest today")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }

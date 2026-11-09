@@ -741,3 +741,6 @@
 "Set rest hours" = "Definir horas de reposo";
 "Open, but at rest" = "Abierto, pero en reposo";
 "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "Define tus horas de reposo en Ajustes: el tiempo abierto contará entonces como reposo. También puedes añadir los dos atajos para el modo Sueño.";
+
+/* Repos non compté */
+"Not counted: %@ at rest today" = "No contado: %@ en reposo hoy";

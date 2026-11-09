@@ -741,3 +741,6 @@
 "Set rest hours" = "Set rest hours";
 "Open, but at rest" = "Open, but at rest";
 "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus.";
+
+/* Repos non compté */
+"Not counted: %@ at rest today" = "Not counted: %@ at rest today";

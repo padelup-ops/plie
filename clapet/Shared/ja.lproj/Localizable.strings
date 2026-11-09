@@ -741,3 +741,6 @@
 "Set rest hours" = "休止時間を設定";
 "Open, but at rest" = "開いていても休止中";
 "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "設定で休止時間を決めると、その間に開いている時間は休止として数えます。睡眠モード用の2つのショートカットも追加できます。";
+
+/* Repos non compté */
+"Not counted: %@ at rest today" = "カウント外：今日の休止中は%@";
