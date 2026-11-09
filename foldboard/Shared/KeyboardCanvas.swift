@@ -3,6 +3,11 @@ import UIKit
 func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
 /// Ce que le clavier demande à son hôte (l'extension clavier, ou l'aperçu dans l'app).
+/// Téléphone tenu tête en bas : l'angle est retourné de 180° (droite et gauche restent celles de l'écran).
+func kbAngleOffset(_ o: UIInterfaceOrientation?) -> Double {
+    o == .portraitUpsideDown ? 180 : 0
+}
+
 protocol KBInput: AnyObject {
     func kbInsert(_ text: String)
     func kbDelete()
@@ -304,6 +309,7 @@ final class KeyboardCanvas: UIView {
         // Le tutoriel montre toujours le fonctionnement de l'écran extérieur.
         if demoOneHand { c = "closed-portrait" }
         gripContext = c
+        grip.angleOffset = kbAngleOffset(window?.windowScene?.interfaceOrientation)
         grip.guessUncalibrated = false
         grip.defaultTilt = followsHand
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
@@ -315,7 +321,8 @@ final class KeyboardCanvas: UIView {
         } else {
             // Sans réglage : le téléphone penche du côté de la main qui le tient (haut vers la gauche : main gauche).
             grip.tiltMid = 0
-            grip.rightNegative = false
+            // Écran intérieur du Duo : ses axes sont inversés par rapport à l'écran extérieur (constaté sur le Duo).
+            grip.rightNegative = gripContext.hasPrefix("open")
             grip.tiltGap = 0
         }
         // Deux classes : pouce droit, pouce gauche. Les appuis « deux mains » comptent selon leur côté.

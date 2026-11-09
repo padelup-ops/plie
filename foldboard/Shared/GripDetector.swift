@@ -108,6 +108,8 @@ final class GripDetector {
     var onGrip: ((KBGrip) -> Void)?
     /// Réglage de l'inclinaison (voir l'étalonnage dans l'app) : l'angle « droit », et le sens de la main droite.
     var tiltMid: Double = 0
+    /// Le téléphone tenu à l'envers (écran tourné de 180°) : on retourne l'angle pour garder la gauche à gauche.
+    var angleOffset: Double = 0
     var rightNegative = true
     /// Écart d'inclinaison entre main droite et main gauche (étalonnage), en degrés ; 0 si inconnu.
     var tiltGap: Double = 0
@@ -195,7 +197,7 @@ final class GripDetector {
                 guard let self, let m else { return }
                 let g = m.gravity
                 let p = (g.x * g.x + g.y * g.y).squareRoot()
-                let a = atan2(g.x, -g.y) * 180 / .pi
+                let a = kbWrap(atan2(g.x, -g.y) * 180 / .pi - self.angleOffset)
                 let inc = asin(max(-1, min(1, -g.z))) * 180 / .pi
                 self.lock.lock()
                 self.incline = self.incline.map { $0 * 0.85 + inc * 0.15 } ?? inc

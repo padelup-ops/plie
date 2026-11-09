@@ -32,7 +32,7 @@ targets:
         CFBundleLocalizations: [en, fr]
         CFBundleAllowMixedLocalizations: true
         UILaunchScreen: {}
-        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         ITSAppUsesNonExemptEncryption: false
         FoldboardKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.foldboard.shared
     settings:

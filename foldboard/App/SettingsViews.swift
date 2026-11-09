@@ -667,7 +667,8 @@ final class TiltReader {
         motion.startDeviceMotionUpdates(to: .main) { [weak self] m, _ in
             guard let self, let g = m?.gravity else { return }
             let planar = (g.x * g.x + g.y * g.y).squareRoot()
-            let a = atan2(g.x, -g.y) * 180 / .pi
+            let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first { $0.activationState == .foregroundActive }
+            let a = kbWrap(atan2(g.x, -g.y) * 180 / .pi - kbAngleOffset(scene?.interfaceOrientation))
             let i = asin(max(-1, min(1, -g.z))) * 180 / .pi
             self.roll = planar > 0.2 ? (self.roll.map { kbWrap($0 + kbWrap(a - $0) * 0.2) } ?? a) : nil
             self.incline = self.incline.map { $0 * 0.8 + i * 0.2 } ?? i
