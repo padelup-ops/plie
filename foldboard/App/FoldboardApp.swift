@@ -24,11 +24,11 @@ struct FoldboardApp: App {
                     HomeView()
                 }
             }
+                .modifier(ScreenLearner())
                 .environment(model)
                 .environment(store)
                 .tint(Color("AccentColor"))
                 .fullScreenDuo()
-                .modifier(ScreenLearner())
                 .onChange(of: phase) { _, p in
                     if p == .active {
                         model.reload()
