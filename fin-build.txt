@@ -1,0 +1,200 @@
+Object:   <DVTiPhoneSimulator: 0x78f7e27200>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.427 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e27600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.427 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e27600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.427 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e27400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.428 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e27400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.428 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e27000>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.428 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e27000>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.428 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e26e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.428 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e26e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.428 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e27200>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-09 03:38:29.428 xcodebuild[2103:9516] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x78f7e27200>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10127cd40>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+
+SwiftCompile normal arm64 (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    
+
+/Users/runner/work/plie/plie/waffle/Waffle/KitchenView.swift:22:17: warning: cannot use generic class 'Autoconnect' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+  20 |     }
+  21 | 
+  22 |     private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
+     |                 `- warning: cannot use generic class 'Autoconnect' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+  23 | 
+  24 |     var body: some View {
+
+Combine.Publishers.Autoconnect:2:14: note: generic class declared here
+ 1 | enum Publishers {
+ 2 | public class Autoconnect<Upstream> : Publisher where Upstream : ConnectablePublisher {
+   |              `- note: generic class declared here
+ 3 |     public typealias Output = Upstream.Output
+ 4 |     public typealias Failure = Upstream.Failure
+
+/Users/runner/work/plie/plie/waffle/Waffle/KitchenView.swift:22:17: warning: cannot use enum 'Publishers' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+  20 |     }
+  21 | 
+  22 |     private let ticker = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
+     |                 `- warning: cannot use enum 'Publishers' in a property declaration member of a type not marked '@_implementationOnly'; 'Combine' was not imported by this file
+  23 | 
+  24 |     var body: some View {
+
+Combine.Publishers:2:13: note: enum declared here
+1 | @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+2 | public enum Publishers {
+  |             `- note: enum declared here
+3 | }
+
+/Users/runner/work/plie/plie/waffle/Waffle/KitchenView.swift:464:34: warning: conformance of 'BounceSymbolEffect' to 'IndefiniteSymbolEffect' is only available in iOS 18.0 or newer; this is an error in the Swift 6 language mode
+ 435 | // MARK: - Le plateau des garnitures
+ 436 | 
+ 437 | struct TrayView: View {
+     |        `- note: add '@available' attribute to enclosing struct
+ 438 |     let kitchen: Kitchen
+ 439 | 
+ 440 |     var body: some View {
+     |         `- note: add '@available' attribute to enclosing property
+ 441 |         ZStack {
+ 442 |             switch kitchen.phase {
+     :
+ 462 |                         HStack(spacing: 12) {
+ 463 |                             Image(systemName: "iphone.gen3").font(.system(size: 34, weight: .bold)).foregroundStyle(Ink.line)
+ 464 |                                 .symbolEffect(.bounce, options: .repeating)
+     |                                  |- warning: conformance of 'BounceSymbolEffect' to 'IndefiniteSymbolEffect' is only available in iOS 18.0 or newer; this is an error in the Swift 6 language mode
+     |                                  `- note: add 'if #available' version check
+ 465 |                             Text(T("Ferme le Duo pour fermer le gaufrier", "Close the Duo to close the waffle iron"))
+ 466 |                                 .font(.toon(19)).foregroundStyle(Ink.line).multilineTextAlignment(.leading)
+SwiftDriverJobDiscovery normal arm64 Compiling Extras.swift, Kitchen.swift, KitchenView.swift, MenuView.swift, WaffleApp.swift, GeneratedAssetSymbols.swift (in target 'Waffle' from project 'Waffle')
+
+SwiftDriver\ Compilation\ Requirements Waffle normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Waffle -O -whole-module-optimization @/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.SwiftFileList -DDUO_SDK -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -target arm64-apple-ios17.0 -g -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos -F /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos27.1-24A94232-e829b21a6f8c9b70876ba0858053c0442866d66f27be705873c55a4609c58824.sdkstatcache -output-file-map /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Waffle-generated-files.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Waffle-own-target-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Waffle-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Waffle-project-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/DerivedSources/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle-Swift.h -working-directory /Users/runner/work/plie/plie/waffle -no-emit-module-separately-wmo
+
+SwiftMergeGeneratedHeaders /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/DerivedSources/Waffle-Swift.h /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle-Swift.h (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle-Swift.h -o /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/DerivedSources/Waffle-Swift.h
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.swiftmodule/arm64-apple-ios.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.swiftmodule (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.swiftmodule/arm64-apple-ios.swiftmodule
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.swiftmodule/arm64-apple-ios.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.swiftdoc (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.swiftmodule/arm64-apple-ios.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.abi.json (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.swiftsourceinfo (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+Ld /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Waffle normal (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0 -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -L/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos -F/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -F/Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos -filelist /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.LinkFileList -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle_lto.o -Xlinker -dependency_info -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.swiftmodule -o /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Waffle
+
+CopySwiftLibs /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Waffle --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Frameworks --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/PlugIns --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/SystemExtensions --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Extensions --platform iphoneos --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.UnyCch/Metal.xctoolchain --toolchain /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.UnyCch/Metal.xctoolchain --module-name Waffle --sdk-root /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 17.0 --bundle-identifier com.padelup.waffle --output /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app --target-triple arm64-apple-ios17.0 --binary-file /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Waffle --dependency-file /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle_dependency_info.dat --stringsdata-file /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.SwiftFileList --metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Waffle.DependencyMetadataFileList --static-metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Waffle.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Objects-normal/arm64/Waffle.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-11-09 03:38:34.389 appintentsmetadataprocessor[2695:11659] Starting appintentsmetadataprocessor export
+2026-11-09 03:38:34.398 appintentsmetadataprocessor[2695:11659] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+GenerateDSYMFile /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app.dSYM /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Waffle (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    export PATH\=/Applications/Xcode_27.1.app/Contents/SharedFrameworks/SwiftBuild.framework/Versions/A/PlugIns/SWBBuildService.bundle/Contents/PlugIns/SWBUniversalPlatformPlugin.bundle/Contents/Frameworks/SWBUniversalPlatform.framework/Resources:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.UnyCch/Metal.xctoolchain/usr/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.UnyCch/Metal.xctoolchain/usr/local/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.UnyCch/Metal.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/local/bin:/opt/homebrew/opt/rustup/bin:/opt/homebrew/lib/ruby/gems/3.4.0/bin:/opt/homebrew/opt/ruby@3.4/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Waffle -o /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app.dSYM
+
+AppIntentsSSUTraining (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Info.plist --temp-dir-path /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/ssu --bundle-id com.padelup.waffle --product-path /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app --extracted-metadata-path /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Metadata.appintents --metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/Waffle.build/Release-iphoneos/Waffle.build/Waffle.DependencyMetadataFileList --source-file /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app/Info.plist --archive-ssu-assets
+2026-11-09 03:38:34.439 appintentsnltrainingprocessor[2697:11661] Parsing options for appintentsnltrainingprocessor
+2026-11-09 03:38:34.439 appintentsnltrainingprocessor[2697:11661] Starting AppIntents SSU YAML Generation
+2026-11-09 03:38:34.444 appintentsnltrainingprocessor[2697:11661] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    builtin-RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app
+
+Validate /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    builtin-validationUtility /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app (in target 'Waffle' from project 'Waffle')
+    cd /Users/runner/work/plie/plie/waffle
+    /usr/bin/touch -c /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Products/Release-iphoneos/Waffle.app
+
+PruneExplicitPrecompiledModules /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/Library/Developer/Xcode/DerivedData/Waffle-cqqsvbcgymwbmsdfllepymktiche/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

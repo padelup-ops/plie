@@ -1,0 +1,4 @@
+2026-11-09 03:38:52.125 xcodebuild[2959:12793] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/Waffle_2026-11-09_03-38-52.124.xcdistributionlogs".
+Exported Waffle to: /Users/runner/work/_temp/local
+** EXPORT SUCCEEDED **
+
