@@ -27,7 +27,7 @@ struct ShotView: View {
         case "handtest":
             NavigationStack { HandTest().fullScreenDuo() }
         case "onboarding3":
-            OnboardingView(start: 3, onDone: {})
+            OnboardingView(start: 4, onDone: {})
         default:
             chat
         }

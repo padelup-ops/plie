@@ -18,7 +18,7 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                ForEach(0..<4) { i in
+                ForEach(0..<5) { i in
                     Capsule().fill(i <= page ? Color.accentColor : Color(.systemFill)).frame(height: 4)
                 }
             }
@@ -34,6 +34,8 @@ struct OnboardingView: View {
                         PlaceTutorial(onFinish: { page = 3 })
                         Button("Skip for now") { page = 3 }.font(.subheadline).padding(.bottom, 6)
                     }
+                case 3:
+                    KeyboardTour { page = 4 }
                 default: trial
                 }
             }

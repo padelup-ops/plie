@@ -107,6 +107,9 @@ struct HomeView: View {
                     NavigationLink { PlaceTutorial().fullScreenDuo() } label: {
                         Label("How it works", systemImage: "hand.tap")
                     }
+                    NavigationLink { KeyboardTourScreen() } label: {
+                        Label("Guided tour", systemImage: "play.rectangle")
+                    }
                     NavigationLink { PositionView().fullScreenDuo() } label: { Label("Position and size", systemImage: "hand.raised.fingers.spread") }
                     NavigationLink { LookView().fullScreenDuo() } label: { Label("Colors and font", systemImage: "paintpalette") }
                     NavigationLink { FeelView().fullScreenDuo() } label: { Label("Sound, vibrations and swipe", systemImage: "waveform") }
