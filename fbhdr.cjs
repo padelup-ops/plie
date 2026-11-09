@@ -10,7 +10,8 @@ const { chromium } = require('playwright'); const fs = require('fs');
   await p.waitForFunction(() => window.ready, null, { timeout: 120000 }); await p.evaluate(() => window.ready);
   const times = process.env.TEST ? process.env.TEST.split(',').map(Number) : null;
   const n = Math.round(12 * F); const t0 = Date.now();
-  const list = times ? times.map(t => Math.round(t * F)) : [...Array(n).keys()];
+  const A = +(process.env.FROM || 0), B = +(process.env.TO || n);
+  const list = times ? times.map(t => Math.round(t * F)) : [...Array(n).keys()].filter(i => i >= A && i < B);
   for (const i of list) {
     const f = `${out}/f_${String(i).padStart(5, '0')}.jpg`; if (!times && fs.existsSync(f)) continue;
     await p.evaluate(t => window.frame(t), i / F);

@@ -1,0 +1,46 @@
+# Rend la vidéo de démonstration Foldboard (modèle 3D) et les vidéos d'en-tête / de recherche, en morceaux parallèles.
+# Chaque morceau devient un petit mp4 (artefact) ; l'assemblage et la musique se font ensuite.
+name: Foldboard - rendu vidéo
+
+on:
+  push:
+    branches: [ci-foldboard-video-src]
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include: [{"kind": "film", "lang": "fr", "from": 0, "to": 134, "part": "film-fr-0"}, {"kind": "film", "lang": "fr", "from": 134, "to": 268, "part": "film-fr-1"}, {"kind": "film", "lang": "fr", "from": 268, "to": 402, "part": "film-fr-2"}, {"kind": "film", "lang": "fr", "from": 402, "to": 536, "part": "film-fr-3"}, {"kind": "film", "lang": "fr", "from": 536, "to": 670, "part": "film-fr-4"}, {"kind": "film", "lang": "fr", "from": 670, "to": 804, "part": "film-fr-5"}, {"kind": "film", "lang": "fr", "from": 804, "to": 938, "part": "film-fr-6"}, {"kind": "film", "lang": "fr", "from": 938, "to": 1065, "part": "film-fr-7"}, {"kind": "wide", "lang": "fr", "w": 1920, "h": 823, "from": 0, "to": 90, "part": "wide-fr-0"}, {"kind": "wide", "lang": "fr", "w": 1920, "h": 823, "from": 90, "to": 180, "part": "wide-fr-1"}, {"kind": "wide", "lang": "fr", "w": 1920, "h": 823, "from": 180, "to": 270, "part": "wide-fr-2"}, {"kind": "wide", "lang": "fr", "w": 1920, "h": 823, "from": 270, "to": 360, "part": "wide-fr-3"}, {"kind": "tall", "lang": "fr", "w": 1200, "h": 800, "from": 0, "to": 90, "part": "tall-fr-0"}, {"kind": "tall", "lang": "fr", "w": 1200, "h": 800, "from": 90, "to": 180, "part": "tall-fr-1"}, {"kind": "tall", "lang": "fr", "w": 1200, "h": 800, "from": 180, "to": 270, "part": "tall-fr-2"}, {"kind": "tall", "lang": "fr", "w": 1200, "h": 800, "from": 270, "to": 360, "part": "tall-fr-3"}, {"kind": "film", "lang": "en", "from": 0, "to": 134, "part": "film-en-0"}, {"kind": "film", "lang": "en", "from": 134, "to": 268, "part": "film-en-1"}, {"kind": "film", "lang": "en", "from": 268, "to": 402, "part": "film-en-2"}, {"kind": "film", "lang": "en", "from": 402, "to": 536, "part": "film-en-3"}, {"kind": "film", "lang": "en", "from": 536, "to": 670, "part": "film-en-4"}, {"kind": "film", "lang": "en", "from": 670, "to": 804, "part": "film-en-5"}, {"kind": "film", "lang": "en", "from": 804, "to": 938, "part": "film-en-6"}, {"kind": "film", "lang": "en", "from": 938, "to": 1065, "part": "film-en-7"}, {"kind": "wide", "lang": "en", "w": 1920, "h": 823, "from": 0, "to": 90, "part": "wide-en-0"}, {"kind": "wide", "lang": "en", "w": 1920, "h": 823, "from": 90, "to": 180, "part": "wide-en-1"}, {"kind": "wide", "lang": "en", "w": 1920, "h": 823, "from": 180, "to": 270, "part": "wide-en-2"}, {"kind": "wide", "lang": "en", "w": 1920, "h": 823, "from": 270, "to": 360, "part": "wide-en-3"}, {"kind": "tall", "lang": "en", "w": 1200, "h": 800, "from": 0, "to": 90, "part": "tall-en-0"}, {"kind": "tall", "lang": "en", "w": 1200, "h": 800, "from": 90, "to": 180, "part": "tall-en-1"}, {"kind": "tall", "lang": "en", "w": 1200, "h": 800, "from": 180, "to": 270, "part": "tall-en-2"}, {"kind": "tall", "lang": "en", "w": 1200, "h": 800, "from": 270, "to": 360, "part": "tall-en-3"}]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Outils
+        run: |
+          npm init -y >/dev/null
+          npm i playwright@1.56.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          sudo apt-get install -y ffmpeg >/dev/null 2>&1 || (sudo apt-get update >/dev/null && sudo apt-get install -y ffmpeg >/dev/null)
+          mkdir -p ~/.local/share/fonts && cp fonts/*.otf ~/.local/share/fonts/ && fc-cache -f >/dev/null
+      - name: Rendu
+        run: |
+          python3 -m http.server 8766 >/dev/null 2>&1 &
+          sleep 2
+          if [ "${{ matrix.kind }}" = film ]; then
+            PAGE=fbfilm-${{ matrix.lang }}.html CONF=fbfilm-conf-${{ matrix.lang }}.js OUT=frames node fbrender.cjs 30 ${{ matrix.from }} ${{ matrix.to }}
+          else
+            FROM=${{ matrix.from }} TO=${{ matrix.to }} node fbhdr.cjs ${{ matrix.lang }} ${{ matrix.kind }} ${{ matrix.w }} ${{ matrix.h }} frames 30
+          fi
+          ls frames | wc -l
+          ffmpeg -y -v error -framerate 30 -start_number ${{ matrix.from }} -i frames/f_%05d.jpg -c:v libx264 -preset veryfast -crf 14 -pix_fmt yuv420p part.mp4
+          ls -la part.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.part }}
+          path: part.mp4
+          retention-days: 3
