@@ -1,0 +1,23 @@
+# Candidatures « mise en vedette » (Featuring) pour Foldly et Origamo
+name: ASC - candidatures mise en vedette
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "probe (voir) ou create (créer et envoyer)"
+        required: true
+        default: "probe"
+jobs:
+  nominate:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      ORIGAMO_BUNDLE: ${{ secrets.BUNDLE_ID }}
+      MODE: ${{ inputs.mode }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 tools/asc_nominate.py
