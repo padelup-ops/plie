@@ -62,7 +62,7 @@ struct HomeView: View {
                                 Text("The keyboard made for iPhone Duo").font(.subheadline).foregroundStyle(.secondary)
                             }
                         }
-                        Text("Type with one thumb on the left or on the right, with both hands on the open Duo, and send your usual phrases in one tap.")
+                        Text("Tap the free space next to the keys: the keyboard comes to that side, or to the middle. Emoji and your phrases are one tap away.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -103,7 +103,22 @@ struct HomeView: View {
                 }
 
                 Section {
-                    NavigationLink { GripSetup().fullScreenDuo() } label: { Label("Learn my thumbs", systemImage: "touchid") }
+                    NavigationLink { HandTest().fullScreenDuo() } label: {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Test: right hand, left hand")
+                                Text("3 seconds per hand, nothing to type").font(.footnote).foregroundStyle(.secondary)
+                            }
+                        } icon: { Image(systemName: "hand.raised.fingers.spread") }
+                    }
+                    NavigationLink { GripSetup().fullScreenDuo() } label: {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Learn my thumbs")
+                                Text("Optional: the keyboard follows your thumb by itself").font(.footnote).foregroundStyle(.secondary)
+                            }
+                        } icon: { Image(systemName: "touchid") }
+                    }
                     NavigationLink { PositionView().fullScreenDuo() } label: { Label("Position and size", systemImage: "hand.raised.fingers.spread") }
                     NavigationLink { LookView().fullScreenDuo() } label: { Label("Colors and font", systemImage: "paintpalette") }
                     NavigationLink { FeelView().fullScreenDuo() } label: { Label("Sound, vibrations and swipe", systemImage: "waveform") }

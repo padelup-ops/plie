@@ -22,6 +22,8 @@ struct ShotView: View {
             NavigationStack { GripSetup().fullScreenDuo() }
         case "onboarding":
             OnboardingView(onDone: {})
+        case "handtest":
+            NavigationStack { HandTest().fullScreenDuo() }
         case "onboarding3":
             OnboardingView(start: 3, onDone: {})
         default:

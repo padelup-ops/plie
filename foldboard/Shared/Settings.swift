@@ -267,9 +267,10 @@ struct KBSettings: Codable, Equatable {
 
     /// Les réglages vraiment appliqués : sans Foldboard Pro (ni essai), on revient à l'essentiel.
     func effective(pro: Bool) -> KBSettings {
-        // Les emojis s'ouvrent avec la touche 😀 (plus de panneau à côté des touches) ; les phrases sont en haut.
+        // Comme le clavier d'Apple sur le Duo : quelques emojis dans la place libre à côté des touches
+        // (et tous avec la touche 😀) ; les phrases sont dans la barre du haut.
         var s = self
-        s.sidePanel = .none
+        s.sidePanel = .emoji
         guard !pro else { return s }
         if s.mode == .split { s.mode = .full }
         if s.mode == .auto { s.mode = s.autoRight ? .right : .left }

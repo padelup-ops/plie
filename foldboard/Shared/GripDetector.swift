@@ -473,7 +473,7 @@ final class GripDetector {
         if calibrated { return }
         // Gyroscope seulement quand ses axes suivent l'écran (pas sur le Duo ouvert).
         let rot = guessUncalibrated ? vote(rotLeft, rotRight, bias: 2, high: 6) : nil
-        let size = vote(sizeLeft, sizeRight, bias: 1.25, high: 1.4)
+        let size = guessUncalibrated ? vote(sizeLeft, sizeRight, bias: 1.25, high: 1.4) : nil
         var result: KBGrip?
         if let r = rot, let s = size {
             if r.grip == s.grip { result = r.grip }

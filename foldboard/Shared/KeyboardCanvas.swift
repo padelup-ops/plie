@@ -276,7 +276,7 @@ final class KeyboardCanvas: UIView {
             c = best.key
         }
         gripContext = c
-        grip.guessUncalibrated = !gripContext.hasPrefix("open")
+        grip.guessUncalibrated = false
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
         if let r, let l, abs(kbWrap(r - l)) >= 3 {
             let mid = kbWrap(r + kbWrap(l - r) / 2)
@@ -395,6 +395,31 @@ final class KeyboardCanvas: UIView {
         }
         settings.mode = m
         save()
+    }
+
+    /// Un toucher dans la place libre : à gauche → clavier à gauche, à droite → à droite, au centre → au milieu
+    /// (deux moitiés sur le Duo déplié). Pas besoin d'étalonnage.
+    private func placeByTap(at p: CGPoint) {
+        let W = bounds.width
+        guard W > 0 else { return }
+        let center = abs(p.x - W / 2) < W * 0.17 && layoutMode.isOneHand
+        let auto = eff.mode == .auto
+        var s = settings
+        if center {
+            if auto { s.autoTwo = true } else { s.mode = pro && splitAllowed ? .split : .full }
+            grip.current = .two
+        } else {
+            let right = p.x > W / 2
+            if auto { s.autoTwo = false; s.autoRight = right } else { s.mode = right ? .right : .left }
+            grip.current = right ? .right : .left
+        }
+        guard s != settings else { return }
+        KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
+        settings = s
+        UIView.transition(with: self, duration: 0.18, options: .transitionCrossDissolve, animations: {
+            self.save()
+            self.layoutIfNeeded()
+        })
     }
 
     @objc private func showGripInfo(_ g: UILongPressGestureRecognizer) {
@@ -749,7 +774,8 @@ final class KeyboardCanvas: UIView {
         modeButton.tintColor = theme.text.withAlphaComponent(0.7)
         modeButton.menu = modeMenu()
         modeButton.accessibilityLabel = L("Keyboard position")
-        let oneHand = layoutMode.isOneHand
+        // La flèche ⇆ : changer de côté, ou revenir à une main depuis le milieu.
+        let oneHand = layoutMode.isOneHand || eff.mode == .auto
         flipButton.isHidden = !oneHand
         flipButton.tintColor = theme.text.withAlphaComponent(0.7)
         flipButton.frame = CGRect(x: 46, y: 0, width: oneHand ? 36 : 0, height: h)
@@ -842,7 +868,40 @@ final class KeyboardCanvas: UIView {
         guard panelRect.width >= 44, panelRect.height >= 44, eff.sidePanel != .none else { return }
         let w = panelRect.width
         let h = panelRect.height
-        if eff.sidePanel == .emoji || (layoutMode == .split && eff.sidePanel == .phrases && w < 90) {
+        if layoutMode.isOneHand {
+            // Comme le clavier d'Apple sur le Duo : les emojis au bord de l'écran ; un toucher dans la place libre
+            // envoie le clavier de ce côté, ou au milieu près du centre.
+            let cell: CGFloat = 44
+            let cols = w >= 170 ? 2 : (w >= 80 ? 1 : 0)
+            let rowsN = max(1, min(4, Int(h / cell)))
+            var list = KBEmoji.recent
+            for e in eff.emojis where !list.contains(e) { list.append(e) }
+            let count = min(list.count, cols * rowsN)
+            let gridW = cell * CGFloat(cols)
+            let gridH = cell * CGFloat(rowsN)
+            let ox = isRight ? 2 : w - gridW - 2
+            let oy = max(0, (h - gridH) / 2)
+            for i in 0..<count {
+                let e = list[i]
+                let b = UIButton(type: .custom)
+                b.setTitle(e, for: .normal)
+                b.titleLabel?.font = .systemFont(ofSize: 28)
+                b.frame = CGRect(x: ox + CGFloat(i % cols) * cell, y: oy + CGFloat(i / cols) * cell, width: cell, height: cell)
+                b.addAction(UIAction { [weak self] _ in self?.insertEmoji(e) }, for: .touchUpInside)
+                panel.addSubview(b)
+            }
+            // Indices discrets : flèches vers ce côté, et le milieu près du centre.
+            let freeW = w - gridW - 4
+            if freeW >= 36 {
+                let hint = UIImageView(image: UIImage(systemName: isRight ? "chevron.left.2" : "chevron.right.2"))
+                hint.tintColor = theme.text.withAlphaComponent(0.22)
+                hint.contentMode = .center
+                let fx = isRight ? gridW + 4 : 0
+                hint.frame = CGRect(x: fx, y: 0, width: freeW, height: h)
+                hint.isUserInteractionEnabled = false
+                panel.addSubview(hint)
+            }
+        } else if eff.sidePanel == .emoji || (layoutMode == .split && eff.sidePanel == .phrases && w < 90) {
             let cols = max(1, min(4, Int(w / 46)))
             let cell = min(52, w / CGFloat(cols))
             let rowsN = max(1, Int(h / cell))
@@ -939,9 +998,9 @@ final class KeyboardCanvas: UIView {
         idleTimer?.invalidate()
         for t in touches {
             let p = t.location(in: self)
-            // Un toucher dans l'espace vide de l'autre côté : le clavier y passe.
-            if eff.mode == .auto && layoutMode.isOneHand && panelRect.contains(p) {
-                flipSide()
+            // Un toucher dans la place libre : le clavier y va (près du centre : au milieu).
+            if !adjusting, !showEmoji, panelRect.width > 0, panelRect.contains(p) {
+                placeByTap(at: p)
                 continue
             }
             guard p.y > Self.topBarHeight, let i = cellIndex(at: p) else { continue }
@@ -1232,6 +1291,7 @@ final class KeyboardCanvas: UIView {
 
     private func insertEmoji(_ e: String) {
         KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics)
+        KBEmoji.used(e)
         input?.kbInsert(e)
         refreshSuggestionsSoon()
     }

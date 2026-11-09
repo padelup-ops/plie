@@ -18,7 +18,7 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                ForEach(0..<4) { i in
+                ForEach(0..<3) { i in
                     Capsule().fill(i <= page ? Color.accentColor : Color(.systemFill)).frame(height: 4)
                 }
             }
@@ -29,7 +29,6 @@ struct OnboardingView: View {
                 switch page {
                 case 0: welcome
                 case 1: addKeyboard
-                case 2: thumbs
                 default: trial
                 }
             }
@@ -44,7 +43,7 @@ struct OnboardingView: View {
             Spacer()
             Image("Logo").resizable().frame(width: 96, height: 96).clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
             Text("Welcome to Foldboard").font(.largeTitle.bold()).multilineTextAlignment(.center)
-            Text("It recognises the thumb you type with and comes to it. Both thumbs: it goes to the middle.")
+            Text("Tap the free space on a side: the keyboard comes to that side. Tap near the centre: it goes to the middle.")
                 .font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
             Text("1 minute to set it up.").font(.subheadline).foregroundStyle(.secondary)
             Spacer()
