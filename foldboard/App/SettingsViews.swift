@@ -673,7 +673,7 @@ struct TiltCalibration: View {
                 Spacer()
                 Text(reader.roll.map { String(format: "%+.0f°", $0) } ?? "—").monospacedDigit().foregroundStyle(.secondary)
             }
-            .sheet(item: $recordingGrip) { g in
+            .fullScreenCover(item: $recordingGrip) { g in
                 GripRecorder(grip: g, context: context).environment(model)
             }
             button("Right hand", "hand.point.right", grip: .right)
@@ -785,7 +785,13 @@ struct GripRecorder: View {
     @Environment(\.dismiss) private var dismiss
     @State private var text = ""
     @State private var samples: [[Double]] = []
+    @State private var kbWidth: CGFloat = 0
+    @State private var swipes: [[Double]] = []
     static let needed = 16
+    /// Puis quelques glissements du pouce vers le haut (le geste le plus sûr pour reconnaître la main).
+    private var swipesNeeded: Int { grip == .two ? 0 : 5 }
+    private var typingDone: Bool { samples.count >= Self.needed }
+    private var allDone: Bool { typingDone && swipes.count >= swipesNeeded }
 
     private var fr: Bool { Locale.current.language.languageCode?.identifier == "fr" }
 
@@ -826,40 +832,57 @@ struct GripRecorder: View {
                     Button("Cancel") { dismiss() }
                 }
                 Text(instruction).foregroundStyle(.secondary)
-                Text(sentence)
-                    .font(.title3.weight(.semibold))
-                    .padding(.vertical, 4)
+                if typingDone && swipesNeeded > 0 {
+                    Label("Now slide your thumb up across the keys, 5 times, holding the phone the same way.", systemImage: "hand.draw")
+                        .font(.title3.weight(.semibold))
+                        .padding(.vertical, 4)
+                } else {
+                    Text(sentence)
+                        .font(.title3.weight(.semibold))
+                        .padding(.vertical, 4)
+                }
                 Text(text.isEmpty ? " " : text)
                     .font(.body.monospaced())
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(10)
                     .background(RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemBackground)))
-                ProgressView(value: Double(min(samples.count, Self.needed)), total: Double(Self.needed))
-                Text(samples.count >= Self.needed ? NSLocalizedString("Done! You can keep typing to improve it, or save.", comment: "")
-                                                  : String(format: NSLocalizedString("%lld of %lld taps", comment: ""), samples.count, Self.needed))
+                ProgressView(value: Double(min(samples.count, Self.needed) + min(swipes.count, swipesNeeded)),
+                             total: Double(Self.needed + swipesNeeded))
+                Text(allDone ? NSLocalizedString("Done! You can keep typing to improve it, or save.", comment: "")
+                     : typingDone ? String(format: NSLocalizedString("%lld of %lld slides", comment: ""), swipes.count, swipesNeeded)
+                     : String(format: NSLocalizedString("%lld of %lld taps", comment: ""), samples.count, Self.needed))
                     .font(.footnote).foregroundStyle(.secondary)
                 Button {
                     var s = model.settings
                     s.setTaps(samples, grip: grip.rawValue, context: context)
+                    if kbWidth > 50 { s.widths[context] = Double(kbWidth) }
+                    if !swipes.isEmpty {
+                        var c = s.swipes[context] ?? [:]
+                        c[grip.rawValue] = Array(swipes.suffix(12))
+                        s.swipes[context] = c
+                    }
                     model.settings = s
                     dismiss()
                 } label: {
                     Text("Save").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 6)
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(samples.count < Self.needed)
+                .disabled(!allDone)
             }
             .padding(20)
             Spacer(minLength: 0)
             KeyboardPreview(settings: recordSettings, pro: true, text: $text, record: grip, onSample: { f in
                 samples.append(f)
                 if samples.count > 30 { samples.removeFirst() }
+            }, onSwipe: { f in
+                if typingDone { swipes.append(f) }
             })
             .frame(height: KeyboardPreview.height(recordSettings))
             .ignoresSafeArea(.container, edges: .horizontal)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { kbWidth = $0 }
         }
-        .interactiveDismissDisabled(!samples.isEmpty && samples.count < Self.needed)
+        .interactiveDismissDisabled(!samples.isEmpty && !allDone)
         .fullScreenDuo()
     }
 }

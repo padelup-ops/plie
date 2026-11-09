@@ -116,6 +116,7 @@ final class KeyboardCanvas: UIView {
         var done = false
         var swipe = false
         var points: [CGPoint] = []
+        var t0: TimeInterval = 0
         init(index: Int, start: CGPoint) {
             self.index = index
             self.start = start
@@ -155,6 +156,8 @@ final class KeyboardCanvas: UIView {
         flipButton.setImage(UIImage(systemName: "arrow.left.arrow.right"), for: .normal)
         flipButton.addAction(UIAction { [weak self] _ in self?.flipSide() }, for: .touchUpInside)
         flipButton.accessibilityLabel = L("Switch side")
+        // Appui long : la situation reconnue et l'étalonnage utilisé (pour vérifier).
+        flipButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(showGripInfo(_:))))
         hideButton.setImage(UIImage(systemName: "keyboard.chevron.compact.down"), for: .normal)
         hideButton.addAction(UIAction { [weak self] _ in self?.input?.kbDismiss() }, for: .touchUpInside)
         hideButton.accessibilityLabel = L("Hide keyboard")
@@ -249,7 +252,14 @@ final class KeyboardCanvas: UIView {
     }
 
     private func updateGripContext() {
-        gripContext = KBSettings.context(screen: screenSize, closed: hingeClosed)
+        var c = KBSettings.context(screen: screenSize, closed: hingeClosed)
+        // La largeur du clavier dit sur quel écran et dans quel sens on est : on reprend la situation étalonnée
+        // à cette largeur (l'app et le clavier tombent ainsi toujours sur le même étalonnage).
+        let w = Double(bounds.width)
+        if w > 50, let best = settings.widths.min(by: { abs($0.value - w) < abs($1.value - w) }), abs(best.value - w) <= 24 {
+            c = best.key
+        }
+        gripContext = c
         grip.guessUncalibrated = !gripContext.hasPrefix("open")
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
         if let r, let l, abs(kbWrap(r - l)) >= 3 {
@@ -263,6 +273,7 @@ final class KeyboardCanvas: UIView {
             grip.tiltGap = 0
         }
         grip.tapModel = KBTapModel(settings.taps[gripContext] ?? [:])
+        grip.swipeModel = KBTapModel(settings.swipes[gripContext] ?? [:], kind: .swipe)
         var postures: [KBGrip: (roll: Double, incline: Double)] = [:]
         for (k, p) in settings.calib[gripContext] ?? [:] where p.count == 2 {
             guard let g = KBGrip(rawValue: k) else { continue }
@@ -287,9 +298,10 @@ final class KeyboardCanvas: UIView {
 
     /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
     private(set) var recording: KBGrip?
-    func setRecording(_ g: KBGrip?, _ handler: (([Double]) -> Void)?) {
+    func setRecording(_ g: KBGrip?, _ handler: (([Double]) -> Void)?, swipes: (([Double]) -> Void)? = nil) {
         recording = g
         grip.onSample = g == nil ? nil : handler
+        grip.onSwipeSample = g == nil ? nil : swipes
         if visible && g != nil && !gripStarted { startGrip() }
     }
 
@@ -358,6 +370,16 @@ final class KeyboardCanvas: UIView {
         }
         settings.mode = m
         save()
+    }
+
+    @objc private func showGripInfo(_ g: UILongPressGestureRecognizer) {
+        guard g.state == .began else { return }
+        let names = ["closed-portrait": L("Closed · portrait"), "open-portrait": L("Open · portrait"),
+                     "open-landscape": L("Open · landscape"), "closed-landscape": L("Closed · landscape")]
+        let n = settings.taps[gripContext]?.values.filter { $0.count >= 6 }.count ?? 0
+        let state = grip.tapModel != nil ? String(format: L("calibrated (%lld grips)"), n)
+            : (grip.calibrated ? L("tilt only") : L("not calibrated"))
+        flash((names[gripContext] ?? gripContext) + " · " + state)
     }
 
     private func flipSide() {
@@ -732,6 +754,7 @@ final class KeyboardCanvas: UIView {
                 }
             }
             let tr = Track(index: i, start: p)
+            tr.t0 = t.timestamp
             tr.points = [p]
             if autoOn || recording != nil, bounds.width > 0 {
                 let lo = blocks.map { $0.minX }.min() ?? 0
@@ -794,7 +817,9 @@ final class KeyboardCanvas: UIView {
             guard let tr = tracks[t] else { continue }
             if tr.swipe {
                 tr.done = true
-                if autoOn { grip.swipe(tr.points) }
+                if autoOn || recording != nil {
+                    grip.swipe(tr.points, width: bounds.width, t0: tr.t0, t1: t.timestamp)
+                }
             } else if !tr.done {
                 commit(tr)
             }

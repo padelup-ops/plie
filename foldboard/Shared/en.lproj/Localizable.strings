@@ -163,6 +163,11 @@
 "%lld of %lld taps" = "%lld of %lld taps";
 "Save" = "Save";
 "Cancel" = "Cancel";
+"Now slide your thumb up across the keys, 5 times, holding the phone the same way." = "Now slide your thumb up across the keys, 5 times, holding the phone the same way.";
+"%lld of %lld slides" = "%lld of %lld slides";
+"calibrated (%lld grips)" = "calibrated (%lld grips)";
+"tilt only" = "tilt only";
+"not calibrated" = "not calibrated";
 "Tap a situation to calibrate it. The arrow shows the one detected right now. For landscape, turn off the rotation lock." = "Tap a situation to calibrate it. The arrow shows the one detected right now. For landscape, turn off the rotation lock.";
 "Open · portrait" = "Open · portrait";
 "Open · landscape" = "Open · landscape";

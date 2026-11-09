@@ -10,6 +10,7 @@ struct KeyboardPreview: UIViewRepresentable {
     /// Étalonnage : la prise enregistrée, et ce qu'on fait de chaque appui.
     var record: KBGrip? = nil
     var onSample: (([Double]) -> Void)? = nil
+    var onSwipe: (([Double]) -> Void)? = nil
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -19,7 +20,9 @@ struct KeyboardPreview: UIViewRepresentable {
         c.configure(settings: settings, pro: pro)
         c.appeared()
         if let record {
-            c.setRecording(record) { [weak coordinator = context.coordinator] f in coordinator?.parent.onSample?(f) }
+            let co = context.coordinator
+            c.setRecording(record, { [weak co] f in co?.parent.onSample?(f) },
+                           swipes: { [weak co] f in co?.parent.onSwipe?(f) })
         }
         context.coordinator.lastText = text
         DispatchQueue.main.async { c.textChanged() }

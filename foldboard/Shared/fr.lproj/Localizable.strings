@@ -163,6 +163,11 @@
 "%lld of %lld taps" = "%lld sur %lld appuis";
 "Save" = "Enregistrer";
 "Cancel" = "Annuler";
+"Now slide your thumb up across the keys, 5 times, holding the phone the same way." = "Maintenant, glisse ton pouce de bas en haut sur les touches, 5 fois, en tenant le téléphone pareil.";
+"%lld of %lld slides" = "%lld sur %lld glissements";
+"calibrated (%lld grips)" = "étalonné (%lld prises)";
+"tilt only" = "inclinaison seule";
+"not calibrated" = "pas étalonné";
 "Tap a situation to calibrate it. The arrow shows the one detected right now. For landscape, turn off the rotation lock." = "Touche une situation pour l’étalonner. La flèche montre celle détectée en ce moment. Pour le paysage, désactive le verrouillage de la rotation.";
 "Open · portrait" = "Ouvert · portrait";
 "Open · landscape" = "Ouvert · paysage";
