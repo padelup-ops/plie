@@ -75,6 +75,10 @@ print("version modifiable :", v["attributes"]["versionString"], v["attributes"][
 info = next((i for i in infos(app["id"]) if (i["attributes"].get("appStoreState") or i["attributes"].get("state")) not in ("READY_FOR_SALE", "READY_FOR_DISTRIBUTION")), None) or infos(app["id"])[0]
 have_v = {l["attributes"]["locale"]: l for l in call("GET", f"/v1/appStoreVersions/{v['id']}/appStoreVersionLocalizations?limit=50").get("data", [])}
 have_i = {l["attributes"]["locale"]: l for l in call("GET", f"/v1/appInfos/{info['id']}/appInfoLocalizations?limit=50").get("data", [])}
+# URL d'assistance / marketing : reprises de la langue principale existante si le fichier n'en donne pas
+base = (have_v.get("en-US") or have_v.get("fr-FR") or next(iter(have_v.values()), None) or {}).get("attributes", {})
+if not data.get("support") and base.get("supportUrl"):
+    data["support"] = base["supportUrl"]
 ok_n = 0
 for loc, m in data["locales"].items():
     if loc in data.get("skip", []):
@@ -90,6 +94,8 @@ for loc, m in data["locales"].items():
     attrs_v = {"description": m["description"][:4000], "keywords": m["keywords"][:100], "promotionalText": m["promo"][:170]}
     if data.get("support"):
         attrs_v["supportUrl"] = data["support"]
+    if base.get("marketingUrl") and loc not in have_v:
+        attrs_v["marketingUrl"] = base["marketingUrl"]
     if v["attributes"]["versionString"] != "1.0" or data.get("update"):
         attrs_v["whatsNew"] = m.get("whatsNew") or data["locales"]["en-US"].get("whatsNew", "Improvements and fixes.")
     if loc in have_v:
