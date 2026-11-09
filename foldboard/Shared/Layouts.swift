@@ -11,6 +11,8 @@ enum KeyKind: Equatable {
     case page(KBPage)
     /// Clavier suivant (globe), seulement quand iOS le demande.
     case globe
+    /// Ouvre les emojis (comme le clavier d'Apple).
+    case emoji
 }
 
 enum KBPage: Equatable {
@@ -70,8 +72,9 @@ enum KBLayouts {
     static func bottom(_ page: KBPage, globe: Bool, layout: KBLayout) -> KeyRow {
         var keys: [KeySpec] = [KeySpec(kind: .page(page == .letters ? .numbers : .letters), width: 1.5)]
         if globe { keys.append(KeySpec(kind: .globe, width: 1.1)) }
+        keys.append(KeySpec(kind: .emoji, width: 1.1))
         keys.append(KeySpec(kind: .char(layout == .azerty && page == .letters ? "," : "."), width: 1))
-        keys.append(KeySpec(kind: .space, width: globe ? 4.4 : 5.5))
+        keys.append(KeySpec(kind: .space, width: globe ? 3.3 : 4.4))
         keys.append(KeySpec(kind: .ret, width: 2))
         return KeyRow(keys: keys)
     }

@@ -1,0 +1,199 @@
+import SwiftUI
+import UIKit
+
+/// Le nom d'une situation (Duo fermé ou ouvert, portrait ou paysage).
+func kbContextName(_ c: String) -> String {
+    switch c {
+    case "open-portrait": return NSLocalizedString("Open · portrait", comment: "")
+    case "open-landscape": return NSLocalizedString("Open · landscape", comment: "")
+    case "closed-landscape": return NSLocalizedString("Closed · landscape", comment: "")
+    default: return NSLocalizedString("Closed · portrait", comment: "")
+    }
+}
+
+/// L'anneau façon Face ID : des petits traits qui s'allument à chaque appui, l'empreinte au centre,
+/// et une coche verte quand c'est fini.
+struct ThumbRing: View {
+    var progress: Double
+    var done: Bool
+    var symbol: String = "touchid"
+    private let ticks = 56
+
+    var body: some View {
+        ZStack {
+            ForEach(0..<ticks, id: \.self) { i in
+                let lit = Double(i) < progress * Double(ticks)
+                Capsule()
+                    .fill(done ? Color.green : (lit ? Color.accentColor : Color.secondary.opacity(0.25)))
+                    .frame(width: 3, height: lit || done ? 16 : 11)
+                    .offset(y: -78)
+                    .rotationEffect(.degrees(Double(i) / Double(ticks) * 360))
+                    .shadow(color: lit && !done ? Color.accentColor.opacity(0.8) : .clear, radius: 4)
+                    .animation(.spring(response: 0.35, dampingFraction: 0.6).delay(Double(i % 8) * 0.01), value: lit)
+            }
+            Circle()
+                .fill(RadialGradient(colors: [Color.accentColor.opacity(done ? 0 : 0.28), .clear], center: .center, startRadius: 4, endRadius: 70))
+                .frame(width: 140, height: 140)
+            Image(systemName: done ? "checkmark" : symbol)
+                .font(.system(size: done ? 54 : 64, weight: done ? .bold : .regular))
+                .foregroundStyle(done ? Color.green : Color.accentColor)
+                .contentTransition(.symbolEffect(.replace))
+                .symbolEffect(.pulse, options: .repeating, isActive: !done && progress > 0)
+        }
+        .frame(width: 190, height: 190)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: done)
+    }
+}
+
+/// Apprendre les pouces : on tape une petite phrase avec le pouce droit, puis le pouce gauche, puis les deux.
+/// Le clavier reconnaît ensuite quel pouce tape : droit → à droite, gauche → à gauche, les deux → au milieu.
+struct GripSetup: View {
+    /// Premier lancement : passe à la suite quand c'est fini.
+    var onFinish: (() -> Void)? = nil
+    @Environment(SettingsModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    @State private var step = 0
+    @State private var text = ""
+    @State private var samples: [[Double]] = []
+    @State private var kbWidth: CGFloat = 0
+    @State private var hingeClosed: Bool?
+    @State private var reader = TiltReader()
+    static let needed = 14
+
+    private let grips: [KBGrip] = [.right, .left, .two]
+    private var grip: KBGrip { grips[min(step, 2)] }
+    private var finished: Bool { step >= grips.count }
+    private var fr: Bool { Locale.current.language.languageCode?.identifier == "fr" }
+
+    /// La situation en ce moment (d'après la fenêtre : écran du Duo, sens).
+    private var context: String {
+        _ = reader.tick
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+        let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
+        let size = window?.bounds.size ?? scene?.screen.bounds.size ?? .zero
+        return KBSettings.context(screen: size, closed: hingeClosed)
+    }
+
+    private var title: LocalizedStringKey {
+        switch grip {
+        case .right: return "Right thumb"
+        case .left: return "Left thumb"
+        case .two: return "Both thumbs"
+        }
+    }
+
+    private var instruction: LocalizedStringKey {
+        switch grip {
+        case .right: return "Hold the phone in your right hand and type with your right thumb."
+        case .left: return "Hold the phone in your left hand and type with your left thumb."
+        case .two: return "Hold the phone with both hands and type with both thumbs."
+        }
+    }
+
+    private var sentence: String { fr ? "salut, à tout à l’heure" : "hi, see you later" }
+
+    private var recordSettings: KBSettings {
+        var s = model.settings
+        s.mode = .full
+        s.autocorrect = false
+        s.suggestions = false
+        return s
+    }
+
+    /// Les situations déjà apprises.
+    private var learned: [String] {
+        KBSettings.contexts.filter { c in
+            let t = model.settings.taps[c] ?? [:]
+            return (t["right"]?.count ?? 0) >= 6 && (t["left"]?.count ?? 0) >= 6
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(spacing: 14) {
+                HStack(spacing: 8) {
+                    ForEach(0..<grips.count, id: \.self) { i in
+                        Capsule()
+                            .fill(i < step ? Color.green : (i == step ? Color.accentColor : Color(.systemFill)))
+                            .frame(height: 5)
+                    }
+                }
+                .padding(.horizontal, 30)
+                .animation(.easeInOut, value: step)
+
+                Spacer(minLength: 0)
+                ThumbRing(progress: finished ? 1 : Double(samples.count) / Double(Self.needed), done: finished,
+                          symbol: grip == .two ? "hands.clap" : "touchid")
+
+                if finished {
+                    Text("Your thumbs are learned").font(.title2.bold())
+                    Text("Foldboard now knows your right thumb from your left: the keyboard comes to the thumb that types, and goes to the middle with both.")
+                        .multilineTextAlignment(.center).foregroundStyle(.secondary)
+                    Text(String(format: NSLocalizedString("Learned for: %@. If you also type with the Duo %@, do it once that way too.", comment: ""),
+                                learned.map(kbContextName).joined(separator: ", "),
+                                context.hasPrefix("open") ? NSLocalizedString("closed", comment: "") : NSLocalizedString("open", comment: "")))
+                        .font(.footnote).multilineTextAlignment(.center).foregroundStyle(.secondary)
+                    Button {
+                        if let onFinish { onFinish() } else { dismiss() }
+                    } label: {
+                        Text(onFinish == nil ? "Done" : "Continue").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 6)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Button("Start again") { restart() }.font(.subheadline)
+                } else {
+                    Text(title).font(.title2.bold())
+                    Text(instruction).multilineTextAlignment(.center).foregroundStyle(.secondary)
+                    Text(sentence).font(.title3.weight(.semibold)).padding(.top, 2)
+                    Text(text.isEmpty ? " " : text)
+                        .lineLimit(1).truncationMode(.head)
+                        .font(.callout.monospaced()).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                Text(kbContextName(context)).font(.caption).foregroundStyle(.tertiary)
+            }
+            .padding(20)
+            .frame(maxWidth: .infinity)
+
+            if !finished {
+                KeyboardPreview(settings: recordSettings, pro: true, text: $text, record: grip, onSample: { f in add(f) })
+                    .frame(height: KeyboardPreview.height(recordSettings))
+                    .ignoresSafeArea(.container, edges: .horizontal)
+                    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { kbWidth = $0 }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: finished)
+        .onAppear { reader.start() }
+        .onDisappear { reader.stop() }
+        .modifier(HingeWatch { hingeClosed = $0 })
+        .navigationTitle("Learn my thumbs")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func add(_ f: [Double]) {
+        guard !finished else { return }
+        samples.append(f)
+        guard samples.count >= Self.needed else { return }
+        var s = model.settings
+        s.setTaps(samples, grip: grip.rawValue, context: context)
+        if kbWidth > 50 { s.widths[context] = Double(kbWidth) }
+        model.settings = s
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            samples = []
+            text = ""
+            step += 1
+        }
+    }
+
+    private func restart() {
+        var s = model.settings
+        s.taps[context] = nil
+        s.calib[context] = nil
+        s.learned[context] = nil
+        s.swipes[context] = nil
+        model.settings = s
+        withAnimation { samples = []; text = ""; step = 0 }
+    }
+}

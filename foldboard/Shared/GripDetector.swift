@@ -120,7 +120,9 @@ final class GripDetector {
     /// Main droite et main gauche étalonnées pour cette situation.
     var calibrated: Bool { postures[.right] != nil && postures[.left] != nil }
     /// Les appuis étalonnés (étalonnage par la frappe) : ce sont eux qui décident pendant la frappe.
-    var tapModel: KBTapModel? { didSet { evidence = [:]; evidenceTaps = 0 } }
+    var tapModel: KBTapModel? { didSet { evidence = [:]; evidenceTaps = 0; thumbs = [] } }
+    /// Pour chaque appui récent : la probabilité que ce soit le pouce droit.
+    private var thumbs: [Double] = []
     /// Étalonnage dans l'app : chaque appui est envoyé ici au lieu de déplacer le clavier.
     var onSample: (([Double]) -> Void)?
 
@@ -219,7 +221,7 @@ final class GripDetector {
     func reset() {
         rotLeft = []; rotRight = []; sizeLeft = []; sizeRight = []
         lastTap = nil; twoEvidence = []; lastVote = nil; tiltStreak = nil; tiltSide = nil
-        evidence = [:]; evidenceTaps = 0
+        evidence = [:]; evidenceTaps = 0; thumbs = []
     }
 
     /// Les mesures d'un appui, une fois le mouvement du téléphone enregistré (un quart de seconde).
@@ -242,20 +244,27 @@ final class GripDetector {
         return [ix, iy, iz, px, py, pz, roll, inc, Double(screenX), Double(radius)]
     }
 
-    /// Un appui de plus dans la balance : on garde la mémoire des derniers appuis (les plus récents comptent plus).
+    /// Quel pouce vient de taper ? Pouce droit seul : clavier à droite ; pouce gauche seul : à gauche ;
+    /// les deux qui alternent : deux mains, au milieu.
     private func weigh(_ f: [Double]) {
         guard let m = tapModel else { return }
         let p = m.probabilities(f)
-        guard !p.isEmpty else { return }
-        for g in m.grips { evidence[g] = (evidence[g] ?? 0) * 0.7 + log(p[g] ?? 0.05) }
-        evidenceTaps += 1
-        let ranked = evidence.sorted { $0.value > $1.value }
-        // Prudent : au moins 6 appuis, un net avantage, et pas de nouveau déplacement avant 6 secondes.
-        guard evidenceTaps >= 4, ranked.count >= 2, ranked[0].value - ranked[1].value > 2.0 else { return }
-        let g = ranked[0].key
-        guard g != current, now - lastEmit > 2.5 else { return }
-        if current == .two && g != .two && now - lastTwo < 2 { return }
-        evidence = [:]; evidenceTaps = 0
+        guard let pr = p[.right], let pl = p[.left] else { return }
+        thumbs.append(pr / max(0.001, pr + pl))
+        if thumbs.count > 6 { thumbs.removeFirst() }
+        let sure = thumbs.map { $0 > 0.68 ? 1 : ($0 < 0.32 ? -1 : 0) }
+        let r = sure.filter { $0 == 1 }.count, l = sure.filter { $0 == -1 }.count
+        var g: KBGrip?
+        if r >= 2 && l >= 2 {
+            g = .two
+        } else {
+            let last = sure.suffix(4)
+            let r4 = last.filter { $0 == 1 }.count, l4 = last.filter { $0 == -1 }.count
+            if last.count >= 3 && r4 >= 3 && l4 == 0 { g = .right }
+            if last.count >= 3 && l4 >= 3 && r4 == 0 { g = .left }
+        }
+        guard let g, g != current, now - lastEmit > 1.2 else { return }
+        if current == .two && g != .two && now - lastTwo < 1.5 { return }
         emit(g)
     }
 
@@ -306,6 +315,8 @@ final class GripDetector {
         if now - lastTapTime < 0.6 || now - lastEmit < 1.2 { tiltStreak = nil; return }
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
         guard let g = tiltGrip(threshold: threshold) else { tiltStreak = nil; return }
+        // Avec les pouces étalonnés, l'inclinaison ne bouge le clavier que si c'est franc.
+        if tapModel != nil && !tiltStrong { tiltStreak = nil; return }
         // Étalonné : l'inclinaison a le dernier mot (le clavier revient toujours du bon côté).
         // Sinon, on ne réagit qu'à un vrai changement d'inclinaison.
         if g == tiltSide || g == current { tiltSide = g; tiltStreak = nil; return }

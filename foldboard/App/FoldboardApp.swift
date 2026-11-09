@@ -103,7 +103,7 @@ struct HomeView: View {
                 }
 
                 Section {
-                    NavigationLink { CalibrationScreen().fullScreenDuo() } label: { Label("Calibrate my grip", systemImage: "hand.raised") }
+                    NavigationLink { GripSetup().fullScreenDuo() } label: { Label("Learn my thumbs", systemImage: "touchid") }
                     NavigationLink { PositionView().fullScreenDuo() } label: { Label("Position and size", systemImage: "hand.raised.fingers.spread") }
                     NavigationLink { LookView().fullScreenDuo() } label: { Label("Colors and font", systemImage: "paintpalette") }
                     NavigationLink { FeelView().fullScreenDuo() } label: { Label("Sound, vibrations and swipe", systemImage: "waveform") }

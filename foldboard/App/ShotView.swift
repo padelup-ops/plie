@@ -19,7 +19,7 @@ struct ShotView: View {
         case "phrases":
             NavigationStack { PhrasesView().fullScreenDuo() }
         case "calib":
-            NavigationStack { CalibrationScreen().fullScreenDuo() }
+            NavigationStack { GripSetup().fullScreenDuo() }
         case "onboarding":
             OnboardingView(onDone: {})
         case "onboarding3":

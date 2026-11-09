@@ -18,7 +18,7 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                ForEach(0..<5) { i in
+                ForEach(0..<4) { i in
                     Capsule().fill(i <= page ? Color.accentColor : Color(.systemFill)).frame(height: 4)
                 }
             }
@@ -29,8 +29,7 @@ struct OnboardingView: View {
                 switch page {
                 case 0: welcome
                 case 1: addKeyboard
-                case 2: calibrate
-                case 3: yourKeyboard
+                case 2: thumbs
                 default: trial
                 }
             }
@@ -45,7 +44,7 @@ struct OnboardingView: View {
             Spacer()
             Image("Logo").resizable().frame(width: 96, height: 96).clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
             Text("Welcome to Foldboard").font(.largeTitle.bold()).multilineTextAlignment(.center)
-            Text("The keyboard that comes to the hand holding your phone, and splits in two when you use both hands.")
+            Text("It recognises the thumb you type with and comes to it. Both thumbs: it goes to the middle.")
                 .font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
             Text("1 minute to set it up.").font(.subheadline).foregroundStyle(.secondary)
             Spacer()
@@ -75,6 +74,23 @@ struct OnboardingView: View {
             }
         }
         .padding(24)
+    }
+
+    /// Apprendre les pouces, façon Face ID (on peut le passer et le faire plus tard).
+    private var thumbs: some View {
+        VStack(spacing: 0) {
+            GripSetup(onFinish: { finishThumbs() })
+            Button("Skip for now") { finishThumbs() }
+                .font(.subheadline)
+                .padding(.bottom, 6)
+        }
+    }
+
+    private func finishThumbs() {
+        var s = model.settings
+        s.mode = .auto
+        model.settings = s
+        page = 3
     }
 
     private var calibrate: some View {

@@ -148,6 +148,21 @@ final class KeyboardCanvas: UIView {
 
         addSubview(panel)
         addSubview(topBar)
+        emojiBoard.isHidden = true
+        emojiBoard.onEmoji = { [weak self] e in
+            guard let self else { return }
+            KBFeedback.shared.tap(sound: self.eff.sound, haptics: self.eff.haptics)
+            self.input?.kbInsert(e)
+            self.refreshSuggestionsSoon()
+        }
+        emojiBoard.onABC = { [weak self] in self?.closeEmoji() }
+        emojiBoard.onDelete = { [weak self] in
+            guard let self else { return }
+            KBFeedback.shared.tap(sound: self.eff.sound, haptics: self.eff.haptics)
+            self.input?.kbDelete()
+            self.refreshSuggestionsSoon()
+        }
+        addSubview(emojiBoard)
         for b in [modeButton, flipButton, hideButton] {
             b.tintColor = .label
             topBar.addSubview(b)
@@ -210,6 +225,7 @@ final class KeyboardCanvas: UIView {
     /// Le clavier vient d'apparaître.
     func appeared() {
         visible = true
+        showEmoji = false
         if autoOn { startGrip() }
         page = .letters
         shift = .off
@@ -272,7 +288,14 @@ final class KeyboardCanvas: UIView {
             grip.rightNegative = true
             grip.tiltGap = 0
         }
-        grip.tapModel = KBTapModel(settings.taps[gripContext] ?? [:])
+        // Deux classes : pouce droit, pouce gauche. Les appuis « deux mains » comptent selon leur côté.
+        let t = settings.taps[gripContext] ?? [:]
+        let both = (t["two"] ?? []).filter { $0.count == GripDetector.featureCount }
+        let thumbs: [String: [[Double]]] = [
+            "right": (t["right"] ?? []) + both.filter { $0[8] >= 0.5 },
+            "left": (t["left"] ?? []) + both.filter { $0[8] < 0.5 },
+        ]
+        grip.tapModel = KBTapModel(thumbs)
         grip.swipeModel = KBTapModel(settings.swipes[gripContext] ?? [:], kind: .swipe)
         var postures: [KBGrip: (roll: Double, incline: Double)] = [:]
         for (k, p) in settings.calib[gripContext] ?? [:] where p.count == 2 {
@@ -435,6 +458,47 @@ final class KeyboardCanvas: UIView {
         return eff.mode
     }
 
+    /// Étalonnage : un halo lumineux autour du doigt, à chaque appui (façon Face ID).
+    private func halo(at p: CGPoint, radius: CGFloat) {
+        let r = max(26, radius * 1.5 + 14)
+        for (i, scale) in [(0, 1.0), (1, 1.35)] {
+            let ring = CAShapeLayer()
+            ring.path = UIBezierPath(ovalIn: CGRect(x: -r, y: -r, width: 2 * r, height: 2 * r)).cgPath
+            ring.position = p
+            ring.fillColor = i == 0 ? theme.accent.withAlphaComponent(0.18).cgColor : UIColor.clear.cgColor
+            ring.strokeColor = (i == 0 ? theme.accent : UIColor(red: 0.35, green: 0.9, blue: 0.75, alpha: 1)).cgColor
+            ring.lineWidth = i == 0 ? 3 : 2
+            ring.shadowColor = theme.accent.cgColor
+            ring.shadowRadius = 10
+            ring.shadowOpacity = 0.9
+            ring.shadowOffset = .zero
+            layer.addSublayer(ring)
+            let grow = CABasicAnimation(keyPath: "transform.scale")
+            grow.fromValue = 0.55
+            grow.toValue = scale * 1.25
+            let fade = CABasicAnimation(keyPath: "opacity")
+            fade.fromValue = 1
+            fade.toValue = 0
+            let group = CAAnimationGroup()
+            group.animations = [grow, fade]
+            group.duration = 0.55 + Double(i) * 0.15
+            group.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            group.fillMode = .forwards
+            group.isRemovedOnCompletion = false
+            ring.add(group, forKey: "halo")
+            DispatchQueue.main.asyncAfter(deadline: .now() + group.duration + 0.05) { ring.removeFromSuperlayer() }
+        }
+    }
+
+    private let emojiBoard = EmojiBoard()
+    private var showEmoji = false
+
+    private func closeEmoji() {
+        showEmoji = false
+        builtFor = .zero
+        rebuild()
+    }
+
     private func rebuild() {
         // Les touches vont changer : les appuis en cours s'arrêtent là.
         for tr in tracks.values {
@@ -451,6 +515,28 @@ final class KeyboardCanvas: UIView {
         let margin = CGFloat(eff.edgeMargin)
         let rows = KBLayouts.rows(page, layout: eff.layout)
         let globe = input?.kbNeedsGlobe ?? false
+
+        // Les emojis prennent la place des touches (à une main : du côté du pouce).
+        emojiBoard.isHidden = !showEmoji
+        if showEmoji {
+            var area = CGRect(x: pad, y: top, width: W - 2 * pad, height: areaH)
+            if layoutMode.isOneHand {
+                let bw = min(W - 2 * pad, max(250, W * CGFloat(eff.oneHandWidth)))
+                let x = isRight ? W - margin - bw : margin
+                area = CGRect(x: max(0, x), y: top, width: bw, height: areaH)
+            }
+            blocks = [area]
+            panelRect = .zero
+            emojiBoard.frame = area
+            emojiBoard.textColor = theme.text
+            emojiBoard.keyColor = theme.special
+            emojiBoard.accent = theme.accent
+            emojiBoard.configure(favorites: eff.emojis)
+            emojiBoard.reloadRecent()
+            rebuildPanel()
+            layoutTopBar()
+            return
+        }
 
         switch layoutMode {
         case .full:
@@ -492,6 +578,7 @@ final class KeyboardCanvas: UIView {
             let maxR = right.map { $0.keys.reduce(0) { $0 + $1.width } }.max() ?? 5
             var lb: [KeySpec] = [KeySpec(kind: .page(page == .letters ? .numbers : .letters), width: 1.5)]
             if globe { lb.append(KeySpec(kind: .globe, width: 1.1)) }
+            lb.append(KeySpec(kind: .emoji, width: 1.1))
             lb.append(KeySpec(kind: .char(eff.layout == .azerty && page == .letters ? "," : "."), width: 1))
             let used = lb.reduce(0) { $0 + $1.width }
             lb.append(KeySpec(kind: .space, width: max(1.5, maxL - used)))
@@ -718,6 +805,8 @@ final class KeyboardCanvas: UIView {
                 v.label.font = eff.font.ui(size: 17, weight: .regular)
             case .globe:
                 v.icon.image = UIImage(systemName: "globe")
+            case .emoji:
+                v.icon.image = UIImage(systemName: "face.smiling")
             }
             v.setNeedsLayout()
         }
@@ -755,6 +844,7 @@ final class KeyboardCanvas: UIView {
             }
             let tr = Track(index: i, start: p)
             tr.t0 = t.timestamp
+            if recording != nil { halo(at: p, radius: t.majorRadius) }
             tr.points = [p]
             if autoOn || recording != nil, bounds.width > 0 {
                 let lo = blocks.map { $0.minX }.min() ?? 0
@@ -954,6 +1044,10 @@ final class KeyboardCanvas: UIView {
             rebuild()
         case .globe:
             input?.kbNextKeyboard()
+        case .emoji:
+            showEmoji = true
+            builtFor = .zero
+            rebuild()
         case .backspace:
             break
         }
