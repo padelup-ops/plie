@@ -153,7 +153,7 @@
 "Not calibrated" = "Not calibrated";
 "%lld of 3" = "%lld of 3";
 "Calibrations" = "Calibrations";
-"Tap a situation to calibrate it. The arrow shows the one detected right now." = "Tap a situation to calibrate it. The arrow shows the one detected right now.";
+"Tap a situation to calibrate it. The arrow shows the one detected right now. For landscape, turn off the rotation lock." = "Tap a situation to calibrate it. The arrow shows the one detected right now. For landscape, turn off the rotation lock.";
 "Open · portrait" = "Open · portrait";
 "Open · landscape" = "Open · landscape";
 "Closed · landscape" = "Closed · landscape";

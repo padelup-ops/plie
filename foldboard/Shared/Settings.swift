@@ -178,10 +178,12 @@ struct KBSettings: Codable, Equatable {
     }
 
     /// La situation d'après la taille de l'écran : Duo ouvert (écran presque carré) ou fermé, en portrait ou en paysage.
-    static func context(screen: CGSize) -> String {
+    /// `closed` vient de la charnière (nil si inconnue : on devine alors d'après la forme de l'écran).
+    static func context(screen: CGSize, closed: Bool? = nil) -> String {
         let w = screen.width, h = screen.height
         let ratio = min(w, h) / max(1, max(w, h))
-        return (ratio > 0.6 ? "open" : "closed") + "-" + (w > h ? "landscape" : "portrait")
+        let open = closed.map { !$0 } ?? (ratio > 0.6)
+        return (open ? "open" : "closed") + "-" + (w > h ? "landscape" : "portrait")
     }
 
     static let contexts = ["closed-portrait", "open-portrait", "open-landscape", "closed-landscape"]

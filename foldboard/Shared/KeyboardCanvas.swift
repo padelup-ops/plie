@@ -218,12 +218,42 @@ final class KeyboardCanvas: UIView {
 
     /// La situation (Duo fermé ou ouvert, portrait ou paysage) et l'étalonnage qui va avec.
     private var gripContext = "closed-portrait"
-    private func updateGripContext() {
-        // La fenêtre suit l'écran réellement utilisé (Duo plié ou déplié) ; l'écran de la scène peut rester l'ancien.
+    /// La charnière du Duo : fermé (true), ouvert (false), inconnue (nil).
+    private var hingeClosed: Bool?
+    private var hingeWatched = false
+
+    /// La taille de l'écran réellement utilisé (dans le bon sens : portrait ou paysage).
+    private var screenSize: CGSize {
+        // La fenêtre suit l'écran réellement utilisé ; l'écran de la scène peut rester l'ancien.
         let win = window?.bounds.size ?? .zero
-        let screen = win.width > 0 && win.height > bounds.height * 1.8
-            ? win : (window?.windowScene?.screen.bounds.size ?? bounds.size)
-        gripContext = KBSettings.context(screen: screen)
+        if win.width > 0 && win.height > bounds.height * 1.8 { return win }
+        if let g = window?.windowScene?.effectiveGeometry {
+            let s = g.coordinateSpace.bounds.size
+            if s.width > 0 { return s }
+        }
+        return window?.windowScene?.screen.bounds.size ?? bounds.size
+    }
+
+    private func watchHinge() {
+        guard !hingeWatched else { return }
+        hingeWatched = true
+        if #available(iOS 27.1, *) {
+            addInteraction(UIHingeInteraction { [weak self] _, update in
+                guard let self else { return }
+                switch update.hinge?.status {
+                case .closed?: self.hingeClosed = true
+                case .partiallyOpen?, .fullyOpen?: self.hingeClosed = false
+                default: self.hingeClosed = nil
+                }
+                self.updateGripContext()
+                self.builtFor = .zero
+                self.setNeedsLayout()
+            })
+        }
+    }
+
+    private func updateGripContext() {
+        gripContext = KBSettings.context(screen: screenSize, closed: hingeClosed)
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
         if let r, let l, abs(r - l) >= 3 {
             grip.tiltMid = (r + l) / 2
@@ -244,6 +274,7 @@ final class KeyboardCanvas: UIView {
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
+        watchHinge()
         updateGripContext()
     }
 
@@ -365,9 +396,7 @@ final class KeyboardCanvas: UIView {
     /// Deux moitiés seulement sur un écran large : l'écran déplié du Duo (presque carré), ou un iPhone en paysage.
     /// Sur l'écran extérieur ou un iPhone classique en portrait, le clavier reste en pleine largeur.
     private var splitAllowed: Bool {
-        let screen = window?.windowScene?.screen.bounds.size ?? bounds.size
-        let ratio = min(screen.width, screen.height) / max(1, max(screen.width, screen.height))
-        return bounds.width >= 600 || (ratio > 0.6 && bounds.width >= 360)
+        bounds.width >= 600 || (gripContext.hasPrefix("open") && bounds.width >= 360)
     }
 
     /// Le mode réellement possible à cette largeur (deux mains : il faut de la place).

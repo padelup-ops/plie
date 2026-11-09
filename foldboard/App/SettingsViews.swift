@@ -574,8 +574,11 @@ struct TiltCalibration: View {
         let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
         let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
         let size = window?.bounds.size ?? scene?.screen.bounds.size ?? .zero
-        return KBSettings.context(screen: size)
+        return KBSettings.context(screen: size, closed: hingeClosed)
     }
+
+    /// La charnière du Duo (fermé / ouvert), lue par l'API d'Apple quand elle existe.
+    @State private var hingeClosed: Bool?
 
     /// La situation qu'on étalonne.
     private var context: String { picked ?? detected }
@@ -598,6 +601,7 @@ struct TiltCalibration: View {
         }
         .onAppear { reader.start() }
         .onDisappear { reader.stop() }
+        .modifier(HingeWatch { hingeClosed = $0 })
 
         Section {
             ForEach(KBSettings.contexts, id: \.self) { c in
@@ -628,7 +632,7 @@ struct TiltCalibration: View {
         } header: {
             Text("Calibrations")
         } footer: {
-            Text("Tap a situation to calibrate it. The arrow shows the one detected right now.")
+            Text("Tap a situation to calibrate it. The arrow shows the one detected right now. For landscape, turn off the rotation lock.")
         }
     }
 
@@ -656,5 +660,25 @@ struct TiltCalibration: View {
             }
         }
         .disabled(reader.roll == nil)
+    }
+}
+
+/// Suit la charnière du Duo : fermé (true), ouvert (false), inconnue (nil).
+struct HingeWatch: ViewModifier {
+    let action: (Bool?) -> Void
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 27.1, *) {
+            content.onHingeChange { _, context in
+                switch context.hinge?.status {
+                case .closed?: action(true)
+                case .partiallyOpen?, .fullyOpen?: action(false)
+                default: action(nil)
+                }
+            }
+        } else {
+            content
+        }
     }
 }
