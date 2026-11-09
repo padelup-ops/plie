@@ -116,6 +116,9 @@ final class GripDetector {
     /// Sans étalonnage, deviner quand même avec les capteurs (non sur le Duo ouvert : ses capteurs ne sont pas
     /// dans le sens de l'écran intérieur, la devinette serait à l'envers).
     var guessUncalibrated = true
+    /// Sans réglage : placer quand même le clavier à son apparition, d'après le sens où penche le téléphone
+    /// (il penche du côté de la main qui le tient). Écran extérieur seulement.
+    var defaultTilt = false
 
     /// Main droite et main gauche étalonnées pour cette situation.
     var calibrated: Bool { postures[.right] != nil && postures[.left] != nil }
@@ -207,6 +210,13 @@ final class GripDetector {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
             guard let self else { return }
             let g = self.tiltGrip(threshold: min(5, self.switchThreshold))
+            self.tiltSide = g
+            initial(g)
+        }
+        // Une deuxième lecture, une fois le téléphone bien en main (le toucher qui ouvre le clavier le fait bouger).
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            guard let self, !self.locked, self.now - self.lastTapTime > 1 else { return }
+            guard let g = self.tiltGrip(threshold: min(5, self.switchThreshold)), g != self.tiltSide else { return }
             self.tiltSide = g
             initial(g)
         }
@@ -324,7 +334,7 @@ final class GripDetector {
     /// La main d'après l'inclinaison, si le téléphone n'est pas posé à plat et penche assez.
     private func tiltGrip(threshold: Double) -> KBGrip? {
         if calibrated { return postureGrip() }
-        if tiltGap < 4 && !guessUncalibrated { return nil }
+        if tiltGap < 4 && !guessUncalibrated && !defaultTilt { return nil }
         guard let a = currentAngle else { return nil }
         let d = kbWrap(a - tiltMid)
         guard abs(d) >= threshold else { return nil }
@@ -336,6 +346,8 @@ final class GripDetector {
     private func checkTilt() {
         // L'inclinaison place le clavier quand il apparaît ; ensuite, elle ne le bouge que si le téléphone change
         // franchement de main pendant une pause (pas de frappe depuis 2 s, rien bougé depuis 5 s).
+        // Sans le test « main droite, main gauche », le clavier est placé à son apparition, puis il ne bouge plus.
+        guard calibrated else { return }
         if locked || now - lastTapTime < 1.0 || now - lastEmit < 1.5 { tiltStreak = nil; return }
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
         guard let g = tiltGrip(threshold: threshold) else { tiltStreak = nil; return }

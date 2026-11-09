@@ -29,7 +29,11 @@ struct OnboardingView: View {
                 switch page {
                 case 0: welcome
                 case 1: addKeyboard
-                case 2: PlaceTutorial(onFinish: { page = 3 })
+                case 2:
+                    VStack(spacing: 0) {
+                        PlaceTutorial(onFinish: { page = 3 })
+                        Button("Skip for now") { page = 3 }.font(.subheadline).padding(.bottom, 6)
+                    }
                 default: trial
                 }
             }
@@ -44,7 +48,7 @@ struct OnboardingView: View {
             Spacer()
             Image("Logo").resizable().frame(width: 96, height: 96).clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
             Text("Welcome to Foldboard").font(.largeTitle.bold()).multilineTextAlignment(.center)
-            Text("Tap the free space on a side: the keyboard comes to that side. Tap near the centre: it goes to the middle.")
+            Text("The keyboard comes out under the thumb of the hand holding your phone. On the open Duo, it splits in two.")
                 .font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
             Text("1 minute to set it up.").font(.subheadline).foregroundStyle(.secondary)
             Spacer()

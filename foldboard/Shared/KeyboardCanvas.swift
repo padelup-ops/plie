@@ -287,6 +287,7 @@ final class KeyboardCanvas: UIView {
         if demoOneHand { c = "closed-portrait" }
         gripContext = c
         grip.guessUncalibrated = false
+        grip.defaultTilt = !gripContext.hasPrefix("open")
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
         if let r, let l, abs(kbWrap(r - l)) >= 3 {
             let mid = kbWrap(r + kbWrap(l - r) / 2)
@@ -294,8 +295,9 @@ final class KeyboardCanvas: UIView {
             grip.rightNegative = kbWrap(r - mid) < 0
             grip.tiltGap = abs(kbWrap(r - l))
         } else {
+            // Sans réglage : le téléphone penche du côté de la main qui le tient (haut vers la gauche : main gauche).
             grip.tiltMid = 0
-            grip.rightNegative = true
+            grip.rightNegative = false
             grip.tiltGap = 0
         }
         // Deux classes : pouce droit, pouce gauche. Les appuis « deux mains » comptent selon leur côté.
@@ -427,6 +429,9 @@ final class KeyboardCanvas: UIView {
             let right = p.x > W / 2
             if auto { s.autoTwo = false; s.autoRight = right } else { s.mode = right ? .right : .left }
             grip.current = right ? .right : .left
+            // Le clavier retient comment le téléphone penche quand tu le veux de ce côté : il sortira du bon
+            // côté tout seul la prochaine fois.
+            if let a = grip.currentAngle { s.learn(roll: a, right: right, context: gripContext) }
         }
         guard s != settings else { return }
         KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))

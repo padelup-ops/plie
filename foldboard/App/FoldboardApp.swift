@@ -62,7 +62,7 @@ struct HomeView: View {
                                 Text("The keyboard made for iPhone Duo").font(.subheadline).foregroundStyle(.secondary)
                             }
                         }
-                        Text("Outer screen: tap the free space on a side and the keyboard comes there. Inner screen: it splits in two, like Apple's.")
+                        Text("Outer screen: the keyboard comes out on the side of the hand holding the phone. Inner screen: it splits in two, like Apple's.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
