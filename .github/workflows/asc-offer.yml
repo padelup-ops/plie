@@ -62,4 +62,4 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/r" && touch offer.txt && cp offer.txt "$RUNNER_TEMP/r/" && (cp codes.csv "$RUNNER_TEMP/r/" 2>/dev/null || true) && cd "$RUNNER_TEMP/r"
           git init -q -b ci-offer-codes && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
-          git add -A && git commit -qm "Codes d'offre" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-offer-codes
+          git add -A && git commit -qm "Codes d'offre" && B=ci-offer-codes; [ "${{ inputs.mode }}" = "probe" ] && B=ci-offer-probe; git branch -m "$B" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$B"

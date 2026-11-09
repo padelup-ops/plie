@@ -62,11 +62,23 @@ offers = call("GET", f"/v2/inAppPurchases/{iap_id}/offerCodes?limit=50")
 show("offres existantes", offers)
 
 if MODE == "probe":
-    for o in offers.get("data", [])[:2]:
+    for o in offers.get("data", [])[:6]:
         oid = o["id"]
         show("offre + prix", call("GET", f"/v1/inAppPurchaseOfferCodes/{oid}?include=prices"))
         show("prix", call("GET", f"/v1/inAppPurchaseOfferCodes/{oid}/prices?limit=3&include=territory,pricePoint"))
         show("codes à usage unique", call("GET", f"/v1/inAppPurchaseOfferCodes/{oid}/oneTimeUseCodes?limit=5"))
+        cc = call("GET", f"/v1/inAppPurchaseOfferCodes/{oid}/customCodes?limit=10")
+        for c in cc.get("data", []):
+            a = c["attributes"]
+            print(f"CODE PERSO {o['attributes'].get('name')!r}: {a.get('customCode')} · {a.get('numberOfCodes')} utilisations · expire {a.get('expirationDate')} · actif {a.get('active')}")
+        fr = call("GET", f"/v1/inAppPurchaseOfferCodes/{oid}/prices?filter[territory]=FRA&include=pricePoint&limit=1")
+        for x in fr.get("included", []):
+            print(f"PRIX FRANCE {o['attributes'].get('name')!r}: {x['attributes'].get('customerPrice')} €")
+    mp = call("GET", f"/v1/inAppPurchasePriceSchedules/{iap_id}/manualPrices?include=inAppPurchasePricePoint&filter[territory]=FRA&limit=50")
+    pts = {x["id"]: x for x in mp.get("included", []) if x["type"] == "inAppPurchasePricePoints"}
+    for p in mp.get("data", []):
+        pid = p["relationships"]["inAppPurchasePricePoint"]["data"]["id"]
+        print(f"PRIX DU PASS (France) {pts.get(pid, {}).get('attributes', {}).get('customerPrice')} € du {p['attributes'].get('startDate')} au {p['attributes'].get('endDate')}")
     show("points de prix (extrait)", call("GET", f"/v2/inAppPurchases/{iap_id}/pricePoints?filter[territory]=FRA&limit=3"))
     sys.exit(0)
 
