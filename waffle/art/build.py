@@ -19,6 +19,9 @@ def items():
     for lvl in range(5):
         out[f"waffle{lvl}"] = (art.waffle(lvl), 1)   # en grand sur l'écran du bas
     out["batter"] = (art.batter(), 1)
+    for lvl in range(5):
+        out[f"crepe{lvl}"] = (art.crepe(lvl), 1)
+    out["crepe_batter"] = (art.crepe_batter(), 1)
     out["jug"] = (art.jug(), 3)
     for name, fn in art.INGREDIENTS.items():
         out[f"ing_{name}"] = (fn(), 1)

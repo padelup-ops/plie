@@ -145,14 +145,19 @@ enum Haptics {
 
 // MARK: - La charnière de l'iPhone Duo
 
+/// La charnière du Duo : fermé ou ouvert (si iOS le sait) et l'angle.
 struct HingeReader: ViewModifier {
-    let action: (Double?) -> Void
+    let action: (Bool?, Double?) -> Void
 
     @ViewBuilder
     func body(content: Content) -> some View {
         #if DUO_SDK
         if #available(iOS 27.1, *) {
-            content.onHingeChange { _, ctx in action(ctx.hinge?.angle.degrees) }
+            content.onHingeChange { _, ctx in
+                guard let hinge = ctx.hinge else { action(nil, nil); return }
+                let closed: Bool? = hinge.status == .closed ? true : (hinge.status == .fullyOpen || hinge.status == .partiallyOpen ? false : nil)
+                action(closed, hinge.angle.degrees)
+            }
         } else {
             content
         }
@@ -163,7 +168,7 @@ struct HingeReader: ViewModifier {
 }
 
 extension View {
-    func onHinge(_ action: @escaping (Double?) -> Void) -> some View { modifier(HingeReader(action: action)) }
+    func onHinge(_ action: @escaping (Bool?, Double?) -> Void) -> some View { modifier(HingeReader(action: action)) }
 }
 
 // MARK: - L'écran principal

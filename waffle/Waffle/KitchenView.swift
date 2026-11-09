@@ -40,13 +40,17 @@ struct KitchenView: View {
         }
         .ignoresSafeArea()
         .onReceive(ticker) { _ in kitchen.tick(1.0 / 30.0) }
-        .onHinge { kitchen.hinge($0) }
+        .onHinge { kitchen.hinge(closed: $0, degrees: $1) }
         .onDisappear { Sound.stopLoop() }
         .onAppear { if kitchen.free { kitchen.start() } }
         .onChange(of: kitchen.phase) { _, p in
             if p == .served, let s = kitchen.last { progress.recordRecipe(s.recipeID, stars: s.stars) }
             if p == .dayOver {
                 if kitchen.rush { progress.recordRush(kitchen.coins) } else { progress.record(day: kitchen.day, stars: kitchen.dayStars) }
+                if kitchen.isContest && kitchen.dayStars == 3 {
+                    progress.winTrophy(kitchen.day)
+                    if kitchen.day == 30, let gold = IronModel.all.first(where: { $0.trophy }) { Shop.shared.give(gold) }
+                }
                 progress.earn(kitchen.coins - credited)
                 credited = kitchen.coins
             }
@@ -134,7 +138,7 @@ struct KitchenView: View {
             Worktop()
                 .frame(width: cook.width, height: cook.height)
                 .offset(x: cook.minX, y: cook.minY)
-            IronPlate(hingeEdge: sideBySide ? .leading : .top)
+            IronPlate(hingeEdge: sideBySide ? .leading : .top, crepe: kitchen.isCrepe)
                 .frame(width: ironRect.width, height: ironRect.height)
                 .position(x: ironRect.midX, y: ironRect.midY)
             PlateView(kitchen: kitchen, size: waffle,
@@ -154,6 +158,13 @@ struct KitchenView: View {
                 Bubble(text: hint)
                     .position(x: cook.midX, y: sideBySide ? cook.maxY - max(safe.bottom, 8) - 34 : cook.minY + 30)
                     .transition(.scale.combined(with: .opacity))
+            }
+            if let coach = kitchen.coach, kitchen.phase != .ready {
+                CoachBubble(text: coach)
+                    .frame(width: min(W - 24, 420))
+                    .position(x: W / 2, y: sideBySide ? H - max(safe.bottom, 8) - 60 : H / 2)
+                    .transition(.scale.combined(with: .opacity))
+                    .allowsHitTesting(false)
             }
             if kitchen.phase == .served || kitchen.phase == .gone, let s = kitchen.last {
                 ResultCard(served: s)
@@ -184,6 +195,8 @@ struct KitchenView: View {
 struct IronPlate: View {
     /// Le côté de la charnière du Duo (là où le gaufrier s'articule).
     var hingeEdge: Edge = .top
+    /// Une crêpière : plaque lisse et ronde.
+    var crepe = false
 
     var body: some View {
         GeometryReader { g in
@@ -193,7 +206,7 @@ struct IronPlate: View {
                 // l'ombre et le corps
                 RoundedRectangle(cornerRadius: 40, style: .continuous).fill(Ink.line).offset(y: 6)
                 RoundedRectangle(cornerRadius: 40, style: .continuous)
-                    .fill(LinearGradient(colors: [Decor.shared.color(.iron, 0), Decor.shared.color(.iron, 1)], startPoint: .top, endPoint: .bottom))
+                    .fill(LinearGradient(colors: [Shop.shared.ironColor(0), Shop.shared.ironColor(1)], startPoint: .top, endPoint: .bottom))
                 RoundedRectangle(cornerRadius: 40, style: .continuous).strokeBorder(Ink.line, lineWidth: 5)
                 // reflet
                 Capsule().fill(.white.opacity(0.35))
@@ -205,6 +218,13 @@ struct IronPlate: View {
                     .fill(LinearGradient(colors: [Color(hex: 0x4A4650), Color(hex: 0x2B2830)], startPoint: .top, endPoint: .bottom))
                     .overlay(
                         Canvas { ctx, size in
+                            if crepe {
+                                let d = min(size.width, size.height) * 0.92
+                                let r = CGRect(x: (size.width - d) / 2, y: (size.height - d) / 2, width: d, height: d)
+                                ctx.fill(Path(ellipseIn: r), with: .color(Color(hex: 0x1E1C22)))
+                                ctx.stroke(Path(ellipseIn: r.insetBy(dx: d * 0.04, dy: d * 0.04)), with: .color(Color(hex: 0x57525E).opacity(0.6)), lineWidth: 3)
+                                return
+                            }
                             let n = 9.0
                             let cell = min(size.width, size.height) / n
                             let cols = Int(size.width / cell), rows = Int(size.height / cell)
@@ -227,6 +247,11 @@ struct IronPlate: View {
                     .frame(width: alongX ? W * 0.34 : 18, height: alongX ? 18 : H * 0.34)
                     .position(x: hingeEdge == .leading ? 0 : (hingeEdge == .trailing ? W : W / 2),
                               y: hingeEdge == .top ? 0 : (hingeEdge == .bottom ? H : H / 2))
+                if Shop.shared.iron.shine {
+                    Image(systemName: "sparkles").font(.system(size: 26, weight: .bold)).foregroundStyle(.white)
+                        .shadow(color: Shop.shared.ironColor(1), radius: 4)
+                        .position(x: W - inset * 1.4, y: inset * 1.2)
+                }
                 // le voyant
                 Circle().fill(Color(hex: 0xFF6B5A)).overlay(Circle().strokeBorder(Ink.line, lineWidth: 4))
                     .overlay(Circle().fill(.white.opacity(0.8)).frame(width: 6, height: 6).offset(x: -3, y: -3))
@@ -304,12 +329,12 @@ struct PlateView: View {
         ZStack {
             switch kitchen.phase {
             case .poured, .cooking:
-                Image("batter").resizable().scaledToFit()
+                Image(kitchen.isCrepe ? "crepe_batter" : "batter").resizable().scaledToFit()
                     .frame(width: size * 0.92)
                     .transition(.scale(scale: 0.2).combined(with: .opacity))
             case .topping, .served:
                 ZStack {
-                    Image(kitchen.cooked.image).resizable().scaledToFit()
+                    Image(kitchen.cooked.image(crepe: kitchen.isCrepe)).resizable().scaledToFit()
                     ForEach(Array(kitchen.stack.enumerated()), id: \.offset) { _, ing in
                         Image(ing.image).resizable().scaledToFit()
                             .transition(.asymmetric(insertion: .scale(scale: 1.5).combined(with: .opacity), removal: .opacity))
@@ -466,6 +491,19 @@ struct TrayView: View {
         let items = kitchen.tray
         let cols = max(1, min(6, items.count <= 6 ? items.count : Int(ceil(Double(items.count) / 2))))
         return GeometryReader { g in
+            if items.count > 12 {
+                // Beaucoup de garnitures : deux rangées qui défilent.
+                let cell = min((g.size.height - 6) / 2, 74)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHGrid(rows: [GridItem(.fixed(cell), spacing: 6), GridItem(.fixed(cell), spacing: 6)], spacing: 8) {
+                        ForEach(items) { ing in
+                            IngredientButton(image: ing.image, name: ing.name, highlight: false, size: cell) { kitchen.add(ing) }
+                        }
+                    }
+                    .padding(.horizontal, 4)
+                }
+                .frame(width: g.size.width, height: g.size.height)
+            } else {
             let rows = Int(ceil(Double(items.count) / Double(cols)))
             let cell = min((g.size.width - CGFloat(cols - 1) * 10) / CGFloat(cols), (g.size.height - CGFloat(max(0, rows - 1)) * 4) / CGFloat(max(1, rows)), 92)
             LazyVGrid(columns: Array(repeating: GridItem(.fixed(cell), spacing: 10), count: cols), spacing: 4) {
@@ -474,6 +512,7 @@ struct TrayView: View {
                 }
             }
             .frame(width: g.size.width, height: g.size.height, alignment: .center)
+            }
         }
         .opacity(kitchen.phase == .topping ? 1 : 0.45)
         .allowsHitTesting(kitchen.phase == .topping)
@@ -672,6 +711,17 @@ struct StartCard: View {
             VStack(spacing: 14) {
                 Text(kitchen.rush ? "Rush" : T("Jour \(kitchen.day)", "Day \(kitchen.day)"))
                     .font(.toon(40, .black)).foregroundStyle(Ink.line)
+                if kitchen.isContest {
+                    let medal = kitchen.day == 10 ? T("bronze", "bronze") : kitchen.day == 20 ? T("argent", "silver") : T("or", "gold")
+                    Label(T("Concours de la Gaufre d'Or : 3 étoiles pour le trophée en \(medal) !", "Golden Waffle contest: 3 stars for the \(medal) trophy!"), systemImage: "trophy.fill")
+                        .font(.toon(15)).foregroundStyle(.white).multilineTextAlignment(.center)
+                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .background(Capsule().fill(Ink.red))
+                }
+                if kitchen.day == 20 && !kitchen.rush {
+                    Text(T("Nouveau : la crêpière ! Les crêpes arrivent au menu.", "New: the crêpe maker! Crêpes join the menu."))
+                        .font(.toon(14, .bold)).foregroundStyle(Ink.orange).multilineTextAlignment(.center)
+                }
                 Text(kitchen.rush ? T("Les clients arrivent de plus en plus vite. 3 ratés et c'est fini.", "Customers come faster and faster. 3 misses and it's over.")
                                   : T("Objectif : \(kitchen.target) pièces en 100 secondes", "Goal: \(kitchen.target) coins in 100 seconds"))
                     .font(.toon(16, .bold)).foregroundStyle(Ink.line.opacity(0.8)).multilineTextAlignment(.center)
@@ -681,17 +731,21 @@ struct StartCard: View {
                         ForEach(fresh) { r in
                             HStack(spacing: 6) {
                                 Text(r.name).font(.toon(17)).foregroundStyle(Ink.line)
-                                ForEach(Array(r.layers.enumerated()), id: \.offset) { _, ing in
-                                    Image(ing.image).resizable().scaledToFit().frame(width: 30, height: 30)
+                                ZStack {
+                                    Image(r.crepe ? "crepe2" : "waffle2").resizable().scaledToFit()
+                                    ForEach(Array(r.layers.enumerated()), id: \.offset) { _, ing in
+                                        Image(ing.image).resizable().scaledToFit()
+                                    }
                                 }
+                                .frame(width: 40, height: 40)
                             }
                         }
                     }
                     .padding(12)
                     .background(RoundedRectangle(cornerRadius: 16).fill(Color(hex: 0xFFF1D6)))
                 }
-                Text(T("Verse la pâte, ferme le Duo pour cuire, rouvre quand le curseur est dans le vert, puis garnis comme sur le ticket !",
-                       "Pour the batter, close the Duo to cook, open it when the cursor is in the green, then top it like the ticket!"))
+                Text(T("Verse la pâte, ferme le Duo pour cuire, rouvre au bon moment, puis garnis comme sur le ticket !",
+                       "Pour the batter, close the Duo to cook, open it at the right time, then top it like the ticket!"))
                     .font(.toon(14, .semibold)).foregroundStyle(Ink.line.opacity(0.75)).multilineTextAlignment(.center)
                 Button {
                     kitchen.start()
@@ -730,6 +784,11 @@ struct SummaryCard: View {
                                 .offset(y: i == 1 ? -8 : 0)
                         }
                     }
+                }
+                if kitchen.isContest && kitchen.dayStars == 3 {
+                    Label(kitchen.day == 30 ? T("Gaufre d'Or gagnée ! Le gaufrier en or est à toi.", "Golden Waffle won! The golden iron is yours.")
+                                            : T("Trophée gagné !", "Trophy won!"), systemImage: "trophy.fill")
+                        .font(.toon(17)).foregroundStyle(Color(hex: 0xA8601F)).multilineTextAlignment(.center)
                 }
                 HStack(spacing: 8) {
                     Image("coin").resizable().frame(width: 34, height: 34)
@@ -788,6 +847,11 @@ struct CookingView: View {
                 LidTop(kitchen: kitchen)
                     .frame(width: W - 28, height: H - safeTop - safeBottom - buttonH - 8)
                     .position(x: W / 2, y: safeTop + (H - safeTop - safeBottom - buttonH - 8) / 2)
+                if let coach = kitchen.coach {
+                    CoachBubble(text: coach)
+                        .frame(width: W - 40)
+                        .position(x: W / 2, y: safeTop + H * 0.3)
+                }
                 if !kitchen.hasHinge {
                     Button {
                         kitchen.toggleLid()
@@ -824,7 +888,7 @@ struct LidTop: View {
                 // le corps
                 RoundedRectangle(cornerRadius: 48, style: .continuous).fill(Ink.line).offset(y: 8)
                 RoundedRectangle(cornerRadius: 48, style: .continuous)
-                    .fill(RadialGradient(colors: [Decor.shared.color(.iron, 0).opacity(0.85), Decor.shared.color(.iron, 0), Decor.shared.color(.iron, 1)],
+                    .fill(RadialGradient(colors: [Shop.shared.ironColor(0).opacity(0.85), Shop.shared.ironColor(0), Shop.shared.ironColor(1)],
                                          center: UnitPoint(x: 0.35, y: 0.25), startRadius: 10, endRadius: max(W, H)))
                 RoundedRectangle(cornerRadius: 48, style: .continuous).strokeBorder(Ink.line, lineWidth: 6)
                 // le reflet
@@ -894,7 +958,7 @@ struct EmbossedGrid: View {
             for c in 0..<Int(cols) { for r in 0..<Int(rows) {
                 let rect = CGRect(x: Double(c) * cw + (cw - s * 0.78) / 2, y: Double(r) * rh + (rh - s * 0.78) / 2, width: s * 0.78, height: s * 0.78)
                 ctx.fill(Path(roundedRect: rect.offsetBy(dx: 0, dy: 3), cornerRadius: s * 0.16), with: .color(Color.black.opacity(0.22)))
-                ctx.fill(Path(roundedRect: rect, cornerRadius: s * 0.16), with: .color(Decor.shared.color(.iron, 0).opacity(0.9)))
+                ctx.fill(Path(roundedRect: rect, cornerRadius: s * 0.16), with: .color(Shop.shared.ironColor(0).opacity(0.9)))
                 ctx.fill(Path(roundedRect: rect.insetBy(dx: s * 0.1, dy: s * 0.1).offsetBy(dx: -s * 0.03, dy: -s * 0.03), cornerRadius: s * 0.1),
                          with: .color(.white.opacity(0.22)))
             } }
@@ -1019,5 +1083,21 @@ struct Steam: View {
             }
         }
         .allowsHitTesting(false)
+    }
+}
+
+/// Le conseil du tutoriel : une grande bulle bien visible.
+struct CoachBubble: View {
+    let text: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Text(verbatim: "👨‍🍳").font(.system(size: 30))
+            Text(text).font(.toon(16, .bold)).foregroundStyle(Ink.line).fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 20).fill(Color(hex: 0xFFF7D6)))
+        .background(RoundedRectangle(cornerRadius: 20).fill(Ink.line).offset(y: 4))
+        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Ink.orange, lineWidth: 3.5))
     }
 }

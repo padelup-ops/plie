@@ -9,6 +9,8 @@ import SwiftUI
 
 enum Ingredient: String, CaseIterable, Identifiable {
     case sugar, spread, cream, strawberry, banana, caramel, honey, chocmelt, jam, icecream, sprinkles, almonds
+    case chocobar, wafer, cookie, speculoos, coconut, blueberry, marshmallow, pistachio
+    case ham, cheese, egg, avocado, salmon, tomato, bacon, rocket, sourcream, chives, cheesesauce
 
     var id: String { rawValue }
     var image: String { "ing_" + rawValue }
@@ -27,6 +29,33 @@ enum Ingredient: String, CaseIterable, Identifiable {
         case .icecream: return T("Glace vanille", "Vanilla ice cream")
         case .sprinkles: return T("Vermicelles", "Sprinkles")
         case .almonds: return T("Amandes", "Almonds")
+        case .chocobar: return T("Barre choco-caramel", "Choc-caramel bar")
+        case .wafer: return T("Gaufrette noisette", "Hazelnut wafer")
+        case .cookie: return T("Cookie", "Cookie")
+        case .speculoos: return T("Spéculoos", "Speculoos")
+        case .coconut: return T("Coco râpée", "Coconut")
+        case .blueberry: return T("Myrtilles", "Blueberries")
+        case .marshmallow: return T("Guimauves", "Marshmallows")
+        case .pistachio: return T("Crème pistache", "Pistachio cream")
+        case .ham: return T("Jambon", "Ham")
+        case .cheese: return T("Fromage râpé", "Grated cheese")
+        case .egg: return T("Œuf", "Egg")
+        case .avocado: return T("Avocat", "Avocado")
+        case .salmon: return T("Saumon", "Salmon")
+        case .tomato: return T("Tomates", "Tomatoes")
+        case .bacon: return T("Bacon", "Bacon")
+        case .rocket: return T("Roquette", "Rocket")
+        case .sourcream: return T("Crème fraîche", "Sour cream")
+        case .chives: return T("Ciboulette", "Chives")
+        case .cheesesauce: return T("Sauce cheddar", "Cheddar sauce")
+        }
+    }
+
+    /// Salé (jambon, fromage…) ou sucré.
+    var savory: Bool {
+        switch self {
+        case .ham, .cheese, .egg, .avocado, .salmon, .tomato, .bacon, .rocket, .sourcream, .chives, .cheesesauce: return true
+        default: return false
         }
     }
 }
@@ -38,7 +67,10 @@ struct Recipe: Identifiable {
     let layers: [Ingredient]
     /// Le premier jour où on la voit.
     let day: Int
+    /// Une crêpe (dès le jour 20, avec la crêpière) plutôt qu'une gaufre.
+    var crepe = false
     var name: String { T(fr, en) }
+    var savory: Bool { layers.contains { $0.savory } }
 
     static let all: [Recipe] = [
         Recipe(id: "sucre", fr: "Gaufre au sucre", en: "Sugar waffle", layers: [.sugar], day: 1),
@@ -53,6 +85,26 @@ struct Recipe: Identifiable {
         Recipe(id: "miel", fr: "Miel-amandes", en: "Honey & almonds", layers: [.honey, .almonds], day: 8),
         Recipe(id: "fete", fr: "La fête", en: "Party waffle", layers: [.cream, .sprinkles], day: 9),
         Recipe(id: "totale", fr: "La totale", en: "The works", layers: [.spread, .strawberry, .cream, .sprinkles], day: 10),
+        Recipe(id: "croquante", fr: "La croquante", en: "The crunchy one", layers: [.spread, .chocobar], day: 11),
+        Recipe(id: "noisette", fr: "Noisette-croustille", en: "Hazelnut crunch", layers: [.spread, .wafer, .cream], day: 12),
+        Recipe(id: "cookie", fr: "Cookie-glace", en: "Cookie & ice cream", layers: [.icecream, .cookie], day: 13),
+        Recipe(id: "speculoos", fr: "Spéculoos-caramel", en: "Speculoos & caramel", layers: [.caramel, .speculoos], day: 14),
+        Recipe(id: "jambonfromage", fr: "Gaufre jambon-fromage", en: "Ham & cheese waffle", layers: [.ham, .cheese], day: 15),
+        Recipe(id: "coco", fr: "Coco-myrtille", en: "Coconut & blueberry", layers: [.cream, .blueberry, .coconut], day: 16),
+        Recipe(id: "guimauve", fr: "Guimauve party", en: "Marshmallow party", layers: [.chocmelt, .marshmallow, .sprinkles], day: 17),
+        Recipe(id: "brunch", fr: "Gaufre brunch", en: "Brunch waffle", layers: [.bacon, .egg], day: 18),
+        Recipe(id: "pistache", fr: "Pistache-fraise", en: "Pistachio & strawberry", layers: [.pistachio, .strawberry], day: 19),
+        Recipe(id: "crepesucre", fr: "Crêpe au sucre", en: "Sugar crêpe", layers: [.sugar], day: 20, crepe: true),
+        Recipe(id: "crepechoco", fr: "Crêpe choco-banane", en: "Choc & banana crêpe", layers: [.spread, .banana], day: 20, crepe: true),
+        Recipe(id: "complete", fr: "Crêpe complète", en: "Ham, cheese & egg crêpe", layers: [.ham, .cheese, .egg], day: 21, crepe: true),
+        Recipe(id: "avosaumon", fr: "Gaufre avocat-saumon", en: "Avocado & salmon waffle", layers: [.avocado, .salmon], day: 22),
+        Recipe(id: "nordique", fr: "Crêpe nordique", en: "Nordic crêpe", layers: [.sourcream, .salmon, .chives], day: 23, crepe: true),
+        Recipe(id: "italienne", fr: "Gaufre à l'italienne", en: "Italian waffle", layers: [.tomato, .cheese, .rocket], day: 24),
+        Recipe(id: "crepecaramel", fr: "Crêpe caramel-amandes", en: "Caramel & almond crêpe", layers: [.caramel, .almonds], day: 25, crepe: true),
+        Recipe(id: "cheddar", fr: "Crêpe bacon-cheddar", en: "Bacon & cheddar crêpe", layers: [.bacon, .cheesesauce], day: 26, crepe: true),
+        Recipe(id: "crepetotale", fr: "La crêpe totale", en: "The works crêpe", layers: [.spread, .strawberry, .banana, .cream], day: 27, crepe: true),
+        Recipe(id: "crepenoisette", fr: "Crêpe noisette-croustille", en: "Hazelnut crunch crêpe", layers: [.spread, .wafer], day: 28, crepe: true),
+        Recipe(id: "crepebarre", fr: "Crêpe choco-caramel", en: "Choc-caramel crêpe", layers: [.chocmelt, .chocobar], day: 28, crepe: true),
     ]
 }
 
@@ -71,6 +123,7 @@ enum Doneness: Int {
     }
 
     var image: String { "waffle\(rawValue)" }
+    func image(crepe: Bool) -> String { crepe ? "crepe\(rawValue)" : image }
 
     var label: String {
         switch self {
@@ -182,6 +235,13 @@ final class Career {
 
     /// Le jour suivant s'ouvre dès qu'on a eu au moins une étoile.
     func isOpen(_ day: Int) -> Bool { day == 1 || (stars[day - 1] ?? 0) > 0 }
+
+    /// Les trophées de la Gaufre d'Or (jours 10, 20, 30).
+    private(set) var trophies: Set<Int> = Set(UserDefaults.standard.array(forKey: "waffle.trophies") as? [Int] ?? [])
+    func winTrophy(_ day: Int) {
+        trophies.insert(day)
+        UserDefaults.standard.set(Array(trophies), forKey: "waffle.trophies")
+    }
     var totalStars: Int { stars.values.reduce(0, +) }
 }
 
@@ -201,7 +261,9 @@ final class Kitchen {
         case created
     }
 
-    static let lastDay = 15
+    static let lastDay = 30
+    /// Les concours de la Gaufre d'Or : bronze, argent, or.
+    static let contestDays = [10, 20, 30]
     static let freeDays = 3
     static let shiftLength: Double = 100
 
@@ -245,17 +307,37 @@ final class Kitchen {
 
     /// Atelier libre : pas de client, pas de chrono, toutes les garnitures.
     let free: Bool
+    /// Le tutoriel : la première gaufre du jour 1 (curseur plus lent, client patient, chrono arrêté).
+    private(set) var tutorial: Bool
+    static let tutorialKey = "waffle.tutorialDone"
     static let freeLayers = 6
 
     init(day: Int, rush: Bool = false, free: Bool = false) {
         self.day = rush || free ? Kitchen.lastDay : day
         self.rush = rush
         self.free = free
+        self.tutorial = !rush && !free && day == 1 && !UserDefaults.standard.bool(forKey: Self.tutorialKey)
+        self.hasHinge = UserDefaults.standard.bool(forKey: Self.hingeKey)
+    }
+
+    /// Le conseil du tutoriel, étape par étape.
+    var coach: String? {
+        guard tutorial else { return nil }
+        switch phase {
+        case .pour: return T("1 · Touche le pichet pour verser la pâte sur le gaufrier.", "1 · Tap the jug to pour the batter.")
+        case .poured: return hasHinge ? T("2 · Ferme ton Duo : ça ferme le gaufrier et la gaufre cuit.", "2 · Close your Duo: it closes the waffle iron and the waffle cooks.")
+                                      : T("2 · Ferme le gaufrier pour cuire la gaufre.", "2 · Close the waffle iron to cook.")
+        case .cooking: return T("3 · Le curseur va et vient dans la jauge. Rouvre ton Duo quand il est dans le vert : la gaufre sera dorée !", "3 · The cursor moves along the gauge. Open your Duo when it's in the green: the waffle will be golden!")
+        case .topping: return T("4 · Ajoute les garnitures dans l'ordre du ticket.", "4 · Add the toppings in the order on the ticket.")
+        default: return nil
+        }
     }
 
     // MARK: Le menu du jour
 
-    var recipes: [Recipe] { Recipe.all.filter { $0.day <= min(day, 10) } }
+    var recipes: [Recipe] { Recipe.all.filter { $0.day <= day } }
+    var isContest: Bool { !rush && !free && Self.contestDays.contains(day) }
+    var isCrepe: Bool { order?.recipe.crepe ?? false }
 
     /// Les garnitures du plateau (dans un ordre fixe).
     var tray: [Ingredient] {
@@ -264,7 +346,7 @@ final class Kitchen {
         return Ingredient.allCases.filter { used.contains($0) }
     }
 
-    var target: Int { 50 + day * 14 }
+    var target: Int { Int(Double(50 + day * 14) * (isContest ? 1.25 : 1)) }
     var dayStars: Int {
         if coins >= target { return 3 }
         if Double(coins) >= Double(target) * 0.75 { return 2 }
@@ -281,12 +363,13 @@ final class Kitchen {
 
     /// Demi-largeur de la zone verte (elle rétrécit avec les jours).
     var greenHalf: Double {
-        rush ? max(0.05, 0.085 - Double(servedCount) * 0.002) : max(0.055, 0.095 - Double(day) * 0.0027)
+        let base = rush ? max(0.05, 0.085 - Double(servedCount) * 0.002) : max(0.05, 0.095 - Double(min(day, 20)) * 0.0022)
+        return base * (1 + Shop.shared.iron.green) * (tutorial ? 1.6 : 1)
     }
     var yellowHalf: Double { greenHalf + 0.14 }
     /// Durée d'un aller du curseur, en secondes (il accélère avec les jours).
     var sweepTime: Double {
-        rush ? max(0.7, 1.5 - Double(servedCount) * 0.04) : max(0.8, 1.7 - Double(day) * 0.06)
+        (rush ? max(0.7, 1.5 - Double(servedCount) * 0.04) : max(0.75, 1.7 - Double(min(day, 20)) * 0.05)) * (tutorial ? 1.6 : 1)
     }
 
     func zone(_ x: Double) -> Zone {
@@ -351,7 +434,7 @@ final class Kitchen {
     private func newOrder() {
         // Les recettes du jour reviennent plus souvent.
         let pool = recipes
-        let weights = pool.map { $0.day == min(day, 10) ? 2.5 : 1.0 }
+        let weights = pool.map { $0.day == day || $0.day == day - 1 ? 2.5 : 1.0 }
         var roll = Double.random(in: 0..<weights.reduce(0, +))
         var recipe = pool[0]
         for (r, w) in zip(pool, weights) {
@@ -361,7 +444,8 @@ final class Kitchen {
         var layers = recipe.layers
         // Dès le jour 11 (et en rush), un client sur trois veut un supplément.
         if day >= 11 && Int.random(in: 0..<3) == 0 {
-            let extra: Ingredient = [.sugar, .cream, .sprinkles, .chocmelt].filter { !layers.contains($0) }.randomElement() ?? .sugar
+            let extras: [Ingredient] = recipe.savory ? [.cheese, .chives, .egg] : [.sugar, .cream, .sprinkles, .chocmelt]
+            let extra: Ingredient = extras.filter { !layers.contains($0) }.randomElement() ?? extras[0]
             layers.append(extra)
         }
         let wish: Doneness = .golden
@@ -370,7 +454,7 @@ final class Kitchen {
         lastCustomer = customer
         orderNumber += 1
         let speedUp = rush ? min(9, Double(servedCount) * 0.35) : 0
-        let patience = max(16, 30 - Double(day) * 0.7 - speedUp) + 2.5 * Double(layers.count)
+        let patience = (max(16, 30 - Double(min(day, 20)) * 0.7 - speedUp) + 2.5 * Double(layers.count)) * Shop.shared.patienceFactor
         order = Order(number: orderNumber, recipe: recipe, layers: layers, wish: wish, customer: customer, patience: patience)
         stack = []
         cursor = 0
@@ -430,15 +514,25 @@ final class Kitchen {
 
     // MARK: Le gaufrier (la charnière)
 
-    func hinge(_ degrees: Double?) {
+    static let hingeKey = "waffle.hasHinge"
+
+    func hinge(closed status: Bool?, degrees: Double?) {
         #if DEBUG
         // Captures : le simulateur donne un angle de charnière qui fermerait le gaufrier.
         if UserDefaults.standard.string(forKey: "shot") != nil { return }
         #endif
-        guard let degrees else { hasHinge = false; return }
-        hasHinge = true
-        // Fermé sous 12° ; on le considère rouvert dès 16°, pour que le curseur s'arrête au tout début du geste.
-        if closed { if degrees > 16 { setClosed(false) } } else if degrees < 12 { setClosed(true) }
+        // Un instant sans charnière (pendant le passage d'un écran à l'autre) : on ne change rien.
+        guard status != nil || degrees != nil else { return }
+        if !hasHinge {
+            hasHinge = true
+            UserDefaults.standard.set(true, forKey: Self.hingeKey)
+        }
+        if let degrees {
+            // Fermé sous 12° ; on le considère rouvert dès 16°, pour que le curseur s'arrête au tout début du geste.
+            if closed { if degrees > 16 { setClosed(false) } } else if degrees < 12 || status == true { setClosed(true) }
+        } else if let status {
+            setClosed(status)
+        }
     }
 
     /// Sans charnière : le bouton Fermer / Ouvrir.
@@ -508,16 +602,21 @@ final class Kitchen {
         }
         let base = 6 + 3 * order.layers.count
         let mult = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0][stars]
-        let tip = stars >= 4 ? Int((patienceLeft * 8).rounded()) : 0
+        let tip = stars >= 4 ? Int((patienceLeft * 8 * Shop.shared.tipFactor).rounded()) : 0
         if stars == 5 { combo += 1; bestCombo = max(bestCombo, combo) } else { combo = 0 }
         // Combo : +25 % par parfaite d'affilée (jusqu'à ×2).
         let comboBonus = 1 + 0.25 * Double(min(4, max(0, combo - 1)))
-        let earned = Int(((Double(base) * mult + Double(tip)) * comboBonus).rounded())
+        let earned = Int(((Double(base) * mult + Double(tip)) * comboBonus * Shop.shared.coinFactor).rounded())
         coins += earned
         servedCount += 1
         if stars == 5 { perfectCount += 1 }
         if stars == 0 && rush { lostCount += 1 }
         last = Served(stars: stars, coins: earned, doneness: d, comment: comment, combo: stars == 5 ? combo : 0, grade: g, recipeID: order.recipe.id)
+        if tutorial {
+            tutorial = false
+            UserDefaults.standard.set(true, forKey: Self.tutorialKey)
+            say(T("Bravo ! Maintenant, sers un max de clients avant la fin du chrono !", "Well done! Now serve as many customers as you can before time runs out!"))
+        }
         phase = .served
         nextIn = 2.2
         Sound.play(stars >= 3 ? .win : .wrong, volume: 0.6)
@@ -541,12 +640,12 @@ final class Kitchen {
             }
             return
         }
-        if !rush && phase != .served && phase != .gone {
+        if !rush && !tutorial && phase != .served && phase != .gone {
             shiftLeft = max(0, shiftLeft - dt)
         }
         switch phase {
         case .pour, .poured, .cooking, .topping:
-            if let order { patienceLeft = max(0, patienceLeft - dt / order.patience) }
+            if let order, !tutorial { patienceLeft = max(0, patienceLeft - dt / order.patience) }
             if phase == .cooking {
                 // Le curseur fait des allers-retours entre les deux bords.
                 cursor += cursorDir * dt / sweepTime

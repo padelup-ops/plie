@@ -163,10 +163,198 @@ def almonds():
                    '<path d="M-6,-2 L6,-2" stroke="#D9B47E" stroke-width="2"/></g>')
     return svg(200, 200, flakes)
 
+# ---- nouvelles garnitures sucrées
+
+def chocobar():
+    """Barre choco-caramel coupée en tronçons (chocolat, caramel, nougat)."""
+    def piece(cx, cy, a):
+        return (f'<g transform="translate({cx} {cy}) rotate({a})">'
+                f'<rect x="-22" y="-15" width="44" height="30" rx="7" fill="#5A2E16" stroke="{OL}" stroke-width="5"/>'
+                '<rect x="-16" y="-9" width="32" height="8" rx="3" fill="#F2C27A"/>'
+                '<rect x="-16" y="1" width="32" height="8" rx="3" fill="#E08A2A"/>'
+                '<path d="M-17,-12 L10,-12" stroke="#8C5230" stroke-width="3" stroke-linecap="round"/></g>')
+    return svg(200, 200, piece(62, 78, -18) + piece(122, 70, 12) + piece(90, 120, 6) + piece(146, 118, -24))
+
+def wafer():
+    """Gaufrette fourrée crème noisette, rayée de chocolat."""
+    def bar(cx, cy, a):
+        return (f'<g transform="translate({cx} {cy}) rotate({a})">'
+                f'<rect x="-34" y="-12" width="68" height="24" rx="9" fill="#F3D79A" stroke="{OL}" stroke-width="5"/>'
+                '<rect x="-30" y="-2" width="60" height="6" rx="3" fill="#FFF3D6"/>'
+                + "".join(f'<path d="M{x},-10 l6,20" stroke="#5A2E16" stroke-width="3.2" stroke-linecap="round"/>' for x in (-24, -12, 0, 12, 24)) +
+                '</g>')
+    return svg(200, 200, bar(70, 80, -14) + bar(130, 96, 18) + bar(90, 132, -4))
+
+def cookie():
+    import random
+    r = random.Random(11)
+    def bit(cx, cy, s):
+        chips = "".join(f'<circle cx="{cx + r.uniform(-s * .5, s * .5):.1f}" cy="{cy + r.uniform(-s * .4, s * .4):.1f}" r="{r.uniform(2.5, 4):.1f}" fill="#4A2414"/>' for _ in range(3))
+        return (f'<path d="M{cx - s},{cy} q{s * .3},{-s} {s},{-s * .9} q{s * .8},{s * .1} {s},{s * .9} q{-s * .2},{s * .9} {-s},{s * .9} q{-s * .9},0 {-s},{-s * .9} z" '
+                f'fill="#D9A15E" stroke="{OL}" stroke-width="4.5" stroke-linejoin="round"/>' + chips)
+    return svg(200, 200, bit(62, 84, 20) + bit(118, 70, 18) + bit(148, 116, 16) + bit(92, 128, 22) + bit(60, 132, 12))
+
+def speculoos():
+    import random
+    r = random.Random(5)
+    crumbs = "".join(f'<rect x="{r.uniform(36, 160):.1f}" y="{r.uniform(52, 148):.1f}" width="{r.uniform(5, 10):.1f}" height="{r.uniform(4, 8):.1f}" rx="2" fill="#B8692A" opacity="0.9"/>' for _ in range(40))
+    def bis(cx, cy, a):
+        return (f'<g transform="translate({cx} {cy}) rotate({a})">'
+                f'<rect x="-24" y="-16" width="48" height="32" rx="5" fill="#C27733" stroke="{OL}" stroke-width="5"/>'
+                '<rect x="-17" y="-9" width="34" height="18" rx="3" fill="none" stroke="#8E4D1C" stroke-width="2.5"/>'
+                '<circle cx="-8" cy="0" r="3" fill="#8E4D1C"/><circle cx="8" cy="0" r="3" fill="#8E4D1C"/></g>')
+    return svg(200, 200, crumbs + bis(78, 90, -16) + bis(132, 112, 14))
+
+def coconut():
+    import random
+    r = random.Random(9)
+    shreds = ""
+    for _ in range(46):
+        x, y, a = r.uniform(36, 164), r.uniform(50, 150), r.uniform(0, 180)
+        shreds += (f'<g transform="translate({x:.1f} {y:.1f}) rotate({a:.0f})"><path d="M-8,0 q8,-5 16,0" stroke="{OL}" stroke-width="5.5" fill="none" stroke-linecap="round"/>'
+                   '<path d="M-8,0 q8,-5 16,0" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round"/></g>')
+    return svg(200, 200, shreds)
+
+def blueberry():
+    def b(cx, cy):
+        return (f'<circle cx="{cx}" cy="{cy}" r="13" fill="#3E4FA8" stroke="{OL}" stroke-width="4.5"/>'
+                f'<circle cx="{cx - 4}" cy="{cy - 4}" r="4" fill="#8C9BE8" opacity="0.8"/>'
+                f'<path d="M{cx - 3},{cy + 5} l3,-3 l3,3" stroke="#22296A" stroke-width="2.5" fill="none"/>')
+    pts = [(56, 78), (84, 66), (112, 74), (142, 70), (70, 108), (100, 102), (130, 104), (156, 98), (60, 136), (92, 134), (124, 136), (150, 130)]
+    return svg(200, 200, "".join(b(x, y) for x, y in pts))
+
+def marshmallow():
+    import random
+    r = random.Random(4)
+    cols = ["#FFD1E3", "#FFFFFF", "#D6F0FF", "#FFF2C2", "#E6D9FF"]
+    bits = ""
+    for _ in range(16):
+        x, y, a = r.uniform(44, 156), r.uniform(58, 142), r.uniform(-30, 30)
+        bits += (f'<g transform="translate({x:.1f} {y:.1f}) rotate({a:.0f})"><rect x="-10" y="-9" width="20" height="18" rx="7" fill="{r.choice(cols)}" stroke="{OL}" stroke-width="4"/>'
+                 '<rect x="-6" y="-6" width="7" height="4" rx="2" fill="#fff" opacity="0.9"/></g>')
+    return svg(200, 200, bits)
+
+# ---- garnitures salées
+
+def ham():
+    def slice_(cx, cy, a):
+        return (f'<g transform="translate({cx} {cy}) rotate({a})">'
+                f'<path d="M-34,-6 C-30,-26 26,-30 34,-10 C38,8 20,22 0,20 C-24,22 -38,12 -34,-6 Z" fill="#F4A3B0" stroke="{OL}" stroke-width="5" stroke-linejoin="round"/>'
+                '<path d="M-28,-8 C-22,-20 18,-22 28,-10" stroke="#FFF1F3" stroke-width="5" fill="none" stroke-linecap="round"/>'
+                '<path d="M-20,6 C-6,12 10,10 22,2" stroke="#E07A8C" stroke-width="3" fill="none" stroke-linecap="round"/></g>')
+    return svg(200, 200, slice_(76, 84, -12) + slice_(128, 112, 16))
+
+def cheese():
+    import random
+    r = random.Random(21)
+    shreds = ""
+    for _ in range(38):
+        x, y, a = r.uniform(36, 164), r.uniform(50, 150), r.uniform(0, 180)
+        shreds += (f'<g transform="translate({x:.1f} {y:.1f}) rotate({a:.0f})"><rect x="-11" y="-3.4" width="22" height="6.8" rx="3.4" fill="{OL}"/>'
+                   '<rect x="-9.5" y="-2" width="19" height="4" rx="2" fill="#FFD84A"/></g>')
+    return svg(200, 200, shreds)
+
+def egg():
+    return svg(200, 200,
+               f'<path d="M50,96 C40,62 82,46 104,58 C134,44 166,70 154,100 C166,130 128,152 104,140 C76,154 40,134 50,96 Z" fill="#FFFFFF" stroke="{OL}" stroke-width="5.5" stroke-linejoin="round"/>'
+               f'<circle cx="104" cy="98" r="24" fill="#FFB81C" stroke="{OL}" stroke-width="5"/>'
+               '<circle cx="96" cy="90" r="7" fill="#FFE59A"/>'
+               '<path d="M64,80 C72,66 86,62 96,64" stroke="#EDEDED" stroke-width="5" fill="none" stroke-linecap="round"/>')
+
+def avocado():
+    def sl(cx, cy, a):
+        return (f'<g transform="translate({cx} {cy}) rotate({a})">'
+                f'<path d="M-30,0 C-24,-16 24,-16 30,0 C24,14 -24,14 -30,0 Z" fill="#B6D96A" stroke="{OL}" stroke-width="4.5"/>'
+                '<path d="M-26,-2 C-18,-12 18,-12 26,-2" stroke="#4E7A2A" stroke-width="4" fill="none"/>'
+                '<path d="M-18,2 C-8,6 8,6 18,2" stroke="#E4F5B6" stroke-width="3" fill="none" stroke-linecap="round"/></g>')
+    return svg(200, 200, sl(70, 76, -20) + sl(126, 86, 14) + sl(84, 126, 8) + sl(138, 132, -16))
+
+def salmon():
+    def rib(cx, cy, a):
+        return (f'<g transform="translate({cx} {cy}) rotate({a})">'
+                f'<path d="M-34,0 C-24,-18 -8,10 4,-8 C16,-24 28,4 36,-6 C34,12 20,16 8,8 C-4,22 -22,12 -34,0 Z" fill="#FF8A5C" stroke="{OL}" stroke-width="4.5" stroke-linejoin="round"/>'
+                '<path d="M-22,-2 C-14,-8 -6,4 2,-4 M10,-10 C18,-14 24,-4 30,-6" stroke="#FFD0B8" stroke-width="3" fill="none" stroke-linecap="round"/></g>')
+    return svg(200, 200, rib(74, 82, -10) + rib(126, 104, 18) + rib(86, 130, 4))
+
+def tomato():
+    def t(cx, cy):
+        return (f'<circle cx="{cx}" cy="{cy}" r="16" fill="#E8303C" stroke="{OL}" stroke-width="4.5"/>'
+                f'<circle cx="{cx}" cy="{cy}" r="10" fill="#FF6A6A"/>'
+                + "".join(f'<ellipse cx="{cx + dx}" cy="{cy + dy}" rx="2.4" ry="3.4" fill="#FFE08A"/>' for dx, dy in [(-5, -3), (5, -3), (0, 5)]) +
+                f'<circle cx="{cx - 6}" cy="{cy - 7}" r="3" fill="#fff" opacity="0.7"/>')
+    return svg(200, 200, "".join(t(x, y) for x, y in [(62, 78), (108, 70), (148, 92), (78, 122), (124, 128)]))
+
+def bacon():
+    def strip(cx, cy, a):
+        return (f'<g transform="translate({cx} {cy}) rotate({a})">'
+                f'<path d="M-44,0 C-30,-14 -16,10 0,-4 C16,-16 30,10 44,-2 L44,12 C30,24 16,-2 0,10 C-16,24 -30,0 -44,14 Z" fill="#C2452E" stroke="{OL}" stroke-width="4.5" stroke-linejoin="round"/>'
+                '<path d="M-38,6 C-26,-2 -14,14 0,4 C14,-6 28,14 40,6" stroke="#FFD8C2" stroke-width="3.5" fill="none" stroke-linecap="round"/></g>')
+    return svg(200, 200, strip(98, 80, -8) + strip(102, 124, 10))
+
+def rocket():
+    def leaf(cx, cy, a):
+        return (f'<g transform="translate({cx} {cy}) rotate({a})">'
+                f'<path d="M-24,0 C-18,-10 -10,-4 -6,-12 C0,-18 6,-6 12,-12 C20,-12 26,-4 26,0 C20,6 12,4 8,10 C0,14 -6,6 -12,10 C-20,10 -24,4 -24,0 Z" fill="#4FAE3C" stroke="{OL}" stroke-width="4"/>'
+                '<path d="M-20,0 L22,0" stroke="#2E7A22" stroke-width="2.5"/></g>')
+    return svg(200, 200, leaf(64, 74, -30) + leaf(112, 64, 10) + leaf(150, 96, 60) + leaf(80, 116, 20) + leaf(126, 130, -40) + leaf(56, 140, 70))
+
+def sourcream():
+    def d(cx, cy, s):
+        return (f'<g transform="translate({cx} {cy}) scale({s})">'
+                f'<path d="M-20,6 C-24,-10 -6,-18 2,-12 C12,-20 26,-8 20,6 C22,18 6,20 0,14 C-8,20 -22,18 -20,6 Z" fill="#FFFBEE" stroke="{OL}" stroke-width="4.5"/>'
+                '<circle cx="-6" cy="-4" r="3.5" fill="#fff"/></g>')
+    return svg(200, 200, d(68, 84, 1) + d(134, 80, 0.9) + d(100, 128, 1.1))
+
+def chives():
+    import random
+    r = random.Random(13)
+    bits = ""
+    for _ in range(48):
+        x, y, a = r.uniform(36, 164), r.uniform(50, 150), r.uniform(0, 180)
+        bits += (f'<g transform="translate({x:.1f} {y:.1f}) rotate({a:.0f})"><rect x="-6" y="-2.6" width="12" height="5.2" rx="2.6" fill="{OL}"/>'
+                 '<rect x="-4.8" y="-1.5" width="9.6" height="3" rx="1.5" fill="#5CC24A"/></g>')
+    return svg(200, 200, bits)
+
+# ---- les crêpes
+
+CREPE = [
+    ("#FFF1C8", "#F6E2A6"),
+    ("#FBE2A2", "#EFCB7A"),
+    ("#F5C672", "#D99A3E"),
+    ("#D99442", "#A8601F"),
+    ("#6A4026", "#3E2416"),
+]
+
+def crepe(level):
+    import random
+    base, spot = CREPE[level]
+    r = random.Random(30 + level)
+    spots = "".join(f'<ellipse cx="{r.uniform(40, 160):.1f}" cy="{r.uniform(42, 158):.1f}" rx="{r.uniform(4, 11):.1f}" ry="{r.uniform(3, 7):.1f}" fill="{spot}" opacity="0.85"/>'
+                    for _ in range(28 if level > 0 else 6))
+    smoke = ""
+    if level == 4:
+        smoke = '<path d="M60,30 q12,-18 0,-28 M140,30 q-12,-18 0,-28" stroke="#777" stroke-width="6" fill="none" opacity="0.4" stroke-linecap="round"/>'
+    return svg(200, 200, shadow(102, 176, 80, 8) +
+               f'<circle cx="100" cy="100" r="80" fill="{base}" stroke="{OL}" stroke-width="{SW}"/>'
+               '<clipPath id="cc"><circle cx="100" cy="100" r="76"/></clipPath>'
+               f'<g clip-path="url(#cc)">{spots}</g>'
+               f'<circle cx="100" cy="100" r="72" fill="none" stroke="{spot}" stroke-width="4" opacity="0.6"/>'
+               '<path d="M48,62 C60,44 80,36 100,34" stroke="#fff" stroke-width="6" fill="none" opacity="0.45" stroke-linecap="round"/>' + smoke)
+
+def crepe_batter():
+    return svg(200, 200,
+               f'<circle cx="100" cy="100" r="74" fill="#FCEBB4" stroke="{OL}" stroke-width="6"/>'
+               '<path d="M50,78 C62,54 86,42 108,42" stroke="#fff" stroke-width="7" fill="none" opacity="0.7" stroke-linecap="round"/>'
+               '<ellipse cx="126" cy="122" rx="12" ry="7" fill="#F4D98E"/><ellipse cx="78" cy="128" rx="8" ry="5" fill="#F4D98E"/>')
+
 INGREDIENTS = {
     "sugar": sugar, "spread": spread, "cream": cream, "strawberry": strawberry, "banana": banana,
     "caramel": lambda: drizzle("#E8941A", "#FFD27A", 1), "honey": lambda: drizzle("#F6B21B", "#FFF2B8", 2),
     "chocmelt": lambda: drizzle("#4A2414", "#8C5230", 3), "jam": jam, "icecream": icecream, "sprinkles": sprinkles, "almonds": almonds,
+    "chocobar": chocobar, "wafer": wafer, "cookie": cookie, "speculoos": speculoos, "coconut": coconut, "blueberry": blueberry,
+    "marshmallow": marshmallow, "pistachio": lambda: drizzle("#93C24A", "#D8F0A0", 4),
+    "ham": ham, "cheese": cheese, "egg": egg, "avocado": avocado, "salmon": salmon, "tomato": tomato, "bacon": bacon,
+    "rocket": rocket, "sourcream": sourcream, "chives": chives, "cheesesauce": lambda: drizzle("#F5A623", "#FFE08A", 5),
 }
 
 # ---------------------------------------------------------------- le gaufrier

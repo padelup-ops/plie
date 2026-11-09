@@ -69,6 +69,44 @@ struct MenuView: View {
             ?? min(Kitchen.lastDay, max(1, progress.stars.keys.max() ?? 1))
     }
 
+    /// Le but du jeu : gagner les 3 concours de la Gaufre d'Or et devenir Maître gaufrier.
+    private var goal: some View {
+        let medals: [(Int, String, UInt32)] = [(10, T("Bronze", "Bronze"), 0xCD7F32), (20, T("Argent", "Silver"), 0xB8C0CC), (30, T("Or", "Gold"), 0xF5C24A)]
+        let all = progress.trophies.count >= 3
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(all ? T("Maître gaufrier !", "Waffle master!") : T("Objectif : la Gaufre d'Or", "Goal: the Golden Waffle"))
+                    .font(.toon(18)).foregroundStyle(Ink.line)
+                Spacer()
+                HStack(spacing: 3) {
+                    Image("coin").resizable().frame(width: 18, height: 18)
+                    Text("\(progress.wallet)").font(.toon(14)).monospacedDigit().foregroundStyle(Ink.line)
+                }
+            }
+            Text(T("Gagne les concours des jours 10, 20 et 30 pour devenir Maître gaufrier et remporter le gaufrier en or. Tes pièces s'échangent à la boutique.",
+                   "Win the contests on days 10, 20 and 30 to become a waffle master and earn the golden iron. Spend your coins in the shop."))
+                .font(.toon(13, .semibold)).foregroundStyle(Ink.line.opacity(0.7)).fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 10) {
+                ForEach(medals, id: \.0) { day, name, color in
+                    let won = progress.trophies.contains(day)
+                    VStack(spacing: 4) {
+                        Image(systemName: "trophy.fill").font(.system(size: 28, weight: .black))
+                            .foregroundStyle(won ? Color(hex: color) : Ink.line.opacity(0.15))
+                            .shadow(color: won ? Color(hex: color).opacity(0.6) : .clear, radius: 6)
+                        Text(won ? name : T("Jour \(day)", "Day \(day)")).font(.toon(12, .bold)).foregroundStyle(Ink.line.opacity(won ? 1 : 0.5))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(RoundedRectangle(cornerRadius: 14).fill(won ? Color(hex: 0xFFF1D6) : Color.black.opacity(0.04)))
+                }
+            }
+        }
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 22).fill(Ink.paper))
+        .background(RoundedRectangle(cornerRadius: 22).fill(Ink.line).offset(y: 4))
+        .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(Ink.line, lineWidth: 3))
+    }
+
     private func smallButton(_ title: String, _ icon: String, _ color: Color, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack(spacing: 4) {
@@ -128,6 +166,9 @@ struct MenuView: View {
                     .buttonStyle(ToonButton(color: Ink.green, radius: 26, depth: 7))
                     .padding(.horizontal, 30)
 
+                    goal
+                        .padding(.horizontal, 20)
+
                     daysGrid
                         .padding(.horizontal, 20)
 
@@ -149,7 +190,7 @@ struct MenuView: View {
                     HStack(spacing: 10) {
                         smallButton(T("Atelier libre", "Free kitchen"), "paintbrush.pointed.fill", Ink.orange, onFree)
                         smallButton(T("Recettes", "Recipes"), "book.closed.fill", Color(hex: 0x3C7FE8), onBook)
-                        smallButton(T("Déco", "Decor"), "paintpalette.fill", Color(hex: 0x8E5BE0), onDecor)
+                        smallButton(T("Boutique", "Shop"), "bag.fill", Color(hex: 0x8E5BE0), onDecor)
                     }
                     .padding(.horizontal, 30)
 

@@ -28,14 +28,13 @@ struct DecorChoice: Identifiable {
 }
 
 enum DecorKind: String, CaseIterable, Identifiable {
-    case wall, awning, worktop, iron
+    case wall, awning, worktop
     var id: String { rawValue }
     var title: String {
         switch self {
         case .wall: return T("Le mur", "Wall")
         case .awning: return T("Le comptoir", "Counter")
         case .worktop: return T("Le plan de travail", "Worktop")
-        case .iron: return T("Le gaufrier", "Waffle iron")
         }
     }
     var choices: [DecorChoice] {
@@ -63,14 +62,6 @@ enum DecorKind: String, CaseIterable, Identifiable {
             DecorChoice(id: 3, fr: "Rose", en: "Pink", colors: [0xF7D3DE, 0xE9B3C4], price: 130),
             DecorChoice(id: 4, fr: "Menthe", en: "Mint", colors: [0xD0EEDF, 0xA9D9C2], price: 170),
             DecorChoice(id: 5, fr: "Ardoise", en: "Slate", colors: [0x5A6070, 0x3E4350], price: 230),
-        ]
-        case .iron: return [
-            DecorChoice(id: 0, fr: "Turquoise", en: "Teal", colors: [0x7FE0D6, 0x2FA79E], price: 0),
-            DecorChoice(id: 1, fr: "Cerise", en: "Cherry", colors: [0xFF8A80, 0xD9433A], price: 80),
-            DecorChoice(id: 2, fr: "Citron", en: "Lemon", colors: [0xFFE07A, 0xE0A92A], price: 120),
-            DecorChoice(id: 3, fr: "Bonbon", en: "Candy", colors: [0xFFB3D9, 0xE0679F], price: 160),
-            DecorChoice(id: 4, fr: "Myrtille", en: "Blueberry", colors: [0xA9A4FF, 0x5E55D6], price: 210),
-            DecorChoice(id: 5, fr: "Réglisse", en: "Licorice", colors: [0x5A5560, 0x2B2830], price: 280),
         ]
         }
     }
@@ -116,7 +107,9 @@ final class Decor {
 struct DecorView: View {
     @Environment(Career.self) private var progress
     let onClose: () -> Void
+    @State private var tab = 0
     private var decor: Decor { Decor.shared }
+    private var shop: Shop { Shop.shared }
 
     var body: some View {
         ZStack {
@@ -134,7 +127,25 @@ struct DecorView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                Outlined(text: T("Déco", "Decor"), size: 40)
+                Outlined(text: T("Boutique", "Shop"), size: 40)
+                Picker("", selection: $tab) {
+                    Text(T("Gaufriers", "Irons")).tag(0)
+                    Text(T("Bonus", "Boosts")).tag(1)
+                    Text(T("Déco", "Decor")).tag(2)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 24)
+                if tab == 0 {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 10) { ForEach(IronModel.all) { ironRow($0) } }
+                            .padding(.horizontal, 18).padding(.bottom, 30)
+                    }
+                } else if tab == 1 {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 10) { ForEach(Upgrade.all) { upgradeRow($0) } }
+                            .padding(.horizontal, 18).padding(.bottom, 30)
+                    }
+                } else {
                 // Aperçu
                 DecorPreview()
                     .frame(height: 150)
@@ -159,8 +170,82 @@ struct DecorView: View {
                     .padding(.horizontal, 20)
                     .padding(.bottom, 30)
                 }
+                }
             }
             .padding(.top, 16)
+        }
+    }
+
+    private func card<C: View>(@ViewBuilder _ content: () -> C) -> some View {
+        content()
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 20).fill(Ink.paper))
+            .background(RoundedRectangle(cornerRadius: 20).fill(Ink.line).offset(y: 4))
+            .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Ink.line, lineWidth: 3))
+    }
+
+    private func ironRow(_ m: IronModel) -> some View {
+        let owned = shop.owns(m)
+        let equipped = shop.ironID == m.id
+        return card {
+            HStack(spacing: 12) {
+                IronSwatch(model: m)
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Text(m.name).font(.toon(17)).foregroundStyle(Ink.line)
+                        Text(m.rarity.name).font(.toon(10, .black)).foregroundStyle(.white)
+                            .padding(.horizontal, 7).padding(.vertical, 2)
+                            .background(Capsule().fill(m.rarity.color))
+                    }
+                    ForEach(m.perks, id: \.self) { Text($0).font(.toon(12, .bold)).foregroundStyle(Ink.line.opacity(0.7)) }
+                }
+                Spacer(minLength: 4)
+                Button {
+                    if owned { shop.equip(m); Sound.play(.tock, volume: 0.5) }
+                    else if m.trophy { Sound.play(.wrong, volume: 0.5) }
+                    else if progress.spend(m.price) { shop.give(m); Sound.play(.win, volume: 0.6); Haptics.success() }
+                    else { Sound.play(.wrong, volume: 0.5); Haptics.error() }
+                } label: {
+                    Group {
+                        if equipped { Text(T("Équipé", "Equipped")) }
+                        else if owned { Text(T("Choisir", "Use")) }
+                        else if m.trophy { Label(T("Jour 30", "Day 30"), systemImage: "trophy.fill") }
+                        else { HStack(spacing: 3) { Image("coin").resizable().frame(width: 16, height: 16); Text("\(m.price)") } }
+                    }
+                    .font(.toon(13)).frame(minWidth: 70, minHeight: 36)
+                }
+                .buttonStyle(ToonButton(color: equipped ? Ink.paper : (owned ? Ink.green : (m.trophy ? Color(hex: 0xC9C2B8) : Ink.orange)),
+                                        text: equipped ? Ink.line : .white, radius: 14, depth: 3))
+                .disabled(equipped)
+            }
+        }
+    }
+
+    private func upgradeRow(_ u: Upgrade) -> some View {
+        let owned = shop.owns(u)
+        return card {
+            HStack(spacing: 12) {
+                Image(systemName: u.icon).font(.system(size: 26, weight: .black)).foregroundStyle(Ink.orange)
+                    .frame(width: 56, height: 56).background(Circle().fill(Color(hex: 0xFFF1D6)))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(u.name).font(.toon(17)).foregroundStyle(Ink.line)
+                    Text(u.detail).font(.toon(12, .bold)).foregroundStyle(Ink.line.opacity(0.7))
+                }
+                Spacer(minLength: 4)
+                Button {
+                    if !owned, progress.spend(u.price) { shop.buy(u); Sound.play(.win, volume: 0.6); Haptics.success() }
+                    else if !owned { Sound.play(.wrong, volume: 0.5); Haptics.error() }
+                } label: {
+                    Group {
+                        if owned { Label(T("Acheté", "Owned"), systemImage: "checkmark") }
+                        else { HStack(spacing: 3) { Image("coin").resizable().frame(width: 16, height: 16); Text("\(u.price)") } }
+                    }
+                    .font(.toon(13)).frame(minWidth: 70, minHeight: 36)
+                }
+                .buttonStyle(ToonButton(color: owned ? Ink.paper : Ink.orange, text: owned ? Ink.line : .white, radius: 14, depth: 3))
+                .disabled(owned)
+            }
         }
     }
 
@@ -214,6 +299,168 @@ struct DecorPreview: View {
                 Image("waffle2").resizable().scaledToFit().frame(width: H * 0.38).position(x: W / 2, y: H * 0.77)
             }
         }
+    }
+}
+
+// MARK: - La boutique : les gaufriers et les améliorations
+//
+// Les gaufriers ont une rareté et des atouts : une zone verte plus large (cuisson plus facile),
+// des clients plus patients (il chauffe plus vite), plus de pièces. Le gaufrier en or ne s'achète pas :
+// il se gagne au dernier concours de la Gaufre d'Or (jour 30).
+
+enum Rarity: Int {
+    case common, rare, epic, legendary
+    var name: String {
+        switch self {
+        case .common: return T("Commun", "Common")
+        case .rare: return T("Rare", "Rare")
+        case .epic: return T("Épique", "Epic")
+        case .legendary: return T("Légendaire", "Legendary")
+        }
+    }
+    var color: Color {
+        switch self {
+        case .common: return Color(hex: 0x8A8F99)
+        case .rare: return Color(hex: 0x3C7FE8)
+        case .epic: return Color(hex: 0x8E5BE0)
+        case .legendary: return Color(hex: 0xE0A21E)
+        }
+    }
+}
+
+struct IronModel: Identifiable {
+    let id: String
+    let fr: String
+    let en: String
+    let rarity: Rarity
+    /// Corps clair, corps foncé, garnitures.
+    let colors: [UInt32]
+    let price: Int
+    /// Zone verte en plus (0.15 = +15 %).
+    var green = 0.0
+    /// Clients plus patients (le gaufrier chauffe plus vite).
+    var calm = 0.0
+    /// Pièces en plus.
+    var bonus = 0.0
+    var shine = false
+    /// Se gagne au concours du jour 30 (ne s'achète pas).
+    var trophy = false
+    var name: String { T(fr, en) }
+
+    static let all: [IronModel] = [
+        IronModel(id: "classic", fr: "Le Classique", en: "The Classic", rarity: .common, colors: [0x7FE0D6, 0x2FA79E, 0xF4F6FA], price: 0),
+        IronModel(id: "cherry", fr: "Cerise", en: "Cherry", rarity: .common, colors: [0xFF8A80, 0xD9433A, 0xF4F6FA], price: 120, bonus: 0.05),
+        IronModel(id: "lemon", fr: "Citron", en: "Lemon", rarity: .common, colors: [0xFFE07A, 0xE0A92A, 0xF4F6FA], price: 160, bonus: 0.05),
+        IronModel(id: "candy", fr: "Bonbon", en: "Candy", rarity: .common, colors: [0xFFB3D9, 0xE0679F, 0xF4F6FA], price: 200, bonus: 0.05),
+        IronModel(id: "retro", fr: "Le Rétro", en: "The Retro", rarity: .rare, colors: [0xF2E6D0, 0xC9A97A, 0xD9DEE6], price: 450, green: 0.15),
+        IronModel(id: "turbo", fr: "Le Turbo", en: "The Turbo", rarity: .rare, colors: [0x4A505C, 0x1E2128, 0x3DF2C8], price: 650, calm: 0.2),
+        IronModel(id: "pro", fr: "Le Pro Double", en: "The Pro Double", rarity: .epic, colors: [0xA9BEE0, 0x5A6F96, 0xF4F6FA], price: 1200, green: 0.25, bonus: 0.1),
+        IronModel(id: "diamond", fr: "Le Diamant", en: "The Diamond", rarity: .epic, colors: [0xD6F4FF, 0x6FBCE0, 0xFFFFFF], price: 2000, green: 0.2, calm: 0.15, bonus: 0.15, shine: true),
+        IronModel(id: "gold", fr: "La Gaufre d'Or", en: "The Golden Waffle", rarity: .legendary, colors: [0xFFE27A, 0xD39A12, 0xFFF6CC], price: 0, green: 0.4, calm: 0.2, bonus: 0.25, shine: true, trophy: true),
+    ]
+
+    var perks: [String] {
+        var p: [String] = []
+        if green > 0 { p.append(T("Zone verte +\(Int(green * 100)) %", "Green zone +\(Int(green * 100))%")) }
+        if calm > 0 { p.append(T("Clients patients +\(Int(calm * 100)) %", "Patient customers +\(Int(calm * 100))%")) }
+        if bonus > 0 { p.append(T("Pièces +\(Int(bonus * 100)) %", "Coins +\(Int(bonus * 100))%")) }
+        if p.isEmpty { p.append(T("Le gaufrier de départ", "The starter iron")) }
+        return p
+    }
+}
+
+struct Upgrade: Identifiable {
+    let id: String
+    let fr: String
+    let en: String
+    let detailFR: String
+    let detailEN: String
+    let icon: String
+    let price: Int
+    var name: String { T(fr, en) }
+    var detail: String { T(detailFR, detailEN) }
+
+    static let all: [Upgrade] = [
+        Upgrade(id: "tips", fr: "Pot à pourboires", en: "Tip jar", detailFR: "Pourboires +50 %", detailEN: "Tips +50%", icon: "dollarsign.circle.fill", price: 250),
+        Upgrade(id: "radio", fr: "Petite radio", en: "Little radio", detailFR: "Clients patients +15 %", detailEN: "Patient customers +15%", icon: "radio.fill", price: 350),
+        Upgrade(id: "sign", fr: "Enseigne lumineuse", en: "Neon sign", detailFR: "Pièces +10 %", detailEN: "Coins +10%", icon: "lightbulb.max.fill", price: 500),
+    ]
+}
+
+@Observable
+final class Shop {
+    static let shared = Shop()
+
+    private(set) var ironID: String
+    private(set) var ownedIrons: Set<String>
+    private(set) var upgrades: Set<String>
+
+    private init() {
+        let d = UserDefaults.standard
+        ironID = d.string(forKey: "waffle.iron") ?? "classic"
+        ownedIrons = Set(d.stringArray(forKey: "waffle.irons") ?? ["classic"])
+        upgrades = Set(d.stringArray(forKey: "waffle.upgrades") ?? [])
+        // L'ancienne couleur choisie dans la déco devient un gaufrier.
+        if let old = (d.dictionary(forKey: "waffle.decor") as? [String: Int])?["iron"], old > 0 {
+            let map = [1: "cherry", 2: "lemon", 3: "candy"]
+            if let id = map[old] { ownedIrons.insert(id); ironID = id }
+        }
+    }
+
+    var iron: IronModel { IronModel.all.first { $0.id == ironID } ?? IronModel.all[0] }
+    func ironColor(_ i: Int) -> Color { Color(hex: iron.colors[min(i, iron.colors.count - 1)]) }
+
+    func owns(_ m: IronModel) -> Bool { m.price == 0 && !m.trophy || ownedIrons.contains(m.id) }
+    func owns(_ u: Upgrade) -> Bool { upgrades.contains(u.id) }
+
+    func equip(_ m: IronModel) {
+        ironID = m.id
+        UserDefaults.standard.set(m.id, forKey: "waffle.iron")
+    }
+
+    func give(_ m: IronModel) {
+        ownedIrons.insert(m.id)
+        UserDefaults.standard.set(Array(ownedIrons), forKey: "waffle.irons")
+        equip(m)
+    }
+
+    func buy(_ u: Upgrade) {
+        upgrades.insert(u.id)
+        UserDefaults.standard.set(Array(upgrades), forKey: "waffle.upgrades")
+    }
+
+    var patienceFactor: Double { (1 + iron.calm) * (owns(Upgrade.all[1]) ? 1.15 : 1) }
+    var coinFactor: Double { (1 + iron.bonus) * (owns(Upgrade.all[2]) ? 1.1 : 1) }
+    var tipFactor: Double { owns(Upgrade.all[0]) ? 1.5 : 1 }
+}
+
+/// Un petit gaufrier aux couleurs du modèle (pour la boutique).
+struct IronSwatch: View {
+    let model: IronModel
+
+    var body: some View {
+        let c = model.colors.map { Color(hex: $0) }
+        ZStack {
+            RoundedRectangle(cornerRadius: 16).fill(Ink.line).offset(y: 3)
+            RoundedRectangle(cornerRadius: 16).fill(LinearGradient(colors: [c[0], c[1]], startPoint: .top, endPoint: .bottom))
+            RoundedRectangle(cornerRadius: 16).strokeBorder(Ink.line, lineWidth: 3)
+            RoundedRectangle(cornerRadius: 9).fill(Color(hex: 0x2B2830))
+                .overlay(
+                    VStack(spacing: 3) {
+                        ForEach(0..<3, id: \.self) { _ in
+                            HStack(spacing: 3) { ForEach(0..<4, id: \.self) { _ in RoundedRectangle(cornerRadius: 2).fill(Color(hex: 0x57525E)) } }
+                        }
+                    }
+                    .padding(5)
+                )
+                .padding(10)
+            Capsule().fill(c[2]).overlay(Capsule().strokeBorder(Ink.line, lineWidth: 2)).frame(width: 26, height: 7).offset(y: -27)
+            if model.shine {
+                Image(systemName: "sparkles").font(.system(size: 16, weight: .bold)).foregroundStyle(.white)
+                    .shadow(color: c[1], radius: 3).offset(x: 24, y: -18)
+            }
+        }
+        .frame(width: 84, height: 62)
     }
 }
 
@@ -284,7 +531,7 @@ struct RecipeCard: View {
         let gold = best >= 5
         VStack(spacing: 6) {
             ZStack {
-                Image(open ? "waffle2" : "waffle0").resizable().scaledToFit()
+                Image(open ? (recipe.crepe ? "crepe2" : "waffle2") : (recipe.crepe ? "crepe0" : "waffle0")).resizable().scaledToFit()
                 if open { ForEach(Array(recipe.layers.enumerated()), id: \.offset) { _, i in Image(i.image).resizable().scaledToFit() } }
             }
             .frame(width: 96, height: 96)
