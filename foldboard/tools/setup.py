@@ -54,3 +54,22 @@ if not any(g["attributes"].get("isInternalGroup") for g in groups):
                                                                                         "hasAccessToAllBuilds": True},
                                                  "relationships": {"app": {"data": {"type": "apps", "id": cid}}}}})
     print("ok     groupe interne créé" if "data" in r else "ÉCHEC  groupe interne " + json.dumps(r)[:400])
+
+# Les utilisateurs du compte App Store Connect deviennent testeurs internes (TestFlight).
+internal = [g for g in call("GET", f"/v1/apps/{cid}/betaGroups?limit=50").get("data", []) if g["attributes"].get("isInternalGroup")]
+if internal:
+    gid = internal[0]["id"]
+    in_group = {t["attributes"].get("email", "").lower() for t in call("GET", f"/v1/betaGroups/{gid}/betaTesters?limit=200").get("data", [])}
+    for u in call("GET", "/v1/users?limit=50").get("data", []):
+        email = (u["attributes"].get("username") or "").strip()
+        if not email or email.lower() in in_group:
+            print("ok     testeur interne déjà là :", email)
+            continue
+        found = call("GET", f"/v1/betaTesters?filter[email]={email}&limit=5").get("data", [])
+        if found:
+            r = call("POST", f"/v1/betaGroups/{gid}/relationships/betaTesters", {"data": [{"type": "betaTesters", "id": found[0]["id"]}]})
+        else:
+            r = call("POST", "/v1/betaTesters", {"data": {"type": "betaTesters", "attributes": {
+                "email": email, "firstName": u["attributes"].get("firstName"), "lastName": u["attributes"].get("lastName")},
+                "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": gid}]}}}})
+        print(("ÉCHEC  testeur " + email + " " + json.dumps(r)[:300]) if isinstance(r, dict) and "error" in r else "ok     testeur interne ajouté : " + email)
