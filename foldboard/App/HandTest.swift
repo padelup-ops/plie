@@ -7,7 +7,7 @@ func kbCurrentContext(closed: Bool?, known: [String: Double] = [:]) -> String {
     let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
     let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
     let size = window?.bounds.size ?? scene?.screen.bounds.size ?? .zero
-    return KBSettings.context(screen: size, closed: closed, known: known)
+    return KBSettings.context(screen: size, closed: closed, known: known, native: kbNativeShort())
 }
 
 /// Le test « main droite / main gauche » : on tient le téléphone 3 secondes dans chaque main, sans rien taper.

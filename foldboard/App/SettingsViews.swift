@@ -162,6 +162,14 @@ struct DuoFullWidth: ViewModifier {
 
 /// Apprend la largeur de chaque écran du Duo (la charnière dit lequel est utilisé) : le clavier, qui ne voit pas
 /// la charnière dans les autres apps, s'en sert pour savoir s'il est sur l'écran extérieur ou intérieur.
+/// Le petit côté de l'écran utilisé, en pixels.
+func kbNativeShort() -> Double? {
+    let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+    guard let scene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first else { return nil }
+    let b = scene.screen.nativeBounds
+    return b.width > 0 ? Double(min(b.width, b.height)) : nil
+}
+
 struct ScreenLearner: ViewModifier {
     @Environment(SettingsModel.self) private var model
     @State private var closed: Bool?
@@ -179,10 +187,13 @@ struct ScreenLearner: ViewModifier {
         guard let size = (scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first)?.bounds.size,
               size.width > 0, size.height > 0 else { return }
         let short = Double(min(size.width, size.height))
+        let px = scene.map { Double(min($0.screen.nativeBounds.width, $0.screen.nativeBounds.height)) } ?? 0
         let key = closed ? "closed" : "open"
-        guard abs((model.settings.screenWidths[key] ?? 0) - short) > 1 else { return }
+        guard abs((model.settings.screenWidths[key] ?? 0) - short) > 1
+                || (px > 0 && abs((model.settings.screenWidths[key + "Px"] ?? 0) - px) > 1) else { return }
         var s = model.settings
         s.screenWidths[key] = short
+        if px > 0 { s.screenWidths[key + "Px"] = px }
         model.settings = s
     }
 }
@@ -681,7 +692,7 @@ struct TiltCalibration: View {
         let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
         let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
         let size = window?.bounds.size ?? scene?.screen.bounds.size ?? .zero
-        return KBSettings.context(screen: size, closed: hingeClosed, known: model.settings.screenWidths)
+        return KBSettings.context(screen: size, closed: hingeClosed, known: model.settings.screenWidths, native: kbNativeShort())
     }
 
     /// La charnière du Duo (fermé / ouvert), lue par l'API d'Apple quand elle existe.

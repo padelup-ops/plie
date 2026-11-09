@@ -255,6 +255,18 @@ final class KeyboardCanvas: UIView {
         return window?.windowScene?.screen.bounds.size ?? bounds.size
     }
 
+    /// La charnière répond aussi dans le clavier : on retient la taille de cet écran.
+    private func learnScreen() {
+        guard let closed = hingeClosed, let scr = window?.windowScene?.screen else { return }
+        let key = closed ? "closed" : "open"
+        let short = Double(min(scr.bounds.width, scr.bounds.height))
+        let px = Double(min(scr.nativeBounds.width, scr.nativeBounds.height))
+        guard short > 0, abs((settings.screenWidths[key] ?? 0) - short) > 1 || abs((settings.screenWidths[key + "Px"] ?? 0) - px) > 1 else { return }
+        settings.screenWidths[key] = short
+        settings.screenWidths[key + "Px"] = px
+        input?.kbSettingsChanged(settings)
+    }
+
     private func watchHinge() {
         guard !hingeWatched else { return }
         hingeWatched = true
@@ -266,6 +278,7 @@ final class KeyboardCanvas: UIView {
                 case .partiallyOpen?, .fullyOpen?: self.hingeClosed = false
                 default: self.hingeClosed = nil
                 }
+                self.learnScreen()
                 self.updateGripContext()
                 self.builtFor = .zero
                 self.setNeedsLayout()
@@ -275,7 +288,9 @@ final class KeyboardCanvas: UIView {
 
     private func updateGripContext() {
         let screen = screenSize
-        var c = KBSettings.context(screen: screen, closed: hingeClosed, known: settings.screenWidths)
+        let nb = window?.windowScene?.screen.nativeBounds ?? .zero
+        let native: Double? = nb.width > 0 ? Double(min(nb.width, nb.height)) : nil
+        var c = KBSettings.context(screen: screen, closed: hingeClosed, known: settings.screenWidths, native: native)
         // Si la taille de l'écran n'est pas sûre, la largeur du clavier (toute la largeur de l'écran) tranche.
         let w = Double(bounds.width)
         if hingeClosed == nil, w > 50, screen.width <= 0 || abs(Double(min(screen.width, screen.height)) - w) > 2,

@@ -199,7 +199,7 @@ struct KBSettings: Codable, Equatable {
     /// La situation d'après la taille de l'écran : Duo ouvert (écran presque carré) ou fermé, en portrait ou en paysage.
     /// La forme de l'écran utilisé décide (l'intérieur du Duo est presque carré, l'extérieur est allongé) ;
     /// la charnière (`closed`) ne sert que si la taille est inconnue. L'app et le clavier suivent la même règle.
-    static func context(screen: CGSize, closed: Bool? = nil, known: [String: Double] = [:]) -> String {
+    static func context(screen: CGSize, closed: Bool? = nil, known: [String: Double] = [:], native: Double? = nil) -> String {
         let w = screen.width, h = screen.height
         let ratio = min(w, h) / max(1, max(w, h))
         let short = Double(min(w, h))
@@ -210,9 +210,21 @@ struct KBSettings: Codable, Equatable {
         } else if w <= 0 || h <= 0 || ratio <= 0.6 {
             // Écran allongé : un iPhone classique, ou le Duo fermé.
             open = false
+        } else if let n = native, let o = known["openPx"], let c = known["closedPx"], abs(o - c) > 20 {
+            // Les pixels de chaque écran (appris dans l'app) : ils diffèrent plus que les points.
+            open = abs(n - o) < abs(n - c)
+        } else if let n = native, let c = known["closedPx"], known["openPx"] == nil {
+            // Un seul écran connu : l'autre écran du Duo, c'est celui qui n'a pas cette taille.
+            open = abs(n - c) > 20
+        } else if let n = native, let o = known["openPx"], known["closedPx"] == nil {
+            open = abs(n - o) <= 20
         } else if let o = known["open"], let c = known["closed"], abs(o - c) > 8 {
             // Les deux écrans ont la même forme : la largeur apprise dans l'app les distingue.
             open = abs(short - o) < abs(short - c)
+        } else if let c = known["closed"], known["open"] == nil {
+            open = abs(short - c) > 8
+        } else if let o = known["open"], known["closed"] == nil {
+            open = abs(short - o) <= 8
         } else {
             // Impossible de distinguer les deux écrans sans la charnière : on reste sur le fonctionnement
             // de l'écran extérieur (le clavier vient du côté de la main), le plus utile.
