@@ -1141,9 +1141,12 @@ final class KeyboardCanvas: UIView {
     // MARK: Touchers
 
 
-    private func cellIndex(at p: CGPoint) -> Int? {
+    private func cellIndex(at raw: CGPoint) -> Int? {
+        // Le pouce touche un peu plus bas qu'il ne vise (comme le clavier d'Apple, on compense de 4 pt).
+        let p = CGPoint(x: raw.x, y: raw.y - 4)
         if let i = cells.firstIndex(where: { $0.hit.contains(p) }) { return i }
-        guard blocks.contains(where: { $0.insetBy(dx: -8, dy: -8).contains(p) }) else { return nil }
+        // Juste à côté du clavier : la touche la plus proche (un appui un peu à côté écrit quand même).
+        guard blocks.contains(where: { $0.insetBy(dx: -18, dy: -10).contains(p) }) else { return nil }
         var best: (Int, CGFloat)?
         for (i, c) in cells.enumerated() {
             let d = hypot(c.frame.midX - p.x, c.frame.midY - p.y)
@@ -1157,7 +1160,9 @@ final class KeyboardCanvas: UIView {
         for t in touches {
             let p = t.location(in: self)
             // Un toucher dans la place libre : on attend de voir si c'est un vrai toucher (voir touchesEnded).
-            if !adjusting, !showEmoji, panelRect.width > 0, panelRect.contains(p) {
+            // Près du bord des touches, c'est une touche visée de peu, pas la place libre.
+            let nearKeys = blocks.contains { $0.insetBy(dx: -18, dy: 0).contains(p) }
+            if !adjusting, !showEmoji, panelRect.width > 0, panelRect.contains(p), !nearKeys {
                 placeTouches[t] = (p, t.timestamp)
                 continue
             }
@@ -1192,7 +1197,7 @@ final class KeyboardCanvas: UIView {
             if tr.points.count < 80 { tr.points.append(p) }
             // Un balayage vertical du pouce n'écrit rien : il dit quelle main tape (arc du pouce).
             let ddx = p.x - tr.start.x, ddy = p.y - tr.start.y
-            if !tr.swipe && !tr.cursorMode && tr.accents.isEmpty && abs(ddy) > 30 && abs(ddy) > abs(ddx) * 1.2 {
+            if !tr.swipe && !tr.cursorMode && tr.accents.isEmpty && abs(ddy) > 44 && abs(ddy) > abs(ddx) * 1.4 {
                 tr.swipe = true
                 tr.longTimer?.invalidate()
                 hideBubble()

@@ -105,7 +105,7 @@ struct KBSettings: Codable, Equatable {
     /// Glissements du pouce étalonnés, par situation et par main.
     var swipes: [String: [String: [[Double]]]] = [:]
     /// Largeur du clavier à une main, en part de l'écran.
-    var oneHandWidth: Double = 0.68
+    var oneHandWidth: Double = 0.76
     /// Largeur à une main sur l'écran intérieur du Duo (déplié) : plus compact, à portée du pouce.
     var oneHandWidthOpen: Double = 0.56
     /// Duo ouvert en portrait : clavier coupé en deux (sinon, petit clavier qui suit la main).
@@ -191,6 +191,8 @@ struct KBSettings: Codable, Equatable {
     }
 
     mutating func clamp() {
+        // L'ancienne largeur par défaut donnait des touches trop petites : on passe à la nouvelle.
+        if abs(oneHandWidth - 0.68) < 0.001 { oneHandWidth = 0.76 }
         oneHandWidth = min(0.95, max(0.45, oneHandWidth))
         oneHandWidthOpen = min(0.9, max(0.4, oneHandWidthOpen))
         splitWidth = min(0.48, max(0.22, splitWidth))
