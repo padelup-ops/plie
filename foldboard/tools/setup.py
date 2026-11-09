@@ -26,7 +26,7 @@ def call(method, path, body=None):
             raw = r.read()
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
-        return {"error": e.code, "detail": e.read().decode()[:600]}
+        return {"error": e.code, "detail": e.read().decode()[:2000]}
 
 
 APP = "com.padelup.foldboard"
@@ -55,16 +55,22 @@ if not any(g["attributes"].get("isInternalGroup") for g in groups):
                                                  "relationships": {"app": {"data": {"type": "apps", "id": cid}}}}})
     print("ok     groupe interne créé" if "data" in r else "ÉCHEC  groupe interne " + json.dumps(r)[:400])
 
-# Les utilisateurs du compte App Store Connect deviennent testeurs internes (TestFlight).
+# Les comptes du propriétaire deviennent testeurs internes (TestFlight). Personne d'autre.
+OWNERS = [e.strip() for e in os.environ.get("FOLDBOARD_TESTERS", "padelup.app@gmail.com,hfreecsapple@gmail.com").split(",") if e.strip()]
 internal = [g for g in call("GET", f"/v1/apps/{cid}/betaGroups?limit=50").get("data", []) if g["attributes"].get("isInternalGroup")]
 if internal:
     gid = internal[0]["id"]
     in_group = {t["attributes"].get("email", "").lower() for t in call("GET", f"/v1/betaGroups/{gid}/betaTesters?limit=200").get("data", [])}
-    for u in call("GET", "/v1/users?limit=50").get("data", []):
-        email = (u["attributes"].get("username") or "").strip()
-        if not email or email.lower() in in_group:
+    users = {(u["attributes"].get("username") or "").lower(): u for u in call("GET", "/v1/users?limit=50").get("data", [])}
+    for email in OWNERS:
+        if email.lower() in in_group:
             print("ok     testeur interne déjà là :", email)
             continue
+        u = users.get(email.lower())
+        if not u:
+            print("       pas un utilisateur App Store Connect :", email)
+            continue
+        print("       rôles", u["attributes"].get("roles"), "| toutes les apps", u["attributes"].get("allAppsVisible"))
         found = call("GET", f"/v1/betaTesters?filter[email]={email}&limit=5").get("data", [])
         if found:
             r = call("POST", f"/v1/betaGroups/{gid}/relationships/betaTesters", {"data": [{"type": "betaTesters", "id": found[0]["id"]}]})
@@ -72,4 +78,11 @@ if internal:
             r = call("POST", "/v1/betaTesters", {"data": {"type": "betaTesters", "attributes": {
                 "email": email, "firstName": u["attributes"].get("firstName"), "lastName": u["attributes"].get("lastName")},
                 "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": gid}]}}}})
-        print(("ÉCHEC  testeur " + email + " " + json.dumps(r)[:300]) if isinstance(r, dict) and "error" in r else "ok     testeur interne ajouté : " + email)
+        if isinstance(r, dict) and "error" in r:
+            try:
+                d = "; ".join(x.get("detail", "") for x in json.loads(r["detail"]).get("errors", []))
+            except Exception:
+                d = r["detail"]
+            print("ÉCHEC  testeur", email, d)
+        else:
+            print("ok     testeur interne ajouté :", email)
