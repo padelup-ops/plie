@@ -405,6 +405,11 @@ step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATC
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
+if not contact.get("contactFirstName"):
+    # Nouvelle app sans bêta publique : on reprend les coordonnées de Foldly.
+    other = call("GET", "/v1/apps?filter[bundleId]=com.padelup.clapet").get("data", [])
+    if other:
+        contact = call("GET", f"/v1/apps/{other[0]['id']}/betaAppReviewDetail").get("data", {}).get("attributes", {})
 attrs = {k: contact.get(k) for k in ("contactFirstName", "contactLastName", "contactPhone", "contactEmail") if contact.get(k)}
 attrs.update({"notes": REVIEW_NOTES, "demoAccountRequired": False})
 detail = call("GET", f"/v1/appStoreVersions/{vid}/appStoreReviewDetail").get("data")
