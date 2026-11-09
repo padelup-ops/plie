@@ -1,0 +1,156 @@
+"""Écrit les textes de Foldboard en anglais et en français (Shared/*.lproj/Localizable.strings).
+
+Usage : python3 foldboard/tools/strings.py
+"""
+import os
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.join(HERE, "..")
+
+FR = {
+    # Accueil
+    "The keyboard made for iPhone Duo": "Le clavier fait pour l’iPhone Duo",
+    "Type with one thumb on the left or on the right, with both hands on the open Duo, and send your usual phrases in one tap.":
+        "Tape avec un pouce à gauche ou à droite, à deux mains sur le Duo ouvert, et envoie tes phrases habituelles en un toucher.",
+    "Get started": "Pour commencer",
+    "Add Foldboard to your keyboards": "Ajouter Foldboard à tes claviers",
+    "Done": "OK",
+    "1 minute, 3 steps": "1 minute, 3 étapes",
+    "Try it": "Essaie-le",
+    "Type here to try Foldboard": "Écris ici pour essayer Foldboard",
+    "Clear": "Effacer",
+    "Tap the field, then hold the globe key and pick Foldboard.": "Touche le champ, puis maintiens la touche globe et choisis Foldboard.",
+    "Make it yours": "À ta façon",
+    "Position and size": "Position et taille",
+    "Colors and font": "Couleurs et police",
+    "Sound, vibrations and swipe": "Son, vibrations et glissement",
+    "Phrases and emoji": "Phrases et emojis",
+    "Typing": "Écriture",
+    "Foldboard never sends what you type anywhere. It has no internet access, no account and no ads.":
+        "Foldboard n’envoie jamais ce que tu écris. Pas d’accès à internet, pas de compte, pas de pub.",
+    # Pro
+    "Foldboard Pro is unlocked": "Foldboard Pro est débloqué",
+    "Free trial in progress": "Essai gratuit en cours",
+    "Your free trial is over": "Ton essai gratuit est terminé",
+    "Try everything free for 3 days": "Essaie tout gratuitement pendant 3 jours",
+    "Thank you!": "Merci !",
+    "Until %@": "Jusqu’au %@",
+    "Unlock Foldboard Pro to keep two hands, follow-your-hand, colors and phrases.":
+        "Débloque Foldboard Pro pour garder les deux mains, le clavier qui suit ta main, les couleurs et les phrases.",
+    "Two hands, follow-your-hand, colors, fonts, sounds and your phrases.":
+        "Deux mains, clavier qui suit ta main, couleurs, polices, sons et tes phrases.",
+    "Colors and fonts": "Couleurs et polices",
+    "8 color themes and 4 fonts.": "8 thèmes de couleurs et 4 polices.",
+    "Your phrases and emoji": "Tes phrases et emojis",
+    "Write your usual phrases in one tap.": "Écris tes phrases habituelles en un toucher.",
+    "Sounds, vibrations, swipe": "Sons, vibrations, glissement",
+    "Pick the sound, the vibration strength and the cursor speed.": "Choisis le son, la force des vibrations et la vitesse du curseur.",
+    "One-hand left and right, full width, AZERTY and QWERTY stay free forever.":
+        "Une main à gauche et à droite, toute la largeur, AZERTY et QWERTY restent gratuits pour toujours.",
+    "Foldboard Pro is unlocked. Thank you!": "Foldboard Pro est débloqué. Merci !",
+    "Start the 3-day free trial": "Commencer l’essai gratuit de 3 jours",
+    "Free, nothing renews": "Gratuit, rien ne se renouvelle",
+    "Free trial until %@": "Essai gratuit jusqu’au %@",
+    "Unlock Foldboard Pro": "Débloquer Foldboard Pro",
+    "Unlock Foldboard Pro for %@": "Débloquer Foldboard Pro pour %@",
+    "One payment, yours forever. No subscription.": "Un seul paiement, à toi pour toujours. Pas d’abonnement.",
+    "Restore purchases": "Restaurer les achats",
+    "The App Store isn’t reachable right now. Try again in a moment.": "L’App Store n’est pas joignable. Réessaie dans un instant.",
+    "No purchase found for this Apple account.": "Aucun achat trouvé pour ce compte Apple.",
+    # Installation
+    "3 steps": "3 étapes",
+    "Open Foldboard’s page in Settings with the button below.": "Ouvre la page de Foldboard dans Réglages avec le bouton ci-dessous.",
+    "Tap **Keyboards**, turn on **Foldboard**, then **Allow Full Access**.": "Touche **Claviers**, active **Foldboard**, puis **Autoriser l’accès complet**.",
+    "In any app, hold the globe key 🌐 under the keyboard and pick **Foldboard**.": "Dans n’importe quelle app, maintiens la touche globe 🌐 sous le clavier et choisis **Foldboard**.",
+    "Open Settings": "Ouvrir Réglages",
+    "Full Access is only used for vibrations, typing sounds and to share your settings between the app and the keyboard.":
+        "L’accès complet sert seulement aux vibrations, aux sons de frappe et à partager tes réglages entre l’app et le clavier.",
+    "Foldboard has no internet access: what you type stays on your iPhone.": "Foldboard n’a pas accès à internet : ce que tu écris reste sur ton iPhone.",
+    "Why Full Access?": "Pourquoi l’accès complet ?",
+    "Foldboard is set up": "Foldboard est installé",
+    "Add the keyboard": "Ajouter le clavier",
+    # Réglages
+    "Preview: try the keys": "Aperçu : essaie les touches",
+    "Layout": "Disposition",
+    "Position": "Position",
+    "Follows your hand": "Suit ta main",
+    "One hand, left": "Une main, à gauche",
+    "One hand, right": "Une main, à droite",
+    "Full width": "Toute la largeur",
+    "Two hands": "Deux mains",
+    "Put your thumb down: the keyboard comes to that side.": "Pose ton pouce : le clavier vient de ce côté.",
+    "For your left thumb.": "Pour ton pouce gauche.",
+    "For your right thumb.": "Pour ton pouce droit.",
+    "The classic keyboard, edge to edge.": "Le clavier classique, d’un bord à l’autre.",
+    "Two halves at both edges of the open Duo.": "Deux moitiés, sur les deux bords du Duo ouvert.",
+    "One-hand width": "Largeur à une main",
+    "Two-hand width (each side)": "Largeur à deux mains (chaque côté)",
+    "Distance from the edge": "Écart avec le bord",
+    "Key height": "Hauteur des touches",
+    "Size": "Taille",
+    "The keyboard can also be moved from its top bar: tap the position button, or the arrows to switch sides.":
+        "Tu peux aussi déplacer le clavier depuis sa barre du haut : le bouton de position, ou les flèches pour changer de côté.",
+    "Colors": "Couleurs",
+    "Font": "Police",
+    "Classic": "Classique",
+    "Rounded": "Arrondie",
+    "Serif": "Avec empattements",
+    "Monospaced": "Chasse fixe",
+    "Automatic": "Automatique",
+    "Cloud": "Nuage",
+    "Night": "Nuit",
+    "Mint": "Menthe",
+    "Peach": "Pêche",
+    "Lavender": "Lavande",
+    "Slate": "Ardoise",
+    "Sun": "Soleil",
+    "Vibration strength": "Force des vibrations",
+    "Off": "Coupé",
+    "Vibrations": "Vibrations",
+    "Vibrations and sounds need Full Access in the keyboard settings.": "Les vibrations et les sons demandent l’accès complet dans les réglages du clavier.",
+    "Typing sound": "Son de frappe",
+    "Sounds follow the silent switch of your iPhone.": "Les sons suivent le mode silencieux de ton iPhone.",
+    "Click": "Clic",
+    "Soft": "Doux",
+    "Pop": "Bulle",
+    "Wood": "Bois",
+    "Swipe sensitivity": "Sensibilité du glissement",
+    "Swipe on the space bar": "Glisser sur la barre d’espace",
+    "Slide your thumb on the space bar to move the cursor. Higher is faster.": "Fais glisser ton pouce sur la barre d’espace pour déplacer le curseur. Plus c’est haut, plus c’est rapide.",
+    "Your phrases": "Tes phrases",
+    "New phrase": "Nouvelle phrase",
+    "Add": "Ajouter",
+    "They show above the keys: one tap writes the whole phrase.": "Elles s’affichent au-dessus des touches : un toucher écrit toute la phrase.",
+    "Emoji": "Emojis",
+    "Back to the default emoji": "Revenir aux emojis de départ",
+    "Emoji next to the keys": "Emojis à côté des touches",
+    "In one-hand mode, the free space next to the keyboard shows these emoji (up to 24).": "À une main, l’espace libre à côté du clavier affiche ces emojis (jusqu’à 24).",
+    "Next to the keyboard": "À côté du clavier",
+    "Phrases": "Phrases",
+    "Nothing": "Rien",
+    "Capital letter at the start of a sentence": "Majuscule en début de phrase",
+    "Double space adds a period": "Double espace pour un point",
+    "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word.": "Maintiens une lettre pour ses accents (é, è, à, ç…). Maintiens effacer pour effacer mot par mot.",
+    # Clavier
+    "Switch side": "Changer de côté",
+    "Hide keyboard": "Masquer le clavier",
+    "Keyboard position": "Position du clavier",
+    "Foldboard Pro: open the app to unlock": "Foldboard Pro : ouvre l’app pour le débloquer",
+}
+
+
+def esc(s):
+    return s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
+def write(path, pairs):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        f.write("/* Foldboard */\n")
+        for k, v in pairs:
+            f.write(f'"{esc(k)}" = "{esc(v)}";\n')
+
+
+write(os.path.join(ROOT, "Shared/en.lproj/Localizable.strings"), [(k, k) for k in FR])
+write(os.path.join(ROOT, "Shared/fr.lproj/Localizable.strings"), list(FR.items()))
+print(len(FR), "textes")
