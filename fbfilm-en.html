@@ -1,0 +1,201 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html,body{margin:0;background:#070a1f;overflow:hidden}
+  #stage{position:relative;width:1200px;height:1200px;overflow:hidden;font-family:"Inter Display","Inter",sans-serif;color:#fff;
+    background:radial-gradient(90% 70% at 70% 15%,#2c5bea 0%,rgba(44,91,234,0) 60%),linear-gradient(160deg,#16205a 0%,#070a1f 100%)}
+  #glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(35% 28% at 25% 80%,rgba(83,227,176,.16),transparent 70%)}
+  canvas#gl{position:absolute;left:0;top:0;width:1200px;height:1200px}
+  #shadow{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),rgba(0,0,0,.2) 60%,transparent);filter:blur(12px)}
+  .ov{position:absolute;left:0;right:0;text-align:center;opacity:0;will-change:opacity,transform}
+  .kicker{font-size:30px;font-weight:600;color:#9fb3e8;letter-spacing:.5px;text-transform:uppercase}
+  .h1{font-size:84px;font-weight:750;letter-spacing:-2.6px;line-height:1.02}
+  .h2{font-size:66px;font-weight:750;letter-spacing:-2px;line-height:1.06}
+  .sub{font-size:42px;font-weight:650;color:#c9d6ff;letter-spacing:-.8px}
+  .m{background:linear-gradient(90deg,#7fd8ff,#53e3b0);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .part{display:inline-block;opacity:0}
+  .icon{width:100px;height:100px;border-radius:24px;vertical-align:-20px;margin-right:22px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  #caption{display:none}
+  #mark{position:absolute;left:34px;bottom:34px;padding:9px 18px;border-radius:14px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);
+    font-size:22px;font-weight:600;color:#e8eeff;display:flex;align-items:center;gap:10px}
+  #mark img{width:28px;height:28px;border-radius:7px}
+  .badge{position:absolute;display:flex;align-items:center;gap:14px;padding:16px 24px;border-radius:22px;background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);font-size:30px;font-weight:700;letter-spacing:-.4px;opacity:0;white-space:nowrap}
+  .badge .pulse{width:16px;height:16px;border-radius:50%;background:#53e3b0;box-shadow:0 0 0 8px rgba(83,227,176,.25)}
+  .hand{font-size:40px}
+  .chips{display:flex;gap:16px;justify-content:center;margin-top:36px}
+  .chip{display:flex;align-items:center;gap:12px;padding:14px 22px;border-radius:18px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);
+    font-size:30px;font-weight:700;letter-spacing:-.4px;opacity:0}
+  .ok{width:34px;height:34px;border-radius:50%;background:#53e3b0;color:#07102a;display:grid;place-items:center;font-size:22px;font-weight:900}
+  .note{font-size:28px;color:#9fb3e8;font-weight:600;margin-top:26px}
+  .tag{display:inline-block;margin-top:34px;padding:16px 30px;border-radius:999px;background:linear-gradient(90deg,#2f7cf6,#53e3b0);color:#fff;font-size:32px;font-weight:750}
+</style>
+<script>document.write('<script src="' + (new URLSearchParams(location.search).get('conf') || 'film-conf.js') + '"><\/script>')</script>
+<style>
+  .site #stage{background:#000}
+  .site #glow,.site #shadow,.site .ov,.site #caption,.site #mark{display:none!important}
+</style>
+<script type="importmap">{"imports":{"three":"./lib/three.module.js"}}</script>
+</head><body>
+<div id="stage">
+  <div id="glow"></div>
+  <div id="shadow"></div>
+  <canvas id="gl" width="1200" height="1200"></canvas>
+
+  <div class="ov" id="o-intro" style="top:70px">
+    <div class="kicker part" data-in="0.2">New · for iPhone Duo</div><br>
+    <div class="h1 part" data-in="0.4" style="margin-top:12px"><img class="icon" src="fbicon.png">Foldboard</div><br>
+    <div class="sub part" data-in="1.2" style="margin-top:10px">The keyboard that follows your hand</div>
+  </div>
+  <div class="ov" id="o-right" style="top:60px"><div class="h2"><span class="part" data-in="0">Hold it in your right hand.</span><br><span class="part m" data-in="0.35">It comes to the right.</span></div>
+    <div class="badge" data-in="1.0" style="position:relative;display:inline-flex;margin-top:24px"><span class="pulse"></span><span class="hand">✋</span>Right hand detected</div></div>
+  <div class="ov" id="o-left" style="top:60px"><div class="h2"><span class="part" data-in="0">Switch hands.</span><br><span class="part m" data-in="0.35">It follows you, on its own.</span></div>
+    <div class="badge" data-in="0.9" style="position:relative;display:inline-flex;margin-top:24px"><span class="pulse"></span><span class="hand" style="transform:scaleX(-1);display:inline-block">✋</span>Left hand detected</div></div>
+  <div class="ov" id="o-calib" style="top:60px"><div class="h2"><span class="part" data-in="0">Calibrated to you,</span><br><span class="part m" data-in="0.35">in three taps.</span></div>
+    <div class="chips"><div class="chip" data-in="0.9"><span class="ok">✓</span>Right hand</div><div class="chip" data-in="1.5"><span class="ok">✓</span>Left hand</div><div class="chip" data-in="2.1"><span class="ok">✓</span>Both hands</div></div></div>
+  <div class="ov" id="o-two" style="top:60px"><div class="h2"><span class="part" data-in="0">Both hands on the Duo?</span><br><span class="part m" data-in="0.35">It splits in two.</span></div></div>
+  <div class="ov" id="o-words" style="top:60px"><div class="h2"><span class="part" data-in="0">Auto-correction and</span><br><span class="part m" data-in="0.35">word suggestions.</span></div></div>
+  <div class="ov" id="o-style" style="top:60px"><div class="h2"><span class="part" data-in="0">Your colors, your phrases,</span><br><span class="part m" data-in="0.35">your sounds and haptics.</span></div></div>
+  <div class="ov" id="o-end" style="top:230px">
+    <div class="part" data-in="0"><img src="fbicon.png" style="width:170px;height:170px;border-radius:38px;box-shadow:0 14px 40px rgba(0,0,0,.45)"></div><br>
+    <div class="h1 part" data-in="0.15" style="margin-top:20px;font-size:104px">Foldboard</div><br>
+    <div class="sub part" data-in="0.3">The keyboard that follows your hand</div><br>
+    <div class="tag part" data-in="0.55">Free 3-day trial</div>
+    <br><div class="note part" data-in="0.8">On the App Store</div>
+  </div>
+
+  <div id="caption"></div>
+  <div id="mark"><img src="fbicon.png">Foldboard · iPhone Duo</div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './lib/loaders/GLTFLoader.js';
+import { RoomEnvironment } from './lib/addons/RoomEnvironment.js';
+
+const C = window.FILM; if (C.site) document.documentElement.classList.add('site');                     // timeline (scenes, poses, captions, screens)
+const W = 1200, H = 1200;
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+const key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(0.4, 0.8, 0.6); scene.add(key);
+const cam = new THREE.PerspectiveCamera(22, W / H, 0.01, 10);
+cam.position.set(0, 0, 0.62); cam.lookAt(0, 0, 0);
+
+// --- screens (canvas textures so two captures can cross-fade)
+function screenCanvas(w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const t = new THREE.CanvasTexture(c); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return { c, ctx: c.getContext('2d'), t, key: '' };
+}
+const inner = screenCanvas(2048, 1441), outer = screenCanvas(1024, 1490);
+const imgs = {};
+function load(name) { return new Promise(r => { const i = new Image(); i.onload = () => { imgs[name] = i; r(); }; i.src = name; }); }
+function paint(s, a, b, m, portrait) {
+  const k = `${a}|${b}|${m.toFixed(3)}|${portrait}`; if (k === s.key) return; s.key = k;
+  const { ctx, c } = s; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, c.width, c.height);
+  const draw = (n, alpha) => { const im = imgs[n]; if (!im || alpha <= 0) return; ctx.globalAlpha = alpha;
+    if (portrait) { ctx.save(); ctx.translate(c.width, 0); ctx.rotate(Math.PI / 2); ctx.drawImage(im, 0, 0, c.height, c.width); ctx.restore(); }
+    else ctx.drawImage(im, 0, 0, c.width, c.height); ctx.globalAlpha = 1; };
+  draw(a, 1 - (b ? m : 0)); if (b) draw(b, m);
+  s.t.needsUpdate = true;
+}
+
+let root, pivot, mixer;
+const ease = x => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
+const easeIO = x => x < 0 ? 0 : x > 1 ? 1 : (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+function track(keys, t) {           // keys: [[time, {props}], ...] smooth between
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 0; i < keys.length - 1; i++) {
+    const [t0, a] = keys[i], [t1, b] = keys[i + 1];
+    if (t <= t1) { const x = easeIO((t - t0) / Math.max(1e-6, t1 - t0)); const o = {};
+      for (const k in a) o[k] = a[k] + ((k in b ? b[k] : a[k]) - a[k]) * x; return o; }
+  }
+  return keys[keys.length - 1][1];
+}
+
+window.ready = (async () => {
+  await Promise.all(C.images.map(load));
+  const g = await new Promise(r => new GLTFLoader().load('duo.glb', r));
+  ['Armature', 'Armature_off'].forEach(n => { const o = g.scene.getObjectByName(n); o.parent.remove(o); });
+  g.scene.getObjectByName('Armature_screen').position.x -= 0.21;
+  g.scene.traverse(o => { if (o.isMesh) { o.frustumCulled = false;
+    if (o.material.name === 'screen_lg_screen') { o.material.emissiveMap = inner.t; }
+    if (o.material.name === 'screen_screen ') { o.material.emissiveMap = outer.t; }
+    if (/screen/.test(o.material.name) && o.material.emissiveMap) { o.material.emissive = new THREE.Color(1, 1, 1); o.material.emissiveIntensity = 0.98; o.material.toneMapped = false; o.material.needsUpdate = true; }
+  } });
+  root = g.scene; pivot = new THREE.Group(); pivot.add(root); scene.add(pivot);
+  mixer = new THREE.AnimationMixer(root);
+  mixer.clipAction(g.animations.find(c => c.name === 'ArmatureAction_screen')).play();
+  return true;
+})();
+
+function fadeWin(t, a, b, d = 0.35) { return Math.min(ease((t - a) / d), ease((b - t) / d)); }
+
+// Une séquence d'images (partie filmée) : { seq: 'seq/cascade', fps: 30, from: 1.2 (s dans la séquence), n: nombre d'images }
+function seqName(x, t, t0) {
+  if (typeof x === 'string' || !x) return x;
+  const i = Math.max(0, Math.min(x.n - 1, Math.floor((x.from + (t - t0)) * x.fps)));
+  return `${x.seq}/${String(i + 1).padStart(5, '0')}.jpg`;
+}
+window.frame = async (t) => {
+  // --- model pose
+  const p = window.POSE_OVERRIDE || track(C.pose, t);
+  mixer.setTime(p.fold); root.position.set(0, 0, 0); pivot.rotation.set(0, 0, 0); pivot.scale.setScalar(1); 
+  if (C.site) { pivot.position.set(0, 0, 0); pivot.updateMatrixWorld(true); root.traverse(o => { if (o.isSkinnedMesh) o.computeBoundingBox(); }); }
+  else { pivot.position.set(0, 0, 0); pivot.updateMatrixWorld(true); root.traverse(o => { if (o.isSkinnedMesh) o.computeBoundingBox(); }); }
+  const box = new THREE.Box3().setFromObject(root); const c = box.getCenter(new THREE.Vector3());
+  root.position.set(-c.x, -c.y, -c.z); window._dbg = { c: c.toArray(), p: JSON.stringify(p), size: box.getSize(new THREE.Vector3()).toArray() };
+  pivot.rotation.set(p.pitch, p.yaw, p.roll, 'YXZ');
+  pivot.scale.setScalar(p.s); pivot.position.set(p.x, p.y, 0);
+  // --- screens
+  const si = C.screens.filter(s => s.t <= t).length - 1; const sc = C.screens[Math.max(0, si)];
+  const m = sc.fade ? ease((t - sc.t) / sc.fade) : 1;
+  const prevStart = si > 0 ? C.screens[si - 1].t : 0;
+  const nA = seqName(sc.prev ? sc.prev : sc.inner, t, sc.prev ? (sc.prevT ?? prevStart) : sc.t), nB = sc.prev ? seqName(sc.inner, t, sc.t) : null;
+  for (const n of [nA, nB]) if (n && !imgs[n]) await load(n);
+  paint(inner, nA, nB, m, !!sc.portrait);
+  for (const k in imgs) if (k.startsWith('seq/') && k !== nA && k !== nB) delete imgs[k];
+  const so = C.outers.filter(s => s.t <= t).pop() || C.outers[0];
+  paint(outer, so.img, null, 1, false);
+  // --- blur behind cards
+  const blur = track(C.blur, t).b; const glEl = document.getElementById('gl'); glEl.style.filter = blur > 0.05 ? `blur(${blur.toFixed(1)}px)` : 'none';
+  glEl.style.opacity = (1 - 0.45 * Math.min(1, blur / 22)).toFixed(3);
+  renderer.render(scene, cam);
+  // shadow under the phone
+  pivot.updateMatrixWorld(true);
+  const b2 = new THREE.Box3().setFromObject(root);
+  const lo = new THREE.Vector3((b2.min.x + b2.max.x) / 2, b2.min.y, (b2.min.z + b2.max.z) / 2).project(cam);
+  const l = new THREE.Vector3(b2.min.x, b2.min.y, 0).project(cam), r = new THREE.Vector3(b2.max.x, b2.min.y, 0).project(cam);
+  const sw = Math.abs(r.x - l.x) * W / 2 * 0.95, sh = Math.max(18, sw * 0.12);
+  const sEl = document.getElementById('shadow');
+  sEl.style.width = sw + 'px'; sEl.style.height = sh + 'px';
+  sEl.style.left = ((lo.x + 1) / 2 * W - sw / 2) + 'px'; sEl.style.top = ((1 - lo.y) / 2 * H + 26 - sh / 2) + 'px';
+  sEl.style.opacity = (track(C.shadow, t).o * (blur > 1 ? 0.4 : 1)).toFixed(3);
+  // --- overlays
+  for (const o of C.overlays) {
+    const el = document.getElementById(o.id); const v = fadeWin(t, o.a, o.b, 0.4);
+    el.style.opacity = v; el.style.transform = `translateY(${(1 - v) * 14}px)`;
+    el.querySelectorAll('[data-in]').forEach(e => { const tin = o.a + parseFloat(e.dataset.in); const x = ease((t - tin) / 0.45);
+      e.style.opacity = x; if (!e.classList.contains('check')) e.style.transform = `translateY(${(1 - x) * 18}px)`; });
+    el.querySelectorAll('[data-at]').forEach(e => { e.style.opacity = ease((t - o.a - parseFloat(e.dataset.at)) / 0.4); });
+  }
+  // --- caption (karaoke)
+  const cap = document.getElementById('caption');
+  const line = C.captions.find(l => t >= l.a - 0.15 && t <= l.b + 0.5);
+  if (!line) { cap.style.opacity = 0; }
+  else {
+    cap.style.opacity = Math.min(ease((t - (l0 => l0)(line.a - 0.15)) / 0.2), ease((line.b + 0.5 - t) / 0.25));
+    if (cap.dataset.id !== line.text) { cap.dataset.id = line.text; cap.innerHTML = line.words.map(w => `<span class="w">${w.w}</span>`).join(' '); }
+    const ws = cap.querySelectorAll('.w');
+    line.words.forEach((w, i) => { ws[i].className = 'w' + (t >= w.b ? ' done' : t >= w.a ? ' now' : ''); });
+  }
+  document.getElementById('mark').style.opacity = track(C.mark, t).o;
+  return true;
+};
+</script>
+</body></html>

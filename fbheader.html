@@ -1,0 +1,224 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html,body{margin:0;background:#f3f4f6;overflow:hidden}
+  #stage{position:relative;width:var(--w);height:var(--h);overflow:hidden;font-family:"Inter Display","Inter",sans-serif;color:#111215;
+    background:radial-gradient(120% 90% at 50% 45%,#ffffff 0%,#f4f5f7 55%,#e9ebef 100%)}
+  #glow{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(40% 30% at 30% 70%,rgba(255,196,140,.16),transparent 70%),radial-gradient(40% 30% at 72% 30%,rgba(140,190,255,.14),transparent 70%)}
+  canvas#gl{position:absolute;left:0;top:0;width:var(--w);height:var(--h)}
+  #shadow{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(30,35,45,.32),rgba(30,35,45,.10) 60%,transparent);filter:blur(10px)}
+  .ov{position:absolute;left:0;right:0;text-align:center;opacity:0;will-change:opacity,transform}
+  .kicker{font-size:30px;font-weight:500;color:#6b6f78;letter-spacing:-.2px}
+  .h1{font-size:72px;font-weight:800;letter-spacing:-2.2px;line-height:1.02}
+  .h2{font-size:64px;font-weight:800;letter-spacing:-2px;line-height:1.05}
+  .sub{font-size:40px;font-weight:700;color:#4b5a73;letter-spacing:-.8px}
+  .g{background:linear-gradient(90deg,#10b981,#14b8a6 55%,#0ea5e9);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .gb{background:linear-gradient(90deg,#2563eb,#7c3aed 70%,#c026d3);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .gp{background:linear-gradient(90deg,#8b5cf6,#d946ef);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .go{background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .part{display:inline-block;opacity:0}
+  .icon{width:92px;height:92px;border-radius:22px;vertical-align:-18px;margin-right:18px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+  #caption{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);max-width:1000px;padding:12px 26px;border-radius:16px;
+    background:rgba(255,255,255,.82);box-shadow:0 4px 20px rgba(0,0,0,.07);font-size:36px;font-weight:600;letter-spacing:-.6px;white-space:nowrap;opacity:0}
+  #caption .w{color:#9aa0aa}
+  #caption .w.done{color:#111215}
+  #caption .w.now{color:#1a8f6e}
+  #mark{position:absolute;left:34px;bottom:34px;padding:9px 18px;border-radius:14px;background:rgba(255,255,255,.88);box-shadow:0 2px 10px rgba(0,0,0,.08);
+    font-size:22px;font-weight:600;color:#26292f;display:flex;align-items:center;gap:10px}
+  #mark img{width:28px;height:28px;border-radius:7px}
+  .chips{display:grid;grid-template-columns:repeat(2,auto);gap:18px 22px;justify-content:center;margin-top:40px}
+  .chip{display:flex;align-items:center;gap:14px;padding:16px 26px;border-radius:20px;background:rgba(255,255,255,.92);box-shadow:0 4px 18px rgba(0,0,0,.08);
+    font-size:34px;font-weight:650;letter-spacing:-.5px;opacity:0}
+  .watch{position:relative;width:330px;height:528px;margin:34px auto 0;opacity:0;filter:drop-shadow(0 18px 30px rgba(0,0,0,.25))}
+  .watch .scr{position:absolute;left:48.4px;top:122px;width:233.3px;height:283.2px;border-radius:52px;overflow:hidden;background:#000}
+  .watch .scr img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
+  .watch .scr img:first-child{opacity:1}
+  .watch .bz{position:absolute;inset:0;width:100%;height:100%}
+  .dot{width:16px;height:16px;border-radius:50%}
+  .note{font-size:28px;color:#6b6f78;font-weight:500;margin-top:26px}
+  .pill{display:inline-flex;align-items:center;gap:14px;margin-top:34px;padding:16px 30px;border-radius:999px;background:#111215;color:#fff;font-size:30px;font-weight:600}
+  .steps{width:900px;margin:44px auto 0;display:flex;flex-direction:column;gap:18px}
+  .step{white-space:nowrap;display:flex;align-items:center;gap:20px;padding:20px 26px;border-radius:20px;background:rgba(255,255,255,.95);box-shadow:0 4px 18px rgba(0,0,0,.07);
+    font-size:34px;font-weight:650;letter-spacing:-.5px;text-align:left;opacity:0}
+  .num{flex:none;width:44px;height:44px;border-radius:50%;background:#111215;color:#fff;font-size:24px;display:grid;place-items:center}
+  .link{margin-left:auto;white-space:nowrap;font-size:25px;font-weight:600;color:#2563eb;background:#eef3ff;padding:8px 16px;border-radius:12px}
+  .check{margin-left:auto;width:40px;height:40px;border-radius:50%;background:#22c55e;color:#fff;display:grid;place-items:center;font-size:24px;opacity:0}
+  .tags{display:flex;gap:14px;justify-content:center;margin-top:22px}
+  .tag{padding:10px 20px;border-radius:999px;font-size:24px;font-weight:600}
+</style>
+<style>
+  .hd{position:absolute;opacity:1}
+  .wide .hd{left:150px;top:50%;transform:translateY(-50%);text-align:left;width:760px}
+  .tall .hd{left:0;right:0;top:40px;text-align:center}
+  .hd .kicker{font-size:30px;display:flex;align-items:center;gap:14px}
+  .tall .hd .kicker{justify-content:center;font-size:24px}
+  .tall .hd .kicker img{width:44px;height:44px;border-radius:11px}
+  .hd .kicker img{width:58px;height:58px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.16)}
+  .hd .big{font-size:104px;font-weight:800;letter-spacing:-3.4px;line-height:1.0;margin-top:22px}
+  .tall .hd .big{font-size:66px;letter-spacing:-2px;margin-top:10px}
+  .hd .sub2{font-size:34px;font-weight:600;color:#4b5a73;letter-spacing:-.6px;margin-top:26px}
+  .tall .hd .sub2{font-size:26px;margin-top:10px}
+  .hd .tags{justify-content:flex-start;margin-top:30px}
+  .tall .hd .tags{display:none}
+  .hd .tag{font-size:24px;padding:10px 20px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+</style>
+<style>
+  html,body{background:#070a1f}
+  #stage{color:#fff!important;background:radial-gradient(70% 90% at 72% 40%,#2c5bea 0%,rgba(44,91,234,0) 60%),linear-gradient(160deg,#16205a 0%,#070a1f 100%)!important}
+  #glow{background:radial-gradient(30% 40% at 72% 70%,rgba(83,227,176,.18),transparent 70%)!important}
+  #grid{display:none}
+  .hd .kicker{color:#9fb3e8!important}
+  .hd .sub2{color:#c9d6ff!important}
+  .hd .tag{background:rgba(255,255,255,.12)!important;color:#fff;box-shadow:none!important;border:1px solid rgba(255,255,255,.22)}
+  .g{background:linear-gradient(90deg,#7fd8ff,#53e3b0)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+  #shadow{background:radial-gradient(closest-side,rgba(0,0,0,.55),rgba(0,0,0,.18) 60%,transparent)!important}
+</style>
+<script>
+const Q = new URLSearchParams(location.search);
+const W = +(Q.get('w') || 1920), H = +(Q.get('h') || 823), DPR = +(Q.get('dpr') || 2), LANG = Q.get('lang') || 'en', LAYOUT = Q.get('layout') || 'wide';
+document.documentElement.style.setProperty('--w', W + 'px'); document.documentElement.style.setProperty('--h', H + 'px');
+document.documentElement.classList.add(LAYOUT);
+const T = {
+  en: { kicker: 'Foldboard for iPhone Duo', a: 'It senses your hand.', b: 'And comes to you.', sub: 'The keyboard that follows your hand, and splits in two for both hands.', tags: ['One hand', 'Two hands', 'Auto-correction'] },
+  fr: { kicker: 'Foldboard pour iPhone Duo', a: 'Il sent ta main.', b: 'Et vient à toi.', sub: 'Le clavier qui suit ta main, et se coupe en deux à deux mains.', tags: ['Une main', 'Deux mains', 'Correction'] },
+}[LANG];
+const I = n => `fbcap/duo-${LANG}-${n}.png`;
+const R = Math.PI / 2;
+window.FILM = {
+  images: [I('01-right'), I('03-left'), I('02-split'), I('04-themes'), 'fbcap/outer.png'],
+  pose: [
+    [0.0, { fold: 0, yaw: 0.26, pitch: -0.12, roll: R - 0.14, s: 1.0, x: 0, y: 0 }],
+    [2.8, { fold: 0, yaw: 0.10, pitch: -0.14, roll: R - 0.14, s: 1.0, x: 0, y: 0 }],
+    [3.6, { fold: 0, yaw: -0.14, pitch: -0.14, roll: R + 0.14, s: 1.0, x: 0, y: 0 }],
+    [6.2, { fold: 0, yaw: -0.02, pitch: -0.16, roll: R + 0.14, s: 1.0, x: 0, y: 0 }],
+    [7.0, { fold: 0, yaw: 0.10, pitch: -0.30, roll: R, s: 1.02, x: 0, y: 0 }],
+    [9.4, { fold: 0, yaw: -0.06, pitch: -0.30, roll: R, s: 1.02, x: 0, y: 0 }],
+    [10.2, { fold: 0, yaw: 0.20, pitch: -0.14, roll: R - 0.10, s: 1.0, x: 0, y: 0 }],
+    [12.0, { fold: 0, yaw: 0.26, pitch: -0.12, roll: R - 0.14, s: 1.0, x: 0, y: 0 }],
+  ],
+  screens: [
+    { t: 0, inner: I('01-right'), portrait: true },
+    { t: 3.2, prev: I('01-right'), inner: I('03-left'), fade: 0.4, portrait: true },
+    { t: 6.6, prev: I('03-left'), inner: I('02-split'), fade: 0.4, portrait: true },
+    { t: 9.6, prev: I('02-split'), inner: I('04-themes'), fade: 0.4, portrait: true },
+    { t: 11.3, prev: I('04-themes'), inner: I('01-right'), fade: 0.6, portrait: true },
+  ],
+  outers: [{ t: 0, img: 'fbcap/outer.png' }],
+  duration: 12,
+};
+</script>
+<script type="importmap">{"imports":{"three":"./lib/three.module.js"}}</script>
+</head><body>
+<div id="stage">
+  <div id="glow"></div>
+  <div id="grid"></div>
+  <div id="shadow"></div>
+  <canvas id="gl"></canvas>
+  <div class="hd">
+    <div class="kicker"><img src="fbicon.png"><span id="k"></span></div>
+    <div class="big"><span id="a"></span><br><span class="g" id="b"></span></div>
+    <div class="sub2" id="s"></div>
+    <div class="tags" id="tg"></div>
+  </div>
+</div>
+<script>
+document.getElementById('k').textContent = T.kicker; document.getElementById('a').textContent = T.a;
+document.getElementById('b').textContent = T.b; document.getElementById('s').textContent = T.sub;
+document.getElementById('tg').innerHTML = T.tags.map(t => '<span class="tag">' + t + '</span>').join('');
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './lib/loaders/GLTFLoader.js';
+import { RoomEnvironment } from './lib/addons/RoomEnvironment.js';
+const C = window.FILM;
+const cv = document.getElementById('gl'); cv.width = W * DPR; cv.height = H * DPR;
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(DPR); renderer.setSize(W, H, false);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+const key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(0.4, 0.8, 0.6); scene.add(key);
+const cam = new THREE.PerspectiveCamera(22, W / H, 0.01, 10);
+cam.position.set(0, 0, LAYOUT === 'wide' ? 0.60 : 0.80); cam.lookAt(0, 0, 0);
+// Le Duo à droite (large) ou en bas (3:2), là où le texte ne le recouvre pas
+const vh = 2 * Math.tan(22 / 2 * Math.PI / 180) * cam.position.z, vw = vh * W / H;
+const OFF = LAYOUT === 'wide' ? { x: vw * 0.19, y: -vh * 0.01 } : { x: 0, y: -vh * 0.19 };
+// --- screens (canvas textures so two captures can cross-fade)
+function screenCanvas(w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const t = new THREE.CanvasTexture(c); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return { c, ctx: c.getContext('2d'), t, key: '' };
+}
+const inner = screenCanvas(2048, 1441), outer = screenCanvas(1024, 1490);
+const imgs = {};
+function load(name) { return new Promise(r => { const i = new Image(); i.onload = () => { imgs[name] = i; r(); }; i.src = name; }); }
+function paint(s, a, b, m, portrait) {
+  const k = `${a}|${b}|${m.toFixed(3)}|${portrait}`; if (k === s.key) return; s.key = k;
+  const { ctx, c } = s; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, c.width, c.height);
+  const draw = (n, alpha) => { const im = imgs[n]; if (!im || alpha <= 0) return; ctx.globalAlpha = alpha;
+    if (portrait) { ctx.save(); ctx.translate(c.width, 0); ctx.rotate(Math.PI / 2); ctx.drawImage(im, 0, 0, c.height, c.width); ctx.restore(); }
+    else ctx.drawImage(im, 0, 0, c.width, c.height); ctx.globalAlpha = 1; };
+  draw(a, 1 - (b ? m : 0)); if (b) draw(b, m);
+  s.t.needsUpdate = true;
+}
+
+let root, pivot, mixer;
+const ease = x => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
+const easeIO = x => x < 0 ? 0 : x > 1 ? 1 : (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+function track(keys, t) {           // keys: [[time, {props}], ...] smooth between
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 0; i < keys.length - 1; i++) {
+    const [t0, a] = keys[i], [t1, b] = keys[i + 1];
+    if (t <= t1) { const x = easeIO((t - t0) / Math.max(1e-6, t1 - t0)); const o = {};
+      for (const k in a) o[k] = a[k] + ((k in b ? b[k] : a[k]) - a[k]) * x; return o; }
+  }
+  return keys[keys.length - 1][1];
+}
+
+window.ready = (async () => {
+  await Promise.all(C.images.map(load));
+  const g = await new Promise(r => new GLTFLoader().load('duo.glb', r));
+  ['Armature', 'Armature_off'].forEach(n => { const o = g.scene.getObjectByName(n); o.parent.remove(o); });
+  g.scene.getObjectByName('Armature_screen').position.x -= 0.21;
+  g.scene.traverse(o => { if (o.isMesh) { o.frustumCulled = false;
+    if (o.material.name === 'screen_lg_screen') { o.material.emissiveMap = inner.t; }
+    if (o.material.name === 'screen_screen ') { o.material.emissiveMap = outer.t; }
+    if (/screen/.test(o.material.name) && o.material.emissiveMap) { o.material.emissive = new THREE.Color(1, 1, 1); o.material.emissiveIntensity = 0.98; o.material.toneMapped = false; o.material.needsUpdate = true; }
+  } });
+  root = g.scene; pivot = new THREE.Group(); pivot.add(root); scene.add(pivot);
+  mixer = new THREE.AnimationMixer(root);
+  mixer.clipAction(g.animations.find(c => c.name === 'ArmatureAction_screen')).play();
+  return true;
+})();
+
+function fadeWin(t, a, b, d = 0.35) { return Math.min(ease((t - a) / d), ease((b - t) / d)); }
+
+window.frame = (t) => {
+  const p = track(C.pose, t);
+  mixer.setTime(p.fold); root.position.set(0, 0, 0); pivot.rotation.set(0, 0, 0); pivot.scale.setScalar(1);
+  pivot.position.set(0, 0, 0); pivot.updateMatrixWorld(true); root.traverse(o => { if (o.isSkinnedMesh) o.computeBoundingBox(); });
+  const box = new THREE.Box3().setFromObject(root); const c = box.getCenter(new THREE.Vector3());
+  root.position.set(-c.x, -c.y, -c.z);
+  pivot.rotation.set(p.pitch, p.yaw, p.roll, 'YXZ');
+  pivot.scale.setScalar(p.s); pivot.position.set(OFF.x + p.x, OFF.y + p.y, 0);
+  const sc = C.screens.filter(s => s.t <= t).pop() || C.screens[0];
+  const m = sc.fade ? ease((t - sc.t) / sc.fade) : 1;
+  paint(inner, sc.prev || sc.inner, sc.prev ? sc.inner : null, m, !!sc.portrait);
+  const so = C.outers.filter(s => s.t <= t).pop() || C.outers[0];
+  paint(outer, so.img, null, 1, false);
+  renderer.render(scene, cam);
+  pivot.updateMatrixWorld(true);
+  const b2 = new THREE.Box3().setFromObject(root);
+  const lo = new THREE.Vector3((b2.min.x + b2.max.x) / 2, b2.min.y, (b2.min.z + b2.max.z) / 2).project(cam);
+  const l = new THREE.Vector3(b2.min.x, b2.min.y, 0).project(cam), r = new THREE.Vector3(b2.max.x, b2.min.y, 0).project(cam);
+  const sw = Math.abs(r.x - l.x) * W / 2 * 0.95, sh = Math.max(18, sw * 0.12);
+  const sEl = document.getElementById('shadow');
+  sEl.style.width = sw + 'px'; sEl.style.height = sh + 'px';
+  sEl.style.left = ((lo.x + 1) / 2 * W - sw / 2) + 'px'; sEl.style.top = ((1 - lo.y) / 2 * H + 26 - sh / 2) + 'px';
+  return true;
+};
+</script>
+</body></html>
