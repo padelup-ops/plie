@@ -213,6 +213,12 @@ struct KBSettings: Codable, Equatable {
         if let closed {
             // La charnière dit tout.
             open = !closed
+        } else if short >= 600 {
+            // Mesuré sur un vrai Duo (azooKey-Duo) : écran extérieur 466 × 678 pt, écran intérieur 669 × 951 pt.
+            // Le petit côté ne dépend ni du sens ni de la largeur de la fenêtre : 600 pt les sépare.
+            open = true
+        } else if ratio > 0.6 && short >= 420 && short <= 520 {
+            open = false
         } else if w <= 0 || h <= 0 || ratio <= 0.6 {
             // Écran allongé : un iPhone classique, ou le Duo fermé.
             open = false
