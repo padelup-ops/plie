@@ -75,6 +75,10 @@ final class KBSuggest {
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
         guard isMisspelled(word) else { return nil }
         let ns = word as NSString
+        // Le début d'un vrai mot (« minu » → minute) : on ne corrige pas, la barre propose la suite.
+        let longer = (checker.completions(forPartialWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? [])
+            .contains { $0.count > word.count && $0.lowercased().hasPrefix(lower) && !$0.contains(" ") }
+        if longer { return nil }
         let guesses = checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? []
         // On garde une proposition proche (même début, longueur voisine) pour ne pas changer le sens.
         let best = guesses.first { g in

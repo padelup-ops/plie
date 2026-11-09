@@ -46,7 +46,7 @@ jobs:
           d = [x for x in json.load(sys.stdin)['devicetypes'] if want in x['name']]
           print(d[-1]['identifier'] if d else '')" "$1"
           }
-          for KIND in duo max; do
+          for KIND in duo; do
             if [ $KIND = duo ]; then DT=$(pick Duo); else DT=$(pick "Pro Max"); fi
             echo "$KIND runtime=$RUNTIME device=$DT" | tee -a shots/simulateur.txt
             [ -n "$DT" ] || continue
@@ -61,7 +61,8 @@ jobs:
                 xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
                 xcrun simctl launch "$UDID" "$BID" -AppleLanguages "($L)" -AppleLocale "${L}_FR" -shot "$R" > /dev/null 2>&1 || true
                 sleep 6
-                xcrun simctl io "$UDID" screenshot --display=1 "shots/$KIND-$L-$(printf %02d $N)-$R.png" 2>>shots/erreurs-captures.txt || true
+                xcrun simctl io "$UDID" screenshot --display=0 "shots/$KIND-$L-$(printf %02d $N)-$R-in.png" 2>>shots/erreurs-captures.txt || true
+                xcrun simctl io "$UDID" screenshot --display=1 "shots/$KIND-$L-$(printf %02d $N)-$R-out.png" 2>>shots/erreurs-captures.txt || true
               done
             done
             xcrun simctl shutdown "$UDID" || true
