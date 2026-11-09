@@ -570,7 +570,18 @@ if SUBMIT:
         print("\nPAS ENVOYÉ : la version n'a pas pu être ajoutée")
         sys.exit(1)
     # Les vidéos d'en-tête et de recherche (iOS 27) placées sur cette version partent avec elle.
-    for v_ in call("GET", f"/v1/appAssetLibraries/{app_id}/videos?limit=50").get("data", []):
+    # ASSETS_DIR=none : pas de vidéos cette fois (on retire celles déjà mises dans la demande).
+    if os.environ.get("ASSETS_DIR") == "none":
+        for it in call("GET", f"/v1/reviewSubmissions/{sub_id}/items?include=appAssetLibraryVideo,appStoreVersion&limit=50").get("data", []):
+            rels = it.get("relationships", {})
+            vid_rel = (rels.get("appAssetLibraryVideo") or {}).get("data")
+            if vid_rel is None and "appAssetLibraryVideo" not in rels:
+                # Relation non renvoyée : on la demande directement.
+                rr = call("GET", f"/v1/reviewSubmissionItems/{it['id']}/relationships/appAssetLibraryVideo")
+                vid_rel = rr.get("data") if isinstance(rr, dict) and "error" not in rr else None
+            if vid_rel:
+                step("ancienne vidéo d'en-tête retirée de la demande", call("DELETE", f"/v1/reviewSubmissionItems/{it['id']}"))
+    for v_ in ([] if os.environ.get("ASSETS_DIR") == "none" else call("GET", f"/v1/appAssetLibraries/{app_id}/videos?limit=50").get("data", [])):
         st = str(v_["attributes"].get("state") or "")
         if "APPROVED" in st or "REVIEW" in st or "REJECTED" in st:
             continue
@@ -588,6 +599,11 @@ if SUBMIT:
             r_iap = step(f"achat {x['attributes'].get('productId')} envoyé avec la version", call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
                  "type": "inAppPurchaseSubmissions", "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}}),
                  tolerate=("already",))
+            if isinstance(r_iap, dict) and "error" in r_iap and "no pending version" in r_iap.get("detail", ""):
+                # Déjà ajouté à la version dans App Store Connect : il part avec la demande.
+                problems.remove(f"achat {x['attributes'].get('productId')} envoyé avec la version")
+                print(f"ok     achat {x['attributes'].get('productId')} déjà joint à la version")
+                continue
             if isinstance(r_iap, dict) and "error" in r_iap and "FIRST_NON_CONSUMABLE" in r_iap.get("detail", ""):
                 # Nouvelle app : le premier achat doit être dans la même demande que la version.
                 r2 = step(f"achat {x['attributes'].get('productId')} ajouté à la demande", call("POST", "/v1/reviewSubmissionItems", {"data": {
