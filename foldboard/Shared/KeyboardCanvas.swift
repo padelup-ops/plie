@@ -302,7 +302,7 @@ final class KeyboardCanvas: UIView {
         if demoOneHand { c = "closed-portrait" }
         gripContext = c
         grip.guessUncalibrated = false
-        grip.defaultTilt = !gripContext.hasPrefix("open")
+        grip.defaultTilt = followsHand
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
         if let r, let l, abs(kbWrap(r - l)) >= 3 {
             let mid = kbWrap(r + kbWrap(l - r) / 2)
@@ -418,7 +418,7 @@ final class KeyboardCanvas: UIView {
         let now = ProcessInfo.processInfo.systemUptime
         guard autoOn, visible, !adjusting, !showEmoji, tracks.isEmpty, recording == nil,
               now - lastKeyTime > 0.8, now - lastReread > 0.4,
-              !gripContext.hasPrefix("open") else { return }
+              followsHand else { return }
         lastReread = now
         grip.reread { [weak self] g in
             guard let self, let g, g != .two else { return }
@@ -460,7 +460,7 @@ final class KeyboardCanvas: UIView {
     private func placeByTap(at p: CGPoint) {
         let W = bounds.width
         // Écran intérieur : le clavier est coupé en deux (ou entier), il n'y a rien à placer.
-        guard W > 0, !(settings.mode == .auto && gripContext.hasPrefix("open")) else { return }
+        guard W > 0, !(settings.mode == .auto && !followsHand) else { return }
         let center = abs(p.x - W / 2) < W * 0.17 && layoutMode.isOneHand
         let auto = eff.mode == .auto
         var s = settings
@@ -547,10 +547,16 @@ final class KeyboardCanvas: UIView {
     /// Tutoriel : le clavier se comporte comme sur l'écran extérieur, même Duo ouvert.
     var demoOneHand = false
 
+    /// Le clavier suit la main ici : écran extérieur, ou écran intérieur en portrait sans les deux moitiés.
+    private var followsHand: Bool {
+        gripContext.hasPrefix("closed") || (gripContext == "open-portrait" && !settings.openSplit)
+    }
+
     private var layoutMode: KBMode {
         // Écran intérieur du Duo, comme le clavier d'Apple : deux moitiés en portrait, entier en paysage.
         if settings.mode == .auto {
-            if gripContext == "open-portrait" { return pro && splitAllowed ? .split : .full }
+            // En portrait, au choix : deux moitiés, ou le petit clavier qui suit la main (comme sur l'écran extérieur).
+            if gripContext == "open-portrait" && settings.openSplit { return pro && splitAllowed ? .split : .full }
             if gripContext == "open-landscape" { return .full }
         }
         if eff.mode == .auto && eff.autoTwo { return splitAllowed ? .split : .full }
@@ -892,7 +898,7 @@ final class KeyboardCanvas: UIView {
         modeButton.menu = modeMenu()
         modeButton.accessibilityLabel = L("Keyboard position")
         // La flèche ⇆ : changer de côté, ou revenir à une main depuis le milieu.
-        let oneHand = layoutMode.isOneHand || (eff.mode == .auto && !gripContext.hasPrefix("open"))
+        let oneHand = layoutMode.isOneHand || (eff.mode == .auto && followsHand)
         flipButton.isHidden = !oneHand
         // En couleur : le clavier est verrouillé là où tu l'as mis.
         flipButton.tintColor = grip.locked && eff.mode == .auto ? theme.accent : theme.text.withAlphaComponent(0.7)
@@ -979,7 +985,19 @@ final class KeyboardCanvas: UIView {
         let adjustAction = UIAction(title: L("Adjust the keyboard"), image: UIImage(systemName: "arrow.left.and.right.square")) { [weak self] _ in
             self?.startAdjust()
         }
-        return UIMenu(title: L("Keyboard position"), children: [UIMenu(options: .displayInline, children: actions), adjustAction])
+        var extra: [UIMenuElement] = [adjustAction]
+        if gripContext == "open-portrait" {
+            // Duo ouvert en portrait : l'utilisateur choisit entre deux moitiés et le petit clavier qui suit la main.
+            extra.insert(UIAction(title: L("Split when the Duo is open"), image: UIImage(systemName: "rectangle.split.2x1"),
+                                  state: settings.openSplit ? .on : .off) { [weak self] _ in
+                guard let self else { return }
+                if !self.pro && !self.settings.openSplit { self.setMode(.split); return }
+                self.settings.openSplit.toggle()
+                self.settings.mode = .auto
+                UIView.animate(withDuration: 0.25) { self.save(); self.layoutIfNeeded() }
+            }, at: 0)
+        }
+        return UIMenu(title: L("Keyboard position"), children: [UIMenu(options: .displayInline, children: actions)] + extra)
     }
 
     private func rebuildPanel() {

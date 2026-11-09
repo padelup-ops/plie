@@ -91,6 +91,8 @@ struct KBSettings: Codable, Equatable {
     var oneHandWidth: Double = 0.68
     /// Largeur à une main sur l'écran intérieur du Duo (déplié) : plus compact, à portée du pouce.
     var oneHandWidthOpen: Double = 0.56
+    /// Duo ouvert en portrait : clavier coupé en deux (sinon, petit clavier qui suit la main).
+    var openSplit = false
     /// Largeur de chaque moitié en mode deux mains, en part de l'écran.
     var splitWidth: Double = 0.34
     /// Écart avec le bord de l'écran, en points.
@@ -148,6 +150,7 @@ struct KBSettings: Codable, Equatable {
         swipes = (try? c.decodeIfPresent([String: [String: [[Double]]]].self, forKey: .swipes)) ?? [:]
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
         oneHandWidthOpen = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidthOpen)) ?? d.oneHandWidthOpen
+        openSplit = (try? c.decodeIfPresent(Bool.self, forKey: .openSplit)) ?? d.openSplit
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
