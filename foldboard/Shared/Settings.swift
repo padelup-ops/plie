@@ -57,6 +57,12 @@ struct KBSettings: Codable, Equatable {
     var mode: KBMode = .auto
     /// Côté retenu pour le mode automatique (true = droite).
     var autoRight = true
+    /// Mode automatique : deux mains détectées (deux moitiés sur l'écran déplié, toute la largeur sur l'écran extérieur).
+    var autoTwo = false
+    /// Étalonnage de l'inclinaison : l'angle « droit » et le sens qui veut dire main droite.
+    var tiltMid: Double = 0
+    var tiltRightNegative = true
+    var tiltCalibrated = false
     /// Largeur du clavier à une main, en part de l'écran.
     var oneHandWidth: Double = 0.68
     /// Largeur de chaque moitié en mode deux mains, en part de l'écran.
@@ -97,6 +103,10 @@ struct KBSettings: Codable, Equatable {
         layout = (try? c.decodeIfPresent(KBLayout.self, forKey: .layout)) ?? d.layout
         mode = (try? c.decodeIfPresent(KBMode.self, forKey: .mode)) ?? d.mode
         autoRight = (try? c.decodeIfPresent(Bool.self, forKey: .autoRight)) ?? d.autoRight
+        autoTwo = (try? c.decodeIfPresent(Bool.self, forKey: .autoTwo)) ?? d.autoTwo
+        tiltMid = (try? c.decodeIfPresent(Double.self, forKey: .tiltMid)) ?? d.tiltMid
+        tiltRightNegative = (try? c.decodeIfPresent(Bool.self, forKey: .tiltRightNegative)) ?? d.tiltRightNegative
+        tiltCalibrated = (try? c.decodeIfPresent(Bool.self, forKey: .tiltCalibrated)) ?? d.tiltCalibrated
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin

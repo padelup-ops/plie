@@ -90,8 +90,12 @@ final class KeyboardCanvas: UIView {
     private let accentView = UIView()
     private var accentLabels: [UILabel] = []
 
-    /// Mode automatique : le premier toucher dit de quel côté est la main.
-    private var autoPending = true
+    /// Mode automatique : la main qui tient le téléphone (inclinaison, puis GripSense pendant la frappe).
+    private let grip = GripDetector()
+    private var pendingGrip: KBGrip?
+    private var idleTimer: Timer?
+    private var visible = false
+    private var autoOn: Bool { eff.mode == .auto && pro }
 
     private final class Track {
         let index: Int
@@ -104,6 +108,8 @@ final class KeyboardCanvas: UIView {
         var longTimer: Timer?
         var repeatTimer: Timer?
         var done = false
+        var swipe = false
+        var points: [CGPoint] = []
         init(index: Int, start: CGPoint) {
             self.index = index
             self.start = start
@@ -179,19 +185,75 @@ final class KeyboardCanvas: UIView {
         self.pro = pro
         eff = settings.effective(pro: pro)
         theme = KBTheme.named(eff.theme)
+        grip.tiltMid = settings.tiltMid
+        grip.rightNegative = settings.tiltRightNegative
+        grip.current = settings.autoTwo ? .two : (settings.autoRight ? .right : .left)
         builtFor = .zero
         setNeedsLayout()
+        if visible && autoOn && !gripStarted { startGrip() }
+        if visible && !autoOn && gripStarted { grip.stop(); gripStarted = false }
     }
 
     /// Le clavier vient d'apparaître.
     func appeared() {
-        autoPending = true
+        visible = true
+        if autoOn { startGrip() }
         page = .letters
         shift = .off
         refreshShift()
         KBFeedback.shared.prepare()
         builtFor = .zero
         setNeedsLayout()
+    }
+
+    /// Le clavier disparaît : on coupe les capteurs.
+    func disappeared() {
+        visible = false
+        grip.stop()
+        gripStarted = false
+        idleTimer?.invalidate()
+    }
+
+    private var gripStarted = false
+    private func startGrip() {
+        gripStarted = true
+        grip.onGrip = { [weak self] g in self?.gripDetected(g) }
+        grip.start { [weak self] g in
+            guard let self, let g, self.autoOn else { return }
+            // Pas encore de « deux mains » sur une simple inclinaison : seulement le côté.
+            if self.settings.autoTwo { return }
+            self.applyGrip(g)
+        }
+    }
+
+    private func gripDetected(_ g: KBGrip) {
+        guard autoOn else { return }
+        pendingGrip = g
+        scheduleGrip()
+    }
+
+    /// On ne déplace pas les touches sous le doigt : on attend une petite pause dans la frappe.
+    private func scheduleGrip() {
+        idleTimer?.invalidate()
+        guard pendingGrip != nil, tracks.isEmpty else { return }
+        idleTimer = Timer.scheduledTimer(withTimeInterval: 0.45, repeats: false) { [weak self] _ in
+            guard let self, let g = self.pendingGrip, self.tracks.isEmpty else { return }
+            self.applyGrip(g)
+        }
+    }
+
+    private func applyGrip(_ g: KBGrip) {
+        pendingGrip = nil
+        var s = settings
+        s.autoTwo = g == .two
+        if g != .two { s.autoRight = g == .right }
+        grip.current = g
+        guard s.autoTwo != settings.autoTwo || s.autoRight != settings.autoRight else { return }
+        settings = s
+        UIView.transition(with: self, duration: 0.22, options: .transitionCrossDissolve, animations: {
+            self.save()
+            self.layoutIfNeeded()
+        })
     }
 
     /// Le texte a changé (curseur déplacé, autre champ) : on revoit la majuscule.
@@ -215,7 +277,10 @@ final class KeyboardCanvas: UIView {
 
     private func flipSide() {
         switch eff.mode {
-        case .auto: settings.autoRight.toggle()
+        case .auto:
+            settings.autoRight = settings.autoTwo ? true : !settings.autoRight
+            settings.autoTwo = false
+            grip.current = settings.autoRight ? .right : .left
         case .left: settings.mode = .right
         case .right: settings.mode = .left
         default: return
@@ -249,6 +314,7 @@ final class KeyboardCanvas: UIView {
 
     /// Le mode réellement possible à cette largeur (deux mains : il faut de la place).
     private var layoutMode: KBMode {
+        if eff.mode == .auto && eff.autoTwo { return bounds.width >= 520 ? .split : .full }
         if eff.mode == .split && bounds.width < 520 { return .full }
         return eff.mode
     }
@@ -504,11 +570,6 @@ final class KeyboardCanvas: UIView {
 
     // MARK: Touchers
 
-    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        // Mode automatique : le premier toucher hors du clavier fait venir le clavier sous le pouce.
-        if autoPending && eff.mode == .auto && layoutMode.isOneHand && panelRect.contains(point) { return self }
-        return super.hitTest(point, with: event)
-    }
 
     private func cellIndex(at p: CGPoint) -> Int? {
         if let i = cells.firstIndex(where: { $0.hit.contains(p) }) { return i }
@@ -522,18 +583,14 @@ final class KeyboardCanvas: UIView {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        idleTimer?.invalidate()
         for t in touches {
             let p = t.location(in: self)
-            if eff.mode == .auto && layoutMode.isOneHand {
-                if autoPending || panelRect.contains(p) {
-                    autoPending = false
-                    if panelRect.contains(p) {
-                        flipSide()
-                        continue
-                    }
-                }
+            // Un toucher dans l'espace vide de l'autre côté : le clavier y passe.
+            if eff.mode == .auto && layoutMode.isOneHand && panelRect.contains(p) {
+                flipSide()
+                continue
             }
-            autoPending = false
             guard p.y > Self.topBarHeight, let i = cellIndex(at: p) else { continue }
             // Frappe en roulement : la touche précédente encore enfoncée part tout de suite.
             for o in order {
@@ -542,6 +599,14 @@ final class KeyboardCanvas: UIView {
                 }
             }
             let tr = Track(index: i, start: p)
+            tr.points = [p]
+            if autoOn, bounds.width > 0 {
+                let lo = blocks.map { $0.minX }.min() ?? 0
+                let hi = blocks.map { $0.maxX }.max() ?? bounds.width
+                let bx = max(0, min(1, (p.x - lo) / max(1, hi - lo)))
+                let others = order.filter { $0 != t }.map { $0.location(in: self).x / bounds.width }
+                grip.tap(blockX: bx, screenX: p.x / bounds.width, radius: t.majorRadius, time: t.timestamp, others: others)
+            }
             tracks[t] = tr
             order.append(t)
             press(tr)
@@ -552,6 +617,15 @@ final class KeyboardCanvas: UIView {
         for t in touches {
             guard let tr = tracks[t], !tr.done, let k = kind(tr) else { continue }
             let p = t.location(in: self)
+            if tr.points.count < 80 { tr.points.append(p) }
+            // Un balayage vertical du pouce n'écrit rien : il dit quelle main tape (arc du pouce).
+            let ddx = p.x - tr.start.x, ddy = p.y - tr.start.y
+            if !tr.swipe && !tr.cursorMode && tr.accents.isEmpty && abs(ddy) > 30 && abs(ddy) > abs(ddx) * 1.2 {
+                tr.swipe = true
+                tr.longTimer?.invalidate()
+                hideBubble()
+            }
+            if tr.swipe { continue }
             if k == .space {
                 let dx = p.x - tr.start.x
                 if !tr.cursorMode && abs(dx) > 12 {
@@ -585,9 +659,15 @@ final class KeyboardCanvas: UIView {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches {
             guard let tr = tracks[t] else { continue }
-            if !tr.done { commit(tr) }
+            if tr.swipe {
+                tr.done = true
+                if autoOn { grip.swipe(tr.points) }
+            } else if !tr.done {
+                commit(tr)
+            }
             finish(t)
         }
+        if tracks.isEmpty { scheduleGrip() }
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {

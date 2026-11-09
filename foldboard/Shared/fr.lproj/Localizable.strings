@@ -115,3 +115,13 @@
 "Hide keyboard" = "Masquer le clavier";
 "Keyboard position" = "Position du clavier";
 "Foldboard Pro: open the app to unlock" = "Foldboard Pro : ouvre l’app pour le débloquer";
+"Comes to the hand holding the phone. Both hands: split on the open Duo, full width on the outer screen." = "Vient du côté de la main qui tient le téléphone. À deux mains : coupé en deux sur le Duo déplié, en pleine largeur sur l’écran extérieur.";
+"The keyboard comes to the hand holding the phone, or splits for two hands." = "Le clavier vient du côté de la main qui tient le téléphone, ou se coupe en deux à deux mains.";
+"Tilt now" = "Inclinaison actuelle";
+"Right hand" = "Main droite";
+"Right hand ✓" = "Main droite ✓";
+"Left hand" = "Main gauche";
+"Left hand ✓" = "Main gauche ✓";
+"Calibrated" = "Étalonné";
+"Follow your hand" = "Suivre ta main";
+"Foldboard looks at how the phone leans when the keyboard opens, then at your thumb while you type (GripSense method). To make it sure: hold the phone in your right hand as usual and tap Right hand, then the same with your left hand." = "Foldboard regarde comment le téléphone penche quand le clavier s’ouvre, puis ton pouce pendant que tu tapes (méthode GripSense). Pour plus de précision : tiens le téléphone dans ta main droite comme d’habitude et touche Main droite, puis pareil avec la main gauche.";

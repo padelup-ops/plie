@@ -1,3 +1,4 @@
+import CoreMotion
 import SwiftUI
 import UIKit
 
@@ -144,6 +145,10 @@ struct PositionView: View {
                 Text("Position")
             }
 
+            if m.settings.mode == .auto {
+                TiltCalibration()
+            }
+
             Section {
                 slider("One-hand width", value: $m.settings.oneHandWidth, in: 0.45...0.95, format: { "\(Int($0 * 100)) %" })
                 slider("Two-hand width (each side)", value: $m.settings.splitWidth, in: 0.22...0.48, format: { "\(Int($0 * 100)) %" })
@@ -171,7 +176,7 @@ struct PositionView: View {
 
     private func modeDetail(_ m: KBMode) -> LocalizedStringKey {
         switch m {
-        case .auto: return "Put your thumb down: the keyboard comes to that side."
+        case .auto: return "Comes to the hand holding the phone. Both hands: split on the open Duo, full width on the outer screen."
         case .left: return "For your left thumb."
         case .right: return "For your right thumb."
         case .full: return "The classic keyboard, edge to edge."
@@ -428,7 +433,7 @@ struct ProView: View {
                     Text("Foldboard Pro").font(.largeTitle.bold())
                     VStack(alignment: .leading, spacing: 12) {
                         feature("rectangle.split.2x1", "Two hands", "Two halves at both edges of the open Duo.")
-                        feature("hand.raised.fingers.spread", "Follows your hand", "The keyboard comes to the side of your thumb.")
+                        feature("hand.raised.fingers.spread", "Follows your hand", "The keyboard comes to the hand holding the phone, or splits for two hands.")
                         feature("paintpalette", "Colors and fonts", "8 color themes and 4 fonts.")
                         feature("text.bubble", "Your phrases and emoji", "Write your usual phrases in one tap.")
                         feature("waveform", "Sounds, vibrations, swipe", "Pick the sound, the vibration strength and the cursor speed.")
@@ -520,5 +525,75 @@ extension KBFont {
         case .serif: return .serif
         case .mono: return .monospaced
         }
+    }
+}
+
+// MARK: - Étalonnage de l'inclinaison (clavier qui suit la main)
+
+
+@Observable
+final class TiltReader {
+    var angle: Double?
+    @ObservationIgnored private let motion = CMMotionManager()
+
+    func start() {
+        guard motion.isDeviceMotionAvailable, !motion.isDeviceMotionActive else { return }
+        motion.deviceMotionUpdateInterval = 1.0 / 20
+        motion.startDeviceMotionUpdates(to: .main) { [weak self] m, _ in
+            guard let self, let g = m?.gravity else { return }
+            let planar = (g.x * g.x + g.y * g.y).squareRoot()
+            let a = atan2(g.x, -g.y) * 180 / .pi
+            self.angle = planar > 0.35 ? (self.angle.map { $0 * 0.8 + a * 0.2 } ?? a) : nil
+        }
+    }
+
+    func stop() { motion.stopDeviceMotionUpdates() }
+}
+
+struct TiltCalibration: View {
+    @Environment(SettingsModel.self) private var model
+    @State private var reader = TiltReader()
+    @State private var rightAngle: Double?
+    @State private var leftAngle: Double?
+
+    var body: some View {
+        Section {
+            HStack {
+                Text("Tilt now")
+                Spacer()
+                Text(reader.angle.map { String(format: "%+.0f°", $0) } ?? "—").monospacedDigit().foregroundStyle(.secondary)
+            }
+            HStack(spacing: 12) {
+                Button { rightAngle = reader.angle; finish() } label: {
+                    Label(rightAngle == nil ? "Right hand" : "Right hand ✓", systemImage: "hand.point.right")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                Button { leftAngle = reader.angle; finish() } label: {
+                    Label(leftAngle == nil ? "Left hand" : "Left hand ✓", systemImage: "hand.point.left")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+            .disabled(reader.angle == nil)
+            if model.settings.tiltCalibrated {
+                Label("Calibrated", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+            }
+        } header: {
+            HStack { Text("Follow your hand"); ProBadge() }
+        } footer: {
+            Text("Foldboard looks at how the phone leans when the keyboard opens, then at your thumb while you type (GripSense method). To make it sure: hold the phone in your right hand as usual and tap Right hand, then the same with your left hand.")
+        }
+        .onAppear { reader.start() }
+        .onDisappear { reader.stop() }
+    }
+
+    private func finish() {
+        guard let r = rightAngle, let l = leftAngle, abs(r - l) >= 3 else { return }
+        var s = model.settings
+        s.tiltMid = (r + l) / 2
+        s.tiltRightNegative = r < l
+        s.tiltCalibrated = true
+        model.settings = s
     }
 }

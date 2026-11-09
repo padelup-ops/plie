@@ -25,6 +25,10 @@ struct KeyboardPreview: UIViewRepresentable {
         }
     }
 
+    static func dismantleUIView(_ uiView: KeyboardCanvas, coordinator: Coordinator) {
+        uiView.disappeared()
+    }
+
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: KeyboardCanvas, context: Context) -> CGSize? {
         CGSize(width: proposal.width ?? 390, height: uiView.preferredHeight)
     }

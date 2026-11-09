@@ -29,6 +29,11 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         canvas.appeared()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        canvas.disappeared()
+    }
+
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
         canvas.textChanged()
