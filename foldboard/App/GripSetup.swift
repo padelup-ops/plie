@@ -112,14 +112,21 @@ struct GripSetup: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 14) {
-                HStack(spacing: 8) {
+                HStack(spacing: 12) {
+                    if onFinish == nil {
+                        Button { dismiss() } label: {
+                            Image(systemName: "chevron.left").font(.headline)
+                                .frame(width: 36, height: 36)
+                                .background(Circle().fill(Color(.secondarySystemBackground)))
+                        }
+                    }
                     ForEach(0..<grips.count, id: \.self) { i in
                         Capsule()
                             .fill(i < step ? Color.green : (i == step ? Color.accentColor : Color(.systemFill)))
                             .frame(height: 5)
                     }
                 }
-                .padding(.horizontal, 30)
+                .padding(.horizontal, onFinish == nil ? 0 : 30)
                 .animation(.easeInOut, value: step)
 
                 Spacer(minLength: 0)
@@ -130,6 +137,7 @@ struct GripSetup: View {
                     Text("Your thumbs are learned").font(.title2.bold())
                     Text("Foldboard now knows your right thumb from your left: the keyboard comes to the thumb that types, and goes to the middle with both.")
                         .multilineTextAlignment(.center).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                     Text(String(format: NSLocalizedString("Learned for: %@. If you also type with the Duo %@, do it once that way too.", comment: ""),
                                 learned.map(kbContextName).joined(separator: ", "),
                                 context.hasPrefix("open") ? NSLocalizedString("closed", comment: "") : NSLocalizedString("open", comment: "")))
@@ -144,6 +152,7 @@ struct GripSetup: View {
                 } else {
                     Text(title).font(.title2.bold())
                     Text(instruction).multilineTextAlignment(.center).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                     Text(sentence).font(.title3.weight(.semibold)).padding(.top, 2)
                     Text(text.isEmpty ? " " : text)
                         .lineLimit(1).truncationMode(.head)
@@ -167,8 +176,7 @@ struct GripSetup: View {
         .onAppear { reader.start() }
         .onDisappear { reader.stop() }
         .modifier(HingeWatch { hingeClosed = $0 })
-        .navigationTitle("Learn my thumbs")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
     }
 
     private func add(_ f: [Double]) {
