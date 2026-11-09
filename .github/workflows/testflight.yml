@@ -31,6 +31,8 @@ on:
       - ".github/workflows/unlocked-*.yml"
       - "waffle/**"
       - ".github/workflows/waffle-*.yml"
+      - "foldboard/**"
+      - ".github/workflows/foldboard-*.yml"
   workflow_dispatch:
 
 concurrency:
