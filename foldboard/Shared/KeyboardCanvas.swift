@@ -84,6 +84,8 @@ final class KeyboardCanvas: UIView {
     private let topBar = UIView()
     private let modeButton = UIButton(type: .system)
     private let flipButton = UIButton(type: .system)
+    /// Écran intérieur, petit clavier : un bouton pour passer en grand (et revenir).
+    private let bigButton = UIButton(type: .system)
     private let hideButton = UIButton(type: .system)
     private let adjustButton = UIButton(type: .system)
     private let chips = UIScrollView()
@@ -169,7 +171,7 @@ final class KeyboardCanvas: UIView {
         adjustButton.setImage(UIImage(systemName: "slider.horizontal.3"), for: .normal)
         adjustButton.addAction(UIAction { [weak self] _ in self?.startAdjust() }, for: .touchUpInside)
         adjustButton.accessibilityLabel = L("Adjust the keyboard")
-        for b in [modeButton, flipButton, hideButton, adjustButton] {
+        for b in [modeButton, flipButton, bigButton, hideButton, adjustButton] {
             b.tintColor = .label
             topBar.addSubview(b)
         }
@@ -177,6 +179,7 @@ final class KeyboardCanvas: UIView {
         flipButton.setImage(UIImage(systemName: "arrow.left.arrow.right"), for: .normal)
         flipButton.addAction(UIAction { [weak self] _ in self?.flipSide() }, for: .touchUpInside)
         flipButton.accessibilityLabel = L("Switch side")
+        bigButton.addAction(UIAction { [weak self] _ in self?.toggleBig() }, for: .touchUpInside)
         // Appui long : la situation reconnue et l'étalonnage utilisé (pour vérifier).
         flipButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(showGripInfo(_:))))
         hideButton.setImage(UIImage(systemName: "keyboard.chevron.compact.down"), for: .normal)
@@ -393,10 +396,8 @@ final class KeyboardCanvas: UIView {
         grip.current = g
         guard s.autoTwo != settings.autoTwo || s.autoRight != settings.autoRight else { return }
         settings = s
-        UIView.transition(with: self, duration: 0.12, options: .transitionCrossDissolve, animations: {
-            self.save()
-            self.layoutIfNeeded()
-        })
+        save()
+        layoutIfNeeded()
     }
 
     /// Le lexique de l'utilisateur (contacts, remplacements de texte).
@@ -480,10 +481,8 @@ final class KeyboardCanvas: UIView {
         // Placé à la main : il reste là (plus de suivi automatique jusqu'à la prochaine apparition du clavier).
         grip.locked = true
         settings = s
-        UIView.transition(with: self, duration: 0.18, options: .transitionCrossDissolve, animations: {
-            self.save()
-            self.layoutIfNeeded()
-        })
+        save()
+        layoutIfNeeded()
     }
 
     @objc private func showGripInfo(_ g: UILongPressGestureRecognizer) {
@@ -494,6 +493,14 @@ final class KeyboardCanvas: UIView {
         let state = grip.tapModel != nil ? String(format: L("calibrated (%lld grips)"), n)
             : (grip.calibrated ? L("tilt only") : L("not calibrated"))
         flash((names[gripContext] ?? gripContext) + " · " + state)
+    }
+
+    /// Écran intérieur en portrait : le clavier en grand, ou de nouveau le petit qui suit la main.
+    private func toggleBig() {
+        settings.openFull.toggle()
+        KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
+        save()
+        layoutIfNeeded()
     }
 
     private func flipSide() {
@@ -509,7 +516,8 @@ final class KeyboardCanvas: UIView {
         case .right: settings.mode = .left
         default: return
         }
-        UIView.animate(withDuration: 0.25) { self.save(); self.layoutIfNeeded() }
+        save()
+        layoutIfNeeded()
     }
 
     private func flash(_ text: String) {
@@ -549,7 +557,7 @@ final class KeyboardCanvas: UIView {
 
     /// Le clavier suit la main ici : écran extérieur, ou écran intérieur en portrait sans les deux moitiés.
     private var followsHand: Bool {
-        gripContext.hasPrefix("closed") || (gripContext == "open-portrait" && !settings.openSplit)
+        gripContext.hasPrefix("closed") || (gripContext == "open-portrait" && !settings.openSplit && !settings.openFull)
     }
 
     private var layoutMode: KBMode {
@@ -557,6 +565,7 @@ final class KeyboardCanvas: UIView {
         if settings.mode == .auto {
             // En portrait, au choix : deux moitiés, ou le petit clavier qui suit la main (comme sur l'écran extérieur).
             if gripContext == "open-portrait" && settings.openSplit { return pro && splitAllowed ? .split : .full }
+            if gripContext == "open-portrait" && settings.openFull { return .full }
             if gripContext == "open-landscape" { return .full }
         }
         if eff.mode == .auto && eff.autoTwo { return splitAllowed ? .split : .full }
@@ -824,26 +833,29 @@ final class KeyboardCanvas: UIView {
         slide(from: oldBlocks)
     }
 
-    /// Le clavier change de côté (ou revient au milieu) : les touches glissent jusqu'à leur nouvelle place.
+    /// Le clavier change de côté, revient au milieu ou passe en grand : chaque touche glisse de son ancienne place
+    /// à la nouvelle (pas de saut).
     private func slide(from old: [CGRect]) {
         guard visible, !adjusting, window != nil, old.count == 1, blocks.count == 1,
               abs(old[0].height - blocks[0].height) < 2 else { return }
-        let dx = old[0].midX - blocks[0].midX
-        guard abs(dx) > 20 else { return }
-        let sx = max(0.5, min(2, old[0].width / max(1, blocks[0].width)))
+        let o = old[0], n = blocks[0]
+        let dx = o.midX - n.midX
+        let sx = max(0.3, min(3, o.width / max(1, n.width)))
+        guard abs(dx) > 8 || abs(sx - 1) > 0.05 else { return }
         let views = cells.map(\.view)
-        let c = blocks[0].midX
-        for v in views {
-            // Chaque touche part de là où elle était dans l'ancien bloc.
-            let from = c + dx + (v.center.x - c) * sx
-            v.transform = CGAffineTransform(translationX: from - v.center.x, y: 0)
+        UIView.performWithoutAnimation {
+            for v in views {
+                // Chaque touche part de là où elle était dans l'ancien bloc, à l'ancienne taille.
+                let from = o.midX + (v.center.x - n.midX) * sx
+                v.transform = CGAffineTransform(translationX: from - v.center.x, y: 0).scaledBy(x: sx, y: 1)
+            }
+            panel.alpha = 0
         }
-        panel.alpha = 0
-        UIView.animate(withDuration: 0.42, delay: 0, usingSpringWithDamping: 0.82, initialSpringVelocity: 0.4,
-                       options: [.allowUserInteraction, .beginFromCurrentState]) {
+        UIView.animate(withDuration: 0.38, delay: 0, usingSpringWithDamping: 0.86, initialSpringVelocity: 0.3,
+                       options: [.allowUserInteraction, .beginFromCurrentState, .curveEaseOut]) {
             views.forEach { $0.transform = .identity }
         }
-        UIView.animate(withDuration: 0.25, delay: 0.15, options: [.allowUserInteraction]) { self.panel.alpha = 1 }
+        UIView.animate(withDuration: 0.22, delay: 0.18, options: [.allowUserInteraction]) { self.panel.alpha = 1 }
     }
 
     /// Place des rangées dans un bloc. `align` : -1 collé à gauche, 1 collé à droite, 0 centré.
@@ -903,11 +915,17 @@ final class KeyboardCanvas: UIView {
         // En couleur : le clavier est verrouillé là où tu l'as mis.
         flipButton.tintColor = grip.locked && eff.mode == .auto ? theme.accent : theme.text.withAlphaComponent(0.7)
         flipButton.frame = CGRect(x: 46, y: 0, width: oneHand ? 36 : 0, height: h)
+        let bigShown = gripContext == "open-portrait" && settings.mode == .auto && !settings.openSplit
+        bigButton.isHidden = !bigShown
+        bigButton.setImage(UIImage(systemName: settings.openFull ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right"), for: .normal)
+        bigButton.accessibilityLabel = settings.openFull ? L("Small keyboard") : L("Big keyboard")
+        bigButton.tintColor = theme.text.withAlphaComponent(0.7)
+        bigButton.frame = CGRect(x: flipButton.frame.maxX + (oneHand ? 0 : 0), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
         hideButton.frame = CGRect(x: bounds.width - 46, y: 0, width: 40, height: h)
         adjustButton.tintColor = theme.text.withAlphaComponent(0.7)
         adjustButton.frame = CGRect(x: bounds.width - 46 - 36, y: 0, width: 36, height: h)
-        let cx = flipButton.frame.maxX + 4
+        let cx = max(flipButton.frame.maxX, bigButton.frame.maxX) + 4
         chips.frame = CGRect(x: cx, y: 0, width: max(0, adjustButton.frame.minX - cx - 4), height: h)
 
         rebuildChips()
@@ -994,7 +1012,8 @@ final class KeyboardCanvas: UIView {
                 if !self.pro && !self.settings.openSplit { self.setMode(.split); return }
                 self.settings.openSplit.toggle()
                 self.settings.mode = .auto
-                UIView.animate(withDuration: 0.25) { self.save(); self.layoutIfNeeded() }
+                self.save()
+                self.layoutIfNeeded()
             }, at: 0)
         }
         return UIMenu(title: L("Keyboard position"), children: [UIMenu(options: .displayInline, children: actions)] + extra)

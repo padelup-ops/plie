@@ -136,6 +136,8 @@ FR = {
     "Hide keyboard": "Masquer le clavier",
     "Keyboard position": "Position du clavier",
     "Foldboard Pro: open the app to unlock": "Foldboard Pro : ouvre l’app pour le débloquer",
+    "Small keyboard": "Petit clavier",
+    "Big keyboard": "Clavier en grand",
     "Split when the Duo is open": "Scinder quand le Duo est ouvert",
     "Allow Full Access to use Foldboard Pro": "Autorise l’accès complet pour utiliser Foldboard Pro",
     # Suit ta main

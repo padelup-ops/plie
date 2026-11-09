@@ -93,6 +93,8 @@ struct KBSettings: Codable, Equatable {
     var oneHandWidthOpen: Double = 0.56
     /// Duo ouvert en portrait : clavier coupé en deux (sinon, petit clavier qui suit la main).
     var openSplit = false
+    /// Duo ouvert en portrait : le clavier en grand (bouton dans la barre).
+    var openFull = false
     /// Largeur de chaque moitié en mode deux mains, en part de l'écran.
     var splitWidth: Double = 0.34
     /// Écart avec le bord de l'écran, en points.
@@ -151,6 +153,7 @@ struct KBSettings: Codable, Equatable {
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
         oneHandWidthOpen = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidthOpen)) ?? d.oneHandWidthOpen
         openSplit = (try? c.decodeIfPresent(Bool.self, forKey: .openSplit)) ?? d.openSplit
+        openFull = (try? c.decodeIfPresent(Bool.self, forKey: .openFull)) ?? d.openFull
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
