@@ -685,3 +685,33 @@
 "To celebrate 1,000 downloads, the code FOLDLY1000 gives you Foldly+ at half the regular price until November 16. Paid once, yours for good." = "为庆祝 1,000 次下载，使用代码 FOLDLY1000 即可以常规价格的一半获得 Foldly+，至 11 月 16 日。一次购买，永久拥有。";
 "Mini games you play by folding your Duo" = "通过折叠 Duo 来玩的小游戏";
 "Also for your Duo" = "同样适用于你的 Duo";
+
+/* Aujourd'hui, heure par heure */
+"Peak %@ · %lld folds" = "高峰 %@ · %lld 次";
+
+/* Classements ouverts à tous et concours du mois */
+"Who folds the most?" = "谁折得最多？";
+"Contest of the month" = "本月比赛";
+"Most folds" = "折叠次数最多";
+"Most time unfolded" = "展开时间最长";
+"The calmest (fewest folds per day)" = "最淡定（每天折叠最少）";
+"%@ per day" = "每天 %@";
+"From %lld days of use" = "使用 %lld 天后参加";
+"Under your limit" = "低于你的上限";
+"%lld days" = "%lld 天";
+"Only your scores and your Game Center nickname are shared, through Apple's Game Center. You can leave anytime." = "只会通过 Apple 的 Game Center 分享你的分数和 Game Center 昵称。你可以随时退出。";
+"Share my rank" = "分享我的排名";
+"Climb the leaderboards with other Foldly users and your friends. Free for everyone." = "和其他 Foldly 用户及朋友一起冲排行榜。人人免费。";
+"Each month, the winner of each category gets Foldly+ for free and picks a new feature for the app." = "每个月，每个类别的冠军都能免费获得 Foldly+，并为应用挑选一个新功能。";
+"Ends %@" = "%@ 结束";
+"Rules" = "规则";
+"I'm #%lld on today's Foldly leaderboard with %lld folds! Can you beat me? %@" = "我今天在 Foldly 排行榜排第 %lld 名，折了 %lld 次！你能赢我吗？%@";
+"%lld folds today on my iPhone Duo. Can you beat me on the Foldly leaderboard? %@" = "今天在我的 iPhone Duo 上折了 %lld 次。你能在 Foldly 排行榜上赢我吗？%@";
+"Contest rules" = "比赛规则";
+"Free and open to everyone who uses Foldly and joins the leaderboard with Game Center. No purchase needed." = "凡使用 Foldly 并通过 Game Center 加入排行榜的人都可免费参加，无需购买。";
+"Each contest lasts about a month. The end date is shown in the app. A new contest starts right after." = "每场比赛约持续一个月，结束日期显示在应用中。结束后立即开始新一场。";
+"Three categories: most folds, most time unfolded, and the calmest (fewest folds per day, with at least 7 days of use in the period). Only folds counted automatically by the app are meant to count." = "共三个类别：折叠次数最多、展开时间最长、最淡定（每天折叠最少，且期间内至少使用 7 天）。只有应用自动统计的折叠才算数。";
+"The winner of each category is the first in Game Center when the contest ends. Scores that look impossible or made by cheating can be excluded." = "每个类别的冠军是比赛结束时 Game Center 排名第一的人。看起来不可能或作弊得来的分数可能会被排除。";
+"Prize for each winner: Foldly+ for free (a code to redeem on the App Store) and the chance to suggest a new feature, which we will build first if it is possible and allowed on the App Store." = "每位冠军的奖品：免费 Foldly+（在 App Store 兑换的代码），以及提议一个新功能的机会。如果可行且 App Store 允许，我们会优先开发。";
+"Winners are announced on Reddit (r/iPhoneduoapp). To get the prize, contact us within 30 days through the Support link on Foldly's App Store page, with a screenshot of your Game Center nickname." = "获奖者将在 Reddit（r/iPhoneduoapp）公布。领取奖品请在 30 天内通过 Foldly App Store 页面上的“支持”链接联系我们，并附上你的 Game Center 昵称截图。";
+"Apple is not a sponsor of this contest and is not involved in it in any way." = "Apple 不是本比赛的赞助方，也不以任何方式参与。";

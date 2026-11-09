@@ -80,6 +80,7 @@ enum WeekRecapNotice {
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Your week with Foldly")
         content.body = String(localized: "Your weekly recap is ready: your folds, time open and closed, and your busiest day.")
+        content.userInfo = ["url": "clapet://week"]
         var at = DateComponents()
         at.weekday = ClapetStats.recapWeekday
         at.hour = 19

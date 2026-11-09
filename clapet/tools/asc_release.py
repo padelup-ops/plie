@@ -255,6 +255,15 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.12": {
+        "en-US": "• Leaderboards are now free for everyone, with new ones: who folds the most today, this week and since day one. Share your rank!\n• Contest of the month: the winners get Foldly+ for free and pick a new feature.\n• Today, hour by hour, right on the home screen.\n• Your weekly and monthly recaps are always one tap away, and the notification opens them.",
+        "fr-FR": "• Les classements sont gratuits pour tous, avec des nouveaux : qui plie le plus aujourd'hui, cette semaine et depuis le début. Partage ton rang !\n• Le concours du mois : les gagnants reçoivent Foldly+ gratuit et choisissent une nouvelle fonctionnalité.\n• Aujourd'hui, heure par heure, directement sur l'écran principal.\n• Tes bilans de la semaine et du mois sont toujours à portée de main, et la notification les ouvre.",
+        "de-DE": "• Ranglisten sind jetzt für alle kostenlos, mit neuen: Wer faltet heute, diese Woche und seit Tag eins am meisten? Teile deinen Rang!\n• Wettbewerb des Monats: Die Gewinner bekommen Foldly+ gratis und wählen eine neue Funktion.\n• Heute, Stunde für Stunde, direkt auf dem Startbildschirm.\n• Deine Wochen- und Monatsrückblicke sind immer einen Tipp entfernt, und die Mitteilung öffnet sie.",
+        "es-ES": "• Las clasificaciones son gratis para todos, con nuevas: quién pliega más hoy, esta semana y desde el primer día. ¡Comparte tu puesto!\n• Concurso del mes: los ganadores reciben Foldly+ gratis y eligen una nueva función.\n• Hoy, hora a hora, en la pantalla principal.\n• Tus resúmenes semanales y mensuales siempre a un toque, y la notificación los abre.",
+        "ja": "• ランキングが誰でも無料に。新ランキング：今日・今週・これまででいちばん折った人。順位をシェアしよう！\n• 今月のコンテスト：優勝者は Foldly+ が無料になり、新機能を選べます。\n• 今日の1時間ごとの回数をホーム画面に表示。\n• 週間・月間まとめにいつでもすぐアクセス。通知からも開けます。",
+        "ko": "• 순위가 모두에게 무료예요. 새 순위: 오늘, 이번 주, 처음부터 가장 많이 접은 사람. 내 순위를 공유하세요!\n• 이달의 대회: 우승자는 Foldly+를 무료로 받고 새 기능을 골라요.\n• 오늘 시간대별 기록을 홈 화면에서 바로.\n• 주간·월간 요약을 언제든 한 번에 열 수 있고, 알림을 누르면 바로 열려요.",
+        "zh-Hans": "• 排行榜现在对所有人免费，并新增：今天、本周和至今谁折得最多。分享你的排名！\n• 本月比赛：冠军免费获得 Foldly+ 并挑选一个新功能。\n• 今天按小时的数据，直接显示在主屏幕上。\n• 每周和每月总结随时一键打开，通知也能直接打开。",
+    },
     "1.0.11": {
         "en-US": "• 1,000 downloads in 3 days, thank you! To celebrate, Foldly+ is at its lowest price ever with a gift code, until November 16.\n• New setting: count each movement. Opening and closing then count as 2 instead of 1. Your history, widgets and watch follow too.\n• Importing your history works with Scriptable files as they are, no need to convert them first.\n• When a day was counted both by Foldly and by your old tool, Foldly now keeps the higher count, today included, so no fold gets lost.\n• Small fixes and improvements.",
         "fr-FR": "• 1 000 téléchargements en 3 jours, merci ! Pour fêter ça, Foldly+ est à son prix le plus bas avec un code cadeau, jusqu'au 16 novembre.\n• Nouveau réglage : compter chaque mouvement. Ouvrir puis fermer compte alors pour 2 au lieu de 1. L'historique, les widgets et la montre suivent aussi.\n• L'import de ton historique lit directement les fichiers Scriptable, plus besoin de les convertir.\n• Quand un jour a été compté à la fois par Foldly et par ton ancien outil, Foldly garde le plus grand des deux nombres, aujourd'hui compris : aucun pli n'est perdu.\n• Petites corrections et améliorations.",
@@ -329,7 +338,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.6") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.6") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -374,7 +383,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.6") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.6") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})

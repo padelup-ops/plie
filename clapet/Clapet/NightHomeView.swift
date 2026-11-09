@@ -358,6 +358,12 @@ struct NightHomeView: View {
                     ClosedTimeContent(stats: model.stats)
                 }
             }
+            Card {
+                VStack(alignment: .leading, spacing: 12) {
+                    CardTitle(Text("Today by hour"))
+                    TodayByHour(stats: model.stats)
+                }
+            }
             if !updateHidden && UpdateCheck.shared.showBanner {
                 Card(filled: true) {
                     UpdateBanner { UpdateCheck.shared.hide(); withAnimation { updateHidden = true } }

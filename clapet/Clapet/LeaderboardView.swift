@@ -1,38 +1,72 @@
 import GameKit
 import SwiftUI
 
-/// L'écran des classements (Game Center), ouvert depuis le trophée de l'écran d'accueil.
+/// L'écran des classements (Game Center), ouvert depuis le trophée de l'écran d'accueil. Ouvert à tous.
 struct LeaderboardView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
-    @State private var showPlus = false
     @Environment(\.dismiss) private var dismiss
     @State private var gameCenter = GameCenter.shared
     @State private var board: String?
     @State private var ranks: [String: Int] = [:]
+    @State private var showRules = false
     @AppStorage("boardsSeen") private var seen = false
 
     private var stats: ClapetStats { model.stats }
-    private var streak: Int { stats.leaderboardStreak() }
-    private var month: Int { stats.daysUnderLimit(since: Calendar.current.date(byAdding: .day, value: -29, to: Date())!) }
+    private var joined: Bool { gameCenter.on && gameCenter.signedIn }
 
     var body: some View {
+        let scores = gameCenter.scores(stats)
         NavigationStack {
             ScrollView {
-                VStack(spacing: 18) {
+                VStack(spacing: 14) {
                     header
-                    scoreCard(icon: "flame.fill", color: .orange,
-                              title: Text("Longest streak under your limit"),
-                              value: streak, id: GameCenter.streakID)
-                    scoreCard(icon: "calendar", color: .blue,
-                              title: Text("Days under your limit, last 30 days"),
-                              value: month, id: GameCenter.monthID)
-                    action
-                    Text("Only days when you used your Duo count. Only your two scores are shared, through Apple's Game Center. You can leave anytime.")
+                    join
+
+                    section(Text("Who folds the most?"), symbol: "flame.fill", color: .orange)
+                    scoreCard(icon: "sun.max.fill", color: .orange, title: Text("Today"),
+                              value: Text("\(FoldUnit.shown(scores[GameCenter.todayID] ?? 0)) folds"), id: GameCenter.todayID)
+                    scoreCard(icon: "calendar.day.timeline.left", color: .pink, title: Text("This week"),
+                              value: Text("\(FoldUnit.shown(scores[GameCenter.weekID] ?? 0)) folds"), id: GameCenter.weekID)
+                    scoreCard(icon: "infinity", color: .purple, title: Text("Since day one"),
+                              value: Text("\(FoldUnit.shown(scores[GameCenter.totalID] ?? 0)) folds"), id: GameCenter.totalID)
+
+                    contestHeader
+                    scoreCard(icon: "trophy.fill", color: .yellow, title: Text("Most folds"),
+                              value: Text("\(FoldUnit.shown(scores[GameCenter.contestFoldsID] ?? 0)) folds"), id: GameCenter.contestFoldsID)
+                    scoreCard(icon: "iphone.gen3", color: .blue, title: Text("Most time unfolded"),
+                              value: Text(TimeFormat.short(TimeInterval((scores[GameCenter.contestOpenID] ?? 0) * 60))), id: GameCenter.contestOpenID)
+                    scoreCard(icon: "leaf.fill", color: .green, title: Text("The calmest (fewest folds per day)"),
+                              value: scores[GameCenter.contestCalmID].map { Text("\(Double($0) / 10, format: .number.precision(.fractionLength(1))) per day") }
+                                ?? Text("From \(GameCenter.calmMinDays) days of use"),
+                              id: GameCenter.contestCalmID)
+
+                    section(Text("Under your limit"), symbol: "target", color: .teal)
+                    if stats.goalOn {
+                        scoreCard(icon: "flame", color: .teal, title: Text("Longest streak under your limit"),
+                                  value: Text("\(scores[GameCenter.streakID] ?? 0) days"), id: GameCenter.streakID)
+                        scoreCard(icon: "calendar", color: .teal, title: Text("Days under your limit, last 30 days"),
+                                  value: Text("\(scores[GameCenter.monthID] ?? 0) days"), id: GameCenter.monthID)
+                    } else {
+                        Button {
+                            model.setGoalOn(true)
+                        } label: {
+                            Label("Turn on my daily limit", systemImage: "target")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 6)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.large)
+                        .buttonBorderShape(.capsule)
+                    }
+
+                    Text("Only your scores and your Game Center nickname are shared, through Apple's Game Center. You can leave anytime.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 8)
+                        .padding(.top, 6)
                 }
                 .padding(20)
                 .frame(maxWidth: 560)
@@ -43,6 +77,10 @@ struct LeaderboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+                ToolbarItem(placement: .topBarLeading) {
+                    ShareLink(item: shareText) { Image(systemName: "square.and.arrow.up") }
+                        .accessibilityLabel(Text("Share my rank"))
+                }
                 if gameCenter.on {
                     ToolbarItem(placement: .secondaryAction) {
                         Button(role: .destructive) { gameCenter.setOn(false) } label: { Text("Leave the leaderboard") }
@@ -52,9 +90,10 @@ struct LeaderboardView: View {
             .sheet(item: Binding(get: { board.map(BoardID.init) }, set: { board = $0?.id })) { item in
                 LeaderboardScreen(leaderboardID: item.id).ignoresSafeArea()
             }
-            .task(id: gameCenter.signedIn) { await loadRanks() }
-            .sheet(isPresented: $showPlus) {
-                PlusView(reason: Text("Leaderboards are part of Foldly+")).environment(model).environment(store)
+            .sheet(isPresented: $showRules) { ContestRulesView() }
+            .task(id: gameCenter.signedIn) {
+                await gameCenter.loadPeriods()
+                await loadRanks()
             }
             .onAppear {
                 seen = true
@@ -72,7 +111,7 @@ struct LeaderboardView: View {
                 .background(Color.yellow.opacity(0.15), in: Circle())
             Text("How do you compare?")
                 .font(.system(.title2, design: .rounded).weight(.bold))
-            Text("Stay under your daily limit, day after day, and climb the leaderboards with other Foldly users and your friends.")
+            Text("Climb the leaderboards with other Foldly users and your friends. Free for everyone.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -80,35 +119,65 @@ struct LeaderboardView: View {
         .padding(.top, 6)
     }
 
-    private func scoreCard(icon: String, color: Color, title: Text, value: Int, id: String) -> some View {
+    private func section(_ title: Text, symbol: String, color: Color) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: symbol).foregroundStyle(color)
+            title
+            Spacer()
+        }
+        .font(.system(.headline, design: .rounded))
+        .padding(.top, 10)
+    }
+
+    /// Le concours du mois : le lot, la date de fin et le règlement.
+    private var contestHeader: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            section(Text("Contest of the month"), symbol: "gift.fill", color: .yellow)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Each month, the winner of each category gets Foldly+ for free and picks a new feature for the app.")
+                    .font(.subheadline)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack {
+                    if let end = gameCenter.periods[GameCenter.contestFoldsID]?.end {
+                        Label { Text("Ends \(end.formatted(.dateTime.day().month(.wide)))") } icon: { Image(systemName: "hourglass") }
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button { showRules = true } label: { Text("Rules") }
+                        .font(.footnote.weight(.semibold))
+                }
+            }
+            .padding(16)
+            .background(LinearGradient(colors: [Color.yellow.opacity(0.22), Color.orange.opacity(0.12)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+    }
+
+    private func scoreCard(icon: String, color: Color, title: Text, value: Text, id: String) -> some View {
         Button {
-            if gameCenter.on && gameCenter.signedIn { board = id }
+            if joined { board = id }
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: icon)
-                    .font(.title2)
+                    .font(.title3)
                     .foregroundStyle(color)
-                    .frame(width: 48, height: 48)
+                    .frame(width: 44, height: 44)
                     .background(color.opacity(0.15), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 2) {
                     title
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text("\(value)")
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.primary)
-                        (value == 1 ? Text("day") : Text("days"))
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                    }
+                    value
+                        .font(.system(.title3, design: .rounded).weight(.bold))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
                 }
                 Spacer(minLength: 4)
                 if let rank = ranks[id] {
                     VStack(spacing: 0) {
-                        Text(verbatim: "#\(rank)")
+                        Text(verbatim: rank <= 3 ? ["🥇", "🥈", "🥉"][rank - 1] : "#\(rank)")
                             .font(.system(.title3, design: .rounded).weight(.bold))
                             .foregroundStyle(color)
                         Text("Rank")
@@ -116,57 +185,21 @@ struct LeaderboardView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                if gameCenter.on && gameCenter.signedIn {
+                if joined {
                     Image(systemName: "chevron.right")
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(.tertiary)
                 }
             }
-            .padding(16)
+            .padding(14)
             .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .buttonStyle(.plain)
     }
 
     @ViewBuilder
-    private var action: some View {
-        if !store.hasPlus {
-            VStack(spacing: 10) {
-                HStack(spacing: 6) {
-                    Text("Leaderboards are part of Foldly+")
-                    PlusBadge()
-                }
-                .font(.subheadline.weight(.semibold))
-                Button {
-                    showPlus = true
-                } label: {
-                    Label("Unlock Foldly+", systemImage: "sparkles")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .buttonBorderShape(.capsule)
-            }
-        } else if !stats.goalOn {
-            VStack(spacing: 10) {
-                Text("Set a daily limit first: your score is the number of days you stay under it.")
-                    .font(.subheadline)
-                    .multilineTextAlignment(.center)
-                Button {
-                    model.setGoalOn(true)
-                } label: {
-                    Label("Turn on my daily limit", systemImage: "target")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .buttonBorderShape(.capsule)
-            }
-        } else if !gameCenter.on || !gameCenter.signedIn {
+    private var join: some View {
+        if !joined {
             VStack(spacing: 8) {
                 Button {
                     gameCenter.setOn(true)
@@ -187,28 +220,61 @@ struct LeaderboardView: View {
                         .multilineTextAlignment(.center)
                 }
             }
-        } else {
-            Button {
-                board = GameCenter.streakID
-            } label: {
-                Label("See the full leaderboards", systemImage: "list.number")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .buttonBorderShape(.capsule)
         }
+    }
+
+    /// Le texte à partager : mon meilleur rang, sinon mes plis du jour.
+    private var shareText: String {
+        let link = "https://apps.apple.com/app/id\(UpdateCheck.appID)"
+        let today = FoldUnit.shown(stats.day().closes)
+        if let r = ranks[GameCenter.todayID] {
+            return String(localized: "I'm #\(r) on today's Foldly leaderboard with \(today) folds! Can you beat me? \(link)")
+        }
+        return String(localized: "\(today) folds today on my iPhone Duo. Can you beat me on the Foldly leaderboard? \(link)")
     }
 
     private func loadRanks() async {
         guard gameCenter.on, GKLocalPlayer.local.isAuthenticated else { return }
-        guard let boards = try? await GKLeaderboard.loadLeaderboards(IDs: [GameCenter.streakID, GameCenter.monthID]) else { return }
+        guard let boards = try? await GKLeaderboard.loadLeaderboards(IDs: GameCenter.all) else { return }
         for b in boards {
             if let entry = try? await b.loadEntries(for: [GKLocalPlayer.local], timeScope: .allTime).0, entry.rank > 0 {
                 ranks[b.baseLeaderboardID] = entry.rank
             }
+        }
+    }
+}
+
+/// Le règlement du concours (obligatoire pour un concours dans une app).
+struct ContestRulesView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    rule("1", Text("Free and open to everyone who uses Foldly and joins the leaderboard with Game Center. No purchase needed."))
+                    rule("2", Text("Each contest lasts about a month. The end date is shown in the app. A new contest starts right after."))
+                    rule("3", Text("Three categories: most folds, most time unfolded, and the calmest (fewest folds per day, with at least 7 days of use in the period). Only folds counted automatically by the app are meant to count."))
+                    rule("4", Text("The winner of each category is the first in Game Center when the contest ends. Scores that look impossible or made by cheating can be excluded."))
+                    rule("5", Text("Prize for each winner: Foldly+ for free (a code to redeem on the App Store) and the chance to suggest a new feature, which we will build first if it is possible and allowed on the App Store."))
+                    rule("6", Text("Winners are announced on Reddit (r/iPhoneduoapp). To get the prize, contact us within 30 days through the Support link on Foldly's App Store page, with a screenshot of your Game Center nickname."))
+                    rule("7", Text("Apple is not a sponsor of this contest and is not involved in it in any way."))
+                }
+                .padding(20)
+            }
+            .navigationTitle(Text("Contest rules"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+        }
+    }
+
+    private func rule(_ n: String, _ text: Text) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text(verbatim: n)
+                .font(.system(.headline, design: .rounded))
+                .frame(width: 28, height: 28)
+                .background(Color.dfAccent.opacity(0.18), in: Circle())
+            text.font(.subheadline).fixedSize(horizontal: false, vertical: true)
         }
     }
 }

@@ -39,8 +39,16 @@ struct MinimalHomeView: View {
                 hero
                 Spacer(minLength: 40)
                 figures
-                Spacer(minLength: 40)
+                Spacer(minLength: 36)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Today by hour").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                    TodayByHour(stats: model.stats, accent: .primary, empty: Color.primary.opacity(0.08), height: 40)
+                }
+                Spacer(minLength: 36)
                 week
+                RecapLinks { showWeek = true } onMonth: { showMonth = true }
+                    .tint(.primary)
+                    .padding(.top, 16)
                 Spacer(minLength: 36)
                 notices
                 links

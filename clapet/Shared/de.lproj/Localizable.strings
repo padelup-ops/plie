@@ -685,3 +685,33 @@
 "To celebrate 1,000 downloads, the code FOLDLY1000 gives you Foldly+ at half the regular price until November 16. Paid once, yours for good." = "Zur Feier von 1.000 Downloads bekommst du mit dem Code FOLDLY1000 Foldly+ bis zum 16. November zum halben regulären Preis. Einmal bezahlt, für immer deins.";
 "Mini games you play by folding your Duo" = "Minispiele, die du durch Falten deines Duo spielst";
 "Also for your Duo" = "Auch für deinen Duo";
+
+/* Aujourd'hui, heure par heure */
+"Peak %@ · %lld folds" = "Spitze um %@ · %lld Faltungen";
+
+/* Classements ouverts à tous et concours du mois */
+"Who folds the most?" = "Wer faltet am meisten?";
+"Contest of the month" = "Wettbewerb des Monats";
+"Most folds" = "Die meisten Faltungen";
+"Most time unfolded" = "Am längsten aufgeklappt";
+"The calmest (fewest folds per day)" = "Am entspanntesten (wenigste Faltungen pro Tag)";
+"%@ per day" = "%@ pro Tag";
+"From %lld days of use" = "Ab %lld Nutzungstagen";
+"Under your limit" = "Unter deinem Limit";
+"%lld days" = "%lld Tage";
+"Only your scores and your Game Center nickname are shared, through Apple's Game Center. You can leave anytime." = "Nur deine Punkte und dein Game-Center-Name werden über Apples Game Center geteilt. Du kannst jederzeit aussteigen.";
+"Share my rank" = "Meinen Rang teilen";
+"Climb the leaderboards with other Foldly users and your friends. Free for everyone." = "Klettere in den Ranglisten mit anderen Foldly-Nutzern und deinen Freunden. Kostenlos für alle.";
+"Each month, the winner of each category gets Foldly+ for free and picks a new feature for the app." = "Jeden Monat bekommt der Gewinner jeder Kategorie Foldly+ gratis und wählt eine neue Funktion für die App.";
+"Ends %@" = "Endet am %@";
+"Rules" = "Regeln";
+"I'm #%lld on today's Foldly leaderboard with %lld folds! Can you beat me? %@" = "Ich bin heute Platz %lld in der Foldly-Rangliste mit %lld Faltungen! Schlägst du mich? %@";
+"%lld folds today on my iPhone Duo. Can you beat me on the Foldly leaderboard? %@" = "Heute %lld Faltungen auf meinem iPhone Duo. Schlägst du mich in der Foldly-Rangliste? %@";
+"Contest rules" = "Teilnahmebedingungen";
+"Free and open to everyone who uses Foldly and joins the leaderboard with Game Center. No purchase needed." = "Kostenlos und offen für alle, die Foldly nutzen und der Rangliste mit Game Center beitreten. Kein Kauf nötig.";
+"Each contest lasts about a month. The end date is shown in the app. A new contest starts right after." = "Jeder Wettbewerb dauert etwa einen Monat. Das Enddatum steht in der App. Danach startet sofort ein neuer.";
+"Three categories: most folds, most time unfolded, and the calmest (fewest folds per day, with at least 7 days of use in the period). Only folds counted automatically by the app are meant to count." = "Drei Kategorien: die meisten Faltungen, am längsten aufgeklappt und am entspanntesten (wenigste Faltungen pro Tag, mit mindestens 7 Nutzungstagen im Zeitraum). Es sollen nur Faltungen zählen, die die App automatisch erfasst.";
+"The winner of each category is the first in Game Center when the contest ends. Scores that look impossible or made by cheating can be excluded." = "Gewinner jeder Kategorie ist, wer am Ende des Wettbewerbs in Game Center vorne liegt. Unmögliche oder durch Schummeln erzielte Punkte können ausgeschlossen werden.";
+"Prize for each winner: Foldly+ for free (a code to redeem on the App Store) and the chance to suggest a new feature, which we will build first if it is possible and allowed on the App Store." = "Preis für jeden Gewinner: Foldly+ gratis (ein Code zum Einlösen im App Store) und die Chance, eine neue Funktion vorzuschlagen, die wir zuerst bauen, wenn sie machbar und im App Store erlaubt ist.";
+"Winners are announced on Reddit (r/iPhoneduoapp). To get the prize, contact us within 30 days through the Support link on Foldly's App Store page, with a screenshot of your Game Center nickname." = "Die Gewinner werden auf Reddit (r/iPhoneduoapp) bekannt gegeben. Um den Preis zu erhalten, kontaktiere uns innerhalb von 30 Tagen über den Support-Link auf der App-Store-Seite von Foldly, mit einem Screenshot deines Game-Center-Namens.";
+"Apple is not a sponsor of this contest and is not involved in it in any way." = "Apple ist kein Sponsor dieses Wettbewerbs und in keiner Weise daran beteiligt.";

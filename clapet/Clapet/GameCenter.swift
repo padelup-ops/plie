@@ -2,8 +2,10 @@ import GameKit
 import SwiftUI
 import Observation
 
-/// Les classements Game Center, au choix (rien n'est envoyé sans l'avoir activé).
-/// Deux classements : la plus longue série de jours sous la limite, et les jours sous la limite ce mois-ci.
+/// Les classements Game Center, au choix (rien n'est envoyé sans l'avoir activé), ouverts à tous.
+/// - Sous la limite : la plus longue série, et les jours sous la limite sur 30 jours (il faut une limite).
+/// - Qui plie le plus : aujourd'hui, cette semaine, depuis le début.
+/// - Le concours du mois : le plus de plis, le plus de temps déplié, et le plus zen (le moins de plis par jour).
 /// Les comptes et les scores sont gérés par Apple ; Foldly n'a pas de serveur.
 @MainActor
 @Observable
@@ -11,16 +13,28 @@ final class GameCenter {
     static let shared = GameCenter()
     static let streakID = "foldly.streak"
     static let monthID = "foldly.month"
+    static let todayID = "foldly.folds.day"
+    static let weekID = "foldly.folds.week"
+    static let totalID = "foldly.folds.total"
+    static let contestFoldsID = "foldly.contest.folds"
+    static let contestOpenID = "foldly.contest.open"
+    static let contestCalmID = "foldly.contest.calm"
+    static let recurring = [monthID, todayID, weekID, contestFoldsID, contestOpenID, contestCalmID]
+    static let all = [streakID, monthID, todayID, weekID, totalID, contestFoldsID, contestOpenID, contestCalmID]
+    /// Le plus zen : il faut au moins ce nombre de jours avec des plis dans la période.
+    static let calmMinDays = 7
 
     private(set) var on = UserDefaults.standard.bool(forKey: "gameCenterOn")
     private(set) var signedIn = false
-    /// Les classements font partie de Foldly+.
+    /// Gardé pour l'app (les classements sont maintenant ouverts à tous).
     var plus = UserDefaults.standard.bool(forKey: "plusActive")
     var problem: String?
+    /// Début et fin de la période en cours de chaque classement qui se renouvelle.
+    private(set) var periods: [String: DateInterval] = [:]
 
     /// À l'ouverture de l'app : reconnecte le joueur s'il a activé le classement.
     func start() {
-        guard on, plus else { return }
+        guard on else { return }
         authenticate()
     }
 
@@ -46,37 +60,58 @@ final class GameCenter {
                     self.problem = error.map { base + "\n(" + $0.localizedDescription + ")" } ?? base
                 } else {
                     self.problem = nil
-                    self.lastSent = nil
+                    self.lastSent = [:]
                 }
             }
         }
     }
 
-    @ObservationIgnored private var lastSent: (streak: Int, month: Int, monthKey: String)?
-    @ObservationIgnored private var periodStart: Date?
-    @ObservationIgnored private var periodEnd: Date?
+    @ObservationIgnored private var lastSent: [String: Int] = [:]
 
-    /// Envoie les scores du jour (seulement s'ils ont changé).
-    func submit(_ stats: ClapetStats, now: Date = Date()) {
-        guard plus, on, GKLocalPlayer.local.isAuthenticated, stats.goalOn else { return }
-        let streak = stats.leaderboardStreak(now: now)
-        Task {
-            // Le classement « 30 jours » repart à zéro tous les 30 jours : on compte depuis le début de la période en cours.
-            if periodStart == nil || (periodEnd.map { now >= $0 } ?? true) {
-                if let board = try? await GKLeaderboard.loadLeaderboards(IDs: [Self.monthID]).first {
-                    periodStart = board.startDate
-                    periodEnd = board.startDate.map { $0.addingTimeInterval(board.duration) }
-                }
+    /// Les périodes en cours (rechargées quand l'une est finie).
+    func loadPeriods(now: Date = Date()) async {
+        let stale = Self.recurring.contains { id in periods[id].map { now >= $0.end } ?? true }
+        guard stale, let boards = try? await GKLeaderboard.loadLeaderboards(IDs: Self.recurring) else { return }
+        for b in boards {
+            if let start = b.startDate, b.duration > 0 {
+                periods[b.baseLeaderboardID] = DateInterval(start: start, duration: b.duration)
             }
-            let month = stats.daysUnderLimit(since: periodStart ?? Calendar.current.date(byAdding: .day, value: -29, to: now)!, now: now)
-            let monthKey = periodStart.map { ClapetStats.key($0) } ?? ""
-            if let last = lastSent, last.streak == streak, last.month == month, last.monthKey == monthKey { return }
-            lastSent = (streak, month, monthKey)
-            do {
-                try await GKLeaderboard.submitScore(streak, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [Self.streakID])
-                try await GKLeaderboard.submitScore(month, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [Self.monthID])
-            } catch {
-                await MainActor.run { self.lastSent = nil }
+        }
+    }
+
+    /// Les scores à envoyer, classement par classement.
+    func scores(_ stats: ClapetStats, now: Date = Date()) -> [String: Int] {
+        var out: [String: Int] = [:]
+        if stats.goalOn {
+            out[Self.streakID] = stats.leaderboardStreak(now: now)
+            let since = periods[Self.monthID]?.start ?? Calendar.current.date(byAdding: .day, value: -29, to: now)!
+            out[Self.monthID] = stats.daysUnderLimit(since: since, now: now)
+        }
+        out[Self.todayID] = stats.day(now).closes
+        out[Self.weekID] = stats.closes(since: periods[Self.weekID]?.start ?? Calendar.current.dateInterval(of: .weekOfYear, for: now)?.start ?? now, now: now)
+        out[Self.totalID] = stats.totalCloses
+        let contest = periods[Self.contestFoldsID]?.start ?? Calendar.current.dateInterval(of: .month, for: now)?.start ?? now
+        out[Self.contestFoldsID] = stats.closes(since: contest, now: now)
+        out[Self.contestOpenID] = Int(stats.openMinutes(since: periods[Self.contestOpenID]?.start ?? contest, now: now))
+        if let calm = stats.calmScore(since: periods[Self.contestCalmID]?.start ?? contest, now: now, minDays: Self.calmMinDays) {
+            out[Self.contestCalmID] = calm
+        }
+        return out
+    }
+
+    /// Envoie les scores (seulement ceux qui ont changé).
+    func submit(_ stats: ClapetStats, now: Date = Date()) {
+        guard on, GKLocalPlayer.local.isAuthenticated else { return }
+        Task {
+            await loadPeriods(now: now)
+            let all = scores(stats, now: now)
+            for (id, value) in all where lastSent[id] != value {
+                lastSent[id] = value
+                do {
+                    try await GKLeaderboard.submitScore(value, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [id])
+                } catch {
+                    lastSent[id] = nil
+                }
             }
         }
     }
@@ -91,6 +126,33 @@ final class GameCenter {
 }
 
 extension ClapetStats {
+    /// Les plis (fermetures) depuis une date, jour par jour.
+    func closes(since start: Date, now: Date = Date()) -> Int {
+        let from = Self.key(start), to = Self.key(now)
+        return days.filter { $0.key >= from && $0.key <= to }.reduce(0) { $0 + $1.value.closes }
+    }
+
+    /// Les minutes passées Duo déplié depuis une date.
+    func openMinutes(since start: Date, now: Date = Date()) -> Double {
+        let cal = Calendar.current
+        var d = cal.startOfDay(for: start), total: TimeInterval = 0
+        while d <= now {
+            total += openTime(d, now: now)
+            guard let next = cal.date(byAdding: .day, value: 1, to: d) else { break }
+            d = next
+        }
+        return total / 60
+    }
+
+    /// Le plus zen : la moyenne de plis par jour utilisé (×10), s'il y a assez de jours.
+    func calmScore(since start: Date, now: Date = Date(), minDays: Int) -> Int? {
+        let from = Self.key(start), to = Self.key(now)
+        let used = days.filter { $0.key >= from && $0.key <= to && $0.value.closes > 0 }
+        guard used.count >= minDays else { return nil }
+        let avg = Double(used.reduce(0) { $0 + $1.value.closes }) / Double(used.count)
+        return Int((avg * 10).rounded())
+    }
+
     /// Pour le classement : la plus longue série de jours sous la limite, en ne comptant que les jours où le Duo a servi
     /// (un jour sans aucun pli ne compte pas, pour que le classement reste juste).
     func leaderboardStreak(now: Date = Date()) -> Int {

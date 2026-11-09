@@ -685,3 +685,33 @@
 "To celebrate 1,000 downloads, the code FOLDLY1000 gives you Foldly+ at half the regular price until November 16. Paid once, yours for good." = "To celebrate 1,000 downloads, the code FOLDLY1000 gives you Foldly+ at half the regular price until November 16. Paid once, yours for good.";
 "Mini games you play by folding your Duo" = "Mini games you play by folding your Duo";
 "Also for your Duo" = "Also for your Duo";
+
+/* Aujourd'hui, heure par heure */
+"Peak %@ · %lld folds" = "Peak %@ · %lld folds";
+
+/* Classements ouverts à tous et concours du mois */
+"Who folds the most?" = "Who folds the most?";
+"Contest of the month" = "Contest of the month";
+"Most folds" = "Most folds";
+"Most time unfolded" = "Most time unfolded";
+"The calmest (fewest folds per day)" = "The calmest (fewest folds per day)";
+"%@ per day" = "%@ per day";
+"From %lld days of use" = "From %lld days of use";
+"Under your limit" = "Under your limit";
+"%lld days" = "%lld days";
+"Only your scores and your Game Center nickname are shared, through Apple's Game Center. You can leave anytime." = "Only your scores and your Game Center nickname are shared, through Apple's Game Center. You can leave anytime.";
+"Share my rank" = "Share my rank";
+"Climb the leaderboards with other Foldly users and your friends. Free for everyone." = "Climb the leaderboards with other Foldly users and your friends. Free for everyone.";
+"Each month, the winner of each category gets Foldly+ for free and picks a new feature for the app." = "Each month, the winner of each category gets Foldly+ for free and picks a new feature for the app.";
+"Ends %@" = "Ends %@";
+"Rules" = "Rules";
+"I'm #%lld on today's Foldly leaderboard with %lld folds! Can you beat me? %@" = "I'm #%lld on today's Foldly leaderboard with %lld folds! Can you beat me? %@";
+"%lld folds today on my iPhone Duo. Can you beat me on the Foldly leaderboard? %@" = "%lld folds today on my iPhone Duo. Can you beat me on the Foldly leaderboard? %@";
+"Contest rules" = "Contest rules";
+"Free and open to everyone who uses Foldly and joins the leaderboard with Game Center. No purchase needed." = "Free and open to everyone who uses Foldly and joins the leaderboard with Game Center. No purchase needed.";
+"Each contest lasts about a month. The end date is shown in the app. A new contest starts right after." = "Each contest lasts about a month. The end date is shown in the app. A new contest starts right after.";
+"Three categories: most folds, most time unfolded, and the calmest (fewest folds per day, with at least 7 days of use in the period). Only folds counted automatically by the app are meant to count." = "Three categories: most folds, most time unfolded, and the calmest (fewest folds per day, with at least 7 days of use in the period). Only folds counted automatically by the app are meant to count.";
+"The winner of each category is the first in Game Center when the contest ends. Scores that look impossible or made by cheating can be excluded." = "The winner of each category is the first in Game Center when the contest ends. Scores that look impossible or made by cheating can be excluded.";
+"Prize for each winner: Foldly+ for free (a code to redeem on the App Store) and the chance to suggest a new feature, which we will build first if it is possible and allowed on the App Store." = "Prize for each winner: Foldly+ for free (a code to redeem on the App Store) and the chance to suggest a new feature, which we will build first if it is possible and allowed on the App Store.";
+"Winners are announced on Reddit (r/iPhoneduoapp). To get the prize, contact us within 30 days through the Support link on Foldly's App Store page, with a screenshot of your Game Center nickname." = "Winners are announced on Reddit (r/iPhoneduoapp). To get the prize, contact us within 30 days through the Support link on Foldly's App Store page, with a screenshot of your Game Center nickname.";
+"Apple is not a sponsor of this contest and is not involved in it in any way." = "Apple is not a sponsor of this contest and is not involved in it in any way.";

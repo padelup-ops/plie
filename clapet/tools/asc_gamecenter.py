@@ -1,4 +1,4 @@
-"""FOLDLY : Game Center (détail, deux classements, textes FR/EN) et lien avec une version (VERSION=1.0.2)."""
+"""FOLDLY : Game Center (détail, classements ouverts à tous et concours du mois, textes FR/EN) et lien avec une version (VERSION=1.0.2)."""
 import json, os, sys, time, urllib.request, urllib.error
 import jwt
 API = "https://api.appstoreconnect.apple.com"
@@ -29,26 +29,43 @@ if not gcd:
     sys.exit(1)
 print("Game Center", gcd["id"])
 
+# rec : None (classique), ou (début, durée, règle) pour un classement qui se renouvelle.
+DAILY = ("2026-11-08T23:00:00Z", ["PT24H"], "FREQ=DAILY;INTERVAL=1")
+WEEKLY = ("2026-11-08T23:00:00Z", ["PT168H"], "FREQ=WEEKLY;INTERVAL=1")
+MONTHLY = ("2026-11-09T23:00:00Z", ["P1M", "PT720H", "PT672H"], "FREQ=MONTHLY;INTERVAL=1")
+MONTHLY_FALLBACK = ("2026-11-09T23:00:00Z", ["PT720H"], "FREQ=DAILY;INTERVAL=30")
 BOARDS = [
-    {"vendorIdentifier": "foldly.streak", "referenceName": "Longest streak under limit", "monthly": False,
+    {"vendorIdentifier": "foldly.streak", "referenceName": "Longest streak under limit", "rec": "old30" and None,
      "en-US": ("Longest streak under limit", "days", "day"), "fr-FR": ("Plus longue série sous limite", "jours", "jour")},
-    {"vendorIdentifier": "foldly.month", "referenceName": "Days under limit, 30 days", "monthly": True,
+    {"vendorIdentifier": "foldly.month", "referenceName": "Days under limit, 30 days", "rec": ("2026-11-03T23:00:00Z", ["PT720H"], "FREQ=DAILY;INTERVAL=30"),
      "en-US": ("Days under limit (30 days)", "days", "day"), "fr-FR": ("Jours sous limite (30 jours)", "jours", "jour")},
+    {"vendorIdentifier": "foldly.folds.day", "referenceName": "Folds today", "rec": DAILY,
+     "en-US": ("Most folds today", "folds", "fold"), "fr-FR": ("Le plus de plis aujourd'hui", "plis", "pli")},
+    {"vendorIdentifier": "foldly.folds.week", "referenceName": "Folds this week", "rec": WEEKLY,
+     "en-US": ("Most folds this week", "folds", "fold"), "fr-FR": ("Le plus de plis cette semaine", "plis", "pli")},
+    {"vendorIdentifier": "foldly.folds.total", "referenceName": "Folds since day one", "rec": None,
+     "en-US": ("Most folds since day one", "folds", "fold"), "fr-FR": ("Le plus de plis depuis le début", "plis", "pli")},
+    {"vendorIdentifier": "foldly.contest.folds", "referenceName": "Contest: most folds", "rec": MONTHLY,
+     "en-US": ("Contest: most folds", "folds", "fold"), "fr-FR": ("Concours : le plus de plis", "plis", "pli")},
+    {"vendorIdentifier": "foldly.contest.open", "referenceName": "Contest: most time unfolded", "rec": MONTHLY,
+     "en-US": ("Contest: most time unfolded", "min", "min"), "fr-FR": ("Concours : le plus de temps déplié", "min", "min")},
+    {"vendorIdentifier": "foldly.contest.calm", "referenceName": "Contest: the calmest", "rec": MONTHLY, "sort": "ASC", "fmt": "DECIMAL_POINT_1_PLACE",
+     "en-US": ("Contest: the calmest", "folds/day", "fold/day"), "fr-FR": ("Concours : le plus zen", "plis/jour", "pli/jour")},
 ]
 have = {b["attributes"]["vendorIdentifier"]: b for b in call("GET", f"/v1/gameCenterDetails/{gcd['id']}/gameCenterLeaderboards?limit=50").get("data", [])}
 for b in BOARDS:
     lb = have.get(b["vendorIdentifier"])
     if not lb:
-        attrs = {"referenceName": b["referenceName"], "vendorIdentifier": b["vendorIdentifier"], "defaultFormatter": "INTEGER",
-                 "submissionType": "BEST_SCORE", "scoreSortType": "DESC", "scoreRangeStart": "0", "scoreRangeEnd": "100000"}
+        attrs = {"referenceName": b["referenceName"], "vendorIdentifier": b["vendorIdentifier"], "defaultFormatter": b.get("fmt", "INTEGER"),
+                 "submissionType": "BEST_SCORE", "scoreSortType": b.get("sort", "DESC"), "scoreRangeStart": "0", "scoreRangeEnd": "10000000"}
         tries = [{}]
-        if b["monthly"]:
-            tries = [{"recurrenceStartDate": "2026-11-03T23:00:00Z", "recurrenceDuration": d, "recurrenceRule": "FREQ=DAILY;INTERVAL=30"}
-                     for d in ("PT720H",)]
+        if b["rec"]:
+            recs = [b["rec"]] + ([MONTHLY_FALLBACK] if b["rec"] is MONTHLY else [])
+            tries = [{"recurrenceStartDate": start, "recurrenceDuration": d, "recurrenceRule": rule} for start, durs, rule in recs for d in durs]
         for extra in tries:
             r = call("POST", "/v1/gameCenterLeaderboards", {"data": {"type": "gameCenterLeaderboards",
                 "attributes": {**attrs, **extra}, "relationships": {"gameCenterDetail": {"data": {"type": "gameCenterDetails", "id": gcd["id"]}}}}})
-            lb = ok("classement " + b["vendorIdentifier"] + (" " + extra.get("recurrenceDuration", "") if extra else ""), r).get("data")
+            lb = ok("classement " + b["vendorIdentifier"] + (" " + extra.get("recurrenceDuration", "") + " " + extra.get("recurrenceRule", "") if extra else ""), r).get("data")
             if lb:
                 break
     else:
@@ -58,7 +75,7 @@ for b in BOARDS:
     locs = {l["attributes"]["locale"]: l for l in call("GET", f"/v1/gameCenterLeaderboards/{lb['id']}/localizations").get("data", [])}
     for locale in ("en-US", "fr-FR"):
         name, plural, singular = b[locale]
-        attrs = {"name": name, "formatterSuffix": " " + plural, "formatterSuffixSingular": " " + singular}
+        attrs = {"name": name[:32], "formatterSuffix": " " + plural, "formatterSuffixSingular": " " + singular}
         if locale in locs:
             ok(f"  texte {locale}", call("PATCH", f"/v1/gameCenterLeaderboardLocalizations/{locs[locale]['id']}", {"data": {
                 "type": "gameCenterLeaderboardLocalizations", "id": locs[locale]["id"], "attributes": attrs}}))

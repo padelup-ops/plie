@@ -92,6 +92,7 @@ enum MonthRecapNotice {
                 let content = UNMutableNotificationContent()
                 content.title = String(localized: "Your month with Foldly")
                 content.body = String(localized: "Your monthly recap is ready: your folds, your busiest day and the hour you unfold the most.")
+                content.userInfo = ["url": "clapet://month"]
                 var at = DateComponents()
                 at.day = 1
                 at.hour = 10

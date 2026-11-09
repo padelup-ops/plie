@@ -685,3 +685,33 @@
 "To celebrate 1,000 downloads, the code FOLDLY1000 gives you Foldly+ at half the regular price until November 16. Paid once, yours for good." = "1,000 다운로드 기념으로 FOLDLY1000 코드를 쓰면 11월 16일까지 Foldly+가 정상가의 절반이에요. 한 번 결제로 계속 사용할 수 있어요.";
 "Mini games you play by folding your Duo" = "Duo를 접어서 즐기는 미니 게임";
 "Also for your Duo" = "Duo를 위한 또 다른 앱";
+
+/* Aujourd'hui, heure par heure */
+"Peak %@ · %lld folds" = "최고 %@ · %lld번";
+
+/* Classements ouverts à tous et concours du mois */
+"Who folds the most?" = "누가 가장 많이 접을까?";
+"Contest of the month" = "이달의 대회";
+"Most folds" = "가장 많이 접기";
+"Most time unfolded" = "가장 오래 펼침";
+"The calmest (fewest folds per day)" = "가장 차분한 사람 (하루 접기 최소)";
+"%@ per day" = "하루 %@";
+"From %lld days of use" = "%lld일 사용부터";
+"Under your limit" = "한도 이하";
+"%lld days" = "%lld일";
+"Only your scores and your Game Center nickname are shared, through Apple's Game Center. You can leave anytime." = "점수와 Game Center 닉네임만 Apple Game Center를 통해 공유돼요. 언제든 나갈 수 있어요.";
+"Share my rank" = "내 순위 공유";
+"Climb the leaderboards with other Foldly users and your friends. Free for everyone." = "다른 Foldly 사용자, 친구들과 순위를 올려 보세요. 모두 무료예요.";
+"Each month, the winner of each category gets Foldly+ for free and picks a new feature for the app." = "매달 각 부문 우승자는 Foldly+를 무료로 받고 앱의 새 기능을 고를 수 있어요.";
+"Ends %@" = "%@ 종료";
+"Rules" = "규칙";
+"I'm #%lld on today's Foldly leaderboard with %lld folds! Can you beat me? %@" = "오늘 Foldly 순위 %lld위, %lld번 접었어요! 이길 수 있어요? %@";
+"%lld folds today on my iPhone Duo. Can you beat me on the Foldly leaderboard? %@" = "오늘 iPhone Duo를 %lld번 접었어요. Foldly 순위에서 이길 수 있어요? %@";
+"Contest rules" = "대회 규칙";
+"Free and open to everyone who uses Foldly and joins the leaderboard with Game Center. No purchase needed." = "Foldly를 쓰고 Game Center로 순위에 참여한 누구나 무료로 참가할 수 있어요. 구매는 필요 없어요.";
+"Each contest lasts about a month. The end date is shown in the app. A new contest starts right after." = "각 대회는 약 한 달 동안 열려요. 종료일은 앱에 표시돼요. 끝나면 바로 새 대회가 시작돼요.";
+"Three categories: most folds, most time unfolded, and the calmest (fewest folds per day, with at least 7 days of use in the period). Only folds counted automatically by the app are meant to count." = "부문은 세 가지예요: 가장 많이 접기, 가장 오래 펼침, 가장 차분한 사람(하루 접기 최소, 기간 중 7일 이상 사용). 앱이 자동으로 센 접기만 인정돼요.";
+"The winner of each category is the first in Game Center when the contest ends. Scores that look impossible or made by cheating can be excluded." = "각 부문 우승자는 대회가 끝날 때 Game Center에서 1위인 사람이에요. 불가능해 보이거나 부정으로 얻은 점수는 제외될 수 있어요.";
+"Prize for each winner: Foldly+ for free (a code to redeem on the App Store) and the chance to suggest a new feature, which we will build first if it is possible and allowed on the App Store." = "각 우승자 상품: Foldly+ 무료(App Store에서 쓰는 코드)와 새 기능을 제안할 기회. 가능하고 App Store에서 허용되면 우선 개발해요.";
+"Winners are announced on Reddit (r/iPhoneduoapp). To get the prize, contact us within 30 days through the Support link on Foldly's App Store page, with a screenshot of your Game Center nickname." = "우승자는 Reddit(r/iPhoneduoapp)에서 발표해요. 상품을 받으려면 30일 안에 Foldly App Store 페이지의 지원 링크로 Game Center 닉네임 스크린샷과 함께 연락해 주세요.";
+"Apple is not a sponsor of this contest and is not involved in it in any way." = "Apple은 이 대회의 후원사가 아니며 어떤 방식으로도 관여하지 않아요.";

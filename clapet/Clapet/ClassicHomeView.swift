@@ -145,10 +145,10 @@ struct ClassicHomeView: View {
                         }
                     }
                     numbers
+                    byHour
                     timeOpen
                     week
                     hours
-                    byHour
                     lifetime
                     hingeHealth
                     more
@@ -551,6 +551,7 @@ struct ClassicHomeView: View {
                 ClassicCardTitle(Text("This week"), symbol: "chart.bar.fill")
                 ClapetWeekChart(days: model.stats.lastWeek(), goal: model.stats.activeLimit, average: model.stats.averageRef())
                     .frame(height: 150)
+                RecapLinks { showWeek = true } onMonth: { showMonth = true }
             }
         }
     }
