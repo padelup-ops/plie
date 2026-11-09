@@ -8,6 +8,36 @@ final class KBSuggest {
     private var replacements: [String: String] = [:]
     var language = "en_US"
 
+    /// Les 30 000 mots les plus courants (du plus fréquent au moins fréquent), pour compléter et classer.
+    /// Liste : FrequencyWords (Hermit Dave), contenu sous licence CC BY-SA 4.0.
+    private var words: [String] = []
+    private var folded: [String] = []
+    private var rank: [String: Int] = [:]
+    private var loadedList = ""
+
+    private func loadList(_ code: String) {
+        guard loadedList != code else { return }
+        loadedList = code
+        words = []; folded = []; rank = [:]
+        guard let url = Bundle.main.url(forResource: "words-" + code, withExtension: "txt"),
+              let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        words = text.split(separator: "\n").map(String.init)
+        folded = words.map { $0.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil) }
+        for (i, w) in words.enumerated() where rank[w] == nil { rank[w] = i }
+    }
+
+    /// Les mots courants qui commencent comme `word` (sans tenir compte des accents), du plus fréquent au moins fréquent.
+    private func listCompletions(_ word: String, limit: Int) -> [String] {
+        let key = word.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
+        guard key.count >= 1 else { return [] }
+        var out: [String] = []
+        for (i, f) in folded.enumerated() where f.count > key.count && f.hasPrefix(key) {
+            out.append(words[i])
+            if out.count >= limit { break }
+        }
+        return out
+    }
+
     func setLayout(_ layout: KBLayout) {
         let want = layout == .azerty ? "fr_FR" : "en_US"
         let available = UITextChecker.availableLanguages
@@ -18,6 +48,7 @@ final class KBSuggest {
         } else {
             language = available.first ?? "en_US"
         }
+        loadList(layout == .azerty ? "fr" : "en")
     }
 
     func setLexicon(_ lexicon: UILexicon) {
@@ -70,16 +101,20 @@ final class KBSuggest {
         }
         let lower = word.lowercased()
         if let r = replacements[lower] { return r }
-        if known.contains(lower) { return nil }
+        if known.contains(lower) || rank[lower] != nil { return nil }
         // Un nom propre au milieu d'une phrase : on n'y touche pas.
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
         guard isMisspelled(word) else { return nil }
         let ns = word as NSString
         // Le début d'un vrai mot (« minu » → minute) : on ne corrige pas, la barre propose la suite.
-        let longer = (checker.completions(forPartialWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? [])
-            .contains { $0.count > word.count && $0.lowercased().hasPrefix(lower) && !$0.contains(" ") }
-        if longer { return nil }
-        let guesses = checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? []
+        if !listCompletions(word, limit: 1).isEmpty { return nil }
+        var guesses = checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? []
+        // Les mots courants d'abord.
+        guesses = guesses.enumerated().sorted { a, b in
+            let ra = rank[a.element.lowercased()] ?? (100_000 + a.offset)
+            let rb = rank[b.element.lowercased()] ?? (100_000 + b.offset)
+            return ra < rb
+        }.map { $0.element }
         // On garde une proposition proche (même début, longueur voisine) pour ne pas changer le sens.
         let best = guesses.first { g in
             let gl = g.lowercased()
@@ -102,9 +137,12 @@ final class KBSuggest {
         } else {
             out = [word]
         }
-        let completions = (checker.completions(forPartialWordRange: range, in: word, language: language) ?? [])
-            .filter { $0.lowercased() != word.lowercased() && !$0.contains(" ") }
-            .map { matchCase($0, like: word) }
+        var completions = listCompletions(word, limit: 3)
+        if completions.isEmpty {
+            completions = (checker.completions(forPartialWordRange: range, in: word, language: language) ?? [])
+                .filter { $0.lowercased() != word.lowercased() && !$0.contains(" ") }
+        }
+        completions = completions.map { matchCase($0, like: word) }
         for c in completions where out.count < 3 && !out.contains(c) { out.append(c) }
         if out.count < 3, fix == nil, isMisspelled(word) {
             for g in checker.guesses(forWordRange: range, in: word, language: language) ?? [] where out.count < 3 && !out.contains(g) {

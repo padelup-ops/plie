@@ -171,6 +171,7 @@ FR = {
     "Two hands, follow-your-hand, colors, fonts, sounds and your phrases. Nothing renews, no subscription.": "Deux mains, clavier qui suit ta main, couleurs, polices, sons et tes phrases. Rien ne se renouvelle, pas d’abonnement.",
     "Later": "Plus tard",
     "Calibrate my grip": "Étalonner ma prise en main",
+    "Word lists: FrequencyWords by Hermit Dave, CC BY-SA 4.0.": "Listes de mots : FrequencyWords de Hermit Dave, CC BY-SA 4.0.",
 }
 
 

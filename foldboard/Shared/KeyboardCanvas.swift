@@ -343,8 +343,8 @@ final class KeyboardCanvas: UIView {
 
     /// Le mode réellement possible à cette largeur (deux mains : il faut de la place).
     private var layoutMode: KBMode {
-        if eff.mode == .auto && eff.autoTwo { return bounds.width >= 520 ? .split : .full }
-        if eff.mode == .split && bounds.width < 520 { return .full }
+        if eff.mode == .auto && eff.autoTwo { return bounds.width >= 450 ? .split : .full }
+        if eff.mode == .split && bounds.width < 450 { return .full }
         return eff.mode
     }
 

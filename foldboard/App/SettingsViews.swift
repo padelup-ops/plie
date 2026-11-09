@@ -411,7 +411,10 @@ struct TypingView: View {
                 Toggle("Capital letter at the start of a sentence", isOn: $m.settings.autoCaps)
                 Toggle("Double space adds a period", isOn: $m.settings.doubleSpacePeriod)
             } footer: {
-                Text("Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word.")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word.")
+                    Text("Word lists: FrequencyWords by Hermit Dave, CC BY-SA 4.0.").font(.caption2)
+                }
             }
         }
         .navigationTitle("Typing")

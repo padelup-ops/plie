@@ -1,0 +1,3 @@
+words-fr.txt and words-en.txt: the 30,000 most frequent words of FrequencyWords (2018) by Hermit Dave,
+https://github.com/hermitdave/FrequencyWords, licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
+Filtered (letters only, a few offensive words removed). This derived list is shared under the same license.
