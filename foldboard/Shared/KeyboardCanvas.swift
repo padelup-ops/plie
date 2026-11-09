@@ -273,15 +273,13 @@ final class KeyboardCanvas: UIView {
 
     private func updateGripContext() {
         let screen = screenSize
-        var c = KBSettings.context(screen: screen, closed: hingeClosed)
-        // Sur le Duo, la largeur du clavier tranche : écran extérieur en portrait (environ 341 points),
-        // écran intérieur en paysage (plus de 520). Entre les deux, la taille de l'écran, puis la charnière.
-        let w = bounds.width
-        let duo = min(screen.width, screen.height) / max(1, max(screen.width, screen.height)) > 0.6
-        if duo && w > 50 {
-            if w < 360 { c = "closed-portrait" }
-            else if w > 520 { c = "open-landscape" }
-            else if w >= 480 && hingeClosed == true { c = "closed-landscape" }
+        var c = KBSettings.context(screen: screen, closed: hingeClosed, known: settings.screenWidths)
+        // Si la taille de l'écran n'est pas sûre, la largeur du clavier (toute la largeur de l'écran) tranche.
+        let w = Double(bounds.width)
+        if hingeClosed == nil, w > 50, screen.width <= 0 || abs(Double(min(screen.width, screen.height)) - w) > 2,
+           let o = settings.screenWidths["open"], let cl = settings.screenWidths["closed"] {
+            let portrait = !c.hasSuffix("landscape")
+            if portrait { c = abs(w - o) < abs(w - cl) ? "open-portrait" : "closed-portrait" }
         }
         // Le tutoriel montre toujours le fonctionnement de l'écran extérieur.
         if demoOneHand { c = "closed-portrait" }

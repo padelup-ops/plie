@@ -2,12 +2,12 @@ import SwiftUI
 import UIKit
 
 /// La situation en ce moment (écran du Duo utilisé, sens), d'après la fenêtre active.
-func kbCurrentContext(closed: Bool?) -> String {
+func kbCurrentContext(closed: Bool?, known: [String: Double] = [:]) -> String {
     let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
     let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
     let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
     let size = window?.bounds.size ?? scene?.screen.bounds.size ?? .zero
-    return KBSettings.context(screen: size, closed: closed)
+    return KBSettings.context(screen: size, closed: closed, known: known)
 }
 
 /// Le test « main droite / main gauche » : on tient le téléphone 3 secondes dans chaque main, sans rien taper.
@@ -32,7 +32,7 @@ struct HandTest: View {
 
     private var context: String {
         _ = reader.tick
-        return kbCurrentContext(closed: hingeClosed)
+        return kbCurrentContext(closed: hingeClosed, known: model.settings.screenWidths)
     }
 
     private var gap: Double {

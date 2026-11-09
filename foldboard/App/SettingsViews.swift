@@ -160,6 +160,33 @@ struct DuoFullWidth: ViewModifier {
     }
 }
 
+/// Apprend la largeur de chaque écran du Duo (la charnière dit lequel est utilisé) : le clavier, qui ne voit pas
+/// la charnière dans les autres apps, s'en sert pour savoir s'il est sur l'écran extérieur ou intérieur.
+struct ScreenLearner: ViewModifier {
+    @Environment(SettingsModel.self) private var model
+    @State private var closed: Bool?
+
+    func body(content: Content) -> some View {
+        content
+            .modifier(HingeWatch { c in closed = c; learn() })
+            .onGeometryChange(for: CGSize.self) { $0.size } action: { _ in learn() }
+    }
+
+    private func learn() {
+        guard let closed else { return }
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+        guard let size = (scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first)?.bounds.size,
+              size.width > 0, size.height > 0 else { return }
+        let short = Double(min(size.width, size.height))
+        let key = closed ? "closed" : "open"
+        guard abs((model.settings.screenWidths[key] ?? 0) - short) > 1 else { return }
+        var s = model.settings
+        s.screenWidths[key] = short
+        model.settings = s
+    }
+}
+
 extension View {
     /// Tout l'écran du Duo, sans la colonne de l'heure (l'heure est masquée dans l'app).
     func fullScreenDuo() -> some View { modifier(DuoFullWidth()) }
@@ -654,7 +681,7 @@ struct TiltCalibration: View {
         let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
         let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
         let size = window?.bounds.size ?? scene?.screen.bounds.size ?? .zero
-        return KBSettings.context(screen: size, closed: hingeClosed)
+        return KBSettings.context(screen: size, closed: hingeClosed, known: model.settings.screenWidths)
     }
 
     /// La charnière du Duo (fermé / ouvert), lue par l'API d'Apple quand elle existe.

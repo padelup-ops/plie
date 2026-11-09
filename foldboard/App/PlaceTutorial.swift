@@ -22,10 +22,11 @@ struct PlaceTutorial: View {
 
     private var context: String {
         _ = reader.tick
-        return kbCurrentContext(closed: hingeClosed)
+        return kbCurrentContext(closed: hingeClosed, known: model.settings.screenWidths)
     }
 
-    private var open: Bool { context.hasPrefix("open") }
+    /// Ouvert seulement si la charnière le dit (sinon on ne dérange pas avec un faux avertissement).
+    private var open: Bool { hingeClosed == false }
 
     /// L'écart d'inclinaison entre les deux mains (nil si on n'a pas pu mesurer).
     private var gap: Double? {

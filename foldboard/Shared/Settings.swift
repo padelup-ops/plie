@@ -82,6 +82,9 @@ struct KBSettings: Codable, Equatable {
     /// Largeur du clavier (points) quand chaque situation a été étalonnée : le clavier, dans n'importe quelle app,
     /// retrouve sa situation à sa largeur (même écran, même sens), donc le bon étalonnage.
     var widths: [String: Double] = [:]
+    /// La vraie largeur (côté court, en points) de chaque écran du Duo, apprise dans l'app grâce à la charnière :
+    /// « closed » (écran extérieur) et « open » (écran intérieur). Les deux écrans ont la même forme.
+    var screenWidths: [String: Double] = [:]
     /// Glissements du pouce étalonnés, par situation et par main.
     var swipes: [String: [String: [[Double]]]] = [:]
     /// Largeur du clavier à une main, en part de l'écran.
@@ -141,6 +144,7 @@ struct KBSettings: Codable, Equatable {
         learned = (try? c.decodeIfPresent([String: [String: [Double]]].self, forKey: .learned)) ?? [:]
         taps = (try? c.decodeIfPresent([String: [String: [[Double]]]].self, forKey: .taps)) ?? [:]
         widths = (try? c.decodeIfPresent([String: Double].self, forKey: .widths)) ?? [:]
+        screenWidths = (try? c.decodeIfPresent([String: Double].self, forKey: .screenWidths)) ?? [:]
         swipes = (try? c.decodeIfPresent([String: [String: [[Double]]]].self, forKey: .swipes)) ?? [:]
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
         oneHandWidthOpen = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidthOpen)) ?? d.oneHandWidthOpen
@@ -195,12 +199,25 @@ struct KBSettings: Codable, Equatable {
     /// La situation d'après la taille de l'écran : Duo ouvert (écran presque carré) ou fermé, en portrait ou en paysage.
     /// La forme de l'écran utilisé décide (l'intérieur du Duo est presque carré, l'extérieur est allongé) ;
     /// la charnière (`closed`) ne sert que si la taille est inconnue. L'app et le clavier suivent la même règle.
-    static func context(screen: CGSize, closed: Bool? = nil) -> String {
+    static func context(screen: CGSize, closed: Bool? = nil, known: [String: Double] = [:]) -> String {
         let w = screen.width, h = screen.height
         let ratio = min(w, h) / max(1, max(w, h))
-        // Les deux écrans du Duo ont la même forme (presque carrée) : c'est la taille qui les distingue.
-        // L'écran intérieur fait environ 678 points de long, l'extérieur 497. Un iPhone classique est allongé.
-        let open = w > 0 && h > 0 ? (ratio > 0.6 && max(w, h) > 590) : (closed.map { !$0 } ?? false)
+        let short = Double(min(w, h))
+        let open: Bool
+        if let closed {
+            // La charnière dit tout.
+            open = !closed
+        } else if w <= 0 || h <= 0 || ratio <= 0.6 {
+            // Écran allongé : un iPhone classique, ou le Duo fermé.
+            open = false
+        } else if let o = known["open"], let c = known["closed"], abs(o - c) > 8 {
+            // Les deux écrans ont la même forme : la largeur apprise dans l'app les distingue.
+            open = abs(short - o) < abs(short - c)
+        } else {
+            // Impossible de distinguer les deux écrans sans la charnière : on reste sur le fonctionnement
+            // de l'écran extérieur (le clavier vient du côté de la main), le plus utile.
+            open = false
+        }
         return (open ? "open" : "closed") + "-" + (w > h ? "landscape" : "portrait")
     }
 

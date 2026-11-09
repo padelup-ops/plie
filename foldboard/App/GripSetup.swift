@@ -75,7 +75,7 @@ struct GripSetup: View {
         let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
         let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
         let size = window?.bounds.size ?? scene?.screen.bounds.size ?? .zero
-        return KBSettings.context(screen: size, closed: hingeClosed)
+        return KBSettings.context(screen: size, closed: hingeClosed, known: model.settings.screenWidths)
     }
 
     private var title: LocalizedStringKey {
