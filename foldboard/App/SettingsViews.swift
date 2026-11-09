@@ -62,7 +62,23 @@ struct SetupView: View {
 struct PreviewDock: View {
     @Environment(SettingsModel.self) private var model
     @Environment(Store.self) private var store
+    @Environment(\.verticalSizeClass) private var vClass
     @State private var text = ""
+    /// En paysage, l'aperçu se replie (sinon il cache tout) : on l'ouvre d'un toucher.
+    @State private var open: Bool?
+    @State private var width: CGFloat = 0
+
+    /// Assez de hauteur pour l'aperçu (pas en paysage sur le Duo ni sur l'iPhone).
+    private var roomy: Bool {
+        _ = width
+        if vClass == .compact { return false }
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+        let h = scene?.windows.first { $0.isKeyWindow }?.bounds.height ?? 800
+        return h >= 600
+    }
+
+    private var shown: Bool { open ?? roomy }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -75,14 +91,67 @@ struct PreviewDock: View {
                 if !text.isEmpty {
                     Button { text = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
                 }
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { open = !shown }
+                } label: {
+                    Image(systemName: shown ? "keyboard.chevron.compact.down" : "keyboard")
+                }
             }
             .font(.subheadline)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(.bar)
-            KeyboardPreview(settings: model.settings, pro: true, text: $text) { s in model.settings = s }
-                .frame(height: KeyboardPreview.height(model.settings))
+            if shown {
+                KeyboardPreview(settings: model.settings, pro: true, text: $text) { s in model.settings = s }
+                    .frame(height: KeyboardPreview.height(model.settings))
+                    .transition(.move(edge: .bottom))
+            }
         }
+        .background(Color(.systemBackground))
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { w in
+            if w != width { width = w; open = nil }
+        }
+    }
+}
+
+/// L'écran entier du Duo : l'app passe aussi sous la colonne de droite (ou de gauche) que l'écran intérieur
+/// réserve à l'appareil photo et à l'heure. Les marges d'un iPhone classique (des deux côtés) ne bougent pas.
+struct FullScreenDuo: UIViewRepresentable {
+    final class Probe: UIView {
+        override func didMoveToWindow() { super.didMoveToWindow(); apply() }
+        override func layoutSubviews() { super.layoutSubviews(); apply() }
+        override func safeAreaInsetsDidChange() { super.safeAreaInsetsDidChange(); DispatchQueue.main.async { self.apply() } }
+
+        private var owner: UIViewController? {
+            var r: UIResponder? = self
+            while let n = r?.next { if let vc = n as? UIViewController { return vc }; r = n }
+            return nil
+        }
+
+        func apply() {
+            guard let window, let vc = owner else { return }
+            // Les marges que l'écran impose vraiment (celles de la fenêtre, sans nos réglages).
+            let l = window.safeAreaInsets.left, r = window.safeAreaInsets.right
+            var extra = UIEdgeInsets.zero
+            if r > 30 && l < 8 { extra.right = -r }
+            if l > 30 && r < 8 { extra.left = -l }
+            if vc.additionalSafeAreaInsets != extra { vc.additionalSafeAreaInsets = extra }
+        }
+    }
+
+    func makeUIView(context: Context) -> Probe {
+        let v = Probe()
+        v.isUserInteractionEnabled = false
+        return v
+    }
+
+    func updateUIView(_ v: Probe, context: Context) { v.apply() }
+}
+
+extension View {
+    /// Tout l'écran du Duo, sans la colonne de l'heure (l'heure est masquée dans l'app).
+    func fullScreenDuo() -> some View {
+        background(FullScreenDuo().frame(width: 0, height: 0)).statusBarHidden(true)
     }
 }
 
@@ -551,7 +620,7 @@ final class TiltReader {
             let planar = (g.x * g.x + g.y * g.y).squareRoot()
             let a = atan2(g.x, -g.y) * 180 / .pi
             let i = asin(max(-1, min(1, -g.z))) * 180 / .pi
-            self.roll = planar > 0.2 ? (self.roll.map { $0 * 0.8 + a * 0.2 } ?? a) : nil
+            self.roll = planar > 0.2 ? (self.roll.map { kbWrap($0 + kbWrap(a - $0) * 0.2) } ?? a) : nil
             self.incline = self.incline.map { $0 * 0.8 + i * 0.2 } ?? i
             self.tick &+= 1
         }

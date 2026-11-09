@@ -211,7 +211,9 @@ struct KBSettings: Codable, Equatable {
 
     /// L'inclinaison retenue pour une prise dans une situation : apprise, sinon étalonnée.
     func roll(_ grip: String, context: String) -> Double? {
-        if let a = learned[context]?[grip], !a.isEmpty { return a.reduce(0, +) / Double(a.count) }
+        if let a = learned[context]?[grip], let f = a.first {
+            return kbWrap(f + a.map { kbWrap($0 - f) }.reduce(0, +) / Double(a.count))
+        }
         if let p = calib[context]?[grip], p.count == 2 { return p[0] }
         return nil
     }

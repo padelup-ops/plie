@@ -18,6 +18,7 @@ struct FoldboardApp: App {
                 .environment(model)
                 .environment(store)
                 .tint(Color("AccentColor"))
+                .fullScreenDuo()
                 .onChange(of: phase) { _, p in
                     if p == .active {
                         model.reload()
@@ -111,11 +112,12 @@ struct HomeView: View {
             }
             .navigationTitle("Foldboard")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showPro) { ProView().environment(store) }
+            .sheet(isPresented: $showPro) { ProView().environment(store).fullScreenDuo() }
             .fullScreenCover(isPresented: Binding(get: { !onboarded }, set: { if !$0 { onboarded = true } })) {
                 OnboardingView { onboarded = true }
                     .environment(store)
                     .environment(model)
+                    .fullScreenDuo()
             }
         }
     }

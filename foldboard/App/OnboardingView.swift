@@ -96,8 +96,6 @@ struct OnboardingView: View {
         }
     }
 
-    @State private var tryText = ""
-
     /// Le clavier à ton goût dès le début : disposition, hauteur, largeur, écart avec le bord (avec l'aperçu).
     private var yourKeyboard: some View {
         @Bindable var m = model
@@ -123,8 +121,7 @@ struct OnboardingView: View {
             next("Next") { page = 4 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 10)
-            KeyboardPreview(settings: model.settings, pro: true, text: $tryText) { s in model.settings = s }
-                .frame(height: KeyboardPreview.height(model.settings))
+            PreviewDock()
         }
     }
 

@@ -6,6 +6,13 @@ enum KBGrip: String, Codable {
     case left, right, two
 }
 
+/// Un écart d'angle ramené entre -180° et 180° (179° et -179° sont voisins).
+func kbWrap(_ d: Double) -> Double {
+    var x = d.truncatingRemainder(dividingBy: 360)
+    if x > 180 { x -= 360 } else if x < -180 { x += 360 }
+    return x
+}
+
 /// Devine la main qui tient le téléphone, pour que le clavier vienne du bon côté.
 ///
 /// 1. L'inclinaison, dès que le clavier apparaît : tenu dans une main, le téléphone penche vers cette main.
@@ -24,6 +31,12 @@ final class GripDetector {
     var tiltGap: Double = 0
     /// Postures étalonnées (inclinaison, angle avec l'horizontale) : main droite, main gauche, deux mains.
     var postures: [KBGrip: (roll: Double, incline: Double)] = [:]
+    /// Sans étalonnage, deviner quand même avec les capteurs (non sur le Duo ouvert : ses capteurs ne sont pas
+    /// dans le sens de l'écran intérieur, la devinette serait à l'envers).
+    var guessUncalibrated = true
+
+    /// Main droite et main gauche étalonnées pour cette situation : l'inclinaison décide seule.
+    var calibrated: Bool { postures[.right] != nil && postures[.left] != nil }
 
     /// Seuil d'inclinaison : un tiers de l'écart étalonné (plus réactif), sinon une valeur prudente.
     private var switchThreshold: Double { tiltGap >= 4 ? max(3, tiltGap * 0.3) : 9 }
@@ -70,7 +83,7 @@ final class GripDetector {
                 self.samples.append((m.timestamp, m.rotationRate.y))
                 if self.samples.count > 200 { self.samples.removeFirst(self.samples.count - 200) }
                 self.planar = p
-                self.angle = self.angle.map { $0 * 0.85 + a * 0.15 } ?? a
+                self.angle = self.angle.map { kbWrap($0 + kbWrap(a - $0) * 0.15) } ?? a
                 self.lock.unlock()
             }
         }
@@ -113,22 +126,26 @@ final class GripDetector {
         return (a, i)
     }
 
-    /// Avec les trois postures étalonnées : la plus proche, si elle l'est nettement.
+    /// Avec les postures étalonnées (droite, gauche, et deux mains si faite) : la plus proche, avec une petite marge
+    /// pour ne pas hésiter à la frontière.
     private func postureGrip() -> KBGrip? {
-        guard postures.count == 3, let now = currentPosture else { return nil }
+        guard calibrated, let now = currentPosture, let r = postures[.right], let l = postures[.left] else { return nil }
         let ranked = postures.map { (g, p) -> (KBGrip, Double) in
-            let dr = now.roll - p.roll, di = (now.incline - p.incline) * 0.5
+            let dr = kbWrap(now.roll - p.roll), di = (now.incline - p.incline) * 0.3
             return (g, (dr * dr + di * di).squareRoot())
         }.sorted { $0.1 < $1.1 }
-        guard ranked.count >= 2, ranked[0].1 < ranked[1].1 * 0.7 else { return nil }
+        guard ranked.count >= 2 else { return ranked.first?.0 }
+        let margin = max(1.5, abs(kbWrap(r.roll - l.roll)) * 0.1)
+        guard ranked[1].1 - ranked[0].1 >= margin else { return nil }
         return ranked[0].0
     }
 
     /// La main d'après l'inclinaison, si le téléphone n'est pas posé à plat et penche assez.
     private func tiltGrip(threshold: Double) -> KBGrip? {
-        if postures.count == 3 { return postureGrip() }
+        if calibrated { return postureGrip() }
+        if tiltGap < 4 && !guessUncalibrated { return nil }
         guard let a = currentAngle else { return nil }
-        let d = a - tiltMid
+        let d = kbWrap(a - tiltMid)
         guard abs(d) >= threshold else { return nil }
         let negative = d < 0
         return negative == rightNegative ? .right : .left
@@ -138,7 +155,9 @@ final class GripDetector {
     private func checkTilt() {
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
         guard let g = tiltGrip(threshold: threshold) else { tiltStreak = nil; return }
-        if g == tiltSide { tiltStreak = nil; return }
+        // Étalonné : l'inclinaison a le dernier mot (le clavier revient toujours du bon côté).
+        // Sinon, on ne réagit qu'à un vrai changement d'inclinaison.
+        if calibrated ? g == current : g == tiltSide { tiltStreak = nil; return }
         let n = (tiltStreak?.grip == g ? tiltStreak!.n : 0) + 1
         tiltStreak = (g, n)
         // 3 lectures de suite (≈ 0,45 s) : assez pour ignorer un geste, assez vite pour suivre un changement de main.
@@ -185,7 +204,7 @@ final class GripDetector {
 
     /// Un balayage du pouce (au moins 40 points de haut) : le sens de l'arc donne la main.
     func swipe(_ pts: [CGPoint]) {
-        guard pts.count >= 5, let first = pts.first, let last = pts.last, abs(last.y - first.y) >= 40 else { return }
+        guard !calibrated, pts.count >= 5, let first = pts.first, let last = pts.last, abs(last.y - first.y) >= 40 else { return }
         // Écart signé entre le point le plus éloigné et la corde (premier → dernier point).
         let dx = last.x - first.x, dy = last.y - first.y
         let len = max(1, (dx * dx + dy * dy).squareRoot())
@@ -220,7 +239,10 @@ final class GripDetector {
             emit(.two)
             return
         }
-        let rot = vote(rotLeft, rotRight, bias: 2, high: 6)
+        // Étalonné : seule l'inclinaison place le clavier d'un côté (les touchers ne servent qu'aux deux pouces).
+        if calibrated { return }
+        // Gyroscope seulement quand ses axes suivent l'écran (pas sur le Duo ouvert).
+        let rot = guessUncalibrated ? vote(rotLeft, rotRight, bias: 2, high: 6) : nil
         let size = vote(sizeLeft, sizeRight, bias: 1.25, high: 1.4)
         var result: KBGrip?
         if let r = rot, let s = size {

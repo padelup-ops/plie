@@ -227,10 +227,6 @@ final class KeyboardCanvas: UIView {
         // La fenêtre suit l'écran réellement utilisé ; l'écran de la scène peut rester l'ancien.
         let win = window?.bounds.size ?? .zero
         if win.width > 0 && win.height > bounds.height * 1.8 { return win }
-        if #available(iOS 26.0, *), let g = window?.windowScene?.effectiveGeometry {
-            let s = g.coordinateSpace.bounds.size
-            if s.width > 0 { return s }
-        }
         return window?.windowScene?.screen.bounds.size ?? bounds.size
     }
 
@@ -254,11 +250,13 @@ final class KeyboardCanvas: UIView {
 
     private func updateGripContext() {
         gripContext = KBSettings.context(screen: screenSize, closed: hingeClosed)
+        grip.guessUncalibrated = !gripContext.hasPrefix("open")
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
-        if let r, let l, abs(r - l) >= 3 {
-            grip.tiltMid = (r + l) / 2
-            grip.rightNegative = r < l
-            grip.tiltGap = abs(r - l)
+        if let r, let l, abs(kbWrap(r - l)) >= 3 {
+            let mid = kbWrap(r + kbWrap(l - r) / 2)
+            grip.tiltMid = mid
+            grip.rightNegative = kbWrap(r - mid) < 0
+            grip.tiltGap = abs(kbWrap(r - l))
         } else {
             grip.tiltMid = 0
             grip.rightNegative = true
