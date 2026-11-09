@@ -1,4 +1,4 @@
-"""FOLDLY : fin de la bêta TestFlight.
+"""Fin de la bêta TestFlight (Foldly par défaut, BUNDLE_ID pour une autre app).
 
 MODE=probe : montre les builds, leurs groupes et ceux liés à une version App Store.
 MODE=apply : coupe le lien public des groupes externes, retire les builds des groupes externes,
@@ -21,7 +21,8 @@ def call(method, path, body=None):
     except urllib.error.HTTPError as e:
         return {"error": e.code, "detail": e.read().decode()[:600]}
 
-app = call("GET", "/v1/apps?filter[bundleId]=com.padelup.clapet")["data"][0]
+app = call("GET", "/v1/apps?filter[bundleId]=" + os.environ.get("BUNDLE_ID", "com.padelup.clapet"))["data"][0]
+print("app", app["attributes"]["name"])
 aid = app["id"]
 
 # Les builds liés à une version App Store (en ligne, en revue…) : on ne les expire pas.

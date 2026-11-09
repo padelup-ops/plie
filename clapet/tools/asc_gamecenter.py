@@ -30,8 +30,8 @@ if not gcd:
 print("Game Center", gcd["id"])
 
 # rec : None (classique), ou (début, durée, règle) pour un classement qui se renouvelle.
-DAILY = ("2026-11-08T23:00:00Z", ["PT24H"], "FREQ=DAILY;INTERVAL=1")
-WEEKLY = ("2026-11-08T23:00:00Z", ["PT168H"], "FREQ=WEEKLY;INTERVAL=1")
+DAILY = ("2026-11-09T23:00:00Z", ["PT24H"], "FREQ=DAILY;INTERVAL=1")
+WEEKLY = ("2026-11-15T23:00:00Z", ["PT168H"], "FREQ=WEEKLY;INTERVAL=1")
 MONTHLY = ("2026-11-09T23:00:00Z", ["P1M", "PT720H", "PT672H"], "FREQ=MONTHLY;INTERVAL=1")
 MONTHLY_FALLBACK = ("2026-11-09T23:00:00Z", ["PT720H"], "FREQ=DAILY;INTERVAL=30")
 BOARDS = [
@@ -44,11 +44,11 @@ BOARDS = [
     {"vendorIdentifier": "foldly.folds.week", "referenceName": "Folds this week", "rec": WEEKLY,
      "en-US": ("Most folds this week", "folds", "fold"), "fr-FR": ("Le plus de plis cette semaine", "plis", "pli")},
     {"vendorIdentifier": "foldly.folds.total", "referenceName": "Folds since day one", "rec": None,
-     "en-US": ("Most folds since day one", "folds", "fold"), "fr-FR": ("Le plus de plis depuis le début", "plis", "pli")},
+     "en-US": ("Most folds since day one", "folds", "fold"), "fr-FR": ("Plis depuis le début", "plis", "pli")},
     {"vendorIdentifier": "foldly.contest.folds", "referenceName": "Contest: most folds", "rec": MONTHLY,
      "en-US": ("Contest: most folds", "folds", "fold"), "fr-FR": ("Concours : le plus de plis", "plis", "pli")},
     {"vendorIdentifier": "foldly.contest.open", "referenceName": "Contest: most time unfolded", "rec": MONTHLY,
-     "en-US": ("Contest: most time unfolded", "min", "min"), "fr-FR": ("Concours : le plus de temps déplié", "min", "min")},
+     "en-US": ("Contest: most time unfolded", "min", "min"), "fr-FR": ("Concours : temps déplié", "min", "min")},
     {"vendorIdentifier": "foldly.contest.calm", "referenceName": "Contest: the calmest", "rec": MONTHLY, "sort": "ASC", "fmt": "DECIMAL_POINT_1_PLACE",
      "en-US": ("Contest: the calmest", "folds/day", "fold/day"), "fr-FR": ("Concours : le plus zen", "plis/jour", "pli/jour")},
 ]
@@ -75,7 +75,7 @@ for b in BOARDS:
     locs = {l["attributes"]["locale"]: l for l in call("GET", f"/v1/gameCenterLeaderboards/{lb['id']}/localizations").get("data", [])}
     for locale in ("en-US", "fr-FR"):
         name, plural, singular = b[locale]
-        attrs = {"name": name[:32], "formatterSuffix": " " + plural, "formatterSuffixSingular": " " + singular}
+        attrs = {"name": name[:30], "formatterSuffix": " " + plural, "formatterSuffixSingular": " " + singular}
         if locale in locs:
             ok(f"  texte {locale}", call("PATCH", f"/v1/gameCenterLeaderboardLocalizations/{locs[locale]['id']}", {"data": {
                 "type": "gameCenterLeaderboardLocalizations", "id": locs[locale]["id"], "attributes": attrs}}))
