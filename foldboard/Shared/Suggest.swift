@@ -95,7 +95,7 @@ final class KBSuggest {
 
     /// La correction à appliquer quand on termine le mot (espace, ponctuation), ou nil.
     func correction(for word: String, before: String) -> String? {
-        guard word.count >= 2, word.count <= 30 else {
+        guard word.count >= 3, word.count <= 30 else {
             if word == "i" && language.hasPrefix("en") { return "I" }
             return nil
         }
@@ -115,12 +115,35 @@ final class KBSuggest {
             let rb = rank[b.element.lowercased()] ?? (100_000 + b.offset)
             return ra < rb
         }.map { $0.element }
-        // On garde une proposition proche (même début, longueur voisine) pour ne pas changer le sens.
+        // Prudente, comme le clavier d'Apple : on ne remplace que par un mot courant, presque identique
+        // (une faute de frappe, deux pour un mot long), qui commence par la même lettre. Sinon, la barre propose.
+        if word.contains(where: { $0.isNumber || $0 == "@" || $0 == "." || $0 == "/" }) { return nil }
+        let allowed = word.count >= 7 ? 2 : 1
         let best = guesses.first { g in
             let gl = g.lowercased()
-            return abs(g.count - word.count) <= 2 && gl.first == lower.first && !g.contains(" ")
-        } ?? guesses.first { abs($0.count - word.count) <= 1 && !$0.contains(" ") }
+            guard !g.contains(" "), !g.contains("-"), gl.first == lower.first else { return false }
+            guard let r = rank[gl], r < 20_000 else { return false }
+            return Self.distance(gl, lower) <= allowed
+        }
         return best.map { matchCase($0, like: word) }
+    }
+
+    /// Le nombre de lettres à changer pour passer d'un mot à l'autre (deux lettres inversées comptent pour une).
+    static func distance(_ a: String, _ b: String) -> Int {
+        let x = Array(a), y = Array(b)
+        if x.isEmpty { return y.count }
+        if y.isEmpty { return x.count }
+        var d = Array(repeating: Array(repeating: 0, count: y.count + 1), count: x.count + 1)
+        for i in 0...x.count { d[i][0] = i }
+        for j in 0...y.count { d[0][j] = j }
+        for i in 1...x.count {
+            for j in 1...y.count {
+                let cost = x[i - 1] == y[j - 1] ? 0 : 1
+                d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost)
+                if i > 1, j > 1, x[i - 1] == y[j - 2], x[i - 2] == y[j - 1] { d[i][j] = min(d[i][j], d[i - 2][j - 2] + 1) }
+            }
+        }
+        return d[x.count][y.count]
     }
 
     /// Les trois propositions de la barre : le mot tapé, la meilleure (correction ou fin du mot), une autre.
