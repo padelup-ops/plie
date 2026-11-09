@@ -253,18 +253,21 @@ final class GripDetector {
         thumbs.append(pr / max(0.001, pr + pl))
         if thumbs.count > 6 { thumbs.removeFirst() }
         let sure = thumbs.map { $0 > 0.68 ? 1 : ($0 < 0.32 ? -1 : 0) }
+        let very = thumbs.map { $0 > 0.8 ? 1 : ($0 < 0.2 ? -1 : 0) }
         let r = sure.filter { $0 == 1 }.count, l = sure.filter { $0 == -1 }.count
+        let v3 = very.suffix(3)
         var g: KBGrip?
-        if r >= 2 && l >= 2 {
+        // Les deux pouces : un de chaque, très nets, dans les 3 derniers appuis (ou 2 de chaque sur 6).
+        if (v3.contains(1) && v3.contains(-1)) || (r >= 2 && l >= 2) {
             g = .two
         } else {
-            let last = sure.suffix(4)
-            let r4 = last.filter { $0 == 1 }.count, l4 = last.filter { $0 == -1 }.count
-            if last.count >= 3 && r4 >= 3 && l4 == 0 { g = .right }
-            if last.count >= 3 && l4 >= 3 && r4 == 0 { g = .left }
+            // Un seul pouce : les 2 derniers appuis du même pouce, sans l'autre dans les 3 derniers.
+            let last3 = sure.suffix(3), last2 = Array(sure.suffix(2))
+            if last2.count == 2 && last2.allSatisfy({ $0 == 1 }) && !last3.contains(-1) { g = .right }
+            if last2.count == 2 && last2.allSatisfy({ $0 == -1 }) && !last3.contains(1) { g = .left }
         }
-        guard let g, g != current, now - lastEmit > 1.2 else { return }
-        if current == .two && g != .two && now - lastTwo < 1.5 { return }
+        guard let g, g != current, now - lastEmit > 0.6 else { return }
+        if current == .two && g != .two && now - lastTwo < 0.8 { return }
         emit(g)
     }
 

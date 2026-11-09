@@ -350,7 +350,7 @@ final class KeyboardCanvas: UIView {
     private func scheduleGrip() {
         idleTimer?.invalidate()
         guard pendingGrip != nil, tracks.isEmpty else { return }
-        idleTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: false) { [weak self] _ in
+        idleTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: false) { [weak self] _ in
             guard let self, let g = self.pendingGrip, self.tracks.isEmpty else { return }
             self.applyGrip(g)
         }
@@ -364,7 +364,7 @@ final class KeyboardCanvas: UIView {
         grip.current = g
         guard s.autoTwo != settings.autoTwo || s.autoRight != settings.autoRight else { return }
         settings = s
-        UIView.transition(with: self, duration: 0.15, options: .transitionCrossDissolve, animations: {
+        UIView.transition(with: self, duration: 0.12, options: .transitionCrossDissolve, animations: {
             self.save()
             self.layoutIfNeeded()
         })
