@@ -149,3 +149,12 @@
 "Reset calibration" = "Reset calibration";
 "Your keyboard" = "Your keyboard";
 "Set it to your thumb. You can try it right below." = "Set it to your thumb. You can try it right below.";
+"Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. Do it closed and open, in portrait and in landscape if you type that way: Foldboard keeps a calibration for each." = "Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. Do it closed and open, in portrait and in landscape if you type that way: Foldboard keeps a calibration for each.";
+"Not calibrated" = "Not calibrated";
+"%lld of 3" = "%lld of 3";
+"Calibrations" = "Calibrations";
+"Open · portrait" = "Open · portrait";
+"Open · landscape" = "Open · landscape";
+"Closed · landscape" = "Closed · landscape";
+"Closed · portrait" = "Closed · portrait";
+"Hold the phone as you usually type, then tap the matching button. Do it closed and open: the angles are not the same." = "Hold the phone as you usually type, then tap the matching button. Do it closed and open: the angles are not the same.";

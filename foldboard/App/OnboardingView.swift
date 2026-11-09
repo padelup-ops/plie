@@ -76,7 +76,7 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("How do you hold it?").font(.largeTitle.bold())
-                Text("Hold the phone as you usually type, then tap the matching button. Do it for each hand, and with both hands.")
+                Text("Hold the phone as you usually type, then tap the matching button. Do it closed and open: the angles are not the same.")
                     .foregroundStyle(.secondary)
             }
             .padding(24)
@@ -129,7 +129,7 @@ struct OnboardingView: View {
     }
 
     private var calibrated: Bool {
-        !model.settings.postureRight.isEmpty && !model.settings.postureLeft.isEmpty
+        !model.settings.calib.isEmpty
     }
 
     private var trial: some View {

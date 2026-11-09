@@ -149,3 +149,12 @@
 "Reset calibration" = "Réinitialiser l’étalonnage";
 "Your keyboard" = "Ton clavier";
 "Set it to your thumb. You can try it right below." = "Règle-le pour ton pouce. Tu peux l’essayer juste en dessous.";
+"Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. Do it closed and open, in portrait and in landscape if you type that way: Foldboard keeps a calibration for each." = "Tiens le téléphone comme quand tu tapes, puis touche le bouton qui correspond : main droite, main gauche, et deux mains. Fais-le Duo fermé et Duo ouvert, en portrait et en paysage si tu tapes comme ça : Foldboard garde un étalonnage pour chacun.";
+"Not calibrated" = "Pas étalonné";
+"%lld of 3" = "%lld sur 3";
+"Calibrations" = "Étalonnages";
+"Open · portrait" = "Ouvert · portrait";
+"Open · landscape" = "Ouvert · paysage";
+"Closed · landscape" = "Fermé · paysage";
+"Closed · portrait" = "Fermé · portrait";
+"Hold the phone as you usually type, then tap the matching button. Do it closed and open: the angles are not the same." = "Tiens le téléphone comme quand tu tapes, puis touche le bouton qui correspond. Fais-le Duo fermé et Duo ouvert : les angles ne sont pas les mêmes.";

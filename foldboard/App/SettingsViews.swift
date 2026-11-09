@@ -561,30 +561,43 @@ struct TiltCalibration: View {
     @Environment(SettingsModel.self) private var model
     @State private var reader = TiltReader()
 
+    /// La situation actuelle : Duo fermé ou ouvert, portrait ou paysage.
+    private var context: String {
+        let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.bounds.size ?? .zero
+        return KBSettings.context(screen: size)
+    }
+
     var body: some View {
         Section {
             HStack {
-                Text("Tilt now")
+                Label(contextName(context), systemImage: context.hasPrefix("open") ? "rectangle.portrait.split.2x1" : "iphone")
+                    .font(.headline)
                 Spacer()
                 Text(reader.roll.map { String(format: "%+.0f°", $0) } ?? "—").monospacedDigit().foregroundStyle(.secondary)
-                Text(reader.incline.map { String(format: "%.0f°", $0) } ?? "").monospacedDigit().foregroundStyle(.tertiary)
             }
-            button("Right hand", "hand.point.right", done: !model.settings.postureRight.isEmpty) { s, p in
-                s.postureRight = p
-                s.tiltRightSamples = [p[0]]
+            button("Right hand", "hand.point.right", grip: "right")
+            button("Left hand", "hand.point.left", grip: "left")
+            button("Both hands", "hands.clap", grip: "two")
+        } header: {
+            HStack { Text("Follow your hand"); ProBadge() }
+        } footer: {
+            Text("Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. Do it closed and open, in portrait and in landscape if you type that way: Foldboard keeps a calibration for each.")
+        }
+        .onAppear { reader.start() }
+        .onDisappear { reader.stop() }
+
+        Section {
+            ForEach(KBSettings.contexts, id: \.self) { c in
+                let n = model.settings.calib[c]?.count ?? 0
+                HStack {
+                    Text(contextName(c))
+                    Spacer()
+                    Text(n == 0 ? NSLocalizedString("Not calibrated", comment: "") : String(format: NSLocalizedString("%lld of 3", comment: ""), n))
+                        .foregroundStyle(n == 3 ? .green : .secondary)
+                    if c == context { Image(systemName: "location.fill").font(.caption).foregroundStyle(Color.accentColor) }
+                }
             }
-            button("Left hand", "hand.point.left", done: !model.settings.postureLeft.isEmpty) { s, p in
-                s.postureLeft = p
-                s.tiltLeftSamples = [p[0]]
-            }
-            button("Both hands", "hands.clap", done: !model.settings.postureTwo.isEmpty) { s, p in
-                s.postureTwo = p
-            }
-            if model.settings.tiltCalibrated {
-                Label(model.settings.postureTwo.isEmpty ? "Calibrated" : "Calibrated, both hands too", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-            }
-            if model.settings.tiltCalibrated || !model.settings.postureRight.isEmpty || !model.settings.postureLeft.isEmpty || !model.settings.postureTwo.isEmpty {
+            if !model.settings.calib.isEmpty || !model.settings.learned.isEmpty {
                 Button(role: .destructive) {
                     var s = model.settings
                     s.resetCalibration()
@@ -594,22 +607,25 @@ struct TiltCalibration: View {
                 }
             }
         } header: {
-            HStack { Text("Follow your hand"); ProBadge() }
-        } footer: {
-            Text("Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. With both hands, the keyboard splits in two on the open Duo and goes full width on the outer screen.")
+            Text("Calibrations")
         }
-        .onAppear { reader.start() }
-        .onDisappear { reader.stop() }
     }
 
-    private func button(_ title: LocalizedStringKey, _ icon: String, done: Bool, _ apply: @escaping (inout KBSettings, [Double]) -> Void) -> some View {
-        Button {
+    private func contextName(_ c: String) -> String {
+        switch c {
+        case "open-portrait": return NSLocalizedString("Open · portrait", comment: "")
+        case "open-landscape": return NSLocalizedString("Open · landscape", comment: "")
+        case "closed-landscape": return NSLocalizedString("Closed · landscape", comment: "")
+        default: return NSLocalizedString("Closed · portrait", comment: "")
+        }
+    }
+
+    private func button(_ title: LocalizedStringKey, _ icon: String, grip: String) -> some View {
+        let done = model.settings.calib[context]?[grip] != nil
+        return Button {
             guard let r = reader.roll, let i = reader.incline else { return }
             var s = model.settings
-            apply(&s, [r, i])
-            if !s.tiltRightSamples.isEmpty, !s.tiltLeftSamples.isEmpty {
-                s.learnTilt(s.tiltRightSamples.last ?? r, right: true)
-            }
+            s.calibrate(grip, roll: r, incline: i, context: context)
             model.settings = s
         } label: {
             HStack {

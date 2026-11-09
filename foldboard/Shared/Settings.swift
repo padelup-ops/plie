@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import Security
 
@@ -70,6 +71,11 @@ struct KBSettings: Codable, Equatable {
     var postureRight: [Double] = []
     var postureLeft: [Double] = []
     var postureTwo: [Double] = []
+    /// Étalonnage par situation : « closed-portrait », « open-portrait », « open-landscape », « closed-landscape »
+    /// → prise (« right », « left », « two ») → [inclinaison, angle avec l'horizontale].
+    var calib: [String: [String: [Double]]] = [:]
+    /// Inclinaisons apprises quand on change soi-même le clavier de côté, par situation → « right » / « left ».
+    var learned: [String: [String: [Double]]] = [:]
     /// Largeur du clavier à une main, en part de l'écran.
     var oneHandWidth: Double = 0.68
     /// Largeur de chaque moitié en mode deux mains, en part de l'écran.
@@ -121,6 +127,8 @@ struct KBSettings: Codable, Equatable {
         postureRight = (try? c.decodeIfPresent([Double].self, forKey: .postureRight)) ?? []
         postureLeft = (try? c.decodeIfPresent([Double].self, forKey: .postureLeft)) ?? []
         postureTwo = (try? c.decodeIfPresent([Double].self, forKey: .postureTwo)) ?? []
+        calib = (try? c.decodeIfPresent([String: [String: [Double]]].self, forKey: .calib)) ?? [:]
+        learned = (try? c.decodeIfPresent([String: [String: [Double]]].self, forKey: .learned)) ?? [:]
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin
@@ -169,8 +177,47 @@ struct KBSettings: Codable, Equatable {
         tiltCalibrated = true
     }
 
+    /// La situation d'après la taille de l'écran : Duo ouvert (écran presque carré) ou fermé, en portrait ou en paysage.
+    static func context(screen: CGSize) -> String {
+        let w = screen.width, h = screen.height
+        let ratio = min(w, h) / max(1, max(w, h))
+        return (ratio > 0.6 ? "open" : "closed") + "-" + (w > h ? "landscape" : "portrait")
+    }
+
+    static let contexts = ["closed-portrait", "open-portrait", "open-landscape", "closed-landscape"]
+
+    mutating func calibrate(_ grip: String, roll: Double, incline: Double, context: String) {
+        var c = calib[context] ?? [:]
+        c[grip] = [roll, incline]
+        calib[context] = c
+        var l = learned[context] ?? [:]
+        l[grip] = nil
+        learned[context] = l
+        tiltCalibrated = true
+    }
+
+    /// Le choix fait à la main : on retient l'inclinaison pour cette situation.
+    mutating func learn(roll: Double, right: Bool, context: String) {
+        let key = right ? "right" : "left"
+        var l = learned[context] ?? [:]
+        var a = l[key] ?? []
+        a.append(roll)
+        if a.count > 8 { a.removeFirst() }
+        l[key] = a
+        learned[context] = l
+    }
+
+    /// L'inclinaison retenue pour une prise dans une situation : apprise, sinon étalonnée.
+    func roll(_ grip: String, context: String) -> Double? {
+        if let a = learned[context]?[grip], !a.isEmpty { return a.reduce(0, +) / Double(a.count) }
+        if let p = calib[context]?[grip], p.count == 2 { return p[0] }
+        return nil
+    }
+
     /// Oublie l'étalonnage et tout ce qui a été appris : on repart des réglages de départ.
     mutating func resetCalibration() {
+        calib = [:]
+        learned = [:]
         tiltMid = 0
         tiltRightNegative = true
         tiltCalibrated = false

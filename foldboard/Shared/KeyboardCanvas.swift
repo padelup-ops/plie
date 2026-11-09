@@ -191,23 +191,7 @@ final class KeyboardCanvas: UIView {
         eff = settings.effective(pro: pro)
         theme = KBTheme.named(eff.theme)
         suggest.setLayout(eff.layout)
-        grip.tiltMid = settings.tiltMid
-        grip.rightNegative = settings.tiltRightNegative
-        if !settings.tiltRightSamples.isEmpty, !settings.tiltLeftSamples.isEmpty {
-            let r = settings.tiltRightSamples.reduce(0, +) / Double(settings.tiltRightSamples.count)
-            let l = settings.tiltLeftSamples.reduce(0, +) / Double(settings.tiltLeftSamples.count)
-            grip.tiltGap = abs(r - l)
-        }
-        var postures: [KBGrip: (roll: Double, incline: Double)] = [:]
-        for (g, p) in [(KBGrip.right, settings.postureRight), (.left, settings.postureLeft), (.two, settings.postureTwo)] where p.count == 2 {
-            postures[g] = (p[0], p[1])
-        }
-        // L'apprentissage par les corrections met à jour l'inclinaison des deux mains.
-        if postures.count == 3, !settings.tiltRightSamples.isEmpty, !settings.tiltLeftSamples.isEmpty {
-            postures[.right]?.roll = settings.tiltRightSamples.reduce(0, +) / Double(settings.tiltRightSamples.count)
-            postures[.left]?.roll = settings.tiltLeftSamples.reduce(0, +) / Double(settings.tiltLeftSamples.count)
-        }
-        grip.postures = postures
+        updateGripContext()
         grip.current = settings.autoTwo ? .two : (settings.autoRight ? .right : .left)
         builtFor = .zero
         setNeedsLayout()
@@ -227,6 +211,34 @@ final class KeyboardCanvas: UIView {
         setNeedsLayout()
     }
 
+    /// La situation (Duo fermé ou ouvert, portrait ou paysage) et l'étalonnage qui va avec.
+    private var gripContext = "closed-portrait"
+    private func updateGripContext() {
+        let screen = window?.windowScene?.screen.bounds.size ?? bounds.size
+        gripContext = KBSettings.context(screen: screen)
+        let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
+        if let r, let l, abs(r - l) >= 3 {
+            grip.tiltMid = (r + l) / 2
+            grip.rightNegative = r < l
+            grip.tiltGap = abs(r - l)
+        } else {
+            grip.tiltMid = 0
+            grip.rightNegative = true
+            grip.tiltGap = 0
+        }
+        var postures: [KBGrip: (roll: Double, incline: Double)] = [:]
+        for (k, p) in settings.calib[gripContext] ?? [:] where p.count == 2 {
+            guard let g = KBGrip(rawValue: k) else { continue }
+            postures[g] = (settings.roll(k, context: gripContext) ?? p[0], p[1])
+        }
+        grip.postures = postures
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        updateGripContext()
+    }
+
     /// Le clavier disparaît : on coupe les capteurs.
     func disappeared() {
         visible = false
@@ -242,7 +254,7 @@ final class KeyboardCanvas: UIView {
         grip.start { [weak self] g in
             guard let self, let g, self.autoOn else { return }
             // Sans posture « deux mains » étalonnée, l'inclinaison ne fait pas quitter le mode deux mains.
-            if self.settings.autoTwo && self.settings.postureTwo.isEmpty { return }
+            if self.settings.autoTwo && self.settings.calib[self.gripContext]?["two"] == nil { return }
             self.applyGrip(g)
         }
     }
@@ -309,7 +321,7 @@ final class KeyboardCanvas: UIView {
             settings.autoTwo = false
             grip.current = settings.autoRight ? .right : .left
             // Le choix fait à la main apprend à la détection comment tu tiens le téléphone.
-            if let a = grip.currentAngle { settings.learnTilt(a, right: settings.autoRight) }
+            if let a = grip.currentAngle { settings.learn(roll: a, right: settings.autoRight, context: gripContext) }
         case .left: settings.mode = .right
         case .right: settings.mode = .left
         default: return
@@ -334,6 +346,7 @@ final class KeyboardCanvas: UIView {
         super.layoutSubviews()
         guard bounds.size != builtFor, bounds.width > 50 else { return }
         builtFor = bounds.size
+        updateGripContext()
         rebuild()
     }
 
