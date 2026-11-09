@@ -670,3 +670,6 @@
 "1 to 10 min" = "1 à 10 min";
 "Over 10 min" = "Plus de 10 min";
 "New" = "Nouveau";
+
+/* Repos */
+"%@ of it at rest today" = "dont %@ au repos aujourd’hui";

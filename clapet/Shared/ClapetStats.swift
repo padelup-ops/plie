@@ -27,6 +27,8 @@ struct DayCount: Codable, Equatable {
     /// Téléphone posé : le temps passé fermé, en secondes, et les plantes qui ont poussé (une toutes les 25 min d'affilée).
     var downSeconds: Double = 0
     var plants = 0
+    /// Temps ouvert « au repos » (Sommeil, via le raccourci clapet://repos), en secondes. Inclus dans openSeconds.
+    var restSeconds: Double = 0
 
     init(closes: Int = 0, opens: Int = 0, openSeconds: Double = 0, peeks: Int = 0, longestBreak: Double = 0) {
         self.closes = closes
@@ -46,6 +48,7 @@ struct DayCount: Codable, Equatable {
         resisted = try c.decodeIfPresent(Int.self, forKey: .resisted) ?? 0
         downSeconds = try c.decodeIfPresent(Double.self, forKey: .downSeconds) ?? 0
         plants = try c.decodeIfPresent(Int.self, forKey: .plants) ?? 0
+        restSeconds = try c.decodeIfPresent(Double.self, forKey: .restSeconds) ?? 0
     }
 }
 
@@ -115,6 +118,8 @@ struct ClapetStats: Codable, Equatable {
     var autoLast: Date?
     /// Depuis quand le Duo est ouvert (nil : fermé, ou on ne sait pas).
     var openSince: Date?
+    /// Début du repos en cours (raccourci clapet://repos), ou nil.
+    var restSince: Date?
     /// L'ouverture en cours a été vue (charnière ou automatisation), pas devinée au lancement de l'app.
     var openFromEvent = false
     /// Téléphone posé : objectif du jour (minutes), et la dernière fermeture déjà comptée.
@@ -132,7 +137,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog
+        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -155,6 +160,7 @@ struct ClapetStats: Codable, Equatable {
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
         autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
         openSince = try c.decodeIfPresent(Date.self, forKey: .openSince)
+        restSince = try c.decodeIfPresent(Date.self, forKey: .restSince)
         openFromEvent = try c.decodeIfPresent(Bool.self, forKey: .openFromEvent) ?? false
         downGoalMinutes = try c.decodeIfPresent(Int.self, forKey: .downGoalMinutes) ?? 180
         downCredited = try c.decodeIfPresent(Date.self, forKey: .downCredited)
@@ -458,6 +464,7 @@ struct ClapetStats: Codable, Equatable {
         let seen = event && openFromEvent
         openFromEvent = false
         guard total > 0, total < Self.maxOpenSession else { return }
+        creditRest(from: start, to: date)
         // Une vraie ouverture, vue du début à la fin : on la garde pour les stats de sessions.
         if seen { addSession(start: start, seconds: total) }
         let cal = Calendar.current
@@ -486,6 +493,53 @@ struct ClapetStats: Codable, Equatable {
             t += max(0, now.timeIntervalSince(max(s, Calendar.current.startOfDay(for: now))))
         }
         return t
+    }
+
+
+    // MARK: Repos (ouvert mais pas utilisé)
+
+    /// Le repos commence (raccourci « Foldly repos »).
+    mutating func startRest(_ date: Date = Date()) {
+        if restSince == nil { restSince = date }
+    }
+
+    /// Le repos finit : si le Duo est ouvert, la part « au repos » de l'ouverture en cours est comptée.
+    mutating func endRest(_ date: Date = Date()) {
+        guard let r = restSince else { return }
+        restSince = nil
+        if let s = openSince, date.timeIntervalSince(s) < Self.maxOpenSession {
+            creditRestSeconds(from: max(r, s), to: date)
+        }
+    }
+
+    /// À la fin d'une ouverture : la part passée au repos. Le repos continue si besoin.
+    private mutating func creditRest(from start: Date, to end: Date) {
+        guard let r = restSince else { return }
+        creditRestSeconds(from: max(r, start), to: end)
+        restSince = end
+    }
+
+    private mutating func creditRestSeconds(from a: Date, to b: Date) {
+        guard b > a else { return }
+        let cal = Calendar.current
+        var s = a
+        while s < b {
+            let midnight = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: s)) ?? b
+            let end = min(b, midnight)
+            var d = day(s)
+            d.restSeconds += end.timeIntervalSince(s)
+            days[Self.key(s)] = d
+            s = end
+        }
+    }
+
+    /// Temps ouvert au repos d'une journée (l'ouverture en cours comprise pour aujourd'hui).
+    func restTime(_ date: Date = Date(), now: Date = Date()) -> TimeInterval {
+        var t = day(date).restSeconds
+        if Self.key(date) == Self.key(now), let r = restSince, let s = openSince, now.timeIntervalSince(s) < Self.maxOpenSession {
+            t += max(0, now.timeIntervalSince(max(max(r, s), Calendar.current.startOfDay(for: now))))
+        }
+        return min(t, openTime(date, now: now))
     }
 
     /// Moyenne de temps ouvert par jour, sur les jours mesurés des `count` derniers jours.

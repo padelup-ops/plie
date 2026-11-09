@@ -159,6 +159,12 @@ final class ClapetModel {
         WidgetCenter.shared.reloadAllTimelines()
     }
 
+    /// Raccourci « Foldly repos » : le téléphone ne sert pas (clapet://repos) ou sert de nouveau (clapet://utilise).
+    func setRest(_ resting: Bool) {
+        if resting { stats.startRest() } else { stats.endRest() }
+        changed()
+    }
+
     private func countClose() {
         let before = stats.today
         stats.addClose()

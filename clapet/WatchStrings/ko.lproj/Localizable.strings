@@ -670,3 +670,6 @@
 "1 to 10 min" = "1~10분";
 "Over 10 min" = "10분 이상";
 "New" = "새 기능";
+
+/* Repos */
+"%@ of it at rest today" = "그중 오늘 휴식 중 %@";

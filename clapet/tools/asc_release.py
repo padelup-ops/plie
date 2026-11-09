@@ -255,6 +255,15 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.13": {
+        "en-US": "• Open but not in use: set a Shortcuts automation (Sleep, Do Not Disturb\u2026) that opens clapet://repos and another that opens clapet://utilise. Foldly then shows how much of your open time was at rest.\n• The App Store page now speaks more than 30 languages.\n• Small fixes and improvements.",
+        "fr-FR": "• Ouvert mais pas utilis\u00e9 : cr\u00e9e une automatisation Raccourcis (Sommeil, Ne pas d\u00e9ranger\u2026) qui ouvre clapet://repos et une autre qui ouvre clapet://utilise. Foldly montre alors la part de ton temps ouvert pass\u00e9e au repos.\n• La fiche App Store parle maintenant plus de 30 langues.\n• Petites corrections et am\u00e9liorations.",
+        "de-DE": "• Offen, aber nicht benutzt: Lege eine Kurzbefehle-Automation (Schlaf, Nicht st\u00f6ren\u2026) an, die clapet://repos \u00f6ffnet, und eine weitere f\u00fcr clapet://utilise. Foldly zeigt dann, wie viel deiner offenen Zeit im Ruhemodus war.\n• Die App-Store-Seite spricht jetzt \u00fcber 30 Sprachen.\n• Kleine Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• Abierto pero sin usar: crea una automatizaci\u00f3n de Atajos (Sue\u00f1o, No molestar\u2026) que abra clapet://repos y otra que abra clapet://utilise. Foldly mostrar\u00e1 cu\u00e1nto de tu tiempo abierto fue en reposo.\n• La ficha de la App Store ya habla m\u00e1s de 30 idiomas.\n• Peque\u00f1as correcciones y mejoras.",
+        "ja": "• 開いているだけで使っていない時間：ショートカットのオートメーション（睡眠、おやすみモードなど）で clapet://repos と clapet://utilise を開くように設定すると、開いている時間のうち休止中の時間が表示されます。\n• App Storeのページが30以上の言語に対応しました。\n• 細かな修正と改善。",
+        "ko": "• 열려 있지만 사용하지 않는 시간: 단축어 자동화(수면, 방해 금지 모드 등)로 clapet://repos 와 clapet://utilise 를 열도록 설정하면, 열려 있던 시간 중 휴식 시간이 표시돼요.\n• App Store 페이지가 30개 이상의 언어를 지원해요.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• 展开但未使用：用快捷指令自动化（睡眠、勿扰模式等）分别打开 clapet://repos 和 clapet://utilise，Foldly 就会显示展开时间中有多少处于静置状态。\n• App Store 页面现已支持 30 多种语言。\n• 小问题修复和改进。",
+    },
     "1.0.12": {
         "en-US": "• Leaderboards are now free for everyone, with new ones: who folds the most today, this week and since day one. Share your rank!\n• Contest of the month: the winners get Foldly+ for free and pick a new feature.\n• Today, hour by hour, right on the home screen.\n• Your weekly and monthly recaps are always one tap away, and the notification opens them.",
         "fr-FR": "• Les classements sont gratuits pour tous, avec des nouveaux : qui plie le plus aujourd'hui, cette semaine et depuis le début. Partage ton rang !\n• Le concours du mois : les gagnants reçoivent Foldly+ gratuit et choisissent une nouvelle fonctionnalité.\n• Aujourd'hui, heure par heure, directement sur l'écran principal.\n• Tes bilans de la semaine et du mois sont toujours à portée de main, et la notification les ouvre.",
@@ -347,7 +356,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.6", "1.6.1") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.6", "1.6.1") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -392,7 +401,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.6", "1.6.1") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.6", "1.6.1") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})

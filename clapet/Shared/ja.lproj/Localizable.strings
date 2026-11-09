@@ -715,3 +715,6 @@
 "Prize for each winner: Foldly+ for free (a code to redeem on the App Store) and the chance to suggest a new feature, which we will build first if it is possible and allowed on the App Store." = "各優勝者の賞品：Foldly+ 無料（App Store で使えるコード）と、新機能を提案する権利。実現可能で App Store で認められる場合、優先して開発します。";
 "Winners are announced on Reddit (r/iPhoneduoapp). To get the prize, contact us within 30 days through the Support link on Foldly's App Store page, with a screenshot of your Game Center nickname." = "優勝者は Reddit（r/iPhoneduoapp）で発表します。賞品を受け取るには、30日以内に Foldly の App Store ページのサポートリンクから、Game Center のニックネームのスクリーンショットを添えて連絡してください。";
 "Apple is not a sponsor of this contest and is not involved in it in any way." = "Apple はこのコンテストのスポンサーではなく、いかなる形でも関与していません。";
+
+/* Repos */
+"%@ of it at rest today" = "うち今日の休止中は%@";

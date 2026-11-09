@@ -670,3 +670,6 @@
 "1 to 10 min" = "1 到 10 分钟";
 "Over 10 min" = "超过 10 分钟";
 "New" = "新";
+
+/* Repos */
+"%@ of it at rest today" = "其中今天静置 %@";

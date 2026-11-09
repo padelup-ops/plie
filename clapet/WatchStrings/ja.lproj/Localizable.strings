@@ -670,3 +670,6 @@
 "1 to 10 min" = "1〜10分";
 "Over 10 min" = "10分以上";
 "New" = "新機能";
+
+/* Repos */
+"%@ of it at rest today" = "うち今日の休止中は%@";

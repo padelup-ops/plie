@@ -222,6 +222,8 @@ struct ClassicHomeView: View {
             if url.host == "boards" { showBoards = true }
             if url.host == "share" { showShare = true }
             if url.host == "settings" { showSettings = true }
+            if url.host == "repos" { model.setRest(true) }
+            if url.host == "utilise" { model.setRest(false) }
             if SurveyRule.isAnswerLink(url) {
                 SurveyRule.markAnswered()
                 withAnimation { surveyHidden = true }
@@ -511,6 +513,11 @@ struct ClassicHomeView: View {
                             Text("per day, 7 days").font(.footnote).foregroundStyle(.secondary)
                         }
                         .padding(.leading, 14)
+                    }
+                    if s.restTime(now, now: now) >= 60 {
+                        Text("\(Self.duration(s.restTime(now, now: now))) of it at rest today")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
                     Chart {
                         ForEach(0..<week.count, id: \.self) { i in

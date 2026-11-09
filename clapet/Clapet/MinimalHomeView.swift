@@ -91,6 +91,8 @@ struct MinimalHomeView: View {
             if url.host == "boards" { showBoards = true }
             if url.host == "share" { showShare = true }
             if url.host == "settings" { showSettings = true }
+            if url.host == "repos" { model.setRest(true) }
+            if url.host == "utilise" { model.setRest(false) }
             if SurveyRule.isAnswerLink(url) {
                 SurveyRule.markAnswered()
                 withAnimation { surveyHidden = true }

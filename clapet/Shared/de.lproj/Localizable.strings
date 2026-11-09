@@ -715,3 +715,6 @@
 "Prize for each winner: Foldly+ for free (a code to redeem on the App Store) and the chance to suggest a new feature, which we will build first if it is possible and allowed on the App Store." = "Preis für jeden Gewinner: Foldly+ gratis (ein Code zum Einlösen im App Store) und die Chance, eine neue Funktion vorzuschlagen, die wir zuerst bauen, wenn sie machbar und im App Store erlaubt ist.";
 "Winners are announced on Reddit (r/iPhoneduoapp). To get the prize, contact us within 30 days through the Support link on Foldly's App Store page, with a screenshot of your Game Center nickname." = "Die Gewinner werden auf Reddit (r/iPhoneduoapp) bekannt gegeben. Um den Preis zu erhalten, kontaktiere uns innerhalb von 30 Tagen über den Support-Link auf der App-Store-Seite von Foldly, mit einem Screenshot deines Game-Center-Namens.";
 "Apple is not a sponsor of this contest and is not involved in it in any way." = "Apple ist kein Sponsor dieses Wettbewerbs und in keiner Weise daran beteiligt.";
+
+/* Repos */
+"%@ of it at rest today" = "davon %@ heute im Ruhemodus";
