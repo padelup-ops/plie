@@ -22,6 +22,10 @@ on:
         description: "Nouvelle version à créer après la 1.0 (ex. 1.0.1 ; vide = la version en cours)"
         required: false
         default: ""
+      videos:
+        description: "0 = ne pas envoyer les vidéos d'en-tête et de recherche"
+        required: false
+        default: "1"
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -59,7 +63,7 @@ jobs:
             NO_PUBLIC_BETA=1 SKIP_NOTES=1 BUILD_NUMBER=${{ inputs.build }} timeout 600 python3 clapet/tools/asc.py 2>&1 | grep -v "attente du traitement" | tee fiche.txt || true
           fi
       - name: Creative assets (vidéo d'en-tête et de recherche, iOS 27)
-        if: inputs.withdraw != '1'
+        if: inputs.withdraw != '1' && inputs.videos != '0'
         continue-on-error: true
         env:
           ASSETS_DIR: ${{ inputs.app == 'origamo' && 'tools/store_creative' || (inputs.app == 'foldboard' && 'foldboard/store/creative' || 'clapet/tools/store/creative') }}
@@ -73,7 +77,7 @@ jobs:
       - name: Version 1.0
         run: |
           set -o pipefail
-          ASSETS_DIR=${{ inputs.app == 'origamo' && 'tools/store_creative' || (inputs.app == 'foldboard' && 'foldboard/store/creative' || 'clapet/tools/store/creative') }} python3 clapet/tools/asc_release.py 2>&1 | tee release.txt
+          ASSETS_DIR=${{ inputs.videos == '0' && 'none' || (inputs.app == 'origamo' && 'tools/store_creative' || (inputs.app == 'foldboard' && 'foldboard/store/creative' || 'clapet/tools/store/creative')) }} python3 clapet/tools/asc_release.py 2>&1 | tee release.txt
       - name: Publier le rapport
         if: always()
         env:

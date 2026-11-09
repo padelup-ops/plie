@@ -1,0 +1,30 @@
+# FOLDBOARD : invite des testeurs externes TestFlight (par e-mail) et leur envoie un build.
+name: Foldboard - testeurs
+on:
+  workflow_dispatch:
+    inputs:
+      emails:
+        description: "Adresses e-mail (virgules ou espaces)"
+        required: true
+      build:
+        description: "Numéro du build"
+        required: true
+      group:
+        description: "Nom du groupe externe"
+        required: false
+        default: "Premiers testeurs"
+jobs:
+  testers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      EMAILS: ${{ inputs.emails }}
+      BUILD_NUMBER: ${{ inputs.build }}
+      GROUP: ${{ inputs.group }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m pip install --quiet pyjwt cryptography
+      - run: python3 tools/foldboard_testers.py
