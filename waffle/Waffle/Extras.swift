@@ -192,13 +192,13 @@ struct DecorView: View {
             HStack(spacing: 12) {
                 IronSwatch(model: m)
                 VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) {
-                        Text(m.name).font(.toon(17)).foregroundStyle(Ink.line)
-                        Text(m.rarity.name).font(.toon(10, .black)).foregroundStyle(.white)
-                            .padding(.horizontal, 7).padding(.vertical, 2)
-                            .background(Capsule().fill(m.rarity.color))
-                    }
-                    ForEach(m.perks, id: \.self) { Text($0).font(.toon(12, .bold)).foregroundStyle(Ink.line.opacity(0.7)) }
+                    // (nom, rareté et atouts)
+                    Text(m.name).font(.toon(17)).foregroundStyle(Ink.line).lineLimit(1).minimumScaleFactor(0.7)
+                    Text(m.rarity.name).font(.toon(10, .black)).foregroundStyle(.white)
+                        .padding(.horizontal, 7).padding(.vertical, 2)
+                        .background(Capsule().fill(m.rarity.color))
+                        .fixedSize()
+                    ForEach(m.perks, id: \.self) { Text($0).font(.toon(12, .bold)).foregroundStyle(Ink.line.opacity(0.7)).fixedSize(horizontal: false, vertical: true) }
                 }
                 Spacer(minLength: 4)
                 Button {
@@ -229,7 +229,7 @@ struct DecorView: View {
                 Image(systemName: u.icon).font(.system(size: 26, weight: .black)).foregroundStyle(Ink.orange)
                     .frame(width: 56, height: 56).background(Circle().fill(Color(hex: 0xFFF1D6)))
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(u.name).font(.toon(17)).foregroundStyle(Ink.line)
+                    Text(u.name).font(.toon(17)).foregroundStyle(Ink.line).lineLimit(1).minimumScaleFactor(0.7)
                     Text(u.detail).font(.toon(12, .bold)).foregroundStyle(Ink.line.opacity(0.7))
                 }
                 Spacer(minLength: 4)
