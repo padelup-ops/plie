@@ -580,6 +580,7 @@ if SUBMIT:
                  "appAssetLibraryVideo": {"data": {"type": "appAssetLibraryVideos", "id": v_["id"]}}}}}),
              tolerate=("already", "ENTITY_ERROR", "STATE_ERROR"))
     # Le premier achat intégré (Foldly+) part avec cette version.
+    late_iaps = []
     for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
         st = x["attributes"].get("state")
         print("       achat", x["attributes"].get("productId"), st)
@@ -587,12 +588,27 @@ if SUBMIT:
             r_iap = step(f"achat {x['attributes'].get('productId')} envoyé avec la version", call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
                  "type": "inAppPurchaseSubmissions", "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}}),
                  tolerate=("already",))
+            if isinstance(r_iap, dict) and "error" in r_iap and "FIRST_NON_CONSUMABLE" in r_iap.get("detail", ""):
+                # Nouvelle app : le premier achat doit être dans la même demande que la version.
+                r2 = step(f"achat {x['attributes'].get('productId')} ajouté à la demande", call("POST", "/v1/reviewSubmissionItems", {"data": {
+                     "type": "reviewSubmissionItems", "relationships": {
+                         "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
+                         "inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}}), tolerate=("already",))
+                if isinstance(r2, dict) and "error" in r2:
+                    print(r2.get("detail", "")[:1500])
+                    late_iaps.append(x)
+                continue
             if isinstance(r_iap, dict) and "error" in r_iap and "already" not in r_iap.get("detail", ""):
                 print(r_iap.get("detail", "")[:3000])
                 print("\nPAS ENVOYÉ : l'achat intégré n'a pas pu partir avec la version")
                 sys.exit(1)
     r = step("ENVOI À LA VÉRIFICATION D'APPLE", call("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
          "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}}))
+    # Dernier essai : les achats envoyés juste après la version (même moment pour Apple).
+    for x in late_iaps:
+        step(f"achat {x['attributes'].get('productId')} envoyé juste après la version", call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
+             "type": "inAppPurchaseSubmissions", "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}}),
+             tolerate=("already",))
     v = call("GET", f"/v1/appStoreVersions/{vid}").get("data", {}).get("attributes", {})
     print("état de la version :", v.get("appStoreState"))
 
