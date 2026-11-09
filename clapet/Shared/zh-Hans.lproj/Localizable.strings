@@ -734,3 +734,10 @@
 "Rest until" = "静置结束";
 "Time at rest" = "静置时间";
 "Time your Duo stays open during these hours counts as rest, not as use." = "在这些时段内 Duo 保持展开的时间会算作静置，而不是使用。";
+
+/* Carte et visite : repos */
+"New: time at rest" = "新功能：静置时间";
+"Foldly now tells open time at rest from the rest. Set your rest hours, or add the Shortcuts for the Sleep focus." = "Foldly 现在会区分展开时间中的静置部分。设定静置时段，或添加睡眠专注模式的快捷指令。";
+"Set rest hours" = "设定静置时段";
+"Open, but at rest" = "展开但静置";
+"Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "在设置中设定静置时段后，该时段内的展开时间会算作静置。你也可以添加两个睡眠专注模式的快捷指令。";

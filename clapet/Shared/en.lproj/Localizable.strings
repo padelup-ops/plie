@@ -734,3 +734,10 @@
 "Rest until" = "Rest until";
 "Time at rest" = "Time at rest";
 "Time your Duo stays open during these hours counts as rest, not as use." = "Time your Duo stays open during these hours counts as rest, not as use.";
+
+/* Carte et visite : repos */
+"New: time at rest" = "New: time at rest";
+"Foldly now tells open time at rest from the rest. Set your rest hours, or add the Shortcuts for the Sleep focus." = "Foldly now tells open time at rest from the rest. Set your rest hours, or add the Shortcuts for the Sleep focus.";
+"Set rest hours" = "Set rest hours";
+"Open, but at rest" = "Open, but at rest";
+"Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus.";

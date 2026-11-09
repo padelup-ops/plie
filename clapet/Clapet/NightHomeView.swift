@@ -50,6 +50,7 @@ struct NightHomeView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
     @State private var showSettings = false
+    @State private var restPromoHidden = false
     @State private var showBoards = false
     @State private var showHistory = false
     @Environment(\.scenePhase) private var scenePhase
@@ -391,6 +392,14 @@ struct NightHomeView: View {
                     PlusNudgeCard(stats: model.stats) { plusReason = .menu } onHide: {
                         PlusNudgeRule.hide()
                         withAnimation { nudgeHidden = true }
+                    }
+                }
+            }
+            if !restPromoHidden && RestPromoRule.shouldShow {
+                Card(filled: true) {
+                    RestPromo { RestPromoRule.hide(); restPromoHidden = true; showSettings = true } onHide: {
+                        RestPromoRule.hide()
+                        withAnimation { restPromoHidden = true }
                     }
                 }
             }

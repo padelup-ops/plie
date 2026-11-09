@@ -63,6 +63,7 @@ struct ClassicHomeView: View {
     @State private var widgets = InstalledWidgets.shared
     @State private var promoHidden = false
     @State private var surveyHidden = false
+    @State private var restPromoHidden = false
     @State private var nudgeHidden = false
     @State private var giftHidden = false
     @State private var importHidden = false
@@ -128,6 +129,14 @@ struct ClassicHomeView: View {
                         }
                     }
                     closedTime
+                    if !restPromoHidden && RestPromoRule.shouldShow {
+                        ClassicCard {
+                            RestPromo { RestPromoRule.hide(); restPromoHidden = true; showSettings = true } onHide: {
+                                RestPromoRule.hide()
+                                withAnimation { restPromoHidden = true }
+                            }
+                        }
+                    }
                     if !surveyHidden && SurveyRule.shouldShowCard(isTestBuild: store.isTestBuild) {
                         ClassicCard {
                             SurveyPromo { openURL(SurveyRule.url) } onHide: {

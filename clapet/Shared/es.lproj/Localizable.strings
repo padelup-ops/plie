@@ -734,3 +734,10 @@
 "Rest until" = "Reposo hasta";
 "Time at rest" = "Tiempo en reposo";
 "Time your Duo stays open during these hours counts as rest, not as use." = "El tiempo que tu Duo permanece abierto en estas horas cuenta como reposo, no como uso.";
+
+/* Carte et visite : repos */
+"New: time at rest" = "Novedad: tiempo en reposo";
+"Foldly now tells open time at rest from the rest. Set your rest hours, or add the Shortcuts for the Sleep focus." = "Foldly ahora distingue el tiempo abierto en reposo del resto. Define tus horas de reposo o añade los atajos para el modo Sueño.";
+"Set rest hours" = "Definir horas de reposo";
+"Open, but at rest" = "Abierto, pero en reposo";
+"Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "Define tus horas de reposo en Ajustes: el tiempo abierto contará entonces como reposo. También puedes añadir los dos atajos para el modo Sueño.";

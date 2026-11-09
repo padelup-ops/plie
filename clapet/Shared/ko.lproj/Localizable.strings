@@ -734,3 +734,10 @@
 "Rest until" = "휴식 종료";
 "Time at rest" = "휴식 시간";
 "Time your Duo stays open during these hours counts as rest, not as use." = "이 시간대에 Duo가 열려 있는 시간은 사용이 아니라 휴식으로 계산돼요.";
+
+/* Carte et visite : repos */
+"New: time at rest" = "새 기능: 휴식 시간";
+"Foldly now tells open time at rest from the rest. Set your rest hours, or add the Shortcuts for the Sleep focus." = "이제 열려 있던 시간 중 휴식 시간을 따로 보여 줘요. 휴식 시간대를 정하거나 수면 집중 모드용 단축어를 추가해 보세요.";
+"Set rest hours" = "휴식 시간대 설정";
+"Open, but at rest" = "열려 있지만 휴식 중";
+"Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "설정에서 휴식 시간대를 정하면 그 시간에 열려 있는 시간은 휴식으로 계산돼요. 수면 집중 모드용 단축어 2개도 추가할 수 있어요.";

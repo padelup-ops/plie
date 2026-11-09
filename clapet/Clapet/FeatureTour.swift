@@ -45,6 +45,10 @@ struct FeatureTour: View {
              title: Text("Make it yours"),
              body: Text("Try the new Aurora theme, and add Foldly widgets to your Home Screen and your Apple Watch."),
              target: .settings),
+        Stop(icon: "moon.zzz.fill", color: .indigo,
+             title: Text("Open, but at rest"),
+             body: Text("Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus."),
+             target: .settings),
     ]
 
     var body: some View {
