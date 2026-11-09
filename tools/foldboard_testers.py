@@ -93,7 +93,12 @@ feedback = None
 if src:
     for l in call("GET", f"/v1/apps/{src['id']}/betaAppLocalizations").get("data", []):
         feedback = feedback or l["attributes"].get("feedbackEmail")
+primary = app["attributes"].get("primaryLocale", "en-US")
+print("       langue principale :", primary)
+if primary not in DESCRIPTION:
+    DESCRIPTION[primary] = DESCRIPTION["fr-FR" if primary.startswith("fr") else "en-US"]
 existing = {l["attributes"]["locale"]: l for l in call("GET", f"/v1/apps/{app_id}/betaAppLocalizations").get("data", [])}
+print("       textes TestFlight existants :", {k: (v["attributes"].get("description") or "")[:30] for k, v in existing.items()})
 for loc, text in DESCRIPTION.items():
     attrs = {"description": text}
     if feedback:
@@ -143,6 +148,7 @@ step(f"build {BUILD} ajouté au groupe", call("POST", f"/v1/betaGroups/{gid}/rel
 state = call("GET", f"/v1/builds/{bid}/buildBetaDetail").get("data", {}).get("attributes", {}).get("externalBuildState")
 print("       état bêta externe :", state)
 if state in ("READY_FOR_BETA_SUBMISSION", None):
+    time.sleep(20)
     step("envoyé à la vérification bêta d'Apple", call("POST", "/v1/betaAppReviewSubmissions",
          {"data": {"type": "betaAppReviewSubmissions", "relationships": {"build": {"data": {"type": "builds", "id": bid}}}}}))
 
