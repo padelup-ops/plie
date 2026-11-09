@@ -198,7 +198,9 @@ struct KBSettings: Codable, Equatable {
     static func context(screen: CGSize, closed: Bool? = nil) -> String {
         let w = screen.width, h = screen.height
         let ratio = min(w, h) / max(1, max(w, h))
-        let open = w > 0 && h > 0 ? ratio > 0.6 : (closed.map { !$0 } ?? false)
+        // Les deux écrans du Duo ont la même forme (presque carrée) : c'est la taille qui les distingue.
+        // L'écran intérieur fait environ 678 points de long, l'extérieur 497. Un iPhone classique est allongé.
+        let open = w > 0 && h > 0 ? (ratio > 0.6 && max(w, h) > 590) : (closed.map { !$0 } ?? false)
         return (open ? "open" : "closed") + "-" + (w > h ? "landscape" : "portrait")
     }
 

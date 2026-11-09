@@ -272,13 +272,19 @@ final class KeyboardCanvas: UIView {
     }
 
     private func updateGripContext() {
-        var c = KBSettings.context(screen: screenSize, closed: hingeClosed)
-        // La largeur du clavier dit sur quel écran et dans quel sens on est : on reprend la situation étalonnée
-        // à cette largeur (l'app et le clavier tombent ainsi toujours sur le même étalonnage).
-        let w = Double(bounds.width)
-        if w > 50, let best = settings.widths.min(by: { abs($0.value - w) < abs($1.value - w) }), abs(best.value - w) <= 24 {
-            c = best.key
+        let screen = screenSize
+        var c = KBSettings.context(screen: screen, closed: hingeClosed)
+        // Sur le Duo, la largeur du clavier tranche : écran extérieur en portrait (environ 341 points),
+        // écran intérieur en paysage (plus de 520). Entre les deux, la taille de l'écran, puis la charnière.
+        let w = bounds.width
+        let duo = min(screen.width, screen.height) / max(1, max(screen.width, screen.height)) > 0.6
+        if duo && w > 50 {
+            if w < 360 { c = "closed-portrait" }
+            else if w > 520 { c = "open-landscape" }
+            else if w >= 480 && hingeClosed == true { c = "closed-landscape" }
         }
+        // Le tutoriel montre toujours le fonctionnement de l'écran extérieur.
+        if demoOneHand { c = "closed-portrait" }
         gripContext = c
         grip.guessUncalibrated = false
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
@@ -409,7 +415,8 @@ final class KeyboardCanvas: UIView {
 
     private func placeByTap(at p: CGPoint) {
         let W = bounds.width
-        guard W > 0 else { return }
+        // Écran intérieur : le clavier est coupé en deux (ou entier), il n'y a rien à placer.
+        guard W > 0, !(settings.mode == .auto && gripContext.hasPrefix("open")) else { return }
         let center = abs(p.x - W / 2) < W * 0.17 && layoutMode.isOneHand
         let auto = eff.mode == .auto
         var s = settings
@@ -490,7 +497,15 @@ final class KeyboardCanvas: UIView {
     }
 
     /// Le mode réellement possible à cette largeur (deux mains : il faut de la place).
+    /// Tutoriel : le clavier se comporte comme sur l'écran extérieur, même Duo ouvert.
+    var demoOneHand = false
+
     private var layoutMode: KBMode {
+        // Écran intérieur du Duo, comme le clavier d'Apple : deux moitiés en portrait, entier en paysage.
+        if settings.mode == .auto {
+            if gripContext == "open-portrait" { return pro && splitAllowed ? .split : .full }
+            if gripContext == "open-landscape" { return .full }
+        }
         if eff.mode == .auto && eff.autoTwo { return splitAllowed ? .split : .full }
         if eff.mode == .split && !splitAllowed { return .full }
         return eff.mode
@@ -681,7 +696,7 @@ final class KeyboardCanvas: UIView {
         if showEmoji {
             var area = CGRect(x: pad, y: top, width: W - 2 * pad, height: areaH)
             if layoutMode.isOneHand {
-                let bw = min(W - 2 * pad, max(min(W - 2 * pad, 280), W * oneHandFraction))
+                let bw = min(W - 2 * pad, max(min(W - 2 * pad, 250), W * oneHandFraction))
                 let x = isRight ? W - margin - bw : margin
                 area = CGRect(x: max(0, x), y: top, width: bw, height: areaH)
             }
@@ -705,7 +720,7 @@ final class KeyboardCanvas: UIView {
             panelRect = .zero
             place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout)], in: b, align: 0)
         case .left, .right, .auto:
-            let bw = min(W - 2 * pad, max(min(W - 2 * pad, 280), W * oneHandFraction))
+            let bw = min(W - 2 * pad, max(min(W - 2 * pad, 250), W * oneHandFraction))
             let x = isRight ? W - margin - bw : margin
             let b = CGRect(x: max(0, x), y: top, width: bw, height: areaH)
             blocks = [b]
@@ -805,7 +820,7 @@ final class KeyboardCanvas: UIView {
         modeButton.menu = modeMenu()
         modeButton.accessibilityLabel = L("Keyboard position")
         // La flèche ⇆ : changer de côté, ou revenir à une main depuis le milieu.
-        let oneHand = layoutMode.isOneHand || eff.mode == .auto
+        let oneHand = layoutMode.isOneHand || (eff.mode == .auto && !gripContext.hasPrefix("open"))
         flipButton.isHidden = !oneHand
         // En couleur : le clavier est verrouillé là où tu l'as mis.
         flipButton.tintColor = grip.locked && eff.mode == .auto ? theme.accent : theme.text.withAlphaComponent(0.7)
@@ -905,7 +920,8 @@ final class KeyboardCanvas: UIView {
             // Comme le clavier d'Apple sur le Duo : les emojis au bord de l'écran ; un toucher dans la place libre
             // envoie le clavier de ce côté, ou au milieu près du centre.
             let cell: CGFloat = 44
-            let cols = w >= 170 ? 2 : (w >= 80 ? 1 : 0)
+            // Écran étroit : pas d'emojis sur le côté, toute la place libre sert à placer le clavier.
+            let cols = w >= 170 ? 2 : (w >= 110 ? 1 : 0)
             let rowsN = max(1, min(4, Int(h / cell)))
             var list = KBEmoji.recent
             for e in eff.emojis where !list.contains(e) { list.append(e) }
@@ -1109,7 +1125,7 @@ final class KeyboardCanvas: UIView {
                 // Un vrai toucher : bref, sans glisser, du bout du doigt (pas la paume), loin des touches,
                 // et pas en pleine frappe. Sinon on ne bouge pas.
                 let p = t.location(in: self)
-                let away = blocks.allSatisfy { !$0.insetBy(dx: -18, dy: 0).contains(p) }
+                let away = blocks.allSatisfy { !$0.insetBy(dx: -10, dy: 0).contains(p) }
                 if t.timestamp - t0 < 0.35, hypot(p.x - p0.x, p.y - p0.y) < 14, t.majorRadius < 30, away,
                    tracks.isEmpty, t.timestamp - lastKeyTime > 0.5, panelRect.contains(p) {
                     placeByTap(at: p)

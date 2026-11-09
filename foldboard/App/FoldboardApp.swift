@@ -62,7 +62,7 @@ struct HomeView: View {
                                 Text("The keyboard made for iPhone Duo").font(.subheadline).foregroundStyle(.secondary)
                             }
                         }
-                        Text("Tap the free space next to the keys: the keyboard comes to that side, or to the middle. Emoji and your phrases are one tap away.")
+                        Text("Outer screen: tap the free space on a side and the keyboard comes there. Inner screen: it splits in two, like Apple's.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -103,6 +103,9 @@ struct HomeView: View {
                 }
 
                 Section {
+                    NavigationLink { PlaceTutorial().fullScreenDuo() } label: {
+                        Label("How it works", systemImage: "hand.tap")
+                    }
                     NavigationLink { HandTest().fullScreenDuo() } label: {
                         Label {
                             VStack(alignment: .leading, spacing: 2) {

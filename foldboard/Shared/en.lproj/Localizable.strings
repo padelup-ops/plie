@@ -163,6 +163,13 @@
 "%lld of %lld taps" = "%lld of %lld taps";
 "Save" = "Save";
 "Cancel" = "Cancel";
+"Tap the free space on the left" = "Tap the free space on the left";
+"Now tap the free space on the right" = "Now tap the free space on the right";
+"That's it!" = "That's it!";
+"Outer screen: tap a side and the keyboard comes there, and stays. Inner screen: it splits in two by itself, and is full width in landscape." = "Outer screen: tap a side and the keyboard comes there, and stays. Inner screen: it splits in two by itself, and is full width in landscape.";
+"The keyboard comes to the side you tap, right under your thumb." = "The keyboard comes to the side you tap, right under your thumb.";
+"How it works" = "How it works";
+"Outer screen: tap the free space on a side and the keyboard comes there. Inner screen: it splits in two, like Apple's." = "Outer screen: tap the free space on a side and the keyboard comes there. Inner screen: it splits in two, like Apple's.";
 "Key height %lld pt" = "Key height %lld pt";
 "Test: right hand, left hand" = "Test: right hand, left hand";
 "3 seconds per hand, nothing to type" = "3 seconds per hand, nothing to type";

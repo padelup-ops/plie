@@ -11,12 +11,15 @@ struct KeyboardPreview: UIViewRepresentable {
     var record: KBGrip? = nil
     var onSample: (([Double]) -> Void)? = nil
     var onSwipe: (([Double]) -> Void)? = nil
+    /// Tutoriel : comme sur l'écran extérieur, même Duo ouvert.
+    var demoOneHand = false
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeUIView(context: Context) -> KeyboardCanvas {
         let c = KeyboardCanvas()
         c.input = context.coordinator
+        c.demoOneHand = demoOneHand
         c.configure(settings: settings, pro: pro)
         c.appeared()
         if let record {

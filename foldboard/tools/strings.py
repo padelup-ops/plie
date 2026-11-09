@@ -191,6 +191,15 @@ FR = {
     "%lld of %lld taps": "%lld sur %lld appuis",
     "Save": "Enregistrer",
     "Cancel": "Annuler",
+    "Tap the free space on the left": "Touche la place libre à gauche",
+    "Now tap the free space on the right": "Maintenant, touche la place libre à droite",
+    "That's it!": "C’est tout !",
+    "Outer screen: tap a side and the keyboard comes there, and stays. Inner screen: it splits in two by itself, and is full width in landscape.":
+        "Écran extérieur : touche un côté, le clavier y vient et y reste. Écran intérieur : il se coupe en deux tout seul, et prend toute la largeur en paysage.",
+    "The keyboard comes to the side you tap, right under your thumb.": "Le clavier vient du côté que tu touches, juste sous ton pouce.",
+    "How it works": "Comment ça marche",
+    "Outer screen: tap the free space on a side and the keyboard comes there. Inner screen: it splits in two, like Apple's.":
+        "Écran extérieur : touche la place libre d’un côté et le clavier y vient. Écran intérieur : il se coupe en deux, comme celui d’Apple.",
     "Key height %lld pt": "Hauteur des touches %lld pt",
     "Test: right hand, left hand": "Test : main droite, main gauche",
     "3 seconds per hand, nothing to type": "3 secondes par main, rien à taper",
