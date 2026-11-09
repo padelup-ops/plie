@@ -457,7 +457,11 @@ else:
 # Captures d'écran : iPhone 6,7" et iPhone Duo (le badge « conçu pour l'iPhone Duo » demande ces dernières)
 SHOT_SETS = [(SHOT_TYPE, ""), ("APP_IPHONE_DUO", "duo-"), ("APP_WATCH_ULTRA", "watch-")]
 for l in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations").get("data", []):
-    lang = LOCALES.get(l["attributes"]["locale"])
+    loc = l["attributes"]["locale"]
+    lang = LOCALES.get(loc)
+    # Les autres variantes d'une langue (en-GB, fr-CA…) reprennent les captures de cette langue.
+    if not lang and os.path.exists(os.path.join(SHOTS_DIR, f"{loc[:2]}-1.png")):
+        lang = loc[:2]
     if not lang:
         continue
     sets = call("GET", f"/v1/appStoreVersionLocalizations/{l['id']}/appScreenshotSets").get("data", [])
