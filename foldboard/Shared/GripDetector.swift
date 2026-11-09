@@ -192,7 +192,7 @@ final class GripDetector {
         reset()
         guard motion.isDeviceMotionAvailable else { initial(nil); return }
         if !motion.isDeviceMotionActive {
-            motion.deviceMotionUpdateInterval = 1.0 / 100
+            motion.deviceMotionUpdateInterval = 1.0 / 60
             motion.startDeviceMotionUpdates(to: queue) { [weak self] m, _ in
                 guard let self, let m else { return }
                 let g = m.gravity

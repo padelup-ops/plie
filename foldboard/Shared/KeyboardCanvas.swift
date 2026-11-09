@@ -105,6 +105,13 @@ final class KeyboardCanvas: UIView {
     private let grip = GripDetector()
     /// Correction et suggestions de mots.
     private let suggest = KBSuggest()
+    /// Les suggestions se calculent à part (le correcteur d'iOS peut prendre plusieurs dizaines de ms) :
+    /// le fil principal reste libre pour les touchers, la frappe ne rame plus.
+    private let bgSuggest = KBSuggest()
+    private let suggestQueue = DispatchQueue(label: "foldboard.suggest", qos: .userInitiated)
+    private var suggestGen = 0
+    /// La correction déjà calculée pour le mot en cours (évite de la recalculer à l'espace).
+    private var cachedFix: (word: String, fix: String?)?
     private var suggestionItems: [String] = []
     private var suggestionBest: Int?
     private var lastCorrection: (original: String, corrected: String, sep: String)?
@@ -228,6 +235,8 @@ final class KeyboardCanvas: UIView {
         eff = settings.effective(pro: pro)
         theme = KBTheme.named(eff.theme)
         suggest.setLayout(eff.layout)
+        let layout = eff.layout
+        suggestQueue.async { [bgSuggest] in bgSuggest.setLayout(layout) }
         updateGripContext()
         grip.current = settings.autoTwo ? .two : (settings.autoRight ? .right : .left)
         builtFor = .zero
@@ -410,6 +419,7 @@ final class KeyboardCanvas: UIView {
     /// Le lexique de l'utilisateur (contacts, remplacements de texte).
     func setLexicon(_ lexicon: UILexicon) {
         suggest.setLexicon(lexicon)
+        suggestQueue.async { [bgSuggest] in bgSuggest.setLexicon(lexicon) }
     }
 
     /// Le texte a changé (curseur déplacé, autre champ) : on revoit la majuscule et les suggestions.
@@ -1486,7 +1496,9 @@ final class KeyboardCanvas: UIView {
         guard eff.autocorrect, page == .letters || sep != " " else { return }
         let before = input?.kbTextBefore() ?? ""
         let word = KBSuggest.currentWord(before)
-        guard !word.isEmpty, let fix = suggest.correction(for: word, before: before), fix != word else {
+        let known: String?? = cachedFix?.word == word ? .some(cachedFix?.fix) : nil
+        let computed: String? = known ?? suggest.correction(for: word, before: before)
+        guard !word.isEmpty, let fix = computed, fix != word else {
             lastCorrection = nil
             return
         }
@@ -1504,6 +1516,9 @@ final class KeyboardCanvas: UIView {
         for _ in 0..<(lc.corrected.count + lc.sep.count) { input?.kbDelete() }
         input?.kbInsert(lc.original)
         suggest.learn(lc.original)
+        let w0 = lc.original
+        suggestQueue.async { [bgSuggest] in bgSuggest.learn(w0) }
+        cachedFix = nil
         return true
     }
 
@@ -1516,6 +1531,8 @@ final class KeyboardCanvas: UIView {
         if suggestionBest != nil && i == 0 {
             // Le mot tel qu'il a été tapé (entre guillemets) : on le garde et on l'apprend.
             suggest.learn(word)
+            let w1 = word
+            suggestQueue.async { [bgSuggest] in bgSuggest.learn(w1) }
         }
         for _ in 0..<word.count { input?.kbDelete() }
         input?.kbInsert(item + " ")
@@ -1530,18 +1547,35 @@ final class KeyboardCanvas: UIView {
         suggestWork?.cancel()
         let w = DispatchWorkItem { [weak self] in self?.refreshSuggestions() }
         suggestWork = w
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.09, execute: w)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06, execute: w)
     }
 
     private func refreshSuggestions() {
-        var items: [String] = []
-        var best: Int?
-        if eff.suggestions && page == .letters {
-            let before = input?.kbTextBefore() ?? ""
-            let word = KBSuggest.currentWord(before)
-            (items, best) = suggest.suggestions(for: word, before: before)
-            if !eff.autocorrect { best = nil }
+        guard eff.suggestions && page == .letters else {
+            applySuggestions([], nil)
+            return
         }
+        let before = input?.kbTextBefore() ?? ""
+        let word = KBSuggest.currentWord(before)
+        guard !word.isEmpty else {
+            applySuggestions([], nil)
+            return
+        }
+        suggestGen += 1
+        let gen = suggestGen
+        let auto = eff.autocorrect
+        suggestQueue.async { [weak self, bgSuggest] in
+            let (items, best) = bgSuggest.suggestions(for: word, before: before)
+            let fix = best.map { items[$0] }
+            DispatchQueue.main.async {
+                guard let self, gen == self.suggestGen else { return }
+                self.cachedFix = (word, auto ? fix : nil)
+                self.applySuggestions(items, auto ? best : nil)
+            }
+        }
+    }
+
+    private func applySuggestions(_ items: [String], _ best: Int?) {
         guard items != suggestionItems || best != suggestionBest else { return }
         suggestionItems = items
         suggestionBest = best

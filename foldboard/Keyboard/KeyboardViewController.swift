@@ -40,6 +40,12 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         undelayTouches()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // Les gestes du système peuvent être ajoutés après l'apparition : on recommence à chaque mise en page.
+        undelayTouches()
+    }
+
     /// iOS retarde les touchers près des bords de l'écran (gestes du système) : avec un clavier à une main collé
     /// au bord, il fallait appuyer franchement pour qu'une lettre sorte. On rend les touchers immédiats, comme
     /// le clavier d'Apple.
