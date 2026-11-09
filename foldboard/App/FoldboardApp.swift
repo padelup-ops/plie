@@ -6,6 +6,15 @@ struct FoldboardApp: App {
     @State private var store = Store()
     @Environment(\.scenePhase) private var phase
 
+    init() {
+        // Captures : « écran~variante » choisit une variante d'affichage plein écran.
+        let shot = UserDefaults.standard.string(forKey: "shot") ?? ""
+        let parts = shot.split(separator: "~")
+        if parts.first == "home" { UserDefaults.standard.set(true, forKey: "onboarded") }
+        if parts.count > 1 { UserDefaults.standard.set(String(parts[1]), forKey: "duoVariant") }
+        else { UserDefaults.standard.removeObject(forKey: "duoVariant") }
+    }
+
     var body: some Scene {
         WindowGroup {
             Group {

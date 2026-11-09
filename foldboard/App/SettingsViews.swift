@@ -122,9 +122,28 @@ struct PreviewDock: View {
 struct DuoFullWidth: ViewModifier {
     @State private var edges: Edge.Set = []
 
+    /// Réglage d'essai (captures sur simulateur) : façon de garder les marges des listes égales des deux côtés.
+    static var variant: String { UserDefaults.standard.string(forKey: "duoVariant") ?? "d" }
+
+    @ViewBuilder
+    private func fitted(_ content: Content) -> some View {
+        switch Self.variant {
+        case "a":
+            content.ignoresSafeArea(.container, edges: edges)
+        case "b":
+            content.contentMargins(.horizontal, edges.isEmpty ? nil : 20, for: .scrollContent)
+                .ignoresSafeArea(.container, edges: edges)
+        case "c":
+            content.safeAreaPadding(edges, edges.isEmpty ? 0 : 20)
+                .ignoresSafeArea(.container, edges: edges)
+        default:
+            content.contentMargins(edges, edges.isEmpty ? nil : 20, for: .scrollContent)
+                .ignoresSafeArea(.container, edges: edges)
+        }
+    }
+
     func body(content: Content) -> some View {
-        content
-            .ignoresSafeArea(.container, edges: edges)
+        fitted(content)
             .background(GeometryReader { g in
                 Color.clear
                     .onAppear { update(g.safeAreaInsets) }

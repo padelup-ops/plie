@@ -6,8 +6,12 @@ struct ShotView: View {
     @State private var text = ""
     @Environment(Store.self) private var store
 
+    private var base: String { String(name.split(separator: "~").first ?? "") }
+
     var body: some View {
-        switch name {
+        switch base {
+        case "home":
+            HomeView().onAppear { UserDefaults.standard.set(true, forKey: "onboarded") }
         case "pro":
             ProView()
         case "themes":
@@ -30,7 +34,7 @@ struct ShotView: View {
     private var settings: KBSettings {
         var s = KBSettings()
         s.layout = fr ? .azerty : .qwerty
-        switch name {
+        switch base {
         case "left":
             s.mode = .left
             s.sidePanel = .phrases
@@ -53,7 +57,7 @@ struct ShotView: View {
     }
 
     private var draft: String {
-        switch name {
+        switch base {
         case "left": return fr ? "Merci beaucoup, à tout à " : "Thanks a lot, see you "
         case "split": return fr ? "Parfait, je suis en rou" : "Perfect, I’m on my wa"
         default: return fr ? "D’accord, j’arrive dans dix minu" : "Sure, I’ll be there in ten minu"
