@@ -35,17 +35,19 @@ struct KBTapModel {
             minSD = [0.01, 0.02, 0.03, 0.03, 0.002, 0.002, 0.002, 2]
         }
         let need = kind == .tap ? 6 : 3
+        let size = count
         var by: [KBGrip: [[Double]]] = [:]
         for (k, v) in raw {
             guard let g = KBGrip(rawValue: k) else { continue }
-            let ok = v.filter { $0.count == count }
+            let ok = v.filter { $0.count == size }
             if ok.count >= need { by[g] = ok }
         }
         guard by.count >= 2 else { return nil }
         grips = Array(by.keys)
         let all = by.values.flatMap { $0 }
-        let r0 = all[0][rollIndex]
-        rollMid = kbWrap(r0 + all.map { kbWrap($0[rollIndex] - r0) }.reduce(0, +) / Double(all.count))
+        let ri = rollIndex
+        let r0 = all[0][ri]
+        rollMid = kbWrap(r0 + all.map { kbWrap($0[ri] - r0) }.reduce(0, +) / Double(all.count))
         let centered = all.map(center)
         let n = Double(centered.count)
         mean = (0..<count).map { i in centered.map { $0[i] }.reduce(0, +) / n }
