@@ -163,6 +163,12 @@
 "%lld of %lld taps" = "%lld sur %lld appuis";
 "Save" = "Enregistrer";
 "Cancel" = "Annuler";
+"Adjust the keyboard" = "Ajuster le clavier";
+"Choose one hand or two hands to adjust" = "Passe à une main ou à deux mains pour ajuster";
+"Width %lld %%" = "Largeur %lld %%";
+"%lld pt from the right" = "À %lld pt du bord droit";
+"%lld pt from the left" = "À %lld pt du bord gauche";
+"Default" = "Par défaut";
 "One-hand width, Duo open" = "Largeur à une main, Duo ouvert";
 "Right thumb: done!" = "Pouce droit : c’est bon !";
 "Left thumb: done!" = "Pouce gauche : c’est bon !";

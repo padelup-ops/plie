@@ -123,6 +123,9 @@ final class GripDetector {
     var tapModel: KBTapModel? { didSet { evidence = [:]; evidenceTaps = 0; thumbs = [] } }
     /// Pour chaque appui récent : la probabilité que ce soit le pouce droit.
     private var thumbs: [Double] = []
+    /// Le dernier appui net de chaque pouce.
+    private var lastRightThumb: TimeInterval = 0
+    private var lastLeftThumb: TimeInterval = 0
     /// Étalonnage dans l'app : chaque appui est envoyé ici au lieu de déplacer le clavier.
     var onSample: (([Double]) -> Void)?
 
@@ -254,6 +257,8 @@ final class GripDetector {
         if thumbs.count > 6 { thumbs.removeFirst() }
         let sure = thumbs.map { $0 > 0.68 ? 1 : ($0 < 0.32 ? -1 : 0) }
         let very = thumbs.map { $0 > 0.8 ? 1 : ($0 < 0.2 ? -1 : 0) }
+        if sure.last == 1 { lastRightThumb = now }
+        if sure.last == -1 { lastLeftThumb = now }
         let r = sure.filter { $0 == 1 }.count, l = sure.filter { $0 == -1 }.count
         let v3 = very.suffix(3)
         var g: KBGrip?
@@ -267,7 +272,13 @@ final class GripDetector {
             if last2.count == 2 && last2.allSatisfy({ $0 == -1 }) && !last3.contains(1) { g = .left }
         }
         guard let g, g != current, now - lastEmit > 0.6 else { return }
-        if current == .two && g != .two && now - lastTwo < 0.8 { return }
+        if current == .two && g != .two {
+            // À deux pouces, plusieurs lettres de suite du même côté sont normales : on ne quitte le milieu
+            // que si l'autre pouce n'a plus tapé depuis 2,5 s (et jamais dans les 4 derniers appuis).
+            let other = g == .right ? lastLeftThumb : lastRightThumb
+            let side = g == .right ? -1 : 1
+            if now - other < 2.5 || now - lastTwo < 2.5 || sure.suffix(4).contains(side) { return }
+        }
         emit(g)
     }
 

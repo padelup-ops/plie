@@ -167,7 +167,7 @@ struct KBSettings: Codable, Equatable {
         oneHandWidth = min(0.95, max(0.45, oneHandWidth))
         oneHandWidthOpen = min(0.9, max(0.4, oneHandWidthOpen))
         splitWidth = min(0.48, max(0.22, splitWidth))
-        edgeMargin = min(120, max(0, edgeMargin))
+        edgeMargin = min(400, max(0, edgeMargin))
         keyHeight = min(60, max(34, keyHeight))
         haptics = min(1, max(0, haptics))
         swipe = min(1, max(0, swipe))

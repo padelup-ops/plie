@@ -358,6 +358,8 @@ final class KeyboardCanvas: UIView {
 
     private func applyGrip(_ g: KBGrip) {
         pendingGrip = nil
+        // Pendant qu'on ajuste le clavier, il ne bouge pas tout seul.
+        guard !adjusting else { return }
         var s = settings
         s.autoTwo = g == .two
         if g != .two { s.autoRight = g == .right }
@@ -500,6 +502,102 @@ final class KeyboardCanvas: UIView {
     private let emojiBoard = EmojiBoard()
     private var showEmoji = false
 
+    // MARK: Ajuster le clavier
+
+    private let adjust = AdjustOverlay()
+    private var adjustBackup: KBSettings?
+    private var adjusting: Bool { adjustBackup != nil }
+
+    private func startAdjust() {
+        guard layoutMode.isOneHand || layoutMode == .split else {
+            flash(L("Choose one hand or two hands to adjust"))
+            return
+        }
+        showEmoji = false
+        adjustBackup = settings
+        if adjust.superview == nil {
+            adjust.onPan = { [weak self] g, dx in self?.adjustBy(g, dx) }
+            adjust.onDone = { [weak self] in self?.endAdjust(keep: true) }
+            adjust.onCancel = { [weak self] in self?.endAdjust(keep: false) }
+            adjust.onReset = { [weak self] in self?.resetAdjust() }
+            addSubview(adjust)
+        }
+        adjust.isHidden = false
+        builtFor = .zero
+        layoutIfNeeded()
+        refreshAdjust()
+    }
+
+    private func refreshAdjust() {
+        guard adjusting else { return }
+        adjust.frame = bounds
+        bringSubviewToFront(adjust)
+        let W = bounds.width
+        let text: String
+        if layoutMode == .split {
+            text = String(format: L("Width %lld %%"), Int((eff.splitWidth * 100).rounded()))
+        } else if let b = blocks.first {
+            let m = Int((isRight ? W - b.maxX : b.minX).rounded())
+            text = String(format: L(isRight ? "%lld pt from the right" : "%lld pt from the left"), m)
+        } else {
+            text = ""
+        }
+        adjust.configure(blocks: blocks, split: layoutMode == .split, accent: theme.accent, text: text)
+    }
+
+    private func adjustBy(_ g: AdjustOverlay.Grab, _ dx: CGFloat) {
+        let W = bounds.width
+        guard W > 0 else { return }
+        var s = settings
+        switch g {
+        case .leftHalf, .rightHalf:
+            let hw = W * CGFloat(s.splitWidth) + (g == .leftHalf ? dx : -dx)
+            s.splitWidth = Double(min(0.48, max(0.22, hw / W)))
+        default:
+            guard var b = blocks.first else { return }
+            switch g {
+            case .leftEdge: b.origin.x += dx; b.size.width -= dx
+            case .rightEdge: b.size.width += dx
+            default: b.origin.x += dx
+            }
+            b.size.width = min(W - 2 * pad, max(220, b.width))
+            b.origin.x = min(W - b.width, max(0, b.minX))
+            let frac = Double(b.width / W)
+            if gripContext.hasPrefix("open") {
+                s.oneHandWidthOpen = min(0.9, max(0.4, gripContext.hasSuffix("landscape") ? frac / 0.8 : frac))
+            } else {
+                s.oneHandWidth = min(0.95, max(0.45, frac))
+            }
+            s.edgeMargin = Double(isRight ? W - b.maxX : b.minX)
+        }
+        configure(settings: s, pro: pro)
+        layoutIfNeeded()
+        refreshAdjust()
+    }
+
+    private func resetAdjust() {
+        var s = settings
+        let d = KBSettings()
+        s.edgeMargin = d.edgeMargin
+        s.oneHandWidth = d.oneHandWidth
+        s.oneHandWidthOpen = d.oneHandWidthOpen
+        s.splitWidth = d.splitWidth
+        configure(settings: s, pro: pro)
+        layoutIfNeeded()
+        refreshAdjust()
+    }
+
+    private func endAdjust(keep: Bool) {
+        let backup = adjustBackup
+        adjustBackup = nil
+        adjust.isHidden = true
+        if keep {
+            save()
+        } else if let backup {
+            configure(settings: backup, pro: pro)
+        }
+    }
+
     private func closeEmoji() {
         showEmoji = false
         builtFor = .zero
@@ -597,6 +695,7 @@ final class KeyboardCanvas: UIView {
         rebuildPanel()
         layoutTopBar()
         updateLabels()
+        if adjusting { refreshAdjust() }
     }
 
     /// Place des rangées dans un bloc. `align` : -1 collé à gauche, 1 collé à droite, 0 centré.
@@ -731,7 +830,10 @@ final class KeyboardCanvas: UIView {
                      image: UIImage(systemName: m.symbol),
                      state: m == eff.mode ? .on : .off) { [weak self] _ in self?.setMode(m) }
         }
-        return UIMenu(title: L("Keyboard position"), children: actions)
+        let adjustAction = UIAction(title: L("Adjust the keyboard"), image: UIImage(systemName: "arrow.left.and.right.square")) { [weak self] _ in
+            self?.startAdjust()
+        }
+        return UIMenu(title: L("Keyboard position"), children: [UIMenu(options: .displayInline, children: actions), adjustAction])
     }
 
     private func rebuildPanel() {

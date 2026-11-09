@@ -163,6 +163,12 @@
 "%lld of %lld taps" = "%lld of %lld taps";
 "Save" = "Save";
 "Cancel" = "Cancel";
+"Adjust the keyboard" = "Adjust the keyboard";
+"Choose one hand or two hands to adjust" = "Choose one hand or two hands to adjust";
+"Width %lld %%" = "Width %lld %%";
+"%lld pt from the right" = "%lld pt from the right";
+"%lld pt from the left" = "%lld pt from the left";
+"Default" = "Default";
 "One-hand width, Duo open" = "One-hand width, Duo open";
 "Right thumb: done!" = "Right thumb: done!";
 "Left thumb: done!" = "Left thumb: done!";
