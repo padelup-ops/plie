@@ -31,7 +31,7 @@ print("Game Center", gcd["id"])
 
 # rec : None (classique), ou (début, durée, règle) pour un classement qui se renouvelle.
 DAILY = ("2026-11-09T23:00:00Z", ["PT24H"], "FREQ=DAILY;INTERVAL=1")
-WEEKLY = ("2026-11-15T23:00:00Z", ["PT168H"], "FREQ=WEEKLY;INTERVAL=1")
+WEEKLY = ("2026-11-15T23:00:00Z", ["PT168H"], "FREQ=DAILY;INTERVAL=7")
 MONTHLY = ("2026-11-09T23:00:00Z", ["P1M", "PT720H", "PT672H"], "FREQ=MONTHLY;INTERVAL=1")
 MONTHLY_FALLBACK = ("2026-11-09T23:00:00Z", ["PT720H"], "FREQ=DAILY;INTERVAL=30")
 BOARDS = [
