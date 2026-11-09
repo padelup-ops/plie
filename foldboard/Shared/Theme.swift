@@ -19,16 +19,16 @@ struct KBTheme: Identifiable, Equatable {
     /// Suit le mode clair / sombre de l'iPhone.
     static let auto = KBTheme(
         id: "auto", name: "Automatic",
-        background: UIColor { $0.userInterfaceStyle == .dark ? c(0x1C1C1F) : c(0xD3D6DD) },
-        key: UIColor { $0.userInterfaceStyle == .dark ? c(0x48484D) : c(0xFFFFFF) },
-        special: UIColor { $0.userInterfaceStyle == .dark ? c(0x2E2E33) : c(0xADB2BC) },
+        background: UIColor { $0.userInterfaceStyle == .dark ? c(0x212123) : c(0xD5D7DD) },
+        key: UIColor { $0.userInterfaceStyle == .dark ? c(0x3D3D40) : c(0xFFFFFF) },
+        special: UIColor { $0.userInterfaceStyle == .dark ? c(0x3D3D40) : c(0xC4C8D0) },
         text: UIColor { $0.userInterfaceStyle == .dark ? c(0xFFFFFF) : c(0x0D0E11) },
         accent: c(0x2F7CF6))
 
     static let all: [KBTheme] = [
         auto,
         KBTheme(id: "cloud", name: "Cloud", background: c(0xE6E8EE), key: c(0xFFFFFF), special: c(0xC7CCD6), text: c(0x111318), accent: c(0x2F7CF6)),
-        KBTheme(id: "night", name: "Night", background: c(0x0E0F13), key: c(0x24262D), special: c(0x17181D), text: c(0xF2F3F5), accent: c(0x7FA8FF)),
+        KBTheme(id: "night", name: "Night", background: c(0x111214), key: c(0x2C2D31), special: c(0x2C2D31), text: c(0xF2F3F5), accent: c(0x7FA8FF)),
         KBTheme(id: "mint", name: "Mint", background: c(0xD8F1E7), key: c(0xF7FFFB), special: c(0xA9DDC8), text: c(0x0D3B2C), accent: c(0x11B787)),
         KBTheme(id: "peach", name: "Peach", background: c(0xFBE3D6), key: c(0xFFF8F3), special: c(0xF2BFA6), text: c(0x4A2112), accent: c(0xEF5B2A)),
         KBTheme(id: "lavender", name: "Lavender", background: c(0xE5E0F7), key: c(0xFBFAFF), special: c(0xC3B8EC), text: c(0x251A4D), accent: c(0x7B5CE0)),

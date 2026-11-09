@@ -27,10 +27,9 @@ final class KeyView: UIView {
         self.special = special
         super.init(frame: .zero)
         isUserInteractionEnabled = false
-        layer.cornerRadius = 7
         layer.cornerCurve = .continuous
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.18
+        layer.shadowOpacity = 0.08
         layer.shadowRadius = 0
         layer.shadowOffset = CGSize(width: 0, height: 1)
         label.textAlignment = .center
@@ -48,7 +47,9 @@ final class KeyView: UIView {
         label.frame = bounds.insetBy(dx: 2, dy: 0)
         let s = min(bounds.width, bounds.height) * 0.46
         icon.frame = CGRect(x: (bounds.width - s) / 2, y: (bounds.height - s) / 2, width: s, height: s)
-        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 7).cgPath
+        let r = min(13, bounds.height * 0.26)
+        layer.cornerRadius = r
+        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: r).cgPath
     }
 }
 
@@ -125,9 +126,9 @@ final class KeyboardCanvas: UIView {
     private var order: [UITouch] = []
 
     static let topBarHeight: CGFloat = 42
-    private let pad: CGFloat = 3
-    private let gap: CGFloat = 6
-    private let vgap: CGFloat = 10
+    private let pad: CGFloat = 4
+    private let gap: CGFloat = 7
+    private let vgap: CGFloat = 11
 
     private var keyH: CGFloat { CGFloat(eff.keyHeight) }
     private var rowCount: Int { 4 }
@@ -139,6 +140,10 @@ final class KeyboardCanvas: UIView {
         super.init(frame: frame)
         isMultipleTouchEnabled = true
         clipsToBounds = true
+        // Comme le clavier d'Apple : un panneau aux coins du haut arrondis.
+        layer.cornerRadius = 24
+        layer.cornerCurve = .continuous
+        layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
 
         addSubview(panel)
         addSubview(topBar)
@@ -487,14 +492,14 @@ final class KeyboardCanvas: UIView {
         let h = Self.topBarHeight
         modeButton.frame = CGRect(x: 6, y: 0, width: 40, height: h)
         modeButton.setImage(UIImage(systemName: eff.mode.symbol), for: .normal)
-        modeButton.tintColor = theme.text
+        modeButton.tintColor = theme.text.withAlphaComponent(0.7)
         modeButton.menu = modeMenu()
         modeButton.accessibilityLabel = L("Keyboard position")
         let oneHand = layoutMode.isOneHand
         flipButton.isHidden = !oneHand
-        flipButton.tintColor = theme.text
+        flipButton.tintColor = theme.text.withAlphaComponent(0.7)
         flipButton.frame = CGRect(x: 46, y: 0, width: oneHand ? 36 : 0, height: h)
-        hideButton.tintColor = theme.text
+        hideButton.tintColor = theme.text.withAlphaComponent(0.7)
         hideButton.frame = CGRect(x: bounds.width - 46, y: 0, width: 40, height: h)
         let cx = flipButton.frame.maxX + 4
         chips.frame = CGRect(x: cx, y: 0, width: max(0, hideButton.frame.minX - cx - 4), height: h)
@@ -508,21 +513,29 @@ final class KeyboardCanvas: UIView {
         if !suggestionItems.isEmpty {
             // Trois suggestions de mots, de même largeur ; la meilleure en gras (celle que l'espace appliquera).
             let n = CGFloat(suggestionItems.count)
-            let w = max(60, (chips.bounds.width - 8 * (n - 1)) / n)
+            let w = max(60, (chips.bounds.width - (2 * n - 2) * 8 - (n - 1)) / n)
             for (i, item) in suggestionItems.enumerated() {
                 let b = UIButton(type: .system)
                 b.setTitle(i == 0 && suggestionBest != nil ? "“\(item)”" : item, for: .normal)
                 b.titleLabel?.font = eff.font.ui(size: 16, weight: i == suggestionBest ? .bold : .regular)
                 b.titleLabel?.lineBreakMode = .byTruncatingTail
                 b.setTitleColor(theme.text, for: .normal)
-                b.backgroundColor = i == suggestionBest ? theme.key : .clear
-                b.layer.cornerRadius = 10
+                b.backgroundColor = i == suggestionBest ? theme.key.withAlphaComponent(0.55) : .clear
+                b.layer.cornerRadius = 12
+                b.layer.cornerCurve = .continuous
                 b.addAction(UIAction { [weak self] _ in self?.applySuggestion(i) }, for: .touchUpInside)
+                if i > 0 {
+                    let line = UIView()
+                    line.backgroundColor = theme.text.withAlphaComponent(0.18)
+                    line.widthAnchor.constraint(equalToConstant: 1).isActive = true
+                    line.heightAnchor.constraint(equalToConstant: 20).isActive = true
+                    chipStack.addArrangedSubview(line)
+                }
                 chipStack.addArrangedSubview(b)
                 b.widthAnchor.constraint(equalToConstant: w).isActive = true
                 b.heightAnchor.constraint(equalToConstant: 32).isActive = true
             }
-            chipStack.frame = CGRect(x: 0, y: (h - 32) / 2, width: w * n + 8 * (n - 1), height: 32)
+            chipStack.frame = CGRect(x: 0, y: (h - 32) / 2, width: w * n + (2 * n - 2) * 8 + (n - 1), height: 32)
             chips.contentSize = CGSize(width: chipStack.frame.width, height: h)
             chips.contentOffset = .zero
             return
@@ -541,8 +554,9 @@ final class KeyboardCanvas: UIView {
                 }
                 b.configuration = cfg
                 b.tintColor = theme.text
-                b.backgroundColor = theme.key
+                b.backgroundColor = theme.key.withAlphaComponent(0.6)
                 b.layer.cornerRadius = 15
+                b.layer.cornerCurve = .continuous
                 b.addAction(UIAction { [weak self] _ in self?.insertPhrase(p) }, for: .touchUpInside)
                 chipStack.addArrangedSubview(b)
                 b.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -617,7 +631,7 @@ final class KeyboardCanvas: UIView {
             v.icon.tintColor = theme.text
             v.icon.image = nil
             v.label.text = nil
-            let fontSize: CGFloat = min(24, keyH * 0.5)
+            let fontSize: CGFloat = min(26, keyH * 0.56)
             switch v.spec.kind {
             case .char(let s):
                 v.label.text = upper ? s.uppercased() : s
@@ -628,16 +642,19 @@ final class KeyboardCanvas: UIView {
             case .backspace:
                 v.icon.image = UIImage(systemName: "delete.left")
             case .space:
-                v.label.text = eff.layout == .azerty ? "espace" : "space"
-                v.label.font = eff.font.ui(size: 15, weight: .regular)
-                v.label.textColor = theme.text.withAlphaComponent(0.55)
+                v.label.text = nil
             case .ret:
                 v.icon.image = UIImage(systemName: "return")
-                v.backgroundColor = theme.accent
-                v.icon.tintColor = .white
+                // Retour discret comme chez Apple ; coloré seulement dans les thèmes de couleur.
+                if ["auto", "cloud", "night"].contains(theme.id) {
+                    v.backgroundColor = theme.special
+                } else {
+                    v.backgroundColor = theme.accent
+                    v.icon.tintColor = .white
+                }
             case .page(let p):
-                v.label.text = p == .letters ? (eff.layout == .azerty ? "ABC" : "ABC") : (p == .numbers ? "123" : "#+=")
-                v.label.font = eff.font.ui(size: 15, weight: .medium)
+                v.label.text = p == .letters ? "ABC" : (p == .numbers ? "123" : "#+=")
+                v.label.font = eff.font.ui(size: 17, weight: .regular)
             case .globe:
                 v.icon.image = UIImage(systemName: "globe")
             }
