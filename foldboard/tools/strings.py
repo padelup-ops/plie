@@ -155,6 +155,22 @@ FR = {
     "Calibrated, both hands too": "Étalonné, deux mains comprises",
     "Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. With both hands, the keyboard splits in two on the open Duo and goes full width on the outer screen.":
         "Tiens le téléphone comme quand tu tapes, puis touche le bouton qui correspond : main droite, main gauche, et deux mains. À deux mains, le clavier se coupe en deux sur le Duo ouvert et prend toute la largeur sur l’écran extérieur.",
+    "Welcome to Foldboard": "Bienvenue dans Foldboard",
+    "The keyboard that comes to the hand holding your phone, and splits in two when you use both hands.": "Le clavier qui vient du côté de la main qui tient ton téléphone, et se coupe en deux quand tu tapes à deux mains.",
+    "1 minute to set it up.": "1 minute pour le régler.",
+    "Get started": "Commencer",
+    "Tap **Open Settings** below.": "Touche **Ouvrir Réglages** ci-dessous.",
+    "Come back here.": "Reviens ici.",
+    "Full Access is only used for vibrations, typing sounds and to share your settings between the app and the keyboard. Nothing you type is sent anywhere.": "L’accès complet sert seulement aux vibrations, aux sons de frappe et à partager tes réglages entre l’app et le clavier. Rien de ce que tu tapes n’est envoyé.",
+    "Next": "Suivant",
+    "How do you hold it?": "Comment tu le tiens ?",
+    "Hold the phone as you usually type, then tap the matching button. Do it for each hand, and with both hands.": "Tiens le téléphone comme quand tu tapes, puis touche le bouton qui correspond. Fais-le pour chaque main, et à deux mains.",
+    "Skip for now": "Passer pour l’instant",
+    "You can change it later from the home screen.": "Tu pourras le modifier plus tard depuis l’accueil.",
+    "Start typing": "Commencer à écrire",
+    "Two hands, follow-your-hand, colors, fonts, sounds and your phrases. Nothing renews, no subscription.": "Deux mains, clavier qui suit ta main, couleurs, polices, sons et tes phrases. Rien ne se renouvelle, pas d’abonnement.",
+    "Later": "Plus tard",
+    "Calibrate my grip": "Étalonner ma prise en main",
 }
 
 

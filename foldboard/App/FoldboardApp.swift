@@ -32,6 +32,7 @@ struct HomeView: View {
     @Environment(SettingsModel.self) private var model
     @Environment(Store.self) private var store
     @AppStorage("setupDone") private var setupDone = false
+    @AppStorage("onboarded") private var onboarded = false
     @State private var showPro = false
     @State private var tryText = ""
     @FocusState private var tryFocus: Bool
@@ -92,6 +93,7 @@ struct HomeView: View {
                 }
 
                 Section {
+                    NavigationLink { CalibrationScreen() } label: { Label("Calibrate my grip", systemImage: "hand.raised") }
                     NavigationLink { PositionView() } label: { Label("Position and size", systemImage: "hand.raised.fingers.spread") }
                     NavigationLink { LookView() } label: { Label("Colors and font", systemImage: "paintpalette") }
                     NavigationLink { FeelView() } label: { Label("Sound, vibrations and swipe", systemImage: "waveform") }
@@ -110,6 +112,11 @@ struct HomeView: View {
             .navigationTitle("Foldboard")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showPro) { ProView().environment(store) }
+            .fullScreenCover(isPresented: Binding(get: { !onboarded }, set: { if !$0 { onboarded = true } })) {
+                OnboardingView { onboarded = true }
+                    .environment(store)
+                    .environment(model)
+            }
         }
     }
 }
