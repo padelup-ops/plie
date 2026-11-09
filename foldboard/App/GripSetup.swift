@@ -54,6 +54,8 @@ struct GripSetup: View {
     @Environment(SettingsModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @State private var step = 0
+    /// L'étape vient d'être réussie : on attend « Suivant » (les appuis en trop ne comptent pas).
+    @State private var stepDone = false
     @State private var text = ""
     @State private var samples: [[Double]] = []
     @State private var kbWidth: CGFloat = 0
@@ -131,7 +133,7 @@ struct GripSetup: View {
                 .animation(.easeInOut, value: step)
 
                 Spacer(minLength: 0)
-                ThumbRing(progress: finished ? 1 : Double(samples.count) / Double(Self.needed), done: finished,
+                ThumbRing(progress: finished || stepDone ? 1 : Double(samples.count) / Double(Self.needed), done: finished || stepDone,
                           symbol: grip == .two ? "hands.clap" : "touchid", size: finished ? 170 : 140)
 
                 if finished {
@@ -150,6 +152,18 @@ struct GripSetup: View {
                     }
                     .buttonStyle(.borderedProminent)
                     Button("Start again") { restart() }.font(.subheadline)
+                } else if stepDone {
+                    Text(grip == .right ? "Right thumb: done!" : "Left thumb: done!").font(.title2.bold())
+                    Text(grip == .right ? "Now take the phone in your left hand." : "Now hold the phone with both hands.")
+                        .multilineTextAlignment(.center).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button {
+                        next()
+                    } label: {
+                        Text(grip == .right ? "Next: left thumb" : "Next: both thumbs")
+                            .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 6)
+                    }
+                    .buttonStyle(.borderedProminent)
                 } else {
                     Text(title).font(.title2.bold())
                     Text(instruction).multilineTextAlignment(.center).foregroundStyle(.secondary)
@@ -166,7 +180,7 @@ struct GripSetup: View {
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
 
-            if !finished {
+            if !finished && !stepDone {
                 KeyboardPreview(settings: recordSettings, pro: true, text: $text, record: grip, onSample: { f in add(f) })
                     .frame(height: KeyboardPreview.height(recordSettings))
                     .ignoresSafeArea(.container, edges: .horizontal)
@@ -175,6 +189,7 @@ struct GripSetup: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: finished)
+        .animation(.easeInOut(duration: 0.3), value: stepDone)
         .onAppear { reader.start() }
         .onDisappear { reader.stop() }
         .modifier(HingeWatch { hingeClosed = $0 })
@@ -182,7 +197,7 @@ struct GripSetup: View {
     }
 
     private func add(_ f: [Double]) {
-        guard !finished else { return }
+        guard !finished, !stepDone else { return }
         samples.append(f)
         guard samples.count >= Self.needed else { return }
         var s = model.settings
@@ -191,8 +206,22 @@ struct GripSetup: View {
         model.settings = s
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            if step == grips.count - 1 {
+                samples = []
+                text = ""
+                step += 1
+            } else {
+                stepDone = true
+            }
+        }
+    }
+
+    /// Étape suivante, quand on a changé de main.
+    private func next() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             samples = []
             text = ""
+            stepDone = false
             step += 1
         }
     }
@@ -204,6 +233,6 @@ struct GripSetup: View {
         s.learned[context] = nil
         s.swipes[context] = nil
         model.settings = s
-        withAnimation { samples = []; text = ""; step = 0 }
+        withAnimation { samples = []; text = ""; stepDone = false; step = 0 }
     }
 }

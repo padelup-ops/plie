@@ -163,6 +163,12 @@
 "%lld of %lld taps" = "%lld of %lld taps";
 "Save" = "Save";
 "Cancel" = "Cancel";
+"Right thumb: done!" = "Right thumb: done!";
+"Left thumb: done!" = "Left thumb: done!";
+"Now take the phone in your left hand." = "Now take the phone in your left hand.";
+"Now hold the phone with both hands." = "Now hold the phone with both hands.";
+"Next: left thumb" = "Next: left thumb";
+"Next: both thumbs" = "Next: both thumbs";
 "Right thumb" = "Right thumb";
 "Left thumb" = "Left thumb";
 "Both thumbs" = "Both thumbs";
