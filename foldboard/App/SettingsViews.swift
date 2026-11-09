@@ -642,6 +642,9 @@ struct TiltCalibration: View {
     /// La situation qu'on étalonne.
     private var context: String { picked ?? detected }
 
+    /// La prise qu'on enregistre (feuille d'étalonnage par la frappe).
+    @State private var recordingGrip: KBGrip?
+
     var body: some View {
         Section {
             HStack {
@@ -650,14 +653,18 @@ struct TiltCalibration: View {
                 Spacer()
                 Text(reader.roll.map { String(format: "%+.0f°", $0) } ?? "—").monospacedDigit().foregroundStyle(.secondary)
             }
-            button("Right hand", "hand.point.right", grip: "right")
-            button("Left hand", "hand.point.left", grip: "left")
-            button("Both hands", "hands.clap", grip: "two")
+            .sheet(item: $recordingGrip) { g in
+                GripRecorder(grip: g, context: context).environment(model)
+            }
+            button("Right hand", "hand.point.right", grip: .right)
+            button("Left hand", "hand.point.left", grip: .left)
+            button("Both hands", "hands.clap", grip: .two)
         } header: {
             HStack { Text("Follow your hand"); ProBadge() }
         } footer: {
-            Text("Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. Do it closed and open, in portrait and in landscape if you type that way: Foldboard keeps a calibration for each.")
+            Text("For each grip, hold the phone as you usually do and type a short sentence: Foldboard learns how the phone moves under your thumb. Do it closed and open, in portrait and in landscape if you type that way: Foldboard keeps a calibration for each.")
         }
+
         .onAppear { reader.start() }
         .onDisappear { reader.stop() }
         .modifier(HingeWatch { hingeClosed = $0 })
@@ -704,21 +711,24 @@ struct TiltCalibration: View {
         }
     }
 
-    private func button(_ title: LocalizedStringKey, _ icon: String, grip: String) -> some View {
-        let done = model.settings.calib[context]?[grip] != nil
+    private func button(_ title: LocalizedStringKey, _ icon: String, grip: KBGrip) -> some View {
+        let n = model.settings.taps[context]?[grip.rawValue]?.count ?? 0
+        let done = n >= GripRecorder.needed || (n == 0 && model.settings.calib[context]?[grip.rawValue] != nil)
         return Button {
-            guard let r = reader.roll, let i = reader.incline else { return }
-            var s = model.settings
-            s.calibrate(grip, roll: r, incline: i, context: context)
-            model.settings = s
+            recordingGrip = grip
         } label: {
             HStack {
                 Label(title, systemImage: icon)
                 Spacer()
-                if done { Image(systemName: "checkmark").foregroundStyle(Color.accentColor) }
+                if n >= GripRecorder.needed {
+                    Image(systemName: "checkmark").foregroundStyle(Color.accentColor)
+                } else if done {
+                    Text("Redo").font(.footnote).foregroundStyle(.orange)
+                } else {
+                    Text("Calibrate").font(.footnote).foregroundStyle(.secondary)
+                }
             }
         }
-        .disabled(reader.roll == nil)
     }
 }
 
@@ -739,5 +749,97 @@ struct HingeWatch: ViewModifier {
         } else {
             content
         }
+    }
+}
+
+extension KBGrip: Identifiable {
+    var id: String { rawValue }
+}
+
+/// L'étalonnage par la frappe : on tient le téléphone comme d'habitude et on tape une petite phrase.
+/// Chaque appui enregistre comment le téléphone bouge sous le pouce, son inclinaison, la position et la taille du toucher.
+struct GripRecorder: View {
+    let grip: KBGrip
+    let context: String
+    @Environment(SettingsModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    @State private var text = ""
+    @State private var samples: [[Double]] = []
+    static let needed = 16
+
+    private var fr: Bool { Locale.current.language.languageCode?.identifier == "fr" }
+
+    private var title: LocalizedStringKey {
+        switch grip {
+        case .right: return "Right hand"
+        case .left: return "Left hand"
+        case .two: return "Both hands"
+        }
+    }
+
+    private var instruction: LocalizedStringKey {
+        switch grip {
+        case .right: return "Hold the phone in your right hand and type with your right thumb."
+        case .left: return "Hold the phone in your left hand and type with your left thumb."
+        case .two: return "Hold the phone with both hands and type with both thumbs."
+        }
+    }
+
+    private var sentence: String {
+        fr ? "bonjour, je tape avec mon pouce sur foldboard" : "hello, i am typing with my thumb on foldboard"
+    }
+
+    /// Toute la largeur pendant l'enregistrement : des appuis partout, quelle que soit la main.
+    private var recordSettings: KBSettings {
+        var s = model.settings
+        s.mode = .full
+        s.autocorrect = false
+        return s
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text(title).font(.title2.bold())
+                    Spacer()
+                    Button("Cancel") { dismiss() }
+                }
+                Text(instruction).foregroundStyle(.secondary)
+                Text(sentence)
+                    .font(.title3.weight(.semibold))
+                    .padding(.vertical, 4)
+                Text(text.isEmpty ? " " : text)
+                    .font(.body.monospaced())
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(10)
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemBackground)))
+                ProgressView(value: Double(min(samples.count, Self.needed)), total: Double(Self.needed))
+                Text(samples.count >= Self.needed ? NSLocalizedString("Done! You can keep typing to improve it, or save.", comment: "")
+                                                  : String(format: NSLocalizedString("%lld of %lld taps", comment: ""), samples.count, Self.needed))
+                    .font(.footnote).foregroundStyle(.secondary)
+                Button {
+                    var s = model.settings
+                    s.setTaps(samples, grip: grip.rawValue, context: context)
+                    model.settings = s
+                    dismiss()
+                } label: {
+                    Text("Save").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 6)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(samples.count < Self.needed)
+            }
+            .padding(20)
+            Spacer(minLength: 0)
+            KeyboardPreview(settings: recordSettings, pro: true, text: $text, record: grip, onSample: { f in
+                samples.append(f)
+                if samples.count > 30 { samples.removeFirst() }
+            })
+            .frame(height: KeyboardPreview.height(recordSettings))
+            .ignoresSafeArea(.container, edges: .horizontal)
+        }
+        .interactiveDismissDisabled(!samples.isEmpty && samples.count < Self.needed)
+        .fullScreenDuo()
     }
 }

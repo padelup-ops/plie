@@ -6,6 +6,71 @@ enum KBGrip: String, Codable {
     case left, right, two
 }
 
+/// Les appuis étalonnés d'une situation : à chaque nouvel appui, les exemples les plus proches votent
+/// (k plus proches voisins, après mise à l'échelle de chaque mesure). Idée : « Know Your Grip » (Electronics 2024),
+/// la réponse du gyroscope à chaque appui sépare très bien main droite, main gauche et deux mains.
+struct KBTapModel {
+    private var points: [(grip: KBGrip, f: [Double])] = []
+    private var mean: [Double] = []
+    private var sd: [Double] = []
+    private var rollMid: Double = 0
+    let grips: [KBGrip]
+    /// Poids de chaque mesure : rotation (3), secousse (3), inclinaison, angle avec l'horizontale, position, taille.
+    private static let weights: [Double] = [1.2, 1.2, 1.2, 0.8, 0.8, 0.8, 1.0, 0.5, 0.7, 0.5]
+    private static let minSD: [Double] = [0.002, 0.002, 0.002, 0.02, 0.02, 0.02, 2, 2, 0.05, 1]
+
+    init?(_ raw: [String: [[Double]]]) {
+        var by: [KBGrip: [[Double]]] = [:]
+        for (k, v) in raw {
+            guard let g = KBGrip(rawValue: k) else { continue }
+            let ok = v.filter { $0.count == GripDetector.featureCount }
+            if ok.count >= 6 { by[g] = ok }
+        }
+        guard by.count >= 2 else { return nil }
+        grips = Array(by.keys)
+        let all = by.values.flatMap { $0 }
+        let r0 = all[0][GripDetector.rollIndex]
+        rollMid = kbWrap(r0 + all.map { kbWrap($0[GripDetector.rollIndex] - r0) }.reduce(0, +) / Double(all.count))
+        let centered = all.map(center)
+        let n = Double(centered.count)
+        mean = (0..<GripDetector.featureCount).map { i in centered.map { $0[i] }.reduce(0, +) / n }
+        sd = (0..<GripDetector.featureCount).map { i in
+            let m = mean[i]
+            let v = centered.map { ($0[i] - m) * ($0[i] - m) }.reduce(0, +) / n
+            return max(v.squareRoot(), Self.minSD[i])
+        }
+        for (g, list) in by { for f in list { points.append((g, scale(center(f)))) } }
+    }
+
+    private func center(_ f: [Double]) -> [Double] {
+        var c = f
+        c[GripDetector.rollIndex] = kbWrap(f[GripDetector.rollIndex] - rollMid)
+        return c
+    }
+
+    private func scale(_ f: [Double]) -> [Double] {
+        (0..<f.count).map { i in (f[i] - mean[i]) / sd[i] * Self.weights[i] }
+    }
+
+    /// Probabilité de chaque prise pour cet appui.
+    func probabilities(_ raw: [Double]) -> [KBGrip: Double] {
+        guard raw.count == GripDetector.featureCount else { return [:] }
+        let f = scale(center(raw))
+        let ranked = points.map { p -> (KBGrip, Double) in
+            var d = 0.0
+            for i in 0..<f.count { d += (f[i] - p.f[i]) * (f[i] - p.f[i]) }
+            return (p.grip, d)
+        }.sorted { $0.1 < $1.1 }
+        let k = max(3, min(7, points.count / 4))
+        var votes: [KBGrip: Double] = [:]
+        for (i, r) in ranked.prefix(k).enumerated() { votes[r.0, default: 0] += 1.0 / Double(i + 1) }
+        let total = votes.values.reduce(0, +)
+        var out: [KBGrip: Double] = [:]
+        for g in grips { out[g] = ((votes[g] ?? 0) + 0.15) / (total + 0.15 * Double(grips.count)) }
+        return out
+    }
+}
+
 /// Un écart d'angle ramené entre -180° et 180° (179° et -179° sont voisins).
 func kbWrap(_ d: Double) -> Double {
     var x = d.truncatingRemainder(dividingBy: 360)
@@ -35,8 +100,20 @@ final class GripDetector {
     /// dans le sens de l'écran intérieur, la devinette serait à l'envers).
     var guessUncalibrated = true
 
-    /// Main droite et main gauche étalonnées pour cette situation : l'inclinaison décide seule.
+    /// Main droite et main gauche étalonnées pour cette situation.
     var calibrated: Bool { postures[.right] != nil && postures[.left] != nil }
+    /// Les appuis étalonnés (étalonnage par la frappe) : ce sont eux qui décident pendant la frappe.
+    var tapModel: KBTapModel? { didSet { evidence = [:]; evidenceTaps = 0 } }
+    /// Étalonnage dans l'app : chaque appui est envoyé ici au lieu de déplacer le clavier.
+    var onSample: (([Double]) -> Void)?
+
+    /// Mesures d'un appui : rotation (x, y, z), secousse (x, y, z), inclinaison, angle avec l'horizontale, position, taille.
+    static let featureCount = 10
+    static let rollIndex = 6
+
+    private var evidence: [KBGrip: Double] = [:]
+    private var evidenceTaps = 0
+    private var lastTapTime: TimeInterval = 0
 
     /// Seuil d'inclinaison : un tiers de l'écart étalonné (plus réactif), sinon une valeur prudente.
     private var switchThreshold: Double { tiltGap >= 4 ? max(3, tiltGap * 0.3) : 9 }
@@ -48,7 +125,7 @@ final class GripDetector {
         return q
     }()
     private let lock = NSLock()
-    private var samples: [(t: TimeInterval, y: Double)] = []
+    private var samples: [(t: TimeInterval, x: Double, y: Double, z: Double)] = []
     private var angle: Double?
     private var incline: Double?
     private var planar: Double = 0
@@ -80,7 +157,7 @@ final class GripDetector {
                 let inc = asin(max(-1, min(1, -g.z))) * 180 / .pi
                 self.lock.lock()
                 self.incline = self.incline.map { $0 * 0.85 + inc * 0.15 } ?? inc
-                self.samples.append((m.timestamp, m.rotationRate.y))
+                self.samples.append((m.timestamp, m.rotationRate.x, m.rotationRate.y, m.rotationRate.z))
                 if self.samples.count > 200 { self.samples.removeFirst(self.samples.count - 200) }
                 self.planar = p
                 self.angle = self.angle.map { kbWrap($0 + kbWrap(a - $0) * 0.15) } ?? a
@@ -111,6 +188,41 @@ final class GripDetector {
     func reset() {
         rotLeft = []; rotRight = []; sizeLeft = []; sizeRight = []
         lastTap = nil; twoEvidence = []; lastVote = nil; tiltStreak = nil; tiltSide = nil
+        evidence = [:]; evidenceTaps = 0
+    }
+
+    /// Les mesures d'un appui, une fois le mouvement du téléphone enregistré (un quart de seconde).
+    private func features(time: TimeInterval, screenX: CGFloat, radius: CGFloat) -> [Double]? {
+        lock.lock()
+        let w = samples.filter { $0.t >= time - 0.02 && $0.t <= time + 0.25 }
+        let roll = angle, inc = incline
+        lock.unlock()
+        guard w.count >= 8, let roll, let inc else { return nil }
+        var ix = 0.0, iy = 0.0, iz = 0.0, px = 0.0, py = 0.0, pz = 0.0
+        let base = w.prefix(3)
+        let bx = base.map { $0.x }.reduce(0, +) / Double(base.count)
+        let by = base.map { $0.y }.reduce(0, +) / Double(base.count)
+        let bz = base.map { $0.z }.reduce(0, +) / Double(base.count)
+        for s in w {
+            let x = s.x - bx, y = s.y - by, z = s.z - bz
+            ix += x * 0.01; iy += y * 0.01; iz += z * 0.01
+            px = max(px, abs(x)); py = max(py, abs(y)); pz = max(pz, abs(z))
+        }
+        return [ix, iy, iz, px, py, pz, roll, inc, Double(screenX), Double(radius)]
+    }
+
+    /// Un appui de plus dans la balance : on garde la mémoire des derniers appuis (les plus récents comptent plus).
+    private func weigh(_ f: [Double]) {
+        guard let m = tapModel else { return }
+        let p = m.probabilities(f)
+        guard !p.isEmpty else { return }
+        for g in m.grips { evidence[g] = (evidence[g] ?? 0) * 0.7 + log(p[g] ?? 0.05) }
+        evidenceTaps += 1
+        let ranked = evidence.sorted { $0.value > $1.value }
+        guard evidenceTaps >= 3, ranked.count >= 2, ranked[0].value - ranked[1].value > 1.1 else { return }
+        let g = ranked[0].key
+        if current == .two && g != .two && twoEvidence.suffix(6).contains(true) { return }
+        emit(g)
     }
 
     /// L'angle actuel du téléphone dans le plan de l'écran (pour l'étalonnage), en degrés.
@@ -153,11 +265,13 @@ final class GripDetector {
 
     /// En continu : si le téléphone change franchement de main, le clavier suit.
     private func checkTilt() {
+        // Avec l'étalonnage par la frappe, l'inclinaison ne sert qu'entre deux phrases (pas pendant la frappe).
+        if tapModel != nil && ProcessInfo.processInfo.systemUptime - lastTapTime < 1.5 { tiltStreak = nil; return }
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
         guard let g = tiltGrip(threshold: threshold) else { tiltStreak = nil; return }
         // Étalonné : l'inclinaison a le dernier mot (le clavier revient toujours du bon côté).
         // Sinon, on ne réagit qu'à un vrai changement d'inclinaison.
-        if calibrated ? g == current : g == tiltSide { tiltStreak = nil; return }
+        if calibrated && tapModel == nil ? g == current : g == tiltSide { tiltStreak = nil; return }
         let n = (tiltStreak?.grip == g ? tiltStreak!.n : 0) + 1
         tiltStreak = (g, n)
         // 3 lectures de suite (≈ 0,45 s) : assez pour ignorer un geste, assez vite pour suivre un changement de main.
@@ -186,6 +300,14 @@ final class GripDetector {
         var two = others.contains { abs($0 - screenX) > 0.3 }
         if let last = lastTap, abs(last.x - screenX) > 0.45, time - last.t > 0, time - last.t < 0.13 { two = true }
         lastTap = (screenX, time)
+        lastTapTime = time
+        if let onSample {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) { [weak self] in
+                guard let self, let f = self.features(time: time, screenX: screenX, radius: radius) else { return }
+                onSample(f)
+            }
+            return
+        }
         twoEvidence.append(two)
         if twoEvidence.count > 12 { twoEvidence.removeFirst() }
 
@@ -193,8 +315,13 @@ final class GripDetector {
         if region != 1, radius > 0 {
             if region == 0 { push(&sizeLeft, Double(radius)) } else { push(&sizeRight, Double(radius)) }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.27) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) { [weak self] in
             guard let self else { return }
+            if self.tapModel != nil {
+                if self.twoEvidence.filter({ $0 }).count >= 2 { self.emit(.two); return }
+                if let f = self.features(time: time, screenX: screenX, radius: radius) { self.weigh(f) }
+                return
+            }
             if region != 1, let v = self.variance(from: time, to: time + 0.25) {
                 if region == 0 { self.push(&self.rotLeft, v) } else { self.push(&self.rotRight, v) }
             }

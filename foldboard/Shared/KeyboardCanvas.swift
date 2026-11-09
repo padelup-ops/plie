@@ -200,8 +200,8 @@ final class KeyboardCanvas: UIView {
         grip.current = settings.autoTwo ? .two : (settings.autoRight ? .right : .left)
         builtFor = .zero
         setNeedsLayout()
-        if visible && autoOn && !gripStarted { startGrip() }
-        if visible && !autoOn && gripStarted { grip.stop(); gripStarted = false }
+        if visible && (autoOn || recording != nil) && !gripStarted { startGrip() }
+        if visible && !autoOn && recording == nil && gripStarted { grip.stop(); gripStarted = false }
     }
 
     /// Le clavier vient d'apparaître.
@@ -262,6 +262,7 @@ final class KeyboardCanvas: UIView {
             grip.rightNegative = true
             grip.tiltGap = 0
         }
+        grip.tapModel = KBTapModel(settings.taps[gripContext] ?? [:])
         var postures: [KBGrip: (roll: Double, incline: Double)] = [:]
         for (k, p) in settings.calib[gripContext] ?? [:] where p.count == 2 {
             guard let g = KBGrip(rawValue: k) else { continue }
@@ -282,6 +283,14 @@ final class KeyboardCanvas: UIView {
         grip.stop()
         gripStarted = false
         idleTimer?.invalidate()
+    }
+
+    /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
+    private(set) var recording: KBGrip?
+    func setRecording(_ g: KBGrip?, _ handler: (([Double]) -> Void)?) {
+        recording = g
+        grip.onSample = g == nil ? nil : handler
+        if visible && g != nil && !gripStarted { startGrip() }
     }
 
     private var gripStarted = false
@@ -724,7 +733,7 @@ final class KeyboardCanvas: UIView {
             }
             let tr = Track(index: i, start: p)
             tr.points = [p]
-            if autoOn, bounds.width > 0 {
+            if autoOn || recording != nil, bounds.width > 0 {
                 let lo = blocks.map { $0.minX }.min() ?? 0
                 let hi = blocks.map { $0.maxX }.max() ?? bounds.width
                 let bx = max(0, min(1, (p.x - lo) / max(1, hi - lo)))

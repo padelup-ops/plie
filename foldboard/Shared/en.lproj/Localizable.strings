@@ -153,6 +153,16 @@
 "Not calibrated" = "Not calibrated";
 "%lld of 3" = "%lld of 3";
 "Calibrations" = "Calibrations";
+"For each grip, hold the phone as you usually do and type a short sentence: Foldboard learns how the phone moves under your thumb. Do it closed and open, in portrait and in landscape if you type that way: Foldboard keeps a calibration for each." = "For each grip, hold the phone as you usually do and type a short sentence: Foldboard learns how the phone moves under your thumb. Do it closed and open, in portrait and in landscape if you type that way: Foldboard keeps a calibration for each.";
+"Redo" = "Redo";
+"Calibrate" = "Calibrate";
+"Hold the phone in your right hand and type with your right thumb." = "Hold the phone in your right hand and type with your right thumb.";
+"Hold the phone in your left hand and type with your left thumb." = "Hold the phone in your left hand and type with your left thumb.";
+"Hold the phone with both hands and type with both thumbs." = "Hold the phone with both hands and type with both thumbs.";
+"Done! You can keep typing to improve it, or save." = "Done! You can keep typing to improve it, or save.";
+"%lld of %lld taps" = "%lld of %lld taps";
+"Save" = "Save";
+"Cancel" = "Cancel";
 "Tap a situation to calibrate it. The arrow shows the one detected right now. For landscape, turn off the rotation lock." = "Tap a situation to calibrate it. The arrow shows the one detected right now. For landscape, turn off the rotation lock.";
 "Open · portrait" = "Open · portrait";
 "Open · landscape" = "Open · landscape";

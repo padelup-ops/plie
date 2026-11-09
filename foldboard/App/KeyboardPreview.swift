@@ -7,6 +7,9 @@ struct KeyboardPreview: UIViewRepresentable {
     var pro: Bool
     @Binding var text: String
     var onSettings: (KBSettings) -> Void = { _ in }
+    /// Étalonnage : la prise enregistrée, et ce qu'on fait de chaque appui.
+    var record: KBGrip? = nil
+    var onSample: (([Double]) -> Void)? = nil
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -15,6 +18,9 @@ struct KeyboardPreview: UIViewRepresentable {
         c.input = context.coordinator
         c.configure(settings: settings, pro: pro)
         c.appeared()
+        if let record {
+            c.setRecording(record) { [weak coordinator = context.coordinator] f in coordinator?.parent.onSample?(f) }
+        }
         context.coordinator.lastText = text
         DispatchQueue.main.async { c.textChanged() }
         return c

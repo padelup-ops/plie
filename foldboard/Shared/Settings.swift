@@ -76,6 +76,9 @@ struct KBSettings: Codable, Equatable {
     var calib: [String: [String: [Double]]] = [:]
     /// Inclinaisons apprises quand on change soi-même le clavier de côté, par situation → « right » / « left ».
     var learned: [String: [String: [Double]]] = [:]
+    /// Étalonnage par la frappe : pour chaque situation et chaque prise, quelques appuis enregistrés
+    /// (mouvement du téléphone sous le pouce, inclinaison, position et taille du toucher).
+    var taps: [String: [String: [[Double]]]] = [:]
     /// Largeur du clavier à une main, en part de l'écran.
     var oneHandWidth: Double = 0.68
     /// Largeur de chaque moitié en mode deux mains, en part de l'écran.
@@ -129,6 +132,7 @@ struct KBSettings: Codable, Equatable {
         postureTwo = (try? c.decodeIfPresent([Double].self, forKey: .postureTwo)) ?? []
         calib = (try? c.decodeIfPresent([String: [String: [Double]]].self, forKey: .calib)) ?? [:]
         learned = (try? c.decodeIfPresent([String: [String: [Double]]].self, forKey: .learned)) ?? [:]
+        taps = (try? c.decodeIfPresent([String: [String: [[Double]]]].self, forKey: .taps)) ?? [:]
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin
@@ -209,6 +213,20 @@ struct KBSettings: Codable, Equatable {
         learned[context] = l
     }
 
+    /// Enregistre les appuis d'une prise (étalonnage par la frappe) et en tire la posture moyenne.
+    mutating func setTaps(_ samples: [[Double]], grip: String, context: String) {
+        let ok = samples.filter { $0.count == GripDetector.featureCount }
+        guard !ok.isEmpty else { return }
+        var c = taps[context] ?? [:]
+        c[grip] = Array(ok.suffix(30))
+        taps[context] = c
+        // La posture moyenne (inclinaison, angle avec l'horizontale) sert à placer le clavier dès qu'il apparaît.
+        let f = ok[0][GripDetector.rollIndex]
+        let roll = kbWrap(f + ok.map { kbWrap($0[GripDetector.rollIndex] - f) }.reduce(0, +) / Double(ok.count))
+        let inc = ok.map { $0[GripDetector.rollIndex + 1] }.reduce(0, +) / Double(ok.count)
+        calibrate(grip, roll: roll, incline: inc, context: context)
+    }
+
     /// L'inclinaison retenue pour une prise dans une situation : apprise, sinon étalonnée.
     func roll(_ grip: String, context: String) -> Double? {
         if let a = learned[context]?[grip], let f = a.first {
@@ -222,6 +240,7 @@ struct KBSettings: Codable, Equatable {
     mutating func resetCalibration() {
         calib = [:]
         learned = [:]
+        taps = [:]
         tiltMid = 0
         tiltRightNegative = true
         tiltCalibrated = false
