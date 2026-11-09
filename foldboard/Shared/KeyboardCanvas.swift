@@ -227,7 +227,7 @@ final class KeyboardCanvas: UIView {
         // La fenêtre suit l'écran réellement utilisé ; l'écran de la scène peut rester l'ancien.
         let win = window?.bounds.size ?? .zero
         if win.width > 0 && win.height > bounds.height * 1.8 { return win }
-        if let g = window?.windowScene?.effectiveGeometry {
+        if #available(iOS 26.0, *), let g = window?.windowScene?.effectiveGeometry {
             let s = g.coordinateSpace.bounds.size
             if s.width > 0 { return s }
         }
