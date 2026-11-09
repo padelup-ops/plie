@@ -23,3 +23,12 @@ for x in call(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=10").get("data", [])
         pp = p["relationships"]["inAppPurchasePricePoint"]["data"]["id"]
         print("   prix France", pts.get(pp), "du", p["attributes"].get("startDate"), "au", p["attributes"].get("endDate"))
     if "error" in r: print("   ", r)
+for v in call(f"/v1/apps/{app['id']}/appStoreVersions?limit=3").get("data", []):
+    b = call(f"/v1/appStoreVersions/{v['id']}/build").get("data") or {}
+    print("VERSION", v["attributes"]["versionString"], v["attributes"].get("appStoreState"), "build", (b.get("attributes") or {}).get("version"))
+for s in call(f"/v1/reviewSubmissions?filter[app]={app['id']}&limit=10").get("data", []):
+    print("DEMANDE", s["id"][:8], s["attributes"].get("state"))
+    for it in call(f"/v1/reviewSubmissions/{s['id']}/items").get("data", []):
+        rel = [k for k, x in it.get("relationships", {}).items() if isinstance(x, dict) and x.get("data")]
+        print("   élément", it["attributes"].get("state"), rel)
+print("CONFIDENTIALITE", json.dumps(call(f"/v1/apps/{app['id']}/appDataUsages"))[:300])
