@@ -107,22 +107,6 @@ struct HomeView: View {
                     NavigationLink { PlaceTutorial().fullScreenDuo() } label: {
                         Label("How it works", systemImage: "hand.tap")
                     }
-                    NavigationLink { HandTest().fullScreenDuo() } label: {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Test: right hand, left hand")
-                                Text("3 seconds per hand, nothing to type").font(.footnote).foregroundStyle(.secondary)
-                            }
-                        } icon: { Image(systemName: "hand.raised.fingers.spread") }
-                    }
-                    NavigationLink { GripSetup().fullScreenDuo() } label: {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Learn my thumbs")
-                                Text("Optional: the keyboard follows your thumb by itself").font(.footnote).foregroundStyle(.secondary)
-                            }
-                        } icon: { Image(systemName: "touchid") }
-                    }
                     NavigationLink { PositionView().fullScreenDuo() } label: { Label("Position and size", systemImage: "hand.raised.fingers.spread") }
                     NavigationLink { LookView().fullScreenDuo() } label: { Label("Colors and font", systemImage: "paintpalette") }
                     NavigationLink { FeelView().fullScreenDuo() } label: { Label("Sound, vibrations and swipe", systemImage: "waveform") }

@@ -136,6 +136,7 @@ FR = {
     "Hide keyboard": "Masquer le clavier",
     "Keyboard position": "Position du clavier",
     "Foldboard Pro: open the app to unlock": "Foldboard Pro : ouvre l’app pour le débloquer",
+    "Allow Full Access to use Foldboard Pro": "Autorise l’accès complet pour utiliser Foldboard Pro",
     # Suit ta main
     "Comes to the hand holding the phone. Both hands: split on the open Duo, full width on the outer screen.":
         "Vient du côté de la main qui tient le téléphone. À deux mains : coupé en deux sur le Duo déplié, en pleine largeur sur l’écran extérieur.",

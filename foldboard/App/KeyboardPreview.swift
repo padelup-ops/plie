@@ -65,5 +65,6 @@ struct KeyboardPreview: UIViewRepresentable {
         func kbSettingsChanged(_ settings: KBSettings) { parent.onSettings(settings) }
         var kbNeedsGlobe: Bool { false }
         var kbFullAccess: Bool { true }
+        func kbRecheckPro(_ done: @escaping (Bool) -> Void) { done(parent.pro) }
     }
 }

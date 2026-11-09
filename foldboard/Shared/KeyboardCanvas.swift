@@ -13,6 +13,8 @@ protocol KBInput: AnyObject {
     func kbSettingsChanged(_ settings: KBSettings)
     var kbNeedsGlobe: Bool { get }
     var kbFullAccess: Bool { get }
+    /// Relit l'accès Pro (coffre, puis achats) : l'app l'a peut-être débloqué entre-temps.
+    func kbRecheckPro(_ done: @escaping (Bool) -> Void)
 }
 
 /// Une touche dessinée (elle ne reçoit pas les touchers : c'est le clavier qui les gère tous).
@@ -400,7 +402,18 @@ final class KeyboardCanvas: UIView {
 
     private func setMode(_ m: KBMode) {
         if (m == .auto || m == .split) && !pro {
-            flash(L("Foldboard Pro: open the app to unlock"))
+            guard let input else { flash(L("Foldboard Pro: open the app to unlock")); return }
+            input.kbRecheckPro { [weak self] ok in
+                guard let self else { return }
+                if ok {
+                    self.pro = true
+                    self.setMode(m)
+                } else if !input.kbFullAccess {
+                    self.flash(L("Allow Full Access to use Foldboard Pro"))
+                } else {
+                    self.flash(L("Foldboard Pro: open the app to unlock"))
+                }
+            }
             return
         }
         settings.mode = m
@@ -678,6 +691,7 @@ final class KeyboardCanvas: UIView {
     }
 
     private func rebuild() {
+        let oldBlocks = blocks
         // Les touches vont changer : les appuis en cours s'arrêtent là.
         for tr in tracks.values {
             tr.done = true
@@ -769,6 +783,29 @@ final class KeyboardCanvas: UIView {
         layoutTopBar()
         updateLabels()
         if adjusting { refreshAdjust() }
+        slide(from: oldBlocks)
+    }
+
+    /// Le clavier change de côté (ou revient au milieu) : les touches glissent jusqu'à leur nouvelle place.
+    private func slide(from old: [CGRect]) {
+        guard visible, !adjusting, window != nil, old.count == 1, blocks.count == 1,
+              abs(old[0].height - blocks[0].height) < 2 else { return }
+        let dx = old[0].midX - blocks[0].midX
+        guard abs(dx) > 20 else { return }
+        let sx = max(0.5, min(2, old[0].width / max(1, blocks[0].width)))
+        let views = cells.map(\.view)
+        let c = blocks[0].midX
+        for v in views {
+            // Chaque touche part de là où elle était dans l'ancien bloc.
+            let from = c + dx + (v.center.x - c) * sx
+            v.transform = CGAffineTransform(translationX: from - v.center.x, y: 0)
+        }
+        panel.alpha = 0
+        UIView.animate(withDuration: 0.42, delay: 0, usingSpringWithDamping: 0.82, initialSpringVelocity: 0.4,
+                       options: [.allowUserInteraction, .beginFromCurrentState]) {
+            views.forEach { $0.transform = .identity }
+        }
+        UIView.animate(withDuration: 0.25, delay: 0.15, options: [.allowUserInteraction]) { self.panel.alpha = 1 }
     }
 
     /// Place des rangées dans un bloc. `align` : -1 collé à gauche, 1 collé à droite, 0 centré.

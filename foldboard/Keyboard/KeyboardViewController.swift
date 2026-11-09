@@ -32,6 +32,7 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         super.viewWillAppear(animated)
         reload()
         canvas.appeared()
+        if !access.isPro() { Task { await checkStore() } }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -60,8 +61,18 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     }
 
     /// Si l'app n'a pas pu partager l'accès (trousseau), le clavier regarde lui-même les achats.
-    private func checkStore() async {
-        guard !access.isPro() else { return }
+    @discardableResult
+    private func checkStore() async -> Bool {
+        // L'app a peut-être débloqué Pro depuis : on relit d'abord le coffre.
+        let stored = KBVault.loadAccess()
+        if stored.isPro() && !access.isPro() {
+            await MainActor.run {
+                self.access = stored
+                self.canvas.configure(settings: self.settings, pro: true)
+            }
+            return true
+        }
+        guard !access.isPro() else { return true }
         var found = access
         for await result in Transaction.currentEntitlements {
             guard case .verified(let t) = result, t.revocationDate == nil else { continue }
@@ -70,14 +81,15 @@ final class KeyboardViewController: UIInputViewController, KBInput {
                 found.trialStart = min(found.trialStart ?? t.originalPurchaseDate, t.originalPurchaseDate)
             }
         }
+        let pro = found.isPro()
         if found.purchased != access.purchased || found.trialStart != access.trialStart {
-            let pro = found.isPro()
             await MainActor.run {
                 self.access = found
                 KBVault.save(found)
                 self.canvas.configure(settings: self.settings, pro: pro)
             }
         }
+        return pro
     }
 
     // MARK: KBInput
@@ -95,4 +107,10 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     }
     var kbNeedsGlobe: Bool { needsInputModeSwitchKey }
     var kbFullAccess: Bool { hasFullAccess }
+    func kbRecheckPro(_ done: @escaping (Bool) -> Void) {
+        Task {
+            let ok = await checkStore()
+            await MainActor.run { done(ok) }
+        }
+    }
 }
