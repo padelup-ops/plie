@@ -341,10 +341,18 @@ final class KeyboardCanvas: UIView {
         eff.mode == .right || (eff.mode == .auto && eff.autoRight)
     }
 
+    /// Deux moitiés seulement sur un écran large : l'écran déplié du Duo (presque carré), ou un iPhone en paysage.
+    /// Sur l'écran extérieur ou un iPhone classique en portrait, le clavier reste en pleine largeur.
+    private var splitAllowed: Bool {
+        let screen = window?.windowScene?.screen.bounds.size ?? bounds.size
+        let ratio = min(screen.width, screen.height) / max(1, max(screen.width, screen.height))
+        return bounds.width >= 600 || (ratio > 0.6 && bounds.width >= 360)
+    }
+
     /// Le mode réellement possible à cette largeur (deux mains : il faut de la place).
     private var layoutMode: KBMode {
-        if eff.mode == .auto && eff.autoTwo { return bounds.width >= 450 ? .split : .full }
-        if eff.mode == .split && bounds.width < 450 { return .full }
+        if eff.mode == .auto && eff.autoTwo { return splitAllowed ? .split : .full }
+        if eff.mode == .split && !splitAllowed { return .full }
         return eff.mode
     }
 
