@@ -1,0 +1,32 @@
+# Fiches App Store dans toutes les langues
+name: ASC - fiches multilingues
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "probe ou apply"
+        required: true
+        default: "probe"
+      app:
+        description: "foldly, origamo ou waffle (pour apply)"
+        required: false
+        default: ""
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      ORIGAMO_BUNDLE: ${{ secrets.BUNDLE_ID }}
+      MODE: ${{ inputs.mode }}
+      APP: ${{ inputs.app }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 tools/asc_meta.py 2>&1 | tee meta.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meta
+          path: meta.txt
