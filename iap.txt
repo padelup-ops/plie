@@ -1,0 +1,21 @@
+APP_ID 6832556606
+
+== com.padelup.foldboard.trial3
+ok     achat déjà créé, état READY_TO_SUBMIT
+ok     textes en-US
+ok     textes fr-FR
+ok     prix 0 € (base France)
+ok     disponibilité (175 pays)
+ok     capture déjà envoyée
+achat com.padelup.foldboard.trial3 | 3-day Trial | état READY_TO_SUBMIT
+
+== com.padelup.foldboard.pro
+ok     achat déjà créé, état READY_TO_SUBMIT
+ok     textes en-US
+ok     textes fr-FR
+ok     prix 2.99 € (base France), puis 4.99 € dès le 2026-11-19
+ok     disponibilité (175 pays)
+ok     capture déjà envoyée
+achat com.padelup.foldboard.pro | Foldboard Pro | état READY_TO_SUBMIT
+
+ACHATS PRÊTS (capture pour la vérification à ajouter avant la soumission)
