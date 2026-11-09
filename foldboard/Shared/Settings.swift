@@ -182,11 +182,12 @@ struct KBSettings: Codable, Equatable {
     }
 
     /// La situation d'après la taille de l'écran : Duo ouvert (écran presque carré) ou fermé, en portrait ou en paysage.
-    /// `closed` vient de la charnière (nil si inconnue : on devine alors d'après la forme de l'écran).
+    /// La forme de l'écran utilisé décide (l'intérieur du Duo est presque carré, l'extérieur est allongé) ;
+    /// la charnière (`closed`) ne sert que si la taille est inconnue. L'app et le clavier suivent la même règle.
     static func context(screen: CGSize, closed: Bool? = nil) -> String {
         let w = screen.width, h = screen.height
         let ratio = min(w, h) / max(1, max(w, h))
-        let open = closed.map { !$0 } ?? (ratio > 0.6)
+        let open = w > 0 && h > 0 ? ratio > 0.6 : (closed.map { !$0 } ?? false)
         return (open ? "open" : "closed") + "-" + (w > h ? "landscape" : "portrait")
     }
 
