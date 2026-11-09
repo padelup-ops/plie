@@ -8,9 +8,26 @@ import Security
 // Si le trousseau n'est pas joignable (accès complet coupé), chacun garde sa copie dans ses préférences.
 
 enum KBLayout: String, Codable, CaseIterable, Identifiable {
-    case azerty, qwerty
+    case azerty, qwerty, qwertz, spanish
     var id: String { rawValue }
-    var title: String { rawValue.uppercased() }
+    var title: String {
+        switch self {
+        case .azerty: return "AZERTY"
+        case .qwerty: return "QWERTY"
+        case .qwertz: return "QWERTZ (Deutsch)"
+        case .spanish: return "QWERTY (Español)"
+        }
+    }
+
+    /// La disposition habituelle pour la langue de l'iPhone.
+    static var forLocale: KBLayout {
+        switch Locale.current.language.languageCode?.identifier {
+        case "fr": return .azerty
+        case "de": return .qwertz
+        case "es": return .spanish
+        default: return .qwerty
+        }
+    }
 }
 
 /// Où se place le clavier.
@@ -54,7 +71,7 @@ enum KBSidePanel: String, Codable, CaseIterable, Identifiable {
 }
 
 struct KBSettings: Codable, Equatable {
-    var layout: KBLayout = Locale.current.language.languageCode?.identifier == "fr" ? .azerty : .qwerty
+    var layout: KBLayout = KBLayout.forLocale
     var mode: KBMode = .auto
     /// Côté retenu pour le mode automatique (true = droite).
     var autoRight = true

@@ -34,6 +34,8 @@ struct KeyRow: Equatable {
 enum KBLayouts {
     static func c(_ s: String) -> KeySpec { KeySpec(kind: .char(s)) }
     static func chars(_ s: String) -> [KeySpec] { s.map { c(String($0)) } }
+    /// Onze touches sur une rangée (allemand) : un peu plus étroites, la rangée garde la même largeur.
+    static func chars11(_ s: String) -> [KeySpec] { s.map { KeySpec(kind: .char(String($0)), width: 10.0 / 11.0) } }
 
     /// Les rangées d'une page, avant la rangée du bas (qui dépend du mode).
     static func rows(_ page: KBPage, layout: KBLayout) -> [KeyRow] {
@@ -50,6 +52,18 @@ enum KBLayouts {
                 return [
                     KeyRow(keys: chars("qwertyuiop")),
                     KeyRow(keys: chars("asdfghjkl"), inset: 0.5),
+                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("zxcvbnm") + [KeySpec(kind: .backspace, width: 1.5)]),
+                ]
+            case .qwertz:
+                return [
+                    KeyRow(keys: chars11("qwertzuiopü")),
+                    KeyRow(keys: chars11("asdfghjklöä")),
+                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("yxcvbnm") + [KeySpec(kind: .backspace, width: 1.5)]),
+                ]
+            case .spanish:
+                return [
+                    KeyRow(keys: chars("qwertyuiop")),
+                    KeyRow(keys: chars("asdfghjklñ")),
                     KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("zxcvbnm") + [KeySpec(kind: .backspace, width: 1.5)]),
                 ]
             }

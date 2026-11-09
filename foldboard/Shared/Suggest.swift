@@ -49,7 +49,13 @@ final class KBSuggest {
     }
 
     func setLayout(_ layout: KBLayout) {
-        let want = layout == .azerty ? "fr_FR" : "en_US"
+        let want: String
+        switch layout {
+        case .azerty: want = "fr_FR"
+        case .qwertz: want = "de_DE"
+        case .spanish: want = "es_ES"
+        case .qwerty: want = "en_US"
+        }
         let available = UITextChecker.availableLanguages
         if available.contains(want) {
             language = want
@@ -58,7 +64,7 @@ final class KBSuggest {
         } else {
             language = available.first ?? "en_US"
         }
-        loadList(layout == .azerty ? "fr" : "en")
+        loadList(layout == .azerty ? "fr" : (layout == .qwerty ? "en" : "none"))
     }
 
     func setLexicon(_ lexicon: UILexicon) {
