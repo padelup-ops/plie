@@ -584,6 +584,15 @@ struct TiltCalibration: View {
                 Label(model.settings.postureTwo.isEmpty ? "Calibrated" : "Calibrated, both hands too", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
             }
+            if model.settings.tiltCalibrated || !model.settings.postureRight.isEmpty || !model.settings.postureLeft.isEmpty || !model.settings.postureTwo.isEmpty {
+                Button(role: .destructive) {
+                    var s = model.settings
+                    s.resetCalibration()
+                    model.settings = s
+                } label: {
+                    Label("Reset calibration", systemImage: "arrow.counterclockwise")
+                }
+            }
         } header: {
             HStack { Text("Follow your hand"); ProBadge() }
         } footer: {

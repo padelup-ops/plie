@@ -169,6 +169,18 @@ struct KBSettings: Codable, Equatable {
         tiltCalibrated = true
     }
 
+    /// Oublie l'étalonnage et tout ce qui a été appris : on repart des réglages de départ.
+    mutating func resetCalibration() {
+        tiltMid = 0
+        tiltRightNegative = true
+        tiltCalibrated = false
+        tiltRightSamples = []
+        tiltLeftSamples = []
+        postureRight = []
+        postureLeft = []
+        postureTwo = []
+    }
+
     /// Les réglages vraiment appliqués : sans Foldboard Pro (ni essai), on revient à l'essentiel.
     func effective(pro: Bool) -> KBSettings {
         guard !pro else { return self }

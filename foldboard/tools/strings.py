@@ -172,6 +172,9 @@ FR = {
     "Later": "Plus tard",
     "Calibrate my grip": "Étalonner ma prise en main",
     "Word lists: FrequencyWords by Hermit Dave, CC BY-SA 4.0.": "Listes de mots : FrequencyWords de Hermit Dave, CC BY-SA 4.0.",
+    "Reset calibration": "Réinitialiser l’étalonnage",
+    "Your keyboard": "Ton clavier",
+    "Set it to your thumb. You can try it right below.": "Règle-le pour ton pouce. Tu peux l’essayer juste en dessous.",
 }
 
 

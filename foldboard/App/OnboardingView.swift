@@ -13,7 +13,7 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                ForEach(0..<4) { i in
+                ForEach(0..<5) { i in
                     Capsule().fill(i <= page ? Color.accentColor : Color(.systemFill)).frame(height: 4)
                 }
             }
@@ -25,6 +25,7 @@ struct OnboardingView: View {
                 case 0: welcome
                 case 1: addKeyboard
                 case 2: calibrate
+                case 3: yourKeyboard
                 default: trial
                 }
             }
@@ -92,6 +93,38 @@ struct OnboardingView: View {
                 Text("You can change it later from the home screen.").font(.footnote).foregroundStyle(.secondary)
             }
             .padding(24)
+        }
+    }
+
+    @State private var tryText = ""
+
+    /// Le clavier à ton goût dès le début : disposition, hauteur, largeur, écart avec le bord (avec l'aperçu).
+    private var yourKeyboard: some View {
+        @Bindable var m = model
+        return VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Your keyboard").font(.largeTitle.bold())
+                Text("Set it to your thumb. You can try it right below.").foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            List {
+                Picker("Layout", selection: $m.settings.layout) {
+                    ForEach(KBLayout.allCases) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                slider("Key height", value: $m.settings.keyHeight, in: 34...60, format: { "\(Int($0)) pt" })
+                slider("One-hand width", value: $m.settings.oneHandWidth, in: 0.45...0.95, format: { "\(Int($0 * 100)) %" })
+                slider("Distance from the edge", value: $m.settings.edgeMargin, in: 0...120, format: { "\(Int($0)) pt" })
+                Toggle("Auto-correction", isOn: $m.settings.autocorrect)
+            }
+            .scrollContentBackground(.hidden)
+            next("Next") { page = 4 }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 10)
+            KeyboardPreview(settings: model.settings, pro: true, text: $tryText) { s in model.settings = s }
+                .frame(height: KeyboardPreview.height(model.settings))
         }
     }
 
