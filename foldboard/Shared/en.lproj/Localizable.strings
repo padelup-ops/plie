@@ -136,6 +136,14 @@
 "Portrait: follows your hand" = "Portrait: follows your hand";
 "One tap: big keyboard" = "One tap: big keyboard";
 "Or split in two" = "Or split in two";
+"Inner screen · Duo open" = "Inner screen · Duo open";
+"Outer screen · Duo closed" = "Outer screen · Duo closed";
+"Open your Duo, in portrait." = "Open your Duo, in portrait.";
+"Close your Duo: this step is on the outer screen." = "Close your Duo: this step is on the outer screen.";
+"Now open your Duo" = "Now open your Duo";
+"Same thing on the big screen, in portrait: the small keyboard will follow your hand there too." = "Same thing on the big screen, in portrait: the small keyboard will follow your hand there too.";
+"It's open" = "It's open";
+"Skip this step" = "Skip this step";
 "Small keyboard" = "Small keyboard";
 "Big keyboard" = "Big keyboard";
 "Split when the Duo is open" = "Split when the Duo is open";

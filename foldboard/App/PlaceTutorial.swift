@@ -10,9 +10,10 @@ struct PlaceTutorial: View {
     var onFinish: (() -> Void)? = nil
     @Environment(SettingsModel.self) private var model
     @Environment(\.dismiss) private var dismiss
-    /// 0 : main droite, 1 : main gauche, 2 : essai, 3 : fini.
+    /// Écran extérieur : 0 main droite, 1 main gauche. 2 : « ouvre ton Duo ».
+    /// Écran intérieur (portrait) : 3 main droite, 4 main gauche. 5 : essai, 6 : fini.
     @State private var step = 0
-    @State private var presses: [[(roll: Double, incline: Double)]] = [[], []]
+    @State private var presses: [[(roll: Double, incline: Double)]] = Array(repeating: [], count: 5)
     @State private var reader = TiltReader()
     @State private var hingeClosed: Bool?
     @State private var warn = false
@@ -40,15 +41,22 @@ struct PlaceTutorial: View {
         return (r, inc)
     }
 
+    private var isPress: Bool { [0, 1, 3, 4].contains(step) }
+    private var isRightStep: Bool { step == 0 || step == 3 }
+    private var openNow: Bool { context.hasPrefix("open") }
+
+    /// Les deux mesures de l'écran utilisé en ce moment (intérieur si le Duo est ouvert et qu'on l'a fait).
+    private var pair: (Int, Int) { openNow && mean(3) != nil && mean(4) != nil ? (3, 4) : (0, 1) }
+
     /// L'écart entre les deux mains (en degrés).
     private var gap: Double? {
-        guard let r = mean(0), let l = mean(1) else { return nil }
+        guard let r = mean(pair.0), let l = mean(pair.1) else { return nil }
         return abs(kbWrap(r.roll - l.roll))
     }
 
     /// La main d'après la posture du moment (pour l'essai).
     private var liveHand: KBGrip? {
-        guard let r = mean(0), let l = mean(1), let roll = reader.roll, let inc = reader.incline else { return nil }
+        guard let r = mean(pair.0), let l = mean(pair.1), let roll = reader.roll, let inc = reader.incline else { return nil }
         func d(_ p: (roll: Double, incline: Double)) -> Double {
             let a = kbWrap(roll - p.roll), b = (inc - p.incline) * 0.15
             return (a * a + b * b).squareRoot()
@@ -58,15 +66,20 @@ struct PlaceTutorial: View {
 
     var body: some View {
         ZStack {
-            if step < 2 { glow }
+            if isPress { glow }
             VStack(spacing: 0) {
                 header
                 switch step {
-                case 0, 1: pressStep
-                case 2: tryStep
+                case 0, 1, 3, 4: pressStep
+                case 2: openPrompt
+                case 5: tryStep
                 default: done.padding(.horizontal, 20)
                 }
             }
+        }
+        .onChange(of: context) { _, c in
+            // Le Duo vient de s'ouvrir en portrait : on passe aux mesures de l'écran intérieur.
+            if step == 2 && c == "open-portrait" { step = 3 }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: step)
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: shown)
@@ -87,9 +100,10 @@ struct PlaceTutorial: View {
                         .background(Circle().fill(Color(.secondarySystemBackground)))
                 }
             }
+            let seg = step < 2 ? 0 : (step < 5 ? 1 : (step == 5 ? 2 : 3))
             ForEach(0..<3, id: \.self) { i in
                 Capsule()
-                    .fill(i < step ? Color.green : (i == step ? Color.accentColor : Color(.systemFill)))
+                    .fill(i < seg ? Color.green : (i == seg ? Color.accentColor : Color(.systemFill)))
                     .frame(height: 5)
             }
         }
@@ -102,15 +116,25 @@ struct PlaceTutorial: View {
     /// La lueur du côté de la main, comme dans l'app de la vidéo.
     private var glow: some View {
         RadialGradient(colors: [Color.accentColor.opacity(0.45), .clear],
-                       center: step == 0 ? .bottomTrailing : .bottomLeading, startRadius: 10, endRadius: 520)
+                       center: isRightStep ? .bottomTrailing : .bottomLeading, startRadius: 10, endRadius: 520)
             .ignoresSafeArea()
             .animation(.easeInOut(duration: 0.5), value: step)
     }
 
     private var pressStep: some View {
-        let right = step == 0
+        let right = isRightStep
         let count = presses[step].count
+        let inner = step >= 3
         return VStack(alignment: right ? .trailing : .leading, spacing: 10) {
+            Label(inner ? "Inner screen · Duo open" : "Outer screen · Duo closed", systemImage: inner ? "rectangle.portrait" : "iphone")
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10).padding(.vertical, 5)
+                .background(Capsule().fill(Color.accentColor.opacity(0.2)))
+            if inner != openNow {
+                Text(inner ? "Open your Duo, in portrait." : "Close your Duo: this step is on the outer screen.")
+                    .font(.footnote.weight(.semibold)).foregroundStyle(.orange)
+                    .multilineTextAlignment(right ? .trailing : .leading)
+            }
             Text(right ? "Hold it in your right hand" : "Now in your left hand")
                 .font(.largeTitle.bold())
                 .multilineTextAlignment(right ? .trailing : .leading)
@@ -162,7 +186,7 @@ struct PlaceTutorial: View {
 
     /// Un appui : on note la posture du téléphone à ce moment-là.
     private func press() {
-        guard step < 2 else { return }
+        guard isPress else { return }
         guard let r = reader.roll, let i = reader.incline else {
             warn = true
             UINotificationFeedbackGenerator().notificationOccurred(.error)
@@ -176,13 +200,44 @@ struct PlaceTutorial: View {
         presses[step].append((r, i))
         if presses[step].count >= Self.needed {
             UINotificationFeedbackGenerator().notificationOccurred(.success)
+            let done = step
+            let c = context
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
-                step += 1
-                if step == 2 { save() }
+                if done == 1 { save(0, 1, context: c) }
+                if done == 4 { save(3, 4, context: c) }
+                // Déjà sur l'écran intérieur : pas besoin de demander d'ouvrir le Duo.
+                step = done == 1 && c == "open-portrait" ? 3 : done + 1
             }
         } else {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         }
+    }
+
+    // MARK: Ouvrir le Duo
+
+    private var openPrompt: some View {
+        VStack(spacing: 16) {
+            Spacer(minLength: 0)
+            ZStack {
+                RoundedRectangle(cornerRadius: 14).stroke(Color.accentColor, lineWidth: 3).frame(width: 56, height: 84)
+                    .offset(x: pulse ? -32 : 0)
+                RoundedRectangle(cornerRadius: 14).stroke(Color.accentColor, lineWidth: 3).frame(width: 56, height: 84)
+                    .offset(x: pulse ? 32 : 0)
+            }
+            .animation(.easeInOut(duration: 1.1).repeatForever(), value: pulse)
+            .frame(height: 100)
+            Text("Now open your Duo").font(.largeTitle.bold()).multilineTextAlignment(.center)
+            Text("Same thing on the big screen, in portrait: the small keyboard will follow your hand there too.")
+                .multilineTextAlignment(.center).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Button { step = 3 } label: {
+                Text("It's open").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 6)
+            }
+            .buttonStyle(.borderedProminent)
+            Button("Skip this step") { step = 5 }.font(.subheadline)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 24)
     }
 
     // MARK: Essai
@@ -212,7 +267,7 @@ struct PlaceTutorial: View {
                         Text("Start again").frame(maxWidth: .infinity).padding(.vertical, 6)
                     }
                     .buttonStyle(.bordered)
-                    Button { shown = false; step = 3 } label: {
+                    Button { shown = false; step = 6 } label: {
                         Text("Finish").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 6)
                     }
                     .buttonStyle(.borderedProminent)
@@ -288,7 +343,7 @@ struct PlaceTutorial: View {
     }
 
     private func restart() {
-        presses = [[], []]
+        presses = Array(repeating: [], count: 5)
         shown = false
         text = ""
         side = nil
@@ -296,10 +351,9 @@ struct PlaceTutorial: View {
     }
 
     /// Enregistre la posture de chaque main pour cette situation (écran, sens).
-    private func save() {
-        guard let r = mean(0), let l = mean(1) else { return }
+    private func save(_ ri: Int, _ li: Int, context c: String) {
+        guard let r = mean(ri), let l = mean(li) else { return }
         var s = model.settings
-        let c = context
         s.calibrate("right", roll: r.roll, incline: r.incline, context: c)
         s.calibrate("left", roll: l.roll, incline: l.incline, context: c)
         // Ces mesures remplacent l'ancien apprentissage de cette situation.
