@@ -98,6 +98,9 @@ for loc, m in data["locales"].items():
         attrs_v["marketingUrl"] = base["marketingUrl"]
     if v["attributes"]["versionString"] != "1.0" or data.get("update"):
         attrs_v["whatsNew"] = m.get("whatsNew") or data["locales"]["en-US"].get("whatsNew", "Improvements and fixes.")
+    if loc not in have_v:
+        # créer la langue sur la fiche de l'app crée aussi la langue sur la version : on relit
+        have_v.update({l["attributes"]["locale"]: l for l in call("GET", f"/v1/appStoreVersions/{v['id']}/appStoreVersionLocalizations?limit=50").get("data", [])})
     if loc in have_v:
         if loc in data.get("keep_existing", []):
             attrs_v = {k: attrs_v[k] for k in ("keywords", "promotionalText") if k in attrs_v}
