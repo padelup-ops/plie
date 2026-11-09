@@ -198,6 +198,16 @@ final class KeyboardCanvas: UIView {
             let l = settings.tiltLeftSamples.reduce(0, +) / Double(settings.tiltLeftSamples.count)
             grip.tiltGap = abs(r - l)
         }
+        var postures: [KBGrip: (roll: Double, incline: Double)] = [:]
+        for (g, p) in [(KBGrip.right, settings.postureRight), (.left, settings.postureLeft), (.two, settings.postureTwo)] where p.count == 2 {
+            postures[g] = (p[0], p[1])
+        }
+        // L'apprentissage par les corrections met à jour l'inclinaison des deux mains.
+        if postures.count == 3, !settings.tiltRightSamples.isEmpty, !settings.tiltLeftSamples.isEmpty {
+            postures[.right]?.roll = settings.tiltRightSamples.reduce(0, +) / Double(settings.tiltRightSamples.count)
+            postures[.left]?.roll = settings.tiltLeftSamples.reduce(0, +) / Double(settings.tiltLeftSamples.count)
+        }
+        grip.postures = postures
         grip.current = settings.autoTwo ? .two : (settings.autoRight ? .right : .left)
         builtFor = .zero
         setNeedsLayout()
@@ -231,8 +241,8 @@ final class KeyboardCanvas: UIView {
         grip.onGrip = { [weak self] g in self?.gripDetected(g) }
         grip.start { [weak self] g in
             guard let self, let g, self.autoOn else { return }
-            // Pas encore de « deux mains » sur une simple inclinaison : seulement le côté.
-            if self.settings.autoTwo { return }
+            // Sans posture « deux mains » étalonnée, l'inclinaison ne fait pas quitter le mode deux mains.
+            if self.settings.autoTwo && self.settings.postureTwo.isEmpty { return }
             self.applyGrip(g)
         }
     }

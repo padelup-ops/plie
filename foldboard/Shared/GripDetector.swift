@@ -22,6 +22,8 @@ final class GripDetector {
     var rightNegative = true
     /// Écart d'inclinaison entre main droite et main gauche (étalonnage), en degrés ; 0 si inconnu.
     var tiltGap: Double = 0
+    /// Postures étalonnées (inclinaison, angle avec l'horizontale) : main droite, main gauche, deux mains.
+    var postures: [KBGrip: (roll: Double, incline: Double)] = [:]
 
     /// Seuil d'inclinaison : un tiers de l'écart étalonné (plus réactif), sinon une valeur prudente.
     private var switchThreshold: Double { tiltGap >= 4 ? max(3, tiltGap * 0.3) : 9 }
@@ -35,6 +37,7 @@ final class GripDetector {
     private let lock = NSLock()
     private var samples: [(t: TimeInterval, y: Double)] = []
     private var angle: Double?
+    private var incline: Double?
     private var planar: Double = 0
     private var tiltTimer: Timer?
     private var tiltStreak: (grip: KBGrip, n: Int)?
@@ -61,7 +64,9 @@ final class GripDetector {
                 let g = m.gravity
                 let p = (g.x * g.x + g.y * g.y).squareRoot()
                 let a = atan2(g.x, -g.y) * 180 / .pi
+                let inc = asin(max(-1, min(1, -g.z))) * 180 / .pi
                 self.lock.lock()
+                self.incline = self.incline.map { $0 * 0.85 + inc * 0.15 } ?? inc
                 self.samples.append((m.timestamp, m.rotationRate.y))
                 if self.samples.count > 200 { self.samples.removeFirst(self.samples.count - 200) }
                 self.planar = p
@@ -101,8 +106,27 @@ final class GripDetector {
         return planar > 0.35 ? angle : nil
     }
 
+    /// L'inclinaison et l'angle avec l'horizontale en ce moment (pour l'étalonnage).
+    var currentPosture: (roll: Double, incline: Double)? {
+        lock.lock(); defer { lock.unlock() }
+        guard planar > 0.2, let a = angle, let i = incline else { return nil }
+        return (a, i)
+    }
+
+    /// Avec les trois postures étalonnées : la plus proche, si elle l'est nettement.
+    private func postureGrip() -> KBGrip? {
+        guard postures.count == 3, let now = currentPosture else { return nil }
+        let ranked = postures.map { (g, p) -> (KBGrip, Double) in
+            let dr = now.roll - p.roll, di = (now.incline - p.incline) * 0.5
+            return (g, (dr * dr + di * di).squareRoot())
+        }.sorted { $0.1 < $1.1 }
+        guard ranked.count >= 2, ranked[0].1 < ranked[1].1 * 0.7 else { return nil }
+        return ranked[0].0
+    }
+
     /// La main d'après l'inclinaison, si le téléphone n'est pas posé à plat et penche assez.
     private func tiltGrip(threshold: Double) -> KBGrip? {
+        if postures.count == 3 { return postureGrip() }
         guard let a = currentAngle else { return nil }
         let d = a - tiltMid
         guard abs(d) >= threshold else { return nil }

@@ -66,6 +66,10 @@ struct KBSettings: Codable, Equatable {
     /// Inclinaisons notées quand on change le clavier de côté à la main (apprentissage).
     var tiltRightSamples: [Double] = []
     var tiltLeftSamples: [Double] = []
+    /// Postures étalonnées dans l'app : [inclinaison, angle avec l'horizontale] pour chaque prise.
+    var postureRight: [Double] = []
+    var postureLeft: [Double] = []
+    var postureTwo: [Double] = []
     /// Largeur du clavier à une main, en part de l'écran.
     var oneHandWidth: Double = 0.68
     /// Largeur de chaque moitié en mode deux mains, en part de l'écran.
@@ -114,6 +118,9 @@ struct KBSettings: Codable, Equatable {
         tiltCalibrated = (try? c.decodeIfPresent(Bool.self, forKey: .tiltCalibrated)) ?? d.tiltCalibrated
         tiltRightSamples = (try? c.decodeIfPresent([Double].self, forKey: .tiltRightSamples)) ?? []
         tiltLeftSamples = (try? c.decodeIfPresent([Double].self, forKey: .tiltLeftSamples)) ?? []
+        postureRight = (try? c.decodeIfPresent([Double].self, forKey: .postureRight)) ?? []
+        postureLeft = (try? c.decodeIfPresent([Double].self, forKey: .postureLeft)) ?? []
+        postureTwo = (try? c.decodeIfPresent([Double].self, forKey: .postureTwo)) ?? []
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin

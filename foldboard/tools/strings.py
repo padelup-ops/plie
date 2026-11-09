@@ -151,6 +151,10 @@ FR = {
         "Foldboard regarde comment le téléphone penche quand le clavier s’ouvre, puis ton pouce pendant que tu tapes (méthode GripSense). Pour plus de précision : tiens le téléphone dans ta main droite comme d’habitude et touche Main droite, puis pareil avec la main gauche.",
     "Auto-correction": "Correction automatique",
     "Word suggestions": "Suggestions de mots",
+    "Both hands": "Deux mains",
+    "Calibrated, both hands too": "Étalonné, deux mains comprises",
+    "Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. With both hands, the keyboard splits in two on the open Duo and goes full width on the outer screen.":
+        "Tiens le téléphone comme quand tu tapes, puis touche le bouton qui correspond : main droite, main gauche, et deux mains. À deux mains, le clavier se coupe en deux sur le Duo ouvert et prend toute la largeur sur l’écran extérieur.",
 }
 
 

@@ -127,3 +127,6 @@
 "Foldboard looks at how the phone leans when the keyboard opens, then at your thumb while you type (GripSense method). To make it sure: hold the phone in your right hand as usual and tap Right hand, then the same with your left hand." = "Foldboard looks at how the phone leans when the keyboard opens, then at your thumb while you type (GripSense method). To make it sure: hold the phone in your right hand as usual and tap Right hand, then the same with your left hand.";
 "Auto-correction" = "Auto-correction";
 "Word suggestions" = "Word suggestions";
+"Both hands" = "Both hands";
+"Calibrated, both hands too" = "Calibrated, both hands too";
+"Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. With both hands, the keyboard splits in two on the open Duo and goes full width on the outer screen." = "Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. With both hands, the keyboard splits in two on the open Duo and goes full width on the outer screen.";

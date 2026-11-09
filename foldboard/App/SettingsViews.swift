@@ -530,12 +530,12 @@ extension KBFont {
     }
 }
 
-// MARK: - Étalonnage de l'inclinaison (clavier qui suit la main)
-
+// MARK: - Étalonnage de la prise en main (clavier qui suit la main)
 
 @Observable
 final class TiltReader {
-    var angle: Double?
+    var roll: Double?
+    var incline: Double?
     @ObservationIgnored private let motion = CMMotionManager()
 
     func start() {
@@ -545,7 +545,9 @@ final class TiltReader {
             guard let self, let g = m?.gravity else { return }
             let planar = (g.x * g.x + g.y * g.y).squareRoot()
             let a = atan2(g.x, -g.y) * 180 / .pi
-            self.angle = planar > 0.35 ? (self.angle.map { $0 * 0.8 + a * 0.2 } ?? a) : nil
+            let i = asin(max(-1, min(1, -g.z))) * 180 / .pi
+            self.roll = planar > 0.2 ? (self.roll.map { $0 * 0.8 + a * 0.2 } ?? a) : nil
+            self.incline = self.incline.map { $0 * 0.8 + i * 0.2 } ?? i
         }
     }
 
@@ -555,47 +557,55 @@ final class TiltReader {
 struct TiltCalibration: View {
     @Environment(SettingsModel.self) private var model
     @State private var reader = TiltReader()
-    @State private var rightAngle: Double?
-    @State private var leftAngle: Double?
 
     var body: some View {
         Section {
             HStack {
                 Text("Tilt now")
                 Spacer()
-                Text(reader.angle.map { String(format: "%+.0f°", $0) } ?? "—").monospacedDigit().foregroundStyle(.secondary)
+                Text(reader.roll.map { String(format: "%+.0f°", $0) } ?? "—").monospacedDigit().foregroundStyle(.secondary)
+                Text(reader.incline.map { String(format: "%.0f°", $0) } ?? "").monospacedDigit().foregroundStyle(.tertiary)
             }
-            HStack(spacing: 12) {
-                Button { rightAngle = reader.angle; finish() } label: {
-                    Label(rightAngle == nil ? "Right hand" : "Right hand ✓", systemImage: "hand.point.right")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                Button { leftAngle = reader.angle; finish() } label: {
-                    Label(leftAngle == nil ? "Left hand" : "Left hand ✓", systemImage: "hand.point.left")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
+            button("Right hand", "hand.point.right", done: !model.settings.postureRight.isEmpty) { s, p in
+                s.postureRight = p
+                s.tiltRightSamples = [p[0]]
             }
-            .disabled(reader.angle == nil)
+            button("Left hand", "hand.point.left", done: !model.settings.postureLeft.isEmpty) { s, p in
+                s.postureLeft = p
+                s.tiltLeftSamples = [p[0]]
+            }
+            button("Both hands", "hands.clap", done: !model.settings.postureTwo.isEmpty) { s, p in
+                s.postureTwo = p
+            }
             if model.settings.tiltCalibrated {
-                Label("Calibrated", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                Label(model.settings.postureTwo.isEmpty ? "Calibrated" : "Calibrated, both hands too", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
             }
         } header: {
             HStack { Text("Follow your hand"); ProBadge() }
         } footer: {
-            Text("Foldboard looks at how the phone leans when the keyboard opens, then at your thumb while you type (GripSense method). To make it sure: hold the phone in your right hand as usual and tap Right hand, then the same with your left hand.")
+            Text("Hold the phone as you usually type, then tap the matching button: right hand, left hand, and both hands. With both hands, the keyboard splits in two on the open Duo and goes full width on the outer screen.")
         }
         .onAppear { reader.start() }
         .onDisappear { reader.stop() }
     }
 
-    private func finish() {
-        guard let r = rightAngle, let l = leftAngle, abs(r - l) >= 3 else { return }
-        var s = model.settings
-        s.tiltRightSamples = [r]
-        s.tiltLeftSamples = [l]
-        s.learnTilt(r, right: true)
-        model.settings = s
+    private func button(_ title: LocalizedStringKey, _ icon: String, done: Bool, _ apply: @escaping (inout KBSettings, [Double]) -> Void) -> some View {
+        Button {
+            guard let r = reader.roll, let i = reader.incline else { return }
+            var s = model.settings
+            apply(&s, [r, i])
+            if !s.tiltRightSamples.isEmpty, !s.tiltLeftSamples.isEmpty {
+                s.learnTilt(s.tiltRightSamples.last ?? r, right: true)
+            }
+            model.settings = s
+        } label: {
+            HStack {
+                Label(title, systemImage: icon)
+                Spacer()
+                if done { Image(systemName: "checkmark").foregroundStyle(Color.accentColor) }
+            }
+        }
+        .disabled(reader.roll == nil)
     }
 }
