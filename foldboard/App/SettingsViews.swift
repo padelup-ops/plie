@@ -593,9 +593,9 @@ struct TiltCalibration: View {
     private func finish() {
         guard let r = rightAngle, let l = leftAngle, abs(r - l) >= 3 else { return }
         var s = model.settings
-        s.tiltMid = (r + l) / 2
-        s.tiltRightNegative = r < l
-        s.tiltCalibrated = true
+        s.tiltRightSamples = [r]
+        s.tiltLeftSamples = [l]
+        s.learnTilt(r, right: true)
         model.settings = s
     }
 }

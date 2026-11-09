@@ -15,6 +15,8 @@ struct KeyboardPreview: UIViewRepresentable {
         c.input = context.coordinator
         c.configure(settings: settings, pro: pro)
         c.appeared()
+        context.coordinator.lastText = text
+        DispatchQueue.main.async { c.textChanged() }
         return c
     }
 
@@ -22,6 +24,10 @@ struct KeyboardPreview: UIViewRepresentable {
         context.coordinator.parent = self
         if view.settings != settings || view.pro != pro {
             view.configure(settings: settings, pro: pro)
+        }
+        if context.coordinator.lastText != text {
+            context.coordinator.lastText = text
+            DispatchQueue.main.async { view.textChanged() }
         }
     }
 
@@ -35,10 +41,11 @@ struct KeyboardPreview: UIViewRepresentable {
 
     final class Coordinator: KBInput {
         var parent: KeyboardPreview
+        var lastText = ""
         init(_ p: KeyboardPreview) { parent = p }
 
-        func kbInsert(_ text: String) { parent.text += text }
-        func kbDelete() { if !parent.text.isEmpty { parent.text.removeLast() } }
+        func kbInsert(_ text: String) { parent.text += text; lastText = parent.text }
+        func kbDelete() { if !parent.text.isEmpty { parent.text.removeLast() }; lastText = parent.text }
         func kbMoveCursor(_ offset: Int) {}
         func kbTextBefore() -> String? { parent.text }
         func kbNextKeyboard() {}

@@ -8,7 +8,7 @@ on:
         required: true
         default: "probe"
       app:
-        description: "foldly, origamo ou waffle (pour apply)"
+        description: "foldly, origamo, waffle ou foldboard (pour apply)"
         required: false
         default: ""
 jobs:

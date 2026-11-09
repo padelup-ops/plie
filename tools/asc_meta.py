@@ -9,7 +9,7 @@ import jwt
 API = "https://api.appstoreconnect.apple.com"
 MODE = os.environ.get("MODE", "probe")
 APP = os.environ.get("APP", "")
-BUNDLES = {"foldly": "com.padelup.clapet", "origamo": os.environ.get("ORIGAMO_BUNDLE", ""), "waffle": "com.padelup.waffle"}
+BUNDLES = {"foldly": "com.padelup.clapet", "origamo": os.environ.get("ORIGAMO_BUNDLE", ""), "waffle": "com.padelup.waffle", "foldboard": "com.padelup.foldboard"}
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
                     "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",
                    headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
@@ -36,7 +36,7 @@ def infos(app_id):
     return call("GET", f"/v1/apps/{app_id}/appInfos").get("data", [])
 
 if MODE == "probe":
-    for key in ("foldly", "origamo", "waffle"):
+    for key in ("foldly", "origamo", "waffle", "foldboard"):
         if not BUNDLES[key]:
             continue
         app = app_of(key)

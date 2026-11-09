@@ -8,7 +8,13 @@ struct FoldboardApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            Group {
+                if let shot = UserDefaults.standard.string(forKey: "shot") {
+                    ShotView(name: shot)
+                } else {
+                    HomeView()
+                }
+            }
                 .environment(model)
                 .environment(store)
                 .tint(Color("AccentColor"))

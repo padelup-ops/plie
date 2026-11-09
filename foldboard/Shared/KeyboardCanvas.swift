@@ -193,6 +193,11 @@ final class KeyboardCanvas: UIView {
         suggest.setLayout(eff.layout)
         grip.tiltMid = settings.tiltMid
         grip.rightNegative = settings.tiltRightNegative
+        if !settings.tiltRightSamples.isEmpty, !settings.tiltLeftSamples.isEmpty {
+            let r = settings.tiltRightSamples.reduce(0, +) / Double(settings.tiltRightSamples.count)
+            let l = settings.tiltLeftSamples.reduce(0, +) / Double(settings.tiltLeftSamples.count)
+            grip.tiltGap = abs(r - l)
+        }
         grip.current = settings.autoTwo ? .two : (settings.autoRight ? .right : .left)
         builtFor = .zero
         setNeedsLayout()
@@ -242,7 +247,7 @@ final class KeyboardCanvas: UIView {
     private func scheduleGrip() {
         idleTimer?.invalidate()
         guard pendingGrip != nil, tracks.isEmpty else { return }
-        idleTimer = Timer.scheduledTimer(withTimeInterval: 0.45, repeats: false) { [weak self] _ in
+        idleTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] _ in
             guard let self, let g = self.pendingGrip, self.tracks.isEmpty else { return }
             self.applyGrip(g)
         }
@@ -256,7 +261,7 @@ final class KeyboardCanvas: UIView {
         grip.current = g
         guard s.autoTwo != settings.autoTwo || s.autoRight != settings.autoRight else { return }
         settings = s
-        UIView.transition(with: self, duration: 0.22, options: .transitionCrossDissolve, animations: {
+        UIView.transition(with: self, duration: 0.15, options: .transitionCrossDissolve, animations: {
             self.save()
             self.layoutIfNeeded()
         })
@@ -293,6 +298,8 @@ final class KeyboardCanvas: UIView {
             settings.autoRight = settings.autoTwo ? true : !settings.autoRight
             settings.autoTwo = false
             grip.current = settings.autoRight ? .right : .left
+            // Le choix fait à la main apprend à la détection comment tu tiens le téléphone.
+            if let a = grip.currentAngle { settings.learnTilt(a, right: settings.autoRight) }
         case .left: settings.mode = .right
         case .right: settings.mode = .left
         default: return

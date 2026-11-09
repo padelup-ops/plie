@@ -63,6 +63,9 @@ struct KBSettings: Codable, Equatable {
     var tiltMid: Double = 0
     var tiltRightNegative = true
     var tiltCalibrated = false
+    /// Inclinaisons notées quand on change le clavier de côté à la main (apprentissage).
+    var tiltRightSamples: [Double] = []
+    var tiltLeftSamples: [Double] = []
     /// Largeur du clavier à une main, en part de l'écran.
     var oneHandWidth: Double = 0.68
     /// Largeur de chaque moitié en mode deux mains, en part de l'écran.
@@ -109,6 +112,8 @@ struct KBSettings: Codable, Equatable {
         tiltMid = (try? c.decodeIfPresent(Double.self, forKey: .tiltMid)) ?? d.tiltMid
         tiltRightNegative = (try? c.decodeIfPresent(Bool.self, forKey: .tiltRightNegative)) ?? d.tiltRightNegative
         tiltCalibrated = (try? c.decodeIfPresent(Bool.self, forKey: .tiltCalibrated)) ?? d.tiltCalibrated
+        tiltRightSamples = (try? c.decodeIfPresent([Double].self, forKey: .tiltRightSamples)) ?? []
+        tiltLeftSamples = (try? c.decodeIfPresent([Double].self, forKey: .tiltLeftSamples)) ?? []
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin
@@ -137,6 +142,24 @@ struct KBSettings: Codable, Equatable {
         haptics = min(1, max(0, haptics))
         swipe = min(1, max(0, swipe))
         if emojis.isEmpty { emojis = Self.defaultEmojis }
+    }
+
+    /// Note l'inclinaison quand on choisit soi-même un côté, et règle le seuil entre les deux mains.
+    mutating func learnTilt(_ angle: Double, right: Bool) {
+        if right {
+            tiltRightSamples.append(angle)
+            if tiltRightSamples.count > 8 { tiltRightSamples.removeFirst() }
+        } else {
+            tiltLeftSamples.append(angle)
+            if tiltLeftSamples.count > 8 { tiltLeftSamples.removeFirst() }
+        }
+        guard !tiltRightSamples.isEmpty, !tiltLeftSamples.isEmpty else { return }
+        let r = tiltRightSamples.reduce(0, +) / Double(tiltRightSamples.count)
+        let l = tiltLeftSamples.reduce(0, +) / Double(tiltLeftSamples.count)
+        guard abs(r - l) >= 3 else { return }
+        tiltMid = (r + l) / 2
+        tiltRightNegative = r < l
+        tiltCalibrated = true
     }
 
     /// Les réglages vraiment appliqués : sans Foldboard Pro (ni essai), on revient à l'essentiel.

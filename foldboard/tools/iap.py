@@ -3,6 +3,7 @@
 Apple demande, pour un essai sans abonnement, un achat non consommable à 0 € nommé « 3-day Trial ».
 Peut être relancé sans risque : ce qui existe déjà est conservé et complété. Ne soumet rien à Apple.
 """
+import hashlib
 import json
 import os
 import sys
@@ -15,6 +16,7 @@ import jwt
 API = "https://api.appstoreconnect.apple.com"
 BUNDLE = "com.padelup.foldboard"
 PRO_EUR = os.environ.get("PRO_PRICE", "2.99")
+SCREENSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "store", "iap-review.png")
 PRODUCTS = [
     {"id": "com.padelup.foldboard.trial3", "name": "3-day Trial", "price": "0",
      "locales": {"en-US": ("3-day Trial", "Try every Foldboard Pro feature free"),
@@ -129,6 +131,30 @@ for prod in PRODUCTS:
         "type": "inAppPurchaseAvailabilities", "attributes": {"availableInNewTerritories": True},
         "relationships": {"inAppPurchase": {"data": {"type": "inAppPurchases", "id": iap_id}},
                           "availableTerritories": {"data": [{"type": "territories", "id": t} for t in territories]}}}}))
+    # Capture pour la vérification d'Apple (l'écran Foldboard Pro)
+    if os.path.exists(SCREENSHOT):
+        shot = call("GET", f"/v2/inAppPurchases/{iap_id}/appStoreReviewScreenshot")
+        state = (shot.get("data") or {}).get("attributes", {}).get("assetDeliveryState", {}).get("state")
+        if state in ("COMPLETE", "UPLOAD_COMPLETE"):
+            print("ok     capture déjà envoyée")
+        else:
+            if shot.get("data"):
+                call("DELETE", f"/v1/inAppPurchaseAppStoreReviewScreenshots/{shot['data']['id']}")
+            data = open(SCREENSHOT, "rb").read()
+            r = step("réservation de la capture", call("POST", "/v1/inAppPurchaseAppStoreReviewScreenshots", {"data": {
+                "type": "inAppPurchaseAppStoreReviewScreenshots", "attributes": {"fileName": "iap-review.png", "fileSize": len(data)},
+                "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": iap_id}}}}}))
+            if "data" in r:
+                sid = r["data"]["id"]
+                for op in r["data"]["attributes"].get("uploadOperations", []):
+                    req = urllib.request.Request(op["url"], data=data[op["offset"]:op["offset"] + op["length"]], method=op["method"],
+                                                 headers={h["name"]: h["value"] for h in op.get("requestHeaders", [])})
+                    urllib.request.urlopen(req).read()
+                step("capture envoyée", call("PATCH", f"/v1/inAppPurchaseAppStoreReviewScreenshots/{sid}", {"data": {
+                    "type": "inAppPurchaseAppStoreReviewScreenshots", "id": sid,
+                    "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(data).hexdigest()}}}))
+    else:
+        print("       pas de capture pour la vérification :", SCREENSHOT)
     time.sleep(2)
     a = call("GET", f"/v2/inAppPurchases/{iap_id}").get("data", {}).get("attributes", {})
     print("achat", a.get("productId"), "|", a.get("name"), "| état", a.get("state"))

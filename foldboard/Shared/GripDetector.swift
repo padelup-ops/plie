@@ -20,6 +20,11 @@ final class GripDetector {
     /// Réglage de l'inclinaison (voir l'étalonnage dans l'app) : l'angle « droit », et le sens de la main droite.
     var tiltMid: Double = 0
     var rightNegative = true
+    /// Écart d'inclinaison entre main droite et main gauche (étalonnage), en degrés ; 0 si inconnu.
+    var tiltGap: Double = 0
+
+    /// Seuil d'inclinaison : un tiers de l'écart étalonné (plus réactif), sinon une valeur prudente.
+    private var switchThreshold: Double { tiltGap >= 4 ? max(3, tiltGap * 0.3) : 9 }
 
     private let motion = CMMotionManager()
     private let queue: OperationQueue = {
@@ -60,18 +65,19 @@ final class GripDetector {
                 self.samples.append((m.timestamp, m.rotationRate.y))
                 if self.samples.count > 200 { self.samples.removeFirst(self.samples.count - 200) }
                 self.planar = p
-                self.angle = self.angle.map { $0 * 0.9 + a * 0.1 } ?? a
+                self.angle = self.angle.map { $0 * 0.85 + a * 0.15 } ?? a
                 self.lock.unlock()
             }
         }
         // Comme le clavier qui « suit la main » : un quart de seconde pour lire l'inclinaison, puis on place.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
-            let g = self?.tiltGrip(threshold: 5)
-            self?.tiltSide = g
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+            guard let self else { return }
+            let g = self.tiltGrip(threshold: min(5, self.switchThreshold))
+            self.tiltSide = g
             initial(g)
         }
         tiltTimer?.invalidate()
-        tiltTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in self?.checkTilt() }
+        tiltTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in self?.checkTilt() }
     }
 
     func stop() {
@@ -106,11 +112,12 @@ final class GripDetector {
 
     /// En continu : si le téléphone change franchement de main, le clavier suit.
     private func checkTilt() {
-        let threshold: Double = current == .two ? 14 : 10
+        let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
         guard let g = tiltGrip(threshold: threshold) else { tiltStreak = nil; return }
         if g == tiltSide { tiltStreak = nil; return }
         let n = (tiltStreak?.grip == g ? tiltStreak!.n : 0) + 1
         tiltStreak = (g, n)
+        // 3 lectures de suite (≈ 0,45 s) : assez pour ignorer un geste, assez vite pour suivre un changement de main.
         guard n >= 3 else { return }
         tiltSide = g
         tiltStreak = nil
