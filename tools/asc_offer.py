@@ -82,6 +82,22 @@ if MODE == "probe":
     show("points de prix (extrait)", call("GET", f"/v2/inAppPurchases/{iap_id}/pricePoints?filter[territory]=FRA&limit=3"))
     sys.exit(0)
 
+if MODE == "fetch":
+    ex = [o for o in offers.get("data", []) if o["attributes"].get("name") == NAME]
+    if not ex: sys.exit("ÉCHEC offre introuvable : " + NAME)
+    batches = call("GET", f"/v1/inAppPurchaseOfferCodes/{ex[0]['id']}/oneTimeUseCodes?limit=50").get("data", [])
+    out = []
+    for b in batches:
+        if not b["attributes"].get("active"): continue
+        v = call("GET", f"/v1/inAppPurchaseOfferCodeOneTimeUseCodes/{b['id']}/values", raw=True)
+        if isinstance(v, str):
+            out += [l.strip().split(",")[0] for l in v.splitlines() if len(l.strip().split(",")[0]) >= 8 and l.strip().lower() != "code"]
+    with open("codes.csv", "w") as f:
+        f.write("code,lien\n")
+        for c in out: f.write(f"{c},https://apps.apple.com/redeem?ctx=offercodes&id={app_id}&code={c}\n")
+    print(len(out), "CODES LUS", [(b["attributes"].get("numberOfCodes"), b["attributes"].get("expirationDate"), b["attributes"].get("active")) for b in batches])
+    sys.exit(0)
+
 # PRICE=half : moitié du prix actuel (France), arrondie au point de prix juste en dessous.
 if PRICE.lower() == "half":
     mp = call("GET", f"/v1/inAppPurchasePriceSchedules/{iap_id}/manualPrices?include=inAppPurchasePricePoint&filter[territory]=FRA&limit=50")
