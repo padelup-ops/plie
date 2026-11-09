@@ -106,6 +106,7 @@ struct PreviewDock: View {
             if shown {
                 KeyboardPreview(settings: model.settings, pro: true, text: $text) { s in model.settings = s }
                     .frame(height: KeyboardPreview.height(model.settings))
+                    .ignoresSafeArea(.container, edges: .horizontal)
                     .transition(.move(edge: .bottom))
             }
         }

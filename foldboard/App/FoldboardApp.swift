@@ -64,7 +64,7 @@ struct HomeView: View {
 
                 Section {
                     NavigationLink {
-                        SetupView(done: $setupDone)
+                        SetupView(done: $setupDone).fullScreenDuo()
                     } label: {
                         Label {
                             VStack(alignment: .leading, spacing: 2) {
@@ -94,12 +94,12 @@ struct HomeView: View {
                 }
 
                 Section {
-                    NavigationLink { CalibrationScreen() } label: { Label("Calibrate my grip", systemImage: "hand.raised") }
-                    NavigationLink { PositionView() } label: { Label("Position and size", systemImage: "hand.raised.fingers.spread") }
-                    NavigationLink { LookView() } label: { Label("Colors and font", systemImage: "paintpalette") }
-                    NavigationLink { FeelView() } label: { Label("Sound, vibrations and swipe", systemImage: "waveform") }
-                    NavigationLink { PhrasesView() } label: { Label("Phrases and emoji", systemImage: "text.bubble") }
-                    NavigationLink { TypingView() } label: { Label("Typing", systemImage: "character.cursor.ibeam") }
+                    NavigationLink { CalibrationScreen().fullScreenDuo() } label: { Label("Calibrate my grip", systemImage: "hand.raised") }
+                    NavigationLink { PositionView().fullScreenDuo() } label: { Label("Position and size", systemImage: "hand.raised.fingers.spread") }
+                    NavigationLink { LookView().fullScreenDuo() } label: { Label("Colors and font", systemImage: "paintpalette") }
+                    NavigationLink { FeelView().fullScreenDuo() } label: { Label("Sound, vibrations and swipe", systemImage: "waveform") }
+                    NavigationLink { PhrasesView().fullScreenDuo() } label: { Label("Phrases and emoji", systemImage: "text.bubble") }
+                    NavigationLink { TypingView().fullScreenDuo() } label: { Label("Typing", systemImage: "character.cursor.ibeam") }
                 } header: {
                     Text("Make it yours")
                 }
@@ -110,6 +110,7 @@ struct HomeView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .fullScreenDuo()
             .navigationTitle("Foldboard")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showPro) { ProView().environment(store).fullScreenDuo() }

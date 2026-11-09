@@ -11,11 +11,11 @@ struct ShotView: View {
         case "pro":
             ProView()
         case "themes":
-            NavigationStack { LookView() }
+            NavigationStack { LookView().fullScreenDuo() }
         case "phrases":
-            NavigationStack { PhrasesView() }
+            NavigationStack { PhrasesView().fullScreenDuo() }
         case "calib":
-            NavigationStack { CalibrationScreen() }
+            NavigationStack { CalibrationScreen().fullScreenDuo() }
         case "onboarding":
             OnboardingView(onDone: {})
         case "onboarding3":
