@@ -66,10 +66,18 @@ for app, name, kind, desc in NOMS:
     body = {"data": {"type": "nominations",
             "attributes": {"name": name, "type": kind, "description": desc[:1000], "submitted": True,
                            "publishStartDate": start, "deviceFamilies": ["IPHONE"], "hasInAppEvents": False,
-                           "launchInSelectedMarketsFirst": False, "preOrderEnabled": False,
                            "notes": "Built for iPhone Duo (inner and outer screens, hinge API)."},
             "relationships": {"relatedApps": {"data": [{"type": "apps", "id": app}]}}}}
-    r = call("POST", "/v1/nominations", body)
+    for _ in range(5):
+        r = call("POST", "/v1/nominations", body)
+        if "error" in r and "ATTRIBUTE.UNKNOWN" in r["detail"]:
+            import re
+            bad = re.search(r"/data/attributes/(\w+)", r["detail"])
+            if bad:
+                print("attribut ignoré :", bad.group(1))
+                body["data"]["attributes"].pop(bad.group(1), None)
+                continue
+        break
     if "error" in r:
         print("ÉCHEC", name, "->", r["error"], r["detail"][:900])
     else:
