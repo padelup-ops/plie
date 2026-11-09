@@ -539,6 +539,8 @@ extension KBFont {
 final class TiltReader {
     var roll: Double?
     var incline: Double?
+    /// Change à chaque mesure : l'écran relit alors la fenêtre (Duo plié / déplié, rotation).
+    var tick = 0
     @ObservationIgnored private let motion = CMMotionManager()
 
     func start() {
@@ -551,6 +553,7 @@ final class TiltReader {
             let i = asin(max(-1, min(1, -g.z))) * 180 / .pi
             self.roll = planar > 0.2 ? (self.roll.map { $0 * 0.8 + a * 0.2 } ?? a) : nil
             self.incline = self.incline.map { $0 * 0.8 + i * 0.2 } ?? i
+            self.tick &+= 1
         }
     }
 
@@ -561,11 +564,21 @@ struct TiltCalibration: View {
     @Environment(SettingsModel.self) private var model
     @State private var reader = TiltReader()
 
-    /// La situation actuelle : Duo fermé ou ouvert, portrait ou paysage.
-    private var context: String {
-        let size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.bounds.size ?? .zero
+    /// La situation choisie à la main dans la liste (sinon celle détectée).
+    @State private var picked: String?
+
+    /// La situation détectée : Duo fermé ou ouvert, portrait ou paysage (d'après la fenêtre active).
+    private var detected: String {
+        _ = reader.tick
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+        let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
+        let size = window?.bounds.size ?? scene?.screen.bounds.size ?? .zero
         return KBSettings.context(screen: size)
     }
+
+    /// La situation qu'on étalonne.
+    private var context: String { picked ?? detected }
 
     var body: some View {
         Section {
@@ -589,12 +602,18 @@ struct TiltCalibration: View {
         Section {
             ForEach(KBSettings.contexts, id: \.self) { c in
                 let n = model.settings.calib[c]?.count ?? 0
-                HStack {
-                    Text(contextName(c))
-                    Spacer()
-                    Text(n == 0 ? NSLocalizedString("Not calibrated", comment: "") : String(format: NSLocalizedString("%lld of 3", comment: ""), n))
-                        .foregroundStyle(n == 3 ? .green : .secondary)
-                    if c == context { Image(systemName: "location.fill").font(.caption).foregroundStyle(Color.accentColor) }
+                Button {
+                    picked = c == detected ? nil : c
+                } label: {
+                    HStack {
+                        Image(systemName: c == context ? "largecircle.fill.circle" : "circle")
+                            .foregroundStyle(c == context ? Color.accentColor : Color.secondary)
+                        Text(contextName(c)).foregroundStyle(.primary)
+                        if c == detected { Image(systemName: "location.fill").font(.caption).foregroundStyle(Color.accentColor) }
+                        Spacer()
+                        Text(n == 0 ? NSLocalizedString("Not calibrated", comment: "") : String(format: NSLocalizedString("%lld of 3", comment: ""), n))
+                            .foregroundStyle(n == 3 ? .green : .secondary)
+                    }
                 }
             }
             if !model.settings.calib.isEmpty || !model.settings.learned.isEmpty {
@@ -608,6 +627,8 @@ struct TiltCalibration: View {
             }
         } header: {
             Text("Calibrations")
+        } footer: {
+            Text("Tap a situation to calibrate it. The arrow shows the one detected right now.")
         }
     }
 

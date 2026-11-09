@@ -219,7 +219,10 @@ final class KeyboardCanvas: UIView {
     /// La situation (Duo fermé ou ouvert, portrait ou paysage) et l'étalonnage qui va avec.
     private var gripContext = "closed-portrait"
     private func updateGripContext() {
-        let screen = window?.windowScene?.screen.bounds.size ?? bounds.size
+        // La fenêtre suit l'écran réellement utilisé (Duo plié ou déplié) ; l'écran de la scène peut rester l'ancien.
+        let win = window?.bounds.size ?? .zero
+        let screen = win.width > 0 && win.height > bounds.height * 1.8
+            ? win : (window?.windowScene?.screen.bounds.size ?? bounds.size)
         gripContext = KBSettings.context(screen: screen)
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)
         if let r, let l, abs(r - l) >= 3 {

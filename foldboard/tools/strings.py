@@ -180,6 +180,7 @@ FR = {
     "Not calibrated": "Pas étalonné",
     "%lld of 3": "%lld sur 3",
     "Calibrations": "Étalonnages",
+    "Tap a situation to calibrate it. The arrow shows the one detected right now.": "Touche une situation pour l’étalonner. La flèche montre celle détectée en ce moment.",
     "Open · portrait": "Ouvert · portrait",
     "Open · landscape": "Ouvert · paysage",
     "Closed · landscape": "Fermé · paysage",
