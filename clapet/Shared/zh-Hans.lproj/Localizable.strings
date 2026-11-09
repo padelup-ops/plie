@@ -726,3 +726,11 @@
 "Install “Foldly utilisé”" = "安装“Foldly utilisé”";
 "Marks your phone as in use again." = "将你的手机重新标记为使用中。";
 "Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "然后在快捷指令中为睡眠专注模式添加两个自动化：开启时运行“Foldly repos”，关闭时运行“Foldly utilisé”。Foldly 将显示展开时间中有多少处于静置状态。";
+
+
+/* Heures de repos */
+"Rest hours" = "静置时段";
+"Rest from" = "静置开始";
+"Rest until" = "静置结束";
+"Time at rest" = "静置时间";
+"Time your Duo stays open during these hours counts as rest, not as use." = "在这些时段内 Duo 保持展开的时间会算作静置，而不是使用。";

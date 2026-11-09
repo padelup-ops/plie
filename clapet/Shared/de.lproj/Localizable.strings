@@ -726,3 +726,11 @@
 "Install “Foldly utilisé”" = "„Foldly utilisé“ installieren";
 "Marks your phone as in use again." = "Markiert dein iPhone wieder als in Benutzung.";
 "Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "Lege dann in Kurzbefehle zwei Automationen für den Schlaf-Fokus an: Wenn er startet, „Foldly repos“ ausführen; wenn er endet, „Foldly utilisé“ ausführen. Foldly zeigt dann, wie viel deiner offenen Zeit im Ruhemodus war.";
+
+
+/* Heures de repos */
+"Rest hours" = "Ruhezeiten";
+"Rest from" = "Ruhe ab";
+"Rest until" = "Ruhe bis";
+"Time at rest" = "Ruhezeit";
+"Time your Duo stays open during these hours counts as rest, not as use." = "Die Zeit, in der dein Duo in diesen Stunden offen bleibt, zählt als Ruhe, nicht als Nutzung.";

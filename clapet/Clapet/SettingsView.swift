@@ -255,6 +255,25 @@ struct SettingsView: View {
                     }
                 }
 
+                // Heures de repos
+                Section {
+                    Toggle(isOn: Binding(get: { model.stats.nightOn }, set: { model.setNight(on: $0) })) {
+                        Text("Rest hours")
+                    }
+                    if model.stats.nightOn {
+                        Picker(selection: Binding(get: { model.stats.nightFrom }, set: { model.setNight(from: $0) })) {
+                            ForEach(0..<24, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) }
+                        } label: { Text("Rest from") }
+                        Picker(selection: Binding(get: { model.stats.nightTo }, set: { model.setNight(to: $0) })) {
+                            ForEach(0..<24, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) }
+                        } label: { Text("Rest until") }
+                    }
+                } header: {
+                    Text("Time at rest")
+                } footer: {
+                    Text("Time your Duo stays open during these hours counts as rest, not as use.")
+                }
+
                 // Aide
                 Section {
                     Button { showAuto = true } label: {

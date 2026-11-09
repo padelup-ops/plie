@@ -726,3 +726,11 @@
 "Install “Foldly utilisé”" = "Install “Foldly utilisé”";
 "Marks your phone as in use again." = "Marks your phone as in use again.";
 "Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest.";
+
+
+/* Heures de repos */
+"Rest hours" = "Rest hours";
+"Rest from" = "Rest from";
+"Rest until" = "Rest until";
+"Time at rest" = "Time at rest";
+"Time your Duo stays open during these hours counts as rest, not as use." = "Time your Duo stays open during these hours counts as rest, not as use.";

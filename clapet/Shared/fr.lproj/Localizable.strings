@@ -726,3 +726,11 @@
 "Install “Foldly utilisé”" = "Installer « Foldly utilisé »";
 "Marks your phone as in use again." = "Indique que ton téléphone est de nouveau utilisé.";
 "Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "Ensuite, dans Raccourcis, ajoute deux automatisations sur le mode Repos : quand il s’active, exécute « Foldly repos » ; quand il se désactive, exécute « Foldly utilisé ». Foldly montre alors la part de ton temps ouvert passée au repos.";
+
+
+/* Heures de repos */
+"Rest hours" = "Heures de repos";
+"Rest from" = "Repos de";
+"Rest until" = "Repos jusqu’à";
+"Time at rest" = "Temps au repos";
+"Time your Duo stays open during these hours counts as rest, not as use." = "Le temps où ton Duo reste ouvert pendant ces heures compte comme du repos, pas de l’utilisation.";

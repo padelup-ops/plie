@@ -165,6 +165,14 @@ final class ClapetModel {
         changed()
     }
 
+    /// Heures de repos : le Duo ouvert dans cette plage compte comme au repos.
+    func setNight(on: Bool? = nil, from: Int? = nil, to: Int? = nil) {
+        if let on { stats.nightOn = on }
+        if let from { stats.nightFrom = from }
+        if let to { stats.nightTo = to }
+        changed()
+    }
+
     private func countClose() {
         let before = stats.today
         stats.addClose()

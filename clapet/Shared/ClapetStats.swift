@@ -13,6 +13,12 @@ struct OpenSession: Codable, Equatable {
     var s: Double
 }
 
+/// Une période de repos.
+struct RestSpan: Codable, Equatable {
+    var a: Date
+    var b: Date
+}
+
 struct DayCount: Codable, Equatable {
     var closes = 0
     var opens = 0
@@ -120,6 +126,12 @@ struct ClapetStats: Codable, Equatable {
     var openSince: Date?
     /// Début du repos en cours (raccourci clapet://repos), ou nil.
     var restSince: Date?
+    /// Périodes de repos (mode Repos) pendant l'ouverture en cours.
+    var focusSpans: [RestSpan] = []
+    /// Heures de repos réglées dans l'app : le Duo ouvert pendant cette plage compte comme au repos.
+    var nightOn = true
+    var nightFrom = 23
+    var nightTo = 7
     /// L'ouverture en cours a été vue (charnière ou automatisation), pas devinée au lancement de l'app.
     var openFromEvent = false
     /// Téléphone posé : objectif du jour (minutes), et la dernière fermeture déjà comptée.
@@ -137,7 +149,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince
+        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince, focusSpans, nightOn, nightFrom, nightTo
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -161,6 +173,10 @@ struct ClapetStats: Codable, Equatable {
         autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
         openSince = try c.decodeIfPresent(Date.self, forKey: .openSince)
         restSince = try c.decodeIfPresent(Date.self, forKey: .restSince)
+        focusSpans = try c.decodeIfPresent([RestSpan].self, forKey: .focusSpans) ?? []
+        nightOn = try c.decodeIfPresent(Bool.self, forKey: .nightOn) ?? true
+        nightFrom = min(23, max(0, try c.decodeIfPresent(Int.self, forKey: .nightFrom) ?? 23))
+        nightTo = min(23, max(0, try c.decodeIfPresent(Int.self, forKey: .nightTo) ?? 7))
         openFromEvent = try c.decodeIfPresent(Bool.self, forKey: .openFromEvent) ?? false
         downGoalMinutes = try c.decodeIfPresent(Int.self, forKey: .downGoalMinutes) ?? 180
         downCredited = try c.decodeIfPresent(Date.self, forKey: .downCredited)
@@ -503,41 +519,71 @@ struct ClapetStats: Codable, Equatable {
         if restSince == nil { restSince = date }
     }
 
-    /// Le repos finit : si le Duo est ouvert, la part « au repos » de l'ouverture en cours est comptée.
+    /// Le repos finit (raccourci « Foldly utilisé ») : on garde la période si le Duo est ouvert.
     mutating func endRest(_ date: Date = Date()) {
         guard let r = restSince else { return }
         restSince = nil
-        if let s = openSince, date.timeIntervalSince(s) < Self.maxOpenSession {
-            creditRestSeconds(from: max(r, s), to: date)
+        if openSince != nil {
+            focusSpans.append(RestSpan(a: r, b: date))
+            if focusSpans.count > 40 { focusSpans.removeFirst(focusSpans.count - 40) }
         }
     }
 
-    /// À la fin d'une ouverture : la part passée au repos. Le repos continue si besoin.
+    /// Les périodes de repos comprises entre `start` et `end`, sans chevauchement :
+    /// celles du raccourci (mode Repos) et les heures de repos réglées dans l'app (la nuit, par exemple).
+    func restSpans(from start: Date, to end: Date) -> [RestSpan] {
+        guard end > start else { return [] }
+        var all = focusSpans
+        if let r = restSince { all.append(RestSpan(a: r, b: end)) }
+        let hours = nightTo > nightFrom ? nightTo - nightFrom : 24 - nightFrom + nightTo
+        if nightOn, nightFrom != nightTo, hours > 0 {
+            let cal = Calendar.current
+            var day = cal.date(byAdding: .day, value: -1, to: cal.startOfDay(for: start)) ?? start
+            while day < end {
+                if let a = cal.date(bySettingHour: nightFrom, minute: 0, second: 0, of: day),
+                   let b = cal.date(byAdding: .hour, value: hours, to: a) {
+                    all.append(RestSpan(a: a, b: b))
+                }
+                day = cal.date(byAdding: .day, value: 1, to: day) ?? end
+            }
+        }
+        let clipped = all.map { RestSpan(a: max($0.a, start), b: min($0.b, end)) }.filter { $0.b > $0.a }.sorted { $0.a < $1.a }
+        var merged: [RestSpan] = []
+        for sp in clipped {
+            if var last = merged.last, sp.a <= last.b {
+                last.b = max(last.b, sp.b)
+                merged[merged.count - 1] = last
+            } else {
+                merged.append(sp)
+            }
+        }
+        return merged
+    }
+
+    /// À la fin d'une ouverture : la part passée au repos, répartie sur les jours traversés.
     private mutating func creditRest(from start: Date, to end: Date) {
-        guard let r = restSince else { return }
-        creditRestSeconds(from: max(r, start), to: end)
-        restSince = end
-    }
-
-    private mutating func creditRestSeconds(from a: Date, to b: Date) {
-        guard b > a else { return }
         let cal = Calendar.current
-        var s = a
-        while s < b {
-            let midnight = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: s)) ?? b
-            let end = min(b, midnight)
-            var d = day(s)
-            d.restSeconds += end.timeIntervalSince(s)
-            days[Self.key(s)] = d
-            s = end
+        for sp in restSpans(from: start, to: end) {
+            var s = sp.a
+            while s < sp.b {
+                let midnight = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: s)) ?? sp.b
+                let e = min(sp.b, midnight)
+                var d = day(s)
+                d.restSeconds += e.timeIntervalSince(s)
+                days[Self.key(s)] = d
+                s = e
+            }
         }
+        focusSpans = []
+        if restSince != nil { restSince = end }
     }
 
     /// Temps ouvert au repos d'une journée (l'ouverture en cours comprise pour aujourd'hui).
     func restTime(_ date: Date = Date(), now: Date = Date()) -> TimeInterval {
         var t = day(date).restSeconds
-        if Self.key(date) == Self.key(now), let r = restSince, let s = openSince, now.timeIntervalSince(s) < Self.maxOpenSession {
-            t += max(0, now.timeIntervalSince(max(max(r, s), Calendar.current.startOfDay(for: now))))
+        if Self.key(date) == Self.key(now), let s = openSince, now.timeIntervalSince(s) < Self.maxOpenSession {
+            let from = max(s, Calendar.current.startOfDay(for: now))
+            t += restSpans(from: from, to: now).reduce(0) { $0 + $1.b.timeIntervalSince($1.a) }
         }
         return min(t, openTime(date, now: now))
     }

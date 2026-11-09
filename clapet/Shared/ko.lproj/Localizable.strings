@@ -726,3 +726,11 @@
 "Install “Foldly utilisé”" = "“Foldly utilisé” 설치";
 "Marks your phone as in use again." = "iPhone을 다시 사용 중으로 표시해요.";
 "Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "그다음 단축어에서 수면 집중 모드 자동화를 2개 추가하세요. 켜질 때 “Foldly repos”, 꺼질 때 “Foldly utilisé”를 실행해요. 열려 있던 시간 중 휴식 시간이 Foldly에 표시돼요.";
+
+
+/* Heures de repos */
+"Rest hours" = "휴식 시간대";
+"Rest from" = "휴식 시작";
+"Rest until" = "휴식 종료";
+"Time at rest" = "휴식 시간";
+"Time your Duo stays open during these hours counts as rest, not as use." = "이 시간대에 Duo가 열려 있는 시간은 사용이 아니라 휴식으로 계산돼요.";
