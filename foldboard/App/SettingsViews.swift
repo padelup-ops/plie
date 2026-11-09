@@ -66,6 +66,8 @@ struct PreviewDock: View {
     @State private var text = ""
     /// En paysage, l'aperçu se replie (sinon il cache tout) : on l'ouvre d'un toucher.
     @State private var open: Bool?
+    /// Replié au départ (premier lancement : les réglages d'abord).
+    var startClosed = false
     @State private var width: CGFloat = 0
 
     /// Assez de hauteur pour l'aperçu (pas en paysage sur le Duo ni sur l'iPhone).
@@ -78,7 +80,7 @@ struct PreviewDock: View {
         return h >= 600
     }
 
-    private var shown: Bool { open ?? roomy }
+    private var shown: Bool { open ?? (roomy && !startClosed) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -114,45 +116,33 @@ struct PreviewDock: View {
     }
 }
 
-/// L'écran entier du Duo : l'app passe aussi sous la colonne de droite (ou de gauche) que l'écran intérieur
-/// réserve à l'appareil photo et à l'heure. Les marges d'un iPhone classique (des deux côtés) ne bougent pas.
-struct FullScreenDuo: UIViewRepresentable {
-    final class Probe: UIView {
-        override func didMoveToWindow() { super.didMoveToWindow(); apply() }
-        override func layoutSubviews() { super.layoutSubviews(); apply() }
-        override func safeAreaInsetsDidChange() { super.safeAreaInsetsDidChange(); DispatchQueue.main.async { self.apply() } }
+/// L'écran entier du Duo : l'écran intérieur réserve une colonne d'un seul côté (appareil photo, heure) ;
+/// l'app passe dessous. Les marges d'un iPhone classique (des deux côtés, ou en haut) ne bougent pas.
+struct DuoFullWidth: ViewModifier {
+    @State private var edges: Edge.Set = []
 
-        private var owner: UIViewController? {
-            var r: UIResponder? = self
-            while let n = r?.next { if let vc = n as? UIViewController { return vc }; r = n }
-            return nil
-        }
-
-        func apply() {
-            guard let window, let vc = owner else { return }
-            // Les marges que l'écran impose vraiment (celles de la fenêtre, sans nos réglages).
-            let l = window.safeAreaInsets.left, r = window.safeAreaInsets.right
-            var extra = UIEdgeInsets.zero
-            if r > 30 && l < 8 { extra.right = -r }
-            if l > 30 && r < 8 { extra.left = -l }
-            if vc.additionalSafeAreaInsets != extra { vc.additionalSafeAreaInsets = extra }
-        }
+    func body(content: Content) -> some View {
+        content
+            .ignoresSafeArea(.container, edges: edges)
+            .background(GeometryReader { g in
+                Color.clear
+                    .onAppear { update(g.safeAreaInsets) }
+                    .onChange(of: g.safeAreaInsets) { _, v in update(v) }
+            })
+            .statusBarHidden(true)
     }
 
-    func makeUIView(context: Context) -> Probe {
-        let v = Probe()
-        v.isUserInteractionEnabled = false
-        return v
+    private func update(_ i: EdgeInsets) {
+        var e: Edge.Set = []
+        if i.trailing > 30 && i.leading < 8 { e.insert(.trailing) }
+        if i.leading > 30 && i.trailing < 8 { e.insert(.leading) }
+        if e != edges { edges = e }
     }
-
-    func updateUIView(_ v: Probe, context: Context) { v.apply() }
 }
 
 extension View {
     /// Tout l'écran du Duo, sans la colonne de l'heure (l'heure est masquée dans l'app).
-    func fullScreenDuo() -> some View {
-        background(FullScreenDuo().frame(width: 0, height: 0)).statusBarHidden(true)
-    }
+    func fullScreenDuo() -> some View { modifier(DuoFullWidth()) }
 }
 
 extension KeyboardPreview {

@@ -8,7 +8,12 @@ struct OnboardingView: View {
     @Environment(Store.self) private var store
     @Environment(SettingsModel.self) private var model
     @Environment(\.openURL) private var openURL
-    @State private var page = 0
+    @State private var page: Int
+
+    init(start: Int = 0, onDone: @escaping () -> Void) {
+        self.onDone = onDone
+        _page = State(initialValue: start)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -121,7 +126,7 @@ struct OnboardingView: View {
             next("Next") { page = 4 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 10)
-            PreviewDock()
+            PreviewDock(startClosed: true)
         }
     }
 

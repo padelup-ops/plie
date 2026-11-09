@@ -18,6 +18,8 @@ struct ShotView: View {
             NavigationStack { CalibrationScreen() }
         case "onboarding":
             OnboardingView(onDone: {})
+        case "onboarding3":
+            OnboardingView(start: 3, onDone: {})
         default:
             chat
         }
