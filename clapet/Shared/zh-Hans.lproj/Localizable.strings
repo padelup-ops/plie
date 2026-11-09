@@ -718,3 +718,11 @@
 
 /* Repos */
 "%@ of it at rest today" = "其中今天静置 %@";
+
+/* Repos : raccourcis */
+"Time at rest (optional)" = "静置时间（可选）";
+"Install “Foldly repos”" = "安装“Foldly repos”";
+"Marks your phone as resting." = "将你的手机标记为静置。";
+"Install “Foldly utilisé”" = "安装“Foldly utilisé”";
+"Marks your phone as in use again." = "将你的手机重新标记为使用中。";
+"Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "然后在快捷指令中为睡眠专注模式添加两个自动化：开启时运行“Foldly repos”，关闭时运行“Foldly utilisé”。Foldly 将显示展开时间中有多少处于静置状态。";

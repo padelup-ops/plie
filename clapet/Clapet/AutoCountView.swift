@@ -35,6 +35,17 @@ struct AutoCountView: View {
                 }
 
                 Section {
+                    installRow(Self.restLink, symbol: "moon.zzz.fill",
+                               title: Text("Install “Foldly repos”"), detail: Text("Marks your phone as resting."))
+                    installRow(Self.useLink, symbol: "iphone.gen3",
+                               title: Text("Install “Foldly utilisé”"), detail: Text("Marks your phone as in use again."))
+                } header: {
+                    Text("Time at rest (optional)")
+                } footer: {
+                    Text("Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest.")
+                }
+
+                Section {
                     ShortcutTutorialView()
                         .padding(.vertical, 8)
                 } header: {
@@ -110,6 +121,8 @@ struct AutoCountView: View {
     /// Les automatisations prêtes à installer (liens iCloud partagés depuis Raccourcis).
     static let closedLink = URL(string: "https://www.icloud.com/shortcuts/d94e68da5e1b400eba8b2a1cbd99c5de")!
     static let openedLink = URL(string: "https://www.icloud.com/shortcuts/1a5f6770aada41088c1e20f27c933a09")!
+    static let restLink = URL(string: "https://www.icloud.com/shortcuts/fefbf997697949dea80bb95385f285ae")!
+    static let useLink = URL(string: "https://www.icloud.com/shortcuts/084f43c8d7f4460bb1ae4bdbc06ad033")!
 
     private func installRow(_ url: URL, symbol: String, title: Text, detail: Text) -> some View {
         Button {

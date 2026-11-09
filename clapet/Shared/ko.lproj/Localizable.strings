@@ -718,3 +718,11 @@
 
 /* Repos */
 "%@ of it at rest today" = "그중 오늘 휴식 중 %@";
+
+/* Repos : raccourcis */
+"Time at rest (optional)" = "휴식 시간(선택)";
+"Install “Foldly repos”" = "“Foldly repos” 설치";
+"Marks your phone as resting." = "iPhone을 휴식 중으로 표시해요.";
+"Install “Foldly utilisé”" = "“Foldly utilisé” 설치";
+"Marks your phone as in use again." = "iPhone을 다시 사용 중으로 표시해요.";
+"Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "그다음 단축어에서 수면 집중 모드 자동화를 2개 추가하세요. 켜질 때 “Foldly repos”, 꺼질 때 “Foldly utilisé”를 실행해요. 열려 있던 시간 중 휴식 시간이 Foldly에 표시돼요.";

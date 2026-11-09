@@ -718,3 +718,11 @@
 
 /* Repos */
 "%@ of it at rest today" = "%@ of it at rest today";
+
+/* Repos : raccourcis */
+"Time at rest (optional)" = "Time at rest (optional)";
+"Install “Foldly repos”" = "Install “Foldly repos”";
+"Marks your phone as resting." = "Marks your phone as resting.";
+"Install “Foldly utilisé”" = "Install “Foldly utilisé”";
+"Marks your phone as in use again." = "Marks your phone as in use again.";
+"Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest.";

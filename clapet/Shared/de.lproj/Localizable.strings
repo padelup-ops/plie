@@ -718,3 +718,11 @@
 
 /* Repos */
 "%@ of it at rest today" = "davon %@ heute im Ruhemodus";
+
+/* Repos : raccourcis */
+"Time at rest (optional)" = "Ruhezeit (optional)";
+"Install “Foldly repos”" = "„Foldly repos“ installieren";
+"Marks your phone as resting." = "Markiert dein iPhone als ruhend.";
+"Install “Foldly utilisé”" = "„Foldly utilisé“ installieren";
+"Marks your phone as in use again." = "Markiert dein iPhone wieder als in Benutzung.";
+"Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "Lege dann in Kurzbefehle zwei Automationen für den Schlaf-Fokus an: Wenn er startet, „Foldly repos“ ausführen; wenn er endet, „Foldly utilisé“ ausführen. Foldly zeigt dann, wie viel deiner offenen Zeit im Ruhemodus war.";

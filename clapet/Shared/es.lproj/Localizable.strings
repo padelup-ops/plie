@@ -718,3 +718,11 @@
 
 /* Repos */
 "%@ of it at rest today" = "de ellos, %@ en reposo hoy";
+
+/* Repos : raccourcis */
+"Time at rest (optional)" = "Tiempo en reposo (opcional)";
+"Install “Foldly repos”" = "Instalar «Foldly repos»";
+"Marks your phone as resting." = "Marca tu teléfono como en reposo.";
+"Install “Foldly utilisé”" = "Instalar «Foldly utilisé»";
+"Marks your phone as in use again." = "Marca tu teléfono como en uso de nuevo.";
+"Then, in Shortcuts, add two automations on the Sleep focus: when it turns on, run “Foldly repos”; when it turns off, run “Foldly utilisé”. Foldly then shows how much of your open time was at rest." = "Después, en Atajos, añade dos automatizaciones del modo Sueño: al activarse, ejecuta «Foldly repos»; al desactivarse, ejecuta «Foldly utilisé». Foldly mostrará cuánto de tu tiempo abierto fue en reposo.";
