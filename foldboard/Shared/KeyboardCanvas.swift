@@ -393,6 +393,22 @@ final class KeyboardCanvas: UIView {
     func textChanged() {
         refreshSuggestions()
         refreshShift()
+        cursorMoved()
+    }
+
+    /// Le curseur a bougé sans qu'on tape : on vient de toucher la zone de texte, clavier déjà ouvert.
+    /// Comme à l'ouverture, le clavier va du côté de la main qui tient le téléphone.
+    private var lastReread: TimeInterval = 0
+    private func cursorMoved() {
+        let now = ProcessInfo.processInfo.systemUptime
+        guard autoOn, visible, !adjusting, !showEmoji, tracks.isEmpty, recording == nil,
+              now - lastKeyTime > 0.8, now - lastReread > 0.4,
+              !gripContext.hasPrefix("open") else { return }
+        lastReread = now
+        grip.reread { [weak self] g in
+            guard let self, let g, g != .two else { return }
+            self.applyGrip(g)
+        }
     }
 
     private func save() {
@@ -698,7 +714,8 @@ final class KeyboardCanvas: UIView {
             tr.longTimer?.invalidate()
             tr.repeatTimer?.invalidate()
         }
-        backgroundColor = theme.background
+        // Thème automatique : le fond du clavier de l'iPhone se voit partout, jusqu'aux bords de l'écran.
+        backgroundColor = theme.id == "auto" ? .clear : theme.background
         cells.forEach { $0.view.removeFromSuperview() }
         cells = []
         let W = bounds.width

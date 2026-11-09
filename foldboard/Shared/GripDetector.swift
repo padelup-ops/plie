@@ -224,6 +224,18 @@ final class GripDetector {
         tiltTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in self?.checkTilt() }
     }
 
+    /// On vient de toucher la zone de texte, clavier déjà ouvert : on relit tout de suite la main qui tient le téléphone.
+    func reread(_ done: @escaping (KBGrip?) -> Void) {
+        locked = false
+        tiltStreak = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            guard let self else { return }
+            let g = self.tiltGrip(threshold: min(5, self.switchThreshold))
+            if let g { self.tiltSide = g }
+            done(g)
+        }
+    }
+
     func stop() {
         tiltTimer?.invalidate()
         tiltTimer = nil
