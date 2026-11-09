@@ -115,6 +115,11 @@
 "Hide keyboard" = "Masquer le clavier";
 "Keyboard position" = "Position du clavier";
 "Foldboard Pro: open the app to unlock" = "Foldboard Pro : ouvre l’app pour le débloquer";
+"Press" = "Appuie";
+"As when you type. Press the button with your right thumb, 3 times." = "Comme quand tu écris. Appuie 3 fois sur le bouton avec ton pouce droit.";
+"As when you type. Press the button with your left thumb, 3 times." = "Comme quand tu écris. Appuie 3 fois sur le bouton avec ton pouce gauche.";
+"Change hands and tap the field again: the keyboard follows." = "Change de main et touche à nouveau la zone : le clavier suit.";
+"Hold the phone in one hand and tap the field with that thumb." = "Tiens le téléphone d’une main et touche la zone avec ce pouce.";
 "Small keyboard" = "Petit clavier";
 "Big keyboard" = "Clavier en grand";
 "Split when the Duo is open" = "Scinder quand le Duo est ouvert";
