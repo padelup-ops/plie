@@ -82,6 +82,8 @@ struct KBSettings: Codable, Equatable {
     var emojis: [String] = KBSettings.defaultEmojis
     var phrases: [String] = KBSettings.defaultPhrases
     var autoCaps = true
+    var autocorrect = true
+    var suggestions = true
     var doubleSpacePeriod = true
     /// Modifié le (pour garder la copie la plus récente entre l'app et le clavier).
     var stamp: Date = .distantPast
@@ -120,6 +122,8 @@ struct KBSettings: Codable, Equatable {
         emojis = (try? c.decodeIfPresent([String].self, forKey: .emojis)) ?? d.emojis
         phrases = (try? c.decodeIfPresent([String].self, forKey: .phrases)) ?? d.phrases
         autoCaps = (try? c.decodeIfPresent(Bool.self, forKey: .autoCaps)) ?? d.autoCaps
+        autocorrect = (try? c.decodeIfPresent(Bool.self, forKey: .autocorrect)) ?? d.autocorrect
+        suggestions = (try? c.decodeIfPresent(Bool.self, forKey: .suggestions)) ?? d.suggestions
         doubleSpacePeriod = (try? c.decodeIfPresent(Bool.self, forKey: .doubleSpacePeriod)) ?? d.doubleSpacePeriod
         stamp = (try? c.decodeIfPresent(Date.self, forKey: .stamp)) ?? d.stamp
         clamp()

@@ -406,6 +406,8 @@ struct TypingView: View {
         @Bindable var m = model
         List {
             Section {
+                Toggle("Auto-correction", isOn: $m.settings.autocorrect)
+                Toggle("Word suggestions", isOn: $m.settings.suggestions)
                 Toggle("Capital letter at the start of a sentence", isOn: $m.settings.autoCaps)
                 Toggle("Double space adds a period", isOn: $m.settings.doubleSpacePeriod)
             } footer: {

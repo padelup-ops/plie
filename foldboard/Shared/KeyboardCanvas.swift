@@ -92,6 +92,11 @@ final class KeyboardCanvas: UIView {
 
     /// Mode automatique : la main qui tient le téléphone (inclinaison, puis GripSense pendant la frappe).
     private let grip = GripDetector()
+    /// Correction et suggestions de mots.
+    private let suggest = KBSuggest()
+    private var suggestionItems: [String] = []
+    private var suggestionBest: Int?
+    private var lastCorrection: (original: String, corrected: String, sep: String)?
     private var pendingGrip: KBGrip?
     private var idleTimer: Timer?
     private var visible = false
@@ -185,6 +190,7 @@ final class KeyboardCanvas: UIView {
         self.pro = pro
         eff = settings.effective(pro: pro)
         theme = KBTheme.named(eff.theme)
+        suggest.setLayout(eff.layout)
         grip.tiltMid = settings.tiltMid
         grip.rightNegative = settings.tiltRightNegative
         grip.current = settings.autoTwo ? .two : (settings.autoRight ? .right : .left)
@@ -256,8 +262,14 @@ final class KeyboardCanvas: UIView {
         })
     }
 
-    /// Le texte a changé (curseur déplacé, autre champ) : on revoit la majuscule.
+    /// Le lexique de l'utilisateur (contacts, remplacements de texte).
+    func setLexicon(_ lexicon: UILexicon) {
+        suggest.setLexicon(lexicon)
+    }
+
+    /// Le texte a changé (curseur déplacé, autre champ) : on revoit la majuscule et les suggestions.
     func textChanged() {
+        refreshSuggestions()
         refreshShift()
     }
 
@@ -449,7 +461,34 @@ final class KeyboardCanvas: UIView {
         let cx = flipButton.frame.maxX + 4
         chips.frame = CGRect(x: cx, y: 0, width: max(0, hideButton.frame.minX - cx - 4), height: h)
 
+        rebuildChips()
+    }
+
+    private func rebuildChips() {
+        let h = Self.topBarHeight
         chipStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        if !suggestionItems.isEmpty {
+            // Trois suggestions de mots, de même largeur ; la meilleure en gras (celle que l'espace appliquera).
+            let n = CGFloat(suggestionItems.count)
+            let w = max(60, (chips.bounds.width - 8 * (n - 1)) / n)
+            for (i, item) in suggestionItems.enumerated() {
+                let b = UIButton(type: .system)
+                b.setTitle(i == 0 && suggestionBest != nil ? "“\(item)”" : item, for: .normal)
+                b.titleLabel?.font = eff.font.ui(size: 16, weight: i == suggestionBest ? .bold : .regular)
+                b.titleLabel?.lineBreakMode = .byTruncatingTail
+                b.setTitleColor(theme.text, for: .normal)
+                b.backgroundColor = i == suggestionBest ? theme.key : .clear
+                b.layer.cornerRadius = 10
+                b.addAction(UIAction { [weak self] _ in self?.applySuggestion(i) }, for: .touchUpInside)
+                chipStack.addArrangedSubview(b)
+                b.widthAnchor.constraint(equalToConstant: w).isActive = true
+                b.heightAnchor.constraint(equalToConstant: 32).isActive = true
+            }
+            chipStack.frame = CGRect(x: 0, y: (h - 32) / 2, width: w * n + 8 * (n - 1), height: 32)
+            chips.contentSize = CGSize(width: chipStack.frame.width, height: h)
+            chips.contentOffset = .zero
+            return
+        }
         let showPhrasesInBar = !(layoutMode.isOneHand && eff.sidePanel == .phrases && panelRect.width >= 90)
         if showPhrasesInBar {
             for p in eff.phrases where !p.isEmpty {
@@ -730,7 +769,14 @@ final class KeyboardCanvas: UIView {
                 }
             }
         case .backspace:
+            if undoCorrection() {
+                tr.done = true
+                refreshSuggestionsSoon()
+                break
+            }
+            lastCorrection = nil
             input?.kbDelete()
+            refreshSuggestionsSoon()
             tr.done = true
             tr.longTimer = Timer.scheduledTimer(withTimeInterval: 0.42, repeats: false) { [weak self, weak tr] _ in
                 guard let self, let tr else { return }
@@ -769,7 +815,9 @@ final class KeyboardCanvas: UIView {
         case .space:
             if !tr.cursorMode { typeSpace() }
         case .ret:
+            autocorrect(sep: "\n")
             input?.kbInsert("\n")
+            refreshSuggestionsSoon()
             refreshShiftSoon()
         case .shift:
             let now = Date()
@@ -794,7 +842,13 @@ final class KeyboardCanvas: UIView {
     }
 
     private func typeText(_ text: String) {
+        if [".", ",", "!", "?", ";", ":", ")"].contains(text) {
+            autocorrect(sep: text)
+        } else {
+            lastCorrection = nil
+        }
         input?.kbInsert(text)
+        refreshSuggestionsSoon()
         if shift == .on {
             shift = .off
             autoShifted = false
@@ -819,7 +873,9 @@ final class KeyboardCanvas: UIView {
                 return
             }
         }
+        autocorrect(sep: " ")
         input?.kbInsert(" ")
+        refreshSuggestionsSoon()
         if page != .letters {
             page = .letters
             builtFor = .zero
@@ -855,6 +911,71 @@ final class KeyboardCanvas: UIView {
     private func insertEmoji(_ e: String) {
         KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics)
         input?.kbInsert(e)
+        refreshSuggestionsSoon()
+    }
+
+    // MARK: Correction et suggestions
+
+    /// Avant un espace ou une ponctuation : on corrige le mot qui vient d'être tapé.
+    private func autocorrect(sep: String) {
+        guard eff.autocorrect, page == .letters || sep != " " else { return }
+        let before = input?.kbTextBefore() ?? ""
+        let word = KBSuggest.currentWord(before)
+        guard !word.isEmpty, let fix = suggest.correction(for: word, before: before), fix != word else {
+            lastCorrection = nil
+            return
+        }
+        for _ in 0..<word.count { input?.kbDelete() }
+        input?.kbInsert(fix)
+        lastCorrection = (word, fix, sep)
+    }
+
+    /// Effacer juste après une correction : on revient au mot tapé, et on ne le corrigera plus.
+    private func undoCorrection() -> Bool {
+        guard let lc = lastCorrection else { return false }
+        lastCorrection = nil
+        let before = input?.kbTextBefore() ?? ""
+        guard before.hasSuffix(lc.corrected + lc.sep) else { return false }
+        for _ in 0..<(lc.corrected.count + lc.sep.count) { input?.kbDelete() }
+        input?.kbInsert(lc.original)
+        suggest.learn(lc.original)
+        return true
+    }
+
+    private func applySuggestion(_ i: Int) {
+        guard i < suggestionItems.count else { return }
+        KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics)
+        let before = input?.kbTextBefore() ?? ""
+        let word = KBSuggest.currentWord(before)
+        let item = suggestionItems[i]
+        if suggestionBest != nil && i == 0 {
+            // Le mot tel qu'il a été tapé (entre guillemets) : on le garde et on l'apprend.
+            suggest.learn(word)
+        }
+        for _ in 0..<word.count { input?.kbDelete() }
+        input?.kbInsert(item + " ")
+        lastCorrection = nil
+        refreshSuggestionsSoon()
+        refreshShiftSoon()
+    }
+
+    private func refreshSuggestionsSoon() {
+        DispatchQueue.main.async { [weak self] in self?.refreshSuggestions() }
+    }
+
+    private func refreshSuggestions() {
+        var items: [String] = []
+        var best: Int?
+        if eff.suggestions && page == .letters {
+            let before = input?.kbTextBefore() ?? ""
+            let word = KBSuggest.currentWord(before)
+            (items, best) = suggest.suggestions(for: word, before: before)
+            if !eff.autocorrect { best = nil }
+        }
+        guard items != suggestionItems || best != suggestionBest else { return }
+        suggestionItems = items
+        suggestionBest = best
+        rebuildChips()
     }
 
     private func refreshShiftSoon() {

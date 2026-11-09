@@ -149,6 +149,8 @@ FR = {
     "Follow your hand": "Suivre ta main",
     "Foldboard looks at how the phone leans when the keyboard opens, then at your thumb while you type (GripSense method). To make it sure: hold the phone in your right hand as usual and tap Right hand, then the same with your left hand.":
         "Foldboard regarde comment le téléphone penche quand le clavier s’ouvre, puis ton pouce pendant que tu tapes (méthode GripSense). Pour plus de précision : tiens le téléphone dans ta main droite comme d’habitude et touche Main droite, puis pareil avec la main gauche.",
+    "Auto-correction": "Correction automatique",
+    "Word suggestions": "Suggestions de mots",
 }
 
 

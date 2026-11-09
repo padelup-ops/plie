@@ -20,6 +20,7 @@ final class KeyboardViewController: UIInputViewController, KBInput {
             canvas.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
         reload()
+        requestSupplementaryLexicon { [weak self] lexicon in self?.canvas.setLexicon(lexicon) }
         Task { await checkStore() }
     }
 
