@@ -83,6 +83,7 @@ final class KeyboardCanvas: UIView {
     private let modeButton = UIButton(type: .system)
     private let flipButton = UIButton(type: .system)
     private let hideButton = UIButton(type: .system)
+    private let adjustButton = UIButton(type: .system)
     private let chips = UIScrollView()
     private let chipStack = UIStackView()
     private let toast = UILabel()
@@ -163,7 +164,10 @@ final class KeyboardCanvas: UIView {
             self.refreshSuggestionsSoon()
         }
         addSubview(emojiBoard)
-        for b in [modeButton, flipButton, hideButton] {
+        adjustButton.setImage(UIImage(systemName: "slider.horizontal.3"), for: .normal)
+        adjustButton.addAction(UIAction { [weak self] _ in self?.startAdjust() }, for: .touchUpInside)
+        adjustButton.accessibilityLabel = L("Adjust the keyboard")
+        for b in [modeButton, flipButton, hideButton, adjustButton] {
             b.tintColor = .label
             topBar.addSubview(b)
         }
@@ -394,11 +398,15 @@ final class KeyboardCanvas: UIView {
             return
         }
         settings.mode = m
+        grip.locked = false
         save()
     }
 
     /// Un toucher dans la place libre : à gauche → clavier à gauche, à droite → à droite, au centre → au milieu
     /// (deux moitiés sur le Duo déplié). Pas besoin d'étalonnage.
+    private var placeTouches: [UITouch: (CGPoint, TimeInterval)] = [:]
+    private var lastKeyTime: TimeInterval = 0
+
     private func placeByTap(at p: CGPoint) {
         let W = bounds.width
         guard W > 0 else { return }
@@ -415,6 +423,8 @@ final class KeyboardCanvas: UIView {
         }
         guard s != settings else { return }
         KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
+        // Placé à la main : il reste là (plus de suivi automatique jusqu'à la prochaine apparition du clavier).
+        grip.locked = true
         settings = s
         UIView.transition(with: self, duration: 0.18, options: .transitionCrossDissolve, animations: {
             self.save()
@@ -438,6 +448,7 @@ final class KeyboardCanvas: UIView {
             settings.autoRight = settings.autoTwo ? true : !settings.autoRight
             settings.autoTwo = false
             grip.current = settings.autoRight ? .right : .left
+            grip.locked = true
             // Le choix fait à la main apprend à la détection comment tu tiens le téléphone.
             if let a = grip.currentAngle { settings.learn(roll: a, right: settings.autoRight, context: gripContext) }
         case .left: settings.mode = .right
@@ -530,6 +541,9 @@ final class KeyboardCanvas: UIView {
     // MARK: Ajuster le clavier
 
     private let adjust = AdjustOverlay()
+    /// La hauteur du clavier vient de changer pendant le réglage : l'hôte suit.
+    var onPreferredHeightChange: (() -> Void)?
+    private var adjustingHeight = false
     private var adjustBackup: KBSettings?
     private var adjusting: Bool { adjustBackup != nil }
 
@@ -539,9 +553,10 @@ final class KeyboardCanvas: UIView {
             return
         }
         showEmoji = false
+        adjustingHeight = false
         adjustBackup = settings
         if adjust.superview == nil {
-            adjust.onPan = { [weak self] g, dx in self?.adjustBy(g, dx) }
+            adjust.onPan = { [weak self] g, dx, dy in self?.adjustBy(g, dx, dy) }
             adjust.onDone = { [weak self] in self?.endAdjust(keep: true) }
             adjust.onCancel = { [weak self] in self?.endAdjust(keep: false) }
             adjust.onReset = { [weak self] in self?.resetAdjust() }
@@ -559,7 +574,9 @@ final class KeyboardCanvas: UIView {
         bringSubviewToFront(adjust)
         let W = bounds.width
         let text: String
-        if layoutMode == .split {
+        if adjustingHeight {
+            text = String(format: L("Key height %lld pt"), Int(eff.keyHeight.rounded()))
+        } else if layoutMode == .split {
             text = String(format: L("Width %lld %%"), Int((eff.splitWidth * 100).rounded()))
         } else if let b = blocks.first {
             let m = Int((isRight ? W - b.maxX : b.minX).rounded())
@@ -570,10 +587,21 @@ final class KeyboardCanvas: UIView {
         adjust.configure(blocks: blocks, split: layoutMode == .split, accent: theme.accent, text: text)
     }
 
-    private func adjustBy(_ g: AdjustOverlay.Grab, _ dx: CGFloat) {
+    private func adjustBy(_ g: AdjustOverlay.Grab, _ dx: CGFloat, _ dy: CGFloat) {
         let W = bounds.width
         guard W > 0 else { return }
         var s = settings
+        if dy != 0 {
+            // De haut en bas : la hauteur des touches (vers le haut : plus grandes).
+            adjustingHeight = true
+            s.keyHeight = min(60, max(34, s.keyHeight - Double(dy) / 4))
+            configure(settings: s, pro: pro)
+            onPreferredHeightChange?()
+            layoutIfNeeded()
+            refreshAdjust()
+            return
+        }
+        adjustingHeight = false
         switch g {
         case .leftHalf, .rightHalf:
             let hw = W * CGFloat(s.splitWidth) + (g == .leftHalf ? dx : -dx)
@@ -607,7 +635,10 @@ final class KeyboardCanvas: UIView {
         s.oneHandWidth = d.oneHandWidth
         s.oneHandWidthOpen = d.oneHandWidthOpen
         s.splitWidth = d.splitWidth
+        s.keyHeight = d.keyHeight
+        adjustingHeight = false
         configure(settings: s, pro: pro)
+        onPreferredHeightChange?()
         layoutIfNeeded()
         refreshAdjust()
     }
@@ -616,11 +647,10 @@ final class KeyboardCanvas: UIView {
         let backup = adjustBackup
         adjustBackup = nil
         adjust.isHidden = true
-        if keep {
-            save()
-        } else if let backup {
-            configure(settings: backup, pro: pro)
-        }
+        adjustingHeight = false
+        if !keep, let backup { settings = backup }
+        save()
+        onPreferredHeightChange?()
     }
 
     private func closeEmoji() {
@@ -651,7 +681,7 @@ final class KeyboardCanvas: UIView {
         if showEmoji {
             var area = CGRect(x: pad, y: top, width: W - 2 * pad, height: areaH)
             if layoutMode.isOneHand {
-                let bw = min(W - 2 * pad, max(220, W * oneHandFraction))
+                let bw = min(W - 2 * pad, max(min(W - 2 * pad, 280), W * oneHandFraction))
                 let x = isRight ? W - margin - bw : margin
                 area = CGRect(x: max(0, x), y: top, width: bw, height: areaH)
             }
@@ -675,7 +705,7 @@ final class KeyboardCanvas: UIView {
             panelRect = .zero
             place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout)], in: b, align: 0)
         case .left, .right, .auto:
-            let bw = min(W - 2 * pad, max(220, W * oneHandFraction))
+            let bw = min(W - 2 * pad, max(min(W - 2 * pad, 280), W * oneHandFraction))
             let x = isRight ? W - margin - bw : margin
             let b = CGRect(x: max(0, x), y: top, width: bw, height: areaH)
             blocks = [b]
@@ -777,12 +807,15 @@ final class KeyboardCanvas: UIView {
         // La flèche ⇆ : changer de côté, ou revenir à une main depuis le milieu.
         let oneHand = layoutMode.isOneHand || eff.mode == .auto
         flipButton.isHidden = !oneHand
-        flipButton.tintColor = theme.text.withAlphaComponent(0.7)
+        // En couleur : le clavier est verrouillé là où tu l'as mis.
+        flipButton.tintColor = grip.locked && eff.mode == .auto ? theme.accent : theme.text.withAlphaComponent(0.7)
         flipButton.frame = CGRect(x: 46, y: 0, width: oneHand ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
         hideButton.frame = CGRect(x: bounds.width - 46, y: 0, width: 40, height: h)
+        adjustButton.tintColor = theme.text.withAlphaComponent(0.7)
+        adjustButton.frame = CGRect(x: bounds.width - 46 - 36, y: 0, width: 36, height: h)
         let cx = flipButton.frame.maxX + 4
-        chips.frame = CGRect(x: cx, y: 0, width: max(0, hideButton.frame.minX - cx - 4), height: h)
+        chips.frame = CGRect(x: cx, y: 0, width: max(0, adjustButton.frame.minX - cx - 4), height: h)
 
         rebuildChips()
     }
@@ -998,9 +1031,9 @@ final class KeyboardCanvas: UIView {
         idleTimer?.invalidate()
         for t in touches {
             let p = t.location(in: self)
-            // Un toucher dans la place libre : le clavier y va (près du centre : au milieu).
+            // Un toucher dans la place libre : on attend de voir si c'est un vrai toucher (voir touchesEnded).
             if !adjusting, !showEmoji, panelRect.width > 0, panelRect.contains(p) {
-                placeByTap(at: p)
+                placeTouches[t] = (p, t.timestamp)
                 continue
             }
             guard p.y > Self.topBarHeight, let i = cellIndex(at: p) else { continue }
@@ -1072,6 +1105,17 @@ final class KeyboardCanvas: UIView {
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches {
+            if let (p0, t0) = placeTouches.removeValue(forKey: t) {
+                // Un vrai toucher : bref, sans glisser, du bout du doigt (pas la paume), loin des touches,
+                // et pas en pleine frappe. Sinon on ne bouge pas.
+                let p = t.location(in: self)
+                let away = blocks.allSatisfy { !$0.insetBy(dx: -18, dy: 0).contains(p) }
+                if t.timestamp - t0 < 0.35, hypot(p.x - p0.x, p.y - p0.y) < 14, t.majorRadius < 30, away,
+                   tracks.isEmpty, t.timestamp - lastKeyTime > 0.5, panelRect.contains(p) {
+                    placeByTap(at: p)
+                }
+                continue
+            }
             guard let tr = tracks[t] else { continue }
             if tr.swipe {
                 tr.done = true
@@ -1088,6 +1132,7 @@ final class KeyboardCanvas: UIView {
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches {
+            placeTouches[t] = nil
             guard let tr = tracks[t] else { continue }
             tr.done = true
             finish(t)
@@ -1123,6 +1168,7 @@ final class KeyboardCanvas: UIView {
     }
 
     private func press(_ tr: Track) {
+        lastKeyTime = ProcessInfo.processInfo.systemUptime
         let v = cells[tr.index].view
         let strong: Bool
         switch v.spec.kind {

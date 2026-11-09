@@ -191,6 +191,7 @@ FR = {
     "%lld of %lld taps": "%lld sur %lld appuis",
     "Save": "Enregistrer",
     "Cancel": "Annuler",
+    "Key height %lld pt": "Hauteur des touches %lld pt",
     "Test: right hand, left hand": "Test : main droite, main gauche",
     "3 seconds per hand, nothing to type": "3 secondes par main, rien à taper",
     "Right hand, left hand": "Main droite, main gauche",

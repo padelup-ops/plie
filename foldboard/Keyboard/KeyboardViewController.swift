@@ -11,6 +11,10 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     override func viewDidLoad() {
         super.viewDidLoad()
         canvas.input = self
+        canvas.onPreferredHeightChange = { [weak self] in
+            guard let self else { return }
+            self.heightConstraint?.constant = self.canvas.preferredHeight
+        }
         canvas.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(canvas)
         NSLayoutConstraint.activate([

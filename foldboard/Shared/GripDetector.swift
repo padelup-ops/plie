@@ -139,6 +139,9 @@ final class GripDetector {
     var swipeModel: KBTapModel?
     /// Étalonnage dans l'app : chaque glissement est envoyé ici.
     var onSwipeSample: (([Double]) -> Void)?
+    /// Verrou : le clavier a été placé à la main (toucher la place libre, flèche ⇆). Il reste là où il est
+    /// jusqu'à ce qu'il disparaisse et revienne.
+    var locked = false
     /// Le dernier déplacement automatique : on laisse le clavier tranquille quelques secondes ensuite.
     private var lastEmit: TimeInterval = 0
     /// La dernière lecture d'inclinaison était franche (la posture étalonnée la plus proche l'est nettement).
@@ -225,6 +228,7 @@ final class GripDetector {
         rotLeft = []; rotRight = []; sizeLeft = []; sizeRight = []
         lastTap = nil; twoEvidence = []; lastVote = nil; tiltStreak = nil; tiltSide = nil
         evidence = [:]; evidenceTaps = 0; thumbs = []
+        locked = false
     }
 
     /// Les mesures d'un appui, une fois le mouvement du téléphone enregistré (un quart de seconde).
@@ -300,13 +304,19 @@ final class GripDetector {
     private func postureGrip() -> KBGrip? {
         guard calibrated, let now = currentPosture, let r = postures[.right], let l = postures[.left] else { return nil }
         let ranked = postures.map { (g, p) -> (KBGrip, Double) in
-            let dr = kbWrap(now.roll - p.roll), di = (now.incline - p.incline) * 0.3
+            let dr = kbWrap(now.roll - p.roll), di = (now.incline - p.incline) * 0.15
             return (g, (dr * dr + di * di).squareRoot())
         }.sorted { $0.1 < $1.1 }
         guard ranked.count >= 2 else { return ranked.first?.0 }
-        let margin = max(1.5, abs(kbWrap(r.roll - l.roll)) * 0.1)
+        let between = abs(kbWrap(r.roll - l.roll))
+        let margin = max(1.5, between * 0.1)
         let gap = ranked[1].1 - ranked[0].1
         guard gap >= margin else { tiltStrong = false; return nil }
+        // Pour quitter le côté actuel, il faut être franchement dans la posture de l'autre main (aux trois quarts
+        // du chemin) : pencher un peu le téléphone ne déplace plus le clavier.
+        if let cur = current, cur != ranked[0].0, let dCur = ranked.first(where: { $0.0 == cur })?.1 {
+            guard dCur - ranked[0].1 >= max(4, between * 0.5) else { tiltStrong = false; return nil }
+        }
         tiltStrong = gap >= margin * 3
         return ranked[0].0
     }
@@ -326,7 +336,7 @@ final class GripDetector {
     private func checkTilt() {
         // L'inclinaison place le clavier quand il apparaît ; ensuite, elle ne le bouge que si le téléphone change
         // franchement de main pendant une pause (pas de frappe depuis 2 s, rien bougé depuis 5 s).
-        if now - lastTapTime < 0.6 || now - lastEmit < 1.2 { tiltStreak = nil; return }
+        if locked || now - lastTapTime < 1.0 || now - lastEmit < 1.5 { tiltStreak = nil; return }
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
         guard let g = tiltGrip(threshold: threshold) else { tiltStreak = nil; return }
         // Avec les pouces étalonnés, l'inclinaison ne bouge le clavier que si c'est franc.
@@ -337,7 +347,7 @@ final class GripDetector {
         let n = (tiltStreak?.grip == g ? tiltStreak!.n : 0) + 1
         tiltStreak = (g, n)
         // Franc : 2 lectures (0,3 s). Sinon 4 (0,6 s) : on ignore les gestes, on suit un vrai changement de main.
-        guard n >= (tiltStrong ? 2 : 4) else { return }
+        guard n >= (tiltStrong ? 4 : 6) else { return }
         tiltSide = g
         tiltStreak = nil
         // Pas de retour à une main tant que deux pouces tapent encore (dans les 2 dernières secondes).
@@ -436,6 +446,8 @@ final class GripDetector {
                 return
             }
         }
+        // Sans glissements étalonnés, on ne devine pas : un glissement sur les touches ne déplace pas le clavier.
+        guard guessUncalibrated else { return }
         guard let first = pts.first, let last = pts.last, pts.count >= 5, abs(last.y - first.y) >= 40 else { return }
         let dx = last.x - first.x, dy = last.y - first.y
         let len = max(1, (dx * dx + dy * dy).squareRoot())
@@ -492,7 +504,8 @@ final class GripDetector {
     }
 
     private func emit(_ g: KBGrip) {
-        guard g != current else { return }
+        // Placé à la main : le clavier ne bouge plus tout seul jusqu'à sa prochaine apparition.
+        guard !locked, g != current else { return }
         current = g
         lastEmit = now
         onGrip?(g)

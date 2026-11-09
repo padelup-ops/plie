@@ -5,7 +5,8 @@ import UIKit
 final class AdjustOverlay: UIView {
     enum Grab { case move, leftEdge, rightEdge, leftHalf, rightHalf }
 
-    var onPan: ((Grab, CGFloat) -> Void)?
+    /// Un seul axe à la fois : de côté (position, largeur) ou de haut en bas (hauteur des touches).
+    var onPan: ((Grab, CGFloat, CGFloat) -> Void)?
     var onDone: (() -> Void)?
     var onCancel: (() -> Void)?
     var onReset: (() -> Void)?
@@ -21,6 +22,9 @@ final class AdjustOverlay: UIView {
     private var split = false
     private var grab: Grab = .move
     private var lastX: CGFloat = 0
+    private var lastY: CGFloat = 0
+    private var start: CGPoint = .zero
+    private var vertical: Bool?
     private let tick = UISelectionFeedbackGenerator()
 
     override init(frame: CGRect) {
@@ -115,6 +119,9 @@ final class AdjustOverlay: UIView {
         switch g.state {
         case .began:
             lastX = p.x
+            lastY = p.y
+            start = p
+            vertical = nil
             tick.prepare()
             if split {
                 grab = p.x < bounds.midX ? .leftHalf : .rightHalf
@@ -124,9 +131,15 @@ final class AdjustOverlay: UIView {
                 else { grab = .move }
             }
         case .changed:
-            let dx = p.x - lastX
+            let dx = p.x - lastX, dy = p.y - lastY
             lastX = p.x
-            if dx != 0 { onPan?(grab, dx) }
+            lastY = p.y
+            if vertical == nil, hypot(p.x - start.x, p.y - start.y) > 10 {
+                vertical = abs(p.y - start.y) > abs(p.x - start.x) * 1.3
+            }
+            guard let vertical else { return }
+            if vertical { if dy != 0 { onPan?(grab, 0, dy) } }
+            else if dx != 0 { onPan?(grab, dx, 0) }
         case .ended, .cancelled:
             tick.selectionChanged()
         default:

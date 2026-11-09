@@ -163,6 +163,7 @@
 "%lld of %lld taps" = "%lld of %lld taps";
 "Save" = "Save";
 "Cancel" = "Cancel";
+"Key height %lld pt" = "Key height %lld pt";
 "Test: right hand, left hand" = "Test: right hand, left hand";
 "3 seconds per hand, nothing to type" = "3 seconds per hand, nothing to type";
 "Right hand, left hand" = "Right hand, left hand";
