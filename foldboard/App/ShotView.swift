@@ -14,6 +14,10 @@ struct ShotView: View {
             NavigationStack { LookView() }
         case "phrases":
             NavigationStack { PhrasesView() }
+        case "calib":
+            NavigationStack { CalibrationScreen() }
+        case "onboarding":
+            OnboardingView(onDone: {})
         default:
             chat
         }

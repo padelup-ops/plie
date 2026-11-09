@@ -7,7 +7,7 @@ on:
       routes:
         description: "Écrans à capturer"
         required: false
-        default: "right split left themes pro"
+        default: "right split left themes pro calib"
 
 jobs:
   shots:

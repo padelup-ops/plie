@@ -12,10 +12,10 @@ SRC, OUT = sys.argv[1], sys.argv[2]
 os.makedirs(OUT, exist_ok=True)
 ROUTES = ["right", "split", "left", "themes", "pro"]
 CAP = {
-    "fr": {"right": ("Il vient du côté", "de ta main"), "split": ("À deux mains,", "il se coupe en deux"),
+    "fr": {"right": ("Il vient du côté", "de ta main"), "split": ("À deux mains sur le Duo,", "il se coupe en deux"),
            "split-out": ("Pleine largeur sur", "l’écran extérieur"), "left": ("Tes phrases", "en un toucher"),
            "themes": ("Couleurs, polices,", "sons et vibrations"), "pro": ("Essai gratuit", "de 3 jours")},
-    "en": {"right": ("It comes to the side", "of your hand"), "split": ("Two hands?", "It splits in two"),
+    "en": {"right": ("It comes to the side", "of your hand"), "split": ("Both hands on the Duo?", "It splits in two"),
            "split-out": ("Full width on", "the outer screen"), "left": ("Your phrases", "in one tap"),
            "themes": ("Colors, fonts,", "sounds and haptics"), "pro": ("Free 3-day", "trial")},
 }
@@ -51,13 +51,18 @@ with sync_playwright() as p:
     for lang in ("fr", "en"):
         n_duo = n_ph = 0
         for i, r in enumerate(ROUTES, 1):
+            # Le simulateur ne donne que l'écran déplié du Duo (466 points de large) : il sert aux deux jeux.
             inner = os.path.join(SRC, f"duo-{lang}-{i:02d}-{r}-in.png")
             outer = os.path.join(SRC, f"duo-{lang}-{i:02d}-{r}-out.png")
+            if not os.path.exists(inner):
+                inner = outer
+            if r == "split":
+                outer = ""  # pas de clavier coupé en deux sur un iPhone classique
             if os.path.exists(inner):
                 n_duo += 1
                 l1, l2 = CAP[lang][r]
                 render(pg, 2007, 2853, inner, l1, l2, os.path.join(OUT, f"duo-{lang}-{n_duo}.png"))
-            if os.path.exists(outer):
+            if outer and os.path.exists(outer):
                 n_ph += 1
                 l1, l2 = CAP[lang]["split-out" if r == "split" else r]
                 render(pg, 1290, 2796, outer, l1, l2, os.path.join(OUT, f"{lang}-{n_ph}.png"))
