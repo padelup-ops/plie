@@ -16,6 +16,9 @@ import jwt
 API = "https://api.appstoreconnect.apple.com"
 BUNDLE = "com.padelup.foldboard"
 PRO_EUR = os.environ.get("PRO_PRICE", "2.99")
+# Prix de lancement puis prix normal : à partir de LATER_DATE (AAAA-MM-JJ), le prix passe à LATER_PRICE.
+LATER_PRICE = os.environ.get("LATER_PRICE", "").strip()
+LATER_DATE = os.environ.get("LATER_DATE", "").strip()
 SCREENSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "store", "iap-review.png")
 PRODUCTS = [
     {"id": "com.padelup.foldboard.trial3", "name": "3-day Trial", "price": "0",
@@ -118,14 +121,32 @@ for prod in PRODUCTS:
         problems.append("prix " + pid)
         print("ÉCHEC  palier introuvable :", prod["price"])
     else:
-        prices = [{"type": "inAppPurchasePrices", "id": "${p1}", "attributes": {"startDate": None, "endDate": None},
-                   "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": point["id"]}}}}]
-        step(f"prix {prod['price']} € (base France)", call("POST", "/v1/inAppPurchasePriceSchedules", {
-            "data": {"type": "inAppPurchasePriceSchedules", "relationships": {
-                "inAppPurchase": {"data": {"type": "inAppPurchases", "id": iap_id}},
-                "baseTerritory": {"data": {"type": "territories", "id": "FRA"}},
-                "manualPrices": {"data": [{"type": "inAppPurchasePrices", "id": "${p1}"}]}}},
-            "included": prices}))
+        later = None
+        if pid.endswith(".pro") and LATER_PRICE and LATER_DATE:
+            later = next((p for p in points if abs(float(p["attributes"].get("customerPrice") or 0) - float(LATER_PRICE)) < 0.001), None)
+            if not later:
+                print("ÉCHEC  palier introuvable :", LATER_PRICE)
+        def schedule(with_end):
+            prices = [{"type": "inAppPurchasePrices", "id": "${p1}",
+                       "attributes": {"startDate": None, "endDate": LATER_DATE if (later and with_end) else None},
+                       "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": point["id"]}}}}]
+            refs = [{"type": "inAppPurchasePrices", "id": "${p1}"}]
+            if later:
+                prices.append({"type": "inAppPurchasePrices", "id": "${p2}", "attributes": {"startDate": LATER_DATE, "endDate": None},
+                               "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": later["id"]}}}})
+                refs.append({"type": "inAppPurchasePrices", "id": "${p2}"})
+            return call("POST", "/v1/inAppPurchasePriceSchedules", {
+                "data": {"type": "inAppPurchasePriceSchedules", "relationships": {
+                    "inAppPurchase": {"data": {"type": "inAppPurchases", "id": iap_id}},
+                    "baseTerritory": {"data": {"type": "territories", "id": "FRA"}},
+                    "manualPrices": {"data": refs}}},
+                "included": prices})
+        r = schedule(True)
+        if later and isinstance(r, dict) and "error" in r:
+            print("       essai sans date de fin :", r.get("detail", "")[:300])
+            r = schedule(False)
+        label = f"prix {prod['price']} € (base France)" + (f", puis {LATER_PRICE} € dès le {LATER_DATE}" if later else "")
+        step(label, r)
 
     step(f"disponibilité ({len(territories)} pays)", call("POST", "/v1/inAppPurchaseAvailabilities", {"data": {
         "type": "inAppPurchaseAvailabilities", "attributes": {"availableInNewTerritories": True},

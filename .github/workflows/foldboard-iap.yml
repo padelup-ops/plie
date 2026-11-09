@@ -6,6 +6,12 @@ on:
       price:
         description: "Prix de Foldboard Pro (€)"
         default: "2.99"
+      later_price:
+        description: "Prix après le lancement (€, vide = aucun)"
+        default: ""
+      later_date:
+        description: "Date du changement de prix (AAAA-MM-JJ)"
+        default: ""
 jobs:
   iap:
     runs-on: ubuntu-latest
@@ -16,6 +22,8 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
       PRO_PRICE: ${{ inputs.price }}
+      LATER_PRICE: ${{ inputs.later_price }}
+      LATER_DATE: ${{ inputs.later_date }}
     steps:
       - uses: actions/checkout@v5
       - name: Achat
