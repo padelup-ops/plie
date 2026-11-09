@@ -291,6 +291,15 @@ RELEASE_NOTES = {
         "ko": "• 새 게임: 캐스케이드! L자로 접은 Duo를 위한 픽셀 아트 코인 푸셔. 코인이 세운 쪽으로 쏟아져 핀에 튕기고, 평평한 판에 떨어지면 푸셔가 가장자리로 밀어내요. 머신을 업그레이드하고, 분홍 타깃을 노리고, 다이아몬드를 찾고, Duo를 접었다 펴서 판을 흔드세요.\n• 작은 수정 및 개선.",
         "zh-Hans": "• 新游戏：瀑布！专为折成 L 形的 Duo 打造的像素风推币机：硬币从竖起的一半落下，在钉子上弹跳，落到平放的平台上，推板把它们推下边缘。升级你的机器，瞄准粉色目标，找到钻石，快速折叠再展开 Duo 来摇晃平台。\n• 小问题修复和改进。",
     },
+    "1.6.1": {
+        "en-US": "• The App Store page now speaks more than 30 languages.\n• Small fixes and improvements.",
+        "fr-FR": "• La fiche App Store parle maintenant plus de 30 langues.\n• Petites corrections et améliorations.",
+        "de-DE": "• Die App-Store-Seite gibt es jetzt in über 30 Sprachen.\n• Kleine Korrekturen und Verbesserungen.",
+        "es-ES": "• La ficha del App Store ya está en más de 30 idiomas.\n• Pequeñas correcciones y mejoras.",
+        "ja": "• App Storeのページが30以上の言語に対応しました。\n• 細かな修正と改善。",
+        "ko": "• App Store 페이지가 이제 30개 이상의 언어로 제공돼요.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• App Store 页面现已支持 30 多种语言。\n• 小问题修复和改进。",
+    },
     "1.6": {
         "en-US": "• FISHING: fold the Duo into an L, the hinge is the waterline. Cast with a flick of the hinge, strike when it bites, then reel by folding gently. 15 catches to find.\n• MINI GOLF: 9 holes, solo or with two. Fold the Duo and the top half becomes a slope: the ball rolls toward the hinge.\n• COMET: a pixel shoot 'em up across both screens. Fold halfway to drop a bomb.\n• Translation fixes in German, Spanish, Japanese, Korean and Chinese.\n• Try any locked game for free once, and a new free game of the day, every day.\n• Dark mode for the home screen and menus (Settings: Auto, Light or Dark).\n• Leaderboards with Game Center: COMET, MINI GOLF, MINESWEEPER, FISHING and more.\n• CASCADE: fixed a bug that gave endless coins.",
         "fr-FR": "• PÊCHE : Duo plié en L, la charnière est la ligne de l'eau. Lance d'un coup de charnière, ferre quand ça mord, puis mouline en pliant doucement. 15 prises à trouver.\n• MINIGOLF : 9 trous, seul ou à deux. Plie le Duo : la moitié du haut devient une pente et la balle roule vers la charnière.\n• COMÈTE : un shoot'em up pixel sur les deux écrans. Plie à moitié pour lâcher une bombe.\n• Corrections de traduction en allemand, espagnol, japonais, coréen et chinois.\n• Essaie gratuitement chaque jeu fermé une fois, et un nouveau jeu du jour gratuit, tous les jours.\n• Mode sombre pour l'accueil et les menus (Réglages : Auto, Clair ou Sombre).\n• Classements Game Center : COMÈTE, MINIGOLF, DÉMINEUR, PÊCHE et d'autres.\n• CASCADE : correction d'un bug qui donnait des pièces à l'infini.",
@@ -338,7 +347,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.6") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.6", "1.6.1") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -383,7 +392,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.6") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.6", "1.6.1") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
