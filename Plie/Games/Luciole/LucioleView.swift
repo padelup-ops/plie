@@ -71,6 +71,11 @@ final class LucioleGame {
     private(set) var hasHinge = false
 
     var size = CGSize(width: 800, height: 600)
+    /// La zone libre de l'écran (sans l'appareil photo, l'heure, ni la colonne de l'écran intérieur du Duo),
+    /// en fractions de l'écran : rien à attraper ou à éviter ne passe derrière.
+    @ObservationIgnored var safe = (top: 0.0, bottom: 0.0, left: 0.0, right: 0.0)
+    private var yMin: Double { max(0.14, safe.top) }
+    private var yMax: Double { max(yMin + 0.2, min(0.82, 1 - safe.bottom)) }
     @ObservationIgnored var target: CGPoint?
     @ObservationIgnored private var nextID = 0
     @ObservationIgnored private var spawnMote: Double = 0
@@ -232,7 +237,8 @@ final class LucioleGame {
 
         if phase == .meadow {
             if let t = target {
-                follow(CGPoint(x: min(0.72, max(0.06, t.x)), y: min(0.88, max(0.1, t.y))), rate: 7, dt: dt)
+                follow(CGPoint(x: min(0.72, max(max(0.06, safe.left), t.x)),
+                               y: min(min(0.88, 1 - safe.bottom), max(max(0.1, safe.top), t.y))), rate: 7, dt: dt)
             } else {
                 fly.y += sin(clock * 2) * 0.0008
             }
@@ -240,12 +246,12 @@ final class LucioleGame {
             spawnMote -= dt
             if spawnMote <= 0 {
                 spawnMote = Double.random(in: 0.35...0.75)
-                motes.append(Mote(id: newID(), x: 1.06, y: Double.random(in: 0.14...0.82), phase: Double.random(in: 0...6)))
+                motes.append(Mote(id: newID(), x: 1.06, y: Double.random(in: yMin...yMax), phase: Double.random(in: 0...6)))
             }
             spawnBat -= dt
             if spawnBat <= 0 {
                 spawnBat = Double.random(in: max(1.1, 2.6 - 0.5 * Double(leg))...max(1.8, 3.6 - 0.6 * Double(leg)))
-                bats.append(Bat(id: newID(), x: 1.1, baseY: Double.random(in: 0.18...0.78),
+                bats.append(Bat(id: newID(), x: 1.1, baseY: Double.random(in: (yMin + 0.04)...max(yMin + 0.05, yMax - 0.04)),
                                 speed: Double.random(in: 0.26...0.36) + 0.04 * Double(leg), wobble: Double.random(in: 0.04...0.12)))
             }
             if legTime > meadowDuration {
@@ -351,6 +357,18 @@ struct LucioleView: View {
     @State private var recorded = false
 
 
+    /// La taille de l'écran et sa zone libre : sous l'appareil photo, sous l'heure et la batterie
+    /// (dans la colonne de l'écran intérieur du Duo), plus la barre du haut du jeu.
+    private func fit(_ proxy: GeometryProxy) {
+        let s = proxy.size, i = proxy.safeAreaInsets
+        game.size = s
+        guard s.width > 0, s.height > 0 else { return }
+        let column = i.trailing > 30 || i.leading > 30
+        let top = max(i.top, column ? 150 : 0) + 56
+        game.safe = (top: Double(top / s.height), bottom: Double((i.bottom + 12) / s.height),
+                     left: Double((i.leading + 8) / s.width), right: Double((i.trailing + 8) / s.width))
+    }
+
     var body: some View {
         GeometryReader { proxy in
             ZStack {
@@ -390,6 +408,8 @@ struct LucioleView: View {
                         }
                     }
                     .padding(.horizontal, 14)
+                    .padding(.leading, proxy.safeAreaInsets.leading)
+                    .padding(.trailing, proxy.safeAreaInsets.trailing)
                     .padding(.top, max(10, proxy.safeAreaInsets.top))
                     Spacer()
                 }
@@ -400,8 +420,9 @@ struct LucioleView: View {
                     menu
                 }
             }
-            .onAppear { game.size = proxy.size }
-            .onChange(of: proxy.size) { _, s in game.size = s }
+            .onAppear { fit(proxy) }
+            .onChange(of: proxy.size) { _, _ in fit(proxy) }
+            .onChange(of: proxy.safeAreaInsets) { _, _ in fit(proxy) }
         }
         .ignoresSafeArea()
         #if DEBUG

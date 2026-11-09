@@ -505,6 +505,10 @@ struct BlackboardView: View {
                 if lesson.feedback == .right || lesson.feedback == .wrong {
                     Text(lesson.feedback == .right ? L("Bravo !") : L("Presque !"))
                         .font(.custom("ChalkboardSE-Bold", size: min(80, h * 0.22), relativeTo: .largeTitle))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.4)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 24)
                         .foregroundStyle(lesson.feedback == .right ? Theme.gold : Color(hex: 0xFF8A8A))
                         .rotationEffect(.degrees(-8))
                         .shadow(color: .black.opacity(0.4), radius: 6, y: 3)

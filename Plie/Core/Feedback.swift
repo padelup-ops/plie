@@ -3,6 +3,7 @@ import UIKit
 
 /// Petits sons du jeu, lus depuis les fichiers .wav du dossier Sounds.
 final class SoundPlayer {
+    private var lastPlayed: [Effect: CFTimeInterval] = [:]
     enum Effect: String, CaseIterable {
         case notch, decoy, clunk, lock, wrong, vault, win, beam, go, stop, caught, splat
         case whoosh, swish, thud, pop, puck, goal, bloom
@@ -44,6 +45,10 @@ final class SoundPlayer {
 
     func play(_ effect: Effect, volume: Float = 1) {
         guard enabled, let list = players[effect], !list.isEmpty else { return }
+        // Garde-fou : un même son relancé à chaque image ferait ramer le téléphone.
+        let now = CACurrentMediaTime()
+        if let last = lastPlayed[effect], now - last < 0.04 { return }
+        lastPlayed[effect] = now
         let index = (nextIndex[effect] ?? 0) % list.count
         nextIndex[effect] = index + 1
         let player = list[index]

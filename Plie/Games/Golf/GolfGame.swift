@@ -92,6 +92,8 @@ final class GolfGame {
     @ObservationIgnored private(set) var topY: Double = 0.4
     @ObservationIgnored private(set) var botY: Double = 2.0
     @ObservationIgnored private(set) var time: Double = 0
+    /// Le dernier « pok » de rebond : pas plus d'un toutes les 80 ms.
+    @ObservationIgnored private var lastPok: Double = -1
     @ObservationIgnored private(set) var ball = (x: 0.5, y: 1.0)
     @ObservationIgnored private(set) var vel = (x: 0.0, y: 0.0)
     @ObservationIgnored private(set) var aim: (dx: Double, dy: Double, power: Double)?
@@ -322,13 +324,21 @@ final class GolfGame {
             ball.x = cx + nx * r
             ball.y = cy + ny * r
             let vn = vel.x * nx + vel.y * ny
-            if vn < 0 {
+            if vn < -0.12 {
+                // Un vrai choc : rebond.
                 vel.x -= 1.75 * vn * nx
                 vel.y -= 1.75 * vn * ny
                 bounced = true
+            } else if vn < 0 {
+                // La balle frotte le mur (la pente la plaque contre lui) : elle glisse le long, sans rebondir.
+                vel.x -= vn * nx
+                vel.y -= vn * ny
             }
         }
-        if bounced && hypot(vel.x, vel.y) > 0.25 { SoundPlayer.shared.play(.pok, volume: 0.35) }
+        if bounced && hypot(vel.x, vel.y) > 0.25 && time - lastPok > 0.08 {
+            lastPok = time
+            SoundPlayer.shared.play(.pok, volume: 0.35)
+        }
 
         // L'eau : la balle revient là d'où elle est partie, un coup de pénalité.
         if inWater(ball) {
