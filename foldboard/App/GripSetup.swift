@@ -17,6 +17,7 @@ struct ThumbRing: View {
     var progress: Double
     var done: Bool
     var symbol: String = "touchid"
+    var size: CGFloat = 150
     private let ticks = 56
 
     var body: some View {
@@ -25,22 +26,22 @@ struct ThumbRing: View {
                 let lit = Double(i) < progress * Double(ticks)
                 Capsule()
                     .fill(done ? Color.green : (lit ? Color.accentColor : Color.secondary.opacity(0.25)))
-                    .frame(width: 3, height: lit || done ? 16 : 11)
-                    .offset(y: -78)
+                    .frame(width: 3, height: lit || done ? size * 0.085 : size * 0.06)
+                    .offset(y: -size * 0.41)
                     .rotationEffect(.degrees(Double(i) / Double(ticks) * 360))
                     .shadow(color: lit && !done ? Color.accentColor.opacity(0.8) : .clear, radius: 4)
                     .animation(.spring(response: 0.35, dampingFraction: 0.6).delay(Double(i % 8) * 0.01), value: lit)
             }
             Circle()
                 .fill(RadialGradient(colors: [Color.accentColor.opacity(done ? 0 : 0.28), .clear], center: .center, startRadius: 4, endRadius: 70))
-                .frame(width: 140, height: 140)
+                .frame(width: size * 0.74, height: size * 0.74)
             Image(systemName: done ? "checkmark" : symbol)
-                .font(.system(size: done ? 54 : 64, weight: done ? .bold : .regular))
+                .font(.system(size: size * (done ? 0.28 : 0.34), weight: done ? .bold : .regular))
                 .foregroundStyle(done ? Color.green : Color.accentColor)
                 .contentTransition(.symbolEffect(.replace))
                 .symbolEffect(.pulse, options: .repeating, isActive: !done && progress > 0)
         }
-        .frame(width: 190, height: 190)
+        .frame(width: size, height: size)
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: done)
     }
 }
@@ -111,7 +112,7 @@ struct GripSetup: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 14) {
+            VStack(spacing: 10) {
                 HStack(spacing: 12) {
                     if onFinish == nil {
                         Button { dismiss() } label: {
@@ -131,7 +132,7 @@ struct GripSetup: View {
 
                 Spacer(minLength: 0)
                 ThumbRing(progress: finished ? 1 : Double(samples.count) / Double(Self.needed), done: finished,
-                          symbol: grip == .two ? "hands.clap" : "touchid")
+                          symbol: grip == .two ? "hands.clap" : "touchid", size: finished ? 170 : 140)
 
                 if finished {
                     Text("Your thumbs are learned").font(.title2.bold())
@@ -161,7 +162,8 @@ struct GripSetup: View {
                 Spacer(minLength: 0)
                 Text(kbContextName(context)).font(.caption).foregroundStyle(.tertiary)
             }
-            .padding(20)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
 
             if !finished {
