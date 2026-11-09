@@ -136,6 +136,10 @@ final class GripDetector {
     var onSwipeSample: (([Double]) -> Void)?
     /// Le dernier déplacement automatique : on laisse le clavier tranquille quelques secondes ensuite.
     private var lastEmit: TimeInterval = 0
+    /// La dernière lecture d'inclinaison était franche (la posture étalonnée la plus proche l'est nettement).
+    private var tiltStrong = false
+    /// Le dernier moment où deux pouces ont tapé ensemble.
+    private var lastTwo: TimeInterval = 0
     private var now: TimeInterval { ProcessInfo.processInfo.systemUptime }
 
     private var evidence: [KBGrip: Double] = [:]
@@ -247,10 +251,10 @@ final class GripDetector {
         evidenceTaps += 1
         let ranked = evidence.sorted { $0.value > $1.value }
         // Prudent : au moins 6 appuis, un net avantage, et pas de nouveau déplacement avant 6 secondes.
-        guard evidenceTaps >= 6, ranked.count >= 2, ranked[0].value - ranked[1].value > 3.0 else { return }
+        guard evidenceTaps >= 4, ranked.count >= 2, ranked[0].value - ranked[1].value > 2.0 else { return }
         let g = ranked[0].key
-        guard g != current, now - lastEmit > 6 else { return }
-        if current == .two && g != .two && twoEvidence.suffix(8).contains(true) { return }
+        guard g != current, now - lastEmit > 2.5 else { return }
+        if current == .two && g != .two && now - lastTwo < 2 { return }
         evidence = [:]; evidenceTaps = 0
         emit(g)
     }
@@ -278,7 +282,9 @@ final class GripDetector {
         }.sorted { $0.1 < $1.1 }
         guard ranked.count >= 2 else { return ranked.first?.0 }
         let margin = max(1.5, abs(kbWrap(r.roll - l.roll)) * 0.1)
-        guard ranked[1].1 - ranked[0].1 >= margin else { return nil }
+        let gap = ranked[1].1 - ranked[0].1
+        guard gap >= margin else { tiltStrong = false; return nil }
+        tiltStrong = gap >= margin * 3
         return ranked[0].0
     }
 
@@ -297,7 +303,7 @@ final class GripDetector {
     private func checkTilt() {
         // L'inclinaison place le clavier quand il apparaît ; ensuite, elle ne le bouge que si le téléphone change
         // franchement de main pendant une pause (pas de frappe depuis 2 s, rien bougé depuis 5 s).
-        if now - lastTapTime < 2 || now - lastEmit < 5 { tiltStreak = nil; return }
+        if now - lastTapTime < 0.6 || now - lastEmit < 1.2 { tiltStreak = nil; return }
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
         guard let g = tiltGrip(threshold: threshold) else { tiltStreak = nil; return }
         // Étalonné : l'inclinaison a le dernier mot (le clavier revient toujours du bon côté).
@@ -305,12 +311,12 @@ final class GripDetector {
         if g == tiltSide || g == current { tiltSide = g; tiltStreak = nil; return }
         let n = (tiltStreak?.grip == g ? tiltStreak!.n : 0) + 1
         tiltStreak = (g, n)
-        // 6 lectures de suite (≈ 0,9 s) : on ignore les gestes, on suit un vrai changement de main.
-        guard n >= 6 else { return }
+        // Franc : 2 lectures (0,3 s). Sinon 4 (0,6 s) : on ignore les gestes, on suit un vrai changement de main.
+        guard n >= (tiltStrong ? 2 : 4) else { return }
         tiltSide = g
         tiltStreak = nil
-        // Pas de retour à une main tant que deux pouces tapent encore.
-        if current == .two && twoEvidence.suffix(8).contains(true) { return }
+        // Pas de retour à une main tant que deux pouces tapent encore (dans les 2 dernières secondes).
+        if current == .two && now - lastTwo < 2 { return }
         emit(g)
     }
 
@@ -328,8 +334,14 @@ final class GripDetector {
     /// Un appui. `blockX` : 0…1 sur la largeur des touches ; `screenX` : 0…1 sur l'écran ;
     /// `others` : `screenX` des autres doigts posés ; `radius` : taille du toucher.
     func tap(blockX: CGFloat, screenX: CGFloat, radius: CGFloat, time: TimeInterval, others: [CGFloat]) {
-        var two = others.contains { abs($0 - screenX) > 0.3 }
+        let together = others.contains { abs($0 - screenX) > 0.3 }
+        var two = together
         if let last = lastTap, abs(last.x - screenX) > 0.45, time - last.t > 0, time - last.t < 0.13 { two = true }
+        if two && onSample == nil {
+            lastTwo = now
+            // Deux doigts posés en même temps, loin l'un de l'autre : aucun doute, tout de suite au milieu.
+            if together && current != .two { emit(.two) }
+        }
         lastTap = (screenX, time)
         lastTapTime = time
         if let onSample {
@@ -448,7 +460,7 @@ final class GripDetector {
             result = s.grip
         }
         guard let result else { return }
-        if current == .two && twoEvidence.suffix(8).contains(true) { return }
+        if current == .two && now - lastTwo < 2 { return }
         // Deux décisions de suite avant de déplacer le clavier, et pas plus d'un déplacement toutes les 4 secondes.
         if lastVote == result && now - lastEmit > 4 { emit(result) }
         lastVote = result

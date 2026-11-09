@@ -327,7 +327,7 @@ final class KeyboardCanvas: UIView {
     private func scheduleGrip() {
         idleTimer?.invalidate()
         guard pendingGrip != nil, tracks.isEmpty else { return }
-        idleTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] _ in
+        idleTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: false) { [weak self] _ in
             guard let self, let g = self.pendingGrip, self.tracks.isEmpty else { return }
             self.applyGrip(g)
         }
