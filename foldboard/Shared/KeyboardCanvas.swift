@@ -407,7 +407,7 @@ final class KeyboardCanvas: UIView {
 
     /// Le texte a changé (curseur déplacé, autre champ) : on revoit la majuscule et les suggestions.
     func textChanged() {
-        refreshSuggestions()
+        refreshSuggestionsSoon()
         refreshShift()
         cursorMoved()
     }
@@ -1512,8 +1512,13 @@ final class KeyboardCanvas: UIView {
         refreshShiftSoon()
     }
 
+    /// Les suggestions se recalculent quand la frappe marque une petite pause : la touche réagit tout de suite.
+    private var suggestWork: DispatchWorkItem?
     private func refreshSuggestionsSoon() {
-        DispatchQueue.main.async { [weak self] in self?.refreshSuggestions() }
+        suggestWork?.cancel()
+        let w = DispatchWorkItem { [weak self] in self?.refreshSuggestions() }
+        suggestWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.09, execute: w)
     }
 
     private func refreshSuggestions() {

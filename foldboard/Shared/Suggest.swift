@@ -13,17 +13,24 @@ final class KBSuggest {
     private var words: [String] = []
     private var folded: [String] = []
     private var rank: [String: Int] = [:]
+    /// Les mots par leurs deux premières lettres : compléter sans parcourir les 30 000 mots à chaque lettre.
+    private var byPrefix: [String: [Int]] = [:]
+    private var byFirst: [String: [Int]] = [:]
     private var loadedList = ""
 
     private func loadList(_ code: String) {
         guard loadedList != code else { return }
         loadedList = code
-        words = []; folded = []; rank = [:]
+        words = []; folded = []; rank = [:]; byPrefix = [:]; byFirst = [:]
         guard let url = Bundle.main.url(forResource: "words-" + code, withExtension: "txt"),
               let text = try? String(contentsOf: url, encoding: .utf8) else { return }
         words = text.split(separator: "\n").map(String.init)
         folded = words.map { $0.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil) }
         for (i, w) in words.enumerated() where rank[w] == nil { rank[w] = i }
+        for (i, f) in folded.enumerated() {
+            byPrefix[String(f.prefix(2)), default: []].append(i)
+            byFirst[String(f.prefix(1)), default: []].append(i)
+        }
     }
 
     /// Les mots courants qui commencent comme `word` (sans tenir compte des accents), du plus fréquent au moins fréquent.
@@ -31,7 +38,10 @@ final class KBSuggest {
         let key = word.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
         guard key.count >= 1 else { return [] }
         var out: [String] = []
-        for (i, f) in folded.enumerated() where f.count > key.count && f.hasPrefix(key) {
+        let candidates = (key.count >= 2 ? byPrefix[String(key.prefix(2))] : byFirst[key]) ?? []
+        for i in candidates {
+            let f = folded[i]
+            guard f.count > key.count, f.hasPrefix(key) else { continue }
             out.append(words[i])
             if out.count >= limit { break }
         }
