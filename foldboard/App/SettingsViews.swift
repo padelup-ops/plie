@@ -230,6 +230,7 @@ struct PositionView: View {
 
             Section {
                 slider("One-hand width", value: $m.settings.oneHandWidth, in: 0.45...0.95, format: { "\(Int($0 * 100)) %" })
+                slider("One-hand width, Duo open", value: $m.settings.oneHandWidthOpen, in: 0.4...0.9, format: { "\(Int($0 * 100)) %" })
                 slider("Two-hand width (each side)", value: $m.settings.splitWidth, in: 0.22...0.48, format: { "\(Int($0 * 100)) %" })
                 slider("Distance from the edge", value: $m.settings.edgeMargin, in: 0...120, format: { "\(Int($0)) pt" })
                 slider("Key height", value: $m.settings.keyHeight, in: 34...60, format: { "\(Int($0)) pt" })

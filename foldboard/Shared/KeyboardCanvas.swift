@@ -490,6 +490,13 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    /// Part de la largeur pour le clavier à une main : plus compact sur le Duo déplié (encore plus en paysage).
+    private var oneHandFraction: CGFloat {
+        guard gripContext.hasPrefix("open") else { return CGFloat(eff.oneHandWidth) }
+        let f = CGFloat(eff.oneHandWidthOpen)
+        return gripContext.hasSuffix("landscape") ? f * 0.8 : f
+    }
+
     private let emojiBoard = EmojiBoard()
     private var showEmoji = false
 
@@ -521,7 +528,7 @@ final class KeyboardCanvas: UIView {
         if showEmoji {
             var area = CGRect(x: pad, y: top, width: W - 2 * pad, height: areaH)
             if layoutMode.isOneHand {
-                let bw = min(W - 2 * pad, max(250, W * CGFloat(eff.oneHandWidth)))
+                let bw = min(W - 2 * pad, max(220, W * oneHandFraction))
                 let x = isRight ? W - margin - bw : margin
                 area = CGRect(x: max(0, x), y: top, width: bw, height: areaH)
             }
@@ -545,7 +552,7 @@ final class KeyboardCanvas: UIView {
             panelRect = .zero
             place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout)], in: b, align: 0)
         case .left, .right, .auto:
-            let bw = min(W - 2 * pad, max(250, W * CGFloat(eff.oneHandWidth)))
+            let bw = min(W - 2 * pad, max(220, W * oneHandFraction))
             let x = isRight ? W - margin - bw : margin
             let b = CGRect(x: max(0, x), y: top, width: bw, height: areaH)
             blocks = [b]

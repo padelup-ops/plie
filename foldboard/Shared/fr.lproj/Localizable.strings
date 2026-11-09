@@ -163,6 +163,7 @@
 "%lld of %lld taps" = "%lld sur %lld appuis";
 "Save" = "Enregistrer";
 "Cancel" = "Annuler";
+"One-hand width, Duo open" = "Largeur à une main, Duo ouvert";
 "Right thumb: done!" = "Pouce droit : c’est bon !";
 "Left thumb: done!" = "Pouce gauche : c’est bon !";
 "Now take the phone in your left hand." = "Maintenant, prends le téléphone dans ta main gauche.";

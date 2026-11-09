@@ -86,6 +86,8 @@ struct KBSettings: Codable, Equatable {
     var swipes: [String: [String: [[Double]]]] = [:]
     /// Largeur du clavier à une main, en part de l'écran.
     var oneHandWidth: Double = 0.68
+    /// Largeur à une main sur l'écran intérieur du Duo (déplié) : plus compact, à portée du pouce.
+    var oneHandWidthOpen: Double = 0.56
     /// Largeur de chaque moitié en mode deux mains, en part de l'écran.
     var splitWidth: Double = 0.34
     /// Écart avec le bord de l'écran, en points.
@@ -141,6 +143,7 @@ struct KBSettings: Codable, Equatable {
         widths = (try? c.decodeIfPresent([String: Double].self, forKey: .widths)) ?? [:]
         swipes = (try? c.decodeIfPresent([String: [String: [[Double]]]].self, forKey: .swipes)) ?? [:]
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
+        oneHandWidthOpen = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidthOpen)) ?? d.oneHandWidthOpen
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
@@ -162,6 +165,7 @@ struct KBSettings: Codable, Equatable {
 
     mutating func clamp() {
         oneHandWidth = min(0.95, max(0.45, oneHandWidth))
+        oneHandWidthOpen = min(0.9, max(0.4, oneHandWidthOpen))
         splitWidth = min(0.48, max(0.22, splitWidth))
         edgeMargin = min(120, max(0, edgeMargin))
         keyHeight = min(60, max(34, keyHeight))
