@@ -69,6 +69,7 @@ final class Store {
             access = a
             KBVault.save(a)
         }
+        TrialReminders.update(access)
     }
 
     @MainActor

@@ -595,15 +595,22 @@ final class KeyboardCanvas: UIView {
         layoutIfNeeded()
     }
 
-    private func flash(_ text: String) {
+    /// Un message important, gardé plus longtemps à l'écran (fin de l'essai gratuit).
+    func notice(_ text: String) {
+        flash(text, hold: 6)
+    }
+
+    private func flash(_ text: String, hold: TimeInterval = 2.2) {
         toast.text = "  " + text + "  "
+        toast.adjustsFontSizeToFitWidth = true
+        toast.minimumScaleFactor = 0.7
         toast.backgroundColor = theme.accent
         toast.textColor = .white
         toast.sizeToFit()
         let w = min(topBar.bounds.width - 16, toast.bounds.width + 8)
         toast.frame = CGRect(x: (topBar.bounds.width - w) / 2, y: 7, width: w, height: 28)
         toast.alpha = 1
-        UIView.animate(withDuration: 0.4, delay: 2.2, options: [], animations: { self.toast.alpha = 0 })
+        UIView.animate(withDuration: 0.4, delay: hold, options: [], animations: { self.toast.alpha = 0 })
     }
 
     // MARK: Mise en page

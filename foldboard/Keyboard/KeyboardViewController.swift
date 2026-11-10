@@ -40,6 +40,19 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         undelayTouches()
         // Certains gestes du système s'installent un peu après l'apparition.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.undelayTouches() }
+        showTrialOver()
+    }
+
+    /// L'essai est fini : le clavier ne suit plus la main. On le dit clairement, les 3 premières fois.
+    private func showTrialOver() {
+        guard access.trialOver() else { return }
+        let key = "foldboard.trialOverShown"
+        let shown = UserDefaults.standard.integer(forKey: key)
+        guard shown < 3 else { return }
+        UserDefaults.standard.set(shown + 1, forKey: key)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.canvas.notice(L("Trial over: open Foldboard to unlock Pro"))
+        }
     }
 
     /// iOS retient les appuis rapides (il attend de voir si c'est un de ses gestes) et en avale certains :

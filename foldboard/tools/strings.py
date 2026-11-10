@@ -136,6 +136,12 @@ FR = {
     "Hide keyboard": "Masquer le clavier",
     "Keyboard position": "Position du clavier",
     "Foldboard Pro: open the app to unlock": "Foldboard Pro : ouvre l’app pour le débloquer",
+    "Trial over: open Foldboard to unlock Pro": "Essai terminé : ouvre Foldboard pour débloquer Pro",
+    "One day of free trial left": "Plus qu’un jour d’essai gratuit",
+    "Tomorrow the keyboard stops following your hand. Unlock Foldboard Pro to keep it.":
+        "Demain, le clavier ne suivra plus ta main. Débloque Foldboard Pro pour le garder.",
+    "The keyboard no longer follows your hand. Open Foldboard to unlock Pro.":
+        "Le clavier ne suit plus ta main. Ouvre Foldboard pour débloquer Pro.",
     "Press": "Appuie",
     "As when you type. Press the button with your right thumb, 3 times.": "Comme quand tu écris. Appuie 3 fois sur le bouton avec ton pouce droit.",
     "As when you type. Press the button with your left thumb, 3 times.": "Comme quand tu écris. Appuie 3 fois sur le bouton avec ton pouce gauche.",
