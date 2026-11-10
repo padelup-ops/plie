@@ -202,6 +202,7 @@ final class KeyboardCanvas: UIView {
         hideButton.setImage(UIImage(systemName: "keyboard.chevron.compact.down"), for: .normal)
         hideButton.addAction(UIAction { [weak self] _ in self?.input?.kbDismiss() }, for: .touchUpInside)
         hideButton.accessibilityLabel = L("Hide keyboard")
+        hideButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(showPerf(_:))))
         globeButton.setImage(UIImage(systemName: "globe"), for: .normal)
         globeButton.addAction(UIAction { [weak self] _ in self?.input?.kbNextKeyboard() }, for: .touchUpInside)
         emojiButton.setImage(UIImage(systemName: "face.smiling"), for: .normal)
@@ -262,6 +263,7 @@ final class KeyboardCanvas: UIView {
     /// Le clavier vient d'apparaître.
     func appeared() {
         visible = true
+        perfStart()
         typedOnSide = 0
         showEmoji = false
         if autoOn { startGrip() }
@@ -405,6 +407,8 @@ final class KeyboardCanvas: UIView {
     /// Le clavier disparaît : on coupe les capteurs.
     func disappeared() {
         visible = false
+        perfLink?.invalidate()
+        perfLink = nil
         grip.stop()
         gripStarted = false
         idleTimer?.invalidate()
@@ -1240,8 +1244,48 @@ final class KeyboardCanvas: UIView {
         return best?.0
     }
 
+    // MARK: Mesure de fluidité (appui long sur ⌄ en haut à droite)
+
+    /// Pour chaque appui : le temps entre le toucher de l'écran et son arrivée au clavier, et le temps de traitement.
+    private var perfDelay: [Double] = []
+    private var perfWork: [Double] = []
+    /// Les blocages du clavier (plus de 50 ms sans image).
+    private var perfStalls = 0
+    private var perfLink: CADisplayLink?
+    private var perfLast: CFTimeInterval = 0
+
+    private func perfStart() {
+        perfLink?.invalidate()
+        perfLast = 0
+        let l = CADisplayLink(target: self, selector: #selector(perfTick(_:)))
+        l.add(to: .main, forMode: .common)
+        perfLink = l
+    }
+
+    @objc private func perfTick(_ l: CADisplayLink) {
+        if perfLast > 0, l.timestamp - perfLast > 0.05 { perfStalls += 1 }
+        perfLast = l.timestamp
+    }
+
+    private func perfPush(_ a: inout [Double], _ v: Double) {
+        a.append(v)
+        if a.count > 60 { a.removeFirst() }
+    }
+
+    @objc private func showPerf(_ g: UILongPressGestureRecognizer) {
+        guard g.state == .began else { return }
+        func avg(_ a: [Double]) -> Int { a.isEmpty ? 0 : Int(a.reduce(0, +) / Double(a.count)) }
+        let text = String(format: "Appui %d ms (max %d) · traitement %d ms (max %d) · blocages %d",
+                          avg(perfDelay), Int(perfDelay.max() ?? 0), avg(perfWork), Int(perfWork.max() ?? 0), perfStalls)
+        flash(text)
+        perfDelay = []; perfWork = []; perfStalls = 0
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         idleTimer?.invalidate()
+        let w0 = ProcessInfo.processInfo.systemUptime
+        if let t = touches.first { perfPush(&perfDelay, (w0 - t.timestamp) * 1000) }
+        defer { perfPush(&perfWork, (ProcessInfo.processInfo.systemUptime - w0) * 1000) }
         for t in touches {
             let p = t.location(in: self)
             // Un toucher dans la place libre : on attend de voir si c'est un vrai toucher (voir touchesEnded).
@@ -1646,7 +1690,8 @@ final class KeyboardCanvas: UIView {
         suggestWork?.cancel()
         let w = DispatchWorkItem { [weak self] in self?.refreshSuggestions() }
         suggestWork = w
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06, execute: w)
+        // Pendant une frappe rapide, rien n'est recalculé : seulement quand le doigt marque une pause.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16, execute: w)
     }
 
     private func refreshSuggestions() {
@@ -1706,7 +1751,11 @@ final class KeyboardCanvas: UIView {
 
     private func showBubble(over f: CGRect, text: String) {
         bubble.text = text
-        bubble.font = eff.font.ui(size: min(34, keyH * 0.72))
+        let fs = min(34, keyH * 0.72)
+        if bubble.font.pointSize != fs || bubbleFontName != eff.font.rawValue {
+            bubble.font = eff.font.ui(size: fs)
+            bubbleFontName = eff.font.rawValue
+        }
         bubble.backgroundColor = theme.key
         bubble.textColor = theme.text
         let w = max(f.width * 1.35, 46)
@@ -1717,6 +1766,8 @@ final class KeyboardCanvas: UIView {
         bubble.isHidden = false
         bringSubviewToFront(bubble)
     }
+
+    private var bubbleFontName = ""
 
     private func hideBubble() { bubble.isHidden = true }
 
