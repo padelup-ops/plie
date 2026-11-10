@@ -32,3 +32,17 @@ for s in call(f"/v1/reviewSubmissions?filter[app]={app['id']}&limit=10").get("da
         rel = [k for k, x in it.get("relationships", {}).items() if isinstance(x, dict) and x.get("data")]
         print("   élément", it["attributes"].get("state"), rel)
 print("CONFIDENTIALITE", json.dumps(call(f"/v1/apps/{app['id']}/appDataUsages"))[:300])
+
+# Les achats laissés dans une demande à part : on essaie d'envoyer cette demande avec eux.
+def send(method, p, body):
+    req = urllib.request.Request(API + p, method=method, data=json.dumps(body).encode(),
+                                 headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req) as r: return json.loads(r.read() or b"{}")
+    except urllib.error.HTTPError as e:
+        return {"error": e.code, "detail": e.read().decode()[:1500]}
+for s in call(f"/v1/reviewSubmissions?filter[app]={app['id']}&filter[state]=READY_FOR_REVIEW&limit=5").get("data", []):
+    items = call(f"/v1/reviewSubmissions/{s['id']}/items?include=inAppPurchaseV2,appStoreVersion").get("data", [])
+    print("BROUILLON", s["id"], [ (k, x["data"]["id"]) for it in items for k, x in it.get("relationships", {}).items() if isinstance(x, dict) and x.get("data")])
+    r = send("PATCH", f"/v1/reviewSubmissions/{s['id']}", {"data": {"type": "reviewSubmissions", "id": s["id"], "attributes": {"submitted": True}}})
+    print("ENVOI DU BROUILLON ->", r.get("error") or r.get("data", {}).get("attributes", {}).get("state"), r.get("detail", "")[:1200])
