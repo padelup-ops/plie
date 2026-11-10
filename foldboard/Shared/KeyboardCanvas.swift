@@ -389,6 +389,22 @@ final class KeyboardCanvas: UIView {
         KBHabits.shared.add(context: gripContext, roll: p.roll, incline: p.incline, right: right,
                             weight: correction ? 3 : 1, correction: correction)
         grip.habitReady = KBHabits.shared.ready(context: gripContext, seeds: habitSeeds)
+        showLearning(correction: correction)
+    }
+
+    /// Montrer que le clavier apprend : « noté » aux premières corrections, puis des paliers.
+    private func showLearning(correction: Bool) {
+        let n = KBHabits.shared.learnedTotal
+        if [3, 10, 25, 50, 100, 200].contains(n) {
+            notice(String(format: L("Foldboard knows your grip better: %lld habits learned"), n))
+            return
+        }
+        guard correction else { return }
+        let key = "foldboard.notedShown"
+        let shown = UserDefaults.standard.integer(forKey: key)
+        guard shown < 5 else { return }
+        UserDefaults.standard.set(shown + 1, forKey: key)
+        flash(L("Noted, I’ll remember this grip"))
     }
 
     /// Une lettre tapée avec le petit clavier d'un côté : après quelques lettres sans correction, c'est une habitude.

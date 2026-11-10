@@ -20,22 +20,26 @@ final class KBHabits {
     private let key = "foldboard.habits.v1"
     private var data: [String: [KBHabit]] = [:]
     private var signatures: [String: String] = [:]
+    /// Tout ce que le clavier a appris depuis le début, par situation (ne baisse jamais : c'est ce qu'on montre).
+    private(set) var total: [String: Int] = [:]
     private static let cap = 90
 
     private struct Stored: Codable {
         var data: [String: [KBHabit]]
         var signatures: [String: String]
+        var total: [String: Int]?
     }
 
     private init() {
         if let d = UserDefaults.standard.data(forKey: key), let s = try? JSONDecoder().decode(Stored.self, from: d) {
             data = s.data
             signatures = s.signatures
+            total = s.total ?? s.data.mapValues(\.count)
         }
     }
 
     private func save() {
-        if let d = try? JSONEncoder().encode(Stored(data: data, signatures: signatures)) {
+        if let d = try? JSONEncoder().encode(Stored(data: data, signatures: signatures, total: total)) {
             UserDefaults.standard.set(d, forKey: key)
         }
     }
@@ -67,8 +71,13 @@ final class KBHabits {
             if let i = a.firstIndex(where: { $0.weight <= 1 }) { a.remove(at: i) } else { a.removeFirst() }
         }
         data[context] = a
+        total[context, default: 0] += 1
         save()
+        KBVault.save(KBLearn(total: total))
     }
+
+    /// Tout ce qui a été appris, toutes situations confondues.
+    var learnedTotal: Int { total.values.reduce(0, +) }
 
     /// Assez d'exemples des deux côtés pour décider (les mesures du réglage comptent comme des exemples forts).
     func ready(context: String, seeds: [KBHabit]) -> Bool {

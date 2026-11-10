@@ -72,6 +72,8 @@ struct HomeView: View {
 
                 ProStatusRow(showPro: $showPro)
 
+                LearningRow()
+
                 Section {
                     NavigationLink {
                         SetupView(done: $setupDone).fullScreenDuo()

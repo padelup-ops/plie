@@ -116,6 +116,17 @@
 "Keyboard position" = "Position du clavier";
 "Foldboard Pro: open the app to unlock" = "Foldboard Pro : ouvre l’app pour le débloquer";
 "Trial over: open Foldboard to unlock Pro" = "Essai terminé : ouvre Foldboard pour débloquer Pro";
+"Foldboard knows your grip better: %lld habits learned" = "Foldboard connaît mieux ta prise en main : %lld habitudes apprises";
+"Noted, I’ll remember this grip" = "Noté, je retiens cette prise en main";
+"Your keyboard is learning" = "Ton clavier apprend";
+"Duo closed" = "Duo fermé";
+"Duo open" = "Duo ouvert";
+"Not yet" = "Pas encore";
+"Learning" = "En cours";
+"Knows you well" = "Te connaît bien";
+"Each time you type, or move the keyboard to the other side, Foldboard learns how you hold your Duo. The more you use it, the less you need to." = "À chaque fois que tu écris, ou que tu mets le clavier de l’autre côté, Foldboard apprend comment tu tiens ton Duo. Plus tu t’en sers, moins tu as besoin de le corriger.";
+"Foldboard has learned %lld of your habits. Unlock Pro to keep them." = "Foldboard a appris %lld de tes habitudes. Débloque Pro pour les garder.";
+"Your %lld learned habits are waiting. Open Foldboard to unlock Pro." = "Tes %lld habitudes apprises t’attendent. Ouvre Foldboard pour débloquer Pro.";
 "One day of free trial left" = "Plus qu’un jour d’essai gratuit";
 "Tomorrow the keyboard stops following your hand. Unlock Foldboard Pro to keep it." = "Demain, le clavier ne suivra plus ta main. Débloque Foldboard Pro pour le garder.";
 "The keyboard no longer follows your hand. Open Foldboard to unlock Pro." = "Le clavier ne suit plus ta main. Ouvre Foldboard pour débloquer Pro.";
@@ -131,7 +142,6 @@
 "Hold the phone in your left hand, the keyboard comes left. In your right hand, it comes right. In every app." = "Téléphone dans la main gauche, le clavier vient à gauche. Dans la main droite, il vient à droite. Dans toutes les apps.";
 "Tap the free space" = "Touche la place libre";
 "Not on the right side? Tap the empty space next to the keys: the keyboard slides there and stays." = "Pas du bon côté ? Touche la place vide à côté des touches : le clavier y glisse et y reste.";
-"Duo open" = "Duo ouvert";
 "Landscape: the full keyboard. Portrait: the small one that follows you, full width with one tap, or split in two from the hand menu." = "En paysage : le clavier entier. En portrait : le petit qui te suit, en grand d’un toucher, ou coupé en deux depuis le menu de la main.";
 "The sliders button: drag the keyboard, pull its edges, change the key height. ✓ to keep, ✕ to cancel." = "Le bouton des réglages : glisse le clavier, tire ses bords, change la hauteur des touches. ✓ pour garder, ✕ pour annuler.";
 "Emoji and words" = "Emojis et mots";

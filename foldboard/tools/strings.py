@@ -137,6 +137,20 @@ FR = {
     "Keyboard position": "Position du clavier",
     "Foldboard Pro: open the app to unlock": "Foldboard Pro : ouvre l’app pour le débloquer",
     "Trial over: open Foldboard to unlock Pro": "Essai terminé : ouvre Foldboard pour débloquer Pro",
+    "Foldboard knows your grip better: %lld habits learned": "Foldboard connaît mieux ta prise en main : %lld habitudes apprises",
+    "Noted, I’ll remember this grip": "Noté, je retiens cette prise en main",
+    "Your keyboard is learning": "Ton clavier apprend",
+    "Duo closed": "Duo fermé",
+    "Duo open": "Duo ouvert",
+    "Not yet": "Pas encore",
+    "Learning": "En cours",
+    "Knows you well": "Te connaît bien",
+    "Each time you type, or move the keyboard to the other side, Foldboard learns how you hold your Duo. The more you use it, the less you need to.":
+        "À chaque fois que tu écris, ou que tu mets le clavier de l’autre côté, Foldboard apprend comment tu tiens ton Duo. Plus tu t’en sers, moins tu as besoin de le corriger.",
+    "Foldboard has learned %lld of your habits. Unlock Pro to keep them.":
+        "Foldboard a appris %lld de tes habitudes. Débloque Pro pour les garder.",
+    "Your %lld learned habits are waiting. Open Foldboard to unlock Pro.":
+        "Tes %lld habitudes apprises t’attendent. Ouvre Foldboard pour débloquer Pro.",
     "One day of free trial left": "Plus qu’un jour d’essai gratuit",
     "Tomorrow the keyboard stops following your hand. Unlock Foldboard Pro to keep it.":
         "Demain, le clavier ne suivra plus ta main. Débloque Foldboard Pro pour le garder.",

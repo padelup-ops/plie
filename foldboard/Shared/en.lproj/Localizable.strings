@@ -116,6 +116,17 @@
 "Keyboard position" = "Keyboard position";
 "Foldboard Pro: open the app to unlock" = "Foldboard Pro: open the app to unlock";
 "Trial over: open Foldboard to unlock Pro" = "Trial over: open Foldboard to unlock Pro";
+"Foldboard knows your grip better: %lld habits learned" = "Foldboard knows your grip better: %lld habits learned";
+"Noted, I’ll remember this grip" = "Noted, I’ll remember this grip";
+"Your keyboard is learning" = "Your keyboard is learning";
+"Duo closed" = "Duo closed";
+"Duo open" = "Duo open";
+"Not yet" = "Not yet";
+"Learning" = "Learning";
+"Knows you well" = "Knows you well";
+"Each time you type, or move the keyboard to the other side, Foldboard learns how you hold your Duo. The more you use it, the less you need to." = "Each time you type, or move the keyboard to the other side, Foldboard learns how you hold your Duo. The more you use it, the less you need to.";
+"Foldboard has learned %lld of your habits. Unlock Pro to keep them." = "Foldboard has learned %lld of your habits. Unlock Pro to keep them.";
+"Your %lld learned habits are waiting. Open Foldboard to unlock Pro." = "Your %lld learned habits are waiting. Open Foldboard to unlock Pro.";
 "One day of free trial left" = "One day of free trial left";
 "Tomorrow the keyboard stops following your hand. Unlock Foldboard Pro to keep it." = "Tomorrow the keyboard stops following your hand. Unlock Foldboard Pro to keep it.";
 "The keyboard no longer follows your hand. Open Foldboard to unlock Pro." = "The keyboard no longer follows your hand. Open Foldboard to unlock Pro.";
@@ -131,7 +142,6 @@
 "Hold the phone in your left hand, the keyboard comes left. In your right hand, it comes right. In every app." = "Hold the phone in your left hand, the keyboard comes left. In your right hand, it comes right. In every app.";
 "Tap the free space" = "Tap the free space";
 "Not on the right side? Tap the empty space next to the keys: the keyboard slides there and stays." = "Not on the right side? Tap the empty space next to the keys: the keyboard slides there and stays.";
-"Duo open" = "Duo open";
 "Landscape: the full keyboard. Portrait: the small one that follows you, full width with one tap, or split in two from the hand menu." = "Landscape: the full keyboard. Portrait: the small one that follows you, full width with one tap, or split in two from the hand menu.";
 "The sliders button: drag the keyboard, pull its edges, change the key height. ✓ to keep, ✕ to cancel." = "The sliders button: drag the keyboard, pull its edges, change the key height. ✓ to keep, ✕ to cancel.";
 "Emoji and words" = "Emoji and words";

@@ -374,6 +374,18 @@ struct KBAccess: Codable, Equatable {
     }
 }
 
+// MARK: - Ce que le clavier a appris (montré dans l'app)
+
+struct KBLearn: Codable, Equatable {
+    /// Nombre d'habitudes apprises par situation (« closed-portrait », « open-portrait »…).
+    var total: [String: Int] = [:]
+    var stamp: Date = .distantPast
+
+    var all: Int { total.values.reduce(0, +) }
+    var closed: Int { total.filter { $0.key.hasPrefix("closed") }.values.reduce(0, +) }
+    var open: Int { total.filter { $0.key.hasPrefix("open") }.values.reduce(0, +) }
+}
+
 // MARK: - Le coffre
 
 enum KBVault {
@@ -447,6 +459,25 @@ enum KBVault {
         case let (nil, l?): return l
         default: return KBAccess()
         }
+    }
+
+    static func loadLearn() -> KBLearn {
+        let shared = read("learn").flatMap { try? JSONDecoder().decode(KBLearn.self, from: $0) }
+        let local = UserDefaults.standard.data(forKey: "foldboard.learn").flatMap { try? JSONDecoder().decode(KBLearn.self, from: $0) }
+        switch (shared, local) {
+        case let (s?, l?): return s.stamp >= l.stamp ? s : l
+        case let (s?, nil): return s
+        case let (nil, l?): return l
+        default: return KBLearn()
+        }
+    }
+
+    static func save(_ learn: KBLearn) {
+        var l = learn
+        l.stamp = Date()
+        guard let data = try? JSONEncoder().encode(l) else { return }
+        write("learn", data)
+        UserDefaults.standard.set(data, forKey: "foldboard.learn")
     }
 
     static func save(_ access: KBAccess) {

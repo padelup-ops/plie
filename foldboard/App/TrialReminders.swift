@@ -15,12 +15,16 @@ enum TrialReminders {
         center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
             guard granted else { return }
             center.removePendingNotificationRequests(withIdentifiers: ids)
+            // Ce que le clavier a déjà appris : bien plus parlant qu'un rappel générique.
+            let n = KBVault.loadLearn().all
             add(center, id: ids[0], at: end.addingTimeInterval(-86400),
                 title: L("One day of free trial left"),
-                body: L("Tomorrow the keyboard stops following your hand. Unlock Foldboard Pro to keep it."))
+                body: n >= 3 ? String(format: L("Foldboard has learned %lld of your habits. Unlock Pro to keep them."), n)
+                             : L("Tomorrow the keyboard stops following your hand. Unlock Foldboard Pro to keep it."))
             add(center, id: ids[1], at: end,
                 title: L("Your free trial is over"),
-                body: L("The keyboard no longer follows your hand. Open Foldboard to unlock Pro."))
+                body: n >= 3 ? String(format: L("Your %lld learned habits are waiting. Open Foldboard to unlock Pro."), n)
+                             : L("The keyboard no longer follows your hand. Open Foldboard to unlock Pro."))
         }
     }
 
