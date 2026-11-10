@@ -255,6 +255,19 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.16": {
+        "en-US": "• Only use the “Opened” automation? Foldly now also counts the fold that came before each opening.\n• Small fixes and improvements.",
+        "fr-FR": "• Tu n'utilises que l'automatisation « Ouvert » ? Foldly compte maintenant aussi le pli qui précède chaque ouverture.\n• Petites corrections et améliorations.",
+        "de-DE": "• Du nutzt nur die Automation „Geöffnet“? Foldly zählt jetzt auch das Zuklappen vor jedem Öffnen.\n• Kleine Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• ¿Solo usas la automatización «Abierto»? Foldly ahora también cuenta el cierre anterior a cada apertura.\n• Pequeñas correcciones y mejoras.",
+        "ja": "• 「開いたとき」のオートメーションだけでも、開く前の折りたたみを数えるようになりました。\n• 細かな修正と改善。",
+        "ko": "• ‘열렸을 때’ 자동화만 사용해도 이제 열기 전의 접기를 함께 셉니다.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• 只用“打开时”自动化？Foldly 现在也会统计每次打开前的那次合上。\n• 小问题修复和改进。",
+        "it": "• Usi solo l'automazione “Aperto”? Ora Foldly conta anche la chiusura prima di ogni apertura. Grazie Marco!\n• Piccole correzioni e miglioramenti.",
+        "pt-BR": "• Usa só a automação “Aberto”? Agora o Foldly também conta o fechamento antes de cada abertura.\n• Pequenas correções e melhorias.",
+        "nl-NL": "• Gebruik je alleen de automatisering “Geopend”? Foldly telt nu ook het dichtklappen vóór elke keer openen.\n• Kleine verbeteringen.",
+        "ru": "• Используете только автоматизацию «Открыт»? Теперь Foldly считает и закрытие перед каждым открытием.\n• Небольшие исправления и улучшения.",
+    },
     "1.0.15": {
         "en-US": "• Foldly now speaks Italian, Portuguese, Dutch and Russian. Grazie Marco for the idea!\n• Small fixes and improvements.",
         "fr-FR": "• Foldly parle maintenant italien, portugais, néerlandais et russe. Grazie Marco pour l'idée !\n• Petites corrections et améliorations.",
@@ -387,7 +400,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -436,7 +449,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
