@@ -380,7 +380,10 @@ if NEW_VERSION:
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
     if new_vid and notes:
         for l in call("GET", f"/v1/appStoreVersions/{new_vid}/appStoreVersionLocalizations").get("data", []):
-            text = notes.get(l["attributes"]["locale"])
+            loc = l["attributes"]["locale"]
+            # Apple exige « Nouveautés » dans chaque langue d'une mise à jour : langue proche, sinon l'anglais.
+            text = (notes.get(loc) or notes.get({"fr": "fr-FR", "es": "es-ES", "de": "de-DE", "pt": "en-US",
+                    "zh": "zh-Hans"}.get(loc.split("-")[0], "")) or notes.get("en-US"))
             if text:
                 step(f"nouveautés {l['attributes']['locale']}", call("PATCH", f"/v1/appStoreVersionLocalizations/{l['id']}", {"data": {
                      "type": "appStoreVersionLocalizations", "id": l["id"], "attributes": {"whatsNew": text}}}))
