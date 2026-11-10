@@ -35,6 +35,25 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         if !access.isPro() { Task { await checkStore() } }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        undelayTouches()
+        // Certains gestes du système s'installent un peu après l'apparition.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.undelayTouches() }
+    }
+
+    /// iOS retient les appuis rapides (il attend de voir si c'est un de ses gestes) et en avale certains :
+    /// des lettres manquaient en tapant vite. Les appuis arrivent maintenant tout de suite au clavier, qui écrit
+    /// la lettre dès que le doigt se pose : même si iOS reprend l'appui ensuite, la lettre est écrite.
+    private func undelayTouches() {
+        var v: UIView? = view
+        while let cur = v {
+            cur.gestureRecognizers?.forEach { $0.delaysTouchesBegan = false }
+            v = cur.superview
+        }
+        view.window?.gestureRecognizers?.forEach { $0.delaysTouchesBegan = false }
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         canvas.disappeared()

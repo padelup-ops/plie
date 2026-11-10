@@ -1649,8 +1649,9 @@ final class KeyboardCanvas: UIView {
         let before = input?.kbTextBefore() ?? ""
         let word = KBSuggest.currentWord(before)
         let known: String?? = cachedFix?.word == word ? .some(cachedFix?.fix) : nil
-        // Seulement la correction déjà préparée en arrière-plan : l'espace n'attend jamais le correcteur.
-        let computed: String? = known ?? nil
+        // La correction préparée en arrière-plan si elle est prête, sinon on la calcule (quelques ms : la mesure
+        // de fluidité montre que le clavier a toute la marge).
+        let computed: String? = known ?? suggest.correction(for: word, before: before)
         guard !word.isEmpty, let fix = computed, fix != word else {
             lastCorrection = nil
             return
