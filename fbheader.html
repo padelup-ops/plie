@@ -80,31 +80,25 @@ const W = +(Q.get('w') || 1920), H = +(Q.get('h') || 823), DPR = +(Q.get('dpr') 
 document.documentElement.style.setProperty('--w', W + 'px'); document.documentElement.style.setProperty('--h', H + 'px');
 document.documentElement.classList.add(LAYOUT);
 const T = {
-  en: { kicker: 'Foldboard for iPhone Duo', a: 'It senses your hand.', b: 'And comes to you.', sub: 'The keyboard that follows your hand, and splits in two for both hands.', tags: ['One hand', 'Two hands', 'Auto-correction'] },
-  fr: { kicker: 'Foldboard pour iPhone Duo', a: 'Il sent ta main.', b: 'Et vient à toi.', sub: 'Le clavier qui suit ta main, et se coupe en deux à deux mains.', tags: ['Une main', 'Deux mains', 'Correction'] },
+  en: { kicker: 'Foldboard for iPhone Duo', a: 'It senses your hand.', b: 'And comes under your thumb.', sub: 'Right hand, it goes right. Switch hands, it follows you. And it learns your habits.', tags: ['Right hand', 'Left hand', 'Learns your habits'] },
+  fr: { kicker: 'Foldboard pour iPhone Duo', a: 'Il sent ta main.', b: 'Et vient sous ton pouce.', sub: 'Main droite, il va à droite. Change de main, il te suit. Et il apprend tes habitudes.', tags: ['Main droite', 'Main gauche', 'Il apprend tes habitudes'] },
 }[LANG];
-const I = n => `fbcap/duo-${LANG}-${n}.png`;
+const I = n => `fbcap2/${LANG === 'fr' ? 'fr' : 'en'}-${n}.png`;
 const R = Math.PI / 2;
+const S = LAYOUT === "tall" ? 1.45 : 1.4;
+const RT = { fold: 2.25, yaw: 1.69, pitch: -0.13, roll: 0, s: S, x: 0, y: -0.012 }, LT = { fold: 2.25, yaw: 1.45, pitch: 0.13, roll: 0, s: S, x: 0, y: -0.012 };
 window.FILM = {
-  images: [I('01-right'), I('03-left'), I('02-split'), I('04-themes'), 'fbcap/outer.png'],
+  images: [I('right'), I('leftsame'), I('open-land')],
   pose: [
-    [0.0, { fold: 0, yaw: 0.26, pitch: -0.12, roll: R - 0.14, s: 1.0, x: 0, y: 0 }],
-    [2.8, { fold: 0, yaw: 0.10, pitch: -0.14, roll: R - 0.14, s: 1.0, x: 0, y: 0 }],
-    [3.6, { fold: 0, yaw: -0.14, pitch: -0.14, roll: R + 0.14, s: 1.0, x: 0, y: 0 }],
-    [6.2, { fold: 0, yaw: -0.02, pitch: -0.16, roll: R + 0.14, s: 1.0, x: 0, y: 0 }],
-    [7.0, { fold: 0, yaw: 0.10, pitch: -0.30, roll: R, s: 1.02, x: 0, y: 0 }],
-    [9.4, { fold: 0, yaw: -0.06, pitch: -0.30, roll: R, s: 1.02, x: 0, y: 0 }],
-    [10.2, { fold: 0, yaw: 0.20, pitch: -0.14, roll: R - 0.10, s: 1.0, x: 0, y: 0 }],
-    [12.0, { fold: 0, yaw: 0.26, pitch: -0.12, roll: R - 0.14, s: 1.0, x: 0, y: 0 }],
+    [0.0, RT],
+    [1.30, RT], [1.85, LT],
+    [4.30, LT], [4.85, RT],
+    [7.30, RT], [7.85, LT],
+    [10.30, LT], [10.85, RT],
+    [12.0, RT],
   ],
-  screens: [
-    { t: 0, inner: I('01-right'), portrait: true },
-    { t: 3.2, prev: I('01-right'), inner: I('03-left'), fade: 0.4, portrait: true },
-    { t: 6.6, prev: I('03-left'), inner: I('02-split'), fade: 0.4, portrait: true },
-    { t: 9.6, prev: I('02-split'), inner: I('04-themes'), fade: 0.4, portrait: true },
-    { t: 11.3, prev: I('04-themes'), inner: I('01-right'), fade: 0.6, portrait: true },
-  ],
-  outers: [{ t: 0, img: 'fbcap/outer.png' }],
+  screens: [{ t: 0, inner: I('open-land'), portrait: false }],
+  outers: [{ t: 0, img: I('right') }, { t: 1.50, img: I('leftsame'), prev: I('right'), slide: 0.5, kb: 0.566, dx: -0.223, bg: '#000' }, { t: 4.50, img: I('right'), prev: I('leftsame'), slide: 0.5, kb: 0.566, dx: 0.223, bg: '#000' }, { t: 7.50, img: I('leftsame'), prev: I('right'), slide: 0.5, kb: 0.566, dx: -0.223, bg: '#000' }, { t: 10.50, img: I('right'), prev: I('leftsame'), slide: 0.5, kb: 0.566, dx: 0.223, bg: '#000' }],
   duration: 12,
 };
 </script>
@@ -165,6 +159,19 @@ function paint(s, a, b, m, portrait) {
   s.t.needsUpdate = true;
 }
 
+function paintOuter(so, t) {
+  const m = so.prev ? easeIO((t - so.t) / so.slide) : 1; const k = `${so.img}|${m.toFixed(3)}`; if (k === outer.key) return; outer.key = k;
+  const { ctx, c } = outer; const W2 = c.width, H2 = c.height; ctx.globalAlpha = 1; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W2, H2);
+  const A = imgs[so.prev], B = imgs[so.img];
+  if (!A || m >= 1) { ctx.drawImage(B, 0, 0, W2, H2); outer.t.needsUpdate = true; return; }
+  const y0 = Math.round(so.kb * H2), dx = so.dx * W2;
+  ctx.drawImage(A, 0, 0, W2, H2); ctx.globalAlpha = m; ctx.drawImage(B, 0, 0, W2, H2); ctx.globalAlpha = 1;
+  ctx.save(); ctx.beginPath(); ctx.rect(0, y0, W2, H2 - y0); ctx.clip();
+  ctx.fillStyle = so.bg || '#000'; ctx.fillRect(0, y0, W2, H2 - y0);
+  ctx.globalAlpha = 1 - m * m; ctx.drawImage(A, dx * m, 0, W2, H2);
+  ctx.globalAlpha = 1 - (1 - m) * (1 - m); ctx.drawImage(B, -dx * (1 - m), 0, W2, H2);
+  ctx.restore(); ctx.globalAlpha = 1; outer.t.needsUpdate = true;
+}
 let root, pivot, mixer;
 const ease = x => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
 const easeIO = x => x < 0 ? 0 : x > 1 ? 1 : (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
@@ -208,7 +215,7 @@ window.frame = (t) => {
   const m = sc.fade ? ease((t - sc.t) / sc.fade) : 1;
   paint(inner, sc.prev || sc.inner, sc.prev ? sc.inner : null, m, !!sc.portrait);
   const so = C.outers.filter(s => s.t <= t).pop() || C.outers[0];
-  paint(outer, so.img, null, 1, false);
+  paintOuter(so, t);
   renderer.render(scene, cam);
   pivot.updateMatrixWorld(true);
   const b2 = new THREE.Box3().setFromObject(root);

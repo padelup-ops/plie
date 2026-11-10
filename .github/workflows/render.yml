@@ -1,4 +1,4 @@
-# Vidéo promo Foldboard v5 (« ping-pong ») : rendu en morceaux parallèles puis montage avec la musique.
+# Vidéo Foldboard style clair (« ping-pong ») : rendu en morceaux parallèles puis montage avec la musique.
 name: Foldboard - rendu vidéo
 
 on:
@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       max-parallel: 20
       matrix:
-        include: [{"lang": "fr", "from": 0, "to": 150, "part": "film-fr-0"}, {"lang": "fr", "from": 150, "to": 300, "part": "film-fr-1"}, {"lang": "fr", "from": 300, "to": 450, "part": "film-fr-2"}, {"lang": "fr", "from": 450, "to": 600, "part": "film-fr-3"}, {"lang": "fr", "from": 600, "to": 750, "part": "film-fr-4"}, {"lang": "fr", "from": 750, "to": 900, "part": "film-fr-5"}, {"lang": "en", "from": 0, "to": 150, "part": "film-en-0"}, {"lang": "en", "from": 150, "to": 300, "part": "film-en-1"}, {"lang": "en", "from": 300, "to": 450, "part": "film-en-2"}, {"lang": "en", "from": 450, "to": 600, "part": "film-en-3"}, {"lang": "en", "from": 600, "to": 750, "part": "film-en-4"}, {"lang": "en", "from": 750, "to": 900, "part": "film-en-5"}]
+        include: [{"lang": "fr", "from": 0, "to": 143, "part": "film-fr-0"}, {"lang": "fr", "from": 143, "to": 286, "part": "film-fr-1"}, {"lang": "fr", "from": 286, "to": 429, "part": "film-fr-2"}, {"lang": "fr", "from": 429, "to": 572, "part": "film-fr-3"}, {"lang": "fr", "from": 572, "to": 715, "part": "film-fr-4"}, {"lang": "fr", "from": 715, "to": 855, "part": "film-fr-5"}, {"lang": "en", "from": 0, "to": 143, "part": "film-en-0"}, {"lang": "en", "from": 143, "to": 286, "part": "film-en-1"}, {"lang": "en", "from": 286, "to": 429, "part": "film-en-2"}, {"lang": "en", "from": 429, "to": 572, "part": "film-en-3"}, {"lang": "en", "from": 572, "to": 715, "part": "film-en-4"}, {"lang": "en", "from": 715, "to": 855, "part": "film-en-5"}]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,7 +33,7 @@ jobs:
         run: |
           python3 -m http.server 8766 >/dev/null 2>&1 &
           sleep 2
-          PAGE=fbfilm5-${{ matrix.lang }}.html CONF=fbfilm5-conf-${{ matrix.lang }}.js OUT=frames node fbrender.cjs 30 ${{ matrix.from }} ${{ matrix.to }}
+          PAGE=fbkumi-${{ matrix.lang }}.html CONF=fbkumi-conf-${{ matrix.lang }}.js VW=1420 VH=1000 OUT=frames node fbrender2.cjs 30 ${{ matrix.from }} ${{ matrix.to }}
           ffmpeg -y -v error -framerate 30 -start_number ${{ matrix.from }} -i frames/f_%05d.jpg -c:v libx264 -preset veryfast -crf 14 -pix_fmt yuv420p part.mp4
       - uses: actions/upload-artifact@v4
         with:
@@ -56,11 +56,11 @@ jobs:
             : > film-$l.txt
             for i in 0 1 2 3 4 5; do echo "file 'parts/film-$l-$i/part.mp4'" >> film-$l.txt; done
             ffmpeg -y -v error -f concat -safe 0 -i film-$l.txt -c copy film-$l.mp4
-            ffmpeg -y -v error -i film-$l.mp4 -i music5.wav -map 0:v -map 1:a -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -c:a aac -b:a 192k -shortest -movflags +faststart out/foldboard-promo-$l.mp4
+            ffmpeg -y -v error -i film-$l.mp4 -i music6.wav -map 0:v -map 1:a -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -c:a aac -b:a 192k -shortest -movflags +faststart out/foldboard-promo-$l.mp4
           done
           ls -la out
       - name: Publication
         run: |
           cd out
           git init -q -b ci-foldboard-video-out && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
-          git add -A && git commit -qm "Vidéo promo Foldboard v5" && git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ci-foldboard-video-out
+          git add -A && git commit -qm "Vidéo Foldboard style clair" && git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ci-foldboard-video-out

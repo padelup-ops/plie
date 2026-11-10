@@ -1,0 +1,200 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html,body{margin:0;background:#f2f4fa;overflow:hidden}
+  #stage{position:relative;width:1420px;height:1000px;overflow:hidden;font-family:"Inter Display","Inter",sans-serif;color:#1d1d1f;background:#f2f4fa}
+  #glow{position:absolute;width:760px;height:760px;border-radius:50%;background:radial-gradient(closest-side,rgba(246,165,90,.30),rgba(246,165,90,.10) 55%,transparent);filter:blur(30px);pointer-events:none}
+  canvas#gl{position:absolute;left:0;top:0;width:1420px;height:1000px}
+  #shadow{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(241,139,46,.55),rgba(241,139,46,.18) 60%,transparent);filter:blur(10px)}
+  .ov{position:absolute;opacity:0}
+  .t{font-weight:800;letter-spacing:-2px;line-height:1.12;white-space:nowrap}
+  .o{color:#F18B2E}
+  .caret{display:inline-block;width:5px;height:.92em;background:#1d1d1f;vertical-align:-.1em;margin-left:4px;border-radius:2px}
+  .o + .caret,.caret.o{background:#F18B2E}
+  #cards{position:absolute;inset:0;perspective:1400px;pointer-events:none}
+  .card{position:absolute;left:50%;top:50%;border-radius:22px;background:#fff;box-shadow:0 18px 50px rgba(40,50,90,.16);overflow:hidden;
+    transform-style:preserve-3d;backface-visibility:hidden}
+  .card img{display:block;width:100%;height:100%;object-fit:cover}
+  #logo{position:absolute;left:0;top:0;width:1420px;height:1000px;pointer-events:none}
+  .tile{position:absolute;background-image:url(fbicon.png);background-size:300px 300px}
+  #end{position:absolute;inset:0;background:#f9f9fb;opacity:0;text-align:center}
+  #end .icon{width:190px;height:190px;border-radius:44px;box-shadow:0 22px 50px rgba(30,40,80,.18);margin-top:250px}
+  #end .name{font-size:84px;font-weight:800;letter-spacing:-2.4px;color:#3a3a3e;margin-top:26px}
+  #end .sub{font-size:28px;font-weight:600;color:#7a7c85;margin-top:6px}
+  #end .store{display:inline-flex;align-items:center;gap:10px;margin-top:24px;padding:12px 26px;border-radius:14px;background:#111;color:#fff;font-size:26px;font-weight:700}
+  #end .fine{position:absolute;left:0;right:0;bottom:22px;font-size:15px;color:#a3a5ad}
+  .part{opacity:0}
+</style>
+<script src="fbkumi-conf-en.js"></script>
+<script type="importmap">{"imports":{"three":"./lib/three.module.js"}}</script>
+</head><body>
+<div id="stage">
+  <div id="glow"></div>
+  <div id="shadow"></div>
+  <canvas id="gl" width="1420" height="1000"></canvas>
+  <div id="cards"></div>
+  <div class="ov" id="o-one" style="left:90px;top:440px"><div class="t" style="font-size:96px"><span class="ty " data-type="With one hand," data-at="0.25" data-cps="16"></span><span class="caret"></span></div></div>
+  <div class="ov" id="o-two" style="left:770px;top:440px"><div class="t o" style="font-size:96px"><span class="ty o" data-type="or with two." data-at="0.2" data-cps="16"></span><span class="caret o"></span></div></div>
+  <div class="ov" id="o-learn" style="left:70px;top:330px"><div class="t" style="font-size:70px"><span class="ty " data-type="It follows your hand," data-at="0.1" data-cps="16"></span><br><span class="ty " data-type="it learns" data-at="1.25" data-cps="16"></span><span class="ty o" data-type=" your habits" data-at="1.95" data-cps="16"></span><span class="caret o"></span></div></div>
+  <div class="ov" id="o-look" style="left:70px;top:390px"><div class="t" style="font-size:80px"><span class="ty " data-type="And the colors," data-at="0.15" data-cps="16"></span><br><span class="ty o" data-type="your way." data-at="1.3" data-cps="16"></span><span class="caret o"></span></div></div>
+  <div id="logo"></div>
+  <img id="logoimg" src="fbicon.png" style="position:absolute;opacity:0;border-radius:22.5%">
+  <div id="end">
+    <img class="icon part" data-p="0" src="fbicon.png"><br>
+    <div class="name part" data-p="0.15">Foldboard</div>
+    <div class="sub part" data-p="0.3">On the App Store · for iPhone Duo</div>
+    <div class="store part" data-p="0.45"><span style="font-size:30px"></span>Download on the App Store</div>
+    <div class="fine part" data-p="0.6">Free 3-day trial, then a one-time purchase. iPhone and App Store are trademarks of Apple Inc.</div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './lib/loaders/GLTFLoader.js';
+import { RoomEnvironment } from './lib/addons/RoomEnvironment.js';
+
+const C = window.FILM;                     // timeline (scenes, poses, captions, screens)
+const W = 1420, H = 1000;
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+const key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(0.4, 0.8, 0.6); scene.add(key);
+const cam = new THREE.PerspectiveCamera(22, W / H, 0.01, 10);
+cam.position.set(0, 0, 0.66); cam.lookAt(0, 0, 0);
+
+// --- screens (canvas textures so two captures can cross-fade)
+function screenCanvas(w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const t = new THREE.CanvasTexture(c); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return { c, ctx: c.getContext('2d'), t, key: '' };
+}
+const inner = screenCanvas(2048, 1441), outer = screenCanvas(1024, 1490);
+const imgs = {};
+function load(name) { return new Promise(r => { const i = new Image(); i.onload = () => { imgs[name] = i; r(); }; i.src = name; }); }
+function paint(s, a, b, m, portrait, pp) { if (pp === undefined) pp = portrait;
+  const k = `${a}|${b}|${m.toFixed(3)}|${portrait}|${pp}`; if (k === s.key) return; s.key = k;
+  const { ctx, c } = s; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+  const draw = (n, alpha, portrait) => { const im = imgs[n]; if (!im || alpha <= 0) return; ctx.globalAlpha = alpha;
+    if (portrait) { ctx.save(); ctx.translate(c.width, 0); ctx.rotate(Math.PI / 2); ctx.drawImage(im, 0, 0, c.height, c.width); ctx.restore(); }
+    else ctx.drawImage(im, 0, 0, c.width, c.height); ctx.globalAlpha = 1; };
+  draw(a, 1 - (b ? m : 0), b ? pp : portrait); if (b) draw(b, m, portrait);
+  s.t.needsUpdate = true;
+}
+
+function paintOuter(so, t) {
+  const m = so.prev ? easeIO((t - so.t) / so.slide) : 1; const k = `${so.img}|${m.toFixed(3)}`; if (k === outer.key) return; outer.key = k;
+  const { ctx, c } = outer; const W2 = c.width, H2 = c.height; ctx.globalAlpha = 1; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W2, H2);
+  const A = imgs[so.prev], B = imgs[so.img];
+  if (!A || m >= 1) { ctx.drawImage(B, 0, 0, W2, H2); outer.t.needsUpdate = true; return; }
+  const y0 = Math.round(so.kb * H2), dx = so.dx * W2;
+  ctx.drawImage(A, 0, 0, W2, H2); ctx.globalAlpha = m; ctx.drawImage(B, 0, 0, W2, H2); ctx.globalAlpha = 1;
+  ctx.save(); ctx.beginPath(); ctx.rect(0, y0, W2, H2 - y0); ctx.clip();
+  ctx.fillStyle = so.bg || '#000'; ctx.fillRect(0, y0, W2, H2 - y0);
+  ctx.globalAlpha = 1 - m * m; ctx.drawImage(A, dx * m, 0, W2, H2);
+  ctx.globalAlpha = 1 - (1 - m) * (1 - m); ctx.drawImage(B, -dx * (1 - m), 0, W2, H2);
+  ctx.restore(); ctx.globalAlpha = 1; outer.t.needsUpdate = true;
+}
+let root, pivot, mixer;
+const ease = x => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
+const easeIO = x => x < 0 ? 0 : x > 1 ? 1 : (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+function track(keys, t) {           // keys: [[time, {props}], ...] smooth between
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 0; i < keys.length - 1; i++) {
+    const [t0, a] = keys[i], [t1, b] = keys[i + 1];
+    if (t <= t1) { const x = easeIO((t - t0) / Math.max(1e-6, t1 - t0)); const o = {};
+      for (const k in a) o[k] = a[k] + ((k in b ? b[k] : a[k]) - a[k]) * x; return o; }
+  }
+  return keys[keys.length - 1][1];
+}
+
+window.ready = (async () => {
+  await Promise.all(C.images.map(load));
+  const g = await new Promise(r => new GLTFLoader().load('duo.glb', r));
+  ['Armature', 'Armature_off'].forEach(n => { const o = g.scene.getObjectByName(n); o.parent.remove(o); });
+  g.scene.getObjectByName('Armature_screen').position.x -= 0.21;
+  g.scene.traverse(o => { if (o.isMesh) { o.frustumCulled = false;
+    if (o.material.name === 'duo') { o.material.map = null; o.material.color = new THREE.Color(0xdfe2e9); o.material.metalness = 0.55; o.material.roughness = 0.32; o.material.needsUpdate = true; }
+    if (o.material.name === 'screen_lg_screen') { o.material.emissiveMap = inner.t; }
+    if (o.material.name === 'screen_screen ') { o.material.emissiveMap = outer.t; }
+    if (/screen/.test(o.material.name) && o.material.emissiveMap) { o.material.emissive = new THREE.Color(1, 1, 1); o.material.emissiveIntensity = 0.98; o.material.toneMapped = false; o.material.needsUpdate = true; }
+  } });
+  root = g.scene; pivot = new THREE.Group(); pivot.add(root); scene.add(pivot);
+  mixer = new THREE.AnimationMixer(root);
+  mixer.clipAction(g.animations.find(c => c.name === 'ArmatureAction_screen')).play();
+  return true;
+})();
+
+function fadeWin(t, a, b, d = 0.35) { return Math.min(ease((t - a) / d), ease((b - t) / d)); }
+
+// Une séquence d'images (partie filmée) : { seq: 'seq/cascade', fps: 30, from: 1.2 (s dans la séquence), n: nombre d'images }
+function seqName(x, t, t0) {
+  if (typeof x === 'string' || !x) return x;
+  const i = Math.max(0, Math.min(x.n - 1, Math.floor((x.from + (t - t0)) * x.fps)));
+  return `${x.seq}/${String(i + 1).padStart(5, '0')}.jpg`;
+}
+
+// ---- cartes de claviers (ouverture)
+const cardsEl = document.getElementById('cards');
+const cards = C.cards.map((c, i) => { const d = document.createElement('div'); d.className = 'card';
+  d.style.width = c.w + 'px'; d.style.height = c.h + 'px'; d.innerHTML = `<img src="${c.img}">`; cardsEl.appendChild(d); return { d, c }; });
+// ---- logo en tuiles
+const logoEl = document.getElementById('logo'); const N = 3, S = 300, tiles = [];
+for (let r = 0; r < N; r++) for (let q = 0; q < N; q++) { const d = document.createElement('div'); d.className = 'tile';
+  d.style.width = d.style.height = (S / N) + 'px'; d.style.backgroundPosition = `${-q * S / N}px ${-r * S / N}px`; logoEl.appendChild(d);
+  const k = r * N + q; tiles.push({ d, r, q, k, dx: Math.sin(k * 2.7) * 520, dy: Math.cos(k * 1.9) * 360, rot: Math.sin(k * 5.1) * 120, delay: (k * 0.37) % 1 * 0.55 }); }
+function typing(el, t, a) {
+  el.querySelectorAll('[data-type]').forEach(e => { const s = e.dataset.type, t0 = a + parseFloat(e.dataset.at), cps = parseFloat(e.dataset.cps);
+    const n = Math.max(0, Math.min(s.length, Math.floor((t - t0) * cps))); if (e.textContent !== s.slice(0, n)) e.textContent = s.slice(0, n); });
+  const last = [...el.querySelectorAll('[data-type]')].pop(); const done = a + parseFloat(last.dataset.at) + last.dataset.type.length / parseFloat(last.dataset.cps);
+  const cr = el.querySelector('.caret'); if (cr) cr.style.opacity = (t < done + 0.1 || Math.floor((t - done) * 2) % 2 === 0) ? 1 : 0;
+}
+window.frame = async (t) => {
+  const p = track(C.pose, t);
+  mixer.setTime(p.fold); root.position.set(0, 0, 0); pivot.rotation.set(0, 0, 0); pivot.scale.setScalar(1); pivot.position.set(0, 0, 0);
+  pivot.updateMatrixWorld(true); root.traverse(o => { if (o.isSkinnedMesh) o.computeBoundingBox(); });
+  const box = new THREE.Box3().setFromObject(root); const c = box.getCenter(new THREE.Vector3()); root.position.set(-c.x, -c.y, -c.z);
+  pivot.rotation.set(p.pitch, p.yaw, p.roll, 'YXZ'); pivot.scale.setScalar(p.s); pivot.position.set(p.x, p.y, 0);
+  const si = C.screens.filter(s => s.t <= t).length - 1; const sc = C.screens[Math.max(0, si)];
+  const m = sc.fade ? ease((t - sc.t) / sc.fade) : 1;
+  paint(inner, sc.prev || sc.inner, sc.prev ? sc.inner : null, m, !!sc.portrait, sc.prevPortrait === undefined ? !!sc.portrait : !!sc.prevPortrait);
+  const so = C.outers.filter(s => s.t <= t).pop() || C.outers[0]; paintOuter(so, t);
+  const vis = track(C.phone, t).o; const gl = document.getElementById('gl'); gl.style.opacity = vis.toFixed(3);
+  renderer.render(scene, cam);
+  // ombre orange sous le téléphone, et halo
+  pivot.updateMatrixWorld(true); const b2 = new THREE.Box3().setFromObject(root);
+  const lo = new THREE.Vector3((b2.min.x + b2.max.x) / 2, b2.min.y, (b2.min.z + b2.max.z) / 2).project(cam);
+  const l = new THREE.Vector3(b2.min.x, b2.min.y, 0).project(cam), r = new THREE.Vector3(b2.max.x, b2.min.y, 0).project(cam);
+  const sw = Math.abs(r.x - l.x) * W / 2 * 1.05, sh = Math.max(16, sw * 0.08); const sEl = document.getElementById('shadow');
+  sEl.style.width = sw + 'px'; sEl.style.height = sh + 'px'; sEl.style.left = ((lo.x + 1) / 2 * W - sw / 2) + 'px'; sEl.style.top = ((1 - lo.y) / 2 * H + 30 - sh / 2) + 'px';
+  sEl.style.opacity = (vis * track(C.shadow, t).o).toFixed(3);
+  const ctr = new THREE.Vector3((b2.min.x + b2.max.x) / 2, (b2.min.y + b2.max.y) / 2, 0).project(cam); const gEl = document.getElementById('glow');
+  gEl.style.left = ((ctr.x + 1) / 2 * W - 380 + 120) + 'px'; gEl.style.top = ((1 - ctr.y) / 2 * H - 380) + 'px'; gEl.style.opacity = (0.4 + 0.6 * vis).toFixed(3);
+  // cartes
+  for (const { d, c: k } of cards) { const x = (t - k.t0) / k.dur; if (x < 0 || x > 1.15) { d.style.opacity = 0; continue; }
+    const e = easeIO(Math.min(1, x)); const z = k.z0 + (k.z1 - k.z0) * e, X = k.x0 + (k.x1 - k.x0) * e, Y = k.y0 + (k.y1 - k.y0) * e;
+    d.style.opacity = Math.min(1, x * 6, (1.15 - x) * 6).toFixed(3);
+    d.style.transform = `translate(-50%,-50%) translate3d(${X}px,${Y}px,${z}px) rotateX(${k.rx * (1 - e)}deg) rotateY(${k.ry * (1 - e)}deg) rotateZ(${k.rz}deg)`; }
+  // textes tapés
+  for (const o of C.overlays) { const el = document.getElementById(o.id); const v = fadeWin(t, o.a, o.b, 0.25); el.style.opacity = v; typing(el, t, o.a); }
+  // logo qui s'assemble au centre de l'écran, puis zoom
+  const L = C.logo, lx = (t - L.a);
+  if (lx < 0 || t > L.b) logoEl.style.opacity = 0;
+  else { logoEl.style.opacity = Math.min(1, ease((L.b - t) / 0.3)); const zoom = 1 + 2.2 * easeIO((t - L.zoom) / (L.b - L.zoom)) * (t > L.zoom ? 1 : 0);
+    for (const k of tiles) { const x = easeIO((lx - k.delay) / 0.9); const sz = S / N * 0.62 * zoom;
+      const cx = W / 2 + ((k.q - 1) * sz) + k.dx * (1 - x), cy = H / 2 + L.dy + ((k.r - 1) * sz) + k.dy * (1 - x);
+      k.d.style.width = k.d.style.height = (sz + 0.6) + 'px'; k.d.style.backgroundSize = `${sz * N}px ${sz * N}px`; k.d.style.backgroundPosition = `${-k.q * sz}px ${-k.r * sz}px`;
+      k.d.style.left = (cx - sz / 2) + 'px'; k.d.style.top = (cy - sz / 2) + 'px';
+      k.d.style.transform = `rotate(${k.rot * (1 - x)}deg) scale(${0.3 + 0.7 * x})`; k.d.style.opacity = Math.min(1, x * 3).toFixed(3);
+      k.d.style.borderRadius = '0'; }
+    const done = lx > 1.5; const li = document.getElementById('logoimg'); const sz = S * 0.62 * zoom;
+    li.style.width = li.style.height = sz + 'px'; li.style.left = (W / 2 - sz / 2) + 'px'; li.style.top = (H / 2 + L.dy - sz / 2) + 'px';
+    li.style.opacity = done ? logoEl.style.opacity : 0; for (const k of tiles) if (done) k.d.style.opacity = 0; }
+  if (lx < 0 || t > L.b) document.getElementById('logoimg').style.opacity = 0;
+  // écran de fin
+  const end = document.getElementById('end'); const ev = ease((t - C.end) / 0.45); end.style.opacity = ev;
+  end.querySelectorAll('[data-p]').forEach(e => { const x = ease((t - C.end - 0.2 - parseFloat(e.dataset.p)) / 0.4); e.style.opacity = x; e.style.transform = `translateY(${(1 - x) * 16}px)`; });
+};
+</script></body></html>
