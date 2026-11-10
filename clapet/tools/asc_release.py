@@ -386,7 +386,8 @@ if NEW_VERSION:
                     "zh": "zh-Hans"}.get(loc.split("-")[0], "")) or notes.get("en-US"))
             if text:
                 step(f"nouveautés {l['attributes']['locale']}", call("PATCH", f"/v1/appStoreVersionLocalizations/{l['id']}", {"data": {
-                     "type": "appStoreVersionLocalizations", "id": l["id"], "attributes": {"whatsNew": text}}}))
+                     "type": "appStoreVersionLocalizations", "id": l["id"], "attributes": {"whatsNew": text}}}),
+                     tolerate=("cannot be edited at this time",))  # première version d'une app : pas de « Nouveautés »
 
 # ---------------------------------------------------------------- version 1.0
 versions = call("GET", f"/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS&limit=10").get("data", [])
