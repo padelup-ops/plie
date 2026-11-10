@@ -92,6 +92,9 @@ final class KeyboardCanvas: UIView {
     /// Écran intérieur, petit clavier : un bouton pour passer en grand (et revenir).
     private let bigButton = UIButton(type: .system)
     private let hideButton = UIButton(type: .system)
+    /// Petit clavier : le globe et les emojis sont ici, pour laisser la place à l'espace.
+    private let globeButton = UIButton(type: .system)
+    private let emojiButton = UIButton(type: .system)
     private let adjustButton = UIButton(type: .system)
     private let chips = UIScrollView()
     private let chipStack = UIStackView()
@@ -185,7 +188,7 @@ final class KeyboardCanvas: UIView {
         adjustButton.setImage(UIImage(systemName: "slider.horizontal.3"), for: .normal)
         adjustButton.addAction(UIAction { [weak self] _ in self?.startAdjust() }, for: .touchUpInside)
         adjustButton.accessibilityLabel = L("Adjust the keyboard")
-        for b in [modeButton, flipButton, bigButton, hideButton, adjustButton] {
+        for b in [modeButton, flipButton, bigButton, hideButton, adjustButton, globeButton, emojiButton] {
             b.tintColor = .label
             topBar.addSubview(b)
         }
@@ -199,6 +202,15 @@ final class KeyboardCanvas: UIView {
         hideButton.setImage(UIImage(systemName: "keyboard.chevron.compact.down"), for: .normal)
         hideButton.addAction(UIAction { [weak self] _ in self?.input?.kbDismiss() }, for: .touchUpInside)
         hideButton.accessibilityLabel = L("Hide keyboard")
+        globeButton.setImage(UIImage(systemName: "globe"), for: .normal)
+        globeButton.addAction(UIAction { [weak self] _ in self?.input?.kbNextKeyboard() }, for: .touchUpInside)
+        emojiButton.setImage(UIImage(systemName: "face.smiling"), for: .normal)
+        emojiButton.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            self.showEmoji = true
+            self.builtFor = .zero
+            self.rebuild()
+        }, for: .touchUpInside)
         chips.showsHorizontalScrollIndicator = false
         chips.alwaysBounceHorizontal = true
         chipStack.axis = .horizontal
@@ -551,9 +563,10 @@ final class KeyboardCanvas: UIView {
         flash((names[gripContext] ?? gripContext) + " · " + state + " · " + habits)
     }
 
-    /// Écran intérieur en portrait : le clavier en grand, ou de nouveau le petit qui suit la main.
+    /// Écran intérieur : passe d'une disposition à l'autre (portrait : une main ⇄ deux moitiés ; paysage : entier ⇄ deux moitiés).
     private func toggleBig() {
-        settings.openFull.toggle()
+        if gripContext == "open-portrait" { settings.openSplit.toggle() } else { settings.openLandSplit.toggle() }
+        settings.openFull = false
         KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
         save()
         layoutIfNeeded()
@@ -617,7 +630,7 @@ final class KeyboardCanvas: UIView {
 
     /// Le clavier suit la main ici : écran extérieur, ou écran intérieur en portrait sans les deux moitiés.
     private var followsHand: Bool {
-        gripContext.hasPrefix("closed") || (gripContext == "open-portrait" && !settings.openSplit && !settings.openFull)
+        gripContext.hasPrefix("closed") || (gripContext == "open-portrait" && !settings.openSplit)
     }
 
     private var layoutMode: KBMode {
@@ -625,8 +638,8 @@ final class KeyboardCanvas: UIView {
         if settings.mode == .auto {
             // En portrait, au choix : deux moitiés, ou le petit clavier qui suit la main (comme sur l'écran extérieur).
             if gripContext == "open-portrait" && settings.openSplit { return pro && splitAllowed ? .split : .full }
-            if gripContext == "open-portrait" && settings.openFull { return .full }
-            if gripContext == "open-landscape" { return .full }
+            // En paysage, au choix : le clavier entier, ou deux moitiés.
+            if gripContext == "open-landscape" { return settings.openLandSplit && pro && splitAllowed ? .split : .full }
         }
         if eff.mode == .auto && eff.autoTwo { return splitAllowed ? .split : .full }
         if eff.mode == .split && !splitAllowed { return .full }
@@ -851,7 +864,7 @@ final class KeyboardCanvas: UIView {
             panelRect = isRight
                 ? CGRect(x: 6, y: top, width: max(0, b.minX - 12), height: areaH)
                 : CGRect(x: b.maxX + 6, y: top, width: max(0, W - b.maxX - 12), height: areaH)
-            place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout)], in: b, align: 0)
+            place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout, compact: true)], in: b, align: 0)
         case .split:
             let hw = W * CGFloat(eff.splitWidth)
             let l = CGRect(x: margin, y: top, width: hw, height: areaH)
@@ -975,18 +988,30 @@ final class KeyboardCanvas: UIView {
         // En couleur : le clavier est verrouillé là où tu l'as mis.
         flipButton.tintColor = grip.locked && eff.mode == .auto ? theme.accent : theme.text.withAlphaComponent(0.7)
         flipButton.frame = CGRect(x: 46, y: 0, width: oneHand ? 36 : 0, height: h)
-        let bigShown = gripContext == "open-portrait" && settings.mode == .auto && !settings.openSplit
+        // Écran intérieur : un bouton pour passer d'une disposition à l'autre.
+        // Portrait : petit clavier qui suit la main ⇄ deux moitiés. Paysage : clavier entier ⇄ deux moitiés.
+        let open = gripContext.hasPrefix("open")
+        let bigShown = open && settings.mode == .auto && pro
+        let splitNow = gripContext == "open-portrait" ? settings.openSplit : settings.openLandSplit
         bigButton.isHidden = !bigShown
-        bigButton.setImage(UIImage(systemName: settings.openFull ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right"), for: .normal)
-        bigButton.accessibilityLabel = settings.openFull ? L("Small keyboard") : L("Big keyboard")
+        bigButton.setImage(UIImage(systemName: splitNow ? (gripContext == "open-portrait" ? "keyboard.onehanded.right" : "keyboard") : "rectangle.split.2x1"), for: .normal)
+        bigButton.accessibilityLabel = splitNow ? L("One keyboard") : L("Split keyboard")
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
-        bigButton.frame = CGRect(x: flipButton.frame.maxX + (oneHand ? 0 : 0), y: 0, width: bigShown ? 36 : 0, height: h)
+        bigButton.frame = CGRect(x: flipButton.frame.maxX, y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
         hideButton.frame = CGRect(x: bounds.width - 46, y: 0, width: 40, height: h)
         adjustButton.tintColor = theme.text.withAlphaComponent(0.7)
         adjustButton.frame = CGRect(x: bounds.width - 46 - 36, y: 0, width: 36, height: h)
+        let compact = layoutMode.isOneHand && !showEmoji
+        let globe = input?.kbNeedsGlobe ?? false
+        emojiButton.isHidden = !compact
+        globeButton.isHidden = !(compact && globe)
+        emojiButton.tintColor = theme.text.withAlphaComponent(0.7)
+        globeButton.tintColor = theme.text.withAlphaComponent(0.7)
+        emojiButton.frame = CGRect(x: adjustButton.frame.minX - (compact ? 36 : 0), y: 0, width: compact ? 36 : 0, height: h)
+        globeButton.frame = CGRect(x: emojiButton.frame.minX - (compact && globe ? 36 : 0), y: 0, width: compact && globe ? 36 : 0, height: h)
         let cx = max(flipButton.frame.maxX, bigButton.frame.maxX) + 4
-        chips.frame = CGRect(x: cx, y: 0, width: max(0, adjustButton.frame.minX - cx - 4), height: h)
+        chips.frame = CGRect(x: cx, y: 0, width: max(0, globeButton.frame.minX - cx - 4), height: h)
 
         rebuildChips()
     }
@@ -1266,6 +1291,7 @@ final class KeyboardCanvas: UIView {
             if k == .space {
                 let dx = p.x - tr.start.x
                 if !tr.cursorMode && abs(dx) > 12 {
+                    if tr.typed != nil { input?.kbDelete(); tr.typed = nil }
                     tr.cursorMode = true
                     tr.lastX = p.x
                     hideBubble()
@@ -1375,6 +1401,12 @@ final class KeyboardCanvas: UIView {
         }
         KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics, strong: strong)
         setPressed(tr.index, true)
+        if case .space = v.spec.kind {
+            // L'espace part dès que le doigt se pose (retiré si le doigt glisse pour déplacer le curseur).
+            tr.typed = " "
+            typeSpace()
+            return
+        }
         switch v.spec.kind {
         case .char(let s):
             countTyped()
@@ -1449,7 +1481,7 @@ final class KeyboardCanvas: UIView {
                 typeText(shift != .off && page == .letters ? s.uppercased() : s)
             }
         case .space:
-            if !tr.cursorMode { typeSpace() }
+            if !tr.cursorMode && tr.typed == nil { typeSpace() }
         case .ret:
             autocorrect(sep: "\n")
             input?.kbInsert("\n")
@@ -1563,7 +1595,8 @@ final class KeyboardCanvas: UIView {
         let before = input?.kbTextBefore() ?? ""
         let word = KBSuggest.currentWord(before)
         let known: String?? = cachedFix?.word == word ? .some(cachedFix?.fix) : nil
-        let computed: String? = known ?? suggest.correction(for: word, before: before)
+        // Seulement la correction déjà préparée en arrière-plan : l'espace n'attend jamais le correcteur.
+        let computed: String? = known ?? nil
         guard !word.isEmpty, let fix = computed, fix != word else {
             lastCorrection = nil
             return

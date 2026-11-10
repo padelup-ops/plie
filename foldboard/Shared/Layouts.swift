@@ -83,8 +83,15 @@ enum KBLayouts {
     }
 
     /// La rangée du bas.
-    static func bottom(_ page: KBPage, globe: Bool, layout: KBLayout) -> KeyRow {
+    static func bottom(_ page: KBPage, globe: Bool, layout: KBLayout, compact: Bool = false) -> KeyRow {
         var keys: [KeySpec] = [KeySpec(kind: .page(page == .letters ? .numbers : .letters), width: 1.5)]
+        if compact {
+            // Petit clavier à une main : le globe et les emojis montent dans la barre du haut, l'espace est bien plus large.
+            keys.append(KeySpec(kind: .char(layout == .azerty && page == .letters ? "," : "."), width: 1))
+            keys.append(KeySpec(kind: .space, width: 5.5))
+            keys.append(KeySpec(kind: .ret, width: 2))
+            return KeyRow(keys: keys)
+        }
         if globe { keys.append(KeySpec(kind: .globe, width: 1.1)) }
         keys.append(KeySpec(kind: .emoji, width: 1.1))
         keys.append(KeySpec(kind: .char(layout == .azerty && page == .letters ? "," : "."), width: 1))

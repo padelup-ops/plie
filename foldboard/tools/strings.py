@@ -166,6 +166,8 @@ FR = {
     "It's open": "C’est ouvert",
     "Skip this step": "Passer cette étape",
     "%lld habits learned": "%lld habitudes apprises",
+    "One keyboard": "Un seul clavier",
+    "Split keyboard": "Clavier coupé en deux",
     "Small keyboard": "Petit clavier",
     "Big keyboard": "Clavier en grand",
     "Split when the Duo is open": "Scinder quand le Duo est ouvert",
