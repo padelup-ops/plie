@@ -13,6 +13,8 @@ struct KeyboardPreview: UIViewRepresentable {
     var onSwipe: (([Double]) -> Void)? = nil
     /// Tutoriel : comme sur l'écran extérieur, même Duo ouvert.
     var demoOneHand = false
+    /// Captures : la situation imposée.
+    var demoContext: String? = nil
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -20,6 +22,7 @@ struct KeyboardPreview: UIViewRepresentable {
         let c = KeyboardCanvas()
         c.input = context.coordinator
         c.demoOneHand = demoOneHand
+        c.demoContext = demoContext
         c.configure(settings: settings, pro: pro)
         c.appeared()
         if let record {

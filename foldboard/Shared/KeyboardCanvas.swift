@@ -318,6 +318,7 @@ final class KeyboardCanvas: UIView {
         }
         // Le tutoriel montre toujours le fonctionnement de l'écran extérieur.
         if demoOneHand { c = "closed-portrait" }
+        if let demoContext { c = demoContext }
         gripContext = c
         grip.angleOffset = kbAngleOffset(window?.windowScene?.interfaceOrientation)
         grip.guessUncalibrated = false
@@ -607,6 +608,8 @@ final class KeyboardCanvas: UIView {
     /// Le mode réellement possible à cette largeur (deux mains : il faut de la place).
     /// Tutoriel : le clavier se comporte comme sur l'écran extérieur, même Duo ouvert.
     var demoOneHand = false
+    /// Captures : la situation imposée (par exemple « open-portrait » sur un écran qui ne l'est pas).
+    var demoContext: String?
 
     /// Le clavier suit la main ici : écran extérieur, ou écran intérieur en portrait sans les deux moitiés.
     private var followsHand: Bool {

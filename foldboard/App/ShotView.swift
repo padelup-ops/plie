@@ -28,8 +28,36 @@ struct ShotView: View {
             NavigationStack { HandTest().fullScreenDuo() }
         case "onboarding3":
             OnboardingView(start: 4, onDone: {})
+        case "open-land":
+            scaled(width: 951, height: 669)
+        case "open-small", "open-big", "open-split":
+            scaled(width: 669, height: 951)
         default:
             chat
+        }
+    }
+
+    /// L'écran intérieur du Duo (669 × 951 pt) dessiné en réduction sur l'écran du simulateur : pour les vidéos.
+    private func scaled(width: CGFloat, height: CGFloat) -> some View {
+        GeometryReader { g in
+            let k = g.size.width / width
+            chat
+                .padding(.top, 24)
+                .frame(width: width, height: height)
+                .background(Color(.systemBackground))
+                .scaleEffect(k, anchor: .topLeading)
+                .frame(width: g.size.width, height: height * k, alignment: .topLeading)
+        }
+        .background(Color.black)
+        .ignoresSafeArea()
+        .statusBarHidden()
+    }
+
+    private var demoContext: String? {
+        switch base {
+        case "open-land": return "open-landscape"
+        case "open-small", "open-big", "open-split": return "open-portrait"
+        default: return nil
         }
     }
 
@@ -46,6 +74,13 @@ struct ShotView: View {
         case "split":
             s.mode = .split
             s.theme = "night"
+        case "leftsame":
+            s.mode = .left
+            s.sidePanel = .emoji
+        case "open-land", "open-big":
+            s.mode = .full
+        case "open-split":
+            s.mode = .split
         default:
             s.mode = .right
             s.sidePanel = .emoji
@@ -97,7 +132,7 @@ struct ShotView: View {
             .background(RoundedRectangle(cornerRadius: 20).stroke(Color(.separator)))
             .padding(.horizontal, 12)
             .padding(.bottom, 8)
-            KeyboardPreview(settings: settings, pro: true, text: $text)
+            KeyboardPreview(settings: settings, pro: true, text: $text, demoContext: demoContext)
                 .frame(height: KeyboardPreview.height(settings))
         }
         .onAppear { text = draft }
