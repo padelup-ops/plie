@@ -734,6 +734,7 @@
 "Rest until" = "静置结束";
 "Time at rest" = "静置时间";
 "Time your Duo stays open during these hours counts as rest, not as use." = "在这些时段内 Duo 保持展开的时间会算作静置，而不是使用。";
+"Time your Duo stays open during these hours counts as rest, not as use. Open all night? The whole night counts, up to 3 hours before and after." = "在这些时段内 Duo 保持展开的时间会算作静置，而不是使用。整晚都展开？整晚都算作静置，前后最多各 3 小时。";
 
 /* Carte et visite : repos */
 "New: time at rest" = "新功能：静置时间";

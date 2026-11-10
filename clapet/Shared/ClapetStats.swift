@@ -145,6 +145,8 @@ struct ClapetStats: Codable, Equatable {
     var weekHours: [Int] = Array(repeating: 0, count: 168)
     /// Au-delà, une ouverture sans fermeture vue est oubliée (une fermeture a dû nous échapper).
     static let maxOpenSession: TimeInterval = 16 * 3600
+    /// Une nuit entière passée ouvert : jusqu'à 3 h avant et après les heures de repos comptent aussi.
+    static let restMargin: TimeInterval = 3 * 3600
 
     init() {}
 
@@ -537,7 +539,10 @@ struct ClapetStats: Codable, Equatable {
 
     /// Les périodes de repos comprises entre `start` et `end`, sans chevauchement :
     /// celles du raccourci (mode Repos) et les heures de repos réglées dans l'app (la nuit, par exemple).
-    func restSpans(from start: Date, to end: Date) -> [RestSpan] {
+    /// Une ouverture qui couvre toutes les heures de repos (couché avant, levé après) compte en entier
+    /// comme du repos (jusqu'à 3 h avant et après) : ouvert de 22 h à 6 h avec des heures de repos de 0 h à 5 h, c'est 8 h de repos.
+    /// `openStart` : le vrai début de l'ouverture quand `start` a été coupé à minuit.
+    func restSpans(from start: Date, to end: Date, openStart: Date? = nil) -> [RestSpan] {
         guard end > start else { return [] }
         var all = focusSpans
         if let r = restSince { all.append(RestSpan(a: r, b: end)) }
@@ -549,6 +554,12 @@ struct ClapetStats: Codable, Equatable {
                 if let a = cal.date(bySettingHour: nightFrom, minute: 0, second: 0, of: day),
                    let b = cal.date(byAdding: .hour, value: hours, to: a) {
                     all.append(RestSpan(a: a, b: b))
+                    // Toute la nuit passée ouvert : l'ouverture compte comme du repos, jusqu'à 3 h
+                    // avant et après les heures de repos (une soirée passée à s'en servir reste du temps utilisé).
+                    if (openStart ?? start) <= a && end >= b {
+                        all.append(RestSpan(a: max(openStart ?? start, a.addingTimeInterval(-Self.restMargin)),
+                                            b: min(end, b.addingTimeInterval(Self.restMargin))))
+                    }
                 }
                 day = cal.date(byAdding: .day, value: 1, to: day) ?? end
             }
@@ -589,7 +600,7 @@ struct ClapetStats: Codable, Equatable {
         var t = day(date).restSeconds
         if Self.key(date) == Self.key(now), let s = openSince, now.timeIntervalSince(s) < Self.maxOpenSession {
             let from = max(s, Calendar.current.startOfDay(for: now))
-            t += restSpans(from: from, to: now).reduce(0) { $0 + $1.b.timeIntervalSince($1.a) }
+            t += restSpans(from: from, to: now, openStart: s).reduce(0) { $0 + $1.b.timeIntervalSince($1.a) }
         }
         return min(t, rawOpenTime(date, now: now))
     }

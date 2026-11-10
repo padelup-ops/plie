@@ -734,6 +734,7 @@
 "Rest until" = "Rest until";
 "Time at rest" = "Time at rest";
 "Time your Duo stays open during these hours counts as rest, not as use." = "Time your Duo stays open during these hours counts as rest, not as use.";
+"Time your Duo stays open during these hours counts as rest, not as use. Open all night? The whole night counts, up to 3 hours before and after." = "Time your Duo stays open during these hours counts as rest, not as use. Open all night? The whole night counts, up to 3 hours before and after.";
 
 /* Carte et visite : repos */
 "New: time at rest" = "New: time at rest";

@@ -734,6 +734,7 @@
 "Rest until" = "Repos jusqu’à";
 "Time at rest" = "Temps au repos";
 "Time your Duo stays open during these hours counts as rest, not as use." = "Le temps où ton Duo reste ouvert pendant ces heures compte comme du repos, pas de l’utilisation.";
+"Time your Duo stays open during these hours counts as rest, not as use. Open all night? The whole night counts, up to 3 hours before and after." = "Le temps où ton Duo reste ouvert pendant ces heures compte comme du repos, pas de l’utilisation. Ouvert toute la nuit ? Toute la nuit compte, jusqu’à 3 h avant et après.";
 
 /* Carte et visite : repos */
 "New: time at rest" = "Nouveau : le temps au repos";

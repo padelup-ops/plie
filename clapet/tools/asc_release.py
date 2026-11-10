@@ -255,6 +255,24 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.14": {
+        "en-US": "• Open all night? The whole night now counts as rest, even if you go to bed before your rest hours or get up after them (up to 3 hours before and after). Thanks for the idea!\n• Small fixes and improvements.",
+        "fr-FR": "• Ouvert toute la nuit ? Toute la nuit compte maintenant comme du repos, même si tu te couches avant tes heures de repos ou te lèves après (jusqu'à 3 h avant et après). Merci pour l'idée !\n• Petites corrections et améliorations.",
+        "de-DE": "• Die ganze Nacht offen? Jetzt zählt die ganze Nacht als Ruhe, auch wenn du vor deinen Ruhezeiten schlafen gehst oder danach aufstehst (bis zu 3 Stunden davor und danach). Danke für die Idee!\n• Kleine Fehlerbehebungen und Verbesserungen.",
+        "es-ES": "• ¿Abierto toda la noche? Ahora toda la noche cuenta como reposo, aunque te acuestes antes de tus horas de reposo o te levantes después (hasta 3 horas antes y después). ¡Gracias por la idea!\n• Pequeñas correcciones y mejoras.",
+        "ja": "• 一晩中開いていた場合、休止時間の前に寝ても後に起きても、夜全体が休止として数えられるようになりました（前後3時間まで）。アイデアをありがとう！\n• 細かな修正と改善。",
+        "ko": "• 밤새 열려 있었나요? 휴식 시간대보다 일찍 자거나 늦게 일어나도 이제 밤 전체가 휴식으로 계산돼요(앞뒤 최대 3시간). 아이디어 고마워요!\n• 작은 수정 및 개선.",
+        "zh-Hans": "• 整晚都展开？现在即使你在静置时段之前睡觉或之后起床，整晚也都算作静置（前后最多各 3 小时）。感谢你的建议！\n• 小问题修复和改进。",
+    },
+    "1.6.2": {
+        "en-US": "• MINI GOLF: the ball no longer gets stuck against a wall on the slope.\n• FIREFLY: no more fireflies in hidden areas.\n• SCHOOL: chalk digits are recognized much more reliably.\n• Small fixes and improvements.",
+        "fr-FR": "• MINIGOLF : la balle ne reste plus bloquée contre un mur sur la pente.\n• LUCIOLE : plus de lucioles dans les zones cachées.\n• ÉCOLE : les chiffres écrits à la craie sont bien mieux reconnus.\n• Petites corrections et améliorations.",
+        "de-DE": "• MINIGOLF: Der Ball bleibt am Hang nicht mehr an einer Wand hängen.\n• GLÜHWÜRMCHEN: keine Glühwürmchen mehr in verdeckten Bereichen.\n• SCHULE: Kreidezahlen werden viel zuverlässiger erkannt.\n• Kleine Korrekturen und Verbesserungen.",
+        "es-ES": "• MINIGOLF: la bola ya no se queda atascada contra una pared en la pendiente.\n• LUCIÉRNAGA: ya no hay luciérnagas en zonas ocultas.\n• ESCUELA: las cifras escritas con tiza se reconocen mucho mejor.\n• Pequeñas correcciones y mejoras.",
+        "ja": "• ミニゴルフ：坂の壁にボールが引っかからなくなりました。\n• ホタル：隠れた場所にホタルが出なくなりました。\n• 学校：チョークで書いた数字の認識が大きく向上しました。\n• 細かな修正と改善。",
+        "ko": "• 미니 골프: 경사면에서 공이 벽에 끼지 않아요.\n• 반딧불이: 가려진 곳에 반딧불이가 나오지 않아요.\n• 학교: 분필로 쓴 숫자를 훨씬 정확하게 알아봐요.\n• 작은 수정 및 개선.",
+        "zh-Hans": "• 迷你高尔夫：球不会再卡在斜坡的墙边。\n• 萤火虫：隐藏区域不再出现萤火虫。\n• 学校：粉笔写的数字识别更加准确。\n• 小问题修复和改进。",
+    },
     "1.0.13": {
         "en-US": "• Open but not in use: set your Rest hours in Settings (23:00 to 7:00 by default). Time your Duo stays open then counts as rest, and is left out of your open time. Shortcuts for the Sleep focus are optional.\n• The App Store page now speaks more than 30 languages.\n• Small fixes and improvements.",
         "fr-FR": "• Ouvert mais pas utilisé : règle tes heures de repos dans les réglages (de 23 h à 7 h par défaut). Le temps où ton Duo reste ouvert à ces heures compte comme du repos, et Foldly montre la part de ton temps ouvert passée au repos. Des raccourcis pour le mode Repos sont facultatifs.\n• La fiche App Store parle maintenant plus de 30 langues.\n• Petites corrections et améliorations.",
@@ -356,7 +374,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.6", "1.6.1") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     notes = RELEASE_NOTES.get(NEW_VERSION, {})
@@ -401,7 +419,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.6", "1.6.1") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})

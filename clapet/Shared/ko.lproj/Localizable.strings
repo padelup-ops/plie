@@ -734,6 +734,7 @@
 "Rest until" = "휴식 종료";
 "Time at rest" = "휴식 시간";
 "Time your Duo stays open during these hours counts as rest, not as use." = "이 시간대에 Duo가 열려 있는 시간은 사용이 아니라 휴식으로 계산돼요.";
+"Time your Duo stays open during these hours counts as rest, not as use. Open all night? The whole night counts, up to 3 hours before and after." = "이 시간대에 Duo가 열려 있는 시간은 사용이 아니라 휴식으로 계산돼요. 밤새 열려 있었다면 앞뒤 최대 3시간까지 밤 전체를 휴식으로 계산해요.";
 
 /* Carte et visite : repos */
 "New: time at rest" = "새 기능: 휴식 시간";

@@ -271,7 +271,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Time at rest")
                 } footer: {
-                    Text("Time your Duo stays open during these hours counts as rest, not as use.")
+                    Text("Time your Duo stays open during these hours counts as rest, not as use. Open all night? The whole night counts, up to 3 hours before and after.")
                 }
 
                 // Aide

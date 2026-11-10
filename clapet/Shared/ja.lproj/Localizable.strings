@@ -734,6 +734,7 @@
 "Rest until" = "休止の終了";
 "Time at rest" = "休止時間";
 "Time your Duo stays open during these hours counts as rest, not as use." = "この時間帯にDuoが開いている時間は、使用ではなく休止として数えます。";
+"Time your Duo stays open during these hours counts as rest, not as use. Open all night? The whole night counts, up to 3 hours before and after." = "この時間帯にDuoが開いている時間は、使用ではなく休止として数えます。一晩中開いていた場合は、前後3時間までを含めて夜全体を休止として数えます。";
 
 /* Carte et visite : repos */
 "New: time at rest" = "新機能：休止時間";
