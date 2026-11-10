@@ -1,43 +1,46 @@
-# Assemble les morceaux rendus (run RENDER_RUN) : film avec musique, en-tête et recherche, puis les publie sur ci-foldboard-video-out.
-name: Foldboard - assemblage vidéo
+# Rend la vidéo de démonstration Foldboard (modèle 3D) et les vidéos d'en-tête / de recherche, en morceaux parallèles.
+# Chaque morceau devient un petit mp4 (artefact) ; l'assemblage et la musique se font ensuite.
+name: Foldboard - rendu vidéo
 
 on:
   push:
     branches: [ci-foldboard-video-src]
 
-permissions:
-  contents: write
-  actions: read
-
 jobs:
-  assemble:
+  render:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include: [{"kind": "film", "lang": "fr", "from": 0, "to": 130, "part": "film-fr-0"}, {"kind": "film", "lang": "fr", "from": 130, "to": 260, "part": "film-fr-1"}, {"kind": "film", "lang": "fr", "from": 260, "to": 390, "part": "film-fr-2"}, {"kind": "film", "lang": "fr", "from": 390, "to": 520, "part": "film-fr-3"}, {"kind": "film", "lang": "fr", "from": 520, "to": 650, "part": "film-fr-4"}, {"kind": "film", "lang": "fr", "from": 650, "to": 780, "part": "film-fr-5"}, {"kind": "film", "lang": "fr", "from": 780, "to": 910, "part": "film-fr-6"}, {"kind": "film", "lang": "fr", "from": 910, "to": 1035, "part": "film-fr-7"}, {"kind": "film", "lang": "en", "from": 0, "to": 130, "part": "film-en-0"}, {"kind": "film", "lang": "en", "from": 130, "to": 260, "part": "film-en-1"}, {"kind": "film", "lang": "en", "from": 260, "to": 390, "part": "film-en-2"}, {"kind": "film", "lang": "en", "from": 390, "to": 520, "part": "film-en-3"}, {"kind": "film", "lang": "en", "from": 520, "to": 650, "part": "film-en-4"}, {"kind": "film", "lang": "en", "from": 650, "to": 780, "part": "film-en-5"}, {"kind": "film", "lang": "en", "from": 780, "to": 910, "part": "film-en-6"}, {"kind": "film", "lang": "en", "from": 910, "to": 1035, "part": "film-en-7"}]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/setup-node@v4
         with:
-          run-id: 42639403630
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: parts
-      - name: Montage
+          node-version: 20
+      - name: Outils
         run: |
+          npm init -y >/dev/null
+          npm i playwright@1.56.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
           sudo apt-get install -y ffmpeg >/dev/null 2>&1 || (sudo apt-get update >/dev/null && sudo apt-get install -y ffmpeg >/dev/null)
-          mkdir -p out
-          for name in film-fr film-en wide-fr wide-en tall-fr tall-en; do
-            : > $name.txt
-            for i in 0 1 2 3 4 5 6 7; do [ -f parts/$name-$i/part.mp4 ] && echo "file 'parts/$name-$i/part.mp4'" >> $name.txt; done
-            cat $name.txt
-            ffmpeg -y -v error -f concat -safe 0 -i $name.txt -c copy $name.mp4
-          done
-          for l in fr en; do
-            ffmpeg -y -v error -i film-$l.mp4 -i music.wav -map 0:v -map 1:a -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -c:a aac -b:a 192k -shortest -movflags +faststart out/foldboard-demo-$l.mp4
-            ffmpeg -y -v error -i wide-$l.mp4 -an -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 30 -t 12 -movflags +faststart out/header-$l.mp4
-            ffmpeg -y -v error -i tall-$l.mp4 -an -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 30 -t 12 -movflags +faststart out/search-$l.mp4
-          done
-          for f in out/*.mp4; do echo "$f $(ffprobe -v error -show_entries stream=codec_type,width,height,r_frame_rate:format=duration -of csv=p=0 $f | tr '\n' ' ')"; done
-          ls -la out
-      - name: Publication
+          mkdir -p ~/.local/share/fonts && cp fonts/*.otf ~/.local/share/fonts/ && fc-cache -f >/dev/null
+      - name: Rendu
         run: |
-          cd out
-          git init -q -b ci-foldboard-video-out && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
-          git add -A && git commit -qm "Vidéos Foldboard" && git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ci-foldboard-video-out
+          python3 -m http.server 8766 >/dev/null 2>&1 &
+          sleep 2
+          if [ "${{ matrix.kind }}" = film ]; then
+            PAGE=fbfilm-${{ matrix.lang }}.html CONF=fbfilm-conf-${{ matrix.lang }}.js OUT=frames node fbrender.cjs 30 ${{ matrix.from }} ${{ matrix.to }}
+          else
+            FROM=${{ matrix.from }} TO=${{ matrix.to }} node fbhdr.cjs ${{ matrix.lang }} ${{ matrix.kind }} ${{ matrix.w }} ${{ matrix.h }} frames 30
+          fi
+          ls frames | wc -l
+          ffmpeg -y -v error -framerate 30 -start_number ${{ matrix.from }} -i frames/f_%05d.jpg -c:v libx264 -preset veryfast -crf 14 -pix_fmt yuv420p part.mp4
+          ls -la part.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.part }}
+          path: part.mp4
+          retention-days: 3
