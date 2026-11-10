@@ -1,0 +1,7 @@
+/* Raccourcis it */
+"Take a pause with ${applicationName}" = "Fai una pausa con ${applicationName}";
+"Count a fold in ${applicationName}" = "Conta una chiusura in ${applicationName}";
+"Add a fold in ${applicationName}" = "Aggiungi una chiusura in ${applicationName}";
+"How many folds today in ${applicationName}" = "Quante chiusure oggi in ${applicationName}";
+"My folds in ${applicationName}" = "Le mie chiusure in ${applicationName}";
+"Count an opening in ${applicationName}" = "Conta un’apertura in ${applicationName}";

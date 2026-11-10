@@ -1,0 +1,7 @@
+/* Raccourcis ru */
+"Take a pause with ${applicationName}" = "Сделать паузу в ${applicationName}";
+"Count a fold in ${applicationName}" = "Засчитать закрытие в ${applicationName}";
+"Add a fold in ${applicationName}" = "Добавить закрытие в ${applicationName}";
+"How many folds today in ${applicationName}" = "Сколько закрытий сегодня в ${applicationName}";
+"My folds in ${applicationName}" = "Мои закрытия в ${applicationName}";
+"Count an opening in ${applicationName}" = "Засчитать открытие в ${applicationName}";

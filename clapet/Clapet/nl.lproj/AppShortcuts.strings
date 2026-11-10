@@ -1,0 +1,7 @@
+/* Raccourcis nl */
+"Take a pause with ${applicationName}" = "Neem een pauze met ${applicationName}";
+"Count a fold in ${applicationName}" = "Tel een keer dicht in ${applicationName}";
+"Add a fold in ${applicationName}" = "Voeg een keer dicht toe in ${applicationName}";
+"How many folds today in ${applicationName}" = "Hoe vaak dicht vandaag in ${applicationName}";
+"My folds in ${applicationName}" = "Mijn tellingen in ${applicationName}";
+"Count an opening in ${applicationName}" = "Tel een keer open in ${applicationName}";
