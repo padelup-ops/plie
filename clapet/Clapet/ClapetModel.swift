@@ -151,7 +151,7 @@ final class ClapetModel {
     func automationOpen() {
         lastAutoOpen = Date()
         stats.autoLast = Date()
-        if Date().timeIntervalSince(lastHingeOpen) > sameFold { stats.addOpen() }
+        if Date().timeIntervalSince(lastHingeOpen) > sameFold { stats.closeIfMissed(); stats.addOpen() }
         stats.noteOpen()
         stats.startOpen(event: true)
         changed()

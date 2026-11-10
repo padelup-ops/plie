@@ -42,6 +42,7 @@ enum AutomaticCounter {
             return
         }
         var stats = ClapetVault.load()
+        stats.closeIfMissed()
         stats.addOpen()
         stats.noteOpen()
         stats.startOpen(event: true)

@@ -317,6 +317,13 @@ struct ClapetStats: Codable, Equatable {
         totalOpens = max(day(now).opens, min(10_000_000, value))
     }
 
+    /// Une ouverture arrive alors qu'aucune fermeture n'a été vue depuis la précédente : le téléphone a forcément
+    /// été fermé entre les deux (cas de l'automatisation « Ouvert » seule). On compte ce pli, juste avant l'ouverture.
+    mutating func closeIfMissed(before date: Date = Date()) {
+        guard let o = lastOpen, (lastClose ?? .distantPast) < o, date.timeIntervalSince(o) > 2 else { return }
+        addClose(date.addingTimeInterval(-1))
+    }
+
     mutating func addOpen(_ date: Date = Date()) {
         var d = day(date)
         d.opens += 1
