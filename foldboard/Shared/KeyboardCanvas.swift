@@ -131,6 +131,8 @@ final class KeyboardCanvas: UIView {
         var longTimer: Timer?
         var repeatTimer: Timer?
         var done = false
+        /// La lettre déjà écrite, dès que le doigt s'est posé (comme ça, rien n'attend que le doigt se relève).
+        var typed: String?
         var swipe = false
         var points: [CGPoint] = []
         var t0: TimeInterval = 0
@@ -457,6 +459,8 @@ final class KeyboardCanvas: UIView {
     /// Le texte a changé (curseur déplacé, autre champ) : on revoit la majuscule et les suggestions.
     func textChanged() {
         refreshSuggestionsSoon()
+        // Juste après une de nos touches, rien à relire dans le champ : la frappe reste légère.
+        if ProcessInfo.processInfo.systemUptime - lastKeyTime < 0.25 { return }
         refreshShift()
         cursorMoved()
     }
@@ -1330,6 +1334,7 @@ final class KeyboardCanvas: UIView {
             tr.longTimer?.invalidate()
             tr.repeatTimer?.invalidate()
             setPressed(tr.index, false)
+            if case .backspace? = kind(tr) { refreshShiftSoon() }
         }
         tracks[t] = nil
         order.removeAll { $0 == t }
@@ -1349,7 +1354,14 @@ final class KeyboardCanvas: UIView {
         if on {
             v.backgroundColor = v.special ? theme.key : theme.special
         } else {
-            updateLabels()
+            // Seule cette touche reprend sa couleur (pas de redessin de tout le clavier à chaque lettre).
+            var c = v.special ? theme.special : theme.key
+            switch v.spec.kind {
+            case .shift: if shift != .off { c = theme.key }
+            case .ret: if !["auto", "cloud", "night"].contains(theme.id) { c = theme.accent }
+            default: break
+            }
+            v.backgroundColor = c
         }
     }
 
@@ -1366,18 +1378,22 @@ final class KeyboardCanvas: UIView {
         switch v.spec.kind {
         case .char(let s):
             countTyped()
-            showBubble(over: cells[tr.index].frame, text: shift != .off && page == .letters ? s.uppercased() : s)
+            let upper = shift != .off && page == .letters
+            let text = upper ? s.uppercased() : s
+            showBubble(over: cells[tr.index].frame, text: text)
             let options = KBLayouts.accents(s, layout: eff.layout)
             if !options.isEmpty {
                 tr.longTimer = Timer.scheduledTimer(withTimeInterval: 0.38, repeats: false) { [weak self, weak tr] _ in
-                    guard let self, let tr, !tr.done else { return }
-                    let upper = self.shift != .off && self.page == .letters
+                    guard let self, let tr, !tr.done, tr.index < self.cells.count else { return }
                     tr.accents = options.map { upper ? $0.uppercased() : $0 }
                     tr.accentIndex = 0
                     self.hideBubble()
                     self.showAccents(tr.accents, over: self.cells[tr.index].frame)
                 }
             }
+            // La lettre s'écrit dès que le doigt se pose : c'est ce qui rend la frappe immédiate.
+            tr.typed = text
+            typeText(text)
         case .backspace:
             if undoCorrection() {
                 tr.done = true
@@ -1417,9 +1433,19 @@ final class KeyboardCanvas: UIView {
         switch v.spec.kind {
         case .char(let s):
             if !tr.accents.isEmpty {
-                typeText(tr.accents[tr.accentIndex])
+                let chosen = tr.accents[tr.accentIndex]
+                if let typed = tr.typed {
+                    // La lettre est déjà écrite : on la remplace par l'accent choisi.
+                    if chosen != typed {
+                        input?.kbDelete()
+                        input?.kbInsert(chosen)
+                        refreshSuggestionsSoon()
+                    }
+                } else {
+                    typeText(chosen)
+                }
                 accentView.isHidden = true
-            } else {
+            } else if tr.typed == nil {
                 typeText(shift != .off && page == .letters ? s.uppercased() : s)
             }
         case .space:

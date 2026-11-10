@@ -35,37 +35,6 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         if !access.isPro() { Task { await checkStore() } }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        undelayTouches()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        // Les gestes du système peuvent être ajoutés après l'apparition : on recommence à chaque mise en page.
-        undelayTouches()
-    }
-
-    /// iOS retarde les touchers près des bords de l'écran (gestes du système) : avec un clavier à une main collé
-    /// au bord, il fallait appuyer franchement pour qu'une lettre sorte. On rend les touchers immédiats, comme
-    /// le clavier d'Apple.
-    private func undelayTouches() {
-        var v: UIView? = view
-        while let cur = v {
-            for g in cur.gestureRecognizers ?? [] {
-                g.delaysTouchesBegan = false
-                g.delaysTouchesEnded = false
-            }
-            v = cur.superview
-        }
-        for g in view.window?.gestureRecognizers ?? [] {
-            g.delaysTouchesBegan = false
-            g.delaysTouchesEnded = false
-        }
-    }
-
-    override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge { [.left, .right, .bottom] }
-
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         canvas.disappeared()
