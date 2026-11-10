@@ -847,7 +847,7 @@ final class KeyboardCanvas: UIView {
         // Thème automatique : le fond du clavier de l'iPhone se voit partout, jusqu'aux bords de l'écran.
         // Pas tout à fait transparent : dans les autres apps, iOS ne transmet pas au clavier les appuis tombés sur
         // une zone transparente (entre les touches), et des lettres se perdaient.
-        backgroundColor = theme.id == "auto" ? UIColor(white: 0, alpha: 0.012) : theme.background
+        backgroundColor = theme.id == "auto" || theme.id == "glass" ? UIColor(white: 0, alpha: 0.012) : theme.background
         cells.forEach { $0.view.removeFromSuperview() }
         cells = []
         let W = bounds.width

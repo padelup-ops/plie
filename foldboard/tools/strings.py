@@ -104,6 +104,7 @@ FR = {
     "Lavender": "Lavande",
     "Slate": "Ardoise",
     "Sun": "Soleil",
+    "Glass": "Verre",
     "Vibration strength": "Force des vibrations",
     "Off": "Coupé",
     "Vibrations": "Vibrations",

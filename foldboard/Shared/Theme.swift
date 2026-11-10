@@ -33,6 +33,13 @@ struct KBTheme: Identifiable, Equatable {
         KBTheme(id: "peach", name: "Peach", background: c(0xFBE3D6), key: c(0xFFF8F3), special: c(0xF2BFA6), text: c(0x4A2112), accent: c(0xEF5B2A)),
         KBTheme(id: "lavender", name: "Lavender", background: c(0xE5E0F7), key: c(0xFBFAFF), special: c(0xC3B8EC), text: c(0x251A4D), accent: c(0x7B5CE0)),
         KBTheme(id: "slate", name: "Slate", background: c(0x2A3140), key: c(0x3B4456), special: c(0x222835), text: c(0xEEF1F6), accent: c(0x5BC0EB)),
+        // Verre : les touches laissent voir à travers (l'arrière-plan du clavier reste celui d'iOS).
+        KBTheme(id: "glass", name: "Glass",
+                background: UIColor(white: 0, alpha: 0.012),
+                key: UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 1, alpha: 0.16) : UIColor(white: 1, alpha: 0.42) },
+                special: UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 1, alpha: 0.08) : UIColor(white: 1, alpha: 0.22) },
+                text: UIColor { $0.userInterfaceStyle == .dark ? c(0xFFFFFF) : c(0x0D0E11) },
+                accent: c(0x2F7CF6)),
         KBTheme(id: "sun", name: "Sun", background: c(0xFFF1C2), key: c(0xFFFDF5), special: c(0xF5D77A), text: c(0x3D2E00), accent: c(0xE0A100)),
     ]
 

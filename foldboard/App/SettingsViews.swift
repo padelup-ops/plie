@@ -370,7 +370,10 @@ struct ThemeSwatch: View {
     let theme: KBTheme
     var body: some View {
         RoundedRectangle(cornerRadius: 12)
-            .fill(Color(uiColor: theme.background))
+            .fill(theme.id == "glass"
+                  ? AnyShapeStyle(LinearGradient(colors: [Color(red: 0.36, green: 0.55, blue: 0.95), Color(red: 0.62, green: 0.38, blue: 0.86)],
+                                                 startPoint: .topLeading, endPoint: .bottomTrailing))
+                  : AnyShapeStyle(Color(uiColor: theme.background)))
             .frame(height: 58)
             .overlay(
                 VStack(spacing: 4) {
