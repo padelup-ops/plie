@@ -165,6 +165,7 @@ FR = {
     "Same thing on the big screen, in portrait: the small keyboard will follow your hand there too.": "Pareil sur le grand écran, en portrait : le petit clavier suivra aussi ta main.",
     "It's open": "C’est ouvert",
     "Skip this step": "Passer cette étape",
+    "%lld habits learned": "%lld habitudes apprises",
     "Small keyboard": "Petit clavier",
     "Big keyboard": "Clavier en grand",
     "Split when the Duo is open": "Scinder quand le Duo est ouvert",

@@ -122,6 +122,11 @@ final class GripDetector {
     /// (il penche du côté de la main qui le tient). Écran extérieur seulement.
     var defaultTilt = false
 
+    /// Les habitudes (voir `KBHabits`) : assez d'exemples pour décider, et le vote pour une posture
+    /// (probabilité « main droite », `nil` si la posture est inconnue).
+    var habitReady = false
+    var habitVote: ((Double, Double) -> Double?)?
+
     /// Main droite et main gauche étalonnées pour cette situation.
     var calibrated: Bool { postures[.right] != nil && postures[.left] != nil }
     /// Les appuis étalonnés (étalonnage par la frappe) : ce sont eux qui décident pendant la frappe.
@@ -347,6 +352,16 @@ final class GripDetector {
 
     /// La main d'après l'inclinaison, si le téléphone n'est pas posé à plat et penche assez.
     private func tiltGrip(threshold: Double) -> KBGrip? {
+        if habitReady, let vote = habitVote {
+            // Les habitudes décident : le vote des prises en main déjà vues les plus proches.
+            guard let p = currentPosture, let pr = vote(p.roll, p.incline) else { tiltStrong = false; return nil }
+            let side: KBGrip? = pr >= 0.62 ? .right : (pr <= 0.38 ? .left : nil)
+            guard let side else { tiltStrong = false; return nil }
+            // Pour quitter le côté actuel, il faut un vote net : pencher un peu ne déplace pas le clavier.
+            if let cur = current, cur != .two, cur != side, pr < 0.78 && pr > 0.22 { tiltStrong = false; return nil }
+            tiltStrong = pr >= 0.88 || pr <= 0.12
+            return side
+        }
         if calibrated { return postureGrip() }
         if tiltGap < 4 && !guessUncalibrated && !defaultTilt { return nil }
         guard let a = currentAngle else { return nil }
@@ -361,7 +376,7 @@ final class GripDetector {
         // L'inclinaison place le clavier quand il apparaît ; ensuite, elle ne le bouge que si le téléphone change
         // franchement de main pendant une pause (pas de frappe depuis 2 s, rien bougé depuis 5 s).
         // Sans le test « main droite, main gauche », le clavier est placé à son apparition, puis il ne bouge plus.
-        guard calibrated else { return }
+        guard calibrated || habitReady else { return }
         if locked || now - lastTapTime < 1.0 || now - lastEmit < 1.5 { tiltStreak = nil; return }
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
         guard let g = tiltGrip(threshold: threshold) else { tiltStreak = nil; return }

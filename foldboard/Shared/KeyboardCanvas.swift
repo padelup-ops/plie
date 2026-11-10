@@ -248,6 +248,7 @@ final class KeyboardCanvas: UIView {
     /// Le clavier vient d'apparaître.
     func appeared() {
         visible = true
+        typedOnSide = 0
         showEmoji = false
         if autoOn { startGrip() }
         page = .letters
@@ -349,6 +350,35 @@ final class KeyboardCanvas: UIView {
             postures[g] = (settings.roll(k, context: gripContext) ?? p[0], p[1])
         }
         grip.postures = postures
+        // Les habitudes : les mesures du réglage servent d'exemples de départ, l'usage ajoute les siens.
+        let ctx = gripContext
+        var seeds: [KBHabit] = []
+        if let r = postures[.right] { seeds.append(KBHabit(roll: r.roll, incline: r.incline, right: true, weight: 4)) }
+        if let l = postures[.left] { seeds.append(KBHabit(roll: l.roll, incline: l.incline, right: false, weight: 4)) }
+        let sig = seeds.map { String(format: "%.1f/%.1f", $0.roll, $0.incline) }.joined(separator: "|")
+        KBHabits.shared.sync(context: ctx, signature: sig)
+        habitSeeds = seeds
+        grip.habitReady = followsHand && KBHabits.shared.ready(context: ctx, seeds: seeds)
+        grip.habitVote = { roll, inc in KBHabits.shared.vote(context: ctx, roll: roll, incline: inc, seeds: seeds) }
+    }
+
+    private var habitSeeds: [KBHabit] = []
+    /// Les lettres tapées depuis que le clavier est de ce côté (sans correction : le côté était le bon).
+    private var typedOnSide = 0
+
+    /// Retient la prise en main du moment pour ce côté. `correction` : choisi à la main (exemple fort).
+    private func learnHabit(right: Bool, correction: Bool) {
+        guard followsHand, recording == nil, !demoOneHand, let p = grip.currentPosture else { return }
+        KBHabits.shared.add(context: gripContext, roll: p.roll, incline: p.incline, right: right,
+                            weight: correction ? 3 : 1, correction: correction)
+        grip.habitReady = KBHabits.shared.ready(context: gripContext, seeds: habitSeeds)
+    }
+
+    /// Une lettre tapée avec le petit clavier d'un côté : après quelques lettres sans correction, c'est une habitude.
+    private func countTyped() {
+        guard autoOn, followsHand, layoutMode.isOneHand, !settings.autoTwo else { return }
+        typedOnSide += 1
+        if typedOnSide == 8 || typedOnSide == 40 { learnHabit(right: settings.autoRight, correction: false) }
     }
 
     override func didMoveToWindow() {
@@ -411,6 +441,7 @@ final class KeyboardCanvas: UIView {
         if g != .two { s.autoRight = g == .right }
         grip.current = g
         guard s.autoTwo != settings.autoTwo || s.autoRight != settings.autoRight else { return }
+        typedOnSide = 0
         settings = s
         save()
         layoutIfNeeded()
@@ -492,6 +523,8 @@ final class KeyboardCanvas: UIView {
             // Le clavier retient comment le téléphone penche quand tu le veux de ce côté : il sortira du bon
             // côté tout seul la prochaine fois.
             if let a = grip.currentAngle { s.learn(roll: a, right: right, context: gripContext) }
+            if auto { learnHabit(right: right, correction: true) }
+            typedOnSide = 0
         }
         guard s != settings else { return }
         KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
@@ -509,7 +542,8 @@ final class KeyboardCanvas: UIView {
         let n = settings.taps[gripContext]?.values.filter { $0.count >= 6 }.count ?? 0
         let state = grip.tapModel != nil ? String(format: L("calibrated (%lld grips)"), n)
             : (grip.calibrated ? L("tilt only") : L("not calibrated"))
-        flash((names[gripContext] ?? gripContext) + " · " + state)
+        let habits = String(format: L("%lld habits learned"), KBHabits.shared.count(context: gripContext))
+        flash((names[gripContext] ?? gripContext) + " · " + state + " · " + habits)
     }
 
     /// Écran intérieur en portrait : le clavier en grand, ou de nouveau le petit qui suit la main.
@@ -529,6 +563,8 @@ final class KeyboardCanvas: UIView {
             grip.locked = true
             // Le choix fait à la main apprend à la détection comment tu tiens le téléphone.
             if let a = grip.currentAngle { settings.learn(roll: a, right: settings.autoRight, context: gripContext) }
+            learnHabit(right: settings.autoRight, correction: true)
+            typedOnSide = 0
         case .left: settings.mode = .right
         case .right: settings.mode = .left
         default: return
@@ -1326,6 +1362,7 @@ final class KeyboardCanvas: UIView {
         setPressed(tr.index, true)
         switch v.spec.kind {
         case .char(let s):
+            countTyped()
             showBubble(over: cells[tr.index].frame, text: shift != .off && page == .letters ? s.uppercased() : s)
             let options = KBLayouts.accents(s, layout: eff.layout)
             if !options.isEmpty {
