@@ -1251,6 +1251,9 @@ final class KeyboardCanvas: UIView {
     private var perfWork: [Double] = []
     /// Les blocages du clavier (plus de 50 ms sans image).
     private var perfStalls = 0
+    /// Appuis annulés par iOS, et appuis tombés à côté des touches.
+    private var perfCancelled = 0
+    private var perfMissed = 0
     private var perfLink: CADisplayLink?
     private var perfLast: CFTimeInterval = 0
 
@@ -1275,10 +1278,10 @@ final class KeyboardCanvas: UIView {
     @objc private func showPerf(_ g: UILongPressGestureRecognizer) {
         guard g.state == .began else { return }
         func avg(_ a: [Double]) -> Int { a.isEmpty ? 0 : Int(a.reduce(0, +) / Double(a.count)) }
-        let text = String(format: "Appui %d ms (max %d) · traitement %d ms (max %d) · blocages %d",
-                          avg(perfDelay), Int(perfDelay.max() ?? 0), avg(perfWork), Int(perfWork.max() ?? 0), perfStalls)
+        let text = String(format: "Appui %d ms (max %d) · traitement %d ms · blocages %d · annulés %d · à côté %d",
+                          avg(perfDelay), Int(perfDelay.max() ?? 0), avg(perfWork), perfStalls, perfCancelled, perfMissed)
         flash(text)
-        perfDelay = []; perfWork = []; perfStalls = 0
+        perfDelay = []; perfWork = []; perfStalls = 0; perfCancelled = 0; perfMissed = 0
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -1295,7 +1298,10 @@ final class KeyboardCanvas: UIView {
                 placeTouches[t] = (p, t.timestamp)
                 continue
             }
-            guard p.y > Self.topBarHeight, let i = cellIndex(at: p) else { continue }
+            guard p.y > Self.topBarHeight, let i = cellIndex(at: p) else {
+                if p.y > Self.topBarHeight { perfMissed += 1 }
+                continue
+            }
             // Frappe en roulement : la touche précédente encore enfoncée part tout de suite.
             for o in order {
                 if let tr = tracks[o], !tr.done, case .char? = kind(tr), tr.accents.isEmpty {
@@ -1334,7 +1340,10 @@ final class KeyboardCanvas: UIView {
             if tr.swipe { continue }
             if k == .space {
                 let dx = p.x - tr.start.x
-                if !tr.cursorMode && abs(dx) > 12 {
+                // Déplacer le curseur : glisser franchement, ou après avoir gardé le doigt posé (comme chez Apple).
+                // Un petit glissement du pouce pendant la frappe ne retire plus l'espace.
+                let held = t.timestamp - tr.t0 > 0.35
+                if !tr.cursorMode && (abs(dx) > 40 || (held && abs(dx) > 12)) {
                     if tr.typed != nil { input?.kbDelete(); tr.typed = nil }
                     tr.cursorMode = true
                     tr.lastX = p.x
@@ -1391,6 +1400,7 @@ final class KeyboardCanvas: UIView {
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        perfCancelled += touches.filter { tracks[$0] != nil }.count
         for t in touches {
             placeTouches[t] = nil
             guard let tr = tracks[t] else { continue }
