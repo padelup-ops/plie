@@ -761,3 +761,11 @@
 "Arrange cards" = "Ordenar tarjetas";
 "Default order" = "Orden por defecto";
 "Hinge" = "Bisagra";
+
+/* Widgets */
+"Widget style" = "Estilo de los widgets";
+"Like the iPhone" = "Como el iPhone";
+"Light" = "Claro";
+"Dark" = "Oscuro";
+"%lld in 7 days" = "%lld en 7 días";
+"%lld in ~%lld d" = "%lld en ~%lld d";

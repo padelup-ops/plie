@@ -143,6 +143,13 @@ struct SettingsView: View {
                             .accessibilityLabel(Text(theme.name))
                         }
                     }
+                    Picker(selection: Binding(get: { model.stats.widgetLook }, set: { model.setWidgetLook($0) })) {
+                        Text("Like the iPhone").tag(0)
+                        Text("Light").tag(1)
+                        Text("Dark").tag(2)
+                    } label: {
+                        Label { Text("Widget style") } icon: { SIcon("circle.lefthalf.filled", .gray) }
+                    }
                 } header: {
                     Text("Appearance")
                 } footer: {

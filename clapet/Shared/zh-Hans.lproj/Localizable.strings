@@ -761,3 +761,11 @@
 "Arrange cards" = "排列卡片";
 "Default order" = "默认顺序";
 "Hinge" = "铰链";
+
+/* Widgets */
+"Widget style" = "小组件样式";
+"Like the iPhone" = "跟随 iPhone";
+"Light" = "浅色";
+"Dark" = "深色";
+"%lld in 7 days" = "7 天 %lld";
+"%lld in ~%lld d" = "约 %2$lld 天到 %1$lld";

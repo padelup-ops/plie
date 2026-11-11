@@ -744,3 +744,11 @@
 "Arrange cards" = "Organizar cartões";
 "Default order" = "Ordem padrão";
 "Hinge" = "Dobradiça";
+
+/* Widgets */
+"Widget style" = "Estilo dos widgets";
+"Like the iPhone" = "Como o iPhone";
+"Light" = "Claro";
+"Dark" = "Escuro";
+"%lld in 7 days" = "%lld em 7 dias";
+"%lld in ~%lld d" = "%lld em ~%lld d";

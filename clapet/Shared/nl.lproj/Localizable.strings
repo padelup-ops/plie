@@ -744,3 +744,11 @@
 "Arrange cards" = "Kaarten schikken";
 "Default order" = "Standaardvolgorde";
 "Hinge" = "Scharnier";
+
+/* Widgets */
+"Widget style" = "Widgetstijl";
+"Like the iPhone" = "Zoals de iPhone";
+"Light" = "Licht";
+"Dark" = "Donker";
+"%lld in 7 days" = "%lld in 7 dagen";
+"%lld in ~%lld d" = "%lld over ~%lld d";

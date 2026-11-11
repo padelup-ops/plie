@@ -744,3 +744,11 @@
 "Arrange cards" = "Расставить карточки";
 "Default order" = "Порядок по умолчанию";
 "Hinge" = "Шарнир";
+
+/* Widgets */
+"Widget style" = "Стиль виджетов";
+"Like the iPhone" = "Как на iPhone";
+"Light" = "Светлый";
+"Dark" = "Тёмный";
+"%lld in 7 days" = "%lld за 7 дней";
+"%lld in ~%lld d" = "%lld через ~%lld дн.";

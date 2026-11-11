@@ -744,3 +744,11 @@
 "Arrange cards" = "Disponi le schede";
 "Default order" = "Ordine predefinito";
 "Hinge" = "Cerniera";
+
+/* Widgets */
+"Widget style" = "Stile dei widget";
+"Like the iPhone" = "Come l’iPhone";
+"Light" = "Chiaro";
+"Dark" = "Scuro";
+"%lld in 7 days" = "%lld in 7 giorni";
+"%lld in ~%lld d" = "%lld tra ~%lld g";

@@ -761,3 +761,11 @@
 "Arrange cards" = "카드 배치";
 "Default order" = "기본 순서";
 "Hinge" = "힌지";
+
+/* Widgets */
+"Widget style" = "위젯 스타일";
+"Like the iPhone" = "iPhone과 같게";
+"Light" = "라이트";
+"Dark" = "다크";
+"%lld in 7 days" = "7일간 %lld";
+"%lld in ~%lld d" = "%lld까지 약 %lld일";

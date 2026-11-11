@@ -761,3 +761,11 @@
 "Arrange cards" = "Arrange cards";
 "Default order" = "Default order";
 "Hinge" = "Hinge";
+
+/* Widgets */
+"Widget style" = "Widget style";
+"Like the iPhone" = "Like the iPhone";
+"Light" = "Light";
+"Dark" = "Dark";
+"%lld in 7 days" = "%lld in 7 days";
+"%lld in ~%lld d" = "%lld in ~%lld d";

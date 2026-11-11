@@ -120,6 +120,8 @@ struct ClapetStats: Codable, Equatable {
     var plus = false
     /// Couleur des widgets (Foldly+).
     var theme = 0
+    /// Apparence des widgets : 0 comme l'iPhone (clair le jour en mode auto), 1 clair, 2 sombre.
+    var widgetLook = 0
     /// Dernier pli compté par l'automatisation Raccourcis (app fermée).
     var autoLast: Date?
     /// Depuis quand le Duo est ouvert (nil : fermé, ou on ne sait pas).
@@ -151,7 +153,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince, focusSpans, nightOn, nightFrom, nightTo
+        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, widgetLook, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince, focusSpans, nightOn, nightFrom, nightTo
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -172,6 +174,7 @@ struct ClapetStats: Codable, Equatable {
         recordHour = try c.decodeIfPresent(Int.self, forKey: .recordHour) ?? 0
         plus = try c.decodeIfPresent(Bool.self, forKey: .plus) ?? false
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
+        widgetLook = try c.decodeIfPresent(Int.self, forKey: .widgetLook) ?? 0
         autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
         openSince = try c.decodeIfPresent(Date.self, forKey: .openSince)
         restSince = try c.decodeIfPresent(Date.self, forKey: .restSince)

@@ -761,3 +761,11 @@
 "Arrange cards" = "Karten anordnen";
 "Default order" = "Standardreihenfolge";
 "Hinge" = "Scharnier";
+
+/* Widgets */
+"Widget style" = "Widget-Stil";
+"Like the iPhone" = "Wie das iPhone";
+"Light" = "Hell";
+"Dark" = "Dunkel";
+"%lld in 7 days" = "%lld in 7 Tagen";
+"%lld in ~%lld d" = "%lld in ~%lld T";

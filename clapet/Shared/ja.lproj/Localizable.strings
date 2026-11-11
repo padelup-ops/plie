@@ -761,3 +761,11 @@
 "Arrange cards" = "カードを並べ替え";
 "Default order" = "標準の並び";
 "Hinge" = "ヒンジ";
+
+/* Widgets */
+"Widget style" = "ウィジェットのスタイル";
+"Like the iPhone" = "iPhoneに合わせる";
+"Light" = "ライト";
+"Dark" = "ダーク";
+"%lld in 7 days" = "7日間で%lld";
+"%lld in ~%lld d" = "%lldまで約%lld日";

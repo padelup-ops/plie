@@ -35,7 +35,7 @@ struct HoursWidgetView: View {
                 if let peak = s.peakHour {
                     Text("You fold the most around \(HoursText.hour(peak))")
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Palette.ink)
                 }
                 TypicalDayBars(hours: s.typicalDay, accent: accent, empty: Palette.bar, height: 60)
                 HoursGrid(grid: s.weekHours, accent: accent, empty: Palette.bar, spacing: 2.5)
@@ -58,8 +58,8 @@ struct HoursWidgetView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .environment(\.colorScheme, .dark)
-        .containerBackground(for: .widget) { Palette.background }
+        .modifier(WidgetLook(look: s.widgetLook))
+        .containerBackground(for: .widget) { Palette.background.modifier(WidgetLook(look: s.widgetLook)) }
         .widgetURL(URL(string: "clapet://hours"))
     }
 }
@@ -121,11 +121,11 @@ struct LifetimeWidgetView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .environment(\.colorScheme, .dark)
+                .modifier(WidgetLook(look: entry.stats.widgetLook))
             }
         }
         .containerBackground(for: .widget) {
-            if family == .systemSmall { Palette.background } else { Color.clear }
+            if family == .systemSmall { Palette.background.modifier(WidgetLook(look: entry.stats.widgetLook)) } else { Color.clear }
         }
     }
 }
@@ -141,11 +141,11 @@ struct Odometer: View {
             ForEach(0..<digits.count, id: \.self) { i in
                 Text(String(digits[i]))
                     .font(.system(size: 22, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(i >= digits.count - 1 ? Color.black : .white)
+                    .foregroundStyle(i >= digits.count - 1 ? Color.black : Palette.ink)
                     .frame(width: 17, height: 30)
                     .background(
                         RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(i >= digits.count - 1 ? accent : Color.white.opacity(0.12))
+                            .fill(i >= digits.count - 1 ? accent : Palette.bar)
                     )
                     .overlay(Rectangle().fill(Color.black.opacity(0.25)).frame(height: 1))
             }

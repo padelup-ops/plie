@@ -12,14 +12,32 @@ struct ClapetEntry: TimelineEntry {
     var preview = false
 }
 
+/// Les couleurs des widgets, en clair et en sombre : le widget suit l'iPhone (clair le jour en mode automatique),
+/// ou le choix fait dans les réglages de Foldly.
 enum Palette {
-    static let background = LinearGradient(colors: [Color(red: 0.13, green: 0.13, blue: 0.17), Color(red: 0.08, green: 0.08, blue: 0.11)],
+    private static func dyn(_ light: UIColor, _ dark: UIColor) -> Color {
+        Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? dark : light })
+    }
+    static let background = LinearGradient(colors: [dyn(UIColor(red: 0.98, green: 0.98, blue: 0.97, alpha: 1), UIColor(red: 0.13, green: 0.13, blue: 0.17, alpha: 1)),
+                                                    dyn(UIColor(red: 0.93, green: 0.93, blue: 0.92, alpha: 1), UIColor(red: 0.08, green: 0.08, blue: 0.11, alpha: 1))],
                                            startPoint: .top, endPoint: .bottom)
-    static let mint = Color(red: 0.43, green: 0.84, blue: 0.65)
+    static let mint = dyn(UIColor(red: 0.16, green: 0.62, blue: 0.43, alpha: 1), UIColor(red: 0.43, green: 0.84, blue: 0.65, alpha: 1))
     static let red = Color(red: 0.93, green: 0.36, blue: 0.32)
     static let orange = Color(red: 1.0, green: 0.66, blue: 0.32)
-    static let bar = Color.white.opacity(0.16)
-    static let secondary = Color.white.opacity(0.5)
+    /// Le texte principal (blanc en sombre, presque noir en clair).
+    static let ink = dyn(UIColor(red: 0.08, green: 0.08, blue: 0.09, alpha: 1), .white)
+    static let bar = dyn(UIColor.black.withAlphaComponent(0.08), UIColor.white.withAlphaComponent(0.16))
+    static let dim = dyn(UIColor.black.withAlphaComponent(0.22), UIColor.white.withAlphaComponent(0.28))
+    static let secondary = dyn(UIColor.black.withAlphaComponent(0.5), UIColor.white.withAlphaComponent(0.5))
+}
+
+/// Applique l'apparence choisie pour les widgets (comme l'iPhone, claire ou sombre).
+struct WidgetLook: ViewModifier {
+    let look: Int
+    @Environment(\.colorScheme) private var system
+    func body(content: Content) -> some View {
+        content.environment(\.colorScheme, look == 1 ? .light : (look == 2 ? .dark : system))
+    }
 }
 
 struct ClapetWidgetView: View {
@@ -68,11 +86,12 @@ struct ClapetWidgetView: View {
                 sized
             }
         }
+        .modifier(WidgetLook(look: stats.widgetLook))
         .containerBackground(for: .widget) {
             if isAccessory {
                 Color.clear
             } else {
-                Palette.background
+                Palette.background.modifier(WidgetLook(look: stats.widgetLook))
             }
         }
         .widgetURL(locked ? URL(string: "clapet://plus") : nil)
@@ -154,7 +173,7 @@ struct ClapetWidgetView: View {
                         .foregroundStyle(Palette.mint)
                     Text("Foldly+")
                         .font(.system(size: 19, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Palette.ink)
                     Text("Tap to unlock this widget")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(Palette.secondary)
@@ -201,7 +220,7 @@ struct ClapetWidgetView: View {
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 Text("\(FoldUnit.shown(today))")
                     .font(.system(size: 26, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Palette.ink)
                 if today != yesterday {
                     Text("\(today > yesterday ? "↑" : "↓") \(FoldUnit.shown(abs(today - yesterday)))")
                         .font(.system(size: 15, weight: .semibold))
@@ -220,7 +239,7 @@ struct ClapetWidgetView: View {
                 .font(.system(size: 52, weight: .bold))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
-                .foregroundStyle(.white)
+                .foregroundStyle(Palette.ink)
             Text("all time")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Palette.secondary)
@@ -238,7 +257,7 @@ struct ClapetWidgetView: View {
                     if showValues {
                         Text("\(FoldUnit.shown(days[i].closes))")
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(isToday ? .white : Palette.secondary)
+                            .foregroundStyle(isToday ? Palette.ink : Palette.secondary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
                     }
@@ -247,7 +266,7 @@ struct ClapetWidgetView: View {
                         .frame(height: max(5, height * CGFloat(days[i].closes) / CGFloat(top)))
                     Text(days[i].date, format: .dateTime.weekday(.narrow))
                         .font(.system(size: 11, weight: isToday ? .bold : .medium))
-                        .foregroundStyle(isToday ? .white : Palette.secondary)
+                        .foregroundStyle(isToday ? Palette.ink : Palette.secondary)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -271,7 +290,7 @@ struct ClapetWidgetView: View {
             HStack(alignment: .bottom, spacing: 2) {
                 ForEach(0..<24, id: \.self) { h in
                     RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-                        .fill(hours[h] > 0 && h == peak ? accent : (hours[h] > 0 ? Color.white.opacity(0.28) : Palette.bar))
+                        .fill(hours[h] > 0 && h == peak ? accent : (hours[h] > 0 ? Palette.dim : Palette.bar))
                         .frame(height: max(3, 28 * CGFloat(hours[h]) / CGFloat(top)))
                         .frame(maxWidth: .infinity)
                 }
@@ -293,13 +312,13 @@ struct ClapetWidgetView: View {
             HStack(spacing: 6) {
                 if let next = level.next {
                     Text("Next milestone: \(FoldUnit.shown(next))")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Palette.ink)
                     Spacer(minLength: 4)
                     Text("\(FoldUnit.shown(next - stats.totalCloses)) to go")
                         .foregroundStyle(Palette.secondary)
                 } else {
                     Text("\(FoldUnit.shown(stats.totalCloses)) folds")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Palette.ink)
                 }
             }
             .font(.system(size: 12, weight: .semibold))
@@ -325,7 +344,7 @@ struct ClapetWidgetView: View {
     }
 
     /// Plus qu'hier : rouge seulement si une limite est activée.
-    private var upColor: Color { stats.goalOn ? Palette.red : Color.white.opacity(0.75) }
+    private var upColor: Color { stats.goalOn ? Palette.red : Palette.ink.opacity(0.75) }
 
     /// Le repère du jour (la moyenne, ou la limite si elle est activée).
     private var reference: Int? { stats.reference(now: entry.date) }
@@ -386,12 +405,12 @@ struct ClapetWidgetView: View {
                 .foregroundStyle(accent)
                 .widgetAccentable()
             Text("\(TimeFormat.short(open)) open")
-                .foregroundStyle(.white)
+                .foregroundStyle(Palette.ink)
             Spacer(minLength: 4)
             Image(systemName: "rectangle.compress.vertical")
                 .foregroundStyle(accent)
             Text("\(TimeFormat.short(closed)) closed")
-                .foregroundStyle(.white)
+                .foregroundStyle(Palette.ink)
         }
         .font(.system(size: 12, weight: .semibold))
         .lineLimit(1)
@@ -408,7 +427,7 @@ struct ClapetWidgetView: View {
                 .font(.system(size: 46, weight: .bold))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
-                .foregroundStyle(.white)
+                .foregroundStyle(Palette.ink)
                 .contentTransition(.numericText())
                 .widgetAccentable()
             todayLine
@@ -435,7 +454,7 @@ struct ClapetWidgetView: View {
                         .font(.system(size: 40, weight: .bold))
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Palette.ink)
                         .contentTransition(.numericText())
                         .widgetAccentable()
                     todayLine
@@ -443,9 +462,30 @@ struct ClapetWidgetView: View {
                     if reference != nil { refBar }
                 }
                 .frame(width: 112, alignment: .leading)
-                week(height: 52, showValues: true)
+                week(height: 40, showValues: true)
+            }
+            totalsLine
+        }
+    }
+
+    /// Les chiffres qu'on veut voir d'un coup d'œil : total, 7 derniers jours, et quand tombera le prochain palier.
+    private var totalsLine: some View {
+        let week = stats.lastWeek(now: entry.date).reduce(0) { $0 + $1.closes }
+        let next = stats.level.next
+        let perDay = Double(week) / 7
+        return HStack(spacing: 10) {
+            Label { Text("\(FoldUnit.shown(stats.totalCloses)) all time") } icon: { Image(systemName: "sum") }
+            Label { Text("\(FoldUnit.shown(week)) in 7 days") } icon: { Image(systemName: "calendar") }
+            if let next, perDay > 0 {
+                let days = Int(ceil(Double(next - stats.totalCloses) / perDay))
+                Label { Text("\(FoldUnit.shown(next)) in ~\(days) d") } icon: { Image(systemName: "flag.checkered") }
             }
         }
+        .labelStyle(TightLabel())
+        .font(.system(size: 11, weight: .semibold))
+        .foregroundStyle(Palette.secondary)
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
     }
 
     /// Tout doit tenir dans le grand widget, même le plus petit (338 × 354 points, marges comprises) :
@@ -459,7 +499,7 @@ struct ClapetWidgetView: View {
                         .font(.system(size: 44, weight: .bold))
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Palette.ink)
                         .widgetAccentable()
                     todayLine
                 }
@@ -467,7 +507,7 @@ struct ClapetWidgetView: View {
                 VStack(alignment: .trailing, spacing: 0) {
                     Text("\(FoldUnit.shown(stats.totalCloses))")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Palette.ink)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                     Text("all time")
@@ -476,7 +516,8 @@ struct ClapetWidgetView: View {
                 }
             }
             if reference != nil { refBar }
-            week(height: 56, showValues: true)
+            week(height: 46, showValues: true)
+            totalsLine
             byHour
             Spacer(minLength: 0)
             openClosedLine
@@ -524,6 +565,13 @@ struct ClapetWidgetView: View {
     }
 }
 
+
+/// Une icône et son texte, serrés (pour les lignes de chiffres des widgets).
+struct TightLabel: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 3) { configuration.icon; configuration.title }
+    }
+}
 
 // MARK: - Le widget « Ouvert / fermé »
 //
@@ -576,11 +624,12 @@ struct PhoneDownWidgetView: View {
                 if showsBackground { small } else { standBy }
             }
         }
+        .modifier(WidgetLook(look: entry.stats.widgetLook))
         .containerBackground(for: .widget) {
             if isAccessory {
                 Color.clear
             } else {
-                Palette.background
+                Palette.background.modifier(WidgetLook(look: entry.stats.widgetLook))
             }
         }
     }
@@ -607,7 +656,7 @@ struct PhoneDownWidgetView: View {
                 Capsule().fill(accent)
                     .frame(width: max(5, (g.size.width - 3) * CGFloat(closedShare)))
                     .widgetAccentable()
-                Capsule().fill(Color.white.opacity(0.28))
+                Capsule().fill(Palette.dim)
             }
         }
         .frame(height: 5)
@@ -642,7 +691,7 @@ struct PhoneDownWidgetView: View {
                 .font(.system(size: size, weight: .bold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
-                .foregroundStyle(.white)
+                .foregroundStyle(Palette.ink)
             label
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(Palette.secondary)

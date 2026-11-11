@@ -226,6 +226,7 @@ final class ClapetModel {
         fresh.goalOn = stats.goalOn
         fresh.plus = stats.plus
         fresh.theme = stats.theme
+        fresh.widgetLook = stats.widgetLook
         stats = fresh
         changed()
     }
@@ -236,6 +237,11 @@ final class ClapetModel {
     func setPlus(_ on: Bool) {
         guard stats.plus != on else { return }
         stats.plus = on
+        flush()
+    }
+
+    func setWidgetLook(_ look: Int) {
+        stats.widgetLook = look
         flush()
     }
 
