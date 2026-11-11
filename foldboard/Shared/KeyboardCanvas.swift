@@ -1733,7 +1733,31 @@ final class KeyboardCanvas: UIView {
         hideBubble()
     }
 
+    /// La touche ’ du clavier français (à droite du N) sert aussi d'accent, comme chez Apple : ’ puis e → é.
+    /// Après une lettre d'élision (l’, d’, j’, qu’…), elle reste une apostrophe : « l’été » s'écrit normalement.
+    private func accentKey(_ text: String) -> Bool {
+        guard eff.layout == .azerty, text.count == 1, let v = text.first else { return false }
+        let map: [Character: String] = ["e": "é", "a": "á", "i": "í", "o": "ó", "u": "ú", "E": "É", "A": "Á", "I": "Í", "O": "Ó", "U": "Ú"]
+        guard let acc = map[v] else { return false }
+        let before = input?.kbTextBefore() ?? ""
+        guard before.hasSuffix("’") || before.hasSuffix("'") else { return false }
+        let prev = before.dropLast().last
+        if let p = prev, p.isLetter {
+            let l = Character(p.lowercased())
+            if "ldjmnstc".contains(l) || (l == "u" && before.dropLast(2).last.map { $0.lowercased() == "q" } == true) { return false }
+        }
+        input?.kbDelete()
+        input?.kbInsert(acc)
+        return true
+    }
+
     private func typeText(_ text: String) {
+        if accentKey(text) {
+            lastCorrection = nil
+            refreshSuggestionsSoon()
+            if shift == .on { shift = .off; autoShifted = false; updateLabels() }
+            return
+        }
         if [".", ",", "!", "?", ";", ":", ")"].contains(text) {
             autocorrect(sep: text)
         } else {

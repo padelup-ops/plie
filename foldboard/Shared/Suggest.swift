@@ -138,10 +138,16 @@ final class KBSuggest {
         return ".!?…\n".contains(last)
     }
 
-    private func isMisspelled(_ word: String) -> Bool {
+    private func isMisspelled(_ word: String, in lang: String? = nil) -> Bool {
         let ns = word as NSString
-        let r = checker.rangeOfMisspelledWord(in: word, range: NSRange(location: 0, length: ns.length), startingAt: 0, wrap: false, language: language)
+        let r = checker.rangeOfMisspelledWord(in: word, range: NSRange(location: 0, length: ns.length), startingAt: 0, wrap: false, language: lang ?? language)
         return r.location != NSNotFound
+    }
+
+    /// L'autre langue qu'on mélange souvent (français ⇄ anglais), comme le clavier d'Apple qui écrit dans les deux.
+    private var second: String? {
+        let want = language.hasPrefix("en") ? "fr" : "en"
+        return UITextChecker.availableLanguages.first { $0.hasPrefix(want) }
     }
 
     private func matchCase(_ s: String, like word: String) -> String {
@@ -206,6 +212,8 @@ final class KBSuggest {
         // Un nom propre au milieu d'une phrase : on n'y touche pas.
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
         guard isMisspelled(word) else { return nil }
+        // Un vrai mot dans l'autre langue (de l'anglais au milieu du français) : on n'y touche pas.
+        if let l2 = second, !isMisspelled(word, in: l2) { return nil }
         let ns = word as NSString
         // Le début d'un vrai mot (« minu » → minute) : on ne corrige pas, la barre propose la suite.
         if !listCompletions(word, limit: 1).isEmpty { return nil }
@@ -247,6 +255,16 @@ final class KBSuggest {
                 score -= Double(d) * 1.5
             }
             if best == nil || score > best!.score { best = (g, score) }
+        }
+        if best == nil, word.count >= 4, let l2 = second {
+            // Rien en français : peut-être une faute de frappe en anglais (et inversement). Seulement une touche voisine.
+            let g2 = checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: l2) ?? []
+            for g in g2.prefix(4) {
+                let gl = g.lowercased()
+                guard !g.contains(" "), !g.contains("-"), gl.first == lower.first, typoDistance(gl, lower) <= 1 else { continue }
+                if let c = touch?.cost(gl), let own = touch?.cost(lower), c - own > 3 { continue }
+                return matchCase(g, like: word)
+            }
         }
         return best.map { matchCase($0.word, like: word) }
     }
