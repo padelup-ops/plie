@@ -188,6 +188,53 @@ final class KeyboardCanvas: UIView {
     private var glidedWord: String?
     /// Pavé tactile : la colonne visée, gardée quand on monte et descend (comme dans un éditeur de texte).
     private var trackGoalCol: Int?
+    private var trackMap: TrackMap?
+
+    /// Le texte autour du curseur, découpé en lignes (retours à la ligne, et lignes estimées dans un long
+    /// paragraphe), pour savoir où le doigt envoie le curseur. Positions comptées depuis le curseur de départ.
+    struct TrackMap {
+        var lines: [(start: Int, len: Int)] = []
+        var originLine = 0
+        var originCol = 0
+        var current = 0
+        let origin: CGPoint
+        let total: (lo: Int, hi: Int)
+        let singleParagraph: Bool
+        let perLine: Int
+
+        init(before: String, after: String, perLine: Int, origin: CGPoint) {
+            self.origin = origin
+            self.perLine = perLine
+            let text = before + after
+            let idx = before.count
+            total = (-idx, after.count)
+            singleParagraph = !text.contains("\n")
+            var pos = 0
+            for para in text.components(separatedBy: "\n") {
+                let n = para.count
+                var off = 0
+                repeat {
+                    let len = min(perLine, n - off)
+                    lines.append((start: pos + off - idx, len: len))
+                    off += perLine
+                } while off < n
+                pos += n + 1
+            }
+            if let i = lines.lastIndex(where: { $0.start <= 0 }) {
+                originLine = i
+                originCol = -lines[i].start
+            }
+        }
+
+        func target(dLine: Int, dCol: Int) -> Int {
+            if singleParagraph || lines.isEmpty {
+                return max(total.lo, min(total.hi, dCol + dLine * perLine))
+            }
+            let l = max(0, min(lines.count - 1, originLine + dLine))
+            let c = max(0, min(lines[l].len, originCol + dCol))
+            return max(total.lo, min(total.hi, lines[l].start + c))
+        }
+    }
     private var order: [UITouch] = []
 
     static let topBarHeight: CGFloat = 42
@@ -1522,25 +1569,17 @@ final class KeyboardCanvas: UIView {
                 if !tr.cursorMode && (abs(dx) > 40 || abs(dy) > 34 || (held && (abs(dx) > 12 || abs(dy) > 12))) {
                     enterTrackpad(tr, at: p)
                 }
-                if tr.cursorMode {
-                    let step = 18 - 13 * CGFloat(eff.swipe)
-                    tr.cursorAccum += p.x - tr.lastX
-                    tr.lastX = p.x
-                    let n = Int(tr.cursorAccum / step)
-                    if n != 0 {
-                        trackGoalCol = nil
-                        input?.kbMoveCursor(n)
-                        tr.cursorAccum -= CGFloat(n) * step
-                        KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.4)
-                    }
-                    // Comme chez Apple : monter ou descendre d'une ligne en glissant vers le haut ou le bas.
-                    tr.cursorAccumY += p.y - tr.lastY
-                    tr.lastY = p.y
+                if tr.cursorMode, let map = trackMap {
+                    // Comme chez Apple : le curseur suit le doigt dans tous les sens (diagonales comprises).
+                    // La position visée vient de tout le déplacement depuis le début, pas pas à pas.
+                    let charStep = 18 - 13 * CGFloat(eff.swipe)
                     let lineStep: CGFloat = 22
-                    while abs(tr.cursorAccumY) >= lineStep {
-                        let down = tr.cursorAccumY > 0
-                        moveLine(down: down)
-                        tr.cursorAccumY -= down ? lineStep : -lineStep
+                    let dCol = Int(((p.x - map.origin.x) / charStep).rounded())
+                    let dLine = Int(((p.y - map.origin.y) / lineStep).rounded())
+                    let target = map.target(dLine: dLine, dCol: dCol)
+                    if target != map.current {
+                        input?.kbMoveCursor(target - map.current)
+                        trackMap?.current = target
                         KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.4)
                     }
                 }
@@ -1687,6 +1726,8 @@ final class KeyboardCanvas: UIView {
     private func enterTrackpad(_ tr: Track, at p: CGPoint) {
         if tr.typed != nil { input?.kbDelete(); tr.typed = nil }
         tr.cursorMode = true
+        trackMap = TrackMap(before: input?.kbTextBefore() ?? "", after: input?.kbTextAfter() ?? "",
+                            perLine: max(24, Int(UIScreen.main.bounds.width / 8.5)), origin: p)
         tr.lastX = p.x
         tr.lastY = p.y
         hideBubble()
@@ -1696,6 +1737,7 @@ final class KeyboardCanvas: UIView {
 
     private func setTrackpad(_ on: Bool) {
         trackGoalCol = nil
+        if !on { trackMap = nil }
         UIView.animate(withDuration: 0.18) {
             // Comme chez Apple : la barre du haut disparaît aussi, il ne reste que le pavé.
             for v in [self.chips, self.modeButton, self.flipButton, self.middleButton, self.bigButton, self.globeButton, self.emojiButton, self.adjustButton, self.hideButton] as [UIView] {
