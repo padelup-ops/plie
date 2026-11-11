@@ -133,7 +133,8 @@ struct KBSettings: Codable, Equatable {
     var swipe: Double = 0.5
     var sidePanel: KBSidePanel = .emoji
     var emojis: [String] = KBSettings.defaultEmojis
-    var phrases: [String] = KBSettings.defaultPhrases
+    /// Les phrases toutes faites de la barre du haut : vides par défaut (on les ajoute dans l'app si on veut).
+    var phrases: [String] = []
     var autoCaps = true
     var autocorrect = true
     var suggestions = true
@@ -148,6 +149,8 @@ struct KBSettings: Codable, Equatable {
         }
         return ["On my way!", "Thanks a lot", "Sounds good 👍", "I’ll call you back", "Running late", "No problem", "Have a nice day", "See you soon"]
     }
+    static let legacyPhrasesFR = ["J’arrive !", "Merci beaucoup", "D’accord 👍", "Je te rappelle", "Je suis en route", "Pas de souci", "Bonne journée", "À tout à l’heure"]
+    static let legacyPhrasesEN = ["On my way!", "Thanks a lot", "Sounds good 👍", "I’ll call you back", "Running late", "No problem", "Have a nice day", "See you soon"]
 
     init() {}
 
@@ -190,6 +193,8 @@ struct KBSettings: Codable, Equatable {
         sidePanel = (try? c.decodeIfPresent(KBSidePanel.self, forKey: .sidePanel)) ?? d.sidePanel
         emojis = (try? c.decodeIfPresent([String].self, forKey: .emojis)) ?? d.emojis
         phrases = (try? c.decodeIfPresent([String].self, forKey: .phrases)) ?? d.phrases
+        // Les anciennes phrases proposées d'office (jamais modifiées) : retirées, la barre reste aux suggestions.
+        if phrases == KBSettings.defaultPhrases || phrases == KBSettings.legacyPhrasesEN || phrases == KBSettings.legacyPhrasesFR { phrases = [] }
         autoCaps = (try? c.decodeIfPresent(Bool.self, forKey: .autoCaps)) ?? d.autoCaps
         autocorrect = (try? c.decodeIfPresent(Bool.self, forKey: .autocorrect)) ?? d.autocorrect
         suggestions = (try? c.decodeIfPresent(Bool.self, forKey: .suggestions)) ?? d.suggestions
@@ -350,7 +355,7 @@ struct KBSettings: Codable, Equatable {
         if s.haptics > 0 { s.haptics = 0.5 }
         s.swipe = 0.5
         s.emojis = Self.defaultEmojis
-        s.phrases = Self.defaultPhrases
+        s.phrases = []
         return s
     }
 }

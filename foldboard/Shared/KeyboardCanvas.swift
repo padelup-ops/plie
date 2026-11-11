@@ -1112,7 +1112,19 @@ final class KeyboardCanvas: UIView {
         emojiButton.frame = CGRect(x: adjustButton.frame.minX - (compact ? 36 : 0), y: 0, width: compact ? 36 : 0, height: h)
         globeButton.frame = CGRect(x: emojiButton.frame.minX - (compact && globe ? 36 : 0), y: 0, width: compact && globe ? 36 : 0, height: h)
         let cx = max(flipButton.frame.maxX, middleButton.frame.maxX, bigButton.frame.maxX) + 4
-        chips.frame = CGRect(x: cx, y: 0, width: max(0, globeButton.frame.minX - cx - 4), height: h)
+        if let g = sideButtonsGrid {
+            // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
+            let buttons: [UIButton] = (globe ? [globeButton] : []) + [emojiButton, adjustButton, hideButton]
+            let gridW = CGFloat(g.cols) * 44
+            let ox = isRight ? panelRect.maxX - gridW : panelRect.minX
+            for (i, b) in buttons.enumerated() {
+                b.isHidden = false
+                b.frame = CGRect(x: ox + CGFloat(i % g.cols) * 44, y: panelRect.minY + CGFloat(i / g.cols) * 44, width: 44, height: 44)
+            }
+            chips.frame = CGRect(x: cx, y: 0, width: max(0, bounds.width - cx - 6), height: h)
+        } else {
+            chips.frame = CGRect(x: cx, y: 0, width: max(0, globeButton.frame.minX - cx - 4), height: h)
+        }
 
         rebuildChips()
     }
@@ -1219,12 +1231,28 @@ final class KeyboardCanvas: UIView {
         return UIMenu(title: L("Keyboard position"), children: [UIMenu(options: .displayInline, children: actions)] + extra)
     }
 
+    /// Clavier d'un côté : les boutons 🌐 😀 réglages et masquer passent dans la place libre à côté du clavier,
+    /// pour laisser toute la barre du haut aux suggestions (on voit les mots même tenu d'une main).
+    private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
+        guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
+        let n = (input?.kbNeedsGlobe ?? false) ? 4 : 3
+        let cols = max(1, min(n, Int(panelRect.width / 44)))
+        let rows = Int(ceil(Double(n) / Double(cols)))
+        guard CGFloat(rows) * 44 <= panelRect.height - 44 else { return nil }
+        return (cols, rows, n)
+    }
+
     private func rebuildPanel() {
         panel.subviews.forEach { $0.removeFromSuperview() }
-        panel.frame = panelRect
-        guard panelRect.width >= 44, panelRect.height >= 44, eff.sidePanel != .none else { return }
-        let w = panelRect.width
-        let h = panelRect.height
+        var area = panelRect
+        if let g = sideButtonsGrid {
+            let top = CGFloat(g.rows) * 44 + 6
+            area = CGRect(x: area.minX, y: area.minY + top, width: area.width, height: area.height - top)
+        }
+        panel.frame = area
+        guard area.width >= 44, area.height >= 44, eff.sidePanel != .none else { return }
+        let w = area.width
+        let h = area.height
         if layoutMode.isOneHand {
             // Comme le clavier d'Apple sur le Duo : les emojis au bord de l'écran ; un toucher dans la place libre
             // envoie le clavier de ce côté, ou au milieu près du centre.
