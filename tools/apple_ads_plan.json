@@ -1,0 +1,127 @@
+{
+ "campaigns": [
+  {
+   "name": "Foldly – iPhone Duo",
+   "adamId": 6827349081,
+   "countries": [
+    "US",
+    "GB",
+    "CA",
+    "AU",
+    "FR",
+    "DE",
+    "IT",
+    "ES",
+    "NL",
+    "JP"
+   ],
+   "daily": 6,
+   "groups": [
+    {
+     "name": "Duo (anglais)",
+     "bid": 0.5,
+     "keywords": [
+      "iphone duo",
+      "duo widget",
+      "fold counter",
+      "hinge counter",
+      "fold tracker",
+      "foldable phone",
+      "foldable iphone",
+      "iphone fold",
+      "duo app"
+     ]
+    },
+    {
+     "name": "Duo (langues locales)",
+     "bid": 0.5,
+     "keywords": [
+      "iphone pliable",
+      "téléphone pliable",
+      "compteur pliage",
+      "faltbares handy",
+      "iphone faltbar",
+      "telefono pieghevole",
+      "móvil plegable",
+      "opvouwbare telefoon",
+      "折りたたみ",
+      "折りたたみiphone"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Foldly – Marque",
+   "adamId": 6827349081,
+   "countries": [
+    "US",
+    "GB",
+    "CA",
+    "AU",
+    "FR",
+    "DE",
+    "IT",
+    "ES",
+    "NL",
+    "JP"
+   ],
+   "daily": 1,
+   "groups": [
+    {
+     "name": "Marque",
+     "bid": 0.3,
+     "keywords": [
+      "foldly"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Foldly – Découverte",
+   "adamId": 6827349081,
+   "countries": [
+    "US",
+    "GB",
+    "CA",
+    "AU",
+    "FR",
+    "DE",
+    "IT",
+    "ES",
+    "NL",
+    "JP"
+   ],
+   "daily": 3,
+   "groups": [
+    {
+     "name": "Découverte (Search Match)",
+     "bid": 0.35,
+     "searchMatch": true,
+     "keywords": [],
+     "negatives": [
+      "foldly",
+      "iphone duo",
+      "duo widget",
+      "fold counter",
+      "hinge counter",
+      "fold tracker",
+      "foldable phone",
+      "foldable iphone",
+      "iphone fold",
+      "duo app",
+      "iphone pliable",
+      "téléphone pliable",
+      "compteur pliage",
+      "faltbares handy",
+      "iphone faltbar",
+      "telefono pieghevole",
+      "móvil plegable",
+      "opvouwbare telefoon",
+      "折りたたみ",
+      "折りたたみiphone"
+     ]
+    }
+   ]
+  }
+ ]
+}
