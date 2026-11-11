@@ -68,12 +68,36 @@ elif MODE == "create":
             neg = [{"text": k, "matchType": "EXACT"} for k in g.get("negatives", [])]
             if neg: print("    négatifs", (lambda x: "ÉCHEC " + str(x)[:300] if isinstance(x, dict) and x.get("error") else "ok")(call("POST", f"/campaigns/{cid}/adgroups/{gid}/negativekeywords/bulk", neg)))
 
+elif MODE == "tune":
+    # 11 nov. : Découverte ne gagnait aucune enchère, et les mots-clés Duo sont peu cherchés.
+    disc = by_name.get("Foldly – Découverte")
+    if disc:
+        for g in call("GET", f"/campaigns/{disc['id']}/adgroups").get("data", []):
+            r = call("PUT", f"/campaigns/{disc['id']}/adgroups/{g['id']}", {"defaultBidAmount": {"amount": "1", "currency": CUR}})
+            print("enchère Découverte → 1 €", g["name"], "ÉCHEC " + str(r)[:300] if r.get("error") else "ok")
+    duo = by_name.get("Foldly – iPhone Duo")
+    if duo:
+        groups = call("GET", f"/campaigns/{duo['id']}/adgroups").get("data", [])
+        gid = next((g["id"] for g in groups if g["name"] == "Large (temps d'écran)"), None)
+        if not gid:
+            start = (datetime.datetime.utcnow() + datetime.timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S.000")
+            gr = call("POST", f"/campaigns/{duo['id']}/adgroups", {"name": "Large (temps d'écran)", "pricingModel": "CPC", "startTime": start,
+                      "defaultBidAmount": {"amount": "0.8", "currency": CUR}, "automatedKeywordsOptIn": False, "status": "ENABLED"})
+            if gr.get("error"): print("ÉCHEC groupe large", gr)
+            else: gid = gr["data"]["id"]; print("ok groupe large", gid)
+        if gid:
+            words = ["screen time", "screen time tracker", "phone addiction", "digital detox", "phone habits", "flip phone", "foldable",
+                     "temps d'écran", "bildschirmzeit", "tiempo de pantalla", "tempo di utilizzo", "schermtijd", "スクリーンタイム"]
+            kws = [{"text": k, "matchType": "BROAD", "bidAmount": {"amount": "0.8", "currency": CUR}} for k in words]
+            kr = call("POST", f"/campaigns/{duo['id']}/adgroups/{gid}/targetingkeywords/bulk", kws)
+            print("mots-clés larges", len(kws), "ÉCHEC " + str(kr)[:500] if isinstance(kr, dict) and kr.get("error") else "ok")
+
 elif MODE in ("pause", "resume"):
     for c in camps:
         r = call("PUT", f"/campaigns/{c['id']}", {"campaign": {"status": "PAUSED" if MODE == "pause" else "ENABLED"}})
         print(c["name"], "ÉCHEC" if r.get("error") else MODE)
 
-if MODE in ("report", "create", "probe") and camps:
+if MODE in ("report", "create", "probe", "tune") and camps:
     days = int(os.environ.get("DAYS", "7"))
     end = datetime.date.today(); start = end - datetime.timedelta(days=days - 1)
     r = call("POST", "/reports/campaigns", {"startTime": str(start), "endTime": str(end), "granularity": None,
