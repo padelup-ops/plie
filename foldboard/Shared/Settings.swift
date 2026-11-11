@@ -8,7 +8,7 @@ import Security
 // Si le trousseau n'est pas joignable (accès complet coupé), chacun garde sa copie dans ses préférences.
 
 enum KBLayout: String, Codable, CaseIterable, Identifiable {
-    case azerty, qwerty, qwertz, spanish
+    case azerty, qwerty, qwertz, spanish, swedish
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -16,6 +16,7 @@ enum KBLayout: String, Codable, CaseIterable, Identifiable {
         case .qwerty: return "QWERTY"
         case .qwertz: return "QWERTZ (Deutsch)"
         case .spanish: return "QWERTY (Español)"
+        case .swedish: return "QWERTY (Svenska)"
         }
     }
 
@@ -25,6 +26,7 @@ enum KBLayout: String, Codable, CaseIterable, Identifiable {
         case "fr": return .azerty
         case "de": return .qwertz
         case "es": return .spanish
+        case "sv": return .swedish
         default: return .qwerty
         }
     }

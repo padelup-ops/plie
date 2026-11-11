@@ -60,6 +60,12 @@ enum KBLayouts {
                     KeyRow(keys: chars11("asdfghjklöä")),
                     KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("yxcvbnm") + [KeySpec(kind: .backspace, width: 1.5)]),
                 ]
+            case .swedish:
+                return [
+                    KeyRow(keys: chars11("qwertyuiopå")),
+                    KeyRow(keys: chars11("asdfghjklöä")),
+                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("zxcvbnm") + [KeySpec(kind: .backspace, width: 1.5)]),
+                ]
             case .spanish:
                 return [
                     KeyRow(keys: chars("qwertyuiop")),

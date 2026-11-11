@@ -54,6 +54,7 @@ final class KBSuggest {
         case .azerty: want = "fr_FR"
         case .qwertz: want = "de_DE"
         case .spanish: want = "es_ES"
+        case .swedish: want = "sv_SE"
         case .qwerty: want = "en_US"
         }
         let available = UITextChecker.availableLanguages
