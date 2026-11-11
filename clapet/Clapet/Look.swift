@@ -200,7 +200,7 @@ struct ContentView: View {
                 }
             }
         }
-        .preferredColorScheme(look.isDark ? .dark : (look == .custom ? .light : nil))
+        .preferredColorScheme(look.isDark ? .dark : (look == .custom || look == .bento ? .light : nil))
         .onAppear {
             // Première ouverture : on propose de choisir (pas pendant le tournage des vidéos).
             if lookRaw.isEmpty && !Demo.seeded && Demo.screen == nil { askLook = true }

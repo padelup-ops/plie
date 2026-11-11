@@ -40,15 +40,15 @@ struct BentoHomeView: View {
 
     var body: some View {
         GeometryReader { g in
-            let cols = g.size.width >= 820 ? 3 : (g.size.width >= 520 ? 2 : 1)
+            let wide = g.size.width >= 520
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     header
-                    masonry(cols: cols)
+                    grid(wide: wide)
                 }
                 .padding(.horizontal, 18)
-                .padding(.top, 8)
-                .padding(.bottom, 28)
+                .padding(.top, 36)
+                .padding(.bottom, 120)
                 .frame(maxWidth: 1100)
                 .frame(maxWidth: .infinity)
             }
@@ -130,59 +130,65 @@ struct BentoHomeView: View {
 
     // MARK: La grille (colonnes de hauteurs différentes)
 
-    private struct Tile: Identifiable {
-        let id: String
-        let weight: CGFloat
-        let view: AnyView
+    /// Une rangée : deux cartes côte à côte, de même hauteur.
+    private func row<A: View, B: View>(_ a: A, _ b: B, _ i: Int, lead: CGFloat = 1) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            a.frame(maxWidth: .infinity, maxHeight: .infinity).layoutPriority(lead)
+            b.frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .modifier(Pop(on: appeared, i: i))
     }
 
-    private var tiles: [Tile] {
-        var t: [Tile] = [
-            Tile(id: "today", weight: 230, view: AnyView(today)),
-            Tile(id: "hinge", weight: 170, view: AnyView(hinge)),
-            Tile(id: "week", weight: 180, view: AnyView(week)),
-            Tile(id: "split", weight: 140, view: AnyView(split)),
-            Tile(id: "hours", weight: 130, view: AnyView(hours)),
-            Tile(id: "lifetime", weight: 120, view: AnyView(lifetime)),
-            Tile(id: "garden", weight: 120, view: AnyView(garden)),
-            Tile(id: "closed", weight: 200, view: AnyView(closed)),
-            Tile(id: "actions", weight: 110, view: AnyView(actions)),
-        ]
-        if model.stats.autoLast == nil && !Demo.seeded {
-            t.insert(Tile(id: "auto", weight: 110, view: AnyView(autoCard)), at: 1)
-        }
-        if !foldboardPromoHidden && FoldboardPromoRule.shouldShow {
-            t.append(Tile(id: "foldboard", weight: 170, view: AnyView(white {
-                FoldboardPromo { openURL(FoldboardPromoRule.url) } onHide: {
-                    FoldboardPromoRule.hide()
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { foldboardPromoHidden = true }
-                }
-            })))
-        }
-        return t
+    private func one<A: View>(_ a: A, _ i: Int) -> some View {
+        a.modifier(Pop(on: appeared, i: i))
     }
 
-    private func masonry(cols: Int) -> some View {
-        // Chaque carte va dans la colonne la moins haute : la grille reste équilibrée.
-        var columns = Array(repeating: [Tile](), count: cols)
-        var heights = Array(repeating: CGFloat(0), count: cols)
-        for tile in tiles {
-            let i = heights.indices.min { heights[$0] < heights[$1] } ?? 0
-            columns[i].append(tile)
-            heights[i] += tile.weight
+    /// L'entrée en ressort, rangée après rangée.
+    private struct Pop: ViewModifier {
+        let on: Bool
+        let i: Int
+        func body(content: Content) -> some View {
+            content
+                .scaleEffect(on ? 1 : 0.92)
+                .opacity(on ? 1 : 0)
+                .offset(y: on ? 0 : 14)
+                .animation(.spring(response: 0.55, dampingFraction: 0.72).delay(Double(i) * 0.07), value: on)
         }
-        return HStack(alignment: .top, spacing: 12) {
-            ForEach(0..<cols, id: \.self) { c in
-                VStack(spacing: 12) {
-                    ForEach(Array(columns[c].enumerated()), id: \.element.id) { r, tile in
-                        tile.view
-                            .scaleEffect(appeared ? 1 : 0.86)
-                            .opacity(appeared ? 1 : 0)
-                            .offset(y: appeared ? 0 : 6)
-                            .animation(.spring(response: 0.55, dampingFraction: 0.62).delay(Double(c) * 0.06 + Double(r) * 0.08), value: appeared)
-                    }
-                }
-                .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder private func grid(wide: Bool) -> some View {
+        let showAuto = model.stats.autoLast == nil && !Demo.seeded
+        let showPromo = !foldboardPromoHidden && FoldboardPromoRule.shouldShow
+        if wide {
+            VStack(spacing: 12) {
+                row(today, hinge, 0)
+                if showAuto { one(autoCard, 1) }
+                row(week, VStack(spacing: 12) { split; lifetime }, 2)
+                row(closed, VStack(spacing: 12) { hours; garden }, 3)
+                one(actions, 4)
+                if showPromo { one(promo, 5) }
+            }
+        } else {
+            VStack(spacing: 12) {
+                one(today, 0)
+                if showAuto { one(autoCard, 1) }
+                one(split, 2)
+                one(week, 3)
+                one(hours, 4)
+                row(lifetime, garden, 5)
+                one(closed, 6)
+                one(actions, 7)
+                if showPromo { one(promo, 8) }
+            }
+        }
+    }
+
+    private var promo: some View {
+        white {
+            FoldboardPromo { openURL(FoldboardPromoRule.url) } onHide: {
+                FoldboardPromoRule.hide()
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { foldboardPromoHidden = true }
             }
         }
     }
@@ -192,7 +198,7 @@ struct BentoHomeView: View {
     private func white<V: View>(@ViewBuilder _ content: () -> V) -> some View {
         content()
             .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Bento.card))
             .shadow(color: .black.opacity(0.04), radius: 1, y: 1)
             .shadow(color: .black.opacity(0.06), radius: 14, y: 6)
@@ -201,14 +207,14 @@ struct BentoHomeView: View {
     private func trayCard<V: View>(@ViewBuilder _ content: () -> V) -> some View {
         content()
             .padding(14)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Bento.tray))
     }
 
     private func darkCard<V: View>(@ViewBuilder _ content: () -> V) -> some View {
         content()
             .padding(18)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Bento.dark))
             .environment(\.colorScheme, .dark)
     }
@@ -404,27 +410,21 @@ struct BentoHomeView: View {
     }
 
     private var garden: some View {
-        white {
+        let today = model.stats.plants()
+        return white {
             HStack(spacing: 14) {
-                Image(systemName: "leaf.fill").font(.title2).foregroundStyle(Color(red: 0.2, green: 0.72, blue: 0.45))
-                    .frame(width: 46, height: 46).background(Circle().fill(Color(red: 0.2, green: 0.72, blue: 0.45).opacity(0.12)))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(model.stats.plants())").font(.system(size: 26, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                VStack(alignment: .leading, spacing: 4) {
                     label(Text("My garden"))
+                    Text(model.stats.totalPlants, format: .number)
+                        .font(.system(size: 30, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                        .contentTransition(.numericText())
+                    if today > 0 {
+                        Text(verbatim: "+\(today)").font(.caption.weight(.semibold)).foregroundStyle(Bento.accent)
+                    }
                 }
-                Spacer()
-                Text("\(model.stats.totalPlants)").font(.footnote.weight(.semibold)).monospacedDigit()
-                    .padding(.horizontal, 10).padding(.vertical, 5)
-                    .background(Capsule().fill(Bento.tint)).foregroundStyle(Bento.accent)
-            }
-        }
-    }
-
-    private var closed: some View {
-        white {
-            VStack(alignment: .leading, spacing: 10) {
-                label(Text("Time closed"))
-                ClosedTimeContent(stats: model.stats, accent: Bento.accent)
+                Spacer(minLength: 4)
+                Image(systemName: "leaf.fill").font(.title2.weight(.semibold)).foregroundStyle(Bento.accent)
+                    .frame(width: 46, height: 46).background(Circle().fill(Bento.tint))
             }
         }
     }
