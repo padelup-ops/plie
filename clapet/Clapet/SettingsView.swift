@@ -310,7 +310,7 @@ struct SettingsView: View {
                             }
                         } icon: { SIcon("gamecontroller.fill", .pink) }
                     }
-                    Link(destination: FoldboardPromoRule.url) {
+                    Link(destination: FoldboardPromoRule.appURL) {
                         Label {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(verbatim: "Foldboard")

@@ -334,7 +334,7 @@ struct MinimalHomeView: View {
                 notice(Text("Unlock your trends")) { plusReason = .menu }
             }
             if !foldboardPromoHidden && FoldboardPromoRule.shouldShow {
-                notice(Text("New: Foldboard")) { FoldboardPromoRule.hide(); foldboardPromoHidden = true; openURL(FoldboardPromoRule.url) }
+                notice(FoldboardPromoRule.pack ? Text("Duo Pack: Foldboard Pro for €1.99") : Text("New: Foldboard")) { FoldboardPromoRule.hide(); foldboardPromoHidden = true; openURL(FoldboardPromoRule.url) }
             }
             if !restPromoHidden && RestPromoRule.shouldShow {
                 notice(Text("New: time at rest")) { RestPromoRule.hide(); restPromoHidden = true; showSettings = true }
