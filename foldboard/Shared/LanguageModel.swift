@@ -21,24 +21,29 @@ final class KBLanguageModel {
         self.lang = lang
         data = d
         func u32(_ o: Int) -> Int { d.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in Int(raw.loadUnaligned(fromByteOffset: o, as: UInt32.self).littleEndian) } }
-        V = u32(8)
+        let count = u32(8)
+        V = count
         let nBi = u32(12)
         nCtx = u32(16)
         let nTri = u32(20)
         var p = 24
-        words.reserveCapacity(V)
-        ids.reserveCapacity(V)
+        var list: [String] = []
+        var map: [String: Int] = [:]
+        list.reserveCapacity(count)
+        map.reserveCapacity(count)
         d.withUnsafeBytes { (raw: UnsafeRawBufferPointer) in
-            for i in 0..<V {
+            for i in 0..<count {
                 let len = Int(raw[p]); p += 1
                 let w = String(decoding: UnsafeRawBufferPointer(rebasing: raw[p..<(p + len)]), as: UTF8.self)
                 p += len
-                words.append(w)
-                if ids[w] == nil { ids[w] = i }
+                list.append(w)
+                if map[w] == nil { map[w] = i }
             }
         }
-        uniAt = p; p += V
-        biOffAt = p; p += 4 * (V + 1)
+        words = list
+        ids = map
+        uniAt = p; p += count
+        biOffAt = p; p += 4 * (count + 1)
         biIdAt = p; p += 2 * nBi
         biScAt = p; p += nBi
         ctxKeyAt = p; p += 4 * nCtx
