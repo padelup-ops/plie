@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       app:
-        description: "origamo ou foldly"
+        description: "origamo, foldly ou foldboard"
         required: false
         default: "origamo"
       mode:
@@ -53,7 +53,7 @@ jobs:
           ORIGAMO_BUNDLE: ${{ secrets.BUNDLE_ID }}
         run: |
           python3 -m pip install --quiet pyjwt cryptography
-          if [ "${{ inputs.app }}" = "foldly" ]; then export BUNDLE_ID=com.padelup.clapet PRODUCT_ID=com.padelup.clapet.plus; else export BUNDLE_ID="$ORIGAMO_BUNDLE" PRODUCT_ID=plie.pass.complet; fi
+          if [ "${{ inputs.app }}" = "foldly" ]; then export BUNDLE_ID=com.padelup.clapet PRODUCT_ID=com.padelup.clapet.plus; elif [ "${{ inputs.app }}" = "foldboard" ]; then export BUNDLE_ID=com.padelup.foldboard PRODUCT_ID=com.padelup.foldboard.pro; else export BUNDLE_ID="$ORIGAMO_BUNDLE" PRODUCT_ID=plie.pass.complet; fi
           python3 tools/asc_offer.py 2>&1 | tee offer.txt || true
       - name: Publier
         if: always()
