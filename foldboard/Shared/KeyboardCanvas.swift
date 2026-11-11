@@ -121,6 +121,35 @@ final class KeyboardCanvas: UIView {
     private var suggestionItems: [String] = []
     private var suggestionBest: Int?
     private var lastCorrection: (original: String, corrected: String, sep: String)?
+    /// Où le doigt s'est posé pour chaque lettre tapée (les dernières) : la correction s'en sert, comme chez Apple.
+    private var wordTouches: [(ch: Character, p: CGPoint)] = []
+
+    private func noteTouch(_ text: String, at p: CGPoint) {
+        guard text.count == 1, let c = text.lowercased().first, c.isLetter else { wordTouches.removeAll(); return }
+        wordTouches.append((c, p))
+        if wordTouches.count > 40 { wordTouches.removeFirst(wordTouches.count - 40) }
+    }
+
+    /// Le modèle de toucher pour le mot en cours, si chaque lettre a bien été tapée ici (pas collée ni déplacée).
+    private func touchModel(for word: String) -> KBTouchModel? {
+        let w = Array(word.lowercased())
+        guard !w.isEmpty, wordTouches.count >= w.count else { return nil }
+        let tail = Array(wordTouches.suffix(w.count))
+        for (i, t) in tail.enumerated() {
+            let a = String(t.ch).folding(options: .diacriticInsensitive, locale: nil)
+            let b = String(w[i]).folding(options: .diacriticInsensitive, locale: nil)
+            guard a == b else { return nil }
+        }
+        var centers: [Character: CGPoint] = [:]
+        var keyW: CGFloat = 0, keyH: CGFloat = 0
+        for c in cells {
+            guard case .char(let s) = c.view.spec.kind, s.count == 1, let ch = s.lowercased().first, ch.isLetter else { continue }
+            centers[ch] = CGPoint(x: c.frame.midX, y: c.frame.midY)
+            keyW = max(keyW, c.frame.width); keyH = max(keyH, c.frame.height)
+        }
+        guard centers.count >= 20 else { return nil }
+        return KBTouchModel(points: tail.map { $0.p }, centers: centers, keyW: keyW, keyH: keyH)
+    }
     private var pendingGrip: KBGrip?
     private var idleTimer: Timer?
     private var visible = false
@@ -1613,6 +1642,7 @@ final class KeyboardCanvas: UIView {
             // La lettre s'écrit dès que le doigt se pose : c'est ce qui rend la frappe immédiate.
             tr.typed = text
             typeText(text)
+            noteTouch(text, at: tr.start)
         case .backspace:
             if undoCorrection() {
                 tr.done = true
@@ -1621,6 +1651,7 @@ final class KeyboardCanvas: UIView {
             }
             lastCorrection = nil
             input?.kbDelete()
+            if !wordTouches.isEmpty { wordTouches.removeLast() }
             refreshSuggestionsSoon()
             tr.done = true
             tr.longTimer = Timer.scheduledTimer(withTimeInterval: 0.42, repeats: false) { [weak self, weak tr] _ in
@@ -1666,6 +1697,7 @@ final class KeyboardCanvas: UIView {
                 accentView.isHidden = true
             } else if tr.typed == nil {
                 typeText(shift != .off && page == .letters ? s.uppercased() : s)
+                noteTouch(s, at: tr.start)
             }
         case .space:
             if !tr.cursorMode && tr.typed == nil { typeSpace() }
@@ -1790,11 +1822,13 @@ final class KeyboardCanvas: UIView {
         let known: String?? = cachedFix?.word == word ? .some(cachedFix?.fix) : nil
         // La correction préparée en arrière-plan si elle est prête, sinon on la calcule (quelques ms : la mesure
         // de fluidité montre que le clavier a toute la marge).
-        let computed: String? = known ?? suggest.correction(for: word, before: before)
+        let computed: String? = known ?? suggest.correction(for: word, before: before, touch: touchModel(for: word))
         guard !word.isEmpty, let fix = computed, fix != word else {
             lastCorrection = nil
+            wordTouches.removeAll()
             return
         }
+        wordTouches.removeAll()
         for _ in 0..<word.count { input?.kbDelete() }
         input?.kbInsert(fix)
         lastCorrection = (word, fix, sep)
@@ -1841,7 +1875,7 @@ final class KeyboardCanvas: UIView {
         let w = DispatchWorkItem { [weak self] in self?.refreshSuggestions() }
         suggestWork = w
         // Pendant une frappe rapide, rien n'est recalculé : seulement quand le doigt marque une pause.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16, execute: w)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.07, execute: w)
     }
 
     private func refreshSuggestions() {
@@ -1858,8 +1892,9 @@ final class KeyboardCanvas: UIView {
         suggestGen += 1
         let gen = suggestGen
         let auto = eff.autocorrect
+        let touch = touchModel(for: word)
         suggestQueue.async { [weak self, bgSuggest] in
-            let (items, best) = bgSuggest.suggestions(for: word, before: before)
+            let (items, best) = bgSuggest.suggestions(for: word, before: before, touch: touch)
             let fix = best.map { items[$0] }
             DispatchQueue.main.async {
                 guard let self, gen == self.suggestGen else { return }

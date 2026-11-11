@@ -1,5 +1,30 @@
 import UIKit
 
+/// Où le doigt s'est réellement posé pour chaque lettre du mot en cours, et le centre de chaque touche.
+/// C'est ce que fait le clavier d'Apple : « teh » tapé avec le doigt à cheval entre E et R n'a pas la même
+/// correction que « teh » tapé au centre des touches.
+struct KBTouchModel {
+    var points: [CGPoint]
+    var centers: [Character: CGPoint]
+    var keyW: CGFloat
+    var keyH: CGFloat
+
+    /// Le coût de lire `cand` à partir des touchers : 0 si chaque toucher tombe au centre de la touche voulue,
+    /// environ 1 par lettre posée au bord, beaucoup plus pour une touche lointaine. nil si on ne peut pas comparer.
+    func cost(_ cand: String) -> Double? {
+        let c = Array(cand.lowercased())
+        guard c.count == points.count, keyW > 0, keyH > 0 else { return nil }
+        var total = 0.0
+        for (i, ch) in c.enumerated() {
+            let base = Character(String(ch).folding(options: .diacriticInsensitive, locale: nil))
+            guard let k = centers[base] ?? centers[ch] else { return nil }
+            let dx = Double((points[i].x - k.x) / (keyW * 0.55)), dy = Double((points[i].y - k.y) / (keyH * 0.55))
+            total += dx * dx + dy * dy
+        }
+        return total
+    }
+}
+
 /// Correction automatique et suggestions de mots, avec le correcteur d'iOS (UITextChecker)
 /// et le lexique de l'utilisateur (contacts, remplacements de texte).
 final class KBSuggest {
@@ -125,6 +150,28 @@ final class KBSuggest {
         return s
     }
 
+    /// Les apostrophes oubliées, comme le clavier d'Apple (« dont » → « don’t », « jai » → « j’ai »).
+    private static let contractions: [String: [String: String]] = [
+        "en": ["im": "I’m", "ive": "I’ve", "dont": "don’t", "cant": "can’t", "wont": "won’t", "didnt": "didn’t",
+               "doesnt": "doesn’t", "isnt": "isn’t", "wasnt": "wasn’t", "arent": "aren’t", "werent": "weren’t",
+               "couldnt": "couldn’t", "shouldnt": "shouldn’t", "wouldnt": "wouldn’t", "havent": "haven’t", "hasnt": "hasn’t",
+               "youre": "you’re", "youve": "you’ve", "youll": "you’ll", "theyre": "they’re", "theyve": "they’ve",
+               "thats": "that’s", "whats": "what’s", "theres": "there’s", "heres": "here’s", "itll": "it’ll",
+               "ill": "I’ll", "id": "I’d", "lets": "let’s", "hes": "he’s", "shes": "she’s"],
+        "fr": ["jai": "j’ai", "cest": "c’est", "cetait": "c’était", "quil": "qu’il", "quils": "qu’ils", "quon": "qu’on",
+               "nest": "n’est", "jen": "j’en", "jy": "j’y", "daccord": "d’accord", "aujourdhui": "aujourd’hui",
+               "jespere": "j’espère", "sil": "s’il", "sils": "s’ils", "nimporte": "n’importe", "jetais": "j’étais",
+               "jaime": "j’aime", "jarrive": "j’arrive", "jattends": "j’attends", "javais": "j’avais", "jaurais": "j’aurais",
+               "quelquun": "quelqu’un", "lautre": "l’autre", "jsuis": "j’suis", "ya": "y’a"],
+    ]
+    /// Celles qui sont aussi de vrais mots (« ill », « lets », « id », « hes »…) : seulement dans la barre, jamais d'office.
+    private static let ambiguous: Set<String> = ["ill", "id", "lets", "hes", "shes", "ya", "jy", "sil", "jen"]
+
+    private func contraction(_ word: String) -> String? {
+        guard let c = Self.contractions[String(language.prefix(2))]?[word.lowercased()] else { return nil }
+        return c.hasPrefix("I") ? c : matchCase(c, like: word)
+    }
+
     /// La forme accentuée d'un mot tapé sans accents, si elle existe (« apres » → « après »), et son rang.
     private func accentForm(_ word: String) -> (word: String, rank: Int)? {
         let lower = word.lowercased()
@@ -143,8 +190,12 @@ final class KBSuggest {
     }
 
     /// La correction à appliquer quand on termine le mot (espace, ponctuation), ou nil.
-    func correction(for word: String, before: String) -> String? {
-        if !known.contains(word.lowercased()), replacements[word.lowercased()] == nil, let fix = accentFix(word) { return fix }
+    func correction(for word: String, before: String, touch: KBTouchModel? = nil) -> String? {
+        let low = word.lowercased()
+        if !known.contains(low), replacements[low] == nil {
+            if !Self.ambiguous.contains(low), let c = contraction(word) { return c }
+            if let fix = accentFix(word) { return fix }
+        }
         guard word.count >= 3, word.count <= 30 else {
             if word == "i" && language.hasPrefix("en") { return "I" }
             return nil
@@ -171,13 +222,52 @@ final class KBSuggest {
         // Les mots en majuscules (sigles) ne sont jamais remplacés.
         if word.count > 1, word == word.uppercased() { return nil }
         let allowed = word.count >= 7 ? 2 : 1
-        let best = guesses.first { g in
-            let gl = g.lowercased()
-            guard !g.contains(" "), !g.contains("-"), gl.first == lower.first else { return false }
-            guard let r = rank[gl], r < 15_000 else { return false }
-            return typoDistance(gl, lower) <= allowed
+        // Les candidats : ceux du correcteur d'iOS, plus chaque mot obtenu en remplaçant une lettre par une
+        // touche voisine du doigt (c'est la faute la plus fréquente, et iOS ne les propose pas toujours).
+        var pool = guesses
+        if let touch {
+            for cand in nearbyWords(lower, touch: touch) where !pool.contains(where: { $0.lowercased() == cand }) { pool.append(cand) }
         }
-        return best.map { matchCase($0, like: word) }
+        var best: (word: String, score: Double)?
+        for g in pool {
+            let gl = g.lowercased()
+            guard !g.contains(" "), !g.contains("-") else { continue }
+            guard let r = rank[gl], r < 15_000 else { continue }
+            let d = typoDistance(gl, lower)
+            guard d <= allowed else { continue }
+            // La première lettre change rarement : seulement si le doigt était vraiment entre deux touches.
+            var score = -log(Double(r) + 30)
+            if let c = touch?.cost(gl), let own = touch?.cost(lower) {
+                let extra = c - own
+                if gl.first != lower.first && extra > 1.2 { continue }
+                if extra > 6 { continue }          // une touche trop loin du doigt : pas une faute de frappe
+                score -= extra * 0.6
+            } else {
+                if gl.first != lower.first { continue }
+                score -= Double(d) * 1.5
+            }
+            if best == nil || score > best!.score { best = (g, score) }
+        }
+        return best.map { matchCase($0.word, like: word) }
+    }
+
+    /// Les mots courants à une lettre près, dont la lettre changée est une touche proche de l'endroit où le doigt s'est posé.
+    private func nearbyWords(_ lower: String, touch: KBTouchModel) -> [String] {
+        let chars = Array(lower)
+        guard chars.count == touch.points.count, chars.count <= 14 else { return [] }
+        var out: [String] = []
+        for (i, p) in touch.points.enumerated() {
+            for (k, c) in touch.centers where k != chars[i] {
+                let dx = (p.x - c.x) / touch.keyW, dy = (p.y - c.y) / touch.keyH
+                guard dx * dx + dy * dy < 1.0 else { continue }   // moins d'une touche du doigt
+                var w = chars; w[i] = k
+                let cand = String(w)
+                if let r = rank[cand], r < 15_000 { out.append(cand) }
+                // Et la même avec l'accent (« apres » posé sur le e → « après »).
+                if let a = accented[cand], words[a] != cand, rank[words[a]] ?? .max < 15_000 { out.append(words[a]) }
+            }
+        }
+        return out
     }
 
     private func position(_ c: Character) -> (Int, Int)? {
@@ -234,19 +324,21 @@ final class KBSuggest {
     }
 
     /// Les trois propositions de la barre : le mot tapé, la meilleure (correction ou fin du mot), une autre.
-    func suggestions(for word: String, before: String) -> (items: [String], best: Int?) {
+    func suggestions(for word: String, before: String, touch: KBTouchModel? = nil) -> (items: [String], best: Int?) {
         guard !word.isEmpty else { return ([], nil) }
         let ns = word as NSString
         let range = NSRange(location: 0, length: ns.length)
         var out: [String] = []
         var best: Int?
-        let fix = correction(for: word, before: before)
+        let fix = correction(for: word, before: before, touch: touch)
         if let fix, fix != word {
             out = [word, fix]
             best = 1
         } else {
             out = [word]
         }
+        // L'apostrophe oubliée, même quand le mot existe aussi (« ill » → « I’ll ») : proposée dans la barre.
+        if let c = contraction(word), !out.contains(c) { out.insert(c, at: min(1, out.count)); if best != nil { best = out.firstIndex(of: fix ?? "") } }
         // L'accent oublié (« a » → « à ») : toujours proposé dans la barre, même quand on ne le corrige pas seul.
         if let a = accentForm(word) {
             let c = matchCase(a.word, like: word)
