@@ -37,6 +37,10 @@ struct BentoHomeView: View {
     @State private var foldboardPromoHidden = false
     @State private var appeared = false
     @State private var bump = false
+    @State private var editing = false
+    @State private var wiggle = false
+    @State private var dropTarget: String?
+    @AppStorage("bentoOrder") private var orderRaw = ""
 
     var body: some View {
         GeometryReader { g in
@@ -118,6 +122,19 @@ struct BentoHomeView: View {
                     .font(.footnote).foregroundStyle(Bento.muted)
             }
             Spacer()
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { editing.toggle() }
+                wiggle = editing
+            } label: {
+                Group {
+                    if editing { Text("Done").font(.subheadline.weight(.semibold)).foregroundStyle(.white).padding(.horizontal, 14) }
+                    else { Image(systemName: "square.grid.2x2").font(.body.weight(.medium)).foregroundStyle(Bento.ink).frame(width: 40) }
+                }
+                .frame(height: 40)
+                .background(Capsule().fill(editing ? Bento.accent : Bento.card))
+                .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
+            }
+            .accessibilityLabel(Text("Arrange cards"))
             LeaderboardButton(show: $showBoards).font(.body).frame(width: 40, height: 44)
             Button { showSettings = true } label: {
                 Image(systemName: "gearshape").font(.body.weight(.medium)).foregroundStyle(Bento.ink)
@@ -157,29 +174,123 @@ struct BentoHomeView: View {
         }
     }
 
+    // MARK: Cartes déplaçables
+    //
+    // L'ordre est gardé sur le téléphone. « Arranger » (en haut) fait trembler les cartes : on en attrape une
+    // et on la lâche sur une autre pour prendre sa place.
+
+    static let defaultOrder = ["today", "hinge", "week", "split", "closed", "hours", "lifetime", "garden", "actions"]
+
+    private var order: [String] {
+        let saved = orderRaw.split(separator: ",").map(String.init).filter { Self.defaultOrder.contains($0) }
+        return saved + Self.defaultOrder.filter { !saved.contains($0) }
+    }
+
+    private func move(_ from: String, to: String) {
+        guard from != to else { return }
+        var o = order
+        guard let i = o.firstIndex(of: from), let j = o.firstIndex(of: to) else { return }
+        o.remove(at: i)
+        o.insert(from, at: j)
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) { orderRaw = o.joined(separator: ",") }
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+    }
+
+    private func card(_ id: String) -> AnyView {
+        switch id {
+        case "today": return AnyView(today)
+        case "hinge": return AnyView(hinge)
+        case "week": return AnyView(week)
+        case "split": return AnyView(split)
+        case "closed": return AnyView(closed)
+        case "hours": return AnyView(hours)
+        case "lifetime": return AnyView(lifetime)
+        case "garden": return AnyView(garden)
+        default: return AnyView(actions)
+        }
+    }
+
+    /// Une carte, avec ce qu'il faut pour la déplacer en mode « Arranger ».
+    private func movable(_ id: String) -> some View {
+        card(id)
+            .allowsHitTesting(!editing)
+            .overlay {
+                if editing {
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .strokeBorder(Bento.accent.opacity(dropTarget == id ? 0.9 : 0.25), style: StrokeStyle(lineWidth: dropTarget == id ? 3 : 1.5, dash: dropTarget == id ? [] : [6, 5]))
+                        .background(Color.white.opacity(0.001))
+                        .overlay(alignment: .topTrailing) {
+                            Image(systemName: "line.3.horizontal")
+                                .font(.caption.weight(.bold)).foregroundStyle(.white)
+                                .frame(width: 26, height: 26).background(Circle().fill(Bento.accent))
+                                .padding(8)
+                        }
+                        .draggable(id) { card(id).frame(width: 220).opacity(0.9) }
+                        .dropDestination(for: String.self) { items, _ in
+                            if let from = items.first { move(from, to: id) }
+                            dropTarget = nil
+                            return true
+                        } isTargeted: { on in
+                            if on { dropTarget = id } else if dropTarget == id { dropTarget = nil }
+                        }
+                }
+            }
+            .rotationEffect(.degrees(editing ? (wiggle ? 0.6 : -0.6) : 0))
+            .animation(editing ? .easeInOut(duration: 0.14).repeatForever(autoreverses: true) : .default, value: wiggle)
+    }
+
+    private static let small: Set<String> = ["lifetime", "garden", "split", "hours"]
+
+    /// Les cartes deux par deux (grand écran), ou les petites deux par deux (petit écran).
+    private func rows(wide: Bool) -> [[String]] {
+        var out: [[String]] = []
+        var pending: String?
+        for id in order {
+            let pairable = wide ? id != "actions" : Self.small.contains(id) && id != "split" && id != "hours"
+            if pairable {
+                if let p = pending { out.append([p, id]); pending = nil } else { pending = id }
+            } else {
+                if let p = pending { out.append([p]); pending = nil }
+                out.append([id])
+            }
+        }
+        if let p = pending { out.append([p]) }
+        return out
+    }
+
     @ViewBuilder private func grid(wide: Bool) -> some View {
         let showAuto = model.stats.autoLast == nil && !Demo.seeded
         let showPromo = !foldboardPromoHidden && FoldboardPromoRule.shouldShow
-        if wide {
-            VStack(spacing: 12) {
-                row(today, hinge, 0)
-                if showAuto { one(autoCard, 1) }
-                row(week, VStack(spacing: 12) { split; lifetime }, 2)
-                row(closed, VStack(spacing: 12) { hours; garden }, 3)
-                one(actions, 4)
-                if showPromo { one(promo, 5) }
+        let rs = rows(wide: wide)
+        VStack(spacing: 12) {
+            if editing {
+                HStack {
+                    Text("Drag a card onto another to swap their places.")
+                        .font(.footnote).foregroundStyle(Bento.muted)
+                    Spacer()
+                    Button { withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { orderRaw = "" } } label: {
+                        Text("Reset").font(.footnote.weight(.semibold))
+                    }
+                }
+                .padding(.horizontal, 4)
             }
-        } else {
-            VStack(spacing: 12) {
-                one(today, 0)
-                if showAuto { one(autoCard, 1) }
-                one(split, 2)
-                one(week, 3)
-                one(hours, 4)
-                row(lifetime, garden, 5)
-                one(closed, 6)
-                one(actions, 7)
-                if showPromo { one(promo, 8) }
+            if showAuto && !editing { one(autoCard, 0) }
+            ForEach(Array(rs.enumerated()), id: \.element) { i, r in
+                if r.count == 2 {
+                    row(movable(r[0]), movable(r[1]), i + 1)
+                } else {
+                    one(movable(r[0]), i + 1)
+                }
+            }
+            if showPromo && !editing { one(promo, rs.count + 1) }
+        }
+    }
+
+    private var closed: some View {
+        white {
+            VStack(alignment: .leading, spacing: 10) {
+                label(Text("Time closed"))
+                ClosedTimeContent(stats: model.stats, accent: Bento.accent)
             }
         }
     }
