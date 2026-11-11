@@ -1,0 +1,40 @@
+# FOLDBOARD : construit le modèle de langue (français, anglais) depuis les corpus de Leipzig (CC BY 4.0)
+# et l'ajoute au clavier (foldboard/Shared/lm-*.bin). Lancer ensuite « Foldboard - TestFlight ».
+name: Foldboard - Language model
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        lang: [fr, en]
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 tools/build_lm.py ${{ matrix.lang }} lm-${{ matrix.lang }}.bin
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lm-${{ matrix.lang }}
+          path: lm-${{ matrix.lang }}.bin
+  commit:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+      - run: |
+          cp out/lm-fr/lm-fr.bin out/lm-en/lm-en.bin foldboard/Shared/
+          ls -la foldboard/Shared/lm-*.bin
+          git config user.name "foldboard-bot"
+          git config user.email "foldboard-bot@users.noreply.github.com"
+          git add foldboard/Shared/lm-fr.bin foldboard/Shared/lm-en.bin
+          git commit -m "Foldboard: language model (Leipzig corpora, CC BY 4.0)" || exit 0
+          git pull --rebase origin main
+          git push origin HEAD:main

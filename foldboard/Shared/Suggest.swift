@@ -111,6 +111,18 @@ final class KBSuggest {
     private var accented: [String: Int] = [:]
     private var loadedList = ""
 
+    /// Le modèle de langue de la disposition (partagé entre la correction et la barre : chargé une seule fois).
+    private var lm: KBLanguageModel?
+    private static var lmCache: [String: KBLanguageModel] = [:]
+    private static let lmLock = NSLock()
+    private static func model(_ code: String) -> KBLanguageModel? {
+        lmLock.lock(); defer { lmLock.unlock() }
+        if let m = lmCache[code] { return m }
+        guard let m = KBLanguageModel(lang: code) else { return nil }
+        lmCache = [code: m]   // une seule langue en mémoire
+        return m
+    }
+
     private func loadList(_ code: String) {
         guard loadedList != code else { return }
         loadedList = code
@@ -169,7 +181,9 @@ final class KBSuggest {
         } else {
             language = available.first ?? "en_US"
         }
-        loadList(layout == .azerty ? "fr" : (layout == .qwerty ? "en" : "none"))
+        let code = layout == .azerty ? "fr" : (layout == .qwerty ? "en" : "none")
+        loadList(code)
+        lm = code == "none" ? nil : Self.model(code)
     }
 
     func setLexicon(_ lexicon: UILexicon) {
@@ -243,11 +257,20 @@ final class KBSuggest {
         let lang = String(language.prefix(2))
         let start = Self.atSentenceStart(before + "x", word: "x")
         var out: [String] = []
-        if !start, let prev {
+        if let lm {
+            // Ce que tu écris d'habitude après ce mot passe d'abord, puis le modèle de langue.
+            if !start, let prev { out = Array(KBWordStore.shared.next(after: prev, limit: 3).filter { KBWordStore.shared.pair(prev, $0) >= 2 }.prefix(2)) }
+            for w in lm.next(before: before, limit: 6) where out.count < 3 && !out.contains(w) { out.append(w) }
+        }
+        if out.isEmpty, !start, let prev {
             out = KBWordStore.shared.next(after: prev, limit: 3)
             for w in Self.nextSeeds[lang]?[prev.lowercased()] ?? [] where out.count < 3 && !out.contains(w) { out.append(w) }
         } else {
             for w in Self.nextSeeds[lang]?[""] ?? [] where out.count < 3 { out.append(w) }
+        }
+        out = out.map { w in
+            if lang == "en", w == "i" || w.hasPrefix("i’") { return "I" + w.dropFirst() }
+            return w
         }
         if start { out = out.map { $0.prefix(1).uppercased() + $0.dropFirst() } }
         return out
@@ -323,6 +346,8 @@ final class KBSuggest {
         if KBWordStore.shared.count(low) >= 3 { return nil }
         // « a » ou « à » d'après le mot d'avant : « je vais a » → « je vais à », « il a » reste « il a ».
         if language.hasPrefix("fr"), low == "a", let prev, Self.towardA.contains(prev) { return matchCase("à", like: word) }
+        if language.hasPrefix("fr"), low == "a", let lm, let sa = lm.score("à", before: before), let s0 = lm.score("a", before: before),
+           sa > s0 + 1.6 { return matchCase("à", like: word) }
         if !known.contains(low), replacements[low] == nil {
             if !Self.ambiguous.contains(low), let c = contraction(word) { return c }
             if let fix = accentFix(word) { return fix }
@@ -369,7 +394,7 @@ final class KBSuggest {
             let d = typoDistance(gl, lower)
             guard d <= allowed else { continue }
             // La première lettre change rarement : seulement si le doigt était vraiment entre deux touches.
-            var score = -log(Double(r) + 30)
+            var score = lm?.score(gl, before: before) ?? -log(Double(r) + 30)
             // Le mot d'avant : ce que tu écris d'habitude après lui passe devant (« bonne j » → « journée »).
             if let prev { score += log(1 + Double(KBWordStore.shared.pair(prev, gl))) * 0.9 }
             score += log(1 + Double(KBWordStore.shared.count(gl))) * 0.3
@@ -505,7 +530,15 @@ final class KBSuggest {
             if !out.contains(c) { out.insert(c, at: min(1, out.count)); if best != nil { best = out.firstIndex(of: fix ?? "") } }
         }
         var completions = KBWordStore.shared.completions(word, limit: 2).map { matchCase($0, like: word) }
-        for c in listCompletions(word, limit: 3) where !completions.contains(where: { $0.lowercased() == c.lowercased() }) { completions.append(c) }
+        var pool = listCompletions(word, limit: lm == nil ? 3 : 14)
+        if let lm {
+            // Les fins de mot qui collent à la phrase passent devant (« bonne jour » → « journée »).
+            let key = word.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
+            for w in lm.next(before: before, limit: 24) where w.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil).hasPrefix(key)
+                && w.count > word.count && !pool.contains(w) { pool.append(w) }
+            pool = pool.map { ($0, lm.score($0, before: before) ?? -20) }.sorted { $0.1 > $1.1 }.map { $0.0 }
+        }
+        for c in pool.prefix(3) where !completions.contains(where: { $0.lowercased() == c.lowercased() }) { completions.append(c) }
         if completions.isEmpty {
             completions = (checker.completions(forPartialWordRange: range, in: word, language: language) ?? [])
                 .filter { $0.lowercased() != word.lowercased() && !$0.contains(" ") }
