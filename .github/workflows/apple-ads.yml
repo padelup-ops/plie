@@ -1,0 +1,24 @@
+# Apple Ads : sonde, rapport, création des campagnes, pause/reprise.
+name: Apple Ads
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "probe, report, create, pause ou resume"
+        required: false
+        default: "probe"
+      days:
+        description: "Période du rapport (jours)"
+        required: false
+        default: "7"
+jobs:
+  ads:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APPLE_ADS_CLIENT_SECRET: ${{ secrets.APPLE_ADS_CLIENT_SECRET }}
+      MODE: ${{ inputs.mode }}
+      DAYS: ${{ inputs.days }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 tools/apple_ads.py
