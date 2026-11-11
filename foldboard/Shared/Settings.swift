@@ -116,6 +116,8 @@ struct KBSettings: Codable, Equatable {
     var openFull = false
     /// Duo ouvert en paysage : clavier coupé en deux (sinon, entier).
     var openLandSplit = false
+    /// Duo ouvert en paysage : le petit clavier qui suit la main (option ; sinon entier ou coupé en deux).
+    var openLandFollow = false
     /// Largeur de chaque moitié en mode deux mains, en part de l'écran.
     var splitWidth: Double = 0.34
     /// Écart avec le bord de l'écran, en points.
@@ -176,6 +178,7 @@ struct KBSettings: Codable, Equatable {
         openSplit = (try? c.decodeIfPresent(Bool.self, forKey: .openSplit)) ?? d.openSplit
         openFull = (try? c.decodeIfPresent(Bool.self, forKey: .openFull)) ?? d.openFull
         openLandSplit = (try? c.decodeIfPresent(Bool.self, forKey: .openLandSplit)) ?? d.openLandSplit
+        openLandFollow = (try? c.decodeIfPresent(Bool.self, forKey: .openLandFollow)) ?? d.openLandFollow
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight

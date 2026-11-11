@@ -628,7 +628,9 @@ final class KeyboardCanvas: UIView {
 
     /// Écran intérieur : passe d'une disposition à l'autre (portrait : une main ⇄ deux moitiés ; paysage : entier ⇄ deux moitiés).
     private func toggleBig() {
-        if gripContext == "open-portrait" { settings.openSplit.toggle() } else { settings.openLandSplit.toggle() }
+        if gripContext == "open-portrait" { settings.openSplit.toggle() }
+        else if settings.openLandFollow { settings.openLandFollow = false }
+        else { settings.openLandSplit.toggle() }
         settings.openFull = false
         KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
         save()
@@ -714,6 +716,7 @@ final class KeyboardCanvas: UIView {
     /// Le clavier suit la main ici : écran extérieur, ou écran intérieur en portrait sans les deux moitiés.
     private var followsHand: Bool {
         gripContext.hasPrefix("closed") || (gripContext == "open-portrait" && !settings.openSplit)
+            || (gripContext == "open-landscape" && settings.openLandFollow)
     }
 
     private var layoutMode: KBMode {
@@ -722,7 +725,7 @@ final class KeyboardCanvas: UIView {
             // En portrait, au choix : deux moitiés, ou le petit clavier qui suit la main (comme sur l'écran extérieur).
             if gripContext == "open-portrait" && settings.openSplit { return pro && splitAllowed ? .split : .full }
             // En paysage, au choix : le clavier entier, ou deux moitiés.
-            if gripContext == "open-landscape" { return settings.openLandSplit && pro && splitAllowed ? .split : .full }
+            if gripContext == "open-landscape" && !settings.openLandFollow { return settings.openLandSplit && pro && splitAllowed ? .split : .full }
         }
         if eff.mode == .auto && eff.autoTwo { return splitAllowed ? .split : .full }
         if eff.mode == .split && !splitAllowed { return .full }
@@ -1087,7 +1090,7 @@ final class KeyboardCanvas: UIView {
         // Portrait : petit clavier qui suit la main ⇄ deux moitiés. Paysage : clavier entier ⇄ deux moitiés.
         let open = gripContext.hasPrefix("open")
         let bigShown = open && settings.mode == .auto && pro
-        let splitNow = gripContext == "open-portrait" ? settings.openSplit : settings.openLandSplit
+        let splitNow = gripContext == "open-portrait" ? settings.openSplit : (settings.openLandSplit || settings.openLandFollow)
         bigButton.isHidden = !bigShown
         bigButton.setImage(UIImage(systemName: splitNow ? (gripContext == "open-portrait" ? "keyboard.onehanded.right" : "keyboard") : "rectangle.split.2x1"), for: .normal)
         bigButton.accessibilityLabel = splitNow ? L("One keyboard") : L("Split keyboard")
@@ -1193,6 +1196,20 @@ final class KeyboardCanvas: UIView {
                 self.settings.openSplit.toggle()
                 self.settings.mode = .auto
                 self.save()
+                self.layoutIfNeeded()
+            }, at: 0)
+        }
+        if gripContext == "open-landscape" {
+            // Duo ouvert en paysage : en option, le petit clavier qui suit la main (comme sur l'écran extérieur).
+            extra.insert(UIAction(title: L("Follow your hand in landscape"), image: UIImage(systemName: "hand.raised"),
+                                  state: settings.openLandFollow ? .on : .off) { [weak self] _ in
+                guard let self else { return }
+                if !self.pro { self.setMode(.auto); return }
+                self.settings.openLandFollow.toggle()
+                self.settings.mode = .auto
+                self.grip.locked = false
+                self.save()
+                self.updateGripContext()
                 self.layoutIfNeeded()
             }, at: 0)
         }
