@@ -186,6 +186,8 @@ final class KeyboardCanvas: UIView {
     private let glideLayer = CAShapeLayer()
     /// Le dernier mot écrit en glissant : l'espace vient avant le mot suivant, et ⌫ l'efface en entier (comme chez Apple).
     private var glidedWord: String?
+    /// Pavé tactile : la colonne visée, gardée quand on monte et descend (comme dans un éditeur de texte).
+    private var trackGoalCol: Int?
     private var order: [UITouch] = []
 
     static let topBarHeight: CGFloat = 42
@@ -1526,6 +1528,7 @@ final class KeyboardCanvas: UIView {
                     tr.lastX = p.x
                     let n = Int(tr.cursorAccum / step)
                     if n != 0 {
+                        trackGoalCol = nil
                         input?.kbMoveCursor(n)
                         tr.cursorAccum -= CGFloat(n) * step
                         KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.4)
@@ -1692,7 +1695,12 @@ final class KeyboardCanvas: UIView {
     }
 
     private func setTrackpad(_ on: Bool) {
+        trackGoalCol = nil
         UIView.animate(withDuration: 0.18) {
+            // Comme chez Apple : la barre du haut disparaît aussi, il ne reste que le pavé.
+            for v in [self.chips, self.modeButton, self.flipButton, self.middleButton, self.bigButton, self.globeButton, self.emojiButton, self.adjustButton, self.hideButton] as [UIView] {
+                v.alpha = on ? 0 : 1
+            }
             for c in self.cells {
                 c.view.label.alpha = on ? 0 : 1
                 c.view.icon.alpha = on ? 0 : 1
@@ -1708,15 +1716,17 @@ final class KeyboardCanvas: UIView {
         let perLine = max(24, Int(UIScreen.main.bounds.width / 8.5))
         let before = input?.kbTextBefore() ?? ""
         let lines = before.components(separatedBy: "\n")
-        let col = lines.last?.count ?? 0
+        let here = lines.last?.count ?? 0
+        let col = trackGoalCol ?? here
+        trackGoalCol = col
         if !down {
-            if col >= perLine {
+            if here >= perLine {
                 input?.kbMoveCursor(-perLine)
             } else if lines.count >= 2 {
                 let prevLen = lines[lines.count - 2].count
                 // Même colonne sur la dernière ligne visuelle du paragraphe d'avant.
                 let lastVisual = prevLen % perLine
-                input?.kbMoveCursor(-(col + 1 + max(0, lastVisual - col)))
+                input?.kbMoveCursor(-(here + 1 + max(0, lastVisual - col % perLine)))
             } else {
                 input?.kbMoveCursor(-min(before.count, perLine))
             }
