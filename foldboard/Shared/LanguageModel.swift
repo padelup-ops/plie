@@ -20,7 +20,7 @@ final class KBLanguageModel {
               d.prefix(4) == Data("FBLM".utf8) else { return nil }
         self.lang = lang
         data = d
-        func u32(_ o: Int) -> Int { d.withUnsafeBytes { Int($0.loadUnaligned(fromByteOffset: o, as: UInt32.self).littleEndian) } }
+        func u32(_ o: Int) -> Int { d.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in Int(raw.loadUnaligned(fromByteOffset: o, as: UInt32.self).littleEndian) } }
         V = u32(8)
         let nBi = u32(12)
         nCtx = u32(16)
@@ -28,7 +28,7 @@ final class KBLanguageModel {
         var p = 24
         words.reserveCapacity(V)
         ids.reserveCapacity(V)
-        d.withUnsafeBytes { raw in
+        d.withUnsafeBytes { (raw: UnsafeRawBufferPointer) in
             for i in 0..<V {
                 let len = Int(raw[p]); p += 1
                 let w = String(decoding: UnsafeRawBufferPointer(rebasing: raw[p..<(p + len)]), as: UTF8.self)
@@ -50,9 +50,9 @@ final class KBLanguageModel {
 
     // MARK: Lecture
 
-    private func u8(_ o: Int) -> Int { data.withUnsafeBytes { Int($0[o]) } }
-    private func u16(_ o: Int) -> Int { data.withUnsafeBytes { Int($0.loadUnaligned(fromByteOffset: o, as: UInt16.self).littleEndian) } }
-    private func u32(_ o: Int) -> Int { data.withUnsafeBytes { Int($0.loadUnaligned(fromByteOffset: o, as: UInt32.self).littleEndian) } }
+    private func u8(_ o: Int) -> Int { data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in Int(raw[o]) } }
+    private func u16(_ o: Int) -> Int { data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in Int(raw.loadUnaligned(fromByteOffset: o, as: UInt16.self).littleEndian) } }
+    private func u32(_ o: Int) -> Int { data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in Int(raw.loadUnaligned(fromByteOffset: o, as: UInt32.self).littleEndian) } }
 
     private func id(_ w: String) -> Int? { ids[w.lowercased().replacingOccurrences(of: "'", with: "’")] }
 
