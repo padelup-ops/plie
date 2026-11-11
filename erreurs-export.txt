@@ -1,0 +1,8 @@
+33-Invalid Pre-Release Train. The train version '1.6.2' is closed for new build submissions
+34-n/a (ID: YU4V6XSUBVP4VWBK6RB3OU6EJM)
+35:error: exportArchive Invalid Pre-Release Train. The train version '1.6.2' is closed for new build submissions. n/a (ID: YU4V6XSUBVP4VWBK6RB3OU6EJM).
+36-
+37:error: exportArchive This bundle is invalid. The value for key CFBundleShortVersionString [1.6.2] in the Info.plist file must contain a higher version than that of the previously approved version [1.6.2]. Please find more information about CFBundleShortVersionString at https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleshortversionstring. n/a (ID: YU4V6XSUBVP4VWBK6RB3OU6EJM).
+38-
+39-** EXPORT FAILED **
+40-
