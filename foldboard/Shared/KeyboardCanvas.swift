@@ -1572,8 +1572,8 @@ final class KeyboardCanvas: UIView {
                 if tr.cursorMode, let map = trackMap {
                     // Comme chez Apple : le curseur suit le doigt dans tous les sens (diagonales comprises).
                     // La position visée vient de tout le déplacement depuis le début, pas pas à pas.
-                    let charStep = 18 - 13 * CGFloat(eff.swipe)
-                    let lineStep: CGFloat = 22
+                    let charStep = max(4, 9 - 5 * CGFloat(eff.swipe))
+                    let lineStep: CGFloat = 15
                     let dCol = Int(((p.x - map.origin.x) / charStep).rounded())
                     let dLine = Int(((p.y - map.origin.y) / lineStep).rounded())
                     let target = map.target(dLine: dLine, dCol: dCol)
