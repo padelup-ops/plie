@@ -122,6 +122,83 @@
      ]
     }
    ]
+  },
+  {
+   "name": "Foldboard – Clavier",
+   "adamId": 6832556606,
+   "countries": [
+    "US",
+    "GB",
+    "CA",
+    "AU",
+    "FR",
+    "DE",
+    "IT",
+    "ES",
+    "NL",
+    "JP",
+    "SE"
+   ],
+   "daily": 4,
+   "groups": [
+    {
+     "name": "Clavier (anglais)",
+     "bid": 0.6,
+     "keywords": [
+      "iphone duo keyboard",
+      "duo keyboard",
+      "one hand keyboard",
+      "one handed keyboard",
+      "keyboard for foldable",
+      "foldable keyboard",
+      "left handed keyboard",
+      "iphone duo",
+      "thumb keyboard"
+     ]
+    },
+    {
+     "name": "Clavier (langues locales)",
+     "bid": 0.6,
+     "keywords": [
+      "clavier une main",
+      "clavier iphone duo",
+      "clavier pliable",
+      "einhand tastatur",
+      "teclado una mano",
+      "tastiera una mano",
+      "toetsenbord één hand",
+      "片手キーボード",
+      "enhandstangentbord"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Foldboard – Marque",
+   "adamId": 6832556606,
+   "countries": [
+    "US",
+    "GB",
+    "CA",
+    "AU",
+    "FR",
+    "DE",
+    "IT",
+    "ES",
+    "NL",
+    "JP",
+    "SE"
+   ],
+   "daily": 1,
+   "groups": [
+    {
+     "name": "Marque",
+     "bid": 0.3,
+     "keywords": [
+      "foldboard"
+     ]
+    }
+   ]
   }
  ]
 }
