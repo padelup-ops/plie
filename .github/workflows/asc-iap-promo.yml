@@ -1,0 +1,42 @@
+# Prix temporaire d'un achat intégré (ex. Foldly+ −30 % pendant 48 h), puis retour au prix habituel.
+name: Promo achat intégré
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "foldly ou foldboard"
+        required: false
+        default: "foldly"
+      mode:
+        description: "probe ou apply"
+        required: false
+        default: "probe"
+      price:
+        description: "Prix promo en euros (France)"
+        required: false
+        default: "0.99"
+      start:
+        description: "Début AAAA-MM-JJ"
+        required: false
+        default: ""
+      end:
+        description: "Fin AAAA-MM-JJ"
+        required: false
+        default: ""
+jobs:
+  promo:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      MODE: ${{ inputs.mode }}
+      PROMO_PRICE: ${{ inputs.price }}
+      START: ${{ inputs.start }}
+      END: ${{ inputs.end }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          if [ "${{ inputs.app }}" = "foldboard" ]; then export BUNDLE_ID=com.padelup.foldboard PRODUCT_ID=com.padelup.foldboard.pro; else export BUNDLE_ID=com.padelup.clapet PRODUCT_ID=com.padelup.clapet.plus; fi
+          python3 tools/asc_iap_promo.py
