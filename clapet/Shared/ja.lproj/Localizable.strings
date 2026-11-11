@@ -788,3 +788,5 @@
 "**Automation** tab: each Foldly automation is **turned on**. iOS often adds them switched off." = "**オートメーション**タブ：Foldlyの各オートメーションが**オン**になっているか。iOSはオフのまま追加することがよくあります。";
 "Open each one: **Run Immediately** is selected (not “Run After Confirmation”)." = "それぞれを開き、**すぐに実行**が選ばれているか（「確認後に実行」ではなく）。";
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "重複なし：2回インストールした場合は、すべて削除してこの画面から入れ直してください。";
+"Still not counting? Check these 4 things in Shortcuts:" = "まだカウントされない？ショートカットで次の4点を確認：";
+"**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "**ショートカット**タブ：Foldlyの各ショートカットを一度タップ（▶）して許可。iOSが尋ねるのは初回だけです。";

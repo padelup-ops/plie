@@ -49,11 +49,12 @@ struct AutoCountView: View {
                         }
                         // Pas encore vert : les 3 réglages qui bloquent presque toujours, juste là (pas cachés en bas).
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Still not counting? Check these 3 things in Shortcuts:")
+                            Text("Still not counting? Check these 4 things in Shortcuts:")
                                 .font(.subheadline.weight(.semibold))
                             check(1, Text("**Automation** tab: each Foldly automation is **turned on**. iOS often adds them switched off."))
                             check(2, Text("Open each one: **Run Immediately** is selected (not “Run After Confirmation”)."))
                             check(3, Text("No duplicates: if you installed twice, delete them all and install again from this screen."))
+                            check(4, Text("**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time."))
                             Button {
                                 if let url = URL(string: "shortcuts://") { openURL(url) }
                             } label: {

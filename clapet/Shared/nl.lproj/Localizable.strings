@@ -771,3 +771,5 @@
 "**Automation** tab: each Foldly automation is **turned on**. iOS often adds them switched off." = "Tab **Automatisering**: elke Foldly-automatisering staat **aan**. iOS voegt ze vaak uitgeschakeld toe.";
 "Open each one: **Run Immediately** is selected (not “Run After Confirmation”)." = "Open ze allemaal: **Voer direct uit** is gekozen (niet ‘Voer uit na bevestiging’).";
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "Geen dubbele: heb je ze twee keer geïnstalleerd, verwijder ze dan allemaal en installeer opnieuw vanaf dit scherm.";
+"Still not counting? Check these 4 things in Shortcuts:" = "Telt het nog niet? Controleer deze 4 dingen in Opdrachten:";
+"**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "Tab **Opdrachten**: tik één keer op elke Foldly-opdracht (▶) en sta hem toe. iOS vraagt het alleen de eerste keer.";

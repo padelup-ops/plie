@@ -788,3 +788,5 @@
 "**Automation** tab: each Foldly automation is **turned on**. iOS often adds them switched off." = "**자동화** 탭: 각 Foldly 자동화가 **켜져** 있는지. iOS가 꺼진 상태로 추가하는 경우가 많아요.";
 "Open each one: **Run Immediately** is selected (not “Run After Confirmation”)." = "각각 열어 **즉시 실행**이 선택되어 있는지 (‘확인 후 실행’이 아니라).";
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "중복 없음: 두 번 설치했다면 모두 지우고 이 화면에서 다시 설치하세요.";
+"Still not counting? Check these 4 things in Shortcuts:" = "아직 안 세어지나요? 단축어에서 4가지를 확인하세요:";
+"**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "**단축어** 탭: 각 Foldly 단축어를 한 번 실행(▶)하고 허용하세요. iOS는 처음에만 물어봐요.";

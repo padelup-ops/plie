@@ -788,3 +788,5 @@
 "**Automation** tab: each Foldly automation is **turned on**. iOS often adds them switched off." = "**自动化**标签：每个 Foldly 自动化都已**打开**。iOS 经常在添加时将其关闭。";
 "Open each one: **Run Immediately** is selected (not “Run After Confirmation”)." = "逐个打开：已选择**立即运行**（而不是“确认后运行”）。";
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "不要重复：如果安装了两次，请全部删除后从此页面重新安装。";
+"Still not counting? Check these 4 things in Shortcuts:" = "还是没有计数？在快捷指令中检查这 4 点：";
+"**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "**快捷指令**标签：点按一次每个 Foldly 快捷指令（▶）并允许。iOS 只在第一次询问。";
