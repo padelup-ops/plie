@@ -472,6 +472,37 @@ final class KeyboardCanvas: UIView {
         habitSeeds = seeds
         grip.habitReady = followsHand && KBHabits.shared.ready(context: ctx, seeds: seeds)
         grip.habitVote = { roll, inc in KBHabits.shared.vote(context: ctx, roll: roll, incline: inc, seeds: seeds) }
+        grip.thumbReady = followsHand && KBThumb.shared.ready(context: ctx)
+        grip.thumbVote = { KBThumb.shared.vote(context: ctx, now: ProcessInfo.processInfo.systemUptime) }
+    }
+
+    // MARK: Justesse des choix (pour la mesurer, et proposer de recalibrer)
+
+    /// Le dernier changement de côté décidé par le clavier, pas encore jugé.
+    private var autoDecisionAt: TimeInterval?
+    private var recentCorrections: [TimeInterval] = []
+
+    private func judge(hit: Bool) {
+        var l = KBVault.loadLearn()
+        if hit { l.hits = (l.hits ?? 0) + 1 } else { l.misses = (l.misses ?? 0) + 1 }
+        KBVault.save(l)
+    }
+
+    /// Une correction à la main : si le clavier venait de changer de côté tout seul, c'était un raté.
+    /// Trois corrections en dix minutes : on propose de refaire le test des mains (une fois par jour).
+    private func noteCorrection() {
+        let now = ProcessInfo.processInfo.systemUptime
+        if let at = autoDecisionAt, now - at < 20 { judge(hit: false) }
+        autoDecisionAt = nil
+        KBThumb.shared.reset()
+        recentCorrections = recentCorrections.filter { now - $0 < 600 } + [now]
+        let key = "foldboard.recalAsked"
+        let last = UserDefaults.standard.double(forKey: key)
+        if recentCorrections.count >= 3, Date().timeIntervalSince1970 - last > 86_400 {
+            UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: key)
+            recentCorrections.removeAll()
+            notice(L("Wrong side often? Redo the “Right hand, left hand” test in the Foldboard app (10 s)."))
+        }
     }
 
     private var habitSeeds: [KBHabit] = []
@@ -480,7 +511,9 @@ final class KeyboardCanvas: UIView {
 
     /// Retient la prise en main du moment pour ce côté. `correction` : choisi à la main (exemple fort).
     private func learnHabit(right: Bool, two: Bool = false, correction: Bool) {
-        guard followsHand, recording == nil, !demoOneHand, let p = grip.currentPosture else { return }
+        guard followsHand, recording == nil, !demoOneHand else { return }
+        if correction { noteCorrection() }
+        guard let p = grip.currentPosture else { return }
         KBHabits.shared.add(context: gripContext, roll: p.roll, incline: p.incline, right: right, two: two,
                             weight: correction ? 3 : 1, correction: correction)
         grip.habitReady = KBHabits.shared.ready(context: gripContext, seeds: habitSeeds)
@@ -508,6 +541,12 @@ final class KeyboardCanvas: UIView {
         typedOnSide += 1
         if typedOnSide == 8 || typedOnSide == 40 {
             learnHabit(right: settings.autoRight, two: settings.autoTwo, correction: false)
+            // Les appuis de cette série étaient bien de cette main : le pouce l'apprend.
+            if !settings.autoTwo {
+                KBThumb.shared.confirm(context: gripContext, right: settings.autoRight)
+                grip.thumbReady = followsHand && KBThumb.shared.ready(context: gripContext)
+            }
+            if typedOnSide == 8, autoDecisionAt != nil { judge(hit: true); autoDecisionAt = nil }
         }
     }
 
@@ -574,6 +613,8 @@ final class KeyboardCanvas: UIView {
         if g != .two { s.autoRight = g == .right }
         grip.current = g
         guard s.autoTwo != settings.autoTwo || s.autoRight != settings.autoRight else { return }
+        autoDecisionAt = ProcessInfo.processInfo.systemUptime
+        KBThumb.shared.reset()
         typedOnSide = 0
         settings = s
         save()
@@ -1526,6 +1567,12 @@ final class KeyboardCanvas: UIView {
             tr.t0 = t.timestamp
             if recording != nil { halo(at: p, radius: t.majorRadius) }
             tr.points = [p]
+            if autoOn, layoutMode.isOneHand, case .char(let c) = cells[i].view.spec.kind, c.count == 1, c.first?.isLetter == true {
+                let f = cells[i].frame
+                let lo = blocks.map { $0.minX }.min() ?? 0
+                let hi = blocks.map { $0.maxX }.max() ?? bounds.width
+                KBThumb.shared.tap(kx: Double((f.midX - lo) / max(1, hi - lo)), dx: Double((p.x - f.midX) / max(1, f.width)), time: t.timestamp)
+            }
             if autoOn || recording != nil, bounds.width > 0 {
                 let lo = blocks.map { $0.minX }.min() ?? 0
                 let hi = blocks.map { $0.maxX }.max() ?? bounds.width

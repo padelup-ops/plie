@@ -393,6 +393,15 @@ struct KBLearn: Codable, Equatable {
     /// Nombre d'habitudes apprises par situation (« closed-portrait », « open-portrait »…).
     var total: [String: Int] = [:]
     var stamp: Date = .distantPast
+    /// Les décisions du clavier : côté choisi seul et gardé (juste), ou corrigé juste après (raté).
+    var hits: Int? = nil
+    var misses: Int? = nil
+
+    /// La part de bons choix, quand il y en a assez pour que ça veuille dire quelque chose.
+    var accuracy: Double? {
+        let h = hits ?? 0, m = misses ?? 0
+        return h + m >= 5 ? Double(h) / Double(h + m) : nil
+    }
 
     var all: Int { total.values.reduce(0, +) }
     var closed: Int { total.filter { $0.key.hasPrefix("closed") }.values.reduce(0, +) }

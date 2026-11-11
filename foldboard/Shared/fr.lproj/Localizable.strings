@@ -317,3 +317,5 @@
 "Follow your hand in landscape" = "Suivre ta main en paysage";
 "Language model: Leipzig Corpora Collection, CC BY 4.0." = "Modèle de langue : Leipzig Corpora Collection, CC BY 4.0.";
 "Slide to type" = "Écrire en glissant";
+"Right side on its own: %lld%% of the time" = "Bon côté tout seul : %lld %% du temps";
+"Wrong side often? Redo the “Right hand, left hand” test in the Foldboard app (10 s)." = "Souvent du mauvais côté ? Refais le test « Main droite, main gauche » dans l’app Foldboard (10 s).";

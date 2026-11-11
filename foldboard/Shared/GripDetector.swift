@@ -126,6 +126,15 @@ final class GripDetector {
     /// (probabilité « main droite », `nil` si la posture est inconnue).
     var habitReady = false
     var habitVote: ((Double, Double) -> (right: Double, two: Double)?)?
+    /// Le deuxième indice (voir `KBThumb`) : la main d'après où le pouce tombe sur les touches. nil : pas d'avis.
+    var thumbVote: (() -> Double?)?
+    var thumbReady = false
+
+    /// Deux avis (probabilités « main droite ») combinés : chacun pèse selon sa certitude.
+    private static func fuse(_ a: Double, _ b: Double, weight: Double) -> Double {
+        func logit(_ p: Double) -> Double { let q = max(0.02, min(0.98, p)); return log(q / (1 - q)) }
+        return 1 / (1 + exp(-(logit(a) + logit(b) * weight)))
+    }
 
     /// Main droite et main gauche étalonnées pour cette situation.
     var calibrated: Bool { postures[.right] != nil && postures[.left] != nil }
@@ -381,9 +390,15 @@ final class GripDetector {
 
     /// La main d'après l'inclinaison, si le téléphone n'est pas posé à plat et penche assez.
     private func tiltGrip(threshold: Double) -> KBGrip? {
-        if habitReady, let vote = habitVote {
-            // Les habitudes décident : le vote des prises en main déjà vues les plus proches.
-            guard let p = currentPosture, let v = vote(p.roll, p.incline) else { tiltStrong = false; return nil }
+        let thumb = thumbReady ? thumbVote?() : nil
+        if (habitReady || thumb != nil), let vote = habitVote {
+            // Les habitudes décident : le vote des prises en main déjà vues les plus proches, combiné à la
+            // position du pouce sur les touches. Posture jamais vue : le pouce seul, s'il est très sûr.
+            let p = currentPosture
+            let hv = habitReady ? p.flatMap({ vote($0.roll, $0.incline) }) : nil
+            guard hv != nil || (thumb.map { $0 >= 0.85 || $0 <= 0.15 } ?? false) else { tiltStrong = false; return nil }
+            var v = hv ?? (right: 0.5, two: 0)
+            if let thumb { v.right = Self.fuse(v.right, thumb, weight: 0.8) }
             // Tenu comme d'habitude à deux mains : le clavier au milieu.
             if v.two >= 0.6 {
                 tiltStrong = v.two >= 0.85
@@ -413,7 +428,7 @@ final class GripDetector {
         // franchement de main pendant une pause (pas de frappe depuis 2 s, rien bougé depuis 5 s).
         // Sans le test « main droite, main gauche », le clavier est placé à son apparition, puis il ne bouge plus.
         checkUnlock()
-        guard calibrated || habitReady else { return }
+        guard calibrated || habitReady || thumbReady else { return }
         if locked || now - lastTapTime < 1.0 || now - lastEmit < 1.5 { tiltStreak = nil; return }
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
         guard let g = tiltGrip(threshold: threshold) else { tiltStreak = nil; return }

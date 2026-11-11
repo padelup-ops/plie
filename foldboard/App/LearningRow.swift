@@ -25,6 +25,16 @@ struct LearningRow: View {
                     Spacer()
                     level("Duo open", learn.open)
                 }
+                if let a = learn.accuracy {
+                    // Combien de fois le clavier a choisi le bon côté tout seul (sans être corrigé juste après).
+                    Label {
+                        Text(String(format: NSLocalizedString("Right side on its own: %lld%% of the time", comment: ""), Int((a * 100).rounded())))
+                    } icon: {
+                        Image(systemName: "scope")
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(a >= 0.8 ? Color.green : .secondary)
+                }
             }
             .padding(.vertical, 4)
         } footer: {

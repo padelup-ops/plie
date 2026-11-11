@@ -8,6 +8,15 @@ struct KBHabit: Codable {
     var weight: Double
     /// Au milieu, à deux mains (le clavier entier). Absent dans les anciens exemples.
     var two: Bool? = nil
+    /// Quand l'exemple a été appris (les récents comptent plus). Absent dans les anciens exemples.
+    var at: Double? = nil
+
+    /// Le poids qui compte aujourd'hui : il diminue de moitié en deux semaines.
+    var current: Double {
+        guard let at else { return weight }
+        let days = (Date().timeIntervalSince1970 - at) / 86_400
+        return weight * pow(0.5, max(0, days) / 14)
+    }
 
     var label: Int { two == true ? 2 : (right ? 1 : 0) }
 }
@@ -65,10 +74,15 @@ final class KBHabits {
 
     func add(context: String, roll: Double, incline: Double, right: Bool, two: Bool = false, weight: Double, correction: Bool) {
         var a = data[context] ?? []
-        let h = KBHabit(roll: roll, incline: incline, right: right, weight: weight, two: two ? true : nil)
+        let h = KBHabit(roll: roll, incline: incline, right: right, weight: weight, two: two ? true : nil,
+                        at: Date().timeIntervalSince1970)
         if correction {
-            // Les exemples tout proches qui disaient autre chose sont contredits : on les oublie.
-            a.removeAll { $0.label != h.label && Self.distance($0.roll, $0.incline, roll, incline) < 6 }
+            // Les exemples tout proches qui disaient autre chose perdent du poids, sans disparaître : si on tient
+            // le Duo pareil des deux mains, les deux restent, et c'est la position du pouce qui départage.
+            for i in a.indices where a[i].label != h.label && Self.distance(a[i].roll, a[i].incline, roll, incline) < 6 {
+                a[i].weight *= 0.5
+            }
+            a.removeAll { $0.weight < 0.3 }
         }
         a.append(h)
         if a.count > Self.cap {
@@ -78,7 +92,9 @@ final class KBHabits {
         data[context] = a
         total[context, default: 0] += 1
         save()
-        KBVault.save(KBLearn(total: total))
+        var l = KBVault.loadLearn()
+        l.total = total
+        KBVault.save(l)
     }
 
     /// Tout ce qui a été appris, toutes situations confondues.
@@ -87,8 +103,8 @@ final class KBHabits {
     /// Assez d'exemples des deux côtés pour décider (les mesures du réglage comptent comme des exemples forts).
     func ready(context: String, seeds: [KBHabit]) -> Bool {
         let all = seeds + (data[context] ?? [])
-        let r = all.filter { $0.label == 1 }.map(\.weight).reduce(0, +)
-        let l = all.filter { $0.label == 0 }.map(\.weight).reduce(0, +)
+        let r = all.filter { $0.label == 1 }.map(\.current).reduce(0, +)
+        let l = all.filter { $0.label == 0 }.map(\.current).reduce(0, +)
         return r >= 3 && l >= 3
     }
 
@@ -101,7 +117,7 @@ final class KBHabits {
         guard let nearest = ranked.first, nearest.1 < 28 else { return nil }
         var r = 0.0, l = 0.0, t = 0.0
         for (h, d) in ranked.prefix(9) {
-            let s = h.weight / (1 + (d / 4) * (d / 4))
+            let s = h.current / (1 + (d / 4) * (d / 4))
             switch h.label { case 2: t += s; case 1: r += s; default: l += s }
         }
         guard r + l + t > 0 else { return nil }
