@@ -149,7 +149,7 @@ struct ContentView: View {
                     case .classic: ClassicHomeView()
                     case .night, .aurora, .custom: NightHomeView()
                     case .minimal: MinimalHomeView()
-                    case .bento: BentoHomeView()
+                    case .bento: BentoHomeView(fold: desk ? (g.size.width > g.size.height ? .book : .laptop) : nil)
                     }
                 }
                 // Petit écran extérieur : l'essentiel par-dessus (la vue d'accueil reste dessous).
@@ -158,7 +158,7 @@ struct ContentView: View {
                         .transition(.opacity)
                 }
                 // Mode bureau : la vue d'accueil reste dessous (elle lit la charnière et ouvre les feuilles).
-                if desk {
+                if desk && look != .bento {
                     DeskModeView(look: look)
                         .transition(.opacity)
                 }

@@ -754,3 +754,9 @@
 "The keyboard that comes under your thumb" = "来到拇指下方的键盘";
 "While you're awake (%@–%@)" = "清醒时段（%@–%@）";
 "Open %@ · closed %@" = "展开 %@ · 合上 %@";
+
+/* Bento */
+"Set up the Shortcuts automation in a minute." = "一分钟设置好快捷指令自动化。";
+"Hold a card, then drop it where you want it." = "按住卡片，拖到你想放的位置。";
+"Arrange cards" = "排列卡片";
+"Default order" = "默认顺序";

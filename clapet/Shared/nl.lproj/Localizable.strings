@@ -737,3 +737,9 @@
 "The keyboard that comes under your thumb" = "Het toetsenbord dat onder je duim komt";
 "While you're awake (%@–%@)" = "Terwijl je wakker bent (%@–%@)";
 "Open %@ · closed %@" = "Open %@ · dicht %@";
+
+/* Bento */
+"Set up the Shortcuts automation in a minute." = "Stel de Opdrachten-automatisering in één minuut in.";
+"Hold a card, then drop it where you want it." = "Houd een kaart vast en laat hem los waar je wilt.";
+"Arrange cards" = "Kaarten schikken";
+"Default order" = "Standaardvolgorde";

@@ -737,3 +737,9 @@
 "The keyboard that comes under your thumb" = "Клавиатура под вашим большим пальцем";
 "While you're awake (%@–%@)" = "Пока вы не спите (%@–%@)";
 "Open %@ · closed %@" = "Открыт %@ · закрыт %@";
+
+/* Bento */
+"Set up the Shortcuts automation in a minute." = "Настройте автоматизацию в «Командах» за минуту.";
+"Hold a card, then drop it where you want it." = "Удерживайте карточку и отпустите там, где нужно.";
+"Arrange cards" = "Расставить карточки";
+"Default order" = "Порядок по умолчанию";

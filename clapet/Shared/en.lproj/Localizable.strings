@@ -754,3 +754,9 @@
 "The keyboard that comes under your thumb" = "The keyboard that comes under your thumb";
 "While you're awake (%@–%@)" = "While you're awake (%@–%@)";
 "Open %@ · closed %@" = "Open %@ · closed %@";
+
+/* Bento */
+"Set up the Shortcuts automation in a minute." = "Set up the Shortcuts automation in a minute.";
+"Hold a card, then drop it where you want it." = "Hold a card, then drop it where you want it.";
+"Arrange cards" = "Arrange cards";
+"Default order" = "Default order";

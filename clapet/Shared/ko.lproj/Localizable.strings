@@ -754,3 +754,9 @@
 "The keyboard that comes under your thumb" = "엄지 아래로 오는 키보드";
 "While you're awake (%@–%@)" = "깨어 있는 동안(%@–%@)";
 "Open %@ · closed %@" = "열림 %@ · 닫힘 %@";
+
+/* Bento */
+"Set up the Shortcuts automation in a minute." = "단축어 자동화를 1분 만에 설정하세요.";
+"Hold a card, then drop it where you want it." = "카드를 길게 눌러 원하는 곳에 놓으세요.";
+"Arrange cards" = "카드 배치";
+"Default order" = "기본 순서";

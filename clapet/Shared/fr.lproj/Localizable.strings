@@ -754,3 +754,9 @@
 "The keyboard that comes under your thumb" = "Le clavier qui vient sous ton pouce";
 "While you're awake (%@–%@)" = "Quand tu es éveillé (%@–%@)";
 "Open %@ · closed %@" = "Ouvert %@ · fermé %@";
+
+/* Bento */
+"Set up the Shortcuts automation in a minute." = "Crée l'automatisation Raccourcis en une minute.";
+"Hold a card, then drop it where you want it." = "Maintiens une carte, puis lâche-la où tu veux.";
+"Arrange cards" = "Arranger les cartes";
+"Default order" = "Ordre par défaut";

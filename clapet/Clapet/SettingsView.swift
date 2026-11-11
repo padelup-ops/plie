@@ -31,32 +31,26 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 if !DuoFolds.paidApp {
-                Section {
-                    if store.hasPlus {
-                        Label { Text("Foldly+ is unlocked. Thank you.") } icon: {
-                            Image(systemName: "checkmark.seal.fill").foregroundStyle(Color(red: 0.43, green: 0.84, blue: 0.65))
+                    Section {
+                        PlusHeader(hasPlus: store.hasPlus) { showPlus = true }
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
+                        if !store.hasPlus {
+                            Button { Task { await store.restore() } } label: {
+                                Text("Restore purchases").font(.footnote)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .listRowBackground(Color.clear)
                         }
-                    } else {
-                        Button { showPlus = true } label: {
-                            Label { Text("Unlock Foldly+") } icon: { Image(systemName: "sparkles") }
+                        if let message = store.message {
+                            Text(message).font(.footnote).foregroundStyle(.secondary)
                         }
                     }
-                    Button {
-                        Task { await store.restore() }
-                    } label: {
-                        Text("Restore purchases")
-                    }
-                    if let message = store.message {
-                        Text(message).font(.footnote).foregroundStyle(.secondary)
-                    }
-                } header: {
-                    Text("Foldly+")
-                }
                 }
                 // 1. Mon objectif
                 Section {
                     Toggle(isOn: Binding(get: { model.stats.goalOn }, set: { model.setGoalOn($0) })) {
-                        Text("Daily limit")
+                        Label { Text("Daily limit") } icon: { SIcon("target", .red) }
                     }
                     if model.stats.goalOn {
                         // Ta propre limite : tape le chiffre, ou ajuste de 5 en 5.
@@ -79,19 +73,19 @@ struct SettingsView: View {
                             Task { if !(await model.setAlerts(on)) { alertsDenied = true } }
                         })) {
                             HStack(spacing: 6) {
-                                Text("Limit alerts")
+                                Label { Text("Limit alerts") } icon: { SIcon("bell.badge.fill", .red) }
                                 if !store.hasPlus { PlusBadge() }
                             }
                         }
                     }
                     Button { showBoards = true } label: {
-                        Label { Text("Leaderboards") } icon: { Image(systemName: "trophy.fill").foregroundStyle(.orange) }
+                        Label { Text("Leaderboards") } icon: { SIcon("trophy.fill", .orange) }
                     }
                     Picker(selection: Binding(get: { model.stats.eachMove }, set: { model.setEachMove($0) })) {
                         Text("Open + close = 1 fold").tag(false)
                         Text("Each movement counts").tag(true)
                     } label: {
-                        Text("How to count")
+                        Label { Text("How to count") } icon: { SIcon("number", .blue) }
                     }
                 } header: {
                     Text("My goal")
@@ -109,28 +103,27 @@ struct SettingsView: View {
 
                 // 2. Apparence
                 Section {
-                    Picker(selection: Binding(get: { DFLook.resolved(lookRaw).rawValue },
-                                              set: { raw in
-                                                  if (DFLook(rawValue: raw)?.needsPlus ?? false) && !store.hasPlus { showPlus = true } else { lookRaw = raw }
-                                              })) {
-                        // Bento : thème à l'essai, seulement dans les versions de test (ou s'il est déjà choisi).
-                        ForEach(DFLook.allCases.filter { $0 != .bento || store.isTestBuild || DFLook.resolved(lookRaw) == .bento }) { look in
-                            if look == .custom && !store.hasPlus {
-                                Text("My theme (Foldly+)").tag(look.rawValue)
-                            } else if look == .aurora && !store.hasPlus {
-                                Text("Aurora (Foldly+)").tag(look.rawValue)
-                            } else {
-                                look.title.tag(look.rawValue)
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 10) {
+                            // Bento : thème à l'essai, seulement dans les versions de test (ou s'il est déjà choisi).
+                            ForEach(DFLook.allCases.filter { $0 != .bento || store.isTestBuild || DFLook.resolved(lookRaw) == .bento }) { look in
+                                ThemeTile(look: look, selected: DFLook.resolved(lookRaw) == look, locked: look.needsPlus && !store.hasPlus) {
+                                    if look.needsPlus && !store.hasPlus { showPlus = true } else {
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { lookRaw = look.rawValue }
+                                    }
+                                }
                             }
                         }
-                    } label: {
-                        Text("Theme")
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
                     }
+                    .scrollIndicators(.hidden)
+                    .listRowInsets(EdgeInsets())
                     if DFLook.resolved(lookRaw) == .custom {
                         CustomThemeEditor()
                     }
                     HStack(spacing: 12) {
-                        Text("Widget color")
+                        Label { Text("Widget color") } icon: { SIcon("square.grid.2x2.fill", .teal) }
                         Spacer(minLength: 4)
                         ForEach(ClapetTheme.allCases) { theme in
                             Button {
@@ -138,7 +131,7 @@ struct SettingsView: View {
                             } label: {
                                 Circle()
                                     .fill(theme.color)
-                                    .frame(width: 26, height: 26)
+                                    .frame(width: 24, height: 24)
                                     .overlay(Circle().stroke(Color.primary, lineWidth: model.stats.theme == theme.rawValue ? 2.5 : 0))
                                     .overlay {
                                         if !store.hasPlus && theme != .mint {
@@ -163,7 +156,7 @@ struct SettingsView: View {
                         whyOn = on
                     })) {
                         HStack(spacing: 6) {
-                            Text("Ask why I open it")
+                            Label { Text("Ask why I open it") } icon: { SIcon("questionmark.bubble.fill", .purple) }
                             if !store.hasPlus { PlusBadge() }
                         }
                     }
@@ -175,7 +168,7 @@ struct SettingsView: View {
                                 notificationsDenied = on && !ok
                             }
                         })) {
-                            Text("Also when Foldly is closed")
+                            Label { Text("Also when Foldly is closed") } icon: { SIcon("app.badge.fill", .purple) }
                         }
                     }
                 } header: {
@@ -194,7 +187,7 @@ struct SettingsView: View {
                             notificationsDenied = on && !ok
                         }
                     })) {
-                        Text("Break reminder")
+                        Label { Text("Break reminder") } icon: { SIcon("cup.and.saucer.fill", .brown) }
                     }
                     if breakOn {
                         Picker(selection: Binding(get: { breakMinutes }, set: { m in
@@ -205,7 +198,7 @@ struct SettingsView: View {
                                 Text("After \(m) min open").tag(m)
                             }
                         } label: {
-                            Text("Remind me")
+                            Label { Text("Remind me") } icon: { SIcon("timer", .brown) }
                         }
                     }
                     Toggle(isOn: Binding(get: { eveningOn && store.hasPlus }, set: { on in
@@ -217,7 +210,7 @@ struct SettingsView: View {
                         }
                     })) {
                         HStack(spacing: 6) {
-                            Text("Evening summary (9:30 pm)")
+                            Label { Text("Evening summary (9:30 pm)") } icon: { SIcon("moon.fill", .indigo) }
                             if !store.hasPlus { PlusBadge() }
                         }
                     }
@@ -229,7 +222,7 @@ struct SettingsView: View {
                             notificationsDenied = on && !ok
                         }
                     })) {
-                        Text("Weekly and monthly recaps")
+                        Label { Text("Weekly and monthly recaps") } icon: { SIcon("calendar", .pink) }
                     }
                     Toggle(isOn: Binding(get: { liveOn && store.hasPlus }, set: { on in
                         guard store.hasPlus else { showPlus = true; return }
@@ -242,7 +235,7 @@ struct SettingsView: View {
                         }
                     })) {
                         HStack(spacing: 6) {
-                            Text("Count on the Lock Screen")
+                            Label { Text("Count on the Lock Screen") } icon: { SIcon("lock.fill", .gray) }
                             if !store.hasPlus { PlusBadge() }
                         }
                     }
@@ -259,15 +252,15 @@ struct SettingsView: View {
                 // Heures de repos
                 Section {
                     Toggle(isOn: Binding(get: { model.stats.nightOn }, set: { model.setNight(on: $0) })) {
-                        Text("Rest hours")
+                        Label { Text("Rest hours") } icon: { SIcon("bed.double.fill", .indigo) }
                     }
                     if model.stats.nightOn {
                         Picker(selection: Binding(get: { model.stats.nightFrom }, set: { model.setNight(from: $0) })) {
                             ForEach(0..<24, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) }
-                        } label: { Text("Rest from") }
+                        } label: { Label { Text("Rest from") } icon: { SIcon("moon.zzz.fill", .indigo) } }
                         Picker(selection: Binding(get: { model.stats.nightTo }, set: { model.setNight(to: $0) })) {
                             ForEach(0..<24, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) }
-                        } label: { Text("Rest until") }
+                        } label: { Label { Text("Rest until") } icon: { SIcon("sunrise.fill", .orange) } }
                     }
                 } header: {
                     Text("Time at rest")
@@ -278,20 +271,20 @@ struct SettingsView: View {
                 // Aide
                 Section {
                     Button { showAuto = true } label: {
-                        Label { Text("Count even when the app is closed") } icon: { Image(systemName: "bolt.badge.automatic") }
+                        Label { Text("Count even when the app is closed") } icon: { SIcon("bolt.fill", .green) }
                     }
                     Button { showTour = true } label: {
-                        Label { Text("Guided tour") } icon: { Image(systemName: "map") }
+                        Label { Text("Guided tour") } icon: { SIcon("map.fill", .blue) }
                     }
                     if !store.isTestBuild {
                         Link(destination: ReviewRule.writeReviewURL) {
-                            Label { Text("Rate Foldly on the App Store") } icon: { Image(systemName: "star.fill").foregroundStyle(.yellow) }
+                            Label { Text("Rate Foldly on the App Store") } icon: { SIcon("star.fill", .yellow) }
                         }
                     }
                     NavigationLink {
                         advanced
                     } label: {
-                        Label { Text("Advanced") } icon: { Image(systemName: "slider.horizontal.3") }
+                        Label { Text("Advanced") } icon: { SIcon("gearshape.2.fill", .gray) }
                     }
                 } header: {
                     Text("Help")
@@ -305,7 +298,7 @@ struct SettingsView: View {
                                 Text(verbatim: "Origamo")
                                 Text("Mini games you play by folding your Duo").font(.caption).foregroundStyle(.secondary)
                             }
-                        } icon: { Image(systemName: "gamecontroller.fill") }
+                        } icon: { SIcon("gamecontroller.fill", .pink) }
                     }
                     Link(destination: FoldboardPromoRule.url) {
                         Label {
@@ -313,14 +306,15 @@ struct SettingsView: View {
                                 Text(verbatim: "Foldboard")
                                 Text("The keyboard that comes under your thumb").font(.caption).foregroundStyle(.secondary)
                             }
-                        } icon: { Image(systemName: "keyboard.onehanded.right") }
+                        } icon: { SIcon("keyboard.fill", .blue) }
                     }
                 } header: {
                     Text("Also for your Duo")
                 }
             }
+            .foregroundStyle(.primary)
             .navigationTitle(Text("Settings"))
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button { dismiss() } label: { Text("Done") }
@@ -390,3 +384,102 @@ struct SettingsView: View {
 }
 
 private struct LeaderboardID: Identifiable { let id: String }
+
+/// L'icône d'une ligne, comme dans les Réglages de l'iPhone : un symbole blanc sur un carré de couleur.
+struct SIcon: View {
+    let name: String
+    let color: Color
+    init(_ name: String, _ color: Color) { self.name = name; self.color = color }
+    var body: some View {
+        Image(systemName: name)
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 29, height: 29)
+            .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(color.gradient))
+    }
+}
+
+/// En haut des réglages : Foldly+ en une carte.
+private struct PlusHeader: View {
+    let hasPlus: Bool
+    let onUnlock: () -> Void
+    var body: some View {
+        Button(action: { if !hasPlus { onUnlock() } }) {
+            HStack(spacing: 14) {
+                Image(systemName: hasPlus ? "checkmark.seal.fill" : "sparkles")
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 48, height: 48)
+                    .background(Circle().fill(.white.opacity(0.18)))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(verbatim: "Foldly+").font(.title3.weight(.bold))
+                    if hasPlus { Text("Foldly+ is unlocked. Thank you.").font(.subheadline).opacity(0.85) }
+                    else { Text("Unlock Foldly+").font(.subheadline.weight(.medium)).opacity(0.9) }
+                }
+                .foregroundStyle(.white)
+                Spacer(minLength: 0)
+                if !hasPlus { Image(systemName: "chevron.right").font(.body.weight(.bold)).foregroundStyle(.white.opacity(0.8)) }
+            }
+            .padding(18)
+            .background(
+                LinearGradient(colors: [Color(red: 0.36, green: 0.42, blue: 1.0), Color(red: 0.62, green: 0.35, blue: 0.95)],
+                               startPoint: .topLeading, endPoint: .bottomTrailing),
+                in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// Un thème à toucher : un petit aperçu plutôt qu'un menu.
+private struct ThemeTile: View {
+    let look: DFLook
+    let selected: Bool
+    let locked: Bool
+    let action: () -> Void
+
+    private var colors: (bg: Color, card: Color, accent: Color) {
+        switch look {
+        case .classic: return (Color(white: 0.96), .white, Color(red: 0.43, green: 0.84, blue: 0.65))
+        case .night: return (Color(white: 0.05), Color(white: 0.15), Color(red: 0.43, green: 0.84, blue: 0.65))
+        case .minimal: return (.white, Color(white: 0.93), .black)
+        case .aurora: return (Color(red: 0.05, green: 0.04, blue: 0.16), Color(red: 0.16, green: 0.1, blue: 0.32), Color(red: 0.55, green: 0.5, blue: 1.0))
+        case .custom: return (Color(red: 1.0, green: 0.93, blue: 0.85), .white, Color(red: 1.0, green: 0.45, blue: 0.3))
+        case .bento: return (Bento.bg, .white, Bento.accent)
+        }
+    }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                ZStack(alignment: .topTrailing) {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(colors.bg)
+                        .overlay(alignment: .bottom) {
+                            VStack(spacing: 5) {
+                                Circle().trim(from: 0, to: 0.7).stroke(colors.accent, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                                    .rotationEffect(.degrees(-90)).frame(width: 26, height: 26)
+                                HStack(spacing: 4) {
+                                    RoundedRectangle(cornerRadius: 4).fill(colors.card)
+                                    RoundedRectangle(cornerRadius: 4).fill(colors.card)
+                                }
+                                .frame(height: 16)
+                            }
+                            .padding(8)
+                        }
+                        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.primary.opacity(0.1), lineWidth: 1))
+                    if locked {
+                        Image(systemName: "lock.fill").font(.system(size: 9, weight: .bold)).foregroundStyle(.white)
+                            .padding(5).background(Circle().fill(.black.opacity(0.55))).padding(5)
+                    }
+                }
+                .frame(width: 74, height: 92)
+                .overlay(RoundedRectangle(cornerRadius: 17, style: .continuous).stroke(Color.accentColor, lineWidth: selected ? 3 : 0).padding(-3))
+                .scaleEffect(selected ? 1.0 : 0.96)
+                look.title.font(.caption.weight(selected ? .semibold : .regular)).lineLimit(1).minimumScaleFactor(0.7)
+                    .frame(width: 80)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+}

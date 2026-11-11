@@ -18,7 +18,11 @@ enum Bento {
     static let line = Color.black.opacity(0.07)
 }
 
+/// Le Duo à moitié ouvert : tenu comme un livre (pli vertical) ou posé en L sur la table (pli horizontal).
+enum BentoFold { case book, laptop }
+
 struct BentoHomeView: View {
+    var fold: BentoFold? = nil
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
     @Environment(\.openURL) private var openURL
@@ -41,8 +45,21 @@ struct BentoHomeView: View {
     @State private var wiggle = false
     @State private var dropTarget: String?
     @AppStorage("bentoOrder") private var orderRaw = ""
+    @AppStorage("bentoBook") private var bookRaw = ""
+    @AppStorage("bentoLaptop") private var laptopRaw = ""
 
     var body: some View {
+        attach(
+            Group {
+                if let fold { folded(fold) } else { flat }
+            }
+            .background(Bento.bg.ignoresSafeArea())
+            .tint(Bento.accent)
+        )
+    }
+
+    /// Duo à plat (ouvert ou fermé) : une seule grille.
+    private var flat: some View {
         GeometryReader { g in
             let wide = g.size.width >= 520
             ScrollView {
@@ -59,8 +76,72 @@ struct BentoHomeView: View {
             .scrollIndicators(.hidden)
             .environment(\.colorScheme, .light)
         }
-        .background(Bento.bg.ignoresSafeArea())
-        .tint(Bento.accent)
+    }
+
+    /// Duo à moitié plié : deux pages, de part et d'autre du pli. On déplace les cartes d'une page à l'autre.
+    private func folded(_ fold: BentoFold) -> some View {
+        GeometryReader { safe in
+            let insets = safe.safeAreaInsets
+            GeometryReader { full in
+                let w = full.size.width, h = full.size.height
+                if fold == .book {
+                    HStack(spacing: 0) {
+                        page(0, width: w / 2 - 34)
+                            .padding(.leading, max(insets.leading, 18)).padding(.trailing, 16)
+                            .padding(.top, max(insets.top, 16))
+                            .frame(width: w / 2, height: h)
+                        page(1, width: w / 2 - 34)
+                            .padding(.trailing, max(insets.trailing, 18)).padding(.leading, 16)
+                            .padding(.top, max(insets.top, 16))
+                            .frame(width: w / 2, height: h)
+                            .background(Bento.tray.opacity(0.45))
+                    }
+                } else {
+                    VStack(spacing: 0) {
+                        page(0, width: w - 36)
+                            .padding(.horizontal, 18).padding(.top, max(insets.top, 16)).padding(.bottom, 10)
+                            .frame(width: w, height: h / 2)
+                        page(1, width: w - 36)
+                            .padding(.horizontal, 18).padding(.top, 14).padding(.bottom, max(insets.bottom, 10))
+                            .frame(width: w, height: h / 2)
+                            .background(Bento.tray.opacity(0.45))
+                    }
+                }
+            }
+            .ignoresSafeArea()
+        }
+        .environment(\.colorScheme, .light)
+    }
+
+    private func page(_ i: Int, width: CGFloat) -> some View {
+        let ids = i < lists.count ? lists[i] : []
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                if i == 0 { header }
+                if editing && i == 0 { editHint }
+                cards(ids, wide: width >= 520, start: i * 4)
+                if editing {
+                    // Lâcher ici : la carte passe en bas de cette page.
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(Bento.accent.opacity(dropTarget == "page\(i)" ? 0.9 : 0.3), style: StrokeStyle(lineWidth: 1.5, dash: [6, 5]))
+                        .frame(height: 64)
+                        .overlay(Image(systemName: "plus").foregroundStyle(Bento.accent))
+                        .dropDestination(for: String.self) { items, _ in
+                            if let from = items.first { moveToEnd(from, page: i) }
+                            dropTarget = nil
+                            return true
+                        } isTargeted: { on in
+                            if on { dropTarget = "page\(i)" } else if dropTarget == "page\(i)" { dropTarget = nil }
+                        }
+                }
+            }
+            .padding(.bottom, 24)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private func attach<C: View>(_ content: C) -> some View {
+        content
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
         .sheet(isPresented: $showSettings) { SettingsView().environment(model).environment(store) }
         .sheet(isPresented: $showBoards) { LeaderboardView().environment(model).environment(store) }
@@ -179,21 +260,61 @@ struct BentoHomeView: View {
     // L'ordre est gardé sur le téléphone. « Arranger » (en haut) fait trembler les cartes : on en attrape une
     // et on la lâche sur une autre pour prendre sa place.
 
-    static let defaultOrder = ["today", "hinge", "week", "split", "closed", "hours", "lifetime", "garden", "actions"]
+    static let defaultOrder = ["today", "hinge", "week", "split", "closed", "hours", "lifetime", "actions"]
+    static let all = Set(defaultOrder)
+    /// Livre : le chiffre et la charnière à gauche, le détail à droite.
+    static let defaultBook = [["today", "hinge", "split", "lifetime"], ["week", "closed", "hours", "actions"]]
+    /// En L : en haut (debout) ce qu'on lit d'un coup d'œil, en bas (posé) le reste.
+    static let defaultLaptop = [["today", "hinge"], ["split", "week", "hours", "closed", "lifetime", "actions"]]
 
-    private var order: [String] {
-        let saved = orderRaw.split(separator: ",").map(String.init).filter { Self.defaultOrder.contains($0) }
-        return saved + Self.defaultOrder.filter { !saved.contains($0) }
+    /// Les cartes de chaque page (une seule page à plat, deux à moitié plié). Gardé séparément pour chaque position.
+    private var lists: [[String]] {
+        func clean(_ raw: String, _ fallback: [[String]]) -> [[String]] {
+            var seen = Set<String>()
+            var out = raw.split(separator: "|", omittingEmptySubsequences: false).map {
+                $0.split(separator: ",").map(String.init).filter { Self.all.contains($0) && seen.insert($0).inserted }
+            }
+            if raw.isEmpty || out.count != fallback.count { return fallback }
+            // Une carte nouvelle (ou perdue) revient en bas de la dernière page.
+            out[out.count - 1] += Self.defaultOrder.filter { !seen.contains($0) }
+            return out
+        }
+        switch fold {
+        case .none: return clean(orderRaw, [Self.defaultOrder])
+        case .book: return clean(bookRaw, Self.defaultBook)
+        case .laptop: return clean(laptopRaw, Self.defaultLaptop)
+        }
+    }
+
+    private func save(_ l: [[String]]?) {
+        let raw = l.map { $0.map { $0.joined(separator: ",") }.joined(separator: "|") } ?? ""
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+            switch fold {
+            case .none: orderRaw = raw
+            case .book: bookRaw = raw
+            case .laptop: laptopRaw = raw
+            }
+        }
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
     }
 
     private func move(_ from: String, to: String) {
         guard from != to else { return }
-        var o = order
-        guard let i = o.firstIndex(of: from), let j = o.firstIndex(of: to) else { return }
-        o.remove(at: i)
-        o.insert(from, at: j)
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) { orderRaw = o.joined(separator: ",") }
-        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        var l = lists
+        for k in l.indices { l[k].removeAll { $0 == from } }
+        guard let p = l.firstIndex(where: { $0.contains(to) }), let j = l[p].firstIndex(of: to) else { return }
+        // Vers le bas de la même page : après la cible ; sinon : à sa place.
+        let before = lists[p].firstIndex(of: from).map { $0 < (lists[p].firstIndex(of: to) ?? 0) } ?? false
+        l[p].insert(from, at: before ? j + 1 : j)
+        save(l)
+    }
+
+    private func moveToEnd(_ from: String, page: Int) {
+        var l = lists
+        guard page < l.count else { return }
+        for k in l.indices { l[k].removeAll { $0 == from } }
+        l[page].append(from)
+        save(l)
     }
 
     private func card(_ id: String) -> AnyView {
@@ -205,7 +326,6 @@ struct BentoHomeView: View {
         case "closed": return AnyView(closed)
         case "hours": return AnyView(hours)
         case "lifetime": return AnyView(lifetime)
-        case "garden": return AnyView(garden)
         default: return AnyView(actions)
         }
     }
@@ -239,14 +359,14 @@ struct BentoHomeView: View {
             .animation(editing ? .easeInOut(duration: 0.14).repeatForever(autoreverses: true) : .default, value: wiggle)
     }
 
-    private static let small: Set<String> = ["lifetime", "garden", "split", "hours"]
+    private static let small: Set<String> = ["lifetime"]
 
     /// Les cartes deux par deux (grand écran), ou les petites deux par deux (petit écran).
-    private func rows(wide: Bool) -> [[String]] {
+    private func rows(_ ids: [String], wide: Bool) -> [[String]] {
         var out: [[String]] = []
         var pending: String?
-        for id in order {
-            let pairable = wide ? id != "actions" : Self.small.contains(id) && id != "split" && id != "hours"
+        for id in ids {
+            let pairable = wide ? id != "actions" : Self.small.contains(id)
             if pairable {
                 if let p = pending { out.append([p, id]); pending = nil } else { pending = id }
             } else {
@@ -258,31 +378,35 @@ struct BentoHomeView: View {
         return out
     }
 
+    private var editHint: some View {
+        HStack {
+            Text("Hold a card, then drop it where you want it.")
+                .font(.footnote).foregroundStyle(Bento.muted)
+            Spacer()
+            Button { save(nil) } label: { Text("Default order").font(.footnote.weight(.semibold)) }
+        }
+        .padding(.horizontal, 4)
+    }
+
+    @ViewBuilder private func cards(_ ids: [String], wide: Bool, start: Int) -> some View {
+        let rs = rows(ids, wide: wide)
+        ForEach(Array(rs.enumerated()), id: \.element) { i, r in
+            if r.count == 2 {
+                row(movable(r[0]), movable(r[1]), start + i + 1)
+            } else {
+                one(movable(r[0]), start + i + 1)
+            }
+        }
+    }
+
     @ViewBuilder private func grid(wide: Bool) -> some View {
         let showAuto = model.stats.autoLast == nil && !Demo.seeded
         let showPromo = !foldboardPromoHidden && FoldboardPromoRule.shouldShow
-        let rs = rows(wide: wide)
         VStack(spacing: 12) {
-            if editing {
-                HStack {
-                    Text("Drag a card onto another to swap their places.")
-                        .font(.footnote).foregroundStyle(Bento.muted)
-                    Spacer()
-                    Button { withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { orderRaw = "" } } label: {
-                        Text("Reset").font(.footnote.weight(.semibold))
-                    }
-                }
-                .padding(.horizontal, 4)
-            }
+            if editing { editHint }
             if showAuto && !editing { one(autoCard, 0) }
-            ForEach(Array(rs.enumerated()), id: \.element) { i, r in
-                if r.count == 2 {
-                    row(movable(r[0]), movable(r[1]), i + 1)
-                } else {
-                    one(movable(r[0]), i + 1)
-                }
-            }
-            if showPromo && !editing { one(promo, rs.count + 1) }
+            cards(lists.first ?? [], wide: wide, start: 0)
+            if showPromo && !editing { one(promo, 12) }
         }
     }
 
@@ -515,26 +639,6 @@ struct BentoHomeView: View {
                 }
                 Spacer()
                 Image(systemName: "infinity").font(.title2.weight(.semibold)).foregroundStyle(Bento.accent)
-                    .frame(width: 46, height: 46).background(Circle().fill(Bento.tint))
-            }
-        }
-    }
-
-    private var garden: some View {
-        let today = model.stats.plants()
-        return white {
-            HStack(spacing: 14) {
-                VStack(alignment: .leading, spacing: 4) {
-                    label(Text("My garden"))
-                    Text(model.stats.totalPlants, format: .number)
-                        .font(.system(size: 30, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
-                        .contentTransition(.numericText())
-                    if today > 0 {
-                        Text(verbatim: "+\(today)").font(.caption.weight(.semibold)).foregroundStyle(Bento.accent)
-                    }
-                }
-                Spacer(minLength: 4)
-                Image(systemName: "leaf.fill").font(.title2.weight(.semibold)).foregroundStyle(Bento.accent)
                     .frame(width: 46, height: 46).background(Circle().fill(Bento.tint))
             }
         }
