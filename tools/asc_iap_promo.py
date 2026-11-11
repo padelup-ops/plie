@@ -86,19 +86,43 @@ while url and not promo_pp:
 if not promo_pp:
     sys.exit(f"ÉCHEC : point de prix {PROMO} € introuvable")
 
+# Le calendrier actuel, gardé tel quel en dehors de la promo (ex. un prix de lancement qui se termine avant).
+segs = []
+for p in prices.get("data", []):
+    a = p["attributes"]
+    segs.append((a.get("startDate"), a.get("endDate"), p["relationships"]["inAppPurchasePricePoint"]["data"]["id"]))
+LO, HI = "0000-00-00", "9999-99-99"
+out = []
+for st, en, pp in segs:
+    s0, e0 = st or LO, en or HI
+    if e0 <= START or s0 >= END:
+        out.append((st, en, pp))
+        continue
+    if s0 < START:
+        out.append((st, START, pp))
+    if e0 > END:
+        out.append((END, en, pp))
+out.append((START, END, promo_pp))
+out.sort(key=lambda x: x[0] or LO)
+print("nouveau calendrier :")
+for st, en, pp in out:
+    print("  ", st, "→", en, "promo" if pp == promo_pp else pp[-12:])
+manual, inc = [], []
+for i, (st, en, pp) in enumerate(out):
+    rid = "${p%d}" % i
+    manual.append({"type": "inAppPurchasePrices", "id": rid})
+    attrs = {"startDate": st}
+    if en:
+        attrs["endDate"] = en
+    inc.append({"type": "inAppPurchasePrices", "id": rid, "attributes": attrs,
+                "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": pp}}}})
 body = {
     "data": {"type": "inAppPurchasePriceSchedules",
              "relationships": {
                  "inAppPurchase": {"data": {"type": "inAppPurchases", "id": iap_id}},
                  "baseTerritory": {"data": {"type": "territories", "id": "FRA"}},
-                 "manualPrices": {"data": [{"type": "inAppPurchasePrices", "id": "${base}"},
-                                           {"type": "inAppPurchasePrices", "id": "${promo}"}]}}},
-    "included": [
-        {"type": "inAppPurchasePrices", "id": "${base}", "attributes": {"startDate": None},
-         "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": current[0]}}}},
-        {"type": "inAppPurchasePrices", "id": "${promo}", "attributes": {"startDate": START, "endDate": END},
-         "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": promo_pp}}}},
-    ],
+                 "manualPrices": {"data": manual}}},
+    "included": inc,
 }
 r = call("POST", "/v1/inAppPurchasePriceSchedules", body)
 show("nouveau calendrier", r)
