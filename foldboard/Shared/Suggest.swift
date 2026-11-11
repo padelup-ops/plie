@@ -77,7 +77,7 @@ final class KBWordStore {
     /// Les mots qui ont suivi `prev` le plus souvent.
     func next(after prev: String, limit: Int) -> [String] {
         lock.lock(); defer { lock.unlock() }
-        return (pairs[prev.lowercased()] ?? [:]).sorted { $0.value > $1.value }.prefix(limit).map(\.key)
+        return (pairs[prev.lowercased()] ?? [:]).sorted { $0.value > $1.value }.prefix(limit).map { $0.key }
     }
 
     /// Tes mots qui commencent comme `prefix`, des plus tapés aux moins tapés.
@@ -85,7 +85,7 @@ final class KBWordStore {
         let k = prefix.lowercased()
         lock.lock(); defer { lock.unlock() }
         return words.filter { $0.value >= 2 && $0.key.count > k.count && $0.key.hasPrefix(k) }
-            .sorted { $0.value > $1.value }.prefix(limit).map(\.key)
+            .sorted { $0.value > $1.value }.prefix(limit).map { $0.key }
     }
 }
 
