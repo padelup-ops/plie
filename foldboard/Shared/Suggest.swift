@@ -16,17 +16,23 @@ final class KBSuggest {
     /// Les mots par leurs deux premières lettres : compléter sans parcourir les 30 000 mots à chaque lettre.
     private var byPrefix: [String: [Int]] = [:]
     private var byFirst: [String: [Int]] = [:]
+    /// Pour chaque mot sans accents, sa forme accentuée la plus courante (« apres » → « après », « ca » → « ça »).
+    private var accented: [String: Int] = [:]
     private var loadedList = ""
 
     private func loadList(_ code: String) {
         guard loadedList != code else { return }
         loadedList = code
-        words = []; folded = []; rank = [:]; byPrefix = [:]; byFirst = [:]
+        words = []; folded = []; rank = [:]; byPrefix = [:]; byFirst = [:]; accented = [:]
         guard let url = Bundle.main.url(forResource: "words-" + code, withExtension: "txt"),
               let text = try? String(contentsOf: url, encoding: .utf8) else { return }
         words = text.split(separator: "\n").map(String.init)
         folded = words.map { $0.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil) }
         for (i, w) in words.enumerated() where rank[w] == nil { rank[w] = i }
+        for (i, w) in words.enumerated() {
+            let f = folded[i]
+            if w.lowercased() != f, accented[f] == nil { accented[f] = i }
+        }
         for (i, f) in folded.enumerated() {
             byPrefix[String(f.prefix(2)), default: []].append(i)
             byFirst[String(f.prefix(1)), default: []].append(i)
@@ -110,8 +116,26 @@ final class KBSuggest {
         return s
     }
 
+    /// La forme accentuée d'un mot tapé sans accents, si elle existe (« apres » → « après »), et son rang.
+    private func accentForm(_ word: String) -> (word: String, rank: Int)? {
+        let lower = word.lowercased()
+        let f = lower.folding(options: [.diacriticInsensitive], locale: nil)
+        guard f == lower, let i = accented[f], words[i] != lower else { return nil }
+        return (words[i], i)
+    }
+
+    /// Ajouter l'accent oublié, comme le clavier d'Apple : seulement si la forme accentuée est bien plus courante
+    /// que la forme tapée (« ca » → « ça », « apres » → « après », mais jamais « a » → « à » : les deux existent).
+    private func accentFix(_ word: String) -> String? {
+        guard word.count >= 2, let a = accentForm(word) else { return nil }
+        let own = rank[word.lowercased()] ?? Int.max
+        guard own == Int.max || own > a.rank * 4 + 200 else { return nil }
+        return matchCase(a.word, like: word)
+    }
+
     /// La correction à appliquer quand on termine le mot (espace, ponctuation), ou nil.
     func correction(for word: String, before: String) -> String? {
+        if !known.contains(word.lowercased()), replacements[word.lowercased()] == nil, let fix = accentFix(word) { return fix }
         guard word.count >= 3, word.count <= 30 else {
             if word == "i" && language.hasPrefix("en") { return "I" }
             return nil
@@ -176,6 +200,11 @@ final class KBSuggest {
             best = 1
         } else {
             out = [word]
+        }
+        // L'accent oublié (« a » → « à ») : toujours proposé dans la barre, même quand on ne le corrige pas seul.
+        if let a = accentForm(word) {
+            let c = matchCase(a.word, like: word)
+            if !out.contains(c) { out.insert(c, at: min(1, out.count)); if best != nil { best = out.firstIndex(of: fix ?? "") } }
         }
         var completions = listCompletions(word, limit: 3)
         if completions.isEmpty {

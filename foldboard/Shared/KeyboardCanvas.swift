@@ -1725,7 +1725,13 @@ final class KeyboardCanvas: UIView {
         let before = input?.kbTextBefore() ?? ""
         if eff.doubleSpacePeriod, before.hasSuffix(" "), before.count >= 2 {
             let prev = before[before.index(before.endIndex, offsetBy: -2)]
-            if prev.isLetter || prev.isNumber {
+            // Après une lettre, un chiffre, un emoji, une parenthèse ou un guillemet fermant (« passer" ») :
+            // pas après une ponctuation, ni après un guillemet ouvrant.
+            let chars = Array(before)
+            let beforePrev: Character? = chars.count >= 3 ? chars[chars.count - 3] : nil
+            let quote = "\"'’".contains(prev)
+            let closingQuote = quote && beforePrev.map { !$0.isWhitespace } == true
+            if !prev.isWhitespace, closingQuote || (!quote && !".,;:!?…-–—(«“".contains(prev)) {
                 input?.kbDelete()
                 input?.kbInsert(". ")
                 refreshShiftSoon()
