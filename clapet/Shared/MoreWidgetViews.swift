@@ -4,7 +4,7 @@ import WidgetKit
 // MARK: - Vues des widgets « Tes heures » et « Depuis le début » (partagées avec l'app pour les aperçus)
 
 func widgetThemeColor(_ stats: ClapetStats) -> Color {
-    stats.plus || DuoFolds.paidApp ? (ClapetTheme(rawValue: stats.theme) ?? .mint).color : Palette.mint
+    stats.widgetColor == .mint ? Palette.mint : stats.widgetColor.color
 }
 
 // MARK: Tes heures

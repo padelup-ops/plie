@@ -295,9 +295,9 @@ struct WidgetsHelpView: View {
             Text("Widget color")
                 .font(.headline)
             HStack(spacing: 12) {
-                ForEach(ClapetTheme.allCases) { theme in
+                ForEach(ClapetTheme.allCases.filter { $0 != .gold || model.stats.founder }) { theme in
                     Button {
-                        if store.hasPlus || theme == .mint {
+                        if store.hasPlus || theme == .mint || theme == .gold {
                             withAnimation(.easeInOut(duration: 0.2)) { model.setTheme(theme) }
                         } else {
                             showPlus = true
@@ -308,7 +308,7 @@ struct WidgetsHelpView: View {
                             .frame(width: 36, height: 36)
                             .overlay(Circle().stroke(Color.primary, lineWidth: model.stats.theme == theme.rawValue ? 3 : 0).padding(-4))
                             .overlay {
-                                if !store.hasPlus && theme != .mint {
+                                if !store.hasPlus && theme != .mint && theme != .gold {
                                     Image(systemName: "lock.fill").font(.system(size: 12, weight: .bold)).foregroundStyle(.black.opacity(0.6))
                                 }
                             }

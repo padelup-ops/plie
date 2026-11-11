@@ -53,6 +53,8 @@ final class ClapetModel {
         hapticsOn = d.object(forKey: "haptics") as? Bool ?? true
         if Demo.seeded { Demo.seed(&stats) }
         ClapetModel.current = self
+        // Fondateur : ouvert avant le 1er décembre 2026 (gardé pour toujours).
+        if FounderRule.open && !stats.founder && !Demo.seeded { stats.founder = true; ClapetVault.save(stats) }
     }
 
     // MARK: Charnière
@@ -227,6 +229,7 @@ final class ClapetModel {
         fresh.plus = stats.plus
         fresh.theme = stats.theme
         fresh.widgetLook = stats.widgetLook
+        fresh.founder = stats.founder
         stats = fresh
         changed()
     }

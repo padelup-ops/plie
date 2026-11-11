@@ -752,3 +752,11 @@
 "Dark" = "Тёмный";
 "%lld in 7 days" = "%lld за 7 дней";
 "%lld in ~%lld d" = "%lld через ~%lld дн.";
+
+/* Founders */
+"Founder" = "Основатель";
+"One of the first 2,000. Thank you!" = "Один из первых 2 000. Спасибо!";
+"Thank you, Founder!" = "Спасибо, Основатель!";
+"Foldly just passed 2,000 downloads. You are one of the very first: you get the Founder badge, and a widget color of your own, Gold 2K." = "У Foldly уже больше 2 000 загрузок. Вы — один из самых первых: вам значок Основателя и собственный цвет виджетов, Золото 2K.";
+"Use Gold 2K on my widgets" = "Золото 2K для моих виджетов";
+"Gold 2K" = "Золото 2K";

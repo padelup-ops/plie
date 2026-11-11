@@ -124,6 +124,7 @@ struct ContentView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.requestReview) private var requestReview
     @State private var showSurvey = false
+    @State private var showFounder = false
     @State private var showTour = false
     /// Écran extérieur : « Voir le détail » montre l'accueil complet (jusqu'au prochain pli).
     @State private var outerDetails = false
@@ -224,6 +225,9 @@ struct ContentView: View {
             case .leaderboards: LeaderboardView().environment(model).environment(store)
             }
         }
+        .sheet(isPresented: $showFounder) {
+            FounderWelcome().environment(model).presentationDetents([.large])
+        }
         .sheet(isPresented: $askLook, onDismiss: {
             if lookRaw.isEmpty { lookRaw = DFLook.classic.rawValue }
             if !TourRule.seen { showTour = true } else { checkSurvey() }
@@ -236,7 +240,12 @@ struct ContentView: View {
             try? await Task.sleep(nanoseconds: 2_800_000_000)
             // Après une mise à jour : la visite guidée, une fois (pas pendant le choix du thème ni le tournage).
             if !askLook && !lookRaw.isEmpty && !TourRule.seen && !Demo.seeded && Demo.screen == nil { showTour = true }
-            checkSurvey()
+            // Les 2 000 : l'annonce Fondateur, une fois.
+            if model.stats.founder && !FounderWelcomeRule.seen && !askLook && !showTour && !Demo.seeded && Demo.screen == nil {
+                showFounder = true
+            } else {
+                checkSurvey()
+            }
             // La note sur l'App Store : un peu plus tard, si rien d'autre n'est ouvert.
             try? await Task.sleep(nanoseconds: 4_000_000_000)
             if !askLook && !showSurvey && !showTour && ReviewRule.shouldAsk(model.stats, isTestBuild: store.isTestBuild) {

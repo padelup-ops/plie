@@ -769,3 +769,11 @@
 "Dark" = "ダーク";
 "%lld in 7 days" = "7日間で%lld";
 "%lld in ~%lld d" = "%lldまで約%lld日";
+
+/* Founders */
+"Founder" = "ファウンダー";
+"One of the first 2,000. Thank you!" = "最初の2,000人のひとり。ありがとう！";
+"Thank you, Founder!" = "ありがとう、ファウンダー！";
+"Foldly just passed 2,000 downloads. You are one of the very first: you get the Founder badge, and a widget color of your own, Gold 2K." = "Foldlyのダウンロードが2,000を超えました。あなたは最初期のユーザーです。ファウンダーバッジと、専用のウィジェットカラー「ゴールド2K」をどうぞ。";
+"Use Gold 2K on my widgets" = "ウィジェットをゴールド2Kに";
+"Gold 2K" = "ゴールド2K";

@@ -769,3 +769,11 @@
 "Dark" = "深色";
 "%lld in 7 days" = "7 天 %lld";
 "%lld in ~%lld d" = "约 %2$lld 天到 %1$lld";
+
+/* Founders */
+"Founder" = "创始用户";
+"One of the first 2,000. Thank you!" = "最早的 2000 位用户之一。谢谢！";
+"Thank you, Founder!" = "谢谢你，创始用户！";
+"Foldly just passed 2,000 downloads. You are one of the very first: you get the Founder badge, and a widget color of your own, Gold 2K." = "Foldly 下载量刚刚突破 2000。你是最早的用户之一：获得创始用户徽章，以及专属小组件颜色「金色 2K」。";
+"Use Gold 2K on my widgets" = "小组件使用金色 2K";
+"Gold 2K" = "金色 2K";

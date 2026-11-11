@@ -122,6 +122,8 @@ struct ClapetStats: Codable, Equatable {
     var theme = 0
     /// Apparence des widgets : 0 comme l'iPhone (clair le jour en mode auto), 1 clair, 2 sombre.
     var widgetLook = 0
+    /// Parmi les 2 000 premiers : l'app a été ouverte avant le 1er décembre 2026 (badge Fondateur, couleur Or 2K).
+    var founder = false
     /// Dernier pli compté par l'automatisation Raccourcis (app fermée).
     var autoLast: Date?
     /// Depuis quand le Duo est ouvert (nil : fermé, ou on ne sait pas).
@@ -153,7 +155,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, widgetLook, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince, focusSpans, nightOn, nightFrom, nightTo
+        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, widgetLook, founder, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince, focusSpans, nightOn, nightFrom, nightTo
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -175,6 +177,7 @@ struct ClapetStats: Codable, Equatable {
         plus = try c.decodeIfPresent(Bool.self, forKey: .plus) ?? false
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
         widgetLook = try c.decodeIfPresent(Int.self, forKey: .widgetLook) ?? 0
+        founder = try c.decodeIfPresent(Bool.self, forKey: .founder) ?? false
         autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
         openSince = try c.decodeIfPresent(Date.self, forKey: .openSince)
         restSince = try c.decodeIfPresent(Date.self, forKey: .restSince)
@@ -779,6 +782,8 @@ struct ClapetStats: Codable, Equatable {
 
 enum ClapetTheme: Int, CaseIterable, Identifiable {
     case mint, orange, pink, blue, lemon
+    /// Or 2K : offerte aux Fondateurs (les 2 000 premiers), sans Foldly+.
+    case gold
 
     var id: Int { rawValue }
 
@@ -790,6 +795,7 @@ enum ClapetTheme: Int, CaseIterable, Identifiable {
         case .pink: return (1.0, 0.42, 0.62)
         case .blue: return (0.40, 0.70, 1.0)
         case .lemon: return (0.95, 0.88, 0.32)
+        case .gold: return (0.89, 0.71, 0.33)
         }
     }
 
@@ -800,7 +806,23 @@ enum ClapetTheme: Int, CaseIterable, Identifiable {
         case .pink: return String(localized: "Pink")
         case .blue: return String(localized: "Blue")
         case .lemon: return String(localized: "Lemon")
+        case .gold: return String(localized: "Gold 2K")
         }
+    }
+}
+
+/// Les Fondateurs : ceux qui ont ouvert Foldly avant le 1er décembre 2026 (les 2 000 premiers et un peu plus).
+enum FounderRule {
+    static let deadline = DateComponents(calendar: .current, year: 2026, month: 12, day: 1).date ?? .distantFuture
+    static var open: Bool { Date() < deadline }
+}
+
+extension ClapetStats {
+    /// La couleur des widgets : celle choisie (Foldly+, ou l'Or 2K des Fondateurs), menthe sinon.
+    var widgetColor: ClapetTheme {
+        let t = ClapetTheme(rawValue: theme) ?? .mint
+        if t == .gold { return founder ? .gold : .mint }
+        return plus || DuoFolds.paidApp ? t : .mint
     }
 }
 

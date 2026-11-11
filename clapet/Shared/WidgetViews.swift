@@ -75,7 +75,7 @@ struct ClapetWidgetView: View {
 
     /// La couleur choisie (Foldly+), menthe sinon.
     private var accent: Color {
-        stats.plus || DuoFolds.paidApp ? (ClapetTheme(rawValue: stats.theme) ?? .mint).color : Palette.mint
+        stats.widgetColor == .mint ? Palette.mint : stats.widgetColor.color
     }
 
     var body: some View {
@@ -606,7 +606,7 @@ struct PhoneDownWidgetView: View {
     }
 
     private var accent: Color {
-        stats.plus || DuoFolds.paidApp ? (ClapetTheme(rawValue: stats.theme) ?? .mint).color : Palette.mint
+        stats.widgetColor == .mint ? Palette.mint : stats.widgetColor.color
     }
 
     private var isAccessory: Bool {

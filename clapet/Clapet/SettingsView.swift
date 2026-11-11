@@ -30,6 +30,9 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                if model.stats.founder {
+                    Section { FounderBadge() }
+                }
                 if !DuoFolds.paidApp {
                     Section {
                         PlusHeader(hasPlus: store.hasPlus) { showPlus = true }
@@ -125,16 +128,16 @@ struct SettingsView: View {
                     HStack(spacing: 12) {
                         Label { Text("Widget color") } icon: { SIcon("square.grid.2x2.fill", .teal) }
                         Spacer(minLength: 4)
-                        ForEach(ClapetTheme.allCases) { theme in
+                        ForEach(ClapetTheme.allCases.filter { $0 != .gold || model.stats.founder }) { theme in
                             Button {
-                                if store.hasPlus { model.setTheme(theme) } else { showPlus = true }
+                                if store.hasPlus || theme == .gold { model.setTheme(theme) } else { showPlus = true }
                             } label: {
                                 Circle()
                                     .fill(theme.color)
                                     .frame(width: 24, height: 24)
                                     .overlay(Circle().stroke(Color.primary, lineWidth: model.stats.theme == theme.rawValue ? 2.5 : 0))
                                     .overlay {
-                                        if !store.hasPlus && theme != .mint {
+                                        if !store.hasPlus && theme != .mint && theme != .gold {
                                             Image(systemName: "lock.fill").font(.system(size: 9, weight: .bold)).foregroundStyle(.black.opacity(0.6))
                                         }
                                     }
