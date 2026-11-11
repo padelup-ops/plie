@@ -485,6 +485,7 @@ final class KeyboardCanvas: UIView {
     private func startGrip() {
         gripStarted = true
         grip.onGrip = { [weak self] g in self?.gripDetected(g) }
+        grip.onUnlock = { [weak self] in self?.layoutTopBar() }
         grip.start { [weak self] g in
             guard let self, let g, self.autoOn else { return }
             // Sans posture « deux mains » étalonnée, l'inclinaison ne fait pas quitter le mode deux mains.

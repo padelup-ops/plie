@@ -149,9 +149,38 @@ final class GripDetector {
     var swipeModel: KBTapModel?
     /// Étalonnage dans l'app : chaque glissement est envoyé ici.
     var onSwipeSample: (([Double]) -> Void)?
-    /// Verrou : le clavier a été placé à la main (toucher la place libre, flèche ⇆). Il reste là où il est
-    /// jusqu'à ce qu'il disparaisse et revienne.
-    var locked = false
+    /// Verrou : le clavier a été placé à la main (toucher la place libre, flèche ⇆, milieu). Il reste là où on
+    /// l'a mis tant qu'on le tient pareil. Il se libère tout seul quand le téléphone change nettement de position
+    /// (on a changé de main) ou après une pause sans taper : le suivi reprend sans quitter l'app.
+    var locked = false {
+        didSet {
+            guard locked != oldValue else { return }
+            lockedAt = now
+            lockAngle = locked ? currentAngle : nil
+            lockStreak = 0
+        }
+    }
+    private var lockedAt: TimeInterval = 0
+    private var lockAngle: Double?
+    private var lockStreak = 0
+    /// Le verrou vient de se libérer tout seul (pour remettre la flèche en gris).
+    var onUnlock: (() -> Void)?
+
+    private func checkUnlock() {
+        guard locked else { return }
+        // Le téléphone a franchement changé de position depuis le verrou (0,45 s de suite) : nouvelle main.
+        if let a0 = lockAngle, let a = currentAngle, abs(kbWrap(a - a0)) > max(14, switchThreshold + 6) {
+            lockStreak += 1
+        } else {
+            lockStreak = 0
+        }
+        let idle = now - lastTapTime > 4 && now - lockedAt > 10
+        guard lockStreak >= 3 || idle else { return }
+        locked = false
+        tiltStreak = nil
+        tiltSide = nil
+        onUnlock?()
+    }
     /// Le dernier déplacement automatique : on laisse le clavier tranquille quelques secondes ensuite.
     private var lastEmit: TimeInterval = 0
     /// La dernière lecture d'inclinaison était franche (la posture étalonnée la plus proche l'est nettement).
@@ -383,6 +412,7 @@ final class GripDetector {
         // L'inclinaison place le clavier quand il apparaît ; ensuite, elle ne le bouge que si le téléphone change
         // franchement de main pendant une pause (pas de frappe depuis 2 s, rien bougé depuis 5 s).
         // Sans le test « main droite, main gauche », le clavier est placé à son apparition, puis il ne bouge plus.
+        checkUnlock()
         guard calibrated || habitReady else { return }
         if locked || now - lastTapTime < 1.0 || now - lastEmit < 1.5 { tiltStreak = nil; return }
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
