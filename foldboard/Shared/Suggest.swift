@@ -178,61 +178,84 @@ final class KBSuggest {
         return out
     }
 
+    /// Centrer et mettre à l'échelle un tracé : sa forme seule, où qu'il soit sur le clavier.
+    private static func normalized(_ pts: [CGPoint]) -> [CGPoint] {
+        let xs = pts.map(\.x), ys = pts.map(\.y)
+        let w = (xs.max() ?? 0) - (xs.min() ?? 0), h = (ys.max() ?? 0) - (ys.min() ?? 0)
+        let size = max(w, h, 1)
+        let cx = xs.reduce(0, +) / CGFloat(pts.count), cy = ys.reduce(0, +) / CGFloat(pts.count)
+        return pts.map { CGPoint(x: ($0.x - cx) / size, y: ($0.y - cy) / size) }
+    }
+
     /// Les mots qu'on a probablement tracés, du plus probable au moins probable.
-    func glide(_ path: [CGPoint], touch: KBTouchModel, before: String, limit: Int = 4) -> [String] {
-        guard path.count >= 2, !words.isEmpty else { return [] }
+    ///
+    /// Deux mesures, comme les claviers à glisser connus : la position (le tracé passe-t-il sur les bonnes touches ?)
+    /// et la forme (a-t-il le même dessin, même un peu décalé ?). Le début et la fin comptent triple : c'est là que
+    /// le doigt vise le mieux. Puis le modèle de langue départage les mots au tracé proche.
+    func glide(_ raw: [CGPoint], touch: KBTouchModel, before: String, limit: Int = 4) -> [String] {
+        guard raw.count >= 2, !words.isEmpty else { return [] }
+        // Le pouce se pose un peu plus bas qu'il ne vise : même correction que pour la frappe.
+        let path = raw.map { CGPoint(x: $0.x, y: $0.y - 4) }
         let kw = touch.keyW, kh = touch.keyH
-        func center(_ c: Character) -> CGPoint? {
+        func center(_ c: Character, near p: CGPoint) -> CGPoint? {
             let base = Character(String(c).folding(options: .diacriticInsensitive, locale: nil))
             guard let cs = touch.centers[base] ?? touch.centers[c] else { return nil }
-            return cs.min { hypot($0.x - path[0].x, $0.y - path[0].y) < hypot($1.x - path[0].x, $1.y - path[0].y) }
+            return cs.min { hypot($0.x - p.x, $0.y - p.y) < hypot($1.x - p.x, $1.y - p.y) }
         }
-        func near(_ c: Character, _ p: CGPoint, _ r: CGFloat) -> Bool {
-            guard let k = center(c) else { return false }
-            return hypot((k.x - p.x) / kw, (k.y - p.y) / kh) < r
-        }
-        // Les lettres que le tracé a survolées, dans l'ordre (pour écarter vite les mots impossibles).
-        var passed: [Character] = []
-        for p in path {
-            var best: (Character, CGFloat)?
-            for (k, cs) in touch.centers {
-                for c in cs {
-                    let d = hypot((c.x - p.x) / kw, (c.y - p.y) / kh)
-                    if d < 0.75, best == nil || d < best!.1 { best = (k, d) }
-                }
-            }
-            if let b = best, passed.last != b.0 { passed.append(b.0) }
-        }
-        let user = Self.resample(path, 32)
+        func dist(_ a: CGPoint, _ b: CGPoint) -> CGFloat { hypot((a.x - b.x) / kw, (a.y - b.y) / kh) }
+        let n = 48
+        let user = Self.resample(path, n)
+        let userShape = Self.normalized(user)
+        let probe = Self.resample(path, 64)
         let start = path[0], end = path[path.count - 1]
-        var firsts: Set<String> = []
-        for (k, _) in touch.centers where near(k, start, 1.05) { firsts.insert(String(k)) }
+        // Pour chaque lettre, à quelle distance le tracé passe de sa touche, point par point.
+        var near: [Character: [CGFloat]] = [:]
+        for (k, cs) in touch.centers {
+            near[k] = probe.map { p in cs.map { dist($0, p) }.min() ?? 9 }
+        }
+        var firsts: [String] = []
+        for (k, _) in touch.centers where (near[k]?.first ?? 9) < 1.25 { firsts.append(String(k)) }
         var scored: [(String, Double)] = []
         for f0 in firsts {
-            for i in (byFirst[f0] ?? []).prefix(25_000) {
+            for i in (byFirst[f0] ?? []).prefix(30_000) {
                 let w = folded[i]
-                guard w.count >= 2, w.count <= 18, let last = w.last, near(last, end, 1.1) else { continue }
-                // Chaque lettre du mot (sans les doubles) doit être survolée, dans l'ordre ; on tolère une voisine.
+                guard w.count >= 2, w.count <= 20, let last = w.last, let dl = near[last]?.last, dl < 1.35 else { continue }
+                // Chaque lettre (sans les doubles) doit être frôlée dans l'ordre ; une seule peut manquer.
                 var j = 0, misses = 0
                 var prevC: Character?
                 for c in w where c != prevC {
                     prevC = c
-                    if let k = passed[j...].firstIndex(of: c) { j = k } else { misses += 1 }
+                    guard let row = near[c] else { misses = 9; break }
+                    if let k = row[j...].firstIndex(where: { $0 < 1.05 }) { j = k } else { misses += 1 }
                     if misses > 1 { break }
                 }
                 guard misses <= 1 else { continue }
                 var ideal: [CGPoint] = []
+                var anchor = start
                 var ok = true
-                for c in w { if let k = center(c) { if ideal.last != k { ideal.append(k) } } else { ok = false; break } }
+                for c in w {
+                    guard let k = center(c, near: anchor) else { ok = false; break }
+                    if ideal.last != k { ideal.append(k) }
+                    anchor = k
+                }
                 guard ok else { continue }
-                let tpl = Self.resample(ideal.count == 1 ? [ideal[0], ideal[0]] : ideal, 32)
-                var dist: CGFloat = 0
-                for k in 0..<32 { dist += hypot((tpl[k].x - user[k].x) / kw, (tpl[k].y - user[k].y) / kh) }
-                dist /= 32
-                guard dist < 1.0 else { continue }
+                let tpl = Self.resample(ideal.count == 1 ? [ideal[0], ideal[0]] : ideal, n)
+                var loc: CGFloat = 0, wsum: CGFloat = 0
+                for k in 0..<n {
+                    let wgt: CGFloat = (k < 3 || k >= n - 3) ? 3 : 1
+                    loc += dist(tpl[k], user[k]) * wgt
+                    wsum += wgt
+                }
+                loc /= wsum
+                guard loc < 1.25 else { continue }
+                let tplShape = Self.normalized(tpl)
+                var shape: CGFloat = 0
+                for k in 0..<n { shape += hypot(tplShape[k].x - userShape[k].x, tplShape[k].y - userShape[k].y) }
+                shape /= CGFloat(n)
                 let prior = lm?.score(words[i], before: before) ?? -log(Double(i) + 30)
-                let mine = log(1 + Double(KBWordStore.shared.count(w))) * 0.5
-                scored.append((words[i], -Double(dist) * 9 + prior + mine - Double(misses) * 1.5))
+                let mine = log(1 + Double(KBWordStore.shared.count(w))) * 0.6
+                let score = -Double(loc * loc) * 7 - Double(shape) * 6 + prior * 0.6 + mine - Double(misses) * 2
+                scored.append((words[i], score))
             }
         }
         scored.sort { $0.1 > $1.1 }
