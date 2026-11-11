@@ -33,7 +33,7 @@ if not acl.get("data"): sys.exit(1)
 ORG = acl["data"][0]["orgId"]; CUR = acl["data"][0].get("currency", "EUR")
 camps = call("GET", "/campaigns?limit=100").get("data", [])
 by_name = {c["name"]: c for c in camps}
-print("CAMPAGNES", [(c["id"], c["name"], c["status"], c.get("servingStatus"), c.get("countriesOrRegions"), (c.get("dailyBudgetAmount") or {}).get("amount")) for c in camps])
+print("CAMPAGNES", [(c["id"], c["name"], c["status"], c.get("servingStatus"), c.get("servingStateReasons"), c.get("countriesOrRegions"), (c.get("dailyBudgetAmount") or {}).get("amount")) for c in camps])
 
 if MODE == "probe":
     for name in ("Foldly", "Foldboard"):
@@ -44,30 +44,34 @@ elif MODE == "create":
     plan = json.loads(os.environ.get("PLAN") or open("tools/apple_ads_plan.json").read())
     for c in plan["campaigns"]:
         if c["name"] in by_name:
-            print("déjà là :", c["name"]); continue
-        r = call("POST", "/campaigns", {"name": c["name"], "adamId": c["adamId"], "countriesOrRegions": c["countries"],
-                 "dailyBudgetAmount": {"amount": str(c["daily"]), "currency": CUR}, "adChannelType": "SEARCH",
+            cid = by_name[c["name"]]["id"]
+            if call("GET", f"/campaigns/{cid}/adgroups").get("data"):
+                print("déjà là :", c["name"]); continue
+            print("campagne sans groupe, on complète :", c["name"])
+        else:
+          r = call("POST", "/campaigns", {"name": c["name"], "adamId": c["adamId"], "countriesOrRegions": c["countries"],
+                   "dailyBudgetAmount": {"amount": str(c["daily"]), "currency": CUR}, "adChannelType": "SEARCH",
                  "supplySources": ["APPSTORE_SEARCH_RESULTS"], "billingEvent": "TAPS", "status": "ENABLED"})
-        if "error" in r: print("ÉCHEC campagne", c["name"], r); continue
-        cid = r["data"]["id"]; print("ok campagne", c["name"], cid)
+          if r.get("error"): print("ÉCHEC campagne", c["name"], r); continue
+          cid = r["data"]["id"]; print("ok campagne", c["name"], cid)
         start = (datetime.datetime.utcnow() + datetime.timedelta(minutes=10)).strftime("%Y-%m-%dT%H:%M:%S.000")
         for g in c["groups"]:
             gr = call("POST", f"/campaigns/{cid}/adgroups", {"name": g["name"], "pricingModel": "CPC", "startTime": start,
                       "defaultBidAmount": {"amount": str(g["bid"]), "currency": CUR}, "automatedKeywordsOptIn": bool(g.get("searchMatch")),
                       "status": "ENABLED"})
-            if "error" in gr: print("ÉCHEC groupe", g["name"], gr); continue
+            if gr.get("error"): print("ÉCHEC groupe", g["name"], gr); continue
             gid = gr["data"]["id"]; print("  ok groupe", g["name"], gid)
             kws = [{"text": k, "matchType": g.get("match", "EXACT"), "bidAmount": {"amount": str(g["bid"]), "currency": CUR}} for k in g.get("keywords", [])]
             if kws:
                 kr = call("POST", f"/campaigns/{cid}/adgroups/{gid}/targetingkeywords/bulk", kws)
-                print("    mots-clés", len(kws), "ÉCHEC " + str(kr)[:400] if "error" in kr else "ok")
+                print("    mots-clés", len(kws), "ÉCHEC " + str(kr)[:400] if isinstance(kr, dict) and kr.get("error") else "ok")
             neg = [{"text": k, "matchType": "EXACT"} for k in g.get("negatives", [])]
-            if neg: print("    négatifs", "ok" if "error" not in call("POST", f"/campaigns/{cid}/adgroups/{gid}/negativekeywords/bulk", neg) else "ÉCHEC")
+            if neg: print("    négatifs", (lambda x: "ÉCHEC " + str(x)[:300] if isinstance(x, dict) and x.get("error") else "ok")(call("POST", f"/campaigns/{cid}/adgroups/{gid}/negativekeywords/bulk", neg)))
 
 elif MODE in ("pause", "resume"):
     for c in camps:
         r = call("PUT", f"/campaigns/{c['id']}", {"campaign": {"status": "PAUSED" if MODE == "pause" else "ENABLED"}})
-        print(c["name"], "ÉCHEC" if "error" in r else MODE)
+        print(c["name"], "ÉCHEC" if r.get("error") else MODE)
 
 if MODE in ("report", "create", "probe") and camps:
     days = int(os.environ.get("DAYS", "7"))
@@ -80,4 +84,4 @@ if MODE in ("report", "create", "probe") and camps:
     for row in rows:
         m, t = row.get("metadata", {}), row.get("total", {})
         print(f"  {m.get('campaignName')}: dépensé {t.get('localSpend', {}).get('amount')} · impressions {t.get('impressions')} · appuis {t.get('taps')} · installations {t.get('totalInstalls', t.get('installs'))} · coût/install {t.get('totalAvgCPI', t.get('avgCPA', {})).get('amount') if isinstance(t.get('totalAvgCPI', t.get('avgCPA')), dict) else ''}")
-    if "error" in r: print("rapport :", r)
+    if r.get("error"): print("rapport :", r)
