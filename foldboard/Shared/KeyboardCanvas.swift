@@ -924,7 +924,7 @@ final class KeyboardCanvas: UIView {
             panelRect = isRight
                 ? CGRect(x: 6, y: top, width: max(0, b.minX - 12), height: areaH)
                 : CGRect(x: b.maxX + 6, y: top, width: max(0, W - b.maxX - 12), height: areaH)
-            place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout, compact: true)], in: b, align: 0)
+            place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout, compact: true, leftHand: !isRight)], in: b, align: 0)
         case .split:
             let hw = W * CGFloat(eff.splitWidth)
             let l = CGRect(x: margin, y: top, width: hw, height: areaH)
