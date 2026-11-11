@@ -7,19 +7,32 @@ import SwiftUI
 // qui roulent, jauge de charnière qui suit le téléphone, point qui pulse quand le Duo est ouvert.
 
 enum Bento {
-    static let bg = Color(red: 0.969, green: 0.969, blue: 0.961)       // #F7F7F5
-    static let tray = Color(red: 0.933, green: 0.933, blue: 0.918)     // #EEEEEA
-    static let card = Color.white
-    static let dark = Color(red: 0.059, green: 0.059, blue: 0.071)     // #0F0F12
-    static let ink = Color(red: 0.078, green: 0.078, blue: 0.086)      // #141416
-    static let muted = Color(red: 0.545, green: 0.545, blue: 0.529)    // #8B8B87
-    static let accent = Color(red: 0.184, green: 0.357, blue: 1.0)     // #2F5BFF
-    static let tint = Color(red: 0.933, green: 0.949, blue: 1.0)       // #EEF2FF
-    static let line = Color.black.opacity(0.07)
+    /// Une couleur pour le clair, une pour le sombre : le thème suit le réglage de l'iPhone.
+    private static func dyn(_ light: UInt32, _ dark: UInt32, _ alpha: CGFloat = 1) -> Color {
+        func ui(_ h: UInt32) -> UIColor {
+            UIColor(red: CGFloat((h >> 16) & 0xFF) / 255, green: CGFloat((h >> 8) & 0xFF) / 255, blue: CGFloat(h & 0xFF) / 255, alpha: alpha)
+        }
+        return Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? ui(dark) : ui(light) })
+    }
+    // Une seule famille de gris, chauds.
+    static let bg = dyn(0xF7F7F5, 0x11110F)
+    static let tray = dyn(0xEEEEEA, 0x1A1A17)
+    static let card = dyn(0xFFFFFF, 0x1F1F1C)
+    static let dark = dyn(0x121210, 0x2C2C28)      // la carte « héros », sombre dans les deux thèmes
+    static let ink = dyn(0x161614, 0xF3F3EF)
+    static let muted = dyn(0x8B8B87, 0x96968F)
+    static let accent = dyn(0x2F5BFF, 0x5A7DFF)    // LA seule couleur d'accent
+    static let tint = dyn(0xEEF2FF, 0x1C2440)
+    static let line = dyn(0x000000, 0xFFFFFF, 0.07)
+    // Règle de formes : cartes 22, tuiles 14, barres 6, boutons en pilule.
+    static let rCard: CGFloat = 22
+    static let rTile: CGFloat = 14
 }
 
 /// Le Duo à moitié ouvert : tenu comme un livre (pli vertical) ou posé en L sur la table (pli horizontal).
 enum BentoFold { case book, laptop }
+
+enum BentoIntro { static var played = false }
 
 struct BentoHomeView: View {
     var fold: BentoFold? = nil
@@ -39,7 +52,12 @@ struct BentoHomeView: View {
     @State private var showHours = false
     @State private var plusReason: PlusReason?
     @State private var foldboardPromoHidden = false
-    @State private var appeared = false
+    @State private var appeared = BentoIntro.played
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .largeTitle) private var heroSize: CGFloat = 56
+    @ScaledMetric(relativeTo: .title) private var bigSize: CGFloat = 30
+    @ScaledMetric(relativeTo: .title2) private var midSize: CGFloat = 22
+    @State private var pulse = false
     @State private var bump = false
     @State private var editing = false
     @State private var wiggle = false
@@ -74,7 +92,6 @@ struct BentoHomeView: View {
                 .frame(maxWidth: .infinity)
             }
             .scrollIndicators(.hidden)
-            .environment(\.colorScheme, .light)
         }
     }
 
@@ -110,7 +127,6 @@ struct BentoHomeView: View {
             }
             .ignoresSafeArea()
         }
-        .environment(\.colorScheme, .light)
     }
 
     private func page(_ i: Int, width: CGFloat) -> some View {
@@ -122,7 +138,7 @@ struct BentoHomeView: View {
                 cards(ids, wide: width >= 520, start: i * 4)
                 if editing {
                     // Lâcher ici : la carte passe en bas de cette page.
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous)
                         .strokeBorder(Bento.accent.opacity(dropTarget == "page\(i)" ? 0.9 : 0.3), style: StrokeStyle(lineWidth: 1.5, dash: [6, 5]))
                         .frame(height: 64)
                         .overlay(Image(systemName: "plus").foregroundStyle(Bento.accent))
@@ -183,7 +199,9 @@ struct BentoHomeView: View {
             }
         }
         .onAppear {
-            appeared = false
+            // Écran vu des dizaines de fois par jour : l'entrée en ressort une seule fois par lancement.
+            if BentoIntro.played || reduceMotion { appeared = true; return }
+            BentoIntro.played = true
             DispatchQueue.main.async { appeared = true }
         }
         .onChange(of: model.claps) { _, _ in
@@ -198,7 +216,7 @@ struct BentoHomeView: View {
     private var header: some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: "Foldly").font(.system(size: 28, weight: .bold)).foregroundStyle(Bento.ink)
+                Text(verbatim: "Foldly").font(.largeTitle.weight(.bold)).foregroundStyle(Bento.ink)
                 Text(Date(), format: .dateTime.weekday(.wide).day().month(.wide))
                     .font(.footnote).foregroundStyle(Bento.muted)
             }
@@ -209,17 +227,17 @@ struct BentoHomeView: View {
             } label: {
                 Group {
                     if editing { Text("Done").font(.subheadline.weight(.semibold)).foregroundStyle(.white).padding(.horizontal, 14) }
-                    else { Image(systemName: "square.grid.2x2").font(.body.weight(.medium)).foregroundStyle(Bento.ink).frame(width: 40) }
+                    else { Image(systemName: "square.grid.2x2").font(.body.weight(.medium)).foregroundStyle(Bento.ink).frame(width: 44) }
                 }
-                .frame(height: 40)
+                .frame(height: 44)
                 .background(Capsule().fill(editing ? Bento.accent : Bento.card))
                 .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
             }
             .accessibilityLabel(Text("Arrange cards"))
-            LeaderboardButton(show: $showBoards).font(.body).frame(width: 40, height: 44)
+            LeaderboardButton(show: $showBoards).font(.body).frame(width: 44, height: 44)
             Button { showSettings = true } label: {
                 Image(systemName: "gearshape").font(.body.weight(.medium)).foregroundStyle(Bento.ink)
-                    .frame(width: 40, height: 40).background(Circle().fill(Bento.card))
+                    .frame(width: 44, height: 44).background(Circle().fill(Bento.card))
                     .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
             }
             .accessibilityLabel(Text("Settings"))
@@ -248,10 +266,10 @@ struct BentoHomeView: View {
         let i: Int
         func body(content: Content) -> some View {
             content
-                .scaleEffect(on ? 1 : 0.92)
+                .scaleEffect(on ? 1 : 0.95)
                 .opacity(on ? 1 : 0)
                 .offset(y: on ? 0 : 14)
-                .animation(.spring(response: 0.55, dampingFraction: 0.72).delay(Double(i) * 0.07), value: on)
+                .animation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.28).delay(Double(i) * 0.04), value: on)
         }
     }
 
@@ -336,7 +354,7 @@ struct BentoHomeView: View {
             .allowsHitTesting(!editing)
             .overlay {
                 if editing {
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous)
                         .strokeBorder(Bento.accent.opacity(dropTarget == id ? 0.9 : 0.25), style: StrokeStyle(lineWidth: dropTarget == id ? 3 : 1.5, dash: dropTarget == id ? [] : [6, 5]))
                         .background(Color.white.opacity(0.001))
                         .overlay(alignment: .topTrailing) {
@@ -434,7 +452,7 @@ struct BentoHomeView: View {
         content()
             .padding(16)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Bento.card))
+            .background(RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous).fill(Bento.card))
             .shadow(color: .black.opacity(0.04), radius: 1, y: 1)
             .shadow(color: .black.opacity(0.06), radius: 14, y: 6)
     }
@@ -443,19 +461,19 @@ struct BentoHomeView: View {
         content()
             .padding(14)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Bento.tray))
+            .background(RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous).fill(Bento.tray))
     }
 
     private func darkCard<V: View>(@ViewBuilder _ content: () -> V) -> some View {
         content()
             .padding(18)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Bento.dark))
+            .background(RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous).fill(Bento.dark))
             .environment(\.colorScheme, .dark)
     }
 
     private func label(_ t: Text) -> some View {
-        t.font(.system(size: 13, weight: .medium)).foregroundStyle(Bento.muted)
+        t.font(.footnote.weight(.medium)).foregroundStyle(Bento.muted)
     }
 
     /// Aujourd'hui : le grand chiffre, et l'anneau jusqu'au repère (moyenne ou limite).
@@ -464,7 +482,7 @@ struct BentoHomeView: View {
         return darkCard {
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
-                    Text("Today").font(.system(size: 13, weight: .medium)).foregroundStyle(.white.opacity(0.55))
+                    Text("Today").font(.footnote.weight(.medium)).foregroundStyle(.white.opacity(0.55))
                     Spacer()
                     Text("+1").font(.footnote.weight(.semibold)).foregroundStyle(Bento.accent)
                         .opacity(bump ? 1 : 0).offset(y: bump ? 0 : 8)
@@ -483,7 +501,7 @@ struct BentoHomeView: View {
                     .frame(width: 86, height: 86)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("\(FoldUnit.shown(s.today))")
-                            .font(.system(size: 56, weight: .semibold))
+                            .font(.system(size: heroSize, weight: .semibold))
                             .monospacedDigit()
                             .foregroundStyle(.white)
                             .contentTransition(.numericText())
@@ -518,14 +536,17 @@ struct BentoHomeView: View {
         return white {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    label(Text(verbatim: "Hinge"))
+                    label(Text("Hinge"))
                     Spacer()
-                    TimelineView(.animation(minimumInterval: 1 / 30)) { ctx in
-                        let p = (sin(ctx.date.timeIntervalSinceReferenceDate * 3) + 1) / 2
-                        Circle().fill(open ? Bento.accent : Bento.muted.opacity(0.5))
-                            .frame(width: 8, height: 8)
-                            .overlay(Circle().stroke(Bento.accent.opacity(open ? 0.35 * (1 - p) : 0), lineWidth: 6).scaleEffect(1 + p))
-                    }
+                    // Une seule onde quand le Duo s'ouvre ou se ferme, pas de clignotement permanent.
+                    Circle().fill(open ? Bento.accent : Bento.muted.opacity(0.5))
+                        .frame(width: 8, height: 8)
+                        .overlay(Circle().stroke(Bento.accent.opacity(pulse ? 0 : 0.4), lineWidth: 5).scaleEffect(pulse ? 2.4 : 1))
+                        .onChange(of: open) { _, _ in
+                            guard !reduceMotion else { return }
+                            pulse = false
+                            withAnimation(.easeOut(duration: 0.6)) { pulse = true }
+                        }
                     (open ? Text("Open") : Text("Closed")).font(.caption.weight(.semibold)).foregroundStyle(open ? Bento.accent : Bento.muted)
                 }
                 ZStack(alignment: .bottom) {
@@ -534,7 +555,7 @@ struct BentoHomeView: View {
                         .stroke(Bento.accent, style: StrokeStyle(lineWidth: 12, lineCap: .round))
                         .animation(.spring(response: 0.45, dampingFraction: 0.6), value: deg)
                     Text(model.degrees == nil ? "—" : "\(Int(deg))°")
-                        .font(.system(size: 30, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                        .font(.system(size: bigSize, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
                         .contentTransition(.numericText())
                         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: Int(deg))
                 }
@@ -553,9 +574,9 @@ struct BentoHomeView: View {
         return trayCard {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("This week").font(.system(size: 15, weight: .semibold)).foregroundStyle(Bento.ink)
+                    Text("This week").font(.subheadline.weight(.semibold)).foregroundStyle(Bento.ink)
                     Spacer()
-                    Text("\(s.weekTotal)").font(.system(size: 15, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.muted)
+                    Text("\(s.weekTotal)").font(.subheadline.weight(.semibold)).monospacedDigit().foregroundStyle(Bento.muted)
                 }
                 HStack(alignment: .bottom, spacing: 8) {
                     ForEach(0..<days.count, id: \.self) { i in
@@ -591,13 +612,13 @@ struct BentoHomeView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             label(Text("Open"))
-                            Text(TimeFormat.narrow(open)).font(.system(size: 22, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                            Text(TimeFormat.narrow(open)).font(.system(size: midSize, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
                         }
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
                             label(Text("Closed"))
                             Text(s.autoLast == nil && closed == 0 ? "—" : TimeFormat.narrow(closed))
-                                .font(.system(size: 22, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                                .font(.system(size: midSize, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
                         }
                     }
                     GeometryReader { g in
@@ -633,7 +654,7 @@ struct BentoHomeView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     label(Text("Since day one"))
                     Text(model.stats.totalCloses, format: .number)
-                        .font(.system(size: 30, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                        .font(.system(size: bigSize, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
                         .contentTransition(.numericText())
                         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: model.stats.totalCloses)
                 }
@@ -666,16 +687,25 @@ struct BentoHomeView: View {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
-            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white.opacity(0.08)))
+            .background(RoundedRectangle(cornerRadius: Bento.rTile, style: .continuous).fill(Color.white.opacity(0.08)))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(Press())
+    }
+
+    /// Retour au toucher : 0,97 à l'appui, en 120 ms.
+    private struct Press: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .scaleEffect(configuration.isPressed ? 0.97 : 1)
+                .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+        }
     }
 
     private var autoCard: some View {
         Button { showAuto = true } label: {
             HStack(spacing: 12) {
                 Image(systemName: "bolt.badge.automatic").font(.title3).foregroundStyle(.white)
-                    .frame(width: 42, height: 42).background(RoundedRectangle(cornerRadius: 12).fill(Bento.accent))
+                    .frame(width: 42, height: 42).background(RoundedRectangle(cornerRadius: Bento.rTile, style: .continuous).fill(Bento.accent))
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Count even when the app is closed").font(.subheadline.weight(.semibold)).foregroundStyle(Bento.ink)
                     Text("Set up the Shortcuts automation in a minute.").font(.caption).foregroundStyle(Bento.muted)
@@ -683,8 +713,8 @@ struct BentoHomeView: View {
                 Spacer(minLength: 0)
             }
             .padding(14)
-            .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Bento.tint))
+            .background(RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous).fill(Bento.tint))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(Press())
     }
 }

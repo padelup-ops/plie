@@ -406,25 +406,22 @@ private struct PlusHeader: View {
     var body: some View {
         Button(action: { if !hasPlus { onUnlock() } }) {
             HStack(spacing: 14) {
-                Image(systemName: hasPlus ? "checkmark.seal.fill" : "sparkles")
+                Image(systemName: hasPlus ? "checkmark.seal.fill" : "lock.open.fill")
                     .font(.title2.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.dfOnAccent)
                     .frame(width: 48, height: 48)
-                    .background(Circle().fill(.white.opacity(0.18)))
+                    .background(Circle().fill(Color.dfOnAccent.opacity(0.15)))
                 VStack(alignment: .leading, spacing: 3) {
                     Text(verbatim: "Foldly+").font(.title3.weight(.bold))
                     if hasPlus { Text("Foldly+ is unlocked. Thank you.").font(.subheadline).opacity(0.85) }
                     else { Text("Unlock Foldly+").font(.subheadline.weight(.medium)).opacity(0.9) }
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.dfOnAccent)
                 Spacer(minLength: 0)
-                if !hasPlus { Image(systemName: "chevron.right").font(.body.weight(.bold)).foregroundStyle(.white.opacity(0.8)) }
+                if !hasPlus { Image(systemName: "chevron.right").font(.body.weight(.bold)).foregroundStyle(Color.dfOnAccent.opacity(0.8)) }
             }
             .padding(18)
-            .background(
-                LinearGradient(colors: [Color(red: 0.36, green: 0.42, blue: 1.0), Color(red: 0.62, green: 0.35, blue: 0.95)],
-                               startPoint: .topLeading, endPoint: .bottomTrailing),
-                in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .background(Color.dfAccent, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
         .buttonStyle(.plain)
     }
