@@ -128,7 +128,7 @@ enum KBLayouts {
         case "n": return ["ñ", "ń"]
         case "s": return ["ß", "ś", "š"]
         case "’", "'": return ["'", "’", "\"", "«", "»"]
-        case ".": return ["…", "!", "?"]
+        case ".": return ["’", ",", "?", "!", "…"]
         case ",": return [";", ":", "-"]
         case "-": return ["–", "—", "•"]
         case "€": return ["$", "£", "¥", "¢"]

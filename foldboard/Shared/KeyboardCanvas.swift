@@ -171,6 +171,8 @@ final class KeyboardCanvas: UIView {
         /// La lettre déjà écrite, dès que le doigt s'est posé (comme ça, rien n'attend que le doigt se relève).
         var typed: String?
         var swipe = false
+        /// Écrire en glissant : le doigt trace le mot.
+        var glide = false
         var points: [CGPoint] = []
         var t0: TimeInterval = 0
         init(index: Int, start: CGPoint) {
@@ -180,6 +182,10 @@ final class KeyboardCanvas: UIView {
         }
     }
     private var tracks: [UITouch: Track] = [:]
+    /// Le trait du doigt quand on écrit en glissant.
+    private let glideLayer = CAShapeLayer()
+    /// Le dernier mot écrit en glissant : l'espace vient avant le mot suivant, et ⌫ l'efface en entier (comme chez Apple).
+    private var glidedWord: String?
     private var order: [UITouch] = []
 
     static let topBarHeight: CGFloat = 42
@@ -1073,7 +1079,12 @@ final class KeyboardCanvas: UIView {
     private func layoutTopBar() {
         topBar.frame = CGRect(x: 0, y: 0, width: bounds.width, height: Self.topBarHeight)
         let h = Self.topBarHeight
-        modeButton.frame = CGRect(x: 6, y: 0, width: 40, height: h)
+        // Clavier d'un côté : la barre (boutons et suggestions) reste au-dessus des touches, à portée du pouce,
+        // au lieu de traverser tout l'écran (Duo ouvert).
+        let confine = layoutMode.isOneHand && panelRect.width > 0 && !blocks.isEmpty
+        let x0 = confine ? (blocks.map { $0.minX }.min() ?? 0) : 0
+        let x1 = confine ? (blocks.map { $0.maxX }.max() ?? bounds.width) : bounds.width
+        modeButton.frame = CGRect(x: x0 + 6, y: 0, width: 40, height: h)
         modeButton.setImage(UIImage(systemName: eff.mode.symbol), for: .normal)
         modeButton.tintColor = theme.text.withAlphaComponent(0.7)
         modeButton.menu = modeMenu()
@@ -1083,7 +1094,7 @@ final class KeyboardCanvas: UIView {
         flipButton.isHidden = !oneHand
         // En couleur : le clavier est verrouillé là où tu l'as mis.
         flipButton.tintColor = grip.locked && eff.mode == .auto ? theme.accent : theme.text.withAlphaComponent(0.7)
-        flipButton.frame = CGRect(x: 46, y: 0, width: oneHand ? 36 : 0, height: h)
+        flipButton.frame = CGRect(x: x0 + 46, y: 0, width: oneHand ? 36 : 0, height: h)
         // Le bouton du milieu : là où le clavier suit la main (il apprend aussi quand on le veut au milieu).
         let middleShown = eff.mode == .auto && followsHand && autoOn
         middleButton.isHidden = !middleShown
@@ -1100,9 +1111,9 @@ final class KeyboardCanvas: UIView {
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
         bigButton.frame = CGRect(x: max(flipButton.frame.maxX, middleButton.frame.maxX), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
-        hideButton.frame = CGRect(x: bounds.width - 46, y: 0, width: 40, height: h)
+        hideButton.frame = CGRect(x: x1 - 46, y: 0, width: 40, height: h)
         adjustButton.tintColor = theme.text.withAlphaComponent(0.7)
-        adjustButton.frame = CGRect(x: bounds.width - 46 - 36, y: 0, width: 36, height: h)
+        adjustButton.frame = CGRect(x: x1 - 46 - 36, y: 0, width: 36, height: h)
         let compact = layoutMode.isOneHand && !showEmoji
         let globe = input?.kbNeedsGlobe ?? false
         emojiButton.isHidden = !compact
@@ -1121,7 +1132,7 @@ final class KeyboardCanvas: UIView {
                 b.isHidden = false
                 b.frame = CGRect(x: ox + CGFloat(i % g.cols) * 44, y: panelRect.minY + CGFloat(i / g.cols) * 44, width: 44, height: 44)
             }
-            chips.frame = CGRect(x: cx, y: 0, width: max(0, bounds.width - cx - 6), height: h)
+            chips.frame = CGRect(x: cx, y: 0, width: max(0, x1 - cx - 6), height: h)
         } else {
             chips.frame = CGRect(x: cx, y: 0, width: max(0, globeButton.frame.minX - cx - 4), height: h)
         }
@@ -1483,7 +1494,15 @@ final class KeyboardCanvas: UIView {
         for t in touches {
             guard let tr = tracks[t], !tr.done, let k = kind(tr) else { continue }
             let p = t.location(in: self)
-            if tr.points.count < 80 { tr.points.append(p) }
+            if tr.points.count < (tr.glide ? 600 : 80) { tr.points.append(p) }
+            if tr.glide {
+                drawGlide(tr.points)
+                continue
+            }
+            if canGlide(tr, k, to: p) {
+                startGlide(tr)
+                continue
+            }
             // Un balayage vertical du pouce n'écrit rien : il dit quelle main tape (arc du pouce).
             let ddx = p.x - tr.start.x, ddy = p.y - tr.start.y
             if !tr.swipe && !tr.cursorMode && tr.accents.isEmpty && abs(ddy) > 44 && abs(ddy) > abs(ddx) * 1.4 {
@@ -1547,7 +1566,10 @@ final class KeyboardCanvas: UIView {
                 continue
             }
             guard let tr = tracks[t] else { continue }
-            if tr.swipe {
+            if tr.glide {
+                tr.done = true
+                endGlide(tr)
+            } else if tr.swipe {
                 tr.done = true
                 if autoOn || recording != nil {
                     grip.swipe(tr.points, width: bounds.width, t0: tr.t0, t1: t.timestamp)
@@ -1568,6 +1590,93 @@ final class KeyboardCanvas: UIView {
             tr.done = true
             finish(t)
         }
+    }
+
+    // MARK: Écrire en glissant
+
+    /// Le doigt part d'une lettre et file vers d'autres lettres : on écrit en glissant (pas un balayage vertical
+    /// du pouce, pas le pavé tactile de l'espace).
+    private func canGlide(_ tr: Track, _ k: KeyKind, to p: CGPoint) -> Bool {
+        guard eff.glide, page == .letters, !tr.swipe, !tr.cursorMode, tr.accents.isEmpty, !adjusting else { return false }
+        guard case .char(let c) = k, c.count == 1, c.first?.isLetter == true else { return false }
+        let kw = cells.first { if case .char = $0.view.spec.kind { return true }; return false }?.frame.width ?? 32
+        let dx = p.x - tr.start.x, dy = p.y - tr.start.y
+        guard abs(dx) > kw * 0.95 || hypot(dx, dy) > kw * 1.6 else { return false }
+        // Arrivé sur une autre lettre.
+        guard let j = cellIndex(at: p), j != tr.index, case .char(let c2) = cells[j].view.spec.kind, c2.first?.isLetter == true else { return false }
+        return true
+    }
+
+    private func startGlide(_ tr: Track) {
+        tr.glide = true
+        tr.longTimer?.invalidate()
+        hideBubble()
+        setPressed(tr.index, false)
+        if tr.typed != nil {
+            input?.kbDelete()
+            if !wordTouches.isEmpty { wordTouches.removeLast() }
+            tr.typed = nil
+        }
+        glideLayer.strokeColor = theme.accent.withAlphaComponent(0.55).cgColor
+        glideLayer.fillColor = nil
+        glideLayer.lineWidth = 7
+        glideLayer.lineCap = .round
+        glideLayer.lineJoin = .round
+        glideLayer.opacity = 1
+        if glideLayer.superlayer == nil { layer.addSublayer(glideLayer) }
+        glideLayer.zPosition = 50
+        drawGlide(tr.points)
+    }
+
+    private func drawGlide(_ pts: [CGPoint]) {
+        let path = UIBezierPath()
+        for (i, p) in pts.suffix(60).enumerated() { if i == 0 { path.move(to: p) } else { path.addLine(to: p) } }
+        CATransaction.begin(); CATransaction.setDisableActions(true)
+        glideLayer.path = path.cgPath
+        CATransaction.commit()
+    }
+
+    private func endGlide(_ tr: Track) {
+        let fade = CABasicAnimation(keyPath: "opacity")
+        fade.fromValue = 1; fade.toValue = 0; fade.duration = 0.25
+        glideLayer.add(fade, forKey: "fade")
+        glideLayer.opacity = 0
+        // Les centres des touches, comme pour la correction.
+        var centers: [Character: [CGPoint]] = [:]
+        var keyW: CGFloat = 0, keyH: CGFloat = 0
+        for c in cells {
+            guard case .char(let s) = c.view.spec.kind, s.count == 1, let ch = s.lowercased().first, ch.isLetter else { continue }
+            centers[ch, default: []].append(CGPoint(x: c.frame.midX, y: c.frame.midY))
+            keyW = max(keyW, c.frame.width); keyH = max(keyH, c.frame.height)
+        }
+        let model = KBTouchModel(points: [], centers: centers, keyW: keyW, keyH: keyH)
+        var before = input?.kbTextBefore() ?? ""
+        let found = suggest.glide(tr.points, touch: model, before: before + " ")
+        guard var word = found.first else {
+            KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.6)
+            return
+        }
+        // Un espace avant le mot, sauf en début de texte, après un espace ou une parenthèse ouvrante.
+        if let last = before.last, !last.isWhitespace, !"([{«“\"'’-/".contains(last) {
+            input?.kbInsert(" ")
+            before += " "
+        }
+        if shift != .off { word = word.prefix(1).uppercased() + word.dropFirst() }
+        if suggest.language.hasPrefix("en"), word == "i" || word.hasPrefix("i’") { word = "I" + word.dropFirst() }
+        input?.kbInsert(word)
+        glidedWord = word
+        lastCorrection = nil
+        wordTouches.removeAll()
+        if shift == .on { shift = .off; autoShifted = false; updateLabels() }
+        let prev = KBSuggest.lastWord(before)
+        let start = KBSuggest.atSentenceStart(before + "x", word: "x")
+        suggestQueue.async { KBWordStore.shared.commit(word, after: start ? nil : prev) }
+        KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics)
+        // Les autres mots possibles dans la barre : un toucher remplace le mot tracé.
+        let others = found.dropFirst().map { w -> String in shift != .off ? w.prefix(1).uppercased() + w.dropFirst() : w }
+        suggestGen += 1
+        cachedFix = nil
+        applySuggestions(Array(others.prefix(3)), nil)
     }
 
     /// Le pavé tactile : les lettres s'effacent, et le doigt déplace le curseur partout dans le texte.
@@ -1693,6 +1802,14 @@ final class KeyboardCanvas: UIView {
             typeText(text)
             noteTouch(text, at: tr.start)
         case .backspace:
+            if let g = glidedWord, (input?.kbTextBefore() ?? "").hasSuffix(g) {
+                for _ in 0..<g.count { input?.kbDelete() }
+                glidedWord = nil
+                wordTouches.removeAll()
+                tr.done = true
+                refreshSuggestionsSoon()
+                break
+            }
             if undoCorrection() {
                 tr.done = true
                 refreshSuggestionsSoon()
@@ -1800,6 +1917,11 @@ final class KeyboardCanvas: UIView {
     }
 
     private func typeText(_ text: String) {
+        // Après un mot écrit en glissant, la lettre suivante commence un nouveau mot : l'espace d'abord.
+        if let g = glidedWord {
+            glidedWord = nil
+            if let c = text.first, c.isLetter || c.isNumber, (input?.kbTextBefore() ?? "").hasSuffix(g) { input?.kbInsert(" ") }
+        }
         if accentKey(text) {
             lastCorrection = nil
             refreshSuggestionsSoon()
@@ -1945,6 +2067,7 @@ final class KeyboardCanvas: UIView {
             suggestQueue.async { [bgSuggest] in bgSuggest.learn(w1) }
         }
         for _ in 0..<word.count { input?.kbDelete() }
+        glidedWord = nil
         input?.kbInsert(item + " ")
         lastCorrection = nil
         wordTouches.removeAll()

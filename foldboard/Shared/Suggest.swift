@@ -142,6 +142,105 @@ final class KBSuggest {
         }
     }
 
+    // MARK: Écrire en glissant (comme le clavier d'Apple)
+    //
+    // Le doigt trace un chemin sur les lettres. Pour chaque mot qui commence près du début du tracé et finit près
+    // de la fin, on dessine le chemin « idéal » (de centre de touche en centre de touche) et on le compare au
+    // tracé, point par point. Le plus proche gagne, avec un coup de pouce pour les mots courants et ceux qui
+    // collent à la phrase (modèle de langue).
+
+    private static func resample(_ pts: [CGPoint], _ n: Int) -> [CGPoint] {
+        guard pts.count > 1 else { return Array(repeating: pts.first ?? .zero, count: n) }
+        var total: CGFloat = 0
+        for i in 1..<pts.count { total += hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y) }
+        guard total > 0 else { return Array(repeating: pts[0], count: n) }
+        let step = total / CGFloat(n - 1)
+        var out = [pts[0]]
+        var acc: CGFloat = 0
+        var prev = pts[0]
+        var i = 1
+        while i < pts.count && out.count < n {
+            let cur = pts[i]
+            let d = hypot(cur.x - prev.x, cur.y - prev.y)
+            if acc + d >= step && d > 0 {
+                let t = (step - acc) / d
+                let q = CGPoint(x: prev.x + t * (cur.x - prev.x), y: prev.y + t * (cur.y - prev.y))
+                out.append(q)
+                prev = q
+                acc = 0
+            } else {
+                acc += d
+                prev = cur
+                i += 1
+            }
+        }
+        while out.count < n { out.append(pts.last!) }
+        return out
+    }
+
+    /// Les mots qu'on a probablement tracés, du plus probable au moins probable.
+    func glide(_ path: [CGPoint], touch: KBTouchModel, before: String, limit: Int = 4) -> [String] {
+        guard path.count >= 2, !words.isEmpty else { return [] }
+        let kw = touch.keyW, kh = touch.keyH
+        func center(_ c: Character) -> CGPoint? {
+            let base = Character(String(c).folding(options: .diacriticInsensitive, locale: nil))
+            guard let cs = touch.centers[base] ?? touch.centers[c] else { return nil }
+            return cs.min { hypot($0.x - path[0].x, $0.y - path[0].y) < hypot($1.x - path[0].x, $1.y - path[0].y) }
+        }
+        func near(_ c: Character, _ p: CGPoint, _ r: CGFloat) -> Bool {
+            guard let k = center(c) else { return false }
+            return hypot((k.x - p.x) / kw, (k.y - p.y) / kh) < r
+        }
+        // Les lettres que le tracé a survolées, dans l'ordre (pour écarter vite les mots impossibles).
+        var passed: [Character] = []
+        for p in path {
+            var best: (Character, CGFloat)?
+            for (k, cs) in touch.centers {
+                for c in cs {
+                    let d = hypot((c.x - p.x) / kw, (c.y - p.y) / kh)
+                    if d < 0.75, best == nil || d < best!.1 { best = (k, d) }
+                }
+            }
+            if let b = best, passed.last != b.0 { passed.append(b.0) }
+        }
+        let user = Self.resample(path, 32)
+        let start = path[0], end = path[path.count - 1]
+        var firsts: Set<String> = []
+        for (k, _) in touch.centers where near(k, start, 1.05) { firsts.insert(String(k)) }
+        var scored: [(String, Double)] = []
+        for f0 in firsts {
+            for i in (byFirst[f0] ?? []).prefix(25_000) {
+                let w = folded[i]
+                guard w.count >= 2, w.count <= 18, let last = w.last, near(last, end, 1.1) else { continue }
+                // Chaque lettre du mot (sans les doubles) doit être survolée, dans l'ordre ; on tolère une voisine.
+                var j = 0, misses = 0
+                var prevC: Character?
+                for c in w where c != prevC {
+                    prevC = c
+                    if let k = passed[j...].firstIndex(of: c) { j = k } else { misses += 1 }
+                    if misses > 1 { break }
+                }
+                guard misses <= 1 else { continue }
+                var ideal: [CGPoint] = []
+                var ok = true
+                for c in w { if let k = center(c) { if ideal.last != k { ideal.append(k) } } else { ok = false; break } }
+                guard ok else { continue }
+                let tpl = Self.resample(ideal.count == 1 ? [ideal[0], ideal[0]] : ideal, 32)
+                var dist: CGFloat = 0
+                for k in 0..<32 { dist += hypot((tpl[k].x - user[k].x) / kw, (tpl[k].y - user[k].y) / kh) }
+                dist /= 32
+                guard dist < 1.0 else { continue }
+                let prior = lm?.score(words[i], before: before) ?? -log(Double(i) + 30)
+                let mine = log(1 + Double(KBWordStore.shared.count(w))) * 0.5
+                scored.append((words[i], -Double(dist) * 9 + prior + mine - Double(misses) * 1.5))
+            }
+        }
+        scored.sort { $0.1 > $1.1 }
+        var out: [String] = []
+        for (w, _) in scored where !out.contains(w) { out.append(w); if out.count == limit { break } }
+        return out
+    }
+
     /// Les mots courants qui commencent comme `word` (sans tenir compte des accents), du plus fréquent au moins fréquent.
     private func listCompletions(_ word: String, limit: Int) -> [String] {
         let key = word.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)

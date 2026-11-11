@@ -137,6 +137,8 @@ struct KBSettings: Codable, Equatable {
     var phrases: [String] = []
     var autoCaps = true
     var autocorrect = true
+    /// Écrire en glissant le doigt de lettre en lettre (comme le clavier d'Apple).
+    var glide = true
     var suggestions = true
     var doubleSpacePeriod = true
     /// Modifié le (pour garder la copie la plus récente entre l'app et le clavier).
@@ -197,6 +199,7 @@ struct KBSettings: Codable, Equatable {
         if phrases == KBSettings.defaultPhrases || phrases == KBSettings.legacyPhrasesEN || phrases == KBSettings.legacyPhrasesFR { phrases = [] }
         autoCaps = (try? c.decodeIfPresent(Bool.self, forKey: .autoCaps)) ?? d.autoCaps
         autocorrect = (try? c.decodeIfPresent(Bool.self, forKey: .autocorrect)) ?? d.autocorrect
+        glide = (try? c.decodeIfPresent(Bool.self, forKey: .glide)) ?? d.glide
         suggestions = (try? c.decodeIfPresent(Bool.self, forKey: .suggestions)) ?? d.suggestions
         doubleSpacePeriod = (try? c.decodeIfPresent(Bool.self, forKey: .doubleSpacePeriod)) ?? d.doubleSpacePeriod
         stamp = (try? c.decodeIfPresent(Date.self, forKey: .stamp)) ?? d.stamp
