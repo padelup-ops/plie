@@ -1505,7 +1505,7 @@ final class KeyboardCanvas: UIView {
             }
             // Un balayage vertical du pouce n'écrit rien : il dit quelle main tape (arc du pouce).
             let ddx = p.x - tr.start.x, ddy = p.y - tr.start.y
-            if !tr.swipe && !tr.cursorMode && tr.accents.isEmpty && abs(ddy) > 44 && abs(ddy) > abs(ddx) * 1.4 {
+            if k != .space && !tr.swipe && !tr.cursorMode && tr.accents.isEmpty && abs(ddy) > 44 && abs(ddy) > abs(ddx) * 1.4 {
                 tr.swipe = true
                 tr.longTimer?.invalidate()
                 hideBubble()
@@ -1516,7 +1516,8 @@ final class KeyboardCanvas: UIView {
                 // Déplacer le curseur : glisser franchement, ou après avoir gardé le doigt posé (comme chez Apple).
                 // Un petit glissement du pouce pendant la frappe ne retire plus l'espace.
                 let held = t.timestamp - tr.t0 > 0.35
-                if !tr.cursorMode && (abs(dx) > 40 || (held && abs(dx) > 12)) {
+                let dy = p.y - tr.start.y
+                if !tr.cursorMode && (abs(dx) > 40 || abs(dy) > 34 || (held && (abs(dx) > 12 || abs(dy) > 12))) {
                     enterTrackpad(tr, at: p)
                 }
                 if tr.cursorMode {
@@ -1532,7 +1533,7 @@ final class KeyboardCanvas: UIView {
                     // Comme chez Apple : monter ou descendre d'une ligne en glissant vers le haut ou le bas.
                     tr.cursorAccumY += p.y - tr.lastY
                     tr.lastY = p.y
-                    let lineStep: CGFloat = 30
+                    let lineStep: CGFloat = 22
                     while abs(tr.cursorAccumY) >= lineStep {
                         let down = tr.cursorAccumY > 0
                         moveLine(down: down)
@@ -1702,23 +1703,33 @@ final class KeyboardCanvas: UIView {
 
     /// Une ligne plus haut ou plus bas, à la même colonne quand le texte a des retours à la ligne.
     private func moveLine(down: Bool) {
+        // iOS ne dit pas aux claviers où passent les lignes à l'écran : on suit les retours à la ligne, et
+        // dans un long paragraphe on estime une ligne d'après la largeur de l'écran (environ un caractère tous les 8,5 pt).
+        let perLine = max(24, Int(UIScreen.main.bounds.width / 8.5))
         let before = input?.kbTextBefore() ?? ""
         let lines = before.components(separatedBy: "\n")
         let col = lines.last?.count ?? 0
         if !down {
-            if lines.count >= 2 {
+            if col >= perLine {
+                input?.kbMoveCursor(-perLine)
+            } else if lines.count >= 2 {
                 let prevLen = lines[lines.count - 2].count
-                input?.kbMoveCursor(-(col + 1 + max(0, prevLen - col)))
+                // Même colonne sur la dernière ligne visuelle du paragraphe d'avant.
+                let lastVisual = prevLen % perLine
+                input?.kbMoveCursor(-(col + 1 + max(0, lastVisual - col)))
             } else {
-                input?.kbMoveCursor(-min(before.count, 32))
+                input?.kbMoveCursor(-min(before.count, perLine))
             }
         } else {
             let after = input?.kbTextAfter() ?? ""
             let parts = after.components(separatedBy: "\n")
-            if parts.count >= 2 {
-                input?.kbMoveCursor(parts[0].count + 1 + min(col, parts[1].count))
+            let rest = parts[0].count
+            if rest >= perLine {
+                input?.kbMoveCursor(perLine)
+            } else if parts.count >= 2 {
+                input?.kbMoveCursor(rest + 1 + min(col % perLine, parts[1].count))
             } else {
-                input?.kbMoveCursor(min(after.count, 32))
+                input?.kbMoveCursor(rest)
             }
         }
     }
