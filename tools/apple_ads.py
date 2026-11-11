@@ -68,6 +68,19 @@ elif MODE == "create":
             neg = [{"text": k, "matchType": "EXACT"} for k in g.get("negatives", [])]
             if neg: print("    négatifs", (lambda x: "ÉCHEC " + str(x)[:300] if isinstance(x, dict) and x.get("error") else "ok")(call("POST", f"/campaigns/{cid}/adgroups/{gid}/negativekeywords/bulk", neg)))
 
+elif MODE == "budget":
+    # BUDGETS="Foldly – Marque=3;Foldly – Découverte=1" : nouveau budget par jour de chaque campagne.
+    for part in os.environ.get("BUDGETS", "").split(";"):
+        if "=" not in part:
+            continue
+        name, amount = part.rsplit("=", 1)
+        c = by_name.get(name.strip())
+        if not c:
+            print("ÉCHEC campagne introuvable", name)
+            continue
+        r = call("PUT", f"/campaigns/{c['id']}", {"campaign": {"dailyBudgetAmount": {"amount": amount.strip(), "currency": CUR}}})
+        print("budget", name.strip(), "→", amount.strip(), "€/jour", "ÉCHEC " + str(r)[:300] if r.get("error") else "ok")
+
 elif MODE == "tune":
     # 11 nov. : Découverte ne gagnait aucune enchère, et les mots-clés Duo sont peu cherchés.
     disc = by_name.get("Foldly – Découverte")
@@ -97,7 +110,7 @@ elif MODE in ("pause", "resume"):
         r = call("PUT", f"/campaigns/{c['id']}", {"campaign": {"status": "PAUSED" if MODE == "pause" else "ENABLED"}})
         print(c["name"], "ÉCHEC" if r.get("error") else MODE)
 
-if MODE in ("report", "create", "probe", "tune") and camps:
+if MODE in ("report", "create", "probe", "tune", "budget") and camps:
     days = int(os.environ.get("DAYS", "7"))
     end = datetime.date.today(); start = end - datetime.timedelta(days=days - 1)
     r = call("POST", "/reports/campaigns", {"startTime": str(start), "endTime": str(end), "granularity": None,

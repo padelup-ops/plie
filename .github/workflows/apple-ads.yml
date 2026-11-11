@@ -11,6 +11,10 @@ on:
         description: "Période du rapport (jours)"
         required: false
         default: "7"
+      budgets:
+        description: "Mode budget : Nom=montant;Nom=montant"
+        required: false
+        default: ""
 jobs:
   ads:
     runs-on: ubuntu-latest
@@ -19,6 +23,7 @@ jobs:
       APPLE_ADS_CLIENT_SECRET: ${{ secrets.APPLE_ADS_CLIENT_SECRET }}
       MODE: ${{ inputs.mode }}
       DAYS: ${{ inputs.days }}
+      BUDGETS: ${{ inputs.budgets }}
     steps:
       - uses: actions/checkout@v5
       - run: python3 tools/apple_ads.py
