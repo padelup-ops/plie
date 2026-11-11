@@ -7,6 +7,8 @@ final class KBSuggest {
     private var known = Set<String>()
     private var replacements: [String: String] = [:]
     var language = "en_US"
+    /// Les rangées de lettres du clavier : une faute de frappe, c'est une touche voisine, pas n'importe quelle lettre.
+    private var rows: [String] = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
 
     /// Les 30 000 mots les plus courants (du plus fréquent au moins fréquent), pour compléter et classer.
     /// Liste : FrequencyWords (Hermit Dave), contenu sous licence CC BY-SA 4.0.
@@ -62,6 +64,13 @@ final class KBSuggest {
         case .spanish: want = "es_ES"
         case .swedish: want = "sv_SE"
         case .qwerty: want = "en_US"
+        }
+        switch layout {
+        case .azerty: rows = ["azertyuiop", "qsdfghjklm", "wxcvbn"]
+        case .qwertz: rows = ["qwertzuiopü", "asdfghjklöä", "yxcvbnm"]
+        case .spanish: rows = ["qwertyuiop", "asdfghjklñ", "zxcvbnm"]
+        case .swedish: rows = ["qwertyuiopå", "asdfghjklöä", "zxcvbnm"]
+        case .qwerty: rows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
         }
         let available = UITextChecker.availableLanguages
         if available.contains(want) {
@@ -159,14 +168,51 @@ final class KBSuggest {
         // Prudente, comme le clavier d'Apple : on ne remplace que par un mot courant, presque identique
         // (une faute de frappe, deux pour un mot long), qui commence par la même lettre. Sinon, la barre propose.
         if word.contains(where: { $0.isNumber || $0 == "@" || $0 == "." || $0 == "/" }) { return nil }
+        // Les mots en majuscules (sigles) ne sont jamais remplacés.
+        if word.count > 1, word == word.uppercased() { return nil }
         let allowed = word.count >= 7 ? 2 : 1
         let best = guesses.first { g in
             let gl = g.lowercased()
             guard !g.contains(" "), !g.contains("-"), gl.first == lower.first else { return false }
-            guard let r = rank[gl], r < 20_000 else { return false }
-            return Self.distance(gl, lower) <= allowed
+            guard let r = rank[gl], r < 15_000 else { return false }
+            return typoDistance(gl, lower) <= allowed
         }
         return best.map { matchCase($0, like: word) }
+    }
+
+    private func position(_ c: Character) -> (Int, Int)? {
+        for (r, row) in rows.enumerated() {
+            if let i = row.firstIndex(of: c) { return (r, row.distance(from: row.startIndex, to: i)) }
+        }
+        return nil
+    }
+
+    /// Deux touches voisines sur le clavier (même rangée, ou rangée d'à côté, décalée d'au plus une touche).
+    private func neighbors(_ a: Character, _ b: Character) -> Bool {
+        let fa = Character(String(a).folding(options: .diacriticInsensitive, locale: nil))
+        let fb = Character(String(b).folding(options: .diacriticInsensitive, locale: nil))
+        if fa == fb { return true }   // seul l'accent change
+        guard let pa = position(fa), let pb = position(fb) else { return false }
+        return abs(pa.0 - pb.0) <= 1 && abs(pa.1 - pb.1) <= 1
+    }
+
+    /// Comme `distance`, mais remplacer une lettre par une touche qui n'est pas voisine coûte 2 :
+    /// « teh » → « the » ou « hrllo » → « hello » passent, « bat » → « cat » non (ce n'est pas une faute de frappe).
+    func typoDistance(_ a: String, _ b: String) -> Int {
+        let x = Array(a), y = Array(b)
+        if x.isEmpty { return y.count }
+        if y.isEmpty { return x.count }
+        var d = Array(repeating: Array(repeating: 0, count: y.count + 1), count: x.count + 1)
+        for i in 0...x.count { d[i][0] = i }
+        for j in 0...y.count { d[0][j] = j }
+        for i in 1...x.count {
+            for j in 1...y.count {
+                let cost = x[i - 1] == y[j - 1] ? 0 : (neighbors(x[i - 1], y[j - 1]) ? 1 : 2)
+                d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost)
+                if i > 1, j > 1, x[i - 1] == y[j - 2], x[i - 2] == y[j - 1] { d[i][j] = min(d[i][j], d[i - 2][j - 2] + 1) }
+            }
+        }
+        return d[x.count][y.count]
     }
 
     /// Le nombre de lettres à changer pour passer d'un mot à l'autre (deux lettres inversées comptent pour une).
