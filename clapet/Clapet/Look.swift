@@ -10,7 +10,7 @@ import UIKit
 // Choisi au premier lancement, modifiable dans les Réglages.
 
 enum DFLook: String, CaseIterable, Identifiable {
-    case classic, night, minimal, aurora, custom
+    case classic, night, minimal, aurora, custom, bento
 
     /// Les looks sombres (Moderne et Aurore) partagent la mise en page du Moderne.
     var isDark: Bool { self == .night || self == .aurora || (self == .custom && CustomTheme.isDark) }
@@ -37,6 +37,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .minimal: return Text("Minimal")
         case .aurora: return Text("Aurora")
         case .custom: return Text("My theme")
+        case .bento: return Text(verbatim: "Bento (test)")
         }
     }
 
@@ -47,6 +48,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .minimal: return Text("Just your numbers, nothing else")
         case .aurora: return Text("Northern lights that move with your hinge, with Foldly+")
         case .custom: return Text("Your own colors, with Foldly+")
+        case .bento: return Text(verbatim: "A grid of living cards")
         }
     }
 }
@@ -57,38 +59,45 @@ extension Color {
     private static var minimal: Bool { DFLook.current == .minimal }
     private static var aurora: Bool { DFLook.current == .aurora }
     private static var custom: Bool { DFLook.current == .custom }
+    private static var bento: Bool { DFLook.current == .bento }
 
     static var dfAccent: Color {
+        if bento { return Bento.accent }
         if minimal { return Color.primary }
         if aurora { return Aurora.accent }
         if custom { return CustomTheme.accent }
         return night ? Color(red: 0.36, green: 0.89, blue: 0.78) : Color.accentColor
     }
     static var dfBackground: Color {
+        if bento { return Bento.bg }
         if minimal { return Color(uiColor: .systemBackground) }
         if aurora { return Aurora.night }
         if custom { return CustomTheme.solid }
         return night ? Color(red: 0.055, green: 0.078, blue: 0.078) : Color(uiColor: .systemGroupedBackground)
     }
     static var dfCard: Color {
+        if bento { return Bento.card }
         if minimal { return Color(uiColor: .secondarySystemBackground) }
         if aurora { return Color.white.opacity(0.075) }
         if custom { return CustomTheme.card }
         return night ? Color(red: 0.135, green: 0.16, blue: 0.157) : Color(uiColor: .secondarySystemGroupedBackground)
     }
     static var dfFill: Color {
+        if bento { return Bento.tray }
         if minimal { return Color.primary.opacity(0.08) }
         if aurora { return Color.white.opacity(0.09) }
         if custom { return CustomTheme.card }
         return night ? Color.white.opacity(0.08) : Color(uiColor: .tertiarySystemFill)
     }
     static var dfOutline: Color {
+        if bento { return Bento.line }
         if minimal { return Color.primary.opacity(0.14) }
         if aurora { return Color.white.opacity(0.16) }
         if custom { return Color.primary.opacity(0.16) }
         return night ? Color.white.opacity(0.17) : Color(uiColor: .separator)
     }
     static var dfBar: Color {
+        if bento { return Bento.accent.opacity(0.35) }
         if minimal { return Color.primary.opacity(0.22) }
         if aurora { return Aurora.violet.opacity(0.55) }
         if custom { return CustomTheme.accent.opacity(0.45) }
@@ -98,6 +107,7 @@ extension Color {
     static var dfOver: Color { night || aurora || custom ? Color(red: 1.0, green: 0.45, blue: 0.42) : Color.red }
     /// Le texte posé sur la couleur d'accent (boutons pleins).
     static var dfOnAccent: Color {
+        if bento { return .white }
         if minimal { return Color(uiColor: .systemBackground) }
         if aurora { return Aurora.night }
         if custom { return CustomTheme.accent.luminance > 0.6 ? Color.black : Color.white }
@@ -139,6 +149,7 @@ struct ContentView: View {
                     case .classic: ClassicHomeView()
                     case .night, .aurora, .custom: NightHomeView()
                     case .minimal: MinimalHomeView()
+                    case .bento: BentoHomeView()
                     }
                 }
                 // Petit écran extérieur : l'essentiel par-dessus (la vue d'accueil reste dessous).
@@ -308,7 +319,7 @@ struct LookChoice: View {
     var body: some View {
         let current = DFLook(rawValue: lookRaw) ?? .classic
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 12)], spacing: 12) {
-            ForEach(DFLook.allCases.filter { !$0.needsPlus }) { look in
+            ForEach(DFLook.allCases.filter { !$0.needsPlus && $0 != .bento }) { look in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { lookRaw = look.rawValue }
                 } label: {

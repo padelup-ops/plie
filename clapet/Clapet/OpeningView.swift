@@ -132,6 +132,7 @@ struct OpeningView: View {
     private var trackColor: Color {
         switch look {
         case .minimal: return Color.primary.opacity(0.1)
+        case .bento: return Bento.tray
         case .night, .aurora: return Color.white.opacity(0.1)
         case .custom: return Color.primary.opacity(0.1)
         case .classic: return Color(uiColor: .tertiarySystemFill)
@@ -141,6 +142,7 @@ struct OpeningView: View {
     private var ringColors: [Color] {
         switch look {
         case .minimal: return [Color.primary, Color.primary]
+        case .bento: return [Bento.accent.opacity(0.7), Bento.accent]
         case .night: return [Color(red: 0.43, green: 0.84, blue: 0.65), Color(red: 0.36, green: 0.89, blue: 0.85)]
         case .aurora: return [Aurora.mint, Aurora.violet, Aurora.pink]
         case .custom: return [CustomTheme.accent.opacity(0.7), CustomTheme.accent]
@@ -150,7 +152,7 @@ struct OpeningView: View {
 
     private var numberFont: Font {
         switch look {
-        case .minimal, .night, .aurora, .custom: return .system(size: 60, weight: .light).monospacedDigit()
+        case .minimal, .night, .aurora, .custom, .bento: return .system(size: 60, weight: .light).monospacedDigit()
         case .classic: return .system(size: 56, weight: .bold, design: .rounded).monospacedDigit()
         }
     }

@@ -19,6 +19,9 @@ struct ShareCardPalette {
             return .init(top: Color(red: 0.97, green: 0.98, blue: 0.98), bottom: Color(red: 0.86, green: 0.94, blue: 0.92),
                          accent: Color(red: 0.2, green: 0.62, blue: 0.55), bar: Color(red: 0.2, green: 0.62, blue: 0.55).opacity(0.35),
                          ink: Color(red: 0.08, green: 0.1, blue: 0.1), over: Color(red: 0.86, green: 0.25, blue: 0.22))
+        case .bento:
+            return .init(top: Bento.bg, bottom: Bento.tray, accent: Bento.accent, bar: Bento.accent.opacity(0.35), ink: Bento.ink,
+                         over: Color(red: 0.86, green: 0.25, blue: 0.22))
         case .minimal:
             return .init(top: .white, bottom: Color(white: 0.95), accent: .black, bar: Color.black.opacity(0.18), ink: .black,
                          over: Color(red: 0.86, green: 0.25, blue: 0.22))

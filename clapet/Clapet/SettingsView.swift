@@ -113,7 +113,8 @@ struct SettingsView: View {
                                               set: { raw in
                                                   if (DFLook(rawValue: raw)?.needsPlus ?? false) && !store.hasPlus { showPlus = true } else { lookRaw = raw }
                                               })) {
-                        ForEach(DFLook.allCases) { look in
+                        // Bento : thème à l'essai, seulement dans les versions de test (ou s'il est déjà choisi).
+                        ForEach(DFLook.allCases.filter { $0 != .bento || store.isTestBuild || DFLook.resolved(lookRaw) == .bento }) { look in
                             if look == .custom && !store.hasPlus {
                                 Text("My theme (Foldly+)").tag(look.rawValue)
                             } else if look == .aurora && !store.hasPlus {
