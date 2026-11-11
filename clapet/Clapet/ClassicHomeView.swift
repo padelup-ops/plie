@@ -64,6 +64,7 @@ struct ClassicHomeView: View {
     @State private var promoHidden = false
     @State private var surveyHidden = false
     @State private var restPromoHidden = false
+    @State private var foldboardPromoHidden = false
     @State private var nudgeHidden = false
     @State private var giftHidden = false
     @State private var importHidden = false
@@ -129,6 +130,14 @@ struct ClassicHomeView: View {
                         }
                     }
                     closedTime
+                    if !foldboardPromoHidden && FoldboardPromoRule.shouldShow {
+                        ClassicCard {
+                            FoldboardPromo { openURL(FoldboardPromoRule.url) } onHide: {
+                                FoldboardPromoRule.hide()
+                                withAnimation { foldboardPromoHidden = true }
+                            }
+                        }
+                    }
                     if !restPromoHidden && RestPromoRule.shouldShow {
                         ClassicCard {
                             RestPromo { RestPromoRule.hide(); restPromoHidden = true; showSettings = true } onHide: {

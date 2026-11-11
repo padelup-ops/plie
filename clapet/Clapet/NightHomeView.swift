@@ -51,6 +51,7 @@ struct NightHomeView: View {
     @Environment(ClapetStore.self) private var store
     @State private var showSettings = false
     @State private var restPromoHidden = false
+    @State private var foldboardPromoHidden = false
     @State private var showBoards = false
     @State private var showHistory = false
     @Environment(\.scenePhase) private var scenePhase
@@ -392,6 +393,14 @@ struct NightHomeView: View {
                     PlusNudgeCard(stats: model.stats) { plusReason = .menu } onHide: {
                         PlusNudgeRule.hide()
                         withAnimation { nudgeHidden = true }
+                    }
+                }
+            }
+            if !foldboardPromoHidden && FoldboardPromoRule.shouldShow {
+                Card(filled: true) {
+                    FoldboardPromo { openURL(FoldboardPromoRule.url) } onHide: {
+                        FoldboardPromoRule.hide()
+                        withAnimation { foldboardPromoHidden = true }
                     }
                 }
             }

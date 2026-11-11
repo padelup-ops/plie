@@ -745,3 +745,12 @@
 
 /* Repos non compté */
 "Not counted: %@ at rest today" = "未计入：今天静置 %@";
+
+/* 1.0.17 */
+"New: Foldboard" = "新品：Foldboard";
+"Our keyboard for the Duo: it comes under the thumb of the hand holding your phone, and learns how you hold it." = "我们为 Duo 打造的键盘：出现在握持手机那只手的拇指下方，并学习你的握持方式。";
+"Launch price until November 18" = "首发价至 11 月 18 日";
+"See Foldboard" = "查看 Foldboard";
+"The keyboard that comes under your thumb" = "来到拇指下方的键盘";
+"While you're awake (%@–%@)" = "清醒时段（%@–%@）";
+"Open %@ · closed %@" = "展开 %@ · 合上 %@";

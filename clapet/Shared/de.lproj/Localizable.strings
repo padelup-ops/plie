@@ -745,3 +745,12 @@
 
 /* Repos non compté */
 "Not counted: %@ at rest today" = "Nicht gezählt: %@ heute im Ruhemodus";
+
+/* 1.0.17 */
+"New: Foldboard" = "Neu: Foldboard";
+"Our keyboard for the Duo: it comes under the thumb of the hand holding your phone, and learns how you hold it." = "Unsere Tastatur für das Duo: Sie kommt unter den Daumen der Hand, die das Handy hält, und lernt, wie du es hältst.";
+"Launch price until November 18" = "Einführungspreis bis 18. November";
+"See Foldboard" = "Foldboard ansehen";
+"The keyboard that comes under your thumb" = "Die Tastatur, die unter deinen Daumen kommt";
+"While you're awake (%@–%@)" = "Wenn du wach bist (%@–%@)";
+"Open %@ · closed %@" = "Offen %@ · zu %@";

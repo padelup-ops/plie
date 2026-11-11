@@ -26,6 +26,7 @@ struct MinimalHomeView: View {
     @State private var showHours = false
     @State private var surveyHidden = false
     @State private var restPromoHidden = false
+    @State private var foldboardPromoHidden = false
     @State private var nudgeHidden = false
     @State private var importHidden = false
     @State private var updateHidden = false
@@ -331,6 +332,9 @@ struct MinimalHomeView: View {
                 notice(Text("Gift: Foldly+ at its lowest price until Nov 16")) { openURL(GiftOffer.redeemURL) }
             } else if !nudgeHidden && PlusNudgeRule.shouldShowCard(s, hasPlus: store.hasPlus) {
                 notice(Text("Unlock your trends")) { plusReason = .menu }
+            }
+            if !foldboardPromoHidden && FoldboardPromoRule.shouldShow {
+                notice(Text("New: Foldboard")) { FoldboardPromoRule.hide(); foldboardPromoHidden = true; openURL(FoldboardPromoRule.url) }
             }
             if !restPromoHidden && RestPromoRule.shouldShow {
                 notice(Text("New: time at rest")) { RestPromoRule.hide(); restPromoHidden = true; showSettings = true }

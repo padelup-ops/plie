@@ -54,6 +54,9 @@ struct ClosedTimeContent: View {
                     }
                 }
                 .font(.footnote)
+                if stats.autoLast != nil, let a = stats.awakeSplit(now: now) {
+                    awake(a, window: stats.awakeWindow(now: now))
+                }
                 if stats.autoLast == nil {
                     Text("Needs the two Shortcuts automations (Closed and Opened) to measure the time your phone stays closed.")
                         .font(.caption)
@@ -62,6 +65,29 @@ struct ClosedTimeContent: View {
                 }
             }
         }
+    }
+
+    /// Pendant les heures d'éveil : la vraie part ouvert / fermé, sans la nuit.
+    private func awake(_ a: (open: TimeInterval, closed: TimeInterval), window: (start: Date, end: Date)) -> some View {
+        let total = a.open + a.closed
+        let share = total > 0 ? a.open / total : 0
+        let f = Date.FormatStyle().hour(.defaultDigits(amPM: .abbreviated))
+        return VStack(alignment: .leading, spacing: 6) {
+            Text("While you're awake (\(window.start.formatted(f))–\(window.end.formatted(f)))")
+                .font(.footnote.weight(.semibold))
+            GeometryReader { g in
+                HStack(spacing: 3) {
+                    Capsule().fill(Color.dfAccent.opacity(0.55)).frame(width: max(6, (g.size.width - 3) * share))
+                    Capsule().fill(Color.dfFill)
+                }
+            }
+            .frame(height: 6)
+            .accessibilityHidden(true)
+            Text("Open \(TimeFormat.short(a.open)) · closed \(TimeFormat.short(a.closed))")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.top, 2)
     }
 
     private func legend(share: Double, open: TimeInterval) -> some View {

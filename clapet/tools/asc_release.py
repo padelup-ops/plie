@@ -268,6 +268,19 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.17": {
+        "en-US": "• Open vs closed while you're awake: the Time closed card now also shows your open and closed time during your waking hours only, so nights no longer weigh on it. Thanks for the idea!\n• Only use the “Opened” automation? Foldly now also counts the fold before each opening.\n• New from us: Foldboard, the keyboard for your Duo.",
+        "fr-FR": "• Ouvert et fermé quand tu es éveillé : la carte Temps fermé montre aussi ton temps ouvert et fermé pendant tes heures d'éveil seulement, la nuit ne pèse plus. Merci pour l'idée !\n• Tu n'utilises que l'automatisation « Ouvert » ? Foldly compte maintenant aussi le pli avant chaque ouverture.\n• Nouveau chez nous : Foldboard, le clavier pour ton Duo.",
+        "de-DE": "• Offen und zu, während du wach bist: Die Karte „Zeit zugeklappt“ zeigt jetzt auch nur deine Wachstunden, die Nacht zählt nicht mehr mit.\n• Nur die Automation „Geöffnet“? Foldly zählt jetzt auch das Zuklappen vor jedem Öffnen.\n• Neu von uns: Foldboard, die Tastatur für dein Duo.",
+        "es-ES": "• Abierto y cerrado mientras estás despierto: la tarjeta Tiempo cerrado muestra ahora solo tus horas de vigilia, la noche ya no pesa.\n• ¿Solo usas la automatización «Abierto»? Foldly cuenta también el cierre anterior a cada apertura.\n• Nuevo: Foldboard, el teclado para tu Duo.",
+        "ja": "• 起きている時間の開閉：「閉じた時間」カードに起きている時間だけの開閉時間を表示。夜の時間が影響しなくなりました。\n• 「開いたとき」のオートメーションだけでも、開く前の折りたたみを数えます。\n• 新登場：Duo のためのキーボード Foldboard。",
+        "ko": "• 깨어 있는 동안의 열림/닫힘: ‘닫힌 시간’ 카드에 깨어 있는 시간만의 열림·닫힘 시간이 표시돼요. 밤 시간은 더 이상 반영되지 않아요.\n• ‘열렸을 때’ 자동화만 써도 열기 전의 접기를 셉니다.\n• 새로운 앱: Duo를 위한 키보드 Foldboard.",
+        "zh-Hans": "• 清醒时段的展开与合上：“合上时间”卡片现在也显示仅在清醒时段的展开和合上时间，夜晚不再影响统计。\n• 只用“打开时”自动化？Foldly 也会统计每次打开前的合上。\n• 新品：Foldboard，为你的 Duo 打造的键盘。",
+        "it": "• Aperto e chiuso mentre sei sveglio: la scheda Tempo chiuso mostra ora anche solo le ore di veglia, la notte non pesa più.\n• Usi solo l'automazione “Aperto”? Foldly conta anche la chiusura prima di ogni apertura. Grazie Marco!\n• Novità: Foldboard, la tastiera per il tuo Duo.",
+        "pt-BR": "• Aberto e fechado enquanto você está acordado: o cartão Tempo fechado agora mostra só as suas horas acordado, a noite não pesa mais.\n• Usa só a automação “Aberto”? O Foldly também conta o fechamento antes de cada abertura.\n• Novo: Foldboard, o teclado para o seu Duo.",
+        "nl-NL": "• Open en dicht terwijl je wakker bent: de kaart Tijd dicht toont nu ook alleen je wakkere uren, de nacht telt niet meer mee.\n• Alleen de automatisering “Geopend”? Foldly telt nu ook het dichtklappen vóór elke keer openen.\n• Nieuw: Foldboard, het toetsenbord voor je Duo.",
+        "ru": "• Открыт и закрыт, пока вы не спите: карточка «Время в закрытом виде» теперь показывает и только часы бодрствования — ночь больше не искажает данные.\n• Только автоматизация «Открыт»? Foldly считает и закрытие перед каждым открытием.\n• Новинка: Foldboard — клавиатура для вашего Duo.",
+    },
     "1.0.16": {
         "en-US": "• Only use the “Opened” automation? Foldly now also counts the fold that came before each opening.\n• Small fixes and improvements.",
         "fr-FR": "• Tu n'utilises que l'automatisation « Ouvert » ? Foldly compte maintenant aussi le pli qui précède chaque ouverture.\n• Petites corrections et améliorations.",
@@ -413,7 +426,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     # Les numéros de version se recoupent entre les apps : chaque app a ses propres notes quand il le faut.
@@ -463,7 +476,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})

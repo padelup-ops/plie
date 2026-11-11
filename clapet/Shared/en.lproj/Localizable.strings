@@ -745,3 +745,12 @@
 
 /* Repos non compté */
 "Not counted: %@ at rest today" = "Not counted: %@ at rest today";
+
+/* 1.0.17 */
+"New: Foldboard" = "New: Foldboard";
+"Our keyboard for the Duo: it comes under the thumb of the hand holding your phone, and learns how you hold it." = "Our keyboard for the Duo: it comes under the thumb of the hand holding your phone, and learns how you hold it.";
+"Launch price until November 18" = "Launch price until November 18";
+"See Foldboard" = "See Foldboard";
+"The keyboard that comes under your thumb" = "The keyboard that comes under your thumb";
+"While you're awake (%@–%@)" = "While you're awake (%@–%@)";
+"Open %@ · closed %@" = "Open %@ · closed %@";

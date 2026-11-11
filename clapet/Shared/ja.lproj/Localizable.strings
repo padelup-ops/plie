@@ -745,3 +745,12 @@
 
 /* Repos non compté */
 "Not counted: %@ at rest today" = "カウント外：今日の休止中は%@";
+
+/* 1.0.17 */
+"New: Foldboard" = "新登場：Foldboard";
+"Our keyboard for the Duo: it comes under the thumb of the hand holding your phone, and learns how you hold it." = "Duo のためのキーボード。持っている手の親指の下に現れ、持ち方を覚えます。";
+"Launch price until November 18" = "11月18日までリリース記念価格";
+"See Foldboard" = "Foldboard を見る";
+"The keyboard that comes under your thumb" = "親指の下に来るキーボード";
+"While you're awake (%@–%@)" = "起きている時間（%@〜%@）";
+"Open %@ · closed %@" = "開いた時間 %@ · 閉じた時間 %@";

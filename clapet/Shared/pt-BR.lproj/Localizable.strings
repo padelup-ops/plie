@@ -728,3 +728,12 @@
 "Open, but at rest" = "Aberto, mas em repouso";
 "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "Defina as suas horas de repouso nos Ajustes: o tempo aberto passa a contar como repouso. Você também pode adicionar os dois atalhos do foco Sono.";
 "Not counted: %@ at rest today" = "Não contado: %@ em repouso hoje";
+
+/* 1.0.17 */
+"New: Foldboard" = "Novo: Foldboard";
+"Our keyboard for the Duo: it comes under the thumb of the hand holding your phone, and learns how you hold it." = "Nosso teclado para o Duo: ele vem para baixo do polegar da mão que segura o celular e aprende como você o segura.";
+"Launch price until November 18" = "Preço de lançamento até 18 de novembro";
+"See Foldboard" = "Ver o Foldboard";
+"The keyboard that comes under your thumb" = "O teclado que vem para baixo do seu polegar";
+"While you're awake (%@–%@)" = "Enquanto você está acordado (%@–%@)";
+"Open %@ · closed %@" = "Aberto %@ · fechado %@";

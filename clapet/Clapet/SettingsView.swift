@@ -306,6 +306,14 @@ struct SettingsView: View {
                             }
                         } icon: { Image(systemName: "gamecontroller.fill") }
                     }
+                    Link(destination: FoldboardPromoRule.url) {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(verbatim: "Foldboard")
+                                Text("The keyboard that comes under your thumb").font(.caption).foregroundStyle(.secondary)
+                            }
+                        } icon: { Image(systemName: "keyboard.onehanded.right") }
+                    }
                 } header: {
                     Text("Also for your Duo")
                 }

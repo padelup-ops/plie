@@ -513,6 +513,29 @@ struct ClapetStats: Codable, Equatable {
 
     /// Temps ouvert d'une journée, en comptant l'ouverture en cours pour aujourd'hui.
     /// Le temps ouvert sans le repos (heures de repos, mode Repos) : c'est celui qu'on montre.
+    /// Les heures d'éveil d'aujourd'hui : en dehors des heures de repos si elles sont réglées (et de jour),
+    /// sinon de 7 h à 23 h.
+    func awakeWindow(now: Date = Date()) -> (start: Date, end: Date) {
+        let d0 = Calendar.current.startOfDay(for: now)
+        var a = 7, b = 23
+        if nightOn, nightTo < nightFrom, nightTo >= 4, nightFrom >= 18 { a = nightTo; b = nightFrom }
+        return (d0.addingTimeInterval(Double(a) * 3600), d0.addingTimeInterval(Double(b) * 3600))
+    }
+
+    /// Ouvert et fermé pendant les heures d'éveil d'aujourd'hui seulement (la nuit ne pèse plus sur le fermé).
+    func awakeSplit(now: Date = Date()) -> (open: TimeInterval, closed: TimeInterval)? {
+        let w = awakeWindow(now: now)
+        let end = min(now, w.end)
+        let elapsed = end.timeIntervalSince(w.start)
+        guard elapsed > 60 else { return nil }
+        var open = 0.0
+        func add(_ a: Date, _ b: Date) { open += max(0, min(b, end).timeIntervalSince(max(a, w.start))) }
+        for x in sessionLog where x.t < end && x.t.addingTimeInterval(x.s) > w.start { add(x.t, x.t.addingTimeInterval(x.s)) }
+        if let o = openSince, now.timeIntervalSince(o) < Self.maxOpenSession { add(o, now) }
+        open = min(open, elapsed)
+        return (open, elapsed - open)
+    }
+
     func openTime(_ date: Date = Date(), now: Date = Date()) -> TimeInterval {
         max(0, rawOpenTime(date, now: now) - restTime(date, now: now))
     }

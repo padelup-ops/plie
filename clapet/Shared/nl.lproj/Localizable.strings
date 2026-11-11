@@ -728,3 +728,12 @@
 "Open, but at rest" = "Open, maar in rust";
 "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "Stel je rusturen in bij Instellingen: open tijd telt dan als rust. Je kunt ook de twee opdrachten voor de focus Slaap toevoegen.";
 "Not counted: %@ at rest today" = "Niet geteld: %@ in rust vandaag";
+
+/* 1.0.17 */
+"New: Foldboard" = "Nieuw: Foldboard";
+"Our keyboard for the Duo: it comes under the thumb of the hand holding your phone, and learns how you hold it." = "Ons toetsenbord voor de Duo: het komt onder de duim van de hand die je telefoon vasthoudt, en leert hoe je hem vasthoudt.";
+"Launch price until November 18" = "Introductieprijs tot 18 november";
+"See Foldboard" = "Bekijk Foldboard";
+"The keyboard that comes under your thumb" = "Het toetsenbord dat onder je duim komt";
+"While you're awake (%@–%@)" = "Terwijl je wakker bent (%@–%@)";
+"Open %@ · closed %@" = "Open %@ · dicht %@";

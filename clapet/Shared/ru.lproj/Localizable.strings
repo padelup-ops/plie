@@ -728,3 +728,12 @@
 "Open, but at rest" = "Открыт, но в покое";
 "Set your rest hours in Settings: open time then counts as rest. You can also add the two Shortcuts for the Sleep focus." = "Задайте часы покоя в настройках: время в открытом виде будет считаться покоем. Можно также добавить две команды для фокуса «Сон».";
 "Not counted: %@ at rest today" = "Не учтено: %@ в покое сегодня";
+
+/* 1.0.17 */
+"New: Foldboard" = "Новинка: Foldboard";
+"Our keyboard for the Duo: it comes under the thumb of the hand holding your phone, and learns how you hold it." = "Наша клавиатура для Duo: она появляется под большим пальцем руки, в которой вы держите телефон, и запоминает, как вы его держите.";
+"Launch price until November 18" = "Цена запуска до 18 ноября";
+"See Foldboard" = "Открыть Foldboard";
+"The keyboard that comes under your thumb" = "Клавиатура под вашим большим пальцем";
+"While you're awake (%@–%@)" = "Пока вы не спите (%@–%@)";
+"Open %@ · closed %@" = "Открыт %@ · закрыт %@";

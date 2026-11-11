@@ -745,3 +745,12 @@
 
 /* Repos non compté */
 "Not counted: %@ at rest today" = "제외됨: 오늘 휴식 중 %@";
+
+/* 1.0.17 */
+"New: Foldboard" = "새로운 앱: Foldboard";
+"Our keyboard for the Duo: it comes under the thumb of the hand holding your phone, and learns how you hold it." = "Duo를 위한 키보드: 휴대폰을 쥔 손의 엄지 아래로 오고, 쥐는 방식을 학습해요.";
+"Launch price until November 18" = "11월 18일까지 출시 기념 가격";
+"See Foldboard" = "Foldboard 보기";
+"The keyboard that comes under your thumb" = "엄지 아래로 오는 키보드";
+"While you're awake (%@–%@)" = "깨어 있는 동안(%@–%@)";
+"Open %@ · closed %@" = "열림 %@ · 닫힘 %@";
