@@ -18,7 +18,7 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                ForEach(0..<5) { i in
+                ForEach(0..<6) { i in
                     Capsule().fill(i <= page ? Color.accentColor : Color(.systemFill)).frame(height: 4)
                 }
             }
@@ -36,6 +36,8 @@ struct OnboardingView: View {
                     }
                 case 3:
                     KeyboardTour { page = 4 }
+                case 4:
+                    ButtonsGuide { UserDefaults.standard.set(true, forKey: "seenButtonsGuide"); page = 5 }
                 default: trial
                 }
             }
@@ -138,7 +140,7 @@ struct OnboardingView: View {
                 Picker("Layout", selection: $m.settings.layout) {
                     ForEach(KBLayout.allCases) { Text($0.title).tag($0) }
                 }
-                .pickerStyle(.segmented)
+                .pickerStyle(.menu)
                 slider("Key height", value: $m.settings.keyHeight, in: 34...60, format: { "\(Int($0)) pt" })
                 slider("One-hand width", value: $m.settings.oneHandWidth, in: 0.45...0.95, format: { "\(Int($0 * 100)) %" })
                 slider("Distance from the edge", value: $m.settings.edgeMargin, in: 0...120, format: { "\(Int($0)) pt" })

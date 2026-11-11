@@ -44,6 +44,9 @@ struct HomeView: View {
     @Environment(Store.self) private var store
     @AppStorage("setupDone") private var setupDone = false
     @AppStorage("onboarded") private var onboarded = false
+    /// Les nouveaux boutons (version 1.0.4) : montrés une fois à ceux qui avaient déjà l'app.
+    @AppStorage("seenButtonsGuide") private var seenButtonsGuide = false
+    @State private var showButtonsGuide = false
     @State private var showPro = false
     @State private var tryText = ""
     @FocusState private var tryFocus: Bool
@@ -112,6 +115,9 @@ struct HomeView: View {
                     NavigationLink { KeyboardTourScreen() } label: {
                         Label("Guided tour", systemImage: "play.rectangle")
                     }
+                    NavigationLink { ButtonsGuide().fullScreenDuo() } label: {
+                        Label("The keyboard buttons", systemImage: "rectangle.topthird.inset.filled")
+                    }
                     NavigationLink { PositionView().fullScreenDuo() } label: { Label("Position and size", systemImage: "hand.raised.fingers.spread") }
                     NavigationLink { LookView().fullScreenDuo() } label: { Label("Colors and font", systemImage: "paintpalette") }
                     NavigationLink { FeelView().fullScreenDuo() } label: { Label("Sound, vibrations and swipe", systemImage: "waveform") }
@@ -131,6 +137,16 @@ struct HomeView: View {
             .navigationTitle("Foldboard")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showPro) { ProView().environment(store).fullScreenDuo() }
+            .sheet(isPresented: $showButtonsGuide) {
+                NavigationStack { ButtonsGuide { showButtonsGuide = false } }
+            }
+            .onAppear {
+                // Déjà installé avant cette version : on montre une fois les nouveaux boutons.
+                if onboarded && !seenButtonsGuide {
+                    seenButtonsGuide = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { showButtonsGuide = true }
+                }
+            }
             .fullScreenCover(isPresented: Binding(get: { !onboarded }, set: { if !$0 { onboarded = true } })) {
                 OnboardingView { onboarded = true }
                     .environment(store)

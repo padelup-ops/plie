@@ -236,7 +236,7 @@ struct PositionView: View {
                 Picker("Layout", selection: $m.settings.layout) {
                     ForEach(KBLayout.allCases) { Text($0.title).tag($0) }
                 }
-                .pickerStyle(.segmented)
+                .pickerStyle(.menu)
             } header: {
                 Text("Layout")
             }
