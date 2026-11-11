@@ -105,7 +105,8 @@ final class GameCenter {
         Task {
             await loadPeriods(now: now)
             let all = scores(stats, now: now)
-            for (id, value) in all where lastSent[id] != value {
+            // Un score à 0 n'apporte rien au classement (et encombre la liste) : on ne l'envoie pas.
+            for (id, value) in all where lastSent[id] != value && value > 0 {
                 lastSent[id] = value
                 do {
                     try await GKLeaderboard.submitScore(value, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [id])
