@@ -125,7 +125,7 @@ final class GripDetector {
     /// Les habitudes (voir `KBHabits`) : assez d'exemples pour décider, et le vote pour une posture
     /// (probabilité « main droite », `nil` si la posture est inconnue).
     var habitReady = false
-    var habitVote: ((Double, Double) -> Double?)?
+    var habitVote: ((Double, Double) -> (right: Double, two: Double)?)?
 
     /// Main droite et main gauche étalonnées pour cette situation.
     var calibrated: Bool { postures[.right] != nil && postures[.left] != nil }
@@ -354,7 +354,14 @@ final class GripDetector {
     private func tiltGrip(threshold: Double) -> KBGrip? {
         if habitReady, let vote = habitVote {
             // Les habitudes décident : le vote des prises en main déjà vues les plus proches.
-            guard let p = currentPosture, let pr = vote(p.roll, p.incline) else { tiltStrong = false; return nil }
+            guard let p = currentPosture, let v = vote(p.roll, p.incline) else { tiltStrong = false; return nil }
+            // Tenu comme d'habitude à deux mains : le clavier au milieu.
+            if v.two >= 0.6 {
+                tiltStrong = v.two >= 0.85
+                return .two
+            }
+            if current == .two && v.two >= 0.4 { tiltStrong = false; return nil }
+            let pr = v.right
             let side: KBGrip? = pr >= 0.62 ? .right : (pr <= 0.38 ? .left : nil)
             guard let side else { tiltStrong = false; return nil }
             // Pour quitter le côté actuel, il faut un vote net : pencher un peu ne déplace pas le clavier.

@@ -13,6 +13,7 @@ protocol KBInput: AnyObject {
     func kbDelete()
     func kbMoveCursor(_ offset: Int)
     func kbTextBefore() -> String?
+    func kbTextAfter() -> String?
     func kbNextKeyboard()
     func kbDismiss()
     func kbSettingsChanged(_ settings: KBSettings)
@@ -89,6 +90,8 @@ final class KeyboardCanvas: UIView {
     private let topBar = UIView()
     private let modeButton = UIButton(type: .system)
     private let flipButton = UIButton(type: .system)
+    /// Au milieu, à deux mains : le clavier entier, et la prise en main est retenue.
+    private let middleButton = UIButton(type: .system)
     /// Écran intérieur, petit clavier : un bouton pour passer en grand (et revenir).
     private let bigButton = UIButton(type: .system)
     private let hideButton = UIButton(type: .system)
@@ -127,8 +130,10 @@ final class KeyboardCanvas: UIView {
         let index: Int
         let start: CGPoint
         var lastX: CGFloat
+        var lastY: CGFloat = 0
         var cursorMode = false
         var cursorAccum: CGFloat = 0
+        var cursorAccumY: CGFloat = 0
         var accents: [String] = []
         var accentIndex = 0
         var longTimer: Timer?
@@ -153,7 +158,10 @@ final class KeyboardCanvas: UIView {
     private let gap: CGFloat = 7
     private let vgap: CGFloat = 11
 
-    private var keyH: CGFloat { CGFloat(eff.keyHeight) }
+    private var keyH: CGFloat { CGFloat(eff.keyHeight) * (wideFull ? 1.24 : 1) }
+    /// Le clavier entier sur l'écran déplié : de grandes touches, comme le clavier d'Apple.
+    private var wideFull: Bool { layoutMode == .full && bounds.width >= 560 && !showEmoji }
+    private var reportedHeight: CGFloat = 0
     private var rowCount: Int { 4 }
     var preferredHeight: CGFloat {
         Self.topBarHeight + 6 + CGFloat(rowCount) * keyH + CGFloat(rowCount - 1) * vgap + 8
@@ -188,7 +196,7 @@ final class KeyboardCanvas: UIView {
         adjustButton.setImage(UIImage(systemName: "slider.horizontal.3"), for: .normal)
         adjustButton.addAction(UIAction { [weak self] _ in self?.startAdjust() }, for: .touchUpInside)
         adjustButton.accessibilityLabel = L("Adjust the keyboard")
-        for b in [modeButton, flipButton, bigButton, hideButton, adjustButton, globeButton, emojiButton] {
+        for b in [modeButton, flipButton, middleButton, bigButton, hideButton, adjustButton, globeButton, emojiButton] {
             b.tintColor = .label
             topBar.addSubview(b)
         }
@@ -196,6 +204,9 @@ final class KeyboardCanvas: UIView {
         flipButton.setImage(UIImage(systemName: "arrow.left.arrow.right"), for: .normal)
         flipButton.addAction(UIAction { [weak self] _ in self?.flipSide() }, for: .touchUpInside)
         flipButton.accessibilityLabel = L("Switch side")
+        middleButton.setImage(UIImage(systemName: "rectangle.center.inset.filled"), for: .normal)
+        middleButton.addAction(UIAction { [weak self] _ in self?.centerKeyboard() }, for: .touchUpInside)
+        middleButton.accessibilityLabel = L("Keyboard in the middle")
         bigButton.addAction(UIAction { [weak self] _ in self?.toggleBig() }, for: .touchUpInside)
         // Appui long : la situation reconnue et l'étalonnage utilisé (pour vérifier).
         flipButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(showGripInfo(_:))))
@@ -384,9 +395,9 @@ final class KeyboardCanvas: UIView {
     private var typedOnSide = 0
 
     /// Retient la prise en main du moment pour ce côté. `correction` : choisi à la main (exemple fort).
-    private func learnHabit(right: Bool, correction: Bool) {
+    private func learnHabit(right: Bool, two: Bool = false, correction: Bool) {
         guard followsHand, recording == nil, !demoOneHand, let p = grip.currentPosture else { return }
-        KBHabits.shared.add(context: gripContext, roll: p.roll, incline: p.incline, right: right,
+        KBHabits.shared.add(context: gripContext, roll: p.roll, incline: p.incline, right: right, two: two,
                             weight: correction ? 3 : 1, correction: correction)
         grip.habitReady = KBHabits.shared.ready(context: gripContext, seeds: habitSeeds)
         showLearning(correction: correction)
@@ -409,9 +420,11 @@ final class KeyboardCanvas: UIView {
 
     /// Une lettre tapée avec le petit clavier d'un côté : après quelques lettres sans correction, c'est une habitude.
     private func countTyped() {
-        guard autoOn, followsHand, layoutMode.isOneHand, !settings.autoTwo else { return }
+        guard autoOn, followsHand, layoutMode.isOneHand || settings.autoTwo else { return }
         typedOnSide += 1
-        if typedOnSide == 8 || typedOnSide == 40 { learnHabit(right: settings.autoRight, correction: false) }
+        if typedOnSide == 8 || typedOnSide == 40 {
+            learnHabit(right: settings.autoRight, two: settings.autoTwo, correction: false)
+        }
     }
 
     override func didMoveToWindow() {
@@ -587,6 +600,19 @@ final class KeyboardCanvas: UIView {
     private func toggleBig() {
         if gripContext == "open-portrait" { settings.openSplit.toggle() } else { settings.openLandSplit.toggle() }
         settings.openFull = false
+        KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
+        save()
+        layoutIfNeeded()
+    }
+
+    /// Le clavier au milieu (à deux mains), choisi à la main : la prise en main du moment est retenue.
+    private func centerKeyboard() {
+        guard eff.mode == .auto, followsHand else { return }
+        settings.autoTwo = true
+        grip.current = .two
+        grip.locked = true
+        learnHabit(right: settings.autoRight, two: true, correction: true)
+        typedOnSide = 0
         KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
         save()
         layoutIfNeeded()
@@ -850,6 +876,11 @@ final class KeyboardCanvas: UIView {
         backgroundColor = theme.id == "auto" || theme.id == "glass" ? UIColor(white: 0, alpha: 0.012) : theme.background
         cells.forEach { $0.view.removeFromSuperview() }
         cells = []
+        // La hauteur change avec la disposition (grandes touches du clavier entier) : on la redemande.
+        if abs(preferredHeight - reportedHeight) > 0.5 {
+            reportedHeight = preferredHeight
+            DispatchQueue.main.async { [weak self] in self?.onPreferredHeightChange?() }
+        }
         let W = bounds.width
         let top = Self.topBarHeight + 6
         let areaH = CGFloat(rowCount) * keyH + CGFloat(rowCount - 1) * vgap
@@ -1017,6 +1048,11 @@ final class KeyboardCanvas: UIView {
         // En couleur : le clavier est verrouillé là où tu l'as mis.
         flipButton.tintColor = grip.locked && eff.mode == .auto ? theme.accent : theme.text.withAlphaComponent(0.7)
         flipButton.frame = CGRect(x: 46, y: 0, width: oneHand ? 36 : 0, height: h)
+        // Le bouton du milieu : là où le clavier suit la main (il apprend aussi quand on le veut au milieu).
+        let middleShown = eff.mode == .auto && followsHand && autoOn
+        middleButton.isHidden = !middleShown
+        middleButton.tintColor = settings.autoTwo ? theme.accent : theme.text.withAlphaComponent(0.7)
+        middleButton.frame = CGRect(x: flipButton.frame.maxX, y: 0, width: middleShown ? 36 : 0, height: h)
         // Écran intérieur : un bouton pour passer d'une disposition à l'autre.
         // Portrait : petit clavier qui suit la main ⇄ deux moitiés. Paysage : clavier entier ⇄ deux moitiés.
         let open = gripContext.hasPrefix("open")
@@ -1026,7 +1062,7 @@ final class KeyboardCanvas: UIView {
         bigButton.setImage(UIImage(systemName: splitNow ? (gripContext == "open-portrait" ? "keyboard.onehanded.right" : "keyboard") : "rectangle.split.2x1"), for: .normal)
         bigButton.accessibilityLabel = splitNow ? L("One keyboard") : L("Split keyboard")
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
-        bigButton.frame = CGRect(x: flipButton.frame.maxX, y: 0, width: bigShown ? 36 : 0, height: h)
+        bigButton.frame = CGRect(x: max(flipButton.frame.maxX, middleButton.frame.maxX), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
         hideButton.frame = CGRect(x: bounds.width - 46, y: 0, width: 40, height: h)
         adjustButton.tintColor = theme.text.withAlphaComponent(0.7)
@@ -1039,7 +1075,7 @@ final class KeyboardCanvas: UIView {
         globeButton.tintColor = theme.text.withAlphaComponent(0.7)
         emojiButton.frame = CGRect(x: adjustButton.frame.minX - (compact ? 36 : 0), y: 0, width: compact ? 36 : 0, height: h)
         globeButton.frame = CGRect(x: emojiButton.frame.minX - (compact && globe ? 36 : 0), y: 0, width: compact && globe ? 36 : 0, height: h)
-        let cx = max(flipButton.frame.maxX, bigButton.frame.maxX) + 4
+        let cx = max(flipButton.frame.maxX, middleButton.frame.maxX, bigButton.frame.maxX) + 4
         chips.frame = CGRect(x: cx, y: 0, width: max(0, globeButton.frame.minX - cx - 4), height: h)
 
         rebuildChips()
@@ -1219,7 +1255,7 @@ final class KeyboardCanvas: UIView {
             v.icon.tintColor = theme.text
             v.icon.image = nil
             v.label.text = nil
-            let fontSize: CGFloat = min(26, keyH * 0.56)
+            let fontSize: CGFloat = min(wideFull ? 30 : 26, keyH * 0.56)
             switch v.spec.kind {
             case .char(let s):
                 v.label.text = upper ? s.uppercased() : s
@@ -1258,6 +1294,8 @@ final class KeyboardCanvas: UIView {
     private func cellIndex(at raw: CGPoint) -> Int? {
         // Le pouce touche un peu plus bas qu'il ne vise (comme le clavier d'Apple, on compense de 4 pt).
         let p = CGPoint(x: raw.x, y: raw.y - 4)
+        // D'abord la touche réellement dessinée sous le doigt (même pendant une animation).
+        if let i = cells.firstIndex(where: { ($0.view.layer.presentation()?.frame ?? $0.view.frame).contains(raw) }) { return i }
         if let i = cells.firstIndex(where: { $0.hit.contains(p) }) { return i }
         // Juste à côté du clavier : la touche la plus proche (un appui un peu à côté écrit quand même).
         guard blocks.contains(where: { $0.insetBy(dx: -18, dy: -10).contains(p) }) else { return nil }
@@ -1279,6 +1317,8 @@ final class KeyboardCanvas: UIView {
     /// Appuis annulés par iOS, et appuis tombés à côté des touches.
     private var perfCancelled = 0
     private var perfMissed = 0
+    /// Les derniers appuis : où (x) et quelle touche (pour comprendre une touche mal reconnue).
+    private var lastHits: [String] = []
     private var perfLink: CADisplayLink?
     private var perfLast: CFTimeInterval = 0
 
@@ -1305,6 +1345,7 @@ final class KeyboardCanvas: UIView {
         func avg(_ a: [Double]) -> Int { a.isEmpty ? 0 : Int(a.reduce(0, +) / Double(a.count)) }
         let text = String(format: "Appui %d ms (max %d) · traitement %d ms · blocages %d · annulés %d · à côté %d",
                           avg(perfDelay), Int(perfDelay.max() ?? 0), avg(perfWork), perfStalls, perfCancelled, perfMissed)
+            + " · L\(Int(bounds.width)) · " + lastHits.joined(separator: " ")
         flash(text)
         perfDelay = []; perfWork = []; perfStalls = 0; perfCancelled = 0; perfMissed = 0
     }
@@ -1333,6 +1374,16 @@ final class KeyboardCanvas: UIView {
                     commit(tr)
                 }
             }
+            let label: String
+            switch cells[i].view.spec.kind {
+            case .char(let c): label = c
+            case .backspace: label = "⌫"
+            case .ret: label = "⏎"
+            case .space: label = "␣"
+            default: label = "•"
+            }
+            lastHits.append("\(Int(p.x))→\(label)")
+            if lastHits.count > 4 { lastHits.removeFirst() }
             let tr = Track(index: i, start: p)
             tr.t0 = t.timestamp
             if recording != nil { halo(at: p, radius: t.majorRadius) }
@@ -1369,10 +1420,7 @@ final class KeyboardCanvas: UIView {
                 // Un petit glissement du pouce pendant la frappe ne retire plus l'espace.
                 let held = t.timestamp - tr.t0 > 0.35
                 if !tr.cursorMode && (abs(dx) > 40 || (held && abs(dx) > 12)) {
-                    if tr.typed != nil { input?.kbDelete(); tr.typed = nil }
-                    tr.cursorMode = true
-                    tr.lastX = p.x
-                    hideBubble()
+                    enterTrackpad(tr, at: p)
                 }
                 if tr.cursorMode {
                     let step = 18 - 13 * CGFloat(eff.swipe)
@@ -1382,6 +1430,16 @@ final class KeyboardCanvas: UIView {
                     if n != 0 {
                         input?.kbMoveCursor(n)
                         tr.cursorAccum -= CGFloat(n) * step
+                        KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.4)
+                    }
+                    // Comme chez Apple : monter ou descendre d'une ligne en glissant vers le haut ou le bas.
+                    tr.cursorAccumY += p.y - tr.lastY
+                    tr.lastY = p.y
+                    let lineStep: CGFloat = 30
+                    while abs(tr.cursorAccumY) >= lineStep {
+                        let down = tr.cursorAccumY > 0
+                        moveLine(down: down)
+                        tr.cursorAccumY -= down ? lineStep : -lineStep
                         KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.4)
                     }
                 }
@@ -1434,7 +1492,52 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    /// Le pavé tactile : les lettres s'effacent, et le doigt déplace le curseur partout dans le texte.
+    private func enterTrackpad(_ tr: Track, at p: CGPoint) {
+        if tr.typed != nil { input?.kbDelete(); tr.typed = nil }
+        tr.cursorMode = true
+        tr.lastX = p.x
+        tr.lastY = p.y
+        hideBubble()
+        setTrackpad(true)
+        KBFeedback.shared.tap(sound: .off, haptics: max(0.5, eff.haptics))
+    }
+
+    private func setTrackpad(_ on: Bool) {
+        UIView.animate(withDuration: 0.18) {
+            for c in self.cells {
+                c.view.label.alpha = on ? 0 : 1
+                c.view.icon.alpha = on ? 0 : 1
+                c.view.alpha = on ? 0.55 : 1
+            }
+        }
+    }
+
+    /// Une ligne plus haut ou plus bas, à la même colonne quand le texte a des retours à la ligne.
+    private func moveLine(down: Bool) {
+        let before = input?.kbTextBefore() ?? ""
+        let lines = before.components(separatedBy: "\n")
+        let col = lines.last?.count ?? 0
+        if !down {
+            if lines.count >= 2 {
+                let prevLen = lines[lines.count - 2].count
+                input?.kbMoveCursor(-(col + 1 + max(0, prevLen - col)))
+            } else {
+                input?.kbMoveCursor(-min(before.count, 32))
+            }
+        } else {
+            let after = input?.kbTextAfter() ?? ""
+            let parts = after.components(separatedBy: "\n")
+            if parts.count >= 2 {
+                input?.kbMoveCursor(parts[0].count + 1 + min(col, parts[1].count))
+            } else {
+                input?.kbMoveCursor(min(after.count, 32))
+            }
+        }
+    }
+
     private func finish(_ t: UITouch) {
+        if let tr = tracks[t], tr.cursorMode { setTrackpad(false) }
         if let tr = tracks[t] {
             tr.longTimer?.invalidate()
             tr.repeatTimer?.invalidate()
@@ -1484,6 +1587,11 @@ final class KeyboardCanvas: UIView {
             // L'espace part dès que le doigt se pose (retiré si le doigt glisse pour déplacer le curseur).
             tr.typed = " "
             typeSpace()
+            // Appui long : le clavier devient un pavé tactile, comme chez Apple.
+            tr.longTimer = Timer.scheduledTimer(withTimeInterval: 0.45, repeats: false) { [weak self, weak tr] _ in
+                guard let self, let tr, !tr.done, !tr.cursorMode, !tr.swipe else { return }
+                self.enterTrackpad(tr, at: tr.start)
+            }
             return
         }
         switch v.spec.kind {

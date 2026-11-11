@@ -134,6 +134,7 @@ FR = {
     "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word.": "Maintiens une lettre pour ses accents (é, è, à, ç…). Maintiens effacer pour effacer mot par mot.",
     # Clavier
     "Switch side": "Changer de côté",
+    "Keyboard in the middle": "Clavier au milieu",
     "Hide keyboard": "Masquer le clavier",
     "Keyboard position": "Position du clavier",
     "Foldboard Pro: open the app to unlock": "Foldboard Pro : ouvre l’app pour le débloquer",

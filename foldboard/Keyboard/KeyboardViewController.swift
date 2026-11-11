@@ -135,6 +135,7 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     func kbDelete() { textDocumentProxy.deleteBackward() }
     func kbMoveCursor(_ offset: Int) { textDocumentProxy.adjustTextPosition(byCharacterOffset: offset) }
     func kbTextBefore() -> String? { textDocumentProxy.documentContextBeforeInput }
+    func kbTextAfter() -> String? { textDocumentProxy.documentContextAfterInput }
     func kbNextKeyboard() { advanceToNextInputMode() }
     func kbDismiss() { dismissKeyboard() }
     func kbSettingsChanged(_ settings: KBSettings) {

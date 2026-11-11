@@ -63,6 +63,7 @@ struct KeyboardPreview: UIViewRepresentable {
         func kbDelete() { if !parent.text.isEmpty { parent.text.removeLast() }; lastText = parent.text }
         func kbMoveCursor(_ offset: Int) {}
         func kbTextBefore() -> String? { parent.text }
+        func kbTextAfter() -> String? { "" }
         func kbNextKeyboard() {}
         func kbDismiss() {}
         func kbSettingsChanged(_ settings: KBSettings) { parent.onSettings(settings) }

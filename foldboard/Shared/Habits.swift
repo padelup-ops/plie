@@ -6,6 +6,10 @@ struct KBHabit: Codable {
     var incline: Double
     var right: Bool
     var weight: Double
+    /// Au milieu, à deux mains (le clavier entier). Absent dans les anciens exemples.
+    var two: Bool? = nil
+
+    var label: Int { two == true ? 2 : (right ? 1 : 0) }
 }
 
 /// Les habitudes : le clavier retient, au fil de l'usage, comment le téléphone penche quand on le veut à droite
@@ -59,13 +63,14 @@ final class KBHabits {
         return (dr * dr + di * di).squareRoot()
     }
 
-    func add(context: String, roll: Double, incline: Double, right: Bool, weight: Double, correction: Bool) {
+    func add(context: String, roll: Double, incline: Double, right: Bool, two: Bool = false, weight: Double, correction: Bool) {
         var a = data[context] ?? []
+        let h = KBHabit(roll: roll, incline: incline, right: right, weight: weight, two: two ? true : nil)
         if correction {
-            // Les exemples tout proches qui disaient l'autre côté sont contredits : on les oublie.
-            a.removeAll { $0.right != right && Self.distance($0.roll, $0.incline, roll, incline) < 6 }
+            // Les exemples tout proches qui disaient autre chose sont contredits : on les oublie.
+            a.removeAll { $0.label != h.label && Self.distance($0.roll, $0.incline, roll, incline) < 6 }
         }
-        a.append(KBHabit(roll: roll, incline: incline, right: right, weight: weight))
+        a.append(h)
         if a.count > Self.cap {
             // On oublie d'abord les plus vieux exemples légers.
             if let i = a.firstIndex(where: { $0.weight <= 1 }) { a.remove(at: i) } else { a.removeFirst() }
@@ -82,24 +87,25 @@ final class KBHabits {
     /// Assez d'exemples des deux côtés pour décider (les mesures du réglage comptent comme des exemples forts).
     func ready(context: String, seeds: [KBHabit]) -> Bool {
         let all = seeds + (data[context] ?? [])
-        let r = all.filter { $0.right }.map(\.weight).reduce(0, +)
-        let l = all.filter { !$0.right }.map(\.weight).reduce(0, +)
+        let r = all.filter { $0.label == 1 }.map(\.weight).reduce(0, +)
+        let l = all.filter { $0.label == 0 }.map(\.weight).reduce(0, +)
         return r >= 3 && l >= 3
     }
 
     /// La probabilité que ce soit la main droite, pour cette posture. `nil` : posture inconnue (loin de tout
     /// ce qu'on a vu), on ne décide pas.
-    func vote(context: String, roll: Double, incline: Double, seeds: [KBHabit]) -> Double? {
+    func vote(context: String, roll: Double, incline: Double, seeds: [KBHabit]) -> (right: Double, two: Double)? {
         let all = seeds + (data[context] ?? [])
         guard !all.isEmpty else { return nil }
         let ranked = all.map { ($0, Self.distance($0.roll, $0.incline, roll, incline)) }.sorted { $0.1 < $1.1 }
         guard let nearest = ranked.first, nearest.1 < 28 else { return nil }
-        var r = 0.0, l = 0.0
+        var r = 0.0, l = 0.0, t = 0.0
         for (h, d) in ranked.prefix(9) {
             let s = h.weight / (1 + (d / 4) * (d / 4))
-            if h.right { r += s } else { l += s }
+            switch h.label { case 2: t += s; case 1: r += s; default: l += s }
         }
-        guard r + l > 0 else { return nil }
-        return r / (r + l)
+        guard r + l + t > 0 else { return nil }
+        // « right » : parmi les votes pour un côté ; « two » : la part du milieu.
+        return (r + l > 0 ? r / (r + l) : 0.5, t / (r + l + t))
     }
 }
