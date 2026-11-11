@@ -199,6 +199,15 @@ else:
 
 # ---------------------------------------------------------------- nouvelle version (NEW_VERSION=1.0.1…)
 # Les nouveautés affichées sur l'App Store, par version.
+APP_NOTES = {
+    "com.padelup.foldboard": {
+        "1.0.4": {
+            "en-US": "The biggest update yet!\n• Trackpad: hold the space bar, the letters fade and you move the cursor anywhere, up and down too, like on Apple's keyboard.\n• Keyboard in the middle: a new button puts the keyboard in the middle for two hands, and Foldboard learns when you like it there.\n• Duo open in portrait: a bigger full keyboard, with large keys like Apple's.\n• New Swedish layout (å, ö, ä).\n• Shows what it learns: \"Noted\" when you correct it, milestones of learned habits, and a \"Your keyboard is learning\" card in the app.\n• Reminders before your free trial ends.\n• Glass theme: see-through keys.\n• New icon, and better key detection near the edges.",
+            "fr-FR": "La plus grosse mise à jour !\n• Pavé tactile : garde le doigt sur la barre d'espace, les lettres s'effacent et tu déplaces le curseur partout, en haut et en bas aussi, comme sur le clavier d'Apple.\n• Clavier au milieu : un nouveau bouton le met au milieu pour écrire à deux mains, et Foldboard apprend quand tu le préfères là.\n• Duo ouvert en portrait : un clavier entier plus grand, avec de grandes touches comme celui d'Apple.\n• Nouvelle disposition suédoise (å, ö, ä).\n• Il montre ce qu'il apprend : « Noté » quand tu le corriges, des paliers d'habitudes apprises et une carte « Ton clavier apprend » dans l'app.\n• Des rappels avant la fin de l'essai gratuit.\n• Thème Verre : des touches translucides.\n• Nouvelle icône, et touches mieux reconnues près des bords.",
+        },
+    },
+}
+
 RELEASE_NOTES = {
     "1.0.3": WHATS_NEW_103,
     "1.0.4": {
@@ -403,7 +412,8 @@ if NEW_VERSION:
                      "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
-    notes = RELEASE_NOTES.get(NEW_VERSION, {})
+    # Les numéros de version se recoupent entre les apps : chaque app a ses propres notes quand il le faut.
+    notes = (APP_NOTES.get(BUNDLE, {}).get(NEW_VERSION) if BUNDLE in APP_NOTES else RELEASE_NOTES.get(NEW_VERSION)) or {}
     if new_vid and notes:
         for l in call("GET", f"/v1/appStoreVersions/{new_vid}/appStoreVersionLocalizations").get("data", []):
             loc = l["attributes"]["locale"]
