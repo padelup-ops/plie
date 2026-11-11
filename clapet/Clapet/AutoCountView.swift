@@ -35,6 +35,40 @@ struct AutoCountView: View {
                 }
 
                 Section {
+                    if let last = model.stats.autoLast {
+                        Label {
+                            Text("Working. Last automatic count \(last, format: .relative(presentation: .named)).")
+                        } icon: {
+                            Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.dfAccent)
+                        }
+                    } else {
+                        Label {
+                            Text("Nothing yet. Once it's set up, close your phone once: this line turns green.")
+                        } icon: {
+                            Image(systemName: "circle.dashed").foregroundStyle(.secondary)
+                        }
+                        // Pas encore vert : les 3 réglages qui bloquent presque toujours, juste là (pas cachés en bas).
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Still not counting? Check these 3 things in Shortcuts:")
+                                .font(.subheadline.weight(.semibold))
+                            check(1, Text("**Automation** tab: each Foldly automation is **turned on**. iOS often adds them switched off."))
+                            check(2, Text("Open each one: **Run Immediately** is selected (not “Run After Confirmation”)."))
+                            check(3, Text("No duplicates: if you installed twice, delete them all and install again from this screen."))
+                            Button {
+                                if let url = URL(string: "shortcuts://") { openURL(url) }
+                            } label: {
+                                Label { Text("Open Shortcuts") } icon: { Image(systemName: "arrow.up.forward.app") }
+                                    .font(.subheadline.weight(.semibold))
+                            }
+                            .padding(.top, 2)
+                        }
+                        .padding(.vertical, 6)
+                    }
+                } header: {
+                    Text("Check")
+                }
+
+                Section {
                     installRow(Self.restLink, symbol: "moon.zzz.fill",
                                title: Text("Install “Foldly repos”"), detail: Text("Marks your phone as resting."))
                     installRow(Self.useLink, symbol: "iphone.gen3",
@@ -70,24 +104,6 @@ struct AutoCountView: View {
                     } label: {
                         Label { Text("Open Shortcuts") } icon: { Image(systemName: "arrow.up.forward.app") }
                     }
-                }
-
-                Section {
-                    if let last = model.stats.autoLast {
-                        Label {
-                            Text("Working. Last automatic count \(last, format: .relative(presentation: .named)).")
-                        } icon: {
-                            Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.dfAccent)
-                        }
-                    } else {
-                        Label {
-                            Text("Nothing yet. Once it's set up, close your phone once: this line turns green.")
-                        } icon: {
-                            Image(systemName: "circle.dashed").foregroundStyle(.secondary)
-                        }
-                    }
-                } header: {
-                    Text("Check")
                 }
 
                 Section {
@@ -176,5 +192,20 @@ struct AutoCountView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.vertical, 2)
+    }
+}
+
+
+extension AutoCountView {
+    /// Une vérification numérotée, en petit.
+    fileprivate func check(_ n: Int, _ text: Text) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Text("\(n)")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(Color.dfOnAccent)
+                .frame(width: 20, height: 20)
+                .background(Circle().fill(Color.dfAccent))
+            text.font(.subheadline).fixedSize(horizontal: false, vertical: true)
+        }
     }
 }

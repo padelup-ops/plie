@@ -782,3 +782,9 @@
 "Duo Pack: Foldboard Pro for €1.99" = "Pack Duo : Foldboard Pro à 1,99 €";
 "Thanks for Foldly+! Our keyboard for the Duo comes under the thumb of the hand holding your phone. Until November 30, Foldboard Pro is yours for €1.99." = "Merci pour Foldly+ ! Notre clavier pour le Duo vient sous le pouce de la main qui tient le téléphone. Jusqu’au 30 novembre, Foldboard Pro est à toi pour 1,99 €.";
 "Get it for €1.99" = "L’avoir pour 1,99 €";
+
+/* Auto count help */
+"Still not counting? Check these 3 things in Shortcuts:" = "Ça ne compte toujours pas ? Vérifie ces 3 points dans Raccourcis :";
+"**Automation** tab: each Foldly automation is **turned on**. iOS often adds them switched off." = "Onglet **Automatisation** : chaque automatisation Foldly est **activée**. iOS les ajoute souvent désactivées.";
+"Open each one: **Run Immediately** is selected (not “Run After Confirmation”)." = "Ouvre chacune : **Exécuter immédiatement** est sélectionné (pas « Exécuter après confirmation »).";
+"No duplicates: if you installed twice, delete them all and install again from this screen." = "Pas de doublons : si tu as installé deux fois, supprime-les toutes et réinstalle depuis cet écran.";
