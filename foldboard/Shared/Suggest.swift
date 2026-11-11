@@ -5,7 +5,8 @@ import UIKit
 /// correction que « teh » tapé au centre des touches.
 struct KBTouchModel {
     var points: [CGPoint]
-    var centers: [Character: CGPoint]
+    /// Le centre de chaque touche (deux pour une lettre présente des deux côtés du clavier coupé).
+    var centers: [Character: [CGPoint]]
     var keyW: CGFloat
     var keyH: CGFloat
 
@@ -17,11 +18,74 @@ struct KBTouchModel {
         var total = 0.0
         for (i, ch) in c.enumerated() {
             let base = Character(String(ch).folding(options: .diacriticInsensitive, locale: nil))
-            guard let k = centers[base] ?? centers[ch] else { return nil }
-            let dx = Double((points[i].x - k.x) / (keyW * 0.55)), dy = Double((points[i].y - k.y) / (keyH * 0.55))
-            total += dx * dx + dy * dy
+            guard let ks = centers[base] ?? centers[ch], !ks.isEmpty else { return nil }
+            total += ks.map { k -> Double in
+                let dx = Double((points[i].x - k.x) / (keyW * 0.55)), dy = Double((points[i].y - k.y) / (keyH * 0.55))
+                return dx * dx + dy * dy
+            }.min() ?? 0
         }
         return total
+    }
+}
+
+/// Ce que le clavier apprend de toi en écrivant : tes mots (prénoms, mots à toi) et les mots qui se suivent
+/// (« je suis » → « en »). Gardé sur le téléphone, partagé entre la correction et la barre de suggestions.
+final class KBWordStore {
+    static let shared = KBWordStore()
+    private let lock = NSLock()
+    private let key = "foldboard.words.v1"
+    private var words: [String: Int] = [:]
+    private var pairs: [String: [String: Int]] = [:]
+    private var dirty = 0
+
+    private struct Stored: Codable { var words: [String: Int]; var pairs: [String: [String: Int]] }
+
+    private init() {
+        if let d = UserDefaults.standard.data(forKey: key), let s = try? JSONDecoder().decode(Stored.self, from: d) {
+            words = s.words; pairs = s.pairs
+        }
+    }
+
+    private func save() {
+        if let d = try? JSONEncoder().encode(Stored(words: words, pairs: pairs)) { UserDefaults.standard.set(d, forKey: key) }
+    }
+
+    /// Un mot terminé (espace, ponctuation), avec le mot d'avant s'il y en a un dans la même phrase.
+    func commit(_ word: String, after prev: String?) {
+        let w = word.lowercased()
+        guard w.count >= 1, w.count <= 30, w.allSatisfy({ $0.isLetter || $0 == "’" || $0 == "'" || $0 == "-" }) else { return }
+        lock.lock(); defer { lock.unlock() }
+        words[w, default: 0] += 1
+        if let p = prev?.lowercased(), !p.isEmpty { pairs[p, default: [:]][w, default: 0] += 1 }
+        // On garde la mémoire raisonnable : on oublie les mots vus une seule fois.
+        if words.count > 4000 { words = words.filter { $0.value > 1 } }
+        if pairs.count > 3000 { pairs = pairs.filter { $0.value.values.reduce(0, +) > 1 } }
+        dirty += 1
+        if dirty >= 5 { dirty = 0; save() }
+    }
+
+    func count(_ word: String) -> Int {
+        lock.lock(); defer { lock.unlock() }
+        return words[word.lowercased()] ?? 0
+    }
+
+    func pair(_ prev: String, _ word: String) -> Int {
+        lock.lock(); defer { lock.unlock() }
+        return pairs[prev.lowercased()]?[word.lowercased()] ?? 0
+    }
+
+    /// Les mots qui ont suivi `prev` le plus souvent.
+    func next(after prev: String, limit: Int) -> [String] {
+        lock.lock(); defer { lock.unlock() }
+        return (pairs[prev.lowercased()] ?? [:]).sorted { $0.value > $1.value }.prefix(limit).map(\.key)
+    }
+
+    /// Tes mots qui commencent comme `prefix`, des plus tapés aux moins tapés.
+    func completions(_ prefix: String, limit: Int) -> [String] {
+        let k = prefix.lowercased()
+        lock.lock(); defer { lock.unlock() }
+        return words.filter { $0.value >= 2 && $0.key.count > k.count && $0.key.hasPrefix(k) }
+            .sorted { $0.value > $1.value }.prefix(limit).map(\.key)
     }
 }
 
@@ -156,6 +220,56 @@ final class KBSuggest {
         return s
     }
 
+    /// Le mot suivant le plus probable, pour démarrer avant que le clavier ait appris tes habitudes.
+    private static let nextSeeds: [String: [String: [String]]] = [
+        "fr": ["": ["Je", "Merci", "Bonjour"], "je": ["suis", "vais", "ne"], "suis": ["en", "pas", "à"], "en": ["train", "fait", "plus"],
+               "train": ["de", "d’"], "c’est": ["pas", "un", "la"], "il": ["y", "est", "a"], "y": ["a", "en", "aller"], "à": ["la", "demain", "tout"],
+               "de": ["la", "faire", "l’"], "pas": ["de", "le", "encore"], "est": ["ce", "pas", "un"], "merci": ["beaucoup", "pour", "à"],
+               "tu": ["es", "as", "peux"], "on": ["se", "va", "peut"], "vais": ["à", "te", "faire"], "pour": ["le", "la", "moi"],
+               "ça": ["va", "me", "fait"], "va": ["bien", "être", "te"], "bonne": ["journée", "soirée", "nuit"],
+               "et": ["je", "toi", "le"], "que": ["je", "tu", "le"], "mais": ["je", "c’est", "pas"], "tout": ["le", "de", "à"],
+               "bon": ["courage", "appétit", "week-end"], "avec": ["toi", "le", "moi"], "très": ["bien", "bon", "beau"], "on se": []],
+        "en": ["": ["I", "Thanks", "The"], "i": ["am", "think", "have"], "i’m": ["not", "going", "so"], "am": ["going", "not", "a"],
+               "going": ["to", "out", "home"], "to": ["be", "the", "get"], "thank": ["you"], "thanks": ["for", "so", "a"],
+               "it": ["is", "was", "would"], "is": ["a", "the", "not"], "the": ["same", "best", "only"], "you": ["are", "can", "have"],
+               "of": ["the", "course", "my"], "in": ["the", "a", "my"], "on": ["the", "my", "a"], "for": ["the", "a", "you"],
+               "how": ["are", "is", "about"], "what": ["is", "are", "do"], "see": ["you", "it", "the"], "let": ["me", "us"],
+               "let’s": ["go", "do", "see"], "have": ["a", "to", "you"], "good": ["morning", "night", "luck"], "can": ["you", "i", "be"]],
+    ]
+
+    /// Ce qui vient après le texte : appris de toi d'abord, puis les débuts les plus courants.
+    func predictions(before: String) -> [String] {
+        let prev = Self.lastWord(before)
+        let lang = String(language.prefix(2))
+        let start = Self.atSentenceStart(before + "x", word: "x")
+        var out: [String] = []
+        if !start, let prev {
+            out = KBWordStore.shared.next(after: prev, limit: 3)
+            for w in Self.nextSeeds[lang]?[prev.lowercased()] ?? [] where out.count < 3 && !out.contains(w) { out.append(w) }
+        } else {
+            for w in Self.nextSeeds[lang]?[""] ?? [] where out.count < 3 { out.append(w) }
+        }
+        if start { out = out.map { $0.prefix(1).uppercased() + $0.dropFirst() } }
+        return out
+    }
+
+    /// Le dernier mot entier avant le curseur (le texte se termine par une espace), dans la même phrase.
+    static func lastWord(_ before: String) -> String? {
+        let t = before.trimmingCharacters(in: .whitespaces)
+        guard let last = t.last, last.isLetter else { return nil }
+        var chars: [Character] = []
+        for ch in t.reversed() {
+            if ch.isLetter || ch == "’" || ch == "'" || ch == "-" { chars.append(ch) } else { break }
+        }
+        let w = String(chars.reversed())
+        return w.isEmpty ? nil : w
+    }
+
+    /// Le mot juste avant le mot en cours.
+    static func previousWord(_ before: String, word: String) -> String? {
+        lastWord(String(before.dropLast(word.count)))
+    }
+
     /// Les apostrophes oubliées, comme le clavier d'Apple (« dont » → « don’t », « jai » → « j’ai »).
     private static let contractions: [String: [String: String]] = [
         "en": ["im": "I’m", "ive": "I’ve", "dont": "don’t", "cant": "can’t", "wont": "won’t", "didnt": "didn’t",
@@ -172,6 +286,12 @@ final class KBSuggest {
     ]
     /// Celles qui sont aussi de vrais mots (« ill », « lets », « id », « hes »…) : seulement dans la barre, jamais d'office.
     private static let ambiguous: Set<String> = ["ill", "id", "lets", "hes", "shes", "ya", "jy", "sil", "jen"]
+
+    /// Les mots après lesquels « a » est presque toujours « à ».
+    private static let towardA: Set<String> = ["vais", "vas", "va", "allons", "allez", "vont", "aller", "allé", "allée", "allés",
+        "jusqu’", "grâce", "face", "quant", "pense", "penses", "pensé", "rentre", "rentrer", "arrive", "arriver", "habite", "commence",
+        "commencer", "continue", "réussi", "réussir", "aide", "aider", "parle", "parler", "dit", "dis", "demande", "envoie", "donne",
+        "rendez-vous", "prêt", "prête", "machine", "merci"]
 
     private func contraction(_ word: String) -> String? {
         guard let c = Self.contractions[String(language.prefix(2))]?[word.lowercased()] else { return nil }
@@ -198,6 +318,11 @@ final class KBSuggest {
     /// La correction à appliquer quand on termine le mot (espace, ponctuation), ou nil.
     func correction(for word: String, before: String, touch: KBTouchModel? = nil) -> String? {
         let low = word.lowercased()
+        let prev = Self.previousWord(before, word: word)?.lowercased()
+        // Tes mots à toi (tapés plusieurs fois, jamais corrigés) : on n'y touche plus.
+        if KBWordStore.shared.count(low) >= 3 { return nil }
+        // « a » ou « à » d'après le mot d'avant : « je vais a » → « je vais à », « il a » reste « il a ».
+        if language.hasPrefix("fr"), low == "a", let prev, Self.towardA.contains(prev) { return matchCase("à", like: word) }
         if !known.contains(low), replacements[low] == nil {
             if !Self.ambiguous.contains(low), let c = contraction(word) { return c }
             if let fix = accentFix(word) { return fix }
@@ -245,6 +370,9 @@ final class KBSuggest {
             guard d <= allowed else { continue }
             // La première lettre change rarement : seulement si le doigt était vraiment entre deux touches.
             var score = -log(Double(r) + 30)
+            // Le mot d'avant : ce que tu écris d'habitude après lui passe devant (« bonne j » → « journée »).
+            if let prev { score += log(1 + Double(KBWordStore.shared.pair(prev, gl))) * 0.9 }
+            score += log(1 + Double(KBWordStore.shared.count(gl))) * 0.3
             if let c = touch?.cost(gl), let own = touch?.cost(lower) {
                 let extra = c - own
                 if gl.first != lower.first && extra > 1.2 { continue }
@@ -255,6 +383,18 @@ final class KBSuggest {
                 score -= Double(d) * 1.5
             }
             if best == nil || score > best!.score { best = (g, score) }
+        }
+        // L'espace oubliée : « bonjourtoi » → « bonjour toi » (deux mots courants, rien de mieux à proposer).
+        if best == nil, word.count >= 5 {
+            let chars = Array(lower)
+            var split: (String, Int)?
+            for i in 2..<(chars.count - 1) {
+                let a = String(chars[..<i]), b = String(chars[i...])
+                guard let ra = rank[a], let rb = rank[b], ra < 8_000, rb < 8_000 else { continue }
+                let sc = max(ra, rb)
+                if split == nil || sc < split!.1 { split = (a + " " + b, sc) }
+            }
+            if let split { return matchCase(split.0, like: word) }
         }
         if best == nil, word.count >= 4, let l2 = second {
             // Rien en français : peut-être une faute de frappe en anglais (et inversement). Seulement une touche voisine.
@@ -275,9 +415,11 @@ final class KBSuggest {
         guard chars.count == touch.points.count, chars.count <= 14 else { return [] }
         var out: [String] = []
         for (i, p) in touch.points.enumerated() {
-            for (k, c) in touch.centers where k != chars[i] {
-                let dx = (p.x - c.x) / touch.keyW, dy = (p.y - c.y) / touch.keyH
-                guard dx * dx + dy * dy < 1.0 else { continue }   // moins d'une touche du doigt
+            for (k, cs) in touch.centers where k != chars[i] {
+                guard cs.contains(where: { c in
+                    let dx = (p.x - c.x) / touch.keyW, dy = (p.y - c.y) / touch.keyH
+                    return dx * dx + dy * dy < 1.0                  // moins d'une touche du doigt
+                }) else { continue }
                 var w = chars; w[i] = k
                 let cand = String(w)
                 if let r = rank[cand], r < 15_000 { out.append(cand) }
@@ -362,7 +504,8 @@ final class KBSuggest {
             let c = matchCase(a.word, like: word)
             if !out.contains(c) { out.insert(c, at: min(1, out.count)); if best != nil { best = out.firstIndex(of: fix ?? "") } }
         }
-        var completions = listCompletions(word, limit: 3)
+        var completions = KBWordStore.shared.completions(word, limit: 2).map { matchCase($0, like: word) }
+        for c in listCompletions(word, limit: 3) where !completions.contains(where: { $0.lowercased() == c.lowercased() }) { completions.append(c) }
         if completions.isEmpty {
             completions = (checker.completions(forPartialWordRange: range, in: word, language: language) ?? [])
                 .filter { $0.lowercased() != word.lowercased() && !$0.contains(" ") }

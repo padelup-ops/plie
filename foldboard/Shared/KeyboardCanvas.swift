@@ -140,11 +140,11 @@ final class KeyboardCanvas: UIView {
             let b = String(w[i]).folding(options: .diacriticInsensitive, locale: nil)
             guard a == b else { return nil }
         }
-        var centers: [Character: CGPoint] = [:]
+        var centers: [Character: [CGPoint]] = [:]
         var keyW: CGFloat = 0, keyH: CGFloat = 0
         for c in cells {
             guard case .char(let s) = c.view.spec.kind, s.count == 1, let ch = s.lowercased().first, ch.isLetter else { continue }
-            centers[ch] = CGPoint(x: c.frame.midX, y: c.frame.midY)
+            centers[ch, default: []].append(CGPoint(x: c.frame.midX, y: c.frame.midY))
             keyW = max(keyW, c.frame.width); keyH = max(keyH, c.frame.height)
         }
         guard centers.count >= 20 else { return nil }
@@ -976,6 +976,9 @@ final class KeyboardCanvas: UIView {
                     if center <= total / 2 { lk.append(k) } else { rk.append(k) }
                     acc += k.width
                 }
+                // Comme le clavier coupé d'Apple : la lettre du milieu de la dernière rangée (le V) est des deux côtés,
+                // pour l'atteindre avec l'un ou l'autre pouce.
+                if page == .letters, left.count == 2, let edge = lk.last, case .char = edge.kind { rk.insert(edge, at: 0) }
                 left.append(KeyRow(keys: lk))
                 right.append(KeyRow(keys: rk))
             }
@@ -1858,6 +1861,16 @@ final class KeyboardCanvas: UIView {
 
     /// Avant un espace ou une ponctuation : on corrige le mot qui vient d'être tapé.
     private func autocorrect(sep: String) {
+        // Le mot terminé (corrigé ou non) est retenu : tes mots et ce qui suit quoi (pour la barre et la correction).
+        let before0 = input?.kbTextBefore() ?? ""
+        let typed0 = KBSuggest.currentWord(before0)
+        defer {
+            if !typed0.isEmpty, let final = KBSuggest.lastWord(input?.kbTextBefore() ?? "") {
+                let prev = KBSuggest.previousWord(before0, word: typed0)
+                let sentenceStart = KBSuggest.atSentenceStart(before0, word: typed0)
+                suggestQueue.async { KBWordStore.shared.commit(final, after: sentenceStart ? nil : prev) }
+            }
+        }
         guard eff.autocorrect, page == .letters || sep != " " else { return }
         let before = input?.kbTextBefore() ?? ""
         let word = KBSuggest.currentWord(before)
@@ -1906,6 +1919,10 @@ final class KeyboardCanvas: UIView {
         for _ in 0..<word.count { input?.kbDelete() }
         input?.kbInsert(item + " ")
         lastCorrection = nil
+        wordTouches.removeAll()
+        let prev = word.isEmpty ? KBSuggest.lastWord(before) : KBSuggest.previousWord(before, word: word)
+        let start = KBSuggest.atSentenceStart(before + (word.isEmpty ? "x" : ""), word: word.isEmpty ? "x" : word)
+        if !item.contains(" ") { suggestQueue.async { KBWordStore.shared.commit(item, after: start ? nil : prev) } }
         refreshSuggestionsSoon()
         refreshShiftSoon()
     }
@@ -1928,7 +1945,18 @@ final class KeyboardCanvas: UIView {
         let before = input?.kbTextBefore() ?? ""
         let word = KBSuggest.currentWord(before)
         guard !word.isEmpty else {
-            applySuggestions([], nil)
+            // Après une espace : le mot suivant le plus probable, comme le clavier d'Apple.
+            suggestGen += 1
+            let gen = suggestGen
+            guard before.hasSuffix(" ") || before.isEmpty else { applySuggestions([], nil); return }
+            suggestQueue.async { [weak self, bgSuggest] in
+                let items = bgSuggest.predictions(before: before)
+                DispatchQueue.main.async {
+                    guard let self, gen == self.suggestGen else { return }
+                    self.cachedFix = nil
+                    self.applySuggestions(items, nil)
+                }
+            }
             return
         }
         suggestGen += 1
