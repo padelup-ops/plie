@@ -163,6 +163,7 @@ final class KeyboardCanvas: UIView {
         var cursorMode = false
         var cursorAccum: CGFloat = 0
         var cursorAccumY: CGFloat = 0
+        var lastT: TimeInterval = 0
         var accents: [String] = []
         var accentIndex = 0
         var longTimer: Timer?
@@ -1718,12 +1719,21 @@ final class KeyboardCanvas: UIView {
                     enterTrackpad(tr, at: p)
                 }
                 if tr.cursorMode, let map = trackMap {
-                    // Comme chez Apple : le curseur suit le doigt dans tous les sens (diagonales comprises).
-                    // La position visée vient de tout le déplacement depuis le début, pas pas à pas.
-                    let charStep = max(4, 9 - 5 * CGFloat(eff.swipe))
-                    let lineStep: CGFloat = 15
-                    let dCol = Int(((p.x - map.origin.x) / charStep).rounded())
-                    let dLine = Int(((p.y - map.origin.y) / lineStep).rounded())
+                    // Comme chez Apple : le curseur suit le doigt dans tous les sens, avec une accélération :
+                    // un geste lent avance lettre par lettre (précis), un geste rapide va plus loin.
+                    let mdx = p.x - tr.lastX, mdy = p.y - tr.lastY
+                    let dt = tr.lastT > 0 ? max(0.004, t.timestamp - tr.lastT) : 0.016
+                    tr.lastX = p.x; tr.lastY = p.y; tr.lastT = t.timestamp
+                    let speed = hypot(mdx, mdy) / CGFloat(dt)          // points par seconde
+                    let gain: CGFloat = speed < 120 ? 0.55 : (speed < 600 ? 0.55 + (speed - 120) / 480 * 0.45 : min(1.8, 1 + (speed - 600) / 900))
+                    tr.cursorAccum += mdx * gain
+                    // Le vertical, plus dur : il faut vraiment monter ou descendre pour changer de ligne.
+                    tr.cursorAccumY += mdy * gain * (abs(mdy) > abs(mdx) * 0.6 ? 1 : 0.35)
+                    // Réglage « Sensibilité » : de 14 pt par lettre (lent) à 7 pt (rapide).
+                    let charStep = 14 - 7 * CGFloat(eff.swipe)
+                    let lineStep: CGFloat = 30
+                    let dCol = Int((tr.cursorAccum / charStep).rounded(.towardZero))
+                    let dLine = Int((tr.cursorAccumY / lineStep).rounded(.towardZero))
                     let target = map.target(dLine: dLine, dCol: dCol)
                     if target != map.current {
                         input?.kbMoveCursor(target - map.current)
@@ -1878,6 +1888,9 @@ final class KeyboardCanvas: UIView {
                             perLine: max(24, Int(UIScreen.main.bounds.width / 8.5)), origin: p)
         tr.lastX = p.x
         tr.lastY = p.y
+        tr.lastT = 0
+        tr.cursorAccum = 0
+        tr.cursorAccumY = 0
         hideBubble()
         setTrackpad(true)
         KBFeedback.shared.tap(sound: .off, haptics: max(0.5, eff.haptics))
@@ -2196,9 +2209,15 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    /// Le moment du dernier espace tapé : le point du double espace n'arrive que si on tape deux espaces
+    /// coup sur coup (comme chez Apple), pas quand on revient taper un espace plus tard.
+    private var lastSpaceAt: TimeInterval = 0
+
     private func typeSpace() {
         let before = input?.kbTextBefore() ?? ""
-        if eff.doubleSpacePeriod, before.hasSuffix(" "), before.count >= 2 {
+        let now = ProcessInfo.processInfo.systemUptime
+        defer { lastSpaceAt = now }
+        if eff.doubleSpacePeriod, before.hasSuffix(" "), before.count >= 2, now - lastSpaceAt < 0.6 {
             let prev = before[before.index(before.endIndex, offsetBy: -2)]
             // Après une lettre, un chiffre, un emoji, une parenthèse ou un guillemet fermant (« passer" ») :
             // pas après une ponctuation, ni après un guillemet ouvrant.
