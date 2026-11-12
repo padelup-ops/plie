@@ -15,7 +15,7 @@ def call(method, path, body=None):
             raw = r.read(); return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
         return {"error": e.code, "detail": e.read().decode()[:1500]}
-app = call("GET", "/v1/apps?filter[bundleId]=com.padelup.clapet")["data"][0]
+app = call("GET", "/v1/apps?filter[bundleId]=" + os.environ.get("APP_BUNDLE", "com.padelup.clapet"))["data"][0]
 app_id = app["id"]
 v = call("GET", f"/v1/apps/{app_id}/appStoreVersions?filter[versionString]={VERSION}")["data"][0]
 state = v["attributes"].get("appStoreState")

@@ -9,6 +9,9 @@ on:
       beta_build:
         description: "Build à envoyer ensuite aux testeurs publics (vide = aucun)"
         default: ""
+      bundle:
+        description: "Bundle de l'app (com.padelup.clapet ou com.padelup.foldboard)"
+        default: "com.padelup.clapet"
       keep_price:
         description: "1 = ne pas toucher au prix (publier seulement)"
         default: "1"
@@ -23,6 +26,7 @@ jobs:
       ORIGAMO_BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
       VERSION: ${{ inputs.version }}
       KEEP_PRICE: ${{ inputs.keep_price }}
+      APP_BUNDLE: ${{ inputs.bundle }}
     steps:
       - uses: actions/checkout@v5
       - name: Publier et passer en gratuit
