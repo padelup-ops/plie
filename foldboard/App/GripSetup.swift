@@ -58,6 +58,8 @@ struct GripSetup: View {
     @State private var stepDone = false
     @State private var text = ""
     @State private var samples: [[Double]] = []
+    /// Les appuis sur les lettres de cette main (pour le clavier : où tombe le pouce, taille du toucher).
+    @State private var thumbs: [[Double]] = []
     @State private var kbWidth: CGFloat = 0
     @State private var hingeClosed: Bool?
     @State private var reader = TiltReader()
@@ -181,7 +183,8 @@ struct GripSetup: View {
             .frame(maxWidth: .infinity)
 
             if !finished && !stepDone {
-                KeyboardPreview(settings: recordSettings, pro: true, text: $text, record: grip, onSample: { f in add(f) })
+                KeyboardPreview(settings: recordSettings, pro: true, text: $text, record: grip, onSample: { f in add(f) },
+                                onThumb: { f in if !stepDone && !finished { thumbs.append(f) } })
                     .frame(height: KeyboardPreview.height(recordSettings))
                     .ignoresSafeArea(.container, edges: .horizontal)
                     .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { kbWidth = $0 }
@@ -202,6 +205,15 @@ struct GripSetup: View {
         guard samples.count >= Self.needed else { return }
         var s = model.settings
         s.setTaps(samples, grip: grip.rawValue, context: context)
+        if grip != .two {
+            var seed = s.thumbSeed[context] ?? [:]
+            // Nouvel étalonnage (main droite d'abord) : on repart de zéro pour cette situation.
+            if grip == .right { seed = [:] }
+            seed[grip.rawValue] = Array(thumbs.suffix(120))
+            s.thumbSeed[context] = seed
+            if grip == .left { s.thumbSeedStamp[context] = Date().timeIntervalSince1970 }
+        }
+        thumbs = []
         if kbWidth > 50 { s.widths[context] = Double(kbWidth) }
         model.settings = s
         UINotificationFeedbackGenerator().notificationOccurred(.success)
@@ -220,6 +232,7 @@ struct GripSetup: View {
     private func next() {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             samples = []
+            thumbs = []
             text = ""
             stepDone = false
             step += 1
@@ -232,7 +245,8 @@ struct GripSetup: View {
         s.calib[context] = nil
         s.learned[context] = nil
         s.swipes[context] = nil
+        s.thumbSeed[context] = nil
         model.settings = s
-        withAnimation { samples = []; text = ""; stepDone = false; step = 0 }
+        withAnimation { samples = []; thumbs = []; text = ""; stepDone = false; step = 0 }
     }
 }

@@ -95,6 +95,8 @@ final class KBSuggest {
     private let checker = UITextChecker()
     private var known = Set<String>()
     private var replacements: [String: String] = [:]
+    /// Les noms de tes contacts (tels qu'écrits dans Contacts), par forme en minuscules.
+    private var names: [String: String] = [:]
     var language = "en_US"
     /// Les rangées de lettres du clavier : une faute de frappe, c'est une touche voisine, pas n'importe quelle lettre.
     private var rows: [String] = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
@@ -313,6 +315,8 @@ final class KBSuggest {
             let input = e.userInput.lowercased()
             if input == e.documentText.lowercased() {
                 known.insert(input)
+                // Un nom (une majuscule) : on le proposera en entier dès les premières lettres.
+                if let f = e.documentText.first, f.isUppercase, e.documentText.count >= 2 { names[input] = e.documentText }
             } else {
                 replacements[input] = e.documentText
                 known.insert(e.documentText.lowercased())
@@ -464,6 +468,10 @@ final class KBSuggest {
     func correction(for word: String, before: String, touch: KBTouchModel? = nil) -> String? {
         let low = word.lowercased()
         let prev = Self.previousWord(before, word: word)?.lowercased()
+        // Tes remplacements de texte (Réglages > Clavier) : toujours appliqués, même courts (« ty » → « Thank you »).
+        if let r = replacements[low] { return r }
+        // Un prénom de tes contacts tapé en minuscules (et qui n'est pas un mot courant) : la majuscule.
+        if word == low, let n = names[low], rank[low] == nil, n.lowercased() == low { return n }
         // Tes mots à toi (tapés plusieurs fois, jamais corrigés) : on n'y touche plus.
         if KBWordStore.shared.count(low) >= 3 { return nil }
         // « a » ou « à » d'après le mot d'avant : « je vais a » → « je vais à », « il a » reste « il a ».
@@ -652,6 +660,11 @@ final class KBSuggest {
             if !out.contains(c) { out.insert(c, at: min(1, out.count)); if best != nil { best = out.firstIndex(of: fix ?? "") } }
         }
         var completions = KBWordStore.shared.completions(word, limit: 2).map { matchCase($0, like: word) }
+        // Les noms de tes contacts qui commencent ainsi (« Char » → « Charlotte »), en premier.
+        if word.count >= 2 {
+            let key = word.lowercased()
+            for n in names.filter({ $0.key.hasPrefix(key) && $0.key != key }).map(\.value).sorted().prefix(1) { completions.insert(n, at: 0) }
+        }
         var pool = listCompletions(word, limit: lm == nil ? 3 : 14)
         if let lm {
             // Les fins de mot qui collent à la phrase passent devant (« bonne jour » → « journée »).
@@ -665,7 +678,7 @@ final class KBSuggest {
             completions = (checker.completions(forPartialWordRange: range, in: word, language: language) ?? [])
                 .filter { $0.lowercased() != word.lowercased() && !$0.contains(" ") }
         }
-        completions = completions.map { matchCase($0, like: word) }
+        completions = completions.map { names[$0.lowercased()] == $0 ? $0 : matchCase($0, like: word) }
         for c in completions where out.count < 3 && !out.contains(c) { out.append(c) }
         if out.count < 3, fix == nil, isMisspelled(word) {
             for g in checker.guesses(forWordRange: range, in: word, language: language) ?? [] where out.count < 3 && !out.contains(g) {

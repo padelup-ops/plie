@@ -114,26 +114,44 @@ enum KBLayouts {
         return KeyRow(keys: keys)
     }
 
-    /// Les accents en appui long.
+    /// Les accents en appui long, les plus utiles de la langue en premier (comme le clavier d'Apple).
     static func accents(_ base: String, layout: KBLayout) -> [String] {
-        let fr = layout == .azerty
+        let fr = layout == .azerty, de = layout == .qwertz, es = layout == .spanish, sv = layout == .swedish
         switch base.lowercased() {
-        case "e": return fr ? ["é", "è", "ê", "ë", "€"] : ["é", "è", "ê", "ë", "ē"]
-        case "a": return ["à", "â", "ä", "æ", "á", "ã"]
+        case "e": return fr ? ["é", "è", "ê", "ë", "€"] : (es ? ["é", "è", "ë", "ê", "€"] : ["é", "è", "ê", "ë", "ē", "€"])
+        case "a":
+            if de { return ["ä", "à", "á", "â", "æ", "ã", "å"] }
+            if es { return ["á", "à", "ä", "â", "ã", "ª"] }
+            if sv { return ["å", "ä", "à", "á", "â", "æ"] }
+            return ["à", "â", "ä", "æ", "á", "ã", "å"]
         case "c": return ["ç", "ć", "č"]
-        case "u": return ["ù", "û", "ü", "ú"]
-        case "i": return ["î", "ï", "í", "ì"]
-        case "o": return ["ô", "ö", "œ", "ó", "ò", "õ", "ø"]
+        case "u":
+            if de { return ["ü", "ù", "ú", "û", "ū"] }
+            if es { return ["ú", "ü", "ù", "û"] }
+            return ["ù", "û", "ü", "ú", "ū"]
+        case "i": return es ? ["í", "ï", "ì", "î"] : ["î", "ï", "í", "ì", "ī"]
+        case "o":
+            if de { return ["ö", "ò", "ó", "ô", "õ", "ø", "œ"] }
+            if es { return ["ó", "ò", "ö", "ô", "õ", "º"] }
+            if sv { return ["ö", "ø", "ò", "ó", "ô", "õ"] }
+            return ["ô", "ö", "œ", "ó", "ò", "õ", "ø"]
         case "y": return ["ÿ", "ý"]
-        case "n": return ["ñ", "ń"]
-        case "s": return ["ß", "ś", "š"]
-        case "’", "'": return ["'", "’", "\"", "«", "»"]
+        case "n": return es ? ["ñ", "ń"] : ["ñ", "ń", "ň"]
+        case "s": return de ? ["ß", "ś", "š"] : ["ß", "ś", "š", "ş"]
+        case "z": return ["ž", "ź", "ż"]
+        case "l": return ["ł"]
+        case "g": return ["ğ"]
+        case "r": return ["ř"]
+        case "d": return ["ð"]
+        case "’", "'": return ["'", "’", "\"", "«", "»", "„", "“"]
         case ".": return ["’", ",", "?", "!", "…"]
         case ",": return [";", ":", "-"]
         case "-": return ["–", "—", "•"]
         case "€": return ["$", "£", "¥", "¢"]
         case "?": return ["¿"]
         case "!": return ["¡"]
+        case "0": return ["°"]
+        case "\"": return ["“", "”", "„", "«", "»"]
         default: return []
         }
     }

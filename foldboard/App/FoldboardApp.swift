@@ -142,6 +142,14 @@ struct HomeView: View {
                 }
 
                 Section {
+                    NavigationLink { GripSetup().fullScreenDuo() } label: {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Teach your thumbs")
+                                Text("30 seconds: a sentence with each thumb").font(.footnote).foregroundStyle(.secondary)
+                            }
+                        } icon: { Image(systemName: "touchid") }
+                    }
                     NavigationLink { PlaceTutorial().fullScreenDuo() } label: {
                         Label("How it works", systemImage: "hand.tap")
                     }

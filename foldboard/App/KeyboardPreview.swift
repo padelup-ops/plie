@@ -11,6 +11,8 @@ struct KeyboardPreview: UIViewRepresentable {
     var record: KBGrip? = nil
     var onSample: (([Double]) -> Void)? = nil
     var onSwipe: (([Double]) -> Void)? = nil
+    /// Étalonnage : chaque appui sur une lettre (pour reconnaître le pouce).
+    var onThumb: (([Double]) -> Void)? = nil
     /// Tutoriel : comme sur l'écran extérieur, même Duo ouvert.
     var demoOneHand = false
     /// Captures : la situation imposée.
@@ -29,6 +31,7 @@ struct KeyboardPreview: UIViewRepresentable {
             let co = context.coordinator
             c.setRecording(record, { [weak co] f in co?.parent.onSample?(f) },
                            swipes: { [weak co] f in co?.parent.onSwipe?(f) })
+            c.onThumbSample = { [weak co] f in co?.parent.onThumb?(f) }
         }
         context.coordinator.lastText = text
         DispatchQueue.main.async { c.textChanged() }

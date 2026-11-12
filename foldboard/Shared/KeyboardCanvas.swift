@@ -347,6 +347,7 @@ final class KeyboardCanvas: UIView {
         suggest.setLayout(eff.layout)
         let layout = eff.layout
         suggestQueue.async { [bgSuggest] in bgSuggest.setLayout(layout) }
+        KBThumb.shared.importSeed(settings.thumbSeed, stamps: settings.thumbSeedStamp)
         updateGripContext()
         grip.current = settings.autoTwo ? .two : (settings.autoRight ? .right : .left)
         builtFor = .zero
@@ -568,6 +569,8 @@ final class KeyboardCanvas: UIView {
 
     /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
     private(set) var recording: KBGrip?
+    /// Étalonnage dans l'app : chaque appui sur une lettre, pour le deuxième indice (KBThumb).
+    var onThumbSample: (([Double]) -> Void)?
     func setRecording(_ g: KBGrip?, _ handler: (([Double]) -> Void)?, swipes: (([Double]) -> Void)? = nil) {
         recording = g
         grip.onSample = g == nil ? nil : handler
@@ -1571,11 +1574,25 @@ final class KeyboardCanvas: UIView {
                 let f = cells[i].frame
                 let lo = blocks.map { $0.minX }.min() ?? 0
                 let hi = blocks.map { $0.maxX }.max() ?? bounds.width
-                KBThumb.shared.tap(kx: Double((f.midX - lo) / max(1, hi - lo)), dx: Double((p.x - f.midX) / max(1, f.width)), time: t.timestamp)
+                KBThumb.shared.tap(kx: Double((f.midX - lo) / max(1, hi - lo)), dx: Double((p.x - f.midX) / max(1, f.width)),
+                                   radius: Double(t.majorRadius), time: t.timestamp)
                 // Et comment le téléphone a bougé sous l'appui (connu un quart de seconde après).
                 let ts = t.timestamp
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) { [weak self] in
                     if let k = self?.grip.kick(at: ts) { KBThumb.shared.kick(time: ts, k) }
+                }
+            }
+            // Étalonnage dans l'app (« Apprends tes pouces ») : où tombe le pouce sur chaque lettre, la taille du toucher
+            // et la réaction du téléphone, envoyés à l'app (qui les passe au clavier par les réglages).
+            if let onThumbSample, recording == .right || recording == .left,
+               case .char(let c) = cells[i].view.spec.kind, c.count == 1, c.first?.isLetter == true {
+                let f = cells[i].frame
+                let lo = blocks.map { $0.minX }.min() ?? 0
+                let hi = blocks.map { $0.maxX }.max() ?? bounds.width
+                let kx = Double((f.midX - lo) / max(1, hi - lo)), dx = Double((p.x - f.midX) / max(1, f.width))
+                let r = Double(t.majorRadius), ts = t.timestamp
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) { [weak self] in
+                    if let k = self?.grip.kick(at: ts) { onThumbSample([kx, dx, r, k.x, k.y, k.z]) } else { onThumbSample([kx, dx, r]) }
                 }
             }
             if autoOn || recording != nil, bounds.width > 0 {

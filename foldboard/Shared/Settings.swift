@@ -104,6 +104,10 @@ struct KBSettings: Codable, Equatable {
     /// La vraie largeur (côté court, en points) de chaque écran du Duo, apprise dans l'app grâce à la charnière :
     /// « closed » (écran extérieur) et « open » (écran intérieur). Les deux écrans ont la même forme.
     var screenWidths: [String: Double] = [:]
+    /// « Apprends tes pouces » (dans l'app) : les appuis sur les lettres, par situation et par main, repris par le clavier
+    /// (KBThumb) : [zone, décalage sur la touche, rayon du toucher, réaction du téléphone x, y, z]. Et la date de chaque étalonnage.
+    var thumbSeed: [String: [String: [[Double]]]] = [:]
+    var thumbSeedStamp: [String: Double] = [:]
     /// Glissements du pouce étalonnés, par situation et par main.
     var swipes: [String: [String: [[Double]]]] = [:]
     /// Largeur du clavier à une main, en part de l'écran.
@@ -178,6 +182,8 @@ struct KBSettings: Codable, Equatable {
         widths = (try? c.decodeIfPresent([String: Double].self, forKey: .widths)) ?? [:]
         screenWidths = (try? c.decodeIfPresent([String: Double].self, forKey: .screenWidths)) ?? [:]
         swipes = (try? c.decodeIfPresent([String: [String: [[Double]]]].self, forKey: .swipes)) ?? [:]
+        thumbSeed = (try? c.decodeIfPresent([String: [String: [[Double]]]].self, forKey: .thumbSeed)) ?? [:]
+        thumbSeedStamp = (try? c.decodeIfPresent([String: Double].self, forKey: .thumbSeedStamp)) ?? [:]
         oneHandWidth = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidth)) ?? d.oneHandWidth
         oneHandWidthOpen = (try? c.decodeIfPresent(Double.self, forKey: .oneHandWidthOpen)) ?? d.oneHandWidthOpen
         openSplit = (try? c.decodeIfPresent(Bool.self, forKey: .openSplit)) ?? d.openSplit

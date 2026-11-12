@@ -170,6 +170,13 @@ struct AtelierHome: View {
                 .font(.footnote)
                 .foregroundStyle(Atelier.muted)
                 .fixedSize(horizontal: false, vertical: true)
+            NavigationLink { GripSetup().fullScreenDuo() } label: {
+                Label { Text("Teach your thumbs · 30 s") } icon: { Image(systemName: "touchid") }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Atelier.accent)
+                    .frame(minHeight: 44)
+            }
+            .buttonStyle(.plain)
         }
         .padding(Atelier.s3)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -299,6 +306,8 @@ struct AtelierHome: View {
             sectionTitle(Text("Learn"))
                 .padding(.top, Atelier.s2)
             VStack(spacing: 0) {
+                link("touchid", "Teach your thumbs") { GripSetup().fullScreenDuo() }
+                divider
                 link("hand.tap", "How it works") { PlaceTutorial().fullScreenDuo() }
                 divider
                 link("play.rectangle", "Guided tour") { KeyboardTourScreen() }
