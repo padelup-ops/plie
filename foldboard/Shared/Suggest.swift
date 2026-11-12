@@ -210,6 +210,24 @@ final class KBSuggest {
         let userShape = Self.normalized(user)
         let probe = Self.resample(path, 64)
         let start = path[0], end = path[path.count - 1]
+        // La longueur du tracé (en touches) et ses virages francs : un mot doit avoir à peu près la même longueur
+        // de chemin et passer par chaque virage (« bonjour » fait demi-tour sur n puis sur o ; « bobby » non).
+        func length(_ p: [CGPoint]) -> CGFloat { zip(p, p.dropFirst()).reduce(0) { $0 + dist($1.0, $1.1) } }
+        let userLen = length(user)
+        var corners: [CGPoint] = []
+        if n >= 9 {
+            var lastK = -10
+            for k in 3..<(n - 3) {
+                let a = CGPoint(x: user[k].x - user[k - 3].x, y: user[k].y - user[k - 3].y)
+                let b = CGPoint(x: user[k + 3].x - user[k].x, y: user[k + 3].y - user[k].y)
+                let la = hypot(a.x / kw, a.y / kh), lb = hypot(b.x / kw, b.y / kh)
+                guard la > 0.35, lb > 0.35 else { continue }
+                let cosv = (a.x * b.x + a.y * b.y) / max(0.0001, hypot(a.x, a.y) * hypot(b.x, b.y))
+                guard cosv < 0.35 else { continue }          // plus de ~70° : un vrai virage
+                if k - lastK <= 4, !corners.isEmpty { continue }
+                corners.append(user[k]); lastK = k
+            }
+        }
         // Pour chaque lettre, à quelle distance le tracé passe de sa touche, point par point.
         var near: [Character: [CGFloat]] = [:]
         for (k, cs) in touch.centers {
@@ -250,6 +268,11 @@ final class KBSuggest {
                 }
                 loc /= wsum
                 guard loc < 1.25 else { continue }
+                // Les virages du tracé que le mot ne visite pas, et l'écart de longueur.
+                var missedTurns = 0
+                for c in corners where !ideal.contains(where: { dist($0, c) < 0.95 }) { missedTurns += 1 }
+                let lenRatio = Double(max(0.3, length(tpl)) / max(0.3, userLen))
+                let lenPenalty = userLen > 1.5 ? abs(log(lenRatio)) : 0
                 let tplShape = Self.normalized(tpl)
                 var shape: CGFloat = 0
                 for k in 0..<n { shape += hypot(tplShape[k].x - userShape[k].x, tplShape[k].y - userShape[k].y) }
@@ -257,6 +280,7 @@ final class KBSuggest {
                 let prior = lm?.score(words[i], before: before) ?? -log(Double(i) + 30)
                 let mine = log(1 + Double(KBWordStore.shared.count(w))) * 0.6
                 let score = -Double(loc * loc) * 7 - Double(shape) * 6 + prior * 0.6 + mine - Double(misses) * 2
+                    - Double(missedTurns) * 2.2 - lenPenalty * 5
                 scored.append((words[i], score))
             }
         }
