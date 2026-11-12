@@ -97,7 +97,7 @@ struct BentoHomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     header
-                    grid(wide: wide)
+                    grid(wide: wide, width: min(g.size.width - 36, 1100))
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 36)
@@ -149,7 +149,7 @@ struct BentoHomeView: View {
             VStack(alignment: .leading, spacing: 12) {
                 if i == 0 { header }
                 if editing && i == 0 { editHint }
-                cards(ids, wide: width >= 520, start: i * 4)
+                cards(ids, wide: width >= 520, start: i * 4, width: width)
                 if editing {
                     // Lâcher ici : la carte passe en bas de cette page.
                     RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous)
@@ -260,11 +260,12 @@ struct BentoHomeView: View {
 
     // MARK: La grille (colonnes de hauteurs différentes)
 
-    /// Une rangée : deux cartes côte à côte, de même hauteur.
-    private func row<A: View, B: View>(_ a: A, _ b: B, _ i: Int, lead: CGFloat = 1) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            a.frame(maxWidth: .infinity, maxHeight: .infinity).layoutPriority(lead)
-            b.frame(maxWidth: .infinity, maxHeight: .infinity)
+    /// Deux colonnes de même largeur (sinon la première prend toute la place et écrase l'autre).
+    private func row<A: View, B: View>(_ a: A, _ b: B, _ i: Int, width: CGFloat) -> some View {
+        let half = max(120, (width - 12) / 2)
+        return HStack(alignment: .top, spacing: 12) {
+            a.frame(width: half).frame(maxHeight: .infinity)
+            b.frame(width: half).frame(maxHeight: .infinity)
         }
         .fixedSize(horizontal: false, vertical: true)
         .modifier(Pop(on: appeared, i: i))
@@ -420,24 +421,24 @@ struct BentoHomeView: View {
         .padding(.horizontal, 4)
     }
 
-    @ViewBuilder private func cards(_ ids: [String], wide: Bool, start: Int) -> some View {
+    @ViewBuilder private func cards(_ ids: [String], wide: Bool, start: Int, width: CGFloat) -> some View {
         let rs = rows(ids, wide: wide)
         ForEach(Array(rs.enumerated()), id: \.element) { i, r in
             if r.count == 2 {
-                row(movable(r[0]), movable(r[1]), start + i + 1)
+                row(movable(r[0]), movable(r[1]), start + i + 1, width: width)
             } else {
                 one(movable(r[0]), start + i + 1)
             }
         }
     }
 
-    @ViewBuilder private func grid(wide: Bool) -> some View {
+    @ViewBuilder private func grid(wide: Bool, width: CGFloat) -> some View {
         let showAuto = model.stats.autoLast == nil && !Demo.seeded
         let showPromo = !foldboardPromoHidden && FoldboardPromoRule.shouldShow
         VStack(spacing: 12) {
             if editing { editHint }
             if showAuto && !editing { one(autoCard, 0) }
-            cards(lists.first ?? [], wide: wide, start: 0)
+            cards(lists.first ?? [], wide: wide, start: 0, width: width)
             if showPromo && !editing { one(promo, 12) }
         }
     }
