@@ -450,7 +450,7 @@ final class KBSuggest {
                "couldnt": "couldn’t", "shouldnt": "shouldn’t", "wouldnt": "wouldn’t", "havent": "haven’t", "hasnt": "hasn’t",
                "youre": "you’re", "youve": "you’ve", "youll": "you’ll", "theyre": "they’re", "theyve": "they’ve",
                "thats": "that’s", "whats": "what’s", "theres": "there’s", "heres": "here’s", "itll": "it’ll",
-               "ill": "I’ll", "id": "I’d", "lets": "let’s", "hes": "he’s", "shes": "she’s"],
+               "ill": "I’ll", "id": "I’d", "lets": "let’s", "hes": "he’s", "shes": "she’s", "its": "it’s"],
         "fr": ["jai": "j’ai", "cest": "c’est", "cetait": "c’était", "quil": "qu’il", "quils": "qu’ils", "quon": "qu’on",
                "nest": "n’est", "jen": "j’en", "jy": "j’y", "daccord": "d’accord", "aujourdhui": "aujourd’hui",
                "jespere": "j’espère", "sil": "s’il", "sils": "s’ils", "nimporte": "n’importe", "jetais": "j’étais",
@@ -458,7 +458,15 @@ final class KBSuggest {
                "quelquun": "quelqu’un", "lautre": "l’autre", "jsuis": "j’suis", "ya": "y’a"],
     ]
     /// Celles qui sont aussi de vrais mots (« ill », « lets », « id », « hes »…) : seulement dans la barre, jamais d'office.
-    private static let ambiguous: Set<String> = ["ill", "id", "lets", "hes", "shes", "ya", "jy", "sil", "jen"]
+    private static let ambiguous: Set<String> = ["ill", "id", "lets", "hes", "shes", "ya", "jy", "sil", "jen", "its"]
+
+    /// Les mots après lesquels « its » est bien le possessif (« of its », « on its own », « has its »).
+    /// Partout ailleurs (début de phrase, « I think its », « but its »…), c'est presque toujours « it’s ».
+    private static let itsPossessive: Set<String> = ["of", "in", "on", "for", "with", "to", "by", "from", "at", "into", "onto",
+        "about", "has", "have", "had", "having", "lost", "lose", "loses", "through", "within", "under", "over", "during",
+        "across", "after", "before", "behind", "beyond", "toward", "towards", "upon", "without", "change", "changed", "keep",
+        "kept", "keeps", "do", "does", "did", "doing", "show", "shows", "find", "found", "reach", "reached", "make", "made",
+        "all", "one", "each", "both", "near", "around", "against", "among", "via", "despite", "like", "than"]
 
     /// Les mots après lesquels « a » est presque toujours « à ».
     private static let towardA: Set<String> = ["vais", "vas", "va", "allons", "allez", "vont", "aller", "allé", "allée", "allés",
@@ -505,6 +513,12 @@ final class KBSuggest {
         if language.hasPrefix("fr"), low == "a", let prev, Self.towardA.contains(prev) { return matchCase("à", like: word) }
         if language.hasPrefix("fr"), low == "a", let lm, let sa = lm.score("à", before: before), let s0 = lm.score("a", before: before),
            sa > s0 + 1.6 { return matchCase("à", like: word) }
+        // « its » ou « it’s » d'après le mot d'avant, comme le clavier d'Apple : « its great » → « it’s great »,
+        // mais « on its own » reste.
+        if language.hasPrefix("en"), low == "its", !known.contains(low) {
+            if let prev, Self.itsPossessive.contains(prev) { return nil }
+            return word.first?.isUppercase == true ? "It’s" : "it’s"
+        }
         if !known.contains(low), replacements[low] == nil {
             if !Self.ambiguous.contains(low), let c = contraction(word) { return c }
             if let fix = accentFix(word) { return fix }
