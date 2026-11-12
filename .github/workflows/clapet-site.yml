@@ -38,3 +38,5 @@ jobs:
           for p in "" fr/ en/ fr/privacy.html en/privacy.html fr/sondage.html en/survey.html; do
             echo "$(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/$p) ${{ inputs.url }}/$p"
           done
+          echo "idées : $(curl -s ${{ inputs.url }}/api/ideas | head -c 300)"
+          echo "modération sans clé : $(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/api/ideas/admin)"
