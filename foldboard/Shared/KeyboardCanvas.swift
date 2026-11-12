@@ -1572,6 +1572,11 @@ final class KeyboardCanvas: UIView {
                 let lo = blocks.map { $0.minX }.min() ?? 0
                 let hi = blocks.map { $0.maxX }.max() ?? bounds.width
                 KBThumb.shared.tap(kx: Double((f.midX - lo) / max(1, hi - lo)), dx: Double((p.x - f.midX) / max(1, f.width)), time: t.timestamp)
+                // Et comment le téléphone a bougé sous l'appui (connu un quart de seconde après).
+                let ts = t.timestamp
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) { [weak self] in
+                    if let k = self?.grip.kick(at: ts) { KBThumb.shared.kick(time: ts, k) }
+                }
             }
             if autoOn || recording != nil, bounds.width > 0 {
                 let lo = blocks.map { $0.minX }.min() ?? 0

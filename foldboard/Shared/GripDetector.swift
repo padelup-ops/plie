@@ -448,6 +448,24 @@ final class GripDetector {
         emit(g)
     }
 
+    /// Comment le téléphone a réagi à un appui : sa rotation moyenne juste après (0 à 0,25 s), moins celle
+    /// d'avant (le mouvement de fond). Le pouce qui appuie fait pivoter le téléphone autour de la main qui le tient :
+    /// le sens dépend de la main.
+    func kick(at t: TimeInterval) -> (x: Double, y: Double, z: Double)? {
+        lock.lock()
+        let after = samples.filter { $0.t >= t && $0.t <= t + 0.25 }
+        let before = samples.filter { $0.t >= t - 0.2 && $0.t < t }
+        lock.unlock()
+        guard after.count >= 5 else { return nil }
+        func avg(_ a: [(t: TimeInterval, x: Double, y: Double, z: Double)]) -> (Double, Double, Double) {
+            guard !a.isEmpty else { return (0, 0, 0) }
+            let n = Double(a.count)
+            return (a.reduce(0) { $0 + $1.x } / n, a.reduce(0) { $0 + $1.y } / n, a.reduce(0) { $0 + $1.z } / n)
+        }
+        let p = avg(after), q = avg(before)
+        return (p.0 - q.0, p.1 - q.1, p.2 - q.2)
+    }
+
     private func variance(from a: TimeInterval, to b: TimeInterval) -> Double? {
         lock.lock()
         let ys = samples.filter { $0.t >= a && $0.t <= b }.map { $0.y }
