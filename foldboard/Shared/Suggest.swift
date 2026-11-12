@@ -464,6 +464,9 @@ final class KBSuggest {
         return matchCase(a.word, like: word)
     }
 
+    /// Le remplacement de texte de l'utilisateur pour ce mot, s'il en a un.
+    func replacement(for word: String) -> String? { replacements[word.lowercased()] }
+
     /// La correction à appliquer quand on termine le mot (espace, ponctuation), ou nil.
     func correction(for word: String, before: String, touch: KBTouchModel? = nil) -> String? {
         let low = word.lowercased()

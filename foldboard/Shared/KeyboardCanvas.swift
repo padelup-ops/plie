@@ -1346,6 +1346,18 @@ final class KeyboardCanvas: UIView {
         return (cols, rows, n)
     }
 
+    /// Ces boutons sont rangés dans la place libre, donc hors de la barre du haut qui les porte : sans ceci,
+    /// iOS ne les trouve pas sous le doigt et l'appui part à la place libre (le clavier changeait de côté).
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        if sideButtonsGrid != nil, !isHidden, isUserInteractionEnabled {
+            let q = convert(point, to: topBar)
+            for b in [globeButton, emojiButton, adjustButton, hideButton] where !b.isHidden && b.alpha > 0.01 && b.frame.contains(q) {
+                return b
+            }
+        }
+        return super.hitTest(point, with: event)
+    }
+
     private func rebuildPanel() {
         panel.subviews.forEach { $0.removeFromSuperview() }
         var area = panelRect
@@ -2032,10 +2044,34 @@ final class KeyboardCanvas: UIView {
 
     /// La touche ’ du clavier français (à droite du N) sert aussi d'accent, comme chez Apple : ’ puis e → é.
     /// Après une lettre d'élision (l’, d’, j’, qu’…), elle reste une apostrophe : « l’été » s'écrit normalement.
+    private static let frAccent: [Character: String] = ["e": "é", "a": "à", "u": "ù", "i": "î", "o": "ô",
+                                                         "E": "É", "A": "À", "U": "Ù", "I": "Î", "O": "Ô"]
+    /// Mots anglais où « voyelle + ’ » est une vraie contraction (we’re, you’re, she’ll…) : on n'y touche pas.
+    private static let enBeforeApostrophe: Set<String> = ["we", "he", "she", "you", "there", "here", "where", "who", "one",
+                                                          "someone", "everyone", "anyone", "no", "do", "o", "ma", "be", "i"]
+
+    /// L'autre sens, celui qu'on essaie d'instinct : e puis ’ → é, a puis ’ → à.
+    /// Jamais après une consonne (l’, qu’, jusqu’ restent des apostrophes) ni sur une contraction anglaise.
+    private func accentAfter(_ text: String) -> Bool {
+        guard eff.layout == .azerty, text == "’" || text == "'" else { return false }
+        let before = input?.kbTextBefore() ?? ""
+        guard let v = before.last, let acc = Self.frAccent[v] else { return false }
+        let word = String(before.reversed().prefix { $0.isLetter }.reversed()).lowercased()
+        if Self.enBeforeApostrophe.contains(word) { return false }
+        // Après qu (« qu’ ») c'est l'élision.
+        if word.hasSuffix("qu") { return false }
+        // Un mot entre apostrophes ('bonjour') : c'est le guillemet fermant.
+        // (Mais « l’e’te » → « l’été » : là, l'apostrophe suit une lettre.)
+        let head = before.dropLast(word.count)
+        if let open = head.last, "'‘’".contains(open), head.dropLast().last.map({ $0.isWhitespace }) ?? true { return false }
+        input?.kbDelete()
+        input?.kbInsert(acc)
+        return true
+    }
+
     private func accentKey(_ text: String) -> Bool {
         guard eff.layout == .azerty, text.count == 1, let v = text.first else { return false }
-        let map: [Character: String] = ["e": "é", "a": "á", "i": "í", "o": "ó", "u": "ú", "E": "É", "A": "Á", "I": "Í", "O": "Ó", "U": "Ú"]
-        guard let acc = map[v] else { return false }
+        guard let acc = Self.frAccent[v] else { return false }
         let before = input?.kbTextBefore() ?? ""
         guard before.hasSuffix("’") || before.hasSuffix("'") else { return false }
         let prev = before.dropLast().last
@@ -2054,13 +2090,26 @@ final class KeyboardCanvas: UIView {
             glidedWord = nil
             if let c = text.first, c.isLetter || c.isNumber, (input?.kbTextBefore() ?? "").hasSuffix(g) { input?.kbInsert(" ") }
         }
-        if accentKey(text) {
+        if accentKey(text) || accentAfter(text) {
             lastCorrection = nil
             refreshSuggestionsSoon()
             if shift == .on { shift = .off; autoShifted = false; updateLabels() }
             return
         }
-        if [".", ",", "!", "?", ";", ":", ")"].contains(text) {
+        // Comme chez Apple : « mot . » → « mot. » — l'espace laissée avant un point ou une virgule disparaît.
+        // Le mot avant a déjà été traité au moment de l'espace : pas de seconde correction.
+        var spaceEaten = false
+        if text == "." || text == "," {
+            let before = input?.kbTextBefore() ?? ""
+            let chars = Array(before.suffix(2))
+            if chars.count == 2, chars[1] == " ", !chars[0].isWhitespace, !".,;:!?".contains(chars[0]) {
+                input?.kbDelete()
+                spaceEaten = true
+            }
+        }
+        if spaceEaten {
+            lastCorrection = nil   // le mot est déjà validé
+        } else if [".", ",", "!", "?", ";", ":", ")"].contains(text) {
             autocorrect(sep: text)
         } else {
             lastCorrection = nil
@@ -2153,9 +2202,27 @@ final class KeyboardCanvas: UIView {
                 suggestQueue.async { KBWordStore.shared.commit(final, after: sentenceStart ? nil : prev) }
             }
         }
-        guard eff.autocorrect, page == .letters || sep != " " else { return }
         let before = input?.kbTextBefore() ?? ""
         let word = KBSuggest.currentWord(before)
+        // Tes remplacements de texte (Réglages > Général > Clavier) : appliqués même sans correction automatique,
+        // comme sur le clavier d'Apple.
+        // Le raccourci peut contenir des chiffres ou des signes (« @@ », « adr1 ») : tout ce qui suit la dernière espace.
+        let token = String(before.reversed().prefix { !$0.isWhitespace }.reversed())
+        if !token.isEmpty, let r = suggest.replacement(for: token), r != token {
+            wordTouches.removeAll()
+            for _ in 0..<token.count { input?.kbDelete() }
+            input?.kbInsert(r)
+            lastCorrection = (token, r, sep)
+            return
+        }
+        if !eff.autocorrect, !word.isEmpty, let r = suggest.replacement(for: word), r != word {
+            wordTouches.removeAll()
+            for _ in 0..<word.count { input?.kbDelete() }
+            input?.kbInsert(r)
+            lastCorrection = (word, r, sep)
+            return
+        }
+        guard eff.autocorrect, page == .letters || sep != " " else { return }
         let known: String?? = cachedFix?.word == word ? .some(cachedFix?.fix) : nil
         // La correction préparée en arrière-plan si elle est prête, sinon on la calcule (quelques ms : la mesure
         // de fluidité montre que le clavier a toute la marge).
