@@ -23,7 +23,15 @@ print("version", VERSION, state)
 if state != "PENDING_DEVELOPER_RELEASE":
     print("PAS ENCORE VALIDÉE : rien à faire")
     sys.exit(0)
-# 1. L'app passe en gratuit (base France, 0 €)
+# 1. L'app passe en gratuit (base France, 0 €) — sauf KEEP_PRICE=1 (l'app est déjà gratuite)
+if os.environ.get("KEEP_PRICE") == "1":
+    r = call("POST", "/v1/appStoreVersionReleaseRequests", {"data": {"type": "appStoreVersionReleaseRequests",
+             "relationships": {"appStoreVersion": {"data": {"type": "appStoreVersions", "id": v["id"]}}}}})
+    print("publication :", "ok" if "error" not in r else r)
+    time.sleep(5)
+    print("état :", call("GET", f"/v1/appStoreVersions/{v['id']}")["data"]["attributes"].get("appStoreState"))
+    print("PUBLIÉE")
+    sys.exit(0)
 point, url = None, f"/v1/apps/{app_id}/appPricePoints?filter[territory]=FRA&limit=200"
 while url and not point:
     page = call("GET", url)
