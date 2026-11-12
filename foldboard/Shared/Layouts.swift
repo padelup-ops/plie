@@ -93,9 +93,10 @@ enum KBLayouts {
         var keys: [KeySpec] = [KeySpec(kind: .page(page == .letters ? .numbers : .letters), width: 1.5)]
         if compact {
             // Petit clavier à une main : le globe et les emojis montent dans la barre du haut, l'espace est bien plus large.
-            // Main gauche : le point passe de l'autre côté de l'espace (la frappe est en miroir de la main droite).
+            // Le point du côté du pouce : à droite de l'espace pour la main droite (le bord gauche est loin du pouce),
+            // à gauche pour la main gauche.
             let dot = KeySpec(kind: .char(layout == .azerty && page == .letters ? "," : "."), width: 1)
-            if leftHand {
+            if !leftHand {
                 keys.append(KeySpec(kind: .space, width: 5.5))
                 keys.append(dot)
                 keys.append(KeySpec(kind: .ret, width: 2))
