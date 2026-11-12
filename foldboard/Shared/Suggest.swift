@@ -521,6 +521,9 @@ final class KBSuggest {
         if let touch {
             for cand in nearbyWords(lower, touch: touch) where !pool.contains(where: { $0.lowercased() == cand }) { pool.append(cand) }
         }
+        // Et toutes les fautes de frappe courantes, pour n'importe quel mot (sans attendre qu'iOS les propose) :
+        // deux lettres inversées, une touche voisine, une lettre en trop, une lettre oubliée.
+        for cand in typoVariants(lower) where !pool.contains(where: { $0.lowercased() == cand }) { pool.append(cand) }
         var best: (word: String, score: Double, rank: Int)?
         let fromChecker = Set(guesses.map { $0.lowercased() })
         for g in pool {
@@ -581,6 +584,30 @@ final class KBSuggest {
             }
         }
         return best.map { matchCase($0.word, like: word) }
+    }
+
+    /// Les mots de la liste à une faute de frappe de `lower` : inversion de deux lettres voisines, touche voisine
+    /// sur le clavier, lettre doublée ou en trop, lettre oubliée. Les formes accentuées comptent aussi (« reponse » → « réponse »).
+    private func typoVariants(_ lower: String) -> [String] {
+        let x = Array(lower)
+        guard x.count >= 3, x.count <= 20 else { return [] }
+        var seen = Set<String>(), out: [String] = []
+        func add(_ w: [Character]) {
+            let s = String(w)
+            guard s != lower, seen.insert(s).inserted else { return }
+            if let r = rank[s], r < 15_000 { out.append(s) }
+            if let a = accented[s], words[a] != s, rank[words[a]] ?? .max < 15_000 { out.append(words[a]) }
+        }
+        let letters = Array(Set(rows.joined()))
+        for i in 0..<x.count {
+            if i + 1 < x.count, x[i] != x[i + 1] { var w = x; w.swapAt(i, i + 1); add(w) }       // inversion
+            for k in letters where k != x[i] && neighbors(k, x[i]) { var w = x; w[i] = k; add(w) }  // touche voisine
+            var d = x; d.remove(at: i); add(d)                                                    // lettre en trop
+        }
+        for i in 0...x.count {                                                                   // lettre oubliée
+            for k in letters { var w = x; w.insert(k, at: i); add(w) }
+        }
+        return out
     }
 
     /// Deux lettres voisines inversées, rien d'autre (« teh » / « the »).
