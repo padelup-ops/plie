@@ -45,6 +45,12 @@ final class GameCenter {
         if value { authenticate() }
     }
 
+    /// Se connecter à Game Center sans activer les classements (pour la boîte à idées : le pseudo).
+    func signIn() {
+        problem = nil
+        authenticate()
+    }
+
     private func authenticate() {
         GKLocalPlayer.local.authenticateHandler = { [weak self] controller, error in
             Task { @MainActor in
@@ -54,6 +60,7 @@ final class GameCenter {
                     return
                 }
                 self.signedIn = GKLocalPlayer.local.isAuthenticated
+                if self.signedIn { NotificationCenter.default.post(name: .gameCenterSignedIn, object: nil) }
                 if !self.signedIn && self.on {
                     // Le vrai message d'Apple aide à comprendre (compte pas connecté, jeu pas encore reconnu…).
                     let base = String(localized: "Sign in to Game Center in the Settings app to join the leaderboard.")
@@ -198,4 +205,8 @@ struct LeaderboardScreen: UIViewControllerRepresentable {
         init(dismiss: @escaping () -> Void) { self.dismiss = dismiss }
         func gameCenterViewControllerDidFinish(_ controller: GKGameCenterViewController) { dismiss() }
     }
+}
+
+extension Notification.Name {
+    static let gameCenterSignedIn = Notification.Name("foldly.gameCenterSignedIn")
 }

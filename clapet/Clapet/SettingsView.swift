@@ -9,6 +9,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var confirmReset = false
     @State private var showPlus = false
+    @State private var showIdeas = false
     @State private var showTour = false
     @State private var tourPending: TourTarget?
     @State private var showBoards = false
@@ -294,6 +295,9 @@ struct SettingsView: View {
                     Button { showTour = true } label: {
                         Label { Text("Guided tour") } icon: { SIcon("map.fill", .blue) }
                     }
+                    Button { showIdeas = true } label: {
+                        Label { Text("Ideas and votes") } icon: { SIcon("bubble.left.and.text.bubble.right.fill", .purple) }
+                    }
                     if !store.isTestBuild {
                         Link(destination: ReviewRule.writeReviewURL) {
                             Label { Text("Rate Foldly on the App Store") } icon: { SIcon("star.fill", .yellow) }
@@ -353,6 +357,7 @@ struct SettingsView: View {
                 tourPending = nil
             }) { FeatureTour { tourPending = $0 } }
             .sheet(isPresented: $showBoards) { LeaderboardView().environment(model).environment(store) }
+            .sheet(isPresented: $showIdeas) { IdeasView().environment(model) }
             .sheet(isPresented: $showPlus) {
                 PlusView().environment(model).environment(store)
             }

@@ -77,6 +77,8 @@ struct BentoHomeView: View {
     @State private var showHours = false
     @State private var plusReason: PlusReason?
     @State private var foldboardPromoHidden = false
+    @State private var ideasHidden = IdeasRule.promoHidden
+    @State private var showIdeas = false
     @State private var appeared = BentoIntro.played
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .largeTitle) private var heroSize: CGFloat = 56
@@ -189,6 +191,7 @@ struct BentoHomeView: View {
     private func attach<C: View>(_ content: C) -> some View {
         content
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
+        .sheet(isPresented: $showIdeas) { IdeasView().environment(model) }
         .sheet(isPresented: $showSettings) { SettingsView().environment(model).environment(store) }
         .sheet(isPresented: $showBoards) { LeaderboardView().environment(model).environment(store) }
         .sheet(isPresented: $showAuto) { AutoCountView().environment(model) }
@@ -560,6 +563,7 @@ struct BentoHomeView: View {
             if !store.hasPlus && ThemeTrial.active && !editing { one(trialCard, 0) }
             if showAuto && !editing { one(autoCard, 0) }
             if showPromo && !editing { one(promo, 0) }
+            if !ideasHidden && !editing { one(ideasCard, 0) }
             cards(lists.first ?? [], wide: wide, start: 0, width: width)
         }
     }
@@ -569,6 +573,15 @@ struct BentoHomeView: View {
             VStack(alignment: .leading, spacing: 10) {
                 label(Text("Time closed"))
                 ClosedTimeContent(stats: model.stats, accent: Bento.accent)
+            }
+        }
+    }
+
+    private var ideasCard: some View {
+        white {
+            IdeasPromo { showIdeas = true } onHide: {
+                IdeasRule.promoHidden = true
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { ideasHidden = true }
             }
         }
     }

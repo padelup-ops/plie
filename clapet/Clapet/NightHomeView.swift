@@ -52,6 +52,8 @@ struct NightHomeView: View {
     @State private var showSettings = false
     @State private var restPromoHidden = false
     @State private var foldboardPromoHidden = false
+    @State private var ideasHidden = IdeasRule.promoHidden
+    @State private var showIdeas = false
     @State private var showBoards = false
     @State private var showHistory = false
     @Environment(\.scenePhase) private var scenePhase
@@ -110,6 +112,7 @@ struct NightHomeView: View {
         .tint(.dfAccent)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
         .sheet(isPresented: $showBoards) { LeaderboardView().environment(model).environment(store) }
+        .sheet(isPresented: $showIdeas) { IdeasView().environment(model) }
         .sheet(isPresented: $showSettings) {
             SettingsView().environment(model).environment(store)
         }
@@ -345,6 +348,14 @@ struct NightHomeView: View {
                     FoldboardPromo { openURL(FoldboardPromoRule.url) } onHide: {
                         FoldboardPromoRule.hide()
                         withAnimation { foldboardPromoHidden = true }
+                    }
+                }
+            }
+            if !ideasHidden {
+                Card(filled: true) {
+                    IdeasPromo { showIdeas = true } onHide: {
+                        IdeasRule.promoHidden = true
+                        withAnimation { ideasHidden = true }
                     }
                 }
             }
