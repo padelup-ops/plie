@@ -33,6 +33,12 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
     var onEmoji: ((String) -> Void)?
     var onABC: (() -> Void)?
     var onDelete: (() -> Void)?
+    /// Un élément du presse-papier à coller.
+    var onClip: ((String) -> Void)? { didSet { clips.onPaste = onClip } }
+    /// Le presse-papier à la place des emojis (bouton 📋 de la barre du bas).
+    private(set) var clipMode = false
+    let clips = ClipboardList()
+    private let clipBtn = UIButton(type: .system)
 
     private let scroll = UIScrollView()
     private let bar = UIView()
@@ -73,6 +79,22 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         del.addTarget(self, action: #selector(deleteDown), for: .touchDown)
         del.addTarget(self, action: #selector(deleteUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
         bar.addSubview(del)
+
+        clips.isHidden = true
+        addSubview(clips)
+        clipBtn.setImage(UIImage(systemName: "doc.on.clipboard", withConfiguration: UIImage.SymbolConfiguration(pointSize: 14, weight: .medium)), for: .normal)
+        clipBtn.accessibilityLabel = L("Clipboard")
+        clipBtn.addAction(UIAction { [weak self] _ in self?.setClipMode(!(self?.clipMode ?? false)) }, for: .touchUpInside)
+        bar.addSubview(clipBtn)
+    }
+
+    /// Ouvre ou ferme le presse-papier (à la place de la grille d'emojis).
+    func setClipMode(_ on: Bool) {
+        clipMode = on
+        clips.isHidden = !on
+        scroll.isHidden = on
+        if on { clips.reload() }
+        highlightTab()
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -98,6 +120,7 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         let barH: CGFloat = 40
         bar.frame = CGRect(x: 0, y: bounds.height - barH, width: bounds.width, height: barH)
         scroll.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.height - barH - 4)
+        clips.frame = scroll.frame
         rows = max(3, min(5, Int(scroll.bounds.height / 40)))
         cellH = scroll.bounds.height / CGFloat(rows)
         cellW = max(36, min(48, bounds.width / 8))
@@ -136,12 +159,15 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         abc.frame = CGRect(x: 4, y: 4, width: side, height: barH - 8)
         del.frame = CGRect(x: bounds.width - side - 4, y: 4, width: side, height: barH - 8)
         let symbols = ["clock"] + KBEmoji.categories.map { $0.symbol }
-        let avail = bounds.width - 2 * side - 16
+        // Le presse-papier juste après ABC, puis les catégories.
+        let clipW: CGFloat = 40
+        clipBtn.frame = CGRect(x: side + 6, y: 4, width: clipW, height: barH - 8)
+        let avail = bounds.width - 2 * side - 16 - clipW
         let tw = avail / CGFloat(symbols.count)
         for (i, s) in symbols.enumerated() {
             let b = UIButton(type: .system)
             b.setImage(UIImage(systemName: s, withConfiguration: UIImage.SymbolConfiguration(pointSize: 13, weight: .medium)), for: .normal)
-            b.frame = CGRect(x: side + 8 + CGFloat(i) * tw, y: 4, width: tw, height: barH - 8)
+            b.frame = CGRect(x: side + 8 + clipW + CGFloat(i) * tw, y: 4, width: tw, height: barH - 8)
             b.tag = i
             b.addAction(UIAction { [weak self] _ in self?.jump(to: i) }, for: .touchUpInside)
             bar.addSubview(b)
@@ -156,10 +182,14 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         abc.backgroundColor = keyColor
         del.tintColor = textColor
         del.backgroundColor = keyColor
+        clips.textColor = textColor
+        clips.keyColor = keyColor
+        clips.accent = accent
         highlightTab()
     }
 
     private func jump(to i: Int) {
+        if clipMode { setClipMode(false) }
         guard i < sections.count else { return }
         let x = min(sections[i].start, max(0, scroll.contentSize.width - scroll.bounds.width))
         scroll.setContentOffset(CGPoint(x: x, y: 0), animated: false)
@@ -170,7 +200,8 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         let x = scroll.contentOffset.x + 1
         var current = 0
         for (i, s) in sections.enumerated() where s.start <= x { current = i }
-        for (i, b) in tabs.enumerated() { b.tintColor = i == current ? accent : textColor.withAlphaComponent(0.45) }
+        for (i, b) in tabs.enumerated() { b.tintColor = !clipMode && i == current ? accent : textColor.withAlphaComponent(0.45) }
+        clipBtn.tintColor = clipMode ? accent : textColor.withAlphaComponent(0.45)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) { highlightTab() }

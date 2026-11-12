@@ -270,6 +270,12 @@ final class KeyboardCanvas: UIView {
             self.refreshSuggestionsSoon()
         }
         emojiBoard.onABC = { [weak self] in self?.closeEmoji() }
+        emojiBoard.onClip = { [weak self] t in
+            guard let self else { return }
+            KBFeedback.shared.tap(sound: self.eff.sound, haptics: self.eff.haptics)
+            self.pasteClip(t)
+            self.closeEmoji()
+        }
         emojiBoard.onDelete = { [weak self] in
             guard let self else { return }
             KBFeedback.shared.tap(sound: self.eff.sound, haptics: self.eff.haptics)
@@ -367,8 +373,36 @@ final class KeyboardCanvas: UIView {
         shift = .off
         refreshShift()
         KBFeedback.shared.prepare()
+        emojiBoard.setClipMode(false)
+        startClipWatch()
         builtFor = .zero
         setNeedsLayout()
+    }
+
+    // MARK: Presse-papier
+
+    private var clipTimer: Timer?
+
+    /// Ce que tu copies est gardé (accès complet seulement) : on regarde à l'apparition puis chaque seconde et demie.
+    private func startClipWatch() {
+        clipTimer?.invalidate()
+        guard input?.kbFullAccess == true else { return }
+        checkClipboard()
+        clipTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in self?.checkClipboard() }
+    }
+
+    private func checkClipboard() {
+        guard visible, KBClipboard.shared.capture() else { return }
+        if suggestionItems.isEmpty { rebuildChips() }
+        if showEmoji, emojiBoard.clipMode { emojiBoard.clips.reload() }
+    }
+
+    private func pasteClip(_ t: String) {
+        input?.kbInsert(t)
+        KBClipboard.shared.dismissFresh()
+        lastCorrection = nil
+        refreshSuggestionsSoon()
+        refreshShiftSoon()
     }
 
     /// La situation (Duo fermé ou ouvert, portrait ou paysage) et l'étalonnage qui va avec.
@@ -565,6 +599,8 @@ final class KeyboardCanvas: UIView {
         grip.stop()
         gripStarted = false
         idleTimer?.invalidate()
+        clipTimer?.invalidate()
+        clipTimer = nil
     }
 
     /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
@@ -990,6 +1026,7 @@ final class KeyboardCanvas: UIView {
 
     private func closeEmoji() {
         showEmoji = false
+        emojiBoard.setClipMode(false)
         builtFor = .zero
         rebuild()
     }
@@ -1036,6 +1073,7 @@ final class KeyboardCanvas: UIView {
             emojiBoard.keyColor = theme.special
             emojiBoard.accent = theme.accent
             emojiBoard.configure(favorites: eff.emojis)
+            emojiBoard.clips.fullAccess = input?.kbFullAccess ?? false
             emojiBoard.reloadRecent()
             rebuildPanel()
             layoutTopBar()
@@ -1265,6 +1303,35 @@ final class KeyboardCanvas: UIView {
             chips.contentSize = CGSize(width: chipStack.frame.width, height: h)
             chips.contentOffset = .zero
             return
+        }
+        // Tu viens de copier quelque chose : « Coller » dans la barre, comme sur le clavier d'Apple.
+        if let t = KBClipboard.shared.freshText, input?.kbFullAccess == true {
+            let b = UIButton(type: .system)
+            var cfg = UIButton.Configuration.plain()
+            let one = t.replacingOccurrences(of: "\n", with: " ")
+            cfg.title = one.count > 22 ? String(one.prefix(22)) + "…" : one
+            cfg.image = UIImage(systemName: "doc.on.clipboard", withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))
+            cfg.imagePadding = 6
+            cfg.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12)
+            cfg.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { [font = eff.font] a in
+                var a = a
+                a.font = font.ui(size: 15, weight: .medium)
+                return a
+            }
+            b.configuration = cfg
+            b.tintColor = theme.text
+            b.backgroundColor = theme.key.withAlphaComponent(0.6)
+            b.layer.cornerRadius = 15
+            b.layer.cornerCurve = .continuous
+            b.accessibilityLabel = L("Paste")
+            b.addAction(UIAction { [weak self] _ in
+                guard let self else { return }
+                KBFeedback.shared.tap(sound: self.eff.sound, haptics: self.eff.haptics)
+                self.pasteClip(t)
+                self.rebuildChips()
+            }, for: .touchUpInside)
+            chipStack.addArrangedSubview(b)
+            b.heightAnchor.constraint(equalToConstant: 30).isActive = true
         }
         let showPhrasesInBar = !(layoutMode.isOneHand && eff.sidePanel == .phrases && panelRect.width >= 90)
         if showPhrasesInBar {

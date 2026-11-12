@@ -330,3 +330,12 @@
 "Teach your thumbs" = "Apprends-lui tes pouces";
 "Teach your thumbs · 30 s" = "Apprends-lui tes pouces · 30 s";
 "30 seconds: a sentence with each thumb" = "30 secondes : une phrase avec chaque pouce";
+
+/* Presse-papier */
+"Clipboard" = "Presse-papier";
+"Paste" = "Coller";
+"Pin" = "Épingler";
+"Unpin" = "Désépingler";
+"Delete" = "Supprimer";
+"Turn on Full Access in Settings › Foldboard to keep what you copy here. It stays on your iPhone." = "Active l'accès complet dans Réglages › Foldboard pour retrouver ici ce que tu copies. Tout reste sur ton iPhone.";
+"Copy text in any app and it shows up here, ready to paste." = "Copie du texte dans n'importe quelle app : il apparaît ici, prêt à coller.";
