@@ -50,10 +50,43 @@ struct HomeView: View {
     @State private var showPro = false
     @State private var tryText = ""
     @FocusState private var tryFocus: Bool
+    /// L'accueil « Atelier », à l'essai dans TestFlight.
+    @AppStorage("atelierHome") private var atelier = true
 
     var body: some View {
         NavigationStack {
+            Group {
+                if KBBuild.isTest && atelier { AtelierHome(showPro: $showPro) } else { classic }
+            }
+            .sheet(isPresented: $showPro) { ProView().environment(store).fullScreenDuo() }
+            .sheet(isPresented: $showButtonsGuide) {
+                NavigationStack { ButtonsGuide { showButtonsGuide = false } }
+            }
+            .onAppear {
+                // Déjà installé avant cette version : on montre une fois les nouveaux boutons.
+                if onboarded && !seenButtonsGuide {
+                    seenButtonsGuide = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { showButtonsGuide = true }
+                }
+            }
+            .fullScreenCover(isPresented: Binding(get: { !onboarded }, set: { if !$0 { onboarded = true } })) {
+                OnboardingView { onboarded = true }
+                    .environment(store)
+                    .environment(model)
+                    .fullScreenDuo()
+            }
+        }
+    }
+
+    private var classic: some View {
             List {
+                if KBBuild.isTest {
+                    Section {
+                        Button { atelier = true } label: {
+                            Label("Try the new design (test)", systemImage: "wand.and.stars")
+                        }
+                    }
+                }
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack(spacing: 14) {
@@ -136,24 +169,6 @@ struct HomeView: View {
             .fullScreenDuo()
             .navigationTitle("Foldboard")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showPro) { ProView().environment(store).fullScreenDuo() }
-            .sheet(isPresented: $showButtonsGuide) {
-                NavigationStack { ButtonsGuide { showButtonsGuide = false } }
-            }
-            .onAppear {
-                // Déjà installé avant cette version : on montre une fois les nouveaux boutons.
-                if onboarded && !seenButtonsGuide {
-                    seenButtonsGuide = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { showButtonsGuide = true }
-                }
-            }
-            .fullScreenCover(isPresented: Binding(get: { !onboarded }, set: { if !$0 { onboarded = true } })) {
-                OnboardingView { onboarded = true }
-                    .environment(store)
-                    .environment(model)
-                    .fullScreenDuo()
-            }
-        }
     }
 }
 

@@ -14,19 +14,33 @@ enum Bento {
         }
         return Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? ui(dark) : ui(light) })
     }
-    // Une seule famille de gris, chauds.
-    static let bg = dyn(0xF7F7F5, 0x11110F)
-    static let tray = dyn(0xEEEEEA, 0x1A1A17)
-    static let card = dyn(0xFFFFFF, 0x1F1F1C)
-    static let dark = dyn(0x121210, 0x2C2C28)      // la carte « héros », sombre dans les deux thèmes
-    static let ink = dyn(0x161614, 0xF3F3EF)
-    static let muted = dyn(0x8B8B87, 0x96968F)
-    static let accent = dyn(0x2F5BFF, 0x5A7DFF)    // LA seule couleur d'accent
-    static let tint = dyn(0xEEF2FF, 0x1C2440)
-    static let line = dyn(0x000000, 0xFFFFFF, 0.07)
+    /// Atelier (à l'essai) : règles anti « design d'IA » (swiftui-design-skill, MIT) — papier chaud, la couleur de
+    /// Foldly (vert) au lieu du bleu par défaut, chiffres et titres en serif (New York), pas de dégradé.
+    static var atelier: Bool { DFLook.current == .atelier }
+    // Bento : une seule famille de gris, chauds.
+    private static let bBg = dyn(0xF7F7F5, 0x11110F), aBg = dyn(0xF5F3EF, 0x151412)
+    private static let bTray = dyn(0xEEEEEA, 0x1A1A17), aTray = dyn(0xEBE8E1, 0x24231F)
+    private static let bCard = dyn(0xFFFFFF, 0x1F1F1C), aCard = dyn(0xFFFFFF, 0x1E1D1A)
+    private static let bDark = dyn(0x121210, 0x2C2C28), aDark = dyn(0x1F2A24, 0x26332C)
+    private static let bInk = dyn(0x161614, 0xF3F3EF), aInk = dyn(0x1A1917, 0xF2F0EB)
+    private static let bMuted = dyn(0x8B8B87, 0x96968F), aMuted = dyn(0x75716A, 0x9C978E)
+    private static let bAccent = dyn(0x2F5BFF, 0x5A7DFF), aAccent = dyn(0x2E8B6A, 0x55C49A)
+    private static let bTint = dyn(0xEEF2FF, 0x1C2440), aTint = dyn(0xE3F1EA, 0x1D3329)
+    private static let bLine = dyn(0x000000, 0xFFFFFF, 0.07), aLine = dyn(0xE3DFD6, 0x2E2C28)
+    static var bg: Color { atelier ? aBg : bBg }
+    static var tray: Color { atelier ? aTray : bTray }
+    static var card: Color { atelier ? aCard : bCard }
+    static var dark: Color { atelier ? aDark : bDark }      // la carte « héros », sombre dans les deux thèmes
+    static var ink: Color { atelier ? aInk : bInk }
+    static var muted: Color { atelier ? aMuted : bMuted }
+    static var accent: Color { atelier ? aAccent : bAccent }    // LA seule couleur d'accent
+    static var tint: Color { atelier ? aTint : bTint }
+    static var line: Color { atelier ? aLine : bLine }
+    /// Les chiffres et les titres : serif dans Atelier.
+    static var design: Font.Design { atelier ? .serif : .default }
     // Règle de formes : cartes 22, tuiles 14, barres 6, boutons en pilule.
-    static let rCard: CGFloat = 22
-    static let rTile: CGFloat = 14
+    static var rCard: CGFloat { atelier ? 16 : 22 }
+    static var rTile: CGFloat { atelier ? 8 : 14 }
 }
 
 /// Le Duo à moitié ouvert : tenu comme un livre (pli vertical) ou posé en L sur la table (pli horizontal).
@@ -216,7 +230,7 @@ struct BentoHomeView: View {
     private var header: some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: "Foldly").font(.largeTitle.weight(.bold)).foregroundStyle(Bento.ink)
+                Text(verbatim: "Foldly").font(.system(.largeTitle, design: Bento.design).weight(.bold)).foregroundStyle(Bento.ink)
                 Text(Date(), format: .dateTime.weekday(.wide).day().month(.wide))
                     .font(.footnote).foregroundStyle(Bento.muted)
             }
@@ -453,8 +467,9 @@ struct BentoHomeView: View {
             .padding(16)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous).fill(Bento.card))
-            .shadow(color: .black.opacity(0.04), radius: 1, y: 1)
-            .shadow(color: .black.opacity(0.06), radius: 14, y: 6)
+            .overlay(RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous).strokeBorder(Bento.atelier ? Bento.line : .clear))
+            .shadow(color: .black.opacity(Bento.atelier ? 0 : 0.04), radius: 1, y: 1)
+            .shadow(color: .black.opacity(Bento.atelier ? 0 : 0.06), radius: 14, y: 6)
     }
 
     private func trayCard<V: View>(@ViewBuilder _ content: () -> V) -> some View {
@@ -492,7 +507,7 @@ struct BentoHomeView: View {
                         Circle().stroke(Color.white.opacity(0.1), lineWidth: 12)
                         Circle()
                             .trim(from: 0, to: max(0.02, min(1, s.progress)))
-                            .stroke(AngularGradient(colors: [Bento.accent.opacity(0.6), Bento.accent], center: .center),
+                            .stroke(Bento.atelier ? AnyShapeStyle(Bento.accent) : AnyShapeStyle(AngularGradient(colors: [Bento.accent.opacity(0.6), Bento.accent], center: .center)),
                                     style: StrokeStyle(lineWidth: 12, lineCap: .round))
                             .rotationEffect(.degrees(-90))
                             .animation(.spring(response: 0.7, dampingFraction: 0.7), value: s.progress)
@@ -501,7 +516,7 @@ struct BentoHomeView: View {
                     .frame(width: 86, height: 86)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("\(FoldUnit.shown(s.today))")
-                            .font(.system(size: heroSize, weight: .semibold))
+                            .font(.system(size: heroSize, weight: .semibold, design: Bento.design))
                             .monospacedDigit()
                             .foregroundStyle(.white)
                             .contentTransition(.numericText())
@@ -555,7 +570,7 @@ struct BentoHomeView: View {
                         .stroke(Bento.accent, style: StrokeStyle(lineWidth: 12, lineCap: .round))
                         .animation(.spring(response: 0.45, dampingFraction: 0.6), value: deg)
                     Text(model.degrees == nil ? "—" : "\(Int(deg))°")
-                        .font(.system(size: bigSize, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                        .font(.system(size: bigSize, weight: .semibold, design: Bento.design)).monospacedDigit().foregroundStyle(Bento.ink)
                         .contentTransition(.numericText())
                         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: Int(deg))
                 }
@@ -574,7 +589,7 @@ struct BentoHomeView: View {
         return trayCard {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("This week").font(.subheadline.weight(.semibold)).foregroundStyle(Bento.ink)
+                    Text("This week").font(.system(.subheadline, design: Bento.design).weight(.semibold)).foregroundStyle(Bento.ink)
                     Spacer()
                     Text("\(s.weekTotal)").font(.subheadline.weight(.semibold)).monospacedDigit().foregroundStyle(Bento.muted)
                 }
@@ -612,13 +627,13 @@ struct BentoHomeView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             label(Text("Open"))
-                            Text(TimeFormat.narrow(open)).font(.system(size: midSize, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                            Text(TimeFormat.narrow(open)).font(.system(size: midSize, weight: .semibold, design: Bento.design)).monospacedDigit().foregroundStyle(Bento.ink)
                         }
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
                             label(Text("Closed"))
                             Text(s.autoLast == nil && closed == 0 ? "—" : TimeFormat.narrow(closed))
-                                .font(.system(size: midSize, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                                .font(.system(size: midSize, weight: .semibold, design: Bento.design)).monospacedDigit().foregroundStyle(Bento.ink)
                         }
                     }
                     GeometryReader { g in
@@ -654,7 +669,7 @@ struct BentoHomeView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     label(Text("Since day one"))
                     Text(model.stats.totalCloses, format: .number)
-                        .font(.system(size: bigSize, weight: .semibold)).monospacedDigit().foregroundStyle(Bento.ink)
+                        .font(.system(size: bigSize, weight: .semibold, design: Bento.design)).monospacedDigit().foregroundStyle(Bento.ink)
                         .contentTransition(.numericText())
                         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: model.stats.totalCloses)
                 }

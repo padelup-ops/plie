@@ -109,7 +109,7 @@ struct SettingsView: View {
                     ScrollView(.horizontal) {
                         HStack(spacing: 10) {
                             // Bento : thème à l'essai, seulement dans les versions de test (ou s'il est déjà choisi).
-                            ForEach(DFLook.allCases.filter { $0 != .bento || store.isTestBuild || DFLook.resolved(lookRaw) == .bento }) { look in
+                            ForEach(DFLook.allCases.filter { !$0.isBento || store.isTestBuild || DFLook.resolved(lookRaw) == $0 }) { look in
                                 ThemeTile(look: look, selected: DFLook.resolved(lookRaw) == look, locked: look.needsPlus && !store.hasPlus) {
                                     if look.needsPlus && !store.hasPlus { showPlus = true } else {
                                         withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { lookRaw = look.rawValue }
@@ -451,7 +451,8 @@ private struct ThemeTile: View {
         case .minimal: return (.white, Color(white: 0.93), .black)
         case .aurora: return (Color(red: 0.05, green: 0.04, blue: 0.16), Color(red: 0.16, green: 0.1, blue: 0.32), Color(red: 0.55, green: 0.5, blue: 1.0))
         case .custom: return (Color(red: 1.0, green: 0.93, blue: 0.85), .white, Color(red: 1.0, green: 0.45, blue: 0.3))
-        case .bento: return (Bento.bg, .white, Bento.accent)
+        case .bento: return (Color(red: 0.97, green: 0.97, blue: 0.96), .white, Color(red: 0.18, green: 0.36, blue: 1.0))
+        case .atelier: return (Color(red: 0.96, green: 0.953, blue: 0.937), .white, Color(red: 0.18, green: 0.545, blue: 0.416))
         }
     }
 

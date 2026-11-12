@@ -10,7 +10,7 @@ import UIKit
 // Choisi au premier lancement, modifiable dans les Réglages.
 
 enum DFLook: String, CaseIterable, Identifiable {
-    case classic, night, minimal, aurora, custom, bento
+    case classic, night, minimal, aurora, custom, bento, atelier
 
     /// Les looks sombres (Moderne et Aurore) partagent la mise en page du Moderne.
     var isDark: Bool { self == .night || self == .aurora || (self == .custom && CustomTheme.isDark) }
@@ -26,6 +26,9 @@ enum DFLook: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// Bento et Atelier (à l'essai) partagent la même grille de cartes.
+    var isBento: Bool { self == .bento || self == .atelier }
+
     static let key = "look"
 
     static var current: DFLook { resolved(UserDefaults.standard.string(forKey: key) ?? "") }
@@ -38,6 +41,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .aurora: return Text("Aurora")
         case .custom: return Text("My theme")
         case .bento: return Text(verbatim: "Bento (test)")
+        case .atelier: return Text(verbatim: "Atelier (test)")
         }
     }
 
@@ -49,6 +53,7 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .aurora: return Text("Northern lights that move with your hinge, with Foldly+")
         case .custom: return Text("Your own colors, with Foldly+")
         case .bento: return Text(verbatim: "A grid of living cards")
+        case .atelier: return Text(verbatim: "Warm paper, serif numbers")
         }
     }
 }
@@ -59,7 +64,7 @@ extension Color {
     private static var minimal: Bool { DFLook.current == .minimal }
     private static var aurora: Bool { DFLook.current == .aurora }
     private static var custom: Bool { DFLook.current == .custom }
-    private static var bento: Bool { DFLook.current == .bento }
+    private static var bento: Bool { DFLook.current.isBento }
 
     static var dfAccent: Color {
         if bento { return Bento.accent }
@@ -150,7 +155,7 @@ struct ContentView: View {
                     case .classic: ClassicHomeView()
                     case .night, .aurora, .custom: NightHomeView()
                     case .minimal: MinimalHomeView()
-                    case .bento: BentoHomeView(fold: desk ? (g.size.width > g.size.height ? .book : .laptop) : nil)
+                    case .bento, .atelier: BentoHomeView(fold: desk ? (g.size.width > g.size.height ? .book : .laptop) : nil)
                     }
                 }
                 // Petit écran extérieur : l'essentiel par-dessus (la vue d'accueil reste dessous).
@@ -159,7 +164,7 @@ struct ContentView: View {
                         .transition(.opacity)
                 }
                 // Mode bureau : la vue d'accueil reste dessous (elle lit la charnière et ouvre les feuilles).
-                if desk && look != .bento {
+                if desk && !look.isBento {
                     DeskModeView(look: look)
                         .transition(.opacity)
                 }
@@ -328,7 +333,7 @@ struct LookChoice: View {
     var body: some View {
         let current = DFLook(rawValue: lookRaw) ?? .classic
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 12)], spacing: 12) {
-            ForEach(DFLook.allCases.filter { !$0.needsPlus && $0 != .bento }) { look in
+            ForEach(DFLook.allCases.filter { !$0.needsPlus && !$0.isBento }) { look in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { lookRaw = look.rawValue }
                 } label: {
