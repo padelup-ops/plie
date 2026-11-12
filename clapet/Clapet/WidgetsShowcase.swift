@@ -161,7 +161,10 @@ struct WidgetsPromo: View {
                 }
                 .padding(.vertical, 6)
             }
-            .scrollClipDisabled()
+            // Coupé au bord de la carte (avant, le 3e aperçu débordait par-dessus l'écran), avec un fondu à droite
+            // qui montre qu'on peut faire défiler.
+            .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.86),
+                                         .init(color: .black.opacity(0), location: 1)], startPoint: .leading, endPoint: .trailing))
             Button(action: onOpen) {
                 Label { Text("Add a widget") } icon: { Image(systemName: "plus.square.on.square") }
                     .font(.headline)
