@@ -485,6 +485,7 @@ final class KBSuggest {
             if !Self.ambiguous.contains(low), let c = contraction(word) { return c }
             if let fix = accentFix(word) { return fix }
         }
+        if word.count == 2, let f = twoLetterFix(word, before: before, touch: touch) { return f }
         guard word.count >= 3, word.count <= 30 else {
             if word == "i" && language.hasPrefix("en") { return "I" }
             return nil
@@ -499,7 +500,8 @@ final class KBSuggest {
         if let l2 = second, !isMisspelled(word, in: l2) { return nil }
         let ns = word as NSString
         // Le début d'un vrai mot (« minu » → minute) : on ne corrige pas, la barre propose la suite.
-        if !listCompletions(word, limit: 1).isEmpty { return nil }
+        // Sauf si un mot très courant est à une faute près (« plur » → « pour », pas « pluriel ») : voir plus bas.
+        let prefixOf = listCompletions(word, limit: 1).first
         var guesses = checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? []
         // Les mots courants d'abord.
         guesses = guesses.enumerated().sorted { a, b in
@@ -519,28 +521,42 @@ final class KBSuggest {
         if let touch {
             for cand in nearbyWords(lower, touch: touch) where !pool.contains(where: { $0.lowercased() == cand }) { pool.append(cand) }
         }
-        var best: (word: String, score: Double)?
+        var best: (word: String, score: Double, rank: Int)?
+        let fromChecker = Set(guesses.map { $0.lowercased() })
         for g in pool {
             let gl = g.lowercased()
             guard !g.contains(" "), !g.contains("-") else { continue }
-            guard let r = rank[gl], r < 15_000 else { continue }
+            // Un mot que la liste ne connaît pas (formes conjuguées, pluriels : « reconnues ») mais que le
+            // correcteur d'iOS propose : accepté comme un mot peu courant.
+            guard let r = rank[gl] ?? (fromChecker.contains(gl) && gl.count >= 6 ? 14_000 : nil), r < 15_000 else { continue }
             let d = typoDistance(gl, lower)
             guard d <= allowed else { continue }
+            // Deux lettres inversées (« reocnnues ») : chaque doigt a bien visé sa touche, juste dans le désordre.
+            let swapped = Self.isSwap(gl, lower)
             // La première lettre change rarement : seulement si le doigt était vraiment entre deux touches.
             var score = lm?.score(gl, before: before) ?? -log(Double(r) + 30)
             // Le mot d'avant : ce que tu écris d'habitude après lui passe devant (« bonne j » → « journée »).
             if let prev { score += log(1 + Double(KBWordStore.shared.pair(prev, gl))) * 0.9 }
             score += log(1 + Double(KBWordStore.shared.count(gl))) * 0.3
-            if let c = touch?.cost(gl), let own = touch?.cost(lower) {
+            if swapped {
+                score -= 0.8
+            } else if let c = touch?.cost(gl), let own = touch?.cost(lower) {
                 let extra = c - own
                 if gl.first != lower.first && extra > 1.2 { continue }
-                if extra > 6 { continue }          // une touche trop loin du doigt : pas une faute de frappe
+                // Une touche trop loin du doigt : pas une faute de frappe. Un peu plus de marge pour un mot très
+                // courant (en tapant vite, le pouce tombe souvent sur la touche d'à côté : « courznt »).
+                if extra > (r < 3_000 ? 8.5 : 6) { continue }
                 score -= extra * 0.6
             } else {
                 if gl.first != lower.first { continue }
                 score -= Double(d) * 1.5
             }
-            if best == nil || score > best!.score { best = (g, score) }
+            if best == nil || score > best!.score { best = (g, score, r) }
+        }
+        // Le début d'un mot rare (« plur » → pluriel) : on ne corrige que vers un mot bien plus courant que lui.
+        if let p = prefixOf {
+            let pr = rank[p.lowercased()] ?? 30_000
+            guard let b = best, b.rank < 3_000, b.rank * 8 < pr else { return nil }
         }
         // L'espace oubliée : « bonjourtoi » → « bonjour toi » (deux mots courants, rien de mieux à proposer).
         if best == nil, word.count >= 5 {
@@ -565,6 +581,39 @@ final class KBSuggest {
             }
         }
         return best.map { matchCase($0.word, like: word) }
+    }
+
+    /// Deux lettres voisines inversées, rien d'autre (« teh » / « the »).
+    static func isSwap(_ a: String, _ b: String) -> Bool {
+        let x = Array(a), y = Array(b)
+        guard x.count == y.count, x.count >= 2 else { return false }
+        let diff = (0..<x.count).filter { x[$0] != y[$0] }
+        return diff.count == 2 && diff[1] == diff[0] + 1 && x[diff[0]] == y[diff[1]] && x[diff[1]] == y[diff[0]]
+    }
+
+    /// Les mots de deux lettres (« fe » → « de », « ot » → « to ») : seulement vers un des mots les plus courants,
+    /// une touche voisine du doigt ou deux lettres inversées, et si le mot tapé est lui-même rare.
+    private func twoLetterFix(_ word: String, before: String, touch: KBTouchModel?) -> String? {
+        let lower = word.lowercased()
+        guard word != word.uppercased() || word.count == 1 else { return nil }
+        let own = rank[lower] ?? Int.max
+        guard own > 3_000, !known.contains(lower), KBWordStore.shared.count(lower) == 0 else { return nil }
+        if let l2 = second, !isMisspelled(word, in: l2) { return nil }
+        let chars = Array(lower)
+        var cands: Set<String> = [String(chars.reversed())]
+        let letters = Set(rows.joined())
+        for i in 0..<2 { for k in letters where k != chars[i] && neighbors(k, chars[i]) { var w = chars; w[i] = k; cands.insert(String(w)) } }
+        var best: (String, Double)?
+        for c in cands {
+            guard let r = rank[c], r < 300 else { continue }
+            var score = lm?.score(c, before: before) ?? -log(Double(r) + 30)
+            if !Self.isSwap(c, lower), let cc = touch?.cost(c), let oc = touch?.cost(lower) {
+                if cc - oc > 5 { continue }
+                score -= (cc - oc) * 0.6
+            }
+            if best == nil || score > best!.1 { best = (c, score) }
+        }
+        return best.map { matchCase($0.0, like: word) }
     }
 
     /// Les mots courants à une lettre près, dont la lettre changée est une touche proche de l'endroit où le doigt s'est posé.
