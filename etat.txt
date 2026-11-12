@@ -1,0 +1,41 @@
+APP 6832556606 Foldboard
+build 94 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-11T21:43
+build 93 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-11T20:26
+build 92 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-11T16:27
+build 91 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-11T16:04
+build 90 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-11T11:20
+build 88 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-11T10:54
+build 87 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-11T10:42
+build 86 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-11T10:21
+envoi 63 1.0.1 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 59 1.0.1 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 44 1.0 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 32 1.0 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 65 1.0.2 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 62 1.0.1 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+version App Store 1.0.10 | READY_FOR_SALE
+version App Store 1.0.3 | READY_FOR_SALE
+captures 1.0.10 en-AU ['APP_IPHONE_67:4', 'APP_IPHONE_DUO:5']
+captures 1.0.10 en-GB ['APP_IPHONE_DUO:5', 'APP_IPHONE_67:4']
+captures 1.0.10 fr-FR ['APP_IPHONE_DUO:5', 'APP_IPHONE_67:4']
+captures 1.0.10 en-US ['APP_IPHONE_67:4', 'APP_IPHONE_DUO:5']
+captures 1.0.10 fr-CA ['APP_IPHONE_67:4', 'APP_IPHONE_DUO:5']
+captures 1.0.10 en-CA ['APP_IPHONE_DUO:5', 'APP_IPHONE_67:4']
+build choisi 1.0.10 92
+captures 1.0.3 en-AU ['APP_IPHONE_67:4', 'APP_IPHONE_DUO:5']
+captures 1.0.3 en-CA ['APP_IPHONE_DUO:5', 'APP_IPHONE_67:4']
+captures 1.0.3 en-GB ['APP_IPHONE_DUO:5', 'APP_IPHONE_67:4']
+captures 1.0.3 fr-CA ['APP_IPHONE_67:4', 'APP_IPHONE_DUO:5']
+captures 1.0.3 fr-FR ['APP_IPHONE_DUO:5', 'APP_IPHONE_67:4']
+captures 1.0.3 en-US ['APP_IPHONE_67:4', 'APP_IPHONE_DUO:5']
+build choisi 1.0.3 67
+prix : ['']
+disponibilité : oui
+achats intégrés : [('com.padelup.foldboard.trial3', 'APPROVED'), ('com.padelup.foldboard.pro', 'APPROVED')]
+usage build 94 : {'installCount': 1, 'crashCount': 0, 'sessionCount': 0, 'inviteCount': 1, 'feedbackCount': 0}
+usage build 93 : {'installCount': 1, 'crashCount': 0, 'sessionCount': 16, 'inviteCount': 1, 'feedbackCount': 0}
+usage build 92 : {'installCount': 2, 'crashCount': 4, 'sessionCount': 106, 'inviteCount': 1, 'feedbackCount': 0}
+usage build 91 : {'installCount': 2, 'crashCount': 0, 'sessionCount': 29, 'inviteCount': 1, 'feedbackCount': 0}
+testeurs groupe « Foldboard interne » (interne) : 1 · invitation {'EMAIL': 1} · état {'INSTALLED': 1}
+testeurs groupe « Premiers testeurs » (externe) : 4 · invitation {'EMAIL': 4} · état {'NOT_INVITED': 4}
+testeurs au total : 5 · état {'INSTALLED': 1, 'NOT_INVITED': 4} · invitation {'EMAIL': 5}
