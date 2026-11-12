@@ -773,3 +773,27 @@
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "Geen dubbele: heb je ze twee keer geïnstalleerd, verwijder ze dan allemaal en installeer opnieuw vanaf dit scherm.";
 "Still not counting? Check these 4 things in Shortcuts:" = "Telt het nog niet? Controleer deze 4 dingen in Opdrachten:";
 "**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "Tab **Opdrachten**: tik één keer op elke Foldly-opdracht (▶) en sta hem toe. iOS vraagt het alleen de eerste keer.";
+
+/* Thèmes Bento et Atelier (2 000) */
+"Cards you move, hide and color, with Foldly+" = "Kaarten die je verplaatst, verbergt en kleurt, met Foldly+";
+"Warm paper and serif numbers, with Foldly+" = "Warm papier en schreefcijfers, met Foldly+";
+"Free trial until %@" = "Gratis proef tot %@";
+"Open and closed" = "Open en dicht";
+"Hide this card" = "Deze kaart verbergen";
+"Hold a card, then drop it where you want it. Tap − to hide it." = "Houd een kaart vast en laat haar los waar je wilt. Tik op − om haar te verbergen.";
+"Color" = "Kleur";
+"Theme color" = "Kleur van het thema";
+"Color %lld" = "Kleur %lld";
+"Keep this theme with Foldly+, a one-time purchase." = "Houd dit thema met Foldly+, eenmalige aankoop.";
+"The Bento and Atelier themes are part of Foldly+." = "De thema’s Bento en Atelier horen bij Foldly+.";
+"2,000 downloads: thank you!" = "2.000 downloads: bedankt!";
+"Two new themes" = "Twee nieuwe thema’s";
+"Bento and Atelier: move your cards wherever you want, hide the ones you don't need, and pick your color." = "Bento en Atelier: zet je kaarten waar je wilt, verberg wat je niet nodig hebt en kies je kleur.";
+"Hold and drop to move a card" = "Vasthouden en loslaten om een kaart te verplaatsen";
+"Tap − to hide a card, + to bring it back" = "Tik op − om een kaart te verbergen, + om haar terug te halen";
+"Seven colors for each theme" = "Zeven kleuren per thema";
+"Book and L positions keep their own layout" = "Boek- en L-stand onthouden hun eigen indeling";
+"Included in your Foldly+." = "Inbegrepen in je Foldly+.";
+"Free for 3 days, then part of Foldly+ (one-time purchase)." = "3 dagen gratis, daarna met Foldly+ (eenmalige aankoop).";
+"Use it" = "Gebruiken";
+"Try it free" = "Gratis proberen";

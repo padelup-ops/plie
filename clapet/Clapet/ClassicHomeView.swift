@@ -85,6 +85,14 @@ struct ClassicHomeView: View {
                 VStack(spacing: 14) {
                     if model.stats.autoLast == nil && !Demo.seeded { autoBanner }
                     today
+                    if !foldboardPromoHidden && FoldboardPromoRule.shouldShow {
+                        ClassicCard {
+                            FoldboardPromo { openURL(FoldboardPromoRule.url) } onHide: {
+                                FoldboardPromoRule.hide()
+                                withAnimation { foldboardPromoHidden = true }
+                            }
+                        }
+                    }
                     if !weekHidden && WeekRecapRule.shouldShowCard(model.stats) {
                         ClassicCard {
                             WeekRecapPromo(recap: WeekRecapRule.current(model.stats)) { showWeek = true } onHide: {
@@ -130,14 +138,6 @@ struct ClassicHomeView: View {
                         }
                     }
                     closedTime
-                    if !foldboardPromoHidden && FoldboardPromoRule.shouldShow {
-                        ClassicCard {
-                            FoldboardPromo { openURL(FoldboardPromoRule.url) } onHide: {
-                                FoldboardPromoRule.hide()
-                                withAnimation { foldboardPromoHidden = true }
-                            }
-                        }
-                    }
                     if !restPromoHidden && RestPromoRule.shouldShow {
                         ClassicCard {
                             RestPromo { RestPromoRule.hide(); restPromoHidden = true; showSettings = true } onHide: {

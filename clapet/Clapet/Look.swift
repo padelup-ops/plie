@@ -15,13 +15,15 @@ enum DFLook: String, CaseIterable, Identifiable {
     /// Les looks sombres (Moderne et Aurore) partagent la mise en page du Moderne.
     var isDark: Bool { self == .night || self == .aurora || (self == .custom && CustomTheme.isDark) }
 
-    /// Aurore et « Mon thème » font partie de Foldly+.
-    var needsPlus: Bool { self == .aurora || self == .custom }
+    /// Aurore, « Mon thème », Bento et Atelier font partie de Foldly+ (Bento et Atelier : 3 jours d'essai).
+    var needsPlus: Bool { self == .aurora || self == .custom || isBento }
 
-    /// Sans Foldly+, Aurore et « Mon thème » reviennent au Moderne.
+    /// Sans Foldly+, Aurore et « Mon thème » reviennent au Moderne ; Bento et Atelier, après l'essai, au Classique.
     static func resolved(_ raw: String) -> DFLook {
         let look = DFLook(rawValue: raw) ?? .classic
-        return look.needsPlus && !UserDefaults.standard.bool(forKey: "plusActive") ? .night : look
+        guard look.needsPlus, !UserDefaults.standard.bool(forKey: "plusActive") else { return look }
+        if look.isBento { return ThemeTrial.active ? look : .classic }
+        return .night
     }
 
     var id: String { rawValue }
@@ -40,8 +42,8 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .minimal: return Text("Minimal")
         case .aurora: return Text("Aurora")
         case .custom: return Text("My theme")
-        case .bento: return Text(verbatim: "Bento (test)")
-        case .atelier: return Text(verbatim: "Atelier (test)")
+        case .bento: return Text(verbatim: "Bento")
+        case .atelier: return Text(verbatim: "Atelier")
         }
     }
 
@@ -52,9 +54,24 @@ enum DFLook: String, CaseIterable, Identifiable {
         case .minimal: return Text("Just your numbers, nothing else")
         case .aurora: return Text("Northern lights that move with your hinge, with Foldly+")
         case .custom: return Text("Your own colors, with Foldly+")
-        case .bento: return Text(verbatim: "A grid of living cards")
-        case .atelier: return Text(verbatim: "Warm paper, serif numbers")
+        case .bento: return Text("Cards you move, hide and color, with Foldly+")
+        case .atelier: return Text("Warm paper and serif numbers, with Foldly+")
         }
+    }
+}
+
+/// L'essai des thèmes Bento et Atelier sans Foldly+ : 3 jours, une fois.
+enum ThemeTrial {
+    static let key = "themeTrialStart"
+    static let days = 3.0
+    static var start: Date? { UserDefaults.standard.object(forKey: key) as? Date }
+    static var available: Bool { start == nil }
+    static var active: Bool { start.map { Date().timeIntervalSince($0) < days * 86400 } ?? false }
+    static var end: Date? { start.map { $0.addingTimeInterval(days * 86400) } }
+    static func begin() { if start == nil { UserDefaults.standard.set(Date(), forKey: key) } }
+    /// Peut-on mettre ce thème maintenant (Foldly+, ou essai encore possible ou en cours) ?
+    static func canUse(_ look: DFLook, hasPlus: Bool) -> Bool {
+        !look.needsPlus || hasPlus || (look.isBento && (available || active))
     }
 }
 
@@ -130,6 +147,7 @@ struct ContentView: View {
     @Environment(\.requestReview) private var requestReview
     @State private var showSurvey = false
     @State private var showFounder = false
+    @State private var showThemes = false
     @State private var showTour = false
     /// Écran extérieur : « Voir le détail » montre l'accueil complet (jusqu'au prochain pli).
     @State private var outerDetails = false
@@ -230,6 +248,9 @@ struct ContentView: View {
             case .leaderboards: LeaderboardView().environment(model).environment(store)
             }
         }
+        .sheet(isPresented: $showThemes) {
+            ThemesNewsView().environment(model).environment(store).presentationDetents([.large])
+        }
         .sheet(isPresented: $showFounder) {
             FounderWelcome().environment(model).presentationDetents([.large])
         }
@@ -248,6 +269,9 @@ struct ContentView: View {
             // Les 2 000 : l'annonce Fondateur, une fois.
             if model.stats.founder && !FounderWelcomeRule.seen && !askLook && !showTour && !Demo.seeded && Demo.screen == nil {
                 showFounder = true
+            } else if !ThemesNews.seen && !askLook && !showTour && !lookRaw.isEmpty && !Demo.seeded && Demo.screen == nil {
+                // Les 2 000 : les thèmes Bento et Atelier, une fois.
+                showThemes = true
             } else {
                 checkSurvey()
             }

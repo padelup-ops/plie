@@ -108,10 +108,13 @@ struct SettingsView: View {
                 Section {
                     ScrollView(.horizontal) {
                         HStack(spacing: 10) {
-                            // Bento : thème à l'essai, seulement dans les versions de test (ou s'il est déjà choisi).
-                            ForEach(DFLook.allCases.filter { !$0.isBento || store.isTestBuild || DFLook.resolved(lookRaw) == $0 }) { look in
-                                ThemeTile(look: look, selected: DFLook.resolved(lookRaw) == look, locked: look.needsPlus && !store.hasPlus) {
-                                    if look.needsPlus && !store.hasPlus { showPlus = true } else {
+                            // Les nouveaux d'abord : Bento et Atelier (Foldly+, ou 3 jours d'essai).
+                            ForEach([DFLook.bento, .atelier] + DFLook.allCases.filter { !$0.isBento }) { look in
+                                ThemeTile(look: look, selected: DFLook.resolved(lookRaw) == look,
+                                          locked: !ThemeTrial.canUse(look, hasPlus: store.hasPlus),
+                                          isNew: look.isBento) {
+                                    if !ThemeTrial.canUse(look, hasPlus: store.hasPlus) { showPlus = true } else {
+                                        if look.needsPlus && !store.hasPlus { ThemeTrial.begin() }
                                         withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { lookRaw = look.rawValue }
                                     }
                                 }
@@ -156,7 +159,12 @@ struct SettingsView: View {
                 } header: {
                     Text("Appearance")
                 } footer: {
-                    DFLook.resolved(lookRaw).subtitle
+                    VStack(alignment: .leading, spacing: 4) {
+                        DFLook.resolved(lookRaw).subtitle
+                        if DFLook.resolved(lookRaw).isBento && !store.hasPlus, let end = ThemeTrial.end {
+                            Text(String(format: NSLocalizedString("Free trial until %@", comment: ""), end.formatted(date: .abbreviated, time: .shortened)))
+                        }
+                    }
                 }
 
                 // « Pourquoi tu l'ouvres ? »
@@ -442,6 +450,7 @@ private struct ThemeTile: View {
     let look: DFLook
     let selected: Bool
     let locked: Bool
+    var isNew = false
     let action: () -> Void
 
     private var colors: (bg: Color, card: Color, accent: Color) {
@@ -475,6 +484,11 @@ private struct ThemeTile: View {
                             .padding(8)
                         }
                         .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.primary.opacity(0.1), lineWidth: 1))
+                    if isNew && !locked {
+                        Text("New").font(.system(size: 9, weight: .heavy)).textCase(.uppercase).foregroundStyle(.white)
+                            .padding(.horizontal, 6).padding(.vertical, 3)
+                            .background(Capsule().fill(colors.accent)).padding(5)
+                    }
                     if locked {
                         Image(systemName: "lock.fill").font(.system(size: 9, weight: .bold)).foregroundStyle(.white)
                             .padding(5).background(Circle().fill(.black.opacity(0.55))).padding(5)

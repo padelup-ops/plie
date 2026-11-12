@@ -790,3 +790,27 @@
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "重複なし：2回インストールした場合は、すべて削除してこの画面から入れ直してください。";
 "Still not counting? Check these 4 things in Shortcuts:" = "まだカウントされない？ショートカットで次の4点を確認：";
 "**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "**ショートカット**タブ：Foldlyの各ショートカットを一度タップ（▶）して許可。iOSが尋ねるのは初回だけです。";
+
+/* Thèmes Bento et Atelier (2 000) */
+"Cards you move, hide and color, with Foldly+" = "カードを動かす・隠す・色を変える。Foldly+で";
+"Warm paper and serif numbers, with Foldly+" = "温かい紙とセリフ体の数字。Foldly+で";
+"Free trial until %@" = "%@まで無料でお試し";
+"Open and closed" = "オープンとクローズ";
+"Hide this card" = "このカードを隠す";
+"Hold a card, then drop it where you want it. Tap − to hide it." = "カードを長押しして、好きな場所で離してください。−で隠せます。";
+"Color" = "カラー";
+"Theme color" = "テーマのカラー";
+"Color %lld" = "カラー %lld";
+"Keep this theme with Foldly+, a one-time purchase." = "買い切りのFoldly+でこのテーマを使い続けられます。";
+"The Bento and Atelier themes are part of Foldly+." = "BentoとAtelierのテーマはFoldly+に含まれます。";
+"2,000 downloads: thank you!" = "2,000ダウンロード、ありがとう！";
+"Two new themes" = "2つの新しいテーマ";
+"Bento and Atelier: move your cards wherever you want, hide the ones you don't need, and pick your color." = "BentoとAtelier：カードを好きな場所に動かし、いらないものは隠して、色を選べます。";
+"Hold and drop to move a card" = "長押しして離すとカードを移動";
+"Tap − to hide a card, + to bring it back" = "−でカードを隠し、＋で戻す";
+"Seven colors for each theme" = "テーマごとに7色";
+"Book and L positions keep their own layout" = "本の形とL字の形で、それぞれのレイアウトを記憶";
+"Included in your Foldly+." = "あなたのFoldly+に含まれています。";
+"Free for 3 days, then part of Foldly+ (one-time purchase)." = "3日間無料、その後はFoldly+で（買い切り）。";
+"Use it" = "使う";
+"Try it free" = "無料で試す";

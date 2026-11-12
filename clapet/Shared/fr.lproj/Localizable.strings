@@ -790,3 +790,27 @@
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "Pas de doublons : si tu as installé deux fois, supprime-les toutes et réinstalle depuis cet écran.";
 "Still not counting? Check these 4 things in Shortcuts:" = "Ça ne compte toujours pas ? Vérifie ces 4 points dans Raccourcis :";
 "**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "Onglet **Raccourcis** : touche une fois chaque raccourci Foldly (▶) et autorise-le. iOS ne le demande que la première fois.";
+
+/* Thèmes Bento et Atelier (2 000) */
+"Cards you move, hide and color, with Foldly+" = "Des cartes à déplacer, cacher et colorer, avec Foldly+";
+"Warm paper and serif numbers, with Foldly+" = "Papier chaud et chiffres en serif, avec Foldly+";
+"Free trial until %@" = "Essai gratuit jusqu’au %@";
+"Open and closed" = "Ouvert et fermé";
+"Hide this card" = "Cacher cette carte";
+"Hold a card, then drop it where you want it. Tap − to hide it." = "Maintiens une carte, puis lâche-la où tu veux. Touche − pour la cacher.";
+"Color" = "Couleur";
+"Theme color" = "Couleur du thème";
+"Color %lld" = "Couleur %lld";
+"Keep this theme with Foldly+, a one-time purchase." = "Garde ce thème avec Foldly+, en achat unique.";
+"The Bento and Atelier themes are part of Foldly+." = "Les thèmes Bento et Atelier font partie de Foldly+.";
+"2,000 downloads: thank you!" = "2 000 téléchargements : merci !";
+"Two new themes" = "Deux nouveaux thèmes";
+"Bento and Atelier: move your cards wherever you want, hide the ones you don't need, and pick your color." = "Bento et Atelier : déplace tes cartes où tu veux, cache celles qui ne te servent pas et choisis ta couleur.";
+"Hold and drop to move a card" = "Maintiens et lâche pour déplacer une carte";
+"Tap − to hide a card, + to bring it back" = "Touche − pour cacher une carte, + pour la remettre";
+"Seven colors for each theme" = "Sept couleurs pour chaque thème";
+"Book and L positions keep their own layout" = "Les positions livre et L gardent leur propre disposition";
+"Included in your Foldly+." = "Inclus dans ton Foldly+.";
+"Free for 3 days, then part of Foldly+ (one-time purchase)." = "Gratuit pendant 3 jours, puis avec Foldly+ (achat unique).";
+"Use it" = "L’utiliser";
+"Try it free" = "L’essayer gratuitement";

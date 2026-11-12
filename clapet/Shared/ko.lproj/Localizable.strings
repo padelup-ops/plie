@@ -790,3 +790,27 @@
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "중복 없음: 두 번 설치했다면 모두 지우고 이 화면에서 다시 설치하세요.";
 "Still not counting? Check these 4 things in Shortcuts:" = "아직 안 세어지나요? 단축어에서 4가지를 확인하세요:";
 "**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "**단축어** 탭: 각 Foldly 단축어를 한 번 실행(▶)하고 허용하세요. iOS는 처음에만 물어봐요.";
+
+/* Thèmes Bento et Atelier (2 000) */
+"Cards you move, hide and color, with Foldly+" = "카드를 옮기고, 숨기고, 색을 바꾸세요. Foldly+로";
+"Warm paper and serif numbers, with Foldly+" = "따뜻한 종이와 세리프 숫자. Foldly+로";
+"Free trial until %@" = "%@까지 무료 체험";
+"Open and closed" = "열림과 닫힘";
+"Hide this card" = "이 카드 숨기기";
+"Hold a card, then drop it where you want it. Tap − to hide it." = "카드를 길게 누른 뒤 원하는 곳에 놓으세요. −를 누르면 숨겨져요.";
+"Color" = "색상";
+"Theme color" = "테마 색상";
+"Color %lld" = "색상 %lld";
+"Keep this theme with Foldly+, a one-time purchase." = "한 번 구매하는 Foldly+로 이 테마를 계속 쓰세요.";
+"The Bento and Atelier themes are part of Foldly+." = "Bento와 Atelier 테마는 Foldly+에 포함돼요.";
+"2,000 downloads: thank you!" = "2,000 다운로드, 고마워요!";
+"Two new themes" = "새 테마 두 가지";
+"Bento and Atelier: move your cards wherever you want, hide the ones you don't need, and pick your color." = "Bento와 Atelier: 카드를 원하는 곳으로 옮기고, 필요 없는 카드는 숨기고, 색상을 고르세요.";
+"Hold and drop to move a card" = "길게 눌러 놓으면 카드가 이동해요";
+"Tap − to hide a card, + to bring it back" = "−로 카드를 숨기고, +로 다시 꺼내요";
+"Seven colors for each theme" = "테마마다 7가지 색상";
+"Book and L positions keep their own layout" = "책 모양과 L자 모양은 각자의 배치를 기억해요";
+"Included in your Foldly+." = "Foldly+에 포함되어 있어요.";
+"Free for 3 days, then part of Foldly+ (one-time purchase)." = "3일 무료, 그다음엔 Foldly+(한 번 구매)로.";
+"Use it" = "사용하기";
+"Try it free" = "무료로 써 보기";

@@ -790,3 +790,27 @@
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "不要重复：如果安装了两次，请全部删除后从此页面重新安装。";
 "Still not counting? Check these 4 things in Shortcuts:" = "还是没有计数？在快捷指令中检查这 4 点：";
 "**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "**快捷指令**标签：点按一次每个 Foldly 快捷指令（▶）并允许。iOS 只在第一次询问。";
+
+/* Thèmes Bento et Atelier (2 000) */
+"Cards you move, hide and color, with Foldly+" = "卡片可移动、隐藏、换色，需 Foldly+";
+"Warm paper and serif numbers, with Foldly+" = "暖色纸张与衬线数字，需 Foldly+";
+"Free trial until %@" = "免费试用至 %@";
+"Open and closed" = "打开与合上";
+"Hide this card" = "隐藏此卡片";
+"Hold a card, then drop it where you want it. Tap − to hide it." = "按住卡片，拖到想要的位置松开。点 − 可隐藏。";
+"Color" = "颜色";
+"Theme color" = "主题颜色";
+"Color %lld" = "颜色 %lld";
+"Keep this theme with Foldly+, a one-time purchase." = "一次性购买 Foldly+，即可保留此主题。";
+"The Bento and Atelier themes are part of Foldly+." = "Bento 和 Atelier 主题属于 Foldly+。";
+"2,000 downloads: thank you!" = "下载量突破 2,000：谢谢你！";
+"Two new themes" = "两款新主题";
+"Bento and Atelier: move your cards wherever you want, hide the ones you don't need, and pick your color." = "Bento 和 Atelier：把卡片放到任何位置，隐藏用不到的，再选一个你喜欢的颜色。";
+"Hold and drop to move a card" = "按住并松开即可移动卡片";
+"Tap − to hide a card, + to bring it back" = "点 − 隐藏卡片，点 + 放回来";
+"Seven colors for each theme" = "每款主题 7 种颜色";
+"Book and L positions keep their own layout" = "书本和 L 形姿势各自记住布局";
+"Included in your Foldly+." = "已包含在你的 Foldly+ 中。";
+"Free for 3 days, then part of Foldly+ (one-time purchase)." = "免费 3 天，之后需 Foldly+（一次性购买）。";
+"Use it" = "使用";
+"Try it free" = "免费试用";

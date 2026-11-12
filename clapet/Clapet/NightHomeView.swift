@@ -340,6 +340,14 @@ struct NightHomeView: View {
             }
             trend
             if s.autoLast == nil && !Demo.seeded { autoBanner }
+            if !foldboardPromoHidden && FoldboardPromoRule.shouldShow {
+                Card(filled: true) {
+                    FoldboardPromo { openURL(FoldboardPromoRule.url) } onHide: {
+                        FoldboardPromoRule.hide()
+                        withAnimation { foldboardPromoHidden = true }
+                    }
+                }
+            }
             if !weekHidden && WeekRecapRule.shouldShowCard(s) {
                 Card(filled: true) {
                     WeekRecapPromo(recap: WeekRecapRule.current(s)) { showWeek = true } onHide: {
@@ -393,14 +401,6 @@ struct NightHomeView: View {
                     PlusNudgeCard(stats: model.stats) { plusReason = .menu } onHide: {
                         PlusNudgeRule.hide()
                         withAnimation { nudgeHidden = true }
-                    }
-                }
-            }
-            if !foldboardPromoHidden && FoldboardPromoRule.shouldShow {
-                Card(filled: true) {
-                    FoldboardPromo { openURL(FoldboardPromoRule.url) } onHide: {
-                        FoldboardPromoRule.hide()
-                        withAnimation { foldboardPromoHidden = true }
                     }
                 }
             }
@@ -1008,7 +1008,7 @@ struct HingeArc: View {
 
 /// Pourquoi l'écran Foldly+ s'ouvre.
 enum PlusReason: String, Identifiable {
-    case menu, widget, tracking, history, alerts, limit
+    case menu, widget, tracking, history, alerts, limit, theme
 
     var id: String { rawValue }
 
@@ -1024,6 +1024,7 @@ enum PlusReason: String, Identifiable {
         case .alerts: return Text("Limit alerts are part of Foldly+.")
         case .limit: return Text("You went past your limit today. With Foldly+, get a heads-up at 80 % and at 100 %, before it happens.")
         case .history: return Text("Your full history and records are part of Foldly+.")
+        case .theme: return Text("The Bento and Atelier themes are part of Foldly+.")
         }
     }
 }

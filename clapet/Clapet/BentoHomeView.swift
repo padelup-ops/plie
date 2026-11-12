@@ -33,8 +33,19 @@ enum Bento {
     static var dark: Color { atelier ? aDark : bDark }      // la carte « héros », sombre dans les deux thèmes
     static var ink: Color { atelier ? aInk : bInk }
     static var muted: Color { atelier ? aMuted : bMuted }
-    static var accent: Color { atelier ? aAccent : bAccent }    // LA seule couleur d'accent
-    static var tint: Color { atelier ? aTint : bTint }
+    /// LA seule couleur d'accent : celle du thème, ou celle choisie (« Arranger » > couleur).
+    static var accent: Color {
+        let i = UserDefaults.standard.integer(forKey: accentKey)
+        if i > 0 && i < palette.count { return palette[i] }
+        return atelier ? aAccent : bAccent
+    }
+    static var tint: Color {
+        UserDefaults.standard.integer(forKey: accentKey) > 0 ? accent.opacity(0.16) : (atelier ? aTint : bTint)
+    }
+    static var accentKey: String { atelier ? "atelierAccent" : "bentoAccent" }
+    /// 0 : la couleur du thème. Puis vert, bleu, terre cuite, prune, rose, ambre.
+    static let palette: [Color] = [.clear, dyn(0x2E8B6A, 0x55C49A), dyn(0x2F5BFF, 0x5A7DFF), dyn(0xC4532F, 0xE2774F),
+                                   dyn(0x7B4FD6, 0x9C7BF0), dyn(0xD6457A, 0xF0709E), dyn(0xC98A12, 0xF0B23E)]
     static var line: Color { atelier ? aLine : bLine }
     /// Les chiffres et les titres : serif dans Atelier.
     static var design: Font.Design { atelier ? .serif : .default }
@@ -79,6 +90,11 @@ struct BentoHomeView: View {
     @AppStorage("bentoOrder") private var orderRaw = ""
     @AppStorage("bentoBook") private var bookRaw = ""
     @AppStorage("bentoLaptop") private var laptopRaw = ""
+    /// Les cartes cachées (« Arranger » > moins), communes aux deux thèmes et aux positions.
+    @AppStorage("bentoHidden") private var hiddenRaw = ""
+    @AppStorage("bentoAccent") private var bentoAccent = 0
+    @AppStorage("atelierAccent") private var atelierAccent = 0
+    @AppStorage(DFLook.key) private var lookRaw = ""
 
     var body: some View {
         attach(
@@ -303,11 +319,11 @@ struct BentoHomeView: View {
     /// Les cartes de chaque page (une seule page à plat, deux à moitié plié). Gardé séparément pour chaque position.
     private var lists: [[String]] {
         func clean(_ raw: String, _ fallback: [[String]]) -> [[String]] {
-            var seen = Set<String>()
+            var seen = hidden
             var out = raw.split(separator: "|", omittingEmptySubsequences: false).map {
                 $0.split(separator: ",").map(String.init).filter { Self.all.contains($0) && seen.insert($0).inserted }
             }
-            if raw.isEmpty || out.count != fallback.count { return fallback }
+            if raw.isEmpty || out.count != fallback.count { return fallback.map { $0.filter { !hidden.contains($0) } } }
             // Une carte nouvelle (ou perdue) revient en bas de la dernière page.
             out[out.count - 1] += Self.defaultOrder.filter { !seen.contains($0) }
             return out
@@ -372,6 +388,17 @@ struct BentoHomeView: View {
                     RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous)
                         .strokeBorder(Bento.accent.opacity(dropTarget == id ? 0.9 : 0.25), style: StrokeStyle(lineWidth: dropTarget == id ? 3 : 1.5, dash: dropTarget == id ? [] : [6, 5]))
                         .background(Color.white.opacity(0.001))
+                        .overlay(alignment: .topLeading) {
+                            if id != "today" {
+                                Button { hide(id) } label: {
+                                    Image(systemName: "minus")
+                                        .font(.caption.weight(.heavy)).foregroundStyle(.white)
+                                        .frame(width: 26, height: 26).background(Circle().fill(Color.red.opacity(0.85)))
+                                        .frame(width: 44, height: 44)
+                                }
+                                .accessibilityLabel(Text("Hide this card"))
+                            }
+                        }
                         .overlay(alignment: .topTrailing) {
                             Image(systemName: "line.3.horizontal")
                                 .font(.caption.weight(.bold)).foregroundStyle(.white)
@@ -411,14 +438,107 @@ struct BentoHomeView: View {
         return out
     }
 
+    private var hidden: Set<String> { Set(hiddenRaw.split(separator: ",").map(String.init)) }
+
+    private func hide(_ id: String) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { hiddenRaw = (hidden.union([id])).sorted().joined(separator: ",") }
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+    }
+
+    private func show(_ id: String) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { hiddenRaw = hidden.subtracting([id]).sorted().joined(separator: ",") }
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+    }
+
+    private func cardName(_ id: String) -> Text {
+        switch id {
+        case "today": return Text("Today")
+        case "hinge": return Text("Hinge")
+        case "week": return Text("This week")
+        case "split": return Text("Open and closed")
+        case "closed": return Text("Time closed")
+        case "hours": return Text("Today by hour")
+        case "lifetime": return Text("Since day one")
+        default: return Text("Shortcuts")
+        }
+    }
+
+    /// « Arranger » : déplacer, cacher, remettre les cartes, et choisir la couleur.
     private var editHint: some View {
-        HStack {
-            Text("Hold a card, then drop it where you want it.")
-                .font(.footnote).foregroundStyle(Bento.muted)
-            Spacer()
-            Button { save(nil) } label: { Text("Default order").font(.footnote.weight(.semibold)) }
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Hold a card, then drop it where you want it. Tap − to hide it.")
+                    .font(.footnote).foregroundStyle(Bento.muted)
+                Spacer()
+                Button { save(nil); withAnimation { hiddenRaw = "" } } label: { Text("Reset").font(.footnote.weight(.semibold)) }
+            }
+            let gone = Self.defaultOrder.filter { hidden.contains($0) }
+            if !gone.isEmpty {
+                ScrollView(.horizontal) {
+                    HStack(spacing: 8) {
+                        ForEach(gone, id: \.self) { id in
+                            Button { show(id) } label: {
+                                Label { cardName(id) } icon: { Image(systemName: "plus") }
+                                    .font(.footnote.weight(.semibold))
+                                    .padding(.horizontal, 12).frame(minHeight: 36)
+                                    .background(Capsule().fill(Bento.card))
+                                    .overlay(Capsule().strokeBorder(Bento.accent.opacity(0.4)))
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(Bento.ink)
+                        }
+                    }
+                }
+                .scrollIndicators(.hidden)
+            }
+            HStack(spacing: 10) {
+                Text("Color").font(.footnote.weight(.medium)).foregroundStyle(Bento.muted)
+                let current = Bento.atelier ? atelierAccent : bentoAccent
+                ForEach(0..<Bento.palette.count, id: \.self) { i in
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { if Bento.atelier { atelierAccent = i } else { bentoAccent = i } }
+                    } label: {
+                        Group {
+                            if i == 0 {
+                                Circle().strokeBorder(Bento.muted.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, dash: [3, 3]))
+                                    .overlay(Text("A").font(.caption2.weight(.bold)).foregroundStyle(Bento.muted))
+                            } else {
+                                Circle().fill(Bento.palette[i])
+                            }
+                        }
+                        .frame(width: 26, height: 26)
+                        .overlay(Circle().stroke(Bento.ink, lineWidth: current == i ? 2.5 : 0).padding(-4))
+                        .frame(width: 36, height: 44)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(i == 0 ? Text("Theme color") : Text("Color \(i)"))
+                }
+            }
         }
         .padding(.horizontal, 4)
+        .id("\(bentoAccent)-\(atelierAccent)")
+    }
+
+    /// L'essai sans Foldly+ : combien de temps il reste, et Foldly+ pour le garder.
+    private var trialCard: some View {
+        Button { plusReason = .theme } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "sparkles").font(.title3).foregroundStyle(.white)
+                    .frame(width: 42, height: 42).background(RoundedRectangle(cornerRadius: Bento.rTile, style: .continuous).fill(Bento.accent))
+                VStack(alignment: .leading, spacing: 2) {
+                    if let end = ThemeTrial.end {
+                        Text(String(format: NSLocalizedString("Free trial until %@", comment: ""), end.formatted(date: .abbreviated, time: .shortened)))
+                            .font(.subheadline.weight(.semibold)).foregroundStyle(Bento.ink)
+                    }
+                    Text("Keep this theme with Foldly+, a one-time purchase.").font(.caption).foregroundStyle(Bento.muted)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Bento.muted)
+            }
+            .padding(14)
+            .background(RoundedRectangle(cornerRadius: Bento.rCard, style: .continuous).fill(Bento.tint))
+        }
+        .buttonStyle(Press())
     }
 
     @ViewBuilder private func cards(_ ids: [String], wide: Bool, start: Int, width: CGFloat) -> some View {
@@ -437,9 +557,10 @@ struct BentoHomeView: View {
         let showPromo = !foldboardPromoHidden && FoldboardPromoRule.shouldShow
         VStack(spacing: 12) {
             if editing { editHint }
+            if !store.hasPlus && ThemeTrial.active && !editing { one(trialCard, 0) }
             if showAuto && !editing { one(autoCard, 0) }
+            if showPromo && !editing { one(promo, 0) }
             cards(lists.first ?? [], wide: wide, start: 0, width: width)
-            if showPromo && !editing { one(promo, 12) }
         }
     }
 

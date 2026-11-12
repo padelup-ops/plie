@@ -773,3 +773,27 @@
 "No duplicates: if you installed twice, delete them all and install again from this screen." = "Без дублей: если установили дважды, удалите все и установите заново с этого экрана.";
 "Still not counting? Check these 4 things in Shortcuts:" = "Всё ещё не считает? Проверьте 4 вещи в «Командах»:";
 "**Shortcuts** tab: tap each Foldly shortcut once (▶) and allow it. iOS asks only the first time." = "Вкладка **Быстрые команды**: запустите каждую команду Foldly один раз (▶) и разрешите. iOS спрашивает только в первый раз.";
+
+/* Thèmes Bento et Atelier (2 000) */
+"Cards you move, hide and color, with Foldly+" = "Карточки можно двигать, скрывать и перекрашивать — с Foldly+";
+"Warm paper and serif numbers, with Foldly+" = "Тёплая бумага и цифры с засечками — с Foldly+";
+"Free trial until %@" = "Бесплатно до %@";
+"Open and closed" = "Открыт и закрыт";
+"Hide this card" = "Скрыть эту карточку";
+"Hold a card, then drop it where you want it. Tap − to hide it." = "Удерживайте карточку и отпустите там, где нужно. Нажмите −, чтобы скрыть её.";
+"Color" = "Цвет";
+"Theme color" = "Цвет темы";
+"Color %lld" = "Цвет %lld";
+"Keep this theme with Foldly+, a one-time purchase." = "Оставьте эту тему с Foldly+ — разовая покупка.";
+"The Bento and Atelier themes are part of Foldly+." = "Темы Bento и Atelier входят в Foldly+.";
+"2,000 downloads: thank you!" = "2000 загрузок: спасибо!";
+"Two new themes" = "Две новые темы";
+"Bento and Atelier: move your cards wherever you want, hide the ones you don't need, and pick your color." = "Bento и Atelier: двигайте карточки куда угодно, скрывайте лишние и выбирайте цвет.";
+"Hold and drop to move a card" = "Удерживайте и отпустите, чтобы переместить карточку";
+"Tap − to hide a card, + to bring it back" = "Нажмите −, чтобы скрыть карточку, и +, чтобы вернуть";
+"Seven colors for each theme" = "Семь цветов для каждой темы";
+"Book and L positions keep their own layout" = "Положения «книга» и «L» помнят свою раскладку";
+"Included in your Foldly+." = "Входит в ваш Foldly+.";
+"Free for 3 days, then part of Foldly+ (one-time purchase)." = "3 дня бесплатно, затем с Foldly+ (разовая покупка).";
+"Use it" = "Выбрать";
+"Try it free" = "Попробовать бесплатно";
