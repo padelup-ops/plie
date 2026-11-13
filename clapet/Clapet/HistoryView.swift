@@ -17,6 +17,7 @@ struct HistoryView: View {
                 ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 16) {
+                        recentDays.id("recent")
                         WhyCard(stats: model.stats).id("why")
                         SessionCard(stats: model.stats).id("sessions")
                         chartCard
@@ -97,6 +98,51 @@ struct HistoryView: View {
                 }
             }
             .frame(height: 180)
+        }
+        .padding(16)
+        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.dfCard))
+    }
+
+    // MARK: Les derniers jours, en chiffres
+
+    /// Aujourd'hui, hier, avant-hier… : le nombre exact de chaque jour, sans devoir lire le graphique.
+    private var recentDays: some View {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let days = (0..<7).compactMap { cal.date(byAdding: .day, value: -$0, to: today) }
+        let values = days.map { model.stats.day($0).closes }
+        let top = max(1, values.max() ?? 1)
+        let limit = model.stats.activeLimit
+        return VStack(alignment: .leading, spacing: 10) {
+            Text("Last 7 days")
+                .font(.system(.headline, weight: .bold))
+            ForEach(0..<days.count, id: \.self) { i in
+                let v = values[i]
+                let over = limit > 0 && v > limit
+                HStack(spacing: 12) {
+                    Group {
+                        if i == 0 { Text("Today") }
+                        else if i == 1 { Text("Yesterday") }
+                        else { Text(days[i], format: .dateTime.weekday(.wide).day().month(.abbreviated)) }
+                    }
+                    .font(.system(.subheadline, weight: i < 2 ? .semibold : .regular))
+                    .frame(width: 130, alignment: .leading)
+                    GeometryReader { g in
+                        Capsule().fill(Color.dfFill)
+                            .overlay(alignment: .leading) {
+                                Capsule().fill(over ? Color.dfOver : mint)
+                                    .frame(width: max(v == 0 ? 0 : 6, g.size.width * CGFloat(v) / CGFloat(top)))
+                            }
+                    }
+                    .frame(height: 8)
+                    Text("\(FoldUnit.shown(v))")
+                        .font(.system(.body, design: .rounded, weight: .bold))
+                        .monospacedDigit()
+                        .foregroundStyle(over ? Color.dfOver : Color.primary)
+                        .frame(minWidth: 44, alignment: .trailing)
+                }
+                .accessibilityElement(children: .combine)
+            }
         }
         .padding(16)
         .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.dfCard))
