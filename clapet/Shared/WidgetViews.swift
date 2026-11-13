@@ -235,7 +235,7 @@ struct ClapetWidgetView: View {
 
     private var allTime: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("\(FoldUnit.shown(stats.totalCloses))")
+            Text("\(FoldUnit.shown(stats.duoCloses))")
                 .font(.system(size: 52, weight: .bold))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
@@ -317,7 +317,7 @@ struct ClapetWidgetView: View {
                     Text("\(FoldUnit.shown(next - stats.totalCloses)) to go")
                         .foregroundStyle(Palette.secondary)
                 } else {
-                    Text("\(FoldUnit.shown(stats.totalCloses)) folds")
+                    Text("\(FoldUnit.shown(stats.duoCloses)) folds")
                         .foregroundStyle(Palette.ink)
                 }
             }
@@ -474,7 +474,7 @@ struct ClapetWidgetView: View {
         let next = stats.level.next
         let perDay = Double(week) / 7
         return HStack(spacing: 10) {
-            Label { Text("\(FoldUnit.shown(stats.totalCloses)) all time") } icon: { Image(systemName: "sum") }
+            Label { Text("\(FoldUnit.shown(stats.duoCloses)) all time") } icon: { Image(systemName: "sum") }
             Label { Text("\(FoldUnit.shown(week)) in 7 days") } icon: { Image(systemName: "calendar") }
             if let next, perDay > 0 {
                 let days = Int(ceil(Double(next - stats.totalCloses) / perDay))
@@ -505,7 +505,7 @@ struct ClapetWidgetView: View {
                 }
                 Spacer(minLength: 8)
                 VStack(alignment: .trailing, spacing: 0) {
-                    Text("\(FoldUnit.shown(stats.totalCloses))")
+                    Text("\(FoldUnit.shown(stats.duoCloses))")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(Palette.ink)
                         .lineLimit(1)
@@ -548,7 +548,7 @@ struct ClapetWidgetView: View {
                 Gauge(value: stats.refProgress(now: entry.date)) { EmptyView() }
                     .gaugeStyle(.accessoryLinearCapacity)
             } else {
-                Text("\(FoldUnit.shown(stats.totalCloses)) all time")
+                Text("\(FoldUnit.shown(stats.duoCloses)) all time")
                     .font(.system(.caption, weight: .medium))
                     .foregroundStyle(.secondary)
             }

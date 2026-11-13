@@ -864,3 +864,15 @@
 "Thanks for 2,000: Foldly+ half price until Nov 17" = "Merci pour les 2 000 : Foldly+ à moitié prix jusqu'au 17/11";
 "Half price until November 17" = "Moitié prix jusqu'au 17 novembre";
 "Then Foldly+ goes back to its regular price. You keep it for life either way." = "Ensuite, Foldly+ revient à son prix habituel. Tu le gardes à vie dans tous les cas.";
+
+/* Nouveau Duo */
+"This Duo" = "Ce Duo";
+"Folds on this Duo" = "Pliages de ce Duo";
+"Previous Duos" = "Duo précédents";
+"This Duo since" = "Ce Duo depuis le";
+"I have a new iPhone Duo" = "J'ai un nouvel iPhone Duo";
+"Start from zero for your new Duo?" = "Repartir de zéro pour ton nouveau Duo ?";
+"Start from zero" = "Repartir de zéro";
+"The count of your new hinge starts at 0. Your history, records and the total of your previous Duos are kept." = "Le compteur de ta nouvelle charnière repart à 0. Ton historique, tes records et le total de tes Duo précédents sont conservés.";
+"My iPhone Duo" = "Mon iPhone Duo";
+"Changed phones? Foldly counts the folds of the hinge you have in hand, and keeps those of your previous Duos." = "Tu as changé de téléphone ? Foldly compte les pliages de la charnière que tu as en main, et garde ceux de tes Duo précédents.";

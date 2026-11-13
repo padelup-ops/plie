@@ -864,3 +864,15 @@
 "Thanks for 2,000: Foldly+ half price until Nov 17" = "2,000 감사: 11/17까지 Foldly+ 반값";
 "Half price until November 17" = "11월 17일까지 반값";
 "Then Foldly+ goes back to its regular price. You keep it for life either way." = "이후에는 정가로 돌아갑니다. 어느 경우든 평생 사용할 수 있어요.";
+
+/* Nouveau Duo */
+"This Duo" = "이 Duo";
+"Folds on this Duo" = "이 Duo의 접힘 횟수";
+"Previous Duos" = "이전 Duo";
+"This Duo since" = "이 Duo 사용 시작일";
+"I have a new iPhone Duo" = "새 iPhone Duo가 생겼어요";
+"Start from zero for your new Duo?" = "새 Duo로 0부터 시작할까요?";
+"Start from zero" = "0부터 시작";
+"The count of your new hinge starts at 0. Your history, records and the total of your previous Duos are kept." = "새 힌지의 카운트가 0부터 시작됩니다. 기록, 최고 기록, 이전 Duo의 합계는 그대로 유지됩니다.";
+"My iPhone Duo" = "내 iPhone Duo";
+"Changed phones? Foldly counts the folds of the hinge you have in hand, and keeps those of your previous Duos." = "휴대폰을 바꿨나요? Foldly는 지금 손에 든 힌지의 접힘을 세고, 이전 Duo의 기록도 보관합니다.";

@@ -248,6 +248,13 @@ final class ClapetModel {
         flush()
     }
 
+    /// « J'ai un nouveau Duo » : la charnière repart de zéro, l'historique et le total de tous les Duo restent.
+    func startNewDuo() {
+        stats.duoStart = stats.totalCloses
+        stats.duoSince = Date()
+        changed()
+    }
+
     func setTheme(_ theme: ClapetTheme) {
         stats.theme = theme.rawValue
         flush()

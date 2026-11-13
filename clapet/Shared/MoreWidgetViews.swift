@@ -73,7 +73,7 @@ struct LifetimeWidgetView: View {
     var familyOverride: WidgetFamily? = nil
     private var family: WidgetFamily { familyOverride ?? envFamily }
 
-    private var total: Int { entry.stats.totalCloses }
+    private var total: Int { entry.stats.duoCloses }
 
     var body: some View {
         let accent = widgetThemeColor(entry.stats)

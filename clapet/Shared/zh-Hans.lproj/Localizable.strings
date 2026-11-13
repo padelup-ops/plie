@@ -864,3 +864,15 @@
 "Thanks for 2,000: Foldly+ half price until Nov 17" = "感谢 2,000：Foldly+ 半价至 11/17";
 "Half price until November 17" = "半价至 11 月 17 日";
 "Then Foldly+ goes back to its regular price. You keep it for life either way." = "之后 Foldly+ 将恢复原价。无论如何都可永久使用。";
+
+/* Nouveau Duo */
+"This Duo" = "这台 Duo";
+"Folds on this Duo" = "这台 Duo 的折叠次数";
+"Previous Duos" = "之前的 Duo";
+"This Duo since" = "这台 Duo 开始于";
+"I have a new iPhone Duo" = "我换了新的 iPhone Duo";
+"Start from zero for your new Duo?" = "为新的 Duo 从零开始？";
+"Start from zero" = "从零开始";
+"The count of your new hinge starts at 0. Your history, records and the total of your previous Duos are kept." = "新铰链的计数从 0 开始。你的历史、记录和之前 Duo 的总数都会保留。";
+"My iPhone Duo" = "我的 iPhone Duo";
+"Changed phones? Foldly counts the folds of the hinge you have in hand, and keeps those of your previous Duos." = "换手机了？Foldly 会统计你手中这台铰链的折叠次数，并保留之前 Duo 的数据。";

@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(ClapetStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @State private var confirmReset = false
+    @State private var confirmNewDuo = false
     @State private var showPlus = false
     @State private var showIdeas = false
     @State private var showTour = false
@@ -266,6 +267,40 @@ struct SettingsView: View {
                     } else if liveDenied {
                         Text("Live Activities are off for Foldly. Turn them on in the Settings app.")
                     }
+                }
+
+                // Mon iPhone Duo : un nouveau téléphone repart de zéro, sans perdre l'ancien
+                Section {
+                    HStack {
+                        Label { Text("Folds on this Duo") } icon: { SIcon("iphone.gen3", .teal) }
+                        Spacer()
+                        Text("\(FoldUnit.shown(model.stats.duoCloses))").monospacedDigit().foregroundStyle(.secondary)
+                    }
+                    if let since = model.stats.duoSince {
+                        HStack {
+                            Label { Text("Previous Duos") } icon: { SIcon("clock.arrow.circlepath", .gray) }
+                            Spacer()
+                            Text("\(FoldUnit.shown(model.stats.duoStart))").monospacedDigit().foregroundStyle(.secondary)
+                        }
+                        HStack {
+                            Label { Text("This Duo since") } icon: { SIcon("calendar", .blue) }
+                            Spacer()
+                            Text(since, format: .dateTime.day().month().year()).foregroundStyle(.secondary)
+                        }
+                    }
+                    Button { confirmNewDuo = true } label: {
+                        Label { Text("I have a new iPhone Duo") } icon: { SIcon("arrow.triangle.2.circlepath", .orange) }
+                    }
+                    .confirmationDialog(Text("Start from zero for your new Duo?"), isPresented: $confirmNewDuo, titleVisibility: .visible) {
+                        Button { model.startNewDuo() } label: { Text("Start from zero") }
+                        Button(role: .cancel) {} label: { Text("Cancel") }
+                    } message: {
+                        Text("The count of your new hinge starts at 0. Your history, records and the total of your previous Duos are kept.")
+                    }
+                } header: {
+                    Text("My iPhone Duo")
+                } footer: {
+                    Text("Changed phones? Foldly counts the folds of the hinge you have in hand, and keeps those of your previous Duos.")
                 }
 
                 // Heures de repos

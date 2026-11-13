@@ -471,7 +471,7 @@ struct ClassicHomeView: View {
             tile(Text("Closed today"), value: FoldUnit.shown(d.closes), symbol: "rectangle.compress.vertical")
             tile(Text("Opened today"), value: d.opens, symbol: "rectangle.expand.vertical")
             tile(Text("Last 7 days"), value: model.stats.weekTotal, symbol: "calendar")
-            tile(Text("All time"), value: FoldUnit.shown(model.stats.totalCloses), symbol: "sum")
+            tile(model.stats.duoSince == nil ? Text("All time") : Text("This Duo"), value: FoldUnit.shown(model.stats.duoCloses), symbol: "sum")
             tile(Text("Quick checks"), value: model.stats.peeks(), symbol: "eye")
             TimelineView(.periodic(from: .now, by: 60)) { context in
                 tile(Text("Longest break"), text: Self.duration(model.stats.longestBreak(now: context.date)), symbol: "moon.zzz")

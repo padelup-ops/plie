@@ -814,11 +814,11 @@ struct BentoHomeView: View {
         trayCard {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    label(Text("Since day one"))
-                    Text(model.stats.totalCloses, format: .number)
+                    label(model.stats.duoSince == nil ? Text("Since day one") : Text("This Duo"))
+                    Text(model.stats.duoCloses, format: .number)
                         .font(.system(size: bigSize, weight: .semibold, design: Bento.design)).monospacedDigit().foregroundStyle(Bento.ink)
                         .contentTransition(.numericText())
-                        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: model.stats.totalCloses)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: model.stats.duoCloses)
                 }
                 Spacer()
                 Image(systemName: "infinity").font(.title2.weight(.semibold)).foregroundStyle(Bento.accent)

@@ -554,7 +554,7 @@ struct NightHomeView: View {
         let s = model.stats
         let left = s.left()
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-            tile(Text("All time"), "\(FoldUnit.shown(s.totalCloses))")
+            tile(s.duoSince == nil ? Text("All time") : Text("This Duo"), "\(FoldUnit.shown(s.duoCloses))")
             tile(Text("Last 7 days"), "\(s.weekTotal)")
             tile(Text("Opened today"), "\(s.day().opens)")
             if s.goalOn {

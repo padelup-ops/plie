@@ -103,6 +103,11 @@ struct ClapetStats: Codable, Equatable {
     var goal = 100
     var totalCloses = 0
     var totalOpens = 0
+    /// Nouveau Duo : le total au moment du changement (les pliages d'avant restent dans l'historique et le total).
+    var duoStart = 0
+    var duoSince: Date?
+    /// Les pliages de ce Duo-ci (la charnière qu'on a en main).
+    var duoCloses: Int { max(0, totalCloses - duoStart) }
     var firstDay: String?
     /// Les clapets d'aujourd'hui, heure par heure.
     var hourlyDay: String?
@@ -155,7 +160,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, eachMove, goal, totalCloses, totalOpens, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, widgetLook, founder, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince, focusSpans, nightOn, nightFrom, nightTo
+        case days, eachMove, goal, totalCloses, totalOpens, duoStart, duoSince, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, widgetLook, founder, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince, focusSpans, nightOn, nightFrom, nightTo
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -165,6 +170,8 @@ struct ClapetStats: Codable, Equatable {
         goal = try c.decodeIfPresent(Int.self, forKey: .goal) ?? 100
         totalCloses = try c.decodeIfPresent(Int.self, forKey: .totalCloses) ?? 0
         totalOpens = try c.decodeIfPresent(Int.self, forKey: .totalOpens) ?? 0
+        duoStart = try c.decodeIfPresent(Int.self, forKey: .duoStart) ?? 0
+        duoSince = try c.decodeIfPresent(Date.self, forKey: .duoSince)
         firstDay = try c.decodeIfPresent(String.self, forKey: .firstDay)
         hourlyDay = try c.decodeIfPresent(String.self, forKey: .hourlyDay)
         hourly = try c.decodeIfPresent([Int].self, forKey: .hourly) ?? Array(repeating: 0, count: 24)
