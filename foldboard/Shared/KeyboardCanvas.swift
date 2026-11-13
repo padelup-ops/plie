@@ -1275,10 +1275,13 @@ final class KeyboardCanvas: UIView {
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
             let buttons: [UIButton] = (globe ? [globeButton] : []) + [emojiButton, clipButton, adjustButton, hideButton]
             let gridW = CGFloat(g.cols) * 44
-            let ox = isRight ? panelRect.maxX - gridW : panelRect.minX
+            // En colonne : contre le clavier (côté pouce), et les boutons répartis sur la hauteur des touches.
+            let ox = g.cols == 1 ? (isRight ? panelRect.maxX - 50 : panelRect.minX + 6)
+                                 : (isRight ? panelRect.maxX - gridW : panelRect.minX)
+            let step: CGFloat = g.cols == 1 ? min(60, max(44, panelRect.height / CGFloat(g.count))) : 44
             for (i, b) in buttons.enumerated() {
                 b.isHidden = false
-                b.frame = CGRect(x: ox + CGFloat(i % g.cols) * 44, y: panelRect.minY + CGFloat(i / g.cols) * 44, width: 44, height: 44)
+                b.frame = CGRect(x: ox + CGFloat(i % g.cols) * 44, y: panelRect.minY + CGFloat(i / g.cols) * step + (step - 44) / 2, width: 44, height: 44)
             }
             chips.frame = CGRect(x: cx, y: 0, width: max(0, x1 - cx - 6), height: h)
         } else {
@@ -1424,6 +1427,11 @@ final class KeyboardCanvas: UIView {
     private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
         guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
         let n = (input?.kbNeedsGlobe ?? false) ? 5 : 4
+        // Duo ouvert en portrait : une colonne verticale collée au clavier, à portée du pouce
+        // (une rangée tout en haut de la place libre était trop loin).
+        if gripContext == "open-portrait", CGFloat(n) * 44 <= panelRect.height {
+            return (1, n, n)
+        }
         let cols = max(1, min(n, Int(panelRect.width / 44)))
         let rows = Int(ceil(Double(n) / Double(cols)))
         guard CGFloat(rows) * 44 <= panelRect.height - 44 else { return nil }
@@ -1446,8 +1454,14 @@ final class KeyboardCanvas: UIView {
         panel.subviews.forEach { $0.removeFromSuperview() }
         var area = panelRect
         if let g = sideButtonsGrid {
-            let top = CGFloat(g.rows) * 44 + 6
-            area = CGRect(x: area.minX, y: area.minY + top, width: area.width, height: area.height - top)
+            if g.cols == 1 {
+                // La colonne de boutons longe le clavier : le reste de la place libre est à côté.
+                let side: CGFloat = 56
+                area = CGRect(x: isRight ? area.minX : area.minX + side, y: area.minY, width: max(0, area.width - side), height: area.height)
+            } else {
+                let top = CGFloat(g.rows) * 44 + 6
+                area = CGRect(x: area.minX, y: area.minY + top, width: area.width, height: area.height - top)
+            }
         }
         panel.frame = area
         guard area.width >= 44, area.height >= 44, eff.sidePanel != .none else { return }
