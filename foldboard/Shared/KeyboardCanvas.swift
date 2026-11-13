@@ -157,6 +157,10 @@ final class KeyboardCanvas: UIView {
     private var visible = false
     private var autoOn: Bool { eff.mode == .auto && pro }
 
+    /// Appui sur « 123 » puis glisser jusqu'à un chiffre ou un signe : il s'écrit au lâcher et les lettres reviennent
+    /// (comme le clavier d'Apple).
+    private var pageSlide: (touch: UITouch, cell: Int?)?
+
     private final class Track {
         let index: Int
         let start: CGPoint
@@ -1314,6 +1318,11 @@ final class KeyboardCanvas: UIView {
 
     private func rebuildChips() {
         let h = Self.topBarHeight
+        // Un petit fondu quand les mots changent : moins sec, plus lisible.
+        let fade = CATransition()
+        fade.type = .fade
+        fade.duration = 0.12
+        chipStack.layer.add(fade, forKey: "fade")
         chipStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         if !suggestionItems.isEmpty {
             // Trois suggestions de mots, de même largeur ; la meilleure en gras (celle que l'espace appliquera).
@@ -1743,8 +1752,29 @@ final class KeyboardCanvas: UIView {
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches {
+            if let ps = pageSlide, ps.touch == t {
+                let j = cellIndex(at: t.location(in: self))
+                if j != ps.cell {
+                    if let o = ps.cell { setPressed(o, false) }
+                    if let j, case .char = cells[j].view.spec.kind { setPressed(j, true) }
+                    pageSlide = (t, j)
+                }
+                continue
+            }
             guard let tr = tracks[t], !tr.done, let k = kind(tr) else { continue }
             let p = t.location(in: self)
+            // « 123 » gardé appuyé et le doigt qui sort de la touche : la page des chiffres s'ouvre sous le doigt.
+            if case .page(let target) = k, page == .letters, target != .letters,
+               !cells[tr.index].frame.insetBy(dx: -4, dy: -4).contains(p) {
+                tr.done = true
+                setPressed(tr.index, false)
+                page = target
+                builtFor = .zero
+                rebuild()
+                pageSlide = (t, nil)
+                if let j = cellIndex(at: p), case .char = cells[j].view.spec.kind { setPressed(j, true); pageSlide = (t, j) }
+                continue
+            }
             if tr.points.count < (tr.glide ? 600 : 80) { tr.points.append(p) }
             if tr.glide {
                 drawGlide(tr.points)
@@ -1808,6 +1838,19 @@ final class KeyboardCanvas: UIView {
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches {
+            if let ps = pageSlide, ps.touch == t {
+                pageSlide = nil
+                if let j = cellIndex(at: t.location(in: self)), case .char(let c) = cells[j].view.spec.kind {
+                    setPressed(j, false)
+                    KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics)
+                    typeText(c)
+                    page = .letters
+                    builtFor = .zero
+                    rebuild()
+                }
+                finish(t)
+                continue
+            }
             if let (p0, t0) = placeTouches.removeValue(forKey: t) {
                 // Un vrai toucher : bref, sans glisser, du bout du doigt (pas la paume), loin des touches,
                 // et pas en pleine frappe. Sinon on ne bouge pas.
@@ -1840,6 +1883,7 @@ final class KeyboardCanvas: UIView {
         perfCancelled += touches.filter { tracks[$0] != nil }.count
         for t in touches {
             placeTouches[t] = nil
+            if pageSlide?.touch == t { pageSlide = nil }
             guard let tr = tracks[t] else { continue }
             tr.done = true
             finish(t)
@@ -2365,7 +2409,9 @@ final class KeyboardCanvas: UIView {
         let known: String?? = cachedFix?.word == word ? .some(cachedFix?.fix) : nil
         // La correction préparée en arrière-plan si elle est prête, sinon on la calcule (quelques ms : la mesure
         // de fluidité montre que le clavier a toute la marge).
-        let computed: String? = known ?? suggest.correction(for: word, before: before, touch: touchModel(for: word))
+        var computed: String? = known ?? suggest.correction(for: word, before: before, touch: touchModel(for: word))
+        // La majuscule du début de phrase reste : « Hâte » ne redevient jamais « hâte ».
+        if let c = computed { computed = Self.keepCapital(c, like: word) }
         guard !word.isEmpty, let fix = computed, fix != word else {
             lastCorrection = nil
             wordTouches.removeAll()
@@ -2375,6 +2421,12 @@ final class KeyboardCanvas: UIView {
         for _ in 0..<word.count { input?.kbDelete() }
         input?.kbInsert(fix)
         lastCorrection = (word, fix, sep)
+    }
+
+    /// Le mot tapé commence par une majuscule : la correction aussi.
+    static func keepCapital(_ fix: String, like word: String) -> String {
+        guard let f = word.first, f.isUppercase, let g = fix.first, g.isLowercase else { return fix }
+        return g.uppercased() + fix.dropFirst()
     }
 
     /// Effacer juste après une correction : on revient au mot tapé, et on ne le corrigera plus.
@@ -2397,7 +2449,7 @@ final class KeyboardCanvas: UIView {
         KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics)
         let before = input?.kbTextBefore() ?? ""
         let word = KBSuggest.currentWord(before)
-        let item = suggestionItems[i]
+        let item = Self.keepCapital(suggestionItems[i], like: word)
         if suggestionBest != nil && i == 0 {
             // Le mot tel qu'il a été tapé (entre guillemets) : on le garde et on l'apprend.
             suggest.learn(word)

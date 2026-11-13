@@ -378,6 +378,24 @@ final class KBSuggest {
         return UITextChecker.availableLanguages.first { $0.hasPrefix(want) }
     }
 
+    static let frHyphen: [String: String] = [
+        "estce": "est-ce", "questce": "qu’est-ce", "qu’estce": "qu’est-ce", "peutetre": "peut-être", "peutêtre": "peut-être",
+        "atil": "a-t-il", "atelle": "a-t-elle", "aton": "a-t-on", "yatil": "y a-t-il", "vatil": "va-t-il", "vatelle": "va-t-elle", "vaton": "va-t-on",
+        "estil": "est-il", "estelle": "est-elle", "esttu": "es-tu", "estu": "es-tu", "astu": "as-tu", "sontils": "sont-ils", "sontelles": "sont-elles",
+        "peuxtu": "peux-tu", "veuxtu": "veux-tu", "saistu": "sais-tu", "voistu": "vois-tu", "vienstu": "viens-tu", "vastu": "vas-tu", "pourraistu": "pourrais-tu",
+        "peutil": "peut-il", "peutelle": "peut-elle", "peuton": "peut-on", "fautil": "faut-il", "doisje": "dois-je", "puisje": "puis-je", "suisje": "suis-je",
+        "pouvezvous": "pouvez-vous", "voulezvous": "voulez-vous", "avezvous": "avez-vous", "etesvous": "êtes-vous", "êtesvous": "êtes-vous", "savezvous": "savez-vous",
+        "pourriezvous": "pourriez-vous", "dismoi": "dis-moi", "ditesmoi": "dites-moi", "excusezmoi": "excusez-moi", "excusemoi": "excuse-moi",
+        "attendsmoi": "attends-moi", "rappellemoi": "rappelle-moi", "envoiemoi": "envoie-moi", "allezy": "allez-y", "vasy": "vas-y", "allonsy": "allons-y",
+        "celuici": "celui-ci", "celleci": "celle-ci", "ceuxci": "ceux-ci", "cellesci": "celles-ci", "celuila": "celui-là", "cellela": "celle-là",
+        "lahaut": "là-haut", "labas": "là-bas", "audessus": "au-dessus", "audessous": "au-dessous", "audela": "au-delà", "pardessus": "par-dessus",
+        "rendezvous": "rendez-vous", "aujourdhui": "aujourd’hui", "aujourd’hui": "aujourd’hui", "cestadire": "c’est-à-dire", "c’estadire": "c’est-à-dire",
+        "moimeme": "moi-même", "toimeme": "toi-même", "luimeme": "lui-même", "ellememe": "elle-même", "nousmemes": "nous-mêmes", "vousmeme": "vous-même",
+        "euxmemes": "eux-mêmes", "aprèsmidi": "après-midi", "apresmidi": "après-midi", "weekend": "week-end", "grandmere": "grand-mère", "grandpere": "grand-père",
+        "grandsparents": "grands-parents", "petitdejeuner": "petit-déjeuner", "vingtetun": "vingt-et-un", "dixhuit": "dix-huit", "dixneuf": "dix-neuf", "dixsept": "dix-sept",
+        "tshirt": "t-shirt", "c’estàdire": "c’est-à-dire", "quelquun": "quelqu’un", "jusqua": "jusqu’à",
+    ]
+
     private func matchCase(_ s: String, like word: String) -> String {
         if word.count > 1, word == word.uppercased() { return s.uppercased() }
         if let f = word.first, f.isUppercase { return s.prefix(1).uppercased() + s.dropFirst() }
@@ -505,6 +523,10 @@ final class KBSuggest {
         let prev = Self.previousWord(before, word: word)?.lowercased()
         // Tes remplacements de texte (Réglages > Clavier) : toujours appliqués, même courts (« ty » → « Thank you »).
         if let r = replacements[low] { return r }
+        // Les mots à trait d'union tapés d'un bloc : « estce » → « est-ce », « peutetre » → « peut-être ».
+        if language.hasPrefix("fr"), let h = Self.frHyphen[low.replacingOccurrences(of: "'", with: "’")] {
+            return matchCase(h, like: word)
+        }
         // Un prénom de tes contacts tapé en minuscules (et qui n'est pas un mot courant) : la majuscule.
         if word == low, let n = names[low], rank[low] == nil, n.lowercased() == low { return n }
         // Tes mots à toi (tapés plusieurs fois, jamais corrigés) : on n'y touche plus.
