@@ -160,6 +160,8 @@ final class KeyboardCanvas: UIView {
     /// Appui sur « 123 » puis glisser jusqu'à un chiffre ou un signe : il s'écrit au lâcher et les lettres reviennent
     /// (comme le clavier d'Apple).
     private var pageSlide: (touch: UITouch, cell: Int?)?
+    /// Recherche d'emoji : les lettres tapées vont dans la recherche (pas dans le texte), les résultats dans la barre.
+    private var emojiQuery: String?
 
     private final class Track {
         let index: Int
@@ -277,6 +279,14 @@ final class KeyboardCanvas: UIView {
             self.refreshSuggestionsSoon()
         }
         emojiBoard.onABC = { [weak self] in self?.closeEmoji() }
+        emojiBoard.onSearch = { [weak self] in
+            guard let self else { return }
+            self.closeEmoji()
+            self.page = .letters
+            self.emojiQuery = ""
+            if self.shift != .caps { self.shift = .off; self.updateLabels() }
+            self.rebuildChips()
+        }
         emojiBoard.onClip = { [weak self] t in
             guard let self else { return }
             KBFeedback.shared.tap(sound: self.eff.sound, haptics: self.eff.haptics)
@@ -1324,6 +1334,10 @@ final class KeyboardCanvas: UIView {
         fade.duration = 0.12
         chipStack.layer.add(fade, forKey: "fade")
         chipStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        if let q = emojiQuery {
+            buildSearchChips(q, height: h)
+            return
+        }
         if !suggestionItems.isEmpty {
             // Trois suggestions de mots, de même largeur ; la meilleure en gras (celle que l'espace appliquera).
             let n = CGFloat(suggestionItems.count)
@@ -1895,7 +1909,7 @@ final class KeyboardCanvas: UIView {
     /// Le doigt part d'une lettre et file vers d'autres lettres : on écrit en glissant (pas un balayage vertical
     /// du pouce, pas le pavé tactile de l'espace).
     private func canGlide(_ tr: Track, _ k: KeyKind, to p: CGPoint) -> Bool {
-        guard eff.glide, page == .letters, !tr.swipe, !tr.cursorMode, tr.accents.isEmpty, !adjusting else { return false }
+        guard eff.glide, emojiQuery == nil, page == .letters, !tr.swipe, !tr.cursorMode, tr.accents.isEmpty, !adjusting else { return false }
         guard case .char(let c) = k, c.count == 1, c.first?.isLetter == true else { return false }
         let kw = cells.first { if case .char = $0.view.spec.kind { return true }; return false }?.frame.width ?? 32
         let dx = p.x - tr.start.x, dy = p.y - tr.start.y
@@ -2091,6 +2105,21 @@ final class KeyboardCanvas: UIView {
         }
         KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics, strong: strong)
         setPressed(tr.index, true)
+        if emojiQuery != nil {
+            switch v.spec.kind {
+            case .space:
+                emojiQuery! += " "
+                tr.done = true
+                rebuildChips()
+                return
+            case .backspace:
+                if !emojiQuery!.isEmpty { emojiQuery!.removeLast() }
+                tr.done = true
+                rebuildChips()
+                return
+            default: break
+            }
+        }
         if case .space = v.spec.kind {
             // L'espace part dès que le doigt se pose (retiré si le doigt glisse pour déplacer le curseur).
             tr.typed = " "
@@ -2171,7 +2200,11 @@ final class KeyboardCanvas: UIView {
         case .char(let s):
             if !tr.accents.isEmpty {
                 let chosen = tr.accents[tr.accentIndex]
-                if let typed = tr.typed {
+                if emojiQuery != nil {
+                    if let typed = tr.typed, emojiQuery!.hasSuffix(typed.lowercased()) { emojiQuery!.removeLast(typed.count) }
+                    emojiQuery! += chosen.lowercased()
+                    rebuildChips()
+                } else if let typed = tr.typed {
                     // La lettre est déjà écrite : on la remplace par l'accent choisi.
                     if chosen != typed {
                         input?.kbDelete()
@@ -2188,6 +2221,8 @@ final class KeyboardCanvas: UIView {
             }
         case .space:
             if !tr.cursorMode && tr.typed == nil { typeSpace() }
+        case .ret where emojiQuery != nil:
+            if let e = KBEmoji.search(emojiQuery ?? "").first { pickSearchedEmoji(e) } else { endEmojiSearch() }
         case .ret:
             autocorrect(sep: "\n")
             input?.kbInsert("\n")
@@ -2210,6 +2245,7 @@ final class KeyboardCanvas: UIView {
         case .globe:
             input?.kbNextKeyboard()
         case .emoji:
+            emojiQuery = nil
             showEmoji = true
             builtFor = .zero
             rebuild()
@@ -2262,6 +2298,11 @@ final class KeyboardCanvas: UIView {
     }
 
     private func typeText(_ text: String) {
+        if emojiQuery != nil {
+            emojiQuery! += text.lowercased()
+            rebuildChips()
+            return
+        }
         // Après un mot écrit en glissant, la lettre suivante commence un nouveau mot : l'espace d'abord.
         if let g = glidedWord {
             glidedWord = nil
@@ -2361,6 +2402,57 @@ final class KeyboardCanvas: UIView {
         let before = input?.kbTextBefore() ?? ""
         let needsSpace = !(before.isEmpty || before.hasSuffix(" ") || before.hasSuffix("\n"))
         input?.kbInsert((needsSpace ? " " : "") + p)
+        refreshShiftSoon()
+    }
+
+    /// La barre pendant la recherche d'emoji : ✕, la recherche tapée, puis les emojis trouvés.
+    private func buildSearchChips(_ q: String, height h: CGFloat) {
+        let close = UIButton(type: .system)
+        close.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        close.tintColor = theme.text.withAlphaComponent(0.5)
+        close.accessibilityLabel = L("Cancel")
+        close.addAction(UIAction { [weak self] _ in self?.endEmojiSearch() }, for: .touchUpInside)
+        chipStack.addArrangedSubview(close)
+        close.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        close.heightAnchor.constraint(equalToConstant: 32).isActive = true
+        let field = UILabel()
+        let icon = NSTextAttachment(image: UIImage(systemName: "magnifyingglass")!.withTintColor(theme.text.withAlphaComponent(0.5), renderingMode: .alwaysOriginal))
+        let txt = NSMutableAttributedString(attachment: icon)
+        txt.append(NSAttributedString(string: " " + (q.isEmpty ? L("Search emoji") : q + "|"),
+                                      attributes: [.foregroundColor: theme.text.withAlphaComponent(q.isEmpty ? 0.5 : 1), .font: eff.font.ui(size: 15, weight: .medium)]))
+        field.attributedText = txt
+        field.backgroundColor = theme.key.withAlphaComponent(0.6)
+        field.layer.cornerRadius = 14
+        field.layer.masksToBounds = true
+        field.textAlignment = .center
+        chipStack.addArrangedSubview(field)
+        field.widthAnchor.constraint(equalToConstant: max(110, min(170, field.intrinsicContentSize.width + 24))).isActive = true
+        field.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        for e in KBEmoji.search(q).prefix(24) {
+            let b = UIButton(type: .system)
+            b.setTitle(e, for: .normal)
+            b.titleLabel?.font = .systemFont(ofSize: 26)
+            b.addAction(UIAction { [weak self] _ in self?.pickSearchedEmoji(e) }, for: .touchUpInside)
+            chipStack.addArrangedSubview(b)
+            b.widthAnchor.constraint(equalToConstant: 40).isActive = true
+            b.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        }
+        chipStack.layoutIfNeeded()
+        let w = chipStack.systemLayoutSizeFitting(CGSize(width: 10_000, height: 36)).width
+        chipStack.frame = CGRect(x: 0, y: (h - 36) / 2, width: w, height: 36)
+        chips.contentSize = CGSize(width: w, height: h)
+        chips.contentOffset = .zero
+    }
+
+    private func pickSearchedEmoji(_ e: String) {
+        insertEmoji(e)
+        endEmojiSearch()
+    }
+
+    private func endEmojiSearch() {
+        emojiQuery = nil
+        rebuildChips()
+        refreshSuggestionsSoon()
         refreshShiftSoon()
     }
 
