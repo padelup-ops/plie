@@ -394,6 +394,12 @@ final class KeyboardCanvas: UIView {
         KBFeedback.shared.prepare()
         emojiBoard.setClipMode(false)
         startClipWatch()
+        if ProcessInfo.processInfo.arguments.contains("-shotClip") {
+            KBClipboard.shared.seedForShots(["221B Baker Street, London", "https://foldly.netlify.app",
+                                             "Meeting at 7 pm 🎬", "FOLD-2026-0412", "+1 555 0142"])
+            showEmoji = true
+            emojiBoard.setClipMode(true)
+        }
         builtFor = .zero
         setNeedsLayout()
     }
