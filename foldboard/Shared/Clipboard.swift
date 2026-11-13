@@ -168,41 +168,56 @@ final class ClipboardList: UIView {
             scroll.addSubview(title)
             y += 28
         }
-        for it in items {
-            let rowH: CGFloat = 52
-            let row = UIView(frame: CGRect(x: 4, y: y, width: w - 8, height: rowH))
-            row.backgroundColor = keyColor
-            row.layer.cornerRadius = 10
-            row.layer.cornerCurve = .continuous
+        // Des cartes en grille (comme le presse-papier Samsung) : plus de texte visible, plus facile à viser.
+        let cols = max(2, min(4, Int((w - 8) / 140)))
+        let gap: CGFloat = 6
+        let cardW = (w - 8 - gap * CGFloat(cols - 1)) / CGFloat(cols)
+        let cardH: CGFloat = 92
+        for (n, it) in items.enumerated() {
+            let col = n % cols, row = n / cols
+            let card = UIView(frame: CGRect(x: 4 + CGFloat(col) * (cardW + gap), y: y + CGFloat(row) * (cardH + gap), width: cardW, height: cardH))
+            card.backgroundColor = keyColor
+            card.layer.cornerRadius = 12
+            card.layer.cornerCurve = .continuous
+            if it.pinned {
+                card.layer.borderWidth = 1.5
+                card.layer.borderColor = accent.withAlphaComponent(0.7).cgColor
+            }
             let paste = UIButton(type: .custom)
-            paste.frame = CGRect(x: 0, y: 0, width: row.bounds.width - 84, height: rowH)
+            paste.frame = card.bounds
             paste.addAction(UIAction { [weak self] _ in self?.onPaste?(it.text) }, for: .touchUpInside)
             paste.accessibilityLabel = it.text
-            let label = UILabel(frame: CGRect(x: 12, y: 4, width: row.bounds.width - 96, height: rowH - 8))
+            card.addSubview(paste)
+            let label = UILabel(frame: CGRect(x: 10, y: 8, width: cardW - 20, height: cardH - 36))
             label.text = it.text.replacingOccurrences(of: "\n", with: " ")
-            label.numberOfLines = 2
-            label.font = .systemFont(ofSize: 14)
+            label.numberOfLines = 3
+            label.lineBreakMode = .byTruncatingTail
+            label.font = .systemFont(ofSize: 13)
             label.textColor = textColor
             label.isUserInteractionEnabled = false
-            row.addSubview(paste)
-            row.addSubview(label)
+            label.sizeToFit()
+            label.frame.size.width = cardW - 20
+            label.frame.size.height = min(label.frame.height, cardH - 36)
+            card.addSubview(label)
+            let small = UIImage.SymbolConfiguration(pointSize: 12, weight: .semibold)
             let pin = UIButton(type: .system)
-            pin.setImage(UIImage(systemName: it.pinned ? "pin.fill" : "pin"), for: .normal)
+            pin.setImage(UIImage(systemName: it.pinned ? "pin.fill" : "pin", withConfiguration: small), for: .normal)
             pin.tintColor = it.pinned ? accent : textColor.withAlphaComponent(0.5)
-            pin.frame = CGRect(x: row.bounds.width - 84, y: 0, width: 42, height: rowH)
+            pin.frame = CGRect(x: cardW - 68, y: cardH - 30, width: 32, height: 28)
             pin.accessibilityLabel = it.pinned ? L("Unpin") : L("Pin")
             pin.addAction(UIAction { [weak self] _ in KBClipboard.shared.togglePin(it.text); self?.reload() }, for: .touchUpInside)
-            row.addSubview(pin)
+            card.addSubview(pin)
             let del = UIButton(type: .system)
-            del.setImage(UIImage(systemName: "xmark"), for: .normal)
+            del.setImage(UIImage(systemName: "xmark", withConfiguration: small), for: .normal)
             del.tintColor = textColor.withAlphaComponent(0.5)
-            del.frame = CGRect(x: row.bounds.width - 42, y: 0, width: 42, height: rowH)
+            del.frame = CGRect(x: cardW - 36, y: cardH - 30, width: 32, height: 28)
             del.accessibilityLabel = L("Delete")
             del.addAction(UIAction { [weak self] _ in KBClipboard.shared.remove(it.text); self?.reload() }, for: .touchUpInside)
-            row.addSubview(del)
-            scroll.addSubview(row)
-            y += rowH + 6
+            card.addSubview(del)
+            scroll.addSubview(card)
         }
+        let rowsN = (items.count + cols - 1) / cols
+        y += CGFloat(rowsN) * (cardH + gap)
         scroll.contentSize = CGSize(width: w, height: y + 4)
     }
 
