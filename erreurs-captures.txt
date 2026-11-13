@@ -1,0 +1,88 @@
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-en-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-fr-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-de-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-es-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-it-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-nl-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-pt-BR-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-ja-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-ko-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-zh-Hans-01-clip-out.png
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-ru-01-clip-out.png
