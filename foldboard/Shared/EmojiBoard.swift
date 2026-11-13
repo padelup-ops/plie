@@ -105,7 +105,13 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
     private let del = UIButton(type: .system)
     private var tabs: [UIButton] = []
     private var sections: [(start: CGFloat, list: [String])] = []
-    private var labels: [UILabel] = []
+    /// Toutes les cases (position et emoji) ; seules celles à l'écran ont une étiquette. Avec plus de mille emojis
+    /// dessinés d'un coup, le clavier dépassait la mémoire permise par iOS, qui le fermait et affichait son
+    /// clavier anglais à la place.
+    private var items: [(frame: CGRect, emoji: String)] = []
+    private var shown: [Int: UILabel] = [:]
+    private var pool: [UILabel] = []
+    private var emojiFont = UIFont.systemFont(ofSize: 30)
     private var cellW: CGFloat = 40
     private var cellH: CGFloat = 40
     private var rows = 4
@@ -188,8 +194,9 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         cellH = scroll.bounds.height / CGFloat(rows)
         cellW = max(36, min(48, bounds.width / 8))
 
-        labels.forEach { $0.removeFromSuperview() }
-        labels = []
+        for (_, l) in shown { l.isHidden = true; pool.append(l) }
+        shown = [:]
+        items = []
         sections = []
         var lists: [[String]] = []
         var first = KBEmoji.recent
@@ -198,22 +205,19 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         lists += KBEmoji.categories.map { $0.list }
 
         var x: CGFloat = 0
-        let font = UIFont.systemFont(ofSize: min(32, cellH * 0.72))
+        emojiFont = UIFont.systemFont(ofSize: min(32, cellH * 0.72))
+        for l in pool { l.font = emojiFont }
         for list in lists {
             sections.append((x, list))
             for (i, e) in list.enumerated() {
                 let col = i / rows, row = i % rows
-                let l = UILabel(frame: CGRect(x: x + CGFloat(col) * cellW, y: CGFloat(row) * cellH, width: cellW, height: cellH))
-                l.text = e
-                l.font = font
-                l.textAlignment = .center
-                scroll.addSubview(l)
-                labels.append(l)
+                items.append((CGRect(x: x + CGFloat(col) * cellW, y: CGFloat(row) * cellH, width: cellW, height: cellH), e))
             }
             let cols = (list.count + rows - 1) / rows
             x += CGFloat(max(cols, 1)) * cellW + 10
         }
         scroll.contentSize = CGSize(width: x, height: scroll.bounds.height)
+        showVisible()
 
         // La barre : ABC, une icône par catégorie, effacer.
         tabs.forEach { $0.removeFromSuperview() }
@@ -269,11 +273,45 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         searchBtn.tintColor = textColor.withAlphaComponent(0.45)
     }
 
-    func scrollViewDidScroll(_ scrollView: UIScrollView) { highlightTab() }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        showVisible()
+        highlightTab()
+    }
+
+    /// N'affiche que les emojis à l'écran (et un peu autour), en réutilisant les étiquettes.
+    private func showVisible() {
+        let w = max(scroll.bounds.width, 1)
+        let minX = scroll.contentOffset.x - w * 0.5, maxX = scroll.contentOffset.x + w * 1.5
+        var want = Set<Int>()
+        for (i, it) in items.enumerated() where it.frame.maxX >= minX && it.frame.minX <= maxX { want.insert(i) }
+        for (i, l) in shown where !want.contains(i) {
+            l.isHidden = true
+            pool.append(l)
+            shown[i] = nil
+        }
+        for i in want where shown[i] == nil {
+            let l: UILabel
+            if let r = pool.popLast() {
+                l = r
+            } else {
+                l = UILabel()
+                l.font = emojiFont
+                l.textAlignment = .center
+                scroll.addSubview(l)
+            }
+            l.transform = .identity
+            l.frame = items[i].frame
+            l.text = items[i].emoji
+            l.isHidden = false
+            shown[i] = l
+        }
+    }
 
     @objc private func tapped(_ g: UITapGestureRecognizer) {
         let p = g.location(in: scroll)
-        guard let l = labels.first(where: { $0.frame.contains(p) }), let e = l.text else { return }
+        guard let i = items.firstIndex(where: { $0.frame.contains(p) }) else { return }
+        let e = items[i].emoji
+        guard let l = shown[i] else { KBEmoji.used(e); onEmoji?(e); return }
         UIView.animate(withDuration: 0.08, animations: { l.transform = CGAffineTransform(scaleX: 1.3, y: 1.3) }) { _ in
             UIView.animate(withDuration: 0.1) { l.transform = .identity }
         }
