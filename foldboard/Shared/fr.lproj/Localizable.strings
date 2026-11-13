@@ -344,3 +344,9 @@
 "Show the globe as a smiley" = "Afficher le globe en smiley";
 "Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap." = "Tu préfères le clavier emoji d’Apple avec les autocollants et les Genmoji ? Cache la touche emoji de Foldboard, puis dans Réglages › Général › Clavier › Claviers, touche Modifier et place Emoji juste sous Foldboard : la touche globe l’ouvre en un geste.";
 "Search emoji" = "Rechercher un emoji";
+
+"Different key height when open" = "Hauteur différente une fois ouvert";
+"Key height, Duo open" = "Hauteur des touches, Duo ouvert";
+"Position, settings and hide buttons" = "Boutons position, réglages et masquer";
+"Top bar" = "Barre du haut";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen." = "Désactive-les pour une barre plus épurée, avec plus de place pour les suggestions. Pour déplacer ou redimensionner le clavier, réactive-les ou utilise cet écran.";

@@ -251,7 +251,11 @@ final class KeyboardCanvas: UIView {
     private let gap: CGFloat = 7
     private let vgap: CGFloat = 11
 
-    private var keyH: CGFloat { CGFloat(eff.keyHeight) * (wideFull ? 1.24 : 1) }
+    private var keyH: CGFloat { CGFloat(screenKeyHeight) * (wideFull ? 1.24 : 1) }
+    /// La hauteur des touches pour l'écran affiché : plié et déplié peuvent avoir chacun la leur.
+    private var screenKeyHeight: Double {
+        gripContext.hasPrefix("open") && eff.keyHeightOpen > 0 ? eff.keyHeightOpen : eff.keyHeight
+    }
     /// Le clavier entier sur l'écran déplié : de grandes touches, comme le clavier d'Apple.
     private var wideFull: Bool { layoutMode == .full && bounds.width >= 560 && !showEmoji }
     private var reportedHeight: CGFloat = 0
@@ -985,7 +989,7 @@ final class KeyboardCanvas: UIView {
         let W = bounds.width
         let text: String
         if adjustingHeight {
-            text = String(format: L("Key height %lld pt"), Int(eff.keyHeight.rounded()))
+            text = String(format: L("Key height %lld pt"), Int(screenKeyHeight.rounded()))
         } else if layoutMode == .split {
             text = String(format: L("Width %lld %%"), Int((eff.splitWidth * 100).rounded()))
         } else if let b = blocks.first {
@@ -1004,7 +1008,12 @@ final class KeyboardCanvas: UIView {
         if dy != 0 {
             // De haut en bas : la hauteur des touches (vers le haut : plus grandes).
             adjustingHeight = true
-            s.keyHeight = min(60, max(34, s.keyHeight - Double(dy) / 4))
+            // Chaque écran garde sa hauteur : réglée sur l'écran déplié, elle ne change pas celle de l'écran plié.
+            if gripContext.hasPrefix("open") {
+                s.keyHeightOpen = min(60, max(34, screenKeyHeight - Double(dy) / 4))
+            } else {
+                s.keyHeight = min(60, max(34, s.keyHeight - Double(dy) / 4))
+            }
             configure(settings: s, pro: pro)
             onPreferredHeightChange?()
             layoutIfNeeded()
@@ -1045,7 +1054,7 @@ final class KeyboardCanvas: UIView {
         s.oneHandWidth = d.oneHandWidth
         s.oneHandWidthOpen = d.oneHandWidthOpen
         s.splitWidth = d.splitWidth
-        s.keyHeight = d.keyHeight
+        if gripContext.hasPrefix("open") { s.keyHeightOpen = 0 } else { s.keyHeight = d.keyHeight }
         adjustingHeight = false
         configure(settings: s, pro: pro)
         onPreferredHeightChange?()
@@ -1256,7 +1265,9 @@ final class KeyboardCanvas: UIView {
         let confine = layoutMode.isOneHand && panelRect.width > 0 && !blocks.isEmpty
         let x0 = confine ? (blocks.map { $0.minX }.min() ?? 0) : 0
         let x1 = confine ? (blocks.map { $0.maxX }.max() ?? bounds.width) : bounds.width
-        modeButton.frame = CGRect(x: x0 + 6, y: 0, width: 40, height: h)
+        let bb = eff.barButtons
+        modeButton.isHidden = !bb
+        modeButton.frame = CGRect(x: x0 + 6, y: 0, width: bb ? 40 : 0, height: h)
         modeButton.setImage(UIImage(systemName: eff.mode.symbol), for: .normal)
         modeButton.tintColor = theme.text.withAlphaComponent(0.7)
         modeButton.menu = modeMenu()
@@ -1266,7 +1277,7 @@ final class KeyboardCanvas: UIView {
         flipButton.isHidden = !oneHand
         // En couleur : le clavier est verrouillé là où tu l'as mis.
         flipButton.tintColor = grip.locked && eff.mode == .auto ? theme.accent : theme.text.withAlphaComponent(0.7)
-        flipButton.frame = CGRect(x: x0 + 46, y: 0, width: oneHand ? 36 : 0, height: h)
+        flipButton.frame = CGRect(x: modeButton.frame.maxX, y: 0, width: oneHand ? 36 : 0, height: h)
         // Le bouton du milieu : là où le clavier suit la main (il apprend aussi quand on le veut au milieu).
         let middleShown = eff.mode == .auto && followsHand && autoOn
         middleButton.isHidden = !middleShown
@@ -1283,9 +1294,11 @@ final class KeyboardCanvas: UIView {
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
         bigButton.frame = CGRect(x: max(flipButton.frame.maxX, middleButton.frame.maxX), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
-        hideButton.frame = CGRect(x: x1 - 46, y: 0, width: 40, height: h)
+        hideButton.isHidden = !bb
+        hideButton.frame = CGRect(x: x1 - (bb ? 46 : 6), y: 0, width: bb ? 40 : 0, height: h)
         adjustButton.tintColor = theme.text.withAlphaComponent(0.7)
-        adjustButton.frame = CGRect(x: x1 - 46 - 36, y: 0, width: 36, height: h)
+        adjustButton.isHidden = !bb
+        adjustButton.frame = CGRect(x: hideButton.frame.minX - (bb ? 36 : 0), y: 0, width: bb ? 36 : 0, height: h)
         let compact = layoutMode.isOneHand && !showEmoji
         let globe = input?.kbNeedsGlobe ?? false
         let emojiOn = compact && eff.emojiKey
@@ -1304,7 +1317,7 @@ final class KeyboardCanvas: UIView {
         let cx = max(flipButton.frame.maxX, middleButton.frame.maxX, bigButton.frame.maxX) + 4
         if let g = sideButtonsGrid {
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
-            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + [clipButton, adjustButton, hideButton]
+            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + [clipButton] + (eff.barButtons ? [adjustButton, hideButton] : [])
             let gridW = CGFloat(g.cols) * 44
             let vertical = gripContext == "open-portrait"
             // En colonne : contre le clavier (côté pouce), et les boutons répartis sur la hauteur des touches.
@@ -1470,7 +1483,7 @@ final class KeyboardCanvas: UIView {
     /// pour laisser toute la barre du haut aux suggestions (on voit les mots même tenu d'une main).
     private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
         guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
-        let n = 3 + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
+        let n = 1 + (eff.barButtons ? 2 : 0) + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
         // Duo ouvert en portrait : une colonne verticale collée au clavier, à portée du pouce
         // (une rangée tout en haut de la place libre était trop loin).
         // Les touches ne font qu'environ 170 pt de haut : boutons resserrés (32 pt mini), sur deux colonnes s'il le faut.

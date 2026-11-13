@@ -338,3 +338,9 @@
 "Show the globe as a smiley" = "Показывать глобус как смайлик";
 "Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap." = "Предпочитаете клавиатуру эмодзи Apple со стикерами и Genmoji? Скройте клавишу эмодзи Foldboard, затем в Настройки › Основные › Клавиатура › Клавиатуры нажмите «Изменить» и поставьте Эмодзи сразу под Foldboard: клавиша глобуса откроет её одним касанием.";
 "Search emoji" = "Поиск эмодзи";
+
+"Different key height when open" = "Другая высота клавиш в раскрытом виде";
+"Key height, Duo open" = "Высота клавиш, Duo раскрыт";
+"Position, settings and hide buttons" = "Кнопки положения, настроек и скрытия";
+"Top bar" = "Верхняя панель";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen." = "Выключите для более чистой панели и большего места для подсказок. Чтобы переместить или изменить размер клавиатуры, включите их снова или используйте этот экран.";

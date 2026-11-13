@@ -128,6 +128,10 @@ struct KBSettings: Codable, Equatable {
     var edgeMargin: Double = 4
     /// Hauteur d'une touche, en points.
     var keyHeight: Double = 46
+    /// Hauteur des touches sur l'écran déplié (0 : la même que plié).
+    var keyHeightOpen: Double = 0
+    /// Les boutons position, réglages et masquer dans la barre du haut (on peut les cacher).
+    var barButtons = true
     var theme: String = "auto"
     var font: KBFont = .system
     /// Force des vibrations, de 0 (coupées) à 1.
@@ -197,6 +201,8 @@ struct KBSettings: Codable, Equatable {
         splitWidth = (try? c.decodeIfPresent(Double.self, forKey: .splitWidth)) ?? d.splitWidth
         edgeMargin = (try? c.decodeIfPresent(Double.self, forKey: .edgeMargin)) ?? d.edgeMargin
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
+        keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
+        barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme
         font = (try? c.decodeIfPresent(KBFont.self, forKey: .font)) ?? d.font
         haptics = (try? c.decodeIfPresent(Double.self, forKey: .haptics)) ?? d.haptics
@@ -226,6 +232,7 @@ struct KBSettings: Codable, Equatable {
         splitWidth = min(0.48, max(0.22, splitWidth))
         edgeMargin = min(400, max(0, edgeMargin))
         keyHeight = min(60, max(34, keyHeight))
+        if keyHeightOpen != 0 { keyHeightOpen = min(60, max(34, keyHeightOpen)) }
         haptics = min(1, max(0, haptics))
         swipe = min(1, max(0, swipe))
         if emojis.isEmpty { emojis = Self.defaultEmojis }

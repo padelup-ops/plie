@@ -272,10 +272,24 @@ struct PositionView: View {
                 slider("Two-hand width (each side)", value: $m.settings.splitWidth, in: 0.22...0.48, format: { "\(Int($0 * 100)) %" })
                 slider("Distance from the edge", value: $m.settings.edgeMargin, in: 0...120, format: { "\(Int($0)) pt" })
                 slider("Key height", value: $m.settings.keyHeight, in: 34...60, format: { "\(Int($0)) pt" })
+                Toggle("Different key height when open", isOn: Binding(
+                    get: { m.settings.keyHeightOpen > 0 },
+                    set: { m.settings.keyHeightOpen = $0 ? m.settings.keyHeight : 0 }))
+                if m.settings.keyHeightOpen > 0 {
+                    slider("Key height, Duo open", value: $m.settings.keyHeightOpen, in: 34...60, format: { "\(Int($0)) pt" })
+                }
             } header: {
                 Text("Size")
             } footer: {
                 Text("The keyboard can also be moved from its top bar: tap the position button, or the arrows to switch sides.")
+            }
+
+            Section {
+                Toggle("Position, settings and hide buttons", isOn: $m.settings.barButtons)
+            } header: {
+                Text("Top bar")
+            } footer: {
+                Text("Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen.")
             }
         }
         .navigationTitle("Position and size")

@@ -338,3 +338,9 @@
 "Show the globe as a smiley" = "将地球键显示为笑脸";
 "Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap." = "更喜欢带贴纸和 Genmoji 的 Apple 表情键盘？隐藏 Foldboard 表情键，然后在 设置 › 通用 › 键盘 › 键盘 中轻点编辑，把表情拖到 Foldboard 正下方：轻点地球键即可打开。";
 "Search emoji" = "搜索表情";
+
+"Different key height when open" = "展开时使用不同的按键高度";
+"Key height, Duo open" = "按键高度（Duo 展开）";
+"Position, settings and hide buttons" = "位置、设置和隐藏按钮";
+"Top bar" = "顶部栏";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen." = "关闭后顶部栏更简洁，建议词空间更大。如需移动或调整键盘大小，请重新打开或使用此页面。";
