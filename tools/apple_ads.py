@@ -156,7 +156,11 @@ elif MODE == "tune3":
                 print("  mots-clés", len(upd), "−30 %", "ÉCHEC " + str(kr)[:300] if isinstance(kr, dict) and kr.get("error") else "ok")
 
 elif MODE in ("pause", "resume"):
+    # Avec « budgets » (noms séparés par ;) : seulement ces campagnes. Sans : toutes.
+    only = [n.split("=")[0].strip() for n in os.environ.get("BUDGETS", "").split(";") if n.strip()]
     for c in camps:
+        if only and c["name"] not in only:
+            continue
         r = call("PUT", f"/campaigns/{c['id']}", {"campaign": {"status": "PAUSED" if MODE == "pause" else "ENABLED"}})
         print(c["name"], "ÉCHEC" if r.get("error") else MODE)
 
