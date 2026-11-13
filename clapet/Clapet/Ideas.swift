@@ -1,6 +1,10 @@
 import CryptoKit
 import GameKit
+import NaturalLanguage
 import SwiftUI
+#if canImport(Translation)
+import Translation
+#endif
 
 // MARK: - La boîte à idées (les 2 000)
 //
@@ -23,8 +27,29 @@ struct Idea: Codable, Identifiable, Equatable {
     var voted: Bool
     let mine: Bool
     let author: String
+    let lang: String?
 
     var date: Date { Date(timeIntervalSince1970: created / 1000) }
+
+    /// La langue de l'idée : devinée sur le texte (plus fiable que la langue du téléphone de l'auteur), sinon celle envoyée.
+    private static var langCache: [String: String] = [:]
+    var language: String {
+        if let c = Idea.langCache[id] { return c }
+        let l = detectLanguage()
+        Idea.langCache[id] = l
+        return l
+    }
+
+    private func detectLanguage() -> String {
+        let r = NLLanguageRecognizer()
+        r.processString(title + " " + body)
+        if let l = r.dominantLanguage, l != .undetermined,
+           (r.languageHypotheses(withMaximum: 1)[l] ?? 0) > 0.6 { return l.rawValue.components(separatedBy: "-").first ?? l.rawValue }
+        return (lang ?? "").components(separatedBy: "-").first ?? ""
+    }
+
+    static var myLanguage: String { Locale.current.language.languageCode?.identifier ?? "en" }
+    var isForeign: Bool { let l = language; return !l.isEmpty && l != Idea.myLanguage }
 }
 
 enum IdeasRule {
@@ -147,10 +172,15 @@ struct IdeasView: View {
     private var shown: [Idea] {
         let list = service.ideas.filter { !blocked.contains($0.author) }
         switch tab {
-        case 1: return list.sorted { $0.created > $1.created }
+        case 1: return mineFirst(list.sorted { $0.created > $1.created })
         case 2: return list.filter { $0.status == "planned" || $0.status == "done" }
-        default: return list
+        default: return mineFirst(list)
         }
+    }
+
+    /// Les idées dans ma langue d'abord (l'ordre reste le même à l'intérieur de chaque groupe).
+    private func mineFirst(_ list: [Idea]) -> [Idea] {
+        list.filter { !$0.isForeign } + list.filter(\.isForeign)
     }
 
     var body: some View {
@@ -261,8 +291,17 @@ struct IdeaRow: View {
     var onReport: () -> Void
     var onBlock: () -> Void
     var onDelete: () -> Void
+    @State private var translated: (title: String, body: String)?
+    @State private var showOriginal = false
+
+    private var title: String { showOriginal ? idea.title : translated?.title ?? idea.title }
+    private var bodyText: String { showOriginal ? idea.body : translated?.body ?? idea.body }
 
     var body: some View {
+        row.modifier(IdeaTranslator(idea: idea, result: $translated))
+    }
+
+    private var row: some View {
         HStack(alignment: .top, spacing: 14) {
             Button(action: onVote) {
                 VStack(spacing: 2) {
@@ -281,7 +320,7 @@ struct IdeaRow: View {
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(idea.title).font(.headline).fixedSize(horizontal: false, vertical: true)
+                    Text(title).font(.headline).fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 4)
                     Menu {
                         if idea.mine {
@@ -296,7 +335,17 @@ struct IdeaRow: View {
                     }
                 }
                 if !idea.body.isEmpty {
-                    Text(idea.body).font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                    Text(bodyText).font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+                if translated != nil {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { showOriginal.toggle() }
+                    } label: {
+                        Label(showOriginal ? "Show translation" : "Translated · Show original", systemImage: "globe")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Color.dfAccent)
                 }
                 HStack(spacing: 6) {
                     Text(idea.alias).font(.caption.weight(.semibold))
@@ -460,3 +509,53 @@ struct IdeasPromo: View {
         }
     }
 }
+
+
+/// Traduit une idée écrite dans une autre langue, sur le téléphone (traduction Apple, iOS 18 et plus).
+struct IdeaTranslator: ViewModifier {
+    let idea: Idea
+    @Binding var result: (title: String, body: String)?
+
+    func body(content: Content) -> some View {
+        #if canImport(Translation)
+        if #available(iOS 18.0, *), idea.isForeign {
+            content.modifier(IdeaTranslator18(idea: idea, result: $result))
+        } else {
+            content
+        }
+        #else
+        content
+        #endif
+    }
+}
+
+#if canImport(Translation)
+@available(iOS 18.0, *)
+private struct IdeaTranslator18: ViewModifier {
+    let idea: Idea
+    @Binding var result: (title: String, body: String)?
+    @State private var config: TranslationSession.Configuration?
+
+    func body(content: Content) -> some View {
+        content
+            .task(id: idea.id) {
+                guard result == nil else { return }
+                let source = Locale.Language(identifier: idea.language)
+                let target = Locale.Language(identifier: Idea.myLanguage)
+                let status = await LanguageAvailability().status(from: source, to: target)
+                guard status != .unsupported else { return }
+                config = TranslationSession.Configuration(source: source, target: target)
+            }
+            .translationTask(config) { session in
+                do {
+                    var reqs = [TranslationSession.Request(sourceText: idea.title, clientIdentifier: "t")]
+                    if !idea.body.isEmpty { reqs.append(.init(sourceText: idea.body, clientIdentifier: "b")) }
+                    let out = try await session.translations(from: reqs)
+                    let t = out.first { $0.clientIdentifier == "t" }?.targetText ?? idea.title
+                    let b = out.first { $0.clientIdentifier == "b" }?.targetText ?? idea.body
+                    await MainActor.run { result = (t, b) }
+                } catch {}
+            }
+    }
+}
+#endif
