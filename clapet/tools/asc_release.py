@@ -296,6 +296,19 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.21": {
+        "en-US": "• History: the last 7 days as exact numbers, today, yesterday and each day before, no need to read the chart.\n• The widget previews no longer spill outside their card.",
+        "fr-FR": "• Historique : les 7 derniers jours en chiffres exacts, aujourd'hui, hier et chaque jour d'avant, sans lire le graphique.\n• Les aperçus de widgets ne débordent plus de leur carte.",
+        "de-DE": "• Verlauf: die letzten 7 Tage als genaue Zahlen, heute, gestern und jeder Tag davor, ganz ohne Diagramm.\n• Die Widget-Vorschauen ragen nicht mehr über ihre Karte hinaus.",
+        "es-ES": "• Historial: los últimos 7 días en cifras exactas, hoy, ayer y cada día anterior, sin leer el gráfico.\n• Las vistas previas de widgets ya no se salen de su tarjeta.",
+        "ja": "• 履歴：過去7日間の回数を数字で表示。今日・昨日・それ以前の日も、グラフを読まずに確認できます。\n• ウィジェットのプレビューがカードからはみ出さなくなりました。",
+        "ko": "• 기록: 최근 7일을 정확한 숫자로 표시합니다. 오늘, 어제, 그 이전 날까지 그래프 없이 확인하세요.\n• 위젯 미리보기가 더 이상 카드 밖으로 넘치지 않습니다.",
+        "zh-Hans": "• 历史：最近 7 天以准确数字显示，今天、昨天及之前每一天，无需看图表。\n• 小组件预览不再溢出卡片。",
+        "it": "• Cronologia: gli ultimi 7 giorni in numeri esatti, oggi, ieri e ogni giorno precedente, senza leggere il grafico.\n• Le anteprime dei widget non escono più dalla loro scheda.",
+        "pt-BR": "• Histórico: os últimos 7 dias em números exatos, hoje, ontem e cada dia anterior, sem precisar ler o gráfico.\n• As prévias dos widgets não saem mais do cartão.",
+        "nl-NL": "• Geschiedenis: de laatste 7 dagen als exacte getallen, vandaag, gisteren en elke dag ervoor, zonder de grafiek te lezen.\n• De widgetvoorbeelden steken niet meer buiten hun kaart uit.",
+        "ru": "• История: последние 7 дней в точных числах — сегодня, вчера и каждый день до этого, без графика.\n• Превью виджетов больше не выходят за пределы карточки.",
+    },
     "1.0.20": {
         "en-US": "• Thank you for 2,000 downloads: two new themes, Bento and Atelier! Move your cards wherever you want, hide the ones you don't need and pick your color. Included in Foldly+, or free for 3 days.\n• Ideas box: suggest what Foldly should do next and vote for the best ideas.\n• Better layout on the open Duo.",
         "fr-FR": "• Merci pour les 2 000 téléchargements : deux nouveaux thèmes, Bento et Atelier ! Déplace tes cartes où tu veux, cache celles qui ne te servent pas et choisis ta couleur. Inclus dans Foldly+, ou gratuits pendant 3 jours.\n• Boîte à idées : propose ce que Foldly devrait faire ensuite et vote pour les meilleures idées.\n• Meilleure disposition sur le Duo ouvert.",
@@ -493,7 +506,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     # Les numéros de version se recoupent entre les apps : chaque app a ses propres notes quand il le faut.
@@ -543,7 +556,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
