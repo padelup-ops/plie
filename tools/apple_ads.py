@@ -134,12 +134,33 @@ elif MODE == "tune2":
         r = call("PUT", f"/campaigns/{brand['id']}", {"campaign": {"dailyBudgetAmount": {"amount": "4", "currency": CUR}}})
         print("budget Marque → 4 €/jour", "ÉCHEC " + str(r)[:300] if r.get("error") else "ok")
 
+elif MODE == "tune3":
+    # 13 nov. : Duo à 0,72 € par installation pour ~0,30-0,45 $ rapportés par nouvel utilisateur → enchères −30 %
+    # (minimum 0,30 €), pour viser ~0,45 € par installation. Marque inchangée.
+    duo = by_name.get("Foldly – iPhone Duo")
+    if duo:
+        for g in call("GET", f"/campaigns/{duo['id']}/adgroups").get("data", []):
+            old = float((g.get("defaultBidAmount") or {}).get("amount") or 0.8)
+            new = round(max(0.3, old * 0.7), 2)
+            r = call("PUT", f"/campaigns/{duo['id']}/adgroups/{g['id']}", {"defaultBidAmount": {"amount": str(new), "currency": CUR}})
+            print("groupe", g["name"], old, "→", new, "ÉCHEC " + str(r)[:300] if r.get("error") else "ok")
+            kws = call("GET", f"/campaigns/{duo['id']}/adgroups/{g['id']}/targetingkeywords?limit=1000").get("data", [])
+            upd = []
+            for k in kws:
+                if k.get("status") == "PAUSED" or k.get("deleted"):
+                    continue
+                kb = float((k.get("bidAmount") or {}).get("amount") or old)
+                upd.append({"id": k["id"], "bidAmount": {"amount": str(round(max(0.3, kb * 0.7), 2)), "currency": CUR}})
+            if upd:
+                kr = call("PUT", f"/campaigns/{duo['id']}/adgroups/{g['id']}/targetingkeywords/bulk", upd)
+                print("  mots-clés", len(upd), "−30 %", "ÉCHEC " + str(kr)[:300] if isinstance(kr, dict) and kr.get("error") else "ok")
+
 elif MODE in ("pause", "resume"):
     for c in camps:
         r = call("PUT", f"/campaigns/{c['id']}", {"campaign": {"status": "PAUSED" if MODE == "pause" else "ENABLED"}})
         print(c["name"], "ÉCHEC" if r.get("error") else MODE)
 
-if MODE in ("report", "create", "probe", "tune", "tune2", "budget") and camps:
+if MODE in ("report", "create", "probe", "tune", "tune2", "tune3", "budget") and camps:
     days = int(os.environ.get("DAYS", "7"))
     end = datetime.date.today(); start = end - datetime.timedelta(days=days - 1)
     r = call("POST", "/reports/campaigns", {"startTime": str(start), "endTime": str(end), "granularity": None,
