@@ -39,7 +39,7 @@ enum PlusNudgeRule {
 enum LaunchPrice {
     static let end: Date = {
         var c = DateComponents()
-        c.year = 2026; c.month = 11; c.day = 13
+        c.year = 2026; c.month = 11; c.day = 18
         var cal = Calendar(identifier: .gregorian)
         cal.timeZone = TimeZone(identifier: "Europe/Paris") ?? .current
         return cal.date(from: c) ?? .distantPast
@@ -91,7 +91,7 @@ struct PlusNudgeCard: View {
             .tint(.dfAccent)
             .foregroundStyle(Color.dfOnAccent)
             if LaunchPrice.isOn {
-                Text("Launch price until November 13")
+                Text("Half price until November 17")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color.dfAccent)
                     .frame(maxWidth: .infinity)

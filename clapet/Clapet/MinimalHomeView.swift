@@ -87,6 +87,7 @@ struct MinimalHomeView: View {
         }
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
+            if url.host == "offer" && !store.hasPlus { plusReason = .offer }
             if url.host == "week" { showWeek = true }
             if url.host == "month" { showMonth = true }
             if url.host == "hours" { showHours = true }
@@ -329,7 +330,7 @@ struct MinimalHomeView: View {
                 notice(Text("New: import your past folds")) { ImportPromoRule.hide(); importHidden = true; showAdjust = true }
             }
             if GiftOffer.shouldShow(s, hasPlus: store.hasPlus) {
-                notice(Text("Gift: Foldly+ at its lowest price until Nov 16")) { openURL(GiftOffer.redeemURL) }
+                notice(Text("Thanks for 2,000: Foldly+ half price until Nov 17")) { plusReason = .offer }
             } else if !nudgeHidden && PlusNudgeRule.shouldShowCard(s, hasPlus: store.hasPlus) {
                 notice(Text("Unlock your trends")) { plusReason = .menu }
             }

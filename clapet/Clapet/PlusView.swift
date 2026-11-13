@@ -59,9 +59,9 @@ struct PlusView: View {
                                 Image(systemName: "clock.badge.exclamationmark.fill")
                                     .font(.title3)
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Launch price until November 13")
+                                    Text("Half price until November 17")
                                         .font(.subheadline.weight(.bold))
-                                    Text("After that, Foldly+ goes up. You keep it for life either way.")
+                                    Text("Then Foldly+ goes back to its regular price. You keep it for life either way.")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }

@@ -1,13 +1,13 @@
 import SwiftUI
 import UserNotifications
 
-// MARK: - Le cadeau des 1 000 téléchargements
+// MARK: - Merci pour les 2 000 téléchargements
 //
-// Foldly+ à moitié prix avec le code FOLDLY1000 (code d'offre App Store), jusqu'au 16 novembre inclus.
-// - Une carte sur l'accueil, seulement sans Foldly+ et après 2 jours suivis. On peut la fermer :
+// Foldly+ à moitié prix pour tout le monde (prix public de l'App Store baissé), jusqu'au 17 novembre inclus.
+// - Une carte sur l'accueil, pour tous ceux qui n'ont pas Foldly+, nouveaux comme anciens. On peut la fermer :
 //   elle revient une seule fois le dernier jour, puis plus jamais.
-// - Un seul rappel, la veille de la fin, seulement si les notifications sont déjà autorisées.
-// - Le bouton ouvre la page de l'App Store avec le code déjà rempli. Le prix public ne change pas.
+// - Un seul rappel, le dernier jour à 18 h, seulement si les notifications sont déjà autorisées.
+// - Le bouton ouvre Foldly+ : le prix affiché est déjà le prix réduit.
 
 enum GiftOffer {
     static let code = "FOLDLY1000"
@@ -27,13 +27,13 @@ enum GiftOffer {
         return paris.date(from: c) ?? .distantPast
     }
 
-    /// Fin de l'offre : le 17 novembre à 0 h (heure de Paris).
-    static var end: Date { day(17) }
-    /// Le dernier jour : le 16 novembre.
-    static var lastDay: Date { day(16) }
+    /// Fin de l'offre : le 18 novembre à 0 h (heure de Paris).
+    static var end: Date { day(18) }
+    /// Le dernier jour : le 17 novembre.
+    static var lastDay: Date { day(17) }
 
-    private static let stageKey = "giftHiddenStage"
-    private static let reminderID = "foldly.gift"
+    private static let stageKey = "gift2000HiddenStage"
+    private static let reminderID = "foldly.gift2000"
 
     /// -demoGift : la carte s'affiche même avec l'historique de démo (captures).
     static var demo: Bool { ProcessInfo.processInfo.arguments.contains("-demoGift") }
@@ -42,7 +42,7 @@ enum GiftOffer {
 
     static func shouldShow(_ stats: ClapetStats, hasPlus: Bool, now: Date = Date()) -> Bool {
         if demo { return !hasPlus }
-        guard !hasPlus, !Demo.seeded, now < end, stats.daysCounted >= 2 else { return false }
+        guard !hasPlus, !Demo.seeded, now < end else { return false }
         switch UserDefaults.standard.integer(forKey: stageKey) {
         case 0: return true
         case 1: return now >= lastDay
@@ -56,19 +56,20 @@ enum GiftOffer {
         d.set(now >= lastDay ? 2 : max(1, d.integer(forKey: stageKey) + 1), forKey: stageKey)
     }
 
-    /// Le rappel de la veille (15 novembre, 18 h), une seule fois, sans demander l'autorisation.
+    /// Le rappel du dernier jour (17 novembre, 18 h), une seule fois, sans demander l'autorisation.
     static func scheduleReminder(_ stats: ClapetStats, hasPlus: Bool) {
-        guard !hasPlus, !Demo.seeded, stats.daysCounted >= 1 else { return }
-        let fire = day(15, hour: 18)
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["foldly.gift"])
+        guard !hasPlus, !Demo.seeded else { return }
+        let fire = day(17, hour: 18)
         guard Date() < fire else { return }
         Task {
             let center = UNUserNotificationCenter.current()
             switch await center.notificationSettings().authorizationStatus {
             case .authorized, .provisional, .ephemeral:
                 let content = UNMutableNotificationContent()
-                content.title = String(localized: "Foldly+ at its lowest price ends tomorrow")
-                content.body = String(localized: "To celebrate 1,000 downloads, the code FOLDLY1000 gives you Foldly+ at half the regular price until November 16. Paid once, yours for good.")
-                content.userInfo = ["url": redeemURL.absoluteString]
+                content.title = String(localized: "Last day: Foldly+ at half price")
+                content.body = String(localized: "Thanks for 2,000 downloads: Foldly+ is half price until tonight. Paid once, yours for good.")
+                content.userInfo = ["url": "clapet://offer"]
                 let comps = paris.dateComponents([.year, .month, .day, .hour, .minute], from: fire)
                 let request = UNNotificationRequest(identifier: reminderID, content: content,
                                                     trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false))
@@ -97,10 +98,10 @@ struct GiftCard: View {
                     .foregroundStyle(Color.dfAccent)
                     .frame(width: 34)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("1,000 downloads in 3 days, thank you!")
+                    Text("2,000 downloads, thank you!")
                         .font(.headline)
                         .fixedSize(horizontal: false, vertical: true)
-                    Text("To celebrate, this code gives you Foldly+ at its lowest price ever, half the regular price, until November 16. Paid once, yours for good.")
+                    Text("To celebrate, Foldly+ is half price for everyone until November 17. Paid once, yours for good.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -116,20 +117,8 @@ struct GiftCard: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Not now"))
             }
-            HStack(spacing: 8) {
-                Image(systemName: "ticket.fill").foregroundStyle(Color.dfAccent)
-                Text(verbatim: GiftOffer.code)
-                    .font(.system(.subheadline, design: .monospaced, weight: .bold))
-                Spacer()
-                Text("Filled in for you")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.05)))
             Button(action: onOpen) {
-                Label { Text("Get Foldly+ for less") } icon: { Image(systemName: "gift") }
+                Label { Text("Get Foldly+ at half price") } icon: { Image(systemName: "gift") }
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 4)

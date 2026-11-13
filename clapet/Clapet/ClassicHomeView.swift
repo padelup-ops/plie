@@ -134,7 +134,7 @@ struct ClassicHomeView: View {
                     }
                     if !giftHidden && GiftOffer.shouldShow(model.stats, hasPlus: store.hasPlus) {
                         ClassicCard {
-                            GiftCard { openURL(GiftOffer.redeemURL) } onHide: {
+                            GiftCard { plusReason = .offer } onHide: {
                                 GiftOffer.hide()
                                 withAnimation { giftHidden = true }
                             }
@@ -245,6 +245,7 @@ struct ClassicHomeView: View {
         .task { await runDemo() }
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
+            if url.host == "offer" && !store.hasPlus { plusReason = .offer }
             if url.host == "week" { showWeek = true }
             if url.host == "month" { showMonth = true }
             if url.host == "hours" { showHours = true }

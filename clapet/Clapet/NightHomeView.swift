@@ -150,6 +150,7 @@ struct NightHomeView: View {
         .task { await runDemo() }
         .onOpenURL { url in
             if url.host == "plus" && !store.hasPlus { plusReason = .widget }
+            if url.host == "offer" && !store.hasPlus { plusReason = .offer }
             if url.host == "week" { showWeek = true }
             if url.host == "month" { showMonth = true }
             if url.host == "hours" { showHours = true }
@@ -402,7 +403,7 @@ struct NightHomeView: View {
             }
             if !giftHidden && GiftOffer.shouldShow(model.stats, hasPlus: store.hasPlus) {
                 Card(filled: true) {
-                    GiftCard { openURL(GiftOffer.redeemURL) } onHide: {
+                    GiftCard { plusReason = .offer } onHide: {
                         GiftOffer.hide()
                         withAnimation { giftHidden = true }
                     }
@@ -1019,7 +1020,7 @@ struct HingeArc: View {
 
 /// Pourquoi l'écran Foldly+ s'ouvre.
 enum PlusReason: String, Identifiable {
-    case menu, widget, tracking, history, alerts, limit, theme
+    case menu, widget, tracking, history, alerts, limit, theme, offer
 
     var id: String { rawValue }
 
@@ -1036,6 +1037,12 @@ enum PlusReason: String, Identifiable {
         case .limit: return Text("You went past your limit today. With Foldly+, get a heads-up at 80 % and at 100 %, before it happens.")
         case .history: return Text("Your full history and records are part of Foldly+.")
         case .theme: return Text("The Bento and Atelier themes are part of Foldly+.")
+        case .offer:
+            // Ses propres chiffres d'abord : c'est ce qu'il débloque.
+            if let peak = stats.peakHour {
+                return Text("\(FoldUnit.shown(stats.totalCloses)) folds so far, your peak is at \(HoursText.hour(peak)).")
+            }
+            return Text("\(FoldUnit.shown(stats.totalCloses)) folds so far.")
         }
     }
 }
