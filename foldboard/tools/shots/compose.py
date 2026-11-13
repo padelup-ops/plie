@@ -74,13 +74,14 @@ with sync_playwright() as p:
             # Le simulateur ne donne que l'écran déplié du Duo (466 points de large) : il sert aux deux jeux.
             inner = os.path.join(SRC, f"duo-{lang}-{i:02d}-{r}-in.png")
             outer = os.path.join(SRC, f"duo-{lang}-{i:02d}-{r}-out.png")
-            if not os.path.exists(inner):
+            only_outer = not os.path.exists(inner)
+            if only_outer:
                 inner = outer
             if r == "split":
                 outer = ""  # pas de clavier coupé en deux sur un iPhone classique
             if os.path.exists(inner):
                 n_duo += 1
-                l1, l2 = CAP[lang][r]
+                l1, l2 = CAP[lang]["split-out" if (r == "split" and only_outer) else r]
                 render(pg, 2007, 2853, inner, l1, l2, os.path.join(OUT, f"duo-{FILE.get(lang, lang)}-{n_duo}.png"))
             if outer and os.path.exists(outer):
                 n_ph += 1
