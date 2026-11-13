@@ -1112,7 +1112,7 @@ final class KeyboardCanvas: UIView {
             let b = CGRect(x: pad, y: top, width: W - 2 * pad, height: areaH)
             blocks = [b]
             panelRect = .zero
-            place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout)], in: b, align: 0)
+            place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout, emoji: eff.emojiKey)], in: b, align: 0)
         case .left, .right, .auto:
             let bw = min(W - 2 * pad, max(min(W - 2 * pad, 250), W * oneHandFraction))
             let x = isRight ? W - margin - bw : margin
@@ -1150,7 +1150,7 @@ final class KeyboardCanvas: UIView {
             let maxR = right.map { $0.keys.reduce(0) { $0 + $1.width } }.max() ?? 5
             var lb: [KeySpec] = [KeySpec(kind: .page(page == .letters ? .numbers : .letters), width: 1.5)]
             if globe { lb.append(KeySpec(kind: .globe, width: 1.1)) }
-            lb.append(KeySpec(kind: .emoji, width: 1.1))
+            if eff.emojiKey { lb.append(KeySpec(kind: .emoji, width: 1.1)) }
             lb.append(KeySpec(kind: .char(eff.layout == .azerty && page == .letters ? "," : "."), width: 1))
             let used = lb.reduce(0) { $0 + $1.width }
             lb.append(KeySpec(kind: .space, width: max(1.5, maxL - used)))
@@ -1274,8 +1274,10 @@ final class KeyboardCanvas: UIView {
         adjustButton.frame = CGRect(x: x1 - 46 - 36, y: 0, width: 36, height: h)
         let compact = layoutMode.isOneHand && !showEmoji
         let globe = input?.kbNeedsGlobe ?? false
-        emojiButton.isHidden = !compact
+        let emojiOn = compact && eff.emojiKey
+        emojiButton.isHidden = !emojiOn
         globeButton.isHidden = !(compact && globe)
+        globeButton.setImage(UIImage(systemName: eff.globeAsEmoji ? "face.smiling" : "globe"), for: .normal)
         emojiButton.tintColor = theme.text.withAlphaComponent(0.7)
         globeButton.tintColor = theme.text.withAlphaComponent(0.7)
         // Le presse-papier : juste à gauche des réglages, partout (sauf quand les emojis sont ouverts).
@@ -1283,12 +1285,12 @@ final class KeyboardCanvas: UIView {
         clipButton.isHidden = !clipShown
         clipButton.tintColor = theme.text.withAlphaComponent(0.7)
         clipButton.frame = CGRect(x: adjustButton.frame.minX - (clipShown ? 36 : 0), y: 0, width: clipShown ? 36 : 0, height: h)
-        emojiButton.frame = CGRect(x: clipButton.frame.minX - (compact ? 36 : 0), y: 0, width: compact ? 36 : 0, height: h)
+        emojiButton.frame = CGRect(x: clipButton.frame.minX - (emojiOn ? 36 : 0), y: 0, width: emojiOn ? 36 : 0, height: h)
         globeButton.frame = CGRect(x: emojiButton.frame.minX - (compact && globe ? 36 : 0), y: 0, width: compact && globe ? 36 : 0, height: h)
         let cx = max(flipButton.frame.maxX, middleButton.frame.maxX, bigButton.frame.maxX) + 4
         if let g = sideButtonsGrid {
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
-            let buttons: [UIButton] = (globe ? [globeButton] : []) + [emojiButton, clipButton, adjustButton, hideButton]
+            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + [clipButton, adjustButton, hideButton]
             let gridW = CGFloat(g.cols) * 44
             let vertical = gripContext == "open-portrait"
             // En colonne : contre le clavier (côté pouce), et les boutons répartis sur la hauteur des touches.
@@ -1445,7 +1447,7 @@ final class KeyboardCanvas: UIView {
     /// pour laisser toute la barre du haut aux suggestions (on voit les mots même tenu d'une main).
     private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
         guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
-        let n = (input?.kbNeedsGlobe ?? false) ? 5 : 4
+        let n = 3 + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
         // Duo ouvert en portrait : une colonne verticale collée au clavier, à portée du pouce
         // (une rangée tout en haut de la place libre était trop loin).
         // Les touches ne font qu'environ 170 pt de haut : boutons resserrés (32 pt mini), sur deux colonnes s'il le faut.
@@ -1593,7 +1595,7 @@ final class KeyboardCanvas: UIView {
                 v.label.text = p == .letters ? "ABC" : (p == .numbers ? "123" : "#+=")
                 v.label.font = eff.font.ui(size: 17, weight: .regular)
             case .globe:
-                v.icon.image = UIImage(systemName: "globe")
+                v.icon.image = UIImage(systemName: eff.globeAsEmoji ? "face.smiling" : "globe")
             case .emoji:
                 v.icon.image = UIImage(systemName: "face.smiling")
             }

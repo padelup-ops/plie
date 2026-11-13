@@ -333,3 +333,7 @@
 "Delete" = "删除";
 "Turn on Full Access in Settings › Foldboard to keep what you copy here. It stays on your iPhone." = "在“设置 › Foldboard”中开启完全访问，即可在这里保留你复制的内容。内容只留在你的 iPhone 上。";
 "Copy text in any app and it shows up here, ready to paste." = "在任意 App 中复制文字，它就会出现在这里，随时可以粘贴。";
+
+"Foldboard emoji key" = "Foldboard 表情键";
+"Show the globe as a smiley" = "将地球键显示为笑脸";
+"Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap." = "更喜欢带贴纸和 Genmoji 的 Apple 表情键盘？隐藏 Foldboard 表情键，然后在 设置 › 通用 › 键盘 › 键盘 中轻点编辑，把表情拖到 Foldboard 正下方：轻点地球键即可打开。";

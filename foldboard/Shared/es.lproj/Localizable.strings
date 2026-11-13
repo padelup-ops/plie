@@ -333,3 +333,7 @@
 "Delete" = "Eliminar";
 "Turn on Full Access in Settings › Foldboard to keep what you copy here. It stays on your iPhone." = "Activa el acceso total en Ajustes › Foldboard para guardar aquí lo que copias. Se queda en tu iPhone.";
 "Copy text in any app and it shows up here, ready to paste." = "Copia texto en cualquier app y aparecerá aquí, listo para pegar.";
+
+"Foldboard emoji key" = "Tecla emoji de Foldboard";
+"Show the globe as a smiley" = "Mostrar el globo como emoji";
+"Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap." = "¿Prefieres el teclado de emojis de Apple con stickers y Genmoji? Oculta la tecla emoji de Foldboard y, en Ajustes › General › Teclado › Teclados, toca Editar y coloca Emoji justo debajo de Foldboard: la tecla del globo lo abre con un toque.";

@@ -145,6 +145,10 @@ struct KBSettings: Codable, Equatable {
     var glide = true
     var suggestions = true
     var doubleSpacePeriod = true
+    /// La touche emoji de Foldboard (on peut la cacher et passer par le globe vers le clavier emoji d'Apple).
+    var emojiKey = true
+    /// Le globe dessiné comme un smiley : avec le clavier Emoji juste après Foldboard, il ouvre les emojis d'Apple.
+    var globeAsEmoji = false
     /// Modifié le (pour garder la copie la plus récente entre l'app et le clavier).
     var stamp: Date = .distantPast
 
@@ -208,6 +212,8 @@ struct KBSettings: Codable, Equatable {
         glide = (try? c.decodeIfPresent(Bool.self, forKey: .glide)) ?? d.glide
         suggestions = (try? c.decodeIfPresent(Bool.self, forKey: .suggestions)) ?? d.suggestions
         doubleSpacePeriod = (try? c.decodeIfPresent(Bool.self, forKey: .doubleSpacePeriod)) ?? d.doubleSpacePeriod
+        emojiKey = (try? c.decodeIfPresent(Bool.self, forKey: .emojiKey)) ?? d.emojiKey
+        globeAsEmoji = (try? c.decodeIfPresent(Bool.self, forKey: .globeAsEmoji)) ?? d.globeAsEmoji
         stamp = (try? c.decodeIfPresent(Date.self, forKey: .stamp)) ?? d.stamp
         clamp()
     }

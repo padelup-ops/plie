@@ -76,20 +76,33 @@ enum KBLayouts {
         case .numbers:
             return [
                 KeyRow(keys: chars("1234567890")),
-                KeyRow(keys: [c("-"), c("/"), c(":"), c(";"), c("("), c(")"), c("€"), c("&"), c("@"), c("\"")]),
+                KeyRow(keys: [c("-"), c("/"), c(":"), c(";"), c("("), c(")"), c(money), c("&"), c("@"), c("\"")]),
                 KeyRow(keys: [KeySpec(kind: .page(.symbols), width: 1.5), c("."), c(","), c("?"), c("!"), c("'"), c("%"), c("+"), KeySpec(kind: .backspace, width: 1.5)]),
             ]
         case .symbols:
             return [
                 KeyRow(keys: [c("["), c("]"), c("{"), c("}"), c("#"), c("%"), c("^"), c("*"), c("+"), c("=")]),
-                KeyRow(keys: [c("_"), c("\\"), c("|"), c("~"), c("<"), c(">"), c("$"), c("£"), c("¥"), c("•")]),
+                KeyRow(keys: [c("_"), c("\\"), c("|"), c("~"), c("<"), c(">"), c(otherMoney[0]), c(otherMoney[1]), c(otherMoney[2]), c("•")]),
                 KeyRow(keys: [KeySpec(kind: .page(.numbers), width: 1.5), c("."), c(","), c("?"), c("!"), c("'"), c("«"), c("»"), KeySpec(kind: .backspace, width: 1.5)]),
             ]
         }
     }
 
+    /// Le symbole monétaire de la région du téléphone ($ aux États-Unis, € en France, £ au Royaume-Uni…).
+    static var money: String {
+        let sym = Locale.current.currencySymbol ?? "$"
+        if sym.count == 1 { return sym }
+        // « US$ », « CA$ », « R$ », « CHF »… : on garde le signe seul s'il y en a un.
+        if let last = sym.last, !last.isLetter { return String(last) }
+        return "$"
+    }
+    /// Les trois autres monnaies de la page des symboles.
+    static var otherMoney: [String] {
+        Array(["$", "€", "£", "¥"].filter { $0 != money }.prefix(3))
+    }
+
     /// La rangée du bas.
-    static func bottom(_ page: KBPage, globe: Bool, layout: KBLayout, compact: Bool = false, leftHand: Bool = false) -> KeyRow {
+    static func bottom(_ page: KBPage, globe: Bool, layout: KBLayout, compact: Bool = false, leftHand: Bool = false, emoji: Bool = true) -> KeyRow {
         var keys: [KeySpec] = [KeySpec(kind: .page(page == .letters ? .numbers : .letters), width: 1.5)]
         if compact {
             // Petit clavier à une main : le globe et les emojis montent dans la barre du haut, l'espace est bien plus large.
@@ -108,9 +121,9 @@ enum KBLayouts {
             return KeyRow(keys: keys)
         }
         if globe { keys.append(KeySpec(kind: .globe, width: 1.1)) }
-        keys.append(KeySpec(kind: .emoji, width: 1.1))
+        if emoji { keys.append(KeySpec(kind: .emoji, width: 1.1)) }
         keys.append(KeySpec(kind: .char(layout == .azerty && page == .letters ? "," : "."), width: 1))
-        keys.append(KeySpec(kind: .space, width: globe ? 3.3 : 4.4))
+        keys.append(KeySpec(kind: .space, width: 5.5 - (globe ? 1.1 : 0) - (emoji ? 1.1 : 0)))
         keys.append(KeySpec(kind: .ret, width: 2))
         return KeyRow(keys: keys)
     }
@@ -148,7 +161,8 @@ enum KBLayouts {
         case ".": return ["’", ",", "?", "!", "…"]
         case ",": return [";", ":", "-"]
         case "-": return ["–", "—", "•"]
-        case "€": return ["$", "£", "¥", "¢"]
+        case "€", "$", "£", "¥", "₩", "₹", "₽", "₺", "₪", "₫", "₱", "₦", "₴", "฿":
+            return (["€", "$", "£", "¥", "¢", "₩", "₹", "₽"].filter { $0 != base })
         case "?": return ["¿"]
         case "!": return ["¡"]
         case "0": return ["°"]

@@ -333,3 +333,7 @@
 "Delete" = "삭제";
 "Turn on Full Access in Settings › Foldboard to keep what you copy here. It stays on your iPhone." = "설정 › Foldboard에서 전체 접근을 켜면 복사한 내용을 여기에 보관합니다. iPhone에만 저장됩니다.";
 "Copy text in any app and it shows up here, ready to paste." = "어떤 앱에서든 텍스트를 복사하면 여기에 나타나 바로 붙여넣을 수 있습니다.";
+
+"Foldboard emoji key" = "Foldboard 이모지 키";
+"Show the globe as a smiley" = "지구본을 스마일로 표시";
+"Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap." = "스티커와 젠모지를 쓸 수 있는 Apple 이모지 키보드가 더 좋으신가요? Foldboard 이모지 키를 숨기고, 설정 › 일반 › 키보드 › 키보드에서 편집을 눌러 이모지를 Foldboard 바로 아래로 옮기세요. 지구본 키 한 번으로 열립니다.";

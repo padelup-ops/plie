@@ -333,3 +333,7 @@
 "Delete" = "Verwijder";
 "Turn on Full Access in Settings › Foldboard to keep what you copy here. It stays on your iPhone." = "Zet volledige toegang aan in Instellingen › Foldboard om hier te bewaren wat je kopieert. Het blijft op je iPhone.";
 "Copy text in any app and it shows up here, ready to paste." = "Kopieer tekst in een willekeurige app en hij verschijnt hier, klaar om te plakken.";
+
+"Foldboard emoji key" = "Foldboard-emojitoets";
+"Show the globe as a smiley" = "Wereldbol als smiley tonen";
+"Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap." = "Liever Apples emojitoetsenbord met stickers en Genmoji? Verberg de Foldboard-emojitoets, tik daarna in Instellingen › Algemeen › Toetsenbord › Toetsenborden op Wijzig en zet Emoji direct onder Foldboard: de wereldbol opent het met één tik.";

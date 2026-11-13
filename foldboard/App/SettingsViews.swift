@@ -539,6 +539,14 @@ struct TypingView: View {
                     Text("Language model: Leipzig Corpora Collection, CC BY 4.0.").font(.caption2)
                 }
             }
+            Section {
+                Toggle("Foldboard emoji key", isOn: $m.settings.emojiKey)
+                Toggle("Show the globe as a smiley", isOn: $m.settings.globeAsEmoji)
+            } header: {
+                Text("Emoji")
+            } footer: {
+                Text("Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap.")
+            }
         }
         .navigationTitle("Typing")
         .safeAreaInset(edge: .bottom, spacing: 0) { PreviewDock() }
