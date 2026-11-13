@@ -98,6 +98,8 @@ final class KeyboardCanvas: UIView {
     /// Petit clavier : le globe et les emojis sont ici, pour laisser la place à l'espace.
     private let globeButton = UIButton(type: .system)
     private let emojiButton = UIButton(type: .system)
+    /// Le presse-papier, toujours en vue dans la barre du haut.
+    private let clipButton = UIButton(type: .system)
     private let adjustButton = UIButton(type: .system)
     private let chips = UIScrollView()
     private let chipStack = UIStackView()
@@ -287,7 +289,7 @@ final class KeyboardCanvas: UIView {
         adjustButton.setImage(UIImage(systemName: "slider.horizontal.3"), for: .normal)
         adjustButton.addAction(UIAction { [weak self] _ in self?.startAdjust() }, for: .touchUpInside)
         adjustButton.accessibilityLabel = L("Adjust the keyboard")
-        for b in [modeButton, flipButton, middleButton, bigButton, hideButton, adjustButton, globeButton, emojiButton] {
+        for b in [modeButton, flipButton, middleButton, bigButton, hideButton, adjustButton, globeButton, emojiButton, clipButton] {
             b.tintColor = .label
             topBar.addSubview(b)
         }
@@ -313,6 +315,15 @@ final class KeyboardCanvas: UIView {
             self.showEmoji = true
             self.builtFor = .zero
             self.rebuild()
+        }, for: .touchUpInside)
+        clipButton.setImage(UIImage(systemName: "doc.on.clipboard"), for: .normal)
+        clipButton.accessibilityLabel = L("Clipboard")
+        clipButton.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            self.showEmoji = true
+            self.builtFor = .zero
+            self.rebuild()
+            self.emojiBoard.setClipMode(true)
         }, for: .touchUpInside)
         chips.showsHorizontalScrollIndicator = false
         chips.alwaysBounceHorizontal = true
@@ -1252,12 +1263,17 @@ final class KeyboardCanvas: UIView {
         globeButton.isHidden = !(compact && globe)
         emojiButton.tintColor = theme.text.withAlphaComponent(0.7)
         globeButton.tintColor = theme.text.withAlphaComponent(0.7)
-        emojiButton.frame = CGRect(x: adjustButton.frame.minX - (compact ? 36 : 0), y: 0, width: compact ? 36 : 0, height: h)
+        // Le presse-papier : juste à gauche des réglages, partout (sauf quand les emojis sont ouverts).
+        let clipShown = !showEmoji
+        clipButton.isHidden = !clipShown
+        clipButton.tintColor = theme.text.withAlphaComponent(0.7)
+        clipButton.frame = CGRect(x: adjustButton.frame.minX - (clipShown ? 36 : 0), y: 0, width: clipShown ? 36 : 0, height: h)
+        emojiButton.frame = CGRect(x: clipButton.frame.minX - (compact ? 36 : 0), y: 0, width: compact ? 36 : 0, height: h)
         globeButton.frame = CGRect(x: emojiButton.frame.minX - (compact && globe ? 36 : 0), y: 0, width: compact && globe ? 36 : 0, height: h)
         let cx = max(flipButton.frame.maxX, middleButton.frame.maxX, bigButton.frame.maxX) + 4
         if let g = sideButtonsGrid {
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
-            let buttons: [UIButton] = (globe ? [globeButton] : []) + [emojiButton, adjustButton, hideButton]
+            let buttons: [UIButton] = (globe ? [globeButton] : []) + [emojiButton, clipButton, adjustButton, hideButton]
             let gridW = CGFloat(g.cols) * 44
             let ox = isRight ? panelRect.maxX - gridW : panelRect.minX
             for (i, b) in buttons.enumerated() {
@@ -1407,7 +1423,7 @@ final class KeyboardCanvas: UIView {
     /// pour laisser toute la barre du haut aux suggestions (on voit les mots même tenu d'une main).
     private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
         guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
-        let n = (input?.kbNeedsGlobe ?? false) ? 4 : 3
+        let n = (input?.kbNeedsGlobe ?? false) ? 5 : 4
         let cols = max(1, min(n, Int(panelRect.width / 44)))
         let rows = Int(ceil(Double(n) / Double(cols)))
         guard CGFloat(rows) * 44 <= panelRect.height - 44 else { return nil }
@@ -1419,7 +1435,7 @@ final class KeyboardCanvas: UIView {
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         if sideButtonsGrid != nil, !isHidden, isUserInteractionEnabled {
             let q = convert(point, to: topBar)
-            for b in [globeButton, emojiButton, adjustButton, hideButton] where !b.isHidden && b.alpha > 0.01 && b.frame.contains(q) {
+            for b in [globeButton, emojiButton, clipButton, adjustButton, hideButton] where !b.isHidden && b.alpha > 0.01 && b.frame.contains(q) {
                 return b
             }
         }
@@ -1901,7 +1917,7 @@ final class KeyboardCanvas: UIView {
         if !on { trackMap = nil }
         UIView.animate(withDuration: 0.18) {
             // Comme chez Apple : la barre du haut disparaît aussi, il ne reste que le pavé.
-            for v in [self.chips, self.modeButton, self.flipButton, self.middleButton, self.bigButton, self.globeButton, self.emojiButton, self.adjustButton, self.hideButton] as [UIView] {
+            for v in [self.chips, self.modeButton, self.flipButton, self.middleButton, self.bigButton, self.globeButton, self.emojiButton, self.clipButton, self.adjustButton, self.hideButton] as [UIView] {
                 v.alpha = on ? 0 : 1
             }
             for c in self.cells {
