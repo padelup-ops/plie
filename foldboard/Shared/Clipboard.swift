@@ -117,7 +117,7 @@ final class ClipboardList: UIView {
     var accent: UIColor = .systemBlue { didSet { reload() } }
     var fullAccess = true { didSet { if oldValue != fullAccess { reload() } } }
 
-    private let scroll = UIScrollView()
+    private let scroll = DragScroll()
     private var builtFor: CGSize = .zero
 
     override init(frame: CGRect) {
@@ -216,4 +216,9 @@ final class ClipboardList: UIView {
         scroll.addSubview(l)
         scroll.contentSize = bounds.size
     }
+}
+
+/// Une liste qui défile même quand le doigt part d'un bouton (sinon, partir d'un élément bloquait le défilement).
+final class DragScroll: UIScrollView {
+    override func touchesShouldCancel(in view: UIView) -> Bool { true }
 }
