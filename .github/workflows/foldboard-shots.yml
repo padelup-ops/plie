@@ -7,7 +7,11 @@ on:
       routes:
         description: "Écrans à capturer"
         required: false
-        default: "right split left themes pro calib"
+        default: "right split clip calib themes pro"
+      langs:
+        description: "Langues"
+        required: false
+        default: "en fr de es it nl pt-BR ja ko zh-Hans ru"
       appearance:
         description: "Apparence : dark ou light"
         required: false
@@ -65,12 +69,14 @@ jobs:
             xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
             xcrun simctl install "$UDID" "$APP"
             xcrun simctl ui "$UDID" appearance ${{ inputs.appearance || 'dark' }} || true
-            for L in fr en; do
+            for L in ${{ inputs.langs || 'fr en' }}; do
               N=0
+              LOC=$(echo "$L" | sed 's/-/_/')
               for R in ${{ inputs.routes }}; do
                 N=$((N+1))
+                EXTRA=""; [ "$R" = clip ] && EXTRA="-shotClip"
                 xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
-                xcrun simctl launch "$UDID" "$BID" -AppleLanguages "($L)" -AppleLocale "${L}_FR" -shot "$R" > /dev/null 2>&1 || true
+                xcrun simctl launch "$UDID" "$BID" -AppleLanguages "($L)" -AppleLocale "$LOC" -shot "$R" $EXTRA > /dev/null 2>&1 || true
                 sleep 6
                 xcrun simctl io "$UDID" screenshot --display=0 "shots/$KIND-$L-$(printf %02d $N)-$R-in.png" 2>>shots/erreurs-captures.txt || true
                 xcrun simctl io "$UDID" screenshot --display=1 "shots/$KIND-$L-$(printf %02d $N)-$R-out.png" 2>>shots/erreurs-captures.txt || true

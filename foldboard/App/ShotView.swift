@@ -61,11 +61,12 @@ struct ShotView: View {
         }
     }
 
-    private var fr: Bool { Locale.current.language.languageCode?.identifier == "fr" }
+    private var fr: Bool { lang == "fr" }
+    private var lang: String { Locale.current.language.languageCode?.identifier ?? "en" }
 
     private var settings: KBSettings {
         var s = KBSettings()
-        s.layout = fr ? .azerty : .qwerty
+        s.layout = lang == "fr" ? .azerty : lang == "de" ? .qwertz : lang == "es" ? .spanish : .qwerty
         switch base {
         case "left":
             s.mode = .left
@@ -88,18 +89,36 @@ struct ShotView: View {
         return s
     }
 
+    /// La conversation de la capture, dans la langue de l'écran (en anglais pour les langues que le clavier n'écrit pas).
+    private static let talk: [String: ([String], [String])] = [
+        "fr": (["Tu arrives à quelle heure ?", "Vers 19h, je finis un truc 🙂", "Top, on se retrouve devant le ciné"],
+               ["D’accord, j’arrive dans dix minu", "Parfait, je suis en rou", "Merci beaucoup, à tout à "]),
+        "en": (["What time are you getting here?", "Around 7, just finishing something 🙂", "Great, meet you outside the cinema"],
+               ["Sure, I’ll be there in ten minu", "Perfect, I’m on my wa", "Thanks a lot, see you "]),
+        "de": (["Wann bist du da?", "Gegen 19 Uhr, mache noch was fertig 🙂", "Super, wir treffen uns vor dem Kino"],
+               ["Klar, ich bin in zehn Minu", "Perfekt, ich bin unterw", "Vielen Dank, bis "]),
+        "es": (["¿A qué hora llegas?", "Sobre las 7, termino una cosa 🙂", "Genial, nos vemos en la puerta del cine"],
+               ["Vale, llego en diez minu", "Perfecto, ya voy de cam", "Muchas gracias, nos vem"]),
+        "it": (["A che ora arrivi?", "Verso le 7, finisco una cosa 🙂", "Perfetto, ci vediamo davanti al cinema"],
+               ["Ok, arrivo tra dieci minu", "Perfetto, sono per str", "Grazie mille, a dop"]),
+        "nl": (["Hoe laat ben je er?", "Rond 7 uur, ik maak iets af 🙂", "Top, we zien elkaar bij de bioscoop"],
+               ["Prima, ik ben er over tien minu", "Perfect, ik ben onderw", "Heel erg bedankt, tot "]),
+        "pt": (["Que horas você chega?", "Lá pelas 7, tô terminando uma coisa 🙂", "Ótimo, te encontro na frente do cinema"],
+               ["Beleza, chego em dez minu", "Perfeito, já estou a cami", "Muito obrigado, até "]),
+    ]
+    private var lines: ([String], [String]) { Self.talk[lang] ?? Self.talk["en"]! }
+
     private var messages: [(String, Bool)] {
-        if fr {
-            return [("Tu arrives à quelle heure ?", false), ("Vers 19h, je finis un truc 🙂", true), ("Top, on se retrouve devant le ciné", false)]
-        }
-        return [("What time are you getting here?", false), ("Around 7, just finishing something 🙂", true), ("Great, meet you outside the cinema", false)]
+        let m = lines.0
+        return [(m[0], false), (m[1], true), (m[2], false)]
     }
 
     private var draft: String {
         switch base {
-        case "left": return fr ? "Merci beaucoup, à tout à " : "Thanks a lot, see you "
-        case "split": return fr ? "Parfait, je suis en rou" : "Perfect, I’m on my wa"
-        default: return fr ? "D’accord, j’arrive dans dix minu" : "Sure, I’ll be there in ten minu"
+        case "clip": return ""
+        case "left": return lines.1[2]
+        case "split": return lines.1[1]
+        default: return lines.1[0]
         }
     }
 

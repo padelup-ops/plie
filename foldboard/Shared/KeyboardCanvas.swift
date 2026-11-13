@@ -368,6 +368,13 @@ final class KeyboardCanvas: UIView {
         KBThumb.shared.importSeed(settings.thumbSeed, stamps: settings.thumbSeedStamp)
         updateGripContext()
         grip.current = settings.autoTwo ? .two : (settings.autoRight ? .right : .left)
+        // Captures de l'App Store : le presse-papier déjà ouvert.
+        if ProcessInfo.processInfo.arguments.contains("-shotClip"), !showEmoji {
+            KBClipboard.shared.seedForShots(["221B Baker Street, London", "https://foldly.netlify.app",
+                                             "Meeting at 7 pm 🎬", "FOLD-2026-0412", "+1 555 0142"])
+            showEmoji = true
+            emojiBoard.setClipMode(true)
+        }
         builtFor = .zero
         setNeedsLayout()
         if visible && (autoOn || recording != nil) && !gripStarted { startGrip() }

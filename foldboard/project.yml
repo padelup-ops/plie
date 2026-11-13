@@ -29,7 +29,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [en, fr]
+        CFBundleLocalizations: [en, fr, de, es, ja, ko, zh-Hans, it, pt-BR, nl, ru]
         CFBundleAllowMixedLocalizations: true
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
@@ -59,7 +59,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [en, fr]
+        CFBundleLocalizations: [en, fr, de, es, ja, ko, zh-Hans, it, pt-BR, nl, ru]
         NSExtension:
           NSExtensionPointIdentifier: com.apple.keyboard-service
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController

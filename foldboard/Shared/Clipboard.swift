@@ -59,6 +59,12 @@ final class KBClipboard {
         return true
     }
 
+    /// Captures de l'App Store : une liste d'exemple.
+    func seedForShots(_ texts: [String]) {
+        items = texts.enumerated().map { Item(text: $0.element, date: Date().addingTimeInterval(-Double($0.offset) * 600), pinned: $0.offset == 1) }
+        fresh = nil
+    }
+
     /// Le dernier copié est récent (moins de 3 minutes) : on le propose dans la barre.
     var freshText: String? {
         guard let f = fresh, Date().timeIntervalSince(f.date) < 180 else { return nil }
