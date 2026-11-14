@@ -1,0 +1,14 @@
+BUNDLE_APP com.padelup.clapet
+BUNDLE_WIDGET com.padelup.clapet.widget
+ok     identifiant déjà là : com.padelup.clapet
+ok     identifiant déjà là : com.padelup.clapet.widget
+APP 6827349081 | Foldly : compteur de plis | com.padelup.clapet | sku clapet-001
+APP 6832556606 | Foldboard | com.padelup.foldboard | sku foldboard
+APP 6825605393 | Origamo: Folding Mini Games | com.padelup.plie | sku plie-001
+APP 6800102466 | PADELUP (FR) | com.padelup.padelup-new | sku com.padelup.padelup-new
+APP 6832373850 | Waffle Fold | com.padelup.waffle | sku com.padelup.waffle
+APP 6830173446 | Unlocked: Found Phones | com.padelup.unlocked | sku unlocked
+FICHE  ok 6827349081
+GROUPE Clapet interne | interne
+GROUPE Clapet interne | interne
+GROUPE Clapet interne | interne
