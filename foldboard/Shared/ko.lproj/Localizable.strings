@@ -368,3 +368,15 @@
 
 "Copy hand data for the developer" = "개발자용 손 감지 데이터 복사";
 "Copied. Paste it in a message to the developer." = "복사했어요. 개발자에게 보내는 메시지에 붙여 넣으세요.";
+
+"Duo open, portrait" = "Duo 펼침, 세로";
+"Duo open, landscape" = "Duo 펼침, 가로";
+"Same as above" = "위와 같음";
+"For each screen" = "화면별";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only." = "Duo의 화면마다 키보드 위치를 고르세요. 키보드의 위치 버튼으로 고른 위치도 그 화면에만 적용돼요.";
+"How do you want your keyboard?" = "키보드를 어떻게 쓸까요?";
+"It follows my hand" = "손을 따라와요";
+"It slides under the thumb of the hand holding the phone, and splits in two for both hands. Foldboard Pro, free to try." = "휴대폰을 쥔 손의 엄지 아래로 이동하고, 두 손일 땐 둘로 나뉘어요. Foldboard Pro, 무료 체험.";
+"It stays in place" = "제자리에 있어요";
+"Full width, like Apple's keyboard. You can still move it from its position button." = "Apple 키보드처럼 전체 너비. 위치 버튼으로 언제든 옮길 수 있어요.";
+"You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "화면마다(닫힘, 펼침, 가로) 다른 위치를 고를 수 있어요: 설정 › 위치 및 크기.";

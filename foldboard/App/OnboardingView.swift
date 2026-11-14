@@ -19,7 +19,7 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             HStack {
                 ForEach(0..<6) { i in
-                    Capsule().fill(i <= page ? Color.accentColor : Color(.systemFill)).frame(height: 4)
+                    Capsule().fill(i <= (page == 10 ? 1 : page) ? Color.accentColor : Color(.systemFill)).frame(height: 4)
                 }
             }
             .padding(.horizontal, 24)
@@ -29,6 +29,7 @@ struct OnboardingView: View {
                 switch page {
                 case 0: welcome
                 case 1: addKeyboard
+                case 10: chooseStyle
                 case 2:
                     VStack(spacing: 0) {
                         PlaceTutorial(onFinish: { page = 3 })
@@ -78,10 +79,54 @@ struct OnboardingView: View {
             Spacer()
             next("Next") {
                 UserDefaults.standard.set(true, forKey: "setupDone")
-                page = 2
+                page = 10
             }
         }
         .padding(24)
+    }
+
+    /// Le clavier qui suit la main, ou toujours au même endroit : au choix dès le début (modifiable ensuite, écran par écran).
+    private var chooseStyle: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("How do you want your keyboard?").font(.largeTitle.bold())
+            styleCard(icon: "hand.raised", title: "It follows my hand",
+                      detail: "It slides under the thumb of the hand holding the phone, and splits in two for both hands. Foldboard Pro, free to try.") {
+                var s = model.settings
+                s.mode = .auto
+                s.screenModes = [:]
+                model.settings = s
+                page = 2
+            }
+            styleCard(icon: "keyboard", title: "It stays in place",
+                      detail: "Full width, like Apple's keyboard. You can still move it from its position button.") {
+                var s = model.settings
+                s.mode = .full
+                s.screenModes = [:]
+                model.settings = s
+                page = 3
+            }
+            Text("You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size.")
+                .font(.footnote).foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding(24)
+    }
+
+    private func styleCard(icon: String, title: LocalizedStringKey, detail: LocalizedStringKey, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(alignment: .top, spacing: 14) {
+                Image(systemName: icon).font(.title2).foregroundStyle(Color.accentColor).frame(width: 34)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title).font(.headline).foregroundStyle(.primary)
+                    Text(detail).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+            }
+            .padding(16)
+            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     /// Apprendre les pouces, façon Face ID (on peut le passer et le faire plus tard).

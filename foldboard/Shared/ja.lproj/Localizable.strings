@@ -368,3 +368,15 @@
 
 "Copy hand data for the developer" = "手の検出データを開発者用にコピー";
 "Copied. Paste it in a message to the developer." = "コピーしました。開発者へのメッセージに貼り付けてください。";
+
+"Duo open, portrait" = "Duoを開いて縦向き";
+"Duo open, landscape" = "Duoを開いて横向き";
+"Same as above" = "上と同じ";
+"For each screen" = "画面ごと";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only." = "Duoの画面ごとにキーボードの位置を選べます。キーボードの位置ボタンで選んだ位置も、その画面だけに適用されます。";
+"How do you want your keyboard?" = "キーボードをどうしますか？";
+"It follows my hand" = "手についてくる";
+"It slides under the thumb of the hand holding the phone, and splits in two for both hands. Foldboard Pro, free to try." = "電話を持つ手の親指の下に移動し、両手のときは2つに分かれます。Foldboard Pro、無料で試せます。";
+"It stays in place" = "同じ場所にとどまる";
+"Full width, like Apple's keyboard. You can still move it from its position button." = "Appleのキーボードと同じ全幅。位置ボタンでいつでも動かせます。";
+"You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "画面ごと（閉じる・開く・横向き）に別の位置を選べます：設定 › 位置とサイズ。";

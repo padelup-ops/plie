@@ -728,7 +728,8 @@ final class KBSuggest {
         guard own > 2_000, !known.contains(lower), KBWordStore.shared.count(lower) == 0 else { return nil }
         // Il faut un vrai contexte (au moins un mot avant) pour juger.
         guard Self.previousWord(before, word: word) != nil else { return nil }
-        let ownScore = lm.score(lower, before: before) ?? -20
+        // Un mot absent du modèle : estimé d'après sa fréquence dans la liste (pas -20, qui ferait tout corriger).
+        let ownScore = lm.score(lower, before: before) ?? (own == Int.max ? -20 : -log(Double(own) + 30) - 2)
         let chars = Array(lower)
         let letters = Set(rows.joined())
         var best: (String, Double)?
@@ -738,7 +739,7 @@ final class KBSuggest {
                 let c = String(w)
                 guard let r = rank[c], r < 150, let sc = lm.score(c, before: before) else { continue }
                 if let cc = touch?.cost(c), let oc = touch?.cost(lower), cc - oc > 4 { continue }
-                if sc - ownScore >= Self.t("shortDelta", 4), best == nil || sc > best!.1 { best = (c, sc) }
+                if sc - ownScore >= Self.t("shortDelta", 6), best == nil || sc > best!.1 { best = (c, sc) }
             }
         }
         return best.map { matchCase($0.0, like: word) }

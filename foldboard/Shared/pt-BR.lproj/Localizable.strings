@@ -368,3 +368,15 @@
 
 "Copy hand data for the developer" = "Copiar dados da mão para o desenvolvedor";
 "Copied. Paste it in a message to the developer." = "Copiado. Cole em uma mensagem para o desenvolvedor.";
+
+"Duo open, portrait" = "Duo aberto, retrato";
+"Duo open, landscape" = "Duo aberto, paisagem";
+"Same as above" = "Igual acima";
+"For each screen" = "Para cada tela";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only." = "Escolha onde fica o teclado em cada tela do seu Duo. Uma posição escolhida com o botão de posição do teclado também vale só para aquela tela.";
+"How do you want your keyboard?" = "Como você quer seu teclado?";
+"It follows my hand" = "Ele segue minha mão";
+"It slides under the thumb of the hand holding the phone, and splits in two for both hands. Foldboard Pro, free to try." = "Ele fica sob o polegar da mão que segura o telefone e se divide em dois com as duas mãos. Foldboard Pro, teste grátis.";
+"It stays in place" = "Ele fica no lugar";
+"Full width, like Apple's keyboard. You can still move it from its position button." = "Largura total, como o teclado da Apple. Você ainda pode movê-lo pelo botão de posição.";
+"You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "Você pode escolher uma posição diferente para cada tela (fechado, aberto, paisagem) em Ajustes › Posição e tamanho.";
