@@ -379,6 +379,7 @@ final class KeyboardCanvas: UIView {
         self.settings = settings
         self.pro = pro
         eff = settings.effective(pro: pro)
+        applyScreenMode()
         theme = KBTheme.named(eff.theme)
         suggest.setLayout(eff.layout)
         let layout = eff.layout
@@ -509,6 +510,7 @@ final class KeyboardCanvas: UIView {
         if demoOneHand { c = "closed-portrait" }
         if let demoContext { c = demoContext }
         gripContext = c
+        applyScreenMode()
         grip.angleOffset = kbAngleOffset(window?.windowScene?.interfaceOrientation)
         grip.guessUncalibrated = false
         grip.defaultTilt = followsHand
@@ -749,6 +751,21 @@ final class KeyboardCanvas: UIView {
         configure(settings: settings, pro: pro)
     }
 
+    /// La disposition de cet écran (réglée par écran, sinon la générale), avec les limites de la version gratuite.
+    private func applyScreenMode() {
+        var m = settings.mode(for: gripContext)
+        if !pro {
+            if m == .split { m = .full }
+            if m == .auto { m = settings.autoRight ? .right : .left }
+        }
+        eff.mode = m
+    }
+
+    /// Choisir une disposition depuis le clavier : pour cet écran seulement (fermé, ouvert en portrait, en paysage…).
+    private func setScreenMode(_ m: KBMode, in s: inout KBSettings) {
+        s.screenModes[gripContext] = m
+    }
+
     private func setMode(_ m: KBMode) {
         if (m == .auto || m == .split) && !pro {
             guard let input else { flash(L("Foldboard Pro: open the app to unlock")); return }
@@ -765,7 +782,8 @@ final class KeyboardCanvas: UIView {
             }
             return
         }
-        settings.mode = m
+        setScreenMode(m, in: &settings)
+        applyScreenMode()
         grip.locked = false
         save()
     }
@@ -778,16 +796,16 @@ final class KeyboardCanvas: UIView {
     private func placeByTap(at p: CGPoint) {
         let W = bounds.width
         // Écran intérieur : le clavier est coupé en deux (ou entier), il n'y a rien à placer.
-        guard W > 0, !(settings.mode == .auto && !followsHand) else { return }
+        guard W > 0, !(settings.mode(for: gripContext) == .auto && !followsHand) else { return }
         let center = abs(p.x - W / 2) < W * 0.17 && layoutMode.isOneHand
         let auto = eff.mode == .auto
         var s = settings
         if center {
-            if auto { s.autoTwo = true } else { s.mode = pro && splitAllowed ? .split : .full }
+            if auto { s.autoTwo = true } else { setScreenMode(pro && splitAllowed ? .split : .full, in: &s) }
             grip.current = .two
         } else {
             let right = p.x > W / 2
-            if auto { s.autoTwo = false; s.autoRight = right } else { s.mode = right ? .right : .left }
+            if auto { s.autoTwo = false; s.autoRight = right } else { setScreenMode(right ? .right : .left, in: &s) }
             grip.current = right ? .right : .left
             // Le clavier retient comment le téléphone penche quand tu le veux de ce côté : il sortira du bon
             // côté tout seul la prochaine fois.
@@ -850,8 +868,8 @@ final class KeyboardCanvas: UIView {
             if let a = grip.currentAngle { settings.learn(roll: a, right: settings.autoRight, context: gripContext) }
             learnHabit(right: settings.autoRight, correction: true)
             typedOnSide = 0
-        case .left: settings.mode = .right
-        case .right: settings.mode = .left
+        case .left: setScreenMode(.right, in: &settings)
+        case .right: setScreenMode(.left, in: &settings)
         default: return
         }
         save()
@@ -910,7 +928,7 @@ final class KeyboardCanvas: UIView {
 
     private var layoutMode: KBMode {
         // Écran intérieur du Duo, comme le clavier d'Apple : deux moitiés en portrait, entier en paysage.
-        if settings.mode == .auto {
+        if settings.screenModes[gripContext] == nil && settings.mode == .auto {
             // En portrait, au choix : deux moitiés, ou le petit clavier qui suit la main (comme sur l'écran extérieur).
             if gripContext == "open-portrait" && settings.openSplit { return pro && splitAllowed ? .split : .full }
             // En paysage, au choix : le clavier entier, ou deux moitiés.
@@ -1297,7 +1315,7 @@ final class KeyboardCanvas: UIView {
         // Écran intérieur : un bouton pour passer d'une disposition à l'autre.
         // Portrait : petit clavier qui suit la main ⇄ deux moitiés. Paysage : clavier entier ⇄ deux moitiés.
         let open = gripContext.hasPrefix("open")
-        let bigShown = open && settings.mode == .auto && pro
+        let bigShown = open && settings.mode(for: gripContext) == .auto && settings.screenModes[gripContext] == nil && pro
         let splitNow = gripContext == "open-portrait" ? settings.openSplit : (settings.openLandSplit || settings.openLandFollow)
         bigButton.isHidden = !bigShown
         bigButton.setImage(UIImage(systemName: splitNow ? (gripContext == "open-portrait" ? "keyboard.onehanded.right" : "keyboard") : "rectangle.split.2x1"), for: .normal)
@@ -1483,6 +1501,7 @@ final class KeyboardCanvas: UIView {
                 if !self.pro && !self.settings.openSplit { self.setMode(.split); return }
                 self.settings.openSplit.toggle()
                 self.settings.mode = .auto
+                self.settings.screenModes[self.gripContext] = nil
                 self.save()
                 self.layoutIfNeeded()
             }, at: 0)
@@ -1495,6 +1514,7 @@ final class KeyboardCanvas: UIView {
                 if !self.pro { self.setMode(.auto); return }
                 self.settings.openLandFollow.toggle()
                 self.settings.mode = .auto
+                self.settings.screenModes[self.gripContext] = nil
                 self.grip.locked = false
                 self.save()
                 self.updateGripContext()
@@ -1869,12 +1889,12 @@ final class KeyboardCanvas: UIView {
                     let dt = tr.lastT > 0 ? max(0.004, t.timestamp - tr.lastT) : 0.016
                     tr.lastX = p.x; tr.lastY = p.y; tr.lastT = t.timestamp
                     let speed = hypot(mdx, mdy) / CGFloat(dt)          // points par seconde
-                    let gain: CGFloat = speed < 120 ? 0.55 : (speed < 600 ? 0.55 + (speed - 120) / 480 * 0.45 : min(1.8, 1 + (speed - 600) / 900))
+                    let gain: CGFloat = speed < 120 ? 0.8 : (speed < 600 ? 0.8 + (speed - 120) / 480 * 0.6 : min(2.6, 1.4 + (speed - 600) / 700))
                     tr.cursorAccum += mdx * gain
                     // Le vertical, plus dur : il faut vraiment monter ou descendre pour changer de ligne.
                     tr.cursorAccumY += mdy * gain * (abs(mdy) > abs(mdx) * 0.6 ? 1 : 0.35)
                     // Réglage « Sensibilité » : de 14 pt par lettre (lent) à 7 pt (rapide).
-                    let charStep = 14 - 7 * CGFloat(eff.swipe)
+                    let charStep = 11 - 5 * CGFloat(eff.swipe)
                     let lineStep: CGFloat = 30
                     let dCol = Int((tr.cursorAccum / charStep).rounded(.towardZero))
                     let dLine = Int((tr.cursorAccumY / lineStep).rounded(.towardZero))
@@ -2480,7 +2500,7 @@ final class KeyboardCanvas: UIView {
         chipStack.addArrangedSubview(field)
         field.widthAnchor.constraint(equalToConstant: max(110, min(170, field.intrinsicContentSize.width + 24))).isActive = true
         field.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        for e in KBEmoji.search(q).prefix(24) {
+        for e in (q.isEmpty ? [] : KBEmoji.search(q)).prefix(24) {
             let b = UIButton(type: .system)
             b.setTitle(e, for: .normal)
             b.titleLabel?.font = .systemFont(ofSize: 26)

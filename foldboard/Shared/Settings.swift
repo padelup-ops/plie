@@ -136,6 +136,12 @@ struct KBSettings: Codable, Equatable {
     var learningTips = true
     /// Une rangée de chiffres au-dessus des lettres (désactivée par défaut : le clavier garde sa hauteur).
     var numberRow = false
+    /// La disposition choisie pour chaque écran (« closed-portrait », « open-portrait », « open-landscape »…).
+    /// Absent : la disposition générale (`mode`). Choisir une disposition dans le clavier la règle pour cet écran seulement.
+    var screenModes: [String: KBMode] = [:]
+
+    /// La disposition voulue sur cet écran (avant les limites de la version gratuite).
+    func mode(for context: String) -> KBMode { screenModes[context] ?? mode }
     var theme: String = "auto"
     var font: KBFont = .system
     /// Force des vibrations, de 0 (coupées) à 1.
@@ -209,6 +215,7 @@ struct KBSettings: Codable, Equatable {
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
         learningTips = (try? c.decodeIfPresent(Bool.self, forKey: .learningTips)) ?? d.learningTips
         numberRow = (try? c.decodeIfPresent(Bool.self, forKey: .numberRow)) ?? d.numberRow
+        screenModes = (try? c.decodeIfPresent([String: KBMode].self, forKey: .screenModes)) ?? d.screenModes
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme
         font = (try? c.decodeIfPresent(KBFont.self, forKey: .font)) ?? d.font
         haptics = (try? c.decodeIfPresent(Double.self, forKey: .haptics)) ?? d.haptics

@@ -368,3 +368,15 @@
 
 "Copy hand data for the developer" = "为开发者复制手部数据";
 "Copied. Paste it in a message to the developer." = "已复制。请粘贴到发给开发者的消息中。";
+
+"Duo open, portrait" = "Duo 展开，竖屏";
+"Duo open, landscape" = "Duo 展开，横屏";
+"Same as above" = "与上方相同";
+"For each screen" = "按屏幕设置";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only." = "为 Duo 的每个屏幕选择键盘位置。用键盘的位置按钮选择的位置也只对该屏幕生效。";
+"How do you want your keyboard?" = "你想要怎样的键盘？";
+"It follows my hand" = "跟随我的手";
+"It slides under the thumb of the hand holding the phone, and splits in two for both hands. Foldboard Pro, free to try." = "移到握持手机那只手的拇指下方，双手时分成两半。Foldboard Pro，可免费试用。";
+"It stays in place" = "固定不动";
+"Full width, like Apple's keyboard. You can still move it from its position button." = "全宽，就像 Apple 键盘。仍可用位置按钮移动。";
+"You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "你可以在 设置 › 位置和大小 中为每个屏幕（合上、展开、横屏）选择不同位置。";

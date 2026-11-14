@@ -368,3 +368,15 @@
 
 "Copy hand data for the developer" = "Handgegevens kopiëren voor de ontwikkelaar";
 "Copied. Paste it in a message to the developer." = "Gekopieerd. Plak het in een bericht aan de ontwikkelaar.";
+
+"Duo open, portrait" = "Duo open, staand";
+"Duo open, landscape" = "Duo open, liggend";
+"Same as above" = "Zoals hierboven";
+"For each screen" = "Voor elk scherm";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only." = "Kies waar het toetsenbord op elk scherm van je Duo staat. Een positie die je met de positieknop van het toetsenbord kiest, geldt ook alleen voor dat scherm.";
+"How do you want your keyboard?" = "Hoe wil je je toetsenbord?";
+"It follows my hand" = "Het volgt mijn hand";
+"It slides under the thumb of the hand holding the phone, and splits in two for both hands. Foldboard Pro, free to try." = "Het schuift onder de duim van de hand die de telefoon vasthoudt en splitst bij twee handen. Foldboard Pro, gratis proberen.";
+"It stays in place" = "Het blijft op zijn plek";
+"Full width, like Apple's keyboard. You can still move it from its position button." = "Volle breedte, zoals het toetsenbord van Apple. Je kunt het nog steeds verplaatsen met de positieknop.";
+"You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "Je kunt voor elk scherm (dicht, open, liggend) een andere positie kiezen via Instellingen › Positie en grootte.";

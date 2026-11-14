@@ -262,6 +262,23 @@ struct PositionView: View {
                 Text("Position")
             }
 
+            // Une disposition par écran : par exemple toute la largeur en « liseuse » (deux mains),
+            // deux moitiés en paysage, et le clavier qui suit la main sur l'écran extérieur.
+            Section {
+                ForEach([("closed-portrait", "Duo closed"), ("open-portrait", "Duo open, portrait"), ("open-landscape", "Duo open, landscape")], id: \.0) { ctx, name in
+                    Picker(LocalizedStringKey(name), selection: Binding(
+                        get: { m.settings.screenModes[ctx] },
+                        set: { m.settings.screenModes[ctx] = $0 })) {
+                        Text("Same as above").tag(KBMode?.none)
+                        ForEach(KBMode.allCases) { mode in Text(modeTitle(mode)).tag(KBMode?.some(mode)) }
+                    }
+                }
+            } header: {
+                Text("For each screen")
+            } footer: {
+                Text("Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only.")
+            }
+
             if m.settings.mode == .auto {
                 TiltCalibration()
             }
