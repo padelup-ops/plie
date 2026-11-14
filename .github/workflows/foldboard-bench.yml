@@ -10,19 +10,25 @@ on:
         default: "main"
 jobs:
   bench:
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.ref }}
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          if [ -z "$XCODE" ]; then XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | head -1); fi
+          if [ -z "$XCODE" ]; then XCODE=/Applications/Xcode.app; fi
+          sudo xcode-select -s "$XCODE"
       - name: Compile
         run: |
           mkdir -p out
           # Le banc est toujours celui de main (mêmes essais pour comparer deux versions du moteur).
           git fetch -q origin main && git show origin/main:foldboard/tools/bench/main.swift > out/main.swift
           cd foldboard/Shared
-          xcrun --sdk iphonesimulator swiftc -O -target arm64-apple-ios17.0-simulator \
+          xcrun --sdk iphonesimulator swiftc -O -target arm64-apple-ios27.0-simulator \
             *.swift ../../out/main.swift -o ../../out/bench
           cp words-*.txt lm-*.bin ../../out/
       - name: Run
