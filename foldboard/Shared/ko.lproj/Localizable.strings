@@ -347,3 +347,21 @@
 
 "Learning messages" = "학습 메시지";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "끄면 바가 깔끔해지고 추천 단어 공간이 넓어져요. 키보드를 옮기거나 크기를 바꾸려면 다시 켜거나 이 화면을 사용하세요. 학습 메시지는 Foldboard가 잡는 방식을 배울 때 나오는 짧은 알림이에요. 꺼도 계속 학습해요.";
+
+"Number row" = "숫자 줄";
+"Type a few messages with Foldboard: your week will show up here." = "Foldboard로 메시지를 몇 개 써 보세요. 이번 주 기록이 여기 표시돼요.";
+"Your week of typing" = "이번 주 타이핑";
+"words" = "단어";
+"words per minute" = "분당 단어 수";
+"typos fixed" = "고친 오타";
+"words slid" = "밀어서 입력한 단어";
+"Mostly typed with your right thumb" = "주로 오른손 엄지로 입력";
+"Mostly typed with your left thumb" = "주로 왼손 엄지로 입력";
+"Mostly typed with both hands" = "주로 두 손으로 입력";
+"Share my week" = "이번 주 공유하기";
+"My week with Foldboard" = "Foldboard와 함께한 한 주";
+"Counted on your iPhone only, never sent anywhere." = "iPhone에서만 집계되며 전송되지 않아요.";
+"My week" = "이번 주";
+"words typed on my iPhone Duo" = "iPhone Duo에서 입력한 단어";
+"wpm" = "WPM";
+"The keyboard that follows your hand" = "손을 따라오는 키보드";

@@ -272,6 +272,7 @@ struct PositionView: View {
                 slider("Two-hand width (each side)", value: $m.settings.splitWidth, in: 0.22...0.48, format: { "\(Int($0 * 100)) %" })
                 slider("Distance from the edge", value: $m.settings.edgeMargin, in: 0...120, format: { "\(Int($0)) pt" })
                 slider("Key height", value: $m.settings.keyHeight, in: 34...60, format: { "\(Int($0)) pt" })
+                Toggle("Number row", isOn: $m.settings.numberRow)
                 Toggle("Different key height when open", isOn: Binding(
                     get: { m.settings.keyHeightOpen > 0 },
                     set: { m.settings.keyHeightOpen = $0 ? m.settings.keyHeight : 0 }))

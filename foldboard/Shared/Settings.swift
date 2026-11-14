@@ -527,6 +527,26 @@ enum KBVault {
         UserDefaults.standard.set(data, forKey: "foldboard.learn")
     }
 
+    // Bilan de frappe : le plus récent gagne (comme les réglages).
+    static func loadStats() -> KBStats {
+        let shared = read("stats").flatMap { try? JSONDecoder().decode(KBStats.self, from: $0) }
+        let local = UserDefaults.standard.data(forKey: "foldboard.stats").flatMap { try? JSONDecoder().decode(KBStats.self, from: $0) }
+        switch (shared, local) {
+        case let (s?, l?): return s.stamp >= l.stamp ? s : l
+        case let (s?, nil): return s
+        case let (nil, l?): return l
+        default: return KBStats()
+        }
+    }
+
+    static func save(_ stats: KBStats) {
+        var s = stats
+        s.stamp = Date()
+        guard let data = try? JSONEncoder().encode(s) else { return }
+        write("stats", data)
+        UserDefaults.standard.set(data, forKey: "foldboard.stats")
+    }
+
     static func save(_ access: KBAccess) {
         var a = access
         a.stamp = Date()

@@ -645,6 +645,7 @@ final class KeyboardCanvas: UIView {
         idleTimer?.invalidate()
         clipTimer?.invalidate()
         clipTimer = nil
+        KBStatsRecorder.shared.flush()
     }
 
     /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
@@ -1993,6 +1994,7 @@ final class KeyboardCanvas: UIView {
         glidedWord = word
         lastCorrection = nil
         wordTouches.removeAll()
+        if recording == nil { KBStatsRecorder.shared.glide() }
         if shift == .on { shift = .off; autoShifted = false; updateLabels() }
         let prev = KBSuggest.lastWord(before)
         let start = KBSuggest.atSentenceStart(before + "x", word: "x")
@@ -2317,6 +2319,10 @@ final class KeyboardCanvas: UIView {
             rebuildChips()
             return
         }
+        if recording == nil, text.count == 1, text.first?.isLetter == true {
+            let m = layoutMode
+            KBStatsRecorder.shared.letter(hand: m == .split || m == .full ? 2 : (isRight ? 1 : 0))
+        }
         // Après un mot écrit en glissant, la lettre suivante commence un nouveau mot : l'espace d'abord.
         if let g = glidedWord {
             glidedWord = nil
@@ -2484,8 +2490,10 @@ final class KeyboardCanvas: UIView {
         // Le mot terminé (corrigé ou non) est retenu : tes mots et ce qui suit quoi (pour la barre et la correction).
         let before0 = input?.kbTextBefore() ?? ""
         let typed0 = KBSuggest.currentWord(before0)
+        let wasGlide = glidedWord != nil && glidedWord == typed0
         defer {
             if !typed0.isEmpty, let final = KBSuggest.lastWord(input?.kbTextBefore() ?? "") {
+                if recording == nil, !wasGlide { KBStatsRecorder.shared.word() }
                 let prev = KBSuggest.previousWord(before0, word: typed0)
                 let sentenceStart = KBSuggest.atSentenceStart(before0, word: typed0)
                 suggestQueue.async { KBWordStore.shared.commit(final, after: sentenceStart ? nil : prev) }
@@ -2527,6 +2535,7 @@ final class KeyboardCanvas: UIView {
         for _ in 0..<word.count { input?.kbDelete() }
         input?.kbInsert(fix)
         lastCorrection = (word, fix, sep)
+        if recording == nil { KBStatsRecorder.shared.correction() }
     }
 
     /// Le mot tapé commence par une majuscule : la correction aussi.

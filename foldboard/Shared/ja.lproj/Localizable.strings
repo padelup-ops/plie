@@ -347,3 +347,21 @@
 
 "Learning messages" = "学習メッセージ";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "オフにするとバーがすっきりし、候補の表示スペースが広がります。キーボードを移動・サイズ変更するには、オンに戻すかこの画面を使ってください。学習メッセージは、Foldboardが持ち方を学んだときに出る短い表示です。オフにしても学習は続きます。";
+
+"Number row" = "数字の行";
+"Type a few messages with Foldboard: your week will show up here." = "Foldboardでメッセージを書くと、ここに1週間の記録が表示されます。";
+"Your week of typing" = "今週のタイピング";
+"words" = "語";
+"words per minute" = "1分あたりの語数";
+"typos fixed" = "修正したミス";
+"words slid" = "スライド入力した語";
+"Mostly typed with your right thumb" = "主に右手の親指で入力";
+"Mostly typed with your left thumb" = "主に左手の親指で入力";
+"Mostly typed with both hands" = "主に両手で入力";
+"Share my week" = "今週を共有";
+"My week with Foldboard" = "Foldboardでの1週間";
+"Counted on your iPhone only, never sent anywhere." = "iPhoneの中だけで集計、送信されません。";
+"My week" = "今週";
+"words typed on my iPhone Duo" = "iPhone Duoで入力した語数";
+"wpm" = "WPM";
+"The keyboard that follows your hand" = "手についてくるキーボード";

@@ -110,6 +110,8 @@ struct HomeView: View {
 
                 LearningRow()
 
+                RecapRow()
+
                 Section {
                     NavigationLink {
                         SetupView(done: $setupDone).fullScreenDuo()

@@ -347,3 +347,21 @@
 
 "Learning messages" = "学习提示";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "关闭后顶部栏更简洁，建议词空间更大。如需移动或调整键盘大小，请重新打开或使用此页面。学习提示是 Foldboard 学习你的握持方式时显示的简短消息：关闭后它仍会继续学习。";
+
+"Number row" = "数字行";
+"Type a few messages with Foldboard: your week will show up here." = "用 Foldboard 写几条消息，你的一周数据会显示在这里。";
+"Your week of typing" = "本周打字";
+"words" = "个词";
+"words per minute" = "每分钟词数";
+"typos fixed" = "已纠正的错字";
+"words slid" = "滑动输入的词";
+"Mostly typed with your right thumb" = "主要用右手拇指输入";
+"Mostly typed with your left thumb" = "主要用左手拇指输入";
+"Mostly typed with both hands" = "主要用双手输入";
+"Share my week" = "分享我的一周";
+"My week with Foldboard" = "我和 Foldboard 的一周";
+"Counted on your iPhone only, never sent anywhere." = "只在你的 iPhone 上统计，绝不上传。";
+"My week" = "我的一周";
+"words typed on my iPhone Duo" = "个词在我的 iPhone Duo 上输入";
+"wpm" = "词/分";
+"The keyboard that follows your hand" = "跟随你手的键盘";
