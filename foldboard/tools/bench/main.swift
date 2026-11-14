@@ -91,6 +91,7 @@ func run(_ L: Lang, tag: String) {
 
     // 1. Frappe imprécise : le doigt tombe à côté du centre ; ce que le clavier lit, puis ce qu'il corrige.
     var corrTime = 0.0, corrSum = 0.0, corrN = 0, glideTime = 0.0, glideSum = 0.0
+    var slow: [(Double, String)] = []
     var noisy = 0, fixed = 0, clean = 0, broken = 0
     var cMiss: [String] = []
     for _ in 0..<3 {
@@ -105,7 +106,9 @@ func run(_ L: Lang, tag: String) {
             let tm = KBTouchModel(points: pts, centers: cen, keyW: keyW, keyH: keyH)
             let tc = Date()
             let out = s.correction(for: typed, before: "", touch: tm) ?? typed
-            corrTime = max(corrTime, Date().timeIntervalSince(tc)); corrSum += Date().timeIntervalSince(tc); corrN += 1
+            let dt = Date().timeIntervalSince(tc)
+            if corrN > 5 { corrTime = max(corrTime, dt); slow.append((dt, "corr \(typed)")) }
+            corrSum += dt; corrN += 1
             if typed == fold(w) || typed == w {
                 clean += 1
                 if fold(out) != fold(w) { broken += 1 }
@@ -150,7 +153,9 @@ func run(_ L: Lang, tag: String) {
         let tm = KBTouchModel(points: [], centers: cen, keyW: keyW, keyH: keyH)
         let tg = Date()
         let out = s.glide(pts, touch: tm, before: "", limit: 4).map(fold)
-        glideTime = max(glideTime, Date().timeIntervalSince(tg)); glideSum += Date().timeIntervalSince(tg)
+        let dg = Date().timeIntervalSince(tg)
+        if gN > 5 { glideTime = max(glideTime, dg); slow.append((dg, "glide \(w)")) }
+        glideSum += dg
         if out.first == fold(w) { g1 += 1 } else if misses.count < 12 { misses.append("\(w)→\(out.first ?? "-")") }
         if out.prefix(3).contains(fold(w)) { g3 += 1 }
     }
@@ -209,6 +214,7 @@ func run(_ L: Lang, tag: String) {
     print("RESULT \(tag) \(L.code) glisser_top1 \(pc(g1, gN)) (sur \(gN))")
     print("RESULT \(tag) \(L.code) glisser_top3 \(pc(g3, gN))")
     print("RESULT \(tag) \(L.code) glisser_rares_valides \(pc(r1, rN)) (sur \(rN))")
+    print("plus lents:", slow.sorted { $0.0 > $1.0 }.prefix(8).map { String(format: "%@ %.0fms", $0.1, $0.0 * 1000) }.joined(separator: ", "))
     print("RESULT \(tag) \(L.code) correction_ms_moy \(String(format: "%.2f", 1000 * corrSum / Double(max(1, corrN))))")
     print("RESULT \(tag) \(L.code) correction_ms_max \(String(format: "%.1f", 1000 * corrTime))")
     print("RESULT \(tag) \(L.code) glisser_ms_moy \(String(format: "%.2f", 1000 * glideSum / Double(max(1, gN))))")
