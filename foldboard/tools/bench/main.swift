@@ -233,13 +233,12 @@ let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
     ("base", [:]),
-    ("j4", ["doubtRank": 3000, "gJunk": 4]),
-    ("j4loc9", ["doubtRank": 3000, "gJunk": 4, "gLoc": 9, "gShape": 5]),
-    ("j4p045", ["doubtRank": 3000, "gJunk": 4, "gLoc": 9, "gShape": 5, "gPrior": 0.45]),
-    ("j6d2k", ["doubtRank": 2000, "gJunk": 6, "gLoc": 9, "gShape": 5]),
-    ("j3d5k", ["doubtRank": 5000, "gJunk": 3, "gLoc": 9, "gShape": 5]),
-    ("j4turn3", ["doubtRank": 3000, "gJunk": 4, "gLoc": 9, "gShape": 5, "gTurn": 3]),
-    ("j4len7", ["doubtRank": 3000, "gJunk": 4, "gLoc": 9, "gShape": 5, "gLen": 7]),
+    ("g", ["doubtRank": 3000, "gJunk": 4, "gJunkValid": 0, "gLoc": 9, "gShape": 5]),
+    ("gv1", ["doubtRank": 3000, "gJunk": 4, "gJunkValid": 1, "gLoc": 9, "gShape": 5]),
+    ("gv1p", ["doubtRank": 3000, "gJunk": 4, "gJunkValid": 1, "gLoc": 9, "gShape": 5, "gPrior": 0.45]),
+    ("gv2", ["doubtRank": 3000, "gJunk": 5, "gJunkValid": 2, "gLoc": 9, "gShape": 5]),
+    ("t4", ["tScan": 1, "tMax": 4]),
+    ("t6", ["tScan": 1, "tMax": 6]),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
