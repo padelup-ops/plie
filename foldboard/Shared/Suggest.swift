@@ -575,7 +575,7 @@ final class KBSuggest {
         // « a » ou « à » d'après le mot d'avant : « je vais a » → « je vais à », « il a » reste « il a ».
         if language.hasPrefix("fr"), low == "a", let prev, Self.towardA.contains(prev) { return matchCase("à", like: word) }
         if language.hasPrefix("fr"), low == "a", let lm, let sa = lm.score("à", before: before), let s0 = lm.score("a", before: before),
-           sa > s0 + Self.t("aDelta", 1.6) { return matchCase("à", like: word) }
+           sa > s0 + Self.t("aDelta", 0.5) { return matchCase("à", like: word) }
         // « its » ou « it’s » d'après le mot d'avant, comme le clavier d'Apple : « its great » → « it’s great »,
         // mais « on its own » reste.
         if language.hasPrefix("en"), low == "its", !known.contains(low) {
@@ -586,7 +586,7 @@ final class KBSuggest {
             if !Self.ambiguous.contains(low), let c = contraction(word) { return c }
             if let fix = accentFix(word) { return fix }
         }
-        if Self.t("shortFix", 0) > 0, word.count >= 2, word.count <= 3, let f = shortContextFix(word, before: before, touch: touch) { return f }
+        if fast, Self.t("shortFix", 1) > 0, word.count >= 2, word.count <= 3, let f = shortContextFix(word, before: before, touch: touch) { return f }
         if word.count == 2, let f = twoLetterFix(word, before: before, touch: touch) { return f }
         guard word.count >= 3, word.count <= 30 else {
             if word == "i" && language.hasPrefix("en") { return "I" }
@@ -689,7 +689,7 @@ final class KBSuggest {
             if let split { return matchCase(split.0, like: word) }
         }
         // L'espace ratée : le pouce a touché une lettre juste au-dessus (« auncourant » → « au courant »).
-        if best == nil, Self.t("spaceSplit", 0) > 0, word.count >= 5 {
+        if best == nil, Self.t("spaceSplit", 1) > 0, word.count >= 5 {
             let chars = Array(lower)
             let nearSpace: Set<Character> = ["c", "v", "b", "n"]
             var split: (String, Int)?
