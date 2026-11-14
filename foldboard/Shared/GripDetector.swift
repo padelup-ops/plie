@@ -183,7 +183,9 @@ final class GripDetector {
         } else {
             lockStreak = 0
         }
-        let idle = now - lastTapTime > 4 && now - lockedAt > 10
+        // Placé au milieu à la main : il y reste tant que le téléphone ne change pas franchement de position
+        // (allongé, à deux mains, on fait souvent des pauses : ce n'est pas un changement de main).
+        let idle = current != .two && now - lastTapTime > 4 && now - lockedAt > 10
         guard lockStreak >= 3 || idle else { return }
         locked = false
         tiltStreak = nil
@@ -443,10 +445,14 @@ final class GripDetector {
         guard n >= (tiltStrong ? 4 : 6) else { return }
         tiltSide = g
         tiltStreak = nil
-        // Pas de retour à une main tant que deux pouces tapent encore (dans les 2 dernières secondes).
-        if current == .two && now - lastTwo < 2 { return }
+        // Deux mains : l'inclinaison seule ne ramène pas le clavier d'un côté tant que les deux pouces ont tapé
+        // récemment (8 s) ou qu'on tape encore (3 s). Tenu de biais à deux mains (allongé), il reste au milieu.
+        if current == .two && (now - lastTwo < Self.twoHold || now - lastTapTime < 3) { return }
         emit(g)
     }
+
+    /// Combien de temps le milieu « tient » après le dernier signe des deux pouces, face à l'inclinaison.
+    static let twoHold: TimeInterval = 8
 
     /// Comment le téléphone a réagi à un appui : sa rotation moyenne juste après (0 à 0,25 s), moins celle
     /// d'avant (le mouvement de fond). Le pouce qui appuie fait pivoter le téléphone autour de la main qui le tient :
@@ -482,7 +488,7 @@ final class GripDetector {
     func tap(blockX: CGFloat, screenX: CGFloat, radius: CGFloat, time: TimeInterval, others: [CGFloat]) {
         let together = others.contains { abs($0 - screenX) > 0.3 }
         var two = together
-        if let last = lastTap, abs(last.x - screenX) > 0.45, time - last.t > 0, time - last.t < 0.13 { two = true }
+        if let last = lastTap, abs(last.x - screenX) > 0.45, time - last.t > 0, time - last.t < 0.17 { two = true }
         if two && onSample == nil {
             lastTwo = now
             // Deux doigts posés en même temps, loin l'un de l'autre : aucun doute, tout de suite au milieu.
@@ -608,7 +614,7 @@ final class GripDetector {
             result = s.grip
         }
         guard let result else { return }
-        if current == .two && now - lastTwo < 2 { return }
+        if current == .two && now - lastTwo < Self.twoHold { return }
         // Deux décisions de suite avant de déplacer le clavier, et pas plus d'un déplacement toutes les 4 secondes.
         if lastVote == result && now - lastEmit > 4 { emit(result) }
         lastVote = result
@@ -617,6 +623,7 @@ final class GripDetector {
     private func emit(_ g: KBGrip) {
         // Placé à la main : le clavier ne bouge plus tout seul jusqu'à sa prochaine apparition.
         guard !locked, g != current else { return }
+        if g == .two { lastTwo = now }
         current = g
         lastEmit = now
         onGrip?(g)
