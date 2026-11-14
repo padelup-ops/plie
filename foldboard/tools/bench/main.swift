@@ -277,7 +277,11 @@ func realCases(_ L: Lang, _ cases: [(String, String, String)], tag: String) {
 let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
-    ("best", [:]),
+    ("base", [:]),
+    ("new", ["shortFix": 1, "spaceSplit": 1]),
+    ("newA1", ["shortFix": 1, "spaceSplit": 1, "aDelta": 1.0]),
+    ("newA05", ["shortFix": 1, "spaceSplit": 1, "aDelta": 0.5]),
+    ("newS3", ["shortFix": 1, "spaceSplit": 1, "aDelta": 1.0, "shortDelta": 3]),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
