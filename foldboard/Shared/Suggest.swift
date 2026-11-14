@@ -98,7 +98,7 @@ final class KBSuggest {
 
     /// Un mot de la liste absent du modèle de langue et rare : souvent une coquille ou un nom (« sdi », « mazel »).
     private func doubtful(_ w: String, rank r: Int) -> Bool {
-        guard let lm, r > Int(Self.t("doubtRank", 99_999)) else { return false }
+        guard let lm, r > Int(Self.t("doubtRank", 3_000)) else { return false }
         return lm.rank(w) == nil
     }
 
@@ -115,7 +115,7 @@ final class KBSuggest {
             if spellCache.count > 5_000 { spellCache = [:] }
             spellCache[w] = ok
         }
-        return ok ? Self.t("gJunkValid", Self.t("gJunk", 0)) : Self.t("gJunk", 0)
+        return ok ? Self.t("gJunkValid", 1) : Self.t("gJunk", 4)
     }
 
     private let checker = UITextChecker()
@@ -306,7 +306,7 @@ final class KBSuggest {
                 let prior = lm?.score(words[i], before: before) ?? -log(Double(i) + 30)
                 let mine = log(1 + Double(KBWordStore.shared.count(w))) * 0.6
                 let junk = glideJunk(words[i], rank: i)
-                let score = -Double(loc * loc) * Self.t("gLoc", 7) - Double(shape) * Self.t("gShape", 6) + prior * Self.t("gPrior", 0.6)
+                let score = -Double(loc * loc) * Self.t("gLoc", 9) - Double(shape) * Self.t("gShape", 5) + prior * Self.t("gPrior", 0.45)
                     + mine - Double(misses) * 2 - Double(missedTurns) * Self.t("gTurn", 2.2) - lenPenalty * Self.t("gLen", 5) - junk
                 scored.append((words[i], score))
             }
@@ -615,7 +615,7 @@ final class KBSuggest {
         // Plusieurs touches voisines dans le même mot (« encprz » → « encore ») : les mots de même longueur dont
         // chaque lettre est près de l'endroit où le doigt s'est posé.
         var fromTouch = Set<String>()
-        if Self.t("tScan", 0) > 0, let touch, let own = touch.cost(lower) {
+        if Self.t("tScan", 1) > 0, let touch, let own = touch.cost(lower) {
             for cand in touchScan(lower, touch: touch, own: own) {
                 fromTouch.insert(cand.lowercased())
                 if !pool.contains(where: { $0.lowercased() == cand.lowercased() }) { pool.append(cand) }
@@ -771,7 +771,7 @@ final class KBSuggest {
         for (k, cs) in touch.centers where cs.contains(where: { hypot(($0.x - p0.x) / touch.keyW, ($0.y - p0.y) / touch.keyH) < 1.1 }) {
             firsts.append(String(k))
         }
-        let maxExtra = Self.t("tMax", 5)
+        let maxExtra = Self.t("tMax", 4)
         var found: [(String, Double)] = []
         for f in firsts {
             for i in byFirst[f] ?? [] where i < 15_000 {
