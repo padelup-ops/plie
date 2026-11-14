@@ -92,6 +92,16 @@ final class KBWordStore {
 /// Correction automatique et suggestions de mots, avec le correcteur d'iOS (UITextChecker)
 /// et le lexique de l'utilisateur (contacts, remplacements de texte).
 final class KBSuggest {
+    /// Réglages du moteur, ajustables par le banc d'essai (foldboard/tools/bench) ; sinon les valeurs par défaut.
+    static var tune: [String: Double] = [:]
+    private static func t(_ k: String, _ d: Double) -> Double { tune[k] ?? d }
+
+    /// Un mot de la liste absent du modèle de langue et rare : souvent une coquille ou un nom (« sdi », « mazel »).
+    private func doubtful(_ w: String, rank r: Int) -> Bool {
+        guard let lm, r > Int(Self.t("doubtRank", 99_999)) else { return false }
+        return lm.rank(w) == nil
+    }
+
     private let checker = UITextChecker()
     private var known = Set<String>()
     private var replacements: [String: String] = [:]
@@ -279,8 +289,9 @@ final class KBSuggest {
                 shape /= CGFloat(n)
                 let prior = lm?.score(words[i], before: before) ?? -log(Double(i) + 30)
                 let mine = log(1 + Double(KBWordStore.shared.count(w))) * 0.6
-                let score = -Double(loc * loc) * 7 - Double(shape) * 6 + prior * 0.6 + mine - Double(misses) * 2
-                    - Double(missedTurns) * 2.2 - lenPenalty * 5
+                let junk = doubtful(words[i], rank: i) ? Self.t("gJunk", 0) : 0
+                let score = -Double(loc * loc) * Self.t("gLoc", 7) - Double(shape) * Self.t("gShape", 6) + prior * Self.t("gPrior", 0.6)
+                    + mine - Double(misses) * 2 - Double(missedTurns) * Self.t("gTurn", 2.2) - lenPenalty * Self.t("gLen", 5) - junk
                 scored.append((words[i], score))
             }
         }
@@ -552,7 +563,8 @@ final class KBSuggest {
         }
         let lower = word.lowercased()
         if let r = replacements[lower] { return r }
-        if known.contains(lower) || rank[lower] != nil { return nil }
+        if known.contains(lower) { return nil }
+        if let r = rank[lower], !(Self.t("cJunk", 0) > 0 && doubtful(lower, rank: r)) { return nil }
         // Un nom propre au milieu d'une phrase : on n'y touche pas.
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
         guard isMisspelled(word) else { return nil }
@@ -804,7 +816,7 @@ final class KBSuggest {
             let key = word.lowercased()
             for n in names.filter({ $0.key.hasPrefix(key) && $0.key != key }).map(\.value).sorted().prefix(1) { completions.insert(n, at: 0) }
         }
-        var pool = listCompletions(word, limit: lm == nil ? 3 : 14)
+        var pool = listCompletions(word, limit: lm == nil ? 3 : Int(Self.t("compPool", 14)))
         if let lm {
             // Les fins de mot qui collent à la phrase passent devant (« bonne jour » → « journée »).
             let key = word.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)

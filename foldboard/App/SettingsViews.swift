@@ -205,7 +205,7 @@ extension View {
 
 extension KeyboardPreview {
     static func height(_ s: KBSettings) -> CGFloat {
-        KeyboardCanvas.topBarHeight + 6 + 4 * CGFloat(s.keyHeight) + 30 + 8
+        KeyboardCanvas.topBarHeight + 6 + CGFloat(s.numberRow ? 5 : 4) * CGFloat(s.keyHeight) + (s.numberRow ? 40 : 30) + 8
     }
 }
 

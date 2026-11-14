@@ -259,7 +259,7 @@ final class KeyboardCanvas: UIView {
     /// Le clavier entier sur l'écran déplié : de grandes touches, comme le clavier d'Apple.
     private var wideFull: Bool { layoutMode == .full && bounds.width >= 560 && !showEmoji }
     private var reportedHeight: CGFloat = 0
-    private var rowCount: Int { 4 }
+    private var rowCount: Int { eff.numberRow ? 5 : 4 }
     var preferredHeight: CGFloat {
         Self.topBarHeight + 6 + CGFloat(rowCount) * keyH + CGFloat(rowCount - 1) * vgap + 8
     }
@@ -1105,7 +1105,7 @@ final class KeyboardCanvas: UIView {
         let top = Self.topBarHeight + 6
         let areaH = CGFloat(rowCount) * keyH + CGFloat(rowCount - 1) * vgap
         let margin = CGFloat(eff.edgeMargin)
-        let rows = KBLayouts.rows(page, layout: eff.layout)
+        let rows = KBLayouts.rows(page, layout: eff.layout, numberRow: eff.numberRow)
         let globe = input?.kbNeedsGlobe ?? false
 
         // Les emojis prennent la place des touches (à une main : du côté du pouce).
@@ -1166,7 +1166,7 @@ final class KeyboardCanvas: UIView {
                 }
                 // Comme le clavier coupé d'Apple : la lettre du milieu de la dernière rangée (le V) est des deux côtés,
                 // pour l'atteindre avec l'un ou l'autre pouce.
-                if page == .letters, left.count == 2, let edge = lk.last, case .char = edge.kind { rk.insert(edge, at: 0) }
+                if page == .letters, left.count == rows.count - 1, let edge = lk.last, case .char = edge.kind { rk.insert(edge, at: 0) }
                 left.append(KeyRow(keys: lk))
                 right.append(KeyRow(keys: rk))
             }
