@@ -90,13 +90,10 @@ struct NightHomeView: View {
 
     var body: some View {
         // Deux onglets en haut : Aujourd'hui et Semaine (on peut aussi glisser de l'un à l'autre).
+        // Les icônes (classements, partage, réglages, menu) vont dans la barre du système, comme le thème
+        // Classique : sur l'écran extérieur du Duo, elles se rangent à droite sous l'heure et la batterie.
+        NavigationStack {
         VStack(spacing: 0) {
-            topBar
-                .padding(.horizontal, 20)
-                .padding(.top, 6)
-                .padding(.bottom, 4)
-                .frame(maxWidth: 640)
-                .frame(maxWidth: .infinity)
             // Une seule page (retour d'un testeur : le Moderne cachait la moitié des infos dans l'onglet Semaine).
             ScrollView {
                 pane {
@@ -109,6 +106,10 @@ struct NightHomeView: View {
             }
         }
         .background(DFBackdrop(degrees: model.degrees).ignoresSafeArea())
+        .navigationTitle(Text("Foldly"))
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbar { ToolbarItemGroup(placement: .topBarTrailing) { barIcons } }
+        }
         .tint(.dfAccent)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
         .sheet(isPresented: $showBoards) { LeaderboardView().environment(model).environment(store) }
@@ -238,6 +239,26 @@ struct NightHomeView: View {
     // MARK: En-têtes
 
     /// Assez de place : onglets + partage + widgets + menu. Écran étroit (extérieur) : partage et widgets passent dans le menu.
+    /// Les icônes du haut, dans la barre du système.
+    @ViewBuilder private var barIcons: some View {
+        LeaderboardButton(show: $showBoards)
+        Button { showShare = true } label: { Image(systemName: "square.and.arrow.up") }
+            .accessibilityLabel(Text("Share my day"))
+        Button { showSettings = true } label: { Image(systemName: "gearshape") }
+            .accessibilityLabel(Text("Settings"))
+        Menu {
+            Button {
+                if store.hasPlus { showHistory = true } else { plusReason = .history }
+            } label: { Label { Text("History") } icon: { Image(systemName: "calendar") } }
+            Button { showWeek = true } label: { Label { Text("Weekly recap") } icon: { Image(systemName: "chart.bar.doc.horizontal") } }
+            Button { showMonth = true } label: { Label { Text("Monthly recap") } icon: { Image(systemName: "calendar.badge.checkmark") } }
+            Button { showHours = true } label: { Label { Text("Your hours") } icon: { Image(systemName: "clock.badge.checkmark") } }
+            Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
+            Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
+        } label: { Image(systemName: "ellipsis.circle") }
+        .accessibilityLabel(Text("More"))
+    }
+
     private var topBar: some View {
         ViewThatFits(in: .horizontal) {
             bar(compact: false)

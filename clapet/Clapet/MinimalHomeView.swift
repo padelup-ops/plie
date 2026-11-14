@@ -33,6 +33,7 @@ struct MinimalHomeView: View {
     @State private var bump = false
 
     var body: some View {
+        NavigationStack {
         ScrollView {
             VStack(spacing: 0) {
                 topBar
@@ -63,6 +64,10 @@ struct MinimalHomeView: View {
         }
         .scrollIndicators(.hidden)
         .background(Color(uiColor: .systemBackground).ignoresSafeArea())
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { ToolbarItemGroup(placement: .topBarTrailing) { barIcons } }
+        }
         .tint(.primary)
         .modifier(HingeReader { closed, degrees in model.hinge(closed: closed, degrees: degrees) })
         .sheet(isPresented: $showSettings) { SettingsView().environment(model).environment(store) }
@@ -138,29 +143,21 @@ struct MinimalHomeView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             Spacer()
-            LeaderboardButton(show: $showBoards)
-                .font(.body)
-                .frame(width: 40, height: 44)
-            Button { showSettings = true } label: {
-                Image(systemName: "gearshape")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 40, height: 44)
-            }
-            .accessibilityLabel(Text("Settings"))
-            Menu {
-                Button { showShare = true } label: { Label { Text("Share my day") } icon: { Image(systemName: "square.and.arrow.up") } }
-                Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
-                Button { showMonth = true } label: { Label { Text("Monthly recap") } icon: { Image(systemName: "calendar.badge.checkmark") } }
-                Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
-            } label: {
-                Image(systemName: "ellipsis")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 44, height: 44)
-            }
-            .accessibilityLabel(Text("More"))
         }
+    }
+
+    /// Les icônes du haut, dans la barre du système (à droite sous l'heure sur l'écran extérieur, comme le Classique).
+    @ViewBuilder private var barIcons: some View {
+        LeaderboardButton(show: $showBoards)
+        Button { showSettings = true } label: { Image(systemName: "gearshape") }
+            .accessibilityLabel(Text("Settings"))
+        Menu {
+            Button { showShare = true } label: { Label { Text("Share my day") } icon: { Image(systemName: "square.and.arrow.up") } }
+            Button { showWidgets = true } label: { Label { Text("Widgets") } icon: { Image(systemName: "square.grid.2x2") } }
+            Button { showMonth = true } label: { Label { Text("Monthly recap") } icon: { Image(systemName: "calendar.badge.checkmark") } }
+            Button { showAdjust = true } label: { Label { Text("Adjust the count") } icon: { Image(systemName: "pencil") } }
+        } label: { Image(systemName: "ellipsis.circle") }
+        .accessibilityLabel(Text("More"))
     }
 
     // MARK: Le chiffre du jour

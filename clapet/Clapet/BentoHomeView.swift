@@ -101,10 +101,22 @@ struct BentoHomeView: View {
 
     var body: some View {
         attach(
-            Group {
-                if let fold { folded(fold) } else { flat }
+            NavigationStack {
+                Group {
+                    if let fold { folded(fold) } else { flat }
+                }
+                .background(Bento.bg.ignoresSafeArea())
+                .toolbarBackground(.hidden, for: .navigationBar)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    // Comme le Classique : sur l'écran extérieur, ces icônes se rangent à droite sous l'heure.
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        LeaderboardButton(show: $showBoards)
+                        Button { showSettings = true } label: { Image(systemName: "gearshape") }
+                            .accessibilityLabel(Text("Settings"))
+                    }
+                }
             }
-            .background(Bento.bg.ignoresSafeArea())
             .tint(Bento.accent)
         )
     }
@@ -269,13 +281,6 @@ struct BentoHomeView: View {
                 .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
             }
             .accessibilityLabel(Text("Arrange cards"))
-            LeaderboardButton(show: $showBoards).font(.body).frame(width: 44, height: 44)
-            Button { showSettings = true } label: {
-                Image(systemName: "gearshape").font(.body.weight(.medium)).foregroundStyle(Bento.ink)
-                    .frame(width: 44, height: 44).background(Circle().fill(Bento.card))
-                    .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
-            }
-            .accessibilityLabel(Text("Settings"))
         }
     }
 
