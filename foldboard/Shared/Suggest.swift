@@ -102,6 +102,22 @@ final class KBSuggest {
         return lm.rank(w) == nil
     }
 
+    /// La pénalité du glisser pour un mot douteux : forte si le correcteur d'iOS ne le connaît pas non plus
+    /// (« sdi », « rapelle »), légère pour un vrai mot rare (« chiming »).
+    private var spellCache: [String: Bool] = [:]
+    private func glideJunk(_ w: String, rank r: Int) -> Double {
+        guard doubtful(w, rank: r) else { return 0 }
+        let ok: Bool
+        if let c = spellCache[w] { ok = c } else {
+            let ns = w as NSString
+            ok = checker.rangeOfMisspelledWord(in: w, range: NSRange(location: 0, length: ns.length), startingAt: 0, wrap: false,
+                                               language: language).location == NSNotFound
+            if spellCache.count > 5_000 { spellCache = [:] }
+            spellCache[w] = ok
+        }
+        return ok ? Self.t("gJunkValid", Self.t("gJunk", 0)) : Self.t("gJunk", 0)
+    }
+
     private let checker = UITextChecker()
     private var known = Set<String>()
     private var replacements: [String: String] = [:]
@@ -289,7 +305,7 @@ final class KBSuggest {
                 shape /= CGFloat(n)
                 let prior = lm?.score(words[i], before: before) ?? -log(Double(i) + 30)
                 let mine = log(1 + Double(KBWordStore.shared.count(w))) * 0.6
-                let junk = doubtful(words[i], rank: i) ? Self.t("gJunk", 0) : 0
+                let junk = glideJunk(words[i], rank: i)
                 let score = -Double(loc * loc) * Self.t("gLoc", 7) - Double(shape) * Self.t("gShape", 6) + prior * Self.t("gPrior", 0.6)
                     + mine - Double(misses) * 2 - Double(missedTurns) * Self.t("gTurn", 2.2) - lenPenalty * Self.t("gLen", 5) - junk
                 scored.append((words[i], score))
@@ -596,6 +612,15 @@ final class KBSuggest {
         // Et toutes les fautes de frappe courantes, pour n'importe quel mot (sans attendre qu'iOS les propose) :
         // deux lettres inversées, une touche voisine, une lettre en trop, une lettre oubliée.
         for cand in typoVariants(lower) where !pool.contains(where: { $0.lowercased() == cand }) { pool.append(cand) }
+        // Plusieurs touches voisines dans le même mot (« encprz » → « encore ») : les mots de même longueur dont
+        // chaque lettre est près de l'endroit où le doigt s'est posé.
+        var fromTouch = Set<String>()
+        if Self.t("tScan", 0) > 0, let touch, let own = touch.cost(lower) {
+            for cand in touchScan(lower, touch: touch, own: own) {
+                fromTouch.insert(cand.lowercased())
+                if !pool.contains(where: { $0.lowercased() == cand.lowercased() }) { pool.append(cand) }
+            }
+        }
         var best: (word: String, score: Double, rank: Int)?
         let fromChecker = Set(guesses.map { $0.lowercased() })
         for g in pool {
@@ -605,7 +630,9 @@ final class KBSuggest {
             // correcteur d'iOS propose : accepté comme un mot peu courant.
             guard let r = rank[gl] ?? (fromChecker.contains(gl) && gl.count >= 6 ? 14_000 : nil), r < 15_000 else { continue }
             let d = typoDistance(gl, lower)
-            guard d <= allowed else { continue }
+            let n = lower.count
+            let touchAllowed = fromTouch.contains(gl) ? (n >= 8 ? 3 : (n >= 5 ? 2 : 1)) : 0
+            guard d <= max(allowed, touchAllowed) else { continue }
             // Deux lettres inversées (« reocnnues ») : chaque doigt a bien visé sa touche, juste dans le désordre.
             let swapped = Self.isSwap(gl, lower)
             // La première lettre change rarement : seulement si le doigt était vraiment entre deux touches.
@@ -734,6 +761,26 @@ final class KBSuggest {
             }
         }
         return out
+    }
+
+    /// Les mots courants de même longueur dont chaque lettre est proche du toucher correspondant.
+    private func touchScan(_ lower: String, touch: KBTouchModel, own: Double) -> [String] {
+        let n = lower.count
+        guard n >= 4, n <= 14, n == touch.points.count, let p0 = touch.points.first else { return [] }
+        var firsts: [String] = []
+        for (k, cs) in touch.centers where cs.contains(where: { hypot(($0.x - p0.x) / touch.keyW, ($0.y - p0.y) / touch.keyH) < 1.1 }) {
+            firsts.append(String(k))
+        }
+        let maxExtra = Self.t("tMax", 5)
+        var found: [(String, Double)] = []
+        for f in firsts {
+            for i in byFirst[f] ?? [] where i < 15_000 {
+                let w = folded[i]
+                guard w.count == n, w != lower, let c = touch.cost(w), c - own < maxExtra else { continue }
+                found.append((words[i], c))
+            }
+        }
+        return found.sorted { $0.1 < $1.1 }.prefix(12).map { $0.0 }
     }
 
     private func position(_ c: Character) -> (Int, Int)? {
