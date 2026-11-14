@@ -2555,7 +2555,7 @@ final class KeyboardCanvas: UIView {
         let known: String?? = cachedFix?.word == word ? .some(cachedFix?.fix) : nil
         // La correction préparée en arrière-plan si elle est prête, sinon on la calcule (quelques ms : la mesure
         // de fluidité montre que le clavier a toute la marge).
-        var computed: String? = known ?? suggest.correction(for: word, before: before, touch: touchModel(for: word))
+        var computed: String? = known ?? suggest.correction(for: word, before: before, touch: touchModel(for: word), fast: true)
         // La majuscule du début de phrase reste : « Hâte » ne redevient jamais « hâte ».
         if let c = computed { computed = Self.keepCapital(c, like: word) }
         guard !word.isEmpty, let fix = computed, fix != word else {

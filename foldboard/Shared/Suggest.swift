@@ -322,7 +322,7 @@ final class KBSuggest {
         // Les mots douteux (coquilles du dictionnaire) ne sont vérifiés que parmi les meilleurs : le correcteur d'iOS
         // est lent, on ne l'appelle pas pour des centaines de mots à chaque geste.
         let order = scored.indices.sorted { scored[$0].1 > scored[$1].1 }
-        for j in order.prefix(60) { scored[j].1 -= glideJunk(scored[j].0, rank: ranks[j]) }
+        for j in order.prefix(Int(Self.t("gJunkTop", 20))) { scored[j].1 -= glideJunk(scored[j].0, rank: ranks[j]) }
         scored.sort { $0.1 > $1.1 }
         var out: [String] = []
         for (w, _) in scored where !out.contains(w) { out.append(w); if out.count == limit { break } }
@@ -557,7 +557,9 @@ final class KBSuggest {
     func replacement(for word: String) -> String? { replacements[word.lowercased()] }
 
     /// La correction à appliquer quand on termine le mot (espace, ponctuation), ou nil.
-    func correction(for word: String, before: String, touch: KBTouchModel? = nil) -> String? {
+    /// `fast` : appelé sur le fil principal (à l'espace) — sans les suggestions du correcteur d'iOS, qui peuvent
+    /// prendre une demi-seconde en français ; nos propres candidats (fautes de frappe, touches voisines) suffisent.
+    func correction(for word: String, before: String, touch: KBTouchModel? = nil, fast: Bool = false) -> String? {
         let low = word.lowercased()
         let prev = Self.previousWord(before, word: word)?.lowercased()
         // Tes remplacements de texte (Réglages > Clavier) : toujours appliqués, même courts (« ty » → « Thank you »).
@@ -602,7 +604,8 @@ final class KBSuggest {
         // Le début d'un vrai mot (« minu » → minute) : on ne corrige pas, la barre propose la suite.
         // Sauf si un mot très courant est à une faute près (« plur » → « pour », pas « pluriel ») : voir plus bas.
         let prefixOf = listCompletions(word, limit: 1).first
-        var guesses = checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? []
+        let skipChecker = fast || Self.t("noGuesses", 0) > 0
+        var guesses = skipChecker ? [] : (checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? [])
         // Les mots courants d'abord.
         guesses = guesses.enumerated().sorted { a, b in
             let ra = rank[a.element.lowercased()] ?? (100_000 + a.offset)
