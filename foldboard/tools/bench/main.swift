@@ -244,15 +244,45 @@ func rareCheck(_ w: String, _ code: String) -> Bool {
     return !(lmVocab[code]!.contains(w))
 }
 
+/// Cas réels remontés par les testeurs : (texte avant, mot tapé, attendu).
+let realFR: [(String, String, String)] = [
+    ("je vais ", "a", "à"), ("il ", "a", "a"), ("elle ", "a", "a"), ("on ", "a", "a"), ("il y ", "a", "a"),
+    ("je suis ", "a", "à"), ("c’est ", "a", "à"), ("rendez-vous ", "a", "à"), ("", "a", "à"), ("je pense ", "a", "à"),
+    ("j’ai mal ", "a", "à"), ("tu ", "a", "a"), ("qui ", "a", "a"), ("on se voit ", "a", "à"), ("je t’attends ", "a", "à"),
+    ("il fait beau ", "a", "à"), ("ma mère ", "a", "a"), ("le train ", "a", "a"),
+    ("je ne sais pas ", "fu", "du"), ("le prix ", "fu", "du"), ("il faut ", "sue", "que"), ("je pense ", "sue", "que"),
+    ("je suis ", "auncourant", "au courant"), ("on va ", "alamaison", "à la maison"), ("c’est ", "unebonne", "une bonne"),
+    ("je ", "suisnla", "suis la"), ("", "bonjourtoi", "bonjour toi"),
+    ("le ", "courznt", "courant"), ("", "reocnnues", "reconnues"), ("", "plur", "pour"), ("", "fe", "de"),
+    ("je ", "sue", "sue"), ("", "sue", "sue"),
+]
+let realEN: [(String, String, String)] = [
+    ("i ", "sue", "sue"), ("", "teh", "the"), ("i am ", "inthe", "in the"), ("see you ", "tomorrownat", "tomorrow at"),
+    ("", "ot", "to"), ("thank ", "tou", "you"),
+]
+
+func realCases(_ L: Lang, _ cases: [(String, String, String)], tag: String) {
+    let s = KBSuggest()
+    s.setLayout(L.layout)
+    var ok = 0
+    var bad: [String] = []
+    for (before, w, exp) in cases {
+        let out = s.correction(for: w, before: before + w, touch: nil, fast: true) ?? w
+        if out == exp { ok += 1 } else { bad.append("«\(before)\(w)»→\(out) (voulu \(exp))") }
+    }
+    print("RESULT \(tag) \(L.code) cas_reels \(String(format: "%.1f", 100 * Double(ok) / Double(cases.count))) (sur \(cases.count))")
+    if !bad.isEmpty { print("cas ratés \(tag) \(L.code):", bad.joined(separator: " · ")) }
+}
+
 let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
     ("best", [:]),
-    ("fast", ["noGuesses": 1]),
-    ("junk60", ["gJunkTop": 60]),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
+    realCases(fr, realFR, tag: tag)
+    realCases(en, realEN, tag: tag)
     run(fr, tag: tag)
     run(en, tag: tag)
 }
