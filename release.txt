@@ -1,0 +1,113 @@
+APP 6832556606 Foldboard
+ok     catégories UTILITIES / PRODUCTIVITY
+ok     prix 0 € (base France)
+ok     classification par âge (aucun contenu sensible)
+ok     droits sur le contenu (aucun contenu de tiers)
+ok     disponibilité déjà définie
+ok     version 1.0.18 déjà créée (DEVELOPER_REJECTED)
+ok     nouveautés en-GB
+ok     nouveautés zh-Hans
+ok     nouveautés nl-NL
+ok     nouveautés ko
+ok     nouveautés en-US
+ok     nouveautés pt-BR
+ok     nouveautés en-CA
+ok     nouveautés es-ES
+ok     nouveautés de-DE
+ok     nouveautés fr-FR
+ok     nouveautés es-MX
+ok     nouveautés en-AU
+ok     nouveautés ru
+ok     nouveautés ja
+ok     nouveautés it
+ok     nouveautés fr-CA
+VERSION 1.0.18 DEVELOPER_REJECTED
+ok     copyright « 2026 PadelUp » et sortie dès l'accord d'Apple
+ok     coordonnées et notes pour la vérification
+       https://foldly.netlify.app/foldboard/fr/ -> 200
+       https://foldly.netlify.app/foldboard/en/ -> 200
+       https://foldly.netlify.app/foldboard/fr/privacy.html -> 200
+       https://foldly.netlify.app/foldboard/en/privacy.html -> 200
+ok     confidentialité es-ES
+ok     confidentialité it
+ok     confidentialité ko
+ok     confidentialité en-US
+ok     confidentialité ja
+ok     confidentialité en-GB
+ok     confidentialité nl-NL
+ok     confidentialité fr-CA
+ok     confidentialité pt-BR
+ok     confidentialité es-MX
+ok     confidentialité ru
+ok     confidentialité zh-Hans
+ok     confidentialité de-DE
+ok     confidentialité en-CA
+ok     confidentialité fr-FR
+ok     confidentialité en-AU
+ok     assistance en-GB
+ok     assistance zh-Hans
+ok     assistance nl-NL
+ok     assistance ko
+ok     assistance en-US
+ok     assistance pt-BR
+ok     assistance en-CA
+ok     assistance es-ES
+ok     assistance de-DE
+ok     assistance fr-FR
+ok     assistance es-MX
+ok     assistance en-AU
+ok     assistance ru
+ok     assistance ja
+ok     assistance it
+ok     assistance fr-CA
+ok     5 capture(s) en-GB (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-GB (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) zh-Hans (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) zh-Hans (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) nl-NL (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) nl-NL (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) ko (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) ko (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) en-US (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-US (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) pt-BR (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) pt-BR (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) en-CA (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-CA (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) es-ES (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) es-ES (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) de-DE (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) de-DE (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) fr-FR (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) fr-FR (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) es-MX (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) es-MX (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) en-AU (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-AU (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) ru (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) ru (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) ja (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) ja (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) it (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) it (APP_IPHONE_DUO) déjà à jour
+ok     5 capture(s) fr-CA (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) fr-CA (APP_IPHONE_DUO) déjà à jour
+ok     build 122 choisi pour la version 1.0
+       APP 6832556606 Foldboard
+       bibliothèque : {"data": {"type": "appAssetLibraries", "id": "6832556606", "relationships": {"images": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606/relationships/images", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606/images"}}, "videos": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606/relationships/videos", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606/videos"}}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606"}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/apps/6832556606/assetLibrary"}}
+       VERSION 1.0.18 PREPARE_FOR_SUBMISSION
+       ok     header en-US placée sur la version
+       ok     search en-US placée sur la version
+       ok     header fr-FR placée sur la version
+       ok     search fr-FR placée sur la version
+       
+       PLACÉES
+ok     captures traitées par Apple
+ok     demande de vérification créée
+ok     version ajoutée à la demande
+       achat com.padelup.foldboard.trial3 APPROVED
+       achat com.padelup.foldboard.pro APPROVED
+ok     ENVOI À LA VÉRIFICATION D'APPLE
+état de la version : WAITING_FOR_REVIEW
+
+PRÊT

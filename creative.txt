@@ -1,0 +1,19 @@
+APP 6832556606 Foldboard
+bibliothèque : {"data": {"type": "appAssetLibraries", "id": "6832556606", "relationships": {"images": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606/relationships/images", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606/images"}}, "videos": {"links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606/relationships/videos", "related": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606/videos"}}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/appAssetLibraries/6832556606"}}, "links": {"self": "https://api.appstoreconnect.apple.com/v1/apps/6832556606/assetLibrary"}}
+8 vidéo(s) déjà dans la bibliothèque
+ok     header en-US déjà envoyée (a2000019-7408-8a3e-8102-88396198e446, APPROVED)
+ok     search en-US déjà envoyée (2f800019-7408-8a3e-810f-1e3507cb3f02, APPROVED)
+ok     header fr-FR déjà envoyée (31c00019-7408-8a3e-8108-395e16aeaec3, APPROVED)
+ok     search fr-FR déjà envoyée (ba400019-7408-8a3e-8131-4562134604e7, APPROVED)
+
+Bibliothèque :
+  header-en-US-6b5bcb871923 · APPROVED · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-en-US-fb0ac202012c · APPROVED · spécification a28b6440-2fe2-58f0-9da3-354cb54cab57 · affiche 00:00:00:15
+  header-fr-FR-361e236fb0e8 · APPROVED · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-fr-FR-ad66054cd955 · APPROVED · spécification a28b6440-2fe2-58f0-9da3-354cb54cab57 · affiche 00:00:00:15
+  header-en-US-3d5094038bd5 · APPROVED · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-en-US-ba954f90dcf6 · APPROVED · spécification a28b6440-2fe2-58f0-9da3-354cb54cab57 · affiche 00:00:00:15
+  header-fr-FR-76067384cf44 · APPROVED · spécification 8aeaae00-2a17-4781-bfc0-44ca02e26ccb · affiche 00:00:00:15
+  search-fr-FR-9cfda9ac2515 · APPROVED · spécification a28b6440-2fe2-58f0-9da3-354cb54cab57 · affiche 00:00:00:15
+
+ENVOYÉ DANS LA BIBLIOTHÈQUE
