@@ -37,6 +37,17 @@ enum KBLayouts {
     /// Onze touches sur une rangée (allemand) : un peu plus étroites, la rangée garde la même largeur.
     static func chars11(_ s: String) -> [KeySpec] { s.map { KeySpec(kind: .char(String($0)), width: 10.0 / 11.0) } }
 
+    /// Les rangées d'une page avec la rangée de chiffres en option : les chiffres au-dessus des lettres
+    /// (et des symboles), et sur la page des chiffres, la première rangée de symboles pour garder la même hauteur.
+    static func rows(_ page: KBPage, layout: KBLayout, numberRow: Bool) -> [KeyRow] {
+        let base = rows(page, layout: layout)
+        guard numberRow else { return base }
+        switch page {
+        case .letters, .symbols: return [KeyRow(keys: chars("1234567890"))] + base
+        case .numbers: return [KeyRow(keys: [c("["), c("]"), c("{"), c("}"), c("#"), c("%"), c("^"), c("*"), c("+"), c("=")])] + base
+        }
+    }
+
     /// Les rangées d'une page, avant la rangée du bas (qui dépend du mode).
     static func rows(_ page: KBPage, layout: KBLayout) -> [KeyRow] {
         switch page {

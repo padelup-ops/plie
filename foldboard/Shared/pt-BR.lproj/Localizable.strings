@@ -347,3 +347,21 @@
 
 "Learning messages" = "Mensagens de aprendizado";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Desative para uma barra mais limpa, com mais espaço para sugestões. Para mover ou redimensionar o teclado, reative-os ou use esta tela. As mensagens de aprendizado são as notas curtas exibidas quando o Foldboard aprende sua pegada: ele continua aprendendo mesmo com elas desligadas.";
+
+"Number row" = "Linha de números";
+"Type a few messages with Foldboard: your week will show up here." = "Escreva algumas mensagens com o Foldboard: sua semana aparecerá aqui.";
+"Your week of typing" = "Sua semana digitando";
+"words" = "palavras";
+"words per minute" = "palavras por minuto";
+"typos fixed" = "erros corrigidos";
+"words slid" = "palavras deslizadas";
+"Mostly typed with your right thumb" = "Mais com o polegar direito";
+"Mostly typed with your left thumb" = "Mais com o polegar esquerdo";
+"Mostly typed with both hands" = "Mais com as duas mãos";
+"Share my week" = "Compartilhar minha semana";
+"My week with Foldboard" = "Minha semana com o Foldboard";
+"Counted on your iPhone only, never sent anywhere." = "Contado só no seu iPhone, nunca enviado.";
+"My week" = "Minha semana";
+"words typed on my iPhone Duo" = "palavras digitadas no meu iPhone Duo";
+"wpm" = "ppm";
+"The keyboard that follows your hand" = "O teclado que segue sua mão";

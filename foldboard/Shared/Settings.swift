@@ -134,6 +134,8 @@ struct KBSettings: Codable, Equatable {
     var barButtons = true
     /// Les petits messages « Foldboard connaît mieux ta prise en main » / « Noté » dans le clavier.
     var learningTips = true
+    /// Une rangée de chiffres au-dessus des lettres (désactivée par défaut : le clavier garde sa hauteur).
+    var numberRow = false
     var theme: String = "auto"
     var font: KBFont = .system
     /// Force des vibrations, de 0 (coupées) à 1.
@@ -206,6 +208,7 @@ struct KBSettings: Codable, Equatable {
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
         learningTips = (try? c.decodeIfPresent(Bool.self, forKey: .learningTips)) ?? d.learningTips
+        numberRow = (try? c.decodeIfPresent(Bool.self, forKey: .numberRow)) ?? d.numberRow
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme
         font = (try? c.decodeIfPresent(KBFont.self, forKey: .font)) ?? d.font
         haptics = (try? c.decodeIfPresent(Double.self, forKey: .haptics)) ?? d.haptics
@@ -522,6 +525,26 @@ enum KBVault {
         guard let data = try? JSONEncoder().encode(l) else { return }
         write("learn", data)
         UserDefaults.standard.set(data, forKey: "foldboard.learn")
+    }
+
+    // Bilan de frappe : le plus récent gagne (comme les réglages).
+    static func loadStats() -> KBStats {
+        let shared = read("stats").flatMap { try? JSONDecoder().decode(KBStats.self, from: $0) }
+        let local = UserDefaults.standard.data(forKey: "foldboard.stats").flatMap { try? JSONDecoder().decode(KBStats.self, from: $0) }
+        switch (shared, local) {
+        case let (s?, l?): return s.stamp >= l.stamp ? s : l
+        case let (s?, nil): return s
+        case let (nil, l?): return l
+        default: return KBStats()
+        }
+    }
+
+    static func save(_ stats: KBStats) {
+        var s = stats
+        s.stamp = Date()
+        guard let data = try? JSONEncoder().encode(s) else { return }
+        write("stats", data)
+        UserDefaults.standard.set(data, forKey: "foldboard.stats")
     }
 
     static func save(_ access: KBAccess) {

@@ -205,7 +205,7 @@ extension View {
 
 extension KeyboardPreview {
     static func height(_ s: KBSettings) -> CGFloat {
-        KeyboardCanvas.topBarHeight + 6 + 4 * CGFloat(s.keyHeight) + 30 + 8
+        KeyboardCanvas.topBarHeight + 6 + CGFloat(s.numberRow ? 5 : 4) * CGFloat(s.keyHeight) + (s.numberRow ? 40 : 30) + 8
     }
 }
 
@@ -272,6 +272,7 @@ struct PositionView: View {
                 slider("Two-hand width (each side)", value: $m.settings.splitWidth, in: 0.22...0.48, format: { "\(Int($0 * 100)) %" })
                 slider("Distance from the edge", value: $m.settings.edgeMargin, in: 0...120, format: { "\(Int($0)) pt" })
                 slider("Key height", value: $m.settings.keyHeight, in: 34...60, format: { "\(Int($0)) pt" })
+                Toggle("Number row", isOn: $m.settings.numberRow)
                 Toggle("Different key height when open", isOn: Binding(
                     get: { m.settings.keyHeightOpen > 0 },
                     set: { m.settings.keyHeightOpen = $0 ? m.settings.keyHeight : 0 }))
