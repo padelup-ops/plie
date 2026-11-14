@@ -590,7 +590,12 @@ final class KeyboardCanvas: UIView {
     /// Retient la prise en main du moment pour ce côté. `correction` : choisi à la main (exemple fort).
     private func learnHabit(right: Bool, two: Bool = false, correction: Bool) {
         guard followsHand, recording == nil, !demoOneHand else { return }
-        if correction { noteCorrection() }
+        if correction {
+            noteCorrection()
+            var e: [String: Double] = ["g": two ? 2 : (right ? 1 : 0)]
+            if let q = grip.currentPosture { e["roll"] = q.roll; e["inc"] = q.incline }
+            KBGripLog.shared.add(4, context: gripContext, e)
+        }
         guard let p = grip.currentPosture else { return }
         KBHabits.shared.add(context: gripContext, roll: p.roll, incline: p.incline, right: right, two: two,
                             weight: correction ? 3 : 1, correction: correction)
@@ -646,6 +651,7 @@ final class KeyboardCanvas: UIView {
         clipTimer?.invalidate()
         clipTimer = nil
         KBStatsRecorder.shared.flush()
+        KBGripLog.shared.flush()
     }
 
     /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
@@ -698,6 +704,9 @@ final class KeyboardCanvas: UIView {
         grip.current = g
         guard s.autoTwo != settings.autoTwo || s.autoRight != settings.autoRight else { return }
         autoDecisionAt = ProcessInfo.processInfo.systemUptime
+        var e: [String: Double] = ["g": g == .two ? 2 : (g == .right ? 1 : 0)]
+        if let q = grip.currentPosture { e["roll"] = q.roll; e["inc"] = q.incline }
+        KBGripLog.shared.add(3, context: gripContext, e)
         KBThumb.shared.reset()
         typedOnSide = 0
         settings = s
@@ -1452,6 +1461,20 @@ final class KeyboardCanvas: UIView {
             self?.startAdjust()
         }
         var extra: [UIMenuElement] = [adjustAction]
+        // Pour améliorer la détection de la main : copier le journal des prises (sans le texte tapé) et l'envoyer.
+        if (input?.kbFullAccess ?? false), KBGripLog.shared.count >= 50 {
+            extra.append(UIAction(title: L("Copy hand data for the developer"), image: UIImage(systemName: "doc.on.clipboard")) { [weak self] _ in
+                guard let self else { return }
+                KBGripLog.shared.flush()
+                let l = KBVault.loadLearn()
+                let info = ["version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
+                            "hits": "\(l.hits ?? 0)", "misses": "\(l.misses ?? 0)", "calibrated": "\(self.settings.taps.keys.sorted())"]
+                if let text = KBGripLog.shared.exportText(extra: info) {
+                    UIPasteboard.general.string = text
+                    self.notice(L("Copied. Paste it in a message to the developer."))
+                }
+            })
+        }
         if gripContext == "open-portrait" {
             // Duo ouvert en portrait : l'utilisateur choisit entre deux moitiés et le petit clavier qui suit la main.
             extra.insert(UIAction(title: L("Split when the Duo is open"), image: UIImage(systemName: "rectangle.split.2x1"),
@@ -1749,8 +1772,17 @@ final class KeyboardCanvas: UIView {
                                    radius: Double(t.majorRadius), time: t.timestamp)
                 // Et comment le téléphone a bougé sous l'appui (connu un quart de seconde après).
                 let ts = t.timestamp
+                var e: [String: Double] = ["ts": ts, "kx": Double((f.midX - lo) / max(1, hi - lo)),
+                                           "dx": Double((p.x - f.midX) / max(1, f.width)), "dy": Double((p.y - f.midY) / max(1, f.height)),
+                                           "r": Double(t.majorRadius), "side": settings.autoTwo ? 2 : (settings.autoRight ? 1 : 0)]
+                if let q = grip.currentPosture { e["roll"] = q.roll; e["inc"] = q.incline }
+                KBGripLog.shared.add(1, context: gripContext, e)
+                let ctx = gripContext
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) { [weak self] in
-                    if let k = self?.grip.kick(at: ts) { KBThumb.shared.kick(time: ts, k) }
+                    if let k = self?.grip.kick(at: ts) {
+                        KBThumb.shared.kick(time: ts, k)
+                        KBGripLog.shared.add(2, context: ctx, ["ts": ts, "x": k.x, "y": k.y, "z": k.z])
+                    }
                 }
             }
             // Étalonnage dans l'app (« Apprends tes pouces ») : où tombe le pouce sur chaque lettre, la taille du toucher

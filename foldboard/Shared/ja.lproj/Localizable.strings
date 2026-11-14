@@ -365,3 +365,6 @@
 "words typed on my iPhone Duo" = "iPhone Duoで入力した語数";
 "wpm" = "WPM";
 "The keyboard that follows your hand" = "手についてくるキーボード";
+
+"Copy hand data for the developer" = "手の検出データを開発者用にコピー";
+"Copied. Paste it in a message to the developer." = "コピーしました。開発者へのメッセージに貼り付けてください。";

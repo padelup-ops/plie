@@ -46,6 +46,7 @@ final class KBClipboard {
         // Un mot de passe copié depuis un gestionnaire : on ne le garde pas.
         if pb.types.contains(where: { Self.privateTypes.contains($0) }) { return false }
         guard pb.hasStrings, var text = pb.string else { return false }
+        if text.hasPrefix("FOLDBOARD-GRIPLOG:") { return false }
         text = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return false }
         if text.count > Self.maxLength { text = String(text.prefix(Self.maxLength)) }

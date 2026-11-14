@@ -365,3 +365,6 @@
 "words typed on my iPhone Duo" = "iPhone Duo에서 입력한 단어";
 "wpm" = "WPM";
 "The keyboard that follows your hand" = "손을 따라오는 키보드";
+
+"Copy hand data for the developer" = "개발자용 손 감지 데이터 복사";
+"Copied. Paste it in a message to the developer." = "복사했어요. 개발자에게 보내는 메시지에 붙여 넣으세요.";
