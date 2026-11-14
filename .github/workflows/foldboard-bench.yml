@@ -1,0 +1,37 @@
+# FOLDBOARD : banc d'essai de la saisie (correction, glisser, prédiction) dans le simulateur iOS.
+# À lancer avant et après un changement du moteur (Shared/Suggest.swift, LanguageModel.swift) : aucune régression.
+name: Foldboard - Bench
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branche, tag ou commit à mesurer"
+        required: false
+        default: "main"
+jobs:
+  bench:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Compile
+        run: |
+          mkdir -p out
+          # Le banc est toujours celui de main (mêmes essais pour comparer deux versions du moteur).
+          git fetch -q origin main && git show origin/main:foldboard/tools/bench/main.swift > out/main.swift
+          cd foldboard/Shared
+          xcrun --sdk iphonesimulator swiftc -O -target arm64-apple-ios17.0-simulator \
+            Suggest.swift LanguageModel.swift Settings.swift Layouts.swift ../../out/main.swift -o ../../out/bench
+          cp words-*.txt lm-*.bin ../../out/
+      - name: Run
+        run: |
+          DEV=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if 'iPhone' in x['name']))")
+          xcrun simctl boot "$DEV" || true
+          xcrun simctl bootstatus "$DEV" -b
+          xcrun simctl spawn "$DEV" "$PWD/out/bench" | tee out/result.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bench
+          path: out/result.txt
