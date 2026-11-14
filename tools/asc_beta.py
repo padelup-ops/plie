@@ -42,6 +42,9 @@ The beta ends in 2 days (November 9). Install the App Store version now to keep 
 
 Your progress is kept when you switch to the App Store version. And if you enjoy the game, a rating or review on the App Store helps us a lot.""",
 }
+# Textes « À tester » donnés par le workflow (pour une autre app que celle par défaut).
+if os.environ.get("WHATS_NEW_FR") or os.environ.get("WHATS_NEW_EN"):
+    WHATS_NEW = {k: v for k, v in (("fr-FR", os.environ.get("WHATS_NEW_FR", "")), ("en-US", os.environ.get("WHATS_NEW_EN", ""))) if v.strip()}
 
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
                     "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",

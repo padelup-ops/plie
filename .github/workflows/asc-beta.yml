@@ -18,6 +18,18 @@ on:
         description: "1 = renvoyer l'e-mail d'invitation et de nouveau build"
         required: false
         default: ""
+      bundle:
+        description: "Bundle de l'app (vide = Origamo)"
+        required: false
+        default: ""
+      whats_new_fr:
+        description: "Texte « À tester » en français"
+        required: false
+        default: ""
+      whats_new_en:
+        description: "Texte « À tester » en anglais"
+        required: false
+        default: ""
       email:
         description: "Renvoyer l'invitation à cette seule adresse"
         required: false
@@ -33,7 +45,9 @@ jobs:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
-      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+      BUNDLE_ID: ${{ inputs.bundle || secrets.BUNDLE_ID }}
+      WHATS_NEW_FR: ${{ inputs.whats_new_fr }}
+      WHATS_NEW_EN: ${{ inputs.whats_new_en }}
       BUILD_NUMBER: ${{ inputs.build }}
       INTERNAL_ONLY: ${{ inputs.internal_only }}
       RESEND: ${{ inputs.resend }}
