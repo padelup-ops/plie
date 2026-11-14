@@ -232,13 +232,8 @@ func rareCheck(_ w: String, _ code: String) -> Bool {
 let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
-    ("base", [:]),
-    ("g", ["doubtRank": 3000, "gJunk": 4, "gJunkValid": 0, "gLoc": 9, "gShape": 5]),
-    ("gv1", ["doubtRank": 3000, "gJunk": 4, "gJunkValid": 1, "gLoc": 9, "gShape": 5]),
-    ("gv1p", ["doubtRank": 3000, "gJunk": 4, "gJunkValid": 1, "gLoc": 9, "gShape": 5, "gPrior": 0.45]),
-    ("gv2", ["doubtRank": 3000, "gJunk": 5, "gJunkValid": 2, "gLoc": 9, "gShape": 5]),
-    ("t4", ["tScan": 1, "tMax": 4]),
-    ("t6", ["tScan": 1, "tMax": 6]),
+    ("best", [:]),
+    ("old", ["doubtRank": 99_999, "gJunk": 0, "gJunkValid": 0, "gLoc": 7, "gShape": 6, "gPrior": 0.6, "tScan": 0]),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
