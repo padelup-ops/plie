@@ -3,6 +3,8 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage(OpeningRule.key) private var openingOn = true
     @AppStorage(DeskRule.key) private var deskOn = true
+    @AppStorage("softClose") private var softClose = true
+    @AppStorage("soundAlways") private var soundAlways = false
     @AppStorage(GlanceRule.key) private var glanceOn = true
     @Environment(ClapetModel.self) private var model
     @Environment(ClapetStore.self) private var store
@@ -407,6 +409,11 @@ struct SettingsView: View {
                 Toggle(isOn: $glanceOn) { Text("Just the essentials on the outer screen") }
                 Toggle(isOn: $openingOn) { Text("Opening animation") }
                 Toggle(isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })) { Text("Sounds") }
+                if model.soundOn {
+                    Toggle(isOn: $softClose) { Text("Soft close sound") }
+                        .onChange(of: softClose) { ClapetSound.shared.play(ClapetSound.closeEffect) }
+                    Toggle(isOn: $soundAlways) { Text("Sounds even when Foldly is closed") }
+                }
                 Toggle(isOn: Binding(get: { model.hapticsOn }, set: { model.setHaptics($0) })) { Text("Vibrations") }
             } footer: {
                 Text("Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top.")

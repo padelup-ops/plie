@@ -109,7 +109,7 @@ final class ClapetModel {
     /// Un pli vu par l'app (charnière, ou toucher sans charnière).
     func clap() {
         lastHingeClose = Date()
-        if soundOn { ClapetSound.shared.play(.clap) }
+        if soundOn { ClapetSound.shared.play(ClapetSound.closeEffect) }
         if hapticsOn { ClapetHaptics.clap() }
         // Déjà compté par l'automatisation il y a un instant ?
         guard Date().timeIntervalSince(lastAutoClose) > sameFold else { return }

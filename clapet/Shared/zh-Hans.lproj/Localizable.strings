@@ -879,3 +879,6 @@
 
 "Translated · Show original" = "已翻译 · 查看原文";
 "Show translation" = "查看译文";
+
+"Soft close sound" = "柔和的合上音效";
+"Sounds even when Foldly is closed" = "Foldly 关闭时也播放声音";

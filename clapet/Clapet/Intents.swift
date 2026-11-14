@@ -1,3 +1,4 @@
+import UIKit
 import AppIntents
 import WidgetKit
 
@@ -67,6 +68,7 @@ struct CountClapIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<Int> {
         let today = AutomaticCounter.close()
+        if ClapetModel.current == nil || UIApplication.shared.applicationState != .active { await ClapetSound.playFromAutomation(close: true) }
         return .result(value: today)
     }
 }
@@ -80,6 +82,7 @@ struct CountOpenIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult {
         AutomaticCounter.open()
+        if ClapetModel.current == nil || UIApplication.shared.applicationState != .active { await ClapetSound.playFromAutomation(close: false) }
         return .result()
     }
 }

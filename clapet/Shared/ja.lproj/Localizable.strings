@@ -879,3 +879,6 @@
 
 "Translated · Show original" = "翻訳済み · 原文を表示";
 "Show translation" = "翻訳を表示";
+
+"Soft close sound" = "やわらかい閉じる音";
+"Sounds even when Foldly is closed" = "Foldlyを閉じていても音を鳴らす";

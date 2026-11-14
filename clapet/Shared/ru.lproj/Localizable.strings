@@ -862,3 +862,6 @@
 
 "Translated · Show original" = "Переведено · Показать оригинал";
 "Show translation" = "Показать перевод";
+
+"Soft close sound" = "Мягкий звук закрытия";
+"Sounds even when Foldly is closed" = "Звуки, даже когда Foldly закрыт";
