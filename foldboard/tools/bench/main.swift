@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+import UIKit
 
 // Banc d'essai de la saisie Foldboard : correction, glisser, prédiction. Tourne dans le simulateur iOS (CI).
 // Les tirages sont fixes (graine) : deux versions du moteur se comparent sur exactement les mêmes essais.
@@ -90,6 +91,7 @@ func run(_ L: Lang, tag: String) {
 
     // 1. Frappe imprécise : le doigt tombe à côté du centre ; ce que le clavier lit, puis ce qu'il corrige.
     var noisy = 0, fixed = 0, clean = 0, broken = 0
+    var cMiss: [String] = []
     for _ in 0..<3 {
         for w in testWords {
             let target = Array(fold(w))
@@ -106,7 +108,7 @@ func run(_ L: Lang, tag: String) {
                 if fold(out) != fold(w) { broken += 1 }
             } else {
                 noisy += 1
-                if fold(out) == fold(w) { fixed += 1 }
+                if fold(out) == fold(w) { fixed += 1 } else if cMiss.count < 14 { cMiss.append("\(w):\(typed)→\(out)") }
             }
         }
     }
@@ -147,8 +149,34 @@ func run(_ L: Lang, tag: String) {
         if out.first == fold(w) { g1 += 1 } else if misses.count < 12 { misses.append("\(w)→\(out.first ?? "-")") }
         if out.prefix(3).contains(fold(w)) { g3 += 1 }
     }
+    // 3b. Glisser des mots rares mais valides (absents du modèle de langue) : ce qu'un filtre anti-coquilles risque de casser.
+    var rN = 0, r1 = 0
+    if let url = Bundle.main.url(forResource: "words-" + L.code, withExtension: "txt"), let t = try? String(contentsOf: url, encoding: .utf8) {
+        let list = t.split(separator: "\n").map(String.init)
+        let checker = UITextChecker()
+        let lang = L.code == "fr" ? "fr_FR" : "en_US"
+        var i = 3000
+        while i < min(list.count, 15000) && rN < 120 {
+            let w = list[i]; i += 37
+            guard w.count >= 4, fold(w).allSatisfy({ alphabet.contains($0) }), rareCheck(w, L.code) else { continue }
+            let ns = w as NSString
+            guard checker.rangeOfMisspelledWord(in: w, range: NSRange(location: 0, length: ns.length), startingAt: 0, wrap: false, language: lang).location == NSNotFound else { continue }
+            var pts: [CGPoint] = []
+            var prev: CGPoint?
+            for ch in fold(w) {
+                guard let c0 = cen[ch]?.first else { continue }
+                let c = CGPoint(x: c0.x + CGFloat(rng.gauss() * 0.18) * keyW, y: c0.y + CGFloat(rng.gauss() * 0.15) * keyH + 4)
+                if let p = prev { for t in 1...8 { let f = CGFloat(t) / 8; pts.append(CGPoint(x: p.x + (c.x - p.x) * f, y: p.y + (c.y - p.y) * f)) } } else { pts.append(c) }
+                prev = c
+            }
+            rN += 1
+            let tm = KBTouchModel(points: [], centers: cen, keyW: keyW, keyH: keyH)
+            if s.glide(pts, touch: tm, before: "", limit: 4).map(fold).first == fold(w) { r1 += 1 }
+        }
+    }
     // 4. Prédiction du mot suivant, et complétion après deux lettres.
     var pN = 0, p3 = 0, cN = 0, c3 = 0, saved = 0, total = 0
+    var pMiss: [String] = []
     for sen in L.sentences {
         let ws = words(sen)
         var before = ""
@@ -157,7 +185,7 @@ func run(_ L: Lang, tag: String) {
             if i > 0 {
                 pN += 1
                 let pr = s.predictions(before: before).map { $0.lowercased() }
-                if pr.prefix(3).contains(w.lowercased()) { p3 += 1; saved += w.count }
+                if pr.prefix(3).contains(w.lowercased()) { p3 += 1; saved += w.count } else if pMiss.count < 10 { pMiss.append("…\(ws[i-1]) [\(w)] → \(pr.prefix(3).joined(separator: "/"))") }
                 else if w.count >= 3 {
                     cN += 1
                     let typed = String(w.prefix(2))
@@ -175,22 +203,43 @@ func run(_ L: Lang, tag: String) {
     print("RESULT \(tag) \(L.code) fautes_corrigees \(pc(tOK, tN)) (sur \(tN))")
     print("RESULT \(tag) \(L.code) glisser_top1 \(pc(g1, gN)) (sur \(gN))")
     print("RESULT \(tag) \(L.code) glisser_top3 \(pc(g3, gN))")
+    print("RESULT \(tag) \(L.code) glisser_rares_valides \(pc(r1, rN)) (sur \(rN))")
     print("RESULT \(tag) \(L.code) prediction_top3 \(pc(p3, pN)) (sur \(pN))")
     print("RESULT \(tag) \(L.code) completion_2lettres_top3 \(pc(c3, cN)) (sur \(cN))")
     print("RESULT \(tag) \(L.code) frappes_economisees \(pc(saved, total))")
-    print("glisser ratés:", misses.joined(separator: ", "))
+    if tag == "base" || tag == "best" {
+        print("glisser ratés:", misses.joined(separator: ", "))
+        print("correction ratés:", cMiss.joined(separator: ", "))
+        print("prédiction ratés:", pMiss.joined(separator: ", "))
+    }
+}
+
+/// Le mot est-il absent du modèle de langue ? (les mots que le filtre anti-coquilles vise)
+var lmVocab: [String: Set<String>] = [:]
+func rareCheck(_ w: String, _ code: String) -> Bool {
+    if lmVocab[code] == nil {
+        var v = Set<String>()
+        if let url = Bundle.main.url(forResource: "lm-" + code, withExtension: "bin"), let d = try? Data(contentsOf: url) {
+            let n = Int(d[8]) | Int(d[9]) << 8 | Int(d[10]) << 16 | Int(d[11]) << 24
+            var p = 24
+            for _ in 0..<n { let l = Int(d[p]); v.insert(String(decoding: d[(p + 1)..<(p + 1 + l)], as: UTF8.self)); p += 1 + l }
+        }
+        lmVocab[code] = v
+    }
+    return !(lmVocab[code]!.contains(w))
 }
 
 let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
     ("base", [:]),
-    ("junk25", ["doubtRank": 5000, "gJunk": 2.5]),
-    ("junk4", ["doubtRank": 3000, "gJunk": 4]),
-    ("junkC", ["doubtRank": 5000, "gJunk": 2.5, "cJunk": 1]),
-    ("pool40", ["compPool": 40]),
-    ("prior09", ["gPrior": 0.9]),
-    ("loc9", ["gLoc": 9, "gShape": 5]),
+    ("j4", ["doubtRank": 3000, "gJunk": 4]),
+    ("j4loc9", ["doubtRank": 3000, "gJunk": 4, "gLoc": 9, "gShape": 5]),
+    ("j4p045", ["doubtRank": 3000, "gJunk": 4, "gLoc": 9, "gShape": 5, "gPrior": 0.45]),
+    ("j6d2k", ["doubtRank": 2000, "gJunk": 6, "gLoc": 9, "gShape": 5]),
+    ("j3d5k", ["doubtRank": 5000, "gJunk": 3, "gLoc": 9, "gShape": 5]),
+    ("j4turn3", ["doubtRank": 3000, "gJunk": 4, "gLoc": 9, "gShape": 5, "gTurn": 3]),
+    ("j4len7", ["doubtRank": 3000, "gJunk": 4, "gLoc": 9, "gShape": 5, "gLen": 7]),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
