@@ -1869,12 +1869,12 @@ final class KeyboardCanvas: UIView {
                     let dt = tr.lastT > 0 ? max(0.004, t.timestamp - tr.lastT) : 0.016
                     tr.lastX = p.x; tr.lastY = p.y; tr.lastT = t.timestamp
                     let speed = hypot(mdx, mdy) / CGFloat(dt)          // points par seconde
-                    let gain: CGFloat = speed < 120 ? 0.55 : (speed < 600 ? 0.55 + (speed - 120) / 480 * 0.45 : min(1.8, 1 + (speed - 600) / 900))
+                    let gain: CGFloat = speed < 120 ? 0.8 : (speed < 600 ? 0.8 + (speed - 120) / 480 * 0.6 : min(2.6, 1.4 + (speed - 600) / 700))
                     tr.cursorAccum += mdx * gain
                     // Le vertical, plus dur : il faut vraiment monter ou descendre pour changer de ligne.
                     tr.cursorAccumY += mdy * gain * (abs(mdy) > abs(mdx) * 0.6 ? 1 : 0.35)
                     // Réglage « Sensibilité » : de 14 pt par lettre (lent) à 7 pt (rapide).
-                    let charStep = 14 - 7 * CGFloat(eff.swipe)
+                    let charStep = 11 - 5 * CGFloat(eff.swipe)
                     let lineStep: CGFloat = 30
                     let dCol = Int((tr.cursorAccum / charStep).rounded(.towardZero))
                     let dLine = Int((tr.cursorAccumY / lineStep).rounded(.towardZero))
@@ -2480,7 +2480,7 @@ final class KeyboardCanvas: UIView {
         chipStack.addArrangedSubview(field)
         field.widthAnchor.constraint(equalToConstant: max(110, min(170, field.intrinsicContentSize.width + 24))).isActive = true
         field.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        for e in KBEmoji.search(q).prefix(24) {
+        for e in (q.isEmpty ? [] : KBEmoji.search(q)).prefix(24) {
             let b = UIButton(type: .system)
             b.setTitle(e, for: .normal)
             b.titleLabel?.font = .systemFont(ofSize: 26)

@@ -575,7 +575,7 @@ final class KBSuggest {
         // « a » ou « à » d'après le mot d'avant : « je vais a » → « je vais à », « il a » reste « il a ».
         if language.hasPrefix("fr"), low == "a", let prev, Self.towardA.contains(prev) { return matchCase("à", like: word) }
         if language.hasPrefix("fr"), low == "a", let lm, let sa = lm.score("à", before: before), let s0 = lm.score("a", before: before),
-           sa > s0 + 1.6 { return matchCase("à", like: word) }
+           sa > s0 + Self.t("aDelta", 1.6) { return matchCase("à", like: word) }
         // « its » ou « it’s » d'après le mot d'avant, comme le clavier d'Apple : « its great » → « it’s great »,
         // mais « on its own » reste.
         if language.hasPrefix("en"), low == "its", !known.contains(low) {
@@ -586,6 +586,7 @@ final class KBSuggest {
             if !Self.ambiguous.contains(low), let c = contraction(word) { return c }
             if let fix = accentFix(word) { return fix }
         }
+        if Self.t("shortFix", 0) > 0, word.count >= 2, word.count <= 3, let f = shortContextFix(word, before: before, touch: touch) { return f }
         if word.count == 2, let f = twoLetterFix(word, before: before, touch: touch) { return f }
         guard word.count >= 3, word.count <= 30 else {
             if word == "i" && language.hasPrefix("en") { return "I" }
@@ -687,7 +688,21 @@ final class KBSuggest {
             }
             if let split { return matchCase(split.0, like: word) }
         }
-        if best == nil, word.count >= 4, let l2 = second {
+        // L'espace ratée : le pouce a touché une lettre juste au-dessus (« auncourant » → « au courant »).
+        if best == nil, Self.t("spaceSplit", 0) > 0, word.count >= 5 {
+            let chars = Array(lower)
+            let nearSpace: Set<Character> = ["c", "v", "b", "n"]
+            var split: (String, Int)?
+            for i in 1..<(chars.count - 1) where nearSpace.contains(chars[i]) {
+                let a = String(chars[..<i]), b = String(chars[(i + 1)...])
+                let ra = rank[a] ?? (Self.oneLetter[String(language.prefix(2))]?.contains(a) == true ? 50 : nil)
+                guard let ra, let rb = rank[b], ra < 8_000, rb < 8_000, b.count >= 2 else { continue }
+                let sc = max(ra, rb)
+                if split == nil || sc < split!.1 { split = (a + " " + b, sc) }
+            }
+            if let split { return matchCase(split.0, like: word) }
+        }
+        if best == nil, !(fast || Self.t("noGuesses", 0) > 0), word.count >= 4, let l2 = second {
             // Rien en français : peut-être une faute de frappe en anglais (et inversement). Seulement une touche voisine.
             let g2 = checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: l2) ?? []
             for g in g2.prefix(4) {
@@ -698,6 +713,35 @@ final class KBSuggest {
             }
         }
         return best.map { matchCase($0.word, like: word) }
+    }
+
+    /// Les mots d'une lettre (absents de la liste) qui peuvent former le début d'une coupure.
+    private static let oneLetter: [String: Set<String>] = ["fr": ["a", "à", "y", "j"], "en": ["a", "i"]]
+
+    /// Un mot court qui existe mais n'a rien à faire là (« il faut sue » → « que », « pas fu » → « du ») : une touche
+    /// voisine donne un mot très courant que la phrase attend nettement plus. Avant la vérification « mot anglais »,
+    /// car « sue » ou « fu » existent aussi en anglais.
+    private func shortContextFix(_ word: String, before: String, touch: KBTouchModel?) -> String? {
+        guard let lm, word != word.uppercased() || word.count == 1 else { return nil }
+        let lower = word.lowercased()
+        let own = rank[lower] ?? Int.max
+        guard own > 2_000, !known.contains(lower), KBWordStore.shared.count(lower) == 0 else { return nil }
+        // Il faut un vrai contexte (au moins un mot avant) pour juger.
+        guard Self.previousWord(before, word: word) != nil else { return nil }
+        let ownScore = lm.score(lower, before: before) ?? -20
+        let chars = Array(lower)
+        let letters = Set(rows.joined())
+        var best: (String, Double)?
+        for i in 0..<chars.count {
+            for k in letters where k != chars[i] && neighbors(k, chars[i]) {
+                var w = chars; w[i] = k
+                let c = String(w)
+                guard let r = rank[c], r < 150, let sc = lm.score(c, before: before) else { continue }
+                if let cc = touch?.cost(c), let oc = touch?.cost(lower), cc - oc > 4 { continue }
+                if sc - ownScore >= Self.t("shortDelta", 4), best == nil || sc > best!.1 { best = (c, sc) }
+            }
+        }
+        return best.map { matchCase($0.0, like: word) }
     }
 
     /// Les mots de la liste à une faute de frappe de `lower` : inversion de deux lettres voisines, touche voisine
