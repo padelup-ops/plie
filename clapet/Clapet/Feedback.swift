@@ -34,8 +34,15 @@ final class ClapetSound {
     static func playFromAutomation(close: Bool) async {
         let d = UserDefaults.standard
         guard d.bool(forKey: "sound"), d.bool(forKey: "soundAlways") else { return }
+        // En arrière-plan, le mode « ambiant » est coupé par iOS : on passe en lecture le temps du son
+        // (mélangé à la musique en cours, sans la couper), puis on rend la main.
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, options: [.mixWithOthers])
+        try? session.setActive(true)
         await MainActor.run { shared.play(close ? closeEffect : .pop) }
-        try? await Task.sleep(nanoseconds: 450_000_000)
+        try? await Task.sleep(nanoseconds: 600_000_000)
+        try? session.setActive(false, options: [.notifyOthersOnDeactivation])
+        try? session.setCategory(.ambient, options: [.mixWithOthers])
     }
 }
 
