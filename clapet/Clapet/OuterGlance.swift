@@ -14,6 +14,7 @@ struct OuterGlance: View {
     private var stats: ClapetStats { model.stats }
 
     var body: some View {
+        NavigationStack {
         VStack(spacing: 0) {
             HStack(spacing: 4) {
                 Text(Date(), format: .dateTime.weekday(.wide).day().month(.wide))
@@ -22,15 +23,6 @@ struct OuterGlance: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 Spacer(minLength: 4)
-                LeaderboardButton(show: $showBoards)
-                    .font(.title3)
-                    .frame(width: 40, height: 44)
-                Button { showSettings = true } label: {
-                    Image(systemName: "gearshape")
-                        .font(.title3)
-                        .frame(width: 40, height: 44)
-                }
-                .accessibilityLabel(Text("Settings"))
             }
             .padding(.horizontal, 20)
 
@@ -108,6 +100,17 @@ struct OuterGlance: View {
         .padding(.top, 6)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DFBackdrop(degrees: model.degrees).ignoresSafeArea())
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            // Comme les autres écrans : à droite sous l'heure et la batterie sur l'écran extérieur.
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                LeaderboardButton(show: $showBoards)
+                Button { showSettings = true } label: { Image(systemName: "gearshape") }
+                    .accessibilityLabel(Text("Settings"))
+            }
+        }
+        }
         .sheet(isPresented: $showSettings) { SettingsView().environment(model).environment(store) }
         .sheet(isPresented: $showBoards) { LeaderboardView().environment(model).environment(store) }
     }

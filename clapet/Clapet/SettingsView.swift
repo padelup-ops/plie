@@ -412,7 +412,6 @@ struct SettingsView: View {
                 if model.soundOn {
                     Toggle(isOn: $softClose) { Text("Soft close sound") }
                         .onChange(of: softClose) { ClapetSound.shared.play(ClapetSound.closeEffect) }
-                    Toggle(isOn: $soundAlways) { Text("Sounds even when Foldly is closed") }
                 }
                 Toggle(isOn: Binding(get: { model.hapticsOn }, set: { model.setHaptics($0) })) { Text("Vibrations") }
             } footer: {
