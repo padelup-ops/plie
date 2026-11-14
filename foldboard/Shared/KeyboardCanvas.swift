@@ -600,6 +600,7 @@ final class KeyboardCanvas: UIView {
 
     /// Montrer que le clavier apprend : « noté » aux premières corrections, puis des paliers.
     private func showLearning(correction: Bool) {
+        guard settings.learningTips else { return }
         let n = KBHabits.shared.learnedTotal
         if [3, 10, 25, 50, 100, 200].contains(n) {
             notice(String(format: L("Foldboard knows your grip better: %lld habits learned"), n))

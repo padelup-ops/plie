@@ -344,3 +344,6 @@
 "Position, settings and hide buttons" = "Pulsanti posizione, impostazioni e nascondi";
 "Top bar" = "Barra superiore";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen." = "Disattivali per una barra più pulita, con più spazio per i suggerimenti. Per spostare o ridimensionare la tastiera, riattivali o usa questa schermata.";
+
+"Learning messages" = "Messaggi di apprendimento";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Disattivali per una barra più pulita, con più spazio per i suggerimenti. Per spostare o ridimensionare la tastiera, riattivali o usa questa schermata. I messaggi di apprendimento sono le brevi note mostrate quando Foldboard impara la tua presa: continua a imparare anche se sono spenti.";

@@ -344,3 +344,6 @@
 "Position, settings and hide buttons" = "位置、设置和隐藏按钮";
 "Top bar" = "顶部栏";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen." = "关闭后顶部栏更简洁，建议词空间更大。如需移动或调整键盘大小，请重新打开或使用此页面。";
+
+"Learning messages" = "学习提示";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "关闭后顶部栏更简洁，建议词空间更大。如需移动或调整键盘大小，请重新打开或使用此页面。学习提示是 Foldboard 学习你的握持方式时显示的简短消息：关闭后它仍会继续学习。";

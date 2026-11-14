@@ -344,3 +344,6 @@
 "Position, settings and hide buttons" = "위치, 설정, 숨기기 버튼";
 "Top bar" = "상단 바";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen." = "끄면 바가 깔끔해지고 추천 단어 공간이 넓어져요. 키보드를 옮기거나 크기를 바꾸려면 다시 켜거나 이 화면을 사용하세요.";
+
+"Learning messages" = "학습 메시지";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "끄면 바가 깔끔해지고 추천 단어 공간이 넓어져요. 키보드를 옮기거나 크기를 바꾸려면 다시 켜거나 이 화면을 사용하세요. 학습 메시지는 Foldboard가 잡는 방식을 배울 때 나오는 짧은 알림이에요. 꺼도 계속 학습해요.";

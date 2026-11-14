@@ -286,10 +286,11 @@ struct PositionView: View {
 
             Section {
                 Toggle("Position, settings and hide buttons", isOn: $m.settings.barButtons)
+                Toggle("Learning messages", isOn: $m.settings.learningTips)
             } header: {
                 Text("Top bar")
             } footer: {
-                Text("Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen.")
+                Text("Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off.")
             }
         }
         .navigationTitle("Position and size")

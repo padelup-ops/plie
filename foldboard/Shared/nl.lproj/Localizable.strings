@@ -344,3 +344,6 @@
 "Position, settings and hide buttons" = "Knoppen voor positie, instellingen en verbergen";
 "Top bar" = "Bovenste balk";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen." = "Zet uit voor een rustigere balk met meer ruimte voor suggesties. Zet ze weer aan of gebruik dit scherm om het toetsenbord te verplaatsen of te vergroten.";
+
+"Learning messages" = "Leermeldingen";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Zet uit voor een rustigere balk met meer ruimte voor suggesties. Zet ze weer aan of gebruik dit scherm om het toetsenbord te verplaatsen of te vergroten. Leermeldingen zijn de korte berichten wanneer Foldboard je grip leert: hij blijft leren als ze uit staan.";

@@ -344,3 +344,6 @@
 "Position, settings and hide buttons" = "位置・設定・隠すボタン";
 "Top bar" = "上部バー";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen." = "オフにするとバーがすっきりし、候補の表示スペースが広がります。キーボードを移動・サイズ変更するには、オンに戻すかこの画面を使ってください。";
+
+"Learning messages" = "学習メッセージ";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "オフにするとバーがすっきりし、候補の表示スペースが広がります。キーボードを移動・サイズ変更するには、オンに戻すかこの画面を使ってください。学習メッセージは、Foldboardが持ち方を学んだときに出る短い表示です。オフにしても学習は続きます。";

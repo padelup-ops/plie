@@ -132,6 +132,8 @@ struct KBSettings: Codable, Equatable {
     var keyHeightOpen: Double = 0
     /// Les boutons position, réglages et masquer dans la barre du haut (on peut les cacher).
     var barButtons = true
+    /// Les petits messages « Foldboard connaît mieux ta prise en main » / « Noté » dans le clavier.
+    var learningTips = true
     var theme: String = "auto"
     var font: KBFont = .system
     /// Force des vibrations, de 0 (coupées) à 1.
@@ -203,6 +205,7 @@ struct KBSettings: Codable, Equatable {
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
+        learningTips = (try? c.decodeIfPresent(Bool.self, forKey: .learningTips)) ?? d.learningTips
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme
         font = (try? c.decodeIfPresent(KBFont.self, forKey: .font)) ?? d.font
         haptics = (try? c.decodeIfPresent(Double.self, forKey: .haptics)) ?? d.haptics

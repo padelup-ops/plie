@@ -344,3 +344,6 @@
 "Position, settings and hide buttons" = "Кнопки положения, настроек и скрытия";
 "Top bar" = "Верхняя панель";
 "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen." = "Выключите для более чистой панели и большего места для подсказок. Чтобы переместить или изменить размер клавиатуры, включите их снова или используйте этот экран.";
+
+"Learning messages" = "Сообщения об обучении";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Выключите для более чистой панели и большего места для подсказок. Чтобы переместить или изменить размер клавиатуры, включите их снова или используйте этот экран. Сообщения об обучении — короткие подсказки, когда Foldboard запоминает, как вы держите телефон: обучение продолжается, даже если они выключены.";
