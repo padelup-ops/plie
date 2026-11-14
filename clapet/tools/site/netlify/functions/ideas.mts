@@ -8,7 +8,7 @@
 import { getStore } from "@netlify/blobs"
 import type { Config, Context } from "@netlify/functions"
 
-const ADMIN_SHA256 = "3eaa752c5acd51269c3786c96c61038eb892637c1133788e963c44df39fbeca2"
+const ADMIN_SHA256 = "cc4409730aea4c9313d6435175dbcbaf299879e39b989bd920246741858168ba"
 const store = () => getStore({ name: "foldly-ideas", consistency: "strong" })
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } })
