@@ -23,7 +23,7 @@ jobs:
           git fetch -q origin main && git show origin/main:foldboard/tools/bench/main.swift > out/main.swift
           cd foldboard/Shared
           xcrun --sdk iphonesimulator swiftc -O -target arm64-apple-ios17.0-simulator \
-            Suggest.swift LanguageModel.swift Settings.swift Layouts.swift ../../out/main.swift -o ../../out/bench
+            *.swift ../../out/main.swift -o ../../out/bench
           cp words-*.txt lm-*.bin ../../out/
       - name: Run
         run: |
