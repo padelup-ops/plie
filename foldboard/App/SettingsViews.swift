@@ -553,6 +553,7 @@ struct TypingView: View {
                     Text("Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word.")
                     Text("Word lists: FrequencyWords by Hermit Dave, CC BY-SA 4.0.").font(.caption2)
                     Text("Language model: Leipzig Corpora Collection, CC BY 4.0.").font(.caption2)
+                    Text("Everyday sentences: Tatoeba, CC BY 2.0 FR.").font(.caption2)
                 }
             }
             Section {
