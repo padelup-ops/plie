@@ -1,0 +1,13 @@
+APP_ID 6832556606
+build 122 prêt
+ok     notes À tester fr-FR
+ok     notes À tester en-US
+groupe « Foldboard interne » (interne) : 1 testeur(s) · reçoit tous les builds
+groupe « Premiers testeurs » (externe) : 4 testeur(s)
+ok     build ajouté au groupe « Premiers testeurs »
+état pour les testeurs externes : READY_FOR_BETA_SUBMISSION
+ok     envoi à la vérification bêta d'Apple (déjà fait)
+état final pour les testeurs externes : READY_FOR_BETA_SUBMISSION
+état pour les testeurs internes : IN_BETA_TESTING
+
+BUILD DISTRIBUÉ
