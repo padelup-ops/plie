@@ -3,7 +3,8 @@
 
 Les journaux viennent du clavier : menu de position › « Copier les données de la main pour le développeur »
 (texte « FOLDBOARD-GRIPLOG: » + JSON compressé en base64). On les range dans tools/grip/logs/ (un fichier
-par personne et par jour, nommé sans adresse ni nom complet). Ils ne contiennent aucune lettre tapée.
+par personne et par jour, nommé sans adresse ni nom complet). Ils ne contiennent aucune lettre tapée, mais
+ce sont des données de testeurs : ce dossier est ignoré par git, les journaux ne vont JAMAIS dans le dépôt (public).
 
 Ce que le banc mesure :
   - les déplacements automatiques du clavier (événements 3), et lesquels étaient faux : défaits dans les
