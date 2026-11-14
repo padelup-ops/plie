@@ -73,7 +73,7 @@ let en = Lang(code: "en", layout: .qwerty, rows: ["qwertyuiop", "asdfghjkl", "zx
 
 func words(_ s: String) -> [String] { s.split(separator: " ").map(String.init) }
 
-func run(_ L: Lang) {
+func run(_ L: Lang, tag: String) {
     let s = KBSuggest()
     s.setLayout(L.layout)
     let cen = centers(L.rows, insets: L.insets)
@@ -169,19 +169,32 @@ func run(_ L: Lang) {
         }
     }
     func pc(_ a: Int, _ b: Int) -> String { b == 0 ? "-" : String(format: "%.1f %%", 100 * Double(a) / Double(b)) }
-    print("== \(L.code)")
-    print("RESULT \(L.code) frappe_corrigee \(pc(fixed, noisy)) (sur \(noisy))")
-    print("RESULT \(L.code) frappe_cassee \(pc(broken, clean)) (sur \(clean))")
-    print("RESULT \(L.code) fautes_corrigees \(pc(tOK, tN)) (sur \(tN))")
-    print("RESULT \(L.code) glisser_top1 \(pc(g1, gN)) (sur \(gN))")
-    print("RESULT \(L.code) glisser_top3 \(pc(g3, gN))")
-    print("RESULT \(L.code) prediction_top3 \(pc(p3, pN)) (sur \(pN))")
-    print("RESULT \(L.code) completion_2lettres_top3 \(pc(c3, cN)) (sur \(cN))")
-    print("RESULT \(L.code) frappes_economisees \(pc(saved, total))")
+    print("== \(tag) \(L.code)")
+    print("RESULT \(tag) \(L.code) frappe_corrigee \(pc(fixed, noisy)) (sur \(noisy))")
+    print("RESULT \(tag) \(L.code) frappe_cassee \(pc(broken, clean)) (sur \(clean))")
+    print("RESULT \(tag) \(L.code) fautes_corrigees \(pc(tOK, tN)) (sur \(tN))")
+    print("RESULT \(tag) \(L.code) glisser_top1 \(pc(g1, gN)) (sur \(gN))")
+    print("RESULT \(tag) \(L.code) glisser_top3 \(pc(g3, gN))")
+    print("RESULT \(tag) \(L.code) prediction_top3 \(pc(p3, pN)) (sur \(pN))")
+    print("RESULT \(tag) \(L.code) completion_2lettres_top3 \(pc(c3, cN)) (sur \(cN))")
+    print("RESULT \(tag) \(L.code) frappes_economisees \(pc(saved, total))")
     print("glisser ratés:", misses.joined(separator: ", "))
 }
 
 let t0 = Date()
-run(fr)
-run(en)
+// Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
+let configs: [(String, [String: Double])] = [
+    ("base", [:]),
+    ("junk25", ["doubtRank": 5000, "gJunk": 2.5]),
+    ("junk4", ["doubtRank": 3000, "gJunk": 4]),
+    ("junkC", ["doubtRank": 5000, "gJunk": 2.5, "cJunk": 1]),
+    ("pool40", ["compPool": 40]),
+    ("prior09", ["gPrior": 0.9]),
+    ("loc9", ["gLoc": 9, "gShape": 5]),
+]
+for (tag, cfg) in configs {
+    KBSuggest.tune = cfg
+    run(fr, tag: tag)
+    run(en, tag: tag)
+}
 print(String(format: "durée %.1f s", Date().timeIntervalSince(t0)))
