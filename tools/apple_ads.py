@@ -155,6 +155,28 @@ elif MODE == "tune3":
                 kr = call("PUT", f"/campaigns/{duo['id']}/adgroups/{g['id']}/targetingkeywords/bulk", upd)
                 print("  mots-clés", len(upd), "−30 %", "ÉCHEC " + str(kr)[:300] if isinstance(kr, dict) and kr.get("error") else "ok")
 
+elif MODE == "bids":
+    # BUDGETS="Foldboard – Clavier=1.0;Foldboard – Marque=0.8" : enchère par clic (groupes et mots-clés) de chaque campagne.
+    for part in os.environ.get("BUDGETS", "").split(";"):
+        if "=" not in part:
+            continue
+        name, amount = [x.strip() for x in part.rsplit("=", 1)]
+        c = by_name.get(name)
+        if not c:
+            print("introuvable", name); continue
+        print("campagne", name, c.get("servingStatus"), c.get("servingStateReasons"))
+        for g in call("GET", f"/campaigns/{c['id']}/adgroups").get("data", []):
+            print("  groupe", g["name"], g.get("servingStatus"), g.get("servingStateReasons"), "enchère", (g.get("defaultBidAmount") or {}).get("amount"), "→", amount)
+            r = call("PUT", f"/campaigns/{c['id']}/adgroups/{g['id']}", {"defaultBidAmount": {"amount": amount, "currency": CUR}})
+            print("   ", "ÉCHEC " + str(r)[:300] if r.get("error") else "ok")
+            kws = call("GET", f"/campaigns/{c['id']}/adgroups/{g['id']}/targetingkeywords?limit=1000").get("data", [])
+            upd = [{"id": k["id"], "bidAmount": {"amount": amount, "currency": CUR}} for k in kws if k.get("status") != "PAUSED" and not k.get("deleted")]
+            for k in kws[:3]:
+                print("    mot-clé", k.get("text"), k.get("status"), (k.get("bidAmount") or {}).get("amount"))
+            if upd:
+                kr = call("PUT", f"/campaigns/{c['id']}/adgroups/{g['id']}/targetingkeywords/bulk", upd)
+                print("    mots-clés", len(upd), "→", amount, "ÉCHEC " + str(kr)[:300] if isinstance(kr, dict) and kr.get("error") else "ok")
+
 elif MODE in ("pause", "resume"):
     # Avec « budgets » (noms séparés par ;) : seulement ces campagnes. Sans : toutes.
     only = [n.split("=")[0].strip() for n in os.environ.get("BUDGETS", "").split(";") if n.strip()]
