@@ -312,6 +312,19 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.23": {
+        "en-US": "• Your ideas, done: the menu icons now sit on the right, under the time and battery, in every theme.\n• A softer close sound (you can switch back to the snap in Settings › Advanced).",
+        "fr-FR": "• Vos idées, réalisées : les icônes de menu passent à droite, sous l'heure et la batterie, dans tous les thèmes.\n• Un son de fermeture plus doux (le clac d'origine reste disponible dans Réglages › Avancé).",
+        "de-DE": "• Eure Ideen, umgesetzt: Die Menüsymbole stehen jetzt in allen Designs rechts unter Uhrzeit und Akku.\n• Ein sanfterer Schließton (der alte Klick bleibt unter Einstellungen › Erweitert verfügbar).",
+        "es-ES": "• Vuestras ideas, hechas: los iconos de menú pasan a la derecha, bajo la hora y la batería, en todos los temas.\n• Un sonido de cierre más suave (el clic original sigue en Ajustes › Avanzado).",
+        "ja": "• みなさんのアイデアを反映：すべてのテーマでメニューアイコンが右側、時刻とバッテリーの下に並びます。\n• 閉じる音がやわらかくなりました（設定 › 詳細で元の音に戻せます）。",
+        "ko": "• 여러분의 아이디어 반영: 모든 테마에서 메뉴 아이콘이 오른쪽, 시간과 배터리 아래로 이동했어요.\n• 더 부드러운 닫힘 소리(설정 › 고급에서 기존 소리로 바꿀 수 있어요).",
+        "zh-Hans": "• 采纳你们的想法：所有主题的菜单图标都移到右侧，位于时间和电量下方。\n• 更柔和的合上音效（可在 设置 › 高级 中换回原来的声音）。",
+        "it": "• Le vostre idee, realizzate: le icone dei menu ora stanno a destra, sotto ora e batteria, in tutti i temi.\n• Un suono di chiusura più morbido (il clic originale resta in Impostazioni › Avanzate).",
+        "pt-BR": "• Suas ideias, feitas: os ícones de menu agora ficam à direita, abaixo da hora e da bateria, em todos os temas.\n• Um som de fechamento mais suave (o clique original continua em Ajustes › Avançado).",
+        "nl-NL": "• Jullie ideeën, uitgevoerd: de menupictogrammen staan nu in elk thema rechts, onder tijd en batterij.\n• Een zachter sluitgeluid (de oude klik blijft beschikbaar via Instellingen › Geavanceerd).",
+        "ru": "• Ваши идеи воплощены: значки меню теперь справа, под временем и батареей, во всех темах.\n• Более мягкий звук закрытия (прежний щелчок доступен в Настройки › Дополнительно).",
+    },
     "1.0.22": {
         "en-US": "• Thanks for 2,000 downloads: Foldly+ is half price for everyone until November 17.\n• New iPhone Duo? Start a fresh count in Settings › My iPhone Duo, your old history stays saved.\n• Ideas box: ideas in your language come first, and the others are translated automatically on your iPhone.\n• History: the last 7 days as exact numbers, no need to read the chart.\n• The widget previews no longer spill outside their card.",
         "fr-FR": "• Merci pour les 2 000 téléchargements : Foldly+ à moitié prix pour tout le monde jusqu'au 17 novembre.\n• Nouvel iPhone Duo ? Repars de zéro dans Réglages › Mon iPhone Duo, ton ancien historique reste gardé.\n• Boîte à idées : les idées dans ta langue d'abord, les autres traduites automatiquement sur ton iPhone.\n• Historique : les 7 derniers jours en chiffres exacts, sans lire le graphique.\n• Les aperçus de widgets ne débordent plus de leur carte.",
@@ -535,7 +548,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     # Les numéros de version se recoupent entre les apps : chaque app a ses propres notes quand il le faut.
@@ -585,7 +598,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
