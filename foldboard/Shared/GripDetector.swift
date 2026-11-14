@@ -451,6 +451,9 @@ final class GripDetector {
         // Et il faut que le téléphone ait vraiment tourné depuis qu'on est passé à deux mains (8°) : tenu droit
         // comme à deux mains, l'inclinaison ne dit rien de fiable (vu dans les journaux de prise en main).
         if current == .two, let r0 = twoRoll, let r = currentPosture?.roll, abs(kbWrap(r - r0)) < 8 { return }
+        // Allongé, écran tourné vers le bas (téléphone tenu au-dessus du visage) : l'inclinaison n'a plus de sens
+        // fiable, le clavier ne bouge plus tout seul par elle (les pouces et la main le déplacent toujours).
+        if let inc = currentPosture?.incline, inc < 0 { return }
         emit(g)
     }
 
