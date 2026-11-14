@@ -448,8 +448,14 @@ final class GripDetector {
         // Deux mains : l'inclinaison seule ne ramène pas le clavier d'un côté tant que les deux pouces ont tapé
         // récemment (8 s) ou qu'on tape encore (3 s). Tenu de biais à deux mains (allongé), il reste au milieu.
         if current == .two && (now - lastTwo < Self.twoHold || now - lastTapTime < 3) { return }
+        // Et il faut que le téléphone ait vraiment tourné depuis qu'on est passé à deux mains (8°) : tenu droit
+        // comme à deux mains, l'inclinaison ne dit rien de fiable (vu dans les journaux de prise en main).
+        if current == .two, let r0 = twoRoll, let r = currentPosture?.roll, abs(kbWrap(r - r0)) < 8 { return }
         emit(g)
     }
+
+    /// L'inclinaison du téléphone au moment où le clavier est passé à deux mains.
+    private var twoRoll: Double?
 
     /// Combien de temps le milieu « tient » après le dernier signe des deux pouces, face à l'inclinaison.
     static let twoHold: TimeInterval = 8
@@ -623,7 +629,7 @@ final class GripDetector {
     private func emit(_ g: KBGrip) {
         // Placé à la main : le clavier ne bouge plus tout seul jusqu'à sa prochaine apparition.
         guard !locked, g != current else { return }
-        if g == .two { lastTwo = now }
+        if g == .two { lastTwo = now; twoRoll = currentPosture?.roll }
         current = g
         lastEmit = now
         onGrip?(g)
