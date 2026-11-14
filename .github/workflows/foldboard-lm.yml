@@ -3,6 +3,15 @@
 name: Foldboard - Language model
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branche où ajouter le modèle (main par défaut)"
+        required: false
+        default: "main"
+      tatoeba:
+        description: "Poids des phrases Tatoeba (0 = aucune)"
+        required: false
+        default: "0"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,6 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: python3 tools/build_lm.py ${{ matrix.lang }} lm-${{ matrix.lang }}.bin
+        env:
+          TATOEBA_WEIGHT: ${{ inputs.tatoeba }}
       - uses: actions/upload-artifact@v4
         with:
           name: lm-${{ matrix.lang }}
@@ -26,6 +37,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
       - uses: actions/download-artifact@v4
         with:
           path: out
@@ -36,5 +49,5 @@ jobs:
           git config user.email "foldboard-bot@users.noreply.github.com"
           git add foldboard/Shared/lm-fr.bin foldboard/Shared/lm-en.bin
           git commit -m "Foldboard: language model (Leipzig corpora, CC BY 4.0)" || exit 0
-          git pull --rebase origin main
-          git push origin HEAD:main
+          git pull --rebase origin ${{ inputs.branch }}
+          git push origin HEAD:${{ inputs.branch }}

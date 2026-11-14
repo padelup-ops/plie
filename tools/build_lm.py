@@ -66,12 +66,36 @@ def tokens(sentence):
             yield toks
 
 
+# Phrases de la vie courante (Tatoeba, CC BY 2.0 FR) : des messages, pas de l'actualité. Comptées TATOEBA_WEIGHT fois.
+def tatoeba():
+    import bz2
+    url = f"https://downloads.tatoeba.org/exports/per_language/{CODE}/{CODE}_sentences.tsv.bz2"
+    try:
+        data = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "foldboard-lm"}), timeout=180).read()
+    except Exception as e:
+        print("tatoeba indisponible", e, flush=True)
+        return
+    print("tatoeba", url, len(data) // 1_000_000, "Mo", flush=True)
+    for line in bz2.decompress(data).decode("utf-8", "ignore").splitlines():
+        parts = line.split("\t")
+        if len(parts) >= 3:
+            yield parts[2]
+
+TW = int(os.environ.get("TATOEBA_WEIGHT", "0"))
 uni = collections.Counter()
 sents = []
 for i, sent in enumerate(sentences()):
     for toks in tokens(sent):
         uni.update(toks)
         sents.append(toks)
+if TW > 0:
+    n0 = len(sents)
+    for sent in tatoeba():
+        for toks in tokens(sent):
+            for _ in range(TW):
+                uni.update(toks)
+                sents.append(toks)
+    print("tatoeba phrases ajoutées", (len(sents) - n0) // TW, "× poids", TW, flush=True)
 print("phrases", len(sents), "mots distincts", len(uni), flush=True)
 
 vocab = ["<s>"] + [w for w, c in uni.most_common(V_MAX - 1) if len(w.encode()) < 64]
