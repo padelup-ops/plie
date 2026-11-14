@@ -135,6 +135,9 @@ final class KBSuggest {
     /// Les mots par leurs deux premières lettres : compléter sans parcourir les 30 000 mots à chaque lettre.
     private var byPrefix: [String: [Int]] = [:]
     private var byFirst: [String: [Int]] = [:]
+    /// Les 15 000 mots les plus courants, rangés par première lettre et longueur (lettres sans accents) :
+    /// la recherche « touches voisines » ne parcourt que les mots de la bonne longueur.
+    private var byFirstLen: [String: [(Int, [Character])]] = [:]
     /// Pour chaque mot sans accents, sa forme accentuée la plus courante (« apres » → « après », « ca » → « ça »).
     private var accented: [String: Int] = [:]
     private var loadedList = ""
@@ -154,7 +157,7 @@ final class KBSuggest {
     private func loadList(_ code: String) {
         guard loadedList != code else { return }
         loadedList = code
-        words = []; folded = []; rank = [:]; byPrefix = [:]; byFirst = [:]; accented = [:]
+        words = []; folded = []; rank = [:]; byPrefix = [:]; byFirst = [:]; byFirstLen = [:]; accented = [:]
         guard let url = Bundle.main.url(forResource: "words-" + code, withExtension: "txt"),
               let text = try? String(contentsOf: url, encoding: .utf8) else { return }
         words = text.split(separator: "\n").map(String.init)
@@ -167,6 +170,10 @@ final class KBSuggest {
         for (i, f) in folded.enumerated() {
             byPrefix[String(f.prefix(2)), default: []].append(i)
             byFirst[String(f.prefix(1)), default: []].append(i)
+            if i < 15_000 {
+                let c = Array(f)
+                if c.count >= 4 && c.count <= 14 { byFirstLen["\(c[0])\(c.count)", default: []].append((i, c)) }
+            }
         }
     }
 
@@ -262,6 +269,7 @@ final class KBSuggest {
         var firsts: [String] = []
         for (k, _) in touch.centers where (near[k]?.first ?? 9) < 1.25 { firsts.append(String(k)) }
         var scored: [(String, Double)] = []
+        var ranks: [Int] = []
         for f0 in firsts {
             for i in (byFirst[f0] ?? []).prefix(30_000) {
                 let w = folded[i]
@@ -305,12 +313,16 @@ final class KBSuggest {
                 shape /= CGFloat(n)
                 let prior = lm?.score(words[i], before: before) ?? -log(Double(i) + 30)
                 let mine = log(1 + Double(KBWordStore.shared.count(w))) * 0.6
-                let junk = glideJunk(words[i], rank: i)
                 let score = -Double(loc * loc) * Self.t("gLoc", 9) - Double(shape) * Self.t("gShape", 5) + prior * Self.t("gPrior", 0.45)
-                    + mine - Double(misses) * 2 - Double(missedTurns) * Self.t("gTurn", 2.2) - lenPenalty * Self.t("gLen", 5) - junk
+                    + mine - Double(misses) * 2 - Double(missedTurns) * Self.t("gTurn", 2.2) - lenPenalty * Self.t("gLen", 5)
                 scored.append((words[i], score))
+                ranks.append(i)
             }
         }
+        // Les mots douteux (coquilles du dictionnaire) ne sont vérifiés que parmi les meilleurs : le correcteur d'iOS
+        // est lent, on ne l'appelle pas pour des centaines de mots à chaque geste.
+        let order = scored.indices.sorted { scored[$0].1 > scored[$1].1 }
+        for j in order.prefix(Int(Self.t("gJunkTop", 20))) { scored[j].1 -= glideJunk(scored[j].0, rank: ranks[j]) }
         scored.sort { $0.1 > $1.1 }
         var out: [String] = []
         for (w, _) in scored where !out.contains(w) { out.append(w); if out.count == limit { break } }
@@ -545,7 +557,9 @@ final class KBSuggest {
     func replacement(for word: String) -> String? { replacements[word.lowercased()] }
 
     /// La correction à appliquer quand on termine le mot (espace, ponctuation), ou nil.
-    func correction(for word: String, before: String, touch: KBTouchModel? = nil) -> String? {
+    /// `fast` : appelé sur le fil principal (à l'espace) — sans les suggestions du correcteur d'iOS, qui peuvent
+    /// prendre une demi-seconde en français ; nos propres candidats (fautes de frappe, touches voisines) suffisent.
+    func correction(for word: String, before: String, touch: KBTouchModel? = nil, fast: Bool = false) -> String? {
         let low = word.lowercased()
         let prev = Self.previousWord(before, word: word)?.lowercased()
         // Tes remplacements de texte (Réglages > Clavier) : toujours appliqués, même courts (« ty » → « Thank you »).
@@ -590,7 +604,8 @@ final class KBSuggest {
         // Le début d'un vrai mot (« minu » → minute) : on ne corrige pas, la barre propose la suite.
         // Sauf si un mot très courant est à une faute près (« plur » → « pour », pas « pluriel ») : voir plus bas.
         let prefixOf = listCompletions(word, limit: 1).first
-        var guesses = checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? []
+        let skipChecker = fast || Self.t("noGuesses", 0) > 0
+        var guesses = skipChecker ? [] : (checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: language) ?? [])
         // Les mots courants d'abord.
         guesses = guesses.enumerated().sorted { a, b in
             let ra = rank[a.element.lowercased()] ?? (100_000 + a.offset)
@@ -764,20 +779,42 @@ final class KBSuggest {
     }
 
     /// Les mots courants de même longueur dont chaque lettre est proche du toucher correspondant.
+    /// Rapide (appelé à chaque espace sur le fil principal) : les mots sont déjà rangés par première lettre et longueur,
+    /// et on abandonne un mot dès qu'il devient trop loin des touchers.
     private func touchScan(_ lower: String, touch: KBTouchModel, own: Double) -> [String] {
         let n = lower.count
         guard n >= 4, n <= 14, n == touch.points.count, let p0 = touch.points.first else { return [] }
-        var firsts: [String] = []
-        for (k, cs) in touch.centers where cs.contains(where: { hypot(($0.x - p0.x) / touch.keyW, ($0.y - p0.y) / touch.keyH) < 1.1 }) {
-            firsts.append(String(k))
+        let sx = Double(touch.keyW * 0.55), sy = Double(touch.keyH * 0.55)
+        guard sx > 0, sy > 0 else { return [] }
+        var near: [Character: Double] = [:]
+        func dist(_ ch: Character, _ i: Int) -> Double? {
+            guard let ks = touch.centers[ch], !ks.isEmpty else { return nil }
+            let p = touch.points[i]
+            return ks.map { k -> Double in
+                let dx = Double(p.x - k.x) / sx, dy = Double(p.y - k.y) / sy
+                return dx * dx + dy * dy
+            }.min()
         }
-        let maxExtra = Self.t("tMax", 4)
+        for (k, cs) in touch.centers where cs.contains(where: { hypot(($0.x - p0.x) / touch.keyW, ($0.y - p0.y) / touch.keyH) < 1.1 }) {
+            near[k] = 0
+        }
+        let limit = own + Self.t("tMax", 4)
+        let me = Array(lower)
+        // Distances déjà calculées : lettre × position.
+        var memo: [Int: Double] = [:]
         var found: [(String, Double)] = []
-        for f in firsts {
-            for i in byFirst[f] ?? [] where i < 15_000 {
-                let w = folded[i]
-                guard w.count == n, w != lower, let c = touch.cost(w), c - own < maxExtra else { continue }
-                found.append((words[i], c))
+        for first in near.keys {
+            for (i, c) in byFirstLen["\(first)\(n)"] ?? [] where c != me {
+                var total = 0.0
+                var ok = true
+                for (j, ch) in c.enumerated() {
+                    let key = j * 0x10000 + Int(ch.unicodeScalars.first?.value ?? 0)
+                    let d: Double
+                    if let m = memo[key] { d = m } else if let v = dist(ch, j) { d = v; memo[key] = v } else { ok = false; break }
+                    total += d
+                    if total >= limit { ok = false; break }
+                }
+                if ok { found.append((words[i], total)) }
             }
         }
         return found.sorted { $0.1 < $1.1 }.prefix(12).map { $0.0 }
