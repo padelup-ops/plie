@@ -93,6 +93,8 @@ func run(_ L: Lang, tag: String) {
     var corrTime = 0.0, corrSum = 0.0, corrN = 0, glideTime = 0.0, glideSum = 0.0
     var slow: [(Double, String)] = []
     var noisy = 0, fixed = 0, clean = 0, broken = 0
+    // Comme à l'espace dans le clavier (mode rapide, sans le correcteur d'iOS).
+    var fixedF = 0, brokenF = 0
     var cMiss: [String] = []
     for _ in 0..<3 {
         for w in testWords {
@@ -107,6 +109,8 @@ func run(_ L: Lang, tag: String) {
             let tc = Date()
             let out = s.correction(for: typed, before: "", touch: tm) ?? typed
             let dt = Date().timeIntervalSince(tc)
+            let outF = s.correction(for: typed, before: "", touch: tm, fast: true) ?? typed
+            if typed == fold(w) || typed == w { if fold(outF) != fold(w) { brokenF += 1 } } else if fold(outF) == fold(w) { fixedF += 1 }
             if corrN > 5 { corrTime = max(corrTime, dt); slow.append((dt, "corr \(typed)")) }
             corrSum += dt; corrN += 1
             if typed == fold(w) || typed == w {
@@ -119,7 +123,7 @@ func run(_ L: Lang, tag: String) {
         }
     }
     // 2. Fautes de frappe classiques (sans position des doigts) : inversion, lettre en trop, lettre oubliée.
-    var tN = 0, tOK = 0
+    var tN = 0, tOK = 0, tOKF = 0
     for w in testWords where w.count >= 4 {
         var c = Array(fold(w))
         let k = Int(rng.next() * Double(c.count - 1))
@@ -132,6 +136,7 @@ func run(_ L: Lang, tag: String) {
         guard typo != fold(w) else { continue }
         tN += 1
         if let o = s.correction(for: typo, before: "", touch: nil), fold(o) == fold(w) { tOK += 1 }
+        if let o = s.correction(for: typo, before: "", touch: nil, fast: true), fold(o) == fold(w) { tOKF += 1 }
     }
     // 3. Glisser : le tracé passe par les touches avec un peu d'imprécision.
     var gN = 0, g1 = 0, g3 = 0
@@ -211,6 +216,9 @@ func run(_ L: Lang, tag: String) {
     print("RESULT \(tag) \(L.code) frappe_corrigee \(pc(fixed, noisy)) (sur \(noisy))")
     print("RESULT \(tag) \(L.code) frappe_cassee \(pc(broken, clean)) (sur \(clean))")
     print("RESULT \(tag) \(L.code) fautes_corrigees \(pc(tOK, tN)) (sur \(tN))")
+    print("RESULT \(tag) \(L.code) rapide_frappe_corrigee \(pc(fixedF, noisy))")
+    print("RESULT \(tag) \(L.code) rapide_frappe_cassee \(pc(brokenF, clean))")
+    print("RESULT \(tag) \(L.code) rapide_fautes_corrigees \(pc(tOKF, tN))")
     print("RESULT \(tag) \(L.code) glisser_top1 \(pc(g1, gN)) (sur \(gN))")
     print("RESULT \(tag) \(L.code) glisser_top3 \(pc(g3, gN))")
     print("RESULT \(tag) \(L.code) glisser_rares_valides \(pc(r1, rN)) (sur \(rN))")
@@ -297,9 +305,9 @@ let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
     ("best", [:]),
-    ("short", ["tMaxLong": 4, "extraLong": 6]),
-    ("nosplit", ["splitTypo": 0]),
-    ("norare", ["rareSub": 0]),
+    ("first", ["firstTouch": 3.6, "firstNoTouch": 1]),
+    ("junk", ["cJunk": 1]),
+    ("both", ["firstTouch": 3.6, "firstNoTouch": 1, "cJunk": 1]),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
