@@ -466,3 +466,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboard n’envoie jamais ce que tu tapes. Le clavier n’a pas accès à internet, et il n’y a ni compte ni pub.";
 "The keyboard has no internet access: what you type stays on your iPhone." = "Le clavier n’a pas accès à internet : ce que tu tapes reste sur ton iPhone.";
 "Space bar row height" = "Hauteur de la rangée de la barre d’espace";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "Où tu tapes";
+"Taps" = "Appuis";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "Chaque point est un appui sur cette touche, dans un mot gardé sans correction. La croix est le milieu de tes appuis.";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "Chaque touche est placée là où tu la tapes vraiment ; le contour gris, là où elle est dessinée.";
+"Adjust the keys to where I tap" = "Ajuster les touches à l’endroit où je tape";
+"Taps recorded" = "Appuis enregistrés";
+"One hand" = "Une main";
+"Space bar" = "Barre d’espace";
+"%lld%% higher" = "%lld %% plus haut";
+"%lld%% lower" = "%lld %% plus bas";
+"%lld%% left" = "%lld %% à gauche";
+"%lld%% right" = "%lld %% à droite";
+"Centered" = "Centré";
+"Not enough taps yet" = "Pas encore assez d’appuis";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "Rien à régler : chaque mot que tu tapes sans correction l’apprend. Après 30 lettres, les touches se décalent vers là où tu tapes vraiment, d’un tiers de touche au plus. Seul l’endroit où chaque appui tombe sur sa touche est gardé, jamais ce que tu écris, et tout reste sur ton iPhone.";
+"Reset where I tap" = "Effacer où je tape";
+"Reset where you tap?" = "Effacer où tu tapes ?";
+"The keys adjust to where your thumbs really land." = "Les touches s’adaptent à l’endroit où tes pouces se posent vraiment.";

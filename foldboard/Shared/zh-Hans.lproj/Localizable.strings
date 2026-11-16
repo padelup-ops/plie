@@ -458,3 +458,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboard 绝不会发送你输入的内容。键盘无法访问互联网，也没有账户和广告。";
 "The keyboard has no internet access: what you type stays on your iPhone." = "键盘无法访问互联网：你输入的内容都留在你的 iPhone 上。";
 "Space bar row height" = "空格键行的高度";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "你点按的位置";
+"Taps" = "点按";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "每个点都是在未经更正保留的单词中对该键的一次点按。十字是你点按的中心。";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "每个键都放在你实际点按的位置；灰色轮廓是它绘制的位置。";
+"Adjust the keys to where I tap" = "根据我的点按位置调整按键";
+"Taps recorded" = "已记录的点按";
+"One hand" = "单手";
+"Space bar" = "空格键";
+"%lld%% higher" = "高 %lld%%";
+"%lld%% lower" = "低 %lld%%";
+"%lld%% left" = "偏左 %lld%%";
+"%lld%% right" = "偏右 %lld%%";
+"Centered" = "居中";
+"Not enough taps yet" = "点按次数还不够";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "无需设置：每个未经更正输入的单词都会让它学习。输入 30 个字母后，按键会向你实际点按的位置移动，最多三分之一个键。只保存每次点按落在键上的位置，绝不保存你输入的内容，一切都留在你的 iPhone 上。";
+"Reset where I tap" = "重置点按位置";
+"Reset where you tap?" = "要重置点按位置吗？";
+"The keys adjust to where your thumbs really land." = "按键会根据你拇指实际落下的位置进行调整。";

@@ -458,3 +458,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboard sendet nie, was du tippst. Die Tastatur hat keinen Internetzugang, und es gibt kein Konto und keine Werbung.";
 "The keyboard has no internet access: what you type stays on your iPhone." = "Die Tastatur hat keinen Internetzugang: Was du tippst, bleibt auf deinem iPhone.";
 "Space bar row height" = "Höhe der Leertastenreihe";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "Wo du tippst";
+"Taps" = "Taps";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "Jeder Punkt ist ein Tippen auf diese Taste, in einem Wort, das du ohne Korrektur behalten hast. Das Kreuz ist die Mitte deiner Taps.";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "Jede Taste sitzt dort, wo du sie wirklich tippst; der graue Umriss ist, wo sie gezeichnet ist.";
+"Adjust the keys to where I tap" = "Tasten an mein Tippen anpassen";
+"Taps recorded" = "Erfasste Taps";
+"One hand" = "Eine Hand";
+"Space bar" = "Leertaste";
+"%lld%% higher" = "%lld %% höher";
+"%lld%% lower" = "%lld %% tiefer";
+"%lld%% left" = "%lld %% links";
+"%lld%% right" = "%lld %% rechts";
+"Centered" = "Mittig";
+"Not enough taps yet" = "Noch nicht genug Taps";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "Nichts einzustellen: Jedes Wort, das ohne Korrektur bleibt, lernt mit. Nach 30 Buchstaben rücken die Tasten dorthin, wo du wirklich tippst, höchstens um ein Drittel einer Taste. Gespeichert wird nur, wo jedes Tippen auf seiner Taste landet, nie was du schreibst, und alles bleibt auf deinem iPhone.";
+"Reset where I tap" = "Tipp-Karte zurücksetzen";
+"Reset where you tap?" = "Tipp-Karte zurücksetzen?";
+"The keys adjust to where your thumbs really land." = "Die Tasten passen sich an, wo deine Daumen wirklich landen.";

@@ -443,6 +443,12 @@ final class KBSuggest {
         return r.location != NSNotFound
     }
 
+    /// Un vrai mot (de la liste, ou de ton lexique) : ses appuis peuvent apprendre où tu tapes.
+    func isWord(_ w: String) -> Bool {
+        let l = w.lowercased()
+        return rank[l] != nil || known.contains(l)
+    }
+
     /// La phrase en cours est-elle en anglais ? (au moins deux mots avant celui-ci, et l'anglais nettement en tête).
     /// Gardé pour la phrase : la barre redemande à chaque lettre.
     private var englishCache: (String, Bool) = ("", false)

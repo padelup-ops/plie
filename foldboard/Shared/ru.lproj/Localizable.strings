@@ -458,3 +458,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboard никогда никуда не отправляет то, что вы печатаете. У клавиатуры нет доступа к интернету, нет аккаунта и нет рекламы.";
 "The keyboard has no internet access: what you type stays on your iPhone." = "У клавиатуры нет доступа к интернету: всё, что вы печатаете, остаётся на iPhone.";
 "Space bar row height" = "Высота ряда с пробелом";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "Куда вы нажимаете";
+"Taps" = "Нажатия";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "Каждая точка — нажатие на эту клавишу в слове, оставленном без исправления. Крест — центр ваших нажатий.";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "Каждая клавиша стоит там, куда вы на самом деле нажимаете; серый контур — где она нарисована.";
+"Adjust the keys to where I tap" = "Подстраивать клавиши под мои нажатия";
+"Taps recorded" = "Записано нажатий";
+"One hand" = "Одна рука";
+"Space bar" = "Пробел";
+"%lld%% higher" = "на %lld %% выше";
+"%lld%% lower" = "на %lld %% ниже";
+"%lld%% left" = "на %lld %% левее";
+"%lld%% right" = "на %lld %% правее";
+"Centered" = "По центру";
+"Not enough taps yet" = "Пока мало нажатий";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "Ничего настраивать не нужно: каждое слово без исправления учит клавиатуру. После 30 букв клавиши смещаются туда, куда вы на самом деле нажимаете, максимум на треть клавиши. Хранится только место нажатия на клавише, но не то, что вы пишете, и всё остаётся на iPhone.";
+"Reset where I tap" = "Сбросить карту нажатий";
+"Reset where you tap?" = "Сбросить карту нажатий?";
+"The keys adjust to where your thumbs really land." = "Клавиши подстраиваются под то, куда на самом деле попадают ваши пальцы.";

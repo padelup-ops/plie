@@ -93,6 +93,7 @@ struct SettingsEntry: Identifiable {
         e("Foldboard emoji key", "emoji smiley touche emoji key", .typing),
         e("Show the globe as a smiley", "globe smiley emoji", .typing),
         e("Emoji suggestions", "emoji suggestions suggérés barre", .typing),
+        e("Where you tap", "où je tape appuis précision décalage touches toucher where tap offset accuracy keys", .typing),
         e("Save everything I copy", "presse-papier clipboard copier coller copy paste autoriser allow", .typing),
         e("Colors and font", "thème couleurs police sombre clair theme colors font dark light verre glass", .look),
         e("Sound, vibrations and swipe", "son sons vibrations haptique sound haptics trackpad curseur cursor sensibilité", .feel),

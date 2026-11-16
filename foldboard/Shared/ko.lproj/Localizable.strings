@@ -458,3 +458,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboard는 입력한 내용을 어디에도 보내지 않습니다. 키보드는 인터넷에 접속하지 않으며, 계정도 광고도 없습니다.";
 "The keyboard has no internet access: what you type stays on your iPhone." = "키보드는 인터넷에 접속하지 않습니다. 입력한 내용은 iPhone에만 남습니다.";
 "Space bar row height" = "스페이스 바 줄 높이";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "탭하는 위치";
+"Taps" = "탭";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "각 점은 수정 없이 남긴 단어에서 그 키를 탭한 위치입니다. 십자는 탭의 가운데입니다.";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "각 키는 실제로 탭하는 위치에 놓이며, 회색 윤곽은 그려진 위치입니다.";
+"Adjust the keys to where I tap" = "탭하는 위치에 키 맞추기";
+"Taps recorded" = "기록된 탭";
+"One hand" = "한 손";
+"Space bar" = "스페이스 바";
+"%lld%% higher" = "%lld%% 위";
+"%lld%% lower" = "%lld%% 아래";
+"%lld%% left" = "%lld%% 왼쪽";
+"%lld%% right" = "%lld%% 오른쪽";
+"Centered" = "가운데";
+"Not enough taps yet" = "아직 탭이 충분하지 않음";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "설정할 것이 없습니다. 수정 없이 입력한 단어로 학습합니다. 30글자가 지나면 키가 실제로 탭하는 위치로 최대 키 3분의 1만큼 이동합니다. 각 탭이 키의 어디에 닿았는지만 저장되며, 입력한 내용은 저장되지 않고 모두 iPhone에 남습니다.";
+"Reset where I tap" = "탭 위치 재설정";
+"Reset where you tap?" = "탭 위치를 재설정할까요?";
+"The keys adjust to where your thumbs really land." = "키가 엄지가 실제로 닿는 위치에 맞춰집니다.";
