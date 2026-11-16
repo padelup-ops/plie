@@ -858,8 +858,8 @@ final class KeyboardCanvas: UIView {
         grip.locked = false
         save()
         // Choisir « Toute la largeur » (ou un côté) fixe le clavier sur cet écran : on le dit, et comment revenir.
-        notice(m == .auto ? L("The keyboard follows your hand on this screen.")
-                          : L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."))
+        flash(m == .auto ? L("The keyboard follows your hand on this screen.")
+                         : L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."), hold: 3)
     }
 
     /// Un toucher dans la place libre : à gauche → clavier à gauche, à droite → à droite, au centre → au milieu
@@ -907,23 +907,52 @@ final class KeyboardCanvas: UIView {
         flash((names[gripContext] ?? gripContext) + " · " + state + " · " + habits)
     }
 
-    /// Écran intérieur : passe d'une disposition à l'autre (portrait : une main ⇄ deux moitiés ; paysage : entier ⇄ deux moitiés).
-    /// Le menu « … » du Duo ouvert : entier (ou qui suit la main en portrait) / coupé en deux, comme chez Apple.
-    private func openLayoutMenu(split: Bool) -> UIMenu {
+    /// Le menu « … » du Duo ouvert : les trois dispositions de cet écran, la bonne cochée (comme chez Apple) :
+    /// suivre la main, toute la largeur, coupé en deux. Toujours là, pour changer d'un geste.
+    private func openLayoutMenu() -> UIMenu {
+        let now = openLayoutChoice
+        func item(_ k: Int, _ title: String, _ icon: String) -> UIAction {
+            UIAction(title: title, image: UIImage(systemName: icon), state: now == k ? .on : .off) { [weak self] _ in
+                self?.chooseOpenLayout(k)
+            }
+        }
+        return UIMenu(children: [item(0, L("Follows your hand"), "hand.raised.fingers.spread"),
+                                 item(1, L("Full width"), "keyboard"),
+                                 item(2, L("Split keyboard"), "rectangle.split.2x1")])
+    }
+
+    /// 0 : suit la main · 1 : toute la largeur · 2 : coupé en deux.
+    private var openLayoutChoice: Int {
+        switch settings.screenModes[gripContext] {
+        case .full?: return 1
+        case .split?: return 2
+        case nil where settings.mode == .auto:
+            if followsHand { return 0 }
+            return layoutMode == .split ? 2 : 1
+        default: return followsHand ? 0 : (layoutMode == .split ? 2 : 1)
+        }
+    }
+
+    private func chooseOpenLayout(_ k: Int) {
+        guard k != openLayoutChoice else { return }
+        if k == 2 && !pro { setMode(.split); return }
         let portrait = gripContext == "open-portrait"
-        let one = UIAction(title: portrait ? L("Follows your hand") : L("Full width"),
-                           image: UIImage(systemName: portrait ? "hand.raised.fingers.spread" : "keyboard"),
-                           state: split ? .off : .on) { [weak self] _ in
-            guard let self, split else { return }
-            self.toggleBig()
+        switch k {
+        case 0:
+            settings.screenModes[gripContext] = nil
+            if settings.mode != .auto { setScreenMode(.auto, in: &settings) }
+            if portrait { settings.openSplit = false } else { settings.openLandFollow = true }
+        case 1:
+            setScreenMode(.full, in: &settings)
+        default:
+            setScreenMode(.split, in: &settings)
         }
-        let two = UIAction(title: L("Split keyboard"), image: UIImage(systemName: "rectangle.split.2x1"),
-                           state: split ? .on : .off) { [weak self] _ in
-            guard let self, !split else { return }
-            if !self.pro { self.setMode(.split); return }
-            self.toggleBig()
-        }
-        return UIMenu(children: [one, two])
+        settings.openFull = false
+        applyScreenMode()
+        grip.locked = false
+        KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
+        save()
+        layoutIfNeeded()
     }
 
     private func toggleBig() {
@@ -1004,6 +1033,7 @@ final class KeyboardCanvas: UIView {
     /// Sur l'écran extérieur ou un iPhone classique en portrait, le clavier reste en pleine largeur.
     private var splitAllowed: Bool {
         bounds.width >= 600 || (gripContext.hasPrefix("open") && bounds.width >= 360)
+            || (gripContext == "closed-landscape" && bounds.width >= 480)
     }
 
     /// Le mode réellement possible à cette largeur (deux mains : il faut de la place).
@@ -1468,14 +1498,13 @@ final class KeyboardCanvas: UIView {
         // Écran intérieur : un bouton pour passer d'une disposition à l'autre.
         // Portrait : petit clavier qui suit la main ⇄ deux moitiés. Paysage : clavier entier ⇄ deux moitiés.
         let open = gripContext.hasPrefix("open")
-        let bigShown = open && settings.mode(for: gripContext) == .auto && settings.screenModes[gripContext] == nil && pro
-        let splitNow = gripContext == "open-portrait" ? settings.openSplit : (settings.openLandSplit || settings.openLandFollow)
+        let bigShown = open && pro
         bigButton.isHidden = !bigShown
         // Comme le clavier d'Apple sur le Duo ouvert : « … » ouvre un menu avec les deux dispositions, cochée.
         bigButton.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         bigButton.accessibilityLabel = L("Keyboard position on this screen")
         bigButton.showsMenuAsPrimaryAction = true
-        bigButton.menu = openLayoutMenu(split: splitNow)
+        bigButton.menu = openLayoutMenu()
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
         bigButton.frame = CGRect(x: max(flipButton.frame.maxX, middleButton.frame.maxX), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
@@ -2087,6 +2116,7 @@ final class KeyboardCanvas: UIView {
                     let start = map.current
                     var lineMoved = false
                     var edge = false
+                    var edgeDir = 0
                     while abs(tr.cursorAccumY) >= 1 {
                         let d = tr.cursorAccumY > 0 ? 1 : -1
                         if map.moveV(d) {
@@ -2095,6 +2125,7 @@ final class KeyboardCanvas: UIView {
                         } else {
                             tr.cursorAccumY = 0
                             edge = true
+                            edgeDir = d
                         }
                     }
                     let n = Int(tr.cursorAccum.rounded(.towardZero))
@@ -2103,7 +2134,7 @@ final class KeyboardCanvas: UIView {
                         tr.cursorAccum -= CGFloat(n)
                         if moved != n {
                             tr.cursorAccum = 0
-                            if (n < 0 && map.atStart) || (n > 0 && map.atEnd) { edge = true }
+                            if (n < 0 && map.atStart) || (n > 0 && map.atEnd) { edge = true; edgeDir = n < 0 ? -1 : 1 }
                         }
                     }
                     trackMap = map
@@ -2114,11 +2145,19 @@ final class KeyboardCanvas: UIView {
                     }
                     // iOS ne donne au clavier que quelques lignes autour du curseur : arrivé au bout de ce texte,
                     // on relit ce qu'il y a autour du nouveau curseur et on continue (comme chez Apple, jusqu'en haut).
-                    if edge && t.timestamp - tr.lastAnchor > 0.25 && map.total.hi - map.total.lo > 0 {
+                    if edge && t.timestamp - tr.lastAnchor > 0.25 {
                         tr.reanchoring = true
                         tr.lastAnchor = t.timestamp
                         let goal = map.goalCol, perLine = map.perLine
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) { [weak self, weak tr] in
+                        // Au bout du texte qu'iOS a donné (souvent un seul paragraphe, ou quelques lignes) : un pas de
+                        // plus, par-dessus le retour à la ligne, puis on relit. On remonte ainsi jusqu'en haut d'une
+                        // longue note, comme avec le clavier d'Apple.
+                        let atBorder = (edgeDir < 0 && map.para == 0) || (edgeDir > 0 && map.para == map.paras.count - 1)
+                        if atBorder, edgeDir != 0 {
+                            let toBorder = edgeDir < 0 ? -map.off : map.paras[map.para].len - map.off
+                            input?.kbMoveCursor(toBorder + edgeDir)
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) { [weak self, weak tr] in
                             guard let self, let tr, tr.cursorMode else { return }
                             var m = TrackMap(before: self.input?.kbTextBefore() ?? "", after: self.input?.kbTextAfter() ?? "", perLine: perLine)
                             m.goalCol = goal
