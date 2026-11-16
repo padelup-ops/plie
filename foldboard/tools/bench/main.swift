@@ -283,7 +283,8 @@ func realCases(_ L: Lang, _ cases: [(String, String, String)], tag: String) {
                 let pts = w.lowercased().compactMap { ctr[Character(String($0).folding(options: .diacriticInsensitive, locale: nil))]?.first }
                 if pts.count == w.count { touch = KBTouchModel(points: pts, centers: ctr, keyW: keyW, keyH: keyH) }
             }
-            let out = s.correction(for: w, before: before + w, touch: touch, fast: true) ?? w
+            // Comme le clavier : l'apostrophe à la place du n d'abord (« ma’que »), puis la correction du mot.
+            let out = s.apostropheTypo(w) ?? s.correction(for: w, before: before + w, touch: touch, fast: true) ?? w
             if out == exp { ok += 1 } else { bad.append("«\(before)\(w)»→\(out) (voulu \(exp))") }
         }
         let name = touched ? "cas_reels_touche" : "cas_reels"
