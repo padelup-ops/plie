@@ -284,7 +284,7 @@ let realEN: [(String, String, String)] = [
     ("", "ot", "to"), ("thank ", "tou", "you"),
 ]
 
-func realCases(_ L: Lang, _ cases: [(String, String, String)], tag: String) {
+func realCases(_ L: Lang, _ cases: [(String, String, String)], tag: String, name base: String = "cas_reels") {
     let s = KBSuggest()
     s.setLayout(L.layout)
     let ctr = centers(L.rows, insets: L.insets)
@@ -303,7 +303,7 @@ func realCases(_ L: Lang, _ cases: [(String, String, String)], tag: String) {
             let out = s.apostropheTypo(w) ?? s.correction(for: w, before: before + w, touch: touch, fast: true) ?? w
             if out == exp { ok += 1 } else { bad.append("«\(before)\(w)»→\(out) (voulu \(exp))") }
         }
-        let name = touched ? "cas_reels_touche" : "cas_reels"
+        let name = touched ? base + "_touche" : base
         print("RESULT \(tag) \(L.code) \(name) \(String(format: "%.1f", 100 * Double(ok) / Double(cases.count))) (sur \(cases.count))")
         if !bad.isEmpty { print("cas ratés \(tag) \(L.code)\(touched ? " (touchers)" : ""):", bad.joined(separator: " · ")) }
     }
@@ -405,13 +405,24 @@ func autoTypos(_ L: Lang, tag: String) {
 let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
+    // L'ancienne d'abord : la première configuration paie le chargement des dictionnaires (temps faussés).
+    ("sans_nouveau", ["scan2": 0, "genElision": 0, "oneLetterFix": 0, "hyphenTypo": 0, "bilingual": 0]),
     ("best", [:]),
-    ("sans_nouveau", ["scan2": 0, "genElision": 0, "oneLetterFix": 0, "hyphenTypo": 0]),
+]
+/// De l'anglais tapé sur le clavier français (AZERTY) : corrigé en anglais, jamais « francisé ».
+let mixedFR: [(String, String, String)] = [
+    ("i think ", "the", "the"), ("can you send me ", "teh", "the"), ("see you ", "tomorow", "tomorrow"),
+    ("thank you for ", "yout", "your"), ("i will call you ", "later", "later"), ("this is a ", "test", "test"),
+    ("we are going to ", "the", "the"), ("let me know if ", "tou", "you"), ("i hope you are ", "doing", "doing"),
+    ("it was a great ", "day", "day"), ("what do you ", "thinl", "think"), ("i am ", "a", "a"),
+    // Et le français reste français.
+    ("je vais ", "a", "à"), ("il fait ", "tres", "très"), ("on se voit ", "apres", "après"),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
     realCases(fr, realFR, tag: tag)
     realCases(en, realEN, tag: tag)
+    realCases(fr, mixedFR, tag: tag, name: "anglais_sur_azerty")
     autoTypos(fr, tag: tag)
     autoTypos(en, tag: tag)
     run(fr, tag: tag)
