@@ -79,6 +79,7 @@ struct SettingsEntry: Identifiable {
         e("Two-hand width (each side)", "largeur moitié scindé split width each side", .position),
         e("Distance from the edge", "bord marge edge margin distance", .position),
         e("Number row", "chiffres rangée numbers row", .position),
+        e("Space bar row height", "barre d'espace espace rangée du bas hauteur space bar bottom row height", .position),
         e("Reset size to default", "réinitialiser rétablir taille origine reset default size", .position),
         e("Position and settings buttons", "barre du haut boutons top bar buttons cacher hide", .position),
         e("Hide keyboard button", "masquer fermer clavier hide dismiss keyboard button", .position),
