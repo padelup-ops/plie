@@ -270,6 +270,14 @@ let realFR: [(String, String, String)] = [
     ("il ", "fzit", "fait"), ("la ", "lzrgeur", "largeur"), ("aller ", "a", "à"), ("je voudrais aller ", "a", "à"),
     ("", "Cedt", "C’est"), ("", "Fzit", "Fait"), ("c’est ", "niugeai", "nouveau"), ("il ", "ma’que", "manque"),
     ("je ", "jzi", "j’ai"),
+    // Charlotte, 16 nov.
+    ("", "Cz", "Ça"), ("", "Alorsnedtce", "Alors est-ce"), ("est-ce que ça marche ", "moeiw", "mieux"),
+    ("je commence à trouver ça ", "vrizment", "vraiment"), ("vraiment ", "pzs", "pas"), ("", "Jainete", "J’ai été"),
+    ("", "Jaiete", "J’ai été"), ("", "Crtzit", "C’était"), ("il y ", "z", "a"), ("quarante ans ", "mzitnenant", "maintenant"),
+    ("", "Edtce", "Est-ce"), ("la ", "largzurnest", "largeur est"), ("", "qiakd", "quand"), ("censé ", "sactiver", "s’activer"),
+    ("", "Ke", "Je"), ("en ", "oortrzit", "portrait"), ("le ", "resrz", "reste"), ("j’ai ", "ej", "eu"),
+    ("une fois ", "suffirzk", "suffirait"), ("", "Voilz", "Voilà"), ("merci ", "ooir", "pour"), ("", "Pzs", "Pas"),
+    ("je pense ", "z", "à"),
 ]
 let realEN: [(String, String, String)] = [
     ("i ", "sue", "sue"), ("", "teh", "the"), ("i am ", "inthe", "in the"), ("see you ", "tomorrownat", "tomorrow at"),
