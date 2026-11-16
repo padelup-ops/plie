@@ -1948,10 +1948,11 @@ final class KeyboardCanvas: UIView {
                     let gain: CGFloat = speed < 120 ? 0.8 : (speed < 600 ? 0.8 + (speed - 120) / 480 * 0.6 : min(3.4, 1.4 + (speed - 600) / 500))
                     tr.cursorAccum += mdx * gain
                     // Le vertical, plus dur : il faut vraiment monter ou descendre pour changer de ligne.
-                    tr.cursorAccumY += mdy * gain * (abs(mdy) > abs(mdx) * 0.6 ? 1 : 0.35)
+                    tr.cursorAccumY += mdy * gain * (abs(mdy) > abs(mdx) * 0.6 ? 1 : 0.45)
                     // Réglage « Sensibilité » : de 14 pt par lettre (lent) à 7 pt (rapide).
                     let charStep = 11 - 5 * CGFloat(eff.swipe)
-                    let lineStep: CGFloat = 30
+                    // Une ligne tous les 24 pt (comme chez Apple, on monte de plusieurs lignes d'un geste).
+                    let lineStep: CGFloat = 24
                     let dCol = Int((tr.cursorAccum / charStep).rounded(.towardZero))
                     let dLine = Int((tr.cursorAccumY / lineStep).rounded(.towardZero))
                     let target = map.target(dLine: dLine, dCol: dCol)
@@ -2051,7 +2052,8 @@ final class KeyboardCanvas: UIView {
         guard case .char(let c) = k, c.count == 1, c.first?.isLetter == true else { return false }
         let kw = cells.first { if case .char = $0.view.spec.kind { return true }; return false }?.frame.width ?? 32
         let dx = p.x - tr.start.x, dy = p.y - tr.start.y
-        guard abs(dx) > kw * 0.95 || hypot(dx, dy) > kw * 1.6 else { return false }
+        // Sur les grandes touches (clavier entier sur l'écran déplié), le glisser démarrait tard : au plus 40 pt.
+        guard abs(dx) > min(kw * 0.95, 40) || hypot(dx, dy) > min(kw * 1.6, 64) else { return false }
         // Arrivé sur une autre lettre.
         guard let j = cellIndex(at: p), j != tr.index, case .char(let c2) = cells[j].view.spec.kind, c2.first?.isLetter == true else { return false }
         return true

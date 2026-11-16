@@ -785,8 +785,9 @@ final class KBSuggest {
         if let r = rank[lower], r < 8_000 { return nil }
         var best: (String, Int)?
         for (i, (plain, full)) in Self.elisions.enumerated() {
-            // Les formes de deux lettres (« ma », « na ») sont de vrais mots : jamais d'office.
-            guard plain.count >= 3 else { continue }
+            // Les formes de deux lettres (« ma », « na ») et celles qui sont aussi un vrai mot (« quelle », « tes »)
+            // ne servent pas : « queloe » est « quelle », pas « qu’elle ».
+            guard plain.count >= 3, (rank[plain] ?? Int.max) > 3_000 else { continue }
             let apos = full.firstIndex(of: "’").map { full.distance(from: full.startIndex, to: $0) } ?? 1
             var forms = [plain]
             // Le n tapé à la place de l'apostrophe (seulement en AZERTY, où ils sont voisins).

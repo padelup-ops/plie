@@ -380,3 +380,12 @@
 "It stays in place" = "제자리에 있어요";
 "Full width, like Apple's keyboard. You can still move it from its position button." = "Apple 키보드처럼 전체 너비. 위치 버튼으로 언제든 옮길 수 있어요.";
 "You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "화면마다(닫힘, 펼침, 가로) 다른 위치를 고를 수 있어요: 설정 › 위치 및 크기.";
+"Position and settings buttons" = "위치 및 설정 버튼";
+"Hide keyboard button" = "키보드 숨기기 버튼";
+"Contact names in suggestions" = "제안에 연락처 이름 표시";
+"Emoji suggestions" = "이모지 제안";
+"Save everything I copy" = "복사한 항목 모두 저장";
+"Off: Foldboard reads what you copied only when you tap Paste or open the clipboard, so iOS doesn’t ask for permission each time you copy. To save everything automatically without that prompt, first choose Allow in iOS Settings › Foldboard › Paste from Other Apps." = "끄기: 붙여넣기를 탭하거나 클립보드를 열 때만 복사한 내용을 읽으므로 복사할 때마다 iOS가 허용을 묻지 않습니다. 묻지 않고 모두 자동 저장하려면 먼저 iOS 설정 › Foldboard › 다른 앱에서 붙여넣기에서 허용을 선택하세요.";
+"Keyboard position on this screen" = "이 화면의 키보드 위치";
+"The keyboard follows your hand on this screen." = "이 화면에서는 키보드가 손을 따라갑니다.";
+"The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "이 화면에서는 키보드가 고정됩니다. 다시 손을 따라가게 하려면 손 따라가기를 선택하세요.";

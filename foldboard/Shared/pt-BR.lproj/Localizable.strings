@@ -380,3 +380,12 @@
 "It stays in place" = "Ele fica no lugar";
 "Full width, like Apple's keyboard. You can still move it from its position button." = "Largura total, como o teclado da Apple. Você ainda pode movê-lo pelo botão de posição.";
 "You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "Você pode escolher uma posição diferente para cada tela (fechado, aberto, paisagem) em Ajustes › Posição e tamanho.";
+"Position and settings buttons" = "Botões de posição e ajustes";
+"Hide keyboard button" = "Botão de ocultar o teclado";
+"Contact names in suggestions" = "Nomes de contatos nas sugestões";
+"Emoji suggestions" = "Sugestões de emojis";
+"Save everything I copy" = "Guardar tudo o que eu copiar";
+"Off: Foldboard reads what you copied only when you tap Paste or open the clipboard, so iOS doesn’t ask for permission each time you copy. To save everything automatically without that prompt, first choose Allow in iOS Settings › Foldboard › Paste from Other Apps." = "Desativado: o Foldboard só lê o que você copiou quando você toca em Colar ou abre a área de transferência, para que o iOS não peça permissão a cada cópia. Para guardar tudo automaticamente sem esse aviso, primeiro escolha Permitir em Ajustes do iOS › Foldboard › Colar de Outros Apps.";
+"Keyboard position on this screen" = "Posição do teclado nesta tela";
+"The keyboard follows your hand on this screen." = "O teclado segue sua mão nesta tela.";
+"The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "O teclado fica fixo nesta tela. Para ele voltar a seguir sua mão, escolha Segue sua mão.";

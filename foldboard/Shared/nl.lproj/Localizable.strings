@@ -380,3 +380,12 @@
 "It stays in place" = "Het blijft op zijn plek";
 "Full width, like Apple's keyboard. You can still move it from its position button." = "Volle breedte, zoals het toetsenbord van Apple. Je kunt het nog steeds verplaatsen met de positieknop.";
 "You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "Je kunt voor elk scherm (dicht, open, liggend) een andere positie kiezen via Instellingen › Positie en grootte.";
+"Position and settings buttons" = "Knoppen voor positie en instellingen";
+"Hide keyboard button" = "Knop toetsenbord verbergen";
+"Contact names in suggestions" = "Contactnamen in suggesties";
+"Emoji suggestions" = "Emojisuggesties";
+"Save everything I copy" = "Alles wat ik kopieer bewaren";
+"Off: Foldboard reads what you copied only when you tap Paste or open the clipboard, so iOS doesn’t ask for permission each time you copy. To save everything automatically without that prompt, first choose Allow in iOS Settings › Foldboard › Paste from Other Apps." = "Uit: Foldboard leest wat je kopieerde alleen als je op Plak tikt of het klembord opent, zodat iOS niet bij elke kopie om toestemming vraagt. Om alles automatisch te bewaren zonder die vraag, kies eerst Sta toe in iOS-instellingen › Foldboard › Plak vanuit andere apps.";
+"Keyboard position on this screen" = "Toetsenbordpositie op dit scherm";
+"The keyboard follows your hand on this screen." = "Het toetsenbord volgt je hand op dit scherm.";
+"The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "Het toetsenbord blijft op dit scherm staan. Kies Volgt je hand om het je hand weer te laten volgen.";
