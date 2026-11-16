@@ -139,7 +139,7 @@ final class GripDetector {
     /// Main droite et main gauche étalonnées pour cette situation.
     var calibrated: Bool { postures[.right] != nil && postures[.left] != nil }
     /// Les appuis étalonnés (étalonnage par la frappe) : ce sont eux qui décident pendant la frappe.
-    var tapModel: KBTapModel? { didSet { evidence = [:]; evidenceTaps = 0; thumbs = [] } }
+    var tapModel: KBTapModel? { didSet { evidence = [:]; evidenceTaps = 0; thumbs = []; thumbX = [] } }
     /// Pour chaque appui récent : la probabilité que ce soit le pouce droit.
     private var thumbs: [Double] = []
     /// Le dernier appui net de chaque pouce.
@@ -296,7 +296,7 @@ final class GripDetector {
     func reset() {
         rotLeft = []; rotRight = []; sizeLeft = []; sizeRight = []
         lastTap = nil; twoEvidence = []; lastVote = nil; tiltStreak = nil; tiltSide = nil
-        evidence = [:]; evidenceTaps = 0; thumbs = []
+        evidence = [:]; evidenceTaps = 0; thumbs = []; thumbX = []
         locked = false
     }
 
@@ -327,7 +327,9 @@ final class GripDetector {
         let p = m.probabilities(f)
         guard let pr = p[.right], let pl = p[.left] else { return }
         thumbs.append(pr / max(0.001, pr + pl))
+        thumbX.append(f.count > 8 ? f[8] : 0.5)
         if thumbs.count > 6 { thumbs.removeFirst() }
+        if thumbX.count > 6 { thumbX.removeFirst() }
         let sure = thumbs.map { $0 > 0.68 ? 1 : ($0 < 0.32 ? -1 : 0) }
         let very = thumbs.map { $0 > 0.8 ? 1 : ($0 < 0.2 ? -1 : 0) }
         if sure.last == 1 { lastRightThumb = now }
@@ -351,9 +353,17 @@ final class GripDetector {
             let other = g == .right ? lastLeftThumb : lastRightThumb
             let side = g == .right ? -1 : 1
             if now - other < 2.5 || now - lastTwo < 2.5 || sure.suffix(4).contains(side) { return }
+            // Et il faut voir ce pouce taper de l'autre côté du clavier : à deux mains, le pouce droit ne tape que
+            // les lettres de droite (« oui », « pour »…), ce qui ne dit pas qu'on tient le téléphone d'une main.
+            let mine = g == .right ? 1 : -1
+            let far = zip(sure, thumbX).contains { $0.0 == mine && (g == .right ? $0.1 < 0.4 : $0.1 > 0.6) }
+            if !far { return }
         }
         emit(g)
     }
+
+    /// Où sont tombés les derniers appuis sur la largeur de l'écran (0 à gauche, 1 à droite), avec `thumbs`.
+    private var thumbX: [Double] = []
 
     /// L'angle actuel du téléphone dans le plan de l'écran (pour l'étalonnage), en degrés.
     var currentAngle: Double? {
@@ -623,7 +633,9 @@ final class GripDetector {
             result = s.grip
         }
         guard let result else { return }
-        if current == .two && now - lastTwo < Self.twoHold { return }
+        // À deux mains, chaque pouce tape sa moitié : comparer la taille ou le geste des appuis à gauche et à droite
+        // ne dit rien de la main qui tient le téléphone. Seule l'inclinaison (ou un placement à la main) en sort.
+        if current == .two { return }
         // Deux décisions de suite avant de déplacer le clavier, et pas plus d'un déplacement toutes les 4 secondes.
         if lastVote == result && now - lastEmit > 4 { emit(result) }
         lastVote = result

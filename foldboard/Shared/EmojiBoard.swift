@@ -162,7 +162,11 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         clipMode = on
         clips.isHidden = !on
         scroll.isHidden = on
-        if on { clips.reload() }
+        if on {
+            // Ouvert à la main : on lit maintenant ce qui vient d'être copié (iOS peut demander l'autorisation).
+            if clips.fullAccess { KBClipboard.shared.readPending() }
+            clips.reload()
+        }
         highlightTab()
     }
 

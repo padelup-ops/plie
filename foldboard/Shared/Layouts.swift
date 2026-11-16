@@ -36,6 +36,8 @@ enum KBLayouts {
     static func chars(_ s: String) -> [KeySpec] { s.map { c(String($0)) } }
     /// Onze touches sur une rangée (allemand) : un peu plus étroites, la rangée garde la même largeur.
     static func chars11(_ s: String) -> [KeySpec] { s.map { KeySpec(kind: .char(String($0)), width: 10.0 / 11.0) } }
+    /// Cinq signes sur la largeur de sept lettres (la dernière rangée des chiffres, comme chez Apple).
+    static func wide(_ s: String) -> [KeySpec] { s.map { KeySpec(kind: .char(String($0)), width: 1.4) } }
 
     /// Les rangées d'une page avec la rangée de chiffres en option : les chiffres au-dessus des lettres
     /// (et des symboles), et sur la page des chiffres, la première rangée de symboles pour garder la même hauteur.
@@ -88,13 +90,15 @@ enum KBLayouts {
             return [
                 KeyRow(keys: chars("1234567890")),
                 KeyRow(keys: [c("-"), c("/"), c(":"), c(";"), c("("), c(")"), c(money), c("&"), c("@"), c("\"")]),
-                KeyRow(keys: [KeySpec(kind: .page(.symbols), width: 1.5), c("."), c(","), c("?"), c("!"), c("'"), c("%"), c("+"), KeySpec(kind: .backspace, width: 1.5)]),
+                // Comme le clavier d'Apple : cinq signes larges entre « #+= » et l'effacement (le % et le + sont
+                // sur la page des symboles), pour retrouver l'apostrophe et le point d'exclamation à la même place.
+                KeyRow(keys: [KeySpec(kind: .page(.symbols), width: 1.5)] + wide(".,?!'") + [KeySpec(kind: .backspace, width: 1.5)]),
             ]
         case .symbols:
             return [
                 KeyRow(keys: [c("["), c("]"), c("{"), c("}"), c("#"), c("%"), c("^"), c("*"), c("+"), c("=")]),
                 KeyRow(keys: [c("_"), c("\\"), c("|"), c("~"), c("<"), c(">"), c(otherMoney[0]), c(otherMoney[1]), c(otherMoney[2]), c("•")]),
-                KeyRow(keys: [KeySpec(kind: .page(.numbers), width: 1.5), c("."), c(","), c("?"), c("!"), c("'"), c("«"), c("»"), KeySpec(kind: .backspace, width: 1.5)]),
+                KeyRow(keys: [KeySpec(kind: .page(.numbers), width: 1.5)] + wide(".,?!'") + [KeySpec(kind: .backspace, width: 1.5)]),
             ]
         }
     }

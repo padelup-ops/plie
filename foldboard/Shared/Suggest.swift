@@ -123,6 +123,8 @@ final class KBSuggest {
     private var replacements: [String: String] = [:]
     /// Les noms de tes contacts (tels qu'écrits dans Contacts), par forme en minuscules.
     private var names: [String: String] = [:]
+    /// Proposer les noms des contacts (réglage « Noms des contacts dans les suggestions »).
+    var useNames = true
     var language = "en_US"
     /// Les rangées de lettres du clavier : une faute de frappe, c'est une touche voisine, pas n'importe quelle lettre.
     private var rows: [String] = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
@@ -553,6 +555,22 @@ final class KBSuggest {
         return matchCase(a.word, like: word)
     }
 
+    /// AZERTY : l'apostrophe tapée à la place du n, au milieu d'un mot (« ma’que » → « manque »). Seulement si ce qui
+    /// précède l'apostrophe n'est pas une élision (« l’arbre », « qu’il » restent) et que le mot avec le n existe.
+    func apostropheTypo(_ token: String) -> String? {
+        guard rows.first == "azertyuiop", token.count >= 4 else { return nil }
+        let chars = Array(token)
+        let idx = chars.indices.filter { chars[$0] == "’" || chars[$0] == "'" }
+        guard idx.count == 1, let i = idx.first, i > 0, i < chars.count - 1 else { return nil }
+        let a = String(chars[..<i]).lowercased(), b = String(chars[(i + 1)...]).lowercased()
+        guard a.allSatisfy({ $0.isLetter }), b.allSatisfy({ $0.isLetter }) else { return nil }
+        let elided: Set<String> = ["c", "j", "l", "d", "m", "n", "s", "t", "qu", "jusqu", "lorsqu", "puisqu", "quoiqu", "presqu", "aujourd"]
+        guard !elided.contains(a) else { return nil }
+        let cand = a + "n" + b
+        guard let r = rank[cand], r < 15_000 else { return nil }
+        return matchCase(cand, like: token)
+    }
+
     /// Le remplacement de texte de l'utilisateur pour ce mot, s'il en a un.
     func replacement(for word: String) -> String? { replacements[word.lowercased()] }
 
@@ -569,13 +587,15 @@ final class KBSuggest {
             return matchCase(h, like: word)
         }
         // Un prénom de tes contacts tapé en minuscules (et qui n'est pas un mot courant) : la majuscule.
-        if word == low, let n = names[low], rank[low] == nil, n.lowercased() == low { return n }
-        // Tes mots à toi (tapés plusieurs fois, jamais corrigés) : on n'y touche plus.
-        if KBWordStore.shared.count(low) >= 3 { return nil }
+        if useNames, word == low, let n = names[low], rank[low] == nil, n.lowercased() == low { return n }
         // « a » ou « à » d'après le mot d'avant : « je vais a » → « je vais à », « il a » reste « il a ».
-        if language.hasPrefix("fr"), low == "a", let prev, Self.towardA.contains(prev) { return matchCase("à", like: word) }
+        // Avant « tes mots à toi » : « a » est tapé si souvent (« il a ») qu'il y passerait et ne serait plus jamais
+        // corrigé (« aller a la piscine » restait).
+        if language.hasPrefix("fr"), low == "a", let prev, Self.towardA.contains(prev) || Self.isInfinitive(prev) { return matchCase("à", like: word) }
         if language.hasPrefix("fr"), low == "a", let lm, let sa = lm.score("à", before: before), let s0 = lm.score("a", before: before),
            sa > s0 + Self.t("aDelta", 0.5) { return matchCase("à", like: word) }
+        // Tes mots à toi (tapés plusieurs fois, jamais corrigés) : on n'y touche plus.
+        if KBWordStore.shared.count(low) >= 3 { return nil }
         // « its » ou « it’s » d'après le mot d'avant, comme le clavier d'Apple : « its great » → « it’s great »,
         // mais « on its own » reste.
         if language.hasPrefix("en"), low == "its", !known.contains(low) {
@@ -586,6 +606,10 @@ final class KBSuggest {
             if !Self.ambiguous.contains(low), let c = contraction(word) { return c }
             if let fix = accentFix(word) { return fix }
         }
+        // L'apostrophe oubliée ou tapée à côté (AZERTY : le ’ est à côté du n) : « cedt » → « c’est », « nnzi » → « n’ai »,
+        // « jzi » → « j’ai », « qua » → « qu’à ».
+        if language.hasPrefix("fr"), Self.t("elision", 1) > 0, word.count >= 3, !known.contains(low), (rank[low] ?? Int.max) > 2_000,
+           let e = elisionFix(low, before: before) { return matchCase(e, like: word) }
         if fast, Self.t("shortFix", 1) > 0, word.count >= 2, word.count <= 3, let f = shortContextFix(word, before: before, touch: touch) { return f }
         if word.count == 2, let f = twoLetterFix(word, before: before, touch: touch) { return f }
         guard word.count >= 3, word.count <= 30 else {
@@ -644,8 +668,10 @@ final class KBSuggest {
             guard !g.contains(" "), !g.contains("-") else { continue }
             // Un mot que la liste ne connaît pas (formes conjuguées, pluriels : « reconnues ») mais que le
             // correcteur d'iOS propose : accepté comme un mot peu courant.
-            guard let r = rank[gl] ?? (fromChecker.contains(gl) && gl.count >= 6 ? 14_000 : nil), r < 15_000 else { continue }
             let d = typoDistance(gl, lower)
+            // Un mot moins courant (« largeur ») : accepté s'il n'est qu'à une touche voisine du mot tapé, même longueur.
+            let rareOK = Self.t("rareSub", 1) > 0 && d <= 1 && gl.count == lower.count && lower.count >= 5
+            guard let r = rank[gl] ?? (fromChecker.contains(gl) && gl.count >= 6 ? 14_000 : nil), r < (rareOK ? 30_000 : 15_000) else { continue }
             let n = lower.count
             let touchAllowed = fromTouch.contains(gl) ? (n >= 8 ? 3 : (n >= 5 ? 2 : 1)) : 0
             guard d <= max(allowed, touchAllowed) else { continue }
@@ -663,7 +689,7 @@ final class KBSuggest {
                 if gl.first != lower.first && extra > 1.2 { continue }
                 // Une touche trop loin du doigt : pas une faute de frappe. Un peu plus de marge pour un mot très
                 // courant (en tapant vite, le pouce tombe souvent sur la touche d'à côté : « courznt »).
-                if extra > (r < 3_000 ? 8.5 : 6) { continue }
+                if extra > (r < 3_000 ? 8.5 : (n >= 7 ? Self.t("extraLong", 7) : 6)) { continue }
                 score -= extra * 0.6
             } else {
                 if gl.first != lower.first { continue }
@@ -696,9 +722,19 @@ final class KBSuggest {
             for i in 1..<(chars.count - 1) where nearSpace.contains(chars[i]) {
                 let a = String(chars[..<i]), b = String(chars[(i + 1)...])
                 let ra = rank[a] ?? (Self.oneLetter[String(language.prefix(2))]?.contains(a) == true ? 50 : nil)
-                guard let ra, let rb = rank[b], ra < 8_000, rb < 8_000, b.count >= 2 else { continue }
-                let sc = max(ra, rb)
-                if split == nil || sc < split!.1 { split = (a + " " + b, sc) }
+                guard let ra, ra < 8_000, b.count >= 2 else { continue }
+                if let rb = rank[b], rb < 8_000 {
+                    let sc = max(ra, rb)
+                    if split == nil || sc < split!.1 { split = (a + " " + b, sc) }
+                } else if Self.t("splitTypo", 1) > 0, b.count >= 6, rank[b] == nil {
+                    // Et une faute de frappe dans le second mot (« lenremplaczment » → « le remplacement ») :
+                    // une seule touche voisine, vers un mot connu ; un peu moins sûr, donc classé après.
+                    if let fb = typoVariants(b).filter({ $0.count == b.count && typoDistance($0, b) <= 1 })
+                        .min(by: { (rank[$0] ?? .max) < (rank[$1] ?? .max) }), let rb = rank[fb], rb < 30_000 {
+                        let sc = max(ra, rb) + 20_000
+                        if split == nil || sc < split!.1 { split = (a + " " + fb, sc) }
+                    }
+                }
             }
             if let split { return matchCase(split.0, like: word) }
         }
@@ -712,7 +748,59 @@ final class KBSuggest {
                 return matchCase(g, like: word)
             }
         }
+        // « cest » (sans apostrophe, présent dans la liste de mots) : toujours avec son apostrophe.
+        if let b = best, let c = Self.contractions[String(language.prefix(2))]?[b.word.lowercased()], !Self.ambiguous.contains(b.word.lowercased()) {
+            return c.hasPrefix("I") ? c : matchCase(c, like: word)
+        }
         return best.map { matchCase($0.word, like: word) }
+    }
+
+    /// Même lettre, seul l'accent change (« é » et « e ») : pas une faute de frappe.
+    static func sameBase(_ a: Character, _ b: Character) -> Bool {
+        String(a).folding(options: .diacriticInsensitive, locale: nil) == String(b).folding(options: .diacriticInsensitive, locale: nil)
+    }
+
+    /// Un infinitif (« aller », « venir », « prendre », « voir ») : « a » derrière est presque toujours « à ».
+    static func isInfinitive(_ w: String) -> Bool {
+        guard w.count >= 4 else { return false }
+        return ["aller", "venir", "partir", "commencer", "continuer", "réussir", "arriver", "penser", "jouer", "apprendre",
+                "aider", "servir", "rester", "chercher", "passer", "donner", "parler", "écrire", "envoyer", "monter",
+                "descendre", "rentrer", "retourner", "habiter", "travailler", "manger", "dormir", "courir"].contains(w)
+    }
+
+    /// Les élisions les plus courantes, écrites sans apostrophe, avec leur forme correcte. L'ordre départage.
+    private static let elisions: [(String, String)] = [
+        ("cest", "c’est"), ("jai", "j’ai"), ("nai", "n’ai"), ("nest", "n’est"), ("quil", "qu’il"), ("cetait", "c’était"),
+        ("quon", "qu’on"), ("qua", "qu’à"), ("quelle", "qu’elle"), ("quun", "qu’un"), ("quune", "qu’une"), ("jen", "j’en"),
+        ("jy", "j’y"), ("ny", "n’y"), ("nen", "n’en"), ("na", "n’a"), ("sil", "s’il"), ("sest", "s’est"), ("lai", "l’ai"),
+        ("lon", "l’on"), ("dun", "d’un"), ("dune", "d’une"), ("jetais", "j’étais"), ("javais", "j’avais"), ("jaime", "j’aime"),
+        ("maime", "m’aime"), ("ma", "m’a"), ("tas", "t’as"), ("tes", "t’es"), ("taime", "t’aime"), ("jarrive", "j’arrive"),
+        ("jespere", "j’espère"), ("cetait", "c’était"), ("jattends", "j’attends"), ("jaurais", "j’aurais"),
+    ]
+
+    /// L'élision écrite sans l'apostrophe, ou avec le n à sa place (AZERTY : touches voisines), avec au plus une
+    /// touche voisine ratée ailleurs : « cedt » → « c’est », « nnzi » → « n’ai », « jzi » → « j’ai », « qua » → « qu’à ».
+    private func elisionFix(_ lower: String, before: String) -> String? {
+        // Seulement si le mot tapé n'est pas déjà un mot courant (« tes », « ma », « na » restent).
+        if let r = rank[lower], r < 8_000 { return nil }
+        var best: (String, Int)?
+        for (i, (plain, full)) in Self.elisions.enumerated() {
+            // Les formes de deux lettres (« ma », « na ») et celles qui sont aussi un vrai mot (« quelle », « tes »)
+            // ne servent pas : « queloe » est « quelle », pas « qu’elle ».
+            guard plain.count >= 3, (rank[plain] ?? Int.max) > 3_000 else { continue }
+            let apos = full.firstIndex(of: "’").map { full.distance(from: full.startIndex, to: $0) } ?? 1
+            var forms = [plain]
+            // Le n tapé à la place de l'apostrophe (seulement en AZERTY, où ils sont voisins).
+            if rows.first == "azertyuiop" { var w = Array(plain); w.insert("n", at: apos); forms.append(String(w)) }
+            for f in forms {
+                guard abs(f.count - lower.count) <= 0, f.first == lower.first else { continue }
+                let d = typoDistance(f.folding(options: .diacriticInsensitive, locale: nil), lower)
+                guard d <= 1 else { continue }
+                let score = d * 100 + i
+                if best == nil || score < best!.1 { best = (full, score) }
+            }
+        }
+        return best?.0
     }
 
     /// Les mots d'une lettre (absents de la liste) qui peuvent former le début d'une coupure.
@@ -751,16 +839,19 @@ final class KBSuggest {
         let x = Array(lower)
         guard x.count >= 3, x.count <= 20 else { return [] }
         var seen = Set<String>(), out: [String] = []
+        var cap = 15_000
         func add(_ w: [Character]) {
             let s = String(w)
             guard s != lower, seen.insert(s).inserted else { return }
-            if let r = rank[s], r < 15_000 { out.append(s) }
-            if let a = accented[s], words[a] != s, rank[words[a]] ?? .max < 15_000 { out.append(words[a]) }
+            if let r = rank[s], r < cap { out.append(s) }
+            if let a = accented[s], words[a] != s, rank[words[a]] ?? .max < cap { out.append(words[a]) }
         }
         let letters = Array(Set(rows.joined()))
         for i in 0..<x.count {
             if i + 1 < x.count, x[i] != x[i + 1] { var w = x; w.swapAt(i, i + 1); add(w) }       // inversion
-            for k in letters where k != x[i] && neighbors(k, x[i]) { var w = x; w[i] = k; add(w) }  // touche voisine
+            cap = x.count >= 5 && Self.t("rareSub", 1) > 0 ? 30_000 : 15_000                        // touche voisine :
+            for k in letters where k != x[i] && neighbors(k, x[i]) { var w = x; w[i] = k; add(w) }  // aussi les mots rares
+            cap = 15_000
             var d = x; d.remove(at: i); add(d)                                                    // lettre en trop
         }
         for i in 0...x.count {                                                                   // lettre oubliée
@@ -843,7 +934,8 @@ final class KBSuggest {
         for (k, cs) in touch.centers where cs.contains(where: { hypot(($0.x - p0.x) / touch.keyW, ($0.y - p0.y) / touch.keyH) < 1.1 }) {
             near[k] = 0
         }
-        let limit = own + Self.t("tMax", 4)
+        // Un mot long supporte deux touches voisines ratées (« chzngrr » → « changer ») : plus de marge.
+        let limit = own + (n >= 6 ? Self.t("tMaxLong", 7.5) : Self.t("tMax", 4))
         let me = Array(lower)
         // Distances déjà calculées : lettre × position.
         var memo: [Int: Double] = [:]
@@ -892,7 +984,7 @@ final class KBSuggest {
         for j in 0...y.count { d[0][j] = j }
         for i in 1...x.count {
             for j in 1...y.count {
-                let cost = x[i - 1] == y[j - 1] ? 0 : (neighbors(x[i - 1], y[j - 1]) ? 1 : 2)
+                let cost = x[i - 1] == y[j - 1] || Self.sameBase(x[i - 1], y[j - 1]) ? 0 : (neighbors(x[i - 1], y[j - 1]) ? 1 : 2)
                 d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost)
                 if i > 1, j > 1, x[i - 1] == y[j - 2], x[i - 2] == y[j - 1] { d[i][j] = min(d[i][j], d[i - 2][j - 2] + 1) }
             }
@@ -943,7 +1035,7 @@ final class KBSuggest {
         // Les noms de tes contacts qui commencent ainsi (« Char » → « Charlotte »), en premier.
         if word.count >= 2 {
             let key = word.lowercased()
-            for n in names.filter({ $0.key.hasPrefix(key) && $0.key != key }).map(\.value).sorted().prefix(1) { completions.insert(n, at: 0) }
+            for n in (useNames ? names : [:]).filter({ $0.key.hasPrefix(key) && $0.key != key }).map(\.value).sorted().prefix(1) { completions.insert(n, at: 0) }
         }
         var pool = listCompletions(word, limit: lm == nil ? 3 : Int(Self.t("compPool", 14)))
         if let lm {

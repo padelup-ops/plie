@@ -388,3 +388,12 @@
 "It stays in place" = "It stays in place";
 "Full width, like Apple's keyboard. You can still move it from its position button." = "Full width, like Apple's keyboard. You can still move it from its position button.";
 "You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size.";
+"Position and settings buttons" = "Position and settings buttons";
+"Hide keyboard button" = "Hide keyboard button";
+"Contact names in suggestions" = "Contact names in suggestions";
+"Emoji suggestions" = "Emoji suggestions";
+"Save everything I copy" = "Save everything I copy";
+"Off: Foldboard reads what you copied only when you tap Paste or open the clipboard, so iOS doesn’t ask for permission each time you copy. To save everything automatically without that prompt, first choose Allow in iOS Settings › Foldboard › Paste from Other Apps." = "Off: Foldboard reads what you copied only when you tap Paste or open the clipboard, so iOS doesn’t ask for permission each time you copy. To save everything automatically without that prompt, first choose Allow in iOS Settings › Foldboard › Paste from Other Apps.";
+"Keyboard position on this screen" = "Keyboard position on this screen";
+"The keyboard follows your hand on this screen." = "The keyboard follows your hand on this screen.";
+"The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand.";

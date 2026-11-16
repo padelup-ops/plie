@@ -380,3 +380,12 @@
 "It stays in place" = "同じ場所にとどまる";
 "Full width, like Apple's keyboard. You can still move it from its position button." = "Appleのキーボードと同じ全幅。位置ボタンでいつでも動かせます。";
 "You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "画面ごと（閉じる・開く・横向き）に別の位置を選べます：設定 › 位置とサイズ。";
+"Position and settings buttons" = "位置と設定のボタン";
+"Hide keyboard button" = "キーボードを隠すボタン";
+"Contact names in suggestions" = "候補に連絡先の名前を表示";
+"Emoji suggestions" = "絵文字の候補";
+"Save everything I copy" = "コピーしたものをすべて保存";
+"Off: Foldboard reads what you copied only when you tap Paste or open the clipboard, so iOS doesn’t ask for permission each time you copy. To save everything automatically without that prompt, first choose Allow in iOS Settings › Foldboard › Paste from Other Apps." = "オフ：「ペースト」をタップするかクリップボードを開いたときだけ読み取るので、コピーのたびにiOSが許可を求めません。確認なしですべて自動保存するには、まずiOSの設定 › Foldboard ›「ほかのAppからペースト」で「許可」を選んでください。";
+"Keyboard position on this screen" = "この画面でのキーボードの位置";
+"The keyboard follows your hand on this screen." = "この画面ではキーボードが手に追従します。";
+"The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "この画面ではキーボードは固定されます。再び手に追従させるには「手に追従」を選んでください。";

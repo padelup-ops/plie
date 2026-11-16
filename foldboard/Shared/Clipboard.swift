@@ -35,7 +35,13 @@ final class KBClipboard {
         prune()
     }
 
-    /// Regarde si quelque chose de nouveau a été copié. Renvoie vrai s'il y a un nouvel élément.
+    /// Garder tout seul ce qui est copié (réglage). Sinon, on note seulement qu'il y a du nouveau, sans le lire :
+    /// lire le presse-papier fait apparaître la demande d'iOS « Autoriser à coller ? » à chaque copie.
+    var autoSave = false
+    /// Quelque chose de nouveau a été copié, pas encore lu (le numéro de changement d'iOS et quand on l'a vu).
+    private var pending: (change: Int, date: Date)?
+
+    /// Regarde si quelque chose de nouveau a été copié. Renvoie vrai s'il y a un nouvel élément (ou du nouveau à coller).
     @discardableResult
     func capture() -> Bool {
         let pb = UIPasteboard.general
@@ -43,6 +49,33 @@ final class KBClipboard {
         guard change != lastChange else { return false }
         lastChange = change
         UserDefaults.standard.set(change, forKey: changeKey)
+        guard autoSave else {
+            // Le nombre de changements et « y a-t-il du texte » ne déclenchent pas la demande d'iOS.
+            pending = pb.hasStrings ? (change, Date()) : nil
+            return pending != nil
+        }
+        return read(pb)
+    }
+
+    /// Du nouveau à coller, pas encore lu (moins de 3 minutes) : « Coller » dans la barre.
+    var hasPending: Bool {
+        guard let p = pending, Date().timeIntervalSince(p.date) < 180 else { return false }
+        return UIPasteboard.general.changeCount == p.change
+    }
+
+    /// Lit maintenant ce qui a été copié (on vient de toucher « Coller » ou d'ouvrir le presse-papier) et le garde.
+    @discardableResult
+    func readPending() -> String? {
+        guard pending != nil else { return nil }
+        pending = nil
+        let pb = UIPasteboard.general
+        guard read(pb) else { return nil }
+        let t = fresh?.text
+        fresh = nil
+        return t
+    }
+
+    private func read(_ pb: UIPasteboard) -> Bool {
         // Un mot de passe copié depuis un gestionnaire : on ne le garde pas.
         if pb.types.contains(where: { Self.privateTypes.contains($0) }) { return false }
         guard pb.hasStrings, var text = pb.string else { return false }
@@ -73,7 +106,7 @@ final class KBClipboard {
     }
 
     /// Collé ou écarté : il ne revient plus dans la barre.
-    func dismissFresh() { fresh = nil }
+    func dismissFresh() { fresh = nil; pending = nil }
 
     func togglePin(_ text: String) {
         guard let i = items.firstIndex(where: { $0.text == text }) else { return }

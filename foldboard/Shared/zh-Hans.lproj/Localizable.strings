@@ -380,3 +380,12 @@
 "It stays in place" = "固定不动";
 "Full width, like Apple's keyboard. You can still move it from its position button." = "全宽，就像 Apple 键盘。仍可用位置按钮移动。";
 "You can choose a different position for each screen (closed, open, landscape) in Settings › Position and size." = "你可以在 设置 › 位置和大小 中为每个屏幕（合上、展开、横屏）选择不同位置。";
+"Position and settings buttons" = "位置和设置按钮";
+"Hide keyboard button" = "隐藏键盘按钮";
+"Contact names in suggestions" = "建议中显示联系人姓名";
+"Emoji suggestions" = "表情符号建议";
+"Save everything I copy" = "保存我复制的所有内容";
+"Off: Foldboard reads what you copied only when you tap Paste or open the clipboard, so iOS doesn’t ask for permission each time you copy. To save everything automatically without that prompt, first choose Allow in iOS Settings › Foldboard › Paste from Other Apps." = "关闭：只有在你轻点“粘贴”或打开剪贴板时 Foldboard 才读取复制的内容，因此每次复制时 iOS 不会请求权限。若要在没有提示的情况下自动保存所有内容，请先在 iOS 设置 › Foldboard ›“从其他 App 粘贴”中选择“允许”。";
+"Keyboard position on this screen" = "此屏幕上的键盘位置";
+"The keyboard follows your hand on this screen." = "在此屏幕上，键盘会跟随你的手。";
+"The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "在此屏幕上，键盘保持不动。要让它再次跟随你的手，请选择“跟随你的手”。";
