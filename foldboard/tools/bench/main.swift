@@ -297,6 +297,9 @@ let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
     ("best", [:]),
+    ("short", ["tMaxLong": 4, "extraLong": 6]),
+    ("nosplit", ["splitTypo": 0]),
+    ("norare", ["rareSub": 0]),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
