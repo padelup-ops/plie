@@ -711,13 +711,20 @@ final class KBSuggest {
                 score -= 0.8
             } else if let c = touch?.cost(gl), let own = touch?.cost(lower) {
                 let extra = c - own
-                if gl.first != lower.first && extra > 1.2 { continue }
+                // La première lettre : le doigt entre deux touches, ou une touche voisine vers un mot très courant
+                // (« gompris » → « compris »).
+                if gl.first != lower.first && extra > (r < 3_000 ? Self.t("firstTouch", 1.2) : 1.2) { continue }
                 // Une touche trop loin du doigt : pas une faute de frappe. Un peu plus de marge pour un mot très
                 // courant (en tapant vite, le pouce tombe souvent sur la touche d'à côté : « courznt »).
                 if extra > (r < 3_000 ? 8.5 : (n >= 7 ? Self.t("extraLong", 7) : 6)) { continue }
                 score -= extra * 0.6
             } else {
-                if gl.first != lower.first { continue }
+                // Sans les touchers : la première lettre ne change que vers une touche voisine et un mot très courant.
+                if gl.first != lower.first {
+                    guard Self.t("firstNoTouch", 0) > 0, d <= 1, r < 1_500, gl.count == lower.count,
+                          let a = gl.first, let b = lower.first, neighbors(a, b) else { continue }
+                    score -= 1
+                }
                 score -= Double(d) * 1.5
             }
             if best == nil || score > best!.score { best = (g, score, r) }
