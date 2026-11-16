@@ -1102,7 +1102,8 @@ final class KBSuggest {
     }
 
     private static let englishTwo: Set<String> = ["am", "an", "as", "at", "be", "by", "do", "go", "he", "hi", "if", "in", "is", "it",
-        "me", "my", "no", "of", "oh", "ok", "on", "or", "so", "to", "up", "us", "we", "ya", "yo", "ah", "eh", "ha", "uh", "ox"]
+        "me", "my", "no", "of", "oh", "ok", "on", "or", "so", "to", "up", "us", "we", "ya", "yo", "ah", "eh", "ha", "uh", "ox",
+        "ad", "ex", "id", "re", "vs", "tv", "pc", "pm", "hm", "mm"]
 
     /// Les mots de deux lettres (« fe » → « de », « ot » → « to ») : seulement vers un des mots les plus courants,
     /// une touche voisine du doigt ou deux lettres inversées, et si le mot tapé est lui-même rare.
