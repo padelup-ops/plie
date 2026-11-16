@@ -61,6 +61,34 @@ enum KBEmoji {
         "corazon": ["heart"], "risa": ["joy", "laughing"], "herz": ["heart"], "lachen": ["joy", "laughing"], "cuore": ["heart"], "coração": ["heart"],
     ]
 
+    /// Mots trop vagues pour désigner un emoji (« face », « sign »…) : jamais pris comme nom principal.
+    private static let vague: Set<String> = ["with", "sign", "symbol", "of", "the", "and", "face", "mark", "button", "black",
+        "white", "small", "large", "medium", "heavy", "square", "squared", "combining", "selector", "variation", "left", "right",
+        "up", "down", "upper", "lower", "latin", "letter", "digit", "keycap", "regional", "indicator", "skin", "tone", "modifier",
+        "type", "smiling", "open", "mouth", "eyes", "eye", "hand", "person", "in", "on", "at", "for", "from", "but"]
+    /// Pour chaque emoji : son mot principal (le dernier mot précis de son nom : « red apple » → apple) et la longueur du nom.
+    private static let heads: [(emoji: String, head: String, n: Int)] = {
+        names.compactMap { item in
+            guard let h = item.words.last(where: { !vague.contains($0) }) else { return nil }
+            return (item.emoji, h, item.words.count)
+        }
+    }()
+
+    /// L'emoji dont le nom principal est ce mot anglais (« apple » → 🍎), le plus simple d'abord ; sinon un nom court
+    /// qui le contient (« beer » → 🍺 « beer mug ») ; ou rien.
+    static func named(_ w: String) -> String? {
+        guard w.count >= 3, !vague.contains(w) else { return nil }
+        var best: (String, Int, Int)?
+        for h in heads where h.head == w {
+            if best == nil || h.n < best!.2 { best = (h.emoji, 0, h.n) }
+        }
+        if let best { return best.0 }
+        for item in names where item.words.count <= 3 && item.words.contains(w) {
+            if best == nil || item.words.count < best!.2 { best = (item.emoji, 1, item.words.count) }
+        }
+        return best?.0
+    }
+
     /// Les emojis dont le nom contient tous les mots cherchés (début de mot), les plus utilisés d'abord.
     static func search(_ query: String) -> [String] {
         let terms = query.lowercased().split(separator: " ").map(String.init).filter { !$0.isEmpty }

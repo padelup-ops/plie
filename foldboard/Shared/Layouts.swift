@@ -23,6 +23,9 @@ struct KeySpec: Equatable {
     var kind: KeyKind
     /// Largeur relative (une lettre = 1).
     var width: Double = 1
+    /// Comme chez Apple, la touche dessinée est plus étroite que sa place (un petit vide entre ⇧ et W, et avant ⌫) :
+    /// en largeurs de lettre, retirées à droite (positif) ou à gauche (négatif). La zone d'appui reste entière.
+    var trim: Double = 0
 }
 
 /// Une rangée : ses touches et l'espace à laisser de chaque côté (en largeurs de lettre).
@@ -59,31 +62,31 @@ enum KBLayouts {
                 return [
                     KeyRow(keys: chars("azertyuiop")),
                     KeyRow(keys: chars("qsdfghjklm")),
-                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("wxcvbn") + [c("’"), KeySpec(kind: .backspace, width: 1.5)]),
+                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5, trim: 0.35)] + chars("wxcvbn") + [c("’"), KeySpec(kind: .backspace, width: 1.5, trim: -0.35)]),
                 ]
             case .qwerty:
                 return [
                     KeyRow(keys: chars("qwertyuiop")),
                     KeyRow(keys: chars("asdfghjkl"), inset: 0.5),
-                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("zxcvbnm") + [KeySpec(kind: .backspace, width: 1.5)]),
+                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5, trim: 0.35)] + chars("zxcvbnm") + [KeySpec(kind: .backspace, width: 1.5, trim: -0.35)]),
                 ]
             case .qwertz:
                 return [
                     KeyRow(keys: chars11("qwertzuiopü")),
                     KeyRow(keys: chars11("asdfghjklöä")),
-                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("yxcvbnm") + [KeySpec(kind: .backspace, width: 1.5)]),
+                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5, trim: 0.35)] + chars("yxcvbnm") + [KeySpec(kind: .backspace, width: 1.5, trim: -0.35)]),
                 ]
             case .swedish:
                 return [
                     KeyRow(keys: chars11("qwertyuiopå")),
                     KeyRow(keys: chars11("asdfghjklöä")),
-                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("zxcvbnm") + [KeySpec(kind: .backspace, width: 1.5)]),
+                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5, trim: 0.35)] + chars("zxcvbnm") + [KeySpec(kind: .backspace, width: 1.5, trim: -0.35)]),
                 ]
             case .spanish:
                 return [
                     KeyRow(keys: chars("qwertyuiop")),
                     KeyRow(keys: chars("asdfghjklñ")),
-                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5)] + chars("zxcvbnm") + [KeySpec(kind: .backspace, width: 1.5)]),
+                    KeyRow(keys: [KeySpec(kind: .shift, width: 1.5, trim: 0.35)] + chars("zxcvbnm") + [KeySpec(kind: .backspace, width: 1.5, trim: -0.35)]),
                 ]
             }
         case .numbers:
@@ -92,16 +95,21 @@ enum KBLayouts {
                 KeyRow(keys: [c("-"), c("/"), c(":"), c(";"), c("("), c(")"), c(money), c("&"), c("@"), c("\"")]),
                 // Comme le clavier d'Apple : cinq signes larges entre « #+= » et l'effacement (le % et le + sont
                 // sur la page des symboles), pour retrouver l'apostrophe et le point d'exclamation à la même place.
-                KeyRow(keys: [KeySpec(kind: .page(.symbols), width: 1.5)] + wide(".,?!'") + [KeySpec(kind: .backspace, width: 1.5)]),
+                KeyRow(keys: [KeySpec(kind: .page(.symbols), width: 1.5, trim: 0.35)] + wide(apostrophePunct) + [KeySpec(kind: .backspace, width: 1.5, trim: -0.35)]),
             ]
         case .symbols:
             return [
                 KeyRow(keys: [c("["), c("]"), c("{"), c("}"), c("#"), c("%"), c("^"), c("*"), c("+"), c("=")]),
                 KeyRow(keys: [c("_"), c("\\"), c("|"), c("~"), c("<"), c(">"), c(otherMoney[0]), c(otherMoney[1]), c(otherMoney[2]), c("•")]),
-                KeyRow(keys: [KeySpec(kind: .page(.numbers), width: 1.5)] + wide(".,?!'") + [KeySpec(kind: .backspace, width: 1.5)]),
+                KeyRow(keys: [KeySpec(kind: .page(.numbers), width: 1.5, trim: 0.35)] + wide(apostrophePunct) + [KeySpec(kind: .backspace, width: 1.5, trim: -0.35)]),
             ]
         }
     }
+
+    /// La dernière rangée des chiffres et des symboles (comme chez Apple : l'apostrophe typographique en français).
+    static var apostrophePunct: String { ".,?!" + (currentLayoutIsFrench ? "’" : "'") }
+    /// Réglé par le clavier quand la disposition change.
+    static var currentLayoutIsFrench = false
 
     /// Le symbole monétaire de la région du téléphone ($ aux États-Unis, € en France, £ au Royaume-Uni…).
     static var money: String {
@@ -135,11 +143,12 @@ enum KBLayouts {
             keys.append(KeySpec(kind: .ret, width: 2))
             return KeyRow(keys: keys)
         }
+        // Comme le clavier d'Apple : 123, 🌐, 😀, l'espace et retour (la virgule et le point sont sur la page 123).
+        keys[0].width = 1.25
         if globe { keys.append(KeySpec(kind: .globe, width: 1.1)) }
         if emoji { keys.append(KeySpec(kind: .emoji, width: 1.1)) }
-        keys.append(KeySpec(kind: .char(layout == .azerty && page == .letters ? "," : "."), width: 1))
-        keys.append(KeySpec(kind: .space, width: 5.5 - (globe ? 1.1 : 0) - (emoji ? 1.1 : 0)))
-        keys.append(KeySpec(kind: .ret, width: 2))
+        keys.append(KeySpec(kind: .space, width: 10 - 1.25 - 1.75 - (globe ? 1.1 : 0) - (emoji ? 1.1 : 0)))
+        keys.append(KeySpec(kind: .ret, width: 1.75))
         return KeyRow(keys: keys)
     }
 

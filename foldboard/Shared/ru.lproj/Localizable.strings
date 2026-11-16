@@ -397,3 +397,15 @@
 "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "Высота клавиш и ширина вернутся к исходным значениям. Ваши положения и всё, чему научился Foldboard, сохранятся.";
 "Taller keys are easier to hit. Smaller keys leave more room for the app." = "По высоким клавишам легче попадать. Низкие оставляют больше места приложению.";
 "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "Ширина для одной руки — это маленькая клавиатура сбоку. Ширина для двух рук — каждая половина разделённой клавиатуры. Отступ от края отодвигает клавиатуру для одной руки от края экрана. Для полной ширины настройка не нужна. Размер можно изменить и из верхней панели: кнопка положения › Настроить клавиатуру.";
+"Settings" = "Настройки";
+"Help" = "Помощь";
+"Search settings" = "Поиск настроек";
+"No setting found" = "Настройка не найдена";
+"Looking for a setting? Search it by name at the top." = "Ищете настройку? Введите её название в поиске вверху.";
+"Follows your hand, full width, split, each screen, key height, width" = "За рукой, полная ширина, разделение, каждый экран, высота клавиш, ширина";
+"Autocorrect, suggestions, slide to type, emoji, clipboard" = "Автокоррекция, подсказки, свайп, эмодзи, буфер обмена";
+"Theme, colors, font" = "Тема, цвета, шрифт";
+"Key sound, vibrations, space-bar trackpad speed" = "Звук клавиш, вибрация, скорость трекпада";
+"Your phrases and favorite emoji" = "Ваши фразы и любимые эмодзи";
+"What each button of the keyboard does" = "Что делает каждая кнопка клавиатуры";
+"A short tour of the keyboard" = "Короткий обзор клавиатуры";

@@ -397,3 +397,15 @@
 "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "Altezza dei tasti e larghezze tornano ai valori originali. Le tue posizioni e tutto ciò che Foldboard ha imparato restano.";
 "Taller keys are easier to hit. Smaller keys leave more room for the app." = "I tasti più alti sono più facili da premere. Quelli più piccoli lasciano più spazio all’app.";
 "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "Le larghezze a una mano sono quelle della tastiera piccola su un lato. La larghezza a due mani è quella di ciascuna metà della tastiera divisa. La distanza dal bordo allontana la tastiera a una mano dal lato dello schermo. La larghezza intera non richiede impostazioni. Puoi anche ridimensionarla dalla barra in alto: pulsante posizione › Regola la tastiera.";
+"Settings" = "Impostazioni";
+"Help" = "Aiuto";
+"Search settings" = "Cerca impostazioni";
+"No setting found" = "Nessuna impostazione trovata";
+"Looking for a setting? Search it by name at the top." = "Cerchi un’impostazione? Scrivi il nome nella ricerca in alto.";
+"Follows your hand, full width, split, each screen, key height, width" = "Segue la tua mano, larghezza intera, divisa, ogni schermo, altezza tasti, larghezza";
+"Autocorrect, suggestions, slide to type, emoji, clipboard" = "Correzione, suggerimenti, scorrimento, emoji, appunti";
+"Theme, colors, font" = "Tema, colori, carattere";
+"Key sound, vibrations, space-bar trackpad speed" = "Suono dei tasti, vibrazioni, velocità del trackpad";
+"Your phrases and favorite emoji" = "Le tue frasi e le emoji preferite";
+"What each button of the keyboard does" = "A cosa serve ogni pulsante della tastiera";
+"A short tour of the keyboard" = "Un breve tour della tastiera";

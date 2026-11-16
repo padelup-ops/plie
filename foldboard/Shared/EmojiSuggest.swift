@@ -6,6 +6,8 @@ enum KBEmojiSuggest {
     private static let map: [String: String] = {
         let pairs: [(String, String)] = [
             // Anglais
+            ("apple", "🍎"), ("pomme", "🍎"), ("tree", "🌳"), ("arbre", "🌳"), ("umbrella", "☂️"), ("parapluie", "☂️"),
+            ("ball", "⚽️"), ("ballon", "⚽️"), ("bear", "🐻"), ("monkey", "🐵"), ("ring", "💍"), ("bague", "💍"),
             ("love", "❤️"), ("heart", "❤️"), ("sad", "😢"), ("cry", "😭"), ("crying", "😭"), ("happy", "😊"), ("smile", "😊"),
             ("lol", "😂"), ("haha", "😂"), ("hahaha", "😂"), ("lmao", "🤣"), ("laugh", "😂"), ("funny", "😂"), ("angry", "😠"), ("mad", "😡"),
             ("fire", "🔥"), ("lit", "🔥"), ("cool", "😎"), ("party", "🎉"), ("birthday", "🎂"), ("congrats", "🎉"), ("congratulations", "🎉"),
@@ -59,10 +61,72 @@ enum KBEmojiSuggest {
         return m
     }()
 
-    /// L'emoji pour ce mot (sans tenir compte des majuscules), ou rien.
+    /// Des mots français vers le nom anglais des emojis (les noms d'iOS sont en anglais) : animaux, nourriture,
+    /// objets, météo, transports, lieux, sports… Pour tout le reste, le nom anglais de l'emoji sert directement.
+    /// Des mots français vers leur emoji : animaux, nourriture, objets, météo, transports, lieux, sports…
+    /// Pour les mots anglais, le nom de l'emoji (donné par iOS) sert directement.
+    private static let fr: [String: String] = [
+        "pomme": "🍎", "poire": "🍐", "orange": "🍊", "citron": "🍋", "banane": "🍌", "pastèque": "🍉", "raisin": "🍇",
+        "fraise": "🍓", "myrtille": "🫐", "melon": "🍈", "cerise": "🍒", "cerises": "🍒", "pêche": "🍑", "mangue": "🥭",
+        "ananas": "🍍", "noix": "🥥", "kiwi": "🥝", "tomate": "🍅", "aubergine": "🍆", "avocat": "🥑", "brocoli": "🥦",
+        "salade": "🥗", "concombre": "🥒", "piment": "🌶️", "maïs": "🌽", "carotte": "🥕", "ail": "🧄", "oignon": "🧅",
+        "patate": "🥔", "croissant": "🥐", "baguette": "🥖", "pain": "🍞", "fromage": "🧀", "oeuf": "🥚", "œuf": "🥚",
+        "crêpe": "🥞", "crêpes": "🥞", "gaufre": "🧇", "bacon": "🥓", "steak": "🥩", "viande": "🥩", "poulet": "🍗",
+        "hamburger": "🍔", "burger": "🍔", "frites": "🍟", "sandwich": "🥪", "tacos": "🌮", "burrito": "🌯", "pâtes": "🍝",
+        "spaghetti": "🍝", "soupe": "🍲", "curry": "🍛", "sushi": "🍣", "riz": "🍚", "glace": "🍦", "gâteau": "🎂",
+        "cupcake": "🧁", "chocolat": "🍫", "bonbon": "🍬", "sucette": "🍭", "donut": "🍩", "beignet": "🍩", "cookie": "🍪",
+        "biscuit": "🍪", "popcorn": "🍿", "thé": "🧋", "jus": "🧃", "bière": "🍺", "vin": "🍷", "champagne": "🍾",
+        "cocktail": "🍸", "whisky": "🥃", "chien": "🐕", "chiot": "🐕", "chat": "🐈", "souris": "🐭", "hamster": "🐹",
+        "lapin": "🐇", "renard": "🦊", "ours": "🐻", "panda": "🐼", "koala": "🐨", "tigre": "🐯", "lion": "🦁", "vache": "🐄",
+        "cochon": "🐷", "grenouille": "🐸", "singe": "🐵", "poule": "🐔", "poussin": "🐤", "pingouin": "🐧", "oiseau": "🐦",
+        "canard": "🦆", "aigle": "🦅", "hibou": "🦉", "chouette": "🦉", "chauve-souris": "🦇", "loup": "🐺",
+        "sanglier": "🐗", "cheval": "🐎", "licorne": "🦄", "abeille": "🐝", "chenille": "🐛", "papillon": "🦋",
+        "escargot": "🐌", "coccinelle": "🐞", "tortue": "🐢", "serpent": "🐍", "dinosaure": "🦖", "pieuvre": "🐙",
+        "calamar": "🦑", "crabe": "🦀", "poisson": "🐟", "dauphin": "🐬", "baleine": "🐳", "requin": "🦈", "crocodile": "🐊",
+        "éléphant": "🐘", "girafe": "🦒", "chameau": "🐪", "mouton": "🐑", "chèvre": "🐐", "cerf": "🦌", "dinde": "🦃",
+        "colombe": "🕊️", "arbre": "🌳", "sapin": "🌲", "palmier": "🤦", "cactus": "🌵", "trèfle": "🍀", "feuille": "🍁",
+        "feuilles": "🍃", "tulipe": "🌷", "rose": "🌹", "tournesol": "🌻", "lune": "🌙", "étoile": "⭐️", "éclair": "⚡️",
+        "arc-en-ciel": "🌈", "nuage": "☁️", "orage": "⛈️", "flocon": "❄️", "bonhomme": "☃️", "goutte": "💧",
+        "vague": "🌊", "mer": "🌊", "océan": "🌊", "voiture": "🚗", "taxi": "🚕", "bus": "🚌", "police": "🚓",
+        "ambulance": "🚑", "pompiers": "🚒", "vélo": "🚲", "moto": "🏍️", "scooter": "🛵", "train": "🚆", "avion": "✈️",
+        "fusée": "🚀", "hélicoptère": "🚁", "bateau": "⛵️", "navire": "🚢", "maison": "🏠", "immeuble": "🏠",
+        "bureau": "🏢", "hôpital": "🏥", "école": "🏫", "château": "🏰", "tour": "🗼", "montagne": "⛰️", "plage": "🏖️",
+        "île": "🏝️", "monde": "🌍", "terre": "🌍", "carte": "🗺️", "foot": "⚽️", "football": "⚽️", "basket": "🏀",
+        "rugby": "🏉", "tennis": "🎾", "volley": "🏐", "billard": "🎱", "ping-pong": "🏓", "badminton": "🏸", "boxe": "🥊",
+        "golf": "⛳️", "ski": "🎿", "natation": "🏊", "yoga": "🧘", "trophée": "🏆", "médaille": "🏅", "ticket": "🎫",
+        "billet": "🎫", "cirque": "🎪", "théâtre": "🎭", "peinture": "🎨", "cinéma": "🎬", "micro": "🎤", "casque": "🎧",
+        "piano": "🎹", "batterie": "🥁", "saxophone": "🎷", "trompette": "🎺", "guitare": "🎸", "violon": "🎻", "dé": "🎲",
+        "cible": "🎯", "bowling": "🎳", "jeu": "🎮", "puzzle": "🧩", "montre": "⌚️", "téléphone": "📱", "portable": "📱",
+        "ordinateur": "💻", "clavier": "⌨️", "imprimante": "🖨️", "souris d’ordinateur": "🐭", "appareil": "📷",
+        "photo": "📷", "caméra": "📷", "télé": "📺", "télévision": "📺", "radio": "📻", "réveil": "⏰", "sablier": "⏳",
+        "pile": "🔋", "prise": "🔌", "ampoule": "💡", "lampe": "🔦", "bougie": "🕯️", "argent": "🤑", "billets": "💵",
+        "carte bancaire": "💳", "diamant": "💎", "clé": "🔑", "cle": "🔑", "porte": "🚪", "canapé": "🛋️", "lit": "🛏️",
+        "nounours": "🧸", "cadeau": "🎁", "ballon": "🎈", "confettis": "🎊", "lettre": "✉️", "colis": "📦",
+        "calendrier": "📅", "punaise": "📌", "trombone": "📎", "ciseaux": "✂️", "stylo": "🖊️", "crayon": "✏️",
+        "livre": "📖", "livres": "📚", "cadenas": "🔒", "médicament": "💊", "pilule": "💊", "seringue": "💉", "savon": "🧼",
+        "panier": "🛒", "caddie": "🛒", "bébé": "👶", "garçon": "👦", "fille": "👧", "homme": "👨", "femme": "👩",
+        "vieux": "👨", "famille": "👪", "couple": "💑", "cerveau": "🧠", "langue": "👅", "bouche": "👄", "oeil": "👁️",
+        "yeux": "👀", "muscle": "💪", "fantôme": "👻", "robot": "🤖", "extraterrestre": "👽", "crâne": "💀", "clown": "🤡",
+        "caca": "💩", "cœur": "❤️", "coeur": "❤️", "bisou": "😘", "drapeau": "🏁", "cent": "💯", "attention": "⚠️",
+        "interdit": "⛔️", "musique": "🎶", "note": "🎵", "cloche": "🔔", "horloge": "⏰", "rire": "😂", "fleur": "🌸",
+    ]
+
+    /// Mots courants qui ne doivent jamais faire apparaître d'emoji.
+    private static let skip: Set<String> = ["the", "and", "for", "but", "not", "you", "all", "can", "les", "des", "une", "pas",
+        "est", "que", "qui", "par", "sur", "pour", "dans", "avec", "mais", "son", "sa", "ses", "mon", "ton", "new"]
+
+    /// L'emoji pour ce mot (sans tenir compte des majuscules), ou rien : d'abord la liste choisie à la main, puis le
+    /// nom de l'emoji (en anglais, ou traduit du français), au singulier si besoin (« pommes » → 🍎).
     static func emoji(for word: String) -> String? {
         let w = word.lowercased()
-        guard w.count >= 2 else { return nil }
-        return map[w]
+        guard w.count >= 2, !skip.contains(w) else { return nil }
+        if let e = map[w] { return e }
+        guard w.count >= 3 else { return nil }
+        for form in [w, w.hasSuffix("s") || w.hasSuffix("x") ? String(w.dropLast()) : w] {
+            if let e = map[form] { return e }
+            if let e = fr[form] { return e }
+            if let e = KBEmoji.named(form) { return e }
+        }
+        return nil
     }
 }

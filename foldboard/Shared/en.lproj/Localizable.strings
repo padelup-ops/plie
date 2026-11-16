@@ -405,3 +405,15 @@
 "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay.";
 "Taller keys are easier to hit. Smaller keys leave more room for the app." = "Taller keys are easier to hit. Smaller keys leave more room for the app.";
 "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard.";
+"Settings" = "Settings";
+"Help" = "Help";
+"Search settings" = "Search settings";
+"No setting found" = "No setting found";
+"Looking for a setting? Search it by name at the top." = "Looking for a setting? Search it by name at the top.";
+"Follows your hand, full width, split, each screen, key height, width" = "Follows your hand, full width, split, each screen, key height, width";
+"Autocorrect, suggestions, slide to type, emoji, clipboard" = "Autocorrect, suggestions, slide to type, emoji, clipboard";
+"Theme, colors, font" = "Theme, colors, font";
+"Key sound, vibrations, space-bar trackpad speed" = "Key sound, vibrations, space-bar trackpad speed";
+"Your phrases and favorite emoji" = "Your phrases and favorite emoji";
+"What each button of the keyboard does" = "What each button of the keyboard does";
+"A short tour of the keyboard" = "A short tour of the keyboard";

@@ -405,3 +405,15 @@
 "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "La hauteur des touches et les largeurs reviennent à leurs valeurs d’origine. Tes positions et tout ce que Foldboard a appris restent.";
 "Taller keys are easier to hit. Smaller keys leave more room for the app." = "Des touches plus hautes sont plus faciles à viser. Plus petites, elles laissent plus de place à l’app.";
 "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "Les largeurs à une main sont celles du petit clavier d’un côté. La largeur à deux mains est celle de chaque moitié du clavier coupé. La distance au bord éloigne le clavier à une main du côté de l’écran. Le clavier en pleine largeur n’a rien à régler. Tu peux aussi le redimensionner depuis sa barre du haut : bouton de position › Ajuster le clavier.";
+"Settings" = "Réglages";
+"Help" = "Aide";
+"Search settings" = "Rechercher un réglage";
+"No setting found" = "Aucun réglage trouvé";
+"Looking for a setting? Search it by name at the top." = "Tu cherches un réglage ? Tape son nom dans la recherche en haut.";
+"Follows your hand, full width, split, each screen, key height, width" = "Suit ta main, pleine largeur, scindé, chaque écran, hauteur des touches, largeur";
+"Autocorrect, suggestions, slide to type, emoji, clipboard" = "Correction, suggestions, glisser, emojis, presse-papier";
+"Theme, colors, font" = "Thème, couleurs, police";
+"Key sound, vibrations, space-bar trackpad speed" = "Son des touches, vibrations, vitesse du trackpad";
+"Your phrases and favorite emoji" = "Tes phrases et tes emojis préférés";
+"What each button of the keyboard does" = "À quoi sert chaque bouton du clavier";
+"A short tour of the keyboard" = "Une courte visite du clavier";

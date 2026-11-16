@@ -397,3 +397,15 @@
 "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "キーの高さと幅が初期値に戻ります。位置の設定とFoldboardが学習した内容はそのままです。";
 "Taller keys are easier to hit. Smaller keys leave more room for the app." = "キーを高くすると押しやすく、低くするとAppの表示領域が広がります。";
 "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "片手の幅は片側に寄せた小さいキーボードの幅です。両手の幅は分割キーボードの片側の幅です。端からの距離は片手キーボードを画面の端から離します。全幅には設定は不要です。上部バーの位置ボタン › キーボードを調整 からもサイズを変えられます。";
+"Settings" = "設定";
+"Help" = "ヘルプ";
+"Search settings" = "設定を検索";
+"No setting found" = "設定が見つかりません";
+"Looking for a setting? Search it by name at the top." = "設定をお探しですか？上の検索欄に名前を入力してください。";
+"Follows your hand, full width, split, each screen, key height, width" = "手に追従、全幅、分割、画面ごと、キーの高さ、幅";
+"Autocorrect, suggestions, slide to type, emoji, clipboard" = "自動修正、候補、スライド入力、絵文字、クリップボード";
+"Theme, colors, font" = "テーマ、色、フォント";
+"Key sound, vibrations, space-bar trackpad speed" = "キー音、振動、トラックパッドの速度";
+"Your phrases and favorite emoji" = "よく使うフレーズとお気に入りの絵文字";
+"What each button of the keyboard does" = "キーボードの各ボタンの役割";
+"A short tour of the keyboard" = "キーボードの簡単なツアー";

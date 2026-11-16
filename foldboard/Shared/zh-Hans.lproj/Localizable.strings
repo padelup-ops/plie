@@ -397,3 +397,15 @@
 "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "按键高度和宽度将恢复原始值。你的位置设置和 Foldboard 学到的内容都会保留。";
 "Taller keys are easier to hit. Smaller keys leave more room for the app." = "按键越高越容易点中，越小则给 App 留出更多空间。";
 "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "单手宽度是靠一侧的小键盘的宽度。双手宽度是分体键盘每一半的宽度。离边缘的距离会让单手键盘远离屏幕边缘。全宽无需设置。也可以在顶部栏调整：位置按钮 › 调整键盘。";
+"Settings" = "设置";
+"Help" = "帮助";
+"Search settings" = "搜索设置";
+"No setting found" = "未找到设置";
+"Looking for a setting? Search it by name at the top." = "在找某个设置？在顶部搜索栏输入它的名称。";
+"Follows your hand, full width, split, each screen, key height, width" = "跟随手、全宽、分体、每个屏幕、按键高度、宽度";
+"Autocorrect, suggestions, slide to type, emoji, clipboard" = "自动更正、建议、滑行输入、表情符号、剪贴板";
+"Theme, colors, font" = "主题、颜色、字体";
+"Key sound, vibrations, space-bar trackpad speed" = "按键声音、振动、触控板速度";
+"Your phrases and favorite emoji" = "你的短语和常用表情";
+"What each button of the keyboard does" = "键盘上每个按钮的作用";
+"A short tour of the keyboard" = "键盘快速导览";

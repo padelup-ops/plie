@@ -52,12 +52,16 @@ struct HomeView: View {
     @FocusState private var tryFocus: Bool
     /// L'accueil « Atelier », à l'essai dans TestFlight.
     @AppStorage("atelierHome") private var atelier = true
+    /// La recherche dans les réglages (« hauteur », « presse-papier »…) : on trouve tout de suite où c'est.
+    @State private var search = ""
 
     var body: some View {
         NavigationStack {
             Group {
-                if KBBuild.isTest && atelier { AtelierHome(showPro: $showPro) } else { classic }
+                if !search.isEmpty { SettingsSearchResults(query: search) }
+                else if KBBuild.isTest && atelier { AtelierHome(showPro: $showPro) } else { classic }
             }
+            .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always), prompt: Text("Search settings"))
             .sheet(isPresented: $showPro) { ProView().environment(store).fullScreenDuo() }
             .sheet(isPresented: $showButtonsGuide) {
                 NavigationStack { ButtonsGuide { showButtonsGuide = false } }
@@ -144,30 +148,28 @@ struct HomeView: View {
                 }
 
                 Section {
-                    NavigationLink { GripSetup().fullScreenDuo() } label: {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Teach your thumbs")
-                                Text("30 seconds: a sentence with each thumb").font(.footnote).foregroundStyle(.secondary)
-                            }
-                        } icon: { Image(systemName: "touchid") }
-                    }
+                // Les réglages d'abord, chacun avec ce qu'on y trouve ; l'aide ensuite.
+                Section {
+                    settingsRow(.position, icon: "hand.raised.fingers.spread")
+                    settingsRow(.typing, icon: "character.cursor.ibeam")
+                    settingsRow(.look, icon: "paintpalette")
+                    settingsRow(.feel, icon: "waveform")
+                    settingsRow(.phrases, icon: "text.bubble")
+                } header: {
+                    Text("Settings")
+                } footer: {
+                    Text("Looking for a setting? Search it by name at the top.")
+                }
+
+                Section {
+                    settingsRow(.teach, icon: "touchid")
                     NavigationLink { PlaceTutorial().fullScreenDuo() } label: {
                         Label("How it works", systemImage: "hand.tap")
                     }
-                    NavigationLink { KeyboardTourScreen() } label: {
-                        Label("Guided tour", systemImage: "play.rectangle")
-                    }
-                    NavigationLink { ButtonsGuide().fullScreenDuo() } label: {
-                        Label("The keyboard buttons", systemImage: "rectangle.topthird.inset.filled")
-                    }
-                    NavigationLink { PositionView().fullScreenDuo() } label: { Label("Position and size", systemImage: "hand.raised.fingers.spread") }
-                    NavigationLink { LookView().fullScreenDuo() } label: { Label("Colors and font", systemImage: "paintpalette") }
-                    NavigationLink { FeelView().fullScreenDuo() } label: { Label("Sound, vibrations and swipe", systemImage: "waveform") }
-                    NavigationLink { PhrasesView().fullScreenDuo() } label: { Label("Phrases and emoji", systemImage: "text.bubble") }
-                    NavigationLink { TypingView().fullScreenDuo() } label: { Label("Typing", systemImage: "character.cursor.ibeam") }
+                    settingsRow(.tour, icon: "play.rectangle")
+                    settingsRow(.buttons, icon: "rectangle.topthird.inset.filled")
                 } header: {
-                    Text("Make it yours")
+                    Text("Help")
                 }
 
                 Section {
@@ -179,6 +181,20 @@ struct HomeView: View {
             .fullScreenDuo()
             .navigationTitle("Foldboard")
             .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+extension HomeView {
+    /// Une page de réglages : son nom, et en dessous ce qu'on y trouve.
+    func settingsRow(_ p: SettingsPage, icon: String) -> some View {
+        NavigationLink { p.destination } label: {
+            Label {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(p.title)
+                    Text(p.subtitle).font(.footnote).foregroundStyle(.secondary)
+                }
+            } icon: { Image(systemName: icon) }
+        }
     }
 }
 

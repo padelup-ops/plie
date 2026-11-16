@@ -305,9 +305,7 @@ let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
     ("best", [:]),
-    ("first", ["firstTouch": 3.6, "firstNoTouch": 1]),
-    ("junk", ["cJunk": 1]),
-    ("both", ["firstTouch": 3.6, "firstNoTouch": 1, "cJunk": 1]),
+    ("avant", ["firstTouch": 1.2, "firstNoTouch": 0]),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg

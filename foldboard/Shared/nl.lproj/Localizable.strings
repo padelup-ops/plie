@@ -397,3 +397,15 @@
 "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "Toetshoogte en breedtes gaan terug naar hun oorspronkelijke waarden. Je posities en alles wat Foldboard heeft geleerd blijven.";
 "Taller keys are easier to hit. Smaller keys leave more room for the app." = "Hogere toetsen raak je makkelijker. Kleinere laten meer ruimte voor de app.";
 "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "Breedtes met één hand gelden voor het kleine toetsenbord aan één kant. De breedte met twee handen is elke helft van het gesplitste toetsenbord. Afstand tot de rand schuift het toetsenbord voor één hand weg van de zijkant. Volle breedte heeft geen instelling nodig. Je kunt het ook aanpassen vanuit de bovenste balk: positieknop › Pas toetsenbord aan.";
+"Settings" = "Instellingen";
+"Help" = "Hulp";
+"Search settings" = "Zoek instellingen";
+"No setting found" = "Geen instelling gevonden";
+"Looking for a setting? Search it by name at the top." = "Op zoek naar een instelling? Typ de naam in de zoekbalk bovenaan.";
+"Follows your hand, full width, split, each screen, key height, width" = "Volgt je hand, volle breedte, gesplitst, per scherm, toetshoogte, breedte";
+"Autocorrect, suggestions, slide to type, emoji, clipboard" = "Autocorrectie, suggesties, vegen, emoji, klembord";
+"Theme, colors, font" = "Thema, kleuren, lettertype";
+"Key sound, vibrations, space-bar trackpad speed" = "Toetsgeluid, trillingen, trackpadsnelheid";
+"Your phrases and favorite emoji" = "Je zinnen en favoriete emoji";
+"What each button of the keyboard does" = "Wat elke knop van het toetsenbord doet";
+"A short tour of the keyboard" = "Een korte rondleiding";

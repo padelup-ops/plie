@@ -127,6 +127,7 @@ final class KeyboardCanvas: UIView {
     private var wordTouches: [(ch: Character, p: CGPoint)] = []
 
     private func noteTouch(_ text: String, at p: CGPoint) {
+        checkMemory()
         guard text.count == 1, let c = text.lowercased().first, c.isLetter else { wordTouches.removeAll(); return }
         wordTouches.append((c, p))
         if wordTouches.count > 40 { wordTouches.removeFirst(wordTouches.count - 40) }
@@ -322,7 +323,7 @@ final class KeyboardCanvas: UIView {
         middleButton.setImage(UIImage(systemName: "rectangle.center.inset.filled"), for: .normal)
         middleButton.addAction(UIAction { [weak self] _ in self?.centerKeyboard() }, for: .touchUpInside)
         middleButton.accessibilityLabel = L("Keyboard in the middle")
-        bigButton.addAction(UIAction { [weak self] _ in self?.toggleBig() }, for: .touchUpInside)
+        // Le bouton ouvre un menu (voir openLayoutMenu) : pas d'action directe.
         // Appui long : la situation reconnue et l'étalonnage utilisé (pour vérifier).
         flipButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(showGripInfo(_:))))
         hideButton.setImage(UIImage(systemName: "keyboard.chevron.compact.down"), for: .normal)
@@ -386,6 +387,7 @@ final class KeyboardCanvas: UIView {
         applyScreenMode()
         theme = KBTheme.named(eff.theme)
         suggest.setLayout(eff.layout)
+        KBLayouts.currentLayoutIsFrench = eff.layout == .azerty
         KBClipboard.shared.autoSave = settings.clipAutoSave
         suggest.useNames = settings.contactNames
         let names = settings.contactNames
@@ -421,6 +423,7 @@ final class KeyboardCanvas: UIView {
         KBFeedback.shared.prepare()
         emojiBoard.setClipMode(false)
         startClipWatch()
+        checkMemory(force: true)
         if ProcessInfo.processInfo.arguments.contains("-shotClip") {
             KBClipboard.shared.seedForShots(["221B Baker Street, London", "https://foldly.netlify.app",
                                              "Meeting at 7 pm 🎬", "FOLD-2026-0412", "+1 555 0142"])
@@ -667,6 +670,28 @@ final class KeyboardCanvas: UIView {
         if !showEmoji { emojiBoard.releaseMemory() }
     }
 
+    /// La mémoire utilisée par le clavier (celle qu'iOS compte pour le fermer), en Mo, et le maximum vu.
+    static var memoryPeak: Double = 0
+    static func footprintMB() -> Double {
+        var info = task_vm_info_data_t()
+        var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<integer_t>.size)
+        let kr = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &count) }
+        }
+        guard kr == KERN_SUCCESS else { return 0 }
+        let mb = Double(info.phys_footprint) / 1_048_576
+        memoryPeak = max(memoryPeak, mb)
+        return mb
+    }
+
+    /// Filet de sécurité : si le clavier approche la limite d'iOS, il libère ce qu'il peut avant qu'iOS ne le ferme.
+    private var memChecks = 0
+    private func checkMemory(force: Bool = false) {
+        memChecks += 1
+        guard force || memChecks % 60 == 0 else { return }
+        if Self.footprintMB() > 45 { trimMemory() }
+    }
+
     /// iOS prévient qu'il manque de mémoire : on libère tout ce qui se recrée tout seul, pour ne pas être fermé
     /// (et remplacé par le clavier d'Apple).
     func trimMemory() {
@@ -857,6 +882,24 @@ final class KeyboardCanvas: UIView {
     }
 
     /// Écran intérieur : passe d'une disposition à l'autre (portrait : une main ⇄ deux moitiés ; paysage : entier ⇄ deux moitiés).
+    /// Le menu « … » du Duo ouvert : entier (ou qui suit la main en portrait) / coupé en deux, comme chez Apple.
+    private func openLayoutMenu(split: Bool) -> UIMenu {
+        let portrait = gripContext == "open-portrait"
+        let one = UIAction(title: portrait ? L("Follows your hand") : L("Full width"),
+                           image: UIImage(systemName: portrait ? "hand.raised.fingers.spread" : "keyboard"),
+                           state: split ? .off : .on) { [weak self] _ in
+            guard let self, split else { return }
+            self.toggleBig()
+        }
+        let two = UIAction(title: L("Split keyboard"), image: UIImage(systemName: "rectangle.split.2x1"),
+                           state: split ? .on : .off) { [weak self] _ in
+            guard let self, !split else { return }
+            if !self.pro { self.setMode(.split); return }
+            self.toggleBig()
+        }
+        return UIMenu(children: [one, two])
+    }
+
     private func toggleBig() {
         if gripContext == "open-portrait" { settings.openSplit.toggle() }
         else if settings.openLandFollow { settings.openLandFollow = false }
@@ -1072,10 +1115,7 @@ final class KeyboardCanvas: UIView {
             } else {
                 s.keyHeight = min(60, max(34, s.keyHeight - Double(dy) / 4))
             }
-            configure(settings: s, pro: pro)
-            onPreferredHeightChange?()
-            layoutIfNeeded()
-            refreshAdjust()
+            applyLive(s, height: true)
             return
         }
         adjustingHeight = false
@@ -1100,9 +1140,40 @@ final class KeyboardCanvas: UIView {
             }
             s.edgeMargin = Double(isRight ? W - b.maxX : b.minX)
         }
-        configure(settings: s, pro: pro)
-        layoutIfNeeded()
-        refreshAdjust()
+        applyLive(s, height: false)
+    }
+
+    /// Pendant qu'on règle le clavier au doigt : seulement le dessin, au plus 20 fois par seconde, et la hauteur
+    /// du clavier demandée à iOS quand le doigt marque une pause. Avant, chaque mouvement du doigt rechargeait tout
+    /// le clavier et changeait sa hauteur des dizaines de fois par seconde : iOS finissait par le fermer
+    /// (et affichait son clavier anglais à la place).
+    private var liveWork: DispatchWorkItem?
+    private var heightWork: DispatchWorkItem?
+    private var lastLive: TimeInterval = 0
+    private func applyLive(_ s: KBSettings, height: Bool) {
+        settings = s
+        eff = s.effective(pro: pro)
+        applyScreenMode()
+        let now = ProcessInfo.processInfo.systemUptime
+        if liveWork == nil {
+            let w = DispatchWorkItem { [weak self] in
+                guard let self else { return }
+                self.liveWork = nil
+                self.lastLive = ProcessInfo.processInfo.systemUptime
+                self.builtFor = .zero
+                self.setNeedsLayout()
+                self.layoutIfNeeded()
+                self.refreshAdjust()
+            }
+            liveWork = w
+            DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.05 - (now - lastLive)), execute: w)
+        }
+        if height {
+            heightWork?.cancel()
+            let h = DispatchWorkItem { [weak self] in self?.onPreferredHeightChange?() }
+            heightWork = h
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: h)
+        }
     }
 
     private func resetAdjust() {
@@ -1121,6 +1192,8 @@ final class KeyboardCanvas: UIView {
     }
 
     private func endAdjust(keep: Bool) {
+        liveWork?.cancel(); liveWork = nil
+        heightWork?.cancel(); heightWork = nil
         let backup = adjustBackup
         adjustBackup = nil
         adjust.isHidden = true
@@ -1214,7 +1287,8 @@ final class KeyboardCanvas: UIView {
             let l = CGRect(x: sm, y: top, width: hw, height: areaH)
             let r = CGRect(x: W - sm - hw, y: top, width: hw, height: areaH)
             blocks = [l, r]
-            panelRect = CGRect(x: l.maxX + 10, y: top, width: max(0, r.minX - l.maxX - 20), height: areaH)
+            // Comme le clavier coupé d'Apple : rien entre les deux moitiés.
+            panelRect = .zero
             let (left0, right0) = Self.halves(rows, page: page)
             var left = left0, right = right0
             // Même taille de touches sur toutes les pages (lettres, chiffres, symboles) : les moitiés ne changent plus
@@ -1228,7 +1302,6 @@ final class KeyboardCanvas: UIView {
             var lb: [KeySpec] = [KeySpec(kind: .page(page == .letters ? .numbers : .letters), width: 1.5)]
             if globe { lb.append(KeySpec(kind: .globe, width: 1.1)) }
             if eff.emojiKey { lb.append(KeySpec(kind: .emoji, width: 1.1)) }
-            lb.append(KeySpec(kind: .char(eff.layout == .azerty && page == .letters ? "," : "."), width: 1))
             let used = lb.reduce(0) { $0 + $1.width }
             lb.append(KeySpec(kind: .space, width: max(1.5, maxL - used)))
             left.append(KeyRow(keys: lb))
@@ -1307,7 +1380,13 @@ final class KeyboardCanvas: UIView {
             var rowCells: [Cell] = []
             for k in row.keys {
                 let w = CGFloat(k.width) * unit
-                let f = CGRect(x: x + gap / 2, y: y, width: w - gap, height: keyH)
+                var f = CGRect(x: x + gap / 2, y: y, width: w - gap, height: keyH)
+                // ⇧ et ⌫ un peu plus étroits que leur place, comme chez Apple (la zone d'appui reste entière).
+                if k.trim != 0 {
+                    let t = min(f.width * 0.4, CGFloat(abs(k.trim)) * unit)
+                    f.size.width -= t
+                    if k.trim < 0 { f.origin.x += t }
+                }
                 let special: Bool
                 switch k.kind {
                 case .char: special = false
@@ -1366,8 +1445,11 @@ final class KeyboardCanvas: UIView {
         let bigShown = open && settings.mode(for: gripContext) == .auto && settings.screenModes[gripContext] == nil && pro
         let splitNow = gripContext == "open-portrait" ? settings.openSplit : (settings.openLandSplit || settings.openLandFollow)
         bigButton.isHidden = !bigShown
-        bigButton.setImage(UIImage(systemName: splitNow ? (gripContext == "open-portrait" ? "keyboard.onehanded.right" : "keyboard") : "rectangle.split.2x1"), for: .normal)
-        bigButton.accessibilityLabel = splitNow ? L("One keyboard") : L("Split keyboard")
+        // Comme le clavier d'Apple sur le Duo ouvert : « … » ouvre un menu avec les deux dispositions, cochée.
+        bigButton.setImage(UIImage(systemName: "ellipsis"), for: .normal)
+        bigButton.accessibilityLabel = L("Keyboard position on this screen")
+        bigButton.showsMenuAsPrimaryAction = true
+        bigButton.menu = openLayoutMenu(split: splitNow)
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
         bigButton.frame = CGRect(x: max(flipButton.frame.maxX, middleButton.frame.maxX), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
@@ -1557,7 +1639,8 @@ final class KeyboardCanvas: UIView {
                 KBGripLog.shared.flush()
                 let l = KBVault.loadLearn()
                 let info = ["version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
-                            "hits": "\(l.hits ?? 0)", "misses": "\(l.misses ?? 0)", "calibrated": "\(self.settings.taps.keys.sorted())"]
+                            "hits": "\(l.hits ?? 0)", "misses": "\(l.misses ?? 0)", "calibrated": "\(self.settings.taps.keys.sorted())",
+                            "memMB": String(format: "%.0f", Self.footprintMB()), "memPeakMB": String(format: "%.0f", Self.memoryPeak)]
                 if let text = KBGripLog.shared.exportText(extra: info) {
                     UIPasteboard.general.string = text
                     self.notice(L("Copied. Paste it in a message to the developer."))

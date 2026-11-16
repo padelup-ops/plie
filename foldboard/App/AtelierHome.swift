@@ -289,17 +289,17 @@ struct AtelierHome: View {
 
     private var settings: some View {
         VStack(alignment: .leading, spacing: Atelier.s1) {
-            sectionTitle(Text("Make it yours"))
+            sectionTitle(Text("Settings"))
             VStack(spacing: 0) {
-                link("hand.raised.fingers.spread", "Position and size") { PositionView().fullScreenDuo() }
+                link("hand.raised.fingers.spread", SettingsPage.position.title, SettingsPage.position.subtitle) { PositionView().fullScreenDuo() }
                 divider
-                link("character.cursor.ibeam", "Typing") { TypingView().fullScreenDuo() }
+                link("character.cursor.ibeam", SettingsPage.typing.title, SettingsPage.typing.subtitle) { TypingView().fullScreenDuo() }
                 divider
-                link("paintpalette", "Colors and font") { LookView().fullScreenDuo() }
+                link("paintpalette", SettingsPage.look.title, SettingsPage.look.subtitle) { LookView().fullScreenDuo() }
                 divider
-                link("waveform", "Sound, vibrations and swipe") { FeelView().fullScreenDuo() }
+                link("waveform", SettingsPage.feel.title, SettingsPage.feel.subtitle) { FeelView().fullScreenDuo() }
                 divider
-                link("text.bubble", "Phrases and emoji") { PhrasesView().fullScreenDuo() }
+                link("text.bubble", SettingsPage.phrases.title, SettingsPage.phrases.subtitle) { PhrasesView().fullScreenDuo() }
             }
             .background(RoundedRectangle(cornerRadius: Atelier.radius, style: .continuous).fill(Atelier.surface))
             .overlay(RoundedRectangle(cornerRadius: Atelier.radius, style: .continuous).strokeBorder(Atelier.line))
@@ -323,7 +323,7 @@ struct AtelierHome: View {
         Rectangle().fill(Atelier.line).frame(height: 1).padding(.leading, 56)
     }
 
-    private func link<D: View>(_ icon: String, _ title: LocalizedStringKey, @ViewBuilder _ dest: @escaping () -> D) -> some View {
+    private func link<D: View>(_ icon: String, _ title: LocalizedStringKey, _ subtitle: LocalizedStringKey? = nil, @ViewBuilder _ dest: @escaping () -> D) -> some View {
         NavigationLink {
             dest()
         } label: {
@@ -332,9 +332,15 @@ struct AtelierHome: View {
                     .font(.body)
                     .foregroundStyle(Atelier.accent)
                     .frame(width: 24)
-                Text(title)
-                    .font(.body)
-                    .foregroundStyle(Atelier.ink)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.body)
+                        .foregroundStyle(Atelier.ink)
+                    if let subtitle {
+                        Text(subtitle).font(.footnote).foregroundStyle(Atelier.muted)
+                    }
+                }
+                .padding(.vertical, subtitle == nil ? 0 : 6)
                 Spacer(minLength: Atelier.s1)
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.semibold))

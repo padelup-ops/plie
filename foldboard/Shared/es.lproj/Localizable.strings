@@ -397,3 +397,15 @@
 "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "La altura de las teclas y los anchos vuelven a sus valores originales. Tus posiciones y todo lo que Foldboard aprendió se mantienen.";
 "Taller keys are easier to hit. Smaller keys leave more room for the app." = "Las teclas más altas son más fáciles de pulsar. Las más pequeñas dejan más espacio a la app.";
 "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "Los anchos a una mano son los del teclado pequeño a un lado. El ancho a dos manos es el de cada mitad del teclado dividido. La distancia al borde aleja el teclado a una mano del lado de la pantalla. El ancho completo no necesita ajuste. También puedes cambiar su tamaño desde su barra superior: botón de posición › Ajustar el teclado.";
+"Settings" = "Ajustes";
+"Help" = "Ayuda";
+"Search settings" = "Buscar ajustes";
+"No setting found" = "No se encontró ningún ajuste";
+"Looking for a setting? Search it by name at the top." = "¿Buscas un ajuste? Escribe su nombre en la búsqueda de arriba.";
+"Follows your hand, full width, split, each screen, key height, width" = "Sigue tu mano, ancho completo, dividido, cada pantalla, altura de teclas, ancho";
+"Autocorrect, suggestions, slide to type, emoji, clipboard" = "Autocorrección, sugerencias, deslizar, emojis, portapapeles";
+"Theme, colors, font" = "Tema, colores, fuente";
+"Key sound, vibrations, space-bar trackpad speed" = "Sonido de teclas, vibraciones, velocidad del trackpad";
+"Your phrases and favorite emoji" = "Tus frases y emojis favoritos";
+"What each button of the keyboard does" = "Para qué sirve cada botón del teclado";
+"A short tour of the keyboard" = "Un breve recorrido por el teclado";
