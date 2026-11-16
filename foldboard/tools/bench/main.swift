@@ -309,16 +309,111 @@ func realCases(_ L: Lang, _ cases: [(String, String, String)], tag: String) {
     }
 }
 
+/// Fautes générées automatiquement, comme en tapant vite au pouce (des milliers de cas, pas seulement ceux des
+/// testeurs) : une ou deux touches voisines (voisines à l'écran, rangée du bas décalée), deux lettres inversées
+/// plus une touche voisine, deux mots collés (sans espace ou avec la lettre juste au-dessus de la barre d'espace),
+/// l'apostrophe oubliée. On mesure la part corrigée exactement, et la part de mots justes abîmés.
+func autoTypos(_ L: Lang, tag: String) {
+    let s = KBSuggest()
+    s.setLayout(L.layout)
+    let cen = centers(L.rows, insets: L.insets)
+    let alphabet = Set(L.rows.joined())
+    var near: [Character: [Character]] = [:]
+    for (k, ps) in cen {
+        for (k2, ps2) in cen where k2 != k {
+            if let p = ps.first, let q = ps2.first, abs(p.y - q.y) <= keyH * 1.01, abs(p.x - q.x) <= keyW * 1.01 { near[k, default: []].append(k2) }
+        }
+        near[k]?.sort()
+    }
+    guard let url = Bundle.main.url(forResource: "words-" + L.code, withExtension: "txt"), let t = try? String(contentsOf: url, encoding: .utf8) else { return }
+    let list = t.split(separator: "\n").map(String.init)
+    var pool: [String] = []
+    var i = 40
+    while i < min(list.count, 9000) { let w = list[i]; if w.count >= 5, fold(w).allSatisfy({ alphabet.contains($0) }) { pool.append(w) }; i += 11 }
+    var rng = RNG(s: 777)
+    func sub(_ c: inout [Character], _ k: Int) -> Bool {
+        guard let ns = near[c[k]], !ns.isEmpty else { return false }
+        c[k] = ns[Int(rng.next() * Double(ns.count)) % ns.count]; return true
+    }
+    func check(_ typo: String, _ want: String, before: String = "") -> Bool {
+        let out = s.apostropheTypo(typo) ?? s.correction(for: typo, before: before + typo, touch: nil, fast: true) ?? typo
+        return fold(out) == fold(want)
+    }
+    var n1 = 0, ok1 = 0, n2 = 0, ok2 = 0, nS = 0, okS = 0, nC = 0, okC = 0, nK = 0, broken = 0
+    var miss1: [String] = [], miss2: [String] = [], missC: [String] = []
+    for w in pool {
+        let base = Array(fold(w))
+        // Une touche voisine.
+        var c = base; let k = Int(rng.next() * Double(c.count)) % c.count
+        if sub(&c, k), String(c) != String(base) {
+            n1 += 1; if check(String(c), w) { ok1 += 1 } else if miss1.count < 12 { miss1.append("\(String(c))→\(w)") }
+        }
+        // Deux touches voisines (mot de 7 lettres ou plus).
+        if base.count >= 7 {
+            var c2 = base
+            let a = Int(rng.next() * Double(c2.count)) % c2.count
+            var b2 = Int(rng.next() * Double(c2.count)) % c2.count
+            if b2 == a { b2 = (a + 3) % c2.count }
+            if sub(&c2, a), sub(&c2, b2), String(c2) != String(base) {
+                n2 += 1; if check(String(c2), w) { ok2 += 1 } else if miss2.count < 12 { miss2.append("\(String(c2))→\(w)") }
+            }
+        }
+        // Deux lettres inversées et une touche voisine (6 lettres ou plus).
+        if base.count >= 6 {
+            var c3 = base
+            let a = 1 + Int(rng.next() * Double(c3.count - 2)) % (c3.count - 2)
+            if c3[a] != c3[a + 1] {
+                c3.swapAt(a, a + 1)
+                var b3 = (a + 3) % c3.count
+                if b3 == a || b3 == a + 1 || b3 == 0 { b3 = (a + 4) % c3.count }
+                if b3 != a, b3 != a + 1, b3 != 0, sub(&c3, b3), String(c3) != String(base) {
+                    nS += 1; if check(String(c3), w) { okS += 1 }
+                }
+            }
+        }
+        // Le mot juste ne doit pas changer.
+        nK += 1
+        if let o = s.correction(for: w, before: w, touch: nil, fast: true), fold(o) != fold(w) { broken += 1 }
+    }
+    // Deux mots collés, tirés des phrases : sans espace, ou avec c/v/b/n à la place de l'espace.
+    for sen in L.sentences {
+        let ws = words(sen)
+        guard ws.count >= 2 else { continue }
+        for j in 0..<(ws.count - 1) where ws[j].count >= 2 && ws[j + 1].count >= 3 && !ws[j].contains("’") && !ws[j + 1].contains("’") && !ws[j].contains("-") && !ws[j + 1].contains("-") {
+            let glue: [String] = ["", "n", "b"]
+            let g = glue[Int(rng.next() * 3) % 3]
+            let typo = fold(ws[j]) + g + fold(ws[j + 1])
+            let want = ws[j] + " " + ws[j + 1]
+            let before = ws[..<j].joined(separator: " ") + (j > 0 ? " " : "")
+            nC += 1
+            if check(typo, want, before: before) { okC += 1 } else if missC.count < 12 { missC.append("\(typo)→\(want)") }
+        }
+    }
+    func pc(_ a: Int, _ b: Int) -> String { String(format: "%.1f", 100 * Double(a) / Double(max(1, b))) }
+    print("RESULT \(tag) \(L.code) auto_1touche \(pc(ok1, n1)) (sur \(n1))")
+    print("RESULT \(tag) \(L.code) auto_2touches \(pc(ok2, n2)) (sur \(n2))")
+    print("RESULT \(tag) \(L.code) auto_inversion_touche \(pc(okS, nS)) (sur \(nS))")
+    print("RESULT \(tag) \(L.code) auto_mots_colles \(pc(okC, nC)) (sur \(nC))")
+    print("RESULT \(tag) \(L.code) auto_mots_justes_abimes \(pc(broken, nK)) (sur \(nK))")
+    if tag == "best" {
+        print("auto ratés 1 touche \(L.code):", miss1.joined(separator: ", "))
+        print("auto ratés 2 touches \(L.code):", miss2.joined(separator: ", "))
+        print("auto ratés collés \(L.code):", missC.joined(separator: ", "))
+    }
+}
+
 let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
     ("best", [:]),
-    ("avant", ["firstTouch": 1.2, "firstNoTouch": 0]),
+    ("sans_nouveau", ["scan2": 0, "genElision": 0, "oneLetterFix": 0, "hyphenTypo": 0]),
 ]
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
     realCases(fr, realFR, tag: tag)
     realCases(en, realEN, tag: tag)
+    autoTypos(fr, tag: tag)
+    autoTypos(en, tag: tag)
     run(fr, tag: tag)
     run(en, tag: tag)
 }
