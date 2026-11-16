@@ -147,7 +147,6 @@ struct HomeView: View {
                     Text("Tap the field, then hold the globe key and pick Foldboard.")
                 }
 
-                Section {
                 // Les réglages d'abord, chacun avec ce qu'on y trouve ; l'aide ensuite.
                 Section {
                     settingsRow(.position, icon: "hand.raised.fingers.spread")
