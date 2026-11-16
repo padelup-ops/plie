@@ -182,6 +182,10 @@ final class KeyboardCanvas: UIView {
         var done = false
         /// La lettre déjà écrite, dès que le doigt s'est posé (comme ça, rien n'attend que le doigt se relève).
         var typed: String?
+        /// La majuscule au moment où le doigt s'est posé : si le doigt glisse ensuite pour tracer un mot,
+        /// la lettre écrite est effacée et la majuscule doit revenir pour le mot tracé.
+        var shiftAtDown: Shift = .off
+        var autoShiftAtDown = false
         var swipe = false
         /// Écrire en glissant : le doigt trace le mot.
         var glide = false
@@ -2169,6 +2173,12 @@ final class KeyboardCanvas: UIView {
             input?.kbDelete()
             if !wordTouches.isEmpty { wordTouches.removeLast() }
             tr.typed = nil
+            // La lettre effacée avait consommé la majuscule : on la rend au mot tracé.
+            if tr.shiftAtDown == .on && shift == .off {
+                shift = .on
+                autoShifted = tr.autoShiftAtDown
+                updateLabels()
+            }
         }
         glideLayer.strokeColor = theme.accent.withAlphaComponent(0.55).cgColor
         glideLayer.fillColor = nil
@@ -2214,10 +2224,13 @@ final class KeyboardCanvas: UIView {
             input?.kbInsert(" ")
             before += " "
         }
-        if shift != .off { word = word.prefix(1).uppercased() + word.dropFirst() }
+        let capital = shift != .off
+        if capital { word = word.prefix(1).uppercased() + word.dropFirst() }
         if suggest.language.hasPrefix("en"), word == "i" || word.hasPrefix("i’") { word = "I" + word.dropFirst() }
-        input?.kbInsert(word)
-        glidedWord = word
+        // Verrouillage des majuscules : tout le mot à l'écran, comme chez Apple (le mot appris reste normal).
+        let shown = shift == .caps ? word.uppercased() : word
+        input?.kbInsert(shown)
+        glidedWord = shown
         lastCorrection = nil
         wordTouches.removeAll()
         if recording == nil { KBStatsRecorder.shared.glide() }
@@ -2227,7 +2240,8 @@ final class KeyboardCanvas: UIView {
         suggestQueue.async { KBWordStore.shared.commit(word, after: start ? nil : prev) }
         KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics)
         // Les autres mots possibles dans la barre : un toucher remplace le mot tracé.
-        let others = found.dropFirst().map { w -> String in shift != .off ? w.prefix(1).uppercased() + w.dropFirst() : w }
+        let locked = shift == .caps
+        let others = found.dropFirst().map { w -> String in locked ? w.uppercased() : capital ? w.prefix(1).uppercased() + w.dropFirst() : w }
         suggestGen += 1
         cachedFix = nil
         applySuggestions(Array(others.prefix(3)), nil)
@@ -2391,6 +2405,8 @@ final class KeyboardCanvas: UIView {
             }
             // La lettre s'écrit dès que le doigt se pose : c'est ce qui rend la frappe immédiate.
             tr.typed = text
+            tr.shiftAtDown = shift
+            tr.autoShiftAtDown = autoShifted
             typeText(text)
             noteTouch(text, at: tr.start)
         case .backspace:
