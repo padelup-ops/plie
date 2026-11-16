@@ -255,6 +255,13 @@ let realFR: [(String, String, String)] = [
     ("je ", "suisnla", "suis la"), ("", "bonjourtoi", "bonjour toi"),
     ("le ", "courznt", "courant"), ("", "reocnnues", "reconnues"), ("", "plur", "pour"), ("", "fe", "de"),
     ("je ", "sue", "sue"), ("", "sue", "sue"),
+    // Charlotte, 15 nov. (AZERTY : le z à côté du a, l’apostrophe à côté du n)
+    ("je ", "nnzi", "n’ai"), ("je vais à ", "lz", "la"), ("", "lenremplaczment", "le remplacement"),
+    ("il n’y a ", "qua", "qu’à"), ("les ", "lettees", "lettres"), ("c’est ", "genizk", "génial"),
+    ("il faut ", "chzngrr", "changer"), ("", "cedt", "c’est"), ("la ", "longjejr", "longueur"),
+    ("il ", "fzit", "fait"), ("la ", "lzrgeur", "largeur"), ("aller ", "a", "à"), ("je voudrais aller ", "a", "à"),
+    ("", "Cedt", "C’est"), ("", "Fzit", "Fait"), ("c’est ", "niugeai", "nouveau"), ("il ", "ma’que", "manque"),
+    ("je ", "jzi", "j’ai"),
 ]
 let realEN: [(String, String, String)] = [
     ("i ", "sue", "sue"), ("", "teh", "the"), ("i am ", "inthe", "in the"), ("see you ", "tomorrownat", "tomorrow at"),
@@ -264,14 +271,25 @@ let realEN: [(String, String, String)] = [
 func realCases(_ L: Lang, _ cases: [(String, String, String)], tag: String) {
     let s = KBSuggest()
     s.setLayout(L.layout)
-    var ok = 0
-    var bad: [String] = []
-    for (before, w, exp) in cases {
-        let out = s.correction(for: w, before: before + w, touch: nil, fast: true) ?? w
-        if out == exp { ok += 1 } else { bad.append("«\(before)\(w)»→\(out) (voulu \(exp))") }
+    let ctr = centers(L.rows, insets: L.insets)
+    // Deux façons : sans les touchers (nil), et avec chaque doigt posé au centre de la touche tapée (le pire cas :
+    // le doigt a bien visé la mauvaise touche).
+    for touched in [false, true] {
+        var ok = 0
+        var bad: [String] = []
+        for (before, w, exp) in cases {
+            var touch: KBTouchModel?
+            if touched, w.allSatisfy({ $0.isLetter }) {
+                let pts = w.lowercased().compactMap { ctr[Character(String($0).folding(options: .diacriticInsensitive, locale: nil))]?.first }
+                if pts.count == w.count { touch = KBTouchModel(points: pts, centers: ctr, keyW: keyW, keyH: keyH) }
+            }
+            let out = s.correction(for: w, before: before + w, touch: touch, fast: true) ?? w
+            if out == exp { ok += 1 } else { bad.append("«\(before)\(w)»→\(out) (voulu \(exp))") }
+        }
+        let name = touched ? "cas_reels_touche" : "cas_reels"
+        print("RESULT \(tag) \(L.code) \(name) \(String(format: "%.1f", 100 * Double(ok) / Double(cases.count))) (sur \(cases.count))")
+        if !bad.isEmpty { print("cas ratés \(tag) \(L.code)\(touched ? " (touchers)" : ""):", bad.joined(separator: " · ")) }
     }
-    print("RESULT \(tag) \(L.code) cas_reels \(String(format: "%.1f", 100 * Double(ok) / Double(cases.count))) (sur \(cases.count))")
-    if !bad.isEmpty { print("cas ratés \(tag) \(L.code):", bad.joined(separator: " · ")) }
 }
 
 let t0 = Date()
