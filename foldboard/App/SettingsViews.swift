@@ -295,6 +295,7 @@ struct PositionView: View {
                     slider("Key height, Duo open", value: $m.settings.keyHeightOpen, in: 34...60, format: { "\(Int($0)) pt" })
                 }
                 Toggle("Number row", isOn: $m.settings.numberRow)
+                slider("Space bar row height", value: $m.settings.spaceRowScale, in: 0.8...1.5, format: { "\(Int(($0 * 100).rounded())) %" })
             } header: {
                 Text("Keys")
             } footer: {
@@ -323,6 +324,7 @@ struct PositionView: View {
                             m.settings.oneHandWidthOpen = d.oneHandWidthOpen
                             m.settings.splitWidth = d.splitWidth
                             m.settings.edgeMargin = d.edgeMargin
+                            m.settings.spaceRowScale = d.spaceRowScale
                         }
                     } message: {
                         Text("Key height and widths go back to their original values. Your positions and everything Foldboard learned stay.")

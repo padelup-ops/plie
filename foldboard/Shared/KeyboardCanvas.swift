@@ -292,8 +292,10 @@ final class KeyboardCanvas: UIView {
     /// Le haut de la barre : 0, ou plus bas si l'app hôte a donné plus de hauteur que demandé (le vide va au-dessus).
     private var barTop: CGFloat { max(0, (bounds.height - preferredHeight).rounded(.down)) }
     var preferredHeight: CGFloat {
-        Self.topBarHeight + 6 + CGFloat(rowCount) * keyH + CGFloat(rowCount - 1) * vgap + 8
+        Self.topBarHeight + 6 + CGFloat(rowCount) * keyH + bottomExtra + CGFloat(rowCount - 1) * vgap + 8
     }
+    /// La rangée de la barre d'espace peut être plus haute (ou plus basse) que les autres (réglage).
+    private var bottomExtra: CGFloat { (keyH * CGFloat(eff.spaceRowScale - 1)).rounded() }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -432,8 +434,17 @@ final class KeyboardCanvas: UIView {
         }
         builtFor = .zero
         setNeedsLayout()
-        if visible && (autoOn || recording != nil) && !gripStarted { startGrip() }
-        if visible && !autoOn && recording == nil && gripStarted { grip.stop(); gripStarted = false }
+        syncSensors()
+    }
+
+    /// Les capteurs de mouvement ne tournent que là où le clavier suit vraiment la main (et pendant l'étalonnage) :
+    /// toute la largeur ou deux moitiés choisies pour un écran, ils restent éteints (batterie).
+    private var needSensors: Bool { (autoOn && gripMoves) || recording != nil }
+
+    private func syncSensors() {
+        guard visible else { return }
+        if needSensors && !gripStarted { startGrip() }
+        if !needSensors && gripStarted { grip.stop(); gripStarted = false }
     }
 
     /// Le clavier vient d'apparaître.
@@ -442,7 +453,8 @@ final class KeyboardCanvas: UIView {
         perfStart()
         typedOnSide = 0
         showEmoji = false
-        if autoOn { startGrip() }
+        KBFeedback.shared.attach(to: self)
+        if needSensors { startGrip() }
         page = .letters
         shift = .off
         refreshShift()
@@ -1022,6 +1034,7 @@ final class KeyboardCanvas: UIView {
         guard bounds.size != builtFor, bounds.width > 50 else { return }
         builtFor = bounds.size
         updateGripContext()
+        syncSensors()
         rebuild()
     }
 
@@ -1292,7 +1305,7 @@ final class KeyboardCanvas: UIView {
         // Certaines apps (Reddit…) donnent au clavier plus de hauteur que demandé : les touches restent en bas, sous
         // le pouce, au lieu de laisser un grand vide sous la barre d'espace.
         let top = barTop + Self.topBarHeight + 6
-        let areaH = CGFloat(rowCount) * keyH + CGFloat(rowCount - 1) * vgap
+        let areaH = CGFloat(rowCount) * keyH + bottomExtra + CGFloat(rowCount - 1) * vgap
         let margin = CGFloat(eff.edgeMargin)
         let rows = KBLayouts.rows(page, layout: eff.layout, numberRow: eff.numberRow)
         let globe = input?.kbNeedsGlobe ?? false
@@ -1434,9 +1447,10 @@ final class KeyboardCanvas: UIView {
             }
             x += CGFloat(row.inset) * unit
             var rowCells: [Cell] = []
+            let rowH = keyH + (i == rows.count - 1 ? bottomExtra : 0)
             for k in row.keys {
                 let w = CGFloat(k.width) * unit
-                var f = CGRect(x: x + gap / 2, y: y, width: w - gap, height: keyH)
+                var f = CGRect(x: x + gap / 2, y: y, width: w - gap, height: rowH)
                 // ⇧ et ⌫ un peu plus étroits que leur place, comme chez Apple (la zone d'appui reste entière).
                 if k.trim != 0 {
                     let t = min(f.width * 0.4, CGFloat(abs(k.trim)) * unit)
@@ -1452,7 +1466,7 @@ final class KeyboardCanvas: UIView {
                 let v = KeyView(spec: k, special: special)
                 v.frame = f
                 insertSubview(v, belowSubview: bubble)
-                let hit = CGRect(x: x, y: y - vgap / 2, width: w, height: keyH + vgap)
+                let hit = CGRect(x: x, y: y - vgap / 2, width: w, height: rowH + vgap)
                 rowCells.append(Cell(view: v, frame: f, hit: hit))
                 x += w
             }

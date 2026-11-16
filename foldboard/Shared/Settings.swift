@@ -145,6 +145,8 @@ struct KBSettings: Codable, Equatable {
     var learningTips = true
     /// Une rangée de chiffres au-dessus des lettres (désactivée par défaut : le clavier garde sa hauteur).
     var numberRow = false
+    /// La hauteur de la rangée de la barre d'espace, par rapport aux autres (0,8 à 1,5).
+    var spaceRowScale: Double = 1
     /// La disposition choisie pour chaque écran (« closed-portrait », « open-portrait », « open-landscape »…).
     /// Absent : la disposition générale (`mode`). Choisir une disposition dans le clavier la règle pour cet écran seulement.
     var screenModes: [String: KBMode] = [:]
@@ -228,6 +230,7 @@ struct KBSettings: Codable, Equatable {
         emojiSuggest = (try? c.decodeIfPresent(Bool.self, forKey: .emojiSuggest)) ?? d.emojiSuggest
         learningTips = (try? c.decodeIfPresent(Bool.self, forKey: .learningTips)) ?? d.learningTips
         numberRow = (try? c.decodeIfPresent(Bool.self, forKey: .numberRow)) ?? d.numberRow
+        spaceRowScale = min(1.5, max(0.8, (try? c.decodeIfPresent(Double.self, forKey: .spaceRowScale)) ?? d.spaceRowScale))
         screenModes = (try? c.decodeIfPresent([String: KBMode].self, forKey: .screenModes)) ?? d.screenModes
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme
         font = (try? c.decodeIfPresent(KBFont.self, forKey: .font)) ?? d.font
