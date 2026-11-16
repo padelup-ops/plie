@@ -177,6 +177,35 @@ elif MODE == "bids":
                 kr = call("PUT", f"/campaigns/{c['id']}/adgroups/{g['id']}/targetingkeywords/bulk", upd)
                 print("    mots-clés", len(upd), "→", amount, "ÉCHEC " + str(kr)[:300] if isinstance(kr, dict) and kr.get("error") else "ok")
 
+elif MODE == "scale":
+    # BUDGETS="Foldly – iPhone Duo=1.2" : enchères (groupes et mots-clés) multipliées par ce facteur, entre 0,30 et 2 €.
+    for part in os.environ.get("BUDGETS", "").split(";"):
+        if "=" not in part:
+            continue
+        name, factor = [x.strip() for x in part.rsplit("=", 1)]
+        f = float(factor)
+        c = by_name.get(name)
+        if not c:
+            print("introuvable", name); continue
+        print("campagne", name, c.get("servingStatus"), "facteur", f)
+        for g in call("GET", f"/campaigns/{c['id']}/adgroups").get("data", []):
+            old = float((g.get("defaultBidAmount") or {}).get("amount") or 0.8)
+            new = round(max(0.3, min(2.0, old * f)), 2)
+            r = call("PUT", f"/campaigns/{c['id']}/adgroups/{g['id']}", {"defaultBidAmount": {"amount": str(new), "currency": CUR}})
+            print("  groupe", g["name"], old, "→", new, "ÉCHEC " + str(r)[:300] if r.get("error") else "ok")
+            kws = call("GET", f"/campaigns/{c['id']}/adgroups/{g['id']}/targetingkeywords?limit=1000").get("data", [])
+            upd = []
+            for k in kws:
+                if k.get("status") == "PAUSED" or k.get("deleted"):
+                    continue
+                kb = float((k.get("bidAmount") or {}).get("amount") or old)
+                nb = round(max(0.3, min(2.0, kb * f)), 2)
+                upd.append({"id": k["id"], "bidAmount": {"amount": str(nb), "currency": CUR}})
+                print("    mot-clé", k.get("text"), kb, "→", nb)
+            if upd:
+                kr = call("PUT", f"/campaigns/{c['id']}/adgroups/{g['id']}/targetingkeywords/bulk", upd)
+                print("  mots-clés", len(upd), "ÉCHEC " + str(kr)[:300] if isinstance(kr, dict) and kr.get("error") else "ok")
+
 elif MODE in ("pause", "resume"):
     # Avec « budgets » (noms séparés par ;) : seulement ces campagnes. Sans : toutes.
     only = [n.split("=")[0].strip() for n in os.environ.get("BUDGETS", "").split(";") if n.strip()]
