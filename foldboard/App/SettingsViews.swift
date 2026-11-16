@@ -30,7 +30,7 @@ struct SetupView: View {
 
             Section {
                 Label("Full Access is only used for vibrations, typing sounds and to share your settings between the app and the keyboard.", systemImage: "hand.raised")
-                Label("Foldboard has no internet access: what you type stays on your iPhone.", systemImage: "wifi.slash")
+                Label("The keyboard has no internet access: what you type stays on your iPhone.", systemImage: "wifi.slash")
             } header: {
                 Text("Why Full Access?")
             }

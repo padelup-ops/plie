@@ -14,6 +14,10 @@ struct ShotView: View {
             HomeView().onAppear { UserDefaults.standard.set(true, forKey: "onboarded") }
         case "pro":
             ProView()
+        case "faq":
+            NavigationStack { FAQView().fullScreenDuo() }
+        case "faq-open":
+            NavigationStack { FAQView(expandAll: true).fullScreenDuo() }
         case "themes":
             NavigationStack { LookView().fullScreenDuo() }
         case "phrases":

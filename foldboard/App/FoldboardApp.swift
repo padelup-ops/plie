@@ -48,20 +48,11 @@ struct HomeView: View {
     @AppStorage("seenButtonsGuide") private var seenButtonsGuide = false
     @State private var showButtonsGuide = false
     @State private var showPro = false
-    @State private var tryText = ""
-    @FocusState private var tryFocus: Bool
-    /// L'accueil « Atelier », à l'essai dans TestFlight.
-    @AppStorage("atelierHome") private var atelier = true
-    /// La recherche dans les réglages (« hauteur », « presse-papier »…) : on trouve tout de suite où c'est.
-    @State private var search = ""
 
     var body: some View {
         NavigationStack {
-            Group {
-                if !search.isEmpty { SettingsSearchResults(query: search) }
-                else if KBBuild.isTest && atelier { AtelierHome(showPro: $showPro) } else { classic }
-            }
-            .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always), prompt: Text("Search settings"))
+            // Un seul accueil pour tout le monde : la recherche, les réglages en cartes, l'aide et la FAQ.
+            AtelierHome(showPro: $showPro)
             .sheet(isPresented: $showPro) { ProView().environment(store).fullScreenDuo() }
             .sheet(isPresented: $showButtonsGuide) {
                 NavigationStack { ButtonsGuide { showButtonsGuide = false } }
@@ -79,120 +70,6 @@ struct HomeView: View {
                     .environment(model)
                     .fullScreenDuo()
             }
-        }
-    }
-
-    private var classic: some View {
-            List {
-                if KBBuild.isTest {
-                    Section {
-                        Button { atelier = true } label: {
-                            Label("Try the new design (test)", systemImage: "wand.and.stars")
-                        }
-                    }
-                }
-                Section {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(spacing: 14) {
-                            Image("Logo")
-                                .resizable()
-                                .frame(width: 56, height: 56)
-                                .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Foldboard").font(.title2.bold())
-                                Text("The keyboard made for iPhone Duo").font(.subheadline).foregroundStyle(.secondary)
-                            }
-                        }
-                        Text("Outer screen: the keyboard comes out on the side of the hand holding the phone. Inner screen: it splits in two, like Apple's.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 6)
-                }
-
-                ProStatusRow(showPro: $showPro)
-
-                LearningRow()
-
-                RecapRow()
-
-                Section {
-                    NavigationLink {
-                        SetupView(done: $setupDone).fullScreenDuo()
-                    } label: {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Add Foldboard to your keyboards")
-                                Text(setupDone ? "Done" : "1 minute, 3 steps").font(.footnote).foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: setupDone ? "checkmark.circle.fill" : "keyboard.badge.ellipsis")
-                                .foregroundStyle(setupDone ? .green : Color.accentColor)
-                        }
-                    }
-                } header: {
-                    Text("Get started")
-                }
-
-                Section {
-                    TextField("Type here to try Foldboard", text: $tryText, axis: .vertical)
-                        .lineLimit(3...6)
-                        .focused($tryFocus)
-                    if !tryText.isEmpty {
-                        Button("Clear", role: .destructive) { tryText = "" }
-                    }
-                } header: {
-                    Text("Try it")
-                } footer: {
-                    Text("Tap the field, then hold the globe key and pick Foldboard.")
-                }
-
-                // Les réglages d'abord, chacun avec ce qu'on y trouve ; l'aide ensuite.
-                Section {
-                    settingsRow(.position, icon: "hand.raised.fingers.spread")
-                    settingsRow(.typing, icon: "character.cursor.ibeam")
-                    settingsRow(.look, icon: "paintpalette")
-                    settingsRow(.feel, icon: "waveform")
-                    settingsRow(.phrases, icon: "text.bubble")
-                } header: {
-                    Text("Settings")
-                } footer: {
-                    Text("Looking for a setting? Search it by name at the top.")
-                }
-
-                Section {
-                    settingsRow(.teach, icon: "touchid")
-                    NavigationLink { PlaceTutorial().fullScreenDuo() } label: {
-                        Label("How it works", systemImage: "hand.tap")
-                    }
-                    settingsRow(.tour, icon: "play.rectangle")
-                    settingsRow(.buttons, icon: "rectangle.topthird.inset.filled")
-                } header: {
-                    Text("Help")
-                }
-
-                Section {
-                    Label("Foldboard never sends what you type anywhere. It has no internet access, no account and no ads.", systemImage: "lock.shield")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .fullScreenDuo()
-            .navigationTitle("Foldboard")
-            .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-extension HomeView {
-    /// Une page de réglages : son nom, et en dessous ce qu'on y trouve.
-    func settingsRow(_ p: SettingsPage, icon: String) -> some View {
-        NavigationLink { p.destination } label: {
-            Label {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(p.title)
-                    Text(p.subtitle).font(.footnote).foregroundStyle(.secondary)
-                }
-            } icon: { Image(systemName: icon) }
         }
     }
 }

@@ -548,6 +548,16 @@ enum KBVault {
     }
 
     // Bilan de frappe : le plus récent gagne (comme les réglages).
+    /// La dernière version publiée sur l'App Store, vue par l'app (le clavier, lui, ne va jamais sur internet).
+    static func loadLatestVersion() -> String? {
+        read("latest").flatMap { String(data: $0, encoding: .utf8) }
+    }
+
+    static func saveLatestVersion(_ v: String) {
+        guard let d = v.data(using: .utf8) else { return }
+        write("latest", d)
+    }
+
     static func loadStats() -> KBStats {
         let shared = read("stats").flatMap { try? JSONDecoder().decode(KBStats.self, from: $0) }
         let local = UserDefaults.standard.data(forKey: "foldboard.stats").flatMap { try? JSONDecoder().decode(KBStats.self, from: $0) }
@@ -573,5 +583,26 @@ enum KBVault {
         guard let data = try? JSONEncoder().encode(a) else { return }
         write("access", data)
         UserDefaults.standard.set(data, forKey: "foldboard.access")
+    }
+}
+
+/// Les numéros de version : celle qui tourne, et s'il en existe une plus récente sur l'App Store.
+enum KBVersion {
+    static var current: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0" }
+
+    static func isNewer(_ a: String, than b: String) -> Bool {
+        let x = a.split(separator: ".").map { Int($0) ?? 0 }
+        let y = b.split(separator: ".").map { Int($0) ?? 0 }
+        for i in 0..<max(x.count, y.count) {
+            let p = i < x.count ? x[i] : 0, q = i < y.count ? y[i] : 0
+            if p != q { return p > q }
+        }
+        return false
+    }
+
+    /// La version plus récente publiée, s'il y en a une (l'app la note une fois par jour).
+    static var updateAvailable: String? {
+        guard let latest = KBVault.loadLatestVersion(), isNewer(latest, than: current) else { return nil }
+        return latest
     }
 }

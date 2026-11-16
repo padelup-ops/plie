@@ -17,6 +17,22 @@ enum SettingsPage: CaseIterable {
         }
     }
 
+    /// Les six cartes de réglages de l'accueil.
+    static let grid: [SettingsPage] = [.position, .typing, .look, .feel, .phrases, .teach]
+
+    var icon: String {
+        switch self {
+        case .position: return "hand.raised.fingers.spread"
+        case .typing: return "character.cursor.ibeam"
+        case .look: return "paintpalette"
+        case .feel: return "waveform"
+        case .phrases: return "text.bubble"
+        case .teach: return "touchid"
+        case .buttons: return "rectangle.topthird.inset.filled"
+        case .tour: return "play.rectangle"
+        }
+    }
+
     /// Ce qu'on trouve dans la page, en une ligne (sous le titre, à l'accueil).
     var subtitle: LocalizedStringKey {
         switch self {

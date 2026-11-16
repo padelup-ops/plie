@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-// MARK: - L'accueil « Atelier » (à l'essai, TestFlight seulement)
+// MARK: - L'accueil « Atelier » (l'accueil de tout le monde depuis la 1.0.19)
 //
 // Règles suivies (swiftui-design-skill, licence MIT) : une seule couleur d'accent chaude sur des neutres chauds,
 // titres en serif (New York) et texte en SF Pro, grille de 8 points, symboles SF (pas d'emoji), cibles de 44 points,
@@ -44,7 +44,10 @@ struct AtelierHome: View {
     @Environment(Store.self) private var store
     @Binding var showPro: Bool
     @AppStorage("setupDone") private var setupDone = false
-    @AppStorage("atelierHome") private var atelier = true
+    /// La recherche : un réglage ou une question, on trouve tout de suite où c'est.
+    @State private var search = ""
+    /// Une version plus récente sur l'App Store : une carte en haut pour mettre à jour.
+    @State private var update: String? = KBVersion.updateAvailable
     @State private var learn = KBVault.loadLearn()
     @State private var tryText = ""
     @FocusState private var tryFocus: Bool
@@ -53,23 +56,28 @@ struct AtelierHome: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Atelier.s3) {
                 header
-                hand
-                HStack(alignment: .top, spacing: Atelier.s2) {
-                    setupTile
-                    proTile
+                if let update { updateCard(update) }
+                searchField
+                if !search.trimmingCharacters(in: .whitespaces).isEmpty {
+                    results
+                } else {
+                    HStack(alignment: .top, spacing: Atelier.s2) {
+                        setupTile
+                        proTile
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
+                    settingsGrid
+                    help
+                    hand
+                    tryField
+                    RecapRow()
+                        .padding(Atelier.s2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .atelierCard()
+                    Label("Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads.", systemImage: "lock.shield")
+                        .font(.footnote)
+                        .foregroundStyle(Atelier.muted)
                 }
-                .fixedSize(horizontal: false, vertical: true)
-                tryField
-                settings
-                Label("Foldboard never sends what you type anywhere. It has no internet access, no account and no ads.", systemImage: "lock.shield")
-                    .font(.footnote)
-                    .foregroundStyle(Atelier.muted)
-                Button { atelier = false } label: {
-                    Text("Back to the classic design")
-                        .font(.footnote.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .tint(Atelier.muted)
             }
             .padding(.horizontal, Atelier.s2)
             .padding(.top, Atelier.s1)
@@ -83,8 +91,10 @@ struct AtelierHome: View {
         .tint(Atelier.accent)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear { learn = KBVault.loadLearn() }
+        .task { await refreshUpdate() }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             learn = KBVault.loadLearn()
+            Task { await refreshUpdate() }
         }
     }
 
@@ -285,28 +295,152 @@ struct AtelierHome: View {
         }
     }
 
-    // MARK: Réglages : une seule liste, des icônes de même poids
+    // MARK: Mise à jour
 
-    private var settings: some View {
+    private func refreshUpdate() async {
+        await UpdateCheck.run()
+        update = KBVersion.updateAvailable
+    }
+
+    private func updateCard(_ v: String) -> some View {
+        Link(destination: UpdateCheck.storeURL) {
+            HStack(spacing: Atelier.s2) {
+                Image(systemName: "arrow.down.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(Atelier.accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Update available")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Atelier.ink)
+                    Text(String(format: NSLocalizedString("Foldboard %@ is out, with the latest fixes.", comment: ""), v))
+                        .font(.caption)
+                        .foregroundStyle(Atelier.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                Text("Update")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Capsule().fill(Atelier.accent))
+            }
+            .padding(Atelier.s2)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: Atelier.radius, style: .continuous).fill(Atelier.accentSoft))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: Recherche
+
+    private var searchField: some View {
+        HStack(spacing: Atelier.s1) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(Atelier.muted)
+            TextField("Search a setting or a question", text: $search)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .submitLabel(.search)
+                .foregroundStyle(Atelier.ink)
+            if !search.isEmpty {
+                Button { search = "" } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(Atelier.muted)
+                        .frame(width: 32, height: 32)
+                }
+                .accessibilityLabel(Text("Clear"))
+            }
+        }
+        .padding(.horizontal, 12)
+        .frame(minHeight: 44)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Atelier.sunk))
+    }
+
+    /// Les réglages et les questions qui correspondent, à la place de l'accueil pendant qu'on cherche.
+    @ViewBuilder private var results: some View {
+        let found = SettingsEntry.search(search)
+        let questions = FAQ.search(search)
+        if found.isEmpty && questions.isEmpty {
+            Text("No result")
+                .font(.subheadline)
+                .foregroundStyle(Atelier.muted)
+                .frame(maxWidth: .infinity, minHeight: 88)
+        }
+        if !found.isEmpty {
+            VStack(alignment: .leading, spacing: Atelier.s1) {
+                sectionTitle(Text("Settings"))
+                VStack(spacing: 0) {
+                    ForEach(Array(found.enumerated()), id: \.element.id) { i, e in
+                        if i > 0 { divider }
+                        row(e.page.icon, Text(verbatim: e.title), Text(e.page.title)) { e.page.destination }
+                    }
+                }
+                .atelierCard()
+            }
+        }
+        if !questions.isEmpty {
+            VStack(alignment: .leading, spacing: Atelier.s1) {
+                sectionTitle(Text("Questions and answers"))
+                VStack(spacing: 0) {
+                    ForEach(Array(questions.enumerated()), id: \.element.id) { i, q in
+                        if i > 0 { divider }
+                        row("questionmark.bubble", Text(verbatim: q.question), nil) { FAQView(open: q.id).fullScreenDuo() }
+                    }
+                }
+                .atelierCard()
+            }
+        }
+    }
+
+    // MARK: Réglages : une grille de six cartes, chacune dit ce qu'on y trouve
+
+    private var settingsGrid: some View {
         VStack(alignment: .leading, spacing: Atelier.s1) {
             sectionTitle(Text("Settings"))
-            VStack(spacing: 0) {
-                link("hand.raised.fingers.spread", SettingsPage.position.title, SettingsPage.position.subtitle) { PositionView().fullScreenDuo() }
-                divider
-                link("character.cursor.ibeam", SettingsPage.typing.title, SettingsPage.typing.subtitle) { TypingView().fullScreenDuo() }
-                divider
-                link("paintpalette", SettingsPage.look.title, SettingsPage.look.subtitle) { LookView().fullScreenDuo() }
-                divider
-                link("waveform", SettingsPage.feel.title, SettingsPage.feel.subtitle) { FeelView().fullScreenDuo() }
-                divider
-                link("text.bubble", SettingsPage.phrases.title, SettingsPage.phrases.subtitle) { PhrasesView().fullScreenDuo() }
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: Atelier.s2), GridItem(.flexible(), spacing: Atelier.s2)],
+                      spacing: Atelier.s2) {
+                ForEach(SettingsPage.grid, id: \.self) { p in
+                    NavigationLink { p.destination } label: { pageTile(p) }
+                        .buttonStyle(.plain)
+                }
             }
-            .background(RoundedRectangle(cornerRadius: Atelier.radius, style: .continuous).fill(Atelier.surface))
-            .overlay(RoundedRectangle(cornerRadius: Atelier.radius, style: .continuous).strokeBorder(Atelier.line))
-            sectionTitle(Text("Learn"))
-                .padding(.top, Atelier.s2)
+        }
+    }
+
+    private func pageTile(_ p: SettingsPage) -> some View {
+        VStack(alignment: .leading, spacing: Atelier.s1) {
+            Image(systemName: p.icon)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(Atelier.accent)
+                .frame(width: 36, height: 36)
+                .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Atelier.accentSoft))
+            Spacer(minLength: 0)
+            Text(p.title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Atelier.ink)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(p.subtitle)
+                .font(.caption)
+                .foregroundStyle(Atelier.muted)
+                .multilineTextAlignment(.leading)
+                .lineLimit(3)
+        }
+        .padding(Atelier.s2)
+        .frame(maxWidth: .infinity, minHeight: 148, maxHeight: .infinity, alignment: .topLeading)
+        .atelierCard()
+        .contentShape(Rectangle())
+    }
+
+    // MARK: Aide : les questions d'abord
+
+    private var help: some View {
+        VStack(alignment: .leading, spacing: Atelier.s1) {
+            sectionTitle(Text("Help"))
             VStack(spacing: 0) {
-                link("touchid", "Teach your thumbs") { GripSetup().fullScreenDuo() }
+                link("questionmark.bubble", "Questions and answers", "The questions people ask most") { FAQView().fullScreenDuo() }
                 divider
                 link("hand.tap", "How it works") { PlaceTutorial().fullScreenDuo() }
                 divider
@@ -314,8 +448,7 @@ struct AtelierHome: View {
                 divider
                 link("rectangle.topthird.inset.filled", "The keyboard buttons") { ButtonsGuide().fullScreenDuo() }
             }
-            .background(RoundedRectangle(cornerRadius: Atelier.radius, style: .continuous).fill(Atelier.surface))
-            .overlay(RoundedRectangle(cornerRadius: Atelier.radius, style: .continuous).strokeBorder(Atelier.line))
+            .atelierCard()
         }
     }
 
@@ -324,6 +457,10 @@ struct AtelierHome: View {
     }
 
     private func link<D: View>(_ icon: String, _ title: LocalizedStringKey, _ subtitle: LocalizedStringKey? = nil, @ViewBuilder _ dest: @escaping () -> D) -> some View {
+        row(icon, Text(title), subtitle.map { Text($0) }, dest)
+    }
+
+    private func row<D: View>(_ icon: String, _ title: Text, _ subtitle: Text?, @ViewBuilder _ dest: @escaping () -> D) -> some View {
         NavigationLink {
             dest()
         } label: {
@@ -333,11 +470,12 @@ struct AtelierHome: View {
                     .foregroundStyle(Atelier.accent)
                     .frame(width: 24)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    title
                         .font(.body)
                         .foregroundStyle(Atelier.ink)
+                        .multilineTextAlignment(.leading)
                     if let subtitle {
-                        Text(subtitle).font(.footnote).foregroundStyle(Atelier.muted)
+                        subtitle.font(.footnote).foregroundStyle(Atelier.muted)
                     }
                 }
                 .padding(.vertical, subtitle == nil ? 0 : 6)
@@ -356,5 +494,31 @@ struct AtelierHome: View {
     private func sectionTitle(_ t: Text) -> some View {
         t.font(.system(.title3, design: .serif).weight(.semibold))
             .foregroundStyle(Atelier.ink)
+    }
+}
+
+/// Une fois toutes les 6 heures au plus, l'app demande à l'App Store le numéro de la dernière version (rien n'est
+/// envoyé : ni texte tapé, ni identifiant). Le clavier, lui, ne va jamais sur internet : il lit ce que l'app a noté.
+enum UpdateCheck {
+    static let appID = "6832556606"
+    static let storeURL = URL(string: "itms-apps://apps.apple.com/app/id6832556606")!
+
+    static func run() async {
+        let d = UserDefaults.standard
+        let now = Date().timeIntervalSince1970
+        guard now - d.double(forKey: "foldboard.updateCheck") > 6 * 3600 else { return }
+        let session = URLSession(configuration: .ephemeral)
+        let country = Locale.current.region?.identifier.lowercased() ?? "us"
+        for c in (country == "us" ? ["us"] : [country, "us"]) {
+            guard let url = URL(string: "https://itunes.apple.com/lookup?id=\(appID)&country=\(c)") else { continue }
+            let req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
+            guard let (data, _) = try? await session.data(for: req),
+                  let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let results = obj["results"] as? [[String: Any]],
+                  let v = results.first?["version"] as? String, !v.isEmpty else { continue }
+            KBVault.saveLatestVersion(v)
+            d.set(now, forKey: "foldboard.updateCheck")
+            return
+        }
     }
 }

@@ -40,19 +40,34 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         undelayTouches()
         // Certains gestes du système s'installent un peu après l'apparition.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.undelayTouches() }
-        showTrialOver()
+        if !showTrialOver() { showUpdateNotice() }
+    }
+
+    /// Une version plus récente est sur l'App Store (l'app l'a vu) : on le dit deux fois au plus, par version.
+    /// Le clavier ne va jamais sur internet : il lit seulement ce que l'app a noté.
+    private func showUpdateNotice() {
+        guard let v = KBVersion.updateAvailable else { return }
+        let key = "foldboard.updateNotice." + v
+        let shown = UserDefaults.standard.integer(forKey: key)
+        guard shown < 2 else { return }
+        UserDefaults.standard.set(shown + 1, forKey: key)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+            self?.canvas.notice(L("New version of Foldboard: update it in the App Store"))
+        }
     }
 
     /// L'essai est fini : le clavier ne suit plus la main. On le dit clairement, les 3 premières fois.
-    private func showTrialOver() {
-        guard access.trialOver() else { return }
+    @discardableResult
+    private func showTrialOver() -> Bool {
+        guard access.trialOver() else { return false }
         let key = "foldboard.trialOverShown"
         let shown = UserDefaults.standard.integer(forKey: key)
-        guard shown < 3 else { return }
+        guard shown < 3 else { return false }
         UserDefaults.standard.set(shown + 1, forKey: key)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             self?.canvas.notice(L("Trial over: open Foldboard to unlock Pro"))
         }
+        return true
     }
 
     /// iOS retient les appuis rapides (il attend de voir si c'est un de ses gestes) et en avale certains :
