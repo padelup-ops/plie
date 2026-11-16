@@ -172,6 +172,9 @@ final class KeyboardCanvas: UIView {
         var cursorMode = false
         var cursorAccum: CGFloat = 0
         var cursorAccumY: CGFloat = 0
+        /// Pavé tactile : la vitesse du doigt, lissée (sans elle, l'accélération saute d'un mouvement à l'autre).
+        var cursorSpeed: CGFloat = 0
+        var lastAnchor: TimeInterval = 0
         var lastT: TimeInterval = 0
         /// Le curseur a atteint le bout du texte connu du clavier : on relit le texte autour avant de continuer.
         var reanchoring = false
@@ -206,49 +209,68 @@ final class KeyboardCanvas: UIView {
     private var trackGoalCol: Int?
     private var trackMap: TrackMap?
 
-    /// Le texte autour du curseur, découpé en lignes (retours à la ligne, et lignes estimées dans un long
-    /// paragraphe), pour savoir où le doigt envoie le curseur. Positions comptées depuis le curseur de départ.
+    /// Le texte autour du curseur, en paragraphes (les vrais retours à la ligne), pour le pavé tactile : à gauche et
+    /// à droite lettre par lettre (d'une ligne à l'autre dans un paragraphe, comme le texte s'enroule), en haut et en
+    /// bas d'une ligne estimée (iOS ne dit pas aux claviers où passent les lignes à l'écran).
+    /// Positions comptées depuis le curseur au moment où la carte est faite.
     struct TrackMap {
-        var lines: [(start: Int, len: Int)] = []
-        var originLine = 0
-        var originCol = 0
-        var current = 0
-        let origin: CGPoint
-        let total: (lo: Int, hi: Int)
-        let singleParagraph: Bool
+        var paras: [(start: Int, len: Int)] = []
+        var para = 0
+        var off = 0
+        /// La colonne gardée quand on monte et descend (comme dans un éditeur de texte).
+        var goalCol: Int?
         let perLine: Int
+        let total: (lo: Int, hi: Int)
 
-        init(before: String, after: String, perLine: Int, origin: CGPoint) {
-            self.origin = origin
-            self.perLine = perLine
-            let text = before + after
+        init(before: String, after: String, perLine: Int) {
+            self.perLine = max(12, perLine)
             let idx = before.count
             total = (-idx, after.count)
-            singleParagraph = !text.contains("\n")
             var pos = 0
-            for para in text.components(separatedBy: "\n") {
-                let n = para.count
-                var off = 0
-                repeat {
-                    let len = min(perLine, n - off)
-                    lines.append((start: pos + off - idx, len: len))
-                    off += perLine
-                } while off < n
-                pos += n + 1
+            for p in (before + after).components(separatedBy: "\n") {
+                paras.append((start: pos - idx, len: p.count))
+                pos += p.count + 1
             }
-            if let i = lines.lastIndex(where: { $0.start <= 0 }) {
-                originLine = i
-                originCol = -lines[i].start
-            }
+            if paras.isEmpty { paras = [(start: 0, len: 0)] }
+            para = paras.lastIndex(where: { $0.start <= 0 }) ?? 0
+            off = max(0, min(paras[para].len, -paras[para].start))
         }
 
-        func target(dLine: Int, dCol: Int) -> Int {
-            if singleParagraph || lines.isEmpty {
-                return max(total.lo, min(total.hi, dCol + dLine * perLine))
+        var current: Int { paras[para].start + off }
+        /// Au bout du texte connu : iOS ne donne au clavier que quelques lignes autour du curseur, il faudra relire.
+        var atStart: Bool { para == 0 && off == 0 }
+        var atEnd: Bool { para == paras.count - 1 && off == paras[para].len }
+
+        private func lastLine(_ len: Int) -> Int { len == 0 ? 0 : (len - 1) / perLine }
+
+        /// n lettres à gauche (n < 0) ou à droite, sans sauter un retour à la ligne ; rend le déplacement fait.
+        mutating func moveH(_ n: Int) -> Int {
+            let o = max(0, min(paras[para].len, off + n))
+            let moved = o - off
+            off = o
+            if moved != 0 { goalCol = nil }
+            return moved
+        }
+
+        /// Une ligne plus haut (d < 0) ou plus bas, à la même colonne ; false au bout du texte connu.
+        mutating func moveV(_ d: Int) -> Bool {
+            let len = paras[para].len
+            let line = min(off / perLine, lastLine(len))
+            let col = goalCol ?? (off - line * perLine)
+            goalCol = col
+            if d < 0 {
+                if line > 0 { off = min(len, (line - 1) * perLine + col); return true }
+                guard para > 0 else { return false }
+                para -= 1
+                let l = paras[para].len
+                off = min(l, lastLine(l) * perLine + col)
+                return true
             }
-            let l = max(0, min(lines.count - 1, originLine + dLine))
-            let c = max(0, min(lines[l].len, originCol + dCol))
-            return max(total.lo, min(total.hi, lines[l].start + c))
+            if line < lastLine(len) { off = min(len, (line + 1) * perLine + col); return true }
+            guard para < paras.count - 1 else { return false }
+            para += 1
+            off = min(paras[para].len, col)
+            return true
         }
     }
     private var order: [UITouch] = []
@@ -2043,41 +2065,64 @@ final class KeyboardCanvas: UIView {
                 if !tr.cursorMode && (abs(dx) > 40 || abs(dy) > 34 || (held && (abs(dx) > 12 || abs(dy) > 12))) {
                     enterTrackpad(tr, at: p)
                 }
-                if tr.cursorMode, let map = trackMap {
-                    // Comme chez Apple : le curseur suit le doigt dans tous les sens, avec une accélération :
-                    // un geste lent avance lettre par lettre (précis), un geste rapide va plus loin.
+                if tr.cursorMode, var map = trackMap {
+                    // Comme chez Apple : le curseur suit le doigt dans tous les sens, sans à-coups. La vitesse est lissée
+                    // (un geste lent avance lettre par lettre, un geste rapide va plus loin), et ce qui dépasse un bord
+                    // est oublié : en revenant, le curseur repart tout de suite, sans zone morte.
                     let mdx = p.x - tr.lastX, mdy = p.y - tr.lastY
                     let dt = tr.lastT > 0 ? max(0.004, t.timestamp - tr.lastT) : 0.016
                     tr.lastX = p.x; tr.lastY = p.y; tr.lastT = t.timestamp
-                    let speed = hypot(mdx, mdy) / CGFloat(dt)          // points par seconde
-                    let gain: CGFloat = speed < 120 ? 0.8 : (speed < 600 ? 0.8 + (speed - 120) / 480 * 0.6 : min(3.4, 1.4 + (speed - 600) / 500))
-                    tr.cursorAccum += mdx * gain
-                    // Le vertical, plus dur : il faut vraiment monter ou descendre pour changer de ligne.
-                    tr.cursorAccumY += mdy * gain * (abs(mdy) > abs(mdx) * 0.6 ? 1 : 0.45)
-                    // Réglage « Sensibilité » : de 14 pt par lettre (lent) à 7 pt (rapide).
+                    let inst = hypot(mdx, mdy) / CGFloat(dt)          // points par seconde
+                    tr.cursorSpeed = tr.cursorSpeed == 0 ? inst : tr.cursorSpeed * 0.7 + inst * 0.3
+                    let gain = min(3, 1 + max(0, tr.cursorSpeed - 160) / 420)
+                    // Réglage « Sensibilité » : de 11 pt par lettre (lent) à 6 pt (rapide) ; une ligne tous les 22 pt.
                     let charStep = 11 - 5 * CGFloat(eff.swipe)
-                    // Une ligne tous les 24 pt (comme chez Apple, on monte de plusieurs lignes d'un geste).
-                    let lineStep: CGFloat = 24
-                    let dCol = Int((tr.cursorAccum / charStep).rounded(.towardZero))
-                    let dLine = Int((tr.cursorAccumY / lineStep).rounded(.towardZero))
-                    let target = map.target(dLine: dLine, dCol: dCol)
-                    if target != map.current {
-                        input?.kbMoveCursor(target - map.current)
-                        trackMap?.current = target
-                        KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.4)
+                    let lineStep: CGFloat = 22
+                    // Un geste presque horizontal ne change pas de ligne par mégarde.
+                    let vy: CGFloat = abs(mdy) > abs(mdx) * 0.5 ? 1 : 0.6
+                    tr.cursorAccum += mdx * gain / charStep
+                    tr.cursorAccumY += mdy * gain * vy / lineStep
+                    // Pendant qu'on relit le texte autour du curseur, le geste s'accumule et repart juste après.
+                    if tr.reanchoring { continue }
+                    let start = map.current
+                    var lineMoved = false
+                    var edge = false
+                    while abs(tr.cursorAccumY) >= 1 {
+                        let d = tr.cursorAccumY > 0 ? 1 : -1
+                        if map.moveV(d) {
+                            tr.cursorAccumY -= CGFloat(d)
+                            lineMoved = true
+                        } else {
+                            tr.cursorAccumY = 0
+                            edge = true
+                        }
+                    }
+                    let n = Int(tr.cursorAccum.rounded(.towardZero))
+                    if n != 0 {
+                        let moved = map.moveH(n)
+                        tr.cursorAccum -= CGFloat(n)
+                        if moved != n {
+                            tr.cursorAccum = 0
+                            if (n < 0 && map.atStart) || (n > 0 && map.atEnd) { edge = true }
+                        }
+                    }
+                    trackMap = map
+                    let delta = map.current - start
+                    if delta != 0 {
+                        input?.kbMoveCursor(delta)
+                        if lineMoved { KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.35) }
                     }
                     // iOS ne donne au clavier que quelques lignes autour du curseur : arrivé au bout de ce texte,
                     // on relit ce qu'il y a autour du nouveau curseur et on continue (comme chez Apple, jusqu'en haut).
-                    let wanted = dCol + dLine * map.perLine
-                    let atEdge = (target == map.total.lo && wanted < map.total.lo - 2) || (target == map.total.hi && wanted > map.total.hi + 2)
-                    if atEdge && !tr.reanchoring && map.total.hi - map.total.lo > 0 {
+                    if edge && t.timestamp - tr.lastAnchor > 0.25 && map.total.hi - map.total.lo > 0 {
                         tr.reanchoring = true
+                        tr.lastAnchor = t.timestamp
+                        let goal = map.goalCol, perLine = map.perLine
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) { [weak self, weak tr] in
                             guard let self, let tr, tr.cursorMode else { return }
-                            self.trackMap = TrackMap(before: self.input?.kbTextBefore() ?? "", after: self.input?.kbTextAfter() ?? "",
-                                                     perLine: map.perLine, origin: CGPoint(x: tr.lastX, y: tr.lastY))
-                            tr.cursorAccum = 0
-                            tr.cursorAccumY = 0
+                            var m = TrackMap(before: self.input?.kbTextBefore() ?? "", after: self.input?.kbTextAfter() ?? "", perLine: perLine)
+                            m.goalCol = goal
+                            self.trackMap = m
                             tr.reanchoring = false
                         }
                     }
@@ -2251,13 +2296,16 @@ final class KeyboardCanvas: UIView {
     private func enterTrackpad(_ tr: Track, at p: CGPoint) {
         if tr.typed != nil { input?.kbDelete(); tr.typed = nil }
         tr.cursorMode = true
+        // Une ligne de texte compte environ un caractère tous les 8,4 pt, marges du champ en moins.
         trackMap = TrackMap(before: input?.kbTextBefore() ?? "", after: input?.kbTextAfter() ?? "",
-                            perLine: max(24, Int(UIScreen.main.bounds.width / 8.5)), origin: p)
+                            perLine: max(24, Int((bounds.width - 48) / 8.4)))
         tr.lastX = p.x
         tr.lastY = p.y
         tr.lastT = 0
         tr.cursorAccum = 0
         tr.cursorAccumY = 0
+        tr.cursorSpeed = 0
+        tr.lastAnchor = 0
         hideBubble()
         setTrackpad(true)
         KBFeedback.shared.tap(sound: .off, haptics: max(0.5, eff.haptics))
