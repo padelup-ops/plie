@@ -228,6 +228,7 @@ struct ProBadge: View {
 
 struct PositionView: View {
     @Environment(SettingsModel.self) private var model
+    @State private var confirmReset = false
 
     var body: some View {
         @Bindable var m = model
@@ -283,23 +284,49 @@ struct PositionView: View {
                 TiltCalibration()
             }
 
+            // Deux groupes plus simples à lire : la hauteur des touches, puis la largeur (et un retour aux réglages
+            // d'origine, demandé par les testeurs perdus dans les curseurs).
             Section {
-                slider("One-hand width", value: $m.settings.oneHandWidth, in: 0.45...0.95, format: { "\(Int($0 * 100)) %" })
-                slider("One-hand width, Duo open", value: $m.settings.oneHandWidthOpen, in: 0.4...0.9, format: { "\(Int($0 * 100)) %" })
-                slider("Two-hand width (each side)", value: $m.settings.splitWidth, in: 0.22...0.48, format: { "\(Int($0 * 100)) %" })
-                slider("Distance from the edge", value: $m.settings.edgeMargin, in: 0...120, format: { "\(Int($0)) pt" })
                 slider("Key height", value: $m.settings.keyHeight, in: 34...60, format: { "\(Int($0)) pt" })
-                Toggle("Number row", isOn: $m.settings.numberRow)
                 Toggle("Different key height when open", isOn: Binding(
                     get: { m.settings.keyHeightOpen > 0 },
                     set: { m.settings.keyHeightOpen = $0 ? m.settings.keyHeight : 0 }))
                 if m.settings.keyHeightOpen > 0 {
                     slider("Key height, Duo open", value: $m.settings.keyHeightOpen, in: 34...60, format: { "\(Int($0)) pt" })
                 }
+                Toggle("Number row", isOn: $m.settings.numberRow)
             } header: {
-                Text("Size")
+                Text("Keys")
             } footer: {
-                Text("The keyboard can also be moved from its top bar: tap the position button, or the arrows to switch sides.")
+                Text("Taller keys are easier to hit. Smaller keys leave more room for the app.")
+            }
+
+            Section {
+                slider("One-hand width", value: $m.settings.oneHandWidth, in: 0.45...0.95, format: { "\(Int($0 * 100)) %" })
+                slider("One-hand width, Duo open", value: $m.settings.oneHandWidthOpen, in: 0.4...0.9, format: { "\(Int($0 * 100)) %" })
+                slider("Two-hand width (each side)", value: $m.settings.splitWidth, in: 0.22...0.48, format: { "\(Int($0 * 100)) %" })
+                slider("Distance from the edge", value: $m.settings.edgeMargin, in: 0...120, format: { "\(Int($0)) pt" })
+            } header: {
+                Text("Keyboard width")
+            } footer: {
+                Text("One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard.")
+            }
+
+            Section {
+                Button("Reset size to default", role: .destructive) { confirmReset = true }
+                    .confirmationDialog("Reset the size of the keyboard?", isPresented: $confirmReset, titleVisibility: .visible) {
+                        Button("Reset", role: .destructive) {
+                            let d = KBSettings()
+                            m.settings.keyHeight = d.keyHeight
+                            m.settings.keyHeightOpen = d.keyHeightOpen
+                            m.settings.oneHandWidth = d.oneHandWidth
+                            m.settings.oneHandWidthOpen = d.oneHandWidthOpen
+                            m.settings.splitWidth = d.splitWidth
+                            m.settings.edgeMargin = d.edgeMargin
+                        }
+                    } message: {
+                        Text("Key height and widths go back to their original values. Your positions and everything Foldboard learned stay.")
+                    }
             }
 
             Section {

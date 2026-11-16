@@ -389,3 +389,11 @@
 "Keyboard position on this screen" = "此屏幕上的键盘位置";
 "The keyboard follows your hand on this screen." = "在此屏幕上，键盘会跟随你的手。";
 "The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "在此屏幕上，键盘保持不动。要让它再次跟随你的手，请选择“跟随你的手”。";
+"Keys" = "按键";
+"Keyboard width" = "键盘宽度";
+"Reset" = "重置";
+"Reset size to default" = "将尺寸恢复默认";
+"Reset the size of the keyboard?" = "要重置键盘尺寸吗？";
+"Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "按键高度和宽度将恢复原始值。你的位置设置和 Foldboard 学到的内容都会保留。";
+"Taller keys are easier to hit. Smaller keys leave more room for the app." = "按键越高越容易点中，越小则给 App 留出更多空间。";
+"One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "单手宽度是靠一侧的小键盘的宽度。双手宽度是分体键盘每一半的宽度。离边缘的距离会让单手键盘远离屏幕边缘。全宽无需设置。也可以在顶部栏调整：位置按钮 › 调整键盘。";

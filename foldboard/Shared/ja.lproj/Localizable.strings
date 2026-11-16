@@ -389,3 +389,11 @@
 "Keyboard position on this screen" = "この画面でのキーボードの位置";
 "The keyboard follows your hand on this screen." = "この画面ではキーボードが手に追従します。";
 "The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "この画面ではキーボードは固定されます。再び手に追従させるには「手に追従」を選んでください。";
+"Keys" = "キー";
+"Keyboard width" = "キーボードの幅";
+"Reset" = "リセット";
+"Reset size to default" = "サイズを初期設定に戻す";
+"Reset the size of the keyboard?" = "キーボードのサイズをリセットしますか？";
+"Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "キーの高さと幅が初期値に戻ります。位置の設定とFoldboardが学習した内容はそのままです。";
+"Taller keys are easier to hit. Smaller keys leave more room for the app." = "キーを高くすると押しやすく、低くするとAppの表示領域が広がります。";
+"One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "片手の幅は片側に寄せた小さいキーボードの幅です。両手の幅は分割キーボードの片側の幅です。端からの距離は片手キーボードを画面の端から離します。全幅には設定は不要です。上部バーの位置ボタン › キーボードを調整 からもサイズを変えられます。";

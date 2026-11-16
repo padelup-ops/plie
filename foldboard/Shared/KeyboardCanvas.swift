@@ -262,6 +262,8 @@ final class KeyboardCanvas: UIView {
     private var wideFull: Bool { layoutMode == .full && bounds.width >= 560 && !showEmoji }
     private var reportedHeight: CGFloat = 0
     private var rowCount: Int { eff.numberRow ? 5 : 4 }
+    /// Le haut de la barre : 0, ou plus bas si l'app hôte a donné plus de hauteur que demandé (le vide va au-dessus).
+    private var barTop: CGFloat { max(0, (bounds.height - preferredHeight).rounded(.down)) }
     var preferredHeight: CGFloat {
         Self.topBarHeight + 6 + CGFloat(rowCount) * keyH + CGFloat(rowCount - 1) * vgap + 8
     }
@@ -1145,7 +1147,9 @@ final class KeyboardCanvas: UIView {
             DispatchQueue.main.async { [weak self] in self?.onPreferredHeightChange?() }
         }
         let W = bounds.width
-        let top = Self.topBarHeight + 6
+        // Certaines apps (Reddit…) donnent au clavier plus de hauteur que demandé : les touches restent en bas, sous
+        // le pouce, au lieu de laisser un grand vide sous la barre d'espace.
+        let top = barTop + Self.topBarHeight + 6
         let areaH = CGFloat(rowCount) * keyH + CGFloat(rowCount - 1) * vgap
         let margin = CGFloat(eff.edgeMargin)
         let rows = KBLayouts.rows(page, layout: eff.layout, numberRow: eff.numberRow)
@@ -1318,7 +1322,7 @@ final class KeyboardCanvas: UIView {
     }
 
     private func layoutTopBar() {
-        topBar.frame = CGRect(x: 0, y: 0, width: bounds.width, height: Self.topBarHeight)
+        topBar.frame = CGRect(x: 0, y: barTop, width: bounds.width, height: Self.topBarHeight)
         let h = Self.topBarHeight
         // Clavier d'un côté : la barre (boutons et suggestions) reste au-dessus des touches, à portée du pouce,
         // au lieu de traverser tout l'écran (Duo ouvert).
@@ -1390,7 +1394,8 @@ final class KeyboardCanvas: UIView {
                 // En colonne, l'ordre se lit de haut en bas, colonne après colonne.
                 let col = vertical ? i / g.rows : i % g.cols
                 let row = vertical ? i % g.rows : i / g.cols
-                b.frame = CGRect(x: ox + CGFloat(col) * 44, y: panelRect.minY + CGFloat(row) * step, width: 44, height: step)
+                // Les boutons sont dans la barre du haut : leur position se compte depuis elle.
+                b.frame = CGRect(x: ox + CGFloat(col) * 44, y: panelRect.minY - barTop + CGFloat(row) * step, width: 44, height: step)
             }
             chips.frame = CGRect(x: cx, y: 0, width: max(0, x1 - cx - 6), height: h)
         } else {
@@ -2649,8 +2654,7 @@ final class KeyboardCanvas: UIView {
         // AZERTY : l'apostrophe à la place du n (« ma’que » → « manque »).
         if eff.autocorrect, let r = suggest.apostropheTypo(token), r != token {
             wordTouches.removeAll()
-            for _ in 0..<token.count { input?.kbDelete() }
-            input?.kbInsert(r)
+            replaceTail(token, with: r)
             lastCorrection = (token, r, sep)
             return
         }
@@ -2667,10 +2671,20 @@ final class KeyboardCanvas: UIView {
             return
         }
         wordTouches.removeAll()
-        for _ in 0..<word.count { input?.kbDelete() }
-        input?.kbInsert(fix)
+        replaceTail(word, with: fix)
         lastCorrection = (word, fix, sep)
         if recording == nil { KBStatsRecorder.shared.correction() }
+    }
+
+    /// Remplacer le mot juste avant le curseur en n'effaçant que ce qui change (« lettees » → « lettres » : on efface
+    /// « ees » et on écrit « res »). iOS ne laisse pas un clavier remplacer un mot d'un coup : moins d'effacements,
+    /// c'est un mot qui tressaute beaucoup moins.
+    private func replaceTail(_ old: String, with new: String) {
+        let a = Array(old), b = Array(new)
+        var p = 0
+        while p < a.count, p < b.count, a[p] == b[p] { p += 1 }
+        for _ in 0..<(a.count - p) { input?.kbDelete() }
+        if p < b.count { input?.kbInsert(String(b[p...])) }
     }
 
     /// Le mot tapé commence par une majuscule : la correction aussi.
@@ -2706,9 +2720,8 @@ final class KeyboardCanvas: UIView {
             let w1 = word
             suggestQueue.async { [bgSuggest] in bgSuggest.learn(w1) }
         }
-        for _ in 0..<word.count { input?.kbDelete() }
+        replaceTail(word, with: item + " ")
         glidedWord = nil
-        input?.kbInsert(item + " ")
         lastCorrection = nil
         wordTouches.removeAll()
         let prev = word.isEmpty ? KBSuggest.lastWord(before) : KBSuggest.previousWord(before, word: word)

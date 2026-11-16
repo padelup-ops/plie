@@ -156,27 +156,50 @@ final class KBSuggest {
         return m
     }
 
+    /// Les listes de mots d'une langue, construites une seule fois et partagées par tous les correcteurs (celui de la
+    /// barre, celui de l'espace, et les deux claviers qu'iOS fait tourner un instant quand le Duo s'ouvre ou se ferme) :
+    /// une seule copie en mémoire au lieu de quatre. Elles ne changent plus une fois construites.
+    private final class ListData {
+        var words: [String] = [], folded: [String] = [], rank: [String: Int] = [:]
+        var byPrefix: [String: [Int]] = [:], byFirst: [String: [Int]] = [:]
+        var byFirstLen: [String: [(Int, [Character])]] = [:], accented: [String: Int] = [:]
+    }
+    private static var listCache: [String: ListData] = [:]
+    private static let listLock = NSLock()
+    private static func listData(_ code: String) -> ListData {
+        listLock.lock(); defer { listLock.unlock() }
+        if let d = listCache[code] { return d }
+        let d = ListData()
+        if let url = Bundle.main.url(forResource: "words-" + code, withExtension: "txt"),
+           let text = try? String(contentsOf: url, encoding: .utf8) {
+            d.words = text.split(separator: "\n").map(String.init)
+            d.folded = d.words.map { $0.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil) }
+            for (i, w) in d.words.enumerated() where d.rank[w] == nil { d.rank[w] = i }
+            for (i, w) in d.words.enumerated() {
+                let f = d.folded[i]
+                if w.lowercased() != f, d.accented[f] == nil { d.accented[f] = i }
+            }
+            for (i, f) in d.folded.enumerated() {
+                d.byPrefix[String(f.prefix(2)), default: []].append(i)
+                d.byFirst[String(f.prefix(1)), default: []].append(i)
+                if i < 15_000 {
+                    let c = Array(f)
+                    if c.count >= 4 && c.count <= 14 { d.byFirstLen["\(c[0])\(c.count)", default: []].append((i, c)) }
+                }
+            }
+        }
+        // Une seule langue en mémoire (comme le modèle de langue).
+        listCache = [code: d]
+        return d
+    }
+
     private func loadList(_ code: String) {
         guard loadedList != code else { return }
         loadedList = code
-        words = []; folded = []; rank = [:]; byPrefix = [:]; byFirst = [:]; byFirstLen = [:]; accented = [:]
-        guard let url = Bundle.main.url(forResource: "words-" + code, withExtension: "txt"),
-              let text = try? String(contentsOf: url, encoding: .utf8) else { return }
-        words = text.split(separator: "\n").map(String.init)
-        folded = words.map { $0.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil) }
-        for (i, w) in words.enumerated() where rank[w] == nil { rank[w] = i }
-        for (i, w) in words.enumerated() {
-            let f = folded[i]
-            if w.lowercased() != f, accented[f] == nil { accented[f] = i }
-        }
-        for (i, f) in folded.enumerated() {
-            byPrefix[String(f.prefix(2)), default: []].append(i)
-            byFirst[String(f.prefix(1)), default: []].append(i)
-            if i < 15_000 {
-                let c = Array(f)
-                if c.count >= 4 && c.count <= 14 { byFirstLen["\(c[0])\(c.count)", default: []].append((i, c)) }
-            }
-        }
+        // Les tableaux sont partagés (copie à l'écriture) : aucune copie tant que personne ne les modifie.
+        let d = Self.listData(code)
+        words = d.words; folded = d.folded; rank = d.rank; byPrefix = d.byPrefix; byFirst = d.byFirst
+        byFirstLen = d.byFirstLen; accented = d.accented
     }
 
     // MARK: Écrire en glissant (comme le clavier d'Apple)

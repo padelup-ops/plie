@@ -397,3 +397,11 @@
 "Keyboard position on this screen" = "Keyboard position on this screen";
 "The keyboard follows your hand on this screen." = "The keyboard follows your hand on this screen.";
 "The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand.";
+"Keys" = "Keys";
+"Keyboard width" = "Keyboard width";
+"Reset" = "Reset";
+"Reset size to default" = "Reset size to default";
+"Reset the size of the keyboard?" = "Reset the size of the keyboard?";
+"Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "Key height and widths go back to their original values. Your positions and everything Foldboard learned stay.";
+"Taller keys are easier to hit. Smaller keys leave more room for the app." = "Taller keys are easier to hit. Smaller keys leave more room for the app.";
+"One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard.";

@@ -389,3 +389,11 @@
 "Keyboard position on this screen" = "Posizione della tastiera su questo schermo";
 "The keyboard follows your hand on this screen." = "La tastiera segue la tua mano su questo schermo.";
 "The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "La tastiera resta ferma su questo schermo. Per farle seguire di nuovo la tua mano, scegli Segue la tua mano.";
+"Keys" = "Tasti";
+"Keyboard width" = "Larghezza della tastiera";
+"Reset" = "Ripristina";
+"Reset size to default" = "Ripristina le dimensioni originali";
+"Reset the size of the keyboard?" = "Ripristinare le dimensioni della tastiera?";
+"Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "Altezza dei tasti e larghezze tornano ai valori originali. Le tue posizioni e tutto ciò che Foldboard ha imparato restano.";
+"Taller keys are easier to hit. Smaller keys leave more room for the app." = "I tasti più alti sono più facili da premere. Quelli più piccoli lasciano più spazio all’app.";
+"One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "Le larghezze a una mano sono quelle della tastiera piccola su un lato. La larghezza a due mani è quella di ciascuna metà della tastiera divisa. La distanza dal bordo allontana la tastiera a una mano dal lato dello schermo. La larghezza intera non richiede impostazioni. Puoi anche ridimensionarla dalla barra in alto: pulsante posizione › Regola la tastiera.";

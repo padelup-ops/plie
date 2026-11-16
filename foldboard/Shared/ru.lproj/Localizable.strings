@@ -389,3 +389,11 @@
 "Keyboard position on this screen" = "Положение клавиатуры на этом экране";
 "The keyboard follows your hand on this screen." = "На этом экране клавиатура следует за рукой.";
 "The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "На этом экране клавиатура остаётся на месте. Чтобы она снова следовала за рукой, выберите «Следует за рукой».";
+"Keys" = "Клавиши";
+"Keyboard width" = "Ширина клавиатуры";
+"Reset" = "Сбросить";
+"Reset size to default" = "Сбросить размер по умолчанию";
+"Reset the size of the keyboard?" = "Сбросить размер клавиатуры?";
+"Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "Высота клавиш и ширина вернутся к исходным значениям. Ваши положения и всё, чему научился Foldboard, сохранятся.";
+"Taller keys are easier to hit. Smaller keys leave more room for the app." = "По высоким клавишам легче попадать. Низкие оставляют больше места приложению.";
+"One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "Ширина для одной руки — это маленькая клавиатура сбоку. Ширина для двух рук — каждая половина разделённой клавиатуры. Отступ от края отодвигает клавиатуру для одной руки от края экрана. Для полной ширины настройка не нужна. Размер можно изменить и из верхней панели: кнопка положения › Настроить клавиатуру.";

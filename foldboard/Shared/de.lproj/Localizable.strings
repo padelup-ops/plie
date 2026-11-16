@@ -389,3 +389,11 @@
 "Keyboard position on this screen" = "Tastaturposition auf diesem Bildschirm";
 "The keyboard follows your hand on this screen." = "Die Tastatur folgt auf diesem Bildschirm deiner Hand.";
 "The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "Die Tastatur bleibt auf diesem Bildschirm an ihrem Platz. Damit sie wieder deiner Hand folgt, wähle Folgt deiner Hand.";
+"Keys" = "Tasten";
+"Keyboard width" = "Tastaturbreite";
+"Reset" = "Zurücksetzen";
+"Reset size to default" = "Größe zurücksetzen";
+"Reset the size of the keyboard?" = "Größe der Tastatur zurücksetzen?";
+"Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "Tastenhöhe und Breiten werden auf die ursprünglichen Werte zurückgesetzt. Deine Positionen und alles, was Foldboard gelernt hat, bleiben.";
+"Taller keys are easier to hit. Smaller keys leave more room for the app." = "Höhere Tasten triffst du leichter. Kleinere lassen der App mehr Platz.";
+"One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "Die Einhand-Breiten gelten für die kleine Tastatur an einer Seite. Die Zweihand-Breite ist jede Hälfte der geteilten Tastatur. Der Abstand zum Rand rückt die Einhand-Tastatur vom Bildschirmrand weg. Volle Breite braucht keine Einstellung. Du kannst die Tastatur auch über ihre obere Leiste anpassen: Positionstaste › Tastatur anpassen.";

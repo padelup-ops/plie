@@ -79,7 +79,7 @@ RULES = {
         and m["enter_roll"] is not None and abs(wrap(m["roll"] - m["enter_roll"])) < 12,
     "une main : tourner de 8° pour changer de côté": lambda m: m["from"] in (0, 1) and m["to"] in (0, 1)
         and m["roll"] is not None and m["enter_roll"] is not None and abs(wrap(m["roll"] - m["enter_roll"])) < 8,
-    "allongé (écran vers le bas) : ne pas bouger": lambda m: m["inc"] is not None and m["inc"] < 0,
+    "allongé (écran vers le bas) : ne pas bouger": lambda m: m["inc"] is not None and m["inc"] < -15,
 }
 RULES["8° à deux mains + allongé immobile"] = lambda m: RULES["deux mains : tourner de 8° pour repartir"](m) \
     or RULES["allongé (écran vers le bas) : ne pas bouger"](m)

@@ -463,7 +463,8 @@ final class GripDetector {
         if current == .two, let r0 = twoRoll, let r = currentPosture?.roll, abs(kbWrap(r - r0)) < 8 { return }
         // Allongé, écran tourné vers le bas (téléphone tenu au-dessus du visage) : l'inclinaison n'a plus de sens
         // fiable, le clavier ne bouge plus tout seul par elle (les pouces et la main le déplacent toujours).
-        if let inc = currentPosture?.incline, inc < 0 { return }
+        // Seuil à −15° (écran nettement tourné vers le bas) : réglé sur les journaux de deux testeurs.
+        if let inc = currentPosture?.incline, inc < -15 { return }
         emit(g)
     }
 

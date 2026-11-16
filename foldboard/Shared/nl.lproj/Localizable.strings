@@ -389,3 +389,11 @@
 "Keyboard position on this screen" = "Toetsenbordpositie op dit scherm";
 "The keyboard follows your hand on this screen." = "Het toetsenbord volgt je hand op dit scherm.";
 "The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand." = "Het toetsenbord blijft op dit scherm staan. Kies Volgt je hand om het je hand weer te laten volgen.";
+"Keys" = "Toetsen";
+"Keyboard width" = "Toetsenbordbreedte";
+"Reset" = "Herstel";
+"Reset size to default" = "Grootte herstellen";
+"Reset the size of the keyboard?" = "Grootte van het toetsenbord herstellen?";
+"Key height and widths go back to their original values. Your positions and everything Foldboard learned stay." = "Toetshoogte en breedtes gaan terug naar hun oorspronkelijke waarden. Je posities en alles wat Foldboard heeft geleerd blijven.";
+"Taller keys are easier to hit. Smaller keys leave more room for the app." = "Hogere toetsen raak je makkelijker. Kleinere laten meer ruimte voor de app.";
+"One-hand widths are for the small keyboard on one side. Two-hand width is each half of the split keyboard. Distance from the edge moves the one-hand keyboard away from the side of the screen. Full width needs no setting. You can also resize the keyboard from its top bar: position button › Adjust the keyboard." = "Breedtes met één hand gelden voor het kleine toetsenbord aan één kant. De breedte met twee handen is elke helft van het gesplitste toetsenbord. Afstand tot de rand schuift het toetsenbord voor één hand weg van de zijkant. Volle breedte heeft geen instelling nodig. Je kunt het ook aanpassen vanuit de bovenste balk: positieknop › Pas toetsenbord aan.";
