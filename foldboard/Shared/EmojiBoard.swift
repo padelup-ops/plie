@@ -186,9 +186,12 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         setNeedsLayout()
     }
 
+    /// Caché, on ne construit rien (pas d'images d'emojis en mémoire) : la grille se fait à l'ouverture.
+    override var isHidden: Bool { didSet { if oldValue && !isHidden { setNeedsLayout() } } }
+
     override func layoutSubviews() {
         super.layoutSubviews()
-        guard bounds.size != builtFor, bounds.width > 40 else { return }
+        guard !isHidden, bounds.size != builtFor, bounds.width > 40 else { return }
         builtFor = bounds.size
         let barH: CGFloat = 40
         bar.frame = CGRect(x: 0, y: bounds.height - barH, width: bounds.width, height: barH)
@@ -283,6 +286,16 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
     }
 
     /// N'affiche que les emojis à l'écran (et un peu autour), en réutilisant les étiquettes.
+    /// Libère les étiquettes d'emojis (chacune garde son image en mémoire, même cachée) : à la fermeture des emojis,
+    /// quand le clavier disparaît, et quand iOS manque de mémoire. Elles se recréent à la prochaine ouverture.
+    func releaseMemory() {
+        for l in shown.values { l.removeFromSuperview() }
+        for l in pool { l.removeFromSuperview() }
+        shown = [:]
+        pool = []
+        builtFor = .zero
+    }
+
     private func showVisible() {
         let w = max(scroll.bounds.width, 1)
         let minX = scroll.contentOffset.x - w * 0.5, maxX = scroll.contentOffset.x + w * 1.5

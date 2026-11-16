@@ -662,6 +662,18 @@ final class KeyboardCanvas: UIView {
         clipTimer = nil
         KBStatsRecorder.shared.flush()
         KBGripLog.shared.flush()
+        // Le clavier n'est plus à l'écran : on rend la mémoire des emojis (iOS ferme les claviers trop gourmands,
+        // surtout quand le Duo s'ouvre et que deux claviers tournent un instant).
+        if !showEmoji { emojiBoard.releaseMemory() }
+    }
+
+    /// iOS prévient qu'il manque de mémoire : on libère tout ce qui se recrée tout seul, pour ne pas être fermé
+    /// (et remplacé par le clavier d'Apple).
+    func trimMemory() {
+        if !showEmoji { emojiBoard.releaseMemory() }
+        suggest.trimMemory()
+        suggestQueue.async { [bgSuggest] in bgSuggest.trimMemory() }
+        KBGripLog.shared.flush()
     }
 
     /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
@@ -1121,6 +1133,7 @@ final class KeyboardCanvas: UIView {
     private func closeEmoji() {
         showEmoji = false
         emojiBoard.setClipMode(false)
+        emojiBoard.releaseMemory()
         builtFor = .zero
         rebuild()
     }

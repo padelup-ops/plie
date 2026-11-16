@@ -67,6 +67,11 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         view.window?.gestureRecognizers?.forEach { $0.delaysTouchesBegan = false }
     }
 
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        canvas.trimMemory()
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         canvas.disappeared()
