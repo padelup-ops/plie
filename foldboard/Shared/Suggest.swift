@@ -123,6 +123,8 @@ final class KBSuggest {
     private var replacements: [String: String] = [:]
     /// Les noms de tes contacts (tels qu'écrits dans Contacts), par forme en minuscules.
     private var names: [String: String] = [:]
+    /// Proposer les noms des contacts (réglage « Noms des contacts dans les suggestions »).
+    var useNames = true
     var language = "en_US"
     /// Les rangées de lettres du clavier : une faute de frappe, c'est une touche voisine, pas n'importe quelle lettre.
     private var rows: [String] = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
@@ -569,7 +571,7 @@ final class KBSuggest {
             return matchCase(h, like: word)
         }
         // Un prénom de tes contacts tapé en minuscules (et qui n'est pas un mot courant) : la majuscule.
-        if word == low, let n = names[low], rank[low] == nil, n.lowercased() == low { return n }
+        if useNames, word == low, let n = names[low], rank[low] == nil, n.lowercased() == low { return n }
         // Tes mots à toi (tapés plusieurs fois, jamais corrigés) : on n'y touche plus.
         if KBWordStore.shared.count(low) >= 3 { return nil }
         // « a » ou « à » d'après le mot d'avant : « je vais a » → « je vais à », « il a » reste « il a ».
@@ -943,7 +945,7 @@ final class KBSuggest {
         // Les noms de tes contacts qui commencent ainsi (« Char » → « Charlotte »), en premier.
         if word.count >= 2 {
             let key = word.lowercased()
-            for n in names.filter({ $0.key.hasPrefix(key) && $0.key != key }).map(\.value).sorted().prefix(1) { completions.insert(n, at: 0) }
+            for n in (useNames ? names : [:]).filter({ $0.key.hasPrefix(key) && $0.key != key }).map(\.value).sorted().prefix(1) { completions.insert(n, at: 0) }
         }
         var pool = listCompletions(word, limit: lm == nil ? 3 : Int(Self.t("compPool", 14)))
         if let lm {

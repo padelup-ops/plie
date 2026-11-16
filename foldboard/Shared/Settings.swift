@@ -132,6 +132,15 @@ struct KBSettings: Codable, Equatable {
     var keyHeightOpen: Double = 0
     /// Les boutons position, réglages et masquer dans la barre du haut (on peut les cacher).
     var barButtons = true
+    /// Le bouton « masquer le clavier » dans la barre, à part (on peut cacher position et réglages et le garder).
+    var hideKeyButton = true
+    /// Garder automatiquement tout ce qu'on copie (iOS demande alors l'autorisation de coller, sauf si on a choisi
+    /// « Autoriser » dans Réglages › Foldboard › Coller depuis d'autres apps). Coupé : lu seulement quand on le demande.
+    var clipAutoSave = false
+    /// Les noms des contacts dans les suggestions.
+    var contactNames = true
+    /// Un emoji proposé dans la barre pour certains mots (« triste » → 😢), comme le clavier d'Apple.
+    var emojiSuggest = true
     /// Les petits messages « Foldboard connaît mieux ta prise en main » / « Noté » dans le clavier.
     var learningTips = true
     /// Une rangée de chiffres au-dessus des lettres (désactivée par défaut : le clavier garde sa hauteur).
@@ -213,6 +222,10 @@ struct KBSettings: Codable, Equatable {
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
+        hideKeyButton = (try? c.decodeIfPresent(Bool.self, forKey: .hideKeyButton)) ?? d.hideKeyButton
+        clipAutoSave = (try? c.decodeIfPresent(Bool.self, forKey: .clipAutoSave)) ?? d.clipAutoSave
+        contactNames = (try? c.decodeIfPresent(Bool.self, forKey: .contactNames)) ?? d.contactNames
+        emojiSuggest = (try? c.decodeIfPresent(Bool.self, forKey: .emojiSuggest)) ?? d.emojiSuggest
         learningTips = (try? c.decodeIfPresent(Bool.self, forKey: .learningTips)) ?? d.learningTips
         numberRow = (try? c.decodeIfPresent(Bool.self, forKey: .numberRow)) ?? d.numberRow
         screenModes = (try? c.decodeIfPresent([String: KBMode].self, forKey: .screenModes)) ?? d.screenModes

@@ -303,7 +303,8 @@ struct PositionView: View {
             }
 
             Section {
-                Toggle("Position, settings and hide buttons", isOn: $m.settings.barButtons)
+                Toggle("Position and settings buttons", isOn: $m.settings.barButtons)
+                Toggle("Hide keyboard button", isOn: $m.settings.hideKeyButton)
                 Toggle("Learning messages", isOn: $m.settings.learningTips)
             } header: {
                 Text("Top bar")
@@ -563,6 +564,7 @@ struct TypingView: View {
                 Toggle("Auto-correction", isOn: $m.settings.autocorrect)
                 Toggle("Slide to type", isOn: $m.settings.glide)
                 Toggle("Word suggestions", isOn: $m.settings.suggestions)
+                Toggle("Contact names in suggestions", isOn: $m.settings.contactNames)
                 Toggle("Capital letter at the start of a sentence", isOn: $m.settings.autoCaps)
                 Toggle("Double space adds a period", isOn: $m.settings.doubleSpacePeriod)
             } footer: {
@@ -576,10 +578,18 @@ struct TypingView: View {
             Section {
                 Toggle("Foldboard emoji key", isOn: $m.settings.emojiKey)
                 Toggle("Show the globe as a smiley", isOn: $m.settings.globeAsEmoji)
+                Toggle("Emoji suggestions", isOn: $m.settings.emojiSuggest)
             } header: {
                 Text("Emoji")
             } footer: {
                 Text("Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap.")
+            }
+            Section {
+                Toggle("Save everything I copy", isOn: $m.settings.clipAutoSave)
+            } header: {
+                Text("Clipboard")
+            } footer: {
+                Text("Off: Foldboard reads what you copied only when you tap Paste or open the clipboard, so iOS doesn’t ask for permission each time you copy. To save everything automatically without that prompt, first choose Allow in iOS Settings › Foldboard › Paste from Other Apps.")
             }
         }
         .navigationTitle("Typing")

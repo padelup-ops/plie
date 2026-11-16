@@ -172,6 +172,8 @@ final class KeyboardCanvas: UIView {
         var cursorAccum: CGFloat = 0
         var cursorAccumY: CGFloat = 0
         var lastT: TimeInterval = 0
+        /// Le curseur a atteint le bout du texte connu du clavier : on relit le texte autour avant de continuer.
+        var reanchoring = false
         var accents: [String] = []
         var accentIndex = 0
         var longTimer: Timer?
@@ -248,7 +250,7 @@ final class KeyboardCanvas: UIView {
 
     static let topBarHeight: CGFloat = 42
     private let pad: CGFloat = 4
-    private let gap: CGFloat = 7
+    private let gap: CGFloat = 6
     private let vgap: CGFloat = 11
 
     private var keyH: CGFloat { CGFloat(screenKeyHeight) * (wideFull ? 1.24 : 1) }
@@ -382,6 +384,10 @@ final class KeyboardCanvas: UIView {
         applyScreenMode()
         theme = KBTheme.named(eff.theme)
         suggest.setLayout(eff.layout)
+        KBClipboard.shared.autoSave = settings.clipAutoSave
+        suggest.useNames = settings.contactNames
+        let names = settings.contactNames
+        suggestQueue.async { [bgSuggest] in bgSuggest.useNames = names }
         let layout = eff.layout
         suggestQueue.async { [bgSuggest] in bgSuggest.setLayout(layout) }
         KBThumb.shared.importSeed(settings.thumbSeed, stamps: settings.thumbSeedStamp)
@@ -673,7 +679,7 @@ final class KeyboardCanvas: UIView {
         grip.onGrip = { [weak self] g in self?.gripDetected(g) }
         grip.onUnlock = { [weak self] in self?.layoutTopBar() }
         grip.start { [weak self] g in
-            guard let self, let g, self.autoOn else { return }
+            guard let self, let g, self.autoOn, self.gripMoves else { return }
             // Sans posture « deux mains » étalonnée, l'inclinaison ne fait pas quitter le mode deux mains.
             if self.settings.autoTwo && self.settings.calib[self.gripContext]?["two"] == nil { return }
             self.applyGrip(g)
@@ -681,7 +687,7 @@ final class KeyboardCanvas: UIView {
     }
 
     private func gripDetected(_ g: KBGrip) {
-        guard autoOn else { return }
+        guard autoOn, gripMoves else { return }
         pendingGrip = g
         scheduleGrip()
     }
@@ -786,6 +792,9 @@ final class KeyboardCanvas: UIView {
         applyScreenMode()
         grip.locked = false
         save()
+        // Choisir « Toute la largeur » (ou un côté) fixe le clavier sur cet écran : on le dit, et comment revenir.
+        notice(m == .auto ? L("The keyboard follows your hand on this screen.")
+                          : L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."))
     }
 
     /// Un toucher dans la place libre : à gauche → clavier à gauche, à droite → à droite, au centre → au milieu
@@ -924,6 +933,12 @@ final class KeyboardCanvas: UIView {
     private var followsHand: Bool {
         gripContext.hasPrefix("closed") || (gripContext == "open-portrait" && !settings.openSplit)
             || (gripContext == "open-landscape" && settings.openLandFollow)
+    }
+
+    /// La main décide vraiment de la place du clavier sur cet écran. Sinon (entier ou deux moitiés choisis pour cet
+    /// écran, ou paysage sans « suivre la main »), la détection ne touche à rien : le clavier ne saute plus.
+    private var gripMoves: Bool {
+        settings.screenModes[gripContext] != nil || settings.mode != .auto || followsHand
     }
 
     private var layoutMode: KBMode {
@@ -1161,7 +1176,8 @@ final class KeyboardCanvas: UIView {
 
         switch layoutMode {
         case .full:
-            let b = CGRect(x: pad, y: top, width: W - 2 * pad, height: areaH)
+            // Comme le clavier d'Apple : les touches vont presque jusqu'aux bords (plus larges, moins de vide).
+            let b = CGRect(x: 0, y: top, width: W, height: areaH)
             blocks = [b]
             panelRect = .zero
             place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout, emoji: eff.emojiKey)], in: b, align: 0)
@@ -1175,31 +1191,23 @@ final class KeyboardCanvas: UIView {
                 : CGRect(x: b.maxX + 6, y: top, width: max(0, W - b.maxX - 12), height: areaH)
             place(rows + [KBLayouts.bottom(page, globe: globe, layout: eff.layout, compact: true, leftHand: !isRight)], in: b, align: 0)
         case .split:
+            // Comme le clavier coupé d'Apple : les moitiés près des bords (la marge du clavier à une main ne compte pas).
+            let sm: CGFloat = 2
             let hw = W * CGFloat(eff.splitWidth)
-            let l = CGRect(x: margin, y: top, width: hw, height: areaH)
-            let r = CGRect(x: W - margin - hw, y: top, width: hw, height: areaH)
+            let l = CGRect(x: sm, y: top, width: hw, height: areaH)
+            let r = CGRect(x: W - sm - hw, y: top, width: hw, height: areaH)
             blocks = [l, r]
             panelRect = CGRect(x: l.maxX + 10, y: top, width: max(0, r.minX - l.maxX - 20), height: areaH)
-            var left: [KeyRow] = []
-            var right: [KeyRow] = []
-            for row in rows {
-                let total = row.keys.reduce(0) { $0 + $1.width } + 2 * row.inset
-                var acc = row.inset
-                var lk: [KeySpec] = []
-                var rk: [KeySpec] = []
-                for k in row.keys {
-                    let center = acc + k.width / 2
-                    if center <= total / 2 { lk.append(k) } else { rk.append(k) }
-                    acc += k.width
-                }
-                // Comme le clavier coupé d'Apple : la lettre du milieu de la dernière rangée (le V) est des deux côtés,
-                // pour l'atteindre avec l'un ou l'autre pouce.
-                if page == .letters, left.count == rows.count - 1, let edge = lk.last, case .char = edge.kind { rk.insert(edge, at: 0) }
-                left.append(KeyRow(keys: lk))
-                right.append(KeyRow(keys: rk))
+            let (left0, right0) = Self.halves(rows, page: page)
+            var left = left0, right = right0
+            // Même taille de touches sur toutes les pages (lettres, chiffres, symboles) : les moitiés ne changent plus
+            // de taille en passant de ABC à 123.
+            func widest(_ rs: [KeyRow]) -> Double { rs.map { $0.keys.reduce(0) { $0 + $1.width } }.max() ?? 5 }
+            var maxL = 5.0, maxR = 5.0
+            for pg in [KBPage.letters, .numbers, .symbols] {
+                let (a, b) = Self.halves(KBLayouts.rows(pg, layout: eff.layout, numberRow: eff.numberRow), page: pg)
+                maxL = max(maxL, widest(a)); maxR = max(maxR, widest(b))
             }
-            let maxL = left.map { $0.keys.reduce(0) { $0 + $1.width } }.max() ?? 5
-            let maxR = right.map { $0.keys.reduce(0) { $0 + $1.width } }.max() ?? 5
             var lb: [KeySpec] = [KeySpec(kind: .page(page == .letters ? .numbers : .letters), width: 1.5)]
             if globe { lb.append(KeySpec(kind: .globe, width: 1.1)) }
             if eff.emojiKey { lb.append(KeySpec(kind: .emoji, width: 1.1)) }
@@ -1216,6 +1224,29 @@ final class KeyboardCanvas: UIView {
         updateLabels()
         if adjusting { refreshAdjust() }
         slide(from: oldBlocks)
+    }
+
+    /// Les rangées coupées en deux moitiés (gauche, droite).
+    private static func halves(_ rows: [KeyRow], page: KBPage) -> ([KeyRow], [KeyRow]) {
+        var left: [KeyRow] = []
+        var right: [KeyRow] = []
+        for row in rows {
+            let total = row.keys.reduce(0) { $0 + $1.width } + 2 * row.inset
+            var acc = row.inset
+            var lk: [KeySpec] = []
+            var rk: [KeySpec] = []
+            for k in row.keys {
+                let center = acc + k.width / 2
+                if center <= total / 2 { lk.append(k) } else { rk.append(k) }
+                acc += k.width
+            }
+            // Comme le clavier coupé d'Apple : la lettre du milieu de la dernière rangée (le V) est des deux côtés,
+            // pour l'atteindre avec l'un ou l'autre pouce.
+            if page == .letters, left.count == rows.count - 1, let edge = lk.last, case .char = edge.kind { rk.insert(edge, at: 0) }
+            left.append(KeyRow(keys: lk))
+            right.append(KeyRow(keys: rk))
+        }
+        return (left, right)
     }
 
     /// Le clavier change de côté, revient au milieu ou passe en grand : chaque touche glisse de son ancienne place
@@ -1323,8 +1354,9 @@ final class KeyboardCanvas: UIView {
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
         bigButton.frame = CGRect(x: max(flipButton.frame.maxX, middleButton.frame.maxX), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
-        hideButton.isHidden = !bb
-        hideButton.frame = CGRect(x: x1 - (bb ? 46 : 6), y: 0, width: bb ? 40 : 0, height: h)
+        let hk = bb || eff.hideKeyButton
+        hideButton.isHidden = !hk
+        hideButton.frame = CGRect(x: x1 - (hk ? 46 : 6), y: 0, width: hk ? 40 : 0, height: h)
         adjustButton.tintColor = theme.text.withAlphaComponent(0.7)
         adjustButton.isHidden = !bb
         adjustButton.frame = CGRect(x: hideButton.frame.minX - (bb ? 36 : 0), y: 0, width: bb ? 36 : 0, height: h)
@@ -1346,7 +1378,7 @@ final class KeyboardCanvas: UIView {
         let cx = max(flipButton.frame.maxX, middleButton.frame.maxX, bigButton.frame.maxX) + 4
         if let g = sideButtonsGrid {
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
-            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + [clipButton] + (eff.barButtons ? [adjustButton, hideButton] : [])
+            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + [clipButton] + (eff.barButtons ? [adjustButton] : []) + (eff.barButtons || eff.hideKeyButton ? [hideButton] : [])
             let gridW = CGFloat(g.cols) * 44
             let vertical = gripContext == "open-portrait"
             // En colonne : contre le clavier (côté pouce), et les boutons répartis sur la hauteur des touches.
@@ -1370,11 +1402,8 @@ final class KeyboardCanvas: UIView {
 
     private func rebuildChips() {
         let h = Self.topBarHeight
-        // Un petit fondu quand les mots changent : moins sec, plus lisible.
-        let fade = CATransition()
-        fade.type = .fade
-        fade.duration = 0.12
-        chipStack.layer.add(fade, forKey: "fade")
+        // Pas de fondu : les mots changent tout de suite, comme sur le clavier d'Apple (le fondu donnait une
+        // impression de retard).
         chipStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         if let q = emojiQuery {
             buildSearchChips(q, height: h)
@@ -1382,8 +1411,11 @@ final class KeyboardCanvas: UIView {
         }
         if !suggestionItems.isEmpty {
             // Trois suggestions de mots, de même largeur ; la meilleure en gras (celle que l'espace appliquera).
+            // Un emoji pour le mot (« triste » → 😢) au bout, comme le clavier d'Apple.
+            let emoji = suggestionEmoji()
+            let ew: CGFloat = emoji == nil ? 0 : 52
             let n = CGFloat(suggestionItems.count)
-            let w = max(60, (chips.bounds.width - (2 * n - 2) * 8 - (n - 1)) / n)
+            let w = max(60, (chips.bounds.width - ew - (2 * n - 2) * 8 - (n - 1)) / n)
             for (i, item) in suggestionItems.enumerated() {
                 let b = UIButton(type: .system)
                 b.setTitle(i == 0 && suggestionBest != nil ? "“\(item)”" : item, for: .normal)
@@ -1405,17 +1437,34 @@ final class KeyboardCanvas: UIView {
                 b.widthAnchor.constraint(equalToConstant: w).isActive = true
                 b.heightAnchor.constraint(equalToConstant: 32).isActive = true
             }
-            chipStack.frame = CGRect(x: 0, y: (h - 32) / 2, width: w * n + (2 * n - 2) * 8 + (n - 1), height: 32)
+            if let emoji {
+                let line = UIView()
+                line.backgroundColor = theme.text.withAlphaComponent(0.18)
+                line.widthAnchor.constraint(equalToConstant: 1).isActive = true
+                line.heightAnchor.constraint(equalToConstant: 20).isActive = true
+                chipStack.addArrangedSubview(line)
+                let b = UIButton(type: .system)
+                b.setTitle(emoji.e, for: .normal)
+                b.titleLabel?.font = .systemFont(ofSize: 22)
+                b.accessibilityLabel = emoji.e
+                b.addAction(UIAction { [weak self] _ in self?.applyEmojiSuggestion(emoji) }, for: .touchUpInside)
+                chipStack.addArrangedSubview(b)
+                b.widthAnchor.constraint(equalToConstant: ew - 17).isActive = true
+                b.heightAnchor.constraint(equalToConstant: 32).isActive = true
+            }
+            chipStack.frame = CGRect(x: 0, y: (h - 32) / 2, width: w * n + (2 * n - 2) * 8 + (n - 1) + ew, height: 32)
             chips.contentSize = CGSize(width: chipStack.frame.width, height: h)
             chips.contentOffset = .zero
             return
         }
         // Tu viens de copier quelque chose : « Coller » dans la barre, comme sur le clavier d'Apple.
-        if let t = KBClipboard.shared.freshText, input?.kbFullAccess == true {
+        let pendingClip = KBClipboard.shared.freshText == nil && KBClipboard.shared.hasPending
+        if let t = KBClipboard.shared.freshText ?? (pendingClip ? "" : nil), input?.kbFullAccess == true {
             let b = UIButton(type: .system)
             var cfg = UIButton.Configuration.plain()
             let one = t.replacingOccurrences(of: "\n", with: " ")
-            cfg.title = one.count > 22 ? String(one.prefix(22)) + "…" : one
+            // Pas encore lu (pour ne pas déclencher la demande d'iOS) : simplement « Coller ».
+            cfg.title = pendingClip ? L("Paste") : (one.count > 22 ? String(one.prefix(22)) + "…" : one)
             cfg.image = UIImage(systemName: "doc.on.clipboard", withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))
             cfg.imagePadding = 6
             cfg.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12)
@@ -1433,7 +1482,11 @@ final class KeyboardCanvas: UIView {
             b.addAction(UIAction { [weak self] _ in
                 guard let self else { return }
                 KBFeedback.shared.tap(sound: self.eff.sound, haptics: self.eff.haptics)
-                self.pasteClip(t)
+                if pendingClip {
+                    if let text = KBClipboard.shared.readPending() { self.pasteClip(text) }
+                } else {
+                    self.pasteClip(t)
+                }
                 self.rebuildChips()
             }, for: .touchUpInside)
             chipStack.addArrangedSubview(b)
@@ -1521,14 +1574,15 @@ final class KeyboardCanvas: UIView {
                 self.layoutIfNeeded()
             }, at: 0)
         }
-        return UIMenu(title: L("Keyboard position"), children: [UIMenu(options: .displayInline, children: actions)] + extra)
+        // Le choix ne vaut que pour cet écran (fermé, ouvert en portrait, en paysage) : on le dit dans le titre.
+        return UIMenu(title: L("Keyboard position on this screen"), children: [UIMenu(options: .displayInline, children: actions)] + extra)
     }
 
     /// Clavier d'un côté : les boutons 🌐 😀 réglages et masquer passent dans la place libre à côté du clavier,
     /// pour laisser toute la barre du haut aux suggestions (on voit les mots même tenu d'une main).
     private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
         guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
-        let n = 1 + (eff.barButtons ? 2 : 0) + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
+        let n = 1 + (eff.barButtons ? 1 : 0) + (eff.barButtons || eff.hideKeyButton ? 1 : 0) + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
         // Duo ouvert en portrait : une colonne verticale collée au clavier, à portée du pouce
         // (une rangée tout en haut de la place libre était trop loin).
         // Les touches ne font qu'environ 170 pt de haut : boutons resserrés (32 pt mini), sur deux colonnes s'il le faut.
@@ -1576,8 +1630,10 @@ final class KeyboardCanvas: UIView {
             // envoie le clavier de ce côté, ou au milieu près du centre.
             let cell: CGFloat = 44
             // Écran étroit : pas d'emojis sur le côté, toute la place libre sert à placer le clavier.
-            let cols = w >= 170 ? 2 : (w >= 110 ? 1 : 0)
+            var cols = w >= 170 ? 2 : (w >= 110 ? 1 : 0)
             let rowsN = max(1, min(4, Int(h / cell)))
+            // Place pour un ou deux emojis seulement (sous les boutons) : rien plutôt qu'un emoji isolé.
+            if cols * rowsN < 3 { cols = 0 }
             var list = KBEmoji.recent
             for e in eff.emojis where !list.contains(e) { list.append(e) }
             let count = min(list.count, cols * rowsN)
@@ -1889,7 +1945,7 @@ final class KeyboardCanvas: UIView {
                     let dt = tr.lastT > 0 ? max(0.004, t.timestamp - tr.lastT) : 0.016
                     tr.lastX = p.x; tr.lastY = p.y; tr.lastT = t.timestamp
                     let speed = hypot(mdx, mdy) / CGFloat(dt)          // points par seconde
-                    let gain: CGFloat = speed < 120 ? 0.8 : (speed < 600 ? 0.8 + (speed - 120) / 480 * 0.6 : min(2.6, 1.4 + (speed - 600) / 700))
+                    let gain: CGFloat = speed < 120 ? 0.8 : (speed < 600 ? 0.8 + (speed - 120) / 480 * 0.6 : min(3.4, 1.4 + (speed - 600) / 500))
                     tr.cursorAccum += mdx * gain
                     // Le vertical, plus dur : il faut vraiment monter ou descendre pour changer de ligne.
                     tr.cursorAccumY += mdy * gain * (abs(mdy) > abs(mdx) * 0.6 ? 1 : 0.35)
@@ -1903,6 +1959,21 @@ final class KeyboardCanvas: UIView {
                         input?.kbMoveCursor(target - map.current)
                         trackMap?.current = target
                         KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.4)
+                    }
+                    // iOS ne donne au clavier que quelques lignes autour du curseur : arrivé au bout de ce texte,
+                    // on relit ce qu'il y a autour du nouveau curseur et on continue (comme chez Apple, jusqu'en haut).
+                    let wanted = dCol + dLine * map.perLine
+                    let atEdge = (target == map.total.lo && wanted < map.total.lo - 2) || (target == map.total.hi && wanted > map.total.hi + 2)
+                    if atEdge && !tr.reanchoring && map.total.hi - map.total.lo > 0 {
+                        tr.reanchoring = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) { [weak self, weak tr] in
+                            guard let self, let tr, tr.cursorMode else { return }
+                            self.trackMap = TrackMap(before: self.input?.kbTextBefore() ?? "", after: self.input?.kbTextAfter() ?? "",
+                                                     perLine: map.perLine, origin: CGPoint(x: tr.lastX, y: tr.lastY))
+                            tr.cursorAccum = 0
+                            tr.cursorAccumY = 0
+                            tr.reanchoring = false
+                        }
                     }
                 }
             } else if !tr.accents.isEmpty {
@@ -2631,6 +2702,33 @@ final class KeyboardCanvas: UIView {
         let prev = word.isEmpty ? KBSuggest.lastWord(before) : KBSuggest.previousWord(before, word: word)
         let start = KBSuggest.atSentenceStart(before + (word.isEmpty ? "x" : ""), word: word.isEmpty ? "x" : word)
         if !item.contains(" ") { suggestQueue.async { KBWordStore.shared.commit(item, after: start ? nil : prev) } }
+        refreshSuggestionsSoon()
+        refreshShiftSoon()
+    }
+
+    /// L'emoji du mot en cours (`replace` : on remplace le mot), ou du mot qu'on vient de finir (on ajoute l'emoji).
+    private func suggestionEmoji() -> (e: String, replace: Bool)? {
+        guard eff.emojiSuggest, page == .letters else { return nil }
+        let before = input?.kbTextBefore() ?? ""
+        let word = KBSuggest.currentWord(before)
+        if !word.isEmpty { return KBEmojiSuggest.emoji(for: word).map { ($0, true) } }
+        guard before.hasSuffix(" ") else { return nil }
+        guard let last = KBSuggest.lastWord(before) else { return nil }
+        return KBEmojiSuggest.emoji(for: last).map { ($0, false) }
+    }
+
+    /// Comme le clavier d'Apple : l'emoji remplace le mot en cours ; après une espace, il s'ajoute.
+    private func applyEmojiSuggestion(_ s: (e: String, replace: Bool)) {
+        KBFeedback.shared.tap(sound: eff.sound, haptics: eff.haptics)
+        if s.replace {
+            let word = KBSuggest.currentWord(input?.kbTextBefore() ?? "")
+            for _ in 0..<word.count { input?.kbDelete() }
+        }
+        input?.kbInsert(s.e + " ")
+        KBEmoji.used(s.e)
+        glidedWord = nil
+        lastCorrection = nil
+        wordTouches.removeAll()
         refreshSuggestionsSoon()
         refreshShiftSoon()
     }
