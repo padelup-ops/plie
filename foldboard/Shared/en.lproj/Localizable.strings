@@ -466,3 +466,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads.";
 "The keyboard has no internet access: what you type stays on your iPhone." = "The keyboard has no internet access: what you type stays on your iPhone.";
 "Space bar row height" = "Space bar row height";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "Where you tap";
+"Taps" = "Taps";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps.";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "Each key sits where you really tap it; the grey outline is where it is drawn.";
+"Adjust the keys to where I tap" = "Adjust the keys to where I tap";
+"Taps recorded" = "Taps recorded";
+"One hand" = "One hand";
+"Space bar" = "Space bar";
+"%lld%% higher" = "%lld%% higher";
+"%lld%% lower" = "%lld%% lower";
+"%lld%% left" = "%lld%% left";
+"%lld%% right" = "%lld%% right";
+"Centered" = "Centered";
+"Not enough taps yet" = "Not enough taps yet";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone.";
+"Reset where I tap" = "Reset where I tap";
+"Reset where you tap?" = "Reset where you tap?";
+"The keys adjust to where your thumbs really land." = "The keys adjust to where your thumbs really land.";

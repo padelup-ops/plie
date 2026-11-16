@@ -458,3 +458,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboard nunca envía lo que escribes. El teclado no tiene acceso a internet, y no hay cuenta ni anuncios.";
 "The keyboard has no internet access: what you type stays on your iPhone." = "El teclado no tiene acceso a internet: lo que escribes se queda en tu iPhone.";
 "Space bar row height" = "Altura de la fila de la barra espaciadora";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "Dónde tocas";
+"Taps" = "Toques";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "Cada punto es un toque en esa tecla, en una palabra que dejaste sin corregir. La cruz es el centro de tus toques.";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "Cada tecla está donde de verdad la tocas; el contorno gris es donde está dibujada.";
+"Adjust the keys to where I tap" = "Ajustar las teclas a donde toco";
+"Taps recorded" = "Toques registrados";
+"One hand" = "Una mano";
+"Space bar" = "Barra espaciadora";
+"%lld%% higher" = "%lld %% más arriba";
+"%lld%% lower" = "%lld %% más abajo";
+"%lld%% left" = "%lld %% a la izquierda";
+"%lld%% right" = "%lld %% a la derecha";
+"Centered" = "Centrado";
+"Not enough taps yet" = "Aún no hay suficientes toques";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "Nada que configurar: cada palabra que escribes sin corrección le enseña. Tras 30 letras, las teclas se desplazan hacia donde de verdad tocas, como mucho un tercio de tecla. Solo se guarda dónde cae cada toque en su tecla, nunca lo que escribes, y todo se queda en tu iPhone.";
+"Reset where I tap" = "Borrar dónde toco";
+"Reset where you tap?" = "¿Borrar dónde tocas?";
+"The keys adjust to where your thumbs really land." = "Las teclas se adaptan a donde de verdad caen tus pulgares.";

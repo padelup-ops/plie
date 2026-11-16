@@ -458,3 +458,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboardは入力した内容をどこにも送りません。キーボードはインターネットにアクセスせず、アカウントも広告もありません。";
 "The keyboard has no internet access: what you type stays on your iPhone." = "キーボードはインターネットにアクセスしません。入力した内容はiPhoneの中に残ります。";
 "Space bar row height" = "スペースバーの列の高さ";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "タップする位置";
+"Taps" = "タップ";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "点は、修正なしで残した単語でそのキーをタップした位置です。十字はタップの中心です。";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "各キーは実際にタップする位置に置かれ、灰色の枠は描かれている位置です。";
+"Adjust the keys to where I tap" = "タップする位置にキーを合わせる";
+"Taps recorded" = "記録されたタップ";
+"One hand" = "片手";
+"Space bar" = "スペースバー";
+"%lld%% higher" = "%lld%% 上";
+"%lld%% lower" = "%lld%% 下";
+"%lld%% left" = "%lld%% 左";
+"%lld%% right" = "%lld%% 右";
+"Centered" = "中央";
+"Not enough taps yet" = "まだタップが足りません";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "設定は不要です。修正なしで入力した単語から学びます。30文字を過ぎると、キーは実際にタップする位置へ最大でキーの3分の1まで移動します。保存されるのは各タップがキーのどこに当たったかだけで、入力内容は保存されず、すべてiPhoneの中に残ります。";
+"Reset where I tap" = "タップ位置をリセット";
+"Reset where you tap?" = "タップ位置をリセットしますか？";
+"The keys adjust to where your thumbs really land." = "キーは親指が実際に触れる位置に合わせて調整されます。";

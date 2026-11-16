@@ -458,3 +458,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboard verstuurt nooit wat je typt. Het toetsenbord heeft geen internettoegang, en er is geen account en geen advertenties.";
 "The keyboard has no internet access: what you type stays on your iPhone." = "Het toetsenbord heeft geen internettoegang: wat je typt blijft op je iPhone.";
 "Space bar row height" = "Hoogte van de spatiebalkrij";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "Waar je tikt";
+"Taps" = "Tikken";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "Elke stip is een tik op die toets, in een woord dat je zonder correctie hield. Het kruis is het midden van je tikken.";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "Elke toets staat waar je hem echt tikt; de grijze rand is waar hij getekend is.";
+"Adjust the keys to where I tap" = "Toetsen aanpassen aan waar ik tik";
+"Taps recorded" = "Geregistreerde tikken";
+"One hand" = "Eén hand";
+"Space bar" = "Spatiebalk";
+"%lld%% higher" = "%lld %% hoger";
+"%lld%% lower" = "%lld %% lager";
+"%lld%% left" = "%lld %% links";
+"%lld%% right" = "%lld %% rechts";
+"Centered" = "Gecentreerd";
+"Not enough taps yet" = "Nog niet genoeg tikken";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "Niets in te stellen: elk woord dat je zonder correctie typt, leert het. Na 30 letters schuiven de toetsen naar waar je echt tikt, hoogstens een derde toets. Alleen waar elke tik op zijn toets valt wordt bewaard, nooit wat je schrijft, en alles blijft op je iPhone.";
+"Reset where I tap" = "Wis waar ik tik";
+"Reset where you tap?" = "Wissen waar je tikt?";
+"The keys adjust to where your thumbs really land." = "De toetsen passen zich aan waar je duimen echt landen.";

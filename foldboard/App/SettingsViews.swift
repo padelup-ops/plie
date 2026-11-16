@@ -604,6 +604,14 @@ struct TypingView: View {
                     Text("Everyday sentences: Tatoeba, CC BY 2.0 FR.").font(.caption2)
                 }
             }
+
+            Section {
+                NavigationLink { TapMapView().fullScreenDuo() } label: {
+                    Label("Where you tap", systemImage: "hand.point.up.left")
+                }
+            } footer: {
+                Text("The keys adjust to where your thumbs really land.")
+            }
             Section {
                 Toggle("Foldboard emoji key", isOn: $m.settings.emojiKey)
                 Toggle("Show the globe as a smiley", isOn: $m.settings.globeAsEmoji)

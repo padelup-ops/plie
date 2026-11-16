@@ -458,3 +458,23 @@
 "Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads." = "Foldboard non invia mai ciò che scrivi. La tastiera non ha accesso a internet, e non ci sono account né pubblicità.";
 "The keyboard has no internet access: what you type stays on your iPhone." = "La tastiera non ha accesso a internet: ciò che scrivi resta sul tuo iPhone.";
 "Space bar row height" = "Altezza della riga della barra spaziatrice";
+
+/* Où tu tapes (1.0.20) */
+"Where you tap" = "Dove tocchi";
+"Taps" = "Tocchi";
+"Each dot is a tap on that key, in a word you kept without correction. The cross is the middle of your taps." = "Ogni punto è un tocco su quel tasto, in una parola tenuta senza correzione. La croce è il centro dei tuoi tocchi.";
+"Each key sits where you really tap it; the grey outline is where it is drawn." = "Ogni tasto è dove lo tocchi davvero; il contorno grigio è dove è disegnato.";
+"Adjust the keys to where I tap" = "Adatta i tasti a dove tocco";
+"Taps recorded" = "Tocchi registrati";
+"One hand" = "Una mano";
+"Space bar" = "Barra spaziatrice";
+"%lld%% higher" = "%lld %% più in alto";
+"%lld%% lower" = "%lld %% più in basso";
+"%lld%% left" = "%lld %% a sinistra";
+"%lld%% right" = "%lld %% a destra";
+"Centered" = "Centrato";
+"Not enough taps yet" = "Non ancora abbastanza tocchi";
+"Nothing to set up: every word you type that needs no correction teaches it. After 30 letters, the keys move toward where you really tap, by a third of a key at most. Only where each tap lands on its key is kept, never what you write, and it stays on your iPhone." = "Niente da impostare: ogni parola scritta senza correzione glielo insegna. Dopo 30 lettere, i tasti si spostano verso dove tocchi davvero, al massimo di un terzo di tasto. Si tiene solo dove cade ogni tocco sul suo tasto, mai ciò che scrivi, e tutto resta sul tuo iPhone.";
+"Reset where I tap" = "Azzera dove tocco";
+"Reset where you tap?" = "Azzerare dove tocchi?";
+"The keys adjust to where your thumbs really land." = "I tasti si adattano a dove si posano davvero i tuoi pollici.";

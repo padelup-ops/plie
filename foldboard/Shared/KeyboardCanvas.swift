@@ -126,6 +126,41 @@ final class KeyboardCanvas: UIView {
     /// Où le doigt s'est posé pour chaque lettre tapée (les dernières) : la correction s'en sert, comme chez Apple.
     private var wordTouches: [(ch: Character, p: CGPoint)] = []
 
+    /// Où tu tapes vraiment (voir KBTapMap), et combien d'appuis pas encore enregistrés.
+    private var tapMap = KBTapMap()
+    private var tapDirty = 0
+
+    /// Un mot gardé tel quel (pas de correction) : chaque appui dit où ton pouce se pose sur la touche visée.
+    private func learnTaps(_ word: String) {
+        guard eff.tapLearn, recording == nil, page == .letters, word.count >= 2, suggest.isWord(word) else { return }
+        let w = Array(word.lowercased())
+        guard wordTouches.count >= w.count else { return }
+        let tail = Array(wordTouches.suffix(w.count))
+        for (i, t) in tail.enumerated() where t.ch != w[i] { _ = i; return }
+        let two = !layoutMode.isOneHand
+        for t in tail {
+            guard let c = cells.first(where: { if case .char(let s) = $0.view.spec.kind { return s.lowercased().first == t.ch && s.count == 1 }; return false }),
+                  c.frame.width > 0, c.frame.height > 0 else { continue }
+            tapMap.add(key: String(t.ch), dx: Double((t.p.x - c.frame.midX) / c.frame.width),
+                       dy: Double((t.p.y - c.frame.midY) / c.frame.height), twoHands: two)
+            tapDirty += 1
+        }
+        if tapDirty >= 25 { saveTaps() }
+    }
+
+    private func learnSpace(at p: CGPoint, frame f: CGRect) {
+        guard eff.tapLearn, recording == nil, f.width > 0, f.height > 0 else { return }
+        tapMap.add(key: " ", dx: Double((p.x - f.midX) / f.width), dy: Double((p.y - f.midY) / f.height), twoHands: !layoutMode.isOneHand)
+        tapDirty += 1
+    }
+
+    private func saveTaps() {
+        guard tapDirty > 0 else { return }
+        tapDirty = 0
+        let m = tapMap
+        suggestQueue.async { KBVault.saveTaps(m) }
+    }
+
     private func noteTouch(_ text: String, at p: CGPoint) {
         checkMemory()
         guard text.count == 1, let c = text.lowercased().first, c.isLetter else { wordTouches.removeAll(); return }
@@ -454,6 +489,8 @@ final class KeyboardCanvas: UIView {
         typedOnSide = 0
         showEmoji = false
         KBFeedback.shared.attach(to: self)
+        tapMap = KBVault.loadTaps() ?? KBTapMap()
+        tapDirty = 0
         if needSensors { startGrip() }
         page = .letters
         shift = .off
@@ -694,6 +731,7 @@ final class KeyboardCanvas: UIView {
     /// Le clavier disparaît : on coupe les capteurs.
     func disappeared() {
         visible = false
+        saveTaps()
         perfLink?.invalidate()
         perfLink = nil
         grip.stop()
@@ -1914,8 +1952,22 @@ final class KeyboardCanvas: UIView {
 
 
     private func cellIndex(at raw: CGPoint) -> Int? {
-        // Le pouce touche un peu plus bas qu'il ne vise (comme le clavier d'Apple, on compense de 4 pt).
-        let p = CGPoint(x: raw.x, y: raw.y - 4)
+        // Le pouce touche un peu plus bas qu'il ne vise (comme le clavier d'Apple, on compense de 4 pt) ; une fois
+        // appris où tu tapes vraiment, les zones d'appui se décalent d'autant (un tiers de touche au plus).
+        var p = CGPoint(x: raw.x, y: raw.y - 4)
+        let learned = eff.tapLearn && page == .letters ? tapMap.shift(twoHands: !layoutMode.isOneHand) : nil
+        if let s = learned, let k = cells.first(where: { if case .char = $0.view.spec.kind { return true }; return false }) {
+            p = CGPoint(x: raw.x - CGFloat(s.dx) * k.frame.width, y: raw.y - CGFloat(s.dy) * k.frame.height)
+        }
+        // La barre d'espace touchée plus haut que son centre : sa zone d'appui monte un peu dans la rangée du dessus.
+        if eff.tapLearn, page == .letters, tapMap.spaceRaise > 0 {
+            for (i, c) in cells.enumerated() {
+                guard case .space = c.view.spec.kind else { continue }
+                let up = CGFloat(tapMap.spaceRaise) * c.frame.height
+                if p.x >= c.hit.minX, p.x <= c.hit.maxX, p.y >= c.hit.minY - up, p.y < c.hit.minY { return i }
+            }
+        }
+        if learned != nil, let i = cells.firstIndex(where: { $0.hit.contains(p) }) { return i }
         // D'abord la touche réellement dessinée sous le doigt (même pendant une animation).
         if let i = cells.firstIndex(where: { ($0.view.layer.presentation()?.frame ?? $0.view.frame).contains(raw) }) { return i }
         if let i = cells.firstIndex(where: { $0.hit.contains(p) }) { return i }
@@ -2579,7 +2631,10 @@ final class KeyboardCanvas: UIView {
                 noteTouch(s, at: tr.start)
             }
         case .space:
-            if !tr.cursorMode && tr.typed == nil { typeSpace() }
+            if !tr.cursorMode && tr.typed == nil {
+                if tr.index < cells.count { learnSpace(at: tr.start, frame: cells[tr.index].frame) }
+                typeSpace()
+            }
         case .ret where emojiQuery != nil:
             if let e = KBEmoji.search(emojiQuery ?? "").first { pickSearchedEmoji(e) } else { endEmojiSearch() }
         case .ret:
@@ -2880,6 +2935,7 @@ final class KeyboardCanvas: UIView {
         if let c = computed { computed = Self.keepCapital(c, like: word) }
         guard !word.isEmpty, let fix = computed, fix != word else {
             lastCorrection = nil
+            if sep == " " { learnTaps(word) }
             wordTouches.removeAll()
             return
         }
