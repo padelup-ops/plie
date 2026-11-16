@@ -2628,18 +2628,28 @@ final class KeyboardCanvas: UIView {
         // comme sur le clavier d'Apple.
         // Le raccourci peut contenir des chiffres ou des signes (« @@ », « adr1 ») : tout ce qui suit la dernière espace.
         let token = String(before.reversed().prefix { !$0.isWhitespace }.reversed())
-        if !token.isEmpty, let r = suggest.replacement(for: token), r != token {
+        if !token.isEmpty, let r0 = suggest.replacement(for: token), r0 != token {
+            let r = Self.keepCapital(r0, like: token)
             wordTouches.removeAll()
             for _ in 0..<token.count { input?.kbDelete() }
             input?.kbInsert(r)
             lastCorrection = (token, r, sep)
             return
         }
-        if !eff.autocorrect, !word.isEmpty, let r = suggest.replacement(for: word), r != word {
+        if !eff.autocorrect, !word.isEmpty, let r0 = suggest.replacement(for: word), r0 != word {
+            let r = Self.keepCapital(r0, like: word)
             wordTouches.removeAll()
             for _ in 0..<word.count { input?.kbDelete() }
             input?.kbInsert(r)
             lastCorrection = (word, r, sep)
+            return
+        }
+        // AZERTY : l'apostrophe à la place du n (« ma’que » → « manque »).
+        if eff.autocorrect, let r = suggest.apostropheTypo(token), r != token {
+            wordTouches.removeAll()
+            for _ in 0..<token.count { input?.kbDelete() }
+            input?.kbInsert(r)
+            lastCorrection = (token, r, sep)
             return
         }
         guard eff.autocorrect, page == .letters || sep != " " else { return }
