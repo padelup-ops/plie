@@ -1,4 +1,5 @@
 import UIKit
+import NaturalLanguage
 
 /// Où le doigt s'est réellement posé pour chaque lettre du mot en cours, et le centre de chaque touche.
 /// C'est ce que fait le clavier d'Apple : « teh » tapé avec le doigt à cheval entre E et R n'a pas la même
@@ -442,6 +443,62 @@ final class KBSuggest {
         return r.location != NSNotFound
     }
 
+    /// La phrase en cours est-elle en anglais ? (au moins deux mots avant celui-ci, et l'anglais nettement en tête).
+    /// Gardé pour la phrase : la barre redemande à chaque lettre.
+    private var englishCache: (String, Bool) = ("", false)
+    private func sentenceIsEnglish(_ before: String, word: String) -> Bool {
+        guard Self.t("bilingual", 1) > 0 else { return false }
+        var text = String(before.dropLast(word.count))
+        if let cut = text.lastIndex(where: { ".!?\n".contains($0) }) { text = String(text[text.index(after: cut)...]) }
+        text = text.trimmingCharacters(in: .whitespaces)
+        if text == englishCache.0 { return englishCache.1 }
+        var english = false
+        let ws = text.split(whereSeparator: { $0 == " " })
+        if ws.count >= 2 {
+            let r = NLLanguageRecognizer()
+            r.languageConstraints = [.english, .french]
+            r.processString(String(ws.suffix(10).joined(separator: " ")))
+            let h = r.languageHypotheses(withMaximum: 2)
+            english = (h[.english] ?? 0) >= 0.8
+            // Et au moins un mot qui n'existe pas en français (« the », « with »…) : « je suis ok » reste français.
+            if english, let fr = UITextChecker.availableLanguages.first(where: { $0.hasPrefix("fr") }) {
+                english = ws.suffix(6).contains { w in
+                    let s = String(w).trimmingCharacters(in: .punctuationCharacters)
+                    guard s.count >= 2, rank[s.lowercased()] == nil else { return false }
+                    return isMisspelled(s, in: fr)
+                }
+            }
+        }
+        englishCache = (text, english)
+        return english
+    }
+
+    /// La correction en anglais (phrase anglaise sur le clavier français) : prudente, comme pour le français —
+    /// une faute de frappe (deux pour un mot long), même première lettre, vers une proposition du correcteur d'iOS.
+    private func englishCorrection(_ word: String, before: String, lang: String, touch: KBTouchModel?) -> String? {
+        let low = word.lowercased()
+        if let r = replacements[low] { return r }
+        if low == "i" { return "I" }
+        if !Self.ambiguous.contains(low), let c = Self.contractions["en"]?[low] { return c.hasPrefix("I") ? c : matchCase(c, like: word) }
+        guard word.count >= 3, word.count <= 30, !known.contains(low), KBWordStore.shared.count(low) < 3 else { return nil }
+        if word.contains(where: { $0.isNumber || $0 == "@" || $0 == "." || $0 == "/" }) { return nil }
+        if word.count > 1, word == word.uppercased() { return nil }
+        if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
+        guard isMisspelled(word, in: lang) else { return nil }
+        let ns = word as NSString
+        let allowed = word.count >= 7 ? 2 : 1
+        for g in (checker.guesses(forWordRange: NSRange(location: 0, length: ns.length), in: word, language: lang) ?? []).prefix(6) {
+            let gl = g.lowercased()
+            guard !g.contains(" "), !g.contains("-"), typoDistance(gl, low) <= allowed else { continue }
+            if gl.first != low.first {
+                guard let a = gl.first, let b = low.first, neighbors(a, b), typoDistance(gl, low) <= 1 else { continue }
+            }
+            if let c = touch?.cost(gl), let own = touch?.cost(low), c - own > 6 { continue }
+            return matchCase(g, like: word)
+        }
+        return nil
+    }
+
     /// L'autre langue qu'on mélange souvent (français ⇄ anglais), comme le clavier d'Apple qui écrit dans les deux.
     private var second: String? {
         let want = language.hasPrefix("en") ? "fr" : "en"
@@ -607,6 +664,11 @@ final class KBSuggest {
     /// `fast` : appelé sur le fil principal (à l'espace) — sans les suggestions du correcteur d'iOS, qui peuvent
     /// prendre une demi-seconde en français ; nos propres candidats (fautes de frappe, touches voisines) suffisent.
     func correction(for word: String, before: String, touch: KBTouchModel? = nil, fast: Bool = false) -> String? {
+        // Une phrase en anglais sur le clavier français (comme le clavier d'Apple avec deux langues) : on corrige en
+        // anglais, et rien de français (« the » ne devient pas « thé », « a » pas « à »).
+        if language.hasPrefix("fr"), let l2 = second, sentenceIsEnglish(before, word: word) {
+            return englishCorrection(word, before: before, lang: l2, touch: touch)
+        }
         let low = word.lowercased()
         let prev = Self.previousWord(before, word: word)?.lowercased()
         // Tes remplacements de texte (Réglages > Clavier) : toujours appliqués, même courts (« ty » → « Thank you »).
@@ -1166,6 +1228,7 @@ final class KBSuggest {
         let range = NSRange(location: 0, length: ns.length)
         var out: [String] = []
         var best: Int?
+        let englishHere = language.hasPrefix("fr") && second != nil && sentenceIsEnglish(before, word: word)
         let fix = correction(for: word, before: before, touch: touch)
         if let fix, fix != word {
             out = [word, fix]
@@ -1174,9 +1237,9 @@ final class KBSuggest {
             out = [word]
         }
         // L'apostrophe oubliée, même quand le mot existe aussi (« ill » → « I’ll ») : proposée dans la barre.
-        if let c = contraction(word), !out.contains(c) { out.insert(c, at: min(1, out.count)); if best != nil { best = out.firstIndex(of: fix ?? "") } }
+        if !englishHere, let c = contraction(word), !out.contains(c) { out.insert(c, at: min(1, out.count)); if best != nil { best = out.firstIndex(of: fix ?? "") } }
         // L'accent oublié (« a » → « à ») : toujours proposé dans la barre, même quand on ne le corrige pas seul.
-        if let a = accentForm(word) {
+        if !englishHere, let a = accentForm(word) {
             let c = matchCase(a.word, like: word)
             if !out.contains(c) { out.insert(c, at: min(1, out.count)); if best != nil { best = out.firstIndex(of: fix ?? "") } }
         }
@@ -1186,8 +1249,11 @@ final class KBSuggest {
             let key = word.lowercased()
             for n in (useNames ? names : [:]).filter({ $0.key.hasPrefix(key) && $0.key != key }).map(\.value).sorted().prefix(1) { completions.insert(n, at: 0) }
         }
-        var pool = listCompletions(word, limit: lm == nil ? 3 : Int(Self.t("compPool", 14)))
-        if let lm {
+        var pool = englishHere ? [] : listCompletions(word, limit: lm == nil ? 3 : Int(Self.t("compPool", 14)))
+        if englishHere, let l2 = second {
+            pool = (checker.completions(forPartialWordRange: range, in: word, language: l2) ?? [])
+                .filter { $0.lowercased() != word.lowercased() && !$0.contains(" ") }
+        } else if let lm {
             // Les fins de mot qui collent à la phrase passent devant (« bonne jour » → « journée »).
             let key = word.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
             for w in lm.next(before: before, limit: 24) where w.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil).hasPrefix(key)
@@ -1201,8 +1267,9 @@ final class KBSuggest {
         }
         completions = completions.map { names[$0.lowercased()] == $0 ? $0 : matchCase($0, like: word) }
         for c in completions where out.count < 3 && !out.contains(c) { out.append(c) }
-        if out.count < 3, fix == nil, isMisspelled(word) {
-            for g in checker.guesses(forWordRange: range, in: word, language: language) ?? [] where out.count < 3 && !out.contains(g) {
+        let guessLang = englishHere ? (second ?? language) : language
+        if out.count < 3, fix == nil, isMisspelled(word, in: guessLang) {
+            for g in checker.guesses(forWordRange: range, in: word, language: guessLang) ?? [] where out.count < 3 && !out.contains(g) {
                 out.append(matchCase(g, like: word))
             }
         }
