@@ -130,6 +130,9 @@ final class KBSuggest {
     var language = "en_US"
     /// Les rangées de lettres du clavier : une faute de frappe, c'est une touche voisine, pas n'importe quelle lettre.
     private var rows: [String] = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
+    /// Le décalage de chaque rangée, en touches (la rangée du bas commence après la touche maj) : les touches
+    /// voisines sont celles qui se touchent vraiment à l'écran (« n » touche « j » et « k », pas « g »).
+    private var rowInsets: [Double] = [0, 0.5, 1.5]
 
     /// Les 30 000 mots les plus courants (du plus fréquent au moins fréquent), pour compléter et classer.
     /// Liste : FrequencyWords (Hermit Dave), contenu sous licence CC BY-SA 4.0.
@@ -387,6 +390,7 @@ final class KBSuggest {
         case .swedish: rows = ["qwertyuiopå", "asdfghjklöä", "zxcvbnm"]
         case .qwerty: rows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
         }
+        rowInsets = layout == .qwerty ? [0, 0.5, 1.5] : [0, 0, 1.5]
         let available = UITextChecker.availableLanguages
         if available.contains(want) {
             language = want
@@ -611,6 +615,18 @@ final class KBSuggest {
         if language.hasPrefix("fr"), let h = Self.frHyphen[low.replacingOccurrences(of: "'", with: "’")] {
             return matchCase(h, like: word)
         }
+        // Et avec une touche voisine (« edtce » → « est-ce »).
+        if language.hasPrefix("fr"), Self.t("hyphenTypo", 1) > 0, low.count >= 5, rank[low] == nil, !known.contains(low),
+           let h = Self.frHyphen.first(where: { $0.key.count == low.count && typoDistance($0.key, low) <= 1 })?.value {
+            return matchCase(h, like: word)
+        }
+        // Une lettre seule qui n'est pas un mot, juste à côté du « a » (AZERTY : « il y z » → « il y a »,
+        // « je pense z » → « je pense à ») : c'est « a », puis « a » ou « à » d'après la phrase.
+        if language.hasPrefix("fr"), Self.t("oneLetterFix", 1) > 0, word.count == 1, let ch = low.first, ch.isLetter,
+           !(Self.oneLetter["fr"]?.contains(low) ?? true), low != "à", neighbors("a", ch) {
+            let a = matchCase("a", like: word)
+            return correction(for: a, before: String(before.dropLast(word.count)) + a, touch: nil, fast: fast) ?? a
+        }
         // Un prénom de tes contacts tapé en minuscules (et qui n'est pas un mot courant) : la majuscule.
         if useNames, word == low, let n = names[low], rank[low] == nil, n.lowercased() == low { return n }
         // « a » ou « à » d'après le mot d'avant : « je vais a » → « je vais à », « il a » reste « il a ».
@@ -729,44 +745,60 @@ final class KBSuggest {
             }
             if best == nil || score > best!.score { best = (g, score, r) }
         }
+        // Deux fautes dans un mot long (« vrizment » → « vraiment », « mzitnenant » → « maintenant ») : les mots
+        // courants de longueur voisine, à deux fautes de frappe au plus. Pas pour le début d'un vrai mot.
+        if best == nil, prefixOf == nil, Self.t("scan2", 1) > 0, language.hasPrefix("fr") || language.hasPrefix("en"),
+           genericElision(lower) == nil {
+            for (cand, r, d) in twoTypoScan(lower) {
+                var score = lm?.score(cand, before: before) ?? -log(Double(r) + 30)
+                score -= Double(d) * 1.5
+                if cand.first != lower.first { score -= 1.5 }
+                if let c = touch?.cost(cand), let own = touch?.cost(lower) {
+                    let extra = c - own
+                    if extra > 9 { continue }
+                    score -= extra * 0.4
+                }
+                if best == nil || score > best!.score { best = (cand, score, r) }
+            }
+        }
         // Le début d'un mot rare (« plur » → pluriel) : on ne corrige que vers un mot bien plus courant que lui.
         if let p = prefixOf {
             let pr = rank[p.lowercased()] ?? 30_000
             guard let b = best, b.rank < 3_000, b.rank * 8 < pr else { return nil }
         }
-        // L'espace oubliée : « bonjourtoi » → « bonjour toi » (deux mots courants, rien de mieux à proposer).
+        // L'apostrophe oubliée devant un mot courant (« sactiver » → « s’activer », « lavion » → « l’avion »).
+        if best == nil, language.hasPrefix("fr"), let e = genericElision(lower) { return matchCase(e, like: word) }
+        // L'espace oubliée : « bonjourtoi » → « bonjour toi », « jaiete » → « j’ai été » (deux mots courants, chacun
+        // éventuellement sans son apostrophe ou ses accents ; rien de mieux à proposer).
         if best == nil, word.count >= 5 {
             let chars = Array(lower)
             var split: (String, Int)?
             for i in 2..<(chars.count - 1) {
                 let a = String(chars[..<i]), b = String(chars[i...])
-                guard let ra = rank[a], let rb = rank[b], ra < 8_000, rb < 8_000 else { continue }
-                let sc = max(ra, rb)
-                if split == nil || sc < split!.1 { split = (a + " " + b, sc) }
+                guard let pa = resolvePart(a, typo: false), let pb = resolvePart(b, typo: false) else { continue }
+                let sc = max(pa.1, pb.1)
+                if split == nil || sc < split!.1 { split = (pa.0 + " " + pb.0, sc) }
             }
             if let split { return matchCase(split.0, like: word) }
         }
-        // L'espace ratée : le pouce a touché une lettre juste au-dessus (« auncourant » → « au courant »).
+        // L'espace ratée : le pouce a touché une lettre juste au-dessus (« auncourant » → « au courant »), et parfois
+        // une faute de frappe dans l'un des deux mots (« lenremplaczment » → « le remplacement »,
+        // « largzurnest » → « largeur est », « alorsnedtce » → « alors est-ce »).
         if best == nil, Self.t("spaceSplit", 1) > 0, word.count >= 5 {
             let chars = Array(lower)
             let nearSpace: Set<Character> = ["c", "v", "b", "n"]
             var split: (String, Int)?
             for i in 1..<(chars.count - 1) where nearSpace.contains(chars[i]) {
                 let a = String(chars[..<i]), b = String(chars[(i + 1)...])
-                let ra = rank[a] ?? (Self.oneLetter[String(language.prefix(2))]?.contains(a) == true ? 50 : nil)
-                guard let ra, ra < 8_000, b.count >= 2 else { continue }
-                if let rb = rank[b], rb < 8_000 {
-                    let sc = max(ra, rb)
-                    if split == nil || sc < split!.1 { split = (a + " " + b, sc) }
-                } else if Self.t("splitTypo", 1) > 0, b.count >= 6, rank[b] == nil {
-                    // Et une faute de frappe dans le second mot (« lenremplaczment » → « le remplacement ») :
-                    // une seule touche voisine, vers un mot connu ; un peu moins sûr, donc classé après.
-                    if let fb = typoVariants(b).filter({ $0.count == b.count && typoDistance($0, b) <= 1 })
-                        .min(by: { (rank[$0] ?? .max) < (rank[$1] ?? .max) }), let rb = rank[fb], rb < 30_000 {
-                        let sc = max(ra, rb) + 20_000
-                        if split == nil || sc < split!.1 { split = (a + " " + fb, sc) }
-                    }
-                }
+                guard b.count >= 2 else { continue }
+                let oneA = Self.oneLetter[String(language.prefix(2))]?.contains(a) == true
+                let typoOK = Self.t("splitTypo", 1) > 0
+                let pa: (String, Int)? = oneA ? (a, 50) : resolvePart(a, typo: typoOK && a.count >= 5)
+                guard let pa, let pb = resolvePart(b, typo: typoOK && b.count >= 5) else { continue }
+                // Une seule faute de frappe en tout.
+                if pa.1 >= 20_000 && pb.1 >= 20_000 { continue }
+                let sc = max(pa.1, pb.1)
+                if split == nil || sc < split!.1 { split = (pa.0 + " " + pb.0, sc) }
             }
             if let split { return matchCase(split.0, like: word) }
         }
@@ -867,6 +899,87 @@ final class KBSuggest {
 
     /// Les mots de la liste à une faute de frappe de `lower` : inversion de deux lettres voisines, touche voisine
     /// sur le clavier, lettre doublée ou en trop, lettre oubliée. Les formes accentuées comptent aussi (« reponse » → « réponse »).
+    /// Un morceau d'un mot collé (« jai », « ete », « edtce », « largzur ») : le mot qu'il devait être, et un rang
+    /// (plus petit = plus sûr). Avec `typo`, une touche voisine est permise (moins sûr : rang + 20 000).
+    private func resolvePart(_ s: String, typo: Bool) -> (String, Int)? {
+        if let r = rank[s], r < 8_000 { return (s, r) }
+        if let i = accented[s], i < 8_000 { return (words[i], i) }
+        let lang = String(language.prefix(2))
+        if s.count >= 3, !Self.ambiguous.contains(s), let c = Self.contractions[lang]?[s] { return (c, 300) }
+        if lang == "fr", let h = Self.frHyphen[s] { return (h, 300) }
+        guard typo, s.count >= 4 else { return nil }
+        if lang == "fr", s.count >= 5,
+           let h = Self.frHyphen.first(where: { $0.key.count == s.count && typoDistance($0.key, s) <= 1 })?.value { return (h, 20_300) }
+        if let fb = typoVariants(s).filter({ $0.count == s.count && typoDistance($0.lowercased(), s) <= 1 && !$0.contains("-") })
+            .min(by: { (rank[$0] ?? .max) < (rank[$1] ?? .max) }), let rb = rank[fb], rb < 30_000 { return (fb, rb + 20_000) }
+        return nil
+    }
+
+    /// L'apostrophe oubliée devant un mot courant qui commence par une voyelle : « sactiver » → « s’activer »,
+    /// « lavion » → « l’avion », « jarrive » → « j’arrive ». Le reste fait au moins 4 lettres (« set » reste).
+    private func genericElision(_ lower: String) -> String? {
+        guard language.hasPrefix("fr"), Self.t("genElision", 1) > 0, lower.count >= 5, rank[lower] == nil else { return nil }
+        let vowels: Set<Character> = ["a", "e", "i", "o", "u", "y", "h", "é", "è", "ê", "à", "â", "î", "ô", "û"]
+        var best: (String, Int)?
+        for p in ["qu", "c", "d", "j", "l", "m", "n", "s", "t"] where lower.hasPrefix(p) {
+            let rest = String(lower.dropFirst(p.count))
+            guard rest.count >= 4, let f = rest.first, vowels.contains(f) else { continue }
+            var r = rank[rest]
+            var form = rest
+            if r == nil, let i = accented[rest] { r = i; form = words[i] }
+            guard let rr = r, rr < 8_000 else { continue }
+            if best == nil || rr < best!.1 { best = (p + "’" + form, rr) }
+        }
+        return best?.0
+    }
+
+    /// Les mots courants de longueur voisine, à deux fautes de frappe au plus du mot tapé : même première lettre
+    /// (ou une touche voisine, pour un mot long et courant). Rapide : seulement les mots rangés par première
+    /// lettre et longueur, et chaque comparaison s'arrête dès qu'elle dépasse deux fautes.
+    private func twoTypoScan(_ lower: String) -> [(String, Int, Int)] {
+        let x = Array(lower.folding(options: .diacriticInsensitive, locale: nil))
+        let n = x.count
+        guard n >= 5, n <= 14, let f0 = x.first else { return [] }
+        var firsts: [Character] = [f0]
+        if n >= 6 { for k in Set(rows.joined()) where k != f0 && neighbors(k, f0) { firsts.append(k) } }
+        var out: [(String, Int, Int)] = []
+        for f in firsts {
+            for len in max(4, n - 1)...min(14, n + 1) {
+                for (i, c) in byFirstLen["\(f)\(len)"] ?? [] {
+                    // Un mot de 5 lettres : seulement vers un mot très courant (« qiakd » → « quand »).
+                    if n == 5 && i >= 1_000 { continue }
+                    if f != f0 && i >= 8_000 { continue }
+                    let d = boundedTypoDistance(c, x, limit: 2)
+                    guard d >= 1, d <= 2 else { continue }
+                    let w = words[i]
+                    guard !w.contains("-"), !w.contains("’"), !w.contains("'") else { continue }
+                    out.append((w, i, d))
+                }
+            }
+        }
+        return out
+    }
+
+    /// `typoDistance`, mais arrêtée dès qu'elle dépasse `limit` (renvoie alors `limit + 1`).
+    private func boundedTypoDistance(_ x: [Character], _ y: [Character], limit: Int) -> Int {
+        if abs(x.count - y.count) > limit { return limit + 1 }
+        if x.isEmpty || y.isEmpty { return max(x.count, y.count) }
+        var d = Array(repeating: Array(repeating: 0, count: y.count + 1), count: x.count + 1)
+        for i in 0...x.count { d[i][0] = i }
+        for j in 0...y.count { d[0][j] = j }
+        for i in 1...x.count {
+            var rowMin = Int.max
+            for j in 1...y.count {
+                let cost = x[i - 1] == y[j - 1] || Self.sameBase(x[i - 1], y[j - 1]) ? 0 : (neighbors(x[i - 1], y[j - 1]) ? 1 : 2)
+                d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost)
+                if i > 1, j > 1, x[i - 1] == y[j - 2], x[i - 2] == y[j - 1] { d[i][j] = min(d[i][j], d[i - 2][j - 2] + 1) }
+                rowMin = min(rowMin, d[i][j])
+            }
+            if rowMin > limit { return limit + 1 }
+        }
+        return d[x.count][y.count]
+    }
+
     private func typoVariants(_ lower: String) -> [String] {
         let x = Array(lower)
         guard x.count >= 3, x.count <= 20 else { return [] }
@@ -912,6 +1025,8 @@ final class KBSuggest {
         var cands: Set<String> = [String(chars.reversed())]
         let letters = Set(rows.joined())
         for i in 0..<2 { for k in letters where k != chars[i] && neighbors(k, chars[i]) { var w = chars; w[i] = k; cands.insert(String(w)) } }
+        // Et leur forme accentuée (« cz » → « ca » → « ça »).
+        for c in cands { if let a = accented[c], a < 300 { cands.insert(words[a]) } }
         var best: (String, Double)?
         for c in cands {
             guard let r = rank[c], r < 300 else { continue }
@@ -1001,8 +1116,10 @@ final class KBSuggest {
         let fa = Character(String(a).folding(options: .diacriticInsensitive, locale: nil))
         let fb = Character(String(b).folding(options: .diacriticInsensitive, locale: nil))
         if fa == fb { return true }   // seul l'accent change
-        guard let pa = position(fa), let pb = position(fb) else { return false }
-        return abs(pa.0 - pb.0) <= 1 && abs(pa.1 - pb.1) <= 1
+        guard let pa = position(fa), let pb = position(fb), abs(pa.0 - pb.0) <= 1 else { return false }
+        let xa = (pa.0 < rowInsets.count ? rowInsets[pa.0] : 0) + Double(pa.1)
+        let xb = (pb.0 < rowInsets.count ? rowInsets[pb.0] : 0) + Double(pb.1)
+        return abs(xa - xb) <= 1.01
     }
 
     /// Comme `distance`, mais remplacer une lettre par une touche qui n'est pas voisine coûte 2 :
