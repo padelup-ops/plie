@@ -33,7 +33,27 @@ final class DictationService {
     private var finishTimer: Timer?
     private var engineRunning = false
 
-    private init() {}
+    private init() {
+        // Quand le micro s'ouvre ou se ferme, iOS reconfigure l'audio et arrête le son muet : on le relance tout de
+        // suite, sinon l'app s'endort en arrière-plan et le clavier doit la rouvrir à chaque dictée.
+        NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: keepAlive, queue: .main) { [weak self] _ in
+            self?.ensureKeepAlive()
+        }
+        NotificationCenter.default.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main) { [weak self] n in
+            guard let self, self.status == .ready || self.status == .listening,
+                  let raw = n.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  AVAudioSession.InterruptionType(rawValue: raw) == .ended else { return }
+            try? AVAudioSession.sharedInstance().setActive(true)
+            self.ensureKeepAlive()
+        }
+    }
+
+    /// Le son muet doit tourner tant que la dictée est prête.
+    private func ensureKeepAlive() {
+        guard status == .ready || status == .listening else { return }
+        if keepAliveRunning, !keepAlive.isRunning { keepAliveRunning = false }
+        if !keepAliveRunning { try? startKeepAlive() }
+    }
 
     /// Ouvre le micro et prépare la reconnaissance (l'app est au premier plan : iOS demande les autorisations).
     func startSession() {
@@ -90,6 +110,7 @@ final class DictationService {
 
     private func startKeepAlive() throws {
         guard !keepAliveRunning else { return }
+        silence.stop()
         guard let fmt = AVAudioFormat(standardFormatWithSampleRate: 44_100, channels: 1),
               let buf = AVAudioPCMBuffer(pcmFormat: fmt, frameCapacity: 44_100) else { return }
         buf.frameLength = 44_100
@@ -170,8 +191,10 @@ final class DictationService {
 
     private func beginRecognition() {
         guard let recognizer, status == .ready || status == .listening else { return }
+        ensureKeepAlive()
         do {
             try startMic()
+            ensureKeepAlive()
         } catch {
             // iOS n'ouvre pas le micro en arrière-plan : le clavier ramène l'app une fois au premier plan, et le micro
             // restera ouvert pour cette session.
@@ -234,6 +257,7 @@ final class DictationService {
         if status == .listening { status = .ready }
         // Le micro se referme dès la fin de la dictée (le point orange d'iOS disparaît).
         if !micAlwaysOn { stopMic() }
+        ensureKeepAlive()
         touch()
     }
 

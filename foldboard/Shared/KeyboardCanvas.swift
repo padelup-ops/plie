@@ -440,8 +440,16 @@ final class KeyboardCanvas: UIView {
     /// La hauteur demandée à iOS (preferredHeight) reste celle des touches normales.
     private var keyH: CGFloat {
         let k = baseKeyH
-        guard hingeHalf, bounds.height > 0, bounds.height - (fixedH + k * rowUnits) > 12 else { return k }
+        guard laptopLike, bounds.height > 0, bounds.height - (fixedH + k * rowUnits) > 12 else { return k }
         return max(k, min(k * 1.8, ((bounds.height - fixedH) / rowUnits).rounded(.down)))
+    }
+    /// Le mode « portable » : la charnière à moitié ouverte, ou, comme iOS ne le dit pas toujours au clavier, un
+    /// clavier qui reçoit presque la moitié de l'écran déplié (un clavier normal en prend 40 % au plus).
+    private var laptopLike: Bool {
+        if hingeHalf { return true }
+        guard gripContext.hasPrefix("open") else { return false }
+        let h = screenSize.height
+        return h > 0 && bounds.height >= h * 0.45
     }
     /// La hauteur des touches pour l'écran affiché : plié et déplié peuvent avoir chacun la leur.
     private var screenKeyHeight: Double {
