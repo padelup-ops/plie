@@ -118,11 +118,16 @@ final class KeyboardCanvas: UIView {
     /// Mode automatique : la main qui tient le téléphone (inclinaison, puis GripSense pendant la frappe).
     private let grip = GripDetector()
     /// Correction et suggestions de mots.
-    private let suggest = KBSuggest()
+    // Les correcteurs sont partagés par tous les claviers du processus (iOS en crée un à chaque apparition) :
+    // listes, lexique et caches ne sont chargés qu'une fois.
+    private static let mainSuggest = KBSuggest()
+    private static let backSuggest = KBSuggest()
+    private static let backQueue = DispatchQueue(label: "foldboard.suggest", qos: .userInitiated)
+    private let suggest = KeyboardCanvas.mainSuggest
     /// Les suggestions se calculent à part (le correcteur d'iOS peut prendre plusieurs dizaines de ms) :
     /// le fil principal reste libre pour les touchers, la frappe ne rame plus.
-    private let bgSuggest = KBSuggest()
-    private let suggestQueue = DispatchQueue(label: "foldboard.suggest", qos: .userInitiated)
+    private let bgSuggest = KeyboardCanvas.backSuggest
+    private let suggestQueue = KeyboardCanvas.backQueue
     private var suggestGen = 0
     /// La correction déjà calculée pour le mot en cours (évite de la recalculer à l'espace).
     private var cachedFix: (word: String, fix: String?)?
@@ -891,6 +896,14 @@ final class KeyboardCanvas: UIView {
         clipTimer = nil
         grip.stop()
         gripStarted = false
+        // Si quelque chose garde encore ce clavier, il ne garde plus rien de lourd : touches, emojis, suggestions.
+        cells.forEach { $0.view.removeFromSuperview() }
+        cells = []
+        emojiBoard.releaseMemory()
+        chipStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        interactions.forEach { removeInteraction($0) }
+        hingeWatched = false
+        builtFor = .zero
     }
 
     /// Le clavier disparaît : on coupe les capteurs.
@@ -910,7 +923,6 @@ final class KeyboardCanvas: UIView {
         clipTimer = nil
         KBStatsRecorder.shared.flush()
         KBGripLog.shared.flush()
-        KBFeedback.shared.detach(from: self)
         // Le clavier n'est plus à l'écran : on rend la mémoire des emojis (iOS ferme les claviers trop gourmands,
         // surtout quand le Duo s'ouvre et que deux claviers tournent un instant).
         if !showEmoji { emojiBoard.releaseMemory() }
