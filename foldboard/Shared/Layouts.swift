@@ -144,11 +144,15 @@ enum KBLayouts {
             return KeyRow(keys: keys)
         }
         // Comme le clavier d'Apple : 123, 🌐, 😀, l'espace et retour (la virgule et le point sont sur la page 123).
+        // Retour aussi large que ce qui est à gauche de l'espace (2,5 touches au plus) : l'espace tombe au milieu,
+        // sous les deux pouces (« la barre d'espace décentrée me gêne à deux mains »).
         keys[0].width = 1.25
         if globe { keys.append(KeySpec(kind: .globe, width: 1.1)) }
         if emoji { keys.append(KeySpec(kind: .emoji, width: 1.1)) }
-        keys.append(KeySpec(kind: .space, width: 10 - 1.25 - 1.75 - (globe ? 1.1 : 0) - (emoji ? 1.1 : 0)))
-        keys.append(KeySpec(kind: .ret, width: 1.75))
+        let left = 1.25 + (globe ? 1.1 : 0) + (emoji ? 1.1 : 0)
+        let ret = min(2.5, max(1.75, left))
+        keys.append(KeySpec(kind: .space, width: 10 - left - ret))
+        keys.append(KeySpec(kind: .ret, width: ret))
         return KeyRow(keys: keys)
     }
 
