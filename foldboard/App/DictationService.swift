@@ -5,6 +5,9 @@ import UIKit
 
 /// La dictée côté app : le micro ouvert pour le clavier (qui n'y a pas droit), et la transcription sur l'iPhone.
 /// L'app reste prête en arrière-plan quelques minutes ; le clavier lui demande de commencer et d'arrêter.
+/// Discrète : en attente, l'app reste éveillée avec un son muet, sans micro (pas de point orange d'iOS) ; le micro
+/// ne s'ouvre que pendant la dictée. Si iOS refuse de l'ouvrir en arrière-plan, l'app revient au premier plan une
+/// fois et garde alors le micro ouvert pour la session (comme avant).
 @Observable
 final class DictationService {
     static let shared = DictationService()
@@ -15,6 +18,12 @@ final class DictationService {
     var endsAt: Date?
 
     private let engine = AVAudioEngine()
+    /// Le son muet qui garde l'app prête en arrière-plan (sortie seulement : le micro reste fermé).
+    private let keepAlive = AVAudioEngine()
+    private let silence = AVAudioPlayerNode()
+    private var keepAliveRunning = false
+    /// iOS a refusé d'ouvrir le micro en arrière-plan : il reste ouvert pendant la session.
+    private var micAlwaysOn = false
     private var recognizer: SFSpeechRecognizer?
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
@@ -29,7 +38,11 @@ final class DictationService {
     /// Ouvre le micro et prépare la reconnaissance (l'app est au premier plan : iOS demande les autorisations).
     func startSession() {
         listen()
-        if status == .ready || status == .listening { touch(); return }
+        if status == .ready || status == .listening {
+            if micAlwaysOn, !engineRunning { try? startMic() }
+            touch()
+            return
+        }
         status = .starting
         SFSpeechRecognizer.requestAuthorization { auth in
             AVAudioApplication.requestRecordPermission { mic in
@@ -71,8 +84,41 @@ final class DictationService {
         // La musique continue pendant que la dictée est prête.
         try s.setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker])
         try s.setActive(true)
+        try startKeepAlive()
+        if micAlwaysOn { try startMic() }
+    }
+
+    private func startKeepAlive() throws {
+        guard !keepAliveRunning else { return }
+        guard let fmt = AVAudioFormat(standardFormatWithSampleRate: 44_100, channels: 1),
+              let buf = AVAudioPCMBuffer(pcmFormat: fmt, frameCapacity: 44_100) else { return }
+        buf.frameLength = 44_100
+        if let ch = buf.floatChannelData { ch[0].update(repeating: 0, count: Int(buf.frameLength)) }
+        if silence.engine == nil { keepAlive.attach(silence) }
+        keepAlive.connect(silence, to: keepAlive.mainMixerNode, format: fmt)
+        keepAlive.prepare()
+        try keepAlive.start()
+        silence.scheduleBuffer(buf, at: nil, options: .loops)
+        silence.play()
+        keepAliveRunning = true
+    }
+
+    private func stopKeepAlive() {
+        guard keepAliveRunning else { return }
+        silence.stop()
+        keepAlive.stop()
+        keepAliveRunning = false
+    }
+
+    private struct MicUnavailable: Error {}
+
+    /// Le micro, seulement pendant la dictée.
+    private func startMic() throws {
+        guard !engineRunning else { return }
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
+        // En arrière-plan, iOS peut ne donner aucun micro (format vide) : on ne l'installe pas.
+        guard format.sampleRate > 0, format.channelCount > 0 else { throw MicUnavailable() }
         input.removeTap(onBus: 0)
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             guard let self else { return }
@@ -82,8 +128,20 @@ final class DictationService {
             r?.append(buffer)
         }
         engine.prepare()
-        try engine.start()
+        do {
+            try engine.start()
+        } catch {
+            input.removeTap(onBus: 0)
+            throw error
+        }
         engineRunning = true
+    }
+
+    private func stopMic() {
+        guard engineRunning else { return }
+        engine.inputNode.removeTap(onBus: 0)
+        engine.stop()
+        engineRunning = false
     }
 
     /// Ferme le micro (fin de la session, ou « Arrêter la dictée »).
@@ -91,11 +149,9 @@ final class DictationService {
         endRecognition()
         idleTimer?.invalidate()
         idleTimer = nil
-        if engineRunning {
-            engine.inputNode.removeTap(onBus: 0)
-            engine.stop()
-            engineRunning = false
-        }
+        stopMic()
+        stopKeepAlive()
+        micAlwaysOn = false
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         status = .off
         endsAt = nil
@@ -114,6 +170,15 @@ final class DictationService {
 
     private func beginRecognition() {
         guard let recognizer, status == .ready || status == .listening else { return }
+        do {
+            try startMic()
+        } catch {
+            // iOS n'ouvre pas le micro en arrière-plan : le clavier ramène l'app une fois au premier plan, et le micro
+            // restera ouvert pour cette session.
+            micAlwaysOn = true
+            KBDictation.post(KBDictation.needApp)
+            return
+        }
         task?.cancel()
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
@@ -167,6 +232,8 @@ final class DictationService {
         task = nil
         finishTimer?.invalidate()
         if status == .listening { status = .ready }
+        // Le micro se referme dès la fin de la dictée (le point orange d'iOS disparaît).
+        if !micAlwaysOn { stopMic() }
         touch()
     }
 

@@ -1,7 +1,8 @@
 import Foundation
 
 /// La dictée. iOS n'ouvre jamais le micro à un clavier : c'est l'app Foldboard qui l'ouvre (une fois, quelques
-/// secondes au premier usage), puis reste prête en arrière-plan pendant quelques minutes. Le clavier lui parle par
+/// secondes au premier usage), puis reste prête en arrière-plan pendant quelques minutes, micro fermé tant qu'on
+/// ne dicte pas. Le clavier lui parle par
 /// des notifications du système (sans contenu), et le texte passe par le trousseau partagé.
 /// La voix est transcrite sur l'iPhone (reconnaissance d'Apple, sans internet) : rien n'est envoyé ni gardé.
 enum KBDictation {
@@ -10,6 +11,8 @@ enum KBDictation {
     static let start = "com.padelup.foldboard.dict.start"
     static let stop = "com.padelup.foldboard.dict.stop"
     static let update = "com.padelup.foldboard.dict.update"
+    /// L'app n'a pas pu ouvrir le micro en arrière-plan : le clavier la ramène au premier plan une fois.
+    static let needApp = "com.padelup.foldboard.dict.needapp"
     static let url = URL(string: "foldboard://dictate")!
     /// Combien de temps l'app reste prête sans dictée (le point orange d'iOS reste affiché pendant ce temps).
     static let sessionMinutes: Double = 10

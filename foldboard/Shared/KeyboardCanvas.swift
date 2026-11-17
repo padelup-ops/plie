@@ -191,6 +191,14 @@ final class KeyboardCanvas: UIView {
             KBDictation.post(KBDictation.start)
         }
         KBDictation.observe(KBDictation.update) { [weak self] in self?.dictationUpdate() }
+        // L'app n'a pas pu ouvrir le micro en arrière-plan : on la ramène une fois au premier plan.
+        KBDictation.observe(KBDictation.needApp) { [weak self] in
+            guard let self, self.dictState == .listening || self.dictState == .connecting else { return }
+            self.dictState = .idle
+            self.showDictCaption(nil)
+            self.openContainingApp(KBDictation.url)
+            self.flash(L("Turn on dictation in Foldboard, then come back here"), hold: 4)
+        }
         KBDictation.post(KBDictation.ping)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
             guard let self, self.dictState == .connecting else { return }
