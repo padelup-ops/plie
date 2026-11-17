@@ -434,8 +434,19 @@ final class KeyboardCanvas: UIView {
     /// La rangée de la barre d'espace peut être plus haute (ou plus basse) que les autres (réglage).
     private var bottomExtra: CGFloat { (keyH * CGFloat(eff.spaceRowScale - 1)).rounded() }
 
+    /// Banc d'essai de la mémoire (simulateur) : combien de claviers vivent encore.
+    static var alive = 0
+    deinit { Self.alive -= 1 }
+
+    /// Banc d'essai de la mémoire (simulateur) : tape un texte comme au doigt, ouvre ou ferme les emojis.
+    func probeType(_ s: String) { for ch in s { if ch == " " { typeSpace() } else { typeText(String(ch)) } } }
+    func probeEmoji(_ on: Bool) {
+        if on { showEmoji = true; builtFor = .zero; rebuild() } else { closeEmoji() }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
+        Self.alive += 1
         isMultipleTouchEnabled = true
         clipsToBounds = true
         // Comme le clavier d'Apple : un panneau aux coins du haut arrondis.

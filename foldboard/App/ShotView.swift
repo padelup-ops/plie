@@ -32,6 +32,8 @@ struct ShotView: View {
             NavigationStack { HandTest().fullScreenDuo() }
         case "onboarding3":
             OnboardingView(start: 5, onDone: {})
+        case "memprobe":
+            MemProbeView().ignoresSafeArea()
         case "open-land":
             scaled(width: 951, height: 669)
         case "open-small", "open-big", "open-split":

@@ -93,6 +93,11 @@ final class KBWordStore {
 /// Correction automatique et suggestions de mots, avec le correcteur d'iOS (UITextChecker)
 /// et le lexique de l'utilisateur (contacts, remplacements de texte).
 final class KBSuggest {
+    /// Banc d'essai de la mémoire (simulateur) : combien de correcteurs vivent encore.
+    static var alive = 0
+    init() { Self.alive += 1 }
+    deinit { Self.alive -= 1 }
+
     /// Réglages du moteur, ajustables par le banc d'essai (foldboard/tools/bench) ; sinon les valeurs par défaut.
     static var tune: [String: Double] = [:]
     private static func t(_ k: String, _ d: Double) -> Double { tune[k] ?? d }
