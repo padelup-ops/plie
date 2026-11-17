@@ -417,7 +417,20 @@ final class KeyboardCanvas: UIView {
     private let gap: CGFloat = 6
     private let vgap: CGFloat = 11
 
-    private var keyH: CGFloat { CGFloat(screenKeyHeight) * (wideFull ? 1.24 : 1) }
+    private var baseKeyH: CGFloat { CGFloat(screenKeyHeight) * (wideFull ? 1.24 : 1) }
+    private var rowUnits: CGFloat { CGFloat(rowCount) + CGFloat(eff.spaceRowScale - 1) }
+    private var fixedH: CGFloat { Self.topBarHeight + 6 + CGFloat(rowCount - 1) * vgap + 8 }
+    /// La hauteur des touches à l'écran. Duo ouvert, quand iOS donne au clavier plus de hauteur que demandé (mode
+    /// « portable », à moitié ouvert : tout l'écran du bas ; certaines apps aussi), les touches grandissent pour la
+    /// remplir au lieu de laisser des bandes vides (jusqu'à 1,8 fois en mode portable, 1,4 sinon).
+    /// La hauteur demandée à iOS (preferredHeight) reste celle des touches normales : sinon le clavier garderait
+    /// cette grande taille partout ensuite.
+    private var keyH: CGFloat {
+        let k = baseKeyH
+        guard hingeHalf || gripContext.hasPrefix("open"), bounds.height > 0,
+              bounds.height - (fixedH + k * rowUnits) > 12 else { return k }
+        return max(k, min(k * (hingeHalf ? 1.8 : 1.4), ((bounds.height - fixedH) / rowUnits).rounded(.down)))
+    }
     /// La hauteur des touches pour l'écran affiché : plié et déplié peuvent avoir chacun la leur.
     private var screenKeyHeight: Double {
         gripContext.hasPrefix("open") && eff.keyHeightOpen > 0 ? eff.keyHeightOpen : eff.keyHeight
@@ -427,9 +440,9 @@ final class KeyboardCanvas: UIView {
     private var reportedHeight: CGFloat = 0
     private var rowCount: Int { eff.numberRow ? 5 : 4 }
     /// Le haut de la barre : 0, ou plus bas si l'app hôte a donné plus de hauteur que demandé (le vide va au-dessus).
-    private var barTop: CGFloat { max(0, (bounds.height - preferredHeight).rounded(.down)) }
+    private var barTop: CGFloat { max(0, (bounds.height - (fixedH + CGFloat(rowCount) * keyH + bottomExtra)).rounded(.down)) }
     var preferredHeight: CGFloat {
-        Self.topBarHeight + 6 + CGFloat(rowCount) * keyH + bottomExtra + CGFloat(rowCount - 1) * vgap + 8
+        fixedH + CGFloat(rowCount) * baseKeyH + (baseKeyH * CGFloat(eff.spaceRowScale - 1)).rounded()
     }
     /// La rangée de la barre d'espace peut être plus haute (ou plus basse) que les autres (réglage).
     private var bottomExtra: CGFloat { (keyH * CGFloat(eff.spaceRowScale - 1)).rounded() }
@@ -666,6 +679,8 @@ final class KeyboardCanvas: UIView {
     private var gripContext = "closed-portrait"
     /// La charnière du Duo : fermé (true), ouvert (false), inconnue (nil).
     private var hingeClosed: Bool?
+    /// La charnière à moitié ouverte (mode « portable »).
+    private var hingeHalf = false
     private var hingeWatched = false
 
     /// La taille de l'écran réellement utilisé (dans le bon sens : portrait ou paysage).
@@ -699,6 +714,7 @@ final class KeyboardCanvas: UIView {
                 case .partiallyOpen?, .fullyOpen?: self.hingeClosed = false
                 default: self.hingeClosed = nil
                 }
+                self.hingeHalf = update.hinge?.status == .partiallyOpen
                 self.learnScreen()
                 self.updateGripContext()
                 self.builtFor = .zero
