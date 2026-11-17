@@ -440,6 +440,8 @@ struct KBAccess: Codable, Equatable {
     var trialStart: Date?
     var purchased = false
     var stamp: Date = .distantPast
+    /// Versions de test seulement : « fin d'essai simulée » depuis l'app (les vrais achats sont ignorés).
+    var simulated: Bool? = nil
 
     static let trialDays: Double = 3
 

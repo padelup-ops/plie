@@ -738,6 +738,19 @@ struct ProView: View {
                     Button("Restore purchases") { Task { await store.restore() } }
                         .font(.footnote)
                         .frame(maxWidth: .infinity)
+                    if KBBuild.isTest {
+                        // Versions TestFlight seulement : voir ce qui se bloque à la fin de l'essai.
+                        VStack(alignment: .leading, spacing: 6) {
+                            Toggle("Simulate: trial over", isOn: Binding(
+                                get: { store.simulatingTrialOver },
+                                set: { on in Task { await store.simulateTrialOver(on) } }))
+                            Text("Test versions only. The keyboard acts as if the free trial had just ended, with nothing bought. Turn it off to get your real purchases back.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(14)
+                        .background(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.orange.opacity(0.6)))
+                    }
                 }
                 .padding(24)
             }

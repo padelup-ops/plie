@@ -520,3 +520,7 @@
 "Writing…" = "J’écris…";
 "Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself." = "Reviens à ton app (en haut à gauche) : Foldboard écoute tout de suite. La dictée reste prête 10 minutes, puis s’éteint toute seule.";
 "Back to your app" = "Retour à ton app";
+
+/* Versions de test */
+"Simulate: trial over" = "Simuler : essai terminé";
+"Test versions only. The keyboard acts as if the free trial had just ended, with nothing bought. Turn it off to get your real purchases back." = "Versions de test seulement. Le clavier fait comme si l’essai gratuit venait de se terminer, sans rien d’acheté. Désactive pour retrouver tes vrais achats.";

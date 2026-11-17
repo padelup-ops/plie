@@ -166,6 +166,8 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     private func checkStore() async -> Bool {
         // L'app a peut-être débloqué Pro depuis : on relit d'abord le coffre.
         let stored = KBVault.loadAccess()
+        // Version de test : fin d'essai simulée depuis l'app, on ne regarde pas les vrais achats.
+        if stored.simulated == true { return stored.isPro() }
         if stored.isPro() && !access.isPro() {
             await MainActor.run {
                 self.access = stored

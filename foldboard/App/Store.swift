@@ -56,6 +56,8 @@ final class Store {
 
     @MainActor
     func refresh() async {
+        // Fin d'essai simulée (versions de test) : on garde la simulation tant qu'elle est allumée.
+        if access.simulated == true { return }
         var a = KBAccess()
         a.trialStart = access.trialStart
         for await result in Transaction.currentEntitlements {
@@ -91,6 +93,24 @@ final class Store {
             message = error.localizedDescription
         }
         await refresh()
+    }
+
+    /// Versions de test : faire comme si l'essai gratuit venait de se terminer, sans rien d'acheté, pour voir sur
+    /// son propre téléphone ce qui se bloque (le clavier suit tout de suite).
+    var simulatingTrialOver: Bool { access.simulated == true }
+
+    @MainActor
+    func simulateTrialOver(_ on: Bool) async {
+        if on {
+            var a = KBAccess()
+            a.trialStart = Date().addingTimeInterval(-(KBAccess.trialDays * 86400 + 60))
+            a.simulated = true
+            access = a
+            KBVault.save(a)
+        } else {
+            access = KBAccess()
+            await refresh()
+        }
     }
 
     @MainActor
