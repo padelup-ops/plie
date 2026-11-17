@@ -124,7 +124,8 @@ enum MemProbe {
             log("6 emojis fermés")
             // Le globe : le clavier disparaît, iOS en recrée un (dans le même processus).
             for i in 1...8 {
-                kb.disappeared()
+                // Une fois sur deux, iOS ne prévient pas : le clavier doit être libéré quand même.
+                if i % 2 == 0 { kb.disappeared() }
                 kb.removeFromSuperview()
                 await wait(0.5)
                 kb = make(in: host, layout: i % 2 == 0 ? .azerty : .qwerty)
