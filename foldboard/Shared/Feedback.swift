@@ -26,11 +26,22 @@ final class KBFeedback {
         if #available(iOS 17.5, *) {
             haptic = UIImpactFeedbackGenerator(style: .light, view: view)
             heavy = UIImpactFeedbackGenerator(style: .medium, view: view)
+            attached = view
         } else {
             haptic = UIImpactFeedbackGenerator(style: .light)
             heavy = UIImpactFeedbackGenerator(style: .medium)
         }
         haptic.prepare()
+    }
+
+    private weak var attached: UIView?
+
+    /// Le clavier s'en va : les vibrations ne le retiennent plus (de nouvelles seront rattachées à la prochaine apparition).
+    func detach(from view: UIView) {
+        guard attached === view else { return }
+        haptic = UIImpactFeedbackGenerator(style: .light)
+        heavy = UIImpactFeedbackGenerator(style: .medium)
+        attached = nil
     }
 
     /// Un appui : le son choisi et une vibration de la force choisie.

@@ -23,18 +23,22 @@ enum KBMemLog {
 
     /// Une mesure : la ligne en cours garde le plus haut (écrite au plus toutes les 2 secondes, et tout de suite
     /// quand la mémoire monte beaucoup : c'est peut-être la dernière avant qu'iOS ferme le clavier).
-    static func note(mb: Double, emoji: Bool) {
+    static func note(mb: Double, emoji: Bool, alive: Int = 1) {
         guard current != nil else { return }
-        let jump = mb > peak + 3
+        let jump = mb > peak + 3 || alive != keyboards
         peak = max(peak, mb)
+        keyboards = alive
         write(emoji: emoji, force: jump)
     }
+
+    /// Combien de claviers vivent en même temps (plus d'un longtemps : un clavier jeté par iOS mais pas libéré).
+    private static var keyboards = 1
 
     private static func write(emoji: Bool, force: Bool) {
         let now = ProcessInfo.processInfo.systemUptime
         guard force || now - lastWrite > 2, let c = current else { return }
         lastWrite = now
-        let line = c + String(format: " %.0f→%.0f Mo", start, peak) + (emoji ? " emoji" : "")
+        let line = c + String(format: " %.0f→%.0f Mo", start, peak) + (keyboards > 1 ? " ×\(keyboards)" : "") + (emoji ? " emoji" : "")
         var list = UserDefaults.standard.stringArray(forKey: key) ?? []
         if let last = list.last, last.hasPrefix(c) { list[list.count - 1] = line } else { list.append(line) }
         if list.count > 10 { list.removeFirst(list.count - 10) }

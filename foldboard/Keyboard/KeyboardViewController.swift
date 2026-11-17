@@ -92,6 +92,12 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         canvas.disappeared()
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        // Parfois iOS ne passe que par ici : tout ce qui tourne s'arrête (le clavier peut être libéré).
+        canvas.shutdown()
+    }
+
     override func selectionDidChange(_ textInput: UITextInput?) {
         super.selectionDidChange(textInput)
         canvas.textChanged()

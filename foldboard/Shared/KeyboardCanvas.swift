@@ -609,6 +609,7 @@ final class KeyboardCanvas: UIView {
 
     /// Le clavier vient d'apparaître.
     func appeared() {
+        hiddenByWindow = false
         visible = true
         perfStart()
         typedOnSide = 0
@@ -852,6 +853,28 @@ final class KeyboardCanvas: UIView {
         super.didMoveToWindow()
         watchHinge()
         updateGripContext()
+        // Revenu à l'écran sans « apparition » (dans l'app, après une autre page) : on relance ce qui tournait.
+        if window != nil, hiddenByWindow { appeared() }
+    }
+
+    /// Le clavier quitte l'écran par n'importe quel chemin (iOS ne prévient pas toujours avec viewWillDisappear) :
+    /// on coupe tout ce qui tourne, pour que le clavier puisse être libéré.
+    private var hiddenByWindow = false
+    override func willMove(toWindow newWindow: UIWindow?) {
+        super.willMove(toWindow: newWindow)
+        if newWindow == nil, visible { disappeared(); hiddenByWindow = true }
+    }
+
+    /// Le contrôleur du clavier est détruit : plus rien ne doit tourner (capteurs, minuteries, mesure).
+    func shutdown() {
+        if visible { disappeared() }
+        perfLink?.invalidate()
+        perfLink = nil
+        idleTimer?.invalidate()
+        clipTimer?.invalidate()
+        clipTimer = nil
+        grip.stop()
+        gripStarted = false
     }
 
     /// Le clavier disparaît : on coupe les capteurs.
@@ -871,6 +894,7 @@ final class KeyboardCanvas: UIView {
         clipTimer = nil
         KBStatsRecorder.shared.flush()
         KBGripLog.shared.flush()
+        KBFeedback.shared.detach(from: self)
         // Le clavier n'est plus à l'écran : on rend la mémoire des emojis (iOS ferme les claviers trop gourmands,
         // surtout quand le Duo s'ouvre et que deux claviers tournent un instant).
         if !showEmoji { emojiBoard.releaseMemory() }
@@ -896,7 +920,7 @@ final class KeyboardCanvas: UIView {
         memChecks += 1
         guard force || memChecks % 30 == 0 else { return }
         let mb = Self.footprintMB()
-        KBMemLog.note(mb: mb, emoji: showEmoji)
+        KBMemLog.note(mb: mb, emoji: showEmoji, alive: Self.alive)
         if mb > 45 { trimMemory(flush: false) }
     }
 
@@ -2156,12 +2180,15 @@ final class KeyboardCanvas: UIView {
     private func perfStart() {
         perfLink?.invalidate()
         perfLast = 0
-        let l = CADisplayLink(target: self, selector: #selector(perfTick(_:)))
+        // La mesure de fluidité tient le clavier par un lien faible : avant, elle le gardait en vie (et tournait à
+        // chaque image) quand iOS jetait le clavier sans prévenir. Sur le Duo, chaque clavier jeté restait en
+        // mémoire : 50 Mo au départ, plus de 100 Mo après quelques changements d'app ou de globe.
+        let l = CADisplayLink(target: KBWeakTarget(self), selector: #selector(KBWeakTarget.tick(_:)))
         l.add(to: .main, forMode: .common)
         perfLink = l
     }
 
-    @objc private func perfTick(_ l: CADisplayLink) {
+    @objc fileprivate func perfTick(_ l: CADisplayLink) {
         if perfLast > 0, l.timestamp - perfLast > 0.05 { perfStalls += 1 }
         perfLast = l.timestamp
     }
@@ -3332,5 +3359,15 @@ final class KeyboardCanvas: UIView {
             l.backgroundColor = j == i ? theme.accent : .clear
             l.textColor = j == i ? .white : theme.text
         }
+    }
+}
+
+/// Cible d'un CADisplayLink qui ne retient pas le clavier (un CADisplayLink garde sa cible tant qu'il tourne).
+private final class KBWeakTarget: NSObject {
+    weak var canvas: KeyboardCanvas?
+    init(_ c: KeyboardCanvas) { canvas = c }
+    @objc func tick(_ l: CADisplayLink) {
+        guard let c = canvas else { l.invalidate(); return }
+        c.perfTick(l)
     }
 }
