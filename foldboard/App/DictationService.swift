@@ -1,0 +1,270 @@
+import AVFoundation
+import Speech
+import SwiftUI
+import UIKit
+
+/// La dictée côté app : le micro ouvert pour le clavier (qui n'y a pas droit), et la transcription sur l'iPhone.
+/// L'app reste prête en arrière-plan quelques minutes ; le clavier lui demande de commencer et d'arrêter.
+@Observable
+final class DictationService {
+    static let shared = DictationService()
+
+    enum Status: Equatable { case off, starting, ready, listening, denied, unavailable }
+    var status: Status = .off
+    var heard = ""
+    var endsAt: Date?
+
+    private let engine = AVAudioEngine()
+    private var recognizer: SFSpeechRecognizer?
+    private var request: SFSpeechAudioBufferRecognitionRequest?
+    private var task: SFSpeechRecognitionTask?
+    private let lock = NSLock()
+    private var seq = 0
+    private var idleTimer: Timer?
+    private var finishTimer: Timer?
+    private var engineRunning = false
+
+    private init() {}
+
+    /// Ouvre le micro et prépare la reconnaissance (l'app est au premier plan : iOS demande les autorisations).
+    func startSession() {
+        listen()
+        if status == .ready || status == .listening { touch(); return }
+        status = .starting
+        SFSpeechRecognizer.requestAuthorization { auth in
+            AVAudioApplication.requestRecordPermission { mic in
+                DispatchQueue.main.async { self.prepare(speech: auth == .authorized, mic: mic) }
+            }
+        }
+    }
+
+    private func prepare(speech: Bool, mic: Bool) {
+        guard speech, mic else { status = .denied; return }
+        guard let r = SFSpeechRecognizer(locale: Locale(identifier: Self.localeID())), r.supportsOnDeviceRecognition else {
+            status = .unavailable
+            return
+        }
+        recognizer = r
+        do {
+            try startEngine()
+        } catch {
+            status = .unavailable
+            return
+        }
+        status = .ready
+        touch()
+    }
+
+    /// La langue de la dictée : celle de la disposition du clavier.
+    static func localeID() -> String {
+        switch KBVault.loadSettings().layout {
+        case .azerty: return "fr-FR"
+        case .qwertz: return "de-DE"
+        case .spanish: return "es-ES"
+        case .swedish: return "sv-SE"
+        case .qwerty: return Locale.current.language.languageCode?.identifier == "en" ? Locale.current.identifier : "en-US"
+        }
+    }
+
+    private func startEngine() throws {
+        let s = AVAudioSession.sharedInstance()
+        // La musique continue pendant que la dictée est prête.
+        try s.setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker])
+        try s.setActive(true)
+        let input = engine.inputNode
+        let format = input.outputFormat(forBus: 0)
+        input.removeTap(onBus: 0)
+        input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
+            guard let self else { return }
+            self.lock.lock()
+            let r = self.request
+            self.lock.unlock()
+            r?.append(buffer)
+        }
+        engine.prepare()
+        try engine.start()
+        engineRunning = true
+    }
+
+    /// Ferme le micro (fin de la session, ou « Arrêter la dictée »).
+    func stopSession() {
+        endRecognition()
+        idleTimer?.invalidate()
+        idleTimer = nil
+        if engineRunning {
+            engine.inputNode.removeTap(onBus: 0)
+            engine.stop()
+            engineRunning = false
+        }
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        status = .off
+        endsAt = nil
+    }
+
+    /// Les demandes du clavier.
+    private func listen() {
+        KBDictation.observe(KBDictation.ping) { [weak self] in
+            guard let self, self.status == .ready || self.status == .listening else { return }
+            self.touch()
+            KBDictation.post(KBDictation.pong)
+        }
+        KBDictation.observe(KBDictation.start) { [weak self] in self?.beginRecognition() }
+        KBDictation.observe(KBDictation.stop) { [weak self] in self?.endRecognition() }
+    }
+
+    private func beginRecognition() {
+        guard let recognizer, status == .ready || status == .listening else { return }
+        task?.cancel()
+        let req = SFSpeechAudioBufferRecognitionRequest()
+        req.shouldReportPartialResults = true
+        req.requiresOnDeviceRecognition = true
+        req.addsPunctuation = true
+        lock.lock()
+        request = req
+        lock.unlock()
+        seq += 1
+        let mine = seq
+        heard = ""
+        status = .listening
+        save("", final: false, seq: mine)
+        task = recognizer.recognitionTask(with: req) { [weak self] result, error in
+            guard let self else { return }
+            if let result {
+                let t = result.bestTranscription.formattedString
+                DispatchQueue.main.async { self.heard = t }
+                self.save(t, final: result.isFinal, seq: mine)
+            }
+            if result?.isFinal == true || error != nil {
+                DispatchQueue.main.async {
+                    if error != nil && result?.isFinal != true { self.save(self.heard, final: true, seq: mine) }
+                    self.finishRecognition()
+                }
+            }
+        }
+        touch()
+    }
+
+    private func endRecognition() {
+        lock.lock()
+        let r = request
+        lock.unlock()
+        guard let r else { return }
+        r.endAudio()
+        // Le dernier résultat arrive d'habitude tout de suite ; sinon on rend ce qui a été entendu.
+        finishTimer?.invalidate()
+        let mine = seq
+        finishTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { [weak self] _ in
+            guard let self, self.status == .listening, self.seq == mine else { return }
+            self.save(self.heard, final: true, seq: mine)
+            self.finishRecognition()
+        }
+    }
+
+    private func finishRecognition() {
+        lock.lock()
+        request = nil
+        lock.unlock()
+        task = nil
+        finishTimer?.invalidate()
+        if status == .listening { status = .ready }
+        touch()
+    }
+
+    private func save(_ text: String, final: Bool, seq: Int) {
+        KBVault.saveDictation(KBDictation.State(text: text, final: final, seq: seq))
+        KBDictation.post(KBDictation.update)
+    }
+
+    /// Encore quelques minutes de session après chaque usage, puis le micro se ferme tout seul.
+    private func touch() {
+        guard status == .ready || status == .listening else { return }
+        endsAt = Date().addingTimeInterval(KBDictation.sessionMinutes * 60)
+        idleTimer?.invalidate()
+        idleTimer = Timer.scheduledTimer(withTimeInterval: KBDictation.sessionMinutes * 60, repeats: false) { [weak self] _ in
+            guard let self, self.status != .listening else { return }
+            self.stopSession()
+        }
+    }
+}
+
+/// L'écran qui s'ouvre quand le clavier demande la dictée : on autorise, puis on revient à son app.
+struct DictationView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
+    private let service = DictationService.shared
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 22) {
+                Spacer()
+                Image(systemName: icon)
+                    .font(.system(size: 64, weight: .semibold))
+                    .foregroundStyle(service.status == .ready || service.status == .listening ? Color.accentColor : .secondary)
+                    .symbolEffect(.pulse, isActive: service.status == .listening)
+                Text(title)
+                    .font(.title2.bold())
+                    .multilineTextAlignment(.center)
+                Text(detail)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                if service.status == .listening, !service.heard.isEmpty {
+                    Text(service.heard)
+                        .font(.callout)
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(.secondarySystemBackground)))
+                }
+                if service.status == .denied {
+                    Button("Open Settings") {
+                        if let u = URL(string: UIApplication.openSettingsURLString) { openURL(u) }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                Spacer()
+                Label("Your voice is transcribed on your iPhone. Nothing is sent or kept.", systemImage: "lock.shield")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                if service.status == .ready || service.status == .listening {
+                    Button("Stop dictation", role: .destructive) {
+                        service.stopSession()
+                        dismiss()
+                    }
+                }
+            }
+            .padding(24)
+            .frame(maxWidth: 560)
+            .frame(maxWidth: .infinity)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+            }
+        }
+    }
+
+    private var icon: String {
+        switch service.status {
+        case .denied, .unavailable: return "mic.slash"
+        default: return "mic.fill"
+        }
+    }
+
+    private var title: LocalizedStringKey {
+        switch service.status {
+        case .off, .starting: return "Turning on dictation…"
+        case .ready, .listening: return "Dictation is ready"
+        case .denied: return "Foldboard needs the microphone"
+        case .unavailable: return "Dictation isn't available"
+        }
+    }
+
+    private var detail: LocalizedStringKey {
+        switch service.status {
+        case .off, .starting: return "Allow the microphone and speech recognition when iOS asks."
+        case .ready, .listening: return "Go back to your app (top left) and tap the mic above the keys. Dictation stays ready for 10 minutes, then turns off by itself."
+        case .denied: return "Allow the microphone and speech recognition for Foldboard in Settings."
+        case .unavailable: return "On-device dictation isn't available for this language on your iPhone."
+        }
+    }
+}

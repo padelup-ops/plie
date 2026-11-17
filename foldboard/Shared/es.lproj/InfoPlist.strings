@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "Foldboard solo usa el micrófono cuando dictas desde el teclado. Tu voz se transcribe en tu iPhone y nunca se envía.";
+"NSSpeechRecognitionUsageDescription" = "Tu dictado se transcribe en tu iPhone. No se envía ni se guarda nada.";

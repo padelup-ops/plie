@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "O Foldboard só usa o microfone quando você dita pelo teclado. Sua voz é transcrita no seu iPhone e nunca é enviada.";
+"NSSpeechRecognitionUsageDescription" = "Seu ditado é transcrito no seu iPhone. Nada é enviado nem guardado.";

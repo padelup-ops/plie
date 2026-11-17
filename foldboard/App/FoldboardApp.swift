@@ -48,12 +48,20 @@ struct HomeView: View {
     @AppStorage("seenButtonsGuide") private var seenButtonsGuide = false
     @State private var showButtonsGuide = false
     @State private var showPro = false
+    /// Le clavier a demandé la dictée (foldboard://dictate).
+    @State private var showDictation = false
 
     var body: some View {
         NavigationStack {
             // Un seul accueil pour tout le monde : la recherche, les réglages en cartes, l'aide et la FAQ.
             AtelierHome(showPro: $showPro)
             .sheet(isPresented: $showPro) { ProView().environment(store).fullScreenDuo() }
+            .sheet(isPresented: $showDictation) { DictationView() }
+            .onOpenURL { url in
+                guard url.scheme == "foldboard", url.host == "dictate" else { return }
+                DictationService.shared.startSession()
+                showDictation = true
+            }
             .sheet(isPresented: $showButtonsGuide) {
                 NavigationStack { ButtonsGuide { showButtonsGuide = false } }
             }

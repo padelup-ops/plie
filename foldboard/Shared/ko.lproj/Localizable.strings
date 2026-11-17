@@ -478,3 +478,21 @@
 "Reset where I tap" = "탭 위치 재설정";
 "Reset where you tap?" = "탭 위치를 재설정할까요?";
 "The keys adjust to where your thumbs really land." = "키가 엄지가 실제로 닿는 위치에 맞춰집니다.";
+
+/* Dictée */
+"Dictation" = "받아쓰기";
+"Listening…" = "듣는 중…";
+"Turn on dictation in Foldboard, then come back here" = "Foldboard에서 받아쓰기를 켠 다음 여기로 돌아오세요";
+"Your voice is transcribed on your iPhone. Nothing is sent or kept." = "음성은 iPhone에서 텍스트로 변환됩니다. 아무것도 전송되거나 저장되지 않습니다.";
+"Stop dictation" = "받아쓰기 중지";
+"Turning on dictation…" = "받아쓰기 켜는 중…";
+"Dictation is ready" = "받아쓰기 준비 완료";
+"Foldboard needs the microphone" = "Foldboard에 마이크가 필요합니다";
+"Dictation isn't available" = "받아쓰기를 사용할 수 없음";
+"Allow the microphone and speech recognition when iOS asks." = "iOS가 물으면 마이크와 음성 인식을 허용하세요.";
+"Go back to your app (top left) and tap the mic above the keys. Dictation stays ready for 10 minutes, then turns off by itself." = "앱으로 돌아가서(왼쪽 위) 키 위의 마이크를 탭하세요. 받아쓰기는 10분 동안 준비된 상태로 있다가 저절로 꺼집니다.";
+"Allow the microphone and speech recognition for Foldboard in Settings." = "설정에서 Foldboard의 마이크와 음성 인식을 허용하세요.";
+"On-device dictation isn't available for this language on your iPhone." = "이 iPhone에서는 이 언어의 기기 내 받아쓰기를 사용할 수 없습니다.";
+"Dictation key" = "받아쓰기 키";
+"A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "키 위의 마이크입니다. 처음에는 마이크를 켜기 위해 Foldboard가 잠깐 열립니다(iOS는 키보드에 마이크를 허용하지 않음). 그다음 돌아가서 말하면 됩니다. iPhone에서 텍스트로 변환됩니다.";
+"Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "네. 키 위의 마이크를 탭하세요. 처음에는 마이크를 켜기 위해 Foldboard가 잠깐 열립니다(iOS는 키보드에 마이크를 허용하지 않음). 그다음 앱으로 돌아가세요. 이후 10분 동안은 마이크를 탭하고 말하면 되고, 다시 탭하면 멈춥니다. 음성은 iPhone에서 텍스트로 변환되며 아무것도 전송되지 않습니다.";

@@ -606,6 +606,12 @@ struct TypingView: View {
             }
 
             Section {
+                Toggle("Dictation key", isOn: $m.settings.dictationKey)
+            } footer: {
+                Text("A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone.")
+            }
+
+            Section {
                 NavigationLink { TapMapView().fullScreenDuo() } label: {
                     Label("Where you tap", systemImage: "hand.point.up.left")
                 }

@@ -486,3 +486,21 @@
 "Reset where I tap" = "Reset where I tap";
 "Reset where you tap?" = "Reset where you tap?";
 "The keys adjust to where your thumbs really land." = "The keys adjust to where your thumbs really land.";
+
+/* Dictée */
+"Dictation" = "Dictation";
+"Listening…" = "Listening…";
+"Turn on dictation in Foldboard, then come back here" = "Turn on dictation in Foldboard, then come back here";
+"Your voice is transcribed on your iPhone. Nothing is sent or kept." = "Your voice is transcribed on your iPhone. Nothing is sent or kept.";
+"Stop dictation" = "Stop dictation";
+"Turning on dictation…" = "Turning on dictation…";
+"Dictation is ready" = "Dictation is ready";
+"Foldboard needs the microphone" = "Foldboard needs the microphone";
+"Dictation isn't available" = "Dictation isn't available";
+"Allow the microphone and speech recognition when iOS asks." = "Allow the microphone and speech recognition when iOS asks.";
+"Go back to your app (top left) and tap the mic above the keys. Dictation stays ready for 10 minutes, then turns off by itself." = "Go back to your app (top left) and tap the mic above the keys. Dictation stays ready for 10 minutes, then turns off by itself.";
+"Allow the microphone and speech recognition for Foldboard in Settings." = "Allow the microphone and speech recognition for Foldboard in Settings.";
+"On-device dictation isn't available for this language on your iPhone." = "On-device dictation isn't available for this language on your iPhone.";
+"Dictation key" = "Dictation key";
+"A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone.";
+"Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent.";

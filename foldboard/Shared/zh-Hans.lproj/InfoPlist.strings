@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "Foldboard 仅在你通过键盘听写时使用麦克风。你的声音在 iPhone 上转写，绝不会发送。";
+"NSSpeechRecognitionUsageDescription" = "你的听写在 iPhone 上转写，不会发送或保存任何内容。";
