@@ -211,11 +211,17 @@ extension KeyboardPreview {
         let b = UIScreen.main.bounds
         let open = min(b.width, b.height) > 500
         let landscape = b.width > b.height
-        var k = open && s.keyHeightOpen > 0 ? s.keyHeightOpen : s.keyHeight
-        let ctx = (open ? "open-" : "closed-") + (landscape ? "landscape" : "portrait")
+        var k: Double = s.keyHeight
+        if open, s.keyHeightOpen > 0 { k = s.keyHeightOpen }
+        let side: String = open ? "open-" : "closed-"
+        let ctx: String = side + (landscape ? "landscape" : "portrait")
         if open, b.width >= 560, s.mode(for: ctx) == .full { k *= 1.24 }
-        let rows = Double(s.numberRow ? 5 : 4)
-        return KeyboardCanvas.topBarHeight + 6 + CGFloat(rows * k + (k * (s.spaceRowScale - 1)).rounded() + (rows - 1) * 11) + 8
+        let rows: Double = s.numberRow ? 5 : 4
+        let keys: Double = rows * k
+        let spaceExtra: Double = (k * (s.spaceRowScale - 1)).rounded()
+        let gaps: Double = (rows - 1) * 11
+        let total: Double = keys + spaceExtra + gaps + 14
+        return KeyboardCanvas.topBarHeight + CGFloat(total)
     }
 }
 
