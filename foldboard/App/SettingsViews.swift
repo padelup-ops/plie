@@ -204,8 +204,18 @@ extension View {
 }
 
 extension KeyboardPreview {
+    /// La hauteur de l'aperçu : celle du vrai clavier sur cet écran (hauteur de touches du Duo ouvert si elle est
+    /// réglée à part, grandes touches du clavier entier, rangée de la barre d'espace). Avant, l'aperçu prenait la
+    /// hauteur de l'écran fermé : régler l'un semblait agrandir l'autre.
     static func height(_ s: KBSettings) -> CGFloat {
-        KeyboardCanvas.topBarHeight + 6 + CGFloat(s.numberRow ? 5 : 4) * CGFloat(s.keyHeight) + (s.numberRow ? 40 : 30) + 8
+        let b = UIScreen.main.bounds
+        let open = min(b.width, b.height) > 500
+        let landscape = b.width > b.height
+        var k = open && s.keyHeightOpen > 0 ? s.keyHeightOpen : s.keyHeight
+        let ctx = (open ? "open-" : "closed-") + (landscape ? "landscape" : "portrait")
+        if open, b.width >= 560, s.mode(for: ctx) == .full { k *= 1.24 }
+        let rows = Double(s.numberRow ? 5 : 4)
+        return KeyboardCanvas.topBarHeight + 6 + CGFloat(rows * k + (k * (s.spaceRowScale - 1)).rounded() + (rows - 1) * 11) + 8
     }
 }
 

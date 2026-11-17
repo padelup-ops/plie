@@ -425,16 +425,15 @@ final class KeyboardCanvas: UIView {
     private var baseKeyH: CGFloat { CGFloat(screenKeyHeight) * (wideFull ? 1.24 : 1) }
     private var rowUnits: CGFloat { CGFloat(rowCount) + CGFloat(eff.spaceRowScale - 1) }
     private var fixedH: CGFloat { Self.topBarHeight + 6 + CGFloat(rowCount - 1) * vgap + 8 }
-    /// La hauteur des touches à l'écran. Duo ouvert, quand iOS donne au clavier plus de hauteur que demandé (mode
-    /// « portable », à moitié ouvert : tout l'écran du bas ; certaines apps aussi), les touches grandissent pour la
-    /// remplir au lieu de laisser des bandes vides (jusqu'à 1,8 fois en mode portable, 1,4 sinon).
-    /// La hauteur demandée à iOS (preferredHeight) reste celle des touches normales : sinon le clavier garderait
-    /// cette grande taille partout ensuite.
+    /// La hauteur des touches à l'écran. Duo posé en mode « portable » (à moitié ouvert), iOS donne au clavier tout
+    /// l'écran du bas : les touches grandissent pour le remplir (jusqu'à 1,8 fois) au lieu de laisser des bandes vides.
+    /// Seulement là : ailleurs, une hauteur en trop venait souvent de l'autre écran (ou de l'aperçu dans l'app), et
+    /// le réglage « hauteur des touches » d'un écran agrandissait aussi l'autre.
+    /// La hauteur demandée à iOS (preferredHeight) reste celle des touches normales.
     private var keyH: CGFloat {
         let k = baseKeyH
-        guard hingeHalf || gripContext.hasPrefix("open"), bounds.height > 0,
-              bounds.height - (fixedH + k * rowUnits) > 12 else { return k }
-        return max(k, min(k * (hingeHalf ? 1.8 : 1.4), ((bounds.height - fixedH) / rowUnits).rounded(.down)))
+        guard hingeHalf, bounds.height > 0, bounds.height - (fixedH + k * rowUnits) > 12 else { return k }
+        return max(k, min(k * 1.8, ((bounds.height - fixedH) / rowUnits).rounded(.down)))
     }
     /// La hauteur des touches pour l'écran affiché : plié et déplié peuvent avoir chacun la leur.
     private var screenKeyHeight: Double {
