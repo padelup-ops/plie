@@ -1,0 +1,8 @@
+Detected file type from extension: PNG
+Error: Device does not have a '0' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a '0' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/duo-fr-01-home-out.png
