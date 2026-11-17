@@ -496,3 +496,4 @@
 "Dictation key" = "听写键";
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "按键上方的麦克风。第一次使用时，Foldboard 会短暂打开以开启麦克风（iOS 不允许键盘使用麦克风），然后返回并说话即可。所有内容都在你的 iPhone 上转写。";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "可以。轻点按键上方的麦克风。第一次使用时，Foldboard 会短暂打开以开启麦克风（iOS 不允许键盘使用麦克风），然后回到你的 App。之后 10 分钟内，只需轻点麦克风说话，再点一次即可停止。你的声音在 iPhone 上转写：不会发送任何内容。";
+"Turn on dictation now" = "立即打开听写";

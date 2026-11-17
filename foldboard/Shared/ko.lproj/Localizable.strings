@@ -496,3 +496,4 @@
 "Dictation key" = "받아쓰기 키";
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "키 위의 마이크입니다. 처음에는 마이크를 켜기 위해 Foldboard가 잠깐 열립니다(iOS는 키보드에 마이크를 허용하지 않음). 그다음 돌아가서 말하면 됩니다. iPhone에서 텍스트로 변환됩니다.";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "네. 키 위의 마이크를 탭하세요. 처음에는 마이크를 켜기 위해 Foldboard가 잠깐 열립니다(iOS는 키보드에 마이크를 허용하지 않음). 그다음 앱으로 돌아가세요. 이후 10분 동안은 마이크를 탭하고 말하면 되고, 다시 탭하면 멈춥니다. 음성은 iPhone에서 텍스트로 변환되며 아무것도 전송되지 않습니다.";
+"Turn on dictation now" = "지금 받아쓰기 켜기";

@@ -496,3 +496,4 @@
 "Dictation key" = "音声入力キー";
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "キーの上にマイクを表示します。最初だけ、マイクをオンにするためにFoldboardが一瞬開きます（iOSはキーボードにマイクを許可していません）。その後アプリに戻って話すだけです。iPhone上で文字にされます。";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "はい。キーの上のマイクをタップしてください。最初だけ、マイクをオンにするためにFoldboardが一瞬開きます（iOSはキーボードにマイクを許可していません）。そのあとアプリに戻ってください。それから10分間は、マイクをタップして話し、もう一度タップすると止まります。声はiPhone上で文字にされ、何も送信されません。";
+"Turn on dictation now" = "今すぐ音声入力をオン";
