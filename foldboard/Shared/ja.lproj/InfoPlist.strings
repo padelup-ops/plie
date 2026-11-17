@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "Foldboardがマイクを使うのは、キーボードから音声入力するときだけです。声はiPhone上で文字にされ、送信されません。";
+"NSSpeechRecognitionUsageDescription" = "音声入力はiPhone上で文字にされます。何も送信・保存されません。";

@@ -585,6 +585,7 @@ extension Character {
 
 struct TypingView: View {
     @Environment(SettingsModel.self) private var model
+    @State private var showDictation = false
 
     var body: some View {
         @Bindable var m = model
@@ -603,6 +604,19 @@ struct TypingView: View {
                     Text("Language model: Leipzig Corpora Collection, CC BY 4.0.").font(.caption2)
                     Text("Everyday sentences: Tatoeba, CC BY 2.0 FR.").font(.caption2)
                 }
+            }
+
+            Section {
+                Toggle("Dictation key", isOn: $m.settings.dictationKey)
+                if m.settings.dictationKey {
+                    Button("Turn on dictation now") {
+                        DictationService.shared.startSession()
+                        showDictation = true
+                    }
+                    .sheet(isPresented: $showDictation) { DictationView() }
+                }
+            } footer: {
+                Text("A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone.")
             }
 
             Section {

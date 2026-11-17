@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "Foldboard использует микрофон, только когда вы диктуете с клавиатуры. Голос распознаётся на iPhone и никуда не отправляется.";
+"NSSpeechRecognitionUsageDescription" = "Диктовка распознаётся на iPhone. Ничего не отправляется и не хранится.";

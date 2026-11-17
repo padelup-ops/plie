@@ -478,3 +478,22 @@
 "Reset where I tap" = "重置点按位置";
 "Reset where you tap?" = "要重置点按位置吗？";
 "The keys adjust to where your thumbs really land." = "按键会根据你拇指实际落下的位置进行调整。";
+
+/* Dictée */
+"Dictation" = "听写";
+"Listening…" = "正在聆听…";
+"Turn on dictation in Foldboard, then come back here" = "请在 Foldboard 中打开听写，然后回到这里";
+"Your voice is transcribed on your iPhone. Nothing is sent or kept." = "你的声音在 iPhone 上转写，不会发送或保存任何内容。";
+"Stop dictation" = "停止听写";
+"Turning on dictation…" = "正在打开听写…";
+"Dictation is ready" = "听写已就绪";
+"Foldboard needs the microphone" = "Foldboard 需要麦克风";
+"Dictation isn't available" = "听写不可用";
+"Allow the microphone and speech recognition when iOS asks." = "当 iOS 询问时，请允许麦克风和语音识别。";
+"Go back to your app (top left) and tap the mic above the keys. Dictation stays ready for 10 minutes, then turns off by itself." = "回到你的 App（左上角），轻点按键上方的麦克风。听写会保持就绪 10 分钟，然后自动关闭。";
+"Allow the microphone and speech recognition for Foldboard in Settings." = "请在“设置”中允许 Foldboard 使用麦克风和语音识别。";
+"On-device dictation isn't available for this language on your iPhone." = "你的 iPhone 不支持此语言的设备端听写。";
+"Dictation key" = "听写键";
+"A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "按键上方的麦克风。第一次使用时，Foldboard 会短暂打开以开启麦克风（iOS 不允许键盘使用麦克风），然后返回并说话即可。所有内容都在你的 iPhone 上转写。";
+"Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "可以。轻点按键上方的麦克风。第一次使用时，Foldboard 会短暂打开以开启麦克风（iOS 不允许键盘使用麦克风），然后回到你的 App。之后 10 分钟内，只需轻点麦克风说话，再点一次即可停止。你的声音在 iPhone 上转写：不会发送任何内容。";
+"Turn on dictation now" = "立即打开听写";

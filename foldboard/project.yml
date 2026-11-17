@@ -35,6 +35,13 @@ targets:
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         ITSAppUsesNonExemptEncryption: false
         FoldboardKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.foldboard.shared
+        # La dictée : le clavier ouvre l'app (foldboard://dictate), qui garde le micro pour lui en arrière-plan.
+        CFBundleURLTypes:
+          - CFBundleURLName: com.padelup.foldboard
+            CFBundleURLSchemes: [foldboard]
+        UIBackgroundModes: [audio]
+        NSMicrophoneUsageDescription: "Foldboard uses the microphone only when you dictate from the keyboard. Your voice is transcribed on your iPhone and never sent."
+        NSSpeechRecognitionUsageDescription: "Your dictation is transcribed on your iPhone. Nothing is sent or kept."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.padelup.foldboard

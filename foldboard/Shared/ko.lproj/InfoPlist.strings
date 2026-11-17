@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "Foldboard는 키보드에서 받아쓰기할 때만 마이크를 사용합니다. 음성은 iPhone에서 변환되며 전송되지 않습니다.";
+"NSSpeechRecognitionUsageDescription" = "받아쓰기는 iPhone에서 변환됩니다. 아무것도 전송되거나 저장되지 않습니다.";

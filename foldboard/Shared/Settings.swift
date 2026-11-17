@@ -149,6 +149,8 @@ struct KBSettings: Codable, Equatable {
     var spaceRowScale: Double = 1
     /// Les touches se décalent vers là où tu tapes vraiment (KBTapMap).
     var tapLearn = true
+    /// Le micro au-dessus des touches (dictée, voir KBDictation).
+    var dictationKey = true
     /// La disposition choisie pour chaque écran (« closed-portrait », « open-portrait », « open-landscape »…).
     /// Absent : la disposition générale (`mode`). Choisir une disposition dans le clavier la règle pour cet écran seulement.
     var screenModes: [String: KBMode] = [:]
@@ -234,6 +236,7 @@ struct KBSettings: Codable, Equatable {
         numberRow = (try? c.decodeIfPresent(Bool.self, forKey: .numberRow)) ?? d.numberRow
         spaceRowScale = min(1.5, max(0.8, (try? c.decodeIfPresent(Double.self, forKey: .spaceRowScale)) ?? d.spaceRowScale))
         tapLearn = (try? c.decodeIfPresent(Bool.self, forKey: .tapLearn)) ?? d.tapLearn
+        dictationKey = (try? c.decodeIfPresent(Bool.self, forKey: .dictationKey)) ?? d.dictationKey
         screenModes = (try? c.decodeIfPresent([String: KBMode].self, forKey: .screenModes)) ?? d.screenModes
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme
         font = (try? c.decodeIfPresent(KBFont.self, forKey: .font)) ?? d.font
@@ -554,6 +557,16 @@ enum KBVault {
     }
 
     // Bilan de frappe : le plus récent gagne (comme les réglages).
+    /// La dictée en cours (voir KBDictation) : écrite par l'app, lue par le clavier.
+    static func loadDictation() -> KBDictation.State? {
+        read("dictation").flatMap { try? JSONDecoder().decode(KBDictation.State.self, from: $0) }
+    }
+
+    static func saveDictation(_ s: KBDictation.State) {
+        guard let d = try? JSONEncoder().encode(s) else { return }
+        write("dictation", d)
+    }
+
     /// Où tu tapes (voir KBTapMap) : écrit par le clavier, lu et remis à zéro par l'app.
     static func loadTaps() -> KBTapMap? {
         read("taps").flatMap { try? JSONDecoder().decode(KBTapMap.self, from: $0) }

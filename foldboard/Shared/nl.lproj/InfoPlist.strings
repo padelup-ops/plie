@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "Foldboard gebruikt de microfoon alleen als je dicteert vanaf het toetsenbord. Je stem wordt op je iPhone omgezet en nooit verstuurd.";
+"NSSpeechRecognitionUsageDescription" = "Je dictaat wordt op je iPhone omgezet. Er wordt niets verstuurd of bewaard.";

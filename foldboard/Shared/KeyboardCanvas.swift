@@ -100,6 +100,12 @@ final class KeyboardCanvas: UIView {
     private let emojiButton = UIButton(type: .system)
     /// Le presse-papier, toujours en vue dans la barre du haut.
     private let clipButton = UIButton(type: .system)
+    /// La dictée (voir KBDictation) : le micro au-dessus des touches, et ce qu'on entend pendant qu'on parle.
+    private let micButton = UIButton(type: .system)
+    private let dictLabel = UILabel()
+    private enum DictState { case idle, connecting, listening, finishing }
+    private var dictState = DictState.idle
+    private var dictSeq = 0
     private let adjustButton = UIButton(type: .system)
     private let chips = UIScrollView()
     private let chipStack = UIStackView()
@@ -152,6 +158,102 @@ final class KeyboardCanvas: UIView {
         guard eff.tapLearn, recording == nil, f.width > 0, f.height > 0 else { return }
         tapMap.add(key: " ", dx: Double((p.x - f.midX) / f.width), dy: Double((p.y - f.midY) / f.height), twoHands: !layoutMode.isOneHand)
         tapDirty += 1
+    }
+
+    // MARK: Dictée
+
+    private func micTapped() {
+        KBFeedback.shared.tap(sound: .off, haptics: max(0.3, eff.haptics))
+        switch dictState {
+        case .listening:
+            stopDictation()
+        case .idle:
+            startDictation()
+        default:
+            break
+        }
+    }
+
+    /// Demande à l'app si elle est prête (micro ouvert) ; sinon, on l'ouvre pour qu'elle le soit.
+    private func startDictation() {
+        dictState = .connecting
+        showDictCaption(L("Dictation"))
+        KBDictation.observe(KBDictation.pong) { [weak self] in
+            guard let self, self.dictState == .connecting else { return }
+            self.dictSeq = KBVault.loadDictation()?.seq ?? 0
+            self.dictState = .listening
+            self.showDictCaption(L("Listening…"))
+            KBDictation.post(KBDictation.start)
+        }
+        KBDictation.observe(KBDictation.update) { [weak self] in self?.dictationUpdate() }
+        KBDictation.post(KBDictation.ping)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+            guard let self, self.dictState == .connecting else { return }
+            self.dictState = .idle
+            self.showDictCaption(nil)
+            self.openContainingApp(KBDictation.url)
+            self.flash(L("Turn on dictation in Foldboard, then come back here"), hold: 4)
+        }
+    }
+
+    private func stopDictation() {
+        dictState = .finishing
+        showDictCaption(dictLabel.text)
+        KBDictation.post(KBDictation.stop)
+        // Si le texte final n'arrive pas, on écrit ce qui a été entendu.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            guard let self, self.dictState == .finishing else { return }
+            if let s = KBVault.loadDictation(), s.seq > self.dictSeq { self.insertDictation(s.text) }
+            self.dictState = .idle
+            self.showDictCaption(nil)
+        }
+    }
+
+    private func dictationUpdate() {
+        guard dictState == .listening || dictState == .finishing, let s = KBVault.loadDictation(), s.seq > dictSeq else { return }
+        if s.final {
+            dictSeq = s.seq
+            insertDictation(s.text)
+            dictState = .idle
+            showDictCaption(nil)
+        } else if !s.text.isEmpty {
+            showDictCaption(s.text)
+        }
+    }
+
+    private func insertDictation(_ text: String) {
+        let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty else { return }
+        let before = input?.kbTextBefore() ?? ""
+        let space = !(before.isEmpty || before.hasSuffix(" ") || before.hasSuffix("\n"))
+        input?.kbInsert((space ? " " : "") + t)
+        wordTouches.removeAll()
+        lastCorrection = nil
+        refreshSuggestionsSoon()
+        refreshShiftSoon()
+    }
+
+    /// Ce qu'on entend, à la place des suggestions (nil : on rend les suggestions).
+    private func showDictCaption(_ text: String?) {
+        dictLabel.text = text
+        layoutTopBar()
+    }
+
+    /// Ouvrir l'app Foldboard depuis le clavier (iOS ne le propose pas aux claviers : on passe par l'application
+    /// qui porte le clavier, comme Gboard ou SwiftKey).
+    private func openContainingApp(_ url: URL) {
+        var r: UIResponder? = self
+        while let cur = r {
+            if let app = cur as? UIApplication {
+                let sel = NSSelectorFromString("openURL:options:completionHandler:")
+                guard app.responds(to: sel) else { return }
+                typealias OpenFn = @convention(c) (AnyObject, Selector, NSURL, NSDictionary, AnyObject?) -> Void
+                let f = unsafeBitCast(app.method(for: sel), to: OpenFn.self)
+                f(app, sel, url as NSURL, NSDictionary(), nil)
+                return
+            }
+            r = cur.next
+        }
     }
 
     private func saveTaps() {
@@ -375,10 +477,18 @@ final class KeyboardCanvas: UIView {
         adjustButton.setImage(UIImage(systemName: "slider.horizontal.3"), for: .normal)
         adjustButton.addAction(UIAction { [weak self] _ in self?.startAdjust() }, for: .touchUpInside)
         adjustButton.accessibilityLabel = L("Adjust the keyboard")
-        for b in [modeButton, flipButton, middleButton, bigButton, hideButton, adjustButton, globeButton, emojiButton, clipButton] {
+        for b in [modeButton, flipButton, middleButton, bigButton, hideButton, adjustButton, globeButton, emojiButton, clipButton, micButton] {
             b.tintColor = .label
             topBar.addSubview(b)
         }
+        micButton.setImage(UIImage(systemName: "mic"), for: .normal)
+        micButton.accessibilityLabel = L("Dictation")
+        micButton.addAction(UIAction { [weak self] _ in self?.micTapped() }, for: .touchUpInside)
+        dictLabel.isHidden = true
+        dictLabel.textAlignment = .center
+        dictLabel.lineBreakMode = .byTruncatingHead
+        dictLabel.font = .systemFont(ofSize: 15, weight: .medium)
+        topBar.addSubview(dictLabel)
         modeButton.showsMenuAsPrimaryAction = true
         flipButton.setImage(UIImage(systemName: "arrow.left.arrow.right"), for: .normal)
         flipButton.addAction(UIAction { [weak self] _ in self?.flipSide() }, for: .touchUpInside)
@@ -732,6 +842,10 @@ final class KeyboardCanvas: UIView {
     func disappeared() {
         visible = false
         saveTaps()
+        if dictState != .idle {
+            KBDictation.post(KBDictation.stop)
+            dictState = .idle
+        }
         perfLink?.invalidate()
         perfLink = nil
         grip.stop()
@@ -1579,12 +1693,17 @@ final class KeyboardCanvas: UIView {
         clipButton.isHidden = !clipShown
         clipButton.tintColor = theme.text.withAlphaComponent(0.7)
         clipButton.frame = CGRect(x: adjustButton.frame.minX - (clipShown ? 36 : 0), y: 0, width: clipShown ? 36 : 0, height: h)
-        emojiButton.frame = CGRect(x: clipButton.frame.minX - (emojiOn ? 36 : 0), y: 0, width: emojiOn ? 36 : 0, height: h)
+        let micShown = eff.dictationKey && !showEmoji
+        micButton.isHidden = !micShown
+        micButton.tintColor = dictState == .idle ? theme.text.withAlphaComponent(0.7) : theme.accent
+        micButton.setImage(UIImage(systemName: dictState == .idle ? "mic" : "mic.fill"), for: .normal)
+        micButton.frame = CGRect(x: clipButton.frame.minX - (micShown ? 36 : 0), y: 0, width: micShown ? 36 : 0, height: h)
+        emojiButton.frame = CGRect(x: micButton.frame.minX - (emojiOn ? 36 : 0), y: 0, width: emojiOn ? 36 : 0, height: h)
         globeButton.frame = CGRect(x: emojiButton.frame.minX - (compact && globe ? 36 : 0), y: 0, width: compact && globe ? 36 : 0, height: h)
         let cx = max(flipButton.frame.maxX, middleButton.frame.maxX, bigButton.frame.maxX) + 4
         if let g = sideButtonsGrid {
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
-            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + [clipButton] + (eff.barButtons ? [adjustButton] : []) + (eff.barButtons || eff.hideKeyButton ? [hideButton] : [])
+            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + (eff.dictationKey ? [micButton] : []) + [clipButton] + (eff.barButtons ? [adjustButton] : []) + (eff.barButtons || eff.hideKeyButton ? [hideButton] : [])
             let gridW = CGFloat(g.cols) * 44
             let vertical = gripContext == "open-portrait"
             // En colonne : contre le clavier (côté pouce), et les boutons répartis sur la hauteur des touches.
@@ -1603,6 +1722,11 @@ final class KeyboardCanvas: UIView {
         } else {
             chips.frame = CGRect(x: cx, y: 0, width: max(0, globeButton.frame.minX - cx - 4), height: h)
         }
+        dictLabel.frame = chips.frame
+        dictLabel.textColor = theme.text
+        dictLabel.backgroundColor = theme.background
+        dictLabel.isHidden = dictState == .idle
+        chips.isHidden = dictState != .idle
 
         rebuildChips()
     }
@@ -1791,6 +1915,7 @@ final class KeyboardCanvas: UIView {
     private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
         guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
         let n = 1 + (eff.barButtons ? 1 : 0) + (eff.barButtons || eff.hideKeyButton ? 1 : 0) + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
+            + (eff.dictationKey ? 1 : 0)
         // Duo ouvert en portrait : une colonne verticale collée au clavier, à portée du pouce
         // (une rangée tout en haut de la place libre était trop loin).
         // Les touches ne font qu'environ 170 pt de haut : boutons resserrés (32 pt mini), sur deux colonnes s'il le faut.
@@ -1809,7 +1934,7 @@ final class KeyboardCanvas: UIView {
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         if sideButtonsGrid != nil, !isHidden, isUserInteractionEnabled {
             let q = convert(point, to: topBar)
-            for b in [globeButton, emojiButton, clipButton, adjustButton, hideButton] where !b.isHidden && b.alpha > 0.01 && b.frame.contains(q) {
+            for b in [globeButton, emojiButton, micButton, clipButton, adjustButton, hideButton] where !b.isHidden && b.alpha > 0.01 && b.frame.contains(q) {
                 return b
             }
         }
@@ -2421,7 +2546,7 @@ final class KeyboardCanvas: UIView {
         if !on { trackMap = nil }
         UIView.animate(withDuration: 0.18) {
             // Comme chez Apple : la barre du haut disparaît aussi, il ne reste que le pavé.
-            for v in [self.chips, self.modeButton, self.flipButton, self.middleButton, self.bigButton, self.globeButton, self.emojiButton, self.clipButton, self.adjustButton, self.hideButton] as [UIView] {
+            for v in [self.chips, self.modeButton, self.flipButton, self.middleButton, self.bigButton, self.globeButton, self.emojiButton, self.micButton, self.clipButton, self.adjustButton, self.hideButton] as [UIView] {
                 v.alpha = on ? 0 : 1
             }
             for c in self.cells {

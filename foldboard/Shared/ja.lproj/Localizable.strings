@@ -478,3 +478,22 @@
 "Reset where I tap" = "タップ位置をリセット";
 "Reset where you tap?" = "タップ位置をリセットしますか？";
 "The keys adjust to where your thumbs really land." = "キーは親指が実際に触れる位置に合わせて調整されます。";
+
+/* Dictée */
+"Dictation" = "音声入力";
+"Listening…" = "聞いています…";
+"Turn on dictation in Foldboard, then come back here" = "Foldboardで音声入力をオンにしてから、ここに戻ってください";
+"Your voice is transcribed on your iPhone. Nothing is sent or kept." = "声はiPhone上で文字にされます。何も送信・保存されません。";
+"Stop dictation" = "音声入力を停止";
+"Turning on dictation…" = "音声入力をオンにしています…";
+"Dictation is ready" = "音声入力の準備ができました";
+"Foldboard needs the microphone" = "Foldboardにマイクが必要です";
+"Dictation isn't available" = "音声入力は利用できません";
+"Allow the microphone and speech recognition when iOS asks." = "iOSに聞かれたら、マイクと音声認識を許可してください。";
+"Go back to your app (top left) and tap the mic above the keys. Dictation stays ready for 10 minutes, then turns off by itself." = "アプリに戻り（左上）、キーの上のマイクをタップしてください。音声入力は10分間待機し、その後自動でオフになります。";
+"Allow the microphone and speech recognition for Foldboard in Settings." = "設定でFoldboardのマイクと音声認識を許可してください。";
+"On-device dictation isn't available for this language on your iPhone." = "この言語のデバイス上の音声入力は、このiPhoneでは利用できません。";
+"Dictation key" = "音声入力キー";
+"A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "キーの上にマイクを表示します。最初だけ、マイクをオンにするためにFoldboardが一瞬開きます（iOSはキーボードにマイクを許可していません）。その後アプリに戻って話すだけです。iPhone上で文字にされます。";
+"Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "はい。キーの上のマイクをタップしてください。最初だけ、マイクをオンにするためにFoldboardが一瞬開きます（iOSはキーボードにマイクを許可していません）。そのあとアプリに戻ってください。それから10分間は、マイクをタップして話し、もう一度タップすると止まります。声はiPhone上で文字にされ、何も送信されません。";
+"Turn on dictation now" = "今すぐ音声入力をオン";

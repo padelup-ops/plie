@@ -45,7 +45,7 @@ enum FAQ {
                 a: "iOS always uses its own keyboard for passwords and phone numbers, and some apps (banks, for example) don’t allow other keyboards. Foldboard comes back on its own in the next field. If it switches while you are typing, update Foldboard: recent versions use much less memory."),
         FAQItem(id: 4, topic: .start,
                 q: "Can I dictate with Foldboard?",
-                a: "iOS doesn’t let keyboards from other apps use the microphone. To dictate, hold the globe key, pick Apple’s keyboard, dictate, then switch back to Foldboard the same way."),
+                a: "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent."),
         FAQItem(id: 5, topic: .typing,
                 q: "How do I move the cursor?",
                 a: "Hold the space bar: the letters fade and the whole keyboard becomes a trackpad. Slide to move the cursor anywhere, up and down too."),
