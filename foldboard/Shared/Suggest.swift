@@ -133,7 +133,8 @@ final class KBSuggest {
     private var mine: [String: String] = [:]
     func setMyWords(_ list: [String]) {
         var m: [String: String] = [:]
-        for w in list where !w.isEmpty { m[w.lowercased()] = m[w.lowercased()] ?? w }
+        // Une lettre seule n'y a pas sa place (« i » doit toujours devenir « I »).
+        for w in list where w.count >= 2 { m[w.lowercased()] = m[w.lowercased()] ?? w }
         mine = m
     }
     private func isKnown(_ low: String) -> Bool { known.contains(low) || mine[low] != nil }
@@ -451,6 +452,14 @@ final class KBSuggest {
         return ".!?…\n".contains(last)
     }
 
+    /// La forme avec majuscule d'un mot inconnu en minuscules, si c'est un nom propre pour le correcteur d'iOS.
+    private func properCase(_ lower: String, lang: String? = nil) -> String? {
+        guard lower.count >= 3, lower.allSatisfy({ $0.isLetter }), rank[lower] == nil else { return nil }
+        let cap = lower.prefix(1).uppercased() + lower.dropFirst()
+        guard isMisspelled(lower, in: lang), !isMisspelled(cap, in: lang) else { return nil }
+        return cap
+    }
+
     private func isMisspelled(_ word: String, in lang: String? = nil) -> Bool {
         let ns = word as NSString
         let r = checker.rangeOfMisspelledWord(in: word, range: NSRange(location: 0, length: ns.length), startingAt: 0, wrap: false, language: lang ?? language)
@@ -509,6 +518,7 @@ final class KBSuggest {
         if word.contains(where: { $0.isNumber || $0 == "@" || $0 == "." || $0 == "/" }) { return nil }
         if word.count > 1, word == word.uppercased() { return nil }
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
+        if word == low, let c = properCase(low, lang: lang) { return c }
         guard isMisspelled(word, in: lang) else { return nil }
         let ns = word as NSString
         let allowed = word.count >= 7 ? 2 : 1
@@ -755,6 +765,9 @@ final class KBSuggest {
         if let r = replacements[lower] { return r }
         if isKnown(lower) { return nil }
         if let r = rank[lower], !(Self.t("cJunk", 0) > 0 && doubtful(lower, rank: r)) { return nil }
+        // Un prénom ou un nom propre tapé en minuscules (« brett » → « Brett ») : le correcteur d'iOS ne le connaît
+        // qu'avec sa majuscule. Comme le clavier d'Apple.
+        if word == lower, let c = properCase(lower) { return c }
         // Un nom propre au milieu d'une phrase : on n'y touche pas.
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
         guard isMisspelled(word) else { return nil }

@@ -505,3 +505,10 @@
 "No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "Nenhuma palavra ainda. Adicione as palavras que o Foldboard nunca deve corrigir: gírias, nomes, marcas…";
 "How do I stop Foldboard from correcting a word?" = "Como impedir o Foldboard de corrigir uma palavra?";
 "Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "Adicione em **Digitação › Minhas palavras**: o Foldboard nunca corrige essas palavras e as sugere enquanto você digita. Quando você desfaz uma correção, a palavra é adicionada lá sozinha.";
+
+/* Panneau de dictée */
+"Turn on dictation" = "Ativar o ditado";
+"Foldboard opens for a moment to turn on the microphone. Come back here: it listens right away." = "O Foldboard abre por um instante para ligar o microfone. Volte aqui: ele começa a ouvir na hora.";
+"Writing…" = "Escrevendo…";
+"Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself." = "Volte para o seu app (no canto superior esquerdo): o Foldboard começa a ouvir na hora. O ditado fica pronto por 10 minutos e depois desliga sozinho.";
+"Back to your app" = "Voltar para o seu app";

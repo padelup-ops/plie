@@ -22,6 +22,8 @@ enum KBDictation {
         var text = ""
         var final = false
         var seq = 0
+        /// Le niveau de la voix (0 à 1), pour les barres du panneau.
+        var level: Float? = nil
     }
 
     static func post(_ name: String) {

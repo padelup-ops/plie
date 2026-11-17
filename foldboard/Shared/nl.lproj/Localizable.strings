@@ -505,3 +505,10 @@
 "No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "Nog geen woorden. Voeg woorden toe die Foldboard nooit mag verbeteren: slang, namen, merken…";
 "How do I stop Foldboard from correcting a word?" = "Hoe voorkom ik dat Foldboard een woord verbetert?";
 "Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "Voeg het toe bij **Typen › Mijn woorden**: Foldboard verbetert die woorden nooit en stelt ze voor terwijl je typt. Als je een correctie ongedaan maakt, wordt het woord daar vanzelf toegevoegd.";
+
+/* Panneau de dictée */
+"Turn on dictation" = "Dicteren inschakelen";
+"Foldboard opens for a moment to turn on the microphone. Come back here: it listens right away." = "Foldboard opent even om de microfoon aan te zetten. Kom hier terug: het luistert meteen.";
+"Writing…" = "Schrijven…";
+"Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself." = "Ga terug naar je app (linksboven): Foldboard luistert meteen. Dicteren blijft 10 minuten klaar en gaat daarna vanzelf uit.";
+"Back to your app" = "Terug naar je app";

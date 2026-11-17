@@ -166,6 +166,15 @@ final class KeyboardCanvas: UIView {
     }
 
     // MARK: Dictée
+    //
+    // Les touches laissent la place au panneau de dictée (KBVoicePanel) : la voix, le texte qui s'écrit, annuler ou
+    // valider. L'app Foldboard tient le micro (iOS ne le donne pas aux claviers) : si elle n'est pas prête, le panneau
+    // propose de l'ouvrir une fois, et la dictée démarre toute seule au retour.
+
+    private let voice = KBVoicePanel()
+    private var dictCancelled = false
+    /// L'app a été ouverte pour la dictée : au retour du clavier, on écoute tout de suite.
+    private static let pendingKey = "foldboard.dictation.pending"
 
     private func micTapped() {
         KBFeedback.shared.tap(sound: .off, haptics: max(0.3, eff.haptics))
@@ -179,58 +188,109 @@ final class KeyboardCanvas: UIView {
         }
     }
 
-    /// Demande à l'app si elle est prête (micro ouvert) ; sinon, on l'ouvre pour qu'elle le soit.
+    private func showVoice(_ m: KBVoicePanel.Mode, text: String? = nil) {
+        voice.set(m, text: text)
+        if voice.isHidden {
+            voice.isHidden = false
+            layoutVoice()
+        }
+        layoutTopBar()
+    }
+
+    private func hideVoice() {
+        guard !voice.isHidden else { return }
+        voice.isHidden = true
+        layoutTopBar()
+    }
+
+    private func layoutVoice() {
+        let top = barTop + Self.topBarHeight
+        voice.frame = CGRect(x: 6, y: top + 2, width: max(0, bounds.width - 12), height: max(0, bounds.height - top - 8))
+        voice.style(background: theme.background, key: theme.special, text: theme.text, accent: theme.accent)
+        bringSubviewToFront(voice)
+    }
+
+    /// Demande à l'app si elle est prête (micro disponible) ; sinon, le panneau propose de l'ouvrir.
     private func startDictation() {
+        dictCancelled = false
         dictState = .connecting
-        showDictCaption(L("Dictation"))
+        showVoice(.connecting)
         KBDictation.observe(KBDictation.pong) { [weak self] in
             guard let self, self.dictState == .connecting else { return }
             self.dictSeq = KBVault.loadDictation()?.seq ?? 0
             self.dictState = .listening
-            self.showDictCaption(L("Listening…"))
+            self.showVoice(.listening, text: "")
+            KBFeedback.shared.tap(sound: .off, haptics: max(0.3, self.eff.haptics))
             KBDictation.post(KBDictation.start)
         }
         KBDictation.observe(KBDictation.update) { [weak self] in self?.dictationUpdate() }
-        // L'app n'a pas pu ouvrir le micro en arrière-plan : on la ramène une fois au premier plan.
+        // L'app n'a pas pu ouvrir le micro en arrière-plan : il faut l'ouvrir une fois.
         KBDictation.observe(KBDictation.needApp) { [weak self] in
             guard let self, self.dictState == .listening || self.dictState == .connecting else { return }
             self.dictState = .idle
-            self.showDictCaption(nil)
-            self.openContainingApp(KBDictation.url)
-            self.flash(L("Turn on dictation in Foldboard, then come back here"), hold: 4)
+            self.showVoice(.needsApp)
         }
         KBDictation.post(KBDictation.ping)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
             guard let self, self.dictState == .connecting else { return }
             self.dictState = .idle
-            self.showDictCaption(nil)
-            self.openContainingApp(KBDictation.url)
-            self.flash(L("Turn on dictation in Foldboard, then come back here"), hold: 4)
+            self.showVoice(.needsApp)
         }
     }
 
+    private func openAppForDictation() {
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.pendingKey)
+        openContainingApp(KBDictation.url)
+    }
+
+    /// Au retour de l'app ouverte pour la dictée : on écoute sans qu'il faille retoucher le micro.
+    private func resumePendingDictation() {
+        let t = UserDefaults.standard.double(forKey: Self.pendingKey)
+        guard t > 0 else { return }
+        UserDefaults.standard.removeObject(forKey: Self.pendingKey)
+        guard eff.dictationKey, Date().timeIntervalSince1970 - t < 180 else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            guard let self, self.visible, self.dictState == .idle else { return }
+            self.startDictation()
+        }
+    }
+
+    /// Valider : on arrête d'écouter et on écrit le texte (le dernier résultat arrive tout de suite).
     private func stopDictation() {
+        guard dictState == .listening else {
+            if dictState == .idle { hideVoice() }
+            return
+        }
         dictState = .finishing
-        showDictCaption(dictLabel.text)
+        showVoice(.finishing)
         KBDictation.post(KBDictation.stop)
         // Si le texte final n'arrive pas, on écrit ce qui a été entendu.
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
             guard let self, self.dictState == .finishing else { return }
-            if let s = KBVault.loadDictation(), s.seq > self.dictSeq { self.insertDictation(s.text) }
+            if let s = KBVault.loadDictation(), s.seq > self.dictSeq, !self.dictCancelled { self.insertDictation(s.text) }
             self.dictState = .idle
-            self.showDictCaption(nil)
+            self.hideVoice()
         }
+    }
+
+    /// Annuler : rien n'est écrit.
+    private func cancelDictation() {
+        dictCancelled = true
+        if dictState == .listening || dictState == .finishing { KBDictation.post(KBDictation.stop) }
+        dictState = .idle
+        hideVoice()
     }
 
     private func dictationUpdate() {
         guard dictState == .listening || dictState == .finishing, let s = KBVault.loadDictation(), s.seq > dictSeq else { return }
         if s.final {
             dictSeq = s.seq
-            insertDictation(s.text)
+            if !dictCancelled { insertDictation(s.text) }
             dictState = .idle
-            showDictCaption(nil)
-        } else if !s.text.isEmpty {
-            showDictCaption(s.text)
+            hideVoice()
+        } else {
+            if !s.text.isEmpty { voice.set(dictState == .finishing ? .finishing : .listening, text: s.text) }
+            voice.push(level: CGFloat(s.level ?? 0))
         }
     }
 
@@ -244,12 +304,6 @@ final class KeyboardCanvas: UIView {
         lastCorrection = nil
         refreshSuggestionsSoon()
         refreshShiftSoon()
-    }
-
-    /// Ce qu'on entend, à la place des suggestions (nil : on rend les suggestions).
-    private func showDictCaption(_ text: String?) {
-        dictLabel.text = text
-        layoutTopBar()
     }
 
     /// Ouvrir l'app Foldboard depuis le clavier (iOS ne le propose pas aux claviers : on passe par l'application
@@ -449,7 +503,7 @@ final class KeyboardCanvas: UIView {
         if hingeHalf { return true }
         guard gripContext.hasPrefix("open") else { return false }
         let h = screenSize.height
-        return h > 0 && bounds.height >= h * 0.45
+        return h > 0 && bounds.height >= h * 0.47
     }
     /// La hauteur des touches pour l'écran affiché : plié et déplié peuvent avoir chacun la leur.
     private var screenKeyHeight: Double {
@@ -518,6 +572,11 @@ final class KeyboardCanvas: UIView {
             self.refreshSuggestionsSoon()
         }
         addSubview(emojiBoard)
+        voice.isHidden = true
+        voice.onCancel = { [weak self] in self?.cancelDictation() }
+        voice.onDone = { [weak self] in self?.stopDictation() }
+        voice.onOpenApp = { [weak self] in self?.openAppForDictation() }
+        addSubview(voice)
         adjustButton.setImage(UIImage(systemName: "slider.horizontal.3"), for: .normal)
         adjustButton.addAction(UIAction { [weak self] _ in self?.startAdjust() }, for: .touchUpInside)
         adjustButton.accessibilityLabel = L("Adjust the keyboard")
@@ -657,6 +716,7 @@ final class KeyboardCanvas: UIView {
         KBFeedback.shared.prepare()
         emojiBoard.setClipMode(false)
         startClipWatch()
+        resumePendingDictation()
         KBMemLog.begin(mb: Self.footprintMB(), context: gripContext, mode: (settings.screenModes[gripContext] ?? settings.mode).rawValue)
         checkMemory(force: true)
         if ProcessInfo.processInfo.arguments.contains("-shotClip") {
@@ -696,7 +756,10 @@ final class KeyboardCanvas: UIView {
     }
 
     /// La situation (Duo fermé ou ouvert, portrait ou paysage) et l'étalonnage qui va avec.
-    private var gripContext = "closed-portrait"
+    /// L'écran du dernier clavier affiché : un nouveau clavier (iOS en crée un à chaque apparition) part de là,
+    /// au lieu de se croire sur l'écran fermé tant qu'il n'est pas à l'écran (hauteur demandée de l'autre écran).
+    static var lastContext: String?
+    private var gripContext = KeyboardCanvas.lastContext ?? "closed-portrait"
     /// La charnière du Duo : fermé (true), ouvert (false), inconnue (nil).
     private var hingeClosed: Bool?
     /// La charnière à moitié ouverte (mode « portable »).
@@ -758,7 +821,9 @@ final class KeyboardCanvas: UIView {
         // Le tutoriel montre toujours le fonctionnement de l'écran extérieur.
         if demoOneHand { c = "closed-portrait" }
         if let demoContext { c = demoContext }
+        if window == nil, demoContext == nil, !demoOneHand, let last = Self.lastContext { c = last }
         gripContext = c
+        if window != nil, demoContext == nil, !demoOneHand { Self.lastContext = c }
         applyScreenMode()
         grip.angleOffset = kbAngleOffset(window?.windowScene?.interfaceOrientation)
         grip.guessUncalibrated = false
@@ -929,6 +994,7 @@ final class KeyboardCanvas: UIView {
             KBDictation.post(KBDictation.stop)
             dictState = .idle
         }
+        voice.isHidden = true
         perfLink?.invalidate()
         perfLink = nil
         grip.stop()
@@ -1816,8 +1882,10 @@ final class KeyboardCanvas: UIView {
         dictLabel.frame = chips.frame
         dictLabel.textColor = theme.text
         dictLabel.backgroundColor = theme.background
-        dictLabel.isHidden = dictState == .idle
-        chips.isHidden = dictState != .idle
+        // La dictée a son panneau à la place des touches : la barre garde ses suggestions.
+        dictLabel.isHidden = true
+        chips.isHidden = false
+        if !voice.isHidden { layoutVoice() }
 
         rebuildChips()
     }
@@ -3209,7 +3277,9 @@ final class KeyboardCanvas: UIView {
         let stem = String(before.dropLast(lc.corrected.count + lc.sep.count))
         let onlyFirstCap = w0.dropFirst() == w0.dropFirst().lowercased()
         let keep = onlyFirstCap && KBSuggest.atSentenceStart(stem + w0, word: w0) ? w0.lowercased() : w0
-        if w0.count >= 2, w0.allSatisfy({ $0.isLetter || $0 == "-" || $0 == "'" || $0 == "’" }), settings.addMyWord(keep) {
+        // Pas quand la correction ne changeait que la majuscule (« i » → « I », un prénom) : ce n'est pas un mot à garder.
+        let caseOnly = lc.corrected.lowercased() == lc.original.lowercased()
+        if !caseOnly, w0.count >= 2, w0.allSatisfy({ $0.isLetter || $0 == "-" || $0 == "'" || $0 == "’" }), settings.addMyWord(keep) {
             input?.kbSettingsChanged(settings)
             suggest.setMyWords(settings.myWords)
             let mine = settings.myWords

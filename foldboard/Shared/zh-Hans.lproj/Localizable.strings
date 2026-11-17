@@ -505,3 +505,10 @@
 "No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "还没有词语。添加 Foldboard 不应更正的词语：俚语、名字、品牌……";
 "How do I stop Foldboard from correcting a word?" = "如何让 Foldboard 不更正某个词？";
 "Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "在 **输入 › 我的词语** 中添加：Foldboard 不会更正这些词，并会在你输入时推荐它们。撤销一次更正时，该词会自动添加到那里。";
+
+/* Panneau de dictée */
+"Turn on dictation" = "开启听写";
+"Foldboard opens for a moment to turn on the microphone. Come back here: it listens right away." = "Foldboard 会短暂打开以开启麦克风。回到这里：它会立即开始聆听。";
+"Writing…" = "正在输入…";
+"Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself." = "回到你的 App（左上角）：Foldboard 会立即开始聆听。听写会保持就绪 10 分钟，然后自动关闭。";
+"Back to your app" = "返回你的 App";

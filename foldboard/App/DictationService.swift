@@ -32,6 +32,9 @@ final class DictationService {
     private var idleTimer: Timer?
     private var finishTimer: Timer?
     private var engineRunning = false
+    /// Le niveau de la voix (0 à 1), envoyé au clavier une dizaine de fois par seconde pendant la dictée.
+    private var level: Float = 0
+    private var levelTimer: Timer?
 
     private init() {
         // Quand le micro s'ouvre ou se ferme, iOS reconfigure l'audio et arrête le son muet : on le relance tout de
@@ -143,8 +146,18 @@ final class DictationService {
         input.removeTap(onBus: 0)
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             guard let self else { return }
+            // Le niveau de la voix, pour les barres du panneau dans le clavier.
+            var lvl: Float = 0
+            let n = Int(buffer.frameLength)
+            if let ch = buffer.floatChannelData?[0], n > 0 {
+                var sum: Float = 0
+                var k = 0
+                while k < n { sum += ch[k] * ch[k]; k += 4 }
+                lvl = min(1, sqrt(sum / Float(max(1, n / 4))) * 14)
+            }
             self.lock.lock()
             let r = self.request
+            self.level = max(lvl, self.level * 0.6)
             self.lock.unlock()
             r?.append(buffer)
         }
@@ -215,6 +228,11 @@ final class DictationService {
         heard = ""
         status = .listening
         save("", final: false, seq: mine)
+        levelTimer?.invalidate()
+        levelTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { [weak self] _ in
+            guard let self, self.status == .listening, self.seq == mine else { return }
+            self.save(self.heard, final: false, seq: mine)
+        }
         task = recognizer.recognitionTask(with: req) { [weak self] result, error in
             guard let self else { return }
             if let result {
@@ -249,8 +267,11 @@ final class DictationService {
     }
 
     private func finishRecognition() {
+        levelTimer?.invalidate()
+        levelTimer = nil
         lock.lock()
         request = nil
+        level = 0
         lock.unlock()
         task = nil
         finishTimer?.invalidate()
@@ -262,7 +283,10 @@ final class DictationService {
     }
 
     private func save(_ text: String, final: Bool, seq: Int) {
-        KBVault.saveDictation(KBDictation.State(text: text, final: final, seq: seq))
+        lock.lock()
+        let l = level
+        lock.unlock()
+        KBVault.saveDictation(KBDictation.State(text: text, final: final, seq: seq, level: final ? 0 : l))
         KBDictation.post(KBDictation.update)
     }
 
@@ -287,6 +311,16 @@ struct DictationView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 22) {
+                if service.status == .ready || service.status == .listening {
+                    // La flèche vers « ◀ app » d'iOS, en haut à gauche : le chemin du retour.
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.up.left").symbolEffect(.pulse)
+                        Text("Back to your app")
+                    }
+                    .font(.headline)
+                    .foregroundStyle(Color.accentColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
                 Spacer()
                 Image(systemName: icon)
                     .font(.system(size: 64, weight: .semibold))
@@ -353,7 +387,7 @@ struct DictationView: View {
     private var detail: LocalizedStringKey {
         switch service.status {
         case .off, .starting: return "Allow the microphone and speech recognition when iOS asks."
-        case .ready, .listening: return "Go back to your app (top left) and tap the mic above the keys. Dictation stays ready for 10 minutes, then turns off by itself."
+        case .ready, .listening: return "Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself."
         case .denied: return "Allow the microphone and speech recognition for Foldboard in Settings."
         case .unavailable: return "On-device dictation isn't available for this language on your iPhone."
         }
