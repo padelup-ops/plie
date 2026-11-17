@@ -497,3 +497,11 @@
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "Um microfone acima das teclas. Na primeira vez, o Foldboard abre por um instante para ligar o microfone (o iOS não permite isso aos teclados), depois você volta e fala. Tudo é transcrito no seu iPhone.";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "Sim. Toque no microfone acima das teclas. Na primeira vez, o Foldboard abre por um instante para ligar o microfone (o iOS não permite isso aos teclados); depois volte ao seu app. Nos 10 minutos seguintes, é só tocar no microfone e falar, e tocar de novo para parar. Sua voz é transcrita no seu iPhone: nada é enviado.";
 "Turn on dictation now" = "Ativar o ditado agora";
+
+/* Mes mots */
+"My words" = "Minhas palavras";
+"Words Foldboard never corrects. When you undo a correction, the word is added here." = "Palavras que o Foldboard nunca corrige. Quando você desfaz uma correção, a palavra é adicionada aqui.";
+"Add a word" = "Adicionar uma palavra";
+"No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "Nenhuma palavra ainda. Adicione as palavras que o Foldboard nunca deve corrigir: gírias, nomes, marcas…";
+"How do I stop Foldboard from correcting a word?" = "Como impedir o Foldboard de corrigir uma palavra?";
+"Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "Adicione em **Digitação › Minhas palavras**: o Foldboard nunca corrige essas palavras e as sugere enquanto você digita. Quando você desfaz uma correção, a palavra é adicionada lá sozinha.";

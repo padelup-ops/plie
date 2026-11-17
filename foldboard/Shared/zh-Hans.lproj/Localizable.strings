@@ -497,3 +497,11 @@
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "按键上方的麦克风。第一次使用时，Foldboard 会短暂打开以开启麦克风（iOS 不允许键盘使用麦克风），然后返回并说话即可。所有内容都在你的 iPhone 上转写。";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "可以。轻点按键上方的麦克风。第一次使用时，Foldboard 会短暂打开以开启麦克风（iOS 不允许键盘使用麦克风），然后回到你的 App。之后 10 分钟内，只需轻点麦克风说话，再点一次即可停止。你的声音在 iPhone 上转写：不会发送任何内容。";
 "Turn on dictation now" = "立即打开听写";
+
+/* Mes mots */
+"My words" = "我的词语";
+"Words Foldboard never corrects. When you undo a correction, the word is added here." = "Foldboard 永远不会更正的词语。撤销一次更正时，该词会自动添加到这里。";
+"Add a word" = "添加词语";
+"No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "还没有词语。添加 Foldboard 不应更正的词语：俚语、名字、品牌……";
+"How do I stop Foldboard from correcting a word?" = "如何让 Foldboard 不更正某个词？";
+"Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "在 **输入 › 我的词语** 中添加：Foldboard 不会更正这些词，并会在你输入时推荐它们。撤销一次更正时，该词会自动添加到那里。";

@@ -128,6 +128,15 @@ final class KBSuggest {
 
     private let checker = UITextChecker()
     private var known = Set<String>()
+    /// « Mes mots » (réglage, modifiable dans l'app) : jamais corrigés, proposés dès les premières lettres, écrits
+    /// comme tu les as enregistrés (« foldboard » → « Foldboard »). Par forme en minuscules.
+    private var mine: [String: String] = [:]
+    func setMyWords(_ list: [String]) {
+        var m: [String: String] = [:]
+        for w in list where !w.isEmpty { m[w.lowercased()] = m[w.lowercased()] ?? w }
+        mine = m
+    }
+    private func isKnown(_ low: String) -> Bool { known.contains(low) || mine[low] != nil }
     private var replacements: [String: String] = [:]
     /// Les noms de tes contacts (tels qu'écrits dans Contacts), par forme en minuscules.
     private var names: [String: String] = [:]
@@ -451,7 +460,7 @@ final class KBSuggest {
     /// Un vrai mot (de la liste, ou de ton lexique) : ses appuis peuvent apprendre où tu tapes.
     func isWord(_ w: String) -> Bool {
         let l = w.lowercased()
-        return rank[l] != nil || known.contains(l)
+        return rank[l] != nil || isKnown(l)
     }
 
     /// La phrase en cours est-elle en anglais ? (au moins deux mots avant celui-ci, et l'anglais nettement en tête).
@@ -493,9 +502,10 @@ final class KBSuggest {
     private func englishCorrection(_ word: String, before: String, lang: String, touch: KBTouchModel?) -> String? {
         let low = word.lowercased()
         if let r = replacements[low] { return r }
+        if let m = mine[low] { return word == low && m != low ? m : nil }
         if low == "i" { return "I" }
         if !Self.ambiguous.contains(low), let c = Self.contractions["en"]?[low] { return c.hasPrefix("I") ? c : matchCase(c, like: word) }
-        guard word.count >= 3, word.count <= 30, !known.contains(low), KBWordStore.shared.count(low) < 3 else { return nil }
+        guard word.count >= 3, word.count <= 30, !isKnown(low), KBWordStore.shared.count(low) < 3 else { return nil }
         if word.contains(where: { $0.isNumber || $0 == "@" || $0 == "." || $0 == "/" }) { return nil }
         if word.count > 1, word == word.uppercased() { return nil }
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
@@ -693,12 +703,14 @@ final class KBSuggest {
         let prev = Self.previousWord(before, word: word)?.lowercased()
         // Tes remplacements de texte (Réglages > Clavier) : toujours appliqués, même courts (« ty » → « Thank you »).
         if let r = replacements[low] { return r }
+        // « Mes mots » : jamais corrigés ; seulement écrits comme tu les as enregistrés (la majuscule d'un nom).
+        if let m = mine[low] { return word == low && m != low ? m : nil }
         // Les mots à trait d'union tapés d'un bloc : « estce » → « est-ce », « peutetre » → « peut-être ».
         if language.hasPrefix("fr"), let h = Self.frHyphen[low.replacingOccurrences(of: "'", with: "’")] {
             return matchCase(h, like: word)
         }
         // Et avec une touche voisine (« edtce » → « est-ce »).
-        if language.hasPrefix("fr"), Self.t("hyphenTypo", 1) > 0, low.count >= 5, rank[low] == nil, !known.contains(low),
+        if language.hasPrefix("fr"), Self.t("hyphenTypo", 1) > 0, low.count >= 5, rank[low] == nil, !isKnown(low),
            let h = Self.frHyphen.first(where: { $0.key.count == low.count && typoDistance($0.key, low) <= 1 })?.value {
             return matchCase(h, like: word)
         }
@@ -721,17 +733,17 @@ final class KBSuggest {
         if KBWordStore.shared.count(low) >= 3 { return nil }
         // « its » ou « it’s » d'après le mot d'avant, comme le clavier d'Apple : « its great » → « it’s great »,
         // mais « on its own » reste.
-        if language.hasPrefix("en"), low == "its", !known.contains(low) {
+        if language.hasPrefix("en"), low == "its", !isKnown(low) {
             if let prev, Self.itsPossessive.contains(prev) { return nil }
             return word.first?.isUppercase == true ? "It’s" : "it’s"
         }
-        if !known.contains(low), replacements[low] == nil {
+        if !isKnown(low), replacements[low] == nil {
             if !Self.ambiguous.contains(low), let c = contraction(word) { return c }
             if let fix = accentFix(word) { return fix }
         }
         // L'apostrophe oubliée ou tapée à côté (AZERTY : le ’ est à côté du n) : « cedt » → « c’est », « nnzi » → « n’ai »,
         // « jzi » → « j’ai », « qua » → « qu’à ».
-        if language.hasPrefix("fr"), Self.t("elision", 1) > 0, word.count >= 3, !known.contains(low), (rank[low] ?? Int.max) > 2_000,
+        if language.hasPrefix("fr"), Self.t("elision", 1) > 0, word.count >= 3, !isKnown(low), (rank[low] ?? Int.max) > 2_000,
            let e = elisionFix(low, before: before) { return matchCase(e, like: word) }
         if fast, Self.t("shortFix", 1) > 0, word.count >= 2, word.count <= 3, let f = shortContextFix(word, before: before, touch: touch) { return f }
         if word.count == 2, let f = twoLetterFix(word, before: before, touch: touch) { return f }
@@ -741,7 +753,7 @@ final class KBSuggest {
         }
         let lower = word.lowercased()
         if let r = replacements[lower] { return r }
-        if known.contains(lower) { return nil }
+        if isKnown(lower) { return nil }
         if let r = rank[lower], !(Self.t("cJunk", 0) > 0 && doubtful(lower, rank: r)) { return nil }
         // Un nom propre au milieu d'une phrase : on n'y touche pas.
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
@@ -938,7 +950,7 @@ final class KBSuggest {
         guard let lm, word != word.uppercased() || word.count == 1 else { return nil }
         let lower = word.lowercased()
         let own = rank[lower] ?? Int.max
-        guard own > 2_000, !known.contains(lower), KBWordStore.shared.count(lower) == 0 else { return nil }
+        guard own > 2_000, !isKnown(lower), KBWordStore.shared.count(lower) == 0 else { return nil }
         // Il faut un vrai contexte (au moins un mot avant) pour juger.
         guard Self.previousWord(before, word: word) != nil else { return nil }
         // Un mot absent du modèle : estimé d'après sa fréquence dans la liste (pas -20, qui ferait tout corriger).
@@ -1122,7 +1134,7 @@ final class KBSuggest {
         let lower = word.lowercased()
         guard word != word.uppercased() || word.count == 1 else { return nil }
         let own = rank[lower] ?? Int.max
-        guard own > 3_000, !known.contains(lower), KBWordStore.shared.count(lower) == 0 else { return nil }
+        guard own > 3_000, !isKnown(lower), KBWordStore.shared.count(lower) == 0 else { return nil }
         // Un vrai mot anglais courant (« is », « to ») reste ; pas une abréviation que le correcteur anglais accepte
         // aussi (« cz », « ke »).
         if second != nil, Self.englishTwo.contains(lower) { return nil }
@@ -1291,6 +1303,9 @@ final class KBSuggest {
         if word.count >= 2 {
             let key = word.lowercased()
             for n in (useNames ? names : [:]).filter({ $0.key.hasPrefix(key) && $0.key != key }).map(\.value).sorted().prefix(1) { completions.insert(n, at: 0) }
+            // Et tes mots à toi (« Mes mots »), avant tout le reste.
+            for m in mine.filter({ $0.key.hasPrefix(key) && $0.key != key }).map(\.value).sorted().prefix(1)
+                where !completions.contains(m) { completions.insert(m, at: 0) }
         }
         var pool = englishHere ? [] : listCompletions(word, limit: lm == nil ? 3 : Int(Self.t("compPool", 14)))
         if englishHere, let l2 = second {
@@ -1308,7 +1323,7 @@ final class KBSuggest {
             completions = (checker.completions(forPartialWordRange: range, in: word, language: language) ?? [])
                 .filter { $0.lowercased() != word.lowercased() && !$0.contains(" ") }
         }
-        completions = completions.map { names[$0.lowercased()] == $0 ? $0 : matchCase($0, like: word) }
+        completions = completions.map { names[$0.lowercased()] == $0 || mine[$0.lowercased()] == $0 ? $0 : matchCase($0, like: word) }
         for c in completions where out.count < 3 && !out.contains(c) { out.append(c) }
         let guessLang = englishHere ? (second ?? language) : language
         if out.count < 3, fix == nil, isMisspelled(word, in: guessLang) {

@@ -505,3 +505,11 @@
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "Un micro au-dessus des touches. La première fois, Foldboard s’ouvre un instant pour allumer le micro (iOS ne le permet pas aux claviers), puis tu reviens et tu parles. Tout est transcrit sur ton iPhone.";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "Oui. Touche le micro au-dessus des touches. La première fois, Foldboard s’ouvre un instant pour allumer le micro (iOS ne le permet pas aux claviers), puis reviens à ton app. Pendant les 10 minutes qui suivent, touche simplement le micro et parle, et touche-le encore pour arrêter. Ta voix est transcrite sur ton iPhone : rien n’est envoyé.";
 "Turn on dictation now" = "Activer la dictée maintenant";
+
+/* Mes mots */
+"My words" = "Mes mots";
+"Words Foldboard never corrects. When you undo a correction, the word is added here." = "Les mots que Foldboard ne corrige jamais. Quand tu annules une correction, le mot est ajouté ici.";
+"Add a word" = "Ajouter un mot";
+"No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "Aucun mot pour l’instant. Ajoute les mots que Foldboard ne doit jamais corriger : argot, noms, marques…";
+"How do I stop Foldboard from correcting a word?" = "Comment empêcher Foldboard de corriger un mot ?";
+"Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "Ajoute-le dans **Écriture › Mes mots** : Foldboard ne corrige jamais ces mots et te les propose pendant que tu tapes. Quand tu annules une correction, le mot y est ajouté tout seul.";

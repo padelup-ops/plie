@@ -316,6 +316,12 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
     /// N'affiche que les emojis à l'écran (et un peu autour), en réutilisant les étiquettes.
     /// Libère les étiquettes d'emojis (chacune garde son image en mémoire, même cachée) : à la fermeture des emojis,
     /// quand le clavier disparaît, et quand iOS manque de mémoire. Elles se recréent à la prochaine ouverture.
+    /// Les étiquettes rangées (hors écran) : libérées quand la mémoire monte, emojis ouverts.
+    func trimPool() {
+        for l in pool { l.removeFromSuperview() }
+        pool = []
+    }
+
     func releaseMemory() {
         for l in shown.values { l.removeFromSuperview() }
         for l in pool { l.removeFromSuperview() }
@@ -326,11 +332,15 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
 
     private func showVisible() {
         let w = max(scroll.bounds.width, 1)
-        let minX = scroll.contentOffset.x - w * 0.5, maxX = scroll.contentOffset.x + w * 1.5
+        // L'écran et un quart de chaque côté (avant : deux écrans entiers) : sur le Duo ouvert, la grille d'emojis
+        // gardait trop d'images en mémoire.
+        let minX = scroll.contentOffset.x - w * 0.25, maxX = scroll.contentOffset.x + w * 1.25
         var want = Set<Int>()
         for (i, it) in items.enumerated() where it.frame.maxX >= minX && it.frame.minX <= maxX { want.insert(i) }
         for (i, l) in shown where !want.contains(i) {
             l.isHidden = true
+            // Sans texte, l'étiquette rangée ne garde plus l'image de son emoji.
+            l.text = nil
             pool.append(l)
             shown[i] = nil
         }
@@ -345,7 +355,10 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
                 scroll.addSubview(l)
             }
             l.transform = .identity
-            l.frame = items[i].frame
+            // L'étiquette juste à la taille de l'emoji (pas toute la case) : une image plus petite en mémoire.
+            let f = items[i].frame
+            let side = min(f.width, f.height, ceil(emojiFont.lineHeight) + 4)
+            l.frame = CGRect(x: f.midX - side / 2, y: f.midY - side / 2, width: side, height: side)
             l.text = items[i].emoji
             l.isHidden = false
             shown[i] = l

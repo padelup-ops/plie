@@ -522,6 +522,7 @@ final class KeyboardCanvas: UIView {
             self.showEmoji = true
             self.builtFor = .zero
             self.rebuild()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in self?.checkMemory(force: true) }
         }, for: .touchUpInside)
         clipButton.setImage(UIImage(systemName: "doc.on.clipboard"), for: .normal)
         clipButton.accessibilityLabel = L("Clipboard")
@@ -576,6 +577,9 @@ final class KeyboardCanvas: UIView {
         suggest.useNames = settings.contactNames
         let names = settings.contactNames
         suggestQueue.async { [bgSuggest] in bgSuggest.useNames = names }
+        suggest.setMyWords(settings.myWords)
+        let mine = settings.myWords
+        suggestQueue.async { [bgSuggest] in bgSuggest.setMyWords(mine) }
         let layout = eff.layout
         suggestQueue.async { [bgSuggest] in bgSuggest.setLayout(layout) }
         KBThumb.shared.importSeed(settings.thumbSeed, stamps: settings.thumbSeedStamp)
@@ -619,6 +623,7 @@ final class KeyboardCanvas: UIView {
         KBFeedback.shared.prepare()
         emojiBoard.setClipMode(false)
         startClipWatch()
+        KBMemLog.begin(mb: Self.footprintMB(), context: gripContext, mode: (settings.screenModes[gripContext] ?? settings.mode).rawValue)
         checkMemory(force: true)
         if ProcessInfo.processInfo.arguments.contains("-shotClip") {
             KBClipboard.shared.seedForShots(["221B Baker Street, London", "https://foldly.netlify.app",
@@ -889,17 +894,20 @@ final class KeyboardCanvas: UIView {
     private var memChecks = 0
     private func checkMemory(force: Bool = false) {
         memChecks += 1
-        guard force || memChecks % 60 == 0 else { return }
-        if Self.footprintMB() > 45 { trimMemory() }
+        guard force || memChecks % 30 == 0 else { return }
+        let mb = Self.footprintMB()
+        KBMemLog.note(mb: mb, emoji: showEmoji)
+        if mb > 45 { trimMemory(flush: false) }
     }
 
     /// iOS prévient qu'il manque de mémoire : on libère tout ce qui se recrée tout seul, pour ne pas être fermé
     /// (et remplacé par le clavier d'Apple).
-    func trimMemory() {
-        if !showEmoji { emojiBoard.releaseMemory() }
+    func trimMemory(flush: Bool = true) {
+        if !showEmoji { emojiBoard.releaseMemory() } else { emojiBoard.trimPool() }
         suggest.trimMemory()
         suggestQueue.async { [bgSuggest] in bgSuggest.trimMemory() }
-        KBGripLog.shared.flush()
+        // Écrire le journal ne libère rien (et demande un peu de mémoire) : seulement quand iOS prévient.
+        if flush { KBGripLog.shared.flush() }
     }
 
     /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
@@ -971,6 +979,11 @@ final class KeyboardCanvas: UIView {
     /// Le texte a changé (curseur déplacé, autre champ) : on revoit la majuscule et les suggestions.
     func textChanged() {
         refreshSuggestionsSoon()
+        // Collé avec le menu d'iOS : « Coller » s'en va de la barre.
+        if KBClipboard.shared.freshText != nil {
+            KBClipboard.shared.dismissIfPasted(before: String((input?.kbTextBefore() ?? "").suffix(400)))
+            if KBClipboard.shared.freshText == nil, suggestionItems.isEmpty { rebuildChips() }
+        }
         // Juste après une de nos touches, rien à relire dans le champ : la frappe reste légère.
         if ProcessInfo.processInfo.systemUptime - lastKeyTime < 0.25 { return }
         refreshShift()
@@ -1800,8 +1813,15 @@ final class KeyboardCanvas: UIView {
             return
         }
         // Tu viens de copier quelque chose : « Coller » dans la barre, comme sur le clavier d'Apple.
+        // Déjà collé autrement (menu d'iOS) : plus de « Coller ».
+        KBClipboard.shared.dismissIfPasted(before: String((input?.kbTextBefore() ?? "").suffix(400)))
         let pendingClip = KBClipboard.shared.freshText == nil && KBClipboard.shared.hasPending
         if let t = KBClipboard.shared.freshText ?? (pendingClip ? "" : nil), input?.kbFullAccess == true {
+            // Au bout d'une minute, « Coller » s'en va tout seul.
+            DispatchQueue.main.asyncAfter(deadline: .now() + KBClipboard.freshLife + 1) { [weak self] in
+                guard let self, self.suggestionItems.isEmpty, self.emojiQuery == nil else { return }
+                self.rebuildChips()
+            }
             let b = UIButton(type: .system)
             var cfg = UIButton.Configuration.plain()
             let one = t.replacingOccurrences(of: "\n", with: " ")
@@ -1882,7 +1902,8 @@ final class KeyboardCanvas: UIView {
                 let l = KBVault.loadLearn()
                 let info = ["version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
                             "hits": "\(l.hits ?? 0)", "misses": "\(l.misses ?? 0)", "calibrated": "\(self.settings.taps.keys.sorted())",
-                            "memMB": String(format: "%.0f", Self.footprintMB()), "memPeakMB": String(format: "%.0f", Self.memoryPeak)]
+                            "memMB": String(format: "%.0f", Self.footprintMB()), "memPeakMB": String(format: "%.0f", Self.memoryPeak),
+                            "memLog": KBMemLog.lines.joined(separator: " | ")]
                 if let text = KBGripLog.shared.exportText(extra: info) {
                     UIPasteboard.general.string = text
                     self.notice(L("Copied. Paste it in a message to the developer."))
@@ -2156,6 +2177,7 @@ final class KeyboardCanvas: UIView {
         let text = String(format: "Appui %d ms (max %d) · traitement %d ms · blocages %d · annulés %d · à côté %d",
                           avg(perfDelay), Int(perfDelay.max() ?? 0), avg(perfWork), perfStalls, perfCancelled, perfMissed)
             + " · L\(Int(bounds.width)) · " + lastHits.joined(separator: " ")
+            + String(format: " · mémoire %.0f Mo (max %.0f)", Self.footprintMB(), Self.memoryPeak)
         flash(text)
         perfDelay = []; perfWork = []; perfStalls = 0; perfCancelled = 0; perfMissed = 0
     }
@@ -3094,6 +3116,8 @@ final class KeyboardCanvas: UIView {
 
     /// Le mot tapé commence par une majuscule : la correction aussi.
     static func keepCapital(_ fix: String, like word: String) -> String {
+        // Tapé TOUT EN CAPITALES (« IM ») : la correction aussi (« I’M »), comme le clavier d'Apple.
+        if word.count > 1, word == word.uppercased(), word != word.lowercased() { return fix.uppercased() }
         guard let f = word.first, f.isUppercase, let g = fix.first, g.isLowercase else { return fix }
         return g.uppercased() + fix.dropFirst()
     }
@@ -3110,6 +3134,17 @@ final class KeyboardCanvas: UIView {
         let w0 = lc.original
         suggestQueue.async { [bgSuggest] in bgSuggest.learn(w0) }
         cachedFix = nil
+        // Le mot gardé va dans « Mes mots » (visible et modifiable dans l'app) : il ne sera plus jamais corrigé.
+        // En début de phrase, la majuscule vient de la phrase, pas du mot : on le garde en minuscules.
+        let stem = String(before.dropLast(lc.corrected.count + lc.sep.count))
+        let onlyFirstCap = w0.dropFirst() == w0.dropFirst().lowercased()
+        let keep = onlyFirstCap && KBSuggest.atSentenceStart(stem + w0, word: w0) ? w0.lowercased() : w0
+        if w0.count >= 2, w0.allSatisfy({ $0.isLetter || $0 == "-" || $0 == "'" || $0 == "’" }), settings.addMyWord(keep) {
+            input?.kbSettingsChanged(settings)
+            suggest.setMyWords(settings.myWords)
+            let mine = settings.myWords
+            suggestQueue.async { [bgSuggest] in bgSuggest.setMyWords(mine) }
+        }
         return true
     }
 
@@ -3190,7 +3225,8 @@ final class KeyboardCanvas: UIView {
                 DispatchQueue.main.async {
                     guard let self, gen == self.suggestGen else { return }
                     self.cachedFix = nil
-                    self.applySuggestions(items, nil)
+                    // Verrouillage des majuscules : les mots proposés aussi en capitales.
+                    self.applySuggestions(self.shift == .caps ? items.map { $0.uppercased() } : items, nil)
                 }
             }
             return
@@ -3205,7 +3241,8 @@ final class KeyboardCanvas: UIView {
             DispatchQueue.main.async {
                 guard let self, gen == self.suggestGen else { return }
                 self.cachedFix = (word, auto ? fix : nil)
-                self.applySuggestions(items, auto ? best : nil)
+                // Les mots proposés s'affichent comme ils seront écrits (« SLEE » → « SLEEPING », pas « sleeping »).
+                self.applySuggestions(items.map { Self.keepCapital($0, like: word) }, auto ? best : nil)
             }
         }
     }

@@ -151,12 +151,27 @@ struct KBSettings: Codable, Equatable {
     var tapLearn = true
     /// Le micro au-dessus des touches (dictée, voir KBDictation).
     var dictationKey = true
+    /// « Mes mots » : jamais corrigés (ajoutés dans l'app, ou quand tu annules une correction). Le plus récent en premier.
+    var myWords: [String] = []
     /// La disposition choisie pour chaque écran (« closed-portrait », « open-portrait », « open-landscape »…).
     /// Absent : la disposition générale (`mode`). Choisir une disposition dans le clavier la règle pour cet écran seulement.
     var screenModes: [String: KBMode] = [:]
 
     /// La disposition voulue sur cet écran (avant les limites de la version gratuite).
     func mode(for context: String) -> KBMode { screenModes[context] ?? mode }
+
+    static let myWordsMax = 500
+
+    /// Ajoute un mot à « Mes mots » (sans doublon, en premier). Vrai s'il est nouveau.
+    @discardableResult
+    mutating func addMyWord(_ word: String) -> Bool {
+        let w = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !w.isEmpty, w.count <= 40, !w.contains(" "),
+              !myWords.contains(where: { $0.lowercased() == w.lowercased() }) else { return false }
+        myWords.insert(w, at: 0)
+        if myWords.count > Self.myWordsMax { myWords.removeLast(myWords.count - Self.myWordsMax) }
+        return true
+    }
     var theme: String = "auto"
     var font: KBFont = .system
     /// Force des vibrations, de 0 (coupées) à 1.
@@ -237,6 +252,7 @@ struct KBSettings: Codable, Equatable {
         spaceRowScale = min(1.5, max(0.8, (try? c.decodeIfPresent(Double.self, forKey: .spaceRowScale)) ?? d.spaceRowScale))
         tapLearn = (try? c.decodeIfPresent(Bool.self, forKey: .tapLearn)) ?? d.tapLearn
         dictationKey = (try? c.decodeIfPresent(Bool.self, forKey: .dictationKey)) ?? d.dictationKey
+        myWords = (try? c.decodeIfPresent([String].self, forKey: .myWords)) ?? d.myWords
         screenModes = (try? c.decodeIfPresent([String: KBMode].self, forKey: .screenModes)) ?? d.screenModes
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme
         font = (try? c.decodeIfPresent(KBFont.self, forKey: .font)) ?? d.font

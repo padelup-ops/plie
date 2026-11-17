@@ -57,9 +57,9 @@ final class KBClipboard {
         return read(pb)
     }
 
-    /// Du nouveau à coller, pas encore lu (moins de 3 minutes) : « Coller » dans la barre.
+    /// Du nouveau à coller, pas encore lu (moins d'une minute) : « Coller » dans la barre.
     var hasPending: Bool {
-        guard let p = pending, Date().timeIntervalSince(p.date) < 180 else { return false }
+        guard let p = pending, Date().timeIntervalSince(p.date) < Self.freshLife else { return false }
         return UIPasteboard.general.changeCount == p.change
     }
 
@@ -99,10 +99,19 @@ final class KBClipboard {
         fresh = nil
     }
 
-    /// Le dernier copié est récent (moins de 3 minutes) : on le propose dans la barre.
+    /// Le dernier copié est récent (moins d'une minute) : on le propose dans la barre.
     var freshText: String? {
-        guard let f = fresh, Date().timeIntervalSince(f.date) < 180 else { return nil }
+        guard let f = fresh, Date().timeIntervalSince(f.date) < Self.freshLife else { return nil }
         return f.text
+    }
+    /// Combien de temps « Coller » reste dans la barre après une copie (avant : 3 minutes, c'était trop long).
+    static let freshLife: TimeInterval = 60
+
+    /// Déjà collé (avec « Coller » d'iOS par exemple) : le texte est juste avant le curseur. Il ne revient plus.
+    func dismissIfPasted(before: String) {
+        guard let t = fresh?.text.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty else { return }
+        let tail = String(t.suffix(60))
+        if before.trimmingCharacters(in: .whitespacesAndNewlines).hasSuffix(tail) || before.contains(tail) { fresh = nil; pending = nil }
     }
 
     /// Collé ou écarté : il ne revient plus dans la barre.

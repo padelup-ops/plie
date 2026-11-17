@@ -497,3 +497,11 @@
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "Ein Mikrofon über den Tasten. Beim ersten Mal öffnet sich Foldboard kurz, um das Mikrofon einzuschalten (iOS erlaubt es Tastaturen nicht), dann gehst du zurück und sprichst. Alles wird auf deinem iPhone umgewandelt.";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "Ja. Tippe auf das Mikrofon über den Tasten. Beim ersten Mal öffnet sich Foldboard kurz, um das Mikrofon einzuschalten (iOS erlaubt es Tastaturen nicht), dann geh zurück zu deiner App. In den nächsten 10 Minuten tippst du einfach aufs Mikrofon und sprichst, und tippst erneut zum Beenden. Deine Stimme wird auf deinem iPhone umgewandelt: Nichts wird gesendet.";
 "Turn on dictation now" = "Diktat jetzt einschalten";
+
+/* Mes mots */
+"My words" = "Meine Wörter";
+"Words Foldboard never corrects. When you undo a correction, the word is added here." = "Wörter, die Foldboard nie korrigiert. Wenn du eine Korrektur rückgängig machst, wird das Wort hier hinzugefügt.";
+"Add a word" = "Wort hinzufügen";
+"No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "Noch keine Wörter. Füge Wörter hinzu, die Foldboard nie korrigieren soll: Slang, Namen, Marken…";
+"How do I stop Foldboard from correcting a word?" = "Wie verhindere ich, dass Foldboard ein Wort korrigiert?";
+"Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "Füge es unter **Schreiben › Meine Wörter** hinzu: Foldboard korrigiert diese Wörter nie und schlägt sie beim Tippen vor. Wenn du eine Korrektur rückgängig machst, wird das Wort automatisch dort hinzugefügt.";

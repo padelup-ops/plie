@@ -607,6 +607,18 @@ struct TypingView: View {
             }
 
             Section {
+                NavigationLink { MyWordsView().fullScreenDuo() } label: {
+                    LabeledContent {
+                        Text(m.settings.myWords.count, format: .number)
+                    } label: {
+                        Label("My words", systemImage: "text.book.closed")
+                    }
+                }
+            } footer: {
+                Text("Words Foldboard never corrects. When you undo a correction, the word is added here.")
+            }
+
+            Section {
                 Toggle("Dictation key", isOn: $m.settings.dictationKey)
                 if m.settings.dictationKey {
                     Button("Turn on dictation now") {

@@ -497,3 +497,11 @@
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "Un microfono sopra i tasti. La prima volta Foldboard si apre un attimo per accendere il microfono (iOS non lo consente alle tastiere), poi torni indietro e parli. Tutto viene trascritto sul tuo iPhone.";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "Sì. Tocca il microfono sopra i tasti. La prima volta Foldboard si apre un attimo per accendere il microfono (iOS non lo consente alle tastiere), poi torna alla tua app. Nei 10 minuti successivi tocca il microfono e parla, e toccalo di nuovo per fermarti. La tua voce viene trascritta sul tuo iPhone: non viene inviato nulla.";
 "Turn on dictation now" = "Attiva la dettatura ora";
+
+/* Mes mots */
+"My words" = "Le mie parole";
+"Words Foldboard never corrects. When you undo a correction, the word is added here." = "Parole che Foldboard non corregge mai. Quando annulli una correzione, la parola viene aggiunta qui.";
+"Add a word" = "Aggiungi una parola";
+"No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "Ancora nessuna parola. Aggiungi le parole che Foldboard non deve mai correggere: slang, nomi, marchi…";
+"How do I stop Foldboard from correcting a word?" = "Come evito che Foldboard corregga una parola?";
+"Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "Aggiungila in **Scrittura › Le mie parole**: Foldboard non corregge mai quelle parole e te le suggerisce mentre scrivi. Quando annulli una correzione, la parola viene aggiunta lì da sola.";

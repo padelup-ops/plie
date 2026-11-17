@@ -497,3 +497,11 @@
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "Een microfoon boven de toetsen. De eerste keer opent Foldboard even om de microfoon aan te zetten (iOS staat dat toetsenborden niet toe), daarna ga je terug en praat je. Alles wordt op je iPhone omgezet.";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "Ja. Tik op de microfoon boven de toetsen. De eerste keer opent Foldboard even om de microfoon aan te zetten (iOS staat dat toetsenborden niet toe); ga daarna terug naar je app. De volgende 10 minuten tik je gewoon op de microfoon en praat je, en tik je opnieuw om te stoppen. Je stem wordt op je iPhone omgezet: er wordt niets verstuurd.";
 "Turn on dictation now" = "Zet dicteren nu aan";
+
+/* Mes mots */
+"My words" = "Mijn woorden";
+"Words Foldboard never corrects. When you undo a correction, the word is added here." = "Woorden die Foldboard nooit verbetert. Als je een correctie ongedaan maakt, wordt het woord hier toegevoegd.";
+"Add a word" = "Woord toevoegen";
+"No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "Nog geen woorden. Voeg woorden toe die Foldboard nooit mag verbeteren: slang, namen, merken…";
+"How do I stop Foldboard from correcting a word?" = "Hoe voorkom ik dat Foldboard een woord verbetert?";
+"Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "Voeg het toe bij **Typen › Mijn woorden**: Foldboard verbetert die woorden nooit en stelt ze voor terwijl je typt. Als je een correctie ongedaan maakt, wordt het woord daar vanzelf toegevoegd.";

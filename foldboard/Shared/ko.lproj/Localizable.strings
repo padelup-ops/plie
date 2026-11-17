@@ -497,3 +497,11 @@
 "A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone." = "키 위의 마이크입니다. 처음에는 마이크를 켜기 위해 Foldboard가 잠깐 열립니다(iOS는 키보드에 마이크를 허용하지 않음). 그다음 돌아가서 말하면 됩니다. iPhone에서 텍스트로 변환됩니다.";
 "Yes. Tap the mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn’t let keyboards use it), then go back to your app. For the next 10 minutes, just tap the mic and talk, and tap it again to stop. Your voice is transcribed on your iPhone: nothing is sent." = "네. 키 위의 마이크를 탭하세요. 처음에는 마이크를 켜기 위해 Foldboard가 잠깐 열립니다(iOS는 키보드에 마이크를 허용하지 않음). 그다음 앱으로 돌아가세요. 이후 10분 동안은 마이크를 탭하고 말하면 되고, 다시 탭하면 멈춥니다. 음성은 iPhone에서 텍스트로 변환되며 아무것도 전송되지 않습니다.";
 "Turn on dictation now" = "지금 받아쓰기 켜기";
+
+/* Mes mots */
+"My words" = "내 단어";
+"Words Foldboard never corrects. When you undo a correction, the word is added here." = "Foldboard가 절대 수정하지 않는 단어입니다. 수정을 취소하면 그 단어가 여기에 추가됩니다.";
+"Add a word" = "단어 추가";
+"No words yet. Add the words Foldboard should never correct: slang, names, brands…" = "아직 단어가 없습니다. Foldboard가 수정하면 안 되는 단어(속어, 이름, 브랜드 등)를 추가하세요.";
+"How do I stop Foldboard from correcting a word?" = "Foldboard가 단어를 수정하지 않게 하려면?";
+"Add it to **Typing › My words**: Foldboard never corrects those words and suggests them as you type. When you undo a correction, the word is added there on its own." = "**입력 › 내 단어**에 추가하세요. Foldboard는 그 단어를 수정하지 않고 입력하는 동안 제안합니다. 수정을 취소하면 그 단어가 자동으로 추가됩니다.";

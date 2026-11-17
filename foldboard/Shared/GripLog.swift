@@ -11,11 +11,12 @@ final class KBGripLog {
     private var events: [[String: Double]] = []
     private var contexts: [String] = []
     private var dirty = false
-    private static let cap = 4_000
+    /// Les 1 500 derniers événements (avant 4 000 : moins de mémoire pour le clavier, assez pour comprendre une prise).
+    private static let cap = 1_500
 
     private init() {
         if let d = UserDefaults.standard.data(forKey: key),
-           let s = try? JSONDecoder().decode(Stored.self, from: d) { events = s.events; contexts = s.contexts }
+           let s = try? JSONDecoder().decode(Stored.self, from: d) { events = Array(s.events.suffix(Self.cap)); contexts = s.contexts }
     }
     private struct Stored: Codable { var events: [[String: Double]]; var contexts: [String] }
 

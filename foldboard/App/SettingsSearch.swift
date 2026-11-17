@@ -93,6 +93,7 @@ struct SettingsEntry: Identifiable {
         e("Foldboard emoji key", "emoji smiley touche emoji key", .typing),
         e("Show the globe as a smiley", "globe smiley emoji", .typing),
         e("Emoji suggestions", "emoji suggestions suggérés barre", .typing),
+        e("My words", "mes mots dictionnaire personnel ne pas corriger jamais argot noms my words dictionary never correct slang names", .typing),
         e("Dictation key", "dictée micro voix parler dictation mic voice speech talk", .typing),
         e("Where you tap", "où je tape appuis précision décalage touches toucher where tap offset accuracy keys", .typing),
         e("Save everything I copy", "presse-papier clipboard copier coller copy paste autoriser allow", .typing),
