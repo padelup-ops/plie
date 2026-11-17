@@ -67,9 +67,52 @@ for t in pages(f"/v1/betaTesters?filter[apps]={APP}&limit=200"):
         FIRST = t["attributes"].get("firstName") or FIRST
         LAST = t["attributes"].get("lastName") or LAST
 
-if not email:
-    print("INTROUVABLE : cette adresse n'est ni testeur TestFlight de l'app, ni utilisateur, ni invitée.")
+def sealed_email():
+    """L'adresse inconnue d'App Store Connect : remise chiffrée. Le job crée une clé jetable, publie sa clé publique
+    sur la branche ci-invite-box, et attend l'adresse chiffrée avec elle (seule sa clé privée, qui ne quitte jamais
+    la machine du job, peut la lire). Le dépôt public ne voit qu'un bloc chiffré illisible."""
+    import base64
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import padding, rsa
+    repo, run, gh = os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_RUN_ID"], os.environ["GH_TOKEN"]
+    key = rsa.generate_private_key(public_exponent=65537, key_size=3072)
+    pub = key.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
+
+    def gh_call(method, path, body=None):
+        req = urllib.request.Request("https://api.github.com" + path, method=method,
+                                     data=json.dumps(body).encode() if body else None,
+                                     headers={"Authorization": "Bearer " + gh, "Accept": "application/vnd.github+json"})
+        try:
+            with urllib.request.urlopen(req) as r:
+                return json.loads(r.read() or b"{}")
+        except urllib.error.HTTPError as e:
+            return {"error": e.code}
+
+    ref = gh_call("GET", f"/repos/{repo}/git/ref/heads/ci-invite-box")
+    if "error" in ref:
+        main = gh_call("GET", f"/repos/{repo}/git/ref/heads/main")
+        gh_call("POST", f"/repos/{repo}/git/refs", {"ref": "refs/heads/ci-invite-box", "sha": main["object"]["sha"]})
+    r = gh_call("PUT", f"/repos/{repo}/contents/invite/{run}.pub",
+                {"message": "Clé publique jetable", "branch": "ci-invite-box", "content": base64.b64encode(pub).decode()})
+    print("clé publique jetable publiée :", "ok" if "error" not in r else r)
+    for _ in range(90):
+        time.sleep(10)
+        f = gh_call("GET", f"/repos/{repo}/contents/invite/{run}.sealed?ref=ci-invite-box")
+        if "content" in f:
+            blob = base64.b64decode(base64.b64decode(f["content"]).strip())
+            e = key.decrypt(blob, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(),
+                                               label=None)).decode().strip()
+            if h(e) != WANT:
+                print("adresse reçue, mais son empreinte ne correspond pas")
+                raise SystemExit(2)
+            return e
+    print("rien reçu en 15 minutes")
     raise SystemExit(2)
+
+
+if not email:
+    print("adresse inconnue d'App Store Connect : on attend l'adresse chiffrée")
+    email = sealed_email()
 print("personne :", masked(email), "| utilisateur :", bool(user), "| invitée :", bool(invite), "| testeur :", bool(tester))
 
 # 1. L'invitation App Store Connect (rôle restreint, seulement cette app).

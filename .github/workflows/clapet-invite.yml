@@ -18,7 +18,11 @@ on:
 jobs:
   invite:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
     env:
+      GH_TOKEN: ${{ github.token }}
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
