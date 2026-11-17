@@ -1,42 +1,31 @@
-# DUO FOLDS : invite un testeur externe par e-mail (rapport dans la branche ci-clapet-invite).
-name: Clapet - inviter un testeur
+# Testeur interne TestFlight : invitation App Store Connect (rôle restreint, une app) puis groupe interne.
+# Le dépôt est public : on ne donne que l'empreinte SHA-256 de l'e-mail, jamais l'adresse.
+name: Clapet - testeur interne
 on:
   workflow_dispatch:
     inputs:
-      email:
-        description: "Adresse e-mail du testeur"
+      email_sha256:
+        description: "SHA-256 de l'e-mail en minuscules (jamais l'adresse)"
         required: true
-      internal:
-        description: "1 = testeur interne (invitation App Store Connect, rôle Marketing)"
+      app_id:
+        description: "Identifiant Apple de l'app"
+        required: true
+        default: "6832556606"
+      role:
+        description: "Rôle App Store Connect"
         required: false
-        default: "0"
-      cancel:
-        description: "Ancienne adresse à retirer (facultatif)"
-        required: false
-        default: ""
+        default: "MARKETING"
 jobs:
   invite:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     env:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
-      TESTER_EMAIL: ${{ inputs.email }}
-      INTERNAL: ${{ inputs.internal }}
-      CANCEL_EMAIL: ${{ inputs.cancel }}
+      EMAIL_SHA256: ${{ inputs.email_sha256 }}
+      APP_ID: ${{ inputs.app_id }}
+      ROLE: ${{ inputs.role }}
     steps:
       - uses: actions/checkout@v5
-      - name: Inviter
-        run: |
-          python3 -m pip install --quiet pyjwt cryptography
-          python3 clapet/tools/asc_invite.py 2>&1 | tee invite.txt || true
-      - name: Publier
-        if: always()
-        env:
-          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/r" && cp invite.txt "$RUNNER_TEMP/r/" && cd "$RUNNER_TEMP/r"
-          git init -q -b ci-clapet-invite && git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
-          git add -A && git commit -qm "Invitation" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-clapet-invite
+      - run: python3 -m pip install --quiet pyjwt cryptography
+      - run: python3 clapet/tools/asc_invite.py

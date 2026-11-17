@@ -1,11 +1,18 @@
-"""FOLDLY : invite un testeur externe (par e-mail) dans le groupe externe TestFlight."""
-import json, os, sys, time, urllib.request, urllib.error
+"""Testeur interne TestFlight : invite une personne dans App Store Connect (rôle le plus restreint qui permet de
+tester en interne, une seule app visible), puis, une fois l'invitation acceptée, l'ajoute au groupe interne de l'app.
+
+Le dépôt est public : l'e-mail n'apparaît jamais. On donne son empreinte SHA-256 (EMAIL_SHA256), et le script
+retrouve l'adresse parmi les testeurs TestFlight déjà connus de l'app, les utilisateurs et les invitations.
+Le journal n'affiche que les deux premières lettres et le domaine."""
+import hashlib, json, os, time, urllib.parse, urllib.request, urllib.error
 import jwt
+
 API = "https://api.appstoreconnect.apple.com"
-EMAIL = os.environ["TESTER_EMAIL"].strip()
-token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 600,
+token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
                     "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",
                    headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
+
+
 def call(method, path, body=None):
     req = urllib.request.Request(API + path, method=method, data=json.dumps(body).encode() if body else None,
                                  headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
@@ -14,72 +21,97 @@ def call(method, path, body=None):
             raw = r.read()
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
-        return {"error": e.code, "detail": e.read().decode()[:600]}
-app = call("GET", "/v1/apps?filter[bundleId]=com.padelup.clapet")["data"][0]
+        return {"error": e.code, "detail": e.read().decode()[:500]}
 
-# Une ancienne adresse à retirer (invitation en attente et testeur bêta)
-OLD = os.environ.get("CANCEL_EMAIL", "").strip()
-if OLD:
-    for inv in call("GET", f"/v1/userInvitations?filter[email]={OLD}&limit=5").get("data", []):
-        r = call("DELETE", f"/v1/userInvitations/{inv['id']}")
-        print(f"ok     invitation App Store Connect à {OLD} annulée" if "error" not in r else f"       annulation : {r}")
-    for t in call("GET", f"/v1/betaTesters?filter[email]={OLD}&limit=5").get("data", []):
-        r = call("DELETE", f"/v1/betaTesters/{t['id']}")
-        print(f"ok     testeur bêta {OLD} retiré" if "error" not in r else f"       retrait du testeur : {r}")
 
-# Testeur interne : il faut d'abord être utilisateur d'App Store Connect (rôle Marketing, le plus limité
-# parmi ceux qu'Apple accepte pour les tests internes, et seulement l'app Foldly).
-if os.environ.get("INTERNAL") == "1":
-    users = call("GET", f"/v1/users?filter[username]={EMAIL}&limit=5").get("data", [])
-    if users:
-        uid = users[0]["id"]
-        print("déjà utilisateur App Store Connect :", users[0]["attributes"].get("roles"))
-        internal = [g for g in call("GET", f"/v1/apps/{app['id']}/betaGroups?limit=50").get("data", []) if g["attributes"].get("isInternalGroup")]
-        testers = call("GET", f"/v1/betaTesters?filter[email]={EMAIL}&limit=5").get("data", [])
-        if internal and testers:
-            r = call("POST", f"/v1/betaGroups/{internal[0]['id']}/relationships/betaTesters", {"data": [{"type": "betaTesters", "id": testers[0]["id"]}]})
-            print("ok     ajouté au groupe interne" if "error" not in r else f"       groupe interne : {r.get('detail', '')[:300]}")
-        elif internal:
-            r = call("POST", "/v1/betaTesters", {"data": {"type": "betaTesters", "attributes": {"email": EMAIL, "firstName": users[0]["attributes"].get("firstName"), "lastName": users[0]["attributes"].get("lastName")},
-                     "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": internal[0]["id"]}]}}}})
-            print("ok     ajouté au groupe interne" if "error" not in r else f"       groupe interne : {r.get('detail', '')[:300]}")
-        # Où en est l'invitation TestFlight, et on la renvoie si elle n'est pas encore acceptée
-        for t in call("GET", f"/v1/betaTesters?filter[email]={EMAIL}&limit=5").get("data", []):
-            at = t["attributes"]
-            print("testeur TestFlight :", at.get("email"), "| état", at.get("state"), "| invité par", at.get("inviteType"))
-            if at.get("state") not in ("ACCEPTED", "INSTALLED"):
-                r = call("POST", "/v1/betaTesterInvitations", {"data": {"type": "betaTesterInvitations", "relationships": {
-                         "app": {"data": {"type": "apps", "id": app["id"]}}, "betaTester": {"data": {"type": "betaTesters", "id": t["id"]}}}}})
-                print("ok     e-mail d'invitation TestFlight renvoyé" if "error" not in r else f"       renvoi : {r.get('detail', '')[:300]}")
-        sys.exit(0)
-    pending = call("GET", f"/v1/userInvitations?filter[email]={EMAIL}&limit=5").get("data", [])
-    if pending:
-        print("invitation App Store Connect déjà envoyée, en attente d'acceptation :", pending[0]["attributes"].get("expirationDate"))
-        sys.exit(0)
-    r = call("POST", "/v1/userInvitations", {"data": {"type": "userInvitations", "attributes": {
-        "email": EMAIL, "firstName": os.environ.get("FIRST_NAME", "Matthew"), "lastName": os.environ.get("LAST_NAME", "Testeur"),
-        "roles": ["MARKETING"], "allAppsVisible": False, "provisioningAllowed": False},
-        "relationships": {"visibleApps": {"data": [{"type": "apps", "id": app["id"]}]}}}})
-    print("ok     invitation App Store Connect envoyée (rôle Marketing, app Foldly seulement)" if "error" not in r else f"ÉCHEC  invitation : {r.get('detail', '')[:500]}")
-    sys.exit(0)
-groups = [g for g in call("GET", f"/v1/apps/{app['id']}/betaGroups?limit=50").get("data", []) if not g["attributes"].get("isInternalGroup")]
-if not groups:
-    print("aucun groupe externe"); sys.exit(1)
-g = groups[0]
-existing = call("GET", f"/v1/betaTesters?filter[email]={EMAIL}&limit=5").get("data", [])
-if existing:
-    r = call("POST", f"/v1/betaGroups/{g['id']}/relationships/betaTesters", {"data": [{"type": "betaTesters", "id": existing[0]["id"]}]})
-    print("testeur déjà connu, ajouté au groupe" if "error" not in r else f"ajout au groupe : {r}")
-    tid = existing[0]["id"]
-else:
-    r = call("POST", "/v1/betaTesters", {"data": {"type": "betaTesters", "attributes": {"email": EMAIL},
-             "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": g["id"]}]}}}})
+def pages(path):
+    while path:
+        r = call("GET", path)
+        if "error" in r:
+            print("  lecture impossible", path.split("?")[0], r["error"], r["detail"][:200])
+            return
+        yield from r.get("data", [])
+        nxt = r.get("links", {}).get("next")
+        path = nxt[len(API):] if nxt else None
+
+
+WANT = os.environ["EMAIL_SHA256"].strip().lower()
+APP = os.environ["APP_ID"].strip()
+ROLE = os.environ.get("ROLE", "MARKETING").strip()
+FIRST = os.environ.get("FIRST", "").strip() or "Tester"
+LAST = os.environ.get("LAST", "").strip() or "Foldboard"
+
+
+def h(e):
+    return hashlib.sha256((e or "").strip().lower().encode()).hexdigest()
+
+
+def masked(e):
+    return e[:2] + "…@" + e.split("@")[-1]
+
+
+email = None
+user = None
+invite = None
+for u in pages("/v1/users?limit=200"):
+    if h(u["attributes"].get("username")) == WANT or h(u["attributes"].get("email")) == WANT:
+        user, email = u, u["attributes"].get("username") or u["attributes"].get("email")
+for i in pages("/v1/userInvitations?limit=200"):
+    if h(i["attributes"].get("email")) == WANT:
+        invite, email = i, i["attributes"]["email"]
+tester = None
+for t in pages(f"/v1/betaTesters?filter[apps]={APP}&limit=200"):
+    if h(t["attributes"].get("email")) == WANT:
+        tester = t
+        email = email or t["attributes"]["email"]
+        FIRST = t["attributes"].get("firstName") or FIRST
+        LAST = t["attributes"].get("lastName") or LAST
+
+if not email:
+    print("INTROUVABLE : cette adresse n'est ni testeur TestFlight de l'app, ni utilisateur, ni invitée.")
+    raise SystemExit(2)
+print("personne :", masked(email), "| utilisateur :", bool(user), "| invitée :", bool(invite), "| testeur :", bool(tester))
+
+# 1. L'invitation App Store Connect (rôle restreint, seulement cette app).
+if not user and not invite:
+    body = {"data": {"type": "userInvitations",
+                     "attributes": {"email": email, "firstName": FIRST, "lastName": LAST, "roles": [ROLE],
+                                    "allAppsVisible": False, "provisioningAllowed": False},
+                     "relationships": {"visibleApps": {"data": [{"type": "apps", "id": APP}]}}}}
+    r = call("POST", "/v1/userInvitations", body)
     if "error" in r:
-        print("ÉCHEC", r); sys.exit(1)
-    tid = r["data"]["id"]
-    print(f"ok     {EMAIL} ajouté au groupe « {g['attributes']['name']} »")
-# Envoie l'invitation TestFlight (si un build est disponible pour le groupe)
-r = call("POST", "/v1/betaTesterInvitations", {"data": {"type": "betaTesterInvitations", "relationships": {
-         "app": {"data": {"type": "apps", "id": app["id"]}}, "betaTester": {"data": {"type": "betaTesters", "id": tid}}}}})
-print("ok     invitation envoyée" if "error" not in r else f"       invitation : {r.get('detail', '')[:300]}")
-print("testeurs du groupe :", len(call("GET", f"/v1/betaGroups/{g['id']}/betaTesters?limit=200").get("data", [])))
+        print("ÉCHEC invitation", r["error"], r["detail"].replace(email, masked(email)))
+        raise SystemExit(1)
+    print(f"INVITÉE : rôle {ROLE}, app {APP} seulement (e-mail d'Apple envoyé à {masked(email)})")
+elif invite:
+    print("invitation déjà envoyée, en attente d'acceptation (expire le", invite["attributes"].get("expirationDate"), ")")
+
+# 2. Le groupe interne de l'app (créé s'il n'existe pas), qui reçoit tous les builds.
+group = None
+for g in pages(f"/v1/apps/{APP}/betaGroups?limit=50"):
+    if g["attributes"].get("isInternalGroup"):
+        group = g
+        break
+if not group:
+    r = call("POST", "/v1/betaGroups", {"data": {"type": "betaGroups",
+                                                   "attributes": {"name": "Équipe", "isInternalGroup": True,
+                                                                  "hasAccessToAllBuilds": True},
+                                                   "relationships": {"app": {"data": {"type": "apps", "id": APP}}}}})
+    if "error" in r:
+        print("ÉCHEC groupe interne", r["error"], r["detail"][:300])
+        raise SystemExit(1)
+    group = r["data"]
+    print("groupe interne créé :", group["attributes"]["name"])
+print("groupe interne :", group["attributes"]["name"], "| tous les builds :", group["attributes"].get("hasAccessToAllBuilds"))
+
+# 3. Une fois l'invitation acceptée : testeur du groupe interne.
+if not user:
+    print("EN ATTENTE : il doit d'abord accepter l'e-mail d'Apple ; relancer ensuite pour l'ajouter au groupe interne.")
+    raise SystemExit(0)
+r = call("POST", "/v1/betaTesters", {"data": {"type": "betaTesters",
+                                             "attributes": {"email": email, "firstName": FIRST, "lastName": LAST},
+                                             "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": group["id"]}]}}}})
+if "error" in r and r["error"] != 409:
+    print("ÉCHEC ajout au groupe interne", r["error"], r["detail"].replace(email, masked(email))[:300])
+    raise SystemExit(1)
+print("TESTEUR INTERNE : ajouté au groupe", group["attributes"]["name"])
