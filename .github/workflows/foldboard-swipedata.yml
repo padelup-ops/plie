@@ -17,23 +17,40 @@ jobs:
       - name: Télécharger
         run: |
           mkdir -p out && cd out
+          cat > conv.py <<'EOF'
+          import json, sys, collections
+          # Convertit des lignes du jeu de données FUTO en lignes compactes : mot, points (x, y entre 0 et 1), taille du canevas.
+          mode = sys.argv[1]
+          out, stats = {}, collections.Counter()
+          for l in sys.stdin:
+              try:
+                  d = json.loads(l)
+              except Exception:
+                  continue
+              lang, lay = d.get('language', 'en'), d.get('layout', 'qwerty')
+              stats[(lang, lay, d.get('dual_finger', 0))] += 1
+              if d.get('dual_finger'):
+                  continue
+              key = f"{lang}-{lay}" if mode == 's5' else 'en-qwerty'
+              if mode == 's5' and key not in ('fr-azerty', 'fr-qwerty', 'en-qwerty'):
+                  continue
+              pts = d['data']
+              if not isinstance(pts, list) or len(pts) < 2:
+                  continue
+              f = out.setdefault(key, open(f"{mode}-{key}.jsonl", 'w'))
+              f.write(json.dumps({'w': d['word'], 'p': [[round(q['x'], 4), round(q['y'], 4)] for q in pts],
+                                  'cw': d.get('canvas_width'), 'ch': d.get('canvas_height'), 'd': round(d.get('distance') or 0, 1)}) + '\n')
+          print(mode, stats.most_common(30))
+          EOF
           B=https://huggingface.co/datasets/futo-org/swipe.futo.org
-          curl -sL "$B/resolve/main/test.jsonl" | head -n ${{ inputs.rows }} > test-head.jsonl || true
-          wc -l test-head.jsonl
-          curl -sL "https://huggingface.co/api/datasets/futo-org/swipe.futo.org/tree/main/swipe-5/layouts" > layouts-list.json || true
-          curl -sL "https://huggingface.co/api/datasets/futo-org/swipe.futo.org/tree/main" > root-list.json || true
-          curl -sL "$B/resolve/main/swipe-5/layouts/qwerty.json" > qwerty.json || true
-          curl -sL "$B/resolve/main/README.md" > README-dataset.md || true
-          curl -sL "$B/resolve/main/swipe-5/README.md" > README-swipe5.md || true
-          ls -la
-          python3 - <<'PY'
-          import json
-          l = open('test-head.jsonl').readline()
-          d = json.loads(l)
-          print({k: (v if k != 'data' else f'{len(v)} points, first {v[:3]}') for k, v in d.items()})
-          PY
-          head -c 1500 qwerty.json; echo
-          cat layouts-list.json | head -c 800; echo
+          curl -sL "$B/resolve/main/swipe-5/layouts/qwerty.json" > qwerty.json
+          curl -sL "$B/resolve/main/swipe-5/layouts/azerty.json" > azerty.json
+          # Anglais : le début du jeu de test principal. Français : les swipes AZERTY à un doigt de la 5e collecte.
+          curl -sL "$B/resolve/main/test.jsonl" | head -n ${{ inputs.rows }} | python3 conv.py test || true
+          curl -sL "$B/resolve/main/swipe-5/swipe5.jsonl" | python3 conv.py s5 || true
+          rm -f conv.py
+          ls -la; wc -l *.jsonl
+          head -c 700 azerty.json; echo
       - name: Publier
         run: |
           cd out
