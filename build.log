@@ -1,0 +1,992 @@
+Command line invocation:
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/xcodebuild build -project retrofold/RetroCartridge.xcodeproj -scheme RetroCartridge -configuration Debug -sdk iphonesimulator -destination id=22DDC325-1548-4E43-9FF0-6B80492187F1 -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+    SDKROOT = iphonesimulator27.1
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'RetroCartridge' in project 'RetroCartridge' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build /Users/runner/work/plie/plie/retrofold/RetroCartridge/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 3238d90c8b1307e5cc5f459079af265d
+Build description path: /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/XCBuildData/3238d90c8b1307e5cc5f459079af265d.xcbuilddata
+CreateBuildDirectory /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/ModuleCache.noindex
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/ModuleCache.noindex
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/CompilationCache.noindex
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/CompilationCache.noindex
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Products
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Products
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex
+
+ClangStatCache /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge-12985dc5c2ddbcaf4f7e36d3ec86730d-VFS-iphonesimulator/all-product-headers.yaml
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge-12985dc5c2ddbcaf4f7e36d3ec86730d-VFS-iphonesimulator/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/PrecompiledHeaders
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/PrecompiledHeaders
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+    cd /Users/runner/work/plie/plie/retrofold/RetroCartridge.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge.hmap (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge.DependencyStaticMetadataFileList (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge.DependencyMetadataFileList (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-project-headers.hmap (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-own-target-headers.hmap (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-generated-files.hmap (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-all-target-headers.hmap (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-all-non-framework-target-headers.hmap (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-DebugDylibPath-normal-arm64.txt (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-DebugDylibInstallName-normal-arm64.txt (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-DebugDylibInstallName-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge_const_extract_protocols.json (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.SwiftFileList (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.SwiftConstValuesFileList (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.LinkFileList (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-OutputFileMap.json (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-OutputFileMap.json
+
+MkDir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/__preview.dylib normal (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios27.1-simulator -dynamiclib -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -install_name @rpath/RetroCartridge.debug.dylib -Xlinker -dead_strip -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge_dependency_info.dat -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/__preview.dylib
+
+MkDir /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/unthinned (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/unthinned
+
+MkDir /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/thinned (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/thinned
+
+GenerateStringSymbols /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedStringSymbols_Localizable.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Localizable.xcstrings (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/xcstringstool generate-symbols --language swift --output-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources /Users/runner/work/plie/plie/retrofold/RetroCartridge/Localizable.xcstrings
+
+GenerateAssetSymbols /Users/runner/work/plie/plie/retrofold/RetroCartridge/Assets.xcassets (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool /Users/runner/work/plie/plie/retrofold/RetroCartridge/Assets.xcassets --compile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_dependencies --output-partial-info-plist /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_generated_info.plist --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --minimum-deployment-target 27.1 --platform iphonesimulator --bundle-identifier com.padelup.retrofold --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Silkscreen-Regular.ttf /Users/runner/work/plie/plie/retrofold/RetroCartridge/Resources/Silkscreen-Regular.ttf (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/retrofold/RetroCartridge/Resources/Silkscreen-Regular.ttf /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Silkscreen-OFL.txt /Users/runner/work/plie/plie/retrofold/RetroCartridge/Resources/Silkscreen-OFL.txt (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/retrofold/RetroCartridge/Resources/Silkscreen-OFL.txt /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Silkscreen-Bold.ttf /Users/runner/work/plie/plie/retrofold/RetroCartridge/Resources/Silkscreen-Bold.ttf (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/retrofold/RetroCartridge/Resources/Silkscreen-Bold.ttf /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/PrivacyInfo.xcprivacy /Users/runner/work/plie/plie/retrofold/RetroCartridge/PrivacyInfo.xcprivacy (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/retrofold/RetroCartridge/PrivacyInfo.xcprivacy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/MIT-LICENSE.txt /Users/runner/work/plie/plie/retrofold/RetroCartridge/Resources/MIT-LICENSE.txt (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/retrofold/RetroCartridge/Resources/MIT-LICENSE.txt /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app
+
+CompileMetalFile /Users/runner/work/plie/plie/retrofold/RetroCartridge/Rendering/ShellFinish.metal (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain/usr/bin/metal -c -target air64-apple-ios27.1-simulator -gline-tables-only -frecord-sources -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -fmetal-math-mode\=fast -fmetal-math-fp32-functions\=fast -serialize-diagnostics /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Metal/ShellFinish.dia -o /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Metal/ShellFinish.air -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -MMD -MT dependencies -MF /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Metal/ShellFinish.dat /Users/runner/work/plie/plie/retrofold/RetroCartridge/Rendering/ShellFinish.metal
+
+CompileMetalFile /Users/runner/work/plie/plie/retrofold/RetroCartridge/Rendering/CRTView.metal (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain/usr/bin/metal -c -target air64-apple-ios27.1-simulator -gline-tables-only -frecord-sources -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -fmetal-math-mode\=fast -fmetal-math-fp32-functions\=fast -serialize-diagnostics /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Metal/CRTView.dia -o /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Metal/CRTView.air -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -MMD -MT dependencies -MF /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Metal/CRTView.dat /Users/runner/work/plie/plie/retrofold/RetroCartridge/Rendering/CRTView.metal
+
+CompileAssetCatalogVariant thinned /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app /Users/runner/work/plie/plie/retrofold/RetroCartridge/Assets.xcassets (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool /Users/runner/work/plie/plie/retrofold/RetroCartridge/Assets.xcassets --compile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --filter-for-thinning-device-configuration iPhone19,4 --filter-for-device-os-version 27.2 --development-region en --target-device iphone --minimum-deployment-target 27.1 --platform iphonesimulator
+/* com.apple.actool.compilation-results */
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_generated_info.plist_thinned
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/thinned/Assets.car
+
+
+SwiftDriver RetroCartridge normal arm64 com.apple.xcode.tools.swift.compiler (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftDriver -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name RetroCartridge -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios27.1-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64 -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-Swift.h -working-directory /Users/runner/work/plie/plie/retrofold -experimental-emit-module-separately -disable-cmo
+
+MetalLink /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/default.metallib (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain/usr/bin/metal -target air64-apple-ios27.1-simulator -frecord-sources -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/default.metallib /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Metal/CRTView.air /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Metal/ShellFinish.air
+
+LinkAssetCatalog /Users/runner/work/plie/plie/retrofold/RetroCartridge/Assets.xcassets (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-linkAssetCatalog --thinned /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/thinned --thinned-dependencies /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_generated_info.plist_thinned --unthinned /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_output/unthinned --unthinned-dependencies /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_generated_info.plist_unthinned --output /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app --plist-output /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_generated_info.plist
+note: Emplaced /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/AppIcon60x60@2x.png (in target 'RetroCartridge' from project 'RetroCartridge')
+note: Emplaced /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Assets.car (in target 'RetroCartridge' from project 'RetroCartridge')
+note: Emplaced /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/AppIcon76x76@2x~ipad.png (in target 'RetroCartridge' from project 'RetroCartridge')
+
+ProcessInfoPlistFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Info.plist /Users/runner/work/plie/plie/retrofold/RetroCartridge/Info.plist (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-infoPlistUtility /Users/runner/work/plie/plie/retrofold/RetroCartridge/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/assetcatalog_generated_info.plist -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Info.plist
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/DeveloperToolsSupport-ELJTD5AR4AIUV3XV24D6SIC4R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_StoreKit_SwiftUI-A07IY0HP73NAWDWYWFBT3XMI2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stddef-CSCSO0XKFBRXEVOW8C1RFLR54.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_float-8EG0Y2DSIG5NJHHR73LOBLU9N.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_SwiftConcurrencyShims-8SZKWWOLAKRO7RWLZHTC95F15.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdarg-B44WG4R0L7COFSYI3YE37ALVL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ptrcheck-2TZ1PX09QAH7GB4I5C8ELFZOI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdbool-D9OED0I4TPFZX96RABBZ5UBKY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_AvailabilityInternal-PHO91PP493A8YZZLA0DRSH6P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftShims-D5V53PN6AMYJDCZRH6R5NR007.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ptrauth-ADKUZXYDEEQSSVQ30256CRMV8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation1-F1WYXPZRDURIYA9BR296X0FBA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ExtensionFoundation-DU2HEMQZCDN0P00EQRGO9OYZI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_limits-5FVJ42ISNG2YY8IC8ID6XC1GV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation2-3328BJ4FEE0QHFLKPMTWKX7H3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdint-DDWYRB7KKXZUH0FRVN1K1O4B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/sys_types-3O5GV32G3JNCZ3G19FCEUHYDN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_tgmath-F311T3NB1LSCNS418YWAYBNMG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/string_h-BRWOEOBHHD6KHAK1XOI8PDPDS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_intrinsics-5VNY8IY4XA176HVEVG1HF79TT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation3-CGUDK4ZFPRBJR9VH9BG87DFG7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdatomic-XDMQV8I5WAE1FJ69Y7720E4Y.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_inttypes-9H24F7RDVN5FFQQUW8H82WIKI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Darwin-7TG7LY81WZDQT6DKMS0IXKUAY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/simd-8RR8KMX178W9OOQY1NRIB8O9M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/MachO-9ZJNW0YH7HIBFFIGP7IN3UVN1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ObjectiveC-ETUX77U1ZQ3ZE1BJHM682HENL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os_object-AH1O6HRMX0HWS6J19NX1W6VIN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os_workgroup-AHF13JMDZ0YHWXW9TOM73IS3H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Dispatch-44D0UGL1YAXSBW533XLAC3IGG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Spatial-CZ9NTYK6VTI7FZO87CQEX29L2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/dnssd-DGD6YK8C2PYMX17WB0B6PWAVO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreFoundation-COR0S9YERC09YB7L0CA15O7Y3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/XPC-AHP4DOXXRSS7U76745REST1S0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Security-DNGPVRU57PWLRFQPLMEC2XQ6J.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreGraphics-4HT9K4N877UY1WUUX25J6GHFR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CFNetwork-6S3O4YV8FW6V8OCC6RH4LG671.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os-5ZC6XJVY70LU33PL46GSRI54D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreAudioTypes-D474O007RJH7WHDQB4KHFT3GD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Foundation-CD11H3WSZ7BAO6ME772K9T4VX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreText-8080TUHWNPKLHAPUSSVR5EJ6U.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ImageIO-KHF9U4SKHOW5QJCF4E0W73QI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreAudio-DR42C5GYCPSRHCOXSQ2XWMHUX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UIUtilities-BFMMWAVAFL76TIT3UJR3X2OJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/OSLog-30B9VKSD9EJXSYWPJB1R01DG2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_LocationEssentials-3UU8VIYE916HGYKVZMTV54VXJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreTransferable-DXV3C7F6C7EXHSED58IZAHQBM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Network-7GHQ41HIVZR9100N8JGB4FMY3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreLocation-C39Z3MZKUB03R1BL93ENTTZWZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/LocalAuthentication-6ODW1T6970PT2FGWMB21BF0YX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMIDI-9JB3PYPTOL7UYSD16B01037RQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMotion-EOT23HZ1EM7Z4173PKZGAA1HX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UniformTypeIdentifiers-68JDFB3Z92BZMSC6BRLBKRLN7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/OpenGLES-6ZK8PUOILZ3PAP7JCYBU0BJ5G.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AudioToolbox-8SLM7DU53TOW3I89E9CMQGYK6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UserNotifications-CDXE0GPGGBNNFNN7QCJR2FZ6F.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/IOSurface-7RG8SA6GRVVIOK7E7JAFOO9ZS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/BackgroundAssets-5SPF69QFBETCOYSRPS6N8SYLV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Accessibility-EFR5RHHF3SI15FJU5MFD0LFFM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreData-3QPDN46GMTX5H4POL0FNKIQFG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreHaptics-B1EOKG9KSL3PT373HEPMLKFTR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Metal-DHAYUNJC0DIN854LM7YKWR9HW.pcm
+2026-11-18 09:10:00.935 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (AA1A4436-9426-4301-8D39-5E909CAF9C42) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K: SimDeviceType : Apple TV 4K (3rd generation) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ec00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:00.937 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (at 1080p) (B9E4D366-604B-4F2F-8C77-5D95AD648816) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p: SimDeviceType : Apple TV 4K (3rd generation) (at 1080p) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ee00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:00.942 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (AA1A4436-9426-4301-8D39-5E909CAF9C42) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K: SimDeviceType : Apple TV 4K (3rd generation) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ec00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:00.942 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (AA1A4436-9426-4301-8D39-5E909CAF9C42) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K: SimDeviceType : Apple TV 4K (3rd generation) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ec00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:00.943 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (at 1080p) (B9E4D366-604B-4F2F-8C77-5D95AD648816) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p: SimDeviceType : Apple TV 4K (3rd generation) (at 1080p) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ee00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:00.943 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (at 1080p) (B9E4D366-604B-4F2F-8C77-5D95AD648816) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p: SimDeviceType : Apple TV 4K (3rd generation) (at 1080p) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ee00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:00.953 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (AA1A4436-9426-4301-8D39-5E909CAF9C42) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K: SimDeviceType : Apple TV 4K (3rd generation) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ec00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:00.953 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (AA1A4436-9426-4301-8D39-5E909CAF9C42) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K: SimDeviceType : Apple TV 4K (3rd generation) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ec00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:00.953 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (at 1080p) (B9E4D366-604B-4F2F-8C77-5D95AD648816) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p: SimDeviceType : Apple TV 4K (3rd generation) (at 1080p) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ee00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:00.953 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple TV 4K (3rd generation) (at 1080p) (B9E4D366-604B-4F2F-8C77-5D95AD648816) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p: SimDeviceType : Apple TV 4K (3rd generation) (at 1080p) (com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-1080p) } runtime={ com.apple.CoreSimulator.SimRuntime.tvOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4ee00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AVRouting-8V5GN43GHINNNX1EYAO8MXSWQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/FileProvider-3QZS7L7QIS3PBYFHHUNVH6QM7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/DataDetection-8C9NGITXOJZSRFT5AR1PM6AT7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Symbols-9VWM82MQR4RRBMLS6H0O6T41W.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreVideo-4B8O004E9BVXSKTR9P7VUA8K3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreImage-84UI94D6I4U70DJVC8YVDSSN8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMedia-5HBI2CJGZIUUR289E2UT7GM7P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/QuartzCore-F4XVNLMO4DOV5DJNUEEF74MZ8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftUICore-46GZ9P2FDCYYQ17GKZ6L42YP4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UIKit-EZC5L40HHH9W9G05RPTKVIXBB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/MediaToolbox-DXEWRKI5OA6BKM3ULR55ORUUL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/VideoToolbox-6NR2I24SUV2SJKDO0MGDU4RDC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AVFAudio-355PUF503ZOQKCWEBXDVQIJVP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AVFoundation-BI91KYSZHLGZL8OJSFIFXRSLZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/StoreKit-6S3DQ8GNJR39HKA6BQLANHYUT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftUI-2IH65MU80ECKBSN87285HAC4R.pcm
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ RetroCartridge (in target 'RetroCartridge' from project 'RetroCartridge')
+
+SwiftCompile normal arm64 (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    
+
+SwiftCompile normal arm64 Compiling\ AdaptiveConsoleLayout.swift,\ AppState.swift,\ ArcadeCabinetSkin.swift,\ GoldEditionSkin.swift,\ ElectricYellowSkin.swift,\ CrimsonCreamSkin.swift,\ ClearIceSkin.swift,\ AtomicPurpleSkin.swift,\ AudioManager.swift,\ ChipMusic.swift,\ BrickBreakerGame.swift,\ CRTEffect.swift,\ GamePalette.swift,\ CartridgeView.swift,\ AttractScreen.swift,\ CartridgeArt.swift,\ ClassicGreySkin.swift,\ ControllerView.swift,\ PauseMenu.swift,\ CoverScreenLayout.swift,\ CyberpunkNeonSkin.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Layout/AdaptiveConsoleLayout.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/App/AppState.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ArcadeCabinetSkin.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/GoldEditionSkin.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ElectricYellowSkin.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/CrimsonCreamSkin.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ClearIceSkin.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/AtomicPurpleSkin.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/AudioManager.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/ChipMusic.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/BrickBreaker/BrickBreakerGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Rendering/CRTEffect.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Rendering/GamePalette.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/CartridgeView.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/AttractScreen.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/CartridgeArt.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ClassicGreySkin.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/ControllerView.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/PauseMenu.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Layout/CoverScreenLayout.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/CyberpunkNeonSkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+2026-11-18 09:10:28.939 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fa00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.939 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.940 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.940 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fc00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.940 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.951 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fc00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.965 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fc00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.965 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fa00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.965 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fa00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.965 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.965 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.966 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.966 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.966 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.966 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.975 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fc00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.975 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fc00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.975 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fa00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.975 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4fa00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.975 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.975 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.975 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.976 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.976 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-18 09:10:28.976 xcodebuild[7577:29171] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x767bd4f800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x100cf4df0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Layout/AdaptiveConsoleLayout.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile AdaptiveConsoleLayout.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/App/AppState.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile AppState.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ArcadeCabinetSkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ArcadeCabinetSkin.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/GoldEditionSkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile GoldEditionSkin.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ElectricYellowSkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ElectricYellowSkin.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/CrimsonCreamSkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile CrimsonCreamSkin.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ClearIceSkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ClearIceSkin.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/AtomicPurpleSkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile AtomicPurpleSkin.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/AudioManager.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile AudioManager.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/ChipMusic.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ChipMusic.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/BrickBreaker/BrickBreakerGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile BrickBreakerGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Rendering/CRTEffect.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile CRTEffect.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Rendering/GamePalette.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile GamePalette.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/CartridgeView.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile CartridgeView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/AttractScreen.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile AttractScreen.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/CartridgeArt.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile CartridgeArt.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ClassicGreySkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ClassicGreySkin.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/ControllerView.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ControllerView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/PauseMenu.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile PauseMenu.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Layout/CoverScreenLayout.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile CoverScreenLayout.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/CyberpunkNeonSkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile CyberpunkNeonSkin.swift
+
+SwiftCompile normal arm64 Compiling\ ProgressStore.swift,\ LabelStore.swift,\ Achievements.swift,\ ProductIdentifiers.swift,\ RetroCartridgeApp.swift,\ RetroRacerGame.swift,\ SkinManager.swift,\ ShellSurface.swift,\ SnakeGame.swift,\ TowerStackGame.swift,\ AstroDriftGame.swift,\ PaddleDuelGame.swift,\ LunarHingeGame.swift,\ FrogHopGame.swift,\ MazeMuncherGame.swift,\ MineSweepGame.swift,\ PixelInvadersGame.swift,\ StoreManager.swift,\ GeneratedAssetSymbols.swift,\ GeneratedStringSymbols_Localizable.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/ProgressStore.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/LabelStore.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/Achievements.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Store/ProductIdentifiers.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/App/RetroCartridgeApp.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/RetroRacer/RetroRacerGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/SkinManager.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ShellSurface.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/Snake/SnakeGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/TowerStack/TowerStackGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/AstroDrift/AstroDriftGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/PaddleDuel/PaddleDuelGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/LunarHinge/LunarHingeGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/FrogHop/FrogHopGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/MazeMuncher/MazeMuncherGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/MineSweep/MineSweepGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/PixelInvaders/PixelInvadersGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Store/StoreManager.swift /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedAssetSymbols.swift /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedStringSymbols_Localizable.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/ProgressStore.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ProgressStore.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/LabelStore.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile LabelStore.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/Achievements.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile Achievements.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Store/ProductIdentifiers.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ProductIdentifiers.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/App/RetroCartridgeApp.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile RetroCartridgeApp.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/RetroRacer/RetroRacerGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile RetroRacerGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/SkinManager.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile SkinManager.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ShellSurface.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ShellSurface.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/Snake/SnakeGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile SnakeGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/TowerStack/TowerStackGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile TowerStackGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/AstroDrift/AstroDriftGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile AstroDriftGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/PaddleDuel/PaddleDuelGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile PaddleDuelGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/LunarHinge/LunarHingeGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile LunarHingeGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/FrogHop/FrogHopGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile FrogHopGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/MazeMuncher/MazeMuncherGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile MazeMuncherGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/MineSweep/MineSweepGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile MineSweepGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/PixelInvaders/PixelInvadersGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile PixelInvadersGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Store/StoreManager.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile StoreManager.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/GeneratedStringSymbols_Localizable.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile GeneratedStringSymbols_Localizable.swift
+
+SwiftCompile normal arm64 Compiling\ FallingBlocksGame.swift,\ FullScreenLayout.swift,\ OcclusionAvoidance.swift,\ GameCanvasView.swift,\ ConsoleSkinPreview.swift,\ StoreView.swift,\ SkinPickerView.swift,\ ScreenSettingsView.swift,\ RecordsView.swift,\ LabelDesignerView.swift,\ IntroView.swift,\ OverlayPanel.swift,\ RetroTypography.swift,\ GameModels.swift,\ HapticManager.swift,\ HingeEngine.swift,\ PixelGameEngine.swift,\ GameRNG.swift,\ AttractPilot.swift,\ PixelGameProtocol.swift,\ PostureManager.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/FallingBlocks/FallingBlocksGame.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Layout/FullScreenLayout.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Layout/OcclusionAvoidance.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/GameCanvasView.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ConsoleSkinPreview.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/StoreView.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/SkinPickerView.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/ScreenSettingsView.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/RecordsView.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/LabelDesignerView.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/IntroView.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/OverlayPanel.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/RetroTypography.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Models/GameModels.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/HapticManager.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/HingeEngine.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/PixelGameEngine.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/GameRNG.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/AttractPilot.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/PixelGameProtocol.swift /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/PostureManager.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/FallingBlocks/FallingBlocksGame.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile FallingBlocksGame.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Layout/FullScreenLayout.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile FullScreenLayout.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Layout/OcclusionAvoidance.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile OcclusionAvoidance.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/GameCanvasView.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile GameCanvasView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/Skins/ConsoleSkinPreview.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ConsoleSkinPreview.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/StoreView.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile StoreView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/SkinPickerView.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile SkinPickerView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/ScreenSettingsView.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile ScreenSettingsView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/RecordsView.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile RecordsView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/LabelDesignerView.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile LabelDesignerView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/IntroView.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile IntroView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/OverlayPanel.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile OverlayPanel.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/UI/RetroTypography.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile RetroTypography.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Models/GameModels.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile GameModels.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/HapticManager.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile HapticManager.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/HingeEngine.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile HingeEngine.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/PixelGameEngine.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile PixelGameEngine.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/GameRNG.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile GameRNG.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/AttractPilot.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile AttractPilot.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/PixelGameProtocol.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile PixelGameProtocol.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/retrofold/RetroCartridge/Core/PostureManager.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-SwiftPerFileCompile PostureManager.swift
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for RetroCartridge (in target 'RetroCartridge' from project 'RetroCartridge')
+
+SwiftDriver\ Compilation\ Requirements RetroCartridge normal arm64 com.apple.xcode.tools.swift.compiler (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name RetroCartridge -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios27.1-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64 -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-Swift.h -working-directory /Users/runner/work/plie/plie/retrofold -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling ProgressStore.swift, LabelStore.swift, Achievements.swift, ProductIdentifiers.swift, RetroCartridgeApp.swift, RetroRacerGame.swift, SkinManager.swift, ShellSurface.swift, SnakeGame.swift, TowerStackGame.swift, AstroDriftGame.swift, PaddleDuelGame.swift, LunarHingeGame.swift, FrogHopGame.swift, MazeMuncherGame.swift, MineSweepGame.swift, PixelInvadersGame.swift, StoreManager.swift, GeneratedAssetSymbols.swift, GeneratedStringSymbols_Localizable.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AdaptiveConsoleLayout.swift, AppState.swift, ArcadeCabinetSkin.swift, GoldEditionSkin.swift, ElectricYellowSkin.swift, CrimsonCreamSkin.swift, ClearIceSkin.swift, AtomicPurpleSkin.swift, AudioManager.swift, ChipMusic.swift, BrickBreakerGame.swift, CRTEffect.swift, GamePalette.swift, CartridgeView.swift, AttractScreen.swift, CartridgeArt.swift, ClassicGreySkin.swift, ControllerView.swift, PauseMenu.swift, CoverScreenLayout.swift, CyberpunkNeonSkin.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+
+SwiftMergeGeneratedHeaders /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/RetroCartridge-Swift.h /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-Swift.h (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-Swift.h -o /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/RetroCartridge-Swift.h
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftmodule (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftmodule /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.swiftmodule/arm64-apple-ios-simulator.swiftdoc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftdoc (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftdoc /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.abi.json (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.abi.json /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftsourceinfo (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftsourceinfo /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling FallingBlocksGame.swift, FullScreenLayout.swift, OcclusionAvoidance.swift, GameCanvasView.swift, ConsoleSkinPreview.swift, StoreView.swift, SkinPickerView.swift, ScreenSettingsView.swift, RecordsView.swift, LabelDesignerView.swift, IntroView.swift, OverlayPanel.swift, RetroTypography.swift, GameModels.swift, HapticManager.swift, HingeEngine.swift, PixelGameEngine.swift, GameRNG.swift, AttractPilot.swift, PixelGameProtocol.swift, PostureManager.swift (in target 'RetroCartridge' from project 'RetroCartridge')
+
+SwiftDriver\ Compilation RetroCartridge normal arm64 com.apple.xcode.tools.swift.compiler (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-Swift-Compilation -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name RetroCartridge -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios27.1-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64 -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge-Swift.h -working-directory /Users/runner/work/plie/plie/retrofold -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge.debug.dylib normal (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios27.1-simulator -dynamiclib -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -filelist /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.LinkFileList -install_name @rpath/RetroCartridge.debug.dylib -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge.debug.dylib
+
+ConstructStubExecutorLinkFileList /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-ExecutorLinkFileList-normal-arm64.txt (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    construct-stub-executor-link-file-list /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge.debug.dylib /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'RetroCartridge' from project 'RetroCartridge')
+
+GenerateDSYMFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app.dSYM /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge.debug.dylib (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    export PATH\=/Applications/Xcode_27.1.app/Contents/SharedFrameworks/SwiftBuild.framework/Versions/A/PlugIns/SWBBuildService.bundle/Contents/PlugIns/SWBUniversalPlatformPlugin.bundle/Contents/Frameworks/SWBUniversalPlatform.framework/Resources:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain/usr/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain/usr/local/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/local/bin:/opt/homebrew/opt/rustup/bin:/opt/homebrew/lib/ruby/gems/3.4.0/bin:/opt/homebrew/opt/ruby@3.4/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge.debug.dylib -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app.dSYM
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge normal (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios27.1-simulator -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @executable_path/Frameworks -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge-ExecutorLinkFileList-normal-arm64.txt /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge.debug.dylib -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge
+
+GenerateDSYMFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app.dSYM /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    export PATH\=/Applications/Xcode_27.1.app/Contents/SharedFrameworks/SwiftBuild.framework/Versions/A/PlugIns/SWBBuildService.bundle/Contents/PlugIns/SWBUniversalPlatformPlugin.bundle/Contents/Frameworks/SWBUniversalPlatform.framework/Resources:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain/usr/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain/usr/local/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/local/bin:/opt/homebrew/opt/rustup/bin:/opt/homebrew/lib/ruby/gems/3.4.0/bin:/opt/homebrew/opt/ruby@3.4/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil -q /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app.dSYM
+
+ExtractAppIntentsMetadata (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain --module-name RetroCartridge --sdk-root /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 27.1 --bundle-identifier com.padelup.retrofold --output /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app --target-triple arm64-apple-ios27.1-simulator --binary-file /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge --dependency-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge_dependency_info.dat --stringsdata-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.SwiftFileList --metadata-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/Objects-normal/arm64/RetroCartridge.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-11-18 09:10:59.149 appintentsmetadataprocessor[13511:45435] Starting appintentsmetadataprocessor export
+2026-11-18 09:10:59.210 appintentsmetadataprocessor[13511:45435] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+CopySwiftLibs /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/RetroCartridge.debug.dylib --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Frameworks --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/PlugIns --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/SystemExtensions --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.qlBmNh/Metal.xctoolchain --toolchain /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+AppIntentsSSUTraining (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Info.plist --temp-dir-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/ssu --bundle-id com.padelup.retrofold --product-path /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app --extracted-metadata-path /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Metadata.appintents --metadata-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/RetroCartridge.build/Debug-iphonesimulator/RetroCartridge.build/RetroCartridge.DependencyMetadataFileList --source-file /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app/Info.plist --archive-ssu-assets
+2026-11-18 09:10:59.500 appintentsnltrainingprocessor[13538:45495] Parsing options for appintentsnltrainingprocessor
+2026-11-18 09:10:59.501 appintentsnltrainingprocessor[13538:45495] Starting AppIntents SSU YAML Generation
+2026-11-18 09:10:59.504 appintentsnltrainingprocessor[13538:45495] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-RegisterExecutionPolicyException /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app
+
+Validate /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    builtin-validationUtility /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app (in target 'RetroCartridge' from project 'RetroCartridge')
+    cd /Users/runner/work/plie/plie/retrofold
+    /usr/bin/touch -c /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/RetroCartridge.app
+
+PruneExplicitPrecompiledModules /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

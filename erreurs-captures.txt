@@ -1,0 +1,25 @@
+Recording started
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/01-brickbreaker,classicgrey,crt-olandscapeRight-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/01-brickbreaker,classicgrey,crt-olandscapeRight-dprimary-1.png
+Recording started
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/02-fallingblocks,cyberpunkneon,trinitron-olandscapeRight-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/02-fallingblocks,cyberpunkneon,trinitron-olandscapeRight-dprimary-1.png
+Recording started
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/03-snake,electricyellow,lcd-olandscapeRight-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/03-snake,electricyellow,lcd-olandscapeRight-dprimary-1.png
+Recording started
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/04-pixelinvaders,atomicpurple,arcade-olandscapeRight-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/04-pixelinvaders,atomicpurple,arcade-olandscapeRight-dprimary-1.png
+Recording started
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/05-lunarhinge,crimsoncream,crt-olandscapeRight-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/05-lunarhinge,crimsoncream,crt-olandscapeRight-dprimary-1.png
