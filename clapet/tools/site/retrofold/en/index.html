@@ -1,16 +1,149 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RetroFold — Support</title><link rel="icon" href="../icon.png"><style>
-:root{--bg:#f2f2f7;--card:#fff;--text:#111;--muted:#6b6b70;--accent:#2f7cf6;--line:#e3e3e8}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1013;--card:#1b1d22;--text:#f2f2f2;--muted:#9a9aa2;--accent:#7fa8ff;--line:#2a2c33}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
-main{max-width:720px;margin:0 auto;padding:40px 20px 60px}
-header{display:flex;align-items:center;gap:14px;margin-bottom:28px}
-header img{width:64px;height:64px;border-radius:15px}
-h1{font-size:28px;margin:0;letter-spacing:-.01em}.sub{color:var(--muted);margin:2px 0 0}
-section{background:var(--card);border-radius:18px;padding:20px 22px;margin:14px 0}
-h2{font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);margin:0 0 8px}
-p{margin:.4em 0}ol,ul{margin:.4em 0;padding-left:1.3em}li{margin:.25em 0}
-a{color:var(--accent)}.lang{color:var(--muted);font-size:15px}footer{color:var(--muted);font-size:14px;margin-top:22px}
-</style></head><body><main>
-<header><img src="../icon.png" alt=""><div><h1>RetroFold</h1><p class="sub">A 90s handheld console for iPhone Duo</p></div></header>
-<section><h2>How to play</h2><ol><li>Closed: pick a cartridge on the cover screen (swipe through them).</li><li>Unfold your iPhone Duo like a clamshell: the screen is above the fold, the controls below.</li><li>Fold it again to pause. Unfold to resume.</li></ol></section><section><h2>Purchase</h2><p>Eight cartridges, every mode and every palette are free. RetroFold Pro is a one-time purchase, with no subscription: four more cartridges, every console skin, the extra sound packs and the LCD, Trinitron and Arcade screens. To get your purchase back: Store → Restore Purchases.</p></section><section><h2>Contact</h2><p>Questions, ideas, bugs: <a href="mailto:hfreecsapple@gmail.com">hfreecsapple@gmail.com</a></p></section><footer><a href="privacy.html">Privacy</a> · <a href="../fr/">Français</a></footer></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RetroFold: a 90s handheld for iPhone Duo</title>
+<meta name="description" content="RetroFold turns your iPhone Duo into a 90s handheld console: 12 retro cartridges, picked on the cover screen and played on the open clamshell. Free for a day.">
+<meta name="theme-color" content="#cdcac3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b1b21" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="RetroFold: a 90s handheld for iPhone Duo">
+<meta property="og:description" content="RetroFold turns your iPhone Duo into a 90s handheld console: 12 retro cartridges, picked on the cover screen and played on the open clamshell. Free for a day.">
+<meta property="og:image" content="https://foldly.netlify.app/retrofold/assets/img/og.png">
+<meta name="apple-itunes-app" content="app-id=6836120890">
+<link rel="icon" href="../icon.png">
+<link rel="apple-touch-icon" href="../icon.png">
+<link rel="alternate" hreflang="fr" href="../fr/">
+<link rel="preload" href="../assets/fonts/Silkscreen-Bold.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="../assets/rf.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+<header class="bar">
+  <a class="brand" href="./"><img src="../icon.png" alt="" width="40" height="40">RETROFOLD</a>
+  <nav aria-label="Menu">
+    <a class="hide-s" href="./#cartridges">Cartridges</a>
+    <a class="hide-s" href="./#how">How it plays</a>
+    <a href="./#support">Support</a>
+    <a href="../fr/" lang="fr">Français</a>
+  </nav>
+</header>
+</div>
+<main id="main">
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <h1><span>Unfold.</span><span>Play.</span></h1>
+      <p class="lede">RetroFold turns your iPhone Duo into a 90s handheld. Pick a cartridge on the cover screen, unfold it like a clamshell, and play with the screen up top and the buttons below. Fold it to pause.</p>
+      <div class="buy">
+        <a class="store" href="https://apps.apple.com/app/id6836120890"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 3h2v10.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6zM5 19h14v2H5z"/></svg><span>Get it on the App Store<small>Free download</small></span></a>
+        <p class="price"><b>Free for a whole day.</b> Then RetroFold Pro, one purchase: 2.99&nbsp;€ or $2.99.</p>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="console" data-screen="lcd" tabindex="0" role="application" aria-label="Playable demo: Snake. Focus the console, press Enter to start, arrows to steer.">
+        <div class="bezel"><span class="led"></span><span class="tag">POWER</span><span class="mode">DOT MATRIX</span>
+          <div class="screen"><canvas width="192" height="128"></canvas></div><div class="score"></div></div>
+        <div class="logo"><i></i>RETROFOLD</div>
+        <div class="dpad"><button type="button" class="u" data-d="u" aria-label="Up"></button><button type="button" class="l" data-d="l" aria-label="Left"></button><span class="c"></span><button type="button" class="r" data-d="r" aria-label="Right"></button><button type="button" class="d" data-d="d" aria-label="Down"></button></div>
+        <div class="ab"><button type="button" class="b" data-start aria-label="B"></button><button type="button" class="a" data-start aria-label="A"></button><span class="lb">B</span><span class="la">A</span></div>
+        <div class="ss"><button type="button" data-start aria-label="Select"><span>SELECT</span></button><button type="button" data-start aria-label="Start"><span>START</span></button></div>
+        <div class="grille"></div>
+      </div>
+      <div class="pickers">
+        <p class="hint">This one works. Press <kbd>START</kbd>, then steer with the arrow keys, the D-pad, or a swipe on the screen.</p>
+        <div class="row"><span class="k">Skin: <span id="skin-name" aria-live="polite"></span></span><button class="chip" type="button" data-skin="classic" aria-pressed="false"></button><button class="chip" type="button" data-skin="purple" aria-pressed="false"></button><button class="chip" type="button" data-skin="neon" aria-pressed="false"></button><button class="chip" type="button" data-skin="arcade" aria-pressed="false"></button><button class="chip" type="button" data-skin="ice" aria-pressed="false"></button><button class="chip" type="button" data-skin="crimson" aria-pressed="false"></button><button class="chip" type="button" data-skin="yellow" aria-pressed="false"></button><button class="chip" type="button" data-skin="gold" aria-pressed="false"></button></div>
+        <div class="row"><span class="k">Screen</span><button class="pill" type="button" data-screen-pick="lcd" data-tag="DOT MATRIX" aria-pressed="false">Pocket LCD</button><button class="pill" type="button" data-screen-pick="crt" data-tag="COLOR CRT" aria-pressed="false">Color CRT</button><button class="pill" type="button" data-screen-pick="trinitron" data-tag="TRINITRON" aria-pressed="false">Trinitron</button><button class="pill" type="button" data-screen-pick="arcade" data-tag="ARCADE" aria-pressed="false">Arcade Monitor</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="block" id="cartridges">
+  <div class="wrap">
+    <h2>12 cartridges</h2>
+    <p class="intro">Each one has its own label, its own sounds, high scores in every mode and a round of the day. Slide one in on the cover screen, then unfold.</p>
+    <ul class="shelf">
+      <li class="cart"><div class="label" style="--lc:#FF6B6B"><div class="g">ARCADE</div><canvas data-art="brick" width="10" height="10" aria-hidden="true"></canvas><h3>Brick Breaker</h3></div>
+        <p>Twelve walls, four power-ups</p></li>
+      <li class="cart"><div class="label" style="--lc:#4ECDC4"><div class="g">RACING</div><canvas data-art="racer" width="10" height="10" aria-hidden="true"></canvas><h3>Retro Racer</h3></div>
+        <p>8-bit highway dodge</p></li>
+      <li class="cart"><div class="label" style="--lc:#45B7D1"><div class="g">ACTION</div><canvas data-art="snake" width="10" height="10" aria-hidden="true"></canvas><h3>Snake</h3></div>
+        <p>Neon grid serpent</p></li>
+      <li class="cart"><div class="label" style="--lc:#F7DC6F"><div class="g">PUZZLE</div><canvas data-art="blocks" width="10" height="10" aria-hidden="true"></canvas><h3>Falling Blocks</h3></div>
+        <p>Block stacking puzzle</p></li>
+      <li class="cart"><div class="label" style="--lc:#C77DFF"><div class="g">SHOOTER</div><canvas data-art="invaders" width="10" height="10" aria-hidden="true"></canvas><h3>Pixel Invaders</h3></div>
+        <p>Hold the line</p></li>
+      <li class="cart"><div class="label" style="--lc:#A8DADC"><div class="g">PUZZLE</div><canvas data-art="mines" width="10" height="10" aria-hidden="true"></canvas><h3>Mine Sweep</h3></div>
+        <p>Flag every mine</p></li>
+      <li class="cart"><div class="label" style="--lc:#FFB703"><div class="g">MAZE</div><canvas data-art="maze" width="10" height="10" aria-hidden="true"></canvas><h3>Maze Muncher</h3></div>
+        <p>Pellets, ghosts, tunnels</p></li>
+      <li class="cart"><div class="label" style="--lc:#80ED99"><div class="g">ACTION</div><canvas data-art="frog" width="10" height="10" aria-hidden="true"></canvas><h3>Frog Hop</h3></div>
+        <p>Cross the road and river</p></li>
+      <li class="cart"><div class="label" style="--lc:#E0E1DD"><div class="g">LANDER</div><canvas data-art="lunar" width="10" height="10" aria-hidden="true"></canvas><h3>Lunar Hinge</h3></div>
+        <p>Fold to fire the thrusters</p><span class="fold">Uses the hinge</span></li>
+      <li class="cart"><div class="label" style="--lc:#F9844A"><div class="g">SPORTS</div><canvas data-art="paddle" width="10" height="10" aria-hidden="true"></canvas><h3>Paddle Duel</h3></div>
+        <p>Table tennis against the machine</p></li>
+      <li class="cart"><div class="label" style="--lc:#6D9DC5"><div class="g">SHOOTER</div><canvas data-art="astro" width="10" height="10" aria-hidden="true"></canvas><h3>Astro Drift</h3></div>
+        <p>Rocks, a ship and a lot of space</p></li>
+      <li class="cart"><div class="label" style="--lc:#F15BB5"><div class="g">TIMING</div><canvas data-art="tower" width="10" height="10" aria-hidden="true"></canvas><h3>Tower Stack</h3></div>
+        <p>Drop it right on top</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="block" id="how">
+  <div class="wrap steps">
+    <div>
+      <h2>Closed, it&#x27;s a shelf. Open, it&#x27;s a console.</h2>
+      <ol>
+        <li><div><h3>Pick a cartridge</h3><p>On the cover screen, swipe through your cartridges and choose one.</p></div></li>
+        <li><div><h3>Unfold</h3><p>Open your iPhone Duo like a clamshell: the game on the top half, the D-pad and buttons on the bottom half.</p></div></li>
+        <li><div><h3>Fold to pause</h3><p>Close it and the game waits for you. Unfold to pick up exactly where you left off.</p></div></li>
+      </ol>
+    </div>
+    <div class="shots">
+      <div class="pair">
+        <figure><img src="../assets/img/cover.webp" width="900" height="619" alt="Closed: the cover screen is your cartridge shelf." loading="lazy"><figcaption>Closed: the cover screen is your cartridge shelf.</figcaption></figure>
+        <figure><img src="../assets/img/open.webp" width="600" height="853" alt="Open: screen above the fold, buttons below." loading="lazy"><figcaption>Open: screen above the fold, buttons below.</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="price">
+  <div class="wrap deal">
+    <div class="sticker" aria-hidden="true"><div><b>1 DAY</b><span>FREE</span></div></div>
+    <div>
+      <h2>Try everything for a day</h2>
+      <p class="intro" style="margin-bottom:0">In the store, start your free day: every cartridge, skin and screen, unlocked for 24 hours. When the day is over, RetroFold Pro keeps it all for one purchase of 2.99&nbsp;€ ($2.99 in the US).</p>
+      <ul><li>No subscription</li><li>No ads</li><li>No account, nothing collected</li><li>8 console skins and 4 screens: Pocket LCD, Color CRT, Trinitron, Arcade Monitor</li></ul>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="support">
+  <div class="wrap">
+    <h2>Support</h2>
+    <div class="faq">
+      <details open><summary>How do I play?</summary><p>Closed: pick a cartridge on the cover screen. Unfold your iPhone Duo like a clamshell: the screen is above the fold, the controls below. Fold it again to pause, unfold to resume.</p></details>
+      <details><summary>How does the free day work?</summary><p>Open the store (the shopping bag) and tap Start under “Free for 1 day”. For 24 hours, everything is unlocked. After that, the cartridges ask for RetroFold Pro.</p></details>
+      <details><summary>How do I get RetroFold Pro back on another iPhone?</summary><p>Open the store and tap Restore Purchases, signed in with the same Apple Account you bought it with.</p></details>
+      <details><summary>Does RetroFold collect anything?</summary><p>No. No account, no ads, no analytics. Your scores, achievements and settings stay on your iPhone. <a href="privacy.html">Privacy</a></p></details>
+    </div>
+    <p class="contact">Questions, ideas, a bug? Write to <a href="mailto:hfreecsapple@gmail.com">hfreecsapple@gmail.com</a></p>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <span class="molded" aria-hidden="true">RETROFOLD</span>
+    <span>Made for iPhone Duo. © 2026</span>
+    <nav aria-label="Footer"><a href="privacy.html">Privacy</a><a href="./#support">Support</a><a href="../fr/" lang="fr">Français</a></nav>
+  </div>
+</footer>
+<script>window.RF_TEXT={"press": "PRESS START", "over": "GAME OVER", "again": "START: AGAIN", "pause": "PAUSE", "score": "SCORE", "hi": "HI"};</script>
+<script src="../assets/rf.js" defer></script>
+</body>
+</html>

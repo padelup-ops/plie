@@ -1,16 +1,149 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RetroFold — Assistance</title><link rel="icon" href="../icon.png"><style>
-:root{--bg:#f2f2f7;--card:#fff;--text:#111;--muted:#6b6b70;--accent:#2f7cf6;--line:#e3e3e8}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1013;--card:#1b1d22;--text:#f2f2f2;--muted:#9a9aa2;--accent:#7fa8ff;--line:#2a2c33}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
-main{max-width:720px;margin:0 auto;padding:40px 20px 60px}
-header{display:flex;align-items:center;gap:14px;margin-bottom:28px}
-header img{width:64px;height:64px;border-radius:15px}
-h1{font-size:28px;margin:0;letter-spacing:-.01em}.sub{color:var(--muted);margin:2px 0 0}
-section{background:var(--card);border-radius:18px;padding:20px 22px;margin:14px 0}
-h2{font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);margin:0 0 8px}
-p{margin:.4em 0}ol,ul{margin:.4em 0;padding-left:1.3em}li{margin:.25em 0}
-a{color:var(--accent)}.lang{color:var(--muted);font-size:15px}footer{color:var(--muted);font-size:14px;margin-top:22px}
-</style></head><body><main>
-<header><img src="../icon.png" alt=""><div><h1>RetroFold</h1><p class="sub">Une console portable des années 90 pour iPhone Duo</p></div></header>
-<section><h2>Comment jouer</h2><ol><li>Fermé : choisis une cartouche sur l’écran extérieur (fais-les défiler).</li><li>Déplie ton iPhone Duo comme une console à clapet : l’écran au-dessus du pli, les commandes en dessous.</li><li>Replie-le pour mettre en pause. Déplie pour reprendre.</li></ol></section><section><h2>Achat</h2><p>Huit cartouches, tous les modes et toutes les palettes sont gratuits. RetroFold Pro est un achat unique, sans abonnement : quatre cartouches de plus, toutes les coques, les packs de sons et les écrans LCD, Trinitron et Arcade. Pour récupérer ton achat : Store → Restore Purchases.</p></section><section><h2>Contact</h2><p>Questions, idées, bugs : <a href="mailto:hfreecsapple@gmail.com">hfreecsapple@gmail.com</a></p></section><footer><a href="privacy.html">Confidentialité</a> · <a href="../en/">English</a></footer></main></body></html>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RetroFold : une console des années 90 pour iPhone Duo</title>
+<meta name="description" content="RetroFold transforme ton iPhone Duo en console portable des années 90 : 12 cartouches rétro, choisies sur l&#x27;écran extérieur et jouées sur le Duo ouvert. Gratuit pendant un jour.">
+<meta name="theme-color" content="#cdcac3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b1b21" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="RetroFold : une console des années 90 pour iPhone Duo">
+<meta property="og:description" content="RetroFold transforme ton iPhone Duo en console portable des années 90 : 12 cartouches rétro, choisies sur l&#x27;écran extérieur et jouées sur le Duo ouvert. Gratuit pendant un jour.">
+<meta property="og:image" content="https://foldly.netlify.app/retrofold/assets/img/og.png">
+<meta name="apple-itunes-app" content="app-id=6836120890">
+<link rel="icon" href="../icon.png">
+<link rel="apple-touch-icon" href="../icon.png">
+<link rel="alternate" hreflang="en" href="../en/">
+<link rel="preload" href="../assets/fonts/Silkscreen-Bold.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="../assets/rf.css">
+</head>
+<body>
+<a class="skip" href="#main">Aller au contenu</a>
+<div class="wrap">
+<header class="bar">
+  <a class="brand" href="./"><img src="../icon.png" alt="" width="40" height="40">RETROFOLD</a>
+  <nav aria-label="Menu">
+    <a class="hide-s" href="./#cartridges">Cartouches</a>
+    <a class="hide-s" href="./#how">Comment on joue</a>
+    <a href="./#support">Assistance</a>
+    <a href="../en/" lang="en">English</a>
+  </nav>
+</header>
+</div>
+<main id="main">
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <h1><span>Déplie.</span><span>Joue.</span></h1>
+      <p class="lede">RetroFold transforme ton iPhone Duo en console portable des années 90. Choisis une cartouche sur l&#x27;écran extérieur, déplie-le comme une console à clapet, et joue : l&#x27;écran en haut, les boutons en bas. Replie-le pour mettre en pause.</p>
+      <div class="buy">
+        <a class="store" href="https://apps.apple.com/app/id6836120890"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 3h2v10.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6zM5 19h14v2H5z"/></svg><span>Télécharger sur l'App Store<small>Téléchargement gratuit</small></span></a>
+        <p class="price"><b>Gratuit pendant un jour entier.</b> Ensuite RetroFold Pro, un seul achat : 2,99&nbsp;€.</p>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="console" data-screen="lcd" tabindex="0" role="application" aria-label="Démo jouable : Snake. Sélectionne la console, appuie sur Entrée pour commencer, flèches pour diriger.">
+        <div class="bezel"><span class="led"></span><span class="tag">POWER</span><span class="mode">DOT MATRIX</span>
+          <div class="screen"><canvas width="192" height="128"></canvas></div><div class="score"></div></div>
+        <div class="logo"><i></i>RETROFOLD</div>
+        <div class="dpad"><button type="button" class="u" data-d="u" aria-label="Up"></button><button type="button" class="l" data-d="l" aria-label="Left"></button><span class="c"></span><button type="button" class="r" data-d="r" aria-label="Right"></button><button type="button" class="d" data-d="d" aria-label="Down"></button></div>
+        <div class="ab"><button type="button" class="b" data-start aria-label="B"></button><button type="button" class="a" data-start aria-label="A"></button><span class="lb">B</span><span class="la">A</span></div>
+        <div class="ss"><button type="button" data-start aria-label="Select"><span>SELECT</span></button><button type="button" data-start aria-label="Start"><span>START</span></button></div>
+        <div class="grille"></div>
+      </div>
+      <div class="pickers">
+        <p class="hint">Celle-ci marche. Appuie sur <kbd>START</kbd>, puis dirige avec les flèches du clavier, la croix ou en glissant sur l'écran.</p>
+        <div class="row"><span class="k">Coque: <span id="skin-name" aria-live="polite"></span></span><button class="chip" type="button" data-skin="classic" aria-pressed="false"></button><button class="chip" type="button" data-skin="purple" aria-pressed="false"></button><button class="chip" type="button" data-skin="neon" aria-pressed="false"></button><button class="chip" type="button" data-skin="arcade" aria-pressed="false"></button><button class="chip" type="button" data-skin="ice" aria-pressed="false"></button><button class="chip" type="button" data-skin="crimson" aria-pressed="false"></button><button class="chip" type="button" data-skin="yellow" aria-pressed="false"></button><button class="chip" type="button" data-skin="gold" aria-pressed="false"></button></div>
+        <div class="row"><span class="k">Écran</span><button class="pill" type="button" data-screen-pick="lcd" data-tag="DOT MATRIX" aria-pressed="false">LCD de poche</button><button class="pill" type="button" data-screen-pick="crt" data-tag="COLOR CRT" aria-pressed="false">Cathodique couleur</button><button class="pill" type="button" data-screen-pick="trinitron" data-tag="TRINITRON" aria-pressed="false">Trinitron</button><button class="pill" type="button" data-screen-pick="arcade" data-tag="ARCADE" aria-pressed="false">Moniteur d&#x27;arcade</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="block" id="cartridges">
+  <div class="wrap">
+    <h2>12 cartouches</h2>
+    <p class="intro">Chacune a son étiquette, ses sons, ses records dans chaque mode et sa partie du jour. Glisse-la sur l&#x27;écran extérieur, puis déplie.</p>
+    <ul class="shelf">
+      <li class="cart"><div class="label" style="--lc:#FF6B6B"><div class="g">ARCADE</div><canvas data-art="brick" width="10" height="10" aria-hidden="true"></canvas><h3>Brick Breaker</h3></div>
+        <p>Douze murs, quatre bonus</p></li>
+      <li class="cart"><div class="label" style="--lc:#4ECDC4"><div class="g">COURSE</div><canvas data-art="racer" width="10" height="10" aria-hidden="true"></canvas><h3>Retro Racer</h3></div>
+        <p>Slalom sur l&#x27;autoroute 8 bits</p></li>
+      <li class="cart"><div class="label" style="--lc:#45B7D1"><div class="g">ACTION</div><canvas data-art="snake" width="10" height="10" aria-hidden="true"></canvas><h3>Snake</h3></div>
+        <p>Le serpent de la grille néon</p></li>
+      <li class="cart"><div class="label" style="--lc:#F7DC6F"><div class="g">PUZZLE</div><canvas data-art="blocks" width="10" height="10" aria-hidden="true"></canvas><h3>Falling Blocks</h3></div>
+        <p>Empile les blocs, efface les lignes</p></li>
+      <li class="cart"><div class="label" style="--lc:#C77DFF"><div class="g">TIR</div><canvas data-art="invaders" width="10" height="10" aria-hidden="true"></canvas><h3>Pixel Invaders</h3></div>
+        <p>Tiens la ligne</p></li>
+      <li class="cart"><div class="label" style="--lc:#A8DADC"><div class="g">PUZZLE</div><canvas data-art="mines" width="10" height="10" aria-hidden="true"></canvas><h3>Mine Sweep</h3></div>
+        <p>Trouve toutes les mines</p></li>
+      <li class="cart"><div class="label" style="--lc:#FFB703"><div class="g">LABYRINTHE</div><canvas data-art="maze" width="10" height="10" aria-hidden="true"></canvas><h3>Maze Muncher</h3></div>
+        <p>Pastilles, fantômes, tunnels</p></li>
+      <li class="cart"><div class="label" style="--lc:#80ED99"><div class="g">ACTION</div><canvas data-art="frog" width="10" height="10" aria-hidden="true"></canvas><h3>Frog Hop</h3></div>
+        <p>Traverse la route et la rivière</p></li>
+      <li class="cart"><div class="label" style="--lc:#E0E1DD"><div class="g">ALUNISSAGE</div><canvas data-art="lunar" width="10" height="10" aria-hidden="true"></canvas><h3>Lunar Hinge</h3></div>
+        <p>Plie pour allumer les moteurs</p><span class="fold">Se joue avec la charnière</span></li>
+      <li class="cart"><div class="label" style="--lc:#F9844A"><div class="g">SPORT</div><canvas data-art="paddle" width="10" height="10" aria-hidden="true"></canvas><h3>Paddle Duel</h3></div>
+        <p>Ping-pong contre la machine</p></li>
+      <li class="cart"><div class="label" style="--lc:#6D9DC5"><div class="g">TIR</div><canvas data-art="astro" width="10" height="10" aria-hidden="true"></canvas><h3>Astro Drift</h3></div>
+        <p>Des rochers, un vaisseau, beaucoup d&#x27;espace</p></li>
+      <li class="cart"><div class="label" style="--lc:#F15BB5"><div class="g">TIMING</div><canvas data-art="tower" width="10" height="10" aria-hidden="true"></canvas><h3>Tower Stack</h3></div>
+        <p>Lâche-le pile dessus</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="block" id="how">
+  <div class="wrap steps">
+    <div>
+      <h2>Fermé, c&#x27;est une étagère. Ouvert, c&#x27;est une console.</h2>
+      <ol>
+        <li><div><h3>Choisis une cartouche</h3><p>Sur l&#x27;écran extérieur, fais défiler tes cartouches et choisis-en une.</p></div></li>
+        <li><div><h3>Déplie</h3><p>Ouvre ton iPhone Duo comme une console à clapet : le jeu sur la moitié du haut, la croix et les boutons sur celle du bas.</p></div></li>
+        <li><div><h3>Replie pour faire pause</h3><p>Ferme-le et la partie t&#x27;attend. Déplie pour reprendre exactement là où tu t&#x27;étais arrêté.</p></div></li>
+      </ol>
+    </div>
+    <div class="shots">
+      <div class="pair">
+        <figure><img src="../assets/img/cover.webp" width="900" height="619" alt="Fermé : l&#x27;écran extérieur est ton étagère à cartouches." loading="lazy"><figcaption>Fermé : l&#x27;écran extérieur est ton étagère à cartouches.</figcaption></figure>
+        <figure><img src="../assets/img/open.webp" width="600" height="853" alt="Ouvert : l&#x27;écran au-dessus de la charnière, les boutons en dessous." loading="lazy"><figcaption>Ouvert : l&#x27;écran au-dessus de la charnière, les boutons en dessous.</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="price">
+  <div class="wrap deal">
+    <div class="sticker" aria-hidden="true"><div><b>1 JOUR</b><span>OFFERT</span></div></div>
+    <div>
+      <h2>Essaie tout pendant un jour</h2>
+      <p class="intro" style="margin-bottom:0">Dans la boutique, lance ton jour gratuit : toutes les cartouches, coques et écrans, débloqués pendant 24 heures. Ensuite, RetroFold Pro garde tout pour un seul achat de 2,99&nbsp;€.</p>
+      <ul><li>Pas d&#x27;abonnement</li><li>Pas de pub</li><li>Pas de compte, rien n&#x27;est collecté</li><li>8 coques et 4 écrans : LCD de poche, cathodique couleur, Trinitron, moniteur d&#x27;arcade</li></ul>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="support">
+  <div class="wrap">
+    <h2>Assistance</h2>
+    <div class="faq">
+      <details open><summary>Comment on joue ?</summary><p>Fermé : choisis une cartouche sur l'écran extérieur. Déplie ton iPhone Duo comme une console à clapet : l'écran au-dessus de la charnière, les commandes en dessous. Replie-le pour faire pause, déplie pour reprendre.</p></details>
+      <details><summary>Comment marche le jour gratuit ?</summary><p>Ouvre la boutique (le sac) et touche Start sous « Free for 1 day ». Pendant 24 heures, tout est débloqué. Ensuite, les cartouches demandent RetroFold Pro.</p></details>
+      <details><summary>Comment récupérer RetroFold Pro sur un autre iPhone ?</summary><p>Ouvre la boutique et touche Restore Purchases, avec le même compte Apple que pour l'achat.</p></details>
+      <details><summary>RetroFold collecte-t-il des données ?</summary><p>Non. Pas de compte, pas de pub, pas de statistiques. Tes scores, succès et réglages restent sur ton iPhone. <a href="privacy.html">Confidentialité</a></p></details>
+    </div>
+    <p class="contact">Une question, une idée, un bug ? Écris à <a href="mailto:hfreecsapple@gmail.com">hfreecsapple@gmail.com</a></p>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <span class="molded" aria-hidden="true">RETROFOLD</span>
+    <span>Fait pour l'iPhone Duo. © 2026</span>
+    <nav aria-label="Footer"><a href="privacy.html">Confidentialité</a><a href="./#support">Assistance</a><a href="../en/" lang="en">English</a></nav>
+  </div>
+</footer>
+<script>window.RF_TEXT={"press": "APPUIE SUR START", "over": "PERDU", "again": "START : REJOUER", "pause": "PAUSE", "score": "SCORE", "hi": "RECORD"};</script>
+<script src="../assets/rf.js" defer></script>
+</body>
+</html>
