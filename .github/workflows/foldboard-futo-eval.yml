@@ -1,0 +1,42 @@
+# FOLDBOARD : mesure les modèles FUTO Swipe (licence FUTO Model Weights 1.0) sur de vrais swipes, avec nos listes de mots.
+# À comparer avec le banc d'essai du clavier (foldboard-bench.yml, lignes vrais_swipes).
+name: Foldboard - Essai FUTO Swipe
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Swipes par langue"
+        required: false
+        default: "1500"
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - name: Installer
+        run: |
+          python3 -m pip install -q --upgrade pip
+          python3 -m pip install -q executorch numpy huggingface_hub 2>&1 | tail -3
+          python3 -c "import executorch, torch; print('executorch', executorch.__version__ if hasattr(executorch,'__version__') else '?', 'torch', torch.__version__)"
+      - name: Modèles et données
+        run: |
+          mkdir -p work && cd work
+          python3 - <<'EOF'
+          from huggingface_hub import list_repo_files, hf_hub_download
+          files = list_repo_files("futo-org/futo-swipe")
+          print("\n".join(files))
+          for f in files:
+              if f.endswith((".pte", ".md", ".json", ".txt")) and "fp32" in f or f.endswith((".md", ".json", ".txt")):
+                  hf_hub_download("futo-org/futo-swipe", f, local_dir=".")
+          EOF
+          git fetch -q origin ci-swipedata
+          for f in test-en-qwerty.jsonl s5-fr-azerty.jsonl qwerty.json azerty.json; do git show origin/ci-swipedata:$f > $f; done
+          cp ../foldboard/Shared/words-en.txt ../foldboard/Shared/words-fr.txt .
+          find . -name "*.pte" | xargs ls -la
+      - name: Mesurer
+        run: |
+          cd work
+          M=$(find . -path "*honorable_sturgeon*" -name "*fp32*.pte" | head -1)
+          echo "== anglais"; python3 ../foldboard/tools/swipe/futo_eval.py "$M" test-en-qwerty.jsonl qwerty.json words-en.txt ${{ inputs.limit }}
+          echo "== français"; python3 ../foldboard/tools/swipe/futo_eval.py "$M" s5-fr-azerty.jsonl azerty.json words-fr.txt ${{ inputs.limit }}
