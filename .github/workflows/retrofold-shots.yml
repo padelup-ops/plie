@@ -13,6 +13,10 @@ on:
         description: "Secondes de jeu avant chaque capture"
         required: false
         default: "9"
+      pose:
+        description: "open (écran intérieur) ou close (écran extérieur)"
+        required: false
+        default: "open"
 
 jobs:
   shots:
@@ -55,6 +59,11 @@ jobs:
           grep -q "BUILD SUCCEEDED" shots/build.log
           APP=$(find build -name "RetroCartridge.app" -path "*iphonesimulator*" | head -1)
           xcrun simctl install "$UDID" "$APP"
+          # Plier ou déplier le simulateur (outil libre duo-hinge, récupéré au moment du job, jamais copié dans le dépôt)
+          git clone -q --depth 1 https://github.com/BugenZhao/duo-hinge-skill "$RUNNER_TEMP/hinge"
+          DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" ${{ inputs.pose }} 2>&1 | tail -3 | tee -a shots/simulateur.txt || true
+          sleep 3
+          DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" status 2>&1 | tail -5 | tee -a shots/simulateur.txt || true
       - name: Capturer
         run: |
           BID=com.padelup.retrofold
@@ -64,8 +73,7 @@ jobs:
             xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
             xcrun simctl launch "$UDID" "$BID" -AppleLanguages "(en)" -shot "$R" > /dev/null 2>&1 || true
             sleep ${{ inputs.wait }}
-            xcrun simctl io "$UDID" screenshot --display=1 --mask=black "shots/$(printf %02d $N)-$R.png" 2>>shots/erreurs-captures.txt || true
-            if [ $N -eq 1 ]; then xcrun simctl io "$UDID" screenshot --display=0 --mask=black "shots/00-ecran0.png" 2>>shots/erreurs-captures.txt || true; fi
+            for D in 0 1; do xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$(printf %02d $N)-$R-d$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true; done
           done
           ls -la shots
       - name: Publier
