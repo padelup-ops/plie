@@ -33,6 +33,8 @@ on:
       - ".github/workflows/waffle-*.yml"
       - "foldboard/**"
       - ".github/workflows/foldboard-*.yml"
+      - "foldwidgets/**"
+      - ".github/workflows/foldwidgets-*.yml"
   workflow_dispatch:
 
 concurrency:
