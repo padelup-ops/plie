@@ -17,6 +17,10 @@ on:
         description: "open (écran intérieur) ou close (écran extérieur)"
         required: false
         default: "open"
+      orient:
+        description: "portrait = tourne le simulateur en portrait avant les captures (app Simulator + raccourci ⌘←)"
+        required: false
+        default: ""
       resize:
         description: "Taille en points pour le mode redimensionnable (ex. 669x951 : l'écran intérieur tenu en portrait) ; vide = captures normales"
         required: false
@@ -68,6 +72,18 @@ jobs:
           DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" ${{ inputs.pose }} 2>&1 | tail -3 | tee -a shots/simulateur.txt || true
           sleep 3
           DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" status 2>&1 | tail -5 | tee -a shots/simulateur.txt || true
+      - name: Orientation
+        if: inputs.orient != ''
+        run: |
+          open -a Simulator --args -CurrentDeviceUDID "$UDID" || true
+          sleep 10
+          for i in 1 2 3 4 5; do
+            O=$(xcrun devicectl device info displays --device "$UDID" 2>/dev/null | grep -o 'Main display orientation: [a-zA-Z]*' | awk '{print $4}')
+            echo "essai $i : orientation $O" | tee -a shots/simulateur.txt
+            [ "$O" = "${{ inputs.orient }}" ] && break
+            osascript -e 'tell application "Simulator" to activate' -e 'delay 1' -e 'tell application "System Events" to key code 123 using command down' 2>&1 | tee -a shots/simulateur.txt || true
+            sleep 4
+          done
       - name: Capturer
         run: |
           BID=com.padelup.retrofold
