@@ -44,13 +44,6 @@ struct RecordsView: View {
                 }
                 .buttonStyle(CartridgePressStyle())
                 .padding(.top, 4)
-
-                // Licence MIT : RetroFold reprend le code libre de Foldcade, d'Eren Ergeç.
-                Text(verbatim: "Based on Foldcade by Eren Ergeç · MIT License")
-                    .font(.footnote)
-                    .foregroundStyle(menuTheme.accent.opacity(0.55))
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 2)
             }
         }
     }

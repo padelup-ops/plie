@@ -40,6 +40,7 @@
 		7A1C0DE5F00D000000000A01 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7A1C0DE5F00D000000000A02 /* PrivacyInfo.xcprivacy */; };
 		7A1C0DE5F00D000000000B01 /* Silkscreen-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A1C0DE5F00D000000000B02 /* Silkscreen-Regular.ttf */; };
 		7A1C0DE5F00D000000000B03 /* Silkscreen-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7A1C0DE5F00D000000000B04 /* Silkscreen-OFL.txt */; };
+		7A1C0DE5F00D000000000C03 /* MIT-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7A1C0DE5F00D000000000C04 /* MIT-LICENSE.txt */; };
 		7A1C0DE5F00D000000000B05 /* Silkscreen-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A1C0DE5F00D000000000B06 /* Silkscreen-Bold.ttf */; };
 		7A7D41FBA09DA948C8CAA7C9 /* CRTView.metal in Sources */ = {isa = PBXBuildFile; fileRef = 10FBB5F77ED593D2B7C8320B /* CRTView.metal */; };
 		8211547AA7CA87F1BB4BFB57 /* MazeMuncherGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7755234F58958A63BBC40B /* MazeMuncherGame.swift */; };
@@ -116,6 +117,7 @@
 		7A1C0DE5F00D000000000A02 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7A1C0DE5F00D000000000B02 /* Silkscreen-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Silkscreen-Regular.ttf"; sourceTree = "<group>"; };
 		7A1C0DE5F00D000000000B04 /* Silkscreen-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Silkscreen-OFL.txt"; sourceTree = "<group>"; };
+		7A1C0DE5F00D000000000C04 /* MIT-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "MIT-LICENSE.txt"; sourceTree = "<group>"; };
 		7A1C0DE5F00D000000000B06 /* Silkscreen-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Silkscreen-Bold.ttf"; sourceTree = "<group>"; };
 		7B24F398684A7E6056EB5816 /* MineSweepGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MineSweepGame.swift; sourceTree = "<group>"; };
 		7B5935D4B827FAE24E833944 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 				7A1C0DE5F00D000000000B02 /* Silkscreen-Regular.ttf */,
 				7A1C0DE5F00D000000000B06 /* Silkscreen-Bold.ttf */,
 				7A1C0DE5F00D000000000B04 /* Silkscreen-OFL.txt */,
+				7A1C0DE5F00D000000000C04 /* MIT-LICENSE.txt */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -528,6 +531,7 @@
 				7A1C0DE5F00D000000000B01 /* Silkscreen-Regular.ttf in Resources */,
 				7A1C0DE5F00D000000000B05 /* Silkscreen-Bold.ttf in Resources */,
 				7A1C0DE5F00D000000000B03 /* Silkscreen-OFL.txt in Resources */,
+				7A1C0DE5F00D000000000C03 /* MIT-LICENSE.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
