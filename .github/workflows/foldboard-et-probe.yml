@@ -1,0 +1,48 @@
+# FOLDBOARD : peut-on faire tourner les modèles FUTO Swipe (.pte) dans le clavier iPhone avec ExecuTorch ?
+# Étape 1 : trouver le paquet Swift d'ExecuTorch, ses frameworks et leur API.
+name: Foldboard - Sonde ExecuTorch
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branche swiftpm d'ExecuTorch (vide = la plus récente)"
+        required: false
+        default: ""
+jobs:
+  probe:
+    runs-on: xcode-27
+    timeout-minutes: 40
+    steps:
+      - name: Paquet Swift
+        run: |
+          mkdir -p et && cd et
+          git ls-remote https://github.com/pytorch/executorch 'refs/heads/swiftpm-*' | awk '{print $2}' | sed 's#refs/heads/##' | sort -V | tail -6 | tee branches.txt
+          B="${{ inputs.branch }}"; [ -z "$B" ] && B=$(tail -1 branches.txt)
+          echo "BRANCH=$B" >> "$GITHUB_ENV"
+          curl -sL "https://raw.githubusercontent.com/pytorch/executorch/$B/Package.swift" > Package.swift
+          wc -l Package.swift; grep -nE "url:|name:|checksum|binaryTarget|linkerSettings|unsafeFlags|\.library" Package.swift | head -80
+      - name: Frameworks
+        run: |
+          cd et
+          python3 - <<'EOF'
+          import re, subprocess
+          s = open('Package.swift').read()
+          urls = re.findall(r'"(https://[^"]+\.zip)"', s)
+          print(len(urls), 'zips')
+          for u in urls:
+              n = u.rsplit('/', 1)[-1]
+              if any(k in n for k in ('executorch', 'xnnpack', 'kernels_optimized', 'kernels_portable', 'threadpool', 'kernels_quantized')):
+                  print('get', u)
+                  subprocess.run(['curl', '-sL', '-o', n, u], check=False)
+          EOF
+          for z in *.zip; do unzip -q -o "$z" -d fw; done
+          ls fw; du -sh fw/* | head -20
+          find fw -name "*.h" | grep -iE "module|tensor|value|ExecuTorch\.h" | head -20
+          for h in $(find fw -path "*ios-arm64-simulator*" -name "*.h" | grep -iE "Module\.h|Tensor\.h|Value\.h" | head -6); do echo "== $h"; grep -nE "NS_SWIFT_NAME|^- \(|^\+ \(|@interface|initWith" "$h" | head -40; done
+          find fw -name "*.swiftinterface" | head; for f in $(find fw -path "*simulator*" -name "*.swiftinterface" | head -2); do echo "== $f"; grep -nE "public (func|init|class|struct|enum|convenience)" "$f" | head -60; done
+      - name: Modèle
+        run: |
+          cd et
+          curl -sL -o enc32.pte https://huggingface.co/futo-org/futo-swipe/resolve/main/honorable_sturgeon/model_fp32.pte
+          curl -sL -o enc8.pte https://huggingface.co/futo-org/futo-swipe/resolve/main/honorable_sturgeon/model_int8.pte
+          ls -la *.pte; for f in *.pte; do echo "== $f"; strings "$f" | grep -iE "xnnpack|backend|aten::|_ops\." | sort | uniq -c | sort -rn | head -25; done
