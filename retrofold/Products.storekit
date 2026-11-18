@@ -1,0 +1,38 @@
+{
+  "identifier" : "5E7A1C2B",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "7.99",
+      "familyShareable" : false,
+      "internalID" : "6740000003",
+      "localizations" : [
+        {
+          "description" : "Every cartridge, skin, sound pack and screen mode.",
+          "displayName" : "RetroFold Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.padelup.retrofold.pro",
+      "referenceName" : "RetroFold Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
