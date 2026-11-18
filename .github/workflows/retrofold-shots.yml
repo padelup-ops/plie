@@ -1,0 +1,81 @@
+# RETROFOLD : captures sur le simulateur iPhone Duo (écran intérieur et extérieur), pour la fiche App Store.
+# L'app est lancée avec « -shot jeu,coque,écran » (voir ShotMode dans AppState.swift).
+name: RetroFold - captures
+
+on:
+  workflow_dispatch:
+    inputs:
+      routes:
+        description: "Captures (séparées par des espaces)"
+        required: false
+        default: "brickbreaker,classicgrey,crt fallingblocks,cyberpunkneon,trinitron pixelinvaders,atomicpurple,arcade snake,electricyellow,lcd mazemuncher,arcadecabinet,crt astrodrift,clearice,crt library,goldedition store"
+      wait:
+        description: "Secondes de jeu avant chaque capture"
+        required: false
+        default: "9"
+
+jobs:
+  shots:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+      - name: Compiler et installer sur le simulateur Duo
+        run: |
+          mkdir -p shots
+          find_runtime() {
+            xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes']
+                if r.get('platform') == 'iOS' and r.get('isAvailable')
+                and any('Duo' in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
+          print(rs[-1]['identifier'] if rs else '')"
+          }
+          RUNTIME=$(find_runtime)
+          if [ -z "$RUNTIME" ]; then xcodebuild -downloadPlatform iOS 2>&1 | tail -3; RUNTIME=$(find_runtime); fi
+          DT=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Duo' in x['name']]
+          print(d[0]['identifier'] if d else '')")
+          echo "runtime=$RUNTIME device=$DT" | tee shots/simulateur.txt
+          UDID=$(xcrun simctl create "RetroFold Duo" "$DT" "$RUNTIME")
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+          set -o pipefail
+          xcodebuild build -project retrofold/RetroCartridge.xcodeproj -scheme RetroCartridge -configuration Debug -sdk iphonesimulator \
+            -destination "id=$UDID" -derivedDataPath build CODE_SIGNING_ALLOWED=NO 2>&1 | tee shots/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -n -E "error:" shots/build.log | head -60 > shots/erreurs.txt || true
+          grep -q "BUILD SUCCEEDED" shots/build.log
+          APP=$(find build -name "RetroCartridge.app" -path "*iphonesimulator*" | head -1)
+          xcrun simctl install "$UDID" "$APP"
+      - name: Capturer
+        run: |
+          BID=com.padelup.retrofold
+          N=0
+          for R in ${{ inputs.routes }}; do
+            N=$((N+1))
+            xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+            xcrun simctl launch "$UDID" "$BID" -AppleLanguages "(en)" -shot "$R" > /dev/null 2>&1 || true
+            sleep ${{ inputs.wait }}
+            xcrun simctl io "$UDID" screenshot --display=1 --mask=black "shots/$(printf %02d $N)-$R.png" 2>>shots/erreurs-captures.txt || true
+            if [ $N -eq 1 ]; then xcrun simctl io "$UDID" screenshot --display=0 --mask=black "shots/00-ecran0.png" 2>>shots/erreurs-captures.txt || true; fi
+          done
+          ls -la shots
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p shots && cd shots
+          git init -q -b ci-retrofold-shots
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Captures RetroFold"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-retrofold-shots

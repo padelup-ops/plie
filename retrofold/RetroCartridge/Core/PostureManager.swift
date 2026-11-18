@@ -41,6 +41,9 @@ enum DuoDisplay: Equatable {
     case inner
     
     init(size: CGSize) {
-        self = min(size.width, size.height) < 600 ? .outer : .inner
+        // L'écran extérieur du Duo est petit et presque carré (≈ 466 × 678 pt, rapport 1,45). Un iPhone
+        // classique est long et fin (rapport ≈ 2,2) : il prend la console entière, jouable sans charnière.
+        let short = min(size.width, size.height), long = max(size.width, size.height)
+        self = short < 600 && long / max(short, 1) < 1.75 ? .outer : .inner
     }
 }

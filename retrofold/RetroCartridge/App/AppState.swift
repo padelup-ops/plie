@@ -27,6 +27,9 @@ final class AppState {
     
     /// The currently active game instance (nil when on menu/cover screen).
     var activeGame: (any PixelGameProtocol)? = nil
+
+    /// Captures pour l'App Store seulement (« -shot ») : joue la partie toute seule.
+    var shotPilot: AttractPilot? = nil
     
     /// Whether a game session is currently in progress.
     var isGameActive: Bool {
@@ -314,4 +317,42 @@ final class AppState {
     func pauseActiveGame() {
         activeGame?.pause()
     }
+}
+
+
+// MARK: - Captures pour l'App Store
+
+/// Lancé avec « -shot jeu,coque,écran » (ex. « snake,classicgrey,lcd », « library », « store »), l'app se met
+/// dans l'état voulu pour une capture : jamais dans l'usage normal, personne ne lance l'app ainsi.
+enum ShotMode {
+    static var shot: String? { UserDefaults.standard.string(forKey: "shot") }
+
+    /// Tout est débloqué pour les captures, sauf celle de la boutique (qui montre l'achat).
+    static var unlockAll: Bool {
+        guard let shot else { return false }
+        return !shot.hasPrefix("store")
+    }
+
+    static func apply(_ shot: String, appState: AppState) {
+        let parts = shot.split(separator: ",").map(String.init)
+        appState.hasSeenIntro = true
+        appState.isIntroVisible = false
+        if parts.count > 1, let skin = ConsoleSkinType.allCases.first(where: { key($0.rawValue) == key(parts[1]) }) {
+            appState.selectedSkin = skin
+        }
+        if parts.count > 2, let mode = ScreenMode(rawValue: parts[2]) {
+            appState.screenSettings = ScreenSettings(mode: mode)
+        }
+        if parts.first == "store" {
+            appState.isStoreVisible = true
+            return
+        }
+        guard let first = parts.first, let game = GameType.allCases.first(where: { key($0.rawValue) == key(first) }) else { return }
+        let pilot = AttractPilot(type: game)
+        appState.shotPilot = pilot
+        appState.selectedGameType = game
+        appState.startGame(pilot.game)
+    }
+
+    private static func key(_ s: String) -> String { s.lowercased().filter { $0.isLetter } }
 }

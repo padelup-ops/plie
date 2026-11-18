@@ -128,7 +128,7 @@ final class StoreManager {
     }
 
     func isPurchased(_ productID: String) -> Bool {
-        return purchasedProductIDs.contains(productID)
+        return ShotMode.unlockAll || purchasedProductIDs.contains(productID)
     }
 
     func isUnlocked(_ skinType: ConsoleSkinType) -> Bool {

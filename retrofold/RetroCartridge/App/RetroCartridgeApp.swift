@@ -147,5 +147,8 @@ struct RootView: View {
 
         // Play startup chime
         audioManager.playStartupChime()
+
+        // Captures pour l'App Store (« -shot »)
+        if let shot = ShotMode.shot { ShotMode.apply(shot, appState: appState) }
     }
 }
