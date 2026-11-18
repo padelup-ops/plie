@@ -9,7 +9,7 @@ import Foundation
 
 /// Central registry of all IAP product identifiers.
 enum ProductIdentifiers {
-    /// RetroFold Pro — $7.99, the one purchase.
+    /// RetroFold Pro — $2.99, the one purchase.
     /// Unlocks every paid item: the Maze Muncher, Frog Hop, Astro Drift and
     /// Lunar Hinge cartridges, every skin but Classic Grey, the Pocket,
     /// Arcade and Mellow sound packs, every screen mode but Color CRT, and
@@ -45,7 +45,7 @@ enum ProductIdentifiers {
     /// Price shown when the StoreKit product couldn't be loaded.
     static func fallbackDisplayPrice(for productID: String) -> String {
         switch productID {
-        case pro: return "$7.99"
+        case pro: return "$2.99"
         default: return "—"
         }
     }
