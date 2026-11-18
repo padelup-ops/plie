@@ -1,0 +1,15 @@
+ok     identifiant déjà là : com.padelup.foldwidgets
+ok     identifiant déjà là : com.padelup.foldwidgets.widget
+== com.padelup.foldwidgets
+ok     App Groups déjà actif : 626PQT3SQ3
+CAP {"settings": null, "capabilityType": "APP_GROUPS"}
+== com.padelup.foldwidgets.widget
+ok     App Groups déjà actif : DX638K4999
+CAP {"settings": null, "capabilityType": "APP_GROUPS"}
+CERT DISTRIBUTION | PADELUP (FR) | 2027-08-14 | UHPC7B54F8
+CERT DISTRIBUTION | PADELUP (FR) | 2027-08-14 | W5A852QFU9
+CERT IOS_DISTRIBUTION | PADELUP (FR) | 2027-04-15 | YFZ4A62RC6
+ok     profil installé FW com.padelup.foldwidgets | 4b0b7fdd-af9e-457e-a7a3-94c1ccb4949e | groupe oui
+ok     profil installé FW com.padelup.foldwidgets.widget | 6e83ec7f-8bae-49eb-a51f-4d6cb0a26e63 | groupe oui
+FICHE  ok 6836207612
+ok     groupe interne créé
