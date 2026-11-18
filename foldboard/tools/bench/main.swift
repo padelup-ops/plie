@@ -402,6 +402,60 @@ func autoTypos(_ L: Lang, tag: String) {
     }
 }
 
+/// Vrais swipes (jeu de données FUTO swipe.futo.org, licence MIT) : des tracés de vraies personnes sur téléphone,
+/// en anglais (QWERTY) et en français (AZERTY). Coordonnées entre 0 et 1 sur le clavier ; touches dans `layout`.
+/// On mesure le mot proposé en premier (top 1) et dans les 4 propositions (top 4), sur tous les mots et sur ceux
+/// de notre liste (les autres ne peuvent pas sortir : noms propres, mots rares de Wikipédia).
+func realSwipes(_ L: Lang, file: String, layout: String, tag: String, limit: Int = 2000) {
+    guard let fu = Bundle.main.url(forResource: file, withExtension: "jsonl"), let text = try? String(contentsOf: fu, encoding: .utf8),
+          let lu = Bundle.main.url(forResource: layout, withExtension: "json"), let ld = try? Data(contentsOf: lu),
+          let lj = try? JSONSerialization.jsonObject(with: ld) as? [String: Any], let keys = lj["keys"] as? [[String: Any]] else {
+        print("RESULT \(tag) \(L.code) vrais_swipes absent (\(file))"); return
+    }
+    let s = KBSuggest()
+    s.setLayout(L.layout)
+    var vocab = Set<String>()
+    if let url = Bundle.main.url(forResource: "words-" + L.code, withExtension: "txt"), let t = try? String(contentsOf: url, encoding: .utf8) {
+        for w in t.split(separator: "\n") { vocab.insert(fold(String(w))) }
+    }
+    var n = 0, t1 = 0, t4 = 0, inN = 0, in1 = 0, in4 = 0, ms = 0.0, msMax = 0.0
+    var miss: [String] = []
+    for line in text.split(separator: "\n") {
+        guard n < limit, let d = try? JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any],
+              let w = d["w"] as? String, let p = d["p"] as? [[Double]], p.count >= 2,
+              let cw = (d["cw"] as? Double) ?? (d["cw"] as? Int).map(Double.init),
+              let ch = (d["ch"] as? Double) ?? (d["ch"] as? Int).map(Double.init) else { continue }
+        let target = fold(w.trimmingCharacters(in: .punctuationCharacters))
+        guard target.count >= 2, target.allSatisfy({ $0.isLetter }) else { continue }
+        var cen: [Character: [CGPoint]] = [:]
+        var kw = 0.0, kh = 0.0
+        for k in keys {
+            guard let l = (k["letter"] as? String)?.first, let cx = k["cx"] as? Double, let cy = k["cy"] as? Double else { continue }
+            cen[Character(fold(String(l))), default: []].append(CGPoint(x: cx * cw, y: cy * ch))
+            if let rx = k["rx"] as? Double, let ry = k["ry"] as? Double { kw = 2 * rx * cw; kh = 2 * ry * ch }
+        }
+        guard kw > 0, kh > 0 else { continue }
+        let pts = p.map { CGPoint(x: $0[0] * cw, y: $0[1] * ch) }
+        let tm = KBTouchModel(points: [], centers: cen, keyW: CGFloat(kw), keyH: CGFloat(kh))
+        let before = (d["b"] as? String) ?? ""
+        let tg = Date()
+        let out = s.glide(pts, touch: tm, before: before, limit: 4).map(fold)
+        let dt = Date().timeIntervalSince(tg)
+        n += 1; ms += dt; if n > 5 { msMax = max(msMax, dt) }
+        let inside = vocab.contains(target)
+        if inside { inN += 1 }
+        if out.first == target { t1 += 1; if inside { in1 += 1 } } else if inside && miss.count < 25 { miss.append("\(target)→\(out.first ?? "-")") }
+        if out.contains(target) { t4 += 1; if inside { in4 += 1 } }
+    }
+    func pc(_ a: Int, _ b: Int) -> String { b == 0 ? "-" : String(format: "%.1f %%", 100 * Double(a) / Double(b)) }
+    print("RESULT \(tag) \(L.code) vrais_swipes_top1 \(pc(t1, n)) (sur \(n), \(file))")
+    print("RESULT \(tag) \(L.code) vrais_swipes_top4 \(pc(t4, n))")
+    print("RESULT \(tag) \(L.code) vrais_swipes_connus_top1 \(pc(in1, inN)) (sur \(inN) mots de la liste)")
+    print("RESULT \(tag) \(L.code) vrais_swipes_connus_top4 \(pc(in4, inN))")
+    print("RESULT \(tag) \(L.code) vrais_swipes_ms_moy \(String(format: "%.1f", 1000 * ms / Double(max(1, n)))) max \(String(format: "%.0f", 1000 * msMax))")
+    if tag == "best" { print("vrais swipes ratés \(L.code):", miss.joined(separator: ", ")) }
+}
+
 let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
@@ -427,5 +481,7 @@ for (tag, cfg) in configs {
     autoTypos(en, tag: tag)
     run(fr, tag: tag)
     run(en, tag: tag)
+    realSwipes(en, file: "test-en-qwerty", layout: "qwerty", tag: tag)
+    realSwipes(fr, file: "s5-fr-azerty", layout: "azerty", tag: tag)
 }
 print(String(format: "durée %.1f s", Date().timeIntervalSince(t0)))

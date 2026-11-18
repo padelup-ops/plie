@@ -11,7 +11,7 @@ on:
 jobs:
   bench:
     runs-on: xcode-27
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
         with:
@@ -31,6 +31,8 @@ jobs:
           xcrun --sdk iphonesimulator swiftc -O -target arm64-apple-ios27.0-simulator \
             *.swift ../../out/main.swift -o ../../out/bench
           cp words-*.txt lm-*.bin ../../out/
+          # Vrais swipes (FUTO swipe.futo.org, MIT), préparés par foldboard-swipedata.yml.
+          cd ../.. && git fetch -q origin ci-swipedata && for f in test-en-qwerty.jsonl s5-fr-azerty.jsonl qwerty.json azerty.json; do git show origin/ci-swipedata:$f > out/$f 2>/dev/null || echo "absent $f"; done
       - name: Run
         run: |
           DEV=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if 'iPhone' in x['name']))")
