@@ -176,6 +176,11 @@ if age:
             attrs[k] = False
         elif k in LEVELS:
             attrs[k] = "NONE"
+    # Réglages propres à une app, ex. AGE_EXTRA="violenceCartoonOrFantasy=INFREQUENT_OR_MILD"
+    for kv in filter(None, os.environ.get("AGE_EXTRA", "").split(",")):
+        k, _, v = kv.partition("=")
+        if k in attrs:
+            attrs[k] = v
     r = step("classification par âge (aucun contenu sensible)", call("PATCH", f"/v1/ageRatingDeclarations/{age['id']}",
              {"data": {"type": "ageRatingDeclarations", "id": age["id"], "attributes": attrs}}))
     if "error" in r:

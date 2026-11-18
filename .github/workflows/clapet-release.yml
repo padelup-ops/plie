@@ -15,7 +15,7 @@ on:
         required: false
         default: "0"
       app:
-        description: "duofolds, origamo ou foldboard"
+        description: "duofolds, origamo, foldboard ou retrofold"
         required: false
         default: "duofolds"
       version:
@@ -41,13 +41,14 @@ jobs:
       NEW_VERSION: ${{ inputs.version }}
       SUBMIT: ${{ inputs.submit }}
       WITHDRAW: ${{ inputs.withdraw }}
-      SITE_URL: ${{ inputs.app == 'origamo' && 'https://origamo.netlify.app' || (inputs.app == 'foldboard' && 'https://foldly.netlify.app/foldboard' || 'https://foldly.netlify.app') }}
-      APP_BUNDLE: ${{ inputs.app == 'origamo' && secrets.BUNDLE_ID || (inputs.app == 'foldboard' && 'com.padelup.foldboard' || 'com.padelup.clapet') }}
+      SITE_URL: ${{ inputs.app == 'origamo' && 'https://origamo.netlify.app' || (inputs.app == 'foldboard' && 'https://foldly.netlify.app/foldboard' || (inputs.app == 'retrofold' && 'https://foldly.netlify.app/retrofold' || 'https://foldly.netlify.app')) }}
+      APP_BUNDLE: ${{ inputs.app == 'origamo' && secrets.BUNDLE_ID || (inputs.app == 'foldboard' && 'com.padelup.foldboard' || (inputs.app == 'retrofold' && 'com.padelup.retrofold' || 'com.padelup.clapet')) }}
       BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
-      SHOTS_DIR: ${{ inputs.app == 'origamo' && 'tools/store_shots' || (inputs.app == 'foldboard' && 'foldboard/store' || 'clapet/tools/store') }}
-      CATEGORIES: ${{ inputs.app == 'origamo' && 'GAMES,GAMES_PUZZLE,GAMES_BOARD' || (inputs.app == 'foldboard' && 'UTILITIES,PRODUCTIVITY' || 'HEALTH_AND_FITNESS,UTILITIES') }}
-      LISTING_JSON: ${{ inputs.app == 'origamo' && 'tools/store_listing.json' || (inputs.app == 'foldboard' && 'foldboard/store/listing.json' || '') }}
-      APP_PRICE: ${{ (inputs.app == 'origamo' || inputs.app == 'foldboard') && '0' || '' }}
+      SHOTS_DIR: ${{ inputs.app == 'origamo' && 'tools/store_shots' || (inputs.app == 'foldboard' && 'foldboard/store' || (inputs.app == 'retrofold' && 'retrofold/store' || 'clapet/tools/store')) }}
+      CATEGORIES: ${{ inputs.app == 'origamo' && 'GAMES,GAMES_PUZZLE,GAMES_BOARD' || (inputs.app == 'foldboard' && 'UTILITIES,PRODUCTIVITY' || (inputs.app == 'retrofold' && 'GAMES,GAMES_ARCADE,GAMES_CASUAL' || 'HEALTH_AND_FITNESS,UTILITIES')) }}
+      LISTING_JSON: ${{ inputs.app == 'origamo' && 'tools/store_listing.json' || (inputs.app == 'foldboard' && 'foldboard/store/listing.json' || (inputs.app == 'retrofold' && 'retrofold/store/listing.json' || '')) }}
+      APP_PRICE: ${{ (inputs.app == 'origamo' || inputs.app == 'foldboard' || inputs.app == 'retrofold') && '0' || '' }}
+      AGE_EXTRA: ${{ inputs.app == 'retrofold' && 'violenceCartoonOrFantasy=INFREQUENT_OR_MILD' || '' }}
     steps:
       - uses: actions/checkout@v5
       - name: Outils
@@ -55,8 +56,8 @@ jobs:
       - name: Fiche et textes
         if: inputs.withdraw != '1'
         run: |
-          if [ "${{ inputs.app }}" = "foldboard" ]; then
-            echo "Foldboard : textes envoyés par asc-meta" | tee fiche.txt
+          if [ "${{ inputs.app }}" = "foldboard" ] || [ "${{ inputs.app }}" = "retrofold" ]; then
+            echo "${{ inputs.app }} : textes envoyés par asc-meta" | tee fiche.txt
           elif [ "${{ inputs.app }}" = "origamo" ]; then
             python3 tools/asc_fiche.py 2>&1 | tee fiche.txt || true
           else
