@@ -1,0 +1,23 @@
+# Équipe TestFlight interne : chercher quelqu'un par son prénom, ou l'ajouter au groupe interne d'une app (adresse jamais écrite).
+name: ASC - équipe
+on:
+  workflow_dispatch:
+    inputs:
+      mode: { description: "find ou add", required: true, default: "find" }
+      name: { description: "Prénom ou nom à chercher (find)", required: false, default: "" }
+      email_sha256: { description: "SHA-256 de l'e-mail en minuscules (add)", required: false, default: "" }
+      app_id: { description: "Identifiant Apple de l'app (add)", required: false, default: "6836120890" }
+jobs:
+  team:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      MODE: ${{ inputs.mode }}
+      NAME: ${{ inputs.name }}
+      EMAIL_SHA256: ${{ inputs.email_sha256 }}
+      APP_ID: ${{ inputs.app_id }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m pip install --quiet pyjwt cryptography && python3 tools/asc_team.py
