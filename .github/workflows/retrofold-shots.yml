@@ -17,6 +17,10 @@ on:
         description: "open (écran intérieur) ou close (écran extérieur)"
         required: false
         default: "open"
+      resize:
+        description: "Taille en points pour le mode redimensionnable (ex. 669x951 : l'écran intérieur tenu en portrait) ; vide = captures normales"
+        required: false
+        default: ""
 
 jobs:
   shots:
@@ -72,6 +76,14 @@ jobs:
             N=$((N+1))
             xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
             xcrun simctl launch "$UDID" "$BID" -AppleLanguages "(en)" -shot "$R" > /dev/null 2>&1 || true
+            if [ -n "${{ inputs.resize }}" ]; then
+              sleep 3
+              DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" resize start ${{ inputs.resize }} 2>&1 | tail -2 | tee -a shots/simulateur.txt || true
+              sleep ${{ inputs.wait }}
+              xcrun simctl io "$UDID" screenshot --display=resizable "shots/$(printf %02d $N)-$R-dresizable.png" > /dev/null 2>>shots/erreurs-captures.txt || true
+              DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" resize stop 2>&1 | tail -1 >> shots/simulateur.txt || true
+              continue
+            fi
             sleep ${{ inputs.wait }}
             for D in primary primary-1; do xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$(printf %02d $N)-$R-d$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true; done
           done
