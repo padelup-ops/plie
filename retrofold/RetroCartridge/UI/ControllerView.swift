@@ -132,9 +132,9 @@ public struct ControllerView: View {
                 .frame(width: unit * 0.09, height: unit * 0.09)
             // One word in two weights, so no gap between the halves.
             HStack(spacing: 0) {
-                Text("FOLD")
+                Text("RETRO")
                     .font(.pixel(unit * 0.17, bold: true))
-                Text("CADE")
+                Text("FOLD")
                     .font(.pixel(unit * 0.17))
                     .tracking(unit * 0.02)
             }
