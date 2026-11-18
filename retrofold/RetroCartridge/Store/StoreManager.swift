@@ -34,6 +34,13 @@ final class StoreManager {
     /// Listens for purchases, refunds and revocations made outside the app.
     @ObservationIgnored private var transactionUpdates: Task<Void, Never>?
 
+    /// When the free 1-day trial was started (its first purchase), kept on device too.
+    var trialStart: Date? = UserDefaults.standard.object(forKey: "retrofold.trialStart") as? Date
+
+    /// Moves forward every 30 s, so the screens notice when the trial ends.
+    var now = Date()
+    @ObservationIgnored private var clock: Task<Void, Never>?
+
     init() {
         transactionUpdates = Task { [weak self] in
             for await result in StoreKit.Transaction.updates {
@@ -41,10 +48,46 @@ final class StoreManager {
                 await self.handle(transactionResult: result)
             }
         }
+        clock = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(30))
+                self?.now = Date()
+            }
+        }
+    }
+
+    /// When the trial ends, once started.
+    var trialEnd: Date? { trialStart.map { $0.addingTimeInterval(ProductIdentifiers.trialLength) } }
+
+    /// Everything is unlocked during the 24 hours after the trial starts.
+    var isTrialActive: Bool { trialEnd.map { now < $0 } ?? false }
+
+    /// The trial can be started once.
+    var canStartTrial: Bool { trialStart == nil && !purchasedProductIDs.contains(ProductIdentifiers.pro) }
+
+    /// Whole hours left in the trial (at least 1 while it runs).
+    var trialHoursLeft: Int { max(1, Int(ceil((trialEnd?.timeIntervalSince(now) ?? 0) / 3600))) }
+
+    func startTrial() async {
+        if product(for: ProductIdentifiers.trial) == nil { await loadProducts() }
+        guard let product = product(for: ProductIdentifiers.trial) else {
+            errorMessage = String(localized: "The App Store didn't return any products.")
+            return
+        }
+        await purchase(product)
+    }
+
+    private func noteTrial(_ transaction: StoreKit.Transaction) {
+        guard transaction.productID == ProductIdentifiers.trial else { return }
+        let start = min(trialStart ?? transaction.originalPurchaseDate, transaction.originalPurchaseDate)
+        trialStart = start
+        now = Date()
+        UserDefaults.standard.set(start, forKey: "retrofold.trialStart")
     }
 
     isolated deinit {
         transactionUpdates?.cancel()
+        clock?.cancel()
     }
 
     /// Whether RetroFold Pro, the one purchase, is owned.
@@ -128,7 +171,8 @@ final class StoreManager {
     }
 
     func isPurchased(_ productID: String) -> Bool {
-        return ShotMode.unlockAll || purchasedProductIDs.contains(productID)
+        if ShotMode.unlockAll || purchasedProductIDs.contains(productID) { return true }
+        return productID == ProductIdentifiers.pro && isTrialActive
     }
 
     func isUnlocked(_ skinType: ConsoleSkinType) -> Bool {
@@ -182,6 +226,7 @@ final class StoreManager {
         for await result in StoreKit.Transaction.currentEntitlements {
             if case .verified(let transaction) = result, transaction.revocationDate == nil {
                 owned.insert(transaction.productID)
+                noteTrial(transaction)
             }
         }
         purchasedProductIDs = owned
@@ -194,6 +239,7 @@ final class StoreManager {
 
         if transaction.revocationDate == nil {
             purchasedProductIDs.insert(transaction.productID)
+            noteTrial(transaction)
         } else {
             purchasedProductIDs.remove(transaction.productID)
         }

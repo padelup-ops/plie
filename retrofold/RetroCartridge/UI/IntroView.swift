@@ -249,6 +249,11 @@ struct IntroView: View {
         if insertsCartridge {
             hapticManager.playHaptic(.cartridgeInsert)
             appState.startGame(type: selected)
+        } else if !storeManager.isUnlocked(selected) {
+            // Pas encore d'essai ni d'achat : le magasin s'ouvre sur l'essai gratuit d'un jour.
+            withAnimation(LibraryOverlays.animation) {
+                appState.openStore(highlighting: ProductIdentifiers.pro)
+            }
         }
     }
 

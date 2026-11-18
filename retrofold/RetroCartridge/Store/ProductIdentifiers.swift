@@ -17,8 +17,14 @@ enum ProductIdentifiers {
     /// naming it as its `requiredProductID`.
     static let pro = "com.padelup.retrofold.pro"
 
+    /// The free 1-day trial: a non-consumable at 0, named "1-day Trial", as Apple asks for
+    /// time-based trials in apps without a subscription (guideline 3.1.1). Owning it gives
+    /// everything RetroFold Pro gives for `trialLength` from its first purchase.
+    static let trial = "com.padelup.retrofold.trial1"
+    static let trialLength: TimeInterval = 24 * 60 * 60
+
     /// All purchasable product IDs.
-    static let allProductIDs: Set<String> = [pro]
+    static let allProductIDs: Set<String> = [pro, trial]
 
     /// The order products are listed in the store.
     static let displayOrder: [String] = [pro]
@@ -30,6 +36,7 @@ enum ProductIdentifiers {
     static func fallbackDisplayName(for productID: String) -> String {
         switch productID {
         case pro: return "RetroFold Pro"
+        case trial: return "1-day Trial"
         default: return productID
         }
     }

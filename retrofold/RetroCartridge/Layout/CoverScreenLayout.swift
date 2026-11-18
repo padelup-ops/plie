@@ -134,7 +134,7 @@ public struct CoverScreenLayout: View {
         return HStack(spacing: 10) {
             Image(systemName: isLocked ? "lock.fill" : "arrow.up.and.down")
                 .font(.system(size: 14, weight: .bold))
-            Text(isLocked ? ProductIdentifiers.shortName(for: appState.selectedGameType.info.requiredProductID ?? "") : String(localized: "UNFOLD TO PLAY"))
+            Text(isLocked ? (storeManager.canStartTrial ? String(localized: "FREE 1-DAY TRIAL") : ProductIdentifiers.shortName(for: appState.selectedGameType.info.requiredProductID ?? "")) : String(localized: "UNFOLD TO PLAY"))
                 .retroFont(15, weight: .heavy, maxScale: 1.35, wraps: false)
                 .tracking(3)
         }

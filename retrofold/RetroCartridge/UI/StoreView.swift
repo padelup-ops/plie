@@ -38,6 +38,10 @@ struct StoreView: View {
                         .transition(.opacity)
                 }
 
+                if !storeManager.purchasedProductIDs.contains(ProductIdentifiers.pro) {
+                    trialBanner
+                }
+
                 ForEach(ProductIdentifiers.displayOrder, id: \.self) { productID in
                     productCard(productID)
                 }
@@ -59,6 +63,48 @@ struct StoreView: View {
         withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) {
             appState.isStoreVisible = false
             appState.storeHighlight = nil
+        }
+    }
+
+    // MARK: - Free trial
+
+    /// Start the free day, see how long it has left, or learn that it is over.
+    @ViewBuilder
+    private var trialBanner: some View {
+        if storeManager.canStartTrial {
+            banner(
+                icon: "gift.fill",
+                tint: menuTheme.accent,
+                title: String(localized: "FREE FOR 1 DAY"),
+                message: String(localized: "Play every cartridge free for 24 hours. Nothing renews and nothing is charged. After that, RetroFold Pro is a one-time purchase.")
+            ) {
+                Button {
+                    hapticManager.playHaptic(.buttonPress)
+                    Task { await storeManager.startTrial() }
+                } label: {
+                    if storeManager.purchasingProductID == ProductIdentifiers.trial {
+                        ProgressView().tint(menuTheme.accent).frame(width: 76, height: 34)
+                    } else {
+                        RetroCapsuleLabel(title: String(localized: "START"), systemImage: "play.fill", tint: menuTheme.accent, filled: true)
+                    }
+                }
+                .buttonStyle(CartridgePressStyle())
+                .disabled(storeManager.purchasingProductID != nil)
+            }
+        } else if storeManager.isTrialActive {
+            banner(
+                icon: "hourglass",
+                tint: menuTheme.accent,
+                title: String(localized: "FREE TRIAL · \(storeManager.trialHoursLeft) H LEFT"),
+                message: String(localized: "Everything is unlocked until the trial ends. Get RetroFold Pro to keep playing.")
+            ) { EmptyView() }
+        } else if storeManager.trialStart != nil {
+            banner(
+                icon: "hourglass.bottomhalf.filled",
+                tint: RetroPalette.amber,
+                title: String(localized: "FREE TRIAL ENDED"),
+                message: String(localized: "Get RetroFold Pro to keep playing every cartridge.")
+            ) { EmptyView() }
         }
     }
 

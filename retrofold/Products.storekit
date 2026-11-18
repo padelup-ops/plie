@@ -1,38 +1,47 @@
 {
-  "identifier" : "5E7A1C2B",
-  "nonRenewingSubscriptions" : [
-
-  ],
-  "products" : [
+  "identifier": "5E7A1C2B",
+  "nonRenewingSubscriptions": [],
+  "products": [
     {
-      "displayPrice" : "2.99",
-      "familyShareable" : false,
-      "internalID" : "6740000003",
-      "localizations" : [
+      "displayPrice": "2.99",
+      "familyShareable": false,
+      "internalID": "6740000003",
+      "localizations": [
         {
-          "description" : "Every cartridge, skin, sound pack and screen mode.",
-          "displayName" : "RetroFold Pro",
-          "locale" : "en_US"
+          "description": "Every cartridge, skin, sound pack and screen mode.",
+          "displayName": "RetroFold Pro",
+          "locale": "en_US"
         }
       ],
-      "productID" : "com.padelup.retrofold.pro",
-      "referenceName" : "RetroFold Pro",
-      "type" : "NonConsumable"
+      "productID": "com.padelup.retrofold.pro",
+      "referenceName": "RetroFold Pro",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.0",
+      "familyShareable": false,
+      "internalID": "6740000004",
+      "localizations": [
+        {
+          "description": "Every cartridge free for 24 hours.",
+          "displayName": "1-day Trial",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.padelup.retrofold.trial1",
+      "referenceName": "1-day Trial",
+      "type": "NonConsumable"
     }
   ],
-  "settings" : {
-    "_failTransactionsEnabled" : false,
-    "_locale" : "en_US",
-    "_storefront" : "USA",
-    "_storeKitErrors" : [
-
-    ]
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "en_US",
+    "_storefront": "USA",
+    "_storeKitErrors": []
   },
-  "subscriptionGroups" : [
-
-  ],
-  "version" : {
-    "major" : 3,
-    "minor" : 0
+  "subscriptionGroups": [],
+  "version": {
+    "major": 3,
+    "minor": 0
   }
 }

@@ -303,8 +303,9 @@ struct CartridgeInfo: Sendable {
     /// The rule sets the game offers. The first one is the default.
     var modes: [GameMode] = [.standard]
 
-    /// The IAP product that unlocks the cartridge, nil when it is free.
-    var requiredProductID: String? = nil
+    /// The IAP product that unlocks the cartridge. Every cartridge comes with RetroFold Pro,
+    /// or with the free 1-day trial while it lasts.
+    var requiredProductID: String? = ProductIdentifiers.pro
 
     /// Score for the "High Scorer" achievement.
     var scoreGoal: Int = 1000
