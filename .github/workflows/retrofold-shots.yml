@@ -75,13 +75,18 @@ jobs:
       - name: Orientation
         if: inputs.orient != ''
         run: |
-          open -a Simulator --args -CurrentDeviceUDID "$UDID" || true
-          sleep 10
+          ls /Applications/Xcode*.app/Contents/Developer/Applications/ 2>&1 | tee -a shots/simulateur.txt
+          xcrun devicectl device --help 2>&1 | grep -iE "orient|rotat" | tee -a shots/simulateur.txt || true
+          xcrun simctl help 2>&1 | grep -iE "orient|rotat" | tee -a shots/simulateur.txt || true
+          APPP=$(ls -d /Applications/Xcode*.app/Contents/Developer/Applications/*.app 2>/dev/null | grep -iE "Device Hub|Simulator" | head -1)
+          NAME=$(basename "$APPP" .app); echo "app : $NAME" | tee -a shots/simulateur.txt
+          open -a "$APPP" --args -CurrentDeviceUDID "$UDID" || true
+          sleep 12
           for i in 1 2 3 4 5; do
             O=$(xcrun devicectl device info displays --device "$UDID" 2>/dev/null | grep -o 'Main display orientation: [a-zA-Z]*' | awk '{print $4}')
             echo "essai $i : orientation $O" | tee -a shots/simulateur.txt
             [ "$O" = "${{ inputs.orient }}" ] && break
-            osascript -e 'tell application "Simulator" to activate' -e 'delay 1' -e 'tell application "System Events" to key code 123 using command down' 2>&1 | tee -a shots/simulateur.txt || true
+            osascript -e "tell application \"$NAME\" to activate" -e 'delay 1' -e 'tell application "System Events" to key code 123 using command down' 2>&1 | tee -a shots/simulateur.txt || true
             sleep 4
           done
       - name: Capturer
@@ -91,7 +96,7 @@ jobs:
           for R in ${{ inputs.routes }}; do
             N=$((N+1))
             xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
-            xcrun simctl launch "$UDID" "$BID" -AppleLanguages "(en)" -shot "$R" > /dev/null 2>&1 || true
+            xcrun simctl launch "$UDID" "$BID" -AppleLanguages "(en)" -shot "$R" ${{ inputs.orient != '' && format('-shotOrient {0}', inputs.orient) || '' }} > /dev/null 2>&1 || true
             if [ -n "${{ inputs.resize }}" ]; then
               sleep 3
               DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" resize start ${{ inputs.resize }} 2>&1 | tail -2 | tee -a shots/simulateur.txt || true
@@ -101,6 +106,7 @@ jobs:
               continue
             fi
             sleep ${{ inputs.wait }}
+            xcrun devicectl device info displays --device "$UDID" 2>/dev/null | grep -o 'Main display orientation: [a-zA-Z]*' | sed "s/^/$R : /" >> shots/simulateur.txt || true
             for D in primary primary-1; do xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$(printf %02d $N)-$R-d$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true; done
           done
           ls -la shots

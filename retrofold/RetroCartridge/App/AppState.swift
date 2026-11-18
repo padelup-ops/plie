@@ -327,6 +327,17 @@ final class AppState {
 enum ShotMode {
     static var shot: String? { UserDefaults.standard.string(forKey: "shot") }
 
+    /// `-shotOrient portrait` (screenshots only): the inner display's orientation to ask for.
+    static var forcedOrientation: UIInterfaceOrientationMask? {
+        switch UserDefaults.standard.string(forKey: "shotOrient") {
+        case "portrait": return .portrait
+        case "portraitUpsideDown": return .portraitUpsideDown
+        case "landscapeLeft": return .landscapeLeft
+        case "landscapeRight": return .landscapeRight
+        default: return nil
+        }
+    }
+
     /// Tout est débloqué pour les captures, sauf celle de la boutique (qui montre l'achat).
     static var unlockAll: Bool {
         guard let shot else { return false }

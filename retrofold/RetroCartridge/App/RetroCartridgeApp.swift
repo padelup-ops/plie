@@ -54,7 +54,19 @@ final class ConsoleHostingController: UIHostingController<RootView> {
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         guard let screen = view.window?.windowScene?.screen else { return .all }
-        return DuoDisplay(size: screen.bounds.size) == .outer ? .landscapeLeft : .all
+        if DuoDisplay(size: screen.bounds.size) == .outer { return .landscapeLeft }
+        return ShotMode.forcedOrientation ?? .all
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Screenshot mode only: ask for a given orientation of the inner display.
+        if let mask = ShotMode.forcedOrientation, let scene = view.window?.windowScene {
+            setNeedsUpdateOfSupportedInterfaceOrientations()
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: mask)) { error in
+                print("shotOrient:", error.localizedDescription)
+            }
+        }
     }
     
     override var prefersHomeIndicatorAutoHidden: Bool { true }
