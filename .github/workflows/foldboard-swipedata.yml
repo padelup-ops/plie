@@ -37,13 +37,17 @@ jobs:
               pts = d['data']
               if not isinstance(pts, list) or len(pts) < 2:
                   continue
-              f = out.setdefault(key, open(f"{mode}-{key}.jsonl", 'w'))
+              if key not in out:
+                  out[key] = open(f"{mode}-{key}.jsonl", 'w')
+              f = out[key]
               # Les mots d'avant dans la phrase (le contexte, comme dans un vrai message).
               words = (d.get('sentence') or '').split()
               wi = d.get('word_idx') or 0
               before = ' '.join(words[max(0, wi - 3):wi]) + (' ' if wi > 0 else '')
               f.write(json.dumps({'w': d['word'], 'b': before, 'p': [[round(q['x'], 4), round(q['y'], 4)] for q in pts],
                                   'cw': d.get('canvas_width'), 'ch': d.get('canvas_height'), 'd': round(d.get('distance') or 0, 1)}) + '\n')
+          for f in out.values():
+              f.close()
           print(mode, stats.most_common(30))
           EOF
           B=https://huggingface.co/datasets/futo-org/swipe.futo.org
