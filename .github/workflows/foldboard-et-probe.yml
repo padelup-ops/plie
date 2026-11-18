@@ -41,7 +41,10 @@ jobs:
           ls fw; du -sh fw/* | head -20
           find fw -name "*.h" | grep -iE "module|tensor|value|ExecuTorch\.h" | head -20
           for h in $(find fw -path "*ios-arm64-simulator*" -name "*.h" | grep -iE "Module\.h|Tensor\.h|Value\.h" | head -6); do echo "== $h"; grep -nE "NS_SWIFT_NAME|^- \(|^\+ \(|@interface|initWith" "$h" | head -40; done
-          find fw -name "*.swiftinterface" | head; for f in $(find fw -path "*simulator*" -name "*.swiftinterface" | head -2); do echo "== $f"; grep -nE "public (func|init|class|struct|enum|convenience)" "$f" | head -60; done
+          S=fw/executorch.xcframework/ios-arm64-simulator
+          ls $S; find $S -maxdepth 2 | head -20; cat $S/Headers/module.modulemap 2>/dev/null || find fw -name "module.modulemap" | head
+          for h in ExecuTorchModule.h ExecuTorchTensor.h ExecuTorch.h; do echo "=== $h"; grep -vE "^\s*\*|^\s*/\*\*|^\s*$|^//" $S/Headers/ExecuTorch/$h | head -150; done
+          for x in fw/*.xcframework; do echo "== $x"; ls $x; ls $x/ios-arm64-simulator | head; done
       - name: Modèle
         run: |
           cd et
