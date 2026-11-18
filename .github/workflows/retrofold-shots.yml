@@ -75,19 +75,16 @@ jobs:
       - name: Orientation
         if: inputs.orient != ''
         run: |
-          ls /Applications/Xcode*.app/Contents/Developer/Applications/ 2>&1 | tee -a shots/simulateur.txt
-          xcrun devicectl device --help 2>&1 | grep -iE "orient|rotat" | tee -a shots/simulateur.txt || true
-          xcrun simctl help 2>&1 | grep -iE "orient|rotat" | tee -a shots/simulateur.txt || true
-          APPP=$(ls -d /Applications/Xcode*.app/Contents/Developer/Applications/*.app 2>/dev/null | grep -iE "Device Hub|Simulator" | head -1)
-          NAME=$(basename "$APPP" .app); echo "app : $NAME" | tee -a shots/simulateur.txt
-          open -a "$APPP" --args -CurrentDeviceUDID "$UDID" || true
-          sleep 12
-          for i in 1 2 3 4 5; do
-            O=$(xcrun devicectl device info displays --device "$UDID" 2>/dev/null | grep -o 'Main display orientation: [a-zA-Z]*' | awk '{print $4}')
-            echo "essai $i : orientation $O" | tee -a shots/simulateur.txt
-            [ "$O" = "${{ inputs.orient }}" ] && break
-            osascript -e "tell application \"$NAME\" to activate" -e 'delay 1' -e 'tell application "System Events" to key code 123 using command down' 2>&1 | tee -a shots/simulateur.txt || true
-            sleep 4
+          WANT="${{ inputs.orient }}"
+          orient() { xcrun devicectl device info displays --device "$UDID" 2>/dev/null | grep -o 'Main display orientation: [a-zA-Z]*' | awk '{print $4}'; }
+          xcrun devicectl device orientation --help 2>&1 | head -40 | tee -a shots/simulateur.txt || true
+          xcrun devicectl device orientation set --help 2>&1 | head -40 | tee -a shots/simulateur.txt || true
+          for args in "set --device $UDID $WANT" "set --device $UDID --orientation $WANT" "set $WANT --device $UDID" "--device $UDID $WANT" "set --device $UDID --value $WANT"; do
+            echo "essai : devicectl device orientation $args" | tee -a shots/simulateur.txt
+            xcrun devicectl device orientation $args 2>&1 | tail -4 | tee -a shots/simulateur.txt || true
+            sleep 3
+            O=$(orient); echo "  -> $O" | tee -a shots/simulateur.txt
+            [ "$O" = "$WANT" ] && break
           done
       - name: Capturer
         run: |
