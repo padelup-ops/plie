@@ -109,8 +109,10 @@ jobs:
                 xcrun simctl io "$UDID" recordVideo --display=primary-1 --codec=h264 --force "shots/$(printf %02d $N)-$R$SUF.mp4" > /dev/null 2>>shots/erreurs-captures.txt &
                 RP=$!
                 sleep ${{ inputs.record }}
-                kill -INT $RP 2>/dev/null || true
-                wait $RP 2>/dev/null || true
+                # xcrun ne transmet pas toujours le signal : on arrête simctl lui-même, sans jamais attendre indéfiniment.
+                pkill -INT -f "simctl io $UDID recordVideo" 2>/dev/null || true
+                for k in $(seq 1 20); do kill -0 $RP 2>/dev/null || break; sleep 0.5; done
+                kill -9 $RP 2>/dev/null || true
                 sleep 1
               fi
               sleep ${{ inputs.wait }}
