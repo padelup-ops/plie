@@ -213,7 +213,7 @@ struct RootView: View {
         case .quote:
             VStack(alignment: .leading, spacing: 10) {
                 Text(settings.resolvedQuote.text(french: settings.prefersFrench))
-                    .font(.body.leading(.serif))
+                    .font(.system(.body, design: .serif))
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack {
