@@ -62,10 +62,11 @@ Actions → **Fold Widgets - TestFlight**. Sur `main`, et sur les branches `curs
 L'API ne crée pas la fiche. Le reste, le workflow essaie de le faire ; s'il échoue, voici quoi cliquer.
 
 1. **Ne pas créer de secret GitHub.** Les cinq secrets existent déjà. Ne pas changer `BUNDLE_ID`.
-2. **Identifiants** (developer.apple.com → Certificates, Identifiers & Profiles), seulement si le journal dit `ÉCHEC identifiant` ou `GROUPE à activer à la main` :
-   - App ID explicite `com.padelup.foldwidgets`, nom `Fold Widgets`. Activer **App Groups** et cocher `group.com.padelup.foldwidgets`.
-   - App ID explicite `com.padelup.foldwidgets.widget`, nom `Fold Widgets Widget`. Même groupe.
-   - Si le groupe n'existe pas : Identifiers → **+** → App Groups → `group.com.padelup.foldwidgets`.
+2. **Groupe d'app** (obligatoire pour signer ; l'API ne peut pas le créer ni l'assigner). developer.apple.com → Certificates, Identifiers & Profiles :
+   - Identifiers → **+** → App Groups → `group.com.padelup.foldwidgets`.
+   - App ID `com.padelup.foldwidgets` : activer **App Groups**, Configure, cocher ce groupe.
+   - App ID `com.padelup.foldwidgets.widget` : la même chose.
+   - Le workflow crée les deux App ID et coche la capacité. Sans le groupe assigné, il n'y a pas de profil : la compilation reste verte, l'envoi TestFlight non.
 3. **App Store Connect → Apps → + → Nouvelle app** (l'étape que personne d'autre ne peut faire) :
    - Plateforme : iOS
    - Nom : `Fold Widgets`

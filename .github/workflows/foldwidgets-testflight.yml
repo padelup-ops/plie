@@ -31,6 +31,7 @@ jobs:
     permissions:
       contents: write
     env:
+      GROUP_WAIT: group.com.padelup.foldwidgets
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
@@ -172,6 +173,9 @@ jobs:
           </dict>
           </plist>
           EOF
+          # L'API active la capacité, mais ne crée pas le groupe ni ne l'assigne.
+          # Tant que ce n'est pas fait dans le portail, aucun profil n'existe : ce n'est pas une erreur de compilation.
+          set +o pipefail
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/FoldWidgets.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportLocal.plist" \
@@ -179,8 +183,16 @@ jobs:
             -allowProvisioningUpdates \
             -authenticationKeyPath "$ASC_KEY_PATH" \
             -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export-local.log
-          grep -q "EXPORT SUCCEEDED" export-local.log
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export-local.log || true
+          set -o pipefail
+          if ! grep -q "EXPORT SUCCEEDED" export-local.log; then
+            if grep -q -E "No profiles for|Authentication failed" export-local.log; then
+              echo "::warning::Compilation et archive réussies. La signature attend le groupe ${GROUP_WAIT} assigné à com.padelup.foldwidgets et com.padelup.foldwidgets.widget dans Certificates, Identifiers & Profiles. L'API Apple ne peut pas faire cette assignation."
+              exit 0
+            fi
+            echo "Export échoué pour une autre raison que le profil manquant."
+            exit 1
+          fi
           cd "$RUNNER_TEMP/local" && unzip -q -o *.ipa -d ipa
           {
             echo "=== App ==="; codesign -d --entitlements :- ipa/Payload/FoldWidgets.app 2>/dev/null || true

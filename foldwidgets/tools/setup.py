@@ -79,23 +79,27 @@ for ident, name in ((APP, "Fold Widgets"), (WIDGET, "Fold Widgets Widget")):
 
 
 def enable_group(bundle_resource_id):
+    """Turns the App Groups capability on. Apple's API accepts no group id here:
+    creating group.com.padelup.foldwidgets and assigning it is done in the developer portal.
+    """
     caps = call("GET", f"/v1/bundleIds/{bundle_resource_id}/bundleIdCapabilities").get("data", [])
     if any(item["attributes"].get("capabilityType") == "APP_GROUPS" for item in caps):
         print("ok     App Groups déjà actif :", bundle_resource_id)
         return
-    body = {
-        "data": {
-            "type": "bundleIdCapabilities",
-            "attributes": {
-                "capabilityType": "APP_GROUPS",
-                "settings": [{"key": "APP_GROUPS", "options": [{"key": GROUP}]}],
-            },
-            "relationships": {"bundleId": {"data": {"type": "bundleIds", "id": bundle_resource_id}}},
-        }
-    }
-    result = call("POST", "/v1/bundleIdCapabilities", body)
+    result = call(
+        "POST",
+        "/v1/bundleIdCapabilities",
+        {
+            "data": {
+                "type": "bundleIdCapabilities",
+                "attributes": {"capabilityType": "APP_GROUPS"},
+                "relationships": {"bundleId": {"data": {"type": "bundleIds", "id": bundle_resource_id}}},
+            }
+        },
+    )
     if "data" in result:
-        print("ok     App Groups activé :", GROUP)
+        print("ok     capacité App Groups activée :", bundle_resource_id)
+        print("GROUPE à assigner à la main :", GROUP)
     else:
         print("GROUPE à activer à la main :", GROUP)
         print(result)
