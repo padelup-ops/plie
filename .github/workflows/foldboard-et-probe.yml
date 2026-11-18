@@ -20,20 +20,22 @@ jobs:
           B="${{ inputs.branch }}"; [ -z "$B" ] && B=$(tail -1 branches.txt)
           echo "BRANCH=$B" >> "$GITHUB_ENV"
           curl -sL "https://raw.githubusercontent.com/pytorch/executorch/$B/Package.swift" > Package.swift
-          wc -l Package.swift; grep -nE "url:|name:|checksum|binaryTarget|linkerSettings|unsafeFlags|\.library" Package.swift | head -80
+          sed -n 1,135p Package.swift; sed -n 155,170p Package.swift
       - name: Frameworks
         run: |
           cd et
           python3 - <<'EOF'
           import re, subprocess
           s = open('Package.swift').read()
-          urls = re.findall(r'"(https://[^"]+\.zip)"', s)
-          print(len(urls), 'zips')
-          for u in urls:
-              n = u.rsplit('/', 1)[-1]
-              if any(k in n for k in ('executorch', 'xnnpack', 'kernels_optimized', 'kernels_portable', 'threadpool', 'kernels_quantized')):
+          url = re.search(r'let url = "([^"]+)"', s).group(1)
+          version = re.search(r'let version = "([^"]+)"', s).group(1)
+          keys = re.findall(r'^\s*"([a-z_]+)"\s*:\s*\[', s, re.M)
+          print('url', url, 'version', version, 'keys', keys)
+          for k in keys:
+              if any(x in k for x in ('executorch', 'xnnpack', 'kernels_optimized', 'kernels_portable', 'threadpool')):
+                  u = f"{url}{k}-{version}.zip"
                   print('get', u)
-                  subprocess.run(['curl', '-sL', '-o', n, u], check=False)
+                  subprocess.run(['curl', '-sfL', '-o', f"{k}.zip", u], check=False)
           EOF
           for z in *.zip; do [ -f "$z" ] && unzip -q -o "$z" -d fw; done; mkdir -p fw
           ls fw; du -sh fw/* | head -20
