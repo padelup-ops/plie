@@ -32,7 +32,7 @@ jobs:
           keys = re.findall(r'^\s*"([a-z_]+)"\s*:\s*\[', s, re.M)
           print('url', url, 'version', version, 'keys', keys)
           for k in keys:
-              if any(x in k for x in ('executorch', 'xnnpack', 'kernels_optimized', 'kernels_portable', 'threadpool')):
+              if any(x in k for x in ('executorch', 'xnnpack', 'kernels_optimized', 'kernels_portable', 'threadpool', 'kleidiai')) and 'llm' not in k and 'dump' not in k:
                   u = f"{url}{k}-{version}.zip"
                   print('get', u)
                   subprocess.run(['curl', '-sfL', '-o', f"{k}.zip", u], check=False)
@@ -51,3 +51,22 @@ jobs:
           curl -sL -o enc32.pte https://huggingface.co/futo-org/futo-swipe/resolve/main/honorable_sturgeon/model_fp32.pte
           curl -sL -o enc8.pte https://huggingface.co/futo-org/futo-swipe/resolve/main/honorable_sturgeon/model_int8.pte
           ls -la *.pte; for f in *.pte; do echo "== $f"; strings "$f" | grep -iE "xnnpack|backend|aten::|_ops\." | sort | uniq -c | sort -rn | head -25; done
+      - uses: actions/checkout@v5
+        with:
+          path: src
+      - name: Essai sur le simulateur
+        run: |
+          cd et
+          S=ios-arm64-simulator
+          grep -nE "public (func|init|convenience init|final class|class|struct|subscript|var)" fw/executorch.xcframework/$S/ExecuTorch.swiftinterface | head -80
+          for x in fw/*.xcframework; do ls $x/$S/*.a; done
+          LIBS=""; for x in fw/*.xcframework; do for a in $x/$S/*.a; do LIBS="$LIBS -Xlinker -force_load -Xlinker $a"; done; done
+          set -o pipefail
+          xcrun --sdk iphonesimulator swiftc -O -target arm64-apple-ios27.0-simulator \
+            -I fw/executorch.xcframework/$S/Headers ../src/foldboard/tools/swipe/et_smoke.swift $LIBS \
+            -lc++ -framework Accelerate -framework CoreML -framework CoreGraphics -framework CoreImage -framework CoreVideo -lsqlite3 \
+            -o smoke 2>&1 | grep -E "error|warning: unre|undefined" | head -40
+          ls -la smoke
+          DEV=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if 'iPhone' in x['name']))")
+          xcrun simctl boot "$DEV" || true; xcrun simctl bootstatus "$DEV" -b > /dev/null
+          for m in enc32.pte enc8.pte; do echo "== $m"; xcrun simctl spawn "$DEV" "$PWD/smoke" "$PWD/$m"; done
