@@ -73,7 +73,7 @@ jobs:
             xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
             xcrun simctl launch "$UDID" "$BID" -AppleLanguages "(en)" -shot "$R" > /dev/null 2>&1 || true
             sleep ${{ inputs.wait }}
-            for D in 0 1; do xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$(printf %02d $N)-$R-d$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true; done
+            for D in primary primary-1; do xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$(printf %02d $N)-$R-d$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true; done
           done
           ls -la shots
       - name: Publier
