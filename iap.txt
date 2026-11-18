@@ -1,0 +1,23 @@
+APP_ID 6836120890
+
+== com.padelup.retrofold.trial1
+ok     achat déjà créé, état MISSING_METADATA
+ok     textes en-US
+ok     textes fr-FR
+ok     prix 0 € (base France)
+ok     disponibilité (175 pays)
+ok     réservation de la capture
+ok     capture envoyée
+achat com.padelup.retrofold.trial1 | 1-day Trial | état READY_TO_SUBMIT
+
+== com.padelup.retrofold.pro
+ok     achat déjà créé, état MISSING_METADATA
+ok     textes en-US
+ok     textes fr-FR
+ok     prix 2.99 € (base France)
+ok     disponibilité (175 pays)
+ok     réservation de la capture
+ok     capture envoyée
+achat com.padelup.retrofold.pro | RetroFold Pro | état READY_TO_SUBMIT
+
+ACHATS PRÊTS (capture pour la vérification à ajouter avant la soumission)
