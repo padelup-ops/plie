@@ -111,34 +111,55 @@ struct FoldWidgetView: View {
     }
 }
 
-struct ThemeWidget: Widget {
-    var theme: FoldTheme
-
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "fold." + theme.rawValue, provider: FoldProvider(theme: theme)) { entry in
-            FoldWidgetView(entry: entry)
-        }
-        .configurationDisplayName(Text(NSLocalizedString(theme.nameKey, comment: "")))
-        .description(Text(NSLocalizedString(theme.detailKey, comment: "")))
-        .supportedFamilies([
-            .systemSmall,
-            .systemMedium,
-            .systemLarge,
-            .accessoryCircular,
-            .accessoryRectangular,
-            .accessoryInline
-        ])
+/// `Widget` exige `init()`. Le thème est donc figé dans chaque type, et le dessin est partagé.
+private func foldWidget(_ theme: FoldTheme) -> some WidgetConfiguration {
+    StaticConfiguration(kind: "fold." + theme.rawValue, provider: FoldProvider(theme: theme)) { entry in
+        FoldWidgetView(entry: entry)
     }
+    .configurationDisplayName(Text(NSLocalizedString(theme.nameKey, comment: "")))
+    .description(Text(NSLocalizedString(theme.detailKey, comment: "")))
+    .supportedFamilies([
+        .systemSmall,
+        .systemMedium,
+        .systemLarge,
+        .accessoryCircular,
+        .accessoryRectangular,
+        .accessoryInline
+    ])
+}
+
+struct RevelationWidget: Widget {
+    var body: some WidgetConfiguration { foldWidget(.revelation) }
+}
+
+struct HourWidget: Widget {
+    var body: some WidgetConfiguration { foldWidget(.hour) }
+}
+
+struct QuoteWidget: Widget {
+    var body: some WidgetConfiguration { foldWidget(.quote) }
+}
+
+struct DiptychWidget: Widget {
+    var body: some WidgetConfiguration { foldWidget(.diptych) }
+}
+
+struct CountdownWidget: Widget {
+    var body: some WidgetConfiguration { foldWidget(.countdown) }
+}
+
+struct MoodWidget: Widget {
+    var body: some WidgetConfiguration { foldWidget(.mood) }
 }
 
 @main
 struct FoldWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        ThemeWidget(theme: .revelation)
-        ThemeWidget(theme: .hour)
-        ThemeWidget(theme: .quote)
-        ThemeWidget(theme: .diptych)
-        ThemeWidget(theme: .countdown)
-        ThemeWidget(theme: .mood)
+        RevelationWidget()
+        HourWidget()
+        QuoteWidget()
+        DiptychWidget()
+        CountdownWidget()
+        MoodWidget()
     }
 }
