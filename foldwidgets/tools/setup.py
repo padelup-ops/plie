@@ -7,8 +7,10 @@ N'utilise pas BUNDLE_ID : ce secret reste celui d'Origamo. L'équipe n'est pas l
 La fiche App Store Connect ne peut pas être créée par l'API : s'il n'y en a pas,
 le script l'écrit et s'arrête. Le workflow n'envoie alors rien sur TestFlight.
 """
+import base64
 import json
 import os
+import pathlib
 import sys
 import time
 import urllib.error
@@ -108,6 +110,105 @@ def enable_group(bundle_resource_id):
 for ident, resource in ids.items():
     print("==", ident)
     enable_group(resource)
+    caps = call("GET", f"/v1/bundleIds/{resource}/bundleIdCapabilities").get("data", [])
+    for cap in caps:
+        if cap["attributes"].get("capabilityType") == "APP_GROUPS":
+            print("CAP", json.dumps(cap.get("attributes"), ensure_ascii=False)[:700])
+
+
+def distribution_certs():
+    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    found = []
+    for cert in call("GET", "/v1/certificates?limit=200").get("data", []):
+        kind = cert["attributes"].get("certificateType") or ""
+        exp = cert["attributes"].get("expirationDate") or ""
+        if kind in ("DISTRIBUTION", "IOS_DISTRIBUTION") and exp > now:
+            found.append(cert)
+            print("CERT", kind, "|", cert["attributes"].get("displayName") or cert["attributes"].get("name"), "|", exp[:10], "|", cert["id"])
+    found.sort(key=lambda cert: cert["attributes"].get("expirationDate") or "")
+    return found
+
+
+def profiles_by_bundle():
+    raw = call("GET", "/v1/profiles?limit=200&filter[profileType]=IOS_APP_STORE&include=bundleId")
+    if "error" in raw:
+        print("ÉCHEC  lecture des profils", raw)
+        return {}
+    grouped = {}
+    for profile in raw.get("data", []):
+        bundle = (profile.get("relationships") or {}).get("bundleId", {}).get("data") or {}
+        grouped.setdefault(bundle.get("id"), []).append(profile)
+    return grouped
+
+
+def install_profile(profile):
+    content = profile["attributes"].get("profileContent")
+    uuid = profile["attributes"].get("uuid")
+    if not content or not uuid:
+        return False
+    blob = base64.b64decode(content)
+    folder = pathlib.Path.home() / "Library/MobileDevice/Provisioning Profiles"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / f"{uuid}.mobileprovision").write_bytes(blob)
+    has_group = GROUP.encode() in blob
+    print("ok     profil installé", profile["attributes"].get("name"), "|", uuid, "| groupe", "oui" if has_group else "NON")
+    return has_group
+
+
+def ensure_profile(ident, bundle_resource_id, certs, existing):
+    """Recreate the App Store profile so it picks up the App Group assigned on the App ID."""
+    if not certs:
+        print("ÉCHEC  pas de certificat de distribution : le profil ne peut pas être créé")
+        return
+    current = existing.get(bundle_resource_id, [])
+    for profile in current:
+        state = profile["attributes"].get("profileState")
+        print("PROFIL", ident, profile["attributes"].get("name"), state, profile["id"])
+        deleted = call("DELETE", f"/v1/profiles/{profile['id']}")
+        if deleted.get("error"):
+            print("ÉCHEC  suppression profil", profile["id"], deleted)
+        else:
+            print("ok     ancien profil retiré", profile["id"], state)
+    name = "FW " + ident
+    created = call(
+        "POST",
+        "/v1/profiles",
+        {
+            "data": {
+                "type": "profiles",
+                "attributes": {"name": name, "profileType": "IOS_APP_STORE"},
+                "relationships": {
+                    "bundleId": {"data": {"type": "bundleIds", "id": bundle_resource_id}},
+                    "certificates": {"data": [{"type": "certificates", "id": cert["id"]} for cert in certs]},
+                },
+            }
+        },
+    )
+    if "data" not in created and len(certs) > 1:
+        created = call(
+            "POST",
+            "/v1/profiles",
+            {
+                "data": {
+                    "type": "profiles",
+                    "attributes": {"name": name, "profileType": "IOS_APP_STORE"},
+                    "relationships": {
+                        "bundleId": {"data": {"type": "bundleIds", "id": bundle_resource_id}},
+                        "certificates": {"data": [{"type": "certificates", "id": certs[-1]["id"]}]},
+                    },
+                }
+            },
+        )
+    if "data" not in created:
+        print("ÉCHEC  profil", ident, created)
+        return
+    install_profile(created["data"])
+
+
+certs = distribution_certs()
+existing_profiles = profiles_by_bundle()
+for ident, resource in ids.items():
+    ensure_profile(ident, resource, certs, existing_profiles)
 
 apps = call("GET", "/v1/apps?limit=200").get("data", [])
 mine = [item for item in apps if item["attributes"]["bundleId"] == APP]

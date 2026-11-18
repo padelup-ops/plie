@@ -173,8 +173,8 @@ jobs:
           </dict>
           </plist>
           EOF
-          # L'API active la capacité, mais ne crée pas le groupe ni ne l'assigne.
-          # Tant que ce n'est pas fait dans le portail, aucun profil n'existe : ce n'est pas une erreur de compilation.
+          # Le groupe est assigné dans le portail. setup.py régénère les profils App Store
+          # pour qu'ils portent ce groupe. L'export doit réussir : sinon pas d'envoi.
           set +o pipefail
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/FoldWidgets.xcarchive" \
@@ -186,11 +186,7 @@ jobs:
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export-local.log || true
           set -o pipefail
           if ! grep -q "EXPORT SUCCEEDED" export-local.log; then
-            if grep -q -E "No profiles for|Authentication failed" export-local.log; then
-              echo "::warning::Compilation et archive réussies. La signature attend le groupe ${GROUP_WAIT} assigné à com.padelup.foldwidgets et com.padelup.foldwidgets.widget dans Certificates, Identifiers & Profiles. L'API Apple ne peut pas faire cette assignation."
-              exit 0
-            fi
-            echo "Export échoué pour une autre raison que le profil manquant."
+            echo "::error::L'IPA n'a pas été signée. Le groupe ${GROUP_WAIT} doit être sur les deux identifiants, et un profil App Store doit exister."
             exit 1
           fi
           cd "$RUNNER_TEMP/local" && unzip -q -o *.ipa -d ipa
