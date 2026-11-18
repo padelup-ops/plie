@@ -21,6 +21,10 @@ on:
         description: "Orientations du simulateur à essayer, séparées par des espaces (portrait, landscapeLeft, landscapeRight, portraitUpsideDown) ; vide = telle quelle"
         required: false
         default: ""
+      record:
+        description: "Secondes de vidéo à filmer sur l'écran intérieur pour chaque capture (vide = images seulement)"
+        required: false
+        default: ""
       resize:
         description: "Taille en points pour le mode redimensionnable (ex. 669x951 : l'écran intérieur tenu en portrait) ; vide = captures normales"
         required: false
@@ -75,7 +79,9 @@ jobs:
       - name: Capturer
         run: |
           BID=com.padelup.retrofold
-          for O in ${{ inputs.orient != '' && inputs.orient || 'none' }}; do
+          ORIENTS="${{ inputs.orient != '' && inputs.orient || 'none' }}"
+          LAST=$(echo $ORIENTS | awk '{print $NF}')
+          for O in $ORIENTS; do
             if [ "$O" != "none" ]; then
               xcrun devicectl device orientation set --device "$UDID" "$O" 2>&1 | tail -2 | tee -a shots/simulateur.txt || true
               sleep 4
@@ -83,6 +89,8 @@ jobs:
             else
               SUF=""
             fi
+            # Avec plusieurs orientations, seules les captures de la dernière comptent quand on filme.
+            if [ -n "${{ inputs.record }}" ] && [ "$O" != "$LAST" ]; then continue; fi
             N=0
             for R in ${{ inputs.routes }}; do
               N=$((N+1))
@@ -95,6 +103,15 @@ jobs:
                 xcrun simctl io "$UDID" screenshot --display=resizable "shots/$(printf %02d $N)-$R-dresizable.png" > /dev/null 2>>shots/erreurs-captures.txt || true
                 DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" resize stop 2>&1 | tail -1 >> shots/simulateur.txt || true
                 continue
+              fi
+              if [ -n "${{ inputs.record }}" ]; then
+                sleep 3
+                xcrun simctl io "$UDID" recordVideo --display=primary-1 --codec=h264 --force "shots/$(printf %02d $N)-$R$SUF.mp4" > /dev/null 2>>shots/erreurs-captures.txt &
+                RP=$!
+                sleep ${{ inputs.record }}
+                kill -INT $RP 2>/dev/null || true
+                wait $RP 2>/dev/null || true
+                sleep 1
               fi
               sleep ${{ inputs.wait }}
               xcrun devicectl device info displays --device "$UDID" 2>/dev/null | grep -o 'Main display orientation: [a-zA-Z]*' | sed "s/^/$R$SUF : /" >> shots/simulateur.txt || true
