@@ -60,6 +60,11 @@ print("prix :", [x.get("relationships", {}).get("appPricePoint", {}).get("data",
 print("disponibilité :", "oui" if call(f"/v1/apps/{app['id']}/appAvailabilityV2").get("data") else "non")
 iaps = call(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=10").get("data", [])
 print("achats intégrés :", [(i["attributes"].get("productId"), i["attributes"].get("state")) for i in iaps])
+# Demandes de vérification (brouillons compris) et ce qu'elles contiennent.
+for sub in call(f"/v1/reviewSubmissions?filter[app]={app['id']}&limit=5").get("data", []):
+    items = call(f"/v1/reviewSubmissions/{sub['id']}/items?limit=20").get("data", [])
+    kinds = [next((k for k, rel in (it.get("relationships") or {}).items() if k != "reviewSubmission" and (rel.get("data") if isinstance(rel, dict) else None)), "?") + ":" + str(it["attributes"].get("state")) for it in items]
+    print("demande", sub["attributes"].get("state"), sub["attributes"].get("submittedDate"), "| éléments", len(items), kinds)
 
 # Installations et sessions par build (statistiques TestFlight d'Apple).
 for b in call(f"/v1/builds?filter[app]={app['id']}&sort=-uploadedDate&limit=4").get("data", []):
