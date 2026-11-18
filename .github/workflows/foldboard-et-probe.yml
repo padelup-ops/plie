@@ -16,7 +16,7 @@ jobs:
       - name: Paquet Swift
         run: |
           mkdir -p et && cd et
-          git ls-remote https://github.com/pytorch/executorch 'refs/heads/swiftpm-*' | awk '{print $2}' | sed 's#refs/heads/##' | sort -V | tail -6 | tee branches.txt
+          git ls-remote https://github.com/pytorch/executorch 'refs/heads/swiftpm-*' | awk '{print $2}' | sed 's#refs/heads/##' | grep -E '^swiftpm-[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -6 | tee branches.txt
           B="${{ inputs.branch }}"; [ -z "$B" ] && B=$(tail -1 branches.txt)
           echo "BRANCH=$B" >> "$GITHUB_ENV"
           curl -sL "https://raw.githubusercontent.com/pytorch/executorch/$B/Package.swift" > Package.swift
@@ -35,7 +35,7 @@ jobs:
                   print('get', u)
                   subprocess.run(['curl', '-sL', '-o', n, u], check=False)
           EOF
-          for z in *.zip; do unzip -q -o "$z" -d fw; done
+          for z in *.zip; do [ -f "$z" ] && unzip -q -o "$z" -d fw; done; mkdir -p fw
           ls fw; du -sh fw/* | head -20
           find fw -name "*.h" | grep -iE "module|tensor|value|ExecuTorch\.h" | head -20
           for h in $(find fw -path "*ios-arm64-simulator*" -name "*.h" | grep -iE "Module\.h|Tensor\.h|Value\.h" | head -6); do echo "== $h"; grep -nE "NS_SWIFT_NAME|^- \(|^\+ \(|@interface|initWith" "$h" | head -40; done
