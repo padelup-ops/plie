@@ -140,7 +140,7 @@ def main():
     root = build_trie(words, key_of)
     blank = 64
 
-    results = {lam: [0, 0, 0, 0, 0] for lam in (0.0, 0.15, 0.3, 0.5)}   # n, top1, top4, connus, connus_top1
+    results = {lam: [0, 0, 0, 0, 0] for lam in (0.3, 0.5, 0.7, 1.0, 1.4)}   # n, top1, top4, connus, connus_top1
     n_in = 0
     misses = []
     t0 = time.time()
@@ -180,7 +180,7 @@ def main():
             r[2] += target in top
             r[3] += inside
             r[4] += inside and top[:1] == [target]
-            if lam == 0.3 and inside and top[:1] != [target] and len(misses) < 25:
+            if lam == 0.7 and inside and top[:1] != [target] and len(misses) < 25:
                 misses.append(f"{target}→{top[0] if top else '-'}")
     dt = time.time() - t0
     for lam, (cnt, t1, t4, ins, in1) in results.items():

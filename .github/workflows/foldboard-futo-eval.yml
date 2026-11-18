@@ -27,13 +27,15 @@ jobs:
           files = list_repo_files("futo-org/futo-swipe")
           print("\n".join(files))
           for f in files:
-              if f.endswith((".pte", ".md", ".json", ".txt")) and "fp32" in f or f.endswith((".md", ".json", ".txt")):
+              if f.endswith((".pte", ".json", ".txt", ".md")):
                   hf_hub_download("futo-org/futo-swipe", f, local_dir=".")
           EOF
           git fetch -q origin ci-swipedata
           for f in test-en-qwerty.jsonl s5-fr-azerty.jsonl qwerty.json azerty.json; do git show origin/ci-swipedata:$f > $f; done
           cp ../foldboard/Shared/words-en.txt ../foldboard/Shared/words-fr.txt .
           find . -name "*.pte" | xargs ls -la
+          for f in */metadata.json scoring.json; do echo "== $f"; cat "$f"; echo; done
+          head -c 400 chosen_planarian/vocab.txt; echo; wc -l */vocab.txt
       - name: Mesurer
         run: |
           cd work
