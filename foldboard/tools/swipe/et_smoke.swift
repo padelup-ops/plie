@@ -37,8 +37,8 @@ do {
         let t1 = Date()
         let outs = try module.forward(tf, tk, tm)
         let ms = Date().timeIntervalSince(t1) * 1000
-        let e: Tensor<Float> = try outs[0].tensor()
-        let arr = try e.scalars()
+        guard let e: Tensor<Float> = try outs[0].tensor() else { print("pas de tenseur"); break }
+        let arr: [Float] = e.withUnsafeBytes { Array($0) }
         print("sortie", e.shape, "en", String(format: "%.1f", ms), "ms (essai \(run))")
         var out = "", last = -1
         for t in 0..<32 {
