@@ -1,0 +1,54 @@
+APP 6836120890 RetroFold: Pocket Console
+ok     catégories GAMES / GAMES_ACTION / GAMES_CASUAL
+ok     prix 0 € (base France)
+ok     classification par âge (aucun contenu sensible)
+ok     droits sur le contenu (aucun contenu de tiers)
+ok     disponibilité déjà définie
+VERSION 1.0 DEVELOPER_REJECTED
+ok     copyright « 2026 PadelUp » et sortie dès l'accord d'Apple
+ok     coordonnées et notes pour la vérification
+       https://foldly.netlify.app/retrofold/fr/ -> 200
+       https://foldly.netlify.app/retrofold/en/ -> 200
+       https://foldly.netlify.app/retrofold/fr/privacy.html -> 200
+       https://foldly.netlify.app/retrofold/en/privacy.html -> 200
+ok     confidentialité zh-Hans
+ok     confidentialité ja
+ok     confidentialité de-DE
+ok     confidentialité fr-FR
+ok     confidentialité en-US
+ok     confidentialité ko
+ok     confidentialité es-ES
+ok     assistance fr-FR
+ok     assistance de-DE
+ok     assistance es-ES
+ok     assistance ko
+ok     assistance zh-Hans
+ok     assistance ja
+ok     assistance en-US
+ok     6 capture(s) fr-FR (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) fr-FR (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) de-DE (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) de-DE (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) es-ES (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) es-ES (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) ko (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) ko (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) en-US (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-US (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) zh-Hans (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) zh-Hans (APP_IPHONE_DUO) déjà à jour
+ok     6 capture(s) ja (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) ja (APP_IPHONE_DUO) déjà à jour
+ok     build 10 choisi pour la version 1.0
+ok     captures traitées par Apple
+ok     version ajoutée à la demande
+       achat com.padelup.retrofold.trial1 READY_TO_SUBMIT
+ÉCHEC  achat com.padelup.retrofold.trial1 envoyé avec la version -> HTTP 409 ENTITY_ERROR.RELATIONSHIP.INVALID: InAppPurchase 6836133040 has no pending version for submission
+ok     achat com.padelup.retrofold.trial1 déjà joint à la version
+       achat com.padelup.retrofold.pro READY_TO_SUBMIT
+ÉCHEC  achat com.padelup.retrofold.pro envoyé avec la version -> HTTP 409 ENTITY_ERROR.RELATIONSHIP.INVALID: InAppPurchase 6836123569 has no pending version for submission
+ok     achat com.padelup.retrofold.pro déjà joint à la version
+ok     ENVOI À LA VÉRIFICATION D'APPLE
+état de la version : WAITING_FOR_REVIEW
+
+PRÊT
