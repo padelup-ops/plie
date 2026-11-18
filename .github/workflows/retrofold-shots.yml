@@ -109,26 +109,37 @@ jobs:
                 sleep 3
                 OUT="shots/$(printf %02d $N)-$R$SUF.mp4"
                 SIMCTL=$(xcrun -f simctl)
+                # Sans contrôle des tâches, bash fait ignorer Ctrl+C (SIGINT) aux commandes lancées en arrière-plan :
+                # simctl ne s'arrêterait jamais. « set -m » le rétablit.
+                set -m
                 "$SIMCTL" io "$UDID" recordVideo --display=primary-1 --codec=h264 --force "$OUT" > /dev/null 2>>shots/erreurs-captures.txt &
                 RP=$!
+                set +m
                 sleep ${{ inputs.record }}
                 kill -INT $RP 2>/dev/null || true
-                for k in $(seq 1 30); do kill -0 $RP 2>/dev/null || break; sleep 0.5; done
+                for k in $(seq 1 40); do kill -0 $RP 2>/dev/null || break; sleep 0.5; done
                 kill -9 $RP 2>/dev/null || true
-                echo "vidéo $OUT : $(ls -la "$OUT" 2>/dev/null | awk '{print $5}') octets" | tee -a shots/simulateur.txt
+                rm -f shots/*.sb-* 2>/dev/null || true
+                # Copie plus légère (largeur 1004 px) pour l'envoyer dans le dépôt.
+                if command -v ffmpeg >/dev/null; then
+                  ffmpeg -v error -y -i "$OUT" -vf scale=1004:-2 -c:v libx264 -crf 20 -preset veryfast -an "${OUT%.mp4}-s.mp4" && rm -f "$OUT"
+                else
+                  avconvert -s "$OUT" -o "${OUT%.mp4}-s.mp4" -p Preset1280x720 --replace > /dev/null 2>&1 && rm -f "$OUT"
+                fi
+                echo "vidéo $OUT : $(ls -la "${OUT%.mp4}-s.mp4" "$OUT" 2>/dev/null | awk '{print $5}' | tr '\n' ' ') octets" | tee -a shots/simulateur.txt
               fi
               sleep ${{ inputs.wait }}
               xcrun devicectl device info displays --device "$UDID" 2>/dev/null | grep -o 'Main display orientation: [a-zA-Z]*' | sed "s/^/$R$SUF : /" >> shots/simulateur.txt || true
               for D in primary primary-1; do xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$(printf %02d $N)-$R$SUF-d$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true; done
             done
           done
-          ls -la shots
+          ls -la shots; command -v ffmpeg avconvert || true
       - name: Vidéos (artefact)
         if: always() && inputs.record != ''
         uses: actions/upload-artifact@v4
         with:
           name: retrofold-videos
-          path: shots/*.mp4
+          path: shots/*-s.mp4
           retention-days: 3
           if-no-files-found: warn
       - name: Publier
@@ -137,7 +148,8 @@ jobs:
           GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p shots && cd shots
-          rm -f *.mp4
+          rm -f *.sb-*
+          find . -type f -size +90M -print -delete
           git init -q -b ci-retrofold-shots
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
