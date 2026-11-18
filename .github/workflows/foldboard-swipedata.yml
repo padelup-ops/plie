@@ -1,0 +1,44 @@
+# FOLDBOARD : récupère un échantillon de vrais swipes en anglais (jeu de données FUTO, licence MIT)
+# pour mesurer le glisser du clavier sur de vrais tracés. Résultat publié sur la branche ci-swipedata.
+name: Foldboard - Swipes réels (échantillon)
+on:
+  workflow_dispatch:
+    inputs:
+      rows:
+        description: "Nombre de swipes du jeu de test"
+        required: false
+        default: "4000"
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Télécharger
+        run: |
+          mkdir -p out && cd out
+          B=https://huggingface.co/datasets/futo-org/swipe.futo.org
+          curl -sL "$B/resolve/main/test.jsonl" | head -n ${{ inputs.rows }} > test-head.jsonl || true
+          wc -l test-head.jsonl
+          curl -sL "https://huggingface.co/api/datasets/futo-org/swipe.futo.org/tree/main/swipe-5/layouts" > layouts-list.json || true
+          curl -sL "https://huggingface.co/api/datasets/futo-org/swipe.futo.org/tree/main" > root-list.json || true
+          curl -sL "$B/resolve/main/swipe-5/layouts/qwerty.json" > qwerty.json || true
+          curl -sL "$B/resolve/main/README.md" > README-dataset.md || true
+          curl -sL "$B/resolve/main/swipe-5/README.md" > README-swipe5.md || true
+          ls -la
+          python3 - <<'PY'
+          import json
+          l = open('test-head.jsonl').readline()
+          d = json.loads(l)
+          print({k: (v if k != 'data' else f'{len(v)} points, first {v[:3]}') for k, v in d.items()})
+          PY
+          head -c 1500 qwerty.json; echo
+          cat layouts-list.json | head -c 800; echo
+      - name: Publier
+        run: |
+          cd out
+          printf 'Swipes: FUTO swipe.futo.org dataset (https://huggingface.co/datasets/futo-org/swipe.futo.org), MIT License.\n' > SOURCE.txt
+          git init -q -b ci-swipedata
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Échantillon de swipes réels (FUTO, MIT)"
+          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" ci-swipedata
