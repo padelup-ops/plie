@@ -206,6 +206,43 @@ elif MODE == "scale":
                 kr = call("PUT", f"/campaigns/{c['id']}/adgroups/{g['id']}/targetingkeywords/bulk", upd)
                 print("  mots-clés", len(upd), "ÉCHEC " + str(kr)[:300] if isinstance(kr, dict) and kr.get("error") else "ok")
 
+elif MODE == "kwtrim":
+    # 18 nov. : baisse les enchères des mots-clés chers d'une campagne (BUDGETS="Foldly – iPhone Duo"), sur les DAYS derniers jours :
+    # au moins 2 € dépensés et aucune installation → enchère ÷ 2 ; coût par installation au-dessus de 0,90 € → enchère −25 %. Minimum 0,30 €.
+    days = int(os.environ.get("DAYS", "7"))
+    end = datetime.date.today(); start = end - datetime.timedelta(days=days - 1)
+    for name in [n.split("=")[0].strip() for n in os.environ.get("BUDGETS", "").split(";") if n.strip()]:
+        c = by_name.get(name)
+        if not c:
+            print("introuvable", name); continue
+        r = call("POST", f"/reports/campaigns/{c['id']}/keywords", {"startTime": str(start), "endTime": str(end), "granularity": None,
+                 "selector": {"orderBy": [{"field": "localSpend", "sortOrder": "DESCENDING"}], "pagination": {"offset": 0, "limit": 1000}},
+                 "returnRowTotals": True, "returnRecordsWithNoMetrics": False})
+        if r.get("error"):
+            print("rapport mots-clés ÉCHEC", str(r)[:400]); continue
+        changes = {}
+        for row in r.get("data", {}).get("reportingDataResponse", {}).get("row", []):
+            m, t = row.get("metadata", {}), row.get("total", {})
+            spend = float((t.get("localSpend") or {}).get("amount") or 0)
+            inst = int(t.get("totalInstalls", t.get("installs")) or 0)
+            bid = float((m.get("bidAmount") or {}).get("amount") or 0)
+            cpi = spend / inst if inst else None
+            verdict = "garde"
+            if bid and spend >= 2 and inst == 0:
+                nb = round(max(0.3, bid * 0.5), 2); verdict = f"÷2 → {nb}"
+            elif bid and cpi is not None and cpi > 0.9:
+                nb = round(max(0.3, bid * 0.75), 2); verdict = f"−25 % → {nb}"
+            else:
+                nb = None
+            print(f"  {m.get('keyword')!r} [{m.get('matchType')}] dépensé {spend:.2f} · installs {inst} · coût/install {('%.2f' % cpi) if cpi else '—'} · enchère {bid} · {verdict}")
+            if nb is not None and nb < bid:
+                changes.setdefault(m.get("adGroupId"), []).append({"id": m.get("keywordId"), "bidAmount": {"amount": str(nb), "currency": CUR}})
+        for gid, upd in changes.items():
+            kr = call("PUT", f"/campaigns/{c['id']}/adgroups/{gid}/targetingkeywords/bulk", upd)
+            print("  groupe", gid, len(upd), "mot(s)-clé(s) baissé(s)", "ÉCHEC " + str(kr)[:300] if isinstance(kr, dict) and kr.get("error") else "ok")
+        if not changes:
+            print("  aucun mot-clé à baisser")
+
 elif MODE in ("pause", "resume"):
     # Avec « budgets » (noms séparés par ;) : seulement ces campagnes. Sans : toutes.
     only = [n.split("=")[0].strip() for n in os.environ.get("BUDGETS", "").split(";") if n.strip()]
