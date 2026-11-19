@@ -266,6 +266,40 @@ final class GamePakGame: PixelGameProtocol {
 
     var acceptsTouch: Bool { gameState == .playing && (machine?.hasTouch ?? false) }
 
+    // MARK: - DS on the open Duo
+
+    /// A DS game is running: the open Duo shows its two screens big, like a real DS.
+    var isDS: Bool { current?.system == .nds }
+
+    /// The DS picture split into its top screen and its touch screen.
+    func dsScreens() -> (top: CGImage, bottom: CGImage)? {
+        guard let image, image.height >= 2 else { return nil }
+        let h = image.height / 2
+        guard let top = image.cropping(to: CGRect(x: 0, y: 0, width: image.width, height: h)),
+              let bottom = image.cropping(to: CGRect(x: 0, y: h, width: image.width, height: h)) else { return nil }
+        return (top, bottom)
+    }
+
+    /// A touch on the DS touch screen, from 0 to 1 across and down (nil: released).
+    func touchDS(_ p: CGPoint?) {
+        guard gameState == .playing, let machine, machine.hasTouch else { return }
+        let px = machine.pixelSize
+        guard let p else {
+            machine.touch(x: 0, y: 0, pressed: false)
+            return
+        }
+        let x = Int(min(max(p.x, 0), 0.999) * px.width)
+        let y = Int(px.height / 2 + min(max(p.y, 0), 0.999) * px.height / 2)
+        machine.touch(x: x, y: y, pressed: true)
+    }
+
+    /// The on-screen buttons of the big DS layout (every button, L / R / X / Y included).
+    func overlayButton(_ b: PakButton, _ down: Bool) {
+        guard gameState == .playing else { return }
+        releaseAt[b] = nil
+        if down { consoleHeld.insert(b) } else { consoleHeld.remove(b) }
+    }
+
     // MARK: - Console input
 
     func handleInput(action: GameInputAction) {

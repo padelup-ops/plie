@@ -31,10 +31,16 @@ struct GamePakFullScreenHost: View {
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 0.3)) { _ in
-            if let pak = appState.activeGame as? GamePakGame, pak.gameState == .playing, GamePakGame.hasController,
+            if let pak = appState.activeGame as? GamePakGame, pak.gameState == .playing,
                !postureManager.isCompactWidth, !appState.isEjecting {
-                GamePakFullScreen(game: pak)
-                    .transition(.opacity)
+                if pak.isDS {
+                    // DS: both screens over the whole open Duo; on-screen buttons unless a controller is connected.
+                    GamePakDSScreen(game: pak, showsButtons: !GamePakGame.hasController)
+                        .transition(.opacity)
+                } else if GamePakGame.hasController {
+                    GamePakFullScreen(game: pak)
+                        .transition(.opacity)
+                }
             }
         }
     }

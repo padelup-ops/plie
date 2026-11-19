@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F4A2619349D6ADD2D8EF23C9 /* GamePakDSScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD4F3AEE3E171BB1C48A5F0 /* GamePakDSScreen.swift */; };
 		4D8CF1289DADDD890C4EEFD6 /* MelonDSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FC41656DCA4DF7284D2A366B /* MelonDSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4A31162E5895249FE211357D /* MGBACore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA03B0111724891266C3F358 /* MGBACore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		38C13265823709C3937BE45E /* GamePakScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058BFB1DE9E814FE5B4744D2 /* GamePakScreens.swift */; };
@@ -112,6 +113,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6AD4F3AEE3E171BB1C48A5F0 /* GamePakDSScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePakDSScreen.swift; sourceTree = "<group>"; };
 		FC41656DCA4DF7284D2A366B /* MelonDSCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MelonDSCore.framework; path = Cores/MelonDSCore.framework; sourceTree = SOURCE_ROOT; };
 		FA03B0111724891266C3F358 /* MGBACore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MGBACore.framework; path = Cores/MGBACore.framework; sourceTree = SOURCE_ROOT; };
 		058BFB1DE9E814FE5B4744D2 /* GamePakScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePakScreens.swift; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 			isa = PBXGroup;
 			children = (
 				058BFB1DE9E814FE5B4744D2 /* GamePakScreens.swift */,
+				6AD4F3AEE3E171BB1C48A5F0 /* GamePakDSScreen.swift */,
 				5690663BD3A78DA3DAB4553D /* GamePakMachines.swift */,
 				742414CD884ECCD50510FDF7 /* GamePakGame.swift */,
 				E9CB72DC70A405D8F13BC88E /* RomLibrary.swift */,
@@ -609,6 +612,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4A2619349D6ADD2D8EF23C9 /* GamePakDSScreen.swift in Sources */,
 				38C13265823709C3937BE45E /* GamePakScreens.swift in Sources */,
 				7243AFF0E315B6AB0F635DE5 /* GamePakMachines.swift in Sources */,
 				57F200A1539A54035AD49A0F /* GamePakGame.swift in Sources */,
