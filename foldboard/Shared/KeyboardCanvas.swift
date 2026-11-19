@@ -397,6 +397,8 @@ final class KeyboardCanvas: UIView {
         /// Écrire en glissant : le doigt trace le mot.
         var glide = false
         var points: [CGPoint] = []
+        /// L'instant de chaque point du tracé (secondes), pour le modèle de glisser.
+        var times: [TimeInterval] = []
         var t0: TimeInterval = 0
         init(index: Int, start: CGPoint) {
             self.index = index
@@ -2358,6 +2360,7 @@ final class KeyboardCanvas: UIView {
             tr.t0 = t.timestamp
             if recording != nil { halo(at: p, radius: t.majorRadius) }
             tr.points = [p]
+            tr.times = [t.timestamp]
             if autoOn, layoutMode.isOneHand, case .char(let c) = cells[i].view.spec.kind, c.count == 1, c.first?.isLetter == true {
                 let f = cells[i].frame
                 let lo = blocks.map { $0.minX }.min() ?? 0
@@ -2430,7 +2433,10 @@ final class KeyboardCanvas: UIView {
                 if let j = cellIndex(at: p), case .char = cells[j].view.spec.kind { setPressed(j, true); pageSlide = (t, j) }
                 continue
             }
-            if tr.points.count < (tr.glide ? 600 : 80) { tr.points.append(p) }
+            if tr.points.count < (tr.glide ? 600 : 80) {
+                tr.points.append(p)
+                tr.times.append(t.timestamp)
+            }
             if tr.glide {
                 drawGlide(tr.points)
                 continue
@@ -2658,9 +2664,10 @@ final class KeyboardCanvas: UIView {
             centers[ch, default: []].append(CGPoint(x: c.frame.midX, y: c.frame.midY))
             keyW = max(keyW, c.frame.width); keyH = max(keyH, c.frame.height)
         }
-        let model = KBTouchModel(points: [], centers: centers, keyW: keyW, keyH: keyH)
+        var model = KBTouchModel(points: [], centers: centers, keyW: keyW, keyH: keyH)
+        model.canvas = bounds.size
         var before = input?.kbTextBefore() ?? ""
-        let found = suggest.glide(tr.points, touch: model, before: before + " ")
+        let found = suggest.glide(tr.points, touch: model, before: before + " ", times: tr.times)
         guard var word = found.first else {
             KBFeedback.shared.tap(sound: .off, haptics: eff.haptics * 0.6)
             return

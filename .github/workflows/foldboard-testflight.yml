@@ -5,7 +5,7 @@ name: Foldboard - TestFlight
 
 on:
   push:
-    branches: [main]
+    branches: [main, cursor/foldboard-futo-swipe-b370]
     paths:
       - "foldboard/App/**"
       - "foldboard/Keyboard/**"
@@ -42,6 +42,9 @@ jobs:
           if [ -z "$XCODE" ]; then XCODE=/Applications/Xcode.app; echo "::warning::Xcode 27.1 introuvable"; fi
           sudo xcode-select -s "$XCODE"
           xcodebuild -version
+
+      - name: Runtimes ExecuTorch
+        run: bash foldboard/tools/fetch_executorch.sh
 
       - name: Installer XcodeGen et générer le projet
         run: |
@@ -107,6 +110,7 @@ jobs:
           APP="$RUNNER_TEMP/Foldboard.xcarchive/Products/Applications/Foldboard.app"
           KB="$APP/PlugIns/FoldboardKeyboard.appex"
           ls "$APP" "$APP/PlugIns"
+          du -sh "$APP" "$KB" || true
           cat > "$RUNNER_TEMP/shared.entitlements" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

@@ -6,3 +6,5 @@ xcuserdata/
 *.p8
 __pycache__/
 foldboard/tools/grip/logs/
+
+foldboard/Vendor/

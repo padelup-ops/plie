@@ -418,6 +418,10 @@ func realSwipes(_ L: Lang, file: String, layout: String, tag: String, limit: Int
     if let url = Bundle.main.url(forResource: "words-" + L.code, withExtension: "txt"), let t = try? String(contentsOf: url, encoding: .utf8) {
         for w in t.split(separator: "\n") { vocab.insert(fold(String(w))) }
     }
+    NeuralSwipe.calls = 0
+    NeuralSwipe.skips = 0
+    NeuralSwipe.inferMS = 0
+    NeuralSwipe.inferMaxMS = 0
     var n = 0, t1 = 0, t4 = 0, inN = 0, in1 = 0, in4 = 0, ms = 0.0, msMax = 0.0
     var miss: [String] = []
     for line in text.split(separator: "\n") {
@@ -436,10 +440,12 @@ func realSwipes(_ L: Lang, file: String, layout: String, tag: String, limit: Int
         }
         guard kw > 0, kh > 0 else { continue }
         let pts = p.map { CGPoint(x: $0[0] * cw, y: $0[1] * ch) }
-        let tm = KBTouchModel(points: [], centers: cen, keyW: CGFloat(kw), keyH: CGFloat(kh))
+        var tm = KBTouchModel(points: [], centers: cen, keyW: CGFloat(kw), keyH: CGFloat(kh))
+        tm.canvas = CGSize(width: cw, height: ch)
         let before = (d["b"] as? String) ?? ""
+        let times = p.map { $0.count > 2 ? $0[2] : 0 }
         let tg = Date()
-        let out = s.glide(pts, touch: tm, before: before, limit: 4).map(fold)
+        let out = s.glide(pts, touch: tm, before: before, limit: 4, times: times).map(fold)
         let dt = Date().timeIntervalSince(tg)
         n += 1; ms += dt; if n > 5 { msMax = max(msMax, dt) }
         let inside = vocab.contains(target)
@@ -453,6 +459,7 @@ func realSwipes(_ L: Lang, file: String, layout: String, tag: String, limit: Int
     print("RESULT \(tag) \(L.code) vrais_swipes_connus_top1 \(pc(in1, inN)) (sur \(inN) mots de la liste)")
     print("RESULT \(tag) \(L.code) vrais_swipes_connus_top4 \(pc(in4, inN))")
     print("RESULT \(tag) \(L.code) vrais_swipes_ms_moy \(String(format: "%.1f", 1000 * ms / Double(max(1, n)))) max \(String(format: "%.0f", 1000 * msMax))")
+    print("RESULT \(tag) \(L.code) neural \(NeuralSwipe.statusLine)")
     if tag == "best" { print("vrais swipes ratés \(L.code):", miss.joined(separator: ", ")) }
 }
 
@@ -460,7 +467,8 @@ let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
     // L'ancienne d'abord : la première configuration paie le chargement des dictionnaires (temps faussés).
-    ("sans_nouveau", ["scan2": 0, "genElision": 0, "oneLetterFix": 0, "hyphenTypo": 0, "bilingual": 0]),
+    // gNeural à 0 : le glisser géométrique seul, pour le comparer au reclassement FUTO Swipe.
+    ("sans_nouveau", ["scan2": 0, "genElision": 0, "oneLetterFix": 0, "hyphenTypo": 0, "bilingual": 0, "gNeural": 0]),
     ("best", [:]),
 ]
 /// De l'anglais tapé sur le clavier français (AZERTY) : corrigé en anglais, jamais « francisé ».
