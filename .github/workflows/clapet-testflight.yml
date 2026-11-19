@@ -9,7 +9,8 @@ name: Clapet - TestFlight
 
 on:
   push:
-    branches: [main]
+    # main, et la branche de l'essai « heures depuis le début » (le dispatch d'Actions n'est pas autorisé).
+    branches: [main, cursor/lifetime-hours-chart-values-e8a9]
     paths:
       - "clapet/Clapet/**"
       - "clapet/ClapetWidget/**"

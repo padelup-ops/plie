@@ -123,6 +123,7 @@ struct ClapetStats: Codable, Equatable {
     /// Le détail heure par heure du temps fermé s'en sert. Le temps ouvert vient de `sessionLog`.
     var closedLog: [OpenSession] = []
     /// Temps passé ouvert (déplié) depuis le début, en secondes. Survit au nettoyage de l'historique.
+    /// Partagé avec les widgets par le trousseau commun (ClapetVault), pas par un App Group.
     /// La session en cours n'y est pas encore : on l'ajoute à l'affichage.
     var lifeOpen: Double = 0
     /// Temps passé fermé (plié) depuis le début, en secondes. Même principe.
