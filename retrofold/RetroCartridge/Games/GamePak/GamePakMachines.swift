@@ -133,7 +133,7 @@ final class RetroCoreMachine: GamePakMachine {
     private(set) var pixelSize: CGSize
 
     /// Why the last start failed, for the library screen.
-    static var lastError: String?
+    nonisolated(unsafe) static var lastError: String?
 
     init?(system: PakSystem, rom: URL, saveDir: URL) {
         let name = system == .nds ? "MelonDSCore" : "MGBACore"
