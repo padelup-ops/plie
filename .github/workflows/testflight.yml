@@ -41,6 +41,8 @@ concurrency:
 
 jobs:
   build:
+    # Arrêt immédiat : un merge Foldboard a lancé ce workflow par mégarde.
+    if: ${{ false }}
     runs-on: xcode-27
     timeout-minutes: 45
     permissions:
