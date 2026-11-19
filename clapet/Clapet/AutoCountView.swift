@@ -70,6 +70,15 @@ struct AutoCountView: View {
                 }
 
                 Section {
+                    Text("In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } header: {
+                    Text("Opening and closing sounds")
+                }
+
+                Section {
                     installRow(Self.restLink, symbol: "moon.zzz.fill",
                                title: Text("Install “Foldly repos”"), detail: Text("Marks your phone as resting."))
                     installRow(Self.useLink, symbol: "iphone.gen3",

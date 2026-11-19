@@ -895,3 +895,18 @@
 "Thank you for 3,000 downloads! 🎉" = "Thank you for 3,000 downloads! 🎉";
 "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!";
 "See Foldly+" = "See Foldly+";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "Play the opening sound";
+"Play the closing sound" = "Play the closing sound";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened.";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed.";
+"Which sound" = "Which sound";
+"Current setting" = "Current setting";
+"Opening sound" = "Opening sound";
+"Soft close" = "Soft close";
+"Original close" = "Original close";
+"Export sounds" = "Export sounds";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound.";
+"Opening and closing sounds" = "Opening and closing sounds";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action.";

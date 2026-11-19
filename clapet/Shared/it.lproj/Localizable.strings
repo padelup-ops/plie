@@ -878,3 +878,18 @@
 "Thank you for 3,000 downloads! 🎉" = "Grazie per i 3.000 download! 🎉";
 "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldly ha appena superato i 3.000 download. Grazie per piegare con noi e per tutte le tue idee. Per festeggiare, Foldly+ resta a 0,99 € fino a venerdì. Continua a inviare idee!";
 "See Foldly+" = "Vedi Foldly+";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "Riproduci il suono di apertura";
+"Play the closing sound" = "Riproduci il suono di chiusura";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "Riproduce il suono di apertura di Foldly senza aprire l'app. Usalo in un'automazione di Comandi quando il telefono si apre.";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "Riproduce il suono di chiusura di Foldly senza aprire l'app. Usalo in un'automazione di Comandi quando il telefono si chiude.";
+"Which sound" = "Quale suono";
+"Current setting" = "Impostazione attuale";
+"Opening sound" = "Suono di apertura";
+"Soft close" = "Chiusura morbida";
+"Original close" = "Clic originale";
+"Export sounds" = "Esporta i suoni";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Esporta i suoni salva i suoni di apertura e chiusura, così Comandi può riprodurli con Riproduci suono.";
+"Opening and closing sounds" = "Suoni di apertura e chiusura";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "Nell'automazione Chiuso, aggiungi Riproduci il suono di chiusura. In Aperto, aggiungi Riproduci il suono di apertura. Foldly resta chiuso. Il suono di chiusura segue Suono di chiusura morbido, salvo che tu ne scelga un altro nell'azione.";

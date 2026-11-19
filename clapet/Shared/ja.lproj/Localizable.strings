@@ -895,3 +895,18 @@
 "Thank you for 3,000 downloads! 🎉" = "3,000ダウンロードありがとう！🎉";
 "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldlyのダウンロードが3,000を超えました。いっしょに折ってくれて、アイデアボックスのアイデアもありがとう。お祝いとして、Foldly+は金曜日までセール価格のままです。アイデアをどんどん送ってください！";
 "See Foldly+" = "Foldly+を見る";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "開く音を鳴らす";
+"Play the closing sound" = "閉じる音を鳴らす";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "アプリを開かずにFoldlyの開く音を鳴らします。iPhoneを開いたときのショートカットのオートメーションに追加します。";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "アプリを開かずにFoldlyの閉じる音を鳴らします。iPhoneを閉じたときのショートカットのオートメーションに追加します。";
+"Which sound" = "どの音";
+"Current setting" = "現在の設定";
+"Opening sound" = "開く音";
+"Soft close" = "やわらかい閉じる音";
+"Original close" = "元の閉じる音";
+"Export sounds" = "音を書き出す";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "音を書き出すと、開く音と閉じる音が保存され、ショートカットの「サウンドを再生」で鳴らせます。";
+"Opening and closing sounds" = "開く音と閉じる音";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "「閉じたとき」のオートメーションに「閉じる音を鳴らす」を追加します。「開いたとき」には「開く音を鳴らす」を追加します。Foldlyは開いたままになりません。閉じる音は、アクションで別の音を選ばない限り「やわらかい閉じる音」に従います。";

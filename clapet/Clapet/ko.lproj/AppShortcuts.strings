@@ -5,3 +5,7 @@
 "How many folds today in ${applicationName}" = "${applicationName}에서 오늘 몇 번";
 "My folds in ${applicationName}" = "${applicationName}에서 나의 횟수";
 "Count an opening in ${applicationName}" = "${applicationName}에서 열기 세기";
+
+/* Sons */
+"Play the opening sound in ${applicationName}" = "${applicationName}에서 여는 소리 재생";
+"Play the closing sound in ${applicationName}" = "${applicationName}에서 닫는 소리 재생";

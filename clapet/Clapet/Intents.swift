@@ -102,6 +102,36 @@ struct MindfulOpenIntent: AppIntent {
     }
 }
 
+/// « Jouer le son d'ouverture » : sans ouvrir Foldly. À ajouter à l'automatisation « iPhone ouvert ».
+struct PlayOpeningSoundIntent: AudioPlaybackIntent {
+    static var title: LocalizedStringResource = "Play the opening sound"
+    static var description = IntentDescription("Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened.")
+    static var openAppWhenRun = false
+
+    @Parameter(title: "Which sound", default: .opening)
+    var sound: FoldlySoundChoice
+
+    func perform() async throws -> some IntentResult {
+        await ClapetSound.playInBackground(ClapetSound.effect(sound, closing: false))
+        return .result()
+    }
+}
+
+/// « Jouer le son de fermeture » : sans ouvrir Foldly. À ajouter à l'automatisation « iPhone fermé ».
+struct PlayClosingSoundIntent: AudioPlaybackIntent {
+    static var title: LocalizedStringResource = "Play the closing sound"
+    static var description = IntentDescription("Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed.")
+    static var openAppWhenRun = false
+
+    @Parameter(title: "Which sound", default: .setting)
+    var sound: FoldlySoundChoice
+
+    func perform() async throws -> some IntentResult {
+        await ClapetSound.playInBackground(ClapetSound.effect(sound, closing: true))
+        return .result()
+    }
+}
+
 struct TodayClapsIntent: AppIntent {
     static var title: LocalizedStringResource = "Folds today"
     static var description = IntentDescription("Tells you how many times you closed your phone today.")
@@ -127,5 +157,13 @@ struct ClapetShortcuts: AppShortcutsProvider {
                     phrases: ["How many folds today in \(.applicationName)", "My folds in \(.applicationName)"],
                     shortTitle: "Folds today",
                     systemImageName: "chart.bar.fill")
+        AppShortcut(intent: PlayOpeningSoundIntent(),
+                    phrases: ["Play the opening sound in \(.applicationName)"],
+                    shortTitle: "Play the opening sound",
+                    systemImageName: "speaker.wave.2")
+        AppShortcut(intent: PlayClosingSoundIntent(),
+                    phrases: ["Play the closing sound in \(.applicationName)"],
+                    shortTitle: "Play the closing sound",
+                    systemImageName: "speaker.wave.2.fill")
     }
 }

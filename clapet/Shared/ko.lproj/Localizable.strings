@@ -895,3 +895,18 @@
 "Thank you for 3,000 downloads! 🎉" = "다운로드 3,000 감사합니다! 🎉";
 "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldly 다운로드가 3,000을 넘었어요. 함께 접어 주고 아이디어 상자에 남겨 준 아이디어도 고마워요. 축하로 Foldly+는 금요일까지 할인가 그대로예요. 아이디어를 계속 보내 주세요!";
 "See Foldly+" = "Foldly+ 보기";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "여는 소리 재생";
+"Play the closing sound" = "닫는 소리 재생";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "앱을 열지 않고 Foldly의 여는 소리를 재생합니다. iPhone이 열릴 때 실행되는 단축어 자동화에 넣으세요.";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "앱을 열지 않고 Foldly의 닫는 소리를 재생합니다. iPhone이 닫힐 때 실행되는 단축어 자동화에 넣으세요.";
+"Which sound" = "어떤 소리";
+"Current setting" = "현재 설정";
+"Opening sound" = "여는 소리";
+"Soft close" = "부드러운 닫힘";
+"Original close" = "원래 닫힘 소리";
+"Export sounds" = "소리 내보내기";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "소리 내보내기는 여는 소리와 닫는 소리를 저장해, 단축어의 사운드 재생으로 울릴 수 있게 합니다.";
+"Opening and closing sounds" = "여는 소리와 닫는 소리";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "닫힘 자동화에는 닫는 소리 재생을, 열림 자동화에는 여는 소리 재생을 추가하세요. Foldly는 열리지 않습니다. 동작에서 다른 소리를 고르지 않으면 닫는 소리는 부드러운 닫힘 소리를 따릅니다.";

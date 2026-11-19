@@ -895,3 +895,18 @@
 "Thank you for 3,000 downloads! 🎉" = "感谢 3,000 次下载！🎉";
 "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldly 的下载量刚刚超过 3,000。感谢你和我们一起折叠，也感谢想法箱里的所有想法。为了庆祝，Foldly+ 的优惠价会保持到周五。继续把想法发给我们吧！";
 "See Foldly+" = "查看 Foldly+";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "播放打开音";
+"Play the closing sound" = "播放合上音";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "不打开 App 即播放 Foldly 的打开音。用于 iPhone 打开时运行的快捷指令自动化。";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "不打开 App 即播放 Foldly 的合上音。用于 iPhone 合上时运行的快捷指令自动化。";
+"Which sound" = "哪种声音";
+"Current setting" = "当前设置";
+"Opening sound" = "打开音";
+"Soft close" = "轻柔合上";
+"Original close" = "原来的合上音";
+"Export sounds" = "导出声音";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "导出声音会保存打开音和合上音，以便在快捷指令中用“播放声音”播放。";
+"Opening and closing sounds" = "打开音和合上音";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "在“合上”自动化中添加“播放合上音”。在“打开”自动化中添加“播放打开音”。Foldly 不会被打开。除非你在操作里另选声音，合上音会跟随“轻柔合上音”。";

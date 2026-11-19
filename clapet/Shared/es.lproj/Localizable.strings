@@ -895,3 +895,18 @@
 "Thank you for 3,000 downloads! 🎉" = "¡Gracias por las 3000 descargas! 🎉";
 "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldly acaba de superar las 3000 descargas. Gracias por plegar con nosotros y por todas tus ideas. Para celebrarlo, Foldly+ sigue a 0,99 € hasta el viernes. ¡Sigue enviando ideas!";
 "See Foldly+" = "Ver Foldly+";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "Reproducir el sonido de apertura";
+"Play the closing sound" = "Reproducir el sonido de cierre";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "Reproduce el sonido de apertura de Foldly sin abrir la app. Úsalo en una automatización de Atajos cuando el teléfono se abre.";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "Reproduce el sonido de cierre de Foldly sin abrir la app. Úsalo en una automatización de Atajos cuando el teléfono se cierra.";
+"Which sound" = "Qué sonido";
+"Current setting" = "Ajuste actual";
+"Opening sound" = "Sonido de apertura";
+"Soft close" = "Cierre suave";
+"Original close" = "Clic original";
+"Export sounds" = "Exportar sonidos";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Exportar sonidos guarda los sonidos de apertura y de cierre para reproducirlos en Atajos con Reproducir sonido.";
+"Opening and closing sounds" = "Sonidos de apertura y de cierre";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "En la automatización Cerrado, añade Reproducir el sonido de cierre. En Abierto, añade Reproducir el sonido de apertura. Foldly sigue cerrado. El sonido de cierre sigue Sonido de cierre suave, salvo que elijas otro en la acción.";

@@ -878,3 +878,18 @@
 "Thank you for 3,000 downloads! 🎉" = "Спасибо за 3 000 загрузок! 🎉";
 "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldly только что перешагнул 3 000 загрузок. Спасибо, что складываете вместе с нами, и за все идеи. В честь этого Foldly+ остаётся по цене акции до пятницы. Присылайте ещё идеи!";
 "See Foldly+" = "Открыть Foldly+";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "Воспроизвести звук открытия";
+"Play the closing sound" = "Воспроизвести звук закрытия";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "Воспроизводит звук открытия Foldly, не открывая приложение. Для автоматизации «Команд», когда телефон открывается.";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "Воспроизводит звук закрытия Foldly, не открывая приложение. Для автоматизации «Команд», когда телефон закрывается.";
+"Which sound" = "Какой звук";
+"Current setting" = "Текущая настройка";
+"Opening sound" = "Звук открытия";
+"Soft close" = "Мягкое закрытие";
+"Original close" = "Исходный щелчок";
+"Export sounds" = "Экспортировать звуки";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Экспорт сохраняет звуки открытия и закрытия, чтобы «Команды» могли воспроизвести их действием «Воспроизвести звук».";
+"Opening and closing sounds" = "Звуки открытия и закрытия";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "В автоматизацию «Закрыт» добавьте «Воспроизвести звук закрытия». В «Открыт» — «Воспроизвести звук открытия». Foldly не открывается. Звук закрытия следует настройке мягкого звука, если в действии не выбран другой.";

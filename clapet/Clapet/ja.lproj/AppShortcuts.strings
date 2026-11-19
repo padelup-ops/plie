@@ -5,3 +5,7 @@
 "How many folds today in ${applicationName}" = "${applicationName}で今日は何回";
 "My folds in ${applicationName}" = "${applicationName}のわたしの回数";
 "Count an opening in ${applicationName}" = "${applicationName}で開いた回数をカウント";
+
+/* Sons */
+"Play the opening sound in ${applicationName}" = "${applicationName}で開く音を鳴らす";
+"Play the closing sound in ${applicationName}" = "${applicationName}で閉じる音を鳴らす";

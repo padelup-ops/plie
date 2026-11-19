@@ -9,7 +9,7 @@ name: Clapet - TestFlight
 
 on:
   push:
-    branches: [main]
+    branches: [main, cursor/lifetime-hours-chart-values-e8a9]
     paths:
       - "clapet/Clapet/**"
       - "clapet/ClapetWidget/**"

@@ -878,3 +878,18 @@
 "Thank you for 3,000 downloads! 🎉" = "Obrigado pelos 3.000 downloads! 🎉";
 "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "O Foldly acabou de passar de 3.000 downloads. Obrigado por dobrar com a gente e por todas as suas ideias. Para comemorar, o Foldly+ continua no preço promocional até sexta. Continue mandando ideias!";
 "See Foldly+" = "Ver Foldly+";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "Tocar o som de abertura";
+"Play the closing sound" = "Tocar o som de fechamento";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "Toca o som de abertura do Foldly sem abrir o app. Use numa automação dos Atalhos quando o telefone abre.";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "Toca o som de fechamento do Foldly sem abrir o app. Use numa automação dos Atalhos quando o telefone fecha.";
+"Which sound" = "Qual som";
+"Current setting" = "Ajuste atual";
+"Opening sound" = "Som de abertura";
+"Soft close" = "Fechamento suave";
+"Original close" = "Clique original";
+"Export sounds" = "Exportar sons";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Exportar sons guarda os sons de abertura e de fechamento para tocá-los nos Atalhos com Reproduzir som.";
+"Opening and closing sounds" = "Sons de abertura e de fechamento";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "Na automação Fechado, adicione Tocar o som de fechamento. Na Aberta, adicione Tocar o som de abertura. O Foldly continua fechado. O som de fechamento segue o som suave, a menos que você escolha outro na ação.";

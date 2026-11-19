@@ -5,3 +5,7 @@
 "How many folds today in ${applicationName}" = "Cuántos pliegues hoy en ${applicationName}";
 "My folds in ${applicationName}" = "Mis pliegues en ${applicationName}";
 "Count an opening in ${applicationName}" = "Contar una apertura en ${applicationName}";
+
+/* Sons */
+"Play the opening sound in ${applicationName}" = "Reproducir el sonido de apertura en ${applicationName}";
+"Play the closing sound in ${applicationName}" = "Reproducir el sonido de cierre en ${applicationName}";

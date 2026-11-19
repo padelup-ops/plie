@@ -412,10 +412,18 @@ struct SettingsView: View {
                 if model.soundOn {
                     Toggle(isOn: $softClose) { Text("Soft close sound") }
                         .onChange(of: softClose) { ClapetSound.shared.play(ClapetSound.closeEffect) }
+                    if !ClapetSound.exportFiles().isEmpty {
+                        ShareLink(items: ClapetSound.exportFiles()) {
+                            Label { Text("Export sounds") } icon: { Image(systemName: "square.and.arrow.up") }
+                        }
+                    }
                 }
                 Toggle(isOn: Binding(get: { model.hapticsOn }, set: { model.setHaptics($0) })) { Text("Vibrations") }
             } footer: {
-                Text("Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top.")
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Desk mode: open your iPhone Duo halfway. Held like a book, today's count is on the left page and the details on the right. Set on the table, the count stands on top.")
+                    Text("Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound.")
+                }
             }
             if store.isTestBuild && !DuoFolds.paidApp {
                 Section {

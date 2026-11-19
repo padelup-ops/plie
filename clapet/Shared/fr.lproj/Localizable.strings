@@ -895,3 +895,18 @@
 "Thank you for 3,000 downloads! 🎉" = "Merci pour les 3 000 téléchargements ! 🎉";
 "Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldly vient de dépasser les 3 000 téléchargements. Merci de plier avec nous et pour toutes tes idées dans la boîte à idées. Pour fêter ça, Foldly+ reste à 0,99 € jusqu'à vendredi. Continue d'envoyer tes idées !";
 "See Foldly+" = "Voir Foldly+";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "Jouer le son d'ouverture";
+"Play the closing sound" = "Jouer le son de fermeture";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "Joue le son d'ouverture de Foldly sans ouvrir l'app. À mettre dans une automatisation Raccourcis quand le téléphone s'ouvre.";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "Joue le son de fermeture de Foldly sans ouvrir l'app. À mettre dans une automatisation Raccourcis quand le téléphone se ferme.";
+"Which sound" = "Quel son";
+"Current setting" = "Réglage actuel";
+"Opening sound" = "Son d'ouverture";
+"Soft close" = "Fermeture douce";
+"Original close" = "Clac d'origine";
+"Export sounds" = "Exporter les sons";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Exporter les sons enregistre les sons d'ouverture et de fermeture, pour les jouer dans Raccourcis avec Lire un son.";
+"Opening and closing sounds" = "Sons d'ouverture et de fermeture";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "Dans l'automatisation Fermé, ajoute Jouer le son de fermeture. Dans Ouvert, ajoute Jouer le son d'ouverture. Foldly reste fermé. Le son de fermeture suit Son de fermeture doux, sauf si tu choisis un autre son dans l'action.";
