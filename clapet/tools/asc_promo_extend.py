@@ -6,6 +6,7 @@ tout le vendredi, et le prix suivant commence le samedi 21 novembre 2026.
 
 Ne change ni le prix, ni les pays, ni une autre app. Ne soumet rien à la vérification.
 """
+import base64
 import json
 import os
 import time
@@ -66,6 +67,15 @@ def get_all(path):
 def money(point):
     a = (point or {}).get("attributes") or {}
     return a.get("customerPrice"), a.get("proceeds"), (point or {}).get("id")
+
+
+def decode_id(value):
+    pad = value + "=" * ((4 - len(value) % 4) % 4)
+    return json.loads(base64.b64decode(pad))
+
+
+def encode_id(obj):
+    return base64.b64encode(json.dumps(obj, separators=(",", ":")).encode()).decode().rstrip("=")
 
 
 apps = call("GET", f"/v1/apps?filter[bundleId]={BUNDLE}")
@@ -150,13 +160,15 @@ for iap in iaps:
         point_id = ((rel.get("inAppPurchasePricePoint") or {}).get("data") or {}).get("id")
         terr = ((rel.get("territory") or {}).get("data") or {}).get("id")
         if not point_id:
-            link = call("GET", f"/v1/inAppPurchasePrices/{p['id']}/relationships/inAppPurchasePricePoint")
-            point_id = (link.get("data") or {}).get("id") if "error" not in link else None
-            if "error" in link:
-                print("  lien palier", link["error"], link["detail"][:200])
-        if not terr:
-            link = call("GET", f"/v1/inAppPurchasePrices/{p['id']}/relationships/territory")
-            terr = (link.get("data") or {}).get("id") if "error" not in link else terr
+            try:
+                meta = decode_id(p["id"])
+            except Exception as exc:
+                meta = {}
+                print("  id illisible", exc)
+            if meta.get("p") and meta.get("t") and meta.get("s"):
+                terr = terr or meta["t"]
+                point_id = encode_id({"s": meta["s"], "t": meta["t"], "p": meta["p"]})
+                print(f"  palier déduit {terr} p={meta['p']} id={point_id}")
         point = included.get(point_id) or {}
         price, proceeds, _ = money(point)
         if price is None and point_id:
@@ -165,6 +177,12 @@ for iap in iaps:
                 price, proceeds, _ = money(got["data"])
                 included[point_id] = got["data"]
                 terr = terr or ((got["data"].get("relationships") or {}).get("territory", {}).get("data") or {}).get("id")
+                usa = encode_id({"s": decode_id(point_id)["s"], "t": "USA", "p": decode_id(point_id)["p"]})
+                usd = call("GET", f"/v1/inAppPurchasePricePoints/{usa}")
+                if usd.get("data"):
+                    print(f"  équivalent USA {money(usd['data'])[0]} $ pour le palier {decode_id(point_id)['p']}")
+            else:
+                print("  palier illisible", got.get("error"), (got.get("detail") or "")[:180])
         key = (a.get("startDate"), a.get("endDate"), str(price))
         groups.setdefault(key, []).append(terr or "?")
         rows.append({"id": p["id"], "start": a.get("startDate"), "end": a.get("endDate"), "price": price,
