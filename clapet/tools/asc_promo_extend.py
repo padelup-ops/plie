@@ -187,6 +187,25 @@ for iap in iaps:
         groups.setdefault(key, []).append(terr or "?")
         rows.append({"id": p["id"], "start": a.get("startDate"), "end": a.get("endDate"), "price": price,
                      "proceeds": proceeds, "territory": terr, "point": point_id, "manual": a.get("manual")})
+    if any(r["price"] is None and r["point"] for r in rows):
+        catalog = {}
+        for terr in ("FRA", "USA"):
+            for pt in get_all(f"/v2/inAppPurchases/{iid}/pricePoints?filter[territory]={terr}&limit=200"):
+                try:
+                    code = decode_id(pt["id"]).get("p")
+                except Exception:
+                    code = None
+                catalog[(terr, code)] = (pt.get("attributes") or {}).get("customerPrice")
+        for r in rows:
+            if r["price"] is None and r["point"]:
+                code = decode_id(r["point"]).get("p")
+                r["price"] = catalog.get((r["territory"] or "FRA", code))
+                usd = catalog.get(("USA", code))
+                if usd is not None:
+                    print(f"  palier {code} : {r['price']} € en France, {usd} $ aux États-Unis")
+        groups = {}
+        for r in rows:
+            groups.setdefault((r["start"], r["end"], str(r["price"])), []).append(r["territory"] or "?")
     for (start, end, price), terrs in sorted(groups.items(), key=lambda kv: (kv[0][0] or "", kv[0][1] or "")):
         sample = ", ".join(sorted(t for t in terrs if t)[:8])
         print(f"  {price} €  {start or 'maintenant'} → {end or 'sans fin'}  ({len(terrs)} pays) {sample}")
@@ -252,7 +271,7 @@ for iid, product, sid, base, rows, old in changes:
 print("\n== RELECTURE ==")
 time.sleep(3)
 for iid, product, sid, base, rows, old in changes:
-    extra = call("GET", f"/v2/inAppPurchases/{iid}/iapPriceSchedule?include=manualPrices,inAppPurchasePricePoint&limit=200")
+    extra = call("GET", f"/v2/inAppPurchases/{iid}/iapPriceSchedule?include=manualPrices")
     if "error" in extra:
         print(product, extra)
         continue
