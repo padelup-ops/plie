@@ -329,7 +329,9 @@ struct MinimalHomeView: View {
             if !importHidden && ImportPromoRule.shouldShow {
                 notice(Text("New: import your past folds")) { ImportPromoRule.hide(); importHidden = true; showAdjust = true }
             }
-            if GiftOffer.shouldShow(s, hasPlus: store.hasPlus) {
+            if Thanks3000.shouldShow {
+                notice(Text("Thank you for 3,000 downloads! 🎉")) { plusReason = .offer }
+            } else if GiftOffer.shouldShow(s, hasPlus: store.hasPlus) {
                 notice(Text("Thanks for 2,000: Foldly+ half price until Nov 17")) { plusReason = .offer }
             } else if !nudgeHidden && PlusNudgeRule.shouldShowCard(s, hasPlus: store.hasPlus) {
                 notice(Text("Unlock your trends")) { plusReason = .menu }

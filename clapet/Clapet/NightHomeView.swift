@@ -74,6 +74,7 @@ struct NightHomeView: View {
     @State private var surveyHidden = false
     @State private var nudgeHidden = false
     @State private var giftHidden = false
+    @State private var thanksHidden = false
     @State private var importHidden = false
     @State private var updateHidden = false
     @Environment(\.openURL) private var openURL
@@ -423,7 +424,14 @@ struct NightHomeView: View {
                     }
                 }
             }
-            if !giftHidden && GiftOffer.shouldShow(model.stats, hasPlus: store.hasPlus) {
+            if !thanksHidden && Thanks3000.shouldShow {
+                Card(filled: true) {
+                    Thanks3000Card(hasPlus: store.hasPlus) { plusReason = .offer } onHide: {
+                        Thanks3000.hide()
+                        withAnimation { thanksHidden = true }
+                    }
+                }
+            } else if !giftHidden && GiftOffer.shouldShow(model.stats, hasPlus: store.hasPlus) {
                 Card(filled: true) {
                     GiftCard { plusReason = .offer } onHide: {
                         GiftOffer.hide()

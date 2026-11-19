@@ -149,6 +149,7 @@ struct ContentView: View {
     @State private var showFounder = false
     @State private var showThemes = false
     @State private var showTour = false
+    @State private var showSoundGuide = false
     /// Écran extérieur : « Voir le détail » montre l'accueil complet (jusqu'au prochain pli).
     @State private var outerDetails = false
     @State private var deskSettled = false
@@ -248,6 +249,9 @@ struct ContentView: View {
             case .leaderboards: LeaderboardView().environment(model).environment(store)
             }
         }
+        .sheet(isPresented: $showSoundGuide) {
+            SoundGuideView().presentationDetents([.large])
+        }
         .sheet(isPresented: $showThemes) {
             ThemesNewsView().environment(model).environment(store).presentationDetents([.large])
         }
@@ -266,10 +270,12 @@ struct ContentView: View {
             try? await Task.sleep(nanoseconds: 2_800_000_000)
             // Après une mise à jour : la visite guidée, une fois (pas pendant le choix du thème ni le tournage).
             if !askLook && !lookRaw.isEmpty && !TourRule.seen && !Demo.seeded && Demo.screen == nil { showTour = true }
+            // Mise à jour 1.0.24 : le guide des sons, une fois, pour qui a déjà plié.
+            if !askLook && !showTour && SoundGuide.shouldOffer(stats: model.stats) { showSoundGuide = true }
             // Les 2 000 : l'annonce Fondateur, une fois.
-            if model.stats.founder && !FounderWelcomeRule.seen && !askLook && !showTour && !Demo.seeded && Demo.screen == nil {
+            if model.stats.founder && !FounderWelcomeRule.seen && !askLook && !showTour && !showSoundGuide && !Demo.seeded && Demo.screen == nil {
                 showFounder = true
-            } else if !ThemesNews.seen && !askLook && !showTour && !lookRaw.isEmpty && !Demo.seeded && Demo.screen == nil {
+            } else if !ThemesNews.seen && !askLook && !showTour && !showSoundGuide && !lookRaw.isEmpty && !Demo.seeded && Demo.screen == nil {
                 // Les 2 000 : les thèmes Bento et Atelier, une fois.
                 showThemes = true
             } else {

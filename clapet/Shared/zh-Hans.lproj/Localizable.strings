@@ -890,3 +890,39 @@
 "Open, all time" = "打开，累计";
 "Closed, all time" = "合上，累计";
 "Hour" = "小时";
+
+/* Merci pour les 3 000 */
+"Thank you for 3,000 downloads! 🎉" = "感谢 3,000 次下载！🎉";
+"Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldly 的下载量刚刚超过 3,000。感谢你和我们一起折叠，也感谢想法箱里的所有想法。为了庆祝，Foldly+ 的优惠价会保持到周五。继续把想法发给我们吧！";
+"See Foldly+" = "查看 Foldly+";
+
+/* Sons Raccourcis */
+"Play the opening sound" = "播放打开音";
+"Play the closing sound" = "播放合上音";
+"Plays Foldly's opening sound without opening the app. Use it in a Shortcuts automation that runs when your phone is opened." = "不打开 App 即播放 Foldly 的打开音。用于 iPhone 打开时运行的快捷指令自动化。";
+"Plays Foldly's closing sound without opening the app. Use it in a Shortcuts automation that runs when your phone is closed." = "不打开 App 即播放 Foldly 的合上音。用于 iPhone 合上时运行的快捷指令自动化。";
+"Which sound" = "哪种声音";
+"Current setting" = "当前设置";
+"Opening sound" = "打开音";
+"Soft close" = "轻柔合上";
+"Original close" = "原来的合上音";
+"Export sounds" = "导出声音";
+"Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "导出声音会保存打开音和合上音，以便在快捷指令中用“播放声音”播放。";
+"Opening and closing sounds" = "打开音和合上音";
+"In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "在“合上”自动化中添加“播放合上音”。在“打开”自动化中添加“播放打开音”。Foldly 不会被打开。除非你在操作里另选声音，合上音会跟随“轻柔合上音”。";
+
+/* Guide des sons */
+"Sounds in Shortcuts" = "快捷指令中的声音";
+"Play the fold sounds without opening Foldly." = "不打开 Foldly 也能播放折叠的声音。";
+"Play the fold sounds without opening Foldly. The steps cover both automations, Run Immediately, and the disabled-automation banner." = "不打开 Foldly 也能播放折叠的声音。步骤包括两个自动化、立即运行，以及“自动化已停用”横幅。";
+"Open the Shortcuts app, go to the Automation tab, then tap +." = "打开快捷指令 App，进入自动化标签，然后点 +。";
+"Choose When iPhone is Closed." = "选择“iPhone 合上时”。";
+"Add Foldly's Count a fold and Play the closing sound. In Play the closing sound, choose Which sound." = "添加 Foldly 的“计数一次折叠”和“播放合上音”。在“播放合上音”里选择“哪种声音”。";
+"Do the same with When iPhone is Opened: add Count an opening and Play the opening sound." = "对“iPhone 打开时”做同样的事：添加“计数一次打开”和“播放打开音”。";
+"The two automations" = "两个自动化";
+"Turn each automation on. The banner Automation is disabled must not appear." = "把每个自动化打开。“自动化已停用”的横幅不能出现。";
+"Set Run Immediately, and turn off Show When Run." = "设为“立即运行”，并关闭“运行时显示”。";
+"If Sounds even when Foldly is closed is on, Count a fold already plays a sound. Turn it off in Settings, Advanced, so you don't hear the sound twice." = "如果“Foldly 关闭时也播放声音”是开的，“计数一次折叠”已经会响。请在 设置 › 高级 里关掉，以免听到两次。";
+"So it really runs" = "让它真正运行";
+"If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "如果还是没有声音：设置 › 高级 › 导出声音，再用快捷指令的“播放声音”播放保存的文件。";
+"If there is no sound" = "如果没有声音";

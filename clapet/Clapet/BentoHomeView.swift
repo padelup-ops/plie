@@ -78,6 +78,7 @@ struct BentoHomeView: View {
     @State private var plusReason: PlusReason?
     @State private var foldboardPromoHidden = false
     @State private var giftHidden = false
+    @State private var thanksHidden = false
     @State private var ideasHidden = IdeasRule.promoHidden
     @State private var showIdeas = false
     @State private var appeared = BentoIntro.played
@@ -567,6 +568,7 @@ struct BentoHomeView: View {
         let showPromo = !foldboardPromoHidden && FoldboardPromoRule.shouldShow
         VStack(spacing: 12) {
             if editing { editHint }
+            if !thanksHidden && !editing && Thanks3000.shouldShow { one(thanksCard, 0) }
             if !giftHidden && !editing && GiftOffer.shouldShow(model.stats, hasPlus: store.hasPlus) { one(giftCard, 0) }
             if !store.hasPlus && ThemeTrial.active && !editing { one(trialCard, 0) }
             if showAuto && !editing { one(autoCard, 0) }
@@ -581,6 +583,15 @@ struct BentoHomeView: View {
             VStack(alignment: .leading, spacing: 10) {
                 label(Text("Time closed"))
                 ClosedTimeContent(stats: model.stats, accent: Bento.accent)
+            }
+        }
+    }
+
+    private var thanksCard: some View {
+        white {
+            Thanks3000Card(hasPlus: store.hasPlus) { plusReason = .offer } onHide: {
+                Thanks3000.hide()
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { thanksHidden = true }
             }
         }
     }

@@ -5,6 +5,7 @@ struct AutoCountView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @State private var showSoundGuide = false
 
     var body: some View {
         NavigationStack {
@@ -70,6 +71,18 @@ struct AutoCountView: View {
                 }
 
                 Section {
+                    Button { showSoundGuide = true } label: {
+                        Label { Text("Sounds in Shortcuts") } icon: { Image(systemName: "speaker.wave.2.fill") }
+                    }
+                    Text("Play the fold sounds without opening Foldly. The steps cover both automations, Run Immediately, and the disabled-automation banner.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } header: {
+                    Text("Opening and closing sounds")
+                }
+
+                Section {
                     installRow(Self.restLink, symbol: "moon.zzz.fill",
                                title: Text("Install “Foldly repos”"), detail: Text("Marks your phone as resting."))
                     installRow(Self.useLink, symbol: "iphone.gen3",
@@ -131,6 +144,7 @@ struct AutoCountView: View {
                     Button { dismiss() } label: { Text("Done") }
                 }
             }
+            .sheet(isPresented: $showSoundGuide) { SoundGuideView() }
         }
         .tint(.dfAccent)
     }
