@@ -51,6 +51,8 @@ struct ClapetProvider: TimelineProvider {
         today.downSeconds = 130 * 60
         today.openSeconds = 85 * 60
         s.days[ClapetStats.key()] = today
+        s.lifeOpen = (48 * 60 + 20) * 60
+        s.lifeClosed = (126 * 60 + 40) * 60
         return s
     }
 }
@@ -90,6 +92,7 @@ struct ClapetWidgetBundle: WidgetBundle {
         PhoneDownWidget()
         HoursWidget()
         LifetimeWidget()
+        LifetimeHoursWidget()
         FoldLiveActivity()
         if #available(iOS 18.0, *) {
             CountFoldControl()

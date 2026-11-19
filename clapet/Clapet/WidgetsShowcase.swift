@@ -25,7 +25,7 @@ final class InstalledWidgets {
 
 /// Un widget dessiné dans l'app, à sa vraie taille (ou réduit).
 struct WidgetThumb: View {
-    enum Kind { case folds, phoneDown, hours, lifetime }
+    enum Kind { case folds, phoneDown, hours, lifetime, lifetimeHours }
 
     let kind: Kind
     let family: WidgetFamily
@@ -55,6 +55,7 @@ struct WidgetThumb: View {
             case .phoneDown: PhoneDownWidgetView(entry: entry, family: family)
             case .hours: HoursWidgetView(entry: entry, familyOverride: family)
             case .lifetime: LifetimeWidgetView(entry: entry, familyOverride: family)
+            case .lifetimeHours: LifetimeHoursWidgetView(entry: entry, familyOverride: family)
             }
         }
         .padding(isAccessory ? 0 : 16)
@@ -237,6 +238,12 @@ struct WidgetsHelpView: View {
                             WidgetThumb(kind: .phoneDown, family: .systemSmall, entry: entry)
                             FitWidth(size: WidgetThumb.size(.systemMedium)) { k in
                                 WidgetThumb(kind: .phoneDown, family: .systemMedium, entry: entry, scale: k)
+                            }
+                        }
+                        section(Text("All time open & closed"), Text("How long your phone has stayed open and closed since day one."), symbol: "hourglass") {
+                            WidgetThumb(kind: .lifetimeHours, family: .systemSmall, entry: entry)
+                            FitWidth(size: WidgetThumb.size(.systemMedium)) { k in
+                                WidgetThumb(kind: .lifetimeHours, family: .systemMedium, entry: entry, scale: k)
                             }
                         }
                     } else {

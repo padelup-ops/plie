@@ -673,3 +673,11 @@
 
 /* Repos */
 "%@ of it at rest today" = "其中今天静置 %@";
+
+/* Temps ouvert et fermé depuis le début */
+"All time open & closed" = "打开与合上，累计";
+"How long your phone has stayed open and closed since day one." = "从第一天起，手机打开和合上的总时长。";
+"Touch a bar to see the exact time and the fold count." = "点按柱形可查看准确时长和折叠次数。";
+"Open, all time" = "打开，累计";
+"Closed, all time" = "合上，累计";
+"Hour" = "小时";

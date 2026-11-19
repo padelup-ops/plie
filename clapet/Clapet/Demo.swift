@@ -148,6 +148,9 @@ enum Demo {
             }
         }
         s.sessionLog.sort { $0.t < $1.t }
+        s.lifeOpen = s.days.values.reduce(0) { $0 + $1.openSeconds }
+        s.lifeClosed = s.days.values.reduce(0) { $0 + $1.downSeconds }
+        s.downCredited = s.lastClose
         stats = s
     }
 }

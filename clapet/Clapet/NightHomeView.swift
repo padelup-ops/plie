@@ -78,6 +78,7 @@ struct NightHomeView: View {
     @State private var updateHidden = false
     @Environment(\.openURL) private var openURL
     @State private var bump = false
+    @State private var weekBarSelection: Date? = nil
     /// Sans charnière : l'angle du dessin, qu'on « ferme » d'un toucher.
     @State private var tapAngle = 112.0
 
@@ -673,16 +674,32 @@ struct NightHomeView: View {
     private func weekBars(_ days: [(date: Date, closes: Int)], perDay: Double) -> some View {
         let goal = model.stats.activeLimit
         let top = max(1, days.map(\.closes).max() ?? 1, Int(perDay.rounded()))
+        let picked = nearestChartDay(weekBarSelection, days) { $0.date }
+        let measured = model.stats.autoLast != nil
         return Card {
             VStack(alignment: .leading, spacing: 14) {
+                if let picked {
+                    let open = model.stats.openTime(picked.date)
+                    let closed = model.stats.closedTime(picked.date)
+                    BarValueCallout(title: Text(picked.date, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day()),
+                                    folds: picked.closes,
+                                    open: open,
+                                    closed: closed,
+                                    measuredClosed: measured || closed > 0)
+                } else {
+                    Text("Touch a bar to see the exact time and the fold count.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 Chart {
                     ForEach(0..<days.count, id: \.self) { i in
                         let n = days[i].closes
                         let isToday = i == days.count - 1
+                        let on = picked.map { Calendar.current.isDate($0.date, inSameDayAs: days[i].date) } ?? false
                         BarMark(x: .value("Day", days[i].date, unit: .day),
                                 y: .value("Folds", max(Double(n), Double(top) * 0.018)),
                                 width: .ratio(0.8))
-                            .foregroundStyle(isToday ? Color.dfAccent : (goal > 0 && n > goal ? Color.dfOver.opacity(0.75) : Color.dfBar))
+                            .foregroundStyle(on || isToday ? Color.dfAccent : (goal > 0 && n > goal ? Color.dfOver.opacity(0.75) : Color.dfBar))
                             .cornerRadius(10)
                             .annotation(position: .top, spacing: 6) {
                                 Text("\(n)")
@@ -706,6 +723,7 @@ struct NightHomeView: View {
                             .foregroundStyle(Color.primary.opacity(0.85))
                     }
                 }
+                .modifier(ChartBarSelect(selection: $weekBarSelection))
                 .frame(height: 230)
                 Text("Average \(Int(perDay.rounded())) per day")
                     .font(.headline.weight(.regular))
@@ -878,6 +896,8 @@ struct NightHomeView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                LifetimeHoursRow(stats: model.stats)
+                    .padding(.top, 4)
             }
         }
     }

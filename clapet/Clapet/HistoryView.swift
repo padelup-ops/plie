@@ -18,6 +18,7 @@ struct HistoryView: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         recentDays.id("recent")
+                        lifetimeHours
                         WhyCard(stats: model.stats).id("why")
                         SessionCard(stats: model.stats).id("sessions")
                         chartCard
@@ -223,6 +224,16 @@ struct HistoryView: View {
         let cal = Calendar.current
         let s = cal.veryShortStandaloneWeekdaySymbols
         return (0..<7).map { s[(cal.firstWeekday - 1 + $0) % 7] }
+    }
+
+    private var lifetimeHours: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("All time open & closed")
+                .font(.system(.headline, weight: .bold))
+            LifetimeHoursRow(stats: model.stats)
+        }
+        .padding(16)
+        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.dfCard))
     }
 
     // MARK: Les records

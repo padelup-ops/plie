@@ -817,17 +817,21 @@ struct BentoHomeView: View {
     /// Le total depuis le début, en chiffres qui roulent.
     private var lifetime: some View {
         trayCard {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    label(model.stats.duoSince == nil ? Text("Since day one") : Text("This Duo"))
-                    Text(model.stats.duoCloses, format: .number)
-                        .font(.system(size: bigSize, weight: .semibold, design: Bento.design)).monospacedDigit().foregroundStyle(Bento.ink)
-                        .contentTransition(.numericText())
-                        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: model.stats.duoCloses)
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        label(model.stats.duoSince == nil ? Text("Since day one") : Text("This Duo"))
+                        Text(model.stats.duoCloses, format: .number)
+                            .font(.system(size: bigSize, weight: .semibold, design: Bento.design)).monospacedDigit().foregroundStyle(Bento.ink)
+                            .contentTransition(.numericText())
+                            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: model.stats.duoCloses)
+                    }
+                    Spacer()
+                    Image(systemName: "infinity").font(.title2.weight(.semibold)).foregroundStyle(Bento.accent)
+                        .frame(width: 46, height: 46).background(Circle().fill(Bento.tint))
                 }
-                Spacer()
-                Image(systemName: "infinity").font(.title2.weight(.semibold)).foregroundStyle(Bento.accent)
-                    .frame(width: 46, height: 46).background(Circle().fill(Bento.tint))
+                LifetimeHoursRow(stats: model.stats, accent: Bento.accent, track: Bento.card,
+                                 valueFont: .system(size: 16, weight: .semibold, design: Bento.design))
             }
         }
     }

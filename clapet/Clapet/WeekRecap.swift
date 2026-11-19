@@ -142,6 +142,7 @@ struct WeekRecapView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var end = ClapetStats.recapEnd()
     @State private var image: Image?
+    @State private var selectedDay: Date? = nil
 
     private var latest: Date { ClapetStats.recapEnd() }
 
@@ -235,34 +236,52 @@ struct WeekRecapView: View {
     private func chart(_ recap: WeekRecap) -> some View {
         let busiest = recap.busiest.map { ClapetStats.key($0.date) }
         let avg = Double(recap.perDay)
-        return Chart {
-            ForEach(0..<recap.days.count, id: \.self) { i in
-                let d = recap.days[i]
-                BarMark(x: .value("Day", d.date, unit: .day), y: .value("Folds", FoldUnit.shown(d.closes)), width: .ratio(0.7))
-                    .foregroundStyle(ClapetStats.key(d.date) == busiest ? Color.dfAccent : Color.dfBar)
-                    .cornerRadius(5)
-                    .annotation(position: .top, spacing: 4) {
-                        Text("\(FoldUnit.shown(d.closes))")
-                            .font(.caption.weight(.medium))
-                            .monospacedDigit()
-                            .foregroundStyle(.secondary)
-                    }
+        let picked = nearestChartDay(selectedDay, recap.days) { $0.date }
+        let measured = model.stats.autoLast != nil
+        return VStack(alignment: .leading, spacing: 8) {
+            if let picked {
+                BarValueCallout(title: Text(picked.date, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day()),
+                                folds: picked.closes,
+                                open: picked.open,
+                                closed: picked.closed,
+                                measuredClosed: measured || picked.closed > 0)
+            } else {
+                Text("Touch a bar to see the exact time and the fold count.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            if avg > 0 {
-                RuleMark(y: .value("Average", avg))
-                    .foregroundStyle(Color.secondary)
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+            Chart {
+                ForEach(0..<recap.days.count, id: \.self) { i in
+                    let d = recap.days[i]
+                    let on = picked.map { ClapetStats.key($0.date) == ClapetStats.key(d.date) } ?? false
+                    BarMark(x: .value("Day", d.date, unit: .day), y: .value("Folds", FoldUnit.shown(d.closes)), width: .ratio(0.7))
+                        .foregroundStyle(on || ClapetStats.key(d.date) == busiest ? Color.dfAccent : Color.dfBar)
+                        .cornerRadius(5)
+                        .annotation(position: .top, spacing: 4) {
+                            Text("\(FoldUnit.shown(d.closes))")
+                                .font(.caption.weight(.medium))
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                        }
+                }
+                if avg > 0 {
+                    RuleMark(y: .value("Average", avg))
+                        .foregroundStyle(Color.secondary)
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                }
             }
+            .chartYAxis(.hidden)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day)) { _ in
+                    AxisValueLabel(format: .dateTime.weekday(.narrow), centered: true)
+                }
+            }
+            .modifier(ChartBarSelect(selection: $selectedDay))
+            .frame(height: 170)
         }
-        .chartYAxis(.hidden)
-        .chartXAxis {
-            AxisMarks(values: .stride(by: .day)) { _ in
-                AxisValueLabel(format: .dateTime.weekday(.narrow), centered: true)
-            }
-        }
-        .frame(height: 170)
         .padding(16)
         .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.dfCard))
+        .accessibilityHint(Text("Touch a bar to see the exact time and the fold count."))
     }
 
     private func grid(_ recap: WeekRecap) -> some View {

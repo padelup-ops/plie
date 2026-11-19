@@ -673,3 +673,11 @@
 
 /* Repos */
 "%@ of it at rest today" = "うち今日の休止中は%@";
+
+/* Temps ouvert et fermé depuis le début */
+"All time open & closed" = "開いていた・閉じていた時間（累計）";
+"How long your phone has stayed open and closed since day one." = "使い始めてから、スマホを開いていた時間と閉じていた時間。";
+"Touch a bar to see the exact time and the fold count." = "棒をタップすると、その時間と回数を表示します。";
+"Open, all time" = "開いていた時間（累計）";
+"Closed, all time" = "閉じていた時間（累計）";
+"Hour" = "時";

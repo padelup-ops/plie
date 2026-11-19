@@ -865,3 +865,11 @@
 
 "Soft close sound" = "Som de fechamento suave";
 "Sounds even when Foldly is closed" = "Sons mesmo com o Foldly fechado";
+
+/* Temps ouvert et fermé depuis le début */
+"All time open & closed" = "Aberto e fechado, desde sempre";
+"How long your phone has stayed open and closed since day one." = "Quanto tempo o telefone ficou aberto e fechado desde o primeiro dia.";
+"Touch a bar to see the exact time and the fold count." = "Toque em uma barra para ver o tempo exato e o número de fechamentos.";
+"Open, all time" = "Aberto, desde sempre";
+"Closed, all time" = "Fechado, desde sempre";
+"Hour" = "Hora";

@@ -156,3 +156,107 @@ struct Odometer: View {
     }
 }
 
+// MARK: Ouvert et fermé depuis le début
+
+struct LifetimeHoursWidgetView: View {
+    @Environment(\.widgetFamily) private var envFamily
+    let entry: ClapetEntry
+    var familyOverride: WidgetFamily? = nil
+    private var family: WidgetFamily { familyOverride ?? envFamily }
+
+    private var open: TimeInterval { entry.stats.lifetimeOpen(now: entry.date) }
+    private var closed: TimeInterval { entry.stats.lifetimeClosed(now: entry.date) }
+    private var share: Double {
+        let total = open + closed
+        return total > 0 ? open / total : 0
+    }
+
+    var body: some View {
+        let accent = widgetThemeColor(entry.stats)
+        Group {
+            if family == .systemMedium {
+                medium(accent)
+            } else {
+                small(accent)
+            }
+        }
+        .modifier(WidgetLook(look: entry.stats.widgetLook))
+        .containerBackground(for: .widget) { Palette.background.modifier(WidgetLook(look: entry.stats.widgetLook)) }
+    }
+
+    private func small(_ accent: Color) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            header
+            Spacer(minLength: 0)
+            amount(open, Text("Open, all time"), size: 26)
+            amount(closed, Text("Closed, all time"), size: 17)
+            Spacer(minLength: 6)
+            bar(accent)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private func medium(_ accent: Color) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            header
+            HStack(alignment: .bottom, spacing: 16) {
+                amount(open, Text("Open, all time"), size: 28)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                amount(closed, Text("Closed, all time"), size: 28)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            bar(accent)
+            Text("Since day one")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Palette.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var header: some View {
+        HStack(spacing: 5) {
+            Image(systemName: "hourglass")
+                .font(.system(size: 12, weight: .semibold))
+            Text("All time open & closed")
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .font(.system(size: 12, weight: .bold))
+        .foregroundStyle(Palette.secondary)
+    }
+
+    private func amount(_ t: TimeInterval, _ label: Text, size: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(TimeFormat.short(t))
+                .font(.system(size: size, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .foregroundStyle(Palette.ink)
+                .widgetAccentable()
+            label
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Palette.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func bar(_ accent: Color) -> some View {
+        GeometryReader { g in
+            HStack(spacing: share > 0 && share < 1 ? 3 : 0) {
+                if share > 0 {
+                    Capsule().fill(accent)
+                        .frame(width: share >= 1 ? g.size.width : max(4, (g.size.width - 3) * share))
+                        .widgetAccentable()
+                }
+                if share < 1 {
+                    Capsule().fill(Palette.bar)
+                }
+            }
+        }
+        .frame(height: 8)
+        .accessibilityHidden(true)
+    }
+}
+
