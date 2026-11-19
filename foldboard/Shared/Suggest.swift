@@ -115,7 +115,7 @@ final class KBSuggest {
     /// (« sdi », « rapelle »), légère pour un vrai mot rare (« chiming »).
     private var spellCache: [String: Bool] = [:]
     /// iOS manque de mémoire : on vide ce qui se recalcule.
-    func trimMemory() { spellCache = [:]; NeuralSwipe.release() }
+    func trimMemory() { spellCache = [:]; NeuralSwipe.releaseIfTight() }
     private func glideJunk(_ w: String, rank r: Int) -> Double {
         guard doubtful(w, rank: r) else { return 0 }
         let ok: Bool

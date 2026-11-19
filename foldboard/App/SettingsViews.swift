@@ -614,6 +614,8 @@ private var futoCredit: some View {
 struct TypingView: View {
     @Environment(SettingsModel.self) private var model
     @State private var showDictation = false
+    @State private var neuralTitle = ""
+    @State private var neuralDetail = ""
 
     var body: some View {
         @Bindable var m = model
@@ -632,7 +634,16 @@ struct TypingView: View {
                     Text("Language model: Leipzig Corpora Collection, CC BY 4.0.").font(.caption2)
                     Text("Everyday sentences: Tatoeba, CC BY 2.0 FR.").font(.caption2)
                     futoCredit
+                    if !neuralTitle.isEmpty {
+                        Text(neuralTitle).font(.caption2)
+                        if !neuralDetail.isEmpty { Text(neuralDetail).font(.caption2) }
+                    }
                 }
+            }
+            .onAppear {
+                let s = NeuralSwipe.userFacingStatus()
+                neuralTitle = s.title
+                neuralDetail = s.detail
             }
 
             Section {

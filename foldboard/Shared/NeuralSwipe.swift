@@ -37,9 +37,8 @@ enum NeuralSwipe {
         return "\(reason) loads=\(loads) inf=\(calls) moy=\(String(format: "%.1f", avg))ms max=\(String(format: "%.0f", inferMaxMS)) skips=\(skips) mem=\(String(format: "%.0f", footprintMB()))Mo\(extra)"
     }
 
-    /// Au-dessus de cette empreinte, on ne charge pas le modèle (le clavier est fermé par iOS vers 60–70 Mo).
-    /// Le banc d'essai, qui n'est pas une extension, relève ce plafond.
-    static var memoryCeilingMB = 46.0
+    /// Le clavier tourne déjà vers 33–45 Mo (listes, modèle de langue projeté). On ne refuse plus
+    /// à partir d'un plafond fixe : on regarde ce qu'iOS laisse encore allouer avant de fermer l'extension.
     static var detail = ""
     private static let lock = NSLock()
     private static var blocked = false
@@ -58,6 +57,79 @@ enum NeuralSwipe {
         #if canImport(ExecuTorch)
         module = nil
         #endif
+    }
+
+    /// Le filet mémoire du clavier (au-dessus de 45 Mo) ne doit pas jeter le modèle : à 45 Mo il reste
+    /// souvent de la marge. On ne lâche les poids que lorsqu'iOS n'a presque plus rien à donner.
+    static func releaseIfTight() {
+        let avail = availableMB()
+        guard avail > 0, avail < 8 else { return }
+        release()
+        reason = "mémoire"
+        detail = String(format: "%.0f Mo libres", avail)
+        publish()
+    }
+
+    /// Charge le modèle dès que le clavier apparaît, pour que les réglages puissent dire s'il est actif.
+    static func warm() {
+        #if canImport(ExecuTorch)
+        lock.lock()
+        _ = ensureLoaded()
+        lock.unlock()
+        publish()
+        #else
+        reason = "sans-runtime"
+        publish()
+        #endif
+    }
+
+    /// Ligne lue par l'app (le clavier et l'app ne partagent pas la mémoire, seulement le trousseau).
+    static func userFacingStatus() -> (title: String, detail: String) {
+        guard let raw = KBVault.loadNeural() else {
+            return (NSLocalizedString("Neural swipe: not checked yet. Show the keyboard, then come back.", comment: "Shown before the keyboard has tried the model"), "")
+        }
+        let p = raw.components(separatedBy: "\t")
+        func at(_ i: Int) -> String { i < p.count ? p[i] : "" }
+        let code = at(0)
+        let on = code == "on" || code == "chargé"
+        let title: String
+        if on {
+            title = NSLocalizedString("Neural swipe: on", comment: "FUTO swipe model is running in the keyboard")
+        } else {
+            title = String(format: NSLocalizedString("Neural swipe: off (%@)", comment: "FUTO swipe model is not running. Argument is the reason."), why(code))
+        }
+        let numbers = String(format: NSLocalizedString("%@ MB used, %@ MB free", comment: "Keyboard memory, megabytes"), at(3), at(4))
+        let extra = at(5).isEmpty || at(5) == "0.0" ? "" : " · \(at(5)) ms"
+        let calls = at(2).isEmpty ? "0" : at(2)
+        let swipes = String(format: NSLocalizedString("%@ swipes", comment: "How many swipes used the neural model"), calls)
+        return (title, numbers + extra + " · " + swipes)
+    }
+
+    private static func why(_ code: String) -> String {
+        switch code {
+        case "mémoire", "mémoire-après": return NSLocalizedString("not enough memory", comment: "Neural swipe stayed off")
+        case "modèle-absent": return NSLocalizedString("model file missing", comment: "Neural swipe stayed off")
+        case "chargement": return NSLocalizedString("could not load", comment: "Neural swipe stayed off")
+        case "inférence": return NSLocalizedString("inference failed", comment: "Neural swipe stayed off")
+        case "ctc-faible": return NSLocalizedString("model unsure", comment: "Neural swipe stayed off")
+        case "lent": return NSLocalizedString("too slow", comment: "Neural swipe stayed off")
+        case "sans-runtime": return NSLocalizedString("runtime missing", comment: "Neural swipe stayed off")
+        case "idle": return NSLocalizedString("not used yet", comment: "Neural swipe stayed off")
+        default: return code.isEmpty ? NSLocalizedString("not used yet", comment: "") : code
+        }
+    }
+
+    private static var lastPublished = ""
+    private static func publish() {
+        let avg = calls > 0 ? inferMS / Double(calls) : 0
+        let line = [reason, "\(loads)", "\(calls)",
+                    String(format: "%.0f", footprintMB()),
+                    String(format: "%.0f", availableMB()),
+                    String(format: "%.1f", avg),
+                    detail].joined(separator: "\t")
+        guard line != lastPublished else { return }
+        lastPublished = line
+        KBVault.saveNeural(line)
     }
 
     /// Renvoie les candidats avec un score mélangé, ou nil pour garder la géométrie telle quelle.
@@ -80,11 +152,12 @@ enum NeuralSwipe {
             if c > bestCTC { bestCTC = c }
             any = true
         }
-        guard any, bestCTC > -80 else { reason = "ctc-faible"; return nil }
+        guard any, bestCTC > -80 else { reason = "ctc-faible"; publish(); return nil }
         for i in 0..<n where ctcs[i] > -1e20 {
             out[i].score += weight * Double(ctcs[i] - bestCTC)
         }
         reason = "on"
+        if calls == 1 || calls % 25 == 0 { publish() }
         return out
     }
 
@@ -96,7 +169,7 @@ enum NeuralSwipe {
         defer { lock.unlock() }
         let canvas = canvasSize(touch, path: raw)
         guard canvas.width > 8, canvas.height > 8 else { reason = "canevas"; return nil }
-        guard ensureLoaded() else { return nil }
+        guard ensureLoaded() else { publish(); return nil }
         guard let module else { return nil }
         let pts = resample(raw, times: times)
         var feat = [Float](repeating: 0, count: 128)
@@ -145,7 +218,11 @@ enum NeuralSwipe {
     private static func ensureLoaded() -> Bool {
         #if canImport(ExecuTorch)
         if module != nil { return true }
-        guard memoryAllows() else { reason = "mémoire"; return false }
+        guard memoryAllows() else {
+            reason = "mémoire"
+            detail = String(format: "%.0f Mo libres, %.0f Mo utilisés", availableMB(), footprintMB())
+            return false
+        }
         guard let url = Bundle.main.url(forResource: "futo-swipe-encoder-int8", withExtension: "pte") else {
             blocked = true
             reason = "modèle-absent"
@@ -160,16 +237,16 @@ enum NeuralSwipe {
             detail = String(describing: error).prefix(120).description
             return false
         }
-        let after = footprintMB()
-        if after > memoryCeilingMB + 12 {
+        let left = availableMB()
+        if left > 0, left < 6 {
             reason = "mémoire-après"
-            detail = String(format: "%.0f Mo", after)
+            detail = String(format: "%.0f Mo libres", left)
             blocked = true
             return false
         }
         module = m
         loads += 1
-        reason = "chargé"
+        reason = "on"
         return true
         #else
         reason = "sans-runtime"
@@ -195,14 +272,21 @@ enum NeuralSwipe {
         #endif
     }
 
-    private static func memoryAllows() -> Bool {
-        let mb = footprintMB()
-        if mb > memoryCeilingMB { return false }
+    static func availableMB() -> Double {
         #if canImport(Darwin)
-        let avail = Double(os_proc_available_memory()) / 1_048_576
-        if avail > 0, avail < 18 { return false }
+        return Double(os_proc_available_memory()) / 1_048_576
+        #else
+        return 0
         #endif
-        return true
+    }
+
+    /// Assez de marge avant qu'iOS ferme l'extension (souvent 60–70 Mo au total). Le fichier fait 1 Mo,
+    /// l'activation quelques Mo : 12 Mo libres suffisent. Un plafond à 46 Mo d'empreinte refusait le
+    /// modèle alors que le clavier y est déjà en écrivant.
+    private static func memoryAllows() -> Bool {
+        let avail = availableMB()
+        if avail > 0 { return avail >= 12 }
+        return footprintMB() < 62
     }
 
     // MARK: Touches et CTC

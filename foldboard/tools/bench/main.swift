@@ -464,8 +464,6 @@ func realSwipes(_ L: Lang, file: String, layout: String, tag: String, limit: Int
 }
 
 let t0 = Date()
-// Le banc n'est pas l'extension clavier : son empreinte dépasse le plafond des 46 Mo sans que le téléphone soit en danger.
-NeuralSwipe.memoryCeilingMB = 220
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 let configs: [(String, [String: Double])] = [
     // L'ancienne d'abord : la première configuration paie le chargement des dictionnaires (temps faussés).

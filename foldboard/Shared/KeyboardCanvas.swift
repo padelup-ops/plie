@@ -721,6 +721,11 @@ final class KeyboardCanvas: UIView {
         resumePendingDictation()
         KBMemLog.begin(mb: Self.footprintMB(), context: gripContext, mode: (settings.screenModes[gripContext] ?? settings.mode).rawValue)
         checkMemory(force: true)
+        // Le modèle de glisser se charge une fois, après l'affichage, si iOS laisse encore de la mémoire.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+            guard let self, self.visible else { return }
+            NeuralSwipe.warm()
+        }
         if ProcessInfo.processInfo.arguments.contains("-shotClip") {
             KBClipboard.shared.seedForShots(["221B Baker Street, London", "https://foldly.netlify.app",
                                              "Meeting at 7 pm 🎬", "FOLD-2026-0412", "+1 555 0142"])
