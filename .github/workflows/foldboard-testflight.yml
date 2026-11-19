@@ -5,7 +5,7 @@ name: Foldboard - TestFlight
 
 on:
   push:
-    branches: [main, cursor/foldboard-futo-swipe-b370]
+    branches: [main]
     paths:
       - "foldboard/App/**"
       - "foldboard/Keyboard/**"

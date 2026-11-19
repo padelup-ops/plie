@@ -33,9 +33,14 @@ enum NeuralSwipe {
 
     static var statusLine: String {
         let avg = calls > 0 ? inferMS / Double(calls) : 0
-        return "\(reason) loads=\(loads) inf=\(calls) moy=\(String(format: "%.1f", avg))ms max=\(String(format: "%.0f", inferMaxMS)) skips=\(skips) mem=\(String(format: "%.0f", footprintMB()))Mo"
+        let extra = detail.isEmpty ? "" : " (\(detail))"
+        return "\(reason) loads=\(loads) inf=\(calls) moy=\(String(format: "%.1f", avg))ms max=\(String(format: "%.0f", inferMaxMS)) skips=\(skips) mem=\(String(format: "%.0f", footprintMB()))Mo\(extra)"
     }
 
+    /// Au-dessus de cette empreinte, on ne charge pas le modèle (le clavier est fermé par iOS vers 60–70 Mo).
+    /// Le banc d'essai, qui n'est pas une extension, relève ce plafond.
+    static var memoryCeilingMB = 46.0
+    static var detail = ""
     private static let lock = NSLock()
     private static var blocked = false
     private static let blank = 64
@@ -125,6 +130,7 @@ enum NeuralSwipe {
                 blocked = true
                 self.module = nil
                 reason = "lent"
+                detail = String(format: "%.0f ms", ms)
                 return nil
             }
             return arr
@@ -132,6 +138,7 @@ enum NeuralSwipe {
             blocked = true
             self.module = nil
             reason = "inférence"
+            detail = String(describing: error).prefix(120).description
             return nil
         }
         #else
@@ -155,11 +162,13 @@ enum NeuralSwipe {
         } catch {
             blocked = true
             reason = "chargement"
+            detail = String(describing: error).prefix(120).description
             return false
         }
         let after = footprintMB()
-        if after > 58 {
+        if after > memoryCeilingMB + 12 {
             reason = "mémoire-après"
+            detail = String(format: "%.0f Mo", after)
             blocked = true
             return false
         }
@@ -193,7 +202,7 @@ enum NeuralSwipe {
 
     private static func memoryAllows() -> Bool {
         let mb = footprintMB()
-        if mb > 46 { return false }
+        if mb > memoryCeilingMB { return false }
         #if canImport(Darwin)
         let avail = Double(os_proc_available_memory()) / 1_048_576
         if avail > 0, avail < 18 { return false }

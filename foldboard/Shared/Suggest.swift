@@ -277,7 +277,7 @@ final class KBSuggest {
     /// chargé, les reclasse. S'il ne peut pas tourner, l'ordre géométrique reste.
     func glide(_ raw: [CGPoint], touch: KBTouchModel, before: String, limit: Int = 4, times: [TimeInterval] = []) -> [String] {
         let weight = Self.t("gNeural", 0.6)
-        var cands = glideCandidates(raw, touch: touch, before: before, neural: weight > 0)
+        var cands = glideCandidates(raw, touch: touch, before: before)
         if weight > 0, let reranked = NeuralSwipe.rerank(cands, raw: raw, times: times, touch: touch, weight: weight) {
             cands = reranked
         }
@@ -292,7 +292,7 @@ final class KBSuggest {
 
     /// Les candidats du glisser par la géométrie seule, du plus probable au moins probable.
     /// Réutilisé par le modèle neuronal, qui reclasse cette liste au lieu de reparcourir le dictionnaire.
-    func glideCandidates(_ raw: [CGPoint], touch: KBTouchModel, before: String, neural: Bool = false) -> [KBGlideCand] {
+    func glideCandidates(_ raw: [CGPoint], touch: KBTouchModel, before: String) -> [KBGlideCand] {
         guard raw.count >= 2, !words.isEmpty else { return [] }
         // Le pouce se pose un peu plus bas qu'il ne vise : même correction que pour la frappe.
         let path = raw.map { CGPoint(x: $0.x, y: $0.y - 4) }
@@ -366,7 +366,7 @@ final class KBSuggest {
                     wsum += wgt
                 }
                 loc /= wsum
-                guard loc < (neural ? 1.5 : 1.25) else { continue }
+                guard loc < 1.25 else { continue }
                 // Les virages du tracé que le mot ne visite pas, et l'écart de longueur.
                 var missedTurns = 0
                 for c in corners where !ideal.contains(where: { dist($0, c) < 0.95 }) { missedTurns += 1 }
