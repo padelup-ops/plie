@@ -138,13 +138,25 @@ for iap in iaps:
     rows = []
     for p in manuals:
         full = call("GET", f"/v1/inAppPurchasePrices/{p['id']}?include=inAppPurchasePricePoint,territory")
+        if "error" in full:
+            print("  détail prix", p["id"], full["error"], full["detail"][:240])
         src = full.get("data") or p
         for inc in full.get("included", []):
             included[inc["id"]] = inc
         a = src.get("attributes") or {}
-        rel = src.get("relationships") or {}
+        rel = src.get("relationships") or p.get("relationships") or {}
+        if not rel:
+            print("  sans relation", json.dumps(src)[:500])
         point_id = ((rel.get("inAppPurchasePricePoint") or {}).get("data") or {}).get("id")
         terr = ((rel.get("territory") or {}).get("data") or {}).get("id")
+        if not point_id:
+            link = call("GET", f"/v1/inAppPurchasePrices/{p['id']}/relationships/inAppPurchasePricePoint")
+            point_id = (link.get("data") or {}).get("id") if "error" not in link else None
+            if "error" in link:
+                print("  lien palier", link["error"], link["detail"][:200])
+        if not terr:
+            link = call("GET", f"/v1/inAppPurchasePrices/{p['id']}/relationships/territory")
+            terr = (link.get("data") or {}).get("id") if "error" not in link else terr
         point = included.get(point_id) or {}
         price, proceeds, _ = money(point)
         if price is None and point_id:
