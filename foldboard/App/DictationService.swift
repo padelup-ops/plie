@@ -35,6 +35,14 @@ final class DictationService {
     /// Le niveau de la voix (0 à 1), envoyé au clavier une dizaine de fois par seconde pendant la dictée.
     private var level: Float = 0
     private var levelTimer: Timer?
+    /// Le nouveau moteur d'iOS 26, prêt pour la langue (nil : l'ancien moteur).
+    private var modernReady: AnyObject?
+    private var modern: AnyObject?
+    /// Le son du micro va aussi au nouveau moteur pendant la dictée.
+    private var modernSink: ((AVAudioPCMBuffer) -> Void)?
+    /// Arrêt tout seul quand on se tait : le dernier moment où la voix a été entendue.
+    private var lastVoice = Date()
+    private var startedAt = Date()
 
     private init() {
         // Quand le micro s'ouvre ou se ferme, iOS reconfigure l'audio et arrête le son muet : on le relance tout de
@@ -75,12 +83,23 @@ final class DictationService {
     }
 
     private func prepare(speech: Bool, mic: Bool) {
-        guard speech, mic else { status = .denied; return }
-        guard let r = SFSpeechRecognizer(locale: Locale(identifier: Self.localeID())), r.supportsOnDeviceRecognition else {
-            status = .unavailable
-            return
+        guard mic else { status = .denied; return }
+        let r = SFSpeechRecognizer(locale: Locale(identifier: Self.localeID()))
+        recognizer = speech && r?.supportsOnDeviceRecognition == true ? r : nil
+        // Le nouveau moteur se prépare en parallèle (téléchargement du modèle de la langue la première fois).
+        if #available(iOS 26.0, *) {
+            let id = Self.localeID()
+            Task { [weak self] in
+                let ready = await ModernDictation.prepare(localeID: id)
+                await MainActor.run {
+                    guard let self else { return }
+                    self.modernReady = ready.map { Box($0) }
+                    if self.status == .unavailable, ready != nil { try? self.startEngine(); self.status = .ready; self.touch() }
+                }
+            }
         }
-        recognizer = r
+        guard recognizer != nil || !speech else { status = .unavailable; return }
+        if recognizer == nil { status = .denied; return }
         do {
             try startEngine()
         } catch {
@@ -157,9 +176,11 @@ final class DictationService {
             }
             self.lock.lock()
             let r = self.request
+            let sink = self.modernSink
             self.level = max(lvl, self.level * 0.6)
             self.lock.unlock()
             r?.append(buffer)
+            sink?(buffer)
         }
         engine.prepare()
         do {
@@ -203,7 +224,7 @@ final class DictationService {
     }
 
     private func beginRecognition() {
-        guard let recognizer, status == .ready || status == .listening else { return }
+        guard status == .ready || status == .listening, recognizer != nil || modernReady != nil else { return }
         ensureKeepAlive()
         do {
             try startMic()
@@ -216,6 +237,11 @@ final class DictationService {
             return
         }
         task?.cancel()
+        if #available(iOS 26.0, *), let box = modernReady as? Box<ModernDictation.Ready> {
+            beginModern(box.value)
+            return
+        }
+        guard let recognizer else { return }
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
         req.requiresOnDeviceRecognition = true
@@ -228,11 +254,7 @@ final class DictationService {
         heard = ""
         status = .listening
         save("", final: false, seq: mine)
-        levelTimer?.invalidate()
-        levelTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { [weak self] _ in
-            guard let self, self.status == .listening, self.seq == mine else { return }
-            self.save(self.heard, final: false, seq: mine)
-        }
+        startLevelTimer(mine)
         task = recognizer.recognitionTask(with: req) { [weak self] result, error in
             guard let self else { return }
             if let result {
@@ -250,12 +272,70 @@ final class DictationService {
         touch()
     }
 
+    /// Le niveau de la voix vers le clavier, et l'arrêt tout seul quand on se tait (2,5 s après la dernière parole,
+    /// ou 8 s si rien n'a été dit).
+    private func startLevelTimer(_ mine: Int) {
+        lastVoice = Date(); startedAt = Date()
+        levelTimer?.invalidate()
+        levelTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { [weak self] _ in
+            guard let self, self.status == .listening, self.seq == mine else { return }
+            self.lock.lock(); let l = self.level; self.lock.unlock()
+            if l > 0.12 { self.lastVoice = Date() }
+            self.save(self.heard, final: false, seq: mine)
+            let quiet = Date().timeIntervalSince(self.lastVoice)
+            let said = !self.heard.trimmingCharacters(in: .whitespaces).isEmpty
+            if self.finishTimer == nil || self.finishTimer?.isValid == false,
+               (said && quiet > 2.5) || (!said && Date().timeIntervalSince(self.startedAt) > 8) {
+                self.endRecognition()
+            }
+        }
+    }
+
+    @available(iOS 26.0, *)
+    private func beginModern(_ ready: ModernDictation.Ready) {
+        let m = ModernDictation(ready)
+        modern = m
+        lock.lock(); modernSink = { [weak m] b in m?.append(b) }; lock.unlock()
+        seq += 1
+        let mine = seq
+        heard = ""
+        status = .listening
+        save("", final: false, seq: mine)
+        startLevelTimer(mine)
+        Task { [weak self] in
+            do {
+                try await m.start { text, final in
+                    DispatchQueue.main.async {
+                        guard let self, self.seq == mine else { return }
+                        if !final { self.heard = text; self.save(text, final: false, seq: mine); return }
+                        guard self.status == .listening else { return }
+                        self.save(text.isEmpty ? self.heard : text, final: true, seq: mine)
+                        self.finishRecognition()
+                    }
+                }
+            } catch {
+                // Le nouveau moteur refuse : l'ancien prend le relais pour les dictées suivantes.
+                DispatchQueue.main.async {
+                    guard let self, self.seq == mine else { return }
+                    self.modernReady = nil
+                    self.save(self.heard, final: true, seq: mine)
+                    self.finishRecognition()
+                }
+            }
+        }
+        touch()
+    }
+
     private func endRecognition() {
         lock.lock()
         let r = request
         lock.unlock()
-        guard let r else { return }
-        r.endAudio()
+        if #available(iOS 26.0, *), let m = modern as? ModernDictation {
+            Task { await m.finish() }
+        } else {
+            guard let r else { return }
+            r.endAudio()
+        }
         // Le dernier résultat arrive d'habitude tout de suite ; sinon on rend ce qui a été entendu.
         finishTimer?.invalidate()
         let mine = seq
@@ -271,8 +351,10 @@ final class DictationService {
         levelTimer = nil
         lock.lock()
         request = nil
+        modernSink = nil
         level = 0
         lock.unlock()
+        modern = nil
         task = nil
         finishTimer?.invalidate()
         if status == .listening { status = .ready }
@@ -301,6 +383,9 @@ final class DictationService {
         }
     }
 }
+
+/// Une valeur rangée dans un objet (pour garder un type d'iOS 26 dans une propriété disponible dès iOS 17).
+final class Box<T> { let value: T; init(_ v: T) { value = v } }
 
 /// L'écran qui s'ouvre quand le clavier demande la dictée : on autorise, puis on revient à son app.
 struct DictationView: View {
