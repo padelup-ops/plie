@@ -5,12 +5,13 @@ name: Foldboard - TestFlight
 
 on:
   push:
-    branches: [main]
+    branches: [main, cursor/foldboard-futo-swipe-b370]
     paths:
       - "foldboard/App/**"
       - "foldboard/Keyboard/**"
       - "foldboard/Shared/**"
       - "foldboard/project.yml"
+      - ".github/workflows/foldboard-testflight.yml"
   workflow_dispatch:
 
 concurrency:

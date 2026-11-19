@@ -2,8 +2,6 @@
 # À lancer avant et après un changement du moteur (Shared/Suggest.swift, LanguageModel.swift) : aucune régression.
 name: Foldboard - Bench
 on:
-  push:
-    branches: [cursor/foldboard-futo-swipe-b370]
   workflow_dispatch:
     inputs:
       ref:
