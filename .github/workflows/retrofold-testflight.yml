@@ -60,6 +60,15 @@ jobs:
       - name: Cœur Game Boy (SameBoy) et ROM de démarrage libres
         run: bash retrofold/tools/fetch_sameboy.sh
 
+      - name: Cœurs GBA (mGBA) et DS (melonDS DS), compilés par « RetroFold - cœurs GBA et DS »
+        run: |
+          git fetch -q --depth 1 origin ci-retrofold-cores
+          mkdir -p retrofold/Cores
+          git archive FETCH_HEAD | tar -x -C retrofold/Cores
+          ls retrofold/Cores
+          test -f retrofold/Cores/MGBACore.framework/MGBACore
+          test -f retrofold/Cores/MelonDSCore.framework/MelonDSCore
+
       - name: Vérifier que l'app compile
         run: |
           set -o pipefail

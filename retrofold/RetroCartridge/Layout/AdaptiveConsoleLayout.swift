@@ -63,6 +63,7 @@ public struct AdaptiveConsoleLayout: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: postureManager.isCompactWidth)
+        .overlay { GamePakFullScreenHost() }
         .overlay(alignment: .top) { demoClock }
         // Game Pak: the player picks their own games in Files (files, several at once, a whole folder, or .zip).
         // Only on the inner display: the cover is too small for Files, and presenting there loops.

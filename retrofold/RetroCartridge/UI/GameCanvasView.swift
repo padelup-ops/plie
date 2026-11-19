@@ -205,6 +205,10 @@ struct GameCanvasView: View {
                     _ = frameDate
                     game.render(context: &context, size: size)
                 }
+                // Game Pak: the DS touch screen
+                if let pak = game as? GamePakGame, pak.acceptsTouch {
+                    GamePakTouchLayer(game: pak)
+                }
 
                 if game.gameType != .gamePak || game.gameState == .paused {
                 GameStatePanel(

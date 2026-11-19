@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D8CF1289DADDD890C4EEFD6 /* MelonDSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FC41656DCA4DF7284D2A366B /* MelonDSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4A31162E5895249FE211357D /* MGBACore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA03B0111724891266C3F358 /* MGBACore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		38C13265823709C3937BE45E /* GamePakScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058BFB1DE9E814FE5B4744D2 /* GamePakScreens.swift */; };
+		7243AFF0E315B6AB0F635DE5 /* GamePakMachines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5690663BD3A78DA3DAB4553D /* GamePakMachines.swift */; };
 		57F200A1539A54035AD49A0F /* GamePakGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742414CD884ECCD50510FDF7 /* GamePakGame.swift */; };
 		79DDB0725C5E25F08BEA0EFA /* RomLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9CB72DC70A405D8F13BC88E /* RomLibrary.swift */; };
 		E1CADDFA2282926A2528F35A /* GBCore in Frameworks */ = {isa = PBXBuildFile; productRef = 66420AE35AD43183A4611A50 /* GBCore */; };
@@ -92,7 +96,26 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		20BB42612580FCD059ACB0A5 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4A31162E5895249FE211357D /* MGBACore.framework in Embed Frameworks */,
+				4D8CF1289DADDD890C4EEFD6 /* MelonDSCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		FC41656DCA4DF7284D2A366B /* MelonDSCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MelonDSCore.framework; path = Cores/MelonDSCore.framework; sourceTree = SOURCE_ROOT; };
+		FA03B0111724891266C3F358 /* MGBACore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MGBACore.framework; path = Cores/MGBACore.framework; sourceTree = SOURCE_ROOT; };
+		058BFB1DE9E814FE5B4744D2 /* GamePakScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePakScreens.swift; sourceTree = "<group>"; };
+		5690663BD3A78DA3DAB4553D /* GamePakMachines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePakMachines.swift; sourceTree = "<group>"; };
 		742414CD884ECCD50510FDF7 /* GamePakGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePakGame.swift; sourceTree = "<group>"; };
 		E9CB72DC70A405D8F13BC88E /* RomLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RomLibrary.swift; sourceTree = "<group>"; };
 		057CF93884D57447C526BAAB /* HingeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HingeEngine.swift; sourceTree = "<group>"; };
@@ -172,9 +195,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		42A3BA6A13CB6F2939C1E110 /* Cores */ = {
+			isa = PBXGroup;
+			children = (
+				FA03B0111724891266C3F358 /* MGBACore.framework */,
+				FC41656DCA4DF7284D2A366B /* MelonDSCore.framework */,
+			);
+			name = Cores;
+			sourceTree = "<group>";
+		};
 		E812940339567A055F5143FE /* GamePak */ = {
 			isa = PBXGroup;
 			children = (
+				058BFB1DE9E814FE5B4744D2 /* GamePakScreens.swift */,
+				5690663BD3A78DA3DAB4553D /* GamePakMachines.swift */,
 				742414CD884ECCD50510FDF7 /* GamePakGame.swift */,
 				E9CB72DC70A405D8F13BC88E /* RomLibrary.swift */,
 			);
@@ -192,6 +226,7 @@
 		0BA92A6059E0BC1749E385C8 = {
 			isa = PBXGroup;
 			children = (
+				42A3BA6A13CB6F2939C1E110 /* Cores */,
 				80ECBB1F44AF0BDC09E008FE /* RetroCartridge */,
 				BBE4FB3C6DF1309097CCF20D /* RetroCartridgeTests */,
 				57E0BB0000000000000000F5 /* Products.storekit */,
@@ -490,6 +525,7 @@
 				E6D4FBE54A4539299086B611 /* Sources */,
 				BD445976B204E7437AB39660 /* Frameworks */,
 				DD9AB91CB88717E7BD69AC7A /* Resources */,
+				20BB42612580FCD059ACB0A5 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -573,6 +609,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				38C13265823709C3937BE45E /* GamePakScreens.swift in Sources */,
+				7243AFF0E315B6AB0F635DE5 /* GamePakMachines.swift in Sources */,
 				57F200A1539A54035AD49A0F /* GamePakGame.swift in Sources */,
 				79DDB0725C5E25F08BEA0EFA /* RomLibrary.swift in Sources */,
 				317FDB0AE36753EDB8ED23CE /* AdaptiveConsoleLayout.swift in Sources */,

@@ -15,6 +15,28 @@ struct RomEntry: Codable, Identifiable, Equatable {
     var title: String
     var added: Date
     var lastPlayed: Date?
+
+    /// Which console the game is for (from the file's extension in the library).
+    var system: PakSystem {
+        switch (id as NSString).pathExtension {
+        case "gba": return .gba
+        case "nds": return .nds
+        default: return .gb
+        }
+    }
+}
+
+enum PakSystem: String {
+    case gb, gba, nds
+
+    /// The short name shown in the library.
+    var badge: String {
+        switch self {
+        case .gb: return "GB"
+        case .gba: return "GBA"
+        case .nds: return "DS"
+        }
+    }
 }
 
 enum RomLibrary {
@@ -27,7 +49,7 @@ enum RomLibrary {
     /// The import itself checks each file.
     static var contentTypes: [UTType] { [.item, .folder] }
 
-    static let romExtensions: Set<String> = ["gb", "gbc", "cgb", "sgb", "dmg"]
+    static let romExtensions: Set<String> = ["gb", "gbc", "cgb", "sgb", "dmg", "gba", "agb", "nds"]
 
     /// What an import did, for the Game Pak screen.
     struct Outcome {
@@ -35,7 +57,7 @@ enum RomLibrary {
         var skipped = 0
         var message: String? {
             if added.isEmpty {
-                return String(localized: "NO GAME BOY GAME FOUND (.GB / .GBC / .ZIP)")
+                return String(localized: "NO GAME FOUND (.GB / .GBC / .GBA / .NDS / .ZIP)")
             }
             if added.count == 1 && skipped == 0 { return nil }
             return String(localized: "\(added.count) GAMES ADDED")
@@ -76,7 +98,7 @@ enum RomLibrary {
             return
         }
         guard romExtensions.contains(ext) || ext.isEmpty || ext == "bin" else { return }
-        guard let data = try? Data(contentsOf: url) else { out.skipped += 1; return }
+        guard let data = try? Data(contentsOf: url, options: .alwaysMapped) else { out.skipped += 1; return }
         if let e = try? add(data, name: url.lastPathComponent) { out.added.append(e) } else { out.skipped += 1 }
     }
 
@@ -106,24 +128,38 @@ enum RomLibrary {
     static func romURL(_ e: RomEntry) -> URL { folder.appendingPathComponent(e.id) }
     static func batteryURL(_ e: RomEntry) -> URL { folder.appendingPathComponent(e.id + ".sav") }
     static func stateURL(_ e: RomEntry) -> URL { folder.appendingPathComponent(e.id + ".state") }
+    /// Where a GBA or DS core keeps its own files for a game.
+    static func saveFolder(_ e: RomEntry) -> URL { folder.appendingPathComponent("saves/" + e.id, isDirectory: true) }
 
     enum ImportError: LocalizedError {
         case notAGame
-        var errorDescription: String? { String(localized: "This file isn't a Game Boy game (.gb or .gbc).") }
+        var errorDescription: String? { String(localized: "This file isn't a Game Boy, Game Boy Advance or DS game.") }
     }
 
     /// Adds a game to the library. Checks the cartridge header (the Nintendo logo's first bytes and a sane
     /// size), so random files are refused.
     @discardableResult
     static func add(_ data: Data, name: String) throws -> RomEntry {
-        let logo: [UInt8] = [0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B]
-        guard data.count >= 0x8000, data.count <= 8 * 1024 * 1024,
-              Array(data[0x104..<0x10C]) == logo else {
+        let base = (name as NSString).deletingPathExtension
+        // Each console's header carries the start of the boot logo at a known place.
+        let gbLogo: [UInt8] = [0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B]
+        let advLogo: [UInt8] = [0x24, 0xFF, 0xAE, 0x51, 0x69, 0x9A, 0xA2, 0x21]
+        func has(_ logo: [UInt8], at o: Int) -> Bool { data.count >= o + 8 && Array(data[o..<(o + 8)]) == logo }
+        let ext: String
+        var title: String?
+        if data.count >= 0x8000, data.count <= 8 << 20, has(gbLogo, at: 0x104) {
+            ext = (name as NSString).pathExtension.lowercased() == "gbc" || data[0x143] & 0x80 != 0 ? "gbc" : "gb"
+            title = headerTitle(data)
+        } else if data.count >= 0x200, data.count <= 512 << 20, has(advLogo, at: 0xC0) {
+            ext = "nds"
+            title = asciiTitle(data, 0..<12)
+        } else if data.count >= 0x200, data.count <= 32 << 20, has(advLogo, at: 0x04) {
+            ext = "gba"
+            title = asciiTitle(data, 0xA0..<0xAC)
+        } else {
             throw ImportError.notAGame
         }
-        let base = (name as NSString).deletingPathExtension
-        let title = headerTitle(data) ?? base
-        let ext = (name as NSString).pathExtension.lowercased() == "gbc" || data[0x143] & 0x80 != 0 ? "gbc" : "gb"
+        let title2 = title ?? base
         let id = "\(stableHash(data)).\(ext)"
         let dest = folder.appendingPathComponent(id)
         if !FileManager.default.fileExists(atPath: dest.path) {
@@ -132,7 +168,7 @@ enum RomLibrary {
         var list = (try? JSONDecoder().decode([RomEntry].self, from: Data(contentsOf: indexURL))) ?? []
         if let existing = list.first(where: { $0.id == id }) { return existing }
         // A file name usually says more than the 11-16 letters of the header.
-        let entry = RomEntry(id: id, title: base.count > 2 ? base : title, added: Date())
+        let entry = RomEntry(id: id, title: base.count > 2 ? base : title2, added: Date())
         list.append(entry)
         save(list)
         return entry
@@ -147,7 +183,7 @@ enum RomLibrary {
     }
 
     static func delete(_ e: RomEntry) {
-        for u in [romURL(e), batteryURL(e), stateURL(e)] { try? FileManager.default.removeItem(at: u) }
+        for u in [romURL(e), batteryURL(e), stateURL(e), saveFolder(e)] { try? FileManager.default.removeItem(at: u) }
         var list = (try? JSONDecoder().decode([RomEntry].self, from: Data(contentsOf: indexURL))) ?? []
         list.removeAll { $0.id == e.id }
         save(list)
@@ -162,10 +198,18 @@ enum RomLibrary {
         return (s?.isEmpty ?? true) ? nil : s
     }
 
+    private static func asciiTitle(_ data: Data, _ r: Range<Int>) -> String? {
+        guard data.count >= r.upperBound else { return nil }
+        let t = String(bytes: data[r].filter { $0 >= 0x20 && $0 < 0x7F }, encoding: .ascii)?.trimmingCharacters(in: .whitespaces)
+        return (t?.isEmpty ?? true) ? nil : t
+    }
+
     private static func stableHash(_ data: Data) -> String {
-        // FNV-1a 64 bits: a stable file name for the same game.
-        var h: UInt64 = 0xcbf29ce484222325
-        for b in data { h = (h ^ UInt64(b)) &* 0x100000001b3 }
+        // FNV-1a 64 bits over the size and the first 4 MB (DS games are large): a stable file name per game.
+        var h: UInt64 = 0xcbf29ce484222325 ^ UInt64(data.count)
+        data.prefix(4 << 20).withUnsafeBytes { raw in
+            for b in raw.bindMemory(to: UInt8.self) { h = (h ^ UInt64(b)) &* 0x100000001b3 }
+        }
         return String(h, radix: 16)
     }
 }
@@ -195,7 +239,7 @@ enum ZipReader {
             let local = u32(p + 42)
             let name = String(decoding: b[(p + 46)..<min(b.count, p + 46 + nlen)], as: UTF8.self)
             p += 46 + nlen + elen + clen
-            guard keep(name), !name.hasPrefix("__MACOSX"), usize <= 16 * 1024 * 1024, local + 30 <= b.count,
+            guard keep(name), !name.hasPrefix("__MACOSX"), usize <= 256 * 1024 * 1024, local + 30 <= b.count,
                   u32(local) == 0x04034B50 else { continue }
             let start = local + 30 + u16(local + 26) + u16(local + 28)
             guard start + csize <= b.count else { continue }

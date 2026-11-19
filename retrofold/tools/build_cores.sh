@@ -13,7 +13,9 @@ WORK=${WORK:-$(mktemp -d)}
 mkdir -p "$OUT"
 command -v cmake >/dev/null || brew install cmake
 command -v ninja >/dev/null || brew install ninja
-IOS_ARGS=(-G Ninja -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=$MIN_IOS
+SDK=$(xcrun --sdk iphoneos --show-sdk-path)
+export SDKROOT="$SDK"
+IOS_ARGS=(-G Ninja -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT="$SDK" -DCMAKE_C_COMPILER=$(xcrun --sdk iphoneos -f clang) -DCMAKE_CXX_COMPILER=$(xcrun --sdk iphoneos -f clang++) -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=$MIN_IOS
           -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO)
 
 framework() { # $1 dylib, $2 name, $3 bundle id, $4 version
@@ -41,7 +43,9 @@ PL
   nm -gU "$fw/$2" | grep -c " _retro_" || true
 }
 
-if [ "${ONLY:-}" != ds ]; then
+FAIL=0
+if [ "${ONLY:-}" != ds ]; then (
+set -e
   echo "=== mGBA"
   rm -rf "$WORK/mgba"; git clone -q https://github.com/libretro/mgba.git "$WORK/mgba"; git -C "$WORK/mgba" checkout -q $MGBA_REV
   cmake -S "$WORK/mgba" -B "$WORK/mgba/build" "${IOS_ARGS[@]}" \
@@ -50,17 +54,21 @@ if [ "${ONLY:-}" != ds ]; then
     -DBUILD_EXAMPLE=OFF -DBUILD_PYTHON=OFF -DBUILD_UPDATER=OFF -DSKIP_LIBRARY=ON -DUSE_FFMPEG=OFF -DUSE_ZLIB=OFF \
     -DUSE_MINIZIP=OFF -DUSE_PNG=OFF -DUSE_LIBZIP=OFF -DUSE_SQLITE3=OFF -DUSE_ELF=OFF -DUSE_LUA=OFF -DUSE_JSON_C=OFF \
     -DUSE_EDITLINE=OFF -DUSE_EPOXY=OFF -DUSE_DISCORD_RPC=OFF -DENABLE_SCRIPTING=OFF -DUSE_DEBUGGERS=OFF -DUSE_GDB_STUB=OFF \
-    -DM_CORE_GB=OFF -DM_CORE_GBA=ON
+    -DM_CORE_GB=ON -DM_CORE_GBA=ON
   cmake --build "$WORK/mgba/build" --target mgba_libretro --parallel
   framework "$(find "$WORK/mgba/build" -name 'mgba_libretro*.dylib' | head -1)" MGBACore com.padelup.retrofold.mgba 0.11
+) || { echo "ÉCHEC mGBA"; FAIL=1; }
 fi
 
-if [ "${ONLY:-}" != gba ]; then
+if [ "${ONLY:-}" != gba ]; then (
+set -e
   echo "=== melonDS DS"
   rm -rf "$WORK/mds"; git clone -q https://github.com/JesseTG/melonds-ds.git "$WORK/mds"; git -C "$WORK/mds" checkout -q $MDS_REV
   cmake -S "$WORK/mds" -B "$WORK/mds/build" "${IOS_ARGS[@]}" -DENABLE_JIT=OFF -DENABLE_OPENGL=OFF -DTRACY_ENABLE=OFF \
     -DBUILD_TESTING=OFF -Wno-deprecated
   cmake --build "$WORK/mds/build" --parallel
   framework "$(find "$WORK/mds/build" -name 'melondsds_libretro*.dylib' | head -1)" MelonDSCore com.padelup.retrofold.melonds 1.2
+) || { echo "ÉCHEC melonDS"; FAIL=1; }
 fi
 ls -la "$OUT"
+exit $FAIL

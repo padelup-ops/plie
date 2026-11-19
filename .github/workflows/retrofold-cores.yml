@@ -31,7 +31,7 @@ jobs:
         if: failure()
         run: grep -n -B3 -A8 -E "error:|Error " cores.log | head -200 || true
       - name: Publier
-        if: success()
+        if: always()
         env:
           GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -40,6 +40,6 @@ jobs:
           git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
           git remote add origin "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           if git fetch -q origin ci-retrofold-cores 2>/dev/null; then git checkout -q -B ci-retrofold-cores FETCH_HEAD; fi
-          for f in ../retrofold/Cores/*.framework; do rm -rf "$(basename "$f")"; cp -R "$f" .; done
-          git add -A && git commit -qm "Cœurs GBA / DS" && git push -q -f origin ci-retrofold-cores
+          for f in ../retrofold/Cores/*.framework; do [ -e "$f" ] || continue; rm -rf "$(basename "$f")"; cp -R "$f" .; done
+          git add -A && git commit -qm "Cœurs GBA / DS" && git push -q -f origin ci-retrofold-cores || true
           ls

@@ -37,4 +37,30 @@ size_t gbk_read_audio(gbk_t *k, int16_t *out, size_t max_frames);
 /// Échantillons stéréo en attente.
 size_t gbk_audio_pending(gbk_t *k);
 
+
+// ---- Cœurs libretro chargés depuis un framework de l'app (GBA : mGBA, DS : melonDS DS). Un seul à la fois. ----
+
+enum { LR_B = 0, LR_Y, LR_SELECT, LR_START, LR_UP, LR_DOWN, LR_LEFT, LR_RIGHT, LR_A, LR_X, LR_L, LR_R };
+
+/// Ouvre le cœur (chemin du binaire du framework). 0 si tout va bien, sinon un message dans lr_error().
+int lr_open(const char *core_path, const char *system_dir, const char *save_dir);
+const char *lr_error(void);
+/// Charge le jeu (chemin du fichier). 0 si tout va bien.
+int lr_load(const char *rom_path);
+void lr_close(void);
+double lr_fps(void);
+double lr_sample_rate(void);
+void lr_run_frame(void);
+/// L'image courante en R, G, B, X ; largeur et hauteur en sortie (0 si pas encore d'image).
+const uint32_t *lr_pixels(int *width, int *height);
+size_t lr_read_audio(int16_t *out, size_t max_frames);
+void lr_set_button(int id, int pressed);
+/// Le toucher (écran tactile de la DS), en coordonnées de l'image : x, y en pixels.
+void lr_set_pointer(int x, int y, int pressed);
+size_t lr_sram_size(void);
+uint8_t *lr_sram(void);
+size_t lr_state_size(void);
+int lr_state_save(uint8_t *out, size_t size);
+int lr_state_load(const uint8_t *data, size_t size);
+
 #endif
