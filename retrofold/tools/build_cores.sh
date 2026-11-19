@@ -8,14 +8,16 @@ MGBA_REV=7a12d6d4b9acb14c0ae62c9166b6a2f3d08007f6
 MDS_REV=f394adbacb5722ee97c1b37c8064da9a25818310
 MIN_IOS=17.0
 HERE=$(cd "$(dirname "$0")/.." && pwd)
-OUT="$HERE/Cores"
+# PLATFORM=sim : pour le simulateur (essais), dans CoresSim.
+if [ "${PLATFORM:-}" = sim ]; then SDKNAME=iphonesimulator; OUT="$HERE/CoresSim"; else SDKNAME=iphoneos; OUT="$HERE/Cores"; fi
+if [ "$SDKNAME" = iphonesimulator ]; then PLAT=iPhoneSimulator; else PLAT=iPhoneOS; fi
 WORK=${WORK:-$(mktemp -d)}
 mkdir -p "$OUT"
 command -v cmake >/dev/null || brew install cmake
 command -v ninja >/dev/null || brew install ninja
-SDK=$(xcrun --sdk iphoneos --show-sdk-path)
+SDK=$(xcrun --sdk $SDKNAME --show-sdk-path)
 export SDKROOT="$SDK"
-IOS_ARGS=(-G Ninja -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT="$SDK" -DCMAKE_C_COMPILER=$(xcrun --sdk iphoneos -f clang) -DCMAKE_CXX_COMPILER=$(xcrun --sdk iphoneos -f clang++) -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=$MIN_IOS
+IOS_ARGS=(-G Ninja -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT="$SDK" -DCMAKE_C_COMPILER=$(xcrun --sdk $SDKNAME -f clang) -DCMAKE_CXX_COMPILER=$(xcrun --sdk $SDKNAME -f clang++) -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=$MIN_IOS
           -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO)
 
 framework() { # $1 dylib, $2 name, $3 bundle id, $4 version
@@ -35,7 +37,7 @@ framework() { # $1 dylib, $2 name, $3 bundle id, $4 version
 <key>CFBundlePackageType</key><string>FMWK</string>
 <key>CFBundleShortVersionString</key><string>$4</string>
 <key>CFBundleVersion</key><string>1</string>
-<key>CFBundleSupportedPlatforms</key><array><string>iPhoneOS</string></array>
+<key>CFBundleSupportedPlatforms</key><array><string>$PLAT</string></array>
 <key>MinimumOSVersion</key><string>$MIN_IOS</string>
 </dict></plist>
 PL

@@ -1,0 +1,118 @@
+# RetroFold : essai de la Game Pak sur le simulateur iPhone Duo, avec des jeux libres (homebrew et ROM de test) :
+# Game Boy (dmg-acid2, cgb-acid2), GBA (gba-tests de jsmolka), DS (homebrew). Captures et journal dans ci-retrofold-gamepak.
+name: RetroFold - essai Game Pak
+
+on:
+  workflow_dispatch:
+    inputs:
+      wait:
+        description: "Secondes de jeu avant la capture"
+        required: false
+        default: "12"
+
+jobs:
+  test:
+    runs-on: xcode-27
+    timeout-minutes: 75
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+      - name: Cœurs (SameBoy, puis mGBA et melonDS DS pour le simulateur)
+        run: |
+          bash retrofold/tools/fetch_sameboy.sh
+          git fetch -q --depth 1 origin ci-retrofold-cores
+          mkdir -p retrofold/Cores
+          git archive FETCH_HEAD sim | tar -x -C "$RUNNER_TEMP"
+          cp -R "$RUNNER_TEMP"/sim/*.framework retrofold/Cores/
+          ls retrofold/Cores
+      - name: Jeux de test
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p roms out
+          asset() { # $1 dépôt, $2 motif
+            curl -sSL -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/$1/releases/latest" \
+              | python3 -c "import json,sys,re; d=json.load(sys.stdin); print(next((a['browser_download_url'] for a in d.get('assets',[]) if re.search(sys.argv[1], a['name'])), ''))" "$2"
+          }
+          for spec in "mattcurrie/dmg-acid2 dmg-acid2\.gb$" "mattcurrie/cgb-acid2 cgb-acid2\.gbc$" "devkitPro/nds-hb-menu \.(nds|zip)$" "DS-Homebrew/NesDS \.(nds|zip)$"; do
+            set -- $spec
+            u=$(asset "$1" "$2"); echo "$1 -> $u"
+            [ -n "$u" ] && curl -sSL -o "roms/$(basename "$u")" "$u" || true
+          done
+          git clone -q --depth 1 https://github.com/jsmolka/gba-tests.git "$RUNNER_TEMP/gt"
+          cp "$RUNNER_TEMP/gt/ppu/hello.gba" roms/ ; cp "$RUNNER_TEMP/gt/arm/arm.gba" roms/
+          ls -la roms | tee out/roms.txt
+      - name: Compiler et installer sur le simulateur Duo
+        run: |
+          find_runtime() {
+            xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes']
+                if r.get('platform') == 'iOS' and r.get('isAvailable')
+                and any('Duo' in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
+          print(rs[-1]['identifier'] if rs else '')"
+          }
+          RUNTIME=$(find_runtime)
+          if [ -z "$RUNTIME" ]; then xcodebuild -downloadPlatform iOS 2>&1 | tail -3; RUNTIME=$(find_runtime); fi
+          DT=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Duo' in x['name']]
+          print(d[0]['identifier'] if d else '')")
+          UDID=$(xcrun simctl create "RetroFold Duo" "$DT" "$RUNTIME")
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
+          set -o pipefail
+          xcodebuild build -project retrofold/RetroCartridge.xcodeproj -scheme RetroCartridge -configuration Debug -sdk iphonesimulator \
+            -destination "id=$UDID" -derivedDataPath build ARCHS=arm64 CODE_SIGNING_ALLOWED=NO 2>&1 | tee out/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -n -E "error:|warning: .*GamePak" out/build.log | head -80 > out/erreurs.txt || true
+          grep -q "BUILD SUCCEEDED" out/build.log
+          APP=$(find build -name "RetroCartridge.app" -path "*iphonesimulator*" | head -1)
+          ls "$APP/Frameworks" | tee -a out/roms.txt
+          xcrun simctl install "$UDID" "$APP"
+          git clone -q --depth 1 https://github.com/BugenZhao/duo-hinge-skill "$RUNNER_TEMP/hinge"
+          DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" open 2>&1 | tail -2 || true
+          sleep 3
+      - name: Jouer
+        timeout-minutes: 30
+        run: |
+          BID=com.padelup.retrofold
+          N=0
+          for ROM in roms/*; do
+            N=$((N+1))
+            NAME=$(basename "$ROM")
+            xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+            DATA=$(xcrun simctl get_app_container "$UDID" "$BID" data)
+            rm -f "$DATA/Documents/gamepak-log.txt"
+            cp "$ROM" "$DATA/Documents/$NAME"
+            xcrun simctl launch --console-pty "$UDID" "$BID" -AppleLanguages "(en)" -shot gamepak -gamepakROM "$DATA/Documents/$NAME" > "out/$(printf %02d $N)-$NAME-console.txt" 2>&1 &
+            LP=$!
+            sleep ${{ inputs.wait }}
+            for D in primary primary-1; do xcrun simctl io "$UDID" screenshot --display=$D --mask=black "out/$(printf %02d $N)-$NAME-$D.png" > /dev/null 2>&1 || true; done
+            # Tenu en paysage (comme sur la photo de l'utilisateur) : la DS doit occuper tout l'écran
+            xcrun devicectl device orientation set --device "$UDID" landscapeLeft > /dev/null 2>&1 || true
+            sleep 4
+            xcrun simctl io "$UDID" screenshot --display=primary --mask=black "out/$(printf %02d $N)-$NAME-landscape.png" > /dev/null 2>&1 || true
+            xcrun devicectl device orientation set --device "$UDID" portrait > /dev/null 2>&1 || true
+            echo "===== $NAME" | tee -a out/journal.txt
+            cat "$DATA/Documents/gamepak-log.txt" 2>/dev/null | tee -a out/journal.txt || echo "(pas de journal)" | tee -a out/journal.txt
+            kill $LP 2>/dev/null || true
+            xcrun simctl spawn "$UDID" log show --last 1m --predicate 'process == "RetroCartridge"' --style compact 2>/dev/null \
+              | grep -iE "crash|fatal|error|GAMEPAK|dlopen" | tail -20 >> out/journal.txt || true
+          done
+          ls ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -i retro | tee out/crashs.txt || true
+          for f in ~/Library/Logs/DiagnosticReports/*Retro*; do [ -f "$f" ] && head -120 "$f" > "out/crash-$(basename "$f").txt"; done 2>/dev/null || true
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out && cd out
+          find . -type f -size +50M -delete
+          git init -q -b ci-retrofold-gamepak
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Essai Game Pak" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-retrofold-gamepak

@@ -8,6 +8,9 @@ on:
       only:
         description: "gba, ds ou vide (les deux)"
         required: false
+      platform:
+        description: "vide : iPhone ; sim : simulateur (rangés dans sim/)"
+        required: false
 
 jobs:
   cores:
@@ -24,6 +27,7 @@ jobs:
       - name: Compiler
         env:
           ONLY: ${{ inputs.only }}
+          PLATFORM: ${{ inputs.platform }}
         run: |
           set -o pipefail
           bash retrofold/tools/build_cores.sh 2>&1 | tee cores.log | grep -E "error|Error|===|framework|retro_|arm64|Built target" | tail -80
@@ -41,5 +45,7 @@ jobs:
           git remote add origin "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           if git fetch -q origin ci-retrofold-cores 2>/dev/null; then git checkout -q -B ci-retrofold-cores FETCH_HEAD; fi
           for f in ../retrofold/Cores/*.framework; do [ -e "$f" ] || continue; rm -rf "$(basename "$f")"; cp -R "$f" .; done
+          mkdir -p sim
+          for f in ../retrofold/CoresSim/*.framework; do [ -e "$f" ] || continue; rm -rf "sim/$(basename "$f")"; cp -R "$f" sim/; done
           git add -A && git commit -qm "Cœurs GBA / DS" && git push -q -f origin ci-retrofold-cores || true
           ls
