@@ -890,3 +890,8 @@
 "Open, all time" = "開いていた時間（累計）";
 "Closed, all time" = "閉じていた時間（累計）";
 "Hour" = "時";
+
+/* Merci pour les 3 000 */
+"Thank you for 3,000 downloads! 🎉" = "3,000ダウンロードありがとう！🎉";
+"Foldly just passed 3,000 downloads. Thank you for folding with us and for all your ideas in the idea box. To celebrate, Foldly+ stays at $0.99 until Friday. Keep the ideas coming!" = "Foldlyのダウンロードが3,000を超えました。いっしょに折ってくれて、アイデアボックスのアイデアもありがとう。お祝いとして、Foldly+は金曜日までセール価格のままです。アイデアをどんどん送ってください！";
+"See Foldly+" = "Foldly+を見る";
