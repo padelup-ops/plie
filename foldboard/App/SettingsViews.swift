@@ -671,6 +671,8 @@ struct TypingView: View {
                 Text("A mic above the keys. The first time, Foldboard opens for a moment to turn on the microphone (iOS doesn't let keyboards use it), then you go back and talk. It is transcribed on your iPhone.")
             }
 
+            if m.settings.dictationKey { ParakeetSection() }
+
             Section {
                 NavigationLink { TapMapView().fullScreenDuo() } label: {
                     Label("Where you tap", systemImage: "hand.point.up.left")
@@ -1097,5 +1099,64 @@ struct GripRecorder: View {
         }
         .interactiveDismissDisabled(!samples.isEmpty && !allDone)
         .fullScreenDuo()
+    }
+}
+
+
+/// La dictée Parakeet : télécharger le modèle (une fois), l'utiliser ou non, le supprimer.
+struct ParakeetSection: View {
+    private let model = ParakeetModel.shared
+    @State private var confirmDelete = false
+
+    var body: some View {
+        Section {
+            switch model.state {
+            case .absent:
+                Button {
+                    model.download()
+                } label: {
+                    Label("Download Parakeet (\(ParakeetModel.approxMB) MB)", systemImage: "arrow.down.circle")
+                }
+            case .downloading(let f):
+                VStack(alignment: .leading, spacing: 8) {
+                    ProgressView(value: f) {
+                        Text("Downloading… Keep Foldboard open.")
+                    } currentValueLabel: {
+                        Text(f, format: .percent.precision(.fractionLength(0)))
+                    }
+                    Button("Cancel", role: .cancel) { model.cancelDownload() }
+                        .font(.footnote)
+                }
+            case .preparing:
+                HStack(spacing: 10) {
+                    ProgressView()
+                    Text("Preparing Parakeet for your iPhone…")
+                }
+            case .installed:
+                Toggle("Use Parakeet", isOn: Binding(get: { model.enabled }, set: { model.enabled = $0 }))
+                Button("Delete the model", role: .destructive) { confirmDelete = true }
+                    .confirmationDialog("Delete Parakeet?", isPresented: $confirmDelete, titleVisibility: .visible) {
+                        Button("Delete the model", role: .destructive) { model.delete() }
+                    } message: {
+                        Text("Dictation goes back to Apple's. You can download Parakeet again later.")
+                    }
+            case .failed:
+                Text("The download didn't finish. Try again on Wi-Fi.")
+                    .foregroundStyle(.secondary)
+                Button {
+                    model.download()
+                } label: {
+                    Label("Try again", systemImage: "arrow.clockwise")
+                }
+            }
+        } header: {
+            Text("Parakeet dictation")
+        } footer: {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("More accurate dictation in 25 European languages, with punctuation, still on your iPhone. Download it once on Wi-Fi; until then, Foldboard uses Apple's dictation.")
+                Text(verbatim: "Parakeet TDT 0.6B v3 © NVIDIA (CC BY 4.0) · FluidAudio (Apache 2.0)")
+                    .font(.caption2)
+            }
+        }
     }
 }

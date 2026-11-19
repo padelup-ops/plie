@@ -33,7 +33,13 @@ struct FoldboardApp: App {
                     if p == .active {
                         model.reload()
                         Task { await store.refresh() }
+                        // La dictée se met prête toute seule si tout est déjà permis (le clavier n'aura pas à rouvrir l'app).
+                        if UserDefaults.standard.string(forKey: "shot") == nil { DictationService.shared.warmStart() }
                     }
+                }
+                .task {
+                    // Essai sur simulateur (CI) : `-parakeetTest chemin.wav` transcrit le fichier et écrit le résultat.
+                    if let path = UserDefaults.standard.string(forKey: "parakeetTest") { await ParakeetSelfTest.run(path) }
                 }
         }
     }

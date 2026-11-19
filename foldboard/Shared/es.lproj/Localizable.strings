@@ -526,3 +526,17 @@
 "Writing…" = "Escribiendo…";
 "Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself." = "Vuelve a tu app (arriba a la izquierda): Foldboard empieza a escuchar enseguida. El dictado sigue listo 10 minutos y luego se apaga solo.";
 "Back to your app" = "Volver a tu app";
+
+/* Dictée Parakeet */
+"Download Parakeet (%lld MB)" = "Descargar Parakeet (%lld MB)";
+"Downloading… Keep Foldboard open." = "Descargando… Deja Foldboard abierto.";
+"Preparing Parakeet for your iPhone…" = "Preparando Parakeet para tu iPhone…";
+"Use Parakeet" = "Usar Parakeet";
+"Delete the model" = "Eliminar el modelo";
+"Delete Parakeet?" = "¿Eliminar Parakeet?";
+"Dictation goes back to Apple's. You can download Parakeet again later." = "El dictado vuelve a ser el de Apple. Podrás volver a descargar Parakeet más tarde.";
+"The download didn't finish. Try again on Wi-Fi." = "La descarga no terminó. Inténtalo de nuevo con Wi‑Fi.";
+"Try again" = "Reintentar";
+"Parakeet dictation" = "Dictado Parakeet";
+"More accurate dictation in 25 European languages, with punctuation, still on your iPhone. Download it once on Wi-Fi; until then, Foldboard uses Apple's dictation." = "Dictado más preciso en 25 idiomas europeos, con puntuación, siempre en tu iPhone. Descárgalo una vez con Wi‑Fi; mientras tanto, Foldboard usa el dictado de Apple.";
+"Go back to your app (top left): Foldboard starts listening right away. Dictation then stays ready in the background, so you won't have to come back here." = "Vuelve a tu app (arriba a la izquierda): Foldboard escucha enseguida. Después, el dictado queda listo en segundo plano y no tendrás que volver aquí.";

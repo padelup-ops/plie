@@ -1,0 +1,63 @@
+# FOLDBOARD : essai de la dictée Parakeet (FluidAudio) sur le simulateur. Des phrases lues par la voix du Mac
+# (français, anglais) passent par le même chemin que le micro ; le texte obtenu est affiché dans le journal.
+name: Foldboard - essai Parakeet
+
+on:
+  workflow_dispatch:
+
+jobs:
+  parakeet:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+      - name: Runtimes ExecuTorch
+        run: bash foldboard/tools/fetch_executorch.sh
+      - name: Compiler pour le simulateur
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen >/dev/null 2>&1
+          cd foldboard && xcodegen generate && cd ..
+          set -o pipefail
+          xcodebuild build -project foldboard/Foldboard.xcodeproj -scheme Foldboard -configuration Release -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" build.log || { grep -n -E "error:" build.log | head -60; exit 1; }
+      - name: Voix de test
+        run: |
+          mkdir -p audio
+          say -v '?' | grep -E "fr_FR|en_US" | head -6 || true
+          FR=$(say -v '?' | awk '/fr_FR/{print $1; exit}'); EN=$(say -v '?' | awk '/en_US/{print $1; exit}')
+          say -v "${FR:-Thomas}" -o audio/fr.aiff "Bonjour, je teste la dictée de Foldboard. Est-ce que la ponctuation fonctionne bien ? On verra demain matin."
+          say -v "${EN:-Samantha}" -o audio/en.aiff "Hello, this is a quick test of the new dictation. It should handle punctuation and capital letters, right?"
+          for f in fr en; do afconvert -f WAVE -d LEF32@48000 -c 1 audio/$f.aiff audio/$f.wav; done
+          ls -la audio
+      - name: Essayer sur le simulateur
+        run: |
+          APP=$(find build -name "Foldboard.app" -path "*iphonesimulator*" | head -1)
+          BID=com.padelup.foldboard
+          DT=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'iPhone' in x['name'] and 'Pro' in x['name']]
+          print(d[-1]['identifier'])")
+          RT=$(xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          r = [x for x in json.load(sys.stdin)['runtimes'] if x.get('platform') == 'iOS' and x.get('isAvailable')]
+          print(r[-1]['identifier'])")
+          UDID=$(xcrun simctl create "Parakeet" "$DT" "$RT")
+          xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP"
+          for L in fr en; do
+            xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+            DATA=$(xcrun simctl get_app_container "$UDID" "$BID" data)
+            rm -f "$DATA/Documents/parakeet-result.txt"
+            cp "audio/$L.wav" "$DATA/Documents/$L.wav"
+            xcrun simctl launch "$UDID" "$BID" -onboarded YES -parakeetTest "$DATA/Documents/$L.wav" >/dev/null
+            for i in $(seq 1 240); do [ -s "$DATA/Documents/parakeet-result.txt" ] && break; sleep 5; done
+            echo "===== $L"
+            cat "$DATA/Documents/parakeet-result.txt" || echo "pas de résultat"
+            echo
+          done
+          xcrun simctl spawn "$UDID" log show --last 20m --predicate 'process == "Foldboard"' --style compact 2>/dev/null | grep -iE "parakeet|fluid|asr|error" | tail -40 || true

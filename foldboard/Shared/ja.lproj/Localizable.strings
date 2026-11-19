@@ -526,3 +526,17 @@
 "Writing…" = "入力中…";
 "Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself." = "アプリに戻ってください（左上）：Foldboard がすぐに聞き取りを始めます。音声入力は10分間準備ができた状態で、その後自動でオフになります。";
 "Back to your app" = "アプリに戻る";
+
+/* Dictée Parakeet */
+"Download Parakeet (%lld MB)" = "Parakeetをダウンロード（%lld MB）";
+"Downloading… Keep Foldboard open." = "ダウンロード中… Foldboardを開いたままにしてください。";
+"Preparing Parakeet for your iPhone…" = "iPhone用にParakeetを準備中…";
+"Use Parakeet" = "Parakeetを使う";
+"Delete the model" = "モデルを削除";
+"Delete Parakeet?" = "Parakeetを削除しますか？";
+"Dictation goes back to Apple's. You can download Parakeet again later." = "音声入力はAppleのものに戻ります。Parakeetは後でまたダウンロードできます。";
+"The download didn't finish. Try again on Wi-Fi." = "ダウンロードが完了しませんでした。Wi‑Fiで再試行してください。";
+"Try again" = "再試行";
+"Parakeet dictation" = "Parakeet音声入力";
+"More accurate dictation in 25 European languages, with punctuation, still on your iPhone. Download it once on Wi-Fi; until then, Foldboard uses Apple's dictation." = "ヨーロッパの25言語で、句読点付きのより正確な音声入力。処理はiPhone上で行われます。Wi‑Fiで一度ダウンロードしてください。それまではAppleの音声入力を使います。";
+"Go back to your app (top left): Foldboard starts listening right away. Dictation then stays ready in the background, so you won't have to come back here." = "アプリに戻ってください（左上）：Foldboardがすぐに聞き取ります。その後も音声入力はバックグラウンドで待機するので、ここに戻る必要はありません。";

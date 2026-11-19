@@ -264,8 +264,8 @@ final class KeyboardCanvas: UIView {
         dictState = .finishing
         showVoice(.finishing)
         KBDictation.post(KBDictation.stop)
-        // Si le texte final n'arrive pas, on écrit ce qui a été entendu.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+        // Si le texte final n'arrive pas, on écrit ce qui a été entendu (Parakeet peut prendre quelques secondes).
+        DispatchQueue.main.asyncAfter(deadline: .now() + 7) { [weak self] in
             guard let self, self.dictState == .finishing else { return }
             if let s = KBVault.loadDictation(), s.seq > self.dictSeq, !self.dictCancelled { self.insertDictation(s.text) }
             self.dictState = .idle

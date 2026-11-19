@@ -43,6 +43,12 @@ final class DictationService {
     /// Arrêt tout seul quand on se tait : le dernier moment où la voix a été entendue.
     private var lastVoice = Date()
     private var startedAt = Date()
+    /// La dictée Parakeet en cours (le modèle téléchargé dans l'app), et le son du micro qui lui va.
+    private var parakeet: ParakeetDictation?
+    private var parakeetSink: ((AVAudioPCMBuffer) -> Void)?
+    /// Parakeet a refusé de servir pendant cette session : la dictée d'Apple prend le relais.
+    private var parakeetBroken = false
+    private var useParakeet: Bool { ParakeetModel.shared.isActive && !parakeetBroken }
 
     private init() {
         // Quand le micro s'ouvre ou se ferme, iOS reconfigure l'audio et arrête le son muet : on le relance tout de
@@ -75,11 +81,29 @@ final class DictationService {
             return
         }
         status = .starting
+        // Avec Parakeet, seul le micro est demandé (la reconnaissance d'Apple ne sert qu'en secours, si déjà permise).
+        if useParakeet {
+            AVAudioApplication.requestRecordPermission { mic in
+                DispatchQueue.main.async {
+                    self.prepare(speech: SFSpeechRecognizer.authorizationStatus() == .authorized, mic: mic)
+                }
+            }
+            return
+        }
         SFSpeechRecognizer.requestAuthorization { auth in
             AVAudioApplication.requestRecordPermission { mic in
                 DispatchQueue.main.async { self.prepare(speech: auth == .authorized, mic: mic) }
             }
         }
+    }
+
+    /// À l'ouverture de l'app : si tout est déjà permis, la dictée se met prête toute seule (sans rien demander),
+    /// pour que le clavier n'ait pas à rouvrir l'app.
+    func warmStart() {
+        guard status == .off, KBVault.loadSettings().dictationKey,
+              AVAudioApplication.shared.recordPermission == .granted,
+              useParakeet || SFSpeechRecognizer.authorizationStatus() == .authorized else { return }
+        startSession()
     }
 
     private func prepare(speech: Bool, mic: Bool) {
@@ -98,8 +122,10 @@ final class DictationService {
                 }
             }
         }
-        guard recognizer != nil || !speech else { status = .unavailable; return }
-        if recognizer == nil { status = .denied; return }
+        if !useParakeet {
+            guard recognizer != nil || !speech else { status = .unavailable; return }
+            if recognizer == nil { status = .denied; return }
+        }
         do {
             try startEngine()
         } catch {
@@ -177,10 +203,12 @@ final class DictationService {
             self.lock.lock()
             let r = self.request
             let sink = self.modernSink
+            let psink = self.parakeetSink
             self.level = max(lvl, self.level * 0.6)
             self.lock.unlock()
             r?.append(buffer)
             sink?(buffer)
+            psink?(buffer)
         }
         engine.prepare()
         do {
@@ -224,7 +252,7 @@ final class DictationService {
     }
 
     private func beginRecognition() {
-        guard status == .ready || status == .listening, recognizer != nil || modernReady != nil else { return }
+        guard status == .ready || status == .listening, useParakeet || recognizer != nil || modernReady != nil else { return }
         ensureKeepAlive()
         do {
             try startMic()
@@ -237,6 +265,10 @@ final class DictationService {
             return
         }
         task?.cancel()
+        if useParakeet {
+            beginParakeet()
+            return
+        }
         if #available(iOS 26.0, *), let box = modernReady as? Box<ModernDictation.Ready> {
             beginModern(box.value)
             return
@@ -283,12 +315,48 @@ final class DictationService {
             if l > 0.12 { self.lastVoice = Date() }
             self.save(self.heard, final: false, seq: mine)
             let quiet = Date().timeIntervalSince(self.lastVoice)
-            let said = !self.heard.trimmingCharacters(in: .whitespaces).isEmpty
+            // On a parlé : du texte, ou une voix entendue un moment (le texte de Parakeet arrive un peu après).
+            let said = !self.heard.trimmingCharacters(in: .whitespaces).isEmpty || self.lastVoice.timeIntervalSince(self.startedAt) > 0.4
             if self.finishTimer == nil || self.finishTimer?.isValid == false,
                (said && quiet > 2.5) || (!said && Date().timeIntervalSince(self.startedAt) > 8) {
                 self.endRecognition()
             }
         }
+    }
+
+    private func beginParakeet() {
+        let p = ParakeetDictation()
+        parakeet = p
+        lock.lock(); parakeetSink = { [weak p] b in p?.append(b) }; lock.unlock()
+        seq += 1
+        let mine = seq
+        heard = ""
+        status = .listening
+        save("", final: false, seq: mine)
+        startLevelTimer(mine)
+        p.start { [weak self, weak p] text, final in
+            DispatchQueue.main.async {
+                guard let self, self.seq == mine else { return }
+                if !final {
+                    guard self.status == .listening else { return }
+                    self.heard = text
+                    self.save(text, final: false, seq: mine)
+                    return
+                }
+                // Parakeet n'a pas pu servir : la dictée d'Apple pour la suite de la session.
+                if p?.failed == true {
+                    self.parakeetBroken = true
+                    if self.recognizer == nil, self.modernReady == nil {
+                        let r = SFSpeechRecognizer(locale: Locale(identifier: Self.localeID()))
+                        if SFSpeechRecognizer.authorizationStatus() == .authorized, r?.supportsOnDeviceRecognition == true { self.recognizer = r }
+                    }
+                }
+                guard self.status == .listening else { return }
+                self.save(text.isEmpty ? self.heard : text, final: true, seq: mine)
+                self.finishRecognition()
+            }
+        }
+        touch()
     }
 
     @available(iOS 26.0, *)
@@ -330,7 +398,10 @@ final class DictationService {
         lock.lock()
         let r = request
         lock.unlock()
-        if #available(iOS 26.0, *), let m = modern as? ModernDictation {
+        let slow = parakeet != nil
+        if let p = parakeet {
+            p.finish()
+        } else if #available(iOS 26.0, *), let m = modern as? ModernDictation {
             Task { await m.finish() }
         } else {
             guard let r else { return }
@@ -339,7 +410,8 @@ final class DictationService {
         // Le dernier résultat arrive d'habitude tout de suite ; sinon on rend ce qui a été entendu.
         finishTimer?.invalidate()
         let mine = seq
-        finishTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { [weak self] _ in
+        // Parakeet retranscrit tout à la fin (et charge parfois le modèle) : on lui laisse plus de temps.
+        finishTimer = Timer.scheduledTimer(withTimeInterval: slow ? 6 : 2.5, repeats: false) { [weak self] _ in
             guard let self, self.status == .listening, self.seq == mine else { return }
             self.save(self.heard, final: true, seq: mine)
             self.finishRecognition()
@@ -352,9 +424,11 @@ final class DictationService {
         lock.lock()
         request = nil
         modernSink = nil
+        parakeetSink = nil
         level = 0
         lock.unlock()
         modern = nil
+        parakeet = nil
         task = nil
         finishTimer?.invalidate()
         if status == .listening { status = .ready }
@@ -472,7 +546,7 @@ struct DictationView: View {
     private var detail: LocalizedStringKey {
         switch service.status {
         case .off, .starting: return "Allow the microphone and speech recognition when iOS asks."
-        case .ready, .listening: return "Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself."
+        case .ready, .listening: return "Go back to your app (top left): Foldboard starts listening right away. Dictation then stays ready in the background, so you won't have to come back here."
         case .denied: return "Allow the microphone and speech recognition for Foldboard in Settings."
         case .unavailable: return "On-device dictation isn't available for this language on your iPhone."
         }

@@ -526,3 +526,17 @@
 "Writing…" = "正在输入…";
 "Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself." = "回到你的 App（左上角）：Foldboard 会立即开始聆听。听写会保持就绪 10 分钟，然后自动关闭。";
 "Back to your app" = "返回你的 App";
+
+/* Dictée Parakeet */
+"Download Parakeet (%lld MB)" = "下载 Parakeet（%lld MB）";
+"Downloading… Keep Foldboard open." = "正在下载… 请保持 Foldboard 打开。";
+"Preparing Parakeet for your iPhone…" = "正在为你的 iPhone 准备 Parakeet…";
+"Use Parakeet" = "使用 Parakeet";
+"Delete the model" = "删除模型";
+"Delete Parakeet?" = "删除 Parakeet？";
+"Dictation goes back to Apple's. You can download Parakeet again later." = "听写将改回 Apple 听写。之后可以重新下载 Parakeet。";
+"The download didn't finish. Try again on Wi-Fi." = "下载未完成。请连接 Wi‑Fi 后重试。";
+"Try again" = "重试";
+"Parakeet dictation" = "Parakeet 听写";
+"More accurate dictation in 25 European languages, with punctuation, still on your iPhone. Download it once on Wi-Fi; until then, Foldboard uses Apple's dictation." = "支持 25 种欧洲语言、带标点的更准确听写，全部在 iPhone 上完成。请用 Wi‑Fi 下载一次；在此之前，Foldboard 使用 Apple 听写。";
+"Go back to your app (top left): Foldboard starts listening right away. Dictation then stays ready in the background, so you won't have to come back here." = "回到你的 App（左上角）：Foldboard 会立即开始听写。之后听写会在后台保持就绪，无需再回到这里。";

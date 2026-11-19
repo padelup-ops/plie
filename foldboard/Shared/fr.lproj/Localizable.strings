@@ -538,3 +538,17 @@
 /* Versions de test */
 "Simulate: trial over" = "Simuler : essai terminé";
 "Test versions only. The keyboard acts as if the free trial had just ended, with nothing bought. Turn it off to get your real purchases back." = "Versions de test seulement. Le clavier fait comme si l’essai gratuit venait de se terminer, sans rien d’acheté. Désactive pour retrouver tes vrais achats.";
+
+/* Dictée Parakeet */
+"Download Parakeet (%lld MB)" = "Télécharger Parakeet (%lld Mo)";
+"Downloading… Keep Foldboard open." = "Téléchargement… Garde Foldboard ouvert.";
+"Preparing Parakeet for your iPhone…" = "Préparation de Parakeet pour ton iPhone…";
+"Use Parakeet" = "Utiliser Parakeet";
+"Delete the model" = "Supprimer le modèle";
+"Delete Parakeet?" = "Supprimer Parakeet ?";
+"Dictation goes back to Apple's. You can download Parakeet again later." = "La dictée repasse à celle d’Apple. Tu pourras retélécharger Parakeet plus tard.";
+"The download didn't finish. Try again on Wi-Fi." = "Le téléchargement n’a pas abouti. Réessaie en Wi‑Fi.";
+"Try again" = "Réessayer";
+"Parakeet dictation" = "Dictée Parakeet";
+"More accurate dictation in 25 European languages, with punctuation, still on your iPhone. Download it once on Wi-Fi; until then, Foldboard uses Apple's dictation." = "Une dictée plus juste dans 25 langues européennes, avec la ponctuation, toujours sur ton iPhone. Télécharge-la une fois en Wi‑Fi ; en attendant, Foldboard utilise la dictée d’Apple.";
+"Go back to your app (top left): Foldboard starts listening right away. Dictation then stays ready in the background, so you won't have to come back here." = "Reviens à ton app (en haut à gauche) : Foldboard écoute tout de suite. Ensuite, la dictée reste prête en arrière-plan : tu n’auras plus à repasser par ici.";

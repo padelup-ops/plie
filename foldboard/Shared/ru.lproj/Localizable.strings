@@ -526,3 +526,17 @@
 "Writing…" = "Пишу…";
 "Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself." = "Вернитесь в своё приложение (слева вверху): Foldboard сразу начнёт слушать. Диктовка остаётся готовой 10 минут, затем выключается сама.";
 "Back to your app" = "Назад в приложение";
+
+/* Dictée Parakeet */
+"Download Parakeet (%lld MB)" = "Загрузить Parakeet (%lld МБ)";
+"Downloading… Keep Foldboard open." = "Загрузка… Не закрывайте Foldboard.";
+"Preparing Parakeet for your iPhone…" = "Parakeet готовится для вашего iPhone…";
+"Use Parakeet" = "Использовать Parakeet";
+"Delete the model" = "Удалить модель";
+"Delete Parakeet?" = "Удалить Parakeet?";
+"Dictation goes back to Apple's. You can download Parakeet again later." = "Диктовка снова будет от Apple. Parakeet можно загрузить позже.";
+"The download didn't finish. Try again on Wi-Fi." = "Загрузка не завершилась. Повторите по Wi‑Fi.";
+"Try again" = "Повторить";
+"Parakeet dictation" = "Диктовка Parakeet";
+"More accurate dictation in 25 European languages, with punctuation, still on your iPhone. Download it once on Wi-Fi; until then, Foldboard uses Apple's dictation." = "Более точная диктовка на 25 европейских языках, с пунктуацией, прямо на iPhone. Загрузите один раз по Wi‑Fi; до этого Foldboard использует диктовку Apple.";
+"Go back to your app (top left): Foldboard starts listening right away. Dictation then stays ready in the background, so you won't have to come back here." = "Вернитесь в своё приложение (вверху слева): Foldboard сразу начнёт слушать. Дальше диктовка остаётся готовой в фоне, возвращаться сюда не придётся.";

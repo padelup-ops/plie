@@ -526,3 +526,17 @@
 "Writing…" = "Schrijven…";
 "Go back to your app (top left): Foldboard starts listening right away. Dictation stays ready for 10 minutes, then turns off by itself." = "Ga terug naar je app (linksboven): Foldboard luistert meteen. Dicteren blijft 10 minuten klaar en gaat daarna vanzelf uit.";
 "Back to your app" = "Terug naar je app";
+
+/* Dictée Parakeet */
+"Download Parakeet (%lld MB)" = "Parakeet downloaden (%lld MB)";
+"Downloading… Keep Foldboard open." = "Downloaden… Houd Foldboard open.";
+"Preparing Parakeet for your iPhone…" = "Parakeet wordt voorbereid voor je iPhone…";
+"Use Parakeet" = "Parakeet gebruiken";
+"Delete the model" = "Model verwijderen";
+"Delete Parakeet?" = "Parakeet verwijderen?";
+"Dictation goes back to Apple's. You can download Parakeet again later." = "Dicteren gebruikt weer dat van Apple. Je kunt Parakeet later opnieuw downloaden.";
+"The download didn't finish. Try again on Wi-Fi." = "De download is niet voltooid. Probeer het opnieuw via wifi.";
+"Try again" = "Opnieuw proberen";
+"Parakeet dictation" = "Parakeet-dicteren";
+"More accurate dictation in 25 European languages, with punctuation, still on your iPhone. Download it once on Wi-Fi; until then, Foldboard uses Apple's dictation." = "Nauwkeuriger dicteren in 25 Europese talen, met leestekens, gewoon op je iPhone. Download het één keer via wifi; tot dan gebruikt Foldboard het dicteren van Apple.";
+"Go back to your app (top left): Foldboard starts listening right away. Dictation then stays ready in the background, so you won't have to come back here." = "Ga terug naar je app (linksboven): Foldboard luistert meteen. Daarna blijft dicteren klaar op de achtergrond en hoef je hier niet meer terug te komen.";
