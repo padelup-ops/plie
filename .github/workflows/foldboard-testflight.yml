@@ -5,13 +5,15 @@ name: Foldboard - TestFlight
 
 on:
   push:
-    branches: [main]
+    # Suspendu le temps du merge 1.0.21 : le build 149 est déjà sur TestFlight.
+    # Le fichier de workflow n'est plus dans les chemins, pour que le rétablissement
+    # ne lance pas un nouvel envoi.
+    branches: [hold-testflight]
     paths:
       - "foldboard/App/**"
       - "foldboard/Keyboard/**"
       - "foldboard/Shared/**"
       - "foldboard/project.yml"
-      - ".github/workflows/foldboard-testflight.yml"
   workflow_dispatch:
 
 concurrency:
