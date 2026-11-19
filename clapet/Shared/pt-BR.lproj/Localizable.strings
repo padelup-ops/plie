@@ -893,3 +893,19 @@
 "Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Exportar sons guarda os sons de abertura e de fechamento para tocá-los nos Atalhos com Reproduzir som.";
 "Opening and closing sounds" = "Sons de abertura e de fechamento";
 "In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "Na automação Fechado, adicione Tocar o som de fechamento. Na Aberta, adicione Tocar o som de abertura. O Foldly continua fechado. O som de fechamento segue o som suave, a menos que você escolha outro na ação.";
+
+/* Guide des sons */
+"Sounds in Shortcuts" = "Sons nos Atalhos";
+"Play the fold sounds without opening Foldly." = "Toque os sons da dobra sem abrir o Foldly.";
+"Play the fold sounds without opening Foldly. The steps cover both automations, Run Immediately, and the disabled-automation banner." = "Toque os sons da dobra sem abrir o Foldly. Os passos cobrem as duas automações, Executar imediatamente e o aviso Automação desativada.";
+"Open the Shortcuts app, go to the Automation tab, then tap +." = "Abra o app Atalhos, aba Automação e toque em +.";
+"Choose When iPhone is Closed." = "Escolha Quando o iPhone é fechado.";
+"Add Foldly's Count a fold and Play the closing sound. In Play the closing sound, choose Which sound." = "Adicione Contar uma dobra e Tocar o som de fechamento do Foldly. Em Tocar o som de fechamento, escolha Qual som.";
+"Do the same with When iPhone is Opened: add Count an opening and Play the opening sound." = "Faça o mesmo com Quando o iPhone é aberto: adicione Contar uma abertura e Tocar o som de abertura.";
+"The two automations" = "As duas automações";
+"Turn each automation on. The banner Automation is disabled must not appear." = "Ative cada automação. O aviso Automação desativada não pode aparecer.";
+"Set Run Immediately, and turn off Show When Run." = "Defina Executar imediatamente e desative Mostrar ao executar.";
+"If Sounds even when Foldly is closed is on, Count a fold already plays a sound. Turn it off in Settings, Advanced, so you don't hear the sound twice." = "Se Sons mesmo com o Foldly fechado estiver ligado, Contar uma dobra já toca um som. Desligue em Ajustes, Avançado, para não ouvir duas vezes.";
+"So it really runs" = "Para que rode de verdade";
+"If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "Se ainda não houver som: Ajustes, Avançado, Exportar sons e depois use Reproduzir som dos Atalhos no arquivo salvo.";
+"If there is no sound" = "Se não houver som";

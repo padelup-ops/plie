@@ -5,6 +5,7 @@ struct AutoCountView: View {
     @Environment(ClapetModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @State private var showSoundGuide = false
 
     var body: some View {
         NavigationStack {
@@ -70,7 +71,10 @@ struct AutoCountView: View {
                 }
 
                 Section {
-                    Text("In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action.")
+                    Button { showSoundGuide = true } label: {
+                        Label { Text("Sounds in Shortcuts") } icon: { Image(systemName: "speaker.wave.2.fill") }
+                    }
+                    Text("Play the fold sounds without opening Foldly. The steps cover both automations, Run Immediately, and the disabled-automation banner.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -140,6 +144,7 @@ struct AutoCountView: View {
                     Button { dismiss() } label: { Text("Done") }
                 }
             }
+            .sheet(isPresented: $showSoundGuide) { SoundGuideView() }
         }
         .tint(.dfAccent)
     }

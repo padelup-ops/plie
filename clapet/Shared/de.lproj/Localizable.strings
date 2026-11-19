@@ -910,3 +910,19 @@
 "Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Töne exportieren sichert den Öffnungs- und den Schließton, damit Kurzbefehle sie mit „Ton abspielen“ wiedergeben kann.";
 "Opening and closing sounds" = "Öffnungs- und Schließton";
 "In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "Füge in der Automation „Geschlossen“ Schließton abspielen hinzu, und in „Geöffnet“ Öffnungston abspielen. Foldly bleibt zu. Der Schließton folgt „Sanfter Schließton“, außer du wählst in der Aktion einen anderen Ton.";
+
+/* Guide des sons */
+"Sounds in Shortcuts" = "Töne in Kurzbefehle";
+"Play the fold sounds without opening Foldly." = "Spiele die Falttöne ab, ohne Foldly zu öffnen.";
+"Play the fold sounds without opening Foldly. The steps cover both automations, Run Immediately, and the disabled-automation banner." = "Spiele die Falttöne ab, ohne Foldly zu öffnen. Die Schritte behandeln beide Automationen, Sofort ausführen und das Banner Automatisierung deaktiviert.";
+"Open the Shortcuts app, go to the Automation tab, then tap +." = "Öffne die App Kurzbefehle, Tab Automation, dann tippe auf +.";
+"Choose When iPhone is Closed." = "Wähle Wenn iPhone geschlossen wird.";
+"Add Foldly's Count a fold and Play the closing sound. In Play the closing sound, choose Which sound." = "Füge Foldlys Faltung zählen und Schließton abspielen hinzu. Wähle bei Schließton abspielen Welcher Ton.";
+"Do the same with When iPhone is Opened: add Count an opening and Play the opening sound." = "Dasselbe mit Wenn iPhone geöffnet wird: Öffnung zählen und Öffnungston abspielen.";
+"The two automations" = "Die zwei Automationen";
+"Turn each automation on. The banner Automation is disabled must not appear." = "Schalte jede Automation ein. Das Banner Automatisierung deaktiviert darf nicht erscheinen.";
+"Set Run Immediately, and turn off Show When Run." = "Wähle Sofort ausführen und schalte Beim Ausführen anzeigen aus.";
+"If Sounds even when Foldly is closed is on, Count a fold already plays a sound. Turn it off in Settings, Advanced, so you don't hear the sound twice." = "Wenn Töne auch bei geschlossenem Foldly an ist, spielt Faltung zählen schon einen Ton. Schalte es unter Einstellungen, Erweitert aus, damit du den Ton nicht doppelt hörst.";
+"So it really runs" = "Damit es wirklich läuft";
+"If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "Wenn trotzdem kein Ton kommt: Einstellungen, Erweitert, Töne exportieren, dann in Kurzbefehle Ton abspielen auf die gespeicherte Datei.";
+"If there is no sound" = "Wenn kein Ton kommt";

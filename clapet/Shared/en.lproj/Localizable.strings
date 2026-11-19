@@ -910,3 +910,19 @@
 "Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound.";
 "Opening and closing sounds" = "Opening and closing sounds";
 "In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action.";
+
+/* Guide des sons */
+"Sounds in Shortcuts" = "Sounds in Shortcuts";
+"Play the fold sounds without opening Foldly." = "Play the fold sounds without opening Foldly.";
+"Play the fold sounds without opening Foldly. The steps cover both automations, Run Immediately, and the disabled-automation banner." = "Play the fold sounds without opening Foldly. The steps cover both automations, Run Immediately, and the disabled-automation banner.";
+"Open the Shortcuts app, go to the Automation tab, then tap +." = "Open the Shortcuts app, go to the Automation tab, then tap +.";
+"Choose When iPhone is Closed." = "Choose When iPhone is Closed.";
+"Add Foldly's Count a fold and Play the closing sound. In Play the closing sound, choose Which sound." = "Add Foldly's Count a fold and Play the closing sound. In Play the closing sound, choose Which sound.";
+"Do the same with When iPhone is Opened: add Count an opening and Play the opening sound." = "Do the same with When iPhone is Opened: add Count an opening and Play the opening sound.";
+"The two automations" = "The two automations";
+"Turn each automation on. The banner Automation is disabled must not appear." = "Turn each automation on. The banner Automation is disabled must not appear.";
+"Set Run Immediately, and turn off Show When Run." = "Set Run Immediately, and turn off Show When Run.";
+"If Sounds even when Foldly is closed is on, Count a fold already plays a sound. Turn it off in Settings, Advanced, so you don't hear the sound twice." = "If Sounds even when Foldly is closed is on, Count a fold already plays a sound. Turn it off in Settings, Advanced, so you don't hear the sound twice.";
+"So it really runs" = "So it really runs";
+"If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file.";
+"If there is no sound" = "If there is no sound";

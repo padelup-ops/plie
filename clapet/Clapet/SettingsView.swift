@@ -412,6 +412,7 @@ struct SettingsView: View {
                 if model.soundOn {
                     Toggle(isOn: $softClose) { Text("Soft close sound") }
                         .onChange(of: softClose) { ClapetSound.shared.play(ClapetSound.closeEffect) }
+                    Toggle(isOn: $soundAlways) { Text("Sounds even when Foldly is closed") }
                     if !ClapetSound.exportFiles().isEmpty {
                         ShareLink(items: ClapetSound.exportFiles()) {
                             Label { Text("Export sounds") } icon: { Image(systemName: "square.and.arrow.up") }

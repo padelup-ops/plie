@@ -893,3 +893,19 @@
 "Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Экспорт сохраняет звуки открытия и закрытия, чтобы «Команды» могли воспроизвести их действием «Воспроизвести звук».";
 "Opening and closing sounds" = "Звуки открытия и закрытия";
 "In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "В автоматизацию «Закрыт» добавьте «Воспроизвести звук закрытия». В «Открыт» — «Воспроизвести звук открытия». Foldly не открывается. Звук закрытия следует настройке мягкого звука, если в действии не выбран другой.";
+
+/* Guide des sons */
+"Sounds in Shortcuts" = "Звуки в «Командах»";
+"Play the fold sounds without opening Foldly." = "Воспроизводите звуки сгиба, не открывая Foldly.";
+"Play the fold sounds without opening Foldly. The steps cover both automations, Run Immediately, and the disabled-automation banner." = "Воспроизводите звуки сгиба, не открывая Foldly. Шаги охватывают обе автоматизации, «Выполнять сразу» и баннер «Автоматизация выключена».";
+"Open the Shortcuts app, go to the Automation tab, then tap +." = "Откройте приложение «Команды», вкладку «Автоматизация», затем нажмите +.";
+"Choose When iPhone is Closed." = "Выберите «Когда iPhone закрыт».";
+"Add Foldly's Count a fold and Play the closing sound. In Play the closing sound, choose Which sound." = "Добавьте действия Foldly «Посчитать сгиб» и «Воспроизвести звук закрытия». В звуке закрытия выберите «Какой звук».";
+"Do the same with When iPhone is Opened: add Count an opening and Play the opening sound." = "То же с «Когда iPhone открыт»: добавьте «Посчитать открытие» и «Воспроизвести звук открытия».";
+"The two automations" = "Две автоматизации";
+"Turn each automation on. The banner Automation is disabled must not appear." = "Включите каждую автоматизацию. Баннер «Автоматизация выключена» не должен появляться.";
+"Set Run Immediately, and turn off Show When Run." = "Выберите «Выполнять сразу» и выключите «Показывать при выполнении».";
+"If Sounds even when Foldly is closed is on, Count a fold already plays a sound. Turn it off in Settings, Advanced, so you don't hear the sound twice." = "Если включено «Звуки, даже когда Foldly закрыт», «Посчитать сгиб» уже играет звук. Выключите это в Настройки › Дополнительно, чтобы не слышать звук дважды.";
+"So it really runs" = "Чтобы это действительно запускалось";
+"If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "Если звука всё ещё нет: Настройки › Дополнительно › Экспортировать звуки, затем «Воспроизвести звук» в «Командах» для сохранённого файла.";
+"If there is no sound" = "Если звука нет";

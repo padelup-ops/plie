@@ -893,3 +893,19 @@
 "Export sounds saves the opening and closing sounds, so Shortcuts can play them with Play Sound." = "Geluiden exporteren bewaart het open- en sluitgeluid, zodat Opdrachten ze kan afspelen met Geluid afspelen.";
 "Opening and closing sounds" = "Open- en sluitgeluid";
 "In the Closed automation, add Play the closing sound. In the Opened one, add Play the opening sound. Foldly stays closed. The closing sound follows Soft close sound, unless you pick another sound in the action." = "Voeg in de automatisering Gesloten Sluitgeluid afspelen toe. In Geopend: Openinggeluid afspelen. Foldly blijft dicht. Het sluitgeluid volgt Zacht sluitgeluid, tenzij je in de actie een ander geluid kiest.";
+
+/* Guide des sons */
+"Sounds in Shortcuts" = "Geluiden in Opdrachten";
+"Play the fold sounds without opening Foldly." = "Speel de vouwgeluiden af zonder Foldly te openen.";
+"Play the fold sounds without opening Foldly. The steps cover both automations, Run Immediately, and the disabled-automation banner." = "Speel de vouwgeluiden af zonder Foldly te openen. De stappen gaan over beide automatiseringen, Voer direct uit en de banner Automatisering uitgeschakeld.";
+"Open the Shortcuts app, go to the Automation tab, then tap +." = "Open de app Opdrachten, tab Automatisering, en tik op +.";
+"Choose When iPhone is Closed." = "Kies Wanneer iPhone wordt gesloten.";
+"Add Foldly's Count a fold and Play the closing sound. In Play the closing sound, choose Which sound." = "Voeg Foldly's Vouw tellen en Sluitgeluid afspelen toe. Kies bij Sluitgeluid afspelen Welk geluid.";
+"Do the same with When iPhone is Opened: add Count an opening and Play the opening sound." = "Doe hetzelfde met Wanneer iPhone wordt geopend: voeg Opening tellen en Openinggeluid afspelen toe.";
+"The two automations" = "De twee automatiseringen";
+"Turn each automation on. The banner Automation is disabled must not appear." = "Zet elke automatisering aan. De banner Automatisering uitgeschakeld mag niet verschijnen.";
+"Set Run Immediately, and turn off Show When Run." = "Zet Voer direct uit aan en schakel Toon bij uitvoeren uit.";
+"If Sounds even when Foldly is closed is on, Count a fold already plays a sound. Turn it off in Settings, Advanced, so you don't hear the sound twice." = "Als Geluiden ook als Foldly gesloten is aan staat, speelt Vouw tellen al een geluid. Zet het uit via Instellingen, Geavanceerd, zodat je het niet dubbel hoort.";
+"So it really runs" = "Zodat het echt start";
+"If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "Als er nog geen geluid is: Instellingen, Geavanceerd, Geluiden exporteren, en gebruik daarna Geluid afspelen van Opdrachten op het opgeslagen bestand.";
+"If there is no sound" = "Als er geen geluid is";
