@@ -586,8 +586,10 @@ struct ClassicHomeView: View {
         ClassicCard {
             VStack(alignment: .leading, spacing: 12) {
                 ClassicCardTitle(Text("This week"), symbol: "chart.bar.fill")
-                ClapetWeekChart(days: model.stats.lastWeek(), goal: model.stats.activeLimit, average: model.stats.averageRef())
-                    .frame(height: 150)
+                ClapetWeekChart(days: model.stats.lastWeek(), goal: model.stats.activeLimit, average: model.stats.averageRef(),
+                                measuresClosed: model.stats.autoLast != nil) { date in
+                    (model.stats.openTime(date), model.stats.closedTime(date))
+                }
                 RecapLinks { showWeek = true } onMonth: { showMonth = true }
             }
         }
@@ -607,45 +609,12 @@ struct ClassicHomeView: View {
     // MARK: Heure par heure
 
     private var byHour: some View {
-        let hours = model.stats.hours()
-        let top = max(1, hours.max() ?? 1)
-        let peak = (hours.max() ?? 0) > 0 ? hours.firstIndex(of: top) : nil
-        return ClassicCard {
+        ClassicCard {
             VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    ClassicCardTitle(Text("Today by hour"), symbol: "clock.fill")
-                    Spacer()
-                    if let peak {
-                        Text("Peak \(Self.hourLabel(peak))")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                HStack(alignment: .bottom, spacing: 3) {
-                    ForEach(0..<24, id: \.self) { h in
-                        RoundedRectangle(cornerRadius: 2, style: .continuous)
-                            .fill(h == peak ? Color.dfAccent : (hours[h] > 0 ? Color.dfAccent.opacity(0.45) : Color.dfFill))
-                            .frame(height: max(4, 46 * CGFloat(hours[h]) / CGFloat(top)))
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .frame(height: 46, alignment: .bottom)
-                HStack {
-                    ForEach([0, 6, 12, 18], id: \.self) { h in
-                        Text(Self.hourLabel(h))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+                ClassicCardTitle(Text("Today by hour"), symbol: "clock.fill")
+                TodayByHour(stats: model.stats)
             }
         }
-    }
-
-    static func hourLabel(_ h: Int) -> String {
-        var c = DateComponents()
-        c.hour = h
-        return (Calendar.current.date(from: c) ?? Date()).formatted(.dateTime.hour())
     }
 
     // MARK: Depuis le début (paliers)
@@ -676,6 +645,8 @@ struct ClassicHomeView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                LifetimeHoursRow(stats: model.stats)
+                    .padding(.top, 4)
             }
         }
     }
@@ -815,41 +786,64 @@ struct ClassicHomeView: View {
 }
 
 /// Les 7 derniers jours en barres. Avec une limite : rouge au-dessus, la limite en pointillés.
-/// Sans limite : la moyenne en pointillés.
+/// Sans limite : la moyenne en pointillés. Un toucher affiche les plis et le temps de ce jour.
 struct ClapetWeekChart: View {
     let days: [(date: Date, closes: Int)]
     let goal: Int
     var average: Int? = nil
+    /// Faux : le temps fermé n'est pas mesuré (pas d'automatisations). On affiche « — ».
+    var measuresClosed = true
+    var time: (Date) -> (open: TimeInterval, closed: TimeInterval) = { _ in (0, 0) }
+    @State private var selected: Date? = nil
 
     var body: some View {
-        Chart {
-            ForEach(0..<days.count, id: \.self) { i in
-                BarMark(x: .value("Day", days[i].date, unit: .day),
-                        y: .value("Folds", FoldUnit.shown(days[i].closes)))
-                    .foregroundStyle((goal > 0 && days[i].closes > goal ? Color.dfOver : Color.dfAccent).opacity(i == days.count - 1 ? 1 : 0.55))
-                    .cornerRadius(4)
+        let picked = nearestChartDay(selected, days) { $0.date }
+        return VStack(alignment: .leading, spacing: 8) {
+            if let picked {
+                let span = time(picked.date)
+                BarValueCallout(title: Text(picked.date, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day()),
+                                folds: picked.closes,
+                                open: span.open,
+                                closed: span.closed,
+                                measuredClosed: measuresClosed || span.closed > 0)
+            } else {
+                Text("Touch a bar to see the exact time and the fold count.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            if goal > 0 {
-                RuleMark(y: .value("Limit", goal))
-                    .foregroundStyle(Color.secondary)
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-            } else if let average, average > 0 {
-                RuleMark(y: .value("Average", average))
-                    .foregroundStyle(Color.secondary)
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+            Chart {
+                ForEach(0..<days.count, id: \.self) { i in
+                    let on = picked.map { Calendar.current.isDate($0.date, inSameDayAs: days[i].date) } ?? false
+                    BarMark(x: .value("Day", days[i].date, unit: .day),
+                            y: .value("Folds", FoldUnit.shown(days[i].closes)))
+                        .foregroundStyle((goal > 0 && days[i].closes > goal ? Color.dfOver : Color.dfAccent).opacity(on || i == days.count - 1 ? 1 : 0.55))
+                        .cornerRadius(4)
+                }
+                if goal > 0 {
+                    RuleMark(y: .value("Limit", goal))
+                        .foregroundStyle(Color.secondary)
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                } else if let average, average > 0 {
+                    RuleMark(y: .value("Average", average))
+                        .foregroundStyle(Color.secondary)
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                }
             }
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day)) { _ in
+                    AxisValueLabel(format: .dateTime.weekday(.narrow))
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .leading) { _ in
+                    AxisGridLine()
+                    AxisValueLabel()
+                }
+            }
+            .modifier(ChartBarSelect(selection: $selected))
+            .frame(height: 150)
         }
-        .chartXAxis {
-            AxisMarks(values: .stride(by: .day)) { _ in
-                AxisValueLabel(format: .dateTime.weekday(.narrow))
-            }
-        }
-        .chartYAxis {
-            AxisMarks(position: .leading) { _ in
-                AxisGridLine()
-                AxisValueLabel()
-            }
-        }
+        .accessibilityHint(Text("Touch a bar to see the exact time and the fold count."))
     }
 }
 

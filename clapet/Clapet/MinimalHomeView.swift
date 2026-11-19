@@ -42,6 +42,9 @@ struct MinimalHomeView: View {
                 hero
                 Spacer(minLength: 40)
                 figures
+                LifetimeHoursRow(stats: model.stats, accent: .primary, track: Color.primary.opacity(0.12),
+                                 valueFont: .system(size: 20, weight: .light))
+                    .padding(.top, 28)
                 Spacer(minLength: 36)
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Today by hour").font(.caption.weight(.semibold)).foregroundStyle(.secondary)

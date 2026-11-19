@@ -119,6 +119,14 @@ struct ClapetStats: Codable, Equatable {
     var whyLog: [WhyEntry] = []
     /// Chaque ouverture vue de bout en bout (début, durée en secondes) : 90 derniers jours.
     var sessionLog: [OpenSession] = []
+    /// Chaque période fermée vue de bout en bout (début, durée) : 90 derniers jours.
+    /// Le détail heure par heure du temps fermé s'en sert. Le temps ouvert vient de `sessionLog`.
+    var closedLog: [OpenSession] = []
+    /// Temps passé ouvert (déplié) depuis le début, en secondes. Survit au nettoyage de l'historique.
+    /// La session en cours n'y est pas encore : on l'ajoute à l'affichage.
+    var lifeOpen: Double = 0
+    /// Temps passé fermé (plié) depuis le début, en secondes. Même principe.
+    var lifeClosed: Double = 0
     /// Le record de plis en une heure.
     var recordHour = 0
     /// Foldly+ acheté (écrit par l'app, lu par les widgets).
@@ -160,7 +168,7 @@ struct ClapetStats: Codable, Equatable {
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, eachMove, goal, totalCloses, totalOpens, duoStart, duoSince, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, widgetLook, founder, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, restSince, focusSpans, nightOn, nightFrom, nightTo
+        case days, eachMove, goal, totalCloses, totalOpens, duoStart, duoSince, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, widgetLook, founder, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, closedLog, lifeOpen, lifeClosed, restSince, focusSpans, nightOn, nightFrom, nightTo
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -180,6 +188,15 @@ struct ClapetStats: Codable, Equatable {
         lastOpen = try c.decodeIfPresent(Date.self, forKey: .lastOpen)
         whyLog = try c.decodeIfPresent([WhyEntry].self, forKey: .whyLog) ?? []
         sessionLog = try c.decodeIfPresent([OpenSession].self, forKey: .sessionLog) ?? []
+        closedLog = try c.decodeIfPresent([OpenSession].self, forKey: .closedLog) ?? []
+        // Avant ce champ, le cumul se reconstruit sur l'historique encore en mémoire (environ trois ans).
+        if let saved = try c.decodeIfPresent(Double.self, forKey: .lifeOpen) {
+            lifeOpen = saved
+            lifeClosed = try c.decodeIfPresent(Double.self, forKey: .lifeClosed) ?? 0
+        } else {
+            lifeOpen = days.values.reduce(0) { $0 + $1.openSeconds }
+            lifeClosed = days.values.reduce(0) { $0 + $1.downSeconds }
+        }
         recordHour = try c.decodeIfPresent(Int.self, forKey: .recordHour) ?? 0
         plus = try c.decodeIfPresent(Bool.self, forKey: .plus) ?? false
         theme = try c.decodeIfPresent(Int.self, forKey: .theme) ?? 0
@@ -417,6 +434,8 @@ struct ClapetStats: Codable, Equatable {
         // Téléphone posé : une seule fois par fermeture (la charnière et l'automatisation peuvent toutes deux signaler l'ouverture).
         guard downCredited != closed else { return }
         downCredited = closed
+        lifeClosed += gap
+        addClosedSpan(start: closed, seconds: gap)
         let cal = Calendar.current
         var s = closed
         while s < date {
@@ -502,6 +521,7 @@ struct ClapetStats: Codable, Equatable {
         let seen = event && openFromEvent
         openFromEvent = false
         guard total > 0, total < Self.maxOpenSession else { return }
+        lifeOpen += total
         creditRest(from: start, to: date)
         // Une vraie ouverture, vue du début à la fin : on la garde pour les stats de sessions.
         if seen { addSession(start: start, seconds: total) }
@@ -522,6 +542,68 @@ struct ClapetStats: Codable, Equatable {
         let cut = start.addingTimeInterval(-90 * 86400)
         sessionLog.removeAll { $0.t < cut }
         if sessionLog.count > 6000 { sessionLog.removeFirst(sessionLog.count - 6000) }
+    }
+
+    mutating func addClosedSpan(start: Date, seconds: Double) {
+        guard seconds > 0 else { return }
+        closedLog.append(OpenSession(t: start, s: seconds))
+        let cut = start.addingTimeInterval(-90 * 86400)
+        closedLog.removeAll { $0.t < cut }
+        if closedLog.count > 6000 { closedLog.removeFirst(closedLog.count - 6000) }
+    }
+
+    /// Temps ouvert depuis le début, session en cours comprise.
+    func lifetimeOpen(now: Date = Date()) -> TimeInterval {
+        var t = max(0, lifeOpen)
+        if let s = openSince, now.timeIntervalSince(s) > 0, now.timeIntervalSince(s) < Self.maxOpenSession {
+            t += now.timeIntervalSince(s)
+        }
+        return t
+    }
+
+    /// Temps fermé depuis le début, fermeture en cours comprise.
+    func lifetimeClosed(now: Date = Date()) -> TimeInterval {
+        var t = max(0, lifeClosed)
+        if let since = downSince(now: now), downCredited != since {
+            t += max(0, now.timeIntervalSince(since))
+        }
+        return t
+    }
+
+    /// Secondes d'une liste de périodes qui tombent dans une heure (l'heure en cours s'arrête à `now`).
+    func overlapped(_ spans: [OpenSession], hour: Int, on date: Date, now: Date, extra: (Date, Date)? = nil) -> TimeInterval {
+        let cal = Calendar.current
+        guard hour >= 0, hour < 24 else { return 0 }
+        let day = cal.startOfDay(for: date)
+        guard let start = cal.date(byAdding: .hour, value: hour, to: day) else { return 0 }
+        let end = min(start.addingTimeInterval(3600), now)
+        guard end > start else { return 0 }
+        var total = 0.0
+        func add(_ a: Date, _ b: Date) {
+            let lo = max(a, start), hi = min(b, end)
+            if hi > lo { total += hi.timeIntervalSince(lo) }
+        }
+        for s in spans where s.s > 0 { add(s.t, s.t.addingTimeInterval(s.s)) }
+        if let extra { add(extra.0, extra.1) }
+        return min(total, end.timeIntervalSince(start))
+    }
+
+    /// Temps ouvert pendant une heure (sessions enregistrées, et l'ouverture en cours).
+    func hourOpen(_ hour: Int, on date: Date = Date(), now: Date = Date()) -> TimeInterval {
+        var live: (Date, Date)?
+        if let s = openSince, now.timeIntervalSince(s) > 0, now.timeIntervalSince(s) < Self.maxOpenSession {
+            live = (s, now)
+        }
+        return overlapped(sessionLog, hour: hour, on: date, now: now, extra: live)
+    }
+
+    /// Temps fermé pendant une heure (périodes enregistrées, et la fermeture en cours).
+    func hourClosed(_ hour: Int, on date: Date = Date(), now: Date = Date()) -> TimeInterval {
+        var live: (Date, Date)?
+        if let s = downSince(now: now), downCredited != s {
+            live = (s, now)
+        }
+        return overlapped(closedLog, hour: hour, on: date, now: now, extra: live)
     }
 
     /// Temps ouvert d'une journée, en comptant l'ouverture en cours pour aujourd'hui.

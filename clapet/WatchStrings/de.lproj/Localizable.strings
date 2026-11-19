@@ -673,3 +673,11 @@
 
 /* Repos */
 "%@ of it at rest today" = "davon %@ heute im Ruhemodus";
+
+/* Temps ouvert et fermé depuis le début */
+"All time open & closed" = "Offen und zu, insgesamt";
+"How long your phone has stayed open and closed since day one." = "Wie lange dein Telefon seit dem ersten Tag offen und zu war.";
+"Touch a bar to see the exact time and the fold count." = "Tippe auf einen Balken, um die genaue Zeit und die Anzahl der Faltungen zu sehen.";
+"Open, all time" = "Offen, insgesamt";
+"Closed, all time" = "Zu, insgesamt";
+"Hour" = "Stunde";

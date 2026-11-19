@@ -118,3 +118,60 @@ struct ClosedTimeContent: View {
         }
     }
 }
+
+/// Ouvert et fermé depuis le début : deux totaux et la part de chacun.
+struct LifetimeHoursRow: View {
+    let stats: ClapetStats
+    var accent: Color = .dfAccent
+    var track: Color = .dfFill
+    var valueFont: Font = .system(size: 22, weight: .semibold)
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 60)) { context in
+            let now = context.date
+            let open = stats.lifetimeOpen(now: now)
+            let closed = stats.lifetimeClosed(now: now)
+            let total = open + closed
+            let share = total > 0 ? open / total : 0
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(TimeFormat.short(open))
+                            .font(valueFont)
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                        Text("Open, all time")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 8)
+                    VStack(alignment: .trailing, spacing: 0) {
+                        Text(TimeFormat.short(closed))
+                            .font(valueFont)
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                        Text("Closed, all time")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                GeometryReader { g in
+                    HStack(spacing: share > 0 && share < 1 ? 3 : 0) {
+                        if share > 0 {
+                            Capsule().fill(accent)
+                                .frame(width: share >= 1 ? g.size.width : max(4, (g.size.width - 3) * share))
+                        }
+                        if share < 1 {
+                            Capsule().fill(track)
+                        }
+                    }
+                }
+                .frame(height: 8)
+                .accessibilityHidden(true)
+            }
+            .accessibilityElement(children: .combine)
+        }
+    }
+}

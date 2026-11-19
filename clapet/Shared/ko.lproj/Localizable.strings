@@ -882,3 +882,11 @@
 
 "Soft close sound" = "부드러운 닫힘 소리";
 "Sounds even when Foldly is closed" = "Foldly가 닫혀 있어도 소리 재생";
+
+/* Temps ouvert et fermé depuis le début */
+"All time open & closed" = "열린·닫힌 시간 (전체)";
+"How long your phone has stayed open and closed since day one." = "처음 사용한 날부터 휴대폰이 열려 있던 시간과 닫혀 있던 시간.";
+"Touch a bar to see the exact time and the fold count." = "막대를 누르면 정확한 시간과 접은 횟수를 볼 수 있습니다.";
+"Open, all time" = "열린 시간 (전체)";
+"Closed, all time" = "닫힌 시간 (전체)";
+"Hour" = "시간";

@@ -671,3 +671,11 @@
 "Over 10 min" = "Meer dan 10 min";
 "New" = "Nieuw";
 "%@ of it at rest today" = "Daarvan %@ in rust vandaag";
+
+/* Temps ouvert et fermé depuis le début */
+"All time open & closed" = "Open en gesloten, altijd";
+"How long your phone has stayed open and closed since day one." = "Hoe lang je telefoon sinds de eerste dag open en gesloten is geweest.";
+"Touch a bar to see the exact time and the fold count." = "Tik op een staaf om de exacte tijd en het aantal keren dicht te zien.";
+"Open, all time" = "Open, altijd";
+"Closed, all time" = "Gesloten, altijd";
+"Hour" = "Uur";

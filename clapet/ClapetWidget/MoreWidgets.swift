@@ -34,6 +34,20 @@ struct LifetimeWidget: Widget {
     }
 }
 
+/// Ouvert et fermé depuis le début (heures cumulées, petite et moyenne).
+struct LifetimeHoursWidget: Widget {
+    let kind = "FoldlyLifetimeHours"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: ClapetProvider()) { entry in
+            LifetimeHoursWidgetView(entry: entry)
+        }
+        .configurationDisplayName(Text("All time open & closed"))
+        .description(Text("How long your phone has stayed open and closed since day one."))
+        .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
 // MARK: Le bouton « Compter un pli » (Centre de contrôle, iOS 18)
 
 /// Ajoute un pli, sans ouvrir l'app.
