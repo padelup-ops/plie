@@ -179,7 +179,7 @@ public struct ControllerView: View {
     private func startSelectButtons(theme: SkinTheme, unit: CGFloat) -> some View {
         HStack(spacing: unit * 0.45) {
             ConsoleButton {
-                eject()
+                select()
             } label: { isPressed in
                 PillButton(title: "SELECT", unit: unit, theme: theme, isPressed: isPressed)
             }
@@ -199,6 +199,16 @@ public struct ControllerView: View {
     }
 
     /// Select ejects the cartridge: the tube powers off, then the library returns.
+    /// SELECT ejects, except in a Game Pak game, where it is the game's Select (twice quickly: pause menu).
+    private func select() {
+        if let pak = appState.activeGame as? GamePakGame, pak.gameState == .playing, !appState.isEjecting {
+            hapticManager.playHaptic(.buttonPress)
+            pak.selectTapped()
+            return
+        }
+        eject()
+    }
+
     private func eject() {
         guard !appState.isEjecting else { return }
         hapticManager.playHaptic(.buttonPress)

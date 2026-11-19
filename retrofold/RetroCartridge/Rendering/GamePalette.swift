@@ -66,6 +66,7 @@ struct GamePalette: Equatable, Sendable {
         case .paddleDuel: return .paddleDuel
         case .astroDrift: return .astroDrift
         case .towerStack: return .towerStack
+        case .gamePak: return .gamePak
         }
     }
 }

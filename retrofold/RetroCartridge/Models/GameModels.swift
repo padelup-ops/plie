@@ -330,6 +330,7 @@ enum GameType: String, CaseIterable, Identifiable, Codable {
     case paddleDuel = "Paddle Duel"
     case astroDrift = "Astro Drift"
     case towerStack = "Tower Stack"
+    case gamePak = "Game Pak"
     
     var id: String { rawValue }
 
@@ -470,6 +471,18 @@ enum GameType: String, CaseIterable, Identifiable, Codable {
                 modes: [.standard, .daily],
                 scoreGoal: 1000,
                 levelGoal: 4
+            )
+        case .gamePak:
+            // The player's own Game Boy games (RetroFold ships none).
+            return CartridgeInfo(
+                subtitle: String(localized: "Load your own Game Boy games"),
+                genre: String(localized: "YOUR GAMES", comment: "Genre printed on a cartridge label"),
+                symbolName: "square.and.arrow.down.fill",
+                labelColorHex: "#9BBC0F",
+                shell: .grey,
+                requiredProductID: ProductIdentifiers.pro,
+                scoreGoal: 1_000_000,
+                levelGoal: 1_000
             )
         }
     }

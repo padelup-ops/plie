@@ -89,7 +89,7 @@ struct GameCanvasView: View {
                                 case .menu, .playing: wantsMusic = appState.isMusicOn && !appState.isEjecting
                                 case .paused, .gameOver: wantsMusic = false
                                 }
-                                audioManager.playMusic(for: wantsMusic ? activeGame.gameType : nil)
+                                audioManager.playMusic(for: wantsMusic && activeGame.gameType != .gamePak ? activeGame.gameType : nil)
 
                                 // Ejecting: the game stays frozen while the tube powers off
                                 if let ejectStart = appState.ejectStart {
@@ -206,6 +206,7 @@ struct GameCanvasView: View {
                     game.render(context: &context, size: size)
                 }
 
+                if game.gameType != .gamePak || game.gameState == .paused {
                 GameStatePanel(
                     title: game.gameType.rawValue,
                     gameState: game.gameState,
@@ -220,6 +221,7 @@ struct GameCanvasView: View {
                     isMusicOn: appState.isMusicOn,
                     isSoundOn: appState.isSoundOn
                 )
+                }
             }
             .screenEffect(
                 screenSettings,

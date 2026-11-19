@@ -277,6 +277,20 @@ final class TowerStackGame: PixelGameProtocol {
 // MARK: - Palette
 
 extension GamePalette {
+    /// Game Pak's palette (the library screen; the games draw themselves).
+    static let gamePak = GamePalette(
+        background: Color(hex: "#0F380F"),
+        guide: Color(hex: "#306230"),
+        player: Color(hex: "#8BAC0F"),
+        playerHighlight: Color(hex: "#9BBC0F"),
+        pickup: Color(hex: "#9BBC0F"),
+        pickupAlt: Color(hex: "#FFB703"),
+        hazard: Color(hex: "#E63946"),
+        hazardAlt: Color(hex: "#C77DFF"),
+        outline: Color(hex: "#0F380F"),
+        spectrum: [Color(hex: "#9BBC0F"), Color(hex: "#8BAC0F"), Color(hex: "#306230")]
+    )
+
     /// Tower Stack's native palette.
     static let towerStack = GamePalette(
         background: Color(hex: "#1A1423"),

@@ -25,6 +25,9 @@ on:
       set_listing:
         description: "1 : met aussi à jour description, mots-clés, texte promo"
         required: false
+      cancel_pending:
+        description: "1 : retire d'abord la demande en attente"
+        required: false
 
 jobs:
   submit:
@@ -41,6 +44,7 @@ jobs:
       WHATS_NEW: ${{ inputs.whats_new }}
       REVIEW_NOTES: ${{ inputs.review_notes }}
       SET_LISTING: ${{ inputs.set_listing }}
+      CANCEL_PENDING: ${{ inputs.cancel_pending }}
     steps:
       - uses: actions/checkout@v5
       - name: Envoyer

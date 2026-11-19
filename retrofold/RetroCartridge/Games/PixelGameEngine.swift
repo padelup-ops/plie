@@ -37,6 +37,8 @@ enum PixelGameEngine {
             game = AstroDriftGame()
         case .towerStack:
             game = TowerStackGame()
+        case .gamePak:
+            game = GamePakGame()
         }
         game.mode = mode
         game.reset()

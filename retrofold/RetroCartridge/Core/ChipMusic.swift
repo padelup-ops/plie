@@ -150,6 +150,9 @@ enum ChipMusic {
                 drumBar: "k...h.h.k.s.h...",
                 bars: 8
             )
+        case .gamePak:
+            // silent: the loaded game plays its own music
+            return ChipTrack(bpm: 120, leadWaveform: .square, lead: "-:4", bass: "-:4", drumBar: "................", bars: 1)
         case .towerStack:
             // a cheerful C major climb
             return ChipTrack(

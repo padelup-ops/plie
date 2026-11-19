@@ -26,6 +26,9 @@ public struct AdaptiveConsoleLayout: View {
     @Environment(HapticManager.self) private var hapticManager
     @Environment(StoreManager.self) private var storeManager
 
+    /// The Game Pak asked for a game file.
+    @State private var importingROM = false
+
     public init() {}
 
     public var body: some View {
@@ -47,6 +50,25 @@ public struct AdaptiveConsoleLayout: View {
         }
         .animation(.easeInOut(duration: 0.3), value: postureManager.isCompactWidth)
         .overlay(alignment: .top) { demoClock }
+        // Game Pak: the player picks one of their own .gb / .gbc files in Files.
+        .onReceive(NotificationCenter.default.publisher(for: RomLibrary.importRequested)) { _ in
+            importingROM = true
+        }
+        .fileImporter(isPresented: $importingROM, allowedContentTypes: RomLibrary.contentTypes, allowsMultipleSelection: false) { result in
+            let pak = appState.activeGame as? GamePakGame
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                do {
+                    let entry = try RomLibrary.importFile(url)
+                    NotificationCenter.default.post(name: RomLibrary.imported, object: entry.id)
+                } catch {
+                    pak?.notice = error.localizedDescription
+                }
+            case .failure(let error):
+                pak?.notice = error.localizedDescription
+            }
+        }
         .task { await runDemoClock() }
         // The library and cover are the equipped skin's case and the overlays
         // take its colors; a locked skin (e.g. after a refund) gives the

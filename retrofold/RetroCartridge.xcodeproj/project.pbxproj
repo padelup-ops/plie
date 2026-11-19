@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		57F200A1539A54035AD49A0F /* GamePakGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742414CD884ECCD50510FDF7 /* GamePakGame.swift */; };
+		79DDB0725C5E25F08BEA0EFA /* RomLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9CB72DC70A405D8F13BC88E /* RomLibrary.swift */; };
+		E1CADDFA2282926A2528F35A /* GBCore in Frameworks */ = {isa = PBXBuildFile; productRef = 66420AE35AD43183A4611A50 /* GBCore */; };
 		063569A32C6915EE79689069 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D034020C10869C10B925E99 /* StoreManager.swift */; };
 		070E016E17FD1A5514DD055A /* GameCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FEA080C926760FB3C162F5 /* GameCanvasView.swift */; };
 		094A9581F904E8F5EC3E7DF9 /* RecordsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B777D6058450A4862AE6B7 /* RecordsView.swift */; };
@@ -90,6 +93,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		742414CD884ECCD50510FDF7 /* GamePakGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePakGame.swift; sourceTree = "<group>"; };
+		E9CB72DC70A405D8F13BC88E /* RomLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RomLibrary.swift; sourceTree = "<group>"; };
 		057CF93884D57447C526BAAB /* HingeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HingeEngine.swift; sourceTree = "<group>"; };
 		10FBB5F77ED593D2B7C8320B /* CRTView.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = CRTView.metal; sourceTree = "<group>"; };
 		17441286342C035B63E9C511 /* ControllerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerView.swift; sourceTree = "<group>"; };
@@ -167,6 +172,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		E812940339567A055F5143FE /* GamePak */ = {
+			isa = PBXGroup;
+			children = (
+				742414CD884ECCD50510FDF7 /* GamePakGame.swift */,
+				E9CB72DC70A405D8F13BC88E /* RomLibrary.swift */,
+			);
+			path = GamePak;
+			sourceTree = "<group>";
+		};
 		08CF24F933CE14140C01D005 /* AstroDrift */ = {
 			isa = PBXGroup;
 			children = (
@@ -402,6 +416,7 @@
 				79AFAC10BF7A668C74488CF3 /* MazeMuncher */,
 				9B1BB326371004CF5D174FC6 /* MineSweep */,
 				8401E148172440519B5B698B /* PixelInvaders */,
+				E812940339567A055F5143FE /* GamePak */,
 				84E3D648292B168D294C0233 /* PixelGameEngine.swift */,
 				39F8168463B5C2FBD8ADC7AF /* GameRNG.swift */,
 				880E3CC9E33A86EC6E951F9F /* AttractPilot.swift */,
@@ -473,6 +488,7 @@
 			buildConfigurationList = 76E09EBBE4D705189564E889 /* Build configuration list for PBXNativeTarget "RetroCartridge" */;
 			buildPhases = (
 				E6D4FBE54A4539299086B611 /* Sources */,
+				BD445976B204E7437AB39660 /* Frameworks */,
 				DD9AB91CB88717E7BD69AC7A /* Resources */,
 			);
 			buildRules = (
@@ -481,6 +497,7 @@
 			);
 			name = RetroCartridge;
 			packageProductDependencies = (
+				66420AE35AD43183A4611A50 /* GBCore */,
 			);
 			productName = RetroCartridge;
 			productReference = 5DB3B5EC34BF03D07581096A /* RetroCartridge.app */;
@@ -508,6 +525,9 @@
 				en,
 			);
 			mainGroup = 0BA92A6059E0BC1749E385C8;
+			packageReferences = (
+				0A4F0AFD8A5FC0F53E9D70F1 /* XCLocalSwiftPackageReference "GBCore" */,
+			);
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A797436D7C41D2A36E38BF8D /* Products */;
@@ -519,6 +539,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BD445976B204E7437AB39660 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1CADDFA2282926A2528F35A /* GBCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXResourcesBuildPhase section */
 		DD9AB91CB88717E7BD69AC7A /* Resources */ = {
@@ -542,6 +573,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				57F200A1539A54035AD49A0F /* GamePakGame.swift in Sources */,
+				79DDB0725C5E25F08BEA0EFA /* RomLibrary.swift in Sources */,
 				317FDB0AE36753EDB8ED23CE /* AdaptiveConsoleLayout.swift in Sources */,
 				822ECC45A4F7783AD19720A1 /* AppState.swift in Sources */,
 				98718E16D8A934DE36C9A9D3 /* ArcadeCabinetSkin.swift in Sources */,
@@ -866,6 +899,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		0A4F0AFD8A5FC0F53E9D70F1 /* XCLocalSwiftPackageReference "GBCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = GBCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		66420AE35AD43183A4611A50 /* GBCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = GBCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B029001F8777EC632D0AFE07 /* Project object */;
 }

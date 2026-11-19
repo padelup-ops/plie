@@ -9,6 +9,7 @@ on:
     paths:
       - "retrofold/RetroCartridge/**"
       - "retrofold/RetroCartridge.xcodeproj/**"
+      - "retrofold/GBCore/**"
   workflow_dispatch:
 
 concurrency:
@@ -55,6 +56,9 @@ jobs:
           if [ -z "$XCODE" ]; then XCODE=/Applications/Xcode.app; echo "::warning::Xcode 27.1 introuvable"; fi
           sudo xcode-select -s "$XCODE"
           xcodebuild -version
+
+      - name: Cœur Game Boy (SameBoy) et ROM de démarrage libres
+        run: bash retrofold/tools/fetch_sameboy.sh
 
       - name: Vérifier que l'app compile
         run: |

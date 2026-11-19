@@ -21,6 +21,8 @@ Made for iPhone Duo: the screen sits above the fold, the controls below. Fold it
 • Chiptune music, sound packs, haptic buttons, achievements and records
 • Draw your own 16×16 cartridge labels
 
+NEW: the Game Pak cartridge plays your own Game Boy and Game Boy Color games. Load the .gb or .gbc files you own from Files; their saves stay on your iPhone. RetroFold comes with no Game Boy games.
+
 Eight cartridges are free, and every Pro cartridge plays free for 3 minutes a day. RetroFold Pro is a one-time purchase, no subscription: every cartridge, every skin, every sound pack and screen, forever.
 
 No ads. No account. No data collected. Works offline. Also playable on any iPhone."""),
@@ -38,6 +40,8 @@ Conçu pour l’iPhone Duo : l’écran au-dessus du pli, les commandes en desso
 • Des coques : Classic Grey, Atomic Purple, Cyberpunk Neon, borne d’arcade des années 90 et d’autres
 • Musiques chiptune, packs de sons, boutons avec retour haptique, succès et records
 • Dessine tes propres étiquettes de cartouche en 16×16
+
+NOUVEAU : la cartouche Game Pak lit vos propres jeux Game Boy et Game Boy Color. Chargez depuis Fichiers les fichiers .gb ou .gbc qui vous appartiennent ; leurs sauvegardes restent sur l'iPhone. RetroFold ne fournit aucun jeu Game Boy.
 
 Huit cartouches sont gratuites, et chaque cartouche Pro se joue gratuitement 3 minutes par jour. RetroFold Pro est un achat unique, sans abonnement : toutes les cartouches, coques, packs de sons et écrans, pour toujours.
 
@@ -57,6 +61,8 @@ Gemacht für das iPhone Duo: der Bildschirm über dem Knick, die Steuerung darun
 • Chiptune-Musik, Soundpakete, haptische Tasten, Erfolge und Rekorde
 • Zeichne eigene 16×16-Modul-Etiketten
 
+NEU: Das Game-Pak-Modul spielt deine eigenen Game-Boy- und Game-Boy-Color-Spiele. Lade deine .gb- oder .gbc-Dateien aus der Dateien-App; die Spielstände bleiben auf deinem iPhone. RetroFold enthält keine Game-Boy-Spiele.
+
 Acht Module sind kostenlos, und jedes Pro-Modul kannst du täglich 3 Minuten gratis spielen. RetroFold Pro ist ein Einmalkauf ohne Abo: alle Module, Gehäuse, Soundpakete und Bildschirme, für immer.
 
 Keine Werbung. Kein Konto. Keine Datenerfassung. Funktioniert offline. Auch auf jedem iPhone spielbar. Die App ist auf Englisch."""),
@@ -74,6 +80,8 @@ Pensado para el iPhone Duo: la pantalla encima del pliegue, los controles debajo
 • Carcasas: Classic Grey, Atomic Purple, Cyberpunk Neon, máquina recreativa de los 90 y más
 • Música chiptune, packs de sonido, botones hápticos, logros y récords
 • Dibuja tus propias etiquetas de cartucho de 16×16
+
+NUEVO: el cartucho Game Pak ejecuta tus propios juegos de Game Boy y Game Boy Color. Carga desde Archivos tus archivos .gb o .gbc; las partidas se guardan en tu iPhone. RetroFold no incluye juegos de Game Boy.
 
 Ocho cartuchos son gratis, y cada cartucho Pro se juega gratis 3 minutos al día. RetroFold Pro es una compra única, sin suscripción: todos los cartuchos, carcasas, packs de sonido y pantallas, para siempre.
 
@@ -93,6 +101,8 @@ iPhone Duo のために作りました。折り目の上が画面、下がコン
 • チップチューン、サウンドパック、触感のあるボタン、実績と記録
 • 16×16のカートリッジラベルを自分で描ける
 
+新登場：Game Pakカートリッジで、お持ちのゲームボーイ／ゲームボーイカラーのゲームが遊べます。「ファイル」から.gb／.gbcファイルを読み込み、セーブはiPhoneに保存されます。RetroFoldにゲームボーイのゲームは含まれていません。
+
 8本のカートリッジは無料。Proカートリッジも1日3分ずつ無料で遊べます。RetroFold Pro を1回購入（サブスクなし）すれば、すべてのカートリッジ、本体カラー、サウンドパック、画面がずっと使えます。
 
 広告なし。アカウント不要。データ収集なし。オフラインで遊べます。どの iPhone でも遊べます。アプリは英語です。"""),
@@ -110,6 +120,8 @@ iPhone Duo를 위해 만들었어요. 접힌 선 위는 화면, 아래는 컨트
 • 본체 스킨: Classic Grey, Atomic Purple, Cyberpunk Neon, 90년대 아케이드 캐비닛 등
 • 칩튠 음악, 사운드 팩, 햅틱 버튼, 업적과 기록
 • 16×16 카트리지 라벨을 직접 그리기
+
+새로운 기능: Game Pak 카트리지로 직접 가진 게임보이·게임보이 컬러 게임을 플레이하세요. 파일 앱에서 .gb 또는 .gbc 파일을 불러오며, 저장 데이터는 iPhone에 보관됩니다. RetroFold에는 게임보이 게임이 포함되어 있지 않습니다.
 
 카트리지 8개는 무료이며, Pro 카트리지도 하루 3분씩 무료로 플레이할 수 있습니다. RetroFold Pro를 한 번만 구매(구독 없음)하면 모든 카트리지, 스킨, 사운드 팩과 화면을 계속 사용할 수 있습니다.
 
@@ -129,6 +141,8 @@ iPhone Duo를 위해 만들었어요. 접힌 선 위는 화면, 아래는 컨트
 • 芯片音乐、音效包、触感按键、成就与纪录
 • 自己画 16×16 的卡带标签
 
+新功能：Game Pak 卡带可运行你自己的 Game Boy 和 Game Boy Color 游戏。从“文件”载入你拥有的 .gb 或 .gbc 文件，存档保存在 iPhone 上。RetroFold 不附带任何 Game Boy 游戏。
+
 8 款卡带免费，每款 Pro 卡带每天还可免费试玩 3 分钟。只需一次购买 RetroFold Pro（无订阅），即可永久畅玩全部卡带、外壳、音效包和屏幕。
 
 无广告。无需账号。不收集任何数据。离线可玩。任何 iPhone 都能玩。App 为英文界面。"""),
@@ -138,6 +152,9 @@ NOTES = ("RetroFold turns iPhone Duo into a 90s handheld console. Closed, the co
          "Unfolded, the inner display shows the game screen above the fold and the controls below; folding pauses the game. "
          "On an iPhone without a hinge, the whole console shows on screen: tap a cartridge on the shelf to play "
          "(Lunar Hinge uses the A button or the up arrow instead of folding).\n\n"
+         "Game Pak (new in this version): a cartridge that plays the player's own Game Boy / Game Boy Color files, imported from Files (tap the Game Pak cartridge, then A on \"Load a game\"). The app includes no games and links to no game sources; it uses the "
+         "open-source SameBoy core (MIT) and its open-source boot ROMs, as guideline 4.7 allows for retro console emulators. "
+         "For testing, any homebrew .gb file works.\n\n"
          "Free download: eight cartridges are free, and each Pro cartridge can be played free for 3 minutes a day "
          "(a timer shows at the top of the screen; when it runs out, the store opens). Open Store in the toolbar, or tap a locked "
          "(dusty) cartridge, to see RetroFold Pro (non-consumable, com.padelup.retrofold.pro), which unlocks every cartridge, skin, "

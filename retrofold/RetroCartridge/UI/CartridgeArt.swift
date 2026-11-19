@@ -34,6 +34,7 @@ struct PixelArt: Equatable, Sendable {
         case .paddleDuel: return .paddleDuel
         case .astroDrift: return .astroDrift
         case .towerStack: return .towerStack
+        case .gamePak: return .gamePak
         }
     }
 
@@ -395,6 +396,26 @@ extension PixelArt {
 
     /// Tower Stack: a narrowing tower, the next block sliding in, and a
     /// cut-off piece falling away.
+    /// Game Pak: a pocket console with a cartridge going in.
+    static let gamePak = PixelArt(rows: [
+        "......FFFF......",
+        "......FFFF......",
+        "......FFFF......",
+        "....GGGGGGGG....",
+        "....G000000G....",
+        "....G0PPPP0G....",
+        "....G0PHHP0G....",
+        "....G0PPPP0G....",
+        "....G000000G....",
+        "....GGGGGGGG....",
+        "....GXGGGG1G....",
+        "....XXXGG1G1....",
+        "....GXGGGG1G....",
+        "....GGG22GGG....",
+        "....GGGGGGGG....",
+        "................"
+    ])
+
     static let towerStack = PixelArt(rows: [
         "................",
         "..PPPPPP........",
