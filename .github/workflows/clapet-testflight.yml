@@ -9,7 +9,7 @@ name: Clapet - TestFlight
 
 on:
   push:
-    branches: [hold-testflight]
+    branches: [main]
     paths:
       - "clapet/Clapet/**"
       - "clapet/ClapetWidget/**"
