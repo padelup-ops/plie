@@ -64,7 +64,6 @@ public struct AdaptiveConsoleLayout: View {
         }
         .animation(.easeInOut(duration: 0.3), value: postureManager.isCompactWidth)
         .overlay(alignment: .top) { demoClock }
-        // Game Pak: the player picks one of their own .gb / .gbc files in Files.
         // Game Pak: the player picks their own games in Files (files, several at once, a whole folder, or .zip).
         // Only on the inner display: the cover is too small for Files, and presenting there loops.
         .onReceive(NotificationCenter.default.publisher(for: RomLibrary.importRequested)) { _ in
@@ -85,7 +84,6 @@ public struct AdaptiveConsoleLayout: View {
             case .failure(let error):
                 pak?.notice = error.localizedDescription
             }
-        }
         }
         .task { await runDemoClock() }
         // The library and cover are the equipped skin's case and the overlays
