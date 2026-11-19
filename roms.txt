@@ -1,0 +1,11 @@
+total 4264
+drwxr-xr-x   8 runner  staff      256 Nov 19 21:53 .
+drwxr-xr-x  19 runner  staff      608 Nov 19 21:53 ..
+-rw-r--r--   1 runner  staff     8824 Nov 19 21:53 arm.gba
+-rw-r--r--   1 runner  staff    32768 Nov 19 21:53 cgb-acid2.gbc
+-rw-r--r--   1 runner  staff    32768 Nov 19 21:53 dmg-acid2.gb
+-rw-r--r--   1 runner  staff  1639323 Nov 19 21:53 hbmenu-0.11.0.zip
+-rw-r--r--   1 runner  staff     1300 Nov 19 21:53 hello.gba
+-rw-r--r--   1 runner  staff   457728 Nov 19 21:53 nesDS.nds
+MelonDSCore.framework
+MGBACore.framework

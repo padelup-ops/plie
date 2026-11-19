@@ -1,0 +1,6 @@
+Haptics not supported on this device.
+IOSurfaceClientSetSurfaceNotify failed e00002c7
+GAMEPAK import /Users/runner/Library/Developer/CoreSimulator/Devices/5561DD45-A7A0-42D8-AC60-8DFFB6911AD9/data/Containers/Data/Application/97126E82-AE73-4925-86BD-4ED23E3D87B9/Documents/hello.gba: added 1 skipped 0 
+GAMEPAK started gba hello fps 59.727500915527344 rate 65536.0
+GAMEPAK after 3 s: picture 240x160
+com.padelup.retrofold: 21840

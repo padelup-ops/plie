@@ -1,0 +1,61 @@
+===== arm.gba
+2026-11-19 22:03:18 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/5561DD45-A7A0-42D8-AC60-8DFFB6911AD9/data/Containers/Data/Application/97126E82-AE73-4925-86BD-4ED23E3D87B9/Documents/arm.gba: added 1 skipped 0 
+2026-11-19 22:03:18 +0000 started gba arm fps 59.727500915527344 rate 65536.0
+2026-11-19 22:03:22 +0000 after 3 s: picture 240x160
+2026-11-19 22:06:10.870 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:10.871 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:11.119 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:11.120 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:11.226 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:11.227 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:12.610 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:12.610 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:12.758 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:12.758 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:13.567 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:13.568 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:40.818 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:06:40.819 Df RetroCartridge[12546:a21a] [com.apple.renderbox:error] <compose failure [shared UUID]>
+===== cgb-acid2.gbc
+2026-11-19 22:07:21 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/5561DD45-A7A0-42D8-AC60-8DFFB6911AD9/data/Containers/Data/Application/97126E82-AE73-4925-86BD-4ED23E3D87B9/Documents/cgb-acid2.gbc: added 1 skipped 0 
+2026-11-19 22:07:21 +0000 started gb cgb-acid2 fps 59.72750056960583 rate 48000.0
+2026-11-19 22:07:24 +0000 after 3 s: picture 160x144
+2026-11-19 22:09:05.775 Df RetroCartridge[15420:c556] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:09:05.778 Df RetroCartridge[15420:c556] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:09:25.377 Df RetroCartridge[15420:c556] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:09:25.378 Df RetroCartridge[15420:c556] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:09:25.493 Df RetroCartridge[15420:c556] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:09:25.493 Df RetroCartridge[15420:c556] [com.apple.renderbox:error] <compose failure [shared UUID]>
+===== dmg-acid2.gb
+2026-11-19 22:10:05 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/5561DD45-A7A0-42D8-AC60-8DFFB6911AD9/data/Containers/Data/Application/97126E82-AE73-4925-86BD-4ED23E3D87B9/Documents/dmg-acid2.gb: added 1 skipped 0 
+2026-11-19 22:10:05 +0000 started gb dmg-acid2 fps 59.72750056960583 rate 48000.0
+2026-11-19 22:10:08 +0000 after 3 s: picture 160x144
+2026-11-19 22:11:29.457 Df RetroCartridge[17914:dfdb] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:11:29.457 Df RetroCartridge[17914:dfdb] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:11:29.629 Df RetroCartridge[17914:dfdb] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:11:29.630 Df RetroCartridge[17914:dfdb] [com.apple.renderbox:error] <compose failure [shared UUID]>
+===== hbmenu-0.11.0.zip
+2026-11-19 22:11:46 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/5561DD45-A7A0-42D8-AC60-8DFFB6911AD9/data/Containers/Data/Application/97126E82-AE73-4925-86BD-4ED23E3D87B9/Documents/hbmenu-0.11.0.zip: added 3 skipped 3 3 GAMES ADDED
+2026-11-19 22:11:47 +0000 started nds hbmenu/BOOT fps 59.82609828808083 rate 32728.498046875
+2026-11-19 22:11:50 +0000 after 3 s: picture 256x384
+2026-11-19 22:13:18.011 Df RetroCartridge[19821:f3a7] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:18.011 Df RetroCartridge[19821:f3a7] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:18.338 Df RetroCartridge[19821:f3a7] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:18.338 Df RetroCartridge[19821:f3a7] [com.apple.renderbox:error] <compose failure [shared UUID]>
+===== hello.gba
+2026-11-19 22:13:32 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/5561DD45-A7A0-42D8-AC60-8DFFB6911AD9/data/Containers/Data/Application/97126E82-AE73-4925-86BD-4ED23E3D87B9/Documents/hello.gba: added 1 skipped 0 
+2026-11-19 22:13:32 +0000 started gba hello fps 59.727500915527344 rate 65536.0
+2026-11-19 22:13:35 +0000 after 3 s: picture 240x160
+2026-11-19 22:13:18.011 Df RetroCartridge[19821:f3a7] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:18.011 Df RetroCartridge[19821:f3a7] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:18.338 Df RetroCartridge[19821:f3a7] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:18.338 Df RetroCartridge[19821:f3a7] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:31.506 E  RetroCartridge[21840:1078c] [com.apple.BoardServices:XPCErrors] <compose failure [shared UUID]>
+2026-11-19 22:13:40.204 Df RetroCartridge[21840:1078c] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:40.204 Df RetroCartridge[21840:1078c] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:48.223 Df RetroCartridge[21840:1078c] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-19 22:13:48.223 Df RetroCartridge[21840:1078c] [com.apple.renderbox:error] <compose failure [shared UUID]>
+===== nesDS.nds
+2026-11-19 22:14:19 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/5561DD45-A7A0-42D8-AC60-8DFFB6911AD9/data/Containers/Data/Application/97126E82-AE73-4925-86BD-4ED23E3D87B9/Documents/nesDS.nds: added 1 skipped 0 
+2026-11-19 22:14:19 +0000 started nds nesDS fps 59.82609828808083 rate 32728.498046875
+2026-11-19 22:14:23 +0000 after 3 s: picture 256x384
