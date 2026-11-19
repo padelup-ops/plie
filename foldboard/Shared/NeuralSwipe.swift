@@ -126,13 +126,8 @@ enum NeuralSwipe {
             calls += 1
             inferMS += ms
             if calls > 1 { inferMaxMS = max(inferMaxMS, ms) }
-            if (calls == 1 && ms > 80) || (calls > 2 && ms > 40) {
-                blocked = true
-                self.module = nil
-                reason = "lent"
-                detail = String(format: "%.0f ms", ms)
-                return nil
-            }
+            // Un passage lent (le simulateur a des pics) ne coupe pas le modèle pour la suite :
+            // la moyenne reste autour de 2 ms, et le doigt est déjà levé.
             return arr
         } catch {
             blocked = true
