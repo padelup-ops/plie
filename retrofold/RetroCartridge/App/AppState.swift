@@ -358,6 +358,21 @@ enum ShotMode {
             appState.isStoreVisible = true
             return
         }
+        // Essai de la Game Pak (CI) : « -shot gamepak -gamepakROM chemin » importe le fichier et lance le jeu.
+        if parts.first == "gamepak" {
+            appState.selectedGameType = .gamePak
+            appState.startGame(type: .gamePak)
+            if let path = UserDefaults.standard.string(forKey: "gamepakROM") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    let outcome = RomLibrary.importAll([URL(fileURLWithPath: path)])
+                    GamePakLog.write("import \(path): added \(outcome.added.count) skipped \(outcome.skipped) \(outcome.message ?? "")")
+                    if let first = outcome.added.first {
+                        NotificationCenter.default.post(name: RomLibrary.imported, object: first.id)
+                    }
+                }
+            }
+            return
+        }
         guard let first = parts.first, let game = GameType.allCases.first(where: { key($0.rawValue) == key(first) }) else { return }
         let pilot = AttractPilot(type: game)
         appState.shotPilot = pilot

@@ -51,6 +51,7 @@ final class GamePakGame: PixelGameProtocol {
     private var lastSelectTap: Date?
     private var pendingSelect: Date?
     private var padMenuHeld = Set<PakButton>()
+    private var loggedFrame = false
 
     private let audio = GamePakAudio()
     private var observers: [NSObjectProtocol] = []
@@ -126,8 +127,10 @@ final class GamePakGame: PixelGameProtocol {
         }
         guard let m else {
             notice = String(localized: "THIS GAME CAN'T BE OPENED") + (RetroCoreMachine.lastError.map { " (\($0))" } ?? "")
+            GamePakLog.write("start failed \(entry.system.rawValue): \(notice ?? "")")
             return
         }
+        GamePakLog.write("started \(entry.system.rawValue) \(entry.title) fps \(1 / m.frameTime) rate \(m.sampleRate)")
         machine = m
         if let save = try? Data(contentsOf: RomLibrary.batteryURL(entry)) { m.loadBattery(save) }
         // Pick up exactly where the player left off.
@@ -182,6 +185,10 @@ final class GamePakGame: PixelGameProtocol {
         }
         if accumulator > machine.frameTime * 3 { accumulator = 0 }
         if frames > 0 { image = machine.makeImage() }
+        if !loggedFrame, frameCount > 180 {
+            loggedFrame = true
+            GamePakLog.write("after 3 s: picture \(image?.width ?? 0)x\(image?.height ?? 0)")
+        }
         if Date().timeIntervalSince(lastSave) > 20 { persist() }
     }
 
@@ -481,5 +488,22 @@ final class GamePakAudio {
         if let node { engine.detach(node) }
         node = nil
         lock.lock(); source = nil; lock.unlock()
+    }
+}
+
+/// A small log in Documents (gamepak-log.txt), read by the CI test of the Game Pak.
+enum GamePakLog {
+    static func write(_ line: String) {
+        guard ShotMode.shot != nil else { return }
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("gamepak-log.txt")
+        let text = "\(Date()) \(line)\n"
+        if let h = try? FileHandle(forWritingTo: url) {
+            h.seekToEndOfFile()
+            h.write(Data(text.utf8))
+            try? h.close()
+        } else {
+            try? text.write(to: url, atomically: true, encoding: .utf8)
+        }
+        print("GAMEPAK", line)
     }
 }
