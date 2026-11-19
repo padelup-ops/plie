@@ -1,0 +1,29 @@
+# Envoie une version de Foldboard à la vérification (sortie automatique après accord). Ne change pas le prix.
+name: Foldboard - envoyer à la vérification
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version (ex. 1.0.23)"
+        required: true
+      build:
+        description: "Numéro de build"
+        required: true
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_BUILD: ${{ inputs.build }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Envoyer
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 foldboard/tools/asc_submit.py
