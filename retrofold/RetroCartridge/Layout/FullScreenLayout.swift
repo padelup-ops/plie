@@ -241,8 +241,9 @@ public struct FullScreenLayout: View {
 
     private func insert(_ game: GameType) {
         guard insertingGame == nil else { return }
-        guard storeManager.isUnlocked(game) else {
+        guard storeManager.isPlayable(game) else {
             hapticManager.playHaptic(.buttonPress)
+            storeManager.demoEnded = game
             withAnimation(LibraryOverlays.animation) {
                 appState.openStore(highlighting: game.info.requiredProductID)
             }

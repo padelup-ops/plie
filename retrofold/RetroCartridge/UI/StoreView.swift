@@ -16,6 +16,7 @@ struct StoreView: View {
     @Environment(AppState.self) private var appState
     @Environment(StoreManager.self) private var storeManager
     @Environment(HapticManager.self) private var hapticManager
+    @Environment(PostureManager.self) private var postureManager
     @Environment(\.menuTheme) private var menuTheme
 
     /// Feedback shown under Restore Purchases after it completes.
@@ -66,44 +67,32 @@ struct StoreView: View {
         }
     }
 
-    // MARK: - Free trial
+    // MARK: - Demo
 
-    /// Start the free day, see how long it has left, or learn that it is over.
+    /// Every Pro cartridge plays 3 minutes a day for free. Someone still inside a free trial started before this
+    /// version keeps it until it ends.
     @ViewBuilder
     private var trialBanner: some View {
-        if storeManager.canStartTrial {
-            banner(
-                icon: "gift.fill",
-                tint: menuTheme.accent,
-                title: String(localized: "FREE FOR 1 DAY"),
-                message: String(localized: "Play every cartridge free for 24 hours. Nothing renews and nothing is charged. After that, RetroFold Pro is a one-time purchase.")
-            ) {
-                Button {
-                    hapticManager.playHaptic(.buttonPress)
-                    Task { await storeManager.startTrial() }
-                } label: {
-                    if storeManager.purchasingProductID == ProductIdentifiers.trial {
-                        ProgressView().tint(menuTheme.accent).frame(width: 76, height: 34)
-                    } else {
-                        RetroCapsuleLabel(title: String(localized: "START"), systemImage: "play.fill", tint: menuTheme.accent, filled: true)
-                    }
-                }
-                .buttonStyle(CartridgePressStyle())
-                .disabled(storeManager.purchasingProductID != nil)
-            }
-        } else if storeManager.isTrialActive {
+        if storeManager.isTrialActive {
             banner(
                 icon: "hourglass",
                 tint: menuTheme.accent,
                 title: String(localized: "FREE TRIAL · \(storeManager.trialHoursLeft) H LEFT"),
                 message: String(localized: "Everything is unlocked until the trial ends. Get RetroFold Pro to keep playing.")
             ) { EmptyView() }
-        } else if storeManager.trialStart != nil {
+        } else if let game = storeManager.demoEnded, !storeManager.isPlayable(game) {
             banner(
                 icon: "hourglass.bottomhalf.filled",
                 tint: RetroPalette.amber,
-                title: String(localized: "FREE TRIAL ENDED"),
-                message: String(localized: "Get RetroFold Pro to keep playing every cartridge.")
+                title: String(localized: "DEMO OVER FOR TODAY"),
+                message: String(localized: "Your 3 minutes of \(game.rawValue) are used up. Come back tomorrow for 3 more, or unlock everything for good.")
+            ) { EmptyView() }
+        } else {
+            banner(
+                icon: "gamecontroller.fill",
+                tint: menuTheme.accent,
+                title: String(localized: "TRY EVERY CARTRIDGE"),
+                message: String(localized: "Each Pro cartridge plays free for 3 minutes a day. Tap one below to try it.")
             ) { EmptyView() }
         }
     }
@@ -258,12 +247,7 @@ struct StoreView: View {
             if !cartridges.isEmpty {
                 section("CARTRIDGES", tint: tint) {
                     ForEach(cartridges) { game in
-                        VStack(spacing: 6) {
-                            CartridgeView(game: game)
-                                .frame(width: 52)
-                            itemName(game.rawValue)
-                        }
-                        .frame(width: 84)
+                        demoCartridge(game)
                     }
                 }
             }
@@ -301,6 +285,69 @@ struct StoreView: View {
             }
 
             perk("ONE-TIME PURCHASE")
+
+            unlockAllButton(productID: productID)
+        }
+    }
+
+    /// A Pro cartridge in the store: tap to play today's 3-minute demo.
+    private func demoCartridge(_ game: GameType) -> some View {
+        let owned = storeManager.isUnlocked(game)
+        let left = storeManager.demoSecondsLeft(game)
+        return Button {
+            guard owned || left > 0 else { return }
+            hapticManager.playHaptic(.cartridgeInsert)
+            storeManager.demoEnded = nil
+            withAnimation(LibraryOverlays.animation) {
+                appState.isStoreVisible = false
+                appState.storeHighlight = nil
+            }
+            // Folded: the cartridge is picked, and unfolding plays it.
+            if postureManager.isCompactWidth { appState.selectedGameType = game } else { appState.startGame(type: game) }
+        } label: {
+            VStack(spacing: 6) {
+                CartridgeView(game: game)
+                    .frame(width: 52)
+                itemName(game.rawValue)
+                if !owned {
+                    Text(left > 0 ? String(localized: "TRY \(max(1, left / 60)) MIN") : String(localized: "TOMORROW"))
+                        .retroFont(9, weight: .heavy)
+                        .foregroundStyle(left > 0 ? menuTheme.accent : .white.opacity(0.4))
+                }
+            }
+            .frame(width: 84)
+        }
+        .buttonStyle(CartridgePressStyle())
+        .disabled(!owned && left == 0)
+        .accessibilityLabel(owned ? game.rawValue : String(localized: "\(game.rawValue), play a demo"))
+    }
+
+    /// The big button under everything Pro unlocks.
+    @ViewBuilder
+    private func unlockAllButton(productID: String) -> some View {
+        if !storeManager.purchasedProductIDs.contains(productID),
+           let product = storeManager.product(for: productID) {
+            Button {
+                hapticManager.playHaptic(.buttonPress)
+                Task { await storeManager.purchase(product) }
+            } label: {
+                HStack(spacing: 8) {
+                    if storeManager.purchasingProductID == productID {
+                        ProgressView().tint(.black)
+                    } else {
+                        Image(systemName: "lock.open.fill")
+                        Text("UNLOCK EVERYTHING · \(product.displayPrice)")
+                            .tracking(1.5)
+                    }
+                }
+                .retroFont(14, weight: .black)
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity, minHeight: 48)
+                .background(Capsule().fill(menuTheme.accent))
+            }
+            .buttonStyle(CartridgePressStyle())
+            .disabled(storeManager.purchasingProductID != nil)
+            .padding(.top, 4)
         }
     }
 

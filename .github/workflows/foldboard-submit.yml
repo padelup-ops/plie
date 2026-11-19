@@ -1,5 +1,5 @@
 # Envoie une version de Foldboard à la vérification (sortie automatique après accord). Ne change pas le prix.
-name: Foldboard - envoyer à la vérification
+name: Envoyer une app à la vérification
 
 on:
   workflow_dispatch:
@@ -10,6 +10,21 @@ on:
       build:
         description: "Numéro de build"
         required: true
+      bundle:
+        description: "Bundle (com.padelup.foldboard par défaut)"
+        required: false
+      meta:
+        description: "Fiche (tools/meta/....json)"
+        required: false
+      whats_new:
+        description: "Nouveautés à part (JSON locale → texte)"
+        required: false
+      review_notes:
+        description: "Note pour Apple (JSON avec reviewNotes)"
+        required: false
+      set_listing:
+        description: "1 : met aussi à jour description, mots-clés, texte promo"
+        required: false
 
 jobs:
   submit:
@@ -21,6 +36,11 @@ jobs:
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
       RELEASE_VERSION: ${{ inputs.version }}
       RELEASE_BUILD: ${{ inputs.build }}
+      BUNDLE: ${{ inputs.bundle }}
+      META: ${{ inputs.meta || 'tools/meta/foldboard.json' }}
+      WHATS_NEW: ${{ inputs.whats_new }}
+      REVIEW_NOTES: ${{ inputs.review_notes }}
+      SET_LISTING: ${{ inputs.set_listing }}
     steps:
       - uses: actions/checkout@v5
       - name: Envoyer

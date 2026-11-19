@@ -13,13 +13,25 @@ import urllib.request
 import jwt
 
 API = "https://api.appstoreconnect.apple.com"
-BUNDLE = "com.padelup.foldboard"
+BUNDLE = os.environ.get("BUNDLE", "com.padelup.foldboard").strip() or "com.padelup.foldboard"
 VERSION = os.environ.get("RELEASE_VERSION", "1.0.23").strip()
 BUILD = os.environ.get("RELEASE_BUILD", "149").strip()
 
-notes_path = os.path.join(os.path.dirname(__file__), "..", "..", "tools", "meta", "foldboard.json")
-with open(notes_path, encoding="utf-8") as f:
-    NOTES = {loc: entry["whatsNew"] for loc, entry in json.load(f)["locales"].items() if entry.get("whatsNew")}
+ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
+META = os.path.join(ROOT, os.environ.get("META", "tools/meta/foldboard.json"))
+with open(META, encoding="utf-8") as f:
+    LOCALES = json.load(f)["locales"]
+NOTES = {loc: entry["whatsNew"] for loc, entry in LOCALES.items() if entry.get("whatsNew")}
+# Nouveautés à part (fichier JSON {locale: texte}), pour les apps dont la fiche est générée.
+if os.environ.get("WHATS_NEW"):
+    with open(os.path.join(ROOT, os.environ["WHATS_NEW"]), encoding="utf-8") as f:
+        NOTES = json.load(f)
+# Aussi la description, les mots-clés et le texte promotionnel de la fiche (SET_LISTING=1), et la note pour Apple.
+SET_LISTING = os.environ.get("SET_LISTING") == "1"
+REVIEW_NOTES = None
+if os.environ.get("REVIEW_NOTES"):
+    with open(os.path.join(ROOT, os.environ["REVIEW_NOTES"]), encoding="utf-8") as f:
+        REVIEW_NOTES = json.load(f)["reviewNotes"]
 
 token = jwt.encode(
     {"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200, "aud": "appstoreconnect-v1"},
@@ -109,8 +121,24 @@ for loc in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations
         problems.append(f"nouveautés {locale}")
         print(f"ÉCHEC  nouveautés {locale} : pas de texte")
         continue
-    step(f"nouveautés {locale}", call("PATCH", f"/v1/appStoreVersionLocalizations/{loc['id']}", {"data": {
-        "type": "appStoreVersionLocalizations", "id": loc["id"], "attributes": {"whatsNew": text}}}))
+    attrs = {"whatsNew": text}
+    if SET_LISTING:
+        meta = LOCALES.get(locale) or next((v for k, v in LOCALES.items() if k.split("-")[0] == locale.split("-")[0]), None)
+        if meta:
+            for src, dst in (("description", "description"), ("keywords", "keywords"), ("promo", "promotionalText")):
+                if meta.get(src):
+                    attrs[dst] = meta[src]
+    step(f"fiche {locale}", call("PATCH", f"/v1/appStoreVersionLocalizations/{loc['id']}", {"data": {
+        "type": "appStoreVersionLocalizations", "id": loc["id"], "attributes": attrs}}))
+
+if REVIEW_NOTES:
+    det = call("GET", f"/v1/appStoreVersions/{vid}/appStoreReviewDetail").get("data")
+    if det:
+        step("note pour Apple", call("PATCH", f"/v1/appStoreReviewDetails/{det['id']}", {"data": {
+            "type": "appStoreReviewDetails", "id": det["id"], "attributes": {"notes": REVIEW_NOTES}}}))
+    else:
+        problems.append("note pour Apple")
+        print("ÉCHEC  note pour Apple : pas de fiche de vérification")
 
 build = None
 states = []

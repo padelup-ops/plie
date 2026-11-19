@@ -21,7 +21,7 @@ Made for iPhone Duo: the screen sits above the fold, the controls below. Fold it
 • Chiptune music, sound packs, haptic buttons, achievements and records
 • Draw your own 16×16 cartridge labels
 
-Try everything free for 1 day. Then RetroFold Pro is a one-time purchase, no subscription: every cartridge, every skin, every sound pack and screen, forever.
+Eight cartridges are free, and every Pro cartridge plays free for 3 minutes a day. RetroFold Pro is a one-time purchase, no subscription: every cartridge, every skin, every sound pack and screen, forever.
 
 No ads. No account. No data collected. Works offline. Also playable on any iPhone."""),
     "fr-FR": dict(
@@ -39,7 +39,7 @@ Conçu pour l’iPhone Duo : l’écran au-dessus du pli, les commandes en desso
 • Musiques chiptune, packs de sons, boutons avec retour haptique, succès et records
 • Dessine tes propres étiquettes de cartouche en 16×16
 
-Essaie tout gratuitement pendant 1 jour. Ensuite, RetroFold Pro est un achat unique, sans abonnement : toutes les cartouches, coques, packs de sons et écrans, pour toujours.
+Huit cartouches sont gratuites, et chaque cartouche Pro se joue gratuitement 3 minutes par jour. RetroFold Pro est un achat unique, sans abonnement : toutes les cartouches, coques, packs de sons et écrans, pour toujours.
 
 Pas de pub. Pas de compte. Aucune donnée collectée. Fonctionne hors ligne. Jouable aussi sur tout iPhone. L’app est en anglais."""),
     "de-DE": dict(
@@ -57,7 +57,7 @@ Gemacht für das iPhone Duo: der Bildschirm über dem Knick, die Steuerung darun
 • Chiptune-Musik, Soundpakete, haptische Tasten, Erfolge und Rekorde
 • Zeichne eigene 16×16-Modul-Etiketten
 
-Teste alles 1 Tag kostenlos. Danach ist RetroFold Pro ein Einmalkauf ohne Abo: alle Module, Gehäuse, Soundpakete und Bildschirme, für immer.
+Acht Module sind kostenlos, und jedes Pro-Modul kannst du täglich 3 Minuten gratis spielen. RetroFold Pro ist ein Einmalkauf ohne Abo: alle Module, Gehäuse, Soundpakete und Bildschirme, für immer.
 
 Keine Werbung. Kein Konto. Keine Datenerfassung. Funktioniert offline. Auch auf jedem iPhone spielbar. Die App ist auf Englisch."""),
     "es-ES": dict(
@@ -75,7 +75,7 @@ Pensado para el iPhone Duo: la pantalla encima del pliegue, los controles debajo
 • Música chiptune, packs de sonido, botones hápticos, logros y récords
 • Dibuja tus propias etiquetas de cartucho de 16×16
 
-Pruébalo todo gratis durante 1 día. Después, RetroFold Pro es una compra única, sin suscripción: todos los cartuchos, carcasas, packs de sonido y pantallas, para siempre.
+Ocho cartuchos son gratis, y cada cartucho Pro se juega gratis 3 minutos al día. RetroFold Pro es una compra única, sin suscripción: todos los cartuchos, carcasas, packs de sonido y pantallas, para siempre.
 
 Sin anuncios. Sin cuenta. Sin recogida de datos. Funciona sin conexión. También se juega en cualquier iPhone. La app está en inglés."""),
     "ja": dict(
@@ -93,7 +93,7 @@ iPhone Duo のために作りました。折り目の上が画面、下がコン
 • チップチューン、サウンドパック、触感のあるボタン、実績と記録
 • 16×16のカートリッジラベルを自分で描ける
 
-1日間すべて無料でお試し。その後は RetroFold Pro を1回購入（サブスクなし）するだけで、すべてのカートリッジ、本体カラー、サウンドパック、画面がずっと使えます。
+8本のカートリッジは無料。Proカートリッジも1日3分ずつ無料で遊べます。RetroFold Pro を1回購入（サブスクなし）すれば、すべてのカートリッジ、本体カラー、サウンドパック、画面がずっと使えます。
 
 広告なし。アカウント不要。データ収集なし。オフラインで遊べます。どの iPhone でも遊べます。アプリは英語です。"""),
     "ko": dict(
@@ -111,7 +111,7 @@ iPhone Duo를 위해 만들었어요. 접힌 선 위는 화면, 아래는 컨트
 • 칩튠 음악, 사운드 팩, 햅틱 버튼, 업적과 기록
 • 16×16 카트리지 라벨을 직접 그리기
 
-1일 동안 모두 무료로 체험하세요. 그 후 RetroFold Pro를 한 번만 구매(구독 없음)하면 모든 카트리지, 스킨, 사운드 팩과 화면을 계속 사용할 수 있습니다.
+카트리지 8개는 무료이며, Pro 카트리지도 하루 3분씩 무료로 플레이할 수 있습니다. RetroFold Pro를 한 번만 구매(구독 없음)하면 모든 카트리지, 스킨, 사운드 팩과 화면을 계속 사용할 수 있습니다.
 
 광고 없음. 계정 없음. 데이터 수집 없음. 오프라인 플레이. 모든 iPhone에서 플레이 가능. 앱은 영어입니다."""),
     "zh-Hans": dict(
@@ -129,7 +129,7 @@ iPhone Duo를 위해 만들었어요. 접힌 선 위는 화면, 아래는 컨트
 • 芯片音乐、音效包、触感按键、成就与纪录
 • 自己画 16×16 的卡带标签
 
-免费试玩全部内容 1 天。之后只需一次购买 RetroFold Pro（无订阅），即可永久畅玩全部卡带、外壳、音效包和屏幕。
+8 款卡带免费，每款 Pro 卡带每天还可免费试玩 3 分钟。只需一次购买 RetroFold Pro（无订阅），即可永久畅玩全部卡带、外壳、音效包和屏幕。
 
 无广告。无需账号。不收集任何数据。离线可玩。任何 iPhone 都能玩。App 为英文界面。"""),
 }
@@ -138,10 +138,10 @@ NOTES = ("RetroFold turns iPhone Duo into a 90s handheld console. Closed, the co
          "Unfolded, the inner display shows the game screen above the fold and the controls below; folding pauses the game. "
          "On an iPhone without a hinge, the whole console shows on screen: tap a cartridge on the shelf to play "
          "(Lunar Hinge uses the A button or the up arrow instead of folding).\n\n"
-         "Free download with a free 1-day trial, then one purchase. The trial is the non-consumable \"1-day Trial\" at 0 "
-         "(com.padelup.retrofold.trial1), as guideline 3.1.1 allows for non-subscription apps: tap any cartridge (or Store in the toolbar) "
-         "and press START on \"Free for 1 day\". Everything is unlocked for 24 hours; nothing renews or is charged. After that, RetroFold Pro "
-         "(non-consumable, com.padelup.retrofold.pro) unlocks every cartridge, skin, sound pack and screen mode for good. "
+         "Free download: eight cartridges are free, and each Pro cartridge can be played free for 3 minutes a day "
+         "(a timer shows at the top of the screen; when it runs out, the store opens). Open Store in the toolbar, or tap a locked "
+         "(dusty) cartridge, to see RetroFold Pro (non-consumable, com.padelup.retrofold.pro), which unlocks every cartridge, skin, "
+         "sound pack and screen mode for good. The former \"1-day Trial\" item is no longer offered in the app. "
          "Restore Purchases is on the same screen.\n\n"
          "All games are original. No account, no ads, no network access, no data collection.")
 

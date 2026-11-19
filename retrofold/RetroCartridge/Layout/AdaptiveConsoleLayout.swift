@@ -46,6 +46,8 @@ public struct AdaptiveConsoleLayout: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: postureManager.isCompactWidth)
+        .overlay(alignment: .top) { demoClock }
+        .task { await runDemoClock() }
         // The library and cover are the equipped skin's case and the overlays
         // take its colors; a locked skin (e.g. after a refund) gives the
         // default, like the console
@@ -72,7 +74,7 @@ public struct AdaptiveConsoleLayout: View {
             if wasCompact && !isCompact {
                 // Unfolded: insert the cartridge chosen on the cover screen,
                 // swapping out a paused one if the player picked another
-                appState.insertCartridgeOnUnfold(isUnlocked: storeManager.isUnlocked(appState.selectedGameType))
+                appState.insertCartridgeOnUnfold(isUnlocked: storeManager.isPlayable(appState.selectedGameType))
             } else if isCompact {
                 // Folded: keep the session but pause it (app continuity)
                 appState.pauseActiveGame()
@@ -86,6 +88,53 @@ public struct AdaptiveConsoleLayout: View {
     }
 
     /// A running console on the inner display is immersive: no bars.
+    // MARK: - Demo
+
+    /// The locked cartridge being played as a demo, if any.
+    private var demoGame: GameType? {
+        guard let game = appState.activeGame, !storeManager.isUnlocked(game.gameType) else { return nil }
+        return game.gameType
+    }
+
+    /// How much demo is left, over the running console.
+    @ViewBuilder
+    private var demoClock: some View {
+        if let game = demoGame, !postureManager.isCompactWidth {
+            let left = storeManager.demoSecondsLeft(game)
+            RetroCapsuleLabel(
+                title: String(localized: "DEMO \(left / 60):\(String(format: "%02d", left % 60))"),
+                systemImage: "hourglass",
+                tint: left <= 30 ? RetroPalette.amber : .white.opacity(0.85)
+            )
+            .padding(.top, 6)
+            .allowsHitTesting(false)
+            .accessibilityLabel("Demo, \(left) seconds left today")
+        }
+    }
+
+    /// Counts demo time while a locked cartridge is being played. When today's 3 minutes are used up, the
+    /// cartridge ejects and the store opens on RetroFold Pro.
+    private func runDemoClock() async {
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(1))
+            guard let game = appState.activeGame, !storeManager.isUnlocked(game.gameType),
+                  game.gameState == .playing, !appState.isEjecting, !postureManager.isCompactWidth else { continue }
+            storeManager.useDemo(game.gameType, seconds: 1)
+            storeManager.now = Date()
+            if storeManager.demoSecondsLeft(game.gameType) == 0 {
+                game.pause()
+                storeManager.demoEnded = game.gameType
+                hapticManager.playHaptic(.buttonPress)
+                appState.ejectCartridge()
+                try? await Task.sleep(for: .seconds(1.2))
+                if appState.activeGame != nil { appState.endGame() }
+                withAnimation(LibraryOverlays.animation) {
+                    appState.openStore(highlighting: ProductIdentifiers.pro)
+                }
+            }
+        }
+    }
+
     private var showsConsole: Bool {
         !postureManager.isCompactWidth && appState.isGameActive
     }

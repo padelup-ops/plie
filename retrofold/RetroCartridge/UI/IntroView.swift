@@ -242,15 +242,15 @@ struct IntroView: View {
     private func play() {
         hapticManager.playHaptic(.buttonPress)
         let selected = appState.selectedGameType
-        let insertsCartridge = !postureManager.isCompactWidth && storeManager.isUnlocked(selected)
+        let insertsCartridge = !postureManager.isCompactWidth && storeManager.isPlayable(selected)
         withAnimation(LibraryOverlays.animation) {
             appState.finishIntro()
         }
         if insertsCartridge {
             hapticManager.playHaptic(.cartridgeInsert)
             appState.startGame(type: selected)
-        } else if !storeManager.isUnlocked(selected) {
-            // Pas encore d'essai ni d'achat : le magasin s'ouvre sur l'essai gratuit d'un jour.
+        } else if !storeManager.isPlayable(selected) {
+            // Démo du jour épuisée : le magasin s'ouvre sur RetroFold Pro.
             withAnimation(LibraryOverlays.animation) {
                 appState.openStore(highlighting: ProductIdentifiers.pro)
             }

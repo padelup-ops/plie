@@ -201,6 +201,60 @@ final class StoreManager {
         return isPurchased(productID)
     }
 
+    // MARK: - Demo
+
+    /// Every Pro cartridge plays free for 3 minutes a day (time spent playing, not on the title screen).
+    static let demoSeconds: Double = 180
+
+    /// Seconds of demo used today, per cartridge. Starts over each day.
+    private(set) var demoUsed: [String: Double] = StoreManager.loadDemo()
+
+    private static let demoKey = "retrofold.demo"
+    private static let demoDayKey = "retrofold.demoDay"
+
+    private static func today() -> String {
+        let c = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        return "\(c.year ?? 0)-\(c.month ?? 0)-\(c.day ?? 0)"
+    }
+
+    private static func loadDemo() -> [String: Double] {
+        let d = UserDefaults.standard
+        guard d.string(forKey: demoDayKey) == today() else { return [:] }
+        return d.dictionary(forKey: demoKey) as? [String: Double] ?? [:]
+    }
+
+    /// A new day gives a new demo.
+    private func refreshDemoDay() {
+        if UserDefaults.standard.string(forKey: Self.demoDayKey) != Self.today(), !demoUsed.isEmpty {
+            demoUsed = [:]
+            UserDefaults.standard.removeObject(forKey: Self.demoKey)
+        }
+    }
+
+    /// Whole seconds of demo left today for a locked cartridge (the full 3 minutes for an unlocked one).
+    func demoSecondsLeft(_ game: GameType) -> Int {
+        _ = now
+        refreshDemoDay()
+        return max(0, Int((Self.demoSeconds - (demoUsed[game.rawValue] ?? 0)).rounded(.up)))
+    }
+
+    /// Owned, or locked with demo time left today.
+    func isPlayable(_ game: GameType) -> Bool {
+        isUnlocked(game) || demoSecondsLeft(game) > 0
+    }
+
+    /// Counts playing time against a locked cartridge's demo.
+    func useDemo(_ game: GameType, seconds: Double) {
+        guard !isUnlocked(game) else { return }
+        refreshDemoDay()
+        demoUsed[game.rawValue, default: 0] += seconds
+        UserDefaults.standard.set(demoUsed, forKey: Self.demoKey)
+        UserDefaults.standard.set(Self.today(), forKey: Self.demoDayKey)
+    }
+
+    /// The cartridge whose demo just ran out, so the store can say so.
+    var demoEnded: GameType?
+
     func isUnlocked(_ screenMode: ScreenMode) -> Bool {
         guard let productID = screenMode.requiredProductID else { return true }
         return isPurchased(productID)
