@@ -64,7 +64,7 @@ if [ "${ONLY:-}" != gba ]; then (
 set -e
   echo "=== melonDS DS"
   rm -rf "$WORK/mds"; git clone -q https://github.com/JesseTG/melonds-ds.git "$WORK/mds"; git -C "$WORK/mds" checkout -q $MDS_REV
-  cmake -S "$WORK/mds" -B "$WORK/mds/build" "${IOS_ARGS[@]}" -DENABLE_JIT=OFF -DENABLE_OPENGL=OFF -DTRACY_ENABLE=OFF \
+  cmake -S "$WORK/mds" -B "$WORK/mds/build" "${IOS_ARGS[@]}" -DENABLE_JIT=OFF -DENABLE_OPENGL=OFF -DTRACY_ENABLE=OFF -DBUILD_AS_SHARED_LIBRARY=ON \
     -DBUILD_TESTING=OFF -Wno-deprecated
   cmake --build "$WORK/mds/build" --parallel
   framework "$(find "$WORK/mds/build" -name 'melondsds_libretro*.dylib' | head -1)" MelonDSCore com.padelup.retrofold.melonds 1.2
