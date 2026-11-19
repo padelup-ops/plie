@@ -333,6 +333,19 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.24": {
+        "en-US": "New: an All time open & closed widget showing your lifetime hours unfolded vs folded. Tap or drag any bar in Your week and Today by hour to see the exact fold count and open/closed time.",
+        "fr-FR": "Nouveau : un widget « Ouvert et fermé, au total » qui montre tes heures dépliées et pliées depuis le début. Touche ou fais glisser une barre dans Ta semaine et Aujourd'hui, heure par heure pour voir le nombre exact de plis et le temps ouvert et fermé.",
+        "de-DE": "Neu: ein Widget „Offen und zu, insgesamt“, das deine Stunden aufgeklappt und zugeklappt seit dem ersten Tag zeigt. Tippe oder ziehe einen Balken in „Deine Woche“ und „Heute, Stunde für Stunde“, um die genaue Zahl der Faltungen und die offene und geschlossene Zeit zu sehen.",
+        "es-ES": "Nuevo: un widget «Abierto y cerrado, en total» que muestra tus horas desplegado y plegado desde el primer día. Toca o arrastra una barra en Tu semana y Hoy, hora a hora para ver el número exacto de pliegues y el tiempo abierto y cerrado.",
+        "ja": "新機能：開いていた時間と閉じていた時間の累計を表示するウィジェットを追加しました。使い始めてからの開いていた時間と閉じていた時間が見られます。「今週」と「今日の1時間ごと」の棒をタップまたはドラッグすると、その回数と開いていた・閉じていた正確な時間が表示されます。",
+        "ko": "새로운 기능: 처음 사용한 날부터 펼친 시간과 접힌 시간을 보여주는 위젯 ‘열린·닫힌 시간 (전체)’. ‘이번 주’와 ‘오늘 시간별’에서 막대를 누르거나 드래그하면 정확한 접은 횟수와 열린·닫힌 시간을 볼 수 있어요.",
+        "zh-Hans": "新功能：新增小组件「打开与合上，累计」，显示你从第一天起展开与合上的总时长。在「你的一周」和「今天按小时」中点按或拖动任意柱形，即可查看准确的折叠次数以及打开和合上的时长。",
+        "it": "Novità: un widget «Aperto e chiuso, da sempre» che mostra le ore aperte e chiuse da sempre. Tocca o trascina una barra in La tua settimana e Oggi, ora per ora per vedere il numero esatto di chiusure e il tempo aperto e chiuso.",
+        "pt-BR": "Novidade: um widget «Aberto e fechado, desde sempre» que mostra suas horas aberto e fechado desde o primeiro dia. Toque ou arraste uma barra em Sua semana e Hoje, hora a hora para ver o número exato de fechamentos e o tempo aberto e fechado.",
+        "nl-NL": "Nieuw: een widget ‘Open en gesloten, altijd’ die laat zien hoeveel uur je telefoon sinds de eerste dag open en dicht is geweest. Tik of sleep een staaf in Jouw week en Vandaag per uur om het exacte aantal keren dicht en de open- en gesloten tijd te zien.",
+        "ru": "Новое: виджет «Открыт и закрыт, за всё время» показывает, сколько часов телефон был открыт и закрыт с первого дня. Нажмите или проведите по столбцу в «Ваша неделя» и «Сегодня по часам», чтобы увидеть точное число закрытий и время в открытом и закрытом виде.",
+    },
     "1.0.23": {
         "en-US": "• Your ideas, done: the menu icons now sit on the right, under the time and battery, in every theme.\n• A softer close sound (you can switch back to the snap in Settings › Advanced).",
         "fr-FR": "• Vos idées, réalisées : les icônes de menu passent à droite, sous l'heure et la batterie, dans tous les thèmes.\n• Un son de fermeture plus doux (le clac d'origine reste disponible dans Réglages › Avancé).",
@@ -569,7 +582,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     # Les numéros de version se recoupent entre les apps : chaque app a ses propres notes quand il le faut.
@@ -619,7 +632,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
@@ -728,8 +741,16 @@ for l in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations")
 
 # Build
 if BUILD:
-    builds = call("GET", f"/v1/builds?filter[app]={app_id}&filter[version]={BUILD}&limit=5").get("data", [])
-    build = next((b for b in builds if b["attributes"].get("processingState") == "VALID"), None)
+    build = None
+    # Le build TestFlight peut encore être en traitement chez Apple.
+    for attempt in range(40):
+        builds = call("GET", f"/v1/builds?filter[app]={app_id}&filter[version]={BUILD}&limit=5").get("data", [])
+        states = [(b["attributes"].get("processingState"), b["attributes"].get("version")) for b in builds]
+        build = next((b for b in builds if b["attributes"].get("processingState") == "VALID"), None)
+        if build or any(s == "FAILED" for s, _ in states):
+            break
+        print(f"       build {BUILD} pas encore prêt ({states or 'introuvable'}), nouvel essai")
+        time.sleep(30)
     if build:
         step(f"build {BUILD} choisi pour la version 1.0", call("PATCH", f"/v1/appStoreVersions/{vid}/relationships/build",
              {"data": {"type": "builds", "id": build["id"]}}))
