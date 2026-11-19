@@ -118,6 +118,10 @@ public struct AdaptiveConsoleLayout: View {
                 // Unfolded: insert the cartridge chosen on the cover screen,
                 // swapping out a paused one if the player picked another
                 appState.insertCartridgeOnUnfold(isUnlocked: storeManager.isPlayable(appState.selectedGameType))
+                // Game Pak paused by folding: the Duo opens on the list of games (the last one first, A carries on).
+                if let pak = appState.activeGame as? GamePakGame, pak.gameState == .paused {
+                    pak.returnToLibrary()
+                }
             } else if isCompact {
                 // Folded: Files closes with the cover (it reopens on unfolding)
                 if importingROM { importingROM = false; importPending = true }

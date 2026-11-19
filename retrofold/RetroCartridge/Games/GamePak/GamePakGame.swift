@@ -110,6 +110,17 @@ final class GamePakGame: PixelGameProtocol {
         releaseAll()
     }
 
+    /// Back to the list of games (the game is saved: picking it again picks up exactly there). Used when the
+    /// Duo opens on a game paused by folding, so the player can change games or carry on with A.
+    func returnToLibrary() {
+        guard gameState == .paused || gameState == .playing else { return }
+        persist()
+        stopMachine()
+        gameState = .menu
+        selection = 0
+        reloadLibrary()
+    }
+
     func resume() {
         guard gameState == .paused else { return }
         gameState = .playing

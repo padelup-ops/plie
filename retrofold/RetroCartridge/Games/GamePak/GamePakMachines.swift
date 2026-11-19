@@ -129,7 +129,13 @@ final class RetroCoreMachine: GamePakMachine {
     let frameTime: TimeInterval
     let sampleRate: Double
     let hasTouch: Bool
-    private var open = false
+    private var openFlag = false
+    /// Only one libretro core runs at a time (GBCore keeps it in one place). A machine replaced by a newer one
+    /// must not touch the newer one's core: each has a token, and only the current one acts.
+    nonisolated(unsafe) private static var currentToken = 0
+    nonisolated(unsafe) private static var lastToken = 0
+    private let token: Int
+    private var open: Bool { openFlag && Self.currentToken == token }
     private(set) var pixelSize: CGSize
 
     /// Why the last start failed, for the library screen.
@@ -145,6 +151,8 @@ final class RetroCoreMachine: GamePakMachine {
         let sys = saveDir.appendingPathComponent("system", isDirectory: true)
         try? FileManager.default.createDirectory(at: sys, withIntermediateDirectories: true)
         try? FileManager.default.createDirectory(at: saveDir, withIntermediateDirectories: true)
+        Self.lastToken += 1
+        token = Self.lastToken
         guard lr_open(fw.path, sys.path, saveDir.path) == 0 else {
             Self.lastError = String(cString: lr_error())
             return nil
@@ -154,7 +162,8 @@ final class RetroCoreMachine: GamePakMachine {
             lr_close()
             return nil
         }
-        open = true
+        Self.currentToken = token
+        openFlag = true
         hasTouch = system == .nds
         frameTime = 1 / lr_fps()
         sampleRate = lr_sample_rate()
@@ -227,7 +236,10 @@ final class RetroCoreMachine: GamePakMachine {
     }
 
     func close() {
-        if open { lr_close() }
-        open = false
+        if open {
+            lr_close()
+            Self.currentToken = 0
+        }
+        openFlag = false
     }
 }
