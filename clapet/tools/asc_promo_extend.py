@@ -137,14 +137,18 @@ for iap in iaps:
     groups = {}
     rows = []
     for p in manuals:
-        a = p.get("attributes") or {}
-        rel = p.get("relationships") or {}
+        full = call("GET", f"/v1/inAppPurchasePrices/{p['id']}?include=inAppPurchasePricePoint,territory")
+        src = full.get("data") or p
+        for inc in full.get("included", []):
+            included[inc["id"]] = inc
+        a = src.get("attributes") or {}
+        rel = src.get("relationships") or {}
         point_id = ((rel.get("inAppPurchasePricePoint") or {}).get("data") or {}).get("id")
         terr = ((rel.get("territory") or {}).get("data") or {}).get("id")
         point = included.get(point_id) or {}
         price, proceeds, _ = money(point)
         if price is None and point_id:
-            got = call("GET", f"/v1/inAppPurchasePricePoints/{point_id}")
+            got = call("GET", f"/v1/inAppPurchasePricePoints/{point_id}?include=territory")
             if "data" in got:
                 price, proceeds, _ = money(got["data"])
                 included[point_id] = got["data"]
@@ -164,7 +168,8 @@ for iap in iaps:
         print(f" FRONTIÈRE À REPOUSSER {old} → {NEW_END}")
         changes.append((iid, ia.get("productId"), sid, base, rows, old))
     elif boundary:
-        print(" FRONTIÈRES MULTIPLES, rien n'est modifié :", sorted(boundary))
+        missing = sum(1 for r in rows if not r["point"])
+        print(" RIEN N'EST MODIFIÉ :", sorted(boundary), f"({missing} prix sans palier)" if missing else "plusieurs frontières")
 
 # --- codes offre ---
 print("\n== CODES OFFRE ==")
