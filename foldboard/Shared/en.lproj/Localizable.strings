@@ -316,6 +316,20 @@
 
 "Follow your hand in landscape" = "Follow your hand in landscape";
 "Language model: Leipzig Corpora Collection, CC BY 4.0." = "Language model: Leipzig Corpora Collection, CC BY 4.0.";
+"Powered by FUTO Swipe technology." = "Powered by FUTO Swipe technology.";
+"Neural swipe: on" = "Neural swipe: on";
+"Neural swipe: off (%@)" = "Neural swipe: off (%@)";
+"Neural swipe: not checked yet. Show the keyboard, then come back." = "Neural swipe: not checked yet. Show the keyboard, then come back.";
+"not enough memory" = "not enough memory";
+"model file missing" = "model file missing";
+"could not load" = "could not load";
+"inference failed" = "inference failed";
+"model unsure" = "model unsure";
+"too slow" = "too slow";
+"runtime missing" = "runtime missing";
+"not used yet" = "not used yet";
+"%@ MB used, %@ MB free" = "%1$@ MB used, %2$@ MB free";
+"%@ swipes" = "%@ swipes";
 "Slide to type" = "Slide to type";
 "Right side on its own: %lld%% of the time" = "Right side on its own: %lld%% of the time";
 "Wrong side often? Redo the “Right hand, left hand” test in the Foldboard app (10 s)." = "Wrong side often? Redo the “Right hand, left hand” test in the Foldboard app (10 s).";

@@ -605,6 +605,16 @@ enum KBVault {
         write("latest", d)
     }
 
+    /// État du glisser neuronal, écrit par le clavier et lu par l'app.
+    static func loadNeural() -> String? {
+        read("neural").flatMap { String(data: $0, encoding: .utf8) }
+    }
+
+    static func saveNeural(_ s: String) {
+        guard let d = s.data(using: .utf8) else { return }
+        write("neural", d)
+    }
+
     static func loadStats() -> KBStats {
         let shared = read("stats").flatMap { try? JSONDecoder().decode(KBStats.self, from: $0) }
         let local = UserDefaults.standard.data(forKey: "foldboard.stats").flatMap { try? JSONDecoder().decode(KBStats.self, from: $0) }

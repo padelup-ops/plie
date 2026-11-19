@@ -10,6 +10,9 @@ struct KBTouchModel {
     var centers: [Character: [CGPoint]]
     var keyW: CGFloat
     var keyH: CGFloat
+    /// Le cadre du clavier, dans le même repère que les centres. Le modèle neuronal s'en sert pour
+    /// ramener le tracé entre 0 et 1. Zéro : on l'estime à partir des touches.
+    var canvas: CGSize = .zero
 
     /// Le coût de lire `cand` à partir des touchers : 0 si chaque toucher tombe au centre de la touche voulue,
     /// environ 1 par lettre posée au bord, beaucoup plus pour une touche lointaine. nil si on ne peut pas comparer.
@@ -112,7 +115,7 @@ final class KBSuggest {
     /// (« sdi », « rapelle »), légère pour un vrai mot rare (« chiming »).
     private var spellCache: [String: Bool] = [:]
     /// iOS manque de mémoire : on vide ce qui se recalcule.
-    func trimMemory() { spellCache = [:] }
+    func trimMemory() { spellCache = [:]; NeuralSwipe.releaseIfTight() }
     private func glideJunk(_ w: String, rank r: Int) -> Double {
         guard doubtful(w, rank: r) else { return 0 }
         let ok: Bool
@@ -270,10 +273,26 @@ final class KBSuggest {
 
     /// Les mots qu'on a probablement tracés, du plus probable au moins probable.
     ///
-    /// Deux mesures, comme les claviers à glisser connus : la position (le tracé passe-t-il sur les bonnes touches ?)
-    /// et la forme (a-t-il le même dessin, même un peu décalé ?). Le début et la fin comptent triple : c'est là que
-    /// le doigt vise le mieux. Puis le modèle de langue départage les mots au tracé proche.
-    func glide(_ raw: [CGPoint], touch: KBTouchModel, before: String, limit: Int = 4) -> [String] {
+    /// La géométrie (position et forme, arbre des mots) propose des candidats. Le modèle FUTO Swipe, s'il est
+    /// chargé, les reclasse. S'il ne peut pas tourner, l'ordre géométrique reste.
+    func glide(_ raw: [CGPoint], touch: KBTouchModel, before: String, limit: Int = 4, times: [TimeInterval] = []) -> [String] {
+        let weight = Self.t("gNeural", 0.6)
+        var cands = glideCandidates(raw, touch: touch, before: before)
+        if weight > 0, let reranked = NeuralSwipe.rerank(cands, raw: raw, times: times, touch: touch, weight: weight) {
+            cands = reranked
+        }
+        cands.sort { $0.score > $1.score }
+        var out: [String] = []
+        for c in cands where !out.contains(c.word) {
+            out.append(c.word)
+            if out.count == limit { break }
+        }
+        return out
+    }
+
+    /// Les candidats du glisser par la géométrie seule, du plus probable au moins probable.
+    /// Réutilisé par le modèle neuronal, qui reclasse cette liste au lieu de reparcourir le dictionnaire.
+    func glideCandidates(_ raw: [CGPoint], touch: KBTouchModel, before: String) -> [KBGlideCand] {
         guard raw.count >= 2, !words.isEmpty else { return [] }
         // Le pouce se pose un peu plus bas qu'il ne vise : même correction que pour la frappe.
         let path = raw.map { CGPoint(x: $0.x, y: $0.y - 4) }
@@ -314,7 +333,7 @@ final class KBSuggest {
         }
         var firsts: [String] = []
         for (k, _) in touch.centers where (near[k]?.first ?? 9) < 1.25 { firsts.append(String(k)) }
-        var scored: [(String, Double)] = []
+        var scored: [KBGlideCand] = []
         var ranks: [Int] = []
         for f0 in firsts {
             for i in (byFirst[f0] ?? []).prefix(30_000) {
@@ -361,17 +380,20 @@ final class KBSuggest {
                 let mine = log(1 + Double(KBWordStore.shared.count(w))) * 0.6
                 let score = -Double(loc * loc) * Self.t("gLoc", 9) - Double(shape) * Self.t("gShape", 5) + prior * Self.t("gPrior", 0.45)
                     + mine - Double(misses) * 2 - Double(missedTurns) * Self.t("gTurn", 2.2) - lenPenalty * Self.t("gLen", 5)
-                scored.append((words[i], score))
+                scored.append(KBGlideCand(word: words[i], folded: w, score: score))
                 ranks.append(i)
             }
         }
         // Les mots douteux (coquilles du dictionnaire) ne sont vérifiés que parmi les meilleurs : le correcteur d'iOS
         // est lent, on ne l'appelle pas pour des centaines de mots à chaque geste.
-        let order = scored.indices.sorted { scored[$0].1 > scored[$1].1 }
-        for j in order.prefix(Int(Self.t("gJunkTop", 20))) { scored[j].1 -= glideJunk(scored[j].0, rank: ranks[j]) }
-        scored.sort { $0.1 > $1.1 }
-        var out: [String] = []
-        for (w, _) in scored where !out.contains(w) { out.append(w); if out.count == limit { break } }
+        let order = scored.indices.sorted { scored[$0].score > scored[$1].score }
+        for j in order.prefix(Int(Self.t("gJunkTop", 20))) { scored[j].score -= glideJunk(scored[j].word, rank: ranks[j]) }
+        scored.sort { $0.score > $1.score }
+        var out: [KBGlideCand] = []
+        for c in scored where !out.contains(where: { $0.word == c.word }) {
+            out.append(c)
+            if out.count == 48 { break }
+        }
         return out
     }
 

@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
       - name: Choisir Xcode 27.1
         run: |
           XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
@@ -25,14 +25,31 @@ jobs:
       - name: Compile
         run: |
           mkdir -p out
-          # Le banc est toujours celui de main (mêmes essais pour comparer deux versions du moteur).
-          git fetch -q origin main && git show origin/main:foldboard/tools/bench/main.swift > out/main.swift
-          cd foldboard/Shared
+          bash foldboard/tools/fetch_executorch.sh
+          ET=foldboard/Vendor
+          S=ios-arm64-simulator
+          LIBS=""
+          for pair in \
+            "executorch/libexecutorch_simulator.a" \
+            "backend_xnnpack/libbackend_xnnpack_simulator.a" \
+            "kernels_optimized/libkernels_optimized_simulator.a" \
+            "kleidiai/libkleidiai_simulator.a" \
+            "threadpool/libthreadpool_simulator.a"
+          do
+            lib="$ET/${pair%%/*}.xcframework/$S/${pair#*/}"
+            LIBS="$LIBS -Xlinker -force_load -Xlinker $lib"
+          done
+          # Le banc de cette branche : géométrie seule (gNeural=0) puis reclassement FUTO Swipe.
           xcrun --sdk iphonesimulator swiftc -O -target arm64-apple-ios27.0-simulator \
-            *.swift ../../out/main.swift -o ../../out/bench
-          cp words-*.txt lm-*.bin ../../out/
+            -D FOLDBOARD_NEURAL \
+            -I "$ET/executorch.xcframework/$S/Headers" \
+            foldboard/Shared/*.swift foldboard/tools/bench/main.swift \
+            $LIBS -lc++ -lsqlite3 -framework Accelerate -framework CoreML -framework CoreGraphics -framework CoreImage -framework CoreVideo \
+            -o out/bench
+          cp foldboard/Shared/words-*.txt foldboard/Shared/lm-*.bin foldboard/Shared/FUTO/futo-swipe-encoder-int8.pte out/
+          ls -lh out/bench out/*.pte
           # Vrais swipes (FUTO swipe.futo.org, MIT), préparés par foldboard-swipedata.yml.
-          cd ../.. && git fetch -q origin ci-swipedata && for f in test-en-qwerty.jsonl s5-fr-azerty.jsonl qwerty.json azerty.json; do git show origin/ci-swipedata:$f > out/$f 2>/dev/null || echo "absent $f"; done
+          git fetch -q origin ci-swipedata && for f in test-en-qwerty.jsonl s5-fr-azerty.jsonl qwerty.json azerty.json; do git show origin/ci-swipedata:$f > out/$f 2>/dev/null || echo "absent $f"; done
       - name: Run
         run: |
           DEV=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if 'iPhone' in x['name']))")

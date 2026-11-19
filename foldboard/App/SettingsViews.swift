@@ -599,9 +599,23 @@ extension Character {
 
 // MARK: - Écriture
 
+/// Mention exigée par la licence FUTO Model Weights 1.0 : le produit est « powered by FUTO Swipe » technology.
+/// La phrase anglaise reste affichée telle quelle dans toutes les langues, avec la traduction au-dessus.
+private var futoCredit: some View {
+    let translated = NSLocalizedString("Powered by FUTO Swipe technology.", comment: "Required FUTO Swipe attribution")
+    return VStack(alignment: .leading, spacing: 2) {
+        Text(translated).font(.caption2)
+        if translated != "Powered by FUTO Swipe technology." {
+            Text(verbatim: "Powered by FUTO Swipe technology.").font(.caption2)
+        }
+    }
+}
+
 struct TypingView: View {
     @Environment(SettingsModel.self) private var model
     @State private var showDictation = false
+    @State private var neuralTitle = ""
+    @State private var neuralDetail = ""
 
     var body: some View {
         @Bindable var m = model
@@ -619,7 +633,17 @@ struct TypingView: View {
                     Text("Word lists: FrequencyWords by Hermit Dave, CC BY-SA 4.0.").font(.caption2)
                     Text("Language model: Leipzig Corpora Collection, CC BY 4.0.").font(.caption2)
                     Text("Everyday sentences: Tatoeba, CC BY 2.0 FR.").font(.caption2)
+                    futoCredit
+                    if !neuralTitle.isEmpty {
+                        Text(neuralTitle).font(.caption2)
+                        if !neuralDetail.isEmpty { Text(neuralDetail).font(.caption2) }
+                    }
                 }
+            }
+            .onAppear {
+                let s = NeuralSwipe.userFacingStatus()
+                neuralTitle = s.title
+                neuralDetail = s.detail
             }
 
             Section {

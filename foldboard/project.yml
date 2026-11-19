@@ -10,11 +10,17 @@ options:
   createIntermediateGroups: true
 settings:
   base:
-    MARKETING_VERSION: 1.0.20
+    MARKETING_VERSION: 1.0.21
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1"
     LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+    # Le glisser neuronal (ExecuTorch 1.6, téléchargé par tools/fetch_executorch.sh avant la compilation).
+    SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) FOLDBOARD_NEURAL"
+    "OTHER_SWIFT_FLAGS[sdk=iphoneos*]": "$(inherited) -I $(SRCROOT)/Vendor/executorch.xcframework/ios-arm64/Headers"
+    "OTHER_SWIFT_FLAGS[sdk=iphonesimulator*]": "$(inherited) -I $(SRCROOT)/Vendor/executorch.xcframework/ios-arm64-simulator/Headers"
+    "OTHER_LDFLAGS[sdk=iphoneos*]": "$(inherited) -lc++ -lsqlite3 -framework Accelerate -framework CoreML -framework CoreGraphics -framework CoreImage -framework CoreVideo -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/executorch.xcframework/ios-arm64/libexecutorch_ios.a -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/backend_xnnpack.xcframework/ios-arm64/libbackend_xnnpack_ios.a -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/kernels_optimized.xcframework/ios-arm64/libkernels_optimized_ios.a -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/kleidiai.xcframework/ios-arm64/libkleidiai_ios.a -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/threadpool.xcframework/ios-arm64/libthreadpool_ios.a"
+    "OTHER_LDFLAGS[sdk=iphonesimulator*]": "$(inherited) -lc++ -lsqlite3 -framework Accelerate -framework CoreML -framework CoreGraphics -framework CoreImage -framework CoreVideo -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/executorch.xcframework/ios-arm64-simulator/libexecutorch_simulator.a -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/backend_xnnpack.xcframework/ios-arm64-simulator/libbackend_xnnpack_simulator.a -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/kernels_optimized.xcframework/ios-arm64-simulator/libkernels_optimized_simulator.a -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/kleidiai.xcframework/ios-arm64-simulator/libkleidiai_simulator.a -Xlinker -force_load -Xlinker $(SRCROOT)/Vendor/threadpool.xcframework/ios-arm64-simulator/libthreadpool_simulator.a"
 targets:
   Foldboard:
     type: application
@@ -22,6 +28,10 @@ targets:
     sources:
       - path: App
       - path: Shared
+        excludes:
+          - "FUTO/**"
+      - path: Shared/FUTO
+        buildPhase: resources
     info:
       path: App/Info.plist
       properties:
@@ -59,6 +69,10 @@ targets:
     sources:
       - path: Keyboard
       - path: Shared
+        excludes:
+          - "FUTO/**"
+      - path: Shared/FUTO
+        buildPhase: resources
     info:
       path: Keyboard/Info.plist
       properties:

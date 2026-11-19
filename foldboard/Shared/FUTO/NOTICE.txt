@@ -1,0 +1,15 @@
+futo-swipe-encoder-int8.pte is the unmodified FUTO Swipe encoder
+"honorable_sturgeon" (int8), published by FUTO Holdings, Inc. at
+https://huggingface.co/futo-org/futo-swipe
+sha256: 3480b20064b4336e7036b5b4430909f4303a9074154a0af8c75af3e458045511
+
+The weights are not modified and are not a derivative model.
+They are licensed under the FUTO Model Weights License 1.0
+(FUTO-Model-Weights-License-1.0.txt, shipped next to this file).
+
+Foldboard is powered by FUTO Swipe technology.
+Foldboard is not affiliated with, endorsed by, or sponsored by FUTO.
+The FUTO Swipe name is used only for this required notice.
+
+Inference runs with ExecuTorch (BSD license, see ExecuTorch-BSD.txt).
+The FUTO swipe-library (GPL) is not included.
