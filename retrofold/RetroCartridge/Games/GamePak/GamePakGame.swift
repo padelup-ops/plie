@@ -53,9 +53,14 @@ final class GamePakGame: PixelGameProtocol {
         reloadLibrary()
         let nc = NotificationCenter.default
         observers.append(nc.addObserver(forName: RomLibrary.imported, object: nil, queue: .main) { [weak self] n in
-            guard let self, let id = n.object as? String else { return }
+            guard let self else { return }
             self.reloadLibrary()
-            if let e = self.games.first(where: { $0.id == id }), self.gameState == .menu { self.start(e) }
+            // One game added: it starts. Several: the list shows them.
+            if let id = n.object as? String, let e = self.games.first(where: { $0.id == id }), self.gameState == .menu {
+                self.start(e)
+            } else if !self.games.isEmpty {
+                self.selection = 1
+            }
         })
         // Leaving the app saves the game, in case iOS closes it later.
         observers.append(nc.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: .main) { [weak self] _ in

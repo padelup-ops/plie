@@ -28,6 +28,20 @@ public struct AdaptiveConsoleLayout: View {
 
     /// The Game Pak asked for a game file.
     @State private var importingROM = false
+    /// A request made on the cover, answered once the Duo is open.
+    @State private var importPending = false
+    @State private var lastImporterClose = Date.distantPast
+
+    private func requestImport() {
+        // One picker at a time, and not right after one closed.
+        guard !importingROM, Date().timeIntervalSince(lastImporterClose) > 1 else { return }
+        if postureManager.isCompactWidth {
+            importPending = true
+            (appState.activeGame as? GamePakGame)?.notice = String(localized: "OPEN YOUR DUO TO LOAD A GAME")
+            return
+        }
+        importingROM = true
+    }
 
     public init() {}
 
@@ -51,23 +65,27 @@ public struct AdaptiveConsoleLayout: View {
         .animation(.easeInOut(duration: 0.3), value: postureManager.isCompactWidth)
         .overlay(alignment: .top) { demoClock }
         // Game Pak: the player picks one of their own .gb / .gbc files in Files.
+        // Game Pak: the player picks their own games in Files (files, several at once, a whole folder, or .zip).
+        // Only on the inner display: the cover is too small for Files, and presenting there loops.
         .onReceive(NotificationCenter.default.publisher(for: RomLibrary.importRequested)) { _ in
-            importingROM = true
+            requestImport()
         }
-        .fileImporter(isPresented: $importingROM, allowedContentTypes: RomLibrary.contentTypes, allowsMultipleSelection: false) { result in
+        .fileImporter(isPresented: $importingROM, allowedContentTypes: RomLibrary.contentTypes, allowsMultipleSelection: true) { result in
+            lastImporterClose = Date()
             let pak = appState.activeGame as? GamePakGame
             switch result {
             case .success(let urls):
-                guard let url = urls.first else { return }
-                do {
-                    let entry = try RomLibrary.importFile(url)
-                    NotificationCenter.default.post(name: RomLibrary.imported, object: entry.id)
-                } catch {
-                    pak?.notice = error.localizedDescription
+                let outcome = RomLibrary.importAll(urls)
+                pak?.notice = outcome.message
+                if let first = outcome.added.first {
+                    NotificationCenter.default.post(name: RomLibrary.imported, object: outcome.added.count == 1 ? first.id : nil)
+                } else {
+                    pak?.reloadLibrary()
                 }
             case .failure(let error):
                 pak?.notice = error.localizedDescription
             }
+        }
         }
         .task { await runDemoClock() }
         // The library and cover are the equipped skin's case and the overlays
@@ -94,10 +112,16 @@ public struct AdaptiveConsoleLayout: View {
         }
         .onChange(of: postureManager.isCompactWidth) { wasCompact, isCompact in
             if wasCompact && !isCompact {
+                if importPending {
+                    importPending = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { requestImport() }
+                }
                 // Unfolded: insert the cartridge chosen on the cover screen,
                 // swapping out a paused one if the player picked another
                 appState.insertCartridgeOnUnfold(isUnlocked: storeManager.isPlayable(appState.selectedGameType))
             } else if isCompact {
+                // Folded: Files closes with the cover (it reopens on unfolding)
+                if importingROM { importingROM = false; importPending = true }
                 // Folded: keep the session but pause it (app continuity)
                 appState.pauseActiveGame()
             }

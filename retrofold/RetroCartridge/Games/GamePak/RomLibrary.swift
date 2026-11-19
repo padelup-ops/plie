@@ -23,12 +23,61 @@ enum RomLibrary {
     /// Sent after a file was added, with the entry's id as the object.
     static let imported = Notification.Name("RetroFold.romImported")
 
-    /// .gb and .gbc files (declared loosely: Files often reports them as plain data).
-    static var contentTypes: [UTType] {
-        var types: [UTType] = [.data]
-        if let gb = UTType(filenameExtension: "gb") { types.insert(gb, at: 0) }
-        if let gbc = UTType(filenameExtension: "gbc") { types.insert(gbc, at: 0) }
-        return types
+    /// Any file or folder: Files greys out what it doesn't know, and game files often have no registered type.
+    /// The import itself checks each file.
+    static var contentTypes: [UTType] { [.item, .folder] }
+
+    static let romExtensions: Set<String> = ["gb", "gbc", "cgb", "sgb", "dmg"]
+
+    /// What an import did, for the Game Pak screen.
+    struct Outcome {
+        var added: [RomEntry] = []
+        var skipped = 0
+        var message: String? {
+            if added.isEmpty {
+                return String(localized: "NO GAME BOY GAME FOUND (.GB / .GBC / .ZIP)")
+            }
+            if added.count == 1 && skipped == 0 { return nil }
+            return String(localized: "\(added.count) GAMES ADDED")
+        }
+    }
+
+    /// Imports everything picked: game files, .zip archives and whole folders (searched inside).
+    static func importAll(_ urls: [URL]) -> Outcome {
+        var out = Outcome()
+        for url in urls {
+            let scoped = url.startAccessingSecurityScopedResource()
+            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+            var isDir: ObjCBool = false
+            if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir), isDir.boolValue {
+                let files = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey],
+                                                           options: [.skipsHiddenFiles])
+                var seen = 0
+                while let f = files?.nextObject() as? URL, seen < 2000 {
+                    seen += 1
+                    importOne(f, into: &out)
+                }
+            } else {
+                importOne(url, into: &out)
+            }
+        }
+        return out
+    }
+
+    private static func importOne(_ url: URL, into out: inout Outcome) {
+        let ext = url.pathExtension.lowercased()
+        if ext == "zip" {
+            guard let data = try? Data(contentsOf: url, options: .mappedIfSafe) else { out.skipped += 1; return }
+            let games = ZipReader.files(in: data) { romExtensions.contains(($0 as NSString).pathExtension.lowercased()) }
+            if games.isEmpty { out.skipped += 1 }
+            for (name, bytes) in games {
+                if let e = try? add(bytes, name: name) { out.added.append(e) } else { out.skipped += 1 }
+            }
+            return
+        }
+        guard romExtensions.contains(ext) || ext.isEmpty || ext == "bin" else { return }
+        guard let data = try? Data(contentsOf: url) else { out.skipped += 1; return }
+        if let e = try? add(data, name: url.lastPathComponent) { out.added.append(e) } else { out.skipped += 1 }
     }
 
     static var folder: URL {
@@ -63,28 +112,27 @@ enum RomLibrary {
         var errorDescription: String? { String(localized: "This file isn't a Game Boy game (.gb or .gbc).") }
     }
 
-    /// Copies a picked file into the library. Checks the cartridge header (the Nintendo logo area must be there
-    /// and the size must make sense), so random files are refused.
+    /// Adds a game to the library. Checks the cartridge header (the Nintendo logo's first bytes and a sane
+    /// size), so random files are refused.
     @discardableResult
-    static func importFile(_ url: URL) throws -> RomEntry {
-        let scoped = url.startAccessingSecurityScopedResource()
-        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-        let data = try Data(contentsOf: url)
-        guard data.count >= 0x8000, data.count <= 8 * 1024 * 1024, data.count % 0x4000 == 0 || data.count == 0x8000 else {
+    static func add(_ data: Data, name: String) throws -> RomEntry {
+        let logo: [UInt8] = [0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B]
+        guard data.count >= 0x8000, data.count <= 8 * 1024 * 1024,
+              Array(data[0x104..<0x10C]) == logo else {
             throw ImportError.notAGame
         }
-        let title = headerTitle(data) ?? url.deletingPathExtension().lastPathComponent
-        let ext = url.pathExtension.lowercased() == "gbc" ? "gbc" : "gb"
+        let base = (name as NSString).deletingPathExtension
+        let title = headerTitle(data) ?? base
+        let ext = (name as NSString).pathExtension.lowercased() == "gbc" || data[0x143] & 0x80 != 0 ? "gbc" : "gb"
         let id = "\(stableHash(data)).\(ext)"
         let dest = folder.appendingPathComponent(id)
         if !FileManager.default.fileExists(atPath: dest.path) {
             try data.write(to: dest, options: .atomic)
         }
         var list = (try? JSONDecoder().decode([RomEntry].self, from: Data(contentsOf: indexURL))) ?? []
-        if let i = list.firstIndex(where: { $0.id == id }) {
-            return list[i]
-        }
-        let entry = RomEntry(id: id, title: title, added: Date())
+        if let existing = list.first(where: { $0.id == id }) { return existing }
+        // A file name usually says more than the 11-16 letters of the header.
+        let entry = RomEntry(id: id, title: base.count > 2 ? base : title, added: Date())
         list.append(entry)
         save(list)
         return entry
@@ -119,5 +167,46 @@ enum RomLibrary {
         var h: UInt64 = 0xcbf29ce484222325
         for b in data { h = (h ^ UInt64(b)) &* 0x100000001b3 }
         return String(h, radix: 16)
+    }
+}
+
+/// Reads the files of a .zip archive (stored or deflated), enough for game archives.
+enum ZipReader {
+    static func files(in data: Data, where keep: (String) -> Bool) -> [(String, Data)] {
+        let b = [UInt8](data)
+        func u16(_ o: Int) -> Int { o + 1 < b.count ? Int(b[o]) | Int(b[o + 1]) << 8 : 0 }
+        func u32(_ o: Int) -> Int { o + 3 < b.count ? u16(o) | u16(o + 2) << 16 : 0 }
+        // End of central directory: the last "PK\u{5}\u{6}".
+        var eocd = -1
+        var i = b.count - 22
+        while i >= max(0, b.count - 66_000) {
+            if b[i] == 0x50, b[i + 1] == 0x4B, b[i + 2] == 5, b[i + 3] == 6 { eocd = i; break }
+            i -= 1
+        }
+        guard eocd >= 0 else { return [] }
+        var p = u32(eocd + 16)
+        let count = u16(eocd + 10)
+        var out: [(String, Data)] = []
+        for _ in 0..<count {
+            guard p + 46 <= b.count, u32(p) == 0x02014B50 else { break }
+            let method = u16(p + 10)
+            let csize = u32(p + 20), usize = u32(p + 24)
+            let nlen = u16(p + 28), elen = u16(p + 30), clen = u16(p + 32)
+            let local = u32(p + 42)
+            let name = String(decoding: b[(p + 46)..<min(b.count, p + 46 + nlen)], as: UTF8.self)
+            p += 46 + nlen + elen + clen
+            guard keep(name), !name.hasPrefix("__MACOSX"), usize <= 16 * 1024 * 1024, local + 30 <= b.count,
+                  u32(local) == 0x04034B50 else { continue }
+            let start = local + 30 + u16(local + 26) + u16(local + 28)
+            guard start + csize <= b.count else { continue }
+            let chunk = Data(b[start..<(start + csize)])
+            switch method {
+            case 0: out.append((name, chunk))
+            case 8:
+                if let d = try? (chunk as NSData).decompressed(using: .zlib) as Data { out.append((name, d)) }
+            default: continue
+            }
+        }
+        return out
     }
 }
