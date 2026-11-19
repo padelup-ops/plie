@@ -9,7 +9,8 @@ name: Clapet - TestFlight
 
 on:
   push:
-    branches: [main]
+    # Suspendu le temps du merge 1.0.24 : ce push ne doit pas envoyer un nouveau build.
+    branches: [hold-testflight]
     paths:
       - "clapet/Clapet/**"
       - "clapet/ClapetWidget/**"
