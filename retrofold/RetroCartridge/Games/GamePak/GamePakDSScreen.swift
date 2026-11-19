@@ -13,6 +13,11 @@ import UIKit
 struct GamePakDSScreen: View {
     let game: GamePakGame
     let showsButtons: Bool
+    /// Where the finger is on the touch screen (0 to 1), for the visual feedback.
+    @State private var touchPoint: CGPoint?
+    /// The last release, which leaves a fading ring.
+    @State private var releasePoint: CGPoint?
+    @State private var releaseFade = false
 
     var body: some View {
         GeometryReader { geo in
@@ -85,15 +90,44 @@ struct GamePakDSScreen: View {
         .overlay {
             if !top {
                 GeometryReader { g in
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { v in
-                                    game.touchDS(CGPoint(x: v.location.x / g.size.width, y: v.location.y / g.size.height))
-                                }
-                                .onEnded { _ in game.touchDS(nil) }
-                        )
+                    let r = max(14, g.size.width * 0.045)
+                    ZStack {
+                        Color.clear
+                            .contentShape(Rectangle())
+                        // Visual feedback: a dot under the finger, then a ring that fades where it let go.
+                        if let p = touchPoint {
+                            Circle()
+                                .fill(Color.white.opacity(0.35))
+                                .overlay(Circle().stroke(Color.white.opacity(0.9), lineWidth: 2))
+                                .frame(width: r * 2, height: r * 2)
+                                .position(x: p.x * g.size.width, y: p.y * g.size.height)
+                                .allowsHitTesting(false)
+                        }
+                        if let p = releasePoint {
+                            Circle()
+                                .stroke(Color.white.opacity(releaseFade ? 0 : 0.8), lineWidth: 2)
+                                .frame(width: r * (releaseFade ? 4 : 2), height: r * (releaseFade ? 4 : 2))
+                                .position(x: p.x * g.size.width, y: p.y * g.size.height)
+                                .allowsHitTesting(false)
+                        }
+                    }
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { v in
+                                let p = CGPoint(x: min(max(v.location.x / g.size.width, 0), 1),
+                                                y: min(max(v.location.y / g.size.height, 0), 1))
+                                if touchPoint == nil { UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.6) }
+                                touchPoint = p
+                                game.touchDS(p)
+                            }
+                            .onEnded { _ in
+                                releasePoint = touchPoint
+                                touchPoint = nil
+                                game.touchDS(nil)
+                                releaseFade = false
+                                withAnimation(.easeOut(duration: 0.35)) { releaseFade = true }
+                            }
+                    )
                 }
             }
         }
@@ -191,6 +225,9 @@ private struct PakHoldButton<Label: View>: View {
 
     var body: some View {
         label(down)
+            .scaleEffect(down ? 0.88 : 1)
+            .shadow(color: .white.opacity(down ? 0.45 : 0), radius: down ? 8 : 0)
+            .animation(.easeOut(duration: 0.08), value: down)
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 0)
