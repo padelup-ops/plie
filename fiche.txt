@@ -1,0 +1,8 @@
+ok     identifiant déjà là : com.padelup.foldboard
+ok     identifiant déjà là : com.padelup.foldboard.keyboard
+FICHE  ok 6832556606
+GROUPE Foldboard interne | interne
+GROUPE Premiers testeurs | externe
+       rôles ['ACCOUNT_HOLDER', 'ADMIN'] | toutes les apps True
+ÉCHEC  testeur padelup.app@gmail.com Tester(s) cannot be assigned
+ok     testeur interne déjà là : hfreecsapple@gmail.com
