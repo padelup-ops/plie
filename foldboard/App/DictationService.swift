@@ -83,9 +83,11 @@ final class DictationService {
         status = .starting
         // Avec Parakeet, seul le micro est demandé (la reconnaissance d'Apple ne sert qu'en secours, si déjà permise).
         if useParakeet {
-            AVAudioApplication.requestRecordPermission { mic in
-                DispatchQueue.main.async {
-                    self.prepare(speech: SFSpeechRecognizer.authorizationStatus() == .authorized, mic: mic)
+            // La reconnaissance d'Apple est aussi demandée (une fois) : c'est elle qui sert à la dictée directement
+            // dans le clavier, quand l'app n'est pas ouverte.
+            SFSpeechRecognizer.requestAuthorization { auth in
+                AVAudioApplication.requestRecordPermission { mic in
+                    DispatchQueue.main.async { self.prepare(speech: auth == .authorized, mic: mic) }
                 }
             }
             return

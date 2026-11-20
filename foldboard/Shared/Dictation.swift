@@ -6,6 +6,17 @@ import Foundation
 /// des notifications du système (sans contenu), et le texte passe par le trousseau partagé.
 /// La voix est transcrite sur l'iPhone (reconnaissance d'Apple, sans internet) : rien n'est envoyé ni gardé.
 enum KBDictation {
+    /// La langue de la dictée : celle de la disposition du clavier.
+    static func localeID() -> String {
+        switch KBVault.loadSettings().layout {
+        case .azerty: return "fr-FR"
+        case .qwertz: return "de-DE"
+        case .spanish: return "es-ES"
+        case .swedish: return "sv-SE"
+        case .qwerty: return Locale.current.language.languageCode?.identifier == "en" ? Locale.current.identifier : "en-US"
+        }
+    }
+
     static let ping = "com.padelup.foldboard.dict.ping"
     static let pong = "com.padelup.foldboard.dict.pong"
     static let start = "com.padelup.foldboard.dict.start"
