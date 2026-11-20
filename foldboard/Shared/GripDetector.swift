@@ -434,6 +434,13 @@ final class GripDetector {
         return negative == rightNegative ? .right : .left
     }
 
+    /// Un doigt touche le clavier (une touche, le globe, un bouton de la barre) : pour atteindre un coin, on
+    /// penche le téléphone sans changer de main. L'inclinaison attend la fin du geste avant de lire quoi que ce soit.
+    func noteActivity() {
+        lastTapTime = now
+        tiltStreak = nil
+    }
+
     /// En continu : si le téléphone change franchement de main, le clavier suit.
     private func checkTilt() {
         // L'inclinaison place le clavier quand il apparaît ; ensuite, elle ne le bouge que si le téléphone change

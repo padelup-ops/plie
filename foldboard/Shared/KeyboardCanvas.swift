@@ -689,7 +689,7 @@ final class KeyboardCanvas: UIView {
         hideButton.accessibilityLabel = L("Hide keyboard")
         hideButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(showPerf(_:))))
         globeButton.setImage(UIImage(systemName: "globe"), for: .normal)
-        globeButton.addAction(UIAction { [weak self] _ in self?.input?.kbNextKeyboard() }, for: .touchUpInside)
+        globeButton.addAction(UIAction { [weak self] _ in self?.globeTapped() }, for: .touchUpInside)
         emojiButton.setImage(UIImage(systemName: "face.smiling"), for: .normal)
         emojiButton.addAction(UIAction { [weak self] _ in
             guard let self else { return }
@@ -1145,13 +1145,25 @@ final class KeyboardCanvas: UIView {
         if visible && g != nil && !gripStarted { startGrip() }
     }
 
+    /// Le globe : on passe à un autre clavier. Au retour (dans les deux minutes), Foldboard revient exactement là
+    /// où il était, sans relire l'inclinaison (c'est en tendant le pouce vers le globe qu'on penche le téléphone).
+    private static let globeKey = "foldboard.globeAt"
+    private func globeTapped() {
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.globeKey)
+        input?.kbNextKeyboard()
+    }
+
     private var gripStarted = false
     private func startGrip() {
         gripStarted = true
         grip.onGrip = { [weak self] g in self?.gripDetected(g) }
         grip.onUnlock = { [weak self] in self?.layoutTopBar() }
+        let fromGlobe = Date().timeIntervalSince1970 - UserDefaults.standard.double(forKey: Self.globeKey) < 120
+        if fromGlobe { UserDefaults.standard.removeObject(forKey: Self.globeKey) }
         grip.start { [weak self] g in
             guard let self, let g, self.autoOn, self.gripMoves else { return }
+            // Retour par le globe : le clavier reste du côté où il était.
+            if fromGlobe { return }
             // Sans posture « deux mains » étalonnée, l'inclinaison ne fait pas quitter le mode deux mains.
             if self.settings.autoTwo && self.settings.calib[self.gripContext]?["two"] == nil { return }
             self.applyGrip(g)
@@ -2195,6 +2207,9 @@ final class KeyboardCanvas: UIView {
     /// Ces boutons sont rangés dans la place libre, donc hors de la barre du haut qui les porte : sans ceci,
     /// iOS ne les trouve pas sous le doigt et l'appui part à la place libre (le clavier changeait de côté).
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        // Tout appui (touches, globe, barre) suspend la lecture de l'inclinaison : atteindre le globe dans un coin
+        // fait pencher le téléphone, ce n'est pas un changement de main.
+        if event?.type == .touches, gripStarted { grip.noteActivity() }
         if sideButtonsGrid != nil, !isHidden, isUserInteractionEnabled {
             let q = convert(point, to: topBar)
             for b in [globeButton, emojiButton, micButton, clipButton, adjustButton, hideButton] where !b.isHidden && b.alpha > 0.01 && b.frame.contains(q) {
@@ -3054,7 +3069,7 @@ final class KeyboardCanvas: UIView {
             builtFor = .zero
             rebuild()
         case .globe:
-            input?.kbNextKeyboard()
+            globeTapped()
         case .emoji:
             emojiQuery = nil
             showEmoji = true
