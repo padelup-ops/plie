@@ -27,8 +27,23 @@ final class Browser {
     /// Split on the unfolded Duo (on by default) and on the cover screen / other iPhones (off by default).
     var innerSplit = true
     var outerSplit = false
-    /// The first pane's share when there is no fold to split at.
+    /// The first pane's share when the handle decides (no fold, or the handle was dragged).
     var ratio: Double = 0.5
+    /// On an unfolded Duo the panes meet at the fold until the handle is dragged (double tap the handle: back).
+    var followsFold = true
+
+    /// Top and bottom, side by side, or automatic (along the fold, or across the longer side).
+    enum SplitAxis: String, CaseIterable { case auto, stacked, sideBySide }
+    var axis: SplitAxis = SplitAxis(rawValue: UserDefaults.standard.string(forKey: "splitAxis") ?? "") ?? .auto
+
+    func setAxis(_ a: SplitAxis) {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+            axis = a
+            followsFold = true
+            if !isSplit { isSplit = true }
+        }
+        UserDefaults.standard.set(a.rawValue, forKey: "splitAxis")
+    }
     /// Set by the view: the display has a fold (an unfolded iPhone Duo).
     var hasFold = false
 

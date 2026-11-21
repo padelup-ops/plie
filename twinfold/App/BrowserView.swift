@@ -49,7 +49,7 @@ struct PanesArea: View {
     var body: some View {
         GeometryReader { geo in
             let fold = geo.reservedRegions(kind: .division, options: .includeInactive).first?.frame
-            let layout = PaneLayout(size: geo.size, fold: fold, ratio: browser.ratio)
+            let layout = PaneLayout(size: geo.size, fold: fold, ratio: browser.ratio, axis: browser.axis, followsFold: browser.followsFold)
             let split = browser.isSplit
 
             ZStack(alignment: .topLeading) {
@@ -74,7 +74,8 @@ struct PanesArea: View {
     }
 }
 
-/// Where the two panes go. With a fold, the split is the fold; without one, the ratio decides, across the longer side.
+/// Where the two panes go. Top and bottom or side by side (the person's choice, or automatic: along the fold, or
+/// across the longer side). On the fold until the handle is dragged; then wherever the handle says.
 struct PaneLayout {
     let first: CGRect
     let second: CGRect
@@ -82,27 +83,36 @@ struct PaneLayout {
     let atFold: Bool
     /// The gap between the panes (the fold, or the handle's line).
     let gap: CGRect
+    /// The first pane's share of the screen, whatever decided it (so a drag can start from the fold).
+    let share: Double
 
     static let handleGap: CGFloat = 6
 
-    init(size: CGSize, fold: CGRect?, ratio: Double) {
-        if let fold, fold.width != fold.height {
+    init(size: CGSize, fold: CGRect?, ratio: Double, axis: Browser.SplitAxis, followsFold: Bool) {
+        let foldSideBySide: Bool? = fold.flatMap { $0.width != $0.height ? $0.height > $0.width : nil }
+        switch axis {
+        case .stacked: sideBySide = false
+        case .sideBySide: sideBySide = true
+        case .auto: sideBySide = foldSideBySide ?? (size.width > size.height)
+        }
+        if let fold, followsFold, foldSideBySide == sideBySide {
             atFold = true
-            sideBySide = fold.height > fold.width
             if sideBySide {
                 let lo = max(0, fold.minX), hi = min(size.width, fold.maxX)
                 first = CGRect(x: 0, y: 0, width: lo, height: size.height)
                 second = CGRect(x: hi, y: 0, width: size.width - hi, height: size.height)
                 gap = CGRect(x: lo, y: 0, width: hi - lo, height: size.height)
+                share = Double((lo + hi) / 2 / max(size.width, 1))
             } else {
                 let lo = max(0, fold.minY), hi = min(size.height, fold.maxY)
                 first = CGRect(x: 0, y: 0, width: size.width, height: lo)
                 second = CGRect(x: 0, y: hi, width: size.width, height: size.height - hi)
                 gap = CGRect(x: 0, y: lo, width: size.width, height: hi - lo)
+                share = Double((lo + hi) / 2 / max(size.height, 1))
             }
         } else {
             atFold = false
-            sideBySide = size.width > size.height
+            share = ratio
             let g = Self.handleGap
             if sideBySide {
                 let w = (size.width - g) * ratio
@@ -130,22 +140,29 @@ private struct PaneDivider: View {
         let g = layout.gap
         ZStack {
             Rectangle().fill(Color(.separator).opacity(layout.atFold ? 0 : 0.6))
-            if !layout.atFold {
-                Capsule()
-                    .fill(Brand.accent)
-                    .frame(width: layout.sideBySide ? 4 : 44, height: layout.sideBySide ? 44 : 4)
-            }
+            // The grip: drag it to give one page more room, even on the fold.
+            Capsule()
+                .fill(Brand.coral)
+                .frame(width: layout.sideBySide ? 5 : 46, height: layout.sideBySide ? 46 : 5)
+                .shadow(color: .black.opacity(0.25), radius: 2)
         }
         .frame(width: g.width, height: g.height)
-        .contentShape(Rectangle().inset(by: -14))
+        .contentShape(Rectangle().inset(by: -16))
         .offset(x: g.minX, y: g.minY)
-        .gesture(drag, isEnabled: !layout.atFold)
+        .highPriorityGesture(drag)
         .onTapGesture(count: 2) {
-            guard !layout.atFold else { return }
-            withAnimation(.spring(response: 0.3)) { browser.ratio = 0.5 }
+            // Back to the fold (or half and half).
+            withAnimation(.spring(response: 0.3)) {
+                browser.ratio = 0.5
+                browser.followsFold = true
+            }
         }
         .contextMenu {
             Button("Swap Panes", systemImage: "arrow.up.arrow.down") { browser.swap() }
+            Button(LocalizedStringKey(layout.sideBySide ? "Top and Bottom" : "Side by Side"),
+                   systemImage: layout.sideBySide ? "rectangle.split.1x2" : "rectangle.split.2x1") {
+                browser.setAxis(layout.sideBySide ? .stacked : .sideBySide)
+            }
             Button("One Page", systemImage: "rectangle") { browser.toggleSplit() }
             if browser.canSavePair {
                 Button("Save as Pair", systemImage: "star") { browser.sheet = .savePair }
@@ -164,11 +181,12 @@ private struct PaneDivider: View {
     private var drag: some Gesture {
         DragGesture(minimumDistance: 2)
             .onChanged { v in
-                let start = startRatio ?? browser.ratio
+                let start = startRatio ?? layout.share
                 if startRatio == nil { startRatio = start }
                 let total = layout.sideBySide ? size.width : size.height
                 let delta = (layout.sideBySide ? v.translation.width : v.translation.height) / max(total, 1)
-                browser.ratio = min(0.8, max(0.2, start + delta))
+                browser.followsFold = false
+                browser.ratio = min(0.85, max(0.15, start + delta))
             }
             .onEnded { _ in
                 startRatio = nil

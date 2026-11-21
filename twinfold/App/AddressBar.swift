@@ -87,9 +87,14 @@ struct AddressBar: View {
     }
 
     private var paneIsSideBySide: Bool {
-        // Close enough for the icons: the open Duo held sideways, or any landscape screen.
-        let size = UIScreen.main.bounds.size
-        return size.width > size.height
+        switch browser.axis {
+        case .stacked: return false
+        case .sideBySide: return true
+        case .auto:
+            // Close enough for the icons: the open Duo held sideways, or any landscape screen.
+            let size = UIScreen.main.bounds.size
+            return size.width > size.height
+        }
     }
 
     private func addressText(_ tab: Tab?) -> String {
@@ -233,6 +238,14 @@ struct MainMenu: View {
                 Label("Ask AI in the Other Pane", systemImage: "sparkles")
             }
             Section {
+                Picker(selection: Binding(get: { browser.axis }, set: { browser.setAxis($0) })) {
+                    Label("Automatic", systemImage: "rectangle.on.rectangle").tag(Browser.SplitAxis.auto)
+                    Label("Top and Bottom", systemImage: "rectangle.split.1x2").tag(Browser.SplitAxis.stacked)
+                    Label("Side by Side", systemImage: "rectangle.split.2x1").tag(Browser.SplitAxis.sideBySide)
+                } label: {
+                    Label("Two Pages", systemImage: "rectangle.split.2x1")
+                }
+                .pickerStyle(.menu)
                 if browser.isSplit {
                     Button("Swap Panes", systemImage: "arrow.up.arrow.down") { browser.swap() }
                     if browser.canSavePair {

@@ -25,6 +25,10 @@ on:
         description: "Secondes de vidéo à filmer sur l'écran intérieur pour chaque capture (vide = images seulement)"
         required: false
         default: ""
+      device:
+        description: "Simulateur (partie du nom : Duo, iPhone 17 Pro Max, iPad Pro 13)"
+        required: false
+        default: "Duo"
       resize:
         description: "Taille en points pour le mode redimensionnable (ex. 669x951 : l'écran intérieur tenu en portrait) ; vide = captures normales"
         required: false
@@ -42,22 +46,24 @@ jobs:
         run: |
           XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
           sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
-      - name: Compiler et installer sur le simulateur Duo
+      - name: Compiler et installer sur le simulateur
+        env:
+          DEVICE: ${{ inputs.device }}
         run: |
           mkdir -p shots
           find_runtime() {
             xcrun simctl list runtimes -j | python3 -c "
-          import json, sys
+          import json, os, sys
           rs = [r for r in json.load(sys.stdin)['runtimes']
                 if r.get('platform') == 'iOS' and r.get('isAvailable')
-                and any('Duo' in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
+                and any(os.environ['DEVICE'] in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
           print(rs[-1]['identifier'] if rs else '')"
           }
           RUNTIME=$(find_runtime)
           if [ -z "$RUNTIME" ]; then xcodebuild -downloadPlatform iOS 2>&1 | tail -3; RUNTIME=$(find_runtime); fi
           DT=$(xcrun simctl list devicetypes -j | python3 -c "
-          import json, sys
-          d = [x for x in json.load(sys.stdin)['devicetypes'] if 'Duo' in x['name']]
+          import json, os, sys
+          d = [x for x in json.load(sys.stdin)['devicetypes'] if os.environ['DEVICE'] in x['name']]
           print(d[0]['identifier'] if d else '')")
           echo "runtime=$RUNTIME device=$DT" | tee shots/simulateur.txt
           UDID=$(xcrun simctl create "Twinfold Duo" "$DT" "$RUNTIME")
@@ -74,6 +80,7 @@ jobs:
           APP=$(find build -name "Twinfold.app" -path "*iphonesimulator*" | head -1)
           xcrun simctl install "$UDID" "$APP"
           # Plier ou déplier le simulateur (outil libre duo-hinge, récupéré au moment du job, jamais copié dans le dépôt)
+          if [ "$DEVICE" != "Duo" ]; then exit 0; fi
           git clone -q --depth 1 https://github.com/BugenZhao/duo-hinge-skill "$RUNNER_TEMP/hinge"
           DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" ${{ inputs.pose }} 2>&1 | tail -3 | tee -a shots/simulateur.txt || true
           sleep 3
