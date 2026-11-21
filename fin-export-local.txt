@@ -1,0 +1,4 @@
+2026-11-21 17:23:28.008 xcodebuild[16081:46141] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/RetroCartridge_2026-11-21_17-23-28.005.xcdistributionlogs".
+Exported RetroCartridge to: /Users/runner/work/_temp/local
+** EXPORT SUCCEEDED **
+
