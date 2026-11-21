@@ -185,7 +185,8 @@ struct VideoNotesPane: View {
     private func add() {
         let text = draft
         Task {
-            let t = stamp ?? (await videoTab?.videoTime()) ?? 0
+            var t = stamp ?? 0
+            if stamp == nil, let now = await videoTab?.videoTime() { t = now }
             VideoNotes.shared.add(text, at: t, for: videoTab?.url)
             draft = ""
             stamp = await videoTab?.videoTime()
