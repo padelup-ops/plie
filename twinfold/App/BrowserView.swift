@@ -259,6 +259,10 @@ struct PaneView: View {
                 if tab.isBlank {
                     StartPage(pane: index)
                 }
+                if pane.tool == .videoNotes {
+                    VideoNotesPane(pane: index)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
                 if tab.isLoading && tab.progress < 1 {
                     ProgressView(value: tab.progress)
                         .progressViewStyle(.linear)
@@ -268,8 +272,13 @@ struct PaneView: View {
                 }
             }
         }
+        .overlay(alignment: .bottom) {
+            if let tab = pane.tab, tab.autoScrollSpeed > 0, pane.tool == nil {
+                AutoScrollControls(tab: tab).padding(.bottom, 12)
+            }
+        }
         .overlay(alignment: .bottomTrailing) {
-            if let tab = pane.tab, tab.mediaPlaying || tab.isMuted || tab.isFilled {
+            if let tab = pane.tab, pane.tool == nil, tab.mediaPlaying || tab.isMuted || tab.isFilled {
                 MediaControls(tab: tab)
                     .padding(10)
                     .transition(.scale.combined(with: .opacity))

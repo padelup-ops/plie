@@ -26,6 +26,8 @@ final class Tab: NSObject, Identifiable {
     /// Shown in the address bar instead of the real address (sample pages for the App Store screenshots).
     var displayHost: String?
 
+    /// Hands-free reading speed (points per second), 0 when the page doesn't scroll by itself.
+    var autoScrollSpeed: Double = 0
     /// The page's feed (RSS or Atom), when it offers one: the site can be followed.
     private(set) var feedURL: URL?
     /// Something plays in the page (sound or video), and whether it is a video.
@@ -232,6 +234,7 @@ extension Tab: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         feedURL = nil
+        autoScrollSpeed = 0
         frameMedia = [:]
         mediaPlaying = false
         mediaVideo = false

@@ -250,6 +250,10 @@ struct MainMenu: View {
                     Button(LocalizedStringKey(tab?.wantsDesktop == true ? "Mobile Site" : "Desktop Site"),
                            systemImage: tab?.wantsDesktop == true ? "iphone" : "desktopcomputer") { tab?.toggleDesktop() }
                     Button("Reader View", systemImage: "doc.plaintext") { browser.sheet = .reader }
+                    Button("Video Notes", systemImage: "note.text") {
+                        Store.shared.gate(.videoNotes) { browser.openVideoNotes() }
+                    }
+                    Button("Hands-Free Reading", systemImage: "arrow.down.to.line.compact") { tab?.autoScroll(60) }
                     Button("Translate in the Other Pane", systemImage: "character.book.closed") {
                         Store.shared.gate(.bilingual) { browser.translateInOtherPane() }
                     }

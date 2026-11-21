@@ -7,11 +7,15 @@ import Observation
 import SwiftUI
 import WebKit
 
+enum PaneTool { case videoNotes }
+
 @MainActor @Observable
 final class Pane: Identifiable {
     let id = UUID()
     var tabs: [Tab] = []
     var current: Int = 0
+    /// A Twinfold tool shown in this pane instead of the page (the page stays behind it).
+    var tool: PaneTool?
 
     var tab: Tab? { tabs.indices.contains(current) ? tabs[current] : nil }
 }
@@ -334,5 +338,18 @@ final class Browser {
             other.setMuted(true)
         }
         tab.toggleMute()
+    }
+
+    /// The other pane becomes a notebook timed to the video in this one.
+    func openVideoNotes() {
+        let video = active
+        withAnimation(.spring(response: 0.35)) {
+            panes[1 - video].tool = .videoNotes
+            if !isSplit { isSplit = true }
+        }
+    }
+
+    func closeTool(in pane: Int) {
+        withAnimation(.spring(response: 0.3)) { panes[pane].tool = nil }
     }
 }

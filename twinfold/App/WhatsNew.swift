@@ -14,6 +14,8 @@ enum WhatsNew {
     /// Newest first. Each item: an SF Symbol and a short line.
     static let releases: [Release] = [
         Release(version: "1.0", items: [
+            ("note.text", "Video notes: write beside a video, each note keeps its moment"),
+            ("arrow.down.to.line.compact", "Hands-free reading: the page scrolls by itself"),
             ("link", "Linked panes: tap links on one side, they open on the other"),
             ("character.book.closed", "Bilingual reading: a page and its translation, scrolling together"),
             ("rectangle.split.1x2.fill", "Search twice: your search engine and an AI answer, side by side"),
