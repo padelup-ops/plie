@@ -234,12 +234,26 @@ final class ScrollSync {
         }
     }
 
+    private var lastY: [ObjectIdentifier: CGFloat] = [:]
+
     private func scrolled(_ tab: Tab, _ sv: UIScrollView) {
         let browser = Browser.shared
+        // The floating bubble shrinks while reading down, and comes back when scrolling up.
+        let id = ObjectIdentifier(sv)
+        let y = sv.contentOffset.y
+        if sv.isDragging, browser.activeTab === tab, let last = lastY[id] {
+            let dy = y - last
+            let atTop = y <= -sv.adjustedContentInset.top + 4
+            if (dy > 6 && !browser.barCompact && !atTop) || ((dy < -6 || atTop) && browser.barCompact) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) { browser.barCompact = dy > 6 && !atTop }
+            }
+        }
+        lastY[id] = y
         guard browser.syncScroll, browser.isSplit, browser.maximized == nil, !applying,
               sv.isTracking || sv.isDragging || sv.isDecelerating,
               let i = browser.paneIndex(of: tab), browser.panes[i].tab === tab,
               let other = browser.panes[1 - i].tab?.webView.scrollView else { return }
+        _ = id
         // The same share of each page: halfway down here, halfway down there.
         let range = max(1, sv.contentSize.height - sv.bounds.height + sv.adjustedContentInset.top + sv.adjustedContentInset.bottom)
         let f = min(1, max(0, (sv.contentOffset.y + sv.adjustedContentInset.top) / range))

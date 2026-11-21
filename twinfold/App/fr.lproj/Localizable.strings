@@ -234,3 +234,17 @@
 "Hands-Free Reading" = "Lecture sans les mains";
 "Video notes: write beside a video, each note keeps its moment" = "Notes vidéo : écrivez à côté d'une vidéo, chaque note garde son moment";
 "Hands-free reading: the page scrolls by itself" = "Lecture sans les mains : la page défile toute seule";
+"Normal (%lld)" = "Normaux (%lld)";
+"Private (%lld)" = "Privés (%lld)";
+"Bottom of the Page" = "En bas de la page";
+"Top of the Page" = "En haut de la page";
+"Bar" = "Barre";
+"Side Dock with Your Tabs" = "Dock latéral avec vos onglets";
+"Layout" = "Disposition";
+"Size" = "Taille";
+"Half and Half" = "Moitié-moitié";
+"Top One Third" = "Haut à un tiers";
+"Top Two Thirds" = "Haut aux deux tiers";
+"Left One Third" = "Gauche à un tiers";
+"Left Two Thirds" = "Gauche aux deux tiers";
+"Video Priority" = "Priorité à la vidéo";

@@ -11,34 +11,34 @@ struct BrowserView: View {
 
     var body: some View {
         @Bindable var browser = browser
-        VStack(spacing: 0) {
+        ZStack {
+            Color(.secondarySystemBackground).ignoresSafeArea()
+            // The pages run edge to edge (under the Duo's side band too); the controls float over the active page.
             PanesArea()
+                .ignoresSafeArea()
                 .overlay(alignment: .topTrailing) {
                     if browser.maximized != nil && browser.isSplit {
                         Button { browser.toggleMaximize() } label: {
                             Image(systemName: "rectangle.split.2x1")
                                 .font(.system(size: 15, weight: .semibold))
-                                .frame(width: 36, height: 36)
-                                .background(.thinMaterial, in: Circle())
+                                .frame(width: 38, height: 38)
                         }
+                        .buttonStyle(.plain)
+                        .glassEffect(.regular.interactive(), in: .circle)
                         .padding(10)
                         .accessibilityLabel(Text("Back to Two Pages"))
                     }
                 }
-            if browser.barHidden {
-                // The bar stepped aside: a touch on the bottom edge brings it back.
-                Capsule().fill(Color.secondary.opacity(0.5)).frame(width: 60, height: 5)
-                    .frame(maxWidth: .infinity, minHeight: 18)
-                    .contentShape(Rectangle())
-                    .onTapGesture { withAnimation { browser.barHiddenUntil = nil } }
-                    .accessibilityLabel(Text("Show the Bar"))
-                    .accessibilityAddTraits(.isButton)
-            } else {
-                AddressBar()
+        }
+        .overlay(alignment: .bottom) {
+            if browser.editingAddress {
+                AddressPanel()
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .background(Color(.secondarySystemBackground).ignoresSafeArea())
+        .fullScreenCover(isPresented: Binding(get: { browser.overviewShown }, set: { browser.overviewShown = $0 })) {
+            TabOverview()
+        }
         .overlay(alignment: .top) {
             if let toast = browser.toast {
                 Text(toast)
@@ -68,7 +68,7 @@ struct BrowserView: View {
         .overlay(alignment: .bottom) {
             if let s = browser.pairSuggestion {
                 PairSuggestionBanner(text: s)
-                    .padding(.bottom, 74)
+                    .padding(.bottom, 70)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
@@ -114,10 +114,40 @@ struct PanesArea: View {
                     PaneDivider(layout: layout, size: geo.size)
                         .zIndex(2)
                 }
+                if !browser.editingAddress && !browser.barHidden {
+                    let f = split ? (browser.active == 0 ? layout.first : layout.second) : CGRect(origin: .zero, size: geo.size)
+                    let insets = Self.windowInsets
+                    let atTop = Library.shared.barAtTop
+                    // Above the home indicator / under the status bar only when the page reaches that edge.
+                    let bottomGap = f.maxY >= geo.size.height - 1 ? max(insets.bottom, 12) + 6 : 14
+                    let topGap = f.minY <= 1 ? max(insets.top, 12) + 6 : 14
+                    let rightBand = f.maxX >= geo.size.width - 1 ? insets.right : 0
+                    let leftBand = f.minX <= 1 ? insets.left : 0
+                    if Library.shared.sideDock && !browser.barCompact && browser.overviewShown == false {
+                        SideDock()
+                            .position(x: f.minX + leftBand + 26, y: f.midY + min(60, f.height * 0.12))
+                            .zIndex(3)
+                            .transition(.move(edge: .leading).combined(with: .opacity))
+                    }
+                    FloatingBar()
+                        .frame(maxWidth: max(120, f.width - 24 - rightBand - leftBand))
+                        .position(x: f.midX + (leftBand - rightBand) / 2,
+                                  y: atTop ? f.minY + topGap + 22 : f.maxY - bottomGap - 22)
+                        .zIndex(3)
+                        .transition(.opacity)
+                }
             }
             .onAppear { browser.hasFold = fold != nil }
             .onChange(of: fold != nil) { _, has in browser.hasFold = has }
         }
+    }
+}
+
+extension PanesArea {
+    /// The screen's own safe area (the pages ignore it, the floating bar doesn't).
+    static var windowInsets: UIEdgeInsets {
+        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+        return scene?.keyWindow?.safeAreaInsets ?? .zero
     }
 }
 
@@ -205,6 +235,17 @@ private struct PaneDivider: View {
             }
         }
         .contextMenu {
+            Section("Size") {
+                Button("Half and Half", systemImage: "rectangle.split.1x2") { setRatio(0.5) }
+                Button(LocalizedStringKey(layout.sideBySide ? "Left One Third" : "Top One Third"), systemImage: "rectangle.tophalf.inset.filled") { setRatio(1.0 / 3) }
+                Button(LocalizedStringKey(layout.sideBySide ? "Left Two Thirds" : "Top Two Thirds"), systemImage: "rectangle.bottomhalf.inset.filled") { setRatio(2.0 / 3) }
+                if !layout.sideBySide {
+                    // Just tall enough for a 16:9 video across the width, the rest for the other page.
+                    Button("Video Priority", systemImage: "play.rectangle") {
+                        setRatio(min(0.7, max(0.2, Double(size.width * 9 / 16 + 8) / Double(max(size.height, 1)))))
+                    }
+                }
+            }
             Button("Swap Panes", systemImage: "arrow.up.arrow.down") { browser.swap() }
             Button(LocalizedStringKey(layout.sideBySide ? "Top and Bottom" : "Side by Side"),
                    systemImage: layout.sideBySide ? "rectangle.split.1x2" : "rectangle.split.2x1") {
@@ -222,6 +263,13 @@ private struct PaneDivider: View {
             case .decrement: browser.ratio = max(0.2, browser.ratio - 0.1)
             default: break
             }
+        }
+    }
+
+    private func setRatio(_ r: Double) {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+            browser.followsFold = false
+            browser.ratio = r
         }
     }
 

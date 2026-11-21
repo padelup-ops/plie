@@ -9,3 +9,5 @@
 "%lld Seconds" = "%lld Seconds";
 "Version %@" = "Version %@";
 "Unlock for %@" = "Unlock for %@";
+"Normal (%lld)" = "Normal (%lld)";
+"Private (%lld)" = "Private (%lld)";

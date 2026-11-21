@@ -374,6 +374,15 @@ struct SettingsSheet: View {
                     NavigationLink("What's New") { WhatsNewList() }
                 }
                 Section {
+                    Picker("Bar", selection: $lib.barAtTop) {
+                        Text("Bottom of the Page").tag(false)
+                        Text("Top of the Page").tag(true)
+                    }
+                    Toggle("Side Dock with Your Tabs", isOn: $lib.sideDock)
+                } header: {
+                    Text("Layout")
+                }
+                Section {
                     Toggle("Video Above When Half Folded", isOn: $lib.laptopPosture)
                 } header: {
                     Text("iPhone Duo")

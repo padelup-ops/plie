@@ -12,7 +12,7 @@ struct AddressBar: View {
     var body: some View {
         Group {
             if browser.editingAddress {
-                AddressEditor()
+                AddressEditorView()
             } else {
                 controls
             }
@@ -83,7 +83,7 @@ struct AddressBar: View {
                             LocalizedStringKey(browser.isSplit ? "One page" : "Two pages")) { browser.toggleSplit() }
 
                 Button {
-                    browser.sheet = .tabs
+                    browser.showOverview()
                 } label: {
                     Text("\(browser.activePane.tabs.count)")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -146,7 +146,7 @@ struct AddressBar: View {
 
 // MARK: - Editing the address
 
-private struct AddressEditor: View {
+struct AddressEditorView: View {
     @Environment(Browser.self) private var browser
     @State private var text = ""
     @FocusState private var focused: Bool
@@ -217,6 +217,8 @@ private struct AddressEditor: View {
 
 struct MainMenu: View {
     @Environment(Browser.self) private var browser
+    /// Inside the floating bubble: a plain icon (the bubble is the glass).
+    var compact = false
     @State private var importing = false
 
     var body: some View {
@@ -330,12 +332,12 @@ struct MainMenu: View {
             }
         } label: {
             Image(systemName: "ellipsis")
-                .font(.system(size: 17, weight: .bold))
-                .frame(width: 46, height: 46)
+                .font(.system(size: compact ? 15 : 17, weight: .bold))
+                .frame(width: compact ? 38 : 46, height: compact ? 40 : 46)
                 .contentShape(Circle())
         }
         .foregroundStyle(.primary)
-        .glassEffect(.regular.interactive(), in: .circle)
+        .glassEffect(.regular.interactive(), in: .circle, isEnabled: !compact)
         .accessibilityLabel(Text("Menu"))
     }
 }

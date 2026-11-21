@@ -86,6 +86,15 @@ final class Library {
         didSet { defaults.set(twoFingerGestures, forKey: "twoFingerGestures") }
     }
 
+    /// The floating bar sits at the top of the page instead of the bottom.
+    var barAtTop: Bool = UserDefaults.standard.bool(forKey: "barAtTop") {
+        didSet { UserDefaults.standard.set(barAtTop, forKey: "barAtTop") }
+    }
+    /// The active page's tabs as icons on its edge.
+    var sideDock: Bool = UserDefaults.standard.object(forKey: "sideDock") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(sideDock, forKey: "sideDock") }
+    }
+
     /// iPhone Duo half folded: the video above fills its half.
     var laptopPosture: Bool = UserDefaults.standard.object(forKey: "laptopPosture") as? Bool ?? true {
         didSet { UserDefaults.standard.set(laptopPosture, forKey: "laptopPosture") }

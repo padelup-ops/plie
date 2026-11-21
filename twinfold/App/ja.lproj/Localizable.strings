@@ -234,3 +234,17 @@
 "Hands-Free Reading" = "ハンズフリー読書";
 "Video notes: write beside a video, each note keeps its moment" = "動画メモ：動画の隣で書くと、各メモが時刻を記録";
 "Hands-free reading: the page scrolls by itself" = "ハンズフリー読書：ページが自動でスクロール";
+"Normal (%lld)" = "通常（%lld）";
+"Private (%lld)" = "プライベート（%lld）";
+"Bottom of the Page" = "ページの下";
+"Top of the Page" = "ページの上";
+"Bar" = "バー";
+"Side Dock with Your Tabs" = "タブのサイドドック";
+"Layout" = "レイアウト";
+"Size" = "サイズ";
+"Half and Half" = "半分ずつ";
+"Top One Third" = "上を1/3";
+"Top Two Thirds" = "上を2/3";
+"Left One Third" = "左を1/3";
+"Left Two Thirds" = "左を2/3";
+"Video Priority" = "動画優先";

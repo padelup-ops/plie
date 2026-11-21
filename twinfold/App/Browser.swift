@@ -67,6 +67,10 @@ final class Browser {
     var sheet: SheetKind?
     var editingAddress = false
     var toast: String?
+    /// The tab overview covers the screen.
+    var overviewShown = false
+    /// The floating bubble shows only the address (while scrolling down).
+    var barCompact = false
     /// Linked panes: links tapped in this pane open in the other one.
     var linkSource: Int?
     /// The Duo stands half folded, like a small laptop.
