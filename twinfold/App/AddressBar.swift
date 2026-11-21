@@ -337,7 +337,7 @@ struct MainMenu: View {
                 .contentShape(Circle())
         }
         .foregroundStyle(.primary)
-        .glassEffect(.regular.interactive(), in: .circle, isEnabled: !compact)
+        .glassEffect(compact ? .identity : .regular.interactive(), in: .circle)
         .accessibilityLabel(Text("Menu"))
     }
 }
