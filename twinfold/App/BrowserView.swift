@@ -62,6 +62,22 @@ struct BrowserView: View {
             }
         }
         .tint(Brand.accent)
+        .onHingeChange { _, context in
+            browser.hingeChanged(angle: context.hinge.map { $0.angle.degrees }, closed: context.hinge?.status == .closed)
+        }
+        .overlay(alignment: .bottom) {
+            if let s = browser.pairSuggestion {
+                PairSuggestionBanner(text: s)
+                    .padding(.bottom, 74)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(60))
+                browser.notePairUse()
+            }
+        }
         .fullScreenCover(item: Binding(get: { Store.shared.asking }, set: { Store.shared.asking = $0 })) { f in
             ProSheet(feature: f)
         }
@@ -260,6 +276,16 @@ struct PaneView: View {
             }
         }
         .animation(.spring(response: 0.3), value: pane.tab?.mediaPlaying)
+        .overlay(alignment: .topLeading) {
+            if showsActiveMark, let source = browser.linkSource {
+                Label(source == index ? "Links from here" : "Links open here", systemImage: "link")
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 9).padding(.vertical, 5)
+                    .glassEffect(.regular, in: .capsule)
+                    .padding(8)
+                    .allowsHitTesting(false)
+            }
+        }
         .clipShape(RoundedRectangle(cornerRadius: showsActiveMark ? 18 : 0, style: .continuous))
         .overlay {
             if showsActiveMark {
@@ -267,7 +293,6 @@ struct PaneView: View {
                 let tint = pane.tab?.isPrivate == true ? Brand.coral : Brand.accent
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .strokeBorder(isActive ? tint : Color.primary.opacity(0.08), lineWidth: isActive ? 2.5 : 1)
-                    .shadow(color: isActive ? tint.opacity(0.45) : .clear, radius: 8)
                     .allowsHitTesting(false)
                     .animation(.easeOut(duration: 0.2), value: isActive)
             }

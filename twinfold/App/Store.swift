@@ -94,7 +94,7 @@ final class Store {
 }
 
 enum ProFeature: String, Identifiable, CaseIterable {
-    case ai, pairs, gestures, syncScroll, follow, readAloud, pdf, general
+    case ai, pairs, gestures, syncScroll, follow, readAloud, pdf, bilingual, general
     var id: String { rawValue }
 
     var title: LocalizedStringKey {
@@ -106,6 +106,7 @@ enum ProFeature: String, Identifiable, CaseIterable {
         case .follow: return "Followed sites"
         case .readAloud: return "Read aloud"
         case .pdf: return "Save as PDF"
+        case .bilingual: return "Bilingual reading"
         case .general: return "Twinfold Pro"
         }
     }
@@ -119,6 +120,7 @@ enum ProFeature: String, Identifiable, CaseIterable {
         case .follow: return "New articles from the sites you follow, in one list."
         case .readAloud: return "Any article, read to you while you do something else."
         case .pdf: return "Keep a whole page, exactly as it looks."
+        case .bilingual: return "Any page and its translation, side by side, scrolling together."
         case .general: return "Everything Twinfold can do, for good."
         }
     }
@@ -132,11 +134,12 @@ enum ProFeature: String, Identifiable, CaseIterable {
         case .follow: return "newspaper"
         case .readAloud: return "waveform"
         case .pdf: return "doc.richtext"
+        case .bilingual: return "character.book.closed"
         case .general: return "crown"
         }
     }
 
-    static let showcase: [ProFeature] = [.ai, .pairs, .gestures, .syncScroll, .follow, .readAloud, .pdf]
+    static let showcase: [ProFeature] = [.ai, .bilingual, .pairs, .gestures, .syncScroll, .follow, .readAloud, .pdf]
 }
 
 // MARK: - The Pro screen

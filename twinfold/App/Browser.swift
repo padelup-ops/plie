@@ -63,6 +63,12 @@ final class Browser {
     var sheet: SheetKind?
     var editingAddress = false
     var toast: String?
+    /// Linked panes: links tapped in this pane open in the other one.
+    var linkSource: Int?
+    /// The Duo stands half folded, like a small laptop.
+    var inLaptopPosture = false
+    /// Two sites often open together, offered as a pair.
+    var pairSuggestion: String?
 
     enum SheetKind: String, Identifiable {
         case tabs, library, pairs, settings, savePair, reader, following, whatsNew
@@ -104,6 +110,10 @@ final class Browser {
                 // The other pane's video took the sound: this one keeps playing, muted.
                 tab.resumeMuted()
             }
+        }
+        tab.onRouteLink = { [weak self, weak tab] url in
+            guard let self, let tab else { return false }
+            return self.routeLink(from: tab, to: url)
         }
         tab.onTrigger = { [weak self] trigger in
             guard let self else { return }
@@ -244,6 +254,7 @@ final class Browser {
         withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
             panes.swapAt(0, 1)
             active = 1 - active
+            if let s = linkSource { linkSource = 1 - s }
             ratio = 1 - ratio
         }
     }

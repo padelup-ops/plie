@@ -374,6 +374,13 @@ struct SettingsSheet: View {
                     NavigationLink("What's New") { WhatsNewList() }
                 }
                 Section {
+                    Toggle("Video Above When Half Folded", isOn: $lib.laptopPosture)
+                } header: {
+                    Text("iPhone Duo")
+                } footer: {
+                    Text("Stand your Duo half folded, like a small laptop: the video in the top page fills its half, the bottom page stays yours.")
+                }
+                Section {
                     Button("Clear Cookies and Website Data", role: .destructive) { confirmClearData = true }
                 }
                 Section("About") {

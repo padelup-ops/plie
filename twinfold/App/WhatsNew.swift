@@ -14,6 +14,10 @@ enum WhatsNew {
     /// Newest first. Each item: an SF Symbol and a short line.
     static let releases: [Release] = [
         Release(version: "1.0", items: [
+            ("link", "Linked panes: tap links on one side, they open on the other"),
+            ("character.book.closed", "Bilingual reading: a page and its translation, scrolling together"),
+            ("rectangle.split.1x2.fill", "Search twice: your search engine and an AI answer, side by side"),
+            ("laptopcomputer", "Half fold your iPhone Duo: the video stands above, the page below"),
             ("rectangle.split.2x1", "Two pages at once: at the fold of iPhone Duo, top and bottom or side by side on any iPhone and iPad"),
             ("hand.draw", "Gestures you choose: two-finger swipes and taps for back, private tab, swap, scroll together, full screen and more"),
             ("arrow.up.and.down.text.horizontal", "Scroll the two pages together"),

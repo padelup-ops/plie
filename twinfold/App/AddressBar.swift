@@ -17,80 +17,87 @@ struct AddressBar: View {
                 controls
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        // A floating sheet of glass under the pages, its edge lit by the active page's colour.
-        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 26))
-        .overlay {
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .strokeBorder((browser.activeTab?.isPrivate == true ? Brand.coral : Brand.accent).opacity(0.25), lineWidth: 1)
-                .allowsHitTesting(false)
-        }
-        .padding(.horizontal, 10)
-        .padding(.top, 6)
-        .padding(.bottom, 2)
+        .padding(.horizontal, 12)
+        .padding(.top, 8)
+        .padding(.bottom, 4)
     }
 
+    /// Glass controls, each its own piece: back and forward together, the address, then one or two pages, tabs, menu.
     private var controls: some View {
         let tab = browser.activeTab
-        return HStack(spacing: 4) {
-            barButton("chevron.backward", "Back", enabled: tab?.canGoBack ?? false) { tab?.webView.goBack() }
-            barButton("chevron.forward", "Forward", enabled: tab?.canGoForward ?? false) { tab?.webView.goForward() }
+        return GlassEffectContainer(spacing: 10) {
+            HStack(spacing: 8) {
+                HStack(spacing: 0) {
+                    navButton("chevron.backward", "Back", enabled: tab?.canGoBack ?? false) { tab?.webView.goBack() }
+                    navButton("chevron.forward", "Forward", enabled: tab?.canGoForward ?? false) { tab?.webView.goForward() }
+                }
+                .glassEffect(.regular.interactive(), in: .capsule)
 
-            Button {
-                browser.editingAddress = true
-            } label: {
-                HStack(spacing: 6) {
-                    if tab?.isPrivate == true {
-                        Image(systemName: "eye.slash.fill").foregroundStyle(Brand.coral)
-                    } else if tab?.url?.scheme == "https" || tab?.displayHost != nil {
-                        Image(systemName: "lock.fill").font(.caption2).foregroundStyle(.secondary)
+                Button {
+                    browser.editingAddress = true
+                } label: {
+                    HStack(spacing: 7) {
+                        if tab?.isPrivate == true {
+                            Image(systemName: "eye.slash.fill").font(.footnote.weight(.semibold)).foregroundStyle(Brand.coral)
+                        } else if tab?.url?.scheme == "https" || tab?.displayHost != nil {
+                            Image(systemName: "lock.fill").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                        } else if tab?.isBlank ?? true {
+                            Image(systemName: "magnifyingglass").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+                        }
+                        Text(addressText(tab))
+                            .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            .lineLimit(1)
+                            .foregroundStyle(tab?.isBlank ?? true ? .secondary : .primary)
                     }
-                    Text(addressText(tab))
-                        .lineLimit(1)
-                        .foregroundStyle(tab?.isBlank ?? true ? .secondary : .primary)
-                    if browser.isSplit {
-                        Text(browser.active == 0 ? (paneIsSideBySide ? "◧" : "⬒") : (paneIsSideBySide ? "◨" : "⬓"))
-                            .font(.caption)
-                            .foregroundStyle(Brand.accent)
-                            .accessibilityHidden(true)
+                    .frame(maxWidth: .infinity, minHeight: 46)
+                    .padding(.horizontal, 14)
+                    .overlay(alignment: .bottom) {
+                        if let tab, tab.isLoading, tab.progress < 1 {
+                            GeometryReader { g in
+                                Capsule().fill(Brand.accent)
+                                    .frame(width: max(8, g.size.width * tab.progress), height: 2.5)
+                            }
+                            .frame(height: 2.5)
+                            .padding(.horizontal, 18)
+                            .padding(.bottom, 4)
+                            .animation(.easeOut(duration: 0.2), value: tab.progress)
+                        }
                     }
+                    .contentShape(Capsule())
                 }
-                .font(.subheadline)
-                .frame(maxWidth: .infinity, minHeight: 40)
-                .padding(.horizontal, 12)
-                .background(Color.primary.opacity(0.07), in: Capsule())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text("Address"))
-            .accessibilityValue(Text(addressText(tab)))
-            .contextMenu {
-                if let url = tab?.url {
-                    Button("Copy Address", systemImage: "doc.on.doc") { UIPasteboard.general.url = url }
+                .buttonStyle(.plain)
+                .glassEffect(.regular.interactive(), in: .capsule)
+                .accessibilityLabel(Text("Address"))
+                .accessibilityValue(Text(addressText(tab)))
+                .contextMenu {
+                    if let url = tab?.url {
+                        Button("Copy Address", systemImage: "doc.on.doc") { UIPasteboard.general.url = url }
+                    }
+                    Button("Paste and Go", systemImage: "doc.on.clipboard") {
+                        if let s = UIPasteboard.general.string { browser.go(s) }
+                    }
+                    Button("Reload", systemImage: "arrow.clockwise") { tab?.webView.reload() }
                 }
-                Button("Paste and Go", systemImage: "doc.on.clipboard") {
-                    if let s = UIPasteboard.general.string { browser.go(s) }
-                }
-                Button("Reload", systemImage: "arrow.clockwise") { tab?.webView.reload() }
-            }
 
-            barButton(browser.isSplit ? "rectangle" : (paneIsSideBySide ? "rectangle.split.2x1" : "rectangle.split.1x2"),
-                      LocalizedStringKey(browser.isSplit ? "One page" : "Two pages"), enabled: true) { browser.toggleSplit() }
+                roundButton(browser.isSplit ? "rectangle" : (paneIsSideBySide ? "rectangle.split.2x1" : "rectangle.split.1x2"),
+                            LocalizedStringKey(browser.isSplit ? "One page" : "Two pages")) { browser.toggleSplit() }
 
-            Button {
-                browser.sheet = .tabs
-            } label: {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 5).strokeBorder(.primary, lineWidth: 1.6)
+                Button {
+                    browser.sheet = .tabs
+                } label: {
+                    Text("\(browser.activePane.tabs.count)")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
                         .frame(width: 22, height: 22)
-                    Text("\(browser.activePane.tabs.count)").font(.caption2.weight(.bold))
+                        .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(.primary, lineWidth: 1.8))
+                        .frame(width: 46, height: 46)
+                        .contentShape(Circle())
                 }
-                .frame(width: 40, height: 40)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text("Tabs, \(browser.activePane.tabs.count)"))
+                .buttonStyle(.plain)
+                .glassEffect(.regular.interactive(), in: .circle)
+                .accessibilityLabel(Text("Tabs, \(browser.activePane.tabs.count)"))
 
-            MainMenu()
+                MainMenu()
+            }
         }
     }
 
@@ -110,16 +117,30 @@ struct AddressBar: View {
         return tab.displayAddress
     }
 
-    private func barButton(_ symbol: String, _ label: LocalizedStringKey, enabled: Bool, action: @escaping () -> Void) -> some View {
+    private func navButton(_ symbol: String, _ label: LocalizedStringKey, enabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
-                .font(.system(size: 18, weight: .medium))
-                .frame(width: 40, height: 40)
+                .font(.system(size: 17, weight: .semibold))
+                .frame(width: 42, height: 46)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .foregroundStyle(enabled ? Color.primary : Color.secondary.opacity(0.5))
+        .foregroundStyle(enabled ? Color.primary : Color.secondary.opacity(0.35))
         .disabled(!enabled)
         .accessibilityLabel(Text(label))
+    }
+
+    private func roundButton(_ symbol: String, _ label: LocalizedStringKey, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 17, weight: .semibold))
+                .frame(width: 46, height: 46)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .glassEffect(.regular.interactive(), in: .circle)
+        .accessibilityLabel(Text(label))
+        .contentTransition(.symbolEffect(.replace))
     }
 }
 
@@ -164,13 +185,24 @@ private struct AddressEditor: View {
                     .keyboardType(.webSearch)
                     .submitLabel(.go)
                     .focused($focused)
-                    .padding(.horizontal, 10)
-                    .frame(minHeight: 38)
-                    .background(Color(.secondarySystemFill), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .padding(.horizontal, 16)
+                    .frame(minHeight: 46)
+                    .glassEffect(.regular, in: .capsule)
                     .onSubmit {
                         browser.editingAddress = false
                         browser.go(text)
                     }
+                Button {
+                    browser.editingAddress = false
+                    browser.searchTwice(text)
+                } label: {
+                    Image(systemName: "rectangle.split.1x2.fill")
+                        .font(.system(size: 17, weight: .semibold))
+                        .frame(width: 40, height: 40)
+                }
+                .buttonStyle(.glass)
+                .disabled(text.trimmingCharacters(in: .whitespaces).isEmpty)
+                .accessibilityLabel(Text("Search in Both Panes"))
                 Button("Cancel") { browser.editingAddress = false }
             }
         }
@@ -218,6 +250,9 @@ struct MainMenu: View {
                     Button(LocalizedStringKey(tab?.wantsDesktop == true ? "Mobile Site" : "Desktop Site"),
                            systemImage: tab?.wantsDesktop == true ? "iphone" : "desktopcomputer") { tab?.toggleDesktop() }
                     Button("Reader View", systemImage: "doc.plaintext") { browser.sheet = .reader }
+                    Button("Translate in the Other Pane", systemImage: "character.book.closed") {
+                        Store.shared.gate(.bilingual) { browser.translateInOtherPane() }
+                    }
                     if let feed = tab?.feedURL {
                         let following = Following.shared.isFollowing(feed: feed)
                         Button(LocalizedStringKey(following ? "Unfollow This Site" : "Follow This Site"),
@@ -278,6 +313,9 @@ struct MainMenu: View {
                         Button("Save as Pair", systemImage: "star.square.on.square") { browser.sheet = .savePair }
                     }
                 }
+                Toggle(isOn: Binding(get: { browser.linkSource != nil }, set: { _ in browser.toggleLinked() })) {
+                    Label("Linked Panes", systemImage: "link")
+                }
                 Button("Pairs", systemImage: "square.on.square") { browser.sheet = .pairs }
                 Button(Following.shared.unreadCount > 0 ? String(localized: "Following (\(Following.shared.unreadCount))") : String(localized: "Following"),
                        systemImage: "newspaper") { browser.sheet = .following }
@@ -287,11 +325,13 @@ struct MainMenu: View {
                 Button("Settings", systemImage: "gearshape") { browser.sheet = .settings }
             }
         } label: {
-            Image(systemName: "ellipsis.circle")
-                .font(.system(size: 20, weight: .medium))
-                .frame(width: 40, height: 40)
+            Image(systemName: "ellipsis")
+                .font(.system(size: 17, weight: .bold))
+                .frame(width: 46, height: 46)
+                .contentShape(Circle())
         }
         .foregroundStyle(.primary)
+        .glassEffect(.regular.interactive(), in: .circle)
         .accessibilityLabel(Text("Menu"))
     }
 }

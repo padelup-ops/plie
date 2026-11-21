@@ -46,6 +46,8 @@ final class Tab: NSObject, Identifiable {
 
     /// Set by the browser: a gesture chosen in Settings was made on this page.
     @ObservationIgnored var onTrigger: ((GestureTrigger) -> Void)?
+    /// Set by the browser: a tapped link may go to the other pane (linked panes).
+    @ObservationIgnored var onRouteLink: ((URL) -> Bool)?
     @ObservationIgnored private var gestures: GestureHost?
 
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
@@ -217,6 +219,11 @@ extension Tab: WKNavigationDelegate {
         // Phone numbers, mail, maps and App Store links leave the browser for the app that handles them.
         if !["http", "https", "about", "file", "data", "blob", "javascript"].contains(scheme) {
             UIApplication.shared.open(url)
+            decisionHandler(.cancel, preferences)
+            return
+        }
+        if action.navigationType == .linkActivated, action.targetFrame?.isMainFrame == true,
+           scheme == "http" || scheme == "https", onRouteLink?(url) == true {
             decisionHandler(.cancel, preferences)
             return
         }

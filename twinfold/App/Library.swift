@@ -86,6 +86,11 @@ final class Library {
         didSet { defaults.set(twoFingerGestures, forKey: "twoFingerGestures") }
     }
 
+    /// iPhone Duo half folded: the video above fills its half.
+    var laptopPosture: Bool = UserDefaults.standard.object(forKey: "laptopPosture") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(laptopPosture, forKey: "laptopPosture") }
+    }
+
     /// Bumped when a gesture's action changes, so the settings list redraws.
     var gestureRevision = 0
 
