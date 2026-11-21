@@ -72,4 +72,7 @@ if internal:
             r = call("POST", "/v1/betaTesters", {"data": {"type": "betaTesters", "attributes": {
                 "email": email, "firstName": u["attributes"].get("firstName"), "lastName": u["attributes"].get("lastName")},
                 "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": gid}]}}}})
-        print(f"ÉCHEC  testeur interne {n} ({r.get('error')})" if isinstance(r, dict) and "error" in r else f"ok     testeur interne {n} ajouté")
+        if isinstance(r, dict) and "error" in r:
+            print(f"ÉCHEC  testeur interne {n} ({r.get('error')}) " + r.get("detail", "")[:400].replace(email, "<adresse>"))
+        else:
+            print(f"ok     testeur interne {n} ajouté")
