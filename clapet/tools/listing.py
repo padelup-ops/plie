@@ -206,7 +206,7 @@ Foldly 免费。Foldly+ 一次购买即可解锁全部功能，无需订阅：
 }
 
 # Les captures d'écran de chaque langue (clapet/tools/store/<langue>-N.png et duo-<langue>-N.png)
-SHOT_LANG = {"en-US": "en", "fr-FR": "fr", "de-DE": "de", "es-ES": "es", "ja": "ja", "ko": "ko", "zh-Hans": "zh-Hans"}
+SHOT_LANG = {"en-US": "en", "fr-FR": "fr", "de-DE": "de", "es-ES": "es", "it": "it", "ja": "ja", "ko": "ko", "zh-Hans": "zh-Hans"}
 
 # Les nouveautés de la 1.0.3
 WHATS_NEW_103 = {
