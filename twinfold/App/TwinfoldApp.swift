@@ -3,6 +3,7 @@
 // Two web pages at once: one above the fold of an iPhone Duo and one below (or side by side), or stacked on
 // any iPhone. Everything stays on the device: no account, no server, no analytics.
 
+import AVFoundation
 import SwiftUI
 import UIKit
 
@@ -27,6 +28,12 @@ struct TwinfoldApp: App {
 
 /// Home-screen quick actions (a saved pair opens both of its pages at once).
 final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        // Videos play with sound even with the silent switch on, and keep going in Picture in Picture.
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+        return true
+    }
+
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession,
                      options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         let config = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)

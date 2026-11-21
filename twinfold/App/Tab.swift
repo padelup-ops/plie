@@ -26,12 +26,27 @@ final class Tab: NSObject, Identifiable {
     /// Shown in the address bar instead of the real address (sample pages for the App Store screenshots).
     var displayHost: String?
 
+    /// The page's feed (RSS or Atom), when it offers one: the site can be followed.
+    private(set) var feedURL: URL?
+    /// Something plays in the page (sound or video), and whether it is a video.
+    private(set) var mediaPlaying = false
+    private(set) var mediaVideo = false
+    /// The pane's sound is cut (every video and sound in the page, iframes included).
+    private(set) var isMuted = false
+    /// The playing video is stretched over the whole pane.
+    private(set) var isFilled = false
+    @ObservationIgnored private var frameMedia: [Bool: (Bool, Bool)] = [:]
+
     /// Set by the browser: the pane this tab belongs to became the one the bars act on.
     @ObservationIgnored var onActivate: (() -> Void)?
     /// Set by the browser: a page asked for a new window, or the person chose "Open in Other Pane".
     @ObservationIgnored var onOpen: ((URL?, WKWebViewConfiguration?, LinkTarget) -> WKWebView?)?
 
     enum LinkTarget { case newTab, otherPane }
+
+    /// Two-finger swipes: left back, right forward, down one/two pages, up new tab.
+    enum Gesture { case split, newTab }
+    @ObservationIgnored var onGesture: ((Gesture) -> Void)?
 
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
 
@@ -50,10 +65,20 @@ final class Tab: NSObject, Identifiable {
         webView.backgroundColor = .systemBackground
         webView.isOpaque = false
 
+        MediaRouter.shared.register(self)
+
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
         tap.cancelsTouchesInView = false
         tap.delegate = self
         webView.addGestureRecognizer(tap)
+
+        for dir in [UISwipeGestureRecognizer.Direction.left, .right, .up, .down] {
+            let swipe = UISwipeGestureRecognizer(target: self, action: #selector(swiped(_:)))
+            swipe.direction = dir
+            swipe.numberOfTouchesRequired = 2
+            swipe.delegate = self
+            webView.addGestureRecognizer(swipe)
+        }
 
         observations = [
             webView.observe(\.title, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.title = wv.title ?? "" } },
@@ -70,10 +95,11 @@ final class Tab: NSObject, Identifiable {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = isPrivate ? .nonPersistent() : .default()
         config.allowsInlineMediaPlayback = true
-        config.mediaTypesRequiringUserActionForPlayback = .all
+        config.mediaTypesRequiringUserActionForPlayback = ShotMode.current == "dualplay" ? [] : .all
         config.allowsPictureInPictureMediaPlayback = true
         config.preferences.isFraudulentWebsiteWarningEnabled = true
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
+        config.preferences.isElementFullscreenEnabled = true
         config.defaultWebpagePreferences.preferredContentMode = .mobile
         config.dataDetectorTypes = [.phoneNumber, .link, .address, .calendarEvent]
         ContentBlocker.shared.attach(to: config.userContentController)
@@ -121,6 +147,40 @@ final class Tab: NSObject, Identifiable {
 
     @objc private func tapped() { onActivate?() }
 
+    @objc private func swiped(_ g: UISwipeGestureRecognizer) {
+        guard Library.shared.twoFingerGestures else { return }
+        onActivate?()
+        switch g.direction {
+        case .left: if webView.canGoBack { webView.goBack() }
+        case .right: if webView.canGoForward { webView.goForward() }
+        case .down: onGesture?(.split)
+        case .up: onGesture?(.newTab)
+        default: break
+        }
+    }
+
+    // MARK: Media
+
+    func mediaReport(playing: Bool, video: Bool, mainFrame: Bool) {
+        // The main page and its frames report separately; something plays if any of them plays.
+        frameMedia[mainFrame] = (playing, video)
+        let all = frameMedia.values
+        mediaPlaying = all.contains { $0.0 }
+        mediaVideo = all.contains { $0.1 }
+    }
+
+    func toggleMute() {
+        isMuted.toggle()
+        webView.evaluateJavaScript("window.__twinfold && window.__twinfold.setMuted(\(isMuted))")
+    }
+
+    func toggleFill() {
+        webView.evaluateJavaScript("window.__twinfold ? window.__twinfold.toggleFill() : false") { [weak self] result, _ in
+            MainActor.assumeIsolated { self?.isFilled = (result as? Bool) ?? false }
+        }
+    }
+
+
     func close() {
         observations.forEach { $0.invalidate() }
         observations = []
@@ -154,7 +214,21 @@ extension Tab: WKNavigationDelegate {
         decisionHandler(.allow, preferences)
     }
 
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        feedURL = nil
+        frameMedia = [:]
+        mediaPlaying = false
+        mediaVideo = false
+        isFilled = false
+    }
+
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        webView.evaluateJavaScript(FeedFinder.script) { [weak self] result, _ in
+            MainActor.assumeIsolated {
+                if let s = result as? String, let u = URL(string: s), u.scheme == "https" || u.scheme == "http" { self?.feedURL = u }
+            }
+        }
+        if isMuted { webView.evaluateJavaScript("window.__twinfold && window.__twinfold.setMuted(true)") }
         if !isPrivate, displayHost == nil, let url = webView.url {
             Library.shared.record(title: webView.title ?? "", url: url)
         }

@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{margin:0;background:#111;color:#eee;font:15px -apple-system}video{width:100%;display:block}p{padding:10px}</style></head>
+<body><video id="v" src="test-a.mp4" playsinline loop autoplay controls></video><p id="s">Test vidéo a</p>
+<script>
+var v=document.getElementById('v');
+setInterval(function(){document.getElementById('s').textContent='Vidéo a : '+(v.paused?'en pause':'lecture')+' · son '+(v.muted?'coupé':'actif')+' · '+v.currentTime.toFixed(1)+' s';},500);
+</script></body></html>

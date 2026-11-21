@@ -1,2 +1,8 @@
 "Tabs, %lld" = "Tabs, %lld";
 "%lld bookmarks imported" = "%lld bookmarks imported";
+"Following (%lld)" = "Following (%lld)";
+"Following %@" = "Following %@";
+"Summarize this page in a few bullet points: %@ %@" = "Summarize this page in a few bullet points: %@ %@";
+"Translate the main text of this page into %@: %@" = "Translate the main text of this page into %@: %@";
+"Explain this page simply, as if to a friend: %@ %@" = "Explain this page simply, as if to a friend: %@ %@";
+"Question copied: paste it in %@" = "Question copied: paste it in %@";

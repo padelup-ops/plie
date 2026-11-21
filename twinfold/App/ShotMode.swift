@@ -54,6 +54,11 @@ enum ShotMode {
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { browser.sheet = .pairs }
+        case "dualplay":
+            // Test: two videos with sound at once, then the pane buttons (sound cut, video over the pane).
+            show(0, "dualtest-a", "video-a.example")
+            show(1, "dualtest-b", "video-b.example")
+            Task { await runDualPlayTest(browser) }
         default: // "split"
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")
@@ -84,5 +89,36 @@ extension Library {
                 Pair(name: "Study hour", first: ex("languagelab"), second: ex("fieldnotes")),
             ]
         )
+    }
+}
+
+// MARK: - Two videos at once (simulator test)
+
+extension ShotMode {
+    @MainActor
+    static func runDualPlayTest(_ browser: Browser) async {
+        var log: [String] = []
+        func state(_ label: String) async {
+            for i in 0..<2 {
+                guard let tab = browser.panes[i].tab else { continue }
+                let js = "(function(){var v=document.getElementById('v');return v?[v.paused,v.muted,v.currentTime.toFixed(1)].join(' '):'none';})()"
+                let r = (try? await tab.webView.evaluateJavaScript(js)) as? String ?? "?"
+                log.append("\(label) volet \(i) : paused muted t = \(r) | rapport : lecture \(tab.mediaPlaying) vidéo \(tab.mediaVideo) coupé \(tab.isMuted) étirée \(tab.isFilled)")
+            }
+        }
+        try? await Task.sleep(for: .seconds(6))
+        await state("6 s")
+        // Starts the two again as if tapped, in case autoplay was held.
+        for i in 0..<2 { _ = try? await browser.panes[i].tab?.webView.evaluateJavaScript("document.getElementById('v').play();1") }
+        try? await Task.sleep(for: .seconds(3))
+        await state("9 s, après play()")
+        browser.panes[1].tab?.toggleMute()
+        try? await Task.sleep(for: .seconds(2))
+        await state("11 s, volet 1 coupé")
+        browser.panes[0].tab?.toggleFill()
+        try? await Task.sleep(for: .seconds(2))
+        await state("13 s, volet 0 étiré")
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
+        try? log.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
     }
 }

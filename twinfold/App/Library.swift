@@ -81,6 +81,11 @@ final class Library {
         didSet { defaults.set(linksFromAppsInNewTab, forKey: "linksFromAppsInNewTab") }
     }
 
+    /// Two-finger swipes on a page: back, forward, one or two pages, new tab.
+    var twoFingerGestures: Bool {
+        didSet { defaults.set(twoFingerGestures, forKey: "twoFingerGestures") }
+    }
+
     private let defaults = UserDefaults.standard
 
     private init() {
@@ -88,6 +93,7 @@ final class Library {
         blockTrackers = defaults.object(forKey: "blockTrackers") as? Bool ?? true
         hideCookieBanners = defaults.object(forKey: "hideCookieBanners") as? Bool ?? false
         linksFromAppsInNewTab = defaults.object(forKey: "linksFromAppsInNewTab") as? Bool ?? true
+        twoFingerGestures = defaults.object(forKey: "twoFingerGestures") as? Bool ?? true
         bookmarks = load("bookmarks") ?? Self.starterBookmarks
         history = load("history") ?? []
         pairs = load("pairs") ?? []

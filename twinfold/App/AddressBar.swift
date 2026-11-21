@@ -195,12 +195,42 @@ struct MainMenu: View {
                     }
                     Button(LocalizedStringKey(tab?.wantsDesktop == true ? "Mobile Site" : "Desktop Site"),
                            systemImage: tab?.wantsDesktop == true ? "iphone" : "desktopcomputer") { tab?.toggleDesktop() }
+                    Button("Reader View", systemImage: "doc.plaintext") { browser.sheet = .reader }
+                    if let feed = tab?.feedURL {
+                        let following = Following.shared.isFollowing(feed: feed)
+                        Button(LocalizedStringKey(following ? "Unfollow This Site" : "Follow This Site"),
+                               systemImage: following ? "minus.circle" : "plus.circle") {
+                            if following {
+                                Following.shared.unfollow(feed: feed)
+                            } else {
+                                Following.shared.follow(title: tab?.title ?? "", site: url, feed: feed)
+                                browser.flash(String(localized: "Following \(tab?.displayAddress ?? "")"))
+                            }
+                        }
+                    }
+                    Button("Save as PDF", systemImage: "doc.richtext") { browser.sharePDF() }
                     if browser.isSplit {
                         Button("Open This Page in the Other Pane", systemImage: "rectangle.portrait.on.rectangle.portrait") {
                             browser.load(url, inPane: browser.otherIndex)
                         }
                     }
                 }
+            }
+            Menu {
+                ForEach(Assistant.AITask.allCases) { task in
+                    Section(task.title) {
+                        ForEach(Assistant.allCases) { a in
+                            Button(a.name) { browser.ask(a, task) }
+                        }
+                    }
+                }
+                Section("Open") {
+                    ForEach(Assistant.allCases) { a in
+                        Button(a.name) { browser.ask(a, nil) }
+                    }
+                }
+            } label: {
+                Label("Ask AI in the Other Pane", systemImage: "sparkles")
             }
             Section {
                 if browser.isSplit {
@@ -210,6 +240,8 @@ struct MainMenu: View {
                     }
                 }
                 Button("Pairs", systemImage: "square.on.square") { browser.sheet = .pairs }
+                Button(Following.shared.unreadCount > 0 ? String(localized: "Following (\(Following.shared.unreadCount))") : String(localized: "Following"),
+                       systemImage: "newspaper") { browser.sheet = .following }
                 Button("Bookmarks and History", systemImage: "book") { browser.sheet = .library }
             }
             Section {

@@ -43,7 +43,7 @@ final class Browser {
     var toast: String?
 
     enum SheetKind: String, Identifiable {
-        case tabs, library, pairs, settings, savePair
+        case tabs, library, pairs, settings, savePair, reader, following
         var id: String { rawValue }
     }
 
@@ -72,6 +72,13 @@ final class Browser {
         tab.onActivate = { [weak self, weak tab] in
             guard let self, let tab, let i = self.paneIndex(of: tab), i != self.active else { return }
             withAnimation(.easeOut(duration: 0.15)) { self.active = i }
+        }
+        tab.onGesture = { [weak self] g in
+            guard let self else { return }
+            switch g {
+            case .split: self.toggleSplit()
+            case .newTab: self.newTab()
+            }
         }
         tab.onOpen = { [weak self, weak tab] url, configuration, target in
             guard let self, let tab, let i = self.paneIndex(of: tab) else { return nil }

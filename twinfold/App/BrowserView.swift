@@ -33,6 +33,8 @@ struct BrowserView: View {
             case .pairs: PairsSheet()
             case .settings: SettingsSheet()
             case .savePair: SavePairSheet()
+            case .reader: ReaderSheet()
+            case .following: FollowingSheet()
             }
         }
         .tint(Brand.accent)
@@ -201,6 +203,14 @@ struct PaneView: View {
                 }
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            if let tab = pane.tab, tab.mediaPlaying || tab.isMuted || tab.isFilled {
+                MediaControls(tab: tab)
+                    .padding(10)
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.3), value: pane.tab?.mediaPlaying)
         .overlay {
             if showsActiveMark && browser.active == index {
                 RoundedRectangle(cornerRadius: 2)
@@ -221,4 +231,31 @@ enum Brand {
     /// Twinfold coral, for the private tabs.
     static let coral = Color(red: 0.98, green: 0.42, blue: 0.33)
     static let ink = Color(red: 0.07, green: 0.12, blue: 0.15)
+}
+
+/// The pane's own sound and video buttons, shown while something plays: cut this pane's sound (the other pane keeps
+/// playing), and stretch the video over the whole pane.
+struct MediaControls: View {
+    let tab: Tab
+
+    var body: some View {
+        HStack(spacing: 2) {
+            Button { tab.toggleMute() } label: {
+                Image(systemName: tab.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                    .frame(width: 38, height: 38)
+            }
+            .accessibilityLabel(Text(tab.isMuted ? "Turn Sound On" : "Mute This Pane"))
+            if tab.mediaVideo || tab.isFilled {
+                Button { tab.toggleFill() } label: {
+                    Image(systemName: tab.isFilled ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                        .frame(width: 38, height: 38)
+                }
+                .accessibilityLabel(Text(tab.isFilled ? "Back to the Page" : "Fill the Pane with the Video"))
+            }
+        }
+        .font(.system(size: 15, weight: .semibold))
+        .foregroundStyle(.white)
+        .background(.black.opacity(0.55), in: Capsule())
+        .buttonStyle(.plain)
+    }
 }

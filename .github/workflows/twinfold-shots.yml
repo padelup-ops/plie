@@ -136,6 +136,11 @@ jobs:
             done
           done
           ls -la shots; command -v ffmpeg avconvert || true
+      - name: Journal de l'app (essais)
+        if: always()
+        run: |
+          D=$(xcrun simctl get_app_container "$UDID" com.padelup.twinfold data 2>/dev/null || true)
+          [ -n "$D" ] && cat "$D/Documents/twinfold-test.txt" 2>/dev/null | tee shots/essai.txt || echo "pas de journal" | tee shots/essai.txt
       - name: Vidéos (artefact)
         if: always() && inputs.record != ''
         uses: actions/upload-artifact@v4
