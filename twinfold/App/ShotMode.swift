@@ -106,14 +106,19 @@ extension ShotMode {
                 log.append("\(label) volet \(i) : paused muted t = \(r) | rapport : lecture \(tab.mediaPlaying) vidéo \(tab.mediaVideo) coupé \(tab.isMuted) étirée \(tab.isFilled)")
             }
         }
-        try? await Task.sleep(for: .seconds(7))
-        await state("7 s, les deux lancées")
+        try? await Task.sleep(for: .seconds(6))
+        await state("6 s, au départ")
+        // Mute the pane that has the sound: the other video, stopped by iOS, should start again (muted).
+        for i in 0..<2 { if let t = browser.panes[i].tab, t.mediaPlaying, !t.isMuted { t.setMuted(true) } }
+        for i in 0..<2 { _ = try? await browser.panes[i].tab?.webView.evaluateJavaScript("var v=document.getElementById('v');v.muted=true;v.play();1") }
+        try? await Task.sleep(for: .seconds(2))
+        await state("8 s, les deux sans son")
+        if let t1 = browser.panes[1].tab { browser.toggleMute(t1) }
+        try? await Task.sleep(for: .seconds(2))
+        await state("10 s, son sur le volet 1")
         if let t0 = browser.panes[0].tab { browser.toggleMute(t0) }
         try? await Task.sleep(for: .seconds(2))
-        await state("9 s, son passé au volet 0")
-        browser.panes[0].tab?.toggleFill()
-        try? await Task.sleep(for: .seconds(2))
-        await state("11 s, volet 0 étiré")
+        await state("12 s, son passé au volet 0")
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
         try? log.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
     }
