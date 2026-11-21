@@ -1,0 +1,240 @@
+// Tab.swift — Twinfold
+//
+// One web page and its history: a WKWebView, with what the bars need to show (title, address, progress).
+
+import Observation
+import UIKit
+import WebKit
+
+@MainActor @Observable
+final class Tab: NSObject, Identifiable {
+    let id = UUID()
+    let webView: WKWebView
+    let isPrivate: Bool
+
+    private(set) var title = ""
+    private(set) var url: URL?
+    private(set) var progress: Double = 0
+    private(set) var isLoading = false
+    private(set) var canGoBack = false
+    private(set) var canGoForward = false
+    private(set) var hasOnlySecureContent = true
+    /// Asks sites for their computer layout.
+    var wantsDesktop = false
+    /// A page restored from the last session, loaded only when the tab is shown.
+    var pendingURL: URL?
+    /// Shown in the address bar instead of the real address (sample pages for the App Store screenshots).
+    var displayHost: String?
+
+    /// Set by the browser: the pane this tab belongs to became the one the bars act on.
+    @ObservationIgnored var onActivate: (() -> Void)?
+    /// Set by the browser: a page asked for a new window, or the person chose "Open in Other Pane".
+    @ObservationIgnored var onOpen: ((URL?, WKWebViewConfiguration?, LinkTarget) -> WKWebView?)?
+
+    enum LinkTarget { case newTab, otherPane }
+
+    @ObservationIgnored private var observations: [NSKeyValueObservation] = []
+
+    init(isPrivate: Bool = false, configuration: WKWebViewConfiguration? = nil) {
+        self.isPrivate = isPrivate
+        let config = configuration ?? Tab.makeConfiguration(isPrivate: isPrivate)
+        webView = WKWebView(frame: .zero, configuration: config)
+        super.init()
+        webView.allowsBackForwardNavigationGestures = true
+        webView.allowsLinkPreview = true
+        webView.isFindInteractionEnabled = true
+        webView.isInspectable = false
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
+        webView.scrollView.contentInsetAdjustmentBehavior = .automatic
+        webView.backgroundColor = .systemBackground
+        webView.isOpaque = false
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
+        tap.cancelsTouchesInView = false
+        tap.delegate = self
+        webView.addGestureRecognizer(tap)
+
+        observations = [
+            webView.observe(\.title, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.title = wv.title ?? "" } },
+            webView.observe(\.url, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.url = wv.url ?? self?.url } },
+            webView.observe(\.estimatedProgress, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.progress = wv.estimatedProgress } },
+            webView.observe(\.isLoading, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.isLoading = wv.isLoading } },
+            webView.observe(\.canGoBack, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.canGoBack = wv.canGoBack } },
+            webView.observe(\.canGoForward, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.canGoForward = wv.canGoForward } },
+            webView.observe(\.hasOnlySecureContent, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.hasOnlySecureContent = wv.hasOnlySecureContent } },
+        ]
+    }
+
+    static func makeConfiguration(isPrivate: Bool) -> WKWebViewConfiguration {
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = isPrivate ? .nonPersistent() : .default()
+        config.allowsInlineMediaPlayback = true
+        config.mediaTypesRequiringUserActionForPlayback = .all
+        config.allowsPictureInPictureMediaPlayback = true
+        config.preferences.isFraudulentWebsiteWarningEnabled = true
+        config.preferences.javaScriptCanOpenWindowsAutomatically = false
+        config.defaultWebpagePreferences.preferredContentMode = .mobile
+        config.dataDetectorTypes = [.phoneNumber, .link, .address, .calendarEvent]
+        ContentBlocker.shared.attach(to: config.userContentController)
+        return config
+    }
+
+    var displayTitle: String {
+        if !title.isEmpty { return title }
+        if let displayHost { return displayHost }
+        return (url ?? pendingURL)?.host() ?? String(localized: "New Tab")
+    }
+
+    var displayAddress: String {
+        if let displayHost { return displayHost }
+        guard let url = url ?? pendingURL else { return "" }
+        var host = url.host() ?? url.absoluteString
+        if host.hasPrefix("www.") { host.removeFirst(4) }
+        return host
+    }
+
+    var isBlank: Bool { url == nil && pendingURL == nil && displayHost == nil && !isLoading }
+
+    /// The address to keep for the next launch.
+    var savedURL: URL? { url ?? pendingURL }
+
+    func loadPendingIfNeeded() {
+        guard let pendingURL else { return }
+        self.pendingURL = nil
+        load(pendingURL)
+    }
+
+    func load(_ url: URL) {
+        pendingURL = nil
+        if url.isFileURL {
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+        } else {
+            webView.load(URLRequest(url: url))
+        }
+    }
+
+    func toggleDesktop() {
+        wantsDesktop.toggle()
+        webView.reload()
+    }
+
+    @objc private func tapped() { onActivate?() }
+
+    func close() {
+        observations.forEach { $0.invalidate() }
+        observations = []
+        webView.stopLoading()
+        webView.navigationDelegate = nil
+        webView.uiDelegate = nil
+        webView.removeFromSuperview()
+    }
+}
+
+extension Tab: UIGestureRecognizerDelegate {
+    nonisolated func gestureRecognizer(_ g: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool { true }
+}
+
+// MARK: - Navigation
+
+extension Tab: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, preferences: WKWebpagePreferences,
+                 decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy, WKWebpagePreferences) -> Void) {
+        preferences.preferredContentMode = wantsDesktop ? .desktop : .mobile
+        guard let url = action.request.url, let scheme = url.scheme?.lowercased() else {
+            decisionHandler(.allow, preferences)
+            return
+        }
+        // Phone numbers, mail, maps and App Store links leave the browser for the app that handles them.
+        if !["http", "https", "about", "file", "data", "blob", "javascript"].contains(scheme) {
+            UIApplication.shared.open(url)
+            decisionHandler(.cancel, preferences)
+            return
+        }
+        decisionHandler(.allow, preferences)
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        if !isPrivate, displayHost == nil, let url = webView.url {
+            Library.shared.record(title: webView.title ?? "", url: url)
+        }
+    }
+
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        webView.reload()
+    }
+}
+
+// MARK: - Windows and the link menu
+
+extension Tab: WKUIDelegate {
+    /// A link meant for a new window (target="_blank", window.open after a tap) opens in a new tab of this pane.
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
+                 for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        onOpen?(action.request.url, configuration, .newTab)
+    }
+
+    func webViewDidClose(_ webView: WKWebView) {
+        // The page closed its own window: nothing else to do, the tab stays until the person closes it.
+    }
+
+    func webView(_ webView: WKWebView, contextMenuConfigurationForElement elementInfo: WKContextMenuElementInfo,
+                 completionHandler: @escaping @MainActor @Sendable (UIContextMenuConfiguration?) -> Void) {
+        guard let link = elementInfo.linkURL else {
+            completionHandler(nil)
+            return
+        }
+        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] suggested in
+            let other = UIAction(title: String(localized: "Open in Other Pane"), image: UIImage(systemName: "rectangle.split.1x2")) { _ in
+                MainActor.assumeIsolated { _ = self?.onOpen?(link, nil, .otherPane) }
+            }
+            let newTab = UIAction(title: String(localized: "Open in New Tab"), image: UIImage(systemName: "plus.square.on.square")) { _ in
+                MainActor.assumeIsolated { _ = self?.onOpen?(link, nil, .newTab) }
+            }
+            return UIMenu(children: [UIMenu(options: .displayInline, children: [other, newTab])] + suggested)
+        }
+        completionHandler(config)
+    }
+
+    func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo,
+                 completionHandler: @escaping @MainActor @Sendable () -> Void) {
+        present(alert: UIAlertController(title: frame.request.url?.host(), message: message, preferredStyle: .alert),
+                actions: [UIAlertAction(title: String(localized: "OK"), style: .default) { _ in completionHandler() }],
+                fallback: completionHandler)
+    }
+
+    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo,
+                 completionHandler: @escaping @MainActor @Sendable (Bool) -> Void) {
+        present(alert: UIAlertController(title: frame.request.url?.host(), message: message, preferredStyle: .alert),
+                actions: [UIAlertAction(title: String(localized: "Cancel"), style: .cancel) { _ in completionHandler(false) },
+                          UIAlertAction(title: String(localized: "OK"), style: .default) { _ in completionHandler(true) }],
+                fallback: { completionHandler(false) })
+    }
+
+    func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?,
+                 initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping @MainActor @Sendable (String?) -> Void) {
+        let alert = UIAlertController(title: frame.request.url?.host(), message: prompt, preferredStyle: .alert)
+        alert.addTextField { $0.text = defaultText }
+        present(alert: alert,
+                actions: [UIAlertAction(title: String(localized: "Cancel"), style: .cancel) { _ in completionHandler(nil) },
+                          UIAlertAction(title: String(localized: "OK"), style: .default) { [weak alert] _ in
+                              completionHandler(alert?.textFields?.first?.text) }],
+                fallback: { completionHandler(nil) })
+    }
+
+    private func present(alert: UIAlertController, actions: [UIAlertAction], fallback: @escaping @MainActor () -> Void) {
+        actions.forEach(alert.addAction)
+        guard let top = Self.topController() else {
+            fallback()
+            return
+        }
+        top.present(alert, animated: true)
+    }
+
+    static func topController() -> UIViewController? {
+        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+        var top = scene?.keyWindow?.rootViewController
+        while let next = top?.presentedViewController { top = next }
+        return top
+    }
+}

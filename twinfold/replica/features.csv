@@ -1,0 +1,25 @@
+feature,area,priority,original,clone,notes
+two panes stacked or side by side,layout,must,yes,yes,split at the fold on Duo
+adjustable divider,layout,must,yes,yes,no-fold screens; snaps to thirds
+swap panes,layout,must,yes,yes,
+single/split toggle,layout,must,yes,yes,separate memory for cover and inner screens
+active pane targeting,layout,must,yes,yes,accent outline
+tabs per pane,tabs,must,yes,yes,
+private tabs,tabs,must,yes,yes,non-persistent data store
+move tab to other pane,tabs,should,partial,yes,
+open link in other pane,links,should,yes,yes,long-press menu
+saved pairs,pairs,must,yes,yes,free unlimited
+pairs from home-screen icon,pairs,should,yes,yes,quick actions
+bookmarks,library,must,yes,yes,
+bookmark import,library,should,yes,yes,Netscape HTML file
+history,library,must,yes,yes,
+tracker blocking,privacy,must,yes,yes,own list
+cookie banner hiding,privacy,should,yes,yes,
+find on page,page,should,yes,yes,
+desktop site,page,should,yes,yes,per tab
+default browser,system,must,yes,no,needs Apple's managed entitlement
+AI panel,ai,could,yes,skip,
+RSS follow,reader,could,yes,skip,
+profiles and workspaces,accounts,could,yes,skip,
+iCloud sync,sync,could,yes,skip,
+iPad,platform,could,yes,skip,iPhone first
