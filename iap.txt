@@ -1,0 +1,16 @@
+APP_ID 6837801236
+
+== com.padelup.twinfold.pro
+ok     création de l'achat com.padelup.twinfold.pro
+ok     textes en-US
+ok     textes fr-FR
+ok     textes de-DE
+ok     textes es-ES
+ok     textes it
+ok     textes ja
+ok     prix 4.99 € (base France)
+ok     disponibilité (175 pays)
+       pas de capture pour la vérification : /home/runner/work/plie/plie/twinfold/tools/../store/iap-review.png
+achat com.padelup.twinfold.pro | Twinfold Pro | état MISSING_METADATA
+
+ACHATS PRÊTS (capture pour la vérification à ajouter avant la soumission)
