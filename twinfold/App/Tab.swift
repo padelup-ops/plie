@@ -161,17 +161,37 @@ final class Tab: NSObject, Identifiable {
 
     // MARK: Media
 
+    /// When this page last started playing, and when it last stopped (to tell a pause by the other pane from a
+    /// pause by the person).
+    @ObservationIgnored private(set) var startedAt = Date.distantPast
+    @ObservationIgnored private(set) var stoppedAt = Date.distantPast
+    @ObservationIgnored var onMediaStopped: (() -> Void)?
+
     func mediaReport(playing: Bool, video: Bool, mainFrame: Bool) {
         // The main page and its frames report separately; something plays if any of them plays.
+        let was = mediaPlaying
         frameMedia[mainFrame] = (playing, video)
         let all = frameMedia.values
         mediaPlaying = all.contains { $0.0 }
         mediaVideo = all.contains { $0.1 }
+        if mediaPlaying && !was { startedAt = Date() }
+        if !mediaPlaying && was {
+            stoppedAt = Date()
+            onMediaStopped?()
+        }
     }
 
-    func toggleMute() {
-        isMuted.toggle()
-        webView.evaluateJavaScript("window.__twinfold && window.__twinfold.setMuted(\(isMuted))")
+    func setMuted(_ muted: Bool) {
+        isMuted = muted
+        webView.evaluateJavaScript("window.__twinfold && window.__twinfold.setMuted(\(muted))")
+    }
+
+    func toggleMute() { setMuted(!isMuted) }
+
+    /// Plays again, muted, the video the other pane's video stopped.
+    func resumeMuted() {
+        isMuted = true
+        webView.evaluateJavaScript("window.__twinfold ? window.__twinfold.resumeMuted() : false")
     }
 
     func toggleFill() {

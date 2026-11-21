@@ -73,6 +73,16 @@ final class Browser {
             guard let self, let tab, let i = self.paneIndex(of: tab), i != self.active else { return }
             withAnimation(.easeOut(duration: 0.15)) { self.active = i }
         }
+        tab.onMediaStopped = { [weak self, weak tab] in
+            guard let self, let tab else { return }
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(450))
+                guard let i = self.paneIndex(of: tab), let other = self.panes[1 - i].tab, self.isSplit,
+                      other.mediaPlaying, abs(other.startedAt.timeIntervalSince(tab.stoppedAt)) < 1.0 else { return }
+                // The other pane's video took the sound: this one keeps playing, muted.
+                tab.resumeMuted()
+            }
+        }
         tab.onGesture = { [weak self] g in
             guard let self else { return }
             switch g {
@@ -286,5 +296,13 @@ final class Browser {
             try? await Task.sleep(for: .seconds(1.8))
             withAnimation { if self.toast == message { self.toast = nil } }
         }
+    }
+
+    /// One pane's sound at a time (iOS plays only one video with sound): turning a pane's sound on mutes the other.
+    func toggleMute(_ tab: Tab) {
+        if tab.isMuted, let i = paneIndex(of: tab), let other = panes[1 - i].tab, other.mediaPlaying, !other.isMuted {
+            other.setMuted(true)
+        }
+        tab.toggleMute()
     }
 }

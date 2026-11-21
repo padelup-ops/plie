@@ -23,6 +23,7 @@ enum MediaScript {
       ['play', 'playing', 'pause', 'ended', 'emptied', 'volumechange'].forEach(function (ev) {
         document.addEventListener(ev, function (e) {
           var t = e.target;
+          if (ev === 'pause' && t && t.tagName === 'VIDEO') { tf.lastPaused = t; }
           if (tf.muted && t && t.muted === false && (ev === 'play' || ev === 'playing')) t.muted = true;
           report();
         }, true);
@@ -35,6 +36,16 @@ enum MediaScript {
         }
       }
       tf.setMuted = setMuted;
+      // iOS lets only one video with sound play at a time: the video stopped by the other pane starts again, muted.
+      tf.resumeMuted = function () {
+        var v = tf.lastPaused;
+        if (!v || !v.isConnected) return false;
+        setMuted(true);
+        v.muted = true;
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+        return true;
+      };
       window.addEventListener('message', function (e) {
         if (e.data && typeof e.data.__twinfoldMute === 'boolean') setMuted(e.data.__twinfoldMute);
       });

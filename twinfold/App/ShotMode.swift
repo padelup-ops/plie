@@ -106,18 +106,14 @@ extension ShotMode {
                 log.append("\(label) volet \(i) : paused muted t = \(r) | rapport : lecture \(tab.mediaPlaying) vidéo \(tab.mediaVideo) coupé \(tab.isMuted) étirée \(tab.isFilled)")
             }
         }
-        try? await Task.sleep(for: .seconds(6))
-        await state("6 s")
-        // Starts the two again as if tapped, in case autoplay was held.
-        for i in 0..<2 { _ = try? await browser.panes[i].tab?.webView.evaluateJavaScript("document.getElementById('v').play();1") }
-        try? await Task.sleep(for: .seconds(3))
-        await state("9 s, après play()")
-        browser.panes[1].tab?.toggleMute()
+        try? await Task.sleep(for: .seconds(7))
+        await state("7 s, les deux lancées")
+        if let t0 = browser.panes[0].tab { browser.toggleMute(t0) }
         try? await Task.sleep(for: .seconds(2))
-        await state("11 s, volet 1 coupé")
+        await state("9 s, son passé au volet 0")
         browser.panes[0].tab?.toggleFill()
         try? await Task.sleep(for: .seconds(2))
-        await state("13 s, volet 0 étiré")
+        await state("11 s, volet 0 étiré")
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
         try? log.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
     }

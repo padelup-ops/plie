@@ -236,11 +236,12 @@ enum Brand {
 /// The pane's own sound and video buttons, shown while something plays: cut this pane's sound (the other pane keeps
 /// playing), and stretch the video over the whole pane.
 struct MediaControls: View {
+    @Environment(Browser.self) private var browser
     let tab: Tab
 
     var body: some View {
         HStack(spacing: 2) {
-            Button { tab.toggleMute() } label: {
+            Button { browser.toggleMute(tab) } label: {
                 Image(systemName: tab.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
                     .frame(width: 38, height: 38)
             }
