@@ -74,7 +74,7 @@ public struct CoverScreenLayout: View {
         @Bindable var appState = appState
 
         return TabView(selection: $appState.selectedGameType) {
-            ForEach(GameType.allCases) { game in
+            ForEach(GameType.shelf) { game in
                 CartridgeView(
                     game: game,
                     highScore: appState.highScore(for: game),
@@ -119,7 +119,7 @@ public struct CoverScreenLayout: View {
         let selected = appState.selectedGameType
 
         return HStack(spacing: 8) {
-            ForEach(GameType.allCases) { game in
+            ForEach(GameType.shelf) { game in
                 Capsule()
                     .fill(game == selected ? Color(hex: game.cartridgeColorHex) : consoleTheme.textColor.opacity(0.25))
                     .frame(width: game == selected ? 22 : 7, height: 7)

@@ -15,7 +15,7 @@ final class RetroCartridgeTests: XCTestCase {
     
     func testAppStatInitialValues() {
         let appState = AppState()
-        XCTAssertEqual(appState.selectedGameType, .brickBreaker)
+        XCTAssertEqual(appState.selectedGameType, .gamePak)
         XCTAssertNil(appState.activeGame)
         XCTAssertFalse(appState.isGameActive)
     }

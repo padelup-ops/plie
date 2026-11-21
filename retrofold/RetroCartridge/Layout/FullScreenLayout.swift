@@ -146,6 +146,8 @@ public struct FullScreenLayout: View {
                     .padding(.top, 6)
             }
 
+            ownGamesButton
+
             LazyVGrid(
                 columns: Array(
                     repeating: GridItem(.fixed(metrics.itemWidth), spacing: LibraryGridMetrics.spacing, alignment: .top),
@@ -153,13 +155,54 @@ public struct FullScreenLayout: View {
                 ),
                 spacing: LibraryGridMetrics.spacing
             ) {
-                ForEach(GameType.allCases) { game in
+                ForEach(GameType.shelf) { game in
                     cartridgeSlot(game, width: metrics.itemWidth)
                 }
             }
         }
     }
     
+    /// The Game Pak, said plainly: the player's own games, one big button above the shelf.
+    private var ownGamesButton: some View {
+        Button {
+            insert(.gamePak)
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "gamecontroller.fill")
+                    .font(.system(size: 26, weight: .bold))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("PLAY YOUR OWN GAMES")
+                        .retroFont(17, weight: .black, maxScale: 1.35, wraps: false)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text("GAME BOY · COLOR · ADVANCE · DS")
+                        .retroFont(11, weight: .semibold, maxScale: 1.35, wraps: false)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        .opacity(0.85)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 16, weight: .heavy))
+            }
+            .foregroundStyle(Color(hex: "#0F380F"))
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .frame(maxWidth: 520)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color(hex: GameType.gamePak.cartridgeColorHex).gradient)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(.white.opacity(0.25), lineWidth: 1)
+            )
+            .shadow(color: Color(hex: GameType.gamePak.cartridgeColorHex).opacity(0.45), radius: 14, y: 6)
+        }
+        .buttonStyle(CartridgePressStyle())
+        .accessibilityLabel("Play your own games: Game Boy, Game Boy Color, Game Boy Advance and DS")
+    }
+
     /// How many cartridges are playable, out of all of them.
     private var collectionCounter: some View {
         let owned = GameType.allCases.filter { storeManager.isUnlocked($0) }.count

@@ -23,7 +23,7 @@ final class AppState {
     // MARK: - Game State
     
     /// The currently selected game type (shown on cover screen carousel).
-    var selectedGameType: GameType = .brickBreaker
+    var selectedGameType: GameType = .gamePak
     
     /// The currently active game instance (nil when on menu/cover screen).
     var activeGame: (any PixelGameProtocol)? = nil

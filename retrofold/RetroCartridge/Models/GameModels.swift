@@ -334,6 +334,10 @@ enum GameType: String, CaseIterable, Identifiable, Codable {
     
     var id: String { rawValue }
 
+    /// The order on the shelf and in the cover carousel: the Game Pak (the player's own games) first, so
+    /// nobody has to scroll to the end to find it. `allCases` keeps its order (music, saved data).
+    static var shelf: [GameType] { [.gamePak] + allCases.filter { $0 != .gamePak } }
+
     /// The cartridge's metadata.
     var info: CartridgeInfo {
         switch self {

@@ -40,7 +40,8 @@ struct GameCanvasView: View {
         let theme = SkinManager.theme(for: storeManager.effectiveSkin(appState.selectedSkin))
 
         GeometryReader { geo in
-            let inset = min(geo.size.width, geo.size.height) * 0.05
+            // Thin bezel: the picture gets most of the half (it used to be framed by a wide border).
+            let inset = min(geo.size.width, geo.size.height) * 0.032
 
             ZStack {
                 // Bezel
@@ -58,18 +59,21 @@ struct GameCanvasView: View {
                     )
                     .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
 
-                VStack(spacing: inset * 0.6) {
+                VStack(spacing: inset * 0.4) {
                     bezelHeader(theme: theme, inset: inset)
                         .accessibilityHidden(true)
 
                     if let activeGame = appState.activeGame {
                         TimelineView(.animation) { timeline in
-                            VStack(spacing: inset * 0.6) {
+                            VStack(spacing: inset * 0.4) {
                                 screen(game: activeGame, date: timeline.date)
-                                    .aspectRatio(screenAspectRatio, contentMode: .fit)
+                                    .aspectRatio(aspectRatio(for: activeGame), contentMode: .fit)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                                if let toast, timeline.date < toastUntil {
+                                if activeGame.gameType == .gamePak {
+                                    // The player's own games keep their own score: no strip, more picture.
+                                    EmptyView()
+                                } else if let toast, timeline.date < toastUntil {
                                     AchievementToast(achievement: toast, fontSize: max(10, inset * 0.5))
                                         .transition(.opacity)
                                 } else {
@@ -139,7 +143,7 @@ struct GameCanvasView: View {
                 }
                 .padding(inset)
             }
-            .padding(inset)
+            .padding(inset * 0.6)
         }
         .onDisappear {
             audioManager.playMusic(for: nil)
@@ -158,6 +162,12 @@ struct GameCanvasView: View {
     /// The screen to draw, limited to what the player has unlocked.
     private var screenSettings: ScreenSettings {
         storeManager.effectiveScreenSettings(appState.screenSettings)
+    }
+
+    /// The tube's shape: the mini-games draw on a 10:9 Game Boy-like screen; a Game Pak game takes its
+    /// console's own shape (3:2 for the Game Boy Advance), so nothing is letterboxed.
+    private func aspectRatio(for game: any PixelGameProtocol) -> CGFloat {
+        (game as? GamePakGame)?.screenAspect ?? screenAspectRatio
     }
 
     // MARK: - Bezel

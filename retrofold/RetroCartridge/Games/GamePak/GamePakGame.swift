@@ -214,6 +214,12 @@ final class GamePakGame: PixelGameProtocol {
 
     // MARK: - Drawing
 
+    /// The shape of the console's screen (width / height): the running game's own, or a wide list.
+    var screenAspect: CGFloat {
+        if gameState != .menu, let px = machine?.pixelSize, px.height > 0 { return px.width / px.height }
+        return 4 / 3
+    }
+
     /// Where the picture goes in a canvas of the given size (centered, as large as fits).
     func pictureRect(in size: CGSize) -> CGRect {
         let px = machine?.pixelSize ?? CGSize(width: 160, height: 144)
