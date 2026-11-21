@@ -29,6 +29,13 @@ final class Browser {
     var outerSplit = false
     /// The first pane's share when the handle decides (no fold, or the handle was dragged).
     var ratio: Double = 0.5
+    /// The two pages scroll together (the same share of each page).
+    var syncScroll = false
+    /// One pane over the whole screen for a while (the split comes back with the same gesture).
+    var maximized: Int?
+    /// The bottom bar steps aside until then (tap the bottom edge to bring it back sooner).
+    var barHiddenUntil: Date?
+
     /// On an unfolded Duo the panes meet at the fold until the handle is dragged (double tap the handle: back).
     var followsFold = true
 
@@ -58,7 +65,7 @@ final class Browser {
     var toast: String?
 
     enum SheetKind: String, Identifiable {
-        case tabs, library, pairs, settings, savePair, reader, following
+        case tabs, library, pairs, settings, savePair, reader, following, whatsNew
         var id: String { rawValue }
     }
 
@@ -98,12 +105,9 @@ final class Browser {
                 tab.resumeMuted()
             }
         }
-        tab.onGesture = { [weak self] g in
+        tab.onTrigger = { [weak self] trigger in
             guard let self else { return }
-            switch g {
-            case .split: self.toggleSplit()
-            case .newTab: self.newTab()
-            }
+            self.perform(Library.shared.action(for: trigger))
         }
         tab.onOpen = { [weak self, weak tab] url, configuration, target in
             guard let self, let tab, let i = self.paneIndex(of: tab) else { return nil }

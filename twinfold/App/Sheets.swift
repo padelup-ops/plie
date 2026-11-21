@@ -347,11 +347,10 @@ struct SettingsSheet: View {
                     Text("Links")
                 }
                 Section {
-                    Toggle("Two-Finger Swipes", isOn: $lib.twoFingerGestures)
-                } header: {
-                    Text("Gestures")
-                } footer: {
-                    Text("On a page, swipe with two fingers: left to go back, right to go forward, down for one or two pages, up for a new tab.")
+                    NavigationLink { GestureSettings() } label: {
+                        LabeledContent("Gestures", value: lib.twoFingerGestures ? String(localized: "On") : String(localized: "Off"))
+                    }
+                    NavigationLink("What's New") { WhatsNewList() }
                 }
                 Section {
                     Button("Clear Cookies and Website Data", role: .destructive) { confirmClearData = true }

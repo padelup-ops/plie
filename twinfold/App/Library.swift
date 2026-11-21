@@ -86,6 +86,9 @@ final class Library {
         didSet { defaults.set(twoFingerGestures, forKey: "twoFingerGestures") }
     }
 
+    /// Bumped when a gesture's action changes, so the settings list redraws.
+    var gestureRevision = 0
+
     private let defaults = UserDefaults.standard
 
     private init() {

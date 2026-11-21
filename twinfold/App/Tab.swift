@@ -44,9 +44,9 @@ final class Tab: NSObject, Identifiable {
 
     enum LinkTarget { case newTab, otherPane }
 
-    /// Two-finger swipes: left back, right forward, down one/two pages, up new tab.
-    enum Gesture { case split, newTab }
-    @ObservationIgnored var onGesture: ((Gesture) -> Void)?
+    /// Set by the browser: a gesture chosen in Settings was made on this page.
+    @ObservationIgnored var onTrigger: ((GestureTrigger) -> Void)?
+    @ObservationIgnored private var gestures: GestureHost?
 
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
 
@@ -72,13 +72,13 @@ final class Tab: NSObject, Identifiable {
         tap.delegate = self
         webView.addGestureRecognizer(tap)
 
-        for dir in [UISwipeGestureRecognizer.Direction.left, .right, .up, .down] {
-            let swipe = UISwipeGestureRecognizer(target: self, action: #selector(swiped(_:)))
-            swipe.direction = dir
-            swipe.numberOfTouchesRequired = 2
-            swipe.delegate = self
-            webView.addGestureRecognizer(swipe)
+        let host = GestureHost(webView: webView)
+        host.run = { [weak self] trigger in
+            self?.onActivate?()
+            self?.onTrigger?(trigger)
         }
+        gestures = host
+        ScrollSync.shared.watch(self)
 
         observations = [
             webView.observe(\.title, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.title = wv.title ?? "" } },
@@ -147,17 +147,6 @@ final class Tab: NSObject, Identifiable {
 
     @objc private func tapped() { onActivate?() }
 
-    @objc private func swiped(_ g: UISwipeGestureRecognizer) {
-        guard Library.shared.twoFingerGestures else { return }
-        onActivate?()
-        switch g.direction {
-        case .left: if webView.canGoBack { webView.goBack() }
-        case .right: if webView.canGoForward { webView.goForward() }
-        case .down: onGesture?(.split)
-        case .up: onGesture?(.newTab)
-        default: break
-        }
-    }
 
     // MARK: Media
 

@@ -11,7 +11,7 @@ import WebKit
 // MARK: - AI in the other pane
 
 enum Assistant: String, CaseIterable, Identifiable {
-    case chatGPT, claude, gemini
+    case chatGPT, claude, gemini, leChat, perplexity, copilot
     var id: String { rawValue }
 
     var name: String {
@@ -19,6 +19,9 @@ enum Assistant: String, CaseIterable, Identifiable {
         case .chatGPT: return "ChatGPT"
         case .claude: return "Claude"
         case .gemini: return "Gemini"
+        case .leChat: return "Le Chat"
+        case .perplexity: return "Perplexity"
+        case .copilot: return "Copilot"
         }
     }
 
@@ -27,6 +30,9 @@ enum Assistant: String, CaseIterable, Identifiable {
         case .chatGPT: return URL(string: "https://chatgpt.com/")!
         case .claude: return URL(string: "https://claude.ai/new")!
         case .gemini: return URL(string: "https://gemini.google.com/app")!
+        case .leChat: return URL(string: "https://chat.mistral.ai/chat")!
+        case .perplexity: return URL(string: "https://www.perplexity.ai/")!
+        case .copilot: return URL(string: "https://copilot.microsoft.com/")!
         }
     }
 
@@ -37,6 +43,9 @@ enum Assistant: String, CaseIterable, Identifiable {
         switch self {
         case .chatGPT: return URL(string: "https://chatgpt.com/?q=\(q)")
         case .claude: return URL(string: "https://claude.ai/new?q=\(q)")
+        case .leChat: return URL(string: "https://chat.mistral.ai/chat?q=\(q)")
+        case .perplexity: return URL(string: "https://www.perplexity.ai/search?q=\(q)")
+        case .copilot: return URL(string: "https://copilot.microsoft.com/?q=\(q)")
         case .gemini: return nil
         }
     }

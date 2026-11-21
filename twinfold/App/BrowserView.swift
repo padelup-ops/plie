@@ -13,7 +13,30 @@ struct BrowserView: View {
         @Bindable var browser = browser
         VStack(spacing: 0) {
             PanesArea()
-            AddressBar()
+                .overlay(alignment: .topTrailing) {
+                    if browser.maximized != nil && browser.isSplit {
+                        Button { browser.toggleMaximize() } label: {
+                            Image(systemName: "rectangle.split.2x1")
+                                .font(.system(size: 15, weight: .semibold))
+                                .frame(width: 36, height: 36)
+                                .background(.thinMaterial, in: Circle())
+                        }
+                        .padding(10)
+                        .accessibilityLabel(Text("Back to Two Pages"))
+                    }
+                }
+            if browser.barHidden {
+                // The bar stepped aside: a touch on the bottom edge brings it back.
+                Capsule().fill(Color.secondary.opacity(0.5)).frame(width: 60, height: 5)
+                    .frame(maxWidth: .infinity, minHeight: 18)
+                    .contentShape(Rectangle())
+                    .onTapGesture { withAnimation { browser.barHiddenUntil = nil } }
+                    .accessibilityLabel(Text("Show the Bar"))
+                    .accessibilityAddTraits(.isButton)
+            } else {
+                AddressBar()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
         .background(Color(.systemBackground))
         .overlay(alignment: .top) {
@@ -35,9 +58,14 @@ struct BrowserView: View {
             case .savePair: SavePairSheet()
             case .reader: ReaderSheet()
             case .following: FollowingSheet()
+            case .whatsNew: WhatsNewSheet()
             }
         }
         .tint(Brand.accent)
+        .task {
+            try? await Task.sleep(for: .seconds(1))
+            if WhatsNew.shouldShow() { browser.sheet = .whatsNew }
+        }
     }
 }
 
@@ -50,11 +78,11 @@ struct PanesArea: View {
         GeometryReader { geo in
             let fold = geo.reservedRegions(kind: .division, options: .includeInactive).first?.frame
             let layout = PaneLayout(size: geo.size, fold: fold, ratio: browser.ratio, axis: browser.axis, followsFold: browser.followsFold)
-            let split = browser.isSplit
+            let split = browser.isSplit && browser.maximized == nil
 
             ZStack(alignment: .topLeading) {
                 ForEach(0..<2, id: \.self) { i in
-                    let shown = split || i == browser.active
+                    let shown = split || i == (browser.maximized ?? browser.active)
                     let frame = split ? (i == 0 ? layout.first : layout.second) : CGRect(origin: .zero, size: geo.size)
                     PaneView(index: i, showsActiveMark: split)
                         .frame(width: frame.width, height: frame.height)

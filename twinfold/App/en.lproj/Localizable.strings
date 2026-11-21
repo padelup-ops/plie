@@ -6,3 +6,5 @@
 "Translate the main text of this page into %@: %@" = "Translate the main text of this page into %@: %@";
 "Explain this page simply, as if to a friend: %@ %@" = "Explain this page simply, as if to a friend: %@ %@";
 "Question copied: paste it in %@" = "Question copied: paste it in %@";
+"%lld Seconds" = "%lld Seconds";
+"Version %@" = "Version %@";

@@ -186,6 +186,15 @@ struct MainMenu: View {
             Section {
                 Button("New Tab", systemImage: "plus.square") { browser.newTab() }
                 Button("New Private Tab", systemImage: "eye.slash") { browser.newTab(isPrivate: true) }
+                if let t = browser.activeTab, !t.isBlank {
+                    Button(LocalizedStringKey(t.isPrivate ? "Switch to a Normal Tab" : "Switch to a Private Tab"),
+                           systemImage: t.isPrivate ? "eye" : "eye.slash.circle") { browser.togglePrivate() }
+                }
+                Menu {
+                    ForEach([10, 30, 60], id: \.self) { sec in
+                        Button(String(localized: "\(sec) Seconds")) { browser.hideBar(for: sec) }
+                    }
+                } label: { Label("Hide the Bar", systemImage: "chevron.down.circle") }
             }
             Section {
                 if let url = tab?.url {
@@ -248,6 +257,13 @@ struct MainMenu: View {
                 .pickerStyle(.menu)
                 if browser.isSplit {
                     Button("Swap Panes", systemImage: "arrow.up.arrow.down") { browser.swap() }
+                    Toggle(isOn: Binding(get: { browser.syncScroll }, set: { _ in browser.perform(.syncScroll) })) {
+                        Label("Scroll Together", systemImage: "arrow.up.and.down.text.horizontal")
+                    }
+                    Button(LocalizedStringKey(browser.maximized == nil ? "This Page Full Screen" : "Back to Two Pages"),
+                           systemImage: browser.maximized == nil ? "arrow.up.left.and.arrow.down.right" : "rectangle.split.2x1") {
+                        browser.toggleMaximize()
+                    }
                     if browser.canSavePair {
                         Button("Save as Pair", systemImage: "star.square.on.square") { browser.sheet = .savePair }
                     }
