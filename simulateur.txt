@@ -1,0 +1,8 @@
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-27-2-iPhone19-4 device=com.apple.CoreSimulator.SimDeviceType.iPhone-Duo
+180.0
+    • active: false
+    • name: LCD-1
+    • nativeSize: (2007.0, 2853.0)
+    • active: true
+Main display orientation: landscapeRight, non-flat orientation: landscapeRight, orientation not locked
+dualplay : Main display orientation: landscapeRight

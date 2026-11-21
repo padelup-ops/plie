@@ -1,0 +1,8 @@
+6 s, au départ volet 0 : paused muted t = none | rapport : lecture false vidéo false coupé false étirée false
+6 s, au départ volet 1 : paused muted t = none | rapport : lecture false vidéo false coupé false étirée false
+8 s, les deux sans son volet 0 : paused muted t = none | rapport : lecture false vidéo false coupé false étirée false
+8 s, les deux sans son volet 1 : paused muted t = none | rapport : lecture false vidéo false coupé false étirée false
+10 s, son sur le volet 1 volet 0 : paused muted t = true false 0.0 | rapport : lecture false vidéo false coupé false étirée false
+10 s, son sur le volet 1 volet 1 : paused muted t = true false 0.0 | rapport : lecture false vidéo false coupé true étirée false
+12 s, son passé au volet 0 volet 0 : paused muted t = false true 0.0 | rapport : lecture true vidéo true coupé true étirée false
+12 s, son passé au volet 0 volet 1 : paused muted t = false true 0.0 | rapport : lecture true vidéo true coupé true étirée false
