@@ -267,7 +267,7 @@ struct ReaderSheet: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
                 ToolbarItemGroup(placement: .bottomBar) {
-                    Button { Speaker.shared.toggle(article?.plainText ?? "") } label: {
+                    Button { Store.shared.gate(.readAloud) { Speaker.shared.toggle(article?.plainText ?? "") } } label: {
                         Label(LocalizedStringKey(Speaker.shared.speaking ? "Stop Reading" : "Read Aloud"),
                               systemImage: Speaker.shared.speaking ? "stop.fill" : "play.fill")
                     }

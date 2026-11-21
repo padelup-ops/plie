@@ -103,6 +103,7 @@ extension Browser {
         case .toggleAxis: setAxis(currentlySideBySide ? .stacked : .sideBySide)
         case .swapPanes: swap()
         case .syncScroll:
+            guard syncScroll || Store.shared.isPro else { Store.shared.gate(.syncScroll) {}; return }
             syncScroll.toggle()
             flash(syncScroll ? String(localized: "Scrolling together") : String(localized: "Scrolling separately"))
         case .maximize: toggleMaximize()
@@ -266,7 +267,7 @@ struct GestureSettings: View {
             Section {
                 ForEach(GestureTrigger.allCases) { trigger in
                     Picker(selection: Binding(get: { _ = lib.gestureRevision; return lib.action(for: trigger) },
-                                              set: { lib.setAction($0, for: trigger) })) {
+                                              set: { a in Store.shared.gate(.gestures) { lib.setAction(a, for: trigger) } })) {
                         ForEach(BrowserAction.allCases) { Text($0.title).tag($0) }
                     } label: {
                         Label(trigger.title, systemImage: trigger.symbol)

@@ -17,10 +17,18 @@ struct AddressBar: View {
                 controls
             }
         }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        // A floating sheet of glass under the pages, its edge lit by the active page's colour.
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 26))
+        .overlay {
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .strokeBorder((browser.activeTab?.isPrivate == true ? Brand.coral : Brand.accent).opacity(0.25), lineWidth: 1)
+                .allowsHitTesting(false)
+        }
         .padding(.horizontal, 10)
         .padding(.top, 6)
-        .padding(.bottom, 4)
-        .background(.bar)
+        .padding(.bottom, 2)
     }
 
     private var controls: some View {
@@ -49,9 +57,9 @@ struct AddressBar: View {
                     }
                 }
                 .font(.subheadline)
-                .frame(maxWidth: .infinity, minHeight: 38)
-                .padding(.horizontal, 10)
-                .background(Color(.secondarySystemFill), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .frame(maxWidth: .infinity, minHeight: 40)
+                .padding(.horizontal, 12)
+                .background(Color.primary.opacity(0.07), in: Capsule())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("Address"))
@@ -217,12 +225,14 @@ struct MainMenu: View {
                             if following {
                                 Following.shared.unfollow(feed: feed)
                             } else {
-                                Following.shared.follow(title: tab?.title ?? "", site: url, feed: feed)
-                                browser.flash(String(localized: "Following \(tab?.displayAddress ?? "")"))
+                                Store.shared.gate(.follow) {
+                                    Following.shared.follow(title: tab?.title ?? "", site: url, feed: feed)
+                                    browser.flash(String(localized: "Following \(tab?.displayAddress ?? "")"))
+                                }
                             }
                         }
                     }
-                    Button("Save as PDF", systemImage: "doc.richtext") { browser.sharePDF() }
+                    Button("Save as PDF", systemImage: "doc.richtext") { Store.shared.gate(.pdf) { browser.sharePDF() } }
                     if browser.isSplit {
                         Button("Open This Page in the Other Pane", systemImage: "rectangle.portrait.on.rectangle.portrait") {
                             browser.load(url, inPane: browser.otherIndex)
@@ -234,13 +244,13 @@ struct MainMenu: View {
                 ForEach(Assistant.AITask.allCases) { task in
                     Section(task.title) {
                         ForEach(Assistant.allCases) { a in
-                            Button(a.name) { browser.ask(a, task) }
+                            Button(a.name) { Store.shared.gate(.ai) { browser.ask(a, task) } }
                         }
                     }
                 }
                 Section("Open") {
                     ForEach(Assistant.allCases) { a in
-                        Button(a.name) { browser.ask(a, nil) }
+                        Button(a.name) { Store.shared.gate(.ai) { browser.ask(a, nil) } }
                     }
                 }
             } label: {

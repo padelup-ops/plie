@@ -299,6 +299,10 @@ struct SavePairSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         let n = name.trimmingCharacters(in: .whitespaces)
+                        guard Store.shared.isPro || Library.shared.pairs.count < 2 else {
+                            Store.shared.gate(.pairs) {}
+                            return
+                        }
                         if let pair = browser.makePair(named: n.isEmpty ? browser.suggestedPairName() : n) {
                             Library.shared.savePair(pair)
                             browser.flash(String(localized: "Pair saved"))
@@ -328,6 +332,23 @@ struct SettingsSheet: View {
         @Bindable var lib = Library.shared
         NavigationStack {
             Form {
+                Section {
+                    if Store.shared.isPro {
+                        Label { Text("Twinfold Pro") } icon: { Image(systemName: "crown.fill").foregroundStyle(Brand.accent) }
+                    } else {
+                        Button { Store.shared.gate(.general) {} } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "crown.fill").font(.title3).foregroundStyle(Brand.mint)
+                                    .frame(width: 40, height: 40).background(Brand.ink, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Twinfold Pro").font(.headline)
+                                    Text("AI beside the page, unlimited pairs, your gestures").font(.caption).foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
                 Section("Search") {
                     Picker("Search Engine", selection: $lib.searchEngine) {
                         ForEach(SearchEngine.allCases) { Text($0.name).tag($0) }

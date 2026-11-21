@@ -54,6 +54,10 @@ enum ShotMode {
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { browser.sheet = .pairs }
+        case "paywall":
+            show(0, "video", "dailyloaf.example")
+            show(1, "recipe", "dailyloaf.example")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { Store.shared.asking = .general }
         case "dualplay":
             // Test: two videos with sound at once, then the pane buttons (sound cut, video over the pane).
             show(0, "dualtest-a", "video-a.example")

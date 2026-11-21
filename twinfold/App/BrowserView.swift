@@ -38,7 +38,7 @@ struct BrowserView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .background(Color(.systemBackground))
+        .background(Color(.secondarySystemBackground).ignoresSafeArea())
         .overlay(alignment: .top) {
             if let toast = browser.toast {
                 Text(toast)
@@ -62,6 +62,9 @@ struct BrowserView: View {
             }
         }
         .tint(Brand.accent)
+        .fullScreenCover(item: Binding(get: { Store.shared.asking }, set: { Store.shared.asking = $0 })) { f in
+            ProSheet(feature: f)
+        }
         .task {
             try? await Task.sleep(for: .seconds(1))
             if WhatsNew.shouldShow() { browser.sheet = .whatsNew }
@@ -257,14 +260,19 @@ struct PaneView: View {
             }
         }
         .animation(.spring(response: 0.3), value: pane.tab?.mediaPlaying)
+        .clipShape(RoundedRectangle(cornerRadius: showsActiveMark ? 18 : 0, style: .continuous))
         .overlay {
-            if showsActiveMark && browser.active == index {
-                RoundedRectangle(cornerRadius: 2)
-                    .strokeBorder(Brand.accent.opacity(0.85), lineWidth: 2)
+            if showsActiveMark {
+                let isActive = browser.active == index
+                let tint = pane.tab?.isPrivate == true ? Brand.coral : Brand.accent
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(isActive ? tint : Color.primary.opacity(0.08), lineWidth: isActive ? 2.5 : 1)
+                    .shadow(color: isActive ? tint.opacity(0.45) : .clear, radius: 8)
                     .allowsHitTesting(false)
+                    .animation(.easeOut(duration: 0.2), value: isActive)
             }
         }
-        .clipped()
+        .padding(showsActiveMark ? 3 : 0)
         .simultaneousGesture(TapGesture().onEnded {
             if browser.active != index { withAnimation(.easeOut(duration: 0.15)) { browser.active = index } }
         })
@@ -277,6 +285,8 @@ enum Brand {
     /// Twinfold coral, for the private tabs.
     static let coral = Color(red: 0.98, green: 0.42, blue: 0.33)
     static let ink = Color(red: 0.07, green: 0.12, blue: 0.15)
+    /// A light mint, for Pro.
+    static let mint = Color(red: 0.42, green: 0.91, blue: 0.80)
 }
 
 /// The pane's own sound and video buttons, shown while something plays: cut this pane's sound (the other pane keeps
