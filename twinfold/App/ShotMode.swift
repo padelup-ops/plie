@@ -54,6 +54,19 @@ enum ShotMode {
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { browser.sheet = .pairs }
+        case "overview":
+            show(0, "video", "dailyloaf.example")
+            show(0, "news", "harbornews.example")
+            show(1, "recipe", "dailyloaf.example")
+            show(1, "map", "trailmaps.example")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { browser.showOverview() }
+        case "notes":
+            show(0, "video", "dailyloaf.example")
+            show(1, "recipe", "dailyloaf.example")
+            VideoNotes.shared.add("Fold the bottom third up", at: 462, for: browser.panes[0].tab?.url)
+            VideoNotes.shared.add("Seam side up in the basket", at: 515, for: browser.panes[0].tab?.url)
+            VideoNotes.shared.add("Score at 30°, 1 cm deep", at: 731, for: browser.panes[0].tab?.url)
+            browser.panes[1].tool = .videoNotes
         case "paywall":
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")
