@@ -69,7 +69,7 @@ final class Tab: NSObject, Identifiable {
         self.isPrivate = isPrivate
         self.profile = isPrivate ? nil : profile
         let config = configuration ?? Tab.makeConfiguration(isPrivate: isPrivate, profile: profile)
-        webView = WKWebView(frame: .zero, configuration: config)
+        webView = EdgeWebView(frame: .zero, configuration: config)
         super.init()
         webView.allowsBackForwardNavigationGestures = true
         webView.allowsLinkPreview = true
@@ -77,7 +77,9 @@ final class Tab: NSObject, Identifiable {
         webView.isInspectable = false
         webView.navigationDelegate = self
         webView.uiDelegate = self
-        webView.scrollView.contentInsetAdjustmentBehavior = .automatic
+        // Edge to edge, like the system's own full-screen apps: the page runs under the status band, the camera and
+        // the home indicator instead of leaving black strips (the floating bar keeps clear of them itself).
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.backgroundColor = .systemBackground
         webView.isOpaque = false
 
@@ -364,4 +366,10 @@ extension Tab: WKUIDelegate {
         while let next = top?.presentedViewController { top = next }
         return top
     }
+}
+
+
+/// A web view that ignores the screen's safe area: the page fills its whole pane, on every screen of the Duo.
+final class EdgeWebView: WKWebView {
+    override var safeAreaInsets: UIEdgeInsets { .zero }
 }

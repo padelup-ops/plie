@@ -95,6 +95,9 @@ struct BrowserView: View {
 
 struct PanesArea: View {
     @Environment(Browser.self) private var browser
+    /// While the handle is dragged: the share it would give (the pages only resize once, when it's let go, so
+    /// nothing flickers).
+    @State private var preview: Double?
 
     var body: some View {
         GeometryReader { geo in
@@ -110,9 +113,15 @@ struct PanesArea: View {
                 // only the split moved, so the handle went one way and the pages stayed put).
                 pane(0, layout: layout, size: geo.size, split: split, insets: insets)
                 pane(1, layout: layout, size: geo.size, split: split, insets: insets)
-                if split {
-                    PaneDivider(layout: layout, size: geo.size)
+                if split, let p = preview {
+                    let ghost = PaneLayout(size: geo.size, fold: nil, ratio: p, axis: layout.sideBySide ? .sideBySide : .stacked, followsFold: false)
+                    ResizePreview(layout: ghost)
                         .zIndex(2)
+                        .allowsHitTesting(false)
+                }
+                if split {
+                    PaneDivider(layout: layout, size: geo.size, preview: $preview)
+                        .zIndex(3)
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)
@@ -121,11 +130,14 @@ struct PanesArea: View {
             .onChange(of: layout.sideBySide) { _, v in browser.layoutSideBySide = v }
             .onChange(of: fold != nil) { _, has in
                 browser.hasFold = has
-                browser.postureChanged()
+                var t = Transaction(); t.disablesAnimations = true
+                withTransaction(t) { browser.postureChanged() }
             }
             .onChange(of: geo.size.width > geo.size.height) { _, _ in
-                // Turned: back to automatic, so the pages go top and bottom or side by side on their own.
-                browser.postureChanged()
+                // Turned: back to automatic, so the pages go top and bottom or side by side on their own (at once,
+                // no animation fighting the system's rotation).
+                var t = Transaction(); t.disablesAnimations = true
+                withTransaction(t) { browser.postureChanged() }
             }
         }
     }
@@ -242,7 +254,7 @@ private struct PaneDivider: View {
     @Environment(Browser.self) private var browser
     let layout: PaneLayout
     let size: CGSize
-    @State private var startRatio: Double?
+    @Binding var preview: Double?
 
     var body: some View {
         let g = layout.gap
@@ -253,6 +265,7 @@ private struct PaneDivider: View {
                 .fill(Brand.coral)
                 .frame(width: layout.sideBySide ? 5 : 46, height: layout.sideBySide ? 46 : 5)
                 .shadow(color: .black.opacity(0.25), radius: 2)
+                .opacity(preview == nil ? 1 : 0.001)
         }
         .frame(width: max(g.width, 1), height: max(g.height, 1))
         .contentShape(Rectangle().inset(by: -16))
@@ -305,23 +318,54 @@ private struct PaneDivider: View {
     }
 
     private var drag: some Gesture {
-        // Measured in the panes' own space, not the handle's: the handle moves under the finger while dragging.
-        DragGesture(minimumDistance: 2, coordinateSpace: .named(PaneLayout.space))
+        // Measured in the panes' own space. The pages don't move while the finger does: a preview shows where
+        // they'll go, and they take their new size once, when it's let go.
+        DragGesture(minimumDistance: 1, coordinateSpace: .named(PaneLayout.space))
             .onChanged { v in
-                let start = startRatio ?? layout.share
-                if startRatio == nil { startRatio = start }
                 let total = layout.sideBySide ? size.width : size.height
-                let delta = (layout.sideBySide ? v.translation.width : v.translation.height) / max(total, 1)
-                browser.followsFold = false
-                browser.ratio = min(0.85, max(0.15, start + delta))
+                let at = (layout.sideBySide ? v.location.x : v.location.y) / max(total, 1)
+                var p = min(0.85, max(0.15, Double(at)))
+                for snap in [1.0 / 3, 0.5, 2.0 / 3] where abs(p - snap) < 0.025 { p = snap }
+                if preview == nil { UISelectionFeedbackGenerator().selectionChanged() }
+                if let old = preview, [1.0 / 3, 0.5, 2.0 / 3].contains(p), old != p { UISelectionFeedbackGenerator().selectionChanged() }
+                preview = p
             }
             .onEnded { _ in
-                startRatio = nil
-                // Snaps to thirds and half when close.
-                for snap in [1.0 / 3, 0.5, 2.0 / 3] where abs(browser.ratio - snap) < 0.03 {
-                    withAnimation(.spring(response: 0.25)) { browser.ratio = snap }
+                guard let p = preview else { return }
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.9)) {
+                    browser.followsFold = false
+                    browser.ratio = p
+                    preview = nil
                 }
             }
+    }
+}
+
+/// Where the pages will go while the handle is dragged: two frosted pages and the handle, over the real ones.
+private struct ResizePreview: View {
+    let layout: PaneLayout
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Color.black.opacity(0.12)
+            page(layout.first)
+            page(layout.second)
+            Capsule()
+                .fill(Brand.coral)
+                .frame(width: layout.sideBySide ? 6 : 56, height: layout.sideBySide ? 56 : 6)
+                .shadow(color: .black.opacity(0.3), radius: 3)
+                .position(x: layout.gap.midX, y: layout.gap.midY)
+        }
+        .ignoresSafeArea()
+    }
+
+    private func page(_ r: CGRect) -> some View {
+        RoundedRectangle(cornerRadius: 18, style: .continuous)
+            .fill(.ultraThinMaterial)
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1.5))
+            .padding(3)
+            .frame(width: max(r.width, 1), height: max(r.height, 1))
+            .offset(x: r.minX, y: r.minY)
     }
 }
 
@@ -340,7 +384,7 @@ struct PaneView: View {
         let pane = browser.panes[index]
         ZStack(alignment: .top) {
             if let tab = pane.tab {
-                WebHost(tab: tab)
+                WebHost(tab: tab, topInset: edges.top)
                     .id(tab.id)
                 if tab.isBlank {
                     StartPage(pane: index)
