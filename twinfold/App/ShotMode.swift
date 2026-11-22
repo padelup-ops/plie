@@ -54,6 +54,12 @@ enum ShotMode {
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { browser.sheet = .pairs }
+        case "relayout":
+            // Test: the layout changes after launch (like turning the device): panes must follow.
+            show(0, "video", "dailyloaf.example")
+            show(1, "recipe", "dailyloaf.example")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { browser.setAxis(.stacked) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) { browser.ratio = 0.35; browser.followsFold = false }
         case "overview":
             show(0, "video", "dailyloaf.example")
             show(0, "news", "harbornews.example")
