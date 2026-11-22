@@ -248,7 +248,7 @@ struct Initial: View {
     private var letter: some View {
         let host = url.host() ?? text
         let hue = Double(host.unicodeScalars.reduce(UInt32(7)) { ($0 &* 31) &+ $1.value } % 360) / 360
-        RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)
+        return RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)
             .fill(LinearGradient(colors: [Color(hue: hue, saturation: 0.42, brightness: 0.9), Color(hue: (hue + 0.07).truncatingRemainder(dividingBy: 1), saturation: 0.62, brightness: 0.72)],
                                  startPoint: .topLeading, endPoint: .bottomTrailing))
             .shadow(color: Color(hue: hue, saturation: 0.6, brightness: 0.5).opacity(0.25), radius: size * 0.08, y: size * 0.04)
