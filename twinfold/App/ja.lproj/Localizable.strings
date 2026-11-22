@@ -303,3 +303,10 @@
 "Hold a link,\nsend it across." = "リンクを長押しして\nもう一方へ。";
 "It opens in the other page. Yours stays put." = "もう一方のページで開き、今のページはそのまま。";
 "Show the Dock" = "ドックを表示";
+"Tabs and Apps" = "タブとアプリ";
+"Together on One Side" = "片側にまとめる";
+"Split on Both Sides" = "左右に分ける";
+"Double tap the dock's handle to move it to the other side." = "ドックのハンドルをダブルタップすると反対側へ移動します。";
+"Move to the Other Side" = "反対側へ移動";
+"Hide the Dock" = "ドックを隠す";
+"Dock Follows Your Hand" = "ドックが手の位置に追従";

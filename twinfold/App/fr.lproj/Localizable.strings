@@ -303,3 +303,10 @@
 "Hold a link,\nsend it across." = "Maintenez un lien,\nenvoyez-le en face.";
 "It opens in the other page. Yours stays put." = "Il s'ouvre dans l'autre page. La vôtre ne bouge pas.";
 "Show the Dock" = "Afficher le dock";
+"Tabs and Apps" = "Onglets et apps";
+"Together on One Side" = "Ensemble d'un côté";
+"Split on Both Sides" = "Répartis des deux côtés";
+"Double tap the dock's handle to move it to the other side." = "Touchez deux fois la poignée du dock pour l'envoyer de l'autre côté.";
+"Move to the Other Side" = "Passer de l'autre côté";
+"Hide the Dock" = "Masquer le dock";
+"Dock Follows Your Hand" = "Le dock suit votre main";

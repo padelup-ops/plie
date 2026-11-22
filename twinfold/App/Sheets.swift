@@ -403,8 +403,17 @@ struct SettingsSheet: View {
                         Text("Top of the Page").tag(true)
                     }
                     Toggle("Side Dock with Your Tabs", isOn: $lib.sideDock)
+                    if lib.sideDock {
+                        Picker("Tabs and Apps", selection: $lib.dockTogether) {
+                            Text("Together on One Side").tag(true)
+                            Text("Split on Both Sides").tag(false)
+                        }
+                        Toggle("Dock Follows Your Hand", isOn: $lib.dockFollowsHand)
+                    }
                 } header: {
                     Text("Layout")
+                } footer: {
+                    Text("Double tap the dock's handle to move it to the other side.")
                 }
                 Section {
                     Toggle("Video Above When Half Folded", isOn: $lib.laptopPosture)

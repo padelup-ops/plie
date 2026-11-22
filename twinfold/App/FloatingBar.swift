@@ -104,6 +104,9 @@ struct AddressPanel: View {
 /// The side dock: the active page's tabs as little icons on its edge, one tap to switch, + for a new one.
 struct SideDock: View {
     @Environment(Browser.self) private var browser
+    enum Part { case all, tabs, apps }
+    var part: Part = .all
+    var onRight = false
 
     var body: some View {
         if browser.dockOpen {
@@ -111,25 +114,40 @@ struct SideDock: View {
                 .onAppear { browser.scheduleDockTuck() }
                 .simultaneousGesture(TapGesture().onEnded { browser.scheduleDockTuck() })
         } else {
-            // Tucked away: a slim tab on the edge; touch it (or the page) to bring the dock back.
-            Button {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { browser.dockOpen = true }
-                browser.scheduleDockTuck()
-            } label: {
-                Capsule().fill(Color.primary.opacity(0.35)).frame(width: 5, height: 44)
-                    .frame(width: 22, height: 70)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text("Show the Dock"))
+            // Tucked away: a slim tab on the edge. Tap: the dock opens. Double tap: it moves to the other side.
+            Capsule().fill(Color.primary.opacity(0.35)).frame(width: 5, height: 44)
+                .frame(width: 22, height: 70)
+                .contentShape(Rectangle())
+                .onTapGesture(count: 2) { browser.flipDock() }
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { browser.dockOpen = true }
+                    browser.scheduleDockTuck()
+                }
+                .accessibilityElement()
+                .accessibilityLabel(Text("Show the Dock"))
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction { browser.dockOpen = true; browser.scheduleDockTuck() }
+                .accessibilityAction(named: Text("Move to the Other Side")) { browser.flipDock() }
         }
+    }
+
+    /// The grip on top of the open dock: tap to put it away, double tap to send it to the other side.
+    private var grip: some View {
+        Capsule().fill(Color.primary.opacity(0.3)).frame(width: 18, height: 4)
+            .frame(width: 36, height: 18)
+            .contentShape(Rectangle())
+            .onTapGesture(count: 2) { browser.flipDock() }
+            .onTapGesture { withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) { browser.dockOpen = false } }
+            .accessibilityLabel(Text("Hide the Dock"))
     }
 
     private var dock: some View {
         let pane = browser.activePane
+        let apps = part != .tabs, tabs = part != .apps
         return VStack(spacing: 6) {
+            grip
             // Pinned web apps: one tap opens the app's site in this page.
-            ForEach(Library.shared.dockApps, id: \.self) { url in
+            ForEach(apps ? Library.shared.dockApps : [], id: \.self) { url in
                 Button { browser.load(url) } label: {
                     Initial(text: url.host() ?? "", url: url, size: 28).frame(width: 36, height: 36)
                 }
@@ -143,10 +161,10 @@ struct SideDock: View {
                     Button("Unpin", systemImage: "pin.slash", role: .destructive) { Library.shared.unpin(url) }
                 }
             }
-            if !Library.shared.dockApps.isEmpty {
+            if apps && tabs && !Library.shared.dockApps.isEmpty {
                 Capsule().fill(Color.primary.opacity(0.15)).frame(width: 20, height: 2)
             }
-            ForEach(Array(pane.tabs.suffix(5))) { tab in
+            ForEach(tabs ? Array(pane.tabs.suffix(5)) : []) { tab in
                 Button { withAnimation(.spring(response: 0.3)) { browser.select(tab) } } label: {
                     Group {
                         if let url = tab.savedURL {
@@ -180,11 +198,13 @@ struct SideDock: View {
                     Button("Close", systemImage: "xmark", role: .destructive) { browser.close(tab) }
                 }
             }
-            Button { browser.newTab() } label: {
-                Image(systemName: "plus").font(.system(size: 14, weight: .bold)).frame(width: 36, height: 36)
+            if tabs {
+                Button { browser.newTab() } label: {
+                    Image(systemName: "plus").font(.system(size: 14, weight: .bold)).frame(width: 36, height: 36)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("New Tab"))
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text("New Tab"))
         }
         .padding(.vertical, 6)
         .padding(.horizontal, 4)

@@ -96,6 +96,19 @@ final class Library {
         didSet { UserDefaults.standard.set(sideDock, forKey: "sideDock") }
     }
 
+    /// Tabs and pinned apps together on one edge (easier with one hand), or split: apps on one edge, tabs on the other.
+    var dockTogether: Bool = UserDefaults.standard.object(forKey: "dockTogether") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(dockTogether, forKey: "dockTogether") }
+    }
+
+    /// The dock goes to the side of the last touch (off once it has been sent to a side by hand).
+    var dockFollowsHand: Bool = UserDefaults.standard.object(forKey: "dockFollowsHand") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(dockFollowsHand, forKey: "dockFollowsHand") }
+    }
+    var dockRight: Bool = UserDefaults.standard.bool(forKey: "dockRight") {
+        didSet { UserDefaults.standard.set(dockRight, forKey: "dockRight") }
+    }
+
     /// Web apps pinned to the side dock (their site's address).
     private(set) var dockApps: [URL] = (UserDefaults.standard.array(forKey: "dockApps") as? [String])?.compactMap(URL.init(string:))
         ?? ["https://m.youtube.com", "https://mail.google.com", "https://www.google.com/maps"].compactMap(URL.init(string:))

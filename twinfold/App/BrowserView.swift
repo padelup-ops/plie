@@ -437,9 +437,20 @@ struct PaneView: View {
         }
         .overlay(alignment: browser.dockOnRight ? .trailing : .leading) {
             if browser.active == index && Library.shared.sideDock && !browser.overviewShown && !browser.editingAddress {
-                SideDock()
-                    .padding(browser.dockOnRight ? .trailing : .leading, (browser.dockOnRight ? edges.right : edges.left) + 6)
-                    .transition(.move(edge: browser.dockOnRight ? .trailing : .leading).combined(with: .opacity))
+                let right = browser.dockOnRight
+                SideDock(part: Library.shared.dockTogether ? .all : .tabs, onRight: right)
+                    .padding(right ? .trailing : .leading, (right ? edges.right : edges.left) + 6)
+                    .transition(.move(edge: right ? .trailing : .leading).combined(with: .opacity))
+            }
+        }
+        // Split: the pinned apps take the opposite edge.
+        .overlay(alignment: browser.dockOnRight ? .leading : .trailing) {
+            if browser.active == index && Library.shared.sideDock && !Library.shared.dockTogether
+                && !Library.shared.dockApps.isEmpty && !browser.overviewShown && !browser.editingAddress {
+                let right = !browser.dockOnRight
+                SideDock(part: .apps, onRight: right)
+                    .padding(right ? .trailing : .leading, (right ? edges.right : edges.left) + 6)
+                    .transition(.move(edge: right ? .trailing : .leading).combined(with: .opacity))
             }
         }
         .simultaneousGesture(TapGesture().onEnded {

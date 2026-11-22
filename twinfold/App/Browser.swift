@@ -83,7 +83,7 @@ final class Browser {
     var layoutSideBySide = false
 
     /// The side dock sits on the side last touched, and tucks itself away after a few seconds.
-    var dockOnRight = false
+    var dockOnRight = UserDefaults.standard.bool(forKey: "dockRight")
     var dockOpen = false
     /// The handle between the panes is being dragged: the web views keep their size until it's let go.
     var resizing = false
@@ -93,7 +93,8 @@ final class Browser {
     /// and gets out of the way at once. It only shows when its little tab is touched.
     func touched(atFraction x: CGFloat, pane: Int?) {
         let right: Bool
-        if isSplit, maximized == nil, layoutSideBySide, let pane { right = pane == 1 } else { right = x > 0.5 }
+        if !Library.shared.dockFollowsHand { right = dockOnRight }
+        else if isSplit, maximized == nil, layoutSideBySide, let pane { right = pane == 1 } else { right = x > 0.5 }
         if right != dockOnRight || dockOpen {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
                 dockOnRight = right
@@ -101,6 +102,16 @@ final class Browser {
             }
         }
         dockTimer?.cancel()
+    }
+
+    /// Double tap on the dock's handle: over to the other side.
+    func flipDock() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) { dockOnRight.toggle() }
+        // Sent there by hand: it stays there (Settings brings back "follows your hand").
+        Library.shared.dockRight = dockOnRight
+        Library.shared.dockFollowsHand = false
+        if dockOpen { scheduleDockTuck() }
     }
 
     /// The dock tucks itself away soon after its last use.
