@@ -310,3 +310,10 @@
 "Move to the Other Side" = "反対側へ移動";
 "Hide the Dock" = "ドックを隠す";
 "Dock Follows Your Hand" = "ドックが手の位置に追従";
+"Show the Tabs" = "タブを表示";
+"Hide the Tabs" = "タブを隠す";
+"Show the Buttons" = "ボタンを表示";
+"Hide the Buttons" = "ボタンを隠す";
+"Zoom In" = "拡大";
+"Zoom Out" = "縮小";
+"Tabs and Buttons" = "タブとボタン";

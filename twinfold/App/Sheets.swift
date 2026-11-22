@@ -404,7 +404,7 @@ struct SettingsSheet: View {
                     }
                     Toggle("Side Dock with Your Tabs", isOn: $lib.sideDock)
                     if lib.sideDock {
-                        Picker("Tabs and Apps", selection: $lib.dockTogether) {
+                        Picker("Tabs and Buttons", selection: $lib.dockTogether) {
                             Text("Together on One Side").tag(true)
                             Text("Split on Both Sides").tag(false)
                         }

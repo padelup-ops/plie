@@ -85,6 +85,8 @@ final class Browser {
     /// The side dock sits on the side last touched, and tucks itself away after a few seconds.
     var dockOnRight = UserDefaults.standard.bool(forKey: "dockRight")
     var dockOpen = false
+    /// The rail of buttons beside it.
+    var railOpen = false
     /// The handle between the panes is being dragged: the web views keep their size until it's let go.
     var resizing = false
     @ObservationIgnored private var dockTimer: Task<Void, Never>?
@@ -95,10 +97,11 @@ final class Browser {
         let right: Bool
         if !Library.shared.dockFollowsHand { right = dockOnRight }
         else if isSplit, maximized == nil, layoutSideBySide, let pane { right = pane == 1 } else { right = x > 0.5 }
-        if right != dockOnRight || dockOpen {
+        if right != dockOnRight || dockOpen || railOpen {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
                 dockOnRight = right
                 dockOpen = false
+                railOpen = false
             }
         }
         dockTimer?.cancel()
@@ -111,16 +114,16 @@ final class Browser {
         // Sent there by hand: it stays there (Settings brings back "follows your hand").
         Library.shared.dockRight = dockOnRight
         Library.shared.dockFollowsHand = false
-        if dockOpen { scheduleDockTuck() }
+        if dockOpen || railOpen { scheduleDockTuck() }
     }
 
     /// The dock tucks itself away soon after its last use.
     func scheduleDockTuck() {
         dockTimer?.cancel()
         dockTimer = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(2))
+            try? await Task.sleep(for: .seconds(3))
             guard !Task.isCancelled else { return }
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) { self?.dockOpen = false }
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) { self?.dockOpen = false; self?.railOpen = false }
         }
     }
 

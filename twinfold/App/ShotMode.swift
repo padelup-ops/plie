@@ -65,6 +65,16 @@ enum ShotMode {
                 let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
                 try? ("relayout: " + PanesArea.lastLayout + " | drawn 0 \(PanesArea.drawn[0] ?? .zero) drawn 1 \(PanesArea.drawn[1] ?? .zero)").write(to: url, atomically: true, encoding: .utf8)
             }
+        case "dock":
+            show(0, "video", "dailyloaf.example")
+            show(0, "news", "harbornews.example")
+            show(1, "recipe", "dailyloaf.example")
+            show(1, "map", "trailmaps.example")
+            show(1, "news", "harbornews.example")
+            browser.active = 1
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                browser.dockOnRight = true; browser.dockOpen = true; browser.railOpen = true
+            }
         case "overview":
             show(0, "video", "dailyloaf.example")
             show(0, "news", "harbornews.example")
