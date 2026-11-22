@@ -164,7 +164,7 @@ jobs:
           mkdir -p shots && cd shots
           rm -f *.sb-*
           find . -type f -size +90M -print -delete
-          B=ci-twinfold-shots$(echo "${{ inputs.device }}" | tr -cd 'A-Za-z0-9' | tr 'A-Z' 'a-z' | sed 's/^duo$//;s/^./-&/')$( [ "${{ inputs.pose }}" = "close" ] && echo -closed )
+          B=ci-twinfold-shots$(echo "${{ inputs.device }}" | tr -cd 'A-Za-z0-9' | tr 'A-Z' 'a-z' | sed 's/^duo$//;s/^./-&/')$( [ "${{ inputs.pose }}" = "close" ] && echo -closed || true )
           git init -q -b "$B"
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
