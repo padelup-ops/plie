@@ -230,48 +230,75 @@ struct TutorialSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var page = 0
 
-    private let steps: [(String, LocalizedStringKey, LocalizedStringKey)] = [
-        ("rectangle.split.1x2", "Two pages at once", "On iPhone Duo they meet at the fold. Anywhere else, the split button in the bubble shows two pages."),
-        ("hand.tap", "Tap a page to make it active", "The bubble and the address act on the active page, outlined in colour."),
-        ("arrow.up.and.down", "Drag the handle", "Give one page more room. Touch and hold it for sizes: half, a third, video priority."),
-        ("hand.point.up.left", "Touch and hold a link", "Open it in the other pane. Or turn on Linked Panes: every link goes there."),
-        ("square.on.square", "Save pairs", "Two pages you use together open in one tap, even from the Home Screen icon."),
-        ("hand.draw", "Two-finger gestures", "Back, forward, a new tab… choose what each gesture does in Settings."),
+    private let steps: [(LocalizedStringKey, LocalizedStringKey)] = [
+        ("Two pages.\nOne fold.", "A page above, a page below. On iPhone Duo they meet exactly at the fold."),
+        ("Tap the page\nyou want to drive.", "The bubble always acts on the page in colour."),
+        ("Drag the line\nto make room.", "Hold it for ready-made sizes, like video priority."),
+        ("Hold a link,\nsend it across.", "It opens in the other page. Yours stays put."),
     ]
 
     var body: some View {
-        VStack(spacing: 0) {
-            TabView(selection: $page) {
-                ForEach(steps.indices, id: \.self) { i in
-                    VStack(spacing: 18) {
-                        Spacer()
-                        Image(systemName: steps[i].0)
-                            .font(.system(size: 54, weight: .light))
-                            .foregroundStyle(Brand.accent)
-                            .frame(width: 120, height: 120)
-                            .glassEffect(.regular, in: .circle)
-                        Text(steps[i].1).font(.system(.title2, design: .rounded).weight(.bold)).multilineTextAlignment(.center)
-                        Text(steps[i].2).font(.body).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal, 28)
-                        Spacer()
+        ZStack {
+            LinearGradient(colors: [Brand.ink, Color(red: 0.03, green: 0.2, blue: 0.2)], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    ForEach(steps.indices, id: \.self) { i in
+                        Capsule().fill(i <= page ? Brand.mint : .white.opacity(0.18))
+                            .frame(height: 4)
                     }
-                    .tag(i)
                 }
+                .padding(.top, 18)
+                .animation(.easeOut(duration: 0.3), value: page)
+
+                TutorialArt(step: page)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 330)
+                    .padding(.top, 34)
+                    .accessibilityHidden(true)
+
+                Spacer(minLength: 20)
+                Text(steps[page].0)
+                    .font(.system(size: 40, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineSpacing(-4)
+                    .id(page)
+                    .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
+                Text(steps[page].1)
+                    .font(.title3)
+                    .foregroundStyle(.white.opacity(0.65))
+                    .padding(.top, 12)
+                    .id("d\(page)")
+                    .transition(.opacity)
+                Spacer(minLength: 24)
+
+                HStack {
+                    Button("Skip") { dismiss() }
+                        .foregroundStyle(.white.opacity(0.6))
+                        .opacity(page < steps.count - 1 ? 1 : 0)
+                    Spacer()
+                    Button {
+                        if page < steps.count - 1 { withAnimation(.spring(response: 0.45, dampingFraction: 0.86)) { page += 1 } } else { dismiss() }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text(page < steps.count - 1 ? "Next" : "Start Browsing")
+                            Image(systemName: "arrow.right")
+                        }
+                        .font(.headline)
+                        .foregroundStyle(Brand.ink)
+                        .padding(.horizontal, 26).frame(height: 54)
+                        .background(Brand.mint, in: Capsule())
+                    }
+                }
+                .padding(.bottom, 8)
             }
-            .tabViewStyle(.page(indexDisplayMode: .always))
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
-            Button {
-                if page < steps.count - 1 { withAnimation { page += 1 } } else { dismiss() }
-            } label: {
-                Text(page < steps.count - 1 ? "Next" : "Start Browsing")
-                    .font(.headline).frame(maxWidth: .infinity, minHeight: 50)
-            }
-            .buttonStyle(.glassProminent)
-            .tint(Brand.accent)
-            .padding(20)
+            .padding(.horizontal, 28)
+            .frame(maxWidth: 560)
         }
-        .overlay(alignment: .topTrailing) {
-            Button("Skip") { dismiss() }.padding(18)
-        }
+        .gesture(DragGesture().onEnded { v in
+            if v.translation.width < -40, page < steps.count - 1 { withAnimation(.spring(response: 0.45, dampingFraction: 0.86)) { page += 1 } }
+            if v.translation.width > 40, page > 0 { withAnimation(.spring(response: 0.45, dampingFraction: 0.86)) { page -= 1 } }
+        })
     }
 
     /// Once, on the first launch (never in screenshots).
@@ -279,6 +306,77 @@ struct TutorialSheet: View {
         guard ShotMode.current == nil, !UserDefaults.standard.bool(forKey: "tutorialSeen") else { return false }
         UserDefaults.standard.set(true, forKey: "tutorialSeen")
         return true
+    }
+}
+
+/// A little Duo drawn with the app's own shapes, acting out each step in a loop.
+private struct TutorialArt: View {
+    let step: Int
+
+    var body: some View {
+        TimelineView(.animation) { tl in
+            let t = tl.date.timeIntervalSinceReferenceDate
+            let loop = (t.truncatingRemainder(dividingBy: 3.2)) / 3.2
+            let wave = (sin(t * 1.9) + 1) / 2
+            ZStack {
+                RoundedRectangle(cornerRadius: 34, style: .continuous)
+                    .fill(Color(white: 0.09))
+                    .frame(width: 214, height: 320)
+                    .shadow(color: .black.opacity(0.5), radius: 30, y: 18)
+                    .overlay(RoundedRectangle(cornerRadius: 34, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 1))
+                let split: CGFloat = step == 2 ? 0.3 + 0.4 * wave : 0.5
+                let inner = CGSize(width: 196, height: 302)
+                let topH = (inner.height - 6) * split
+                let appear = step == 0 ? min(1, loop * 2.2) : 1
+                VStack(spacing: 6) {
+                    pane(colors: [Brand.coral, Color(red: 0.99, green: 0.66, blue: 0.42)], active: step == 1 ? wave < 0.5 : false)
+                        .frame(height: topH)
+                        .offset(y: (1 - appear) * -20).opacity(appear)
+                    pane(colors: [Brand.mint, Brand.accent], active: step == 1 ? wave >= 0.5 : true)
+                        .frame(height: inner.height - 6 - topH)
+                        .offset(y: (1 - appear) * 20).opacity(appear)
+                }
+                .frame(width: inner.width, height: inner.height)
+                .overlay {
+                    if step == 2 {
+                        Capsule().fill(Brand.coral).frame(width: 46, height: 6)
+                            .position(x: inner.width / 2, y: topH + 3)
+                    }
+                    if step == 1 {
+                        Circle().fill(.white.opacity(0.85)).frame(width: 26, height: 26)
+                            .overlay(Circle().stroke(.white.opacity(0.4), lineWidth: 8).scaleEffect(1 + loop))
+                            .position(x: inner.width * 0.6, y: wave < 0.5 ? topH * 0.55 : topH + 6 + (inner.height - topH) * 0.45)
+                    }
+                    if step == 3 {
+                        let fly = min(1, max(0, (loop - 0.25) / 0.5))
+                        Capsule().fill(.white).frame(width: 84, height: 22)
+                            .overlay(Capsule().fill(Brand.accent).frame(width: 50, height: 5))
+                            .scaleEffect(1 - 0.15 * sin(fly * .pi))
+                            .position(x: inner.width / 2, y: topH * 0.5 + (topH + 6 + (inner.height - topH) * 0.35 - topH * 0.5) * fly)
+                            .opacity(loop < 0.9 ? 1 : 0)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+            }
+            .animation(.spring(response: 0.5, dampingFraction: 0.85), value: step)
+        }
+    }
+
+    private func pane(colors: [Color], active: Bool) -> some View {
+        RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .fill(Color(white: 0.96))
+            .overlay(alignment: .topLeading) {
+                VStack(alignment: .leading, spacing: 7) {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(height: 44)
+                    Capsule().fill(Color(white: 0.84)).frame(width: 120, height: 6)
+                    Capsule().fill(Color(white: 0.84)).frame(width: 90, height: 6)
+                }
+                .padding(10)
+            }
+            .clipped()
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(active ? Brand.mint : .clear, lineWidth: 3))
     }
 }
 

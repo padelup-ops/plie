@@ -71,6 +71,30 @@ final class Browser {
     var privateLocked = false
     /// The tab overview covers the screen.
     var overviewShown = false
+    /// The side dock sits on the side last touched, and tucks itself away after a few seconds.
+    var dockOnRight = false
+    var dockOpen = true
+    @ObservationIgnored private var dockTimer: Task<Void, Never>?
+
+    /// A touch on a page: the dock comes to that side and shows itself for a while.
+    func touched(atFraction x: CGFloat) {
+        let right = x > 0.5
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+            if right != dockOnRight { dockOnRight = right }
+            dockOpen = true
+        }
+        scheduleDockTuck()
+    }
+
+    func scheduleDockTuck() {
+        dockTimer?.cancel()
+        dockTimer = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(4))
+            guard !Task.isCancelled else { return }
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) { self?.dockOpen = false }
+        }
+    }
+
     /// The floating bubble shows only the address (while scrolling down).
     var barCompact = false
     /// Linked panes: links tapped in this pane open in the other one.
@@ -127,6 +151,7 @@ final class Browser {
             guard let self, let tab else { return false }
             return self.routeLink(from: tab, to: url)
         }
+        tab.onTouch = { [weak self] x in self?.touched(atFraction: x) }
         tab.onTrigger = { [weak self] trigger in
             guard let self else { return }
             self.perform(Library.shared.action(for: trigger))

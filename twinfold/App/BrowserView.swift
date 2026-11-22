@@ -59,7 +59,7 @@ struct BrowserView: View {
             case .reader: ReaderSheet()
             case .following: FollowingSheet()
             case .whatsNew: WhatsNewSheet()
-            case .tutorial: TutorialSheet()
+            case .tutorial: TutorialSheet().presentationDetents([.large]).presentationBackground(Brand.ink)
             }
         }
         .tint(Brand.accent)
@@ -106,7 +106,12 @@ struct PanesArea: View {
                 ForEach(0..<2, id: \.self) { i in
                     let shown = split || i == (browser.maximized ?? browser.active)
                     let frame = split ? (i == 0 ? layout.first : layout.second) : CGRect(origin: .zero, size: geo.size)
-                    PaneView(index: i, showsActiveMark: split)
+                    let insets = Self.windowInsets
+                    PaneView(index: i, showsActiveMark: split,
+                             edges: PaneEdges(top: frame.minY <= 1 ? insets.top : 0,
+                                              bottom: frame.maxY >= geo.size.height - 1 ? insets.bottom : 0,
+                                              left: frame.minX <= 1 ? insets.left : 0,
+                                              right: frame.maxX >= geo.size.width - 1 ? insets.right : 0))
                         .frame(width: frame.width, height: frame.height)
                         .offset(x: frame.minX, y: frame.minY)
                         .opacity(shown ? 1 : 0)
@@ -116,28 +121,6 @@ struct PanesArea: View {
                 if split {
                     PaneDivider(layout: layout, size: geo.size)
                         .zIndex(2)
-                }
-                if !browser.editingAddress && !browser.barHidden {
-                    let f = split ? (browser.active == 0 ? layout.first : layout.second) : CGRect(origin: .zero, size: geo.size)
-                    let insets = Self.windowInsets
-                    let atTop = Library.shared.barAtTop
-                    // Above the home indicator / under the status bar only when the page reaches that edge.
-                    let bottomGap = f.maxY >= geo.size.height - 1 ? max(insets.bottom, 12) + 6 : 14
-                    let topGap = f.minY <= 1 ? max(insets.top, 12) + 6 : 14
-                    let rightBand = f.maxX >= geo.size.width - 1 ? insets.right : 0
-                    let leftBand = f.minX <= 1 ? insets.left : 0
-                    if Library.shared.sideDock && !browser.barCompact && browser.overviewShown == false {
-                        SideDock()
-                            .position(x: f.minX + leftBand + 26, y: f.midY + min(60, f.height * 0.12))
-                            .zIndex(3)
-                            .transition(.move(edge: .leading).combined(with: .opacity))
-                    }
-                    FloatingBar()
-                        .frame(maxWidth: max(120, f.width - 24 - rightBand - leftBand))
-                        .position(x: f.midX + (leftBand - rightBand) / 2,
-                                  y: atTop ? f.minY + topGap + 22 : f.maxY - bottomGap - 22)
-                        .zIndex(3)
-                        .transition(.opacity)
                 }
             }
             .onAppear { browser.hasFold = fold != nil }
@@ -296,10 +279,16 @@ private struct PaneDivider: View {
     }
 }
 
+/// How much of each edge of a pane is under the system's bars (the status band, the home indicator).
+struct PaneEdges: Equatable {
+    var top: CGFloat = 0, bottom: CGFloat = 0, left: CGFloat = 0, right: CGFloat = 0
+}
+
 struct PaneView: View {
     @Environment(Browser.self) private var browser
     let index: Int
     let showsActiveMark: Bool
+    var edges = PaneEdges()
 
     var body: some View {
         let pane = browser.panes[index]
@@ -361,6 +350,24 @@ struct PaneView: View {
             }
         }
         .padding(showsActiveMark ? 3 : 0)
+        // The controls float over the active page, clear of the system's bars.
+        .overlay(alignment: Library.shared.barAtTop ? .top : .bottom) {
+            if browser.active == index && !browser.editingAddress && !browser.barHidden && !browser.overviewShown {
+                FloatingBar()
+                    .padding(Library.shared.barAtTop ? .top : .bottom,
+                             (Library.shared.barAtTop ? edges.top : edges.bottom) + 10)
+                    .padding(.leading, edges.left + 10)
+                    .padding(.trailing, edges.right + 10)
+                    .transition(.opacity)
+            }
+        }
+        .overlay(alignment: browser.dockOnRight ? .trailing : .leading) {
+            if browser.active == index && Library.shared.sideDock && !browser.overviewShown && !browser.editingAddress {
+                SideDock()
+                    .padding(browser.dockOnRight ? .trailing : .leading, (browser.dockOnRight ? edges.right : edges.left) + 6)
+                    .transition(.move(edge: browser.dockOnRight ? .trailing : .leading).combined(with: .opacity))
+            }
+        }
         .simultaneousGesture(TapGesture().onEnded {
             if browser.active != index { withAnimation(.easeOut(duration: 0.15)) { browser.active = index } }
         })

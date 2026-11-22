@@ -50,6 +50,8 @@ final class Tab: NSObject, Identifiable {
 
     /// Set by the browser: a gesture chosen in Settings was made on this page.
     @ObservationIgnored var onTrigger: ((GestureTrigger) -> Void)?
+    /// Set by the browser: where the page was touched (0 left edge … 1 right edge), for the side dock.
+    @ObservationIgnored var onTouch: ((CGFloat) -> Void)?
     /// Set by the browser: a tapped link may go to the other pane (linked panes).
     @ObservationIgnored var onRouteLink: ((URL) -> Bool)?
     @ObservationIgnored private var gestures: GestureHost?
@@ -82,7 +84,7 @@ final class Tab: NSObject, Identifiable {
         MediaRouter.shared.register(self)
         PageStyle.shared.attach(webView)
 
-        let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
+        let tap = UITapGestureRecognizer(target: self, action: #selector(tapped(_:)))
         tap.cancelsTouchesInView = false
         tap.delegate = self
         webView.addGestureRecognizer(tap)
@@ -176,7 +178,11 @@ final class Tab: NSObject, Identifiable {
         webView.reload()
     }
 
-    @objc private func tapped() { onActivate?() }
+    @objc private func tapped(_ g: UITapGestureRecognizer) {
+        onActivate?()
+        let w = max(1, webView.bounds.width)
+        onTouch?(g.location(in: webView).x / w)
+    }
 
 
     // MARK: Media

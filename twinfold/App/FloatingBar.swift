@@ -102,8 +102,28 @@ struct SideDock: View {
     @Environment(Browser.self) private var browser
 
     var body: some View {
+        if browser.dockOpen {
+            dock
+                .onAppear { browser.scheduleDockTuck() }
+                .simultaneousGesture(TapGesture().onEnded { browser.scheduleDockTuck() })
+        } else {
+            // Tucked away: a slim tab on the edge; touch it (or the page) to bring the dock back.
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { browser.dockOpen = true }
+                browser.scheduleDockTuck()
+            } label: {
+                Capsule().fill(Color.primary.opacity(0.35)).frame(width: 5, height: 44)
+                    .frame(width: 22, height: 70)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Show the Dock"))
+        }
+    }
+
+    private var dock: some View {
         let pane = browser.activePane
-        VStack(spacing: 6) {
+        return VStack(spacing: 6) {
             // Pinned web apps: one tap opens the app's site in this page.
             ForEach(Library.shared.dockApps, id: \.self) { url in
                 Button { browser.load(url) } label: {
