@@ -416,6 +416,13 @@ struct SettingsSheet: View {
                     Text("Double tap the dock's handle to move it to the other side.")
                 }
                 Section {
+                    Toggle("Full Screen Videos Stay in Their Page", isOn: $lib.fullscreenInPane)
+                } header: {
+                    Text("Videos")
+                } footer: {
+                    Text("A video's full-screen button fills its own page, and the other page stays in view. Applies to pages opened from now on.")
+                }
+                Section {
                     Toggle("Video Above When Half Folded", isOn: $lib.laptopPosture)
                 } header: {
                     Text("iPhone Duo")

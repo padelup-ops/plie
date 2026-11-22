@@ -317,3 +317,6 @@
 "Zoom In" = "拡大";
 "Zoom Out" = "縮小";
 "Tabs and Buttons" = "タブとボタン";
+"Full Screen Videos Stay in Their Page" = "全画面の動画をそのページ内に表示";
+"Videos" = "動画";
+"A video's full-screen button fills its own page, and the other page stays in view. Applies to pages opened from now on." = "動画の全画面ボタンでそのページだけに広がり、もう一方のページは見えたままです。これから開くページに適用されます。";

@@ -38,7 +38,7 @@ final class Tab: NSObject, Identifiable {
     /// The pane's sound is cut (every video and sound in the page, iframes included).
     private(set) var isMuted = false
     /// The playing video is stretched over the whole pane.
-    private(set) var isFilled = false
+    var isFilled = false
     @ObservationIgnored private var frameMedia: [Bool: (Bool, Bool)] = [:]
 
     /// Set by the browser: the pane this tab belongs to became the one the bars act on.
@@ -118,7 +118,8 @@ final class Tab: NSObject, Identifiable {
         config.allowsPictureInPictureMediaPlayback = true
         config.preferences.isFraudulentWebsiteWarningEnabled = true
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
-        config.preferences.isElementFullscreenEnabled = true
+        // Full screen in the pane (the default): the page's own full-screen button fills just this pane.
+        config.preferences.isElementFullscreenEnabled = !Library.shared.fullscreenInPane
         config.defaultWebpagePreferences.preferredContentMode = .mobile
         config.dataDetectorTypes = [.phoneNumber, .link, .address, .calendarEvent]
         ContentBlocker.shared.attach(to: config.userContentController)

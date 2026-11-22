@@ -109,6 +109,11 @@ final class Library {
         didSet { UserDefaults.standard.set(dockRight, forKey: "dockRight") }
     }
 
+    /// A video's full-screen button fills its own pane instead of the whole display (applies to pages opened next).
+    var fullscreenInPane: Bool = UserDefaults.standard.object(forKey: "fullscreenInPane") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(fullscreenInPane, forKey: "fullscreenInPane") }
+    }
+
     /// Web apps pinned to the side dock (their site's address).
     private(set) var dockApps: [URL] = (UserDefaults.standard.array(forKey: "dockApps") as? [String])?.compactMap(URL.init(string:))
         ?? ["https://m.youtube.com", "https://mail.google.com", "https://www.google.com/maps"].compactMap(URL.init(string:))

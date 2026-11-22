@@ -3,6 +3,7 @@
 // Video and sound in each pane: a small script, in every frame of every page, tells Twinfold when something plays,
 // mutes or unmutes the pane on request (iframes included), and can stretch the playing video over the whole pane.
 
+import SwiftUI
 import WebKit
 
 enum MediaScript {
@@ -49,30 +50,50 @@ enum MediaScript {
       window.addEventListener('message', function (e) {
         if (e.data && typeof e.data.__twinfoldMute === 'boolean') setMuted(e.data.__twinfoldMute);
       });
+      var FILL = 'position:fixed!important;left:0!important;top:0!important;width:100vw!important;' +
+        'height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;' +
+        'z-index:2147483647!important;background:#000!important;object-fit:contain!important;transform:none!important';
+      function fill(el) {
+        if (tf.filled === el) return true;
+        if (tf.filled) unfill();
+        el.__twinfoldStyle = el.getAttribute('style') || '';
+        el.setAttribute('style', FILL);
+        tf.filled = el;
+        post({ kind: 'fill', filled: true });
+        return true;
+      }
+      function unfill() {
+        var old = tf.filled;
+        if (!old) return false;
+        old.setAttribute('style', old.__twinfoldStyle || '');
+        tf.filled = null;
+        post({ kind: 'fill', filled: false });
+        return false;
+      }
       tf.toggleFill = function () {
-        if (tf.filled) {
-          var old = tf.filled;
-          old.setAttribute('style', old.__twinfoldStyle || '');
-          tf.filled = null;
-          return false;
-        }
+        if (tf.filled) return unfill();
         var vs = Array.prototype.slice.call(document.querySelectorAll('video'));
         vs.sort(function (a, b) { return b.clientWidth * b.clientHeight - a.clientWidth * a.clientHeight; });
         var v = vs.filter(function (x) { return !x.paused; })[0] || vs[0];
         if (!v) return false;
-        v.__twinfoldStyle = v.getAttribute('style') || '';
-        v.setAttribute('style', 'position:fixed!important;left:0!important;top:0!important;width:100vw!important;' +
-          'height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;' +
-          'z-index:2147483647!important;background:#000!important;object-fit:contain!important;transform:none!important');
-        tf.filled = v;
-        return true;
+        return fill(v);
       };
+      // Full screen stays in the pane: a page's "full screen" button fills this pane, not the whole display.
+      if (window.__twinfoldFullscreenInPane) {
+        var V = HTMLVideoElement.prototype;
+        V.webkitEnterFullscreen = V.webkitEnterFullScreen = function () { fill(this); };
+        V.webkitExitFullscreen = V.webkitExitFullScreen = function () { unfill(); };
+        try { Object.defineProperty(V, 'webkitSupportsFullscreen', { get: function () { return true; }, configurable: true }); } catch (e) {}
+        try { Object.defineProperty(V, 'webkitDisplayingFullscreen', { get: function () { return tf.filled === this; }, configurable: true }); } catch (e) {}
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tf.filled) unfill(); }, true);
+      }
       report();
     })();
     """#
 
-    static func install(on controller: WKUserContentController, handler: WKScriptMessageHandler) {
-        controller.addUserScript(WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
+    @MainActor static func install(on controller: WKUserContentController, handler: WKScriptMessageHandler) {
+        let flag = "window.__twinfoldFullscreenInPane = \(Library.shared.fullscreenInPane);\n"
+        controller.addUserScript(WKUserScript(source: flag + source, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
         controller.add(handler, name: handlerName)
     }
 }
@@ -96,8 +117,13 @@ final class MediaRouter: NSObject, WKScriptMessageHandler {
     }
 
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard let body = message.body as? [String: Any], body["kind"] as? String == "state",
+        guard let body = message.body as? [String: Any],
               let webView = message.webView, let tab = tabs.object(forKey: webView) else { return }
+        if body["kind"] as? String == "fill" {
+            withAnimation(.spring(response: 0.3)) { tab.isFilled = body["filled"] as? Bool ?? false }
+            return
+        }
+        guard body["kind"] as? String == "state" else { return }
         tab.mediaReport(playing: body["playing"] as? Bool ?? false, video: body["video"] as? Bool ?? false,
                         mainFrame: message.frameInfo.isMainFrame)
     }

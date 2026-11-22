@@ -317,3 +317,6 @@
 "Zoom In" = "Ampliar";
 "Zoom Out" = "Reducir";
 "Tabs and Buttons" = "Pestañas y botones";
+"Full Screen Videos Stay in Their Page" = "Los vídeos a pantalla completa se quedan en su página";
+"Videos" = "Vídeos";
+"A video's full-screen button fills its own page, and the other page stays in view. Applies to pages opened from now on." = "El botón de pantalla completa de un vídeo llena su propia página y la otra sigue a la vista. Se aplica a las páginas que abras a partir de ahora.";
