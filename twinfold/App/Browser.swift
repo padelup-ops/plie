@@ -45,7 +45,16 @@ final class Browser {
 
     /// Top and bottom, side by side, or automatic (along the fold, or across the longer side).
     enum SplitAxis: String, CaseIterable { case auto, stacked, sideBySide }
-    var axis: SplitAxis = SplitAxis(rawValue: UserDefaults.standard.string(forKey: "splitAxis") ?? "") ?? .auto
+    /// Not kept between launches, and back to automatic whenever the device turns or folds: a choice made for one
+    /// posture must never lock the others.
+    var axis: SplitAxis = .auto
+
+    /// The device turned, folded or unfolded: the panes follow it again.
+    func postureChanged() {
+        axis = .auto
+        followsFold = true
+        ratio = 0.5
+    }
 
     func setAxis(_ a: SplitAxis) {
         withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
@@ -53,7 +62,6 @@ final class Browser {
             followsFold = true
             if !isSplit { isSplit = true }
         }
-        UserDefaults.standard.set(a.rawValue, forKey: "splitAxis")
     }
     /// Set by the view: the display has a fold (an unfolded iPhone Duo).
     var hasFold = false

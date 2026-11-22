@@ -98,23 +98,25 @@ struct PanesArea: View {
 
     var body: some View {
         GeometryReader { geo in
-            let fold = geo.reservedRegions(kind: .division, options: .includeInactive).first?.frame
+            let raw = geo.reservedRegions(kind: .division, options: .includeInactive).first?.frame
+            let fold = PaneLayout.usableFold(raw, in: geo.size)
             let layout = PaneLayout(size: geo.size, fold: fold, ratio: browser.ratio, axis: browser.axis, followsFold: browser.followsFold)
-            let _ = PanesArea.note(size: geo.size, fold: fold, layout: layout)
+            let _ = PanesArea.note(size: geo.size, raw: raw, fold: fold, layout: layout)
             let split = browser.isSplit && browser.maximized == nil
+            let insets = Self.windowInsets
 
             ZStack(alignment: .topLeading) {
                 ForEach(0..<2, id: \.self) { i in
                     let shown = split || i == (browser.maximized ?? browser.active)
                     let frame = split ? (i == 0 ? layout.first : layout.second) : CGRect(origin: .zero, size: geo.size)
-                    let insets = Self.windowInsets
                     PaneView(index: i, showsActiveMark: split,
                              edges: PaneEdges(top: frame.minY <= 1 ? insets.top : 0,
                                               bottom: frame.maxY >= geo.size.height - 1 ? insets.bottom : 0,
                                               left: frame.minX <= 1 ? insets.left : 0,
                                               right: frame.maxX >= geo.size.width - 1 ? insets.right : 0))
-                        .frame(width: frame.width, height: frame.height)
-                        .position(x: frame.midX, y: frame.midY)
+                        // Size first, then move from the top-left corner: the pane is exactly where the layout says.
+                        .frame(width: max(frame.width, 1), height: max(frame.height, 1))
+                        .offset(x: frame.minX, y: frame.minY)
                         .opacity(shown ? 1 : 0)
                         .allowsHitTesting(shown)
                         .zIndex(i == browser.active ? 1 : 0)
@@ -124,11 +126,18 @@ struct PanesArea: View {
                         .zIndex(2)
                 }
             }
-            // The whole screen, in the reader's own coordinates: every pane is placed by its centre in it.
             .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)
+            .coordinateSpace(.named(PaneLayout.space))
             .onAppear { browser.hasFold = fold != nil; browser.layoutSideBySide = layout.sideBySide }
             .onChange(of: layout.sideBySide) { _, v in browser.layoutSideBySide = v }
-            .onChange(of: fold != nil) { _, has in browser.hasFold = has }
+            .onChange(of: fold != nil) { _, has in
+                browser.hasFold = has
+                browser.postureChanged()
+            }
+            .onChange(of: geo.size.width > geo.size.height) { _, _ in
+                // Turned: back to automatic, so the pages go top and bottom or side by side on their own.
+                browser.postureChanged()
+            }
         }
     }
 }
@@ -136,8 +145,8 @@ struct PanesArea: View {
 extension PanesArea {
     /// The last layout, for the simulator checks.
     nonisolated(unsafe) static var lastLayout = ""
-    static func note(size: CGSize, fold: CGRect?, layout: PaneLayout) {
-        lastLayout = "size \(size) fold \(String(describing: fold)) sideBySide \(layout.sideBySide) atFold \(layout.atFold) first \(layout.first) second \(layout.second) gap \(layout.gap) insets \(windowInsets)"
+    static func note(size: CGSize, raw: CGRect?, fold: CGRect?, layout: PaneLayout) {
+        lastLayout = "size \(size) raw fold \(String(describing: raw)) fold \(String(describing: fold)) sideBySide \(layout.sideBySide) atFold \(layout.atFold) first \(layout.first) second \(layout.second) gap \(layout.gap) insets \(windowInsets)"
     }
 
     /// The screen's own safe area (the pages ignore it, the floating bar doesn't).
@@ -160,9 +169,27 @@ struct PaneLayout {
     let share: Double
 
     static let handleGap: CGFloat = 6
+    static let space = "panes"
+
+    /// The fold as the system reports it, kept only when it really crosses the whole screen near its middle (a band
+    /// from one edge to the other, thin, and in the screen's own coordinates). Anything else, a fold reported for
+    /// another orientation for instance, is ignored and the pages split by the screen's shape instead.
+    static func usableFold(_ f: CGRect?, in size: CGSize) -> CGRect? {
+        guard let f, size.width > 0, size.height > 0, f.width > 0 || f.height > 0 else { return nil }
+        let tol: CGFloat = 0.9
+        if f.height >= size.height * tol, f.width < size.width * 0.2,
+           f.midX > size.width * 0.25, f.midX < size.width * 0.75, f.minY <= size.height * 0.1 {
+            return CGRect(x: f.minX, y: 0, width: max(f.width, 0), height: size.height)   // vertical: side by side
+        }
+        if f.width >= size.width * tol, f.height < size.height * 0.2,
+           f.midY > size.height * 0.25, f.midY < size.height * 0.75, f.minX <= size.width * 0.1 {
+            return CGRect(x: 0, y: f.minY, width: size.width, height: max(f.height, 0))   // horizontal: top and bottom
+        }
+        return nil
+    }
 
     init(size: CGSize, fold: CGRect?, ratio: Double, axis: Browser.SplitAxis, followsFold: Bool) {
-        let foldSideBySide: Bool? = fold.flatMap { $0.width != $0.height ? $0.height > $0.width : nil }
+        let foldSideBySide: Bool? = fold.map { $0.height > $0.width }
         switch axis {
         case .stacked: sideBySide = false
         case .sideBySide: sideBySide = true
@@ -270,7 +297,8 @@ private struct PaneDivider: View {
     }
 
     private var drag: some Gesture {
-        DragGesture(minimumDistance: 2)
+        // Measured in the panes' own space, not the handle's: the handle moves under the finger while dragging.
+        DragGesture(minimumDistance: 2, coordinateSpace: .named(PaneLayout.space))
             .onChanged { v in
                 let start = startRatio ?? layout.share
                 if startRatio == nil { startRatio = start }
