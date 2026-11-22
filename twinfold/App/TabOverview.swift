@@ -28,6 +28,9 @@ extension Browser {
 struct TabOverview: View {
     @Environment(Browser.self) private var browser
     @State private var privateMode = false
+    /// Choosing tabs to ask AI about them together.
+    @State private var selecting = false
+    @State private var picked = Set<UUID>()
     @Namespace private var space
 
     private let columns = [GridItem(.adaptive(minimum: 150, maximum: 220), spacing: 16)]
@@ -42,10 +45,22 @@ struct TabOverview: View {
                         let (pane, tab) = item
                         TabCard(tab: tab, pane: pane, current: browser.panes[pane].tab === tab && browser.active == pane,
                                 sideBySide: browser.currentlySideBySide) {
-                            browser.select(tab)
-                            close()
+                            if selecting {
+                                if picked.contains(tab.id) { picked.remove(tab.id) } else { picked.insert(tab.id) }
+                            } else {
+                                browser.select(tab)
+                                close()
+                            }
                         } onClose: {
                             withAnimation(.spring(response: 0.3)) { browser.close(tab) }
+                        }
+                        .overlay(alignment: .bottomTrailing) {
+                            if selecting {
+                                Image(systemName: picked.contains(tab.id) ? "checkmark.circle.fill" : "circle")
+                                    .font(.title2).foregroundStyle(picked.contains(tab.id) ? Brand.accent : .secondary)
+                                    .background(Circle().fill(Color(.systemBackground)))
+                                    .padding(10).padding(.bottom, 22)
+                            }
                         }
                         .transition(.scale(scale: 0.85).combined(with: .opacity))
                     }
@@ -66,6 +81,31 @@ struct TabOverview: View {
                 .padding(16)
             }
             .background(Color(.systemGroupedBackground))
+            .safeAreaInset(edge: .bottom) {
+                if selecting {
+                    HStack {
+                        Button("Cancel") { withAnimation { selecting = false } }
+                        Spacer()
+                        Menu {
+                            ForEach(Assistant.allCases) { a in
+                                Button(a.name) {
+                                    let tabs = all.map(\.1).filter { picked.contains($0.id) }
+                                    browser.ask(a, about: tabs)
+                                    selecting = false
+                                    close()
+                                }
+                            }
+                        } label: {
+                            Label(String(localized: "Ask AI (\(picked.count))"), systemImage: "sparkles")
+                                .font(.headline)
+                        }
+                        .buttonStyle(.glassProminent)
+                        .disabled(picked.isEmpty)
+                    }
+                    .padding(.horizontal, 20).padding(.vertical, 12)
+                    .background(.bar)
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Picker("", selection: $privateMode.animation(.spring(response: 0.3))) {
@@ -81,6 +121,9 @@ struct TabOverview: View {
                         Button("Bookmarks and History", systemImage: "book") { close(); browser.sheet = .library }
                         Button("Pairs", systemImage: "square.on.square") { close(); browser.sheet = .pairs }
                         Button("Close Other Tabs", systemImage: "xmark.square") { browser.closeOthers(in: browser.active) }
+                        Button("Ask AI About Tabs…", systemImage: "sparkles") {
+                            Store.shared.gate(.ai) { withAnimation { selecting = true; picked = [] } }
+                        }
                     } label: { Image(systemName: "ellipsis.circle") }
                 }
             }

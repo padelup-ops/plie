@@ -33,6 +33,7 @@ targets:
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         ITSAppUsesNonExemptEncryption: false
+        NSFaceIDUsageDescription: Twinfold uses Face ID to unlock your private tabs.
         # Le son des vidéos continue en image dans l'image et écran verrouillé.
         UIBackgroundModes: [audio]
         UIApplicationSceneManifest:
@@ -40,6 +41,10 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: com.padelup.twinfold
             CFBundleURLSchemes: [twinfold]
+    entitlements:
+      path: App/Twinfold.entitlements
+      properties:
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)$(CFBundleIdentifier)
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.padelup.twinfold

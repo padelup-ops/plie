@@ -3,6 +3,7 @@
 // Bookmarks, history, saved pairs and settings, kept on the device in the app's own folder.
 
 import Foundation
+import WebKit
 import Observation
 
 struct Bookmark: Codable, Identifiable, Hashable {
@@ -106,6 +107,7 @@ final class Library {
         dockApps.append(home)
         if dockApps.count > 6 { dockApps.removeFirst() }
         UserDefaults.standard.set(dockApps.map(\.absoluteString), forKey: "dockApps")
+        CloudSync.push()
     }
 
     func unpin(_ url: URL) {
@@ -116,6 +118,73 @@ final class Library {
     /// iPhone Duo half folded: the video above fills its half.
     var laptopPosture: Bool = UserDefaults.standard.object(forKey: "laptopPosture") as? Bool ?? true {
         didSet { UserDefaults.standard.set(laptopPosture, forKey: "laptopPosture") }
+    }
+
+    /// Pages in dark colours (sites without a dark design are inverted, pictures kept).
+    var darkPages: Bool = UserDefaults.standard.bool(forKey: "darkPages") {
+        didSet { UserDefaults.standard.set(darkPages, forKey: "darkPages"); PageStyle.shared.apply() }
+    }
+    /// One font for every page (Pro).
+    var pageFont: PageFont = PageFont(rawValue: UserDefaults.standard.string(forKey: "pageFont") ?? "") ?? .site {
+        didSet { UserDefaults.standard.set(pageFont.rawValue, forKey: "pageFont"); PageStyle.shared.apply() }
+    }
+    /// Private tabs ask for Face ID after the app was in the background.
+    var lockPrivate: Bool = UserDefaults.standard.bool(forKey: "lockPrivate") {
+        didSet { UserDefaults.standard.set(lockPrivate, forKey: "lockPrivate") }
+    }
+    /// Bookmarks, pairs and pinned apps in iCloud.
+    var iCloudSync: Bool = UserDefaults.standard.object(forKey: "iCloudSync") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(iCloudSync, forKey: "iCloudSync"); if iCloudSync { CloudSync.pull(); CloudSync.push() } }
+    }
+    /// What the start page shows.
+    var startFavourites: Bool = UserDefaults.standard.object(forKey: "startFavourites") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(startFavourites, forKey: "startFavourites") }
+    }
+    var startApps: Bool = UserDefaults.standard.object(forKey: "startApps") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(startApps, forKey: "startApps") }
+    }
+    var startPairs: Bool = UserDefaults.standard.object(forKey: "startPairs") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(startPairs, forKey: "startPairs") }
+    }
+    var startRecent: Bool = UserDefaults.standard.object(forKey: "startRecent") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(startRecent, forKey: "startRecent") }
+    }
+
+    /// Other sign-ins (each with its own cookies), besides the main one.
+    private(set) var profiles: [Profile] = {
+        guard let d = UserDefaults.standard.data(forKey: "profiles") else { return [] }
+        return (try? JSONDecoder().decode([Profile].self, from: d)) ?? []
+    }()
+
+    func addProfile(_ name: String) {
+        let n = name.trimmingCharacters(in: .whitespaces)
+        guard !n.isEmpty else { return }
+        profiles.append(Profile(name: n, hue: Double(profiles.count) * 0.17 + 0.55))
+        UserDefaults.standard.set(try? JSONEncoder().encode(profiles), forKey: "profiles")
+    }
+
+    func deleteProfile(_ p: Profile) {
+        profiles.removeAll { $0.id == p.id }
+        UserDefaults.standard.set(try? JSONEncoder().encode(profiles), forKey: "profiles")
+        WKWebsiteDataStore.remove(forIdentifier: p.id) { _ in }
+    }
+
+    /// What came from iCloud joins what is here (nothing is lost on either side).
+    func mergeFromCloud(bookmarks b: [Bookmark]?, pairs p: [Pair]?, dockApps apps: [URL]?) {
+        if let b {
+            let known = Set(bookmarks.map(\.url))
+            let new = b.filter { !known.contains($0.url) }
+            if !new.isEmpty { bookmarks.append(contentsOf: new); save(bookmarks, "bookmarks") }
+        }
+        if let p {
+            let known = Set(pairs.map { [$0.first, $0.second] })
+            let new = p.filter { !known.contains([$0.first, $0.second]) }
+            if !new.isEmpty { pairs.append(contentsOf: new); save(pairs, "pairs") }
+        }
+        if let apps, dockApps != apps, !apps.isEmpty {
+            for a in apps where !dockApps.contains(a) { dockApps.append(a) }
+            UserDefaults.standard.set(dockApps.map(\.absoluteString), forKey: "dockApps")
+        }
     }
 
     /// Bumped when a gesture's action changes, so the settings list redraws.
@@ -284,6 +353,7 @@ final class Library {
     func save<T: Encodable>(_ value: T, _ name: String) {
         guard !samplesOnly, let data = try? JSONEncoder().encode(value) else { return }
         try? data.write(to: Self.folder.appendingPathComponent(name + ".json"), options: .atomic)
+        if name == "bookmarks" || name == "pairs" { CloudSync.push() }
     }
 
     func loadSession() -> SavedSession? { load("session") }

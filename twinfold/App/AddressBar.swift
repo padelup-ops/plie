@@ -228,6 +228,14 @@ struct MainMenu: View {
             Section {
                 Button("New Tab", systemImage: "plus.square") { browser.newTab() }
                 Button("New Private Tab", systemImage: "eye.slash") { browser.newTab(isPrivate: true) }
+                if !Library.shared.profiles.isEmpty {
+                    Menu {
+                        Button("Main") { browser.newTab(profile: nil) }
+                        ForEach(Library.shared.profiles) { p in
+                            Button(p.name) { Store.shared.gate(.profiles) { browser.newTab(profile: p.id) } }
+                        }
+                    } label: { Label("New Tab in a Profile", systemImage: "person.2") }
+                }
                 if let t = browser.activeTab, !t.isBlank {
                     Button(LocalizedStringKey(t.isPrivate ? "Switch to a Normal Tab" : "Switch to a Private Tab"),
                            systemImage: t.isPrivate ? "eye" : "eye.slash.circle") { browser.togglePrivate() }
@@ -252,6 +260,9 @@ struct MainMenu: View {
                     Button(LocalizedStringKey(tab?.wantsDesktop == true ? "Mobile Site" : "Desktop Site"),
                            systemImage: tab?.wantsDesktop == true ? "iphone" : "desktopcomputer") { tab?.toggleDesktop() }
                     Button("Reader View", systemImage: "doc.plaintext") { browser.sheet = .reader }
+                    Toggle(isOn: Binding(get: { Library.shared.darkPages }, set: { Library.shared.darkPages = $0 })) {
+                        Label("Dark Pages", systemImage: "moon")
+                    }
                     Button("Video Notes", systemImage: "note.text") {
                         Store.shared.gate(.videoNotes) { browser.openVideoNotes() }
                     }

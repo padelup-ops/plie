@@ -18,8 +18,10 @@ struct TwinfoldApp: App {
             BrowserView()
                 .environment(browser)
                 .onOpenURL { url in browser.handleIncoming(url) }
+                .onAppear { CloudSync.start() }
                 .onChange(of: scenePhase) { _, phase in
                     if phase != .active { browser.saveSession() }
+                    if phase == .background { browser.lockPrivateIfNeeded() }
                     if phase == .active { QuickActions.refresh() }
                 }
         }

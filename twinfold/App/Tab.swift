@@ -56,9 +56,17 @@ final class Tab: NSObject, Identifiable {
 
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
 
-    init(isPrivate: Bool = false, configuration: WKWebViewConfiguration? = nil) {
+    /// The profile whose cookies and sign-ins this tab uses (nil: the main one).
+    let profile: UUID?
+    /// Asleep: the page gave its memory back; it wakes up, with its history, when shown.
+    @ObservationIgnored private(set) var isAsleep = false
+    @ObservationIgnored private var sleptState: Any?
+    @ObservationIgnored var lastShown = Date()
+
+    init(isPrivate: Bool = false, configuration: WKWebViewConfiguration? = nil, profile: UUID? = nil) {
         self.isPrivate = isPrivate
-        let config = configuration ?? Tab.makeConfiguration(isPrivate: isPrivate)
+        self.profile = isPrivate ? nil : profile
+        let config = configuration ?? Tab.makeConfiguration(isPrivate: isPrivate, profile: profile)
         webView = WKWebView(frame: .zero, configuration: config)
         super.init()
         webView.allowsBackForwardNavigationGestures = true
@@ -72,6 +80,7 @@ final class Tab: NSObject, Identifiable {
         webView.isOpaque = false
 
         MediaRouter.shared.register(self)
+        PageStyle.shared.attach(webView)
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
         tap.cancelsTouchesInView = false
@@ -87,8 +96,8 @@ final class Tab: NSObject, Identifiable {
         ScrollSync.shared.watch(self)
 
         observations = [
-            webView.observe(\.title, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.title = wv.title ?? "" } },
-            webView.observe(\.url, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.url = wv.url ?? self?.url } },
+            webView.observe(\.title, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { if self?.isAsleep == false { self?.title = wv.title ?? "" } } },
+            webView.observe(\.url, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { if self?.isAsleep == false { self?.url = wv.url ?? self?.url } } },
             webView.observe(\.estimatedProgress, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.progress = wv.estimatedProgress } },
             webView.observe(\.isLoading, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.isLoading = wv.isLoading } },
             webView.observe(\.canGoBack, options: [.new]) { [weak self] wv, _ in MainActor.assumeIsolated { self?.canGoBack = wv.canGoBack } },
@@ -97,9 +106,9 @@ final class Tab: NSObject, Identifiable {
         ]
     }
 
-    static func makeConfiguration(isPrivate: Bool) -> WKWebViewConfiguration {
+    static func makeConfiguration(isPrivate: Bool, profile: UUID? = nil) -> WKWebViewConfiguration {
         let config = WKWebViewConfiguration()
-        config.websiteDataStore = isPrivate ? .nonPersistent() : .default()
+        config.websiteDataStore = isPrivate ? .nonPersistent() : Library.dataStore(for: profile)
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = ShotMode.current == "dualplay" ? [] : .all
         config.allowsPictureInPictureMediaPlayback = true
@@ -132,9 +141,25 @@ final class Tab: NSObject, Identifiable {
     var savedURL: URL? { url ?? pendingURL }
 
     func loadPendingIfNeeded() {
+        lastShown = Date()
+        if isAsleep { wake(); return }
         guard let pendingURL else { return }
         self.pendingURL = nil
         load(pendingURL)
+    }
+
+    /// Gives the page's memory back, keeping its history to come back to.
+    func sleep() {
+        guard !isAsleep else { return }
+        sleptState = webView.interactionState
+        isAsleep = true
+        webView.load(URLRequest(url: URL(string: "about:blank")!))
+    }
+
+    private func wake() {
+        isAsleep = false
+        if let s = sleptState { webView.interactionState = s } else if let url { webView.load(URLRequest(url: url)) }
+        sleptState = nil
     }
 
     func load(_ url: URL) {

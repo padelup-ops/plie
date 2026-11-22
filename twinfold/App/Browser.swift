@@ -67,6 +67,8 @@ final class Browser {
     var sheet: SheetKind?
     var editingAddress = false
     var toast: String?
+    /// Private tabs are hidden until Face ID.
+    var privateLocked = false
     /// The tab overview covers the screen.
     var overviewShown = false
     /// The floating bubble shows only the address (while scrolling down).
@@ -79,7 +81,7 @@ final class Browser {
     var pairSuggestion: String?
 
     enum SheetKind: String, Identifiable {
-        case tabs, library, pairs, settings, savePair, reader, following, whatsNew
+        case tabs, library, pairs, settings, savePair, reader, following, whatsNew, tutorial
         var id: String { rawValue }
     }
 
@@ -98,8 +100,10 @@ final class Browser {
 
     // MARK: Tabs
 
-    func makeTab(in pane: Int, isPrivate: Bool = false, configuration: WKWebViewConfiguration? = nil) -> Tab {
-        let tab = Tab(isPrivate: isPrivate, configuration: configuration)
+    func makeTab(in pane: Int, isPrivate: Bool = false, configuration: WKWebViewConfiguration? = nil, profile: UUID? = nil) -> Tab {
+        // A new tab stays in the profile of the page it comes from, unless one is chosen.
+        let inherited = panes.indices.contains(pane) ? panes[pane].tab?.profile : nil
+        let tab = Tab(isPrivate: isPrivate, configuration: configuration, profile: profile ?? inherited)
         wire(tab)
         return tab
     }
@@ -159,9 +163,9 @@ final class Browser {
         active = pane
     }
 
-    func newTab(isPrivate: Bool = false, in pane: Int? = nil, focus: Bool = true) {
+    func newTab(isPrivate: Bool = false, in pane: Int? = nil, focus: Bool = true, profile: UUID? = nil) {
         let i = pane ?? active
-        insert(makeTab(in: i, isPrivate: isPrivate), in: i)
+        insert(makeTab(in: i, isPrivate: isPrivate, profile: profile), in: i)
         if focus { editingAddress = true }
     }
 

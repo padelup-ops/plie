@@ -94,7 +94,7 @@ final class Store {
 }
 
 enum ProFeature: String, Identifiable, CaseIterable {
-    case ai, pairs, gestures, syncScroll, follow, readAloud, pdf, bilingual, videoNotes, general
+    case ai, pairs, gestures, syncScroll, follow, readAloud, pdf, bilingual, videoNotes, profiles, pageFont, general
     var id: String { rawValue }
 
     var title: LocalizedStringKey {
@@ -108,6 +108,8 @@ enum ProFeature: String, Identifiable, CaseIterable {
         case .pdf: return "Save as PDF"
         case .bilingual: return "Bilingual reading"
         case .videoNotes: return "Video notes"
+        case .profiles: return "Profiles"
+        case .pageFont: return "Page fonts"
         case .general: return "Twinfold Pro"
         }
     }
@@ -123,6 +125,8 @@ enum ProFeature: String, Identifiable, CaseIterable {
         case .pdf: return "Keep a whole page, exactly as it looks."
         case .bilingual: return "Any page and its translation, side by side, scrolling together."
         case .videoNotes: return "Notes that keep the moment of the video: tap one, the video jumps back."
+        case .profiles: return "Several sign-ins side by side: personal and work, each with its own cookies."
+        case .pageFont: return "Read every site in the font you like."
         case .general: return "Everything Twinfold can do, for good."
         }
     }
@@ -138,11 +142,13 @@ enum ProFeature: String, Identifiable, CaseIterable {
         case .pdf: return "doc.richtext"
         case .bilingual: return "character.book.closed"
         case .videoNotes: return "note.text"
+        case .profiles: return "person.2"
+        case .pageFont: return "textformat"
         case .general: return "crown"
         }
     }
 
-    static let showcase: [ProFeature] = [.ai, .videoNotes, .bilingual, .pairs, .gestures, .syncScroll, .follow, .readAloud, .pdf]
+    static let showcase: [ProFeature] = [.ai, .videoNotes, .bilingual, .profiles, .pairs, .gestures, .syncScroll, .follow, .readAloud, .pdf]
 }
 
 // MARK: - The Pro screen

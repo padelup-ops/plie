@@ -41,7 +41,7 @@ struct StartPage: View {
                 }
                 .buttonStyle(.plain)
 
-                if !lib.bookmarks.isEmpty {
+                if lib.startFavourites && !lib.bookmarks.isEmpty {
                     section("Favourites")
                     LazyVGrid(columns: columns, alignment: .leading, spacing: 18) {
                         ForEach(lib.bookmarks.prefix(8)) { b in
@@ -51,6 +51,7 @@ struct StartPage: View {
                     }
                 }
 
+                if lib.startApps {
                 section("Apps on the Web", detail: "Open them here, next to your other page")
                 LazyVGrid(columns: columns, alignment: .leading, spacing: 18) {
                     ForEach(WebApp.all) { app in
@@ -66,7 +67,9 @@ struct StartPage: View {
                     }
                 }
 
-                if !lib.pairs.isEmpty {
+                }
+
+                if lib.startPairs && !lib.pairs.isEmpty {
                     section("Pairs")
                     ScrollView(.horizontal) {
                         HStack(spacing: 12) {
@@ -79,7 +82,7 @@ struct StartPage: View {
                     .scrollIndicators(.hidden)
                 }
 
-                let recent = Array(uniqueRecent(lib.history).prefix(5))
+                let recent = lib.startRecent ? Array(uniqueRecent(lib.history).prefix(5)) : []
                 if !recent.isEmpty {
                     section("Recently Visited")
                     VStack(spacing: 0) {

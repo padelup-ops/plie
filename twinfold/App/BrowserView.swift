@@ -59,6 +59,7 @@ struct BrowserView: View {
             case .reader: ReaderSheet()
             case .following: FollowingSheet()
             case .whatsNew: WhatsNewSheet()
+            case .tutorial: TutorialSheet()
             }
         }
         .tint(Brand.accent)
@@ -76,6 +77,7 @@ struct BrowserView: View {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(60))
                 browser.notePairUse()
+                browser.sleepUnusedTabs()
             }
         }
         .fullScreenCover(item: Binding(get: { Store.shared.asking }, set: { Store.shared.asking = $0 })) { f in
@@ -83,7 +85,8 @@ struct BrowserView: View {
         }
         .task {
             try? await Task.sleep(for: .seconds(1))
-            if WhatsNew.shouldShow() { browser.sheet = .whatsNew }
+            if TutorialSheet.shouldShow() { browser.sheet = .tutorial }
+            else if WhatsNew.shouldShow() { browser.sheet = .whatsNew }
         }
     }
 }
@@ -306,6 +309,9 @@ struct PaneView: View {
                     .id(tab.id)
                 if tab.isBlank {
                     StartPage(pane: index)
+                }
+                if tab.isPrivate && browser.privateLocked {
+                    PrivateLockCover()
                 }
                 if pane.tool == .videoNotes {
                     VideoNotesPane(pane: index)

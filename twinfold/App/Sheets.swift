@@ -374,6 +374,30 @@ struct SettingsSheet: View {
                     NavigationLink("What's New") { WhatsNewList() }
                 }
                 Section {
+                    Toggle("Dark Pages", isOn: $lib.darkPages)
+                    Picker(selection: Binding(get: { lib.pageFont }, set: { f in Store.shared.gate(.pageFont) { lib.pageFont = f } })) {
+                        ForEach(PageFont.allCases) { Text($0.title).tag($0) }
+                    } label: { Text("Page Font") }
+                    Toggle("Lock Private Tabs with Face ID", isOn: $lib.lockPrivate)
+                    NavigationLink("Profiles") { ProfilesSettings() }
+                    Toggle("Sync with iCloud", isOn: $lib.iCloudSync)
+                } header: {
+                    Text("Pages")
+                } footer: {
+                    Text("iCloud keeps your bookmarks, pairs and pinned apps on all your devices.")
+                }
+                Section {
+                    Toggle("Favourites", isOn: $lib.startFavourites)
+                    Toggle("Apps on the Web", isOn: $lib.startApps)
+                    Toggle("Pairs", isOn: $lib.startPairs)
+                    Toggle("Recently Visited", isOn: $lib.startRecent)
+                } header: {
+                    Text("Start Page")
+                }
+                Section {
+                    Button("Show the Tutorial Again") { browser.sheet = .tutorial }
+                }
+                Section {
                     Picker("Bar", selection: $lib.barAtTop) {
                         Text("Bottom of the Page").tag(false)
                         Text("Top of the Page").tag(true)
