@@ -118,6 +118,25 @@ struct PanesArea: View {
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)
+            // The dock lives on the screen's edge (not a pane's): it can use the whole height, whichever page is active.
+            .overlay(alignment: browser.dockOnRight ? .trailing : .leading) {
+                if showsDock {
+                    let right = browser.dockOnRight
+                    SideDock(part: Library.shared.dockTogether ? .all : .tabs, onRight: right)
+                        .frame(maxHeight: geo.size.height - insets.top - insets.bottom - 24)
+                        .padding(right ? .trailing : .leading, (right ? insets.right : insets.left) + 2)
+                        .padding(.top, insets.top).padding(.bottom, insets.bottom)
+                }
+            }
+            .overlay(alignment: browser.dockOnRight ? .leading : .trailing) {
+                if showsDock && !Library.shared.dockTogether {
+                    let right = !browser.dockOnRight
+                    SideDock(part: .apps, onRight: right)
+                        .frame(maxHeight: geo.size.height - insets.top - insets.bottom - 24)
+                        .padding(right ? .trailing : .leading, (right ? insets.right : insets.left) + 2)
+                        .padding(.top, insets.top).padding(.bottom, insets.bottom)
+                }
+            }
             .coordinateSpace(.named(PaneLayout.space))
             .onAppear { browser.hasFold = fold != nil; browser.layoutSideBySide = layout.sideBySide }
             .onChange(of: layout.sideBySide) { _, v in browser.layoutSideBySide = v }
@@ -137,6 +156,10 @@ struct PanesArea: View {
 }
 
 extension PanesArea {
+    var showsDock: Bool {
+        Library.shared.sideDock && !browser.overviewShown && !browser.editingAddress
+    }
+
     @ViewBuilder
     func pane(_ i: Int, layout: PaneLayout, size: CGSize, split: Bool, insets: UIEdgeInsets) -> some View {
         let shown = split || i == (browser.maximized ?? browser.active)
@@ -433,24 +456,6 @@ struct PaneView: View {
                     .padding(.leading, edges.left + 10)
                     .padding(.trailing, edges.right + 10)
                     .transition(.opacity)
-            }
-        }
-        .overlay(alignment: browser.dockOnRight ? .trailing : .leading) {
-            if browser.active == index && Library.shared.sideDock && !browser.overviewShown && !browser.editingAddress {
-                let right = browser.dockOnRight
-                SideDock(part: Library.shared.dockTogether ? .all : .tabs, onRight: right)
-                    .padding(right ? .trailing : .leading, (right ? edges.right : edges.left) + 6)
-                    .transition(.move(edge: right ? .trailing : .leading).combined(with: .opacity))
-            }
-        }
-        // Split: the rail of buttons takes the opposite edge.
-        .overlay(alignment: browser.dockOnRight ? .leading : .trailing) {
-            if browser.active == index && Library.shared.sideDock && !Library.shared.dockTogether
-                && !browser.overviewShown && !browser.editingAddress {
-                let right = !browser.dockOnRight
-                SideDock(part: .apps, onRight: right)
-                    .padding(right ? .trailing : .leading, (right ? edges.right : edges.left) + 6)
-                    .transition(.move(edge: right ? .trailing : .leading).combined(with: .opacity))
             }
         }
         .simultaneousGesture(TapGesture().onEnded {

@@ -222,7 +222,10 @@ private struct TabColumn: View {
                 }
                 .scrollIndicators(.hidden)
                 .scrollTargetBehavior(.viewAligned)
-                .frame(width: Self.item + 4, height: min(CGFloat(max(items.count, 1)) * (Self.item + 4) + 8, 6.5 * (Self.item + 4)))
+                // As tall as its items, up to six and a half, and less when the screen is short.
+                .frame(width: Self.item + 4)
+                .frame(minHeight: Self.item + 8, maxHeight: min(CGFloat(max(items.count, 1)) * (Self.item + 4) + 8, 6.5 * (Self.item + 4)))
+                .fixedSize(horizontal: true, vertical: false)
                 .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.06),
                                              .init(color: .black, location: 0.94), .init(color: .clear, location: 1)],
                                      startPoint: .top, endPoint: .bottom))
@@ -361,8 +364,19 @@ private struct ActionRail: View {
     @Environment(Browser.self) private var browser
 
     var body: some View {
+        // Taller than the screen (the Duo's cover screen, landscape iPhone): it scrolls.
+        ViewThatFits(in: .vertical) {
+            buttons
+            ScrollView(.vertical) { buttons }.scrollIndicators(.hidden)
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 3)
+        .glassEffect(.regular.interactive(), in: .capsule)
+    }
+
+    private var buttons: some View {
         let tab = browser.activeTab
-        VStack(spacing: 2) {
+        return VStack(spacing: 2) {
             button("chevron.backward", "Back", enabled: tab?.canGoBack == true) { tab?.webView.goBack() }
             button("chevron.forward", "Forward", enabled: tab?.canGoForward == true) { tab?.webView.goForward() }
             Divider().frame(width: 22).padding(.vertical, 3)
@@ -393,9 +407,6 @@ private struct ActionRail: View {
             MainMenu(compact: true)
                 .frame(width: 40, height: 40)
         }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 3)
-        .glassEffect(.regular.interactive(), in: .capsule)
     }
 
     private func zoom(_ tab: Tab?, by d: CGFloat) {
