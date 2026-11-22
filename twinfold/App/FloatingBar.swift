@@ -104,7 +104,25 @@ struct SideDock: View {
     var body: some View {
         let pane = browser.activePane
         VStack(spacing: 6) {
-            ForEach(Array(pane.tabs.suffix(7))) { tab in
+            // Pinned web apps: one tap opens the app's site in this page.
+            ForEach(Library.shared.dockApps, id: \.self) { url in
+                Button { browser.load(url) } label: {
+                    Initial(text: url.host() ?? "", url: url, size: 28).frame(width: 36, height: 36)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(url.host() ?? ""))
+                .contextMenu {
+                    Button("Open in the Other Pane", systemImage: "rectangle.split.1x2") {
+                        browser.load(url, inPane: browser.otherIndex)
+                        if !browser.isSplit { browser.toggleSplit() }
+                    }
+                    Button("Unpin", systemImage: "pin.slash", role: .destructive) { Library.shared.unpin(url) }
+                }
+            }
+            if !Library.shared.dockApps.isEmpty {
+                Capsule().fill(Color.primary.opacity(0.15)).frame(width: 20, height: 2)
+            }
+            ForEach(Array(pane.tabs.suffix(5))) { tab in
                 Button { withAnimation(.spring(response: 0.3)) { browser.select(tab) } } label: {
                     Group {
                         if let url = tab.savedURL {
@@ -131,6 +149,9 @@ struct SideDock: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(tab.displayTitle))
                 .contextMenu {
+                    if let url = tab.savedURL {
+                        Button("Pin to the Dock", systemImage: "pin") { Library.shared.pin(url) }
+                    }
                     Button("Move to the Other Pane", systemImage: "arrow.up.arrow.down") { browser.moveToOtherPane(tab) }
                     Button("Close", systemImage: "xmark", role: .destructive) { browser.close(tab) }
                 }

@@ -61,6 +61,7 @@ struct StartPage: View {
                                     browser.load(app.url, inPane: 1 - pane)
                                     if !browser.isSplit { browser.toggleSplit() }
                                 }
+                                Button("Pin to the Dock", systemImage: "pin") { Library.shared.pin(app.url) }
                             }
                     }
                 }
@@ -226,6 +227,22 @@ struct Initial: View {
     let size: CGFloat
 
     var body: some View {
+        if let icon = SiteIcons.shared.image(for: url) {
+            Image(uiImage: icon)
+                .resizable()
+                .interpolation(.high)
+                .scaledToFill()
+                .frame(width: size, height: size)
+                .background(.white)
+                .clipShape(RoundedRectangle(cornerRadius: size * 0.26, style: .continuous))
+                .shadow(color: .black.opacity(0.12), radius: size * 0.08, y: size * 0.04)
+                .accessibilityHidden(true)
+        } else {
+            letter
+        }
+    }
+
+    private var letter: some View {
         let host = url.host() ?? text
         let hue = Double(host.unicodeScalars.reduce(UInt32(7)) { ($0 &* 31) &+ $1.value } % 360) / 360
         RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)

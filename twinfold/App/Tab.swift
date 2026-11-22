@@ -244,6 +244,7 @@ extension Tab: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        SiteIcons.shared.learn(from: self)
         webView.evaluateJavaScript(FeedFinder.script) { [weak self] result, _ in
             MainActor.assumeIsolated {
                 if let s = result as? String, let u = URL(string: s), u.scheme == "https" || u.scheme == "http" { self?.feedURL = u }

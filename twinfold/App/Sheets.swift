@@ -360,7 +360,7 @@ struct SettingsSheet: View {
                 } header: {
                     Text("Privacy")
                 } footer: {
-                    Text("Twinfold has no account, no server and no analytics. Your history and bookmarks stay on this iPhone. Hidden cookie banners are not answered: a site may still ask again.")
+                    Text("Twinfold has no account, no server and no analytics. Your history and bookmarks stay on this iPhone; site icons come from the sites themselves. Hidden cookie banners are not answered: a site may still ask again.")
                 }
                 Section {
                     Toggle("Open Links from Other Apps in a New Tab", isOn: $lib.linksFromAppsInNewTab)
