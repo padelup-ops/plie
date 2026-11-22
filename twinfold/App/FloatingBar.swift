@@ -17,6 +17,10 @@ struct FloatingBar: View {
                     icon("chevron.backward", "Back") { tab?.webView.goBack() }
                         .transition(.scale.combined(with: .opacity))
                 }
+                if !compact, tab?.canGoForward == true {
+                    icon("chevron.forward", "Forward") { tab?.webView.goForward() }
+                        .transition(.scale.combined(with: .opacity))
+                }
                 Button {
                     if compact { withAnimation(.spring(response: 0.3)) { browser.barCompact = false } }
                     else { browser.editingAddress = true }

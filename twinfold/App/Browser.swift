@@ -84,25 +84,32 @@ final class Browser {
 
     /// The side dock sits on the side last touched, and tucks itself away after a few seconds.
     var dockOnRight = false
-    var dockOpen = true
+    var dockOpen = false
+    /// The handle between the panes is being dragged: the web views keep their size until it's let go.
+    var resizing = false
     @ObservationIgnored private var dockTimer: Task<Void, Never>?
 
-    /// A touch on a page: the dock comes to that side and shows itself for a while.
-    func touched(atFraction x: CGFloat) {
-        let right = x > 0.5
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-            if right != dockOnRight { dockOnRight = right }
-            dockOpen = true
+    /// A touch on a page: the dock moves to that side of the screen (the right page side by side: the right edge)
+    /// and gets out of the way at once. It only shows when its little tab is touched.
+    func touched(atFraction x: CGFloat, pane: Int?) {
+        let right: Bool
+        if isSplit, maximized == nil, layoutSideBySide, let pane { right = pane == 1 } else { right = x > 0.5 }
+        if right != dockOnRight || dockOpen {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
+                dockOnRight = right
+                dockOpen = false
+            }
         }
-        scheduleDockTuck()
+        dockTimer?.cancel()
     }
 
+    /// The dock tucks itself away soon after its last use.
     func scheduleDockTuck() {
         dockTimer?.cancel()
         dockTimer = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(4))
+            try? await Task.sleep(for: .seconds(2))
             guard !Task.isCancelled else { return }
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) { self?.dockOpen = false }
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) { self?.dockOpen = false }
         }
     }
 
@@ -162,7 +169,10 @@ final class Browser {
             guard let self, let tab else { return false }
             return self.routeLink(from: tab, to: url)
         }
-        tab.onTouch = { [weak self] x in self?.touched(atFraction: x) }
+        tab.onTouch = { [weak self, weak tab] x in
+            guard let self else { return }
+            self.touched(atFraction: x, pane: tab.flatMap { self.paneIndex(of: $0) })
+        }
         tab.onTrigger = { [weak self] trigger in
             guard let self else { return }
             self.perform(Library.shared.action(for: trigger))

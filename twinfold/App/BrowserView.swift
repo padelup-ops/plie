@@ -95,16 +95,15 @@ struct BrowserView: View {
 
 struct PanesArea: View {
     @Environment(Browser.self) private var browser
-    /// While the handle is dragged: the share it would give (the pages only resize once, when it's let go, so
-    /// nothing flickers).
-    @State private var preview: Double?
+    /// The panes' page sizes when the handle was picked up (kept until it's let go).
+    @State private var frozen: [CGSize]?
 
     var body: some View {
         GeometryReader { geo in
             let raw = geo.reservedRegions(kind: .division, options: .includeInactive).first?.frame
             let fold = PaneLayout.usableFold(raw, in: geo.size)
             let layout = PaneLayout(size: geo.size, fold: fold, ratio: browser.ratio, axis: browser.axis, followsFold: browser.followsFold)
-            let _ = PanesArea.note(size: geo.size, raw: raw, fold: fold, layout: layout)
+            let _ = ShotMode.current == nil ? () : PanesArea.note(size: geo.size, raw: raw, fold: fold, layout: layout)
             let split = browser.isSplit && browser.maximized == nil
             let insets = Self.windowInsets
 
@@ -113,14 +112,8 @@ struct PanesArea: View {
                 // only the split moved, so the handle went one way and the pages stayed put).
                 pane(0, layout: layout, size: geo.size, split: split, insets: insets)
                 pane(1, layout: layout, size: geo.size, split: split, insets: insets)
-                if split, let p = preview {
-                    let ghost = PaneLayout(size: geo.size, fold: nil, ratio: p, axis: layout.sideBySide ? .sideBySide : .stacked, followsFold: false)
-                    ResizePreview(layout: ghost)
-                        .zIndex(2)
-                        .allowsHitTesting(false)
-                }
                 if split {
-                    PaneDivider(layout: layout, size: geo.size, preview: $preview)
+                    PaneDivider(layout: layout, size: geo.size, frozen: $frozen)
                         .zIndex(3)
                 }
             }
@@ -152,7 +145,8 @@ extension PanesArea {
                  edges: PaneEdges(top: frame.minY <= 1 ? insets.top : 0,
                                   bottom: frame.maxY >= size.height - 1 ? insets.bottom : 0,
                                   left: frame.minX <= 1 ? insets.left : 0,
-                                  right: frame.maxX >= size.width - 1 ? insets.right : 0))
+                                  right: frame.maxX >= size.width - 1 ? insets.right : 0),
+                 frozenSize: split ? frozen?[i] : nil)
             .frame(width: max(frame.width, 1), height: max(frame.height, 1))
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(PaneLayout.space)) } action: { PanesArea.drawn[i] = $0 }
             .offset(x: frame.minX, y: frame.minY)
@@ -254,7 +248,8 @@ private struct PaneDivider: View {
     @Environment(Browser.self) private var browser
     let layout: PaneLayout
     let size: CGSize
-    @Binding var preview: Double?
+    @Binding var frozen: [CGSize]?
+    @State private var lastSnap: Double?
 
     var body: some View {
         let g = layout.gap
@@ -265,10 +260,15 @@ private struct PaneDivider: View {
                 .fill(Brand.coral)
                 .frame(width: layout.sideBySide ? 5 : 46, height: layout.sideBySide ? 46 : 5)
                 .shadow(color: .black.opacity(0.25), radius: 2)
-                .opacity(preview == nil ? 1 : 0.001)
+                .scaleEffect(frozen == nil ? 1 : 1.25)
         }
         .frame(width: max(g.width, 1), height: max(g.height, 1))
-        .contentShape(Rectangle().inset(by: -16))
+        // Only the grip (and a finger's width around it) catches touches: the rest of the line leaves the pages'
+        // edge swipes (back and forward) alone.
+        .contentShape(Rectangle().size(width: layout.sideBySide ? max(g.width, 1) + 40 : 120,
+                                       height: layout.sideBySide ? 120 : max(g.height, 1) + 40)
+                        .offset(x: layout.sideBySide ? -20 : max(g.width, 1) / 2 - 60,
+                                y: layout.sideBySide ? max(g.height, 1) / 2 - 60 : -20))
         .position(x: g.midX, y: g.midY)
         .highPriorityGesture(drag)
         .onTapGesture(count: 2) {
@@ -318,54 +318,34 @@ private struct PaneDivider: View {
     }
 
     private var drag: some Gesture {
-        // Measured in the panes' own space. The pages don't move while the finger does: a preview shows where
-        // they'll go, and they take their new size once, when it's let go.
+        // Live: the pages follow the finger, measured in the panes' own space. Their web content keeps the size it
+        // had when the handle was picked up (only cut, never laid out again), so it stays smooth; it settles into
+        // its new size once, when the handle is let go.
         DragGesture(minimumDistance: 1, coordinateSpace: .named(PaneLayout.space))
             .onChanged { v in
+                if frozen == nil {
+                    frozen = [layout.first.size, layout.second.size]
+                    browser.resizing = true
+                    UISelectionFeedbackGenerator().selectionChanged()
+                }
                 let total = layout.sideBySide ? size.width : size.height
                 let at = (layout.sideBySide ? v.location.x : v.location.y) / max(total, 1)
                 var p = min(0.85, max(0.15, Double(at)))
-                for snap in [1.0 / 3, 0.5, 2.0 / 3] where abs(p - snap) < 0.025 { p = snap }
-                if preview == nil { UISelectionFeedbackGenerator().selectionChanged() }
-                if let old = preview, [1.0 / 3, 0.5, 2.0 / 3].contains(p), old != p { UISelectionFeedbackGenerator().selectionChanged() }
-                preview = p
-            }
-            .onEnded { _ in
-                guard let p = preview else { return }
-                withAnimation(.spring(response: 0.32, dampingFraction: 0.9)) {
+                var snapped: Double?
+                for snap in [1.0 / 3, 0.5, 2.0 / 3] where abs(p - snap) < 0.02 { p = snap; snapped = snap }
+                if let snapped, snapped != lastSnap { UISelectionFeedbackGenerator().selectionChanged() }
+                lastSnap = snapped
+                var t = Transaction(); t.disablesAnimations = true
+                withTransaction(t) {
                     browser.followsFold = false
                     browser.ratio = p
-                    preview = nil
                 }
             }
-    }
-}
-
-/// Where the pages will go while the handle is dragged: two frosted pages and the handle, over the real ones.
-private struct ResizePreview: View {
-    let layout: PaneLayout
-
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            Color.black.opacity(0.12)
-            page(layout.first)
-            page(layout.second)
-            Capsule()
-                .fill(Brand.coral)
-                .frame(width: layout.sideBySide ? 6 : 56, height: layout.sideBySide ? 56 : 6)
-                .shadow(color: .black.opacity(0.3), radius: 3)
-                .position(x: layout.gap.midX, y: layout.gap.midY)
-        }
-        .ignoresSafeArea()
-    }
-
-    private func page(_ r: CGRect) -> some View {
-        RoundedRectangle(cornerRadius: 18, style: .continuous)
-            .fill(.ultraThinMaterial)
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1.5))
-            .padding(3)
-            .frame(width: max(r.width, 1), height: max(r.height, 1))
-            .offset(x: r.minX, y: r.minY)
+            .onEnded { _ in
+                frozen = nil
+                browser.resizing = false
+                lastSnap = nil
+            }
     }
 }
 
@@ -379,21 +359,26 @@ struct PaneView: View {
     let index: Int
     let showsActiveMark: Bool
     var edges = PaneEdges()
+    /// While the handle is dragged: the size this pane's page keeps.
+    var frozenSize: CGSize? = nil
 
     var body: some View {
         let pane = browser.panes[index]
         ZStack(alignment: .top) {
             if let tab = pane.tab {
-                WebHost(tab: tab, topInset: edges.top)
+                WebHost(tab: tab, topInset: edges.top, cornerRadius: showsActiveMark ? 18 : 0, frozenSize: frozenSize)
                     .id(tab.id)
                 if tab.isBlank {
                     StartPage(pane: index)
+                        .clipShape(RoundedRectangle(cornerRadius: showsActiveMark ? 18 : 0, style: .continuous))
                 }
                 if tab.isPrivate && browser.privateLocked {
                     PrivateLockCover()
+                        .clipShape(RoundedRectangle(cornerRadius: showsActiveMark ? 18 : 0, style: .continuous))
                 }
                 if pane.tool == .videoNotes {
                     VideoNotesPane(pane: index)
+                        .clipShape(RoundedRectangle(cornerRadius: showsActiveMark ? 18 : 0, style: .continuous))
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 if tab.isLoading && tab.progress < 1 {
@@ -428,7 +413,6 @@ struct PaneView: View {
                     .allowsHitTesting(false)
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: showsActiveMark ? 18 : 0, style: .continuous))
         .overlay {
             if showsActiveMark {
                 let isActive = browser.active == index
