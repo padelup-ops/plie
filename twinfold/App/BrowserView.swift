@@ -106,21 +106,10 @@ struct PanesArea: View {
             let insets = Self.windowInsets
 
             ZStack(alignment: .topLeading) {
-                ForEach(0..<2, id: \.self) { i in
-                    let shown = split || i == (browser.maximized ?? browser.active)
-                    let frame = split ? (i == 0 ? layout.first : layout.second) : CGRect(origin: .zero, size: geo.size)
-                    PaneView(index: i, showsActiveMark: split,
-                             edges: PaneEdges(top: frame.minY <= 1 ? insets.top : 0,
-                                              bottom: frame.maxY >= geo.size.height - 1 ? insets.bottom : 0,
-                                              left: frame.minX <= 1 ? insets.left : 0,
-                                              right: frame.maxX >= geo.size.width - 1 ? insets.right : 0))
-                        // Size first, then move from the top-left corner: the pane is exactly where the layout says.
-                        .frame(width: max(frame.width, 1), height: max(frame.height, 1))
-                        .offset(x: frame.minX, y: frame.minY)
-                        .opacity(shown ? 1 : 0)
-                        .allowsHitTesting(shown)
-                        .zIndex(i == browser.active ? 1 : 0)
-                }
+                // Written out pane by pane (no ForEach over a fixed range: SwiftUI kept the old frames there when
+                // only the split moved, so the handle went one way and the pages stayed put).
+                pane(0, layout: layout, size: geo.size, split: split, insets: insets)
+                pane(1, layout: layout, size: geo.size, split: split, insets: insets)
                 if split {
                     PaneDivider(layout: layout, size: geo.size)
                         .zIndex(2)
@@ -143,6 +132,25 @@ struct PanesArea: View {
 }
 
 extension PanesArea {
+    @ViewBuilder
+    func pane(_ i: Int, layout: PaneLayout, size: CGSize, split: Bool, insets: UIEdgeInsets) -> some View {
+        let shown = split || i == (browser.maximized ?? browser.active)
+        let frame = split ? (i == 0 ? layout.first : layout.second) : CGRect(origin: .zero, size: size)
+        PaneView(index: i, showsActiveMark: split,
+                 edges: PaneEdges(top: frame.minY <= 1 ? insets.top : 0,
+                                  bottom: frame.maxY >= size.height - 1 ? insets.bottom : 0,
+                                  left: frame.minX <= 1 ? insets.left : 0,
+                                  right: frame.maxX >= size.width - 1 ? insets.right : 0))
+            .frame(width: max(frame.width, 1), height: max(frame.height, 1))
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(PaneLayout.space)) } action: { PanesArea.drawn[i] = $0 }
+            .offset(x: frame.minX, y: frame.minY)
+            .opacity(shown ? 1 : 0)
+            .allowsHitTesting(shown)
+            .zIndex(i == browser.active ? 1 : 0)
+    }
+
+    /// Where each pane really ended up on screen (for the simulator checks).
+    nonisolated(unsafe) static var drawn: [Int: CGRect] = [:]
     /// The last layout, for the simulator checks.
     nonisolated(unsafe) static var lastLayout = ""
     static func note(size: CGSize, raw: CGRect?, fold: CGRect?, layout: PaneLayout) {

@@ -60,6 +60,11 @@ enum ShotMode {
             show(1, "recipe", "dailyloaf.example")
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { browser.setAxis(.stacked) }
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) { browser.ratio = 0.35; browser.followsFold = false }
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(7))
+                let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
+                try? ("relayout: " + PanesArea.lastLayout + " | drawn 0 \(PanesArea.drawn[0] ?? .zero) drawn 1 \(PanesArea.drawn[1] ?? .zero)").write(to: url, atomically: true, encoding: .utf8)
+            }
         case "overview":
             show(0, "video", "dailyloaf.example")
             show(0, "news", "harbornews.example")
@@ -89,7 +94,7 @@ enum ShotMode {
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(6))
                 let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
-                try? ("layout: " + PanesArea.lastLayout + " | split \(browser.isSplit) axis \(browser.axis) hasFold \(browser.hasFold)").write(to: url, atomically: true, encoding: .utf8)
+                try? ("layout: " + PanesArea.lastLayout + " | drawn 0 \(PanesArea.drawn[0] ?? .zero) drawn 1 \(PanesArea.drawn[1] ?? .zero) | split \(browser.isSplit) axis \(browser.axis) hasFold \(browser.hasFold)").write(to: url, atomically: true, encoding: .utf8)
             }
         }
     }
