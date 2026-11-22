@@ -71,6 +71,9 @@ final class Browser {
     var privateLocked = false
     /// The tab overview covers the screen.
     var overviewShown = false
+    /// What the screen shows right now: pages side by side (or top and bottom). Set by the panes' layout.
+    var layoutSideBySide = false
+
     /// The side dock sits on the side last touched, and tucks itself away after a few seconds.
     var dockOnRight = false
     var dockOpen = true

@@ -149,15 +149,7 @@ extension Browser {
     var barHidden: Bool { barHiddenUntil.map { $0 > Date() } ?? false }
 
     /// Whether the panes are side by side right now (for the icons and the layout toggle).
-    var currentlySideBySide: Bool {
-        switch axis {
-        case .stacked: return false
-        case .sideBySide: return true
-        case .auto:
-            let size = UIScreen.main.bounds.size
-            return size.width > size.height
-        }
-    }
+    var currentlySideBySide: Bool { layoutSideBySide }
 }
 
 // MARK: - Recognizers on each page

@@ -69,7 +69,7 @@ struct TabsSheet: View {
     }
 
     private func title(for pane: Int) -> LocalizedStringKey {
-        let wide = UIScreen.main.bounds.width > UIScreen.main.bounds.height
+        let wide = browser.layoutSideBySide
         switch (pane, wide) {
         case (0, false): return "Top Pane"
         case (0, true): return "Left Pane"
@@ -316,7 +316,7 @@ struct SavePairSheet: View {
         .presentationDetents([.medium])
     }
 
-    private var wide: Bool { UIScreen.main.bounds.width > UIScreen.main.bounds.height }
+    private var wide: Bool { browser.layoutSideBySide }
     private var topLabel: String { wide ? "Left" : "Top" }
     private var bottomLabel: String { wide ? "Right" : "Bottom" }
 }

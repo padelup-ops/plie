@@ -101,16 +101,7 @@ struct AddressBar: View {
         }
     }
 
-    private var paneIsSideBySide: Bool {
-        switch browser.axis {
-        case .stacked: return false
-        case .sideBySide: return true
-        case .auto:
-            // Close enough for the icons: the open Duo held sideways, or any landscape screen.
-            let size = UIScreen.main.bounds.size
-            return size.width > size.height
-        }
-    }
+    private var paneIsSideBySide: Bool { browser.layoutSideBySide }
 
     private func addressText(_ tab: Tab?) -> String {
         guard let tab, !tab.isBlank else { return String(localized: "Search or enter address") }

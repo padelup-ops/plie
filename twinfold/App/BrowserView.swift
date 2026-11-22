@@ -114,7 +114,7 @@ struct PanesArea: View {
                                               left: frame.minX <= 1 ? insets.left : 0,
                                               right: frame.maxX >= geo.size.width - 1 ? insets.right : 0))
                         .frame(width: frame.width, height: frame.height)
-                        .offset(x: frame.minX, y: frame.minY)
+                        .position(x: frame.midX, y: frame.midY)
                         .opacity(shown ? 1 : 0)
                         .allowsHitTesting(shown)
                         .zIndex(i == browser.active ? 1 : 0)
@@ -124,7 +124,10 @@ struct PanesArea: View {
                         .zIndex(2)
                 }
             }
-            .onAppear { browser.hasFold = fold != nil }
+            // The whole screen, in the reader's own coordinates: every pane is placed by its centre in it.
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)
+            .onAppear { browser.hasFold = fold != nil; browser.layoutSideBySide = layout.sideBySide }
+            .onChange(of: layout.sideBySide) { _, v in browser.layoutSideBySide = v }
             .onChange(of: fold != nil) { _, has in browser.hasFold = has }
         }
     }
@@ -216,9 +219,9 @@ private struct PaneDivider: View {
                 .frame(width: layout.sideBySide ? 5 : 46, height: layout.sideBySide ? 46 : 5)
                 .shadow(color: .black.opacity(0.25), radius: 2)
         }
-        .frame(width: g.width, height: g.height)
+        .frame(width: max(g.width, 1), height: max(g.height, 1))
         .contentShape(Rectangle().inset(by: -16))
-        .offset(x: g.minX, y: g.minY)
+        .position(x: g.midX, y: g.midY)
         .highPriorityGesture(drag)
         .onTapGesture(count: 2) {
             // Back to the fold (or half and half).
