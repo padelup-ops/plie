@@ -100,6 +100,7 @@ struct PanesArea: View {
         GeometryReader { geo in
             let fold = geo.reservedRegions(kind: .division, options: .includeInactive).first?.frame
             let layout = PaneLayout(size: geo.size, fold: fold, ratio: browser.ratio, axis: browser.axis, followsFold: browser.followsFold)
+            let _ = PanesArea.note(size: geo.size, fold: fold, layout: layout)
             let split = browser.isSplit && browser.maximized == nil
 
             ZStack(alignment: .topLeading) {
@@ -130,6 +131,12 @@ struct PanesArea: View {
 }
 
 extension PanesArea {
+    /// The last layout, for the simulator checks.
+    nonisolated(unsafe) static var lastLayout = ""
+    static func note(size: CGSize, fold: CGRect?, layout: PaneLayout) {
+        lastLayout = "size \(size) fold \(String(describing: fold)) sideBySide \(layout.sideBySide) atFold \(layout.atFold) first \(layout.first) second \(layout.second) gap \(layout.gap) insets \(windowInsets)"
+    }
+
     /// The screen's own safe area (the pages ignore it, the floating bar doesn't).
     static var windowInsets: UIEdgeInsets {
         let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first

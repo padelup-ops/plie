@@ -80,6 +80,11 @@ enum ShotMode {
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")
             browser.active = 1
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(6))
+                let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
+                try? ("layout: " + PanesArea.lastLayout + " | split \(browser.isSplit) axis \(browser.axis) hasFold \(browser.hasFold)").write(to: url, atomically: true, encoding: .utf8)
+            }
         }
     }
 }
