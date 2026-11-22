@@ -75,6 +75,19 @@ enum ShotMode {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 browser.dockOnRight = true; browser.dockOpen = true; browser.railOpen = true
             }
+        case "fsinpane":
+            // Test: the page asks for full screen; the video should fill its pane only.
+            show(0, "dualtest-a", "video-a.example")
+            show(1, "recipe", "dailyloaf.example")
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(5))
+                let wv = browser.panes[0].tab?.webView
+                _ = try? await wv?.evaluateJavaScript("var v=document.getElementById('v');v.webkitEnterFullscreen();1")
+                try? await Task.sleep(for: .seconds(2))
+                let r = (try? await wv?.evaluateJavaScript("var b=document.getElementById('v').getBoundingClientRect();[Math.round(b.width),Math.round(b.height),innerWidth,innerHeight].join(' ')")) as? String ?? "?"
+                let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
+                try? "fsinpane: filled \(browser.panes[0].tab?.isFilled ?? false) video \(r)".write(to: url, atomically: true, encoding: .utf8)
+            }
         case "overview":
             show(0, "video", "dailyloaf.example")
             show(0, "news", "harbornews.example")
