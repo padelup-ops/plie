@@ -11,7 +11,7 @@ import SwiftUI
 final class MapState {
     var zoom: CGFloat = 1
     var pan: CGSize = .zero
-    var layers: Set<VFPlaceKind> = Set(VFPlaceKind.allCases)
+    var layers: Set<VFPlaceKind> = VFPlaceKind.defaultLayers
     var showPins = true
     var selectedPlace: VFPlace?
     var selectedPin: VFPin?
@@ -34,7 +34,8 @@ struct MapTab: View {
         }
         .environment(state)
         .onAppear {
-            if ShotMode.route == "mappins" { state.zoom = 2.2; state.focus = CGPoint(x: 820, y: 820) }
+            // Vice City et Vice Beach, pour les captures.
+            if ShotMode.route == "mappins" { state.zoom = 3; state.focus = CGPoint(x: 0.8 * Leonida.size.width, y: 0.5 * Leonida.size.height) }
         }
     }
 }
@@ -82,7 +83,7 @@ struct MapCanvasScreen: View {
                     hint("Tap the map where you want your pin")
                 } else if state.calibrating {
                     VStack(spacing: 8) {
-                        hint("Drag and pinch your map until it lines up with the white outline")
+                        hint("Drag and pinch your map until it lines up with the map below")
                         Button("Done") { state.calibrating = false }.buttonStyle(.borderedProminent)
                     }
                 }
@@ -126,6 +127,24 @@ struct PlaceCard: View {
                 }
                 .font(.caption).foregroundStyle(.secondary)
                 if !hidden, let n = place.note { Text(n).font(.subheadline).fixedSize(horizontal: false, vertical: true) }
+                if !hidden {
+                    if let r = place.real {
+                        Label { Text("Inspired by \(r)") } icon: { Image(systemName: "globe.americas.fill") }
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    if place.enterable == true {
+                        Label("You can go inside", systemImage: "door.left.hand.open").font(.caption).foregroundStyle(.secondary)
+                    }
+                    if place.uncertain == true {
+                        Label("Name or place not confirmed yet", systemImage: "questionmark.circle").font(.caption).foregroundStyle(.secondary)
+                    }
+                    if place.closed == true {
+                        Label("Closed", systemImage: "lock").font(.caption).foregroundStyle(.secondary)
+                    }
+                    if place.community {
+                        Text("Source: GTADB.org community (CC BY 4.0)").font(.caption2).foregroundStyle(.tertiary)
+                    }
+                }
                 Button {
                     if !progress.toggleVisited(place) { showPro = true }
                 } label: {
@@ -157,6 +176,13 @@ enum MapColors {
         case .event: return .orange
         case .mission: return VF.coral
         case .service: return .purple
+        case .hotel: return Color(red: 0.86, green: 0.2, blue: 0.45)
+        case .food: return Color(red: 0.95, green: 0.55, blue: 0.1)
+        case .gas: return Color(red: 0.85, green: 0.3, blue: 0.2)
+        case .transport: return Color(red: 0.2, green: 0.45, blue: 0.85)
+        case .nature: return Color(red: 0.2, green: 0.6, blue: 0.3)
+        case .civic: return Color(red: 0.45, green: 0.4, blue: 0.7)
+        case .other: return .gray
         }
     }
 }
@@ -168,6 +194,7 @@ struct LeonidaMapView: View {
     @Environment(Progress.self) private var progress
     @Environment(Store.self) private var store
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.displayScale) private var displayScale
     @State private var dragStart: CGSize?
     @State private var zoomStart: (zoom: CGFloat, pan: CGSize)?
     @State private var fitStart: VFMapFit?
@@ -186,28 +213,28 @@ struct LeonidaMapView: View {
             }
             ZStack(alignment: .topLeading) {
                 Canvas { ctx, size in
-                    let pal = Leonida.Palette.make(dark: scheme == .dark)
-                    ctx.fill(Path(CGRect(origin: .zero, size: size)), with: .color(pal.water))
                     var c = ctx
                     c.translateBy(x: center.x - Leonida.size.width / 2 * s, y: center.y - Leonida.size.height / 2 * s)
                     c.scaleBy(x: s, y: s)
-                    let useMine = progress.data.customMap && myMap != nil && store.isPro
-                    if useMine, let img = myMap {
+                    let a = toMap(.zero), b = toMap(CGPoint(x: size.width, y: size.height))
+                    let visible = CGRect(x: a.x, y: a.y, width: b.x - a.x, height: b.y - a.y)
+                    Leonida.draw(&c, visible: visible, level: Leonida.level(pointsPerMeter: s, scale: displayScale), dark: scheme == .dark)
+                    // Ta carte à toi (Pro), par-dessus, calée une fois pour toutes.
+                    if progress.data.customMap, store.isPro, let img = myMap {
                         let f = progress.data.mapFit
                         let w = Leonida.size.width * f.scale
                         let h = w * img.size.height / max(1, img.size.width)
                         let r = CGRect(x: Leonida.size.width / 2 - w / 2 + f.x, y: Leonida.size.height / 2 - h / 2 + f.y, width: w, height: h)
-                        c.draw(Image(uiImage: img), in: r)
-                        if state.calibrating { Leonida.draw(&c, palette: pal, zoom: state.zoom, outlineOnly: true) }
-                    } else {
-                        Leonida.draw(&c, palette: pal, zoom: state.zoom)
+                        var m = c
+                        if state.calibrating { m.opacity = 0.55 }
+                        m.draw(Image(uiImage: img), in: r)
                     }
                 }
-                ForEach(visiblePlaces) { p in
-                    let pt = toScreen(CGPoint(x: p.x * Leonida.size.width, y: p.y * Leonida.size.height))
-                    PlaceMarker(place: p, selected: state.selectedPlace == p, visited: progress.visited(p), hidden: progress.hidden(p.spoiler), zoom: state.zoom)
-                        .position(pt)
-                        .onTapGesture { withAnimation(.snappy) { state.selectedPlace = p } }
+                ForEach(markers(toScreen: toScreen, size: geo.size)) { mk in
+                    PlaceMarker(place: mk.place, selected: state.selectedPlace == mk.place, visited: progress.visited(mk.place),
+                                hidden: progress.hidden(mk.place.spoiler), zoom: state.zoom)
+                        .position(mk.point)
+                        .onTapGesture { withAnimation(.snappy) { state.selectedPlace = mk.place } }
                 }
                 if state.showPins {
                     ForEach(progress.data.pins) { pin in
@@ -233,6 +260,7 @@ struct LeonidaMapView: View {
             }
             .onAppear { if let f = state.focus { state.focus = nil; DispatchQueue.main.async { state.focus = f } } }
         }
+        .overlay(alignment: .bottomLeading) { MapCredit().padding(8) }
         .clipped()
         .task(id: progress.data.customMap) { myMap = UIImage(contentsOfFile: progress.mapURL.path) }
         .accessibilityLabel("Map of Leonida")
@@ -245,6 +273,34 @@ struct LeonidaMapView: View {
             if state.hideVisited && progress.visited(p) { return false }
             return true
         }
+    }
+
+    /// Les repères à l'écran, sans qu'ils se chevauchent : les plus importants d'abord (nos lieux, les lieux où l'on
+    /// peut entrer, les monuments…), un seul par case ; on en voit plus en zoomant.
+    struct Marker: Identifiable {
+        var place: VFPlace
+        var point: CGPoint
+        var id: String { place.id }
+    }
+
+    private func markers(toScreen: (CGPoint) -> CGPoint, size: CGSize) -> [Marker] {
+        let cell: CGFloat = state.zoom > 6 ? 56 : 34
+        var taken = Set<Int>()
+        var out: [Marker] = []
+        let sorted = visiblePlaces.sorted { a, b in
+            if (a == state.selectedPlace) != (b == state.selectedPlace) { return a == state.selectedPlace }
+            return a.rank < b.rank
+        }
+        for p in sorted {
+            let pt = toScreen(CGPoint(x: p.x * Leonida.size.width, y: p.y * Leonida.size.height))
+            guard pt.x > -20, pt.y > -20, pt.x < size.width + 20, pt.y < size.height + 20 else { continue }
+            let key = Int(floor(pt.x / cell)) &* 4099 &+ Int(floor(pt.y / cell))
+            if taken.contains(key) && p != state.selectedPlace { continue }
+            taken.insert(key)
+            out.append(Marker(place: p, point: pt))
+            if out.count >= 140 { break }
+        }
+        return out
     }
 
     private var drag: some Gesture {
@@ -275,7 +331,7 @@ struct LeonidaMapView: View {
                 }
                 let start = zoomStart ?? (state.zoom, state.pan)
                 if zoomStart == nil { zoomStart = start }
-                let newZoom = max(1, min(8, start.zoom * v.magnification))
+                let newZoom = max(1, min(Self.maxZoom, start.zoom * v.magnification))
                 let a = CGPoint(x: v.startLocation.x - geo.size.width / 2, y: v.startLocation.y - geo.size.height / 2)
                 let k = newZoom / start.zoom
                 state.zoom = newZoom
@@ -285,7 +341,7 @@ struct LeonidaMapView: View {
     }
 
     private func zoom(at loc: CGPoint, by f: CGFloat, geo: GeometryProxy, s0: CGFloat) {
-        let newZoom = state.zoom >= 6 ? 1 : min(8, state.zoom * f)
+        let newZoom = state.zoom >= Self.maxZoom * 0.75 ? 1 : min(Self.maxZoom, state.zoom * f)
         let a = CGPoint(x: loc.x - geo.size.width / 2, y: loc.y - geo.size.height / 2)
         let k = newZoom / state.zoom
         withAnimation(.snappy) {
@@ -293,6 +349,8 @@ struct LeonidaMapView: View {
             state.zoom = newZoom
         }
     }
+
+    static let maxZoom: CGFloat = 14
 
     private func tapped(at m: CGPoint) {
         guard state.dropping else {
@@ -328,7 +386,7 @@ struct PlaceMarker: View {
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 11)).foregroundStyle(.white, VF.teal).offset(x: 4, y: -4)
                 }
             }
-            if zoom > 2.4 || selected {
+            if zoom > 6 || selected {
                 Text(hidden ? "?" : place.name)
                     .font(.system(size: 10, weight: .semibold))
                     .padding(.horizontal, 4)
@@ -484,7 +542,7 @@ struct LayersView: View {
                     }
                     if progress.data.customMap {
                         Toggle("Use my map", isOn: Binding(get: { progress.data.customMap }, set: { v in progress.edit { $0.customMap = v } }))
-                        Button { state.calibrating = true; dismiss() } label: { Label("Line it up with the outline", systemImage: "arrow.up.and.down.and.arrow.left.and.right") }
+                        Button { state.calibrating = true; dismiss() } label: { Label("Line it up with the map", systemImage: "arrow.up.and.down.and.arrow.left.and.right") }
                         Button(role: .destructive) {
                             try? FileManager.default.removeItem(at: progress.mapURL)
                             progress.edit { $0.customMap = false; $0.mapFit = VFMapFit() }
@@ -560,5 +618,40 @@ struct PinEditor: View {
         .toolbar {
             ToolbarItem(placement: .confirmationAction) { Button("Save") { progress.update(pin); dismiss() } }
         }
+    }
+}
+
+/// Le crédit de la carte (licence CC BY 4.0) : toujours visible, touche pour les détails.
+struct MapCredit: View {
+    @State private var show = false
+    var body: some View {
+        Button { show = true } label: {
+            Text("Map © GTADB.org · Yanis · CC BY 4.0")
+                .font(.system(size: 9, weight: .medium))
+                .padding(.horizontal, 6).padding(.vertical, 3)
+                .background(.thinMaterial, in: .capsule)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Map credits")
+        .sheet(isPresented: $show) { NavigationStack { MapCreditView() }.presentationDetents([.medium]) }
+    }
+}
+
+struct MapCreditView: View {
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        List {
+            Section {
+                Text("The map is the GTA VI Community Map v18, drawn by Yanis and the GTA mapping community, from the tiles of GTADB.org. Places come from the GTADB.org landmarks. Both are shared under the Creative Commons Attribution 4.0 license. We cropped the map to Leonida and grouped the places into layers.")
+                Text("It's a fan map, not Rockstar's, and it keeps improving.").foregroundStyle(.secondary)
+            }
+            Section {
+                Link("map.gtadb.org", destination: Leonida.sourceURL)
+                Link("Creative Commons Attribution 4.0", destination: Leonida.licenseURL)
+            }
+        }
+        .navigationTitle("Map credits")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
     }
 }

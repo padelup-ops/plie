@@ -8,6 +8,16 @@ import Observation
 import SwiftUI
 import WidgetKit
 
+/// Une trouvaille à toi : un secret que tu as vu dans le jeu (avec une photo si tu veux).
+struct VFMyEgg: Codable, Identifiable, Hashable {
+    var id = UUID().uuidString
+    var title: String
+    var note: String = ""
+    var place: String = ""
+    var photo: String?
+    var date = Date()
+}
+
 struct VFPin: Codable, Identifiable, Hashable {
     var id = UUID().uuidString
     var name: String
@@ -51,6 +61,9 @@ struct VFProgressData: Codable, Equatable {
     var platform: String = "ps5"
     var customMap = false
     var mapFit = VFMapFit()
+    /// Les easter eggs trouvés, et tes propres trouvailles.
+    var eggs: Set<String> = []
+    var myEggs: [VFMyEgg] = []
     var updated = Date()
 
     init() {}
@@ -77,6 +90,8 @@ struct VFProgressData: Codable, Equatable {
         platform = (try? c.decodeIfPresent(String.self, forKey: .platform)) ?? z.platform
         customMap = (try? c.decodeIfPresent(Bool.self, forKey: .customMap)) ?? z.customMap
         mapFit = (try? c.decodeIfPresent(VFMapFit.self, forKey: .mapFit)) ?? z.mapFit
+        eggs = (try? c.decodeIfPresent(Set<String>.self, forKey: .eggs)) ?? z.eggs
+        myEggs = (try? c.decodeIfPresent([VFMyEgg].self, forKey: .myEggs)) ?? z.myEggs
         updated = (try? c.decodeIfPresent(Date.self, forKey: .updated)) ?? z.updated
     }
 }
@@ -138,14 +153,14 @@ final class Progress {
         d.manualHours = 38
         d.missions = Set(c.missions.prefix(44).map(\.id))
         if let m = c.missions.dropFirst(44).first { d.objectives[m.id] = [0] }
-        d.visited = Set(c.places.filter { $0.kind != .region }.prefix(7).map(\.id))
+        d.visited = Set(c.places.filter { $0.kind != .region && !$0.community }.prefix(5).map(\.id))
         for (i, s) in c.collectibles.enumerated() { d.collected[s.id] = Int(Double(s.target) * [0.62, 0.35, 0.8, 0.5, 0.2, 0.9][i % 6]) }
         d.challenges = ["f-narco", "f-cars"]
         d.favorites = ["lucia", "jason"]
         d.readGuides = ["start-how"]
-        d.pins = [VFPin(name: "Stash", note: "Behind the bait shop", icon: "dollarsign", color: 2, x: 0.6, y: 0.86),
-                  VFPin(name: "Car to scan", icon: "car.fill", color: 1, x: 0.84, y: 0.66),
-                  VFPin(name: "Sunset spot", icon: "camera.fill", color: 3, x: 0.9, y: 0.7)]
+        d.pins = [VFPin(name: "Stash", note: "Behind the bait shop", icon: "dollarsign", color: 2, x: 0.735, y: 0.535),
+                  VFPin(name: "Car to scan", icon: "car.fill", color: 1, x: 0.79, y: 0.455),
+                  VFPin(name: "Sunset spot", icon: "camera.fill", color: 3, x: 0.86, y: 0.51)]
         return d
     }
 
@@ -179,6 +194,10 @@ final class Progress {
         for p in b.pins where pins[p.id] == nil { pins[p.id] = p }
         m.pins = pins.values.sorted { $0.created < $1.created }
         m.chapter = max(a.chapter, b.chapter)
+        m.eggs = a.eggs.union(b.eggs)
+        var mine = Dictionary(uniqueKeysWithValues: a.myEggs.map { ($0.id, $0) })
+        for e in b.myEggs where mine[e.id] == nil { mine[e.id] = e }
+        m.myEggs = mine.values.sorted { $0.date > $1.date }
         return m
     }
 
@@ -218,6 +237,23 @@ final class Progress {
     // MARK: Lieux, objets, défis
 
     func visited(_ p: VFPlace) -> Bool { data.visited.contains(p.id) }
+
+    // MARK: Easter eggs
+
+    func found(_ e: VFEgg) -> Bool { data.eggs.contains(e.id) }
+    func toggle(_ e: VFEgg) { edit { d in if d.eggs.contains(e.id) { d.eggs.remove(e.id) } else { d.eggs.insert(e.id) } } }
+    func save(_ e: VFMyEgg) {
+        edit { d in
+            if let i = d.myEggs.firstIndex(where: { $0.id == e.id }) { d.myEggs[i] = e } else { d.myEggs.insert(e, at: 0) }
+        }
+    }
+    func remove(_ e: VFMyEgg) {
+        if let f = e.photo { try? FileManager.default.removeItem(at: Self.eggPhotoURL(f)) }
+        edit { d in d.myEggs.removeAll { $0.id == e.id } }
+    }
+    static func eggPhotoURL(_ name: String) -> URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(name)
+    }
 
     /// false : la limite gratuite est atteinte.
     @discardableResult
@@ -268,7 +304,7 @@ final class Progress {
     func parts(_ c: VFContent) -> Parts {
         let missions = c.missions.filter { $0.optional != true }
         let m = missions.isEmpty ? 0 : Double(missions.filter { data.missions.contains($0.id) }.count) / Double(missions.count)
-        let places = c.places.filter { $0.kind != .region }
+        let places = c.places.filter { $0.kind != .region && !$0.community }
         let p = places.isEmpty ? 0 : Double(places.filter { data.visited.contains($0.id) }.count) / Double(places.count)
         let total = c.collectibles.reduce(0) { $0 + $1.target }
         let found = c.collectibles.reduce(0) { $0 + min($1.target, data.collected[$1.id] ?? 0) }

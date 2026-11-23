@@ -99,6 +99,7 @@ struct VFGuide: Codable, Identifiable, Hashable {
 
 enum VFPlaceKind: String, Codable, CaseIterable, Identifiable {
     case region, landmark, shop, property, activity, collectible, event, mission, service
+    case hotel, food, gas, transport, nature, civic = "public", other
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -111,6 +112,13 @@ enum VFPlaceKind: String, Codable, CaseIterable, Identifiable {
         case .event: return String(localized: "Random events")
         case .mission: return String(localized: "Missions")
         case .service: return String(localized: "Services")
+        case .hotel: return String(localized: "Hotels")
+        case .food: return String(localized: "Food & drink")
+        case .gas: return String(localized: "Gas stations")
+        case .transport: return String(localized: "Transport")
+        case .nature: return String(localized: "Nature")
+        case .civic: return String(localized: "Public buildings")
+        case .other: return String(localized: "Other places")
         }
     }
     var icon: String {
@@ -124,8 +132,30 @@ enum VFPlaceKind: String, Codable, CaseIterable, Identifiable {
         case .event: return "exclamationmark.bubble.fill"
         case .mission: return "flag.fill"
         case .service: return "wrench.and.screwdriver.fill"
+        case .hotel: return "bed.double.fill"
+        case .food: return "fork.knife"
+        case .gas: return "fuelpump.fill"
+        case .transport: return "tram.fill"
+        case .nature: return "leaf.fill"
+        case .civic: return "building.2.fill"
+        case .other: return "mappin"
         }
     }
+    /// L'ordre d'importance sur la carte (quand les repères se gênent, le plus important reste).
+    var rank: Int {
+        switch self {
+        case .mission: return 0
+        case .landmark, .property: return 1
+        case .collectible, .event, .activity: return 2
+        case .hotel, .nature: return 3
+        case .shop, .food, .gas: return 4
+        case .service, .transport: return 5
+        case .civic: return 6
+        case .region, .other: return 7
+        }
+    }
+    /// Couches affichées au départ (les « autres lieux », très nombreux, attendent qu'on les demande).
+    static var defaultLayers: Set<VFPlaceKind> { Set(allCases).subtracting([.other]) }
     /// Couches réservées à Pro sur la carte (comme les objets à collectionner et les activités).
     var pro: Bool { self == .collectible || self == .activity || self == .event }
 }
@@ -140,6 +170,16 @@ struct VFPlace: Codable, Identifiable, Hashable {
     var region: String?
     var note: String?
     var spoiler: Int?
+    /// Le lieu réel qui l'a inspiré (Floride), d'après GTADB.
+    var real: String?
+    var enterable: Bool?
+    var uncertain: Bool?
+    var closed: Bool?
+
+    /// Un lieu de la base communautaire GTADB (pas un des nôtres).
+    var community: Bool { id.hasPrefix("g-") }
+    /// L'ordre sur la carte : nos lieux d'abord, puis par catégorie, ceux où l'on peut entrer en premier.
+    var rank: Int { (community ? 100 : 0) + kind.rank * 10 + (enterable == true ? 0 : 1) }
 }
 
 struct VFCollectibleSet: Codable, Identifiable, Hashable {
@@ -207,6 +247,22 @@ struct VFCheat: Codable, Identifiable, Hashable {
     var group: String?
 }
 
+/// Un easter egg : ce que c'est, où, et (si on le demande) comment le trouver. Rédigé par nous à partir de ce que
+/// les joueurs et la presse ont rapporté ; « confirmed » quand plusieurs sources le décrivent.
+struct VFEgg: Codable, Identifiable, Hashable {
+    var id: String
+    var title: String
+    var summary: String
+    var how: String?
+    var area: String
+    /// Position approximative sur la carte (0 à 1), si on la connaît.
+    var x: Double?
+    var y: Double?
+    var refs: [String]?
+    var confirmed: Bool?
+    var spoiler: Int?
+}
+
 struct VFNews: Codable, Identifiable, Hashable {
     var id: String
     var date: String
@@ -227,6 +283,7 @@ struct VFContent: Codable {
     var characters: [VFCharacter] = []
     var stations: [VFStation] = []
     var cheats: [VFCheat] = []
+    var eggs: [VFEgg] = []
     var news: [VFNews]?
 
     init(version: Int) { self.version = version }
@@ -242,7 +299,7 @@ struct VFContent: Codable {
         }
         chapters = list(.chapters); missions = list(.missions); guides = list(.guides); places = list(.places)
         collectibles = list(.collectibles); challenges = list(.challenges); characters = list(.characters)
-        stations = list(.stations); cheats = list(.cheats)
+        stations = list(.stations); cheats = list(.cheats); eggs = list(.eggs)
         news = list(.news)
     }
 

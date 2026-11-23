@@ -7,7 +7,7 @@ Pour publier une mise à jour du guide : augmenter VERSION, relancer ce script, 
 import json
 import os
 
-VERSION = 3
+VERSION = 4
 HERE = os.path.dirname(__file__)
 OUT = os.path.join(HERE, "..", "Content")
 
@@ -52,21 +52,21 @@ CHARACTERS = [
      ["Keys"]),
 ]
 
-# ---------------------------------------------------------------- Lieux (sur notre carte : x, y de 0 à 1)
+# ---------------------------------------------------------------- Lieux (sur la carte communautaire GTADB : x, y de 0 à 1)
 PLACES = [
-    ("r-vice", "Vice City", "region", 0.82, 0.61, None, T("Leonida's big city: beaches, nightlife, money.", "La grande ville de Leonida : plages, vie nocturne, argent.")),
-    ("r-keys", "Leonida Keys", "region", 0.45, 0.93, None, T("A chain of islands linked by long bridges.", "Un chapelet d'îles reliées par de longs ponts.")),
-    ("r-grass", "Grassrivers", "region", 0.6, 0.71, None, T("Wetlands, airboats and alligators.", "Marais, hydroglisseurs et alligators.")),
-    ("r-gellhorn", "Port Gellhorn", "region", 0.18, 0.27, None, T("A faded beach town on the gulf coast.", "Une station balnéaire défraîchie sur la côte du golfe.")),
-    ("r-ambrosia", "Ambrosia", "region", 0.52, 0.47, None, T("Sugar country around the big lake.", "Le pays du sucre, autour du grand lac.")),
-    ("r-kalaga", "Mount Kalaga", "region", 0.5, 0.09, None, T("A national park of forests, trails and rivers.", "Un parc national de forêts, de sentiers et de rivières.")),
-    ("l-beach", "Vice Beach", "landmark", 0.9, 0.64, "Vice City", T("The barrier island: hotels, neon and the boardwalk.", "L'île barrière : hôtels, néons et promenade.")),
-    ("l-lake", "Lake Leonida", "landmark", 0.58, 0.37, "Ambrosia", T("The big lake in the middle of the state.", "Le grand lac au centre de l'État.")),
-    ("l-bridge", "Overseas bridges", "landmark", 0.62, 0.86, "Leonida Keys", T("The long road out to the islands.", "La longue route vers les îles.")),
-    ("l-pen", "Leonida Penitentiary", "landmark", 0.36, 0.52, None, T("Where Lucia's story starts.", "Là où commence l'histoire de Lucia."), 0),
-    ("a-airboat", "Airboat tours", "activity", 0.55, 0.73, "Grassrivers", T("Rent an airboat and explore the wetlands.", "Loue un hydroglisseur et explore les marais.")),
-    ("a-fishing", "Pier fishing", "activity", 0.2, 0.31, "Port Gellhorn", T("Cast a line from the old pier.", "Lance ta ligne depuis la vieille jetée.")),
-    ("a-hike", "Kalaga trails", "activity", 0.47, 0.13, "Mount Kalaga", T("Hiking trails with views over the park.", "Des sentiers avec vue sur le parc.")),
+    ("r-vice", "Vice City", "region", 0.753, 0.5, None, T("Leonida's big city: beaches, nightlife, money.", "La grande ville de Leonida : plages, vie nocturne, argent.")),
+    ("r-keys", "Leonida Keys", "region", 0.462, 0.86, None, T("A chain of islands linked by long bridges.", "Un chapelet d'îles reliées par de longs ponts.")),
+    ("r-grass", "Grassrivers", "region", 0.49, 0.745, None, T("Wetlands, airboats and alligators.", "Marais, hydroglisseurs et alligators.")),
+    ("r-gellhorn", "Port Gellhorn", "region", 0.268, 0.3425, None, T("A faded beach town on the gulf coast.", "Une station balnéaire défraîchie sur la côte du golfe.")),
+    ("r-ambrosia", "Ambrosia", "region", 0.546, 0.32, None, T("Sugar country around the big lake.", "Le pays du sucre, autour du grand lac.")),
+    ("r-kalaga", "Mount Kalaga", "region", 0.485, 0.25, None, T("A national park of forests, trails and rivers.", "Un parc national de forêts, de sentiers et de rivières.")),
+    ("l-beach", "Vice Beach", "landmark", 0.875, 0.485, "Vice City", T("The barrier island: hotels, neon and the boardwalk.", "L'île barrière : hôtels, néons et promenade.")),
+    ("l-lake", "Lake Leonida", "landmark", 0.615, 0.319, "Ambrosia", T("The big lake in the middle of the state.", "Le grand lac au centre de l'État.")),
+    ("l-bridge", "Overseas bridges", "landmark", 0.678, 0.825, "Leonida Keys", T("The long road out to the islands.", "La longue route vers les îles.")),
+    ("l-pen", "Leonida Penitentiary", "landmark", 0.555, 0.688, None, T("Where Lucia's story starts.", "Là où commence l'histoire de Lucia."), 0),
+    ("a-airboat", "Airboat tours", "activity", 0.461, 0.73, "Grassrivers", T("Rent an airboat and explore the wetlands.", "Loue un hydroglisseur et explore les marais.")),
+    ("a-fishing", "Pier fishing", "activity", 0.3088, 0.3813, "Port Gellhorn", T("Cast a line from the old pier.", "Lance ta ligne depuis la vieille jetée.")),
+    ("a-hike", "Kalaga trails", "activity", 0.468, 0.3, "Mount Kalaga", T("Hiking trails with views over the park.", "Des sentiers avec vue sur le parc.")),
 ]
 
 # ---------------------------------------------------------------- Guides
@@ -450,6 +450,143 @@ SOURCES = T(["Facts from the publisher's official character and setting announce
             ["Faits tirés des annonces officielles de l'éditeur (personnages, lieux). Tous les textes sont rédigés pour Vicefold."])
 
 
+# Les lieux de la communauté : GTADB.org (CC BY 4.0), convertis par gtadb.py.
+GTADB_PLACES = json.load(open(os.path.join(HERE, "gtadb_places.json")))
+# Les noms trop génériques (« Bridge », « Prison Building »…) n'aident pas : on garde les noms uniques.
+_names = {}
+for _p in GTADB_PLACES:
+    _names[_p["name"].lower()] = _names.get(_p["name"].lower(), 0) + 1
+
+
+# Répétés mais utiles (on les garde tous) / trop génériques (on les retire). Les autres noms répétés : le premier.
+KEEP_REPEATED = {"gas station", "xero gas station", "arrow gas station", "train station", "metro station", "airfield",
+                 "fleeca", "lombank", "church", "tennis court"}
+GENERIC = {"bridge", "bus stop", "parking lot", "train bridge", "prison building", "lake", "lifeguard tower",
+           "train tunnel", "water tower", "park", "river", "construction site", "tank", "warehouse", "cell tower",
+           "radio tower", "parking garage", "canal", "guard booth", "radio mast", "footbridge", "turn", "tunnel", "lock",
+           "pier"}
+
+
+def community_places():
+    ours = {p[1].lower() for p in PLACES}
+    seen = set()
+    out = []
+    for p in GTADB_PLACES:
+        n = p["name"].lower()
+        if n in ours or n in GENERIC or n.endswith(")"):
+            continue
+        if _names[n] > 1 and n not in KEEP_REPEATED:
+            if n in seen:
+                continue
+            seen.add(n)
+        d = {k: v for k, v in p.items() if v not in (None, False)}
+        out.append(d)
+    return out
+
+
+
+# ---------------------------------------------------------------- Easter eggs (rédigés par nous, d'après ce que les
+# joueurs et la presse ont rapporté depuis la sortie ; « confirmed » quand plusieurs sources le décrivent ;
+# positions approximatives sur la carte communautaire)
+EGGS = [
+    dict(id="egg-dog", confirmed=True, x=0.55, y=0.9, area=T("At sea, around the Keys", "En mer, autour des Keys"),
+         title=T("The jet ski dog", "Le chien en jet ski"),
+         summary=T("A dog in goggles and a life jacket rides a jet ski — and it may come to your rescue.",
+                   "Un chien avec lunettes et gilet de sauvetage pilote un jet ski — et il peut venir te sauver."),
+         how=T("Get stranded at sea (or swim far out from a beach) and wait. Hop on with the dog: it takes you to an island where its friends hang out, with some cash to pick up.",
+               "Retrouve-toi perdu en mer (ou nage loin d'une plage) et attends. Monte avec le chien : il t'emmène sur une île où traînent ses copains, avec un peu d'argent à ramasser."),
+         refs=T(["A real golden retriever filmed on a jet ski in Florida"], ["Un vrai golden retriever filmé en jet ski en Floride"])),
+    dict(id="egg-skunkape", confirmed=True, x=0.515, y=0.784, area=T("Grassrivers woods, near Cottonmouth Lake", "Bois de Grassrivers, près de Cottonmouth Lake"),
+         title=T("The Skunk Ape", "Le Skunk Ape"),
+         summary=T("Leonida's own Bigfoot roams the swamp woods. It smells terrible, and it's fast.",
+                   "Le Bigfoot de Leonida rôde dans les bois des marais. Il sent très mauvais, et il est rapide."),
+         how=T("Look around the straw-and-rope shrines in the woods: a growl tells you it's close. Careful, its gas can knock you out. A cryptid hunter in the area has a reward for proof.",
+               "Cherche autour des petits autels de paille et de corde dans les bois : un grognement t'annonce qu'il est proche. Attention, son gaz peut t'assommer. Un chasseur de créatures du coin récompense les preuves."),
+         refs=T(["Bigfoot in GTA San Andreas rumors", "Florida's Skunk Ape legend"], ["Les rumeurs de Bigfoot dans GTA San Andreas", "La légende floridienne du Skunk Ape"])),
+    dict(id="egg-nest", confirmed=True, area=T("Top of a tall tower, Vice-Dale County", "En haut d'une grande tour, Vice-Dale County"),
+         title=T("Eggs in a nest", "Des œufs dans un nid"),
+         summary=T("A literal easter egg: a nest of painted eggs at the very top of one of the highest towers.",
+                   "Un easter egg au sens propre : un nid d'œufs peints tout en haut d'une des plus hautes tours."),
+         how=T("Climb the tower — about seven minutes of ladders. Pick up an egg and throw it off the top for a little scene with a driver below.",
+               "Grimpe la tour — environ sept minutes d'échelles. Prends un œuf et lance-le du sommet : une petite scène t'attend avec un conducteur en bas."),
+         refs=T(["A similar nest in GTA Vice City"], ["Un nid semblable dans GTA Vice City"])),
+    dict(id="egg-dexter", confirmed=True, area=T("Waterfront block, Vice City", "Un immeuble au bord de l'eau, Vice City"),
+         title=T("A very familiar apartment", "Un appartement très familier"),
+         summary=T("A shuttered corner apartment and its roof look a lot like a certain blood-spatter analyst's Miami home.",
+                   "Un appartement d'angle fermé et son toit ressemblent beaucoup à la maison miamienne d'un certain expert en traces de sang."),
+         how=T("Find the building on the waterfront and get to the roof: tools, rope and gloves are laid out there, and a boat with a suspicious name is docked nearby.",
+               "Trouve l'immeuble au bord de l'eau et monte sur le toit : outils, corde et gants y sont posés, et un bateau au nom suspect est amarré pas loin."),
+         refs=T(["Dexter (TV series)"], ["Dexter (série)"])),
+    dict(id="egg-ufo", confirmed=False, spoiler=2, x=0.36, y=0.37, area=T("Kelly County, near Port Gellhorn", "Kelly County, près de Port Gellhorn"),
+         title=T("Lights in the sky", "Des lumières dans le ciel"),
+         summary=T("Something strange happens in the countryside late at night — and Jason and Lucia don't live it the same way.",
+                   "Il se passe quelque chose d'étrange à la campagne tard dans la nuit — et Jason et Lucia ne le vivent pas pareil."),
+         how=T("From chapter 2, go out alone after 2 AM near Port Gellhorn and walk toward the light. The follow-up differs for each character; it's tied to a trophy.",
+               "À partir du chapitre 2, sors seul après 2 h du matin près de Port Gellhorn et marche vers la lumière. La suite change selon le personnage ; elle est liée à un trophée."),
+         refs=T(["UFO rumors since GTA III", "The X-Files"], ["Les rumeurs d'OVNI depuis GTA III", "X-Files"])),
+    dict(id="egg-parrot", confirmed=True, spoiler=1, x=0.591, y=0.823, area=T("A liquor store in Key Lento", "Une boutique d'alcool à Key Lento"),
+         title=T("The talking parrot", "Le perroquet qui parle"),
+         summary=T("A shop that's really an exotic-animal front, and a parrot that talks a little too much.",
+                   "Une boutique qui cache un trafic d'animaux exotiques, et un perroquet qui parle un peu trop."),
+         how=T("During a favor in chapter 1, deal with the crew out back, then talk to the parrot: it points you to cash hidden near a generator.",
+               "Pendant un service au chapitre 1, occupe-toi de la bande derrière la boutique, puis parle au perroquet : il t'indique de l'argent caché près d'un générateur.")),
+    dict(id="egg-tuner", confirmed=True, area=T("A villa garage, Vice City", "Le garage d'une villa, Vice City"),
+         title=T("The green tuner", "La voiture verte"),
+         summary=T("A green tuner car hidden in a garage pays tribute to a much-missed street-racing movie star.",
+                   "Une voiture de tuning verte cachée dans un garage rend hommage à une star très regrettée des films de course de rue."),
+         how=T("Break into the garage of a villa on one of Vice City's islands; it's there in free roam, no mission needed. Open the trunk for an extra gag.",
+               "Entre dans le garage d'une villa sur une des îles de Vice City ; elle y est en balade libre, sans mission. Ouvre le coffre pour un clin d'œil en plus."),
+         refs=T(["The Fast and the Furious (2001)"], ["Fast and Furious (2001)"])),
+    dict(id="egg-hat", confirmed=True, spoiler=2, x=0.31, y=0.359, area=T("A yard sale in Port Gellhorn", "Un vide-grenier à Port Gellhorn"),
+         title=T("A cowboy's hat", "Un chapeau de cowboy"),
+         summary=T("A worn hat for sale that looks exactly like a famous outlaw's.",
+                   "Un vieux chapeau en vente, identique à celui d'un célèbre hors-la-loi."),
+         how=T("In chapter 2, look for the yard sale in Port Gellhorn.", "Au chapitre 2, cherche le vide-grenier de Port Gellhorn."),
+         refs=T(["Red Dead Redemption 2"], ["Red Dead Redemption 2"])),
+    dict(id="egg-house", confirmed=True, x=0.681, y=0.415, area=T("Belville, Leonard County", "Belville, Leonard County"),
+         title=T("The mystery house", "La maison mystère"),
+         summary=T("A house that matches one seen in an older Rockstar game's promo picture — and its garage hides something.",
+                   "Une maison identique à celle d'une image promo d'un ancien jeu Rockstar — et son garage cache quelque chose."),
+         how=T("Find the house in Belville and check the garage.", "Trouve la maison à Belville et regarde dans le garage."),
+         refs=T(["GTA San Andreas: Definitive Edition"], ["GTA San Andreas : Definitive Edition"])),
+    dict(id="egg-chiliad", confirmed=False, spoiler=1, area=T("Outside a bar, early story", "Devant un bar, début de l'histoire"),
+         title=T("Talk of an old mountain mystery", "On parle d'un vieux mystère"),
+         summary=T("Two locals chat about a famous unsolved mystery from Los Santos.",
+                   "Deux habitants discutent d'un célèbre mystère jamais résolu de Los Santos."),
+         how=T("Listen to the people outside the bar during an early mission with Brian.", "Écoute les gens devant le bar pendant une des premières missions avec Brian."),
+         refs=T(["The Mount Chiliad mystery (GTA V)"], ["Le mystère du mont Chiliad (GTA V)"])),
+    dict(id="egg-horses", confirmed=False, x=0.415, y=0.2997, area=T("Near Manifest Canyon", "Près de Manifest Canyon"),
+         title=T("The four horses", "Les quatre chevaux"),
+         summary=T("A statue of four horses with odd symbols — get close and your controller starts to buzz.",
+                   "Une statue de quatre chevaux aux symboles bizarres — approche-toi et ta manette se met à vibrer."),
+         how=T("Walk up to the statue and listen for the beeps. One horse wears a traffic cone.", "Approche-toi de la statue et écoute les bips. Un des chevaux porte un cône de chantier."),
+         refs=T(["The Duke of Wellington statue's cone, Glasgow"], ["Le cône de la statue du duc de Wellington, à Glasgow"])),
+    dict(id="egg-tavern", confirmed=False, x=0.6756, y=0.2331, area=T("A tavern in Millport", "Une taverne à Millport"),
+         title=T("Wild West nods", "Des clins d'œil au Far West"),
+         summary=T("Old-West touches hidden in a few places, starting with a tavern up north.",
+                   "Des touches de Far West cachées à plusieurs endroits, à commencer par une taverne dans le nord."),
+         how=T("Visit the tavern in Millport and look at the decor.", "Va à la taverne de Millport et regarde la déco."),
+         refs=T(["Red Dead Redemption"], ["Red Dead Redemption"])),
+    dict(id="egg-comic", confirmed=False, x=0.6147, y=0.8105, area=T("24/7 store, Key Lento", "Supérette 24/7, Key Lento"),
+         title=T("A mutant comic", "Une BD de mutants"),
+         summary=T("A comic on the shelf spoofs a famous superhero team — as a pharmaceutical ad.",
+                   "Une BD en rayon parodie une célèbre équipe de super-héros — façon pub pour médicaments."),
+         how=T("Check the magazine rack at the 24/7 in Key Lento.", "Regarde le présentoir de la supérette 24/7 de Key Lento."),
+         refs=T(["X-Men"], ["X-Men"])),
+    dict(id="egg-memoir", confirmed=False, area=T("Inside a home", "Dans une maison"),
+         title=T("A Liberty City memoir", "Des mémoires de Liberty City"),
+         summary=T("A book by a former mobster that seems to date back to the events of 2008.",
+                   "Un livre d'un ancien mafieux qui semble remonter aux événements de 2008."),
+         how=T("Keep an eye on bookshelves when you're inside homes.", "Garde un œil sur les étagères quand tu es dans des maisons."),
+         refs=T(["GTA IV (2008)"], ["GTA IV (2008)"])),
+    dict(id="egg-crab", confirmed=False, area=T("Somewhere on the coast", "Quelque part sur la côte"),
+         title=T("A giant crab", "Un crabe géant"),
+         summary=T("A player ran into a crab far bigger than it should be. Nobody knows the trigger yet.",
+                   "Un joueur est tombé sur un crabe bien plus gros que la normale. Personne ne sait encore comment le faire venir."),
+         how=None),
+]
+
+
 def build(lang):
     pick = lambda t: t[lang] if isinstance(t, dict) else t
     places = []
@@ -461,6 +598,7 @@ def build(lang):
         if len(p) > 7:
             d["spoiler"] = p[7]
         places.append(d)
+    places += community_places()
     return {
         "version": VERSION,
         "updated": NEWS[0][1],
@@ -473,6 +611,7 @@ def build(lang):
         "collectibles": [dict({k: pick(v) for k, v in c.items()}) for c in COLLECTIBLES],
         "challenges": [dict({k: pick(v) for k, v in c.items()}) for c in CHALLENGES],
         "characters": [{"id": c[0], "name": c[1], "role": pick(c[2]), "bio": pick(c[3]), "tags": c[4], "spoiler": 0} for c in CHARACTERS],
+        "eggs": [{k: pick(v) for k, v in e.items() if v is not None} for e in EGGS],
         "stations": [dict({k: (pick(v) if k != "songs" else v) for k, v in st.items()}) for st in STATIONS],
         "cheats": [dict({k: pick(v) for k, v in c.items()}) for c in CHEATS],
         "news": [{"id": n[0], "date": n[1], "title": pick(n[2]), "body": pick(n[3])} for n in NEWS],

@@ -195,6 +195,7 @@ struct HomeView: View {
             shortcut("Collectibles", "sparkles", VF.sun) { tab = .tracker }
             NavigationLink { CheatsView() } label: { tile("Cheat codes", "gamecontroller.fill", VF.magenta) }.buttonStyle(.plain)
             NavigationLink { RadioView() } label: { tile("Radio", "radio.fill", VF.coral) }.buttonStyle(.plain)
+            NavigationLink { EggsView() } label: { tile("Easter eggs", "oval.portrait.fill", VF.teal) }.buttonStyle(.plain)
         }
     }
 

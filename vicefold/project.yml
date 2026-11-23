@@ -24,6 +24,10 @@ targets:
       - path: Shared
       - path: Content
         buildPhase: resources
+      # La carte de Leonida en tuiles (GTADB.org, CC BY 4.0), avec ses dossiers par niveau.
+      - path: Tiles
+        type: folder
+        buildPhase: resources
     info:
       path: App/Info.plist
       properties:
@@ -56,7 +60,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.padelup.vicefold
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: "IconSunset IconNeon IconPalm IconFlamingo IconMidnight IconSwamp IconChrome"
+        ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: "IconSunrise IconSunset IconNeon IconPalm IconFlamingo IconMidnight IconSwamp IconChrome"
         ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
     dependencies:

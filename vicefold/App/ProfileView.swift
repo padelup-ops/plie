@@ -138,7 +138,7 @@ struct SettingsView: View {
     @State private var confirmReset = false
     @State private var showPro = false
 
-    static let icons: [(String?, LocalizedStringKey)] = [(nil, "Sunrise"), ("IconSunset", "Sunset"), ("IconNeon", "Neon"), ("IconPalm", "Palm"),
+    static let icons: [(String?, LocalizedStringKey)] = [(nil, "Neon pin"), ("IconSunrise", "Sunrise"), ("IconSunset", "Sunset"), ("IconNeon", "Neon"), ("IconPalm", "Palm"),
                                                           ("IconFlamingo", "Flamingo"), ("IconMidnight", "Midnight"), ("IconSwamp", "Swamp"), ("IconChrome", "Chrome")]
 
     var body: some View {

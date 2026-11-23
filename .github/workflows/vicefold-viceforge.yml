@@ -1,0 +1,13 @@
+# VICEFOLD : lit l'API ViceForge (forme des données) une fois la clé ajoutée dans le secret VICEFORGE_API_KEY.
+name: Vicefold - ViceForge
+on:
+  workflow_dispatch:
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 vicefold/tools/viceforge.py
+        env:
+          VICEFORGE_API_KEY: ${{ secrets.VICEFORGE_API_KEY }}

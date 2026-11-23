@@ -1,4 +1,4 @@
-"""VICEFOLD : dessine l'icône et ses 7 variantes (originales : soleil rétro, palmier, flamant…), sans aucun visuel du jeu."""
+"""VICEFOLD : dessine l'icône (le repère néon) et ses 8 variantes (originales : soleil rétro, palmier, flamant…), sans aucun visuel du jeu."""
 import json, math, os, sys
 from PIL import Image, ImageDraw, ImageFilter
 
@@ -66,8 +66,72 @@ def moon(im):
     for (x, y, r) in [(200, 200, 6), (820, 300, 5), (260, 420, 4), (760, 150, 7), (880, 520, 4), (150, 600, 5)]:
         d.ellipse([x - r, y - r, x + r, y + r], fill=(255, 255, 255))
 
+
+def leonida():
+    """L'icône principale : un repère de carte au dégradé néon (bleu, violet, rose, orange), contour doré, et un
+    soleil couchant dans son œil. Dessin original."""
+    from PIL import ImageChops
+    K = 2; SS = 1024 * K
+    def vgrad(stops, size=SS):
+        im = Image.new("RGB", (size, size)); d = ImageDraw.Draw(im)
+        for y in range(size):
+            t = y / (size - 1)
+            for i in range(len(stops) - 1):
+                a, ca = stops[i]; b, cb = stops[i + 1]
+                if a <= t <= b:
+                    u = (t - a) / (b - a); c = tuple(int(ca[j] + (cb[j] - ca[j]) * u) for j in range(3)); break
+            d.line([(0, y), (size, y)], fill=c)
+        return im
+    def pin_mask(cx, cy, r, tip, grow=0):
+        m = Image.new("L", (SS, SS), 0); d = ImageDraw.Draw(m)
+        R = r + grow
+        d.ellipse([cx - R, cy - R, cx + R, cy + R], fill=255)
+        k = math.sin(math.acos(R / (tip - cy)))
+        left = (cx - R * k, cy + R * R / (tip - cy)); right = (cx + R * k, cy + R * R / (tip - cy))
+        d.polygon([left, right, (cx, tip + grow * 1.6)], fill=255)
+        return m
+    S_ = SS
+    cx, cy, r, tip =512 * K, 430 * K, 285 * K, 905 * K
+    im = Image.new("RGB", (S_, S_), (8, 6, 14))
+    # lueur magenta derrière
+    glow = Image.new("RGB", (S_, S_), (0, 0, 0)); glow.paste((230, 40, 150), (0, 0), pin_mask(cx, cy, r, tip, 40 * K))
+    im = ImageChops.add(im, glow.filter(ImageFilter.GaussianBlur(60 * K)).point(lambda v: int(v * 0.55)))
+    # contour violet foncé, puis or, puis le dégradé
+    im.paste((70, 20, 90), (0, 0), pin_mask(cx, cy, r, tip, 34 * K))
+    gold = vgrad([(0, (255, 214, 90)), (1, (255, 140, 40))])
+    im.paste(gold, (0, 0), pin_mask(cx, cy, r, tip, 22 * K))
+    fill = vgrad([(0.0, (70, 110, 255)), (0.28, (190, 70, 230)), (0.55, (255, 60, 150)), (0.8, (255, 120, 90)), (1.0, (255, 200, 80))])
+    # reflets marbrés légers
+    sheen = Image.new("L", (S_, S_), 0); sd = ImageDraw.Draw(sheen)
+    for i in range(7):
+        y = 200 * K + i * 95 * K
+        sd.arc([cx - 520 * K, y - 300 * K, cx + 520 * K, y + 300 * K], 200, 340, fill=60, width=14 * K)
+    sheen = sheen.filter(ImageFilter.GaussianBlur(10 * K))
+    fill = Image.composite(Image.new("RGB", (S_, S_), (255, 255, 255)), fill, sheen)
+    im.paste(fill, (0, 0), pin_mask(cx, cy, r, tip, 0))
+    # le trou du repère : un soleil couchant rayé sur fond nuit
+    hr = 128 * K
+    hole = Image.new("L", (S_, S_), 0); ImageDraw.Draw(hole).ellipse([cx - hr - 16 * K, cy - hr - 16 * K, cx + hr + 16 * K, cy + hr + 16 * K], fill=255)
+    im.paste((70, 20, 90), (0, 0), hole)
+    hole2 = Image.new("L", (S_, S_), 0); ImageDraw.Draw(hole2).ellipse([cx - hr, cy - hr, cx + hr, cy + hr], fill=255)
+    im.paste((16, 10, 34), (0, 0), hole2)
+    sun = vgrad([(0, (255, 214, 90)), (1, (255, 70, 150))])
+    sm = Image.new("L", (S_, S_), 0); smd = ImageDraw.Draw(sm)
+    sr = 92 * K; scy = cy + 20 * K
+    smd.ellipse([cx - sr, scy - sr, cx + sr, scy + sr], fill=255)
+    for i in range(4):
+        y = scy + sr * (0.05 + i * 0.24); h = (6 + i * 5) * K
+        smd.rectangle([0, y, S_, y + h], fill=0)
+    smd.rectangle([0, scy + sr * 0.98, S_, S_], fill=0)
+    sm = ImageChops.multiply(sm, hole2)
+    im.paste(sun, (0, 0), sm)
+    return im.resize((S, S), Image.LANCZOS)
+
+
 def make(name):
     if name == "AppIcon":
+        im = leonida()
+    elif name == "IconSunrise":
         im = grad((255, 196, 92), (232, 62, 140)); sun(im, 512, 520, 300, (255, 240, 150), (255, 106, 92)); sea(im, 640, (28, 188, 184), (120, 230, 220))
     elif name == "IconSunset":
         im = grad((60, 20, 90), (240, 90, 120)); sun(im, 512, 560, 280, (255, 210, 110), (240, 80, 110)); sea(im, 680, (40, 30, 80), (130, 70, 150))
@@ -95,7 +159,7 @@ def make(name):
         im = grad((235, 238, 245), (120, 128, 145)); sun(im, 512, 520, 300, (255, 255, 255), (150, 160, 180)); sea(im, 650, (70, 78, 95), (180, 188, 205))
     return im
 
-names = ["AppIcon", "IconSunset", "IconNeon", "IconPalm", "IconFlamingo", "IconMidnight", "IconSwamp", "IconChrome"]
+names = ["AppIcon", "IconSunrise", "IconSunset", "IconNeon", "IconPalm", "IconFlamingo", "IconMidnight", "IconSwamp", "IconChrome"]
 os.makedirs(ROOT, exist_ok=True)
 json.dump({"info": {"author": "xcode", "version": 1}}, open(os.path.join(ROOT, "Contents.json"), "w"))
 for n in names:
@@ -112,7 +176,7 @@ ac = os.path.join(ROOT, "AccentColor.colorset"); os.makedirs(ac, exist_ok=True)
 json.dump({"colors": [{"idiom": "universal", "color": {"color-space": "srgb", "components": {"red": "1.000", "green": "0.420", "blue": "0.360", "alpha": "1.000"}}}],
            "info": {"author": "xcode", "version": 1}}, open(os.path.join(ac, "Contents.json"), "w"))
 # Planche de contrôle
-sheet = Image.new("RGB", (8 * 200, 200), "white")
+sheet = Image.new("RGB", (len(names) * 200, 200), "white")
 for i, n in enumerate(names):
     sheet.paste(make(n).resize((180, 180)), (i * 200 + 10, 10))
 sheet.save(sys.argv[1] if len(sys.argv) > 1 else "/tmp/vf-icons.png")

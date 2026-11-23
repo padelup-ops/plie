@@ -6,11 +6,12 @@ import AVFoundation
 import SwiftUI
 
 enum MoreItem: String, Hashable, CaseIterable, Identifiable {
-    case characters, radio, cheats, collectibles, profile, settings
+    case characters, eggs, radio, cheats, collectibles, profile, settings
     var id: String { rawValue }
     var title: LocalizedStringKey {
         switch self {
         case .characters: return "Characters"
+        case .eggs: return "Easter eggs"
         case .radio: return "Radio"
         case .cheats: return "Cheat codes"
         case .collectibles: return "Collectibles"
@@ -21,6 +22,7 @@ enum MoreItem: String, Hashable, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .characters: return "person.2"
+        case .eggs: return "oval.portrait"
         case .radio: return "radio"
         case .cheats: return "gamecontroller"
         case .collectibles: return "sparkles"
@@ -31,6 +33,7 @@ enum MoreItem: String, Hashable, CaseIterable, Identifiable {
     @ViewBuilder var screen: some View {
         switch self {
         case .characters: CharactersView()
+        case .eggs: EggsView()
         case .radio: RadioView()
         case .cheats: CheatsView()
         case .collectibles: CollectiblesView()
