@@ -1,0 +1,2 @@
+ok     identifiant déjà là : com.padelup.hexfold
+FICHE  à créer sur App Store Connect (nom Hexfold, identifiant com.padelup.hexfold)

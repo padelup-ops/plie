@@ -1,0 +1,4 @@
+2026-11-23 04:17:15.837 xcodebuild[3508:14279] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/Hexfold_2026-11-23_04-17-15.836.xcdistributionlogs".
+Exported Hexfold to: /Users/runner/work/_temp/local
+** EXPORT SUCCEEDED **
+
