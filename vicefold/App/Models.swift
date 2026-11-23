@@ -24,6 +24,21 @@ struct VFMission: Codable, Identifiable, Hashable {
     var unlocks: String?
     var optional: Bool?
     var place: String?
+
+    init(from d: Decoder) throws {
+        let c = try d.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        chapter = try c.decode(Int.self, forKey: .chapter)
+        title = try c.decode(String.self, forKey: .title)
+        giver = try c.decodeIfPresent(String.self, forKey: .giver)
+        location = try c.decodeIfPresent(String.self, forKey: .location)
+        objectives = try c.decodeIfPresent([String].self, forKey: .objectives) ?? []
+        walkthrough = try c.decodeIfPresent(String.self, forKey: .walkthrough)
+        tips = try c.decodeIfPresent([String].self, forKey: .tips)
+        unlocks = try c.decodeIfPresent(String.self, forKey: .unlocks)
+        optional = try c.decodeIfPresent(Bool.self, forKey: .optional)
+        place = try c.decodeIfPresent(String.self, forKey: .place)
+    }
 }
 
 enum VFGuideCategory: String, Codable, CaseIterable, Identifiable {
@@ -169,6 +184,16 @@ struct VFStation: Codable, Identifiable, Hashable {
     var host: String?
     var summary: String?
     var songs: [VFSong] = []
+
+    init(from d: Decoder) throws {
+        let c = try d.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        genre = try c.decodeIfPresent(String.self, forKey: .genre) ?? ""
+        host = try c.decodeIfPresent(String.self, forKey: .host)
+        summary = try c.decodeIfPresent(String.self, forKey: .summary)
+        songs = try c.decodeIfPresent([VFSong].self, forKey: .songs) ?? []
+    }
 }
 
 struct VFCheat: Codable, Identifiable, Hashable {
@@ -204,7 +229,30 @@ struct VFContent: Codable {
     var cheats: [VFCheat] = []
     var news: [VFNews]?
 
+    init(version: Int) { self.version = version }
+
+    /// Tolérant : une partie absente ou une entrée mal formée ne fait pas perdre tout le reste du guide.
+    init(from d: Decoder) throws {
+        let c = try d.container(keyedBy: CodingKeys.self)
+        version = try c.decode(Int.self, forKey: .version)
+        updated = try? c.decodeIfPresent(String.self, forKey: .updated)
+        sources = try? c.decodeIfPresent([String].self, forKey: .sources)
+        func list<T: Decodable>(_ k: CodingKeys) -> [T] {
+            (try? c.decodeIfPresent([Lossy<T>].self, forKey: k))?.compactMap(\.value) ?? []
+        }
+        chapters = list(.chapters); missions = list(.missions); guides = list(.guides); places = list(.places)
+        collectibles = list(.collectibles); challenges = list(.challenges); characters = list(.characters)
+        stations = list(.stations); cheats = list(.cheats)
+        news = list(.news)
+    }
+
     static let empty = VFContent(version: 0)
+}
+
+/// Une entrée qu'on garde si elle se lit, qu'on saute sinon.
+struct Lossy<T: Decodable>: Decodable {
+    var value: T?
+    init(from d: Decoder) throws { value = try? T(from: d) }
 }
 
 /// Le contenu en cours : celui livré avec l'app, ou une version plus récente téléchargée depuis notre serveur.

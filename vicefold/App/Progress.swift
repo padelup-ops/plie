@@ -52,6 +52,33 @@ struct VFProgressData: Codable, Equatable {
     var customMap = false
     var mapFit = VFMapFit()
     var updated = Date()
+
+    init() {}
+
+    /// Chaque champ est facultatif : une version plus ancienne (ou plus récente) de l'app ne fait jamais perdre la partie.
+    init(from d: Decoder) throws {
+        let c = try d.container(keyedBy: CodingKeys.self)
+        let z = VFProgressData()
+        missions = (try? c.decodeIfPresent(Set<String>.self, forKey: .missions)) ?? z.missions
+        objectives = (try? c.decodeIfPresent([String: [Int]].self, forKey: .objectives)) ?? z.objectives
+        visited = (try? c.decodeIfPresent(Set<String>.self, forKey: .visited)) ?? z.visited
+        collected = (try? c.decodeIfPresent([String: Int].self, forKey: .collected)) ?? z.collected
+        challenges = (try? c.decodeIfPresent(Set<String>.self, forKey: .challenges)) ?? z.challenges
+        readGuides = (try? c.decodeIfPresent(Set<String>.self, forKey: .readGuides)) ?? z.readGuides
+        pins = (try? c.decodeIfPresent([VFPin].self, forKey: .pins)) ?? z.pins
+        favorites = (try? c.decodeIfPresent(Set<String>.self, forKey: .favorites)) ?? z.favorites
+        notes = (try? c.decodeIfPresent([String: String].self, forKey: .notes)) ?? z.notes
+        chapter = (try? c.decodeIfPresent(Int.self, forKey: .chapter)) ?? z.chapter
+        spoilersShown = (try? c.decodeIfPresent(Bool.self, forKey: .spoilersShown)) ?? z.spoilersShown
+        name = (try? c.decodeIfPresent(String.self, forKey: .name)) ?? z.name
+        manualHours = (try? c.decodeIfPresent(Double.self, forKey: .manualHours)) ?? z.manualHours
+        psnHours = try? c.decodeIfPresent(Double.self, forKey: .psnHours)
+        psnUpdated = try? c.decodeIfPresent(Date.self, forKey: .psnUpdated)
+        platform = (try? c.decodeIfPresent(String.self, forKey: .platform)) ?? z.platform
+        customMap = (try? c.decodeIfPresent(Bool.self, forKey: .customMap)) ?? z.customMap
+        mapFit = (try? c.decodeIfPresent(VFMapFit.self, forKey: .mapFit)) ?? z.mapFit
+        updated = (try? c.decodeIfPresent(Date.self, forKey: .updated)) ?? z.updated
+    }
 }
 
 @MainActor @Observable
