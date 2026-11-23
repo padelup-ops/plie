@@ -88,6 +88,29 @@ enum ShotMode {
                 let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
                 try? "fsinpane: call \(call) | filled \(browser.panes[0].tab?.isFilled ?? false) video \(r)".write(to: url, atomically: true, encoding: .utf8)
             }
+        case "ytfs":
+            // Test: YouTube's own full-screen button, in the left page.
+            let t0 = browser.makeTab(in: 0)
+            t0.load(URL(string: "https://m.youtube.com/watch?v=aqz-KE-bpKQ")!)
+            browser.panes[0].tabs.append(t0); browser.panes[0].current = 0
+            show(1, "recipe", "dailyloaf.example")
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(14))
+                let wv = t0.webView
+                let js = """
+                (function(){var out=[];var v=document.querySelector('video');out.push('video '+!!v);
+                try{if(v){v.muted=true;v.play();}}catch(e){out.push('play '+e)}
+                var b=document.querySelector('.fullscreen-icon, button[aria-label*="ull screen"], button[aria-label*="plein"], .ytp-fullscreen-button, ytm-fullscreen-button button');
+                out.push('button '+(b?b.outerHTML.slice(0,80):'none'));
+                if(b){b.click();} else if(v){ (v.parentElement||v).requestFullscreen(); }
+                return out.join(' | ');})()
+                """
+                let r1 = (try? await wv.evaluateJavaScript(js)) as? String ?? "nil"
+                try? await Task.sleep(for: .seconds(3))
+                let r2 = (try? await wv.evaluateJavaScript("(function(){var v=document.querySelector('video');if(!v)return 'no video';var b=v.getBoundingClientRect();return [Math.round(b.width),Math.round(b.height),innerWidth,innerHeight,!!document.fullscreenElement,(window.__twinfold&&!!window.__twinfold.filled)].join(' ')})()")) as? String ?? "nil"
+                let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
+                try? "ytfs: \(r1) || after \(r2) | filled \(t0.isFilled)".write(to: url, atomically: true, encoding: .utf8)
+            }
         case "palette", "paletteopen":
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")

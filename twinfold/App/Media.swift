@@ -94,6 +94,7 @@ enum MediaScript {
           if (root.tagName === 'VIDEO') { root.setAttribute('playsinline', ''); root.playsInline = true; }
         }
         inline(document);
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { inline(document); });
         new MutationObserver(function (ms) {
           ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) inline(n); }); });
         }).observe(document.documentElement, { childList: true, subtree: true });
@@ -140,7 +141,7 @@ enum MediaScript {
         var oldToggle = tf.toggleFill;
         tf.toggleFill = function () { if (tf.fsEl) { leave(); return false; } return oldToggle(); };
       }
-      report();
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', report); else report();
     })();
     """#
 
@@ -150,7 +151,9 @@ enum MediaScript {
     }
 
     @MainActor static func install(on controller: WKUserContentController, handler: WKScriptMessageHandler) {
-        controller.addUserScript(WKUserScript(source: withSettings, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
+        // Dès le début de la page : les lecteurs (YouTube…) regardent les fonctions de plein écran en se chargeant ;
+        // installées à la fin, ils avaient déjà gardé celles d'iOS (le plein écran partait sur tout l'écran).
+        controller.addUserScript(WKUserScript(source: withSettings, injectionTime: .atDocumentStart, forMainFrameOnly: false))
         controller.add(handler, name: handlerName)
     }
 }
