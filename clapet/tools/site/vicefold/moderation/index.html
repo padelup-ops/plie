@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Vicefold · Modération de l'entraide</title>
+<style>
+  :root{--bg:#f5f3ef;--card:#fff;--ink:#1a1917;--muted:#75716a;--line:#e3dfd6;--acc:#2e8b6a;--red:#c4532f}
+  @media (prefers-color-scheme:dark){:root{--bg:#151412;--card:#1f1e1b;--ink:#f2f0eb;--muted:#9c978e;--line:#2e2c28;--acc:#55c49a;--red:#e2774f}}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,system-ui,sans-serif}
+  main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+  h1{font:600 28px ui-serif,Georgia,serif;margin:8px 0 16px}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  input,textarea,select{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  input{flex:1;min-width:180px}
+  button{font:600 14px system-ui;border:0;border-radius:10px;padding:8px 12px;background:var(--acc);color:#fff;cursor:pointer;min-height:36px}
+  button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  button.red{background:var(--red)}
+  .idea{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+  .idea.hidden{opacity:.55}
+  .t{font-weight:650;font-size:17px}
+  .m{color:var(--muted);font-size:13px;margin:2px 0 8px}
+  .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+  textarea{width:100%;box-sizing:border-box;min-height:54px}
+  .pill{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--line)}
+  .rep{color:var(--red);font-weight:700}
+</style></head>
+<body><main>
+<h1>Entraide Vicefold · modération</h1>
+<div class="bar"><input id="key" type="password" placeholder="Clé de modération" autocomplete="off"><button id="go">Charger</button></div>
+<div id="info" class="m"></div>
+<div id="list"></div>
+</main>
+<script>
+const $ = s => document.querySelector(s)
+let KEY = ""
+try { KEY = localStorage.getItem("ideasKey") || "" } catch (e) {}
+$("#key").value = KEY
+const api = async (method, body) => {
+  const r = await fetch("/api/vicefold/admin", { method, headers: { "x-admin-key": KEY, "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
+  if (!r.ok) throw new Error(r.status)
+  return r.json()
+}
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]))
+async function load() {
+  KEY = $("#key").value.trim()
+  try { localStorage.setItem("ideasKey", KEY) } catch (e) {}
+  let d
+  try { d = await api("GET") } catch (e) { $("#info").textContent = "Clé refusée ou serveur indisponible (" + e.message + ")."; return }
+  const posts = d.posts
+  $("#info").textContent = posts.length + " messages · " + posts.filter(p => p.reports > 0).length + " signalés · " + posts.filter(p => p.hidden).length + " cachés"
+  $("#list").innerHTML = posts.map(p => `
+    <div class="idea ${p.hidden ? "hidden" : ""}" data-id="${p.id}" data-topic="${esc(p.topic)}">
+      <div class="m">${esc(p.alias)} · ${esc(p.topic)}${p.parent ? " · réponse" : " · question"} · ${new Date(p.created).toLocaleString("fr")} · ${esc(p.lang)}
+        · ${p.votes} utile ${p.reports ? `· <span class="rep">${p.reports} signalement(s)</span>` : ""} ${p.hidden ? "· caché" : ""}</div>
+      <div>${esc(p.text)}</div>
+      <div class="row">
+        <button class="ghost" data-a="${p.hidden ? "unhide" : "hide"}">${p.hidden ? "Montrer" : "Cacher"}</button>
+        <button class="red" data-a="delete">Supprimer</button>
+        <button class="red" data-a="ban">Bloquer l'auteur</button>
+      </div>
+    </div>`).join("")
+}
+$("#go").onclick = load
+$("#list").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-a]"); if (!b) return
+  const card = b.closest(".idea"), action = b.dataset.a
+  if ((action === "delete" || action === "ban") && !confirm(action === "ban" ? "Bloquer cet auteur et cacher tous ses messages ?" : "Supprimer ce message ?")) return
+  await api("POST", { id: card.dataset.id, topic: card.dataset.topic, action })
+  load()
+})
+if (KEY) load()
+</script></body></html>

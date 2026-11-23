@@ -21,14 +21,17 @@ C = {
            "collectibles": ("Tout le 100 %,", "avec un compteur"), "eggs": ("Tous les easter eggs,", "sans spoiler"), "guide": ("Des guides pour", "tout le jeu"), "characters": ("Qui est qui,", "avec tes notes"), "widgets": ("Widgets de progression,", "synchro iCloud")},
 }
 SIZES = {"duo": (2007, 2853, "duo-"), "iphone": (1290, 2796, ""), "ipad": (2064, 2752, "ipad-")}
+ANTON = base64.b64encode(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Fonts", "Anton-Regular.ttf"), "rb").read()).decode()
+# Same look as the app and the promo video: pool water, sunset glow, poster titles in Anton.
 HTML = """<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(data:font/ttf;base64,""" + ANTON + """)}
 html,body{margin:0;width:%(w)dpx;height:%(h)dpx;overflow:hidden}
-body{background:radial-gradient(%(w)dpx %(w)dpx at 50%% 108%%,#ffbc46 0%%,#ff6b5c 28%%,rgba(122,31,85,0) 62%%),linear-gradient(180deg,#120f24 0%%,#2b1240 45%%,#7a1f55 100%%);
- font-family:-apple-system,"Inter",sans-serif;color:#fff}
-.t{position:absolute;left:0;right:0;top:%(ty)dpx;text-align:center;font-weight:800;font-size:%(fs)dpx;line-height:1.06;letter-spacing:-.025em}
-.t b{display:block;background:linear-gradient(90deg,#ffd166,#ff6b5c,#ee3b8f);-webkit-background-clip:text;background-clip:text;color:transparent}
+body{background:radial-gradient(%(w)dpx %(w)dpx at 100%% -8%%,rgba(255,201,74,.38),rgba(255,138,61,.16) 40%%,rgba(234,246,245,0) 70%%),
+ radial-gradient(%(w)dpx %(w)dpx at 0%% 110%%,rgba(255,79,139,.22),rgba(234,246,245,0) 60%%),#EAF6F5;color:#0E1B2B}
+.t{position:absolute;left:0;right:0;top:%(ty)dpx;text-align:center;font-family:Anton;font-size:%(fs)dpx;line-height:1.04;letter-spacing:.01em}
+.t b{display:block;font-weight:400;color:#FF4F8B}
 .s{position:absolute;left:50%%;top:%(sy)dpx;transform:translateX(-50%%);width:%(sw)dpx;border-radius:%(r)dpx;overflow:hidden;
- box-shadow:0 30px 90px rgba(0,0,0,.5),0 0 0 %(bw)dpx #0a0a12}
+ box-shadow:0 30px 90px rgba(14,27,43,.28),0 0 0 %(bw)dpx #0b0f16}
 .s img{display:block;width:100%%}
 </style></head><body><div class="t">%(l1)s<b>%(l2)s</b></div><div class="s"><img src="data:image/png;base64,%(img)s"></div></body></html>"""
 
@@ -40,7 +43,7 @@ def render(page, w, h, shot, l1, l2, out):
     sh = sw * ih / iw
     top = int(sy + max(0, (h - sy - sh) / 2 - h * 0.015))
     ty = int(max(h * 0.045, (top - w * 0.085 * 2.15) / 2))
-    params = dict(w=w, h=h, ty=ty, fs=int(min(w * 0.085, h * 0.04)), sy=top, sw=sw, r=int(sw * 0.06), bw=int(w * 0.011),
+    params = dict(w=w, h=h, ty=ty, fs=int(min(w * 0.092, h * 0.044)), sy=top, sw=sw, r=int(sw * 0.06), bw=int(w * 0.011),
                   l1=l1, l2=l2, img=base64.b64encode(open(shot, "rb").read()).decode())
     page.set_viewport_size({"width": w, "height": h})
     page.set_content(HTML % params)

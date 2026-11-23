@@ -1,2 +1,3 @@
 "CFBundleDisplayName" = "Guide GTA 6";
 "NSPhotoLibraryUsageDescription" = "Vicefold utilise une photo que tu choisis pour ton profil ou comme ta propre carte.";
+"NSGKFriendListUsageDescription" = "Vicefold affiche tes amis Game Center qui jouent, avec leur progression dans GTA VI.";

@@ -277,6 +277,24 @@ struct MissionDetail: View {
                         .vfCard(radius: 18, padding: 14)
                     }
                     .buttonStyle(.plain)
+                    // L'entraide : le fil de cette mission.
+                    NavigationLink { ThreadView(topic: mission.id, title: mission.title, chapter: mission.chapter) } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "bubble.left.and.bubble.right.fill").font(.title2).foregroundStyle(VF.flamingo)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Players' questions").font(.headline).foregroundStyle(.primary)
+                                Text("Ask the community or help someone stuck here.").font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer(minLength: 0)
+                            if let n = CommunityStore.shared.counts[mission.id], n > 0 {
+                                Text("\(n)").font(.caption.weight(.bold)).padding(.horizontal, 8).padding(.vertical, 3)
+                                    .background(VF.flamingo.opacity(0.14), in: .capsule).foregroundStyle(VF.flamingo)
+                            }
+                            Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                        }
+                        .vfCard(radius: 18, padding: 14)
+                    }
+                    .buttonStyle(.plain)
                     MissionShots(mission: mission)
                 }
                 Button { progress.toggle(mission) } label: {

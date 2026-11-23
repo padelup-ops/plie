@@ -1,4 +1,4 @@
-"""Classements Game Center d'Origamo dans App Store Connect.
+"""Classements Game Center (Origamo, Vicefold) dans App Store Connect.
 
 MODE=probe  : montre l'état (Game Center activé ? classements existants ? lien avec la version).
 MODE=create : active Game Center pour l'app, crée les classements manquants (avec leurs noms en 7 langues),
@@ -52,6 +52,14 @@ BOARDS = [
       "ja": "ビーム：クリア数", "ko": "빔: 클리어한 레벨", "zh-Hans": "光束：通过关卡"}),
 ]
 
+# Vicefold : un seul classement, le 100 % de Leonida (en pourcentage entier), que les amis comparent entre eux.
+if BUNDLE == "com.padelup.vicefold":
+    BOARDS = [
+        ("vicefold.leonida", "Leonida percent", "INTEGER", "DESC",
+         {"en-US": "Leonida: % done", "fr-FR": "Leonida : % fait", "es-ES": "Leonida: % completado", "de-DE": "Leonida: % geschafft",
+          "it": "Leonida: % completato", "pt-BR": "Leonida: % concluído"}),
+    ]
+
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
                     "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",
                    headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
@@ -74,6 +82,19 @@ def show(label, x):
 
 
 app = call("GET", f"/v1/apps?filter[bundleId]={BUNDLE}")["data"][0]
+
+# La capacité Game Center sur l'identifiant de l'app (sinon le profil de signature ne l'a pas).
+if MODE == "create":
+    bids = call("GET", f"/v1/bundleIds?filter[identifier]={BUNDLE}&filter[platform]=IOS").get("data", [])
+    bid = next((b for b in bids if b["attributes"]["identifier"] == BUNDLE), None)
+    if bid:
+        caps = call("GET", f"/v1/bundleIds/{bid['id']}/bundleIdCapabilities").get("data", [])
+        if any(c["attributes"].get("capabilityType") == "GAME_CENTER" for c in caps):
+            print("capacité Game Center : déjà là")
+        else:
+            r = call("POST", "/v1/bundleIdCapabilities", {"data": {"type": "bundleIdCapabilities", "attributes": {"capabilityType": "GAME_CENTER"},
+                     "relationships": {"bundleId": {"data": {"type": "bundleIds", "id": bid["id"]}}}}})
+            print("capacité Game Center :", "ok" if "data" in r else r)
 app_id = app["id"]
 print("app", app_id, app["attributes"].get("name"))
 

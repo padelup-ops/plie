@@ -398,6 +398,7 @@ final class Progress {
 
     func writeSnapshot() {
         let s = snapshot()
+        GameCenterHub.shared.report(s.percent)
         if s != VFSnapshot.load() {
             s.save()
             WidgetCenter.shared.reloadAllTimelines()

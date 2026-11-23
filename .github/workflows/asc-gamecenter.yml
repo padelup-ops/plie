@@ -11,6 +11,10 @@ on:
         description: "Version à laquelle rattacher Game Center (ex. 1.6)"
         required: false
         default: ""
+      app:
+        description: "origamo ou vicefold"
+        required: false
+        default: "origamo"
 jobs:
   offer:
     runs-on: ubuntu-latest
@@ -29,7 +33,7 @@ jobs:
           ORIGAMO_BUNDLE: ${{ secrets.BUNDLE_ID }}
         run: |
           python3 -m pip install --quiet pyjwt cryptography
-          export BUNDLE_ID="$ORIGAMO_BUNDLE"
+          if [ "${{ inputs.app }}" = "vicefold" ]; then export BUNDLE_ID="com.padelup.vicefold"; else export BUNDLE_ID="$ORIGAMO_BUNDLE"; fi
           python3 tools/asc_gamecenter.py 2>&1 | tee gc.txt || true
       - name: Publier
         if: always()

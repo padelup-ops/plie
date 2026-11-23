@@ -6,10 +6,11 @@ import AVFoundation
 import SwiftUI
 
 enum MoreItem: String, Hashable, CaseIterable, Identifiable {
-    case characters, eggs, radio, cheats, collectibles, profile, settings
+    case community, characters, eggs, radio, cheats, collectibles, profile, settings
     var id: String { rawValue }
     var title: LocalizedStringKey {
         switch self {
+        case .community: return "Community"
         case .characters: return "Characters"
         case .eggs: return "Easter eggs"
         case .radio: return "Radio"
@@ -21,6 +22,7 @@ enum MoreItem: String, Hashable, CaseIterable, Identifiable {
     }
     var icon: String {
         switch self {
+        case .community: return "bubble.left.and.bubble.right"
         case .characters: return "person.2"
         case .eggs: return "oval.portrait"
         case .radio: return "radio"
@@ -32,6 +34,7 @@ enum MoreItem: String, Hashable, CaseIterable, Identifiable {
     }
     @ViewBuilder var screen: some View {
         switch self {
+        case .community: CommunityView()
         case .characters: CharactersView()
         case .eggs: EggsView()
         case .radio: RadioView()
@@ -44,7 +47,7 @@ enum MoreItem: String, Hashable, CaseIterable, Identifiable {
 }
 
 struct MoreView: View {
-    @State private var selected: MoreItem? = MoreItem(rawValue: ShotMode.route ?? "")
+    @State private var selected: MoreItem? = MoreItem(rawValue: ["friends", "thread"].contains(ShotMode.route ?? "") ? "community" : ShotMode.route ?? "")
 
     var body: some View {
         DualLayout {
@@ -80,7 +83,7 @@ private struct MoreList: View {
                         }
                     }
                 }
-                Section { ForEach([MoreItem.characters, .eggs, .radio, .cheats, .collectibles]) { row($0) } }
+                Section { ForEach([MoreItem.community, .characters, .eggs, .radio, .cheats, .collectibles]) { row($0) } }
                 Section { ForEach([MoreItem.profile, .settings]) { row($0) } }
             }
             .navigationTitle("More")

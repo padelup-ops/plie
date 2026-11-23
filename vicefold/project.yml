@@ -46,6 +46,7 @@ targets:
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         ITSAppUsesNonExemptEncryption: false
         NSPhotoLibraryUsageDescription: Vicefold uses a photo you pick for your profile or as your own map.
+        NSGKFriendListUsageDescription: Vicefold shows your Game Center friends who play, with their GTA VI progress.
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         CFBundleURLTypes:
@@ -59,6 +60,7 @@ targets:
       properties:
         com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)$(CFBundleIdentifier)
         com.apple.security.application-groups: [group.com.padelup.vicefold]
+        com.apple.developer.game-center: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.padelup.vicefold

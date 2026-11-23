@@ -25,6 +25,8 @@ struct VicefoldApp: App {
                 .environment(store)
                 .tint(VF.coral)
                 .task {
+                    // Déjà venu dans la communauté : Game Center se reconnecte en silence.
+                    if GameCenterHub.shared.used { GameCenterHub.shared.authenticate() }
                     progress.writeSnapshot()
                     if ShotMode.route == nil { _ = await content.refresh() }
                     await Alerts.shared.check()
@@ -156,7 +158,7 @@ enum ShotMode {
         case "guides", "guide": return .guides
         case "map", "mappins", "mycard": return .map
         case "tracker", "missions", "mission", "share", "collectibles": return .tracker
-        case "more", "characters", "radio", "profile", "pro", "cheats", "eggs": return .more
+        case "more", "characters", "radio", "profile", "pro", "cheats", "eggs", "community", "friends", "thread": return .more
         case "search": return .search
         default: return .home
         }
