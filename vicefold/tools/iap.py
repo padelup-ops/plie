@@ -251,17 +251,29 @@ if group:
             if not base:
                 problems.append("prix " + sub["id"]); print("ÉCHEC  palier introuvable :", sub["price"])
             else:
-                eq = [base] + get_all(f"/v1/subscriptionPricePoints/{base['id']}/equalizations?limit=200")
+                eq = [base] + get_all(f"/v1/subscriptionPricePoints/{base['id']}/equalizations?limit=200&include=territory")
                 ok = 0
+                first_err = None
                 for p in eq:
-                    terr = p.get("relationships", {}).get("territory", {}).get("data", {}).get("id") or "FRA"
+                    terr = (p.get("relationships", {}).get("territory", {}).get("data") or {}).get("id")
+                    if not terr:
+                        # L'identifiant du palier contient le pays (base64 JSON avec « t »).
+                        try:
+                            import base64
+                            raw = p["id"] + "=" * (-len(p["id"]) % 4)
+                            terr = json.loads(base64.urlsafe_b64decode(raw)).get("t")
+                        except Exception:
+                            terr = None
+                    terr = terr or "FRA"
                     r = call("POST", "/v1/subscriptionPrices", {"data": {"type": "subscriptionPrices",
                         "attributes": {"startDate": None, "preserveCurrentPrice": False},
                         "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sid}},
                                           "subscriptionPricePoint": {"data": {"type": "subscriptionPricePoints", "id": p["id"]}},
                                           "territory": {"data": {"type": "territories", "id": terr}}}}})
+                    if "error" in r and first_err is None:
+                        first_err = f"{terr}: {r.get('detail', '')[:300]}"
                     ok += 0 if "error" in r else 1
-                print(f"ok     prix {sub['price']} € posé dans {ok} pays sur {len(eq)}")
+                print(f"ok     prix {sub['price']} € posé dans {ok} pays sur {len(eq)}" + (f" (1re erreur : {first_err})" if first_err else ""))
         step(f"disponibilité ({len(territories)} pays)", call("POST", "/v1/subscriptionAvailabilities", {"data": {
             "type": "subscriptionAvailabilities", "attributes": {"availableInNewTerritories": True},
             "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sid}},
