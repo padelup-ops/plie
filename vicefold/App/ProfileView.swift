@@ -265,7 +265,7 @@ struct ProView: View {
             ScrollView {
                 VStack(spacing: 22) {
                     Image(systemName: "star.circle.fill").font(.system(size: 64)).foregroundStyle(VF.gradient).padding(.top, 10)
-                    Text("Vicefold Pro").font(.largeTitle.bold())
+                    Text("Vicefold Pro").font(VF.display(40))
                     Text("Every guide stays free. Pro is for the map and your progress.").foregroundStyle(.secondary).multilineTextAlignment(.center)
                     VStack(alignment: .leading, spacing: 14) {
                         ForEach(perks, id: \.0) { p in
@@ -277,7 +277,21 @@ struct ProView: View {
                     }
                     .padding()
                     .background(.regularMaterial, in: .rect(cornerRadius: 22))
-                    if store.isPro {
+                    if ShotMode.route == "pro" {
+                        // Capture pour la vérification des achats : les trois offres, aux prix de base.
+                        ForEach([("Vicefold Pro", 5.99, "once"), ("Vicefold Pro", 2.99, "year"), ("Vicefold Pro", 0.99, "month")], id: \.1) { o in
+                            let price = o.1.formatted(.currency(code: Locale.current.currency?.identifier ?? "USD"))
+                            Button {} label: {
+                                VStack(spacing: 2) {
+                                    Text(o.0).font(.headline)
+                                    Text(o.2 == "once" ? String(localized: "\(price) once") : o.2 == "year" ? String(localized: "\(price) a year") : String(localized: "\(price) a month")).font(.subheadline)
+                                }
+                                .frame(maxWidth: .infinity).padding(.vertical, 6)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(o.2 == "once" ? VF.coral : VF.magenta)
+                        }
+                    } else if store.isPro {
                         Label("Pro is on", systemImage: "checkmark.seal.fill").font(.headline).foregroundStyle(VF.teal)
                     } else if store.products.isEmpty {
                         ProgressView().task { await store.load() }
@@ -299,6 +313,7 @@ struct ProView: View {
                     HStack(spacing: 18) {
                         Button("Restore") { Task { await store.restore() } }
                         Link("Terms", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                        Link("Privacy", destination: URL(string: ContentStore.lang == "fr" ? "https://foldly.netlify.app/vicefold/fr/privacy.html" : "https://foldly.netlify.app/vicefold/en/privacy.html")!)
                     }
                     .font(.footnote)
                 }

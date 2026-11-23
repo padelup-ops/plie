@@ -410,7 +410,7 @@ struct ThreadView: View {
             HStack(spacing: 8) {
                 Monogram(name: p.alias, size: 26)
                 Text(p.alias).font(.subheadline.weight(.semibold))
-                Text(p.date, style: .relative).font(.caption).foregroundStyle(.secondary)
+                Text(p.date, format: .relative(presentation: .named, unitsStyle: .abbreviated)).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 Spacer()
                 Menu {
                     if p.mine {
