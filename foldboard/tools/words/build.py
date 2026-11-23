@@ -18,26 +18,51 @@ import re, sys, unicodedata
 out, frfull, enfull, N = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
 extra = sys.argv[5:]
 MIN = 3
-BLOCK = set("""nigger nigga faggot fag retard retarded tranny chink spic kike wetback cunt
-nègre negre bougnoule youpin pédé pede tarlouze enculé encule salope pute bite chatte connasse""".split())
+BLOCK = set("""nigger nigga niggas faggot faggots fag fags retard retarded tranny chink spic kike wetback cunt cunts
+fuck fucking fucked fucker fuckers motherfucker motherfuckers shit shitty bullshit bitch bitches bastard bastards dick dicks
+cock cocks pussy pussies asshole assholes whore whores slut sluts wanker twat tits titties jizz dildo blowjob porn
+nègre negre nègres negres bougnoule bougnoules youpin pédé pede pédés pedes tarlouze enculé encule enculés encules enculer
+salope salopes pute putes putain putains bite bites chatte connasse connasses connard connards merde merdes merdique bordel
+foutre foutu chier chiant chiante salaud salauds couille couilles couillon couillons nichon nichons niquer nique niqué
+enfoiré enfoire enfoirés branleur branlette bâtard batard bâtards pétasse petasse pouffiasse grognasse emmerder emmerde""".split())
 LETTERS = re.compile(r"^[a-zàâäçéèêëîïôöùûüÿœæñáíóú'’-]+$")
 
 def strip(s):
     return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
 
+def speller(code):
+    """Le correcteur hunspell (paquets hunspell-fr / hunspell-en-us) : un mot ajouté doit exister vraiment.
+    Sans lui, des fautes vues souvent dans les sous-titres (« belowe ») entraient dans la liste et n'étaient
+    plus jamais corrigées."""
+    import subprocess
+    dic = {"fr": "fr_FR", "en": "en_US"}[code]
+    def ok(words):
+        p = subprocess.run(["hunspell", "-d", dic, "-l"], input="\n".join(words), capture_output=True, text=True)
+        bad = set(p.stdout.split())
+        return [w for w in words if w not in bad]
+    return ok
+
 def grow(code, full):
     base = [l.strip() for l in open(f"Shared/words-{code}.txt", encoding="utf-8") if l.strip()]
     have = set(base)
     words = list(base)
+    # Ce que la liste d'origine avait écarté parmi ses 30 000 premiers (grossièretés, mots tronqués) reste écarté.
+    rows = []
     for line in open(full, encoding="utf-8"):
         parts = line.split()
-        if len(parts) != 2: continue
-        w, n = parts[0], int(parts[1])
+        if len(parts) == 2: rows.append((parts[0], int(parts[1])))
+    last = base[-1]
+    cut = next((i for i, (w, _) in enumerate(rows) if w == last), 0)
+    dropped = {w for w, _ in rows[:cut] if w not in have}
+    cands = []
+    for w, n in rows[cut:]:
         if n < MIN: break
-        if w in have or w in BLOCK or len(w) < 2 or len(w) > 24: continue
+        if w in have or w in BLOCK or w in dropped or len(w) < 2 or len(w) > 24: continue
         if not LETTERS.match(w) or w.startswith(("'", "’", "-")) or w.endswith(("'", "’", "-")): continue
-        words.append(w); have.add(w)
-        if len(words) >= N: break
+        cands.append(w); have.add(w)
+        if len(cands) >= (N - len(base)) * 2: break
+    good = speller(code)(cands)
+    words += good[: N - len(base)]
     with open(f"{out}/words-{code}.txt", "w", encoding="utf-8") as f:
         f.write("\n".join(words) + "\n")
     print(code, len(base), "→", len(words))

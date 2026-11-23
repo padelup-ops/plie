@@ -19,6 +19,7 @@ jobs:
       - name: Construire
         run: |
           set -e
+          sudo apt-get install -y -qq hunspell hunspell-fr hunspell-en-us >/dev/null
           mkdir -p /tmp/in /tmp/out
           curl -sfL -o /tmp/in/fr_full.txt https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/fr/fr_full.txt
           curl -sfL -o /tmp/in/en_full.txt https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/en/en_full.txt
