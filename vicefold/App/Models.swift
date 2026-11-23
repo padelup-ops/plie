@@ -325,8 +325,9 @@ final class ContentStore {
     static let remoteBase = URL(string: "https://raw.githubusercontent.com/padelup-ops/plie/main/vicefold/Content/")!
 
     static var lang: String {
-        let l = Locale.preferredLanguages.first?.prefix(2) ?? "en"
-        return l == "fr" ? "fr" : "en"
+        // la langue de l'interface choisie par iOS, pour que le contenu suive toujours les menus
+        let l = String((Bundle.main.preferredLocalizations.first ?? "en").prefix(2))
+        return ["fr", "es", "de", "it", "pt"].contains(l) ? l : "en"
     }
 
     private var cacheURL: URL {

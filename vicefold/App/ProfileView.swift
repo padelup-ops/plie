@@ -222,7 +222,7 @@ struct SettingsView: View {
             }
 
             Section {
-                Text("Vicefold is an unofficial fan guide. It is not affiliated with, endorsed or approved by Rockstar Games or Take-Two Interactive. Grand Theft Auto and related names are trademarks of Take-Two Interactive. The map is drawn by us; no game art is included.")
+                Text("Vicefold is an unofficial fan guide. It is not affiliated with, endorsed or approved by Rockstar Games or Take-Two Interactive. Grand Theft Auto and related names are trademarks of Take-Two Interactive. The map is the GTADB.org community map (CC BY 4.0); no game art is included.")
                     .font(.footnote).foregroundStyle(.secondary)
                 if let s = content.content.sources, !s.isEmpty {
                     ForEach(s, id: \.self) { Text($0).font(.caption).foregroundStyle(.secondary) }

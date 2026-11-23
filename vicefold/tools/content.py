@@ -665,8 +665,40 @@ EGGS = [
 ]
 
 
+# Les autres langues : une table par langue (tools/i18n/<langue>.json), clé = empreinte du texte anglais. Un texte
+# pas encore traduit reste en anglais.
+import hashlib  # noqa: E402
+LANGS = ["en", "fr", "es", "de", "it", "pt"]
+_TR = {}
+_SEEN = []
+
+
+def _key(en):
+    return hashlib.sha1(en.encode()).hexdigest()[:7]
+
+
+def _tr(lang, en):
+    if lang not in _TR:
+        f = os.path.join(HERE, "i18n", f"{lang}.json")
+        _TR[lang] = json.load(open(f)) if os.path.exists(f) else {}
+    if en not in _SEEN:
+        _SEEN.append(en)
+    return _TR[lang].get(_key(en), en)
+
+
+def _pick(lang):
+    def pick(t):
+        if not (isinstance(t, dict) and "en" in t and "fr" in t):
+            return t
+        if lang in ("en", "fr"):
+            return t[lang]
+        en = t["en"]
+        return [_tr(lang, x) for x in en] if isinstance(en, list) else _tr(lang, en)
+    return pick
+
+
 def build(lang):
-    pick = lambda t: t[lang] if isinstance(t, dict) else t
+    pick = _pick(lang)
     places = []
     for p in PLACES:
         pid, name, kind, x, y, region, note = p[:7]
@@ -698,7 +730,11 @@ def build(lang):
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    for lang in ("en", "fr"):
+    for lang in LANGS:
         with open(os.path.join(OUT, f"content-{lang}.json"), "w", encoding="utf-8") as f:
             json.dump(build(lang), f, ensure_ascii=False, indent=1)
-    print("ok", VERSION)
+    # La liste des textes anglais à traduire (avec leur clé), pour tools/i18n.
+    with open(os.path.join(HERE, "i18n", "source.json"), "w") as f:
+        json.dump({_key(t): t for t in _SEEN}, f, ensure_ascii=False, indent=0)
+    missing = {l: sum(1 for t in _SEEN if _key(t) not in _TR.get(l, {})) for l in LANGS[2:]}
+    print("ok", VERSION, "à traduire", len(_SEEN), "manquants", missing)
