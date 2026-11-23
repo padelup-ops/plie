@@ -86,6 +86,21 @@ enum MediaScript {
         try { Object.defineProperty(V, 'webkitSupportsFullscreen', { get: function () { return true; }, configurable: true }); } catch (e) {}
         try { Object.defineProperty(V, 'webkitDisplayingFullscreen', { get: function () { return tf.filled === this; }, configurable: true }); } catch (e) {}
         document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tf.filled) unfill(); }, true);
+        // Sur iPhone, une vidéo sans « playsinline » part en plein écran dès qu'elle démarre : on la garde dans la page.
+        function inline(root) {
+          var vs = (root.querySelectorAll ? root.querySelectorAll('video') : []);
+          for (var i = 0; i < vs.length; i++) { vs[i].setAttribute('playsinline', ''); vs[i].setAttribute('webkit-playsinline', ''); vs[i].playsInline = true; }
+          if (root.tagName === 'VIDEO') { root.setAttribute('playsinline', ''); root.playsInline = true; }
+        }
+        inline(document);
+        new MutationObserver(function (ms) {
+          ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) inline(n); }); });
+        }).observe(document.documentElement, { childList: true, subtree: true });
+        // Le plein écran demandé sur un conteneur (le lecteur de YouTube) : c'est sa vidéo qui remplit la page.
+        var E = Element.prototype;
+        var askFull = function () { var v = this.tagName === 'VIDEO' ? this : this.querySelector('video'); if (v) fill(v); return Promise.resolve(); };
+        E.requestFullscreen = askFull; E.webkitRequestFullscreen = askFull; E.webkitRequestFullScreen = askFull;
+        document.exitFullscreen = document.webkitExitFullscreen = function () { unfill(); return Promise.resolve(); };
       }
       report();
     })();
