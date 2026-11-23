@@ -1478,6 +1478,8 @@ final class KeyboardCanvas: UIView {
     /// (deux moitiés sur le Duo déplié). Pas besoin d'étalonnage.
     private var placeTouches: [UITouch: (CGPoint, TimeInterval)] = [:]
     private var lastKeyTime: TimeInterval = 0
+    /// L'appui sur une touche juste avant le dernier (pour reconnaître un micro touché par erreur en pleine frappe).
+    private var prevKeyTime: TimeInterval = 0
 
     private func updateSideHint() {
         if sideHint.superview == nil {
@@ -3337,6 +3339,7 @@ final class KeyboardCanvas: UIView {
     }
 
     private func press(_ tr: Track) {
+        prevKeyTime = lastKeyTime
         lastKeyTime = ProcessInfo.processInfo.systemUptime
         if barOpened { barOpened = false; layoutTopBar() }
         let v = cells[tr.index].view
@@ -3498,8 +3501,12 @@ final class KeyboardCanvas: UIView {
             rebuild()
         case .mic:
             // Option « tenir pour dicter » : un effleurement en écrivant ne lance plus la dictée par erreur.
-            if eff.micHold, dictState == .idle, ProcessInfo.processInfo.systemUptime - tr.t0 < 0.3 {
-                flash(L("Hold the mic to dictate"))
+            let held = ProcessInfo.processInfo.systemUptime - tr.t0 >= 0.3
+            // En pleine frappe (une touche moins de 0,7 s avant), un effleurement du micro est une erreur : le pouce
+            // visait espace ou retour. On ne lance pas la dictée (le tenir un instant la lance quand même).
+            let midTyping = tr.t0 - prevKeyTime < 0.7
+            if dictState == .idle, !held, eff.micHold || midTyping {
+                if eff.micHold { flash(L("Hold the mic to dictate")) }
             } else {
                 micTapped()
             }
