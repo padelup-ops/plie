@@ -1,0 +1,28 @@
+APP_ID 6838298570
+
+== com.padelup.vicefold.pro.lifetime
+ok     achat déjà créé, état READY_TO_SUBMIT
+ok     textes en-US
+ok     textes fr-FR
+ok     prix 5.99 € (base France)
+ok     disponibilité (175 pays)
+ok     capture déjà envoyée
+achat com.padelup.vicefold.pro.lifetime | Vicefold Pro (lifetime) | état READY_TO_SUBMIT
+
+== com.padelup.vicefold.pro.yearly
+ok     textes en-US
+ok     textes fr-FR
+ok     prix déjà posés (175 pays)
+ok     disponibilité (175 pays)
+ok     capture déjà envoyée
+abonnement com.padelup.vicefold.pro.yearly | état READY_TO_SUBMIT
+
+== com.padelup.vicefold.pro.monthly
+ok     textes en-US
+ok     textes fr-FR
+ok     prix déjà posés (175 pays)
+ok     disponibilité (175 pays)
+ok     capture déjà envoyée
+abonnement com.padelup.vicefold.pro.monthly | état READY_TO_SUBMIT
+
+ACHATS PRÊTS (capture pour la vérification à ajouter avant la soumission)
