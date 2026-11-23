@@ -13,7 +13,19 @@ import jwt
 API = "https://api.appstoreconnect.apple.com"
 BUNDLE = "com.padelup.foldboard"
 SOURCE_BUNDLE = "com.padelup.clapet"
-EMAILS = [e.strip().lower().removeprefix("mailto:") for e in re.split(r"[,\s]+", os.environ.get("EMAILS", "")) if e.strip()]
+def _raw_emails():
+    # Pas de variable d'environnement : GitHub les affiche en clair dans les journaux (dépôt public). On lit
+    # l'entrée directement dans l'événement du déclenchement.
+    if os.environ.get("EMAILS"):
+        return os.environ["EMAILS"]
+    try:
+        with open(os.environ["GITHUB_EVENT_PATH"]) as f:
+            return (json.load(f).get("inputs") or {}).get("emails", "")
+    except (KeyError, OSError, ValueError):
+        return ""
+
+
+EMAILS = [e.strip().lower().removeprefix("mailto:") for e in re.split(r"[,\s]+", _raw_emails()) if e.strip()]
 # Le dépôt est public : chaque adresse est masquée dans les journaux, et on n'en affiche qu'un aperçu.
 for _e in EMAILS:
     print(f"::add-mask::{_e}")
