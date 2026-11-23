@@ -36,6 +36,9 @@ targets:
         NSFaceIDUsageDescription: Twinfold uses Face ID to unlock your private tabs.
         # Le son des vidéos continue en image dans l'image et écran verrouillé.
         UIBackgroundModes: [audio]
+        # Les téléchargements vont dans Fichiers › Sur mon iPhone › Twinfold.
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         CFBundleURLTypes:

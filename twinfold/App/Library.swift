@@ -92,8 +92,8 @@ final class Library {
         didSet { UserDefaults.standard.set(barAtTop, forKey: "barAtTop") }
     }
     /// The active page's tabs as icons on its edge.
-    var sideDock: Bool = UserDefaults.standard.object(forKey: "sideDock") as? Bool ?? true {
-        didSet { UserDefaults.standard.set(sideDock, forKey: "sideDock") }
+    var sideDock: Bool = UserDefaults.standard.object(forKey: "sideDock2") as? Bool ?? false {
+        didSet { UserDefaults.standard.set(sideDock, forKey: "sideDock2") }
     }
 
     /// Tabs and pinned apps together on one edge (easier with one hand), or split: apps on one edge, tabs on the other.
@@ -112,6 +112,14 @@ final class Library {
     /// A video's full-screen button fills its own pane instead of the whole display (applies to pages opened next).
     var fullscreenInPane: Bool = UserDefaults.standard.object(forKey: "fullscreenInPane") as? Bool ?? true {
         didSet { UserDefaults.standard.set(fullscreenInPane, forKey: "fullscreenInPane") }
+    }
+
+    /// The floating action palette (in place of the side bars).
+    var palette: Bool = UserDefaults.standard.object(forKey: "palette") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(palette, forKey: "palette") }
+    }
+    var paletteNames: Bool = UserDefaults.standard.object(forKey: "paletteNames") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(paletteNames, forKey: "paletteNames") }
     }
 
     /// Web apps pinned to the side dock (their site's address).

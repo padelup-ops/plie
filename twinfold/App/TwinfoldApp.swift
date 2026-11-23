@@ -33,7 +33,15 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         // Videos play with sound even with the silent switch on, and keep going in Picture in Picture.
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+        _ = Downloads.shared   // picks up downloads that went on while Twinfold was closed
         return true
+    }
+
+    /// iOS wakes Twinfold when a download finished in the background: the file is moved into place, then iOS is told.
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String,
+                     completionHandler: @escaping () -> Void) {
+        guard identifier == Downloads.sessionID else { completionHandler(); return }
+        MainActor.assumeIsolated { Downloads.shared.backgroundCompletion = completionHandler }
     }
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession,

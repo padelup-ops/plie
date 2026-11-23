@@ -55,6 +55,7 @@ struct BrowserView: View {
             case .library: LibrarySheet()
             case .pairs: PairsSheet()
             case .settings: SettingsSheet()
+            case .downloads: DownloadsSheet()
             case .savePair: SavePairSheet()
             case .reader: ReaderSheet()
             case .following: FollowingSheet()
@@ -115,6 +116,10 @@ struct PanesArea: View {
                 if split {
                     PaneDivider(layout: layout, size: geo.size, frozen: $frozen)
                         .zIndex(3)
+                }
+                if Library.shared.palette && !browser.overviewShown && !browser.editingAddress {
+                    ActionPalette(area: geo.size, insets: insets)
+                        .zIndex(5)
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)

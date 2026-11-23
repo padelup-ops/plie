@@ -328,6 +328,7 @@ struct MainMenu: View {
                 Button(Following.shared.unreadCount > 0 ? String(localized: "Following (\(Following.shared.unreadCount))") : String(localized: "Following"),
                        systemImage: "newspaper") { browser.sheet = .following }
                 Button("Bookmarks and History", systemImage: "book") { browser.sheet = .library }
+                Button(Downloads.shared.active > 0 ? "Downloads (\(Downloads.shared.active))" : "Downloads", systemImage: "arrow.down.circle") { browser.sheet = .downloads }
             }
             Section {
                 Button("Settings", systemImage: "gearshape") { browser.sheet = .settings }

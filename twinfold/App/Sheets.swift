@@ -402,7 +402,19 @@ struct SettingsSheet: View {
                         Text("Bottom of the Page").tag(false)
                         Text("Top of the Page").tag(true)
                     }
-                    Toggle("Side Dock with Your Tabs", isOn: $lib.sideDock)
+                    NavigationLink {
+                        PaletteSettings()
+                    } label: {
+                        LabeledContent { Text(lib.palette ? "On" : "Off") } label: {
+                            Label { Text("Action Palette") } icon: { Image(systemName: "circle.grid.2x2.fill").foregroundStyle(Brand.accent) }
+                        }
+                    }
+                    NavigationLink {
+                        DownloadsList()
+                    } label: {
+                        Label { Text("Downloads") } icon: { Image(systemName: "arrow.down.circle").foregroundStyle(Brand.accent) }
+                    }
+                    Toggle("Side Bars with Tabs and Buttons", isOn: $lib.sideDock)
                     if lib.sideDock {
                         Picker("Tabs and Buttons", selection: $lib.dockTogether) {
                             Text("Together on One Side").tag(true)

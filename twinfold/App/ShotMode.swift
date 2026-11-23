@@ -84,10 +84,13 @@ enum ShotMode {
                 let wv = browser.panes[0].tab?.webView
                 _ = try? await wv?.evaluateJavaScript("var v=document.getElementById('v');v.webkitEnterFullscreen();1")
                 try? await Task.sleep(for: .seconds(2))
-                let r = (try? await wv?.evaluateJavaScript("var b=document.getElementById('v').getBoundingClientRect();[Math.round(b.width),Math.round(b.height),innerWidth,innerHeight].join(' ')")) as? String ?? "?"
+                let r = (try? await wv?.evaluateJavaScript("var b=document.getElementById('v').getBoundingClientRect();[Math.round(b.width),Math.round(b.height),innerWidth,innerHeight,typeof window.__twinfold,window.__twinfoldFullscreenInPane,String(HTMLVideoElement.prototype.webkitEnterFullscreen).slice(0,40)].join(' ')")) as? String ?? "?"
                 let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
                 try? "fsinpane: filled \(browser.panes[0].tab?.isFilled ?? false) video \(r)".write(to: url, atomically: true, encoding: .utf8)
             }
+        case "palette":
+            show(0, "video", "dailyloaf.example")
+            show(1, "recipe", "dailyloaf.example")
         case "overview":
             show(0, "video", "dailyloaf.example")
             show(0, "news", "harbornews.example")

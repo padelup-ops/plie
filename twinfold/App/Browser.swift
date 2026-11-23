@@ -137,7 +137,7 @@ final class Browser {
     var pairSuggestion: String?
 
     enum SheetKind: String, Identifiable {
-        case tabs, library, pairs, settings, savePair, reader, following, whatsNew, tutorial
+        case tabs, library, pairs, settings, savePair, reader, following, whatsNew, tutorial, downloads
         var id: String { rawValue }
     }
 

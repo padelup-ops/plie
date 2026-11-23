@@ -39,6 +39,8 @@ final class Tab: NSObject, Identifiable {
     private(set) var isMuted = false
     /// The playing video is stretched over the whole pane.
     var isFilled = false
+    /// How the page being opened was asked for (only a plain GET can be handed to the background downloader).
+    @ObservationIgnored var lastMethod = "GET"
     @ObservationIgnored private var frameMedia: [Bool: (Bool, Bool)] = [:]
 
     /// Set by the browser: the pane this tab belongs to became the one the bars act on.
@@ -260,12 +262,46 @@ extension Tab: WKNavigationDelegate {
             decisionHandler(.cancel, preferences)
             return
         }
+        // A link that asks to be downloaded: the system fetches it, so it keeps going outside Twinfold.
+        if action.shouldPerformDownload {
+            if (scheme == "http" || scheme == "https") && (action.request.httpMethod ?? "GET") == "GET" {
+                Downloads.shared.start(action.request, suggested: nil, from: webView)
+                decisionHandler(.cancel, preferences)
+            } else {
+                decisionHandler(.download, preferences)
+            }
+            return
+        }
+        if action.targetFrame?.isMainFrame == true { lastMethod = action.request.httpMethod ?? "GET" }
         if action.navigationType == .linkActivated, action.targetFrame?.isMainFrame == true,
            scheme == "http" || scheme == "https", onRouteLink?(url) == true {
             decisionHandler(.cancel, preferences)
             return
         }
         decisionHandler(.allow, preferences)
+    }
+
+    /// Something the page can't show (a zip, an app, a file sent "as attachment"): it's downloaded.
+    func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse,
+                 decisionHandler: @escaping @MainActor @Sendable (WKNavigationResponsePolicy) -> Void) {
+        let http = response.response as? HTTPURLResponse
+        let disposition = (http?.value(forHTTPHeaderField: "Content-Disposition") ?? "").lowercased()
+        let wantsFile = disposition.hasPrefix("attachment") || !response.canShowMIMEType
+        guard wantsFile, let url = response.response.url else { decisionHandler(.allow); return }
+        if response.isForMainFrame, lastMethod == "GET", url.scheme == "https" || url.scheme == "http" {
+            Downloads.shared.start(URLRequest(url: url), suggested: response.response.suggestedFilename, from: webView)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.download)
+        }
+    }
+
+    func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
+        Downloads.shared.adopt(download)
+    }
+
+    func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
+        Downloads.shared.adopt(download)
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
