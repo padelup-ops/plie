@@ -468,6 +468,42 @@ func realSwipes(_ L: Lang, file: String, layout: String, tag: String, limit: Int
 
 let t0 = Date()
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
+/// Les vraies fautes (Wikipédia, codespell ; accents oubliés en français) : un échantillon fixe de N cas.
+/// Comme le clavier à l'espace : la correction rapide, puis la proposition de la barre si elle n'a rien trouvé.
+func corpus(_ L: Lang, tag: String, n: Int = 2500) {
+    guard let url = Bundle.main.url(forResource: "typos-" + L.code, withExtension: "txt"),
+          let text = try? String(contentsOf: url, encoding: .utf8) else { print("pas de typos-\(L.code).txt"); return }
+    var all = text.split(separator: "\n").compactMap { l -> (String, String)? in
+        let p = l.components(separatedBy: "->"); return p.count == 2 ? (p[0], p[1]) : nil
+    }
+    var rng = RNG(s: 42)
+    for i in stride(from: all.count - 1, to: 0, by: -1) { let j = Int(rng.next() * Double(i + 1)); all.swapAt(i, j) }
+    let s = KBSuggest()
+    s.setLayout(L.layout)
+    var fast = 0, withBar = 0, wrong = 0
+    var miss: [String] = [], bad: [String] = []
+    let cases = all.prefix(n)
+    for (w, want) in cases {
+        let before = "le " + w
+        let f = s.correction(for: w, before: before, touch: nil, fast: true)
+        var out = f ?? w
+        if fold(out) == fold(want) { fast += 1; withBar += 1; continue }
+        if f == nil {
+            let items = s.suggestions(for: w, before: before).items
+            if let b = s.barFix(w, items: Array(items.dropFirst()), before: before) { out = b }
+            if fold(out) == fold(want) { withBar += 1; continue }
+        }
+        if out != w { wrong += 1; if bad.count < 25 { bad.append("\(w)→\(out) (voulu \(want))") } }
+        else if miss.count < 40 { miss.append("\(w)→? (voulu \(want))") }
+    }
+    let c = Double(max(1, cases.count))
+    print("RESULT \(tag) \(L.code) vraies_fautes_espace \(String(format: "%.1f", 100 * Double(fast) / c)) (sur \(cases.count))")
+    print("RESULT \(tag) \(L.code) vraies_fautes_avec_barre \(String(format: "%.1f", 100 * Double(withBar) / c))")
+    print("RESULT \(tag) \(L.code) vraies_fautes_mauvais_mot \(String(format: "%.1f", 100 * Double(wrong) / c))")
+    print("non corrigées \(tag) \(L.code):", miss.joined(separator: " · "))
+    print("mauvais mot \(tag) \(L.code):", bad.joined(separator: " · "))
+}
+
 let configs: [(String, [String: Double])] = [
     // L'ancienne d'abord : la première configuration paie le chargement des dictionnaires (temps faussés).
     // gNeural à 0 : le glisser géométrique seul, pour le comparer au reclassement FUTO Swipe.
@@ -489,6 +525,8 @@ for (tag, cfg) in configs {
     realCases(fr, realFR, tag: tag)
     realCases(en, realEN, tag: tag)
     realCases(fr, mixedFR, tag: tag, name: "anglais_sur_azerty")
+    corpus(fr, tag: tag)
+    corpus(en, tag: tag)
     autoTypos(fr, tag: tag)
     autoTypos(en, tag: tag)
     run(fr, tag: tag)

@@ -49,6 +49,8 @@ jobs:
           cp foldboard/Shared/words-*.txt foldboard/Shared/lm-*.bin foldboard/Shared/FUTO/futo-swipe-encoder-int8.pte out/
           ls -lh out/bench out/*.pte
           # Vrais swipes (FUTO swipe.futo.org, MIT), préparés par foldboard-swipedata.yml.
+          # Vraies fautes (foldboard-words.yml) : banc seulement.
+          git fetch -q origin ci-foldboard-words && for f in typos-fr.txt typos-en.txt; do git show origin/ci-foldboard-words:$f > out/$f 2>/dev/null || echo "absent $f"; done
           git fetch -q origin ci-swipedata && for f in test-en-qwerty.jsonl s5-fr-azerty.jsonl qwerty.json azerty.json; do git show origin/ci-swipedata:$f > out/$f 2>/dev/null || echo "absent $f"; done
       - name: Run
         run: |
