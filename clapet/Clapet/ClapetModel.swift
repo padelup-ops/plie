@@ -49,12 +49,6 @@ final class ClapetModel {
     @ObservationIgnored private var pendingReload = false
 
     init() {
-        // Lancée avant le premier déverrouillage (après un redémarrage) : dès que l'iPhone est déverrouillé, on
-        // relit les vrais chiffres au lieu de garder les chiffres vides chargés au lancement.
-        NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.reload()
-            WidgetCenter.shared.reloadAllTimelines()
-        }
         let d = UserDefaults.standard
         soundOn = d.object(forKey: "sound") as? Bool ?? false
         hapticsOn = d.object(forKey: "haptics") as? Bool ?? true
@@ -62,6 +56,12 @@ final class ClapetModel {
         ClapetModel.current = self
         // Fondateur : ouvert avant le 1er décembre 2026 (gardé pour toujours).
         if FounderRule.open && !stats.founder && !Demo.seeded { stats.founder = true; ClapetVault.save(stats) }
+        // Lancée avant le premier déverrouillage (après un redémarrage) : dès que l'iPhone est déverrouillé, on
+        // relit les vrais chiffres au lieu de garder les chiffres vides chargés au lancement.
+        NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.reload()
+            WidgetCenter.shared.reloadAllTimelines()
+        }
     }
 
     // MARK: Charnière
