@@ -350,6 +350,13 @@ struct PositionView: View {
             Section {
                 Toggle("Position and settings buttons", isOn: $m.settings.barButtons)
                 Toggle("Hide keyboard button", isOn: $m.settings.hideKeyButton)
+                Toggle("✨ Fix button", isOn: $m.settings.wandButton)
+                Picker("Buttons", selection: $m.settings.barLayout) {
+                    Text("On the right").tag("right")
+                    Text("On the left").tag("left")
+                    Text("On both sides").tag("split")
+                }
+                Toggle("Square keys", isOn: $m.settings.squareKeys)
                 Toggle("Learning messages", isOn: $m.settings.learningTips)
             } header: {
                 Text("Top bar")
@@ -661,6 +668,7 @@ struct TypingView: View {
             Section {
                 Toggle("Dictation key", isOn: $m.settings.dictationKey)
                 if m.settings.dictationKey {
+                    Toggle("Mic next to return", isOn: $m.settings.micByReturn)
                     Button("Turn on dictation now") {
                         DictationService.shared.startSession()
                         showDictation = true

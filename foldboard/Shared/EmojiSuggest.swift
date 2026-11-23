@@ -264,6 +264,40 @@ enum KBEmojiSuggest {
         "islande": "🇮🇸",
     ]
 
+    /// Les mots qui appellent plusieurs emojis (comme le clavier d'Apple : « haha » → 😂 🤣 😆) : la barre les montre tous.
+    private static let several: [String: [String]] = [
+        "haha": ["😂", "🤣", "😆"], "hahaha": ["😂", "🤣", "😆"], "hehe": ["😆", "😁", "😂"], "lol": ["😂", "🤣", "😆"],
+        "lmao": ["🤣", "😂", "💀"], "lmfao": ["🤣", "😂", "💀"], "rofl": ["🤣", "😂"], "mdr": ["😂", "🤣", "😆"], "ptdr": ["🤣", "😂", "💀"],
+        "sad": ["😢", "😞", "😔"], "triste": ["😢", "😞", "😔"], "cry": ["😭", "😢", "🥲"], "crying": ["😭", "😢", "🥲"], "cried": ["😭", "😢"],
+        "pleure": ["😭", "😢", "🥲"], "pleurer": ["😭", "😢", "🥲"], "love": ["❤️", "😍", "🥰"], "amour": ["❤️", "😍", "🥰"],
+        "happy": ["😊", "😁", "😄"], "heureux": ["😊", "😁", "😄"], "angry": ["😠", "😡", "🤬"], "mad": ["😡", "😠", "🤬"],
+        "shock": ["😮", "😱", "😲"], "shocked": ["😮", "😱", "😲"], "shocking": ["😱", "😮"], "choqué": ["😮", "😱", "😲"],
+        "blown": ["🤯"], "mindblown": ["🤯"], "mind": ["🤯", "🧠"],
+        "coin": ["🪙"], "coins": ["🪙"], "money": ["💸", "🤑", "💰"], "argent": ["💸", "🤑", "💰"], "cash": ["💸", "💵", "🤑"],
+        "rich": ["🤑", "💰", "💸"], "riche": ["🤑", "💰"],
+        "marry": ["💍", "💒"], "married": ["💍", "💒"], "marriage": ["💍", "💒"], "wedding": ["💍", "💒", "👰"], "mariage": ["💍", "💒"], "marié": ["💍", "💒"],
+        "vomit": ["🤮"], "vomiting": ["🤮"], "puke": ["🤮"], "vomir": ["🤮"], "gross": ["🤢", "🤮"], "nasty": ["🤮", "🤢"], "dégueu": ["🤢", "🤮"],
+        "smell": ["👃"], "smells": ["👃"], "smelling": ["👃"], "smelly": ["👃", "🤢"], "nose": ["👃"], "nez": ["👃"], "sentir": ["👃"],
+        "bomb": ["💣"], "bombe": ["💣"], "beg": ["🥺", "🙏"], "begging": ["🥺", "🙏"], "beggin": ["🥺", "🙏"], "please": ["🙏", "🥺"],
+        "shame": ["🫠", "😳", "🙈"], "ashamed": ["🫠", "😳"], "honte": ["🫠", "😳", "🙈"], "embarrassed": ["😳", "🫠"],
+        "scare": ["😰", "😱"], "scared": ["😰", "😱", "😨"], "scary": ["😱", "😰", "👻"], "afraid": ["😨", "😰"], "peur": ["😱", "😰", "😨"],
+        "nosy": ["🧐"], "curious": ["🧐", "🤔"], "curieux": ["🧐"], "naughty": ["😈", "👿"], "evil": ["😈", "👿"],
+        "sus": ["🤨", "😏"], "suspicious": ["🤨", "😏"], "suspect": ["🤨"], "louche": ["🤨", "😏"],
+        "turkey": ["🇹🇷", "🦃"], "turkish": ["🇹🇷"], "thanksgiving": ["🦃", "🍂"], "zimbabwe": ["🇿🇼"], "puerto": ["🇵🇷"], "rico": ["🇵🇷"],
+        "fire": ["🔥", "❤️‍🔥"], "laugh": ["😂", "🤣"], "laughing": ["😂", "🤣"], "dead": ["💀", "☠️"], "wow": ["😮", "🤩", "😲"],
+        "omg": ["😱", "😮", "🙀"], "tired": ["😩", "😴", "🥱"], "sleep": ["😴", "💤"], "party": ["🎉", "🥳", "🎊"], "birthday": ["🎂", "🥳", "🎉"],
+        "thanks": ["🙏", "😊"], "merci": ["🙏", "😊"], "kiss": ["😘", "💋"], "bisous": ["😘", "💋"], "cool": ["😎", "🆒"], "hot": ["🥵", "🔥"],
+        "cute": ["🥰", "🥹"], "sick": ["🤒", "🤧"], "think": ["🤔", "💭"], "eyes": ["👀"], "hug": ["🤗", "🫂"], "hugs": ["🤗", "🫂"],
+    ]
+
+    /// Jusqu'à trois emojis pour le mot (la barre les montre côte à côte).
+    static func emojis(for word: String) -> [String] {
+        let w = word.lowercased()
+        guard w.count >= 2, !skip.contains(w) || several[w] != nil else { return [] }
+        if let list = several[w] { return Array(list.prefix(3)) }
+        return emoji(for: word).map { [$0] } ?? []
+    }
+
     static func emoji(for word: String) -> String? {
         let w = word.lowercased()
         guard w.count >= 2, !skip.contains(w) else { return nil }

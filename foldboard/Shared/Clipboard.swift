@@ -162,6 +162,12 @@ final class ClipboardList: UIView {
 
     private let scroll = DragScroll()
     private var builtFor: CGSize = .zero
+    /// Une glissière sur le bord, comme sur une page web : on la fait glisser pour aller tout de suite en bas d'un
+    /// long presse-papier.
+    private let rail = UIView()
+    private let thumb = UIView()
+    private var observation: NSKeyValueObservation?
+    private static let railW: CGFloat = 22
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -169,6 +175,17 @@ final class ClipboardList: UIView {
         scroll.showsVerticalScrollIndicator = false
         scroll.delaysContentTouches = false
         addSubview(scroll)
+        rail.backgroundColor = .clear
+        thumb.layer.cornerRadius = 3
+        thumb.isUserInteractionEnabled = false
+        rail.addSubview(thumb)
+        addSubview(rail)
+        rail.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(scrub(_:))))
+        rail.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(scrub(_:))))
+        observation = scroll.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
+            DispatchQueue.main.async { self?.placeThumb() }
+        }
+        rail.isAccessibilityElement = false
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -176,13 +193,37 @@ final class ClipboardList: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         scroll.frame = bounds
+        rail.frame = CGRect(x: bounds.width - Self.railW, y: 0, width: Self.railW, height: bounds.height)
         if bounds.size != builtFor { reload() }
+        placeThumb()
+    }
+
+    private var scrollable: Bool { scroll.contentSize.height > scroll.bounds.height + 40 }
+
+    private func placeThumb() {
+        rail.isHidden = !scrollable
+        guard scrollable else { return }
+        let h = rail.bounds.height - 8
+        let frac = min(1, max(0, scroll.contentOffset.y / max(1, scroll.contentSize.height - scroll.bounds.height)))
+        let th = max(36, h * scroll.bounds.height / scroll.contentSize.height)
+        thumb.backgroundColor = textColor.withAlphaComponent(0.35)
+        thumb.frame = CGRect(x: (Self.railW - 6) / 2, y: 4 + (h - th) * frac, width: 6, height: th)
+    }
+
+    @objc private func scrub(_ g: UIGestureRecognizer) {
+        guard scrollable else { return }
+        let y = g.location(in: rail).y
+        let frac = min(1, max(0, (y - 22) / max(1, rail.bounds.height - 44)))
+        scroll.setContentOffset(CGPoint(x: 0, y: frac * (scroll.contentSize.height - scroll.bounds.height)), animated: false)
+        if g.state == .began || g is UITapGestureRecognizer { UISelectionFeedbackGenerator().selectionChanged() }
+        UIView.animate(withDuration: 0.15) { self.thumb.transform = g.state == .ended || g is UITapGestureRecognizer ? .identity : CGAffineTransform(scaleX: 1.6, y: 1) }
     }
 
     func reload() {
         builtFor = bounds.size
         scroll.subviews.forEach { $0.removeFromSuperview() }
-        let w = bounds.width
+        // La place de la glissière, à droite, quand la liste est longue.
+        let w = bounds.width - (KBClipboard.shared.items.count > 4 ? Self.railW : 0)
         guard w > 40 else { return }
         if !fullAccess {
             message(L("Turn on Full Access in Settings › Foldboard to keep what you copy here. It stays on your iPhone."))
@@ -262,6 +303,7 @@ final class ClipboardList: UIView {
         let rowsN = (items.count + cols - 1) / cols
         y += CGFloat(rowsN) * (cardH + gap)
         scroll.contentSize = CGSize(width: w, height: y + 4)
+        placeThumb()
     }
 
     private func message(_ text: String) {

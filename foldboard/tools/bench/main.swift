@@ -278,6 +278,9 @@ let realFR: [(String, String, String)] = [
     ("", "Ke", "Je"), ("en ", "oortrzit", "portrait"), ("le ", "resrz", "reste"), ("j’ai ", "ej", "eu"),
     ("une fois ", "suffirzk", "suffirait"), ("", "Voilz", "Voilà"), ("merci ", "ooir", "pour"), ("", "Pzs", "Pas"),
     ("je pense ", "z", "à"),
+    // Charlotte, 22 nov.
+    ("ce n’est ", "oas", "pas"), ("je l’ai posé ", "sir", "sur"), ("il reste de l’", "esoace", "espace"),
+    ("pas assez d’", "esozxe", "espace"), ("la ", "derniere", "dernière"), ("", "iphone", "iPhone"), ("mon ", "ipad", "iPad"),
 ]
 let realEN: [(String, String, String)] = [
     ("i ", "sue", "sue"), ("", "teh", "the"), ("i am ", "inthe", "in the"), ("see you ", "tomorrownat", "tomorrow at"),
@@ -477,6 +480,7 @@ let mixedFR: [(String, String, String)] = [
     ("thank you for ", "yout", "your"), ("i will call you ", "later", "later"), ("this is a ", "test", "test"),
     ("we are going to ", "the", "the"), ("let me know if ", "tou", "you"), ("i hope you are ", "doing", "doing"),
     ("it was a great ", "day", "day"), ("what do you ", "thinl", "think"), ("i am ", "a", "a"),
+    ("", "i", "I"), ("i ", "dont", "don’t"), ("i ", "cant", "can’t"), ("my ", "iphone", "iPhone"),
     // Et le français reste français.
     ("je vais ", "a", "à"), ("il fait ", "tres", "très"), ("on se voit ", "apres", "après"),
 ]

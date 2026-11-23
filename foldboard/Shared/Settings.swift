@@ -151,6 +151,15 @@ struct KBSettings: Codable, Equatable {
     var tapLearn = true
     /// Le micro au-dessus des touches (dictée, voir KBDictation).
     var dictationKey = true
+    /// Le micro aussi dans la rangée du bas, juste à côté de retour (comme le clavier de l'iPhone).
+    var micByReturn = false
+    /// Le bouton ✨ Corriger dans la barre (on peut le cacher).
+    var wandButton = true
+    /// Où vont les boutons de la barre du haut : « right » (à droite), « left » (à gauche), « split » (de part et
+    /// d'autre, les suggestions au milieu).
+    var barLayout = "right"
+    /// Des touches aux coins carrés.
+    var squareKeys = false
     /// « Mes mots » : jamais corrigés (ajoutés dans l'app, ou quand tu annules une correction). Le plus récent en premier.
     var myWords: [String] = []
     /// La disposition choisie pour chaque écran (« closed-portrait », « open-portrait », « open-landscape »…).
@@ -252,6 +261,10 @@ struct KBSettings: Codable, Equatable {
         spaceRowScale = min(1.5, max(0.8, (try? c.decodeIfPresent(Double.self, forKey: .spaceRowScale)) ?? d.spaceRowScale))
         tapLearn = (try? c.decodeIfPresent(Bool.self, forKey: .tapLearn)) ?? d.tapLearn
         dictationKey = (try? c.decodeIfPresent(Bool.self, forKey: .dictationKey)) ?? d.dictationKey
+        micByReturn = (try? c.decodeIfPresent(Bool.self, forKey: .micByReturn)) ?? d.micByReturn
+        wandButton = (try? c.decodeIfPresent(Bool.self, forKey: .wandButton)) ?? d.wandButton
+        barLayout = (try? c.decodeIfPresent(String.self, forKey: .barLayout)) ?? d.barLayout
+        squareKeys = (try? c.decodeIfPresent(Bool.self, forKey: .squareKeys)) ?? d.squareKeys
         myWords = (try? c.decodeIfPresent([String].self, forKey: .myWords)) ?? d.myWords
         screenModes = (try? c.decodeIfPresent([String: KBMode].self, forKey: .screenModes)) ?? d.screenModes
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme

@@ -211,6 +211,7 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     }
     var kbNeedsGlobe: Bool { needsInputModeSwitchKey }
     var kbFullAccess: Bool { hasFullAccess }
+    var kbReturnType: UIReturnKeyType { textDocumentProxy.returnKeyType ?? .default }
     func kbRecheckPro(_ done: @escaping (Bool) -> Void) {
         Task {
             let ok = await checkStore()

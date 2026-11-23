@@ -73,6 +73,21 @@ final class KBWordStore {
         return words[word.lowercased()] ?? 0
     }
 
+    /// Les fautes de frappe apprises par erreur (avant la 1.0.25, chaque mot terminé était retenu, même faux :
+    /// au bout de trois fois, « esoace » ou « derniere » n'étaient plus jamais corrigés). Une seule fois.
+    func purge(keeping isReal: (String) -> Bool) {
+        let flag = "foldboard.words.purged.v2"
+        guard !UserDefaults.standard.bool(forKey: flag) else { return }
+        lock.lock()
+        let before = words.count
+        words = words.filter { isReal($0.key) }
+        for (p, m) in pairs { let k = m.filter { words[$0.key] != nil }; pairs[p] = k.isEmpty ? nil : k }
+        let changed = words.count != before
+        lock.unlock()
+        if changed { lock.lock(); save(); lock.unlock() }
+        UserDefaults.standard.set(true, forKey: flag)
+    }
+
     func pair(_ prev: String, _ word: String) -> Int {
         lock.lock(); defer { lock.unlock() }
         return pairs[prev.lowercased()]?[word.lowercased()] ?? 0
@@ -536,7 +551,7 @@ final class KBSuggest {
         if let m = mine[low] { return word == low && m != low ? m : nil }
         if low == "i" { return "I" }
         if !Self.ambiguous.contains(low), let c = Self.contractions["en"]?[low] { return c.hasPrefix("I") ? c : matchCase(c, like: word) }
-        guard word.count >= 3, word.count <= 30, !isKnown(low), KBWordStore.shared.count(low) < 3 else { return nil }
+        guard word.count >= 3, word.count <= 30, !isKnown(low), KBWordStore.shared.count(low) < 3 || !isReal(word) else { return nil }
         if word.contains(where: { $0.isNumber || $0 == "@" || $0 == "." || $0 == "/" }) { return nil }
         if word.count > 1, word == word.uppercased() { return nil }
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
@@ -566,6 +581,36 @@ final class KBSuggest {
         let want = language.hasPrefix("en") ? "fr" : "en"
         return UITextChecker.availableLanguages.first { $0.hasPrefix(want) }
     }
+
+    /// Les noms de marque et de produits, écrits comme leurs marques (« iphone » → « iPhone »), comme le clavier d'Apple.
+    static let brands: [String: String] = [
+        "iphone": "iPhone", "iphones": "iPhones", "ipad": "iPad", "ipads": "iPads", "ipod": "iPod", "imac": "iMac", "icloud": "iCloud",
+        "imessage": "iMessage", "ios": "iOS", "ipados": "iPadOS", "macos": "macOS", "watchos": "watchOS", "airpods": "AirPods",
+        "airdrop": "AirDrop", "airplay": "AirPlay", "airtag": "AirTag", "airtags": "AirTags", "macbook": "MacBook", "facetime": "FaceTime",
+        "carplay": "CarPlay", "homepod": "HomePod", "appletv": "AppleTV", "youtube": "YouTube", "youtuber": "YouTuber", "tiktok": "TikTok",
+        "whatsapp": "WhatsApp", "linkedin": "LinkedIn", "paypal": "PayPal", "playstation": "PlayStation", "chatgpt": "ChatGPT",
+        "openai": "OpenAI", "github": "GitHub", "gmail": "Gmail", "wifi": "Wi-Fi", "testflight": "TestFlight", "foldboard": "Foldboard",
+        "powerpoint": "PowerPoint", "onedrive": "OneDrive", "xbox": "Xbox", "netflix": "Netflix", "spotify": "Spotify",
+    ]
+
+    /// Un nom de marque (« iphone », « Iphone » → « iPhone ») : écrit comme la marque, même en début de phrase.
+    static func brand(_ word: String) -> String? {
+        guard let b = brands[word.lowercased()], b != word, word != word.uppercased() || word.count <= 2 else { return nil }
+        return b
+    }
+
+    /// Un mot qui existe vraiment (dans la liste, ton lexique, ou une des deux langues du correcteur d'iOS).
+    func isReal(_ w: String) -> Bool {
+        if isWord(w) || Self.brands[w.lowercased()] != nil { return true }
+        if !isMisspelled(w) { return true }
+        if let l2 = second, !isMisspelled(w, in: l2) { return true }
+        return false
+    }
+
+    /// Les mots anglais après lesquels « dont », « cant »… sont la forme avec apostrophe, même sur le clavier français
+    /// (« i dont know » → « I don’t know »).
+    private static let englishSubjects: Set<String> = ["i", "you", "we", "they", "he", "she", "it", "people", "just", "really",
+        "still", "also", "that", "this", "who", "but", "and", "so", "if", "why", "u", "ya", "please", "actually", "honestly"]
 
     static let frHyphen: [String: String] = [
         "estce": "est-ce", "questce": "qu’est-ce", "qu’estce": "qu’est-ce", "peutetre": "peut-être", "peutêtre": "peut-être",
@@ -726,6 +771,17 @@ final class KBSuggest {
     /// `fast` : appelé sur le fil principal (à l'espace) — sans les suggestions du correcteur d'iOS, qui peuvent
     /// prendre une demi-seconde en français ; nos propres candidats (fautes de frappe, touches voisines) suffisent.
     func correction(for word: String, before: String, touch: KBTouchModel? = nil, fast: Bool = false) -> String? {
+        if let b = Self.brand(word) { return b }
+        // « i » seul n'existe pas en français : c'est le « I » anglais (comme le clavier d'Apple à deux langues).
+        if word == "i", second != nil || language.hasPrefix("en") { return "I" }
+        // « i dont know » : après un sujet anglais, la contraction anglaise, même sur le clavier français.
+        if let pw = Self.previousWord(before, word: word)?.lowercased(), Self.englishSubjects.contains(pw),
+           language.hasPrefix("en") || second?.hasPrefix("en") == true,
+           let c = Self.contractions["en"]?[word.lowercased()], word.lowercased() != "its" || pw != "and" {
+            if !(language.hasPrefix("fr") && ["id", "ill", "lets"].contains(word.lowercased()) && !sentenceIsEnglish(before, word: word) && pw != "i") {
+                return c.hasPrefix("I") ? c : matchCase(c, like: word)
+            }
+        }
         // Une phrase en anglais sur le clavier français (comme le clavier d'Apple avec deux langues) : on corrige en
         // anglais, et rien de français (« the » ne devient pas « thé », « a » pas « à »).
         if language.hasPrefix("fr"), let l2 = second, sentenceIsEnglish(before, word: word) {
@@ -761,8 +817,9 @@ final class KBSuggest {
         if language.hasPrefix("fr"), low == "a", let prev, Self.towardA.contains(prev) || Self.isInfinitive(prev) { return matchCase("à", like: word) }
         if language.hasPrefix("fr"), low == "a", let lm, let sa = lm.score("à", before: before), let s0 = lm.score("a", before: before),
            sa > s0 + Self.t("aDelta", 0.5) { return matchCase("à", like: word) }
-        // Tes mots à toi (tapés plusieurs fois, jamais corrigés) : on n'y touche plus.
-        if KBWordStore.shared.count(low) >= 3 { return nil }
+        // Tes mots à toi (tapés plusieurs fois, et qui existent : un mot d'argot, un nom) : on n'y touche plus.
+        // Une faute de frappe tapée souvent n'en devient pas un mot pour autant (« esoace » restait).
+        if KBWordStore.shared.count(low) >= 3, isReal(word) { return nil }
         // « its » ou « it’s » d'après le mot d'avant, comme le clavier d'Apple : « its great » → « it’s great »,
         // mais « on its own » reste.
         if language.hasPrefix("en"), low == "its", !isKnown(low) {
@@ -985,7 +1042,7 @@ final class KBSuggest {
         guard let lm, word != word.uppercased() || word.count == 1 else { return nil }
         let lower = word.lowercased()
         let own = rank[lower] ?? Int.max
-        guard own > 2_000, !isKnown(lower), KBWordStore.shared.count(lower) == 0 else { return nil }
+        guard own > 2_000, !isKnown(lower), KBWordStore.shared.count(lower) < 3 else { return nil }
         // Il faut un vrai contexte (au moins un mot avant) pour juger.
         guard Self.previousWord(before, word: word) != nil else { return nil }
         // Un mot absent du modèle : estimé d'après sa fréquence dans la liste (pas -20, qui ferait tout corriger).
@@ -1169,7 +1226,7 @@ final class KBSuggest {
         let lower = word.lowercased()
         guard word != word.uppercased() || word.count == 1 else { return nil }
         let own = rank[lower] ?? Int.max
-        guard own > 3_000, !isKnown(lower), KBWordStore.shared.count(lower) == 0 else { return nil }
+        guard own > 3_000, !isKnown(lower), KBWordStore.shared.count(lower) < 3 else { return nil }
         // Un vrai mot anglais courant (« is », « to ») reste ; pas une abréviation que le correcteur anglais accepte
         // aussi (« cz », « ke »).
         if second != nil, Self.englishTwo.contains(lower) { return nil }
@@ -1367,6 +1424,29 @@ final class KBSuggest {
             }
         }
         return (out, best)
+    }
+
+    /// À l'espace, quand la correction rapide n'a rien trouvé mais que la barre propose un vrai mot (souvent un mot
+    /// que seul le correcteur d'iOS trouve : « hsitiite » → « histoire ») : on le prend, comme le clavier d'Apple qui
+    /// corrige vers la proposition du milieu. Seulement pour un mot tapé qui n'existe dans aucune des deux langues.
+    func barFix(_ word: String, items: [String], before: String) -> String? {
+        let low = word.lowercased()
+        guard word.count >= 3, word.count <= 30, !isKnown(low), mine[low] == nil, replacements[low] == nil,
+              word.allSatisfy({ $0.isLetter }), word.count == 1 || word != word.uppercased() else { return nil }
+        if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
+        guard !isReal(word) else { return nil }
+        for item in items where item.lowercased() != low && !item.contains(" ") {
+            let il = item.lowercased()
+            guard rank[il] ?? Int.max < 30_000 || !isMisspelled(item) else { continue }
+            let d = Self.distance(il, low)
+            let allowed = low.count >= 8 ? 4 : (low.count >= 5 ? 3 : 1)
+            guard d <= allowed else { continue }
+            if il.first != low.first {
+                guard let a = il.first, let b = low.first, neighbors(a, b) || Self.sameBase(a, b) else { continue }
+            }
+            return matchCase(item, like: word)
+        }
+        return nil
     }
 
     /// Le mot refusé (on a annulé la correction) : on l'apprend pour ne plus le corriger.

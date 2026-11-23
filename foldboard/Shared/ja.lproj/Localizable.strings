@@ -541,3 +541,10 @@
 "More accurate dictation in 25 European languages, with punctuation, still on your iPhone. Download it once on Wi-Fi; until then, Foldboard uses Apple's dictation." = "ヨーロッパの25言語で、句読点付きのより正確な音声入力。処理はiPhone上で行われます。Wi‑Fiで一度ダウンロードしてください。それまではAppleの音声入力を使います。";
 "Go back to your app (top left): Foldboard starts listening right away. Dictation then stays ready in the background, so you won't have to come back here." = "アプリに戻ってください（左上）：Foldboardがすぐに聞き取ります。その後も音声入力はバックグラウンドで待機するので、ここに戻る必要はありません。";
 "Fix the text" = "テキストを修正";
+"✨ Fix button" = "✨修正ボタン";
+"Buttons" = "ボタン";
+"On the right" = "右側";
+"On the left" = "左側";
+"On both sides" = "両側";
+"Square keys" = "四角いキー";
+"Mic next to return" = "改行の隣にマイク";

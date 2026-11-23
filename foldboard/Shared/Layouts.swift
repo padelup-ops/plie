@@ -13,6 +13,8 @@ enum KeyKind: Equatable {
     case globe
     /// Ouvre les emojis (comme le clavier d'Apple).
     case emoji
+    /// La dictée, à côté de retour (option).
+    case mic
 }
 
 enum KBPage: Equatable {
@@ -125,7 +127,7 @@ enum KBLayouts {
     }
 
     /// La rangée du bas.
-    static func bottom(_ page: KBPage, globe: Bool, layout: KBLayout, compact: Bool = false, leftHand: Bool = false, emoji: Bool = true) -> KeyRow {
+    static func bottom(_ page: KBPage, globe: Bool, layout: KBLayout, compact: Bool = false, leftHand: Bool = false, emoji: Bool = true, mic: Bool = false) -> KeyRow {
         var keys: [KeySpec] = [KeySpec(kind: .page(page == .letters ? .numbers : .letters), width: 1.5)]
         if compact {
             // Petit clavier à une main : le globe et les emojis montent dans la barre du haut, l'espace est bien plus large.
@@ -133,13 +135,15 @@ enum KBLayouts {
             // à gauche pour la main gauche.
             let dot = KeySpec(kind: .char(layout == .azerty && page == .letters ? "," : "."), width: 1)
             if !leftHand {
-                keys.append(KeySpec(kind: .space, width: 5.5))
+                keys.append(KeySpec(kind: .space, width: mic ? 4.4 : 5.5))
                 keys.append(dot)
+                if mic { keys.append(KeySpec(kind: .mic, width: 1.1)) }
                 keys.append(KeySpec(kind: .ret, width: 2))
                 return KeyRow(keys: keys)
             }
             keys.append(dot)
-            keys.append(KeySpec(kind: .space, width: 5.5))
+            keys.append(KeySpec(kind: .space, width: mic ? 4.4 : 5.5))
+            if mic { keys.append(KeySpec(kind: .mic, width: 1.1)) }
             keys.append(KeySpec(kind: .ret, width: 2))
             return KeyRow(keys: keys)
         }
@@ -151,8 +155,11 @@ enum KBLayouts {
         if emoji { keys.append(KeySpec(kind: .emoji, width: 1.1)) }
         let left = 1.25 + (globe ? 1.1 : 0) + (emoji ? 1.1 : 0)
         let ret = min(2.5, max(1.75, left))
-        keys.append(KeySpec(kind: .space, width: 10 - left - ret))
-        keys.append(KeySpec(kind: .ret, width: ret))
+        let micW = mic ? 1.1 : 0
+        keys.append(KeySpec(kind: .space, width: 10 - left - ret - micW))
+        // Comme le clavier de l'iPhone : le micro juste à gauche de retour.
+        if mic { keys.append(KeySpec(kind: .mic, width: micW)) }
+        keys.append(KeySpec(kind: .ret, width: ret - (mic ? 0.0 : 0)))
         return KeyRow(keys: keys)
     }
 
