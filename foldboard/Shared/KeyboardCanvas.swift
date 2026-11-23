@@ -923,8 +923,8 @@ final class KeyboardCanvas: UIView {
         suggest.useNames = settings.contactNames
         let names = settings.contactNames
         suggestQueue.async { [bgSuggest] in bgSuggest.useNames = names }
-        suggest.setMyWords(settings.myWords)
-        let mine = settings.myWords
+        suggest.setMyWords(settings.activeMyWords)
+        let mine = settings.activeMyWords
         suggestQueue.async { [bgSuggest] in bgSuggest.setMyWords(mine) }
         let layout = eff.layout
         suggestQueue.async { [bgSuggest] in bgSuggest.setLayout(layout) }
@@ -3914,11 +3914,15 @@ final class KeyboardCanvas: UIView {
         let keep = onlyFirstCap && KBSuggest.atSentenceStart(stem + w0, word: w0) ? w0.lowercased() : w0
         // Pas quand la correction ne changeait que la majuscule (« i » → « I », un prénom) : ce n'est pas un mot à garder.
         let caseOnly = lc.corrected.lowercased() == lc.original.lowercased()
-        if !caseOnly, w0.count >= 2, w0.allSatisfy({ $0.isLetter || $0 == "-" || $0 == "'" || $0 == "’" }), settings.addMyWord(keep) {
+        // La première annulation ne fait que s'en souvenir : le mot n'entre dans « Mes mots » qu'à la deuxième.
+        if !caseOnly, w0.count >= 2, w0.allSatisfy({ $0.isLetter || $0 == "-" || $0 == "'" || $0 == "’" }), settings.learnOnUndo {
+            let added = settings.undidCorrection(keep)
             input?.kbSettingsChanged(settings)
-            suggest.setMyWords(settings.myWords)
-            let mine = settings.myWords
-            suggestQueue.async { [bgSuggest] in bgSuggest.setMyWords(mine) }
+            if added {
+                suggest.setMyWords(settings.activeMyWords)
+                let mine = settings.activeMyWords
+                suggestQueue.async { [bgSuggest] in bgSuggest.setMyWords(mine) }
+            }
         }
         return true
     }

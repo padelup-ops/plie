@@ -622,3 +622,12 @@
 "Too light" = "Te licht";
 "Round all four corners" = "Alle vier de hoeken afronden";
 "For Spotlight and the apps where the keyboard floats above the bottom of the screen." = "Voor Spotlight en apps waarin het toetsenbord boven de onderkant van het scherm zweeft.";
+"Use My words" = "Mijn woorden gebruiken";
+"Add a word when I undo its correction twice" = "Een woord toevoegen als ik de correctie twee keer ongedaan maak";
+"Off: Foldboard corrects as if the list were empty, and your words stay here for later." = "Uit: Foldboard corrigeert alsof de lijst leeg is, en je woorden blijven hier voor later.";
+"Words Foldboard never corrects. When you undo the correction of the same word twice, it's added here." = "Woorden die Foldboard nooit corrigeert. Maak je de correctie van hetzelfde woord twee keer ongedaan, dan komt het hier.";
+"Tap Select to pick several words and delete them at once." = "Tik op Selecteer om meerdere woorden in één keer te verwijderen.";
+"Select" = "Selecteer";
+"Delete all" = "Alles verwijderen";
+"Delete %lld" = "%lld verwijderen";
+"Delete all your words?" = "Al je woorden verwijderen?";

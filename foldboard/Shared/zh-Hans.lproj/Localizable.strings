@@ -622,3 +622,12 @@
 "Too light" = "太轻";
 "Round all four corners" = "四个角都变圆";
 "For Spotlight and the apps where the keyboard floats above the bottom of the screen." = "适用于“聚焦”以及键盘悬浮在屏幕底部上方的 App。";
+"Use My words" = "使用“我的词语”";
+"Add a word when I undo its correction twice" = "撤销同一个词的更正两次时添加它";
+"Off: Foldboard corrects as if the list were empty, and your words stay here for later." = "关闭：Foldboard 会像列表为空一样更正，你的词语会留在这里备用。";
+"Words Foldboard never corrects. When you undo the correction of the same word twice, it's added here." = "Foldboard 从不更正的词语。同一个词的更正被你撤销两次后，会添加到这里。";
+"Tap Select to pick several words and delete them at once." = "轻点“选择”可一次选择并删除多个词语。";
+"Select" = "选择";
+"Delete all" = "全部删除";
+"Delete %lld" = "删除 %lld 个";
+"Delete all your words?" = "删除你的所有词语？";

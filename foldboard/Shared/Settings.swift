@@ -183,6 +183,13 @@ struct KBSettings: Codable, Equatable {
     var compactBar = true
     /// « Mes mots » : jamais corrigés (ajoutés dans l'app, ou quand tu annules une correction). Le plus récent en premier.
     var myWords: [String] = []
+    /// Se servir de « Mes mots » (éteint : le clavier corrige comme si la liste était vide).
+    var myWordsOn = true
+    /// Ajouter un mot à « Mes mots » quand on annule sa correction — la deuxième fois seulement (une annulation par
+    /// erreur n'y met plus une faute).
+    var learnOnUndo = true
+    /// Les mots dont on a annulé la correction une fois : ils entrent dans « Mes mots » à la deuxième.
+    var undoneOnce: [String] = []
     /// La disposition choisie pour chaque écran (« closed-portrait », « open-portrait », « open-landscape »…).
     /// Absent : la disposition générale (`mode`). Choisir une disposition dans le clavier la règle pour cet écran seulement.
     var screenModes: [String: KBMode] = [:]
@@ -193,6 +200,22 @@ struct KBSettings: Codable, Equatable {
     func mode(for context: String) -> KBMode { screenModes[context] ?? mode }
 
     static let myWordsMax = 500
+
+    /// Les mots que le clavier doit laisser tels quels (vide si « Mes mots » est éteint).
+    var activeMyWords: [String] { myWordsOn ? myWords : [] }
+
+    /// Une correction annulée : le mot attend la deuxième fois pour entrer dans « Mes mots ». Vrai s'il y entre.
+    mutating func undidCorrection(_ word: String) -> Bool {
+        guard learnOnUndo else { return false }
+        let key = word.lowercased()
+        if let i = undoneOnce.firstIndex(where: { $0.lowercased() == key }) {
+            undoneOnce.remove(at: i)
+            return addMyWord(word)
+        }
+        undoneOnce.insert(word, at: 0)
+        if undoneOnce.count > 60 { undoneOnce.removeLast(undoneOnce.count - 60) }
+        return false
+    }
 
     /// Ajoute un mot à « Mes mots » (sans doublon, en premier). Vrai s'il est nouveau.
     @discardableResult
@@ -301,6 +324,9 @@ struct KBSettings: Codable, Equatable {
         translateKey = (try? c.decodeIfPresent(Bool.self, forKey: .translateKey)) ?? d.translateKey
         compactBar = (try? c.decodeIfPresent(Bool.self, forKey: .compactBar)) ?? d.compactBar
         myWords = (try? c.decodeIfPresent([String].self, forKey: .myWords)) ?? d.myWords
+        myWordsOn = (try? c.decodeIfPresent(Bool.self, forKey: .myWordsOn)) ?? d.myWordsOn
+        learnOnUndo = (try? c.decodeIfPresent(Bool.self, forKey: .learnOnUndo)) ?? d.learnOnUndo
+        undoneOnce = (try? c.decodeIfPresent([String].self, forKey: .undoneOnce)) ?? d.undoneOnce
         screenModes = (try? c.decodeIfPresent([String: KBMode].self, forKey: .screenModes)) ?? d.screenModes
         gripResetAt = (try? c.decodeIfPresent(Double.self, forKey: .gripResetAt)) ?? d.gripResetAt
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme

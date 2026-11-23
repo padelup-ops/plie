@@ -622,3 +622,12 @@
 "Too light" = "弱すぎ";
 "Round all four corners" = "四隅すべてを丸くする";
 "For Spotlight and the apps where the keyboard floats above the bottom of the screen." = "Spotlightなど、キーボードが画面下端から浮いて表示されるApp向け。";
+"Use My words" = "マイワードを使う";
+"Add a word when I undo its correction twice" = "修正を2回取り消した単語を追加";
+"Off: Foldboard corrects as if the list were empty, and your words stay here for later." = "オフ：リストが空のように修正します。単語はここに残ります。";
+"Words Foldboard never corrects. When you undo the correction of the same word twice, it's added here." = "Foldboardが修正しない単語です。同じ単語の修正を2回取り消すと、ここに追加されます。";
+"Tap Select to pick several words and delete them at once." = "「選択」をタップすると、複数の単語をまとめて削除できます。";
+"Select" = "選択";
+"Delete all" = "すべて削除";
+"Delete %lld" = "%lld件を削除";
+"Delete all your words?" = "すべての単語を削除しますか？";

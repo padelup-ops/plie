@@ -622,3 +622,12 @@
 "Too light" = "너무 약함";
 "Round all four corners" = "네 모서리 모두 둥글게";
 "For Spotlight and the apps where the keyboard floats above the bottom of the screen." = "Spotlight처럼 키보드가 화면 아래쪽에서 떠 있는 앱을 위한 설정입니다.";
+"Use My words" = "내 단어 사용";
+"Add a word when I undo its correction twice" = "수정을 두 번 취소한 단어 추가";
+"Off: Foldboard corrects as if the list were empty, and your words stay here for later." = "끄면: 목록이 비어 있는 것처럼 수정하며, 단어는 나중을 위해 여기에 남습니다.";
+"Words Foldboard never corrects. When you undo the correction of the same word twice, it's added here." = "Foldboard가 절대 수정하지 않는 단어입니다. 같은 단어의 수정을 두 번 취소하면 여기에 추가됩니다.";
+"Tap Select to pick several words and delete them at once." = "선택을 탭해 여러 단어를 한 번에 삭제하세요.";
+"Select" = "선택";
+"Delete all" = "모두 삭제";
+"Delete %lld" = "%lld개 삭제";
+"Delete all your words?" = "모든 단어를 삭제할까요?";

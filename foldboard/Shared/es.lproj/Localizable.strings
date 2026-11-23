@@ -623,3 +623,12 @@
 "Too light" = "Demasiado suave";
 "Round all four corners" = "Redondear las cuatro esquinas";
 "For Spotlight and the apps where the keyboard floats above the bottom of the screen." = "Para Spotlight y las apps donde el teclado flota sobre la parte inferior de la pantalla.";
+"Use My words" = "Usar Mis palabras";
+"Add a word when I undo its correction twice" = "Añadir una palabra cuando deshago su corrección dos veces";
+"Off: Foldboard corrects as if the list were empty, and your words stay here for later." = "Desactivado: Foldboard corrige como si la lista estuviera vacía, y tus palabras se quedan aquí para más tarde.";
+"Words Foldboard never corrects. When you undo the correction of the same word twice, it's added here." = "Palabras que Foldboard nunca corrige. Si deshaces dos veces la corrección de la misma palabra, se añade aquí.";
+"Tap Select to pick several words and delete them at once." = "Toca Seleccionar para elegir varias palabras y borrarlas a la vez.";
+"Select" = "Seleccionar";
+"Delete all" = "Borrar todo";
+"Delete %lld" = "Borrar %lld";
+"Delete all your words?" = "¿Borrar todas tus palabras?";

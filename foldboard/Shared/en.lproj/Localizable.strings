@@ -616,3 +616,12 @@
 "Too light" = "Too light";
 "Round all four corners" = "Round all four corners";
 "For Spotlight and the apps where the keyboard floats above the bottom of the screen." = "For Spotlight and the apps where the keyboard floats above the bottom of the screen.";
+"Use My words" = "Use My words";
+"Add a word when I undo its correction twice" = "Add a word when I undo its correction twice";
+"Off: Foldboard corrects as if the list were empty, and your words stay here for later." = "Off: Foldboard corrects as if the list were empty, and your words stay here for later.";
+"Words Foldboard never corrects. When you undo the correction of the same word twice, it's added here." = "Words Foldboard never corrects. When you undo the correction of the same word twice, it's added here.";
+"Tap Select to pick several words and delete them at once." = "Tap Select to pick several words and delete them at once.";
+"Select" = "Select";
+"Delete all" = "Delete all";
+"Delete %lld" = "Delete %lld";
+"Delete all your words?" = "Delete all your words?";

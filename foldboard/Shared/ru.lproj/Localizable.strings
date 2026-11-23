@@ -622,3 +622,12 @@
 "Too light" = "Слишком слабо";
 "Round all four corners" = "Скруглить все четыре угла";
 "For Spotlight and the apps where the keyboard floats above the bottom of the screen." = "Для Spotlight и приложений, где клавиатура парит над нижним краем экрана.";
+"Use My words" = "Использовать Мои слова";
+"Add a word when I undo its correction twice" = "Добавлять слово, если я дважды отменю его исправление";
+"Off: Foldboard corrects as if the list were empty, and your words stay here for later." = "Выкл.: Foldboard исправляет так, будто список пуст, а слова остаются здесь на потом.";
+"Words Foldboard never corrects. When you undo the correction of the same word twice, it's added here." = "Слова, которые Foldboard никогда не исправляет. Если дважды отменить исправление одного слова, оно попадёт сюда.";
+"Tap Select to pick several words and delete them at once." = "Нажмите «Выбрать», чтобы удалить несколько слов сразу.";
+"Select" = "Выбрать";
+"Delete all" = "Удалить все";
+"Delete %lld" = "Удалить %lld";
+"Delete all your words?" = "Удалить все ваши слова?";

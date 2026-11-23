@@ -720,7 +720,7 @@ struct TypingView: View {
                     }
                 }
             } footer: {
-                Text("Words Foldboard never corrects. When you undo a correction, the word is added here.")
+                Text("Words Foldboard never corrects. When you undo the correction of the same word twice, it's added here.")
             }
 
             Section {
