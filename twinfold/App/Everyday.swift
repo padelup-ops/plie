@@ -60,7 +60,7 @@ final class PageStyle {
 
     private func install(on c: WKUserContentController) {
         c.removeAllUserScripts()
-        c.addUserScript(WKUserScript(source: MediaScript.source, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
+        c.addUserScript(WKUserScript(source: MediaScript.withSettings, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
         c.addUserScript(WKUserScript(source: Self.liveScript(), injectionTime: .atDocumentStart, forMainFrameOnly: true))
     }
 

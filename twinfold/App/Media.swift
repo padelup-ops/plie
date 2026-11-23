@@ -91,9 +91,13 @@ enum MediaScript {
     })();
     """#
 
+    /// The script with the current settings in front (full screen in the pane).
+    @MainActor static var withSettings: String {
+        "window.__twinfoldFullscreenInPane = \(Library.shared.fullscreenInPane);\n" + source
+    }
+
     @MainActor static func install(on controller: WKUserContentController, handler: WKScriptMessageHandler) {
-        let flag = "window.__twinfoldFullscreenInPane = \(Library.shared.fullscreenInPane);\n"
-        controller.addUserScript(WKUserScript(source: flag + source, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
+        controller.addUserScript(WKUserScript(source: withSettings, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
         controller.add(handler, name: handlerName)
     }
 }
