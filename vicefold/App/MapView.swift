@@ -21,6 +21,8 @@ final class MapState {
     var hideVisited = false
     /// Une demande de centrer la carte sur un point (coordonnées de la carte).
     var focus: CGPoint?
+    /// Glisser jusqu'au point (la carte) ou y être tout de suite (les aperçus).
+    var animateFocus = true
 }
 
 struct MapTab: View {
@@ -33,10 +35,24 @@ struct MapTab: View {
             NavigationStack { MapCanvasScreen() }
         }
         .environment(state)
+        .onChange(of: AppRouter.shared.mapPlace) { _, p in open(p) }
         .onAppear {
+            open(AppRouter.shared.mapPlace)
             // Vice City et Vice Beach, pour les captures.
             if ShotMode.route == "mappins" { state.zoom = 3; state.focus = CGPoint(x: 0.8 * Leonida.size.width, y: 0.5 * Leonida.size.height) }
         }
+    }
+}
+
+extension MapTab {
+    /// Un lieu demandé depuis un autre écran (le lieu du jour…) : on y va, et on l'ouvre.
+    fileprivate func open(_ p: VFPlace?) {
+        guard let p else { return }
+        AppRouter.shared.mapPlace = nil
+        state.layers.insert(p.kind)
+        state.selectedPlace = p
+        state.zoom = max(state.zoom, 6)
+        state.focus = CGPoint(x: p.x * Leonida.size.width, y: p.y * Leonida.size.height)
     }
 }
 
@@ -77,6 +93,9 @@ struct MapCanvasScreen: View {
                     } label: { Image(systemName: state.dropping ? "mappin.slash" : "mappin.and.ellipse") }
                         .accessibilityLabel("Add a pin")
                 }
+            }
+            .overlay(alignment: .top) {
+                if !state.dropping && !state.calibrating { QuickFilters() }
             }
             .overlay(alignment: .top) {
                 if state.dropping {
@@ -192,6 +211,7 @@ enum MapColors {
 
 /// La carte elle-même : glisser pour se déplacer, pincer pour zoomer, toucher deux fois pour zoomer.
 struct LeonidaMapView: View {
+    var showsCredit = true
     @Environment(MapState.self) private var state
     @Environment(ContentStore.self) private var content
     @Environment(Progress.self) private var progress
@@ -254,7 +274,7 @@ struct LeonidaMapView: View {
             .simultaneousGesture(magnify(geo: geo, s0: s0))
             .onChange(of: state.focus) { _, f in
                 guard let f else { return }
-                withAnimation(.snappy) {
+                withAnimation(state.animateFocus ? .snappy : nil) {
                     state.zoom = max(state.zoom, 2.2)
                     let s = s0 * state.zoom
                     state.pan = CGSize(width: -(f.x - Leonida.size.width / 2) * s, height: -(f.y - Leonida.size.height / 2) * s)
@@ -263,7 +283,7 @@ struct LeonidaMapView: View {
             }
             .onAppear { if let f = state.focus { state.focus = nil; DispatchQueue.main.async { state.focus = f } } }
         }
-        .overlay(alignment: .bottomLeading) { MapCredit().padding(8) }
+        .overlay(alignment: .bottomLeading) { if showsCredit { MapCredit().padding(8) } }
         .clipped()
         .task(id: progress.data.customMap) { myMap = UIImage(contentsOfFile: progress.mapURL.path) }
         .accessibilityLabel("Map of Leonida")
@@ -493,6 +513,8 @@ struct PlaceList: View {
         }
         .searchable(text: $state.query, prompt: Text("Search places and pins"))
         .navigationTitle("Places")
+        .scrollContentBackground(.hidden)
+        .background(VFBackdrop())
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Toggle(isOn: $state.hideVisited) { Image(systemName: "eye.slash") }
@@ -656,5 +678,39 @@ struct MapCreditView: View {
         .navigationTitle("Map credits")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+    }
+}
+
+/// Les filtres rapides, en verre, au-dessus de la carte : un geste pour ne voir que les hôtels, les stations-service…
+/// Toucher à nouveau le même filtre remet toutes les couches.
+struct QuickFilters: View {
+    @Environment(MapState.self) private var state
+    @Environment(Store.self) private var store
+    private let kinds: [VFPlaceKind] = [.landmark, .hotel, .food, .shop, .gas, .transport, .nature, .activity]
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            GlassEffectContainer(spacing: 8) {
+                HStack(spacing: 8) {
+                    ForEach(kinds) { k in
+                        let on = state.layers == [k]
+                        Button {
+                            withAnimation(.snappy) { state.layers = on ? VFPlaceKind.defaultLayers : [k] }
+                        } label: {
+                            Label(k.title, systemImage: k.icon)
+                                .font(.footnote.weight(.semibold))
+                                .padding(.horizontal, 12).padding(.vertical, 8)
+                                .foregroundStyle(on ? .white : .primary)
+                        }
+                        .buttonStyle(.plain)
+                        .glassEffect(on ? .regular.tint(MapColors.color(k)).interactive() : .regular.interactive(), in: .capsule)
+                        .disabled(k.pro && !store.isPro)
+                        .opacity(k.pro && !store.isPro ? 0.5 : 1)
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+        .padding(.top, 6)
     }
 }

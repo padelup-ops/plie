@@ -15,52 +15,63 @@ struct EggsView: View {
     var body: some View {
         let eggs = content.content.eggs
         let shown = eggs.filter { filter == 0 || (filter == 1) == progress.found($0) }
-        List {
-            Section {
-                HStack(spacing: 14) {
-                    Image(systemName: "oval.portrait.fill")
-                        .font(.title)
-                        .foregroundStyle(VF.gradient)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("\(eggs.filter { progress.found($0) }.count) of \(eggs.count) found").font(.headline)
-                        Text("Secrets spotted by players since launch. Tap one to see where; the how stays hidden until you ask.")
-                            .font(.caption).foregroundStyle(.secondary)
+        let found = eggs.filter { progress.found($0) }.count
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text("\(found)").font(VF.display(56)).monospacedDigit().foregroundStyle(VF.flamingo)
+                        Text("of \(eggs.count) found").font(VF.display(24, relativeTo: .title2))
                     }
+                    Text("Secrets spotted by players since launch. Tap one to see where; the how stays hidden until you ask.")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                    Picker("Show", selection: $filter) {
+                        Text("All").tag(0)
+                        Text("Found").tag(1)
+                        Text("To find").tag(2)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.top, 6)
                 }
-                Picker("Show", selection: $filter) {
-                    Text("All").tag(0)
-                    Text("Found").tag(1)
-                    Text("To find").tag(2)
-                }
-                .pickerStyle(.segmented)
-            }
-            Section {
-                ForEach(shown) { e in
-                    NavigationLink { EggDetail(egg: e) } label: { EggRow(egg: e) }
-                }
-            } footer: {
-                Text("Written by us from what players and the press reported. \"Reported\" means only one source so far.")
-            }
-            Section {
-                ForEach(progress.data.myEggs) { e in
-                    Button { editing = e } label: {
-                        HStack(spacing: 12) {
-                            MyEggThumb(egg: e)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(e.title).foregroundStyle(.primary)
-                                if !e.place.isEmpty { Text(e.place).font(.caption).foregroundStyle(.secondary) }
-                            }
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 16)], spacing: 22) {
+                    ForEach(Array(shown.enumerated()), id: \.element.id) { i, e in
+                        NavigationLink { EggDetail(egg: e) } label: {
+                            Polaroid(egg: e, photoHeight: 120).rotationEffect(.degrees(i % 3 == 0 ? -1.4 : (i % 3 == 1 ? 1.1 : -0.4)))
                         }
+                        .buttonStyle(.plain)
                     }
                 }
-                .onDelete { idx in for i in idx { progress.remove(progress.data.myEggs[i]) } }
-                Button { editing = VFMyEgg(title: "") } label: { Label("Add my find", systemImage: "plus.circle.fill") }
-            } header: {
-                Text("My finds")
-            } footer: {
-                Text("Spotted something odd? Keep it here with a photo. It stays on your devices.")
+                Text("Written by us from what players and the press reported. \"Reported\" means only one source so far.")
+                    .font(.caption).foregroundStyle(.secondary)
+
+                SectionTitle(title: "My finds", action: "Add my find") { editing = VFMyEgg(title: "") }
+                if progress.data.myEggs.isEmpty {
+                    Text("Spotted something odd? Keep it here with a photo. It stays on your devices.")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                        .vfCard()
+                } else {
+                    ForEach(progress.data.myEggs) { e in
+                        Button { editing = e } label: {
+                            HStack(spacing: 12) {
+                                MyEggThumb(egg: e)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(e.title).font(.headline).foregroundStyle(.primary)
+                                    if !e.place.isEmpty { Text(e.place).font(.caption).foregroundStyle(.secondary) }
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                            }
+                            .vfCard(radius: 18, padding: 12)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
+            .padding()
+            .frame(maxWidth: 760)
+            .frame(maxWidth: .infinity)
         }
+        .background(VFBackdrop())
         .navigationTitle("Easter eggs")
         .sheet(item: $editing) { e in NavigationStack { MyEggEditor(egg: e) } }
     }
@@ -140,6 +151,7 @@ struct EggDetail: View {
                         .onAppear {
                             map.layers = []
                             map.showPins = false
+                            map.animateFocus = false
                             map.zoom = 5
                             map.focus = CGPoint(x: x * Leonida.size.width, y: y * Leonida.size.height)
                         }

@@ -52,6 +52,8 @@ private struct GuideList: View {
                 }
             }
             .navigationTitle("Guides")
+            .scrollContentBackground(.hidden)
+            .background(VFBackdrop())
             .navigationDestination(item: $push) { GuideReader(guide: $0) }
         }
     }

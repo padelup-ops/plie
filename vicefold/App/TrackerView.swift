@@ -68,6 +68,8 @@ private struct TrackerList: View {
                 }
             }
             .navigationTitle("Tracker")
+            .scrollContentBackground(.hidden)
+            .background(VFBackdrop())
             .navigationDestination(item: $push) { MissionDetail(mission: $0) }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -319,7 +321,7 @@ struct CollectibleRows: View {
 
 struct CollectiblesView: View {
     var body: some View {
-        List { CollectibleRows() }.navigationTitle("Collectibles")
+        List { CollectibleRows() }.navigationTitle("Collectibles").scrollContentBackground(.hidden).background(VFBackdrop())
     }
 }
 

@@ -1,6 +1,7 @@
 // HomeView.swift — Vicefold
 //
-// L'accueil : ton 100 % en un anneau, la prochaine mission, par où commencer, et les nouveautés du guide.
+// L'accueil, comme une carte postale de Leonida : la prochaine mission en affiche sur la vraie carte, ta progression
+// en égaliseur, le lieu et le secret du jour (une raison de revenir chaque jour), des billets vers le reste.
 
 import SwiftUI
 
@@ -14,39 +15,41 @@ struct HomeView: View {
 
     var body: some View {
         DualLayout {
-            // Gauche (ou tout, sur iPhone) : toi, ton 100 %, la suite.
-            column(wideRight: false)
+            column
         } secondary: {
-            // Droite du pli : par où commencer, les raccourcis, les nouveautés.
+            // Droite du pli : le secret du jour, les billets, par où commencer, les nouveautés.
             NavigationStack {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
+                    VStack(alignment: .leading, spacing: 22) {
+                        secretOfTheDay
+                        tickets
                         startHere
-                        shortcuts
                         if let news = content.content.news, !news.isEmpty { newsCard(news) }
                         credits
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 20)
                 }
-                .background(backdrop)
+                .background(VFBackdrop())
             }
         }
         .sheet(isPresented: $showShare) { ShareProgressView() }
         .sheet(isPresented: $showProfile) { NavigationStack { ProfileView() } }
     }
 
-    private func column(wideRight: Bool) -> some View {
+    private var column: some View {
         NavigationStack {
             WideReader { wide in
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
+                    VStack(alignment: .leading, spacing: 22) {
                         header
-                        ringCard
-                        if let m = progress.nextMission(content.content) { nextCard(m) }
+                        hero
+                        progressCard
+                        spotOfTheDay
                         if !wide {
+                            secretOfTheDay
+                            tickets
                             startHere
-                            shortcuts
                             if let news = content.content.news, !news.isEmpty { newsCard(news) }
                             credits
                         }
@@ -57,8 +60,7 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .background(backdrop)
-            .navigationTitle(Self.appName)
+            .background(VFBackdrop())
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showProfile = true } label: { Avatar(size: 32) }
@@ -74,28 +76,21 @@ struct HomeView: View {
             ?? Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String ?? "GTA 6 Guide"
     }
 
-    private var backdrop: some View {
-        LinearGradient(colors: [VF.coral.opacity(0.22), VF.magenta.opacity(0.08), .clear], startPoint: .top, endPoint: .center)
-            .ignoresSafeArea()
-    }
+    // MARK: En-tête
 
     private var header: some View {
         let days = Calendar.current.dateComponents([.day], from: VF.release, to: Date()).day ?? 0
-        return VStack(alignment: .leading, spacing: 4) {
-            Text(greeting).font(.title2.bold())
+        return VStack(alignment: .leading, spacing: 2) {
             Group {
-                if days < 0 {
-                    Text("Release in \(-days) days")
-                } else if days == 0 {
-                    Text("Out today on PS5 and Xbox Series")
-                } else {
-                    Text("Day \(days + 1) in Leonida")
-                }
+                if days < 0 { Text("Release in \(-days) days") }
+                else if days == 0 { Text("Out today on PS5 and Xbox Series") }
+                else { Text("Day \(days + 1) in Leonida") }
             }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(VF.flamingo)
+            Text(greeting).font(VF.display(40)).lineLimit(1).minimumScaleFactor(0.6)
         }
-        .padding(.top, 6)
+        .padding(.top, 4)
     }
 
     private var greeting: String {
@@ -103,79 +98,143 @@ struct HomeView: View {
         return n.isEmpty ? String(localized: "Welcome to Leonida") : String(localized: "Hi \(n)")
     }
 
-    private var ringCard: some View {
-        let p = progress.parts(content.content)
-        return HStack(spacing: 18) {
-            ZStack {
-                VFRing(parts: p.all, lineWidth: 11)
-                VStack(spacing: 0) {
-                    Text(p.total, format: .percent.precision(.fractionLength(0)))
-                        .font(.title2.bold().monospacedDigit())
-                    Text("complete").font(.caption2).foregroundStyle(.secondary)
-                }
-            }
-            .frame(width: 132, height: 132)
-            VStack(alignment: .leading, spacing: 8) {
-                legend(String(localized: "Missions"), p.missions, 0)
-                legend(String(localized: "Places"), p.places, 1)
-                legend(String(localized: "Collectibles"), p.collectibles, 2)
-                legend(String(localized: "Challenges"), p.challenges, 3)
-                Button { showShare = true } label: {
-                    Label("Share", systemImage: "square.and.arrow.up").font(.footnote.weight(.semibold))
-                }
-                .buttonStyle(.bordered)
-                .padding(.top, 2)
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial, in: .rect(cornerRadius: 24))
-        .onTapGesture { tab = .tracker }
-    }
+    // MARK: L'affiche : la prochaine mission sur la vraie carte
 
-    private func legend(_ name: String, _ v: Double, _ i: Int) -> some View {
-        HStack(spacing: 8) {
-            Circle().fill(VF.ringColors[i]).frame(width: 9, height: 9)
-            Text(name).font(.subheadline).lineLimit(1).minimumScaleFactor(0.75)
-            Spacer(minLength: 4)
-            Text(v, format: .percent.precision(.fractionLength(0))).font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
-        }
-    }
-
-    private func nextCard(_ m: VFMission) -> some View {
-        let hidden = progress.hidden(m.chapter)
-        return NavigationLink {
-            MissionDetail(mission: m)
-        } label: {
-            HStack(spacing: 14) {
-                Image(systemName: "flag.checkered")
-                    .font(.title2)
-                    .foregroundStyle(.white)
-                    .frame(width: 52, height: 52)
-                    .background(VF.gradient, in: .rect(cornerRadius: 14))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Next mission").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                    Text(hidden ? String(localized: "Hidden until you get there") : m.title)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                    if let c = content.chapter(m.chapter) {
-                        Text(c.title).font(.footnote).foregroundStyle(.secondary)
+    @ViewBuilder private var hero: some View {
+        if let m = progress.nextMission(content.content) {
+            let hidden = progress.hidden(m.chapter)
+            let chapterMissions = content.content.missions.filter { $0.chapter == m.chapter && $0.optional != true }
+            let done = chapterMissions.filter { progress.isDone($0) }.count
+            NavigationLink { MissionDetail(mission: m) } label: {
+                ZStack(alignment: .bottomLeading) {
+                    MapPostcard(focus: CGPoint(x: 0.74, y: 0.5), zoom: 3.2)
+                    LinearGradient(colors: [.clear, VF.ink.opacity(0.25), VF.ink.opacity(0.92)], startPoint: .top, endPoint: .bottom)
+                    Text("Map © GTADB.org · CC BY 4.0")
+                        .font(.system(size: 8, weight: .medium)).foregroundStyle(.white.opacity(0.7))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing).padding(10)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Next mission")
+                            .font(.caption.weight(.bold))
+                            .padding(.horizontal, 10).padding(.vertical, 5)
+                            .background(VF.flamingo, in: .capsule)
+                        Text(hidden ? String(localized: "Hidden until you get there") : m.title)
+                            .font(VF.display(40))
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.6)
+                            .multilineTextAlignment(.leading)
+                        if let c = content.chapter(m.chapter) {
+                            HStack(spacing: 10) {
+                                Text(c.title).font(.subheadline.weight(.semibold)).lineLimit(1)
+                                Spacer(minLength: 6)
+                                Text("\(done)/\(chapterMissions.count)").font(.subheadline.weight(.bold)).monospacedDigit()
+                            }
+                            .foregroundStyle(.white.opacity(0.85))
+                            ProgressView(value: Double(done), total: Double(max(1, chapterMissions.count)))
+                                .tint(VF.sun)
+                        }
                     }
+                    .foregroundStyle(.white)
+                    .padding(20)
                 }
-                Spacer()
-                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                .frame(height: 300)
+                .clipShape(.rect(cornerRadius: 30, style: .continuous))
+                .contentShape(.rect(cornerRadius: 30))
             }
-            .padding()
-            .background(.regularMaterial, in: .rect(cornerRadius: 20))
+            .buttonStyle(.plain)
+            .accessibilityHint("Opens the mission")
+        }
+    }
+
+    // MARK: Progression
+
+    private var progressCard: some View {
+        Button { tab = .tracker } label: {
+            VStack(alignment: .leading, spacing: 14) {
+                ProgressEqualizer(parts: progress.parts(content.content))
+                HStack {
+                    Label("\(progress.data.missions.count) missions done", systemImage: "flag.checkered")
+                    Spacer()
+                    Button { showShare = true } label: { Label("Share", systemImage: "square.and.arrow.up") }
+                        .buttonStyle(.bordered).tint(VF.flamingo).controlSize(.small)
+                }
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+            }
+            .vfCard(radius: 26, padding: 18)
         }
         .buttonStyle(.plain)
     }
 
-    private var startHere: some View {
+    // MARK: Le lieu du jour
+
+    @ViewBuilder private var spotOfTheDay: some View {
+        let spots = content.content.places.filter { $0.community && ($0.real != nil || $0.enterable == true) && !progress.hidden($0.spoiler) }
+        if !spots.isEmpty {
+            let p = spots[Daily.index(spots.count, salt: 7)]
+            VStack(alignment: .leading, spacing: 12) {
+                SectionTitle(title: "Spot of the day")
+                Button { AppRouter.shared.mapPlace = p } label: {
+                    HStack(spacing: 14) {
+                        MapPostcard(focus: CGPoint(x: p.x, y: p.y), zoom: 9, pin: true)
+                            .frame(width: 112, height: 112)
+                            .clipShape(.rect(cornerRadius: 18, style: .continuous))
+                        VStack(alignment: .leading, spacing: 5) {
+                            Label(p.kind.title, systemImage: p.kind.icon).font(.caption.weight(.bold)).foregroundStyle(MapColors.color(p.kind))
+                            Text(p.name).font(VF.display(24, relativeTo: .title3)).lineLimit(2).minimumScaleFactor(0.7)
+                            if let r = p.region { Text(r).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
+                            if let real = p.real { Text("Inspired by \(real)").font(.caption).foregroundStyle(.secondary).lineLimit(2) }
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "arrow.up.right.circle.fill").font(.title2).foregroundStyle(VF.flamingo)
+                    }
+                    .vfCard(radius: 24, padding: 12)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    // MARK: Le secret du jour (un polaroïd)
+
+    @ViewBuilder private var secretOfTheDay: some View {
+        let eggs = content.content.eggs.filter { !progress.found($0) && !progress.hidden($0.spoiler) }
+        let pool = eggs.isEmpty ? content.content.eggs.filter { !progress.hidden($0.spoiler) } : eggs
+        if !pool.isEmpty {
+            let e = pool[Daily.index(pool.count, salt: 3)]
+            VStack(alignment: .leading, spacing: 12) {
+                SectionTitle(title: "Secret of the day")
+                NavigationLink { EggDetail(egg: e) } label: { Polaroid(egg: e).rotationEffect(.degrees(-1.5)).padding(.horizontal, 6) }
+                    .buttonStyle(.plain)
+            }
+        }
+    }
+
+    // MARK: Les billets
+
+    private var tickets: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                Button { tab = .map } label: { TicketTile(title: "Map", stub: "600 places", icon: "map.fill", color: VF.palm) }
+                NavigationLink { EggsView() } label: {
+                    TicketTile(title: "Easter eggs", stub: "\(content.content.eggs.filter { progress.found($0) }.count)/\(content.content.eggs.count) found", icon: "oval.portrait.fill", color: VF.flamingo)
+                }
+                NavigationLink { RadioView() } label: { TicketTile(title: "Radio", stub: "Songs & previews", icon: "radio.fill", color: VF.sunset) }
+                NavigationLink { CheatsView() } label: { TicketTile(title: "Cheat codes", stub: "PS5 and Xbox", icon: "gamecontroller.fill", color: VF.sky) }
+                Button { tab = .tracker } label: { TicketTile(title: "Collectibles", stub: "Every 100% item", icon: "sparkles", color: VF.sun) }
+            }
+            .buttonStyle(.plain)
+            .padding(.vertical, 2)
+        }
+        .scrollClipDisabled()
+    }
+
+    // MARK: Par où commencer
+
+    @ViewBuilder private var startHere: some View {
         let g = content.guides(.start)
-        return VStack(alignment: .leading, spacing: 10) {
-            if !g.isEmpty {
-                Text("Start here").font(.title3.bold())
+        if !g.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                SectionTitle(title: "Start here")
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(g) { guide in
@@ -189,44 +248,22 @@ struct HomeView: View {
         }
     }
 
-    private var shortcuts: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 12) {
-            shortcut("Map of Leonida", "map.fill", VF.teal) { tab = .map }
-            shortcut("Collectibles", "sparkles", VF.sun) { tab = .tracker }
-            NavigationLink { CheatsView() } label: { tile("Cheat codes", "gamecontroller.fill", VF.magenta) }.buttonStyle(.plain)
-            NavigationLink { RadioView() } label: { tile("Radio", "radio.fill", VF.coral) }.buttonStyle(.plain)
-            NavigationLink { EggsView() } label: { tile("Easter eggs", "oval.portrait.fill", VF.teal) }.buttonStyle(.plain)
-        }
-    }
-
-    private func shortcut(_ t: LocalizedStringKey, _ icon: String, _ c: Color, _ action: @escaping () -> Void) -> some View {
-        Button(action: action) { tile(t, icon, c) }.buttonStyle(.plain)
-    }
-
-    private func tile(_ t: LocalizedStringKey, _ icon: String, _ c: Color) -> some View {
-        HStack {
-            Image(systemName: icon).font(.title3).foregroundStyle(c)
-            Text(t).font(.subheadline.weight(.semibold))
-            Spacer()
-        }
-        .padding()
-        .background(.regularMaterial, in: .rect(cornerRadius: 18))
-    }
-
     private func newsCard(_ news: [VFNews]) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("What's new in the guide").font(.title3.bold())
+        VStack(alignment: .leading, spacing: 12) {
+            SectionTitle(title: "What's new in the guide")
             ForEach(news.prefix(3)) { n in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(n.title).font(.headline)
-                    Text(n.body).font(.subheadline).foregroundStyle(.secondary)
-                    Text(n.date).font(.caption).foregroundStyle(.tertiary)
+                HStack(alignment: .top, spacing: 12) {
+                    Capsule().fill(VF.flamingo).frame(width: 4)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(n.title).font(.headline)
+                        Text(n.body).font(.subheadline).foregroundStyle(.secondary)
+                        Text(n.date).font(.caption).foregroundStyle(.tertiary)
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                .background(.regularMaterial, in: .rect(cornerRadius: 18))
+                .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .vfCard()
     }
 
     private var credits: some View {
@@ -234,6 +271,73 @@ struct HomeView: View {
             .font(.caption2)
             .foregroundStyle(.tertiary)
             .padding(.top, 8)
+    }
+}
+
+/// Un morceau de la vraie carte de Leonida, fixe (pour les affiches et les aperçus).
+struct MapPostcard: View {
+    var focus: CGPoint
+    var zoom: CGFloat
+    var pin = false
+    @State private var map = MapState()
+
+    var body: some View {
+        LeonidaMapView(showsCredit: false)
+            .environment(map)
+            .allowsHitTesting(false)
+            .overlay {
+                if pin {
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.system(size: 26))
+                        .foregroundStyle(.white, VF.flamingo)
+                        .shadow(radius: 3)
+                }
+            }
+            .onAppear {
+                map.layers = []
+                map.showPins = false
+                map.animateFocus = false
+                map.zoom = zoom
+                map.focus = CGPoint(x: focus.x * Leonida.size.width, y: focus.y * Leonida.size.height)
+            }
+            .accessibilityHidden(true)
+    }
+}
+
+/// Un easter egg en polaroïd : la photo (un bout de carte, ou un dégradé du soir), la légende dessous.
+struct Polaroid: View {
+    var egg: VFEgg
+    var photoHeight: CGFloat = 170
+    @Environment(Progress.self) private var progress
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        let hidden = progress.hidden(egg.spoiler)
+        VStack(alignment: .leading, spacing: 10) {
+            ZStack(alignment: .topTrailing) {
+                if let x = egg.x, let y = egg.y {
+                    MapPostcard(focus: CGPoint(x: x, y: y), zoom: 6, pin: true)
+                } else {
+                    VF.dusk.overlay(Image(systemName: "oval.portrait.fill").font(.system(size: 44)).foregroundStyle(.white.opacity(0.85)))
+                }
+                if progress.found(egg) {
+                    Label("Found", systemImage: "checkmark.seal.fill").font(.caption.weight(.bold))
+                        .padding(.horizontal, 8).padding(.vertical, 4).background(VF.palm, in: .capsule).foregroundStyle(.white).padding(8)
+                }
+            }
+            .frame(height: photoHeight)
+            .clipShape(.rect(cornerRadius: 4))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(hidden ? String(localized: "Hidden until your chapter") : egg.title).font(VF.display(photoHeight < 150 ? 18 : 22, relativeTo: .title3)).foregroundStyle(VF.ink)
+                    .lineLimit(2).minimumScaleFactor(0.8).multilineTextAlignment(.leading)
+                Text(egg.area).font(.caption).foregroundStyle(VF.ink.opacity(0.6)).lineLimit(1)
+            }
+            .padding(.horizontal, 4)
+        }
+        .padding(10)
+        .padding(.bottom, 6)
+        .background(Color.white, in: .rect(cornerRadius: 6))
+        .shadow(color: .black.opacity(scheme == .dark ? 0.5 : 0.14), radius: 12, y: 6)
     }
 }
 
@@ -246,20 +350,23 @@ struct WideReader<Content: View>: View {
 
 struct GuideCard: View {
     var guide: VFGuide
+    @Environment(\.colorScheme) private var scheme
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Image(systemName: guide.category.icon)
-                .font(.title2)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(.white)
-                .frame(width: 44, height: 44)
-                .background(VF.gradient, in: .rect(cornerRadius: 12))
-            Text(guide.title).font(.headline).lineLimit(2).multilineTextAlignment(.leading)
+                .frame(width: 40, height: 40)
+                .background(VF.dusk, in: .rect(cornerRadius: 12, style: .continuous))
+            Text(guide.title).font(VF.display(20, relativeTo: .headline)).lineLimit(2).multilineTextAlignment(.leading)
             if let s = guide.summary { Text(s).font(.caption).foregroundStyle(.secondary).lineLimit(3) }
             Spacer(minLength: 0)
+            if let m = guide.minutes { Text("\(m) min read").font(.caption2.weight(.semibold)).foregroundStyle(VF.flamingo) }
         }
-        .padding()
-        .frame(width: 210, height: 190, alignment: .topLeading)
-        .background(.regularMaterial, in: .rect(cornerRadius: 20))
+        .padding(14)
+        .frame(width: 200, height: 200, alignment: .topLeading)
+        .background(VF.card(scheme == .dark), in: .rect(cornerRadius: 22, style: .continuous))
+        .shadow(color: VF.ink.opacity(scheme == .dark ? 0 : 0.06), radius: 10, y: 4)
     }
 }
 
@@ -273,10 +380,10 @@ struct Avatar: View {
                 Image(uiImage: img).resizable().scaledToFill()
             } else {
                 Text(initial)
-                    .font(.system(size: size * 0.45, weight: .bold))
+                    .font(VF.display(size * 0.5))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(VF.gradient)
+                    .background(VF.dusk)
             }
         }
         .frame(width: size, height: size)

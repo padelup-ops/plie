@@ -33,17 +33,41 @@ struct VFSnapshot: Codable, Equatable {
     }
 }
 
-/// Les couleurs de Vicefold : un coucher de soleil sur la côte (corail, magenta, turquoise), pas celles du jeu.
+/// Les couleurs de Vicefold : des cartes postales de Leonida — l'eau du golfe la nuit, le flamant, le coucher de
+/// soleil, les palmiers, l'eau des piscines. Pas celles du jeu.
 enum VF {
-    static let coral = Color(red: 1.0, green: 0.42, blue: 0.36)
-    static let magenta = Color(red: 0.93, green: 0.23, blue: 0.56)
-    static let teal = Color(red: 0.11, green: 0.74, blue: 0.72)
-    static let sun = Color(red: 1.0, green: 0.74, blue: 0.27)
-    static let night = Color(red: 0.07, green: 0.08, blue: 0.16)
-    static let gradient = LinearGradient(colors: [sun, coral, magenta], startPoint: .topLeading, endPoint: .bottomTrailing)
+    /// Le bleu nuit du golfe : le texte en clair, le fond en sombre.
+    static let ink = Color(red: 14 / 255, green: 27 / 255, blue: 43 / 255)
+    /// L'eau de piscine : le fond en clair.
+    static let pool = Color(red: 234 / 255, green: 246 / 255, blue: 245 / 255)
+    static let flamingo = Color(red: 1.0, green: 79 / 255, blue: 139 / 255)
+    static let sunset = Color(red: 1.0, green: 138 / 255, blue: 61 / 255)
+    static let palm = Color(red: 20 / 255, green: 176 / 255, blue: 138 / 255)
+    static let sun = Color(red: 1.0, green: 201 / 255, blue: 74 / 255)
+    static let sky = Color(red: 75 / 255, green: 163 / 255, blue: 1.0)
 
-    /// Les quatre parts de l'anneau 100 %.
-    static let ringColors: [Color] = [coral, teal, sun, magenta]
+    // Les anciens noms, pour les écrans qui les utilisent encore.
+    static let coral = sunset
+    static let magenta = flamingo
+    static let teal = palm
+    static let night = ink
+
+    static let gradient = LinearGradient(colors: [sun, sunset, flamingo], startPoint: .topLeading, endPoint: .bottomTrailing)
+    /// Le ciel du soir, de haut en bas (affiches, cartes postales).
+    static let dusk = LinearGradient(colors: [Color(red: 0.36, green: 0.27, blue: 0.86), flamingo, sunset], startPoint: .top, endPoint: .bottom)
+
+    /// Les quatre parts du 100 % : missions, lieux, objets, défis.
+    static let ringColors: [Color] = [flamingo, palm, sun, sky]
+
+    /// Le fond des écrans : l'eau de piscine le jour, le golfe la nuit.
+    static func backdrop(_ dark: Bool) -> Color { dark ? Color(red: 9 / 255, green: 20 / 255, blue: 34 / 255) : pool }
+    /// Le fond des cartes posées dessus.
+    static func card(_ dark: Bool) -> Color { dark ? Color(red: 17 / 255, green: 36 / 255, blue: 58 / 255) : .white }
+
+    /// Les titres d'affiche (Anton, licence SIL Open Font).
+    static func display(_ size: CGFloat, relativeTo style: Font.TextStyle = .largeTitle) -> Font {
+        .custom("Anton-Regular", size: size, relativeTo: style)
+    }
 
     /// La sortie du jeu (PS5 et Xbox Series), annoncée par l'éditeur.
     static let release: Date = {

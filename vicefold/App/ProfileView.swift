@@ -85,6 +85,8 @@ struct ProfileView: View {
             }
         }
         .navigationTitle("Profile")
+        .scrollContentBackground(.hidden)
+        .background(VFBackdrop())
         .onAppear { name = progress.data.name; if psn.connected && psn.titles.isEmpty { Task { await psn.refreshTitles() } } }
         .onDisappear { save() }
         .onChange(of: item) { _, it in
@@ -231,6 +233,8 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        .scrollContentBackground(.hidden)
+        .background(VFBackdrop())
         .sheet(isPresented: $showPro) { ProView() }
     }
 }

@@ -14,6 +14,7 @@ struct VicefoldApp: App {
 
     init() {
         Alerts.shared.register()
+        VFStyle.apply()
     }
 
     var body: some Scene {
@@ -53,6 +54,9 @@ struct RootView: View {
             }
         }
         .tabViewStyle(.sidebarAdaptable)
+        .tabBarMinimizeBehavior(.onScrollDown)
+        .tint(VF.flamingo)
+        .onChange(of: AppRouter.shared.mapPlace) { _, p in if p != nil { tab = .map } }
         .onOpenURL { url in
             switch url.host() {
             case "tracker": tab = .tracker

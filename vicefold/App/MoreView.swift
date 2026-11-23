@@ -84,6 +84,8 @@ private struct MoreList: View {
                 Section { ForEach([MoreItem.profile, .settings]) { row($0) } }
             }
             .navigationTitle("More")
+            .scrollContentBackground(.hidden)
+            .background(VFBackdrop())
             .navigationDestination(item: $push) { $0.screen }
             .sheet(isPresented: $showPro) { ProView() }
             .task {
@@ -122,21 +124,18 @@ struct CharactersView: View {
     @State private var query = ""
 
     var body: some View {
-        List {
-            ForEach(list) { c in
-                NavigationLink { CharacterDetail(character: c) } label: {
-                    HStack(spacing: 12) {
-                        Monogram(name: c.name, size: 44)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(progress.hidden(c.spoiler) ? String(localized: "Hidden character") : c.name).font(.headline)
-                            Text(progress.hidden(c.spoiler) ? String(localized: "Revealed later in the story") : c.role).font(.subheadline).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        if progress.isFavorite(c) { Image(systemName: "star.fill").foregroundStyle(VF.sun) }
-                    }
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 14)], spacing: 14) {
+                ForEach(list) { c in
+                    NavigationLink { CharacterDetail(character: c) } label: { CharacterPoster(character: c) }
+                        .buttonStyle(.plain)
                 }
             }
+            .padding()
+            .frame(maxWidth: 900)
+            .frame(maxWidth: .infinity)
         }
+        .background(VFBackdrop())
         .searchable(text: $query)
         .navigationTitle("Characters")
         .toolbar {
@@ -153,14 +152,52 @@ struct CharactersView: View {
     }
 }
 
+/// Un personnage en affiche : ses initiales en grand sur un ciel du soir à sa couleur, son nom dessous.
+struct CharacterPoster: View {
+    var character: VFCharacter
+    @Environment(Progress.self) private var progress
+
+    var body: some View {
+        let hidden = progress.hidden(character.spoiler)
+        let hue = Monogram.hue(character.name)
+        ZStack(alignment: .bottomLeading) {
+            LinearGradient(colors: [Color(hue: hue, saturation: 0.55, brightness: 0.95), Color(hue: (hue + 0.1).truncatingRemainder(dividingBy: 1), saturation: 0.75, brightness: 0.55)],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+            Text(hidden ? "?" : Monogram.letters(character.name))
+                .font(VF.display(110))
+                .foregroundStyle(.white.opacity(0.22))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .offset(x: 6, y: -14)
+            LinearGradient(colors: [.clear, .black.opacity(0.55)], startPoint: .center, endPoint: .bottom)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(hidden ? String(localized: "Hidden character") : character.name)
+                    .font(VF.display(24, relativeTo: .title3)).lineLimit(2).minimumScaleFactor(0.7)
+                Text(hidden ? String(localized: "Revealed later in the story") : character.role)
+                    .font(.caption.weight(.semibold)).opacity(0.85).lineLimit(1)
+            }
+            .foregroundStyle(.white)
+            .padding(12)
+            if progress.isFavorite(character) {
+                Image(systemName: "star.fill").foregroundStyle(VF.sun).padding(10)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }
+        }
+        .frame(height: 210)
+        .clipShape(.rect(cornerRadius: 22, style: .continuous))
+    }
+}
+
 struct Monogram: View {
+    static func hue(_ name: String) -> Double { Double(name.unicodeScalars.reduce(0) { ($0 * 31 + Int($1.value)) % 360 }) / 360 }
+    static func letters(_ name: String) -> String { name.split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined() }
+
     var name: String
     var size: CGFloat
     var body: some View {
         let letters = name.split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined()
         let hue = Double(name.unicodeScalars.reduce(0) { ($0 * 31 + Int($1.value)) % 360 }) / 360
         Text(letters)
-            .font(.system(size: size * 0.38, weight: .bold, design: .rounded))
+            .font(VF.display(size * 0.42))
             .foregroundStyle(.white)
             .frame(width: size, height: size)
             .background(LinearGradient(colors: [Color(hue: hue, saturation: 0.6, brightness: 0.85), Color(hue: (hue + 0.12).truncatingRemainder(dividingBy: 1), saturation: 0.7, brightness: 0.6)],
@@ -281,6 +318,8 @@ struct RadioView: View {
             }
         }
         .navigationTitle("Radio")
+        .scrollContentBackground(.hidden)
+        .background(VFBackdrop())
         .onDisappear { previews.stop() }
     }
 }
@@ -348,6 +387,8 @@ struct CheatsView: View {
         }
         .searchable(text: $query)
         .navigationTitle("Cheat codes")
+        .scrollContentBackground(.hidden)
+        .background(VFBackdrop())
     }
 }
 
@@ -397,6 +438,8 @@ struct SearchView: View {
                 }
             }
             .navigationTitle("Search")
+            .scrollContentBackground(.hidden)
+            .background(VFBackdrop())
             .searchable(text: $query)
         }
     }

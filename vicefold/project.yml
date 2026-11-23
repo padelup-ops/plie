@@ -28,9 +28,13 @@ targets:
       - path: Tiles
         type: folder
         buildPhase: resources
+      # Anton (SIL Open Font License) pour les titres d'affiche.
+      - path: Fonts
+        buildPhase: resources
     info:
       path: App/Info.plist
       properties:
+        UIAppFonts: [Anton-Regular.ttf]
         CFBundleDisplayName: GTA 6 Guide
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
