@@ -50,8 +50,9 @@ enum MediaScript {
       window.addEventListener('message', function (e) {
         if (e.data && typeof e.data.__twinfoldMute === 'boolean') setMuted(e.data.__twinfoldMute);
       });
-      var FILL = 'position:fixed!important;left:0!important;top:0!important;width:100vw!important;' +
-        'height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;' +
+      // Le cadre visible de la page (pas 100vh, qui déborde sous la barre d'état sur iPhone).
+      var FILL = 'position:fixed!important;left:0!important;top:0!important;width:100%!important;' +
+        'height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;' +
         'z-index:2147483647!important;background:#000!important;object-fit:contain!important;transform:none!important';
       function fill(el) {
         if (tf.filled === el) return true;

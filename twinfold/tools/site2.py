@@ -30,6 +30,7 @@ T = {
   bullets=[("Two pages", "Top and bottom, or side by side, on any device."), ("Edge to edge", "Pages fill the whole screen. Nothing hides them."), ("Controls in a bubble", "A small glass bubble, shrinking while you read.")],
   cta="Download on the App Store", cta_note="Free · iOS 27 · iPhone Duo, iPhone, iPad",
   news_h="What's new",
+  video_h="See it move.", video_tabs=("iPhone Duo", "iPhone · iPad"),
   news=[("1.0", "Nov 2026", "First release: two pages at the fold, floating glass bubble, side dock, tab overview, pairs, AI beside the page, video notes, bilingual reading, linked panes.")],
   dev_eyebrow="Any device", dev_h="Closed, open, sideways.",
   dev=[("Duo, closed", "Two pages on the cover screen, right up to the edge."), ("Duo, open", "One page above the fold, one below."),
@@ -39,8 +40,8 @@ T = {
   feat_eyebrow="Features", feat_h="Stop switching tabs.",
   feats=[("Two panes, your way", "Long-press the handle: half and half, one third, two thirds, or video priority, sized for a 16:9 video. Swap the pages without stopping the video."),
          ("Pairs", "Save two pages that go together, with their sizes: a video and your notes, an article and its AI summary. Open them from the Home Screen icon."),
-         ("A bubble and a dock", "The controls sit in one glass bubble that shrinks while you read. The side dock keeps the page's tabs one tap away."),
-         ("AI beside the page", "ChatGPT, Claude, Gemini, Le Chat, Perplexity or Copilot open in the other pane, already asked about your page, with your own account."),
+         ("An action palette", "One round button floats over the pages. Tap it: your actions open around it. Or press and slide toward one, it runs when you let go. Put it anywhere, or hide it."),
+         ("Every tab at a glance", "Both pages' tabs in one grid, normal and private. And AI beside the page: ChatGPT, Claude, Gemini, Le Chat, Perplexity or Copilot in the other pane, already asked about your page."),
          ("Only in Twinfold", "Linked panes: tap links on one side, read them on the other. Bilingual reading: a page and its translation scrolling together. Video notes that keep the moment.")],
   more_h="And everything a daily browser needs",
   more=[("doc.plaintext", "Reader view", "The text alone, read aloud if you like."), ("hand.raised", "Ad and tracker blocking", "Built in, on your iPhone."),
@@ -72,6 +73,7 @@ T = {
   bullets=[("Deux pages", "En haut et en bas, ou côte à côte, sur tous les appareils."), ("Bord à bord", "Les pages remplissent tout l'écran. Rien ne les cache."), ("Commandes dans une bulle", "Une petite bulle de verre, qui se réduit pendant la lecture.")],
   cta="Télécharger dans l'App Store", cta_note="Gratuit · iOS 27 · iPhone Duo, iPhone, iPad",
   news_h="Nouveautés",
+  video_h="En mouvement.", video_tabs=("iPhone Duo", "iPhone · iPad"),
   news=[("1.0", "nov. 2026", "Première version : deux pages au pli, bulle de verre flottante, dock latéral, aperçu des onglets, paires, IA à côté de la page, notes vidéo, lecture bilingue, volets liés.")],
   dev_eyebrow="Tous les appareils", dev_h="Fermé, ouvert, à l'horizontale.",
   dev=[("Duo fermé", "Deux pages sur l'écran extérieur, jusqu'au bord."), ("Duo ouvert", "Une page au-dessus du pli, une en dessous."),
@@ -81,8 +83,8 @@ T = {
   feat_eyebrow="Fonctions", feat_h="Fini les allers-retours entre onglets.",
   feats=[("Deux volets, à votre façon", "Appui long sur la poignée : moitié-moitié, un tiers, deux tiers, ou priorité vidéo, à la taille d'une vidéo 16:9. Inversez les pages sans arrêter la vidéo."),
          ("Les paires", "Enregistrez deux pages qui vont ensemble, avec leur taille : une vidéo et vos notes, un article et son résumé par l'IA. Ouvrez-les depuis l'icône de l'écran d'accueil."),
-         ("Une bulle et un dock", "Les commandes tiennent dans une bulle de verre qui se réduit pendant la lecture. Le dock latéral garde les onglets de la page à portée de pouce."),
-         ("L'IA à côté de la page", "ChatGPT, Claude, Gemini, Le Chat, Perplexity ou Copilot s'ouvrent dans l'autre volet, déjà interrogés sur votre page, avec votre propre compte."),
+         ("Une palette d'actions", "Un bouton rond flotte au-dessus des pages. Touchez-le : vos actions s'ouvrent autour. Ou appuyez et glissez vers l'une d'elles, elle s'exécute quand vous relâchez. Placez-le où vous voulez, ou masquez-le."),
+         ("Tous les onglets d'un coup d'œil", "Les onglets des deux pages dans une seule grille, normaux et privés. Et l'IA à côté de la page : ChatGPT, Claude, Gemini, Le Chat, Perplexity ou Copilot dans l'autre volet, déjà interrogés sur votre page."),
          ("Seulement dans Twinfold", "Volets liés : touchez des liens d'un côté, lisez-les de l'autre. Lecture bilingue : une page et sa traduction qui défilent ensemble. Des notes vidéo qui gardent le moment.")],
   more_h="Et tout ce qu'il faut à un navigateur de tous les jours",
   more=[("doc.plaintext", "Mode lecture", "Le texte seul, lu à voix haute si vous voulez."), ("hand.raised", "Blocage des pubs et traqueurs", "Intégré, sur votre iPhone."),
@@ -116,6 +118,12 @@ ICONS = {  # small inline SVGs for the "and more" grid (no icon font)
 }
 
 CSS = r"""
+#video .vtabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:rgba(15,36,39,.07);margin:6px 0 18px}
+#video .vtabs button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:10px 18px;background:transparent;color:inherit;cursor:pointer}
+#video .vtabs button[aria-selected=true]{background:#0f2427;color:#fff}
+#video .vframe{border-radius:28px;overflow:hidden;background:#eef4f2;max-width:420px}
+#video video{display:block;width:100%;height:auto;aspect-ratio:9/16}
+
 :root{--bg:#0b1517;--bg2:#10201f;--card:#142826;--ink:#ecf4f2;--muted:#9db4b1;--teal:#2fd1bd;--teal-d:#0d9e8f;--coral:#ff7a62;--line:#21403c}
 :root[data-theme=light]{--bg:#f2f7f6;--bg2:#e8f1ef;--card:#ffffff;--ink:#0f2427;--muted:#4e6467;--teal:#0b8a7d;--teal-d:#087a6e;--coral:#e8553e;--line:#cfdfdb}
 @media (prefers-color-scheme:light){:root:not([data-theme=dark]){--bg:#f2f7f6;--bg2:#e8f1ef;--card:#ffffff;--ink:#0f2427;--muted:#4e6467;--teal:#0b8a7d;--teal-d:#087a6e;--coral:#e8553e;--line:#cfdfdb}}
@@ -176,7 +184,7 @@ footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);f
 
 APPLE = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8c-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.8zM14.2 5.8c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3z"/></svg>'
 
-FEATURE_SHOTS = ["iphone", "pairs", "duo-closed", "ai", "linked"]
+FEATURE_SHOTS = ["iphone", "pairs", "palette", "overview", "notes"]
 
 
 def img(name, alt):
@@ -207,6 +215,10 @@ def build(lang):
 <main class="wrap">
 <div class="hero"><div><h1>{t['h1']}</h1><p class="lede">{t['lede']}</p><ul class="bul">{bullets}</ul>
 <a class="cta" href="{STORE}">{APPLE}{t['cta']}</a><span class="note">{t['cta_note']}</span></div>{img('hero', 'Twinfold')}</div>
+<section id="video"><p class="eyebrow">Film</p><h2>{t['video_h']}</h2>
+<div class="vtabs" role="tablist"><button role="tab" aria-selected="true" data-v="duo">{t['video_tabs'][0]}</button><button role="tab" aria-selected="false" data-v="phones">{t['video_tabs'][1]}</button></div>
+<div class="vframe"><video id="film" src="../video/duo-{lang}.mp4" poster="../video/duo-{lang}.jpg" autoplay muted loop playsinline controls preload="metadata"></video></div>
+<script>document.querySelectorAll('.vtabs button').forEach(function(b){{b.onclick=function(){{document.querySelectorAll('.vtabs button').forEach(function(x){{x.setAttribute('aria-selected',x===b)}});var v=document.getElementById('film');v.poster='../video/'+b.dataset.v+'-{lang}.jpg';v.src='../video/'+b.dataset.v+'-{lang}.mp4';v.play().catch(function(){{}});}}}});</script></section>
 <section id="news"><p class="eyebrow">News</p><h2>{t['news_h']}</h2><div class="news">{news}</div></section>
 <section id="devices"><p class="eyebrow">{t['dev_eyebrow']}</p><h2>{t['dev_h']}</h2><div class="rail" tabindex="0">{devs}</div><p class="hint">{t['dev_hint']} →</p></section>
 <section id="features"><p class="eyebrow">{t['feat_eyebrow']}</p><h2>{t['feat_h']}</h2>{feats}</section>
@@ -221,6 +233,11 @@ def build(lang):
 
 
 os.makedirs(os.path.join(SITE, "img"), exist_ok=True)
+VIDEOS = os.path.join(HERE, "..", "store", "video")
+if os.path.isdir(VIDEOS):
+    os.makedirs(os.path.join(SITE, "video"), exist_ok=True)
+    for f in os.listdir(VIDEOS):
+        shutil.copy(os.path.join(VIDEOS, f), os.path.join(SITE, "video", f))
 if os.path.isdir(SHOTS):
     for f in os.listdir(SHOTS):
         shutil.copy(os.path.join(SHOTS, f), os.path.join(SITE, "img", f))
