@@ -271,28 +271,38 @@ struct CheatsView: View {
                 }
                 .pickerStyle(.segmented)
             }
-            ForEach(content.content.cheats.filter { query.isEmpty || $0.name.localizedCaseInsensitiveContains(query) || $0.effect.localizedCaseInsensitiveContains(query) }) { c in
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(c.name).font(.headline)
-                    Text(c.effect).font(.subheadline).foregroundStyle(.secondary)
-                    if let code = progress.data.platform == "xbox" ? c.xbox : c.playstation {
-                        Text(code).font(.system(.callout, design: .monospaced).weight(.semibold)).textSelection(.enabled)
-                            .padding(8).background(VF.magenta.opacity(0.12), in: .rect(cornerRadius: 10))
-                    }
-                    if let p = c.phone { Label(p, systemImage: "iphone").font(.callout.monospaced()) }
-                    if let n = c.note { Text(n).font(.caption).foregroundStyle(.secondary) }
+            let list = content.content.cheats.filter { query.isEmpty || $0.name.localizedCaseInsensitiveContains(query) || $0.effect.localizedCaseInsensitiveContains(query) }
+            let groups = list.reduce(into: [String]()) { if let g = $1.group, !$0.contains(g) { $0.append(g) } }
+            ForEach(groups.isEmpty ? [""] : groups, id: \.self) { g in
+                Section(g) {
+                    ForEach(list.filter { ($0.group ?? "") == g }) { c in cheatRow(c) }
                 }
-                .padding(.vertical, 4)
             }
             if content.content.cheats.isEmpty {
                 ContentUnavailableView("No cheat codes yet", systemImage: "gamecontroller", description: Text("They arrive with a content update, no app update needed."))
             }
             Section {
-                Text("Cheats usually turn off trophies and achievements for the session.").font(.footnote).foregroundStyle(.secondary)
+                Text("Cheats unlock after the story, one by one. Open the phone (↑), hold L1 (LB on Xbox), press R1 (RB), then enter the arrows. A cheat turns off trophies and saving until you quit: save first.").font(.footnote).foregroundStyle(.secondary)
             }
         }
         .searchable(text: $query)
         .navigationTitle("Cheat codes")
+    }
+}
+
+extension CheatsView {
+    @ViewBuilder func cheatRow(_ c: VFCheat) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(c.name).font(.headline)
+            Text(c.effect).font(.subheadline).foregroundStyle(.secondary)
+            if let code = progress.data.platform == "xbox" ? c.xbox : c.playstation {
+                Text(code).font(.system(.callout, design: .monospaced).weight(.semibold)).textSelection(.enabled)
+                    .padding(8).background(VF.magenta.opacity(0.12), in: .rect(cornerRadius: 10))
+            }
+            if let p = c.phone { Label(p, systemImage: "iphone").font(.callout.monospaced()) }
+            if let n = c.note { Text(n).font(.caption).foregroundStyle(.secondary) }
+        }
+        .padding(.vertical, 4)
     }
 }
 

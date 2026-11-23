@@ -63,8 +63,8 @@ final class Progress {
     private static let kvsKey = "vicefold.progress"
 
     /// Limites de la version gratuite (Pro : illimité).
-    static let freePins = 5
-    static let freeVisited = 100
+    static let freePins = 10
+    static let freeVisited = Int.max
 
     private var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("progress.json")

@@ -240,7 +240,7 @@ struct ProView: View {
     @Environment(\.dismiss) private var dismiss
 
     private let perks: [(String, LocalizedStringKey, LocalizedStringKey)] = [
-        ("mappin.and.ellipse", "Unlimited pins and visited places", "Free: 5 pins and 100 places."),
+        ("mappin.and.ellipse", "Unlimited pins", "Free: 10 pins, and every place you visit."),
         ("square.3.layers.3d", "Every map layer", "Collectibles, activities and random events."),
         ("photo.on.rectangle", "Your own map", "Import the game's map and keep all your pins on it."),
         ("icloud", "iCloud sync", "Your progress on iPhone, iPad and Duo."),
