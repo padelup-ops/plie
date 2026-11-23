@@ -141,7 +141,10 @@ struct PlaceCard: View {
                     if place.closed == true {
                         Label("Closed", systemImage: "lock").font(.caption).foregroundStyle(.secondary)
                     }
-                    if place.community {
+                    if place.community, let url = URL(string: "https://map.gtadb.org/#VI," + place.id.dropFirst(2)) {
+                        Link(destination: url) {
+                            Label("Photos on GTADB.org", systemImage: "photo.on.rectangle.angled").font(.caption.weight(.semibold))
+                        }
                         Text("Source: GTADB.org community (CC BY 4.0)").font(.caption2).foregroundStyle(.tertiary)
                     }
                 }

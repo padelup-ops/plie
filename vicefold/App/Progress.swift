@@ -64,6 +64,8 @@ struct VFProgressData: Codable, Equatable {
     /// Les easter eggs trouvés, et tes propres trouvailles.
     var eggs: Set<String> = []
     var myEggs: [VFMyEgg] = []
+    /// Tes captures de chaque mission (noms de fichiers, sur cet appareil), pour t'en souvenir.
+    var missionShots: [String: [String]] = [:]
     var updated = Date()
 
     init() {}
@@ -92,6 +94,7 @@ struct VFProgressData: Codable, Equatable {
         mapFit = (try? c.decodeIfPresent(VFMapFit.self, forKey: .mapFit)) ?? z.mapFit
         eggs = (try? c.decodeIfPresent(Set<String>.self, forKey: .eggs)) ?? z.eggs
         myEggs = (try? c.decodeIfPresent([VFMyEgg].self, forKey: .myEggs)) ?? z.myEggs
+        missionShots = (try? c.decodeIfPresent([String: [String]].self, forKey: .missionShots)) ?? z.missionShots
         updated = (try? c.decodeIfPresent(Date.self, forKey: .updated)) ?? z.updated
     }
 }
@@ -195,6 +198,7 @@ final class Progress {
         m.pins = pins.values.sorted { $0.created < $1.created }
         m.chapter = max(a.chapter, b.chapter)
         m.eggs = a.eggs.union(b.eggs)
+        m.missionShots = a.missionShots.merging(b.missionShots) { x, y in x + y.filter { !x.contains($0) } }
         var mine = Dictionary(uniqueKeysWithValues: a.myEggs.map { ($0.id, $0) })
         for e in b.myEggs where mine[e.id] == nil { mine[e.id] = e }
         m.myEggs = mine.values.sorted { $0.date > $1.date }
@@ -251,6 +255,21 @@ final class Progress {
         if let f = e.photo { try? FileManager.default.removeItem(at: Self.eggPhotoURL(f)) }
         edit { d in d.myEggs.removeAll { $0.id == e.id } }
     }
+    // MARK: Captures des missions
+
+    static let maxShots = 6
+    func shots(_ m: VFMission) -> [String] { (data.missionShots[m.id] ?? []).filter { FileManager.default.fileExists(atPath: Self.eggPhotoURL($0).path) } }
+    func addShot(_ m: VFMission, jpeg: Data) {
+        guard shots(m).count < Self.maxShots else { return }
+        let name = "mission-\(m.id)-\(UUID().uuidString.prefix(8)).jpg"
+        guard (try? jpeg.write(to: Self.eggPhotoURL(name), options: .atomic)) != nil else { return }
+        edit { d in d.missionShots[m.id, default: []].append(name) }
+    }
+    func removeShot(_ m: VFMission, _ name: String) {
+        try? FileManager.default.removeItem(at: Self.eggPhotoURL(name))
+        edit { d in d.missionShots[m.id]?.removeAll { $0 == name } }
+    }
+
     static func eggPhotoURL(_ name: String) -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(name)
     }

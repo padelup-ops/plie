@@ -3,6 +3,7 @@
 // Le suivi : missions par chapitre (avec leurs objectifs), objets à collectionner, défis, et l'anneau 100 % à partager
 // en image.
 
+import PhotosUI
 import SwiftUI
 
 struct TrackerView: View {
@@ -261,6 +262,7 @@ struct MissionDetail: View {
                     if let u = mission.unlocks {
                         Label(u, systemImage: "lock.open.fill").font(.subheadline).foregroundStyle(VF.teal)
                     }
+                    MissionShots(mission: mission)
                 }
                 Button { progress.toggle(mission) } label: {
                     Label(progress.isDone(mission) ? "Completed" : "Mark as completed",
@@ -390,4 +392,83 @@ struct ShareProgressView: View {
             Text(t).font(.caption2).opacity(0.75)
         }
     }
+}
+
+/// Tes captures d'une mission : pour te rappeler laquelle c'est. Elles restent sur cet appareil.
+struct MissionShots: View {
+    var mission: VFMission
+    @Environment(Progress.self) private var progress
+    @State private var items: [PhotosPickerItem] = []
+    @State private var viewing: String?
+
+    var body: some View {
+        let shots = progress.shots(mission)
+        VStack(alignment: .leading, spacing: 10) {
+            Text("My screenshots").font(.headline)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(shots, id: \.self) { name in
+                        Button { viewing = name } label: { thumb(name) }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button("Delete", systemImage: "trash", role: .destructive) { progress.removeShot(mission, name) }
+                            }
+                    }
+                    if shots.count < Progress.maxShots {
+                        PhotosPicker(selection: $items, maxSelectionCount: Progress.maxShots - shots.count, matching: .images) {
+                            VStack(spacing: 6) {
+                                Image(systemName: "camera.on.rectangle").font(.title2)
+                                Text("Add").font(.caption.weight(.semibold))
+                            }
+                            .frame(width: 120, height: 76)
+                            .foregroundStyle(VF.coral)
+                            .background(VF.coral.opacity(0.12), in: .rect(cornerRadius: 12))
+                        }
+                    }
+                }
+            }
+            Text("Take a screenshot in the game (PS5: Create button) and add it here to remember this mission. Touch and hold one to delete it.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(.regularMaterial, in: .rect(cornerRadius: 18))
+        .onChange(of: items) { _, picked in
+            guard !picked.isEmpty else { return }
+            Task {
+                for it in picked {
+                    if let data = try? await it.loadTransferable(type: Data.self), let img = UIImage(data: data) {
+                        let w: CGFloat = min(1800, img.size.width)
+                        let jpg = img.preparingThumbnail(of: CGSize(width: w, height: w * img.size.height / max(1, img.size.width)))?.jpegData(compressionQuality: 0.8)
+                        if let jpg { progress.addShot(mission, jpeg: jpg) }
+                    }
+                }
+                items = []
+            }
+        }
+        .fullScreenCover(item: Binding(get: { viewing.map { ShotName(id: $0) } }, set: { viewing = $0?.id })) { s in
+            ZStack(alignment: .topTrailing) {
+                Color.black.ignoresSafeArea()
+                if let img = UIImage(contentsOfFile: Progress.eggPhotoURL(s.id).path) {
+                    Image(uiImage: img).resizable().scaledToFit().frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                Button { viewing = nil } label: { Image(systemName: "xmark.circle.fill").font(.largeTitle).foregroundStyle(.white.opacity(0.85)) }
+                    .padding()
+                    .accessibilityLabel("Close")
+            }
+        }
+    }
+
+    private func thumb(_ name: String) -> some View {
+        Group {
+            if let img = UIImage(contentsOfFile: Progress.eggPhotoURL(name).path) {
+                Image(uiImage: img).resizable().scaledToFill()
+            } else {
+                Color.secondary.opacity(0.2)
+            }
+        }
+        .frame(width: 120, height: 76)
+        .clipShape(.rect(cornerRadius: 12))
+    }
+
+    private struct ShotName: Identifiable { var id: String }
 }
