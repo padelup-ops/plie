@@ -186,7 +186,13 @@ struct ActionPalette: View {
                 .opacity(moving && overHide ? 0.5 : 1)
         }
         .frame(width: area.width, height: area.height)
-        .onAppear { actions = Library.shared.paletteActions }
+        .onAppear {
+            actions = Library.shared.paletteActions
+            // Screenshots: the ring open.
+            if ShotMode.current == "paletteopen" {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { withAnimation { open = true } }
+            }
+        }
         .onChange(of: open) { _, o in if o { actions = Library.shared.paletteActions } }
     }
 

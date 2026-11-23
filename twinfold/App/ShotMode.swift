@@ -88,7 +88,7 @@ enum ShotMode {
                 let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
                 try? "fsinpane: call \(call) | filled \(browser.panes[0].tab?.isFilled ?? false) video \(r)".write(to: url, atomically: true, encoding: .utf8)
             }
-        case "palette":
+        case "palette", "paletteopen":
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")
         case "overview":
