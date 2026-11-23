@@ -40,24 +40,20 @@ BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 GROUP = os.environ.get("GROUP", "").strip() or "Premiers testeurs"
 
 WHATS_NEW = {
-    "fr-FR": """Tu as l'honneur de faire partie des tout premiers testeurs de Foldboard, le clavier pensé pour l'iPhone Duo !
+    "fr-FR": """Merci de tester Foldboard, le clavier pensé pour l'iPhone Duo !
 
-Tu as été choisi parmi les meilleurs utilisateurs de Foldly. Merci !
-
-À essayer :
-• Ouvre l'app et fais « Comment ça marche » : 3 appuis sous le pouce droit, 3 sous le pouce gauche.
-• Écris dans n'importe quelle app : le clavier vient du côté de la main qui tient le téléphone.
-• Duo ouvert : clavier entier en paysage ; en portrait, petit clavier qui suit la main, en grand ou en deux moitiés.
+Nouveau dans ce build :
+• Tape le bord de l'iPhone (le cadre, pas l'écran) : le clavier à une main passe de ce côté. Dans l'app : Position › Changer de côté › « Essayer et régler la sensibilité » pour voir chaque coup reconnu.
+• La barre au-dessus du clavier à une main est rangée : plus aucun bouton ne se chevauche, le reste est derrière « ⋯ ».
+• Tu choisis comment le clavier suit ta main : inclinaison, pouces, coup sur le bord, toucher le côté vide.
 
 Un souci, une idée ? Fais une capture d'écran : TestFlight te propose de l'envoyer avec un commentaire.""",
-    "en-US": """You are one of the very first testers of Foldboard, the keyboard made for iPhone Duo!
+    "en-US": """Thanks for testing Foldboard, the keyboard made for iPhone Duo!
 
-You were picked among the best Foldly users. Thank you!
-
-Things to try:
-• Open the app and do "How it works": 3 presses under your right thumb, 3 under your left.
-• Type in any app: the keyboard comes to the side of the hand holding the phone.
-• Duo open: full keyboard in landscape; in portrait, a small keyboard that follows your hand, full width or split.
+New in this build:
+• Knock the edge of the iPhone (the frame, not the screen): the one-hand keyboard moves to that side. In the app: Position › Changing side › "Try it and set the sensitivity" to see every knock it recognizes.
+• The bar above the one-hand keyboard is tidy: no more overlapping buttons, the rest is behind "⋯".
+• You choose how the keyboard follows your hand: tilt, thumbs, knocking the edge, tapping the empty side.
 
 A problem or an idea? Take a screenshot: TestFlight lets you send it with a comment.""",
 }
