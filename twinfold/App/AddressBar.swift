@@ -140,6 +140,8 @@ struct AddressBar: View {
 struct AddressEditorView: View {
     @Environment(Browser.self) private var browser
     @State private var text = ""
+    /// Like Safari: the whole address is selected when the field opens, so typing replaces it at once.
+    @State private var selection: TextSelection?
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -170,14 +172,33 @@ struct AddressEditorView: View {
                 .padding(.horizontal, 6)
             }
             HStack(spacing: 8) {
-                TextField("Search or enter address", text: $text)
+                TextField("Search or enter address", text: $text, selection: $selection)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .keyboardType(.webSearch)
                     .submitLabel(.go)
                     .focused($focused)
-                    .padding(.horizontal, 16)
+                    .padding(.leading, 16)
+                    .padding(.trailing, text.isEmpty ? 16 : 40)
                     .frame(minHeight: 46)
+                    .overlay(alignment: .trailing) {
+                        // Clear: an empty field in one touch.
+                        if !text.isEmpty {
+                            Button {
+                                text = ""
+                                selection = nil
+                                focused = true
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 40, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(Text("Clear"))
+                        }
+                    }
                     .glassEffect(.regular, in: .capsule)
                     .onSubmit {
                         browser.editingAddress = false
@@ -200,6 +221,10 @@ struct AddressEditorView: View {
         .onAppear {
             text = browser.activeTab?.url?.absoluteString ?? ""
             focused = true
+            // Selected once the field has focus (selecting before that is ignored).
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                if !text.isEmpty { selection = TextSelection(range: text.startIndex..<text.endIndex) }
+            }
         }
     }
 }
