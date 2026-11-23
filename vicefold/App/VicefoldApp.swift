@@ -48,7 +48,9 @@ struct RootView: View {
             Tab("Map", systemImage: "map", value: AppTab.map) { MapTab() }
             Tab("Tracker", systemImage: "checklist", value: AppTab.tracker) { TrackerView() }
             Tab("More", systemImage: "square.grid.2x2", value: AppTab.more) { MoreView() }
-            Tab(value: AppTab.search, role: .search) { SearchView() }
+            Tab(value: AppTab.search, role: .search) {
+                DualLayout { SearchView() } secondary: { EmptyDetail(icon: "magnifyingglass", text: "Search guides, missions, places, characters and cheat codes.") }
+            }
         }
         .tabViewStyle(.sidebarAdaptable)
         .onOpenURL { url in

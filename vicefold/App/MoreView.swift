@@ -5,14 +5,64 @@
 import AVFoundation
 import SwiftUI
 
+enum MoreItem: String, Hashable, CaseIterable, Identifiable {
+    case characters, radio, cheats, collectibles, profile, settings
+    var id: String { rawValue }
+    var title: LocalizedStringKey {
+        switch self {
+        case .characters: return "Characters"
+        case .radio: return "Radio"
+        case .cheats: return "Cheat codes"
+        case .collectibles: return "Collectibles"
+        case .profile: return "Profile and play time"
+        case .settings: return "Settings"
+        }
+    }
+    var icon: String {
+        switch self {
+        case .characters: return "person.2"
+        case .radio: return "radio"
+        case .cheats: return "gamecontroller"
+        case .collectibles: return "sparkles"
+        case .profile: return "person.crop.circle"
+        case .settings: return "gearshape"
+        }
+    }
+    @ViewBuilder var screen: some View {
+        switch self {
+        case .characters: CharactersView()
+        case .radio: RadioView()
+        case .cheats: CheatsView()
+        case .collectibles: CollectiblesView()
+        case .profile: ProfileView()
+        case .settings: SettingsView()
+        }
+    }
+}
+
 struct MoreView: View {
-    @Environment(Store.self) private var store
-    @State private var showPro = ShotMode.route == "pro"
-    // Captures : l'écran demandé est déjà ouvert.
-    @State private var path: [String] = ["characters", "radio", "profile", "cheats"].contains(ShotMode.route ?? "") ? [ShotMode.route!] : []
+    @State private var selected: MoreItem? = MoreItem(rawValue: ShotMode.route ?? "")
 
     var body: some View {
-        NavigationStack(path: $path) {
+        DualLayout {
+            MoreList(selected: $selected)
+        } secondary: {
+            NavigationStack {
+                if let s = selected { s.screen.id(s) } else { EmptyDetail(icon: "square.grid.2x2", text: "More") }
+            }
+        }
+    }
+}
+
+private struct MoreList: View {
+    @Binding var selected: MoreItem?
+    @Environment(\.vfWide) private var wide
+    @Environment(Store.self) private var store
+    @State private var showPro = ShotMode.route == "pro"
+    @State private var push: MoreItem?
+
+    var body: some View {
+        NavigationStack {
             List {
                 if !store.isPro {
                     Section {
@@ -27,28 +77,26 @@ struct MoreView: View {
                         }
                     }
                 }
-                Section {
-                    NavigationLink { CharactersView() } label: { Label("Characters", systemImage: "person.2") }
-                    NavigationLink { RadioView() } label: { Label("Radio", systemImage: "radio") }
-                    NavigationLink { CheatsView() } label: { Label("Cheat codes", systemImage: "gamecontroller") }
-                    NavigationLink { CollectiblesView() } label: { Label("Collectibles", systemImage: "sparkles") }
-                }
-                Section {
-                    NavigationLink { ProfileView() } label: { Label("Profile and play time", systemImage: "person.crop.circle") }
-                    NavigationLink { SettingsView() } label: { Label("Settings", systemImage: "gearshape") }
-                }
+                Section { ForEach([MoreItem.characters, .radio, .cheats, .collectibles]) { row($0) } }
+                Section { ForEach([MoreItem.profile, .settings]) { row($0) } }
             }
             .navigationTitle("More")
-            .navigationDestination(for: String.self) { r in
-                switch r {
-                case "characters": CharactersView()
-                case "radio": RadioView()
-                case "profile": ProfileView()
-                default: CheatsView()
-                }
-            }
+            .navigationDestination(item: $push) { $0.screen }
             .sheet(isPresented: $showPro) { ProView() }
+            .onAppear { if !wide, let s = selected, ShotMode.route != nil { push = s } }
         }
+    }
+
+    private func row(_ i: MoreItem) -> some View {
+        Button { if wide { selected = i } else { push = i } } label: {
+            HStack {
+                Label(i.title, systemImage: i.icon).foregroundStyle(.primary)
+                Spacer()
+                if !wide { Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary) }
+            }
+            .contentShape(.rect)
+        }
+        .listRowBackground(selected == i && wide ? VF.coral.opacity(0.15) : nil)
     }
 }
 

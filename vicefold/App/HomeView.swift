@@ -13,34 +13,65 @@ struct HomeView: View {
     @State private var showProfile = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    header
-                    ringCard
-                    if let m = progress.nextMission(content.content) { nextCard(m) }
-                    startHere
-                    shortcuts
-                    if let news = content.content.news, !news.isEmpty { newsCard(news) }
-                    credits
+        DualLayout {
+            // Gauche (ou tout, sur iPhone) : toi, ton 100 %, la suite.
+            column(wideRight: false)
+        } secondary: {
+            // Droite du pli : par où commencer, les raccourcis, les nouveautés.
+            NavigationStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        startHere
+                        shortcuts
+                        if let news = content.content.news, !news.isEmpty { newsCard(news) }
+                        credits
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 20)
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 30)
-                .frame(maxWidth: 760)
-                .frame(maxWidth: .infinity)
+                .background(backdrop)
+            }
+        }
+        .sheet(isPresented: $showShare) { ShareProgressView() }
+        .sheet(isPresented: $showProfile) { NavigationStack { ProfileView() } }
+    }
+
+    private func column(wideRight: Bool) -> some View {
+        NavigationStack {
+            WideReader { wide in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        header
+                        ringCard
+                        if let m = progress.nextMission(content.content) { nextCard(m) }
+                        if !wide {
+                            startHere
+                            shortcuts
+                            if let news = content.content.news, !news.isEmpty { newsCard(news) }
+                            credits
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 30)
+                    .frame(maxWidth: 760)
+                    .frame(maxWidth: .infinity)
+                }
             }
             .background(backdrop)
-            .navigationTitle("Vicefold")
+            .navigationTitle(Self.appName)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showProfile = true } label: { Avatar(size: 32) }
                         .accessibilityLabel("Profile")
                 }
             }
-            .sheet(isPresented: $showShare) { ShareProgressView() }
-            .sheet(isPresented: $showProfile) { NavigationStack { ProfileView() } }
             .refreshable { _ = await content.refresh() }
         }
+    }
+
+    static var appName: String {
+        Bundle.main.localizedInfoDictionary?["CFBundleDisplayName"] as? String
+            ?? Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String ?? "GTA 6 Guide"
     }
 
     private var backdrop: some View {
@@ -203,6 +234,13 @@ struct HomeView: View {
             .foregroundStyle(.tertiary)
             .padding(.top, 8)
     }
+}
+
+/// Lit « la page est en deux moitiés » à l'intérieur d'une pile de navigation.
+struct WideReader<Content: View>: View {
+    @Environment(\.vfWide) private var wide
+    @ViewBuilder var content: (Bool) -> Content
+    var body: some View { content(wide) }
 }
 
 struct GuideCard: View {
