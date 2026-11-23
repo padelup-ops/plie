@@ -102,6 +102,41 @@ jobs:
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" 2>&1 | tee ../archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
           grep -q "ARCHIVE SUCCEEDED" ../archive.log
 
+      # L'archive n'est pas signée : on donne ici ses droits à l'app et au widget, sinon ils n'arrivent pas jusqu'à
+      # l'App Store (le widget ne lirait pas la progression, ni synchro iCloud ni Game Center).
+      - name: Droits de l'app et du widget (groupe d'apps, iCloud, Game Center)
+        run: |
+          APP="$RUNNER_TEMP/Vicefold.xcarchive/Products/Applications/Vicefold.app"
+          WIDGET="$APP/PlugIns/VicefoldWidget.appex"
+          ls "$APP/PlugIns"
+          cat > "$RUNNER_TEMP/widget.entitlements" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>com.apple.security.application-groups</key>
+            <array><string>group.com.padelup.vicefold</string></array>
+          </dict>
+          </plist>
+          EOF
+          cat > "$RUNNER_TEMP/app.entitlements" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>com.apple.security.application-groups</key>
+            <array><string>group.com.padelup.vicefold</string></array>
+            <key>com.apple.developer.ubiquity-kvstore-identifier</key>
+            <string>${APPLE_TEAM_ID}.com.padelup.vicefold</string>
+            <key>com.apple.developer.game-center</key>
+            <true/>
+          </dict>
+          </plist>
+          EOF
+          /usr/libexec/PlistBuddy -c "Print" "$RUNNER_TEMP/app.entitlements" >/dev/null
+          codesign -f -s - --entitlements "$RUNNER_TEMP/widget.entitlements" "$WIDGET"
+          codesign -f -s - --entitlements "$RUNNER_TEMP/app.entitlements" "$APP"
+
       - name: Signer pour l'App Store (sans envoyer)
         run: |
           set -o pipefail
@@ -127,6 +162,12 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export-local.log
           grep -q "EXPORT SUCCEEDED" export-local.log
+          # Vérifier que les droits sont bien dans l'app signée pour l'App Store.
+          mkdir -p "$RUNNER_TEMP/check" && cd "$RUNNER_TEMP/check" && unzip -q -o "$RUNNER_TEMP/local/"*.ipa
+          codesign -d --entitlements - Payload/Vicefold.app 2>/dev/null | tee "$GITHUB_WORKSPACE/droits.txt" | grep -E "game-center|application-groups|kvstore" || true
+          codesign -d --entitlements - Payload/Vicefold.app/PlugIns/VicefoldWidget.appex 2>/dev/null | grep -E "application-groups" || { echo "::error::le widget n'a pas le groupe d'apps"; exit 1; }
+          grep -q "game-center" "$GITHUB_WORKSPACE/droits.txt" || { echo "::error::l'app n'a pas Game Center"; exit 1; }
+          grep -q "application-groups" "$GITHUB_WORKSPACE/droits.txt" || { echo "::error::l'app n'a pas le groupe d'apps"; exit 1; }
 
       - name: Envoyer sur App Store Connect (TestFlight)
         if: steps.asc.outputs.record == 'true'
