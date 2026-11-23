@@ -576,3 +576,5 @@
 "Download these languages" = "Télécharger ces langues";
 "Ready: translation works in the keyboard." = "Prêt : la traduction marche dans le clavier.";
 "Speak in one language, it's written in the other. Or tap 🌐 in the keyboard to translate what you typed (hold it to pick another language). Everything stays on your iPhone." = "Parlez dans une langue, c’est écrit dans l’autre. Ou touchez 🌐 dans le clavier pour traduire ce que vous avez tapé (maintenez-le pour choisir une autre langue). Tout reste sur votre iPhone.";
+"Saving copies is off: iOS asked each time. Paste still works." = "Garder les copies est désactivé : iOS demandait à chaque fois. Coller marche toujours.";
+"Stop the “Allow Paste” prompt" = "Ne plus voir « Autoriser le collage »";

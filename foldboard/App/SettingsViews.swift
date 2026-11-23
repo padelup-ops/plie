@@ -702,6 +702,11 @@ struct TypingView: View {
             }
             Section {
                 Toggle("Save everything I copy", isOn: $m.settings.clipAutoSave)
+                if m.settings.clipAutoSave {
+                    Button("Stop the “Allow Paste” prompt") {
+                        if let u = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(u) }
+                    }
+                }
             } header: {
                 Text("Clipboard")
             } footer: {

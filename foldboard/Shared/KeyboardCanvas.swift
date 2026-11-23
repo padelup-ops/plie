@@ -112,6 +112,20 @@ final class KeyboardCanvas: UIView {
     private let micButton = UIButton(type: .system)
     /// « Corriger » : la phrase avant le curseur, corrigée sur l'iPhone (Apple Intelligence).
     private let fixButton = UIButton(type: .system)
+    /// Ce que reçoit le bouton « Coller » du système (UIPasteControl) : le texte est gardé et écrit.
+    private lazy var pasteTarget: KBPasteTarget = {
+        let t = KBPasteTarget()
+        t.isHidden = true
+        t.onText = { [weak self] text in
+            guard let self else { return }
+            KBClipboard.shared.keep(text)
+            KBClipboard.shared.dismissFresh()
+            self.pasteClip(text)
+            self.rebuildChips()
+        }
+        addSubview(t)
+        return t
+    }()
     /// 🌐 Traduire le texte avant le curseur (appui long : choisir la langue).
     private let translateButton = UIButton(type: .system)
     /// « ⋯ » : pendant qu'on écrit, les boutons de la barre sont rangés derrière lui (les suggestions ont la place).
@@ -859,6 +873,13 @@ final class KeyboardCanvas: UIView {
         suggest.setLayout(eff.layout)
         KBLayouts.currentLayoutIsFrench = eff.layout == .azerty
         KBClipboard.shared.autoSave = settings.clipAutoSave
+        KBClipboard.shared.onDenied = { [weak self] in
+            guard let self else { return }
+            // Refusé deux fois : on arrête de lire tout seul (la demande ne revient plus à chaque copie).
+            self.settings.clipAutoSave = false
+            self.input?.kbSettingsChanged(self.settings)
+            self.flash(L("Saving copies is off: iOS asked each time. Paste still works."), hold: 3.5)
+        }
         suggest.useNames = settings.contactNames
         let names = settings.contactNames
         suggestQueue.async { [bgSuggest] in bgSuggest.useNames = names }
@@ -2249,6 +2270,20 @@ final class KeyboardCanvas: UIView {
                 guard let self, self.suggestionItems.isEmpty, self.emojiQuery == nil else { return }
                 self.rebuildChips()
             }
+            // Pas encore lu : le bouton « Coller » du système. iOS le donne aux apps pour coller sans jamais afficher
+            // la demande « Autoriser le collage ? » (le texte n'est lu que parce qu'on a touché ce bouton-là).
+            if pendingClip, #available(iOS 16.0, *) {
+                let cfgP = UIPasteControl.Configuration()
+                cfgP.displayMode = .iconAndLabel
+                cfgP.cornerStyle = .capsule
+                cfgP.baseBackgroundColor = theme.key.withAlphaComponent(0.6)
+                cfgP.baseForegroundColor = theme.text
+                let pc = UIPasteControl(configuration: cfgP)
+                pc.target = pasteTarget
+                chipStack.addArrangedSubview(pc)
+                pc.heightAnchor.constraint(equalToConstant: 30).isActive = true
+                pc.widthAnchor.constraint(greaterThanOrEqualToConstant: 96).isActive = true
+            } else {
             let b = UIButton(type: .system)
             var cfg = UIButton.Configuration.plain()
             let one = t.replacingOccurrences(of: "\n", with: " ")
@@ -2280,6 +2315,7 @@ final class KeyboardCanvas: UIView {
             }, for: .touchUpInside)
             chipStack.addArrangedSubview(b)
             b.heightAnchor.constraint(equalToConstant: 30).isActive = true
+            }
         }
         let showPhrasesInBar = !(layoutMode.isOneHand && eff.sidePanel == .phrases && panelRect.width >= 90)
         if showPhrasesInBar {
@@ -3901,5 +3937,28 @@ private final class KBWeakTarget: NSObject {
     @objc func tick(_ l: CADisplayLink) {
         guard let c = canvas else { l.invalidate(); return }
         c.perfTick(l)
+    }
+}
+
+
+/// La cible du bouton « Coller » du système : il donne le texte copié sans demande d'autorisation.
+final class KBPasteTarget: UIView {
+    var onText: ((String) -> Void)?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        pasteConfiguration = UIPasteConfiguration(forAccepting: NSString.self)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func paste(itemProviders: [NSItemProvider]) {
+        for p in itemProviders where p.canLoadObject(ofClass: NSString.self) {
+            _ = p.loadObject(ofClass: NSString.self) { [weak self] obj, _ in
+                guard let s = obj as? String, !s.isEmpty else { return }
+                DispatchQueue.main.async { self?.onText?(s) }
+            }
+            return
+        }
     }
 }

@@ -75,10 +75,29 @@ final class KBClipboard {
         return t
     }
 
+    /// Refusé deux fois de suite (« Ne pas autoriser le collage ») : on arrête de lire tout seul, la demande ne
+    /// revient plus à chaque copie. Le clavier le dit une fois.
+    private(set) var deniedRuns = 0
+    var onDenied: (() -> Void)?
+
     private func read(_ pb: UIPasteboard) -> Bool {
         // Un mot de passe copié depuis un gestionnaire : on ne le garde pas.
         if pb.types.contains(where: { Self.privateTypes.contains($0) }) { return false }
-        guard pb.hasStrings, var text = pb.string else { return false }
+        guard pb.hasStrings else { return false }
+        guard let t = pb.string else {
+            // Du texte est là, mais iOS ne l'a pas donné : la demande a été refusée.
+            deniedRuns += 1
+            if autoSave && deniedRuns >= 2 { autoSave = false; onDenied?() }
+            return false
+        }
+        deniedRuns = 0
+        return keep(t)
+    }
+
+    /// Garde un texte (lu, ou collé par le bouton « Coller » du système, qui ne demande rien).
+    @discardableResult
+    func keep(_ raw: String) -> Bool {
+        var text = raw
         if text.hasPrefix("FOLDBOARD-GRIPLOG:") { return false }
         text = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return false }
