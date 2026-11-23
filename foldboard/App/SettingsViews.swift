@@ -281,6 +281,7 @@ struct PositionView: View {
                     }
                 }
                 Toggle("Tap the empty side to move the keyboard", isOn: $m.settings.tapSideToMove)
+                Toggle("Knock the side of the iPhone to move the keyboard", isOn: $m.settings.knockToMove)
                 if m.settings.mode == .auto {
                     Button(role: .destructive) { confirmForget = true } label: {
                         Label("Forget my hands and start over", systemImage: "arrow.counterclockwise")

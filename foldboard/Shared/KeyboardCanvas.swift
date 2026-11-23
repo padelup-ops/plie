@@ -151,6 +151,7 @@ final class KeyboardCanvas: UIView {
 
     /// Mode automatique : la main qui tient le téléphone (inclinaison, puis GripSense pendant la frappe).
     private let grip = GripDetector()
+    private let knock = KBKnock()
     /// Correction et suggestions de mots.
     // Les correcteurs sont partagés par tous les claviers du processus (iOS en crée un à chaque apparition) :
     // listes, lexique et caches ne sont chargés qu'une fois.
@@ -938,6 +939,13 @@ final class KeyboardCanvas: UIView {
 
     private func syncSensors() {
         guard visible else { return }
+        let wantKnock = eff.knockToMove && layoutMode.isOneHand && !demoOneHand && demoContext == nil
+        if wantKnock && !knock.running {
+            knock.onKnock = { [weak self] pushedRight in self?.knocked(pushedRight) }
+            knock.start()
+        } else if !wantKnock && knock.running {
+            knock.stop()
+        }
         if needSensors && !gripStarted { startGrip() }
         if !needSensors && gripStarted { grip.stop(); gripStarted = false }
     }
@@ -1227,6 +1235,7 @@ final class KeyboardCanvas: UIView {
 
     /// Le contrôleur du clavier est détruit : plus rien ne doit tourner (capteurs, minuteries, mesure).
     func shutdown() {
+        knock.stop()
         if visible { disappeared() }
         perfLink?.invalidate()
         perfLink = nil
@@ -1247,6 +1256,7 @@ final class KeyboardCanvas: UIView {
 
     /// Le clavier disparaît : on coupe les capteurs.
     func disappeared() {
+        knock.stop()
         visible = false
         saveTaps()
         if dictState != .idle {
@@ -1517,6 +1527,33 @@ final class KeyboardCanvas: UIView {
             grip.current = .two
         } else {
             let right = p.x > W / 2
+            place(right: right, settings: s)
+            return
+        }
+        guard s != settings else { return }
+        KBFeedback.shared.tap(sound: .off, haptics: max(0.4, eff.haptics))
+        grip.locked = true
+        settings = s
+        save()
+        layoutIfNeeded()
+    }
+
+    /// Un coup sur le bord de l'iPhone : le clavier va du côté tapé (le coup pousse le téléphone vers l'autre côté).
+    private func knocked(_ pushedRight: Bool) {
+        guard visible, eff.knockToMove, layoutMode.isOneHand, !adjusting, tracks.isEmpty,
+              !(settings.mode(for: gripContext) == .auto && !followsHand) else { return }
+        // L'écran intérieur du Duo a ses axes inversés par rapport à l'écran extérieur (comme pour l'inclinaison).
+        var tappedLeft = pushedRight
+        if gripContext.hasPrefix("open") { tappedLeft.toggle() }
+        let s = settings
+        place(right: !tappedLeft, settings: s)
+    }
+
+    /// Met le clavier à une main d'un côté, et retient comment le téléphone est tenu pour ce côté.
+    private func place(right: Bool, settings start: KBSettings) {
+        var s = start
+        let auto = eff.mode == .auto
+        do {
             if auto { s.autoTwo = false; s.autoRight = right } else { setScreenMode(right ? .right : .left, in: &s) }
             grip.current = right ? .right : .left
             // Le clavier retient comment le téléphone penche quand tu le veux de ce côté : il sortira du bon
@@ -2781,6 +2818,7 @@ final class KeyboardCanvas: UIView {
         let w0 = ProcessInfo.processInfo.systemUptime
         if let t = touches.first { perfPush(&perfDelay, (w0 - t.timestamp) * 1000) }
         defer { perfPush(&perfWork, (ProcessInfo.processInfo.systemUptime - w0) * 1000) }
+        if let t = touches.first { knock.lastTouch = t.timestamp }
         for t in touches {
             let p = t.location(in: self)
             // Un toucher dans la place libre : on attend de voir si c'est un vrai toucher (voir touchesEnded).
