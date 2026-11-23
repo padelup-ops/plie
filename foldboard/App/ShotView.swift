@@ -88,6 +88,13 @@ struct ShotView: View {
             s.mode = .full
         case "open-split":
             s.mode = .split
+        case "bar", "bar-open":
+            // La barre du clavier à une main, avec tous ses boutons (pour vérifier qu'ils tiennent).
+            s.mode = .right
+            s.sidePanel = .none
+            s.translateKey = true
+            s.emojiKey = true
+            s.micByReturn = true
         default:
             s.mode = .right
             s.sidePanel = .emoji
@@ -157,7 +164,7 @@ struct ShotView: View {
             .background(RoundedRectangle(cornerRadius: 20).stroke(Color(.separator)))
             .padding(.horizontal, 12)
             .padding(.bottom, 8)
-            KeyboardPreview(settings: settings, pro: true, text: $text, demoContext: demoContext)
+            KeyboardPreview(settings: settings, pro: true, text: $text, demoContext: demoContext, demoBarOpen: base == "bar-open")
                 .frame(height: KeyboardPreview.height(settings))
         }
         .onAppear { text = draft }

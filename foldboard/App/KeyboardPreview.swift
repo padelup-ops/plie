@@ -17,6 +17,8 @@ struct KeyboardPreview: UIViewRepresentable {
     var demoOneHand = false
     /// Captures : la situation imposée.
     var demoContext: String? = nil
+    /// Captures : la barre ouverte (« ⋯ » touché).
+    var demoBarOpen = false
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -35,6 +37,7 @@ struct KeyboardPreview: UIViewRepresentable {
         }
         context.coordinator.lastText = text
         DispatchQueue.main.async { c.textChanged() }
+        if demoBarOpen { DispatchQueue.main.asyncAfter(deadline: .now() + 1) { c.demoOpenBar() } }
         return c
     }
 

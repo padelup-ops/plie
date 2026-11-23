@@ -1518,6 +1518,9 @@ final class KeyboardCanvas: UIView {
         bringSubviewToFront(sideHint)
     }
 
+    /// Captures : la barre ouverte, comme après avoir touché « ⋯ ».
+    func demoOpenBar() { barOpened = true; layoutTopBar() }
+
     private func placeByTap(at p: CGPoint) {
         guard eff.tapSideToMove else { return }
         let W = bounds.width
@@ -2056,14 +2059,6 @@ final class KeyboardCanvas: UIView {
         updateSideHint()
     }
 
-    /// La barre rangée : des suggestions à montrer, et pas assez de place pour elles à côté des boutons.
-    private var collapsedBar: Bool {
-        guard eff.compactBar, !barOpened, !suggestionItems.isEmpty, emojiQuery == nil, sideButtonsGrid == nil else { return false }
-        let buttons = [globeButton, emojiButton, translateButton, fixButton, micButton, clipButton, adjustButton].filter { !$0.isHidden }
-        let free = bounds.width - CGFloat(buttons.count) * 36 - 90
-        return free < CGFloat(suggestionItems.count) * 78
-    }
-
     /// Le micro dans la rangée du bas, à côté de retour (option) : il quitte alors la barre du haut.
     private var micKey: Bool { eff.micByReturn && eff.dictationKey }
 
@@ -2241,16 +2236,39 @@ final class KeyboardCanvas: UIView {
         translateButton.frame = CGRect(x: fixButton.frame.minX - (trShown ? 36 : 0), y: 0, width: trShown ? 36 : 0, height: h)
         emojiButton.frame = CGRect(x: translateButton.frame.minX - (emojiOn ? 36 : 0), y: 0, width: emojiOn ? 36 : 0, height: h)
         globeButton.frame = CGRect(x: emojiButton.frame.minX - (compact && globe ? 36 : 0), y: 0, width: compact && globe ? 36 : 0, height: h)
-        let cx = max(flipButton.frame.maxX, middleButton.frame.maxX, bigButton.frame.maxX) + 4
-        moreButton.isHidden = true
-        if barOpened, !suggestionItems.isEmpty, sideButtonsGrid == nil {
-            // Les boutons montrés à la demande : « ⋯ » devient ✕ pour revenir aux suggestions.
-            moreButton.isHidden = false
-            moreButton.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
-            moreButton.frame = CGRect(x: cx, y: 0, width: 36, height: h)
-        } else {
-            moreButton.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
+        // Les boutons de position (main, ⇆, milieu, …) à gauche, serrés l'un contre l'autre.
+        var lead = [modeButton, flipButton, middleButton, bigButton].filter { !$0.isHidden && $0.frame.width > 0 }
+        // Clavier à une main : s'il y a la place à côté des touches (là où sont les flèches ‹‹), les boutons de
+        // position y vont, contre le clavier. La barre au-dessus des touches garde toute sa largeur pour les
+        // suggestions et les outils.
+        // (Trop juste à trois : le bouton du milieu passe derrière « ⋯ ».)
+        let roomLeft = x0, roomRight = bounds.width - x1
+        func leadWidth() -> CGFloat { lead.reduce(0) { $0 + $1.frame.width } }
+        var middleTucked = false
+        if confine, sideButtonsGrid == nil, max(roomLeft, roomRight) < leadWidth() + 8,
+           let i = lead.firstIndex(of: middleButton), max(roomLeft, roomRight) >= leadWidth() - middleButton.frame.width + 8 {
+            lead.remove(at: i); middleButton.isHidden = true; middleButton.frame.size.width = 0
+            middleTucked = true
         }
+        let leadOutside = confine && sideButtonsGrid == nil && !lead.isEmpty && max(roomLeft, roomRight) >= leadWidth() + 8
+        func packLead() -> CGFloat {
+            if leadOutside {
+                var x = roomLeft >= roomRight ? x0 - 2 - leadWidth() : x1 + 2
+                for b in lead { b.frame.origin.x = x; x += b.frame.width }
+                return x0 + 6
+            }
+            var x = x0 + 6
+            for b in lead { b.frame.origin.x = x; x += b.frame.width }
+            return x + 4
+        }
+        func drop(_ b: UIButton) {
+            guard let i = lead.firstIndex(of: b) else { return }
+            lead.remove(at: i); b.isHidden = true; b.frame.size.width = 0
+        }
+        var cx = packLead()
+        moreButton.isHidden = true
+        moreButton.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
+        moreButton.tintColor = theme.text.withAlphaComponent(0.7)
         if let g = sideButtonsGrid {
             translateButton.isHidden = true
             fixButton.isHidden = true
@@ -2272,39 +2290,75 @@ final class KeyboardCanvas: UIView {
             }
             chips.frame = CGRect(x: cx, y: 0, width: max(0, x1 - cx - 6), height: h)
         } else {
-            // Trop de boutons pour les suggestions : seuls les boutons secondaires (traduire, corriger, réglages,
-            // 🌐 😀) se rangent derrière « ⋯ ». Le presse-papier, le micro et masquer-le-clavier restent visibles,
-            // et chaque bouton garde le côté choisi dans les réglages (à droite, à gauche, de part et d'autre).
-            var tucked: [UIButton] = []
-            if collapsedBar {
-                tucked = [globeButton, emojiButton, translateButton, fixButton, adjustButton].filter { !$0.isHidden }
-                tucked.forEach { $0.isHidden = true }
-            }
-            if !tucked.isEmpty {
-                moreButton.isHidden = false
-                moreButton.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
-                moreButton.tintColor = theme.text.withAlphaComponent(0.7)
-            }
+            // La barre ne déborde jamais : elle n'a que la largeur du clavier (une main) et chaque bouton garde
+            // sa place. Les boutons secondaires (🌐 😀 traduire, corriger, réglages) se rangent derrière « ⋯ »
+            // quand il faut de la place ; le presse-papier, le micro et masquer-le-clavier restent visibles.
             let order: [UIButton] = [globeButton, emojiButton, translateButton, fixButton, micButton, clipButton, adjustButton, hideButton]
-            func shown(_ list: [UIButton]) -> [UIButton] { list.filter { !$0.isHidden && ($0 === moreButton || $0.frame.width > 0) } }
+            let secondary: [UIButton] = [middleButton, globeButton, emojiButton, translateButton, fixButton, adjustButton]
             func width(_ b: UIButton) -> CGFloat { b === hideButton ? 40 : 36 }
-            var start = cx
-            if barOpened, !moreButton.isHidden, tucked.isEmpty { start = moreButton.frame.maxX + 2 }
-            var leftGroup: [UIButton] = [], rightGroup: [UIButton] = []
-            switch eff.barLayout {
-            case "left":
-                leftGroup = shown(order + (tucked.isEmpty ? [] : [moreButton]))
-            case "split":
-                leftGroup = shown([globeButton, emojiButton, translateButton, fixButton, micButton, clipButton] + (tucked.isEmpty ? [] : [moreButton]))
-                rightGroup = shown([adjustButton, hideButton])
-            default:
-                rightGroup = shown((tucked.isEmpty ? [] : [moreButton]) + order)
+            var tools = order.filter { !$0.isHidden && $0.frame.width > 0 }
+            if middleTucked { tools.insert(middleButton, at: 0) }
+            let span = x1 - x0 - 12
+            if barOpened {
+                // « ⋯ » ouvert : les outils prennent la place des suggestions, en une rangée régulière, et ✕ revient
+                // aux suggestions. S'il n'y a pas la place, les boutons de position attendent la fermeture.
+                moreButton.isHidden = false
+                moreButton.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
+                let inRow = leadOutside ? [] : lead
+                var row = eff.barLayout == "left" ? inRow + tools + [moreButton] : inRow + [moreButton] + tools
+                for b in [middleButton, bigButton, modeButton, flipButton] where !leadOutside && CGFloat(row.count) * 36 > span {
+                    drop(b); row.removeAll { $0 === b }
+                }
+                let step = span / CGFloat(max(1, row.count))
+                let w = min(44, step)
+                for (i, b) in row.enumerated() {
+                    b.isHidden = false
+                    b.frame = CGRect(x: x0 + 6 + CGFloat(i) * step + (step - w) / 2, y: 0, width: w, height: h)
+                }
+                chips.frame = CGRect(x: x1, y: 0, width: 0, height: h)
+            } else {
+                let words = !suggestionItems.isEmpty || emojiQuery != nil
+                // La place à garder pour les suggestions : les trois mots en entier si la barre est « rangée »
+                // (réglage), sinon au moins de quoi en lire un.
+                let wordsMin: CGFloat = !words ? 0 : (eff.compactBar && emojiQuery == nil ? CGFloat(suggestionItems.count) * 78 : 110)
+                let leadW: CGFloat = leadOutside ? 0 : leadWidth() + 4
+                let toolsW: CGFloat = tools.reduce(0) { $0 + width($1) }
+                var tucked: [UIButton] = []
+                if middleTucked || leadW + toolsW + wordsMin > span {
+                    tucked = tools.filter { secondary.contains($0) }
+                    tucked.forEach { $0.isHidden = true }
+                }
+                var kept = tools.filter { !tucked.contains($0) }
+                if !tucked.isEmpty { moreButton.isHidden = false }
+                // Encore trop serré (petit écran) : le bouton du milieu, puis le choix de position, attendent « ⋯ ».
+                func needed() -> CGFloat {
+                    let a: CGFloat = leadOutside ? 0 : leadWidth() + 4
+                    let k: CGFloat = kept.reduce(0) { $0 + width($1) }
+                    let m: CGFloat = moreButton.isHidden ? 0 : 36
+                    return a + k + m + min(wordsMin, 110)
+                }
+                for b in [middleButton, bigButton, modeButton] where !leadOutside && needed() > span { drop(b) }
+                if needed() > span, kept.contains(micButton), micButton.isHidden == false {
+                    micButton.isHidden = true; kept.removeAll { $0 === micButton }; moreButton.isHidden = false
+                }
+                cx = packLead()
+                let more: [UIButton] = moreButton.isHidden ? [] : [moreButton]
+                var leftGroup: [UIButton] = [], rightGroup: [UIButton] = []
+                switch eff.barLayout {
+                case "left":
+                    leftGroup = kept + more
+                case "split":
+                    leftGroup = kept.filter { $0 !== adjustButton && $0 !== hideButton } + more
+                    rightGroup = kept.filter { $0 === adjustButton || $0 === hideButton }
+                default:
+                    rightGroup = more + kept
+                }
+                var x = cx
+                for b in leftGroup { b.frame = CGRect(x: x, y: 0, width: width(b), height: h); x += width(b) }
+                var r = x1 - 6
+                for b in rightGroup.reversed() { r -= width(b); b.frame = CGRect(x: r, y: 0, width: width(b), height: h) }
+                chips.frame = CGRect(x: x + (leftGroup.isEmpty ? 0 : 4), y: 0, width: max(0, r - x - (leftGroup.isEmpty ? 4 : 8)), height: h)
             }
-            var x = start
-            for b in leftGroup { b.frame = CGRect(x: x, y: 0, width: width(b), height: h); x += width(b) }
-            var r = x1 - 6
-            for b in rightGroup.reversed() { r -= width(b); b.frame = CGRect(x: r, y: 0, width: width(b), height: h) }
-            chips.frame = CGRect(x: x + (leftGroup.isEmpty ? 0 : 4), y: 0, width: max(0, r - x - (leftGroup.isEmpty ? 4 : 8)), height: h)
         }
         dictLabel.frame = chips.frame
         dictLabel.textColor = theme.text
@@ -2332,7 +2386,7 @@ final class KeyboardCanvas: UIView {
             let emoji = suggestionEmoji()
             let ew: CGFloat = emoji.map { CGFloat($0.es.count) * 40 + 12 } ?? 0
             let n = CGFloat(suggestionItems.count)
-            let w = max(60, (chips.bounds.width - ew - (2 * n - 2) * 8 - (n - 1)) / n)
+            let w = max(chips.bounds.width < 240 ? 50 : 60, (chips.bounds.width - ew - (2 * n - 2) * 8 - (n - 1)) / n)
             for (i, item) in suggestionItems.enumerated() {
                 let b = UIButton(type: .system)
                 b.setTitle(i == 0 && suggestionBest != nil ? "“\(item)”" : item, for: .normal)
