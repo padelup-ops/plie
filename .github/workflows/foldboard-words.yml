@@ -1,0 +1,39 @@
+# FOLDBOARD : agrandit les listes de mots (FrequencyWords, CC BY-SA 4.0) et prépare les listes de vraies fautes
+# pour le banc d'essai. Les listes de mots arrivent sur la branche ci-foldboard-words (à recopier dans Shared/ après
+# la mesure de mémoire) ; les fautes restent sur cette branche (le banc les lit, rien n'est livré).
+name: Foldboard - Words
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "Mots par langue"
+        required: false
+        default: "100000"
+jobs:
+  words:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Construire
+        run: |
+          set -e
+          mkdir -p /tmp/in /tmp/out
+          curl -sfL -o /tmp/in/fr_full.txt https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/fr/fr_full.txt
+          curl -sfL -o /tmp/in/en_full.txt https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/en/en_full.txt
+          curl -sfL -o /tmp/in/codespell.txt https://raw.githubusercontent.com/codespell-project/codespell/main/codespell_lib/data/dictionary.txt || true
+          curl -sfL -A "FoldboardBench/1.0 (github.com/padelup-ops/plie)" -o /tmp/in/wiki-en.txt "https://en.wikipedia.org/w/index.php?title=Wikipedia:Lists_of_common_misspellings/For_machines&action=raw" || true
+          curl -sfL -A "FoldboardBench/1.0 (github.com/padelup-ops/plie)" -o /tmp/in/wiki-fr.txt "https://fr.wikipedia.org/w/index.php?title=Wikip%C3%A9dia:Liste_de_fautes_d%27orthographe_courantes&action=raw" || true
+          ls -la /tmp/in
+          head -c 1500 /tmp/in/wiki-fr.txt || true
+          cd foldboard
+          python3 tools/words/build.py /tmp/out /tmp/in/fr_full.txt /tmp/in/en_full.txt ${{ inputs.count }} $(ls /tmp/in/wiki-en.txt /tmp/in/codespell.txt /tmp/in/wiki-fr.txt 2>/dev/null)
+          head -5 /tmp/out/typos-fr.txt /tmp/out/typos-en.txt
+      - name: Publier
+        run: |
+          cd /tmp/out
+          git init -q -b ci-foldboard-words
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git add -A && git commit -qm "Listes de mots et fautes"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-foldboard-words
