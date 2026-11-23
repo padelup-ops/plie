@@ -177,7 +177,7 @@ struct TrackerSummary: View {
                 }
                 .frame(width: compact ? 120 : 240, height: compact ? 120 : 240)
                 VStack(alignment: .leading, spacing: 10) {
-                    stat(String(localized: "Missions"), p.missions, 0, detail: "\(content.missions.filter { progress.isDone($0) }.count)/\(content.missions.count)")
+                    stat(String(localized: "Missions"), p.missions, 0, detail: "\(content.storyMissions.filter { progress.isDone($0) }.count)/\(content.storyMissions.count)")
                     stat(String(localized: "Places"), p.places, 1, detail: "\(content.countedPlaces.filter { progress.visited($0) }.count)/\(content.countedPlaces.count)")
                     stat(String(localized: "Collectibles"), p.collectibles, 2, detail: "\(content.content.collectibles.reduce(0) { $0 + min($1.target, progress.found($1)) })/\(content.totalCollectibles)")
                     stat(String(localized: "Challenges"), p.challenges, 3, detail: "\(progress.data.challenges.count)/\(content.content.challenges.count)")
@@ -225,10 +225,10 @@ struct MissionDetail: View {
                         .foregroundStyle(VF.coral)
                 }
                 if progress.hidden(mission.chapter) && !revealed {
-                    Text("Hidden mission").font(.largeTitle.bold())
+                    Text("Hidden mission").font(VF.display(40))
                     SpoilerGate(chapter: mission.chapter) { revealed = true }
                 } else {
-                    Text(mission.title).font(.largeTitle.bold())
+                    Text(mission.title).font(VF.display(40))
                     HStack(spacing: 14) {
                         if let g = mission.giver { Label(g, systemImage: "person.fill") }
                         if let l = mission.location { Label(l, systemImage: "mappin.and.ellipse") }
@@ -251,8 +251,7 @@ struct MissionDetail: View {
                                 .buttonStyle(.plain)
                             }
                         }
-                        .padding()
-                        .background(.regularMaterial, in: .rect(cornerRadius: 18))
+                        .vfCard(radius: 18, padding: 16)
                     }
                     if let w = mission.walkthrough {
                         Text("Walkthrough").font(.headline)
@@ -264,6 +263,20 @@ struct MissionDetail: View {
                     if let u = mission.unlocks {
                         Label(u, systemImage: "lock.open.fill").font(.subheadline).foregroundStyle(VF.teal)
                     }
+                    // Coincé ? Des parties filmées par les joueurs, sur YouTube (on n'héberge aucune image du jeu).
+                    Link(destination: Self.youtube(mission)) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "play.rectangle.fill").font(.title2).foregroundStyle(.red)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Stuck? Watch it on YouTube").font(.headline).foregroundStyle(.primary)
+                                Text("Opens player walkthroughs of this mission on YouTube.").font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: "arrow.up.right").foregroundStyle(.tertiary)
+                        }
+                        .vfCard(radius: 18, padding: 14)
+                    }
+                    .buttonStyle(.plain)
                     MissionShots(mission: mission)
                 }
                 Button { progress.toggle(mission) } label: {
@@ -280,6 +293,14 @@ struct MissionDetail: View {
             .frame(maxWidth: .infinity)
         }
         .navigationBarTitleDisplayMode(.inline)
+        .background(VFBackdrop())
+    }
+
+    /// Une recherche YouTube « GTA 6 <mission> » : les vidéos des joueurs, ouvertes dans YouTube ou Safari.
+    static func youtube(_ m: VFMission) -> URL {
+        var c = URLComponents(string: "https://www.youtube.com/results")!
+        c.queryItems = [URLQueryItem(name: "search_query", value: "GTA 6 \"\(m.title)\" mission walkthrough")]
+        return c.url!
     }
 }
 

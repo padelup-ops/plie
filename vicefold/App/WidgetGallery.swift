@@ -29,7 +29,7 @@ struct WidgetGallery: View {
 
                 // L'écran verrouillé
                 VStack(spacing: 12) {
-                    Text(Date(), format: .dateTime.hour().minute()).font(.system(size: 64, weight: .semibold, design: .rounded)).foregroundStyle(.white)
+                    Text(ShotMode.route != nil ? Calendar.current.date(bySettingHour: 9, minute: 41, second: 0, of: Date()) ?? Date() : Date(), format: .dateTime.hour().minute()).font(.system(size: 64, weight: .semibold, design: .rounded)).foregroundStyle(.white)
                     HStack(spacing: 12) {
                         VFWidgetFace(snap: snap, size: .circular).frame(width: 64, height: 64)
                         VFWidgetFace(snap: snap, size: .rectangular).frame(width: 170, height: 64)

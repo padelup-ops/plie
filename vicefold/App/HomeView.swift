@@ -329,7 +329,7 @@ struct Polaroid: View {
                 if let x = egg.x, let y = egg.y {
                     MapPostcard(focus: CGPoint(x: x, y: y), zoom: 6, pin: true)
                 } else {
-                    VF.dusk.overlay(Image(systemName: "oval.portrait.fill").font(.system(size: 44)).foregroundStyle(.white.opacity(0.85)))
+                    VF.dusk.overlay(Image(systemName: "sparkles").font(.system(size: 40, weight: .semibold)).foregroundStyle(.white.opacity(0.9)))
                 }
                 if progress.found(egg) {
                     Label("Found", systemImage: "checkmark.seal.fill").font(.caption.weight(.bold))

@@ -18,19 +18,21 @@ struct VFWidgetFace: View {
         return (cal.dateComponents([.day], from: cal.startOfDay(for: VF.release), to: cal.startOfDay(for: now)).day ?? 0) + 1
     }
 
+    private var pct: Int { Int((snap.percent * 100).rounded()) }
+
     var body: some View {
         switch size {
         case .circular:
-            Gauge(value: snap.percent) { Text("VF") } currentValueLabel: { Text("\(Int(snap.percent * 100))") }
+            Gauge(value: snap.percent) { Text("VF") } currentValueLabel: { Text("\(pct)") }
                 .gaugeStyle(.accessoryCircularCapacity)
         case .rectangular:
             VStack(alignment: .leading, spacing: 1) {
-                Text("\(Int(snap.percent * 100))% of Leonida").font(.headline)
+                Text("\(pct)% of Leonida").font(.headline)
                 Text(snap.nextMission ?? String(localized: "All missions done")).font(.caption).lineLimit(2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         case .inline:
-            Text("\(Int(snap.percent * 100))% of Leonida")
+            Text("\(pct)% of Leonida")
         case .small:
             VStack(alignment: .leading, spacing: 0) {
                 percent(38)
@@ -68,7 +70,7 @@ struct VFWidgetFace: View {
     }
 
     private func percent(_ size: CGFloat) -> some View {
-        Text("\(Int((snap.percent * 100).rounded()))%")
+        Text("\(pct)%")
             .font(VF.display(size))
             .monospacedDigit()
             .lineLimit(1)
@@ -79,7 +81,7 @@ struct VFWidgetFace: View {
     private func bars(height: CGFloat, labels: Bool) -> some View {
         let items: [(LocalizedStringKey, Double, Color, Int)] = [("Missions", snap.missions, VF.flamingo, 0), ("Places", snap.places, VF.palm, 1),
                                                                  ("Items", snap.collectibles, VF.sun, 2), ("Challenges", snap.challenges, VF.sky, 3)]
-        return HStack(alignment: .bottom, spacing: labels ? 18 : 8) {
+        return HStack(alignment: .bottom, spacing: labels ? 10 : 9) {
             ForEach(0..<items.count, id: \.self) { i in
                 let it = items[i]
                 VStack(spacing: 4) {
@@ -89,7 +91,7 @@ struct VFWidgetFace: View {
                             Capsule().fill(it.2.gradient).frame(height: max(5, g.size.height * min(1, it.1)))
                         }
                     }
-                    .frame(height: height)
+                    .frame(width: labels ? 26 : 13, height: height)
                     if labels {
                         Text(count(it.3)).font(.system(size: 11, weight: .bold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
                         Text(it.0).font(.system(size: 9, weight: .semibold)).foregroundStyle(.secondary).lineLimit(1).fixedSize()

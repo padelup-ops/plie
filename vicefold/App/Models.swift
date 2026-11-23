@@ -374,6 +374,8 @@ final class ContentStore {
     func guides(_ c: VFGuideCategory) -> [VFGuide] { content.guides.filter { $0.category == c } }
     func place(_ id: String) -> VFPlace? { content.places.first { $0.id == id } }
     var totalCollectibles: Int { content.collectibles.reduce(0) { $0 + $1.target } }
+    /// Les missions de l'histoire (celles qui comptent pour le 100 %).
+    var storyMissions: [VFMission] { content.missions.filter { $0.optional != true } }
     /// Les lieux qui comptent pour le 100 % (pas les régions ni les lieux de la communauté).
     var countedPlaces: [VFPlace] { content.places.filter { $0.kind != .region && !$0.community } }
 }

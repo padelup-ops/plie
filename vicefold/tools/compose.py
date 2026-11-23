@@ -13,12 +13,12 @@ from playwright.sync_api import sync_playwright
 
 SRC, OUT = sys.argv[1], sys.argv[2]
 os.makedirs(OUT, exist_ok=True)
-ROUTES = ["home", "mappins", "mission", "collectibles", "eggs", "guide", "characters"]
+ROUTES = ["home", "mappins", "mission", "collectibles", "eggs", "widgets", "guide", "characters"]
 C = {
     "en": {"home": ("Your Leonida,", "at 100%"), "mappins": ("A detailed map,", "600 places and your pins"), "mission": ("All 91 missions,", "spoiler-free"),
-           "collectibles": ("Every 100% category,", "with a counter"), "eggs": ("Every easter egg,", "spoiler-free"), "guide": ("Guides for", "every part of the game"), "characters": ("Who's who,", "with your notes")},
+           "collectibles": ("Every 100% category,", "with a counter"), "eggs": ("Every easter egg,", "spoiler-free"), "guide": ("Guides for", "every part of the game"), "characters": ("Who's who,", "with your notes"), "widgets": ("Progress widgets,", "synced with iCloud")},
     "fr": {"home": ("Ton Leonida,", "à 100 %"), "mappins": ("Une carte détaillée,", "600 lieux et tes épingles"), "mission": ("Les 91 missions,", "sans spoiler"),
-           "collectibles": ("Tout le 100 %,", "avec un compteur"), "eggs": ("Tous les easter eggs,", "sans spoiler"), "guide": ("Des guides pour", "tout le jeu"), "characters": ("Qui est qui,", "avec tes notes")},
+           "collectibles": ("Tout le 100 %,", "avec un compteur"), "eggs": ("Tous les easter eggs,", "sans spoiler"), "guide": ("Des guides pour", "tout le jeu"), "characters": ("Qui est qui,", "avec tes notes"), "widgets": ("Widgets de progression,", "synchro iCloud")},
 }
 SIZES = {"duo": (2007, 2853, "duo-"), "iphone": (1290, 2796, ""), "ipad": (2064, 2752, "ipad-")}
 HTML = """<!doctype html><html><head><meta charset="utf-8"><style>
