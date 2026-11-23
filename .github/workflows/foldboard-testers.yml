@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       emails:
-        description: "Adresses e-mail (virgules ou espaces)"
-        required: true
+        description: "Laisser « secret » : les adresses sont lues dans le secret FOLDBOARD_NEW_TESTERS (jamais dans les journaux publics)"
+        required: false
+        default: "secret"
       build:
         description: "Numéro du build"
         required: true
@@ -21,7 +22,7 @@ jobs:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
-      EMAILS: ${{ inputs.emails }}
+      EMAILS: ${{ secrets.FOLDBOARD_NEW_TESTERS }}
       BUILD_NUMBER: ${{ inputs.build }}
       GROUP: ${{ inputs.group }}
     steps:

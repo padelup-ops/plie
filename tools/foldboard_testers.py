@@ -14,6 +14,16 @@ API = "https://api.appstoreconnect.apple.com"
 BUNDLE = "com.padelup.foldboard"
 SOURCE_BUNDLE = "com.padelup.clapet"
 EMAILS = [e.strip().lower().removeprefix("mailto:") for e in re.split(r"[,\s]+", os.environ.get("EMAILS", "")) if e.strip()]
+# Le dépôt est public : chaque adresse est masquée dans les journaux, et on n'en affiche qu'un aperçu.
+for _e in EMAILS:
+    print(f"::add-mask::{_e}")
+
+
+def hide(e):
+    name, _, domain = e.partition("@")
+    return f"{name[:1]}…@{domain[:1]}…"
+
+
 BUILD = os.environ.get("BUILD_NUMBER", "").strip()
 GROUP = os.environ.get("GROUP", "").strip() or "Premiers testeurs"
 
@@ -157,14 +167,14 @@ for email in EMAILS:
     found = call("GET", f"/v1/betaTesters?filter[email]={email}&filter[apps]={app_id}&limit=5").get("data", [])
     if found:
         tid = found[0]["id"]
-        step(f"{email} ajouté au groupe", call("POST", f"/v1/betaGroups/{gid}/relationships/betaTesters", {"data": [{"type": "betaTesters", "id": tid}]}))
+        step(f"{hide(email)} ajouté au groupe", call("POST", f"/v1/betaGroups/{gid}/relationships/betaTesters", {"data": [{"type": "betaTesters", "id": tid}]}))
     else:
-        r = step(f"{email} invité", call("POST", "/v1/betaTesters",
+        r = step(f"{hide(email)} invité", call("POST", "/v1/betaTesters",
                  {"data": {"type": "betaTesters", "attributes": {"email": email},
                            "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": gid}]}}}}))
         tid = (r.get("data") or {}).get("id")
     if tid:
-        step(f"invitation TestFlight envoyée à {email}", call("POST", "/v1/betaTesterInvitations",
+        step(f"invitation TestFlight envoyée à {hide(email)}", call("POST", "/v1/betaTesterInvitations",
              {"data": {"type": "betaTesterInvitations", "relationships": {
                  "app": {"data": {"type": "apps", "id": app_id}},
                  "betaTester": {"data": {"type": "betaTesters", "id": tid}}}}}))
