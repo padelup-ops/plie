@@ -53,6 +53,7 @@ targets:
           - CFBundleURLName: com.padelup.vicefold
             CFBundleURLSchemes: [vicefold]
         VicefoldAppGroup: group.com.padelup.vicefold
+        VicefoldKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.vicefold.shared
         UIBackgroundModes: [fetch]
         BGTaskSchedulerPermittedIdentifiers: [com.padelup.vicefold.refresh]
     entitlements:
@@ -93,6 +94,7 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         VicefoldAppGroup: group.com.padelup.vicefold
+        VicefoldKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.vicefold.shared
     entitlements:
       path: Widget/VicefoldWidget.entitlements
       properties:

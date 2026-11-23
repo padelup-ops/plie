@@ -38,6 +38,21 @@ for ident, label in ((APP, "Vicefold"), (APP + ".widget", "Vicefold Widget")):
         r = call("POST", "/v1/bundleIds", {"data": {"type": "bundleIds", "attributes": {"identifier": ident, "name": label, "platform": "IOS"}}})
         print("ok     identifiant créé :" if "data" in r else "ÉCHEC  identifiant :", ident, "" if "data" in r else r)
 
+# Capacités de l'app : Game Center (amis, classement) et iCloud (synchro clé-valeur de la progression).
+bid_app = call("GET", f"/v1/bundleIds?filter[identifier]={APP}&filter[platform]=IOS").get("data", [])
+bid_app = next((b for b in bid_app if b["attributes"]["identifier"] == APP), None)
+if bid_app:
+    have = {c["attributes"].get("capabilityType") for c in call("GET", f"/v1/bundleIds/{bid_app['id']}/bundleIdCapabilities").get("data", [])}
+    print("capacités :", sorted(x for x in have if x))
+    for cap, settings in (("GAME_CENTER", None), ("ICLOUD", [{"key": "ICLOUD_VERSION", "options": [{"key": "XCODE_6", "enabled": True}]}])):
+        if cap in have:
+            print("ok     capacité déjà là :", cap); continue
+        attrs = {"capabilityType": cap}
+        if settings: attrs["settings"] = settings
+        r = call("POST", "/v1/bundleIdCapabilities", {"data": {"type": "bundleIdCapabilities", "attributes": attrs,
+                 "relationships": {"bundleId": {"data": {"type": "bundleIds", "id": bid_app["id"]}}}}})
+        print("ok     capacité ajoutée :" if "data" in r else "ÉCHEC  capacité :", cap, "" if "data" in r else json.dumps(r)[:600])
+
 apps = call("GET", "/v1/apps?limit=200").get("data", [])
 for a in apps:
     if "gta" in a["attributes"]["name"].lower() or "vice" in a["attributes"]["name"].lower():
