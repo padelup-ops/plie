@@ -29,9 +29,11 @@ jobs:
           node-version: 22
       - name: Publier
         run: |
-          echo "::add-mask::${{ inputs.proxy }}"
+          # Le chemin de déploiement est lu dans l'événement (jamais écrit dans le script affiché du journal public).
+          PROXY=$(jq -r '.inputs.proxy' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$PROXY"
           cd "${{ inputs.dir }}"
-          npx -y @netlify/mcp@latest --site-id "${{ inputs.site }}" --proxy-path "${{ inputs.proxy }}" 2>&1 | tail -20
+          npx -y @netlify/mcp@latest --site-id "${{ inputs.site }}" --proxy-path "$PROXY" 2>&1 | tail -20
       - name: Vérifier
         run: |
           sleep 10
@@ -40,3 +42,6 @@ jobs:
           done
           echo "idées : $(curl -s ${{ inputs.url }}/api/ideas | head -c 300)"
           echo "modération sans clé : $(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/api/ideas/admin)"
+          echo "entraide Vicefold : $(curl -s ${{ inputs.url }}/api/vicefold/counts | head -c 300)"
+          echo "modération Vicefold sans clé : $(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/api/vicefold/admin)"
+          echo "page de modération : $(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/vicefold/moderation/)"

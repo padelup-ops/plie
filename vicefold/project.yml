@@ -35,7 +35,7 @@ targets:
       path: App/Info.plist
       properties:
         UIAppFonts: [Anton-Regular.ttf]
-        CFBundleDisplayName: GTA 6 Guide
+        CFBundleDisplayName: GTA VI Guide
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
@@ -85,7 +85,7 @@ targets:
       path: Widget/Info.plist
       properties:
         UIAppFonts: [Anton-Regular.ttf]
-        CFBundleDisplayName: GTA 6 Guide
+        CFBundleDisplayName: GTA VI Guide
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en

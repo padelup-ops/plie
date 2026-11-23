@@ -84,7 +84,7 @@ struct HomeView: View {
 
     static var appName: String {
         Bundle.main.localizedInfoDictionary?["CFBundleDisplayName"] as? String
-            ?? Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String ?? "GTA 6 Guide"
+            ?? Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String ?? "GTA VI Guide"
     }
 
     // MARK: En-tête
