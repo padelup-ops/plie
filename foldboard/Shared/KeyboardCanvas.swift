@@ -741,6 +741,12 @@ final class KeyboardCanvas: UIView {
         Self.alive += 1
         isMultipleTouchEnabled = true
         clipsToBounds = true
+        // Passer de l'écran extérieur à l'écran intérieur garde parfois la même fenêtre : un changement de taille de
+        // l'écran (classes de taille, échelle) refait aussi le clavier pour ce nouvel écran.
+        registerForTraitChanges([UITraitHorizontalSizeClass.self, UITraitVerticalSizeClass.self, UITraitDisplayScale.self]) { (v: KeyboardCanvas, _: UITraitCollection) in
+            v.builtFor = .zero
+            v.setNeedsLayout()
+        }
         // Comme le clavier d'Apple : un panneau aux coins du haut arrondis.
         layer.cornerRadius = 24
         layer.cornerCurve = .continuous

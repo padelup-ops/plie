@@ -347,8 +347,16 @@ struct KBSettings: Codable, Equatable {
         let ratio = min(w, h) / max(1, max(w, h))
         let short = Double(min(w, h))
         let open: Bool
-        if let closed {
-            // La charnière dit tout.
+        if let closed, closed, short >= 600 {
+            // La charnière dit « fermé » mais l'écran fait plus de 600 pt : c'est l'écran intérieur (la charnière
+            // n'a pas encore suivi en passant d'un écran à l'autre ; le clavier se mettait alors en disposition
+            // d'écran extérieur sur l'écran intérieur, clignotait et tapait d'autres lettres).
+            open = true
+        } else if let closed, !closed, ratio > 0.6, short >= 420, short <= 520 {
+            // L'inverse : la taille est celle de l'écran extérieur.
+            open = false
+        } else if let closed {
+            // Sinon, la charnière dit tout.
             open = !closed
         } else if short >= 600 {
             // Mesuré sur un vrai Duo (azooKey-Duo) : écran extérieur 466 × 678 pt, écran intérieur 669 × 951 pt.
