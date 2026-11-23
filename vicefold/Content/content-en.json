@@ -1,0 +1,250 @@
+{
+ "version": 1,
+ "updated": "2026-11-23",
+ "sources": [
+  "Facts from the publisher's official character and setting announcements. All text written for Vicefold."
+ ],
+ "chapters": [],
+ "missions": [],
+ "guides": [
+  {
+   "id": "start-how",
+   "category": "start",
+   "title": "How to use Vicefold",
+   "summary": "Spoilers, map, tracker: the 2-minute tour.",
+   "body": "# Spoiler-free by default\nTell Vicefold which chapter you're in (Settings › Spoilers). Anything after it stays hidden until you get there. Finishing a mission moves you forward on its own.\n# Your map\n- Tap the pin button, then tap the map to drop your own pin. Give it a name, a note, an icon and a color.\n- Mark places as visited: they count toward your 100%.\n- With Pro, import a screenshot of the game's full map and line it up once: your pins then sit on your real map.\n# Your 100%\nMissions, places, collectibles and challenges each fill a part of the ring. Share it as an image from the Tracker.\n> On an iPhone Duo, open it: the list sits on one side of the fold and the details on the other.",
+   "spoiler": 0,
+   "minutes": 2
+  },
+  {
+   "id": "start-first",
+   "category": "start",
+   "title": "Your first hours",
+   "summary": "Good habits that pay off for the whole game.",
+   "body": "# Follow the story first\nThe early missions open up the map, the shops and most activities. Side content is easier once you have a car, a phone and some cash.\n# Habits worth having\n- Check your phone often: new contacts, jobs and texts unlock activities.\n- Keep some money aside: properties and upgrades pay back over time.\n- Explore by boat as well as by car: a lot of Leonida is coastline and wetlands.\n- Note anything odd on your Vicefold map with a pin: you'll want to come back to it.\n> Stuck on a mission? Open it in the Tracker: objectives and tips are there, spoiler-free.",
+   "spoiler": 0,
+   "minutes": 3
+  },
+  {
+   "id": "regions",
+   "category": "landmarks",
+   "title": "The regions of Leonida",
+   "summary": "Six regions, from the city to the national park.",
+   "body": "# Vice City\nThe big city on the east coast, with Vice Beach on its barrier island.\n# Leonida Keys\nIslands linked by long bridges, with boats everywhere.\n# Grassrivers\nWetlands and airboats in the south: watch the water.\n# Port Gellhorn\nA faded beach town on the gulf coast, in the north-west.\n# Ambrosia\nFarmland and sugar country around Lake Leonida.\n# Mount Kalaga\nForests, trails and rivers in the national park up north.",
+   "spoiler": 0,
+   "minutes": 3
+  }
+ ],
+ "places": [
+  {
+   "id": "r-vice",
+   "name": "Vice City",
+   "kind": "region",
+   "x": 0.82,
+   "y": 0.61,
+   "note": "Leonida's big city: beaches, nightlife, money."
+  },
+  {
+   "id": "r-keys",
+   "name": "Leonida Keys",
+   "kind": "region",
+   "x": 0.45,
+   "y": 0.93,
+   "note": "A chain of islands linked by long bridges."
+  },
+  {
+   "id": "r-grass",
+   "name": "Grassrivers",
+   "kind": "region",
+   "x": 0.6,
+   "y": 0.71,
+   "note": "Wetlands, airboats and alligators."
+  },
+  {
+   "id": "r-gellhorn",
+   "name": "Port Gellhorn",
+   "kind": "region",
+   "x": 0.18,
+   "y": 0.27,
+   "note": "A faded beach town on the gulf coast."
+  },
+  {
+   "id": "r-ambrosia",
+   "name": "Ambrosia",
+   "kind": "region",
+   "x": 0.52,
+   "y": 0.47,
+   "note": "Sugar country around the big lake."
+  },
+  {
+   "id": "r-kalaga",
+   "name": "Mount Kalaga",
+   "kind": "region",
+   "x": 0.5,
+   "y": 0.09,
+   "note": "A national park of forests, trails and rivers."
+  },
+  {
+   "id": "l-beach",
+   "name": "Vice Beach",
+   "kind": "landmark",
+   "x": 0.9,
+   "y": 0.64,
+   "note": "The barrier island: hotels, neon and the boardwalk.",
+   "region": "Vice City"
+  },
+  {
+   "id": "l-lake",
+   "name": "Lake Leonida",
+   "kind": "landmark",
+   "x": 0.58,
+   "y": 0.37,
+   "note": "The big lake in the middle of the state.",
+   "region": "Ambrosia"
+  },
+  {
+   "id": "l-bridge",
+   "name": "Overseas bridges",
+   "kind": "landmark",
+   "x": 0.62,
+   "y": 0.86,
+   "note": "The long road out to the islands.",
+   "region": "Leonida Keys"
+  },
+  {
+   "id": "l-pen",
+   "name": "Leonida Penitentiary",
+   "kind": "landmark",
+   "x": 0.36,
+   "y": 0.52,
+   "note": "Where Lucia's story starts.",
+   "spoiler": 0
+  },
+  {
+   "id": "a-airboat",
+   "name": "Airboat tours",
+   "kind": "activity",
+   "x": 0.55,
+   "y": 0.73,
+   "note": "Rent an airboat and explore the wetlands.",
+   "region": "Grassrivers"
+  },
+  {
+   "id": "a-fishing",
+   "name": "Pier fishing",
+   "kind": "activity",
+   "x": 0.2,
+   "y": 0.31,
+   "note": "Cast a line from the old pier.",
+   "region": "Port Gellhorn"
+  },
+  {
+   "id": "a-hike",
+   "name": "Kalaga trails",
+   "kind": "activity",
+   "x": 0.47,
+   "y": 0.13,
+   "note": "Hiking trails with views over the park.",
+   "region": "Mount Kalaga"
+  }
+ ],
+ "collectibles": [],
+ "challenges": [],
+ "characters": [
+  {
+   "id": "jason",
+   "name": "Jason Duval",
+   "role": "Protagonist",
+   "bio": "Grew up around grifters and crooks, then tried the army. Now he works for a drug runner down in the Keys and wants something steadier — until he meets Lucia.",
+   "tags": [
+    "Keys",
+    "Lucia"
+   ],
+   "spoiler": 0
+  },
+  {
+   "id": "lucia",
+   "name": "Lucia Caminos",
+   "role": "Protagonist",
+   "bio": "Fresh out of the Leonida Penitentiary and determined not to go back. Fiercely loyal to her family and to Jason, and the one who often has the plan.",
+   "tags": [
+    "Vice City",
+    "Jason"
+   ],
+   "spoiler": 0
+  },
+  {
+   "id": "cal",
+   "name": "Cal Hampton",
+   "role": "Jason's friend",
+   "bio": "Jason's buddy and fellow worker for Brian. Spends his free time reading about conspiracies and listening in on the Coast Guard radio.",
+   "tags": [
+    "Keys"
+   ],
+   "spoiler": 0
+  },
+  {
+   "id": "boobie",
+   "name": "Boobie Ike",
+   "role": "Vice City local legend",
+   "bio": "A Vice City fixture who turned street money into real estate, a strip club and a recording studio. Business first, always.",
+   "tags": [
+    "Vice City",
+    "Music"
+   ],
+   "spoiler": 0
+  },
+  {
+   "id": "drequan",
+   "name": "Dre'Quan Priest",
+   "role": "Music manager",
+   "bio": "A hustler who swapped the street for the music business and runs a label with Boobie. Always looking for the next big act.",
+   "tags": [
+    "Vice City",
+    "Music"
+   ],
+   "spoiler": 0
+  },
+  {
+   "id": "realdimez",
+   "name": "Real Dimez",
+   "role": "Rap duo",
+   "bio": "Bae-Luxe and Roxy, best friends since school, went viral and now want to turn the buzz into a real career.",
+   "tags": [
+    "Vice City",
+    "Music"
+   ],
+   "spoiler": 0
+  },
+  {
+   "id": "raul",
+   "name": "Raul Bautista",
+   "role": "Bank robber",
+   "bio": "A seasoned, confident robber who is always looking for new talent for bigger and riskier jobs.",
+   "tags": [
+    "Heists"
+   ],
+   "spoiler": 0
+  },
+  {
+   "id": "brian",
+   "name": "Brian Heder",
+   "role": "Drug runner in the Keys",
+   "bio": "An old-school smuggler who has run boats through the Keys for decades and lets Jason live in one of his properties — at a price.",
+   "tags": [
+    "Keys"
+   ],
+   "spoiler": 0
+  }
+ ],
+ "stations": [],
+ "cheats": [],
+ "news": [
+  {
+   "id": "n1",
+   "date": "2026-11-23",
+   "title": "Welcome to Vicefold",
+   "body": "The first guides are here. Missions, collectibles and more arrive with free content updates."
+  }
+ ]
+}

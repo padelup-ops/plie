@@ -1,0 +1,91 @@
+# VICEFOLD : compagnon non officiel de GTA VI (guides, carte, suivi 100 %), pensé pour l'iPhone Duo, l'iPhone et l'iPad.
+# Projet généré par XcodeGen : `xcodegen generate` dans ce dossier.
+# Aucun contenu, image ni logo de Rockstar Games ou d'une autre app n'est inclus : tout est rédigé et dessiné ici.
+name: Vicefold
+options:
+  bundleIdPrefix: com.padelup
+  developmentLanguage: en
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: 1.0.0
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+targets:
+  Vicefold:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+      - path: Shared
+      - path: Content
+        buildPhase: resources
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Vicefold
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, fr]
+        CFBundleAllowMixedLocalizations: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        ITSAppUsesNonExemptEncryption: false
+        NSPhotoLibraryUsageDescription: Vicefold uses a photo you pick for your profile or as your own map.
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        CFBundleURLTypes:
+          - CFBundleURLName: com.padelup.vicefold
+            CFBundleURLSchemes: [vicefold]
+        VicefoldAppGroup: group.com.padelup.vicefold
+        UIBackgroundModes: [fetch]
+        BGTaskSchedulerPermittedIdentifiers: [com.padelup.vicefold.refresh]
+    entitlements:
+      path: App/Vicefold.entitlements
+      properties:
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)$(CFBundleIdentifier)
+        com.apple.security.application-groups: [group.com.padelup.vicefold]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.vicefold
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: "IconSunset IconNeon IconPalm IconFlamingo IconMidnight IconSwamp IconChrome"
+        ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies:
+      - target: VicefoldWidget
+        embed: true
+    scheme: {}
+  VicefoldWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widget
+      - path: Shared
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: Vicefold
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, fr]
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        VicefoldAppGroup: group.com.padelup.vicefold
+    entitlements:
+      path: Widget/VicefoldWidget.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.padelup.vicefold]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.vicefold.widget
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SKIP_INSTALL: YES

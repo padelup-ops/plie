@@ -1,0 +1,15 @@
+# VICEFOLD : identifiant, groupe de test interne et testeurs internes (propriétaire) sur App Store Connect.
+name: Vicefold - préparation
+on:
+  workflow_dispatch:
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m pip install --quiet pyjwt cryptography && python3 vicefold/tools/setup.py
