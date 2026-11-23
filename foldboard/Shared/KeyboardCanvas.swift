@@ -731,7 +731,17 @@ final class KeyboardCanvas: UIView {
     private func roundForHost() {
         guard let w = window else { return }
         let f = convert(bounds, to: w)
-        let floating = f.maxY < w.bounds.maxY - 2 || f.minX > 2 || f.maxX < w.bounds.maxX - 2
+        // Dans Spotlight, le clavier flotte au-dessus du bas de l'écran, mais sa fenêtre (celle de l'extension)
+        // fait juste sa taille : impossible de le voir d'ici. Le réglage « Arrondir les quatre coins » s'en charge,
+        // et si iOS donne la vraie place de la fenêtre sur l'écran, on la lit.
+        var floating = eff.roundAllCorners || f.maxY < w.bounds.maxY - 2 || f.minX > 2 || f.maxX < w.bounds.maxX - 2
+        if !floating, let screen = w.windowScene?.screen {
+            let g = convert(bounds, to: screen.coordinateSpace)
+            let gap = screen.bounds.maxY - g.maxY
+            // Une vraie position (la fenêtre n'est pas collée en haut de l'écran) et un petit vide sous le clavier
+            // (pas la barre du globe et du micro d'iOS, plus haute) : il flotte.
+            if g.minY > 40, gap > 8, gap < 56 || g.minX > 4 || g.maxX < screen.bounds.maxX - 4 { floating = true }
+        }
         let corners: CACornerMask = floating
             ? [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
             : [.layerMinXMinYCorner, .layerMaxXMinYCorner]
@@ -3563,7 +3573,13 @@ final class KeyboardCanvas: UIView {
             // visait espace ou retour. On ne lance pas la dictée (le tenir un instant la lance quand même).
             let midTyping = tr.t0 - prevKeyTime < 0.7
             if dictState == .idle, !held, eff.micHold || midTyping {
-                if eff.micHold { flash(L("Hold the mic to dictate")) }
+                // Le rappel « Maintiens le micro » : les trois premières fois seulement (il gênait à chaque
+                // effleurement du micro).
+                let seen = UserDefaults.standard.integer(forKey: "foldboard.micHoldHint")
+                if eff.micHold, seen < 3 {
+                    UserDefaults.standard.set(seen + 1, forKey: "foldboard.micHoldHint")
+                    flash(L("Hold the mic to dictate"))
+                }
             } else {
                 micTapped()
             }

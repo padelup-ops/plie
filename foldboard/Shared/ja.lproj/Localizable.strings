@@ -620,3 +620,5 @@
 "Knock strength" = "ノックの強さ";
 "Enough" = "十分";
 "Too light" = "弱すぎ";
+"Round all four corners" = "四隅すべてを丸くする";
+"For Spotlight and the apps where the keyboard floats above the bottom of the screen." = "Spotlightなど、キーボードが画面下端から浮いて表示されるApp向け。";

@@ -132,6 +132,8 @@ struct KBSettings: Codable, Equatable {
     var keyHeightOpen: Double = 0
     /// Les boutons position, réglages et masquer dans la barre du haut (on peut les cacher).
     var barButtons = true
+    /// Les quatre coins du clavier arrondis (Spotlight et les apps où il flotte), pas seulement ceux du haut.
+    var roundAllCorners = false
     /// Toucher la place libre à côté du clavier (une main) le met de ce côté.
     var tapSideToMove = true
     /// Taper le bord de l'iPhone (gauche ou droite) met le clavier à une main de ce côté.
@@ -273,6 +275,7 @@ struct KBSettings: Codable, Equatable {
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
+        roundAllCorners = (try? c.decodeIfPresent(Bool.self, forKey: .roundAllCorners)) ?? d.roundAllCorners
         tapSideToMove = (try? c.decodeIfPresent(Bool.self, forKey: .tapSideToMove)) ?? d.tapSideToMove
         knockToMove = (try? c.decodeIfPresent(Bool.self, forKey: .knockToMove)) ?? d.knockToMove
         knockSensitivity = (try? c.decodeIfPresent(Double.self, forKey: .knockSensitivity)) ?? d.knockSensitivity

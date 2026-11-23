@@ -362,6 +362,13 @@ struct PositionView: View {
                     slider("Key height, Duo open", value: $m.settings.keyHeightOpen, in: 34...60, format: { "\(Int($0)) pt" })
                 }
                 Toggle("Number row", isOn: $m.settings.numberRow)
+                Toggle(isOn: $m.settings.roundAllCorners) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Round all four corners")
+                        Text("For Spotlight and the apps where the keyboard floats above the bottom of the screen.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
                 slider("Space bar row height", value: $m.settings.spaceRowScale, in: 0.8...1.5, format: { "\(Int(($0 * 100).rounded())) %" })
             } header: {
                 Text("Keys")
