@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import WidgetKit
 
 /// Le compteur : il écoute la charnière tant que l'app est à l'écran,
@@ -48,6 +49,12 @@ final class ClapetModel {
     @ObservationIgnored private var pendingReload = false
 
     init() {
+        // Lancée avant le premier déverrouillage (après un redémarrage) : dès que l'iPhone est déverrouillé, on
+        // relit les vrais chiffres au lieu de garder les chiffres vides chargés au lancement.
+        NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.reload()
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         let d = UserDefaults.standard
         soundOn = d.object(forKey: "sound") as? Bool ?? false
         hapticsOn = d.object(forKey: "haptics") as? Bool ?? true
@@ -207,6 +214,8 @@ final class ClapetModel {
     /// Corrections à la main : les plis d'aujourd'hui et le total depuis le début.
     /// `nil` : pas touché. Sans total donné, le total suit la correction d'aujourd'hui.
     func adjust(today: Int?, total: Int?, totalOpens: Int? = nil, past: (date: Date, closes: Int, opens: Int)? = nil) {
+        // Corriger le compteur peut le faire baisser : c'est voulu.
+        ClapetVault.allowDecreaseOnce = true
         if let past { stats.setPastDay(closes: past.closes, opens: past.opens, on: past.date) }
         if let today { stats.setCloses(today) }
         if let total { stats.setTotal(total) }
@@ -223,6 +232,7 @@ final class ClapetModel {
     }
 
     func reset() {
+        ClapetVault.allowDecreaseOnce = true
         var fresh = ClapetStats()
         fresh.goal = stats.goal
         fresh.goalOn = stats.goalOn
@@ -283,8 +293,12 @@ final class ClapetModel {
         resumed = true
         guard !Demo.seeded else { return }
         let plus = stats.plus
-        stats = ClapetVault.load()
-        stats.plus = plus
+        let loaded = ClapetVault.load()
+        // iPhone pas encore déverrouillé depuis le redémarrage : on garde ce qu'on a (rien n'est lisible).
+        guard !ClapetVault.lastLoadLocked else { return }
+        // Ce qui a été compté pendant que le coffre était fermé s'ajoute aux vrais chiffres.
+        stats = stats.isBehind(loaded) || stats.totalCloses == 0 ? loaded.merged(with: stats) : loaded
+        stats.plus = plus || loaded.plus
     }
 
     func flush() {

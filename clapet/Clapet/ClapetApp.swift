@@ -29,6 +29,10 @@ struct ClapetApp: App {
                 .environment(store)
                 .task {
                     store.onChange = { [model] has in
+                        // Juste après un redémarrage (iPhone pas encore déverrouillé, ou l'App Store pas encore joignable),
+                        // StoreKit peut répondre « pas d'achat ». On ne retire jamais Foldly+ ni ses réglages sur une
+                        // réponse pareille : seulement app à l'écran, iPhone déverrouillé.
+                        if !has, !(UIApplication.shared.isProtectedDataAvailable && UIApplication.shared.applicationState == .active) { return }
                         model.setPlus(has)
                         UserDefaults.standard.set(has, forKey: "plusActive")
                         GameCenter.shared.plus = has

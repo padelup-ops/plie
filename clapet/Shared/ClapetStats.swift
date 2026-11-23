@@ -946,6 +946,57 @@ struct ClapetLevel {
 
 // MARK: - Le coffre (trousseau partagé)
 
+extension ClapetStats {
+    /// Moins de plis, d'ouvertures ou de temps que ce qui est gardé : ces chiffres-ci sont en retard (chargés vides).
+    func isBehind(_ other: ClapetStats) -> Bool {
+        totalCloses < other.totalCloses || totalOpens < other.totalOpens || lifeOpen + 1 < other.lifeOpen
+            || lifeClosed + 1 < other.lifeClosed || (other.plus && !plus)
+    }
+
+    /// Les chiffres gardés, complétés par ce qui a été compté entre-temps (le plus grand de chaque compte). Les
+    /// réglages gardés restent (ceux d'un chargement vide sont ceux d'origine).
+    func merged(with new: ClapetStats) -> ClapetStats {
+        var m = self
+        for (k, d) in new.days {
+            guard var o = m.days[k] else { m.days[k] = d; continue }
+            o.closes = max(o.closes, d.closes)
+            o.opens = max(o.opens, d.opens)
+            o.openSeconds = max(o.openSeconds, d.openSeconds)
+            o.peeks = max(o.peeks, d.peeks)
+            o.longestBreak = max(o.longestBreak, d.longestBreak)
+            o.resisted = max(o.resisted, d.resisted)
+            o.downSeconds = max(o.downSeconds, d.downSeconds)
+            o.plants = max(o.plants, d.plants)
+            o.restSeconds = max(o.restSeconds, d.restSeconds)
+            m.days[k] = o
+        }
+        m.totalCloses = max(totalCloses, new.totalCloses)
+        m.totalOpens = max(totalOpens, new.totalOpens)
+        m.lifeOpen = max(lifeOpen, new.lifeOpen)
+        m.lifeClosed = max(lifeClosed, new.lifeClosed)
+        m.recordHour = max(recordHour, new.recordHour)
+        m.plus = plus || new.plus
+        m.founder = founder || new.founder
+        if let a = new.lastClose, a > (m.lastClose ?? .distantPast) { m.lastClose = a }
+        if let a = new.lastOpen, a > (m.lastOpen ?? .distantPast) { m.lastOpen = a }
+        if new.hourlyDay == m.hourlyDay, new.hourly.count == m.hourly.count {
+            m.hourly = zip(m.hourly, new.hourly).map { max($0, $1) }
+        } else if (new.hourlyDay ?? "") > (m.hourlyDay ?? "") {
+            m.hourlyDay = new.hourlyDay
+            m.hourly = new.hourly
+        }
+        let seen = Set(m.sessionLog.map(\.t))
+        m.sessionLog += new.sessionLog.filter { !seen.contains($0.t) }
+        m.sessionLog.sort { $0.t < $1.t }
+        let seenC = Set(m.closedLog.map(\.t))
+        m.closedLog += new.closedLog.filter { !seenC.contains($0.t) }
+        m.closedLog.sort { $0.t < $1.t }
+        let seenW = Set(m.whyLog.map(\.t))
+        m.whyLog += new.whyLog.filter { !seenW.contains($0.t) }
+        return m
+    }
+}
+
 enum ClapetVault {
     private static let service = "com.padelup.clapet"
     private static let account = "stats"
@@ -965,27 +1016,59 @@ enum ClapetVault {
         return q
     }
 
-    static func load() -> ClapetStats {
+    /// Le dernier chargement n'a pas pu lire le coffre : l'iPhone vient de redémarrer et n'a pas encore été
+    /// déverrouillé (iOS lance quand même Foldly et ses widgets, par exemple pour l'automatisation « iPhone fermé »).
+    /// Ce qui est chargé alors est vide : il ne doit jamais remplacer les vrais chiffres.
+    static private(set) var lastLoadLocked = false
+
+    /// Ce qui est enregistré, ou nil si le coffre ne peut pas être lu maintenant (iPhone pas encore déverrouillé).
+    private static func stored() -> (stats: ClapetStats?, locked: Bool) {
+        var locked = false
         for g in [group, nil] {
             var q = query(g)
             q[kSecReturnData as String] = true
             q[kSecMatchLimit as String] = kSecMatchLimitOne
             var out: AnyObject?
-            if SecItemCopyMatching(q as CFDictionary, &out) == errSecSuccess, let data = out as? Data,
+            let status = SecItemCopyMatching(q as CFDictionary, &out)
+            if status == errSecSuccess, let data = out as? Data,
                let stats = try? JSONDecoder().decode(ClapetStats.self, from: data) {
-                return stats
+                return (stats, false)
             }
+            if status == errSecInteractionNotAllowed { locked = true }
             if group == nil { break }
         }
+        return (nil, locked)
+    }
+
+    static func load() -> ClapetStats {
+        let (s, locked) = stored()
+        lastLoadLocked = locked
+        if let s { return s }
         // Secours : la copie de l'app
         if let data = UserDefaults.standard.data(forKey: "clapet.stats"),
            let stats = try? JSONDecoder().decode(ClapetStats.self, from: data) {
+            lastLoadLocked = false
             return stats
         }
         return ClapetStats()
     }
 
+    /// Une baisse voulue (remise à zéro, correction du compteur) : le prochain enregistrement l'accepte telle quelle.
+    static var allowDecreaseOnce = false
+
     static func save(_ stats: ClapetStats) {
+        var stats = stats
+        let allow = allowDecreaseOnce
+        allowDecreaseOnce = false
+        // Jamais de chiffres perdus : si ce qu'on enregistre a moins que ce qui est déjà gardé (des chiffres chargés
+        // vides avant le premier déverrouillage, après un redémarrage), on fusionne au lieu d'écraser.
+        let (current, locked) = stored()
+        if locked {
+            // Rien ne peut être écrit maintenant ; surtout pas la copie de secours (elle remplacerait la vraie
+            // après le déverrouillage).
+            return
+        }
+        if !allow, let current, stats.isBehind(current) { stats = current.merged(with: stats) }
         guard let data = try? JSONEncoder().encode(stats) else { return }
         UserDefaults.standard.set(data, forKey: "clapet.stats")
         if write(data, group: group) != errSecSuccess && group != nil {

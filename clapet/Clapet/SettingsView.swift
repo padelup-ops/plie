@@ -1,3 +1,4 @@
+import UIKit
 import SwiftUI
 
 struct SettingsView: View {
@@ -335,6 +336,10 @@ struct SettingsView: View {
                     Button { showIdeas = true } label: {
                         Label { Text("Ideas and votes") } icon: { SIcon("bubble.left.and.text.bubble.right.fill", .purple) }
                     }
+                    // Un bug : un e-mail au développeur, déjà rempli avec la version et l'appareil (rien d'autre).
+                    Link(destination: BugReport.url) {
+                        Label { Text("Report a bug") } icon: { SIcon("ladybug.fill", .red) }
+                    }
                     if !store.isTestBuild {
                         Link(destination: ReviewRule.writeReviewURL) {
                             Label { Text("Rate Foldly on the App Store") } icon: { SIcon("star.fill", .yellow) }
@@ -558,5 +563,23 @@ private struct ThemeTile: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+}
+
+
+/// Le lien « Signaler un bug » : un e-mail au support (l'adresse publique du site), avec la version de Foldly, celle
+/// d'iOS et le modèle, pour que le développeur puisse reproduire.
+enum BugReport {
+    static var url: URL {
+        let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
+        var sys = utsname(); uname(&sys)
+        let model = withUnsafeBytes(of: &sys.machine) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) }
+        let body = "\n\n\n—\nFoldly \(v) (\(b)) · iOS \(UIDevice.current.systemVersion) · \(model)"
+        var c = URLComponents()
+        c.scheme = "mailto"
+        c.path = "hfreecsapple@gmail.com"
+        c.queryItems = [URLQueryItem(name: "subject", value: "Foldly bug"), URLQueryItem(name: "body", value: body)]
+        return c.url ?? URL(string: "mailto:hfreecsapple@gmail.com")!
     }
 }

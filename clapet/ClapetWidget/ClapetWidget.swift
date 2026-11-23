@@ -13,7 +13,7 @@ struct ClapetProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (ClapetEntry) -> Void) {
-        let stats = ClapetVault.load()
+        let stats = WidgetCopy.load()
         var shown = context.isPreview && stats.totalCloses == 0 ? Self.sample() : stats
         shown.plus = stats.plus
         shown.theme = stats.theme
@@ -22,8 +22,13 @@ struct ClapetProvider: TimelineProvider {
 
     /// Une entrée tous les quarts d'heure (pour « il y a 27 min »), et minuit pour repartir à zéro.
     func getTimeline(in context: Context, completion: @escaping (Timeline<ClapetEntry>) -> Void) {
-        let stats = ClapetVault.load()
+        let stats = WidgetCopy.load()
         let now = Date()
+        // Coffre encore fermé (iPhone redémarré, pas encore déverrouillé) : la dernière copie, et on réessaie bientôt.
+        if ClapetVault.lastLoadLocked {
+            completion(Timeline(entries: [ClapetEntry(date: now, stats: stats)], policy: .after(now.addingTimeInterval(300))))
+            return
+        }
         var entries = (0..<16).map { ClapetEntry(date: now.addingTimeInterval(Double($0) * 900), stats: stats) }
         if let midnight = Calendar.current.nextDate(after: now, matching: DateComponents(hour: 0, minute: 0, second: 5), matchingPolicy: .nextTime),
            midnight < entries.last?.date ?? now {
@@ -97,5 +102,29 @@ struct ClapetWidgetBundle: WidgetBundle {
         if #available(iOS 18.0, *) {
             CountFoldControl()
         }
+    }
+}
+
+
+/// Les widgets gardent leur dernière copie des chiffres, lisible même avant le premier déverrouillage après un
+/// redémarrage (le coffre ne l'est pas) : sans elle, les widgets repartaient à zéro et sans Foldly+ à chaque
+/// redémarrage. Seulement des compteurs, rien de personnel.
+enum WidgetCopy {
+    private static var url: URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("widget-copy.json")
+    }
+
+    static func load() -> ClapetStats {
+        let stats = ClapetVault.load()
+        guard let url else { return stats }
+        if ClapetVault.lastLoadLocked {
+            if let d = try? Data(contentsOf: url), let s = try? JSONDecoder().decode(ClapetStats.self, from: d) { return s }
+            return stats
+        }
+        if let d = try? JSONEncoder().encode(stats) {
+            try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try? d.write(to: url, options: [.atomic, .noFileProtection])
+        }
+        return stats
     }
 }

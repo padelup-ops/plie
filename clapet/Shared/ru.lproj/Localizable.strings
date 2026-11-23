@@ -909,3 +909,4 @@
 "So it really runs" = "Чтобы это действительно запускалось";
 "If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "Если звука всё ещё нет: Настройки › Дополнительно › Экспортировать звуки, затем «Воспроизвести звук» в «Командах» для сохранённого файла.";
 "If there is no sound" = "Если звука нет";
+"Report a bug" = "Сообщить об ошибке";

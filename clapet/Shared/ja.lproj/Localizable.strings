@@ -926,3 +926,4 @@
 "So it really runs" = "確実に動かすために";
 "If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "それでも音が鳴らない場合：設定 › 詳細 › 音を書き出す。保存したファイルをショートカットの「サウンドを再生」で鳴らします。";
 "If there is no sound" = "音が鳴らないとき";
+"Report a bug" = "不具合を報告";

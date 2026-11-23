@@ -134,19 +134,30 @@ struct LifetimeWidgetView: View {
 struct Odometer: View {
     let value: Int
     var accent: Color = Palette.mint
+    /// Icônes claires ou teintées de l'écran d'accueil : iOS repeint tout d'une seule couleur. Le dernier chiffre,
+    /// noir sur la couleur d'accent, devenait blanc sur blanc (illisible) : là, il garde le même style que les autres,
+    /// juste souligné d'un contour.
+    @Environment(\.widgetRenderingMode) private var rendering
 
     var body: some View {
         let digits = Array(String(format: "%06d", min(999_999, max(0, value))))
+        let color = rendering == .fullColor
         HStack(spacing: 2) {
             ForEach(0..<digits.count, id: \.self) { i in
+                let last = i >= digits.count - 1
                 Text(String(digits[i]))
                     .font(.system(size: 22, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(i >= digits.count - 1 ? Color.black : Palette.ink)
+                    .foregroundStyle(last && color ? Color.black : Palette.ink)
                     .frame(width: 17, height: 30)
                     .background(
                         RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(i >= digits.count - 1 ? accent : Palette.bar)
+                            .fill(last && color ? accent : Palette.bar)
                     )
+                    .overlay {
+                        if last && !color {
+                            RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(Palette.ink.opacity(0.8), lineWidth: 1.2)
+                        }
+                    }
                     .overlay(Rectangle().fill(Color.black.opacity(0.25)).frame(height: 1))
             }
         }
