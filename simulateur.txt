@@ -1,0 +1,2 @@
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-27-2 device=com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max
+ytfs : Main display orientation: unknown

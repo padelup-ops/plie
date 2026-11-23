@@ -1,0 +1,8 @@
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/01-ytfs-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
