@@ -1,11 +1,504 @@
 {
- "version": 1,
+ "version": 2,
  "updated": "2026-11-23",
  "sources": [
   "Facts from the publisher's official character and setting announcements. All text written for Vicefold."
  ],
- "chapters": [],
- "missions": [],
+ "chapters": [
+  {
+   "id": 1,
+   "title": "Just Like Paradise"
+  },
+  {
+   "id": 2,
+   "title": "Paradise Lost"
+  },
+  {
+   "id": 3,
+   "title": "Tits, Ass, Drug Money"
+  },
+  {
+   "id": 4,
+   "title": "Vice City, Baby"
+  },
+  {
+   "id": 5,
+   "title": "Top of the World, Ma"
+  }
+ ],
+ "missions": [
+  {
+   "id": "m1-01",
+   "chapter": 1,
+   "title": "Prologue",
+   "giver": "Lucia"
+  },
+  {
+   "id": "m1-02",
+   "chapter": 1,
+   "title": "Gone Fishing"
+  },
+  {
+   "id": "m1-03",
+   "chapter": 1,
+   "title": "Gear Up"
+  },
+  {
+   "id": "m1-04",
+   "chapter": 1,
+   "title": "Just a Scratch"
+  },
+  {
+   "id": "m1-05",
+   "chapter": 1,
+   "title": "Lab Fees"
+  },
+  {
+   "id": "m1-06",
+   "chapter": 1,
+   "title": "Unwanted Attention"
+  },
+  {
+   "id": "m1-07",
+   "chapter": 1,
+   "title": "Pipework"
+  },
+  {
+   "id": "m1-08",
+   "chapter": 1,
+   "title": "Hey Arnold!"
+  },
+  {
+   "id": "m1-09",
+   "chapter": 1,
+   "title": "Island Dreams",
+   "giver": "Kenton"
+  },
+  {
+   "id": "m1-10",
+   "chapter": 1,
+   "title": "Feng Shui"
+  },
+  {
+   "id": "m1-11",
+   "chapter": 1,
+   "title": "Coming Home"
+  },
+  {
+   "id": "m1-12",
+   "chapter": 1,
+   "title": "Buck Me"
+  },
+  {
+   "id": "m1-13",
+   "chapter": 1,
+   "title": "Clean Up After Donnie"
+  },
+  {
+   "id": "m1-14",
+   "chapter": 1,
+   "title": "Down to Earth"
+  },
+  {
+   "id": "m1-15",
+   "chapter": 1,
+   "title": "Clear Skies"
+  },
+  {
+   "id": "m1-16",
+   "chapter": 1,
+   "title": "Day Release"
+  },
+  {
+   "id": "m1-17",
+   "chapter": 1,
+   "title": "Swamped"
+  },
+  {
+   "id": "m1-18",
+   "chapter": 1,
+   "title": "Don Gone"
+  },
+  {
+   "id": "m1-19",
+   "chapter": 1,
+   "title": "Recalibration"
+  },
+  {
+   "id": "m1-20",
+   "chapter": 1,
+   "title": "Tourist Trap"
+  },
+  {
+   "id": "m1-21",
+   "chapter": 1,
+   "title": "Home Sweet Home",
+   "giver": "Lucia"
+  },
+  {
+   "id": "m1-22",
+   "chapter": 1,
+   "title": "Discharge Time"
+  },
+  {
+   "id": "m2-01",
+   "chapter": 2,
+   "title": "What's in the Bag?"
+  },
+  {
+   "id": "m2-02",
+   "chapter": 2,
+   "title": "Ambulance Chaser"
+  },
+  {
+   "id": "m2-03",
+   "chapter": 2,
+   "title": "Just Moved In"
+  },
+  {
+   "id": "m2-04",
+   "chapter": 2,
+   "title": "Girls' Trip"
+  },
+  {
+   "id": "m2-05",
+   "chapter": 2,
+   "title": "Moses"
+  },
+  {
+   "id": "m2-06",
+   "chapter": 2,
+   "title": "Daily Driver"
+  },
+  {
+   "id": "m2-07",
+   "chapter": 2,
+   "title": "Slam Dunk"
+  },
+  {
+   "id": "m2-08",
+   "chapter": 2,
+   "title": "Breakfast Run"
+  },
+  {
+   "id": "m2-09",
+   "chapter": 2,
+   "title": "Coffee Break"
+  },
+  {
+   "id": "m2-10",
+   "chapter": 2,
+   "title": "Afternoon Delight"
+  },
+  {
+   "id": "m2-11",
+   "chapter": 2,
+   "title": "Checking Out"
+  },
+  {
+   "id": "m3-01",
+   "chapter": 3,
+   "title": "Welcome to Vice City"
+  },
+  {
+   "id": "m3-02",
+   "chapter": 3,
+   "title": "Dealer's Choice",
+   "giver": "Jason"
+  },
+  {
+   "id": "m3-03",
+   "chapter": 3,
+   "title": "Meet the Heders"
+  },
+  {
+   "id": "m3-04",
+   "chapter": 3,
+   "title": "Dubious Provenance"
+  },
+  {
+   "id": "m3-05",
+   "chapter": 3,
+   "title": "Mami Knows Best",
+   "giver": "Lucia"
+  },
+  {
+   "id": "m3-06",
+   "chapter": 3,
+   "title": "South Leonida Real Estate",
+   "giver": "Lucia"
+  },
+  {
+   "id": "m3-07",
+   "chapter": 3,
+   "title": "Tyrone",
+   "giver": "Jason"
+  },
+  {
+   "id": "m3-08",
+   "chapter": 3,
+   "title": "Here, Kitty Kitty"
+  },
+  {
+   "id": "m3-09",
+   "chapter": 3,
+   "title": "Car Service",
+   "giver": "Lucia"
+  },
+  {
+   "id": "m3-10",
+   "chapter": 3,
+   "title": "Top Billing"
+  },
+  {
+   "id": "m3-11",
+   "chapter": 3,
+   "title": "Boobie Time"
+  },
+  {
+   "id": "m3-12",
+   "chapter": 3,
+   "title": "First Impressions"
+  },
+  {
+   "id": "m3-13",
+   "chapter": 3,
+   "title": "Caught Slipping"
+  },
+  {
+   "id": "m3-14",
+   "chapter": 3,
+   "title": "Crosstown Traffic"
+  },
+  {
+   "id": "m3-15",
+   "chapter": 3,
+   "title": "Credit Check"
+  },
+  {
+   "id": "m3-16",
+   "chapter": 3,
+   "title": "Steal the Zorrusso for Randy",
+   "giver": "Randy"
+  },
+  {
+   "id": "m3-17",
+   "chapter": 3,
+   "title": "Sinfrontera National Bank"
+  },
+  {
+   "id": "m3-18",
+   "chapter": 3,
+   "title": "Security Expert"
+  },
+  {
+   "id": "m3-19",
+   "chapter": 3,
+   "title": "Ride or Die"
+  },
+  {
+   "id": "m3-20",
+   "chapter": 3,
+   "title": "Company Property"
+  },
+  {
+   "id": "m3-21",
+   "chapter": 3,
+   "title": "The Missing Link"
+  },
+  {
+   "id": "m3-22",
+   "chapter": 3,
+   "title": "Safe Word"
+  },
+  {
+   "id": "m3-23",
+   "chapter": 3,
+   "title": "Cooties"
+  },
+  {
+   "id": "m3-24",
+   "chapter": 3,
+   "title": "Bricked Up"
+  },
+  {
+   "id": "m3-25",
+   "chapter": 3,
+   "title": "Hidden Charges"
+  },
+  {
+   "id": "m3-26",
+   "chapter": 3,
+   "title": "The Cartel Heist"
+  },
+  {
+   "id": "m4-01",
+   "chapter": 4,
+   "title": "Ocean Beach"
+  },
+  {
+   "id": "m4-02",
+   "chapter": 4,
+   "title": "Another Life",
+   "giver": "Lucia"
+  },
+  {
+   "id": "m4-03",
+   "chapter": 4,
+   "title": "Company Cars"
+  },
+  {
+   "id": "m4-04",
+   "chapter": 4,
+   "title": "Lawyer Up",
+   "giver": "Abe Gonzalez"
+  },
+  {
+   "id": "m4-05",
+   "chapter": 4,
+   "title": "Party Hard"
+  },
+  {
+   "id": "m4-06",
+   "chapter": 4,
+   "title": "Heavy Lifting"
+  },
+  {
+   "id": "m4-07",
+   "chapter": 4,
+   "title": "Photo/Shoot"
+  },
+  {
+   "id": "m4-08",
+   "chapter": 4,
+   "title": "Making Gainz",
+   "giver": "Lucia"
+  },
+  {
+   "id": "m4-09",
+   "chapter": 4,
+   "title": "Watch It"
+  },
+  {
+   "id": "m4-10",
+   "chapter": 4,
+   "title": "Cash Injections"
+  },
+  {
+   "id": "m4-11",
+   "chapter": 4,
+   "title": "Amateur Hour"
+  },
+  {
+   "id": "m4-12",
+   "chapter": 4,
+   "title": "Dirty Work"
+  },
+  {
+   "id": "m4-13",
+   "chapter": 4,
+   "title": "Too Much Baggage",
+   "giver": "Jason"
+  },
+  {
+   "id": "m4-14",
+   "chapter": 4,
+   "title": "Adventures in Babysitting"
+  },
+  {
+   "id": "m4-15",
+   "chapter": 4,
+   "title": "Fresh Evidence"
+  },
+  {
+   "id": "m4-16",
+   "chapter": 4,
+   "title": "Power Play"
+  },
+  {
+   "id": "m4-17",
+   "chapter": 4,
+   "title": "Child's Play"
+  },
+  {
+   "id": "m4-18",
+   "chapter": 4,
+   "title": "Headliners"
+  },
+  {
+   "id": "m4-19",
+   "chapter": 4,
+   "title": "Close Surveillance",
+   "giver": "Jason"
+  },
+  {
+   "id": "m4-20",
+   "chapter": 4,
+   "title": "Delivery Method"
+  },
+  {
+   "id": "m4-21",
+   "chapter": 4,
+   "title": "Team Building",
+   "giver": "Lucia"
+  },
+  {
+   "id": "m4-22",
+   "chapter": 4,
+   "title": "Fully Catered"
+  },
+  {
+   "id": "m4-23",
+   "chapter": 4,
+   "title": "VCIA Takedown"
+  },
+  {
+   "id": "m4-24",
+   "chapter": 4,
+   "title": "Sunset"
+  },
+  {
+   "id": "m4-25",
+   "chapter": 4,
+   "title": "Starting from Zero"
+  },
+  {
+   "id": "m5-01",
+   "chapter": 5,
+   "title": "Bird in the Hand"
+  },
+  {
+   "id": "m5-02",
+   "chapter": 5,
+   "title": "Taking Liberties"
+  },
+  {
+   "id": "m5-03",
+   "chapter": 5,
+   "title": "VC Baby"
+  },
+  {
+   "id": "m5-04",
+   "chapter": 5,
+   "title": "Doggie Bag"
+  },
+  {
+   "id": "m5-05",
+   "chapter": 5,
+   "title": "Operation Savage Glory"
+  },
+  {
+   "id": "m5-06",
+   "chapter": 5,
+   "title": "Protective Custody"
+  },
+  {
+   "id": "m5-07",
+   "chapter": 5,
+   "title": "The End of the Road",
+   "unlocks": "The end credits, the 100% checklist and cheats."
+  }
+ ],
  "guides": [
   {
    "id": "start-how",
@@ -148,8 +641,256 @@
    "region": "Mount Kalaga"
   }
  ],
- "collectibles": [],
- "challenges": [],
+ "collectibles": [
+  {
+   "id": "cards",
+   "title": "Collectible card sets",
+   "count": 18,
+   "needed": 15,
+   "summary": "15 of 18 count toward 100%. 480 cards in 18 sets.",
+   "group": "Exploration"
+  },
+  {
+   "id": "underwater",
+   "title": "Underwater discoveries",
+   "count": 33,
+   "group": "Exploration"
+  },
+  {
+   "id": "reading",
+   "title": "Magazines, books and comics",
+   "count": 34,
+   "needed": 30,
+   "summary": "30 of 34 count toward 100%. 27 to read plus 7 book swaps.",
+   "group": "Exploration"
+  },
+  {
+   "id": "meditation",
+   "title": "Meditation spots",
+   "count": 18,
+   "needed": 15,
+   "summary": "15 of 18 count toward 100%. 10 places; each partner counts on their own.",
+   "group": "Exploration"
+  },
+  {
+   "id": "flamingos",
+   "title": "Cocaine flamingos destroyed",
+   "count": 125,
+   "needed": 100,
+   "summary": "100 of 125 count toward 100%. 50 unlock the Inflatable Flamingo cheat.",
+   "group": "Exploration"
+  },
+  {
+   "id": "wainks",
+   "title": "WAiNK locations scanned",
+   "count": 100,
+   "group": "Exploration"
+  },
+  {
+   "id": "kenton",
+   "title": "Kenton sets",
+   "count": 7,
+   "needed": 5,
+   "summary": "5 of 7 count toward 100%.",
+   "group": "Exploration"
+  },
+  {
+   "id": "styles",
+   "title": "Styles (magazine tattoos and luxury watches)",
+   "count": 79,
+   "needed": 70,
+   "summary": "70 of 79 count toward 100%. 45 tattoos and 34 watches.",
+   "group": "Exploration"
+  },
+  {
+   "id": "playlists",
+   "title": "Unique playlists",
+   "count": 2,
+   "group": "Exploration"
+  },
+  {
+   "id": "stunts",
+   "title": "Stunts (jumps, bridges, knife flights, BASE jumps)",
+   "count": 397,
+   "needed": 300,
+   "summary": "300 of 397 count toward 100%. 130 jumps, 202 under the bridges, 40 knife flights, 25 BASE jumps.",
+   "group": "Activities"
+  },
+  {
+   "id": "races",
+   "title": "Unique races won",
+   "count": 40,
+   "needed": 30,
+   "summary": "30 of 40 count toward 100%.",
+   "group": "Activities"
+  },
+  {
+   "id": "racegold",
+   "title": "Race challenge gold medals",
+   "count": 13,
+   "needed": 10,
+   "summary": "10 of 13 count toward 100%.",
+   "group": "Activities"
+  },
+  {
+   "id": "range",
+   "title": "Shooting range gold medals",
+   "count": 42,
+   "summary": "18 at Griffin, 24 at Rodgers Ranch.",
+   "group": "Activities"
+  },
+  {
+   "id": "drones",
+   "title": "Drone time trials",
+   "count": 42,
+   "summary": "14 places, 3 trials each.",
+   "group": "Activities"
+  },
+  {
+   "id": "hoops",
+   "title": "Basketball hoops",
+   "count": 100,
+   "needed": 90,
+   "summary": "90 of 100 count toward 100%.",
+   "group": "Activities"
+  },
+  {
+   "id": "pool",
+   "title": "Pool opponents beaten",
+   "count": 7,
+   "needed": 5,
+   "summary": "5 of 7 count toward 100%.",
+   "group": "Activities"
+  },
+  {
+   "id": "minigolf",
+   "title": "Mini golf courses played",
+   "count": 3,
+   "needed": 2,
+   "summary": "2 of 3 count toward 100%.",
+   "group": "Activities"
+  },
+  {
+   "id": "videogames",
+   "title": "Video games played",
+   "count": 4,
+   "group": "Activities"
+  },
+  {
+   "id": "challenges80",
+   "title": "Challenges completed",
+   "count": 80,
+   "needed": 70,
+   "summary": "70 of 80 count toward 100%. 8 categories of 10.",
+   "group": "Activities"
+  },
+  {
+   "id": "decks",
+   "title": "Bret's target decks",
+   "count": 15,
+   "summary": "Jason's hunting story.",
+   "group": "Activities"
+  },
+  {
+   "id": "tasks",
+   "title": "Optional tasks",
+   "count": 100,
+   "summary": "Side missions, deliveries, labs, fishing, Strangers & Freaks, meditations…",
+   "group": "Jobs"
+  },
+  {
+   "id": "gangops",
+   "title": "Gang operations cleared",
+   "count": 39,
+   "group": "Jobs"
+  },
+  {
+   "id": "banks",
+   "title": "Bank jobs",
+   "count": 22,
+   "group": "Jobs"
+  },
+  {
+   "id": "payday",
+   "title": "Payday loan jobs",
+   "count": 7,
+   "group": "Jobs"
+  },
+  {
+   "id": "smash",
+   "title": "Smash 'n' grabs (pawn shops, jewelers)",
+   "count": 35,
+   "needed": 34,
+   "summary": "34 of 35 count toward 100%.",
+   "group": "Jobs"
+  },
+  {
+   "id": "stickups",
+   "title": "Stick-ups",
+   "count": 91,
+   "needed": 50,
+   "summary": "50 of 91 count toward 100%.",
+   "group": "Jobs"
+  },
+  {
+   "id": "vaults",
+   "title": "Vaults hit",
+   "count": 8,
+   "group": "Jobs"
+  },
+  {
+   "id": "vehicles",
+   "title": "Base model vehicles scanned",
+   "count": 277,
+   "needed": 200,
+   "summary": "200 of 277 count toward 100%.",
+   "group": "Discovery"
+  },
+  {
+   "id": "weapons",
+   "title": "Standard issue weapons found",
+   "count": 66,
+   "needed": 50,
+   "summary": "50 of 66 count toward 100%.",
+   "group": "Discovery"
+  },
+  {
+   "id": "animals",
+   "title": "Animals studied",
+   "count": 255,
+   "needed": 100,
+   "summary": "100 of 255 count toward 100%.",
+   "group": "Discovery"
+  }
+ ],
+ "challenges": [
+  {
+   "id": "story",
+   "title": "Finish the story",
+   "group": "Story — 50% of the 100%",
+   "detail": "All main missions, through the end credits."
+  },
+  {
+   "id": "f-narco",
+   "title": "Fence $100,000 of narcotics",
+   "group": "Fencing"
+  },
+  {
+   "id": "f-jewel",
+   "title": "Fence $100,000 of jewelry",
+   "group": "Fencing"
+  },
+  {
+   "id": "f-bills",
+   "title": "Fence $250,000 of marked bills",
+   "group": "Fencing"
+  },
+  {
+   "id": "f-cars",
+   "title": "Fence $200,000 of vehicles",
+   "group": "Fencing"
+  }
+ ],
  "characters": [
   {
    "id": "jason",
@@ -237,8 +978,1373 @@
    "spoiler": 0
   }
  ],
- "stations": [],
- "cheats": [],
+ "stations": [
+  {
+   "id": "flash",
+   "name": "Flash FM",
+   "genre": "Pop",
+   "songs": [
+    {
+     "artist": "Charli xcx",
+     "title": "Good Ones"
+    },
+    {
+     "artist": "MGMT",
+     "title": "Electric Feel"
+    },
+    {
+     "artist": "Kylie Minogue",
+     "title": "Spinning Around"
+    },
+    {
+     "artist": "Dua Lipa",
+     "title": "Houdini"
+    },
+    {
+     "artist": "Chappell Roan",
+     "title": "Hot to Go!"
+    },
+    {
+     "artist": "Daft Punk",
+     "title": "Around the World"
+    },
+    {
+     "artist": "Billie Eilish",
+     "title": "Lunch"
+    },
+    {
+     "artist": "Gorillaz",
+     "title": "Dare"
+    },
+    {
+     "artist": "Robyn",
+     "title": "Show Me Love"
+    },
+    {
+     "artist": "Lorde",
+     "title": "Green Light"
+    }
+   ]
+  },
+  {
+   "id": "vcfm",
+   "name": "Vice City FM",
+   "genre": "80s pop",
+   "songs": [
+    {
+     "artist": "Echo & the Bunnymen",
+     "title": "Lips Like Sugar"
+    },
+    {
+     "artist": "New Order",
+     "title": "Thieves Like Us"
+    },
+    {
+     "artist": "The Cure",
+     "title": "Just Like Heaven"
+    },
+    {
+     "artist": "Tears for Fears",
+     "title": "Head over Heels"
+    },
+    {
+     "artist": "Simple Minds",
+     "title": "Alive and Kicking"
+    },
+    {
+     "artist": "Matthew Wilder",
+     "title": "Break My Stride"
+    },
+    {
+     "artist": "Lionel Richie",
+     "title": "All Night Long (All Night)"
+    },
+    {
+     "artist": "Talk Talk",
+     "title": "Talk Talk"
+    },
+    {
+     "artist": "Billy Ocean",
+     "title": "Loverboy"
+    },
+    {
+     "artist": "Miami Sound Machine",
+     "title": "Dr. Beat"
+    }
+   ]
+  },
+  {
+   "id": "vrock",
+   "name": "V-Rock",
+   "genre": "Hard rock",
+   "songs": [
+    {
+     "artist": "Van Halen",
+     "title": "Panama"
+    },
+    {
+     "artist": "Poison",
+     "title": "Nothin' but a Good Time"
+    },
+    {
+     "artist": "Mötley Crüe",
+     "title": "Dr. Feelgood"
+    },
+    {
+     "artist": "Def Leppard",
+     "title": "Pour Some Sugar on Me"
+    },
+    {
+     "artist": "AC/DC",
+     "title": "Sin City"
+    },
+    {
+     "artist": "Bon Jovi",
+     "title": "Runaway"
+    },
+    {
+     "artist": "Huey Lewis and the News",
+     "title": "I Want a New Drug"
+    },
+    {
+     "artist": "Dire Straits",
+     "title": "Money for Nothing"
+    },
+    {
+     "artist": "The Clash",
+     "title": "Rock the Casbah"
+    },
+    {
+     "artist": "Tom Petty",
+     "title": "Love Is a Long Road"
+    }
+   ]
+  },
+  {
+   "id": "vcrr",
+   "name": "VCRR",
+   "genre": "Hip-hop",
+   "songs": [
+    {
+     "artist": "Drake",
+     "title": "Nokia"
+    },
+    {
+     "artist": "Migos",
+     "title": "Bad and Boujee"
+    },
+    {
+     "artist": "Pop Smoke",
+     "title": "Dior"
+    },
+    {
+     "artist": "Travis Scott",
+     "title": "RHYNO"
+    },
+    {
+     "artist": "Gunna",
+     "title": "Count Up"
+    },
+    {
+     "artist": "Denzel Curry",
+     "title": "Fla Flow"
+    },
+    {
+     "artist": "21 Savage",
+     "title": "Cookin"
+    },
+    {
+     "artist": "Cardi B",
+     "title": "Don't Chart"
+    },
+    {
+     "artist": "Young Thug",
+     "title": "Digits"
+    },
+    {
+     "artist": "Central Cee",
+     "title": "Rock N Roll"
+    }
+   ]
+  },
+  {
+   "id": "dirtysouth",
+   "name": "Dirty South Classics",
+   "genre": "Southern hip-hop",
+   "songs": [
+    {
+     "artist": "Juvenile",
+     "title": "Slow Motion"
+    },
+    {
+     "artist": "Lil Wayne",
+     "title": "A Milli"
+    },
+    {
+     "artist": "OutKast",
+     "title": "Player's Ball"
+    },
+    {
+     "artist": "T.I.",
+     "title": "Rubber Band Man"
+    },
+    {
+     "artist": "Rick Ross",
+     "title": "Hustlin'"
+    },
+    {
+     "artist": "Three 6 Mafia",
+     "title": "Side 2 Side"
+    },
+    {
+     "artist": "Yung Joc",
+     "title": "It's Goin' Down"
+    },
+    {
+     "artist": "Mike Jones",
+     "title": "Back Then"
+    },
+    {
+     "artist": "Trick Daddy",
+     "title": "I'm a Thug"
+    },
+    {
+     "artist": "Petey Pablo",
+     "title": "Freek-a-Leek"
+    }
+   ]
+  },
+  {
+   "id": "cocoteo",
+   "name": "Cocoteo FM",
+   "genre": "Latin, reggaeton",
+   "songs": [
+    {
+     "artist": "Bad Bunny",
+     "title": "EoO"
+    },
+    {
+     "artist": "Myke Towers",
+     "title": "Girl"
+    },
+    {
+     "artist": "Young Miko",
+     "title": "Ni Le Cabe"
+    },
+    {
+     "artist": "Don Omar",
+     "title": "Intocable"
+    },
+    {
+     "artist": "Rauw Alejandro",
+     "title": "Macacoa 2000"
+    },
+    {
+     "artist": "Feid",
+     "title": "Chorrito Pa Las Ánimas"
+    },
+    {
+     "artist": "Rosalía",
+     "title": "Candy"
+    },
+    {
+     "artist": "Karol G & Mariah Angeliq",
+     "title": "El Makinón"
+    },
+    {
+     "artist": "Fuerza Regida",
+     "title": "Suzuki"
+    },
+    {
+     "artist": "Farruko",
+     "title": "Pepas"
+    }
+   ]
+  },
+  {
+   "id": "laola",
+   "name": "La Ola",
+   "genre": "Salsa, Latin classics",
+   "songs": [
+    {
+     "artist": "Gloria Estefan",
+     "title": "Mi Tierra"
+    },
+    {
+     "artist": "Celia Cruz",
+     "title": "Bemba Colorá"
+    },
+    {
+     "artist": "Héctor Lavoe",
+     "title": "Periódico de Ayer"
+    },
+    {
+     "artist": "Willie Colón & Rubén Blades",
+     "title": "Pedro Navaja"
+    },
+    {
+     "artist": "El Gran Combo de Puerto Rico",
+     "title": "Brujería"
+    },
+    {
+     "artist": "Oscar D'León",
+     "title": "Llorarás"
+    },
+    {
+     "artist": "Frankie Ruiz",
+     "title": "Tú con Él"
+    },
+    {
+     "artist": "Cachao",
+     "title": "Descarga Cubana"
+    }
+   ]
+  },
+  {
+   "id": "afrobank",
+   "name": "AfroBank FM",
+   "genre": "African music",
+   "songs": [
+    {
+     "artist": "Asake",
+     "title": "Joha"
+    },
+    {
+     "artist": "Burna Boy",
+     "title": "Bigger"
+    },
+    {
+     "artist": "Ayra Starr",
+     "title": "Sex Bills Bass Thrills"
+    },
+    {
+     "artist": "Fireboy DML",
+     "title": "YAWA"
+    },
+    {
+     "artist": "Omah Lay",
+     "title": "Holy Ghost"
+    },
+    {
+     "artist": "Manu Dibango",
+     "title": "Goro City"
+    },
+    {
+     "artist": "Hugh Masekela",
+     "title": "Run No More"
+    },
+    {
+     "artist": "William Onyeabor",
+     "title": "Fantastic Man"
+    }
+   ]
+  },
+  {
+   "id": "honey",
+   "name": "Honey FM",
+   "genre": "R&B, slow jams",
+   "songs": [
+    {
+     "artist": "D'Angelo",
+     "title": "Lady"
+    },
+    {
+     "artist": "TLC",
+     "title": "Creep"
+    },
+    {
+     "artist": "Jodeci",
+     "title": "Feenin'"
+    },
+    {
+     "artist": "Brandy & Monica",
+     "title": "The Boy Is Mine"
+    },
+    {
+     "artist": "Mary J. Blige",
+     "title": "My Life"
+    },
+    {
+     "artist": "Next",
+     "title": "Too Close"
+    },
+    {
+     "artist": "Usher",
+     "title": "Bad Girl"
+    },
+    {
+     "artist": "Mariah Carey",
+     "title": "Vision of Love"
+    },
+    {
+     "artist": "Silk",
+     "title": "Freak Me"
+    },
+    {
+     "artist": "Toni Braxton",
+     "title": "You're Makin' Me High"
+    }
+   ]
+  },
+  {
+   "id": "emotion",
+   "name": "Emotion",
+   "genre": "Soft rock, ballads",
+   "songs": [
+    {
+     "artist": "Phil Collins",
+     "title": "In the Air Tonight"
+    },
+    {
+     "artist": "The Cars",
+     "title": "Drive"
+    },
+    {
+     "artist": "Roxette",
+     "title": "Listen to Your Heart"
+    },
+    {
+     "artist": "Bruce Hornsby & The Range",
+     "title": "The Way It Is"
+    },
+    {
+     "artist": "Air Supply",
+     "title": "All Out of Love"
+    },
+    {
+     "artist": "Heart",
+     "title": "Alone"
+    },
+    {
+     "artist": "Chicago",
+     "title": "Hard to Say I'm Sorry"
+    },
+    {
+     "artist": "George Michael",
+     "title": "Father Figure"
+    }
+   ]
+  },
+  {
+   "id": "backcountry",
+   "name": "Back Country Radio",
+   "genre": "Country",
+   "songs": [
+    {
+     "artist": "Glen Campbell",
+     "title": "Rhinestone Cowboy"
+    },
+    {
+     "artist": "Hank Williams Jr.",
+     "title": "A Country Boy Can Survive"
+    },
+    {
+     "artist": "Merle Haggard",
+     "title": "Stop the World and Let Me Off"
+    },
+    {
+     "artist": "Joe Diffie",
+     "title": "Pickup Man"
+    },
+    {
+     "artist": "Loretta Lynn",
+     "title": "Don't Come Home A-Drinkin' (With Lovin' On Your Mind)"
+    },
+    {
+     "artist": "Waylon Jennings",
+     "title": "Waymore's Blues"
+    },
+    {
+     "artist": "Morgan Wallen",
+     "title": "Last Thing You Need"
+    },
+    {
+     "artist": "Tony Joe White",
+     "title": "Polk Salad Annie"
+    }
+   ]
+  },
+  {
+   "id": "chamber",
+   "name": "The Chamber 106.6",
+   "genre": "Metal",
+   "songs": [
+    {
+     "artist": "Metallica",
+     "title": "Master of Puppets"
+    },
+    {
+     "artist": "Slayer",
+     "title": "Raining Blood"
+    },
+    {
+     "artist": "Megadeth",
+     "title": "Symphony of Destruction"
+    },
+    {
+     "artist": "Iron Maiden",
+     "title": "The Trooper"
+    },
+    {
+     "artist": "Pantera",
+     "title": "I'm Broken"
+    },
+    {
+     "artist": "Mastodon",
+     "title": "Blood and Thunder"
+    },
+    {
+     "artist": "TOOL",
+     "title": "Sober"
+    },
+    {
+     "artist": "System of a Down",
+     "title": "Sugar"
+    }
+   ]
+  },
+  {
+   "id": "stockyard",
+   "name": "Stockyard FM",
+   "genre": "Indie dance",
+   "songs": [
+    {
+     "artist": "Róisín Murphy",
+     "title": "Overpowered"
+    },
+    {
+     "artist": "Justice & Tame Impala",
+     "title": "One Night/All Night"
+    },
+    {
+     "artist": "LCD Soundsystem",
+     "title": "North American Scum"
+    },
+    {
+     "artist": "Caribou",
+     "title": "Never Come Back"
+    },
+    {
+     "artist": "Hot Chip",
+     "title": "Hungry Child"
+    },
+    {
+     "artist": "Overmono",
+     "title": "Good Lies"
+    },
+    {
+     "artist": "PinkPantheress",
+     "title": "Illegal"
+    },
+    {
+     "artist": "The Dare",
+     "title": "Interesting"
+    }
+   ]
+  },
+  {
+   "id": "circoloco",
+   "name": "CircoLoco Records Radio",
+   "genre": "House, techno",
+   "songs": [
+    {
+     "artist": "Michael Bibi",
+     "title": "Rhythm of the Night"
+    },
+    {
+     "artist": "Chris Stussy",
+     "title": "We On This Ride"
+    },
+    {
+     "artist": "PAWSA",
+     "title": "Collect the Commas"
+    },
+    {
+     "artist": "Prospa",
+     "title": "This Rhythm"
+    },
+    {
+     "artist": "Skream",
+     "title": "Floral"
+    },
+    {
+     "artist": "Seth Troxler",
+     "title": "Bootlicker"
+    },
+    {
+     "artist": "Jimi Jules",
+     "title": "Don't Break My Heart"
+    },
+    {
+     "artist": "ANOTR",
+     "title": "Silver Lines"
+    }
+   ]
+  },
+  {
+   "id": "kaleido",
+   "name": "Kaleidoscope FM",
+   "genre": "World pop",
+   "songs": [
+    {
+     "artist": "Marianne Rosenberg",
+     "title": "Herz Aus Glas"
+    },
+    {
+     "artist": "Sylvie Vartan",
+     "title": "Danse ta vie"
+    },
+    {
+     "artist": "Touré Kunda",
+     "title": "Nobel"
+    },
+    {
+     "artist": "Laibach",
+     "title": "Geburt einer Nation"
+    },
+    {
+     "artist": "Mexican Institute of Sound",
+     "title": "Sinfonía Agridulce"
+    },
+    {
+     "artist": "Ron",
+     "title": "Hai capito o no?"
+    }
+   ]
+  },
+  {
+   "id": "worldwide",
+   "name": "Worldwide FM",
+   "genre": "Jazz, house, world",
+   "songs": [
+    {
+     "artist": "Jamiroquai",
+     "title": "Smile"
+    },
+    {
+     "artist": "Roberta Flack",
+     "title": "The First Time Ever I Saw Your Face"
+    },
+    {
+     "artist": "Digable Planets",
+     "title": "Rebirth of Slick (Cool Like Dat)"
+    },
+    {
+     "artist": "Floating Points",
+     "title": "Del Oro"
+    },
+    {
+     "artist": "Little Simz & Obongjayar",
+     "title": "Lion"
+    },
+    {
+     "artist": "Bobby Caldwell",
+     "title": "What You Won't Do for Love"
+    },
+    {
+     "artist": "Teena Marie",
+     "title": "I'm a Sucker for Your Love"
+    }
+   ]
+  },
+  {
+   "id": "onu",
+   "name": "Radio On-U",
+   "genre": "Reggae, dub",
+   "songs": [
+    {
+     "artist": "Horace Andy",
+     "title": "Skylarking"
+    },
+    {
+     "artist": "Freddie McGregor",
+     "title": "Big Ship"
+    },
+    {
+     "artist": "Ken Boothe",
+     "title": "Everything I Own"
+    },
+    {
+     "artist": "Janet Kay",
+     "title": "Silly Games"
+    },
+    {
+     "artist": "Gregory Isaacs",
+     "title": "Mr. Cop"
+    },
+    {
+     "artist": "Susan Cadogan",
+     "title": "Hurt So Good"
+    },
+    {
+     "artist": "Augustus Pablo",
+     "title": "Ras Menilik Congo (Harp)"
+    }
+   ]
+  },
+  {
+   "id": "jazz",
+   "name": "Leonida Jazz Radio",
+   "genre": "Jazz fusion",
+   "songs": [
+    {
+     "artist": "Weather Report",
+     "title": "Birdland"
+    },
+    {
+     "artist": "Grover Washington Jr.",
+     "title": "Mister Magic"
+    },
+    {
+     "artist": "Bob James",
+     "title": "Night Crawler"
+    },
+    {
+     "artist": "Ronnie Laws",
+     "title": "Always There"
+    },
+    {
+     "artist": "Stanley Clarke",
+     "title": "School Days"
+    },
+    {
+     "artist": "Kokoroko",
+     "title": "Tojo"
+    },
+    {
+     "artist": "Thundercat",
+     "title": "Fleer Ultra"
+    },
+    {
+     "artist": "Herb Alpert",
+     "title": "Rotation"
+    }
+   ]
+  },
+  {
+   "id": "blues",
+   "name": "Gloriana Blues Radio",
+   "genre": "Blues",
+   "songs": [
+    {
+     "artist": "John Lee Hooker",
+     "title": "Boogie Chillen'"
+    },
+    {
+     "artist": "Muddy Waters",
+     "title": "Got My Mojo Working"
+    },
+    {
+     "artist": "Howlin' Wolf",
+     "title": "Smokestack Lightnin'"
+    },
+    {
+     "artist": "Bo Diddley",
+     "title": "I'm a Man"
+    },
+    {
+     "artist": "Koko Taylor",
+     "title": "I Got What It Takes"
+    },
+    {
+     "artist": "Buddy Guy",
+     "title": "Stone Crazy"
+    },
+    {
+     "artist": "B.B. King",
+     "title": "Chains and Things"
+    }
+   ]
+  },
+  {
+   "id": "symphony",
+   "name": "Symphony FM",
+   "genre": "Classical",
+   "songs": [
+    {
+     "artist": "Ludwig van Beethoven",
+     "title": "Symphony No. 7 in A Major"
+    },
+    {
+     "artist": "Pyotr Ilyich Tchaikovsky",
+     "title": "Symphony No. 5 in E Minor"
+    },
+    {
+     "artist": "Maurice Ravel",
+     "title": "La valse, M. 72"
+    },
+    {
+     "artist": "Claude Debussy",
+     "title": "Nocturnes, L. 91: II. Fêtes"
+    },
+    {
+     "artist": "Dmitri Shostakovich",
+     "title": "Symphony No. 5 in D Minor"
+    },
+    {
+     "artist": "George Frideric Handel",
+     "title": "Messiah"
+    }
+   ]
+  },
+  {
+   "id": "wipe",
+   "name": "The Wipe",
+   "genre": "Talk and more",
+   "songs": []
+  }
+ ],
+ "cheats": [
+  {
+   "id": "money",
+   "name": "$250,000",
+   "effect": "Money",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · ↑ → ↓ ← ↑ ← ↓ →",
+   "xbox": "↑ · LB+RB · ↑ → ↓ ← ↑ ← ↓ →",
+   "note": "Unlock: finish the story"
+  },
+  {
+   "id": "drunk",
+   "name": "Drunk",
+   "effect": "You and your partner get drunk.",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · ↑ ← → ↑ ↑ ← → ↑ ← →",
+   "xbox": "↑ · LB+RB · ↑ ← → ↑ ↑ ← → ↑ ← →",
+   "note": "Unlock: spend $2,500 on alcohol"
+  },
+  {
+   "id": "heat",
+   "name": "Raise heat level",
+   "effect": "Raises the heat level across the map.",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · ← ↓ → ↓ ↑ ↓ ↑",
+   "xbox": "↑ · LB+RB · ← ↓ → ↓ ↑ ↓ ↑",
+   "note": "Unlock: lose a 3-star wanted level 25 times"
+  },
+  {
+   "id": "wanted",
+   "name": "Raise wanted level",
+   "effect": "Raises your wanted level.",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · ← ↓ → ↓ ↑ → ↑",
+   "xbox": "↑ · LB+RB · ← ↓ → ↓ ↑ → ↑",
+   "note": "Unlock: lose a 3-star wanted level 50 times"
+  },
+  {
+   "id": "focus",
+   "name": "Unlimited focus",
+   "effect": "Focus never runs out.",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · ↓ ↑ ↑ ↓ ↑ ↓ ↑ ↓ ↑ →",
+   "xbox": "↑ · LB+RB · ↓ ↑ ↑ ↓ ↑ ↓ ↑ ↓ ↑ →",
+   "note": "Unlock: finish the story"
+  },
+  {
+   "id": "nofall",
+   "name": "No fall damage",
+   "effect": "You take no fall damage.",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · ↓ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↓",
+   "xbox": "↑ · LB+RB · ↓ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↓",
+   "note": "Unlock: survive a 40 ft fall 20 times"
+  },
+  {
+   "id": "parachute",
+   "name": "Parachute",
+   "effect": "Adds a parachute.",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · → ↑ ← ↑ → ↑ ← ↑ →",
+   "xbox": "↑ · LB+RB · → ↑ ← ↑ → ↑ ← ↑ →",
+   "note": "Unlock: 50 skydives or BASE jumps from 300 ft or more"
+  },
+  {
+   "id": "armor",
+   "name": "Body armor",
+   "effect": "Adds body armor.",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · ↓ ↑ ← ↑ ↑ ↑ ↑ ↑ ↑ ↓ ↓",
+   "xbox": "↑ · LB+RB · ↓ ↑ ← ↑ ↑ ↑ ↑ ↑ ↑ ↓ ↓",
+   "note": "Unlock: complete 100 workouts"
+  },
+  {
+   "id": "repair",
+   "name": "Repair vehicle",
+   "effect": "Fully repairs your vehicle.",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · → ↓ ↓ → ↓ → → ↓",
+   "xbox": "↑ · LB+RB · → ↓ ↓ → ↓ → → ↓",
+   "note": "Unlock: win 10 races at the raceways"
+  },
+  {
+   "id": "nitro",
+   "name": "Unlimited nitrous",
+   "effect": "Nitrous and fuel never run out.",
+   "group": "Player",
+   "playstation": "↑ · L1+R1 · → ↓ ↓ → ↓ → → ←",
+   "xbox": "↑ · LB+RB · → ↓ ↓ → ↓ → → ←",
+   "note": "Unlock: complete 50 stunt jumps"
+  },
+  {
+   "id": "maxammo",
+   "name": "Max ammo",
+   "effect": "Refills every weapon.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · ↓ ↑ → ↓ ← ← ↑ ↑ ↓ ←",
+   "xbox": "↑ · LB+RB · ↓ ↑ → ↓ ← ← ↑ ↑ ↓ ←",
+   "note": "Unlock: 25 bronze medals at shooting ranges"
+  },
+  {
+   "id": "infammo",
+   "name": "Infinite ammo",
+   "effect": "Ammo never runs out.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · ↓ ↑ → ↓ ← ← ↑ ↓ ↓ ↓",
+   "xbox": "↑ · LB+RB · ↓ ↑ → ↓ ← ← ↑ ↓ ↓ ↓",
+   "note": "Unlock: 25 silver medals at shooting ranges"
+  },
+  {
+   "id": "noreload",
+   "name": "No reload",
+   "effect": "No more reloading.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · ↓ ↑ → ↓ ← ← ↑ ↓ ↓ ↑",
+   "xbox": "↑ · LB+RB · ↓ ↑ → ↓ ← ← ↑ ↓ ↓ ↑",
+   "note": "Unlock: 25 gold medals at shooting ranges"
+  },
+  {
+   "id": "explosives",
+   "name": "All explosive weapons",
+   "effect": "Every explosive weapon, full ammo.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · → ↑ ← ↑ → ↑ ← ↑ ←",
+   "xbox": "↑ · LB+RB · → ↑ ← ↑ → ↑ ← ↑ ←",
+   "note": "Unlock: throw 100 grenades"
+  },
+  {
+   "id": "fireammo",
+   "name": "Incendiary ammo",
+   "effect": "Shots set targets on fire.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · ↓ ↑ → ↓ ← ↓ ↑ → ↓ ↓",
+   "xbox": "↑ · LB+RB · ↓ ↑ → ↓ ← ↓ ↑ → ↓ ↓",
+   "note": "Unlock: 100 kills with fire"
+  },
+  {
+   "id": "bottles",
+   "name": "Exploding bottles",
+   "effect": "Bottles explode when hit.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · ↓ ↑ ← ← → ↓ ↓ ↑ ←",
+   "xbox": "↑ · LB+RB · ↓ ↑ ← ← → ↓ ↓ ↑ ←",
+   "note": "Unlock: throw 100 Molotovs"
+  },
+  {
+   "id": "shotgun",
+   "name": "Explosive shotgun",
+   "effect": "A shotgun with explosive shells.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · ↓ ↑ → ↓ ← ↓ ↑ → ↓ ←",
+   "xbox": "↑ · LB+RB · ↓ ↑ → ↓ ← ↓ ↑ → ↓ ←",
+   "note": "Unlock: 100 explosive hits on enemies"
+  },
+  {
+   "id": "hat",
+   "name": "Hauners H-AT",
+   "effect": "Adds a rocket launcher.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · → ↑ ← ↑ → ↑ ← ↑ ↑",
+   "xbox": "↑ · LB+RB · → ↑ ← ↑ → ↑ ← ↑ ↑",
+   "note": "Unlock: destroy 100 vehicles"
+  },
+  {
+   "id": "force",
+   "name": "Attack force",
+   "effect": "Hits send people flying.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · ↓ ↑ ← ← → ↓ ↓ ↑ ↓",
+   "xbox": "↑ · LB+RB · ↓ ↑ ← ← → ↓ ↓ ↑ ↓",
+   "note": "Unlock: finish the story"
+  },
+  {
+   "id": "balls",
+   "name": "Exploding balls",
+   "effect": "Sports balls explode on impact.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · ↓ ↑ ← ← → ↓ ↓ ↑ →",
+   "xbox": "↑ · LB+RB · ↓ ↑ ← ← → ↓ ↓ ↑ →",
+   "note": "Unlock: 20 explosive hits on enemies"
+  },
+  {
+   "id": "vforce",
+   "name": "Vehicle force",
+   "effect": "Cars launch people into the air.",
+   "group": "Combat",
+   "playstation": "↑ · L1+R1 · ↓ ↑ ← ← → ↓ ← ↑ ↓",
+   "xbox": "↑ · LB+RB · ↓ ↑ ← ← → ↓ ← ↑ ↓",
+   "note": "Unlock: 25 vehicle kills"
+  },
+  {
+   "id": "v-ambulance",
+   "name": "Interstate Ambulance",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → → →",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → → →",
+   "note": "Unlock: discover it in the Progress menu"
+  },
+  {
+   "id": "v-airboat",
+   "name": "Airboat 09",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ↓ ↑ →",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ↓ ↑ →",
+   "note": "Unlock: 5 Survival challenges"
+  },
+  {
+   "id": "v-banshee",
+   "name": "Bravado Banshee",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → ↑ ←",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → ↑ ←",
+   "note": "Unlock: all Combat challenges"
+  },
+  {
+   "id": "v-bmx",
+   "name": "Tuff BMX",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ← ↑ →",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ← ↑ →",
+   "note": "Unlock: 5 Fitness challenges"
+  },
+  {
+   "id": "v-boomazoom",
+   "name": "Maibatsu Boomazoom",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ← ↑ ←",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ← ↑ ←",
+   "note": "Unlock: 5 Shopping challenges"
+  },
+  {
+   "id": "v-carbon",
+   "name": "Nagasaki Carbon RS",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ← ↑ ↑",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ← ↑ ↑",
+   "note": "Unlock: all Exploration challenges"
+  },
+  {
+   "id": "v-dominator",
+   "name": "'65 Vapid Dominator",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → ← →",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → ← →",
+   "note": "Unlock: all Fitness challenges"
+  },
+  {
+   "id": "v-emerus",
+   "name": "Progen Emerus",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → ↑ →",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → ↑ →",
+   "note": "Unlock: all Vehicle challenges"
+  },
+  {
+   "id": "v-flamingo",
+   "name": "Inflatable Flamingo",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ↓ ↑ ↓",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ↓ ↑ ↓",
+   "note": "Unlock: destroy 50 cocaine flamingos"
+  },
+  {
+   "id": "v-pumper",
+   "name": "MTL Pumper fire truck",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → → ↑",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → → ↑",
+   "note": "Unlock: discover it in the Progress menu"
+  },
+  {
+   "id": "v-taxi",
+   "name": "Vapid Stanier G2 Taxi",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → → ←",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → → ←",
+   "note": "Unlock: 5 Sports challenges"
+  },
+  {
+   "id": "v-lazer",
+   "name": "Hauners P-996 Lazer",
+   "effect": "Spawns the jet.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ↑ ↑ ↓",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ↑ ↑ ↓",
+   "note": "Unlock: every challenge"
+  },
+  {
+   "id": "v-dozer",
+   "name": "HVY Bulldozer",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → → ↓",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → → ↓",
+   "note": "Unlock: discover it in the Progress menu"
+  },
+  {
+   "id": "v-mallard",
+   "name": "Lapwing Mallard",
+   "effect": "Spawns the plane.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ↑ ↑ ↑",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ↑ ↑ ↑",
+   "note": "Unlock: 5 Vehicle challenges"
+  },
+  {
+   "id": "v-golfer",
+   "name": "Brimstone Golfer",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → ↑ ↓",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → ↑ ↓",
+   "note": "Unlock: all Sports challenges"
+  },
+  {
+   "id": "v-rhino",
+   "name": "Hauners Rhino Tank",
+   "effect": "Spawns the tank.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → ← ↑",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → ← ↑",
+   "note": "Unlock: all Survival challenges"
+  },
+  {
+   "id": "v-sanchez",
+   "name": "Maibatsu Sanchez",
+   "effect": "Spawns the dirt bike.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ← → ↑",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ← → ↑",
+   "note": "Unlock: 5 Criminal challenges"
+  },
+  {
+   "id": "v-seasparrow",
+   "name": "Nagasaki Sea Sparrow",
+   "effect": "Spawns the helicopter.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ↑ ↑ →",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ↑ ↑ →",
+   "note": "Unlock: 5 Exploration challenges"
+  },
+  {
+   "id": "v-speeder",
+   "name": "Speeder 700 GT",
+   "effect": "Spawns the boat.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ↓ ↑ ↑",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ↓ ↑ ↑",
+   "note": "Unlock: 5 Combat challenges"
+  },
+  {
+   "id": "v-thrax",
+   "name": "Truffade Thrax",
+   "effect": "Spawns it.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← → ↑ ↑",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← → ↑ ↑",
+   "note": "Unlock: all Shopping challenges"
+  },
+  {
+   "id": "v-bobber",
+   "name": "Western Zombie Bobber",
+   "effect": "Spawns the motorcycle.",
+   "group": "Vehicles",
+   "playstation": "↑ · L1+R1 · ← ↑ → ↓ ← ← ↑ ↓",
+   "xbox": "↑ · LB+RB · ← ↑ → ↓ ← ← ↑ ↓",
+   "note": "Unlock: all Criminal challenges"
+  },
+  {
+   "id": "time",
+   "name": "Move time forward",
+   "effect": "Moves the time of day forward.",
+   "group": "World",
+   "playstation": "↑ · L1+R1 · ↓ → ↑ ↓ → ↑ ↑",
+   "xbox": "↑ · LB+RB · ↓ → ↑ ↓ → ↑ ↑",
+   "note": "Unlock: find 10 collectible watches"
+  },
+  {
+   "id": "pause",
+   "name": "Pause time of day",
+   "effect": "Freezes the time of day.",
+   "group": "World",
+   "playstation": "↑ · L1+R1 · ↓ → ↑ ↓ → ↑ ←",
+   "xbox": "↑ · LB+RB · ↓ → ↑ ↓ → ↑ ←",
+   "note": "Unlock: find 20 collectible watches"
+  },
+  {
+   "id": "weather",
+   "name": "Cycle weather",
+   "effect": "Changes the weather.",
+   "group": "World",
+   "playstation": "↑ · L1+R1 · ↓ → ↑ ↓ → ↑ →",
+   "xbox": "↑ · LB+RB · ↓ → ↑ ↓ → ↑ →",
+   "note": "Unlock: finish the story"
+  },
+  {
+   "id": "f-golden",
+   "name": "Golden Hour",
+   "effect": "Golden tint, widescreen.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ↑ ↑",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ↑ ↑",
+   "note": "Unlock: spend 4 hours holding hands"
+  },
+  {
+   "id": "f-sugar",
+   "name": "Powdered Sugar",
+   "effect": "A white, sparkling world.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ↑ →",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ↑ →",
+   "note": "Unlock: scan all space debris with WAiNK"
+  },
+  {
+   "id": "f-pinhole",
+   "name": "Pinhole",
+   "effect": "Pinhole camera look.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ↑ ↓",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ↑ ↓",
+   "note": "Unlock: clear 25 gang operations with your partner"
+  },
+  {
+   "id": "f-neon",
+   "name": "Neon Jungle",
+   "effect": "Neon highlights.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ↑ ←",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ↑ ←",
+   "note": "Unlock: find all 16 Girlypop vehicles"
+  },
+  {
+   "id": "f-yesteryear",
+   "name": "Yesteryear",
+   "effect": "Black-and-white TV look.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← → ↑",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← → ↑",
+   "note": "Unlock: discover the Ridgeway"
+  },
+  {
+   "id": "f-cataclysm",
+   "name": "Cataclysm",
+   "effect": "Murky smoke everywhere.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← → →",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← → →",
+   "note": "Unlock: discover Martha's Vamos"
+  },
+  {
+   "id": "f-vhs",
+   "name": "Videotape",
+   "effect": "Old videotape look.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← → ↓",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← → ↓",
+   "note": "Unlock: 50 activities with your partner"
+  },
+  {
+   "id": "f-mirror",
+   "name": "Dark Mirror",
+   "effect": "Black, upside-down world.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← → ←",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← → ←",
+   "note": "Unlock: make $500,000 selling vehicles"
+  },
+  {
+   "id": "f-migraine",
+   "name": "Migraine",
+   "effect": "Blurred, distorted screen.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ↓ ↑",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ↓ ↑",
+   "note": "Unlock: survive 6 minutes at 6 stars"
+  },
+  {
+   "id": "f-doll",
+   "name": "Dollhouse",
+   "effect": "Vivid colors, narrow frame.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ↓ →",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ↓ →",
+   "note": "Unlock: spend 8 hours with your partner"
+  },
+  {
+   "id": "f-bubblegum",
+   "name": "Bubblegum",
+   "effect": "Purple and yellow sparkles.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ↓ ↓",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ↓ ↓",
+   "note": "Unlock: find all 24 Vice City Flamingos cards"
+  },
+  {
+   "id": "f-fast",
+   "name": "Fast Forward",
+   "effect": "Motion blur, fast clouds.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ↓ ←",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ↓ ←",
+   "note": "Unlock: complete 50 meditations"
+  },
+  {
+   "id": "f-fisheye",
+   "name": "Fisheye",
+   "effect": "Fisheye lens.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ← ↑",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ← ↑",
+   "note": "Unlock: catch 100 fish"
+  },
+  {
+   "id": "f-faded",
+   "name": "Faded Glory",
+   "effect": "Old color TV look.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ← →",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ← →",
+   "note": "Unlock: rob 50 stores with your partner"
+  },
+  {
+   "id": "f-pixel",
+   "name": "Pixel Art",
+   "effect": "Pixelated screen.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ← ↓",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ← ↓",
+   "note": "Unlock: make $250,000 selling collectibles"
+  },
+  {
+   "id": "f-hell",
+   "name": "Hellscape",
+   "effect": "Red, hazy, burning world.",
+   "group": "Screen filters",
+   "playstation": "↑ · L1+R1 · ↓ ↓ ↑ → → ↑ ← ← ← ←",
+   "xbox": "↑ · LB+RB · ↓ ↓ ↑ → → ↑ ← ← ← ←",
+   "note": "Unlock: steal 100 police vehicles"
+  }
+ ],
  "news": [
   {
    "id": "n1",

@@ -131,8 +131,12 @@ struct VFCollectibleSet: Codable, Identifiable, Hashable {
     var id: String
     var title: String
     var count: Int
+    /// Combien il en faut pour le 100 % (s'il ne faut pas tout).
+    var needed: Int?
+    var group: String?
     var reward: String?
     var summary: String?
+    var target: Int { needed ?? count }
 }
 
 struct VFChallenge: Codable, Identifiable, Hashable {
@@ -175,6 +179,7 @@ struct VFCheat: Codable, Identifiable, Hashable {
     var xbox: String?
     var phone: String?
     var note: String?
+    var group: String?
 }
 
 struct VFNews: Codable, Identifiable, Hashable {
@@ -262,5 +267,5 @@ final class ContentStore {
     func chapter(_ id: Int) -> VFChapter? { content.chapters.first { $0.id == id } }
     func guides(_ c: VFGuideCategory) -> [VFGuide] { content.guides.filter { $0.category == c } }
     func place(_ id: String) -> VFPlace? { content.places.first { $0.id == id } }
-    var totalCollectibles: Int { content.collectibles.reduce(0) { $0 + $1.count } }
+    var totalCollectibles: Int { content.collectibles.reduce(0) { $0 + $1.target } }
 }

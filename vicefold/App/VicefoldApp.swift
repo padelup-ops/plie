@@ -106,7 +106,7 @@ struct DualLayout<Primary: View, Secondary: View>: View {
     }
 
     static func fold(_ geo: GeometryProxy) -> CGRect? {
-        if #available(iOS 27.0, *) {
+        if #available(iOS 27.1, *) {
             guard let f = geo.reservedRegions(kind: .division, options: .includeInactive).first?.frame else { return nil }
             let s = geo.size
             guard s.width > 0, f.height >= s.height * 0.9, f.width < s.width * 0.2,

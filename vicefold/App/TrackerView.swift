@@ -176,7 +176,7 @@ struct TrackerSummary: View {
                 VStack(alignment: .leading, spacing: 10) {
                     stat(String(localized: "Missions"), p.missions, 0, detail: "\(content.missions.filter { progress.isDone($0) }.count)/\(content.missions.count)")
                     stat(String(localized: "Places"), p.places, 1, detail: "\(progress.data.visited.count)")
-                    stat(String(localized: "Collectibles"), p.collectibles, 2, detail: "\(content.content.collectibles.reduce(0) { $0 + min($1.count, progress.found($1)) })/\(content.totalCollectibles)")
+                    stat(String(localized: "Collectibles"), p.collectibles, 2, detail: "\(content.content.collectibles.reduce(0) { $0 + min($1.target, progress.found($1)) })/\(content.totalCollectibles)")
                     stat(String(localized: "Challenges"), p.challenges, 3, detail: "\(progress.data.challenges.count)/\(content.content.challenges.count)")
                     if !compact {
                         Button { share = true } label: { Label("Share as an image", systemImage: "square.and.arrow.up") }
@@ -279,30 +279,39 @@ struct MissionDetail: View {
     }
 }
 
-/// Les objets à collectionner : un compteur par série.
+/// Les objets à collectionner et le reste du 100 % : un compteur par série, rangé par groupe.
 struct CollectibleRows: View {
     @Environment(ContentStore.self) private var content
     @Environment(Progress.self) private var progress
 
     var body: some View {
-        ForEach(content.content.collectibles) { s in
+        let sets = content.content.collectibles
+        let groups = sets.reduce(into: [String]()) { if let g = $1.group, !$0.contains(g) { $0.append(g) } }
+        ForEach(groups.isEmpty ? [""] : groups, id: \.self) { g in
             Section {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(s.title).font(.headline)
-                        Spacer()
-                        Stepper(value: Binding(get: { progress.found(s) }, set: { progress.setFound(s, $0) }), in: 0...s.count) {
-                            Text("\(progress.found(s))/\(s.count)").monospacedDigit().frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                        .fixedSize()
-                    }
-                    ProgressView(value: Double(progress.found(s)), total: Double(max(1, s.count))).tint(VF.sun)
-                    if let sum = s.summary { Text(sum).font(.footnote).foregroundStyle(.secondary) }
-                    if let r = s.reward { Label(r, systemImage: "gift.fill").font(.footnote).foregroundStyle(VF.magenta) }
-                }
-                .padding(.vertical, 4)
+                ForEach(sets.filter { ($0.group ?? "") == g }) { s in row(s) }
+            } header: {
+                if !g.isEmpty { Text(g) }
             }
         }
+    }
+
+    private func row(_ s: VFCollectibleSet) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(s.title).font(.headline)
+                Spacer()
+                Stepper(value: Binding(get: { progress.found(s) }, set: { progress.setFound(s, $0) }), in: 0...s.count) {
+                    Text("\(progress.found(s))/\(s.target)").monospacedDigit().frame(maxWidth: .infinity, alignment: .trailing)
+                        .foregroundStyle(progress.found(s) >= s.target ? VF.teal : .primary)
+                }
+                .fixedSize()
+            }
+            ProgressView(value: Double(min(progress.found(s), s.target)), total: Double(max(1, s.target))).tint(progress.found(s) >= s.target ? VF.teal : VF.sun)
+            if let sum = s.summary { Text(sum).font(.footnote).foregroundStyle(.secondary) }
+            if let r = s.reward { Label(r, systemImage: "gift.fill").font(.footnote).foregroundStyle(VF.magenta) }
+        }
+        .padding(.vertical, 4)
     }
 }
 

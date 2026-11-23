@@ -39,6 +39,9 @@ for ident, label in ((APP, "Vicefold"), (APP + ".widget", "Vicefold Widget")):
         print("ok     identifiant créé :" if "data" in r else "ÉCHEC  identifiant :", ident, "" if "data" in r else r)
 
 apps = call("GET", "/v1/apps?limit=200").get("data", [])
+for a in apps:
+    if "gta" in a["attributes"]["name"].lower() or "vice" in a["attributes"]["name"].lower():
+        print("APP   ", a["id"], a["attributes"]["bundleId"], "«" + a["attributes"]["name"] + "»", a["attributes"].get("sku"))
 mine = [a for a in apps if a["attributes"]["bundleId"] == APP]
 if not mine:
     print("FICHE  à créer sur App Store Connect (nom Vicefold, identifiant " + APP + ")")

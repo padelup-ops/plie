@@ -101,7 +101,7 @@ final class PlayStation {
         Progress.shared.edit { $0.psnHours = t.hours; $0.psnUpdated = Date() }
     }
 
-    static func hours(_ iso: String?) -> Double {
+    nonisolated static func hours(_ iso: String?) -> Double {
         guard var s = iso, s.hasPrefix("PT") || s.hasPrefix("P") else { return 0 }
         s = s.replacingOccurrences(of: "P", with: "").replacingOccurrences(of: "T", with: "")
         var total = 0.0, num = ""

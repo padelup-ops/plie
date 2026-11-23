@@ -221,8 +221,8 @@ final class Progress {
         let m = missions.isEmpty ? 0 : Double(missions.filter { data.missions.contains($0.id) }.count) / Double(missions.count)
         let places = c.places.filter { $0.kind != .region }
         let p = places.isEmpty ? 0 : Double(places.filter { data.visited.contains($0.id) }.count) / Double(places.count)
-        let total = c.collectibles.reduce(0) { $0 + $1.count }
-        let found = c.collectibles.reduce(0) { $0 + min($1.count, data.collected[$1.id] ?? 0) }
+        let total = c.collectibles.reduce(0) { $0 + $1.target }
+        let found = c.collectibles.reduce(0) { $0 + min($1.target, data.collected[$1.id] ?? 0) }
         let col = total == 0 ? 0 : Double(found) / Double(total)
         let ch = c.challenges.isEmpty ? 0 : Double(c.challenges.filter { data.challenges.contains($0.id) }.count) / Double(c.challenges.count)
         return Parts(missions: m, places: p, collectibles: col, challenges: ch)
