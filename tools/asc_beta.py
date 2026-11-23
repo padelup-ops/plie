@@ -134,6 +134,28 @@ for attempt in range(5):
         break
     print("lecture des groupes impossible :", reply.get("error"), reply.get("detail"), "· nouvel essai")
     time.sleep(20)
+# Une app toute neuve n'a encore aucun groupe interne : on crée « Équipe » (reçoit tous les builds) et on y met les
+# membres de l'équipe App Store Connect (adresses jamais affichées en clair).
+if not any(g["attributes"].get("isInternalGroup") for g in groups):
+    r = step("groupe interne « Équipe » créé", call("POST", "/v1/betaGroups", {"data": {
+        "type": "betaGroups", "attributes": {"name": "Équipe", "isInternalGroup": True, "hasAccessToAllBuilds": True},
+        "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
+    team = (r or {}).get("data")
+    if team:
+        groups.append(team)
+        for u in call("GET", "/v1/users?limit=50").get("data", []):
+            mail = (u["attributes"].get("username") or "").strip()
+            if "@" not in mail:
+                continue
+            # Le compte rendu (beta.txt) est publié dans le dépôt public : l'adresse n'y apparaît jamais.
+            hidden = mail[:1] + "…@" + mail.split("@")[1][:1] + "…"
+            r = call("POST", "/v1/betaTesters", {"data": {
+                "type": "betaTesters", "attributes": {"email": mail, "firstName": u["attributes"].get("firstName") or "",
+                                                       "lastName": u["attributes"].get("lastName") or ""},
+                "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": team["id"]}]}}}})
+            if isinstance(r, dict) and "error" in r:
+                r["detail"] = r["detail"].replace(mail, hidden)
+            step(f"{hidden} ajouté au groupe interne", r, tolerate=("already",))
 if not groups:
     print("ÉCHEC  aucun groupe de testeurs lu")
     problems.append("groupes de testeurs")
