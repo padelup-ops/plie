@@ -598,3 +598,26 @@
 "Your thumbs as you type" = "Deine Daumen beim Tippen";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "Wähle die Wege, die dir gefallen. „Folgt deiner Hand“ kann nutzen, wie du das iPhone hältst, deine Daumen oder beides. Und du kannst die Tastatur jederzeit selbst verschieben: an den Rand klopfen oder auf die leere Seite tippen.";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "Klopf an den linken Rand: Die Tastatur geht nach links. Rechter Rand: nach rechts. Oder tippe auf den freien Platz daneben.";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "Ausprobieren und Empfindlichkeit einstellen";
+"Try knocking" = "Klopfen ausprobieren";
+"Knock the left or right edge…" = "Klopfe auf den linken oder rechten Rand …";
+"Left edge ✓" = "Linker Rand ✓";
+"Right edge ✓" = "Rechter Rand ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "Erkannt, aber es sah aus wie eine Berührung des Bildschirms. Klopfe seitlich auf den Rahmen.";
+"Ignored: a finger was on the screen." = "Ignoriert: Ein Finger lag auf dem Bildschirm.";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "Ignoriert: Das iPhone war in Bewegung. Halte es still und klopfe dann.";
+"Too slow: knock briskly, like on a door." = "Zu langsam: Klopfe kurz und kräftig, wie an eine Tür.";
+"Too soon after the last one." = "Zu kurz nach dem letzten Klopfen.";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "Halte das iPhone in einer Hand, wie beim Tippen. Klopfe mit der Fingerspitze auf den linken oder rechten Rand (den Rahmen, nicht den Bildschirm).";
+"Sensitivity" = "Empfindlichkeit";
+"Firm" = "Kräftig";
+"Light" = "Leicht";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "Passiert nichts? Schieb ihn Richtung Leicht. Die Tastatur wechselt beim Tippen von selbst die Seite? Schieb ihn Richtung Kräftig.";
+"Copy the data for the developer" = "Daten für den Entwickler kopieren";
+"Copied" = "Kopiert";
+"Only the strength of each knock, never what you type." = "Nur die Stärke jedes Klopfens, nie das, was du tippst.";
+"Knock strength" = "Klopfstärke";
+"Enough" = "Genug";
+"Too light" = "Zu leicht";

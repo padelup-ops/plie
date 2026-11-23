@@ -597,3 +597,26 @@
 "Your thumbs as you type" = "打字时的拇指";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "选择你喜欢的方式。“跟随你的手”可以根据握持方式、拇指，或两者一起判断。你也随时可以自己移动键盘：轻敲 iPhone 边框，或轻点空白一侧。";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "轻敲左边框，键盘到左侧；轻敲右边框，键盘到右侧。也可以轻点旁边的空白处。";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "试一试并调整灵敏度";
+"Try knocking" = "试试敲击边框";
+"Knock the left or right edge…" = "敲击左侧或右侧边框…";
+"Left edge ✓" = "左侧边框 ✓";
+"Right edge ✓" = "右侧边框 ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "检测到了，但看起来像是触摸屏幕。请敲击侧面的边框。";
+"Ignored: a finger was on the screen." = "已忽略：有手指在屏幕上。";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "已忽略：iPhone 在移动。拿稳后再敲击。";
+"Too slow: knock briskly, like on a door." = "太慢：像敲门一样干脆地敲一下。";
+"Too soon after the last one." = "距离上一次太近。";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "像打字时一样单手握住 iPhone，用指尖敲击它的左侧或右侧边框（是边框，不是屏幕）。";
+"Sensitivity" = "灵敏度";
+"Firm" = "用力";
+"Light" = "轻";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "没有反应？往“轻”调。打字时键盘自己换边？往“用力”调。";
+"Copy the data for the developer" = "拷贝数据给开发者";
+"Copied" = "已拷贝";
+"Only the strength of each knock, never what you type." = "只包含每次敲击的力度，绝不包含你输入的内容。";
+"Knock strength" = "敲击力度";
+"Enough" = "足够";
+"Too light" = "太轻";

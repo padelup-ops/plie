@@ -940,6 +940,7 @@ final class KeyboardCanvas: UIView {
     private func syncSensors() {
         guard visible else { return }
         let wantKnock = eff.knockToMove && layoutMode.isOneHand && !demoOneHand && demoContext == nil
+        knock.sensitivity = eff.knockSensitivity
         if wantKnock && !knock.running {
             knock.onKnock = { [weak self] pushedRight in self?.knocked(pushedRight) }
             knock.start()

@@ -136,6 +136,8 @@ struct KBSettings: Codable, Equatable {
     var tapSideToMove = true
     /// Taper le bord de l'iPhone (gauche ou droite) met le clavier à une main de ce côté.
     var knockToMove = true
+    /// La force qu'il faut pour taper le bord : 0 = un coup franc, 1 = un petit coup suffit.
+    var knockSensitivity = 0.6
     /// « Suit ta main » : par l'inclinaison du téléphone, et par les pouces (où et comment on tape).
     var followTilt = true
     var followThumbs = true
@@ -273,6 +275,7 @@ struct KBSettings: Codable, Equatable {
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
         tapSideToMove = (try? c.decodeIfPresent(Bool.self, forKey: .tapSideToMove)) ?? d.tapSideToMove
         knockToMove = (try? c.decodeIfPresent(Bool.self, forKey: .knockToMove)) ?? d.knockToMove
+        knockSensitivity = (try? c.decodeIfPresent(Double.self, forKey: .knockSensitivity)) ?? d.knockSensitivity
         followTilt = (try? c.decodeIfPresent(Bool.self, forKey: .followTilt)) ?? d.followTilt
         followThumbs = (try? c.decodeIfPresent(Bool.self, forKey: .followThumbs)) ?? d.followThumbs
         hideKeyButton = (try? c.decodeIfPresent(Bool.self, forKey: .hideKeyButton)) ?? d.hideKeyButton
@@ -322,6 +325,7 @@ struct KBSettings: Codable, Equatable {
         // L'ancienne largeur par défaut donnait des touches trop petites : on passe à la nouvelle.
         if abs(oneHandWidth - 0.68) < 0.001 { oneHandWidth = 0.76 }
         oneHandWidth = min(0.95, max(0.45, oneHandWidth))
+        knockSensitivity = min(1, max(0, knockSensitivity))
         oneHandWidthOpen = min(0.9, max(0.4, oneHandWidthOpen))
         splitWidth = min(0.48, max(0.22, splitWidth))
         edgeMargin = min(400, max(0, edgeMargin))

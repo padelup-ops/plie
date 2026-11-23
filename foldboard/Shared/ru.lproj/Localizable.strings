@@ -597,3 +597,26 @@
 "Your thumbs as you type" = "Ваши большие пальцы при наборе";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "Выберите удобные способы. «Следует за рукой» может учитывать, как вы держите iPhone, ваши пальцы или и то, и другое. А переместить клавиатуру можно и самому: постучите по краю iPhone или нажмите на пустую сторону.";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "Постучите по левому краю — клавиатура уйдёт влево, по правому — вправо. Или нажмите на пустое место рядом.";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "Попробовать и настроить чувствительность";
+"Try knocking" = "Попробовать стук по краю";
+"Knock the left or right edge…" = "Постучите по левому или правому краю…";
+"Left edge ✓" = "Левый край ✓";
+"Right edge ✓" = "Правый край ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "Замечено, но похоже на касание экрана. Стучите по рамке, сбоку.";
+"Ignored: a finger was on the screen." = "Пропущено: палец был на экране.";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "Пропущено: iPhone двигался. Держите его неподвижно, затем стучите.";
+"Too slow: knock briskly, like on a door." = "Слишком медленно: стучите коротко, как в дверь.";
+"Too soon after the last one." = "Слишком скоро после предыдущего.";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "Держите iPhone одной рукой, как при наборе. Постучите кончиком пальца по левому или правому краю (по рамке, не по экрану).";
+"Sensitivity" = "Чувствительность";
+"Firm" = "Сильно";
+"Light" = "Легко";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "Ничего не происходит? Сдвиньте к «Легко». Клавиатура сама меняет сторону при наборе? Сдвиньте к «Сильно».";
+"Copy the data for the developer" = "Скопировать данные для разработчика";
+"Copied" = "Скопировано";
+"Only the strength of each knock, never what you type." = "Только сила каждого стука, никогда то, что вы пишете.";
+"Knock strength" = "Сила стука";
+"Enough" = "Достаточно";
+"Too light" = "Слишком слабо";

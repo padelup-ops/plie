@@ -598,3 +598,26 @@
 "Your thumbs as you type" = "Tus pulgares al escribir";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "Elige las formas que prefieras. «Sigue tu mano» puede usar cómo sujetas el iPhone, tus pulgares o ambos. Y siempre puedes mover el teclado tú: toca el borde del iPhone o el lado vacío.";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "Toca el borde izquierdo: el teclado va a la izquierda. El derecho: a la derecha. O toca el espacio vacío de al lado.";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "Probar y ajustar la sensibilidad";
+"Try knocking" = "Probar el golpe en el borde";
+"Knock the left or right edge…" = "Golpea el borde izquierdo o derecho…";
+"Left edge ✓" = "Borde izquierdo ✓";
+"Right edge ✓" = "Borde derecho ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "Detectado, pero parecía un toque en la pantalla. Golpea el marco, en el lateral.";
+"Ignored: a finger was on the screen." = "Ignorado: había un dedo en la pantalla.";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "Ignorado: el iPhone se estaba moviendo. Sujétalo quieto y luego golpea.";
+"Too slow: knock briskly, like on a door." = "Demasiado lento: golpea seco, como en una puerta.";
+"Too soon after the last one." = "Demasiado pronto tras el anterior.";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "Sujeta el iPhone con una mano, como al escribir. Golpea su borde izquierdo o derecho (el marco, no la pantalla) con la yema del dedo.";
+"Sensitivity" = "Sensibilidad";
+"Firm" = "Fuerte";
+"Light" = "Suave";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "¿No pasa nada? Muévelo hacia Suave. ¿El teclado cambia de lado solo mientras escribes? Muévelo hacia Fuerte.";
+"Copy the data for the developer" = "Copiar los datos para el desarrollador";
+"Copied" = "Copiado";
+"Only the strength of each knock, never what you type." = "Solo la fuerza de cada golpe, nunca lo que escribes.";
+"Knock strength" = "Fuerza del golpe";
+"Enough" = "Suficiente";
+"Too light" = "Demasiado suave";

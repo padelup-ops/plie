@@ -597,3 +597,26 @@
 "Your thumbs as you type" = "I tuoi pollici mentre scrivi";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "Scegli i modi che preferisci. «Segue la mano» può usare come tieni l'iPhone, i tuoi pollici o entrambi. E puoi sempre spostare la tastiera tu: tocca il bordo dell'iPhone o il lato vuoto.";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "Tocca il bordo sinistro: la tastiera va a sinistra. Il destro: va a destra. Oppure tocca lo spazio vuoto accanto.";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "Prova e regola la sensibilità";
+"Try knocking" = "Prova il colpo sul bordo";
+"Knock the left or right edge…" = "Colpisci il bordo sinistro o destro…";
+"Left edge ✓" = "Bordo sinistro ✓";
+"Right edge ✓" = "Bordo destro ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "Rilevato, ma sembrava un tocco sullo schermo. Colpisci la cornice, sul lato.";
+"Ignored: a finger was on the screen." = "Ignorato: un dito era sullo schermo.";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "Ignorato: l’iPhone si stava muovendo. Tienilo fermo, poi colpisci.";
+"Too slow: knock briskly, like on a door." = "Troppo lento: colpisci secco, come su una porta.";
+"Too soon after the last one." = "Troppo presto dopo il precedente.";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "Tieni l’iPhone con una mano, come quando scrivi. Colpisci il bordo sinistro o destro (la cornice, non lo schermo) con la punta del dito.";
+"Sensitivity" = "Sensibilità";
+"Firm" = "Deciso";
+"Light" = "Leggero";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "Non succede niente? Spostalo verso Leggero. La tastiera cambia lato da sola mentre scrivi? Spostalo verso Deciso.";
+"Copy the data for the developer" = "Copia i dati per lo sviluppatore";
+"Copied" = "Copiato";
+"Only the strength of each knock, never what you type." = "Solo la forza di ogni colpo, mai quello che scrivi.";
+"Knock strength" = "Forza del colpo";
+"Enough" = "Sufficiente";
+"Too light" = "Troppo leggero";

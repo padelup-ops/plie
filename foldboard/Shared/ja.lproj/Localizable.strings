@@ -597,3 +597,26 @@
 "Your thumbs as you type" = "入力中の親指";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "好きな方法を選べます。「手に合わせる」は持ち方、親指、またはその両方を使えます。いつでも自分で移動もできます：iPhoneの縁を叩くか、空いている側をタップ。";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "左の縁を叩くとキーボードは左へ、右の縁なら右へ。横の空いている場所をタップしても移動します。";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "試して感度を調整";
+"Try knocking" = "ふちをノックしてみる";
+"Knock the left or right edge…" = "左か右のふちをノック…";
+"Left edge ✓" = "左のふち ✓";
+"Right edge ✓" = "右のふち ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "検出しましたが、画面へのタッチのようでした。側面のフレームをノックしてください。";
+"Ignored: a finger was on the screen." = "無視：画面に指が触れていました。";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "無視：iPhoneが動いていました。静止させてからノックしてください。";
+"Too slow: knock briskly, like on a door." = "遅すぎます：ドアをノックするように素早く。";
+"Too soon after the last one." = "前回から間がなさすぎます。";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "入力するときのように片手でiPhoneを持ち、左か右のふち（画面ではなくフレーム）を指先でノックしてください。";
+"Sensitivity" = "感度";
+"Firm" = "強め";
+"Light" = "軽め";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "何も起きない場合は「軽め」へ。入力中にキーボードが勝手に移動する場合は「強め」へ。";
+"Copy the data for the developer" = "開発者向けにデータをコピー";
+"Copied" = "コピーしました";
+"Only the strength of each knock, never what you type." = "記録するのは各ノックの強さだけで、入力内容は含みません。";
+"Knock strength" = "ノックの強さ";
+"Enough" = "十分";
+"Too light" = "弱すぎ";

@@ -207,12 +207,8 @@ final class GripDetector {
     /// Seuil d'inclinaison : un tiers de l'écart étalonné (plus réactif), sinon une valeur prudente.
     private var switchThreshold: Double { tiltGap >= 4 ? max(3, tiltGap * 0.3) : 9 }
 
-    private let motion = CMMotionManager()
-    private let queue: OperationQueue = {
-        let q = OperationQueue()
-        q.maxConcurrentOperationCount = 1
-        return q
-    }()
+    /// L'abonnement aux capteurs (partagés avec le coup sur le bord : un seul gestionnaire pour tout le clavier).
+    private var motionSub: UUID?
     private let lock = NSLock()
     private var samples: [(t: TimeInterval, x: Double, y: Double, z: Double)] = []
     private var angle: Double?
@@ -240,11 +236,10 @@ final class GripDetector {
 
     func start(initial: @escaping (KBGrip?) -> Void) {
         reset()
-        guard motion.isDeviceMotionAvailable else { initial(nil); return }
-        if !motion.isDeviceMotionActive {
-            motion.deviceMotionUpdateInterval = 1.0 / 60
-            motion.startDeviceMotionUpdates(to: queue) { [weak self] m, _ in
-                guard let self, let m else { return }
+        guard KBMotion.shared.available else { initial(nil); return }
+        if motionSub == nil {
+            motionSub = KBMotion.shared.subscribe(rate: 60) { [weak self] m in
+                guard let self else { return }
                 let g = m.gravity
                 let p = (g.x * g.x + g.y * g.y).squareRoot()
                 let a = kbWrap(atan2(g.x, -g.y) * 180 / .pi - self.angleOffset)
@@ -293,7 +288,8 @@ final class GripDetector {
     func stop() {
         tiltTimer?.invalidate()
         tiltTimer = nil
-        motion.stopDeviceMotionUpdates()
+        if let sub = motionSub { KBMotion.shared.unsubscribe(sub) }
+        motionSub = nil
         lock.lock()
         samples.removeAll()
         angle = nil

@@ -597,3 +597,26 @@
 "Your thumbs as you type" = "입력할 때의 엄지";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "원하는 방법을 고르세요. ‘손을 따라감’은 잡는 방식, 엄지, 또는 둘 다 사용할 수 있어요. 언제든 직접 옮길 수도 있어요: iPhone 가장자리를 두드리거나 빈 쪽을 탭하세요.";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "왼쪽 가장자리를 두드리면 키보드가 왼쪽으로, 오른쪽이면 오른쪽으로 가요. 옆의 빈 공간을 탭해도 돼요.";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "테스트하고 민감도 조절";
+"Try knocking" = "가장자리 두드리기 테스트";
+"Knock the left or right edge…" = "왼쪽 또는 오른쪽 가장자리를 두드리세요…";
+"Left edge ✓" = "왼쪽 가장자리 ✓";
+"Right edge ✓" = "오른쪽 가장자리 ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "감지했지만 화면 터치처럼 보였습니다. 옆면 프레임을 두드리세요.";
+"Ignored: a finger was on the screen." = "무시됨: 화면에 손가락이 있었습니다.";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "무시됨: iPhone이 움직이고 있었습니다. 가만히 든 다음 두드리세요.";
+"Too slow: knock briskly, like on a door." = "너무 느림: 문을 두드리듯 짧고 세게 두드리세요.";
+"Too soon after the last one." = "이전 두드림 직후입니다.";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "타이핑할 때처럼 한 손으로 iPhone을 잡고, 손가락 끝으로 왼쪽 또는 오른쪽 가장자리(화면이 아닌 프레임)를 두드리세요.";
+"Sensitivity" = "민감도";
+"Firm" = "세게";
+"Light" = "가볍게";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "아무 반응이 없나요? 가볍게 쪽으로 옮기세요. 타이핑 중에 키보드가 저절로 옮겨지나요? 세게 쪽으로 옮기세요.";
+"Copy the data for the developer" = "개발자에게 보낼 데이터 복사";
+"Copied" = "복사됨";
+"Only the strength of each knock, never what you type." = "두드림의 세기만 기록하며, 입력한 내용은 절대 포함되지 않습니다.";
+"Knock strength" = "두드림 세기";
+"Enough" = "충분함";
+"Too light" = "너무 약함";

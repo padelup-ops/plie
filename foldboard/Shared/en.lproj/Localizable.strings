@@ -591,3 +591,26 @@
 "Your thumbs as you type" = "Your thumbs as you type";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side.";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it.";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "Try it and set the sensitivity";
+"Try knocking" = "Try knocking";
+"Knock the left or right edge…" = "Knock the left or right edge…";
+"Left edge ✓" = "Left edge ✓";
+"Right edge ✓" = "Right edge ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "Seen, but it looked like a touch on the screen. Knock the frame, on the side.";
+"Ignored: a finger was on the screen." = "Ignored: a finger was on the screen.";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "Ignored: the iPhone was moving. Hold it still, then knock.";
+"Too slow: knock briskly, like on a door." = "Too slow: knock briskly, like on a door.";
+"Too soon after the last one." = "Too soon after the last one.";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip.";
+"Sensitivity" = "Sensitivity";
+"Firm" = "Firm";
+"Light" = "Light";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm.";
+"Copy the data for the developer" = "Copy the data for the developer";
+"Copied" = "Copied";
+"Only the strength of each knock, never what you type." = "Only the strength of each knock, never what you type.";
+"Knock strength" = "Knock strength";
+"Enough" = "Enough";
+"Too light" = "Too light";

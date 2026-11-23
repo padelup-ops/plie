@@ -597,3 +597,26 @@
 "Your thumbs as you type" = "Je duimen tijdens het typen";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "Kies de manieren die je fijn vindt. ‘Volgt je hand’ kan kijken hoe je de iPhone vasthoudt, naar je duimen, of beide. En je kunt het toetsenbord altijd zelf verplaatsen: tik op de rand van de iPhone of op de lege kant.";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "Tik op de linkerrand: het toetsenbord gaat naar links. Rechterrand: naar rechts. Of tik op de lege ruimte ernaast.";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "Uitproberen en gevoeligheid instellen";
+"Try knocking" = "Kloppen uitproberen";
+"Knock the left or right edge…" = "Klop op de linker- of rechterrand…";
+"Left edge ✓" = "Linkerrand ✓";
+"Right edge ✓" = "Rechterrand ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "Gezien, maar het leek op een aanraking van het scherm. Klop op de rand, aan de zijkant.";
+"Ignored: a finger was on the screen." = "Genegeerd: er lag een vinger op het scherm.";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "Genegeerd: de iPhone bewoog. Houd hem stil en klop dan.";
+"Too slow: knock briskly, like on a door." = "Te traag: klop kort en krachtig, zoals op een deur.";
+"Too soon after the last one." = "Te snel na de vorige.";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "Houd de iPhone in één hand, zoals bij het typen. Klop met je vingertop op de linker- of rechterrand (de rand, niet het scherm).";
+"Sensitivity" = "Gevoeligheid";
+"Firm" = "Stevig";
+"Light" = "Licht";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "Gebeurt er niets? Schuif richting Licht. Wisselt het toetsenbord vanzelf van kant tijdens het typen? Schuif richting Stevig.";
+"Copy the data for the developer" = "Gegevens kopiëren voor de ontwikkelaar";
+"Copied" = "Gekopieerd";
+"Only the strength of each knock, never what you type." = "Alleen de kracht van elke klop, nooit wat je typt.";
+"Knock strength" = "Klopkracht";
+"Enough" = "Genoeg";
+"Too light" = "Te licht";

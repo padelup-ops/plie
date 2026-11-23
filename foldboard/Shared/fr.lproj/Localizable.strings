@@ -611,3 +611,26 @@
 "Your thumbs as you type" = "Tes pouces quand tu tapes";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "Choisis les façons qui te plaisent. « Suit ta main » peut se servir de ta façon de tenir l'iPhone, de tes pouces, ou des deux. Et tu peux toujours déplacer le clavier toi-même : tape le bord de l'iPhone, ou touche le côté vide.";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "Tape le bord gauche : le clavier va à gauche. Tape le bord droit : il va à droite. Ou touche la place vide à côté.";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "Essayer et régler la sensibilité";
+"Try knocking" = "Essayer le coup sur le bord";
+"Knock the left or right edge…" = "Tape le bord gauche ou droit…";
+"Left edge ✓" = "Bord gauche ✓";
+"Right edge ✓" = "Bord droit ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "Vu, mais ça ressemblait à un toucher sur l’écran. Tape le cadre, sur le côté.";
+"Ignored: a finger was on the screen." = "Ignoré : un doigt était sur l’écran.";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "Ignoré : l’iPhone bougeait. Tiens-le immobile, puis tape.";
+"Too slow: knock briskly, like on a door." = "Trop lent : tape d’un coup sec, comme à une porte.";
+"Too soon after the last one." = "Trop tôt après le précédent.";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "Tiens l’iPhone d’une main, comme pour écrire. Tape son bord gauche ou droit (le cadre, pas l’écran) du bout du doigt.";
+"Sensitivity" = "Sensibilité";
+"Firm" = "Franc";
+"Light" = "Léger";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "Rien ne se passe ? Va vers Léger. Le clavier change de côté tout seul quand tu écris ? Va vers Franc.";
+"Copy the data for the developer" = "Copier les données pour le développeur";
+"Copied" = "Copié";
+"Only the strength of each knock, never what you type." = "Seulement la force de chaque coup, jamais ce que tu écris.";
+"Knock strength" = "Force du coup";
+"Enough" = "Assez";
+"Too light" = "Trop léger";

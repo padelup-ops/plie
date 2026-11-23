@@ -311,6 +311,13 @@ struct PositionView: View {
                 Toggle(isOn: $m.settings.knockToMove) {
                     Label("Knock the side of the iPhone to move the keyboard", systemImage: "hand.tap")
                 }
+                if m.settings.knockToMove {
+                    NavigationLink {
+                        KnockTestView()
+                    } label: {
+                        Label("Try it and set the sensitivity", systemImage: "dot.radiowaves.left.and.right")
+                    }
+                }
                 if m.settings.knockToMove || m.settings.tapSideToMove {
                     KnockDiagram().padding(.vertical, 6)
                 }

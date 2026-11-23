@@ -597,3 +597,26 @@
 "Your thumbs as you type" = "Seus polegares ao digitar";
 "Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "Escolha as formas que preferir. «Segue sua mão» pode usar como você segura o iPhone, seus polegares ou os dois. E você sempre pode mover o teclado: bata na borda do iPhone ou toque no lado vazio.";
 "Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "Bata na borda esquerda: o teclado vai para a esquerda. Na direita: para a direita. Ou toque no espaço vazio ao lado.";
+
+/* Essai du coup sur le bord */
+"Try it and set the sensitivity" = "Testar e ajustar a sensibilidade";
+"Try knocking" = "Testar a batida na borda";
+"Knock the left or right edge…" = "Bata na borda esquerda ou direita…";
+"Left edge ✓" = "Borda esquerda ✓";
+"Right edge ✓" = "Borda direita ✓";
+"Seen, but it looked like a touch on the screen. Knock the frame, on the side." = "Detectado, mas parecia um toque na tela. Bata na moldura, na lateral.";
+"Ignored: a finger was on the screen." = "Ignorado: havia um dedo na tela.";
+"Ignored: the iPhone was moving. Hold it still, then knock." = "Ignorado: o iPhone estava se movendo. Segure-o parado e depois bata.";
+"Too slow: knock briskly, like on a door." = "Lento demais: bata seco, como numa porta.";
+"Too soon after the last one." = "Cedo demais depois da anterior.";
+"Hold the iPhone in one hand, as you type. Knock its left or right edge (the frame, not the screen) with a fingertip." = "Segure o iPhone com uma mão, como para digitar. Bata na borda esquerda ou direita (a moldura, não a tela) com a ponta do dedo.";
+"Sensitivity" = "Sensibilidade";
+"Firm" = "Firme";
+"Light" = "Leve";
+"Nothing happens? Move it toward Light. The keyboard moves by itself while you type? Move it toward Firm." = "Nada acontece? Mova para Leve. O teclado muda de lado sozinho enquanto você digita? Mova para Firme.";
+"Copy the data for the developer" = "Copiar os dados para o desenvolvedor";
+"Copied" = "Copiado";
+"Only the strength of each knock, never what you type." = "Só a força de cada batida, nunca o que você digita.";
+"Knock strength" = "Força da batida";
+"Enough" = "Suficiente";
+"Too light" = "Leve demais";
