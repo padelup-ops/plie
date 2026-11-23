@@ -176,8 +176,15 @@ struct ActionPalette: View {
                     .transition(.opacity)
                 ringView(at: ring)
             }
+            if moving {
+                // While it's being moved: drop it here to hide it (it comes back from the menu or Settings).
+                hideTarget
+                    .position(hideSpot)
+                    .transition(.scale(scale: 0.6).combined(with: .opacity))
+            }
             core
                 .position(center)
+                .opacity(moving && overHide ? 0.5 : 1)
         }
         .frame(width: area.width, height: area.height)
         .onAppear { actions = Library.shared.paletteActions }
@@ -220,15 +227,41 @@ struct ActionPalette: View {
         return Int((a + step / 2) / step) % actions.count
     }
 
+    // MARK: Hiding
+
+    private var hideSpot: CGPoint { CGPoint(x: area.width / 2, y: area.height - insets.bottom - 56) }
+    private var overHide: Bool { hypot(buttonCenter.x - hideSpot.x, buttonCenter.y - hideSpot.y) < 56 }
+
+    private var hideTarget: some View {
+        VStack(spacing: 4) {
+            Image(systemName: "eye.slash")
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 58, height: 58)
+                .glassEffect(overHide ? .regular.tint(Brand.coral) : .regular, in: .circle)
+                .scaleEffect(overHide ? 1.15 : 1)
+            Text("Hide").font(.caption2.weight(.semibold))
+        }
+        .foregroundStyle(overHide ? Color.white : Color.primary)
+        .animation(.snappy(duration: 0.15), value: overHide)
+        .allowsHitTesting(false)
+    }
+
     // MARK: Views
 
     private var core: some View {
         ZStack {
-            Circle().fill(.clear).glassEffect(.regular.interactive(), in: .circle)
-            Image(systemName: open ? "xmark" : "circle.grid.2x2.fill")
-                .font(.system(size: open ? 18 : 19, weight: .bold))
-                .foregroundStyle(open ? Color.primary : Brand.accent)
-                .contentTransition(.symbolEffect(.replace))
+            Circle().fill(Color.black.opacity(0.35)).glassEffect(.regular.interactive(), in: .circle)
+            if open {
+                Image(systemName: "xmark")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(.white)
+                    .transition(.scale.combined(with: .opacity))
+            } else {
+                // Concentric rings, like a floating control button: easy to spot, nothing to read.
+                Circle().stroke(.white.opacity(0.35), lineWidth: 2).frame(width: 34, height: 34)
+                Circle().stroke(.white.opacity(0.6), lineWidth: 2).frame(width: 24, height: 24)
+                Circle().fill(.white.opacity(0.95)).frame(width: 15, height: 15)
+            }
         }
         .frame(width: button, height: button)
         .scaleEffect(moving ? 1.15 : 1)
@@ -323,6 +356,16 @@ struct ActionPalette: View {
             }
             .onEnded { v in
                 defer { dragStart = nil; movedFar = false }
+                if moving, overHide {
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    withAnimation(.spring(response: 0.3)) {
+                        moving = false
+                        dragOffset = .zero
+                        Library.shared.palette = false
+                    }
+                    browser.flash(String(localized: "Palette hidden. Bring it back from the ⋯ menu."))
+                    return
+                }
                 if moving {
                     let c = clamp(CGPoint(x: position.x * area.width + v.translation.width,
                                           y: position.y * area.height + v.translation.height), margin: button / 2 + 6)
@@ -388,7 +431,7 @@ struct PaletteSettings: View {
                 Toggle("Floating Palette Button", isOn: $lib.palette)
                 Toggle("Names Under the Actions", isOn: $lib.paletteNames)
             } footer: {
-                Text("Tap the round button: your actions open around it. Or press and slide toward one: it runs when you let go. Hold the button still to move it.")
+                Text("Tap the round button: your actions open around it. Or press and slide toward one: it runs when you let go. Hold the button still to move it, or drop it on “Hide” at the bottom.")
             }
             Section {
                 ForEach(chosen) { a in

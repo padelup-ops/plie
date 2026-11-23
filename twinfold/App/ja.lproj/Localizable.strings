@@ -341,3 +341,6 @@
 "Files you download keep coming in even when you leave Twinfold. They're in the Files app too: On My iPhone › Twinfold › Downloads." = "Twinfold を離れてもダウンロードは続きます。ファイルアプリの「このiPhone内 › Twinfold › Downloads」にもあります。";
 "Stop" = "停止";
 "Downloads (%lld)" = "ダウンロード（%lld）";
+"Hide" = "隠す";
+"Palette hidden. Bring it back from the ⋯ menu." = "パレットを隠しました。⋯ メニューから戻せます。";
+"Show the Action Palette" = "アクションパレットを表示";

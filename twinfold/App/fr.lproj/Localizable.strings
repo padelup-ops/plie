@@ -341,3 +341,7 @@
 "Files you download keep coming in even when you leave Twinfold. They're in the Files app too: On My iPhone › Twinfold › Downloads." = "Vos téléchargements continuent même quand vous quittez Twinfold. Ils sont aussi dans l'app Fichiers : Sur mon iPhone › Twinfold › Downloads.";
 "Stop" = "Arrêter";
 "Downloads (%lld)" = "Téléchargements (%lld)";
+"Hide" = "Masquer";
+"Palette hidden. Bring it back from the ⋯ menu." = "Palette masquée. Faites-la revenir depuis le menu ⋯.";
+"Show the Action Palette" = "Afficher la palette d'actions";
+"Tap the round button: your actions open around it. Or press and slide toward one: it runs when you let go. Hold the button still to move it, or drop it on “Hide” at the bottom." = "Touchez le bouton rond : vos actions s'ouvrent autour. Ou appuyez et glissez vers l'une d'elles : elle s'exécute quand vous relâchez. Maintenez le bouton pour le déplacer, ou déposez-le sur « Masquer » en bas.";
