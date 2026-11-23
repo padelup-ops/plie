@@ -161,7 +161,6 @@ struct ActionPalette: View {
     @State private var actions: [PaletteAction] = Library.shared.paletteActions
 
     private let button: CGFloat = 54
-    private let radius: CGFloat = 92
     private let item: CGFloat = 50
 
     var body: some View {
@@ -198,33 +197,64 @@ struct ActionPalette: View {
         return clamp(p, margin: button / 2 + 6)
     }
 
-    /// The ring moves inward when the button sits near an edge, so every action stays on screen.
-    private func ringCenter(for c: CGPoint) -> CGPoint {
-        clamp(c, margin: radius + item / 2 + 8)
-    }
+    /// The actions always surround the button itself (the ✕ in the middle). Near an edge they fan out on the open
+    /// side only, like a half ring, instead of the whole ring moving away from the button.
+    private func ringCenter(for c: CGPoint) -> CGPoint { c }
 
-    private func clamp(_ p: CGPoint, margin: CGFloat) -> CGPoint {
-        let l = insets.left + margin, r = area.width - insets.right - margin
-        let t = insets.top + margin, b = area.height - insets.bottom - margin
-        return CGPoint(x: min(max(p.x, l), max(r, l)), y: min(max(p.y, t), max(b, t)))
+    /// The directions where an action fits on screen, as one arc (start angle, sweep), in radians.
+    private var arc: (start: Double, sweep: Double) {
+        let c = buttonCenter
+        let r: CGFloat = 96
+        let m = item / 2 + 6
+        func fits(_ a: Double) -> Bool {
+            let x = c.x + r * cos(a), y = c.y + r * sin(a)
+            return x >= insets.left + m && x <= area.width - insets.right - m
+                && y >= insets.top + m && y <= area.height - insets.bottom - m
+        }
+        let steps = 120
+        let ok = (0..<steps).map { fits(Double($0) / Double(steps) * 2 * .pi - .pi / 2) }
+        if ok.allSatisfy({ $0 }) { return (-.pi / 2, 2 * .pi) }
+        // The longest run of free directions (wrapping around).
+        var best = (start: 0, len: 0)
+        for i in 0..<steps where ok[i] && !ok[(i - 1 + steps) % steps] {
+            var n = 0
+            while n < steps && ok[(i + n) % steps] { n += 1 }
+            if n > best.len { best = (i, n) }
+        }
+        guard best.len > 0 else { return (-.pi / 2, 2 * .pi) }
+        let step = 2 * Double.pi / Double(steps)
+        return (Double(best.start) * step - .pi / 2, Double(best.len - 1) * step)
     }
 
     private func angle(_ i: Int) -> Double {
-        -Double.pi / 2 + Double(i) / Double(max(actions.count, 1)) * 2 * .pi
+        let n = max(actions.count, 1)
+        let a = arc
+        if a.sweep >= 2 * .pi - 0.01 { return a.start + Double(i) / Double(n) * 2 * .pi }
+        // A half ring: from one end of the free side to the other.
+        return a.start + (n == 1 ? a.sweep / 2 : Double(i) / Double(n - 1) * a.sweep)
+    }
+
+    /// Wider when the actions only have half a ring, so they don't crowd.
+    private var radius: CGFloat {
+        let a = arc
+        if a.sweep >= 2 * .pi - 0.01 { return 96 }
+        let n = CGFloat(max(actions.count - 1, 1))
+        return max(96, min(140, (item + 16) * n / CGFloat(max(a.sweep, 0.5))))
     }
 
     private func spot(_ i: Int, around c: CGPoint) -> CGPoint {
-        CGPoint(x: c.x + radius * cos(angle(i)), y: c.y + radius * sin(angle(i)))
+        let r = radius
+        let p = CGPoint(x: c.x + r * cos(angle(i)), y: c.y + r * sin(angle(i)))
+        return clamp(p, margin: item / 2 + 4)
     }
 
-    /// The action in the finger's direction, once it's left the middle.
+    /// The action closest to the finger's direction, once it's left the middle.
     private func index(toward p: CGPoint, from c: CGPoint) -> Int? {
         let dx = p.x - c.x, dy = p.y - c.y
         guard hypot(dx, dy) > 34, !actions.isEmpty else { return nil }
-        var a = atan2(dy, dx) + .pi / 2
-        if a < 0 { a += 2 * .pi }
-        let step = 2 * Double.pi / Double(actions.count)
-        return Int((a + step / 2) / step) % actions.count
+        let f = atan2(dy, dx)
+        func diff(_ a: Double) -> Double { let d = abs(remainder(a - f, 2 * .pi)); return d }
+        return actions.indices.min { diff(angle($0)) < diff(angle($1)) }
     }
 
     // MARK: Hiding

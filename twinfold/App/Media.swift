@@ -96,11 +96,48 @@ enum MediaScript {
         new MutationObserver(function (ms) {
           ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) inline(n); }); });
         }).observe(document.documentElement, { childList: true, subtree: true });
-        // Le plein écran demandé sur un conteneur (le lecteur de YouTube) : c'est sa vidéo qui remplit la page.
+        // Le plein écran des lecteurs (YouTube, Vimeo, Twitch…) : ils demandent le plein écran de leur cadre. Ce cadre
+        // remplit la page (pas tout l'écran), et le site croit être en plein écran : ses propres boutons marchent.
+        tf.fsEl = null;
+        function fire() {
+          ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (n) {
+            try { document.dispatchEvent(new Event(n, { bubbles: true })); } catch (e) {}
+            if (tf.lastFs) { try { tf.lastFs.dispatchEvent(new Event(n, { bubbles: true })); } catch (e) {} }
+          });
+          setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 30);
+        }
+        var askFull = function () {
+          var el = this;
+          fill(el);
+          tf.fsEl = el; tf.lastFs = el;
+          var vid = el.tagName === 'VIDEO' ? el : el.querySelector('video');
+          if (vid && vid !== el) { vid.__twinfoldInner = vid.getAttribute('style') || ''; vid.style.setProperty('width', '100%', 'important'); vid.style.setProperty('height', '100%', 'important'); vid.style.setProperty('object-fit', 'contain', 'important'); vid.style.setProperty('left', '0', 'important'); vid.style.setProperty('top', '0', 'important'); }
+          fire();
+          return Promise.resolve();
+        };
+        var leave = function () {
+          var el = tf.fsEl;
+          if (el) {
+            var vid = el.tagName === 'VIDEO' ? el : el.querySelector('video');
+            if (vid && vid !== el && vid.__twinfoldInner !== undefined) { vid.setAttribute('style', vid.__twinfoldInner); }
+          }
+          unfill(); tf.fsEl = null; fire();
+          return Promise.resolve();
+        };
         var E = Element.prototype;
-        var askFull = function () { var v = this.tagName === 'VIDEO' ? this : this.querySelector('video'); if (v) fill(v); return Promise.resolve(); };
         E.requestFullscreen = askFull; E.webkitRequestFullscreen = askFull; E.webkitRequestFullScreen = askFull;
-        document.exitFullscreen = document.webkitExitFullscreen = function () { unfill(); return Promise.resolve(); };
+        document.exitFullscreen = leave; document.webkitExitFullscreen = leave; document.webkitCancelFullScreen = leave;
+        var D = Document.prototype;
+        [['fullscreenEnabled', function () { return true; }], ['webkitFullscreenEnabled', function () { return true; }],
+         ['fullscreenElement', function () { return tf.fsEl; }], ['webkitFullscreenElement', function () { return tf.fsEl; }],
+         ['webkitCurrentFullScreenElement', function () { return tf.fsEl; }], ['webkitIsFullScreen', function () { return !!tf.fsEl; }],
+         ['fullscreen', function () { return !!tf.fsEl; }]].forEach(function (p) {
+          try { Object.defineProperty(document, p[0], { get: p[1], configurable: true }); } catch (e) {}
+          try { Object.defineProperty(D, p[0], { get: p[1], configurable: true }); } catch (e) {}
+        });
+        // Sortir du plein écran depuis Twinfold (bouton « revenir à la page ») : le site l'apprend aussi.
+        var oldToggle = tf.toggleFill;
+        tf.toggleFill = function () { if (tf.fsEl) { leave(); return false; } return oldToggle(); };
       }
       report();
     })();
