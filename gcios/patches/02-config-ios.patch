@@ -1,0 +1,13 @@
+diff --git a/src/core/config.h.in b/src/core/config.h.in
+index 3950fbd..aeed85e 100644
+--- a/src/core/config.h.in
++++ b/src/core/config.h.in
+@@ -19,7 +19,7 @@
+ /* Folder where rccs and translations are installed */
+ #ifdef  Q_OS_MACOS
+ #define GCOMPRIS_DATA_FOLDER "../Resources"
+-#elif  Q_OS_IOS
++#elif defined(Q_OS_IOS)
+ #define GCOMPRIS_DATA_FOLDER "."
+ #else
+ #define GCOMPRIS_DATA_FOLDER "../@_data_dest_dir@"
