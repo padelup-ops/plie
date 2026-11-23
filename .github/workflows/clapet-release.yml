@@ -49,7 +49,7 @@ jobs:
       LISTING_JSON: ${{ inputs.app == 'vicefold' && 'vicefold/store/listing.json' || inputs.app == 'origamo' && 'tools/store_listing.json' || (inputs.app == 'foldboard' && 'foldboard/store/listing.json' || (inputs.app == 'retrofold' && 'retrofold/store/listing.json' || (inputs.app == 'twinfold' && 'twinfold/store/listing.json' || ''))) }}
       APP_PRICE: ${{ (inputs.app == 'vicefold' || inputs.app == 'origamo' || inputs.app == 'foldboard' || inputs.app == 'retrofold' || inputs.app == 'twinfold') && '0' || '' }}
       CONTENT_RIGHTS: ${{ inputs.app == 'vicefold' && 'USES_THIRD_PARTY_CONTENT' || '' }}
-      AGE_EXTRA: ${{ inputs.app == 'vicefold' && 'alcoholTobaccoOrDrugUseOrReferences=INFREQUENT_OR_MILD,matureOrSuggestiveThemes=INFREQUENT_OR_MILD,violenceRealistic=INFREQUENT_OR_MILD,gunsOrOtherWeapons=INFREQUENT_OR_MILD,profanityOrCrudeHumor=INFREQUENT_OR_MILD' || inputs.app == 'retrofold' && 'violenceCartoonOrFantasy=INFREQUENT_OR_MILD' || (inputs.app == 'twinfold' && 'unrestrictedWebAccess=true' || '') }}
+      AGE_EXTRA: ${{ inputs.app == 'vicefold' && 'userGeneratedContent=true,alcoholTobaccoOrDrugUseOrReferences=INFREQUENT_OR_MILD,matureOrSuggestiveThemes=INFREQUENT_OR_MILD,violenceRealistic=INFREQUENT_OR_MILD,gunsOrOtherWeapons=INFREQUENT_OR_MILD,profanityOrCrudeHumor=INFREQUENT_OR_MILD' || inputs.app == 'retrofold' && 'violenceCartoonOrFantasy=INFREQUENT_OR_MILD' || (inputs.app == 'twinfold' && 'unrestrictedWebAccess=true' || '') }}
     steps:
       - uses: actions/checkout@v5
       - name: Outils

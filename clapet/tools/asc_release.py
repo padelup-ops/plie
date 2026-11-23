@@ -875,6 +875,15 @@ if SUBMIT:
                 print(r_iap.get("detail", "")[:3000])
                 print("\nPAS ENVOYÉ : l'achat intégré n'a pas pu partir avec la version")
                 sys.exit(1)
+    # Abonnements (première fois : ils partent avec la version).
+    for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
+        for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
+            st = sx["attributes"].get("state")
+            print("       abonnement", sx["attributes"].get("productId"), st)
+            if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
+                rs = call("POST", "/v1/subscriptionSubmissions", {"data": {"type": "subscriptionSubmissions",
+                          "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sx["id"]}}}}})
+                print("ok     abonnement", sx["attributes"].get("productId"), "envoyé avec la version" if "error" not in rs else "— " + rs.get("detail", "")[:600])
     r = step("ENVOI À LA VÉRIFICATION D'APPLE", call("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
          "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}}))
     # Dernier essai : les achats envoyés juste après la version (même moment pour Apple).
