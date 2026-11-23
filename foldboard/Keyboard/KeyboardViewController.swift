@@ -34,9 +34,20 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         return c
     }
 
-    /// Le clavier n'est plus à l'écran depuis un moment : on rend tout (le contrôleur peut rester en vie, vide).
+    /// Le contrôleur le plus récent : lui seul garde son clavier entre deux apparitions.
+    private static weak var latest: KeyboardViewController?
+
+    /// Le clavier n'est plus à l'écran depuis un moment. Comme les claviers légers (Raycast, Gboard) : le dernier
+    /// contrôleur garde son clavier, vidé de tout ce qui pèse (modèles, caches) — au retour par le globe, il est là
+    /// tel quel, à la même hauteur et au même endroit, sans être reconstruit (c'était le « saut » à chaque retour).
+    /// Les vieux contrôleurs qu'iOS garde en vie rendent tout.
     private func releaseCanvasIfGone() {
         guard view.window == nil, let c = canvas else { return }
+        if Self.latest === self {
+            c.trimMemory(flush: false)
+            NeuralSwipe.releaseIfTight()
+            return
+        }
         c.shutdown()
         c.removeFromSuperview()
         canvas = nil
@@ -44,6 +55,18 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Un ancien contrôleur encore en vie rend son clavier tout de suite : un seul en mémoire.
+        if let old = Self.latest, old !== self, old.view.window == nil { old.releaseCanvasIfGone() }
+        Self.latest = self
+        // La hauteur de la dernière fois, avant même que le clavier soit construit : pas de clavier d'iOS par
+        // défaut qui grandit ensuite.
+        let lastH = UserDefaults.standard.double(forKey: "foldboard.lastHeight")
+        if lastH > 100, heightConstraint == nil {
+            let c = view.heightAnchor.constraint(equalToConstant: lastH)
+            c.priority = UILayoutPriority(999)
+            c.isActive = true
+            heightConstraint = c
+        }
         ensureCanvas()
         reload()
         requestSupplementaryLexicon { [weak self] lexicon in
@@ -121,6 +144,8 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         canvas?.trimMemory()
+        // Pas à l'écran : on rend tout, même le dernier clavier.
+        if view.window == nil, let c = canvas { c.shutdown(); c.removeFromSuperview(); canvas = nil }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -151,8 +176,9 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         let c = ensureCanvas()
         c.configure(settings: settings, pro: access.isPro())
         let h = c.preferredHeight
+        UserDefaults.standard.set(Double(h), forKey: "foldboard.lastHeight")
         if let c = heightConstraint {
-            c.constant = h
+            if abs(c.constant - h) > 0.5 { c.constant = h }
         } else {
             let c = view.heightAnchor.constraint(equalToConstant: h)
             c.priority = UILayoutPriority(999)
