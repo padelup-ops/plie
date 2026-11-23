@@ -1,0 +1,69 @@
+"""VICEFOLD : compose les captures de l'App Store (titre + vraie capture du simulateur), en anglais et en français.
+
+Usage : python3 compose.py <brutes> <sortie>
+Brutes : <appareil>-<lang>/NN-<écran>.png  (appareil : duo, iphone, ipad)
+Sorties : duo-<lang>-N.png (2007×2853), <lang>-N.png (1290×2796), ipad-<lang>-N.png (2064×2752).
+"""
+import base64
+import os
+import sys
+
+from PIL import Image
+from playwright.sync_api import sync_playwright
+
+SRC, OUT = sys.argv[1], sys.argv[2]
+os.makedirs(OUT, exist_ok=True)
+ROUTES = ["home", "mappins", "mission", "collectibles", "guide", "characters"]
+C = {
+    "en": {"home": ("Your Leonida,", "at 100%"), "mappins": ("A map with", "your own pins"), "mission": ("All 91 missions,", "spoiler-free"),
+           "collectibles": ("Every 100% category,", "with a counter"), "guide": ("Guides for", "every part of the game"), "characters": ("Who's who,", "with your notes")},
+    "fr": {"home": ("Ton Leonida,", "à 100 %"), "mappins": ("Une carte avec", "tes épingles"), "mission": ("Les 91 missions,", "sans spoiler"),
+           "collectibles": ("Tout le 100 %,", "avec un compteur"), "guide": ("Des guides pour", "tout le jeu"), "characters": ("Qui est qui,", "avec tes notes")},
+}
+SIZES = {"duo": (2007, 2853, "duo-"), "iphone": (1290, 2796, ""), "ipad": (2064, 2752, "ipad-")}
+HTML = """<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;width:%(w)dpx;height:%(h)dpx;overflow:hidden}
+body{background:radial-gradient(%(w)dpx %(w)dpx at 50%% 108%%,#ffbc46 0%%,#ff6b5c 28%%,rgba(122,31,85,0) 62%%),linear-gradient(180deg,#120f24 0%%,#2b1240 45%%,#7a1f55 100%%);
+ font-family:-apple-system,"Inter",sans-serif;color:#fff}
+.t{position:absolute;left:0;right:0;top:%(ty)dpx;text-align:center;font-weight:800;font-size:%(fs)dpx;line-height:1.06;letter-spacing:-.025em}
+.t b{display:block;background:linear-gradient(90deg,#ffd166,#ff6b5c,#ee3b8f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.s{position:absolute;left:50%%;top:%(sy)dpx;transform:translateX(-50%%);width:%(sw)dpx;border-radius:%(r)dpx;overflow:hidden;
+ box-shadow:0 30px 90px rgba(0,0,0,.5),0 0 0 %(bw)dpx #0a0a12}
+.s img{display:block;width:100%%}
+</style></head><body><div class="t">%(l1)s<b>%(l2)s</b></div><div class="s"><img src="data:image/png;base64,%(img)s"></div></body></html>"""
+
+
+def render(page, w, h, shot, l1, l2, out):
+    iw, ih = Image.open(shot).size
+    sy = int(h * 0.19)
+    sw = int(min(w * 0.88, (h - sy - h * 0.035) * iw / ih))
+    sh = sw * ih / iw
+    top = int(sy + max(0, (h - sy - sh) / 2 - h * 0.015))
+    ty = int(max(h * 0.045, (top - w * 0.085 * 2.15) / 2))
+    params = dict(w=w, h=h, ty=ty, fs=int(min(w * 0.085, h * 0.04)), sy=top, sw=sw, r=int(sw * 0.06), bw=int(w * 0.011),
+                  l1=l1, l2=l2, img=base64.b64encode(open(shot, "rb").read()).decode())
+    page.set_viewport_size({"width": w, "height": h})
+    page.set_content(HTML % params)
+    page.wait_for_timeout(150)
+    page.screenshot(path=out)
+
+
+with sync_playwright() as p:
+    b = p.chromium.launch()
+    pg = b.new_page()
+    for dev, (w, h, prefix) in SIZES.items():
+        for lang in C:
+            d = os.path.join(SRC, f"{dev}-{lang}")
+            if not os.path.isdir(d):
+                continue
+            files = sorted(f for f in os.listdir(d) if f.endswith(".png"))
+            n = 0
+            for route in ROUTES:
+                f = next((x for x in files if f"-{route}" in x), None)
+                if not f:
+                    continue
+                n += 1
+                l1, l2 = C[lang][route]
+                render(pg, w, h, os.path.join(d, f), l1, l2, os.path.join(OUT, f"{prefix}{lang}-{n}.png"))
+                print("ok", dev, lang, n, route)
+    b.close()
