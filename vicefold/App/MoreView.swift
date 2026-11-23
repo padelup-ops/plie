@@ -80,15 +80,25 @@ private struct MoreList: View {
                         }
                     }
                 }
-                Section { ForEach([MoreItem.characters, .radio, .cheats, .collectibles]) { row($0) } }
+                Section { ForEach([MoreItem.characters, .eggs, .radio, .cheats, .collectibles]) { row($0) } }
                 Section { ForEach([MoreItem.profile, .settings]) { row($0) } }
             }
             .navigationTitle("More")
             .navigationDestination(item: $push) { $0.screen }
             .sheet(isPresented: $showPro) { ProView() }
-            .onAppear { if !wide, let s = selected, ShotMode.route != nil { push = s } }
+            .task {
+                // Captures : ouvrir l'écran demandé une seule fois, une fois la mise en page posée (sinon il
+                // s'empilait deux fois).
+                guard !wide, let s = selected, ShotMode.route != nil, !Self.autoPushed else { return }
+                try? await Task.sleep(for: .milliseconds(600))
+                guard !Task.isCancelled, !Self.autoPushed else { return }
+                Self.autoPushed = true
+                push = s
+            }
         }
     }
+
+    @MainActor static var autoPushed = false
 
     private func row(_ i: MoreItem) -> some View {
         Button { if wide { selected = i } else { push = i } } label: {

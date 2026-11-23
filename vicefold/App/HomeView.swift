@@ -136,7 +136,7 @@ struct HomeView: View {
     private func legend(_ name: String, _ v: Double, _ i: Int) -> some View {
         HStack(spacing: 8) {
             Circle().fill(VF.ringColors[i]).frame(width: 9, height: 9)
-            Text(name).font(.subheadline)
+            Text(name).font(.subheadline).lineLimit(1).minimumScaleFactor(0.75)
             Spacer(minLength: 4)
             Text(v, format: .percent.precision(.fractionLength(0))).font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
         }
