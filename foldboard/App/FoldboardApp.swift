@@ -53,6 +53,9 @@ struct HomeView: View {
     /// Les nouveaux boutons (version 1.0.4) : montrés une fois à ceux qui avaient déjà l'app.
     @AppStorage("seenButtonsGuide") private var seenButtonsGuide = false
     @State private var showButtonsGuide = false
+    /// « Quoi de neuf » : une fois par grande mise à jour, à ceux qui avaient déjà l'app.
+    @AppStorage("seenWhatsNew") private var seenWhatsNew = ""
+    @State private var showWhatsNew = false
     @State private var showPro = false
     /// Le clavier a demandé la dictée (foldboard://dictate).
     @State private var showDictation = false
@@ -71,15 +74,22 @@ struct HomeView: View {
             .sheet(isPresented: $showButtonsGuide) {
                 NavigationStack { ButtonsGuide { showButtonsGuide = false } }
             }
+            .sheet(isPresented: $showWhatsNew) {
+                NavigationStack { WhatsNewView { showWhatsNew = false } }
+            }
             .onAppear {
-                // Déjà installé avant cette version : on montre une fois les nouveaux boutons.
-                if onboarded && !seenButtonsGuide {
+                // Déjà installé avant cette version : « Quoi de neuf » une fois (il remplace l'ancien guide des boutons).
+                if onboarded && seenWhatsNew != WhatsNewView.edition {
+                    seenWhatsNew = WhatsNewView.edition
+                    seenButtonsGuide = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { showWhatsNew = true }
+                } else if onboarded && !seenButtonsGuide {
                     seenButtonsGuide = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { showButtonsGuide = true }
                 }
             }
             .fullScreenCover(isPresented: Binding(get: { !onboarded }, set: { if !$0 { onboarded = true } })) {
-                OnboardingView { onboarded = true }
+                OnboardingView { onboarded = true; seenWhatsNew = WhatsNewView.edition }
                     .environment(store)
                     .environment(model)
                     .fullScreenDuo()

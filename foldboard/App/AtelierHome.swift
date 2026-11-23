@@ -446,6 +446,8 @@ struct AtelierHome: View {
                 divider
                 link("play.rectangle", "Guided tour") { KeyboardTourScreen() }
                 divider
+                link("sparkles", "What's new") { WhatsNewView().fullScreenDuo() }
+                divider
                 link("rectangle.topthird.inset.filled", "The keyboard buttons") { ButtonsGuide().fullScreenDuo() }
             }
             .atelierCard()
