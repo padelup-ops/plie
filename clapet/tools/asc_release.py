@@ -186,8 +186,9 @@ if age:
     if "error" in r:
         print("       attributs envoyés :", json.dumps(attrs)[:800])
 
-step("droits sur le contenu (aucun contenu de tiers)", call("PATCH", f"/v1/apps/{app_id}", {"data": {"type": "apps", "id": app_id,
-     "attributes": {"contentRightsDeclaration": "DOES_NOT_USE_THIRD_PARTY_CONTENT"}}}))
+RIGHTS = os.environ.get("CONTENT_RIGHTS") or "DOES_NOT_USE_THIRD_PARTY_CONTENT"
+step(f"droits sur le contenu ({RIGHTS})", call("PATCH", f"/v1/apps/{app_id}", {"data": {"type": "apps", "id": app_id,
+     "attributes": {"contentRightsDeclaration": RIGHTS}}}))
 
 # ---------------------------------------------------------------- disponibilité
 avail = call("GET", f"/v1/apps/{app_id}/appAvailabilityV2")

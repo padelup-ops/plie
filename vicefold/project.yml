@@ -27,7 +27,7 @@ targets:
     info:
       path: App/Info.plist
       properties:
-        CFBundleDisplayName: Vicefold
+        CFBundleDisplayName: GTA 6 Guide
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
@@ -72,7 +72,7 @@ targets:
     info:
       path: Widget/Info.plist
       properties:
-        CFBundleDisplayName: Vicefold
+        CFBundleDisplayName: GTA 6 Guide
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
