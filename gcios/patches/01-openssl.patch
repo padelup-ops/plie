@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e793db0..aebee23 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -157,7 +157,7 @@ endif()
+ 
+ find_package(OpenSSL)
+ # OpenSSL will be compiled as external_project for android
+-if(NOT ANDROID)
++if(NOT ANDROID AND NOT IOS)
+   set_package_properties(OpenSSL PROPERTIES TYPE REQUIRED)
+ endif()
+ 
