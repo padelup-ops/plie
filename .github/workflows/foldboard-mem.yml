@@ -27,7 +27,7 @@ jobs:
           cd foldboard && xcodegen generate && cd ..
           set -o pipefail
           xcodebuild build -project foldboard/Foldboard.xcodeproj -scheme Foldboard -configuration ${{ inputs.configuration || 'Release' }} -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO 2>&1 | tee out/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO ARCHS=arm64 ONLY_ACTIVE_ARCH=NO 2>&1 | tee out/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
           grep -n -E "error:" out/build.log | head -60 || true
           grep -q "BUILD SUCCEEDED" out/build.log
       - name: Mesurer
