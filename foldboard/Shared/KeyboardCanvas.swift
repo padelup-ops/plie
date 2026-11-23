@@ -1083,6 +1083,8 @@ final class KeyboardCanvas: UIView {
         if window != nil, demoContext == nil, !demoOneHand { Self.lastContext = c }
         applyScreenMode()
         grip.angleOffset = kbAngleOffset(window?.windowScene?.interfaceOrientation)
+        grip.useTilt = eff.followTilt
+        grip.useThumbs = eff.followThumbs
         grip.guessUncalibrated = false
         grip.defaultTilt = followsHand
         let r = settings.roll("right", context: gripContext), l = settings.roll("left", context: gripContext)

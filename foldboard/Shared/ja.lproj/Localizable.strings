@@ -592,3 +592,8 @@
 "Next to return, or in the bar. Turn on \"Hold the mic to dictate\" so it never starts by accident." = "改行の隣、またはバーに。「マイクを長押しして音声入力」をオンにすれば誤って起動しません。";
 "Paste without the prompt" = "確認なしでペースト";
 "No more \"Allow Paste\" every time you copy something." = "コピーのたびに「ペーストを許可」と聞かれなくなりました。";
+"Changing side" = "側を切り替える";
+"The way you hold the iPhone" = "iPhoneの持ち方";
+"Your thumbs as you type" = "入力中の親指";
+"Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "好きな方法を選べます。「手に合わせる」は持ち方、親指、またはその両方を使えます。いつでも自分で移動もできます：iPhoneの縁を叩くか、空いている側をタップ。";
+"Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "左の縁を叩くとキーボードは左へ、右の縁なら右へ。横の空いている場所をタップしても移動します。";

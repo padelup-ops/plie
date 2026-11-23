@@ -136,6 +136,9 @@ struct KBSettings: Codable, Equatable {
     var tapSideToMove = true
     /// Taper le bord de l'iPhone (gauche ou droite) met le clavier à une main de ce côté.
     var knockToMove = true
+    /// « Suit ta main » : par l'inclinaison du téléphone, et par les pouces (où et comment on tape).
+    var followTilt = true
+    var followThumbs = true
     /// Le bouton « masquer le clavier » dans la barre, à part (on peut cacher position et réglages et le garder).
     var hideKeyButton = true
     /// Garder automatiquement tout ce qu'on copie (iOS demande alors l'autorisation de coller, sauf si on a choisi
@@ -270,6 +273,8 @@ struct KBSettings: Codable, Equatable {
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
         tapSideToMove = (try? c.decodeIfPresent(Bool.self, forKey: .tapSideToMove)) ?? d.tapSideToMove
         knockToMove = (try? c.decodeIfPresent(Bool.self, forKey: .knockToMove)) ?? d.knockToMove
+        followTilt = (try? c.decodeIfPresent(Bool.self, forKey: .followTilt)) ?? d.followTilt
+        followThumbs = (try? c.decodeIfPresent(Bool.self, forKey: .followThumbs)) ?? d.followThumbs
         hideKeyButton = (try? c.decodeIfPresent(Bool.self, forKey: .hideKeyButton)) ?? d.hideKeyButton
         clipAutoSave = (try? c.decodeIfPresent(Bool.self, forKey: .clipAutoSave)) ?? d.clipAutoSave
         contactNames = (try? c.decodeIfPresent(Bool.self, forKey: .contactNames)) ?? d.contactNames

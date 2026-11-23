@@ -46,6 +46,7 @@ struct WhatsNewView: View {
                 }
                 VStack(alignment: .leading, spacing: 22) {
                     ForEach(items) { i in
+                        VStack(alignment: .leading, spacing: 12) {
                         HStack(alignment: .top, spacing: 16) {
                             Image(systemName: i.icon)
                                 .font(.title2)
@@ -56,6 +57,13 @@ struct WhatsNewView: View {
                                 Text(i.title).font(.headline)
                                 Text(i.detail).font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                             }
+                        }
+                        // Le premier : le schéma « où taper ».
+                        if i.icon == items.first?.icon {
+                            KnockDiagram()
+                                .padding(12)
+                                .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        }
                         }
                     }
                 }

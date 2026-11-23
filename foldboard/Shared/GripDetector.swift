@@ -233,6 +233,11 @@ final class GripDetector {
 
     // MARK: Capteurs
 
+    /// Les façons de suivre la main, au choix de l'utilisateur : l'inclinaison du téléphone, et ses pouces
+    /// (où et comment il tape, et ses glissements).
+    var useTilt = true
+    var useThumbs = true
+
     func start(initial: @escaping (KBGrip?) -> Void) {
         reset()
         guard motion.isDeviceMotionAvailable else { initial(nil); return }
@@ -256,13 +261,14 @@ final class GripDetector {
         // Comme le clavier qui « suit la main » : un quart de seconde pour lire l'inclinaison, puis on place.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
             guard let self else { return }
+            guard self.useTilt else { initial(nil); return }
             let g = self.tiltGrip(threshold: min(5, self.switchThreshold))
             self.tiltSide = g
             initial(g)
         }
         // Une deuxième lecture, une fois le téléphone bien en main (le toucher qui ouvre le clavier le fait bouger).
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self, !self.locked, self.now - self.lastTapTime > 1 else { return }
+            guard let self, self.useTilt, !self.locked, self.now - self.lastTapTime > 1 else { return }
             guard let g = self.tiltGrip(threshold: min(5, self.switchThreshold)), g != self.tiltSide else { return }
             self.tiltSide = g
             initial(g)
@@ -277,6 +283,7 @@ final class GripDetector {
         tiltStreak = nil
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             guard let self else { return }
+            guard self.useTilt else { done(nil); return }
             let g = self.tiltGrip(threshold: min(5, self.switchThreshold))
             if let g { self.tiltSide = g }
             done(g)
@@ -447,6 +454,7 @@ final class GripDetector {
         // franchement de main pendant une pause (pas de frappe depuis 2 s, rien bougé depuis 5 s).
         // Sans le test « main droite, main gauche », le clavier est placé à son apparition, puis il ne bouge plus.
         checkUnlock()
+        guard useTilt else { tiltStreak = nil; return }
         guard calibrated || habitReady || thumbReady else { return }
         if locked || now - lastTapTime < 1.0 || now - lastEmit < 1.5 { tiltStreak = nil; return }
         let threshold: Double = current == .two ? switchThreshold + 5 : switchThreshold
@@ -519,10 +527,11 @@ final class GripDetector {
         if two && onSample == nil {
             lastTwo = now
             // Deux doigts posés en même temps, loin l'un de l'autre : aucun doute, tout de suite au milieu.
-            if together && current != .two { emit(.two) }
+            if together && current != .two && useThumbs { emit(.two) }
         }
         lastTap = (screenX, time)
         lastTapTime = time
+        if onSample == nil && !useThumbs { return }
         if let onSample {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) { [weak self] in
                 guard let self, let f = self.features(time: time, screenX: screenX, radius: radius) else { return }
@@ -583,6 +592,7 @@ final class GripDetector {
             if let f { onSwipeSample(f) }
             return
         }
+        guard useThumbs else { return }
         if let m = swipeModel, let f {
             let p = m.probabilities(f)
             if let top = p.max(by: { $0.value < $1.value }), top.value >= 0.6, top.key != .two {

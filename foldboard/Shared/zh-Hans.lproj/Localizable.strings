@@ -592,3 +592,8 @@
 "Next to return, or in the bar. Turn on \"Hold the mic to dictate\" so it never starts by accident." = "放在换行键旁或栏中。打开“按住麦克风开始听写”，就不会误触启动。";
 "Paste without the prompt" = "粘贴不再询问";
 "No more \"Allow Paste\" every time you copy something." = "复制时不再每次弹出“允许粘贴”。";
+"Changing side" = "切换左右";
+"The way you hold the iPhone" = "你握 iPhone 的方式";
+"Your thumbs as you type" = "打字时的拇指";
+"Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side." = "选择你喜欢的方式。“跟随你的手”可以根据握持方式、拇指，或两者一起判断。你也随时可以自己移动键盘：轻敲 iPhone 边框，或轻点空白一侧。";
+"Knock the left edge: the keyboard goes left. Knock the right edge: it goes right. Or tap the empty space next to it." = "轻敲左边框，键盘到左侧；轻敲右边框，键盘到右侧。也可以轻点旁边的空白处。";

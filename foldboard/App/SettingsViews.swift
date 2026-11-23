@@ -280,8 +280,6 @@ struct PositionView: View {
                         }
                     }
                 }
-                Toggle("Tap the empty side to move the keyboard", isOn: $m.settings.tapSideToMove)
-                Toggle("Knock the side of the iPhone to move the keyboard", isOn: $m.settings.knockToMove)
                 if m.settings.mode == .auto {
                     Button(role: .destructive) { confirmForget = true } label: {
                         Label("Forget my hands and start over", systemImage: "arrow.counterclockwise")
@@ -298,6 +296,31 @@ struct PositionView: View {
                 Text("Position")
             } footer: {
                 Text("Follows your hand moves the keyboard to the hand you type with. Prefer to choose yourself? Pick One hand, left, One hand, right, Full width or Two hands: the keyboard stays there on every screen.")
+            }
+
+            // Comment le clavier change de côté : chacun garde les méthodes qu'il aime.
+            Section {
+                if m.settings.mode == .auto {
+                    Toggle(isOn: $m.settings.followTilt) {
+                        Label("The way you hold the iPhone", systemImage: "iphone.gen3.radiowaves.left.and.right")
+                    }
+                    Toggle(isOn: $m.settings.followThumbs) {
+                        Label("Your thumbs as you type", systemImage: "hand.point.up.left")
+                    }
+                }
+                Toggle(isOn: $m.settings.knockToMove) {
+                    Label("Knock the side of the iPhone to move the keyboard", systemImage: "hand.tap")
+                }
+                if m.settings.knockToMove || m.settings.tapSideToMove {
+                    KnockDiagram().padding(.vertical, 6)
+                }
+                Toggle(isOn: $m.settings.tapSideToMove) {
+                    Label("Tap the empty side to move the keyboard", systemImage: "arrow.left.and.right")
+                }
+            } header: {
+                Text("Changing side")
+            } footer: {
+                Text("Pick the ways you like. Follows your hand can use how you hold the iPhone, your thumbs, or both. And you can always move the keyboard yourself: knock the edge of the iPhone, or tap the empty side.")
             }
 
             // Une disposition par écran : par exemple toute la largeur en « liseuse » (deux mains),
