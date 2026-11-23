@@ -43,6 +43,13 @@ for a in apps:
     if "gta" in a["attributes"]["name"].lower() or "vice" in a["attributes"]["name"].lower():
         print("APP   ", a["id"], a["attributes"]["bundleId"], "«" + a["attributes"]["name"] + "»", a["attributes"].get("sku"))
 mine = [a for a in apps if a["attributes"]["bundleId"] == APP]
+# La fiche a été créée avec l'identifiant du widget : on essaie de lui donner celui de l'app (possible avant le premier build).
+wrong = [a for a in apps if a["attributes"]["bundleId"] == APP + ".widget"]
+if not mine and wrong:
+    r = call("PATCH", f"/v1/apps/{wrong[0]['id']}", {"data": {"type": "apps", "id": wrong[0]["id"], "attributes": {"bundleId": APP}}})
+    print("ok     identifiant de la fiche corrigé" if "data" in r else "ÉCHEC  identifiant de la fiche : " + json.dumps(r)[:600])
+    if "data" in r:
+        mine = [r["data"]]
 if not mine:
     print("FICHE  à créer sur App Store Connect (nom Vicefold, identifiant " + APP + ")")
     sys.exit(0)
