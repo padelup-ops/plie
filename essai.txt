@@ -1,0 +1,1 @@
+layout: size (1032.0, 1376.0) raw fold nil fold nil sideBySide false atFold false first (0.0, 0.0, 1032.0, 685.0) second (0.0, 691.0, 1032.0, 685.0) gap (0.0, 685.0, 1032.0, 6.0) insets UIEdgeInsets(top: 32.0, left: 0.0, bottom: 20.0, right: 0.0) | drawn 0 (0.0, 0.0, 1032.0, 685.0) drawn 1 (0.0, 691.0, 1032.0, 685.0) | split true axis auto hasFold false

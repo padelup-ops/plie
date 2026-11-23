@@ -1,0 +1,810 @@
+Command line invocation:
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/xcodebuild build -project twinfold/Twinfold.xcodeproj -scheme Twinfold -configuration Debug -sdk iphonesimulator -destination id=C83FE8F8-E72F-41E6-9CE1-2722AC5FB391 -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+    SDKROOT = iphonesimulator27.1
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'Twinfold' in project 'Twinfold' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/plie/plie/twinfold/App/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 6fecae1f2d70927988d04f7ea0b1c72a
+Build description path: /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/XCBuildData/6fecae1f2d70927988d04f7ea0b1c72a.xcbuilddata
+CreateBuildDirectory /Users/runner/work/plie/plie/build/ModuleCache.noindex
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/ModuleCache.noindex
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/CompilationCache.noindex
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/CompilationCache.noindex
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Products
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Products
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex
+
+ClangStatCache /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold-f7cc35aba7cd6ad64d5f1183a949c624-VFS-iphonesimulator/all-product-headers.yaml
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold-f7cc35aba7cd6ad64d5f1183a949c624-VFS-iphonesimulator/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/PrecompiledHeaders
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/PrecompiledHeaders
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+    cd /Users/runner/work/plie/plie/twinfold/Twinfold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold.DependencyStaticMetadataFileList (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold.hmap (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold.DependencyMetadataFileList (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-project-headers.hmap (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-own-target-headers.hmap (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-generated-files.hmap (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-all-target-headers.hmap (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-all-non-framework-target-headers.hmap (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-DebugDylibPath-normal-arm64.txt (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-DebugDylibInstallName-normal-arm64.txt (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-DebugDylibInstallName-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold_const_extract_protocols.json (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftFileList (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftConstValuesFileList (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.LinkFileList (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-OutputFileMap.json (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-OutputFileMap.json
+
+MkDir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/__preview.dylib normal (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios27.1-simulator -dynamiclib -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -install_name @rpath/Twinfold.debug.dylib -Xlinker -dead_strip -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold_dependency_info.dat -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/__preview.dylib
+
+MkDir /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/unthinned (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/unthinned
+
+MkDir /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/thinned (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/thinned
+
+GenerateAssetSymbols /Users/runner/work/plie/plie/twinfold/App/Assets.xcassets (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool /Users/runner/work/plie/plie/twinfold/App/Assets.xcassets --compile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_dependencies --output-partial-info-plist /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_generated_info.plist --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 27.1 --platform iphonesimulator --bundle-identifier com.padelup.twinfold --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/video.html /Users/runner/work/plie/plie/twinfold/App/Demo/video.html (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/twinfold/App/Demo/video.html /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/test-b.mp4 /Users/runner/work/plie/plie/twinfold/App/Demo/test-b.mp4 (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/twinfold/App/Demo/test-b.mp4 /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/test-a.mp4 /Users/runner/work/plie/plie/twinfold/App/Demo/test-a.mp4 (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/twinfold/App/Demo/test-a.mp4 /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/recipe.html /Users/runner/work/plie/plie/twinfold/App/Demo/recipe.html (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/twinfold/App/Demo/recipe.html /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/news.html /Users/runner/work/plie/plie/twinfold/App/Demo/news.html (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/twinfold/App/Demo/news.html /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/map.html /Users/runner/work/plie/plie/twinfold/App/Demo/map.html (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/twinfold/App/Demo/map.html /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/dualtest-b.html /Users/runner/work/plie/plie/twinfold/App/Demo/dualtest-b.html (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/twinfold/App/Demo/dualtest-b.html /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+CpResource /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/dualtest-a.html /Users/runner/work/plie/plie/twinfold/App/Demo/dualtest-a.html (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/runner/work/plie/plie/twinfold/App/Demo/dualtest-a.html /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+CopyStringsFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/ja.lproj/Localizable.strings /Users/runner/work/plie/plie/twinfold/App/ja.lproj/Localizable.strings (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/ja.lproj -- /Users/runner/work/plie/plie/twinfold/App/ja.lproj/Localizable.strings
+/Users/runner/work/plie/plie/twinfold/App/ja.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Twinfold' from project 'Twinfold')
+
+CopyStringsFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/it.lproj/Localizable.strings /Users/runner/work/plie/plie/twinfold/App/it.lproj/Localizable.strings (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/it.lproj -- /Users/runner/work/plie/plie/twinfold/App/it.lproj/Localizable.strings
+/Users/runner/work/plie/plie/twinfold/App/it.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Twinfold' from project 'Twinfold')
+
+CopyStringsFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/fr.lproj/Localizable.strings /Users/runner/work/plie/plie/twinfold/App/fr.lproj/Localizable.strings (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/fr.lproj -- /Users/runner/work/plie/plie/twinfold/App/fr.lproj/Localizable.strings
+/Users/runner/work/plie/plie/twinfold/App/fr.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Twinfold' from project 'Twinfold')
+
+CopyStringsFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/es.lproj/Localizable.strings /Users/runner/work/plie/plie/twinfold/App/es.lproj/Localizable.strings (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/es.lproj -- /Users/runner/work/plie/plie/twinfold/App/es.lproj/Localizable.strings
+/Users/runner/work/plie/plie/twinfold/App/es.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Twinfold' from project 'Twinfold')
+
+CopyStringsFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/en.lproj/Localizable.strings /Users/runner/work/plie/plie/twinfold/App/en.lproj/Localizable.strings (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/en.lproj -- /Users/runner/work/plie/plie/twinfold/App/en.lproj/Localizable.strings
+/Users/runner/work/plie/plie/twinfold/App/en.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Twinfold' from project 'Twinfold')
+
+CopyStringsFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/de.lproj/Localizable.strings /Users/runner/work/plie/plie/twinfold/App/de.lproj/Localizable.strings (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/de.lproj -- /Users/runner/work/plie/plie/twinfold/App/de.lproj/Localizable.strings
+/Users/runner/work/plie/plie/twinfold/App/de.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Twinfold' from project 'Twinfold')
+
+CompileAssetCatalogVariant thinned /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app /Users/runner/work/plie/plie/twinfold/App/Assets.xcassets (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool /Users/runner/work/plie/plie/twinfold/App/Assets.xcassets --compile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --filter-for-thinning-device-configuration iPad17,4-B --filter-for-device-os-version 27.2 --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 27.1 --platform iphonesimulator
+/* com.apple.actool.compilation-results */
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_generated_info.plist_thinned
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/thinned/Assets.car
+
+
+LinkAssetCatalog /Users/runner/work/plie/plie/twinfold/App/Assets.xcassets (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-linkAssetCatalog --thinned /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/thinned --thinned-dependencies /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_generated_info.plist_thinned --unthinned /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_output/unthinned --unthinned-dependencies /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_generated_info.plist_unthinned --output /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app --plist-output /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_generated_info.plist
+note: Emplaced /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/AppIcon76x76@2x~ipad.png (in target 'Twinfold' from project 'Twinfold')
+note: Emplaced /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Assets.car (in target 'Twinfold' from project 'Twinfold')
+note: Emplaced /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/AppIcon60x60@2x.png (in target 'Twinfold' from project 'Twinfold')
+
+ProcessInfoPlistFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Info.plist /Users/runner/work/plie/plie/twinfold/App/Info.plist (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-infoPlistUtility /Users/runner/work/plie/plie/twinfold/App/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/assetcatalog_generated_info.plist -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Info.plist
+
+SwiftDriver Twinfold normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftDriver -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Twinfold -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios27.1-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-Swift.h -working-directory /Users/runner/work/plie/plie/twinfold -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ptrcheck-1PO0EI0OVMDPU8AYGFI7JDXZB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_AvailabilityInternal-BPTRYEZ33OXM2G2Y8FYXQK98O.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_SwiftConcurrencyShims-7CIOZ8H9Y9EU5NWTRME8HR4O6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdbool-3TZ3L8LN3E8PTNUG05JZ7VE1Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ptrauth-2MPBLDP84RI6609APGRMYLY1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_StoreKit_SwiftUI-6LVIJGCY0SVUJ4DVXEPZLOF6T.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stddef-6O64K3YL5V1FNSF89DNPSSJ8L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_float-7FGKEOQ02SHV8W6Q46X00AIRR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftShims-3IV7UOM1M27T5VRIHIRLIO9NU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/DeveloperToolsSupport-5KZ9Q48FN1BSHJ8304EVPL7MV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdarg-4N166226I9IPRC4C37E2OF6EQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation1-8QPKD9VWD8PSJ36OKPM1L0OJW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_limits-7IHOVTMG907I9MREALENE6AEJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ExtensionFoundation-27MYXC6R786Q5LIZD4Y04PALY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation2-EFMSZ6KGUHXZQ6OIEJTC02N5G.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/string_h-9JAX7M3YQQZJ96UG57Y1ER8NJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/sys_types-CO6QRXICCCDQXJUMDBCCXNK56.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdint-808RZWEAAP051ZXO5CVQ5YXD1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_tgmath-520I0NTBBI1VK9I2DQP4BMM6M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdatomic-B1FSCBX1YQJJ1FCTRQNMOLMQF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation3-A2XG56O3105RZ5G26HTC0H2W6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_intrinsics-862I89NLLBT9OMIJ970EIF7PV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_inttypes-5OBB2B32423CI9H9K1KQQKFXO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Darwin-CUIDK6GSEFAXPUQCLJ8XM82ES.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/simd-DLMXX803VTC52UHPI50XSUR84.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ObjectiveC-1W2AD6QUZY0R3QVOVJ09TNOCE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/MachO-E1OEN29B11NFLGEXEGQQPFNJP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os_object-APBECTPTMBE7KIPV8ASOTXW51.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os_workgroup-5GC35BHKN47GUXFAOAR8R37D2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Dispatch-DCD8Q1H8BC6YGC2DVY1QF3ARW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/XPC-CQG6TE7P8QO6X9WZYMTFKLEE4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreFoundation-12VAY89122Y3BFAH0V9SWQWPC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/dnssd-O09ZN1URBIH7JY9B1F82VN9P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Spatial-AK4XXVAG4M718S35SHKIQ3IO6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os-8ZWLKR2801XC9U03QJWW1223.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreAudioTypes-1CJ0UTVLFAIHU02VC9ILV132M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CFNetwork-AQ0XMNFSCLDFUT2H83LFOAFDC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Security-4IY63BX5H2X2FWOT7J7JQM82R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreAudio-2CK2WXE0HPJOPLF5R4BYRSFCF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreGraphics-7AJD786PU93BTIBW9PJFZMV7L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Foundation-9YD536RNHCV5VGSVUIZ0KEC0K.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ImageIO-6ZK982UNZ4OWBYM7NO2YTH68P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreText-DV8PJ6POS1BZMGRVBEI195QNK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreData-GPG8L1PDV8R7EO28DO17K63Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/FileProvider-D8MW4XW319T7XKMWRHHEJSB37.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreTransferable-AU0P4VY2805TSZLAECJSF24Z4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AppIntents-49MJ0B85FQLVJO0MJ6RTLQ74R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMIDI-7JWGBUGH6EJODZJJGUVRV6HVL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/IOSurface-7PK4SQYFAV25ZOSNLLAYRL2SE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/OSLog-4JB1IXNKK5CX5GFBENAWL4UKG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/NaturalLanguage-DIZIYL5PQ4X10YQ1W4N0TXDGQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Metal-CKNTU7CX35RE9F8IUZI173F1X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/BackgroundAssets-1QJPSYLVT5N2WD8HPS2OYXMZE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UserNotifications-A0L42F2WNL7AW6BRH3GSFIOWD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Symbols-4BRZQ0GUV97PUIWSZ4FB5Y5Q2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/OpenGLES-8EIF2UV8ZYM0PIBP6P9V5WGZ2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/RelevanceKit-7C2TSDBD17P9OLU1976PO7QP3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Network-ADPMG3I0F2G5K1R1SFGOJUNSS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/LocalAuthentication-CM48CK3M60A22BVX5742HD95V.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UIUtilities-AK3KH5CJUIDRN563BDYNHSM9R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreVideo-BV6IRPBIPBWZ3PF81SEBQ66BE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_LocationEssentials-6S5YHF7TV3A3TGZ8A98XVJWCM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Accessibility-AE2Y8UW87BCN9H9GOSYG2J4ZJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AVRouting-53W2DI0ZQ9BQW5Y4ZIN668V00.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreLocation-287F8U9TDTTS1NP4JB3425UMS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/QuartzCore-ADY9QN6L7SONOPDTG61L04YT9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreImage-40BX1GHRTFJL8LE3RR84537AT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMedia-2NENXKHR4CN4I8PXLQOPYI8OY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMotion-6KTDSP71BRH6TC222PTV6NGLG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftUICore-E3PSZGXUUBGHDTUN5RMJOAPLH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/DataDetection-1BIB9EUI2FU3BM5Q52HJDH1UK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UniformTypeIdentifiers-5BY1T43KNJPCEY77LJGRI17XF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UIKit-6V75ONLGQ5CR2AHAT3XRTRUHY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/VideoToolbox-5U1Y9NCGF3HXOCS6LF7IMHVNX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AudioToolbox-E7954FEST3BWS1RH3AKCADGFX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreSpotlight-DK6OXQTR6PUJZ5NO92IKVT2PH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/QuickLookThumbnailing-AX4GW0CMNZVYTXYFCFJUKK28F.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/MediaToolbox-C5MCDGJ5UXCDWPSZ8WV0VQ9YG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AVFAudio-EOGUMXVFHPXNM2ADLF0QX6067.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AppIntentsTypeSupport-41DN1B0UFL6LQNKIYKT9KS51W.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AVFoundation-75HOANUQ5NSH42BWQHAJDFXB6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/WebKit-DJEPSZR41WF1FA7ZPHOU5E4XU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftUI-8X3JZ6264TJZRL8ZO3HJ1DNHD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ExtensionKit-DIFU1PZ2Z90IVWPG2GK6QLHL1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/PDFKit-A6IYPBBOGBCZKGE578XCNEGQJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/StoreKit-UQHCY4J0V3DEWAO4VFQ64BM2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/QuickLook-AQ8AABR5ZEUD6RMDVUFMSZN64.pcm
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ Twinfold (in target 'Twinfold' from project 'Twinfold')
+
+SwiftCompile normal arm64 (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    
+
+SwiftCompile normal arm64 Compiling\ AddressBar.swift,\ Browser.swift,\ BrowserView.swift,\ ContentBlocker.swift,\ Downloads.swift,\ Everyday.swift,\ Extras.swift,\ FloatingBar.swift,\ Following.swift /Users/runner/work/plie/plie/twinfold/App/AddressBar.swift /Users/runner/work/plie/plie/twinfold/App/Browser.swift /Users/runner/work/plie/plie/twinfold/App/BrowserView.swift /Users/runner/work/plie/plie/twinfold/App/ContentBlocker.swift /Users/runner/work/plie/plie/twinfold/App/Downloads.swift /Users/runner/work/plie/plie/twinfold/App/Everyday.swift /Users/runner/work/plie/plie/twinfold/App/Extras.swift /Users/runner/work/plie/plie/twinfold/App/FloatingBar.swift /Users/runner/work/plie/plie/twinfold/App/Following.swift (in target 'Twinfold' from project 'Twinfold')
+2026-11-23 04:05:19.099 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.101 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.101 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.102 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.102 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197c00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.112 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.112 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.115 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.115 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.125 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.125 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.126 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197c00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.126 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197c00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.126 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.126 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.145 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.145 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77800>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.145 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.145 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.145 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.145 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.146 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197c00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.146 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7cce197c00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.146 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-23 04:05:19.146 xcodebuild[30083:81133] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccea77400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x10523cde0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/AddressBar.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile AddressBar.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Browser.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Browser.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/BrowserView.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile BrowserView.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/ContentBlocker.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile ContentBlocker.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Downloads.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Downloads.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Everyday.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Everyday.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Extras.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Extras.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/FloatingBar.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile FloatingBar.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Following.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Following.swift
+
+SwiftCompile normal arm64 Compiling\ Gestures.swift,\ Library.swift,\ Media.swift,\ Palette.swift,\ Sheets.swift,\ ShotMode.swift,\ SiteIcons.swift,\ Smart.swift,\ StartPage.swift /Users/runner/work/plie/plie/twinfold/App/Gestures.swift /Users/runner/work/plie/plie/twinfold/App/Library.swift /Users/runner/work/plie/plie/twinfold/App/Media.swift /Users/runner/work/plie/plie/twinfold/App/Palette.swift /Users/runner/work/plie/plie/twinfold/App/Sheets.swift /Users/runner/work/plie/plie/twinfold/App/ShotMode.swift /Users/runner/work/plie/plie/twinfold/App/SiteIcons.swift /Users/runner/work/plie/plie/twinfold/App/Smart.swift /Users/runner/work/plie/plie/twinfold/App/StartPage.swift (in target 'Twinfold' from project 'Twinfold')
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Gestures.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Gestures.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Library.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Library.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Media.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Media.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Palette.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Palette.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Sheets.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Sheets.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/ShotMode.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile ShotMode.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/SiteIcons.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile SiteIcons.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Smart.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Smart.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/StartPage.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile StartPage.swift
+
+SwiftCompile normal arm64 Compiling\ Store.swift,\ Tab.swift,\ TabOverview.swift,\ TwinfoldApp.swift,\ VideoNotes.swift,\ WebHost.swift,\ WhatsNew.swift,\ GeneratedAssetSymbols.swift /Users/runner/work/plie/plie/twinfold/App/Store.swift /Users/runner/work/plie/plie/twinfold/App/Tab.swift /Users/runner/work/plie/plie/twinfold/App/TabOverview.swift /Users/runner/work/plie/plie/twinfold/App/TwinfoldApp.swift /Users/runner/work/plie/plie/twinfold/App/VideoNotes.swift /Users/runner/work/plie/plie/twinfold/App/WebHost.swift /Users/runner/work/plie/plie/twinfold/App/WhatsNew.swift /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Twinfold' from project 'Twinfold')
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Store.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Store.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/Tab.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile Tab.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/TabOverview.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile TabOverview.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/TwinfoldApp.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile TwinfoldApp.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/VideoNotes.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile VideoNotes.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/WebHost.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile WebHost.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/twinfold/App/WhatsNew.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile WhatsNew.swift
+
+SwiftCompile normal arm64 /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for Twinfold (in target 'Twinfold' from project 'Twinfold')
+
+SwiftDriver\ Compilation\ Requirements Twinfold normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Twinfold -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios27.1-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-Swift.h -working-directory /Users/runner/work/plie/plie/twinfold -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling Gestures.swift, Library.swift, Media.swift, Palette.swift, Sheets.swift, ShotMode.swift, SiteIcons.swift, Smart.swift, StartPage.swift (in target 'Twinfold' from project 'Twinfold')
+
+SwiftMergeGeneratedHeaders /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/Twinfold-Swift.h /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-Swift.h (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-Swift.h -o /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/Twinfold-Swift.h
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.swiftmodule/arm64-apple-ios-simulator.swiftdoc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftdoc (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftdoc /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.abi.json (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.abi.json /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftsourceinfo (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftsourceinfo /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling Store.swift, Tab.swift, TabOverview.swift, TwinfoldApp.swift, VideoNotes.swift, WebHost.swift, WhatsNew.swift, GeneratedAssetSymbols.swift (in target 'Twinfold' from project 'Twinfold')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AddressBar.swift, Browser.swift, BrowserView.swift, ContentBlocker.swift, Downloads.swift, Everyday.swift, Extras.swift, FloatingBar.swift, Following.swift (in target 'Twinfold' from project 'Twinfold')
+
+SwiftDriver\ Compilation Twinfold normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-Swift-Compilation -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Twinfold -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios27.1-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold-Swift.h -working-directory /Users/runner/work/plie/plie/twinfold -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Twinfold.debug.dylib normal (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios27.1-simulator -dynamiclib -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -filelist /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.LinkFileList -install_name @rpath/Twinfold.debug.dylib -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Twinfold.debug.dylib
+
+ConstructStubExecutorLinkFileList /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-ExecutorLinkFileList-normal-arm64.txt (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    construct-stub-executor-link-file-list /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Twinfold.debug.dylib /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'Twinfold' from project 'Twinfold')
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Twinfold normal (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios27.1-simulator -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @executable_path/Frameworks -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold-ExecutorLinkFileList-normal-arm64.txt /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Twinfold.debug.dylib -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Twinfold
+
+CopySwiftLibs /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Twinfold.debug.dylib --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Frameworks --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/PlugIns --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/SystemExtensions --scan-folder /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.Xy79kE/Metal.xctoolchain --toolchain /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.Xy79kE/Metal.xctoolchain --module-name Twinfold --sdk-root /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 27.1 --bundle-identifier com.padelup.twinfold --output /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app --target-triple arm64-apple-ios27.1-simulator --binary-file /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Twinfold --dependency-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold_dependency_info.dat --stringsdata-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftFileList --metadata-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-11-23 04:05:45.568 appintentsmetadataprocessor[33790:90128] Starting appintentsmetadataprocessor export
+2026-11-23 04:05:45.890 appintentsmetadataprocessor[33790:90128] Extracted no relevant App Intents symbols, skipping writing output
+
+AppIntentsSSUTraining (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Info.plist --temp-dir-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/ssu --bundle-id com.padelup.twinfold --product-path /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app --extracted-metadata-path /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Metadata.appintents --metadata-file-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Twinfold.build/Debug-iphonesimulator/Twinfold.build/Twinfold.DependencyMetadataFileList --source-file /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app/Info.plist --archive-ssu-assets
+2026-11-23 04:05:46.022 appintentsnltrainingprocessor[33793:90142] Parsing options for appintentsnltrainingprocessor
+2026-11-23 04:05:46.024 appintentsnltrainingprocessor[33793:90142] Starting AppIntents SSU YAML Generation
+2026-11-23 04:05:46.038 appintentsnltrainingprocessor[33793:90142] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-RegisterExecutionPolicyException /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+Validate /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-validationUtility /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /usr/bin/touch -c /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Twinfold.app
+
+PruneExplicitPrecompiledModules /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

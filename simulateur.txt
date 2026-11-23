@@ -1,0 +1,8 @@
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-27-2 device=com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M5-16GB
+split : Main display orientation: unknown
+news : Main display orientation: unknown
+tabs : Main display orientation: unknown
+overview : Main display orientation: unknown
+notes : Main display orientation: unknown
+paletteopen : Main display orientation: unknown
+paywall : Main display orientation: unknown
