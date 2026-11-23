@@ -38,7 +38,7 @@ jobs:
           cd foldboard && xcodegen generate && cd ..
           set -o pipefail
           xcodebuild build -project foldboard/Foldboard.xcodeproj -scheme Foldboard -configuration Debug -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO 2>&1 | tee shots/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO ARCHS=arm64 ONLY_ACTIVE_ARCH=NO 2>&1 | tee shots/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
           grep -n -E "error:" shots/build.log | head -60 > shots/erreurs.txt || true
           grep -q "BUILD SUCCEEDED" shots/build.log
       - name: Capturer (Duo et grand iPhone, français et anglais)
