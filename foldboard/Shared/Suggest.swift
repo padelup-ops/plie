@@ -168,7 +168,8 @@ final class KBSuggest {
     /// voisines sont celles qui se touchent vraiment à l'écran (« n » touche « j » et « k », pas « g »).
     private var rowInsets: [Double] = [0, 0.5, 1.5]
 
-    /// Les 30 000 mots les plus courants (du plus fréquent au moins fréquent), pour compléter et classer.
+    /// Les mots les plus courants (environ 100 000, du plus fréquent au moins fréquent), pour compléter et classer.
+    /// Les 30 000 premiers servent aux corrections ; les suivants (vérifiés par hunspell) ne sont jamais « corrigés ».
     /// Liste : FrequencyWords (Hermit Dave), contenu sous licence CC BY-SA 4.0.
     private var words: [String] = []
     private var folded: [String] = []
