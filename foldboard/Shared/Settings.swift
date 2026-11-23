@@ -175,6 +175,8 @@ struct KBSettings: Codable, Equatable {
     /// La disposition choisie pour chaque écran (« closed-portrait », « open-portrait », « open-landscape »…).
     /// Absent : la disposition générale (`mode`). Choisir une disposition dans le clavier la règle pour cet écran seulement.
     var screenModes: [String: KBMode] = [:]
+    /// Le moment où l'on a demandé d'oublier les mains : le clavier efface aussi ce qu'il a appris en mémoire.
+    var gripResetAt: Double = 0
 
     /// La disposition voulue sur cet écran (avant les limites de la version gratuite).
     func mode(for context: String) -> KBMode { screenModes[context] ?? mode }
@@ -283,6 +285,7 @@ struct KBSettings: Codable, Equatable {
         compactBar = (try? c.decodeIfPresent(Bool.self, forKey: .compactBar)) ?? d.compactBar
         myWords = (try? c.decodeIfPresent([String].self, forKey: .myWords)) ?? d.myWords
         screenModes = (try? c.decodeIfPresent([String: KBMode].self, forKey: .screenModes)) ?? d.screenModes
+        gripResetAt = (try? c.decodeIfPresent(Double.self, forKey: .gripResetAt)) ?? d.gripResetAt
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme
         font = (try? c.decodeIfPresent(KBFont.self, forKey: .font)) ?? d.font
         haptics = (try? c.decodeIfPresent(Double.self, forKey: .haptics)) ?? d.haptics
@@ -427,6 +430,7 @@ struct KBSettings: Codable, Equatable {
 
     /// Oublie l'étalonnage et tout ce qui a été appris : on repart des réglages de départ.
     mutating func resetCalibration() {
+        gripResetAt = Date().timeIntervalSince1970
         calib = [:]
         learned = [:]
         taps = [:]

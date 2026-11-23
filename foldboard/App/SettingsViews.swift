@@ -246,6 +246,7 @@ struct ProBadge: View {
 struct PositionView: View {
     @Environment(SettingsModel.self) private var model
     @State private var confirmReset = false
+    @State private var confirmForget = false
 
     var body: some View {
         @Bindable var m = model
@@ -263,6 +264,9 @@ struct PositionView: View {
                 ForEach(KBMode.allCases) { mode in
                     Button {
                         m.settings.mode = mode
+                        // Choisi ici : partout. Les choix faits écran par écran depuis le clavier ne l'emportent plus
+                        // (un testeur choisissait « main gauche » ici, et le clavier suivait encore sa main).
+                        m.settings.screenModes = [:]
                     } label: {
                         HStack(spacing: 12) {
                             Image(systemName: mode.symbol).frame(width: 28)
@@ -276,8 +280,22 @@ struct PositionView: View {
                         }
                     }
                 }
+                if m.settings.mode == .auto {
+                    Button(role: .destructive) { confirmForget = true } label: {
+                        Label("Forget my hands and start over", systemImage: "arrow.counterclockwise")
+                    }
+                    .confirmationDialog("Forget what Foldboard learned about how you hold your iPhone?", isPresented: $confirmForget, titleVisibility: .visible) {
+                        Button("Forget and start over", role: .destructive) {
+                            var s = m.settings
+                            s.resetCalibration()
+                            m.settings = s
+                        }
+                    }
+                }
             } header: {
                 Text("Position")
+            } footer: {
+                Text("Follows your hand moves the keyboard to the hand you type with. Prefer to choose yourself? Pick One hand, left, One hand, right, Full width or Two hands: the keyboard stays there on every screen.")
             }
 
             // Une disposition par écran : par exemple toute la largeur en « liseuse » (deux mains),

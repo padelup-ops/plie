@@ -567,3 +567,6 @@
 "Saving copies is off: iOS asked each time. Paste still works." = "Saving copies is off: iOS asked each time. Paste still works.";
 
 "Hold the mic to dictate" = "マイクを長押しして音声入力";
+"Forget my hands and start over" = "手の情報を忘れてやり直す";
+"Forget what Foldboard learned about how you hold your iPhone?" = "iPhoneの持ち方について学習した内容を消去しますか？";
+"Forget and start over" = "消去してやり直す";

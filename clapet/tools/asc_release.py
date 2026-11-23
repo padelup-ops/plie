@@ -333,6 +333,19 @@ RELEASE_NOTES = {
         "ko": "• Foldly+ 새 기능 ‘내 세션’: Duo를 펼칠 때마다 열려 있는 시간을 보여 줘요. 평균 세션, 짧은/긴 세션, 가장 긴 세션, 평일과 주말 비교, 깨어 있는 시간 중 펼친 비율까지.\n• 더 차분하고 깔끔한 디자인: 단순해진 제목, 이모지 대신 아이콘, ‘내 세션’의 더 짧은 시간 표시.\n• 작은 수정 및 개선.",
         "zh-Hans": "• Foldly+ 新功能“你的使用时段”：查看 Duo 每次展开多久——平均时长、短时段与长时段、最长一次、工作日与周末对比，以及清醒时间中展开的比例。\n• 更安静、更清爽的设计：更简洁的标题、用图标代替表情符号，“你的使用时段”中的时长更简短。\n• 小问题修复和改进。",
     },
+    "1.0.25": {
+        "en-US": "• Your counts, stats and Foldly+ now survive a restart: nothing is lost if your iPhone reboots before you unlock it.\n• Widgets keep showing Foldly+ and your numbers, and the last digit is readable on clear icons.\n• New: Report a bug, right from Settings.",
+        "fr-FR": "• Tes chiffres, tes statistiques et Foldly+ résistent au redémarrage : plus rien ne se perd si l'iPhone redémarre avant d'être déverrouillé.\n• Les widgets gardent Foldly+ et tes chiffres, et le dernier chiffre se lit bien avec les icônes claires.\n• Nouveau : Signaler un bug, directement depuis les Réglages.",
+        "de-DE": "• Deine Zahlen, Statistiken und Foldly+ überstehen jetzt einen Neustart: Nichts geht verloren, wenn dein iPhone vor dem Entsperren neu startet.\n• Widgets zeigen weiterhin Foldly+ und deine Zahlen, und die letzte Ziffer ist bei hellen Symbolen gut lesbar.\n• Neu: Fehler melden, direkt in den Einstellungen.",
+        "es-ES": "• Tus cifras, estadísticas y Foldly+ sobreviven a un reinicio: no se pierde nada si el iPhone se reinicia antes de desbloquearlo.\n• Los widgets siguen mostrando Foldly+ y tus cifras, y el último dígito se lee bien con iconos claros.\n• Nuevo: Informar de un error, desde Ajustes.",
+        "it": "• I tuoi numeri, le statistiche e Foldly+ resistono al riavvio: non si perde nulla se l'iPhone si riavvia prima dello sblocco.\n• I widget continuano a mostrare Foldly+ e i tuoi numeri, e l'ultima cifra si legge bene con le icone chiare.\n• Novità: Segnala un bug, direttamente dalle Impostazioni.",
+        "pt-BR": "• Seus números, estatísticas e o Foldly+ agora resistem a reinícios: nada se perde se o iPhone reiniciar antes de ser desbloqueado.\n• Os widgets continuam mostrando o Foldly+ e seus números, e o último dígito fica legível nos ícones claros.\n• Novo: Relatar um bug, direto nos Ajustes.",
+        "nl-NL": "• Je tellingen, statistieken en Foldly+ overleven nu een herstart: er gaat niets verloren als je iPhone herstart voordat je hem ontgrendelt.\n• Widgets blijven Foldly+ en je cijfers tonen, en het laatste cijfer is goed leesbaar bij lichte iconen.\n• Nieuw: Meld een bug, rechtstreeks vanuit Instellingen.",
+        "ja": "• 再起動しても回数・統計・Foldly+が消えなくなりました。ロック解除前にiPhoneが再起動しても何も失われません。\n• ウィジェットにFoldly+と数字が表示され続け、クリアアイコンでも最後の数字が読みやすくなりました。\n• 新機能：設定から「バグを報告」。",
+        "ko": "• 재시동해도 횟수, 통계, Foldly+가 사라지지 않아요. 잠금 해제 전에 iPhone이 재시동되어도 아무것도 잃지 않아요.\n• 위젯에 Foldly+와 숫자가 계속 표시되고, 투명 아이콘에서도 마지막 숫자가 잘 보여요.\n• 새로운 기능: 설정에서 바로 버그 신고.",
+        "zh-Hans": "• 重启后次数、统计和 Foldly+ 都不会再丢失：即使 iPhone 在解锁前重启，也不会丢失任何数据。\n• 小组件会继续显示 Foldly+ 和你的数字，透明图标下最后一位数字也清晰可读。\n• 新功能：在设置中直接报告错误。",
+        "ru": "• Счётчики, статистика и Foldly+ теперь сохраняются после перезагрузки: ничего не теряется, если iPhone перезагрузится до разблокировки.\n• Виджеты продолжают показывать Foldly+ и ваши числа, а последняя цифра хорошо читается на светлых значках.\n• Новое: «Сообщить об ошибке» прямо в Настройках.",
+    },
     "1.0.24": {
         "en-US": "New: an All time open & closed widget showing your lifetime hours unfolded vs folded. Tap or drag any bar in Your week and Today by hour to see the exact fold count and open/closed time. Play Foldly's opening and closing sounds from Shortcuts, even when the app isn't open.",
         "fr-FR": "Nouveau : un widget « Ouvert et fermé, au total » qui montre tes heures dépliées et pliées depuis le début. Touche ou fais glisser une barre dans Ta semaine et Aujourd'hui, heure par heure pour voir le nombre exact de plis et le temps ouvert et fermé. Joue les sons d'ouverture et de fermeture de Foldly depuis Raccourcis, même quand l'app n'est pas ouverte.",
@@ -582,7 +595,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.0.25", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     # Les numéros de version se recoupent entre les apps : chaque app a ses propres notes quand il le faut.

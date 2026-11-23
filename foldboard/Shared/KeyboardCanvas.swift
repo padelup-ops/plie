@@ -882,6 +882,11 @@ final class KeyboardCanvas: UIView {
     func configure(settings: KBSettings, pro: Bool) {
         self.settings = settings
         self.pro = pro
+        // « Oublier mes mains » dans l'app : on efface aussi ce que le détecteur a appris pendant cette session.
+        if settings.gripResetAt > UserDefaults.standard.double(forKey: "foldboard.gripResetSeen") {
+            UserDefaults.standard.set(settings.gripResetAt, forKey: "foldboard.gripResetSeen")
+            grip.reset()
+        }
         eff = settings.effective(pro: pro)
         applyScreenMode()
         theme = KBTheme.named(eff.theme)
