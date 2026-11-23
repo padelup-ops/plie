@@ -111,6 +111,10 @@ enum ShotMode {
                 let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("twinfold-test.txt")
                 try? "ytfs: \(r1) || after \(r2) | filled \(t0.isFilled)".write(to: url, atomically: true, encoding: .utf8)
             }
+        case "palettecorner":
+            UserDefaults.standard.set(0.95, forKey: "palette.x"); UserDefaults.standard.set(0.95, forKey: "palette.y")
+            show(0, "video", "dailyloaf.example")
+            show(1, "recipe", "dailyloaf.example")
         case "palette", "paletteopen":
             show(0, "video", "dailyloaf.example")
             show(1, "recipe", "dailyloaf.example")

@@ -283,30 +283,16 @@ private struct PaneDivider: View {
         let g = layout.gap
         ZStack {
             Rectangle().fill(Color(.separator).opacity(layout.atFold ? 0 : 0.6))
-            // The grip: drag it to give one page more room, even on the fold.
+            // The grip: drag it to give one page more room, even on the fold. Long press: sizes and layouts, the
+            // menu opening from the grip itself (not from the whole line, which slid the handle off to one side).
             Capsule()
                 .fill(Brand.coral)
                 .frame(width: layout.sideBySide ? 5 : 46, height: layout.sideBySide ? 46 : 5)
                 .shadow(color: .black.opacity(0.25), radius: 2)
                 .scaleEffect(frozen == nil ? 1 : 1.25)
-        }
-        .frame(width: max(g.width, 1), height: max(g.height, 1))
-        // Only the grip (and a finger's width around it) catches touches: the rest of the line leaves the pages'
-        // edge swipes (back and forward) alone.
-        .contentShape(Rectangle().size(width: layout.sideBySide ? max(g.width, 1) + 40 : 120,
-                                       height: layout.sideBySide ? 120 : max(g.height, 1) + 40)
-                        .offset(x: layout.sideBySide ? -20 : max(g.width, 1) / 2 - 60,
-                                y: layout.sideBySide ? max(g.height, 1) / 2 - 60 : -20))
-        .position(x: g.midX, y: g.midY)
-        .highPriorityGesture(drag)
-        .onTapGesture(count: 2) {
-            // Back to the fold (or half and half).
-            withAnimation(.spring(response: 0.3)) {
-                browser.ratio = 0.5
-                browser.followsFold = true
-            }
-        }
-        .contextMenu {
+                .padding(layout.sideBySide ? EdgeInsets(top: 10, leading: 18, bottom: 10, trailing: 18) : EdgeInsets(top: 18, leading: 10, bottom: 18, trailing: 10))
+                .contentShape(.contextMenuPreview, Capsule())
+                .contextMenu {
             Section("Size") {
                 Button("Half and Half", systemImage: "rectangle.split.1x2") { setRatio(0.5) }
                 Button(LocalizedStringKey(layout.sideBySide ? "Left One Third" : "Top One Third"), systemImage: "rectangle.tophalf.inset.filled") { setRatio(1.0 / 3) }
@@ -327,7 +313,30 @@ private struct PaneDivider: View {
             if browser.canSavePair {
                 Button("Save as Pair", systemImage: "star") { browser.sheet = .savePair }
             }
+        } preview: {
+                    Capsule()
+                        .fill(Brand.coral)
+                        .frame(width: layout.sideBySide ? 8 : 64, height: layout.sideBySide ? 64 : 8)
+                        .padding(18)
+                        .background(.regularMaterial, in: Capsule())
+                }
         }
+        .frame(width: max(g.width, 1), height: max(g.height, 1))
+        // Only the grip (and a finger's width around it) catches touches: the rest of the line leaves the pages'
+        // edge swipes (back and forward) alone.
+        .contentShape(Rectangle().size(width: layout.sideBySide ? max(g.width, 1) + 40 : 120,
+                                       height: layout.sideBySide ? 120 : max(g.height, 1) + 40)
+                        .offset(x: layout.sideBySide ? -20 : max(g.width, 1) / 2 - 60,
+                                y: layout.sideBySide ? max(g.height, 1) / 2 - 60 : -20))
+        .highPriorityGesture(drag)
+        .onTapGesture(count: 2) {
+            // Back to the fold (or half and half).
+            withAnimation(.spring(response: 0.3)) {
+                browser.ratio = 0.5
+                browser.followsFold = true
+            }
+        }
+        .position(x: g.midX, y: g.midY)
         .accessibilityLabel("Divider between the two pages")
         .accessibilityAdjustableAction { dir in
             switch dir {

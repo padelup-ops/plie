@@ -189,7 +189,7 @@ struct ActionPalette: View {
         .onAppear {
             actions = Library.shared.paletteActions
             // Screenshots: the ring open.
-            if ShotMode.current == "paletteopen" {
+            if ShotMode.current == "paletteopen" || ShotMode.current == "palettecorner" {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) { withAnimation { open = true } }
             }
         }
@@ -238,35 +238,54 @@ struct ActionPalette: View {
         return (Double(best.start) * step - .pi / 2, Double(best.len - 1) * step)
     }
 
-    private func angle(_ i: Int) -> Double {
-        let n = max(actions.count, 1)
+    /// Where each action sits: one ring when there's room all around; near an edge or in a corner, the actions fill
+    /// the open side in rows (an inner arc, then an outer one), always a finger's width apart, never on top of
+    /// each other.
+    private var spots: [CGPoint] {
+        let c = buttonCenter, n = actions.count
+        guard n > 0 else { return [] }
         let a = arc
-        if a.sweep >= 2 * .pi - 0.01 { return a.start + Double(i) / Double(n) * 2 * .pi }
-        // A half ring: from one end of the free side to the other.
-        return a.start + (n == 1 ? a.sweep / 2 : Double(i) / Double(n - 1) * a.sweep)
+        let gap = item + 18
+        if a.sweep >= 2 * .pi - 0.01 {
+            let r = max(96, gap * CGFloat(n) / (2 * .pi))
+            return (0..<n).map { i in
+                let t = a.start + Double(i) / Double(n) * 2 * .pi
+                return CGPoint(x: c.x + r * cos(t), y: c.y + r * sin(t))
+            }
+        }
+        var out: [CGPoint] = []
+        var r: CGFloat = 92
+        var left = n
+        while left > 0 && r < 400 {
+            // As many as fit on this arc, spread evenly along it.
+            let cap = max(1, Int(CGFloat(a.sweep) * r / gap) + 1)
+            let k = min(left, cap)
+            for j in 0..<k {
+                let t = a.start + (k == 1 ? a.sweep / 2 : Double(j) / Double(k - 1) * a.sweep)
+                out.append(clamp(CGPoint(x: c.x + r * cos(t), y: c.y + r * sin(t)), margin: item / 2 + 4))
+            }
+            left -= k
+            r += gap
+        }
+        return out
     }
 
-    /// Wider when the actions only have half a ring, so they don't crowd.
+    /// How far the furthest action is (the glass disc behind them reaches it).
     private var radius: CGFloat {
-        let a = arc
-        if a.sweep >= 2 * .pi - 0.01 { return 96 }
-        let n = CGFloat(max(actions.count - 1, 1))
-        return max(96, min(140, (item + 16) * n / CGFloat(max(a.sweep, 0.5))))
+        let c = buttonCenter
+        return (spots.map { hypot($0.x - c.x, $0.y - c.y) }.max() ?? 96)
     }
 
     private func spot(_ i: Int, around c: CGPoint) -> CGPoint {
-        let r = radius
-        let p = CGPoint(x: c.x + r * cos(angle(i)), y: c.y + r * sin(angle(i)))
-        return clamp(p, margin: item / 2 + 4)
+        let s = spots
+        return i < s.count ? s[i] : c
     }
 
-    /// The action closest to the finger's direction, once it's left the middle.
+    /// The action closest to the finger, once it's left the middle.
     private func index(toward p: CGPoint, from c: CGPoint) -> Int? {
-        let dx = p.x - c.x, dy = p.y - c.y
-        guard hypot(dx, dy) > 34, !actions.isEmpty else { return nil }
-        let f = atan2(dy, dx)
-        func diff(_ a: Double) -> Double { let d = abs(remainder(a - f, 2 * .pi)); return d }
-        return actions.indices.min { diff(angle($0)) < diff(angle($1)) }
+        guard hypot(p.x - c.x, p.y - c.y) > 34, !actions.isEmpty else { return nil }
+        let s = spots
+        return s.indices.min { hypot(s[$0].x - p.x, s[$0].y - p.y) < hypot(s[$1].x - p.x, s[$1].y - p.y) }
     }
 
     // MARK: Hiding
