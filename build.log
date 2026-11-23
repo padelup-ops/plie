@@ -1,0 +1,361 @@
+Command line invocation:
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/xcodebuild build -project vicefold/Vicefold.xcodeproj -scheme Vicefold -configuration Debug -sdk iphonesimulator -destination id=C4577651-FFC7-4B99-A583-2963D48431C1 -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+    SDKROOT = iphonesimulator27.1
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (2 targets)
+    Target 'Vicefold' in project 'Vicefold'
+        ➜ Explicit dependency on target 'VicefoldWidget' in project 'Vicefold'
+    Target 'VicefoldWidget' in project 'Vicefold' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/plie/plie/vicefold/App/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+Build description signature: 20e16ac4d5c076f69845f2301b42fdf5
+Build description path: /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/XCBuildData/20e16ac4d5c076f69845f2301b42fdf5.xcbuilddata
+CreateBuildDirectory /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/CompilationCache.noindex
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/CompilationCache.noindex
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/ModuleCache.noindex
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/ModuleCache.noindex
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Products
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Products
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex
+
+ClangStatCache /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold-0443d4871a83011653fff739c3e806cc-VFS-iphonesimulator/all-product-headers.yaml
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold-0443d4871a83011653fff739c3e806cc-VFS-iphonesimulator/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/PrecompiledHeaders
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/PrecompiledHeaders
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+    cd /Users/runner/work/plie/plie/vicefold/Vicefold.xcodeproj
+    builtin-create-build-directory /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget.hmap (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget.DependencyStaticMetadataFileList (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget.DependencyMetadataFileList (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-project-headers.hmap (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-own-target-headers.hmap (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-generated-files.hmap (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-all-target-headers.hmap (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-all-non-framework-target-headers.hmap (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-DebugEntryPoint-normal-arm64.txt (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-DebugEntryPoint-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-DebugDylibPath-normal-arm64.txt (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-DebugDylibInstallName-normal-arm64.txt (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-DebugDylibInstallName-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget_const_extract_protocols.json (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget.SwiftFileList (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget.SwiftConstValuesFileList (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget.LinkFileList (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget-OutputFileMap.json (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget-OutputFileMap.json
+
+MkDir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/VicefoldWidget.appex (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/VicefoldWidget.appex
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold.hmap (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold.DependencyStaticMetadataFileList (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold.DependencyMetadataFileList (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-project-headers.hmap (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-own-target-headers.hmap (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-generated-files.hmap (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-all-target-headers.hmap (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-all-non-framework-target-headers.hmap (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-DebugDylibPath-normal-arm64.txt (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-DebugDylibInstallName-normal-arm64.txt (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Vicefold-DebugDylibInstallName-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold_const_extract_protocols.json (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold.SwiftFileList (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold.SwiftConstValuesFileList (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold.LinkFileList (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold-OutputFileMap.json (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    write-file /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/Vicefold.build/Objects-normal/arm64/Vicefold-OutputFileMap.json
+
+MkDir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Vicefold.app/PlugIns (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Vicefold.app/PlugIns
+
+MkDir /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Vicefold.app (in target 'Vicefold' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    /bin/mkdir -p /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/Vicefold.app
+
+Ld /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/VicefoldWidget.appex/__preview.dylib normal (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -install_name @rpath/VicefoldWidget.debug.dylib -Xlinker -dead_strip -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget_dependency_info.dat -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/VicefoldWidget.appex/__preview.dylib
+
+ProcessInfoPlistFile /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/VicefoldWidget.appex/Info.plist /Users/runner/work/plie/plie/vicefold/Widget/Info.plist (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    builtin-infoPlistUtility /Users/runner/work/plie/plie/vicefold/Widget/Info.plist -producttype com.apple.product-type.app-extension -expandbuildsettings -format binary -platform iphonesimulator -o /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/VicefoldWidget.appex/Info.plist
+
+SwiftDriver VicefoldWidget normal arm64 com.apple.xcode.tools.swift.compiler (in target 'VicefoldWidget' from project 'Vicefold')
+    cd /Users/runner/work/plie/plie/vicefold
+    builtin-SwiftDriver -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name VicefoldWidget -Onone @/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -application-extension -enable-testing -index-store-path /Users/runner/work/plie/plie/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -F /Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/work/plie/plie/build/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-e829b21a6f8c9b70876ba0858053c0444d9d9db8bd6230e456490c80ea63f8ae.sdkstatcache -output-file-map /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/plie/plie/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/work/plie/plie/build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-generated-files.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-own-target-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/VicefoldWidget-project-headers.hmap -Xcc -I/Users/runner/work/plie/plie/build/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/work/plie/plie/build/Build/Intermediates.noindex/Vicefold.build/Debug-iphonesimulator/VicefoldWidget.build/Objects-normal/arm64/VicefoldWidget-Swift.h -working-directory /Users/runner/work/plie/plie/vicefold -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdbool-4ART4TTWOKE64ORJ62SRBORXQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/DeveloperToolsSupport-2ZKVG1XEQILDR228ZCZNWJGA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_AvailabilityInternal-EHNCH9GZZGF2ARWKRPI6GM7AJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdarg-EY3HTAH2XZE9SYEM0US1UDOME.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ptrcheck-AMCG2D9ZHII8DKLQVE8J9JZZR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_float-OOJ3YI5UHQV7YHZCBORO0RBT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ActivityKit-B8WMR4EUOHBSCVP9OU6ESRP8A.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_SwiftConcurrencyShims-DIYRE15HYMVB24HW80OVG5RI2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/SwiftShims-TB7AI106N0N82DBHPJ1PWAZZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation1-DLVV9NPN1WPW541X2SZPLYIGV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ptrauth-4JXTKAU589NIFLV675PEEQ7N7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stddef-92QZ38BEIODVT6QFN8RE1Y59D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ExtensionFoundation-3DTX1ZHDITBCH52BCOWKHNPY3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_limits-1K6J6BYE54149N33NWVG3IEE2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation2-DROCPNAMY9L3FFRBM25T7QS7D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/string_h-BKKNY3IBB1BAIJMOIQN8FOJ0I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_tgmath-E90IXRV2TK56ARY913FLU5Y73.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/sys_types-9D1S4BJKLEXDSSM8KG0M347S7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdint-78OIGKIDO8G2U2LGV5MWAQXUX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_intrinsics-4PSG30C4W5VS6K0CUGRPPR70.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_DarwinFoundation3-CLTCJDHZ6DTVSKV14KBQINQ80.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_stdatomic-7BHM9V23NNF2GNWX77J3FQ86W.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_Builtin_inttypes-2XR85V89IO8948HSTWFS6CQIZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Darwin-CJX2NXNR3JBLCNFUS16R9OIVS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/simd-3IIMGWW2TFVGLLPVELSZYXCV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/MachO-92VD4UD6OTN9LF2R2NFLKFS6W.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ObjectiveC-6H4XZ4GGLRBP4XZO3R3AKMWB4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os_object-AF1GQQB4XB949VJZR05CZC45H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Spatial-EX5YV4521M1YTTIEARH4R4WX4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os_workgroup-3AGGIOWY6PXYW95QHH8UZI9VL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Dispatch-68DU7WUGLCSKGOLGZTVR1TSTO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/dnssd-5X235LO4QIHQU8AIYQDL59CY8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/XPC-DVQZQ3SWTCW800NUT15XWSXYF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreFoundation-7YAUI9K2LL74Y8HFUUZVYFKIQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/os-ECAJXF2LH6JL5EDMCH311VPHX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Security-7B4IYU8DYA2X6YWY5U4BDVRMS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CFNetwork-CSP7ZF5TO05NS4RF0T927VKQQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreAudioTypes-A9Z3CMLZN0UETAONDMH9F54MC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreGraphics-8TVPNBOI8TJVR7SXW90BAH021.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreAudio-F3T243CGNKU16BUTAJUD5C8AR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Foundation-SNH3TMAW6H712NIJYMOY2B6W.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreText-C7CWWY7EBAGRALRK6D6KKVUA6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/ImageIO-C9A1EZDX65LORRXGI10ULQLC3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AppIntents-4U6MV1K738IPSRJA6I1GXU0J2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/OpenGLES-9UCNK2RP17GXDEGWVXB6RQKTE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreData-957XJQDMKT6S2S46HQSB3QROP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/FileProvider-2CKC7FRT82NNJ0RRZIF5F7F8U.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Symbols-3SOHEY0XUSSPTUWYQ3QH8C1A8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/WidgetKit-79PU5PQ0WNTLNJLXHDBY4S32S.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreTransferable-55UQI51M132YCXPSLSGC0NW3J.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/AppIntentsTypeSupport-C1TYEYEF6ZB8AOUJ41EDX7FNN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Network-B06LMRAVHLVN78HMCB4MY405H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/RelevanceKit-F43ZEFFU36WDAKVWEVCW1S8IF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/_LocationEssentials-CL7DUFZ5T42GRZ6IV7025UH1R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/OSLog-8YNUZST1DKZWP90VWIRO1U1WK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/Accessibility-6LPR9ZHNQBLBJTEAMM484YO78.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreLocation-DMQFNZJ2RQLZZGCOAU4JSMLU4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UIUtilities-IB5RXGNP5JQSNMEWQ4URD1H3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/DataDetection-ZWCPEXAF3KMAK86CJLAB5MAM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UserNotifications-AP7WZBZDED4Y40T72V6L2C1QD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/UniformTypeIdentifiers-CRL5YYZ0LOL02K4NGE67Q6126.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/CoreMotion-7LPUXDHX3QW3LCHTVHVD879EK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/plie/plie/build/SDKExplicitPrecompiledModules/IOSurface-5QTO5YZHX49YVUD9F32EYAHNF.pcm
