@@ -1,0 +1,55 @@
+# HEXFOLD : lance l'app dans le simulateur (iPhone et iPad) et prend des captures après le chargement du jeu.
+name: Hexfold - simulateur
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: "Appareil"
+        required: false
+        default: "iPhone 17 Pro Max"
+      wait:
+        description: "Secondes avant chaque capture"
+        required: false
+        default: "25"
+jobs:
+  sim:
+    runs-on: xcode-27
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Jeu et projet
+        run: |
+          git fetch -q origin ci-hexfold-web
+          rm -rf hexfold/App/Game && mkdir -p hexfold/App/Game
+          git archive origin/ci-hexfold-web | tar -x -C hexfold/App/Game
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1); sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          command -v xcodegen >/dev/null || brew install xcodegen >/dev/null 2>&1
+          cd hexfold && xcodegen generate
+      - name: Compiler
+        run: |
+          set -o pipefail
+          cd hexfold
+          xcodebuild build -project Hexfold.xcodeproj -scheme Hexfold -configuration Debug -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO 2>&1 | tee ../build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" ../build.log
+      - name: Lancer et capturer
+        run: |
+          mkdir -p shots
+          DEV=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; n='${{ inputs.device }}'; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith(n)))")
+          xcrun simctl boot "$DEV" || true
+          xcrun simctl bootstatus "$DEV" -b
+          APP=$(find hexfold/build/Build/Products -name "Hexfold.app" -maxdepth 3 | head -1)
+          xcrun simctl install "$DEV" "$APP"
+          xcrun simctl launch "$DEV" com.padelup.hexfold
+          for i in 1 2 3; do sleep ${{ inputs.wait }}; xcrun simctl io "$DEV" screenshot "shots/0$i.png"; done
+          xcrun simctl spawn "$DEV" log show --last 3m --predicate 'process == "Hexfold" OR process CONTAINS "WebContent"' --style compact 2>/dev/null | grep -iE "error|exception|fail" | tail -40 > shots/log.txt || true
+          ls -la shots
+      - name: Publier
+        if: always()
+        run: |
+          cd shots
+          git init -q -b ci-hexfold-sim
+          git config user.name github-actions && git config user.email actions@github.com
+          git add -A && git commit -qm "captures" && git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-hexfold-sim
