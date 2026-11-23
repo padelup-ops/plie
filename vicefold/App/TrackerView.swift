@@ -40,7 +40,7 @@ private struct TrackerList: View {
     @Environment(\.vfWide) private var wide
     @Environment(ContentStore.self) private var content
     @Environment(Progress.self) private var progress
-    @State private var section: TrackerSection = .missions
+    @State private var section: TrackerSection = ShotMode.route == "collectibles" ? .collectibles : .missions
     @State private var push: VFMission?
     @State private var share = ShotMode.route == "share"
     @State private var hideDone = false

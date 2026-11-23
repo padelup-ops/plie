@@ -29,6 +29,10 @@ on:
         description: "Simulateur (partie du nom : Duo, iPhone 17 Pro Max, iPad Pro 13)"
         required: false
         default: "Duo"
+      lang:
+        description: "Langue de l'app (en, fr)"
+        required: false
+        default: "en"
       resize:
         description: "Taille en points pour le mode redimensionnable (ex. 669x951 : l'écran intérieur tenu en portrait) ; vide = captures normales"
         required: false
@@ -105,7 +109,7 @@ jobs:
             for R in ${{ inputs.routes }}; do
               N=$((N+1))
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
-              xcrun simctl launch "$UDID" "$BID" -AppleLanguages "(en)" -shot "$R" > /dev/null 2>&1 || true
+              xcrun simctl launch "$UDID" "$BID" -AppleLanguages "(${{ inputs.lang }})" -AppleLocale "${{ inputs.lang }}" -shot "$R" > /dev/null 2>&1 || true
               if [ -n "${{ inputs.resize }}" ]; then
                 sleep 3
                 DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" resize start ${{ inputs.resize }} 2>&1 | tail -2 | tee -a shots/simulateur.txt || true
@@ -164,7 +168,7 @@ jobs:
           mkdir -p shots && cd shots
           rm -f *.sb-*
           find . -type f -size +90M -print -delete
-          B=ci-vicefold-shots$(echo "${{ inputs.device }}" | tr -cd 'A-Za-z0-9' | tr 'A-Z' 'a-z' | sed 's/^duo$//;s/^./-&/')$( [ "${{ inputs.pose }}" = "close" ] && echo -closed || true )
+          B=ci-vicefold-shots-${{ inputs.lang }}$(echo "${{ inputs.device }}" | tr -cd 'A-Za-z0-9' | tr 'A-Z' 'a-z' | sed 's/^duo$//;s/^./-&/')$( [ "${{ inputs.pose }}" = "close" ] && echo -closed || true )
           git init -q -b "$B"
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"

@@ -80,6 +80,7 @@ final class Progress {
 
     init() {
         if let d = try? Data(contentsOf: fileURL), let p = try? JSONDecoder().decode(VFProgressData.self, from: d) { data = p }
+        if ShotMode.route != nil { data = Self.demo() }
         NotificationCenter.default.addObserver(forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
                                                object: kvs, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.pullCloud() }
@@ -93,11 +94,32 @@ final class Progress {
     }
 
     private func save() {
+        if ShotMode.route != nil { writeSnapshot(); return }
         if let d = try? JSONEncoder().encode(data) {
             try? d.write(to: fileURL, options: .atomic)
             if Store.shared.isPro { kvs.set(d, forKey: Self.kvsKey) }
         }
         writeSnapshot()
+    }
+
+    /// Une partie en cours, pour les captures d'écran (simulateur seulement).
+    static func demo() -> VFProgressData {
+        let c = ContentStore.shared.content
+        var d = VFProgressData()
+        d.name = "Alex"
+        d.chapter = 3
+        d.manualHours = 38
+        d.missions = Set(c.missions.prefix(44).map(\.id))
+        if let m = c.missions.dropFirst(44).first { d.objectives[m.id] = [0] }
+        d.visited = Set(c.places.filter { $0.kind != .region }.prefix(7).map(\.id))
+        for (i, s) in c.collectibles.enumerated() { d.collected[s.id] = Int(Double(s.target) * [0.62, 0.35, 0.8, 0.5, 0.2, 0.9][i % 6]) }
+        d.challenges = ["f-narco", "f-cars"]
+        d.favorites = ["lucia", "jason"]
+        d.readGuides = ["start-how"]
+        d.pins = [VFPin(name: "Stash", note: "Behind the bait shop", icon: "dollarsign", color: 2, x: 0.6, y: 0.86),
+                  VFPin(name: "Car to scan", icon: "car.fill", color: 1, x: 0.84, y: 0.66),
+                  VFPin(name: "Sunset spot", icon: "camera.fill", color: 3, x: 0.9, y: 0.7)]
+        return d
     }
 
     // MARK: iCloud (Pro)
