@@ -353,7 +353,7 @@ private struct PaneDivider: View {
             .onChanged { v in
                 if frozen == nil {
                     frozen = [layout.first.size, layout.second.size]
-                    browser.resizing = true
+                    withAnimation(.easeOut(duration: 0.12)) { browser.resizing = true }
                     UISelectionFeedbackGenerator().selectionChanged()
                 }
                 let total = layout.sideBySide ? size.width : size.height
@@ -371,7 +371,10 @@ private struct PaneDivider: View {
             }
             .onEnded { _ in
                 frozen = nil
-                browser.resizing = false
+                // The page takes its new size under the veil, then the veil lifts.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                    withAnimation(.easeInOut(duration: 0.22)) { browser.resizing = false }
+                }
                 lastSnap = nil
             }
     }
@@ -408,6 +411,14 @@ struct PaneView: View {
                     VideoNotesPane(pane: index)
                         .clipShape(RoundedRectangle(cornerRadius: showsActiveMark ? 18 : 0, style: .continuous))
                         .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                if browser.resizing {
+                    // Like iPhone and iPad split view while the divider moves: the page goes frosted behind its
+                    // site's icon, and comes back sharp at its new size once the handle is let go. Nothing has to
+                    // be laid out while the finger moves, so it stays perfectly smooth.
+                    ResizeVeil(url: tab.savedURL, title: tab.displayTitle)
+                        .clipShape(RoundedRectangle(cornerRadius: showsActiveMark ? 18 : 0, style: .continuous))
+                        .transition(.opacity)
                 }
                 if tab.isLoading && tab.progress < 1 {
                     ProgressView(value: tab.progress)
@@ -504,5 +515,30 @@ struct MediaControls: View {
         .foregroundStyle(.white)
         .background(.black.opacity(0.55), in: Capsule())
         .buttonStyle(.plain)
+    }
+}
+
+
+/// The frosted cover over a page while the panes are being resized, with the site's icon in the middle.
+private struct ResizeVeil: View {
+    let url: URL?
+    let title: String
+
+    var body: some View {
+        ZStack {
+            Rectangle().fill(.ultraThinMaterial)
+            Rectangle().fill(Color(uiColor: .systemBackground).opacity(0.35))
+            Group {
+                if let url {
+                    Initial(text: title, url: url, size: 64)
+                } else {
+                    Image(systemName: "safari").font(.system(size: 34, weight: .semibold))
+                        .frame(width: 64, height: 64)
+                        .background(Color.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+            }
+            .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
+        }
+        .allowsHitTesting(false)
     }
 }
