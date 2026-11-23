@@ -1,4 +1,5 @@
 import CoreMotion
+import Translation
 import SwiftUI
 import UIKit
 
@@ -669,6 +670,7 @@ struct TypingView: View {
                 Toggle("Dictation key", isOn: $m.settings.dictationKey)
                 if m.settings.dictationKey {
                     Toggle("Mic next to return", isOn: $m.settings.micByReturn)
+                    Toggle("Translate what I say", isOn: $m.settings.dictTranslate)
                     Button("Turn on dictation now") {
                         DictationService.shared.startSession()
                         showDictation = true
@@ -680,6 +682,7 @@ struct TypingView: View {
             }
 
             if m.settings.dictationKey { ParakeetSection() }
+            TranslateSection()
 
             Section {
                 NavigationLink { TapMapView().fullScreenDuo() } label: {
@@ -1164,6 +1167,50 @@ struct ParakeetSection: View {
                 Text("More accurate dictation in 25 European languages, with punctuation, still on your iPhone. Download it once on Wi-Fi; until then, Foldboard uses Apple's dictation.")
                 Text(verbatim: "Parakeet TDT 0.6B v3 © NVIDIA (CC BY 4.0) · FluidAudio (Apache 2.0)")
                     .font(.caption2)
+            }
+        }
+    }
+}
+
+
+// MARK: - Traduire
+
+/// Les deux langues de la traduction (dictée traduite et bouton 🌐 de la barre), et leur téléchargement : le clavier
+/// ne peut pas télécharger de langue lui-même, l'app le fait une fois.
+struct TranslateSection: View {
+    @Environment(SettingsModel.self) private var model
+    @State private var config: TranslationSession.Configuration?
+    @State private var status = ""
+
+    var body: some View {
+        @Bindable var m = model
+        Section {
+            Toggle("🌐 Translate button", isOn: $m.settings.translateKey)
+            Picker("First language", selection: Binding(get: { m.settings.translatePair.first ?? "fr" },
+                                                       set: { m.settings.translatePair = [$0, m.settings.translatePair.last ?? "en"] })) {
+                ForEach(KBTranslate.languages, id: \.self) { Text(KBTranslate.name($0)).tag($0) }
+            }
+            Picker("Second language", selection: Binding(get: { m.settings.translatePair.last ?? "en" },
+                                                        set: { m.settings.translatePair = [m.settings.translatePair.first ?? "fr", $0] })) {
+                ForEach(KBTranslate.languages, id: \.self) { Text(KBTranslate.name($0)).tag($0) }
+            }
+            Button("Download these languages") {
+                let p = m.settings.translatePair
+                status = ""
+                config = TranslationSession.Configuration(source: Locale.Language(identifier: p[0]), target: Locale.Language(identifier: p[1]))
+            }
+            if !status.isEmpty { Text(status).font(.footnote).foregroundStyle(.secondary) }
+        } header: {
+            Text("Translate")
+        } footer: {
+            Text("Speak in one language, it's written in the other. Or tap 🌐 in the keyboard to translate what you typed (hold it to pick another language). Everything stays on your iPhone.")
+        }
+        .translationTask(config) { session in
+            do {
+                try await session.prepareTranslation()
+                await MainActor.run { status = String(localized: "Ready: translation works in the keyboard.") }
+            } catch {
+                await MainActor.run { status = error.localizedDescription }
             }
         }
     }

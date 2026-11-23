@@ -160,6 +160,14 @@ struct KBSettings: Codable, Equatable {
     var barLayout = "right"
     /// Des touches aux coins carrés.
     var squareKeys = false
+    /// La dictée traduite : ce qui est dit dans une langue de la paire s'écrit dans l'autre.
+    var dictTranslate = false
+    /// Les deux langues de la traduction (dictée et bouton 🌐).
+    var translatePair: [String] = ["fr", "en"]
+    /// Le bouton 🌐 Traduire dans la barre.
+    var translateKey = true
+    /// Pendant qu'on écrit, les boutons de la barre se rangent derrière « ⋯ » : les suggestions ont toute la place.
+    var compactBar = true
     /// « Mes mots » : jamais corrigés (ajoutés dans l'app, ou quand tu annules une correction). Le plus récent en premier.
     var myWords: [String] = []
     /// La disposition choisie pour chaque écran (« closed-portrait », « open-portrait », « open-landscape »…).
@@ -265,6 +273,11 @@ struct KBSettings: Codable, Equatable {
         wandButton = (try? c.decodeIfPresent(Bool.self, forKey: .wandButton)) ?? d.wandButton
         barLayout = (try? c.decodeIfPresent(String.self, forKey: .barLayout)) ?? d.barLayout
         squareKeys = (try? c.decodeIfPresent(Bool.self, forKey: .squareKeys)) ?? d.squareKeys
+        dictTranslate = (try? c.decodeIfPresent(Bool.self, forKey: .dictTranslate)) ?? d.dictTranslate
+        translatePair = (try? c.decodeIfPresent([String].self, forKey: .translatePair)) ?? d.translatePair
+        if translatePair.count != 2 { translatePair = d.translatePair }
+        translateKey = (try? c.decodeIfPresent(Bool.self, forKey: .translateKey)) ?? d.translateKey
+        compactBar = (try? c.decodeIfPresent(Bool.self, forKey: .compactBar)) ?? d.compactBar
         myWords = (try? c.decodeIfPresent([String].self, forKey: .myWords)) ?? d.myWords
         screenModes = (try? c.decodeIfPresent([String: KBMode].self, forKey: .screenModes)) ?? d.screenModes
         theme = (try? c.decodeIfPresent(String.self, forKey: .theme)) ?? d.theme

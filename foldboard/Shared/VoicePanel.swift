@@ -11,6 +11,9 @@ final class KBVoicePanel: UIView {
     var onCancel: (() -> Void)?
     var onDone: (() -> Void)?
     var onOpenApp: (() -> Void)?
+    /// La pastille « FR → EN » : traduire ce qu'on dit, ou non.
+    var onTranslate: (() -> Void)?
+    private let translatePill = UIButton(type: .system)
 
     private(set) var mode = Mode.connecting
     private let status = UILabel()
@@ -99,6 +102,14 @@ final class KBVoicePanel: UIView {
         openApp.configuration = cfg
         openApp.addAction(UIAction { [weak self] _ in self?.onOpenApp?() }, for: .touchUpInside)
         addSubview(openApp)
+        var pc = UIButton.Configuration.plain()
+        pc.cornerStyle = .capsule
+        pc.image = UIImage(systemName: "translate", withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .semibold))
+        pc.imagePadding = 5
+        pc.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+        translatePill.configuration = pc
+        translatePill.addAction(UIAction { [weak self] _ in self?.onTranslate?() }, for: .touchUpInside)
+        addSubview(translatePill)
         set(.connecting)
     }
 
@@ -123,6 +134,18 @@ final class KBVoicePanel: UIView {
         done.backgroundColor = accent
         openApp.configuration?.baseBackgroundColor = accent
         openApp.configuration?.baseForegroundColor = .white
+    }
+
+    /// La pastille de traduction : « FR ⇄ EN », allumée quand ce qu'on dit est traduit.
+    func setTranslate(on: Bool, pair: [String]) {
+        let label = pair.map { $0.uppercased() }.joined(separator: on ? " → " : " ⇄ ")
+        var a = AttributedString(label)
+        a.font = .systemFont(ofSize: 12, weight: .bold)
+        translatePill.configuration?.attributedTitle = a
+        translatePill.configuration?.baseForegroundColor = on ? .white : text.withAlphaComponent(0.7)
+        translatePill.configuration?.background.backgroundColor = on ? accent : key
+        translatePill.accessibilityLabel = on ? L("Translation on") : L("Translation off")
+        setNeedsLayout()
     }
 
     func set(_ m: Mode, text t: String? = nil) {
@@ -236,6 +259,9 @@ final class KBVoicePanel: UIView {
         let w = bounds.width, h = bounds.height
         let pad: CGFloat = 16
         status.frame = CGRect(x: pad, y: 12, width: w - 2 * pad, height: mode == .needsApp ? 64 : 22)
+        let ps = translatePill.sizeThatFits(CGSize(width: 140, height: 30))
+        translatePill.frame = CGRect(x: w - pad - ps.width, y: 8, width: ps.width, height: max(28, ps.height))
+        translatePill.isHidden = mode == .needsApp
         let btn: CGFloat = 54
         cancel.frame = CGRect(x: pad, y: h - btn - 14, width: btn, height: btn)
         cancel.layer.cornerRadius = btn / 2

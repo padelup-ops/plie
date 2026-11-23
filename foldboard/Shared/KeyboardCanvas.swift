@@ -112,6 +112,12 @@ final class KeyboardCanvas: UIView {
     private let micButton = UIButton(type: .system)
     /// « Corriger » : la phrase avant le curseur, corrigée sur l'iPhone (Apple Intelligence).
     private let fixButton = UIButton(type: .system)
+    /// 🌐 Traduire le texte avant le curseur (appui long : choisir la langue).
+    private let translateButton = UIButton(type: .system)
+    /// « ⋯ » : pendant qu'on écrit, les boutons de la barre sont rangés derrière lui (les suggestions ont la place).
+    private let moreButton = UIButton(type: .system)
+    /// Les boutons montrés à la demande (« ⋯ »), jusqu'à la prochaine touche.
+    private var barOpened = false
     private var fixing = false
     private let dictLabel = UILabel()
     private enum DictState { case idle, connecting, listening, finishing }
@@ -206,6 +212,7 @@ final class KeyboardCanvas: UIView {
 
     private func showVoice(_ m: KBVoicePanel.Mode, text: String? = nil) {
         voice.set(m, text: text)
+        voice.setTranslate(on: eff.dictTranslate, pair: eff.translatePair)
         if voice.isHidden {
             voice.isHidden = false
             layoutVoice()
@@ -355,6 +362,68 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    // MARK: Traduire
+
+    /// Le paragraphe avant le curseur, traduit dans l'autre langue de la paire (ou celle choisie par appui long).
+    private func translateTapped(to chosen: String?) {
+        guard !fixing, let before = input?.kbTextBefore(), !before.isEmpty else {
+            flash(L("Type something, then tap 🌐 to translate it"))
+            return
+        }
+        let para = String(before.split(separator: "\n", omittingEmptySubsequences: false).last ?? "")
+        let text = String(para.suffix(600))
+        guard text.trimmingCharacters(in: .whitespaces).count > 1 else { return }
+        let pair = eff.translatePair
+        let src = KBTranslate.detect(text) ?? pair[0]
+        let dst = chosen ?? (KBTranslate.target(for: text, pair: pair)?.to ?? pair[1])
+        fixing = true
+        layoutTopBar()
+        KBFeedback.shared.tap(sound: .off, haptics: max(0.3, eff.haptics))
+        Task { @MainActor [weak self] in
+            let r = await KBTranslate.translate(text, from: src, to: dst)
+            guard let self else { return }
+            self.fixing = false
+            defer { self.layoutTopBar() }
+            switch r {
+            case .success(let out):
+                guard out != text, (self.input?.kbTextBefore() ?? "").hasSuffix(text) else { return }
+                let trailing = text.hasSuffix(" ") && !out.hasSuffix(" ") ? " " : ""
+                for _ in 0..<text.count { self.input?.kbDelete() }
+                self.input?.kbInsert(out + trailing)
+                self.lastCorrection = nil
+                self.refreshSuggestionsSoon()
+            case .failure(let f):
+                self.translateFailed(f)
+            }
+        }
+    }
+
+    private func translateFailed(_ f: KBTranslate.Failure) {
+        switch f {
+        case .notInstalled(let a, let b):
+            flash(String(format: L("Download %@ and %@ in Foldboard › Translate, then try again"), KBTranslate.name(a), KBTranslate.name(b)), hold: 3.5)
+        case .unavailable:
+            flash(L("Translation isn't available on this iPhone"), hold: 3)
+        }
+    }
+
+    /// Le menu de l'appui long sur 🌐 : traduire vers une autre langue.
+    private func translateMenu() -> UIMenu {
+        let items = KBTranslate.languages.map { code in
+            UIAction(title: KBTranslate.name(code)) { [weak self] _ in self?.translateTapped(to: code) }
+        }
+        return UIMenu(title: L("Translate to"), children: items)
+    }
+
+    /// Le bouton du panneau de dictée : traduire ce qu'on dit, ou non.
+    private func toggleDictTranslate() {
+        settings.dictTranslate.toggle()
+        eff.dictTranslate = settings.dictTranslate
+        input?.kbSettingsChanged(settings)
+        voice.setTranslate(on: eff.dictTranslate, pair: eff.translatePair)
+        KBFeedback.shared.tap(sound: .off, haptics: max(0.3, eff.haptics))
+    }
+
     /// Corriger le paragraphe avant le curseur (jusqu'au dernier retour à la ligne, 600 caractères au plus).
     private func fixTapped() {
         guard !fixing, let before = input?.kbTextBefore(), !before.isEmpty else { return }
@@ -381,6 +450,25 @@ final class KeyboardCanvas: UIView {
     }
 
     private func insertDictation(_ text: String) {
+        let t0 = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t0.isEmpty else { return }
+        // Dictée traduite : parlé en français, écrit en anglais (et l'inverse, ou d'autres langues).
+        if eff.dictTranslate, let pair = KBTranslate.target(for: t0, pair: eff.translatePair), pair.from != pair.to {
+            flash(L("Translating…"), hold: 1.2)
+            Task { @MainActor [weak self] in
+                let r = await KBTranslate.translate(t0, from: pair.from, to: pair.to)
+                guard let self else { return }
+                switch r {
+                case .success(let out): self.writeDictation(out)
+                case .failure(let f): self.translateFailed(f); self.writeDictation(t0)
+                }
+            }
+            return
+        }
+        writeDictation(t0)
+    }
+
+    private func writeDictation(_ text: String) {
         let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !t.isEmpty else { return }
         let before = input?.kbTextBefore() ?? ""
@@ -676,6 +764,19 @@ final class KeyboardCanvas: UIView {
         fixButton.accessibilityLabel = L("Fix the text")
         fixButton.addAction(UIAction { [weak self] _ in self?.fixTapped() }, for: .touchUpInside)
         topBar.addSubview(fixButton)
+        translateButton.setImage(UIImage(systemName: "translate"), for: .normal)
+        translateButton.accessibilityLabel = L("Translate")
+        translateButton.addAction(UIAction { [weak self] _ in self?.translateTapped(to: nil) }, for: .touchUpInside)
+        topBar.addSubview(translateButton)
+        moreButton.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
+        moreButton.accessibilityLabel = L("More")
+        moreButton.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            self.barOpened.toggle()
+            UIView.animate(withDuration: 0.18) { self.layoutTopBar() }
+        }, for: .touchUpInside)
+        topBar.addSubview(moreButton)
+        voice.onTranslate = { [weak self] in self?.toggleDictTranslate() }
         micButton.setImage(UIImage(systemName: "mic"), for: .normal)
         micButton.accessibilityLabel = L("Dictation")
         micButton.addAction(UIAction { [weak self] _ in self?.micTapped() }, for: .touchUpInside)
@@ -1825,6 +1926,14 @@ final class KeyboardCanvas: UIView {
         slide(from: oldBlocks)
     }
 
+    /// La barre rangée : des suggestions à montrer, et pas assez de place pour elles à côté des boutons.
+    private var collapsedBar: Bool {
+        guard eff.compactBar, !barOpened, !suggestionItems.isEmpty, emojiQuery == nil, sideButtonsGrid == nil else { return false }
+        let buttons = [globeButton, emojiButton, translateButton, fixButton, micButton, clipButton, adjustButton].filter { !$0.isHidden }
+        let free = bounds.width - CGFloat(buttons.count) * 36 - 90
+        return free < CGFloat(suggestionItems.count) * 110
+    }
+
     /// Le micro dans la rangée du bas, à côté de retour (option) : il quitte alors la barre du haut.
     private var micKey: Bool { eff.micByReturn && eff.dictationKey }
 
@@ -1995,10 +2104,25 @@ final class KeyboardCanvas: UIView {
         fixButton.isHidden = !fixShown
         fixButton.tintColor = fixing ? theme.accent : theme.text.withAlphaComponent(0.7)
         fixButton.frame = CGRect(x: micButton.frame.minX - (fixShown ? 36 : 0), y: 0, width: fixShown ? 36 : 0, height: h)
-        emojiButton.frame = CGRect(x: fixButton.frame.minX - (emojiOn ? 36 : 0), y: 0, width: emojiOn ? 36 : 0, height: h)
+        let trShown = eff.translateKey && !showEmoji && (input?.kbFullAccess ?? false)
+        translateButton.isHidden = !trShown
+        translateButton.tintColor = theme.text.withAlphaComponent(0.7)
+        translateButton.menu = translateMenu()
+        translateButton.frame = CGRect(x: fixButton.frame.minX - (trShown ? 36 : 0), y: 0, width: trShown ? 36 : 0, height: h)
+        emojiButton.frame = CGRect(x: translateButton.frame.minX - (emojiOn ? 36 : 0), y: 0, width: emojiOn ? 36 : 0, height: h)
         globeButton.frame = CGRect(x: emojiButton.frame.minX - (compact && globe ? 36 : 0), y: 0, width: compact && globe ? 36 : 0, height: h)
         let cx = max(flipButton.frame.maxX, middleButton.frame.maxX, bigButton.frame.maxX) + 4
+        moreButton.isHidden = true
+        if barOpened, !suggestionItems.isEmpty, sideButtonsGrid == nil {
+            // Les boutons montrés à la demande : « ⋯ » devient ✕ pour revenir aux suggestions.
+            moreButton.isHidden = false
+            moreButton.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
+            moreButton.frame = CGRect(x: cx, y: 0, width: 36, height: h)
+        } else {
+            moreButton.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
+        }
         if let g = sideButtonsGrid {
+            translateButton.isHidden = true
             fixButton.isHidden = true
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
             let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + (eff.dictationKey ? [micButton] : []) + [clipButton] + (eff.barButtons ? [adjustButton] : []) + (eff.barButtons || eff.hideKeyButton ? [hideButton] : [])
@@ -2017,6 +2141,14 @@ final class KeyboardCanvas: UIView {
                 b.frame = CGRect(x: ox + CGFloat(col) * 44, y: panelRect.minY - barTop + CGFloat(row) * step, width: 44, height: step)
             }
             chips.frame = CGRect(x: cx, y: 0, width: max(0, x1 - cx - 6), height: h)
+        } else if collapsedBar {
+            // On écrit : les boutons se rangent derrière « ⋯ » (le masquer-le-clavier reste), les suggestions prennent
+            // toute la barre au lieu d'être coupées (« intervi… intervi… intervi… »).
+            for b in [globeButton, emojiButton, translateButton, fixButton, micButton, clipButton, adjustButton] { b.isHidden = true }
+            moreButton.isHidden = false
+            moreButton.tintColor = theme.text.withAlphaComponent(0.7)
+            moreButton.frame = CGRect(x: (hideButton.isHidden ? x1 - 6 : hideButton.frame.minX) - 36, y: 0, width: 36, height: h)
+            chips.frame = CGRect(x: cx, y: 0, width: max(0, moreButton.frame.minX - cx - 2), height: h)
         } else if eff.barLayout == "left" || eff.barLayout == "split" {
             // Les boutons à gauche (ou de part et d'autre) : les suggestions viennent au milieu de la barre.
             let all: [UIButton] = [globeButton, emojiButton, fixButton, micButton, clipButton, adjustButton, hideButton]
@@ -2064,6 +2196,9 @@ final class KeyboardCanvas: UIView {
                 b.setTitle(i == 0 && suggestionBest != nil ? "“\(item)”" : item, for: .normal)
                 b.titleLabel?.font = eff.font.ui(size: 16, weight: i == suggestionBest ? .bold : .regular)
                 b.titleLabel?.lineBreakMode = .byTruncatingTail
+                // Un mot long rétrécit un peu avant d'être coupé.
+                b.titleLabel?.adjustsFontSizeToFitWidth = true
+                b.titleLabel?.minimumScaleFactor = 0.62
                 b.setTitleColor(theme.text, for: .normal)
                 b.backgroundColor = i == suggestionBest ? theme.key.withAlphaComponent(0.55) : .clear
                 b.layer.cornerRadius = 12
@@ -3049,6 +3184,7 @@ final class KeyboardCanvas: UIView {
 
     private func press(_ tr: Track) {
         lastKeyTime = ProcessInfo.processInfo.systemUptime
+        if barOpened { barOpened = false; layoutTopBar() }
         let v = cells[tr.index].view
         let strong: Bool
         switch v.spec.kind {
@@ -3670,9 +3806,11 @@ final class KeyboardCanvas: UIView {
 
     private func applySuggestions(_ items: [String], _ best: Int?) {
         guard items != suggestionItems || best != suggestionBest else { return }
+        let wasEmpty = suggestionItems.isEmpty
         suggestionItems = items
         suggestionBest = best
-        rebuildChips()
+        // Les boutons se rangent ou reviennent quand les suggestions apparaissent ou s'en vont.
+        if eff.compactBar, wasEmpty != items.isEmpty { layoutTopBar() } else { rebuildChips() }
     }
 
     private func refreshShiftSoon() {
