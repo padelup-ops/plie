@@ -29,6 +29,8 @@ jobs:
         run: |
           XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
           sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+      - name: Runtimes ExecuTorch
+        run: bash foldboard/tools/fetch_executorch.sh
       - name: Compiler pour le simulateur
         run: |
           mkdir -p shots
