@@ -940,8 +940,8 @@ final class KBSuggest {
             // L'espace oubliée (« bonjourtoi » → « bonjour toi », « jaiete » → « j’ai été ») ou ratée, la lettre juste
             // au-dessus de la barre d'espace (« auncourant » → « au courant », « jensuis » → « je suis »).
             if word.count >= 5 {
-                let sp = [exactSplit(lower), nearSpaceSplit(lower, typo: false)].compactMap { $0 }.min { $0.1 < $1.1 }
-                if let sp { return matchCase(sp.0, like: word) }
+                let sp = pickSplit([exactSplit(lower), nearSpaceSplit(lower, typo: false)].compactMap { $0 }, before: before)
+                if let sp { return matchCase(sp, like: word) }
             }
             // Deux fautes dans un mot long (« vrizment » → « vraiment », « mzitnenant » → « maintenant »).
             if Self.t("scan2", 1) > 0, language.hasPrefix("fr") || language.hasPrefix("en") {
@@ -1065,6 +1065,23 @@ final class KBSuggest {
 
     /// Les mots de la liste à une faute de frappe de `lower` : inversion de deux lettres voisines, touche voisine
     /// sur le clavier, lettre doublée ou en trop, lettre oubliée. Les formes accentuées comptent aussi (« reponse » → « réponse »).
+    /// Entre deux façons de couper un mot collé (« thenweather » : « then weather » tel quel, ou « the weather »
+    /// avec le n à la place de l'espace), la phrase la plus probable d'après le modèle de langue ; sans lui, le
+    /// rang des mots.
+    private func pickSplit(_ c: [(String, Int)], before: String) -> String? {
+        guard let first = c.min(by: { $0.1 < $1.1 }) else { return nil }
+        guard c.count > 1, Self.t("splitLM", 1) > 0, let lm, Set(c.map { $0.0 }).count > 1 else { return first.0 }
+        func phrase(_ p: String) -> Double? {
+            let w = p.split(separator: " ").map(String.init)
+            guard w.count == 2, let a = lm.score(w[0].lowercased(), before: before),
+                  let b = lm.score(w[1].lowercased(), before: before + w[0] + " ") else { return nil }
+            return a + b
+        }
+        let scored = c.compactMap { x in phrase(x.0).map { (x.0, $0) } }
+        guard scored.count == c.count, let best = scored.max(by: { $0.1 < $1.1 }) else { return first.0 }
+        return best.0
+    }
+
     /// Deux mots collés sans espace, chacun éventuellement sans son apostrophe ou ses accents.
     private func exactSplit(_ lower: String) -> (String, Int)? {
         let chars = Array(lower)
