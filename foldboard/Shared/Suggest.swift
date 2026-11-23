@@ -1081,6 +1081,9 @@ final class KBSuggest {
 
     /// Deux mots séparés par la lettre juste au-dessus de la barre d'espace (c, v, b, n) au lieu de l'espace.
     /// Avec `typo`, l'un des deux mots (5 lettres ou plus) peut avoir une touche voisine.
+    static let enTwo: Set<String> = ["am", "an", "as", "at", "be", "by", "do", "go", "he", "hi", "if", "in", "is", "it", "me", "my", "no", "of",
+                                     "oh", "ok", "on", "or", "so", "to", "up", "us", "we"]
+
     private func nearSpaceSplit(_ lower: String, typo: Bool) -> (String, Int)? {
         let chars = Array(lower)
         guard chars.count >= 5 else { return nil }
@@ -1090,6 +1093,8 @@ final class KBSuggest {
             let a = String(chars[..<i]), b = String(chars[(i + 1)...])
             guard b.count >= 2 else { continue }
             let oneA = Self.oneLetter[String(language.prefix(2))]?.contains(a) == true
+            // En anglais, un morceau de deux lettres doit être un vrai petit mot (« co stench », « ba con » : non).
+            if language.hasPrefix("en"), (a.count == 2 && !Self.enTwo.contains(a)) || (b.count == 2 && !Self.enTwo.contains(b)) { continue }
             let pa: (String, Int)? = oneA ? (a, 50) : resolvePart(a, typo: typo && a.count >= 5)
             guard let pa, let pb = resolvePart(b, typo: typo && b.count >= 5) else { continue }
             // Une seule faute de frappe en tout.
