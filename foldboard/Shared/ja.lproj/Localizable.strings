@@ -631,3 +631,4 @@
 "Delete all" = "すべて削除";
 "Delete %lld" = "%lld件を削除";
 "Delete all your words?" = "すべての単語を削除しますか？";
+"Remind me when I just tap the mic" = "マイクをタップしただけのときに知らせる";

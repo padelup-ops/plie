@@ -166,6 +166,8 @@ struct KBSettings: Codable, Equatable {
     var micByReturn = false
     /// Le micro à côté de retour ne part qu'en le tenant un instant (pas d'effleurement par erreur).
     var micHold = false
+    /// Le rappel « Maintiens le micro pour dicter » quand on touche le micro sans le maintenir.
+    var micHoldHint = true
     /// Le bouton ✨ Corriger dans la barre (on peut le cacher).
     var wandButton = true
     /// Où vont les boutons de la barre du haut : « right » (à droite), « left » (à gauche), « split » (de part et
@@ -315,6 +317,7 @@ struct KBSettings: Codable, Equatable {
         dictationKey = (try? c.decodeIfPresent(Bool.self, forKey: .dictationKey)) ?? d.dictationKey
         micByReturn = (try? c.decodeIfPresent(Bool.self, forKey: .micByReturn)) ?? d.micByReturn
         micHold = (try? c.decodeIfPresent(Bool.self, forKey: .micHold)) ?? d.micHold
+        micHoldHint = (try? c.decodeIfPresent(Bool.self, forKey: .micHoldHint)) ?? d.micHoldHint
         wandButton = (try? c.decodeIfPresent(Bool.self, forKey: .wandButton)) ?? d.wandButton
         barLayout = (try? c.decodeIfPresent(String.self, forKey: .barLayout)) ?? d.barLayout
         squareKeys = (try? c.decodeIfPresent(Bool.self, forKey: .squareKeys)) ?? d.squareKeys

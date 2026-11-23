@@ -729,6 +729,9 @@ struct TypingView: View {
                     Toggle("Mic next to return", isOn: $m.settings.micByReturn)
                     if m.settings.micByReturn {
                         Toggle("Hold the mic to dictate", isOn: $m.settings.micHold)
+                        if m.settings.micHold {
+                            Toggle("Remind me when I just tap the mic", isOn: $m.settings.micHoldHint)
+                        }
                     }
                     if m.settings.translateKey {
                         Toggle("Translate what I say", isOn: $m.settings.dictTranslate)

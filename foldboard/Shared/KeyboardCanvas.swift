@@ -3576,7 +3576,7 @@ final class KeyboardCanvas: UIView {
                 // Le rappel « Maintiens le micro » : les trois premières fois seulement (il gênait à chaque
                 // effleurement du micro).
                 let seen = UserDefaults.standard.integer(forKey: "foldboard.micHoldHint")
-                if eff.micHold, seen < 3 {
+                if eff.micHold, eff.micHoldHint, seen < 3 {
                     UserDefaults.standard.set(seen + 1, forKey: "foldboard.micHoldHint")
                     flash(L("Hold the mic to dictate"))
                 }
