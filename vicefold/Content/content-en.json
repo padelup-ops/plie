@@ -1,5 +1,5 @@
 {
- "version": 4,
+ "version": 5,
  "updated": "2026-11-23",
  "sources": [
   "Facts from the publisher's official character and setting announcements. All text written for Vicefold."
@@ -31,478 +31,969 @@
    "id": "m1-01",
    "chapter": 1,
    "title": "Prologue",
-   "giver": "Lucia"
+   "giver": "Lucia",
+   "location": "Leonida Penitentiary, Hamlet",
+   "objectives": [
+    "Talk to your cellmate, then follow the guard to the office.",
+    "Play through the robbery flashback.",
+    "Fight off the attacker and run from the police across the rooftops.",
+    "Get back to the coffee shop."
+   ],
+   "tips": [
+    "Getting caught at the end doesn't fail the mission: the story goes on."
+   ]
   },
   {
    "id": "m1-02",
    "chapter": 1,
-   "title": "Gone Fishing"
+   "title": "Gone Fishing",
+   "giver": "Jason",
+   "location": "Leonida Keys, with Donnie",
+   "objectives": [
+    "Follow Donnie's plane and pick up the packages it drops.",
+    "Reach the Kingfisher camp and free Donnie.",
+    "Fly back to Brian's marina."
+   ],
+   "tips": [
+    "Quiet, non-lethal takedowns make the camp much easier.",
+    "Unlocks Jason's house in Key Lento."
+   ]
   },
   {
    "id": "m1-03",
    "chapter": 1,
-   "title": "Gear Up"
+   "title": "Gear Up",
+   "giver": "Jason",
+   "location": "The gun shop near Jason's house",
+   "objectives": [
+    "Buy a long gun from the clerk.",
+    "Step outside and deal with the Kingfishers waiting for you."
+   ],
+   "tips": [
+    "A shotgun is plenty. Stay behind cover."
+   ]
   },
   {
    "id": "m1-04",
    "chapter": 1,
-   "title": "Just a Scratch"
+   "title": "Just a Scratch",
+   "giver": "Jason",
+   "location": "Coastal Auto Care, with Joey",
+   "objectives": [
+    "Drive into the garage and take the free engine repair.",
+    "Respray the truck if you like, then drive out."
+   ],
+   "tips": [
+    "Don't spend much on this truck: you'll get another one later."
+   ]
   },
   {
    "id": "m1-05",
    "chapter": 1,
-   "title": "Lab Fees"
+   "title": "Lab Fees",
+   "giver": "Jason",
+   "location": "A boutique in Key Lento, with Brian",
+   "objectives": [
+    "Talk to the clerk and go through to the hidden lab.",
+    "Collect the goods.",
+    "Drop them at Brian's lockup."
+   ],
+   "tips": [
+    "Pays about $600."
+   ]
   },
   {
    "id": "m1-06",
    "chapter": 1,
    "title": "Unwanted Attention",
-   "giver": "Jason"
+   "giver": "Jason",
+   "location": "The police impound in Hamlet, with Cal",
+   "objectives": [
+    "Take the red Phoenix off the tow truck.",
+    "Lose the police.",
+    "Get it resprayed at a Pay 'n' Spray.",
+    "Deliver it to Brian's garage and change clothes."
+   ],
+   "tips": [
+    "The police remember your clothes and your car: change both."
+   ]
   },
   {
    "id": "m1-07",
    "chapter": 1,
    "title": "Pipework",
    "giver": "Jason",
-   "location": "Leonida Keys"
+   "location": "Mandy's house",
+   "objectives": [
+    "Talk to Mandy and find the problem.",
+    "Use the plunger, then the wrench."
+   ],
+   "tips": [
+    "Grab the cigar outside before you leave."
+   ]
   },
   {
    "id": "m1-08",
    "chapter": 1,
-   "title": "Hey Arnold!"
+   "title": "Hey Arnold!",
+   "giver": "Jason",
+   "location": "A pool bar, with Brian and Cal",
+   "objectives": [
+    "Meet Brian, pick up Cal and search the area.",
+    "Chase Arnold's car while the bikers shoot at you.",
+    "Catch him on foot."
+   ],
+   "tips": [
+    "Focus mode makes the chase easier. You can spare Arnold."
+   ]
   },
   {
    "id": "m1-09",
    "chapter": 1,
    "title": "Island Dreams",
-   "giver": "Kenton"
+   "giver": "Jason",
+   "location": "The dive shop, with Kenton",
+   "objectives": [
+    "Take the boat out to the wreck with Kenton.",
+    "Find the three gold chests with the metal detector.",
+    "Survive the shark."
+   ],
+   "tips": [
+    "Two harpoon hits scare the shark off. Pays about $400 and opens Kenton's treasure dives."
+   ]
   },
   {
    "id": "m1-10",
    "chapter": 1,
-   "title": "Feng Shui"
+   "title": "Feng Shui",
+   "giver": "Jason",
+   "location": "Jason's house, with Cal",
+   "objectives": [
+    "Move the furniture where you're told.",
+    "Play the two arcade games."
+   ],
+   "tips": [
+    "You don't need to win the arcade games."
+   ]
   },
   {
    "id": "m1-11",
    "chapter": 1,
    "title": "Coming Home",
-   "giver": "Jason & Lucia",
-   "location": "Leonida Penitentiary → Leonida Keys"
+   "giver": "Jason",
+   "location": "Jason's house, then Hamlet",
+   "objectives": [
+    "Run the errands: groceries, flowers, a necklace, a haircut and clothes for Lucia.",
+    "Wait for the call and pick Lucia up.",
+    "Celebrate at the bar."
+   ],
+   "tips": [
+    "Keep Lucia's clothes in the car, and save before you go."
+   ]
   },
   {
    "id": "m1-12",
    "chapter": 1,
-   "title": "Buck Me"
+   "title": "Buck Me",
+   "giver": "Jason",
+   "location": "The bank in Key Lento, with Lucia",
+   "objectives": [
+    "Talk to the teller, then the manager, and open the account.",
+    "At home, open the BuckMe app and set up Family Savings."
+   ],
+   "tips": [
+    "Money in Family Savings can't come back out — but it's safe. You'll be glad of it later."
+   ]
   },
   {
    "id": "m1-13",
    "chapter": 1,
-   "title": "Clean Up After Donnie"
+   "title": "Clean Up After Donnie",
+   "giver": "Jason",
+   "location": "The docks in Hamlet",
+   "objectives": [
+    "Find the fisherman and look at the package.",
+    "Take out the guards at the shack and get the drugs back.",
+    "Bring them to Donnie's trailer."
+   ],
+   "tips": [
+    "Pays about $600."
+   ]
   },
   {
    "id": "m1-14",
    "chapter": 1,
-   "title": "Down to Earth"
+   "title": "Down to Earth",
+   "giver": "Jason",
+   "location": "The marina, with Brian",
+   "objectives": [
+    "Clean the boat with the pressure washer.",
+    "Fly to Bobcat Bay and make the pickup.",
+    "Drop the packages on the water markers.",
+    "Go home and hide the goods in the shed."
+   ],
+   "tips": [
+    "Next morning, say yes to Lucia's meditation on the balcony: it counts for the 100% and it's gone after chapter 1."
+   ]
   },
   {
    "id": "m1-15",
    "chapter": 1,
-   "title": "Clear Skies"
+   "title": "Clear Skies",
+   "giver": "Jason",
+   "location": "Brian's airstrip",
+   "objectives": [
+    "Fly to the marked spots and escort the other plane.",
+    "Survive the gunfight at the airstrip.",
+    "Rescue Donnie and get out."
+   ],
+   "tips": [
+    "Taking off from the water is easier."
+   ]
   },
   {
    "id": "m1-16",
    "chapter": 1,
-   "title": "Day Release"
+   "title": "Day Release",
+   "giver": "Jason",
+   "location": "A yacht, with Mattia and Kat",
+   "objectives": [
+    "Follow the markers to Mattia and Kat.",
+    "Go along with the night on the yacht."
+   ]
   },
   {
    "id": "m1-17",
    "chapter": 1,
-   "title": "Swamped"
+   "title": "Swamped",
+   "giver": "Jason",
+   "location": "Kingfisher territory, with Brian",
+   "objectives": [
+    "Head into Kingfisher territory with Brian.",
+    "Take the helicopter when asked.",
+    "Rescue the target and make the jump in the boat chase."
+   ],
+   "tips": [
+    "Bring ammo and something to heal. Get close to the boat for the jump to appear."
+   ]
   },
   {
    "id": "m1-18",
    "chapter": 1,
-   "title": "Don Gone"
+   "title": "Don Gone",
+   "giver": "Jason",
+   "location": "Donnie's trailer",
+   "objectives": [
+    "Collect Donnie's bag and things.",
+    "Open the trunk and take the revolver.",
+    "Get rid of the car."
+   ],
+   "tips": [
+    "Open the trunk BEFORE you destroy the car: the revolver can be missed. Save first."
+   ]
   },
   {
    "id": "m1-19",
    "chapter": 1,
-   "title": "Recalibration"
+   "title": "Recalibration",
+   "giver": "Jason",
+   "location": "Jason's house, with Cal",
+   "objectives": [
+    "Spend the day with Cal.",
+    "It leads straight into Tourist Trap."
+   ],
+   "tips": [
+    "Point of no return: save by hand and put your cash into Family Savings first (at least $5,000 if you can). Cash in your pocket is lost and you lose Jason's house."
+   ]
   },
   {
    "id": "m1-20",
    "chapter": 1,
-   "title": "Tourist Trap"
+   "title": "Tourist Trap",
+   "giver": "Jason & Lucia",
+   "location": "The Visitor Center, with Mattia",
+   "objectives": [
+    "Get the bag from the lockers.",
+    "Deal with the crooked officers as the plan falls apart.",
+    "Cover Jason and reach the docks by boat."
+   ],
+   "tips": [
+    "Focus mode shows threats and explosive canisters. Heal Jason when you can."
+   ]
   },
   {
    "id": "m1-21",
    "chapter": 1,
    "title": "Home Sweet Home",
-   "giver": "Lucia"
+   "giver": "Lucia",
+   "location": "Jason's house",
+   "objectives": [
+    "Get into the house and take care of the attackers.",
+    "Grab your things and stay away from the fire.",
+    "Get out of the police search zone."
+   ],
+   "tips": [
+    "Avoid the big roads: patrols and helicopters will spot you."
+   ]
   },
   {
    "id": "m1-22",
    "chapter": 1,
-   "title": "Discharge Time"
+   "title": "Discharge Time",
+   "giver": "Lucia",
+   "location": "The hospital",
+   "objectives": [
+    "Reach Jason's room.",
+    "Follow the escape and get to the ambulance bay.",
+    "Protect the ambulance from the cars chasing you."
+   ],
+   "tips": [
+    "Aim at drivers and tires, not the car bodies. Ends chapter 1."
+   ]
   },
   {
    "id": "m2-01",
    "chapter": 2,
-   "title": "What's in the Bag?"
+   "title": "What's in the Bag?",
+   "giver": "Lucia",
+   "location": "Port Gellhorn",
+   "objectives": [
+    "Find out what's in the bag and where to go next."
+   ]
   },
   {
    "id": "m2-02",
    "chapter": 2,
-   "title": "Ambulance Chaser"
+   "title": "Ambulance Chaser",
+   "giver": "Lucia",
+   "objectives": [
+    "Move the ambulance out of sight.",
+    "Get rid of it for good."
+   ]
   },
   {
    "id": "m2-03",
    "chapter": 2,
-   "title": "Just Moved In"
+   "title": "Just Moved In",
+   "giver": "Lucia",
+   "location": "The motel",
+   "objectives": [
+    "Settle into the new place.",
+    "Do the shopping."
+   ]
   },
   {
    "id": "m2-04",
    "chapter": 2,
-   "title": "Girls' Trip"
+   "title": "Girls' Trip",
+   "giver": "Lucia",
+   "objectives": [
+    "Go out with the girls.",
+    "Meet a new face."
+   ]
   },
   {
    "id": "m2-05",
    "chapter": 2,
-   "title": "Moses"
+   "title": "Moses",
+   "location": "Moses",
+   "objectives": [
+    "Meet Moses and do his first car job."
+   ],
+   "tips": [
+    "Opens Moses' car thefts (Strangers & Freaks)."
+   ]
   },
   {
    "id": "m2-06",
    "chapter": 2,
-   "title": "Daily Driver"
+   "title": "Daily Driver",
+   "location": "Moses",
+   "objectives": [
+    "Steal the car Moses wants.",
+    "Deliver it without damage."
+   ]
   },
   {
    "id": "m2-07",
    "chapter": 2,
-   "title": "Slam Dunk"
+   "title": "Slam Dunk",
+   "location": "Dunk",
+   "objectives": [
+    "Get painkillers for Lucia."
+   ]
   },
   {
    "id": "m2-08",
    "chapter": 2,
-   "title": "Breakfast Run"
+   "title": "Breakfast Run",
+   "giver": "Jason & Lucia",
+   "objectives": [
+    "Go out for breakfast together.",
+    "Handle what happens on the way."
+   ]
   },
   {
    "id": "m2-09",
    "chapter": 2,
-   "title": "Coffee Break"
+   "title": "Coffee Break",
+   "giver": "Jason & Lucia",
+   "objectives": [
+    "Talk it through and get ready for the next step."
+   ]
   },
   {
    "id": "m2-10",
    "chapter": 2,
-   "title": "Afternoon Delight"
+   "title": "Afternoon Delight",
+   "giver": "Jason & Lucia",
+   "location": "A strip club",
+   "objectives": [
+    "Pull off the robbery."
+   ]
   },
   {
    "id": "m2-11",
    "chapter": 2,
-   "title": "Checking Out"
+   "title": "Checking Out",
+   "giver": "Jason & Lucia",
+   "location": "The motel",
+   "objectives": [
+    "Fight off the attackers.",
+    "Escape to Vice City."
+   ],
+   "tips": [
+    "Save by hand first: it ends chapter 2 and you lose the motel. Finish Billy's, Kyle's and Bret's side stories before if you want them early."
+   ]
   },
   {
    "id": "m3-01",
    "chapter": 3,
-   "title": "Welcome to Vice City"
+   "title": "Welcome to Vice City",
+   "location": "Vice City",
+   "objectives": [
+    "Arrive in Vice City and meet Dre'Quan."
+   ]
   },
   {
    "id": "m3-02",
    "chapter": 3,
    "title": "Dealer's Choice",
-   "giver": "Jason"
+   "giver": "Jason",
+   "location": "Dre'Quan",
+   "objectives": [
+    "Make the drug deal for Dre'Quan."
+   ]
   },
   {
    "id": "m3-03",
    "chapter": 3,
-   "title": "Meet the Heders"
+   "title": "Meet the Heders",
+   "giver": "Jason & Lucia",
+   "location": "Brian and Lorrie",
+   "objectives": [
+    "Spend the evening with Brian and Lorrie."
+   ]
   },
   {
    "id": "m3-04",
    "chapter": 3,
-   "title": "Dubious Provenance"
+   "title": "Dubious Provenance",
+   "location": "An antique store",
+   "objectives": [
+    "Do the job tied to the antique store."
+   ]
   },
   {
    "id": "m3-05",
    "chapter": 3,
    "title": "Mami Knows Best",
-   "giver": "Lucia"
+   "giver": "Lucia",
+   "location": "Lucia's mother",
+   "objectives": [
+    "Go see Lucia's mother."
+   ]
   },
   {
    "id": "m3-06",
    "chapter": 3,
    "title": "South Leonida Real Estate",
-   "giver": "Lucia"
+   "giver": "Lucia",
+   "objectives": [
+    "Keep working for the real-estate crew."
+   ]
   },
   {
    "id": "m3-07",
    "chapter": 3,
    "title": "Tyrone",
-   "giver": "Jason"
+   "giver": "Jason",
+   "location": "Tyrone",
+   "objectives": [
+    "Meet Tyrone about new work."
+   ]
   },
   {
    "id": "m3-08",
    "chapter": 3,
-   "title": "Here, Kitty Kitty"
+   "title": "Here, Kitty Kitty",
+   "location": "Tyrone",
+   "objectives": [
+    "Track down Charles."
+   ]
   },
   {
    "id": "m3-09",
    "chapter": 3,
    "title": "Car Service",
-   "giver": "Lucia"
+   "giver": "Lucia",
+   "location": "Raul",
+   "objectives": [
+    "Steal the car Raul asks for."
+   ]
   },
   {
    "id": "m3-10",
    "chapter": 3,
-   "title": "Top Billing"
+   "title": "Top Billing",
+   "location": "Dre'Quan",
+   "objectives": [
+    "Go to the Real Dimez show."
+   ]
   },
   {
    "id": "m3-11",
    "chapter": 3,
-   "title": "Boobie Time"
+   "title": "Boobie Time",
+   "location": "Boobie",
+   "objectives": [
+    "Drive Boobie around town."
+   ]
   },
   {
    "id": "m3-12",
    "chapter": 3,
-   "title": "First Impressions"
+   "title": "First Impressions",
+   "location": "Raul",
+   "objectives": [
+    "Start working with Raul's crew."
+   ]
   },
   {
    "id": "m3-13",
    "chapter": 3,
-   "title": "Caught Slipping"
+   "title": "Caught Slipping",
+   "giver": "Jason & Lucia",
+   "objectives": [
+    "Defend your place from the burglars."
+   ]
   },
   {
    "id": "m3-14",
    "chapter": 3,
-   "title": "Crosstown Traffic"
+   "title": "Crosstown Traffic",
+   "objectives": [
+    "Watch and tail the targets without being spotted."
+   ]
   },
   {
    "id": "m3-15",
    "chapter": 3,
-   "title": "Credit Check"
+   "title": "Credit Check",
+   "location": "Raul's base",
+   "objectives": [
+    "Meet the rest of the operation."
+   ]
   },
   {
    "id": "m3-16",
    "chapter": 3,
    "title": "Steal the Zorrusso for Randy",
-   "giver": "Randy"
+   "giver": "Randy",
+   "location": "Randy",
+   "objectives": [
+    "Steal the high-end car for Randy."
+   ],
+   "tips": [
+    "Opens Randy's wish list."
+   ]
   },
   {
    "id": "m3-17",
    "chapter": 3,
    "title": "Sinfrontera National Bank",
-   "giver": "Jason & Lucia",
-   "location": "Vice City"
+   "location": "The bank",
+   "objectives": [
+    "Scout the bank and start planning the heist."
+   ],
+   "giver": "Jason & Lucia"
   },
   {
    "id": "m3-18",
    "chapter": 3,
-   "title": "Security Expert"
+   "title": "Security Expert",
+   "location": "Nicole",
+   "objectives": [
+    "Take care of the security side of the plan."
+   ]
   },
   {
    "id": "m3-19",
    "chapter": 3,
-   "title": "Ride or Die"
+   "title": "Ride or Die",
+   "location": "Dre'Quan",
+   "objectives": [
+    "Help Dre'Quan with his job."
+   ]
   },
   {
    "id": "m3-20",
    "chapter": 3,
-   "title": "Company Property"
+   "title": "Company Property",
+   "objectives": [
+    "Grab the weapons shipment."
+   ]
   },
   {
    "id": "m3-21",
    "chapter": 3,
-   "title": "The Missing Link"
+   "title": "The Missing Link",
+   "giver": "Lucia",
+   "objectives": [
+    "Handle the job at the cockfight."
+   ]
   },
   {
    "id": "m3-22",
    "chapter": 3,
-   "title": "Safe Word"
+   "title": "Safe Word",
+   "objectives": [
+    "Practice on a safe."
+   ]
   },
   {
    "id": "m3-23",
    "chapter": 3,
-   "title": "Cooties"
+   "title": "Cooties",
+   "objectives": [
+    "Help on the music video shoot."
+   ]
   },
   {
    "id": "m3-24",
    "chapter": 3,
-   "title": "Bricked Up"
+   "title": "Bricked Up",
+   "giver": "Jason & Lucia",
+   "location": "Boobie",
+   "objectives": [
+    "Do the job for Boobie."
+   ]
   },
   {
    "id": "m3-25",
    "chapter": 3,
-   "title": "Hidden Charges"
+   "title": "Hidden Charges",
+   "objectives": [
+    "Get the explosives ready."
+   ]
   },
   {
    "id": "m3-26",
    "chapter": 3,
-   "title": "The Cartel Heist"
+   "title": "The Cartel Heist",
+   "giver": "Jason & Lucia",
+   "location": "Raul's crew",
+   "objectives": [
+    "Rob the bank with Raul's crew."
+   ],
+   "tips": [
+    "Ends chapter 3. Yago's race is timed: do it as soon as its hourglass shows up."
+   ]
   },
   {
    "id": "m4-01",
    "chapter": 4,
-   "title": "Ocean Beach"
+   "title": "Ocean Beach",
+   "location": "Ocean Beach",
+   "objectives": [
+    "Settle into your new place in Vice City."
+   ]
   },
   {
    "id": "m4-02",
    "chapter": 4,
    "title": "Another Life",
-   "giver": "Lucia"
+   "giver": "Lucia",
+   "objectives": [
+    "Follow Lucia's personal story."
+   ]
   },
   {
    "id": "m4-03",
    "chapter": 4,
-   "title": "Company Cars"
+   "title": "Company Cars",
+   "location": "The concierge",
+   "objectives": [
+    "Get the cars for the next jobs."
+   ]
   },
   {
    "id": "m4-04",
    "chapter": 4,
    "title": "Lawyer Up",
-   "giver": "Abe Gonzalez"
+   "giver": "Abe Gonzalez",
+   "location": "Abe Gonzalez",
+   "objectives": [
+    "Sort out the legal side with Abe."
+   ]
   },
   {
    "id": "m4-05",
    "chapter": 4,
-   "title": "Party Hard"
+   "title": "Party Hard",
+   "objectives": [
+    "Work security at a celebrity party."
+   ]
   },
   {
    "id": "m4-06",
    "chapter": 4,
-   "title": "Heavy Lifting"
+   "title": "Heavy Lifting",
+   "objectives": [
+    "Make the delivery."
+   ]
   },
   {
    "id": "m4-07",
    "chapter": 4,
-   "title": "Photo/Shoot"
+   "title": "Photo/Shoot",
+   "location": "Dre'Quan",
+   "objectives": [
+    "Get through the promo photo shoot."
+   ]
   },
   {
    "id": "m4-08",
    "chapter": 4,
    "title": "Making Gainz",
-   "giver": "Lucia"
+   "giver": "Lucia",
+   "objectives": [
+    "Do the fitness job that's part of Raul's plan."
+   ]
   },
   {
    "id": "m4-09",
    "chapter": 4,
-   "title": "Watch It"
+   "title": "Watch It",
+   "location": "Dre'Quan",
+   "objectives": [
+    "Help with the nightclub owner."
+   ]
   },
   {
    "id": "m4-10",
    "chapter": 4,
-   "title": "Cash Injections"
+   "title": "Cash Injections",
+   "giver": "Lucia",
+   "objectives": [
+    "Reach out to heist contacts."
+   ]
   },
   {
    "id": "m4-11",
    "chapter": 4,
-   "title": "Amateur Hour"
+   "title": "Amateur Hour",
+   "giver": "Lucia",
+   "objectives": [
+    "Confront the director with Cisco."
+   ]
   },
   {
    "id": "m4-12",
    "chapter": 4,
-   "title": "Dirty Work"
+   "title": "Dirty Work",
+   "objectives": [
+    "Do the job and keep preparing the airport plan."
+   ]
   },
   {
    "id": "m4-13",
    "chapter": 4,
    "title": "Too Much Baggage",
-   "giver": "Jason"
+   "giver": "Jason",
+   "location": "The airport",
+   "objectives": [
+    "Scout the airport."
+   ]
   },
   {
    "id": "m4-14",
    "chapter": 4,
-   "title": "Adventures in Babysitting"
+   "title": "Adventures in Babysitting",
+   "objectives": [
+    "Work security at the nightclub."
+   ]
   },
   {
    "id": "m4-15",
    "chapter": 4,
-   "title": "Fresh Evidence"
+   "title": "Fresh Evidence",
+   "location": "Dre'Quan",
+   "objectives": [
+    "Steal the blackmail material."
+   ]
   },
   {
    "id": "m4-16",
    "chapter": 4,
-   "title": "Power Play"
+   "title": "Power Play",
+   "objectives": [
+    "Gather intel for the airport job."
+   ]
   },
   {
    "id": "m4-17",
    "chapter": 4,
-   "title": "Child's Play"
+   "title": "Child's Play",
+   "objectives": [
+    "Rescue Rafa from his kidnappers."
+   ]
   },
   {
    "id": "m4-18",
    "chapter": 4,
-   "title": "Headliners"
+   "title": "Headliners",
+   "objectives": [
+    "Help with the launch party and the show."
+   ]
   },
   {
    "id": "m4-19",
    "chapter": 4,
    "title": "Close Surveillance",
-   "giver": "Jason"
+   "giver": "Jason",
+   "objectives": [
+    "Watch the targets with the spy drone."
+   ]
   },
   {
    "id": "m4-20",
    "chapter": 4,
-   "title": "Delivery Method"
+   "title": "Delivery Method",
+   "giver": "Jason",
+   "objectives": [
+    "Get through the undercover job."
+   ]
   },
   {
    "id": "m4-21",
    "chapter": 4,
    "title": "Team Building",
-   "giver": "Lucia"
+   "giver": "Lucia",
+   "objectives": [
+    "Work with Kordell's crew."
+   ]
   },
   {
    "id": "m4-22",
    "chapter": 4,
-   "title": "Fully Catered"
+   "title": "Fully Catered",
+   "objectives": [
+    "Steal the catering truck."
+   ]
   },
   {
    "id": "m4-23",
    "chapter": 4,
-   "title": "VCIA Takedown"
+   "title": "VCIA Takedown",
+   "giver": "Jason & Lucia",
+   "location": "Vice City International Airport",
+   "objectives": [
+    "Pull off the airport heist."
+   ],
+   "tips": [
+    "Finish every prep mission before you start it. Lucia's call with Shayna (This Is a Free Call From…) is timed: don't let it slip."
+   ]
   },
   {
    "id": "m4-24",
    "chapter": 4,
-   "title": "Sunset"
+   "title": "Sunset",
+   "giver": "Jason & Lucia",
+   "objectives": [
+    "Find out what happened after the heist."
+   ]
   },
   {
    "id": "m4-25",
    "chapter": 4,
-   "title": "Starting from Zero"
+   "title": "Starting from Zero",
+   "objectives": [
+    "Close out chapter 4."
+   ]
   },
   {
    "id": "m5-01",
    "chapter": 5,
-   "title": "Bird in the Hand"
+   "title": "Bird in the Hand",
+   "giver": "Jason & Lucia",
+   "objectives": [
+    "Steal the vehicle for the next operation."
+   ]
   },
   {
    "id": "m5-02",
    "chapter": 5,
-   "title": "Taking Liberties"
+   "title": "Taking Liberties",
+   "giver": "Jason & Lucia",
+   "objectives": [
+    "Follow the next part of the plan."
+   ]
   },
   {
    "id": "m5-03",
    "chapter": 5,
-   "title": "VC Baby"
+   "title": "VC Baby",
+   "objectives": [
+    "Answer the call for help."
+   ]
   },
   {
    "id": "m5-04",
    "chapter": 5,
-   "title": "Doggie Bag"
+   "title": "Doggie Bag",
+   "objectives": [
+    "Find the contraband."
+   ]
   },
   {
    "id": "m5-05",
    "chapter": 5,
-   "title": "Operation Savage Glory"
+   "title": "Operation Savage Glory",
+   "objectives": [
+    "Get the shipment back."
+   ]
   },
   {
    "id": "m5-06",
    "chapter": 5,
-   "title": "Protective Custody"
+   "title": "Protective Custody",
+   "giver": "Jason & Lucia",
+   "objectives": [
+    "Get through the final sequence."
+   ]
   },
   {
    "id": "m5-07",
    "chapter": 5,
    "title": "The End of the Road",
+   "giver": "Jason & Lucia",
+   "objectives": [
+    "Finish the story."
+   ],
+   "tips": [
+    "Keep a separate manual save before the finale. After the credits: the 100% checklist, cheats and free roam."
+   ],
    "unlocks": "The end credits, the 100% checklist and cheats."
   },
   {
@@ -638,6 +1129,24 @@
    "body": "# How the 100% is split\n- Story: 50%. Finish every main mission, through the end credits.\n- Tasks: 27%. Optional tasks, gang operations, bank jobs, payday loans, smash 'n' grabs, stick-ups, vaults, and money fenced.\n- Exploration and activities: 20%. Collectibles, stunts, races, shooting ranges, drones, hoops, pool, mini golf and more.\n- Discovery: 3%. Vehicles scanned, weapons found, animals studied.\n# You don't need everything\nMany categories only ask for part of the total: 15 of 18 card sets, 100 of 125 flamingos, 300 of 397 stunts, 50 of 91 stick-ups. Vicefold shows both numbers on every counter.\n# Where to track it\nTracker › Collectibles has a counter for each category, with what's needed. The game's own checklist opens after the story, under Progress › Stats.\n> Reaching 100% unlocks the A Long Road trophy.",
    "spoiler": 0,
    "minutes": 3
+  },
+  {
+   "id": "trophies",
+   "category": "trophies",
+   "title": "Trophy roadmap",
+   "summary": "55 trophies, all offline. The order that saves you hours.",
+   "body": "# The big picture\n- 55 trophies, including the platinum, Vice Got a Price! Every one is in single player: nothing online.\n- Difficulty is moderate (around 4 out of 10). Time is the hard part: count 100 to 250 hours depending on how much you explore.\n- About half are hidden until you earn them.\n# Step 1: the story, with your eyes open\nPlay the story first: most trophies come along the way. Do side activities when they open up, but don't grind yet.\n- Chapter 1: accept Lucia's morning meditation on the balcony after Down to Earth. It may count for Positive Mental Attitude and it disappears after chapter 1.\n- Before Tourist Trap and Checking Out, save by hand: both are points of no return.\n# Step 2: the 100%\nAfter the credits, the 100% checklist opens. Reaching 100% gives the gold trophy A Long Road and most of the remaining ones along the way. Follow our 100% route guide and the counters in Tracker › Collectibles.\n# Step 3: the clean-up\n- Finish the Strangers & Freaks side stories: they're not part of the 100%, but some trophies need them.\n- Do 70 of the 80 challenges (Tracker › Challenges).\n- Hidden trophies tied to secrets, like The Truth Is Out There, are in our Easter eggs tracker.\n> Cheat codes switch off trophies and saving for the session. Never use one on a save you care about.",
+   "spoiler": 0,
+   "minutes": 4
+  },
+  {
+   "id": "route-100",
+   "category": "collectibles",
+   "title": "A route to the 100%",
+   "summary": "Clear it region by region, not item by item.",
+   "body": "# The idea\nDon't hunt one category at a time across the whole map. Clear a region at a time and pick up everything in it. Most categories only need part of the total, so skip the hardest ones.\n# Always on\n- Scan vehicles with WAiNK whenever a new model drives by (200 of 277 needed).\n- Study animals with the binoculars on every trip into the wild (100 of 255).\n- Pick up every magazine, book and comic you walk past (30 of 34).\n# The Keys and Grassrivers, by boat\n- Cocaine flamingos: shoot them from a boat (100 of 125). At 50 you unlock the Inflatable Flamingo cheat.\n- Underwater discoveries and Kenton's treasure dives: all 33 discoveries count, and 5 of Kenton's 7 sets.\n# Vice City, by car\n- Stick-ups, smash 'n' grabs and vaults: you need every vault and 34 of 35 smash 'n' grabs, but only 50 of the 91 stick-ups.\n- Basketball hoops (90 of 100), pool, mini golf (2 of 3 courses) and the video games.\n# The north and the gulf coast\n- Stunt jumps and bridges are thickest along the highways: 300 of 397 stunts in all.\n- Meditation spots: 15 of 18, and Lucia and Jason each count on their own.\n# Track it as you go\nEvery counter in Tracker › Collectibles shows both numbers: what exists and what the 100% asks for. Drop a pin on the map for anything you leave for later.\n> Card sets are the slowest: 15 of 18 sets, out of 480 cards. Start early and swap duplicates when you can.",
+   "spoiler": 0,
+   "minutes": 5
   },
   {
    "id": "cheats-how",

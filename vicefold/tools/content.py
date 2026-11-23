@@ -7,7 +7,7 @@ Pour publier une mise à jour du guide : augmenter VERSION, relancer ce script, 
 import json
 import os
 
-VERSION = 4
+VERSION = 5
 HERE = os.path.dirname(__file__)
 OUT = os.path.join(HERE, "..", "Content")
 
@@ -157,13 +157,23 @@ _M = {
         "Delivery Method", "Team Building|Lucia", "Fully Catered", "VCIA Takedown", "Sunset", "Starting from Zero"],
     5: ["Bird in the Hand", "Taking Liberties", "VC Baby", "Doggie Bag", "Operation Savage Glory", "Protective Custody", "The End of the Road"],
 }
+from missions_info import INFO as MISSION_INFO  # noqa: E402  (soluces : étapes et conseils, rédigées par nous)
+
 MISSIONS = []
 for ch, names in _M.items():
     for i, n in enumerate(names, 1):
         title, _, giver = n.partition("|")
         m = {"id": f"m{ch}-{i:02d}", "chapter": ch, "title": title}
+        info = MISSION_INFO.get(title) or {}
+        giver = info.get("who") or giver
         if giver:
             m["giver"] = giver
+        if info.get("where"):
+            m["location"] = info["where"]
+        if info.get("steps"):
+            m["objectives"] = info["steps"]
+        if info.get("tips"):
+            m["tips"] = info["tips"]
         if ch == 5 and i == len(names):
             m["unlocks"] = T("The end credits, the 100% checklist and cheats.", "Le générique de fin, la liste du 100 % et les codes de triche.")
         MISSIONS.append(m)
@@ -391,6 +401,74 @@ Beaucoup de catégories ne demandent qu'une partie du total : 15 séries de cart
 # Où suivre tout ça
 Suivi › Objets a un compteur par catégorie, avec ce qu'il faut. La liste du jeu s'ouvre après l'histoire, dans Progression › Statistiques.
 > Le 100 % débloque le trophée A Long Road."""), 0, 3),
+    ("trophies", "trophies", T("Trophy roadmap", "Feuille de route des trophées"),
+     T("55 trophies, all offline. The order that saves you hours.", "55 trophées, tous hors ligne. L'ordre qui te fait gagner des heures."),
+     T("""# The big picture
+- 55 trophies, including the platinum, Vice Got a Price! Every one is in single player: nothing online.
+- Difficulty is moderate (around 4 out of 10). Time is the hard part: count 100 to 250 hours depending on how much you explore.
+- About half are hidden until you earn them.
+# Step 1: the story, with your eyes open
+Play the story first: most trophies come along the way. Do side activities when they open up, but don't grind yet.
+- Chapter 1: accept Lucia's morning meditation on the balcony after Down to Earth. It may count for Positive Mental Attitude and it disappears after chapter 1.
+- Before Tourist Trap and Checking Out, save by hand: both are points of no return.
+# Step 2: the 100%
+After the credits, the 100% checklist opens. Reaching 100% gives the gold trophy A Long Road and most of the remaining ones along the way. Follow our 100% route guide and the counters in Tracker › Collectibles.
+# Step 3: the clean-up
+- Finish the Strangers & Freaks side stories: they're not part of the 100%, but some trophies need them.
+- Do 70 of the 80 challenges (Tracker › Challenges).
+- Hidden trophies tied to secrets, like The Truth Is Out There, are in our Easter eggs tracker.
+> Cheat codes switch off trophies and saving for the session. Never use one on a save you care about.""", """# En bref
+- 55 trophées, platine compris : Vice Got a Price! Tous en solo : rien en ligne.
+- Difficulté modérée (environ 4 sur 10). Le plus dur, c'est le temps : compte 100 à 250 heures selon ce que tu explores.
+- Environ la moitié restent cachés jusqu'à ce que tu les obtiennes.
+# Étape 1 : l'histoire, les yeux ouverts
+Joue d'abord l'histoire : la plupart des trophées tombent en route. Fais les activités quand elles s'ouvrent, sans t'acharner pour l'instant.
+- Chapitre 1 : accepte la méditation du matin de Lucia sur le balcon après Down to Earth. Elle pourrait compter pour Positive Mental Attitude, et elle disparaît après le chapitre 1.
+- Avant Tourist Trap et Checking Out, sauvegarde à la main : ce sont deux points de non-retour.
+# Étape 2 : le 100 %
+Après le générique, la liste du 100 % s'ouvre. Atteindre 100 % donne le trophée d'or A Long Road, et la plupart des autres en chemin. Suis notre guide du parcours 100 % et les compteurs de Suivi › Objets à collectionner.
+# Étape 3 : le nettoyage
+- Termine les histoires Strangers & Freaks : elles ne comptent pas pour le 100 %, mais des trophées en dépendent.
+- Fais 70 des 80 défis (Suivi › Défis).
+- Les trophées cachés liés aux secrets, comme The Truth Is Out There, sont dans notre tracker d'easter eggs.
+> Les codes de triche coupent les trophées et la sauvegarde pour la session. N'en utilise jamais sur une partie à laquelle tu tiens."""), 0, 4),
+    ("route-100", "collectibles", T("A route to the 100%", "Un parcours pour le 100 %"),
+     T("Clear it region by region, not item by item.", "Boucle-le région par région, pas objet par objet."),
+     T("""# The idea
+Don't hunt one category at a time across the whole map. Clear a region at a time and pick up everything in it. Most categories only need part of the total, so skip the hardest ones.
+# Always on
+- Scan vehicles with WAiNK whenever a new model drives by (200 of 277 needed).
+- Study animals with the binoculars on every trip into the wild (100 of 255).
+- Pick up every magazine, book and comic you walk past (30 of 34).
+# The Keys and Grassrivers, by boat
+- Cocaine flamingos: shoot them from a boat (100 of 125). At 50 you unlock the Inflatable Flamingo cheat.
+- Underwater discoveries and Kenton's treasure dives: all 33 discoveries count, and 5 of Kenton's 7 sets.
+# Vice City, by car
+- Stick-ups, smash 'n' grabs and vaults: you need every vault and 34 of 35 smash 'n' grabs, but only 50 of the 91 stick-ups.
+- Basketball hoops (90 of 100), pool, mini golf (2 of 3 courses) and the video games.
+# The north and the gulf coast
+- Stunt jumps and bridges are thickest along the highways: 300 of 397 stunts in all.
+- Meditation spots: 15 of 18, and Lucia and Jason each count on their own.
+# Track it as you go
+Every counter in Tracker › Collectibles shows both numbers: what exists and what the 100% asks for. Drop a pin on the map for anything you leave for later.
+> Card sets are the slowest: 15 of 18 sets, out of 480 cards. Start early and swap duplicates when you can.""", """# L'idée
+Ne chasse pas une catégorie à la fois sur toute la carte. Boucle une région à la fois et ramasse tout ce qu'elle contient. La plupart des catégories ne demandent qu'une partie du total : laisse tomber les plus pénibles.
+# En permanence
+- Scanne les véhicules avec WAiNK dès qu'un nouveau modèle passe (200 sur 277).
+- Étudie les animaux aux jumelles à chaque sortie dans la nature (100 sur 255).
+- Ramasse chaque magazine, livre ou BD que tu croises (30 sur 34).
+# Les Keys et Grassrivers, en bateau
+- Flamants roses à la cocaïne : tire-les depuis un bateau (100 sur 125). À 50, tu débloques le code Flamant gonflable.
+- Découvertes sous-marines et plongées au trésor de Kenton : les 33 découvertes comptent toutes, et 5 des 7 séries de Kenton.
+# Vice City, en voiture
+- Braquages, vols à l'arraché et coffres : il faut tous les coffres et 34 des 35 vols à l'arraché, mais seulement 50 des 91 braquages.
+- Paniers de basket (90 sur 100), billard, minigolf (2 parcours sur 3) et jeux vidéo.
+# Le nord et la côte du golfe
+- Les sauts et les ponts sont nombreux le long des autoroutes : 300 cascades sur 397 en tout.
+- Lieux de méditation : 15 sur 18, et Lucia et Jason comptent chacun de leur côté.
+# Suis-le au fur et à mesure
+Chaque compteur de Suivi › Objets à collectionner montre les deux chiffres : ce qui existe et ce que demande le 100 %. Pose une épingle sur la carte pour tout ce que tu gardes pour plus tard.
+> Les séries de cartes sont les plus longues : 15 séries sur 18, sur 480 cartes. Commence tôt et échange tes doubles quand tu peux."""), 0, 5),
     ("cheats-how", "cheats", T("How cheat codes work", "Comment marchent les codes"),
      T("Unlock them first, then enter them on the phone.", "Débloque-les d'abord, puis tape-les sur le téléphone."),
      T("""# Unlock them
