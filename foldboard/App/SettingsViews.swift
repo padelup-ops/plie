@@ -280,6 +280,7 @@ struct PositionView: View {
                         }
                     }
                 }
+                Toggle("Tap the empty side to move the keyboard", isOn: $m.settings.tapSideToMove)
                 if m.settings.mode == .auto {
                     Button(role: .destructive) { confirmForget = true } label: {
                         Label("Forget my hands and start over", systemImage: "arrow.counterclockwise")

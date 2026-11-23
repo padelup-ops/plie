@@ -141,6 +141,9 @@ final class KeyboardCanvas: UIView {
     private let chips = UIScrollView()
     private let chipStack = UIStackView()
     private let toast = UILabel()
+    /// Dans la place libre à côté du clavier à une main : une flèche discrète (« touche ici pour mettre le clavier
+    /// de ce côté »), avec le texte les premières fois.
+    private let sideHint = UILabel()
     private let panel = UIView()
     private let bubble = UILabel()
     private let accentView = UIView()
@@ -1466,7 +1469,43 @@ final class KeyboardCanvas: UIView {
     private var placeTouches: [UITouch: (CGPoint, TimeInterval)] = [:]
     private var lastKeyTime: TimeInterval = 0
 
+    private func updateSideHint() {
+        if sideHint.superview == nil {
+            sideHint.numberOfLines = 0
+            sideHint.textAlignment = .center
+            sideHint.isUserInteractionEnabled = false
+            addSubview(sideHint)
+        }
+        let lo = blocks.map(\.minX).min() ?? 0, hi = blocks.map(\.maxX).max() ?? bounds.width
+        let leftFree = lo - panelRect.minX, rightFree = panelRect.maxX - hi
+        guard eff.tapSideToMove, layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width > 0, max(leftFree, rightFree) > 70 else {
+            sideHint.isHidden = true
+            return
+        }
+        let onLeft = leftFree > rightFree
+        let free = onLeft ? CGRect(x: panelRect.minX, y: panelRect.minY, width: leftFree, height: panelRect.height)
+                          : CGRect(x: hi, y: panelRect.minY, width: rightFree, height: panelRect.height)
+        let shown = UserDefaults.standard.integer(forKey: "foldboard.sideHintShown")
+        let words = shown < 6
+        let arrow = NSAttributedString(string: onLeft ? "‹‹" : "››", attributes: [.font: UIFont.systemFont(ofSize: 26, weight: .semibold),
+                                                                                .foregroundColor: theme.text.withAlphaComponent(words ? 0.45 : 0.22)])
+        let text = NSMutableAttributedString(attributedString: arrow)
+        if words {
+            text.append(NSAttributedString(string: "\n" + L("Tap here to move the keyboard"), attributes: [
+                .font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: theme.text.withAlphaComponent(0.45)]))
+        }
+        sideHint.attributedText = text
+        sideHint.frame = free.insetBy(dx: 8, dy: 10)
+        if sideHint.isHidden || sideHint.tag != (onLeft ? 1 : 2) {
+            sideHint.tag = onLeft ? 1 : 2
+            if words { UserDefaults.standard.set(shown + 1, forKey: "foldboard.sideHintShown") }
+        }
+        sideHint.isHidden = false
+        bringSubviewToFront(sideHint)
+    }
+
     private func placeByTap(at p: CGPoint) {
+        guard eff.tapSideToMove else { return }
         let W = bounds.width
         // Écran intérieur : le clavier est coupé en deux (ou entier), il n'y a rien à placer.
         guard W > 0, !(settings.mode(for: gripContext) == .auto && !followsHand) else { return }
@@ -1973,6 +2012,7 @@ final class KeyboardCanvas: UIView {
         updateLabels()
         if adjusting { refreshAdjust() }
         slide(from: oldBlocks)
+        updateSideHint()
     }
 
     /// La barre rangée : des suggestions à montrer, et pas assez de place pour elles à côté des boutons.
@@ -2982,8 +3022,8 @@ final class KeyboardCanvas: UIView {
                 // et pas en pleine frappe. Sinon on ne bouge pas.
                 let p = t.location(in: self)
                 let away = blocks.allSatisfy { !$0.insetBy(dx: -10, dy: 0).contains(p) }
-                if t.timestamp - t0 < 0.35, hypot(p.x - p0.x, p.y - p0.y) < 14, t.majorRadius < 30, away,
-                   tracks.isEmpty, t.timestamp - lastKeyTime > 0.5, panelRect.contains(p) {
+                if t.timestamp - t0 < 0.4, hypot(p.x - p0.x, p.y - p0.y) < 18, t.majorRadius < 38, away,
+                   tracks.isEmpty, t.timestamp - lastKeyTime > 0.35, panelRect.contains(p) {
                     placeByTap(at: p)
                 }
                 continue

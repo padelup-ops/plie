@@ -132,6 +132,8 @@ struct KBSettings: Codable, Equatable {
     var keyHeightOpen: Double = 0
     /// Les boutons position, réglages et masquer dans la barre du haut (on peut les cacher).
     var barButtons = true
+    /// Toucher la place libre à côté du clavier (une main) le met de ce côté.
+    var tapSideToMove = true
     /// Le bouton « masquer le clavier » dans la barre, à part (on peut cacher position et réglages et le garder).
     var hideKeyButton = true
     /// Garder automatiquement tout ce qu'on copie (iOS demande alors l'autorisation de coller, sauf si on a choisi
@@ -264,6 +266,7 @@ struct KBSettings: Codable, Equatable {
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
+        tapSideToMove = (try? c.decodeIfPresent(Bool.self, forKey: .tapSideToMove)) ?? d.tapSideToMove
         hideKeyButton = (try? c.decodeIfPresent(Bool.self, forKey: .hideKeyButton)) ?? d.hideKeyButton
         clipAutoSave = (try? c.decodeIfPresent(Bool.self, forKey: .clipAutoSave)) ?? d.clipAutoSave
         contactNames = (try? c.decodeIfPresent(Bool.self, forKey: .contactNames)) ?? d.contactNames
