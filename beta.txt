@@ -1,0 +1,15 @@
+APP_ID 6832556606
+build pas encore visible
+build pas encore visible
+build 169 prêt
+ok     notes À tester fr-FR
+ok     notes À tester en-US
+groupe « Foldboard interne » (interne) : 2 testeur(s) · reçoit tous les builds
+groupe « Premiers testeurs » (externe) : 6 testeur(s)
+ok     build ajouté au groupe « Premiers testeurs »
+état pour les testeurs externes : READY_FOR_BETA_SUBMISSION
+ok     envoi à la vérification bêta d'Apple (déjà fait)
+état final pour les testeurs externes : READY_FOR_BETA_SUBMISSION
+état pour les testeurs internes : IN_BETA_TESTING
+
+BUILD DISTRIBUÉ
