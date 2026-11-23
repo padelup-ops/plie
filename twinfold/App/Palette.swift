@@ -207,6 +207,12 @@ struct ActionPalette: View {
     /// side only, like a half ring, instead of the whole ring moving away from the button.
     private func ringCenter(for c: CGPoint) -> CGPoint { c }
 
+    private func clamp(_ p: CGPoint, margin: CGFloat) -> CGPoint {
+        let l = insets.left + margin, r = area.width - insets.right - margin
+        let t = insets.top + margin, b = area.height - insets.bottom - margin
+        return CGPoint(x: min(max(p.x, l), max(r, l)), y: min(max(p.y, t), max(b, t)))
+    }
+
     /// The directions where an action fits on screen, as one arc (start angle, sweep), in radians.
     private var arc: (start: Double, sweep: Double) {
         let c = buttonCenter

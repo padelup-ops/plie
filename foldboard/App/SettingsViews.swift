@@ -682,7 +682,7 @@ struct TypingView: View {
             }
 
             if m.settings.dictationKey { ParakeetSection() }
-            TranslateSection()
+            if #available(iOS 18.0, *) { TranslateSection() }
 
             Section {
                 NavigationLink { TapMapView().fullScreenDuo() } label: {
@@ -1177,6 +1177,7 @@ struct ParakeetSection: View {
 
 /// Les deux langues de la traduction (dictée traduite et bouton 🌐 de la barre), et leur téléchargement : le clavier
 /// ne peut pas télécharger de langue lui-même, l'app le fait une fois.
+@available(iOS 18.0, *)
 struct TranslateSection: View {
     @Environment(SettingsModel.self) private var model
     @State private var config: TranslationSession.Configuration?
