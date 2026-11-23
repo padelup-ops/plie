@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 3,
  "updated": "2026-11-23",
  "sources": [
   "Faits tirés des annonces officielles de l'éditeur (personnages, lieux). Tous les textes sont rédigés pour Vicefold."
@@ -56,12 +56,15 @@
   {
    "id": "m1-06",
    "chapter": 1,
-   "title": "Unwanted Attention"
+   "title": "Unwanted Attention",
+   "giver": "Jason"
   },
   {
    "id": "m1-07",
    "chapter": 1,
-   "title": "Pipework"
+   "title": "Pipework",
+   "giver": "Jason",
+   "location": "Leonida Keys"
   },
   {
    "id": "m1-08",
@@ -82,7 +85,9 @@
   {
    "id": "m1-11",
    "chapter": 1,
-   "title": "Coming Home"
+   "title": "Coming Home",
+   "giver": "Jason & Lucia",
+   "location": "Leonida Penitentiary → Leonida Keys"
   },
   {
    "id": "m1-12",
@@ -284,7 +289,9 @@
   {
    "id": "m3-17",
    "chapter": 3,
-   "title": "Sinfrontera National Bank"
+   "title": "Sinfrontera National Bank",
+   "giver": "Jason & Lucia",
+   "location": "Vice City"
   },
   {
    "id": "m3-18",
@@ -497,6 +504,102 @@
    "chapter": 5,
    "title": "The End of the Road",
    "unlocks": "Le générique de fin, la liste du 100 % et les codes de triche."
+  },
+  {
+   "id": "o1-01",
+   "chapter": 1,
+   "title": "Get Shirley's Rum",
+   "optional": true
+  },
+  {
+   "id": "o1-02",
+   "chapter": 1,
+   "title": "Steal the Scooter",
+   "optional": true
+  },
+  {
+   "id": "o1-03",
+   "chapter": 1,
+   "title": "Pick Up Groceries",
+   "optional": true
+  },
+  {
+   "id": "o1-04",
+   "chapter": 1,
+   "title": "Buy Flowers",
+   "optional": true
+  },
+  {
+   "id": "o1-05",
+   "chapter": 1,
+   "title": "Buy Lucia a Necklace",
+   "optional": true
+  },
+  {
+   "id": "o1-06",
+   "chapter": 1,
+   "title": "Get The Chop",
+   "optional": true
+  },
+  {
+   "id": "o1-07",
+   "chapter": 1,
+   "title": "Get Lucia's Clothes",
+   "optional": true
+  },
+  {
+   "id": "o1-08",
+   "chapter": 1,
+   "title": "Find the Lost Drugs",
+   "optional": true
+  },
+  {
+   "id": "o2-01",
+   "chapter": 2,
+   "title": "Pick Up a Gun",
+   "optional": true
+  },
+  {
+   "id": "o2-02",
+   "chapter": 2,
+   "title": "Hit Avery Pawn",
+   "optional": true
+  },
+  {
+   "id": "o2-03",
+   "chapter": 2,
+   "title": "Hit Kingpin Bowling",
+   "optional": true
+  },
+  {
+   "id": "o3-01",
+   "chapter": 3,
+   "title": "Get Your Wheels",
+   "optional": true
+  },
+  {
+   "id": "o4-01",
+   "chapter": 4,
+   "title": "Bad Driver!",
+   "optional": true
+  },
+  {
+   "id": "o4-02",
+   "chapter": 4,
+   "title": "This is a Free Call From...",
+   "optional": true
+  },
+  {
+   "id": "o4-03",
+   "chapter": 4,
+   "title": "Attend Eddie Acosta's Party",
+   "optional": true
+  },
+  {
+   "id": "o4-04",
+   "chapter": 4,
+   "title": "That's Where the Money Is",
+   "optional": true
   }
  ],
  "guides": [
@@ -526,6 +629,42 @@
    "body": "# Vice City\nLa grande ville de la côte est, avec Vice Beach sur son île barrière.\n# Leonida Keys\nDes îles reliées par de longs ponts, et des bateaux partout.\n# Grassrivers\nMarais et hydroglisseurs au sud : méfie-toi de l'eau.\n# Port Gellhorn\nUne station balnéaire défraîchie sur la côte du golfe, au nord-ouest.\n# Ambrosia\nTerres agricoles et pays du sucre autour du lac Leonida.\n# Mount Kalaga\nForêts, sentiers et rivières dans le parc national, au nord.",
    "spoiler": 0,
    "minutes": 3
+  },
+  {
+   "id": "hundred",
+   "category": "challenges",
+   "title": "Ce qui compte pour le 100 %",
+   "summary": "L'histoire en fait la moitié. Voici l'autre moitié, et ce qu'il faut vraiment.",
+   "body": "# Comment se répartit le 100 %\n- Histoire : 50 %. Toutes les missions principales, jusqu'au générique.\n- Tâches : 27 %. Tâches facultatives, opérations de gangs, braquages de banques, prêteurs sur salaire, casses éclair, braquages de magasins, coffres, et argent écoulé.\n- Exploration et activités : 20 %. Objets à collectionner, cascades, courses, stands de tir, drones, paniers, billard, mini-golf et plus.\n- Découvertes : 3 %. Véhicules scannés, armes trouvées, animaux étudiés.\n# Pas besoin de tout faire\nBeaucoup de catégories ne demandent qu'une partie du total : 15 séries de cartes sur 18, 100 flamants sur 125, 300 cascades sur 397, 50 braquages de magasins sur 91. Vicefold affiche les deux nombres sur chaque compteur.\n# Où suivre tout ça\nSuivi › Objets a un compteur par catégorie, avec ce qu'il faut. La liste du jeu s'ouvre après l'histoire, dans Progression › Statistiques.\n> Le 100 % débloque le trophée A Long Road.",
+   "spoiler": 0,
+   "minutes": 3
+  },
+  {
+   "id": "cheats-how",
+   "category": "cheats",
+   "title": "Comment marchent les codes",
+   "summary": "Débloque-les d'abord, puis tape-les sur le téléphone.",
+   "body": "# Les débloquer\nLes codes s'ouvrent après l'histoire, un par un : chacun a son objectif (un nombre de sauts, de médailles, d'éliminations, de lieux trouvés…). Vicefold l'indique sous chaque code.\n# Les entrer\n1. Appuie en haut sur la croix pour ouvrir le téléphone.\n2. Maintiens L1 (LB sur Xbox) et appuie sur R1 (RB).\n3. Entre les flèches sur la croix.\n# Avant de t'en servir\n> Un code coupe les trophées et la sauvegarde pour la session, et ce que tu fais ensuite est perdu en quittant. Sauvegarde avant.",
+   "spoiler": 5,
+   "minutes": 2
+  },
+  {
+   "id": "strangers",
+   "category": "events",
+   "title": "Strangers & Freaks",
+   "summary": "Les histoires annexes, personnage par personnage.",
+   "body": "# Qui tu vas croiser\n- Chapitre 1 : Kirk (chasse aux créatures), Shirley (courses), Kenton (plongées au trésor dans les Keys), Cal (pêche).\n- Chapitre 2 : Kyle, Billy (mud club et plus), Bret Vogel (chasse, Jason seulement), Moses (vols de voitures).\n- Chapitre 3 : Yago (courses de rue), Andy (Lucia seulement), Yasmani (bijouteries, distributeurs et prêteurs sur salaire), Randy (voitures à voler), Tyrone.\n- Chapitre 4 : Pilot Pete (vols depuis les aérodromes).\n# Les suivre\nChacune est dans Suivi › Défis, rangée par personnage. Elles comptent dans les tâches facultatives du 100 %.",
+   "spoiler": 1,
+   "minutes": 2
+  },
+  {
+   "id": "radio-guide",
+   "category": "hobbies",
+   "title": "La radio",
+   "summary": "21 stations, de la pop des années 80 au rap du Sud.",
+   "body": "# Deux playlists comptent\nDeux playlists uniques comptent pour le 100 %. Les stations sont dans Plus › Radio, avec leurs morceaux et des extraits de 30 secondes.\n# Pour commencer\n- Vice City FM pour la pop des années 80, V-Rock pour les grosses guitares.\n- VCRR et Dirty South Classics pour le rap.\n- Cocoteo FM et La Ola pour le reggaeton et la salsa.\n- Honey FM pour les slows, Emotion pour les ballades.",
+   "spoiler": 0,
+   "minutes": 2
   }
  ],
  "places": [
@@ -889,6 +1028,228 @@
    "id": "f-cars",
    "title": "Écouler 200 000 $ de véhicules",
    "group": "Recel"
+  },
+  {
+   "id": "sf-kirk-1",
+   "title": "Search for the Skunk Ape",
+   "group": "Strangers & Freaks — Kirk",
+   "detail": "Chapitre 1"
+  },
+  {
+   "id": "sf-kirk-2",
+   "title": "Search for Tree Effigies",
+   "group": "Strangers & Freaks — Kirk",
+   "detail": "Chapitre 1"
+  },
+  {
+   "id": "sf-kirk-3",
+   "title": "Help Kirk Find Mr. Mangrove",
+   "group": "Strangers & Freaks — Kirk",
+   "detail": "Chapitre 1"
+  },
+  {
+   "id": "sf-shirley-1",
+   "title": "Get Shirley's Rum",
+   "group": "Strangers & Freaks — Shirley",
+   "detail": "Chapitre 1"
+  },
+  {
+   "id": "sf-shirley-2",
+   "title": "Steal the Scooter",
+   "group": "Strangers & Freaks — Shirley",
+   "detail": "Chapitre 1"
+  },
+  {
+   "id": "sf-kenton-1",
+   "title": "Treasure dives",
+   "group": "Strangers & Freaks — Kenton",
+   "detail": "Chapitre 1"
+  },
+  {
+   "id": "sf-cal-1",
+   "title": "Catch a Bigger Fish",
+   "group": "Strangers & Freaks — Cal",
+   "detail": "Chapitre 1"
+  },
+  {
+   "id": "sf-kyle-1",
+   "title": "Check Out McKittrick Farm",
+   "group": "Strangers & Freaks — Kyle",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-kyle-2",
+   "title": "Collect Chemicals for Kyle",
+   "group": "Strangers & Freaks — Kyle",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-kyle-3",
+   "title": "Buddy?",
+   "group": "Strangers & Freaks — Kyle",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-billy-1",
+   "title": "Thrillbillies",
+   "group": "Strangers & Freaks — Billy",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-billy-2",
+   "title": "Twist Wrist, Smash, Grab",
+   "group": "Strangers & Freaks — Billy",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-billy-3",
+   "title": "Mall Rats",
+   "group": "Strangers & Freaks — Billy",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-billy-4",
+   "title": "The Impaler",
+   "group": "Strangers & Freaks — Billy",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-billy-5",
+   "title": "Hometown Heroes",
+   "group": "Strangers & Freaks — Billy",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-bretvogel-1",
+   "title": "Veteran Hunted",
+   "group": "Strangers & Freaks — Bret Vogel",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-bretvogel-2",
+   "title": "Bret's Hunting Decks",
+   "group": "Strangers & Freaks — Bret Vogel",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-moses-1",
+   "title": "Steal Vehicles for Moses",
+   "group": "Strangers & Freaks — Moses",
+   "detail": "Chapitre 2"
+  },
+  {
+   "id": "sf-yago-1",
+   "title": "Join a Street Race",
+   "group": "Strangers & Freaks — Yago",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-yago-2",
+   "title": "Bumper to Bumper",
+   "group": "Strangers & Freaks — Yago",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-yago-3",
+   "title": "Race Against Yago",
+   "group": "Strangers & Freaks — Yago",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-yago-4",
+   "title": "Brother to Brother",
+   "group": "Strangers & Freaks — Yago",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-andy-1",
+   "title": "Climbing the Cellerichain",
+   "group": "Strangers & Freaks — Andy",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-andy-2",
+   "title": "Pay the Cellerica Fee",
+   "group": "Strangers & Freaks — Andy",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-andy-3",
+   "title": "Peach!",
+   "group": "Strangers & Freaks — Andy",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-andy-4",
+   "title": "Read the Label",
+   "group": "Strangers & Freaks — Andy",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-andy-5",
+   "title": "Puff Puff Pass",
+   "group": "Strangers & Freaks — Andy",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-yasmani-1",
+   "title": "Jewelry Jobs",
+   "group": "Strangers & Freaks — Yasmani",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-yasmani-2",
+   "title": "ATM Jobs",
+   "group": "Strangers & Freaks — Yasmani",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-yasmani-3",
+   "title": "Payday Loans Jobs",
+   "group": "Strangers & Freaks — Yasmani",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-yasmani-4",
+   "title": "Tail the Security Van",
+   "group": "Strangers & Freaks — Yasmani",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-randy-1",
+   "title": "Randy's Wish List",
+   "group": "Strangers & Freaks — Randy",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-tyrone-1",
+   "title": "Take Out Kitty Litter",
+   "group": "Strangers & Freaks — Tyrone",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-tyrone-2",
+   "title": "Spin On This",
+   "group": "Strangers & Freaks — Tyrone",
+   "detail": "Chapitre 3"
+  },
+  {
+   "id": "sf-pilotpete-1",
+   "title": "The Last Mile: Passing the Torch",
+   "group": "Strangers & Freaks — Pilot Pete",
+   "detail": "Chapitre 4"
+  },
+  {
+   "id": "sf-pilotpete-2",
+   "title": "The Last Mile: Backseat Pilot",
+   "group": "Strangers & Freaks — Pilot Pete",
+   "detail": "Chapitre 4"
+  },
+  {
+   "id": "sf-pilotpete-3",
+   "title": "Pete's Deliveries",
+   "group": "Strangers & Freaks — Pilot Pete",
+   "detail": "Chapitre 4"
   }
  ],
  "characters": [
@@ -2346,6 +2707,12 @@
   }
  ],
  "news": [
+  {
+   "id": "n2",
+   "date": "2026-11-23",
+   "title": "Les 91 missions et tout le 100 %",
+   "body": "Toutes les missions par chapitre, les missions facultatives, Strangers & Freaks, toutes les catégories du 100 %, 61 codes et 21 radios."
+  },
   {
    "id": "n1",
    "date": "2026-11-23",

@@ -7,7 +7,7 @@ Pour publier une mise à jour du guide : augmenter VERSION, relancer ce script, 
 import json
 import os
 
-VERSION = 2
+VERSION = 3
 HERE = os.path.dirname(__file__)
 OUT = os.path.join(HERE, "..", "Content")
 
@@ -332,6 +332,119 @@ NEWS = [
      T("The first guides are here. Missions, collectibles and more arrive with free content updates.",
        "Les premiers guides sont là. Missions, objets à collectionner et le reste arrivent avec des mises à jour gratuites du contenu.")),
 ]
+
+# Ce qu'on sait de certaines missions (protagoniste, lieu), et les missions facultatives de chaque chapitre.
+_INFO = {
+    "Coming Home": {"giver": "Jason & Lucia", "location": "Leonida Penitentiary → Leonida Keys"},
+    "Pipework": {"giver": "Jason", "location": "Leonida Keys"},
+    "Unwanted Attention": {"giver": "Jason"},
+    "Sinfrontera National Bank": {"giver": "Jason & Lucia", "location": "Vice City"},
+}
+for m in MISSIONS:
+    for k, v in _INFO.get(m["title"], {}).items():
+        m.setdefault(k, v)
+_OPT = {1: ["Get Shirley's Rum", "Steal the Scooter", "Pick Up Groceries", "Buy Flowers", "Buy Lucia a Necklace", "Get The Chop", "Get Lucia's Clothes", "Find the Lost Drugs"],
+        2: ["Pick Up a Gun", "Hit Avery Pawn", "Hit Kingpin Bowling"], 3: ["Get Your Wheels"],
+        4: ["Bad Driver!", "This is a Free Call From...", "Attend Eddie Acosta's Party", "That's Where the Money Is"]}
+for ch, names in _OPT.items():
+    for i, n in enumerate(names, 1):
+        MISSIONS.append({"id": f"o{ch}-{i:02d}", "chapter": ch, "title": n, "optional": True})
+
+# Strangers & Freaks : les quêtes annexes, par personnage (cochables dans Défis).
+_SF = [("Kirk", 1, ["Search for the Skunk Ape", "Search for Tree Effigies", "Help Kirk Find Mr. Mangrove"]),
+       ("Shirley", 1, ["Get Shirley's Rum", "Steal the Scooter"]),
+       ("Kenton", 1, ["Treasure dives"]), ("Cal", 1, ["Catch a Bigger Fish"]),
+       ("Kyle", 2, ["Check Out McKittrick Farm", "Collect Chemicals for Kyle", "Buddy?"]),
+       ("Billy", 2, ["Thrillbillies", "Twist Wrist, Smash, Grab", "Mall Rats", "The Impaler", "Hometown Heroes"]),
+       ("Bret Vogel", 2, ["Veteran Hunted", "Bret's Hunting Decks"]), ("Moses", 2, ["Steal Vehicles for Moses"]),
+       ("Yago", 3, ["Join a Street Race", "Bumper to Bumper", "Race Against Yago", "Brother to Brother"]),
+       ("Andy", 3, ["Climbing the Cellerichain", "Pay the Cellerica Fee", "Peach!", "Read the Label", "Puff Puff Pass"]),
+       ("Yasmani", 3, ["Jewelry Jobs", "ATM Jobs", "Payday Loans Jobs", "Tail the Security Van"]),
+       ("Randy", 3, ["Randy's Wish List"]), ("Tyrone", 3, ["Take Out Kitty Litter", "Spin On This"]),
+       ("Pilot Pete", 4, ["The Last Mile: Passing the Torch", "The Last Mile: Backseat Pilot", "Pete's Deliveries"])]
+for who, ch, items in _SF:
+    for i, n in enumerate(items, 1):
+        CHALLENGES.append({"id": f"sf-{who.lower().replace(' ', '')}-{i}", "title": n,
+                           "group": T(f"Strangers & Freaks — {who}", f"Strangers & Freaks — {who}"),
+                           "detail": T(f"Chapter {ch}", f"Chapitre {ch}")})
+
+GUIDES += [
+    ("hundred", "challenges", T("What counts toward 100%", "Ce qui compte pour le 100 %"),
+     T("Story is half of it. Here's the other half, and how much you really need.", "L'histoire en fait la moitié. Voici l'autre moitié, et ce qu'il faut vraiment."),
+     T("""# How the 100% is split
+- Story: 50%. Finish every main mission, through the end credits.
+- Tasks: 27%. Optional tasks, gang operations, bank jobs, payday loans, smash 'n' grabs, stick-ups, vaults, and money fenced.
+- Exploration and activities: 20%. Collectibles, stunts, races, shooting ranges, drones, hoops, pool, mini golf and more.
+- Discovery: 3%. Vehicles scanned, weapons found, animals studied.
+# You don't need everything
+Many categories only ask for part of the total: 15 of 18 card sets, 100 of 125 flamingos, 300 of 397 stunts, 50 of 91 stick-ups. Vicefold shows both numbers on every counter.
+# Where to track it
+Tracker › Collectibles has a counter for each category, with what's needed. The game's own checklist opens after the story, under Progress › Stats.
+> Reaching 100% unlocks the A Long Road trophy.""",
+       """# Comment se répartit le 100 %
+- Histoire : 50 %. Toutes les missions principales, jusqu'au générique.
+- Tâches : 27 %. Tâches facultatives, opérations de gangs, braquages de banques, prêteurs sur salaire, casses éclair, braquages de magasins, coffres, et argent écoulé.
+- Exploration et activités : 20 %. Objets à collectionner, cascades, courses, stands de tir, drones, paniers, billard, mini-golf et plus.
+- Découvertes : 3 %. Véhicules scannés, armes trouvées, animaux étudiés.
+# Pas besoin de tout faire
+Beaucoup de catégories ne demandent qu'une partie du total : 15 séries de cartes sur 18, 100 flamants sur 125, 300 cascades sur 397, 50 braquages de magasins sur 91. Vicefold affiche les deux nombres sur chaque compteur.
+# Où suivre tout ça
+Suivi › Objets a un compteur par catégorie, avec ce qu'il faut. La liste du jeu s'ouvre après l'histoire, dans Progression › Statistiques.
+> Le 100 % débloque le trophée A Long Road."""), 0, 3),
+    ("cheats-how", "cheats", T("How cheat codes work", "Comment marchent les codes"),
+     T("Unlock them first, then enter them on the phone.", "Débloque-les d'abord, puis tape-les sur le téléphone."),
+     T("""# Unlock them
+Cheats open after the story, one at a time: each one has its own goal (a number of jumps, medals, kills, places found…). Vicefold lists the goal under every code.
+# Enter them
+1. Press up on the D-pad to open the phone.
+2. Hold L1 (LB on Xbox) and press R1 (RB).
+3. Enter the arrows on the D-pad.
+# Before you use one
+> A cheat turns off trophies and saving for the session, and what you do after it is lost when you quit. Save first.""",
+       """# Les débloquer
+Les codes s'ouvrent après l'histoire, un par un : chacun a son objectif (un nombre de sauts, de médailles, d'éliminations, de lieux trouvés…). Vicefold l'indique sous chaque code.
+# Les entrer
+1. Appuie en haut sur la croix pour ouvrir le téléphone.
+2. Maintiens L1 (LB sur Xbox) et appuie sur R1 (RB).
+3. Entre les flèches sur la croix.
+# Avant de t'en servir
+> Un code coupe les trophées et la sauvegarde pour la session, et ce que tu fais ensuite est perdu en quittant. Sauvegarde avant."""), 5, 2),
+    ("strangers", "events", T("Strangers & Freaks", "Strangers & Freaks"),
+     T("The side stories, character by character.", "Les histoires annexes, personnage par personnage."),
+     T("""# Who you'll meet
+- Chapter 1: Kirk (cryptid hunting), Shirley (errands), Kenton (treasure dives in the Keys), Cal (fishing).
+- Chapter 2: Kyle, Billy (mud club and more), Bret Vogel (hunting, Jason only), Moses (car thefts).
+- Chapter 3: Yago (street racing), Andy (Lucia only), Yasmani (jewelry, ATM and payday loan jobs), Randy (cars to steal), Tyrone.
+- Chapter 4: Pilot Pete (flights from the airfields).
+# Track them
+Each one is in Tracker › Challenges, grouped by character. They count among the optional tasks of the 100%.""",
+       """# Qui tu vas croiser
+- Chapitre 1 : Kirk (chasse aux créatures), Shirley (courses), Kenton (plongées au trésor dans les Keys), Cal (pêche).
+- Chapitre 2 : Kyle, Billy (mud club et plus), Bret Vogel (chasse, Jason seulement), Moses (vols de voitures).
+- Chapitre 3 : Yago (courses de rue), Andy (Lucia seulement), Yasmani (bijouteries, distributeurs et prêteurs sur salaire), Randy (voitures à voler), Tyrone.
+- Chapitre 4 : Pilot Pete (vols depuis les aérodromes).
+# Les suivre
+Chacune est dans Suivi › Défis, rangée par personnage. Elles comptent dans les tâches facultatives du 100 %."""), 1, 2),
+    ("radio-guide", "hobbies", T("The radio", "La radio"),
+     T("21 stations, from 80s pop to Southern rap.", "21 stations, de la pop des années 80 au rap du Sud."),
+     T("""# Two playlists count
+Two unique playlists count toward 100%. Find the stations in More › Radio, with track lists and 30-second previews.
+# A few to start with
+- Vice City FM for 80s pop, V-Rock for big guitars.
+- VCRR and Dirty South Classics for rap.
+- Cocoteo FM and La Ola for reggaeton and salsa.
+- Honey FM for slow jams, Emotion for ballads.""",
+       """# Deux playlists comptent
+Deux playlists uniques comptent pour le 100 %. Les stations sont dans Plus › Radio, avec leurs morceaux et des extraits de 30 secondes.
+# Pour commencer
+- Vice City FM pour la pop des années 80, V-Rock pour les grosses guitares.
+- VCRR et Dirty South Classics pour le rap.
+- Cocoteo FM et La Ola pour le reggaeton et la salsa.
+- Honey FM pour les slows, Emotion pour les ballades."""), 0, 2),
+]
+NEWS.insert(0, ("n2", "2026-11-23", T("All 91 missions and the full 100%", "Les 91 missions et tout le 100 %"),
+     T("Every story mission by chapter, optional missions, Strangers & Freaks, every 100% category, 61 cheat codes and 21 radio stations.",
+       "Toutes les missions par chapitre, les missions facultatives, Strangers & Freaks, toutes les catégories du 100 %, 61 codes et 21 radios.")))
 
 SOURCES = T(["Facts from the publisher's official character and setting announcements. All text written for Vicefold."],
             ["Faits tirés des annonces officielles de l'éditeur (personnages, lieux). Tous les textes sont rédigés pour Vicefold."])
