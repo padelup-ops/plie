@@ -130,6 +130,8 @@ final class Progress {
                                                object: kvs, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.pullCloud() }
         }
+        kvs.synchronize()
+        lastCloudSync = UserDefaults.standard.object(forKey: Self.syncKey) as? Date
     }
 
     func edit(_ change: (inout VFProgressData) -> Void) {
@@ -142,7 +144,7 @@ final class Progress {
         if ShotMode.route != nil { writeSnapshot(); return }
         if let d = try? JSONEncoder().encode(data) {
             try? d.write(to: fileURL, options: .atomic)
-            if Store.shared.isPro { kvs.set(d, forKey: Self.kvsKey) }
+            if Store.shared.isPro { kvs.set(d, forKey: Self.kvsKey); markSynced() }
         }
         writeSnapshot()
     }
@@ -169,17 +171,46 @@ final class Progress {
 
     // MARK: iCloud (Pro)
 
+    /// La dernière fois que cet appareil et iCloud avaient la même partie.
+    private(set) var lastCloudSync: Date?
+    private static let syncKey = "vicefold.lastCloudSync"
+
+    private func markSynced() {
+        lastCloudSync = Date()
+        UserDefaults.standard.set(data.updated, forKey: Self.syncKey + ".updated")
+        UserDefaults.standard.set(lastCloudSync, forKey: Self.syncKey)
+    }
+
+    /// Rien n'a changé ici depuis la dernière synchro : l'autre appareil a le dernier mot (même pour ce qu'on a décoché).
+    private var untouchedSinceSync: Bool {
+        guard let u = UserDefaults.standard.object(forKey: Self.syncKey + ".updated") as? Date else { return false }
+        return data.updated <= u
+    }
+
     func pushCloud() {
         guard Store.shared.isPro, let d = try? JSONEncoder().encode(data) else { return }
         kvs.set(d, forKey: Self.kvsKey)
         kvs.synchronize()
+        markSynced()
     }
 
     func pullCloud() {
-        guard Store.shared.isPro, let d = kvs.data(forKey: Self.kvsKey),
-              let other = try? JSONDecoder().decode(VFProgressData.self, from: d), other != data else { return }
-        data = Self.merge(data, other)
-        if let d = try? JSONEncoder().encode(data) { try? d.write(to: fileURL, options: .atomic) }
+        guard Store.shared.isPro, ShotMode.route == nil else { return }
+        kvs.synchronize()
+        guard let d = kvs.data(forKey: Self.kvsKey),
+              let other = try? JSONDecoder().decode(VFProgressData.self, from: d) else { pushCloud(); return }
+        if other == data { markSynced(); return }
+        if untouchedSinceSync && other.updated >= data.updated {
+            data = other
+        } else {
+            data = Self.merge(data, other)
+        }
+        if let d = try? JSONEncoder().encode(data) {
+            try? d.write(to: fileURL, options: .atomic)
+            // la partie fusionnée repart vers les autres appareils
+            if data != other { kvs.set(d, forKey: Self.kvsKey) }
+        }
+        markSynced()
         writeSnapshot()
     }
 
@@ -339,7 +370,8 @@ final class Progress {
 
     var hours: Double { data.psnHours ?? data.manualHours }
 
-    func writeSnapshot() {
+    /// Ce que montrent les widgets (et leur aperçu dans l'app).
+    func snapshot() -> VFSnapshot {
         let c = ContentStore.shared.content
         let p = parts(c)
         let next = nextMission(c)
@@ -350,6 +382,22 @@ final class Progress {
         s.nextChapter = next.flatMap { ContentStore.shared.chapter($0.chapter)?.title }
         s.hours = hours
         s.pro = Store.shared.isPro
+        let story = c.missions.filter { $0.optional != true }
+        let places = c.places.filter { $0.kind != .region && !$0.community }
+        let total = c.collectibles.reduce(0) { $0 + $1.target }
+        let found = c.collectibles.reduce(0) { $0 + min($1.target, data.collected[$1.id] ?? 0) }
+        s.counts = [story.filter { data.missions.contains($0.id) }.count, story.count,
+                    places.filter { data.visited.contains($0.id) }.count, places.count,
+                    found, total,
+                    c.challenges.filter { data.challenges.contains($0.id) }.count, c.challenges.count]
+        s.eggs = [c.eggs.filter { data.eggs.contains($0.id) }.count, c.eggs.count]
+        s.chapter = data.chapter
+        s.updated = Date(timeIntervalSince1970: 0)
+        return s
+    }
+
+    func writeSnapshot() {
+        let s = snapshot()
         if s != VFSnapshot.load() {
             s.save()
             WidgetCenter.shared.reloadAllTimelines()

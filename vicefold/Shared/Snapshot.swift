@@ -17,6 +17,10 @@ struct VFSnapshot: Codable, Equatable {
     var hours: Double = 0
     var pro = false
     var updated = Date()
+    // Les comptes affichés par le grand widget (fait / total).
+    var counts: [Int] = []          // missions, lieux, objets, défis : fait, total, fait, total…
+    var eggs: [Int] = []            // trouvés, total
+    var chapter: Int = 1
 
     static let group = "group.com.padelup.vicefold"
     private static let key = "vicefold.snapshot"

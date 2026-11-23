@@ -178,7 +178,7 @@ struct TrackerSummary: View {
                 .frame(width: compact ? 120 : 240, height: compact ? 120 : 240)
                 VStack(alignment: .leading, spacing: 10) {
                     stat(String(localized: "Missions"), p.missions, 0, detail: "\(content.missions.filter { progress.isDone($0) }.count)/\(content.missions.count)")
-                    stat(String(localized: "Places"), p.places, 1, detail: "\(progress.data.visited.count)")
+                    stat(String(localized: "Places"), p.places, 1, detail: "\(content.countedPlaces.filter { progress.visited($0) }.count)/\(content.countedPlaces.count)")
                     stat(String(localized: "Collectibles"), p.collectibles, 2, detail: "\(content.content.collectibles.reduce(0) { $0 + min($1.target, progress.found($1)) })/\(content.totalCollectibles)")
                     stat(String(localized: "Challenges"), p.challenges, 3, detail: "\(progress.data.challenges.count)/\(content.content.challenges.count)")
                     if !compact {

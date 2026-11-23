@@ -12,6 +12,8 @@ struct HomeView: View {
     @Environment(Store.self) private var store
     @State private var showShare = false
     @State private var showProfile = false
+    @State private var showSearch = ShotMode.route == "search"
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     var body: some View {
         DualLayout {
@@ -35,6 +37,7 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showShare) { ShareProgressView() }
         .sheet(isPresented: $showProfile) { NavigationStack { ProfileView() } }
+        .sheet(isPresented: $showSearch) { SearchView() }
     }
 
     private var column: some View {
@@ -62,6 +65,14 @@ struct HomeView: View {
             }
             .background(VFBackdrop())
             .toolbar {
+                // Sur iPhone la recherche n'a pas d'onglet (cinq au plus, sinon iOS range le reste dans « Autre ») :
+                // elle s'ouvre d'ici.
+                if sizeClass == .compact {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { showSearch = true } label: { Image(systemName: "magnifyingglass") }
+                            .accessibilityLabel("Search")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showProfile = true } label: { Avatar(size: 32) }
                         .accessibilityLabel("Profile")

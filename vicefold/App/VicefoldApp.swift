@@ -41,6 +41,7 @@ enum AppTab: Hashable { case home, guides, map, tracker, more, search }
 struct RootView: View {
     @State private var tab: AppTab = ShotMode.initialTab
     @AppStorage("vicefold.onboarded") private var onboarded = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     var body: some View {
         TabView(selection: $tab) {
@@ -49,12 +50,17 @@ struct RootView: View {
             Tab("Map", systemImage: "map", value: AppTab.map) { MapTab() }
             Tab("Tracker", systemImage: "checklist", value: AppTab.tracker) { TrackerView() }
             Tab("More", systemImage: "square.grid.2x2", value: AppTab.more) { MoreView() }
-            Tab(value: AppTab.search, role: .search) {
-                DualLayout { SearchView() } secondary: { EmptyDetail(icon: "magnifyingglass", text: "Search guides, missions, places, characters and cheat codes.") }
+            // Cinq onglets au plus sur iPhone : au-delà, iOS range les autres dans un onglet « Autre » qui empile
+            // deux barres de navigation. Sur iPhone, la recherche s'ouvre depuis l'accueil.
+            if sizeClass != .compact {
+                Tab(value: AppTab.search, role: .search) {
+                    DualLayout { SearchView() } secondary: { EmptyDetail(icon: "magnifyingglass", text: "Search guides, missions, places, characters and cheat codes.") }
+                }
             }
         }
         .tabViewStyle(.sidebarAdaptable)
         .tabBarMinimizeBehavior(.onScrollDown)
+        .onChange(of: sizeClass, initial: true) { _, c in if c == .compact && tab == .search { tab = .home } }
         .tint(VF.flamingo)
         .onChange(of: AppRouter.shared.mapPlace) { _, p in if p != nil { tab = .map } }
         .onOpenURL { url in
@@ -65,6 +71,7 @@ struct RootView: View {
             default: tab = .home
             }
         }
+        .fullScreenCover(isPresented: .constant(ShotMode.route == "widgets")) { NavigationStack { WidgetGallery() } }
         .sheet(isPresented: Binding(get: { !onboarded && ShotMode.route == nil }, set: { if !$0 { onboarded = true } })) {
             OnboardingView { onboarded = true }
                 .interactiveDismissDisabled()

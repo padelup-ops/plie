@@ -199,7 +199,15 @@ struct SettingsView: View {
             Section {
                 if store.isPro {
                     Label("Pro is on. Thank you!", systemImage: "star.circle.fill").foregroundStyle(VF.coral)
-                    Toggle("iCloud sync", isOn: .constant(true)).disabled(true)
+                    LabeledContent {
+                        if let d = progress.lastCloudSync {
+                            Text(d, style: .relative)
+                        }
+                    } label: {
+                        Label("iCloud sync", systemImage: "icloud")
+                    }
+                    Text("Your progress on iPhone, iPad and Duo.").font(.footnote).foregroundStyle(.secondary)
+                    NavigationLink { WidgetGallery() } label: { Label("Progress widgets", systemImage: "square.grid.2x2") }
                 } else {
                     Button { showPro = true } label: { Label("Vicefold Pro", systemImage: "star.circle") }
                 }

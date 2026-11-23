@@ -76,8 +76,10 @@ struct MapCanvasScreen: View {
 
     var body: some View {
         @Bindable var state = state
-        LeonidaMapView()
+        LeonidaMapView(showsCredit: false)
             .ignoresSafeArea(edges: .bottom)
+            // Le crédit de la carte reste dans la zone sûre : jamais sous la barre d'onglets.
+            .overlay(alignment: .bottomLeading) { if !state.dropping && state.selectedPlace == nil { MapCredit().padding(.leading, 10).padding(.bottom, 6) } }
             .navigationTitle("Leonida")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
