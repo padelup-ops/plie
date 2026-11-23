@@ -484,7 +484,7 @@ func corpus(_ L: Lang, tag: String, n: Int = 2500) {
     var miss: [String] = [], bad: [String] = []
     let cases = all.prefix(n)
     for (w, want) in cases {
-        let before = "le " + w
+        let before = (L.code == "en" ? "the " : "le ") + w
         let f = s.correction(for: w, before: before, touch: nil, fast: true)
         var out = f ?? w
         if fold(out) == fold(want) { fast += 1; withBar += 1; continue }
