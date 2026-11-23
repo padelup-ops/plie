@@ -1,0 +1,80 @@
+# GCOMPRIS iOS (portage) : compile GCompris (KDE, GPL) pour le simulateur iOS avec Qt 6, lance l'app et prend des captures.
+# Rien n'est publié : c'est un essai technique en attendant l'accord de l'équipe GCompris.
+name: GCompris iOS - simulateur
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Commit de GCompris"
+        required: false
+        default: "d462e22d2a1b9b7a6e8f4ceb8048785a2a516ee7"
+      qt:
+        description: "Version de Qt"
+        required: false
+        default: "6.9.3"
+      device:
+        description: "Appareil"
+        required: false
+        default: "iPhone 17 Pro Max"
+jobs:
+  sim:
+    runs-on: xcode-27
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Xcode et outils
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1); sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          python3 -m pip install --break-system-packages -q aqtinstall || python3 -m pip install -q aqtinstall
+          mkdir -p logs
+      - name: Qt (Mac + iOS)
+        run: |
+          M="qtmultimedia qtsensors qtgraphs qtquick3d qtshadertools qtquicktimeline"
+          python3 -m aqt install-qt mac desktop ${{ inputs.qt }} clang_64 -O $HOME/Qt -m $M 2>&1 | tail -3
+          python3 -m aqt install-qt mac ios ${{ inputs.qt }} ios -O $HOME/Qt -m $M 2>&1 | tail -3 || \
+          python3 -m aqt install-qt mac ios ${{ inputs.qt }} -O $HOME/Qt -m $M 2>&1 | tail -3
+          ls $HOME/Qt/${{ inputs.qt }}
+      - name: Sources GCompris
+        run: |
+          git clone -q https://github.com/KDE/gcompris gc
+          cd gc && git checkout -q ${{ inputs.ref }} && git submodule update -q --init --depth 1
+          if ls ../gcios/patches/*.patch >/dev/null 2>&1; then for p in ../gcios/patches/*.patch; do git apply "$p" && echo "patch $p"; done; fi
+      - name: Configurer
+        run: |
+          set -o pipefail
+          Q=$HOME/Qt/${{ inputs.qt }}
+          cmake --version | head -1
+          $Q/ios/bin/qt-cmake -S gc -B build -G Xcode \
+            -DQT_HOST_PATH=$Q/macos \
+            -DCMAKE_OSX_SYSROOT=iphonesimulator -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCOMPRESSED_AUDIO=ogg -DSKIP_TRANSLATIONS=ON -DBUILD_STANDALONE=OFF -DQML_BOX2D_MODULE=submodule \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO 2>&1 | tee logs/configure.log | tail -40
+      - name: Compiler
+        run: |
+          set -o pipefail
+          cmake --build build --config Debug -- -sdk iphonesimulator -arch arm64 CODE_SIGNING_ALLOWED=NO 2>&1 | tee logs/build.log | grep -E "error:|\*\* BUILD" | head -60 || true
+          grep -q "BUILD SUCCEEDED" logs/build.log
+      - name: Lancer et capturer
+        run: |
+          mkdir -p shots
+          APP=$(find build -name "*.app" -path "*iphonesimulator*" -maxdepth 6 | head -1); echo "app: $APP"
+          RCC=$(find build -type d -name rcc | grep -v "\.app/" | head -1); echo "rcc: $RCC"
+          [ -n "$RCC" ] && cp -R "$RCC" "$APP/"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist" | tee bid.txt
+          DEV=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; n='${{ inputs.device }}'; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith(n)))")
+          xcrun simctl boot "$DEV" || true
+          xcrun simctl bootstatus "$DEV" -b
+          xcrun simctl install "$DEV" "$APP"
+          xcrun simctl launch --console-pty "$DEV" "$(cat bid.txt)" > logs/run.log 2>&1 &
+          for i in 1 2 3; do sleep 20; xcrun simctl io "$DEV" screenshot "shots/0$i.png"; done
+          du -sh "$APP" > logs/size.txt
+      - name: Publier
+        if: always()
+        run: |
+          mkdir -p shots && cp -R logs shots/ 2>/dev/null || true
+          cd shots
+          git init -q -b ci-gcios-sim
+          git config user.name github-actions && git config user.email actions@github.com
+          git add -A && git commit -qm "captures" && git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-gcios-sim
