@@ -72,6 +72,7 @@ final class KeyboardMic {
         if r.supportsOnDeviceRecognition { req.requiresOnDeviceRecognition = true }
         request = req
         text = ""
+        merger = KBTranscriptMerger()
         finished = false
         running = true
         startedAt = Date()
@@ -90,7 +91,7 @@ final class KeyboardMic {
                 guard let self, self.running else { return }
                 let now = Date()
                 let spoke = self.lastVoice > self.startedAt
-                if spoke && now.timeIntervalSince(self.lastVoice) > 2.5 { self.stop() }
+                if spoke && now.timeIntervalSince(self.lastVoice) > 4.5 { self.stop() }
                 else if !spoke && now.timeIntervalSince(self.startedAt) > 8 { self.stop() }
                 // Le micro n'a jamais démarré : on laisse la main à l'app.
                 else if !self.capture.isCapturing && !self.pendingStart && now.timeIntervalSince(self.startedAt) > 3 && self.text.isEmpty {
@@ -148,9 +149,12 @@ final class KeyboardMic {
         request.append(buffer)
     }
 
+    private var merger = KBTranscriptMerger()
+
     private func recognized(_ t: String?, final: Bool, failed: Bool) {
         guard !finished else { return }
-        if let t, !t.isEmpty {
+        if let raw = t, !raw.isEmpty {
+            let t = merger.merge(raw)
             text = t
             if !final { onText?(t, false) }
         }

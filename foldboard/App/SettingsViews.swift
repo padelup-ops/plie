@@ -670,7 +670,12 @@ struct TypingView: View {
                 Toggle("Dictation key", isOn: $m.settings.dictationKey)
                 if m.settings.dictationKey {
                     Toggle("Mic next to return", isOn: $m.settings.micByReturn)
-                    Toggle("Translate what I say", isOn: $m.settings.dictTranslate)
+                    if m.settings.micByReturn {
+                        Toggle("Hold the mic to dictate", isOn: $m.settings.micHold)
+                    }
+                    if m.settings.translateKey {
+                        Toggle("Translate what I say", isOn: $m.settings.dictTranslate)
+                    }
                     Button("Turn on dictation now") {
                         DictationService.shared.startSession()
                         showDictation = true

@@ -74,3 +74,30 @@ enum KBDictation {
         DispatchQueue.main.async { h() }
     }
 }
+
+/// La dictée d'Apple (et Parakeet) repartent parfois de zéro après un silence de quelques secondes : le texte partiel
+/// redevient court. On garde alors ce qui avait été dit, pour que toute la dictée reste jusqu'à ce qu'on la ferme.
+struct KBTranscriptMerger {
+    private var committed = ""
+    private var lastPartial = ""
+
+    mutating func merge(_ raw: String) -> String {
+        let t = raw.trimmingCharacters(in: .whitespaces)
+        let head = String(committed.lowercased().prefix(14))
+        // Le moteur a rendu tout le texte depuis le début : il fait foi.
+        if !committed.isEmpty, !t.isEmpty, t.lowercased().hasPrefix(head) { committed = ""; lastPartial = t; return t }
+        let prev = lastPartial.lowercased()
+        let first = t.lowercased().split(separator: " ").first.map(String.init) ?? ""
+        let restarted = !prev.isEmpty && (t.isEmpty || (t.count + 3 < prev.count && !prev.hasPrefix(first)))
+        if restarted { committed = Self.join(committed, lastPartial) }
+        lastPartial = t
+        return Self.join(committed, t)
+    }
+
+    static func join(_ a: String, _ b: String) -> String {
+        let a = a.trimmingCharacters(in: .whitespaces), b = b.trimmingCharacters(in: .whitespaces)
+        if a.isEmpty { return b }
+        if b.isEmpty { return a }
+        return a + " " + b
+    }
+}

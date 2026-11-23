@@ -226,7 +226,7 @@ final class KeyboardCanvas: UIView {
 
     private func showVoice(_ m: KBVoicePanel.Mode, text: String? = nil) {
         voice.set(m, text: text)
-        voice.setTranslate(on: eff.dictTranslate, pair: eff.translatePair)
+        voice.setTranslate(on: eff.dictTranslate && eff.translateKey, pair: eff.translatePair, shown: eff.translateKey)
         if voice.isHidden {
             voice.isHidden = false
             layoutVoice()
@@ -434,7 +434,7 @@ final class KeyboardCanvas: UIView {
         settings.dictTranslate.toggle()
         eff.dictTranslate = settings.dictTranslate
         input?.kbSettingsChanged(settings)
-        voice.setTranslate(on: eff.dictTranslate, pair: eff.translatePair)
+        voice.setTranslate(on: eff.dictTranslate && eff.translateKey, pair: eff.translatePair, shown: eff.translateKey)
         KBFeedback.shared.tap(sound: .off, haptics: max(0.3, eff.haptics))
     }
 
@@ -467,7 +467,7 @@ final class KeyboardCanvas: UIView {
         let t0 = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !t0.isEmpty else { return }
         // Dictée traduite : parlé en français, écrit en anglais (et l'inverse, ou d'autres langues).
-        if eff.dictTranslate, let pair = KBTranslate.target(for: t0, pair: eff.translatePair), pair.from != pair.to {
+        if eff.dictTranslate, eff.translateKey, let pair = KBTranslate.target(for: t0, pair: eff.translatePair), pair.from != pair.to {
             flash(L("Translating…"), hold: 1.2)
             Task { @MainActor [weak self] in
                 let r = await KBTranslate.translate(t0, from: pair.from, to: pair.to)
@@ -719,6 +719,21 @@ final class KeyboardCanvas: UIView {
     func probeType(_ s: String) { for ch in s { if ch == " " { typeSpace() } else { typeText(String(ch)) } } }
     func probeEmoji(_ on: Bool) {
         if on { showEmoji = true; builtFor = .zero; rebuild() } else { closeEmoji() }
+    }
+
+    /// Certaines apps (la recherche de l'écran d'accueil, en particulier sur les deux écrans du Duo) posent le clavier
+    /// en panneau flottant, sans toucher le bas ou les bords de l'écran : on arrondit alors aussi les coins du bas,
+    /// comme le clavier d'Apple, au lieu d'un rectangle aux angles droits.
+    private func roundForHost() {
+        guard let w = window else { return }
+        let f = convert(bounds, to: w)
+        let floating = f.maxY < w.bounds.maxY - 2 || f.minX > 2 || f.maxX < w.bounds.maxX - 2
+        let corners: CACornerMask = floating
+            ? [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+            : [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        if layer.maskedCorners != corners { layer.maskedCorners = corners }
+        let r: CGFloat = floating ? 28 : 24
+        if layer.cornerRadius != r { layer.cornerRadius = r }
     }
 
     override init(frame: CGRect) {
@@ -1177,6 +1192,7 @@ final class KeyboardCanvas: UIView {
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
+        roundForHost()
         if window != nil { Self.active = self }
         // Autre écran, autre fenêtre : on redessine tout pour celui-ci, même si la largeur est la même.
         builtFor = .zero
@@ -1591,6 +1607,7 @@ final class KeyboardCanvas: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        roundForHost()
         guard bounds.size != builtFor, bounds.width > 50 else { return }
         builtFor = bounds.size
         updateGripContext()
@@ -1952,7 +1969,7 @@ final class KeyboardCanvas: UIView {
         guard eff.compactBar, !barOpened, !suggestionItems.isEmpty, emojiQuery == nil, sideButtonsGrid == nil else { return false }
         let buttons = [globeButton, emojiButton, translateButton, fixButton, micButton, clipButton, adjustButton].filter { !$0.isHidden }
         let free = bounds.width - CGFloat(buttons.count) * 36 - 90
-        return free < CGFloat(suggestionItems.count) * 110
+        return free < CGFloat(suggestionItems.count) * 78
     }
 
     /// Le micro dans la rangée du bas, à côté de retour (option) : il quitte alors la barre du haut.
@@ -2162,28 +2179,40 @@ final class KeyboardCanvas: UIView {
                 b.frame = CGRect(x: ox + CGFloat(col) * 44, y: panelRect.minY - barTop + CGFloat(row) * step, width: 44, height: step)
             }
             chips.frame = CGRect(x: cx, y: 0, width: max(0, x1 - cx - 6), height: h)
-        } else if collapsedBar {
-            // On écrit : les boutons se rangent derrière « ⋯ » (le masquer-le-clavier reste), les suggestions prennent
-            // toute la barre au lieu d'être coupées (« intervi… intervi… intervi… »).
-            for b in [globeButton, emojiButton, translateButton, fixButton, micButton, clipButton, adjustButton] { b.isHidden = true }
-            moreButton.isHidden = false
-            moreButton.tintColor = theme.text.withAlphaComponent(0.7)
-            moreButton.frame = CGRect(x: (hideButton.isHidden ? x1 - 6 : hideButton.frame.minX) - 36, y: 0, width: 36, height: h)
-            chips.frame = CGRect(x: cx, y: 0, width: max(0, moreButton.frame.minX - cx - 2), height: h)
-        } else if eff.barLayout == "left" || eff.barLayout == "split" {
-            // Les boutons à gauche (ou de part et d'autre) : les suggestions viennent au milieu de la barre.
-            let all: [UIButton] = [globeButton, emojiButton, fixButton, micButton, clipButton, adjustButton, hideButton]
-            let leftGroup = eff.barLayout == "left" ? all : [globeButton, emojiButton, fixButton, micButton]
-            var x = cx
-            for b in leftGroup where !b.isHidden && b.frame.width > 0 {
-                b.frame = CGRect(x: x, y: 0, width: b.frame.width, height: h)
-                x += b.frame.width
-            }
-            let rightEdge = eff.barLayout == "left" ? x1 - 6
-                : ([clipButton, adjustButton, hideButton].filter { !$0.isHidden && $0.frame.width > 0 }.map(\.frame.minX).min() ?? x1 - 6)
-            chips.frame = CGRect(x: x + 4, y: 0, width: max(0, rightEdge - x - 8), height: h)
         } else {
-            chips.frame = CGRect(x: cx, y: 0, width: max(0, globeButton.frame.minX - cx - 4), height: h)
+            // Trop de boutons pour les suggestions : seuls les boutons secondaires (traduire, corriger, réglages,
+            // 🌐 😀) se rangent derrière « ⋯ ». Le presse-papier, le micro et masquer-le-clavier restent visibles,
+            // et chaque bouton garde le côté choisi dans les réglages (à droite, à gauche, de part et d'autre).
+            var tucked: [UIButton] = []
+            if collapsedBar {
+                tucked = [globeButton, emojiButton, translateButton, fixButton, adjustButton].filter { !$0.isHidden }
+                tucked.forEach { $0.isHidden = true }
+            }
+            if !tucked.isEmpty {
+                moreButton.isHidden = false
+                moreButton.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
+                moreButton.tintColor = theme.text.withAlphaComponent(0.7)
+            }
+            let order: [UIButton] = [globeButton, emojiButton, translateButton, fixButton, micButton, clipButton, adjustButton, hideButton]
+            func shown(_ list: [UIButton]) -> [UIButton] { list.filter { !$0.isHidden && ($0 === moreButton || $0.frame.width > 0) } }
+            func width(_ b: UIButton) -> CGFloat { b === hideButton ? 40 : 36 }
+            var start = cx
+            if barOpened, !moreButton.isHidden, tucked.isEmpty { start = moreButton.frame.maxX + 2 }
+            var leftGroup: [UIButton] = [], rightGroup: [UIButton] = []
+            switch eff.barLayout {
+            case "left":
+                leftGroup = shown(order + (tucked.isEmpty ? [] : [moreButton]))
+            case "split":
+                leftGroup = shown([globeButton, emojiButton, translateButton, fixButton, micButton, clipButton] + (tucked.isEmpty ? [] : [moreButton]))
+                rightGroup = shown([adjustButton, hideButton])
+            default:
+                rightGroup = shown((tucked.isEmpty ? [] : [moreButton]) + order)
+            }
+            var x = start
+            for b in leftGroup { b.frame = CGRect(x: x, y: 0, width: width(b), height: h); x += width(b) }
+            var r = x1 - 6
+            for b in rightGroup.reversed() { r -= width(b); b.frame = CGRect(x: r, y: 0, width: width(b), height: h) }
+            chips.frame = CGRect(x: x + (leftGroup.isEmpty ? 0 : 4), y: 0, width: max(0, r - x - (leftGroup.isEmpty ? 4 : 8)), height: h)
         }
         dictLabel.frame = chips.frame
         dictLabel.textColor = theme.text
@@ -3379,7 +3408,12 @@ final class KeyboardCanvas: UIView {
             builtFor = .zero
             rebuild()
         case .mic:
-            micTapped()
+            // Option « tenir pour dicter » : un effleurement en écrivant ne lance plus la dictée par erreur.
+            if eff.micHold, dictState == .idle, ProcessInfo.processInfo.systemUptime - tr.t0 < 0.3 {
+                flash(L("Hold the mic to dictate"))
+            } else {
+                micTapped()
+            }
         case .backspace:
             break
         }

@@ -153,6 +153,8 @@ struct KBSettings: Codable, Equatable {
     var dictationKey = true
     /// Le micro aussi dans la rangée du bas, juste à côté de retour (comme le clavier de l'iPhone).
     var micByReturn = false
+    /// Le micro à côté de retour ne part qu'en le tenant un instant (pas d'effleurement par erreur).
+    var micHold = false
     /// Le bouton ✨ Corriger dans la barre (on peut le cacher).
     var wandButton = true
     /// Où vont les boutons de la barre du haut : « right » (à droite), « left » (à gauche), « split » (de part et
@@ -270,6 +272,7 @@ struct KBSettings: Codable, Equatable {
         tapLearn = (try? c.decodeIfPresent(Bool.self, forKey: .tapLearn)) ?? d.tapLearn
         dictationKey = (try? c.decodeIfPresent(Bool.self, forKey: .dictationKey)) ?? d.dictationKey
         micByReturn = (try? c.decodeIfPresent(Bool.self, forKey: .micByReturn)) ?? d.micByReturn
+        micHold = (try? c.decodeIfPresent(Bool.self, forKey: .micHold)) ?? d.micHold
         wandButton = (try? c.decodeIfPresent(Bool.self, forKey: .wandButton)) ?? d.wandButton
         barLayout = (try? c.decodeIfPresent(String.self, forKey: .barLayout)) ?? d.barLayout
         squareKeys = (try? c.decodeIfPresent(Bool.self, forKey: .squareKeys)) ?? d.squareKeys

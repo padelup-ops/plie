@@ -122,7 +122,12 @@ final class KBVoicePanel: UIView {
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {}
 
     func style(background: UIColor, key: UIColor, text: UIColor, accent: UIColor) {
-        backgroundColor = background
+        // Thème verre (ou aperçu dans l'app) : un fond presque transparent laissait voir les touches à travers.
+        var a: CGFloat = 1
+        background.getWhite(nil, alpha: &a)
+        backgroundColor = a < 0.85
+            ? UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.08, alpha: 0.97) : UIColor(white: 0.96, alpha: 0.97) }
+            : background
         self.key = key
         self.text = text
         self.accent = accent
@@ -137,7 +142,11 @@ final class KBVoicePanel: UIView {
     }
 
     /// La pastille de traduction : « FR ⇄ EN », allumée quand ce qu'on dit est traduit.
-    func setTranslate(on: Bool, pair: [String]) {
+    private var translateShown = true
+
+    /// `shown` : le bouton « Traduire » est activé dans les réglages. Sinon, aucune trace de traduction dans la dictée.
+    func setTranslate(on: Bool, pair: [String], shown: Bool = true) {
+        translateShown = shown
         let label = pair.map { $0.uppercased() }.joined(separator: on ? " → " : " ⇄ ")
         var a = AttributedString(label)
         a.font = .systemFont(ofSize: 12, weight: .bold)
@@ -261,7 +270,7 @@ final class KBVoicePanel: UIView {
         status.frame = CGRect(x: pad, y: 12, width: w - 2 * pad, height: mode == .needsApp ? 64 : 22)
         let ps = translatePill.sizeThatFits(CGSize(width: 140, height: 30))
         translatePill.frame = CGRect(x: w - pad - ps.width, y: 8, width: ps.width, height: max(28, ps.height))
-        translatePill.isHidden = mode == .needsApp
+        translatePill.isHidden = mode == .needsApp || !translateShown
         let btn: CGFloat = 54
         cancel.frame = CGRect(x: pad, y: h - btn - 14, width: btn, height: btn)
         cancel.layer.cornerRadius = btn / 2

@@ -15,6 +15,10 @@ final class DictationService {
     enum Status: Equatable { case off, starting, ready, listening, denied, unavailable }
     var status: Status = .off
     var heard = ""
+    /// Ce qui a déjà été dit dans cette dictée, quand le moteur repart de zéro après un silence.
+    private var merger = KBTranscriptMerger()
+    private func resetMerge() { merger = KBTranscriptMerger() }
+    private func merge(_ raw: String) -> String { merger.merge(raw) }
     var endsAt: Date?
 
     private let engine = AVAudioEngine()
@@ -286,15 +290,21 @@ final class DictationService {
         seq += 1
         let mine = seq
         heard = ""
+        resetMerge()
         status = .listening
         save("", final: false, seq: mine)
         startLevelTimer(mine)
         task = recognizer.recognitionTask(with: req) { [weak self] result, error in
             guard let self else { return }
             if let result {
-                let t = result.bestTranscription.formattedString
-                DispatchQueue.main.async { self.heard = t }
-                self.save(t, final: result.isFinal, seq: mine)
+                let raw = result.bestTranscription.formattedString
+                let fin = result.isFinal
+                DispatchQueue.main.async {
+                    guard self.seq == mine else { return }
+                    let t = self.merge(raw)
+                    self.heard = t
+                    self.save(t, final: fin, seq: mine)
+                }
             }
             if result?.isFinal == true || error != nil {
                 DispatchQueue.main.async {
@@ -306,7 +316,7 @@ final class DictationService {
         touch()
     }
 
-    /// Le niveau de la voix vers le clavier, et l'arrêt tout seul quand on se tait (2,5 s après la dernière parole,
+    /// Le niveau de la voix vers le clavier, et l'arrêt tout seul quand on se tait (4,5 s après la dernière parole,
     /// ou 8 s si rien n'a été dit).
     private func startLevelTimer(_ mine: Int) {
         lastVoice = Date(); startedAt = Date()
@@ -320,7 +330,7 @@ final class DictationService {
             // On a parlé : du texte, ou une voix entendue un moment (le texte de Parakeet arrive un peu après).
             let said = !self.heard.trimmingCharacters(in: .whitespaces).isEmpty || self.lastVoice.timeIntervalSince(self.startedAt) > 0.4
             if self.finishTimer == nil || self.finishTimer?.isValid == false,
-               (said && quiet > 2.5) || (!said && Date().timeIntervalSince(self.startedAt) > 8) {
+               (said && quiet > 4.5) || (!said && Date().timeIntervalSince(self.startedAt) > 8) {
                 self.endRecognition()
             }
         }
@@ -333,6 +343,7 @@ final class DictationService {
         seq += 1
         let mine = seq
         heard = ""
+        resetMerge()
         status = .listening
         save("", final: false, seq: mine)
         startLevelTimer(mine)
@@ -341,8 +352,9 @@ final class DictationService {
                 guard let self, self.seq == mine else { return }
                 if !final {
                     guard self.status == .listening else { return }
-                    self.heard = text
-                    self.save(text, final: false, seq: mine)
+                    let t = self.merge(text)
+                    self.heard = t
+                    self.save(t, final: false, seq: mine)
                     return
                 }
                 // Parakeet n'a pas pu servir : la dictée d'Apple pour la suite de la session.
@@ -354,7 +366,7 @@ final class DictationService {
                     }
                 }
                 guard self.status == .listening else { return }
-                self.save(text.isEmpty ? self.heard : text, final: true, seq: mine)
+                self.save(text.isEmpty ? self.heard : self.merge(text), final: true, seq: mine)
                 self.finishRecognition()
             }
         }
@@ -369,6 +381,7 @@ final class DictationService {
         seq += 1
         let mine = seq
         heard = ""
+        resetMerge()
         status = .listening
         save("", final: false, seq: mine)
         startLevelTimer(mine)
