@@ -77,6 +77,10 @@ jobs:
               fr) LOC=fr_FR ;; es) LOC=es_ES ;; de) LOC=de_DE ;; it) LOC=it_IT ;; pt-BR) LOC=pt_BR ;; *) LOC=en_US ;;
             esac
             mkdir -p "shots/$L"
+            # Premier lancement dans la langue (plus lent) : l'app s'ouvre une fois avant les captures.
+            lim 60 xcrun simctl launch "$UDID" "$BID" -AppleLanguages "($L)" -AppleLocale "$LOC" -shot home > /dev/null 2>&1 || true
+            sleep 8
+            xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
             N=0
             for R in ${{ inputs.routes }}; do
               N=$((N+1))

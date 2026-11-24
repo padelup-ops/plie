@@ -126,7 +126,7 @@ struct Snowfall: View {
             if still {
                 Canvas { ctx, size in flakes(&ctx, size, t: 40) }
             } else {
-                TimelineView(.animation(minimumInterval: Motion.interval, paused: reduce)) { tl in
+                TimelineView(.animation(minimumInterval: Motion.every(), paused: reduce)) { tl in
                     Canvas { ctx, size in flakes(&ctx, size, t: reduce ? 40 : tl.date.timeIntervalSinceReferenceDate) }
                 }
             }
@@ -172,18 +172,18 @@ struct NightScene: View {
                 if still {
                     Canvas { ctx, size in stars(&ctx, size, t: 0) }
                 } else {
-                    TimelineView(.animation(minimumInterval: Motion.interval ?? 1 / 20, paused: reduce)) { tl in
+                    TimelineView(.animation(minimumInterval: Motion.every(1 / 20), paused: reduce)) { tl in
                         Canvas { ctx, size in stars(&ctx, size, t: tl.date.timeIntervalSinceReferenceDate) }
                     }
                 }
                 if moon {
                     Circle().fill(RadialGradient(colors: [Noel.goldLight.opacity(0.45), .clear], center: .center, startRadius: 30, endRadius: 150))
-                        .frame(width: 300, height: 300).position(x: w * 0.78, y: h * 0.13)
+                        .frame(width: 300, height: 300).position(x: w * 0.76, y: h * 0.17)
                     Circle().fill(LinearGradient(colors: [Color(red: 1, green: 0.96, blue: 0.84), Noel.goldLight], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .frame(width: 74, height: 74)
                         .overlay(Circle().fill(Noel.gold.opacity(0.25)).frame(width: 14, height: 14).offset(x: -12, y: -8))
                         .overlay(Circle().fill(Noel.gold.opacity(0.2)).frame(width: 9, height: 9).offset(x: 14, y: 12))
-                        .position(x: w * 0.78, y: h * 0.13)
+                        .position(x: w * 0.76, y: h * 0.17)
                 }
                 if trees { Hills(width: w, height: h) }
             }
@@ -301,7 +301,7 @@ struct WorkshopScene: View {
                 // étagère et paquets
                 shelf(w: w, h: h)
                 // la lueur du feu, en bas
-                TimelineView(.animation(minimumInterval: Motion.interval ?? 1 / 15, paused: reduce)) { tl in
+                TimelineView(.animation(minimumInterval: Motion.every(1 / 15), paused: reduce)) { tl in
                     let t = tl.date.timeIntervalSinceReferenceDate
                     let flicker = reduce ? 0.8 : 0.72 + 0.12 * sin(t * 7.3) + 0.08 * sin(t * 13.1)
                     Ellipse().fill(RadialGradient(colors: [Color(red: 1, green: 0.62, blue: 0.25).opacity(0.55 * flicker), .clear], center: .center, startRadius: 0, endRadius: w * 0.7))
@@ -350,7 +350,7 @@ struct Garland: View {
     @Environment(\.accessibilityReduceMotion) private var reduce
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: Motion.interval ?? 1 / 12, paused: reduce)) { tl in
+        TimelineView(.animation(minimumInterval: Motion.every(1 / 12), paused: reduce)) { tl in
             Canvas { ctx, s in
                 let t = tl.date.timeIntervalSinceReferenceDate
                 var wire = Path()
@@ -384,7 +384,7 @@ struct StarBurst: View {
     var count = 40
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: Motion.interval)) { tl in
+        TimelineView(.animation(minimumInterval: Motion.every())) { tl in
             Canvas { ctx, s in
                 let t = tl.date.timeIntervalSince(start)
                 guard t >= 0 else { return }

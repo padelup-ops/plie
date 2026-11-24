@@ -157,14 +157,55 @@ struct CallView: View {
             WorkshopScene()
             Snowfall(count: 22, speed: 0.5, opacity: 0.35)
 
-            VStack(spacing: 0) {
-                Spacer(minLength: 0)
-                SantaView(mouth: call.mouth, mood: call.mood)
-                    .frame(maxWidth: 460)
-                    .scaleEffect(entered ? 1 : 0.9, anchor: .bottom)
-                    .offset(y: 20)
+            // Le Père Noël derrière son bureau : son visage reste toujours visible, les sous-titres et le bouton
+            // pour raccrocher sont posés sur le bureau.
+            GeometryReader { geo in
+                let w = min(geo.size.width, 470)
+                let h = w * 1.2
+                let santaTop: CGFloat = 46
+                let deskTop = min(santaTop + h * 0.86, geo.size.height - 210)
+                ZStack(alignment: .topLeading) {
+                    SantaView(mouth: call.mouth, mood: call.mood)
+                        .frame(width: w, height: h)
+                        .scaleEffect(entered ? 1 : 0.92, anchor: .bottom)
+                        .position(x: geo.size.width / 2, y: min(santaTop, deskTop - h * 0.86) + h / 2)
+                    Desk()
+                        .frame(width: geo.size.width, height: geo.size.height - deskTop + geo.safeAreaInsets.bottom)
+                        .offset(y: deskTop)
+                    VStack(spacing: 14) {
+                        Spacer(minLength: 0)
+                        if model.subtitles && !call.caption.isEmpty {
+                            Text(call.caption)
+                                .font(.story(22))
+                                .foregroundStyle(Noel.cream)
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(3)
+                                .minimumScaleFactor(0.75)
+                                .padding(.horizontal, 20).padding(.vertical, 14)
+                                .frame(maxWidth: .infinity)
+                                .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.black.opacity(0.42)))
+                                .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Noel.gold.opacity(0.3), lineWidth: 1))
+                                .padding(.horizontal, 16)
+                                .id(call.caption)
+                                .transition(.opacity.combined(with: .offset(y: 8)))
+                        }
+                        Spacer(minLength: 0)
+                        Button { model.hangUp() } label: {
+                            Image(systemName: "phone.down.fill")
+                                .font(.system(size: 26, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 66, height: 66)
+                                .background(Circle().fill(Color(red: 0.92, green: 0.26, blue: 0.24)))
+                                .shadow(color: .black.opacity(0.35), radius: 8, y: 3)
+                        }
+                        .accessibilityLabel(Text("Hang up"))
+                        .padding(.bottom, 8)
+                    }
+                    .frame(width: geo.size.width, height: geo.size.height - deskTop - 18)
+                    .offset(y: deskTop + 18)
+                }
             }
-            .ignoresSafeArea(edges: .bottom)
+            .animation(.easeInOut(duration: 0.35), value: call.caption)
 
             if let at = call.surpriseAt {
                 SurpriseStar(start: at).id(at)
@@ -176,31 +217,7 @@ struct CallView: View {
                     ListeningBubble().transition(.scale.combined(with: .opacity))
                 }
                 Spacer()
-                if model.subtitles && !call.caption.isEmpty {
-                    Text(call.caption)
-                        .font(.story(22))
-                        .foregroundStyle(Noel.cream)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(3)
-                        .padding(.horizontal, 20).padding(.vertical, 16)
-                        .frame(maxWidth: .infinity)
-                        .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.black.opacity(0.55)))
-                        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Noel.gold.opacity(0.3), lineWidth: 1))
-                        .padding(.horizontal, 16)
-                        .id(call.caption)
-                        .transition(.opacity.combined(with: .offset(y: 8)))
-                }
-                Button { model.hangUp() } label: {
-                    Image(systemName: "phone.down.fill")
-                        .font(.system(size: 26, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .frame(width: 66, height: 66)
-                        .background(Circle().fill(Color(red: 0.92, green: 0.26, blue: 0.24)))
-                }
-                .accessibilityLabel(Text("Hang up"))
-                .padding(.bottom, 8)
             }
-            .animation(.easeInOut(duration: 0.35), value: call.caption)
             .animation(.spring(duration: 0.4), value: call.mood)
 
             // l'éclat du décroché qui se dissipe
@@ -244,6 +261,44 @@ struct CallView: View {
     }
 }
 
+/// Le bureau du Père Noël : du bois chaud, un rebord clair, quelques lettres et un paquet.
+struct Desk: View {
+    var body: some View {
+        Canvas { ctx, s in
+            let w = s.width, h = s.height
+            ctx.fill(Path(CGRect(x: 0, y: 0, width: w, height: h)),
+                     with: .linearGradient(Gradient(colors: [Color(red: 0.47, green: 0.26, blue: 0.14), Color(red: 0.30, green: 0.15, blue: 0.08)]),
+                                           startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: h)))
+            for i in 1..<5 {
+                let y = 22 + Double(i) * (h - 22) / 5
+                ctx.fill(Path(CGRect(x: 0, y: y, width: w, height: 1.2)), with: .color(.black.opacity(0.16)))
+            }
+            // le rebord
+            ctx.fill(Path(CGRect(x: 0, y: 0, width: w, height: 18)),
+                     with: .linearGradient(Gradient(colors: [Color(red: 0.70, green: 0.45, blue: 0.27), Color(red: 0.52, green: 0.30, blue: 0.16)]),
+                                           startPoint: .zero, endPoint: CGPoint(x: 0, y: 18)))
+            ctx.fill(Path(CGRect(x: 0, y: 18, width: w, height: 6)), with: .color(.black.opacity(0.25)))
+            // des lettres, à gauche
+            for (i, a) in [(-8.0), 6.0, -2.0].enumerated() {
+                var l = ctx
+                l.translateBy(x: 38 + Double(i) * 6, y: 2 - Double(i) * 3)
+                l.rotate(by: .degrees(a))
+                let r = CGRect(x: -26, y: -16, width: 52, height: 32)
+                l.fill(Path(roundedRect: r, cornerRadius: 2), with: .color(Noel.cream))
+                var flap = Path()
+                flap.move(to: CGPoint(x: -26, y: -16)); flap.addLine(to: CGPoint(x: 0, y: 2)); flap.addLine(to: CGPoint(x: 26, y: -16))
+                l.stroke(flap, with: .color(Noel.gold.opacity(0.8)), lineWidth: 1.2)
+                if i == 2 { l.fill(Path(ellipseIn: CGRect(x: -5, y: -3, width: 10, height: 10)), with: .color(Noel.red)) }
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            Gift(color: Noel.red, ribbon: Noel.gold).frame(width: 34, height: 30).offset(x: -30, y: -24)
+        }
+        .shadow(color: .black.opacity(0.4), radius: 14, y: -4)
+        .allowsHitTesting(false)
+    }
+}
+
 /// Pendant les pauses : le Père Noël écoute la réponse de l'enfant (rien n'est enregistré).
 struct ListeningBubble: View {
     var body: some View {
@@ -267,7 +322,7 @@ struct SurpriseStar: View {
     var body: some View {
         ZStack {
             GeometryReader { geo in
-                TimelineView(.animation(minimumInterval: Motion.interval)) { tl in
+                TimelineView(.animation(minimumInterval: Motion.every())) { tl in
                     let t = tl.date.timeIntervalSince(start)
                     let grow = min(1, max(0, t / 0.6))
                     let fade = t < 3.4 ? 1 : max(0, 1 - (t - 3.4) / 0.8)

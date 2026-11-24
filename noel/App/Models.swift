@@ -149,7 +149,8 @@ enum Countdown {
 /// Le rythme des animations : normal sur l'iPhone ; dans les captures, deux images par seconde suffisent (le simulateur
 /// des Mac de GitHub n'a pas de carte graphique et s'essouffle sinon).
 enum Motion {
-    static let interval: Double? = ShotMode.route != nil ? 0.5 : nil
+    /// Intervalle entre deux images : 30 par seconde suffisent au dessin (et ménagent la batterie).
+    static func every(_ normal: Double = 1.0 / 30) -> Double { ShotMode.route != nil ? 0.5 : normal }
 }
 
 /// Captures pour l'App Store : l'app est lancée avec « -shot nom » et ouvre l'écran voulu, avec un exemple.

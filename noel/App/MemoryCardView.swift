@@ -67,7 +67,7 @@ struct MemoryCard: View {
         switch style {
         case .night:
             ZStack {
-                NightScene(moon: true, trees: true, still: true)
+                NightScene(moon: false, trees: true, still: true)
                 Snowfall(count: 70, still: true)
             }
         case .workshop:
