@@ -7,8 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       user:
-        description: "Nom d'utilisateur Kaggle"
-        required: true
+        description: "Nom d'utilisateur Kaggle (vide = trouvé avec la clé)"
+        required: false
+        default: ""
       portrait:
         description: "Portrait (chemin dans le dépôt)"
         required: false
@@ -40,6 +41,24 @@ jobs:
           [ -n "$KAGGLE_API_TOKEN" ] || { echo "::error::Secret KAGGLE_API_TOKEN absent"; exit 1; }
           pip install -q -U kaggle 2>&1 | tail -1
           kaggle --version
+          if [ -z "$KUSER" ]; then
+            KUSER=$(python3 - <<'EOF'
+          from kaggle.api.kaggle_api_extended import KaggleApi
+          api = KaggleApi(); api.authenticate()
+          u = (getattr(api, "config_values", {}) or {}).get("username") or ""
+          if not u:
+              try:
+                  u = api.get_config_value("username") or ""
+              except Exception:
+                  pass
+          print(u)
+          EOF
+            )
+            [ -n "$KUSER" ] || KUSER=$(kaggle config view 2>/dev/null | awk -F': ' '/username/ {print $2}' | tr -d ' ')
+            echo "utilisateur trouvé : ${KUSER:-?}"
+            [ -n "$KUSER" ] || { echo "::error::Nom d'utilisateur Kaggle introuvable, à donner en entrée"; exit 1; }
+            echo "KUSER=$KUSER" >> "$GITHUB_ENV"
+          fi
           mkdir -p k out
           python3 - <<'EOF'
           import json, os
@@ -89,7 +108,7 @@ jobs:
       - name: Lancer sur Kaggle
         run: |
           kaggle kernels push -p k
-          REF="$KUSER/$SLUG"
+          REF="$KUSER/$SLUG"; echo "calcul : $REF"
           for i in $(seq 1 280); do
             S=$(kaggle kernels status "$REF" 2>&1 | tail -1); echo "$(date -u +%H:%M) $S"
             echo "$S" | grep -qiE "complete|error|cancel" && break
