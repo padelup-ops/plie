@@ -1,0 +1,2 @@
+durée audio : 15.754667
+animation : 7000 s

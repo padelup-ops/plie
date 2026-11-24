@@ -1,0 +1,59 @@
+In file included from /opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/site-packages/numpy/_core/include/numpy/ndarraytypes.h:1909,
+                 from /opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/site-packages/numpy/_core/include/numpy/ndarrayobject.h:12,
+                 from /opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/site-packages/numpy/_core/include/numpy/arrayobject.h:5,
+                 from /home/runner/.pyxbld/temp.linux-x86_64-cpython-310/home/runner/work/plie/plie/ditto/core/utils/blend/blend.c:1292:
+/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/site-packages/numpy/_core/include/numpy/npy_1_7_deprecated_api.h:17:2: warning: #warning "Using deprecated NumPy API, disable it with " "#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
+   17 | #warning "Using deprecated NumPy API, disable it with " \
+      |  ^~~~~~~
+/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:123: UserWarning: Specified provider 'CUDAExecutionProvider' is not in available provider names.Available providers: 'AzureExecutionProvider, CPUExecutionProvider'
+  warnings.warn(
+WARNING: Logging before InitGoogle() is written to STDERR
+W0000 00:00:1795502582.353106    3425 face_landmarker_graph.cc:181] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1795502582.362021    3429 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1795502582.372705    3430 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+[0;93m2026-11-24 06:43:05.033173837 [W:onnxruntime:, execution_frame.cc:874 VerifyOutputSizes] Expected shape from model of {800,10} does not match actual shape of {512,10} for output 500[m
+[0;93m2026-11-24 06:43:05.033261969 [W:onnxruntime:, execution_frame.cc:874 VerifyOutputSizes] Expected shape from model of {800,4} does not match actual shape of {512,4} for output 497[m
+[0;93m2026-11-24 06:43:05.033306426 [W:onnxruntime:, execution_frame.cc:874 VerifyOutputSizes] Expected shape from model of {800,1} does not match actual shape of {512,1} for output 494[m
+[0;93m2026-11-24 06:43:05.036201804 [W:onnxruntime:, execution_frame.cc:874 VerifyOutputSizes] Expected shape from model of {3200,10} does not match actual shape of {2048,10} for output 477[m
+[0;93m2026-11-24 06:43:05.036367904 [W:onnxruntime:, execution_frame.cc:874 VerifyOutputSizes] Expected shape from model of {3200,4} does not match actual shape of {2048,4} for output 474[m
+[0;93m2026-11-24 06:43:05.036497088 [W:onnxruntime:, execution_frame.cc:874 VerifyOutputSizes] Expected shape from model of {3200,1} does not match actual shape of {2048,1} for output 471[m
+[0;93m2026-11-24 06:43:05.046844552 [W:onnxruntime:, execution_frame.cc:874 VerifyOutputSizes] Expected shape from model of {12800,10} does not match actual shape of {8192,10} for output 454[m
+[0;93m2026-11-24 06:43:05.047476193 [W:onnxruntime:, execution_frame.cc:874 VerifyOutputSizes] Expected shape from model of {12800,4} does not match actual shape of {8192,4} for output 451[m
+[0;93m2026-11-24 06:43:05.047948493 [W:onnxruntime:, execution_frame.cc:874 VerifyOutputSizes] Expected shape from model of {12800,1} does not match actual shape of {8192,1} for output 448[m
+==================== setup kwargs ====================
+max_size <class 'int'> 1920
+template_n_frames <class 'int'> -1
+crop_scale <class 'float'> 2.3
+crop_vx_ratio <class 'int'> 0
+crop_vy_ratio <class 'float'> -0.125
+crop_flag_do_rot <class 'bool'> True
+smo_k_s <class 'int'> 13
+emo <class 'numpy.ndarray'> (600, 8)
+eye_f0_mode <class 'bool'> False
+ch_info <class 'dict'>
+overlap_v2 <class 'int'> 10
+fix_kp_cond <class 'int'> 1
+fix_kp_cond_dim <class 'list'> [0, 202]
+sampling_timesteps <class 'int'> 50
+online_mode <class 'bool'> False
+v_min_max_for_clip <class 'numpy.ndarray'> (4, 265)
+smo_k_d <class 'int'> 3
+N_d <class 'int'> -1
+use_d_keys <class 'NoneType'> None
+relative_d <class 'bool'> True
+drive_eye <class 'NoneType'> None
+delta_eye_arr <class 'numpy.ndarray'> (15, 63)
+delta_eye_open_n <class 'int'> 0
+fade_type <class 'str'> d0
+fade_out_keys <class 'list'> ['exp']
+flag_stitching <class 'bool'> True
+overall_ctrl_info <class 'dict'> {'delta_pitch': 2}
+==================================================
+writer: 0it [00:00, ?it/s]
+dit: 0it [00:00, ?it/s][A
+dit: 2it [00:05,  2.66s/it][A
+dit: 3it [00:10,  3.75s/it][A
+dit: 4it [00:15,  4.31s/it][A
+dit: 5it [00:21,  4.64s/it][A
+dit: 6it [00:26,  4.82s/it][Adit: 6it [00:31,  5.24s/it]
