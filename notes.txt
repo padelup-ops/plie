@@ -1,0 +1,11 @@
+18 narrateurs lus en 36 s
+narrateur 4193 : hauteur médiane 91 Hz, 14 s de référence
+narrateur 7601 : hauteur médiane 98 Hz, 14 s de référence
+narrateur 1770 : hauteur médiane 125 Hz, 14 s de référence
+narrateur 7142 : hauteur médiane 132 Hz, 14 s de référence
+voix-origine : 12.1 s d'audio en 50 s
+narrateur-4193 : 10.0 s d'audio en 47 s
+narrateur-7601 : 12.8 s d'audio en 61 s
+narrateur-1770 : 9.8 s d'audio en 47 s
+narrateur-7142 : 11.2 s d'audio en 52 s
+phrase : Ho, ho, ho ! Bonjour Léa ! C'est moi, le Père Noël. Je t'appelle depuis mon atelier, au pôle Nord. Tu sais, on m'a dit que tu as un grand cœur. C'est merveilleux !
