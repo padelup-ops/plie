@@ -1,0 +1,22 @@
+# ALLÔ PÈRE NOËL : l'achat unique « La magie complète » (textes en 6 langues, prix, disponibilité, capture)
+name: Noël - achat
+on:
+  workflow_dispatch:
+    inputs:
+      price:
+        description: "Prix (€)"
+        default: "3.99"
+jobs:
+  iap:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      PRICE: ${{ inputs.price }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Achat
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 noel/tools/iap.py

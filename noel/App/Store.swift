@@ -99,7 +99,7 @@ struct PaywallView: View {
                         .font(.tale(36))
                         .foregroundStyle(Noel.cream)
                         .padding(.top, 22)
-                    Text("One purchase for the whole family. No subscription.")
+                    Text("One purchase for all your children. No subscription.")
                         .font(.ui(16))
                         .foregroundStyle(Noel.cream.opacity(0.75))
                         .multilineTextAlignment(.center)
