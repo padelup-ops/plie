@@ -9,7 +9,7 @@ import jwt
 API = "https://api.appstoreconnect.apple.com"
 MODE = os.environ.get("MODE", "probe")
 APP = os.environ.get("APP", "")
-BUNDLES = {"foldly": "com.padelup.clapet", "origamo": os.environ.get("ORIGAMO_BUNDLE", ""), "waffle": "com.padelup.waffle", "foldboard": "com.padelup.foldboard", "retrofold": "com.padelup.retrofold", "twinfold": "com.padelup.twinfold", "vicefold": "com.padelup.vicefold"}
+BUNDLES = {"foldly": "com.padelup.clapet", "origamo": os.environ.get("ORIGAMO_BUNDLE", ""), "waffle": "com.padelup.waffle", "foldboard": "com.padelup.foldboard", "retrofold": "com.padelup.retrofold", "twinfold": "com.padelup.twinfold", "vicefold": "com.padelup.vicefold", "noel": "com.padelup.allonoel"}
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
                     "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",
                    headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
