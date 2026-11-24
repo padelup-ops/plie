@@ -159,9 +159,10 @@ struct RootView: View {
             .preferredColorScheme(.dark)
             .tint(Noel.gold)
         }
-        // L'écran reste allumé pendant l'appel.
-        .onChange(of: model.screen) { _, s in
+        // L'écran reste allumé pendant l'appel ; la musique de Noël se tait avant la sonnerie.
+        .onChange(of: model.screen, initial: true) { _, s in
             UIApplication.shared.isIdleTimerDisabled = [.waiting, .incoming, .call].contains(s)
+            ChristmasMusic.shared.screen(wantsMusic: ![.waiting, .incoming, .call].contains(s))
         }
     }
 }

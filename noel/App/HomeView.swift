@@ -47,15 +47,20 @@ struct SplashView: View {
 struct HomeView: View {
     @Environment(AppModel.self) private var model
     @State private var appeared = false
+    @State private var music = ChristmasMusic.shared
 
     var body: some View {
         ZStack {
             NightScene()
             Snowfall()
             VStack(spacing: 0) {
-                HStack {
+                HStack(spacing: 10) {
                     CountdownChip()
                     Spacer()
+                    Button { music.enabled.toggle() } label: {
+                        RoundIcon(symbol: music.enabled ? "music.note" : "speaker.slash.fill")
+                    }
+                    .accessibilityLabel(Text(music.enabled ? "Turn the music off" : "Turn the music on"))
                     Button { model.sheet = .settings } label: { RoundIcon(symbol: "gearshape.fill") }
                         .accessibilityLabel(Text("Settings"))
                 }

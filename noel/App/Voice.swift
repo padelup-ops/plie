@@ -191,8 +191,8 @@ final class SantaVoice {
     func ambience(on: Bool) {
         start()
         music.stop()
-        guard on, let b = file("ambience") else { return }
-        music.volume = 0.16
+        guard on, let b = file("music-call") else { return }
+        music.volume = 0.26
         music.scheduleBuffer(b, at: nil, options: .loops)
         music.play()
     }
