@@ -598,7 +598,7 @@ struct BentoHomeView: View {
 
     private var giftCard: some View {
         white {
-            GiftCard { plusReason = .offer } onHide: {
+            GiftCard {
                 GiftOffer.hide()
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { giftHidden = true }
             }

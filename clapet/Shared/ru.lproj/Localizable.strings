@@ -910,3 +910,13 @@
 "If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "Если звука всё ещё нет: Настройки › Дополнительно › Экспортировать звуки, затем «Воспроизвести звук» в «Командах» для сохранённого файла.";
 "If there is no sound" = "Если звука нет";
 "Report a bug" = "Сообщить об ошибке";
+
+/* Black Friday 2026 */
+"Black Friday" = "Чёрная пятница";
+"Foldly+ is half price until Monday, November 30 with the code BLACKFRIDAY. Paid once, yours for good." = "Foldly+ за полцены до понедельника, 30 ноября, с кодом BLACKFRIDAY. Одна оплата — навсегда ваш.";
+"Use the code BLACKFRIDAY" = "Использовать код BLACKFRIDAY";
+"Black Friday: Foldly+ half price with the code BLACKFRIDAY" = "Чёрная пятница: Foldly+ за полцены с кодом BLACKFRIDAY";
+"Last day of Black Friday" = "Последний день Чёрной пятницы";
+"Foldly+ is half price until tonight with the code BLACKFRIDAY. Paid once, yours for good." = "Foldly+ за полцены до вечера с кодом BLACKFRIDAY. Одна оплата — навсегда ваш.";
+"Black Friday: half price" = "Чёрная пятница: полцены";
+"With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life." = "С кодом BLACKFRIDAY, до понедельника, 30 ноября. Foldly+ остаётся вашим навсегда.";

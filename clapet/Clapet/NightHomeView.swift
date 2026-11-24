@@ -433,7 +433,7 @@ struct NightHomeView: View {
                 }
             } else if !giftHidden && GiftOffer.shouldShow(model.stats, hasPlus: store.hasPlus) {
                 Card(filled: true) {
-                    GiftCard { plusReason = .offer } onHide: {
+                    GiftCard {
                         GiftOffer.hide()
                         withAnimation { giftHidden = true }
                     }

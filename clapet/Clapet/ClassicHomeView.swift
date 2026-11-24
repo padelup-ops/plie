@@ -142,7 +142,7 @@ struct ClassicHomeView: View {
                         }
                     } else if !giftHidden && GiftOffer.shouldShow(model.stats, hasPlus: store.hasPlus) {
                         ClassicCard {
-                            GiftCard { plusReason = .offer } onHide: {
+                            GiftCard {
                                 GiftOffer.hide()
                                 withAnimation { giftHidden = true }
                             }

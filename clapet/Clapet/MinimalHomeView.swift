@@ -332,7 +332,7 @@ struct MinimalHomeView: View {
             if Thanks3000.shouldShow {
                 notice(Text("Thank you for 3,000 downloads! 🎉")) { plusReason = .offer }
             } else if GiftOffer.shouldShow(s, hasPlus: store.hasPlus) {
-                notice(Text("Thanks for 2,000: Foldly+ half price until Nov 17")) { plusReason = .offer }
+                notice(Text("Black Friday: Foldly+ half price with the code BLACKFRIDAY")) { openURL(GiftOffer.redeemURL) }
             } else if !nudgeHidden && PlusNudgeRule.shouldShowCard(s, hasPlus: store.hasPlus) {
                 notice(Text("Unlock your trends")) { plusReason = .menu }
             }

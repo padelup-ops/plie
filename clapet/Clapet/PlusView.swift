@@ -71,6 +71,27 @@ struct PlusView: View {
                             .padding(14)
                             .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.dfAccent.opacity(0.12)))
                         }
+                        if GiftOffer.isOn {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "tag.fill")
+                                        .font(.title3)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Black Friday: half price")
+                                            .font(.subheadline.weight(.bold))
+                                        Text("With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life.")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    Spacer(minLength: 0)
+                                }
+                                .foregroundStyle(Color.dfAccent)
+                                GiftCodeButton()
+                            }
+                            .padding(14)
+                            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.dfAccent.opacity(0.12)))
+                        }
                         Button {
                             Task { await store.buy() }
                         } label: {

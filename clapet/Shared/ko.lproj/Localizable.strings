@@ -927,3 +927,13 @@
 "If the sound still doesn't play: Settings, Advanced, Export sounds, then use Shortcuts' Play Sound on the saved file." = "그래도 소리가 없으면: 설정 › 고급 › 소리 내보내기. 저장한 파일을 단축어의 사운드 재생으로 재생하세요.";
 "If there is no sound" = "소리가 없을 때";
 "Report a bug" = "버그 신고";
+
+/* Black Friday 2026 */
+"Black Friday" = "블랙 프라이데이";
+"Foldly+ is half price until Monday, November 30 with the code BLACKFRIDAY. Paid once, yours for good." = "코드 BLACKFRIDAY로 11월 30일(월)까지 Foldly+가 반값이에요. 한 번 결제하면 계속 사용할 수 있어요.";
+"Use the code BLACKFRIDAY" = "코드 BLACKFRIDAY 사용하기";
+"Black Friday: Foldly+ half price with the code BLACKFRIDAY" = "블랙 프라이데이: 코드 BLACKFRIDAY로 Foldly+ 반값";
+"Last day of Black Friday" = "블랙 프라이데이 마지막 날";
+"Foldly+ is half price until tonight with the code BLACKFRIDAY. Paid once, yours for good." = "코드 BLACKFRIDAY로 오늘 밤까지 Foldly+가 반값이에요. 한 번 결제하면 계속 사용할 수 있어요.";
+"Black Friday: half price" = "블랙 프라이데이: 반값";
+"With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life." = "코드 BLACKFRIDAY로 11월 30일(월)까지. Foldly+는 영원히 내 것이에요.";
