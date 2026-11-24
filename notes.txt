@@ -1,0 +1,12 @@
+fr kokoro am_santa : 9.6 s en 9 s
+fr kokoro em_santa : 7.6 s en 5 s
+fr kokoro pm_santa : 7.8 s en 5 s
+it kokoro am_santa : 10.6 s en 6 s
+it kokoro em_santa : 8.3 s en 5 s
+it kokoro pm_santa : 8.6 s en 5 s
+es kokoro am_santa : 11.3 s en 6 s
+es kokoro em_santa : 8.9 s en 5 s
+es kokoro pm_santa : 9.3 s en 5 s
+pt kokoro am_santa : 11.3 s en 6 s
+pt kokoro em_santa : 8.8 s en 5 s
+pt kokoro pm_santa : 9.1 s en 5 s
