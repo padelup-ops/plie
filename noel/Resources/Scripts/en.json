@@ -1,0 +1,445 @@
+{
+ "voices": [
+  "en-US",
+  "en-GB",
+  "en-AU"
+ ],
+ "rate": 0.45,
+ "pitch": 0.82,
+ "and": " and ",
+ "qualities": {
+  "kind": [
+   "you have a big heart"
+  ],
+  "curious": [
+   "you ask lots of questions to understand everything"
+  ],
+  "brave": [
+   "you are very brave"
+  ],
+  "funny": [
+   "you make everyone around you laugh"
+  ],
+  "sporty": [
+   "you love to run, jump and play"
+  ],
+  "dreamer": [
+   "your head is full of dreams"
+  ],
+  "creative": [
+   "you have an amazing imagination"
+  ],
+  "caring": [
+   "you take good care of others"
+  ],
+  "adventurous": [
+   "you love going on adventures"
+  ]
+ },
+ "qualityJoin": [
+  ", and that "
+ ],
+ "scenarios": {
+  "magic": [
+   {
+    "say": [
+     "Ho, ho, ho! Hello, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ho, ho, ho… Can you hear me?",
+     "Ho, ho, ho… Can you all hear me?"
+    ],
+    "listen": 3.5
+   },
+   {
+    "say": [
+     "It's me, Santa Claus! I'm calling from my workshop at the North Pole!"
+    ]
+   },
+   {
+    "say": [
+     "You know, the elves are very busy here. There are presents everywhere, ribbons, toys, and lots of magic!"
+    ]
+   },
+   {
+    "say": [
+     "So, you're {age} now? That's a wonderful age!"
+    ],
+    "if": "single"
+   },
+   {
+    "say": [
+     "I've heard about you this year, {name}. They told me that {quality}. That's wonderful!",
+     "I've heard about you all this year. They told me that {quality}. That's wonderful!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "I've heard about you this year, {name}, and I've heard so many lovely things!",
+     "I've heard about you all this year, and I've heard so many lovely things!"
+    ],
+    "if": "noQuality"
+   },
+   {
+    "say": [
+     "And guess what? A little bird told me that {anecdote}. Well done!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "I wanted to take a moment to tell you how proud I am of all the effort you've made."
+    ]
+   },
+   {
+    "say": [
+     "Tell me… are you excited for Christmas?",
+     "Tell me… are you all excited for Christmas?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! I thought so!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "And I've made a note that you're dreaming of {gift}. I'll tell my elves right away!"
+    ],
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Soon I'll be getting ready for my big trip around the world. So many children are waiting, and the reindeer are almost ready!"
+    ]
+   },
+   {
+    "say": [
+     "And don't forget: the magic of Christmas is also the joy you give to others."
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "secret": [
+   {
+    "say": [
+     "Ho, ho, ho… Hello, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "I'm going to tell you something, but it's a little North Pole secret… Can you keep a secret?",
+     "I'm going to tell you something, but it's a little North Pole secret… Can you all keep a secret?"
+    ],
+    "listen": 3.5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Very good. Now listen…"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "This morning, one of my elves came to see me with a very special letter. He told me all about you!"
+    ]
+   },
+   {
+    "say": [
+     "He told me that {quality}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "He told me that you are a truly wonderful person.",
+     "He told me that you are truly wonderful children."
+    ],
+    "if": "noQuality"
+   },
+   {
+    "say": [
+     "And guess what? He even wrote down something very special you did this year: {anecdote}!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "And guess what? He even wrote down all the little moments when you helped others and shared your smiles."
+    ],
+    "if": "noAnecdote"
+   },
+   {
+    "say": [
+     "Ho, ho, ho! You know, it's those little moments that make Christmas even more magical."
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "And you, do you have a secret to tell me? Whisper it very softly…",
+     "And you, do you have a secret to tell me? Whisper it very softly…"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Got it. It'll be our secret!"
+    ],
+    "laugh": true
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "say": [
+     "And I'll keep your little secret, I promise."
+    ]
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "congrats": [
+   {
+    "say": [
+     "Ho, ho, ho! Hello, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "I really wanted to talk to you today. Can you hear me?",
+     "I really wanted to talk to you all today. Can you hear me?"
+    ],
+    "listen": 3
+   },
+   {
+    "say": [
+     "This year, you've worked really hard, and I wanted to congratulate you."
+    ]
+   },
+   {
+    "say": [
+     "A little bird told me that {anecdote}. Bravo, bravo, bravo!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "And they also told me that {quality}. What a wonderful year!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "You know, at the North Pole, we know that the greatest achievements aren't always the biggest things."
+    ]
+   },
+   {
+    "say": [
+     "It's the effort, the kindness, the courage, and the moments when you keep going even when it's hard."
+    ]
+   },
+   {
+    "say": [
+     "Tell me, what was your favorite thing you learned this year?",
+     "Tell me, what was your favorite thing you learned this year?"
+    ],
+    "listen": 6
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Wonderful! Keep it up, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "I'm so happy I could send you a little Christmas magic."
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "funny": [
+   {
+    "say": [
+     "Ho, ho, ho! Hello, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Oh my, you'll never believe what happened to me at the workshop this morning!"
+    ]
+   },
+   {
+    "say": [
+     "I wanted to taste the elves' hot chocolate… but I slipped on a ribbon, and whoops! I fell head first into a mountain of presents!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ho, ho, ho! There was wrapping paper all the way into my beard!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "And then my reindeer Dasher sneezed so hard that all the Christmas lights turned on at once!"
+    ]
+   },
+   {
+    "say": [
+     "And you, do you ever get up to silly mischief?",
+     "And you, do you ever get up to silly mischief?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! I had a feeling you did!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "But I've also heard that {quality}. Now that's wonderful!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Oh, and I've made a note that you're dreaming of {gift}. I'll tell my elves, and I'll be careful not to slip on any ribbons!"
+    ],
+    "laugh": true,
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Well, I'd better go tidy up all those presents before the elves notice!"
+    ],
+    "laugh": true
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "eve": [
+   {
+    "say": [
+     "Ho, ho, ho! Good evening, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "It's Santa Claus. Tonight is a very special night: it's Christmas Eve!"
+    ]
+   },
+   {
+    "say": [
+     "My sleigh is ready, the presents are loaded, and my reindeer are stamping their hooves in the snow."
+    ]
+   },
+   {
+    "say": [
+     "Before I leave, I wanted to tell you that I've heard about you: they told me that {quality}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "And a little bird told me that {anecdote}. I'm so proud of you!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Tell me, did you remember to leave a carrot for my reindeer?",
+     "Tell me, did you remember to leave a carrot for my reindeer?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! They'll be delighted!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "I have a very important message for you: tonight, Christmas magic comes while children are sleeping."
+    ]
+   },
+   {
+    "say": [
+     "So tonight, close your eyes, have sweet dreams… and tomorrow morning, open them wide!"
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "say": [
+     "It's time for me to go. My reindeer are waiting! Merry Christmas, {name}! Ho, ho, ho!"
+    ],
+    "wave": true
+   }
+  ]
+ },
+ "blocks": {
+  "surprise": [
+   {
+    "say": [
+     "Oh, wait! Before I go, I have a little surprise for you… Watch the screen!"
+    ]
+   },
+   {
+    "spark": 3.4
+   },
+   {
+    "say": [
+     "It's a magic star, just for you. It will shine until Christmas!"
+    ]
+   }
+  ],
+  "goodbye": [
+   {
+    "say": [
+     "Ho, ho, ho! I have to get back to my workshop. Have a wonderful Christmas, {name}!"
+    ],
+    "wave": true
+   }
+  ],
+  "sample": [
+   {
+    "say": [
+     "Ho, ho, ho! Hello! It's Santa Claus, calling from the North Pole!"
+    ],
+    "laugh": true
+   }
+  ]
+ }
+}

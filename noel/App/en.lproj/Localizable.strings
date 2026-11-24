@@ -1,0 +1,4 @@
+/* Allô Père Noël */
+"Allô" = "A call from";
+"Père Noël" = "Santa";
+"Allô Père Noël %@" = "Santa Calls %@";

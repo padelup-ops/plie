@@ -1,0 +1,480 @@
+{
+ "voices": [
+  "de-DE",
+  "de-AT",
+  "de-CH"
+ ],
+ "rate": 0.45,
+ "pitch": 0.82,
+ "and": " und ",
+ "qualities": {
+  "kind": [
+   "du ein großes Herz hast",
+   "ihr ein großes Herz habt"
+  ],
+  "curious": [
+   "du ganz viele Fragen stellst, um alles zu verstehen",
+   "ihr ganz viele Fragen stellt, um alles zu verstehen"
+  ],
+  "brave": [
+   "du sehr mutig bist",
+   "ihr sehr mutig seid"
+  ],
+  "funny": [
+   "du alle um dich herum zum Lachen bringst",
+   "ihr alle um euch herum zum Lachen bringt"
+  ],
+  "sporty": [
+   "du so gern rennst, springst und tobst",
+   "ihr so gern rennt, springt und tobt"
+  ],
+  "dreamer": [
+   "du den Kopf voller Träume hast",
+   "ihr den Kopf voller Träume habt"
+  ],
+  "creative": [
+   "du eine unglaubliche Fantasie hast",
+   "ihr eine unglaubliche Fantasie habt"
+  ],
+  "caring": [
+   "du dich liebevoll um andere kümmerst",
+   "ihr euch liebevoll um andere kümmert"
+  ],
+  "adventurous": [
+   "du Abenteuer liebst",
+   "ihr Abenteuer liebt"
+  ]
+ },
+ "qualityJoin": [
+  " und dass ",
+  " und dass "
+ ],
+ "scenarios": {
+  "magic": [
+   {
+    "say": [
+     "Ho, ho, ho! Hallo, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ho, ho, ho… Kannst du mich gut hören?",
+     "Ho, ho, ho… Könnt ihr mich gut hören?"
+    ],
+    "listen": 3.5
+   },
+   {
+    "say": [
+     "Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!",
+     "Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werkstatt am Nordpol an!"
+    ]
+   },
+   {
+    "say": [
+     "Weißt du, hier haben die Wichtel ganz viel zu tun. Überall liegen Geschenke, Schleifen und Spielsachen, und ganz viel Zauber!",
+     "Wisst ihr, hier haben die Wichtel ganz viel zu tun. Überall liegen Geschenke, Schleifen und Spielsachen, und ganz viel Zauber!"
+    ]
+   },
+   {
+    "say": [
+     "Du bist jetzt also {age} Jahre alt? Das ist ein wunderbares Alter!"
+    ],
+    "if": "single"
+   },
+   {
+    "say": [
+     "Ich habe dieses Jahr von dir gehört, {name}. Man hat mir erzählt, dass {quality}. Das ist wunderbar!",
+     "Ich habe dieses Jahr von euch gehört. Man hat mir erzählt, dass {quality}. Das ist wunderbar!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Ich habe dieses Jahr von dir gehört, {name}, und nur schöne Dinge!",
+     "Ich habe dieses Jahr von euch gehört, und nur schöne Dinge!"
+    ],
+    "if": "noQuality"
+   },
+   {
+    "say": [
+     "Und stell dir vor, ein kleines Vögelchen hat mir etwas verraten: {anecdote}! Bravo!",
+     "Und stellt euch vor, ein kleines Vögelchen hat mir etwas verraten: {anecdote}! Bravo!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Ich wollte dir sagen, dass ich sehr stolz auf dich bin, weil du dir so viel Mühe gegeben hast.",
+     "Ich wollte euch sagen, dass ich sehr stolz auf euch bin, weil ihr euch so viel Mühe gegeben habt."
+    ]
+   },
+   {
+    "say": [
+     "Sag mal… freust du dich schon auf Weihnachten?",
+     "Sagt mal… freut ihr euch schon auf Weihnachten?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Das habe ich mir gedacht!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Und ich habe mir notiert, dass du dir {gift} wünschst. Das erzähle ich gleich meinen Wichteln!",
+     "Und ich habe mir notiert, dass ihr euch {gift} wünscht. Das erzähle ich gleich meinen Wichteln!"
+    ],
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Bald mache ich mich bereit für meine große Reise um die ganze Welt. So viele Kinder warten auf ihre Geschenke, und die Rentiere sind schon fast bereit!"
+    ]
+   },
+   {
+    "say": [
+     "Und vergiss vor allem nicht: Der Zauber von Weihnachten ist auch die Freude, die du anderen schenkst.",
+     "Und vergesst vor allem nicht: Der Zauber von Weihnachten ist auch die Freude, die ihr anderen schenkt."
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "secret": [
+   {
+    "say": [
+     "Ho, ho, ho… Hallo, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ich verrate dir etwas, aber es ist ein kleines Geheimnis vom Nordpol… Kannst du ein Geheimnis für dich behalten?",
+     "Ich verrate euch etwas, aber es ist ein kleines Geheimnis vom Nordpol… Könnt ihr ein Geheimnis für euch behalten?"
+    ],
+    "listen": 3.5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Sehr gut. Dann hör mal zu…",
+     "Ho, ho, ho! Sehr gut. Dann hört mal zu…"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Heute Morgen kam einer meiner Wichtel mit einem ganz besonderen Brief zu mir. Er hat mir von dir erzählt!",
+     "Heute Morgen kam einer meiner Wichtel mit einem ganz besonderen Brief zu mir. Er hat mir von euch erzählt!"
+    ]
+   },
+   {
+    "say": [
+     "Er hat mir erzählt, dass {quality}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Er hat mir erzählt, dass du ein ganz wunderbarer Mensch bist.",
+     "Er hat mir erzählt, dass ihr ganz wunderbare Kinder seid."
+    ],
+    "if": "noQuality"
+   },
+   {
+    "say": [
+     "Und stell dir vor, er hat sich sogar etwas ganz Besonderes aus diesem Jahr aufgeschrieben: {anecdote}!",
+     "Und stellt euch vor, er hat sich sogar etwas ganz Besonderes aus diesem Jahr aufgeschrieben: {anecdote}!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Und stell dir vor, er hat sich sogar all die kleinen Momente aufgeschrieben, in denen du anderen geholfen und dein Lächeln geteilt hast.",
+     "Und stellt euch vor, er hat sich sogar all die kleinen Momente aufgeschrieben, in denen ihr anderen geholfen und euer Lächeln geteilt habt."
+    ],
+    "if": "noAnecdote"
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Weißt du, genau diese kleinen Momente machen Weihnachten noch zauberhafter.",
+     "Ho, ho, ho! Wisst ihr, genau diese kleinen Momente machen Weihnachten noch zauberhafter."
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Und du, hast du auch ein Geheimnis für mich? Flüster es mir ganz leise…",
+     "Und ihr, habt ihr auch ein Geheimnis für mich? Flüstert es mir ganz leise…"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Notiert. Das bleibt unser Geheimnis!"
+    ],
+    "laugh": true
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "say": [
+     "Und dein kleines Geheimnis behalte ich für mich, versprochen.",
+     "Und euer kleines Geheimnis behalte ich für mich, versprochen."
+    ]
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "congrats": [
+   {
+    "say": [
+     "Ho, ho, ho! Hallo, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ich wollte heute unbedingt mit dir sprechen. Hörst du mich gut?",
+     "Ich wollte heute unbedingt mit euch sprechen. Hört ihr mich gut?"
+    ],
+    "listen": 3
+   },
+   {
+    "say": [
+     "Dieses Jahr hast du dir ganz viel Mühe gegeben, und dazu wollte ich dir gratulieren.",
+     "Dieses Jahr habt ihr euch ganz viel Mühe gegeben, und dazu wollte ich euch gratulieren."
+    ]
+   },
+   {
+    "say": [
+     "Ein kleines Vögelchen hat mir verraten: {anecdote}! Bravo, bravo, bravo!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Und man hat mir auch erzählt, dass {quality}. Was für ein schönes Jahr!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Weißt du, am Nordpol wissen wir: Die schönsten Erfolge sind nicht immer die größten Dinge.",
+     "Wisst ihr, am Nordpol wissen wir: Die schönsten Erfolge sind nicht immer die größten Dinge."
+    ]
+   },
+   {
+    "say": [
+     "Es sind die Mühe, die Freundlichkeit, der Mut und die Momente, in denen man weitermacht, auch wenn es schwer ist."
+    ]
+   },
+   {
+    "say": [
+     "Sag mal, was hast du dieses Jahr am liebsten gelernt?",
+     "Sagt mal, was habt ihr dieses Jahr am liebsten gelernt?"
+    ],
+    "listen": 6
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Wunderbar! Mach weiter so, {name}!",
+     "Ho, ho, ho! Wunderbar! Macht weiter so, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ich freue mich so, dass ich dir ein bisschen Weihnachtszauber schicken kann.",
+     "Ich freue mich so, dass ich euch ein bisschen Weihnachtszauber schicken kann."
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "funny": [
+   {
+    "say": [
+     "Ho, ho, ho! Hallo, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Oje, oje, du glaubst nicht, was mir heute Morgen in der Werkstatt passiert ist!",
+     "Oje, oje, ihr glaubt nicht, was mir heute Morgen in der Werkstatt passiert ist!"
+    ]
+   },
+   {
+    "say": [
+     "Ich wollte den heißen Kakao der Wichtel probieren… aber ich bin auf einer Schleife ausgerutscht und, plumps, kopfüber in einen riesigen Berg Geschenke gefallen!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Ich hatte Geschenkpapier bis in den Bart!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Und dann hat mein Rentier Donner so laut geniest, dass alle Weihnachtslichter auf einmal angegangen sind!"
+    ]
+   },
+   {
+    "say": [
+     "Und du, machst du auch manchmal lustigen Quatsch?",
+     "Und ihr, macht ihr auch manchmal lustigen Quatsch?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Das habe ich mir gedacht!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Aber man hat mir auch erzählt, dass {quality}. Das ist wunderbar!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Ach, und ich habe mir notiert, dass du dir {gift} wünschst. Das sage ich meinen Wichteln… und passe auf, dass ich auf keiner Schleife ausrutsche!",
+     "Ach, und ich habe mir notiert, dass ihr euch {gift} wünscht. Das sage ich meinen Wichteln… und passe auf, dass ich auf keiner Schleife ausrutsche!"
+    ],
+    "laugh": true,
+    "if": "gift"
+   },
+   {
+    "say": [
+     "So, jetzt muss ich schnell all die Geschenke aufräumen, bevor die Wichtel etwas merken!"
+    ],
+    "laugh": true
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "eve": [
+   {
+    "say": [
+     "Ho, ho, ho! Guten Abend, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Hier ist der Weihnachtsmann. Heute ist ein ganz besonderer Tag: Heiligabend!"
+    ]
+   },
+   {
+    "say": [
+     "Mein Schlitten ist bereit, die Geschenke sind geladen, und meine Rentiere scharren schon ungeduldig im Schnee."
+    ]
+   },
+   {
+    "say": [
+     "Bevor ich losfliege, wollte ich dir sagen, dass ich von dir gehört habe: Man hat mir erzählt, dass {quality}.",
+     "Bevor ich losfliege, wollte ich euch sagen, dass ich von euch gehört habe: Man hat mir erzählt, dass {quality}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Und ein kleines Vögelchen hat mir verraten: {anecdote}! Ich bin sehr stolz auf dich!",
+     "Und ein kleines Vögelchen hat mir verraten: {anecdote}! Ich bin sehr stolz auf euch!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Sag mal, hast du daran gedacht, eine Karotte für meine Rentiere hinzulegen?",
+     "Sagt mal, habt ihr daran gedacht, eine Karotte für meine Rentiere hinzulegen?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Darüber werden sie sich riesig freuen!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ich habe eine ganz wichtige Nachricht für dich: Ich bin schon bald unterwegs. Halte die Ohren offen, vielleicht hörst du meine Glöckchen!",
+     "Ich habe eine ganz wichtige Nachricht für euch: Ich bin schon bald unterwegs. Haltet die Ohren offen, vielleicht hört ihr meine Glöckchen!"
+    ]
+   },
+   {
+    "say": [
+     "Und bis dahin: Hab einen wunderschönen Heiligabend mit deiner Familie!",
+     "Und bis dahin: Habt einen wunderschönen Heiligabend mit eurer Familie!"
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "say": [
+     "Jetzt ist es Zeit für mich loszufliegen. Meine Rentiere warten! Frohe Weihnachten, {name}! Ho, ho, ho!"
+    ],
+    "wave": true
+   }
+  ]
+ },
+ "blocks": {
+  "surprise": [
+   {
+    "say": [
+     "Oh, warte! Bevor ich gehe, habe ich noch eine kleine Überraschung für dich… Schau mal genau auf den Bildschirm!",
+     "Oh, wartet! Bevor ich gehe, habe ich noch eine kleine Überraschung für euch… Schaut mal genau auf den Bildschirm!"
+    ]
+   },
+   {
+    "spark": 3.4
+   },
+   {
+    "say": [
+     "Das ist ein Zauberstern, nur für dich. Er leuchtet bis Weihnachten!",
+     "Das ist ein Zauberstern, nur für euch. Er leuchtet bis Weihnachten!"
+    ]
+   }
+  ],
+  "goodbye": [
+   {
+    "say": [
+     "Ho, ho, ho! Ich muss zurück in meine Werkstatt. Ich wünsche dir wunderschöne Weihnachten, {name}!",
+     "Ho, ho, ho! Ich muss zurück in meine Werkstatt. Ich wünsche euch wunderschöne Weihnachten, {name}!"
+    ],
+    "wave": true
+   }
+  ],
+  "sample": [
+   {
+    "say": [
+     "Ho, ho, ho! Hallo! Hier ist der Weihnachtsmann, ich rufe vom Nordpol an!"
+    ],
+    "laugh": true
+   }
+  ]
+ }
+}

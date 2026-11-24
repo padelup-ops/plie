@@ -1,0 +1,56 @@
+# ALLÔ PÈRE NOËL : un appel magique et personnalisé du Père Noël, préparé par les parents.
+# Projet généré par XcodeGen : `xcodegen generate` dans ce dossier.
+# Tout est dessiné et synthétisé ici : le Père Noël (SwiftUI), les décors, la sonnerie, l'ambiance (« Douce nuit », 1818,
+# domaine public). Aucune donnée ne quitte l'iPhone.
+name: AlloPereNoel
+options:
+  bundleIdPrefix: com.padelup
+  developmentLanguage: en
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: 1.0.0
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+targets:
+  AlloPereNoel:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+      - path: Resources/Fonts
+        buildPhase: resources
+      - path: Resources/Audio
+        buildPhase: resources
+      - path: Resources/Scripts
+        buildPhase: resources
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Allô Père Noël
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, fr, es, de, it, pt-BR]
+        CFBundleAllowMixedLocalizations: true
+        UIAppFonts: [Fraunces-Display.ttf, Fraunces-Italic.ttf]
+        UILaunchScreen:
+          UIColorName: LaunchNight
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIRequiresFullScreen: true
+        UIStatusBarStyle: UIStatusBarStyleLightContent
+        ITSAppUsesNonExemptEncryption: false
+        NSPhotoLibraryAddUsageDescription: Lets you save the keepsake card to your photos.
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.allonoel
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        PRODUCT_NAME: AlloPereNoel
+    scheme: {}

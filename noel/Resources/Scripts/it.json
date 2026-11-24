@@ -1,0 +1,479 @@
+{
+ "voices": [
+  "it-IT",
+  "it-CH"
+ ],
+ "rate": 0.45,
+ "pitch": 0.82,
+ "and": " e ",
+ "qualities": {
+  "kind": [
+   "hai un cuore grande",
+   "avete un cuore grande"
+  ],
+  "curious": [
+   "fai tantissime domande per capire tutto",
+   "fate tantissime domande per capire tutto"
+  ],
+  "brave": [
+   "hai tantissimo coraggio",
+   "avete tantissimo coraggio"
+  ],
+  "funny": [
+   "fai ridere tutti quelli che ti stanno intorno",
+   "fate ridere tutti quelli che vi stanno intorno"
+  ],
+  "sporty": [
+   "ami correre, saltare e muoverti",
+   "amate correre, saltare e muovervi"
+  ],
+  "dreamer": [
+   "hai la testa piena di sogni",
+   "avete la testa piena di sogni"
+  ],
+  "creative": [
+   "hai una fantasia incredibile",
+   "avete una fantasia incredibile"
+  ],
+  "caring": [
+   "ti prendi cura degli altri",
+   "vi prendete cura degli altri"
+  ],
+  "adventurous": [
+   "adori le avventure",
+   "adorate le avventure"
+  ]
+ },
+ "qualityJoin": [
+  " e che ",
+  " e che "
+ ],
+ "scenarios": {
+  "magic": [
+   {
+    "say": [
+     "Oh, oh, oh! Ciao, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Oh, oh, oh… Mi senti bene?",
+     "Oh, oh, oh… Mi sentite bene?"
+    ],
+    "listen": 3.5
+   },
+   {
+    "say": [
+     "Sono io, Babbo Natale! Ti chiamo dal mio laboratorio, al Polo Nord!",
+     "Sono io, Babbo Natale! Vi chiamo dal mio laboratorio, al Polo Nord!"
+    ]
+   },
+   {
+    "say": [
+     "Sai, qui gli elfi sono indaffaratissimi. Ci sono regali dappertutto, nastri, giocattoli… e tantissima magia!",
+     "Sapete, qui gli elfi sono indaffaratissimi. Ci sono regali dappertutto, nastri, giocattoli… e tantissima magia!"
+    ]
+   },
+   {
+    "say": [
+     "Allora adesso hai {age} anni, vero? È un'età bellissima!"
+    ],
+    "if": "single"
+   },
+   {
+    "say": [
+     "Quest'anno ho sentito parlare di te, {name}. Mi hanno detto che {quality}. È meraviglioso!",
+     "Quest'anno ho sentito parlare di voi. Mi hanno detto che {quality}. È meraviglioso!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Quest'anno ho sentito parlare di te, {name}, e mi hanno raccontato tante cose belle!",
+     "Quest'anno ho sentito parlare di voi, e mi hanno raccontato tante cose belle!"
+    ],
+    "if": "noQuality"
+   },
+   {
+    "say": [
+     "E pensa un po': un uccellino mi ha raccontato che {anecdote}. Complimenti!",
+     "E pensate un po': un uccellino mi ha raccontato che {anecdote}. Complimenti!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Volevo dirti che sono molto orgoglioso di tutto l'impegno che ci hai messo.",
+     "Volevo dirvi che sono molto orgoglioso di tutto l'impegno che ci avete messo."
+    ]
+   },
+   {
+    "say": [
+     "Dimmi… non vedi l'ora che arrivi Natale?",
+     "Ditemi… non vedete l'ora che arrivi Natale?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Oh, oh, oh! Lo immaginavo!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "E ho preso nota che sogni {gift}. Lo dirò subito ai miei elfi!",
+     "E ho preso nota che sognate {gift}. Lo dirò subito ai miei elfi!"
+    ],
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Presto preparerò il mio grande viaggio intorno al mondo. Tanti bambini aspettano i loro regali, e le renne sono quasi pronte!"
+    ]
+   },
+   {
+    "say": [
+     "E soprattutto, non dimenticare: la magia del Natale è anche la gioia che regali agli altri.",
+     "E soprattutto, non dimenticate: la magia del Natale è anche la gioia che regalate agli altri."
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "secret": [
+   {
+    "say": [
+     "Oh, oh, oh… Ciao, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ti racconto una cosa, ma è un piccolo segreto del Polo Nord… Sai mantenere un segreto?",
+     "Vi racconto una cosa, ma è un piccolo segreto del Polo Nord… Sapete mantenere un segreto?"
+    ],
+    "listen": 3.5
+   },
+   {
+    "say": [
+     "Oh, oh, oh! Molto bene. Allora ascolta…",
+     "Oh, oh, oh! Molto bene. Allora ascoltate…"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Stamattina uno dei miei elfi è venuto da me con una lettera molto speciale. Mi ha parlato di te!",
+     "Stamattina uno dei miei elfi è venuto da me con una lettera molto speciale. Mi ha parlato di voi!"
+    ]
+   },
+   {
+    "say": [
+     "Mi ha detto che {quality}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Mi ha detto che sei una persona davvero meravigliosa.",
+     "Mi ha detto che siete dei bambini davvero meravigliosi."
+    ],
+    "if": "noQuality"
+   },
+   {
+    "say": [
+     "E pensa un po', si è perfino segnato una cosa molto speciale che hai fatto quest'anno: {anecdote}!",
+     "E pensate un po', si è perfino segnato una cosa molto speciale che avete fatto quest'anno: {anecdote}!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "E pensa un po', si è perfino segnato tutti i piccoli momenti in cui hai aiutato gli altri e hai regalato sorrisi.",
+     "E pensate un po', si è perfino segnato tutti i piccoli momenti in cui avete aiutato gli altri e avete regalato sorrisi."
+    ],
+    "if": "noAnecdote"
+   },
+   {
+    "say": [
+     "Oh, oh, oh! Sai, sono proprio questi piccoli momenti a rendere il Natale ancora più magico.",
+     "Oh, oh, oh! Sapete, sono proprio questi piccoli momenti a rendere il Natale ancora più magico."
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "E tu, hai un segreto da confidarmi? Sussurramelo piano piano…",
+     "E voi, avete un segreto da confidarmi? Sussurratemelo piano piano…"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Oh, oh, oh! Preso nota. Sarà il nostro segreto!"
+    ],
+    "laugh": true
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "say": [
+     "E custodirò il tuo piccolo segreto, promesso.",
+     "E custodirò il vostro piccolo segreto, promesso."
+    ]
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "congrats": [
+   {
+    "say": [
+     "Oh, oh, oh! Ciao, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Volevo proprio parlarti oggi. Mi senti bene?",
+     "Volevo proprio parlarvi oggi. Mi sentite bene?"
+    ],
+    "listen": 3
+   },
+   {
+    "say": [
+     "Quest'anno hai fatto tantissimi sforzi, e volevo farti i complimenti.",
+     "Quest'anno avete fatto tantissimi sforzi, e volevo farvi i complimenti."
+    ]
+   },
+   {
+    "say": [
+     "Un uccellino mi ha raccontato che {anecdote}. Che meraviglia!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "E mi hanno detto anche che {quality}. Che anno bellissimo!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Sai, al Polo Nord sappiamo che i successi più belli non sono sempre le cose più grandi.",
+     "Sapete, al Polo Nord sappiamo che i successi più belli non sono sempre le cose più grandi."
+    ]
+   },
+   {
+    "say": [
+     "Sono l'impegno, la gentilezza, il coraggio, e i momenti in cui si va avanti anche quando è difficile."
+    ]
+   },
+   {
+    "say": [
+     "Dimmi, qual è la cosa che ti è piaciuta di più imparare quest'anno?",
+     "Ditemi, qual è la cosa che vi è piaciuta di più imparare quest'anno?"
+    ],
+    "listen": 6
+   },
+   {
+    "say": [
+     "Oh, oh, oh! Meraviglioso! Continua così, {name}!",
+     "Oh, oh, oh! Meraviglioso! Continuate così, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Sono felicissimo di poterti mandare un po' di magia del Natale.",
+     "Sono felicissimo di potervi mandare un po' di magia del Natale."
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "funny": [
+   {
+    "say": [
+     "Oh, oh, oh! Ciao, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Mamma mia, non ci crederai mai a quello che mi è successo stamattina al laboratorio!",
+     "Mamma mia, non ci crederete mai a quello che mi è successo stamattina al laboratorio!"
+    ]
+   },
+   {
+    "say": [
+     "Volevo assaggiare la cioccolata calda degli elfi… ma sono scivolato su un nastro e, patatrac, sono finito a testa in giù in una montagna di regali!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Oh, oh, oh! Avevo carta da regalo perfino nella barba!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "E poi la mia renna Ballerina ha starnutito così forte che si sono accese tutte le luci di Natale insieme!"
+    ]
+   },
+   {
+    "say": [
+     "E tu, ti capita mai di combinare qualche marachella divertente?",
+     "E voi, vi capita mai di combinare qualche marachella divertente?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Oh, oh, oh! Lo sapevo!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ma mi hanno anche detto che {quality}. Questo sì che è meraviglioso!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Ah, e ho preso nota che sogni {gift}. Lo dirò ai miei elfi… stando attento a non scivolare su nessun nastro!",
+     "Ah, e ho preso nota che sognate {gift}. Lo dirò ai miei elfi… stando attento a non scivolare su nessun nastro!"
+    ],
+    "laugh": true,
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Bene, adesso devo andare a rimettere in ordine tutti quei regali prima che gli elfi se ne accorgano!"
+    ],
+    "laugh": true
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "eve": [
+   {
+    "say": [
+     "Oh, oh, oh! Buonasera, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Sono Babbo Natale. Stasera è una notte molto speciale: è la Vigilia di Natale!"
+    ]
+   },
+   {
+    "say": [
+     "La mia slitta è pronta, i regali sono caricati, e le mie renne scalpitano nella neve."
+    ]
+   },
+   {
+    "say": [
+     "Prima di partire, volevo dirti che ho sentito parlare di te: mi hanno detto che {quality}.",
+     "Prima di partire, volevo dirvi che ho sentito parlare di voi: mi hanno detto che {quality}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "E un uccellino mi ha raccontato che {anecdote}. Sono molto orgoglioso di te!",
+     "E un uccellino mi ha raccontato che {anecdote}. Sono molto orgoglioso di voi!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Dimmi, hai pensato a lasciare una carota per le mie renne?",
+     "Ditemi, avete pensato a lasciare una carota per le mie renne?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "Oh, oh, oh! Saranno felicissime!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Ho un messaggio molto importante per te: stanotte la magia del Natale arriva mentre i bambini dormono.",
+     "Ho un messaggio molto importante per voi: stanotte la magia del Natale arriva mentre i bambini dormono."
+    ]
+   },
+   {
+    "say": [
+     "Quindi stasera chiudi gli occhi, fai sogni d'oro… e domattina, aprili bene!",
+     "Quindi stasera chiudete gli occhi, fate sogni d'oro… e domattina, apriteli bene!"
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "say": [
+     "È ora di partire. Le mie renne mi aspettano! Buon Natale, {name}! Oh, oh, oh!"
+    ],
+    "wave": true
+   }
+  ]
+ },
+ "blocks": {
+  "surprise": [
+   {
+    "say": [
+     "Oh, aspetta! Prima di andare, ho una piccola sorpresa per te… Guarda bene lo schermo!",
+     "Oh, aspettate! Prima di andare, ho una piccola sorpresa per voi… Guardate bene lo schermo!"
+    ]
+   },
+   {
+    "spark": 3.4
+   },
+   {
+    "say": [
+     "È una stella magica, solo per te. Brillerà fino a Natale!",
+     "È una stella magica, solo per voi. Brillerà fino a Natale!"
+    ]
+   }
+  ],
+  "goodbye": [
+   {
+    "say": [
+     "Oh, oh, oh! Devo tornare al mio laboratorio. Ti auguro un Natale meraviglioso, {name}!",
+     "Oh, oh, oh! Devo tornare al mio laboratorio. Vi auguro un Natale meraviglioso, {name}!"
+    ],
+    "wave": true
+   }
+  ],
+  "sample": [
+   {
+    "say": [
+     "Oh, oh, oh! Ciao! Sono Babbo Natale, ti chiamo dal Polo Nord!"
+    ],
+    "laugh": true
+   }
+  ]
+ }
+}

@@ -1,0 +1,480 @@
+{
+ "voices": [
+  "es-ES",
+  "es-MX",
+  "es-US"
+ ],
+ "rate": 0.45,
+ "pitch": 0.82,
+ "and": " y ",
+ "qualities": {
+  "kind": [
+   "tienes un gran corazón",
+   "tienen un gran corazón"
+  ],
+  "curious": [
+   "haces muchísimas preguntas para entenderlo todo",
+   "hacen muchísimas preguntas para entenderlo todo"
+  ],
+  "brave": [
+   "tienes muchísimo valor",
+   "tienen muchísimo valor"
+  ],
+  "funny": [
+   "haces reír a todo el mundo",
+   "hacen reír a todo el mundo"
+  ],
+  "sporty": [
+   "te encanta correr, saltar y moverte",
+   "les encanta correr, saltar y moverse"
+  ],
+  "dreamer": [
+   "tienes la cabeza llena de sueños",
+   "tienen la cabeza llena de sueños"
+  ],
+  "creative": [
+   "tienes una imaginación increíble",
+   "tienen una imaginación increíble"
+  ],
+  "caring": [
+   "cuidas mucho de los demás",
+   "cuidan mucho de los demás"
+  ],
+  "adventurous": [
+   "te encantan las aventuras",
+   "les encantan las aventuras"
+  ]
+ },
+ "qualityJoin": [
+  " y que ",
+  " y que "
+ ],
+ "scenarios": {
+  "magic": [
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Hola, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Jo, jo, jo… ¿Me oyes bien?",
+     "Jo, jo, jo… ¿Me oyen bien?"
+    ],
+    "listen": 3.5
+   },
+   {
+    "say": [
+     "¡Soy yo, Papá Noel! Te llamo desde mi taller, en el Polo Norte.",
+     "¡Soy yo, Papá Noel! Los llamo desde mi taller, en el Polo Norte."
+    ]
+   },
+   {
+    "say": [
+     "¿Sabes? Aquí los duendes están muy ocupados. Hay regalos por todas partes, lazos, juguetes… ¡y muchísima magia!",
+     "¿Saben? Aquí los duendes están muy ocupados. Hay regalos por todas partes, lazos, juguetes… ¡y muchísima magia!"
+    ]
+   },
+   {
+    "say": [
+     "Así que ahora tienes {age} años, ¿verdad? ¡Qué edad tan bonita!"
+    ],
+    "if": "single"
+   },
+   {
+    "say": [
+     "Este año he oído hablar de ti, {name}. Me han contado que {quality}. ¡Es maravilloso!",
+     "Este año he oído hablar de ustedes. Me han contado que {quality}. ¡Es maravilloso!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Este año he oído hablar de ti, {name}, ¡y me han contado cosas preciosas!",
+     "Este año he oído hablar de ustedes, ¡y me han contado cosas preciosas!"
+    ],
+    "if": "noQuality"
+   },
+   {
+    "say": [
+     "Y fíjate, un pajarito me ha contado que {anecdote}. ¡Bravo!",
+     "Y fíjense, un pajarito me ha contado que {anecdote}. ¡Bravo!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Quería decirte que estoy muy orgulloso de todo el esfuerzo que has hecho.",
+     "Quería decirles que estoy muy orgulloso de todo el esfuerzo que han hecho."
+    ]
+   },
+   {
+    "say": [
+     "Dime… ¿tienes ganas de que llegue la Navidad?",
+     "Díganme… ¿tienen ganas de que llegue la Navidad?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Ya me lo imaginaba!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Y he apuntado que sueñas con {gift}. ¡Se lo voy a contar ahora mismo a mis duendes!",
+     "Y he apuntado que sueñan con {gift}. ¡Se lo voy a contar ahora mismo a mis duendes!"
+    ],
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Muy pronto prepararé mi gran viaje alrededor del mundo. Muchos niños esperan sus regalos, ¡y los renos ya están casi listos!"
+    ]
+   },
+   {
+    "say": [
+     "Y sobre todo, no lo olvides: la magia de la Navidad también es la alegría que das a los demás.",
+     "Y sobre todo, no lo olviden: la magia de la Navidad también es la alegría que dan a los demás."
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "secret": [
+   {
+    "say": [
+     "Jo, jo, jo… ¡Hola, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Voy a contarte algo, pero es un pequeño secreto del Polo Norte… ¿Sabes guardar un secreto?",
+     "Voy a contarles algo, pero es un pequeño secreto del Polo Norte… ¿Saben guardar un secreto?"
+    ],
+    "listen": 3.5
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! Muy bien. Entonces escucha…",
+     "¡Jo, jo, jo! Muy bien. Entonces escuchen…"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Esta mañana, uno de mis duendes vino a verme con una carta muy especial. ¡Me habló de ti!",
+     "Esta mañana, uno de mis duendes vino a verme con una carta muy especial. ¡Me habló de ustedes!"
+    ]
+   },
+   {
+    "say": [
+     "Me dijo que {quality}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Me dijo que eres una persona realmente maravillosa.",
+     "Me dijo que son unos niños realmente maravillosos."
+    ],
+    "if": "noQuality"
+   },
+   {
+    "say": [
+     "Y fíjate, hasta apuntó algo muy especial que hiciste este año: ¡{anecdote}!",
+     "Y fíjense, hasta apuntó algo muy especial que hicieron este año: ¡{anecdote}!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Y fíjate, hasta apuntó todos los pequeños momentos en los que ayudaste a los demás y repartiste sonrisas.",
+     "Y fíjense, hasta apuntó todos los pequeños momentos en los que ayudaron a los demás y repartieron sonrisas."
+    ],
+    "if": "noAnecdote"
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! ¿Sabes? Son esos pequeños momentos los que hacen la Navidad aún más mágica.",
+     "¡Jo, jo, jo! ¿Saben? Son esos pequeños momentos los que hacen la Navidad aún más mágica."
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Y tú, ¿tienes algún secreto que contarme? Susúrramelo muy bajito…",
+     "Y ustedes, ¿tienen algún secreto que contarme? Susúrrenmelo muy bajito…"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! Apuntado. ¡Será nuestro secreto!"
+    ],
+    "laugh": true
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "say": [
+     "Y guardaré tu pequeño secreto, te lo prometo.",
+     "Y guardaré su pequeño secreto, se lo prometo."
+    ]
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "congrats": [
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Hola, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Tenía muchísimas ganas de hablar contigo hoy. ¿Me oyes bien?",
+     "Tenía muchísimas ganas de hablar con ustedes hoy. ¿Me oyen bien?"
+    ],
+    "listen": 3
+   },
+   {
+    "say": [
+     "Este año te has esforzado muchísimo, y quería felicitarte.",
+     "Este año se han esforzado muchísimo, y quería felicitarlos."
+    ]
+   },
+   {
+    "say": [
+     "Un pajarito me ha contado que {anecdote}. ¡Bravo, bravo, bravo!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Y también me han dicho que {quality}. ¡Qué año tan bonito!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "¿Sabes? En el Polo Norte sabemos que los mayores logros no siempre son las cosas más grandes.",
+     "¿Saben? En el Polo Norte sabemos que los mayores logros no siempre son las cosas más grandes."
+    ]
+   },
+   {
+    "say": [
+     "Son el esfuerzo, la amabilidad, el valor y esos momentos en los que seguimos adelante aunque cueste."
+    ]
+   },
+   {
+    "say": [
+     "Dime, ¿qué es lo que más te ha gustado aprender este año?",
+     "Díganme, ¿qué es lo que más les ha gustado aprender este año?"
+    ],
+    "listen": 6
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Maravilloso! ¡Sigue así, {name}!",
+     "¡Jo, jo, jo! ¡Maravilloso! ¡Sigan así, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Estoy muy feliz de poder enviarte un poco de magia navideña.",
+     "Estoy muy feliz de poder enviarles un poco de magia navideña."
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "funny": [
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Hola, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "¡Ay, ay, ay! ¡No te vas a creer lo que me ha pasado esta mañana en el taller!",
+     "¡Ay, ay, ay! ¡No se van a creer lo que me ha pasado esta mañana en el taller!"
+    ]
+   },
+   {
+    "say": [
+     "Quería probar el chocolate caliente de los duendes… pero resbalé con un lazo y, ¡zas!, ¡me caí de cabeza en una montaña de regalos!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Tenía papel de regalo hasta en la barba!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Y luego mi reno Bailarín estornudó tan fuerte que se encendieron todas las luces de Navidad a la vez."
+    ]
+   },
+   {
+    "say": [
+     "Y tú, ¿también haces travesuras divertidas de vez en cuando?",
+     "Y ustedes, ¿también hacen travesuras divertidas de vez en cuando?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Me lo imaginaba!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Pero también me han dicho que {quality}. ¡Eso es maravilloso!"
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Ah, y he apuntado que sueñas con {gift}. Se lo diré a mis duendes… ¡con cuidado de no resbalar con ningún lazo!",
+     "Ah, y he apuntado que sueñan con {gift}. Se lo diré a mis duendes… ¡con cuidado de no resbalar con ningún lazo!"
+    ],
+    "laugh": true,
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Bueno, tengo que ir a ordenar todos esos regalos antes de que los duendes se den cuenta."
+    ],
+    "laugh": true
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "include": "goodbye"
+   }
+  ],
+  "eve": [
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Buenas noches, {name}!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Soy Papá Noel. Esta es una noche muy especial: ¡es Nochebuena!"
+    ]
+   },
+   {
+    "say": [
+     "Mi trineo está listo, los regalos están cargados y mis renos esperan impacientes en la nieve."
+    ]
+   },
+   {
+    "say": [
+     "Antes de irme, quería decirte que he oído hablar de ti: me han contado que {quality}.",
+     "Antes de irme, quería decirles que he oído hablar de ustedes: me han contado que {quality}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Y un pajarito me ha contado que {anecdote}. ¡Estoy muy orgulloso de ti!",
+     "Y un pajarito me ha contado que {anecdote}. ¡Estoy muy orgulloso de ustedes!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Dime, ¿te has acordado de dejar una zanahoria para mis renos?",
+     "Díganme, ¿se han acordado de dejar una zanahoria para mis renos?"
+    ],
+    "listen": 5
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Se van a poner muy contentos!"
+    ],
+    "laugh": true
+   },
+   {
+    "say": [
+     "Tengo un mensaje muy importante para ti: esta noche, la magia de la Navidad va a pasar muy cerquita de tu casa.",
+     "Tengo un mensaje muy importante para ustedes: esta noche, la magia de la Navidad va a pasar muy cerquita de su casa."
+    ]
+   },
+   {
+    "say": [
+     "Así que disfruta mucho de esta noche con tu familia… ¡la Navidad ya casi está aquí!",
+     "Así que disfruten mucho de esta noche con su familia… ¡la Navidad ya casi está aquí!"
+    ]
+   },
+   {
+    "include": "surprise"
+   },
+   {
+    "say": [
+     "Ya es hora de irme. ¡Mis renos me esperan! ¡Feliz Navidad, {name}! ¡Jo, jo, jo!"
+    ],
+    "wave": true
+   }
+  ]
+ },
+ "blocks": {
+  "surprise": [
+   {
+    "say": [
+     "¡Oh, espera! Antes de irme, tengo una pequeña sorpresa para ti… ¡Mira bien la pantalla!",
+     "¡Oh, esperen! Antes de irme, tengo una pequeña sorpresa para ustedes… ¡Miren bien la pantalla!"
+    ]
+   },
+   {
+    "spark": 3.4
+   },
+   {
+    "say": [
+     "Es una estrella mágica, solo para ti. ¡Brillará hasta Navidad!",
+     "Es una estrella mágica, solo para ustedes. ¡Brillará hasta Navidad!"
+    ]
+   }
+  ],
+  "goodbye": [
+   {
+    "say": [
+     "¡Jo, jo, jo! Tengo que volver a mi taller. ¡Te deseo una Navidad maravillosa, {name}!",
+     "¡Jo, jo, jo! Tengo que volver a mi taller. ¡Les deseo una Navidad maravillosa, {name}!"
+    ],
+    "wave": true
+   }
+  ],
+  "sample": [
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Hola! Soy Papá Noel, ¡te llamo desde el Polo Norte!"
+    ],
+    "laugh": true
+   }
+  ]
+ }
+}
