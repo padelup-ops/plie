@@ -155,7 +155,7 @@ jobs:
           git clone -q --depth 1 https://github.com/antgroup/ditto-talkinghead ditto
           pip install -q torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu 2>&1 | tail -2
           pip install -q librosa tqdm filetype imageio opencv_python_headless scikit-image cython imageio-ffmpeg colored \
-            onnxruntime mediapipe huggingface_hub "numpy<2.1" 2>&1 | tail -2
+            onnxruntime mediapipe huggingface_hub einops scipy soundfile "numpy<2.1" 2>&1 | tail -2
           python - <<'EOF'
           from huggingface_hub import snapshot_download
           snapshot_download("digital-avatar/ditto-talkinghead", local_dir="ditto/checkpoints",
