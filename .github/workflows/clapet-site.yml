@@ -42,6 +42,7 @@ jobs:
           done
           echo "idées : $(curl -s ${{ inputs.url }}/api/ideas | head -c 300)"
           echo "modération sans clé : $(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/api/ideas/admin)"
+          for p in allonoel/ allonoel/privacy/ allonoel/fr/ allonoel/en/privacy.html allonoel/pt/privacy.html; do echo "$(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/$p) $p"; done
           echo "entraide Vicefold : $(curl -s ${{ inputs.url }}/api/vicefold/counts | head -c 300)"
           echo "modération Vicefold sans clé : $(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/api/vicefold/admin)"
           echo "page de modération : $(curl -s -o /dev/null -w '%{http_code}' ${{ inputs.url }}/vicefold/moderation/)"
