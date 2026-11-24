@@ -80,3 +80,8 @@ if internal:
             print(f"ÉCHEC  testeur interne {n} ({r.get('error')}) " + r.get("detail", "")[:400].replace(email, "<adresse>"))
         else:
             print(f"ok     testeur interne {n} ajouté")
+
+# Les derniers builds envoyés et leur état de traitement chez Apple.
+for b in call("GET", f"/v1/builds?filter[app]={cid}&sort=-uploadedDate&limit=5").get("data", []):
+    a = b["attributes"]
+    print("BUILD ", a.get("version"), a.get("processingState"), (a.get("uploadedDate") or "")[:16])
