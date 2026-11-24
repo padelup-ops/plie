@@ -151,7 +151,7 @@ jobs:
           python-version: "3.10"
       - name: Installer Ditto (PyTorch, processeur)
         run: |
-          sudo apt-get install -y -qq ffmpeg > /dev/null
+          sudo apt-get update -qq > /dev/null && sudo apt-get install -y -qq ffmpeg libegl1 libgles2 libgl1 > /dev/null
           git clone -q --depth 1 https://github.com/antgroup/ditto-talkinghead ditto
           pip install -q torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu 2>&1 | tail -2
           pip install -q librosa tqdm filetype imageio opencv_python_headless scikit-image cython imageio-ffmpeg colored \
