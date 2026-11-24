@@ -184,6 +184,11 @@ def render(song_len, song, name, fire=False):
     with wave.open(wav) as w:
         sr, ch = w.getframerate(), w.getnchannels()
         x = np.frombuffer(w.readframes(w.getnframes()), dtype="<i2").astype(np.float32).reshape(-1, ch) / 32768
+    # silence de fin coupé : la musique tourne en boucle sans blanc
+    env = np.abs(x).max(axis=1)
+    loud = np.nonzero(env > env.max() * 0.02)[0]
+    if len(loud):
+        x = x[: min(len(x), loud[-1] + int(1.2 * sr))]
     if fire:
         rng = np.random.default_rng(7)
         n = len(x)
