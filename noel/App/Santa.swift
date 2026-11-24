@@ -24,7 +24,7 @@ struct SantaView: View {
             if let still {
                 Canvas { ctx, size in draw(&ctx, size: size, t: still) }
             } else {
-                TimelineView(.animation(paused: reduce)) { tl in
+                TimelineView(.animation(minimumInterval: Motion.interval, paused: reduce)) { tl in
                     Canvas { ctx, size in
                         let t = reduce ? 0 : tl.date.timeIntervalSinceReferenceDate
                         draw(&ctx, size: size, t: t)

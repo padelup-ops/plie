@@ -267,7 +267,7 @@ struct SurpriseStar: View {
     var body: some View {
         ZStack {
             GeometryReader { geo in
-                TimelineView(.animation) { tl in
+                TimelineView(.animation(minimumInterval: Motion.interval)) { tl in
                     let t = tl.date.timeIntervalSince(start)
                     let grow = min(1, max(0, t / 0.6))
                     let fade = t < 3.4 ? 1 : max(0, 1 - (t - 3.4) / 0.8)

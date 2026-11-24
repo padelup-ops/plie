@@ -126,7 +126,7 @@ struct Snowfall: View {
             if still {
                 Canvas { ctx, size in flakes(&ctx, size, t: 40) }
             } else {
-                TimelineView(.animation(paused: reduce)) { tl in
+                TimelineView(.animation(minimumInterval: Motion.interval, paused: reduce)) { tl in
                     Canvas { ctx, size in flakes(&ctx, size, t: reduce ? 40 : tl.date.timeIntervalSinceReferenceDate) }
                 }
             }
@@ -172,7 +172,7 @@ struct NightScene: View {
                 if still {
                     Canvas { ctx, size in stars(&ctx, size, t: 0) }
                 } else {
-                    TimelineView(.animation(minimumInterval: 1 / 20, paused: reduce)) { tl in
+                    TimelineView(.animation(minimumInterval: Motion.interval ?? 1 / 20, paused: reduce)) { tl in
                         Canvas { ctx, size in stars(&ctx, size, t: tl.date.timeIntervalSinceReferenceDate) }
                     }
                 }
@@ -301,7 +301,7 @@ struct WorkshopScene: View {
                 // étagère et paquets
                 shelf(w: w, h: h)
                 // la lueur du feu, en bas
-                TimelineView(.animation(minimumInterval: 1 / 15, paused: reduce)) { tl in
+                TimelineView(.animation(minimumInterval: Motion.interval ?? 1 / 15, paused: reduce)) { tl in
                     let t = tl.date.timeIntervalSinceReferenceDate
                     let flicker = reduce ? 0.8 : 0.72 + 0.12 * sin(t * 7.3) + 0.08 * sin(t * 13.1)
                     Ellipse().fill(RadialGradient(colors: [Color(red: 1, green: 0.62, blue: 0.25).opacity(0.55 * flicker), .clear], center: .center, startRadius: 0, endRadius: w * 0.7))
@@ -350,7 +350,7 @@ struct Garland: View {
     @Environment(\.accessibilityReduceMotion) private var reduce
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 12, paused: reduce)) { tl in
+        TimelineView(.animation(minimumInterval: Motion.interval ?? 1 / 12, paused: reduce)) { tl in
             Canvas { ctx, s in
                 let t = tl.date.timeIntervalSinceReferenceDate
                 var wire = Path()
@@ -384,7 +384,7 @@ struct StarBurst: View {
     var count = 40
 
     var body: some View {
-        TimelineView(.animation) { tl in
+        TimelineView(.animation(minimumInterval: Motion.interval)) { tl in
             Canvas { ctx, s in
                 let t = tl.date.timeIntervalSince(start)
                 guard t >= 0 else { return }

@@ -80,11 +80,15 @@ jobs:
             for R in ${{ inputs.routes }}; do
               N=$((N+1))
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
-              xcrun simctl launch "$UDID" "$BID" -AppleLanguages "($L)" -AppleLocale "$LOC" -shot "$R" > /dev/null 2>&1 || true
+              timeout 60 xcrun simctl launch "$UDID" "$BID" -AppleLanguages "($L)" -AppleLocale "$LOC" -shot "$R" > /dev/null 2>&1 || true
               sleep ${{ inputs.wait }}
-              xcrun simctl io "$UDID" screenshot "shots/$L/$(printf %02d $N)-$R.png" > /dev/null 2>>shots/erreurs-captures.txt || true
+              timeout 60 xcrun simctl io "$UDID" screenshot "shots/$L/$(printf %02d $N)-$R.png" > /dev/null 2>>shots/erreurs-captures.txt || true
+              xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+              echo "$L $R $(date -u +%H:%M:%S)" >> shots/simulateur.txt
             done
           done
+          # Le simulateur est arrêté avant la publication : il ne doit plus occuper la machine.
+          xcrun simctl shutdown all || true
           ls -laR shots | head -80
       - name: Publier
         if: always()
