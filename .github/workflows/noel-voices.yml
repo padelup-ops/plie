@@ -1,0 +1,128 @@
+# ALLÔ PÈRE NOËL : propositions de voix naturelles pour le Père Noël (sans transformation de hauteur, qui donnait
+# une voix inquiétante). Voix de synthèse Chatterbox Multilingual (MIT), soit sa voix d'origine, soit calée sur un
+# narrateur à la voix grave tiré de CML-TTS (enregistrements LibriVox du domaine public, jeu de données CC BY 4.0).
+name: Noël - voix
+
+on:
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: "Langue (french, german, spanish, italian, portuguese ; english = voix d'origine seulement)"
+        required: false
+        default: "french"
+      text:
+        description: "Phrase d'essai (vide = celle par défaut)"
+        required: false
+        default: ""
+      candidates:
+        description: "Nombre de narrateurs proposés"
+        required: false
+        default: "4"
+
+jobs:
+  voices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Installer
+        run: |
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q --extra-index-url https://download.pytorch.org/whl/cpu chatterbox-tts 2>&1 | tail -2
+          pip install -q --extra-index-url https://download.pytorch.org/whl/cpu "datasets<4" soundfile librosa 2>&1 | tail -2
+      - name: Voix
+        env:
+          LANG_CFG: ${{ inputs.lang }}
+          TEXT: ${{ inputs.text }}
+          N: ${{ inputs.candidates }}
+        run: |
+          mkdir -p out
+          cat > v.py <<'EOF'
+          import os, time, json, numpy as np, soundfile as sf, librosa, torch
+          _load = torch.load
+          def _cpu_load(*a, **k):
+              k.setdefault("map_location", "cpu")
+              return _load(*a, **k)
+          torch.load = _cpu_load
+          cfg = os.environ.get("LANG_CFG") or "french"
+          code = {"french": "fr", "german": "de", "spanish": "es", "italian": "it", "portuguese": "pt", "english": "en"}[cfg]
+          default_text = {
+              "fr": "Ho, ho, ho ! Bonjour Léa ! C'est moi, le Père Noël. Je t'appelle depuis mon atelier, au pôle Nord. Tu sais, on m'a dit que tu as un grand cœur. C'est merveilleux !",
+              "en": "Ho, ho, ho! Hello, Emma! It's me, Santa Claus. I'm calling from my workshop at the North Pole. You know, they told me you have a big heart. That's wonderful!",
+              "de": "Ho, ho, ho! Hallo, Emma! Ich bin's, der Weihnachtsmann. Ich rufe dich aus meiner Werkstatt am Nordpol an. Weißt du, man hat mir erzählt, dass du ein großes Herz hast. Das ist wunderbar!",
+              "es": "¡Jo, jo, jo! ¡Hola, Lucía! Soy yo, Papá Noel. Te llamo desde mi taller, en el Polo Norte. ¿Sabes? Me han contado que tienes un gran corazón. ¡Es maravilloso!",
+              "it": "Oh, oh, oh! Ciao, Giulia! Sono io, Babbo Natale. Ti chiamo dal mio laboratorio, al Polo Nord. Sai, mi hanno detto che hai un cuore grande. È meraviglioso!",
+              "pt": "Ho, ho, ho! Olá, Alice! Sou eu, o Papai Noel. Estou ligando da minha oficina, lá no Polo Norte. Sabe, me contaram que você tem um coração enorme. Que maravilha!",
+          }[code]
+          text = os.environ.get("TEXT") or default_text
+          n = int(os.environ.get("N") or 4)
+          log = open("out/notes.txt", "a")
+          def note(s):
+              print(s, flush=True); log.write(s + "\n"); log.flush()
+
+          # 1. Narrateurs à la voix grave (hauteur médiane basse), enregistrements propres et longs.
+          refs = []
+          if cfg != "english":
+              from datasets import load_dataset, Audio
+              ds = load_dataset("ylacombe/cml-tts", cfg, split="dev", streaming=True).cast_column("audio", Audio(sampling_rate=24000))
+              per = {}
+              t = time.time()
+              for i, row in enumerate(ds):
+                  if i >= 1200 or time.time() - t > 1500:
+                      break
+                  if not (5 <= row["duration"] <= 15):
+                      continue
+                  y = np.asarray(row["audio"]["array"], dtype=np.float32)
+                  f0 = librosa.yin(y, fmin=60, fmax=300, sr=24000, frame_length=2048)
+                  rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=512)[0]
+                  voiced = f0[: len(rms)][rms[: len(f0)] > rms.max() * 0.15]
+                  if len(voiced) < 20:
+                      continue
+                  per.setdefault(row["speaker_id"], []).append((float(np.median(voiced)), y, row["text"]))
+              note(f"{len(per)} narrateurs lus en {time.time()-t:.0f} s")
+              ranked = []
+              for spk, clips in per.items():
+                  med = float(np.median([c[0] for c in clips]))
+                  total = sum(len(c[1]) for c in clips) / 24000
+                  if med < 135 and total >= 9:
+                      ranked.append((med, spk, clips))
+              ranked.sort(key=lambda x: x[0])
+              for med, spk, clips in ranked[:n]:
+                  ys, tot = [], 0
+                  for _, y, _ in sorted(clips, key=lambda c: -len(c[1])):
+                      ys.append(y); ys.append(np.zeros(4800, dtype=np.float32)); tot += len(y)
+                      if tot > 24000 * 12:
+                          break
+                  ref = np.concatenate(ys)
+                  ref = ref / (np.abs(ref).max() + 1e-6) * 0.9
+                  p = f"out/reference-{spk}.wav"
+                  sf.write(p, ref, 24000)
+                  refs.append((f"narrateur-{spk}", p))
+                  note(f"narrateur {spk} : hauteur médiane {med:.0f} Hz, {tot/24000:.0f} s de référence")
+
+          # 2. La même phrase avec chaque voix, réglages posés (pas d'exagération).
+          from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+          m = ChatterboxMultilingualTTS.from_pretrained(device="cpu")
+          for name, ref in [("voix-origine", None)] + refs:
+              t = time.time()
+              wav = m.generate(text, language_id=code, audio_prompt_path=ref, exaggeration=0.45, cfg_weight=0.45, temperature=0.7)
+              w = wav.squeeze().cpu().numpy()
+              sf.write(f"out/{code}-{name}.wav", w, m.sr)
+              note(f"{name} : {len(w)/m.sr:.1f} s d'audio en {time.time()-t:.0f} s")
+          note("phrase : " + text)
+          EOF
+          python v.py 2>&1 | grep -v -i "warn" | tail -30
+          cd out && for f in *.wav; do ffmpeg -v error -y -i "$f" -c:a aac -b:a 128k "${f%.wav}.m4a"; done; ls -la
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out && cd out
+          git init -q -b ci-noel-voices
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Voix" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-noel-voices
