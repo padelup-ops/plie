@@ -1556,12 +1556,14 @@ final class KeyboardCanvas: UIView {
         layoutIfNeeded()
     }
 
-    /// Un coup sur le bord de l'iPhone : le clavier va du côté tapé (le coup pousse le téléphone vers l'autre côté).
+    /// Un coup sur le bord de l'iPhone : le clavier va du côté tapé.
+    /// Mesuré sur un vrai Duo (vidéo du 24/11) : le premier pic d'accélération part du côté tapé (la main qui tient
+    /// le téléphone le renvoie aussitôt), donc « poussé vers la droite » = bord droit tapé.
     private func knocked(_ pushedRight: Bool) {
         guard visible, eff.knockToMove, layoutMode.isOneHand, !adjusting, tracks.isEmpty,
               !(settings.mode(for: gripContext) == .auto && !followsHand) else { return }
         // L'écran intérieur du Duo a ses axes inversés par rapport à l'écran extérieur (comme pour l'inclinaison).
-        var tappedLeft = pushedRight
+        var tappedLeft = !pushedRight
         if gripContext.hasPrefix("open") { tappedLeft.toggle() }
         let s = settings
         place(right: !tappedLeft, settings: s)

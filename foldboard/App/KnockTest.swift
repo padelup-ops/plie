@@ -74,9 +74,9 @@ struct KnockTestView: View {
             copied = false
             guard p.accepted else { return }
             hits += 1
-            // Le bord tapé : le coup pousse le téléphone vers l'autre côté. Sur l'écran intérieur du Duo, les
+            // Le bord tapé : le premier pic part de ce côté (mesuré sur un vrai Duo). Sur l'écran intérieur du Duo, les
             // axes sont inversés (comme dans le clavier).
-            let left = Self.innerScreen ? !p.pushedRight : p.pushedRight
+            let left = Self.innerScreen ? p.pushedRight : !p.pushedRight
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             withAnimation(.easeOut(duration: 0.15)) { lit = left }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
@@ -94,7 +94,7 @@ struct KnockTestView: View {
     private var status: LocalizedStringKey {
         guard let p = last else { return "Knock the left or right edge…" }
         if p.accepted {
-            let left = Self.innerScreen ? !p.pushedRight : p.pushedRight
+            let left = Self.innerScreen ? p.pushedRight : !p.pushedRight
             return left ? "Left edge ✓" : "Right edge ✓"
         }
         switch p.reason {
