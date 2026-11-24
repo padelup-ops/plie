@@ -11,6 +11,10 @@ on:
         description: "Langues (fr en es de it pt)"
         required: false
         default: "fr en"
+      chatterbox:
+        description: "Aussi Chatterbox (1/0)"
+        required: false
+        default: "1"
 
 jobs:
   voices:
@@ -30,6 +34,7 @@ jobs:
       - name: Voix
         env:
           LANGS: ${{ inputs.langs }}
+          CHATTERBOX: ${{ inputs.chatterbox }}
         run: |
           mkdir -p out
           cat > v.py <<'EOF'
@@ -57,14 +62,22 @@ jobs:
               parts = [a for _, _, a in p(text, voice=voice, speed=speed)]
               return np.concatenate([x.numpy() if hasattr(x, "numpy") else x for x in parts]).astype(np.float32)
 
-          # Les voix de Père Noël de Kokoro, telles quelles
-          native = {"en": ("a", "am_santa"), "es": ("e", "em_santa"), "pt": ("p", "pm_santa")}
-          for lang, (lc, voice) in native.items():
-              if lang in langs or lang == "en":
+          # Les voix de Père Noël de Kokoro (am_santa, em_santa, pm_santa), dans chaque langue que Kokoro sait lire
+          codes = {"en": "a", "es": "e", "pt": "p", "fr": "f", "it": "i"}
+          for lang in langs:
+              if lang not in codes:
+                  continue
+              for voice in ("am_santa", "em_santa", "pm_santa"):
                   t = time.time()
-                  y = kokoro(lc, voice, TEXT[lang])
+                  try:
+                      y = kokoro(codes[lang], voice, TEXT[lang])
+                  except Exception as e:
+                      note(f"{lang} kokoro {voice} : échec {e}")
+                      continue
                   sf.write(f"out/{lang}-kokoro-{voice}.wav", y, 24000)
                   note(f"{lang} kokoro {voice} : {len(y)/24000:.1f} s en {time.time()-t:.0f} s")
+          if os.environ.get("CHATTERBOX", "1") == "0":
+              raise SystemExit
           # Le timbre de référence pour Chatterbox : le Père Noël de Kokoro, en anglais
           ref_text = ("Ho, ho, ho! Merry Christmas! Oh, what a wonderful night it is here at the North Pole. "
                       "The elves are singing, the reindeer are ready, and I have a big bag full of surprises. Ho, ho, ho!")
@@ -81,7 +94,7 @@ jobs:
                   sf.write(f"out/{lang}-chatterbox-{name}.wav", w, m.sr)
                   note(f"{lang} chatterbox {name} : {len(w)/m.sr:.1f} s en {time.time()-t:.0f} s")
           EOF
-          python v.py 2>&1 | grep -v -i "warn" | tail -30
+          python v.py 2>&1 | grep -v -i "warn" | tail -40 || true
           cd out && for f in *.wav; do ffmpeg -v error -y -i "$f" -c:a aac -b:a 128k "${f%.wav}.m4a"; done; ls -la
       - name: Publier
         if: always()
