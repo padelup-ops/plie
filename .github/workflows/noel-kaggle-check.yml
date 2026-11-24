@@ -1,6 +1,7 @@
 # ALLÔ PÈRE NOËL : pourquoi le calcul Kaggle reste « en file d'attente ».
-# Liste les calculs du compte, puis lance trois petits calculs (sans carte graphique ni internet, carte graphique seule,
-# carte graphique et internet) pour voir lequel démarre. Ne publie rien.
+# mode=etat : quota de carte graphique de la semaine, état et journal des calculs déjà envoyés. Ne lance rien.
+# mode=test : lance aussi trois petits calculs (sans carte graphique, carte T4, carte T4 et internet) pour voir lequel démarre.
+# Ne publie rien.
 name: Noël - diagnostic Kaggle
 
 on:
@@ -10,6 +11,10 @@ on:
         description: "Nom d'utilisateur Kaggle"
         required: false
         default: "hfreecs"
+      mode:
+        description: "etat ou test"
+        required: false
+        default: "etat"
 
 jobs:
   check:
@@ -18,32 +23,40 @@ jobs:
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
       KUSER: ${{ inputs.user }}
+      MODE: ${{ inputs.mode }}
     steps:
       - name: Diagnostic
         run: |
           pip install -q -U kaggle 2>&1 | tail -1
           kaggle --version
+          echo "== quota de la semaine"
+          kaggle quota 2>&1 | tail -5
           echo "== calculs du compte"
           kaggle kernels list --mine --page-size 20 2>&1 | head -25
-          kaggle kernels status "$KUSER/allo-pere-noel-essai" 2>&1 | tail -2
+          for k in allo-pere-noel-essai allo-pere-noel-test-gpu allo-pere-noel-test-cpu; do
+            echo "== $k"
+            kaggle kernels status "$KUSER/$k" 2>&1 | tail -1
+            timeout 60 kaggle kernels logs "$KUSER/$k" 2>&1 | tail -8 | cut -c1-300 || true
+          done
+          [ "$MODE" = test ] || exit 0
           for t in cpu gpu gpunet; do
             mkdir -p "k-$t"
-            gpu=false; net=false
-            [ "$t" != cpu ] && gpu=true
+            gpu=false; net=false; shape='""'
+            [ "$t" != cpu ] && { gpu=true; shape='"NvidiaTeslaT4"'; }
             [ "$t" = gpunet ] && net=true
-            printf '{"id":"%s/allo-pere-noel-test-%s","title":"allo-pere-noel-test-%s","code_file":"run.py","language":"python","kernel_type":"script","is_private":true,"enable_gpu":%s,"enable_internet":%s,"dataset_sources":[],"competition_sources":[],"kernel_sources":[]}' \
-              "$KUSER" "$t" "$t" "$gpu" "$net" > "k-$t/kernel-metadata.json"
+            printf '{"id":"%s/allo-pere-noel-t4-%s","title":"allo-pere-noel-t4-%s","code_file":"run.py","language":"python","kernel_type":"script","is_private":true,"enable_gpu":%s,"enable_internet":%s,"machine_shape":%s,"dataset_sources":[],"competition_sources":[],"kernel_sources":[]}' \
+              "$KUSER" "$t" "$t" "$gpu" "$net" "$shape" > "k-$t/kernel-metadata.json"
             echo 'import subprocess; print(subprocess.run("nvidia-smi -L || echo sans GPU", shell=True, capture_output=True, text=True).stdout)' > "k-$t/run.py"
             echo "== envoi $t"
             kaggle kernels push -p "k-$t" 2>&1 | tail -3
           done
-          for i in $(seq 1 25); do
+          for i in $(seq 1 20); do
             line="$(date -u +%H:%M)"
             done_all=1
             for t in cpu gpu gpunet; do
-              S=$(kaggle kernels status "$KUSER/allo-pere-noel-test-$t" 2>&1 | tail -1 | sed 's/.*KernelWorkerStatus\.//; s/"//g')
+              S=$(kaggle kernels status "$KUSER/allo-pere-noel-t4-$t" 2>&1 | tail -1 | sed 's/.*KernelWorkerStatus\.//; s/"//g')
               line="$line  $t=$S"
-              echo "$S" | grep -qiE "complete|error|cancel" || done_all=0
+              echo "$S" | grep -qiE "complete|error|cancel|not found|404" || done_all=0
             done
             echo "$line"
             [ $done_all = 1 ] && break
@@ -51,6 +64,5 @@ jobs:
           done
           for t in cpu gpu gpunet; do
             echo "== sortie $t"
-            mkdir -p "o-$t"; kaggle kernels output "$KUSER/allo-pere-noel-test-$t" -p "o-$t" 2>&1 | tail -2
-            cat o-$t/*.log 2>/dev/null | head -c 600; echo
+            timeout 60 kaggle kernels logs "$KUSER/allo-pere-noel-t4-$t" 2>&1 | tail -4 | cut -c1-300 || true
           done
