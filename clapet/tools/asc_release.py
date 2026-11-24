@@ -208,8 +208,8 @@ else:
 APP_NOTES = {
     "com.padelup.foldboard": {
         "1.0.26": {
-            "en-US": "• Fixed: an empty blue square could appear in the suggestion bar while typing some words. Thanks to the tester who spotted it!",
-            "fr-FR": "• Corrigé : un carré bleu vide pouvait apparaître dans la barre de suggestions en tapant certains mots. Merci au testeur qui l'a repéré !",
+            "en-US": "• More emoji suggestions in English and French, from yum, ugh, meow and woof to miam, beurk and miaou.\n• Fixed: an empty blue square could appear in the suggestion bar while typing some words.\nThanks to the tester who sent all these words!",
+            "fr-FR": "• Plus de suggestions d'emoji en anglais et en français, de yum, ugh, meow et woof à miam, beurk et miaou.\n• Corrigé : un carré bleu vide pouvait apparaître dans la barre de suggestions en tapant certains mots.\nMerci au testeur qui a envoyé tous ces mots !",
         },
         "1.0.25": {
             "en-US": "A big update, shaped by our testers. Thank you!\n• Knock the side of your iPhone: the one-hand keyboard jumps to that side. Choose how it changes side (tilt, thumbs, knock, tapping the empty side) and set the knock sensitivity, with a screen to try it.\n• Brand-new dictation, right in the keyboard: it keeps everything you say, even after a pause. Optional: translate as you speak.\n• Fix: rewrite or fix your text in one tap (Apple Intelligence, on your iPhone).\n• Smarter autocorrect: about 100,000 French and 80,000 English words, fewer wrong guesses.\n• A tidy top bar: buttons on the right, left or both sides, never overlapping, the rest behind ⋯.\n• The mic where you want it, and \"Hold the mic to dictate\" so it never starts by accident.\n• My words: an on/off switch, words only added after you undo the same correction twice, delete several at once.\n• New: round all four corners (Spotlight), paste without the prompt, \"Forget my hands\" to start the learning over.",

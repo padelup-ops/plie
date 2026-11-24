@@ -84,7 +84,7 @@ enum KBEmojiSuggest {
         "escargot": "🐌", "coccinelle": "🐞", "tortue": "🐢", "serpent": "🐍", "dinosaure": "🦖", "pieuvre": "🐙",
         "calamar": "🦑", "crabe": "🦀", "poisson": "🐟", "dauphin": "🐬", "baleine": "🐳", "requin": "🦈", "crocodile": "🐊",
         "éléphant": "🐘", "girafe": "🦒", "chameau": "🐪", "mouton": "🐑", "chèvre": "🐐", "cerf": "🦌", "dinde": "🦃",
-        "colombe": "🕊️", "arbre": "🌳", "sapin": "🌲", "palmier": "🤦", "cactus": "🌵", "trèfle": "🍀", "feuille": "🍁",
+        "colombe": "🕊️", "arbre": "🌳", "sapin": "🌲", "palmier": "🌴", "cactus": "🌵", "trèfle": "🍀", "feuille": "🍁",
         "feuilles": "🍃", "tulipe": "🌷", "rose": "🌹", "tournesol": "🌻", "lune": "🌙", "étoile": "⭐️", "éclair": "⚡️",
         "arc-en-ciel": "🌈", "nuage": "☁️", "orage": "⛈️", "flocon": "❄️", "bonhomme": "☃️", "goutte": "💧",
         "vague": "🌊", "mer": "🌊", "océan": "🌊", "voiture": "🚗", "taxi": "🚕", "bus": "🚌", "police": "🚓",
@@ -290,11 +290,123 @@ enum KBEmojiSuggest {
         "cute": ["🥰", "🥹"], "sick": ["🤒", "🤧"], "think": ["🤔", "💭"], "eyes": ["👀"], "hug": ["🤗", "🫂"], "hugs": ["🤗", "🫂"],
     ]
 
+    /// Le complément (anglais et français) : interjections et argot (« yum », « ugh », « beurk », « jpp »), cris d'animaux
+    /// (« meow », « woof », « miaou »), émotions, repas, activités, fêtes… Construit depuis une liste : un mot en double
+    /// garde sa première ligne au lieu de faire planter le clavier.
+    private static let more: [String: [String]] = {
+        let pairs: [(String, [String])] = [
+            // Anglais : interjections et argot
+            ("yum", ["😋", "🤤", "😍"]), ("yumm", ["😋", "🤤"]), ("yummy", ["😋", "🤤", "😍"]), ("mmm", ["😋", "🤤"]), ("mmmm", ["😋", "🤤"]),
+            ("delicious", ["😋", "🤤"]), ("tasty", ["😋", "🤤"]), ("drool", ["🤤"]), ("drooling", ["🤤"]), ("hungry", ["😋", "🤤", "🍽️"]),
+            ("ugh", ["😩", "😒", "😣"]), ("ughh", ["😩", "😒", "😣"]), ("meh", ["😒", "😑", "🤷"]), ("hmm", ["🤔", "🧐"]), ("hmmm", ["🤔", "🧐"]),
+            ("oof", ["😬", "😣"]), ("yikes", ["😬", "😳"]), ("eek", ["😬", "😱"]), ("ew", ["🤢", "🤮"]), ("eww", ["🤢", "🤮"]), ("ewww", ["🤢", "🤮"]),
+            ("yuck", ["🤢", "🤮"]), ("yay", ["🥳", "🎉", "🙌"]), ("yey", ["🥳", "🎉"]), ("woohoo", ["🥳", "🎉", "🙌"]), ("hooray", ["🎉", "🥳"]),
+            ("yess", ["🙌", "🎉"]), ("yesss", ["🙌", "🎉", "🥳"]), ("whoa", ["😮", "😲"]), ("woah", ["😮", "😲"]), ("wtf", ["🤬", "😳", "😱"]),
+            ("smh", ["🤦", "🙄"]), ("facepalm", ["🤦"]), ("idk", ["🤷"]), ("dunno", ["🤷"]), ("shrug", ["🤷"]), ("whatever", ["🙄", "🤷"]),
+            ("eyeroll", ["🙄"]), ("bruh", ["😐", "🤦", "💀"]), ("brb", ["🏃", "⏳"]), ("omw", ["🏃", "🚗"]), ("gg", ["🎮", "🏆", "👏"]),
+            ("rip", ["🪦", "💀", "🙏"]), ("xd", ["😆", "😂"]), ("jk", ["😜", "😉"]), ("ily", ["❤️", "🥰", "😘"]), ("zzz", ["😴", "💤"]),
+            ("grr", ["😠", "😤"]), ("grrr", ["😠", "😤"]), ("argh", ["😫", "😤"]), ("aww", ["🥹", "🥰"]), ("awww", ["🥹", "🥰"]), ("aw", ["🥹", "🥰"]),
+            ("ouch", ["🤕", "😣"]), ("oops", ["🙈", "😅", "🤭"]), ("whoops", ["🙈", "😅"]), ("phew", ["😮‍💨", "😅"]), ("teehee", ["🤭", "😆"]),
+            ("muah", ["😘", "💋"]), ("mwah", ["😘", "💋"]), ("xoxo", ["😘", "💋", "❤️"]), ("damn", ["😳", "😮"]), ("dang", ["😳", "😮"]),
+            ("nope", ["🙅", "👎"]), ("yep", ["👍", "👌"]), ("yup", ["👍", "👌"]), ("yeah", ["👍", "😁"]), ("sure", ["👍", "👌"]),
+            ("cringe", ["😬", "🫣"]), ("slay", ["💅", "🔥"]), ("vibe", ["✨", "😎"]), ("vibes", ["✨", "😎"]), ("goat", ["🐐", "🔥"]),
+            ("legend", ["🐐", "🔥", "👑"]), ("legendary", ["🐐", "🔥"]), ("epic", ["🔥", "🤩"]), ("dope", ["🔥", "😎"]), ("bet", ["👍", "🤝"]),
+            ("deal", ["🤝", "👍"]), ("agree", ["🤝", "👍"]), ("promise", ["🤞", "🤝"]), ("hope", ["🤞", "🙏"]), ("wish", ["🤞", "🌠"]),
+            ("respect", ["🫡", "🙏"]), ("salute", ["🫡"]), ("highfive", ["🙌", "✋"]), ("fist", ["👊"]), ("punch", ["👊"]), ("flex", ["💪", "😎"]),
+            ("soon", ["🔜", "⏳"]), ("wait", ["⏳", "✋"]), ("waiting", ["⏳", "🙄"]), ("late", ["⏰", "😬"]), ("hurry", ["🏃", "⏰"]),
+            // Anglais : cris d'animaux et animaux
+            ("meow", ["🐱", "🐈", "😺"]), ("meoww", ["🐱", "🐈"]), ("purr", ["🐱", "😻"]), ("kitty", ["🐱", "🐈", "😺"]), ("kitten", ["🐱", "🐈"]),
+            ("woof", ["🐶", "🐕"]), ("bark", ["🐶", "🐕"]), ("puppy", ["🐶", "🐕"]), ("doggo", ["🐶", "🐕"]), ("doggy", ["🐶", "🐕"]), ("pup", ["🐶", "🐕"]),
+            ("moo", ["🐄", "🐮"]), ("oink", ["🐷", "🐖"]), ("quack", ["🦆"]), ("baa", ["🐑"]), ("neigh", ["🐴"]), ("roar", ["🦁", "🐯"]),
+            ("hiss", ["🐍"]), ("buzz", ["🐝"]), ("ribbit", ["🐸"]), ("tweet", ["🐦"]), ("bunny", ["🐰", "🐇"]), ("birdie", ["🐦"]),
+            // Anglais : émotions
+            ("lonely", ["😔", "🥺"]), ("jealous", ["😒", "😤"]), ("nervous", ["😬", "😰"]), ("anxious", ["😰", "😟"]), ("worried", ["😟", "😰"]),
+            ("stressed", ["😫", "😰"]), ("stress", ["😫", "😰"]), ("confused", ["😕", "🤔", "😵‍💫"]), ("proud", ["🥹", "😌", "💪"]),
+            ("relieved", ["😌", "😮‍💨"]), ("grateful", ["🙏", "🥹"]), ("blessed", ["🙏", "😇"]), ("shy", ["🙈", "😳"]), ("silly", ["🤪", "😜"]),
+            ("joking", ["😜", "😂"]), ("kidding", ["😜", "😉"]), ("smirk", ["😏"]), ("awkward", ["😬", "😅"]), ("annoyed", ["😒", "😤", "🙄"]),
+            ("annoying", ["😒", "🙄"]), ("furious", ["🤬", "😡"]), ("frustrated", ["😤", "😫"]), ("depressed", ["😞", "😔"]), ("heartbreak", ["💔"]),
+            ("exhausted", ["😩", "😫", "🥱"]), ("hungover", ["🤢", "🥴"]), ("drunk", ["🥴", "🍻"]), ("tipsy", ["🥴", "🍷"]), ("dizzy", ["😵‍💫"]),
+            ("freezing", ["🥶"]), ("sweaty", ["🥵", "😅"]), ("sweating", ["🥵", "😅"]), ("relaxed", ["😌", "🧘"]), ("chill", ["😎", "🧘"]),
+            ("surprised", ["😮", "😲"]), ("surprise", ["🎉", "😮", "🎁"]), ("touched", ["🥹", "🥲"]), ("emotional", ["🥹", "😭"]), ("hurt", ["🤕", "💔"]),
+            // Anglais : compliments et amour
+            ("beautiful", ["😍", "🥰", "✨"]), ("pretty", ["😍", "🥰"]), ("gorgeous", ["😍", "🔥"]), ("handsome", ["😍", "😎"]), ("sexy", ["😏", "🔥"]),
+            ("wonderful", ["🤩", "✨"]), ("fantastic", ["🤩", "🙌"]), ("incredible", ["🤩", "😮"]), ("brilliant", ["💡", "🤩"]), ("genius", ["🧠", "💡"]),
+            ("sweet", ["🥰", "🍬"]), ("king", ["👑"]), ("queen", ["👑", "💅"]), ("boss", ["😎", "💼"]), ("babe", ["😘", "❤️"]), ("bae", ["😘", "❤️"]),
+            ("darling", ["❤️", "😘"]), ("sweetheart", ["❤️", "🥰"]), ("crush", ["😍", "🥰"]), ("valentine", ["💘", "🌹"]), ("lovely", ["🥰", "😊"]),
+            ("welcome", ["🤗", "👋"]), ("goodnight", ["🌙", "😴"]), ("forgive", ["🙏", "😔"]), ("apologies", ["🙏", "😔"]),
+            // Anglais : repas, sorties, activités
+            ("breakfast", ["🥞", "☕️", "🥐"]), ("lunch", ["🍽️", "🥪"]), ("dinner", ["🍽️", "🍝"]), ("brunch", ["🥞", "🥂"]), ("snack", ["🍿", "🍪"]),
+            ("dessert", ["🍰", "🍨"]), ("drinks", ["🍻", "🍹"]), ("drink", ["🍹", "🍻"]), ("donut", ["🍩"]), ("noodles", ["🍜"]), ("ramen", ["🍜"]),
+            ("pasta", ["🍝"]), ("icecream", ["🍦", "🍨"]), ("chocolate", ["🍫"]), ("candy", ["🍬", "🍭"]), ("water", ["💧", "🥤"]),
+            ("shopping", ["🛍️", "💳"]), ("groceries", ["🛒"]), ("cleaning", ["🧹", "🧽"]), ("cooking", ["🍳", "🧑‍🍳"]), ("reading", ["📖", "📚"]),
+            ("study", ["📚", "✏️"]), ("studying", ["📚", "✏️"]), ("exam", ["📚", "✏️", "😰"]), ("homework", ["📚", "✏️"]), ("graduation", ["🎓", "🥳"]),
+            ("meeting", ["💼", "📅"]), ("traffic", ["🚗", "🚦"]), ("workout", ["💪", "🏋️"]), ("training", ["💪", "🏋️"]), ("hike", ["🥾", "⛰️"]),
+            ("hiking", ["🥾", "⛰️"]), ("camping", ["🏕️", "⛺️"]), ("picnic", ["🧺", "🌳"]), ("swim", ["🏊"]), ("swimming", ["🏊"]), ("goal", ["⚽️", "🥅"]),
+            ("concert", ["🎤", "🎶", "🎸"]), ("netflix", ["📺", "🍿"]), ("gaming", ["🎮"]), ("travel", ["✈️", "🧳", "🌍"]), ("trip", ["✈️", "🧳"]),
+            ("vacation", ["🏖️", "✈️", "🌴"]), ("holiday", ["🏖️", "🎄"]), ("holidays", ["🏖️", "🎄"]), ("weekend", ["🎉", "😎"]), ("nap", ["😴", "💤"]),
+            ("heat", ["🥵", "☀️"]), ("wind", ["💨", "🌬️"]), ("windy", ["💨", "🌬️"]), ("storm", ["⛈️", "🌩️"]), ("thunder", ["⚡️", "⛈️"]),
+            ("cloudy", ["☁️", "⛅️"]), ("fog", ["🌫️"]), ("foggy", ["🌫️"]), ("rainy", ["🌧️", "☔️"]), ("snowing", ["❄️", "☃️"]),
+            ("christmas", ["🎄", "🎅", "🎁"]), ("xmas", ["🎄", "🎅", "🎁"]), ("santa", ["🎅", "🎄"]), ("easter", ["🐣", "🥚", "🐰"]),
+            ("bday", ["🎂", "🥳", "🎉"]), ("celebrate", ["🎉", "🥳", "🍾"]), ("champagne", ["🍾", "🥂"]),
+            // Français : interjections et argot
+            ("miam", ["😋", "🤤", "😍"]), ("miamm", ["😋", "🤤"]), ("délicieux", ["😋", "🤤"]), ("delicieux", ["😋", "🤤"]), ("délicieuse", ["😋", "🤤"]),
+            ("delicieuse", ["😋", "🤤"]), ("appétit", ["🍽️", "😋"]), ("appetit", ["🍽️", "😋"]),
+            ("beurk", ["🤢", "🤮"]), ("berk", ["🤢", "🤮"]), ("beurck", ["🤢", "🤮"]), ("dégueu", ["🤢", "🤮"]), ("degueu", ["🤢", "🤮"]),
+            ("dégueulasse", ["🤮", "🤢"]), ("degueulasse", ["🤮", "🤢"]), ("pff", ["😒", "🙄", "😮‍💨"]), ("pfff", ["😒", "🙄", "😮‍💨"]),
+            ("bof", ["😒", "🤷"]), ("aïe", ["😣", "🤕"]), ("aie", ["😣", "🤕"]), ("ouille", ["🤕", "😣"]), ("youpi", ["🥳", "🎉", "🙌"]),
+            ("ouais", ["👍", "😁"]), ("ohlala", ["😮", "😱"]), ("olala", ["😮", "😱"]), ("hihi", ["🤭", "😆"]), ("jpp", ["😂", "🤣", "💀"]),
+            ("xptdr", ["🤣", "💀"]), ("mdrr", ["😂", "🤣"]), ("mdrrr", ["😂", "🤣"]), ("tkt", ["😉", "👌"]), ("jsp", ["🤷"]), ("bg", ["😎", "😍"]),
+            ("chanmé", ["🔥", "😎"]), ("stylé", ["😎", "🔥"]), ("style", ["😎", "🔥"]), ("classe", ["😎", "✨"]), ("dingue", ["🤯", "🤪"]),
+            ("ouf", ["😮‍💨", "🤯"]), ("nickel", ["👌", "✨"]), ("excellent", ["👌", "🤩", "💯"]), ("incroyable", ["🤩", "😮"]), ("énorme", ["🤩", "💯"]),
+            ("enorme", ["🤩", "💯"]), ("respect", ["🫡", "🙏"]), ("pardon", ["🙏", "😔"]), ("excuse", ["🙏", "😔"]), ("excuses", ["🙏", "😔"]),
+            ("courage", ["💪", "🍀"]), ("santé", ["🥂", "🍻"]), ("tchin", ["🥂", "🍻"]), ("bienvenue", ["🤗", "👋"]), ("bonsoir", ["👋", "🌙"]),
+            ("bises", ["😘", "💋"]), ("ciao", ["👋"]), ("chéri", ["❤️", "😘", "🥰"]), ("chérie", ["❤️", "😘", "🥰"]), ("cheri", ["❤️", "😘"]),
+            ("cherie", ["❤️", "😘"]), ("amoureux", ["😍", "🥰", "❤️"]), ("amoureuse", ["😍", "🥰", "❤️"]), ("bientôt", ["🔜", "⏳"]), ("bientot", ["🔜", "⏳"]),
+            ("attends", ["⏳", "✋"]), ("retard", ["⏰", "😬"]), ("espère", ["🤞", "🙏"]), ("espere", ["🤞", "🙏"]), ("espoir", ["🤞", "🙏"]),
+            // Français : cris d'animaux et animaux
+            ("miaou", ["🐱", "🐈", "😺"]), ("chaton", ["🐱", "🐈"]), ("minou", ["🐱", "😺"]), ("ouaf", ["🐶", "🐕"]), ("wouf", ["🐶", "🐕"]),
+            ("toutou", ["🐶", "🐕"]), ("meuh", ["🐄", "🐮"]), ("groin", ["🐷", "🐖"]), ("cocorico", ["🐓"]), ("bzz", ["🐝"]),
+            // Français : émotions
+            ("stressé", ["😰", "😫"]), ("stressée", ["😰", "😫"]), ("stresse", ["😰", "😫"]), ("inquiet", ["😟", "😰"]), ("inquiète", ["😟", "😰"]),
+            ("nerveux", ["😬", "😰"]), ("jaloux", ["😒", "😤"]), ("jalouse", ["😒", "😤"]), ("fier", ["🥹", "💪", "😌"]), ("fière", ["🥹", "💪", "😌"]),
+            ("timide", ["🙈", "😳"]), ("gêné", ["😳", "😅", "🫣"]), ("gênée", ["😳", "😅", "🫣"]), ("malaise", ["😬", "🫣"]),
+            ("perdu", ["😕", "🤔"]), ("perdue", ["😕", "🤔"]), ("ému", ["🥹", "🥲"]), ("émue", ["🥹", "🥲"]), ("soulagé", ["😌", "😮‍💨"]),
+            ("soulagée", ["😌", "😮‍💨"]), ("déçu", ["😞", "😔"]), ("déçue", ["😞", "😔"]), ("decu", ["😞", "😔"]), ("dégoûté", ["🤢", "😒"]),
+            ("dégoûtée", ["🤢", "😒"]), ("degoute", ["🤢", "😒"]), ("seul", ["😔", "🥺"]), ("seule", ["😔", "🥺"]), ("crevé", ["😩", "😴", "🥱"]),
+            ("crevée", ["😩", "😴", "🥱"]), ("creve", ["😩", "😴"]), ("épuisé", ["😩", "😫"]), ("épuisée", ["😩", "😫"]), ("epuise", ["😩", "😫"]),
+            ("bourré", ["🥴", "🍻"]), ("bourrée", ["🥴", "🍻"]), ("gelé", ["🥶"]), ("agacé", ["😒", "😤"]), ("agacée", ["😒", "😤"]),
+            ("furieux", ["🤬", "😡"]), ("furieuse", ["🤬", "😡"]), ("surpris", ["😮", "😲"]), ("surprise", ["🎉", "😮", "🎁"]), ("blessé", ["🤕", "💔"]),
+            ("triste", ["😢", "😞", "😔"]), ("contente", ["😊", "😁"]), ("heureuse", ["😊", "😁", "😄"]), ("hâte", ["🤩", "🥳"]),
+            // Français : repas, sorties, activités, fêtes
+            ("apéro", ["🍻", "🥂", "🧀"]), ("apero", ["🍻", "🥂", "🧀"]), ("raclette", ["🧀", "🥔"]), ("fondue", ["🫕", "🧀"]), ("kebab", ["🥙"]),
+            ("dessert", ["🍰", "🍨"]), ("dîner", ["🍽️", "🍝"]), ("diner", ["🍽️", "🍝"]), ("déjeuner", ["🍽️", "🥪"]), ("dejeuner", ["🍽️", "🥪"]),
+            ("goûter", ["🍪", "🧃"]), ("gouter", ["🍪", "🧃"]), ("resto", ["🍽️"]), ("restaurant", ["🍽️"]), ("boire", ["🍻", "🥂"]),
+            ("sieste", ["😴", "💤"]), ("soirée", ["🎉", "🥳", "🍾"]), ("soiree", ["🎉", "🥳", "🍾"]), ("voyage", ["✈️", "🧳", "🌍"]),
+            ("week-end", ["🎉", "😎"]), ("chaleur", ["🥵", "☀️"]), ("canicule", ["🥵", "☀️", "🔥"]), ("vent", ["💨", "🌬️"]), ("brouillard", ["🌫️"]),
+            ("nuageux", ["☁️", "⛅️"]), ("courses", ["🛒"]), ("ménage", ["🧹", "🧽"]), ("menage", ["🧹", "🧽"]), ("cuisiner", ["🍳", "🧑‍🍳"]),
+            ("lire", ["📖", "📚"]), ("lecture", ["📖", "📚"]), ("réviser", ["📚", "✏️"]), ("reviser", ["📚", "✏️"]), ("examen", ["📚", "✏️", "😰"]),
+            ("exam", ["📚", "✏️", "😰"]), ("devoirs", ["📚", "✏️"]), ("bac", ["🎓", "📚"]), ("diplôme", ["🎓", "🥳"]), ("diplome", ["🎓", "🥳"]),
+            ("réunion", ["💼", "📅"]), ("reunion", ["💼", "📅"]), ("métro", ["🚇"]), ("metro", ["🚇"]), ("bouchons", ["🚗", "🚦"]),
+            ("muscu", ["💪", "🏋️"]), ("entraînement", ["💪", "🏋️"]), ("entrainement", ["💪", "🏋️"]), ("footing", ["🏃"]), ("jogging", ["🏃"]),
+            ("piscine", ["🏊"]), ("rando", ["🥾", "⛰️"]), ("randonnée", ["🥾", "⛰️"]), ("pique-nique", ["🧺", "🌳"]), ("match", ["⚽️", "🏆"]),
+            ("victoire", ["🏆", "🎉"]), ("concert", ["🎤", "🎶", "🎸"]), ("série", ["📺", "🍿"]), ("serie", ["📺", "🍿"]), ("jouer", ["🎮"]),
+            ("noël", ["🎄", "🎅", "🎁"]), ("noel", ["🎄", "🎅", "🎁"]), ("réveillon", ["🥂", "🎉"]), ("reveillon", ["🥂", "🎉"]), ("pâques", ["🐣", "🥚", "🐰"]),
+            ("paques", ["🐣", "🥚", "🐰"]), ("anniv", ["🎂", "🥳", "🎉"]), ("anniversaire", ["🎂", "🥳", "🎉"]), ("joyeux", ["🎉", "😊"]),
+            ("saint-valentin", ["💘", "🌹"]), ("fêter", ["🎉", "🥳", "🍾"]), ("feter", ["🎉", "🥳", "🍾"]),
+        ]
+        var m: [String: [String]] = [:]
+        for (k, v) in pairs where m[k] == nil { m[k] = v }
+        return m
+    }()
+
     /// Jusqu'à trois emojis pour le mot (la barre les montre côte à côte).
     static func emojis(for word: String) -> [String] {
         let w = word.lowercased()
         guard w.count >= 2, !skip.contains(w) || several[w] != nil else { return [] }
         if let list = several[w] { return Array(list.prefix(3)) }
+        if let list = more[w] { return Array(list.prefix(3)) }
+        // Au pluriel (« kittens », « chatons ») : la forme sans le s.
+        if w.count >= 4, w.hasSuffix("s") || w.hasSuffix("x"), let list = more[String(w.dropLast())] { return Array(list.prefix(3)) }
         return emoji(for: word).map { [$0] } ?? []
     }
 
