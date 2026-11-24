@@ -1,0 +1,189 @@
+# ALLÔ PÈRE NOËL : essai d'un vrai Père Noël IA, 100 % open source, sur les machines de GitHub (sans carte graphique).
+#  - portrait : FLUX.1 [schnell] (Apache 2.0) avec stable-diffusion.cpp (MIT) ;
+#  - voix : Chatterbox Multilingual (MIT), voix de référence fabriquée avec Kokoro (Apache 2.0), sans voix de personne réelle ;
+#  - animation : Ditto (Apache 2.0) en PyTorch sur processeur.
+# Chaque partie publie ses résultats et ses temps de calcul dans sa branche ci-noel-ai-*.
+name: Noël - essai IA open source
+
+on:
+  workflow_dispatch:
+    inputs:
+      parts:
+        description: "Parties à lancer (portrait voice anim)"
+        required: false
+        default: "portrait voice anim"
+      prompt:
+        description: "Description du portrait (vide = celle par défaut)"
+        required: false
+        default: ""
+
+jobs:
+  portrait:
+    if: contains(inputs.parts, 'portrait')
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: write
+    steps:
+      - name: Compiler stable-diffusion.cpp
+        run: |
+          git clone -q --depth 1 --recursive https://github.com/leejet/stable-diffusion.cpp sd
+          cmake -S sd -B sd/build -DCMAKE_BUILD_TYPE=Release > /dev/null
+          cmake --build sd/build -j4 --config Release 2>&1 | tail -2
+          ls sd/build/bin
+      - name: Modèles FLUX.1 schnell
+        run: |
+          mkdir -p m out && cd m
+          dl() { for u in "${@:2}"; do curl -fsSL --retry 3 -o "$1" "$u" && { ls -la "$1"; return 0; }; echo "échec : $u"; done; return 1; }
+          dl flux.gguf https://huggingface.co/leejet/FLUX.1-schnell-gguf/resolve/main/flux1-schnell-q4_0.gguf
+          dl ae.safetensors https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors \
+            https://huggingface.co/Comfy-Org/Lumina_Image_2.0_Repackaged/resolve/main/split_files/vae/ae.safetensors
+          dl clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors
+          dl t5.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors
+          df -h . | tail -1; free -g | head -2
+      - name: Portraits
+        env:
+          PROMPT: ${{ inputs.prompt }}
+        run: |
+          SD=$(ls sd/build/bin/sd* 2>/dev/null | head -1); echo "outil : $SD"
+          P="${PROMPT:-Photorealistic portrait photograph of a jolly, kind Santa Claus looking straight into the camera, warm gentle smile, rosy cheeks, twinkling eyes, small round gold-rimmed glasses, long fluffy snow-white beard and moustache, classic red velvet Santa hat with white fur trim, red coat, head and shoulders, front-facing, cozy wooden workshop behind him with warm fireplace glow and soft golden Christmas lights bokeh, 85mm lens, shallow depth of field, cinematic lighting, natural skin texture, highly detailed}"
+          for S in 11 23 37 58; do
+            START=$(date +%s)
+            "$SD" --diffusion-model m/flux.gguf --vae m/ae.safetensors --clip_l m/clip_l.safetensors --t5xxl m/t5.safetensors \
+              -p "$P" --cfg-scale 1.0 --sampling-method euler --steps 4 -W 768 -H 1024 -s $S --vae-tiling -t 4 \
+              -o "out/santa-$S.png" > "out/log-$S.txt" 2>&1 || tail -20 "out/log-$S.txt"
+            echo "portrait $S : $(( $(date +%s) - START )) s" | tee -a out/temps.txt
+          done
+          echo "$P" > out/prompt.txt
+          ls -la out
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out && cd out
+          git init -q -b ci-noel-ai-portrait
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Essai portrait" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-noel-ai-portrait
+
+  voice:
+    if: contains(inputs.parts, 'voice')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Installer Chatterbox et Kokoro (processeur)
+        run: |
+          sudo apt-get install -y -qq espeak-ng ffmpeg > /dev/null
+          pip install -q --extra-index-url https://download.pytorch.org/whl/cpu chatterbox-tts 2>&1 | tail -3
+          pip install -q --extra-index-url https://download.pytorch.org/whl/cpu kokoro soundfile 2>&1 | tail -3
+          python -c "import torch; print('torch', torch.__version__)"
+      - name: Voix
+        run: |
+          mkdir -p out
+          cat > v.py <<'EOF'
+          import time, torch, numpy as np, soundfile as sf
+          _load = torch.load
+          def _cpu_load(*a, **k):
+              k.setdefault("map_location", "cpu")
+              return _load(*a, **k)
+          torch.load = _cpu_load
+          log = open("out/temps.txt", "a")
+          def note(s):
+              print(s, flush=True); log.write(s + "\n"); log.flush()
+
+          # 1. Une voix de référence synthétique (Kokoro, Apache 2.0), plus grave : aucune voix de personne réelle.
+          from kokoro import KPipeline
+          import librosa
+          kp = KPipeline(lang_code="b")
+          ref_text = ("Ho, ho, ho! Well, hello there. It is a very busy night here at the North Pole, "
+                      "the elves are wrapping presents and the reindeer are ready. Merry Christmas to you all!")
+          parts = [a for _, _, a in kp(ref_text, voice="bm_george", speed=0.88)]
+          ref = np.concatenate([p.numpy() if hasattr(p, "numpy") else p for p in parts])
+          ref = librosa.effects.pitch_shift(ref.astype(np.float32), sr=24000, n_steps=-2.5)
+          sf.write("out/reference.wav", ref, 24000)
+          note(f"référence : {len(ref)/24000:.1f} s")
+
+          # 2. Chatterbox Multilingual (MIT)
+          from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+          t = time.time()
+          m = ChatterboxMultilingualTTS.from_pretrained(device="cpu")
+          note(f"chargement : {time.time()-t:.0f} s")
+          lines = {
+              "fr": "Ho, ho, ho ! Bonjour Léa ! C'est moi, le Père Noël ! Je t'appelle depuis mon atelier, au pôle Nord !",
+              "en": "Ho, ho, ho! Hello, Emma! It's me, Santa Claus! I'm calling from my workshop at the North Pole!",
+              "de": "Ho, ho, ho! Hallo, Emma! Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!",
+          }
+          for name, ref_path in (("defaut", None), ("santa", "out/reference.wav")):
+              for lang, text in lines.items():
+                  t = time.time()
+                  wav = m.generate(text, language_id=lang, audio_prompt_path=ref_path, exaggeration=0.7, cfg_weight=0.35)
+                  w = wav.squeeze().cpu().numpy()
+                  sf.write(f"out/{name}-{lang}.wav", w, m.sr)
+                  dur = len(w) / m.sr
+                  note(f"{name} {lang} : {dur:.1f} s d'audio en {time.time()-t:.0f} s")
+          EOF
+          python v.py 2>&1 | grep -v -i "warn" | tail -40
+          ls -la out
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out && cd out
+          git init -q -b ci-noel-ai-voice
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Essai voix" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-noel-ai-voice
+
+  anim:
+    if: contains(inputs.parts, 'anim')
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Installer Ditto (PyTorch, processeur)
+        run: |
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          git clone -q --depth 1 https://github.com/antgroup/ditto-talkinghead ditto
+          pip install -q torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu 2>&1 | tail -2
+          pip install -q librosa tqdm filetype imageio opencv_python_headless scikit-image cython imageio-ffmpeg colored \
+            onnxruntime mediapipe huggingface_hub "numpy<2.1" 2>&1 | tail -2
+          python - <<'EOF'
+          from huggingface_hub import snapshot_download
+          snapshot_download("digital-avatar/ditto-talkinghead", local_dir="ditto/checkpoints",
+                            allow_patterns=["ditto_pytorch/*", "ditto_pytorch/**", "ditto_cfg/*"])
+          EOF
+          du -sh ditto/checkpoints/*
+          # Sur processeur : on remplace les appels au GPU.
+          cd ditto && grep -rl --include=*.py -e "cuda" . | tee ../cuda-files.txt | xargs -r sed -i \
+            -e 's/\.cuda()/.cpu()/g' -e 's/"cuda"/"cpu"/g' -e "s/'cuda'/'cpu'/g" -e 's/device="cuda:0"/device="cpu"/g' -e "s/'cuda:0'/'cpu'/g" -e 's/"cuda:0"/"cpu"/g'
+          ls example
+      - name: Clip d'essai
+        run: |
+          mkdir -p out
+          cd ditto
+          ffprobe -v error -show_entries format=duration -of csv=p=0 example/audio.wav | sed 's/^/durée audio : /' | tee -a ../out/temps.txt
+          START=$(date +%s)
+          timeout 7000 python inference.py --data_root ./checkpoints/ditto_pytorch --cfg_pkl ./checkpoints/ditto_cfg/v0.4_hubert_cfg_pytorch.pkl \
+            --audio_path ./example/audio.wav --source_path ./example/image.png --output_path ../out/essai.mp4 > ../out/log.txt 2>&1 || true
+          echo "animation : $(( $(date +%s) - START )) s" | tee -a ../out/temps.txt
+          tail -30 ../out/log.txt
+          cp ../cuda-files.txt ../out/ 2>/dev/null || true
+          ls -la ../out
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out && cd out
+          git init -q -b ci-noel-ai-anim
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Essai animation" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-noel-ai-anim
