@@ -337,3 +337,30 @@
 "Your message has words or links that aren't allowed here." = "Deine Nachricht enthält Wörter oder Links, die hier nicht erlaubt sind.";
 "Your messages are no longer accepted in the community." = "Deine Nachrichten werden in der Community nicht mehr angenommen.";
 "Your progress is shared through Game Center with your friends only." = "Dein Fortschritt wird über Game Center nur mit deinen Freunden geteilt.";
+
+/* Véhicules (gta6-data) */
+"Super" = "Super";
+"Sports" = "Sportwagen";
+"Sports classics" = "Sportklassiker";
+"Muscle" = "Muscle-Cars";
+"Coupes" = "Coupés";
+"Sedans" = "Limousinen";
+"Compacts" = "Kompaktwagen";
+"SUVs" = "SUVs";
+"Off-road" = "Geländewagen";
+"Pickups" = "Pick-ups";
+"Vans" = "Transporter";
+"Motorcycles" = "Motorräder";
+"Bicycles" = "Fahrräder";
+"Boats" = "Boote";
+"Planes" = "Flugzeuge";
+"Helicopters" = "Hubschrauber";
+"Emergency" = "Einsatzfahrzeuge";
+"Service" = "Dienstfahrzeuge";
+"Utility" = "Nutzfahrzeuge";
+"Commercial" = "Gewerbe";
+"Industrial" = "Industrie";
+"Military" = "Militär";
+"No vehicles yet" = "Noch keine Fahrzeuge";
+"Price not known yet" = "Preis noch unbekannt";
+"Prices appear here as soon as they're known. Vehicle list: gta6-data (MIT license), from gta6intel.com. Updated %@." = "Preise erscheinen hier, sobald sie bekannt sind. Fahrzeugliste: gta6-data (MIT-Lizenz), nach gta6intel.com. Stand: %@.";

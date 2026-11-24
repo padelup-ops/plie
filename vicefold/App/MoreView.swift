@@ -6,7 +6,7 @@ import AVFoundation
 import SwiftUI
 
 enum MoreItem: String, Hashable, CaseIterable, Identifiable {
-    case community, characters, eggs, radio, cheats, collectibles, profile, settings
+    case community, characters, eggs, radio, cheats, vehicles, collectibles, profile, settings
     var id: String { rawValue }
     var title: LocalizedStringKey {
         switch self {
@@ -15,6 +15,7 @@ enum MoreItem: String, Hashable, CaseIterable, Identifiable {
         case .eggs: return "Easter eggs"
         case .radio: return "Radio"
         case .cheats: return "Cheat codes"
+        case .vehicles: return "Vehicles"
         case .collectibles: return "Collectibles"
         case .profile: return "Profile and play time"
         case .settings: return "Settings"
@@ -27,6 +28,7 @@ enum MoreItem: String, Hashable, CaseIterable, Identifiable {
         case .eggs: return "oval.portrait"
         case .radio: return "radio"
         case .cheats: return "gamecontroller"
+        case .vehicles: return "car.side"
         case .collectibles: return "sparkles"
         case .profile: return "person.crop.circle"
         case .settings: return "gearshape"
@@ -39,6 +41,7 @@ enum MoreItem: String, Hashable, CaseIterable, Identifiable {
         case .eggs: EggsView()
         case .radio: RadioView()
         case .cheats: CheatsView()
+        case .vehicles: VehiclesView()
         case .collectibles: CollectiblesView()
         case .profile: ProfileView()
         case .settings: SettingsView()
@@ -83,7 +86,7 @@ private struct MoreList: View {
                         }
                     }
                 }
-                Section { ForEach([MoreItem.community, .characters, .eggs, .radio, .cheats, .collectibles]) { row($0) } }
+                Section { ForEach([MoreItem.community, .characters, .eggs, .radio, .cheats, .vehicles, .collectibles]) { row($0) } }
                 Section { ForEach([MoreItem.profile, .settings]) { row($0) } }
             }
             .navigationTitle("More")

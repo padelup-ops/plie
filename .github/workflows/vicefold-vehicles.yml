@@ -1,0 +1,33 @@
+# VICEFOLD : reprend chaque jour la liste des véhicules du projet libre gta6-data (licence MIT) dans
+# vicefold/Content/vehicles.json. L'app télécharge le fichier toute seule : les nouveaux véhicules et les prix
+# (dès qu'ils sont connus) arrivent sans mise à jour de l'app.
+name: Vicefold - véhicules
+
+on:
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: vicefold-vehicles
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Reprendre la liste
+        run: python3 -I vicefold/tools/vehicles.py
+      - name: Enregistrer si elle a changé
+        run: |
+          if git diff --quiet -- vicefold/Content/vehicles.json; then echo "Rien de nouveau."; exit 0; fi
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add vicefold/Content/vehicles.json
+          git commit -qm "Vicefold : véhicules à jour (gta6-data)"
+          for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0; sleep 5; done
+          exit 1
