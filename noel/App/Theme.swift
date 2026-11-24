@@ -382,11 +382,13 @@ struct Garland: View {
 struct StarBurst: View {
     var start: Date
     var count = 40
+    /// Un instant figé (captures).
+    var fixed: Double? = nil
 
     var body: some View {
         TimelineView(.animation(minimumInterval: Motion.every())) { tl in
             Canvas { ctx, s in
-                let t = tl.date.timeIntervalSince(start)
+                let t = fixed ?? tl.date.timeIntervalSince(start)
                 guard t >= 0 else { return }
                 let c = CGPoint(x: s.width / 2, y: s.height * 0.42)
                 for i in 0..<count {

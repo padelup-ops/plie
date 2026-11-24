@@ -15,7 +15,7 @@ on:
         required: false
         default: "0"
       app:
-        description: "duofolds, origamo, foldboard, retrofold, twinfold ou vicefold"
+        description: "duofolds, origamo, foldboard, retrofold, twinfold, vicefold ou noel"
         required: false
         default: "duofolds"
       version:
@@ -41,13 +41,13 @@ jobs:
       NEW_VERSION: ${{ inputs.version }}
       SUBMIT: ${{ inputs.submit }}
       WITHDRAW: ${{ inputs.withdraw }}
-      SITE_URL: ${{ inputs.app == 'vicefold' && 'https://foldly.netlify.app/vicefold' || inputs.app == 'origamo' && 'https://origamo.netlify.app' || (inputs.app == 'foldboard' && 'https://foldly.netlify.app/foldboard' || (inputs.app == 'retrofold' && 'https://foldly.netlify.app/retrofold' || (inputs.app == 'twinfold' && 'https://foldly.netlify.app/twinfold' || 'https://foldly.netlify.app'))) }}
-      APP_BUNDLE: ${{ inputs.app == 'vicefold' && 'com.padelup.vicefold' || inputs.app == 'origamo' && secrets.BUNDLE_ID || (inputs.app == 'foldboard' && 'com.padelup.foldboard' || (inputs.app == 'retrofold' && 'com.padelup.retrofold' || (inputs.app == 'twinfold' && 'com.padelup.twinfold' || 'com.padelup.clapet'))) }}
+      SITE_URL: ${{ inputs.app == 'noel' && 'https://foldly.netlify.app/allonoel' || inputs.app == 'vicefold' && 'https://foldly.netlify.app/vicefold' || inputs.app == 'origamo' && 'https://origamo.netlify.app' || (inputs.app == 'foldboard' && 'https://foldly.netlify.app/foldboard' || (inputs.app == 'retrofold' && 'https://foldly.netlify.app/retrofold' || (inputs.app == 'twinfold' && 'https://foldly.netlify.app/twinfold' || 'https://foldly.netlify.app'))) }}
+      APP_BUNDLE: ${{ inputs.app == 'noel' && 'com.padelup.allonoel' || inputs.app == 'vicefold' && 'com.padelup.vicefold' || inputs.app == 'origamo' && secrets.BUNDLE_ID || (inputs.app == 'foldboard' && 'com.padelup.foldboard' || (inputs.app == 'retrofold' && 'com.padelup.retrofold' || (inputs.app == 'twinfold' && 'com.padelup.twinfold' || 'com.padelup.clapet'))) }}
       BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
-      SHOTS_DIR: ${{ inputs.app == 'vicefold' && 'vicefold/store' || inputs.app == 'origamo' && 'tools/store_shots' || (inputs.app == 'foldboard' && 'foldboard/store' || (inputs.app == 'retrofold' && 'retrofold/store' || (inputs.app == 'twinfold' && 'twinfold/store' || 'clapet/tools/store'))) }}
-      CATEGORIES: ${{ inputs.app == 'vicefold' && 'REFERENCE,ENTERTAINMENT' || inputs.app == 'origamo' && 'GAMES,GAMES_PUZZLE,GAMES_BOARD' || (inputs.app == 'foldboard' && 'UTILITIES,PRODUCTIVITY' || (inputs.app == 'retrofold' && 'GAMES,GAMES_ACTION,GAMES_CASUAL' || (inputs.app == 'twinfold' && 'UTILITIES,PRODUCTIVITY' || 'HEALTH_AND_FITNESS,UTILITIES'))) }}
-      LISTING_JSON: ${{ inputs.app == 'vicefold' && 'vicefold/store/listing.json' || inputs.app == 'origamo' && 'tools/store_listing.json' || (inputs.app == 'foldboard' && 'foldboard/store/listing.json' || (inputs.app == 'retrofold' && 'retrofold/store/listing.json' || (inputs.app == 'twinfold' && 'twinfold/store/listing.json' || ''))) }}
-      APP_PRICE: ${{ (inputs.app == 'vicefold' || inputs.app == 'origamo' || inputs.app == 'foldboard' || inputs.app == 'retrofold' || inputs.app == 'twinfold') && '0' || '' }}
+      SHOTS_DIR: ${{ inputs.app == 'noel' && 'noel/store' || inputs.app == 'vicefold' && 'vicefold/store' || inputs.app == 'origamo' && 'tools/store_shots' || (inputs.app == 'foldboard' && 'foldboard/store' || (inputs.app == 'retrofold' && 'retrofold/store' || (inputs.app == 'twinfold' && 'twinfold/store' || 'clapet/tools/store'))) }}
+      CATEGORIES: ${{ inputs.app == 'noel' && 'ENTERTAINMENT,LIFESTYLE' || inputs.app == 'vicefold' && 'REFERENCE,ENTERTAINMENT' || inputs.app == 'origamo' && 'GAMES,GAMES_PUZZLE,GAMES_BOARD' || (inputs.app == 'foldboard' && 'UTILITIES,PRODUCTIVITY' || (inputs.app == 'retrofold' && 'GAMES,GAMES_ACTION,GAMES_CASUAL' || (inputs.app == 'twinfold' && 'UTILITIES,PRODUCTIVITY' || 'HEALTH_AND_FITNESS,UTILITIES'))) }}
+      LISTING_JSON: ${{ inputs.app == 'noel' && 'noel/store/listing.json' || inputs.app == 'vicefold' && 'vicefold/store/listing.json' || inputs.app == 'origamo' && 'tools/store_listing.json' || (inputs.app == 'foldboard' && 'foldboard/store/listing.json' || (inputs.app == 'retrofold' && 'retrofold/store/listing.json' || (inputs.app == 'twinfold' && 'twinfold/store/listing.json' || ''))) }}
+      APP_PRICE: ${{ (inputs.app == 'noel' || inputs.app == 'vicefold' || inputs.app == 'origamo' || inputs.app == 'foldboard' || inputs.app == 'retrofold' || inputs.app == 'twinfold') && '0' || '' }}
       CONTENT_RIGHTS: ${{ inputs.app == 'vicefold' && 'USES_THIRD_PARTY_CONTENT' || '' }}
       AGE_EXTRA: ${{ inputs.app == 'vicefold' && 'userGeneratedContent=true,alcoholTobaccoOrDrugUseOrReferences=INFREQUENT_OR_MILD,matureOrSuggestiveThemes=INFREQUENT_OR_MILD,violenceRealistic=INFREQUENT_OR_MILD,gunsOrOtherWeapons=INFREQUENT_OR_MILD,profanityOrCrudeHumor=INFREQUENT_OR_MILD' || inputs.app == 'retrofold' && 'violenceCartoonOrFantasy=INFREQUENT_OR_MILD' || (inputs.app == 'twinfold' && 'unrestrictedWebAccess=true' || '') }}
     steps:
@@ -57,7 +57,7 @@ jobs:
       - name: Fiche et textes
         if: inputs.withdraw != '1'
         run: |
-          if [ "${{ inputs.app }}" = "foldboard" ] || [ "${{ inputs.app }}" = "retrofold" ] || [ "${{ inputs.app }}" = "twinfold" ] || [ "${{ inputs.app }}" = "vicefold" ]; then
+          if [ "${{ inputs.app }}" = "foldboard" ] || [ "${{ inputs.app }}" = "retrofold" ] || [ "${{ inputs.app }}" = "twinfold" ] || [ "${{ inputs.app }}" = "vicefold" ] || [ "${{ inputs.app }}" = "noel" ]; then
             echo "${{ inputs.app }} : textes envoyés par asc-meta" | tee fiche.txt
           elif [ "${{ inputs.app }}" = "origamo" ]; then
             python3 tools/asc_fiche.py 2>&1 | tee fiche.txt || true
@@ -68,7 +68,7 @@ jobs:
         if: inputs.withdraw != '1' && inputs.videos != '0'
         continue-on-error: true
         env:
-          ASSETS_DIR: ${{ inputs.app == 'vicefold' && 'vicefold/store/creative' || inputs.app == 'origamo' && 'tools/store_creative' || (inputs.app == 'foldboard' && 'foldboard/store/creative' || ((inputs.app == 'retrofold' || inputs.app == 'twinfold') && 'none' || 'clapet/tools/store/creative')) }}
+          ASSETS_DIR: ${{ inputs.app == 'noel' && 'none' || inputs.app == 'vicefold' && 'vicefold/store/creative' || inputs.app == 'origamo' && 'tools/store_creative' || (inputs.app == 'foldboard' && 'foldboard/store/creative' || ((inputs.app == 'retrofold' || inputs.app == 'twinfold') && 'none' || 'clapet/tools/store/creative')) }}
         run: |
           mkdir -p out
           if [ -d "$ASSETS_DIR" ]; then

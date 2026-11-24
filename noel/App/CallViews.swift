@@ -323,7 +323,8 @@ struct SurpriseStar: View {
         ZStack {
             GeometryReader { geo in
                 TimelineView(.animation(minimumInterval: Motion.every())) { tl in
-                    let t = tl.date.timeIntervalSince(start)
+                    // dans les captures, l'étoile est figée en plein éclat
+                    let t = ShotMode.route != nil ? 1.4 : tl.date.timeIntervalSince(start)
                     let grow = min(1, max(0, t / 0.6))
                     let fade = t < 3.4 ? 1 : max(0, 1 - (t - 3.4) / 0.8)
                     ZStack {
@@ -339,7 +340,7 @@ struct SurpriseStar: View {
                     .position(x: geo.size.width / 2, y: geo.size.height * 0.36)
                 }
             }
-            StarBurst(start: start, count: 46)
+            StarBurst(start: start, count: 46, fixed: ShotMode.route != nil ? 0.9 : nil)
         }
         .ignoresSafeArea()
         .allowsHitTesting(false)
