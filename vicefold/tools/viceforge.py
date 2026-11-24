@@ -34,6 +34,13 @@ for ep in ENDPOINTS:
             data = json.loads(r.read())
         print(f"== {ep}")
         print(json.dumps(shape(data), ensure_ascii=False, indent=1)[:3000])
+        if isinstance(data, dict) and isinstance(data.get("data"), list):
+            items = data["data"]
+            cats = {}
+            for x in items:
+                cats[x.get("category")] = cats.get(x.get("category"), 0) + 1
+            print("total", data.get("total"), "pages", data.get("pages"), "vérifiés sur cette page",
+                  sum(1 for x in items if x.get("is_verified")), "catégories", cats)
     except urllib.error.HTTPError as e:
         print(f"== {ep} : HTTP {e.code} (offre insuffisante ou clé refusée)")
     except Exception as e:  # noqa: BLE001
