@@ -207,6 +207,10 @@ else:
 # Les nouveautés affichées sur l'App Store, par version.
 APP_NOTES = {
     "com.padelup.foldboard": {
+        "1.0.26": {
+            "en-US": "• Fixed: an empty blue square could appear in the suggestion bar while typing some words. Thanks to the tester who spotted it!",
+            "fr-FR": "• Corrigé : un carré bleu vide pouvait apparaître dans la barre de suggestions en tapant certains mots. Merci au testeur qui l'a repéré !",
+        },
         "1.0.25": {
             "en-US": "A big update, shaped by our testers. Thank you!\n• Knock the side of your iPhone: the one-hand keyboard jumps to that side. Choose how it changes side (tilt, thumbs, knock, tapping the empty side) and set the knock sensitivity, with a screen to try it.\n• Brand-new dictation, right in the keyboard: it keeps everything you say, even after a pause. Optional: translate as you speak.\n• Fix: rewrite or fix your text in one tap (Apple Intelligence, on your iPhone).\n• Smarter autocorrect: about 100,000 French and 80,000 English words, fewer wrong guesses.\n• A tidy top bar: buttons on the right, left or both sides, never overlapping, the rest behind ⋯.\n• The mic where you want it, and \"Hold the mic to dictate\" so it never starts by accident.\n• My words: an on/off switch, words only added after you undo the same correction twice, delete several at once.\n• New: round all four corners (Spotlight), paste without the prompt, \"Forget my hands\" to start the learning over.",
             "fr-FR": "Une grosse mise à jour, façonnée avec nos testeurs. Merci !\n• Tape le bord de ton iPhone : le clavier à une main passe de ce côté. Choisis comment il change de côté (inclinaison, pouces, coup sur le bord, toucher le côté vide) et règle la sensibilité, avec un écran pour essayer.\n• Une toute nouvelle dictée, directement dans le clavier : elle garde tout ce que tu dis, même après une pause. En option : traduire pendant que tu parles.\n• Corriger : réécris ou corrige ton texte d'un geste (Apple Intelligence, sur ton iPhone).\n• Correction plus fine : environ 100 000 mots français et 80 000 anglais, moins de fausses corrections.\n• Une barre du haut bien rangée : boutons à droite, à gauche ou des deux côtés, jamais l'un sur l'autre, le reste derrière ⋯.\n• Le micro où tu veux, et « Maintenir le micro pour dicter » pour qu'il ne parte jamais par erreur.\n• Mes mots : un interrupteur, un mot n'entre qu'à la deuxième correction annulée, et plusieurs mots supprimés d'un coup.\n• Nouveau : arrondir les quatre coins (Spotlight), coller sans la demande d'iOS, « Oublier mes mains » pour reprendre l'apprentissage.",
@@ -284,6 +288,19 @@ APP_NOTES = {
 
 RELEASE_NOTES = {
     "1.0.3": WHATS_NEW_103,
+    "1.0.26": {
+        "en-US": "• Fixed: folds could be counted during the night while your iPhone was locked and charging.\n• Report a bug now includes your latest folds, so we can track down any wrong count.",
+        "fr-FR": "• Corrigé : des plis pouvaient être comptés la nuit, iPhone verrouillé et en charge.\n• Signaler un bug joint maintenant tes derniers plis, pour retrouver vite un comptage faux.",
+        "de-DE": "• Behoben: Nachts konnten Faltungen gezählt werden, während dein iPhone gesperrt war und geladen wurde.\n• Fehler melden enthält jetzt deine letzten Faltungen, damit wir falsche Zählungen schnell finden.",
+        "es-ES": "• Corregido: se podían contar pliegues por la noche con el iPhone bloqueado y cargando.\n• Informar de un error ahora incluye tus últimos pliegues, para encontrar rápido un recuento incorrecto.",
+        "it": "• Corretto: di notte potevano essere contate piegature con l'iPhone bloccato e in carica.\n• Segnala un bug ora include le tue ultime piegature, per trovare subito un conteggio sbagliato.",
+        "pt-BR": "• Corrigido: dobras podiam ser contadas à noite com o iPhone bloqueado e carregando.\n• Relatar um bug agora inclui suas últimas dobras, para encontrar rápido uma contagem errada.",
+        "nl-NL": "• Opgelost: 's nachts konden vouwen worden geteld terwijl je iPhone vergrendeld was en oplaadde.\n• Meld een bug bevat nu je laatste vouwen, zodat we een verkeerde telling snel vinden.",
+        "ja": "• 修正：iPhoneがロック中で充電中の夜間に、折りたたみが数えられることがある問題を修正しました。\n• 「バグを報告」に最近の折りたたみの記録が含まれるようになり、誤ったカウントを素早く特定できます。",
+        "ko": "• 수정: 밤에 iPhone이 잠긴 채 충전 중일 때 접기가 세어지던 문제를 고쳤어요.\n• 이제 버그 신고에 최근 접기 기록이 함께 담겨, 잘못된 횟수를 빠르게 찾을 수 있어요.",
+        "zh-Hans": "• 修复：夜间 iPhone 锁定并充电时可能被计入折叠次数的问题。\n• 「报告错误」现在会附上最近的折叠记录，便于快速找出计数错误。",
+        "ru": "• Исправлено: ночью, когда iPhone заблокирован и заряжается, могли засчитываться сгибы.\n• «Сообщить об ошибке» теперь прикладывает последние сгибы, чтобы быстро найти неверный подсчёт.",
+    },
     "1.0.4": {
         "en-US": "• Foldly+ is now available: every widget, limit alerts, your full history, widget colors and CSV export, in one purchase.\n• Fixes and improvements.",
         "fr-FR": "• Foldly+ est maintenant disponible : tous les widgets, les alertes de limite, tout l'historique, les couleurs des widgets et l'export CSV, en un seul achat.\n• Corrections et améliorations.",
@@ -600,7 +617,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.0.25", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.0.25", "1.0.26", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     # Les numéros de version se recoupent entre les apps : chaque app a ses propres notes quand il le faut.
@@ -650,7 +667,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.0.25", "1.0.26", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
