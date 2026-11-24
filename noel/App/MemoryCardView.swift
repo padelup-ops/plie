@@ -34,7 +34,7 @@ struct MemoryCard: View {
             VStack(spacing: 0) {
                 Text("🎅").font(.system(size: 30)).padding(.top, 26)
                 Text(title)
-                    .font(.tale(30))
+                    .font(.tale(28))
                     .foregroundStyle(style == .gold ? Noel.bordeaux : Noel.cream)
                     .multilineTextAlignment(.center)
                     .minimumScaleFactor(0.6)
@@ -45,9 +45,12 @@ struct MemoryCard: View {
                     .font(.story(16))
                     .foregroundStyle(style == .gold ? Noel.night.opacity(0.75) : Noel.goldLight)
                     .padding(.top, 6)
-                Spacer(minLength: 0)
-                SantaMedallion(size: 170, mood: .idle, still: 1.2)
-                Spacer(minLength: 0)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .padding(.horizontal, 20)
+                Spacer(minLength: 6)
+                SantaMedallion(size: 140, mood: .idle, still: 1.2)
+                Spacer(minLength: 6)
                 Text(date.formatted(date: .long, time: .omitted))
                     .font(.ui(14, .semibold))
                     .foregroundStyle(style == .gold ? Noel.night.opacity(0.7) : Noel.cream.opacity(0.85))
@@ -172,7 +175,11 @@ struct MemoryCardView: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
         }
-        .task(id: "\(style.rawValue)-\(showName)") { render() }
+        .task(id: "\(style.rawValue)-\(showName)") {
+            // la feuille s'affiche d'abord ; l'image à partager est préparée juste après
+            try? await Task.sleep(for: .milliseconds(250))
+            render()
+        }
     }
 
     @MainActor private func render() {

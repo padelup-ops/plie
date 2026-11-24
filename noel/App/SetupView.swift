@@ -102,8 +102,8 @@ struct SetupView: View {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "plus.circle.fill")
-                            Text("Add a brother or sister")
-                            if !store.owned { PremiumTag() }
+                            Text("Add a brother or sister").multilineTextAlignment(.leading)
+                            if !store.owned { PremiumTag().fixedSize() }
                         }
                         .font(.ui(15, .semibold))
                         .foregroundStyle(Noel.forest)
@@ -210,11 +210,12 @@ struct SetupView: View {
     private func premiumField(title: LocalizedStringKey, hint: LocalizedStringKey, field: Field, text: Binding<String>,
                               prompt: LocalizedStringKey, limit: Int, multiline: Bool) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
                 label(title)
-                Text(hint).font(.ui(13)).foregroundStyle(ink.opacity(0.45))
-                Spacer()
-                if !store.owned { PremiumTag() }
+                    .layoutPriority(1)
+                Spacer(minLength: 0)
+                Text(hint).font(.ui(13)).foregroundStyle(ink.opacity(0.45)).fixedSize()
+                if !store.owned { PremiumTag().fixedSize() }
             }
             ZStack(alignment: .leading) {
                 TextField(text: text, prompt: Text(prompt).foregroundStyle(ink.opacity(0.32)), axis: multiline ? .vertical : .horizontal) { Text(title) }
