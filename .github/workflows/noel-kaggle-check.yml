@@ -1,0 +1,56 @@
+# ALLÔ PÈRE NOËL : pourquoi le calcul Kaggle reste « en file d'attente ».
+# Liste les calculs du compte, puis lance trois petits calculs (sans carte graphique ni internet, carte graphique seule,
+# carte graphique et internet) pour voir lequel démarre. Ne publie rien.
+name: Noël - diagnostic Kaggle
+
+on:
+  workflow_dispatch:
+    inputs:
+      user:
+        description: "Nom d'utilisateur Kaggle"
+        required: false
+        default: "hfreecs"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KUSER: ${{ inputs.user }}
+    steps:
+      - name: Diagnostic
+        run: |
+          pip install -q -U kaggle 2>&1 | tail -1
+          kaggle --version
+          echo "== calculs du compte"
+          kaggle kernels list --mine --page-size 20 2>&1 | head -25
+          kaggle kernels status "$KUSER/allo-pere-noel-essai" 2>&1 | tail -2
+          for t in cpu gpu gpunet; do
+            mkdir -p "k-$t"
+            gpu=false; net=false
+            [ "$t" != cpu ] && gpu=true
+            [ "$t" = gpunet ] && net=true
+            printf '{"id":"%s/allo-pere-noel-test-%s","title":"allo-pere-noel-test-%s","code_file":"run.py","language":"python","kernel_type":"script","is_private":true,"enable_gpu":%s,"enable_internet":%s,"dataset_sources":[],"competition_sources":[],"kernel_sources":[]}' \
+              "$KUSER" "$t" "$t" "$gpu" "$net" > "k-$t/kernel-metadata.json"
+            echo 'import subprocess; print(subprocess.run("nvidia-smi -L || echo sans GPU", shell=True, capture_output=True, text=True).stdout)' > "k-$t/run.py"
+            echo "== envoi $t"
+            kaggle kernels push -p "k-$t" 2>&1 | tail -3
+          done
+          for i in $(seq 1 25); do
+            line="$(date -u +%H:%M)"
+            done_all=1
+            for t in cpu gpu gpunet; do
+              S=$(kaggle kernels status "$KUSER/allo-pere-noel-test-$t" 2>&1 | tail -1 | sed 's/.*KernelWorkerStatus\.//; s/"//g')
+              line="$line  $t=$S"
+              echo "$S" | grep -qiE "complete|error|cancel" || done_all=0
+            done
+            echo "$line"
+            [ $done_all = 1 ] && break
+            sleep 60
+          done
+          for t in cpu gpu gpunet; do
+            echo "== sortie $t"
+            mkdir -p "o-$t"; kaggle kernels output "$KUSER/allo-pere-noel-test-$t" -p "o-$t" 2>&1 | tail -2
+            cat o-$t/*.log 2>/dev/null | head -c 600; echo
+          done
