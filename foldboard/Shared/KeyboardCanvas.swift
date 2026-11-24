@@ -2450,9 +2450,12 @@ final class KeyboardCanvas: UIView {
         }
         // Tu viens de copier quelque chose : « Coller » dans la barre, comme sur le clavier d'Apple.
         // Déjà collé autrement (menu d'iOS) : plus de « Coller ».
-        KBClipboard.shared.dismissIfPasted(before: String((input?.kbTextBefore() ?? "").suffix(400)))
+        let textBefore = String((input?.kbTextBefore() ?? "").suffix(400))
+        KBClipboard.shared.dismissIfPasted(before: textBefore)
         let pendingClip = KBClipboard.shared.freshText == nil && KBClipboard.shared.hasPending
-        if let t = KBClipboard.shared.freshText ?? (pendingClip ? "" : nil), input?.kbFullAccess == true {
+        // En plein milieu d'un mot (sans suggestion pour lui), pas de « Coller » : la barre reste calme.
+        let midWord = textBefore.last.map { $0.isLetter || $0.isNumber } ?? false
+        if !midWord, let t = KBClipboard.shared.freshText ?? (pendingClip ? "" : nil), input?.kbFullAccess == true {
             // Au bout d'une minute, « Coller » s'en va tout seul.
             DispatchQueue.main.asyncAfter(deadline: .now() + KBClipboard.freshLife + 1) { [weak self] in
                 guard let self, self.suggestionItems.isEmpty, self.emojiQuery == nil else { return }
@@ -2464,8 +2467,10 @@ final class KeyboardCanvas: UIView {
                 let cfgP = UIPasteControl.Configuration()
                 cfgP.displayMode = .iconAndLabel
                 cfgP.cornerStyle = .capsule
-                cfgP.baseBackgroundColor = theme.key.withAlphaComponent(0.6)
-                cfgP.baseForegroundColor = theme.text
+                // Le bouton « Coller » du système doit être bien lisible et opaque : translucide, iOS le dessinait
+                // parfois comme un simple rectangle bleu, sans texte.
+                cfgP.baseBackgroundColor = theme.key.withAlphaComponent(1)
+                cfgP.baseForegroundColor = theme.text.withAlphaComponent(1)
                 let pc = UIPasteControl(configuration: cfgP)
                 pc.target = pasteTarget
                 chipStack.addArrangedSubview(pc)

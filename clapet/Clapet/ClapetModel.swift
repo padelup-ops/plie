@@ -91,7 +91,13 @@ final class ClapetModel {
         resumed = false
         defer { state = nowClosed }
         guard let previous = state, previous != nowClosed else { return }
-        if nowClosed { clap() } else { opened() }
+        // Une lecture de la charnière alors que l'app n'est plus à l'écran (iPhone en veille) : on note l'état sans
+        // compter, pour ne pas compter un pli fantôme.
+        if MainActor.assumeIsolated({ UIApplication.shared.applicationState == .background }) {
+            FoldJournal.note("\(nowClosed ? "close" : "open") · hinge ignored (app in background)")
+            return
+        }
+        if nowClosed { clap(source: "hinge") } else { opened() }
     }
 
     /// L'app quitte l'écran. Si c'est parce que le Duo se referme (l'écran s'éteint pendant le geste),
@@ -108,22 +114,27 @@ final class ClapetModel {
         }
         state = true
         isClosed = true
-        clap()
+        clap(source: "leaving screen")
     }
 
     // MARK: Compter
 
     /// Un pli vu par l'app (charnière, ou toucher sans charnière).
-    func clap() {
+    func clap(source: String = "tap") {
         lastHingeClose = Date()
         if soundOn { ClapetSound.shared.play(ClapetSound.closeEffect) }
         if hapticsOn { ClapetHaptics.clap() }
         // Déjà compté par l'automatisation il y a un instant ?
-        guard Date().timeIntervalSince(lastAutoClose) > sameFold else { return }
+        guard Date().timeIntervalSince(lastAutoClose) > sameFold else {
+            FoldJournal.note("close · \(source) (already counted)")
+            return
+        }
+        FoldJournal.note("close · \(source)")
         countClose()
     }
 
     private func opened() {
+        FoldJournal.note("open · hinge")
         lastHingeOpen = Date()
         if soundOn { ClapetSound.shared.play(.pop) }
         if hapticsOn { ClapetHaptics.tick() }
@@ -148,8 +159,10 @@ final class ClapetModel {
         lastAutoClose = Date()
         stats.autoLast = Date()
         if Date().timeIntervalSince(lastHingeClose) > sameFold && !stats.isRepeatClose() {
+            FoldJournal.note("close · automation")
             countClose()
         } else {
+            FoldJournal.note("close · automation (already counted)")
             changed()
         }
         // L'app peut être remise en veille juste après : les widgets tout de suite.
@@ -160,7 +173,17 @@ final class ClapetModel {
     func automationOpen() {
         lastAutoOpen = Date()
         stats.autoLast = Date()
-        if Date().timeIntervalSince(lastHingeOpen) > sameFold { stats.closeIfMissed(); stats.addOpen() }
+        if Date().timeIntervalSince(lastHingeOpen) > sameFold {
+            // Pas de pli déduit la nuit, en charge et verrouillé (signal parasite, personne ne plie le téléphone).
+            if FoldJournal.idleNight(stats) {
+                FoldJournal.note("open · automation (night, charging: no inferred close)")
+            } else {
+                FoldJournal.note(stats.closeIfMissed() ? "open · automation (+ inferred close)" : "open · automation")
+            }
+            stats.addOpen()
+        } else {
+            FoldJournal.note("open · automation (already counted)")
+        }
         stats.noteOpen()
         stats.startOpen(event: true)
         changed()

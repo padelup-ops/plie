@@ -19,10 +19,12 @@ enum AutomaticCounter {
         var stats = ClapetVault.load()
         // Déjà compté par l'app au moment où elle a quitté l'écran ?
         if stats.isRepeatClose() {
+            FoldJournal.note("close · automation (already counted)")
             stats.autoLast = Date()
             ClapetVault.save(stats)
             return stats.today
         }
+        FoldJournal.note("close · automation")
         let before = stats.today
         stats.addClose()
         stats.endOpen(event: true)
@@ -43,7 +45,13 @@ enum AutomaticCounter {
             return
         }
         var stats = ClapetVault.load()
-        stats.closeIfMissed()
+        // Une ouverture sans fermeture avant : on en déduit un pli… sauf la nuit, en charge et verrouillé
+        // (personne ne plie le téléphone : c'est un signal parasite d'iOS, pas un vrai pli).
+        if FoldJournal.idleNight(stats) {
+            FoldJournal.note("open · automation (night, charging: no inferred close)")
+        } else {
+            FoldJournal.note(stats.closeIfMissed() ? "open · automation (+ inferred close)" : "open · automation")
+        }
         stats.addOpen()
         stats.noteOpen()
         stats.startOpen(event: true)

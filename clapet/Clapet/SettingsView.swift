@@ -569,13 +569,17 @@ private struct ThemeTile: View {
 
 /// Le lien « Signaler un bug » : un e-mail au support (l'adresse publique du site), avec la version de Foldly, celle
 /// d'iOS et le modèle, pour que le développeur puisse reproduire.
+@MainActor
 enum BugReport {
     static var url: URL {
         let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
         let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
         var sys = utsname(); uname(&sys)
         let model = withUnsafeBytes(of: &sys.machine) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) }
+        // Les derniers plis comptés (source et conditions), pour comprendre un pli fantôme.
+        let journal = FoldJournal.recent(40)
         let body = "\n\n\n—\nFoldly \(v) (\(b)) · iOS \(UIDevice.current.systemVersion) · \(model)"
+            + (journal.isEmpty ? "" : "\n\nLast folds:\n" + journal)
         var c = URLComponents()
         c.scheme = "mailto"
         c.path = "hfreecsapple@gmail.com"

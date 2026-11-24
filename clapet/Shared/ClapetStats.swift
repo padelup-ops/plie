@@ -350,9 +350,11 @@ struct ClapetStats: Codable, Equatable {
 
     /// Une ouverture arrive alors qu'aucune fermeture n'a été vue depuis la précédente : le téléphone a forcément
     /// été fermé entre les deux (cas de l'automatisation « Ouvert » seule). On compte ce pli, juste avant l'ouverture.
-    mutating func closeIfMissed(before date: Date = Date()) {
-        guard let o = lastOpen, (lastClose ?? .distantPast) < o, date.timeIntervalSince(o) > 2 else { return }
+    @discardableResult
+    mutating func closeIfMissed(before date: Date = Date()) -> Bool {
+        guard let o = lastOpen, (lastClose ?? .distantPast) < o, date.timeIntervalSince(o) > 2 else { return false }
         addClose(date.addingTimeInterval(-1))
+        return true
     }
 
     mutating func addOpen(_ date: Date = Date()) {
