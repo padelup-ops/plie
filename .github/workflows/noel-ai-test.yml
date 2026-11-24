@@ -165,6 +165,27 @@ jobs:
           # Sur processeur : on remplace les appels au GPU.
           cd ditto && grep -rl --include=*.py -e "cuda" . | tee ../cuda-files.txt | xargs -r sed -i \
             -e 's/\.cuda()/.cpu()/g' -e 's/"cuda"/"cpu"/g' -e "s/'cuda'/'cpu'/g" -e 's/device="cuda:0"/device="cpu"/g' -e "s/'cuda:0'/'cpu'/g" -e 's/"cuda:0"/"cpu"/g'
+          # La configuration enregistrée demande le GPU : on la fait passer sur le processeur.
+          python - <<'EOF'
+          p = "core/atomic_components/cfg.py"
+          s = open(p).read()
+          s = s.replace('    cfg = load_pkl(cfg_pkl)\n', """    cfg = load_pkl(cfg_pkl)
+
+              def _cpu(o):
+                  if isinstance(o, dict):
+                      for k in o:
+                          if k == "device":
+                              o[k] = "cpu"
+                          else:
+                              _cpu(o[k])
+                  elif isinstance(o, list):
+                      for x in o:
+                          _cpu(x)
+              _cpu(cfg)
+          """, 1)
+          open(p, "w").write(s)
+          EOF
+          grep -n "_cpu" core/atomic_components/cfg.py | head -3
           ls example
       - name: Clip d'essai
         run: |
