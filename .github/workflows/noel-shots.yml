@@ -71,6 +71,7 @@ jobs:
         timeout-minutes: 30
         run: |
           BID=com.padelup.allonoel
+          lim() { if command -v timeout >/dev/null; then timeout "$@"; elif command -v gtimeout >/dev/null; then gtimeout "$@"; else shift; "$@"; fi; }
           for L in ${{ inputs.langs }}; do
             case "$L" in
               fr) LOC=fr_FR ;; es) LOC=es_ES ;; de) LOC=de_DE ;; it) LOC=it_IT ;; pt-BR) LOC=pt_BR ;; *) LOC=en_US ;;
@@ -80,9 +81,9 @@ jobs:
             for R in ${{ inputs.routes }}; do
               N=$((N+1))
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
-              timeout 60 xcrun simctl launch "$UDID" "$BID" -AppleLanguages "($L)" -AppleLocale "$LOC" -shot "$R" > /dev/null 2>&1 || true
+              lim 60 xcrun simctl launch "$UDID" "$BID" -AppleLanguages "($L)" -AppleLocale "$LOC" -shot "$R" > /dev/null 2>&1 || true
               sleep ${{ inputs.wait }}
-              timeout 60 xcrun simctl io "$UDID" screenshot "shots/$L/$(printf %02d $N)-$R.png" > /dev/null 2>>shots/erreurs-captures.txt || true
+              lim 60 xcrun simctl io "$UDID" screenshot "shots/$L/$(printf %02d $N)-$R.png" > /dev/null 2>>shots/erreurs-captures.txt || true
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
               echo "$L $R $(date -u +%H:%M:%S)" >> shots/simulateur.txt
             done
@@ -105,4 +106,5 @@ jobs:
           git config user.email "github-actions@users.noreply.github.com"
           git config commit.gpgsign false
           git add -A && git commit -qm "Captures Allô Père Noël"
-          timeout 420 git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-noel-shots
+          lim() { if command -v timeout >/dev/null; then timeout "$@"; elif command -v gtimeout >/dev/null; then gtimeout "$@"; else shift; "$@"; fi; }
+          lim 420 git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-noel-shots
