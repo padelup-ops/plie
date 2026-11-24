@@ -1,0 +1,31 @@
+# ALLÔ PÈRE NOËL : la musique de Noël de l'app (chants du domaine public arrangés dans noel/tools/music.py),
+# jouée avec la banque de sons libre FluidR3_GM. Résultat dans la branche ci-noel-music.
+name: Noël - musique
+
+on:
+  workflow_dispatch:
+
+jobs:
+  music:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Jouer
+        run: |
+          sudo apt-get update -qq > /dev/null
+          sudo apt-get install -y -qq fluidsynth fluid-soundfont-gm ffmpeg > /dev/null
+          pip install -q numpy scipy
+          python3 noel/tools/music.py out
+          ls -la out
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out && cd out
+          git init -q -b ci-noel-music
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Musique" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-noel-music
