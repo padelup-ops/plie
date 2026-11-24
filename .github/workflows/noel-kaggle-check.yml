@@ -39,30 +39,21 @@ jobs:
             timeout 60 kaggle kernels logs "$KUSER/$k" 2>&1 | tail -8 | cut -c1-300 || true
           done
           [ "$MODE" = test ] || exit 0
-          for t in cpu gpu gpunet; do
-            mkdir -p "k-$t"
-            gpu=false; net=false; shape='""'
-            [ "$t" != cpu ] && { gpu=true; shape='"NvidiaTeslaT4"'; }
-            [ "$t" = gpunet ] && net=true
-            printf '{"id":"%s/allo-pere-noel-t4-%s","title":"allo-pere-noel-t4-%s","code_file":"run.py","language":"python","kernel_type":"script","is_private":true,"enable_gpu":%s,"enable_internet":%s,"machine_shape":%s,"dataset_sources":[],"competition_sources":[],"kernel_sources":[]}' \
-              "$KUSER" "$t" "$t" "$gpu" "$net" "$shape" > "k-$t/kernel-metadata.json"
-            echo 'import subprocess; print(subprocess.run("nvidia-smi -L || echo sans GPU", shell=True, capture_output=True, text=True).stdout)' > "k-$t/run.py"
-            echo "== envoi $t"
-            kaggle kernels push -p "k-$t" 2>&1 | tail -3
-          done
-          for i in $(seq 1 20); do
-            line="$(date -u +%H:%M)"
-            done_all=1
-            for t in cpu gpu gpunet; do
-              S=$(kaggle kernels status "$KUSER/allo-pere-noel-t4-$t" 2>&1 | tail -1 | sed 's/.*KernelWorkerStatus\.//; s/"//g')
-              line="$line  $t=$S"
-              echo "$S" | grep -qiE "complete|error|cancel|not found|404" || done_all=0
-            done
-            echo "$line"
-            [ $done_all = 1 ] && break
+          # Un carnet (notebook) au lieu d'un script, avec la carte T4 : est-ce que celui-là démarre ?
+          mkdir -p k-nb
+          printf '{"id":"%s/allo-pere-noel-nb","title":"allo-pere-noel-nb","code_file":"run.ipynb","language":"python","kernel_type":"notebook","is_private":true,"enable_gpu":true,"enable_internet":false,"machine_shape":"NvidiaTeslaT4","dataset_sources":[],"competition_sources":[],"kernel_sources":[]}' "$KUSER" > k-nb/kernel-metadata.json
+          python3 - <<'PY'
+          import json
+          nb = {"cells": [{"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [],
+                           "source": ["import subprocess\n", "print(subprocess.run('nvidia-smi -L || echo sans GPU', shell=True, capture_output=True, text=True).stdout)"]}],
+                "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}}, "nbformat": 4, "nbformat_minor": 4}
+          json.dump(nb, open("k-nb/run.ipynb", "w"))
+          PY
+          kaggle kernels push -p k-nb 2>&1 | tail -3
+          for i in $(seq 1 15); do
+            S=$(kaggle kernels status "$KUSER/allo-pere-noel-nb" 2>&1 | tail -1 | sed 's/.*KernelWorkerStatus\.//; s/"//g')
+            echo "$(date -u +%H:%M) carnet=$S"
+            echo "$S" | grep -qiE "complete|error|cancel" && break
             sleep 60
           done
-          for t in cpu gpu gpunet; do
-            echo "== sortie $t"
-            timeout 60 kaggle kernels logs "$KUSER/allo-pere-noel-t4-$t" 2>&1 | tail -4 | cut -c1-300 || true
-          done
+          timeout 60 kaggle kernels logs "$KUSER/allo-pere-noel-nb" 2>&1 | grep -i "tesla\|gpu\|sans" | head -3 || true
