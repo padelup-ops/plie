@@ -57,6 +57,15 @@ for v in call(f"/v1/apps/{app['id']}/appStoreVersions?limit=3").get("data", []):
     print("build choisi", v["attributes"].get("versionString"), b["attributes"].get("version") if b else None)
 sched = call(f"/v1/apps/{app['id']}/appPriceSchedule?include=manualPrices")
 print("prix :", [x.get("relationships", {}).get("appPricePoint", {}).get("data", {}).get("id", "")[:40] for x in sched.get("included", [])] or sched.get("error"))
+# Catégories de chaque fiche (la fiche en vente et celle en préparation), et Game Center
+for i in call(f"/v1/apps/{app['id']}/appInfos").get("data", []):
+    cats = {}
+    for rel in ("primaryCategory", "secondaryCategory", "primarySubcategoryOne", "primarySubcategoryTwo"):
+        d = call(f"/v1/appInfos/{i['id']}/{rel}").get("data")
+        cats[rel] = d["id"] if d else None
+    print("catégories", i["attributes"].get("state") or i["attributes"].get("appStoreState"), cats)
+gc = call(f"/v1/apps/{app['id']}/gameCenterDetail")
+print("Game Center :", "activé" if gc.get("data") else ("non" if gc.get("error") in (404, None) else gc.get("error")))
 print("disponibilité :", "oui" if call(f"/v1/apps/{app['id']}/appAvailabilityV2").get("data") else "non")
 iaps = call(f"/v1/apps/{app['id']}/inAppPurchasesV2?limit=10").get("data", [])
 print("achats intégrés :", [(i["attributes"].get("productId"), i["attributes"].get("state")) for i in iaps])
