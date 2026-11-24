@@ -1,0 +1,8 @@
+référence : 11.6 s
+chargement : 28 s
+defaut fr : 8.7 s d'audio en 36 s
+defaut en : 5.3 s d'audio en 23 s
+defaut de : 5.8 s d'audio en 24 s
+santa fr : 7.5 s d'audio en 36 s
+santa en : 6.7 s d'audio en 31 s
+santa de : 7.0 s d'audio en 33 s
