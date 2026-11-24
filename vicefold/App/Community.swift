@@ -42,6 +42,27 @@ final class CommunityStore {
     /// Change à chaque blocage ou signalement : les fils se redessinent.
     private(set) var version = 0
 
+    /// Discord et Reddit, pour ceux qui préfèrent discuter ailleurs. Les liens viennent de Content/links.json :
+    /// on les change sans mise à jour de l'app, et le bloc reste caché tant qu'aucun lien n'est donné.
+    private(set) var social: [String: URL] = CommunityStore.cachedSocial()
+
+    nonisolated private static func cachedSocial() -> [String: URL] {
+        let saved = UserDefaults.standard.dictionary(forKey: "vicefold.social") as? [String: String] ?? [:]
+        return saved.compactMapValues { URL(string: $0) }
+    }
+
+    func loadSocial() async {
+        if ShotMode.route != nil { return }
+        var req = URLRequest(url: ContentStore.remoteBase.appendingPathComponent("links.json"))
+        req.cachePolicy = .reloadIgnoringLocalCacheData
+        guard let (d, resp) = try? await URLSession.shared.data(for: req),
+              (resp as? HTTPURLResponse)?.statusCode == 200,
+              let r = try? JSONDecoder().decode([String: String].self, from: d) else { return }
+        let ok = r.filter { ["discord", "reddit"].contains($0.key) && $0.value.hasPrefix("https://") }
+        UserDefaults.standard.set(ok, forKey: "vicefold.social")
+        social = ok.compactMapValues { URL(string: $0) }
+    }
+
     func loadCounts() async {
         if ShotMode.route != nil { counts = ["general": 12, "m1-01": 3, "m1-04": 5, "m2-03": 2]; return }
         guard let (d, _) = try? await URLSession.shared.data(from: Self.base.appendingPathComponent("counts")),
@@ -137,6 +158,7 @@ struct CommunityView: View {
         .task {
             if section == 1 || hub.used { hub.authenticate() }
             await community.loadCounts()
+            await community.loadSocial()
         }
         .onChange(of: section) { _, s in if s == 1 { hub.authenticate() } }
         .navigationDestination(isPresented: .constant(ShotMode.route == "thread")) {
@@ -145,6 +167,33 @@ struct CommunityView: View {
     }
 
     // MARK: Entraide
+
+    /// Discord et Reddit, à côté de l'entraide de l'app.
+    private var social: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Prefer Discord or Reddit? Chat with other players there too.")
+                .font(.caption).foregroundStyle(.secondary)
+            HStack(spacing: 10) {
+                if let url = community.social["discord"] { socialLink("Discord", "bubble.left.and.text.bubble.right.fill", url) }
+                if let url = community.social["reddit"] { socialLink("Reddit", "person.3.fill", url) }
+            }
+        }
+    }
+
+    private func socialLink(_ name: String, _ symbol: String, _ url: URL) -> some View {
+        Link(destination: url) {
+            HStack(spacing: 8) {
+                Image(systemName: symbol)
+                Text(verbatim: name).fontWeight(.semibold)
+                Image(systemName: "arrow.up.right").font(.caption2.weight(.bold)).foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(.thinMaterial, in: .rect(cornerRadius: 14))
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(Text("Opens outside the app"))
+    }
 
     private var help: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -163,6 +212,8 @@ struct CommunityView: View {
                 .vfCard(radius: 20, padding: 14)
             }
             .buttonStyle(.plain)
+
+            if !community.social.isEmpty { social }
 
             SectionTitle(title: "Missions with questions")
             let missions = content.content.missions.filter { (community.counts[$0.id] ?? 0) > 0 }
