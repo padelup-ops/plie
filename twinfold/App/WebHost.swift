@@ -205,7 +205,6 @@ enum FullscreenBridge {
 
     /// If WebKit inserted its full-screen container inside the web view, move it onto the window.
     static func adopt(_ view: UIView) {
-        guard !Library.shared.fullscreenPage else { return }
         guard let scene = view.window?.windowScene
                 ?? UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first,
               let window = scene.keyWindow ?? scene.windows.first else { return }
