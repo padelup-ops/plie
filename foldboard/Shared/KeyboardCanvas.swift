@@ -2319,7 +2319,8 @@ final class KeyboardCanvas: UIView {
                 moreButton.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
                 let inRow = leadOutside ? [] : lead
                 var row = eff.barLayout == "left" ? inRow + tools + [moreButton] : inRow + [moreButton] + tools
-                for b in [middleButton, bigButton, modeButton, flipButton] where !leadOutside && CGFloat(row.count) * 36 > span {
+                // « ⋯ » (les dispositions de l'écran ouvert) reste le plus longtemps : il remplace la main et le milieu.
+                for b in [middleButton, modeButton, flipButton, bigButton] where !leadOutside && CGFloat(row.count) * 36 > span {
                     drop(b); row.removeAll { $0 === b }
                 }
                 let step = span / CGFloat(max(1, row.count))
@@ -2343,17 +2344,19 @@ final class KeyboardCanvas: UIView {
                 }
                 var kept = tools.filter { !tucked.contains($0) }
                 if !tucked.isEmpty { moreButton.isHidden = false }
-                // Encore trop serré (petit écran) : le bouton du milieu, puis le choix de position, attendent « ⋯ ».
+                // Encore trop serré (petit clavier, Duo ouvert en portrait) : le bouton du milieu, puis la main, attendent
+                // « ⋯ ». Les trois points des dispositions restent, en portrait comme en paysage (demandé par un testeur).
                 func needed() -> CGFloat {
                     let a: CGFloat = leadOutside ? 0 : leadWidth() + 4
                     let k: CGFloat = kept.reduce(0) { $0 + width($1) }
                     let m: CGFloat = moreButton.isHidden ? 0 : 36
                     return a + k + m + min(wordsMin, 110)
                 }
-                for b in [middleButton, bigButton, modeButton] where !leadOutside && needed() > span { drop(b) }
+                for b in [middleButton, modeButton] where !leadOutside && needed() > span { drop(b) }
                 if needed() > span, kept.contains(micButton), micButton.isHidden == false {
                     micButton.isHidden = true; kept.removeAll { $0 === micButton }; moreButton.isHidden = false
                 }
+                if !leadOutside && needed() > span { drop(bigButton) }
                 cx = packLead()
                 let more: [UIButton] = moreButton.isHidden ? [] : [moreButton]
                 var leftGroup: [UIButton] = [], rightGroup: [UIButton] = []
