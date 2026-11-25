@@ -183,7 +183,7 @@ struct MemoryCardView: View {
     }
 
     @MainActor private func render() {
-        let r = ImageRenderer(content: MemoryCard(style: style, name: cardName, date: Date()))
+        let r = ImageRenderer(content: SharedKeepsake(card: MemoryCard(style: style, name: cardName, date: Date())))
         r.scale = 3
         if let ui = r.uiImage { image = Image(uiImage: ui) }
     }

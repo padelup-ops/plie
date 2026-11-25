@@ -114,6 +114,8 @@ struct HomeView: View {
                         .buttonStyle(MagicButtonStyle())
                     Button { model.sheet = .discover } label: { Text("Discover the magic") }
                         .buttonStyle(QuietButtonStyle(filled: true))
+                    Button { model.sheet = .advent } label: { Text("Advent calendar") }
+                        .buttonStyle(QuietButtonStyle(filled: true))
                     Text("A magical moment to share as a family")
                         .font(.story(15))
                         .foregroundStyle(Noel.night.opacity(0.62))

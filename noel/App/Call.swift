@@ -18,6 +18,9 @@ final class CallController {
     private(set) var mood: SantaMood = .idle
     private(set) var surpriseAt: Date?
     private(set) var startedAt: Date?
+    /// L'aperçu gratuit s'est arrêté avant la fin de l'histoire.
+    private(set) var previewCut = false
+    private var sayLimit: Int?
     let voice = SantaVoice()
 
     private var segments: [Segment] = []
@@ -29,7 +32,7 @@ final class CallController {
     var mouth: Double { voice.level }
 
     /// Prépare l'appel : le texte, puis les sons de chaque phrase, en arrière-plan.
-    func prepare(profile: ChildProfile, scenario: Scenario, premium: Bool, audio withAudio: Bool = true) {
+    func prepare(profile: ChildProfile, scenario: Scenario, premium: Bool, audio withAudio: Bool = true, sayLimit: Int? = nil) {
         let (book, lang) = ScriptBook.load()
         voice.configure(book: book)
         segments = ScriptBuilder(book: book, lang: lang, profile: profile, premium: premium).build(scenario)
@@ -38,6 +41,8 @@ final class CallController {
         mood = .idle
         surpriseAt = nil
         startedAt = nil
+        previewCut = false
+        self.sayLimit = sayLimit
         renderTask?.cancel()
         guard withAudio else { return }
         let segs = segments
@@ -91,6 +96,7 @@ final class CallController {
     }
 
     private func run() async {
+        var said = 0
         for (i, s) in segments.enumerated() {
             if Task.isCancelled { return }
             switch s {
@@ -108,6 +114,11 @@ final class CallController {
                     await voice.play(spoken.buffers, recorded: spoken.recorded)
                 }
                 if !wave { mood = .idle }
+                said += 1
+                if let sayLimit, said >= sayLimit {
+                    previewCut = true
+                    return
+                }
                 try? await Task.sleep(for: .milliseconds(380))
             case let .listen(sec):
                 mood = .listening
@@ -134,6 +145,17 @@ final class CallController {
 
     /// « Écouter le Père Noël » : une courte phrase, sans prénom (découverte, réglages).
     private(set) var previewing = false
+    /// Une réplique seule (calendrier de l'Avent, message).
+    func speakLine(_ text: String) async {
+        guard !previewing else { return }
+        let (book, _) = ScriptBook.load()
+        voice.configure(book: book)
+        previewing = true
+        let spoken = await voice.render(cue: .line(text), caption: text)
+        await voice.play(spoken.buffers, recorded: spoken.recorded)
+        previewing = false
+    }
+
     func preview() {
         guard !previewing else { return }
         let (book, lang) = ScriptBook.load()

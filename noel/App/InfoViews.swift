@@ -89,6 +89,7 @@ struct SettingsView: View {
     @Environment(MagicStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @State private var confirmForget = false
+    @State private var messageGate = false
     @State private var music = ChristmasMusic.shared
 
     var body: some View {
@@ -110,13 +111,17 @@ struct SettingsView: View {
 
                 Section {
                     if store.owned {
-                        Label("Full magic unlocked. Thank you! ✨", systemImage: "checkmark.seal.fill").foregroundStyle(Noel.goldLight)
+                        Label("Pass unlocked. Thank you! ✨", systemImage: "checkmark.seal.fill").foregroundStyle(Noel.goldLight)
                     } else {
-                        Button { model.sheet = .paywall } label: { Label("Unlock the full magic", systemImage: "sparkles") }
-                        Button { Task { await store.restore() } } label: { Label("Restore purchases", systemImage: "arrow.clockwise") }
+                        Button { model.sheet = .paywall } label: { Label("Unlock the Christmas Pass", systemImage: "sparkles") }
                     }
+                    Button { messageGate = true } label: {
+                        Label { Text("3 extra messages for \(store.messagesPrice)") } icon: { Image(systemName: "bubble.left.and.bubble.right.fill") }
+                    }
+                    Text("Messages left: \(store.credits)")
+                    Button { Task { await store.restore() } } label: { Label("Restore purchases", systemImage: "arrow.clockwise") }
                     if let m = store.message { Text(m).font(.footnote).foregroundStyle(.secondary) }
-                } header: { Text("Full magic") }
+                } header: { Text("Christmas Pass") }
 
                 Section {
                     NavigationLink { DiscoverView() } label: { Label("How the magic works", systemImage: "wand.and.stars") }
@@ -133,6 +138,14 @@ struct SettingsView: View {
             .navigationTitle(Text("Settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .sheet(isPresented: $messageGate) {
+                ParentalGate {
+                    messageGate = false
+                    Task { await store.buyMessages() }
+                }
+                .presentationDetents([.medium])
+                .preferredColorScheme(.dark)
+            }
             .confirmationDialog(Text("Forget the first names, age, qualities, moment and wish saved on this iPhone?"),
                                 isPresented: $confirmForget, titleVisibility: .visible) {
                 Button("Forget", role: .destructive) {
@@ -156,8 +169,9 @@ struct PrivacyView: View {
                 block("person.crop.circle.badge.xmark", "No account, no tracking, no ads", "There is no sign-up, no advertising and no analytics. Santa's voice is made by your iPhone, without the internet.")
                 block("lock.fill", "Purchases", "The full magic is bought through the App Store, protected by a question for grown-ups. We never see your payment details.")
                 block("trash.fill", "You're in control", "You can erase the children's details at any time in Settings, or by deleting the app.")
-                Link("Full privacy policy", destination: URL(string: "https://foldly.netlify.app/allonoel/privacy")!)
+                GatedLink(title: "Full privacy policy", url: NoelLinks.privacy)
                     .font(.ui(15, .semibold))
+                    .foregroundStyle(Noel.goldLight)
             }
             .padding(24)
         }

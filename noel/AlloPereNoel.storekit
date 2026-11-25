@@ -1,0 +1,72 @@
+{
+  "identifier" : "allonoel",
+  "nonRenewingSubscriptions" : [ ],
+  "products" : [
+    {
+      "displayPrice" : "6.99",
+      "familyShareable" : false,
+      "internalID" : "PASS",
+      "localizations" : [
+        {
+          "description" : "Calls, letter, certificate, calendar",
+          "displayName" : "Christmas Pass",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Appels, lettre, certificat, calendrier",
+          "displayName" : "Pass Noël",
+          "locale" : "fr_FR"
+        }
+      ],
+      "productID" : "com.padelup.allonoel.pass",
+      "referenceName" : "Pass Noël",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "MSG",
+      "localizations" : [
+        {
+          "description" : "Three messages for another child",
+          "displayName" : "Extra messages",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Trois messages pour un autre enfant",
+          "displayName" : "Messages en plus",
+          "locale" : "fr_FR"
+        }
+      ],
+      "productID" : "com.padelup.allonoel.messages",
+      "referenceName" : "Messages en plus",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "3.99",
+      "familyShareable" : false,
+      "internalID" : "MAGIE",
+      "localizations" : [
+        {
+          "description" : "All stories, siblings, special moments, cards",
+          "displayName" : "The full magic",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.padelup.allonoel.magie",
+      "referenceName" : "La magie complète",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "fr_FR",
+    "_storefront" : "FRA",
+    "_storeKitErrors" : [ ]
+  },
+  "subscriptionGroups" : [ ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

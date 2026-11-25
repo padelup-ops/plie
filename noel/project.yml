@@ -28,6 +28,8 @@ targets:
         buildPhase: resources
       - path: Resources/Video
         buildPhase: resources
+      - path: Resources/Advent
+        buildPhase: resources
       - path: Resources/Scripts
         buildPhase: resources
     info:
@@ -55,4 +57,5 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         PRODUCT_NAME: AlloPereNoel
-    scheme: {}
+    scheme:
+      storeKitConfiguration: AlloPereNoel.storekit
