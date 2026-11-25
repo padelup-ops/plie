@@ -261,11 +261,51 @@ else:
         sys.exit(1)
     print("version ajoutée à la demande" if "error" not in added else "version déjà dans la demande")
 
-sent = call("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
-    "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}})
+def item_lines(sid):
+    for it in get_all(f"/v1/reviewSubmissions/{sid}/items?limit=50"):
+        rels = it.get("relationships") or {}
+        kind = next((k for k, rel in rels.items() if k != "reviewSubmission" and isinstance(rel, dict) and rel.get("data")), "?")
+        print("item", kind, (it.get("attributes") or {}).get("state"))
+
+def submit(sid):
+    return call("PATCH", f"/v1/reviewSubmissions/{sid}", {"data": {
+        "type": "reviewSubmissions", "id": sid, "attributes": {"submitted": True}}})
+
+sent = submit(sub_id)
 if "error" in sent:
     print("ÉCHEC envoi", redact(sent.get("detail", ""))[:400])
-    sys.exit(1)
+    item_lines(sub_id)
+    b = call("GET", f"/v1/appStoreVersions/{vid}/build")
+    ba = (b.get("data") or {}).get("attributes") or {}
+    print("build", ba.get("version"), ba.get("processingState"))
+    # La demande refusée reste bloquée : on la retire et on en ouvre une neuve avec la même version.
+    call("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
+        "type": "reviewSubmissions", "id": sub_id, "attributes": {"canceled": True}}})
+    for _ in range(8):
+        time.sleep(3)
+        st = ((call("GET", f"/v1/reviewSubmissions/{sub_id}").get("data") or {}).get("attributes") or {}).get("state")
+        print("retrait", st)
+        if st not in ("UNRESOLVED_ISSUES", "CANCELING", "READY_FOR_REVIEW"):
+            break
+    made = call("POST", "/v1/reviewSubmissions", {"data": {
+        "type": "reviewSubmissions", "attributes": {"platform": "IOS"},
+        "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}})
+    if "error" in made or not (made.get("data") or {}).get("id"):
+        print("ÉCHEC nouvelle demande", redact(made.get("detail", ""))[:400])
+        sys.exit(1)
+    sub_id = made["data"]["id"]
+    added = call("POST", "/v1/reviewSubmissionItems", {"data": {
+        "type": "reviewSubmissionItems", "relationships": {
+            "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
+            "appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}})
+    if "error" in added and not any(w in (added.get("detail") or "").lower() for w in ("already", "duplicate")):
+        print("ÉCHEC version non ajoutée", redact(added.get("detail", ""))[:400])
+        sys.exit(1)
+    sent = submit(sub_id)
+    if "error" in sent:
+        print("ÉCHEC second envoi", redact(sent.get("detail", ""))[:400])
+        item_lines(sub_id)
+        sys.exit(1)
 
 sub_state = ((sent.get("data") or {}).get("attributes") or {}).get("state")
 ver_state = vstate
