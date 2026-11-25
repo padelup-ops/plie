@@ -259,6 +259,6 @@ final class KBSettingsRelay {
 
     deinit {
         CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-            Unmanaged.passUnretained(self).toOpaque(), KBVault.settingsNote.rawValue, nil)
+            Unmanaged.passUnretained(self).toOpaque(), KBVault.settingsNote, nil)
     }
 }
