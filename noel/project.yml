@@ -26,6 +26,8 @@ targets:
         buildPhase: resources
       - path: Resources/Audio
         buildPhase: resources
+      - path: Resources/Video
+        buildPhase: resources
       - path: Resources/Scripts
         buildPhase: resources
     info:

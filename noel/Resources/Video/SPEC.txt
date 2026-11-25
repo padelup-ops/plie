@@ -1,0 +1,22 @@
+Allô Père Noël — vidéo d'accueil (à déposer ici)
+
+Fichier
+  noel/Resources/Video/santa-accueil.mp4
+  Le lecteur le cherche sous ce nom dans le bundle (sous-dossier Video, puis à la racine).
+  Tant que le fichier est absent, l'accueil joue santa-accueil.m4a et le Père Noël dessiné.
+
+Où c'est joué
+  Écran d'accueil, dans le médaillon doré (HomeView). Une fois au lancement, et à chaque appui sur le médaillon.
+  Le cercle recadre le centre de l'image (le visage). Pas de contrôles. La musique de l'accueil baisse pendant la lecture.
+
+Image
+  768 × 1024 (portrait 3:4), comme noel/ai/portrait-2.png, pour que le visage reste au centre du médaillon.
+  H.264, 25 images/seconde, yuv420p.
+  Durée : celle de l'audio, entre 10 et 15 secondes. Ne pas boucler.
+
+Audio dans la vidéo
+  La piste de santa-accueil.m4a (AAC, mono, 44,1 kHz), déjà au bon niveau (-16 LUFS).
+  C'est cette piste qu'il faut utiliser pour le lip-sync. Ne pas la régénérer.
+
+Monologue (français)
+  Ho, ho, ho ! Bonjour ! C'est moi, le Père Noël. Je t'appelle depuis mon atelier, au pôle Nord. J'ai une surprise rien que pour toi. Joyeux Noël !

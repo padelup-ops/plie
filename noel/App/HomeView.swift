@@ -3,7 +3,9 @@
 // Le lancement (le titre qui apparaît dans la nuit) et l'accueil : la nuit du pôle Nord, la lune, la neige,
 // le Père Noël dans son médaillon doré, le compte à rebours, et un seul geste principal : préparer l'appel.
 
+import AVKit
 import SwiftUI
+import UIKit
 
 struct SplashView: View {
     @Environment(AppModel.self) private var model
@@ -48,6 +50,8 @@ struct HomeView: View {
     @Environment(AppModel.self) private var model
     @State private var appeared = false
     @State private var music = ChristmasMusic.shared
+    @State private var greeting = GreetingPlayback()
+    @State private var greetingMood: SantaMood = .idle
 
     var body: some View {
         ZStack {
@@ -68,9 +72,24 @@ struct HomeView: View {
                 .padding(.top, 8)
 
                 Spacer(minLength: 12)
-                SantaMedallion(size: 210)
+                Button {
+                    Task { await playGreeting(again: true) }
+                } label: {
+                    ZStack {
+                        if let player = greeting.player {
+                            GreetingVideo(player: player)
+                                .frame(width: 210, height: 210)
+                                .clipShape(Circle())
+                                .overlay(Circle().strokeBorder(Noel.goldGradient, lineWidth: 7))
+                        } else {
+                            SantaMedallion(size: 210, mood: greetingMood, mouth: greetingMood == .talking ? model.call.mouth : 0)
+                        }
+                    }
                     .scaleEffect(appeared ? 1 : 0.94)
                     .opacity(appeared ? 1 : 0)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Hear Santa's greeting"))
                 Spacer(minLength: 18)
 
                 VStack(spacing: 12) {
@@ -105,7 +124,91 @@ struct HomeView: View {
             }
         }
         .onAppear { withAnimation(.spring(duration: 0.9)) { appeared = true } }
+        .task { await playGreeting(again: false) }
+        .onDisappear {
+            greeting.stop()
+            greetingMood = .idle
+            model.call.voice.stopSpeech()
+            music.duck(false)
+        }
     }
+
+    /// La vidéo `santa-accueil.mp4` (768×1024, voir Resources/Video/SPEC.txt) si elle est dans l'app,
+    /// sinon le monologue enregistré `santa-accueil.m4a`.
+    private func playGreeting(again: Bool) async {
+        guard ShotMode.route == nil else { return }
+        if !again && GreetingPlayback.played { return }
+        GreetingPlayback.played = true
+        try? await Task.sleep(for: .milliseconds(again ? 0 : 500))
+        guard !Task.isCancelled else { return }
+        music.duck(true)
+        if greeting.startVideo() {
+            greetingMood = .idle
+            return
+        }
+        greetingMood = .talking
+        let heard = await model.call.voice.playResource("santa-accueil")
+        greetingMood = .idle
+        if !heard { music.duck(false) }
+        else { music.duck(false) }
+    }
+}
+
+/// Lecture de la vidéo d'accueil. Le fichier n'est pas encore dans l'app : le chemin est réservé.
+@MainActor @Observable
+final class GreetingPlayback {
+    static var played = false
+    private(set) var player: AVPlayer?
+    private var endObserver: NSObjectProtocol?
+
+    func startVideo() -> Bool {
+        stop()
+        guard let url = Bundle.main.url(forResource: "santa-accueil", withExtension: "mp4", subdirectory: "Video")
+                ?? Bundle.main.url(forResource: "santa-accueil", withExtension: "mp4") else { return false }
+        let item = AVPlayerItem(url: url)
+        let player = AVPlayer(playerItem: item)
+        player.isMuted = false
+        self.player = player
+        endObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.player?.pause()
+                ChristmasMusic.shared.duck(false)
+            }
+        }
+        player.play()
+        return true
+    }
+
+    func stop() {
+        player?.pause()
+        player = nil
+        if let endObserver { NotificationCenter.default.removeObserver(endObserver) }
+        endObserver = nil
+    }
+}
+
+/// La vidéo, sans les contrôles, recadrée sur le visage.
+struct GreetingVideo: UIViewRepresentable {
+    let player: AVPlayer
+
+    func makeUIView(context: Context) -> GreetingPlayerView {
+        let view = GreetingPlayerView()
+        view.playerLayer.player = player
+        view.playerLayer.videoGravity = .resizeAspectFill
+        view.backgroundColor = .clear
+        return view
+    }
+
+    func updateUIView(_ view: GreetingPlayerView, context: Context) {
+        view.playerLayer.player = player
+    }
+}
+
+final class GreetingPlayerView: UIView {
+    override static var layerClass: AnyClass { AVPlayerLayer.self }
+    var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
 }
 
 /// « Plus que 30 jours avant Noël 🎄 », avec une petite étoile qui scintille.

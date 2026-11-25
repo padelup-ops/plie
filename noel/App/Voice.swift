@@ -1,11 +1,11 @@
 // Voice.swift — Allô Père Noël
 //
 // La voix du Père Noël et les sons, sans internet :
-//  - la voix : la synthèse vocale d'iOS (la meilleure voix masculine installée dans la langue), rendue d'avance en
-//    sons, puis passée dans une chaîne d'effets (voix plus grave, un peu de chaleur, une pièce en bois) ;
+//  - la voix : des répliques enregistrées (VoiceStudio, moteur VoxCPM2, licence Apache-2.0), une voix originale
+//    dessinée, qui n'est la voix d'aucune personne réelle. Le sous-titre garde le prénom ; l'anecdote et le cadeau,
+//    écrits par le parent, restent en synthèse de l'iPhone ;
 //  - la bouche du dessin suit le volume réel de la voix ;
 //  - la sonnerie, l'ambiance de l'atelier (feu + « Douce nuit ») et l'étincelle de la surprise sont des fichiers de l'app.
-// Des enregistrements de comédien pourront remplacer la synthèse plus tard (VoiceSource) sans toucher au reste.
 
 import AVFoundation
 import Foundation
@@ -100,8 +100,39 @@ final class SantaVoice {
 
     // MARK: Voix
 
-    /// Rend une phrase en sons (avant l'appel : aucune attente pendant l'appel).
-    func render(_ text: String) async -> [AVAudioPCMBuffer] {
+    struct SpokenAudio {
+        var buffers: [AVAudioPCMBuffer]
+        var recorded: Bool
+    }
+
+    /// Une phrase : le fichier enregistré s'il existe, sinon la synthèse de l'iPhone.
+    func render(cue: VoiceCue, caption: String) async -> SpokenAudio {
+        start()
+        switch cue {
+        case let .line(key):
+            if let buffer = VoiceLibrary.shared.buffer(for: key, format: speechFormat) {
+                return SpokenAudio(buffers: [buffer], recorded: true)
+            }
+        case let .sequence(parts):
+            if let buffers = VoiceLibrary.shared.sequence(parts, format: speechFormat, gap: 0.04) {
+                return SpokenAudio(buffers: buffers, recorded: true)
+            }
+        case let .device(text):
+            return SpokenAudio(buffers: await synthesize(text), recorded: false)
+        }
+        return SpokenAudio(buffers: await synthesize(caption), recorded: false)
+    }
+
+    /// Le monologue d'accueil (`santa-accueil.m4a`), pour l'écran d'accueil tant que la vidéo n'est pas là.
+    func playResource(_ name: String) async -> Bool {
+        start()
+        guard let buffer = VoiceLibrary.shared.named(name, format: speechFormat) else { return false }
+        await play([buffer], recorded: true)
+        return true
+    }
+
+    /// Rend une phrase avec la synthèse de l'iPhone (avant l'appel : aucune attente pendant l'appel).
+    func synthesize(_ text: String) async -> [AVAudioPCMBuffer] {
         start()
         let u = AVSpeechUtterance(string: text)
         u.voice = voice
@@ -144,10 +175,15 @@ final class SantaVoice {
         return err == nil && out.frameLength > 0 ? out : nil
     }
 
-    /// Joue les sons d'une phrase et attend la fin.
-    func play(_ buffers: [AVAudioPCMBuffer]) async {
+    /// Joue les sons d'une phrase et attend la fin. Les répliques enregistrées ne sont pas rendues plus graves :
+    /// la voix est déjà celle du Père Noël.
+    func play(_ buffers: [AVAudioPCMBuffer], recorded: Bool = false) async {
         start()
         guard !buffers.isEmpty else { return }
+        pitch.pitch = recorded ? 0 : -180
+        eq.bands[0].bypass = recorded
+        eq.bands[1].bypass = recorded
+        reverb.wetDryMix = recorded ? 6 : 14
         if !speech.isPlaying { speech.play() }
         await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
             for (i, b) in buffers.enumerated() {
@@ -209,6 +245,94 @@ final class SantaVoice {
     func stopAll() {
         speech.stop(); music.stop(); fx.stop()
         level = 0
+    }
+}
+
+/// Les répliques enregistrées : `Resources/Audio/voice/voice-index.json` associe chaque texte au fichier `.m4a`.
+struct VoiceRecipe: Decodable, Equatable {
+    var kind: String
+    var key: String?
+    var before: String?
+    var after: String?
+}
+
+private struct VoiceIndexFile: Decodable {
+    var clips: [String: String]
+    var recipes: [String: [String: VoiceRecipe]]
+}
+
+/// Charge les fichiers de voix. Le dossier est cherché tel quel, puis aplati à la racine du bundle
+/// (XcodeGen copie parfois les ressources sans les sous-dossiers).
+final class VoiceLibrary {
+    static let shared = VoiceLibrary()
+
+    private let clips: [String: String]
+    private let recipes: [String: [String: VoiceRecipe]]
+    private var cache: [String: AVAudioPCMBuffer] = [:]
+
+    private init() {
+        let url = Self.locate("voice-index", ext: "json")
+        if let url, let data = try? Data(contentsOf: url),
+           let file = try? JSONDecoder().decode(VoiceIndexFile.self, from: data) {
+            clips = file.clips
+            recipes = file.recipes
+        } else {
+            clips = [:]
+            recipes = [:]
+        }
+    }
+
+    static func recipe(lang: String, template: String) -> VoiceRecipe? {
+        shared.recipes[lang]?[template]
+    }
+
+    func buffer(for text: String, format: AVAudioFormat) -> AVAudioPCMBuffer? {
+        guard let file = clips[text] else { return nil }
+        return named(file, format: format)
+    }
+
+    /// Morceaux dans l'ordre, ou rien si l'un d'eux manque (on retombe alors sur la synthèse, d'une seule voix).
+    func sequence(_ parts: [String], format: AVAudioFormat, gap: Double) -> [AVAudioPCMBuffer]? {
+        guard !parts.isEmpty else { return nil }
+        var out: [AVAudioPCMBuffer] = []
+        for (index, part) in parts.enumerated() {
+            guard let buffer = buffer(for: part, format: format) else { return nil }
+            if index > 0, let silence = Self.silence(gap, format: format) { out.append(silence) }
+            out.append(buffer)
+        }
+        return out
+    }
+
+    func named(_ name: String, format: AVAudioFormat) -> AVAudioPCMBuffer? {
+        let file = name.hasSuffix(".m4a") ? name : name + ".m4a"
+        if let cached = cache[file] { return cached }
+        let base = (file as NSString).deletingPathExtension
+        guard let url = Self.locate(base, ext: "m4a"), let buffer = Self.read(url, format: format) else { return nil }
+        cache[file] = buffer
+        return buffer
+    }
+
+    private static func locate(_ name: String, ext: String) -> URL? {
+        for sub in ["voice", "Audio/voice", "Audio", "Video"] {
+            if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: sub) { return url }
+        }
+        return Bundle.main.url(forResource: name, withExtension: ext)
+    }
+
+    private static func read(_ url: URL, format: AVAudioFormat) -> AVAudioPCMBuffer? {
+        guard let file = try? AVAudioFile(forReading: url),
+              let raw = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length))
+        else { return nil }
+        do { try file.read(into: raw) } catch { return nil }
+        if file.processingFormat == format { return raw }
+        return SantaVoice.convert(raw, to: format)
+    }
+
+    private static func silence(_ seconds: Double, format: AVAudioFormat) -> AVAudioPCMBuffer? {
+        let frames = AVAudioFrameCount(max(1, format.sampleRate * seconds))
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames) else { return nil }
+        buffer.frameLength = frames
+        return buffer
     }
 }
 

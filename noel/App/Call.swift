@@ -21,7 +21,7 @@ final class CallController {
     let voice = SantaVoice()
 
     private var segments: [Segment] = []
-    private var audio: [Int: [AVAudioPCMBuffer]] = [:]
+    private var audio: [Int: SantaVoice.SpokenAudio] = [:]
     private var renderTask: Task<Void, Never>?
     private var callTask: Task<Void, Never>?
     private var hapticTask: Task<Void, Never>?
@@ -44,7 +44,7 @@ final class CallController {
         renderTask = Task { [weak self] in
             for (i, s) in segs.enumerated() {
                 guard let self, !Task.isCancelled else { return }
-                if let text = s.text { self.audio[i] = await self.voice.render(text) }
+                if case let .say(text, _, _, cue) = s { self.audio[i] = await self.voice.render(cue: cue, caption: text) }
             }
         }
     }
@@ -94,18 +94,18 @@ final class CallController {
         for (i, s) in segments.enumerated() {
             if Task.isCancelled { return }
             switch s {
-            case let .say(text, laugh, wave):
+            case let .say(text, laugh, wave, _):
                 caption = text
                 mood = wave ? .waving : (laugh ? .laughing : .talking)
                 // si la phrase n'est pas encore prête (première phrase), on l'attend un peu
                 var waited = 0
                 while audio[i] == nil && waited < 60 && !Task.isCancelled { try? await Task.sleep(for: .milliseconds(100)); waited += 1 }
-                let bufs = audio[i] ?? []
-                if bufs.isEmpty {
+                let spoken = audio[i]
+                if spoken == nil || spoken?.buffers.isEmpty == true {
                     // pas de voix disponible : on laisse le temps de lire le sous-titre
                     try? await Task.sleep(for: .seconds(max(2.2, Double(text.count) / 14)))
-                } else {
-                    await voice.play(bufs)
+                } else if let spoken {
+                    await voice.play(spoken.buffers, recorded: spoken.recorded)
                 }
                 if !wave { mood = .idle }
                 try? await Task.sleep(for: .milliseconds(380))
@@ -141,7 +141,12 @@ final class CallController {
         let segs = ScriptBuilder(book: book, lang: lang, profile: ChildProfile(), premium: false).block("sample")
         previewing = true
         Task {
-            for s in segs { if let t = s.text { await voice.play(await voice.render(t)) } }
+            for s in segs {
+                if case let .say(t, _, _, cue) = s {
+                    let spoken = await voice.render(cue: cue, caption: t)
+                    await voice.play(spoken.buffers, recorded: spoken.recorded)
+                }
+            }
             previewing = false
         }
     }
