@@ -34,6 +34,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         // Videos play with sound even with the silent switch on, and keep going in Picture in Picture.
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
         _ = Downloads.shared   // picks up downloads that went on while Twinfold was closed
+        FullscreenBridge.start()
         return true
     }
 
@@ -41,7 +42,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String,
                      completionHandler: @escaping () -> Void) {
         guard identifier == Downloads.sessionID else { completionHandler(); return }
-        MainActor.assumeIsolated { Downloads.shared.backgroundCompletion = completionHandler }
+        MainActor.assumeIsolated { Downloads.shared.setBackgroundCompletion(completionHandler) }
     }
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession,

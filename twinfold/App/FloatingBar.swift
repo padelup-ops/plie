@@ -5,6 +5,41 @@
 
 import SwiftUI
 
+/// How wide the side rail is, and how big its icons are.
+enum RailWidth: String, CaseIterable, Identifiable {
+    case narrow, regular, wide
+    var id: String { rawValue }
+    var title: LocalizedStringKey {
+        switch self {
+        case .narrow: return "Narrow"
+        case .regular: return "Regular"
+        case .wide: return "Wide"
+        }
+    }
+    var pad: CGFloat {
+        switch self {
+        case .narrow: return 0
+        case .regular: return 3
+        case .wide: return 10
+        }
+    }
+}
+
+enum RailIconSize: String, CaseIterable, Identifiable {
+    case small, medium, large
+    var id: String { rawValue }
+    var title: LocalizedStringKey {
+        switch self {
+        case .small: return "Small Icons"
+        case .medium: return "Medium Icons"
+        case .large: return "Large Icons"
+        }
+    }
+    var point: CGFloat { switch self { case .small: return 13; case .medium: return 16; case .large: return 20 } }
+    var button: CGFloat { switch self { case .small: return 32; case .medium: return 40; case .large: return 48 } }
+    var tab: CGFloat { switch self { case .small: return 32; case .medium: return 40; case .large: return 48 } }
+}
+
 struct FloatingBar: View {
     @Environment(Browser.self) private var browser
 
@@ -124,8 +159,9 @@ struct SideDock: View {
             }
         }
         .simultaneousGesture(DragGesture(minimumDistance: 0).onChanged { _ in browser.scheduleDockTuck() })
-        .animation(.spring(response: 0.34, dampingFraction: 0.86), value: browser.dockOpen)
-        .animation(.spring(response: 0.34, dampingFraction: 0.86), value: browser.railOpen)
+        .animation(browser.rotating ? nil : .spring(response: 0.34, dampingFraction: 0.86), value: browser.dockOpen)
+        .animation(browser.rotating ? nil : .spring(response: 0.34, dampingFraction: 0.86), value: browser.railOpen)
+        .transaction { if browser.rotating { $0.disablesAnimations = true } }
     }
 
     @ViewBuilder
@@ -195,7 +231,7 @@ private struct TabColumn: View {
     @Environment(Browser.self) private var browser
     let onRight: Bool
     @State private var scrub: Int?
-    private static let item: CGFloat = 40
+    private var item: CGFloat { Library.shared.railIconSize.tab }
 
     private enum Item: Identifiable {
         case app(URL), tab(Tab)
@@ -223,8 +259,8 @@ private struct TabColumn: View {
                 .scrollIndicators(.hidden)
                 .scrollTargetBehavior(.viewAligned)
                 // As tall as its items, up to six and a half, and less when the screen is short.
-                .frame(width: Self.item + 4)
-                .frame(minHeight: Self.item + 8, maxHeight: min(CGFloat(max(items.count, 1)) * (Self.item + 4) + 8, 6.5 * (Self.item + 4)))
+                .frame(width: item + 4)
+                .frame(minHeight: item + 8, maxHeight: min(CGFloat(max(items.count, 1)) * (item + 4) + 8, 6.5 * (item + 4)))
                 .fixedSize(horizontal: true, vertical: false)
                 .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.06),
                                              .init(color: .black, location: 0.94), .init(color: .clear, location: 1)],
@@ -338,7 +374,7 @@ private struct TabColumn: View {
                             .padding(2).background(Brand.coral, in: Circle()).offset(x: 4, y: 4)
                     }
                 }
-                .frame(width: Self.item, height: Self.item)
+                .frame(width: item, height: item)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(title(item)))
@@ -376,6 +412,8 @@ private struct ActionRail: View {
 
     private var buttons: some View {
         let tab = browser.activeTab
+        let icon = Library.shared.railIconSize
+        let pad = Library.shared.railWidth.pad
         return VStack(spacing: 2) {
             button("chevron.backward", "Back", enabled: tab?.canGoBack == true) { tab?.webView.goBack() }
             button("chevron.forward", "Forward", enabled: tab?.canGoForward == true) { tab?.webView.goForward() }
@@ -386,7 +424,7 @@ private struct ActionRail: View {
                     .monospacedDigit()
                     .frame(width: 24, height: 22)
                     .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(.primary, lineWidth: 1.6))
-                    .frame(width: 40, height: 40)
+                    .frame(width: icon.button, height: icon.button)
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("Tabs"))
@@ -395,7 +433,7 @@ private struct ActionRail: View {
                    browser.isSplit ? "One page" : "Two pages") { browser.toggleSplit() }
             if let url = tab?.url, tab?.isBlank == false {
                 ShareLink(item: url) {
-                    Image(systemName: "square.and.arrow.up").font(.system(size: 16, weight: .semibold)).frame(width: 40, height: 40)
+                    Image(systemName: "square.and.arrow.up").font(.system(size: icon.point, weight: .semibold)).frame(width: icon.button, height: icon.button)
                 }
                 .buttonStyle(.plain)
             }
@@ -405,8 +443,9 @@ private struct ActionRail: View {
                    "This Page Full Screen") { browser.toggleMaximize() }
             button("gearshape", "Settings") { browser.sheet = .settings }
             MainMenu(compact: true)
-                .frame(width: 40, height: 40)
+                .frame(width: icon.button, height: icon.button)
         }
+        .padding(.horizontal, pad)
     }
 
     private func zoom(_ tab: Tab?, by d: CGFloat) {
@@ -416,8 +455,9 @@ private struct ActionRail: View {
     }
 
     private func button(_ symbol: String, _ label: LocalizedStringKey, enabled: Bool = true, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbol).font(.system(size: 16, weight: .semibold)).frame(width: 40, height: 40)
+        let icon = Library.shared.railIconSize
+        return Button(action: action) {
+            Image(systemName: symbol).font(.system(size: icon.point, weight: .semibold)).frame(width: icon.button, height: icon.button)
         }
         .buttonStyle(.plain)
         .disabled(!enabled)

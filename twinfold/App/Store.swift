@@ -94,7 +94,7 @@ final class Store {
 }
 
 enum ProFeature: String, Identifiable, CaseIterable {
-    case ai, pairs, gestures, syncScroll, follow, readAloud, pdf, bilingual, videoNotes, profiles, pageFont, general
+    case ai, pairs, gestures, syncScroll, follow, readAloud, pdf, bilingual, videoNotes, profiles, pageFont, icons, general
     var id: String { rawValue }
 
     var title: LocalizedStringKey {
@@ -110,6 +110,7 @@ enum ProFeature: String, Identifiable, CaseIterable {
         case .videoNotes: return "Video notes"
         case .profiles: return "Profiles"
         case .pageFont: return "Page fonts"
+        case .icons: return "Extra app icons"
         case .general: return "Twinfold Pro"
         }
     }
@@ -118,7 +119,7 @@ enum ProFeature: String, Identifiable, CaseIterable {
         switch self {
         case .ai: return "ChatGPT, Claude, Gemini, Le Chat, Perplexity or Copilot in the other pane, already asked about your page."
         case .pairs: return "Save every duo of pages you love, and open them from the Home Screen."
-        case .gestures: return "Seven gestures, fifteen actions: make Twinfold yours."
+        case .gestures: return "Edge swipes, corners like down-then-right, and two-finger gestures: make Twinfold yours."
         case .syncScroll: return "Two pages that move as one: translations, comparisons, notes."
         case .follow: return "New articles from the sites you follow, in one list."
         case .readAloud: return "Any article, read to you while you do something else."
@@ -127,6 +128,7 @@ enum ProFeature: String, Identifiable, CaseIterable {
         case .videoNotes: return "Notes that keep the moment of the video: tap one, the video jumps back."
         case .profiles: return "Several sign-ins side by side: personal and work, each with its own cookies."
         case .pageFont: return "Read every site in the font you like."
+        case .icons: return "Four more Home Screen icons, besides the two-screens one."
         case .general: return "Everything Twinfold can do, for good."
         }
     }
@@ -144,11 +146,12 @@ enum ProFeature: String, Identifiable, CaseIterable {
         case .videoNotes: return "note.text"
         case .profiles: return "person.2"
         case .pageFont: return "textformat"
+        case .icons: return "app.badge"
         case .general: return "crown"
         }
     }
 
-    static let showcase: [ProFeature] = [.ai, .videoNotes, .bilingual, .profiles, .pairs, .gestures, .syncScroll, .follow, .readAloud, .pdf]
+    static let showcase: [ProFeature] = [.ai, .videoNotes, .bilingual, .profiles, .pairs, .gestures, .syncScroll, .follow, .readAloud, .pdf, .icons]
 }
 
 // MARK: - The Pro screen

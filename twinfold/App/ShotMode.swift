@@ -76,7 +76,8 @@ enum ShotMode {
                 browser.dockOnRight = true; browser.dockOpen = true; browser.railOpen = true
             }
         case "fsinpane":
-            // Test: the page asks for full screen; the video should fill its pane only.
+            // Test: the page asks for full screen. It should be the system's full screen (the whole window), not a
+            // CSS fill of the player. __twinfoldFullscreenInPane stays false.
             show(0, "dualtest-a", "video-a.example")
             show(1, "recipe", "dailyloaf.example")
             Task { @MainActor in

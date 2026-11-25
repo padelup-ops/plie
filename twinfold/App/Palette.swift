@@ -7,6 +7,33 @@
 import SwiftUI
 import UIKit
 
+/// The two looks of the action palette.
+enum PaletteDesign: String, CaseIterable, Identifiable {
+    case ring, compass
+    var id: String { rawValue }
+    var title: LocalizedStringKey {
+        switch self {
+        case .ring: return "Ring"
+        case .compass: return "Compass"
+        }
+    }
+}
+
+/// Eight directions, starting at the top and going clockwise. Index 0 is the first action.
+enum PaletteOctant {
+    static let titles: [LocalizedStringKey] = ["Up", "Up and Right", "Right", "Down and Right", "Down", "Down and Left", "Left", "Up and Left"]
+
+    static func angle(_ index: Int) -> Double { -.pi / 2 + Double(index) * .pi / 4 }
+
+    /// The direction of a finger that has left the button. Nil while it is still in the middle.
+    static func index(dx: CGFloat, dy: CGFloat) -> Int? {
+        guard hypot(dx, dy) > 30 else { return nil }
+        var fromUp = atan2(dy, dx) + .pi / 2
+        if fromUp < 0 { fromUp += 2 * .pi }
+        return Int((fromUp + .pi / 8) / (.pi / 4)) % 8
+    }
+}
+
 enum PaletteAction: String, CaseIterable, Identifiable, Codable {
     case back, forward, reload, tabs, newTab, search, share, closeTab, split, swap, fullScreen
     case privateMode, reader, top, bookmarks, downloads, settings, newPrivateTab
@@ -194,6 +221,11 @@ struct ActionPalette: View {
             }
         }
         .onChange(of: open) { _, o in if o { actions = Library.shared.paletteActions } }
+        .onChange(of: browser.paletteOpenRequest) { _, n in
+            guard n > 0 else { return }
+            actions = Library.shared.paletteActions
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { open = true }
+        }
     }
 
     // MARK: Geometry
@@ -213,79 +245,32 @@ struct ActionPalette: View {
         return CGPoint(x: min(max(p.x, l), max(r, l)), y: min(max(p.y, t), max(b, t)))
     }
 
-    /// The directions where an action fits on screen, as one arc (start angle, sweep), in radians.
-    private var arc: (start: Double, sweep: Double) {
+    /// Eight compass points around the button. The ring shrinks so the actions stay on screen.
+    private var fitRadius: CGFloat {
         let c = buttonCenter
-        let r: CGFloat = 96
-        let m = item / 2 + 6
-        func fits(_ a: Double) -> Bool {
-            let x = c.x + r * cos(a), y = c.y + r * sin(a)
-            return x >= insets.left + m && x <= area.width - insets.right - m
-                && y >= insets.top + m && y <= area.height - insets.bottom - m
-        }
-        let steps = 120
-        let ok = (0..<steps).map { fits(Double($0) / Double(steps) * 2 * .pi - .pi / 2) }
-        if ok.allSatisfy({ $0 }) { return (-.pi / 2, 2 * .pi) }
-        // The longest run of free directions (wrapping around).
-        var best = (start: 0, len: 0)
-        for i in 0..<steps where ok[i] && !ok[(i - 1 + steps) % steps] {
-            var n = 0
-            while n < steps && ok[(i + n) % steps] { n += 1 }
-            if n > best.len { best = (i, n) }
-        }
-        guard best.len > 0 else { return (-.pi / 2, 2 * .pi) }
-        let step = 2 * Double.pi / Double(steps)
-        return (Double(best.start) * step - .pi / 2, Double(best.len - 1) * step)
-    }
-
-    /// Where each action sits: one ring when there's room all around; near an edge or in a corner, the actions fill
-    /// the open side in rows (an inner arc, then an outer one), always a finger's width apart, never on top of
-    /// each other.
-    private var spots: [CGPoint] {
-        let c = buttonCenter, n = actions.count
-        guard n > 0 else { return [] }
-        let a = arc
-        let gap = item + 18
-        if a.sweep >= 2 * .pi - 0.01 {
-            let r = max(96, gap * CGFloat(n) / (2 * .pi))
-            return (0..<n).map { i in
-                let t = a.start + Double(i) / Double(n) * 2 * .pi
-                return CGPoint(x: c.x + r * cos(t), y: c.y + r * sin(t))
+        let m = item / 2 + 8
+        var r: CGFloat = 112
+        while r > 68 {
+            let ok = actions.indices.allSatisfy { i in
+                let p = point(i, radius: r, center: c)
+                return p.x >= insets.left + m && p.x <= area.width - insets.right - m
+                    && p.y >= insets.top + m && p.y <= area.height - insets.bottom - m
             }
+            if ok || actions.isEmpty { return r }
+            r -= 6
         }
-        var out: [CGPoint] = []
-        var r: CGFloat = 92
-        var left = n
-        while left > 0 && r < 400 {
-            // As many as fit on this arc, spread evenly along it.
-            let cap = max(1, Int(CGFloat(a.sweep) * r / gap) + 1)
-            let k = min(left, cap)
-            for j in 0..<k {
-                let t = a.start + (k == 1 ? a.sweep / 2 : Double(j) / Double(k - 1) * a.sweep)
-                out.append(clamp(CGPoint(x: c.x + r * cos(t), y: c.y + r * sin(t)), margin: item / 2 + 4))
-            }
-            left -= k
-            r += gap
-        }
-        return out
+        return 68
     }
 
-    /// How far the furthest action is (the glass disc behind them reaches it).
-    private var radius: CGFloat {
-        let c = buttonCenter
-        return (spots.map { hypot($0.x - c.x, $0.y - c.y) }.max() ?? 96)
+    private func point(_ i: Int, radius r: CGFloat, center c: CGPoint) -> CGPoint {
+        let a = PaletteOctant.angle(i)
+        return CGPoint(x: c.x + r * cos(a), y: c.y + r * sin(a))
     }
 
-    private func spot(_ i: Int, around c: CGPoint) -> CGPoint {
-        let s = spots
-        return i < s.count ? s[i] : c
-    }
-
-    /// The action closest to the finger, once it's left the middle.
-    private func index(toward p: CGPoint, from c: CGPoint) -> Int? {
-        guard hypot(p.x - c.x, p.y - c.y) > 34, !actions.isEmpty else { return nil }
-        let s = spots
-        return s.indices.min { hypot(s[$0].x - p.x, s[$0].y - p.y) < hypot(s[$1].x - p.x, s[$1].y - p.y) }
+    /// The action in the direction of the finger (up, then clockwise). Empty directions do nothing.
+    private func octant(of p: CGPoint, from c: CGPoint) -> Int? {
+        guard let i = PaletteOctant.index(dx: p.x - c.x, dy: p.y - c.y), actions.indices.contains(i) else { return nil }
+        return i
     }
 
     // MARK: Hiding
@@ -340,35 +325,47 @@ struct ActionPalette: View {
 
     private func ringView(at c: CGPoint) -> some View {
         let names = Library.shared.paletteNames
+        let compass = Library.shared.paletteDesign == .compass
+        let r = fitRadius
+        let disc = (r + (compass ? 28 : item / 2 + 10)) * 2
         return ZStack(alignment: .topLeading) {
-            Circle()
-                .fill(.clear)
-                .glassEffect(.regular, in: .circle)
-                .frame(width: (radius + item / 2 + 10) * 2, height: (radius + item / 2 + 10) * 2)
-                .position(c)
-                .allowsHitTesting(false)
+            if compass {
+                Circle().fill(.ultraThinMaterial).frame(width: disc, height: disc).position(c).allowsHitTesting(false)
+                ForEach(actions.indices, id: \.self) { i in
+                    let on = highlighted == i
+                    PaletteWedge(mid: PaletteOctant.angle(i))
+                        .fill(on ? AnyShapeStyle(Brand.accent) : AnyShapeStyle(Color.primary.opacity(0.08)))
+                        .frame(width: disc, height: disc)
+                        .position(c)
+                        .allowsHitTesting(false)
+                }
+            } else {
+                Circle().fill(.clear).glassEffect(.regular, in: .circle)
+                    .frame(width: disc, height: disc).position(c).allowsHitTesting(false)
+            }
             ForEach(Array(actions.enumerated()), id: \.element) { i, a in
                 let on = highlighted == i
                 let enabled = a.isEnabled(browser)
+                let at = point(i, radius: compass ? r * 0.62 : r, center: c)
                 Button { run(a) } label: {
                     VStack(spacing: 2) {
                         Image(systemName: a.symbol)
                             .font(.system(size: 18, weight: .semibold))
                             .frame(width: 40, height: 34)
-                        if names {
+                        if names && !compass {
                             Text(a.short).font(.system(size: 9, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.7)
                         }
                     }
                     .frame(width: item + 10, height: item)
                     .foregroundStyle(on ? Color.white : Color.primary)
-                    .background(on ? AnyShapeStyle(Brand.accent.gradient) : AnyShapeStyle(Color.primary.opacity(0.06)),
+                    .background(compass ? AnyShapeStyle(Color.clear) : (on ? AnyShapeStyle(Brand.accent.gradient) : AnyShapeStyle(Color.primary.opacity(0.06))),
                                 in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .scaleEffect(on ? 1.14 : 1)
                 }
                 .buttonStyle(.plain)
                 .disabled(!enabled)
                 .opacity(enabled ? 1 : 0.35)
-                .position(spot(i, around: c))
+                .position(at)
                 .accessibilityLabel(Text(a.title))
             }
         }
@@ -407,8 +404,7 @@ struct ActionPalette: View {
                     }
                 }
                 if movedFar {
-                    let ring = ringCenter(for: buttonCenter)
-                    let i = index(toward: v.location, from: ring)
+                    let i = octant(of: v.location, from: buttonCenter)
                     if i != highlighted {
                         if i != nil { UISelectionFeedbackGenerator().selectionChanged() }
                         withAnimation(.snappy(duration: 0.15)) { highlighted = i }
@@ -490,18 +486,27 @@ struct PaletteSettings: View {
         List {
             Section {
                 Toggle("Floating Palette Button", isOn: $lib.palette)
+                Picker("Look", selection: $lib.paletteDesign) {
+                    ForEach(PaletteDesign.allCases) { Text($0.title).tag($0) }
+                }
                 Toggle("Names Under the Actions", isOn: $lib.paletteNames)
             } footer: {
-                Text("Tap the round button: your actions open around it. Or press and slide toward one: it runs when you let go. Hold the button still to move it, or drop it on “Hide” at the bottom.")
+                Text("Tap the round button, or set a gesture to open it. Slide toward one of the eight directions without lifting your finger: that action runs when you let go. Hold the button still to move it. Ring and Compass are the two looks.")
             }
             Section {
                 ForEach(chosen) { a in
-                    Label { Text(a.title) } icon: { Image(systemName: a.symbol).foregroundStyle(Brand.accent) }
+                    let direction = chosen.firstIndex(of: a).flatMap { PaletteOctant.titles.indices.contains($0) ? PaletteOctant.titles[$0] : nil }
+                    Label {
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(a.title)
+                            if let direction { Text(direction).font(.caption).foregroundStyle(.secondary) }
+                        }
+                    } icon: { Image(systemName: a.symbol).foregroundStyle(Brand.accent) }
                 }
                 .onMove { chosen.move(fromOffsets: $0, toOffset: $1); save() }
                 .onDelete { chosen.remove(atOffsets: $0); save() }
             } header: {
-                Text("In the Ring (\(chosen.count)/\(PaletteAction.maximum))")
+                Text("Around the Button (\(chosen.count)/\(PaletteAction.maximum))")
             }
             Section {
                 ForEach(PaletteAction.allCases.filter { !chosen.contains($0) }) { a in
@@ -529,4 +534,25 @@ struct PaletteSettings: View {
     }
 
     private func save() { Library.shared.paletteActions = chosen }
+}
+
+/// One slice of the compass, from the middle toward its direction.
+private struct PaletteWedge: Shape {
+    var mid: Double
+
+    func path(in rect: CGRect) -> Path {
+        let c = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height) / 2
+        let a0 = mid - .pi / 8 + 0.03
+        let a1 = mid + .pi / 8 - 0.03
+        var p = Path()
+        p.move(to: c)
+        let steps = 8
+        for s in 0...steps {
+            let a = a0 + (a1 - a0) * Double(s) / Double(steps)
+            p.addLine(to: CGPoint(x: c.x + radius * cos(a), y: c.y + radius * sin(a)))
+        }
+        p.closeSubpath()
+        return p
+    }
 }

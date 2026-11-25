@@ -116,12 +116,13 @@ final class Tab: NSObject, Identifiable {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = isPrivate ? .nonPersistent() : Library.dataStore(for: profile)
         config.allowsInlineMediaPlayback = true
+        // A video starts only after a tap (the dual-play screenshot is the exception). Inline is allowed, so two
+        // panes can play at once; the full-screen button is the system's and covers the whole window.
         config.mediaTypesRequiringUserActionForPlayback = ShotMode.current == "dualplay" ? [] : .all
         config.allowsPictureInPictureMediaPlayback = true
         config.preferences.isFraudulentWebsiteWarningEnabled = true
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
-        // Full screen in the pane (the default): the page's own full-screen button fills just this pane.
-        config.preferences.isElementFullscreenEnabled = !Library.shared.fullscreenInPane
+        config.preferences.isElementFullscreenEnabled = true
         config.defaultWebpagePreferences.preferredContentMode = .mobile
         config.dataDetectorTypes = [.phoneNumber, .link, .address, .calendarEvent]
         ContentBlocker.shared.attach(to: config.userContentController)
@@ -177,6 +178,8 @@ final class Tab: NSObject, Identifiable {
             webView.load(URLRequest(url: url))
         }
     }
+
+    func refreshGestures() { gestures?.refreshSystemEdges() }
 
     func toggleDesktop() {
         wantsDesktop.toggle()
@@ -407,6 +410,19 @@ extension Tab: WKUIDelegate {
 
 
 /// A web view that ignores the screen's safe area: the page fills its whole pane, on every screen of the Duo.
+/// A full-screen container WebKit inserts inside the page is moved onto the window, so it isn't clipped to the pane.
 final class EdgeWebView: WKWebView {
     override var safeAreaInsets: UIEdgeInsets { .zero }
+
+    override func didAddSubview(_ subview: UIView) {
+        super.didAddSubview(subview)
+        guard subview !== scrollView else { return }
+        let name = NSStringFromClass(type(of: subview))
+        guard name.contains("WKFullScreen") || name.contains("WKFullscreen") else { return }
+        DispatchQueue.main.async { [weak self, weak subview] in
+            guard let self, let subview else { return }
+            guard subview.superview === self || subview.superview === self.scrollView else { return }
+            FullscreenBridge.adopt(subview)
+        }
+    }
 }

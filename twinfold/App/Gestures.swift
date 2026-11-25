@@ -6,10 +6,17 @@
 
 import SwiftUI
 import UIKit
+import WebKit
 
 enum GestureTrigger: String, CaseIterable, Identifiable, Codable {
     case swipeLeft, swipeRight, swipeUp, swipeDown, twoFingerTap, twoFingerDoubleTap, threeFingerTap
+    case edgeLeft, edgeRight, edgeTop, edgeBottom
+    case downRight, downLeft, upRight, upLeft, rightDown, rightUp, leftDown, leftUp
     var id: String { rawValue }
+
+    static var twoFingers: [GestureTrigger] { [.swipeLeft, .swipeRight, .swipeUp, .swipeDown, .twoFingerTap, .twoFingerDoubleTap, .threeFingerTap] }
+    static var edges: [GestureTrigger] { [.edgeLeft, .edgeRight, .edgeTop, .edgeBottom] }
+    static var combos: [GestureTrigger] { [.downRight, .downLeft, .upRight, .upLeft, .rightDown, .rightUp, .leftDown, .leftUp] }
 
     var title: LocalizedStringKey {
         switch self {
@@ -20,6 +27,18 @@ enum GestureTrigger: String, CaseIterable, Identifiable, Codable {
         case .twoFingerTap: return "Two-Finger Tap"
         case .twoFingerDoubleTap: return "Two-Finger Double Tap"
         case .threeFingerTap: return "Three-Finger Tap"
+        case .edgeLeft: return "Swipe from the Left Edge"
+        case .edgeRight: return "Swipe from the Right Edge"
+        case .edgeTop: return "Swipe from the Top Edge"
+        case .edgeBottom: return "Swipe from the Bottom Edge"
+        case .downRight: return "Down, then Right"
+        case .downLeft: return "Down, then Left"
+        case .upRight: return "Up, then Right"
+        case .upLeft: return "Up, then Left"
+        case .rightDown: return "Right, then Down"
+        case .rightUp: return "Right, then Up"
+        case .leftDown: return "Left, then Down"
+        case .leftUp: return "Left, then Up"
         }
     }
 
@@ -32,6 +51,18 @@ enum GestureTrigger: String, CaseIterable, Identifiable, Codable {
         case .twoFingerTap: return "hand.tap"
         case .twoFingerDoubleTap: return "hand.tap.fill"
         case .threeFingerTap: return "hand.raised"
+        case .edgeLeft: return "arrow.left.to.line"
+        case .edgeRight: return "arrow.right.to.line"
+        case .edgeTop: return "arrow.up.to.line"
+        case .edgeBottom: return "arrow.down.to.line"
+        case .downRight: return "arrow.down.right"
+        case .downLeft: return "arrow.down.left"
+        case .upRight: return "arrow.up.right"
+        case .upLeft: return "arrow.up.left"
+        case .rightDown: return "arrow.turn.down.right"
+        case .rightUp: return "arrow.turn.up.right"
+        case .leftDown: return "arrow.turn.down.left"
+        case .leftUp: return "arrow.turn.up.left"
         }
     }
 
@@ -44,13 +75,22 @@ enum GestureTrigger: String, CaseIterable, Identifiable, Codable {
         case .twoFingerTap: return .none
         case .twoFingerDoubleTap: return .maximize
         case .threeFingerTap: return .none
+        case .edgeLeft, .edgeRight, .edgeTop, .edgeBottom: return .none
+        case .downRight: return .swapPanes
+        case .downLeft: return .none
+        case .upRight: return .newTab
+        case .upLeft: return .openPalette
+        case .rightDown: return .toggleSplit
+        case .rightUp: return .forward
+        case .leftDown: return .back
+        case .leftUp: return .reload
         }
     }
 }
 
 enum BrowserAction: String, CaseIterable, Identifiable, Codable {
     case none, back, forward, reload, newTab, newPrivateTab, togglePrivate, closeTab
-    case toggleSplit, toggleAxis, swapPanes, syncScroll, maximize, reader, scrollToTop, hideBar
+    case toggleSplit, toggleAxis, swapPanes, syncScroll, maximize, reader, scrollToTop, hideBar, openPalette
     var id: String { rawValue }
 
     var title: LocalizedStringKey {
@@ -71,6 +111,7 @@ enum BrowserAction: String, CaseIterable, Identifiable, Codable {
         case .reader: return "Reader View"
         case .scrollToTop: return "Scroll to Top"
         case .hideBar: return "Hide the Bar for a While"
+        case .openPalette: return "Open the Action Palette"
         }
     }
 }
@@ -84,6 +125,9 @@ extension Library {
     func setAction(_ action: BrowserAction, for trigger: GestureTrigger) {
         UserDefaults.standard.set(action.rawValue, forKey: "gesture." + trigger.rawValue)
         gestureRevision += 1
+        for pane in Browser.shared.panes {
+            for tab in pane.tabs { tab.refreshGestures() }
+        }
     }
 }
 
@@ -110,6 +154,13 @@ extension Browser {
         case .reader: sheet = .reader
         case .scrollToTop: tab?.webView.scrollView.setContentOffset(CGPoint(x: 0, y: -(tab?.webView.scrollView.adjustedContentInset.top ?? 0)), animated: true)
         case .hideBar: hideBar(for: 20)
+        case .openPalette:
+            Library.shared.palette = true
+            // The palette view appears on the next turn; the request opens it once it is on screen.
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(50))
+                self.paletteOpenRequest &+= 1
+            }
         }
     }
 
@@ -158,8 +209,12 @@ extension Browser {
 final class GestureHost: NSObject, UIGestureRecognizerDelegate {
     weak var tab: Tab?
     var run: ((GestureTrigger) -> Void)?
+    private weak var webView: WKWebView?
+    private var stroke: [CGPoint] = []
+    private var strokeStart = Date()
 
-    init(webView: UIView) {
+    init(webView: WKWebView) {
+        self.webView = webView
         super.init()
         for (dir, trigger) in [(UISwipeGestureRecognizer.Direction.left, GestureTrigger.swipeLeft), (.right, .swipeRight),
                                (.up, .swipeUp), (.down, .swipeDown)] {
@@ -187,6 +242,28 @@ final class GestureHost: NSObject, UIGestureRecognizerDelegate {
         three.trigger = .threeFingerTap
         three.delegate = self
         webView.addGestureRecognizer(three)
+
+        for trigger in GestureTrigger.edges {
+            let g = EdgeMark(target: self, action: #selector(edge(_:)))
+            g.trigger = trigger
+            g.maximumNumberOfTouches = 1
+            g.cancelsTouchesInView = false
+            g.delegate = self
+            webView.addGestureRecognizer(g)
+        }
+        let combo = ComboPan(target: self, action: #selector(combo(_:)))
+        combo.maximumNumberOfTouches = 1
+        combo.cancelsTouchesInView = false
+        combo.delegate = self
+        webView.addGestureRecognizer(combo)
+        refreshSystemEdges()
+    }
+
+    /// The system's back and forward edge swipes stay until a page edge is given its own action.
+    func refreshSystemEdges() {
+        let lib = Library.shared
+        let custom = lib.twoFingerGestures && (lib.action(for: .edgeLeft) != .none || lib.action(for: .edgeRight) != .none)
+        webView?.allowsBackForwardNavigationGestures = !custom
     }
 
     @objc private func fire(_ g: UIGestureRecognizer) {
@@ -194,11 +271,60 @@ final class GestureHost: NSObject, UIGestureRecognizerDelegate {
         run?(t)
     }
 
+    @objc private func edge(_ g: UIPanGestureRecognizer) {
+        guard g.state == .ended, let t = (g as? EdgeMark)?.trigger else { return }
+        let tr = g.translation(in: g.view)
+        let distance: CGFloat = 56
+        let ok: Bool
+        switch t {
+        case .edgeLeft: ok = tr.x > distance && abs(tr.x) > abs(tr.y)
+        case .edgeRight: ok = tr.x < -distance && abs(tr.x) > abs(tr.y)
+        case .edgeTop: ok = tr.y > distance && abs(tr.y) > abs(tr.x)
+        case .edgeBottom: ok = tr.y < -distance && abs(tr.y) > abs(tr.x)
+        default: ok = false
+        }
+        if ok { run?(t) }
+    }
+
+    @objc private func combo(_ g: UIPanGestureRecognizer) {
+        switch g.state {
+        case .began:
+            stroke = [g.location(in: g.view)]
+            strokeStart = Date()
+        case .changed:
+            stroke.append(g.location(in: g.view))
+        case .ended:
+            let pts = stroke
+            let dt = Date().timeIntervalSince(strokeStart)
+            stroke = []
+            if let t = ComboStroke.match(pts, duration: dt, in: g.view?.bounds ?? .zero) { run?(t) }
+        default:
+            stroke = []
+        }
+    }
+
     nonisolated func gestureRecognizer(_ g: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool { true }
 
     nonisolated func gestureRecognizerShouldBegin(_ g: UIGestureRecognizer) -> Bool {
         MainActor.assumeIsolated {
             guard Library.shared.twoFingerGestures else { return false }
+            if let edge = g as? EdgeMark {
+                refreshSystemEdges()
+                guard Library.shared.action(for: edge.trigger) != .none else { return false }
+                let p = edge.location(in: edge.view)
+                let b = edge.view?.bounds ?? .zero
+                let m: CGFloat = 32
+                switch edge.trigger {
+                case .edgeLeft: return p.x <= m
+                case .edgeRight: return b.width - p.x <= m
+                case .edgeTop: return p.y <= m
+                case .edgeBottom: return b.height - p.y <= m
+                default: return false
+                }
+            }
+            if g is ComboPan {
+                return GestureTrigger.combos.contains { Library.shared.action(for: $0) != .none }
+            }
             let trigger = (g as? TriggerSwipe)?.trigger ?? (g as? TriggerTap)?.trigger
             return trigger.map { Library.shared.action(for: $0) != .none } ?? false
         }
@@ -207,6 +333,56 @@ final class GestureHost: NSObject, UIGestureRecognizerDelegate {
 
 final class TriggerSwipe: UISwipeGestureRecognizer { var trigger: GestureTrigger = .swipeLeft }
 final class TriggerTap: UITapGestureRecognizer { var trigger: GestureTrigger = .twoFingerTap }
+final class EdgeMark: UIPanGestureRecognizer { var trigger: GestureTrigger = .edgeLeft }
+final class ComboPan: UIPanGestureRecognizer {}
+
+/// A corner drawn with one finger (down, then right). A straight scroll never matches.
+enum ComboStroke {
+    private enum Dir { case left, right, up, down }
+
+    static func match(_ points: [CGPoint], duration: TimeInterval, in bounds: CGRect) -> GestureTrigger? {
+        guard points.count >= 4, duration > 0.05, duration < 0.95, bounds.width > 1 else { return nil }
+        let start = points[0]
+        let margin: CGFloat = 36
+        if start.x < margin || start.y < margin || bounds.width - start.x < margin || bounds.height - start.y < margin {
+            return nil
+        }
+        let end = points[points.count - 1]
+        var best = (index: 0, score: CGFloat(0))
+        for i in 1..<(points.count - 1) {
+            let v1 = CGPoint(x: points[i].x - start.x, y: points[i].y - start.y)
+            let v2 = CGPoint(x: end.x - points[i].x, y: end.y - points[i].y)
+            let l1 = hypot(v1.x, v1.y), l2 = hypot(v2.x, v2.y)
+            guard l1 > 64, l2 > 64 else { continue }
+            let dot = (v1.x * v2.x + v1.y * v2.y) / (l1 * l2)
+            guard abs(dot) < 0.45 else { continue }
+            let score = l1 + l2
+            if score > best.score { best = (i, score) }
+        }
+        guard best.score > 0 else { return nil }
+        let corner = points[best.index]
+        guard let d1 = direction(from: start, to: corner), let d2 = direction(from: corner, to: end), d1 != d2 else { return nil }
+        switch (d1, d2) {
+        case (.down, .right): return .downRight
+        case (.down, .left): return .downLeft
+        case (.up, .right): return .upRight
+        case (.up, .left): return .upLeft
+        case (.right, .down): return .rightDown
+        case (.right, .up): return .rightUp
+        case (.left, .down): return .leftDown
+        case (.left, .up): return .leftUp
+        default: return nil
+        }
+    }
+
+    private static func direction(from a: CGPoint, to b: CGPoint) -> Dir? {
+        let dx = b.x - a.x, dy = b.y - a.y
+        if abs(dx) < 24 && abs(dy) < 24 { return nil }
+        if abs(dx) > abs(dy) * 1.2 { return dx > 0 ? .right : .left }
+        if abs(dy) > abs(dx) * 1.2 { return dy > 0 ? .down : .up }
+        return nil
+    }
+}
 
 // MARK: - Scrolling the two pages together
 
@@ -259,8 +435,6 @@ final class ScrollSync {
 // MARK: - Settings
 
 struct GestureSettings: View {
-    @State private var revision = 0
-
     var body: some View {
         let lib = Library.shared
         Form {
@@ -268,19 +442,11 @@ struct GestureSettings: View {
                 @Bindable var lib = lib
                 Toggle("Gestures On", isOn: $lib.twoFingerGestures)
             } footer: {
-                Text("Swipe or tap with two fingers anywhere on a page. Each gesture does what you choose below.")
+                Text("One finger from a page's edge, a corner such as down then right, or two fingers. Each one does what you choose. A straight scroll stays a scroll. The usual back and forward swipes stay until you set that edge to something else.")
             }
-            Section {
-                ForEach(GestureTrigger.allCases) { trigger in
-                    Picker(selection: Binding(get: { _ = lib.gestureRevision; return lib.action(for: trigger) },
-                                              set: { a in Store.shared.gate(.gestures) { lib.setAction(a, for: trigger) } })) {
-                        ForEach(BrowserAction.allCases) { Text($0.title).tag($0) }
-                    } label: {
-                        Label(trigger.title, systemImage: trigger.symbol)
-                    }
-                }
-            }
-            .disabled(!lib.twoFingerGestures)
+            group("Edge Swipes", GestureTrigger.edges, lib: lib)
+            group("Two-Direction Gestures", GestureTrigger.combos, lib: lib)
+            group("Two Fingers", GestureTrigger.twoFingers, lib: lib)
             Section {
                 Button("Restore the Usual Gestures") {
                     for t in GestureTrigger.allCases { lib.setAction(t.defaultAction, for: t) }
@@ -288,5 +454,22 @@ struct GestureSettings: View {
             }
         }
         .navigationTitle("Gestures")
+    }
+
+    @ViewBuilder
+    private func group(_ title: LocalizedStringKey, _ triggers: [GestureTrigger], lib: Library) -> some View {
+        Section {
+            ForEach(triggers) { trigger in
+                Picker(selection: Binding(get: { _ = lib.gestureRevision; return lib.action(for: trigger) },
+                                          set: { a in Store.shared.gate(.gestures) { lib.setAction(a, for: trigger) } })) {
+                    ForEach(BrowserAction.allCases) { Text($0.title).tag($0) }
+                } label: {
+                    Label(trigger.title, systemImage: trigger.symbol)
+                }
+            }
+        } header: {
+            Text(title)
+        }
+        .disabled(!lib.twoFingerGestures)
     }
 }

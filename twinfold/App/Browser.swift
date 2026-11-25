@@ -87,6 +87,10 @@ final class Browser {
     var dockOpen = false
     /// The rail of buttons beside it.
     var railOpen = false
+    /// The device is turning: the rail closes without an animation that would leave it between the pages.
+    var rotating = false
+    /// Bumped when a gesture asks the action palette to open.
+    var paletteOpenRequest = 0
     /// The handle between the panes is being dragged: the web views keep their size until it's let go.
     var resizing = false
     @ObservationIgnored private var dockTimer: Task<Void, Never>?
@@ -230,9 +234,12 @@ final class Browser {
     }
 
     func select(_ tab: Tab) {
+        let keepSplit = isSplit
         guard let i = paneIndex(of: tab), let t = panes[i].tabs.firstIndex(where: { $0 === tab }) else { return }
         panes[i].current = t
         active = i
+        // Choosing a tab never leaves two pages. A fold report that flickers during the switch is written back too.
+        if keepSplit { isSplit = true }
     }
 
     func close(_ tab: Tab) {
