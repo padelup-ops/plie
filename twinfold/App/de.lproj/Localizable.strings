@@ -386,3 +386,7 @@
 "The side rail: choose its side, its width and how big the icons are" = "Die Seitenleiste: Seite, Breite und Symbolgröße wählbar";
 "Five Home Screen icons, and videos that fill the whole display" = "Fünf Home-Bildschirm-Symbole, und Videos über das ganze Display";
 "Downloads continue after you leave Twinfold" = "Downloads laufen weiter, nachdem du Twinfold verlässt";
+"This Page Only" = "Nur diese Seite";
+"Whole Display" = "Gesamtes Display";
+"Full screen fills the video's own page. The other page stays where it is" = "Vollbild füllt die Seite des Videos. Die andere Seite bleibt.";
+"Full screen fills the page the video is on. That page's bars step aside; the other page stays visible and usable. Whole Display covers both screens. Open the page again after changing this. Downloads keep going after you leave Twinfold, even if iOS closes the app." = "Vollbild füllt die Seite, auf der das Video läuft. Die Leisten dieser Seite treten zur Seite; die andere Seite bleibt sichtbar und benutzbar. Gesamtes Display deckt beide Bildschirme ab. Öffne die Seite neu, nachdem du das geändert hast. Downloads laufen weiter, wenn du Twinfold verlässt, auch wenn iOS die App schließt.";

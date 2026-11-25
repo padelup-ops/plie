@@ -410,3 +410,7 @@
 "The side rail: choose its side, its width and how big the icons are" = "サイドレール：側、幅、アイコンの大きさを選べます";
 "Five Home Screen icons, and videos that fill the whole display" = "ホーム画面のアイコンが5種類、動画は画面全体に広がります";
 "Downloads continue after you leave Twinfold" = "Twinfold を離れてもダウンロードは続きます";
+"This Page Only" = "このページだけ";
+"Whole Display" = "画面全体";
+"Full screen fills the video's own page. The other page stays where it is" = "全画面はその動画のページいっぱいになります。もう一方のページはそのままです。";
+"Full screen fills the page the video is on. That page's bars step aside; the other page stays visible and usable. Whole Display covers both screens. Open the page again after changing this. Downloads keep going after you leave Twinfold, even if iOS closes the app." = "全画面は動画があるページいっぱいになります。そのページのバーは脇に退き、もう一方のページは見えたまま使えます。「画面全体」は両方の画面を覆います。変更したあとはページを開き直してください。Twinfold を離れても、iOS がアプリを閉じても、ダウンロードは続きます。";

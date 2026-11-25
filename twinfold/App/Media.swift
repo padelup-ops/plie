@@ -80,12 +80,37 @@ enum MediaScript {
         }
         return list;
       }
+      // Move the player out of any transformed or shadow-DOM box, so "fixed" really means the page,
+      // which is this pane — not the little rectangle the site's player drew.
+      function park(el) {
+        if (!el || el.__tfPlace || !el.parentNode) return;
+        el.__tfPlace = { parent: el.parentNode, next: el.nextSibling };
+        var root = document.documentElement || document.body;
+        if (root && el.parentNode !== root) root.appendChild(el);
+      }
+      function unpark(el) {
+        if (!el) return;
+        var place = el.__tfPlace;
+        el.__tfPlace = null;
+        if (!place || !place.parent) return;
+        try { place.parent.insertBefore(el, place.next); } catch (e) {}
+      }
+      function surface(el) {
+        var n = el;
+        while (n && n.getRootNode) {
+          var root = n.getRootNode();
+          if (root && root.host) n = root.host;
+          else break;
+        }
+        return player(n || el);
+      }
       function fill(el) {
         if (tf.filled === el) return true;
         if (tf.filled) unfill();
         el.__twinfoldStyle = el.getAttribute('style');
         el.setAttribute('style', FILL);
         el.__twinfoldLifted = lift(el);
+        park(el);
         var dark = document.getElementById('__twinfold_style');
         if (dark) { tf.darkOff = dark.textContent; dark.textContent = ''; }
         tf.filled = el;
@@ -100,6 +125,7 @@ enum MediaScript {
         restore(old, old.__twinfoldStyle);
         (old.__twinfoldLifted || []).forEach(function (x) { restore(x[0], x[1]); });
         old.__twinfoldLifted = null;
+        unpark(old);
         var dark = document.getElementById('__twinfold_style');
         if (dark && tf.darkOff !== undefined) { dark.textContent = tf.darkOff; tf.darkOff = undefined; }
         tf.filled = null;
@@ -115,8 +141,7 @@ enum MediaScript {
         if (!v) return false;
         return fill(v);
       };
-      // Play inside the page (two panes can play at once). The full-screen button is left to the system, which
-      // covers the whole window — we do not replace requestFullscreen or webkitEnterFullscreen.
+      // Inline playback, so two panes can play at once. Full screen is decided when the button is pressed.
       (function () {
         function inline(root) {
           var vs = (root.querySelectorAll ? root.querySelectorAll('video') : []);
@@ -133,13 +158,109 @@ enum MediaScript {
           ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) inline(n); }); });
         }).observe(document, { childList: true, subtree: true });
       })();
+      // Page-only full screen (the default): the site's own button fills this pane, not both screens.
+      // Whole Display calls through to the original functions, and WebKit covers the window.
+      (function () {
+        var V = HTMLVideoElement.prototype;
+        var origEnter = V.webkitEnterFullscreen || V.webkitEnterFullScreen;
+        var origExit = V.webkitExitFullscreen || V.webkitExitFullScreen;
+        var origRequest = Element.prototype.requestFullscreen || Element.prototype.webkitRequestFullscreen || Element.prototype.webkitRequestFullScreen;
+        var origDocExit = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen;
+        function inPane() { return window.__twinfoldFullscreenInPane !== false; }
+        function fire() {
+          ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (n) {
+            try { document.dispatchEvent(new Event(n, { bubbles: true })); } catch (e) {}
+          });
+        }
+        function askFull() {
+          if (!inPane()) {
+            if (origRequest) return origRequest.apply(this, arguments);
+            return Promise.resolve();
+          }
+          var el = surface(this.tagName === 'VIDEO' ? this : (this.querySelector && this.querySelector('video')) || this);
+          fill(el);
+          tf.fsEl = el;
+          post({ kind: 'fullscreen', on: true });
+          fire();
+          try { if (el.tagName === 'VIDEO') el.dispatchEvent(new Event('webkitbeginfullscreen', { bubbles: true })); } catch (e) {}
+          return Promise.resolve();
+        }
+        function leave() {
+          if (!inPane()) {
+            if (origDocExit) return origDocExit.apply(document, arguments);
+            return Promise.resolve();
+          }
+          var el = tf.fsEl;
+          tf.fsEl = null;
+          unfill();
+          post({ kind: 'fullscreen', on: false });
+          fire();
+          try { if (el && el.tagName === 'VIDEO') el.dispatchEvent(new Event('webkitendfullscreen', { bubbles: true })); } catch (e) {}
+          return Promise.resolve();
+        }
+        V.webkitEnterFullscreen = V.webkitEnterFullScreen = function () {
+          if (!inPane() && origEnter) return origEnter.apply(this, arguments);
+          return askFull.call(this);
+        };
+        V.webkitExitFullscreen = V.webkitExitFullScreen = function () {
+          if (!inPane() && origExit) return origExit.apply(this, arguments);
+          return leave();
+        };
+        try { Object.defineProperty(V, 'webkitSupportsFullscreen', { get: function () { return true; }, configurable: true }); } catch (e) {}
+        try { Object.defineProperty(V, 'webkitDisplayingFullscreen', { get: function () { return !!tf.fsEl; }, configurable: true }); } catch (e) {}
+        var E = Element.prototype;
+        E.requestFullscreen = E.webkitRequestFullscreen = E.webkitRequestFullScreen = function () { return askFull.call(this); };
+        document.exitFullscreen = document.webkitExitFullscreen = document.webkitCancelFullScreen = leave;
+        var D = Document.prototype;
+        [['fullscreenEnabled', function () { return true; }], ['webkitFullscreenEnabled', function () { return true; }],
+         ['fullscreenElement', function () { return tf.fsEl || null; }], ['webkitFullscreenElement', function () { return tf.fsEl || null; }],
+         ['webkitIsFullScreen', function () { return !!tf.fsEl; }]].forEach(function (p) {
+          try { Object.defineProperty(document, p[0], { get: p[1], configurable: true }); } catch (e) {}
+          try { Object.defineProperty(D, p[0], { get: p[1], configurable: true }); } catch (e) {}
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tf.fsEl) leave(); }, true);
+        function labelOf(el) {
+          var c = '';
+          try { c = (el.className && String(el.className)) || ''; } catch (e) {}
+          return ((el.getAttribute && (el.getAttribute('aria-label') || '')) + ' ' + c + ' ' + ((el.getAttribute && el.getAttribute('title')) || '')).toLowerCase();
+        }
+        function looksFull(el) { return /fullscreen|full-screen|ytp-fullscreen|plein écran|plein ecran/.test(labelOf(el)); }
+        document.addEventListener('click', function (e) {
+          if (!inPane()) return;
+          var t = e.target;
+          if (!t || !t.closest) return;
+          var b = t.closest('button, [role="button"]');
+          if (!b || !looksFull(b)) return;
+          if (tf.fsEl) { leave(); e.preventDefault(); e.stopPropagation(); return; }
+          setTimeout(function () {
+            if (tf.fsEl || !inPane()) return;
+            var v = document.querySelector('video');
+            if (!v) return;
+            var r = v.getBoundingClientRect();
+            if (r.width < window.innerWidth * 0.85 || r.height < window.innerHeight * 0.65) askFull.call(v);
+          }, 280);
+        }, true);
+        var root = document.documentElement || document;
+        if (root && root.nodeType === 1) {
+          new MutationObserver(function (ms) {
+            if (!inPane() || tf.fsEl) return;
+            for (var i = 0; i < ms.length; i++) {
+              var target = ms[i].target;
+              if (!target || target.nodeType !== 1 || !looksFull(target)) continue;
+              var v = (target.querySelector && target.querySelector('video')) || target;
+              askFull.call(v);
+              return;
+            }
+          }).observe(root, { attributes: true, subtree: true, attributeFilter: ['class'] });
+        }
+      })();
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', report); else report();
     })();
     """#
 
-    /// The script, marked so older checks can see that pane-only full screen is no longer substituted.
+    /// Read at the moment the button is pressed, so Settings can switch page-only and whole-display without a new script.
     @MainActor static var withSettings: String {
-        "window.__twinfoldFullscreenInPane = false;\n" + source
+        "window.__twinfoldFullscreenInPane = \(Library.shared.fullscreenPage);\n" + source
     }
 
     @MainActor static func install(on controller: WKUserContentController, handler: WKScriptMessageHandler) {
@@ -173,6 +294,10 @@ final class MediaRouter: NSObject, WKScriptMessageHandler {
               let webView = message.webView, let tab = tabs.object(forKey: webView) else { return }
         if body["kind"] as? String == "fill" {
             withAnimation(.spring(response: 0.3)) { tab.isFilled = body["filled"] as? Bool ?? false }
+            return
+        }
+        if body["kind"] as? String == "fullscreen" {
+            Browser.shared.setFullscreen(body["on"] as? Bool ?? false, webView: webView)
             return
         }
         guard body["kind"] as? String == "state" else { return }

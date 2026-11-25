@@ -411,3 +411,7 @@
 "The side rail: choose its side, its width and how big the icons are" = "Le rail latéral : choisissez son côté, sa largeur et la taille des icônes";
 "Five Home Screen icons, and videos that fill the whole display" = "Cinq icônes d'écran d'accueil, et des vidéos qui remplissent tout l'écran";
 "Downloads continue after you leave Twinfold" = "Les téléchargements continuent après avoir quitté Twinfold";
+"This Page Only" = "Page seule";
+"Whole Display" = "Tout l'écran";
+"Full screen fills the video's own page. The other page stays where it is" = "Le plein écran remplit la page de la vidéo. L'autre page ne bouge pas.";
+"Full screen fills the page the video is on. That page's bars step aside; the other page stays visible and usable. Whole Display covers both screens. Open the page again after changing this. Downloads keep going after you leave Twinfold, even if iOS closes the app." = "Le plein écran remplit la page où est la vidéo. Les barres de cette page s'écartent ; l'autre page reste visible et utilisable. Tout l'écran couvre les deux écrans. Rouvrez la page après avoir changé ce réglage. Les téléchargements continuent quand vous quittez Twinfold, même si iOS ferme l'app.";

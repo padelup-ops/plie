@@ -407,10 +407,14 @@ struct SettingsSheet: View {
                 }
                 Section {
                     Toggle("Video Above When Half Folded", isOn: $lib.laptopPosture)
+                    Picker("Full Screen", selection: $lib.fullscreenPage) {
+                        Text("This Page Only").tag(true)
+                        Text("Whole Display").tag(false)
+                    }
                 } header: {
                     Text("Videos")
                 } footer: {
-                    Text("Stand your Duo half folded, like a small laptop: the video in the top page fills its half and the bottom page stays yours. A video's full-screen button covers the whole display, from either page, both screens of the Duo included. Downloads keep going after you leave Twinfold, even if iOS closes the app.")
+                    Text("Full screen fills the page the video is on. That page's bars step aside; the other page stays visible and usable. Whole Display covers both screens. Open the page again after changing this. Downloads keep going after you leave Twinfold, even if iOS closes the app.")
                 }
                 Section {
                     Button("Clear Cookies and Website Data", role: .destructive) { confirmClearData = true }

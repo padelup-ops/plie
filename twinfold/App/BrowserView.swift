@@ -117,7 +117,7 @@ struct PanesArea: View {
                     PaneDivider(layout: layout, size: geo.size, frozen: $frozen)
                         .zIndex(3)
                 }
-                if Library.shared.palette && !browser.overviewShown && !browser.editingAddress {
+                if Library.shared.palette && !browser.overviewShown && !browser.editingAddress && !browser.fullscreenPane.contains(true) {
                     ActionPalette(area: geo.size, insets: insets)
                         .zIndex(5)
                 }
@@ -180,7 +180,7 @@ struct PanesArea: View {
 
 extension PanesArea {
     var showsDock: Bool {
-        Library.shared.sideDock && !browser.overviewShown && !browser.editingAddress
+        Library.shared.sideDock && !browser.overviewShown && !browser.editingAddress && !browser.fullscreenPane.contains(true)
     }
 
     /// Never a negative height: during a turn the safe area can briefly be larger than the screen, which collapsed
@@ -475,7 +475,8 @@ struct PaneView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            if let tab = pane.tab, pane.tool == nil, tab.mediaPlaying || tab.isMuted || tab.isFilled {
+            let pageFull = browser.fullscreenPane.indices.contains(index) && browser.fullscreenPane[index]
+            if let tab = pane.tab, pane.tool == nil, !pageFull, (tab.mediaPlaying || tab.isMuted || tab.isFilled) {
                 MediaControls(tab: tab)
                     .padding(10)
                     .transition(.scale.combined(with: .opacity))
@@ -516,9 +517,10 @@ struct PaneView: View {
     private func paneChrome(edge: VerticalEdge) -> some View {
         let lib = Library.shared
         let onTop = edge == .top
+        let pageFull = browser.fullscreenPane.indices.contains(index) && browser.fullscreenPane[index]
         let addressHere = onTop == lib.addressOnTop(for: index)
-        let tabsHere = lib.showPaneTabs && onTop == lib.tabOnTop(for: index)
-        let showAddress = addressHere && browser.active == index && !browser.editingAddress && !browser.barHidden && !browser.overviewShown
+        let tabsHere = lib.showPaneTabs && onTop == lib.tabOnTop(for: index) && !pageFull
+        let showAddress = addressHere && !pageFull && browser.active == index && !browser.editingAddress && !browser.barHidden && !browser.overviewShown
         if showAddress || tabsHere {
             VStack(spacing: 6) {
                 if onTop {

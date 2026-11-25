@@ -87,6 +87,20 @@ final class Browser {
     var dockOpen = false
     /// The rail of buttons beside it.
     var railOpen = false
+    /// A video is filling that page only (index 0 is the top or left page). The other page stays up.
+    var fullscreenPane = [false, false]
+
+    func setFullscreen(_ on: Bool, webView: WKWebView) {
+        let tabs = panes.flatMap(\.tabs)
+        guard let tab = tabs.first(where: { $0.webView === webView }),
+              let i = paneIndex(of: tab), fullscreenPane.indices.contains(i), fullscreenPane[i] != on else { return }
+        var next = fullscreenPane
+        next[i] = on
+        withAnimation(.easeOut(duration: 0.2)) {
+            fullscreenPane = next
+            if on { railOpen = false; dockOpen = false }
+        }
+    }
     /// The device is turning: the rail closes without an animation that would leave it between the pages.
     var rotating = false
     /// Bumped when a gesture asks the action palette to open.

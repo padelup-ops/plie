@@ -13,6 +13,9 @@ struct Release: Identifiable {
 enum WhatsNew {
     /// Newest first. Each item: an SF Symbol and a short line.
     static let releases: [Release] = [
+        Release(version: "1.1.1", items: [
+            ("play.rectangle", "Full screen fills the video's own page. The other page stays where it is"),
+        ]),
         Release(version: "1.1", items: [
             ("circle.grid.2x2", "Action palette: a ring or a compass, and a swipe in eight directions"),
             ("hand.draw", "One-finger edge swipes and corners such as down then right"),

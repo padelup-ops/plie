@@ -117,12 +117,13 @@ final class Tab: NSObject, Identifiable {
         config.websiteDataStore = isPrivate ? .nonPersistent() : Library.dataStore(for: profile)
         config.allowsInlineMediaPlayback = true
         // A video starts only after a tap (the dual-play screenshot is the exception). Inline is allowed, so two
-        // panes can play at once; the full-screen button is the system's and covers the whole window.
+        // panes can play at once. Page-only full screen is done by the page script; Whole Display uses WebKit's
+        // own element full screen, which is presented over the window.
         config.mediaTypesRequiringUserActionForPlayback = ShotMode.current == "dualplay" ? [] : .all
         config.allowsPictureInPictureMediaPlayback = true
         config.preferences.isFraudulentWebsiteWarningEnabled = true
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
-        config.preferences.isElementFullscreenEnabled = true
+        config.preferences.isElementFullscreenEnabled = !Library.shared.fullscreenPage
         config.defaultWebpagePreferences.preferredContentMode = .mobile
         config.dataDetectorTypes = [.phoneNumber, .link, .address, .calendarEvent]
         ContentBlocker.shared.attach(to: config.userContentController)
@@ -314,6 +315,7 @@ extension Tab: WKNavigationDelegate {
         mediaPlaying = false
         mediaVideo = false
         isFilled = false
+        Browser.shared.setFullscreen(false, webView: webView)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -422,6 +424,12 @@ final class EdgeWebView: WKWebView {
         DispatchQueue.main.async { [weak self, weak subview] in
             guard let self, let subview else { return }
             guard subview.superview === self || subview.superview === self.scrollView else { return }
+            if Library.shared.fullscreenPage {
+                // Stay inside this page. The pane clips it; the other page is a different web view.
+                subview.frame = self.bounds
+                subview.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                return
+            }
             FullscreenBridge.adopt(subview)
         }
     }

@@ -114,6 +114,16 @@ final class Library {
     var railIconSize: RailIconSize = RailIconSize(rawValue: UserDefaults.standard.string(forKey: "railIcon") ?? "") ?? .medium {
         didSet { UserDefaults.standard.set(railIconSize.rawValue, forKey: "railIcon") }
     }
+    /// A video's full-screen button fills its own page. Off: it covers the whole display, both Duo screens included.
+    var fullscreenPage: Bool = UserDefaults.standard.object(forKey: "fullscreenPage") as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(fullscreenPage, forKey: "fullscreenPage")
+            let js = "window.__twinfoldFullscreenInPane = \(fullscreenPage);"
+            for pane in Browser.shared.panes {
+                for tab in pane.tabs { tab.webView.evaluateJavaScript(js) }
+            }
+        }
+    }
     /// The active page's tabs as icons on its edge.
     var sideDock: Bool = UserDefaults.standard.object(forKey: "sideDock2") as? Bool ?? false {
         didSet { UserDefaults.standard.set(sideDock, forKey: "sideDock2") }
