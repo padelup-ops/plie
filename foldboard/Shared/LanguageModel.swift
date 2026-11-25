@@ -2,14 +2,13 @@ import Foundation
 
 /// Le modèle de langue (français, anglais) : quels mots suivent quels mots, appris sur des millions de phrases
 /// (corpus de Leipzig, CC BY 4.0 ; construit par tools/build_lm.py). Comme les claviers de Google ou Microsoft :
-/// un modèle « n-grammes » compressé, lu directement dans le fichier (mémoire projetée, quelques Mo), en
-/// moins d'une milliseconde par touche.
+/// un modèle « n-grammes » compressé, lu directement dans le fichier (mémoire projetée). Les 60 000 mots ne sont
+/// plus recopiés dans un dictionnaire : on les relit dans le fichier, classés une fois pour la recherche.
 final class KBLanguageModel {
     let lang: String
     private let data: Data
-    private let V: Int
-    private var ids: [String: Int] = [:]
-    private var words: [String] = []
+    private let off: [UInt32]
+    private let order: [UInt32]
     private let uniAt: Int, biOffAt: Int, biIdAt: Int, biScAt: Int
     private let nCtx: Int, ctxKeyAt: Int, ctxOffAt: Int, triIdAt: Int, triScAt: Int
     private static let scale = 12.0
@@ -22,26 +21,23 @@ final class KBLanguageModel {
         data = d
         func u32(_ o: Int) -> Int { d.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in Int(raw.loadUnaligned(fromByteOffset: o, as: UInt32.self).littleEndian) } }
         let count = u32(8)
-        V = count
         let nBi = u32(12)
         nCtx = u32(16)
         let nTri = u32(20)
-        var p = 24
-        var list: [String] = []
-        var map: [String: Int] = [:]
-        list.reserveCapacity(count)
-        map.reserveCapacity(count)
-        d.withUnsafeBytes { (raw: UnsafeRawBufferPointer) in
-            for i in 0..<count {
-                let len = Int(raw[p]); p += 1
-                let w = String(decoding: UnsafeRawBufferPointer(rebasing: raw[p..<(p + len)]), as: UTF8.self)
-                p += len
-                list.append(w)
-                if map[w] == nil { map[w] = i }
+        var starts = [UInt32]()
+        starts.reserveCapacity(count)
+        let end = d.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in
+            var p = 24
+            for _ in 0..<count {
+                guard p < raw.count else { return -1 }
+                starts.append(UInt32(p))
+                p += 1 + Int(raw[p])
             }
+            return p
         }
-        words = list
-        ids = map
+        guard end > 0, starts.count == count else { return nil }
+        off = starts
+        var p = end
         uniAt = p; p += count
         biOffAt = p; p += 4 * (count + 1)
         biIdAt = p; p += 2 * nBi
@@ -51,6 +47,30 @@ final class KBLanguageModel {
         triIdAt = p; p += 2 * nTri
         triScAt = p; p += nTri
         guard p <= d.count else { return nil }
+        let bytes = d
+        let starts = starts
+        func text(_ i: Int) -> String {
+            bytes.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> String in
+                let o = Int(starts[i])
+                guard o < raw.count else { return "" }
+                let n = Int(raw[o])
+                let a = o + 1, b = min(a + n, raw.count)
+                return String(decoding: UnsafeRawBufferPointer(rebasing: raw[a..<b]), as: UTF8.self)
+            }
+        }
+        var idx = Array(0..<count)
+        idx.sort { text($0) < text($1) }
+        order = idx.map { UInt32($0) }
+    }
+
+    private func wordAt(_ i: Int) -> String {
+        data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> String in
+            let o = Int(off[i])
+            guard o < raw.count else { return "" }
+            let n = Int(raw[o])
+            let a = o + 1, b = min(a + n, raw.count)
+            return String(decoding: UnsafeRawBufferPointer(rebasing: raw[a..<b]), as: UTF8.self)
+        }
     }
 
     // MARK: Lecture
@@ -59,7 +79,16 @@ final class KBLanguageModel {
     private func u16(_ o: Int) -> Int { data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in Int(raw.loadUnaligned(fromByteOffset: o, as: UInt16.self).littleEndian) } }
     private func u32(_ o: Int) -> Int { data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in Int(raw.loadUnaligned(fromByteOffset: o, as: UInt32.self).littleEndian) } }
 
-    private func id(_ w: String) -> Int? { ids[w.lowercased().replacingOccurrences(of: "'", with: "’")] }
+    private func id(_ word: String) -> Int? {
+        let key = word.lowercased().replacingOccurrences(of: "'", with: "’")
+        var lo = 0, hi = order.count
+        while lo < hi {
+            let mid = (lo + hi) / 2
+            if wordAt(Int(order[mid])) < key { lo = mid + 1 } else { hi = mid }
+        }
+        guard lo < order.count, wordAt(Int(order[lo])) == key else { return nil }
+        return Int(order[lo])
+    }
 
     /// Les suites d'un mot seul : (id, score) ; score = -ln p × 12.
     private func bigrams(_ a: Int) -> [(Int, Int)] {
@@ -101,7 +130,6 @@ final class KBLanguageModel {
             flush()
         }
         flush()
-        // Le dernier élément est le mot en cours s'il n'est pas terminé (pas d'espace après) : on l'enlève.
         if let last = before.last, last.isLetter || last == "-" { toks.removeLast() }
         let ids = toks.suffix(2).map { id($0) ?? -1 }
         if ids.isEmpty { return (nil, 0) }
@@ -125,9 +153,8 @@ final class KBLanguageModel {
     func next(before: String, limit: Int) -> [String] {
         let (a, b) = context(before)
         var out: [String] = []
-        if b >= 0, let a, a >= 0 { out = trigrams(a, b).map { words[$0.0] } }
-        if b >= 0 { for (i, _) in bigrams(b) where !out.contains(words[i]) { out.append(words[i]) } }
-        // « l’ », « d’ »… ne se proposent pas seuls : ils se collent au mot suivant.
+        if b >= 0, let a, a >= 0 { out = trigrams(a, b).map { wordAt($0.0) } }
+        if b >= 0 { for (i, _) in bigrams(b) where !out.contains(wordAt(i)) { out.append(wordAt(i)) } }
         return Array(out.filter { $0 != "<s>" && !$0.hasSuffix("’") }.prefix(limit))
     }
 

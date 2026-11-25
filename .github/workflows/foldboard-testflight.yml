@@ -5,10 +5,7 @@ name: Foldboard - TestFlight
 
 on:
   push:
-    # Suspendu le temps du merge 1.0.21 : le build 149 est déjà sur TestFlight.
-    # Le fichier de workflow n'est plus dans les chemins, pour que le rétablissement
-    # ne lance pas un nouvel envoi.
-    branches: [hold-testflight]
+    branches: [main, cursor/foldboard-memory-b370]
     paths:
       - "foldboard/App/**"
       - "foldboard/Keyboard/**"

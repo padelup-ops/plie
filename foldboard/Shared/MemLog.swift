@@ -38,7 +38,7 @@ enum KBMemLog {
         let now = ProcessInfo.processInfo.systemUptime
         guard force || now - lastWrite > 2, let c = current else { return }
         lastWrite = now
-        let line = c + String(format: " %.0f→%.0f Mo", start, peak) + (keyboards > 1 ? " ×\(keyboards)" : "") + (emoji ? " emoji" : "")
+        let line = c + String(format: " %.0f→%.0f Mo ×%d", start, peak, keyboards) + (emoji ? " emoji" : "")
         var list = UserDefaults.standard.stringArray(forKey: key) ?? []
         if let last = list.last, last.hasPrefix(c) { list[list.count - 1] = line } else { list.append(line) }
         if list.count > 10 { list.removeFirst(list.count - 10) }

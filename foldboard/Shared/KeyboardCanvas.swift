@@ -1256,7 +1256,13 @@ final class KeyboardCanvas: UIView {
         clipTimer?.invalidate()
         clipTimer = nil
         grip.stop()
+        grip.onGrip = nil
+        grip.onUnlock = nil
+        grip.onSample = nil
+        grip.onSwipeSample = nil
         gripStarted = false
+        trackEdgeTimer?.invalidate()
+        trackEdgeTimer = nil
         // Si quelque chose garde encore ce clavier, il ne garde plus rien de lourd : touches, emojis, suggestions.
         cells.forEach { $0.view.removeFromSuperview() }
         cells = []
@@ -1316,7 +1322,9 @@ final class KeyboardCanvas: UIView {
         guard force || memChecks % 30 == 0 else { return }
         let mb = Self.footprintMB()
         KBMemLog.note(mb: mb, emoji: showEmoji, alive: Self.alive)
-        if mb > 45 { trimMemory(flush: false) }
+        NeuralSwipe.noteFootprint()
+        if mb > 40 { trimMemory(flush: false) }
+        if mb > 48 { NeuralSwipe.release() }
     }
 
     /// iOS prévient qu'il manque de mémoire : on libère tout ce qui se recrée tout seul, pour ne pas être fermé

@@ -467,6 +467,15 @@ func realSwipes(_ L: Lang, file: String, layout: String, tag: String, limit: Int
 }
 
 let t0 = Date()
+NeuralSwipe.benchIgnoresBudget = true
+func mem(_ name: String) { print("RESULT mem \(name) \(String(format: "%.1f", NeuralSwipe.footprintMB())) Mo alive \(KeyboardCanvas.alive)") }
+mem("demarrage")
+let probe = KBSuggest()
+probe.setLayout(.qwerty)
+mem("liste_en")
+probe.setLayout(.azerty)
+mem("liste_fr")
+mem("modele_langue")
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 /// Les vraies fautes (Wikipédia, codespell ; accents oubliés en français) : un échantillon fixe de N cas.
 /// Comme le clavier à l'espace : la correction rapide, puis la proposition de la barre si elle n'a rien trouvé.

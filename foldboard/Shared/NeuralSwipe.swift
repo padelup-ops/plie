@@ -40,6 +40,8 @@ enum NeuralSwipe {
     /// Le clavier tourne déjà vers 33–45 Mo (listes, modèle de langue projeté). On ne refuse plus
     /// à partir d'un plafond fixe : on regarde ce qu'iOS laisse encore allouer avant de fermer l'extension.
     static var detail = ""
+    /// Le banc d'essai n'est pas une extension : il dépasse le budget du clavier sans être fermé par iOS.
+    static var benchIgnoresBudget = false
     private static let lock = NSLock()
     private static var blocked = false
     private static let blank = 64
@@ -102,7 +104,8 @@ enum NeuralSwipe {
         let extra = at(5).isEmpty || at(5) == "0.0" ? "" : " · \(at(5)) ms"
         let calls = at(2).isEmpty ? "0" : at(2)
         let swipes = String(format: NSLocalizedString("%@ swipes", comment: "How many swipes used the neural model"), calls)
-        return (title, numbers + extra + " · " + swipes)
+        let alive = at(7).isEmpty ? "" : " · ×" + at(7)
+        return (title, numbers + extra + " · " + swipes + alive)
     }
 
     private static func why(_ code: String) -> String {
@@ -126,7 +129,8 @@ enum NeuralSwipe {
                     String(format: "%.0f", footprintMB()),
                     String(format: "%.0f", availableMB()),
                     String(format: "%.1f", avg),
-                    detail].joined(separator: "\t")
+                    detail,
+                    "\(KeyboardCanvas.alive)"].joined(separator: "\t")
         guard line != lastPublished else { return }
         lastPublished = line
         KBVault.saveNeural(line)
@@ -283,11 +287,16 @@ enum NeuralSwipe {
     /// Assez de marge avant qu'iOS ferme l'extension (souvent 60–70 Mo au total). Le fichier fait 1 Mo,
     /// l'activation quelques Mo : 12 Mo libres suffisent. Un plafond à 46 Mo d'empreinte refusait le
     /// modèle alors que le clavier y est déjà en écrivant.
+    /// Au-dessus de 48 Mo, charger le modèle pousserait l'extension vers la fermeture (~60–70 Mo).
     private static func memoryAllows() -> Bool {
+        if !benchIgnoresBudget, footprintMB() > 48 { return false }
         let avail = availableMB()
         if avail > 0 { return avail >= 12 }
-        return footprintMB() < 62
+        return benchIgnoresBudget || footprintMB() < 48
     }
+
+    /// À appeler quand le clavier mesure sa mémoire, pour que les réglages affichent l'empreinte.
+    static func noteFootprint() { publish() }
 
     // MARK: Touches et CTC
 

@@ -108,6 +108,36 @@ final class KBWordStore {
     }
 }
 
+/// Rang du mot (le premier dans la liste) sans le dictionnaire à table de hachage : ~100 000 chaînes
+/// en table ouverte pesaient plus lourd que les mots eux-mêmes. Recherche dichotomique.
+struct FirstRank {
+    private var keys: [String]
+    private var ids: [Int32]
+    init(_ words: [String]) {
+        var pairs: [(String, Int32)] = []
+        pairs.reserveCapacity(words.count)
+        var seen = Set<String>()
+        seen.reserveCapacity(words.count)
+        for (i, w) in words.enumerated() {
+            let k = w.lowercased()
+            if seen.insert(k).inserted { pairs.append((k, Int32(i))) }
+        }
+        pairs.sort { $0.0 < $1.0 }
+        keys = pairs.map(\.0)
+        ids = pairs.map(\.1)
+    }
+    subscript(_ w: String) -> Int? {
+        let k = w.lowercased()
+        var lo = 0, hi = keys.count
+        while lo < hi {
+            let mid = (lo + hi) / 2
+            if keys[mid] < k { lo = mid + 1 } else { hi = mid }
+        }
+        guard lo < keys.count, keys[lo] == k else { return nil }
+        return Int(ids[lo])
+    }
+}
+
 /// Correction automatique et suggestions de mots, avec le correcteur d'iOS (UITextChecker)
 /// et le lexique de l'utilisateur (contacts, remplacements de texte).
 final class KBSuggest {
@@ -173,13 +203,13 @@ final class KBSuggest {
     /// Liste : FrequencyWords (Hermit Dave), contenu sous licence CC BY-SA 4.0.
     private var words: [String] = []
     private var folded: [String] = []
-    private var rank: [String: Int] = [:]
+    private var rank = FirstRank([])
     /// Les mots par leurs deux premières lettres : compléter sans parcourir les 30 000 mots à chaque lettre.
     private var byPrefix: [String: [Int]] = [:]
     private var byFirst: [String: [Int]] = [:]
     /// Les 15 000 mots les plus courants, rangés par première lettre et longueur (lettres sans accents) :
     /// la recherche « touches voisines » ne parcourt que les mots de la bonne longueur.
-    private var byFirstLen: [String: [(Int, [Character])]] = [:]
+    private var byFirstLen: [String: [Int]] = [:]
     /// Pour chaque mot sans accents, sa forme accentuée la plus courante (« apres » → « après », « ca » → « ça »).
     private var accented: [String: Int] = [:]
     private var loadedList = ""
@@ -200,9 +230,9 @@ final class KBSuggest {
     /// barre, celui de l'espace, et les deux claviers qu'iOS fait tourner un instant quand le Duo s'ouvre ou se ferme) :
     /// une seule copie en mémoire au lieu de quatre. Elles ne changent plus une fois construites.
     private final class ListData {
-        var words: [String] = [], folded: [String] = [], rank: [String: Int] = [:]
+        var words: [String] = [], folded: [String] = [], rank = FirstRank([])
         var byPrefix: [String: [Int]] = [:], byFirst: [String: [Int]] = [:]
-        var byFirstLen: [String: [(Int, [Character])]] = [:], accented: [String: Int] = [:]
+        var byFirstLen: [String: [Int]] = [:], accented: [String: Int] = [:]
     }
     private static var listCache: [String: ListData] = [:]
     private static let listLock = NSLock()
@@ -214,7 +244,7 @@ final class KBSuggest {
            let text = try? String(contentsOf: url, encoding: .utf8) {
             d.words = text.split(separator: "\n").map(String.init)
             d.folded = d.words.map { $0.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil) }
-            for (i, w) in d.words.enumerated() where d.rank[w] == nil { d.rank[w] = i }
+            d.rank = FirstRank(d.words)
             for (i, w) in d.words.enumerated() {
                 let f = d.folded[i]
                 if w.lowercased() != f, d.accented[f] == nil { d.accented[f] = i }
@@ -223,8 +253,8 @@ final class KBSuggest {
                 d.byPrefix[String(f.prefix(2)), default: []].append(i)
                 d.byFirst[String(f.prefix(1)), default: []].append(i)
                 if i < 15_000 {
-                    let c = Array(f)
-                    if c.count >= 4 && c.count <= 14 { d.byFirstLen["\(c[0])\(c.count)", default: []].append((i, c)) }
+                    let n = f.count
+                    if n >= 4 && n <= 14 { d.byFirstLen["\(f.first!)\(n)", default: []].append(i) }
                 }
             }
         }
@@ -1171,7 +1201,8 @@ final class KBSuggest {
             // Même longueur seulement : deux touches voisines, ou deux lettres inversées et une touche voisine
             // (une lettre en plus ou en moins avec une autre faute donne trop de mots possibles : « moeiw » → « mois »).
             for len in [n] {
-                for (i, c) in byFirstLen["\(f)\(len)"] ?? [] {
+                for i in byFirstLen["\(f)\(len)"] ?? [] {
+                    let c = Array(folded[i])
                     // Un mot de 5 lettres : seulement vers un mot très courant (« qiakd » → « quand »).
                     if n == 5 && i >= 1_000 { continue }
                     if f != f0 && i >= 8_000 { continue }
@@ -1320,7 +1351,9 @@ final class KBSuggest {
         var memo: [Int: Double] = [:]
         var found: [(String, Double)] = []
         for first in near.keys {
-            for (i, c) in byFirstLen["\(first)\(n)"] ?? [] where c != me {
+            for i in byFirstLen["\(first)\(n)"] ?? [] {
+                let c = Array(folded[i])
+                if c == me { continue }
                 var total = 0.0
                 var ok = true
                 for (j, ch) in c.enumerated() {
