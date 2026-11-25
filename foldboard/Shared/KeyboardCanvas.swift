@@ -553,17 +553,32 @@ final class KeyboardCanvas: UIView {
         refreshShiftSoon()
     }
 
-    /// Ouvrir l'app Foldboard depuis le clavier (iOS ne le propose pas aux claviers : on passe par l'application
-    /// qui porte le clavier, comme Gboard ou SwiftKey).
-    private func openContainingApp(_ url: URL) {
-        var r: UIResponder? = self
+    /// Ouvrir l'app Foldboard depuis le clavier. `UIApplication.open` est refusé à une extension, avec ou sans
+    /// accès complet. Le sélecteur `openURL:` le long de la chaîne des répondeurs, lui, est transmis à l'app hôte
+    /// (Messages, Safari, Discord).
+    static func deliver(_ url: URL, from start: UIResponder) -> Bool {
+        let legacy = NSSelectorFromString("openURL:")
+        var r: UIResponder? = start
         while let cur = r {
-            if let app = cur as? UIApplication {
-                let sel = NSSelectorFromString("openURL:options:completionHandler:")
-                guard app.responds(to: sel) else { return }
+            if cur.responds(to: legacy) {
+                cur.perform(legacy, with: url)
+                return true
+            }
+            r = cur.next
+        }
+        return false
+    }
+
+    private func openContainingApp(_ url: URL) {
+        if Self.deliver(url, from: self) { return }
+        // Secours : l'API moderne, seulement si le sélecteur historique n'est pas là.
+        var r: UIResponder? = self
+        let modern = NSSelectorFromString("openURL:options:completionHandler:")
+        while let cur = r {
+            if let app = cur as? UIApplication, app.responds(to: modern) {
                 typealias OpenFn = @convention(c) (AnyObject, Selector, NSURL, NSDictionary, AnyObject?) -> Void
-                let f = unsafeBitCast(app.method(for: sel), to: OpenFn.self)
-                f(app, sel, url as NSURL, NSDictionary(), nil)
+                let f = unsafeBitCast(app.method(for: modern), to: OpenFn.self)
+                f(app, modern, url as NSURL, NSDictionary(), nil)
                 return
             }
             r = cur.next
@@ -897,6 +912,9 @@ final class KeyboardCanvas: UIView {
         middleButton.setImage(UIImage(systemName: "rectangle.center.inset.filled"), for: .normal)
         middleButton.addAction(UIAction { [weak self] _ in self?.centerKeyboard() }, for: .touchUpInside)
         middleButton.accessibilityLabel = L("Keyboard in the middle")
+        // Le menu système (UIMenu) s'ouvre dans l'app Foldboard et reste muet dans Messages, Safari, Discord.
+        // Le « … » ouvre un panneau dessiné par le clavier lui-même.
+        bigButton.addAction(UIAction { [weak self] _ in self?.toggleBarSheet() }, for: .touchUpInside)
         // Le bouton ouvre un menu (voir openLayoutMenu) : pas d'action directe.
         // Appui long : la situation reconnue et l'étalonnage utilisé (pour vérifier).
         // Le geste retient sa cible : un relais faible, sinon le clavier ne peut plus être libéré.
@@ -1999,6 +2017,10 @@ final class KeyboardCanvas: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        if let sheet = barSheet, !sheet.isHidden {
+            sheet.frame = bounds
+            bringSubviewToFront(sheet)
+        }
         roundForHost()
         guard bounds.size != builtFor, bounds.width > 50 else { return }
         builtFor = bounds.size
@@ -2525,8 +2547,8 @@ final class KeyboardCanvas: UIView {
         bigButton.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         bigButton.accessibilityLabel = L("Keyboard position on this screen")
         topBar.addSubview(layoutSwitch)
-        bigButton.showsMenuAsPrimaryAction = true
-        bigButton.menu = openLayoutMenu()
+        bigButton.showsMenuAsPrimaryAction = false
+        bigButton.menu = nil
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
         bigButton.frame = CGRect(x: max(flipButton.frame.maxX, middleButton.frame.maxX), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
@@ -4592,11 +4614,185 @@ final class KeyboardCanvas: UIView {
         KBFeedback.shared.tap(sound: .off, haptics: eff.haptics)
     }
 
+    /// Panneau du « … », créé une fois. Le menu système ne s'affiche pas dans les autres apps.
+    private var barSheet: KBBarSheet?
+
+    func toggleBarSheet() {
+        let sheet = barSheet ?? KBBarSheet()
+        barSheet = sheet
+        if sheet.superview !== self { addSubview(sheet) }
+        if sheet.isHidden || sheet.alpha == 0 {
+            sheet.alpha = 1
+            sheet.isHidden = false
+            sheet.frame = bounds
+            sheet.reload(self)
+            bringSubviewToFront(sheet)
+        } else {
+            sheet.isHidden = true
+        }
+    }
+
+    func barSheetPick(_ id: String) {
+        switch id {
+        case "layout-0": chooseOpenLayout(0)
+        case "layout-1": chooseOpenLayout(1)
+        case "layout-2": chooseOpenLayout(2)
+        case "hand": settings.showHandButton.toggle()
+        case "settings": settings.showSettingsButton.toggle()
+        case "mic": settings.showMicButton.toggle()
+        case "clip": settings.showClipboardButton.toggle()
+        case "hide": settings.hideKeyButton.toggle()
+        case "swap": settings.showSwapButton.toggle()
+        case "center": settings.showCenterButton.toggle()
+        case "menu": settings.showLayoutMenu.toggle()
+        case "switch": settings.showLayoutSwitch.toggle()
+        case "more": settings.showMoreButton.toggle()
+        case "app":
+            barSheet?.isHidden = true
+            openContainingApp(URL(string: "foldboard://settings")!)
+            return
+        case "close":
+            barSheet?.isHidden = true
+            return
+        default: return
+        }
+        if id.hasPrefix("layout-") { barSheet?.isHidden = true }
+        eff = settings.effective(pro: pro)
+        save()
+        setNeedsLayout()
+        layoutIfNeeded()
+        if barSheet?.isHidden == false { barSheet?.reload(self) }
+    }
+
+    func barSheetRows() -> [(id: String, title: String, check: Bool)] {
+        let now = openLayoutChoice
+        return [
+            ("layout-0", L("Follows your hand"), now == 0),
+            ("layout-1", L("Full width"), now == 1),
+            ("layout-2", L("Split keyboard"), now == 2),
+            ("hand", L("Position button"), settings.showHandButton),
+            ("settings", L("Settings button"), settings.showSettingsButton),
+            ("mic", L("Mic button"), settings.showMicButton),
+            ("clip", L("Clipboard button"), settings.showClipboardButton),
+            ("hide", L("Hide keyboard button"), settings.hideKeyButton),
+            ("switch", L("Layout switcher"), settings.showLayoutSwitch),
+            ("app", L("Open Foldboard settings"), false),
+            ("close", L("Done"), false),
+        ]
+    }
+
+    /// Le « … » n'utilise pas le menu système, le panneau s'ouvre, un choix change la disposition,
+    /// et un lien part par la chaîne des répondeurs (pas par UIApplication.shared.open).
+    static func verifyBarSheet() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.frame = CGRect(x: 0, y: 0, width: 980, height: 360)
+        var s = KBSettings()
+        s.layout = .azerty
+        s.mode = .right
+        s.layoutSwitchOpenOnly = false
+        c.demoContext = "open-landscape"
+        c.configure(settings: s, pro: true)
+        c.builtFor = .zero
+        c.layoutIfNeeded()
+        let noSystemMenu = c.bigButton.menu == nil && c.bigButton.showsMenuAsPrimaryAction == false
+        c.toggleBarSheet()
+        let open = c.barSheet?.isHidden == false
+        c.barSheetPick("layout-2")
+        let split = c.settings.screenModes["open-landscape"] == .split
+        let closed = c.barSheet?.isHidden != false
+        c.barSheetPick("switch")
+        let switched = c.settings.showLayoutSwitch == false
+        final class Probe: UIResponder {
+            var url: URL?
+            @objc func openURL(_ url: URL) { self.url = url }
+        }
+        final class Start: UIResponder {
+            var nxt: UIResponder?
+            override var next: UIResponder? { nxt }
+        }
+        let probe = Probe()
+        let start = Start()
+        start.nxt = probe
+        let url = URL(string: "foldboard://settings")!
+        let delivered = deliver(url, from: start) && probe.url == url
+        let ok = noSystemMenu && open && split && closed && switched && delivered
+        print("RESULT barsheet menu=\(noSystemMenu) open=\(open) split=\(split) closed=\(closed) switch=\(switched) url=\(delivered) \(ok ? "yes" : "no")")
+        return ok
+    }
+
     private func highlightAccent(_ i: Int) {
         for (j, l) in accentLabels.enumerated() {
             l.backgroundColor = j == i ? theme.accent : .clear
             l.textColor = j == i ? .white : theme.text
         }
+    }
+}
+
+/// Le menu du « … », dessiné dans le clavier. Les boutons existent une fois : on ne fait que réécrire leurs titres.
+final class KBBarSheet: UIView {
+    weak var canvas: KeyboardCanvas?
+    private let dim = UIButton(type: .custom)
+    private let card = UIView()
+    private let stack = UIStackView()
+    private var rows: [UIButton] = []
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        dim.backgroundColor = UIColor.black.withAlphaComponent(0.28)
+        dim.addAction(UIAction { [weak self] _ in self?.canvas?.barSheetPick("close") }, for: .touchUpInside)
+        addSubview(dim)
+        card.layer.cornerRadius = 16
+        card.layer.cornerCurve = .continuous
+        addSubview(card)
+        stack.axis = .vertical
+        stack.spacing = 0
+        card.addSubview(stack)
+        isHidden = true
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        dim.frame = bounds
+        let h = min(bounds.height - 8, stack.systemLayoutSizeFitting(CGSize(width: bounds.width - 24, height: 0),
+            withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel).height + 8)
+        card.frame = CGRect(x: 8, y: 8, width: bounds.width - 16, height: max(44, h))
+        stack.frame = card.bounds.insetBy(dx: 4, dy: 4)
+    }
+
+    func reload(_ canvas: KeyboardCanvas) {
+        self.canvas = canvas
+        card.backgroundColor = .systemBackground
+        let items = canvas.barSheetRows()
+        while rows.count < items.count {
+            let b = UIButton(type: .system)
+            b.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+            b.contentHorizontalAlignment = .leading
+            b.contentEdgeInsets = UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12)
+            b.addAction(UIAction { [weak self, weak b] _ in
+                guard let id = b?.accessibilityIdentifier else { return }
+                self?.canvas?.barSheetPick(id)
+            }, for: .touchUpInside)
+            rows.append(b)
+        }
+        for (i, item) in items.enumerated() {
+            let b = rows[i]
+            b.accessibilityIdentifier = item.id
+            let mark = item.check ? "✓  " : ""
+            b.setTitle(mark + item.title, for: .normal)
+            b.isHidden = false
+            if b.superview == nil { stack.addArrangedSubview(b) }
+        }
+        for b in rows.dropFirst(items.count) {
+            b.isHidden = true
+            b.removeFromSuperview()
+        }
+        setNeedsLayout()
     }
 }
 

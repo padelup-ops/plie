@@ -531,7 +531,8 @@ let mixedFR: [(String, String, String)] = [
 ]
 let memoryOK = KeyboardCanvas.simulateFoldCycles()
 let visibilityOK = KeyboardCanvas.verifyVisibility()
-if !memoryOK || !visibilityOK {
+let sheetOK = KeyboardCanvas.verifyBarSheet()
+if !memoryOK || !visibilityOK || !sheetOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }
