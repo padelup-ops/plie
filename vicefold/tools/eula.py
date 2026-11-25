@@ -190,19 +190,93 @@ if problems:
     print(REPLY)
     sys.exit(1)
 
-# --- renvoi
+AGREEMENT = ("This app is governed by Apple's Standard Licensed Application End User License Agreement: "
+              "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")
+
+def app_territories():
+    rows = get_all(f"/v1/apps/{app_id}/availableTerritories?limit=200")
+    ids = [t["id"] for t in rows if t.get("id")]
+    if not ids:
+        ids = [t["id"] for t in get_all("/v1/territories?limit=200") if t.get("id")]
+    return ids
+
+def set_eula():
+    terr = app_territories()
+    if not terr:
+        print("EULA ÉCHEC aucun territoire")
+        return False
+    print("EULA territoires", len(terr))
+    links = [{"type": "territories", "id": t} for t in terr]
+    existing = call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement")
+    data = existing.get("data") if isinstance(existing, dict) else None
+    if not isinstance(data, dict):
+        r = call("POST", "/v1/endUserLicenseAgreements", {"data": {
+            "type": "endUserLicenseAgreements", "attributes": {"agreementText": AGREEMENT},
+            "relationships": {"app": {"data": {"type": "apps", "id": app_id}},
+                              "territories": {"data": links}}}})
+        if "error" in r:
+            print("EULA ÉCHEC création", r.get("error"), redact(r.get("detail", ""))[:400])
+            return False
+        print("EULA créée")
+    else:
+        r = call("PATCH", f"/v1/endUserLicenseAgreements/{data['id']}", {"data": {
+            "type": "endUserLicenseAgreements", "id": data["id"],
+            "attributes": {"agreementText": AGREEMENT},
+            "relationships": {"territories": {"data": links}}}})
+        if "error" in r:
+            print("EULA ÉCHEC mise à jour", r.get("error"), redact(r.get("detail", ""))[:400])
+            return False
+        print("EULA mise à jour")
+    check = call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement")
+    text = (((check.get("data") or {}) if isinstance(check, dict) else {}).get("attributes") or {}).get("agreementText") or ""
+    ok = EULA_URL in text
+    print("EULA vérifiée", "oui" if ok else "non", "caractères", len(text))
+    return ok
+
+# --- retirer la demande en cours, poser l'EULA, renvoyer
+def ios_subs():
+    return [s for s in get_all(f"/v1/reviewSubmissions?filter[app]={app_id}&limit=20")
+            if (s.get("attributes") or {}).get("platform") in (None, "IOS")]
+
+open_now = [s for s in ios_subs() if (s.get("attributes") or {}).get("state") in ("WAITING_FOR_REVIEW", "IN_REVIEW")]
+for s in open_now:
+    call("PATCH", f"/v1/reviewSubmissions/{s['id']}", {"data": {
+        "type": "reviewSubmissions", "id": s["id"], "attributes": {"canceled": True}}})
+    print("retrait demandé", (s.get("attributes") or {}).get("state"))
+if open_now:
+    for _ in range(10):
+        time.sleep(3)
+        left = [((s.get("attributes") or {}).get("state")) for s in ios_subs()
+                if (s.get("attributes") or {}).get("state") in ("WAITING_FOR_REVIEW", "IN_REVIEW", "CANCELING")]
+        print("retrait", ",".join(left) or "terminé")
+        if not left:
+            break
+eula_ok = set_eula()
+checked = get_all(f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations?limit=200")
+seen = []
+for loc in sorted(checked, key=lambda x: (x.get("attributes") or {}).get("locale") or ""):
+    a = loc.get("attributes") or {}
+    locale = a.get("locale") or "?"
+    desc = a.get("description") or ""
+    if LINE not in desc:
+        new, _ = with_line(desc)
+        call("PATCH", f"/v1/appStoreVersionLocalizations/{loc['id']}", {"data": {
+            "type": "appStoreVersionLocalizations", "id": loc["id"], "attributes": {"description": new}}})
+        desc = (((call("GET", f"/v1/appStoreVersionLocalizations/{loc['id']}").get("data") or {}).get("attributes") or {}).get("description") or "")
+    ok = LINE in desc
+    seen.append(locale)
+    print(f"VERIF {locale} {'oui' if ok else 'NON'}")
+    if not ok:
+        problems.append("verif " + locale)
 fresh = call("GET", f"/v1/appStoreVersions/{vid}")
 vstate = ((fresh.get("data") or {}).get("attributes") or {}).get("appStoreState") or vstate
-print("état avant envoi", vstring, vstate)
-if vstate in ALREADY_SUBMITTED or vstate in LIVE:
-    print("déjà en vérification, pas de second envoi")
-    print("READBACK version", vstring, vstate)
-    print("READBACK submission inchangée")
-    print("RESOLUTION_CENTER non")
-    print("REPLY")
-    print(REPLY)
-    print(f"SUMMARY locales={len(seen)} verified={len(seen)} version={vstring} versionState={vstate} submissionState=unchanged resolutionCenter=no")
-    sys.exit(0)
+print("état après retrait", vstring, vstate, "eula", "oui" if eula_ok else "non", "langues", len(seen))
+if problems or not eula_ok:
+    print("PAS ENVOYÉ")
+    sys.exit(1)
+if vstate in ALREADY_SUBMITTED:
+    print("PAS ENVOYÉ retrait incomplet", vstate)
+    sys.exit(1)
 
 subs = get_all(f"/v1/reviewSubmissions?filter[app]={app_id}&limit=20")
 for s in subs:
