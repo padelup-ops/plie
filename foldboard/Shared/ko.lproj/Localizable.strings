@@ -114,6 +114,9 @@
 "Double space adds a period" = "스페이스 두 번으로 마침표 입력";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "글자를 길게 누르면 악센트(é, è, à, ç…)가 나옵니다. 삭제 키를 길게 누르면 단어 단위로 지웁니다.";
 "Switch side" = "방향 바꾸기";
+"Settings button" = "설정 버튼";
+"Mic button" = "마이크 버튼";
+"Clipboard button" = "클립보드 버튼";
 "Position button" = "위치 버튼";
 "Layout menu" = "레이아웃 메뉴";
 "Layout switcher" = "레이아웃 전환";

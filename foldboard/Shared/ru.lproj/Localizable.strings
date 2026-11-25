@@ -114,6 +114,9 @@
 "Double space adds a period" = "Двойной пробел ставит точку";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Удерживайте букву для её вариантов (é, è, à, ç…). Удерживайте удаление, чтобы стирать по словам.";
 "Switch side" = "Сменить сторону";
+"Settings button" = "Кнопка настроек";
+"Mic button" = "Кнопка микрофона";
+"Clipboard button" = "Кнопка буфера";
 "Position button" = "Кнопка положения";
 "Layout menu" = "Меню раскладки";
 "Layout switcher" = "Переключатель раскладки";

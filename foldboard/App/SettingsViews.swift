@@ -407,9 +407,11 @@ struct PositionView: View {
             }
 
             Section {
-                Toggle("Position and settings buttons", isOn: $m.settings.barButtons)
-                Toggle("Hide keyboard button", isOn: $m.settings.hideKeyButton)
                 Toggle("Position button", isOn: $m.settings.showHandButton)
+                Toggle("Settings button", isOn: $m.settings.showSettingsButton)
+                Toggle("Mic button", isOn: $m.settings.showMicButton)
+                Toggle("Clipboard button", isOn: $m.settings.showClipboardButton)
+                Toggle("Hide keyboard button", isOn: $m.settings.hideKeyButton)
                 Toggle("Switch side", isOn: $m.settings.showSwapButton)
                 Toggle("Keyboard in the middle", isOn: $m.settings.showCenterButton)
                 Toggle("Layout menu", isOn: $m.settings.showLayoutMenu)

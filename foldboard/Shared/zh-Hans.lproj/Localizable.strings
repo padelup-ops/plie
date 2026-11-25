@@ -114,6 +114,9 @@
 "Double space adds a period" = "连按两次空格输入句号";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "按住字母可输入重音字母（é、è、à、ç…）。按住删除键可逐词删除。";
 "Switch side" = "切换左右";
+"Settings button" = "设置按钮";
+"Mic button" = "麦克风按钮";
+"Clipboard button" = "剪贴板按钮";
 "Position button" = "位置按钮";
 "Layout menu" = "布局菜单";
 "Layout switcher" = "布局切换";

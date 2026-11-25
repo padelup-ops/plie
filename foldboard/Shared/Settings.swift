@@ -135,7 +135,14 @@ struct KBSettings: Codable, Equatable {
     /// Le raccourci des trois dispositions (suit la main, toute la largeur, coupé) seulement Duo ouvert.
     var layoutSwitchOpenOnly = true
     /// Chaque bouton de la barre du haut, un par un. Le « … » caché se rallume dans l'app.
+    /// Position (icône clavier / main), à part des curseurs de réglages.
     var showHandButton = true
+    /// Les curseurs « ajuster le clavier », indépendants du bouton de position.
+    var showSettingsButton = true
+    /// Le micro dans la barre (en plus du réglage dictée).
+    var showMicButton = true
+    /// Le presse-papier dans la barre.
+    var showClipboardButton = true
     var showSwapButton = true
     var showCenterButton = true
     var showLayoutMenu = true
@@ -310,7 +317,10 @@ struct KBSettings: Codable, Equatable {
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
         layoutSwitchOpenOnly = (try? c.decodeIfPresent(Bool.self, forKey: .layoutSwitchOpenOnly)) ?? d.layoutSwitchOpenOnly
-        showHandButton = (try? c.decodeIfPresent(Bool.self, forKey: .showHandButton)) ?? d.showHandButton
+        showHandButton = (try? c.decodeIfPresent(Bool.self, forKey: .showHandButton)) ?? barButtons
+        showSettingsButton = (try? c.decodeIfPresent(Bool.self, forKey: .showSettingsButton)) ?? barButtons
+        showMicButton = (try? c.decodeIfPresent(Bool.self, forKey: .showMicButton)) ?? d.showMicButton
+        showClipboardButton = (try? c.decodeIfPresent(Bool.self, forKey: .showClipboardButton)) ?? d.showClipboardButton
         showSwapButton = (try? c.decodeIfPresent(Bool.self, forKey: .showSwapButton)) ?? d.showSwapButton
         showCenterButton = (try? c.decodeIfPresent(Bool.self, forKey: .showCenterButton)) ?? d.showCenterButton
         showLayoutMenu = (try? c.decodeIfPresent(Bool.self, forKey: .showLayoutMenu)) ?? d.showLayoutMenu
@@ -529,6 +539,9 @@ struct KBSettings: Codable, Equatable {
         globeAsEmoji = newer.globeAsEmoji
         micByReturn = newer.micByReturn
         showHandButton = newer.showHandButton
+        showSettingsButton = newer.showSettingsButton
+        showMicButton = newer.showMicButton
+        showClipboardButton = newer.showClipboardButton
         showSwapButton = newer.showSwapButton
         showCenterButton = newer.showCenterButton
         showLayoutMenu = newer.showLayoutMenu
@@ -538,6 +551,27 @@ struct KBSettings: Codable, Equatable {
         barLayout = newer.barLayout
         compactBar = newer.compactBar
         learningTips = newer.learningTips
+    }
+
+    /// Les interrupteurs changés depuis le dernier chargement restent, même si une copie plus récente arrive.
+    mutating func restoreVisibilityEdits(from edited: KBSettings, baseline: KBSettings) {
+        func keep(_ edited: Bool, _ base: Bool, _ apply: (Bool) -> Void) {
+            if edited != base { apply(edited) }
+        }
+        keep(edited.showHandButton, baseline.showHandButton) { showHandButton = $0 }
+        keep(edited.showSettingsButton, baseline.showSettingsButton) { showSettingsButton = $0 }
+        keep(edited.showMicButton, baseline.showMicButton) { showMicButton = $0 }
+        keep(edited.showClipboardButton, baseline.showClipboardButton) { showClipboardButton = $0 }
+        keep(edited.hideKeyButton, baseline.hideKeyButton) { hideKeyButton = $0 }
+        keep(edited.showLayoutSwitch, baseline.showLayoutSwitch) { showLayoutSwitch = $0 }
+        keep(edited.layoutSwitchOpenOnly, baseline.layoutSwitchOpenOnly) { layoutSwitchOpenOnly = $0 }
+        keep(edited.showSwapButton, baseline.showSwapButton) { showSwapButton = $0 }
+        keep(edited.showCenterButton, baseline.showCenterButton) { showCenterButton = $0 }
+        keep(edited.showLayoutMenu, baseline.showLayoutMenu) { showLayoutMenu = $0 }
+        keep(edited.showMoreButton, baseline.showMoreButton) { showMoreButton = $0 }
+        keep(edited.emojiKey, baseline.emojiKey) { emojiKey = $0 }
+        keep(edited.dictationKey, baseline.dictationKey) { dictationKey = $0 }
+        keep(edited.barButtons, baseline.barButtons) { barButtons = $0 }
     }
 
     /// Les réglages vraiment appliqués : sans Foldboard Pro (ni essai), on revient à l'essentiel.
@@ -691,7 +725,9 @@ enum KBVault {
 
     static func save(_ settings: KBSettings) {
         var s = settings
-        s.stamp = Date()
+        // Le clavier vient de poser la date : on la garde, pour que le prochain enregistrement
+        // ne croie pas qu'une copie plus vieille est la plus récente et n'annule l'interrupteur.
+        if abs(s.stamp.timeIntervalSinceNow) > 2 { s.stamp = Date() }
         guard let data = try? JSONEncoder().encode(s) else { return }
         write("settings", data)
         suite?.set(data, forKey: "settings")

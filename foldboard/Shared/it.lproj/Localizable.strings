@@ -114,6 +114,9 @@
 "Double space adds a period" = "Doppio spazio aggiunge un punto";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Tieni premuta una lettera per i suoi accenti (é, è, à, ç…). Tieni premuto cancella per cancellare parola per parola.";
 "Switch side" = "Cambia lato";
+"Settings button" = "Pulsante impostazioni";
+"Mic button" = "Pulsante del microfono";
+"Clipboard button" = "Pulsante degli appunti";
 "Position button" = "Pulsante di posizione";
 "Layout menu" = "Menu del layout";
 "Layout switcher" = "Selettore di layout";

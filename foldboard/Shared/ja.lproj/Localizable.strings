@@ -114,6 +114,9 @@
 "Double space adds a period" = "スペース2回でピリオド";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "文字を長押しでアクセント（é、è、à、ç…）。削除キー長押しで単語ごとに削除。";
 "Switch side" = "左右を切り替え";
+"Settings button" = "設定ボタン";
+"Mic button" = "マイクボタン";
+"Clipboard button" = "クリップボードボタン";
 "Position button" = "位置ボタン";
 "Layout menu" = "レイアウトメニュー";
 "Layout switcher" = "レイアウト切替";

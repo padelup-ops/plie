@@ -963,6 +963,7 @@ final class KeyboardCanvas: UIView {
 
     func configure(settings: KBSettings, pro: Bool) {
         self.settings = settings
+        visibilityAtLoad = settings
         self.pro = pro
         // « Oublier mes mains » dans l'app : on efface aussi ce que le détecteur a appris pendant cette session.
         if settings.gripResetAt > UserDefaults.standard.double(forKey: "foldboard.gripResetSeen") {
@@ -1489,11 +1490,13 @@ final class KeyboardCanvas: UIView {
         }
         layout {
             $0.emojiKey = false
-            $0.barButtons = false
-            $0.dictationKey = false
+            $0.showHandButton = true
+            $0.showSettingsButton = false
+            $0.showMicButton = false
+            $0.showClipboardButton = false
+            $0.dictationKey = true
             $0.hideKeyButton = false
-            $0.showLayoutSwitch = true
-            $0.showHandButton = false
+            $0.showLayoutSwitch = false
             $0.showSwapButton = false
             $0.showCenterButton = false
             $0.showLayoutMenu = false
@@ -1502,20 +1505,22 @@ final class KeyboardCanvas: UIView {
         let off = c.visibilityProbe()
         layout {
             $0.emojiKey = true
-            $0.barButtons = true
+            $0.showHandButton = true
+            $0.showSettingsButton = true
+            $0.showMicButton = true
+            $0.showClipboardButton = true
             $0.dictationKey = true
             $0.hideKeyButton = true
             $0.showLayoutSwitch = true
-            $0.showHandButton = true
         }
         let on = c.visibilityProbe()
         // Deux mises en page de suite : le raccourci reste affiché (il ne dépend pas de la largeur des suggestions).
         c.builtFor = .zero
         c.layoutIfNeeded()
         let still = c.visibilityProbe().layoutSwitch
-        let ok = !off.emoji && !off.adjust && !off.mode && !off.mic && !off.hide && !off.hand && off.layoutSwitch
-            && on.emoji && on.adjust && on.mode && on.mic && on.hide && on.layoutSwitch && still
-        print("RESULT visibility off emoji=\(off.emoji) adjust=\(off.adjust) mode=\(off.mode) mic=\(off.mic) hide=\(off.hide) switch=\(off.layoutSwitch) on emoji=\(on.emoji) adjust=\(on.adjust) mode=\(on.mode) mic=\(on.mic) hide=\(on.hide) switch=\(on.layoutSwitch) stable=\(still) \(ok ? "yes" : "no")")
+        let ok = !off.emoji && !off.adjust && off.mode && !off.mic && !off.hide && !off.clip && !off.layoutSwitch
+            && on.emoji && on.adjust && on.mode && on.mic && on.hide && on.clip && on.layoutSwitch && still
+        print("RESULT visibility off emoji=\(off.emoji) adjust=\(off.adjust) mode=\(off.mode) mic=\(off.mic) clip=\(off.clip) hide=\(off.hide) switch=\(off.layoutSwitch) on emoji=\(on.emoji) adjust=\(on.adjust) mode=\(on.mode) mic=\(on.mic) clip=\(on.clip) hide=\(on.hide) switch=\(on.layoutSwitch) stable=\(still) \(ok ? "yes" : "no")")
         let cached = KBVault.resolveAccess(shared: nil, cache: {
             var a = KBAccess()
             a.purchased = true
@@ -1531,14 +1536,9 @@ final class KeyboardCanvas: UIView {
         return ok && proOK
     }
 
-    func visibilityProbe() -> (emoji: Bool, adjust: Bool, mode: Bool, mic: Bool, hide: Bool, hand: Bool, layoutSwitch: Bool) {
-        (emojiButton.isHidden == false && emojiButton.frame.width > 1,
-         adjustButton.isHidden == false && adjustButton.frame.width > 1,
-         modeButton.isHidden == false && modeButton.frame.width > 1,
-         micButton.isHidden == false && micButton.frame.width > 1,
-         hideButton.isHidden == false && hideButton.frame.width > 1,
-         modeButton.isHidden == false && modeButton.frame.width > 1,
-         layoutSwitch.isHidden == false && layoutSwitch.frame.width > 1)
+    func visibilityProbe() -> (emoji: Bool, adjust: Bool, mode: Bool, mic: Bool, hide: Bool, hand: Bool, clip: Bool, layoutSwitch: Bool) {
+        func on(_ v: UIView) -> Bool { v.isHidden == false && v.alpha > 0.5 && v.frame.width > 1 }
+        return (on(emojiButton), on(adjustButton), on(modeButton), on(micButton), on(hideButton), on(modeButton), on(clipButton), on(layoutSwitch))
     }
 
     /// Filet de sécurité : si le clavier approche la limite d'iOS, il libère ce qu'il peut avant qu'iOS ne le ferme.
@@ -1676,14 +1676,23 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    /// Réglages au dernier chargement : un interrupteur bougé depuis là n'est pas écrasé par une copie plus récente.
+    private var visibilityAtLoad = KBSettings()
+
     private func save() {
-        // L'app a peut-être changé un interrupteur pendant que cette copie était en mémoire.
+        let edited = settings
         let stored = KBVault.loadSettings()
-        if stored.stamp > settings.stamp {
+        if stored.stamp > visibilityAtLoad.stamp && stored.stamp > edited.stamp {
             settings.takeVisibility(from: stored)
+            settings.restoreVisibilityEdits(from: edited, baseline: visibilityAtLoad)
         }
-        input?.kbSettingsChanged(settings)
-        configure(settings: settings, pro: pro)
+        settings.stamp = Date()
+        let stamped = settings
+        input?.kbSettingsChanged(stamped)
+        visibilityAtLoad = stamped
+        configure(settings: stamped, pro: pro)
+        settings.stamp = stamped.stamp
+        visibilityAtLoad = settings
     }
 
     /// Relit les réglages partagés (groupe d'app, trousseau) et les applique sans reconstruire le clavier.
@@ -1879,7 +1888,11 @@ final class KeyboardCanvas: UIView {
             }
         }
         return UIMenu(title: L("Toolbar buttons"), children: [
-            item("Position button", "hand.raised", settings.showHandButton, { $0.showHandButton.toggle() }),
+            item("Position button", "keyboard", settings.showHandButton, { $0.showHandButton.toggle() }),
+            item("Settings button", "slider.horizontal.3", settings.showSettingsButton, { $0.showSettingsButton.toggle() }),
+            item("Mic button", "mic", settings.showMicButton, { $0.showMicButton.toggle() }),
+            item("Clipboard button", "doc.on.clipboard", settings.showClipboardButton, { $0.showClipboardButton.toggle() }),
+            item("Hide keyboard button", "keyboard.chevron.compact.down", settings.hideKeyButton, { $0.hideKeyButton.toggle() }),
             item("Switch side", "arrow.left.arrow.right", settings.showSwapButton, { $0.showSwapButton.toggle() }),
             item("Keyboard in the middle", "rectangle.center.inset.filled", settings.showCenterButton, { $0.showCenterButton.toggle() }),
             item("Layout menu", "ellipsis", settings.showLayoutMenu, { $0.showLayoutMenu.toggle() }),
@@ -2485,9 +2498,9 @@ final class KeyboardCanvas: UIView {
         let confine = layoutMode.isOneHand && panelRect.width > 0 && !blocks.isEmpty
         let x0 = confine ? (blocks.map { $0.minX }.min() ?? 0) : 0
         let x1 = confine ? (blocks.map { $0.maxX }.max() ?? bounds.width) : bounds.width
-        let bb = eff.barButtons && settings.showHandButton
-        modeButton.isHidden = !bb
-        modeButton.frame = CGRect(x: x0 + 6, y: 0, width: bb ? 40 : 0, height: h)
+        let showPosition = settings.showHandButton
+        modeButton.isHidden = !showPosition
+        modeButton.frame = CGRect(x: x0 + 6, y: 0, width: showPosition ? 40 : 0, height: h)
         modeButton.setImage(UIImage(systemName: eff.mode.symbol), for: .normal)
         modeButton.tintColor = theme.text.withAlphaComponent(0.7)
         modeButton.menu = modeMenu()
@@ -2517,12 +2530,13 @@ final class KeyboardCanvas: UIView {
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
         bigButton.frame = CGRect(x: max(flipButton.frame.maxX, middleButton.frame.maxX), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
-        let hk = bb || eff.hideKeyButton
+        let hk = settings.hideKeyButton
         hideButton.isHidden = !hk
         hideButton.frame = CGRect(x: x1 - (hk ? 46 : 6), y: 0, width: hk ? 40 : 0, height: h)
+        let showSettings = settings.showSettingsButton
         adjustButton.tintColor = theme.text.withAlphaComponent(0.7)
-        adjustButton.isHidden = !bb
-        adjustButton.frame = CGRect(x: hideButton.frame.minX - (bb ? 36 : 0), y: 0, width: bb ? 36 : 0, height: h)
+        adjustButton.isHidden = !showSettings
+        adjustButton.frame = CGRect(x: hideButton.frame.minX - (showSettings ? 36 : 0), y: 0, width: showSettings ? 36 : 0, height: h)
         let compact = layoutMode.isOneHand && !showEmoji
         let globe = input?.kbNeedsGlobe ?? false
         let emojiOn = compact && eff.emojiKey
@@ -2532,11 +2546,11 @@ final class KeyboardCanvas: UIView {
         emojiButton.tintColor = theme.text.withAlphaComponent(0.7)
         globeButton.tintColor = theme.text.withAlphaComponent(0.7)
         // Le presse-papier : juste à gauche des réglages, partout (sauf quand les emojis sont ouverts).
-        let clipShown = !showEmoji
+        let clipShown = settings.showClipboardButton && !showEmoji
         clipButton.isHidden = !clipShown
         clipButton.tintColor = theme.text.withAlphaComponent(0.7)
         clipButton.frame = CGRect(x: adjustButton.frame.minX - (clipShown ? 36 : 0), y: 0, width: clipShown ? 36 : 0, height: h)
-        let micShown = eff.dictationKey && !showEmoji && !micKey
+        let micShown = eff.dictationKey && settings.showMicButton && !showEmoji && !micKey
         micButton.isHidden = !micShown
         micButton.tintColor = dictState == .idle ? theme.text.withAlphaComponent(0.7) : theme.accent
         micButton.setImage(UIImage(systemName: dictState == .idle ? "mic" : "mic.fill"), for: .normal)
@@ -2589,7 +2603,7 @@ final class KeyboardCanvas: UIView {
             translateButton.isHidden = true
             fixButton.isHidden = true
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
-            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + (eff.dictationKey ? [micButton] : []) + [clipButton] + (eff.barButtons ? [adjustButton] : []) + (eff.barButtons || eff.hideKeyButton ? [hideButton] : [])
+            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + (micShown ? [micButton] : []) + (clipShown ? [clipButton] : []) + (showSettings ? [adjustButton] : []) + (hk ? [hideButton] : [])
             let gridW = CGFloat(g.cols) * 44
             let vertical = gripContext == "open-portrait" || gripContext.hasSuffix("landscape")
             // En colonne : contre le clavier (côté pouce), et les boutons répartis sur la hauteur des touches.
@@ -2684,8 +2698,8 @@ final class KeyboardCanvas: UIView {
             moreButton.frame.size.width = 0
         }
         // Dernier mot : un interrupteur coupé ne peut pas être rallumé par la mise en page.
-        enforceVisibility()
         placeLayoutSwitch(barHeight: h)
+        enforceVisibility()
         dictLabel.frame = chips.frame
         dictLabel.textColor = theme.text
         dictLabel.backgroundColor = theme.background
@@ -2857,9 +2871,14 @@ final class KeyboardCanvas: UIView {
     /// de la largeur des suggestions (avant, il disparaissait dès que la barre se serrait, puis revenait).
     private func placeLayoutSwitch(barHeight h: CGFloat) {
         let open = gripContext.hasPrefix("open")
-        let show = settings.showLayoutSwitch && (!eff.layoutSwitchOpenOnly || open) && !showEmoji
+        let show = settings.showLayoutSwitch && (!settings.layoutSwitchOpenOnly || open) && !showEmoji
         layoutSwitch.isHidden = !show
-        guard show else { return }
+        layoutSwitch.alpha = show ? 1 : 0
+        layoutSwitch.isUserInteractionEnabled = show
+        guard show else {
+            layoutSwitch.frame = .zero
+            return
+        }
         let w = min(150, max(120, bounds.width - 16))
         let y = (h - 28) / 2
         if chips.frame.width >= w + 8 {
@@ -2886,16 +2905,22 @@ final class KeyboardCanvas: UIView {
             b.frame.size.width = 0
         }
         if !eff.emojiKey { hide(emojiButton) }
-        if !eff.barButtons { hide(adjustButton); hide(modeButton) }
         if !settings.showHandButton { hide(modeButton) }
+        if !settings.showSettingsButton { hide(adjustButton) }
         if !settings.showSwapButton { hide(flipButton) }
         if !settings.showCenterButton { hide(middleButton) }
         if !settings.showLayoutMenu { hide(bigButton) }
         if !settings.showMoreButton { hide(moreButton) }
-        if !eff.dictationKey { hide(micButton) }
-        if !eff.hideKeyButton && !eff.barButtons { hide(hideButton) }
+        if !settings.showMicButton || !eff.dictationKey { hide(micButton) }
+        if !settings.showClipboardButton { hide(clipButton) }
+        if !settings.hideKeyButton { hide(hideButton) }
         if (input?.kbNeedsGlobe ?? false) == false { hide(globeButton) }
-        if !settings.showLayoutSwitch { layoutSwitch.isHidden = true }
+        if !settings.showLayoutSwitch || (settings.layoutSwitchOpenOnly && !gripContext.hasPrefix("open")) || showEmoji {
+            layoutSwitch.isHidden = true
+            layoutSwitch.alpha = 0
+            layoutSwitch.isUserInteractionEnabled = false
+            layoutSwitch.frame = .zero
+        }
     }
 
     private func modeMenu() -> UIMenu {
@@ -2964,8 +2989,9 @@ final class KeyboardCanvas: UIView {
     /// pour laisser toute la barre du haut aux suggestions (on voit les mots même tenu d'une main).
     private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
         guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
-        let n = 1 + (eff.barButtons ? 1 : 0) + (eff.barButtons || eff.hideKeyButton ? 1 : 0) + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
-            + (eff.dictationKey ? 1 : 0)
+        let n = (settings.showClipboardButton ? 1 : 0) + (settings.showSettingsButton ? 1 : 0) + (settings.hideKeyButton ? 1 : 0) + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
+            + (eff.dictationKey && settings.showMicButton ? 1 : 0)
+        guard n > 0 else { return nil }
         // Duo ouvert en portrait : une colonne verticale collée au clavier, à portée du pouce
         // (une rangée tout en haut de la place libre était trop loin).
         // Les touches ne font qu'environ 170 pt de haut : boutons resserrés (32 pt mini), sur deux colonnes s'il le faut.

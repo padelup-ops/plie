@@ -115,6 +115,9 @@
 "Double space adds a period" = "Double space adds a period";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word.";
 "Switch side" = "Switch side";
+"Settings button" = "Settings button";
+"Mic button" = "Mic button";
+"Clipboard button" = "Clipboard button";
 "Position button" = "Position button";
 "Layout menu" = "Layout menu";
 "Layout switcher" = "Layout switcher";

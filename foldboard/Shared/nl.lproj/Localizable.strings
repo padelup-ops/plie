@@ -114,6 +114,9 @@
 "Double space adds a period" = "Dubbele spatie voegt een punt toe";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Houd een letter ingedrukt voor accenten (é, è, à, ç…). Houd wissen ingedrukt om woord voor woord te wissen.";
 "Switch side" = "Wissel van kant";
+"Settings button" = "Instellingenknop";
+"Mic button" = "Microfoonknop";
+"Clipboard button" = "Klembordknop";
 "Position button" = "Positieknop";
 "Layout menu" = "Indelingsmenu";
 "Layout switcher" = "Indelingsschakelaar";
