@@ -1,0 +1,200 @@
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.550 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7000>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.550 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7000>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.550 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb6e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.551 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb6e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.551 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7200>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.551 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7200>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.557 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.557 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (40mm) (59D98431-6DC6-4BA6-90DE-5EA5F59715D1) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm: SimDeviceType : Apple Watch SE 3 (40mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-40mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7600>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.557 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.557 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch SE 3 (44mm) (9DC4C83D-BC52-420A-AAA0-35DBBCE62ECA) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm: SimDeviceType : Apple Watch SE 3 (44mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-SE-3-44mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7400>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.557 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7000>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.557 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (42mm) (0F2F315B-5869-49D4-A5C9-42A5585869D7) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm: SimDeviceType : Apple Watch Series 12 (42mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-42mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7000>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.557 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb6e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.557 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Series 12 (46mm) (CD8A490F-5B2C-485E-8F11-CD8596FA4AAE) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm: SimDeviceType : Apple Watch Series 12 (46mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-12-46mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb6e00>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.558 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7200>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-11-25 04:16:54.558 xcodebuild[3008:12747] [MT] DVTAssertions: Warning in DVTiOSFrameworks/IDEiOSSupportCore/DVTiPhoneSimulator.m:661
+Details:  SimDevice native architecture is nil. Device: SimDevice : Apple Watch Ultra 4 (49mm) (BCB3C139-0F79-47D8-BCF2-5D39AA0D1C00) : state={ Shutdown } deviceType={ com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm: SimDeviceType : Apple Watch Ultra 4 (49mm) (com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-4-49mm) } runtime={ com.apple.CoreSimulator.SimRuntime.watchOS-27-0: (null) }, supportedArches: (
+)
+Object:   <DVTiPhoneSimulator: 0x7ccfcb7200>
+Method:   -nativeArchitecture
+Thread:   <_NSMainThread: 0x104b38de0>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+
+SwiftCompile normal arm64 (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    
+
+/Users/runner/work/plie/plie/twinfold/App/WebHost.swift:231:28: warning: 'coordinateSpace' was deprecated in iOS 26.0: Use effectiveGeometry.coordinateSpace instead. [#DeprecatedDeclaration]
+229 |     private static func expand(_ window: UIWindow) {
+230 |         guard let scene = window.windowScene else { return }
+231 |         let bounds = scene.coordinateSpace.bounds
+    |                            `- warning: 'coordinateSpace' was deprecated in iOS 26.0: Use effectiveGeometry.coordinateSpace instead. [#DeprecatedDeclaration]
+232 |         if window.frame != bounds { window.frame = bounds }
+233 |         let above = UIWindow.Level.normal.rawValue + 1
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+SwiftDriverJobDiscovery normal arm64 Compiling AddressBar.swift, Browser.swift, BrowserView.swift, ChromeSettings.swift, ContentBlocker.swift, Downloads.swift, Everyday.swift, Extras.swift, FloatingBar.swift, Following.swift, Gestures.swift, Library.swift, Media.swift, Palette.swift, Sheets.swift, ShotMode.swift, SiteIcons.swift, Smart.swift, StartPage.swift, Store.swift, Tab.swift, TabOverview.swift, TwinfoldApp.swift, VideoNotes.swift, WebHost.swift, WhatsNew.swift, GeneratedAssetSymbols.swift (in target 'Twinfold' from project 'Twinfold')
+
+SwiftDriver\ Compilation\ Requirements Twinfold normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Twinfold -O -whole-module-optimization @/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -target arm64-apple-ios27.1 -g -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos -F /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos27.1-24A94232-e829b21a6f8c9b70876ba0858053c0442866d66f27be705873c55a4609c58824.sdkstatcache -output-file-map /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Twinfold-generated-files.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Twinfold-own-target-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Twinfold-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Twinfold-project-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/DerivedSources/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold-Swift.h -working-directory /Users/runner/work/plie/plie/twinfold -no-emit-module-separately-wmo
+
+SwiftMergeGeneratedHeaders /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/DerivedSources/Twinfold-Swift.h /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold-Swift.h (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold-Swift.h -o /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/DerivedSources/Twinfold-Swift.h
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.swiftmodule/arm64-apple-ios.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.swiftmodule/arm64-apple-ios.swiftmodule
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.swiftmodule/arm64-apple-ios.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.swiftdoc (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.swiftmodule/arm64-apple-ios.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.abi.json (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.swiftsourceinfo (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+Ld /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Twinfold normal (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios27.1 -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -L/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos -F/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -F/Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos -filelist /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.LinkFileList -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold_lto.o -Xlinker -dependency_info -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.swiftmodule -o /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Twinfold
+
+CopySwiftLibs /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Twinfold --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Frameworks --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/PlugIns --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/SystemExtensions --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Extensions --platform iphoneos --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.HLK2K0/Metal.xctoolchain --toolchain /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.HLK2K0/Metal.xctoolchain --module-name Twinfold --sdk-root /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 27.1 --bundle-identifier com.padelup.twinfold --output /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app --target-triple arm64-apple-ios27.1 --binary-file /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Twinfold --dependency-file /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold_dependency_info.dat --stringsdata-file /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftFileList --metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Twinfold.DependencyMetadataFileList --static-metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Twinfold.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Objects-normal/arm64/Twinfold.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-11-25 04:17:00.662 appintentsmetadataprocessor[4400:17056] Starting appintentsmetadataprocessor export
+2026-11-25 04:17:00.768 appintentsmetadataprocessor[4400:17056] Extracted no relevant App Intents symbols, skipping writing output
+
+GenerateDSYMFile /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app.dSYM /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Twinfold (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    export PATH\=/Applications/Xcode_27.1.app/Contents/SharedFrameworks/SwiftBuild.framework/Versions/A/PlugIns/SWBBuildService.bundle/Contents/PlugIns/SWBUniversalPlatformPlugin.bundle/Contents/Frameworks/SWBUniversalPlatform.framework/Resources:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.HLK2K0/Metal.xctoolchain/usr/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.HLK2K0/Metal.xctoolchain/usr/local/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.HLK2K0/Metal.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/local/bin:/opt/homebrew/opt/rustup/bin:/opt/homebrew/lib/ruby/gems/3.4.0/bin:/opt/homebrew/opt/ruby@3.4/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Twinfold -o /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app.dSYM
+
+AppIntentsSSUTraining (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Info.plist --temp-dir-path /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/ssu --bundle-id com.padelup.twinfold --product-path /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app --extracted-metadata-path /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Metadata.appintents --metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/Twinfold.build/Release-iphoneos/Twinfold.build/Twinfold.DependencyMetadataFileList --source-file /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app/Info.plist --archive-ssu-assets
+2026-11-25 04:17:00.830 appintentsnltrainingprocessor[4402:17062] Parsing options for appintentsnltrainingprocessor
+2026-11-25 04:17:00.831 appintentsnltrainingprocessor[4402:17062] Starting AppIntents SSU YAML Generation
+2026-11-25 04:17:00.835 appintentsnltrainingprocessor[4402:17062] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app
+
+Validate /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    builtin-validationUtility /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app (in target 'Twinfold' from project 'Twinfold')
+    cd /Users/runner/work/plie/plie/twinfold
+    /usr/bin/touch -c /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Products/Release-iphoneos/Twinfold.app
+
+PruneExplicitPrecompiledModules /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/Library/Developer/Xcode/DerivedData/Twinfold-aljamzxyqyoczobkxwbiabkgpzje/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

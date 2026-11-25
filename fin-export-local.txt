@@ -1,0 +1,4 @@
+2026-11-25 04:17:39.937 xcodebuild[5924:21792] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/Twinfold_2026-11-25_04-17-39.936.xcdistributionlogs".
+Exported Twinfold to: /Users/runner/work/_temp/local
+** EXPORT SUCCEEDED **
+

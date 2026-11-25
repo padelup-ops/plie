@@ -1,0 +1,63 @@
+ok     identifiant déjà là : com.padelup.twinfold
+FICHE  ok 6837801236
+ÉCHEC  testeur interne 1 (409) {
+  "errors" : [ {
+    "id" : "2975800c-5fea-4318-80ea-358ada3f539e",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 2 (409) {
+  "errors" : [ {
+    "id" : "26d99799-763b-4db0-bb5c-048929467b89",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ok     testeur interne 3 déjà là
+ÉCHEC  testeur interne 4 (409) {
+  "errors" : [ {
+    "id" : "adec7ac9-533a-4288-a019-04e0c03b8dcf",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 5 (409) {
+  "errors" : [ {
+    "id" : "c35622c6-d264-4e89-b070-bda56cbc6000",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 6 (409) {
+  "errors" : [ {
+    "id" : "b67bc962-23ab-4377-b13c-cea90f746e03",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
