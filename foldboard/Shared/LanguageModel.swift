@@ -48,10 +48,10 @@ final class KBLanguageModel {
         triScAt = p; p += nTri
         guard p <= d.count else { return nil }
         let bytes = d
-        let starts = starts
+        let offsets = starts
         func text(_ i: Int) -> String {
             bytes.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> String in
-                let o = Int(starts[i])
+                let o = Int(offsets[i])
                 guard o < raw.count else { return "" }
                 let n = Int(raw[o])
                 let a = o + 1, b = min(a + n, raw.count)
