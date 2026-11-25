@@ -113,7 +113,8 @@ enum KBEmojiSuggest {
 
     /// Mots courants qui ne doivent jamais faire apparaître d'emoji.
     private static let skip: Set<String> = ["the", "and", "for", "but", "not", "you", "all", "can", "les", "des", "une", "pas",
-        "est", "que", "qui", "par", "sur", "pour", "dans", "avec", "mais", "son", "sa", "ses", "mon", "ton", "new"]
+        "est", "que", "qui", "par", "sur", "pour", "dans", "avec", "mais", "son", "sa", "ses", "mon", "ton", "new",
+        "doing", "going", "being", "having", "getting", "making", "taking", "playing", "wearing", "raising", "holding"]
 
     /// L'emoji pour ce mot (sans tenir compte des majuscules), ou rien : d'abord la liste choisie à la main, puis le
     /// nom de l'emoji (en anglais, ou traduit du français), au singulier si besoin (« pommes » → 🍎).

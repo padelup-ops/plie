@@ -83,6 +83,8 @@ enum KBEmoji {
             if best == nil || h.n < best!.2 { best = (h.emoji, 0, h.n) }
         }
         if let best { return best.0 }
+        // Un verbe en -ing au milieu d'un nom plus long (« doing » dans « person doing cartwheel ») ne désigne pas l'emoji.
+        if w.count >= 5, w.hasSuffix("ing") { return nil }
         for item in names where item.words.count <= 3 && item.words.contains(w) {
             if best == nil || item.words.count < best!.2 { best = (item.emoji, 1, item.words.count) }
         }
