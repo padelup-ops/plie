@@ -254,11 +254,11 @@ final class KBSettingsRelay {
                 let relay = Unmanaged<KBSettingsRelay>.fromOpaque(observer).takeUnretainedValue()
                 DispatchQueue.main.async { relay.onFire() }
             },
-            KBVault.settingsNote, nil, .deliverImmediately)
+            KBVault.settingsNote.rawValue, nil, .deliverImmediately)
     }
 
     deinit {
         CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-            Unmanaged.passUnretained(self).toOpaque(), KBVault.settingsNote, nil)
+            Unmanaged.passUnretained(self).toOpaque(), KBVault.settingsNote.rawValue, nil)
     }
 }
