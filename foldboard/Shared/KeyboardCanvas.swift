@@ -1428,19 +1428,23 @@ final class KeyboardCanvas: UIView {
         var views: [Int] = []
         for i in 0..<30 {
             let s = scenes[i % scenes.count]
-            host = UIView(frame: CGRect(x: 0, y: 0, width: s.1.width, height: s.1.height + 48))
-            let c = install(in: host)
-            // Hors d'une fenêtre (le banc), la taille est imposée directement : les contraintes ne se résolvent pas.
-            NSLayoutConstraint.deactivate(c.hostPins)
-            c.hostPins.removeAll()
-            c.translatesAutoresizingMaskIntoConstraints = true
-            c.frame = CGRect(origin: .zero, size: s.1)
-            c.demoContext = s.0
-            c.settings.screenModes[s.0] = s.2
-            c.settings.mode = s.2
-            c.eff = c.settings.effective(pro: true)
-            c.builtFor = .zero
-            c.layoutIfNeeded()
+            autoreleasepool {
+                // Un contrôleur neuf à chaque pli, comme iOS. Le bassin lâche menus et images
+                // avant la mesure : sans lui, la boucle les garde et la mémoire monte à tort.
+                let next = UIView(frame: CGRect(x: 0, y: 0, width: s.1.width, height: s.1.height + 48))
+                let c = install(in: next)
+                NSLayoutConstraint.deactivate(c.hostPins)
+                c.hostPins.removeAll()
+                c.translatesAutoresizingMaskIntoConstraints = true
+                c.frame = CGRect(origin: .zero, size: s.1)
+                c.demoContext = s.0
+                c.settings.screenModes[s.0] = s.2
+                c.settings.mode = s.2
+                c.eff = c.settings.effective(pro: true)
+                c.builtFor = .zero
+                c.layoutIfNeeded()
+                host = next
+            }
             let m = footprintMB()
             mb.append(m)
             keys.append(KBViews.keys)
