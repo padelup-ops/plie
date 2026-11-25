@@ -114,6 +114,11 @@
 "Double space adds a period" = "스페이스 두 번으로 마침표 입력";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "글자를 길게 누르면 악센트(é, è, à, ç…)가 나옵니다. 삭제 키를 길게 누르면 단어 단위로 지웁니다.";
 "Switch side" = "방향 바꾸기";
+"Position button" = "위치 버튼";
+"Layout menu" = "레이아웃 메뉴";
+"Layout switcher" = "레이아웃 전환";
+"Toolbar buttons" = "막대 버튼";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "끄면 막대가 깔끔해지고 제안 공간이 넓어집니다. 키보드를 옮기거나 크기를 바꾸려면 여기서 다시 켜세요. … 버튼을 숨겨도 메뉴는 이 화면에서 다시 켤 수 있습니다. 학습 메시지는 잡는 법을 배울 때의 짧은 안내이며, 꺼도 학습은 계속됩니다.";
 "Keyboard in the middle" = "키보드를 가운데로";
 "The keyboard buttons" = "키보드 버튼";
 "The bar above the keys, from left to right." = "키 위의 막대, 왼쪽부터 오른쪽 순서.";

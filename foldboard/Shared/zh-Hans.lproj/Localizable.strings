@@ -114,6 +114,11 @@
 "Double space adds a period" = "连按两次空格输入句号";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "按住字母可输入重音字母（é、è、à、ç…）。按住删除键可逐词删除。";
 "Switch side" = "切换左右";
+"Position button" = "位置按钮";
+"Layout menu" = "布局菜单";
+"Layout switcher" = "布局切换";
+"Toolbar buttons" = "工具栏按钮";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "关闭后顶栏更干净，联想词有更多空间。要移动或调整键盘大小，在这里重新打开。如果隐藏了 … 按钮，可以在这个屏幕把它的菜单找回来。学习提示是 Foldboard 记住握持方式时的短通知，关闭后仍会继续学习。";
 "Keyboard in the middle" = "键盘居中";
 "The keyboard buttons" = "键盘按钮";
 "The bar above the keys, from left to right." = "按键上方的栏，从左到右。";

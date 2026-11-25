@@ -12,65 +12,40 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     private var settings = KBSettings()
     private var access = KBAccess()
 
+    /// Le même clavier pour chaque contrôleur qu'iOS crée (pli, rotation). On le déplace, on ne le reconstruit pas.
     @discardableResult
     private func ensureCanvas() -> KeyboardCanvas {
-        if let c = canvas { return c }
-        let c = KeyboardCanvas()
-        c.input = self
-        c.onPreferredHeightChange = { [weak self] in
-            guard let self, let c = self.canvas else { return }
-            self.heightConstraint?.constant = c.preferredHeight
+        let c = KeyboardCanvas.install(in: view)
+        if canvas !== c {
+            c.input = self
+            c.onPreferredHeightChange = { [weak self] in
+                guard let self, let c = self.canvas else { return }
+                self.heightConstraint?.constant = c.preferredHeight
+            }
+            if let lexicon { c.setLexicon(lexicon) }
+            canvas = c
         }
-        c.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(c)
-        NSLayoutConstraint.activate([
-            c.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            c.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            c.topAnchor.constraint(equalTo: view.topAnchor),
-            c.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
-        canvas = c
-        if let lexicon { c.setLexicon(lexicon) }
+        Self.latest = self
+        for other in Self.kept.allObjects where other !== self && other.canvas === c {
+            other.canvas = nil
+        }
+        Self.kept.add(self)
         return c
     }
 
-    /// Le contrôleur le plus récent : lui seul garde son clavier entre deux apparitions.
+    /// Le contrôleur affiché. Les anciens ne détruisent pas le clavier partagé.
     private static weak var latest: KeyboardViewController?
-    /// Tous les contrôleurs encore retenus par iOS (faible : s'il les lâche, ils sortent de la liste).
     private static let kept = NSHashTable<KeyboardViewController>.weakObjects()
 
-    /// iOS garde les anciens contrôleurs, souvent encore attachés à une fenêtre cachée (pli du Duo, rotation).
-    /// On ne peut pas attendre `window == nil` : chaque apparition laissait un clavier entier (~1 Mo, ×44 → ×64
-    /// et 136 → 164 Mo sur un vrai téléphone). Un seul clavier reste, celui qui vient d'apparaître.
-    private static func dropOthers(except keep: KeyboardViewController) {
-        for c in kept.allObjects where c !== keep {
-            c.dropCanvas()
-        }
-    }
-
-    private func dropCanvas() {
-        guard let c = canvas else { return }
-        c.shutdown()
-        c.removeFromSuperview()
-        canvas = nil
-    }
-
-    /// Le clavier n'est plus à l'écran depuis un moment. Le dernier contrôleur garde le sien (pas de saut au retour).
-    /// Les autres rendent tout, même si iOS n'a pas encore mis leur fenêtre à nil.
+    /// Plus à l'écran : on allège les caches, le clavier lui-même reste (une seule instance).
     private func releaseCanvasIfGone() {
-        guard let c = canvas else { return }
-        if Self.latest === self, view.window != nil {
-            c.trimMemory(flush: false)
-            return
-        }
-        dropCanvas()
+        guard Self.latest === self, view.window == nil else { return }
+        canvas?.trimMemory(flush: false)
+        canvas?.disappeared()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        Self.kept.add(self)
-        Self.latest = self
-        Self.dropOthers(except: self)
         // La hauteur de la dernière fois, avant même que le clavier soit construit : pas de clavier d'iOS par
         // défaut qui grandit ensuite.
         let lastH = UserDefaults.standard.double(forKey: "foldboard.lastHeight")
@@ -91,8 +66,6 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        Self.latest = self
-        Self.dropOthers(except: self)
         ensureCanvas()
         reload()
         canvas?.appeared()
@@ -102,7 +75,8 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     /// Filet de sécurité : le clavier revient à l'écran sans « apparition » d'iOS (il avait été rendu).
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        if canvas == nil, view.window != nil {
+        // Un ancien contrôleur, encore attaché à une fenêtre cachée, ne reprend pas le clavier partagé.
+        if canvas == nil, view.window != nil, Self.latest === self || Self.latest == nil {
             ensureCanvas()
             reload()
             canvas?.appeared()
@@ -159,8 +133,6 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         canvas?.trimMemory()
-        // Pas à l'écran : on rend tout, même le dernier clavier.
-        if view.window == nil, let c = canvas { c.shutdown(); c.removeFromSuperview(); canvas = nil }
     }
 
     override func viewWillDisappear(_ animated: Bool) {

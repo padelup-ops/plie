@@ -529,6 +529,11 @@ let mixedFR: [(String, String, String)] = [
     // Et le français reste français.
     ("je vais ", "a", "à"), ("il fait ", "tres", "très"), ("on se voit ", "apres", "après"),
 ]
+if !KeyboardCanvas.simulateFoldCycles() {
+    fputs("mémoire pas stable après 30 plis\n", stderr)
+    exit(1)
+}
+
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
     realCases(fr, realFR, tag: tag)

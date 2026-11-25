@@ -114,6 +114,11 @@
 "Double space adds a period" = "Espaço duplo adiciona um ponto";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Mantenha uma letra pressionada para os acentos (é, è, à, ç…). Mantenha apagar pressionado para apagar palavra por palavra.";
 "Switch side" = "Trocar de lado";
+"Position button" = "Botão de posição";
+"Layout menu" = "Menu de layout";
+"Layout switcher" = "Seletor de layout";
+"Toolbar buttons" = "Botões da barra";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Desligue para uma barra mais limpa e mais espaço para sugestões. Para mover ou redimensionar o teclado, ligue de novo ou use esta tela. Se o botão … estiver oculto, o menu volta por aqui. As mensagens de aprendizado são notas curtas quando o Foldboard aprende sua pegada: ele continua aprendendo mesmo desligadas.";
 "Keyboard in the middle" = "Teclado no meio";
 "The keyboard buttons" = "Os botões do teclado";
 "The bar above the keys, from left to right." = "A barra acima das teclas, da esquerda para a direita.";

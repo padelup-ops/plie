@@ -130,6 +130,7 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
     private let clipBtn = UIButton(type: .system)
 
     private let scroll = UIScrollView()
+    private let tapProxy = EmojiTapProxy()
     private let bar = UIView()
     private let abc = UIButton(type: .system)
     private let del = UIButton(type: .system)
@@ -160,8 +161,8 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         scroll.delaysContentTouches = false
         addSubview(scroll)
         addSubview(bar)
-        let tap = UITapGestureRecognizer(target: self, action: #selector(tapped(_:)))
-        scroll.addGestureRecognizer(tap)
+        tapProxy.board = self
+        scroll.addGestureRecognizer(UITapGestureRecognizer(target: tapProxy, action: #selector(EmojiTapProxy.tapped(_:))))
 
         abc.setTitle("ABC", for: .normal)
         abc.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
@@ -367,7 +368,7 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         }
     }
 
-    @objc private func tapped(_ g: UITapGestureRecognizer) {
+    @objc fileprivate func tapped(_ g: UITapGestureRecognizer) {
         let p = g.location(in: scroll)
         guard let i = items.firstIndex(where: { $0.frame.contains(p) }) else { return }
         let e = items[i].emoji
@@ -391,4 +392,10 @@ final class EmojiBoard: UIView, UIScrollViewDelegate {
         deleteTimer?.invalidate()
         deleteTimer = nil
     }
+}
+
+/// Le geste retient sa cible : ce relais ne retient pas la grille, sinon elle reste en mémoire.
+private final class EmojiTapProxy: NSObject {
+    weak var board: EmojiBoard?
+    @objc func tapped(_ g: UITapGestureRecognizer) { board?.tapped(g) }
 }

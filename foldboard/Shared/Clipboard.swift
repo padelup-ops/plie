@@ -184,6 +184,7 @@ final class ClipboardList: UIView {
     /// Une glissière sur le bord, comme sur une page web : on la fait glisser pour aller tout de suite en bas d'un
     /// long presse-papier.
     private let rail = UIView()
+    private let scrubProxy = ClipScrubProxy()
     private let thumb = UIView()
     private var observation: NSKeyValueObservation?
     private static let railW: CGFloat = 22
@@ -199,8 +200,9 @@ final class ClipboardList: UIView {
         thumb.isUserInteractionEnabled = false
         rail.addSubview(thumb)
         addSubview(rail)
-        rail.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(scrub(_:))))
-        rail.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(scrub(_:))))
+        scrubProxy.list = self
+        rail.addGestureRecognizer(UIPanGestureRecognizer(target: scrubProxy, action: #selector(ClipScrubProxy.scrub(_:))))
+        rail.addGestureRecognizer(UITapGestureRecognizer(target: scrubProxy, action: #selector(ClipScrubProxy.scrub(_:))))
         observation = scroll.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
             DispatchQueue.main.async { self?.placeThumb() }
         }
@@ -229,7 +231,7 @@ final class ClipboardList: UIView {
         thumb.frame = CGRect(x: (Self.railW - 6) / 2, y: 4 + (h - th) * frac, width: 6, height: th)
     }
 
-    @objc private func scrub(_ g: UIGestureRecognizer) {
+    @objc fileprivate func scrub(_ g: UIGestureRecognizer) {
         guard scrollable else { return }
         let y = g.location(in: rail).y
         let frac = min(1, max(0, (y - 22) / max(1, rail.bounds.height - 44)))
@@ -335,6 +337,12 @@ final class ClipboardList: UIView {
         scroll.addSubview(l)
         scroll.contentSize = bounds.size
     }
+}
+
+/// Le geste retient sa cible : ce relais ne retient pas la liste.
+private final class ClipScrubProxy: NSObject {
+    weak var list: ClipboardList?
+    @objc func scrub(_ g: UIGestureRecognizer) { list?.scrub(g) }
 }
 
 /// Une liste qui défile même quand le doigt part d'un bouton (sinon, partir d'un élément bloquait le défilement).

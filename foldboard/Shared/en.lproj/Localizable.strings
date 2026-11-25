@@ -115,6 +115,11 @@
 "Double space adds a period" = "Double space adds a period";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word.";
 "Switch side" = "Switch side";
+"Position button" = "Position button";
+"Layout menu" = "Layout menu";
+"Layout switcher" = "Layout switcher";
+"Toolbar buttons" = "Toolbar buttons";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off.";
 "Keyboard in the middle" = "Keyboard in the middle";
 "The keyboard buttons" = "The keyboard buttons";
 "The bar above the keys, from left to right." = "The bar above the keys, from left to right.";

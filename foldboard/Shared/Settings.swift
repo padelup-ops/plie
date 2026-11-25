@@ -134,6 +134,13 @@ struct KBSettings: Codable, Equatable {
     var barButtons = true
     /// Le raccourci des trois dispositions (suit la main, toute la largeur, coupé) seulement Duo ouvert.
     var layoutSwitchOpenOnly = true
+    /// Chaque bouton de la barre du haut, un par un. Le « … » caché se rallume dans l'app.
+    var showHandButton = true
+    var showSwapButton = true
+    var showCenterButton = true
+    var showLayoutMenu = true
+    var showLayoutSwitch = true
+    var showMoreButton = true
     /// Les quatre coins du clavier arrondis (Spotlight et les apps où il flotte), pas seulement ceux du haut.
     var roundAllCorners = false
     /// Toucher la place libre à côté du clavier (une main) le met de ce côté.
@@ -303,6 +310,12 @@ struct KBSettings: Codable, Equatable {
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
         layoutSwitchOpenOnly = (try? c.decodeIfPresent(Bool.self, forKey: .layoutSwitchOpenOnly)) ?? d.layoutSwitchOpenOnly
+        showHandButton = (try? c.decodeIfPresent(Bool.self, forKey: .showHandButton)) ?? d.showHandButton
+        showSwapButton = (try? c.decodeIfPresent(Bool.self, forKey: .showSwapButton)) ?? d.showSwapButton
+        showCenterButton = (try? c.decodeIfPresent(Bool.self, forKey: .showCenterButton)) ?? d.showCenterButton
+        showLayoutMenu = (try? c.decodeIfPresent(Bool.self, forKey: .showLayoutMenu)) ?? d.showLayoutMenu
+        showLayoutSwitch = (try? c.decodeIfPresent(Bool.self, forKey: .showLayoutSwitch)) ?? d.showLayoutSwitch
+        showMoreButton = (try? c.decodeIfPresent(Bool.self, forKey: .showMoreButton)) ?? d.showMoreButton
         roundAllCorners = (try? c.decodeIfPresent(Bool.self, forKey: .roundAllCorners)) ?? d.roundAllCorners
         tapSideToMove = (try? c.decodeIfPresent(Bool.self, forKey: .tapSideToMove)) ?? d.tapSideToMove
         knockToMove = (try? c.decodeIfPresent(Bool.self, forKey: .knockToMove)) ?? d.knockToMove

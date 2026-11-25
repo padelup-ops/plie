@@ -409,6 +409,12 @@ struct PositionView: View {
             Section {
                 Toggle("Position and settings buttons", isOn: $m.settings.barButtons)
                 Toggle("Hide keyboard button", isOn: $m.settings.hideKeyButton)
+                Toggle("Position button", isOn: $m.settings.showHandButton)
+                Toggle("Switch side", isOn: $m.settings.showSwapButton)
+                Toggle("Keyboard in the middle", isOn: $m.settings.showCenterButton)
+                Toggle("Layout menu", isOn: $m.settings.showLayoutMenu)
+                Toggle("Layout switcher", isOn: $m.settings.showLayoutSwitch)
+                Toggle("More", isOn: $m.settings.showMoreButton)
                 Toggle("✨ Fix button", isOn: $m.settings.wandButton)
                 Picker("Buttons", selection: $m.settings.barLayout) {
                     Text("On the right").tag("right")
@@ -420,7 +426,7 @@ struct PositionView: View {
             } header: {
                 Text("Top bar")
             } footer: {
-                Text("Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off.")
+                Text("Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off.")
             }
         }
         .navigationTitle("Position and size")

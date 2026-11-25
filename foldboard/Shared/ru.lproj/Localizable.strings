@@ -114,6 +114,11 @@
 "Double space adds a period" = "Двойной пробел ставит точку";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Удерживайте букву для её вариантов (é, è, à, ç…). Удерживайте удаление, чтобы стирать по словам.";
 "Switch side" = "Сменить сторону";
+"Position button" = "Кнопка положения";
+"Layout menu" = "Меню раскладки";
+"Layout switcher" = "Переключатель раскладки";
+"Toolbar buttons" = "Кнопки панели";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Выключите для более спокойной панели и большего места для подсказок. Чтобы двигать или менять размер клавиатуры, включите их снова на этом экране. Если кнопка … скрыта, её меню возвращается отсюда. Сообщения об обучении — короткие заметки, когда Foldboard запоминает хват: обучение продолжается и без них.";
 "Keyboard in the middle" = "Клавиатура по центру";
 "The keyboard buttons" = "Кнопки клавиатуры";
 "The bar above the keys, from left to right." = "Панель над клавишами, слева направо.";

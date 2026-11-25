@@ -114,6 +114,11 @@
 "Double space adds a period" = "Dubbele spatie voegt een punt toe";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Houd een letter ingedrukt voor accenten (é, è, à, ç…). Houd wissen ingedrukt om woord voor woord te wissen.";
 "Switch side" = "Wissel van kant";
+"Position button" = "Positieknop";
+"Layout menu" = "Indelingsmenu";
+"Layout switcher" = "Indelingsschakelaar";
+"Toolbar buttons" = "Knoppen van de balk";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Zet ze uit voor een rustigere balk met meer ruimte voor suggesties. Om het toetsenbord te verplaatsen of te vergroten, zet je ze hier weer aan. Als de …-knop verborgen is, komt het menu via dit scherm terug. Leermeldingen zijn korte notities als Foldboard je greep leert: het blijft leren als ze uit staan.";
 "Keyboard in the middle" = "Toetsenbord in het midden";
 "The keyboard buttons" = "De knoppen van het toetsenbord";
 "The bar above the keys, from left to right." = "De balk boven de toetsen, van links naar rechts.";
