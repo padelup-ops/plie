@@ -375,8 +375,21 @@ struct EndView: View {
                     .opacity(shown ? 1 : 0)
                 Spacer()
                 VStack(spacing: 12) {
-                    Button { model.replay(premium: store.owned) } label: { Label("Replay the call", systemImage: "arrow.counterclockwise") }
-                        .buttonStyle(MagicButtonStyle())
+                    if model.call.previewCut && !store.owned {
+                        Text("Santa still has more to say…")
+                            .font(.ui(16))
+                            .foregroundStyle(Noel.cream.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                        Button { model.sheet = .paywall } label: { Text("Hear the rest") }
+                            .buttonStyle(MagicButtonStyle())
+                    } else {
+                        Button { model.replay(premium: store.owned) } label: { Label("Replay the call", systemImage: "arrow.counterclockwise") }
+                            .buttonStyle(MagicButtonStyle())
+                    }
+                    if store.owned {
+                        Button { model.sheet = .letter } label: { Label("Letter from Santa", systemImage: "envelope.fill") }
+                            .buttonStyle(QuietButtonStyle())
+                    }
                     Button { model.sheet = .memory } label: { Label("Create a keepsake", systemImage: "photo.on.rectangle.angled") }
                         .buttonStyle(QuietButtonStyle())
                     Button { model.home() } label: {
@@ -391,6 +404,12 @@ struct EndView: View {
         .onAppear {
             burst = Date().addingTimeInterval(ShotMode.route != nil ? -0.5 : 0.4)
             withAnimation(.easeOut(duration: ShotMode.route != nil ? 0 : 1.6)) { shown = true }
+        }
+        .task {
+            guard !model.call.previewCut, store.owned, ShotMode.route == nil else { return }
+            try? await Task.sleep(for: .seconds(1.8))
+            guard !Task.isCancelled else { return }
+            ReviewPrompt.ask()
         }
     }
 }

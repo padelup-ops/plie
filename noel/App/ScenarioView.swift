@@ -90,7 +90,13 @@ struct ScenarioView: View {
                 }
                 .buttonStyle(MagicButtonStyle())
                 .padding(.horizontal, 28)
-                .padding(.bottom, 10)
+                .padding(.bottom, model.scenario.isFree && !store.owned ? 4 : 10)
+                if model.scenario.isFree && !store.owned {
+                    Text("A short free preview")
+                        .font(.ui(13))
+                        .foregroundStyle(Noel.cream.opacity(0.6))
+                        .padding(.bottom, 10)
+                }
             }
         }
     }

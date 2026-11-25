@@ -1,0 +1,24 @@
+Allô Père Noël — vidéo de Santa qui parle
+
+À générer à part, puis à déposer dans l'app sous :
+  noel/Resources/Video/santa-accueil.mp4
+
+Le lecteur (HomeView, médaillon doré) cherche ce fichier. Tant qu'il n'est pas là,
+l'accueil joue le même monologue en audio et montre le Père Noël dessiné.
+Le cercle recadre le centre de l'image (le visage). Pas de contrôles.
+La musique de l'accueil baisse pendant la lecture. Ne pas boucler.
+
+Audio à lip-syncer (ne pas le régénérer)
+  noel/video/santa-accueil.wav     PCM 16 bits, mono, 44,1 kHz, 11,9 s
+  noel/video/santa-accueil.mp3     le même son
+  Niveau déjà normalisé, environ -16 LUFS, crête vraie sous -1,5 dBTP.
+  Mettre cette piste telle quelle dans le mp4 (AAC mono 44,1 kHz convient).
+
+Texte dit (français)
+  Ho, ho, ho ! Bonjour ! C'est moi, le Père Noël. Je t'appelle depuis mon atelier, au pôle Nord. J'ai une surprise rien que pour toi. Joyeux Noël !
+
+Image
+  768 × 1024, portrait 3:4, comme noel/ai/portrait-2.png
+  H.264, 25 images/seconde, yuv420p
+  Durée : exactement celle de l'audio (11,9 s)
+  Visage de face, au centre, pour le recadrage circulaire du médaillon

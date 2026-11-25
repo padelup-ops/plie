@@ -18,10 +18,13 @@ final class CallController {
     private(set) var mood: SantaMood = .idle
     private(set) var surpriseAt: Date?
     private(set) var startedAt: Date?
+    /// L'aperçu gratuit s'est arrêté avant la fin de l'histoire.
+    private(set) var previewCut = false
+    private var sayLimit: Int?
     let voice = SantaVoice()
 
     private var segments: [Segment] = []
-    private var audio: [Int: [AVAudioPCMBuffer]] = [:]
+    private var audio: [Int: SantaVoice.SpokenAudio] = [:]
     private var renderTask: Task<Void, Never>?
     private var callTask: Task<Void, Never>?
     private var hapticTask: Task<Void, Never>?
@@ -29,7 +32,7 @@ final class CallController {
     var mouth: Double { voice.level }
 
     /// Prépare l'appel : le texte, puis les sons de chaque phrase, en arrière-plan.
-    func prepare(profile: ChildProfile, scenario: Scenario, premium: Bool, audio withAudio: Bool = true) {
+    func prepare(profile: ChildProfile, scenario: Scenario, premium: Bool, audio withAudio: Bool = true, sayLimit: Int? = nil) {
         let (book, lang) = ScriptBook.load()
         voice.configure(book: book)
         segments = ScriptBuilder(book: book, lang: lang, profile: profile, premium: premium).build(scenario)
@@ -38,13 +41,15 @@ final class CallController {
         mood = .idle
         surpriseAt = nil
         startedAt = nil
+        previewCut = false
+        self.sayLimit = sayLimit
         renderTask?.cancel()
         guard withAudio else { return }
         let segs = segments
         renderTask = Task { [weak self] in
             for (i, s) in segs.enumerated() {
                 guard let self, !Task.isCancelled else { return }
-                if let text = s.text { self.audio[i] = await self.voice.render(text) }
+                if case let .say(text, _, _, cue) = s { self.audio[i] = await self.voice.render(cue: cue, caption: text) }
             }
         }
     }
@@ -91,23 +96,29 @@ final class CallController {
     }
 
     private func run() async {
+        var said = 0
         for (i, s) in segments.enumerated() {
             if Task.isCancelled { return }
             switch s {
-            case let .say(text, laugh, wave):
+            case let .say(text, laugh, wave, _):
                 caption = text
                 mood = wave ? .waving : (laugh ? .laughing : .talking)
                 // si la phrase n'est pas encore prête (première phrase), on l'attend un peu
                 var waited = 0
                 while audio[i] == nil && waited < 60 && !Task.isCancelled { try? await Task.sleep(for: .milliseconds(100)); waited += 1 }
-                let bufs = audio[i] ?? []
-                if bufs.isEmpty {
+                let spoken = audio[i]
+                if spoken == nil || spoken?.buffers.isEmpty == true {
                     // pas de voix disponible : on laisse le temps de lire le sous-titre
                     try? await Task.sleep(for: .seconds(max(2.2, Double(text.count) / 14)))
-                } else {
-                    await voice.play(bufs)
+                } else if let spoken {
+                    await voice.play(spoken.buffers, recorded: spoken.recorded)
                 }
                 if !wave { mood = .idle }
+                said += 1
+                if let sayLimit, said >= sayLimit {
+                    previewCut = true
+                    return
+                }
                 try? await Task.sleep(for: .milliseconds(380))
             case let .listen(sec):
                 mood = .listening
@@ -134,6 +145,17 @@ final class CallController {
 
     /// « Écouter le Père Noël » : une courte phrase, sans prénom (découverte, réglages).
     private(set) var previewing = false
+    /// Une réplique seule (calendrier de l'Avent, message).
+    func speakLine(_ text: String) async {
+        guard !previewing else { return }
+        let (book, _) = ScriptBook.load()
+        voice.configure(book: book)
+        previewing = true
+        let spoken = await voice.render(cue: .line(text), caption: text)
+        await voice.play(spoken.buffers, recorded: spoken.recorded)
+        previewing = false
+    }
+
     func preview() {
         guard !previewing else { return }
         let (book, lang) = ScriptBook.load()
@@ -141,7 +163,12 @@ final class CallController {
         let segs = ScriptBuilder(book: book, lang: lang, profile: ChildProfile(), premium: false).block("sample")
         previewing = true
         Task {
-            for s in segs { if let t = s.text { await voice.play(await voice.render(t)) } }
+            for s in segs {
+                if case let .say(t, _, _, cue) = s {
+                    let spoken = await voice.render(cue: cue, caption: t)
+                    await voice.play(spoken.buffers, recorded: spoken.recorded)
+                }
+            }
             previewing = false
         }
     }

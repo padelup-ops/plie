@@ -27,7 +27,7 @@ struct AlloPereNoelApp: App {
 enum Screen: Equatable { case splash, home, setup, scenario, waiting, incoming, call, ended, declined }
 
 enum Sheet: String, Identifiable {
-    case paywall, discover, settings, privacy, memory
+    case paywall, discover, settings, privacy, memory, advent, letter
     var id: String { rawValue }
 }
 
@@ -55,7 +55,7 @@ final class AppModel {
     /// Lance l'appel choisi : on prépare la voix tout de suite, la sonnerie part maintenant ou après le délai.
     func startCall(premium: Bool) {
         profile.save()
-        call.prepare(profile: profile, scenario: scenario, premium: premium)
+        call.prepare(profile: profile, scenario: scenario, premium: premium, sayLimit: premium ? nil : 3)
         if delay == .now {
             ring()
         } else {
@@ -86,7 +86,7 @@ final class AppModel {
     }
 
     func replay(premium: Bool) {
-        call.prepare(profile: profile, scenario: scenario, premium: premium)
+        call.prepare(profile: profile, scenario: scenario, premium: premium, sayLimit: premium ? nil : 3)
         ring()
     }
 
@@ -152,6 +152,8 @@ struct RootView: View {
                 case .settings: SettingsView()
                 case .privacy: NavigationStack { PrivacyView() }
                 case .memory: MemoryCardView()
+                case .advent: AdventView()
+                case .letter: LetterView()
                 }
             }
             .environment(model)
