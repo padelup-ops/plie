@@ -1,6 +1,6 @@
 # FOLDBOARD : le clavier pour l'iPhone Duo. Une app (installation, réglages, essai) et une extension clavier.
 # Projet généré par XcodeGen : `xcodegen generate` dans ce dossier.
-# Réglages et accès Pro partagés dans un groupe de trousseau (pas de groupe d'app à déclarer chez Apple).
+# Réglages et accès Pro : trousseau partagé, et groupe d'app group.com.padelup.foldboard (lu à chaque apparition du clavier).
 name: Foldboard
 options:
   bundleIdPrefix: com.padelup
@@ -50,6 +50,7 @@ targets:
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         ITSAppUsesNonExemptEncryption: false
         FoldboardKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.foldboard.shared
+        FoldboardAppGroup: group.com.padelup.foldboard
         # La dictée : le clavier ouvre l'app (foldboard://dictate), qui garde le micro pour lui en arrière-plan.
         CFBundleURLTypes:
           - CFBundleURLName: com.padelup.foldboard
@@ -99,6 +100,7 @@ targets:
         NSMicrophoneUsageDescription: "Foldboard uses the microphone only when you dictate. Your voice is transcribed on your iPhone and never sent."
         NSSpeechRecognitionUsageDescription: "Your dictation is transcribed on your iPhone. Nothing is sent or kept."
         FoldboardKeychainGroup: $(DEVELOPMENT_TEAM).com.padelup.foldboard.shared
+        FoldboardAppGroup: group.com.padelup.foldboard
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.padelup.foldboard.keyboard

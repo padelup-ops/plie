@@ -44,8 +44,13 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         canvas?.disappeared()
     }
 
+    private var settingsRelay: KBSettingsRelay?
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        let relay = KBSettingsRelay { [weak self] in self?.reload() }
+        relay.start()
+        settingsRelay = relay
         // La hauteur de la dernière fois, avant même que le clavier soit construit : pas de clavier d'iOS par
         // défaut qui grandit ensuite.
         let lastH = UserDefaults.standard.double(forKey: "foldboard.lastHeight")
@@ -107,7 +112,8 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     /// L'essai est fini : le clavier ne suit plus la main. On le dit clairement, les 3 premières fois.
     @discardableResult
     private func showTrialOver() -> Bool {
-        guard access.trialOver() else { return false }
+        // Sans lecture fiable (accès complet coupé, réinstall) on ne dit pas « essai fini » : ce serait un faux état.
+        guard KBVault.accessTrusted, access.trialOver() else { return false }
         let key = "foldboard.trialOverShown"
         let shown = UserDefaults.standard.integer(forKey: key)
         guard shown < 3 else { return false }
@@ -197,6 +203,8 @@ final class KeyboardViewController: UIInputViewController, KBInput {
                 found.trialStart = min(found.trialStart ?? t.originalPurchaseDate, t.originalPurchaseDate)
             }
         }
+        // StoreKit muet (accès complet coupé) ne doit pas effacer un achat déjà connu.
+        if !found.isPro(), access.purchased || access.trialStart != nil { return access.isPro() }
         let pro = found.isPro()
         if found.purchased != access.purchased || found.trialStart != access.trialStart {
             await MainActor.run {
@@ -230,5 +238,27 @@ final class KeyboardViewController: UIInputViewController, KBInput {
             let ok = await checkStore()
             await MainActor.run { done(ok) }
         }
+    }
+}
+
+/// Le groupe d'app a changé (l'app a bougé un interrupteur) : on relit, sans garder le clavier en mémoire en trop.
+final class KBSettingsRelay {
+    private let onFire: () -> Void
+    init(_ onFire: @escaping () -> Void) { self.onFire = onFire }
+
+    func start() {
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
+            Unmanaged.passUnretained(self).toOpaque(),
+            { _, observer, _, _, _ in
+                guard let observer else { return }
+                let relay = Unmanaged<KBSettingsRelay>.fromOpaque(observer).takeUnretainedValue()
+                DispatchQueue.main.async { relay.onFire() }
+            },
+            KBVault.settingsNote, nil, .deliverImmediately)
+    }
+
+    deinit {
+        CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(),
+            Unmanaged.passUnretained(self).toOpaque(), KBVault.settingsNote, nil)
     }
 }

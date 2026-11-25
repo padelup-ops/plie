@@ -529,8 +529,10 @@ let mixedFR: [(String, String, String)] = [
     // Et le français reste français.
     ("je vais ", "a", "à"), ("il fait ", "tres", "très"), ("on se voit ", "apres", "après"),
 ]
-if !KeyboardCanvas.simulateFoldCycles() {
-    fputs("mémoire pas stable après 30 plis\n", stderr)
+let memoryOK = KeyboardCanvas.simulateFoldCycles()
+let visibilityOK = KeyboardCanvas.verifyVisibility()
+if !memoryOK || !visibilityOK {
+    fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }
 

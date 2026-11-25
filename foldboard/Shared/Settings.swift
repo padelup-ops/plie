@@ -517,6 +517,29 @@ struct KBSettings: Codable, Equatable {
         postureTwo = []
     }
 
+    /// Les interrupteurs de la barre et des touches, tels que l'app les a posés.
+    /// Le clavier les recopie avant d'enregistrer, pour ne pas réécrire un réglage plus récent avec son ancienne copie.
+    mutating func takeVisibility(from newer: KBSettings) {
+        barButtons = newer.barButtons
+        hideKeyButton = newer.hideKeyButton
+        wandButton = newer.wandButton
+        translateKey = newer.translateKey
+        emojiKey = newer.emojiKey
+        dictationKey = newer.dictationKey
+        globeAsEmoji = newer.globeAsEmoji
+        micByReturn = newer.micByReturn
+        showHandButton = newer.showHandButton
+        showSwapButton = newer.showSwapButton
+        showCenterButton = newer.showCenterButton
+        showLayoutMenu = newer.showLayoutMenu
+        showLayoutSwitch = newer.showLayoutSwitch
+        showMoreButton = newer.showMoreButton
+        layoutSwitchOpenOnly = newer.layoutSwitchOpenOnly
+        barLayout = newer.barLayout
+        compactBar = newer.compactBar
+        learningTips = newer.learningTips
+    }
+
     /// Les réglages vraiment appliqués : sans Foldboard Pro (ni essai), on revient à l'essentiel.
     func effective(pro: Bool) -> KBSettings {
         // Comme le clavier d'Apple sur le Duo : quelques emojis dans la place libre à côté des touches
@@ -588,6 +611,38 @@ struct KBLearn: Codable, Equatable {
 
 enum KBVault {
     private static let service = "com.padelup.foldboard"
+    /// Préférences partagées (groupe d'app). Le clavier les relit à chaque apparition.
+    static let settingsNote = CFNotificationName("com.padelup.foldboard.settings" as CFString)
+
+    /// Vrai quand l'accès Pro vient du trousseau ou du groupe d'app. Faux : on n'a que le souvenir local
+    /// (accès complet coupé). On ne montre alors pas un état cassé (« essai fini », « autorisez l'accès complet »).
+    private(set) static var accessTrusted = false
+
+    private static var appGroupID: String? {
+        guard let g = Bundle.main.object(forInfoDictionaryKey: "FoldboardAppGroup") as? String,
+              g.hasPrefix("group.") else { return nil }
+        return g
+    }
+
+    private static var suite: UserDefaults? {
+        guard let id = appGroupID,
+              FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: id) != nil
+        else { return nil }
+        return UserDefaults(suiteName: id)
+    }
+
+    /// Partagé si on a pu le lire, sinon le dernier accès connu (achat ou essai). Sans les deux : pas Pro, et pas « confirmé ».
+    static func resolveAccess(shared: KBAccess?, cache: KBAccess?) -> (access: KBAccess, trusted: Bool) {
+        if let shared { return (shared, true) }
+        if let cache, cache.purchased || cache.trialStart != nil { return (cache, false) }
+        return (KBAccess(), false)
+    }
+
+    /// L'app vient d'enregistrer : les claviers encore ouverts relisent tout de suite.
+    private static func notifySharedChange() {
+        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(),
+                                             settingsNote, nil, nil, true)
+    }
 
     /// Groupe de trousseau commun à l'app et au clavier.
     private static var group: String? {
@@ -628,16 +683,10 @@ enum KBVault {
         }
     }
 
-    // Réglages : la copie la plus récente gagne (trousseau partagé ou préférences locales).
+    /// La copie la plus récente gagne : trousseau, groupe d'app, puis le souvenir dans ce processus.
     static func loadSettings() -> KBSettings {
-        let shared = read("settings").flatMap { try? JSONDecoder().decode(KBSettings.self, from: $0) }
-        let local = UserDefaults.standard.data(forKey: "foldboard.settings").flatMap { try? JSONDecoder().decode(KBSettings.self, from: $0) }
-        switch (shared, local) {
-        case let (s?, l?): return s.stamp >= l.stamp ? s : l
-        case let (s?, nil): return s
-        case let (nil, l?): return l
-        default: return KBSettings()
-        }
+        let best = newest(KBSettings.self, account: "settings", localKey: "foldboard.settings")
+        return best ?? KBSettings()
     }
 
     static func save(_ settings: KBSettings) {
@@ -645,18 +694,24 @@ enum KBVault {
         s.stamp = Date()
         guard let data = try? JSONEncoder().encode(s) else { return }
         write("settings", data)
+        suite?.set(data, forKey: "settings")
         UserDefaults.standard.set(data, forKey: "foldboard.settings")
+        notifySharedChange()
     }
 
+    /// Accès Pro : partagé si on peut le lire, sinon le dernier accès connu de ce clavier (jamais un état vide
+    /// qui ferait croire que l'achat a disparu juste parce que l'accès complet est coupé).
     static func loadAccess() -> KBAccess {
-        let shared = read("access").flatMap { try? JSONDecoder().decode(KBAccess.self, from: $0) }
-        let local = UserDefaults.standard.data(forKey: "foldboard.access").flatMap { try? JSONDecoder().decode(KBAccess.self, from: $0) }
-        switch (shared, local) {
-        case let (s?, l?): return s.stamp >= l.stamp ? s : l
-        case let (s?, nil): return s
-        case let (nil, l?): return l
-        default: return KBAccess()
+        let shared = newest(KBAccess.self, account: "access", localKey: "foldboard.access", includeLocal: false)
+        let cache = UserDefaults.standard.data(forKey: "foldboard.access.cache")
+            .flatMap { try? JSONDecoder().decode(KBAccess.self, from: $0) }
+        let resolved = resolveAccess(shared: shared, cache: cache)
+        accessTrusted = resolved.trusted
+        if resolved.trusted, let data = try? JSONEncoder().encode(resolved.access) {
+            UserDefaults.standard.set(data, forKey: "foldboard.access.cache")
+            UserDefaults.standard.set(data, forKey: "foldboard.access")
         }
+        return resolved.access
     }
 
     static func loadLearn() -> KBLearn {
@@ -743,9 +798,30 @@ enum KBVault {
         a.stamp = Date()
         guard let data = try? JSONEncoder().encode(a) else { return }
         write("access", data)
+        suite?.set(data, forKey: "access")
         UserDefaults.standard.set(data, forKey: "foldboard.access")
+        UserDefaults.standard.set(data, forKey: "foldboard.access.cache")
+        accessTrusted = true
+        notifySharedChange()
+    }
+
+    /// La plus récente des copies (trousseau, groupe d'app, et éventuellement ce processus).
+    private static func newest<T: Codable & Stampable>(_ type: T.Type, account: String, localKey: String, includeLocal: Bool = true) -> T? {
+        var found: [T] = []
+        if let s = read(account).flatMap({ try? JSONDecoder().decode(type, from: $0) }) { found.append(s) }
+        if let s = suite?.data(forKey: account).flatMap({ try? JSONDecoder().decode(type, from: $0) }) { found.append(s) }
+        if includeLocal, let s = UserDefaults.standard.data(forKey: localKey).flatMap({ try? JSONDecoder().decode(type, from: $0) }) {
+            found.append(s)
+        }
+        return found.max { $0.stamp < $1.stamp }
     }
 }
+
+private protocol Stampable {
+    var stamp: Date { get }
+}
+extension KBSettings: Stampable {}
+extension KBAccess: Stampable {}
 
 /// Les numéros de version : celle qui tourne, et s'il en existe une plus récente sur l'App Store.
 enum KBVersion {

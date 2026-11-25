@@ -907,7 +907,7 @@ final class KeyboardCanvas: UIView {
         hideButton.accessibilityLabel = L("Hide keyboard")
         hideButton.addGestureRecognizer(UILongPressGestureRecognizer(target: hold, action: #selector(KBWeakTarget.perf(_:))))
         layoutSwitch.addAction(UIAction { [weak self] _ in
-            guard let self else { return }
+            guard let self, !self.switchProgrammatic else { return }
             self.chooseOpenLayout(self.layoutSwitch.selectedSegmentIndex)
         }, for: .valueChanged)
         globeButton.setImage(UIImage(systemName: "globe"), for: .normal)
@@ -1464,6 +1464,79 @@ final class KeyboardCanvas: UIView {
         return plateau
     }
 
+    /// Chaque interrupteur de la barre, après une mise en page : le bouton correspondant est caché ou montré.
+    static func verifyVisibility() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        func layout(_ edit: (inout KBSettings) -> Void) {
+            var s = KBSettings()
+            s.layout = .azerty
+            s.mode = .right
+            s.layoutSwitchOpenOnly = false
+            edit(&s)
+            c.demoContext = "open-landscape"
+            c.frame = CGRect(x: 0, y: 0, width: 980, height: 360)
+            c.configure(settings: s, pro: true)
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+        }
+        layout {
+            $0.emojiKey = false
+            $0.barButtons = false
+            $0.dictationKey = false
+            $0.hideKeyButton = false
+            $0.showLayoutSwitch = true
+            $0.showHandButton = false
+            $0.showSwapButton = false
+            $0.showCenterButton = false
+            $0.showLayoutMenu = false
+            $0.showMoreButton = false
+        }
+        let off = c.visibilityProbe()
+        layout {
+            $0.emojiKey = true
+            $0.barButtons = true
+            $0.dictationKey = true
+            $0.hideKeyButton = true
+            $0.showLayoutSwitch = true
+            $0.showHandButton = true
+        }
+        let on = c.visibilityProbe()
+        // Deux mises en page de suite : le raccourci reste affiché (il ne dépend pas de la largeur des suggestions).
+        c.builtFor = .zero
+        c.layoutIfNeeded()
+        let still = c.visibilityProbe().layoutSwitch
+        let ok = !off.emoji && !off.adjust && !off.mode && !off.mic && !off.hide && !off.hand && off.layoutSwitch
+            && on.emoji && on.adjust && on.mode && on.mic && on.hide && on.layoutSwitch && still
+        print("RESULT visibility off emoji=\(off.emoji) adjust=\(off.adjust) mode=\(off.mode) mic=\(off.mic) hide=\(off.hide) switch=\(off.layoutSwitch) on emoji=\(on.emoji) adjust=\(on.adjust) mode=\(on.mode) mic=\(on.mic) hide=\(on.hide) switch=\(on.layoutSwitch) stable=\(still) \(ok ? "yes" : "no")")
+        let cached = KBVault.resolveAccess(shared: nil, cache: {
+            var a = KBAccess()
+            a.purchased = true
+            return a
+        }())
+        let fresh = KBVault.resolveAccess(shared: {
+            var a = KBAccess()
+            a.purchased = true
+            return a
+        }(), cache: nil)
+        let proOK = cached.access.purchased && !cached.trusted && fresh.access.purchased && fresh.trusted
+        print("RESULT access cache=\(cached.access.purchased) trusted=\(cached.trusted) fresh=\(fresh.trusted) \(proOK ? "yes" : "no")")
+        return ok && proOK
+    }
+
+    func visibilityProbe() -> (emoji: Bool, adjust: Bool, mode: Bool, mic: Bool, hide: Bool, hand: Bool, layoutSwitch: Bool) {
+        (emojiButton.isHidden == false && emojiButton.frame.width > 1,
+         adjustButton.isHidden == false && adjustButton.frame.width > 1,
+         modeButton.isHidden == false && modeButton.frame.width > 1,
+         micButton.isHidden == false && micButton.frame.width > 1,
+         hideButton.isHidden == false && hideButton.frame.width > 1,
+         modeButton.isHidden == false && modeButton.frame.width > 1,
+         layoutSwitch.isHidden == false && layoutSwitch.frame.width > 1)
+    }
+
     /// Filet de sécurité : si le clavier approche la limite d'iOS, il libère ce qu'il peut avant qu'iOS ne le ferme.
     private var memChecks = 0
     private func checkMemory(force: Bool = false) {
@@ -1600,8 +1673,22 @@ final class KeyboardCanvas: UIView {
     }
 
     private func save() {
+        // L'app a peut-être changé un interrupteur pendant que cette copie était en mémoire.
+        let stored = KBVault.loadSettings()
+        if stored.stamp > settings.stamp {
+            settings.takeVisibility(from: stored)
+        }
         input?.kbSettingsChanged(settings)
         configure(settings: settings, pro: pro)
+    }
+
+    /// Relit les réglages partagés (groupe d'app, trousseau) et les applique sans reconstruire le clavier.
+    func reloadShared(pro: Bool) {
+        let stored = KBVault.loadSettings()
+        guard stored != settings || pro != self.pro else { return }
+        configure(settings: stored, pro: pro)
+        setNeedsLayout()
+        layoutIfNeeded()
     }
 
     /// La disposition de cet écran (réglée par écran, sinon la générale), avec les limites de la version gratuite.
@@ -1627,9 +1714,9 @@ final class KeyboardCanvas: UIView {
                 if ok {
                     self.pro = true
                     self.setMode(m)
-                } else if !input.kbFullAccess {
+                } else if !input.kbFullAccess, KBVault.accessTrusted {
                     self.flash(L("Allow Full Access to use Foldboard Pro"))
-                } else {
+                } else if KBVault.accessTrusted {
                     self.flash(L("Foldboard Pro: open the app to unlock"))
                 }
             }
@@ -2592,6 +2679,8 @@ final class KeyboardCanvas: UIView {
             moreButton.isHidden = true
             moreButton.frame.size.width = 0
         }
+        // Dernier mot : un interrupteur coupé ne peut pas être rallumé par la mise en page.
+        enforceVisibility()
         placeLayoutSwitch(barHeight: h)
         dictLabel.frame = chips.frame
         dictLabel.textColor = theme.text
@@ -2757,28 +2846,52 @@ final class KeyboardCanvas: UIView {
         chips.contentSize = CGSize(width: size.width, height: h)
     }
 
-    /// Le raccourci des trois dispositions. Le contrôle existe déjà : ici on ne change que sa place et l'état coché.
+    /// Poser l'index sans que le contrôle croie que c'est un doigt (sinon il change la disposition tout seul).
+    private var switchProgrammatic = false
+
+    /// Le raccourci des trois dispositions. Visible dès que le réglage le dit : sa place ne dépend pas
+    /// de la largeur des suggestions (avant, il disparaissait dès que la barre se serrait, puis revenait).
     private func placeLayoutSwitch(barHeight h: CGFloat) {
         let open = gripContext.hasPrefix("open")
-        let allowed = settings.showLayoutSwitch && (!eff.layoutSwitchOpenOnly || open)
-        let show = allowed && !showEmoji && chips.frame.width >= 158
+        let show = settings.showLayoutSwitch && (!eff.layoutSwitchOpenOnly || open) && !showEmoji
         layoutSwitch.isHidden = !show
         guard show else { return }
-        let w: CGFloat = 150
+        let w = min(150, max(120, bounds.width - 16))
         let y = (h - 28) / 2
-        if suggestionItems.isEmpty && emojiQuery == nil {
-            layoutSwitch.frame = CGRect(x: chips.frame.midX - w / 2, y: y, width: w, height: 28)
-        } else {
+        if chips.frame.width >= w + 8 {
             layoutSwitch.frame = CGRect(x: chips.frame.maxX - w, y: y, width: w, height: 28)
             chips.frame.size.width = max(0, chips.frame.width - w - 6)
+        } else {
+            layoutSwitch.frame = CGRect(x: max(8, bounds.midX - w / 2), y: y, width: w, height: 28)
         }
         if layoutSwitch.selectedSegmentIndex != openLayoutChoice {
+            switchProgrammatic = true
             layoutSwitch.selectedSegmentIndex = openLayoutChoice
+            switchProgrammatic = false
         }
         layoutSwitch.selectedSegmentTintColor = theme.accent.withAlphaComponent(0.85)
         layoutSwitch.backgroundColor = theme.key.withAlphaComponent(0.55)
         layoutSwitch.accessibilityLabel = L("Keyboard position")
         topBar.bringSubviewToFront(layoutSwitch)
+    }
+
+    /// Un réglage coupé reste coupé, même si une branche de la mise en page a réaffiché le bouton.
+    private func enforceVisibility() {
+        func hide(_ b: UIButton) {
+            b.isHidden = true
+            b.frame.size.width = 0
+        }
+        if !eff.emojiKey { hide(emojiButton) }
+        if !eff.barButtons { hide(adjustButton); hide(modeButton) }
+        if !settings.showHandButton { hide(modeButton) }
+        if !settings.showSwapButton { hide(flipButton) }
+        if !settings.showCenterButton { hide(middleButton) }
+        if !settings.showLayoutMenu { hide(bigButton) }
+        if !settings.showMoreButton { hide(moreButton) }
+        if !eff.dictationKey { hide(micButton) }
+        if !eff.hideKeyButton && !eff.barButtons { hide(hideButton) }
+        if (input?.kbNeedsGlobe ?? false) == false { hide(globeButton) }
+        if !settings.showLayoutSwitch { layoutSwitch.isHidden = true }
     }
 
     private func modeMenu() -> UIMenu {
