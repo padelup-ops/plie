@@ -1,0 +1,65 @@
+# VICEFOLD : lien Conditions d'utilisation (EULA) sur chaque langue, puis renvoi en vérification.
+# Déclenché par un push (workflow_dispatch renvoie 403). Ne concerne que Vicefold.
+
+name: Vicefold - EULA
+
+on:
+  push:
+    branches:
+      - main
+      - cursor/vicefold-eula-5b1e
+    paths:
+      - "vicefold/tools/eula.py"
+      - ".github/workflows/vicefold-eula.yml"
+      - "tools/meta/vicefold.json"
+
+concurrency:
+  group: vicefold-eula
+  cancel-in-progress: false
+
+jobs:
+  eula:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Descriptions, confidentialité, renvoi
+        run: |
+          set -o pipefail
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 vicefold/tools/eula.py 2>&1 | tee eula.txt
+      - name: Retirer toute clé du rapport
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os, re, pathlib
+          p = pathlib.Path("eula.txt")
+          text = p.read_text(errors="replace") if p.exists() else ""
+          for key in ("ASC_PRIVATE_KEY", "ASC_KEY_ID", "ASC_ISSUER_ID"):
+              val = os.environ.get(key) or ""
+              if val:
+                  text = text.replace(val, "[redacted]")
+          text = re.sub(r"-----BEGIN [^-]+-----.*?-----END [^-]+-----", "[redacted]", text, flags=re.S)
+          text = re.sub(r"(?i)(vendorNumber|vendor_number)(\"?\s*[:=]\s*\"?)(\d+)", r"\1\2[redacted]", text)
+          p.write_text(text)
+          if "PRIVATE KEY" in text:
+              raise SystemExit("clé encore dans le rapport")
+          PY
+      - name: Publier le rapport
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/r" && cp eula.txt "$RUNNER_TEMP/r/" 2>/dev/null || echo "pas de rapport" > "$RUNNER_TEMP/r/eula.txt"
+          cd "$RUNNER_TEMP/r"
+          git init -q -b ci-vicefold-eula
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Rapport EULA Vicefold"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-vicefold-eula
