@@ -55,6 +55,8 @@
 "Layout" = "Layout";
 "Position" = "Position";
 "Follows your hand" = "Follows your hand";
+"Layout switcher only when the Duo is open" = "Layout switcher only when the Duo is open";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on." = "Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on.";
 "One hand, left" = "One hand, left";
 "One hand, right" = "One hand, right";
 "Full width" = "Full width";

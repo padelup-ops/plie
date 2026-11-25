@@ -132,6 +132,8 @@ struct KBSettings: Codable, Equatable {
     var keyHeightOpen: Double = 0
     /// Les boutons position, réglages et masquer dans la barre du haut (on peut les cacher).
     var barButtons = true
+    /// Le raccourci des trois dispositions (suit la main, toute la largeur, coupé) seulement Duo ouvert.
+    var layoutSwitchOpenOnly = true
     /// Les quatre coins du clavier arrondis (Spotlight et les apps où il flotte), pas seulement ceux du haut.
     var roundAllCorners = false
     /// Toucher la place libre à côté du clavier (une main) le met de ce côté.
@@ -300,6 +302,7 @@ struct KBSettings: Codable, Equatable {
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
+        layoutSwitchOpenOnly = (try? c.decodeIfPresent(Bool.self, forKey: .layoutSwitchOpenOnly)) ?? d.layoutSwitchOpenOnly
         roundAllCorners = (try? c.decodeIfPresent(Bool.self, forKey: .roundAllCorners)) ?? d.roundAllCorners
         tapSideToMove = (try? c.decodeIfPresent(Bool.self, forKey: .tapSideToMove)) ?? d.tapSideToMove
         knockToMove = (try? c.decodeIfPresent(Bool.self, forKey: .knockToMove)) ?? d.knockToMove

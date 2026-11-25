@@ -54,6 +54,8 @@
 "Layout" = "配列";
 "Position" = "位置";
 "Follows your hand" = "手に追従";
+"Layout switcher only when the Duo is open" = "レイアウト切替はDuoを開いたときだけ";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on." = "Duoの各画面でのキーボードの置き方を選びます。キーボードの位置ボタンからの選択はその画面だけに適用されます。この設定がオンのとき、3つのボタン（手についてくる、全幅、分割）はDuoを閉じている間は表示されません。";
 "One hand, left" = "片手（左）";
 "One hand, right" = "片手（右）";
 "Full width" = "全幅";

@@ -82,6 +82,7 @@ struct SettingsEntry: Identifiable {
         e("Space bar row height", "barre d'espace espace rangée du bas hauteur space bar bottom row height", .position),
         e("Reset size to default", "réinitialiser rétablir taille origine reset default size", .position),
         e("Position and settings buttons", "barre du haut boutons top bar buttons cacher hide", .position),
+        e("Layout switcher only when the Duo is open", "disposition switcher suit la main largeur coupé split full width folded open", .position),
         e("Hide keyboard button", "masquer fermer clavier hide dismiss keyboard button", .position),
         e("Learning messages", "messages apprentissage noté learning tips", .position),
         e("Auto-correction", "correction autocorrect fautes typos corriger", .typing),

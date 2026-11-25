@@ -102,6 +102,17 @@ final class KeyboardCanvas: UIView {
     private let middleButton = UIButton(type: .system)
     /// Écran intérieur, petit clavier : un bouton pour passer en grand (et revenir).
     private let bigButton = UIButton(type: .system)
+    /// Les trois dispositions (suit la main, toute la largeur, coupé en deux). Créé une fois : on ne fait que
+    /// le montrer ou le cacher, jamais un nouveau contrôle à chaque apparition.
+    private let layoutSwitch: UISegmentedControl = {
+        let images = ["hand.raised.fingers.spread", "keyboard", "rectangle.split.2x1"].map {
+            UIImage(systemName: $0, withConfiguration: UIImage.SymbolConfiguration(pointSize: 13, weight: .semibold)) ?? UIImage()
+        }
+        let s = UISegmentedControl(items: images)
+        s.selectedSegmentIndex = 0
+        s.apportionsSegmentWidthsByContent = false
+        return s
+    }()
     private let hideButton = UIButton(type: .system)
     /// Petit clavier : le globe et les emojis sont ici, pour laisser la place à l'espace.
     private let globeButton = UIButton(type: .system)
@@ -2217,6 +2228,11 @@ final class KeyboardCanvas: UIView {
         // Comme le clavier d'Apple sur le Duo ouvert : « … » ouvre un menu avec les deux dispositions, cochée.
         bigButton.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         bigButton.accessibilityLabel = L("Keyboard position on this screen")
+        layoutSwitch.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            self.chooseOpenLayout(self.layoutSwitch.selectedSegmentIndex)
+        }, for: .valueChanged)
+        topBar.addSubview(layoutSwitch)
         bigButton.showsMenuAsPrimaryAction = true
         bigButton.menu = openLayoutMenu()
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
@@ -2384,6 +2400,7 @@ final class KeyboardCanvas: UIView {
                 chips.frame = CGRect(x: x + (leftGroup.isEmpty ? 0 : 4), y: 0, width: max(0, r - x - (leftGroup.isEmpty ? 4 : 8)), height: h)
             }
         }
+        placeLayoutSwitch(barHeight: h)
         dictLabel.frame = chips.frame
         dictLabel.textColor = theme.text
         dictLabel.backgroundColor = theme.background
@@ -2546,6 +2563,30 @@ final class KeyboardCanvas: UIView {
         let size = chipStack.systemLayoutSizeFitting(CGSize(width: UIView.layoutFittingCompressedSize.width, height: 30))
         chipStack.frame = CGRect(x: 0, y: (h - 30) / 2, width: size.width, height: 30)
         chips.contentSize = CGSize(width: size.width, height: h)
+    }
+
+    /// Le raccourci des trois dispositions. Le contrôle existe déjà : ici on ne change que sa place et l'état coché.
+    private func placeLayoutSwitch(barHeight h: CGFloat) {
+        let open = gripContext.hasPrefix("open")
+        let allowed = !eff.layoutSwitchOpenOnly || open
+        let show = allowed && !showEmoji && chips.frame.width >= 158
+        layoutSwitch.isHidden = !show
+        guard show else { return }
+        let w: CGFloat = 150
+        let y = (h - 28) / 2
+        if suggestionItems.isEmpty && emojiQuery == nil {
+            layoutSwitch.frame = CGRect(x: chips.frame.midX - w / 2, y: y, width: w, height: 28)
+        } else {
+            layoutSwitch.frame = CGRect(x: chips.frame.maxX - w, y: y, width: w, height: 28)
+            chips.frame.size.width = max(0, chips.frame.width - w - 6)
+        }
+        if layoutSwitch.selectedSegmentIndex != openLayoutChoice {
+            layoutSwitch.selectedSegmentIndex = openLayoutChoice
+        }
+        layoutSwitch.selectedSegmentTintColor = theme.accent.withAlphaComponent(0.85)
+        layoutSwitch.backgroundColor = theme.key.withAlphaComponent(0.55)
+        layoutSwitch.accessibilityLabel = L("Keyboard position")
+        topBar.bringSubviewToFront(layoutSwitch)
     }
 
     private func modeMenu() -> UIMenu {

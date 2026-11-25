@@ -54,6 +54,8 @@
 "Layout" = "자판 배열";
 "Position" = "위치";
 "Follows your hand" = "손 따라가기";
+"Layout switcher only when the Duo is open" = "레이아웃 전환은 Duo를 펼쳤을 때만";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on." = "Duo의 각 화면에서 키보드가 놓이는 방식을 고릅니다. 키보드의 위치 버튼에서 고르면 그 화면에만 적용됩니다. 이 옵션이 켜져 있으면 세 버튼(손을 따라옴, 전체 너비, 분할)은 Duo를 접었을 때 숨겨집니다.";
 "One hand, left" = "한 손, 왼쪽";
 "One hand, right" = "한 손, 오른쪽";
 "Full width" = "전체 너비";

@@ -341,10 +341,11 @@ struct PositionView: View {
                         ForEach(KBMode.allCases) { mode in Text(modeTitle(mode)).tag(KBMode?.some(mode)) }
                     }
                 }
+                Toggle("Layout switcher only when the Duo is open", isOn: $m.settings.layoutSwitchOpenOnly)
             } header: {
                 Text("For each screen")
             } footer: {
-                Text("Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only.")
+                Text("Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on.")
             }
 
             if m.settings.mode == .auto {

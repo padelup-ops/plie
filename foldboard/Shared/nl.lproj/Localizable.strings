@@ -54,6 +54,8 @@
 "Layout" = "Indeling";
 "Position" = "Positie";
 "Follows your hand" = "Volgt je hand";
+"Layout switcher only when the Duo is open" = "Indelingsschakelaar alleen als de Duo open is";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on." = "Kies hoe het toetsenbord op elk scherm van je Duo staat. Een keuze via de positieknop geldt alleen voor dat scherm. De drie knoppen (volgt je hand, volle breedte, gesplitst) blijven verborgen als de Duo dicht is en deze optie aan staat.";
 "One hand, left" = "Eén hand, links";
 "One hand, right" = "Eén hand, rechts";
 "Full width" = "Volle breedte";

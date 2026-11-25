@@ -54,6 +54,8 @@
 "Layout" = "Раскладка";
 "Position" = "Положение";
 "Follows your hand" = "Следует за рукой";
+"Layout switcher only when the Duo is open" = "Переключатель раскладки только на открытом Duo";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on." = "Выберите, как клавиатура стоит на каждом экране Duo. Выбор кнопкой положения действует только для этого экрана. Три кнопки (следует за рукой, на всю ширину, разделённая) скрыты, когда Duo сложен и этот параметр включён.";
 "One hand, left" = "Одна рука, слева";
 "One hand, right" = "Одна рука, справа";
 "Full width" = "Полная ширина";

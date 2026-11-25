@@ -54,6 +54,8 @@
 "Layout" = "Layout";
 "Position" = "Position";
 "Follows your hand" = "Folgt deiner Hand";
+"Layout switcher only when the Duo is open" = "Layout-Schalter nur bei geöffnetem Duo";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on." = "Wähle, wie die Tastatur auf jedem Bildschirm deines Duo sitzt. Eine Wahl über die Positionstaste gilt nur für diesen Bildschirm. Die drei Tasten (folgt der Hand, volle Breite, geteilt) bleiben bei zugeklapptem Duo verborgen, wenn dies an ist.";
 "One hand, left" = "Einhändig, links";
 "One hand, right" = "Einhändig, rechts";
 "Full width" = "Volle Breite";

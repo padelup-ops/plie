@@ -54,6 +54,8 @@
 "Layout" = "布局";
 "Position" = "位置";
 "Follows your hand" = "跟随你的手";
+"Layout switcher only when the Duo is open" = "仅在 Duo 展开时显示布局切换";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on." = "选择键盘在 Duo 每个屏幕上的位置。从键盘的位置按钮选择只作用于当前屏幕。开启后，三个按钮（跟随你的手、全宽、分体）在 Duo 合上时会隐藏。";
 "One hand, left" = "单手，左";
 "One hand, right" = "单手，右";
 "Full width" = "全宽";
