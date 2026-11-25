@@ -78,7 +78,12 @@ final class MagicStore {
     func buyMessages() async { await buy(messagesProduct, id: Self.messagesID) }
 
     private func buy(_ loaded: Product?, id: String) async {
-        let product = loaded ?? (try? await Product.products(for: [id]))?.first
+        let product: Product?
+        if let loaded {
+            product = loaded
+        } else {
+            product = try? await Product.products(for: [id]).first
+        }
         guard let product else { message = "The App Store can't be reached. Try again in a moment."; return }
         if product.id == Self.passID { passProduct = product }
         if product.id == Self.messagesID { messagesProduct = product }
@@ -314,7 +319,7 @@ struct ParentalGate: View {
 enum ReviewPrompt {
     private static let key = "allonoel.reviewAsked"
     /// Une seule fois, après un appel complet (pas l'aperçu).
-    static func ask() {
+    @MainActor static func ask() {
         guard ShotMode.route == nil, !UserDefaults.standard.bool(forKey: key) else { return }
         UserDefaults.standard.set(true, forKey: key)
         guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }

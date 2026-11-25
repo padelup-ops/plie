@@ -152,7 +152,7 @@ final class SantaVoice {
         }
     }
 
-    nonisolated private static func convert(_ src: AVAudioPCMBuffer, to dst: AVAudioFormat) -> AVAudioPCMBuffer? {
+    nonisolated fileprivate static func convert(_ src: AVAudioPCMBuffer, to dst: AVAudioFormat) -> AVAudioPCMBuffer? {
         if src.format == dst, let copy = AVAudioPCMBuffer(pcmFormat: dst, frameCapacity: src.frameLength) {
             copy.frameLength = src.frameLength
             for c in 0..<Int(dst.channelCount) {
