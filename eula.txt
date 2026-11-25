@@ -1,0 +1,52 @@
+app Guide for GTA VI: Leonida
+version 1.0 WAITING_FOR_REVIEW
+cible 1.0 WAITING_FOR_REVIEW
+LOCALE de-DE description déjà
+LOCALE en-US description déjà
+LOCALE es-ES description déjà
+LOCALE es-MX description déjà
+LOCALE fr-FR description déjà
+LOCALE it description déjà
+LOCALE pt-BR description déjà
+VERIF de-DE oui caractères 3080
+VERIF en-US oui caractères 2739
+VERIF es-ES oui caractères 3007
+VERIF es-MX oui caractères 3007
+VERIF fr-FR oui caractères 3025
+VERIF it oui caractères 2971
+VERIF pt-BR oui caractères 2924
+retrait demandé WAITING_FOR_REVIEW
+retrait CANCELING
+retrait CANCELING
+retrait terminé
+lecture impossible 404 PATH_ERROR: The relationship 'availableTerritories' does not exist
+EULA territoires 175
+EULA créée
+EULA vérifiée oui caractères 155
+VERIF de-DE oui
+VERIF en-US oui
+VERIF es-ES oui
+VERIF es-MX oui
+VERIF fr-FR oui
+VERIF it oui
+VERIF pt-BR oui
+état après retrait 1.0 DEVELOPER_REJECTED eula oui langues 7
+demande COMPLETE
+demande COMPLETE
+demande COMPLETE
+demande créée READY_FOR_REVIEW
+version ajoutée à la demande
+READBACK version 1.0 WAITING_FOR_REVIEW
+READBACK submission WAITING_FOR_REVIEW
+RESOLUTION_CENTER non 404
+REPLY
+Hello,
+
+The functional Terms of Use (EULA) link has been added to the App Description of every localization:
+
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+
+The Vicefold Pro paywall already includes links to the Terms of Use and the Privacy Policy.
+
+Thank you.
+SUMMARY locales=7 verified=7 version=1.0 versionState=WAITING_FOR_REVIEW submissionState=WAITING_FOR_REVIEW resolutionCenter=no
