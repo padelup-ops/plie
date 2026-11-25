@@ -1,0 +1,33 @@
+# Temporary. Two daily Sales summaries, ciphertext only.
+name: ASC nightly sealed
+on:
+  push:
+    branches:
+      - cursor/asc-nightly-sealed-8bce
+    paths-ignore:
+      - vendor.sealed
+      - runner.pub
+jobs:
+  seal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m pip install --quiet pyjwt cryptography
+      - name: Pull and seal
+        env:
+          PYTHONUNBUFFERED: "1"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: python3 tools/asc_nightly_sealed.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: earnings-sealed
+          path: earnings.sealed
+          retention-days: 1
+          if-no-files-found: error
