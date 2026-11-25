@@ -231,7 +231,8 @@ private struct TabColumn: View {
     @Environment(Browser.self) private var browser
     let onRight: Bool
     @State private var scrub: Int?
-    private var item: CGFloat { Library.shared.railIconSize.tab }
+    /// Side of one tab cell. Named apart from the `item` parameter, which is a tab or an app.
+    private var slot: CGFloat { Library.shared.railIconSize.tab }
 
     private enum Item: Identifiable {
         case app(URL), tab(Tab)
@@ -259,8 +260,8 @@ private struct TabColumn: View {
                 .scrollIndicators(.hidden)
                 .scrollTargetBehavior(.viewAligned)
                 // As tall as its items, up to six and a half, and less when the screen is short.
-                .frame(width: item + 4)
-                .frame(minHeight: item + 8, maxHeight: min(CGFloat(max(items.count, 1)) * (item + 4) + 8, 6.5 * (item + 4)))
+                .frame(width: slot + 4)
+                .frame(minHeight: slot + 8, maxHeight: min(CGFloat(max(items.count, 1)) * (slot + 4) + 8, 6.5 * (slot + 4)))
                 .fixedSize(horizontal: true, vertical: false)
                 .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.06),
                                              .init(color: .black, location: 0.94), .init(color: .clear, location: 1)],
@@ -363,7 +364,7 @@ private struct TabColumn: View {
     @ViewBuilder
     private func cell(_ item: Item, current: String?) -> some View {
         Button { open(item) } label: {
-            icon(item, size: 30)
+            icon(item, size: slot * 0.75)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
                         .strokeBorder(item.id == current ? Brand.accent : .clear, lineWidth: 2).padding(-3)
@@ -374,7 +375,7 @@ private struct TabColumn: View {
                             .padding(2).background(Brand.coral, in: Circle()).offset(x: 4, y: 4)
                     }
                 }
-                .frame(width: item, height: item)
+                .frame(width: slot, height: slot)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(title(item)))

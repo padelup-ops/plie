@@ -67,7 +67,6 @@ final class Downloads: NSObject {
     /// The system calls this when a background download needs the app. It can arrive before or after the session
     /// says its events are finished; either order still tells iOS we are done.
     @ObservationIgnored private var backgroundEventsFinished = false
-    var backgroundCompletion: (() -> Void)?
 
     func setBackgroundCompletion(_ completion: @escaping () -> Void) {
         backgroundCompletion = completion
