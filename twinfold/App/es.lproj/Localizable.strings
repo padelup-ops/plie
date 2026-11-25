@@ -390,3 +390,4 @@
 "Whole Display" = "Toda la pantalla";
 "Full screen fills the video's own page. The other page stays where it is" = "La pantalla completa llena la página del vídeo. La otra página se queda.";
 "Full screen fills the page the video is on. That page's bars step aside; the other page stays visible and usable. Whole Display covers both screens. Open the page again after changing this. Downloads keep going after you leave Twinfold, even if iOS closes the app." = "La pantalla completa llena la página del vídeo. Las barras de esa página se apartan; la otra página sigue visible y se puede usar. Toda la pantalla cubre las dos pantallas. Vuelve a abrir la página después de cambiar esto. Las descargas siguen cuando sales de Twinfold, aunque iOS cierre la app.";
+"Full screen stays in the page. The system video player is not used" = "La pantalla completa se queda en la página. No se usa el reproductor del sistema.";

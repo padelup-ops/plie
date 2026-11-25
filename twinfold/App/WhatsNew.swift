@@ -13,6 +13,9 @@ struct Release: Identifiable {
 enum WhatsNew {
     /// Newest first. Each item: an SF Symbol and a short line.
     static let releases: [Release] = [
+        Release(version: "1.1.2", items: [
+            ("play.rectangle", "Full screen stays in the page. The system video player is not used"),
+        ]),
         Release(version: "1.1.1", items: [
             ("play.rectangle", "Full screen fills the video's own page. The other page stays where it is"),
         ]),

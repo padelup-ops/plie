@@ -116,9 +116,8 @@ final class Tab: NSObject, Identifiable {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = isPrivate ? .nonPersistent() : Library.dataStore(for: profile)
         config.allowsInlineMediaPlayback = true
-        // A video starts only after a tap (the dual-play screenshot is the exception). Inline is allowed, so two
-        // panes can play at once. Page-only full screen is done by the page script; Whole Display uses WebKit's
-        // own element full screen, which is presented over the window.
+        // A video starts only after a tap (the dual-play screenshot is the exception) and plays inside the page.
+        // Page seule turns element fullscreen off; the injected script draws fullscreen in the page instead of AVPlayer.
         config.mediaTypesRequiringUserActionForPlayback = ShotMode.current == "dualplay" ? [] : .all
         config.allowsPictureInPictureMediaPlayback = true
         config.preferences.isFraudulentWebsiteWarningEnabled = true
