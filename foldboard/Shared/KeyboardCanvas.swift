@@ -1114,6 +1114,12 @@ final class KeyboardCanvas: UIView {
     /// La charnière à moitié ouverte (mode « portable »).
     private var hingeHalf = false
     private var hingeWatched = false
+    /// Tant que l'angle de la charnière bouge, on ne replace pas les touches (sinon les rangées glissent).
+    private var hingeSettling = false
+    private var hingeTicket = 0
+    private var hingeApplies = 0
+    private var pendingHingeClosed: Bool?
+    private var pendingHingeHalf = false
 
     /// La taille de l'écran réellement utilisé (dans le bon sens : portrait ou paysage).
     private var screenSize: CGSize {
@@ -1141,17 +1147,45 @@ final class KeyboardCanvas: UIView {
         if #available(iOS 27.1, *) {
             addInteraction(UIHingeInteraction { [weak self] _, update in
                 guard let self else { return }
+                let closed: Bool?
                 switch update.hinge?.status {
-                case .closed?: self.hingeClosed = true
-                case .partiallyOpen?, .fullyOpen?: self.hingeClosed = false
-                default: self.hingeClosed = nil
+                case .closed?: closed = true
+                case .partiallyOpen?, .fullyOpen?: closed = false
+                default: closed = nil
                 }
-                self.hingeHalf = update.hinge?.status == .partiallyOpen
-                self.learnScreen()
-                self.updateGripContext()
-                self.builtFor = .zero
-                self.setNeedsLayout()
+                self.scheduleHinge(closed: closed, half: update.hinge?.status == .partiallyOpen)
             })
+        }
+    }
+
+    /// Plusieurs messages arrivent pendant que le téléphone se plie. On n'applique que le dernier,
+    /// une fois l'angle stabilisé, et les touches prennent leur place d'un coup.
+    private func scheduleHinge(closed: Bool?, half: Bool) {
+        hingeSettling = true
+        pendingHingeClosed = closed
+        pendingHingeHalf = half
+        hingeTicket += 1
+        let ticket = hingeTicket
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) { [weak self] in
+            guard let self, ticket == self.hingeTicket else { return }
+            self.applyScheduledHinge()
+        }
+    }
+
+    private func applyScheduledHinge() {
+        hingeClosed = pendingHingeClosed
+        hingeHalf = pendingHingeHalf
+        hingeSettling = false
+        hingeApplies += 1
+        learnScreen()
+        updateGripContext()
+        builtFor = .zero
+        UIView.performWithoutAnimation {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            setNeedsLayout()
+            layoutIfNeeded()
+            CATransaction.commit()
         }
     }
 
@@ -2023,10 +2057,17 @@ final class KeyboardCanvas: UIView {
         }
         roundForHost()
         guard bounds.size != builtFor, bounds.width > 50 else { return }
+        // La charnière envoie plusieurs tailles pendant le pliage. On attend la dernière.
+        guard !hingeSettling else { return }
         builtFor = bounds.size
-        updateGripContext()
-        syncSensors()
-        rebuild()
+        UIView.performWithoutAnimation {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            updateGripContext()
+            syncSensors()
+            rebuild()
+            CATransaction.commit()
+        }
     }
 
     private var isRight: Bool {
@@ -2279,6 +2320,15 @@ final class KeyboardCanvas: UIView {
             tr.longTimer?.invalidate()
             tr.repeatTimer?.invalidate()
         }
+        UIView.performWithoutAnimation {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            rebuildKeys(oldBlocks: oldBlocks)
+            CATransaction.commit()
+        }
+    }
+
+    private func rebuildKeys(oldBlocks: [CGRect]) {
         // Thème automatique : le fond du clavier de l'iPhone se voit partout, jusqu'aux bords de l'écran.
         // Pas tout à fait transparent : dans les autres apps, iOS ne transmet pas au clavier les appuis tombés sur
         // une zone transparente (entre les touches), et des lettres se perdaient.
@@ -2414,6 +2464,9 @@ final class KeyboardCanvas: UIView {
     /// Le clavier change de côté, revient au milieu ou passe en grand : chaque touche glisse de son ancienne place
     /// à la nouvelle (pas de saut).
     private func slide(from old: [CGRect]) {
+        // Mode portable ou charnière en mouvement : pas de glissement. Les touches prennent leur place finale
+        // d'un coup, sinon les rangées se croisent pendant le pliage.
+        guard !hingeSettling, !hingeHalf else { return }
         guard visible, !adjusting, window != nil, old.count == 1, blocks.count == 1,
               abs(old[0].height - blocks[0].height) < 2 else { return }
         let o = old[0], n = blocks[0]
@@ -2467,7 +2520,12 @@ final class KeyboardCanvas: UIView {
                 default: special = true
                 }
                 let v = claimKey(spec: k, special: special)
+                v.transform = .identity
+                v.layer.removeAllAnimations()
+                CATransaction.begin()
+                CATransaction.setDisableActions(true)
                 v.frame = f
+                CATransaction.commit()
                 let hit = CGRect(x: x, y: y - vgap / 2, width: w, height: rowH + vgap)
                 rowCells.append(Cell(view: v, frame: f, hit: hit))
                 x += w
@@ -4721,6 +4779,54 @@ final class KeyboardCanvas: UIView {
         let delivered = deliver(url, from: start) && probe.url == url
         let ok = noSystemMenu && open && split && closed && switched && delivered
         print("RESULT barsheet menu=\(noSystemMenu) open=\(open) split=\(split) closed=\(closed) switch=\(switched) url=\(delivered) \(ok ? "yes" : "no")")
+        return ok
+    }
+
+    /// Passage en mode portable : les touches ne glissent pas, les rangées restent alignées,
+    /// et plusieurs angles de charnière ne font qu'une seule mise en page.
+    static func verifyLaptopLayout() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 500))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.frame = CGRect(x: 0, y: 0, width: 980, height: 260)
+        var s = KBSettings()
+        s.layout = .azerty
+        s.mode = .split
+        c.demoContext = "open-landscape"
+        c.configure(settings: s, pro: true)
+        c.hingeHalf = false
+        c.hingeSettling = false
+        c.builtFor = .zero
+        c.layoutIfNeeded()
+        var dirty = false
+        UIView.animate(withDuration: 0.45) {
+            c.frame = CGRect(x: 0, y: 0, width: 980, height: 420)
+            c.hingeHalf = true
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+            for cell in c.cells {
+                if cell.view.transform != .identity { dirty = true }
+                if !(cell.view.layer.animationKeys() ?? []).isEmpty { dirty = true }
+            }
+        }
+        var rows: [CGFloat: Int] = [:]
+        for cell in c.cells {
+            let y = cell.frame.minY.rounded()
+            rows[y, default: 0] += 1
+        }
+        let aligned = rows.values.contains { $0 >= 4 }
+        let before = c.hingeApplies
+        for i in 0..<8 { c.scheduleHinge(closed: false, half: i % 2 == 0) }
+        let held = c.hingeApplies == before && c.hingeSettling
+        c.hingeTicket += 1
+        c.pendingHingeHalf = true
+        c.pendingHingeClosed = false
+        c.applyScheduledHinge()
+        let once = c.hingeApplies == before + 1 && c.hingeHalf
+        let ok = !dirty && aligned && held && once
+        print("RESULT laptop anim=\(!dirty) aligned=\(aligned) held=\(held) once=\(once) \(ok ? "yes" : "no")")
         return ok
     }
 
