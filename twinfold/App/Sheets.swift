@@ -367,11 +367,22 @@ struct SettingsSheet: View {
                 } header: {
                     Text("Links")
                 }
-                Section {
+                Section("Browsing") {
                     NavigationLink { GestureSettings() } label: {
                         LabeledContent("Gestures", value: lib.twoFingerGestures ? String(localized: "On") : String(localized: "Off"))
                     }
-                    NavigationLink("What's New") { WhatsNewList() }
+                    NavigationLink("Bars and Rail") { LayoutSettings() }
+                    NavigationLink {
+                        PaletteSettings()
+                    } label: {
+                        LabeledContent("Action Palette", value: lib.palette ? String(localized: "On") : String(localized: "Off"))
+                    }
+                    NavigationLink("App Icon") { IconSettings() }
+                    NavigationLink {
+                        DownloadsList()
+                    } label: {
+                        Label { Text("Downloads") } icon: { Image(systemName: "arrow.down.circle").foregroundStyle(Brand.accent) }
+                    }
                 }
                 Section {
                     Toggle("Dark Pages", isOn: $lib.darkPages)
@@ -395,57 +406,23 @@ struct SettingsSheet: View {
                     Text("Start Page")
                 }
                 Section {
-                    Button("Show the Tutorial Again") { browser.sheet = .tutorial }
-                }
-                Section {
-                    Picker("Bar", selection: $lib.barAtTop) {
-                        Text("Bottom of the Page").tag(false)
-                        Text("Top of the Page").tag(true)
+                    Toggle("Video Above When Half Folded", isOn: $lib.laptopPosture)
+                    Picker("Full Screen", selection: $lib.fullscreenPage) {
+                        Text("This Page Only").tag(true)
+                        Text("Whole Display").tag(false)
                     }
-                    NavigationLink {
-                        PaletteSettings()
-                    } label: {
-                        LabeledContent { Text(lib.palette ? "On" : "Off") } label: {
-                            Label { Text("Action Palette") } icon: { Image(systemName: "circle.grid.2x2.fill").foregroundStyle(Brand.accent) }
-                        }
-                    }
-                    NavigationLink {
-                        DownloadsList()
-                    } label: {
-                        Label { Text("Downloads") } icon: { Image(systemName: "arrow.down.circle").foregroundStyle(Brand.accent) }
-                    }
-                    Toggle("Side Bars with Tabs and Buttons", isOn: $lib.sideDock)
-                    if lib.sideDock {
-                        Picker("Tabs and Buttons", selection: $lib.dockTogether) {
-                            Text("Together on One Side").tag(true)
-                            Text("Split on Both Sides").tag(false)
-                        }
-                        Toggle("Dock Follows Your Hand", isOn: $lib.dockFollowsHand)
-                    }
-                } header: {
-                    Text("Layout")
-                } footer: {
-                    Text("Double tap the dock's handle to move it to the other side.")
-                }
-                Section {
-                    Toggle("Full Screen Videos Stay in Their Page", isOn: $lib.fullscreenInPane)
                 } header: {
                     Text("Videos")
                 } footer: {
-                    Text("A video's full-screen button fills its own page, and the other page stays in view. Applies to pages opened from now on.")
-                }
-                Section {
-                    Toggle("Video Above When Half Folded", isOn: $lib.laptopPosture)
-                } header: {
-                    Text("iPhone Duo")
-                } footer: {
-                    Text("Stand your Duo half folded, like a small laptop: the video in the top page fills its half, the bottom page stays yours.")
+                    Text("Full screen fills the page the video is on. That page's bars step aside; the other page stays visible and usable. Whole Display covers both screens. Open the page again after changing this. Downloads keep going after you leave Twinfold, even if iOS closes the app.")
                 }
                 Section {
                     Button("Clear Cookies and Website Data", role: .destructive) { confirmClearData = true }
                 }
                 Section("About") {
                     LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
+                    NavigationLink("What's New") { WhatsNewList() }
+                    Button("Show the Tutorial Again") { browser.sheet = .tutorial }
                     Link("Help and Contact", destination: URL(string: "https://foldly.netlify.app/twinfold/en/")!)
                     Link("Privacy Policy", destination: URL(string: "https://foldly.netlify.app/twinfold/en/privacy.html")!)
                 }

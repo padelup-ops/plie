@@ -117,7 +117,7 @@ struct PanesArea: View {
                     PaneDivider(layout: layout, size: geo.size, frozen: $frozen)
                         .zIndex(3)
                 }
-                if Library.shared.palette && !browser.overviewShown && !browser.editingAddress {
+                if Library.shared.palette && !browser.overviewShown && !browser.editingAddress && !browser.fullscreenPane.contains(true) {
                     ActionPalette(area: geo.size, insets: insets)
                         .zIndex(5)
                 }
@@ -128,7 +128,7 @@ struct PanesArea: View {
                 if showsDock {
                     let right = browser.dockOnRight
                     SideDock(part: Library.shared.dockTogether ? .all : .tabs, onRight: right)
-                        .frame(maxHeight: geo.size.height - insets.top - insets.bottom - 24)
+                        .frame(maxHeight: dockHeight(geo.size, insets))
                         .padding(right ? .trailing : .leading, (right ? insets.right : insets.left) + 2)
                         .padding(.top, insets.top).padding(.bottom, insets.bottom)
                 }
@@ -137,7 +137,7 @@ struct PanesArea: View {
                 if showsDock && !Library.shared.dockTogether {
                     let right = !browser.dockOnRight
                     SideDock(part: .apps, onRight: right)
-                        .frame(maxHeight: geo.size.height - insets.top - insets.bottom - 24)
+                        .frame(maxHeight: dockHeight(geo.size, insets))
                         .padding(right ? .trailing : .leading, (right ? insets.right : insets.left) + 2)
                         .padding(.top, insets.top).padding(.bottom, insets.bottom)
                 }
@@ -146,15 +146,33 @@ struct PanesArea: View {
             .onAppear { browser.hasFold = fold != nil; browser.layoutSideBySide = layout.sideBySide }
             .onChange(of: layout.sideBySide) { _, v in browser.layoutSideBySide = v }
             .onChange(of: fold != nil) { _, has in
-                browser.hasFold = has
+                // A fold report can flicker while a tab changes or the device turns. Keep whichever split was
+                // actually on screen, and write it into the store for the display we just landed on.
+                let keep = browser.isSplit
                 var t = Transaction(); t.disablesAnimations = true
-                withTransaction(t) { browser.postureChanged() }
+                withTransaction(t) {
+                    browser.hasFold = has
+                    if keep { browser.isSplit = true }
+                    browser.postureChanged()
+                }
             }
-            .onChange(of: geo.size.width > geo.size.height) { _, _ in
-                // Turned: back to automatic, so the pages go top and bottom or side by side on their own (at once,
-                // no animation fighting the system's rotation).
+            .onChange(of: geo.size) { old, new in
+                guard old.width > 1, new.width > 1 else { return }
+                guard (old.width > old.height) != (new.width > new.height) else { return }
+                // Turned: back to automatic, and close the rail without an animation that fights the rotation
+                // (that animation is what left the rail stuck between the pages).
                 var t = Transaction(); t.disablesAnimations = true
-                withTransaction(t) { browser.postureChanged() }
+                withTransaction(t) {
+                    browser.rotating = true
+                    browser.dockOpen = false
+                    browser.railOpen = false
+                    browser.postureChanged()
+                }
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(450))
+                    var done = Transaction(); done.disablesAnimations = true
+                    withTransaction(done) { browser.rotating = false }
+                }
             }
         }
     }
@@ -162,7 +180,13 @@ struct PanesArea: View {
 
 extension PanesArea {
     var showsDock: Bool {
-        Library.shared.sideDock && !browser.overviewShown && !browser.editingAddress
+        Library.shared.sideDock && !browser.overviewShown && !browser.editingAddress && !browser.fullscreenPane.contains(true)
+    }
+
+    /// Never a negative height: during a turn the safe area can briefly be larger than the screen, which collapsed
+    /// the rail to nothing and left it in the wrong place afterwards.
+    func dockHeight(_ size: CGSize, _ insets: UIEdgeInsets) -> CGFloat {
+        max(140, size.height - max(0, insets.top) - max(0, insets.bottom) - 16)
     }
 
     @ViewBuilder
@@ -192,9 +216,16 @@ extension PanesArea {
     }
 
     /// The screen's own safe area (the pages ignore it, the floating bar doesn't).
+    /// The last real safe area. A turn reports zero for a moment; using that jumps the rail under the status band.
+    nonisolated(unsafe) static var cachedInsets: UIEdgeInsets = .zero
     static var windowInsets: UIEdgeInsets {
         let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
-        return scene?.keyWindow?.safeAreaInsets ?? .zero
+        let insets = scene?.keyWindow?.safeAreaInsets ?? .zero
+        if insets.top + insets.bottom + insets.left + insets.right > 0 {
+            cachedInsets = insets
+            return insets
+        }
+        return cachedInsets
     }
 }
 
@@ -444,7 +475,8 @@ struct PaneView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            if let tab = pane.tab, pane.tool == nil, tab.mediaPlaying || tab.isMuted || tab.isFilled {
+            let pageFull = browser.fullscreenPane.indices.contains(index) && browser.fullscreenPane[index]
+            if let tab = pane.tab, pane.tool == nil, !pageFull, (tab.mediaPlaying || tab.isMuted || tab.isFilled) {
                 MediaControls(tab: tab)
                     .padding(10)
                     .transition(.scale.combined(with: .opacity))
@@ -472,20 +504,80 @@ struct PaneView: View {
             }
         }
         .padding(showsActiveMark ? 3 : 0)
-        // The controls float over the active page, clear of the system's bars.
-        .overlay(alignment: Library.shared.barAtTop ? .top : .bottom) {
-            if browser.active == index && !browser.editingAddress && !browser.barHidden && !browser.overviewShown {
-                FloatingBar()
-                    .padding(Library.shared.barAtTop ? .top : .bottom,
-                             (Library.shared.barAtTop ? edges.top : edges.bottom) + 10)
-                    .padding(.leading, edges.left + 10)
-                    .padding(.trailing, edges.right + 10)
-                    .transition(.opacity)
-            }
-        }
+        // The address bar and the tab bar of this page, each at the edge chosen for this page.
+        .overlay(alignment: .top) { paneChrome(edge: .top) }
+        .overlay(alignment: .bottom) { paneChrome(edge: .bottom) }
         .simultaneousGesture(TapGesture().onEnded {
             if browser.active != index { withAnimation(.easeOut(duration: 0.15)) { browser.active = index } }
         })
+    }
+
+    /// Address bar and tab bar for this page. When both sit on the same edge, the tab bar stays closer to the screen.
+    @ViewBuilder
+    private func paneChrome(edge: VerticalEdge) -> some View {
+        let lib = Library.shared
+        let onTop = edge == .top
+        let pageFull = browser.fullscreenPane.indices.contains(index) && browser.fullscreenPane[index]
+        let addressHere = onTop == lib.addressOnTop(for: index)
+        let tabsHere = lib.showPaneTabs && onTop == lib.tabOnTop(for: index) && !pageFull
+        let showAddress = addressHere && !pageFull && browser.active == index && !browser.editingAddress && !browser.barHidden && !browser.overviewShown
+        if showAddress || tabsHere {
+            VStack(spacing: 6) {
+                if onTop {
+                    if tabsHere { PaneTabStrip(index: index) }
+                    if showAddress { FloatingBar() }
+                } else {
+                    if showAddress { FloatingBar() }
+                    if tabsHere { PaneTabStrip(index: index) }
+                }
+            }
+            .padding(onTop ? .top : .bottom, (onTop ? edges.top : edges.bottom) + 8)
+            .padding(.leading, edges.left + 8)
+            .padding(.trailing, edges.right + 8)
+        }
+    }
+}
+
+/// The tabs of one page, in a strip. Choosing one keeps the two-page layout.
+struct PaneTabStrip: View {
+    @Environment(Browser.self) private var browser
+    let index: Int
+
+    var body: some View {
+        let pane = browser.panes[index]
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(pane.tabs) { tab in
+                    let current = pane.tab === tab
+                    Button {
+                        browser.select(tab)
+                    } label: {
+                        HStack(spacing: 4) {
+                            if tab.isPrivate {
+                                Image(systemName: "eye.slash.fill").font(.system(size: 9))
+                            }
+                            Text(tab.displayTitle).lineLimit(1)
+                        }
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .frame(height: 28)
+                        .foregroundStyle(current ? Color.white : Color.primary)
+                        .background(current ? AnyShapeStyle(Brand.accent) : AnyShapeStyle(Color.primary.opacity(0.08)), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+                Button {
+                    browser.newTab(in: index, focus: browser.active == index)
+                } label: {
+                    Image(systemName: "plus").font(.system(size: 13, weight: .bold)).frame(width: 28, height: 28)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("New Tab"))
+            }
+            .padding(.horizontal, 2)
+        }
+        .padding(4)
+        .glassEffect(.regular, in: Capsule())
     }
 }
 

@@ -39,6 +39,8 @@ final class Downloads: NSObject {
         config.sessionSendsLaunchEvents = true
         config.isDiscretionary = false
         config.allowsCellularAccess = true
+        // A download that loses the network while Twinfold is away waits and continues, instead of failing.
+        config.waitsForConnectivity = true
         return URLSession(configuration: config, delegate: DownloadsDelegate.shared, delegateQueue: .main)
     }()
     @ObservationIgnored private var webDownloads: [ObjectIdentifier: UUID] = [:]
@@ -59,6 +61,28 @@ final class Downloads: NSObject {
             items = list
         }
         _ = session   // reconnect to downloads that went on while Twinfold was closed
+        session.getAllTasks { _ in }
+    }
+
+    /// The system calls this when a background download needs the app. It can arrive before or after the session
+    /// says its events are finished; either order still tells iOS we are done.
+    @ObservationIgnored private var backgroundEventsFinished = false
+
+    func setBackgroundCompletion(_ completion: @escaping () -> Void) {
+        backgroundCompletion = completion
+        deliverBackgroundCompletionIfReady()
+    }
+
+    func noteBackgroundEventsFinished() {
+        backgroundEventsFinished = true
+        deliverBackgroundCompletionIfReady()
+    }
+
+    private func deliverBackgroundCompletionIfReady() {
+        guard backgroundEventsFinished, let completion = backgroundCompletion else { return }
+        backgroundCompletion = nil
+        backgroundEventsFinished = false
+        completion()
     }
 
     var active: Int { items.filter { !$0.done && $0.failed == nil }.count }
@@ -257,10 +281,7 @@ final class DownloadsDelegate: NSObject, URLSessionDownloadDelegate, WKDownloadD
     }
 
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-        MainActor.assumeIsolated {
-            Downloads.shared.backgroundCompletion?()
-            Downloads.shared.backgroundCompletion = nil
-        }
+        MainActor.assumeIsolated { Downloads.shared.noteBackgroundEventsFinished() }
     }
 
     // WebKit

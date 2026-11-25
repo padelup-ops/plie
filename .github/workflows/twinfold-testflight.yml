@@ -5,10 +5,13 @@ name: Twinfold - TestFlight
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - cursor/twinfold-hand-fullscreen-7973
     paths:
       - "twinfold/App/**"
       - "twinfold/project.yml"
+      - ".github/workflows/twinfold-testflight.yml"
   workflow_dispatch:
 
 concurrency:

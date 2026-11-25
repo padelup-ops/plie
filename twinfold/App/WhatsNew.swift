@@ -13,6 +13,20 @@ struct Release: Identifiable {
 enum WhatsNew {
     /// Newest first. Each item: an SF Symbol and a short line.
     static let releases: [Release] = [
+        Release(version: "1.1.2", items: [
+            ("play.rectangle", "Full screen stays in the page. The system video player is not used"),
+        ]),
+        Release(version: "1.1.1", items: [
+            ("play.rectangle", "Full screen fills the video's own page. The other page stays where it is"),
+        ]),
+        Release(version: "1.1", items: [
+            ("circle.grid.2x2", "Action palette: a ring or a compass, and a swipe in eight directions"),
+            ("hand.draw", "One-finger edge swipes and corners such as down then right"),
+            ("rectangle.split.1x2", "The address bar and the tab bar sit at the top or the bottom of each page"),
+            ("slider.vertical.3", "The side rail: choose its side, its width and how big the icons are"),
+            ("app.fill", "Five Home Screen icons, and videos that fill the whole display"),
+            ("arrow.down.circle", "Downloads continue after you leave Twinfold"),
+        ]),
         Release(version: "1.0", items: [
             ("note.text", "Video notes: write beside a video, each note keeps its moment"),
             ("arrow.down.to.line.compact", "Hands-free reading: the page scrolls by itself"),

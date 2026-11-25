@@ -87,9 +87,42 @@ final class Library {
         didSet { defaults.set(twoFingerGestures, forKey: "twoFingerGestures") }
     }
 
-    /// The floating bar sits at the top of the page instead of the bottom.
-    var barAtTop: Bool = UserDefaults.standard.bool(forKey: "barAtTop") {
-        didSet { UserDefaults.standard.set(barAtTop, forKey: "barAtTop") }
+    /// The address bar of each page. Page 1 is the top (or left) page. Missing keys follow the old single choice.
+    var addressTop0: Bool = UserDefaults.standard.object(forKey: "addressTop.0") as? Bool ?? UserDefaults.standard.bool(forKey: "barAtTop") {
+        didSet { UserDefaults.standard.set(addressTop0, forKey: "addressTop.0") }
+    }
+    var addressTop1: Bool = UserDefaults.standard.object(forKey: "addressTop.1") as? Bool ?? UserDefaults.standard.bool(forKey: "barAtTop") {
+        didSet { UserDefaults.standard.set(addressTop1, forKey: "addressTop.1") }
+    }
+    /// A tab strip on each page, at the top or the bottom of that page.
+    var showPaneTabs: Bool = UserDefaults.standard.bool(forKey: "showPaneTabs") {
+        didSet { UserDefaults.standard.set(showPaneTabs, forKey: "showPaneTabs") }
+    }
+    var tabTop0: Bool = UserDefaults.standard.bool(forKey: "tabTop.0") {
+        didSet { UserDefaults.standard.set(tabTop0, forKey: "tabTop.0") }
+    }
+    var tabTop1: Bool = UserDefaults.standard.bool(forKey: "tabTop.1") {
+        didSet { UserDefaults.standard.set(tabTop1, forKey: "tabTop.1") }
+    }
+
+    func addressOnTop(for pane: Int) -> Bool { pane == 0 ? addressTop0 : addressTop1 }
+    func tabOnTop(for pane: Int) -> Bool { pane == 0 ? tabTop0 : tabTop1 }
+
+    var railWidth: RailWidth = RailWidth(rawValue: UserDefaults.standard.string(forKey: "railWidth") ?? "") ?? .regular {
+        didSet { UserDefaults.standard.set(railWidth.rawValue, forKey: "railWidth") }
+    }
+    var railIconSize: RailIconSize = RailIconSize(rawValue: UserDefaults.standard.string(forKey: "railIcon") ?? "") ?? .medium {
+        didSet { UserDefaults.standard.set(railIconSize.rawValue, forKey: "railIcon") }
+    }
+    /// A video's full-screen button fills its own page. Off: it covers the whole display, both Duo screens included.
+    var fullscreenPage: Bool = UserDefaults.standard.object(forKey: "fullscreenPage") as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(fullscreenPage, forKey: "fullscreenPage")
+            let js = "window.__twinfoldFullscreenInPane = \(fullscreenPage);"
+            for pane in Browser.shared.panes {
+                for tab in pane.tabs { tab.webView.evaluateJavaScript(js) }
+            }
+        }
     }
     /// The active page's tabs as icons on its edge.
     var sideDock: Bool = UserDefaults.standard.object(forKey: "sideDock2") as? Bool ?? false {
@@ -109,17 +142,16 @@ final class Library {
         didSet { UserDefaults.standard.set(dockRight, forKey: "dockRight") }
     }
 
-    /// A video's full-screen button fills its own pane instead of the whole display (applies to pages opened next).
-    var fullscreenInPane: Bool = UserDefaults.standard.object(forKey: "fullscreenInPane") as? Bool ?? true {
-        didSet { UserDefaults.standard.set(fullscreenInPane, forKey: "fullscreenInPane") }
-    }
-
     /// The floating action palette (in place of the side bars).
     var palette: Bool = UserDefaults.standard.object(forKey: "palette") as? Bool ?? true {
         didSet { UserDefaults.standard.set(palette, forKey: "palette") }
     }
     var paletteNames: Bool = UserDefaults.standard.object(forKey: "paletteNames") as? Bool ?? true {
         didSet { UserDefaults.standard.set(paletteNames, forKey: "paletteNames") }
+    }
+    /// Ring of buttons, or a compass of eight wedges.
+    var paletteDesign: PaletteDesign = PaletteDesign(rawValue: UserDefaults.standard.string(forKey: "paletteDesign") ?? "") ?? .ring {
+        didSet { UserDefaults.standard.set(paletteDesign.rawValue, forKey: "paletteDesign") }
     }
 
     /// Web apps pinned to the side dock (their site's address).
