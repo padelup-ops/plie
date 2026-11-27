@@ -4,3 +4,7 @@
 {"id": "c75be0f0e97b018bc79d", "key": "hello|carl", "text": "Ho, ho, ho! Hallo, Carl!", "ok": true, "score": 0.8, "dur": 1.72, "heard": "Ho ho ho, hallo Karl.", "tries": 1, "secs": 58.4}
 {"id": "ff31ff08ba1172e4c6ad", "key": "hello|vincent", "text": "Ho, ho, ho! Hallo, Vincent!", "ok": true, "score": 1.0, "dur": 2.44, "heard": "Ho, ho, ho, hallo Vincent.", "tries": 1, "secs": 61.7}
 {"id": "c072dd5a56f4592e0beb", "key": "hello|tilda", "text": "Ho, ho, ho! Hallo, Tilda!", "ok": true, "score": 1.0, "dur": 3.22, "heard": "Ho ho ho! Hallo, Tilda!", "tries": 1, "secs": 74.0}
+{"id": "fff0e1c1feffbc89dfae", "key": "hello|fabian", "text": "Ho, ho, ho! Hallo, Fabian!", "ok": true, "score": 1.0, "dur": 2.4, "heard": "Ho Ho Ho! Hallo Fabian!", "tries": 1, "secs": 64.1}
+{"id": "c8ccbc27c9ccbc4b7d51", "key": "hello|jan", "text": "Ho, ho, ho! Hallo, Jan!", "ok": true, "score": 1.0, "dur": 2.04, "heard": "Ho ho ho, hallo Jan!", "tries": 1, "secs": 57.2}
+{"id": "e26536cd6010251ee80e", "key": "hello|malte", "text": "Ho, ho, ho! Hallo, Malte!", "ok": true, "score": 1.0, "dur": 2.62, "heard": "Ho Ho Ho! Hallo, Malte!", "tries": 1, "secs": 64.1}
+{"id": "6d33bfd0e9f412728a7d", "key": "hello|karl", "text": "Ho, ho, ho! Hallo, Karl!", "ok": true, "score": 0.8, "dur": 2.42, "heard": "Ho ho ho! Hallo Carl!", "tries": 2, "secs": 129.7}
