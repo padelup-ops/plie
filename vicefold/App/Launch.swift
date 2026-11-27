@@ -280,7 +280,8 @@ struct LaunchFrame: View {
             .compositingGroup()
             .rotation3DEffect(.degrees((leading ? -1 : 1) * 100 * p), axis: (x: 0, y: 1, z: 0),
                               anchor: leading ? .leading : .trailing, anchorZ: 0, perspective: 0.45)
-            .opacity(1 - p * p * p)
+            // Opaques presque jusqu'au bout (l'app ne se devine pas à travers), puis un fondu sur le dernier quart.
+            .opacity(1 - max(0, (p - 0.75) / 0.25))
     }
 
     private func scene(_ size: CGSize) -> some View {
