@@ -2,3 +2,6 @@
 {"id": "fdc4e63f2f5b9bc2e18e", "key": "hello|paula", "text": "¡Jo, jo, jo! ¡Hola, Paula!", "ok": false, "score": 0.889, "dur": 2.96, "heard": "¡Ho ho ho ho la paula! ¡Paula!", "tries": 2, "secs": 164.7}
 {"id": "bff294b7980f2dec1ca4", "key": "hello|jose", "text": "¡Jo, jo, jo! ¡Hola, José!", "ok": true, "score": 1.0, "dur": 2.72, "heard": "¡Ho, ho, ho! ¡Hola, José!", "tries": 2, "secs": 101.1}
 {"id": "a34223dfbd0f1457f69e", "key": "hello|laura", "text": "¡Jo, jo, jo! ¡Hola, Laura!", "ok": true, "score": 1.0, "dur": 2.12, "heard": "Ho, ho, ho. Hola, Laura.", "tries": 1, "secs": 47.0}
+{"id": "8f20d3c49275966ce2eb", "key": "hello|africa", "text": "¡Jo, jo, jo! ¡Hola, Africa!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "Oh ho ho, hola África.", "tries": 1, "secs": 50.8}
+{"id": "65ffa3d56349bb28f233", "key": "hello|dario", "text": "¡Jo, jo, jo! ¡Hola, Darío!", "ok": true, "score": 1.0, "dur": 1.92, "heard": "¡Ho ho ho! ¡Hola, Darío!", "tries": 3, "secs": 167.2}
+{"id": "afa8ce750479886c2f1c", "key": "hello|amir", "text": "¡Jo, jo, jo! ¡Hola, Amir!", "ok": true, "score": 0.863, "dur": 2.46, "heard": "ho ho ho ho olá mir", "tries": 3, "secs": 139.4}
