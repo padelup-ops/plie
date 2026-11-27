@@ -7,3 +7,4 @@
 {"id": "ca5c96c79772aa2199ac", "key": "hello|amina", "text": "Ho, ho, ho ! Bonjour Amina !", "ok": true, "score": 1.0, "dur": 2.3, "heard": "Ho ho ho ! Bonjour Amina !", "tries": 2, "secs": 167.6}
 {"id": "17a304c9e71f4676849b", "key": "hello|lilia", "text": "Ho, ho, ho ! Bonjour Lilia !", "ok": true, "score": 1.0, "dur": 2.72, "heard": "Ho ho ho ! Bonjour Lilia !", "tries": 1, "secs": 71.3}
 {"id": "e7b187d9c47aa6623d09", "key": "hello|hafsa", "text": "Ho, ho, ho ! Bonjour Hafsa !", "ok": true, "score": 1.0, "dur": 2.94, "heard": "Oh ho ho, bonjour Hafsa !", "tries": 1, "secs": 74.6}
+{"id": "953c5bfb1f82bae0ccb3", "key": "hello|hanna", "text": "Ho, ho, ho ! Bonjour Hanna !", "ok": true, "score": 0.927, "dur": 3.58, "heard": "Ho ho ho ! Bonjour Hannah ! Ha !", "tries": 3, "secs": 241.2}

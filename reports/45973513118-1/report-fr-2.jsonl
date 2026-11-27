@@ -3,3 +3,6 @@
 {"id": "83a0c0713c427be570d3", "key": "hello|fatima", "text": "Ho, ho, ho ! Bonjour Fatima !", "ok": true, "score": 1.0, "dur": 2.94, "heard": "Ho ho ho bonjour Fatima.", "tries": 1, "secs": 70.4}
 {"id": "2f18ad10153ae8980780", "key": "hello|zacharie", "text": "Ho, ho, ho ! Bonjour Zacharie !", "ok": true, "score": 0.834, "dur": 2.2, "heard": "Ho ho ho ! Bonjour Zachary !", "tries": 1, "secs": 64.0}
 {"id": "b4cd66d8bdb0d6961f74", "key": "hello|esteban", "text": "Ho, ho, ho ! Bonjour Esteban !", "ok": true, "score": 1.0, "dur": 3.46, "heard": "Ho, ho, ho! Bonjour, Esteban!", "tries": 3, "secs": 233.5}
+{"id": "8feee623db799454a40e", "key": "hello|loris", "text": "Ho, ho, ho ! Bonjour Loris !", "ok": true, "score": 0.73, "dur": 3.64, "heard": "Oh, oh, oh, bonjour, Larisse.", "tries": 2, "secs": 159.0}
+{"id": "8773626a6048b3644b61", "key": "hello|aicha", "text": "Ho, ho, ho ! Bonjour Aïcha !", "ok": false, "score": 0.841, "dur": 4.36, "heard": "Ho ho ho, bonjour Aisha.", "tries": 2, "secs": 246.2}
+{"id": "034090f283ea60e4ae88", "key": "hello|maryam", "text": "Ho, ho, ho ! Bonjour Maryam !", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho ho, bonjour, Maryam.", "tries": 1, "secs": 76.0}
