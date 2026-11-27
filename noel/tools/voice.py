@@ -57,8 +57,26 @@ def clip_id(lang: str, key: str) -> str:
 
 
 def names(lang: str):
+    """Les prénoms dans l'ordre de fabrication. Le fichier range les filles puis (ligne « # ») les garçons, du plus
+    courant au plus rare, vingt par ligne : on alterne une ligne de chaque, pour que les prénoms les plus donnés des
+    deux soient faits d'abord. Après « #fin » : les prénoms plus rares, composés ou diminutifs, à la suite."""
+    sections, tail, cur = [[]], [], None
+    for line in (NAMES / f"{lang}.txt").read_text(encoding="utf-8").split("\n"):
+        if line.strip() == "#fin":
+            cur = tail
+        elif line.startswith("#"):
+            sections.append([])
+        elif line.strip():
+            (cur if cur is not None else sections[-1]).append(line.split())
+    ordered = []
+    for k in range(max(len(sec) for sec in sections)):
+        for sec in sections:
+            if k < len(sec):
+                ordered += sec[k]
+    for row in tail:
+        ordered += row
     seen, out = set(), []
-    for raw in (NAMES / f"{lang}.txt").read_text(encoding="utf-8").split():
+    for raw in ordered:
         name = raw.replace("_", " ")
         k = norm_name(name)
         if k and k not in seen:
@@ -105,8 +123,11 @@ def plan(lang: str):
         line(t)
     for t in json.loads(ADVENT.read_text(encoding="utf-8"))[lang]:
         line(t)
+    # Tous les bonjours d'abord : c'est le moment où l'enfant entend son prénom. L'au revoir avec le prénom vient
+    # ensuite ; tant qu'il manque, le Père Noël dit au revoir sans le prénom.
     for name in names(lang):
         add("hello|" + norm_name(name), book["hello"].replace("{name}", name), "hello")
+    for name in names(lang):
         add("bye|" + norm_name(name), book["bye"].replace("{name}", name), "bye")
     return items
 
@@ -134,14 +155,20 @@ def similarity(want: str, heard: str) -> float:
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 
-def duration_ok(it, seconds: float) -> bool:
+def duration_range(it):
+    """La durée raisonnable d'une phrase, en secondes."""
     if it["kind"] == "hello":
-        return 1.2 <= seconds <= 4.2
+        return 1.2, 4.2
     if it["kind"] == "bye":
-        return 0.8 <= seconds <= 3.2
+        return 0.8, 4.0
     text = it["text"]
     n = len(letters(text).replace(" ", "")) + 3 * len(re.findall(r"\b(?:[HhJj]o|[Oo]h)\b", text))
-    return 0.04 * n + 0.35 <= seconds <= 0.13 * n + 1.6
+    return 0.04 * n + 0.35, 0.13 * n + 1.6
+
+
+def duration_ok(it, seconds: float) -> bool:
+    lo, hi = duration_range(it)
+    return lo <= seconds <= hi
 
 
 # Des mots qu'un Père Noël ne dit pas. Le modèle ajoute parfois un bruit ou un mot en fin de phrase, que la
@@ -154,18 +181,51 @@ cazzo merda stronzo vaffanculo porca puttana
 porra caralho bosta foda puta""".split())
 
 
+# Les âges sont écrits en chiffres dans les répliques ; la transcription les rend en chiffres ou en lettres.
+NUMBERS = {
+    "fr": "un deux trois quatre cinq six sept huit neuf dix",
+    "en": "one two three four five six seven eight nine ten",
+    "es": "uno dos tres cuatro cinco seis siete ocho nueve diez",
+    "de": "eins zwei drei vier fünf sechs sieben acht neun zehn",
+    "it": "uno due tre quattro cinque sei sette otto nove dieci",
+    "pt": "um dois três quatro cinco seis sete oito nove dez",
+}
+
+
 def judge(it, heard: str):
+    """Avec les chiffres tels quels, puis écrits en lettres dans chaque langue : le meilleur des deux compte."""
+    best = judge_text(it, it["text"], heard)
+    if re.search(r"\d", it["text"]):
+        for words in NUMBERS.values():
+            w = words.split()
+            spelled = re.sub(r"\b(10|[1-9])\b", lambda m: w[int(m.group(1)) - 1], it["text"])
+            cand = judge_text(it, spelled, heard)
+            if (cand[1], cand[0]) > (best[1], best[0]):
+                best = cand
+    return best
+
+
+def judge_text(it, text: str, heard: str):
     """La phrase entendue est-elle la bonne ? Elle ressemble au texte, rien n'est dit en plus (le modèle répète
     parfois un mot, ou en ajoute un : « Hello, Olivia! Olivia! »), elle finit sur le bon mot, et pour un prénom :
     c'est bien lui qu'on entend à la fin."""
-    score = similarity(it["text"], heard)
-    want, got = letters(it["text"]).split(), letters(heard).split()
+    score = similarity(text, heard)
+    want, got = letters(text).split(), letters(heard).split()
     if not got or any(w in RUDE for w in got if w not in want):
         return 0.0, False
     if it["kind"] == "line":
-        floor = 0.8 if len(" ".join(want)) < 28 else 0.86
-        end = difflib.SequenceMatcher(None, want[-1], got[-1]).ratio() >= 0.6 if want else True
-        return score, score >= floor and len(got) <= len(want) and end
+        floor = 0.8 if len(" ".join(want)) < 28 else 0.9
+        # Rien en plus : ni un mot ajouté à la fin (« … bien ? Euh… »), ni une phrase nettement plus longue. On compte
+        # en lettres, pas en mots : la transcription coupe les mots à sa façon (« Sais-tu » → « C'est-tu »).
+        a, b = "".join(want), "".join(got)
+        blocks = [m for m in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks() if m.size]
+        if not blocks:
+            return score, False
+        last = blocks[-1]
+        tail = (len(b) - last.b - last.size) - (len(a) - last.a - last.size)
+        first = blocks[0]
+        head = first.b - first.a
+        return score, score >= floor and tail < 2 and head < 3 and len(b) <= len(a) + max(3, 0.06 * len(a))
     name = norm_name(it["key"].split("|", 1)[1]).replace("-", " ").split()
     tail = " ".join(got[-len(name):])
     who = difflib.SequenceMatcher(None, " ".join(name), tail).ratio()
@@ -242,12 +302,27 @@ class Studio:
         self.sr = self.tts.sr
         self.ref = str(ref)
         self.prepared = None
+        # Quand le modèle ne trouve pas la fin de la phrase, il continue jusqu'à 40 secondes de son (plusieurs
+        # minutes de calcul pour un tirage perdu d'avance) : on l'arrête un peu après la durée raisonnable.
+        self.cap = 1000
+        try:
+            inner = self.tts.t3.inference
+
+            def limited(*a, **k):
+                if "max_new_tokens" in k:
+                    k["max_new_tokens"] = min(k["max_new_tokens"], self.cap)
+                return inner(*a, **k)
+            self.tts.t3.inference = limited
+        except Exception as e:
+            print("durée non limitée :", e, flush=True)
         from faster_whisper import WhisperModel
         self.asr = WhisperModel(whisper, device="cpu", compute_type="int8", cpu_threads=max(1, torch.get_num_threads()))
         print(f"modèles chargés en {time.time() - t:.0f} s, {torch.get_num_threads()} fils", flush=True)
 
-    def say(self, text, lang, seed, exaggeration, cfg_weight, temperature):
+    def say(self, text, lang, seed, exaggeration, cfg_weight, temperature, max_seconds=40.0):
         self.torch.manual_seed(seed)
+        # 25 jetons par seconde de voix, avec de la marge pour les silences du début et de la fin.
+        self.cap = max(60, min(1000, int(25 * (max_seconds * 1.25 + 1.5))))
         kw = dict(language_id=lang, exaggeration=exaggeration, cfg_weight=cfg_weight, temperature=temperature)
         # La voix de référence n'est analysée qu'une fois, pas à chaque phrase.
         if self.prepared != exaggeration:
@@ -291,8 +366,12 @@ def produce(studio, it, lang, out_dir: Path, tries=5, **override):
     best = None
     t0 = time.time()
     for k in range(tries):
-        seed = int(it["id"][:8], 16) % 100000 + 7919 * k
-        raw = studio.say(it["text"], lang, seed, **cfg)
+        # D'un passage à l'autre les tirages changent (VOICE_SALT) : une phrase ratée six fois ne l'est pas à l'identique.
+        seed = int(it["id"][:8], 16) % 100000 + 7919 * k + 104729 * int(os.environ.get("VOICE_SALT", "0"))
+        if k >= 3:
+            # Une phrase qui résiste : un tirage plus sage, plus près du texte.
+            cfg = dict(cfg, temperature=0.65, cfg_weight=0.4)
+        raw = studio.say(it["text"], lang, seed, max_seconds=duration_range(it)[1], **cfg)
         w = trim_and_level(raw, studio.sr)
         dur = len(w) / studio.sr
         if dur < 0.25:
@@ -329,15 +408,18 @@ def ensure_ref(out: Path) -> Path:
 
 
 def tasks_of(a):
-    """« fr:line en:line fr:name » : quoi fabriquer, dans l'ordre (line : les répliques ; name : les prénoms, du
-    plus courant au plus rare). Sans --tasks : tout ce qui manque dans la langue --lang."""
+    """« fr:line en:line fr:hello » : quoi fabriquer, dans l'ordre (line : les répliques ; hello : les bonjours
+    avec le prénom, du plus courant au plus rare ; bye : les au revoir avec le prénom ; name : les deux). Sans
+    --tasks : tout ce qui manque dans la langue --lang."""
     if not a.tasks:
-        return [(a.lang, "all")]
+        return [(a.lang, "all", 0)]
     out = []
     for t in a.tasks.replace(",", " ").split():
-        lang, _, kind = t.partition(":")
-        assert lang in LANGS and kind in ("", "all", "line", "name"), t
-        out.append((lang, kind or "all"))
+        # « fr:hello:40 » : seulement les 40 premiers qui manquent (pour alterner les langues sur les prénoms les
+        # plus donnés).
+        lang, kind, first = (t.split(":") + ["", ""])[:3]
+        assert lang in LANGS and kind in ("", "all", "line", "name", "hello", "bye"), t
+        out.append((lang, kind or "all", int(first or 0)))
     return out
 
 
@@ -347,9 +429,13 @@ def cmd_gen(a):
     # Dans l'ordre demandé, et dans chaque langue dans l'ordre du plan : les répliques d'abord, puis les prénoms du
     # plus courant au plus rare. Si le temps manque, ce sont les prénoms les plus rares qui restent pour un prochain
     # passage (le lutin les dit en attendant).
-    todo = []
-    for lang, kind in tasks_of(a):
-        items = [it for it in missing(lang) if kind == "all" or (it["kind"] == "line") == (kind == "line")]
+    todo, taken = [], set()
+    for lang, kind, first in tasks_of(a):
+        wanted = {"all": ("line", "hello", "bye"), "name": ("hello", "bye")}.get(kind, (kind,))
+        items = [it for it in missing(lang) if it["kind"] in wanted and (lang, it["id"]) not in taken]
+        if first:
+            items = items[:first]
+        taken.update((lang, it["id"]) for it in items)
         part = items[i::n]
         if a.limit:
             # Essai rapide : moitié répliques, moitié prénoms.
@@ -369,6 +455,8 @@ def cmd_gen(a):
             print(f"temps écoulé : {len(todo) - k + 1} phrases restent pour le prochain passage", flush=True)
             break
         good, weak = out / "voice" / lang, out / "weak" / lang
+        if (good / f"{it['id']}.m4a").is_file() or (weak / f"{it['id']}.m4a").is_file():
+            continue  # déjà faite avant une reprise
         r = produce(studio, it, lang, good, tries=6 if it["kind"] == "line" else 3)
         if not r["ok"] and (good / f"{it['id']}.m4a").is_file():
             (good / f"{it['id']}.m4a").rename(weak / f"{it['id']}.m4a")
@@ -378,6 +466,14 @@ def cmd_gen(a):
         left = (time.time() - t0) / k * (len(todo) - k) / 60
         print(f"[{k}/{len(todo)}] {lang} {'ok ' if r['ok'] else 'FAIBLE'} {r['score']:.2f} {r['dur']:.1f}s essais {r['tries']} "
               f"({r['secs']:.0f}s, reste {left:.0f} min) {it['text'][:60]} → {r['heard'][:60]}", flush=True)
+
+
+def cmd_warm(a):
+    """Télécharge et ouvre les modèles une fois, avant de lancer deux fabrications côte à côte (deux téléchargements
+    en même temps s'abîmaient l'un l'autre)."""
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    Studio(ensure_ref(out))
 
 
 def cmd_pilot(a):
@@ -457,6 +553,8 @@ def cmd_audit(a):
                     shutil.copyfile(f, VOICE / lang / f.name)
             else:
                 bad_n += 1
+                if not a.dry:
+                    (VOICE / lang / f.name).unlink(missing_ok=True)
                 worst.append(f"{lang} {it['kind']} | {it['text'][:70]} | {r.get('heard', '')[:70]}")
         if not a.dry:
             mark(lang)
@@ -526,6 +624,7 @@ if __name__ == "__main__":
     g.add_argument("--out", default="out")
     g.add_argument("--limit", type=int, default=0); g.add_argument("--minutes", type=float, default=320)
     g.set_defaults(fn=cmd_gen)
+    w = sub.add_parser("warm"); w.add_argument("--out", default="out"); w.set_defaults(fn=cmd_warm)
     u = sub.add_parser("audit"); u.add_argument("--src", required=True); u.add_argument("--dry", action="store_true")
     u.add_argument("--show", type=int, default=25); u.set_defaults(fn=cmd_audit)
     p = sub.add_parser("pilot"); p.add_argument("--lang", required=True); p.add_argument("--out", default="out"); p.set_defaults(fn=cmd_pilot)

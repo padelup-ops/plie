@@ -152,7 +152,7 @@ struct PrivacyView: View {
                     .foregroundStyle(Noel.cream)
                 block("iphone", "Everything stays on this iPhone", "The first names, age, qualities, special moment and wish you enter are only used to build Santa's call. They are saved on this iPhone and never sent anywhere.")
                 block("mic.slash.fill", "No microphone, no recording", "Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone or the camera.")
-                block("person.crop.circle.badge.xmark", "No account, no tracking, no ads", "There is no sign-up, no advertising and no analytics. Santa's voice is made by your iPhone, without the internet.")
+                block("person.crop.circle.badge.xmark", "No account, no tracking, no ads", "There is no sign-up, no advertising and no analytics. Santa's voice is inside the app: it works without the internet.")
                 block("lock.fill", "Purchases", "The full magic is bought through the App Store, protected by a question for grown-ups. We never see your payment details.")
                 block("trash.fill", "You're in control", "You can erase the children's details at any time in Settings, or by deleting the app.")
                 GatedLink(title: "Full privacy policy", url: NoelLinks.privacy)

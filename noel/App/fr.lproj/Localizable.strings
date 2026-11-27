@@ -50,7 +50,7 @@
 "No microphone, no recording" = "Pas de micro, aucun enregistrement";
 "Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone or the camera." = "Le Père Noël marque des pauses pour que ton enfant lui réponde, mais l'app n'écoute jamais : elle n'utilise ni le micro ni la caméra.";
 "No account, no tracking, no ads" = "Pas de compte, pas de pistage, pas de pub";
-"There is no sign-up, no advertising and no analytics. Santa's voice is made by your iPhone, without the internet." = "Aucune inscription, aucune publicité, aucune mesure d'audience. La voix du Père Noël est créée par ton iPhone, sans internet.";
+"There is no sign-up, no advertising and no analytics. Santa's voice is inside the app: it works without the internet." = "Aucune inscription, aucune publicité, aucune mesure d'audience. La voix du Père Noël est dans l'app : elle fonctionne sans internet.";
 "Purchases" = "Achats";
 "The full magic is bought through the App Store, protected by a question for grown-ups. We never see your payment details." = "La magie complète s'achète sur l'App Store, protégée par une question pour les grands. Nous ne voyons jamais tes informations de paiement.";
 "You're in control" = "Tu gardes la main";
@@ -176,7 +176,7 @@
 "Santa Claus certifies that this child has been kind, curious and full of heart in %lld." = "Le Père Noël certifie que cet enfant a été gentil, curieux et plein de cœur en %lld.";
 "The North Pole" = "Le pôle Nord";
 "Santa will say this first name himself." = "Le Père Noël dira ce prénom lui-même.";
-"Santa's elf will say this first name." = "C'est le lutin du Père Noël qui dira ce prénom.";
+"Santa hasn't recorded this first name yet: he will say hello without it." = "Le Père Noël n'a pas encore enregistré ce prénom : il dira bonjour sans le prononcer.";
 "The surprise, the full stories, the elf's note about your child, the letter and the certificate." = "La surprise, les histoires en entier, le petit mot du lutin sur ton enfant, la lettre et le certificat.";
 "Hear the whole call" = "Écouter l'appel en entier";
 "Replay the preview" = "Réécouter l'aperçu";

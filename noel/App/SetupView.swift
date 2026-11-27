@@ -202,10 +202,11 @@ struct SetupView: View {
     private func nameHint(_ i: Int) -> some View {
         let name = i < model.profile.names.count ? model.profile.names[i].trimmingCharacters(in: .whitespacesAndNewlines) : ""
         if name.count >= 2 {
-            let knows = VoiceLibrary.shared.knows(name: name, lang: ScriptBook.load().1)
+            let lang = ScriptBook.load().1
+            let knows = !VoiceLibrary.shared.ready(lang: lang) || VoiceLibrary.shared.knows(name: name, lang: lang)
             HStack(spacing: 5) {
                 Image(systemName: knows ? "checkmark.seal.fill" : "sparkles")
-                Text(knows ? "Santa will say this first name himself." : "Santa's elf will say this first name.")
+                Text(knows ? "Santa will say this first name himself." : "Santa hasn't recorded this first name yet: he will say hello without it.")
                     .fixedSize(horizontal: false, vertical: true)
             }
             .font(.ui(12, .medium))

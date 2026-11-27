@@ -142,8 +142,12 @@ struct ScriptBuilder {
 
     private var names: [String] { profile.cleanNames }
     private var joinedNames: String { Grammar.join(names, and: book.and) }
-    /// Le Père Noël sait-il dire tous ces prénoms ?
-    private var namesKnown: Bool { !names.isEmpty && names.allSatisfy { VoiceLibrary.shared.knows(name: $0, lang: lang) } }
+    /// La voix enregistrée sert-elle dans cette langue ? Sinon c'est la voix de l'iPhone, qui sait dire tous les prénoms.
+    private var recorded: Bool { VoiceLibrary.shared.ready(lang: lang) }
+    /// Le Père Noël dit-il ces prénoms ? Oui s'il les a tous enregistrés (ou s'il parle avec la voix de l'iPhone).
+    private var namesKnown: Bool {
+        !names.isEmpty && (!recorded || names.allSatisfy { VoiceLibrary.shared.knows(name: $0, lang: lang) })
+    }
 
     private func hello(_ out: inout [Segment], laugh: Bool) {
         if namesKnown {
@@ -152,28 +156,19 @@ struct ScriptBuilder {
                             cue: .clips(names.map { VoiceLibrary.helloKey($0) }, fallback: text)))
             return
         }
-        // Un prénom que le Père Noël n'a pas enregistré : il salue, et son lutin lui souffle le prénom.
+        // Un prénom que le Père Noël n'a pas enregistré : il salue sans le dire. Une seule voix dans l'appel.
         out.append(.say(book.helloAnyone, speaker: .santa, laugh: laugh, wave: false,
                         cue: .clips([VoiceLibrary.lineKey(book.helloAnyone)], fallback: book.helloAnyone)))
-        guard !names.isEmpty else { return }
-        let whisper = book.elfHello.replacingOccurrences(of: "{name}", with: joinedNames)
-        out.append(.say(whisper, speaker: .elf, laugh: false, wave: false, cue: .elf(whisper)))
-        let after = pick(book.helloAfterElf)
-        out.append(.say(after, speaker: .santa, laugh: false, wave: false,
-                        cue: .clips([VoiceLibrary.lineKey(after)], fallback: after)))
     }
 
     private func bye(_ out: inout [Segment], wave: Bool) {
-        if namesKnown {
+        if namesKnown, !recorded || names.allSatisfy({ VoiceLibrary.shared.knowsBye(name: $0, lang: lang) }) {
             let text = book.bye.replacingOccurrences(of: "{name}", with: joinedNames)
             out.append(.say(text, speaker: .santa, laugh: false, wave: wave,
                             cue: .clips(names.map { VoiceLibrary.byeKey($0) }, fallback: text)))
             return
         }
-        if !names.isEmpty {
-            let text = book.elfBye.replacingOccurrences(of: "{name}", with: joinedNames)
-            out.append(.say(text, speaker: .elf, laugh: false, wave: false, cue: .elf(text)))
-        }
+        // Sans le prénom : il dit simplement au revoir.
         out.append(.say(book.byeAnyone, speaker: .santa, laugh: true, wave: wave,
                         cue: .clips([VoiceLibrary.lineKey(book.byeAnyone)], fallback: book.byeAnyone)))
     }

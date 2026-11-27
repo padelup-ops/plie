@@ -16,6 +16,7 @@ enum KBMemLog {
         start = mb
         peak = mb
         lowRoom = 0
+        marks = ""
         let f = DateFormatter()
         f.dateFormat = "dd/MM HH:mm"
         current = "\(f.string(from: Date())) \(context) \(mode)"
@@ -31,6 +32,16 @@ enum KBMemLog {
         keyboards = alive
         viewCount = views
         write(emoji: emoji, force: jump)
+    }
+
+    /// Des repères dans la ligne en cours (« globe », « parti »), avec la mémoire et la marge du moment : si iOS
+    /// ferme le clavier juste après, la ligne dit où il en était. Écrit tout de suite.
+    private static var marks = ""
+    static func mark(_ what: String, mb: Double, room: Double) {
+        guard current != nil else { return }
+        if marks.count < 160 { marks += String(format: " [%@ %.0f/%.0f]", what, mb, room) }
+        peak = max(peak, mb)
+        write(emoji: false, force: true)
     }
 
     /// La marge la plus basse qu'iOS a laissée pendant cette apparition (0 : inconnue).
@@ -50,7 +61,7 @@ enum KBMemLog {
         guard force || now - lastWrite > 2, let c = current else { return }
         lastWrite = now
         let line = c + String(format: " %.0f→%.0f Mo ×%d v%d", start, peak, keyboards, viewCount) + (emoji ? " emoji" : "")
-            + (lowRoom > 0 ? String(format: " marge %.0f", lowRoom) : "")
+            + (lowRoom > 0 ? String(format: " marge %.0f", lowRoom) : "") + marks
         var list = UserDefaults.standard.stringArray(forKey: key) ?? []
         if let last = list.last, last.hasPrefix(c) { list[list.count - 1] = line } else { list.append(line) }
         if list.count > 10 { list.removeFirst(list.count - 10) }

@@ -885,6 +885,11 @@ final class KeyboardCanvas: UIView {
     /// La hauteur demandée à iOS (preferredHeight) reste celle des touches normales.
     private var keyH: CGFloat {
         let k = baseKeyH
+        // Moins de hauteur que demandé (iOS ne l'a pas encore donnée, ou la refuse) : les touches se tassent pour
+        // que la rangée du bas reste entière. Un clavier un peu bas se tape ; sans barre d'espace, non.
+        if bounds.height > 0, bounds.height < fixedH + k * rowUnits - 0.5 {
+            return max((k * 0.6).rounded(), ((bounds.height - fixedH) / rowUnits).rounded(.down))
+        }
         guard laptopLike, bounds.height > 0, bounds.height - (fixedH + k * rowUnits) > 12 else { return k }
         return max(k, min(k * 1.8, ((bounds.height - fixedH) / rowUnits).rounded(.down)))
     }
@@ -1581,6 +1586,7 @@ final class KeyboardCanvas: UIView {
     /// Le clavier disparaît : on coupe les capteurs.
     func disappeared() {
         knock.stop()
+        if visible { KBMemLog.mark("parti", mb: Self.footprintMB(), room: NeuralSwipe.availableMB()) }
         visible = false
         // Le réglage au doigt en cours est gardé tel qu'il est (pas de poignées encore affichées au retour).
         if adjusting { endAdjust(keep: true) }
@@ -1636,21 +1642,26 @@ final class KeyboardCanvas: UIView {
 
     func move(to host: UIView) {
         guard superview !== host else { return }
-        // L'ancien hôte existe encore : on retire ce qui nous y attachait. S'il a été détruit (iOS a jeté son
-        // contrôleur, par exemple après le globe), on n'y touche surtout pas : ces contraintes pointeraient vers une
-        // vue qui n'existe plus.
-        if superview != nil { NSLayoutConstraint.deactivate(hostPins) }
+        // On ne « désactive » pas les attaches de l'ancien hôte : il a peut-être été détruit (iOS a jeté son
+        // contrôleur, par exemple après le globe), et y toucher planterait. Quitter l'ancien hôte les retire toutes
+        // seules ; on oublie juste nos références.
         hostPins.removeAll()
         removeFromSuperview()
-        // Le clavier remplit son hôte par simple redimensionnement automatique : plus aucun objet gardé d'un hôte
-        // à l'autre.
-        translatesAutoresizingMaskIntoConstraints = true
-        frame = host.bounds
-        autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        // Attaché par ses quatre bords, comme jusqu'à la version 191 : le clavier a toujours exactement la taille
+        // de son hôte. Le redimensionnement automatique essayé ensuite laissait parfois le clavier plus haut que
+        // son hôte, et la rangée du bas sortait de l'écran.
+        translatesAutoresizingMaskIntoConstraints = false
+        autoresizingMask = []
         host.addSubview(self)
+        hostPins = [
+            leadingAnchor.constraint(equalTo: host.leadingAnchor),
+            trailingAnchor.constraint(equalTo: host.trailingAnchor),
+            topAnchor.constraint(equalTo: host.topAnchor),
+            bottomAnchor.constraint(equalTo: host.bottomAnchor),
+        ]
+        NSLayoutConstraint.activate(hostPins)
         // Un nouvel hôte ne sait rien de la hauteur déjà demandée à l'ancien : on la redemande à la première mise en
-        // page ici. Sinon, même hauteur voulue qu'avant = rien de signalé, et l'hôte gardait une hauteur calculée
-        // sur sa taille provisoire (touches normales au lieu des grandes) : le bas du clavier était coupé.
+        // page ici.
         reportedHeight = 0
         builtFor = .zero
         setNeedsLayout()
@@ -1814,30 +1825,38 @@ final class KeyboardCanvas: UIView {
         s.layout = .qwerty
         s.mode = .full
         c.configure(settings: s, pro: true)
+        first.layoutIfNeeded()
         c.layoutIfNeeded()
         let wide = c.preferredHeight
+        let pinned = abs(c.bounds.width - 760) < 0.5 && abs(c.bounds.height - 330) < 0.5
         RunLoop.current.run(until: Date().addingTimeInterval(0.05))
         var asked = 0
         var askedFor: CGFloat = 0
         c.onPreferredHeightChange = { asked += 1; askedFor = c.preferredHeight }
         let second = UIView(frame: CGRect(x: 0, y: 0, width: 320, height: 216))
         c.move(to: second)
+        second.layoutIfNeeded()
+        c.layoutIfNeeded()
         let early = c.preferredHeight
         second.frame = CGRect(x: 0, y: 0, width: 760, height: early)
         second.layoutIfNeeded()
         c.layoutIfNeeded()
         RunLoop.current.run(until: Date().addingTimeInterval(0.05))
-        let filled = abs(c.bounds.width - 760) < 0.5
+        // Le clavier a exactement la taille de son hôte, jamais plus haut que lui.
+        let filled = pinned && abs(c.bounds.width - 760) < 0.5 && abs(c.bounds.height - early) < 0.5
+        // Tant que l'hôte est trop bas, rien ne dépasse : les touches se tassent, la rangée du bas reste entière.
+        let fits = c.fixedH + CGFloat(c.rowCount) * c.keyH + c.bottomExtra <= c.bounds.height + 0.5 && c.keyH < c.baseKeyH
         // L'hôte a la bonne hauteur : plus rien à redemander.
         second.frame = CGRect(x: 0, y: 0, width: 760, height: wide)
         second.layoutIfNeeded()
         c.layoutIfNeeded()
+        let followed = abs(c.bounds.height - wide) < 0.5
         asked = 0
         RunLoop.current.run(until: Date().addingTimeInterval(0.05))
-        let quiet = asked == 0
+        let quiet = asked == 0 && followed
         c.onPreferredHeightChange = nil
-        let ok = askedFor > 0 && abs(askedFor - wide) < 0.5 && early < wide - 1 && filled && quiet
-        print("RESULT hote hauteur_redemandee \(ok ? "yes" : "no") (voulue \(Int(wide)), trop tôt \(Int(early)), demandée \(Int(askedFor)), rempli \(filled), calme \(quiet))")
+        let ok = askedFor > 0 && abs(askedFor - wide) < 0.5 && early < wide - 1 && filled && quiet && fits
+        print("RESULT hote hauteur_redemandee \(ok ? "yes" : "no") (voulue \(Int(wide)), trop tôt \(Int(early)), demandée \(Int(askedFor)), rempli \(filled), calme \(quiet), rien ne dépasse \(fits))")
         return ok
     }
 
@@ -2145,6 +2164,14 @@ final class KeyboardCanvas: UIView {
     private static let globeKey = "foldboard.globeAt"
     private func globeTapped() {
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.globeKey)
+        // Avant de partir, on rend ce qui pèse : pendant le passage, iOS photographie ce clavier et prépare le
+        // suivant, et sur l'écran déplié il restait peu de marge. Les deux repères (avant, après) restent dans le
+        // journal de mémoire : si le clavier est fermé de force à ce moment, on saura avec quelle marge.
+        KBMemLog.mark("globe", mb: Self.footprintMB(), room: NeuralSwipe.availableMB())
+        trimMemory(flush: false)
+        NeuralSwipe.release()
+        KBSymbol.clear()
+        KBMemLog.mark("allégé", mb: Self.footprintMB(), room: NeuralSwipe.availableMB())
         // Après le toucher en cours, pas au milieu : iOS retire le clavier pendant cet appel, et le traitement du
         // doigt qui vient de se lever n'était pas fini.
         DispatchQueue.main.async { [weak self] in self?.input?.kbNextKeyboard() }
@@ -4016,6 +4043,11 @@ final class KeyboardCanvas: UIView {
         report += String(format: "mémoire %.0f Mo (max %.0f) · marge %.0f Mo · limite ≈ %.0f Mo · touches %d · vues %d\n",
                          mb, Self.memoryPeak, room, room > 0 ? mb + room : 0, KBViews.keys, KBViews.live)
         report += "listes rendues : \(listsShed ? "oui" : "non") · glisser neuronal : \(NeuralSwipe.statusLine)\n"
+        // La géométrie : le clavier, son hôte, sa fenêtre, l'écran, et la hauteur demandée à iOS (clavier coupé ?).
+        let hostH = superview?.bounds.height ?? -1
+        let winH = window?.bounds.height ?? -1
+        let seen = window.map { convert(bounds, to: $0).intersection($0.bounds).height } ?? -1
+        report += "hauteurs : clavier \(Int(bounds.height)) · hôte \(Int(hostH)) · visible \(Int(seen)) · fenêtre \(Int(winH)) · écran \(Int(screenSize.height)) · voulue \(Int(preferredHeight)) · touche \(Int(keyH))/\(Int(baseKeyH)) · portable \(laptopLike ? "oui" : "non")\n"
         report += KBMemLog.lines.suffix(8).joined(separator: "\n") + "\n" + text
         if input?.kbFullAccess == true {
             UIPasteboard.general.string = report

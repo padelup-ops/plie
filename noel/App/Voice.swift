@@ -59,12 +59,14 @@ final class SantaVoice {
             if (v.gender == .male) == male { s += 60 }
             if let i = langs.firstIndex(of: v.language) { s += 40 - i * 5 }
             if v.voiceTraits.contains(.isNoveltyVoice) { s -= 1000 }
+            // Les vieilles voix de synthèse (« Eloquence ») sonnent comme des robots.
+            if v.identifier.lowercased().contains("eloquence") { s -= 500 }
             return s
         }
         let prefix = String(book.voices.first?.prefix(2) ?? "en")
         let candidates = all.filter { v in langs.contains(where: { $0 == v.language }) || v.language.hasPrefix(prefix) }
         voice = candidates.max(by: { score($0, male: true) < score($1, male: true) }) ?? AVSpeechSynthesisVoice(language: book.voices.first)
-        // Le lutin : la voix la plus claire de la langue (souvent une voix de femme), montée dans les aigus.
+        // Le lutin lit les mots écrits par le parent : la voix la plus naturelle de la langue, telle quelle.
         elfVoice = candidates.max(by: { score($0, male: false) < score($1, male: false) }) ?? voice
         rate = book.rate
         pitchMultiplier = book.pitch
@@ -88,10 +90,10 @@ final class SantaVoice {
         engine.connect(pitch, to: eq, format: speechFormat)
         engine.connect(eq, to: reverb, format: speechFormat)
         engine.connect(reverb, to: engine.mainMixerNode, format: speechFormat)
-        // Le lutin : plus aigu, un peu plus vif, sans la pièce en bois (il est tout près du téléphone).
-        elfPitch.pitch = 380
-        elfPitch.rate = 1.06
-        elfEQ.bands[0].filterType = .highShelf; elfEQ.bands[0].frequency = 3500; elfEQ.bands[0].gain = 3; elfEQ.bands[0].bypass = false
+        // Le lutin : une voix douce et naturelle, sans effet (une voix montée dans les aigus faisait peur).
+        elfPitch.pitch = 0
+        elfPitch.rate = 1.0
+        elfEQ.bands[0].filterType = .highShelf; elfEQ.bands[0].frequency = 3500; elfEQ.bands[0].gain = 0; elfEQ.bands[0].bypass = true
         engine.connect(elf, to: elfPitch, format: speechFormat)
         engine.connect(elfPitch, to: elfEQ, format: speechFormat)
         engine.connect(elfEQ, to: engine.mainMixerNode, format: speechFormat)
@@ -156,8 +158,8 @@ final class SantaVoice {
         start()
         let u = AVSpeechUtterance(string: text)
         u.voice = elf ? elfVoice : voice
-        u.rate = elf ? min(0.56, rate + 0.06) : rate
-        u.pitchMultiplier = elf ? 1.15 : pitchMultiplier
+        u.rate = elf ? AVSpeechUtteranceDefaultSpeechRate * 0.94 : rate
+        u.pitchMultiplier = elf ? 1.0 : pitchMultiplier
         u.preUtteranceDelay = 0
         u.postUtteranceDelay = 0
         let target = speechFormat
@@ -319,11 +321,28 @@ final class VoiceLibrary {
         return url
     }
 
-    /// Le Père Noël a-t-il enregistré ce prénom (bonjour et au revoir) ?
+    /// La voix enregistrée sert-elle dans cette langue (toutes ses répliques y sont) ? Sinon c'est la voix de l'iPhone,
+    /// du début à la fin.
+    func ready(lang: String) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        if complete[lang] == nil {
+            complete[lang] = Bundle.main.url(forResource: "complet", withExtension: "txt", subdirectory: "voice/" + lang) != nil
+        }
+        return complete[lang] == true
+    }
+
+    /// Le Père Noël a-t-il enregistré son bonjour à ce prénom ?
     func knows(name: String, lang: String) -> Bool {
         let n = Self.normalized(name)
         guard !n.isEmpty else { return false }
-        return url(lang: lang, key: Self.helloKey(n)) != nil && url(lang: lang, key: Self.byeKey(n)) != nil
+        return url(lang: lang, key: Self.helloKey(n)) != nil
+    }
+
+    /// Et son au revoir ? (Sinon il dit au revoir sans le prénom.)
+    func knowsBye(name: String, lang: String) -> Bool {
+        let n = Self.normalized(name)
+        guard !n.isEmpty else { return false }
+        return url(lang: lang, key: Self.byeKey(n)) != nil
     }
 
     /// Les répliques dans l'ordre, ou rien si l'une d'elles manque (on retombe alors sur la synthèse, d'une seule voix).

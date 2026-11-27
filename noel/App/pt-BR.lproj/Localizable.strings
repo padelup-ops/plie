@@ -50,7 +50,7 @@
 "No microphone, no recording" = "Sem microfone, sem gravação";
 "Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone or the camera." = "O Papai Noel faz pausas para a criança responder, mas o app nunca escuta: ele não usa o microfone nem a câmera.";
 "No account, no tracking, no ads" = "Sem conta, sem rastreamento, sem anúncios";
-"There is no sign-up, no advertising and no analytics. Santa's voice is made by your iPhone, without the internet." = "Não há cadastro, nem publicidade, nem análises. A voz do Papai Noel é criada pelo seu iPhone, sem internet.";
+"There is no sign-up, no advertising and no analytics. Santa's voice is inside the app: it works without the internet." = "Não há cadastro, nem publicidade, nem análises. A voz do Papai Noel é criada pelo seu iPhone, sem internet.";
 "Purchases" = "Compras";
 "The full magic is bought through the App Store, protected by a question for grown-ups. We never see your payment details." = "A magia completa é comprada pela App Store, protegida por uma pergunta para adultos. Nunca vemos seus dados de pagamento.";
 "You're in control" = "Você no controle";
@@ -176,7 +176,7 @@
 "Santa Claus certifies that this child has been kind, curious and full of heart in %lld." = "O Papai Noel certifica que esta criança foi gentil, curiosa e de bom coração em %lld.";
 "The North Pole" = "O Polo Norte";
 "Santa will say this first name himself." = "O próprio Papai Noel vai dizer este nome.";
-"Santa's elf will say this first name." = "Quem vai dizer este nome é o duende do Papai Noel.";
+"Santa hasn't recorded this first name yet: he will say hello without it." = "O Papai Noel ainda não gravou este nome: ele vai cumprimentar sem dizê-lo.";
 "The surprise, the full stories, the elf's note about your child, the letter and the certificate." = "A surpresa, as histórias completas, o bilhete do duende, a carta e o certificado.";
 "Hear the whole call" = "Ouvir a ligação inteira";
 "Replay the preview" = "Ouvir a prévia de novo";
