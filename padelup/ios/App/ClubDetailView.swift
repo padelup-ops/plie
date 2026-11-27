@@ -122,7 +122,7 @@ struct ClubDetailView: View {
                 HStack(spacing: 10) {
                     ForEach(weather.prefix(30)) { h in
                         VStack(spacing: 6) {
-                            Text(h.time.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).locale(Locale(identifier: "fr_FR"))) + "h")
+                            Text(Self.hourLabel(h.time))
                                 .font(Neo.label(11)).foregroundStyle(Neo.dim)
                             Image(systemName: h.symbol).symbolRenderingMode(.multicolor).font(.system(size: 20))
                             Text("\(Int(h.temperature.rounded()))°").font(Neo.mono(14)).foregroundStyle(Neo.text)
@@ -137,6 +137,13 @@ struct ClubDetailView: View {
             }
         }
         .glassCard()
+    }
+
+    private static func hourLabel(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "fr_FR")
+        f.dateFormat = "HH'h'"
+        return f.string(from: date)
     }
 
     private func loadWeather() async {
