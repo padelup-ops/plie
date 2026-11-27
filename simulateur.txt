@@ -1,0 +1,10 @@
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-27-2 device=com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max
+home : Main display orientation: unknown
+mappins : Main display orientation: unknown
+mission : Main display orientation: unknown
+thread : Main display orientation: unknown
+collectibles : Main display orientation: unknown
+eggs : Main display orientation: unknown
+widgets : Main display orientation: unknown
+guide : Main display orientation: unknown
+characters : Main display orientation: unknown
