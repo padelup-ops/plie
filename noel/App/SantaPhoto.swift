@@ -89,12 +89,12 @@ struct SantaPhoto: View {
         }
     }
 
-    private struct Motion {
+    private struct Pose {
         var open = 0.0, blink = 0.0, breath = 0.0, tilt = 0.0, dx = 0.0, dy = 0.0, fire = 0.0
     }
 
-    private func motion(_ t: Double?) -> Motion {
-        var m = Motion()
+    private func motion(_ t: Double?) -> Pose {
+        var m = Pose()
         m.open = pow(min(1, max(0, mouth) * 1.3), 0.85)
         guard let t else {
             if mood == .laughing { m.open = max(m.open, 0.55) }
