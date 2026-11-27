@@ -20,33 +20,25 @@ jobs:
           UA="padelup-probe/1.0 (+https://github.com/padelup-ops/plie)"
           get() { curl -s -A "$UA" --max-time 25 "$@"; }
           {
-          echo "== plan du site"
-          get https://www.anybuddyapp.com/sitemap.xml | grep -oE '<loc>[^<]+</loc>' | head -15
-          for sm in $(get https://www.anybuddyapp.com/sitemap.xml | grep -oE '<loc>[^<]+\.xml</loc>' | sed -E 's/<\/?loc>//g' | head -6); do
-            echo "-- $sm"; get "$sm" | grep -oE '<loc>[^<]+</loc>' | sed -E 's/<\/?loc>//g' | grep -iE 'padel|club' | head -8
+          echo "== pages club (plan du site)"
+          get https://www.anybuddyapp.com/sitemap-clubs-fr.xml | grep -oE '<loc>[^<]+</loc>' | sed -E 's/<\/?loc>//g' > clubs.txt
+          wc -l clubs.txt; head -5 clubs.txt; grep -iE 'lille|lomme|villeneuve|bobigny|genis|ferney|geneve' clubs.txt | head -12
+          CLUB=$(grep -iE 'padel' clubs.txt | grep -iE 'lille|lomme|bobigny' | head -1); [ -z "$CLUB" ] && CLUB=$(head -1 clubs.txt)
+          echo "== page club : $CLUB"
+          get -D headers.txt "$CLUB" -o club.html; grep -iE "^(HTTP|set-cookie|content-type)" headers.txt | sed 's/=[^;]\{12,\}/=<valeur>/'
+          wc -c club.html
+          echo "-- mots-clés"
+          for k in startDateTime timeSlot timeSlots availabilit slotId price duration services '"slots"' clubSlug clubId reservation booking; do
+            printf "%s : %s\n" "$k" "$(grep -o "$k" club.html | wc -l)"
           done
-          echo "== robots"; get https://www.anybuddyapp.com/robots.txt | head -30
-          echo "== page de connexion"
-          get https://www.anybuddyapp.com/fr/login -o login.html
-          grep -oE '<(input|button|form)[^>]{0,200}>' login.html | head -20
-          grep -oE '(src)="[^"]+\.js[^"]*"' login.html | sed -E 's/^src="//; s/"$//' | sort -u > ljs.txt
-          wc -l ljs.txt
-          echo "== indices dans les scripts de la page de connexion"
-          while read -r s; do
-            case "$s" in http*) url="$s" ;; /*) url="https://www.anybuddyapp.com$s" ;; *) continue ;; esac
-            get "$url" -o js.txt || continue
-            hits=$(grep -oE '.{0,70}(localStorage|sessionStorage|Bearer |Authorization|accessToken|access_token|refreshToken|refresh_token|setCookie|js-cookie|cookies\.set|Cookies\.set|signInWith|/auth/|/login|/token|/oauth|firebase|cognito|supabase).{0,90}' js.txt | head -12)
-            [ -n "$hits" ] && { echo "--- $(basename "${url%%\?*}")"; echo "$hits"; }
-          done < ljs.txt
-          echo "== hôtes d'API cités"
-          cat login.html | grep -oE 'https://[a-z0-9.-]+anybuddy[a-z0-9.-]*' | sort | uniq -c | sort -rn | head
-          for s in $(cat ljs.txt); do case "$s" in http*) get "$s";; /*) get "https://www.anybuddyapp.com$s";; esac; done 2>/dev/null \
-            | grep -oE '"https://[a-z0-9.-]*anybuddy[a-z0-9.-]*[^"]{0,60}"' | sort | uniq -c | sort -rn | head -20
-          echo "== API publique (disponibilités)"
-          for u in "https://api.anybuddyapp.com/v1/clubs?activity=padel&limit=1" "https://api.anybuddyapp.com/v2/clubs?limit=1" \
-                   "https://www.anybuddyapp.com/api/v1/availabilities?clubSlug=4padel-bobigny&activity=padel"; do
-            echo "-- $u"; get -o body.txt -w "%{http_code}\n" "$u"; head -c 300 body.txt; echo
-          done
+          echo "-- extraits"
+          grep -oE '.{0,160}(startDateTime|timeSlot|availabilit|slotId).{0,260}' club.html | head -8
+          echo "-- liens de réservation"
+          grep -oE 'href="[^"]*(reserv|booking|book|checkout|date)[^"]*"' club.html | sort -u | head -12
+          echo "-- appels API dans la page"
+          grep -oE '(https://api\.anybuddyapp\.com|/api/)[a-zA-Z0-9/_?=&.-]{0,80}' club.html | sort -u | head -20
+          echo "== cookies posés par la page de connexion (noms seulement)"
+          get -D lh.txt -o /dev/null https://www.anybuddyapp.com/fr/login; grep -i '^set-cookie' lh.txt | sed -E 's/^set-cookie: ([^=]+)=.*/\1/I'
           } 2>&1 | tee resultat.txt
       - name: Publier
         if: always()
