@@ -1,0 +1,80 @@
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/01-home-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/02-mappins-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/03-mission-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/04-thread-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/05-collectibles-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/06-eggs-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/07-widgets-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/08-guide-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/09-characters-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/10-pro-dprimary.png
+Detected file type from extension: PNG
+Error: Device does not have a 'primary-1' display port
+
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=22):
+Device does not have a 'primary-1' display port
+Invalid argument
