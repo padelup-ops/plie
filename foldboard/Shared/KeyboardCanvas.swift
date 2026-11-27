@@ -551,7 +551,7 @@ final class KeyboardCanvas: UIView {
                 let r = await KBTranslate.translate(t0, from: pair.from, to: pair.to)
                 guard let self else { return }
                 switch r {
-                case .success(let out): self.writeDictation(out)
+                case .success(let out): self.writeDictation(out, lang: pair.to)
                 case .failure(let f): self.translateFailed(f); self.writeDictation(t0)
                 }
             }
@@ -560,12 +560,29 @@ final class KeyboardCanvas: UIView {
         writeDictation(t0)
     }
 
-    private func writeDictation(_ text: String) {
-        let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !t.isEmpty else { return }
+    /// La langue dictée (celle de la disposition), en deux lettres.
+    private var dictationLang: String {
+        switch eff.layout {
+        case .azerty: return "fr"
+        case .qwertz: return "de"
+        case .spanish: return "es"
+        case .swedish: return "sv"
+        case .qwerty: return "en"
+        }
+    }
+
+    /// La fin de ce que la dictée vient d'écrire : la lettre tapée juste après commence un nouveau mot (l'espace
+    /// vient toute seule, comme après un mot écrit en glissant).
+    private var dictatedTail: String?
+
+    private func writeDictation(_ text: String, lang: String? = nil) {
         let before = input?.kbTextBefore() ?? ""
-        let space = !(before.isEmpty || before.hasSuffix(" ") || before.hasSuffix("\n"))
-        input?.kbInsert((space ? " " : "") + t)
+        // Comme la dictée d'Apple : « à la ligne », la majuscule selon l'endroit où l'on écrit, l'espace devant.
+        let t = KBDictationText.prepare(text, before: before, lang: String((lang ?? dictationLang).prefix(2)))
+        guard !t.isEmpty else { return }
+        input?.kbInsert(t)
+        dictatedTail = t.last.map { $0.isWhitespace } == true ? nil : String(t.suffix(16))
+        glidedWord = nil
         wordTouches.removeAll()
         lastCorrection = nil
         refreshSuggestionsSoon()
@@ -1447,6 +1464,7 @@ final class KeyboardCanvas: UIView {
         glideLayer.path = nil
         glideLayer.opacity = 0
         glidedWord = nil
+        dictatedTail = nil
         lastCorrection = nil
         wordTouches.removeAll()
         emojiQuery = nil
@@ -4259,6 +4277,7 @@ final class KeyboardCanvas: UIView {
             typeText(text)
             noteTouch(text, at: tr.start)
         case .backspace:
+            dictatedTail = nil
             if let g = glidedWord, (input?.kbTextBefore() ?? "").hasSuffix(g) {
                 for _ in 0..<g.count { input?.kbDelete() }
                 glidedWord = nil
@@ -4446,6 +4465,11 @@ final class KeyboardCanvas: UIView {
             glidedWord = nil
             if let c = text.first, c.isLetter || c.isNumber, (input?.kbTextBefore() ?? "").hasSuffix(g) { input?.kbInsert(" ") }
         }
+        // Pareil juste après une dictée.
+        if let tail = dictatedTail {
+            dictatedTail = nil
+            if let c = text.first, c.isLetter || c.isNumber, (input?.kbTextBefore() ?? "").hasSuffix(tail) { input?.kbInsert(" ") }
+        }
         if accentKey(text) || accentAfter(text) {
             lastCorrection = nil
             refreshSuggestionsSoon()
@@ -4490,6 +4514,7 @@ final class KeyboardCanvas: UIView {
     private var lastSpaceAt: TimeInterval = 0
 
     private func typeSpace() {
+        dictatedTail = nil
         let before = input?.kbTextBefore() ?? ""
         let now = ProcessInfo.processInfo.systemUptime
         defer { lastSpaceAt = now }
