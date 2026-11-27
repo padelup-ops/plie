@@ -2,6 +2,7 @@
 //
 // Le compagnon non officiel de GTA VI. Sur l'iPhone Duo ouvert, chaque écran a deux moitiés : la liste d'un côté du pli,
 // le détail (ou la carte) de l'autre. Sur iPad pareil, sur iPhone une seule page à la fois.
+// Au démarrage : l'animation d'ouverture (Launch.swift), puis, la première fois, la présentation (Onboarding.swift).
 
 import SwiftUI
 
@@ -23,7 +24,7 @@ struct VicefoldApp: App {
                 .environment(content)
                 .environment(progress)
                 .environment(store)
-                .tint(VF.coral)
+                .tint(VF.flamingo)
                 .task {
                     // Déjà venu dans la communauté : Game Center se reconnecte en silence.
                     if GameCenterHub.shared.used { GameCenterHub.shared.authenticate() }
@@ -43,9 +44,39 @@ enum AppTab: Hashable { case home, guides, map, tracker, more, search }
 struct RootView: View {
     @State private var tab: AppTab = ShotMode.initialTab
     @AppStorage("vicefold.onboarded") private var onboarded = false
+    @State private var launching = LaunchView.wanted
+    @State private var router = AppRouter.shared
     @Environment(\.horizontalSizeClass) private var sizeClass
 
+    /// La présentation : à la première ouverture, ou rouverte depuis les réglages. Elle ne bloque jamais quelqu'un
+    /// qui l'a déjà vue.
+    private var introShown: Bool {
+        ShotMode.onboardingPage != nil || router.showIntro || (!onboarded && ShotMode.route == nil)
+    }
+
     var body: some View {
+        ZStack {
+            tabs
+                .accessibilityHidden(introShown || launching)
+            if introShown {
+                OnboardingFlow {
+                    onboarded = true
+                    router.showIntro = false
+                }
+                .transition(.opacity)
+                .zIndex(1)
+            }
+            if launching {
+                LaunchView { launching = false }
+                    .zIndex(2)
+            }
+        }
+        .animation(.easeInOut(duration: 0.35), value: introShown)
+        // L'app est toujours sombre : le néon et la carte holographique sont pensés pour la nuit.
+        .preferredColorScheme(.dark)
+    }
+
+    private var tabs: some View {
         TabView(selection: $tab) {
             Tab("Home", systemImage: "sun.horizon", value: AppTab.home) { HomeView(tab: $tab) }
             Tab("Guides", systemImage: "book.pages", value: AppTab.guides) { GuidesView() }
@@ -56,7 +87,9 @@ struct RootView: View {
             // deux barres de navigation. Sur iPhone, la recherche s'ouvre depuis l'accueil.
             if sizeClass != .compact {
                 Tab(value: AppTab.search, role: .search) {
-                    DualLayout { SearchView() } secondary: { EmptyDetail(icon: "magnifyingglass", text: "Search guides, missions, places, characters and cheat codes.") }
+                    DualLayout { SearchView() } secondary: {
+                        EmptyDetail(icon: "magnifyingglass", text: "Search", message: "Search guides, missions, places, vehicles, easter eggs, characters and cheat codes.")
+                    }
                 }
             }
         }
@@ -64,7 +97,7 @@ struct RootView: View {
         .tabBarMinimizeBehavior(.onScrollDown)
         .onChange(of: sizeClass, initial: true) { _, c in if c == .compact && tab == .search { tab = .home } }
         .tint(VF.flamingo)
-        .onChange(of: AppRouter.shared.mapPlace) { _, p in if p != nil { tab = .map } }
+        .onChange(of: router.mapPlace) { _, p in if p != nil { tab = .map } }
         .onOpenURL { url in
             switch url.host() {
             case "tracker": tab = .tracker
@@ -73,11 +106,7 @@ struct RootView: View {
             default: tab = .home
             }
         }
-        .fullScreenCover(isPresented: .constant(ShotMode.route == "widgets")) { NavigationStack { WidgetGallery() } }
-        .sheet(isPresented: Binding(get: { !onboarded && ShotMode.route == nil }, set: { if !$0 { onboarded = true } })) {
-            OnboardingView { onboarded = true }
-                .interactiveDismissDisabled()
-        }
+        .fullScreenCover(isPresented: .constant(ShotMode.route == "widgets")) { NavigationStack { WidgetGallery() }.preferredColorScheme(.dark) }
     }
 }
 
@@ -94,7 +123,7 @@ extension EnvironmentValues {
 }
 
 /// La liste d'un côté, le détail de l'autre. Sur le Duo ouvert, la séparation tombe exactement sur le pli : rien
-/// n'est jamais coupé en deux.
+/// n'est jamais coupé en deux. Le pli garde la couleur du fond (pas de bande noire au milieu de l'écran).
 struct DualLayout<Primary: View, Secondary: View>: View {
     @ViewBuilder var primary: Primary
     @ViewBuilder var secondary: Secondary
@@ -105,13 +134,13 @@ struct DualLayout<Primary: View, Secondary: View>: View {
             if let fold, fold.height >= geo.size.height * 0.9 {
                 HStack(spacing: 0) {
                     primary.environment(\.vfWide, true).frame(width: fold.minX)
-                    Color.black.frame(width: fold.width)
+                    VFBackdrop().frame(width: fold.width)
                     secondary.environment(\.vfWide, true).frame(maxWidth: .infinity)
                 }
             } else if geo.size.width >= 740 {
                 HStack(spacing: 0) {
                     primary.environment(\.vfWide, true).frame(width: min(440, geo.size.width * 0.42))
-                    Divider()
+                    Rectangle().fill(VF.hairline).frame(width: 1).ignoresSafeArea()
                     secondary.environment(\.vfWide, true).frame(maxWidth: .infinity)
                 }
             } else {
@@ -136,11 +165,12 @@ struct DualLayout<Primary: View, Secondary: View>: View {
 struct EmptyDetail: View {
     var icon: String
     var text: LocalizedStringKey
+    var message: LocalizedStringKey?
+
     var body: some View {
-        ContentUnavailableView {
-            Label(text, systemImage: icon)
-        }
-        .foregroundStyle(.secondary)
+        VFEmptyState(icon: icon, title: text, message: message)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(VFBackdrop())
     }
 }
 
@@ -156,11 +186,28 @@ enum ShotMode {
     static var initialTab: AppTab {
         switch route {
         case "guides", "guide": return .guides
-        case "map", "mappins", "mycard": return .map
-        case "tracker", "missions", "mission", "share", "collectibles": return .tracker
-        case "more", "characters", "radio", "profile", "pro", "cheats", "eggs", "community", "friends", "thread": return .more
+        case "map", "mappins", "mycard", "place", "layers": return .map
+        case "tracker", "missions", "mission", "share", "collectibles", "challenges": return .tracker
+        case "more", "characters", "radio", "profile", "pro", "cheats", "eggs", "community", "friends", "thread", "settings", "vehicles": return .more
         case "search": return .search
         default: return .home
         }
+    }
+
+    /// « launch » : l'animation d'ouverture figée sur le nom allumé ; « launchsun » : pendant le lever du soleil ;
+    /// « launchfold » : pendant l'ouverture en deux.
+    static var launchFrame: Double? {
+        switch route {
+        case "launch": return 1.70
+        case "launchsun": return 0.62
+        case "launchfold": return 2.25
+        default: return nil
+        }
+    }
+
+    /// « onb1 » … « onb5 » : une page de la présentation.
+    static var onboardingPage: Int? {
+        guard let r = route, r.hasPrefix("onb"), let n = Int(r.dropFirst(3)), n >= 1 else { return nil }
+        return n - 1
     }
 }

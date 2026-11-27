@@ -15,34 +15,47 @@ struct WidgetGallery: View {
         ScrollView {
             VStack(spacing: 22) {
                 // L'écran d'accueil
-                VStack(spacing: 16) {
-                    HStack(spacing: 16) {
-                        tile(snap, .small, w: 158, h: 158)
-                        tile(snap, .small, w: 158, h: 158, days: true)
+                VStack(spacing: 14) {
+                    Text("Home Screen").vfHUD(VF.textDim).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 22)
+                    // Les tuiles gardent leurs proportions et rétrécissent ensemble sur un écran étroit.
+                    ViewThatFits(in: .horizontal) {
+                        tiles(snap, unit: 158)
+                        tiles(snap, unit: 142)
+                        tiles(snap, unit: 126)
                     }
-                    tile(snap, .medium, w: 332, h: 158)
-                    tile(snap, .large, w: 332, h: 348)
                 }
-                .padding(.vertical, 26)
+                .padding(.vertical, 22)
                 .frame(maxWidth: .infinity)
-                .background(VF.dusk.opacity(0.9), in: .rect(cornerRadius: 34))
+                .background {
+                    ZStack {
+                        SynthScene(time: 0, sunrise: 1, palms: false, horizon: 0.74).opacity(0.55)
+                        VF.abyss.opacity(0.35)
+                    }
+                    .clipShape(.rect(cornerRadius: 34, style: .continuous))
+                }
+                .overlay(RoundedRectangle(cornerRadius: 34, style: .continuous).stroke(VF.hairline, lineWidth: 1))
 
                 // L'écran verrouillé
                 VStack(spacing: 12) {
-                    Text(ShotMode.route != nil ? Calendar.current.date(bySettingHour: 9, minute: 41, second: 0, of: Date()) ?? Date() : Date(), format: .dateTime.hour().minute()).font(.system(size: 64, weight: .semibold, design: .rounded)).foregroundStyle(.white)
+                    Text("Lock Screen").vfHUD(VF.textDim).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 22)
+                    Text(ShotMode.route != nil ? Calendar.current.date(bySettingHour: 9, minute: 41, second: 0, of: Date()) ?? Date() : Date(), format: .dateTime.hour().minute())
+                        .font(.system(size: 64, weight: .semibold, design: .rounded)).foregroundStyle(.white)
+                        .lineLimit(1).minimumScaleFactor(0.6)
                     HStack(spacing: 12) {
                         VFWidgetFace(snap: snap, size: .circular).frame(width: 64, height: 64)
                         VFWidgetFace(snap: snap, size: .rectangular).frame(width: 170, height: 64)
                     }
                     .foregroundStyle(.white)
-                    .environment(\.colorScheme, .dark)
+                    .tint(.white)
                 }
-                .padding(.vertical, 24)
+                .padding(.vertical, 22)
                 .frame(maxWidth: .infinity)
-                .background(LinearGradient(colors: [VF.ink, Color(red: 0.25, green: 0.12, blue: 0.35)], startPoint: .top, endPoint: .bottom), in: .rect(cornerRadius: 34))
+                .background(LinearGradient(colors: [VF.panel, Color(red: 0.20, green: 0.06, blue: 0.30)], startPoint: .top, endPoint: .bottom), in: .rect(cornerRadius: 34, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 34, style: .continuous).stroke(VF.hairline, lineWidth: 1))
 
-                Text("Touch and hold the Home Screen, tap Edit, then Add Widget.")
-                    .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                Label("Touch and hold the Home Screen, tap Edit, then Add Widget.", systemImage: "hand.tap")
+                    .font(.footnote).foregroundStyle(VF.textDim).multilineTextAlignment(.leading)
+                    .vfCard(radius: 18, padding: 14)
             }
             .padding()
             .frame(maxWidth: 520)
@@ -57,22 +70,27 @@ struct WidgetGallery: View {
         }
     }
 
-    private func tile(_ s: VFSnapshot, _ size: VFWidgetSize, w: CGFloat, h: CGFloat, days: Bool = false) -> some View {
-        Group {
-            if days {
-                let d = VFWidgetFace.dayInLeonida()
-                VStack(spacing: 0) {
-                    Text("\(d)").font(VF.display(56)).monospacedDigit().foregroundStyle(VF.gradient)
-                    Text("days in Leonida").font(.caption.weight(.semibold))
-                }
-            } else {
-                VFWidgetFace(snap: s, size: size)
+    private func tiles(_ snap: VFSnapshot, unit: CGFloat) -> some View {
+        let gap = unit * 0.1
+        let wide = unit * 2 + gap
+        return VStack(spacing: gap) {
+            HStack(spacing: gap) {
+                tile(w: unit, h: unit) { VFWidgetFace(snap: snap, size: .small) }
+                tile(w: unit, h: unit) { VFDaysFace(days: VFDaysFace.days()) }
             }
+            tile(w: wide, h: unit) { VFWidgetFace(snap: snap, size: .medium) }
+            tile(w: wide, h: unit * 2.2) { VFWidgetFace(snap: snap, size: .large) }
         }
-        .padding(16)
-        .frame(width: w, height: h)
-        .background(VFWidgetBackground())
-        .clipShape(.rect(cornerRadius: 24, style: .continuous))
-        .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
+        .frame(width: wide)
+    }
+
+    private func tile<Face: View>(w: CGFloat, h: CGFloat, @ViewBuilder face: () -> Face) -> some View {
+        face()
+            .padding(16)
+            .frame(width: w, height: h)
+            .background(VFWidgetBackground())
+            .clipShape(.rect(cornerRadius: 24, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(VF.hairline, lineWidth: 1))
+            .shadow(color: .black.opacity(0.45), radius: 12, y: 6)
     }
 }

@@ -44,10 +44,14 @@ enum Leonida {
     }
 
     /// Dessine la carte : d'abord un niveau grossier (jamais de trou pendant qu'on zoome), puis le bon niveau.
+    /// `holo` : la carte recolorée en hologramme (voir `hologram`) ; sinon ses couleurs d'origine, un peu assombries
+    /// pour la nuit.
     @MainActor
-    static func draw(_ ctx: inout GraphicsContext, visible r: CGRect, level z: Int, dark: Bool) {
-        ctx.fill(Path(r.insetBy(dx: -size.width, dy: -size.height)), with: .color(water))
-        var c = ctx
+    static func draw(_ ctx: inout GraphicsContext, visible r: CGRect, level z: Int, holo: Bool) {
+        var base = ctx
+        if holo { base.addFilter(.colorMatrix(hologram)) }
+        base.fill(Path(r.insetBy(dx: -size.width, dy: -size.height)), with: .color(water))
+        var c = base
         c.clip(to: Path(CGRect(origin: .zero, size: size)))
         let levels = z > 1 ? [max(0, z - 2), z] : [z]
         for lv in levels {
@@ -57,8 +61,24 @@ enum Leonida {
                 }
             }
         }
-        if dark { c.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black.opacity(0.18))) }
+        if !holo { ctx.fill(Path(r.insetBy(dx: -size.width, dy: -size.height)), with: .color(.black.opacity(0.22))) }
     }
+
+    /// Le réglage « couleurs d'origine » (faux par défaut : hologramme).
+    static let styleKey = "vicefold.mapOriginal"
+
+    /// L'hologramme : une simple transformation des couleurs de la même carte, faite à l'affichage (les tuiles ne
+    /// sont pas modifiées). La mer devient bleu nuit, la terre un cyan sombre, les routes un cyan clair ; une part
+    /// de la teinte d'origine reste, pour distinguer parcs, plages et quartiers.
+    /// sortie = bleu nuit + (1,25 × rouge − 0,15) × teinte + 0,3 × chrominance d'origine.
+    static let hologram: ColorMatrix = {
+        var m = ColorMatrix()
+        m.r1 = 0.2862; m.r2 = -0.2146; m.r3 = -0.0217; m.r4 = 0; m.r5 = 0.014
+        m.g1 = 0.3862; m.g2 = 0.0854; m.g3 = -0.0217; m.g4 = 0; m.g5 = -0.014
+        m.b1 = 0.5362; m.b2 = -0.2146; m.b3 = 0.2783; m.b4 = 0; m.b5 = 0.038
+        m.a1 = 0; m.a2 = 0; m.a3 = 0; m.a4 = 1; m.a5 = 0
+        return m
+    }()
 }
 
 /// Les tuiles déjà décodées (on en garde quelques centaines en mémoire).

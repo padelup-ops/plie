@@ -18,36 +18,45 @@ struct EggsView: View {
         let found = eggs.filter { progress.found($0) }.count
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 10) {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text("\(found)").font(VF.display(56)).monospacedDigit().foregroundStyle(VF.flamingo)
-                        Text("of \(eggs.count) found").font(VF.display(24, relativeTo: .title2))
+                        Text(verbatim: "\(found)").font(VF.display(60)).monospacedDigit().foregroundStyle(VF.gradient)
+                            .shadow(color: VF.flamingo.opacity(0.55), radius: 12)
+                            .contentTransition(.numericText())
+                        Text("of \(eggs.count) found").font(VF.display(24, relativeTo: .title2)).foregroundStyle(VF.text)
                     }
+                    .accessibilityElement(children: .combine)
+                    VFBar(value: Double(found) / Double(max(1, eggs.count)))
                     Text("Secrets spotted by players since launch. Tap one to see where; the how stays hidden until you ask.")
-                        .font(.subheadline).foregroundStyle(.secondary)
+                        .font(.subheadline).foregroundStyle(VF.textDim)
                     Picker("Show", selection: $filter) {
                         Text("All").tag(0)
                         Text("Found").tag(1)
                         Text("To find").tag(2)
                     }
                     .pickerStyle(.segmented)
-                    .padding(.top, 6)
+                    .padding(.top, 4)
                 }
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 16)], spacing: 22) {
-                    ForEach(Array(shown.enumerated()), id: \.element.id) { i, e in
-                        NavigationLink { EggDetail(egg: e) } label: {
-                            Polaroid(egg: e, photoHeight: 120).rotationEffect(.degrees(i % 3 == 0 ? -1.4 : (i % 3 == 1 ? 1.1 : -0.4)))
-                        }
-                        .buttonStyle(.plain)
+                if eggs.isEmpty {
+                    VFEmptyState(icon: "oval.portrait", title: "No easter eggs yet", message: "They arrive with a content update, no app update needed.")
+                } else if shown.isEmpty {
+                    VFEmptyState(icon: filter == 1 ? "oval.portrait" : "checkmark.seal.fill",
+                                 title: filter == 1 ? "Nothing found yet" : "Everything found",
+                                 message: filter == 1 ? "Open a secret and mark it as found when you see it in the game." : nil)
+                }
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 14)], spacing: 14) {
+                    ForEach(shown) { e in
+                        NavigationLink { EggDetail(egg: e) } label: { HoloCard(egg: e, photoHeight: 120) }
+                            .buttonStyle(.plain)
                     }
                 }
                 Text("Written by us from what players and the press reported. \"Reported\" means only one source so far.")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(.caption).foregroundStyle(VF.textDim)
 
                 SectionTitle(title: "My finds", action: "Add my find") { editing = VFMyEgg(title: "") }
                 if progress.data.myEggs.isEmpty {
-                    Text("Spotted something odd? Keep it here with a photo. It stays on your devices.")
-                        .font(.subheadline).foregroundStyle(.secondary)
+                    Label("Spotted something odd? Keep it here with a photo. It stays on your devices.", systemImage: "camera.viewfinder")
+                        .font(.subheadline).foregroundStyle(VF.textDim)
                         .vfCard()
                 } else {
                     ForEach(progress.data.myEggs) { e in
@@ -55,11 +64,11 @@ struct EggsView: View {
                             HStack(spacing: 12) {
                                 MyEggThumb(egg: e)
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text(e.title).font(.headline).foregroundStyle(.primary)
-                                    if !e.place.isEmpty { Text(e.place).font(.caption).foregroundStyle(.secondary) }
+                                    Text(e.title).font(.headline).foregroundStyle(VF.text).multilineTextAlignment(.leading)
+                                    if !e.place.isEmpty { Text(e.place).font(.caption).foregroundStyle(VF.textDim) }
                                 }
                                 Spacer()
-                                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(VF.textFaint)
                             }
                             .vfCard(radius: 18, padding: 12)
                         }
@@ -77,106 +86,101 @@ struct EggsView: View {
     }
 }
 
-struct EggRow: View {
-    var egg: VFEgg
-    @Environment(Progress.self) private var progress
-
-    var body: some View {
-        let hidden = progress.hidden(egg.spoiler)
-        HStack(spacing: 12) {
-            Button { progress.toggle(egg) } label: {
-                Image(systemName: progress.found(egg) ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundStyle(progress.found(egg) ? VF.teal : .secondary)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(progress.found(egg) ? "Found" : "Not found yet")
-            VStack(alignment: .leading, spacing: 3) {
-                Text(hidden ? String(localized: "Hidden until your chapter") : egg.title).font(.headline)
-                HStack(spacing: 6) {
-                    Text(egg.area)
-                    if egg.confirmed != true {
-                        Text("Reported").font(.caption2.bold()).padding(.horizontal, 5).padding(.vertical, 1)
-                            .background(Color.orange.opacity(0.2), in: .capsule).foregroundStyle(.orange)
-                    }
-                }
-                .font(.caption).foregroundStyle(.secondary)
-            }
-        }
-    }
-}
-
 struct EggDetail: View {
     var egg: VFEgg
     @Environment(Progress.self) private var progress
     @State private var showHow = false
+    @State private var revealed = false
     @State private var map = MapState()
 
     var body: some View {
-        let hidden = progress.hidden(egg.spoiler)
-        List {
-            Section {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(hidden ? String(localized: "Hidden until your chapter") : egg.title).font(.title2.bold())
-                    Label(egg.area, systemImage: "mappin.and.ellipse").font(.subheadline).foregroundStyle(.secondary)
-                    if !hidden { Text(egg.summary).fixedSize(horizontal: false, vertical: true) }
-                    if egg.confirmed != true {
-                        Label("Reported by one source so far", systemImage: "questionmark.circle").font(.caption).foregroundStyle(.orange)
-                    }
+        let hidden = progress.hidden(egg.spoiler) && !revealed
+        let found = progress.found(egg)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Label(egg.area, systemImage: "mappin.and.ellipse").font(VF.mono(11)).textCase(.uppercase).foregroundStyle(VF.cyan)
+                Text(hidden ? String(localized: "Hidden until your chapter") : egg.title).font(VF.display(36)).foregroundStyle(VF.text)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
+                if egg.confirmed != true {
+                    Label("Reported by one source so far", systemImage: "questionmark.circle").font(.caption.weight(.semibold)).foregroundStyle(VF.sun)
                 }
-                .padding(.vertical, 4)
-                Button { progress.toggle(egg) } label: {
-                    Label(progress.found(egg) ? "Found" : "Mark as found", systemImage: progress.found(egg) ? "checkmark.circle.fill" : "circle")
-                }
-                .tint(progress.found(egg) ? VF.teal : VF.coral)
-            }
-            if !hidden, let how = egg.how {
-                Section {
-                    if showHow {
-                        Text(how).fixedSize(horizontal: false, vertical: true)
-                    } else {
-                        Button { withAnimation { showHow = true } } label: { Label("Show how to find it", systemImage: "eye") }
-                    }
-                } header: {
-                    Text("How to find it")
-                }
-            }
-            if let x = egg.x, let y = egg.y {
-                Section {
-                    LeonidaMapView()
-                        .environment(map)
-                        .frame(height: 280)
-                        .allowsHitTesting(false)
-                        .listRowInsets(EdgeInsets())
-                        .onAppear {
-                            map.layers = []
-                            map.showPins = false
-                            map.animateFocus = false
-                            map.zoom = 5
-                            map.focus = CGPoint(x: x * Leonida.size.width, y: y * Leonida.size.height)
+                if hidden {
+                    SpoilerGate(chapter: egg.spoiler ?? 0) { revealed = true }
+                } else {
+                    Text(egg.summary).foregroundStyle(VF.text).lineSpacing(3).fixedSize(horizontal: false, vertical: true)
+                    if let how = egg.how {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("How to find it").font(.headline).foregroundStyle(VF.text)
+                            if showHow {
+                                Text(how).foregroundStyle(VF.text).fixedSize(horizontal: false, vertical: true)
+                            } else {
+                                Button { withAnimation(VFMotion.ease) { showHow = true } } label: { Label("Show how to find it", systemImage: "eye") }
+                                    .buttonStyle(.vf(.secondary, compact: true))
+                            }
                         }
-                        .overlay {
-                            Image(systemName: "oval.portrait.fill")
-                                .font(.system(size: 22))
-                                .foregroundStyle(.white, VF.magenta)
-                                .padding(8).background(VF.magenta, in: .circle)
-                                .overlay(Circle().stroke(.white, lineWidth: 2))
+                        .vfCard(radius: 18, padding: 16)
+                    }
+                    if let x = egg.x, let y = egg.y {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Roughly here").font(.headline).foregroundStyle(VF.text)
+                            LeonidaMapView(decorated: false)
+                                .environment(map)
+                                .frame(height: 260)
                                 .allowsHitTesting(false)
+                                .clipShape(.rect(cornerRadius: 16, style: .continuous))
+                                .overlay {
+                                    ZStack {
+                                        Circle().stroke(VF.flamingo.opacity(0.6), lineWidth: 1.5).frame(width: 54, height: 54)
+                                        Image(systemName: "oval.portrait.fill")
+                                            .font(.system(size: 15, weight: .bold))
+                                            .foregroundStyle(VF.ink)
+                                            .frame(width: 32, height: 32).background(VF.flamingo, in: .circle)
+                                            .overlay(Circle().stroke(.white, lineWidth: 2))
+                                            .shadow(color: VF.flamingo, radius: 8)
+                                    }
+                                    .allowsHitTesting(false)
+                                    .accessibilityHidden(true)
+                                }
+                                .vfTicks(VF.cyan, length: 10, inset: 7)
+                                .onAppear {
+                                    map.layers = []
+                                    map.showPins = false
+                                    map.animateFocus = false
+                                    map.zoom = 5
+                                    map.focus = CGPoint(x: x * Leonida.size.width, y: y * Leonida.size.height)
+                                }
+                            Text("The spot is approximate.").font(.caption).foregroundStyle(VF.textDim)
                         }
-                } header: {
-                    Text("Roughly here")
-                } footer: {
-                    Text("The spot is approximate.")
+                        .vfCard(radius: 18, padding: 12)
+                    }
+                    if let refs = egg.refs, !refs.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("A nod to").font(.headline).foregroundStyle(VF.text)
+                            ForEach(refs, id: \.self) { r in
+                                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                                    Circle().fill(VF.cyan).frame(width: 5, height: 5).alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
+                                    Text(r).font(.subheadline).foregroundStyle(VF.textDim)
+                                }
+                            }
+                        }
+                        .vfCard(radius: 18, padding: 16)
+                    }
                 }
-            }
-            if let refs = egg.refs, !refs.isEmpty, !hidden {
-                Section("A nod to") {
-                    ForEach(refs, id: \.self) { Text($0) }
+                Button { progress.toggle(egg) } label: {
+                    Label(found ? "Found" : "Mark as found", systemImage: found ? "checkmark.circle.fill" : "circle").frame(maxWidth: .infinity)
                 }
+                .buttonStyle(.vf(found ? .done : .primary))
+                .padding(.top, 4)
             }
+            .padding()
+            .frame(maxWidth: 720, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
+        .background(VFBackdrop())
         .navigationTitle("Easter egg")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { Recents.shared.opened(.egg, egg.id) }
     }
 }
 
@@ -187,11 +191,11 @@ struct MyEggThumb: View {
             if let f = egg.photo, let img = UIImage(contentsOfFile: Progress.eggPhotoURL(f).path) {
                 Image(uiImage: img).resizable().scaledToFill()
             } else {
-                Image(systemName: "sparkles").foregroundStyle(.white).frame(maxWidth: .infinity, maxHeight: .infinity).background(VF.gradient)
+                Image(systemName: "sparkles").foregroundStyle(VF.ink).frame(maxWidth: .infinity, maxHeight: .infinity).background(VF.blaze)
             }
         }
         .frame(width: 44, height: 44)
-        .clipShape(.rect(cornerRadius: 10))
+        .clipShape(.rect(cornerRadius: 10, style: .continuous))
     }
 }
 
@@ -203,25 +207,29 @@ struct MyEggEditor: View {
 
     var body: some View {
         Form {
-            Section {
-                TextField("What did you find?", text: $egg.title)
-                TextField("Where (area, street, landmark)", text: $egg.place)
-                TextField("Note", text: $egg.note, axis: .vertical).lineLimit(2...6)
-            }
-            Section {
-                PhotosPicker(selection: $item, matching: .images) {
-                    HStack {
-                        MyEggThumb(egg: egg)
-                        Text(egg.photo == nil ? "Add a photo" : "Change the photo")
+            Group {
+                Section {
+                    TextField("What did you find?", text: $egg.title)
+                    TextField("Where (area, street, landmark)", text: $egg.place)
+                    TextField("Note", text: $egg.note, axis: .vertical).lineLimit(2...6)
+                }
+                Section {
+                    PhotosPicker(selection: $item, matching: .images) {
+                        HStack {
+                            MyEggThumb(egg: egg)
+                            Text(egg.photo == nil ? "Add a photo" : "Change the photo")
+                        }
                     }
                 }
+                if progress.data.myEggs.contains(where: { $0.id == egg.id }) {
+                    Section { Button("Delete", role: .destructive) { progress.remove(egg); dismiss() } }
+                }
             }
-            if progress.data.myEggs.contains(where: { $0.id == egg.id }) {
-                Section { Button("Delete", role: .destructive) { progress.remove(egg); dismiss() } }
-            }
+            .vfRows()
         }
         .navigationTitle("My find")
         .navigationBarTitleDisplayMode(.inline)
+        .vfScreen()
         .toolbar {
             ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
             ToolbarItem(placement: .confirmationAction) {
