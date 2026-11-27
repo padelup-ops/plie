@@ -1,0 +1,176 @@
+APP 6827349081 Foldly : compteur de plis
+ÉCHEC  catégories HEALTH_AND_FITNESS / UTILITIES -> HTTP 409 ENTITY_ERROR.RELATIONSHIP.INVALID_STATE: None; ENTITY_ERROR.RELATIONSHIP.INVALID_STATE: None
+ÉCHEC  classification par âge (aucun contenu sensible) -> HTTP 409 STATE_ERROR: This age rating declaration is not editable. Is the corresponding AppInfos editable?
+       attributs envoyés : {"advertising": false, "alcoholTobaccoOrDrugUseOrReferences": "NONE", "contests": "NONE", "gambling": false, "gamblingSimulated": "NONE", "gunsOrOtherWeapons": "NONE", "healthOrWellnessTopics": false, "lootBox": false, "medicalOrTreatmentInformation": "NONE", "messagingAndChat": false, "parentalControls": false, "profanityOrCrudeHumor": "NONE", "ageAssurance": false, "sexualContentGraphicAndNudity": "NONE", "sexualContentOrNudity": "NONE", "socialMedia": false, "socialMediaAgeRestricted": false, "horrorOrFearThemes": "NONE", "matureOrSuggestiveThemes": "NONE", "unrestrictedWebAccess": false, "userGeneratedContent": false, "violenceCartoonOrFantasy": "NONE", "violenceRealisticProlongedGraphicOrSadistic": "NONE", "violenceRealistic": "NONE"}
+ok     droits sur le contenu (DOES_NOT_USE_THIRD_PARTY_CONTENT)
+ok     disponibilité déjà définie
+ok     version 1.0.27 créée
+ok     nouveautés tr
+ok     nouveautés en-GB
+ok     nouveautés zh-Hant
+ok     nouveautés ko
+ok     nouveautés nl-NL
+ok     nouveautés da
+ok     nouveautés pt-PT
+ok     nouveautés sv
+ok     nouveautés fi
+ok     nouveautés cs
+ok     nouveautés zh-Hans
+ok     nouveautés fr-CA
+ok     nouveautés id
+ok     nouveautés sk
+ok     nouveautés fr-FR
+ok     nouveautés vi
+ok     nouveautés ms
+ok     nouveautés it
+ok     nouveautés ar-SA
+ok     nouveautés pt-BR
+ok     nouveautés el
+ok     nouveautés ru
+ok     nouveautés hr
+ok     nouveautés en-CA
+ok     nouveautés es-ES
+ok     nouveautés uk
+ok     nouveautés th
+ok     nouveautés hu
+ok     nouveautés en-AU
+ok     nouveautés es-MX
+ok     nouveautés ro
+ok     nouveautés he
+ok     nouveautés de-DE
+ok     nouveautés ja
+ok     nouveautés ca
+ok     nouveautés pl
+ok     nouveautés hi
+ok     nouveautés en-US
+ok     nouveautés no
+VERSION 1.0.27 PREPARE_FOR_SUBMISSION
+ok     copyright « 2026 PadelUp » et sortie dès l'accord d'Apple
+ok     coordonnées et notes pour la vérification
+       https://foldly.netlify.app/fr/ -> 200
+       https://foldly.netlify.app/en/ -> 200
+       https://foldly.netlify.app/fr/privacy.html -> 200
+       https://foldly.netlify.app/en/privacy.html -> 200
+ÉCHEC  confidentialité ro -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité uk -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité sv -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité ja -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité en-US -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité it -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité en-CA -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité de-DE -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité pt-BR -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité zh-Hans -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité hi -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité es-MX -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité da -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité zh-Hant -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité en-GB -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité hu -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité ar-SA -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité th -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité he -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité cs -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité tr -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité en-AU -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité pt-PT -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité fr-FR -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité hr -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité ko -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité vi -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité fr-CA -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité nl-NL -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité ca -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité pl -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité id -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité ru -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité es-ES -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité el -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité sk -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité fi -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité ms -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ÉCHEC  confidentialité no -> HTTP 409 ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE: The field 'privacyPolicyUrl' can not be modified in the current state.
+ok     assistance tr
+ok     assistance en-GB
+ok     assistance zh-Hant
+ok     assistance ko
+ok     assistance nl-NL
+ok     assistance da
+ok     assistance pt-PT
+ok     assistance sv
+ok     assistance fi
+ok     assistance cs
+ok     assistance zh-Hans
+ok     assistance fr-CA
+ok     assistance id
+ok     assistance sk
+ok     assistance fr-FR
+ok     assistance vi
+ok     assistance ms
+ok     assistance it
+ok     assistance ar-SA
+ok     assistance pt-BR
+ok     assistance el
+ok     assistance ru
+ok     assistance hr
+ok     assistance en-CA
+ok     assistance es-ES
+ok     assistance uk
+ok     assistance th
+ok     assistance hu
+ok     assistance en-AU
+ok     assistance es-MX
+ok     assistance ro
+ok     assistance he
+ok     assistance de-DE
+ok     assistance ja
+ok     assistance ca
+ok     assistance pl
+ok     assistance hi
+ok     assistance en-US
+ok     assistance no
+ok     6 capture(s) en-GB (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-GB (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) en-GB (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) ko (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) ko (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) ko (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) zh-Hans (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) zh-Hans (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) zh-Hans (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) fr-CA (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) fr-CA (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) fr-CA (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) fr-FR (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) fr-FR (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) fr-FR (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) en-CA (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-CA (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) en-CA (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) es-ES (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) es-ES (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) es-ES (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) en-AU (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-AU (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) en-AU (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) es-MX (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) es-MX (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) es-MX (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) de-DE (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) de-DE (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) de-DE (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) ja (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) ja (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) ja (APP_WATCH_ULTRA) déjà à jour
+ok     6 capture(s) en-US (APP_IPHONE_67) déjà à jour
+ok     6 capture(s) en-US (APP_IPHONE_DUO) déjà à jour
+ok     3 capture(s) en-US (APP_WATCH_ULTRA) déjà à jour
+ok     build 143 choisi pour la version 1.0
+ok     captures traitées par Apple
+ok     demande de vérification créée
+ok     version ajoutée à la demande
+       achat com.padelup.clapet.plus APPROVED
+ok     ENVOI À LA VÉRIFICATION D'APPLE
+état de la version : WAITING_FOR_REVIEW
+
+PRÊT
