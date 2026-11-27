@@ -845,6 +845,13 @@ struct NightHomeView: View {
                         }
                         .padding(.leading, 14)
                     }
+                    // Le temps passé ouvert pendant les heures de repos (ou en mode Repos) n'est pas compté : on le dit,
+                    // sinon « 0 min » Duo ouvert ne se comprend pas (question d'un utilisateur).
+                    if s.restTime(now, now: now) >= 60 {
+                        Text("Not counted: \(Self.duration(s.restTime(now, now: now))) at rest today")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
                     Chart {
                         ForEach(0..<week.count, id: \.self) { i in
                             BarMark(x: .value("Day", week[i].date, unit: .day), y: .value("Hours", week[i].hours), width: .ratio(0.8))
