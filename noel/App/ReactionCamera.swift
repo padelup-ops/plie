@@ -128,6 +128,7 @@ struct ReactionPip: View {
 }
 
 /// Sur l'écran de préparation (côté parent) : montrer l'enfant pendant l'appel, et garder sa réaction en photos.
+/// Toujours visible, juste au-dessus du bouton qui lance l'appel.
 struct ReactionOptions: View {
     @Environment(AppModel.self) private var model
     @Environment(MagicStore.self) private var store
@@ -149,43 +150,50 @@ struct ReactionOptions: View {
             set: { on in
                 if store.owned { model.keepReactions = on } else { model.sheet = .paywall }
             })
-        VStack(alignment: .leading, spacing: 12) {
-            Toggle(isOn: show) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Show your child in a corner, like a video call")
-                        .font(.ui(16, .semibold))
-                    Text("The front camera shows on screen only. Nothing is recorded.")
-                        .font(.ui(13))
-                        .opacity(0.7)
-                }
-                .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Image(systemName: "video.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Noel.goldLight)
+                    .frame(width: 22)
+                Text("Show your child in a corner, like a video call")
+                    .font(.ui(14, .semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 6)
+                Toggle(isOn: show) { EmptyView() }.labelsHidden()
             }
             if model.showChild {
-                Toggle(isOn: keep) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        HStack(spacing: 8) {
-                            Text("Keep their reaction in photos")
-                                .font(.ui(16, .semibold))
-                            if !store.owned { PremiumTag() }
-                        }
-                        Text("A few photos at the best moments, shown to you after the call. They stay on this iPhone unless you save or share them.")
-                            .font(.ui(13))
-                            .opacity(0.7)
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 10) {
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Noel.goldLight)
+                        .frame(width: 22)
+                    Text("Keep their reaction in photos")
+                        .font(.ui(14, .semibold))
+                        .fixedSize(horizontal: false, vertical: true)
+                    if !store.owned { PremiumTag() }
+                    Spacer(minLength: 6)
+                    Toggle(isOn: keep) { EmptyView() }.labelsHidden()
                 }
+                Text(model.keepReactions && store.owned
+                     ? "A few photos at the best moments, shown to you after the call. They stay on this iPhone unless you save or share them."
+                     : "The front camera shows on screen only. Nothing is recorded.")
+                    .font(.ui(12))
+                    .opacity(0.7)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             if refused {
                 Text("The camera is turned off for this app. You can allow it in the iPhone's Settings.")
-                    .font(.ui(13))
+                    .font(.ui(12))
                     .foregroundStyle(Noel.goldLight)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
         .tint(Noel.gold)
         .foregroundStyle(Noel.cream)
-        .padding(14)
-        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Noel.night.opacity(0.55)))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Noel.night.opacity(0.8)))
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Noel.cream.opacity(0.15), lineWidth: 1))
         .onAppear {
             // L'autorisation a pu être retirée dans les Réglages depuis la dernière fois.
