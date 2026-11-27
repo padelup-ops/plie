@@ -1,0 +1,51 @@
+213539f29476696e1dda 0.933 2.32s | Ho, ho, ho! Hallo, Ella! | Ho ho ho, hallo Ella! Ella!
+047b00d84cf942e86d0b 0.929 3.44s | Ho, ho, ho! Hallo, Emily! | Ho Ho Ho! Hallo Emily! Emily!
+b195a89059deb26fccaf 1.0 3.12s | Ho, ho, ho! Hallo, Luisa! | Ho, ho, ho, hallo, Luisa.
+74318b576f76a4db7057 0.929 2.7s | Ho, ho, ho! Hallo, Laura! | Ho ho ho hallo Laura! Laura!
+726a20776d42ef168f06 0.929 2.76s | Ho, ho, ho! Hallo, Paula! | Ho ho ho! Hallo Paula! Paula!
+b0e1d5b28d168919d206 0.929 2.78s | Ho, ho, ho! Hallo, Maria! | Ho ho ho! Hallo Maria! Maria!
+8c23792cb6220b7f42d9 0.485 2.04s | Frohe Weihnachten, Ava! | Frohe Weihnachten, aber...
+cf55adc65f6bdb708214 0.797 3.52s | Frohe Weihnachten, Hailey! | Frohe Weihnachten, heile!
+de2e8febc08453b0fc69 0.919 2.98s | Ho, ho, ho! Hallo, Isabella! | Ho, ho, ho, hallo Isabella. Isabella!
+cd149ea578c0cab270da 0.771 2.96s | Ho, ho, ho! Hallo, Leyla! | Ho, ho, ho! Hallo, Leila! Leila!
+266dad9b4a4801569fce 0.548 2.14s | Ho, ho, ho! Hallo, Zeynep! | Ho ho ho hallo Tseinet!
+f62ff34d005f82b20757 0.925 2.8s | Ho, ho, ho! Hello, Amelia! | Ho, ho, ho, hello, Amelia. Amelia.
+a081ea72b8b87be541fd 0.625 3.92s | Ho, ho, ho! Hello, Gianna! | Ho, ho, ho, hello, Jaina.
+a9d1a61e5a1d7a2c5019 1.0 3.68s | Merry Christmas, Olivia! | Merry Christmas, Olivia!
+2c1b12382737afde020e 0.925 3.12s | Ho, ho, ho! Hello, Sophia! | Ho ho ho hello Sophia. Sophia!
+f2e929854d9a2ead017c 0.925 2.72s | Ho, ho, ho! Hello, Violet! | Ho, ho, ho, hello, Violet. Violet.
+aaca4fb74f0506d0d5fe 0.923 2.8s | Ho, ho, ho! Hello, Aria! | Ho, ho, ho, hello, hello, aria.
+1e1c4e616a048f1efcbf 0.929 2.76s | Ho, ho, ho! Hello, Layla! | Oh ho ho! Hello Layla! Layla!
+86fdf80a2651a31b8484 0.836 3.32s | Ho, ho, ho! Hello, Nevaeh! | Ho ho ho hello Neve
+d1b3d1e32c505479cc84 0.933 2.58s | Ho, ho, ho! Hello, Ayla! | Ho, ho, ho, hello, Ayla. Ayla?
+c2abe51d37bb46dad2e5 0.834 2.68s | Ho, ho, ho! Hello, Isabelle! | Oh ho ho! Hello, Isabel! Isabel!
+8361efab5e81cc139d90 0.925 3.56s | Ho, ho, ho! Hello, Andrea! | Ho ho ho! Hello Andrea! Andrea!
+b0bfe3ed350c609b1ba3 0.895 3.52s | Ho, ho, ho! Hello, Taylor! | Ho, ho, ho. Hello, Taylor. Who? Taylor.
+f39e67b7ef3ea9f5044c 0.929 2.76s | Ho, ho, ho! Hello, Hazel! | Ho, ho, ho, hello Hazel. Hazel.
+ec10656efec74fbe4f4b 0.929 2.76s | Ho, ho, ho! Hello, Riley! | Ho, ho, ho, hello Riley. Riley.
+7df9109ed0aadccbe3a3 0.933 2.8s | Ho, ho, ho! Hello, Lucy! | Oh, ho, ho, hello Lucy. Lucy.
+a4da26969bbe057309ab 0.843 3.24s | Ho, ho, ho! Hello, Aaliyah! | Ho, ho, ho, hello, Aliyah. Hello, Aliyah.
+f9d0ce1de94072cc12d1 1.0 3.52s | Merry Christmas, Summer! | Merry Christmas Summer!
+dbd6a14de1cc3e688066 0.954 2.56s | Merry Christmas, Isabel! | Merry Christmas, Isabel. Ah, Isabel.
+72ba10b590a0cf83c9cc 0.923 3.58s | ¡Jo, jo, jo! ¡Hola, Abril! | ¡Ho ho ho! ¡Hola abril! ¡Abril!
+fdc4e63f2f5b9bc2e18e 1.0 4.96s | ¡Jo, jo, jo! ¡Hola, Paula! | ¡Ho, ho, ho! ¡Hola, Paula!
+ab94c2ae0dcc6532c3a9 0.65 3.44s | ¡Jo, jo, jo! ¡Hola, Ainara! | ho, ho, ho, hola, hay nada.
+50137f8c899f9062ce59 0.807 2.44s | ¡Jo, jo, jo! ¡Hola, Cloe! | ¡Hu, hu, hu! ¡Hola, Chloe!
+46ce94a8ac496d0dbe8b 0.917 3.32s | ¡Jo, jo, jo! ¡Hola, Aroa! | ¡Ho ho ho ho! ¡Hola, arroa! ¡Aroa!
+3e4520fbacd0eb881452 0.655 2.52s | ¡Jo, jo, jo! ¡Hola, Nour! | ¡Ho ho ho! ¡Hola nul!
+3630a5e01a4134633a1d 0.957 3.48s | ¡Jo, jo, jo! ¡Hola, Carla! | ¡Có-ó-ó! ¡Hola, Carla!
+7e21e037717046d8b279 0.928 2.7s | ¡Jo, jo, jo! ¡Hola, Alba! | ¡Ho ho ho! ¡Hola, alba! ¡Alba!
+bf905d36c2a195910212 0.415 3.74s | Ho, ho, ho ! Bonjour Louna ! | Oh ho ho ho ! Bonjour Luna ! Dama !
+c1decf37bd5657cd46ff 0.943 7.4s | Ho, ho, ho ! Bonjour Nour ! | Oh ho ho, bonjour Nour. Nour.
+5ba5b1b05b8542b43ae2 0.671 1.78s | Ho, ho, ho ! Bonjour Emmy ! | Ha, ha, bonjour, Amy.
+c5f6b1a74b54fd52c8d6 0.852 3.0s | Ho, ho, ho ! Bonjour Ava ! | Ho ho ho, bonjour à va !
+b4bf61521df20dc56872 0.929 2.18s | Joyeux Noël, Lola ! | J'ai eu Noël Lola.
+fd150f6542c542819ddf 0.58 2.62s | Joyeux Noël, Ella ! | Joyeux Noël, elle a...
+30984e84ca710b5953f7 1.0 4.32s | Ho, ho, ho ! Bonjour Rose ! | Oh ho ho bonjour rose
+c42e020c103bea61984d 0.843 3.06s | Ho, ho, ho ! Bonjour Mya ! | Oh, oh, oh! Bonjour, mia! Maya!
+618d24abd61b46003639 0.927 4.44s | Ho, ho, ho ! Bonjour Olympe ! | Oh ho ho bonjour Olymp. Oh !
+2048755790ee9ae78831 0.852 5.24s | Ho, ho, ho ! Bonjour Aya ! | Oh ho ho ho bonjour à ya !
+57c2060458da60f2b74f 1.0 4.32s | Oh, oh, oh! Ciao, Vittoria! | Oh, oh, oh, ciao, Vittoria!
+c21f26baaeebca39eb8f 0.661 3.0s | Ho, ho, ho! Olá, Ana Liz! | Oh, oh, oh, oh, ha! Anelize!
+337f71fdb00f2fb98bc8 0.923 3.64s | Feliz Natal, Isadora! | Feliz Natal e sadora!
+d616c2217f7404b85379 0.685 2.04s | Feliz Natal, Ana Liz! | Feliz Natal Anali.
