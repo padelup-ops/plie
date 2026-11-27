@@ -20,6 +20,19 @@ final class RetroCartridgeTests: XCTestCase {
         XCTAssertFalse(appState.isGameActive)
     }
     
+    /// The Switch app answers `retrofold://melonx?games=<base64url JSON>`; other fields of its games are ignored.
+    func testSwitchBridgeDecodesTheSwitchAppsAnswer() throws {
+        let json = #"[{"id":"A","titleName":"Zeta","titleId":"0100AAAA","developer":"d","version":"1.0"},{"id":"B","titleName":"alpha","titleId":"0100BBBB","developer":"d","version":"2","iconData":"/+8="},{"id":"C","titleName":"No id","titleId":"","developer":"","version":""}]"#
+        let b64 = Data(json.utf8).base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+        let url = try XCTUnwrap(URL(string: "retrofold://melonx?games=\(b64)"))
+        XCTAssertEqual(SwitchBridge.decodeGames(from: url),
+                       [SwitchGame(titleName: "alpha", titleId: "0100BBBB"), SwitchGame(titleName: "Zeta", titleId: "0100AAAA")])
+        XCTAssertNil(SwitchBridge.decodeGames(from: try XCTUnwrap(URL(string: "retrofold://other?games=\(b64)"))))
+        XCTAssertNil(SwitchBridge.decodeGames(from: try XCTUnwrap(URL(string: "melonx://melonx?games=\(b64)"))))
+        XCTAssertNil(SwitchBridge.decodeGames(from: try XCTUnwrap(URL(string: "retrofold://melonx?games=%25%25"))))
+    }
+
     func testPostureManagerDefaults() {
         let posture = PostureManager()
         XCTAssertEqual(posture.currentPosture, .closed)

@@ -39,6 +39,16 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.overrideUserInterfaceStyle = .dark
         window.makeKeyAndVisible()
         self.window = window
+        for context in connectionOptions.urlContexts { SwitchBridge.handle(context.url) }
+    }
+
+    /// The Switch app answers with the list of its games (see `SwitchBridge`).
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        for context in URLContexts { SwitchBridge.handle(context.url) }
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        SwitchBridge.refresh()
     }
 }
 

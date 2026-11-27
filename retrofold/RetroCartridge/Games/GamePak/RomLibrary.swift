@@ -6,6 +6,7 @@
 // cartridge's battery save and a snapshot to pick up where the player left off.
 
 import Foundation
+import UIKit
 import UniformTypeIdentifiers
 
 struct RomEntry: Codable, Identifiable, Equatable {
@@ -252,5 +253,83 @@ enum ZipReader {
             }
         }
         return out
+    }
+}
+
+// MARK: - Switch
+
+/// A game of the separate Switch app.
+struct SwitchGame: Codable, Equatable {
+    var titleName: String
+    var titleId: String
+}
+
+/// The Switch side of the Game Pak. RetroFold doesn't emulate the Switch: that takes a JIT, which iOS only gives an
+/// app installed outside the App Store. When the separate, open-source Switch app (MeloNX) is on the device, the
+/// Game Pak lists its games and opens it to play one. Without that app, nothing about the Switch shows.
+enum SwitchBridge {
+    /// The Switch app's URL scheme, and ours for its answer.
+    static let scheme = "melonx"
+    static let returnScheme = "retrofold"
+    /// Sent when the list of Switch games changed (object: how many came back) or the app's presence was rechecked.
+    static let changed = Notification.Name("RetroFold.switchChanged")
+    private static let gamesKey = "switchGames"
+
+    /// Whether the Switch app is installed, as last checked by `refresh()`.
+    nonisolated(unsafe) private(set) static var isInstalled = false
+
+    /// Rechecks whether the Switch app is installed (when RetroFold comes to the front).
+    @MainActor static func refresh() {
+        let now = URL(string: "\(scheme)://").map { UIApplication.shared.canOpenURL($0) } ?? false
+        guard now != isInstalled else { return }
+        isInstalled = now
+        NotificationCenter.default.post(name: changed, object: nil)
+    }
+
+    /// The games the Switch app last told us about.
+    static var games: [SwitchGame] {
+        guard let data = UserDefaults.standard.data(forKey: gamesKey),
+              let list = try? JSONDecoder().decode([SwitchGame].self, from: data) else { return [] }
+        return list
+    }
+
+    /// Asks the Switch app for its games: it opens, then comes back to RetroFold with the list.
+    static func requestGames() {
+        open("\(scheme)://gameInfo?scheme=\(returnScheme)")
+    }
+
+    /// Opens the Switch app on a game.
+    static func play(_ game: SwitchGame) {
+        var parts = URLComponents()
+        parts.scheme = scheme
+        parts.host = "game"
+        parts.queryItems = [URLQueryItem(name: "id", value: game.titleId)]
+        if let url = parts.url { open(url.absoluteString) }
+    }
+
+    private static func open(_ text: String) {
+        guard let url = URL(string: text) else { return }
+        Task { @MainActor in UIApplication.shared.open(url, options: [:], completionHandler: nil) }
+    }
+
+    /// The Switch app's answer (`retrofold://melonx?games=<base64url JSON>`). True if the URL was for us.
+    @discardableResult
+    static func handle(_ url: URL) -> Bool {
+        guard let list = decodeGames(from: url) else { return false }
+        if let data = try? JSONEncoder().encode(list) { UserDefaults.standard.set(data, forKey: gamesKey) }
+        NotificationCenter.default.post(name: changed, object: list.count)
+        return true
+    }
+
+    /// The games in an answer URL, sorted by name; nil if the URL isn't an answer from the Switch app.
+    static func decodeGames(from url: URL) -> [SwitchGame]? {
+        guard url.scheme == returnScheme,
+              let parts = URLComponents(url: url, resolvingAgainstBaseURL: false), parts.host == scheme,
+              let text = parts.queryItems?.first(where: { $0.name == "games" })?.value else { return nil }
+        var b64 = text.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+        while b64.count % 4 != 0 { b64 += "=" }
+        guard let data = Data(base64Encoded: b64),
+              let list = try? JSONDecoder().decode([SwitchGame].self, from: data) else { return nil }
+        return list.filter { !$0.titleId.isEmpty }.sorted { $0.titleName.localizedCaseInsensitiveCompare($1.titleName) == .orderedAscending }
     }
 }

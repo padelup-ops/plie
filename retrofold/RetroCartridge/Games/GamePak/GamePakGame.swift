@@ -30,8 +30,12 @@ final class GamePakGame: PixelGameProtocol {
     // MARK: - Library screen
 
     private(set) var games: [RomEntry] = []
-    /// 0 is "Load a game", then the games.
+    /// Switch games, played in the separate Switch app; empty (and no Switch rows at all) unless that app is installed.
+    private(set) var switchGames: [SwitchGame] = []
+    private var switchAvailable = false
+    /// 0 is "Load a game", then the games; with the Switch app, its games and "Get Switch games" follow.
     private(set) var selection = 0
+    private var rowCount: Int { 1 + games.count + (switchAvailable ? switchGames.count + 1 : 0) }
     /// A message under the list (an import that failed).
     var notice: String?
 
@@ -72,6 +76,15 @@ final class GamePakGame: PixelGameProtocol {
                 self.selection = 1
             }
         })
+        // The Switch app answered with its list of games (or the app came back to the front: it may just have been installed).
+        observers.append(nc.addObserver(forName: SwitchBridge.changed, object: nil, queue: .main) { [weak self] n in
+            guard let self else { return }
+            self.reloadLibrary()
+            if let count = n.object as? Int, self.gameState == .menu {
+                self.notice = count == 0 ? String(localized: "NO SWITCH GAME FOUND IN THE SWITCH APP") : nil
+                if count > 0 { self.selection = 1 + self.games.count }
+            }
+        })
         // Leaving the app saves the game, in case iOS closes it later.
         observers.append(nc.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
             self?.persist()
@@ -88,7 +101,9 @@ final class GamePakGame: PixelGameProtocol {
 
     func reloadLibrary() {
         games = RomLibrary.entries()
-        selection = min(selection, games.count)
+        switchAvailable = SwitchBridge.isInstalled
+        switchGames = switchAvailable ? SwitchBridge.games : []
+        selection = min(selection, rowCount - 1)
         if selection == 0, !games.isEmpty, current == nil { selection = 1 }
     }
 
@@ -255,7 +270,11 @@ final class GamePakGame: PixelGameProtocol {
         context.draw(Text("YOUR OWN GB · GBC · GBA · DS GAMES").font(.pixel(u * 0.58)).foregroundColor(green.opacity(0.6)),
                      at: CGPoint(x: size.width / 2, y: y))
         y += u * 1.8
-        let rows = [String(localized: "+ LOAD GAMES")] + games.map { "\($0.system.badge)  \($0.title.uppercased())" }
+        var rows = [String(localized: "+ LOAD GAMES")] + games.map { "\($0.system.badge)  \($0.title.uppercased())" }
+        if switchAvailable {
+            rows += switchGames.map { "NS  \($0.titleName.uppercased())" }
+            rows.append(String(localized: "+ GET SWITCH GAMES"))
+        }
         let visible = max(1, Int((size.height - y - u * 3.2) / (u * 1.5)))
         let first = max(0, min(selection - visible / 2, rows.count - visible))
         for (i, row) in rows.enumerated().dropFirst(first).prefix(visible) {
@@ -265,7 +284,9 @@ final class GamePakGame: PixelGameProtocol {
                          at: CGPoint(x: u * 1.2, y: y), anchor: .leading)
             y += u * 1.5
         }
-        let foot = notice ?? (games.isEmpty
+        let foot = notice ?? (selection > games.count
+            ? String(localized: "A: OPEN IN THE SWITCH APP")
+            : games.isEmpty
             ? String(localized: "PRESS A, THEN PICK YOUR GAME FILES IN FILES")
             : String(localized: "A: PLAY   SELECT: EJECT"))
         context.draw(Text(foot.uppercased()).font(.pixel(u * 0.55)).foregroundColor(notice == nil ? green.opacity(0.5) : Color(hex: "#FFB703")),
@@ -340,18 +361,21 @@ final class GamePakGame: PixelGameProtocol {
     }
 
     private func menuInput(_ action: GameInputAction) {
-        let count = games.count + 1
+        let count = rowCount
         switch action {
         case .dpadUpPressed: selection = (selection - 1 + count) % count
         case .dpadDownPressed: selection = (selection + 1) % count
-        case .buttonAPressed:
+        case .buttonAPressed, .buttonStartPressed:
             if selection == 0 {
-                NotificationCenter.default.post(name: RomLibrary.importRequested, object: nil)
-            } else {
+                if action == .buttonAPressed { NotificationCenter.default.post(name: RomLibrary.importRequested, object: nil) }
+            } else if selection <= games.count {
                 start(games[selection - 1])
+            } else if selection - games.count - 1 < switchGames.count {
+                // Played in the Switch app: RetroFold only opens it on that game.
+                SwitchBridge.play(switchGames[selection - games.count - 1])
+            } else {
+                SwitchBridge.requestGames()
             }
-        case .buttonStartPressed:
-            if selection > 0 { start(games[selection - 1]) }
         default: break
         }
     }
