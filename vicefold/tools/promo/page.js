@@ -27,12 +27,15 @@ const bg = bgc.getContext('2d');
 const MAP = new Image(); MAP.src = 'map.jpg';
 const KIND = { landmark: COLORS.flamingo, hotel: '#D6336C', food: COLORS.sunset, shop: COLORS.sky, transport: '#5B6CFF', activity: COLORS.palm,
   nature: '#2FA36B', public: COLORS.violet, gas: COLORS.sun, property: COLORS.sun, other: '#EAF6F5' };
-const PINS = DATA.places.map((p, i) => ({ x: p[0], y: p[1], kind: p[2], at: 0.35 + 3.0 * hash(i, 3) }));
+// The first scenes, whose times the background follows: the hook, the introduction, the map, then the rest.
+const AT = name => CUES.scenes.find(s => s[0] === name)[1];
+const T1 = AT('intro'), T2 = AT('map'), T3 = AT('missions'), TEND = CUES.scenes[CUES.scenes.length - 1][2];
+const PINS = DATA.places.map((p, i) => ({ x: p[0], y: p[1], kind: p[2], at: 0.4 + (T2 + 1.2) * hash(i, 3) }));
 // The camera over the map: [time, centre x, centre y (0-1 on the map), screen pixels per map pixel].
 const CAM = L
-  ? [[0, 0.74, 0.5, 1.45], [2, 0.6, 0.5, 0.62], [4, 0.5, 0.49, 0.5], [8, 0.42, 0.47, 0.56], [42, 0.5, 0.42, 0.7]]
-  : [[0, 0.745, 0.5, 1.5], [2, 0.62, 0.52, 0.66], [4, 0.5, 0.5, 0.47], [8, 0.5, 0.42, 0.52], [42, 0.5, 0.4, 0.66]];
-const DIM = [[0, 0.2], [1.85, 0.24], [2.25, 0.66], [4, 0.6], [4.4, 0.46], [7.8, 0.5], [8.2, 0.9], [42, 0.9]];
+  ? [[0, 0.74, 0.5, 1.45], [T1, 0.6, 0.5, 0.62], [T2, 0.5, 0.49, 0.5], [T3, 0.42, 0.47, 0.56], [TEND, 0.5, 0.42, 0.7]]
+  : [[0, 0.745, 0.5, 1.5], [T1, 0.62, 0.52, 0.66], [T2, 0.5, 0.5, 0.47], [T3, 0.5, 0.42, 0.52], [TEND, 0.5, 0.4, 0.66]];
+const DIM = [[0, 0.2], [T1 - 0.15, 0.24], [T1 + 0.3, 0.66], [T2, 0.6], [T2 + 0.4, 0.46], [T3 - 0.2, 0.5], [T3 + 0.25, 0.9], [TEND, 0.9]];
 function key(keys, t, n) {
   for (let i = 1; i < keys.length; i++) if (t <= keys[i][0]) {
     const a = keys[i - 1], b = keys[i], k = eio((t - a[0]) / (b[0] - a[0]));
@@ -48,8 +51,8 @@ function drawBg(t) {
   const ox = W / 2 - cx * MAP.width * sc, oy = H / 2 - cy * MAP.height * sc;
   bg.imageSmoothingQuality = 'high';
   bg.drawImage(MAP, ox, oy, MAP.width * sc, MAP.height * sc);
-  if (t < 9) {
-    const fade = 1 - clamp((t - 8) / 0.6);
+  if (t < T3 + 1) {
+    const fade = 1 - clamp((t - T3) / 0.6);
     for (const p of PINS) {
       const k = back((t - p.at) / 0.35);
       if (k <= 0) continue;
@@ -64,20 +67,20 @@ function drawBg(t) {
   }
   // Night falls on the map; the side with the words is darker.
   bg.fillStyle = `rgba(9,20,34,${dim})`; bg.fillRect(0, 0, W, H);
-  const side = clamp((t - 3.7) / 0.5) * (1 - clamp((t - 8) / 0.4)) * 0.78 + (t < 4 ? clamp((t - 2) / 0.3) * 0.2 : 0);
+  const side = clamp((t - (T2 - 0.3)) / 0.5) * (1 - clamp((t - T3) / 0.4)) * 0.78 + (t < T2 ? clamp((t - T1) / 0.3) * 0.2 : 0);
   if (side > 0.01) {
     const g = L ? bg.createLinearGradient(0, 0, W * 0.62, 0) : bg.createLinearGradient(0, 0, 0, H * 0.5);
     g.addColorStop(0, `rgba(9,20,34,${side})`); g.addColorStop(0.55, `rgba(9,20,34,${side * 0.85})`); g.addColorStop(1, 'rgba(9,20,34,0)');
     bg.fillStyle = g; bg.fillRect(0, 0, W, H);
   }
-  if (t < 2.2) {
-    const a = 0.62 * (1 - clamp((t - 1.9) / 0.3));
+  if (t < T1 + 0.2) {
+    const a = 0.62 * (1 - clamp((t - (T1 - 0.1)) / 0.3));
     const g = bg.createRadialGradient(W / 2, H * 0.48, 0, W / 2, H * 0.48, Math.min(W, H) * 0.75);
     g.addColorStop(0, `rgba(9,20,34,${a})`); g.addColorStop(1, 'rgba(9,20,34,0)');
     bg.fillStyle = g; bg.fillRect(0, 0, W, H);
   }
   // Sunset glows, slowly moving.
-  const glow = clamp((t - 1.9) / 0.6) * 0.9 + 0.1;
+  const glow = clamp((t - (T1 - 0.1)) / 0.6) * 0.9 + 0.1;
   bg.globalCompositeOperation = 'lighter';
   const R = Math.max(W, H);
   const spots = [[W * (0.92 + 0.04 * Math.sin(t * 0.5)), H * -0.05, R * 0.75, '255,138,61', 0.3], [W * (0.02 + 0.05 * Math.cos(t * 0.4)), H * 1.05, R * 0.7, '255,79,139', 0.3],
@@ -139,14 +142,14 @@ function textBlock(parent, o) {
       const out = clamp((u - (end - 0.14)) / 0.14);
       root.style.opacity = v < 0 || u >= end ? 0 : 1 - out;
       root.style.display = v < -0.05 || u >= end ? 'none' : 'block';
-      if (kick) { const k = eo(v / 0.3); kick.style.opacity = k; kick.style.transform = `translateY(${(1 - k) * 18}px)`; }
+      if (kick) { const k = eo(v / 0.45); kick.style.opacity = k; kick.style.transform = `translateY(${(1 - k) * 18}px)`; }
       words.forEach((w, i) => {
-        const t0 = step ? w.li * step : 0.05 + i * 0.05;
-        const k = eo((v - t0) / 0.36);
+        const t0 = step ? w.li * step : 0.1 + i * 0.08;
+        const k = eo((v - t0) / 0.5);
         w.s.style.transform = `translateY(${(1 - k) * 105}%)`;
-        if (w.num) w.s.textContent = w.num.pre + Math.round(w.num.n * eo((v - t0) / 0.75)) + w.num.post;
+        if (w.num) w.s.textContent = w.num.pre + Math.round(w.num.n * eo((v - t0) / 1.0)) + w.num.post;
       });
-      if (sub) { const k = eo((v - 0.3 - (step ? step * 2.2 : 0)) / 0.4); sub.style.opacity = k; sub.style.transform = `translateY(${(1 - k) * 22}px)`; }
+      if (sub) { const k = eo((v - 0.7 - (step ? step * 2.6 : 0)) / 0.5); sub.style.opacity = k; sub.style.transform = `translateY(${(1 - k) * 22}px)`; }
     },
   };
 }
@@ -193,12 +196,12 @@ function device(parent, shot, o = {}) {
 }
 function devPose(d, u, dur, o = {}) {
   const dir = o.dir || 1, delay = o.delay || 0, v = u - delay;
-  const kin = back((v - 0.04) / 0.62), ko = clamp((u - (dur - 0.14)) / 0.14);
-  const fl = Math.sin((u + d.seed) * 1.25);
-  const ry = (o.ry != null ? o.ry : -11) * dir - (1 - eo(v / 0.75)) * 34 * dir + fl * 2.2;
+  const kin = back((v - 0.05) / 0.85), ko = clamp((u - (dur - 0.14)) / 0.14);
+  const fl = Math.sin((u + d.seed) * 1.0);
+  const ry = (o.ry != null ? o.ry : -11) * dir - (1 - eo(v / 1.0)) * 30 * dir + fl * 2;
   const rx = (o.rx != null ? o.rx : 5) + Math.cos((u + d.seed) * 1.05) * 1.3;
   const tx = (1 - kin) * (L ? 560 : 0) * dir, ty = (1 - kin) * (L ? 40 : 700) + fl * 7;
-  const s = lerp(0.84, 1, eo(v / 0.6)) * (1 + 0.035 * u / dur);
+  const s = lerp(0.86, 1, eo(v / 0.8)) * (1 + 0.03 * u / dur);
   d.root.style.transform = `translate3d(${tx}px,${ty}px,${o.z || 0}px) rotateY(${ry}deg) rotateX(${rx}deg) rotateZ(${(o.rz || 0)}deg) scale(${s})`;
   d.root.style.opacity = clamp(v / 0.12) * (1 - ko);
 }
@@ -209,7 +212,7 @@ function chip(parent, text, color, fx, fy, at) {
   el('span', '', c, text);
   c.style.left = BOX.cx + fx * BOX.w / 2 + 'px'; c.style.top = BOX.cy + fy * BOX.h / 2 + 'px';
   return { c, at, update(u, dur) {
-    const k = back((u - at) / 0.4), ko = clamp((u - (dur - 0.14)) / 0.14);
+    const k = back((u - at) / 0.5), ko = clamp((u - (dur - 0.14)) / 0.14);
     c.style.transform = `translate3d(-50%,-50%,150px) translateY(${Math.sin(u * 1.6 + at * 9) * 5}px) scale(${Math.max(0, k)})`;
     c.style.opacity = clamp((u - at) / 0.1) * (1 - ko);
   } };
@@ -220,8 +223,8 @@ const SC = {};
 // Two devices in the same picture (iPhone, iPad and Duo all get their turn): where the main one and the one in
 // front of it stand, for the wide film and for the tall one.
 const LAY = L ? {
-  ipadPhone: { main: { cx: 1290, cy: 520, w: 620, h: 800 }, side: { cx: 1700, cy: 630, w: 300, h: 600 } },
-  duoPhone: { main: { cx: 1330, cy: 465, w: 810, h: 600 }, side: { cx: 1750, cy: 640, w: 270, h: 550 } },
+  ipadPhone: { main: { cx: 1280, cy: 520, w: 620, h: 800 }, side: { cx: 1685, cy: 630, w: 300, h: 600 } },
+  duoPhone: { main: { cx: 1305, cy: 465, w: 790, h: 600 }, side: { cx: 1700, cy: 640, w: 270, h: 550 } },
   phoneIpad: { main: { cx: 1500, cy: 520, w: 600, h: 790 }, side: { cx: 1125, cy: 620, w: 300, h: 600 } },
 } : {
   ipadPhone: { main: { cx: 455, cy: 1160, w: 720, h: 920 }, side: { cx: 850, cy: 1395, w: 300, h: 600 } },
@@ -244,58 +247,59 @@ function feature(name, cfg) {
     update(u, dur) {
       this.t.forEach(tb => tb.update(u, dur));
       if (this.d) { devPose(this.d, u, dur, cfg.pose || {}); this.d.setAlt(eio((u - dur / 2 + 0.1) / 0.3)); }
-      if (this.d2) devPose(this.d2, u, dur, { ry: 8, rx: 4, delay: 0.16, z: 130 });
+      if (this.d2) devPose(this.d2, u, dur, { ry: 8, rx: 4, delay: 0.25, z: 130 });
       this.chips.forEach(c => c.update(u, dur));
       if (cfg.update) cfg.update.call(this, u, dur);
     },
   };
 }
 const N = DATA.counts;
+const LOCK = '<svg viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3h1.5A1.5 1.5 0 0 1 20 11.5v8A1.5 1.5 0 0 1 18.500 21h-13A1.5 1.5 0 0 1 4 19.500v-8A1.5 1.5 0 0 1 5.500 10Zm2 0h6V7a3 3 0 0 0-6 0Z" fill="#fff"/></svg>';
 
 feature('hook', { texts: [{ center: true, lines: ['LEONIDA', 'IS *HUGE.*'], cy: L ? H * 0.48 : H * 0.46 }] });
 
 feature('intro', {
-  texts: [{ kicker: 'Guide for GTA VI: Leonida', lines: ["DON'T PLAY", 'IT *BLIND.*'], sub: 'The fan-made companion.<br>Missions, map, 100%, secrets, cheats.' }],
+  texts: [{ kicker: 'Guide for GTA VI: Leonida', lines: ["DON'T PLAY", 'IT *BLIND.*'], sub: 'Your companion for GTA VI.' }],
   shot: ['ipad-home', 'ipad-home'], side: ['iphone-home', 'iphone-home'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
 });
 
 feature('map', {
-  texts: [{ kicker: 'The map', lines: [`*${N.places - 10} PLACES.*`, 'YOUR OWN PINS.'], sub: 'Layers, search, visited places.<br>Name, note, icon and colour for every pin.' }],
+  texts: [{ kicker: 'The map', lines: [`*${N.places - 10} PLACES.*`, 'YOUR OWN PINS.'] }],
   shot: ['duo-mappins', 'duo-mappins'], side: ['iphone-mappins', 'iphone-mappins'], lay: ['duoPhone', 'duoPhone'], pose: { ry: -8 },
-  chips: [['Landmarks', COLORS.flamingo, -0.84, -0.86, -0.62, -0.92, 0.7], ['Hotels', '#D6336C', 0.22, -0.9, 0.56, -0.9, 0.88], ['Shops', COLORS.sky, -0.9, 0.52, -0.84, -0.2, 1.06],
-    ['Transport', '#5B6CFF', 0.1, 0.72, -0.5, 0.36, 1.24], ['My pins', COLORS.sun, -0.66, 0.66, 0.5, -0.2, 1.42]],
+  chips: [['Landmarks', COLORS.flamingo, -0.84, -0.86, -0.62, -0.92, 1.4], ['My pins', COLORS.sun, -0.66, 0.66, 0.5, -0.9, 2.0]],
 });
 
 feature('missions', {
-  texts: [
-    { kicker: 'Walkthroughs', lines: [`ALL *${N.missions} MISSIONS.*`, 'STEP BY STEP.'], sub: 'Who gives it, where to go, objectives, tips.<br>Tick them off as you play.', until: 2 },
-    { kicker: 'No spoilers', lines: ['*SPOILER-FREE*', 'BY DEFAULT.'], sub: 'Later chapters stay hidden<br>until you get there.', at: 2 },
-  ],
+  texts: [{ kicker: 'Walkthroughs', lines: [`ALL *${N.missions} MISSIONS.*`, 'STEP BY STEP.'] }],
+  shot: ['ipad-mission', 'ipad-mission'], side: ['iphone-mission', 'iphone-mission'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
+});
+
+feature('spoiler', {
+  texts: [{ kicker: 'No spoilers', lines: ['*SPOILER-FREE*', 'BY DEFAULT.'], sub: 'Later chapters stay hidden.' }],
   shot: ['ipad-mission', 'ipad-mission'], side: ['iphone-mission', 'iphone-mission'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
   build() {
     // The lower part of the screens blurs: what comes later in the story stays hidden.
     this.blurs = [this.d, this.d2].filter(Boolean).map(d => { const b = el('div', 'blur', d.face); el('img', '', b).src = d.img.src; return b; });
     this.lock = el('div', 'lock', this.d.face);
-    this.lock.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3h1.5A1.5 1.5 0 0 1 20 11.5v8A1.5 1.5 0 0 1 18.500 21h-13A1.5 1.5 0 0 1 4 19.500v-8A1.5 1.5 0 0 1 5.500 10Zm2 0h6V7a3 3 0 0 0-6 0Z" fill="#fff"/></svg><span>Hidden until you get there</span>';
+    this.lock.innerHTML = LOCK + '<span>Hidden until you get there</span>';
   },
   update(u) {
-    const k = eio((u - 2.0) / 0.5);
+    const a = CUES.spoiler - AT('spoiler'), k = eio((u - a) / 0.6);
     this.blurs.forEach(b => { b.style.clipPath = `inset(${lerp(100, 44, k)}% 0 0 0)`; });
-    const p = back((u - 2.3) / 0.4);
+    const p = back((u - a - 0.35) / 0.45);
     this.lock.style.transform = `translate(-50%,-50%) scale(${Math.max(0, p)})`;
-    this.lock.style.opacity = clamp((u - 2.3) / 0.1);
+    this.lock.style.opacity = clamp((u - a - 0.35) / 0.1);
   },
 });
 
 feature('tracker', {
-  texts: [{ kicker: '100% tracker', lines: ['YOUR ROAD', 'TO *100%.*'], still: true,
-    sub: `${DATA.collectibles.length} collectible categories with counters.<br>Challenges, trophy roadmap, route to 100%.` }],
+  texts: [{ kicker: '100% tracker', lines: ['YOUR ROAD', 'TO *100%.*'], still: true, sub: 'Every collectible. Every challenge.' }],
   shot: ['ipad-collectibles', 'duo-collectibles'], side: ['iphone-collectibles', null], lay: ['ipadPhone', null], pose: { ry: -9 },
   build() {
     // The ring fills up to 100% and lands on a beat.
     const card = el('div', 'ringcard', this.stage);
     const S = L ? 330 : 360;
-    Object.assign(card.style, { width: S + 'px', height: S + 'px', left: BOX.cx + (L ? -BOX.w * 0.43 : BOX.w * 0.2) + 'px', top: BOX.cy + (L ? BOX.h * 0.31 : BOX.h * 0.38) + 'px' });
+    Object.assign(card.style, { width: S + 'px', height: S + 'px', left: BOX.cx + (L ? -BOX.w * 0.4 : BOX.w * 0.2) + 'px', top: BOX.cy + (L ? BOX.h * 0.33 : BOX.h * 0.38) + 'px' });
     const C = 2 * Math.PI * 42;
     card.innerHTML = `<svg viewBox="0 0 100 100"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFC94A"/><stop offset=".5" stop-color="#FF8A3D"/><stop offset="1" stop-color="#FF4F8B"/></linearGradient></defs>
       <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="9"/>
@@ -306,14 +310,14 @@ feature('tracker', {
     for (let i = 0; i < 18; i++) { const s = el('i', '', this.burst); s.style.background = [COLORS.sun, COLORS.flamingo, COLORS.sunset, COLORS.palm, COLORS.sky][i % 5]; }
   },
   update(u, dur) {
-    const a = CUES.ringStart - 12, b = CUES.ringFull - 12;
+    const a = CUES.ringStart - AT('tracker'), b = CUES.ringFull - AT('tracker');
     const p = lerp(0.45, 1, eio((u - a) / (b - a)));
     this.card.querySelector('#ringArc').setAttribute('stroke-dashoffset', this.C * (1 - p));
     this.card.querySelector('#ringPct').textContent = Math.round(p * 100) + '%';
-    const kin = back((u - 0.35) / 0.5), hit = clamp((u - b) / 0.5), ko = clamp((u - (dur - 0.14)) / 0.14);
+    const kin = back((u - 0.5) / 0.6), hit = clamp((u - b) / 0.5), ko = clamp((u - (dur - 0.14)) / 0.14);
     const pulse = u >= b ? 1 + 0.16 * Math.exp(-hit * 5) * Math.cos(hit * 9) : 1;
     this.card.style.transform = `translate3d(-50%,-50%,160px) rotate(${L ? -5 : 4}deg) scale(${Math.max(0, kin) * pulse})`;
-    this.card.style.opacity = clamp((u - 0.35) / 0.1) * (1 - ko);
+    this.card.style.opacity = clamp((u - 0.5) / 0.1) * (1 - ko);
     this.card.classList.toggle('full', u >= b);
     [...this.burst.children].forEach((s, i) => {
       const ang = i / 18 * 6.283 + hash(i) * 0.3, dist = eo(hit) * (150 + hash(i, 2) * 150);
@@ -323,118 +327,69 @@ feature('tracker', {
 });
 
 feature('eggs', {
-  texts: [{ kicker: 'Secrets', lines: [`*${N.eggs} EASTER EGGS.*`, 'ON THE MAP.'], sub: 'How to find each one stays hidden<br>until you ask.' }],
+  texts: [{ kicker: 'Secrets', lines: [`*${N.eggs} EASTER EGGS.*`, 'ON THE MAP.'] }],
   shot: ['duo-eggs', 'ipad-eggs'], side: ['iphone-eggs', 'iphone-eggs'], lay: ['duoPhone', 'ipadPhone'], pose: { ry: -8 },
-  chips: [['The jet ski dog', COLORS.sky, -0.84, -0.86, -0.6, -0.96, 0.5], ['The Skunk Ape', COLORS.palm, 0.2, -0.9, 0.5, -0.84, 0.68], ['Lights in the sky', COLORS.violet, -0.9, 0.2, -0.72, 0.06, 0.86], ['A giant crab', COLORS.sunset, -0.5, 0.7, -0.5, 0.94, 1.04]],
+  chips: [['The jet ski dog', COLORS.sky, -0.84, -0.86, -0.6, -0.96, 1.3], ['The Skunk Ape', COLORS.palm, -0.5, 0.7, 0.5, -0.84, 1.9]],
 });
 
 // A cheat code typed button after button, in time with the music.
 SC.cheats = {
   build(root) {
-    this.t = textBlock(root, { kicker: 'Cheat codes', lines: [`*${N.cheats} CHEATS.*`, 'PS5 & XBOX.'], sub: 'By category, with how to unlock each one.' });
+    this.t = textBlock(root, { kicker: 'Cheat codes', lines: [`*${N.cheats} CHEATS.*`, 'PS5 & XBOX.'] });
     this.stage = el('div', 'persp', root);
     const wrap = el('div', 'cheatwrap', this.stage);
     const cw = L ? 860 : 940;
-    Object.assign(wrap.style, { left: BOX.cx - cw / 2 + 'px', top: BOX.cy - (L ? 250 : 330) + 'px', width: cw + 'px' });
-    const mk = (name, effect, cls) => {
-      const c = el('div', 'cheat ' + cls, wrap);
-      const top = el('div', 'ctop', c);
-      const tt = el('div', '', top); el('b', '', tt, name); el('span', '', tt, effect);
-      const seg = el('div', 'seg', top); el('i', 'on', seg, 'PlayStation'); el('i', '', seg, 'Xbox');
-      return c;
-    };
-    this.card = mk(DATA.cheats[0][0], 'Money', 'main');
-    const keys = el('div', 'keys', this.card);
+    Object.assign(wrap.style, { left: BOX.cx - cw / 2 + 'px', top: BOX.cy - (L ? 190 : 250) + 'px', width: cw + 'px' });
+    const c = el('div', 'cheat main', wrap);
+    const top = el('div', 'ctop', c);
+    const tt = el('div', '', top); el('b', '', tt, DATA.cheats[0][0]); el('span', '', tt, 'Money');
+    const seg = el('div', 'seg', top); el('i', 'on', seg, 'PlayStation'); el('i', '', seg, 'Xbox');
+    const keys = el('div', 'keys', c);
     this.keys = DATA.cheats[0][1].split(/[ ·]+/).filter(Boolean).map(kx => el('div', 'key' + (kx.length > 1 ? ' wide' : ''), keys, kx));
-    const more = el('div', 'more', wrap);
-    this.more = [4, 5, 3, 1].map(i => el('span', '', more, DATA.cheats[i][0]));
-    this.wrap = wrap;
+    this.card = c; this.wrap = wrap;
   },
   update(u, dur) {
     this.t.update(u, dur);
-    const kin = back((u - 0.05) / 0.5), ko = clamp((u - (dur - 0.14)) / 0.14);
-    this.more.forEach((m, i) => { const k = back((u - 0.5 - i * 0.25) / 0.35); m.style.transform = `scale(${Math.max(0, k)})`; });
-    this.wrap.style.transform = `translate3d(${(1 - kin) * (L ? 420 : 0)}px,${(1 - kin) * (L ? 0 : 520)}px,0) rotateY(${L ? -9 + Math.sin(u * 1.4) * 2 : 0}deg) rotateX(${4 + Math.cos(u) * 1.2}deg)`;
+    const a = AT('cheats'), kin = back((u - 0.05) / 0.7), ko = clamp((u - (dur - 0.14)) / 0.14);
+    this.wrap.style.transform = `translate3d(${(1 - kin) * (L ? 420 : 0)}px,${(1 - kin) * (L ? 0 : 520)}px,0) rotateY(${L ? -9 + Math.sin(u * 1.2) * 2 : 0}deg) rotateX(${4 + Math.cos(u) * 1.2}deg)`;
     this.wrap.style.opacity = clamp(u / 0.12) * (1 - ko);
     this.keys.forEach((kx, i) => {
-      const v = u - (CUES.cheatKeys[i] - 18);
-      const k = back(v / 0.16);
+      const v = u - (CUES.cheatKeys[i] - a), k = back(v / 0.2);
       kx.style.transform = `scale(${Math.max(0, k)})`;
       kx.style.opacity = v > 0 ? 1 : 0;
-      kx.classList.toggle('hot', v > 0 && v < 0.14);
+      kx.classList.toggle('hot', v > 0 && v < 0.22);
     });
-    const done = u - (CUES.cheatKeys[9] - 18) - 0.12;
+    const done = u - (CUES.cheatKeys[CUES.cheatKeys.length - 1] - a) - 0.2;
     this.card.classList.toggle('done', done > 0);
     this.card.style.transform = `scale(${1 + (done > 0 ? 0.05 * Math.exp(-done * 9) : 0)})`;
   },
 };
 
-// The radio: an equaliser that moves with the beat, and the stations going by.
-SC.radio = {
-  build(root) {
-    this.t = textBlock(root, { kicker: 'The radio', lines: [`*${N.stations} STATIONS.*`, 'EVERY TRACK.'], sub: '30-second previews,<br>and a link to Apple Music.' });
-    this.stage = el('div', 'persp', root);
-    const wrap = el('div', 'radio', this.stage);
-    const rw = L ? 860 : 940, rh = L ? 620 : 700;
-    Object.assign(wrap.style, { left: BOX.cx - rw / 2 + 'px', top: BOX.cy - rh / 2 + 'px', width: rw + 'px', height: rh + 'px' });
-    const eq = el('div', 'eq', wrap);
-    this.bars = Array.from({ length: 26 }, () => el('i', '', eq));
-    this.rows = [0, 1, 2].map(r => {
-      const row = el('div', 'stations', wrap);
-      const names = DATA.stations.filter((_, i) => i % 3 === r);
-      [...names, ...names, ...names].forEach(n => el('span', '', row, n));
-      return row;
-    });
-    this.wrap = wrap;
-  },
-  update(u, dur) {
-    this.t.update(u, dur);
-    const kin = back((u - 0.05) / 0.5), ko = clamp((u - (dur - 0.14)) / 0.14);
-    this.wrap.style.transform = `translate3d(${(1 - kin) * (L ? 420 : 0)}px,${(1 - kin) * (L ? 0 : 520)}px,0) rotateY(${L ? -8 : 0}deg) rotateX(4deg)`;
-    this.wrap.style.opacity = clamp(u / 0.12) * (1 - ko);
-    const beat = Math.exp(-((u * 2) % 1) * 3.2);
-    this.bars.forEach((b, i) => {
-      const n = 0.5 + 0.5 * Math.sin(u * (5 + hash(i) * 7) + i * 1.7), shape = 0.45 + 0.55 * Math.sin((i / 25) * Math.PI);
-      b.style.transform = `scaleY(${clamp(0.12 + (0.3 + 0.7 * beat) * shape * (0.35 + 0.65 * n), 0.08, 1) * eo(u / 0.4)})`;
-    });
-    this.rows.forEach((row, r) => { row.style.transform = `translateX(${(r % 2 ? -1 : 1) * (u * 90 + r * 60) - (r % 2 ? 0 : 520)}px)`; });
-  },
-};
-
-feature('cast', {
-  texts: [{ kicker: 'Characters · Vehicles', lines: ["*WHO'S WHO.*", `${N.vehicles} VEHICLES.`], sub: 'Your notes on every character.<br>Every vehicle, by class.' }],
-  shot: ['ipad-characters', 'ipad-characters'], side: ['iphone-characters', 'iphone-characters'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
-  chips: [['42 boats', COLORS.sky, -0.86, -0.9, -0.6, -0.96, 0.5], ['33 sports cars', COLORS.flamingo, 0.5, -0.86, 0.5, -0.84, 0.66], ['21 motorcycles', COLORS.sunset, -0.9, 0.3, -0.72, 0.06, 0.82], ['13 helicopters', COLORS.palm, -0.6, 0.94, -0.5, 0.94, 0.98]],
-});
-
 feature('community', {
-  texts: [{ kicker: 'Community', lines: ['STUCK?', '*ASK THE PLAYERS.*'], sub: 'Questions and answers on every mission.<br>See how far your friends are.' }],
+  texts: [{ kicker: 'Community', lines: ['STUCK?', '*ASK THE PLAYERS.*'] }],
   shot: ['duo-thread', 'iphone-thread'], side: ['iphone-thread', null], lay: ['duoPhone', null], pose: { ry: -8 },
-  chips: [['Helpful answers', COLORS.palm, 0.2, -0.9, 0.58, -0.66, 0.55], ['Game Center friends', COLORS.sky, -0.66, 0.68, -0.5, 0.9, 0.8]],
 });
 
 feature('widgets', {
-  texts: [{ kicker: 'Widgets · iCloud', pro: true, lines: ['YOUR PROGRESS,', '*EVERYWHERE.*'], sub: 'Home and Lock Screen widgets, iCloud sync,<br>your PlayStation play time.' }],
+  texts: [{ kicker: 'Widgets · iCloud', pro: true, lines: ['YOUR PROGRESS,', '*EVERYWHERE.*'], sub: 'Widgets and iCloud sync.' }],
   shot: ['ipad-widgets', 'iphone-widgets'], side: ['iphone-widgets', null], lay: ['phoneIpad', null], pose: L ? { ry: -9 } : { ry: -14 },
-  chips: [['Home Screen', COLORS.flamingo, -0.72, -0.72, -0.62, -0.86, 0.5], ['Lock Screen', COLORS.violet, 0.5, -0.94, 0.62, -0.46, 0.66], ['iCloud sync', COLORS.sky, 0.66, 0.12, -0.62, 0.44, 0.82], ['PlayStation play time', COLORS.sun, 0.3, 0.9, 0.42, 0.9, 0.98]],
 });
 
 // Three devices side by side; the iPhone Duo opens.
 SC.devices = {
   build(root) {
-    this.t = textBlock(root, { kicker: 'One app, three screens', lines: L ? ['iPHONE. *iPHONE DUO.* iPAD.'] : ['iPHONE. iPAD.', '*iPHONE DUO.*'], top: L ? 70 : 130, width: L ? 1500 : 900, size: L ? 124 : 132,
-      sub: L ? 'Open the Duo: the list on one side of the fold, the map on the other.' : 'Open the Duo: the list on one side of the fold,<br>the map on the other.' });
+    this.t = textBlock(root, { kicker: 'One app, three screens', lines: L ? ['iPHONE. *iPHONE DUO.* iPAD.'] : ['iPHONE. iPAD.', '*iPHONE DUO.*'], top: L ? 90 : 150, width: L ? 1500 : 900, size: L ? 124 : 132 });
     this.stage = el('div', 'persp', root);
-    this.stage.style.perspectiveOrigin = L ? `${W / 2}px 665px` : `${W / 2}px 1200px`;
+    this.stage.style.perspectiveOrigin = L ? `${W / 2}px 650px` : `${W / 2}px 1200px`;
     const P = L
-      ? { ipad: { cx: 400, cy: 665, w: 430, h: 510 }, duo: { cx: 970, cy: 665, w: 660, h: 510 }, iphone: { cx: 1530, cy: 665, w: 300, h: 510 } }
-      : { duo: { cx: 540, cy: 965, w: 720, h: 560 }, ipad: { cx: 340, cy: 1515, w: 480, h: 410 }, iphone: { cx: 790, cy: 1515, w: 300, h: 410 } };
+      ? { ipad: { cx: 400, cy: 650, w: 440, h: 540 }, duo: { cx: 970, cy: 650, w: 680, h: 540 }, iphone: { cx: 1530, cy: 650, w: 300, h: 540 } }
+      : { duo: { cx: 540, cy: 900, w: 760, h: 600 }, ipad: { cx: 340, cy: 1480, w: 480, h: 440 }, iphone: { cx: 790, cy: 1480, w: 300, h: 440 } };
     this.ipad = device(this.stage, 'ipad-home', P.ipad);
     this.duo = device(this.stage, 'duo-mappins', P.duo);
     this.iphone = device(this.stage, 'iphone-mission', P.iphone);
     this.labels = [[this.ipad, 'iPad'], [this.duo, 'iPhone Duo'], [this.iphone, 'iPhone']].map(([d, name]) => {
       const lb = el('div', 'devlabel', this.stage, name);
-      const low = d === this.duo && !L ? d : (L ? this.ipad : this.ipad);
+      const low = d === this.duo && !L ? d : this.ipad;
       lb.style.left = d.cx + 'px'; lb.style.top = Math.max(low.cy + low.h / 2, d.cy + d.h / 2) + (L ? 40 : 32) + 'px';
       return lb;
     });
@@ -442,32 +397,31 @@ SC.devices = {
   update(u, dur) {
     this.t.update(u, dur);
     const ko = clamp((u - (dur - 0.14)) / 0.14);
-    const open = CUES.unfold - 28;
-    this.duo.fold(lerp(178, 0, eio((u - open) / 0.9)));
-    const kd = back((u - 0.02) / 0.5);
+    const open = CUES.unfold - AT('devices');
+    this.duo.fold(lerp(178, 0, eio((u - open) / 1.1)));
+    const kd = back((u - 0.02) / 0.6);
     // Closed, the Duo is one half wide: it sits in the middle, then slides as it opens.
-    const shift = lerp(-this.duo.w / 4, 0, eio((u - open) / 0.9));
-    this.duo.root.style.transform = `translate3d(${shift}px,${(1 - kd) * 500 + Math.sin(u * 1.2) * 5}px,60px) rotateX(${7}deg) rotateY(${Math.sin(u * 0.9) * 3}deg)`;
+    const shift = lerp(-this.duo.w / 4, 0, eio((u - open) / 1.1));
+    this.duo.root.style.transform = `translate3d(${shift}px,${(1 - kd) * 500 + Math.sin(u * 1.0) * 5}px,60px) rotateX(${7}deg) rotateY(${Math.sin(u * 0.8) * 3}deg)`;
     this.duo.root.style.opacity = clamp(u / 0.12) * (1 - ko);
-    [[this.ipad, 1.25, -1, 6], [this.iphone, 1.45, 1, -6]].forEach(([d, at, dir, ry]) => {
-      const k = back((u - at) / 0.55);
-      d.root.style.transform = `translate3d(${(1 - k) * (L ? 300 : 500) * dir}px,${Math.sin(u * 1.2 + at * 3) * 5}px,0) rotateY(${ry + Math.sin(u + at) * 2}deg) rotateX(5deg) scale(${lerp(0.8, 1, eo((u - at) / 0.5))})`;
+    [[this.ipad, 1.9, -1, 6], [this.iphone, 2.3, 1, -6]].forEach(([d, at, dir, ry]) => {
+      const k = back((u - at) / 0.7);
+      d.root.style.transform = `translate3d(${(1 - k) * (L ? 300 : 500) * dir}px,${Math.sin(u * 1.0 + at * 3) * 5}px,0) rotateY(${ry + Math.sin(u * 0.8 + at) * 2}deg) rotateX(5deg) scale(${lerp(0.8, 1, eo((u - at) / 0.6))})`;
       d.root.style.opacity = clamp((u - at) / 0.12) * (1 - ko);
     });
-    this.labels.forEach((lb, i) => { const k = eo((u - [1.5, 1.15, 1.7][i]) / 0.3); lb.style.opacity = k * (1 - ko); lb.style.transform = `translate(-50%,${(1 - k) * 14}px)`; });
+    this.labels.forEach((lb, i) => { const k = eo((u - [2.2, 1.8, 2.6][i]) / 0.4); lb.style.opacity = k * (1 - ko); lb.style.transform = `translate(-50%,${(1 - k) * 14}px)`; });
   },
 };
 
-// What it does not do: no account, no ads, no tracking. One line per beat, then four promises.
+// What it does not do: no account, no ads, no tracking. One line per beat, then two promises.
 SC.trust = {
   build(root) {
-    this.t = textBlock(root, { kicker: 'Private by design', lines: ['NO ACCOUNT.', 'NO ADS.', '*NO TRACKING.*'], lineStep: 0.5, size: L ? 150 : 132 });
+    this.t = textBlock(root, { kicker: 'Private by design', lines: ['NO ACCOUNT.', 'NO ADS.', '*NO TRACKING.*'], lineStep: CUES.beat, size: L ? 150 : 132 });
     this.stage = el('div', 'persp', root);
     const grid = el('div', 'trust', this.stage);
-    const gw = L ? 860 : 940, gh = L ? 560 : 640;
-    Object.assign(grid.style, { left: BOX.cx - gw / 2 + 'px', top: (L ? BOX.cy + 20 : BOX.cy + 40) - gh / 2 + 'px', width: gw + 'px', height: gh + 'px' });
-    const items = [['WORKS OFFLINE', 'The whole guide, no network needed'], ['6 LANGUAGES', 'EN · FR · ES · DE · IT · PT'], ['EVERY GUIDE IS FREE', 'Pro is optional'], ['YOUR DATA STAYS YOURS', 'Progress is kept on your devices']];
-    this.cards = items.map(([a, b], i) => {
+    const gw = L ? 760 : 900, gh = L ? 520 : 520;
+    Object.assign(grid.style, { left: BOX.cx - gw / 2 + 'px', top: (L ? BOX.cy + 20 : BOX.cy + 60) - gh / 2 + 'px', width: gw + 'px', height: gh + 'px', gridTemplateColumns: '1fr' });
+    this.cards = [['WORKS OFFLINE', 'The whole guide, no network needed'], ['EVERY GUIDE IS FREE', 'Pro is optional']].map(([a, b], i) => {
       const c = el('div', 'tcard', grid);
       c.innerHTML = `<svg viewBox="0 0 48 48"><defs><linearGradient id="tg${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFC94A"/><stop offset=".5" stop-color="#FF8A3D"/><stop offset="1" stop-color="#FF4F8B"/></linearGradient></defs><circle cx="24" cy="24" r="24" fill="url(#tg${i})"/><path d="M13.500 24.500l7 7 14-15" fill="none" stroke="#fff" stroke-width="4.500" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
       el('b', '', c, a); el('span', '', c, b);
@@ -478,8 +432,8 @@ SC.trust = {
     this.t.update(u, dur);
     const ko = clamp((u - (dur - 0.14)) / 0.14);
     this.cards.forEach((c, i) => {
-      const v = u - (CUES.trustCards[i] - 32), k = back(v / 0.4);
-      c.style.transform = `translateY(${(1 - eo(v / 0.4)) * 60}px) scale(${Math.max(0, k)})`;
+      const v = u - (CUES.trustCards[i] - AT('trust')), k = back(v / 0.5);
+      c.style.transform = `translateY(${(1 - eo(v / 0.5)) * 60}px) scale(${Math.max(0, k)})`;
       c.style.opacity = clamp(v / 0.1) * (1 - ko);
     });
   },
@@ -504,19 +458,19 @@ SC.end = {
     this.wrap = wrap;
   },
   update(u, dur) {
-    const ki = back((u - 0.05) / 0.6);
-    this.icon.style.transform = `scale(${Math.max(0, ki) * (1 + 0.012 * Math.sin(u * 2.4))}) rotate(${(1 - eo(u / 0.6)) * -14}deg)`;
+    const ki = back((u - 0.05) / 0.7);
+    this.icon.style.transform = `scale(${Math.max(0, ki) * (1 + 0.012 * Math.sin(u * 2.4))}) rotate(${(1 - eo(u / 0.7)) * -14}deg)`;
     this.icon.style.opacity = clamp(u / 0.1);
     this.halo.style.opacity = clamp(u / 0.4) * (0.75 + 0.25 * Math.sin(u * 2.4));
     this.halo.style.transform = `translate(-50%,-50%) scale(${lerp(0.5, 1, eo(u / 0.8))})`;
-    [...this.name.querySelectorAll('span')].forEach((s, i) => { s.style.transform = `translateY(${(1 - eo((u - 0.45 - i * 0.14) / 0.4)) * 105}%)`; });
-    const kt = eo((u - 0.95) / 0.4); this.tag.style.opacity = kt; this.tag.style.transform = `translateY(${(1 - kt) * 18}px)`;
-    const v = u - (CUES.endCta - 36), kc = back(v / 0.45);
-    this.cta.style.transform = `scale(${Math.max(0, kc) * (1 + 0.02 * Math.sin(Math.max(0, v) * 5))})`; this.cta.style.opacity = clamp(v / 0.1);
-    const kd = eo((v - 0.3) / 0.4); this.devs.style.opacity = kd;
-    if (this.link) { const kl = back((v - 0.5) / 0.45); this.link.style.opacity = clamp((v - 0.5) / 0.1); this.link.style.transform = `scale(${Math.max(0, kl)})`; }
-    this.legal.style.opacity = eo((u - 1.2) / 0.5) * 0.62;
-    const fade = clamp((u - (dur - 0.5)) / 0.5);
+    [...this.name.querySelectorAll('span')].forEach((s, i) => { s.style.transform = `translateY(${(1 - eo((u - 0.6 - i * 0.2) / 0.5)) * 105}%)`; });
+    const kt = eo((u - 1.3) / 0.5); this.tag.style.opacity = kt; this.tag.style.transform = `translateY(${(1 - kt) * 18}px)`;
+    const v = u - (CUES.endCta - AT('end')), kc = back(v / 0.5);
+    this.cta.style.transform = `scale(${Math.max(0, kc) * (1 + 0.02 * Math.sin(Math.max(0, v) * 4))})`; this.cta.style.opacity = clamp(v / 0.1);
+    const kd = eo((v - 0.4) / 0.5); this.devs.style.opacity = kd;
+    if (this.link) { const kl = back((v - 0.7) / 0.5); this.link.style.opacity = clamp((v - 0.7) / 0.1); this.link.style.transform = `scale(${Math.max(0, kl)})`; }
+    this.legal.style.opacity = eo((u - 1.6) / 0.5) * 0.62;
+    const fade = clamp((u - (dur - 0.6)) / 0.6);
     document.getElementById('fade').style.opacity = fade;
   },
 };
@@ -547,9 +501,9 @@ function render(t) {
   }
   // A band of sunset crosses the picture at each change of scene.
   let band = 0, any = false;
-  for (const s of scenes) { if (s.a === 0) continue; const k = (t - (s.a - 0.1)) / 0.3; if (k > 0 && k < 1) { band = k; any = true; } }
+  for (const s of scenes) { if (s.a === 0) continue; const k = (t - (s.a - 0.14)) / 0.42; if (k > 0 && k < 1) { band = k; any = true; } }
   swipe.style.display = any ? 'block' : 'none';
   if (any) swipe.style.transform = `translateX(${lerp(-110, 190, band)}%) skewX(-24deg)`;
   const endA = CUES.scenes[CUES.scenes.length - 1][1];
-  foot.style.opacity = clamp((t - 2.2) / 0.5) * (1 - clamp((t - (endA - 0.2)) / 0.2));
+  foot.style.opacity = clamp((t - (T1 + 0.2)) / 0.5) * (1 - clamp((t - (endA - 0.2)) / 0.2));
 }

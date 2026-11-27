@@ -131,9 +131,9 @@ html,body{margin:0;background:#091422}
 """
 
 VARS = {
-    "wide": dict(PO="1390px 520px", SUB=33, LOCK=26, CHIP=26, PCT=72, PCTS=18, CH=66, KEY=96, KEYF=50, KEYW=34, ST=28, TC=44, TCS=22, ENDTOP=96, ICON=250, ENDN=64,
+    "wide": dict(PO="1390px 520px", SUB=40, LOCK=26, CHIP=26, PCT=72, PCTS=18, CH=66, KEY=96, KEYF=50, KEYW=34, ST=28, TC=58, TCS=27, ENDTOP=96, ICON=250, ENDN=64,
                  ENDT=32, CTAS=24, CTAB=58, LEGALB=34, LEGAL=18, FOOTX=56, FOOTB=30, FOOT=19, FOOTDIR=""),
-    "tall": dict(PO="540px 1190px", SUB=37, LOCK=24, CHIP=27, PCT=78, PCTS=20, CH=70, KEY=104, KEYF=54, KEYW=36, ST=30, TC=46, TCS=23, ENDTOP=330, ICON=330, ENDN=74,
+    "tall": dict(PO="540px 1190px", SUB=42, LOCK=24, CHIP=27, PCT=78, PCTS=20, CH=70, KEY=104, KEYF=54, KEYW=36, ST=30, TC=60, TCS=28, ENDTOP=330, ICON=330, ENDN=74,
                  ENDT=31, CTAS=28, CTAB=68, LEGALB=120, LEGAL=21, FOOTX=60, FOOTB=62, FOOT=20, FOOTDIR="flex-direction:column;gap:10px"),
 }
 
@@ -146,8 +146,8 @@ def page(work, fmt):
     css = CSS.replace("__ANTON__", base64.b64encode(open(os.path.join(HERE, "..", "..", "Fonts", "Anton-Regular.ttf"), "rb").read()).decode())
     for k, v in sorted(VARS[fmt].items(), key=lambda kv: -len(kv[0])):
         css = css.replace(f"__{k}__", str(v))
-    cues = {"scenes": C.SCENES, "ringStart": C.RING_START, "ringFull": C.RING_FULL, "cheatKeys": C.CHEAT_KEYS, "unfold": C.UNFOLD,
-            "trustCards": C.TRUST_CARDS, "endCta": C.END_CTA}
+    cues = {"scenes": C.SCENES, "beat": C.BEAT, "spoiler": C.SPOILER, "ringStart": C.RING_START, "ringFull": C.RING_FULL, "cheatKeys": C.CHEAT_KEYS,
+            "unfold": C.UNFOLD, "trustCards": C.TRUST_CARDS, "endCta": C.END_CTA}
     html = (HTML.replace("__CSS__", css).replace("__DATA__", open(os.path.join(work, "data.json")).read())
             .replace("__CUES__", json.dumps(cues)).replace("__JS__", open(os.path.join(HERE, "page.js")).read()))
     path = os.path.join(work, f"page-{fmt}.html")
