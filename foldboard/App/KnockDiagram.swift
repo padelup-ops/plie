@@ -26,8 +26,8 @@ struct KnockDiagram: View {
                         .frame(width: w * 0.62, height: h * 0.3)
                         .offset(x: x0 + (right ? w * 0.34 : w * 0.04), y: y0 + h * 0.64)
                         .animation(.spring(response: 0.45, dampingFraction: 0.8), value: right)
-                    // La place vide (à toucher aussi)
-                    Image(systemName: right ? "chevron.left.2" : "chevron.right.2")
+                    // La place vide (à toucher aussi) : la même flèche que dans le clavier, vers le côté où il ira.
+                    Image(systemName: right ? "arrow.left" : "arrow.right")
                         .font(.caption.bold())
                         .foregroundStyle(.secondary)
                         .frame(width: w * 0.3, height: h * 0.3)
