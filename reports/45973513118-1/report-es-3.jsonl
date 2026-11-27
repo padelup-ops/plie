@@ -1,1 +1,4 @@
 {"id": "578b119f3eea171edbab", "key": "hello|lara", "text": "¡Jo, jo, jo! ¡Hola, Lara!", "ok": false, "score": 0.713, "dur": 2.84, "heard": "¡Cojojo! ¡Hola, lala!", "tries": 2, "secs": 242.9}
+{"id": "9383b8ef84a88f7db3b1", "key": "hello|ainhoa", "text": "¡Jo, jo, jo! ¡Hola, Ainhoa!", "ok": true, "score": 0.725, "dur": 3.06, "heard": "¡Ho ho ho hola! ¡Ain ho!", "tries": 3, "secs": 204.2}
+{"id": "fb8e8d1f75c823fb757f", "key": "hello|alexia", "text": "¡Jo, jo, jo! ¡Hola, Alexia!", "ok": true, "score": 1.0, "dur": 3.06, "heard": "Ho ho ho ho, hola, Alexia.", "tries": 1, "secs": 73.6}
+{"id": "61b03fe7cdd59a30f83a", "key": "hello|samuel", "text": "¡Jo, jo, jo! ¡Hola, Samuel!", "ok": true, "score": 0.967, "dur": 2.46, "heard": "ho ho ho la Samuel", "tries": 1, "secs": 67.8}
