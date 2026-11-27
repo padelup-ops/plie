@@ -1,5 +1,7 @@
 # ALLÔ PÈRE NOËL : compile l'app sur un Mac de GitHub et l'envoie sur TestFlight (quand la fiche existe).
 # Projet Xcode généré par XcodeGen depuis noel/project.yml.
+# iPhone seulement, imposé à la compilation (TARGETED_DEVICE_FAMILY=1) : le réglage posé au niveau du projet ne suffisait
+# pas, XcodeGen remettait « iPhone et iPad » sur la cible, et Apple réclamait alors des captures iPad.
 
 name: Noël - TestFlight
 
@@ -11,6 +13,10 @@ on:
       - "noel/Resources/**"
       - "noel/project.yml"
   workflow_dispatch:
+    inputs:
+      commit:
+        description: "Commit à construire (vide : la tête de la branche)"
+        required: false
 
 concurrency:
   group: noel-testflight
@@ -32,6 +38,8 @@ jobs:
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.commit || github.sha }}
 
       - name: Choisir Xcode 27.1
         run: |
@@ -63,7 +71,7 @@ jobs:
           xcodebuild build \
             -project AlloPereNoel.xcodeproj -scheme AlloPereNoel -configuration Release \
             -destination 'generic/platform=iOS' \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" TARGETED_DEVICE_FAMILY=1 \
             CODE_SIGNING_ALLOWED=NO 2>&1 | tee ../build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
           grep -q "BUILD SUCCEEDED" ../build.log
 
@@ -97,7 +105,7 @@ jobs:
             -archivePath "$RUNNER_TEMP/AlloPereNoel.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
-            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" 2>&1 | tee ../archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" TARGETED_DEVICE_FAMILY=1 2>&1 | tee ../archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
           grep -q "ARCHIVE SUCCEEDED" ../archive.log
 
       - name: Signer pour l'App Store (sans envoyer)
@@ -174,7 +182,7 @@ jobs:
               tail -n 200 "$GITHUB_WORKSPACE/$f" > "fin-${f%.log}.txt"
             fi
           done
-          echo "build $BUILD_NUMBER - commit ${{ github.sha }} - $(date -u)" > build.txt
+          echo "build $BUILD_NUMBER - commit ${{ inputs.commit || github.sha }} - $(date -u)" > build.txt
           git add -A
           git commit -qm "Journaux Noël build $BUILD_NUMBER"
           git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-noel-logs || echo "::warning::Impossible de publier les journaux"
