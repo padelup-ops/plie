@@ -533,7 +533,8 @@ let memoryOK = KeyboardCanvas.simulateFoldCycles()
 let visibilityOK = KeyboardCanvas.verifyVisibility()
 let sheetOK = KeyboardCanvas.verifyBarSheet()
 let laptopOK = KeyboardCanvas.verifyLaptopLayout()
-if !memoryOK || !visibilityOK || !sheetOK || !laptopOK {
+let touchOK = KeyboardCanvas.verifyTouchSafety()
+if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }

@@ -16,10 +16,10 @@ final class KeyboardViewController: UIInputViewController, KBInput {
     @discardableResult
     private func ensureCanvas() -> KeyboardCanvas {
         let c = KeyboardCanvas.install(in: view)
-        if canvas !== c {
+        if canvas !== c || c.input !== self {
             c.input = self
             c.onPreferredHeightChange = { [weak self] in
-                guard let self, let c = self.canvas else { return }
+                guard let self, let c = self.canvas, c.superview === self.view else { return }
                 self.heightConstraint?.constant = c.preferredHeight
             }
             if let lexicon { c.setLexicon(lexicon) }
@@ -33,13 +33,36 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         return c
     }
 
-    /// Le contrôleur affiché. Les anciens ne détruisent pas le clavier partagé.
+    /// Le contrôleur qui porte le clavier. Les anciens ne détruisent pas le clavier partagé.
     private static weak var latest: KeyboardViewController?
     private static let kept = NSHashTable<KeyboardViewController>.weakObjects()
+    /// Entre « va apparaître » et « a disparu » : ce contrôleur est celui qu'on voit.
+    private var showing = false
+
+    /// Ce contrôleur porte-t-il le clavier en ce moment ?
+    private var ownsCanvas: Bool { Self.latest === self && canvas != nil && canvas?.superview === view }
+
+    /// Vraiment à l'écran (iOS garde d'anciens contrôleurs attachés à des fenêtres cachées).
+    private var onScreen: Bool {
+        guard isViewLoaded, let w = view.window, !w.isHidden, w.alpha > 0.01 else { return false }
+        return view.bounds.width > 50 && view.bounds.height > 50 && !view.isHidden
+    }
+
+    /// Quand ce contrôleur a pris le clavier (un instant de grâce : sa vue n'est pas encore dans sa fenêtre).
+    private var claimedAt: TimeInterval = 0
+
+    /// Prend le clavier partagé et le montre ici.
+    private func takeCanvas() {
+        showing = true
+        claimedAt = ProcessInfo.processInfo.systemUptime
+        ensureCanvas()
+        reload()
+        canvas?.appeared()
+    }
 
     /// Plus à l'écran : on allège les caches, le clavier lui-même reste (une seule instance).
     private func releaseCanvasIfGone() {
-        guard Self.latest === self, view.window == nil else { return }
+        guard ownsCanvas, view.window == nil else { return }
         canvas?.trimMemory(flush: false)
         canvas?.disappeared()
     }
@@ -48,7 +71,7 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let relay = KBSettingsRelay { [weak self] in self?.reload() }
+        let relay = KBSettingsRelay { [weak self] in self?.sharedChanged() }
         relay.start()
         settingsRelay = relay
         // La hauteur de la dernière fois, avant même que le clavier soit construit : pas de clavier d'iOS par
@@ -60,8 +83,14 @@ final class KeyboardViewController: UIInputViewController, KBInput {
             c.isActive = true
             heightConstraint = c
         }
-        ensureCanvas()
-        reload()
+        settings = KBVault.loadSettings()
+        access = KBVault.loadAccess()
+        // Un autre contrôleur montre encore le clavier (iOS prépare celui-ci pour un pli ou une rotation) : on ne le
+        // lui retire pas avant d'apparaître vraiment.
+        if Self.latest?.showing != true {
+            ensureCanvas()
+            reload()
+        }
         requestSupplementaryLexicon { [weak self] lexicon in
             self?.lexicon = lexicon
             self?.canvas?.setLexicon(lexicon)
@@ -71,21 +100,18 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        ensureCanvas()
-        reload()
-        canvas?.appeared()
+        takeCanvas()
         if !access.isPro() { Task { [weak self] in await self?.checkStore() } }
     }
 
-    /// Filet de sécurité : le clavier revient à l'écran sans « apparition » d'iOS (il avait été rendu).
+    /// Filet de sécurité : ce contrôleur est à l'écran sans le clavier (iOS le remontre parfois sans « apparition »,
+    /// ou un autre contrôleur, plus à l'écran, l'avait gardé). On le reprend : jamais de clavier vide.
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        // Un ancien contrôleur, encore attaché à une fenêtre cachée, ne reprend pas le clavier partagé.
-        if canvas == nil, view.window != nil, Self.latest === self || Self.latest == nil {
-            ensureCanvas()
-            reload()
-            canvas?.appeared()
-        }
+        guard !ownsCanvas, onScreen else { return }
+        guard let owner = Self.latest, owner !== self else { takeCanvas(); return }
+        let settled = ProcessInfo.processInfo.systemUptime - owner.claimedAt > 1
+        if !owner.showing || (settled && !owner.onScreen) { takeCanvas() }
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -143,11 +169,13 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        canvas?.disappeared()
+        // Seulement si le clavier est encore ici : un contrôleur remplacé ne l'éteint pas sous le suivant.
+        if ownsCanvas { canvas?.disappeared() }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        showing = false
         // Un peu plus tard, si le clavier n'est vraiment plus à l'écran, on le rend (iOS envoie parfois ce message
         // alors que le clavier reste affiché : dans ce cas on n'y touche pas).
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in self?.releaseCanvasIfGone() }
@@ -155,12 +183,29 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func selectionDidChange(_ textInput: UITextInput?) {
         super.selectionDidChange(textInput)
-        canvas?.textChanged()
+        if ownsCanvas { canvas?.textChanged() }
     }
 
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
-        canvas?.textChanged()
+        if ownsCanvas { canvas?.textChanged() }
+    }
+
+    /// L'app (ou ce clavier lui-même) vient d'enregistrer. Seul le contrôleur qui porte le clavier relit, et le
+    /// clavier n'est refait que si quelque chose a vraiment changé. Avant, chaque enregistrement du clavier (le côté
+    /// de la main, un mot gardé, la taille de l'écran) revenait par cette notification à tous les contrôleurs encore
+    /// en vie : chacun prenait le clavier pour lui et le refaisait, parfois sous le doigt.
+    private func sharedChanged() {
+        guard ownsCanvas, let c = canvas else { return }
+        let fresh = KBVault.loadAccess()
+        let proChanged = fresh.isPro() != access.isPro()
+        access = fresh
+        let stored = KBVault.loadSettings()
+        let adopt = !KBVault.isOwn(stored) && c.shouldAdopt(stored)
+        guard adopt || proChanged else { return }
+        if adopt { settings = stored }
+        c.configure(settings: settings, pro: access.isPro())
+        applyHeight(c)
     }
 
     private func reload() {
@@ -168,6 +213,10 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         access = KBVault.loadAccess()
         let c = ensureCanvas()
         c.configure(settings: settings, pro: access.isPro())
+        applyHeight(c)
+    }
+
+    private func applyHeight(_ c: KeyboardCanvas) {
         let h = c.preferredHeight
         UserDefaults.standard.set(Double(h), forKey: "foldboard.lastHeight")
         if let c = heightConstraint {

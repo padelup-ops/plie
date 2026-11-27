@@ -723,11 +723,22 @@ enum KBVault {
         return best ?? KBSettings()
     }
 
+    /// La date des derniers réglages écrits par ce processus. Sa propre notification lui revient aussi : le clavier
+    /// ne doit pas se refaire (touches replacées, appuis en cours annulés) parce qu'il vient lui-même d'enregistrer.
+    private(set) static var ownStamp: Date?
+
+    /// Ces réglages viennent-ils de ce processus ?
+    static func isOwn(_ settings: KBSettings) -> Bool {
+        guard let own = ownStamp else { return false }
+        return abs(settings.stamp.timeIntervalSince(own)) < 0.002
+    }
+
     static func save(_ settings: KBSettings) {
         var s = settings
         // Le clavier vient de poser la date : on la garde, pour que le prochain enregistrement
         // ne croie pas qu'une copie plus vieille est la plus récente et n'annule l'interrupteur.
         if abs(s.stamp.timeIntervalSinceNow) > 2 { s.stamp = Date() }
+        ownStamp = s.stamp
         guard let data = try? JSONEncoder().encode(s) else { return }
         write("settings", data)
         suite?.set(data, forKey: "settings")
