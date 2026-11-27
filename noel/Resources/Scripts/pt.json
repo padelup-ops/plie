@@ -6,6 +6,17 @@
  "rate": 0.46,
  "pitch": 0.82,
  "and": " e ",
+ "hello": "Ho, ho, ho! Olá, {name}!",
+ "helloAnyone": "Ho, ho, ho! Olá, olá!",
+ "elfHello": "Papai Noel, Papai Noel… no telefone: {name}!",
+ "helloAfterElf": [
+  "Ah, mas é claro! Que alegria falar com você!",
+  "Ah, mas é claro! Que alegria falar com vocês!"
+ ],
+ "bye": "Feliz Natal, {name}!",
+ "byeAnyone": "Feliz Natal! Ho, ho, ho!",
+ "elfBye": "Feliz Natal, {name}!",
+ "elfLabel": "Pipoca, o duende",
  "qualities": {
   "kind": [
    "você tem um coração enorme",
@@ -44,16 +55,10 @@
    "vocês adoram uma aventura"
   ]
  },
- "qualityJoin": [
-  " e que ",
-  " e que "
- ],
  "scenarios": {
   "magic": [
    {
-    "say": [
-     "Ho, ho, ho! Olá, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -81,25 +86,17 @@
     "if": "single"
    },
    {
-    "say": [
-     "Ouvi falar de você este ano, {name}. Me contaram que {quality}. Que maravilha!",
-     "Ouvi falar de vocês este ano. Me contaram que {quality}. Que maravilha!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
-     "Ouvi falar de você este ano, {name}, e me contaram muitas coisas lindas!",
+     "Ouvi falar de você este ano, e me contaram muitas coisas lindas!",
      "Ouvi falar de vocês este ano, e me contaram muitas coisas lindas!"
     ],
     "if": "noQuality"
    },
    {
-    "say": [
-     "E imagine só: um passarinho me contou que {anecdote}. Parabéns!",
-     "E imaginem só: um passarinho me contou que {anecdote}. Parabéns!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -121,11 +118,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "E eu anotei que você sonha com {gift}. Vou contar agora mesmo para os meus duendes!",
-     "E eu anotei que vocês sonham com {gift}. Vou contar agora mesmo para os meus duendes!"
-    ],
-    "if": "gift"
+    "cut": true
+   },
+   {
+    "include": "gift"
    },
    {
     "say": [
@@ -147,9 +143,7 @@
   ],
   "secret": [
    {
-    "say": [
-     "Ho, ho, ho… Olá, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -173,10 +167,7 @@
     ]
    },
    {
-    "say": [
-     "Ele me disse que {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -186,11 +177,7 @@
     "if": "noQuality"
    },
    {
-    "say": [
-     "E imagine só: ele até anotou uma coisa muito especial que você fez este ano: {anecdote}!",
-     "E imaginem só: ele até anotou uma coisa muito especial que vocês fizeram este ano: {anecdote}!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -234,9 +221,7 @@
   ],
   "congrats": [
    {
-    "say": [
-     "Ho, ho, ho! Olá, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -253,16 +238,10 @@
     ]
    },
    {
-    "say": [
-     "Um passarinho me contou que {anecdote}. Parabéns, parabéns, parabéns!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
-    "say": [
-     "E também me contaram que {quality}. Que ano lindo!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -284,8 +263,8 @@
    },
    {
     "say": [
-     "Ho, ho, ho! Que maravilha! Continue assim, {name}!",
-     "Ho, ho, ho! Que maravilha! Continuem assim, {name}!"
+     "Ho, ho, ho! Que maravilha! Continue assim!",
+     "Ho, ho, ho! Que maravilha! Continuem assim!"
     ],
     "laugh": true
    },
@@ -304,9 +283,7 @@
   ],
   "funny": [
    {
-    "say": [
-     "Ho, ho, ho! Olá, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -346,18 +323,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "Mas também me contaram que {quality}. Isso sim é maravilhoso!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "Ah, e eu anotei que você sonha com {gift}. Vou contar para os meus duendes… tomando cuidado para não escorregar em nenhuma fita!",
-     "Ah, e eu anotei que vocês sonham com {gift}. Vou contar para os meus duendes… tomando cuidado para não escorregar em nenhuma fita!"
-    ],
-    "laugh": true,
-    "if": "gift"
+    "include": "gift"
    },
    {
     "say": [
@@ -374,9 +343,7 @@
   ],
   "eve": [
    {
-    "say": [
-     "Ho, ho, ho! Boa noite, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -390,18 +357,10 @@
     ]
    },
    {
-    "say": [
-     "Antes de partir, eu queria te dizer que ouvi falar de você: me contaram que {quality}.",
-     "Antes de partir, eu queria dizer que ouvi falar de vocês: me contaram que {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "E um passarinho me contou que {anecdote}. Estou muito orgulhoso de você!",
-     "E um passarinho me contou que {anecdote}. Estou muito orgulhoso de vocês!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -433,8 +392,11 @@
    },
    {
     "say": [
-     "Está na hora de partir. As minhas renas estão esperando! Feliz Natal, {name}! Ho, ho, ho!"
-    ],
+     "Está na hora de partir. As minhas renas estão esperando!"
+    ]
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ]
@@ -460,9 +422,13 @@
   "goodbye": [
    {
     "say": [
-     "Ho, ho, ho! Preciso voltar para a minha oficina. Desejo um Natal maravilhoso para você, {name}!",
-     "Ho, ho, ho! Preciso voltar para a minha oficina. Desejo um Natal maravilhoso para vocês, {name}!"
+     "Ho, ho, ho! Preciso voltar para a minha oficina. Desejo um Natal maravilhoso para você!",
+     "Ho, ho, ho! Preciso voltar para a minha oficina. Desejo um Natal maravilhoso para vocês!"
     ],
+    "laugh": true
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ],
@@ -470,6 +436,96 @@
    {
     "say": [
      "Ho, ho, ho! Olá! Aqui é o Papai Noel, ligando lá do Polo Norte!"
+    ],
+    "laugh": true
+   }
+  ],
+  "qualities": [
+   {
+    "say": [
+     "Ouvi coisas lindas sobre você este ano.",
+     "Ouvi coisas lindas sobre vocês este ano."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Me contaram que {q1}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "E também que {q2}."
+    ],
+    "if": "quality2"
+   },
+   {
+    "say": [
+     "Que maravilha!"
+    ],
+    "if": "quality"
+   }
+  ],
+  "anecdote": [
+   {
+    "say": [
+     "Oh, lá vem o meu duende Pipoca correndo! Ele tem uma coisa para me contar sobre você…",
+     "Oh, lá vem o meu duende Pipoca correndo! Ele tem uma coisa para me contar sobre vocês…"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "elf": [
+     "Papai Noel, Papai Noel! Tenho uma grande novidade: {anecdote}!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Parabéns! Estou muito orgulhoso de você!",
+     "Ho, ho, ho! Parabéns! Estou muito orgulhoso de vocês!"
+    ],
+    "if": "anecdote",
+    "laugh": true
+   }
+  ],
+  "gift": [
+   {
+    "say": [
+     "Pipoca, me diga: o que tem na lista de Natal?"
+    ],
+    "if": "gift"
+   },
+   {
+    "elf": [
+     "Na lista tem: {gift}!"
+    ],
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Já anotei. Vou contar agora mesmo para os meus duendes!"
+    ],
+    "if": "gift",
+    "laugh": true
+   }
+  ],
+  "previewEnd": [
+   {
+    "say": [
+     "Oh! Os meus duendes estão me chamando na oficina, preciso ir correndo! Até logo, logo!"
+    ]
+   },
+   {
+    "bye": true,
+    "wave": true
+   }
+  ],
+  "welcome": [
+   {
+    "say": [
+     "Ho, ho, ho! Olá! Sou eu, o Papai Noel. Estou ligando da minha oficina, lá no Polo Norte. Tenho uma surpresa só para você. Feliz Natal!"
     ],
     "laugh": true
    }

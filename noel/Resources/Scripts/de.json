@@ -7,6 +7,17 @@
  "rate": 0.45,
  "pitch": 0.82,
  "and": " und ",
+ "hello": "Ho, ho, ho! Hallo, {name}!",
+ "helloAnyone": "Ho, ho, ho! Hallo, hallo!",
+ "elfHello": "Weihnachtsmann, Weihnachtsmann… am Telefon: {name}!",
+ "helloAfterElf": [
+  "Ah, aber natürlich! Wie schön, mit dir zu sprechen!",
+  "Ah, aber natürlich! Wie schön, mit euch zu sprechen!"
+ ],
+ "bye": "Frohe Weihnachten, {name}!",
+ "byeAnyone": "Frohe Weihnachten! Ho, ho, ho!",
+ "elfBye": "Frohe Weihnachten, {name}!",
+ "elfLabel": "Wichtel Pieps",
  "qualities": {
   "kind": [
    "du ein großes Herz hast",
@@ -45,16 +56,10 @@
    "ihr Abenteuer liebt"
   ]
  },
- "qualityJoin": [
-  " und dass ",
-  " und dass "
- ],
  "scenarios": {
   "magic": [
    {
-    "say": [
-     "Ho, ho, ho! Hallo, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -83,25 +88,17 @@
     "if": "single"
    },
    {
-    "say": [
-     "Ich habe dieses Jahr von dir gehört, {name}. Man hat mir erzählt, dass {quality}. Das ist wunderbar!",
-     "Ich habe dieses Jahr von euch gehört. Man hat mir erzählt, dass {quality}. Das ist wunderbar!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
-     "Ich habe dieses Jahr von dir gehört, {name}, und nur schöne Dinge!",
+     "Ich habe dieses Jahr von dir gehört, und nur schöne Dinge!",
      "Ich habe dieses Jahr von euch gehört, und nur schöne Dinge!"
     ],
     "if": "noQuality"
    },
    {
-    "say": [
-     "Und stell dir vor, ein kleines Vögelchen hat mir etwas verraten: {anecdote}! Bravo!",
-     "Und stellt euch vor, ein kleines Vögelchen hat mir etwas verraten: {anecdote}! Bravo!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -123,11 +120,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "Und ich habe mir notiert, dass du dir {gift} wünschst. Das erzähle ich gleich meinen Wichteln!",
-     "Und ich habe mir notiert, dass ihr euch {gift} wünscht. Das erzähle ich gleich meinen Wichteln!"
-    ],
-    "if": "gift"
+    "cut": true
+   },
+   {
+    "include": "gift"
    },
    {
     "say": [
@@ -149,9 +145,7 @@
   ],
   "secret": [
    {
-    "say": [
-     "Ho, ho, ho… Hallo, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -175,10 +169,7 @@
     ]
    },
    {
-    "say": [
-     "Er hat mir erzählt, dass {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -188,11 +179,7 @@
     "if": "noQuality"
    },
    {
-    "say": [
-     "Und stell dir vor, er hat sich sogar etwas ganz Besonderes aus diesem Jahr aufgeschrieben: {anecdote}!",
-     "Und stellt euch vor, er hat sich sogar etwas ganz Besonderes aus diesem Jahr aufgeschrieben: {anecdote}!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -236,9 +223,7 @@
   ],
   "congrats": [
    {
-    "say": [
-     "Ho, ho, ho! Hallo, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -255,16 +240,10 @@
     ]
    },
    {
-    "say": [
-     "Ein kleines Vögelchen hat mir verraten: {anecdote}! Bravo, bravo, bravo!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
-    "say": [
-     "Und man hat mir auch erzählt, dass {quality}. Was für ein schönes Jahr!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -286,8 +265,8 @@
    },
    {
     "say": [
-     "Ho, ho, ho! Wunderbar! Mach weiter so, {name}!",
-     "Ho, ho, ho! Wunderbar! Macht weiter so, {name}!"
+     "Ho, ho, ho! Wunderbar! Mach weiter so!",
+     "Ho, ho, ho! Wunderbar! Macht weiter so!"
     ],
     "laugh": true
    },
@@ -306,9 +285,7 @@
   ],
   "funny": [
    {
-    "say": [
-     "Ho, ho, ho! Hallo, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -348,18 +325,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "Aber man hat mir auch erzählt, dass {quality}. Das ist wunderbar!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "Ach, und ich habe mir notiert, dass du dir {gift} wünschst. Das sage ich meinen Wichteln… und passe auf, dass ich auf keiner Schleife ausrutsche!",
-     "Ach, und ich habe mir notiert, dass ihr euch {gift} wünscht. Das sage ich meinen Wichteln… und passe auf, dass ich auf keiner Schleife ausrutsche!"
-    ],
-    "laugh": true,
-    "if": "gift"
+    "include": "gift"
    },
    {
     "say": [
@@ -376,9 +345,7 @@
   ],
   "eve": [
    {
-    "say": [
-     "Ho, ho, ho! Guten Abend, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -392,18 +359,10 @@
     ]
    },
    {
-    "say": [
-     "Bevor ich losfliege, wollte ich dir sagen, dass ich von dir gehört habe: Man hat mir erzählt, dass {quality}.",
-     "Bevor ich losfliege, wollte ich euch sagen, dass ich von euch gehört habe: Man hat mir erzählt, dass {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "Und ein kleines Vögelchen hat mir verraten: {anecdote}! Ich bin sehr stolz auf dich!",
-     "Und ein kleines Vögelchen hat mir verraten: {anecdote}! Ich bin sehr stolz auf euch!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -435,8 +394,11 @@
    },
    {
     "say": [
-     "Jetzt ist es Zeit für mich loszufliegen. Meine Rentiere warten! Frohe Weihnachten, {name}! Ho, ho, ho!"
-    ],
+     "Jetzt ist es Zeit für mich loszufliegen. Meine Rentiere warten!"
+    ]
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ]
@@ -462,9 +424,13 @@
   "goodbye": [
    {
     "say": [
-     "Ho, ho, ho! Ich muss zurück in meine Werkstatt. Ich wünsche dir wunderschöne Weihnachten, {name}!",
-     "Ho, ho, ho! Ich muss zurück in meine Werkstatt. Ich wünsche euch wunderschöne Weihnachten, {name}!"
+     "Ho, ho, ho! Ich muss zurück in meine Werkstatt. Ich wünsche dir wunderschöne Weihnachten!",
+     "Ho, ho, ho! Ich muss zurück in meine Werkstatt. Ich wünsche euch wunderschöne Weihnachten!"
     ],
+    "laugh": true
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ],
@@ -472,6 +438,96 @@
    {
     "say": [
      "Ho, ho, ho! Hallo! Hier ist der Weihnachtsmann, ich rufe vom Nordpol an!"
+    ],
+    "laugh": true
+   }
+  ],
+  "qualities": [
+   {
+    "say": [
+     "Ich habe dieses Jahr so schöne Dinge über dich gehört.",
+     "Ich habe dieses Jahr so schöne Dinge über euch gehört."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Man hat mir erzählt, dass {q1}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Und auch, dass {q2}."
+    ],
+    "if": "quality2"
+   },
+   {
+    "say": [
+     "Das ist wunderbar!"
+    ],
+    "if": "quality"
+   }
+  ],
+  "anecdote": [
+   {
+    "say": [
+     "Oh, da kommt mein Wichtel Pieps angerannt! Er will mir etwas über dich erzählen…",
+     "Oh, da kommt mein Wichtel Pieps angerannt! Er will mir etwas über euch erzählen…"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "elf": [
+     "Weihnachtsmann, Weihnachtsmann! Ich habe eine tolle Neuigkeit: {anecdote}!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Bravo! Ich bin sehr stolz auf dich!",
+     "Ho, ho, ho! Bravo! Ich bin sehr stolz auf euch!"
+    ],
+    "if": "anecdote",
+    "laugh": true
+   }
+  ],
+  "gift": [
+   {
+    "say": [
+     "Pieps, sag mal: Was steht denn auf dem Wunschzettel?"
+    ],
+    "if": "gift"
+   },
+   {
+    "elf": [
+     "Auf dem Wunschzettel steht: {gift}!"
+    ],
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Das habe ich mir notiert. Das erzähle ich gleich meinen Wichteln!"
+    ],
+    "if": "gift",
+    "laugh": true
+   }
+  ],
+  "previewEnd": [
+   {
+    "say": [
+     "Oh! Meine Wichtel rufen mich in die Werkstatt, ich muss schnell los! Bis ganz bald!"
+    ]
+   },
+   {
+    "bye": true,
+    "wave": true
+   }
+  ],
+  "welcome": [
+   {
+    "say": [
+     "Ho, ho, ho! Hallo! Ich bin's, der Weihnachtsmann. Ich rufe dich aus meiner Werkstatt am Nordpol an. Ich habe eine Überraschung nur für dich. Frohe Weihnachten!"
     ],
     "laugh": true
    }
