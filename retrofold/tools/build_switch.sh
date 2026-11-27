@@ -42,14 +42,16 @@ OLD_DEPS="src/MeloNX/MeloNX/Dependencies/Dynamic Libraries"
 if [ -d "$OLD_DEPS" ]; then
   # Ancien rangement (2.x) : le cœur Ryujinx.Headless.SDL2 est compilé par le projet, puis lié depuis ce dossier.
   ls -la "$OLD_DEPS"
-  # Deux corrections de cette version (tools/switch/melonx.patch) :
+  # Trois corrections de cette version (tools/switch/melonx.patch) :
   # - elle ouvre sa fenêtre à l'ancienne manière, ce qu'iOS refuse à une app compilée avec le kit iOS 27 (arrêt au
   #   lancement) : on lui donne le cycle de vie « scène » ;
   # - l'import du firmware échouait sans rien dire : il part maintenant d'une copie du fichier dans l'app, et
-  #   affiche le vrai message une fois le sélecteur de fichiers refermé.
+  #   affiche le vrai message une fois le sélecteur de fichiers refermé ;
+  # - elle prenait le second écran d'un iPhone pliant pour un téléviseur AirPlay, ce qui laissait l'écran utilisé
+  #   noir : elle ne s'empare plus d'aucun second écran.
   if ! grep -q "UIWindowSceneDelegate" src/MeloNX/MeloNX/App/UI/AppDelegate.swift; then
     git apply "$HERE/tools/switch/melonx.patch"
-    echo "=== Correctifs appliqués : cycle de vie « scène », import du firmware"
+    echo "=== Correctifs appliqués : cycle de vie « scène », import du firmware, second écran"
   fi
   echo "=== Compilation"
   LIBDEPS="$WORK/libdeps"
