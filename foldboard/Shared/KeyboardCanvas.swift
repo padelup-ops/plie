@@ -2370,26 +2370,29 @@ final class KeyboardCanvas: UIView {
             sideHint.isUserInteractionEnabled = false
             addSubview(sideHint)
         }
-        let lo = blocks.map(\.minX).min() ?? 0, hi = blocks.map(\.maxX).max() ?? bounds.width
-        let leftFree = lo - panelRect.minX, rightFree = panelRect.maxX - hi
-        guard eff.tapSideToMove, layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width > 0, max(leftFree, rightFree) > 70 else {
+        // Une seule flèche, dans la place vraiment libre (ni sur les emojis du bord, ni sur la colonne de boutons).
+        // Avant, deux flèches doubles étaient dessinées dans la même place : celle-ci (« ‹‹ » en texte, centrée sur
+        // toute la place libre, donc parfois sur les boutons) et une image de chevrons posée par le panneau du côté.
+        let free = sideFree
+        guard eff.tapSideToMove, layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width > 0,
+              free.width >= 44, free.height >= 44 else {
             sideHint.isHidden = true
             return
         }
-        let onLeft = leftFree > rightFree
-        let free = onLeft ? CGRect(x: panelRect.minX, y: panelRect.minY, width: leftFree, height: panelRect.height)
-                          : CGRect(x: hi, y: panelRect.minY, width: rightFree, height: panelRect.height)
+        // La place libre est à gauche des touches : y toucher envoie le clavier à gauche, la flèche le montre.
+        let onLeft = free.midX < (blocks.first?.midX ?? bounds.midX)
         let shown = UserDefaults.standard.integer(forKey: "foldboard.sideHintShown")
-        let words = shown < 6
-        let arrow = NSAttributedString(string: onLeft ? "‹‹" : "››", attributes: [.font: UIFont.systemFont(ofSize: 26, weight: .semibold),
-                                                                                .foregroundColor: theme.text.withAlphaComponent(words ? 0.45 : 0.22)])
+        // Le texte : les premières fois, s'il a la place, et seulement si les conseils sont allumés.
+        let words = shown < 6 && settings.learningTips && free.width >= 100 && free.height >= 96
+        let arrow = NSAttributedString(string: onLeft ? "←" : "→", attributes: [.font: UIFont.systemFont(ofSize: 26, weight: .semibold),
+                                                                              .foregroundColor: theme.text.withAlphaComponent(words ? 0.45 : 0.22)])
         let text = NSMutableAttributedString(attributedString: arrow)
         if words {
             text.append(NSAttributedString(string: "\n" + L("Tap here to move the keyboard"), attributes: [
                 .font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: theme.text.withAlphaComponent(0.45)]))
         }
         sideHint.attributedText = text
-        sideHint.frame = free.insetBy(dx: 8, dy: 10)
+        sideHint.frame = free.insetBy(dx: 4, dy: 6)
         if sideHint.isHidden || sideHint.tag != (onLeft ? 1 : 2) {
             sideHint.tag = onLeft ? 1 : 2
             if words { UserDefaults.standard.set(shown + 1, forKey: "foldboard.sideHintShown") }
@@ -2978,6 +2981,7 @@ final class KeyboardCanvas: UIView {
             emojiBoard.reloadRecent()
             rebuildPanel()
             layoutTopBar()
+            updateSideHint()
             return
         }
 
@@ -3739,9 +3743,10 @@ final class KeyboardCanvas: UIView {
 
     /// Boutons du côté, dessinés une fois et réécrits (un pli ne les recrée pas).
     private var panelButtons: [UIButton] = []
-    private var panelHints: [UIImageView] = []
     private var panelUse = 0
-    private var hintUse = 0
+    /// La place vraiment libre à côté du clavier à une main (sans la colonne de boutons ni les emojis), dans le
+    /// repère du clavier : la flèche « touche ici » y va (voir updateSideHint).
+    private var sideFree: CGRect = .zero
     private var panelEmoji: [ObjectIdentifier: String] = [:]
     private var panelPhrase: [ObjectIdentifier: String] = [:]
 
@@ -3769,25 +3774,6 @@ final class KeyboardCanvas: UIView {
         return b
     }
 
-    private func claimHint(_ symbol: String) -> UIImageView {
-        let v: UIImageView
-        if hintUse < panelHints.count {
-            v = panelHints[hintUse]
-        } else {
-            v = UIImageView()
-            v.contentMode = .center
-            v.isUserInteractionEnabled = false
-            panel.addSubview(v)
-            panelHints.append(v)
-            KBViews.panels += 1
-        }
-        hintUse += 1
-        v.isHidden = false
-        v.image = KBSymbol.image(symbol)
-        v.tintColor = theme.text.withAlphaComponent(0.22)
-        return v
-    }
-
     private func parkPanelExtras() {
         for b in panelButtons.dropFirst(panelUse) {
             b.isHidden = true
@@ -3796,15 +3782,10 @@ final class KeyboardCanvas: UIView {
             panelEmoji[ObjectIdentifier(b)] = nil
             panelPhrase[ObjectIdentifier(b)] = nil
         }
-        for v in panelHints.dropFirst(hintUse) {
-            v.isHidden = true
-            v.image = nil
-        }
     }
 
     private func rebuildPanel() {
         panelUse = 0
-        hintUse = 0
         panelEmoji.removeAll(keepingCapacity: true)
         panelPhrase.removeAll(keepingCapacity: true)
         var area = panelRect
@@ -3819,6 +3800,7 @@ final class KeyboardCanvas: UIView {
             }
         }
         panel.frame = area
+        sideFree = layoutMode.isOneHand ? area : .zero
         guard area.width >= 44, area.height >= 44, eff.sidePanel != .none else { parkPanelExtras(); return }
         let w = area.width
         let h = area.height
@@ -3848,12 +3830,9 @@ final class KeyboardCanvas: UIView {
                 b.titleLabel?.font = .systemFont(ofSize: 28)
                 b.frame = CGRect(x: ox + CGFloat(i % cols) * cell, y: oy + CGFloat(i / cols) * cell, width: cell, height: cell)
             }
-            // Indices discrets : flèches vers ce côté, et le milieu près du centre.
-            let freeW = w - gridW - 4
-            if freeW >= 36 {
-                let hint = claimHint(isRight ? "chevron.left.2" : "chevron.right.2")
-                let fx = isRight ? gridW + 4 : 0
-                hint.frame = CGRect(x: fx, y: 0, width: freeW, height: h)
+            // Ce qui reste à côté des emojis : la place de la flèche « touche ici » (une seule, voir updateSideHint).
+            if count > 0 {
+                sideFree = CGRect(x: area.minX + (isRight ? gridW + 4 : 0), y: area.minY, width: max(0, w - gridW - 4), height: h)
             }
         } else if eff.sidePanel == .emoji || (layoutMode == .split && eff.sidePanel == .phrases && w < 90) {
             let cols = max(1, min(4, Int(w / 46)))
