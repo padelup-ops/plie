@@ -25,3 +25,6 @@
 {"id": "c5419ad437c2a38d3299", "key": "hello|jonathan", "text": "Ho, ho, ho! Hello, Jonathan!", "ok": true, "score": 1.0, "dur": 4.08, "heard": "Ho, ho, ho, hello Jonathan.", "tries": 1, "secs": 60.0}
 {"id": "bd1c6ad791eb31d4b116", "key": "hello|jade", "text": "Ho, ho, ho! Hello, Jade!", "ok": true, "score": 1.0, "dur": 2.2, "heard": "Ho, ho, ho. Hello, Jade.", "tries": 1, "secs": 42.0}
 {"id": "e185c167215e4907cf29", "key": "hello|liliana", "text": "Ho, ho, ho! Hello, Liliana!", "ok": true, "score": 1.0, "dur": 2.5, "heard": "Ho, ho, ho! Hello, Liliana!", "tries": 2, "secs": 132.2}
+{"id": "73ed59097f068cde7ddc", "key": "hello|weston", "text": "Ho, ho, ho! Hello, Weston!", "ok": true, "score": 1.0, "dur": 2.04, "heard": "Ho Ho Ho. Hello, Weston.", "tries": 3, "secs": 154.4}
+{"id": "408ecb9850adbb54522f", "key": "hello|landon", "text": "Ho, ho, ho! Hello, Landon!", "ok": true, "score": 1.0, "dur": 2.48, "heard": "Ho, ho, ho. Hello, Landon.", "tries": 1, "secs": 45.9}
+{"id": "e7e10e49737bb584e911", "key": "hello|micah", "text": "Ho, ho, ho! Hello, Micah!", "ok": true, "score": 0.73, "dur": 2.82, "heard": "Ho Ho Ho! Hello Mika!", "tries": 1, "secs": 49.9}

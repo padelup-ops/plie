@@ -17,3 +17,10 @@
 {"id": "2010ddb92807c902ccf3", "key": "hello|christopher", "text": "Ho, ho, ho! Hello, Christopher!", "ok": true, "score": 1.0, "dur": 2.46, "heard": "Ho, ho, ho, hello Christopher.", "tries": 1, "secs": 54.1}
 {"id": "681e790943c8000999fb", "key": "hello|joshua", "text": "Ho, ho, ho! Hello, Joshua!", "ok": false, "score": 1.0, "dur": 5.02, "heard": "Ho ho ho! Hello Joshua!", "tries": 1, "secs": 189.0}
 {"id": "a4da26969bbe057309ab", "key": "hello|aaliyah", "text": "Ho, ho, ho! Hello, Aaliyah!", "ok": false, "score": 0.715, "dur": 3.0, "heard": "Ho, ho, ho, hello, hello, Alia?", "tries": 2, "secs": 179.5}
+{"id": "8d50d499f9d018264418", "key": "hello|natalia", "text": "Ho, ho, ho! Hello, Natalia!", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho, ho, ho. Hello, Natalia.", "tries": 1, "secs": 53.5}
+{"id": "2fc7e7b673d2331f308a", "key": "hello|cameron", "text": "Ho, ho, ho! Hello, Cameron!", "ok": true, "score": 1.0, "dur": 2.4, "heard": "Ho Ho Ho Hello Cameron", "tries": 1, "secs": 45.6}
+{"id": "eb698d873e66c4dfcc37", "key": "hello|roman", "text": "Ho, ho, ho! Hello, Roman!", "ok": true, "score": 1.0, "dur": 2.14, "heard": "Oh ho ho! Hello Roman!", "tries": 1, "secs": 41.9}
+{"id": "4cfa75fb223324d51b8c", "key": "hello|ian", "text": "Ho, ho, ho! Hello, Ian!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "Ho ho ho, hello Ian.", "tries": 1, "secs": 41.0}
+{"id": "4da6f60c37b249621ccc", "key": "hello|brooks", "text": "Ho, ho, ho! Hello, Brooks!", "ok": true, "score": 1.0, "dur": 1.92, "heard": "Ho ho ho! Hello Brooks!", "tries": 1, "secs": 41.5}
+{"id": "21b64231ce8bcdac59ed", "key": "hello|easton", "text": "Ho, ho, ho! Hello, Easton!", "ok": true, "score": 0.806, "dur": 1.8, "heard": "Ho Ho Ho! Hello Eastern!", "tries": 1, "secs": 49.8}
+{"id": "57598a302d54c67373c5", "key": "hello|maria", "text": "Ho, ho, ho! Hello, Maria!", "ok": true, "score": 1.0, "dur": 1.92, "heard": "Ho ho ho! Hello Maria!", "tries": 1, "secs": 49.5}
