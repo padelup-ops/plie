@@ -17,3 +17,5 @@
 {"id": "5adcfc78beacd599b305", "key": "hello|jacques", "text": "Ho, ho, ho ! Bonjour Jacques !", "ok": true, "score": 1.0, "dur": 2.42, "heard": "Oh ho ho ! Bonjour Jacques !", "tries": 3, "secs": 269.5}
 {"id": "3aaa95079bad7ffc5e19", "key": "hello|ludovic", "text": "Ho, ho, ho ! Bonjour Ludovic !", "ok": true, "score": 1.0, "dur": 2.42, "heard": "Ho ho ho ! Bonjour Ludovic !", "tries": 3, "secs": 236.2}
 {"id": "22996666eb5a81715fb1", "key": "hello|malone", "text": "Ho, ho, ho ! Bonjour Malone !", "ok": true, "score": 1.0, "dur": 2.4, "heard": "Ho ho ho ho ! Bonjour, Malone.", "tries": 1, "secs": 71.6}
+{"id": "f8796cdbb20ce74c9b2f", "key": "hello|sandro", "text": "Ho, ho, ho ! Bonjour Sandro !", "ok": false, "score": 0.933, "dur": 3.3, "heard": "Ho ho ho bonjour Sandro. Sandro...", "tries": 3, "secs": 227.9}
+{"id": "3422251458c4f5613989", "key": "hello|moussa", "text": "Ho, ho, ho ! Bonjour Moussa !", "ok": true, "score": 0.841, "dur": 3.2, "heard": "Ho! Ho! Ho! Bonjour Musa!", "tries": 2, "secs": 193.8}
