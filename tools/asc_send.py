@@ -34,7 +34,13 @@ VICEFOLD_NOTES = (
     "price and length of the subscription with working \"Terms\" and \"Privacy\" links under the purchase buttons.\n"
     "- The Privacy Policy URL is set in App Information.\n\n"
     "Vicefold is an unofficial fan companion: no account, no ads, no tracking. Every guide is free; "
-    "Vicefold Pro (one-time purchase or yearly subscription) unlocks map layers, iCloud sync and widgets."
+    "Vicefold Pro (one-time purchase or yearly subscription) unlocks map layers, iCloud sync and widgets.\n\n"
+    "New in this build, rare vehicles on the map (Map tab, \"Rare vehicles\" filter): the pins (name and position "
+    "only) come from Open GTA 6 Map, used under the Creative Commons Attribution 4.0 license and credited in the map "
+    "credits. Players can vote on each pin (\"It's here\" / \"Not here\") and add a rare vehicle they found (car "
+    "icon above the map). This user-generated content goes through the existing community system: rules to accept "
+    "before the first contribution, word and link filter on the server, Report on every player-added vehicle (hidden "
+    "for everyone after 3 reports, reviewed by us), blocking a player, and a Game Center name as signature."
 )
 EDITABLE = ("PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED", "INVALID_BINARY")
 PENDING = ("WAITING_FOR_REVIEW", "IN_REVIEW")
