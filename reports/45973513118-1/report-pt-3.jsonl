@@ -5,3 +5,6 @@
 {"id": "1422ee04f2adb7513ff7", "key": "hello|antonio", "text": "Ho, ho, ho! Olá, Antônio!", "ok": true, "score": 1.0, "dur": 2.22, "heard": "Oh, oh, oh, oh, olá, Antonio!", "tries": 2, "secs": 154.7}
 {"id": "7d7c7574288df9701f3b", "key": "hello|jose", "text": "Ho, ho, ho! Olá, José!", "ok": true, "score": 1.0, "dur": 2.36, "heard": "Ho ho ho! Olá! José!", "tries": 2, "secs": 143.0}
 {"id": "18458f852a804762036b", "key": "hello|vitor", "text": "Ho, ho, ho! Olá, Vitor!", "ok": true, "score": 0.922, "dur": 2.48, "heard": "Oh, oh, oh, olá, Victor!", "tries": 1, "secs": 63.9}
+{"id": "24d9c1dc535f1e760b11", "key": "hello|rael", "text": "Ho, ho, ho! Olá, Rael!", "ok": false, "score": 0.7, "dur": 3.56, "heard": "Oh, oh, oh, oh, la, hael, hael.", "tries": 1, "secs": 209.1}
+{"id": "bf196f8b46e44ad11abf", "key": "hello|isabelly", "text": "Ho, ho, ho! Olá, Isabelly!", "ok": true, "score": 0.889, "dur": 2.22, "heard": "Oh, ho, ho, ho! Olá, Isabelle!", "tries": 1, "secs": 70.4}
+{"id": "f997b15747a4041f4a91", "key": "hello|emilly", "text": "Ho, ho, ho! Olá, Emilly!", "ok": true, "score": 0.902, "dur": 2.52, "heard": "Oh, oh, oh, oh, lá, Emily.", "tries": 2, "secs": 132.2}

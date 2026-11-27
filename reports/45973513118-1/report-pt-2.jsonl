@@ -3,3 +3,7 @@
 {"id": "d1005c5f15fd1f9d2aac", "key": "hello|stella", "text": "Ho, ho, ho! Olá, Stella!", "ok": true, "score": 0.902, "dur": 2.36, "heard": "O, o, o, o, la, stela!", "tries": 1, "secs": 73.2}
 {"id": "b42320738219f76ef59f", "key": "hello|joao lucas", "text": "Ho, ho, ho! Olá, João Lucas!", "ok": true, "score": 1.0, "dur": 2.44, "heard": "Oh, oh, oh, oh, olá, João Lucas!", "tries": 1, "secs": 64.3}
 {"id": "b444111505d8acce45e6", "key": "hello|davi lucca", "text": "Ho, ho, ho! Olá, Davi Lucca!", "ok": true, "score": 0.953, "dur": 3.96, "heard": "Oh, oh, oh, oh, olá, Davi Luca!", "tries": 1, "secs": 80.8}
+{"id": "f97c1a05e46eb777c8a7", "key": "hello|caio", "text": "Ho, ho, ho! Olá, Caio!", "ok": true, "score": 0.792, "dur": 2.56, "heard": "oh, oh, oh, olá, caiu", "tries": 2, "secs": 193.5}
+{"id": "e2894c1e4a2354f38d1d", "key": "hello|mathias", "text": "Ho, ho, ho! Olá, Mathias!", "ok": true, "score": 0.933, "dur": 2.64, "heard": "Oh, oh, oh, olá Matias!", "tries": 1, "secs": 65.2}
+{"id": "e5837d36ecacd3b90350", "key": "hello|francisco", "text": "Ho, ho, ho! Olá, Francisco!", "ok": true, "score": 1.0, "dur": 2.26, "heard": "Oh, oh, oh, oh, olá Francisco!", "tries": 1, "secs": 89.8}
+{"id": "7776cdc27889e75b8be3", "key": "hello|rafaela", "text": "Ho, ho, ho! Olá, Rafaela!", "ok": true, "score": 0.933, "dur": 3.68, "heard": "Oh, oh, oh! Olá, Rafael!", "tries": 1, "secs": 86.7}
