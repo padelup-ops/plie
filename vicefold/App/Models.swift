@@ -148,8 +148,9 @@ enum VFPlaceKind: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .mission: return 0
         case .landmark, .property: return 1
-        case .collectible, .event, .activity, .vehicle: return 2
-        case .hotel, .nature: return 3
+        case .collectible, .event, .activity: return 2
+        // Les véhicules rares après les monuments : ils ne couvrent pas la carte tant qu'on ne les filtre pas.
+        case .hotel, .nature, .vehicle: return 3
         case .shop, .food, .gas: return 4
         case .service, .transport: return 5
         case .civic: return 6

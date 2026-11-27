@@ -215,6 +215,9 @@ struct CarVoteRow: View {
                 Text(title)
                 Text(verbatim: "\(count)").monospacedDigit()
             }
+            .font(.footnote.weight(.semibold))
+            .lineLimit(1)
+            .fixedSize()
         }
         .buttonStyle(.vf(on ? .done : .secondary, compact: true))
         .disabled(busy)
