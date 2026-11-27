@@ -24,3 +24,5 @@
 {"id": "7c36a44b70e63ea40c3c", "key": "hello|zayd", "text": "Ho, ho, ho ! Bonjour Zayd !", "ok": true, "score": 0.806, "dur": 1.92, "heard": "Ho ho ho ! Bonjour Zade !", "tries": 1, "secs": 63.1}
 {"id": "6f7b1f2f3cd501c785dd", "key": "hello|adem", "text": "Ho, ho, ho ! Bonjour Adem !", "ok": false, "score": 0.752, "dur": 4.04, "heard": "Ho ho ho ! Bonjour à d'em !", "tries": 3, "secs": 275.3}
 {"id": "1193c72fed1df870bec5", "key": "hello|mae", "text": "Ho, ho, ho ! Bonjour Maé !", "ok": true, "score": 0.747, "dur": 2.18, "heard": "Oh ho ho! Bonjour, maï!", "tries": 1, "secs": 77.1}
+{"id": "53276d2951ce5bc67f2a", "key": "hello|mahault", "text": "Ho, ho, ho ! Bonjour Mahault !", "ok": false, "score": 0.509, "dur": 2.06, "heard": "Ho, ho, ho, bonjour ma hôte.", "tries": 1, "secs": 225.5}
+{"id": "0ec0df15a62683192687", "key": "hello|zia", "text": "Ho, ho, ho ! Bonjour Zia !", "ok": true, "score": 1.0, "dur": 3.64, "heard": "Ho ho ho ! Bonjour Zia !", "tries": 1, "secs": 84.4}
