@@ -120,7 +120,14 @@ final class KeyView: UIView {
         UIView.performWithoutAnimation {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
-            label.frame = bounds.insetBy(dx: 2, dy: 0)
+            // L'étiquette à la taille de sa lettre, pas de la touche : iOS garde en mémoire une image de la taille
+            // de l'étiquette pour chaque touche. Sur le Duo ouvert en paysage (touches de 90 × 57 pt, plus hautes
+            // encore en mode portable), 33 étiquettes de la taille des touches pesaient plusieurs Mo de plus que
+            // sur l'écran fermé : c'est là que le clavier était fermé par iOS.
+            let room = bounds.insetBy(dx: 2, dy: 0)
+            let fit = label.sizeThatFits(room.size)
+            let lw = min(room.width, ceil(fit.width) + 6), lh = min(room.height, ceil(fit.height) + 4)
+            label.frame = CGRect(x: room.midX - lw / 2, y: room.midY - lh / 2, width: lw, height: lh).integral
             let s = min(bounds.width, bounds.height) * 0.46
             icon.frame = CGRect(x: (bounds.width - s) / 2, y: (bounds.height - s) / 2, width: s, height: s)
             let r = square ? min(4, bounds.height * 0.08) : min(13, bounds.height * 0.26)
@@ -1966,6 +1973,7 @@ final class KeyboardCanvas: UIView {
         guard force || memChecks % 30 == 0 else { return }
         let mb = Self.footprintMB()
         let room = NeuralSwipe.availableMB()
+        KBMemLog.room(room)
         if log {
             KBMemLog.note(mb: mb, emoji: showEmoji, alive: Self.alive, views: KBViews.live)
             NeuralSwipe.noteFootprint()
@@ -2538,6 +2546,8 @@ final class KeyboardCanvas: UIView {
             rebuild()
             CATransaction.commit()
         }
+        // Une autre taille (pli, rotation) : on mesure tout de suite, sans attendre la prochaine ronde.
+        if visible { checkMemory(force: true, log: true) }
     }
 
     private var isRight: Bool {
@@ -3942,7 +3952,22 @@ final class KeyboardCanvas: UIView {
                           avg(perfDelay), Int(perfDelay.max() ?? 0), avg(perfWork), perfStalls, perfCancelled, perfMissed)
             + " · L\(Int(bounds.width)) · " + lastHits.joined(separator: " ")
             + String(format: " · mémoire %.0f Mo (max %.0f)", Self.footprintMB(), Self.memoryPeak)
-        flash(text)
+        // Le rapport mémoire : ce qu'iOS laisse encore, la limite de cet iPhone, et les dernières apparitions du
+        // clavier (départ → plus haut ; une ligne qui s'arrête haut, c'est un clavier fermé par iOS).
+        let mb = Self.footprintMB(), room = NeuralSwipe.availableMB()
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+        var report = "Foldboard \(version) (\(build)) · \(gripContext) · \(layoutMode.rawValue) · \(Int(bounds.width))×\(Int(bounds.height))\n"
+        report += String(format: "mémoire %.0f Mo (max %.0f) · marge %.0f Mo · limite ≈ %.0f Mo · touches %d · vues %d\n",
+                         mb, Self.memoryPeak, room, room > 0 ? mb + room : 0, KBViews.keys, KBViews.live)
+        report += "listes rendues : \(listsShed ? "oui" : "non") · glisser neuronal : \(NeuralSwipe.statusLine)\n"
+        report += KBMemLog.lines.suffix(8).joined(separator: "\n") + "\n" + text
+        if input?.kbFullAccess == true {
+            UIPasteboard.general.string = report
+            flash(String(format: "Mémoire %.0f Mo, marge %.0f Mo. Rapport copié : colle-le dans un message.", mb, room), hold: 5)
+        } else {
+            flash(String(format: "Mémoire %.0f Mo (max %.0f), marge %.0f Mo", mb, Self.memoryPeak, room), hold: 5)
+        }
         perfDelay = []; perfWork = []; perfStalls = 0; perfCancelled = 0; perfMissed = 0
     }
 
@@ -5289,6 +5314,11 @@ final class KeyboardCanvas: UIView {
         if barSheet?.isHidden == false { barSheet?.reload(self) }
     }
 
+    /// Les couleurs du thème pour le panneau du « … ».
+    func barSheetStyle() -> (background: UIColor, key: UIColor, text: UIColor, accent: UIColor) {
+        (theme.background.withAlphaComponent(1), theme.key.withAlphaComponent(1), theme.text, theme.accent)
+    }
+
     func barSheetRows() -> [(id: String, title: String, check: Bool)] {
         let now = openLayoutChoice
         return [
@@ -5406,24 +5436,33 @@ final class KeyboardCanvas: UIView {
 }
 
 /// Le menu du « … », dessiné dans le clavier. Les boutons existent une fois : on ne fait que réécrire leurs titres.
+/// Une grille (deux colonnes dès qu'il y a la place) qui défile si elle dépasse la hauteur du clavier : avant, les
+/// lignes en trop s'écrasaient les unes sur les autres en haut du panneau.
 final class KBBarSheet: UIView {
     weak var canvas: KeyboardCanvas?
     private let dim = UIButton(type: .custom)
     private let card = UIView()
-    private let stack = UIStackView()
+    private let scroll = UIScrollView()
     private var rows: [UIButton] = []
+    private var shown = 0
+    private var textColor = UIColor.label
+    private var accent = UIColor.systemBlue
+    private var keyColor = UIColor.secondarySystemBackground
+    private static let rowHeight: CGFloat = 42
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        dim.backgroundColor = UIColor.black.withAlphaComponent(0.28)
+        dim.backgroundColor = UIColor.black.withAlphaComponent(0.35)
         dim.addAction(UIAction { [weak self] _ in self?.canvas?.barSheetPick("close") }, for: .touchUpInside)
         addSubview(dim)
-        card.layer.cornerRadius = 16
+        card.layer.cornerRadius = 18
         card.layer.cornerCurve = .continuous
+        card.clipsToBounds = true
         addSubview(card)
-        stack.axis = .vertical
-        stack.spacing = 0
-        card.addSubview(stack)
+        scroll.alwaysBounceVertical = false
+        scroll.showsVerticalScrollIndicator = true
+        scroll.delaysContentTouches = false
+        card.addSubview(scroll)
         isHidden = true
     }
 
@@ -5432,39 +5471,75 @@ final class KBBarSheet: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         dim.frame = bounds
-        let h = min(bounds.height - 8, stack.systemLayoutSizeFitting(CGSize(width: bounds.width - 24, height: 0),
-            withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel).height + 8)
-        card.frame = CGRect(x: 8, y: 8, width: bounds.width - 16, height: max(44, h))
-        stack.frame = card.bounds.insetBy(dx: 4, dy: 4)
+        let width = max(0, bounds.width - 16)
+        let cols = width >= 380 ? 2 : 1
+        let pad: CGFloat = 8, gap: CGFloat = 6
+        let cellW = (width - 2 * pad - CGFloat(cols - 1) * gap) / CGFloat(cols)
+        let lines = max(1, Int(ceil(Double(shown) / Double(cols))))
+        // Les lignes se resserrent un peu (34 pt au moins) pour que tout tienne sans défiler quand c'est possible.
+        let room = bounds.height - 16 - 2 * pad - CGFloat(lines - 1) * gap
+        let rowH = min(Self.rowHeight, max(34, (room / CGFloat(lines)).rounded(.down)))
+        let contentH = CGFloat(lines) * rowH + CGFloat(lines - 1) * gap + 2 * pad
+        let cardH = min(max(0, bounds.height - 16), contentH)
+        card.frame = CGRect(x: 8, y: max(8, (bounds.height - cardH) / 2), width: width, height: cardH)
+        scroll.frame = card.bounds
+        scroll.contentSize = CGSize(width: width, height: contentH)
+        for (i, b) in rows.prefix(shown).enumerated() {
+            let col = i % cols, line = i / cols
+            b.frame = CGRect(x: pad + CGFloat(col) * (cellW + gap), y: pad + CGFloat(line) * (rowH + gap),
+                             width: cellW, height: rowH)
+        }
+        if scroll.contentSize.height > scroll.bounds.height + 1 { scroll.flashScrollIndicators() }
     }
 
     func reload(_ canvas: KeyboardCanvas) {
         self.canvas = canvas
-        card.backgroundColor = .systemBackground
+        let style = canvas.barSheetStyle()
+        card.backgroundColor = style.background
+        textColor = style.text
+        accent = style.accent
+        keyColor = style.key
         let items = canvas.barSheetRows()
         while rows.count < items.count {
             let b = UIButton(type: .system)
-            b.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-            b.contentHorizontalAlignment = .leading
-            b.contentEdgeInsets = UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12)
             b.addAction(UIAction { [weak self, weak b] _ in
                 guard let id = b?.accessibilityIdentifier else { return }
                 self?.canvas?.barSheetPick(id)
             }, for: .touchUpInside)
+            scroll.addSubview(b)
             rows.append(b)
         }
+        shown = items.count
         for (i, item) in items.enumerated() {
             let b = rows[i]
             b.accessibilityIdentifier = item.id
-            let mark = item.check ? "✓  " : ""
-            b.setTitle(mark + item.title, for: .normal)
+            b.accessibilityLabel = item.title
+            b.accessibilityTraits = item.check ? [.button, .selected] : .button
+            let closing = item.id == "close"
+            var cfg = UIButton.Configuration.plain()
+            var title = AttributedString(item.title)
+            title.font = .systemFont(ofSize: 15, weight: closing || item.check ? .semibold : .regular)
+            title.foregroundColor = closing ? UIColor.white : textColor
+            cfg.attributedTitle = title
+            cfg.titleLineBreakMode = .byTruncatingTail
+            cfg.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 10)
+            if !closing {
+                // La coche à gauche, toujours à la même place (une ligne non cochée garde l'alignement).
+                let symbol = item.id == "app" ? "arrow.up.forward.app" : (item.check ? "checkmark.circle.fill" : "circle")
+                cfg.image = UIImage(systemName: symbol, withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold))
+                cfg.imagePadding = 8
+                cfg.baseForegroundColor = item.check || item.id == "app" ? accent : textColor.withAlphaComponent(0.35)
+            }
+            cfg.background.backgroundColor = closing ? accent : keyColor
+            cfg.background.cornerRadius = 11
+            b.configuration = cfg
+            b.contentHorizontalAlignment = closing ? .center : .leading
+            b.titleLabel?.adjustsFontSizeToFitWidth = true
+            b.titleLabel?.minimumScaleFactor = 0.75
             b.isHidden = false
-            if b.superview == nil { stack.addArrangedSubview(b) }
         }
-        for b in rows.dropFirst(items.count) {
-            b.isHidden = true
-            b.removeFromSuperview()
-        }
+        for b in rows.dropFirst(items.count) { b.isHidden = true }
+        scroll.contentOffset = .zero
         setNeedsLayout()
     }
 }

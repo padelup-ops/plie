@@ -104,11 +104,11 @@ final class AppModel {
         case "setup": screen = .setup
         case "scenario": screen = .scenario
         case "incoming": screen = .incoming
-        case "call", "surprise":
+        case "call", "surprise", "calllive":
             call.prepare(profile: profile, scenario: .magic, premium: true, audio: false)
             let script = call.script
             let lines = script.compactMap(\.text)
-            if route == "call" {
+            if route != "surprise" {
                 // Le Père Noël dit le prénom : c'est la première phrase.
                 call.pose(caption: lines.first ?? "", mood: .talking, mouth: 0.75)
             } else {
