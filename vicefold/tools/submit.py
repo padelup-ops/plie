@@ -5,7 +5,7 @@
 - pose l'EULA propre à l'app dans App Store Connect (le contrat standard d'Apple) ;
 - joint le build, écrit la note pour Apple, envoie, puis relit tout.
 Ne touche qu'à com.padelup.vicefold. Ne change ni prix ni achats. N'écrit ni clé ni adresse.
-RELEASE_BUILD : numéro du build. RELEASE_VERSION : seulement s'il faut créer une nouvelle version.
+RELEASE_BUILD : numéro du build. RELEASE_VERSION : seulement s'il faut créer une nouvelle version (ignorée sinon).
 """
 import json
 import os
@@ -112,6 +112,38 @@ def versions():
 
 all_v = versions()
 print("versions", [(attrs(v).get("versionString"), attrs(v).get("appStoreState")) for v in all_v])
+
+if os.environ.get("DRY_RUN") == "iap":
+    # Achats seulement : la version est déjà chez Apple, on tente de lui joindre les achats Pro et on relit leur état.
+    for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
+        pid, st = attrs(x).get("productId"), attrs(x).get("state")
+        print("achat", pid, st)
+        if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
+            r = call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
+                "type": "inAppPurchaseSubmissions",
+                "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
+            print("   ->", ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+    for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
+        r = call("POST", "/v1/subscriptionGroupSubmissions", {"data": {
+            "type": "subscriptionGroupSubmissions",
+            "relationships": {"subscriptionGroup": {"data": {"type": "subscriptionGroups", "id": g["id"]}}}}})
+        print("groupe", attrs(g).get("referenceName"), "->",
+              ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+        for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
+            pid, st = attrs(sx).get("productId"), attrs(sx).get("state")
+            print("abonnement", pid, st)
+            if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
+                r = call("POST", "/v1/subscriptionSubmissions", {"data": {
+                    "type": "subscriptionSubmissions",
+                    "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sx["id"]}}}}})
+                print("   ->", ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+    time.sleep(5)
+    for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
+        print("READBACK achat", attrs(x).get("productId"), attrs(x).get("state"))
+    for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
+        for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
+            print("READBACK abonnement", attrs(sx).get("productId"), attrs(sx).get("state"))
+    sys.exit(0)
 
 # 1. Une demande encore chez Apple : on la retire, sinon ni la fiche ni le build ne peuvent changer.
 if any(attrs(v).get("appStoreState") in PENDING for v in all_v):
@@ -266,6 +298,42 @@ step("version ajoutée à la demande", write("POST", "/v1/reviewSubmissionItems"
         "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
         "appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}}),
      tolerate=("already", "ENTITY_ERROR"))
+
+# Les achats de Vicefold Pro partent avec la version (première fois) : sans eux, Apple ne peut pas vérifier l'écran Pro.
+SENDABLE = ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED")
+warnings = []
+for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
+    pid, st = attrs(x).get("productId"), attrs(x).get("state")
+    print("       achat", pid, st)
+    if st not in SENDABLE:
+        continue
+    r = write("POST", "/v1/inAppPurchaseSubmissions", {"data": {
+        "type": "inAppPurchaseSubmissions", "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
+    if "error" in r and "FIRST_" in r.get("detail", ""):
+        r = write("POST", "/v1/reviewSubmissionItems", {"data": {
+            "type": "reviewSubmissionItems", "relationships": {
+                "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
+                "inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
+    if "error" in r and "already" not in r.get("detail", ""):
+        warnings.append(f"achat {pid}")
+        print(f"ATTENTION achat {pid} pas joint -> HTTP {r['error']} {r['detail'][:500]}")
+    else:
+        print(f"ok     achat {pid} joint à la version")
+for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
+    for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
+        pid, st = attrs(sx).get("productId"), attrs(sx).get("state")
+        print("       abonnement", pid, st)
+        if st not in SENDABLE:
+            continue
+        r = write("POST", "/v1/subscriptionSubmissions", {"data": {
+            "type": "subscriptionSubmissions",
+            "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sx["id"]}}}}})
+        if "error" in r and "already" not in r.get("detail", ""):
+            warnings.append(f"abonnement {pid}")
+            print(f"ATTENTION abonnement {pid} pas joint -> HTTP {r['error']} {r['detail'][:500]}")
+        else:
+            print(f"ok     abonnement {pid} joint à la version")
+
 step("ENVOI À LA VÉRIFICATION", write("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
     "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}}))
 
@@ -287,6 +355,13 @@ for loc in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations
     print("READBACK fiche", attrs(loc).get("locale"), "lien EULA", "oui" if ok else "NON", len(d), "caractères")
     if not ok:
         problems.append("lien EULA " + str(attrs(loc).get("locale")))
+for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
+    print("READBACK achat", attrs(x).get("productId"), attrs(x).get("state"))
+for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
+    for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
+        print("READBACK abonnement", attrs(sx).get("productId"), attrs(sx).get("state"))
+if warnings:
+    print("ACHATS À JOINDRE À LA MAIN dans App Store Connect :", ", ".join(warnings))
 e = attrs(call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement").get("data"))
 eula_ok = EULA_URL in (e.get("agreementText") or "")
 print("READBACK EULA de l'app", "oui" if eula_ok else "NON")
