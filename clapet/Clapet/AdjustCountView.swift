@@ -25,6 +25,8 @@ struct AdjustCountView: View {
     @State private var picking = false
     @State private var found: HistoryImport?
     @State private var importNote: String?
+    /// Le début d'un fichier que Foldly n'a pas su lire, à envoyer au développeur si la personne le veut.
+    @State private var unreadExcerpt: String?
     @State private var loaded = false
     @FocusState private var focus: Field?
 
@@ -97,6 +99,11 @@ struct AdjustCountView: View {
                     }
                     if let importNote {
                         Text(importNote).font(.footnote).foregroundStyle(.secondary)
+                    }
+                    if let unreadExcerpt {
+                        Link(destination: BugReport.importHelp(excerpt: unreadExcerpt)) {
+                            Label { Text("Email the start of this file to the developer") } icon: { Image(systemName: "envelope") }
+                        }
                     }
                 } header: {
                     Text("Import your history")
@@ -208,6 +215,7 @@ struct AdjustCountView: View {
 
     private func readFile(_ result: Result<URL, Error>) {
         found = nil
+        unreadExcerpt = nil
         guard case .success(let url) = result else { return }
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
@@ -219,6 +227,7 @@ struct AdjustCountView: View {
         let r = HistoryImport.parse(text)
         if r.isEmpty {
             importNote = String(localized: "No dates found in this file. Its format isn't supported yet.")
+            unreadExcerpt = String(text.prefix(1200))
         } else {
             importNote = nil
             found = r

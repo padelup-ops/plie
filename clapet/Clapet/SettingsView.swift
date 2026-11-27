@@ -586,4 +586,16 @@ enum BugReport {
         c.queryItems = [URLQueryItem(name: "subject", value: "Foldly bug"), URLQueryItem(name: "body", value: body)]
         return c.url ?? URL(string: "mailto:hfreecsapple@gmail.com")!
     }
+
+    /// Le même e-mail pour un fichier d'historique que Foldly n'a pas su lire : le début du fichier y est collé (la
+    /// personne le voit avant d'envoyer), sans le carnet des plis.
+    static func importHelp(excerpt: String) -> URL {
+        let report = url
+        guard var c = URLComponents(url: report, resolvingAgainstBaseURL: false) else { return report }
+        let body = c.queryItems?.first { $0.name == "body" }?.value ?? ""
+        let about = body.components(separatedBy: "\n\nLast folds:").first ?? ""
+        c.queryItems = [URLQueryItem(name: "subject", value: "Foldly import"),
+                        URLQueryItem(name: "body", value: "\n\n\n—\nFile:\n" + excerpt + about)]
+        return c.url ?? report
+    }
 }
