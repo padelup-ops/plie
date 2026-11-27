@@ -6,3 +6,5 @@
 {"id": "8feee623db799454a40e", "key": "hello|loris", "text": "Ho, ho, ho ! Bonjour Loris !", "ok": true, "score": 0.73, "dur": 3.64, "heard": "Oh, oh, oh, bonjour, Larisse.", "tries": 2, "secs": 159.0}
 {"id": "8773626a6048b3644b61", "key": "hello|aicha", "text": "Ho, ho, ho ! Bonjour Aïcha !", "ok": false, "score": 0.841, "dur": 4.36, "heard": "Ho ho ho, bonjour Aisha.", "tries": 2, "secs": 246.2}
 {"id": "034090f283ea60e4ae88", "key": "hello|maryam", "text": "Ho, ho, ho ! Bonjour Maryam !", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho ho, bonjour, Maryam.", "tries": 1, "secs": 76.0}
+{"id": "4412608f2d5b11a8f70c", "key": "hello|imane", "text": "Ho, ho, ho ! Bonjour Imane !", "ok": true, "score": 0.913, "dur": 2.88, "heard": "Oh ho ho bonjour Iman.", "tries": 1, "secs": 84.1}
+{"id": "f94677554f7e5be2b4a1", "key": "hello|kenza", "text": "Ho, ho, ho ! Bonjour Kenza !", "ok": true, "score": 1.0, "dur": 2.66, "heard": "Ho, ho, ho ! Bonjour, Kenza !", "tries": 3, "secs": 270.4}

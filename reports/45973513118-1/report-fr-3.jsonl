@@ -8,3 +8,7 @@
 {"id": "17a304c9e71f4676849b", "key": "hello|lilia", "text": "Ho, ho, ho ! Bonjour Lilia !", "ok": true, "score": 1.0, "dur": 2.72, "heard": "Ho ho ho ! Bonjour Lilia !", "tries": 1, "secs": 71.3}
 {"id": "e7b187d9c47aa6623d09", "key": "hello|hafsa", "text": "Ho, ho, ho ! Bonjour Hafsa !", "ok": true, "score": 1.0, "dur": 2.94, "heard": "Oh ho ho, bonjour Hafsa !", "tries": 1, "secs": 74.6}
 {"id": "953c5bfb1f82bae0ccb3", "key": "hello|hanna", "text": "Ho, ho, ho ! Bonjour Hanna !", "ok": true, "score": 0.927, "dur": 3.58, "heard": "Ho ho ho ! Bonjour Hannah ! Ha !", "tries": 3, "secs": 241.2}
+{"id": "14219c40fdbef8d60d42", "key": "hello|ysee", "text": "Ho, ho, ho ! Bonjour Ysée !", "ok": false, "score": 0.232, "dur": 3.74, "heard": "Oh ho ho ! Bonjour, ici !", "tries": 2, "secs": 223.7}
+{"id": "19223f181b57802cca78", "key": "hello|pierre", "text": "Ho, ho, ho ! Bonjour Pierre !", "ok": true, "score": 1.0, "dur": 3.8, "heard": "Oh ho ho, bonjour Pierre.", "tries": 2, "secs": 159.8}
+{"id": "acf2f4f9b5ead7d6ccf0", "key": "hello|titouan", "text": "Ho, ho, ho ! Bonjour Titouan !", "ok": true, "score": 0.765, "dur": 1.96, "heard": "Oh oh oh, bonjour Titoine.", "tries": 1, "secs": 77.7}
+{"id": "7e40e86479be900dcafa", "key": "hello|ange", "text": "Ho, ho, ho ! Bonjour Ange !", "ok": true, "score": 0.841, "dur": 2.64, "heard": "Oh ho ho bonjour orange Ah", "tries": 1, "secs": 64.1}
