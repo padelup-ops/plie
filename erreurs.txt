@@ -1,0 +1,6 @@
+1058:/Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/GamePak/GamePakGame.swift:70:23: warning: capture of 'self' with non-Sendable type 'GamePakGame?' in a '@Sendable' closure [#SendableClosureCaptures]
+1069:    |                       `- warning: capture of 'self' with non-Sendable type 'GamePakGame?' in a '@Sendable' closure [#SendableClosureCaptures]
+1073:/Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/GamePak/GamePakGame.swift:81:23: warning: capture of 'self' with non-Sendable type 'GamePakGame?' in a '@Sendable' closure [#SendableClosureCaptures]
+1084:    |                       `- warning: capture of 'self' with non-Sendable type 'GamePakGame?' in a '@Sendable' closure [#SendableClosureCaptures]
+1088:/Users/runner/work/plie/plie/retrofold/RetroCartridge/Games/GamePak/GamePakGame.swift:90:13: warning: capture of 'self' with non-Sendable type 'GamePakGame?' in a '@Sendable' closure [#SendableClosureCaptures]
+1099:    |             `- warning: capture of 'self' with non-Sendable type 'GamePakGame?' in a '@Sendable' closure [#SendableClosureCaptures]

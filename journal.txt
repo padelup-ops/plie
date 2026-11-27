@@ -1,0 +1,32 @@
+===== arm.gba
+2026-11-27 02:08:42 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/4D62814A-E4FB-4926-ACDD-9045B8C26751/data/Containers/Data/Application/7824DA84-B314-4A27-9EB3-893968D77294/Documents/arm.gba: added 1 skipped 0 
+2026-11-27 02:08:42 +0000 started gba arm fps 59.727500915527344 rate 65536.0
+2026-11-27 02:08:45 +0000 after 3 s: picture 240x160
+===== cgb-acid2.gbc
+2026-11-27 02:10:50 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/4D62814A-E4FB-4926-ACDD-9045B8C26751/data/Containers/Data/Application/7824DA84-B314-4A27-9EB3-893968D77294/Documents/cgb-acid2.gbc: added 1 skipped 0 
+2026-11-27 02:10:50 +0000 started gb cgb-acid2 fps 59.72750056960583 rate 48000.0
+2026-11-27 02:10:54 +0000 after 3 s: picture 160x144
+2026-11-27 02:10:49.895 E  RetroCartridge[42401:1b492] [com.apple.BoardServices:XPCErrors] <compose failure [shared UUID]>
+===== dmg-acid2.gb
+2026-11-27 02:11:54 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/4D62814A-E4FB-4926-ACDD-9045B8C26751/data/Containers/Data/Application/7824DA84-B314-4A27-9EB3-893968D77294/Documents/dmg-acid2.gb: added 1 skipped 0 
+2026-11-27 02:11:54 +0000 started gb dmg-acid2 fps 59.72750056960583 rate 48000.0
+2026-11-27 02:11:57 +0000 after 3 s: picture 160x144
+2026-11-27 02:11:53.294 E  RetroCartridge[44776:1cc0f] [com.apple.BoardServices:XPCErrors] <compose failure [shared UUID]>
+===== hbmenu-0.11.0.zip
+2026-11-27 02:12:22 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/4D62814A-E4FB-4926-ACDD-9045B8C26751/data/Containers/Data/Application/7824DA84-B314-4A27-9EB3-893968D77294/Documents/hbmenu-0.11.0.zip: added 3 skipped 3 3 GAMES ADDED
+2026-11-27 02:12:22 +0000 started nds hbmenu/BOOT fps 59.82609828808083 rate 32728.498046875
+2026-11-27 02:12:25 +0000 after 3 s: picture 256x384
+2026-11-27 02:12:21.556 E  RetroCartridge[46094:1d8ee] [com.apple.BoardServices:XPCErrors] <compose failure [shared UUID]>
+2026-11-27 02:12:22.167 E  RetroCartridge[46094:1d8ee] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-27 02:12:51.394 Df RetroCartridge[46094:1d8ee] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-27 02:12:51.394 Df RetroCartridge[46094:1d8ee] [com.apple.renderbox:error] <compose failure [shared UUID]>
+===== hello.gba
+2026-11-27 02:13:02 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/4D62814A-E4FB-4926-ACDD-9045B8C26751/data/Containers/Data/Application/7824DA84-B314-4A27-9EB3-893968D77294/Documents/hello.gba: added 1 skipped 0 
+2026-11-27 02:13:02 +0000 started gba hello fps 59.727500915527344 rate 65536.0
+2026-11-27 02:13:06 +0000 after 3 s: picture 240x160
+2026-11-27 02:13:58.849 Df RetroCartridge[47701:1e82e] [com.apple.renderbox:error] <compose failure [shared UUID]>
+2026-11-27 02:13:58.850 Df RetroCartridge[47701:1e82e] [com.apple.renderbox:error] <compose failure [shared UUID]>
+===== nesDS.nds
+2026-11-27 02:14:53 +0000 import /Users/runner/Library/Developer/CoreSimulator/Devices/4D62814A-E4FB-4926-ACDD-9045B8C26751/data/Containers/Data/Application/7824DA84-B314-4A27-9EB3-893968D77294/Documents/nesDS.nds: added 1 skipped 0 
+2026-11-27 02:14:53 +0000 started nds nesDS fps 59.82609828808083 rate 32728.498046875
+2026-11-27 02:14:56 +0000 after 3 s: picture 256x384

@@ -1,0 +1,7 @@
+Haptics not supported on this device.
+2026-11-27 02:08:41.205 RetroCartridge[39833:104352] -canOpenURL: failed for URL: "melonx://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+IOSurfaceClientSetSurfaceNotify failed e00002c7
+GAMEPAK import /Users/runner/Library/Developer/CoreSimulator/Devices/4D62814A-E4FB-4926-ACDD-9045B8C26751/data/Containers/Data/Application/7824DA84-B314-4A27-9EB3-893968D77294/Documents/arm.gba: added 1 skipped 0 
+GAMEPAK started gba arm fps 59.727500915527344 rate 65536.0
+GAMEPAK after 3 s: picture 240x160
+com.padelup.retrofold: 39833
