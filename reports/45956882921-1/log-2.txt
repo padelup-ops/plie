@@ -57,3 +57,9 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [12/837] de ok  1.00 3.4s essais 1 (75s, reste 1602 min) Und auch, dass du eine unglaubliche Fantasie hast. → und auch, dass du eine unglaubliche Fantasie hast.
   self.gen = func(*args, **kwds)
+[13/837] de ok  1.00 4.6s essais 1 (83s, reste 1565 min) Ah, aber natürlich! Wie schön, mit euch zu sprechen! → Ah, aber natürlich! Wie schön mit euch zu sprechen!
+  self.gen = func(*args, **kwds)
+[14/837] de ok  0.97 9.3s essais 1 (146s, reste 1595 min) Ho, ho, ho! Heute ist Heiligabend! Mach heute Nacht die Auge → Ho Ho Ho! Heute ist Heiligabend. Mach heute Nacht die Augen 
+  self.gen = func(*args, **kwds)
+[15/837] it ok  0.99 7.5s essais 1 (128s, reste 1603 min) Sapete, qui gli elfi sono indaffaratissimi. Ci sono regali d → Sapete qui gli elf sono indaffaratissimi, ci sono regali dap
+  self.gen = func(*args, **kwds)

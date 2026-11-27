@@ -54,3 +54,11 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [9/831] de ok  0.99 7.3s essais 1 (122s, reste 2172 min) Mein Schlitten ist bereit, die Geschenke sind geladen, und m → Mein Schlitten ist bereit, die Geschenke sind geladen und me
   self.gen = func(*args, **kwds)
+[10/831] de ok  1.00 3.6s essais 1 (73s, reste 2052 min) Man hat mir erzählt, dass du eine unglaubliche Fantasie hast → Man hat mir erzählt, dass du eine unglaubliche Fantasie hast
+  self.gen = func(*args, **kwds)
+[11/831] de ok  1.00 3.5s essais 1 (75s, reste 1957 min) Und auch, dass ihr alle um euch herum zum Lachen bringt. → und auch, dass ihr alle um euch herum zum Lachen bringt.
+  self.gen = func(*args, **kwds)
+[12/831] de ok  0.97 7.0s essais 1 (122s, reste 1930 min) Heute habe ich meine großen schwarzen Stiefel geputzt. Sie g → Heute habe ich meine großen schwarzen Stiefel geputzt. Sie g
+  self.gen = func(*args, **kwds)
+[13/831] it ok  1.00 3.9s essais 1 (95s, reste 1879 min) Allora adesso hai 3 anni, vero? È un'età bellissima! → Allora adesso hai tre anni vero? È un'età bellissima!
+  self.gen = func(*args, **kwds)
