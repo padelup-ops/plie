@@ -4,6 +4,8 @@
   python3 audio.py <work>                      the soundtrack (original music, written here)
   python3 build.py <work> wide|tall [now|soon] the frames, then the film: <work>/vicefold-<format>-<cta>.mp4
   python3 build.py <work> wide now 3.2 10.5    a few still frames, to check a moment
+  python3 build.py <work> wide now --link https://apps.apple.com/app/id...   the same film with the link on the last screen
+                                               (only the last seconds are drawn again)
 
 Everything on screen is a real capture of the app or drawn here; no game art, logo or footage.
 """
@@ -14,6 +16,7 @@ import subprocess
 import sys
 import time
 from multiprocessing import Process
+from urllib.parse import quote
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import cues as C
@@ -113,6 +116,7 @@ html,body{margin:0;background:#091422}
 .cta small{display:block;font:700 __CTAS__px Inter;letter-spacing:.02em}
 .cta b{display:block;font:800 __CTAB__px 'Inter Display',Inter;letter-spacing:-.02em;line-height:1.05}
 .enddevs{font:800 27px Inter;letter-spacing:.05em;color:rgba(255,255,255,.85);margin-top:30px;white-space:pre;position:relative;z-index:1}
+.endlink{margin-top:26px;font:700 __ENDT__px 'JetBrains Mono',monospace;color:#fff;padding:12px 26px;border-radius:999px;background:rgba(255,79,139,.2);box-shadow:inset 0 0 0 2px rgba(255,79,139,.85);position:relative;z-index:1}
 .legal{position:absolute;left:8%;right:8%;bottom:__LEGALB__px;text-align:center;font:500 __LEGAL__px/1.45 Inter;color:#fff}
 .swipe{position:absolute;left:0;top:-10%;width:62%;height:120%;background:linear-gradient(90deg,rgba(255,201,74,0),rgba(255,201,74,.95) 22%,#FF8A3D 50%,rgba(255,79,139,.95) 78%,rgba(91,69,219,0));display:none}
 .foot{position:absolute;left:__FOOTX__px;right:__FOOTX__px;bottom:__FOOTB__px;display:flex;justify-content:space-between;align-items:center;font:600 __FOOT__px Inter;color:rgba(255,255,255,.6);__FOOTDIR__}
@@ -146,7 +150,7 @@ def page(work, fmt):
     return path
 
 
-def shoot(path, fmt, cta, jobs, out):
+def shoot(path, fmt, cta, jobs, out, link=""):
     """Renders the frames (index, time) of `jobs` into `out`."""
     from playwright.sync_api import sync_playwright
     w, h = SIZES[fmt]
@@ -159,7 +163,7 @@ def shoot(path, fmt, cta, jobs, out):
         errors = []
         pg.on("pageerror", lambda e: errors.append(str(e)))
         pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
-        pg.goto("file://" + os.path.abspath(path) + f"?fmt={fmt}&cta={cta}")
+        pg.goto("file://" + os.path.abspath(path) + f"?fmt={fmt}&cta={cta}&link={quote(link)}")
         pg.evaluate("ready()")
         pg.wait_for_timeout(300)
         for i, t in jobs:
@@ -171,6 +175,11 @@ def shoot(path, fmt, cta, jobs, out):
 
 
 def main():
+    link = ""
+    if "--link" in sys.argv:
+        i = sys.argv.index("--link")
+        link = sys.argv[i + 1]
+        del sys.argv[i:i + 2]
     work, fmt = sys.argv[1], sys.argv[2]
     cta = sys.argv[3] if len(sys.argv) > 3 else "now"
     path = page(work, fmt)
@@ -178,16 +187,18 @@ def main():
         out = os.path.join(work, f"test-{fmt}")
         os.makedirs(out, exist_ok=True)
         times = [float(x) for x in sys.argv[4:]]
-        shoot(path, fmt, cta, [(round(t * 100), t) for t in times], out)
+        shoot(path, fmt, cta, [(round(t * 100), t) for t in times], out, link)
         return
     out = os.path.join(work, f"frames-{fmt}-{cta}")
     os.makedirs(out, exist_ok=True)
     n = int(C.DURATION * FPS)
     jobs = [(i, i / FPS) for i in range(n)]
-    # The two endings share every frame before the last scene.
+    # The endings (download, coming soon, with a link) share every frame before the last scene: those are drawn once.
+    end = int(C.SCENES[-1][1] * FPS)
+    if link and all(os.path.exists(os.path.join(out, f"f{i:05d}.jpg")) for i in range(end)):
+        jobs = jobs[end:]
     other = os.path.join(work, f"frames-{fmt}-{'soon' if cta == 'now' else 'now'}")
-    if os.path.isdir(other):
-        end = int(C.SCENES[-1][1] * FPS)
+    if len(jobs) == n and os.path.isdir(other):
         for i in range(end):
             src, dst = os.path.join(other, f"f{i:05d}.jpg"), os.path.join(out, f"f{i:05d}.jpg")
             if os.path.exists(src) and not os.path.exists(dst):
@@ -195,11 +206,11 @@ def main():
         jobs = jobs[end:]
     t0 = time.time()
     workers = 4
-    ps = [Process(target=shoot, args=(path, fmt, cta, jobs[k::workers], out)) for k in range(workers)]
+    ps = [Process(target=shoot, args=(path, fmt, cta, jobs[k::workers], out, link)) for k in range(workers)]
     [p.start() for p in ps]
     [p.join() for p in ps]
     print(f"{len(jobs)} frames in {time.time() - t0:.0f} s")
-    film = os.path.join(work, f"vicefold-{fmt}-{cta}.mp4")
+    film = os.path.join(work, f"vicefold-{fmt}-{cta}{'-link' if link else ''}.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(out, "f%05d.jpg"), "-i", os.path.join(work, "music.wav"),
                     "-c:v", "libx264", "-preset", "slow", "-crf", "20", "-pix_fmt", "yuv420p", "-profile:v", "high", "-colorspace", "bt709", "-color_primaries", "bt709",
                     "-color_trc", "bt709", "-c:a", "aac", "-b:a", "192k", "-ar", "44100", "-movflags", "+faststart", "-shortest", film], check=True)

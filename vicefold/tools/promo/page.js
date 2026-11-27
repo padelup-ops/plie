@@ -2,7 +2,7 @@
 // Two formats: wide (1920x1080, for X) and tall (1080x1920, for vertical feeds). Every screen shown is a real
 // capture of the app; the map is the community map bundled with the app (GTADB.org, CC BY 4.0).
 const Q = new URLSearchParams(location.search);
-const FMT = Q.get('fmt') || 'wide', CTA = Q.get('cta') || 'now';
+const FMT = Q.get('fmt') || 'wide', CTA = Q.get('cta') || 'now', LINK = Q.get('link') || '';
 const L = FMT === 'wide';
 const W = L ? 1920 : 1080, H = L ? 1080 : 1920;
 // Where the device stands, and where the words go.
@@ -479,6 +479,8 @@ SC.end = {
     this.cta = el('div', 'cta', wrap);
     this.cta.innerHTML = CTA === 'soon' ? '<small>Coming soon to the</small><b>App Store</b>' : '<small>Download on the</small><b>App Store</b>';
     this.devs = el('div', 'enddevs', wrap, 'iPhone  ·  iPhone Duo  ·  iPad');
+    // The App Store link, once the app is live (python3 build.py <work> wide now --link <url>).
+    this.link = LINK ? el('div', 'endlink', wrap, LINK.replace(/^https?:\/\//, '')) : null;
     this.legal = el('div', 'legal', root);
     this.legal.innerHTML = 'Unofficial fan guide. Not affiliated with, endorsed or approved by Rockstar Games or Take-Two Interactive. Game names are trademarks of their owners.<br>Map: GTA VI Community Map by Yanis &amp; the mapping community, via GTADB.org, CC BY 4.0. Some features need Vicefold Pro.';
     this.wrap = wrap;
@@ -494,6 +496,7 @@ SC.end = {
     const v = u - (CUES.endCta - 36), kc = back(v / 0.45);
     this.cta.style.transform = `scale(${Math.max(0, kc) * (1 + 0.02 * Math.sin(Math.max(0, v) * 5))})`; this.cta.style.opacity = clamp(v / 0.1);
     const kd = eo((v - 0.3) / 0.4); this.devs.style.opacity = kd;
+    if (this.link) { const kl = back((v - 0.5) / 0.45); this.link.style.opacity = clamp((v - 0.5) / 0.1); this.link.style.transform = `scale(${Math.max(0, kl)})`; }
     this.legal.style.opacity = eo((u - 1.2) / 0.5) * 0.62;
     const fade = clamp((u - (dur - 0.5)) / 0.5);
     document.getElementById('fade').style.opacity = fade;
