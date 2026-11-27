@@ -8,3 +8,5 @@
 {"id": "445b8d6f4fc8e5ecd184", "key": "hello|malo", "text": "Ho, ho, ho ! Bonjour Malo !", "ok": true, "score": 1.0, "dur": 3.22, "heard": "Ho ho ho bonjour Malo !", "tries": 1, "secs": 58.7}
 {"id": "8c31ebf93619ce9712e1", "key": "hello|maxime", "text": "Ho, ho, ho ! Bonjour Maxime !", "ok": true, "score": 1.0, "dur": 3.9, "heard": "Oh ho ho ho ! Bonjour Maxime !", "tries": 1, "secs": 68.0}
 {"id": "00ecadadccc2e57ca1c3", "key": "hello|simon", "text": "Ho, ho, ho ! Bonjour Simon !", "ok": true, "score": 1.0, "dur": 2.56, "heard": "Oh, oh, oh, bonjour Simon.", "tries": 1, "secs": 51.5}
+{"id": "b15ecf822838fd97f4ef", "key": "hello|kylian", "text": "Ho, ho, ho ! Bonjour Kylian !", "ok": false, "score": 0.567, "dur": 5.1, "heard": "Ha ha ha bonjour Kilian Yay", "tries": 1, "secs": 223.9}
+{"id": "a454802b7630f7303e4b", "key": "hello|elio", "text": "Ho, ho, ho ! Bonjour Elio !", "ok": true, "score": 1.0, "dur": 2.66, "heard": "Oh ho ho ! Bonjour, Elio !", "tries": 2, "secs": 115.7}
