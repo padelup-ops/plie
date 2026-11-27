@@ -245,7 +245,8 @@ struct PlaceCard: View {
                 .buttonStyle(.vf(progress.visited(place) ? .done : .primary, compact: true))
                 .padding(.top, 4)
             }
-            Spacer(minLength: 0)
+            // Toute la largeur libre va au texte : avec un Spacer, la pile n'en recevait que la moitié et le titre se coupait.
+            .frame(maxWidth: .infinity, alignment: .leading)
             VStack(spacing: 14) {
                 Button(action: close) { Image(systemName: "xmark.circle.fill").font(.title2).foregroundStyle(VF.textDim) }
                     .accessibilityLabel("Close")

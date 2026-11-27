@@ -226,6 +226,7 @@ const LAY = L ? {
   ipadPhone: { main: { cx: 1280, cy: 520, w: 620, h: 800 }, side: { cx: 1685, cy: 630, w: 300, h: 600 } },
   duoPhone: { main: { cx: 1305, cy: 465, w: 790, h: 600 }, side: { cx: 1700, cy: 640, w: 270, h: 550 } },
   phoneIpad: { main: { cx: 1500, cy: 520, w: 600, h: 790 }, side: { cx: 1125, cy: 620, w: 300, h: 600 } },
+  phoneFront: { main: { cx: 1300, cy: 520, w: 600, h: 820 }, side: { cx: 1690, cy: 650, w: 350, h: 500 } },
 } : {
   ipadPhone: { main: { cx: 455, cy: 1160, w: 720, h: 920 }, side: { cx: 850, cy: 1395, w: 300, h: 600 } },
   duoPhone: { main: { cx: 540, cy: 1000, w: 940, h: 700 }, side: { cx: 800, cy: 1420, w: 300, h: 580 } },
@@ -277,8 +278,9 @@ feature('cars', {
 
 feature('votes', {
   texts: [{ kicker: 'By the players', lines: ['SEEN IT?', '*VOTE. ADD YOURS.*'], sub: 'Players confirm every spot.' }],
-  shot: ['ipad-car', 'ipad-car'], side: ['iphone-car', 'iphone-car'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
-  chips: [["It's here", COLORS.palm, -0.84, -0.86, -0.6, -0.96, 1.25], ['Not here', COLORS.sunset, -0.5, 0.7, 0.5, -0.84, 1.875]],
+  // The iPhone in front: the card with the two vote buttons has to be readable.
+  shot: ['iphone-car', 'iphone-car'], side: ['ipad-car', 'ipad-car'], lay: ['phoneFront', 'ipadPhone'], pose: { ry: -9 },
+  chips: [["It's here", COLORS.palm, -0.84, -0.86, -0.6, -0.96, 1.25], ['Not here', COLORS.sunset, -0.86, 0.9, 0.5, -0.84, 1.875]],
 });
 
 feature('missions', {
