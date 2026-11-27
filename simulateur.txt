@@ -1,0 +1,16 @@
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-27-2 device=com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max
+launch : Main display orientation: unknown
+launchsun : Main display orientation: unknown
+launchfold : Main display orientation: unknown
+onb1 : Main display orientation: unknown
+onb2 : Main display orientation: unknown
+onb3 : Main display orientation: unknown
+onb4 : Main display orientation: unknown
+onb5 : Main display orientation: unknown
+home : Main display orientation: unknown
+mappins : Main display orientation: unknown
+place : Main display orientation: unknown
+tracker : Main display orientation: unknown
+share : Main display orientation: unknown
+search : Main display orientation: unknown
+pro : Main display orientation: unknown
