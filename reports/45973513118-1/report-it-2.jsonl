@@ -8,3 +8,6 @@
 {"id": "48e276214e9347dde880", "key": "hello|nathan", "text": "Oh, oh, oh! Ciao, Nathan!", "ok": true, "score": 1.0, "dur": 2.44, "heard": "Oh oh, ciao Nathan!", "tries": 1, "secs": 62.9}
 {"id": "1bb95924538e5bd6c4ff", "key": "hello|giada", "text": "Oh, oh, oh! Ciao, Giada!", "ok": true, "score": 1.0, "dur": 2.64, "heard": "Oh oh oh, ciao Giada!", "tries": 1, "secs": 72.2}
 {"id": "1849bb5a4da374e2c4ac", "key": "hello|elisabetta", "text": "Oh, oh, oh! Ciao, Elisabetta!", "ok": true, "score": 1.0, "dur": 2.74, "heard": "Oh, oh, oh, ciao, Elisabetta!", "tries": 1, "secs": 69.0}
+{"id": "1e2f27435aa541ff6388", "key": "hello|celeste", "text": "Oh, oh, oh! Ciao, Celeste!", "ok": false, "score": 0.943, "dur": 2.56, "heard": "Oh, oh, oh, oh, ciao, ciao, Celeste!", "tries": 2, "secs": 190.7}
+{"id": "7ffff62a9e4eed26fbf6", "key": "hello|simone", "text": "Oh, oh, oh! Ciao, Simone!", "ok": true, "score": 1.0, "dur": 2.68, "heard": "Oh, oh, oh, ciao Simone!", "tries": 1, "secs": 64.5}
+{"id": "aa905841a5abec70eeb6", "key": "hello|daniel", "text": "Oh, oh, oh! Ciao, Daniel!", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Oh oh oh ciao Daniel", "tries": 1, "secs": 59.6}

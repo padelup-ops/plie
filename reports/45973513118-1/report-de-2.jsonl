@@ -7,3 +7,4 @@
 {"id": "35c5f98ad655ac42af8f", "key": "hello|mika", "text": "Ho, ho, ho! Hallo, Mika!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Oh ho ho ho! Hallo Mika!", "tries": 1, "secs": 61.8}
 {"id": "1503fb5b0856784c5ba2", "key": "hello|johann", "text": "Ho, ho, ho! Hallo, Johann!", "ok": true, "score": 1.0, "dur": 2.1, "heard": "Ho ho ho! Hallo Johann!", "tries": 1, "secs": 62.0}
 {"id": "4133fc23640fa9b8d782", "key": "hello|ole", "text": "Ho, ho, ho! Hallo, Ole!", "ok": true, "score": 1.0, "dur": 2.14, "heard": "Ho, ho, ho, hallo ole!", "tries": 2, "secs": 120.7}
+{"id": "c3c0e8b81c27a2a5366a", "key": "hello|johannes", "text": "Ho, ho, ho! Hallo, Johannes!", "ok": true, "score": 1.0, "dur": 2.16, "heard": "Ho Ho Ho! Hallo Johannes!", "tries": 3, "secs": 209.3}
