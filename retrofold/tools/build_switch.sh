@@ -34,38 +34,47 @@ git fetch -q --depth 1 origin "$REV"
 git checkout -q FETCH_HEAD
 echo "=== Version des sources : $(git rev-parse HEAD) $(git log -1 --format=%cs)"
 git lfs pull
-if [ ! -d "src/MeloNX/MeloNX/Dependencies/Dynamic Libraries" ]; then
+PROJECT=src/MeloNX/MeloNX.xcodeproj
+COMMON=(-project "$PROJECT" -scheme MeloNX -configuration Release -sdk iphoneos -destination "generic/platform=iOS"
+        -derivedDataPath "$WORK/dd" clean build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+        DEVELOPMENT_TEAM="" AD_HOC_CODE_SIGNING_ALLOWED=YES ONLY_ACTIVE_ARCH=NO)
+OLD_DEPS="src/MeloNX/MeloNX/Dependencies/Dynamic Libraries"
+if [ -d "$OLD_DEPS" ]; then
+  # Ancien rangement (2.x) : le cœur Ryujinx.Headless.SDL2 est compilé par le projet, puis lié depuis ce dossier.
+  ls -la "$OLD_DEPS"
+  echo "=== Compilation"
+  LIBDEPS="$WORK/libdeps"
+  ln -sfn "$SRC/$OLD_DEPS" "$LIBDEPS"
+  xcodebuild -project "$PROJECT" -scheme MeloNX -resolvePackageDependencies | tail -3
+  xcodebuild "${COMMON[@]}" "LIBRARY_SEARCH_PATHS=\$(inherited) $LIBDEPS" "OTHER_LDFLAGS=\$(inherited) $LIBDEPS/Ryujinx.Headless.SDL2.dylib"
+  CORE="$SRC/$OLD_DEPS/Ryujinx.Headless.SDL2.dylib"
+  [ -f "$CORE" ] || CORE=$(find "$SRC/src/Ryujinx.Headless.SDL2" -name 'Ryujinx.Headless.SDL2.dylib' -type f -print -quit)
+elif [ -d src/Ryujinx.Library ] && [ -d "$PROJECT" ]; then
+  # Rangement actuel du dépôt officiel : le projet Xcode compile lui-même le cœur (src/Ryujinx.Library, .NET 10).
+  echo "=== Compilation (rangement actuel)"
+  grep -n "buildArgumentsString\|shellScript" "$PROJECT/project.pbxproj" | cut -c1-400 | sed 's/^/=== projet : /'
+  xcodebuild -project "$PROJECT" -scheme MeloNX -resolvePackageDependencies | tail -3
+  xcodebuild "${COMMON[@]}"
+  CORE=$(find "$SRC/src/Ryujinx.Library" "$SRC/src/MeloNX" -name 'Ryujinx*.dylib' -type f -print -quit)
+else
   # Le dépôt n'est pas rangé comme prévu : on montre sa structure pour adapter la recette.
   echo "=== Structure inattendue"
   ls | sed 's/^/=== racine : /'
-  find . -maxdepth 6 \( -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "*.dylib" -o -name "*.xcframework" -o -name "*.framework" -o -name "Package.swift" -o -name "*.entitlements" -o -name "*.sh" -o -name "Compile*.md" -o -name "global.json" -o -name ".gitmodules" \) -not -path "./.git/*" | sed 's/^/=== trouvé : /'
-  for f in Compile.md .gitmodules global.json; do [ -f "$f" ] && { echo "=== $f"; sed 's/^/=== | /' "$f" | head -120; }; done
-  find . -maxdepth 4 -name "*.sh" -not -path "./.git/*" -path "*ios*" | while read -r f; do echo "=== $f"; sed 's/^/=== | /' "$f" | head -60; done
+  find . -maxdepth 6 \( -name "*.xcodeproj" -o -name "*.dylib" -o -name "*.xcframework" -o -name "*.framework" -o -name "*.entitlements" -o -name "*.sh" -o -name "global.json" \) -not -path "./.git/*" | sed 's/^/=== trouvé : /'
   exit 1
 fi
-ls -la "src/MeloNX/MeloNX/Dependencies/Dynamic Libraries"
-
-echo "=== Compilation"
-PROJECT=src/MeloNX/MeloNX.xcodeproj
-LIBDEPS="$WORK/libdeps"
-ln -sfn "$SRC/src/MeloNX/MeloNX/Dependencies/Dynamic Libraries" "$LIBDEPS"
-xcodebuild -project "$PROJECT" -scheme MeloNX -resolvePackageDependencies | tail -3
-xcodebuild -project "$PROJECT" -scheme MeloNX -configuration Release -sdk iphoneos \
-  -destination "generic/platform=iOS" -derivedDataPath "$WORK/dd" clean build \
-  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" DEVELOPMENT_TEAM="" \
-  AD_HOC_CODE_SIGNING_ALLOWED=YES ONLY_ACTIVE_ARCH=NO \
-  "LIBRARY_SEARCH_PATHS=\$(inherited) $LIBDEPS" \
-  "OTHER_LDFLAGS=\$(inherited) $LIBDEPS/Ryujinx.Headless.SDL2.dylib"
 
 echo "=== Paquet"
 APP=$(find "$WORK/dd/Build/Products/Release-iphoneos" -maxdepth 1 -name 'MeloNX.app' -type d -print -quit)
 [ -n "$APP" ] || { echo "MeloNX.app n'a pas été produite"; exit 1; }
-DYLIB="$SRC/src/MeloNX/MeloNX/Dependencies/Dynamic Libraries/Ryujinx.Headless.SDL2.dylib"
-[ -f "$DYLIB" ] || DYLIB=$(find "$SRC/src/Ryujinx.Headless.SDL2" -name 'Ryujinx.Headless.SDL2.dylib' -type f -print -quit)
-[ -n "$DYLIB" ] && [ -f "$DYLIB" ] || { echo "Ryujinx.Headless.SDL2.dylib n'a pas été produite"; exit 1; }
 mkdir -p "$APP/Frameworks"
-ditto "$DYLIB" "$APP/Frameworks/Ryujinx.Headless.SDL2.dylib"
-chmod 755 "$APP/Frameworks/Ryujinx.Headless.SDL2.dylib"
+# Le cœur doit être dans l'app : on l'y met si le projet ne l'a pas déjà fait.
+if ! find "$APP" -name 'Ryujinx*.dylib' -type f | grep -q .; then
+  [ -n "${CORE:-}" ] && [ -f "$CORE" ] || { echo "Le cœur Ryujinx n'a pas été produit"; exit 1; }
+  ditto "$CORE" "$APP/Frameworks/$(basename "$CORE")"
+  chmod 755 "$APP/Frameworks/$(basename "$CORE")"
+fi
+find "$APP" -name 'Ryujinx*.dylib' -type f -exec ls -la {} \;
 # Un identifiant à nous, pour pouvoir la signer avec notre compte développeur.
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $BUNDLE_ID" "$APP/Info.plist"
 /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Info.plist"
