@@ -27,12 +27,13 @@ struct SantaPhoto: View {
     private static let face = UnitPoint(x: 0.569, y: 0.44)
     private static let canShade: Bool = MTLCreateSystemDefaultDevice() != nil
 
-    private var live: Bool { !still && !reduce && ShotMode.route == nil && Self.canShade }
+    /// (« calllive » : une capture de contrôle, avec la vraie déformation, pour vérifier qu'elle se dessine.)
+    private var live: Bool { !still && !reduce && (ShotMode.route == nil || ShotMode.route == "calllive") && Self.canShade }
 
     var body: some View {
         GeometryReader { geo in
             if live {
-                TimelineView(.animation(minimumInterval: 1.0 / 30)) { tl in
+                TimelineView(.animation(minimumInterval: Motion.every(1.0 / 30))) { tl in
                     frame(in: geo.size, t: tl.date.timeIntervalSinceReferenceDate)
                 }
             } else {
@@ -69,11 +70,16 @@ struct SantaPhoto: View {
     @ViewBuilder
     private func picture(w: CGFloat, h: CGFloat, open: Double, blink: Double, shaded: Bool) -> some View {
         if shaded {
-            Image("SantaPhoto")
-                .resizable()
-                .frame(width: w, height: h)
-                .layerEffect(ShaderLibrary.santaFace(.float2(w, h), .float(open), .float(blink)),
-                             maxSampleOffset: CGSize(width: 0, height: h * 0.07))
+            // La même photo dessous, sans effet : si la déformation ne pouvait pas se dessiner sur un appareil,
+            // le Père Noël resterait là (immobile), jamais un écran noir.
+            ZStack {
+                Image("SantaPhoto").resizable()
+                Image("SantaPhoto")
+                    .resizable()
+                    .layerEffect(ShaderLibrary.santaFace(.float2(w, h), .float(open), .float(blink)),
+                                 maxSampleOffset: CGSize(width: 0, height: h * 0.07))
+            }
+            .frame(width: w, height: h)
         } else {
             ZStack {
                 Image("SantaPhoto").resizable()
