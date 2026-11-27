@@ -1,3 +1,9 @@
 {"id": "ec10656efec74fbe4f4b", "key": "hello|riley", "text": "Ho, ho, ho! Hello, Riley!", "ok": true, "score": 1.0, "dur": 2.16, "heard": "Ho ho ho! Hello Riley!", "tries": 1, "secs": 50.4}
 {"id": "77de99c2aca35bd6bf7f", "key": "hello|ezekiel", "text": "Ho, ho, ho! Hello, Ezekiel!", "ok": true, "score": 1.0, "dur": 2.36, "heard": "Ho Ho Ho! Hello Ezekiel!", "tries": 1, "secs": 48.3}
 {"id": "681e790943c8000999fb", "key": "hello|joshua", "text": "Ho, ho, ho! Hello, Joshua!", "ok": true, "score": 1.0, "dur": 2.76, "heard": "Ho, ho, ho, ho. Hello, Joshua.", "tries": 1, "secs": 51.1}
+{"id": "7936b213978d2b09ebe2", "key": "hello|savannah", "text": "Ho, ho, ho! Hello, Savannah!", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Ho ho ho ho! Hello Savannah!", "tries": 2, "secs": 106.1}
+{"id": "77d34f980f78aba4378c", "key": "hello|waylon", "text": "Ho, ho, ho! Hello, Waylon!", "ok": true, "score": 1.0, "dur": 2.36, "heard": "Ho ho ho! Hello, Waylon!", "tries": 1, "secs": 53.9}
+{"id": "9c19885a88bb997b9506", "key": "hello|ryan", "text": "Ho, ho, ho! Hello, Ryan!", "ok": true, "score": 1.0, "dur": 2.04, "heard": "Ho, ho, ho. Hello, Ryan.", "tries": 1, "secs": 43.5}
+{"id": "e0df602b4977b2da1431", "key": "hello|bella", "text": "Ho, ho, ho! Hello, Bella!", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Ho, ho, ho. Hello, Bella.", "tries": 3, "secs": 154.5}
+{"id": "46a0d055b7931f27c7c9", "key": "hello|raelynn", "text": "Ho, ho, ho! Hello, Raelynn!", "ok": true, "score": 0.677, "dur": 2.12, "heard": "Ho, ho, ho, hello, Raylin.", "tries": 1, "secs": 43.4}
+{"id": "61cb5072d548dd56ccd9", "key": "hello|jameson", "text": "Ho, ho, ho! Hello, Jameson!", "ok": true, "score": 1.0, "dur": 2.04, "heard": "Ho, ho, ho, hello, Jameson.", "tries": 1, "secs": 44.9}

@@ -29,3 +29,6 @@
 {"id": "80db634188d09cc62303", "key": "hello|enora", "text": "Ho, ho, ho ! Bonjour Enora !", "ok": true, "score": 0.913, "dur": 2.76, "heard": "Ho ho ho bonjour Nora.", "tries": 1, "secs": 42.8}
 {"id": "1fce93208ce1d945ad9e", "key": "hello|chiara", "text": "Ho, ho, ho ! Bonjour Chiara !", "ok": true, "score": 0.781, "dur": 2.54, "heard": "Ho ho ho! Bonjour Tiara!", "tries": 2, "secs": 130.6}
 {"id": "78b2bd870a34f7f3908e", "key": "hello|berenice", "text": "Ho, ho, ho ! Bonjour Bérénice !", "ok": true, "score": 1.0, "dur": 2.14, "heard": "Ho ho ho bonjour Berenice", "tries": 1, "secs": 46.6}
+{"id": "232f04129a08193bf6f4", "key": "hello|hortense", "text": "Ho, ho, ho ! Bonjour Hortense !", "ok": false, "score": 0.561, "dur": 3.58, "heard": "Ho ho ho ! Bonjour, danse !", "tries": 2, "secs": 162.8}
+{"id": "6c408b2b21bd5b546794", "key": "hello|philippine", "text": "Ho, ho, ho ! Bonjour Philippine !", "ok": true, "score": 1.0, "dur": 2.74, "heard": "Ho, ho, ho ! Bonjour Philippine !", "tries": 1, "secs": 55.3}
+{"id": "3a0a9d74f0444b4f12cb", "key": "hello|violette", "text": "Ho, ho, ho ! Bonjour Violette !", "ok": true, "score": 0.883, "dur": 2.56, "heard": "Ho ho ho, bonjour violet.", "tries": 1, "secs": 54.3}
