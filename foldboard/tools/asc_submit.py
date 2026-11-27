@@ -87,7 +87,9 @@ app_id = apps[0]["id"]
 print("APP", app_id, apps[0]["attributes"].get("name"))
 
 # CANCEL_PENDING=1 : retire d'abord la demande de vérification en attente (pour remplacer le build).
-if os.environ.get("CANCEL_PENDING") == "1":
+# CANCEL_PENDING=only : la retire et s'arrête là, sans rien renvoyer.
+CANCEL = os.environ.get("CANCEL_PENDING", "").strip()
+if CANCEL in ("1", "only"):
     waiting = call("GET", f"/v1/reviewSubmissions?filter[app]={app_id}&filter[state]=WAITING_FOR_REVIEW,IN_REVIEW,READY_FOR_REVIEW&limit=10").get("data", [])
     for sub in waiting:
         step(f"demande {sub['id']} retirée", call("PATCH", f"/v1/reviewSubmissions/{sub['id']}", {"data": {
@@ -98,6 +100,11 @@ if os.environ.get("CANCEL_PENDING") == "1":
             break
         print("retrait en cours", [x["attributes"].get("state") for x in left])
         time.sleep(10)
+    if CANCEL == "only":
+        vs = call("GET", f"/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS&limit=5").get("data", [])
+        print("versions", [(v["attributes"].get("versionString"), v["attributes"].get("appStoreState")) for v in vs])
+        print("RETIRÉE, rien renvoyé" if not problems else "RETRAIT INCOMPLET")
+        raise SystemExit(1 if problems else 0)
 
 existing = call("GET", f"/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS&filter[versionString]={VERSION}&limit=5").get("data", [])
 if existing:
