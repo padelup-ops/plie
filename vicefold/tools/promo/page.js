@@ -199,7 +199,7 @@ function devPose(d, u, dur, o = {}) {
   const rx = (o.rx != null ? o.rx : 5) + Math.cos((u + d.seed) * 1.05) * 1.3;
   const tx = (1 - kin) * (L ? 560 : 0) * dir, ty = (1 - kin) * (L ? 40 : 700) + fl * 7;
   const s = lerp(0.84, 1, eo(v / 0.6)) * (1 + 0.035 * u / dur);
-  d.root.style.transform = `translate3d(${tx}px,${ty}px,0) rotateY(${ry}deg) rotateX(${rx}deg) rotateZ(${(o.rz || 0)}deg) scale(${s})`;
+  d.root.style.transform = `translate3d(${tx}px,${ty}px,${o.z || 0}px) rotateY(${ry}deg) rotateX(${rx}deg) rotateZ(${(o.rz || 0)}deg) scale(${s})`;
   d.root.style.opacity = clamp(v / 0.12) * (1 - ko);
 }
 // A small label that pops next to the device. fx, fy: position from the centre of the stage box, in half-boxes.
@@ -217,6 +217,17 @@ function chip(parent, text, color, fx, fy, at) {
 
 // ---------------------------------------------------------------- scenes
 const SC = {};
+// Two devices in the same picture (iPhone, iPad and Duo all get their turn): where the main one and the one in
+// front of it stand, for the wide film and for the tall one.
+const LAY = L ? {
+  ipadPhone: { main: { cx: 1290, cy: 520, w: 620, h: 800 }, side: { cx: 1700, cy: 630, w: 300, h: 600 } },
+  duoPhone: { main: { cx: 1330, cy: 465, w: 810, h: 600 }, side: { cx: 1750, cy: 640, w: 270, h: 550 } },
+  phoneIpad: { main: { cx: 1500, cy: 520, w: 600, h: 790 }, side: { cx: 1125, cy: 620, w: 300, h: 600 } },
+} : {
+  ipadPhone: { main: { cx: 455, cy: 1160, w: 720, h: 920 }, side: { cx: 850, cy: 1395, w: 300, h: 600 } },
+  duoPhone: { main: { cx: 540, cy: 1000, w: 940, h: 700 }, side: { cx: 800, cy: 1420, w: 300, h: 580 } },
+  phoneIpad: { main: { cx: 455, cy: 1160, w: 720, h: 920 }, side: { cx: 850, cy: 1395, w: 300, h: 600 } },
+};
 // The usual scene: words on one side, a device on the other, a few labels around it.
 function feature(name, cfg) {
   SC[name] = {
@@ -224,13 +235,16 @@ function feature(name, cfg) {
       this.t = cfg.texts.map(tc => textBlock(root, tc));
       this.stage = el('div', 'persp', root);
       const alt = cfg.alt && DATA.sizes[cfg.alt[L ? 0 : 1]] ? { alt: cfg.alt[L ? 0 : 1] } : {};
-      if (cfg.shot) this.d = device(this.stage, L ? cfg.shot[0] : cfg.shot[1], Object.assign(alt, cfg.dev || {}));
+      const lay = cfg.lay && cfg.lay[L ? 0 : 1] ? LAY[cfg.lay[L ? 0 : 1]] : null;
+      if (cfg.shot) this.d = device(this.stage, L ? cfg.shot[0] : cfg.shot[1], Object.assign(alt, lay ? lay.main : {}, cfg.dev || {}));
+      if (lay && cfg.side) this.d2 = device(this.stage, cfg.side[L ? 0 : 1], lay.side);
       this.chips = (cfg.chips || []).map(c => { const p = L ? c.slice(2, 4) : c.slice(4, 6); return chip(this.stage, c[0], c[1], p[0], p[1], c[6]); });
       if (cfg.build) cfg.build.call(this, root);
     },
     update(u, dur) {
       this.t.forEach(tb => tb.update(u, dur));
       if (this.d) { devPose(this.d, u, dur, cfg.pose || {}); this.d.setAlt(eio((u - dur / 2 + 0.1) / 0.3)); }
+      if (this.d2) devPose(this.d2, u, dur, { ry: 8, rx: 4, delay: 0.16, z: 130 });
       this.chips.forEach(c => c.update(u, dur));
       if (cfg.update) cfg.update.call(this, u, dur);
     },
@@ -242,14 +256,14 @@ feature('hook', { texts: [{ center: true, lines: ['LEONIDA', 'IS *HUGE.*'], cy: 
 
 feature('intro', {
   texts: [{ kicker: 'Guide for GTA VI: Leonida', lines: ["DON'T PLAY", 'IT *BLIND.*'], sub: 'The fan-made companion.<br>Missions, map, 100%, secrets, cheats.' }],
-  shot: ['ipad-home', 'iphone-home'],
+  shot: ['ipad-home', 'ipad-home'], side: ['iphone-home', 'iphone-home'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
 });
 
 feature('map', {
   texts: [{ kicker: 'The map', lines: [`*${N.places - 10} PLACES.*`, 'YOUR OWN PINS.'], sub: 'Layers, search, visited places.<br>Name, note, icon and colour for every pin.' }],
-  shot: ['duo-mappins', 'iphone-mappins'],
-  chips: [['Landmarks', COLORS.flamingo, -0.8, -0.74, -0.56, -0.93, 0.7], ['Hotels', '#D6336C', 0.84, -0.8, 0.6, -0.86, 0.88], ['Food & drink', COLORS.sunset, 0.8, 0.02, 0.62, 0.16, 1.06],
-    ['Shops', COLORS.sky, -0.86, 0.3, -0.64, 0.36, 1.24], ['Transport', '#5B6CFF', 0.7, 0.76, 0.56, 0.9, 1.42], ['My pins', COLORS.sun, -0.62, 0.8, -0.56, 0.88, 1.6]],
+  shot: ['duo-mappins', 'duo-mappins'], side: ['iphone-mappins', 'iphone-mappins'], lay: ['duoPhone', 'duoPhone'], pose: { ry: -8 },
+  chips: [['Landmarks', COLORS.flamingo, -0.84, -0.86, -0.62, -0.92, 0.7], ['Hotels', '#D6336C', 0.22, -0.9, 0.56, -0.9, 0.88], ['Shops', COLORS.sky, -0.9, 0.52, -0.84, -0.2, 1.06],
+    ['Transport', '#5B6CFF', 0.1, 0.72, -0.5, 0.36, 1.24], ['My pins', COLORS.sun, -0.66, 0.66, 0.5, -0.2, 1.42]],
 });
 
 feature('missions', {
@@ -257,18 +271,16 @@ feature('missions', {
     { kicker: 'Walkthroughs', lines: [`ALL *${N.missions} MISSIONS.*`, 'STEP BY STEP.'], sub: 'Who gives it, where to go, objectives, tips.<br>Tick them off as you play.', until: 2 },
     { kicker: 'No spoilers', lines: ['*SPOILER-FREE*', 'BY DEFAULT.'], sub: 'Later chapters stay hidden<br>until you get there.', at: 2 },
   ],
-  shot: ['ipad-mission', 'iphone-mission'],
+  shot: ['ipad-mission', 'ipad-mission'], side: ['iphone-mission', 'iphone-mission'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
   build() {
-    // The lower part of the screen blurs: what comes later in the story stays hidden.
-    const blur = el('div', 'blur', this.d.face);
-    const img = el('img', '', blur); img.src = this.d.img.src;
-    this.blur = blur;
+    // The lower part of the screens blurs: what comes later in the story stays hidden.
+    this.blurs = [this.d, this.d2].filter(Boolean).map(d => { const b = el('div', 'blur', d.face); el('img', '', b).src = d.img.src; return b; });
     this.lock = el('div', 'lock', this.d.face);
     this.lock.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3h1.5A1.5 1.5 0 0 1 20 11.5v8A1.5 1.5 0 0 1 18.500 21h-13A1.5 1.5 0 0 1 4 19.500v-8A1.5 1.5 0 0 1 5.500 10Zm2 0h6V7a3 3 0 0 0-6 0Z" fill="#fff"/></svg><span>Hidden until you get there</span>';
   },
   update(u) {
     const k = eio((u - 2.0) / 0.5);
-    this.blur.style.clipPath = `inset(${lerp(100, 44, k)}% 0 0 0)`;
+    this.blurs.forEach(b => { b.style.clipPath = `inset(${lerp(100, 44, k)}% 0 0 0)`; });
     const p = back((u - 2.3) / 0.4);
     this.lock.style.transform = `translate(-50%,-50%) scale(${Math.max(0, p)})`;
     this.lock.style.opacity = clamp((u - 2.3) / 0.1);
@@ -278,7 +290,7 @@ feature('missions', {
 feature('tracker', {
   texts: [{ kicker: '100% tracker', lines: ['YOUR ROAD', 'TO *100%.*'], still: true,
     sub: `${DATA.collectibles.length} collectible categories with counters.<br>Challenges, trophy roadmap, route to 100%.` }],
-  shot: ['duo-collectibles', 'duo-collectibles'],
+  shot: ['ipad-collectibles', 'duo-collectibles'], side: ['iphone-collectibles', null], lay: ['ipadPhone', null], pose: { ry: -9 },
   build() {
     // The ring fills up to 100% and lands on a beat.
     const card = el('div', 'ringcard', this.stage);
@@ -312,8 +324,8 @@ feature('tracker', {
 
 feature('eggs', {
   texts: [{ kicker: 'Secrets', lines: [`*${N.eggs} EASTER EGGS.*`, 'ON THE MAP.'], sub: 'How to find each one stays hidden<br>until you ask.' }],
-  shot: ['duo-eggs', 'iphone-eggs'], pose: { ry: -9 },
-  chips: [['The jet ski dog', COLORS.sky, -0.8, -0.72, -0.56, -0.9, 0.5], ['The Skunk Ape', COLORS.palm, 0.78, -0.4, 0.6, -0.5, 0.68], ['Lights in the sky', COLORS.violet, -0.82, 0.5, -0.58, 0.5, 0.86], ['A giant crab', COLORS.sunset, 0.72, 0.74, 0.58, 0.9, 1.04]],
+  shot: ['duo-eggs', 'ipad-eggs'], side: ['iphone-eggs', 'iphone-eggs'], lay: ['duoPhone', 'ipadPhone'], pose: { ry: -8 },
+  chips: [['The jet ski dog', COLORS.sky, -0.84, -0.86, -0.6, -0.96, 0.5], ['The Skunk Ape', COLORS.palm, 0.2, -0.9, 0.5, -0.84, 0.68], ['Lights in the sky', COLORS.violet, -0.9, 0.2, -0.72, 0.06, 0.86], ['A giant crab', COLORS.sunset, -0.5, 0.7, -0.5, 0.94, 1.04]],
 });
 
 // A cheat code typed button after button, in time with the music.
@@ -391,20 +403,20 @@ SC.radio = {
 
 feature('cast', {
   texts: [{ kicker: 'Characters · Vehicles', lines: ["*WHO'S WHO.*", `${N.vehicles} VEHICLES.`], sub: 'Your notes on every character.<br>Every vehicle, by class.' }],
-  shot: ['duo-characters', 'iphone-characters'], alt: ['duo-vehicles', 'iphone-vehicles'], pose: { ry: -9 },
-  chips: [['42 boats', COLORS.sky, -0.84, -0.72, -0.58, -0.9, 0.5], ['33 sports cars', COLORS.flamingo, 0.78, -0.76, 0.6, -0.56, 0.66], ['21 motorcycles', COLORS.sunset, -0.82, 0.52, -0.6, 0.56, 0.82], ['13 helicopters', COLORS.palm, 0.74, 0.76, 0.58, 0.9, 0.98]],
+  shot: ['ipad-characters', 'ipad-characters'], side: ['iphone-characters', 'iphone-characters'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
+  chips: [['42 boats', COLORS.sky, -0.86, -0.9, -0.6, -0.96, 0.5], ['33 sports cars', COLORS.flamingo, 0.5, -0.86, 0.5, -0.84, 0.66], ['21 motorcycles', COLORS.sunset, -0.9, 0.3, -0.72, 0.06, 0.82], ['13 helicopters', COLORS.palm, -0.6, 0.94, -0.5, 0.94, 0.98]],
 });
 
 feature('community', {
   texts: [{ kicker: 'Community', lines: ['STUCK?', '*ASK THE PLAYERS.*'], sub: 'Questions and answers on every mission.<br>See how far your friends are.' }],
-  shot: ['duo-thread', 'iphone-thread'], pose: { ry: -9 },
-  chips: [['Helpful answers', COLORS.palm, 0.74, -0.76, 0.58, -0.66, 0.55], ['Game Center friends', COLORS.sky, -0.74, 0.74, -0.5, 0.9, 0.8]],
+  shot: ['duo-thread', 'iphone-thread'], side: ['iphone-thread', null], lay: ['duoPhone', null], pose: { ry: -8 },
+  chips: [['Helpful answers', COLORS.palm, 0.2, -0.9, 0.58, -0.66, 0.55], ['Game Center friends', COLORS.sky, -0.66, 0.68, -0.5, 0.9, 0.8]],
 });
 
 feature('widgets', {
   texts: [{ kicker: 'Widgets · iCloud', pro: true, lines: ['YOUR PROGRESS,', '*EVERYWHERE.*'], sub: 'Home and Lock Screen widgets, iCloud sync,<br>your PlayStation play time.' }],
-  shot: ['iphone-widgets', 'iphone-widgets'], pose: { ry: -14 },
-  chips: [['Home Screen', COLORS.flamingo, -0.6, -0.62, -0.62, -0.86, 0.5], ['Lock Screen', COLORS.violet, 0.6, -0.3, 0.62, -0.46, 0.66], ['iCloud sync', COLORS.sky, -0.62, 0.3, -0.62, 0.44, 0.82], ['PlayStation play time', COLORS.sun, 0.56, 0.72, 0.42, 0.9, 0.98]],
+  shot: ['ipad-widgets', 'iphone-widgets'], side: ['iphone-widgets', null], lay: ['phoneIpad', null], pose: L ? { ry: -9 } : { ry: -14 },
+  chips: [['Home Screen', COLORS.flamingo, -0.72, -0.72, -0.62, -0.86, 0.5], ['Lock Screen', COLORS.violet, 0.5, -0.94, 0.62, -0.46, 0.66], ['iCloud sync', COLORS.sky, 0.66, 0.12, -0.62, 0.44, 0.82], ['PlayStation play time', COLORS.sun, 0.3, 0.9, 0.42, 0.9, 0.98]],
 });
 
 // Three devices side by side; the iPhone Duo opens.
