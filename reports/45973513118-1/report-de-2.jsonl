@@ -4,3 +4,6 @@
 {"id": "0e48777ed54501729906", "key": "hello|mats", "text": "Ho, ho, ho! Hallo, Mats!", "ok": true, "score": 1.0, "dur": 1.84, "heard": "Oh ho ho, hallo Mats!", "tries": 1, "secs": 60.1}
 {"id": "631de7f9cd3d141f7f4e", "key": "hello|levi", "text": "Ho, ho, ho! Hallo, Levi!", "ok": false, "score": 0.6, "dur": 2.02, "heard": "Ho, ho, ho, hallo, Lebe.", "tries": 3, "secs": 180.3}
 {"id": "be806378cd5047a66553", "key": "hello|romy", "text": "Ho, ho, ho! Hallo, Romy!", "ok": true, "score": 1.0, "dur": 2.48, "heard": "Ho, ho, ho, hallo, Romy!", "tries": 1, "secs": 63.6}
+{"id": "35c5f98ad655ac42af8f", "key": "hello|mika", "text": "Ho, ho, ho! Hallo, Mika!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Oh ho ho ho! Hallo Mika!", "tries": 1, "secs": 61.8}
+{"id": "1503fb5b0856784c5ba2", "key": "hello|johann", "text": "Ho, ho, ho! Hallo, Johann!", "ok": true, "score": 1.0, "dur": 2.1, "heard": "Ho ho ho! Hallo Johann!", "tries": 1, "secs": 62.0}
+{"id": "4133fc23640fa9b8d782", "key": "hello|ole", "text": "Ho, ho, ho! Hallo, Ole!", "ok": true, "score": 1.0, "dur": 2.14, "heard": "Ho, ho, ho, hallo ole!", "tries": 2, "secs": 120.7}
