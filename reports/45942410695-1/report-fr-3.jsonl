@@ -4,3 +4,7 @@
 {"id": "130bbfe1b6866acc0b74", "key": "bye|victoria", "text": "Joyeux Noël, Victoria !", "ok": true, "score": 1.0, "dur": 3.04, "heard": "Joyeux Noël Victoria.", "tries": 2, "secs": 103.5}
 {"id": "e09c2da0aa780221c219", "key": "bye|mya", "text": "Joyeux Noël, Mya !", "ok": false, "score": 0.719, "dur": 2.4, "heard": "Joyeux Noël, mia, mia!", "tries": 3, "secs": 157.4}
 {"id": "fdf4d894414948625223", "key": "bye|lilou", "text": "Joyeux Noël, Lilou !", "ok": true, "score": 0.916, "dur": 2.88, "heard": "Joyeux Noël, Lilo.", "tries": 1, "secs": 50.5}
+{"id": "9c0f5d8cbba25dc77f82", "key": "hello|louane", "text": "Ho, ho, ho ! Bonjour Louane !", "ok": true, "score": 0.841, "dur": 2.06, "heard": "Ho ho ho, bonjour Luan !", "tries": 2, "secs": 118.0}
+{"id": "618d24abd61b46003639", "key": "hello|olympe", "text": "Ho, ho, ho ! Bonjour Olympe !", "ok": true, "score": 0.927, "dur": 3.12, "heard": "Oh ho ho ho bonjour Olymp !", "tries": 2, "secs": 147.6}
+{"id": "dff720b87423ac253969", "key": "bye|zelie", "text": "Joyeux Noël, Zélie !", "ok": true, "score": 1.0, "dur": 1.84, "heard": "Joyeux Noël, Zélie.", "tries": 1, "secs": 43.6}
+{"id": "fedcf4020996de726a6c", "key": "bye|aya", "text": "Joyeux Noël, Aya !", "ok": true, "score": 0.756, "dur": 1.7, "heard": "Joyeux Noël, aia !", "tries": 2, "secs": 87.9}
