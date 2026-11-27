@@ -171,20 +171,6 @@ struct CallView: View {
                 SurpriseStar(start: at).id(at)
             }
 
-            // Comme en appel vidéo : l'enfant se voit dans un coin (si le parent l'a demandé avant l'appel).
-            if call.cameraOn {
-                VStack {
-                    HStack {
-                        Spacer()
-                        ReactionPip(session: call.reactionCamera.session)
-                    }
-                    Spacer()
-                }
-                .padding(.top, 62)
-                .padding(.trailing, 16)
-                .transition(.opacity)
-            }
-
             VStack(spacing: 12) {
                 topBar
                 if call.mood == .listening && call.speaker == .santa {
@@ -211,6 +197,14 @@ struct CallView: View {
             }
             .animation(.spring(duration: 0.4), value: call.mood)
             .animation(.easeInOut(duration: 0.3), value: call.caption)
+
+            // Comme en appel vidéo : l'enfant se voit dans un coin (si le parent l'a demandé avant l'appel). Par-dessus
+            // le reste pour qu'on puisse le déplacer au doigt, mais jamais sur la barre, la bulle, les sous-titres ou
+            // le bouton pour raccrocher.
+            if call.cameraOn {
+                FloatingPip(session: call.reactionCamera.session, top: 116, bottom: model.subtitles ? 214 : 96)
+                    .transition(.opacity)
+            }
 
             // l'éclat du décroché qui se dissipe
             RadialGradient(colors: [Color.white, Noel.goldLight, Noel.gold.opacity(0)], center: .center, startRadius: 0, endRadius: 1400)
