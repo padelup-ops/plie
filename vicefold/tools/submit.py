@@ -121,35 +121,45 @@ all_v = versions()
 print("versions", [(attrs(v).get("versionString"), attrs(v).get("appStoreState")) for v in all_v])
 
 if os.environ.get("DRY_RUN") == "iap":
-    # Achats seulement : la version est déjà chez Apple, on tente de lui joindre les achats Pro et on relit leur état.
+    # Diagnostic en lecture seule : de quoi est faite la demande ouverte, et quelles relations Apple expose
+    # pour les achats et les abonnements (leurs « versions »).
+    def show(label, r, n=1800):
+        print(label, json.dumps(r, ensure_ascii=False)[:n])
+
+    def rels(label, path):
+        r = call("GET", path)
+        d = r.get("data") if isinstance(r, dict) else None
+        if isinstance(d, dict):
+            print(label, "état", attrs(d).get("state"), "relations", sorted((d.get("relationships") or {}).keys()))
+        else:
+            show(label, r, 400)
+        return d
+
+    for sub in call("GET", f"/v1/reviewSubmissions?filter[app]={app_id}&filter[state]=READY_FOR_REVIEW,UNRESOLVED_ISSUES,WAITING_FOR_REVIEW&limit=5").get("data", []):
+        print("DEMANDE", sub["id"], attrs(sub).get("state"))
+        for it in call("GET", f"/v1/reviewSubmissions/{sub['id']}/items?limit=20").get("data", []):
+            print("  élément", it["id"], attrs(it).get("state"), "relations", sorted((it.get("relationships") or {}).keys()))
+            for k in (it.get("relationships") or {}):
+                if k == "reviewSubmission":
+                    continue
+                rr = call("GET", f"/v1/reviewSubmissionItems/{it['id']}/relationships/{k}")
+                if "error" not in rr and rr.get("data"):
+                    print("     ->", k, rr["data"])
     for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
-        pid, st = attrs(x).get("productId"), attrs(x).get("state")
-        print("achat", pid, st)
-        if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
-            r = call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
-                "type": "inAppPurchaseSubmissions",
-                "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
-            print("   ->", ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+        d = rels(f"ACHAT {attrs(x).get('productId')}", f"/v2/inAppPurchases/{x['id']}")
+        for k in sorted((d or {}).get("relationships") or {}):
+            if "ersion" in k or "ubmission" in k:
+                show(f"   {k}", call("GET", f"/v2/inAppPurchases/{x['id']}/{k}"), 700)
     for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
-        r = call("POST", "/v1/subscriptionGroupSubmissions", {"data": {
-            "type": "subscriptionGroupSubmissions",
-            "relationships": {"subscriptionGroup": {"data": {"type": "subscriptionGroups", "id": g["id"]}}}}})
-        print("groupe", attrs(g).get("referenceName"), "->",
-              ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+        d = rels(f"GROUPE {attrs(g).get('referenceName')}", f"/v1/subscriptionGroups/{g['id']}")
+        for k in sorted((d or {}).get("relationships") or {}):
+            if "ersion" in k or "ubmission" in k:
+                show(f"   {k}", call("GET", f"/v1/subscriptionGroups/{g['id']}/{k}"), 700)
         for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
-            pid, st = attrs(sx).get("productId"), attrs(sx).get("state")
-            print("abonnement", pid, st)
-            if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
-                r = call("POST", "/v1/subscriptionSubmissions", {"data": {
-                    "type": "subscriptionSubmissions",
-                    "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sx["id"]}}}}})
-                print("   ->", ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
-    time.sleep(5)
-    for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
-        print("READBACK achat", attrs(x).get("productId"), attrs(x).get("state"))
-    for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
-        for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
-            print("READBACK abonnement", attrs(sx).get("productId"), attrs(sx).get("state"))
+            d = rels(f"ABONNEMENT {attrs(sx).get('productId')}", f"/v1/subscriptions/{sx['id']}")
+            for k in sorted((d or {}).get("relationships") or {}):
+                if "ersion" in k or "ubmission" in k:
+                    show(f"   {k}", call("GET", f"/v1/subscriptions/{sx['id']}/{k}"), 700)
     sys.exit(0)
 
 # 1. Une demande encore chez Apple : on la retire, sinon ni la fiche ni le build ne peuvent changer.
