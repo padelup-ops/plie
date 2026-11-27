@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APITestCase
 
 from .models import (Booking, Club, Court, EmailVerificationCode, Match, MatchMessage, MatchParticipant,
                      PasswordResetCode, PlayerStats)
@@ -275,3 +275,30 @@ class OpenDataTests(TestCase):
         self.assertFalse(created)
         compact = opendata.to_compact(clubs)
         self.assertEqual(opendata.from_compact(compact)[1]['city'], 'Buenos Aires')
+
+
+class CommunityTests(APITestCase):
+    def setUp(self):
+        from rest_framework.authtoken.models import Token
+        self.a = User.objects.create_user(username='auteur', password='Padel-test-2026!')
+        self.b = User.objects.create_user(username='lecteur', password='Padel-test-2026!')
+        self.ta = Token.objects.create(user=self.a).key
+        self.tb = Token.objects.create(user=self.b).key
+
+    def test_post_like_reply(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.ta)
+        r = self.client.post('/api/community/posts/', {'title': 'Cherche 4e', 'content': 'Jeudi 19 h à Lomme, niveau 4.',
+                                                       'category': 'looking_for_players', 'author': self.b.id,
+                                                       'likes': [self.b.id]}, format='json')
+        self.assertEqual(r.status_code, 201, r.data)
+        self.assertEqual(r.data['author'], self.a.id)       # l'auteur vient de la session
+        self.assertEqual(r.data['like_count'], 0)            # les « j'aime » ne s'écrivent pas à la création
+        pid = r.data['id']
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.tb)
+        self.assertTrue(self.client.post(f'/api/community/posts/{pid}/like/').data['liked'])
+        r = self.client.post(f'/api/community/posts/{pid}/replies/', {'content': 'Partant !'}, format='json')
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(self.client.post(f'/api/community/posts/{pid}/replies/', {'content': 'x', 'parent_reply_id': 99999},
+                                          format='json').status_code, 400)
+        r = self.client.get('/api/community/posts/')
+        self.assertEqual(r.data['results'][0]['reply_count'], 1)

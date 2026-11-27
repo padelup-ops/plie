@@ -12,6 +12,7 @@ urlpatterns = [
     path('', health_check, name='health_check'),
     path('admin/', admin.site.urls),
     path('api/bot/', include('booking_bot.urls')),
+    path('api/', include('matchmaking.urls')),
     path('api/', include('app.urls')),
 ]
 

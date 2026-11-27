@@ -828,7 +828,7 @@ class PostReplySerializer(serializers.ModelSerializer):
             'content', 'parent_reply', 'child_replies', 'likes', 'like_count',
             'is_liked', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'author_name', 'author_info', 'author_avatar', 'child_replies', 'like_count', 'is_liked', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'post', 'author', 'likes', 'author_name', 'author_info', 'author_avatar', 'child_replies', 'like_count', 'is_liked', 'created_at', 'updated_at']
 
     def get_author_info(self, obj):
         request = self.context.get('request')
@@ -878,7 +878,8 @@ class CommunityPostSerializer(serializers.ModelSerializer):
             'likes', 'like_count', 'reply_count', 'is_liked', 'replies',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'author_name', 'author_info', 'category_display', 'group_name', 'like_count', 'reply_count', 'is_liked', 'created_at', 'updated_at']
+        # L'auteur vient de la session et les « j'aime » passent par /like/ : jamais écrits par le client.
+        read_only_fields = ['id', 'author', 'likes', 'author_name', 'author_info', 'category_display', 'group_name', 'like_count', 'reply_count', 'is_liked', 'created_at', 'updated_at']
 
     def get_author_info(self, obj):
         request = self.context.get('request')
@@ -894,6 +895,14 @@ class CommunityPostSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.likes.filter(id=request.user.id).exists()
         return False
+
+    def validate_content(self, value):
+        value = (value or '').strip()
+        if not value:
+            raise serializers.ValidationError('Écris quelque chose.')
+        if len(value) > 5000:
+            raise serializers.ValidationError('Publication trop longue (5 000 caractères maximum).')
+        return value
 
 
 class CommunityGroupSerializer(serializers.ModelSerializer):

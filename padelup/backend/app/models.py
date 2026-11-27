@@ -924,6 +924,8 @@ class Notification(models.Model):
         ('bot_booked', 'Réservation faite par le bot'),
         ('bot_slot_found', 'Créneau trouvé par le bot'),
         ('bot_action_required', 'Le bot a besoin de vous'),
+        ('match_proposal', 'Proposition de match'),
+        ('match_proposal_accepted', 'Proposition de match acceptée'),
     ]
 
     TARGET_CHOICES = [

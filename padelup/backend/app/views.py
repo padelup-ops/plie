@@ -2957,11 +2957,16 @@ class PostReplyView(APIView):
         """Create a reply"""
         try:
             post = CommunityPost.objects.get(id=post_id)
-            content = request.data.get('content')
+            content = (request.data.get('content') or '').strip() if isinstance(request.data.get('content'), str) else ''
             parent_reply_id = request.data.get('parent_reply_id')
 
             if not content:
                 return Response({'error': 'Contenu requis'}, status=status.HTTP_400_BAD_REQUEST)
+            if len(content) > 2000:
+                return Response({'error': 'Réponse trop longue (2 000 caractères maximum)'}, status=status.HTTP_400_BAD_REQUEST)
+            # La réponse parente doit appartenir à la même publication.
+            if parent_reply_id and not post.replies.filter(id=parent_reply_id).exists():
+                return Response({'error': 'Réponse parente introuvable'}, status=status.HTTP_400_BAD_REQUEST)
 
             reply = PostReply.objects.create(
                 post=post,

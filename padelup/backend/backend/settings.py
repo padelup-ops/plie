@@ -94,6 +94,7 @@ INSTALLED_APPS = [
 
     'app',
     'booking_bot',
+    'matchmaking',
 ]
 
 AUTHENTICATION_BACKENDS = [
