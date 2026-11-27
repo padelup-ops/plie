@@ -65,3 +65,13 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [15/845] de ok  1.00 8.7s essais 2 (196s, reste 1290 min) Weißt du, was ich an Weihnachten am liebsten mag? Familien,  → Weißt du, was ich an Weihnachten am liebsten mag? Familien, 
   self.gen = func(*args, **kwds)
+[16/845] it ok  1.00 2.4s essais 1 (48s, reste 1249 min) Oh, oh, oh… Mi sentite bene? → Oh, oh, oh, mi sentite bene!
+  self.gen = func(*args, **kwds)
+[17/845] it ok  0.98 3.7s essais 1 (60s, reste 1223 min) Allora adesso hai 6 anni, vero? È un'età bellissima! → Allora adesso hai sei sani, vero? È un'età bellissima.
+  self.gen = func(*args, **kwds)
+[18/845] it ok  1.00 4.6s essais 1 (75s, reste 1211 min) Volevo dirvi che sono molto orgoglioso di tutto l'impegno ch → volevo dirvi che sono molto orgoglioso di tutto l'impegno ch
+  self.gen = func(*args, **kwds)
+[19/845] it ok  1.00 5.9s essais 1 (79s, reste 1203 min) Vi racconto una cosa, ma è un piccolo segreto del Polo Nord… → Vi racconto una cosa, ma è un piccolo segreto del Polo Nord.
+  self.gen = func(*args, **kwds)
+[20/845] it ok  1.00 8.3s essais 1 (105s, reste 1214 min) E pensate un po', si è perfino segnato tutti i piccoli momen → e pensate un po' si è perfino segnato tutti i piccoli moment
+  self.gen = func(*args, **kwds)
