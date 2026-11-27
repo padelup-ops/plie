@@ -52,7 +52,9 @@ def render(page, w, h, shot, l1, l2, out):
 
 
 with sync_playwright() as p:
-    b = p.chromium.launch()
+    # Where a browser is already installed (cloud sessions), use it instead of Playwright's own download.
+    local = "/opt/pw-browsers/chromium"
+    b = p.chromium.launch(executable_path=local if os.path.exists(local) else None)
     pg = b.new_page()
     for dev, (w, h, prefix) in SIZES.items():
         for lang in C:
