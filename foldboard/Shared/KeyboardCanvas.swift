@@ -1995,6 +1995,199 @@ final class KeyboardCanvas: UIView {
         return ok && proOK
     }
 
+    /// Les demandes des testeurs du 27 novembre, rejouées :
+    ///  - le raccourci des dispositions à droite ou à gauche des suggestions : entier, jamais sur les mots ni sur un
+    ///    bouton, quelle que soit la répartition des boutons, clavier entier ou à une main ;
+    ///  - le bouton de position seulement Duo ouvert, sans trou laissé dans la barre de l'écran extérieur ;
+    ///  - les emojis à côté du clavier à une main, cachés par leur réglage ;
+    ///  - une seule flèche dans la place libre, vers le côté où ira le clavier, ni sur les emojis ni sur les boutons.
+    static func verifyBarOptions() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        // Pas en mode « portable » (l'essai de la charnière le laisse allumé) : le clavier de tous les jours.
+        c.hingeHalf = false
+        c.hingeSettling = false
+        func layout(_ context: String, _ width: CGFloat, _ edit: (inout KBSettings) -> Void) {
+            var s = KBSettings()
+            s.layout = .azerty
+            s.mode = .full
+            s.layoutSwitchOpenOnly = false
+            edit(&s)
+            c.demoContext = context
+            c.frame = CGRect(x: 0, y: 0, width: width, height: 360)
+            c.configure(settings: s, pro: true)
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+        }
+        // Les boutons visibles que porte la barre (les suggestions sont dans `chips`, pas ici).
+        func barButtons() -> [UIView] {
+            c.topBar.subviews.filter { $0 is UIButton && !$0.isHidden && $0.alpha > 0.01 && $0.frame.width > 1 }
+        }
+
+        // 1. Le raccourci des dispositions, à droite puis à gauche. La dernière scène est la plus serrée (petit
+        // clavier dont la barre porte aussi les boutons) : il y reste au moins de quoi lire un mot.
+        let scenes: [(name: String, context: String, width: CGFloat, words: CGFloat, edit: (inout KBSettings) -> Void)] = [
+            ("entier", "open-landscape", 980, 3 * 78, { $0.mode = .full }),
+            ("une main, boutons sur le côté", "open-landscape", 980, 3 * 78, { $0.mode = .right; $0.oneHandWidthOpen = 0.9 }),
+            ("une main, boutons dans la barre", "open-portrait", 669, 110, { $0.mode = .right; $0.oneHandWidthOpen = 0.9; $0.edgeMargin = 30 }),
+        ]
+        var switchOK = true
+        var cases = 0
+        for scene in scenes {
+            for bar in ["right", "left", "split"] {
+                for left in [false, true] {
+                    layout(scene.context, scene.width) {
+                        scene.edit(&$0)
+                        $0.barLayout = bar
+                        $0.layoutSwitchLeft = left
+                    }
+                    c.suggestionItems = ["bonjour", "bonsoir", "bonne"]
+                    c.layoutTopBar()
+                    let sw = c.layoutSwitch.frame
+                    let words = c.chips.frame
+                    let lo = c.blocks.map(\.minX).min() ?? 0, hi = c.blocks.map(\.maxX).max() ?? c.bounds.width
+                    let whole = c.visibilityProbe().layoutSwitch && sw.width >= layoutSwitchWidth - 0.5
+                    let clear = !sw.intersects(words) && words.width >= scene.words && !barButtons().contains { $0.frame.intersects(sw) }
+                    let inside = sw.minX >= lo - 0.5 && sw.maxX <= hi + 0.5
+                    let side = left ? sw.maxX <= words.minX : sw.minX >= words.maxX
+                    if !(whole && clear && inside && side) {
+                        switchOK = false
+                        print("raccourci raté : \(scene.name), boutons \(bar), \(left ? "à gauche" : "à droite") : entier=\(whole) libre=\(clear) dans la barre=\(inside) bon côté=\(side) \(sw) mots \(words)")
+                    }
+                    cases += 1
+                }
+            }
+        }
+        c.suggestionItems = []
+
+        // 2. Le bouton de position seulement Duo ouvert : caché sur l'écran extérieur, et les suggestions commencent
+        // au même endroit que quand le bouton est coupé par son interrupteur (pas de trou).
+        layout("closed-portrait", 466) { $0.showHandButton = false }
+        let reference = c.chips.frame.minX
+        layout("closed-portrait", 466) { $0.handButtonOpenOnly = true }
+        let hiddenClosed = !c.visibilityProbe().mode && abs(c.chips.frame.minX - reference) < 0.5
+        layout("closed-portrait", 466) { _ in }
+        let shownByDefault = c.visibilityProbe().mode && c.chips.frame.minX > reference + 30
+        layout("open-landscape", 980) { $0.handButtonOpenOnly = true }
+        let shownOpen = c.visibilityProbe().mode
+
+        // 3. Les emojis à côté du clavier à une main (Duo ouvert en portrait), et 4. la flèche de la place libre.
+        func sideEmojis() -> Int {
+            c.panelButtons.filter { !$0.isHidden && !($0.title(for: .normal) ?? "").isEmpty }.count
+        }
+        func arrow(_ wanted: String) -> Bool {
+            let text = c.sideHint.attributedText?.string ?? ""
+            let arrows = text.filter { "←→‹›".contains($0) }
+            let hint = c.sideHint.frame
+            let onEmoji = c.panelButtons.contains { !$0.isHidden && c.panel.convert($0.frame, to: c).intersects(hint) }
+            let onButton = barButtons().contains { c.topBar.convert($0.frame, to: c).intersects(hint) }
+            let images = c.panel.subviews.contains { $0 is UIImageView && !$0.isHidden }
+            return !c.sideHint.isHidden && arrows == wanted && hint.width >= 30 && !onEmoji && !onButton && !images
+        }
+        layout("open-portrait", 669) { $0.mode = .right }
+        let emojisOn = sideEmojis()
+        // Clavier à droite : la place libre est à gauche, y toucher l'envoie à gauche.
+        let arrowToLeft = arrow("←")
+        layout("open-portrait", 669) { $0.mode = .right; $0.sideEmojis = false }
+        let emojisOff = sideEmojis()
+        let arrowAlone = arrow("←")
+        layout("open-portrait", 669) { $0.mode = .left }
+        let arrowToRight = arrow("→") && sideEmojis() == emojisOn
+
+        let ok = switchOK && cases == 18 && hiddenClosed && shownByDefault && shownOpen
+            && emojisOn > 0 && emojisOff == 0 && arrowToLeft && arrowAlone && arrowToRight
+        print("RESULT baroptions raccourci_deux_cotes=\(switchOK) (\(cases) cas) position_cachee_ferme=\(hiddenClosed) position_ferme_par_defaut=\(shownByDefault) position_ouvert=\(shownOpen) emojis_cote=\(emojisOn) emojis_coupes=\(emojisOff) fleche_vers_gauche=\(arrowToLeft) fleche_sans_emojis=\(arrowAlone) fleche_vers_droite=\(arrowToRight) \(ok ? "yes" : "no")")
+        return ok
+    }
+
+    /// Les messages de la barre : un conseil se tait quand les conseils sont coupés (une erreur se dit toujours), et
+    /// un message affiché reste devant le raccourci des dispositions, même après la mise en page qui suit.
+    static func verifyToasts() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 669, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.hingeHalf = false
+        c.hingeSettling = false
+        func layout(_ edit: (inout KBSettings) -> Void) {
+            var s = KBSettings()
+            s.layout = .azerty
+            s.mode = .full
+            s.layoutSwitchOpenOnly = false
+            edit(&s)
+            c.demoContext = "open-portrait"
+            c.frame = CGRect(x: 0, y: 0, width: 669, height: 360)
+            c.configure(settings: s, pro: true)
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+        }
+        // 1. Conseils coupés : choisir une position ne dit plus rien (le clavier change bien de place)…
+        layout { $0.learningTips = false }
+        c.toast.text = nil
+        c.setMode(.left)
+        c.layoutIfNeeded()
+        let quiet = (c.toast.text ?? "").isEmpty && c.settings.screenModes["open-portrait"] == .left
+        // … mais une erreur se dit toujours (« ajuster » n'existe pas sur le clavier entier).
+        c.setMode(.full)
+        c.layoutIfNeeded()
+        c.toast.text = nil
+        c.startAdjust()
+        let errorSaid = (c.toast.text ?? "").contains(L("Choose one hand or two hands to adjust"))
+
+        // 2. Conseils allumés : le même choix affiche son message, par-dessus le raccourci des dispositions (le
+        // message traverse presque toute la barre ; avant, la mise en page suivante remettait le raccourci devant).
+        layout { $0.learningTips = true; $0.mode = .left }
+        c.toast.text = nil
+        c.setMode(.full)
+        c.layoutIfNeeded()
+        c.layoutTopBar()
+        let said = (c.toast.text ?? "").contains(L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."))
+        let stack = c.topBar.subviews
+        let crossing = c.visibilityProbe().layoutSwitch && c.toast.frame.intersects(c.layoutSwitch.frame)
+        let above = (stack.firstIndex(of: c.toast) ?? -1) > (stack.firstIndex(of: c.layoutSwitch) ?? Int.max)
+        let opaque = (c.toast.backgroundColor?.cgColor.alpha ?? 0) >= 1
+        c.toast.text = nil
+        let ok = quiet && errorSaid && said && crossing && above && opaque
+        print("RESULT messages conseil_coupe_muet=\(quiet) erreur_dite=\(errorSaid) conseil_allume_dit=\(said) croise_le_raccourci=\(crossing) message_devant=\(above) fond_opaque=\(opaque) \(ok ? "yes" : "no")")
+        return ok
+    }
+
+    /// L'ordre des positions choisi dans l'app, relu sur le vrai menu du bouton de position : il est respecté, et le
+    /// menu garde ses cinq positions même si le réglage est incomplet, inconnu ou d'un mauvais type.
+    static func verifyPositionOrder() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.hingeHalf = false
+        c.hingeSettling = false
+        c.demoContext = "open-landscape"
+        c.frame = CGRect(x: 0, y: 0, width: 980, height: 360)
+        // Les réglages tels qu'ils arrivent du coffre (JSON), puis l'ordre lu dans le menu du bouton.
+        func menuOrder(_ json: String) -> [String] {
+            guard let s = try? JSONDecoder().decode(KBSettings.self, from: Data(json.utf8)) else { return ["illisible"] }
+            c.configure(settings: s, pro: true)
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+            let positions = c.modeButton.menu?.children.first as? UIMenu
+            let ids = (positions?.children ?? []).compactMap { ($0 as? UIAction)?.identifier.rawValue }
+            return ids.map { String($0.dropFirst(modeActionPrefix.count)) }
+        }
+        let original = ["auto", "left", "right", "full", "split"]
+        let plain = menuOrder("{}") == original
+        let custom = menuOrder(#"{"positionOrder":["split","full","right","left","auto"]}"#) == ["split", "full", "right", "left", "auto"]
+        let partial = menuOrder(#"{"positionOrder":["full","bogus","full","right"]}"#) == ["full", "right", "auto", "left", "split"]
+        let wrongType = menuOrder(#"{"positionOrder":"split"}"#) == original
+        let ok = plain && custom && partial && wrongType
+        print("RESULT ordre_positions origine=\(plain) choisi=\(custom) incomplet_ou_inconnu=\(partial) mauvais_type=\(wrongType) \(ok ? "yes" : "no")")
+        return ok
+    }
+
     func visibilityProbe() -> (emoji: Bool, adjust: Bool, mode: Bool, mic: Bool, hide: Bool, hand: Bool, clip: Bool, layoutSwitch: Bool) {
         func on(_ v: UIView) -> Bool { v.isHidden == false && v.alpha > 0.5 && v.frame.width > 1 }
         return (on(emojiButton), on(adjustButton), on(modeButton), on(micButton), on(hideButton), on(modeButton), on(clipButton), on(layoutSwitch))

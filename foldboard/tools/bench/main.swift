@@ -536,6 +536,11 @@ let laptopOK = KeyboardCanvas.verifyLaptopLayout()
 let touchOK = KeyboardCanvas.verifyTouchSafety()
 let shedOK = KeyboardCanvas.verifyMemoryShed()
 let hostOK = KeyboardCanvas.verifyHostHeight()
+// Retours des testeurs du 27 novembre : raccourci des dispositions à gauche, bouton de position seulement Duo ouvert,
+// emojis du côté, flèche unique, conseils coupés, message devant le raccourci, ordre des positions.
+let barOptionsOK = KeyboardCanvas.verifyBarOptions()
+let toastsOK = KeyboardCanvas.verifyToasts()
+let orderOK = KeyboardCanvas.verifyPositionOrder()
 /// La dictée écrite là où est le curseur : (texte avant, entendu, langue, attendu).
 let dictCases: [(String, String, String, String)] = [
     ("", "bonjour tout le monde", "fr", "Bonjour tout le monde"),
@@ -574,7 +579,8 @@ for (text, spoken, pair, want) in dirCases {
     if d != want { dictOK = false; print("sens raté: «\(text)» parlé \(spoken) → \(d) (voulu \(want))") }
 }
 print("RESULT dictee sens_traduction \(dictOK ? "yes" : "no") (sur \(dirCases.count))")
-if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !hostOK || !dictOK {
+if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !hostOK || !dictOK
+    || !barOptionsOK || !toastsOK || !orderOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }
