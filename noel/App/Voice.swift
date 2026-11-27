@@ -89,7 +89,7 @@ final class SantaVoice {
         engine.connect(eq, to: reverb, format: speechFormat)
         engine.connect(reverb, to: engine.mainMixerNode, format: speechFormat)
         // Le lutin : plus aigu, un peu plus vif, sans la pièce en bois (il est tout près du téléphone).
-        elfPitch.pitch = 520
+        elfPitch.pitch = 380
         elfPitch.rate = 1.06
         elfEQ.bands[0].filterType = .highShelf; elfEQ.bands[0].frequency = 3500; elfEQ.bands[0].gain = 3; elfEQ.bands[0].bypass = false
         engine.connect(elf, to: elfPitch, format: speechFormat)
@@ -157,7 +157,7 @@ final class SantaVoice {
         let u = AVSpeechUtterance(string: text)
         u.voice = elf ? elfVoice : voice
         u.rate = elf ? min(0.56, rate + 0.06) : rate
-        u.pitchMultiplier = elf ? 1.25 : pitchMultiplier
+        u.pitchMultiplier = elf ? 1.15 : pitchMultiplier
         u.preUtteranceDelay = 0
         u.postUtteranceDelay = 0
         let target = speechFormat

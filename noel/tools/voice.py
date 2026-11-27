@@ -33,11 +33,13 @@ REF_TEXT = ("Ho, ho, ho! Merry Christmas! Oh, what a wonderful night it is here 
             "The elves are singing, the reindeer are ready, and I have a big bag full of surprises. "
             "Now, tell me, have you been good this year? Ho, ho, ho!")
 
-# Réglages retenus après l'essai (voice.py pilot) : entrain marqué ; hors anglais, cfg à 0 pour que la voix de
-# référence (anglaise) ne donne pas son accent aux autres langues.
+# Réglages retenus après l'essai (voice.py pilot, 27 nov.) : entrain marqué (0,8) et cfg 0,3 dans toutes les
+# langues. C'est le réglage le mieux reconnu dans chaque langue par le modèle de transcription (0,94 à 1,0 sur les
+# phrases longues ; cfg 0 faisait moins bien, et plus lentement).
+# La voix de référence (ai/santa-voice-ref.wav) : le Père Noël de Kokoro, descendu de deux demi-tons (154 → 140 Hz)
+# pour un Père Noël un peu plus grave, sans toucher aux fichiers produits.
 SETTINGS = {
-    "en": dict(exaggeration=0.8, cfg_weight=0.3, temperature=0.75),
-    "*": dict(exaggeration=0.8, cfg_weight=0.0, temperature=0.75),
+    "*": dict(exaggeration=0.8, cfg_weight=0.3, temperature=0.75),
 }
 
 
@@ -130,9 +132,30 @@ def similarity(want: str, heard: str) -> float:
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 
-def duration_ok(text: str, seconds: float) -> bool:
+def duration_ok(it, seconds: float) -> bool:
+    if it["kind"] == "hello":
+        return 1.2 <= seconds <= 4.2
+    if it["kind"] == "bye":
+        return 0.8 <= seconds <= 3.2
+    text = it["text"]
     n = len(letters(text).replace(" ", "")) + 3 * len(re.findall(r"\b(?:[HhJj]o|[Oo]h)\b", text))
-    return 0.04 * n + 0.35 <= seconds <= 0.17 * n + 2.2
+    return 0.04 * n + 0.35 <= seconds <= 0.13 * n + 1.6
+
+
+def judge(it, heard: str):
+    """La phrase entendue est-elle la bonne ? Ressemblance au texte, rien en trop à la fin (le modèle répète parfois
+    un mot : « Hello, Olivia! Olivia! »), et pour un prénom : c'est bien lui qu'on entend à la fin."""
+    score = similarity(it["text"], heard)
+    want, got = letters(it["text"]).split(), letters(heard).split()
+    if it["kind"] == "line":
+        floor = 0.6 if len(" ".join(want)) < 28 else 0.75
+        extra = len(got) <= len(want) + max(1, round(len(want) * 0.15))
+        return score, score >= floor and extra
+    name = norm_name(it["key"].split("|", 1)[1]).replace("-", " ").split()
+    tail = " ".join(got[-len(name):]) if got else ""
+    who = difflib.SequenceMatcher(None, " ".join(name), tail).ratio()
+    # Le prénom compte double : c'est lui que l'enfant écoute.
+    return round((score + 2 * who) / 3, 3), score >= 0.62 and who >= 0.6 and len(got) <= len(want)
 
 
 def trim_and_level(w, sr):
@@ -185,9 +208,13 @@ def encode(w, sr, path: Path):
 
 
 class Studio:
-    def __init__(self, ref: Path, whisper="small"):
+    def __init__(self, ref: Path, whisper="base"):
         import torch
         self.torch = torch
+        # Deux fabrications par machine, deux fils chacune : plus de phrases à l'heure que quatre fils pour une seule.
+        threads = int(os.environ.get("VOICE_THREADS", "0"))
+        if threads > 0:
+            torch.set_num_threads(threads)
         _load = torch.load
 
         def _cpu_load(*a, **k):
@@ -201,7 +228,7 @@ class Studio:
         self.ref = str(ref)
         self.prepared = None
         from faster_whisper import WhisperModel
-        self.asr = WhisperModel(whisper, device="cpu", compute_type="int8")
+        self.asr = WhisperModel(whisper, device="cpu", compute_type="int8", cpu_threads=max(1, torch.get_num_threads()))
         print(f"modèles chargés en {time.time() - t:.0f} s, {torch.get_num_threads()} fils", flush=True)
 
     def say(self, text, lang, seed, exaggeration, cfg_weight, temperature):
@@ -246,7 +273,6 @@ def settings(lang):
 def produce(studio, it, lang, out_dir: Path, tries=5, **override):
     """Une phrase : on garde le premier tirage qui s'entend bien ; sinon le meilleur, marqué « faible »."""
     cfg = dict(settings(lang), **override)
-    floor = 0.5 if it["kind"] != "line" else (0.6 if len(letters(it["text"])) < 28 else 0.72)
     best = None
     t0 = time.time()
     for k in range(tries):
@@ -259,8 +285,8 @@ def produce(studio, it, lang, out_dir: Path, tries=5, **override):
         path = out_dir / f"{it['id']}.try{k}.m4a"
         encode(w, studio.sr, path)
         heard, _ = studio.hear(path, lang)
-        score = similarity(it["text"], heard)
-        ok = score >= floor and duration_ok(it["text"], dur) and longest_gap(w, studio.sr) < 1.6
+        score, said = judge(it, heard)
+        ok = said and duration_ok(it, dur) and longest_gap(w, studio.sr) < 1.2
         cand = dict(path=path, score=score, dur=dur, heard=heard, ok=ok, tries=k + 1)
         if best is None or (cand["ok"], cand["score"]) > (best["ok"], best["score"]):
             if best:
@@ -291,7 +317,9 @@ def cmd_gen(a):
     lang = a.lang
     i, n = (int(x) for x in a.shard.split("/"))
     out = Path(a.out)
-    todo = sorted(missing(lang), key=lambda it: it["id"])[i::n]
+    # Dans l'ordre du plan : les répliques d'abord, puis les prénoms du plus courant au plus rare. Si le temps
+    # manque, ce sont les prénoms les plus rares qui restent pour un prochain passage (le lutin les dit en attendant).
+    todo = missing(lang)[i::n]
     if a.limit:
         todo = todo[: a.limit]
     print(f"{lang} lot {i}/{n} : {len(todo)} phrases", flush=True)
@@ -311,7 +339,7 @@ def cmd_gen(a):
             if time.time() > deadline:
                 print(f"temps écoulé : {len(todo) - k + 1} phrases restent pour le prochain passage", flush=True)
                 break
-            r = produce(studio, it, lang, good)
+            r = produce(studio, it, lang, good, tries=6 if it["kind"] == "line" else 4)
             if not r["ok"] and (good / f"{it['id']}.m4a").is_file():
                 (good / f"{it['id']}.m4a").rename(weak / f"{it['id']}.m4a")
             log.write(json.dumps(r, ensure_ascii=False) + "\n")

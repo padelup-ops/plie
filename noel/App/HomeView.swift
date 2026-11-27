@@ -74,7 +74,7 @@ struct HomeView: View {
                 Spacer(minLength: 12)
                 // Le Père Noël, en photo : un toucher et il dit bonjour.
                 Button { greet(again: true) } label: {
-                    SantaMedallion(size: 214, mood: model.call.previewing ? model.call.mood : .idle,
+                    SantaMedallion(size: 250, mood: model.call.previewing ? model.call.mood : .idle,
                                    mouth: model.call.previewing ? model.call.mouth : 0)
                         .scaleEffect(appeared ? 1 : 0.94)
                         .opacity(appeared ? 1 : 0)
