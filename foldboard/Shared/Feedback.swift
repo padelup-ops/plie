@@ -26,6 +26,8 @@ final class KBFeedback {
     func attach(to view: UIView) {
         allowDuringRecording()
         if #available(iOS 17.5, *) {
+            unhook(from: attached)
+            unhook(from: view)
             haptic = UIImpactFeedbackGenerator(style: .light, view: view)
             heavy = UIImpactFeedbackGenerator(style: .medium, view: view)
             attached = view
@@ -37,6 +39,22 @@ final class KBFeedback {
         haptic.prepare()
     }
 
+    /// Un générateur rattaché à une vue y reste accroché, et la vue le retient. Le clavier est maintenant le même
+    /// d'une apparition à l'autre : sans ce décrochage, deux générateurs de plus s'y empilaient à chaque apparition
+    /// et après chaque pause, par dizaines au fil de la journée, et les vibrations finissaient par se taire.
+    private func unhook(from view: UIView?) {
+        guard #available(iOS 17.5, *), let view else { return }
+        for i in view.interactions where i is UIFeedbackGenerator { view.removeInteraction(i) }
+    }
+
+    /// Banc d'essai : combien de générateurs de vibration sont accrochés à cette vue (deux au plus).
+    func hookedCount(on view: UIView) -> Int {
+        view.interactions.filter { $0 is UIFeedbackGenerator }.count
+    }
+
+    /// Banc d'essai : comme après une longue pause, les générateurs sont refaits au prochain appui.
+    func probeStale() { lastTap = -1000 }
+
     private weak var attached: UIView?
     /// Les vibrations sont rattachées à une vue : si elle n'est plus à l'écran, elles ne vibrent plus.
     private var viewBound = false
@@ -44,6 +62,7 @@ final class KBFeedback {
     /// Le clavier s'en va : les vibrations ne le retiennent plus (de nouvelles seront rattachées à la prochaine apparition).
     func detach(from view: UIView) {
         guard attached === view else { return }
+        unhook(from: view)
         haptic = UIImpactFeedbackGenerator(style: .light)
         heavy = UIImpactFeedbackGenerator(style: .medium)
         attached = nil
@@ -66,9 +85,11 @@ final class KBFeedback {
         let orphan = viewBound && attached?.window == nil
         if haptics > 0.01, now - lastTap > 20 || orphan {
             if #available(iOS 17.5, *), let v = attached, v.window != nil {
+                unhook(from: v)
                 haptic = UIImpactFeedbackGenerator(style: .light, view: v)
                 heavy = UIImpactFeedbackGenerator(style: .medium, view: v)
             } else {
+                unhook(from: attached)
                 haptic = UIImpactFeedbackGenerator(style: .light)
                 heavy = UIImpactFeedbackGenerator(style: .medium)
                 viewBound = false

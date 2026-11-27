@@ -1863,6 +1863,33 @@ final class KeyboardCanvas: UIView {
         return ok
     }
 
+    /// Banc d'essai : les vibrations ne s'empilent pas sur le clavier partagé. Vingt apparitions et vingt reprises
+    /// après une pause ne doivent laisser que deux générateurs accrochés au clavier (léger et fort).
+    static func verifyHaptics() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 390, height: 300))
+        let window = UIWindow(frame: host.frame)
+        window.addSubview(host)
+        let c = install(in: host)
+        host.layoutIfNeeded()
+        var most = 0
+        for _ in 0..<20 {
+            KBFeedback.shared.attach(to: c)
+            most = max(most, KBFeedback.shared.hookedCount(on: c))
+            KBFeedback.shared.probeStale()
+            KBFeedback.shared.tap(sound: .off, haptics: 0.5)
+            most = max(most, KBFeedback.shared.hookedCount(on: c))
+        }
+        let after = KBFeedback.shared.hookedCount(on: c)
+        KBFeedback.shared.detach(from: c)
+        let gone = KBFeedback.shared.hookedCount(on: c)
+        c.removeFromSuperview()
+        host.removeFromSuperview()
+        var ok = after <= 2 && most <= 2 && gone == 0
+        if #available(iOS 17.5, *) { ok = ok && after == 2 }
+        print("RESULT vibrations generateurs_accroches \(after) (au plus \(most), après départ \(gone)) \(ok ? "yes" : "no")")
+        return ok
+    }
+
     static func verifyMemoryShed() -> Bool {
         let levels = memoryLevel(footprintMB: 30, headroomMB: 30) == .fine && memoryLevel(footprintMB: 58, headroomMB: 12) == .tight
             && memoryLevel(footprintMB: 40, headroomMB: 5) == .critical && memoryLevel(footprintMB: 40, headroomMB: 0) == .fine
