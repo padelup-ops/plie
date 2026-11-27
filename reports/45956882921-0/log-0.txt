@@ -252,3 +252,14 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [96/845] fr ok  1.00 2.1s essais 3 (236s, reste 940 min) Ho, ho, ho ! Bonjour Jules ! → Ho ho ho, bonjour Jules.
   self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[97/845] fr ok  0.81 3.0s essais 2 (120s, reste 944 min) Ho, ho, ho ! Bonjour Marceau ! → Oh ho ho bonjour Marcel
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[98/845] fr ok  0.89 2.1s essais 2 (97s, reste 946 min) Ho, ho, ho ! Bonjour Ava ! → Oh, ho, ho ! Bonjour, Rava !
+  self.gen = func(*args, **kwds)
+[99/845] fr ok  0.69 2.1s essais 1 (45s, reste 941 min) Ho, ho, ho ! Bonjour Quentin ! → Oh ho ho ! Bonjour, cantin !
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[100/845] fr ok  1.00 2.3s essais 2 (113s, reste 944 min) Ho, ho, ho ! Bonjour Lily ! → Ho ho ho ! Bonjour Lily !
+  self.gen = func(*args, **kwds)
