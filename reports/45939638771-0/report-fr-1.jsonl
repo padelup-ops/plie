@@ -4,3 +4,11 @@
 {"id": "f7f4c4caaa8ec9e2c5c5", "key": "hello|lou", "text": "Ho, ho, ho ! Bonjour Lou !", "ok": true, "score": 1.0, "dur": 2.88, "heard": "Ho ho ho, bonjour Lou.", "tries": 3, "secs": 175.3}
 {"id": "e296196d7fe5906521bd", "key": "hello|eva", "text": "Ho, ho, ho ! Bonjour Eva !", "ok": true, "score": 0.89, "dur": 3.16, "heard": "Oh, bonjour, Reva.", "tries": 1, "secs": 33.0}
 {"id": "1968a0d394f31a6458db", "key": "hello|olivia", "text": "Ho, ho, ho ! Bonjour Olivia !", "ok": true, "score": 0.812, "dur": 2.36, "heard": "ho ho ho bonjour Olivier", "tries": 1, "secs": 38.6}
+{"id": "46d1d2ce005886b7ee4e", "key": "bye|alba", "text": "Joyeux Noël, Alba !", "ok": true, "score": 1.0, "dur": 2.2, "heard": "Joyeux Noël, Alba!", "tries": 1, "secs": 28.6}
+{"id": "cb5ee37b4b182603f8a4", "key": "bye|capucine", "text": "Joyeux Noël, Capucine !", "ok": true, "score": 0.858, "dur": 2.22, "heard": "Joyeux Noël, Capricine.", "tries": 1, "secs": 28.3}
+{"id": "905d487a388aae577fbe", "key": "hello|emy", "text": "Ho, ho, ho ! Bonjour Emy !", "ok": true, "score": 0.747, "dur": 2.36, "heard": "Oh ho ho, bonjour Amy.", "tries": 2, "secs": 140.8}
+{"id": "baf1687adca3be0e6369", "key": "hello|thea", "text": "Ho, ho, ho ! Bonjour Théa !", "ok": true, "score": 1.0, "dur": 2.68, "heard": "Oh, oh, oh, bonjour, Théa !", "tries": 1, "secs": 30.5}
+{"id": "cd192de7be7be630a1d8", "key": "hello|assia", "text": "Ho, ho, ho ! Bonjour Assia !", "ok": true, "score": 0.738, "dur": 2.48, "heard": "Ho ho ho ! Bonjour, Asya !", "tries": 1, "secs": 28.7}
+{"id": "44bbb096574e42e6fa7b", "key": "hello|valentine", "text": "Ho, ho, ho ! Bonjour Valentine !", "ok": true, "score": 1.0, "dur": 2.2, "heard": "Ho ho ho, bonjour Valentine.", "tries": 1, "secs": 28.7}
+{"id": "0a252992d99199c1b3ac", "key": "bye|olympe", "text": "Joyeux Noël, Olympe !", "ok": true, "score": 0.93, "dur": 2.56, "heard": "Joyeux Noël, Olymp!", "tries": 1, "secs": 28.3}
+{"id": "60e3359182ad1384b453", "key": "hello|livia", "text": "Ho, ho, ho ! Bonjour Livia !", "ok": true, "score": 1.0, "dur": 3.56, "heard": "Oh ho ho bonjour Livia.", "tries": 1, "secs": 32.3}
