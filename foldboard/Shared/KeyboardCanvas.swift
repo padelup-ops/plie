@@ -4347,6 +4347,15 @@ final class KeyboardCanvas: UIView {
         let winH = window?.bounds.height ?? -1
         let seen = window.map { convert(bounds, to: $0).intersection($0.bounds).height } ?? -1
         report += "hauteurs : clavier \(Int(bounds.height)) · hôte \(Int(hostH)) · visible \(Int(seen)) · fenêtre \(Int(winH)) · écran \(Int(screenSize.height)) · voulue \(Int(preferredHeight)) · touche \(Int(keyH))/\(Int(baseKeyH)) · portable \(laptopLike ? "oui" : "non")\n"
+        // Les largeurs et la place du clavier : iOS le pose-t-il en panneau plus étroit que l'écran (flottant) ?
+        let hostW = superview?.bounds.width ?? -1
+        let winW = window?.bounds.width ?? -1
+        let inWindow = window.map { convert(bounds, to: $0) } ?? .zero
+        let inScreen = window?.windowScene.map { convert(bounds, to: $0.screen.coordinateSpace) } ?? .zero
+        let rounded = layer.maskedCorners.contains(.layerMinXMaxYCorner)
+        report += "largeurs : clavier \(Int(bounds.width)) · hôte \(Int(hostW)) · fenêtre \(Int(winW)) · écran \(Int(screenSize.width))"
+            + " · dans la fenêtre x \(Int(inWindow.minX)) y \(Int(inWindow.minY)) · dans l'écran x \(Int(inScreen.minX)) y \(Int(inScreen.minY))"
+            + " · coins du bas arrondis \(rounded ? "oui" : "non") · globe d'iOS \((input?.kbNeedsGlobe ?? false) ? "non (touche globe)" : "oui")\n"
         report += KBMemLog.lines.suffix(8).joined(separator: "\n") + "\n" + text
         if input?.kbFullAccess == true {
             UIPasteboard.general.string = report
