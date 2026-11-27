@@ -102,7 +102,7 @@ VC = (W * 0.75 - 3584, H * 0.5 - 3072, W * 0.75 + 2560, H * 0.5 + 3072)
 stitch(4, VC).save(os.path.join(OUT, "vice.jpg"), quality=90)
 
 content = json.load(open(os.path.join(ROOT, "Content", "content-en.json")))
-places = [[p["x"], p["y"], p["kind"]] for p in content["places"] if p["kind"] not in ("region",)]
+places = [[p["x"], p["y"], p["kind"]] for p in content["places"] if p["kind"] not in ("region", "vehicle")]
 data = {
     "sizes": sizes, "dark": DARK, "places": places, "vice": [VC[0] / W, VC[1] / H, VC[2] / W, VC[3] / H],
     "regions": [[p["name"], p["x"], p["y"]] for p in content["places"] if p["kind"] == "region"],
@@ -112,8 +112,9 @@ data = {
     "characters": [c["name"] for c in content["characters"]],
     "missions": [m["title"] for m in content["missions"]],
     "collectibles": [[c["title"], c["count"]] for c in content["collectibles"]],
-    "counts": {"missions": 91, "places": len(content["places"]), "cheats": len(content["cheats"]), "stations": len(content["stations"]),
-               "eggs": len(content["eggs"]), "vehicles": len(json.load(open(os.path.join(ROOT, "Content", "vehicles.json")))["vehicles"])},
+    "counts": {"missions": 91, "places": sum(1 for p in content["places"] if p["kind"] != "vehicle"), "cheats": len(content["cheats"]), "stations": len(content["stations"]),
+               "eggs": len(content["eggs"]), "vehicles": len(json.load(open(os.path.join(ROOT, "Content", "vehicles.json")))["vehicles"]),
+               "rare": sum(1 for p in content["places"] if p["kind"] == "vehicle")},
 }
 json.dump(data, open(os.path.join(OUT, "data.json"), "w"))
 Image.open(os.path.join(ROOT, "App", "Assets.xcassets", "AppIcon.appiconset", "icon-1024.png")).resize((512, 512), Image.LANCZOS).save(os.path.join(OUT, "icon.png"))

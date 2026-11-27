@@ -197,8 +197,10 @@ drums, bass, keys, guitar, lead, fx = Bus(), Bus(), Bus(), Bus(), Bus(), Bus()
 CHORDS = [[53, 56, 60, 63, 67], [53, 56, 60, 63, 67], [49, 53, 56, 60, 63], [51, 55, 58, 60, 65]]   # Fm9, Fm9, Dbmaj9, Eb6/9
 ROOTS = [41, 41, 37, 39]                                                                           # F2, F2, Db2, Eb2
 K, S, CL, H, HO, SH, CR = kick(), snare(), clap(), hat(), hat(True), shaker(), crash()
-BARS = int(round(C.DURATION / BAR))           # 23
-BREAK = (18, 19)                               # 45-50 s: "no account, no ads, no tracking"
+BARS = int(round(C.DURATION / BAR))
+_T = {name: a for name, a, b in C.SCENES}
+BREAK = (int(_T["trust"] / BAR), int(_T["trust"] / BAR) + 1)     # "no account, no ads, no tracking": the beat stops
+ENDBAR = int(_T["end"] / BAR)
 LAST = BARS - 1                                # the last chord rings out
 
 for b in range(BARS):
@@ -246,11 +248,11 @@ TUNE_A = [(0, 6, 84), (6, 2, 87), (8, 4, 84), (12, 2, 82), (14, 2, 80), (16, 8, 
           (32, 6, 80), (38, 2, 84), (40, 4, 87), (44, 4, 89), (48, 4, 87), (52, 2, 84), (54, 2, 82), (56, 7, 84)]
 TUNE_B = [(0, 4, 89), (4, 2, 87), (6, 2, 84), (8, 6, 87), (14, 2, 84), (16, 6, 82), (22, 2, 80), (24, 7, 77),
           (32, 4, 80), (36, 4, 84), (40, 7, 82), (48, 6, 79), (54, 2, 82), (56, 7, 84)]
-for start, tune, bars in ((4, TUNE_A, 4), (8, TUNE_B, 4), (12, TUNE_A, 4), (16, TUNE_B, 2), (20, TUNE_A, 2)):
+for start, tune, bars in ((4, TUNE_A, 4), (8, TUNE_B, 4), (12, TUNE_A, 4), (16, TUNE_B, 4), (ENDBAR, TUNE_A, 2)):
     notes = [(s * STEP + (SWING if s % 2 else 0), n * STEP * 0.9, m) for s, n, m in tune if s < bars * 16]
     lead.add(lead_line(notes, bars * BAR), start * BAR, 0.12)
 
-for b in (1, 4, 8, 12, 16, 20):
+for b in (1, 4, 8, 12, 16, ENDBAR):
     drums.add(CR, at(b, 0), 0.16)
 drums.add(K, at(LAST, 0), 1.0)
 drums.add(CR, at(LAST, 0), 0.22)
@@ -281,6 +283,9 @@ for i in range(60):                                             # places appeari
     fx.add(blip(hz([72, 75, 77, 80, 84][i % 5]), 0.07), tt, 0.06, rng.uniform(-0.7, 0.7))
 for name, a, b in C.SCENES[1:]:
     fx.add(whoosh(0.5, 400, 6000, True), a - 0.2, 0.12)
+for i, tt in enumerate(C.VOTES):                                # a vote on a rare vehicle
+    fx.add(blip(hz(77 + 7 * i), 0.16), tt, 0.2, 0.2)
+    fx.add(tom(140), tt, 0.2)
 fx.add(whoosh(0.7, 300, 5000, False), C.SPOILER, 0.2)           # the later chapters blur
 fx.add(blip(1500, 0.05, "square"), C.SPOILER + 0.4, 0.1)
 steps = int((C.RING_FULL - C.RING_START) / STEP)                # the ring fills

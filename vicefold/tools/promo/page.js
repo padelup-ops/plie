@@ -269,6 +269,18 @@ feature('map', {
   chips: [['Landmarks', COLORS.flamingo, -0.84, -0.86, -0.62, -0.92, 1.4], ['My pins', COLORS.sun, -0.66, 0.66, 0.5, -0.9, 2.0]],
 });
 
+// The rare vehicles: where each one is parked, then the players' votes.
+feature('cars', {
+  texts: [{ kicker: 'Rare vehicles', lines: [`*${Math.floor((N.rare || 400) / 100) * 100}+ RARE CARS.*`, 'ON THE MAP.'], sub: 'Every one pinned where it is parked.' }],
+  shot: ['duo-cars', 'duo-cars'], side: ['iphone-cars', 'iphone-cars'], lay: ['duoPhone', 'duoPhone'], pose: { ry: -8 },
+});
+
+feature('votes', {
+  texts: [{ kicker: 'By the players', lines: ['SEEN IT?', '*VOTE. ADD YOURS.*'], sub: 'Players confirm every spot.' }],
+  shot: ['ipad-car', 'ipad-car'], side: ['iphone-car', 'iphone-car'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
+  chips: [["It's here", COLORS.palm, -0.84, -0.86, -0.6, -0.96, 1.25], ['Not here', COLORS.sunset, -0.5, 0.7, 0.5, -0.84, 1.875]],
+});
+
 feature('missions', {
   texts: [{ kicker: 'Walkthroughs', lines: [`ALL *${N.missions} MISSIONS.*`, 'STEP BY STEP.'] }],
   shot: ['ipad-mission', 'ipad-mission'], side: ['iphone-mission', 'iphone-mission'], lay: ['ipadPhone', 'ipadPhone'], pose: { ry: -9 },
