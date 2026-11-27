@@ -51,8 +51,8 @@ html,body{margin:0;background:#F4F7F8}
 .ground{position:absolute;border-radius:50%;background:rgba(14,27,43,.34);filter:blur(26px)}
 .dev{position:absolute;transform-style:preserve-3d}
 .dev .half{position:absolute;top:0;width:50%;height:100%;transform-style:preserve-3d}
-.dev .half.left{left:0;transform-origin:100% 50%}
-.dev .half.right{left:50%}
+.dev .half.left{left:0;transform-origin:100% 50%;clip-path:inset(-40px 0 -40px -40px)}
+.dev .half.right{left:50%;clip-path:inset(-40px -40px -40px 0)}
 .dev .face{position:absolute;inset:0;overflow:hidden;background:#EAF6F5;box-shadow:0 0 0 var(--bz) #0d1118,0 0 0 calc(var(--bz) + 2px) #5a6272}
 .dev .half.left .face{border-radius:var(--r) 0 0 var(--r)}
 .dev .half.right .face{border-radius:0 var(--r) var(--r) 0}
@@ -60,7 +60,7 @@ html,body{margin:0;background:#F4F7F8}
 .dev .shade{position:absolute;inset:0;background:#0E1B2B;opacity:0}
 .dev .hinge{position:absolute;left:calc(50% - 1px);width:2px;top:0;bottom:0;background:rgba(14,27,43,.08);transform:translateZ(1px)}
 .dev.dark .face{background:#091422}
-.dev.dark .hinge{background:rgba(0,0,0,.35)}
+.dev.dark .hinge{background:rgba(0,0,0,.16)}
 """
 HTML = """<!doctype html><html><head><meta charset="utf-8"><style>__CSS__</style></head><body>
 <div id="stage"><canvas id="bg"></canvas></div>
