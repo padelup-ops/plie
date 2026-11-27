@@ -321,7 +321,9 @@ def cmd_gen(a):
     # manque, ce sont les prénoms les plus rares qui restent pour un prochain passage (le lutin les dit en attendant).
     todo = missing(lang)[i::n]
     if a.limit:
-        todo = todo[: a.limit]
+        # Essai rapide : moitié répliques, moitié prénoms.
+        half = [it for it in todo if it["kind"] == "line"][: a.limit // 2]
+        todo = half + [it for it in todo if it["kind"] != "line"][: a.limit - len(half)]
     print(f"{lang} lot {i}/{n} : {len(todo)} phrases", flush=True)
     good = out / "voice" / lang
     weak = out / "weak" / lang
