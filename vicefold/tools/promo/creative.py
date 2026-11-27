@@ -78,7 +78,7 @@ def page(work, kind):
         if all(os.path.exists(os.path.join(work, f)) for f in dark):
             data["creative"][lang] = dark
         else:
-            data["creative"][lang], data["creativeDark"] = [f"{pre}duo-{n}.png" for n in (1, 2, 5)], False
+            data["creative"][lang], data["creativeDark"] = [f"{pre}duo-{r}.png" for r in ROUTES], False
     html = (HTML.replace("__CSS__", css).replace("__DATA__", json.dumps(data))
             .replace("__TEXTS__", json.dumps(TEXTS, ensure_ascii=False)).replace("__JS__", open(os.path.join(HERE, "creative.js")).read()))
     path = os.path.join(work, f"creative-{kind}.html")

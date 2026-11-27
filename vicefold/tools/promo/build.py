@@ -59,6 +59,11 @@ html,body{margin:0;background:#091422}
  background:linear-gradient(135deg,#3a4050,#171b24 45%,#0b0f16);box-shadow:0 0 0 var(--bz) #0b0f16,0 0 0 calc(var(--bz) + 2px) #4a5263}
 .dev.duo .backface:after{content:"";position:absolute;right:9%;top:6%;width:22%;aspect-ratio:1;border-radius:26%;background:#0b0f16;box-shadow:inset 0 0 0 3px #2b3140}
 .dev.duo .hinge{position:absolute;left:calc(50% - 1px);width:2px;top:0;bottom:0;background:rgba(14,27,43,.07)}
+.dev .face>img.alt,.dev.duo .half .face>img.alt{position:absolute;left:0;top:0;opacity:0}
+.dark .dev .face{background:#091422;box-shadow:0 0 0 var(--bz) #0b0f16,0 0 0 calc(var(--bz) + 2px) #667086,0 0 90px rgba(255,79,139,.2)}
+.dark .blur:after{background:rgba(9,20,34,.45)}
+.dark .lock{background:linear-gradient(100deg,#FF8A3D,#FF4F8B)}
+.dark .dev.duo .hinge{background:rgba(0,0,0,.2)}
 .blur{position:absolute;inset:0;overflow:hidden}
 .blur img{width:100%;height:100%;filter:blur(13px) saturate(.7);transform:scale(1.04)}
 .blur:after{content:"";position:absolute;inset:0;background:rgba(234,246,245,.35)}

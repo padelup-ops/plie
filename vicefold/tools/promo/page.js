@@ -18,6 +18,7 @@ function hash(i, s = 0) { let x = (Math.imul(i + 1, 2654435761) + Math.imul(s + 
 function el(tag, cls, parent, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; if (parent) parent.appendChild(e); return e; }
 const stage = document.getElementById('stage');
 stage.style.width = W + 'px'; stage.style.height = H + 'px';
+if (DATA.dark) stage.classList.add('dark');
 const COLORS = { flamingo: '#FF4F8B', sunset: '#FF8A3D', sun: '#FFC94A', palm: '#14B08A', sky: '#4BA3FF', violet: '#7B5CFF' };
 
 // ---------------------------------------------------------------- background: the map of Leonida, then the night
@@ -162,13 +163,16 @@ function device(parent, shot, o = {}) {
   const r = w * (kind === 'iphone' ? 0.085 : 0.062), bz = Math.max(7, w * 0.014);
   root.style.setProperty('--r', r + 'px'); root.style.setProperty('--bz', bz + 'px');
   const d = { root, kind, w, h, cx, cy, seed: hash(shot.length + shot.charCodeAt(shot.length - 1)) * 6 };
-  const src = shot + '.png';
+  const src = shot + '.png', alts = [];
+  // A second screen can take the place of the first (setAlt(0..1)).
+  d.setAlt = k => alts.forEach(im => { im.style.opacity = k; });
   if (kind === 'duo') {
     const mk = side => {
       const half = el('div', 'half ' + side, root);
       const face = el('div', 'face', half);
       const img = el('img', '', face); img.src = src; img.style.width = w + 'px'; img.style.height = h + 'px';
       if (side === 'right') img.style.marginLeft = -w / 2 + 'px';
+      if (o.alt) { const im2 = el('img', 'alt', face); im2.src = o.alt + '.png'; im2.style.width = w + 'px'; im2.style.height = h + 'px'; if (side === 'right') im2.style.left = -w / 2 + 'px'; alts.push(im2); }
       el('div', 'backface', half);
       return half;
     };
@@ -182,6 +186,7 @@ function device(parent, shot, o = {}) {
   } else {
     const face = el('div', 'face', root);
     d.img = el('img', '', face); d.img.src = src; d.face = face;
+    if (o.alt) { const im2 = el('img', 'alt', face); im2.src = o.alt + '.png'; alts.push(im2); }
   }
   d.shadow = el('div', 'shadow', root);
   return d;
@@ -218,13 +223,14 @@ function feature(name, cfg) {
     build(root) {
       this.t = cfg.texts.map(tc => textBlock(root, tc));
       this.stage = el('div', 'persp', root);
-      if (cfg.shot) this.d = device(this.stage, L ? cfg.shot[0] : cfg.shot[1], cfg.dev || {});
+      const alt = cfg.alt && DATA.sizes[cfg.alt[L ? 0 : 1]] ? { alt: cfg.alt[L ? 0 : 1] } : {};
+      if (cfg.shot) this.d = device(this.stage, L ? cfg.shot[0] : cfg.shot[1], Object.assign(alt, cfg.dev || {}));
       this.chips = (cfg.chips || []).map(c => { const p = L ? c.slice(2, 4) : c.slice(4, 6); return chip(this.stage, c[0], c[1], p[0], p[1], c[6]); });
       if (cfg.build) cfg.build.call(this, root);
     },
     update(u, dur) {
       this.t.forEach(tb => tb.update(u, dur));
-      if (this.d) devPose(this.d, u, dur, cfg.pose || {});
+      if (this.d) { devPose(this.d, u, dur, cfg.pose || {}); this.d.setAlt(eio((u - dur / 2 + 0.1) / 0.3)); }
       this.chips.forEach(c => c.update(u, dur));
       if (cfg.update) cfg.update.call(this, u, dur);
     },
@@ -236,12 +242,12 @@ feature('hook', { texts: [{ center: true, lines: ['LEONIDA', 'IS *HUGE.*'], cy: 
 
 feature('intro', {
   texts: [{ kicker: 'Guide for GTA VI: Leonida', lines: ["DON'T PLAY", 'IT *BLIND.*'], sub: 'The fan-made companion.<br>Missions, map, 100%, secrets, cheats.' }],
-  shot: ['ipad-1', 'iphone-1'],
+  shot: ['ipad-home', 'iphone-home'],
 });
 
 feature('map', {
   texts: [{ kicker: 'The map', lines: [`*${N.places - 10} PLACES.*`, 'YOUR OWN PINS.'], sub: 'Layers, search, visited places.<br>Name, note, icon and colour for every pin.' }],
-  shot: ['duo-2', 'iphone-2'],
+  shot: ['duo-mappins', 'iphone-mappins'],
   chips: [['Landmarks', COLORS.flamingo, -0.8, -0.74, -0.56, -0.93, 0.7], ['Hotels', '#D6336C', 0.84, -0.8, 0.6, -0.86, 0.88], ['Food & drink', COLORS.sunset, 0.8, 0.02, 0.62, 0.16, 1.06],
     ['Shops', COLORS.sky, -0.86, 0.3, -0.64, 0.36, 1.24], ['Transport', '#5B6CFF', 0.7, 0.76, 0.56, 0.9, 1.42], ['My pins', COLORS.sun, -0.62, 0.8, -0.56, 0.88, 1.6]],
 });
@@ -251,7 +257,7 @@ feature('missions', {
     { kicker: 'Walkthroughs', lines: [`ALL *${N.missions} MISSIONS.*`, 'STEP BY STEP.'], sub: 'Who gives it, where to go, objectives, tips.<br>Tick them off as you play.', until: 2 },
     { kicker: 'No spoilers', lines: ['*SPOILER-FREE*', 'BY DEFAULT.'], sub: 'Later chapters stay hidden<br>until you get there.', at: 2 },
   ],
-  shot: ['ipad-3', 'iphone-3'],
+  shot: ['ipad-mission', 'iphone-mission'],
   build() {
     // The lower part of the screen blurs: what comes later in the story stays hidden.
     const blur = el('div', 'blur', this.d.face);
@@ -272,7 +278,7 @@ feature('missions', {
 feature('tracker', {
   texts: [{ kicker: '100% tracker', lines: ['YOUR ROAD', 'TO *100%.*'], still: true,
     sub: `${DATA.collectibles.length} collectible categories with counters.<br>Challenges, trophy roadmap, route to 100%.` }],
-  shot: ['duo-5', 'duo-5'],
+  shot: ['duo-collectibles', 'duo-collectibles'],
   build() {
     // The ring fills up to 100% and lands on a beat.
     const card = el('div', 'ringcard', this.stage);
@@ -306,7 +312,7 @@ feature('tracker', {
 
 feature('eggs', {
   texts: [{ kicker: 'Secrets', lines: [`*${N.eggs} EASTER EGGS.*`, 'ON THE MAP.'], sub: 'How to find each one stays hidden<br>until you ask.' }],
-  shot: ['duo-6', 'iphone-5'], pose: { ry: -9 },
+  shot: ['duo-eggs', 'iphone-eggs'], pose: { ry: -9 },
   chips: [['The jet ski dog', COLORS.sky, -0.8, -0.72, -0.56, -0.9, 0.5], ['The Skunk Ape', COLORS.palm, 0.78, -0.4, 0.6, -0.5, 0.68], ['Lights in the sky', COLORS.violet, -0.82, 0.5, -0.58, 0.5, 0.86], ['A giant crab', COLORS.sunset, 0.72, 0.74, 0.58, 0.9, 1.04]],
 });
 
@@ -385,19 +391,19 @@ SC.radio = {
 
 feature('cast', {
   texts: [{ kicker: 'Characters · Vehicles', lines: ["*WHO'S WHO.*", `${N.vehicles} VEHICLES.`], sub: 'Your notes on every character.<br>Every vehicle, by class.' }],
-  shot: ['duo-9', 'iphone-8'], pose: { ry: -9 },
+  shot: ['duo-characters', 'iphone-characters'], alt: ['duo-vehicles', 'iphone-vehicles'], pose: { ry: -9 },
   chips: [['42 boats', COLORS.sky, -0.84, -0.72, -0.58, -0.9, 0.5], ['33 sports cars', COLORS.flamingo, 0.78, -0.76, 0.6, -0.56, 0.66], ['21 motorcycles', COLORS.sunset, -0.82, 0.52, -0.6, 0.56, 0.82], ['13 helicopters', COLORS.palm, 0.74, 0.76, 0.58, 0.9, 0.98]],
 });
 
 feature('community', {
   texts: [{ kicker: 'Community', lines: ['STUCK?', '*ASK THE PLAYERS.*'], sub: 'Questions and answers on every mission.<br>See how far your friends are.' }],
-  shot: ['duo-4', 'iphone-4'], pose: { ry: -9 },
+  shot: ['duo-thread', 'iphone-thread'], pose: { ry: -9 },
   chips: [['Helpful answers', COLORS.palm, 0.74, -0.76, 0.58, -0.66, 0.55], ['Game Center friends', COLORS.sky, -0.74, 0.74, -0.5, 0.9, 0.8]],
 });
 
 feature('widgets', {
   texts: [{ kicker: 'Widgets · iCloud', pro: true, lines: ['YOUR PROGRESS,', '*EVERYWHERE.*'], sub: 'Home and Lock Screen widgets, iCloud sync,<br>your PlayStation play time.' }],
-  shot: ['iphone-6', 'iphone-6'], pose: { ry: -14 },
+  shot: ['iphone-widgets', 'iphone-widgets'], pose: { ry: -14 },
   chips: [['Home Screen', COLORS.flamingo, -0.6, -0.62, -0.62, -0.86, 0.5], ['Lock Screen', COLORS.violet, 0.6, -0.3, 0.62, -0.46, 0.66], ['iCloud sync', COLORS.sky, -0.62, 0.3, -0.62, 0.44, 0.82], ['PlayStation play time', COLORS.sun, 0.56, 0.72, 0.42, 0.9, 0.98]],
 });
 
@@ -411,9 +417,9 @@ SC.devices = {
     const P = L
       ? { ipad: { cx: 400, cy: 665, w: 430, h: 510 }, duo: { cx: 970, cy: 665, w: 660, h: 510 }, iphone: { cx: 1530, cy: 665, w: 300, h: 510 } }
       : { duo: { cx: 540, cy: 965, w: 720, h: 560 }, ipad: { cx: 340, cy: 1515, w: 480, h: 410 }, iphone: { cx: 790, cy: 1515, w: 300, h: 410 } };
-    this.ipad = device(this.stage, 'ipad-1', P.ipad);
-    this.duo = device(this.stage, 'duo-2', P.duo);
-    this.iphone = device(this.stage, 'iphone-3', P.iphone);
+    this.ipad = device(this.stage, 'ipad-home', P.ipad);
+    this.duo = device(this.stage, 'duo-mappins', P.duo);
+    this.iphone = device(this.stage, 'iphone-mission', P.iphone);
     this.labels = [[this.ipad, 'iPad'], [this.duo, 'iPhone Duo'], [this.iphone, 'iPhone']].map(([d, name]) => {
       const lb = el('div', 'devlabel', this.stage, name);
       const low = d === this.duo && !L ? d : (L ? this.ipad : this.ipad);

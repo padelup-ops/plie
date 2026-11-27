@@ -1,7 +1,8 @@
-"""VICEFOLD promo video: prepares the pictures (python3 assets.py <work dir>).
+"""VICEFOLD promo video: prepares the pictures (python3 assets.py <work dir> [<captures dir>]).
 
-Raw app screens are cut back out of the composed App Store screenshots in ../../store, the Leonida map is stitched
-from the bundled tiles (GTADB.org, CC BY 4.0), and the places come from the app's own content file.
+The app screens come from <captures dir> (captures of the simulator, by device) when it is given; otherwise they are
+cut back out of the composed App Store screenshots in ../../store. The Leonida map is stitched from the bundled
+tiles (GTADB.org, CC BY 4.0), and the places come from the app's own content file.
 """
 import json
 import os
@@ -45,15 +46,38 @@ def unband(im):
 
 
 sizes = {}
-# English screens are "iphone-1.png"; French ones (for the App Store header in French) are "fr-iphone-1.png".
-for lang, pre in (("en", ""), ("fr", "fr-")):
-    for prefix, name, n, h in (("", "iphone", 8, 1500), ("duo-", "duo", 9, 1100), ("ipad-", "ipad", 9, 1400)):
-        for i in range(1, n + 1):
-            im = screen(os.path.join(ROOT, "store", f"{prefix}{lang}-{i}.png"))
-            im = im.resize((round(im.width * h / im.height), h), Image.LANCZOS)
-            im.save(os.path.join(OUT, f"{pre}{name}-{i}.png"))
-            sizes[f"{pre}{name}-{i}"] = im.size
-        print(lang, name, im.size)
+ROUTES = ["home", "mappins", "mission", "thread", "collectibles", "eggs", "widgets", "guide", "characters"]
+HEIGHT = {"iphone": 1500, "duo": 1100, "ipad": 1400}
+RAW = sys.argv[2] if len(sys.argv) > 2 else None
+
+
+def keep(im, name, h):
+    im = im.resize((round(im.width * h / im.height), h), Image.LANCZOS)
+    im.save(os.path.join(OUT, name + ".png"))
+    sizes[name] = im.size
+
+
+if RAW:
+    # Captures straight from the simulator (the vicefold-shots workflow): <raw>/<device>/NN-<screen>-d<display>.png.
+    # On the Duo the inner screen is "primary-1"; it is the one kept.
+    for dev, h in HEIGHT.items():
+        files = sorted(f for f in os.listdir(os.path.join(RAW, dev)) if f.endswith(".png"))
+        if dev == "duo":
+            files = [f for f in files if "-dprimary-1" in f]
+        for f in files:
+            keep(Image.open(os.path.join(RAW, dev, f)).convert("RGB"), f"{dev}-{f.split('-')[1]}", h)
+        print(dev, len(files), "screens")
+else:
+    # Without captures: the screens are cut back out of the store pictures. English ones are "iphone-home.png",
+    # French ones "fr-iphone-home.png". The iPhone set has no "collectibles" picture.
+    for lang, pre in (("en", ""), ("fr", "fr-")):
+        for prefix, dev in (("", "iphone"), ("duo-", "duo"), ("ipad-", "ipad")):
+            routes = [r for r in ROUTES if not (dev == "iphone" and r == "collectibles")]
+            for i, route in enumerate(routes, 1):
+                keep(screen(os.path.join(ROOT, "store", f"{prefix}{lang}-{i}.png")), f"{pre}{dev}-{route}", HEIGHT[dev])
+            print(lang, dev, len(routes), "screens")
+# Dark captures get a dark frame and a few darker details in the film.
+DARK = bool(np.asarray(Image.open(os.path.join(OUT, "duo-home.png")).convert("L")).mean() < 90)
 
 # The map: level 3 for the whole state (3776 x 5120), level 4 around Vice City.
 W, H = 15104, 20480
@@ -80,7 +104,7 @@ stitch(4, VC).save(os.path.join(OUT, "vice.jpg"), quality=90)
 content = json.load(open(os.path.join(ROOT, "Content", "content-en.json")))
 places = [[p["x"], p["y"], p["kind"]] for p in content["places"] if p["kind"] not in ("region",)]
 data = {
-    "sizes": sizes, "places": places, "vice": [VC[0] / W, VC[1] / H, VC[2] / W, VC[3] / H],
+    "sizes": sizes, "dark": DARK, "places": places, "vice": [VC[0] / W, VC[1] / H, VC[2] / W, VC[3] / H],
     "regions": [[p["name"], p["x"], p["y"]] for p in content["places"] if p["kind"] == "region"],
     "stations": [s["name"] for s in content["stations"]],
     "cheats": [[c["name"], c["playstation"]] for c in content["cheats"]],
