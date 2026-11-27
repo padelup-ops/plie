@@ -1,6 +1,6 @@
 # PadelUp Neo
 
-L'app padel reconstruite à partir de [padelup-backend-forked](https://github.com/Ghadje/padelup-backend-forked) : un thème futuriste « court néon », tous les clubs de padel du monde sans passer par le tableau de bord, la météo du court, un bot qui réserve à ta place sur Playtomic et Anybuddy, et une ambiance qui suit les saisons.
+L'app padel reconstruite à partir de [padelup-backend-forked](https://github.com/Ghadje/padelup-backend-forked) : un thème futuriste « court néon », tous les clubs de padel de la zone PadelUp sans passer par le tableau de bord, la météo du court, un bot qui réserve à ta place sur Playtomic et Anybuddy, et une ambiance qui suit les saisons.
 
 C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), qui n'est jamais modifiée. Sa fiche App Store Connect est « PADELUP Neo », identifiant `com.padelup.neo`.
 
@@ -8,11 +8,11 @@ C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), q
 |---|---|
 | `ios/` | L'app iPhone (SwiftUI, iOS 26, projet XcodeGen) |
 | `backend/` | Le serveur Django repris, corrigé et complété (bot, open data) |
-| `tools/world_clubs.py` | Construit le fichier mondial des clubs depuis OpenStreetMap |
+| `tools/zone_clubs.py` | Construit le fichier des clubs de la zone depuis OpenStreetMap |
 
 ## L'app iPhone
 
-- **Clubs du monde entier**. Le fichier OpenStreetMap est embarqué dans l'app : il couvre tous les pays, marche hors ligne et s'affiche tout de suite. La zone affichée sur la carte est ensuite actualisée en direct (API Overpass, avec trois serveurs de secours), et les clubs Playtomic de la zone sont rattachés au club OSM correspondant. On peut chercher n'importe quelle ville ou n'importe quel pays : la recherche passe par MapKit, sans clé d'API.
+- **Zone couverte** : France, Belgique, Suisse, les pays frontaliers de la France (Luxembourg, Allemagne, Italie, Monaco, Andorre, Espagne), Maroc, Algérie et Tunisie. Le fichier OpenStreetMap de ces douze pays est embarqué dans l'app : il marche hors ligne et s'affiche tout de suite. Il est construit pays par pays, d'après la frontière officielle de chaque pays dans OSM. La zone affichée sur la carte est ensuite actualisée en direct (API Overpass, avec trois serveurs de secours), et les clubs Playtomic de la zone sont rattachés au club OSM correspondant. Hors de la zone, l'app n'ajoute pas de clubs. La recherche de ville passe par MapKit, sans clé d'API.
 - **Fiche club**. On y trouve la météo de jeu heure par heure (Open-Meteo, avec un indice padel sur 100 qui tient compte de la pluie, du vent et de la température), les disponibilités, la réservation en un geste par le bot, l'itinéraire, le site et le téléphone. Le bouton « Créer un match » ajoute le club au serveur PadelUp s'il vient d'OSM.
 - **Bot de réservation**. Le joueur connecte son compte Playtomic, puis choisit les jours, la plage horaire, les durées, intérieur ou extérieur, un prix maximum et le nombre de réservations. Le bot surveille et réserve tout seul. Il envoie une notification à chaque réservation et tient un journal.
 - **Matchs et classement**, avec le compte PadelUp : e-mail ou Se connecter avec Apple.
@@ -51,7 +51,7 @@ C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), q
 
 Le workflow `.github/workflows/padelup-ios.yml` se lance à chaque envoi qui touche `padelup/ios/`. Il :
 
-1. embarque le fichier mondial des clubs ;
+1. embarque le fichier des clubs de la zone ;
 2. compile l'app ;
 3. l'envoie sur TestFlight, dans la fiche PADELUP Neo ;
 4. prend des captures sur le simulateur.
@@ -94,12 +94,12 @@ python manage.py runserver
 
   Pour le faire tourner en continu : `python manage.py run_booking_bot --loop`, c'est-à-dire le service `worker` du Procfile ou de `render.yaml`. Sans worker (offre gratuite), un cron externe appelle `POST /api/bot/tick/` chaque minute avec l'en-tête `X-Bot-Secret`.
 
-- **Clubs du monde** (`app/opendata.py`) :
+- **Clubs de la zone** (`app/opendata.py`, liste des pays dans `ZONE_COUNTRIES`) :
   - `POST /api/clubs/from-osm/ {"osm_id": "way/123"}` ajoute un club OpenStreetMap. Le serveur relit l'élément chez OSM : aucune donnée ne vient du client.
-  - `python manage.py import_osm_clubs --file clubs-world.json [--country FR] [--named-only]` importe en masse.
+  - `python manage.py import_osm_clubs --file clubs-zone.json [--country FR] [--named-only]` importe en masse.
   - Les clubs ont maintenant les champs `country`, `source`, `osm_id`, `playtomic_tenant_id` et `anybuddy_slug`.
 
-- Le workflow `padelup-clubs.yml` reconstruit le fichier mondial chaque lundi. Il est publié dans la branche `ci-padelup-clubs`.
+- Le workflow `padelup-clubs.yml` reconstruit le fichier des clubs de la zone chaque lundi. Il est publié dans la branche `ci-padelup-clubs`. Pour ajouter un pays, il suffit d'ajouter son code ISO dans `ZONE_COUNTRIES` (serveur) et un rectangle dans `CoverageZone` (app).
 
 ### Correctifs de l'audit (38 tests dans `app/tests.py` et `booking_bot/tests.py`)
 

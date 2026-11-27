@@ -1,6 +1,6 @@
 # PADELUP NEO : compile l'app sur un Mac de GitHub, l'envoie sur TestFlight (fiche « PADELUP Neo », com.padelup.neo),
 # puis prend des captures sur le simulateur. Journaux et captures : branche ci-padelup-ios.
-# Les clubs du monde (OpenStreetMap) viennent de la branche ci-padelup-clubs (workflow « PadelUp - clubs du monde »).
+# Les clubs de la zone (OpenStreetMap) viennent de la branche ci-padelup-clubs (workflow « PadelUp - clubs de la zone »).
 name: PadelUp Neo - TestFlight
 on:
   push:
@@ -36,13 +36,13 @@ jobs:
           sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
           xcodebuild -version
           mkdir -p ci
-      - name: Embarquer les clubs du monde (OpenStreetMap)
+      - name: Embarquer les clubs de la zone (OpenStreetMap)
         run: |
-          if git fetch -q --depth 1 origin ci-padelup-clubs 2>/dev/null && git show FETCH_HEAD:clubs-world.json > /tmp/clubs.json 2>/dev/null && [ -s /tmp/clubs.json ]; then
-            cp /tmp/clubs.json padelup/ios/App/Resources/clubs-world.json
-            echo "clubs embarqués : $(du -h padelup/ios/App/Resources/clubs-world.json | cut -f1)" | tee ci/clubs.txt
+          if git fetch -q --depth 1 origin ci-padelup-clubs 2>/dev/null && git show FETCH_HEAD:clubs-zone.json > /tmp/clubs.json 2>/dev/null && [ -s /tmp/clubs.json ]; then
+            cp /tmp/clubs.json padelup/ios/App/Resources/clubs-zone.json
+            echo "clubs embarqués : $(du -h padelup/ios/App/Resources/clubs-zone.json | cut -f1)" | tee ci/clubs.txt
           else
-            echo "pas encore de fichier mondial : l'app actualisera en direct" | tee ci/clubs.txt
+            echo "pas encore de fichier des clubs : l'app actualisera en direct" | tee ci/clubs.txt
           fi
       - name: Installer XcodeGen et générer le projet
         run: |

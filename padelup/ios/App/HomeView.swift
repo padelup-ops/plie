@@ -52,7 +52,7 @@ struct HomeView: View {
                 }
             }
             Text(greeting).font(Neo.title(32)).foregroundStyle(Neo.text).fixedSize(horizontal: false, vertical: true)
-            Text("Tous les clubs du monde, la météo du court, et un bot qui réserve à ta place.")
+            Text("Les clubs de France, des pays voisins et du Maghreb, la météo du court, et un bot qui réserve à ta place.")
                 .font(Neo.body(15)).foregroundStyle(Neo.dim)
         }
         .padding(.top, 8)
@@ -69,7 +69,7 @@ struct HomeView: View {
     private var stats: some View {
         HStack(spacing: 12) {
             StatTile(value: directory.totalCount > 0 ? directory.totalCount.formatted(.number.locale(Locale(identifier: "fr_FR"))) : "…",
-                     label: "clubs dans le monde", color: Neo.cyan)
+                     label: "clubs couverts", color: Neo.cyan)
             StatTile(value: "\(bot.rules.filter { $0.active }.count)", label: "bots en veille", color: Neo.volt)
             StatTile(value: "\(bot.log.filter { $0.kind == .booked }.count)", label: "réservés par le bot", color: Neo.magenta)
         }
@@ -78,7 +78,7 @@ struct HomeView: View {
     private var actions: some View {
         VStack(spacing: 12) {
             Button { router.tab = .clubs } label: {
-                Label("Trouver un club, partout", systemImage: "globe.europe.africa.fill")
+                Label("Trouver un club", systemImage: "globe.europe.africa.fill")
             }.buttonStyle(NeonButtonStyle(color: Neo.volt))
             HStack(spacing: 12) {
                 Button { router.tab = .bot } label: { Label("Bot de résa", systemImage: "bolt.fill") }

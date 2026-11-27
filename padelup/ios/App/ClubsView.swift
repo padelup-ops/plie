@@ -6,10 +6,8 @@ struct ClubsView: View {
     @EnvironmentObject private var location: LocationManager
     @EnvironmentObject private var router: Router
 
-    @State private var position: MapCameraPosition = .region(MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 46.6, longitude: 4.5), span: MKCoordinateSpan(latitudeDelta: 14, longitudeDelta: 14)))
-    @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 46.6, longitude: 4.5),
-                                                   span: MKCoordinateSpan(latitudeDelta: 14, longitudeDelta: 14))
+    @State private var position: MapCameraPosition = .region(CoverageZone.overview)
+    @State private var region = CoverageZone.overview
     @State private var visible: [Club] = []
     @State private var query = ""
     @State private var places: [PlaceSearch.Place] = []
@@ -106,7 +104,7 @@ struct ClubsView: View {
     private var searchBar: some View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass").foregroundStyle(Neo.cyan)
-            TextField("Ville, pays ou club… (Tunis, Madrid, Lyon)", text: $query)
+            TextField("Ville ou club… (Lyon, Bruxelles, Tunis)", text: $query)
                 .font(Neo.body(15)).foregroundStyle(Neo.text).autocorrectionDisabled()
                 .submitLabel(.search)
                 .onSubmit { Task { await search() } }
@@ -180,7 +178,7 @@ struct ClubsView: View {
                 Image(systemName: "list.bullet.rectangle.portrait.fill")
                 Text(filtered.isEmpty ? "Aucun club dans cette zone" : "\(filtered.count) clubs dans cette zone")
                 Spacer()
-                Text("\(directory.totalCount.formatted(.number.locale(Locale(identifier: "fr_FR")))) dans le monde")
+                Text("\(directory.totalCount.formatted(.number.locale(Locale(identifier: "fr_FR")))) au total")
                     .font(Neo.label(11)).foregroundStyle(Neo.night.opacity(0.7))
             }
         }

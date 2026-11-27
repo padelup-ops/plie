@@ -81,7 +81,7 @@ struct ProfileView: View {
     private var about: some View {
         VStack(alignment: .leading, spacing: 8) {
             SectionTitle(text: "Sources libres")
-            Text("Clubs du monde : © contributeurs OpenStreetMap, licence ODbL (openstreetmap.org/copyright).").font(Neo.body(12))
+            Text("Clubs (\(CoverageZone.countries)) : © contributeurs OpenStreetMap, licence ODbL (openstreetmap.org/copyright).").font(Neo.body(12))
             Text("Météo : Open-Meteo.com (CC BY 4.0).").font(Neo.body(12))
             Text("Disponibilités : Playtomic et Anybuddy, avec ton compte. PadelUp n'est affilié à aucune de ces plateformes.").font(Neo.body(12))
             Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""))")

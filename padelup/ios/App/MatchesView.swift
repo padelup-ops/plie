@@ -34,7 +34,7 @@ struct MatchesView: View {
                             let list = tab == 0 ? open : mine
                             if list.isEmpty {
                                 EmptyStateView(systemImage: "sportscourt", title: tab == 0 ? "Aucun match ouvert" : "Aucun match prévu",
-                                               message: "Crée un match depuis la fiche d'un club : n'importe quel club du monde.")
+                                               message: "Crée un match depuis la fiche de n'importe quel club de la carte.")
                             }
                             ForEach(list) { m in MatchCard(match: m, joined: tab == 1) { await reload() } }
                         }

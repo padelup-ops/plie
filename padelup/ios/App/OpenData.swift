@@ -2,10 +2,38 @@ import CoreLocation
 import Foundation
 import MapKit
 
-// Clubs de padel du monde entier, sans passer par le serveur PadelUp :
-// 1. le fichier mondial OpenStreetMap embarqué dans l'app (tous les pays, hors ligne, instantané) ;
+// Clubs de padel de la zone PadelUp (France, Belgique, Suisse, pays frontaliers de la France, Maroc, Algérie, Tunisie),
+// sans passer par le serveur PadelUp :
+// 1. le fichier OpenStreetMap embarqué dans l'app (hors ligne, instantané) ;
 // 2. une mise à jour en direct de la zone affichée via l'API Overpass (OpenStreetMap) ;
 // 3. les clubs Playtomic de la zone (leur recherche publique), fusionnés avec les clubs OSM proches.
+
+/// Zone couverte : contours simplifiés (rectangles) des pays retenus.
+enum CoverageZone {
+    static let countries = "France, Belgique, Suisse, Luxembourg, Allemagne, Italie, Monaco, Andorre, Espagne, Maroc, Algérie, Tunisie"
+    static let short = "France, pays voisins et Maghreb"
+
+    // (sud, ouest, nord, est)
+    private static let boxes: [(Double, Double, Double, Double)] = [
+        (41.3, -5.3, 51.2, 9.7),     // France (Corse comprise), Monaco
+        (49.4, 2.5, 51.6, 6.5),      // Belgique, Luxembourg
+        (47.2, 5.8, 55.1, 15.1),     // Allemagne
+        (45.8, 5.9, 47.9, 10.6),     // Suisse
+        (35.4, 6.6, 47.1, 18.6),     // Italie (Sicile, Sardaigne)
+        (35.9, -9.4, 43.9, 4.4),     // Espagne (Baléares), Andorre
+        (27.6, -18.2, 29.5, -13.4),  // Canaries
+        (27.6, -13.2, 35.95, -1.0),  // Maroc
+        (18.9, -8.7, 37.1, 12.0),    // Algérie
+        (30.2, 7.5, 37.6, 11.7),     // Tunisie
+    ]
+
+    static func contains(latitude: Double, longitude: Double) -> Bool {
+        boxes.contains { latitude >= $0.0 && longitude >= $0.1 && latitude <= $0.2 && longitude <= $0.3 }
+    }
+
+    static let overview = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 40.5, longitude: 4.5),
+                                             span: MKCoordinateSpan(latitudeDelta: 24, longitudeDelta: 24))
+}
 @MainActor
 final class ClubDirectory: ObservableObject {
     static let shared = ClubDirectory()
@@ -38,7 +66,7 @@ final class ClubDirectory: ObservableObject {
     }
 
     nonisolated private static func decodeBundled() -> [Club] {
-        guard let url = Bundle.main.url(forResource: "clubs-world", withExtension: "json"),
+        guard let url = Bundle.main.url(forResource: "clubs-zone", withExtension: "json"),
               let data = try? Data(contentsOf: url) else { return [] }
         return decodeCompact(data)
     }
@@ -161,6 +189,10 @@ final class ClubDirectory: ObservableObject {
             liveStatus = "Zoome pour actualiser les clubs en direct"
             return
         }
+        guard CoverageZone.contains(latitude: region.center.latitude, longitude: region.center.longitude) else {
+            liveStatus = "Hors zone PadelUp (\(CoverageZone.short))"
+            return
+        }
         let zoneKey = "\(Int(region.center.latitude * 20)):\(Int(region.center.longitude * 20))"
         if refreshing.contains(zoneKey) { return }
         if let last = lastLiveRefresh[zoneKey], Date().timeIntervalSince(last) < 600 { return }
@@ -174,6 +206,7 @@ final class ClubDirectory: ObservableObject {
         var added = 0
         do {
             let fresh = try await Overpass.clubs(south: s, west: w, north: n, east: e)
+                .filter { CoverageZone.contains(latitude: $0.latitude, longitude: $0.longitude) }
             for c in fresh {
                 if var existing = clubs[c.id] {
                     existing.name = c.name.isEmpty ? existing.name : c.name
@@ -194,7 +227,7 @@ final class ClubDirectory: ObservableObject {
         let center = CLLocation(latitude: region.center.latitude, longitude: region.center.longitude)
         let radiusKm = max(5, min(60, region.span.latitudeDelta * 111 / 2))
         if let tenants = try? await PlaytomicAPI.shared.tenants(near: center.coordinate, radiusKm: radiusKm) {
-            for t in tenants { merge(playtomic: t) }
+            for t in tenants where CoverageZone.contains(latitude: t.latitude, longitude: t.longitude) { merge(playtomic: t) }
         }
         totalCount = clubs.count
         revision += 1
@@ -250,7 +283,7 @@ final class ClubDirectory: ObservableObject {
     func installDemo(_ demo: [Club]) {
         for c in demo { insert(c) }
         loaded = true
-        totalCount = max(clubs.count, 31_482)
+        totalCount = clubs.count
         revision += 1
     }
 }
