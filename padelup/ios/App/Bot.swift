@@ -77,14 +77,14 @@ struct BotRule: Identifiable, Codable, Hashable {
         let key = DateFormatter()
         key.timeZone = tz
         key.dateFormat = "yyyy-MM-dd"
-        var out: [(Date, Date)] = []
+        var out: [(release: Date, day: Date)] = []
         for offset in 0...(d + 21) {
             guard let day = cal.date(byAdding: .day, value: offset, to: today),
                   weekdays.contains((cal.component(.weekday, from: day) + 5) % 7),
                   !bookedDays.contains(key.string(from: day)),
                   let releaseDay = cal.date(byAdding: .day, value: -d, to: day) else { continue }
             let release = releaseDay.addingTimeInterval(Double(m) * 60)
-            if release > now.addingTimeInterval(-60) { out.append((release, day)) }
+            if release > now.addingTimeInterval(-60) { out.append((release: release, day: day)) }
             if out.count >= limit { break }
         }
         return out
@@ -363,8 +363,11 @@ final class BotEngine: ObservableObject {
     /// Prochaine ouverture toutes règles confondues.
     var nextRelease: (rule: BotRule, release: Date, day: Date)? {
         rules.filter { $0.active && !$0.isExhausted && $0.hasRelease }
-            .compactMap { r in r.upcomingReleases(limit: 1).first.map { (r, $0.release, $0.day) } }
-            .min { $0.1 < $1.1 }
+            .compactMap { r -> (rule: BotRule, release: Date, day: Date)? in
+                guard let next = r.upcomingReleases(limit: 1).first else { return nil }
+                return (rule: r, release: next.release, day: next.day)
+            }
+            .min { $0.release < $1.release }
     }
 
     /// Si une ouverture tombe dans les 3 prochaines minutes et que l'app est ouverte : compte à rebours puis scan.
@@ -430,7 +433,10 @@ final class BotEngine: ObservableObject {
     /// Alarmes locales : une minute avant chaque ouverture (iOS ne laisse pas une app tourner à la seconde en veille).
     private func rescheduleAlarmsIfNeeded() {
         guard !loading, ShotMode.current == nil else { return }
-        let releases = rules.filter { $0.active && !$0.isExhausted }.flatMap { r in r.upcomingReleases(limit: 4).map { (r, $0.release, $0.day) } }
+        var releases: [(BotRule, Date, Date)] = []
+        for r in rules where r.active && !r.isExhausted {
+            for next in r.upcomingReleases(limit: 4) { releases.append((r, next.release, next.day)) }
+        }
         let signature = releases.map { "\($0.0.id):\(Int($0.1.timeIntervalSince1970))" }.sorted().joined(separator: ",")
         guard signature != alarmSignature else { return }
         alarmSignature = signature
