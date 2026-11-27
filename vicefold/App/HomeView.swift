@@ -21,12 +21,12 @@ struct HomeView: View {
         DualLayout {
             column
         } secondary: {
-            // Droite du pli : reprendre, le secret du jour, les billets, par où commencer, les nouveautés.
+            // Droite du pli : le secret du jour (le titre court laisse la place aux icônes d'état du Duo), reprendre, les billets, par où commencer, les nouveautés.
             NavigationStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: VF.Space.l) {
-                        resume
                         secretOfTheDay
+                        resume
                         tickets
                         startHere
                         if let news = content.content.news, !news.isEmpty { newsCard(news) }

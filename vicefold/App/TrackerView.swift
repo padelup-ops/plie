@@ -434,7 +434,7 @@ struct CollectibleRows: View {
         let complete = n >= s.target
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(s.title).font(.headline).foregroundStyle(VF.text)
+                Text(s.title).font(.headline).foregroundStyle(VF.text).fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 8)
                 Text(verbatim: "\(n)/\(s.target)").font(VF.mono(13, weight: .bold)).foregroundStyle(complete ? VF.palm : VF.sun)
                     .contentTransition(.numericText())
