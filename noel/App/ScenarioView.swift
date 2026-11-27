@@ -69,6 +69,9 @@ struct ScenarioView: View {
                         .font(.ui(14))
                         .foregroundStyle(Noel.cream.opacity(0.7))
                         .padding(.top, 2)
+
+                        ReactionOptions()
+                            .padding(.top, 10)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 14)

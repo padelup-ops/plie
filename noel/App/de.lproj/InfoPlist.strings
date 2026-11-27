@@ -1,2 +1,3 @@
 "CFBundleDisplayName" = "Weihnachtsmann";
-"NSPhotoLibraryAddUsageDescription" = "Damit du die Erinnerungskarte in deinen Fotos sichern kannst.";
+"NSPhotoLibraryAddUsageDescription" = "Damit du die Erinnerungskarte und die Fotos der Reaktion deines Kindes in deinen Fotos sichern kannst.";
+"NSCameraUsageDescription" = "Zeigt dein Kind in einer Ecke des Anrufs, wie beim Videoanruf. Nichts wird aufgenommen, außer du möchtest Fotos der Reaktion.";

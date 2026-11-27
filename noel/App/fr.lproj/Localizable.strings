@@ -48,7 +48,6 @@
 "Everything stays on this iPhone" = "Tout reste sur cet iPhone";
 "The first names, age, qualities, special moment and wish you enter are only used to build Santa's call. They are saved on this iPhone and never sent anywhere." = "Les prénoms, l'âge, les qualités, le moment spécial et le souhait que tu saisis servent uniquement à préparer l'appel du Père Noël. Ils restent sur cet iPhone et ne sont jamais envoyés nulle part.";
 "No microphone, no recording" = "Pas de micro, aucun enregistrement";
-"Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone or the camera." = "Le Père Noël marque des pauses pour que ton enfant lui réponde, mais l'app n'écoute jamais : elle n'utilise ni le micro ni la caméra.";
 "No account, no tracking, no ads" = "Pas de compte, pas de pistage, pas de pub";
 "There is no sign-up, no advertising and no analytics. Santa's voice is inside the app: it works without the internet." = "Aucune inscription, aucune publicité, aucune mesure d'audience. La voix du Père Noël est dans l'app : elle fonctionne sans internet.";
 "Purchases" = "Achats";
@@ -143,7 +142,6 @@
 "A letter from Santa to print or share" = "Une lettre du Père Noël à imprimer ou à partager";
 "A good-child certificate" = "Un certificat d'enfant sage";
 "An advent calendar, one message a day" = "Un calendrier de l'Avent, un message par jour";
-"Cards you can share, with the app's name" = "Des cartes à partager, avec le nom de l'app";
 "Pass unlocked. Thank you! ✨" = "Pass débloqué. Merci ! ✨";
 "Unlock the Pass for %@" = "Débloquer le Pass pour %@";
 "One-time purchase. A short preview stays free. No ads, no account." = "Achat unique. Un court aperçu reste gratuit. Sans pub, sans compte.";
@@ -185,3 +183,17 @@
 "The magic star surprise at the end of every call" = "La surprise de l'étoile magique à la fin de chaque appel";
 "Calls for brothers and sisters together" = "Des appels pour les frères et sœurs ensemble";
 "3 extra messages" = "3 messages en plus";
+"Show your child in a corner, like a video call" = "Afficher ton enfant dans un coin, comme en appel vidéo";
+"The front camera shows on screen only. Nothing is recorded." = "La caméra avant s'affiche à l'écran, c'est tout. Rien n'est enregistré.";
+"Keep their reaction in photos" = "Garder sa réaction en photos";
+"A few photos at the best moments, shown to you after the call. They stay on this iPhone unless you save or share them." = "Quelques photos aux meilleurs moments, montrées après l'appel. Elles restent sur cet iPhone tant que tu ne les enregistres pas ou ne les partages pas.";
+"The camera is turned off for this app. You can allow it in the iPhone's Settings." = "La caméra est désactivée pour cette app. Tu peux l'autoriser dans les Réglages de l'iPhone.";
+"Their reaction" = "Sa réaction";
+"These photos are only here for now. Save or share the ones you want to keep." = "Ces photos ne sont là que pour l'instant. Enregistre ou partage celles que tu veux garder.";
+"Save to Photos" = "Enregistrer dans Photos";
+"Saved to Photos" = "Enregistrées dans Photos";
+"Share the photos" = "Partager les photos";
+"Photos of your child's reaction, to keep and share" = "Des photos de la réaction de ton enfant, à garder et partager";
+"Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone." = "Le Père Noël fait des pauses pour que ton enfant réponde, mais l'app n'écoute jamais : elle n'utilise pas le micro.";
+"The camera, only if you turn it on" = "La caméra, seulement si tu l'actives";
+"You can show your child in a corner of the call, like a video call. The picture only appears on the screen: nothing is recorded or sent. With the Christmas Pass, you can ask for a few photos of their reaction: they stay on this iPhone unless you save or share them." = "Tu peux afficher ton enfant dans un coin de l'appel, comme en appel vidéo. L'image apparaît seulement à l'écran : rien n'est enregistré ni envoyé. Avec le Pass Noël, tu peux demander quelques photos de sa réaction : elles restent sur cet iPhone tant que tu ne les enregistres pas ou ne les partages pas.";

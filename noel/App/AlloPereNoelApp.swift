@@ -42,6 +42,13 @@ final class AppModel {
     var subtitles: Bool = UserDefaults.standard.object(forKey: "allonoel.subtitles") as? Bool ?? true {
         didSet { UserDefaults.standard.set(subtitles, forKey: "allonoel.subtitles") }
     }
+    /// Le parent a demandé à voir son enfant dans un coin de l'appel (caméra avant), et à garder sa réaction en photos.
+    var showChild: Bool = UserDefaults.standard.bool(forKey: "allonoel.camera") {
+        didSet { UserDefaults.standard.set(showChild, forKey: "allonoel.camera") }
+    }
+    var keepReactions: Bool = UserDefaults.standard.bool(forKey: "allonoel.reactions") {
+        didSet { UserDefaults.standard.set(keepReactions, forKey: "allonoel.reactions") }
+    }
     let call = CallController()
 
     init() {
@@ -56,6 +63,7 @@ final class AppModel {
     func startCall(premium: Bool) {
         profile.save()
         call.prepare(profile: profile, scenario: scenario, premium: premium)
+        call.camera(show: showChild, keep: keepReactions && premium)
         if delay == .now {
             ring()
         } else {
@@ -87,11 +95,13 @@ final class AppModel {
 
     func replay(premium: Bool) {
         call.prepare(profile: profile, scenario: scenario, premium: premium)
+        call.camera(show: showChild, keep: keepReactions && premium)
         ring()
     }
 
     func home() {
         call.hangUp()
+        call.forgetReactions()
         ringAt = nil
         go(.home)
     }

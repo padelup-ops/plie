@@ -48,7 +48,6 @@
 "Everything stays on this iPhone" = "Tudo fica neste iPhone";
 "The first names, age, qualities, special moment and wish you enter are only used to build Santa's call. They are saved on this iPhone and never sent anywhere." = "Os nomes, a idade, as qualidades, o momento especial e o desejo que você digita servem só para preparar a ligação do Papai Noel. Eles ficam salvos neste iPhone e nunca são enviados para lugar nenhum.";
 "No microphone, no recording" = "Sem microfone, sem gravação";
-"Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone or the camera." = "O Papai Noel faz pausas para a criança responder, mas o app nunca escuta: ele não usa o microfone nem a câmera.";
 "No account, no tracking, no ads" = "Sem conta, sem rastreamento, sem anúncios";
 "There is no sign-up, no advertising and no analytics. Santa's voice is inside the app: it works without the internet." = "Não há cadastro, nem publicidade, nem análises. A voz do Papai Noel é criada pelo seu iPhone, sem internet.";
 "Purchases" = "Compras";
@@ -143,7 +142,6 @@
 "A letter from Santa to print or share" = "Uma carta do Papai Noel para imprimir ou compartilhar";
 "A good-child certificate" = "Um diploma de criança boazinha";
 "An advent calendar, one message a day" = "Um calendário do Advento, uma mensagem por dia";
-"Cards you can share, with the app's name" = "Cartões para compartilhar, com o nome do app";
 "Pass unlocked. Thank you! ✨" = "Passe liberado. Obrigado! ✨";
 "Unlock the Pass for %@" = "Liberar o Passe por %@";
 "One-time purchase. A short preview stays free. No ads, no account." = "Compra única. Uma prévia curta continua grátis. Sem anúncios, sem conta.";
@@ -185,3 +183,17 @@
 "The magic star surprise at the end of every call" = "A surpresa da estrela mágica no fim de cada ligação";
 "Calls for brothers and sisters together" = "Ligações para irmãos e irmãs juntos";
 "3 extra messages" = "3 mensagens a mais";
+"Show your child in a corner, like a video call" = "Mostrar seu filho em um canto, como em uma chamada de vídeo";
+"The front camera shows on screen only. Nothing is recorded." = "A câmera frontal aparece só na tela. Nada é gravado.";
+"Keep their reaction in photos" = "Guardar a reação em fotos";
+"A few photos at the best moments, shown to you after the call. They stay on this iPhone unless you save or share them." = "Algumas fotos nos melhores momentos, mostradas depois da ligação. Elas ficam neste iPhone, a menos que você salve ou compartilhe.";
+"The camera is turned off for this app. You can allow it in the iPhone's Settings." = "A câmera está desativada para este app. Você pode permitir nos Ajustes do iPhone.";
+"Their reaction" = "A reação";
+"These photos are only here for now. Save or share the ones you want to keep." = "Estas fotos ficam aqui só por enquanto. Salve ou compartilhe as que quiser guardar.";
+"Save to Photos" = "Salvar em Fotos";
+"Saved to Photos" = "Salvas em Fotos";
+"Share the photos" = "Compartilhar as fotos";
+"Photos of your child's reaction, to keep and share" = "Fotos da reação do seu filho, para guardar e compartilhar";
+"Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone." = "O Papai Noel faz pausas para o seu filho responder, mas o app nunca escuta: ele não usa o microfone.";
+"The camera, only if you turn it on" = "A câmera, só se você ativar";
+"You can show your child in a corner of the call, like a video call. The picture only appears on the screen: nothing is recorded or sent. With the Christmas Pass, you can ask for a few photos of their reaction: they stay on this iPhone unless you save or share them." = "Você pode mostrar seu filho em um canto da ligação, como em uma chamada de vídeo. A imagem aparece só na tela: nada é gravado nem enviado. Com o Passe de Natal, você pode pedir algumas fotos da reação: elas ficam neste iPhone, a menos que você salve ou compartilhe.";
