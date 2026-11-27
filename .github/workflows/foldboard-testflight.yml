@@ -5,7 +5,7 @@ name: Foldboard - TestFlight
 
 on:
   push:
-    branches: [main, cursor/foldboard-memory-b370]
+    branches: [main]
     paths:
       - "foldboard/App/**"
       - "foldboard/Keyboard/**"
@@ -116,10 +116,6 @@ jobs:
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-            <key>com.apple.security.application-groups</key>
-            <array>
-              <string>group.com.padelup.foldboard</string>
-            </array>
             <key>keychain-access-groups</key>
             <array>
               <string>${APPLE_TEAM_ID}.com.padelup.foldboard.shared</string>
