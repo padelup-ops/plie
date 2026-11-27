@@ -1867,6 +1867,7 @@ final class KeyboardCanvas: UIView {
     private var memChecks = 0
     private var memTimer: Timer?
     private var lastCritical: TimeInterval = 0
+    private var lastTight: TimeInterval = -100
     /// Les listes de mots ont été rendues (palier critique) : à recharger quand la place revient.
     private var listsShed = false
     private var shedAt: TimeInterval = 0
@@ -1894,15 +1895,20 @@ final class KeyboardCanvas: UIView {
     /// Rend de la mémoire selon le palier. `critical` au plus une fois toutes les 3 secondes.
     func shedMemory(_ level: MemoryLevel) {
         guard level != .fine else { return }
-        trimMemory(flush: false)
-        NeuralSwipe.release()
-        releaseMicIfIdle()
-        KBSymbol.clear()
-        pasteControl = nil
-        guard level == .critical else { return }
         let now = ProcessInfo.processInfo.systemUptime
+        // Un iPhone dont la limite est basse reste « serré » en permanence : on ne refait pas le ménage toutes les
+        // deux secondes (les caches du correcteur servent à la frappe), seulement toutes les dix.
+        if level == .critical || now - lastTight > 10 {
+            lastTight = now
+            trimMemory(flush: false)
+            NeuralSwipe.release()
+            releaseMicIfIdle()
+        }
+        guard level == .critical else { return }
         guard now - lastCritical > 3 else { return }
         lastCritical = now
+        KBSymbol.clear()
+        pasteControl = nil
         KBMemLog.note(mb: Self.footprintMB(), emoji: showEmoji, alive: Self.alive, views: KBViews.live)
         if !listsShed {
             // D'abord les listes de mots (une dizaine de Mo) : les emojis ouverts restent ouverts.
