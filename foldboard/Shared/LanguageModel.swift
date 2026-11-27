@@ -49,18 +49,28 @@ final class KBLanguageModel {
         guard p <= d.count else { return nil }
         let bytes = d
         let offsets = starts
-        func text(_ i: Int) -> String {
-            bytes.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> String in
-                let o = Int(offsets[i])
-                guard o < raw.count else { return "" }
-                let n = Int(raw[o])
-                let a = o + 1, b = min(a + n, raw.count)
-                return String(decoding: UnsafeRawBufferPointer(rebasing: raw[a..<b]), as: UTF8.self)
+        // Classés par leurs octets (pas de chaînes fabriquées : 60 000 mots triés en quelques millisecondes).
+        var idx = Array(0..<count)
+        bytes.withUnsafeBytes { (raw: UnsafeRawBufferPointer) in
+            idx.sort {
+                let c = Self.compare(raw, Int(offsets[$0]), raw, Int(offsets[$1]))
+                // Un mot présent deux fois : le premier du fichier d'abord (c'est lui que la recherche rend).
+                return c != 0 ? c < 0 : $0 < $1
             }
         }
-        var idx = Array(0..<count)
-        idx.sort { text($0) < text($1) }
         order = idx.map { UInt32($0) }
+    }
+
+    /// Compare deux mots du fichier (un octet de longueur, puis les octets UTF-8) : < 0, 0 ou > 0.
+    private static func compare(_ a: UnsafeRawBufferPointer, _ ao: Int, _ b: UnsafeRawBufferPointer, _ bo: Int) -> Int {
+        guard ao < a.count, bo < b.count else { return ao < a.count ? 1 : (bo < b.count ? -1 : 0) }
+        let an = min(Int(a[ao]), a.count - ao - 1), bn = min(Int(b[bo]), b.count - bo - 1)
+        let n = min(an, bn)
+        if n > 0 {
+            let r = memcmp(a.baseAddress! + ao + 1, b.baseAddress! + bo + 1, n)
+            if r != 0 { return Int(r) }
+        }
+        return an - bn
     }
 
     private func wordAt(_ i: Int) -> String {
@@ -80,14 +90,24 @@ final class KBLanguageModel {
     private func u32(_ o: Int) -> Int { data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in Int(raw.loadUnaligned(fromByteOffset: o, as: UInt32.self).littleEndian) } }
 
     private func id(_ word: String) -> Int? {
-        let key = word.lowercased().replacingOccurrences(of: "'", with: "’")
-        var lo = 0, hi = order.count
-        while lo < hi {
-            let mid = (lo + hi) / 2
-            if wordAt(Int(order[mid])) < key { lo = mid + 1 } else { hi = mid }
+        var key = word.lowercased().replacingOccurrences(of: "'", with: "’")
+        if !key.utf8.allSatisfy({ $0 < 0x80 }) { key = key.precomposedStringWithCanonicalMapping }
+        // Le mot cherché, au format du fichier (longueur puis octets), comparé octet par octet.
+        var probe: [UInt8] = [0]
+        probe.append(contentsOf: key.utf8)
+        guard probe.count <= 256 else { return nil }
+        probe[0] = UInt8(probe.count - 1)
+        return data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int? in
+            probe.withUnsafeBytes { (p: UnsafeRawBufferPointer) -> Int? in
+                var lo = 0, hi = order.count
+                while lo < hi {
+                    let mid = (lo + hi) / 2
+                    if Self.compare(raw, Int(off[Int(order[mid])]), p, 0) < 0 { lo = mid + 1 } else { hi = mid }
+                }
+                guard lo < order.count, Self.compare(raw, Int(off[Int(order[lo])]), p, 0) == 0 else { return nil }
+                return Int(order[lo])
+            }
         }
-        guard lo < order.count, wordAt(Int(order[lo])) == key else { return nil }
-        return Int(order[lo])
     }
 
     /// Les suites d'un mot seul : (id, score) ; score = -ln p × 12.

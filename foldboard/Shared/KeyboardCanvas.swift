@@ -214,6 +214,8 @@ final class KeyboardCanvas: UIView {
     private var dictState = DictState.idle { didSet { if micKey, oldValue != dictState { updateLabels() } } }
     private var dictSeq = 0
     private let adjustButton = UIButton(type: .system)
+    /// La cible des appuis longs (⇆ : la prise reconnue ; masquer : fluidité et mémoire).
+    private var holdRelay: AnyObject?
     private let chips = UIScrollView()
     private let chipStack = UIStackView()
     private let toast = UILabel()
@@ -968,7 +970,9 @@ final class KeyboardCanvas: UIView {
         // Le bouton ouvre un menu (voir openLayoutMenu) : pas d'action directe.
         // Appui long : la situation reconnue et l'étalonnage utilisé (pour vérifier).
         // Le geste retient sa cible : un relais faible, sinon le clavier ne peut plus être libéré.
+        // (Un geste ne retient pas sa cible : le relais est gardé par le clavier, sinon l'appui long ne faisait plus rien.)
         let hold = KBWeakTarget(self)
+        holdRelay = hold
         flipButton.addGestureRecognizer(UILongPressGestureRecognizer(target: hold, action: #selector(KBWeakTarget.grip(_:))))
         hideButton.setImage(UIImage(systemName: "keyboard.chevron.compact.down"), for: .normal)
         hideButton.addAction(UIAction { [weak self] _ in self?.input?.kbDismiss() }, for: .touchUpInside)
@@ -1226,6 +1230,9 @@ final class KeyboardCanvas: UIView {
     /// Plusieurs messages arrivent pendant que le téléphone se plie. On n'applique que le dernier,
     /// une fois l'angle stabilisé, et les touches prennent leur place d'un coup.
     private func scheduleHinge(closed: Bool?, half: Bool) {
+        // L'angle bouge sans changer d'état (le Duo ouvert fléchit un peu sous les pouces) : on ne touche à rien.
+        // Avant, chaque message refaisait toutes les touches, et l'appui en cours était perdu.
+        if !hingeSettling, closed == hingeClosed, half == hingeHalf { return }
         hingeSettling = true
         pendingHingeClosed = closed
         pendingHingeHalf = half
@@ -1238,9 +1245,15 @@ final class KeyboardCanvas: UIView {
     }
 
     private func applyScheduledHinge() {
+        let changed = pendingHingeClosed != hingeClosed || pendingHingeHalf != hingeHalf
+        hingeSettling = false
+        // Revenu au même état : rien à refaire (seulement la taille, si elle a bougé entre-temps).
+        guard changed else {
+            if bounds.size != builtFor { setNeedsLayout() }
+            return
+        }
         hingeClosed = pendingHingeClosed
         hingeHalf = pendingHingeHalf
-        hingeSettling = false
         hingeApplies += 1
         learnScreen()
         updateGripContext()
@@ -1867,6 +1880,7 @@ final class KeyboardCanvas: UIView {
     private var memChecks = 0
     private var memTimer: Timer?
     private var lastCritical: TimeInterval = 0
+    private var lastTight: TimeInterval = -100
     /// Les listes de mots ont été rendues (palier critique) : à recharger quand la place revient.
     private var listsShed = false
     private var shedAt: TimeInterval = 0
@@ -1894,15 +1908,20 @@ final class KeyboardCanvas: UIView {
     /// Rend de la mémoire selon le palier. `critical` au plus une fois toutes les 3 secondes.
     func shedMemory(_ level: MemoryLevel) {
         guard level != .fine else { return }
-        trimMemory(flush: false)
-        NeuralSwipe.release()
-        releaseMicIfIdle()
-        KBSymbol.clear()
-        pasteControl = nil
-        guard level == .critical else { return }
         let now = ProcessInfo.processInfo.systemUptime
+        // Un iPhone dont la limite est basse reste « serré » en permanence : on ne refait pas le ménage toutes les
+        // deux secondes (les caches du correcteur servent à la frappe), seulement toutes les dix.
+        if level == .critical || now - lastTight > 10 {
+            lastTight = now
+            trimMemory(flush: false)
+            NeuralSwipe.release()
+            releaseMicIfIdle()
+        }
+        guard level == .critical else { return }
         guard now - lastCritical > 3 else { return }
         lastCritical = now
+        KBSymbol.clear()
+        pasteControl = nil
         KBMemLog.note(mb: Self.footprintMB(), emoji: showEmoji, alive: Self.alive, views: KBViews.live)
         if !listsShed {
             // D'abord les listes de mots (une dizaine de Mo) : les emojis ouverts restent ouverts.
@@ -3379,6 +3398,7 @@ final class KeyboardCanvas: UIView {
     /// qu'un carré bleu sans rien dedans, pris pour une touche apparue par erreur. Sur le petit clavier à une main,
     /// le « … » propose les mêmes trois dispositions.
     private static let layoutSwitchWidth: CGFloat = 132
+    private var switchStyledFor = ""
 
     private var layoutSwitchFits: Bool {
         let open = gripContext.hasPrefix("open")
@@ -3406,15 +3426,16 @@ final class KeyboardCanvas: UIView {
             layoutSwitch.selectedSegmentIndex = openLayoutChoice
             switchProgrammatic = false
         }
-        layoutSwitch.selectedSegmentTintColor = theme.accent
-        layoutSwitch.backgroundColor = theme.key.withAlphaComponent(0.55)
-        for i in 0..<layoutSwitch.numberOfSegments { layoutSwitch.setWidth(w / 3, forSegmentAt: i) }
-        let tint = theme.text
-        layoutSwitch.setTitleTextAttributes([.foregroundColor: tint], for: .normal)
-        layoutSwitch.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
-        layoutSwitch.tintColor = tint
-        layoutSwitch.accessibilityLabel = L("Keyboard position")
-        topBar.bringSubviewToFront(layoutSwitch)
+        // L'habillage une fois par thème (le contrôle redessine ses images à chaque changement).
+        if switchStyledFor != theme.id {
+            switchStyledFor = theme.id
+            layoutSwitch.selectedSegmentTintColor = theme.accent
+            layoutSwitch.backgroundColor = theme.key.withAlphaComponent(0.55)
+            for i in 0..<layoutSwitch.numberOfSegments { layoutSwitch.setWidth(w / 3, forSegmentAt: i) }
+            layoutSwitch.tintColor = theme.text
+            layoutSwitch.accessibilityLabel = L("Keyboard position")
+        }
+        if topBar.subviews.last !== layoutSwitch { topBar.bringSubviewToFront(layoutSwitch) }
     }
 
     /// Un réglage coupé reste coupé, même si une branche de la mise en page a réaffiché le bouton.
