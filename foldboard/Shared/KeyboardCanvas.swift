@@ -214,6 +214,8 @@ final class KeyboardCanvas: UIView {
     private var dictState = DictState.idle { didSet { if micKey, oldValue != dictState { updateLabels() } } }
     private var dictSeq = 0
     private let adjustButton = UIButton(type: .system)
+    /// La cible des appuis longs (⇆ : la prise reconnue ; masquer : fluidité et mémoire).
+    private var holdRelay: AnyObject?
     private let chips = UIScrollView()
     private let chipStack = UIStackView()
     private let toast = UILabel()
@@ -968,7 +970,9 @@ final class KeyboardCanvas: UIView {
         // Le bouton ouvre un menu (voir openLayoutMenu) : pas d'action directe.
         // Appui long : la situation reconnue et l'étalonnage utilisé (pour vérifier).
         // Le geste retient sa cible : un relais faible, sinon le clavier ne peut plus être libéré.
+        // (Un geste ne retient pas sa cible : le relais est gardé par le clavier, sinon l'appui long ne faisait plus rien.)
         let hold = KBWeakTarget(self)
+        holdRelay = hold
         flipButton.addGestureRecognizer(UILongPressGestureRecognizer(target: hold, action: #selector(KBWeakTarget.grip(_:))))
         hideButton.setImage(UIImage(systemName: "keyboard.chevron.compact.down"), for: .normal)
         hideButton.addAction(UIAction { [weak self] _ in self?.input?.kbDismiss() }, for: .touchUpInside)
@@ -1226,6 +1230,9 @@ final class KeyboardCanvas: UIView {
     /// Plusieurs messages arrivent pendant que le téléphone se plie. On n'applique que le dernier,
     /// une fois l'angle stabilisé, et les touches prennent leur place d'un coup.
     private func scheduleHinge(closed: Bool?, half: Bool) {
+        // L'angle bouge sans changer d'état (le Duo ouvert fléchit un peu sous les pouces) : on ne touche à rien.
+        // Avant, chaque message refaisait toutes les touches, et l'appui en cours était perdu.
+        if !hingeSettling, closed == hingeClosed, half == hingeHalf { return }
         hingeSettling = true
         pendingHingeClosed = closed
         pendingHingeHalf = half
@@ -1238,9 +1245,15 @@ final class KeyboardCanvas: UIView {
     }
 
     private func applyScheduledHinge() {
+        let changed = pendingHingeClosed != hingeClosed || pendingHingeHalf != hingeHalf
+        hingeSettling = false
+        // Revenu au même état : rien à refaire (seulement la taille, si elle a bougé entre-temps).
+        guard changed else {
+            if bounds.size != builtFor { setNeedsLayout() }
+            return
+        }
         hingeClosed = pendingHingeClosed
         hingeHalf = pendingHingeHalf
-        hingeSettling = false
         hingeApplies += 1
         learnScreen()
         updateGripContext()
