@@ -13,6 +13,7 @@
 #
 #   voice.py plan                       ce qu'il y a à dire, par langue
 #   voice.py check                      ce qui manque dans Resources/Audio/voice
+#   voice.py audit --src <dossier>      reprend une fabrication (branche ci-noel-voice) : garde ce qui passe le contrôle
 #   voice.py gen --lang fr --shard 0/6 --out out      (dans GitHub Actions : .github/workflows/noel-voice.yml)
 #   voice.py pilot --lang fr --out out  quelques phrases avec plusieurs réglages, pour choisir
 
@@ -143,17 +144,30 @@ def duration_ok(it, seconds: float) -> bool:
     return 0.04 * n + 0.35 <= seconds <= 0.13 * n + 1.6
 
 
+# Des mots qu'un Père Noël ne dit pas. Le modèle ajoute parfois un bruit ou un mot en fin de phrase, que la
+# transcription entend n'importe comment : au moindre doute, la phrase est refaite.
+RUDE = set("""putain merde bordel con conne connard salope chier foutre
+fuck fucking shit damn bitch ass asshole crap hell
+mierda puta puto joder cono carajo cabron pendejo
+scheisse scheiss verdammt arsch fick ficken
+cazzo merda stronzo vaffanculo porca puttana
+porra caralho bosta foda puta""".split())
+
+
 def judge(it, heard: str):
-    """La phrase entendue est-elle la bonne ? Ressemblance au texte, rien en trop à la fin (le modèle répète parfois
-    un mot : « Hello, Olivia! Olivia! »), et pour un prénom : c'est bien lui qu'on entend à la fin."""
+    """La phrase entendue est-elle la bonne ? Elle ressemble au texte, rien n'est dit en plus (le modèle répète
+    parfois un mot, ou en ajoute un : « Hello, Olivia! Olivia! »), elle finit sur le bon mot, et pour un prénom :
+    c'est bien lui qu'on entend à la fin."""
     score = similarity(it["text"], heard)
     want, got = letters(it["text"]).split(), letters(heard).split()
+    if not got or any(w in RUDE for w in got if w not in want):
+        return 0.0, False
     if it["kind"] == "line":
         floor = 0.8 if len(" ".join(want)) < 28 else 0.86
-        extra = len(got) <= len(want) + max(1, round(len(want) * 0.15))
-        return score, score >= floor and extra
+        end = difflib.SequenceMatcher(None, want[-1], got[-1]).ratio() >= 0.6 if want else True
+        return score, score >= floor and len(got) <= len(want) and end
     name = norm_name(it["key"].split("|", 1)[1]).replace("-", " ").split()
-    tail = " ".join(got[-len(name):]) if got else ""
+    tail = " ".join(got[-len(name):])
     who = difflib.SequenceMatcher(None, " ".join(name), tail).ratio()
     # Le prénom compte double : c'est lui que l'enfant écoute.
     return round((score + 2 * who) / 3, 3), score >= 0.8 and who >= 0.6 and len(got) <= len(want)
@@ -396,6 +410,48 @@ def cmd_pilot(a):
               f"temps {np.mean([r['secs'] for r in rs]):.0f} s/phrase essais {np.mean([r['tries'] for r in rs]):.1f}")
 
 
+def cmd_audit(a):
+    """Reprend les rapports d'une fabrication (report*.jsonl, avec ce que la transcription a entendu) et applique le
+    contrôle d'aujourd'hui : copie dans Resources/Audio/voice les phrases qui passent, laisse les autres à refaire."""
+    import shutil
+    src = Path(a.src)
+    kept = dropped = 0
+    stats = {}
+    worst = []
+    for lang in LANGS:
+        want = {it["id"]: it for it in plan(lang)}
+        rows = {}
+        for rp in sorted(src.glob(f"report-{lang}-*.jsonl")):
+            for line in rp.read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    r = json.loads(line)
+                    rows[r["id"]] = r
+        ok_n = bad_n = 0
+        for id_, r in rows.items():
+            it = want.get(id_)
+            f = src / "voice" / lang / f"{id_}.m4a"
+            if it is None or not f.is_file():
+                continue
+            score, said = judge(it, r.get("heard", ""))
+            good = bool(r.get("ok")) and said and duration_ok(it, r.get("dur", 0))
+            if good:
+                ok_n += 1
+                if not a.dry:
+                    (VOICE / lang).mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(f, VOICE / lang / f.name)
+            else:
+                bad_n += 1
+                worst.append(f"{lang} {it['kind']} | {it['text'][:70]} | {r.get('heard', '')[:70]}")
+        m = missing(lang) if not a.dry else []
+        stats[lang] = (ok_n, bad_n, len(m), sum(1 for it in m if it["kind"] == "line"))
+        kept += ok_n
+        dropped += bad_n
+        print(f"{lang}: gardées {ok_n}, écartées {bad_n}, manquent encore {len(m)} dont {stats[lang][3]} répliques")
+    print(f"total gardées {kept}, écartées {dropped}")
+    for w in worst[: a.show]:
+        print("  écartée :", w)
+
+
 def cmd_plan(a):
     total = 0
     for lang in LANGS:
@@ -434,6 +490,8 @@ if __name__ == "__main__":
     g.add_argument("--lang", required=True); g.add_argument("--shard", default="0/1"); g.add_argument("--out", default="out")
     g.add_argument("--limit", type=int, default=0); g.add_argument("--minutes", type=float, default=320)
     g.set_defaults(fn=cmd_gen)
+    u = sub.add_parser("audit"); u.add_argument("--src", required=True); u.add_argument("--dry", action="store_true")
+    u.add_argument("--show", type=int, default=25); u.set_defaults(fn=cmd_audit)
     p = sub.add_parser("pilot"); p.add_argument("--lang", required=True); p.add_argument("--out", default="out"); p.set_defaults(fn=cmd_pilot)
     a = ap.parse_args()
     a.fn(a)
