@@ -40,12 +40,20 @@ struct ScriptBook: Decodable {
     }
 }
 
+/// Comment dire une phrase : une réplique enregistrée, plusieurs morceaux à enchaîner, ou la synthèse
+/// de l'iPhone pour les mots que le parent a écrits (anecdote, cadeau).
+enum VoiceCue: Equatable {
+    case line(String)
+    case sequence([String])
+    case device(String)
+}
+
 enum Segment: Equatable {
-    case say(String, laugh: Bool, wave: Bool)
+    case say(String, laugh: Bool, wave: Bool, cue: VoiceCue)
     case listen(Double)
     case spark(Double)
 
-    var text: String? { if case let .say(t, _, _) = self { return t }; return nil }
+    var text: String? { if case let .say(t, _, _, _) = self { return t }; return nil }
 }
 
 /// Assemble l'appel : les phrases du scénario, avec les noms, qualités, anecdote et cadeau à leur place.
@@ -75,8 +83,9 @@ struct ScriptBuilder {
             }
             guard holds(s.if) else { continue }
             if let say = s.say, !say.isEmpty {
-                let line = (profile.isPlural && say.count > 1) ? say[1] : say[0]
-                out.append(.say(fill(line), laugh: s.laugh ?? false, wave: s.wave ?? false))
+                let template = (profile.isPlural && say.count > 1) ? say[1] : say[0]
+                let spoken = fill(template)
+                out.append(.say(spoken, laugh: s.laugh ?? false, wave: s.wave ?? false, cue: cue(template, spoken: spoken)))
             }
             if let l = s.listen { out.append(.listen(l)) }
             if let sp = s.spark { out.append(.spark(sp)) }
@@ -97,6 +106,25 @@ struct ScriptBuilder {
         case "single": return !profile.isPlural
         case "plural": return profile.isPlural
         default: return true
+        }
+    }
+
+    /// La voix enregistrée, d'après Resources/Audio/voice/voice-index.json. Sans fiche, on dit la phrase telle quelle.
+    private func cue(_ template: String, spoken: String) -> VoiceCue {
+        guard let recipe = VoiceLibrary.recipe(lang: lang, template: template) else { return .line(spoken) }
+        switch recipe.kind {
+        case "line":
+            return .line(recipe.key ?? spoken)
+        case "device":
+            return .device(spoken)
+        case "quality":
+            var parts: [String] = []
+            if let before = recipe.before, !before.isEmpty { parts.append(before) }
+            if !qualityPhrase.isEmpty { parts.append(qualityPhrase) }
+            if let after = recipe.after, !after.isEmpty { parts.append(after) }
+            return parts.isEmpty ? .device(spoken) : .sequence(parts)
+        default:
+            return .line(spoken)
         }
     }
 

@@ -1,7 +1,7 @@
 # ALLÔ PÈRE NOËL : un appel magique et personnalisé du Père Noël, préparé par les parents.
 # Projet généré par XcodeGen : `xcodegen generate` dans ce dossier.
 # Tout est dessiné et synthétisé ici : le Père Noël (SwiftUI), les décors, la sonnerie, l'ambiance (« Douce nuit », 1818,
-# domaine public). Aucune donnée ne quitte l'iPhone.
+# domaine public). Aucune donnée ne quitte l'iPhone. Le Pass Noël est un achat unique.
 name: AlloPereNoel
 options:
   bundleIdPrefix: com.padelup
@@ -25,6 +25,10 @@ targets:
       - path: Resources/Fonts
         buildPhase: resources
       - path: Resources/Audio
+        buildPhase: resources
+      - path: Resources/Video
+        buildPhase: resources
+      - path: Resources/Advent
         buildPhase: resources
       - path: Resources/Scripts
         buildPhase: resources
@@ -53,4 +57,5 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         PRODUCT_NAME: AlloPereNoel
-    scheme: {}
+    scheme:
+      storeKitConfiguration: AlloPereNoel.storekit

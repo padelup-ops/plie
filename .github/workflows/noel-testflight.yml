@@ -5,7 +5,7 @@ name: Noël - TestFlight
 
 on:
   push:
-    branches: [main]
+    branches: [main, cursor/noel-santa-voice-88ef]
     paths:
       - "noel/App/**"
       - "noel/Resources/**"
