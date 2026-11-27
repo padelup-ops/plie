@@ -1,0 +1,44 @@
+# PADELUP : cherche le serveur PadelUp existant (adresse de l'API dans le tableau de bord public, adresses probables)
+# et teste s'il répond. Résultat dans la branche ci-padelup-probe.
+name: PadelUp - serveur existant ?
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/**"]
+    paths: [".github/workflows/padelup-probe.yml"]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Chercher
+        run: |
+          mkdir -p out && cd out
+          {
+          echo "== Adresses d'API trouvées dans le tableau de bord (padelup-frontend.vercel.app)"
+          curl -sL --max-time 20 https://padelup-frontend.vercel.app/ -o index.html || true
+          grep -oE '/_next/static/[^"]+\.js' index.html | sort -u | head -60 > chunks.txt || true
+          for c in $(cat chunks.txt); do curl -sL --max-time 15 "https://padelup-frontend.vercel.app$c" >> bundle.js || true; done
+          grep -ohE 'https?://[a-zA-Z0-9._-]+\.(onrender\.com|up\.railway\.app|railway\.app|herokuapp\.com|fly\.dev|vercel\.app|padel-up\.io|padelup\.[a-z]+|ngrok[a-z.-]*)[^"'"'"' ]*' bundle.js index.html | sort | uniq -c | sort -rn | head -20
+          echo
+          echo "== Réponses"
+          for u in $(grep -ohE 'https?://[a-zA-Z0-9._-]+\.(onrender\.com|up\.railway\.app|railway\.app|herokuapp\.com|fly\.dev|padel-up\.io)' bundle.js index.html | sort -u) \
+                   https://padelup-api.onrender.com https://padelup-backend.onrender.com https://padelup.onrender.com \
+                   https://api.padel-up.io https://padel-up.io; do
+            code=$(curl -s -o body.txt -w '%{http_code}' --max-time 25 "$u/" || echo 000)
+            ver=$(curl -s --max-time 25 "$u/api/app-version/" | head -c 200)
+            echo "$code $u  /  $(head -c 80 body.txt | tr '\n' ' ')  /  app-version: $ver"
+          done
+          } 2>&1 | tee resultat.txt
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd out && mkdir -p pub && cp resultat.txt pub/ 2>/dev/null || echo "rien" > pub/resultat.txt
+          cd pub && git init -q -b ci-padelup-probe
+          git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Recherche du serveur PadelUp"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-padelup-probe
