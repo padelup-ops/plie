@@ -1,0 +1,20 @@
+  (France : recherche par nom indisponible : Overpass indisponible : HTTP Error 504: Gateway Timeout)
+France         977 éléments OSM →   545 clubs (1086 s)
+Belgique      1060 éléments OSM →   345 clubs (650 s)
+Suisse          71 éléments OSM →    49 clubs (133 s)
+Luxembourg       1 éléments OSM →     1 clubs (187 s)
+Allemagne      276 éléments OSM →   166 clubs (224 s)
+  (Italie : recherche par nom indisponible : Overpass indisponible : HTTP Error 502: Bad Gateway)
+Italie        2299 éléments OSM →  1020 clubs (389 s)
+Monaco           0 éléments OSM →     0 clubs (288 s)
+  (Andorre : recherche par nom indisponible : Overpass indisponible : The read operation timed out)
+Andorre          4 éléments OSM →     4 clubs (339 s)
+  (Espagne : recherche par nom indisponible : Overpass indisponible : HTTP Error 504: Gateway Timeout)
+Espagne       8047 éléments OSM →  3184 clubs (388 s)
+  (Maroc : recherche par nom indisponible : Overpass indisponible : HTTP Error 502: Bad Gateway)
+Maroc           42 éléments OSM →    18 clubs (294 s)
+Algérie          0 éléments OSM →     0 clubs (106 s)
+Tunisie          4 éléments OSM →     3 clubs (586 s)
+Total : 5335 clubs, 10929 terrains, 0.5 Mo, 78 min
+Par pays : ES 3184, IT 1020, FR 545, BE 345, DE 166, CH 49, MA 18, AD 4, TN 3, LU 1
+clubs : avant 5230, maintenant 5335
