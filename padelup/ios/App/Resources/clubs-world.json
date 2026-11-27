@@ -1,0 +1,1 @@
+{"v": 1, "fields": ["id", "name", "lat", "lon", "courts", "indoor", "outdoor", "city", "postcode", "street", "country", "website", "phone", "email", "opening_hours"], "clubs": [], "source": "\u00a9 OpenStreetMap contributors (ODbL)", "generated": ""}

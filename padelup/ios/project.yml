@@ -1,0 +1,58 @@
+# PADELUP NEO : l'app padel futuriste (clubs du monde entier, météo de jeu, bot de réservation Playtomic / Anybuddy,
+# matchs PadelUp). App séparée de « PADELUP (FR) ». Projet généré par XcodeGen : `xcodegen generate` dans ce dossier.
+name: PadelUpNeo
+options:
+  bundleIdPrefix: com.padelup
+  developmentLanguage: fr
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: 1.0.0
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+targets:
+  PadelUpNeo:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+        excludes:
+          - "Resources/**"
+      - path: App/Resources
+        buildPhase: resources
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: PadelUp Neo
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDevelopmentRegion: fr
+        CFBundleLocalizations: [fr]
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIRequiresFullScreen: true
+        UIStatusBarStyle: UIStatusBarStyleLightContent
+        UIUserInterfaceStyle: Dark
+        ITSAppUsesNonExemptEncryption: false
+        NSLocationWhenInUseUsageDescription: PadelUp Neo affiche les clubs de padel autour de toi et la météo de jeu.
+        UIBackgroundModes: [fetch]
+        BGTaskSchedulerPermittedIdentifiers: [com.padelup.neo.bot]
+        PadelUpAPIBaseURL: https://padelup-api.onrender.com/api
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+    entitlements:
+      path: App/PadelUpNeo.entitlements
+      properties:
+        com.apple.developer.applesignin: [Default]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.neo
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        PRODUCT_NAME: PadelUpNeo
+    scheme: {}
