@@ -7,3 +7,4 @@
 {"id": "e2894c1e4a2354f38d1d", "key": "hello|mathias", "text": "Ho, ho, ho! Olá, Mathias!", "ok": true, "score": 0.933, "dur": 2.64, "heard": "Oh, oh, oh, olá Matias!", "tries": 1, "secs": 65.2}
 {"id": "e5837d36ecacd3b90350", "key": "hello|francisco", "text": "Ho, ho, ho! Olá, Francisco!", "ok": true, "score": 1.0, "dur": 2.26, "heard": "Oh, oh, oh, oh, olá Francisco!", "tries": 1, "secs": 89.8}
 {"id": "7776cdc27889e75b8be3", "key": "hello|rafaela", "text": "Ho, ho, ho! Olá, Rafaela!", "ok": true, "score": 0.933, "dur": 3.68, "heard": "Oh, oh, oh! Olá, Rafael!", "tries": 1, "secs": 86.7}
+{"id": "6c20c3e9adbbe142a74e", "key": "hello|clarice", "text": "Ho, ho, ho! Olá, Clarice!", "ok": true, "score": 0.986, "dur": 2.26, "heard": "Ho, ho, ho, hola Clarice!", "tries": 1, "secs": 62.4}
