@@ -104,7 +104,7 @@ final class AppModel {
         case "setup": screen = .setup
         case "scenario": screen = .scenario
         case "incoming": screen = .incoming
-        case "call", "surprise", "calllive":
+        case "call", "surprise":
             call.prepare(profile: profile, scenario: .magic, premium: true, audio: false)
             let script = call.script
             let lines = script.compactMap(\.text)

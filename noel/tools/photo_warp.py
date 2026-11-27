@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-# Allô Père Noël — la photo du Père Noël qui prend vie, réglée hors de l'app.
+# Allô Père Noël — la photo du Père Noël qui prend vie.
 #
-# Les mêmes calculs que App/Santa.metal (dans le repère du portrait d'origine, 768 × 1024) : la mâchoire qui s'ouvre
-# et le clignement des yeux. On rend ici des images à plusieurs ouvertures pour les regarder et régler les mesures
-# (ligne de la bouche, zone de la barbe, ellipses des yeux), puis les deux photos de l'app :
+# Le portrait (noel/ai/portrait-2.png, généré avec FLUX.1 [schnell], Apache 2.0 : ce n'est la photo de personne) est
+# déformé ici, hors de l'app : la mâchoire qui s'ouvre (la lèvre du bas et la barbe descendent, le sombre de la bouche
+# apparaît sous la moustache) et les yeux qui se ferment. L'app n'a plus qu'à fondre ces images les unes dans les
+# autres au rythme de la voix (App/SantaPhoto.swift) : pas de calcul sur l'iPhone, et ce qu'on voit dans l'app est
+# exactement ce qu'on a réglé ici, image par image.
 #
 #   python3 noel/tools/photo_warp.py sheet out.png      planche de contrôle (bouche fermée → ouverte, clignement)
-#   python3 noel/tools/photo_warp.py assets             SantaPhoto (au repos) et SantaPhotoOpen (bouche ouverte, pour
-#                                                       les captures et quand les animations sont réduites)
-#
-# Portrait : noel/ai/portrait-2.png, généré avec FLUX.1 [schnell] (Apache 2.0). Ce n'est la photo de personne.
+#   python3 noel/tools/photo_warp.py assets             SantaPhoto (au repos), SantaMouth1…5 (bouche de plus en plus
+#                                                       ouverte), SantaBlink (yeux fermés)
 import sys
 from pathlib import Path
 
@@ -109,7 +109,7 @@ def asset(name, arr):
     im = Image.fromarray(arr).resize((1536, 2048), Image.LANCZOS).filter(ImageFilter.UnsharpMask(radius=1.6, percent=60, threshold=2))
     d = ASSETS / f"{name}.imageset"
     d.mkdir(parents=True, exist_ok=True)
-    im.save(d / f"{name}.jpg", quality=86, optimize=True, progressive=True)
+    im.save(d / f"{name}.jpg", quality=85, optimize=True, progressive=True)
     (d / "Contents.json").write_text(
         '{\n  "images" : [\n    {\n      "filename" : "%s.jpg",\n      "idiom" : "universal"\n    }\n  ],\n'
         '  "info" : {\n    "author" : "xcode",\n    "version" : 1\n  }\n}\n' % name)
@@ -122,6 +122,8 @@ if __name__ == "__main__":
     elif len(sys.argv) >= 2 and sys.argv[1] == "assets":
         img = load()
         asset("SantaPhoto", render(img, 0.0, 0.0))
-        asset("SantaPhotoOpen", render(img, 0.7, 0.0))
+        for k in range(1, 6):
+            asset(f"SantaMouth{k}", render(img, k / 5, 0.0))
+        asset("SantaBlink", render(img, 0.0, 1.0))
     else:
         print(__doc__ or "sheet <fichier> | assets")
