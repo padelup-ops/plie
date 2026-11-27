@@ -18,13 +18,13 @@ concurrency:
 jobs:
   clubs:
     runs-on: ubuntu-latest
-    timeout-minutes: 100
+    timeout-minutes: 115
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v5
       - name: Interroger OpenStreetMap
-        timeout-minutes: 70
+        timeout-minutes: 100
         run: |
           set -o pipefail
           python3 -u padelup/tools/zone_clubs.py "$RUNNER_TEMP/clubs-zone.json" 2>&1 | tee "$RUNNER_TEMP/journal.txt"
@@ -41,8 +41,13 @@ jobs:
           echo "commit ${{ github.sha }} - $(date -u)" > run.txt
           BRANCH=ci-padelup-clubs-log
           if [ -s "$RUNNER_TEMP/clubs-zone.json" ] && [ "$(stat -c %s "$RUNNER_TEMP/clubs-zone.json")" -gt 20000 ]; then
-            cp "$RUNNER_TEMP/clubs-zone.json" .
-            BRANCH=ci-padelup-clubs
+            OLD=$(cd "$GITHUB_WORKSPACE" && git fetch -q --depth 1 origin ci-padelup-clubs 2>/dev/null && git show FETCH_HEAD:clubs-zone.json 2>/dev/null | python3 -c "import json,sys; print(len(json.load(sys.stdin)['clubs']))" 2>/dev/null || echo 0)
+            NEW=$(python3 -c "import json; print(len(json.load(open('$RUNNER_TEMP/clubs-zone.json'))['clubs']))")
+            echo "clubs : avant $OLD, maintenant $NEW" | tee -a journal.txt
+            if [ "$NEW" -ge $(( OLD * 9 / 10 )) ]; then
+              cp "$RUNNER_TEMP/clubs-zone.json" .
+              BRANCH=ci-padelup-clubs
+            fi
           fi
           git checkout -q -b "$BRANCH"
           git add -A && git commit -qm "Clubs de padel de la zone PadelUp (OpenStreetMap)"

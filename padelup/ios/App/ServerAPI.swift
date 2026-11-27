@@ -203,6 +203,32 @@ final class ServerAPI: ObservableObject {
         me = try? decoder.decode(APIMe.self, from: data)
     }
 
+    // MARK: Clubs partenaires (tableau de bord PadelUp), lecture publique
+
+    func partnerClubs(maxPages: Int = 10) async -> [Club] {
+        var out: [Club] = []
+        for page in 1...maxPages {
+            guard let data = try? await call("GET", "clubs/", query: [URLQueryItem(name: "page", value: String(page)),
+                                                                     URLQueryItem(name: "page_size", value: "100")]),
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { break }
+            for c in json["results"] as? [[String: Any]] ?? [] {
+                func text(_ k: String) -> String { (c[k] as? String) ?? "" }
+                func number(_ k: String) -> Double? { (c[k] as? NSNumber)?.doubleValue ?? (c[k] as? String).flatMap(Double.init) }
+                guard let id = c["id"] as? Int, let lat = number("latitude"), let lon = number("longitude") else { continue }
+                let courts = c["courts"] as? [[String: Any]] ?? []
+                let indoor = courts.filter { $0["is_indoor"] as? Bool == true }.count
+                out.append(Club(id: "pu:\(id)", name: text("name"), latitude: lat, longitude: lon, courts: courts.count, indoor: indoor,
+                                outdoor: courts.count - indoor, city: text("city"), postcode: text("postal_code"), street: text("address"),
+                                country: text("country"), website: text("website"), phone: text("phone"), email: text("email"),
+                                source: .padelup, osmID: text("osm_id").isEmpty ? nil : text("osm_id"),
+                                playtomicTenantID: text("playtomic_tenant_id").isEmpty ? nil : text("playtomic_tenant_id"),
+                                anybuddySlug: text("anybuddy_slug").isEmpty ? nil : text("anybuddy_slug"), backendID: id))
+            }
+            if json["next"] == nil || json["next"] is NSNull { break }
+        }
+        return out
+    }
+
     // MARK: Matchs et classement
 
     func matches(mine: Bool = false) async throws -> [APIMatch] {

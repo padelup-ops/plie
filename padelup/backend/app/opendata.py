@@ -38,6 +38,13 @@ def country_query(code, timeout=240):
             f'nwr{PADEL_FILTER}(area.a);out center tags;')
 
 
+def country_name_query(code, timeout=180):
+    """Lieux sportifs nommés « padel » mais sans étiquette sport=padel (fréquent au Maghreb)."""
+    return (f'[out:json][timeout:{timeout}];area["ISO3166-1"="{code}"][admin_level=2]->.a;'
+            f'nwr["leisure"~"^(sports_centre|sports_hall|pitch|fitness_centre)$"]["name"~"padel",i]["sport"!~"padel"](area.a);'
+            f'out center tags;')
+
+
 def bbox_query(south, west, north, east, timeout=180):
     return f'[out:json][timeout:{timeout}];nwr{PADEL_FILTER}({south},{west},{north},{east});out center tags;'
 

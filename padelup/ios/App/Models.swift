@@ -53,7 +53,7 @@ struct Club: Identifiable, Hashable, Codable {
     }
 
     var isMostlyIndoor: Bool { indoor > 0 && indoor >= outdoor }
-    var canBookWithBot: Bool { playtomicTenantID != nil || anybuddySlug != nil }
+    var canBookWithBot: Bool { playtomicTenantID != nil || anybuddySlug != nil || (backendID != nil && courts > 0) }
 
     func distance(from location: CLLocation?) -> Double? {
         guard let location else { return nil }

@@ -25,6 +25,7 @@ struct PadelUpNeoApp: App {
                     }
                     await directory.load()
                     await server.refreshMe()
+                    await directory.loadPartnerClubs()
                 }
         }
         .onChange(of: scenePhase) { _, phase in

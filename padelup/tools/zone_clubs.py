@@ -16,7 +16,7 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'backend', 'app'))
 import opendata  # noqa: E402
 
-BUDGET_S = int(os.environ.get('ZONE_CLUBS_BUDGET', 60 * 60))
+BUDGET_S = int(os.environ.get('ZONE_CLUBS_BUDGET', 80 * 60))
 
 
 def write(out, by_country, failures):
@@ -52,6 +52,13 @@ def main(out):
             failures.append(f'{code}: {exc}')
             print(f'ÉCHEC {name} ({code}) : {exc}', flush=True)
             continue
+        # Second passage, plus léger : les clubs nommés « padel » sans étiquette sport (un seul essai, échec toléré).
+        try:
+            named = opendata.run_query(opendata.country_name_query(code), timeout=200, retries=0, pause=5)
+            known = {(e.get('type'), e.get('id')) for e in elements}
+            elements += [e for e in named if (e.get('type'), e.get('id')) not in known]
+        except RuntimeError as exc:
+            print(f'  ({name} : recherche par nom indisponible : {exc})', flush=True)
         by_country[code] = elements
         clubs = write(out, by_country, failures)
         here = sum(1 for c in clubs if c['country'] == code)

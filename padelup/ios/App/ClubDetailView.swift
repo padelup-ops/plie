@@ -259,6 +259,10 @@ struct ClubDetailView: View {
 
     private func loadSlots() async {
         guard let provider, ShotMode.current == nil else { return }
+        if provider == .padelup && !server.isLoggedIn {
+            slotError = "Connecte-toi à ton compte PadelUp (onglet Profil) pour voir et réserver les créneaux de ce club partenaire."
+            return
+        }
         loadingSlots = true
         slotError = nil
         defer { loadingSlots = false }

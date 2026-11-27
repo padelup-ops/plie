@@ -234,6 +234,25 @@ final class ClubDirectory: ObservableObject {
         saveCache()
     }
 
+    /// Clubs partenaires du serveur PadelUp (saisis au tableau de bord) : rattachés au club OSM s'il existe.
+    func loadPartnerClubs() async {
+        let partners = await ServerAPI.shared.partnerClubs()
+        guard !partners.isEmpty else { return }
+        for p in partners where CoverageZone.contains(latitude: p.latitude, longitude: p.longitude) {
+            if let osm = p.osmID, var host = clubs["osm:" + osm] {
+                host.backendID = p.backendID
+                host.playtomicTenantID = host.playtomicTenantID ?? p.playtomicTenantID
+                host.anybuddySlug = host.anybuddySlug ?? p.anybuddySlug
+                if host.courts == 0 { host.courts = p.courts; host.indoor = p.indoor; host.outdoor = p.outdoor }
+                insert(host)
+            } else {
+                insert(p)
+            }
+        }
+        totalCount = clubs.count
+        revision += 1
+    }
+
     /// Un club Playtomic : s'il correspond à un club OSM proche, on l'y rattache, sinon il devient un club à part.
     func merge(playtomic t: Club) {
         guard let tenant = t.playtomicTenantID else { return }
