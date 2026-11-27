@@ -56,25 +56,6 @@ jobs:
           swiftc -D HISTORY_IMPORT_TEST clapet/Shared/HistoryImport.swift clapet/tools/import-test/main.swift -o "$RUNNER_TEMP/import-test" 2>&1 | tee import-test.txt
           "$RUNNER_TEMP/import-test" | tee -a import-test.txt
 
-      # Diagnostic : le fichier « Duo Folds » qu'un utilisateur n'a pas pu importer avec la 1.0.26, rejoué avec le
-      # lecteur de cette version-là puis avec celui du dépôt, sous plusieurs réglages d'iPhone.
-      - name: Rejouer un fichier Duo Folds avec l'ancien et le nouveau lecteur
-        continue-on-error: true
-        run: |
-          mkdir -p "$RUNNER_TEMP/old"
-          git fetch -q --depth 1 origin 515b5a1dce1a898ff42e23d21a33403bf5951338
-          git show FETCH_HEAD:clapet/Shared/HistoryImport.swift | sed '/^extension ClapetStats {/,$d' > "$RUNNER_TEMP/old/HistoryImport.swift"
-          swiftc "$RUNNER_TEMP/old/HistoryImport.swift" clapet/tools/import-test/sample/main.swift -o "$RUNNER_TEMP/rejoue-ancien" 2>&1 | tee -a import-test.txt
-          swiftc -D HISTORY_IMPORT_TEST clapet/Shared/HistoryImport.swift clapet/tools/import-test/sample/main.swift -o "$RUNNER_TEMP/rejoue-nouveau" 2>&1 | tee -a import-test.txt
-          for bin in ancien nouveau; do
-            "$RUNNER_TEMP/rejoue-$bin" "$bin" | tee -a import-test.txt
-            TZ=Europe/Belgrade "$RUNNER_TEMP/rejoue-$bin" "$bin" -AppleLocale en_RS | tee -a import-test.txt
-            TZ=Europe/Belgrade "$RUNNER_TEMP/rejoue-$bin" "$bin" -AppleLocale sr_RS -AppleLanguages "(sr)" | tee -a import-test.txt
-            TZ=America/Los_Angeles "$RUNNER_TEMP/rejoue-$bin" "$bin" -AppleLocale en_US | tee -a import-test.txt
-            TZ=Asia/Bangkok "$RUNNER_TEMP/rejoue-$bin" "$bin" -AppleLocale "th_TH@calendar=buddhist" | tee -a import-test.txt
-            TZ=Pacific/Auckland "$RUNNER_TEMP/rejoue-$bin" "$bin" -AppleLocale en_NZ | tee -a import-test.txt
-          done
-
       - name: Installer XcodeGen et générer le projet
         run: |
           if ! command -v xcodegen >/dev/null; then
