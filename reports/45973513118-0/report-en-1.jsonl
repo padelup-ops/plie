@@ -7,3 +7,11 @@
 {"id": "e0df602b4977b2da1431", "key": "hello|bella", "text": "Ho, ho, ho! Hello, Bella!", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Ho, ho, ho. Hello, Bella.", "tries": 3, "secs": 154.5}
 {"id": "46a0d055b7931f27c7c9", "key": "hello|raelynn", "text": "Ho, ho, ho! Hello, Raelynn!", "ok": true, "score": 0.677, "dur": 2.12, "heard": "Ho, ho, ho, hello, Raylin.", "tries": 1, "secs": 43.4}
 {"id": "61cb5072d548dd56ccd9", "key": "hello|jameson", "text": "Ho, ho, ho! Hello, Jameson!", "ok": true, "score": 1.0, "dur": 2.04, "heard": "Ho, ho, ho, hello, Jameson.", "tries": 1, "secs": 44.9}
+{"id": "fad5663d66af57f0f91c", "key": "hello|colton", "text": "Ho, ho, ho! Hello, Colton!", "ok": true, "score": 1.0, "dur": 2.02, "heard": "Ho ho ho, hello Colton.", "tries": 1, "secs": 42.0}
+{"id": "7498cbb7753905b22c3d", "key": "hello|greyson", "text": "Ho, ho, ho! Hello, Greyson!", "ok": true, "score": 0.879, "dur": 2.08, "heard": "Ho ho ho! Hello Grayson!", "tries": 1, "secs": 48.5}
+{"id": "dd6eac0e49a20e6ffb7d", "key": "hello|theo", "text": "Ho, ho, ho! Hello, Theo!", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Ho Ho Ho! Hello Theo!", "tries": 1, "secs": 45.3}
+{"id": "0f1450fe722d6e3b6bc5", "key": "hello|melody", "text": "Ho, ho, ho! Hello, Melody!", "ok": true, "score": 1.0, "dur": 2.18, "heard": "Ho, ho, ho! Hello, Melody.", "tries": 1, "secs": 44.3}
+{"id": "79ff6e54c62aca8556f6", "key": "hello|eden", "text": "Ho, ho, ho! Hello, Eden!", "ok": true, "score": 0.73, "dur": 1.74, "heard": "Ho ho ho hello Aiden.", "tries": 1, "secs": 39.2}
+{"id": "6fefcd92e81a3a2d95ec", "key": "hello|dominic", "text": "Ho, ho, ho! Hello, Dominic!", "ok": true, "score": 1.0, "dur": 2.6, "heard": "Ho Ho Ho Hello Dominic", "tries": 1, "secs": 42.5}
+{"id": "57f9c75d92055299ada3", "key": "hello|river", "text": "Ho, ho, ho! Hello, River!", "ok": true, "score": 1.0, "dur": 1.66, "heard": "Oh ho ho, hello River.", "tries": 1, "secs": 39.3}
+{"id": "c5f4d03d3930c54c8190", "key": "hello|connor", "text": "Ho, ho, ho! Hello, Connor!", "ok": true, "score": 1.0, "dur": 2.64, "heard": "Ho ho ho hello Connor", "tries": 1, "secs": 44.6}

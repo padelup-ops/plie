@@ -1,0 +1,5 @@
+{"id": "f2e929854d9a2ead017c", "key": "hello|violet", "text": "Ho, ho, ho! Hello, Violet!", "ok": true, "score": 1.0, "dur": 2.1, "heard": "Oh ho ho hello Violet.", "tries": 1, "secs": 48.7}
+{"id": "6e790b5508fc2c8b3518", "key": "hello|delilah", "text": "Ho, ho, ho! Hello, Delilah!", "ok": true, "score": 1.0, "dur": 1.94, "heard": "Ho, ho, ho. Hello, Delilah.", "tries": 1, "secs": 45.9}
+{"id": "72398be425f563f634e2", "key": "hello|isaiah", "text": "Ho, ho, ho! Hello, Isaiah!", "ok": true, "score": 1.0, "dur": 3.0, "heard": "Ho, ho, ho, ho! Hello, Isaiah!", "tries": 2, "secs": 107.7}
+{"id": "c4daa4f4e4011a7d7a75", "key": "hello|quinn", "text": "Ho, ho, ho! Hello, Quinn!", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Ho ho ho ho hello Quinn", "tries": 1, "secs": 45.4}
+{"id": "d99eb2babd1f43319028", "key": "hello|nolan", "text": "Ho, ho, ho! Hello, Nolan!", "ok": true, "score": 1.0, "dur": 2.44, "heard": "Oh ho ho. Hello Nolan.", "tries": 1, "secs": 46.3}

@@ -32,3 +32,4 @@
 {"id": "232f04129a08193bf6f4", "key": "hello|hortense", "text": "Ho, ho, ho ! Bonjour Hortense !", "ok": false, "score": 0.561, "dur": 3.58, "heard": "Ho ho ho ! Bonjour, danse !", "tries": 2, "secs": 162.8}
 {"id": "6c408b2b21bd5b546794", "key": "hello|philippine", "text": "Ho, ho, ho ! Bonjour Philippine !", "ok": true, "score": 1.0, "dur": 2.74, "heard": "Ho, ho, ho ! Bonjour Philippine !", "tries": 1, "secs": 55.3}
 {"id": "3a0a9d74f0444b4f12cb", "key": "hello|violette", "text": "Ho, ho, ho ! Bonjour Violette !", "ok": true, "score": 0.883, "dur": 2.56, "heard": "Ho ho ho, bonjour violet.", "tries": 1, "secs": 54.3}
+{"id": "79238654e4bd8feb7750", "key": "hello|anne-sophie", "text": "Ho, ho, ho ! Bonjour Anne-Sophie !", "ok": true, "score": 1.0, "dur": 3.3, "heard": "Oh ho ho ! Bonjour Anne-Sophie !", "tries": 2, "secs": 164.5}
