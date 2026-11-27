@@ -434,3 +434,11 @@
 
 /* Identité néon, présentation, recherche, états vides */
 "Favorites" = "Favoris";
+
+/* Véhicules rares sur la carte (Open GTA 6 Map) */
+"Rare vehicles" = "Véhicules rares";
+"Players' notes" = "Notes des joueurs";
+"Seen it? Confirm the spot or correct it." = "Tu l'as vu ? Confirme l'endroit ou corrige-le.";
+"Source: Open GTA 6 Map (CC BY 4.0)" = "Source : Open GTA 6 Map (CC BY 4.0)";
+"Open GTA 6 Map" = "Open GTA 6 Map";
+"Rare vehicle locations come from Open GTA 6 Map, by fbritoferreira and its contributors, shared under the same license. We converted the positions to this map." = "Les emplacements des véhicules rares viennent d'Open GTA 6 Map, de fbritoferreira et de ses contributeurs, sous la même licence. Nous avons converti les positions pour cette carte.";

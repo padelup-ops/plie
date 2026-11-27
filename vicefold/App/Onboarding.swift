@@ -175,7 +175,7 @@ struct OnboardingFlow: View {
     @ViewBuilder private var hero: some View {
         switch page {
         case 0: WelcomeHero()
-        case 1: MapHero(places: content.content.places.count)
+        case 1: MapHero(places: content.mapPlaceCount)
         case 2: TrackerHero(snapshot: progress.snapshot())
         case 3: ProfileHero(name: name)
         default: ProHero()
@@ -190,7 +190,7 @@ struct OnboardingFlow: View {
                 VStack(alignment: .leading, spacing: 14) {
                     FeatureChips()
                     // Ce qu'il y a vraiment dans le guide, compté dans son contenu.
-                    StatStrip(items: [("Missions", content.missions.count), ("Places", content.content.places.count),
+                    StatStrip(items: [("Missions", content.missions.count), ("Places", content.mapPlaceCount),
                                       ("Vehicles", VehicleStore.shared.list.vehicles.count), ("Easter eggs", content.content.eggs.count)])
                 }
             }

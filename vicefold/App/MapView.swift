@@ -51,6 +51,8 @@ struct MapTab: View {
         .onAppear {
             open(AppRouter.shared.mapPlace)
             // Vice City et Vice Beach, pour les captures.
+            // Les véhicules rares seuls, pour les captures.
+            if ShotMode.route == "cars" { state.layers = [.vehicle]; state.zoom = 3; state.focus = CGPoint(x: 0.8 * Leonida.size.width, y: 0.5 * Leonida.size.height) }
             if ShotMode.route == "mappins" || ShotMode.route == "layers" { state.zoom = 3; state.focus = CGPoint(x: 0.8 * Leonida.size.width, y: 0.5 * Leonida.size.height) }
             if ShotMode.route == "place", let p = ContentStore.shared.content.places.first(where: { $0.community && $0.real != nil && $0.kind == .landmark }) { open(p) }
         }
@@ -175,6 +177,7 @@ struct PlaceCard: View {
     var close: () -> Void
     @Environment(Progress.self) private var progress
     @State private var showPro = false
+    @State private var showThread = false
 
     var body: some View {
         let hidden = progress.hidden(place.spoiler)
@@ -204,7 +207,16 @@ struct PlaceCard: View {
                     if place.closed == true {
                         Label("Closed", systemImage: "lock").font(.caption).foregroundStyle(VF.textDim)
                     }
-                    if place.community, let url = URL(string: "https://map.gtadb.org/#VI," + place.id.dropFirst(2)) {
+                    if place.openMap {
+                        // Les joueurs confirment ou corrigent l'emplacement dans le fil de ce véhicule (entraide).
+                        Button { showThread = true } label: {
+                            Label("Players' notes", systemImage: "bubble.left.and.bubble.right.fill").font(.caption.weight(.semibold))
+                        }
+                        .tint(VF.cyan)
+                        Text("Seen it? Confirm the spot or correct it.").font(.caption2).foregroundStyle(VF.textDim)
+                        Text("Source: Open GTA 6 Map (CC BY 4.0)").font(.caption2).foregroundStyle(VF.textFaint)
+                    }
+                    if place.gtadb, let url = URL(string: "https://map.gtadb.org/#VI," + place.id.dropFirst(2)) {
                         Link(destination: url) {
                             Label("Photos on GTADB.org", systemImage: "photo.on.rectangle.angled").font(.caption.weight(.semibold))
                         }
@@ -242,6 +254,12 @@ struct PlaceCard: View {
         .vfGlass(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .vfTicks(color, length: 10, inset: 7)
         .sheet(isPresented: $showPro) { ProView() }
+        .sheet(isPresented: $showThread) {
+            NavigationStack {
+                ThreadView(topic: place.id, title: place.name)
+                    .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Close") { showThread = false } } }
+            }
+        }
     }
 }
 
@@ -258,6 +276,7 @@ enum MapColors {
         case .event: return VF.sunset
         case .mission: return Color(red: 1.0, green: 0.38, blue: 0.42)
         case .service: return Color(red: 0.80, green: 0.58, blue: 1.0)
+        case .vehicle: return Color(red: 1.0, green: 0.93, blue: 0.62)
         case .hotel: return Color(red: 1.0, green: 0.55, blue: 0.80)
         case .food: return Color(red: 1.0, green: 0.68, blue: 0.32)
         case .gas: return Color(red: 1.0, green: 0.47, blue: 0.36)
@@ -855,11 +874,13 @@ struct MapCreditView: View {
             Group {
                 Section {
                     Text("The map is the GTA VI Community Map v18, drawn by Yanis and the GTA mapping community, from the tiles of GTADB.org. Places come from the GTADB.org landmarks. Both are shared under the Creative Commons Attribution 4.0 license. We cropped the map to Leonida and grouped the places into layers.")
+                    Text("Rare vehicle locations come from Open GTA 6 Map, by fbritoferreira and its contributors, shared under the same license. We converted the positions to this map.")
                     Text("The hologram style only recolors the same map on your screen. You can switch back to its original colors in the map's layers.").foregroundStyle(VF.textDim)
                     Text("It's a fan map, not Rockstar's, and it keeps improving.").foregroundStyle(VF.textDim)
                 }
                 Section {
                     Link("map.gtadb.org", destination: Leonida.sourceURL)
+                    Link("Open GTA 6 Map", destination: Leonida.vehiclesURL)
                     Link("Creative Commons Attribution 4.0", destination: Leonida.licenseURL)
                 }
             }
@@ -877,7 +898,7 @@ struct MapCreditView: View {
 struct QuickFilters: View {
     @Environment(MapState.self) private var state
     @Environment(Store.self) private var store
-    private let kinds: [VFPlaceKind] = [.landmark, .hotel, .food, .shop, .gas, .transport, .nature, .activity]
+    private let kinds: [VFPlaceKind] = [.landmark, .vehicle, .hotel, .food, .shop, .gas, .transport, .nature, .activity]
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {

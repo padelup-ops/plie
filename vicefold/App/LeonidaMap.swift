@@ -19,6 +19,8 @@ enum Leonida {
     static let credit = "Map: GTA VI Community Map v18 by Yanis & the mapping community, via GTADB.org (CC BY 4.0), cropped"
     static let sourceURL = URL(string: "https://map.gtadb.org")!
     static let licenseURL = URL(string: "https://creativecommons.org/licenses/by/4.0/")!
+    /// Les emplacements des véhicules rares : Open GTA 6 Map (fbritoferreira), CC BY 4.0.
+    static let vehiclesURL = URL(string: "https://github.com/fbritoferreira/gta6")!
 
     /// Le niveau de tuiles qui donne une image nette sans en charger trop, pour `s` points d'écran par mètre.
     static func level(pointsPerMeter s: CGFloat, scale: CGFloat) -> Int {

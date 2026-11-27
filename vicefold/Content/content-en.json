@@ -1,6 +1,6 @@
 {
- "version": 5,
- "updated": "2026-11-23",
+ "version": 6,
+ "updated": "2026-11-27",
  "sources": [
   "Facts from the publisher's official character and setting announcements. All text written for Vicefold."
  ],
@@ -6702,6 +6702,3646 @@
    "region": "Yorktown",
    "real": "Lake Wood Park, Pensacola",
    "uncertain": true
+  },
+  {
+   "id": "o-standout-vehicle-001",
+   "name": "Declasse Martha's Vamos",
+   "kind": "vehicle",
+   "x": 0.48051,
+   "y": 0.14484,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-002",
+   "name": "Del Perro Midsummer Erode",
+   "kind": "vehicle",
+   "x": 0.47246,
+   "y": 0.15234,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-003",
+   "name": "Vapid Grady's Slamvan",
+   "kind": "vehicle",
+   "x": 0.50699,
+   "y": 0.15766,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-004",
+   "name": "Bravado Bison 1800",
+   "kind": "vehicle",
+   "x": 0.58008,
+   "y": 0.16281,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-005",
+   "name": "Del Perro Scorcher",
+   "kind": "vehicle",
+   "x": 0.61102,
+   "y": 0.17844,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-006",
+   "name": "Canis Nancy's Crawler",
+   "kind": "vehicle",
+   "x": 0.44492,
+   "y": 0.18234,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-007",
+   "name": "Maibatsu MyWays Manchez",
+   "kind": "vehicle",
+   "x": 0.45127,
+   "y": 0.1875,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-008",
+   "name": "Annis '95 Hellion",
+   "kind": "vehicle",
+   "x": 0.6089,
+   "y": 0.19375,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-009",
+   "name": "Buckingham Volatus",
+   "kind": "vehicle",
+   "x": 0.62267,
+   "y": 0.19547,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-010",
+   "name": "Albany Verdant Buccaneer",
+   "kind": "vehicle",
+   "x": 0.65466,
+   "y": 0.20234,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-011",
+   "name": "Vapid Finns Reclaimer",
+   "kind": "vehicle",
+   "x": 0.66568,
+   "y": 0.20766,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-012",
+   "name": "Bravado Third Eye Youga",
+   "kind": "vehicle",
+   "x": 0.37839,
+   "y": 0.21672,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-013",
+   "name": "Bravado Third Eye Youga",
+   "kind": "vehicle",
+   "x": 0.37436,
+   "y": 0.21844,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-014",
+   "name": "Declasse Flower Powered Rancher",
+   "kind": "vehicle",
+   "x": 0.58453,
+   "y": 0.23328,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-015",
+   "name": "Declasse Truther Burrito",
+   "kind": "vehicle",
+   "x": 0.68305,
+   "y": 0.24578,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-016",
+   "name": "Dinka Verus",
+   "kind": "vehicle",
+   "x": 0.43157,
+   "y": 0.25781,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-017",
+   "name": "Albany Driveshaft Devanity",
+   "kind": "vehicle",
+   "x": 0.58263,
+   "y": 0.26359,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-018",
+   "name": "Declasse Red Apple Orchard Rancher",
+   "kind": "vehicle",
+   "x": 0.36081,
+   "y": 0.28906,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-019",
+   "name": "BF Sludge Wraith Injection",
+   "kind": "vehicle",
+   "x": 0.49831,
+   "y": 0.30078,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-020",
+   "name": "Vapid Beer Monster Marshall",
+   "kind": "vehicle",
+   "x": 0.49089,
+   "y": 0.30703,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-021",
+   "name": "Brute Boxville",
+   "kind": "vehicle",
+   "x": 0.76801,
+   "y": 0.32516,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-022",
+   "name": "Pegassi Gold Rope Infernus",
+   "kind": "vehicle",
+   "x": 0.56441,
+   "y": 0.32766,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-023",
+   "name": "Taci Ragno",
+   "kind": "vehicle",
+   "x": 0.77691,
+   "y": 0.33406,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-024",
+   "name": "Bravado Circles of Hell Youga",
+   "kind": "vehicle",
+   "x": 0.32564,
+   "y": 0.33625,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-025",
+   "name": "Vapid Smuggler Caracara",
+   "kind": "vehicle",
+   "x": 0.31144,
+   "y": 0.34063,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-026",
+   "name": "Bravado Copperheads Gauntlet",
+   "kind": "vehicle",
+   "x": 0.57542,
+   "y": 0.34313,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-027",
+   "name": "Bravado Devil's Rope Gauntlet",
+   "kind": "vehicle",
+   "x": 0.56229,
+   "y": 0.35094,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-028",
+   "name": "Classique Emancipator Stallion",
+   "kind": "vehicle",
+   "x": 0.50826,
+   "y": 0.35516,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-029",
+   "name": "Vapid Firebug Dominator",
+   "kind": "vehicle",
+   "x": 0.2928,
+   "y": 0.35609,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-030",
+   "name": "LCC Monarch Avarus",
+   "kind": "vehicle",
+   "x": 0.61186,
+   "y": 0.35812,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-031",
+   "name": "Nagasaki Hung Carbos RS",
+   "kind": "vehicle",
+   "x": 0.62267,
+   "y": 0.365,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-032",
+   "name": "Sirius Holdout Sungrazer",
+   "kind": "vehicle",
+   "x": 0.53538,
+   "y": 0.36672,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-033",
+   "name": "Western Searing Zombie Bobber",
+   "kind": "vehicle",
+   "x": 0.66801,
+   "y": 0.36734,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-034",
+   "name": "Karin Busted Cheater Rebel",
+   "kind": "vehicle",
+   "x": 0.28559,
+   "y": 0.36953,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-035",
+   "name": "Declasse Fruit Outlet Walton",
+   "kind": "vehicle",
+   "x": 0.31123,
+   "y": 0.37375,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-036",
+   "name": "Vapid Truth & Justice Caracara",
+   "kind": "vehicle",
+   "x": 0.31695,
+   "y": 0.37625,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-037",
+   "name": "Walter Ghost Cruiser",
+   "kind": "vehicle",
+   "x": 0.32881,
+   "y": 0.39828,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-038",
+   "name": "Ocelot Bloodless Jugular",
+   "kind": "vehicle",
+   "x": 0.65339,
+   "y": 0.40125,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-039",
+   "name": "Vapid Brimstone Golfer",
+   "kind": "vehicle",
+   "x": 0.80424,
+   "y": 0.43312,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-040",
+   "name": "Buckingham Bourbon Windsor",
+   "kind": "vehicle",
+   "x": 0.71907,
+   "y": 0.45578,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-041",
+   "name": "Pegassi Charred Toros",
+   "kind": "vehicle",
+   "x": 0.69555,
+   "y": 0.46656,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-042",
+   "name": "Pegassi Valiant Tempesta",
+   "kind": "vehicle",
+   "x": 0.86716,
+   "y": 0.47766,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-043",
+   "name": "Airgator Naughty Boy Airboat",
+   "kind": "vehicle",
+   "x": 0.49576,
+   "y": 0.48625,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-044",
+   "name": "Progen Royal Ruby Emerus",
+   "kind": "vehicle",
+   "x": 0.77945,
+   "y": 0.49078,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-045",
+   "name": "Declasse Pink Gin Tulip",
+   "kind": "vehicle",
+   "x": 0.66208,
+   "y": 0.49109,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-046",
+   "name": "Vapid Smush! Ganado",
+   "kind": "vehicle",
+   "x": 0.37415,
+   "y": 0.50609,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-047",
+   "name": "Bravado Elven Queen Youga",
+   "kind": "vehicle",
+   "x": 0.29725,
+   "y": 0.50844,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-048",
+   "name": "Canis Gunrunner Kamacho",
+   "kind": "vehicle",
+   "x": 0.5928,
+   "y": 0.51687,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-049",
+   "name": "Truffade Andrew Node's Thrax",
+   "kind": "vehicle",
+   "x": 0.80042,
+   "y": 0.52906,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-050",
+   "name": "Benefactor Nightlight Schafer",
+   "kind": "vehicle",
+   "x": 0.67161,
+   "y": 0.52969,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-051",
+   "name": "Progen Purple Drank Emerus",
+   "kind": "vehicle",
+   "x": 0.75254,
+   "y": 0.53219,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-052",
+   "name": "Pfister Class Act Comet",
+   "kind": "vehicle",
+   "x": 0.78665,
+   "y": 0.53359,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-053",
+   "name": "Invetero Enforcer Coquette",
+   "kind": "vehicle",
+   "x": 0.27945,
+   "y": 0.54187,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-054",
+   "name": "Dundreary Cherry Bomb Chino",
+   "kind": "vehicle",
+   "x": 0.65403,
+   "y": 0.54219,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-055",
+   "name": "Declasse Ghosts Exposed Parkland",
+   "kind": "vehicle",
+   "x": 0.30508,
+   "y": 0.54797,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-056",
+   "name": "Vapid Red Hot Hustler",
+   "kind": "vehicle",
+   "x": 0.27331,
+   "y": 0.54938,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-057",
+   "name": "Mer-Can Blast",
+   "kind": "vehicle",
+   "x": 0.35021,
+   "y": 0.55188,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-058",
+   "name": "Maibatsu Speedy Boomazoom",
+   "kind": "vehicle",
+   "x": 0.67331,
+   "y": 0.55203,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-059",
+   "name": "Declasse Bugstars Burrito",
+   "kind": "vehicle",
+   "x": 0.31123,
+   "y": 0.55219,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-060",
+   "name": "Vapid Cultivator Sandking",
+   "kind": "vehicle",
+   "x": 0.39068,
+   "y": 0.60578,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-061",
+   "name": "Declasse Beach Candy Bobcat",
+   "kind": "vehicle",
+   "x": 0.31186,
+   "y": 0.60938,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-062",
+   "name": "Imponte Bloodbath Phoenix",
+   "kind": "vehicle",
+   "x": 0.65148,
+   "y": 0.61547,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-063",
+   "name": "Hauners Ridgway",
+   "kind": "vehicle",
+   "x": 0.36822,
+   "y": 0.62953,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-064",
+   "name": "Maibatsu Tropical Manchez",
+   "kind": "vehicle",
+   "x": 0.63347,
+   "y": 0.63938,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-065",
+   "name": "Declasse Caliente Picador",
+   "kind": "vehicle",
+   "x": 0.48517,
+   "y": 0.65078,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-066",
+   "name": "Lapwing Stolen Valor 300-H",
+   "kind": "vehicle",
+   "x": 0.35127,
+   "y": 0.66563,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-067",
+   "name": "Brute Cherry Popper Boxville",
+   "kind": "vehicle",
+   "x": 0.47712,
+   "y": 0.67359,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-068",
+   "name": "Granforma Tsunami Zorrusso",
+   "kind": "vehicle",
+   "x": 0.67648,
+   "y": 0.68063,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-069",
+   "name": "Vapid Rumpo",
+   "kind": "vehicle",
+   "x": 0.62415,
+   "y": 0.69156,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-070",
+   "name": "Western Magma Cliffhanger",
+   "kind": "vehicle",
+   "x": 0.41462,
+   "y": 0.69281,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-071",
+   "name": "Camus Black Moth Kamacho",
+   "kind": "vehicle",
+   "x": 0.44216,
+   "y": 0.69359,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-072",
+   "name": "Sirius '61 Sungrazer",
+   "kind": "vehicle",
+   "x": 0.4339,
+   "y": 0.69656,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-073",
+   "name": "Declasse Mountain Yosemite",
+   "kind": "vehicle",
+   "x": 0.48665,
+   "y": 0.69859,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-074",
+   "name": "Tuff Immortal BMX",
+   "kind": "vehicle",
+   "x": 0.57436,
+   "y": 0.70219,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-075",
+   "name": "LCC Midnight Sun Avarus",
+   "kind": "vehicle",
+   "x": 0.55932,
+   "y": 0.71281,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-076",
+   "name": "Albany Teniente Manana",
+   "kind": "vehicle",
+   "x": 0.58136,
+   "y": 0.71672,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-077",
+   "name": "BF Blood Moon Bandito",
+   "kind": "vehicle",
+   "x": 0.53729,
+   "y": 0.72172,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-078",
+   "name": "Seashark Westbound Azure",
+   "kind": "vehicle",
+   "x": 0.48369,
+   "y": 0.74141,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-079",
+   "name": "Airgator Dr Sheehan's Airboat",
+   "kind": "vehicle",
+   "x": 0.48602,
+   "y": 0.75031,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-080",
+   "name": "Seashark Hydroblast",
+   "kind": "vehicle",
+   "x": 0.48114,
+   "y": 0.75188,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-081",
+   "name": "Lure Predator Rainbow Ripple L20S",
+   "kind": "vehicle",
+   "x": 0.48369,
+   "y": 0.81625,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-082",
+   "name": "Bravado Tropic Dawn Youga",
+   "kind": "vehicle",
+   "x": 0.60805,
+   "y": 0.82734,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-083",
+   "name": "Nagasaki Rudolph Tao",
+   "kind": "vehicle",
+   "x": 0.56335,
+   "y": 0.85031,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-084",
+   "name": "Vapid Shrimp and Save Shifter",
+   "kind": "vehicle",
+   "x": 0.56017,
+   "y": 0.85891,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-085",
+   "name": "Declasse Cousin Carlo's Akane",
+   "kind": "vehicle",
+   "x": 0.54534,
+   "y": 0.87016,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-086",
+   "name": "Maibatsu Penumbra FF (Paul Walker tribute)",
+   "kind": "vehicle",
+   "x": 0.78284,
+   "y": 0.4875,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-087",
+   "name": "Invetero '64 Coquette",
+   "kind": "vehicle",
+   "x": 0.75424,
+   "y": 0.30563,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-088",
+   "name": "Twinstripe Vigero",
+   "kind": "vehicle",
+   "x": 0.53199,
+   "y": 0.87,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-089",
+   "name": "Pegassi Tempesta (Gold)",
+   "kind": "vehicle",
+   "x": 0.85487,
+   "y": 0.42578,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-090",
+   "name": "Pegassi Gold Rush Tempesta",
+   "kind": "vehicle",
+   "x": 0.87669,
+   "y": 0.5225,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-091",
+   "name": "Declasse Akane (Anime wrap)",
+   "kind": "vehicle",
+   "x": 0.61758,
+   "y": 0.81594,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-092",
+   "name": "Karin Futo '85 (collector condition)",
+   "kind": "vehicle",
+   "x": 0.5786,
+   "y": 0.845,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-093",
+   "name": "Squalo \"Street Art\"",
+   "kind": "vehicle",
+   "x": 0.5714,
+   "y": 0.83906,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-094",
+   "name": "Maibatsu Pharaoh Sanchez",
+   "kind": "vehicle",
+   "x": 0.24089,
+   "y": 0.40234,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-095",
+   "name": "Shyster Flower Child Woodland",
+   "kind": "vehicle",
+   "x": 0.54979,
+   "y": 0.86781,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-096",
+   "name": "Bravado Revenant Gauntlet",
+   "kind": "vehicle",
+   "x": 0.49534,
+   "y": 0.34188,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-097",
+   "name": "Bravado Swamp Blaster",
+   "kind": "vehicle",
+   "x": 0.48136,
+   "y": 0.72109,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-098",
+   "name": "Imponte Ruiner Turbo",
+   "kind": "vehicle",
+   "x": 0.59831,
+   "y": 0.83453,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-099",
+   "name": "Imponte Phoenix ('77)",
+   "kind": "vehicle",
+   "x": 0.28771,
+   "y": 0.36391,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-100",
+   "name": "Peacock Sovereign (motorcycle)",
+   "kind": "vehicle",
+   "x": 0.33305,
+   "y": 0.58875,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-101",
+   "name": "Cheetah (POUNCE plate)",
+   "kind": "vehicle",
+   "x": 0.8053,
+   "y": 0.51859,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-102",
+   "name": "Pegassi Infernus (purple)",
+   "kind": "vehicle",
+   "x": 0.78602,
+   "y": 0.52469,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-103",
+   "name": "Bravado Driveshaft Banshee",
+   "kind": "vehicle",
+   "x": 0.54429,
+   "y": 0.72388,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-104",
+   "name": "Partytime Caddy",
+   "kind": "vehicle",
+   "x": 0.31157,
+   "y": 0.37422,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-105",
+   "name": "Karin Cheshire Rebel (Barn Find)",
+   "kind": "vehicle",
+   "x": 0.37248,
+   "y": 0.33071,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-106",
+   "name": "Principe Emilio's Lectro",
+   "kind": "vehicle",
+   "x": 0.6726,
+   "y": 0.51489,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-107",
+   "name": "Spiderweb Coquette",
+   "kind": "vehicle",
+   "x": 0.62202,
+   "y": 0.81074,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-108",
+   "name": "Gator Shack Bison",
+   "kind": "vehicle",
+   "x": 0.37632,
+   "y": 0.61924,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-109",
+   "name": "Seashark Sedna (Graffiti)",
+   "kind": "vehicle",
+   "x": 0.55608,
+   "y": 0.85659,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-110",
+   "name": "MER-CAN Outlaw Love Buggy",
+   "kind": "vehicle",
+   "x": 0.32938,
+   "y": 0.33042,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-111",
+   "name": "Blazing Mallard",
+   "kind": "vehicle",
+   "x": 0.35481,
+   "y": 0.66826,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-112",
+   "name": "Pfister Growler (Vanessa's)",
+   "kind": "vehicle",
+   "x": 0.68088,
+   "y": 0.48281,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-113",
+   "name": "Driveshaft Legends: Marshall",
+   "kind": "vehicle",
+   "x": 0.32462,
+   "y": 0.3376,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-114",
+   "name": "Albany Sunrise Emperor",
+   "kind": "vehicle",
+   "x": 0.72749,
+   "y": 0.46387,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-115",
+   "name": "Pegassi Splattered Vitello",
+   "kind": "vehicle",
+   "x": 0.26966,
+   "y": 0.5209,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-116",
+   "name": "Annis Elegy (Drift)",
+   "kind": "vehicle",
+   "x": 0.29952,
+   "y": 0.42798,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-117",
+   "name": "Declasse '86 Rancher (Stars and Stripes)",
+   "kind": "vehicle",
+   "x": 0.3225,
+   "y": 0.33413,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-118",
+   "name": "'95 Bison 900",
+   "kind": "vehicle",
+   "x": 0.31859,
+   "y": 0.41211,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-119",
+   "name": "Pink Gallivanter Baller II",
+   "kind": "vehicle",
+   "x": 0.66711,
+   "y": 0.42148,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-120",
+   "name": "Declasse Akane (Stripped)",
+   "kind": "vehicle",
+   "x": 0.37963,
+   "y": 0.32539,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-121",
+   "name": "Vapid DriveShaft Hustler",
+   "kind": "vehicle",
+   "x": 0.61322,
+   "y": 0.82485,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-122",
+   "name": "Maibatsu Yesteryear Boomazoom",
+   "kind": "vehicle",
+   "x": 0.32256,
+   "y": 0.41514,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-123",
+   "name": "Pfister '88 Comet",
+   "kind": "vehicle",
+   "x": 0.87248,
+   "y": 0.52241,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-124",
+   "name": "Benefactor Schafter V12",
+   "kind": "vehicle",
+   "x": 0.32554,
+   "y": 0.3688,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-125",
+   "name": "Invetero Coquette D10 (Graffiti)",
+   "kind": "vehicle",
+   "x": 0.72477,
+   "y": 0.47661,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-126",
+   "name": "BF '77 Bandito (Stars and Stripes)",
+   "kind": "vehicle",
+   "x": 0.24225,
+   "y": 0.38223,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-127",
+   "name": "Bravado '69 Gauntlet (HWL YEAH)",
+   "kind": "vehicle",
+   "x": 0.66671,
+   "y": 0.4895,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-128",
+   "name": "Benefactor Gilded Dubsta",
+   "kind": "vehicle",
+   "x": 0.78535,
+   "y": 0.5272,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-129",
+   "name": "Gold Scarab Windsor",
+   "kind": "vehicle",
+   "x": 0.7929,
+   "y": 0.36973,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-130",
+   "name": "Progen Seaspray Emerus",
+   "kind": "vehicle",
+   "x": 0.25371,
+   "y": 0.52056,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-131",
+   "name": "Pink Speedboat",
+   "kind": "vehicle",
+   "x": 0.69293,
+   "y": 0.65151,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-132",
+   "name": "Dinka \"She's All That\" Blista",
+   "kind": "vehicle",
+   "x": 0.3223,
+   "y": 0.38081,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-133",
+   "name": "Manga-Livery Hatchback",
+   "kind": "vehicle",
+   "x": 0.3129,
+   "y": 0.54946,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-134",
+   "name": "Seashark (Leonida Man)",
+   "kind": "vehicle",
+   "x": 0.48438,
+   "y": 0.7416,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-135",
+   "name": "Pfister Comet ('88)",
+   "kind": "vehicle",
+   "x": 0.25311,
+   "y": 0.51748,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-136",
+   "name": "Maibatsu Manchez (Pink/Blue)",
+   "kind": "vehicle",
+   "x": 0.39248,
+   "y": 0.49785,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-137",
+   "name": "Pegassi Vitello (Orange)",
+   "kind": "vehicle",
+   "x": 0.25384,
+   "y": 0.52231,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-138",
+   "name": "Bravado Banshee",
+   "kind": "vehicle",
+   "x": 0.26271,
+   "y": 0.52705,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-139",
+   "name": "Candyman Scorcher",
+   "kind": "vehicle",
+   "x": 0.31296,
+   "y": 0.37446,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-140",
+   "name": "Pegassi Lustrous Toros",
+   "kind": "vehicle",
+   "x": 0.80442,
+   "y": 0.48735,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-141",
+   "name": "Pfister Hornet Growler",
+   "kind": "vehicle",
+   "x": 0.85428,
+   "y": 0.56025,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-142",
+   "name": "Vapid Slamvan '56",
+   "kind": "vehicle",
+   "x": 0.7884,
+   "y": 0.36514,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-143",
+   "name": "Tormentor Street Blazer (ATV)",
+   "kind": "vehicle",
+   "x": 0.48153,
+   "y": 0.13604,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-144",
+   "name": "Vice Vinyl Coquette",
+   "kind": "vehicle",
+   "x": 0.78761,
+   "y": 0.49551,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-145",
+   "name": "Princess Jubilee",
+   "kind": "vehicle",
+   "x": 0.76536,
+   "y": 0.48813,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-146",
+   "name": "Declasse Beer Nuts Yosemite",
+   "kind": "vehicle",
+   "x": 0.32918,
+   "y": 0.32988,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-147",
+   "name": "Buckingham Swift",
+   "kind": "vehicle",
+   "x": 0.1826,
+   "y": 0.45137,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-148",
+   "name": "Kyle's Mallard",
+   "kind": "vehicle",
+   "x": 0.47233,
+   "y": 0.35054,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-149",
+   "name": "Delaney Racing Car",
+   "kind": "vehicle",
+   "x": 0.40751,
+   "y": 0.52666,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-150",
+   "name": "Willard Preacher's Moocher",
+   "kind": "vehicle",
+   "x": 0.48822,
+   "y": 0.15249,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-151",
+   "name": "Willard Thirsty Grouse",
+   "kind": "vehicle",
+   "x": 0.52662,
+   "y": 0.15928,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-152",
+   "name": "Classique Apocalypse Stallion",
+   "kind": "vehicle",
+   "x": 0.57144,
+   "y": 0.18188,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-153",
+   "name": "Vapid Venomous Marshall",
+   "kind": "vehicle",
+   "x": 0.55072,
+   "y": 0.18525,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-154",
+   "name": "Maibatsu Tactical Caddy",
+   "kind": "vehicle",
+   "x": 0.46611,
+   "y": 0.19126,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-155",
+   "name": "Western Dirt Rocket Zombie Bobber",
+   "kind": "vehicle",
+   "x": 0.49305,
+   "y": 0.20513,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-156",
+   "name": "Bravado DriveShaft Gauntlet",
+   "kind": "vehicle",
+   "x": 0.38918,
+   "y": 0.20933,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-157",
+   "name": "Western Emerald Zombie Bobber",
+   "kind": "vehicle",
+   "x": 0.3711,
+   "y": 0.21992,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-158",
+   "name": "Declasse Gravekeeper Walton",
+   "kind": "vehicle",
+   "x": 0.37673,
+   "y": 0.22007,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-159",
+   "name": "LCC Hellraiser Avarus",
+   "kind": "vehicle",
+   "x": 0.67235,
+   "y": 0.2333,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-160",
+   "name": "Bravado DriveShaft Youga",
+   "kind": "vehicle",
+   "x": 0.67784,
+   "y": 0.23838,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-161",
+   "name": "Declasse Broken Oak Bobcat",
+   "kind": "vehicle",
+   "x": 0.63401,
+   "y": 0.26167,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-162",
+   "name": "Bottcher Meteor Duster",
+   "kind": "vehicle",
+   "x": 0.45373,
+   "y": 0.27607,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-163",
+   "name": "Maibatsu Spec Ops Boomazoom",
+   "kind": "vehicle",
+   "x": 0.43214,
+   "y": 0.28311,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-164",
+   "name": "Maibatsu Celebration Caddy",
+   "kind": "vehicle",
+   "x": 0.68062,
+   "y": 0.28413,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-165",
+   "name": "Benefactor Freddie's Dubsta",
+   "kind": "vehicle",
+   "x": 0.58416,
+   "y": 0.28506,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-166",
+   "name": "Maibatsu Punk Putter Caddy",
+   "kind": "vehicle",
+   "x": 0.6691,
+   "y": 0.28843,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-167",
+   "name": "Vapid Venomous Marshall",
+   "kind": "vehicle",
+   "x": 0.4863,
+   "y": 0.30298,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-168",
+   "name": "Maibatsu Jackals Sanchez",
+   "kind": "vehicle",
+   "x": 0.71843,
+   "y": 0.30503,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-169",
+   "name": "Maibatsu Glamor Caddy",
+   "kind": "vehicle",
+   "x": 0.7073,
+   "y": 0.30947,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-170",
+   "name": "Declasse Battler Picador",
+   "kind": "vehicle",
+   "x": 0.55555,
+   "y": 0.31426,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-171",
+   "name": "Osprey Erotic Journey",
+   "kind": "vehicle",
+   "x": 0.55628,
+   "y": 0.3146,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-172",
+   "name": "Maibatsu Blue Drake Penumbra",
+   "kind": "vehicle",
+   "x": 0.54662,
+   "y": 0.32466,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-173",
+   "name": "Vapid Murica Dominator",
+   "kind": "vehicle",
+   "x": 0.54695,
+   "y": 0.32466,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-174",
+   "name": "Rugger Henshaw Rhode",
+   "kind": "vehicle",
+   "x": 0.60216,
+   "y": 0.33423,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-175",
+   "name": "Maibatsu Berserker Sanchez",
+   "kind": "vehicle",
+   "x": 0.69214,
+   "y": 0.33472,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-176",
+   "name": "Buckingham Black Dragon Maverick",
+   "kind": "vehicle",
+   "x": 0.69201,
+   "y": 0.33516,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-177",
+   "name": "Lapwing Black Dragon Mallard",
+   "kind": "vehicle",
+   "x": 0.69267,
+   "y": 0.33564,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-178",
+   "name": "Willard Getaway Grouse",
+   "kind": "vehicle",
+   "x": 0.56582,
+   "y": 0.33652,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-179",
+   "name": "Shitzu Shining Sea Squalo",
+   "kind": "vehicle",
+   "x": 0.31131,
+   "y": 0.33662,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-180",
+   "name": "LCC Final Chapter Avarus",
+   "kind": "vehicle",
+   "x": 0.5686,
+   "y": 0.33984,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-181",
+   "name": "Classique Rampant Stallion",
+   "kind": "vehicle",
+   "x": 0.7169,
+   "y": 0.3438,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-182",
+   "name": "Declasse Trippin' Picador",
+   "kind": "vehicle",
+   "x": 0.40427,
+   "y": 0.3501,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-183",
+   "name": "Bravado Allegiance Dorado",
+   "kind": "vehicle",
+   "x": 0.56655,
+   "y": 0.35073,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-184",
+   "name": "Lapwing Kyle's Mallard",
+   "kind": "vehicle",
+   "x": 0.47842,
+   "y": 0.35156,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-185",
+   "name": "Karin Trash Rebel",
+   "kind": "vehicle",
+   "x": 0.54231,
+   "y": 0.35293,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-186",
+   "name": "Vapid Old Glory Caracara",
+   "kind": "vehicle",
+   "x": 0.56284,
+   "y": 0.35454,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-187",
+   "name": "Maibatsu Lowrider Boomazoom",
+   "kind": "vehicle",
+   "x": 0.78232,
+   "y": 0.35737,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-188",
+   "name": "JoBuilt 1776 Phantom",
+   "kind": "vehicle",
+   "x": 0.58191,
+   "y": 0.3584,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-189",
+   "name": "Maibatsu Donk Caddy",
+   "kind": "vehicle",
+   "x": 0.78324,
+   "y": 0.35962,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-190",
+   "name": "Del Perro Glacier Erode",
+   "kind": "vehicle",
+   "x": 0.32317,
+   "y": 0.36021,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-191",
+   "name": "Maibatsu Donk Boomazoom",
+   "kind": "vehicle",
+   "x": 0.78602,
+   "y": 0.36211,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-192",
+   "name": "Maibatsu Lowrider Caddy",
+   "kind": "vehicle",
+   "x": 0.78602,
+   "y": 0.3626,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-193",
+   "name": "Maibatsu Sweet Land Caddy",
+   "kind": "vehicle",
+   "x": 0.59336,
+   "y": 0.36372,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-194",
+   "name": "Maibatsu Pink Champagne Caddy",
+   "kind": "vehicle",
+   "x": 0.75126,
+   "y": 0.36548,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-195",
+   "name": "Maibatsu Memorial Sanchez",
+   "kind": "vehicle",
+   "x": 0.74087,
+   "y": 0.37427,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-196",
+   "name": "Ascot Queen Bee Paragon",
+   "kind": "vehicle",
+   "x": 0.79721,
+   "y": 0.37651,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-197",
+   "name": "Buckingham Cellerica Shamal",
+   "kind": "vehicle",
+   "x": 0.64447,
+   "y": 0.37803,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-198",
+   "name": "Albany Cotton Candy Devanity",
+   "kind": "vehicle",
+   "x": 0.79973,
+   "y": 0.37881,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-199",
+   "name": "Lapwing Silver Bullet Mallard",
+   "kind": "vehicle",
+   "x": 0.26835,
+   "y": 0.38003,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-200",
+   "name": "Emperor Moses' Sultan",
+   "kind": "vehicle",
+   "x": 0.31986,
+   "y": 0.39004,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-201",
+   "name": "Buckingham Diamond Jubilee",
+   "kind": "vehicle",
+   "x": 0.7845,
+   "y": 0.41084,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-202",
+   "name": "Übermacht Glitterbomb APOC",
+   "kind": "vehicle",
+   "x": 0.64878,
+   "y": 0.41602,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-203",
+   "name": "Dundreary Sal's Chino",
+   "kind": "vehicle",
+   "x": 0.32105,
+   "y": 0.41724,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-204",
+   "name": "Vapid Darkling Dominator",
+   "kind": "vehicle",
+   "x": 0.29721,
+   "y": 0.43511,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-205",
+   "name": "Benefactor Red Queen Dubsta",
+   "kind": "vehicle",
+   "x": 0.77338,
+   "y": 0.44087,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-206",
+   "name": "Gallivanter Big Shot Baller-STD",
+   "kind": "vehicle",
+   "x": 0.85687,
+   "y": 0.44185,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-207",
+   "name": "Airgator Will O' The Wisp Airboat",
+   "kind": "vehicle",
+   "x": 0.49478,
+   "y": 0.45449,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-208",
+   "name": "Dinka Crushed Velvet Double-T",
+   "kind": "vehicle",
+   "x": 0.72041,
+   "y": 0.45796,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-209",
+   "name": "Western Oxygen Zombie Bobber",
+   "kind": "vehicle",
+   "x": 0.85091,
+   "y": 0.45825,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-210",
+   "name": "Benefactor DWNPLY's Schutzen",
+   "kind": "vehicle",
+   "x": 0.71518,
+   "y": 0.46499,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-211",
+   "name": "Western Blood Fever Sovereign",
+   "kind": "vehicle",
+   "x": 0.69254,
+   "y": 0.46597,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-212",
+   "name": "Shitzu Typhoon Squalo",
+   "kind": "vehicle",
+   "x": 0.8666,
+   "y": 0.46963,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-213",
+   "name": "Airgator Kowaachobee Airboat",
+   "kind": "vehicle",
+   "x": 0.49325,
+   "y": 0.46968,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-214",
+   "name": "Declasse Tap-Tap Walton",
+   "kind": "vehicle",
+   "x": 0.68234,
+   "y": 0.47271,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-215",
+   "name": "Piccia Dragon Gate Furia",
+   "kind": "vehicle",
+   "x": 0.87977,
+   "y": 0.473,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-216",
+   "name": "Vapid Anarchist Dominator",
+   "kind": "vehicle",
+   "x": 0.71624,
+   "y": 0.47324,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-217",
+   "name": "Western Malibu Zombie Bobber",
+   "kind": "vehicle",
+   "x": 0.86739,
+   "y": 0.47339,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-218",
+   "name": "Airgator Big Game Airboat",
+   "kind": "vehicle",
+   "x": 0.52689,
+   "y": 0.47646,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-219",
+   "name": "Calder Dot Matrix Dibnah",
+   "kind": "vehicle",
+   "x": 0.7745,
+   "y": 0.47739,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-220",
+   "name": "Maibatsu Camo Caddy",
+   "kind": "vehicle",
+   "x": 0.50941,
+   "y": 0.47847,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-221",
+   "name": "Dinka DIY Chavos",
+   "kind": "vehicle",
+   "x": 0.69095,
+   "y": 0.47876,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-222",
+   "name": "Maibatsu Swampy Sal's Caddy",
+   "kind": "vehicle",
+   "x": 0.52556,
+   "y": 0.48213,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-223",
+   "name": "Annis Venturas BLVD Elegy",
+   "kind": "vehicle",
+   "x": 0.70134,
+   "y": 0.48247,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-224",
+   "name": "Grotti Dolce Vita RSX",
+   "kind": "vehicle",
+   "x": 0.77589,
+   "y": 0.48286,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-225",
+   "name": "Vapid Peppermint Stanier",
+   "kind": "vehicle",
+   "x": 0.6744,
+   "y": 0.48906,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-226",
+   "name": "Maibatsu Nugget Boomazoom",
+   "kind": "vehicle",
+   "x": 0.75954,
+   "y": 0.48906,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-227",
+   "name": "Declasse Blue Silk Walton",
+   "kind": "vehicle",
+   "x": 0.64401,
+   "y": 0.48955,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-228",
+   "name": "Declasse Seafoam Picador",
+   "kind": "vehicle",
+   "x": 0.86402,
+   "y": 0.49028,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-229",
+   "name": "Pfister Pink Licorice Astron",
+   "kind": "vehicle",
+   "x": 0.77987,
+   "y": 0.49326,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-230",
+   "name": "Pfister Bubblegum Growler",
+   "kind": "vehicle",
+   "x": 0.77973,
+   "y": 0.49331,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-231",
+   "name": "Annis Chameleon Elegy",
+   "kind": "vehicle",
+   "x": 0.84442,
+   "y": 0.49399,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-232",
+   "name": "Übermacht Bareback Cypher",
+   "kind": "vehicle",
+   "x": 0.69161,
+   "y": 0.49404,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-233",
+   "name": "Vapid Kinetic Dominator",
+   "kind": "vehicle",
+   "x": 0.66731,
+   "y": 0.50166,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-234",
+   "name": "Nagasaki Bogskimmer Sea Sparrow",
+   "kind": "vehicle",
+   "x": 0.46584,
+   "y": 0.50435,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-235",
+   "name": "Progen Honeycomb Emerus",
+   "kind": "vehicle",
+   "x": 0.69313,
+   "y": 0.50747,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-236",
+   "name": "Pegassi Lipgloss Vitello",
+   "kind": "vehicle",
+   "x": 0.69274,
+   "y": 0.50752,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-237",
+   "name": "Western DriveShaft Sovereign",
+   "kind": "vehicle",
+   "x": 0.29754,
+   "y": 0.50894,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-238",
+   "name": "Brute Cherry Popper Boxville",
+   "kind": "vehicle",
+   "x": 0.71737,
+   "y": 0.50923,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-239",
+   "name": "Bravado Acid Youga",
+   "kind": "vehicle",
+   "x": 0.29728,
+   "y": 0.50938,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-240",
+   "name": "Pegassi Gold Rush Tempesta",
+   "kind": "vehicle",
+   "x": 0.87865,
+   "y": 0.5103,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-241",
+   "name": "Übermacht Pop Art Cypher",
+   "kind": "vehicle",
+   "x": 0.72584,
+   "y": 0.51494,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-242",
+   "name": "Principe Burnished Alvino",
+   "kind": "vehicle",
+   "x": 0.80145,
+   "y": 0.52734,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-243",
+   "name": "Albany Narcos Cavalcade",
+   "kind": "vehicle",
+   "x": 0.73392,
+   "y": 0.52749,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-244",
+   "name": "Tuff Millionaire BMX",
+   "kind": "vehicle",
+   "x": 0.66003,
+   "y": 0.52808,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-245",
+   "name": "Pegassi Raul's Tempesta",
+   "kind": "vehicle",
+   "x": 0.62507,
+   "y": 0.52842,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-246",
+   "name": "Albany Cereza Manana",
+   "kind": "vehicle",
+   "x": 0.87461,
+   "y": 0.52905,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-247",
+   "name": "Maibatsu Seashell Boomazoom",
+   "kind": "vehicle",
+   "x": 0.76662,
+   "y": 0.53115,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-248",
+   "name": "Pegassi Dante's Vitello",
+   "kind": "vehicle",
+   "x": 0.78589,
+   "y": 0.53188,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-249",
+   "name": "Pfister Buttermilk Comet Retro",
+   "kind": "vehicle",
+   "x": 0.25338,
+   "y": 0.53213,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-250",
+   "name": "Benefactor Fatstaks Dubsta",
+   "kind": "vehicle",
+   "x": 0.79258,
+   "y": 0.53354,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-251",
+   "name": "Western Cultist Nightblade",
+   "kind": "vehicle",
+   "x": 0.61243,
+   "y": 0.53452,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-252",
+   "name": "Maibatsu Party Girl Penumbra",
+   "kind": "vehicle",
+   "x": 0.30635,
+   "y": 0.53936,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-253",
+   "name": "Sirius Springtime Sungrazer",
+   "kind": "vehicle",
+   "x": 0.29192,
+   "y": 0.54043,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-254",
+   "name": "Maibatsu Speedy Boomazoom",
+   "kind": "vehicle",
+   "x": 0.74418,
+   "y": 0.55049,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-255",
+   "name": "Lapwing Booty Bang Nimbus",
+   "kind": "vehicle",
+   "x": 0.57343,
+   "y": 0.55298,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-256",
+   "name": "Buckingham Love Fist Shamal",
+   "kind": "vehicle",
+   "x": 0.58104,
+   "y": 0.55449,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-257",
+   "name": "Vapid Citrus Ganado",
+   "kind": "vehicle",
+   "x": 0.37031,
+   "y": 0.55474,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-258",
+   "name": "Bravado Love Fist Youga",
+   "kind": "vehicle",
+   "x": 0.58177,
+   "y": 0.55488,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-259",
+   "name": "Sirius Axanthic Transgressor",
+   "kind": "vehicle",
+   "x": 0.34958,
+   "y": 0.5583,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-260",
+   "name": "Schyster Born Free Deviant",
+   "kind": "vehicle",
+   "x": 0.34932,
+   "y": 0.55894,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-261",
+   "name": "Declasse Endurance Mamba GT",
+   "kind": "vehicle",
+   "x": 0.34766,
+   "y": 0.55957,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-262",
+   "name": "Reynolds Revival Kit Car",
+   "kind": "vehicle",
+   "x": 0.34766,
+   "y": 0.55962,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-263",
+   "name": "Vapid Survivor Riata",
+   "kind": "vehicle",
+   "x": 0.34766,
+   "y": 0.55962,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-264",
+   "name": "Vapid Jackals Caracara",
+   "kind": "vehicle",
+   "x": 0.32032,
+   "y": 0.55977,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-265",
+   "name": "Buckingham Dragonfly Volatus",
+   "kind": "vehicle",
+   "x": 0.71465,
+   "y": 0.56167,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-266",
+   "name": "Buckingham Atlantic Volatus",
+   "kind": "vehicle",
+   "x": 0.61898,
+   "y": 0.56685,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-267",
+   "name": "Declasse Flamingo Bobcat",
+   "kind": "vehicle",
+   "x": 0.21982,
+   "y": 0.57705,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-268",
+   "name": "Grotti Preziosa Cheetah",
+   "kind": "vehicle",
+   "x": 0.74213,
+   "y": 0.59619,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-269",
+   "name": "Übermacht Booty FCR 1000",
+   "kind": "vehicle",
+   "x": 0.62282,
+   "y": 0.59941,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-270",
+   "name": "Calder Ocean Pearl CB69",
+   "kind": "vehicle",
+   "x": 0.70691,
+   "y": 0.60649,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-271",
+   "name": "Pegassi Mojito Tempesta",
+   "kind": "vehicle",
+   "x": 0.722,
+   "y": 0.60918,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-272",
+   "name": "Pfister Gentrifier Comet",
+   "kind": "vehicle",
+   "x": 0.64924,
+   "y": 0.61323,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-273",
+   "name": "Calder Mosaic Dibnah",
+   "kind": "vehicle",
+   "x": 0.85091,
+   "y": 0.63145,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-274",
+   "name": "Principe Thicc Esskey",
+   "kind": "vehicle",
+   "x": 0.63229,
+   "y": 0.63613,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-275",
+   "name": "Albany Booty Bang Cavalcade",
+   "kind": "vehicle",
+   "x": 0.67797,
+   "y": 0.68081,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-276",
+   "name": "Vapid Wyman's '67 Dominator Buggy",
+   "kind": "vehicle",
+   "x": 0.4818,
+   "y": 0.69658,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-277",
+   "name": "Osprey Erotic Journey",
+   "kind": "vehicle",
+   "x": 0.47405,
+   "y": 0.69883,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-278",
+   "name": "Imponte Soaring Phoenix",
+   "kind": "vehicle",
+   "x": 0.4138,
+   "y": 0.6998,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-279",
+   "name": "Nagasaki Azalea Street Blazer",
+   "kind": "vehicle",
+   "x": 0.4575,
+   "y": 0.6998,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-280",
+   "name": "Osprey DriveShaft Journey",
+   "kind": "vehicle",
+   "x": 0.4434,
+   "y": 0.70181,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-281",
+   "name": "Bravado King of Swing Youga",
+   "kind": "vehicle",
+   "x": 0.47935,
+   "y": 0.70352,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-282",
+   "name": "Vapid Rocket Slamvan",
+   "kind": "vehicle",
+   "x": 0.44254,
+   "y": 0.70747,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-283",
+   "name": "Vapid Venomous Marshall",
+   "kind": "vehicle",
+   "x": 0.53688,
+   "y": 0.72021,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-284",
+   "name": "Bravado DriveShaft Banshee",
+   "kind": "vehicle",
+   "x": 0.55119,
+   "y": 0.72236,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-285",
+   "name": "Lure Predator Cold Case L35P",
+   "kind": "vehicle",
+   "x": 0.4334,
+   "y": 0.74238,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-286",
+   "name": "Lapwing Pussycat Mammatus",
+   "kind": "vehicle",
+   "x": 0.55959,
+   "y": 0.76963,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-287",
+   "name": "Imponte Blazin' Phoenix",
+   "kind": "vehicle",
+   "x": 0.54185,
+   "y": 0.87402,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-288",
+   "name": "Invetero Oubliette Coquette",
+   "kind": "vehicle",
+   "x": 0.67969,
+   "y": 0.48516,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-289",
+   "name": "Buckingham GILF Windsor",
+   "kind": "vehicle",
+   "x": 0.2547,
+   "y": 0.52339,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-290",
+   "name": "Grotti Status RSX",
+   "kind": "vehicle",
+   "x": 0.37944,
+   "y": 0.44067,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-291",
+   "name": "Brute Tiny Frank's Boxville",
+   "kind": "vehicle",
+   "x": 0.56713,
+   "y": 0.84722,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-292",
+   "name": "Annis Pixel Elegy",
+   "kind": "vehicle",
+   "x": 0.28476,
+   "y": 0.55596,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-293",
+   "name": "Western Obsidian Sovereign",
+   "kind": "vehicle",
+   "x": 0.26172,
+   "y": 0.29683,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-294",
+   "name": "Declasse Applesauce Bobcat",
+   "kind": "vehicle",
+   "x": 0.35626,
+   "y": 0.29424,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-295",
+   "name": "Vapid Murica Dominator",
+   "kind": "vehicle",
+   "x": 0.7788,
+   "y": 0.5855,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-296",
+   "name": "Progen Black Widow Emerus",
+   "kind": "vehicle",
+   "x": 0.82667,
+   "y": 0.5708,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-297",
+   "name": "Nagasaki Chrome Street Blazer",
+   "kind": "vehicle",
+   "x": 0.38659,
+   "y": 0.36831,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-298",
+   "name": "Albany Cuban Hermes",
+   "kind": "vehicle",
+   "x": 0.2263,
+   "y": 0.32036,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-standout-vehicle-299",
+   "name": "Albany Sunrise Emperor",
+   "kind": "vehicle",
+   "x": 0.71968,
+   "y": 0.44038,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-request-001",
+   "name": "Declasse '74 Vamos (Moses' request)",
+   "kind": "vehicle",
+   "x": 0.41017,
+   "y": 0.205,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-002",
+   "name": "Pegassi Tempesta (Randy's request)",
+   "kind": "vehicle",
+   "x": 0.61547,
+   "y": 0.20625,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-003",
+   "name": "Karin '85 Futo (Moses' request)",
+   "kind": "vehicle",
+   "x": 0.23792,
+   "y": 0.32156,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-004",
+   "name": "Canis '82 Crawler (Moses' request)",
+   "kind": "vehicle",
+   "x": 0.32585,
+   "y": 0.33031,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-005",
+   "name": "Western Nightblade (Moses' request)",
+   "kind": "vehicle",
+   "x": 0.54534,
+   "y": 0.35656,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-006",
+   "name": "Pegassi Vitello (Randy's request)",
+   "kind": "vehicle",
+   "x": 0.78919,
+   "y": 0.36578,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-007",
+   "name": "Declasse Yosemite 1500 (Moses' request)",
+   "kind": "vehicle",
+   "x": 0.29174,
+   "y": 0.36609,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-008",
+   "name": "Ascot Paragon (Randy's request)",
+   "kind": "vehicle",
+   "x": 0.63835,
+   "y": 0.37906,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-009",
+   "name": "Annis '95 Hellion (Moses' request)",
+   "kind": "vehicle",
+   "x": 0.31525,
+   "y": 0.41078,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-010",
+   "name": "BF '77 Bandito (Moses' request)",
+   "kind": "vehicle",
+   "x": 0.51335,
+   "y": 0.46281,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-011",
+   "name": "Pegassi '96 Infernus (Randy's request)",
+   "kind": "vehicle",
+   "x": 0.68898,
+   "y": 0.51188,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-012",
+   "name": "Invetero Coquette D10 (Randy's request)",
+   "kind": "vehicle",
+   "x": 0.75297,
+   "y": 0.53375,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-013",
+   "name": "Granforma Zorrusso (Randy's request)",
+   "kind": "vehicle",
+   "x": 0.87987,
+   "y": 0.54437,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-014",
+   "name": "Bravado Banshee (Randy's request)",
+   "kind": "vehicle",
+   "x": 0.63771,
+   "y": 0.63797,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-015",
+   "name": "Piccia Furia (Randy's request)",
+   "kind": "vehicle",
+   "x": 0.67331,
+   "y": 0.68578,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-request-016",
+   "name": "Bravado Gauntlet Hellfire (Randy's request)",
+   "kind": "vehicle",
+   "x": 0.5803,
+   "y": 0.71719,
+   "note": "Requested vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-001",
+   "name": "Mammatus",
+   "kind": "vehicle",
+   "x": 0.56165,
+   "y": 0.75828,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-002",
+   "name": "Fighter Jets",
+   "kind": "vehicle",
+   "x": 0.29364,
+   "y": 0.86781,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-003",
+   "name": "Pfister sports car",
+   "kind": "vehicle",
+   "x": 0.41292,
+   "y": 0.69844,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-004",
+   "name": "'55 Stainer (Ultimate Edition)",
+   "kind": "vehicle",
+   "x": 0.87669,
+   "y": 0.51937,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-005",
+   "name": "R33 Skyline-style Sports Car",
+   "kind": "vehicle",
+   "x": 0.31653,
+   "y": 0.40937,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-006",
+   "name": "Helicopter",
+   "kind": "vehicle",
+   "x": 0.33178,
+   "y": 0.87219,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-007",
+   "name": "Pegassi Tempesta",
+   "kind": "vehicle",
+   "x": 0.70233,
+   "y": 0.49,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-008",
+   "name": "Vapid Marshall",
+   "kind": "vehicle",
+   "x": 0.29089,
+   "y": 0.36078,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-009",
+   "name": "Western Sovereign 107",
+   "kind": "vehicle",
+   "x": 0.59258,
+   "y": 0.82969,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-010",
+   "name": "Pfister Neon",
+   "kind": "vehicle",
+   "x": 0.27881,
+   "y": 0.52016,
+   "note": "Vehicle spawn point"
+  },
+  {
+   "id": "o-vehicle-spawn-011",
+   "name": "HVY Waste Lander",
+   "kind": "vehicle",
+   "x": 0.509,
+   "y": 0.75068,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-012",
+   "name": "Bombora S23 CS (Boat)",
+   "kind": "vehicle",
+   "x": 0.30687,
+   "y": 0.59521,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-013",
+   "name": "Vapid '65 Dominator",
+   "kind": "vehicle",
+   "x": 0.37321,
+   "y": 0.3311,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-014",
+   "name": "Maverick (helicopter)",
+   "kind": "vehicle",
+   "x": 0.81435,
+   "y": 0.44658,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-015",
+   "name": "Buzzard (helicopter)",
+   "kind": "vehicle",
+   "x": 0.26106,
+   "y": 0.39272,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-016",
+   "name": "Sea Sparrow (helicopter)",
+   "kind": "vehicle",
+   "x": 0.46597,
+   "y": 0.69619,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-017",
+   "name": "Bravado Banshee",
+   "kind": "vehicle",
+   "x": 0.30396,
+   "y": 0.41216,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-018",
+   "name": "Pegassi Tempesta (Off-Road Kit)",
+   "kind": "vehicle",
+   "x": 0.72285,
+   "y": 0.46035,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-019",
+   "name": "Akane (custom paint job)",
+   "kind": "vehicle",
+   "x": 0.61924,
+   "y": 0.81558,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-021",
+   "name": "Bombora S23",
+   "kind": "vehicle",
+   "x": 0.58806,
+   "y": 0.81953,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-022",
+   "name": "Dinka Enduro",
+   "kind": "vehicle",
+   "x": 0.6195,
+   "y": 0.16172,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-023",
+   "name": "Martha's Declasse",
+   "kind": "vehicle",
+   "x": 0.48027,
+   "y": 0.14497,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-024",
+   "name": "Pegassi Tempesta",
+   "kind": "vehicle",
+   "x": 0.72564,
+   "y": 0.44019,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-025",
+   "name": "Buckingham SuperVolito",
+   "kind": "vehicle",
+   "x": 0.61527,
+   "y": 0.72368,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-026",
+   "name": "Nagasaki Sea Sparrow",
+   "kind": "vehicle",
+   "x": 0.46921,
+   "y": 0.76255,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-027",
+   "name": "Pegassi Toros",
+   "kind": "vehicle",
+   "x": 0.41784,
+   "y": 0.32388,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-028",
+   "name": "Kit Car (project car)",
+   "kind": "vehicle",
+   "x": 0.25391,
+   "y": 0.52036,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-029",
+   "name": "Grotti RSX",
+   "kind": "vehicle",
+   "x": 0.37864,
+   "y": 0.44009,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-030",
+   "name": "Cheetah (1010 Murals reward)",
+   "kind": "vehicle",
+   "x": 0.65241,
+   "y": 0.6124,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-031",
+   "name": "Military Helicopter",
+   "kind": "vehicle",
+   "x": 0.26139,
+   "y": 0.89575,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-032",
+   "name": "Vapid Guardian TX2 (Lowrider)",
+   "kind": "vehicle",
+   "x": 0.72954,
+   "y": 0.45522,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-033",
+   "name": "Bombora S23 CCS",
+   "kind": "vehicle",
+   "x": 0.41658,
+   "y": 0.10269,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-034",
+   "name": "Bombora S23 CCS",
+   "kind": "vehicle",
+   "x": 0.45279,
+   "y": 0.09102,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-035",
+   "name": "Ubermacht FCR 1000",
+   "kind": "vehicle",
+   "x": 0.73027,
+   "y": 0.45068,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-036",
+   "name": "Riata ('70)",
+   "kind": "vehicle",
+   "x": 0.33077,
+   "y": 0.86309,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-037",
+   "name": "Coast Guard Helicopter",
+   "kind": "vehicle",
+   "x": 0.81892,
+   "y": 0.55088,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-038",
+   "name": "Pegassi Vitello",
+   "kind": "vehicle",
+   "x": 0.25861,
+   "y": 0.53115,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-039",
+   "name": "Pegassi Tempesta",
+   "kind": "vehicle",
+   "x": 0.25927,
+   "y": 0.53589,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-040",
+   "name": "Mer-Can Outlaw UTV (Purple)",
+   "kind": "vehicle",
+   "x": 0.28675,
+   "y": 0.50503,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-041",
+   "name": "Airgator Airboat 09",
+   "kind": "vehicle",
+   "x": 0.4947,
+   "y": 0.7293,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-042",
+   "name": "Truck (garage)",
+   "kind": "vehicle",
+   "x": 0.33263,
+   "y": 0.38037,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-043",
+   "name": "Vapid Golfer Infernale",
+   "kind": "vehicle",
+   "x": 0.79568,
+   "y": 0.43652,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-044",
+   "name": "Tanks",
+   "kind": "vehicle",
+   "x": 0.26,
+   "y": 0.85283,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-045",
+   "name": "Nagasaki Tao, Seashark Hydroblast & Seashark Sedna (dock)",
+   "kind": "vehicle",
+   "x": 0.52959,
+   "y": 0.1396,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-046",
+   "name": "Seaplane (Dodo)",
+   "kind": "vehicle",
+   "x": 0.31343,
+   "y": 0.57358,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-047",
+   "name": "National Park Rangers Maverick",
+   "kind": "vehicle",
+   "x": 0.55899,
+   "y": 0.15952,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-048",
+   "name": "Nagasaki Sea Sparrow",
+   "kind": "vehicle",
+   "x": 0.61282,
+   "y": 0.28911,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-049",
+   "name": "Karin Contender (blacked out)",
+   "kind": "vehicle",
+   "x": 0.54138,
+   "y": 0.74502,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-050",
+   "name": "Declasse Vamos (1974)",
+   "kind": "vehicle",
+   "x": 0.25927,
+   "y": 0.51655,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-051",
+   "name": "Water Helicopter",
+   "kind": "vehicle",
+   "x": 0.49868,
+   "y": 0.76079,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-052",
+   "name": "Declasse '74 Vamos",
+   "kind": "vehicle",
+   "x": 0.27476,
+   "y": 0.52651,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-053",
+   "name": "Vapid '56 Slamvan",
+   "kind": "vehicle",
+   "x": 0.41175,
+   "y": 0.39409,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-054",
+   "name": "Schyster '85 Woodland",
+   "kind": "vehicle",
+   "x": 0.47358,
+   "y": 0.50576,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-055",
+   "name": "Granforma Zorrusso",
+   "kind": "vehicle",
+   "x": 0.29449,
+   "y": 0.56289,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-056",
+   "name": "Nagasaki Sea Sparrow",
+   "kind": "vehicle",
+   "x": 0.5678,
+   "y": 0.76113,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-057",
+   "name": "Annis Elegy '90",
+   "kind": "vehicle",
+   "x": 0.78496,
+   "y": 0.52866,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-058",
+   "name": "Military Helicopter",
+   "kind": "vehicle",
+   "x": 0.4471,
+   "y": 0.88145,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-059",
+   "name": "HVY Wastelander",
+   "kind": "vehicle",
+   "x": 0.48815,
+   "y": 0.72046,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-060",
+   "name": "Truffade Thrax",
+   "kind": "vehicle",
+   "x": 0.54277,
+   "y": 0.72305,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-061",
+   "name": "Lowrider (garage)",
+   "kind": "vehicle",
+   "x": 0.68227,
+   "y": 0.68506,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-062",
+   "name": "Dinka Enduro",
+   "kind": "vehicle",
+   "x": 0.32256,
+   "y": 0.86172,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-063",
+   "name": "Sea Sparrow",
+   "kind": "vehicle",
+   "x": 0.5247,
+   "y": 0.71372,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-064",
+   "name": "Mammoth Patriot '92",
+   "kind": "vehicle",
+   "x": 0.5674,
+   "y": 0.75854,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-065",
+   "name": "HVY Airtug",
+   "kind": "vehicle",
+   "x": 0.47736,
+   "y": 0.35122,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-066",
+   "name": "Vapid Sandking XT",
+   "kind": "vehicle",
+   "x": 0.49854,
+   "y": 0.31094,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-067",
+   "name": "Canis Mesa",
+   "kind": "vehicle",
+   "x": 0.75841,
+   "y": 0.43433,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-068",
+   "name": "Dinka Enduro (1972)",
+   "kind": "vehicle",
+   "x": 0.58978,
+   "y": 0.81997,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-069",
+   "name": "Del Perro Scorcher",
+   "kind": "vehicle",
+   "x": 0.58971,
+   "y": 0.81987,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-070",
+   "name": "Crest Kayak",
+   "kind": "vehicle",
+   "x": 0.59084,
+   "y": 0.81929,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-071",
+   "name": "Seashark Hydroblast",
+   "kind": "vehicle",
+   "x": 0.5911,
+   "y": 0.82017,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-072",
+   "name": "Pegassi Toros",
+   "kind": "vehicle",
+   "x": 0.80892,
+   "y": 0.51875,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-073",
+   "name": "Buckingham Maverick",
+   "kind": "vehicle",
+   "x": 0.48742,
+   "y": 0.7835,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-074",
+   "name": "Emperor Sultan",
+   "kind": "vehicle",
+   "x": 0.69962,
+   "y": 0.48169,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-075",
+   "name": "Albany '77 Manana",
+   "kind": "vehicle",
+   "x": 0.7159,
+   "y": 0.46484,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-076",
+   "name": "Bravado Banshee",
+   "kind": "vehicle",
+   "x": 0.52509,
+   "y": 0.29131,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-077",
+   "name": "Dodo Seaplane",
+   "kind": "vehicle",
+   "x": 0.5631,
+   "y": 0.15068,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-078",
+   "name": "Dundreary Chino (1965)",
+   "kind": "vehicle",
+   "x": 0.67234,
+   "y": 0.6875,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-079",
+   "name": "Dodo Seaplanes",
+   "kind": "vehicle",
+   "x": 0.32548,
+   "y": 0.87441,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-080",
+   "name": "Manhole Tags: Reward Car",
+   "kind": "vehicle",
+   "x": 0.79999,
+   "y": 0.52905,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-081",
+   "name": "Nagasaki Sea Sparrow",
+   "kind": "vehicle",
+   "x": 0.54012,
+   "y": 0.77266,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-082",
+   "name": "Ocelot Jugular",
+   "kind": "vehicle",
+   "x": 0.65314,
+   "y": 0.40112,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-083",
+   "name": "Garage Tigers",
+   "kind": "vehicle",
+   "x": 0.64797,
+   "y": 0.67251,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-084",
+   "name": "Benefactor Schutzen",
+   "kind": "vehicle",
+   "x": 0.77787,
+   "y": 0.48618,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-085",
+   "name": "Decker Crake (helicopter)",
+   "kind": "vehicle",
+   "x": 0.85322,
+   "y": 0.4272,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-086",
+   "name": "Albany Devanity (1959)",
+   "kind": "vehicle",
+   "x": 0.59461,
+   "y": 0.82524,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-087",
+   "name": "Nagasaki Sea Sparrow",
+   "kind": "vehicle",
+   "x": 0.51682,
+   "y": 0.73726,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-088",
+   "name": "Coast Guard Helicopter",
+   "kind": "vehicle",
+   "x": 0.2404,
+   "y": 0.45581,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-089",
+   "name": "Sentinel '85 (custom)",
+   "kind": "vehicle",
+   "x": 0.2988,
+   "y": 0.54077,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-090",
+   "name": "Buckingham Windsor Drop",
+   "kind": "vehicle",
+   "x": 0.78615,
+   "y": 0.53052,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-091",
+   "name": "Gallivanter Baller ST-D",
+   "kind": "vehicle",
+   "x": 0.78509,
+   "y": 0.53081,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-092",
+   "name": "Piccia Furia",
+   "kind": "vehicle",
+   "x": 0.79608,
+   "y": 0.52217,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-093",
+   "name": "Emperor Vectre",
+   "kind": "vehicle",
+   "x": 0.75,
+   "y": 0.36831,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-095",
+   "name": "Dundreary Chino (1965, Cuban flag)",
+   "kind": "vehicle",
+   "x": 0.41678,
+   "y": 0.70464,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-096",
+   "name": "Dundreary Chino (1965, Puerto Rican flag)",
+   "kind": "vehicle",
+   "x": 0.30482,
+   "y": 0.52422,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-097",
+   "name": "Principe Alvino",
+   "kind": "vehicle",
+   "x": 0.26132,
+   "y": 0.5373,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-098",
+   "name": "Grotti Dolce Vita RSX",
+   "kind": "vehicle",
+   "x": 0.6683,
+   "y": 0.67212,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-099",
+   "name": "Obey Animus",
+   "kind": "vehicle",
+   "x": 0.63877,
+   "y": 0.40786,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-100",
+   "name": "Übermacht Cypher (track livery)",
+   "kind": "vehicle",
+   "x": 0.32117,
+   "y": 0.42324,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-101",
+   "name": "Vapid Dominator GT",
+   "kind": "vehicle",
+   "x": 0.72901,
+   "y": 0.67354,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-102",
+   "name": "Bravado Gauntlet Hellfire",
+   "kind": "vehicle",
+   "x": 0.55403,
+   "y": 0.86948,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-103",
+   "name": "Grotti Itali RSX (black & white)",
+   "kind": "vehicle",
+   "x": 0.77675,
+   "y": 0.47939,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-104",
+   "name": "Pegassi Vitello",
+   "kind": "vehicle",
+   "x": 0.25649,
+   "y": 0.51426,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-105",
+   "name": "Invetero '64 Coquette",
+   "kind": "vehicle",
+   "x": 0.29158,
+   "y": 0.5438,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-106",
+   "name": "Canis Kamacho",
+   "kind": "vehicle",
+   "x": 0.30932,
+   "y": 0.36772,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-107",
+   "name": "Enus Jubilee",
+   "kind": "vehicle",
+   "x": 0.63718,
+   "y": 0.37861,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-108",
+   "name": "Seaplanes and Helicopters (island)",
+   "kind": "vehicle",
+   "x": 0.82111,
+   "y": 0.39341,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-109",
+   "name": "Buckingham Windsor Cabrio",
+   "kind": "vehicle",
+   "x": 0.80919,
+   "y": 0.51909,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-110",
+   "name": "Pegassi Vitello",
+   "kind": "vehicle",
+   "x": 0.80747,
+   "y": 0.51885,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-111",
+   "name": "Grotti Itali RSX",
+   "kind": "vehicle",
+   "x": 0.80734,
+   "y": 0.51909,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-112",
+   "name": "Benefactor Dubsta",
+   "kind": "vehicle",
+   "x": 0.80714,
+   "y": 0.51929,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-113",
+   "name": "Vapid Riata",
+   "kind": "vehicle",
+   "x": 0.59733,
+   "y": 0.18257,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-114",
+   "name": "Pegassi Toros",
+   "kind": "vehicle",
+   "x": 0.65162,
+   "y": 0.39775,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-115",
+   "name": "Cargo Ship (drivable)",
+   "kind": "vehicle",
+   "x": 0.62123,
+   "y": 0.51426,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-116",
+   "name": "Canis Mesa (skull)",
+   "kind": "vehicle",
+   "x": 0.53569,
+   "y": 0.87456,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-117",
+   "name": "Dodo Seaplane",
+   "kind": "vehicle",
+   "x": 0.64499,
+   "y": 0.32925,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-118",
+   "name": "Bravado Gauntlet Hellfire",
+   "kind": "vehicle",
+   "x": 0.59607,
+   "y": 0.81631,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-119",
+   "name": "Pfister Comet S2 (orange)",
+   "kind": "vehicle",
+   "x": 0.75689,
+   "y": 0.4313,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-120",
+   "name": "Benefactor Spritz",
+   "kind": "vehicle",
+   "x": 0.78469,
+   "y": 0.35708,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-121",
+   "name": "Vapid Caracara 4x4",
+   "kind": "vehicle",
+   "x": 0.72411,
+   "y": 0.33374,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-122",
+   "name": "Jet Ski (trailer)",
+   "kind": "vehicle",
+   "x": 0.32561,
+   "y": 0.32065,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-123",
+   "name": "Bravado Youga ('74)",
+   "kind": "vehicle",
+   "x": 0.31647,
+   "y": 0.39854,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-124",
+   "name": "Maibatsu Blue Drake Penumbra",
+   "kind": "vehicle",
+   "x": 0.30522,
+   "y": 0.41968,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-125",
+   "name": "Buckingham Swift (rooftop helipad)",
+   "kind": "vehicle",
+   "x": 0.87692,
+   "y": 0.56602,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-126",
+   "name": "Stallion (1968)",
+   "kind": "vehicle",
+   "x": 0.30866,
+   "y": 0.56523,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-127",
+   "name": "Maibatsu Royal Sanchez",
+   "kind": "vehicle",
+   "x": 0.48788,
+   "y": 0.65049,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-128",
+   "name": "Grotti Carbonizzare",
+   "kind": "vehicle",
+   "x": 0.61374,
+   "y": 0.82593,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-129",
+   "name": "Benefactor Schutzen",
+   "kind": "vehicle",
+   "x": 0.7506,
+   "y": 0.49106,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-130",
+   "name": "Declasse Akane (Hamlet)",
+   "kind": "vehicle",
+   "x": 0.59739,
+   "y": 0.70474,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-131",
+   "name": "Dinka Blista ('85)",
+   "kind": "vehicle",
+   "x": 0.54628,
+   "y": 0.87158,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-132",
+   "name": "Declasse Yosemite ('67, dairy farm)",
+   "kind": "vehicle",
+   "x": 0.43757,
+   "y": 0.3814,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-133",
+   "name": "Albany Emperor ('85)",
+   "kind": "vehicle",
+   "x": 0.31958,
+   "y": 0.38818,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-134",
+   "name": "Rental Bus (church)",
+   "kind": "vehicle",
+   "x": 0.32753,
+   "y": 0.35073,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-135",
+   "name": "Albany Manana ('77)",
+   "kind": "vehicle",
+   "x": 0.31455,
+   "y": 0.4042,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-136",
+   "name": "Rumpo (wreck)",
+   "kind": "vehicle",
+   "x": 0.31078,
+   "y": 0.35815,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-137",
+   "name": "Ascot Paragon",
+   "kind": "vehicle",
+   "x": 0.79833,
+   "y": 0.37788,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-138",
+   "name": "Invetero Coquette '64",
+   "kind": "vehicle",
+   "x": 0.81012,
+   "y": 0.52031,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-139",
+   "name": "Vapid Hustler (1932)",
+   "kind": "vehicle",
+   "x": 0.76847,
+   "y": 0.4894,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-140",
+   "name": "Bravado Gauntlet Hellfire (modified)",
+   "kind": "vehicle",
+   "x": 0.30568,
+   "y": 0.41729,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-141",
+   "name": "Declasse Bobcat 500 (1955, Jack Sheepe livery)",
+   "kind": "vehicle",
+   "x": 0.3364,
+   "y": 0.58096,
+   "note": "Standout vehicle"
+  },
+  {
+   "id": "o-vehicle-spawn-142",
+   "name": "Declasse Bobcat 500 (1955)",
+   "kind": "vehicle",
+   "x": 0.46981,
+   "y": 0.6937,
+   "note": "Standout vehicle"
   }
  ],
  "collectibles": [
@@ -8815,6 +12455,12 @@
   }
  ],
  "news": [
+  {
+   "id": "n3",
+   "date": "2026-11-27",
+   "title": "Rare vehicles on the map",
+   "body": "More than 400 standout vehicles, each pinned where it is parked. Seen one? Confirm the spot in its players' notes."
+  },
   {
    "id": "n2",
    "date": "2026-11-23",

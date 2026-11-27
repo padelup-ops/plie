@@ -98,7 +98,7 @@ struct VFGuide: Codable, Identifiable, Hashable {
 }
 
 enum VFPlaceKind: String, Codable, CaseIterable, Identifiable {
-    case region, landmark, shop, property, activity, collectible, event, mission, service
+    case region, landmark, shop, property, activity, collectible, event, mission, service, vehicle
     case hotel, food, gas, transport, nature, civic = "public", other
     var id: String { rawValue }
     var title: String {
@@ -112,6 +112,7 @@ enum VFPlaceKind: String, Codable, CaseIterable, Identifiable {
         case .event: return String(localized: "Random events")
         case .mission: return String(localized: "Missions")
         case .service: return String(localized: "Services")
+        case .vehicle: return String(localized: "Rare vehicles")
         case .hotel: return String(localized: "Hotels")
         case .food: return String(localized: "Food & drink")
         case .gas: return String(localized: "Gas stations")
@@ -132,6 +133,7 @@ enum VFPlaceKind: String, Codable, CaseIterable, Identifiable {
         case .event: return "exclamationmark.bubble.fill"
         case .mission: return "flag.fill"
         case .service: return "wrench.and.screwdriver.fill"
+        case .vehicle: return "car.fill"
         case .hotel: return "bed.double.fill"
         case .food: return "fork.knife"
         case .gas: return "fuelpump.fill"
@@ -146,7 +148,7 @@ enum VFPlaceKind: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .mission: return 0
         case .landmark, .property: return 1
-        case .collectible, .event, .activity: return 2
+        case .collectible, .event, .activity, .vehicle: return 2
         case .hotel, .nature: return 3
         case .shop, .food, .gas: return 4
         case .service, .transport: return 5
@@ -176,8 +178,12 @@ struct VFPlace: Codable, Identifiable, Hashable {
     var uncertain: Bool?
     var closed: Bool?
 
-    /// Un lieu de la base communautaire GTADB (pas un des nôtres).
-    var community: Bool { id.hasPrefix("g-") }
+    /// Un lieu repris d'une base communautaire (pas un des nôtres) : GTADB, ou Open GTA 6 Map pour les véhicules rares.
+    var community: Bool { gtadb || openMap }
+    /// Un lieu de GTADB.org (il a une page de photos là-bas).
+    var gtadb: Bool { id.hasPrefix("g-") }
+    /// Un véhicule rare relevé par Open GTA 6 Map (CC BY 4.0).
+    var openMap: Bool { id.hasPrefix("o-") }
     /// L'ordre sur la carte : nos lieux d'abord, puis par catégorie, ceux où l'on peut entrer en premier.
     var rank: Int { (community ? 100 : 0) + kind.rank * 10 + (enterable == true ? 0 : 1) }
 }
@@ -378,4 +384,6 @@ final class ContentStore {
     var storyMissions: [VFMission] { content.missions.filter { $0.optional != true } }
     /// Les lieux qui comptent pour le 100 % (pas les régions ni les lieux de la communauté).
     var countedPlaces: [VFPlace] { content.places.filter { $0.kind != .region && !$0.community } }
+    /// Le nombre de lieux de la carte, sans les véhicules rares (comptés à part).
+    var mapPlaceCount: Int { content.places.filter { $0.kind != .vehicle }.count }
 }

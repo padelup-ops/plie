@@ -332,7 +332,7 @@ struct HomeView: View {
     private var tickets: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-                Button { tab = .map } label: { TicketTile(title: "Map", stub: "\(content.content.places.count) places", icon: "map.fill", color: VF.cyan) }
+                Button { tab = .map } label: { TicketTile(title: "Map", stub: "\(content.mapPlaceCount) places", icon: "map.fill", color: VF.cyan) }
                 NavigationLink { EggsView() } label: {
                     TicketTile(title: "Easter eggs", stub: "\(content.content.eggs.filter { progress.found($0) }.count)/\(content.content.eggs.count) found", icon: "oval.portrait.fill", color: VF.flamingo)
                 }

@@ -186,7 +186,7 @@ enum ShotMode {
     static var initialTab: AppTab {
         switch route {
         case "guides", "guide": return .guides
-        case "map", "mappins", "mycard", "place", "layers": return .map
+        case "map", "mappins", "mycard", "place", "layers", "cars": return .map
         case "tracker", "missions", "mission", "share", "collectibles", "challenges": return .tracker
         case "more", "characters", "radio", "profile", "pro", "cheats", "eggs", "community", "friends", "thread", "settings", "vehicles": return .more
         case "search": return .search

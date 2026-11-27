@@ -7,7 +7,7 @@ Pour publier une mise à jour du guide : augmenter VERSION, relancer ce script, 
 import json
 import os
 
-VERSION = 5
+VERSION = 6
 HERE = os.path.dirname(__file__)
 OUT = os.path.join(HERE, "..", "Content")
 
@@ -524,6 +524,10 @@ NEWS.insert(0, ("n2", "2026-11-23", T("All 91 missions and the full 100%", "Les 
      T("Every story mission by chapter, optional missions, Strangers & Freaks, every 100% category, 61 cheat codes and 21 radio stations.",
        "Toutes les missions par chapitre, les missions facultatives, Strangers & Freaks, toutes les catégories du 100 %, 61 codes et 21 radios.")))
 
+NEWS.insert(0, ("n3", "2026-11-27", T("Rare vehicles on the map", "Les véhicules rares sur la carte"),
+     T("More than 400 standout vehicles, each pinned where it is parked. Seen one? Confirm the spot in its players' notes.",
+       "Plus de 400 véhicules remarquables, chacun épinglé là où il est garé. Tu en as vu un ? Confirme l'endroit dans ses notes des joueurs.")))
+
 SOURCES = T(["Facts from the publisher's official character and setting announcements. All text written for Vicefold."],
             ["Faits tirés des annonces officielles de l'éditeur (personnages, lieux). Tous les textes sont rédigés pour Vicefold."])
 
@@ -543,6 +547,20 @@ GENERIC = {"bridge", "bus stop", "parking lot", "train bridge", "prison building
            "train tunnel", "water tower", "park", "river", "construction site", "tank", "warehouse", "cell tower",
            "radio tower", "parking garage", "canal", "guard booth", "radio mast", "footbridge", "turn", "tunnel", "lock",
            "pier"}
+
+
+# Les véhicules rares et leur emplacement : Open GTA 6 Map (CC BY 4.0), convertis par opengta6.py. Seuls le nom, le genre
+# et la position sont repris (des faits) ; le texte affiché est le nôtre.
+OPEN_VEHICLES = json.load(open(os.path.join(HERE, "opengta6_vehicles.json")))
+VEHICLE_TYPES = {"standout": T("Standout vehicle", "Véhicule remarquable"), "request": T("Requested vehicle", "Véhicule demandé"),
+                 "spawn": T("Vehicle spawn point", "Point d'apparition de véhicule")}
+
+
+def vehicle_places(pick):
+    out = []
+    for v in OPEN_VEHICLES:
+        out.append({"id": v["id"], "name": v["name"], "kind": "vehicle", "x": v["x"], "y": v["y"], "note": pick(VEHICLE_TYPES[v["type"]])})
+    return out
 
 
 def community_places():
@@ -709,6 +727,7 @@ def build(lang):
             d["spoiler"] = p[7]
         places.append(d)
     places += community_places()
+    places += vehicle_places(pick)
     return {
         "version": VERSION,
         "updated": NEWS[0][1],
