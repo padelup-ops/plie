@@ -75,7 +75,7 @@ jobs:
         run: |
           set -o pipefail
           if [ -n "$SOURCE" ]; then export SWITCH_REPO="${SOURCE%% *}" SWITCH_REV="${SOURCE##* }"; fi
-          bash retrofold/tools/build_switch.sh 2>&1 | tee switch.log | grep -E "^===|error|Error|warning: Compiling|BUILD (SUCCEEDED|FAILED)|\.ipa|dylib|^[0-9]+\.[0-9]+" | tail -120
+          bash retrofold/tools/build_switch.sh 2>&1 | tee switch.log | grep -E "^===|^SDK|error|Error|fatal|warning: Compiling|BUILD (SUCCEEDED|FAILED)|\.ipa|dylib|\.framework$|^[0-9]+\.[0-9]+" | tail -120
       - name: Erreurs
         if: failure()
         run: |
