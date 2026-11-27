@@ -1,10 +1,10 @@
-"""Vicefold : envoie un build à la vérification d'Apple, avec les conditions d'utilisation (EULA).
+"""Envoie un build d'une app (Vicefold, Allô Père Noël) à la vérification d'Apple, avec ses achats.
 
 - retire d'abord une demande encore en attente (pour remplacer le build) ;
-- remet la description de chaque langue (tools/meta/vicefold.json), qui finit par le lien EULA ;
-- pose l'EULA propre à l'app dans App Store Connect (le contrat standard d'Apple) ;
-- joint le build, écrit la note pour Apple, envoie, puis relit tout.
-Ne touche qu'à com.padelup.vicefold. Ne change ni prix ni achats. N'écrit ni clé ni adresse.
+- remet la fiche de chaque langue (tools/meta/<app>.json) ;
+- pour une app à abonnement (Vicefold) : le lien EULA à la fin de chaque description et l'EULA propre à l'app ;
+- joint le build, écrit la note pour Apple, range les achats dans la demande, envoie, puis relit tout.
+BUNDLE choisit l'app. Ne change ni prix ni achats. N'écrit ni clé ni adresse.
 RELEASE_BUILD : numéro du build. RELEASE_VERSION : seulement s'il faut créer une nouvelle version (ignorée sinon).
 """
 import json
@@ -17,15 +17,15 @@ import urllib.request
 import jwt
 
 API = "https://api.appstoreconnect.apple.com"
-BUNDLE = "com.padelup.vicefold"
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BUNDLE = os.environ.get("BUNDLE", "").strip() or "com.padelup.vicefold"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.environ.get("RELEASE_BUILD", "").strip()
 NEW_VERSION = os.environ.get("RELEASE_VERSION", "").strip()
 DRY = os.environ.get("DRY_RUN") == "1"
 EULA_URL = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
 LINE = "Terms of Use (EULA): " + EULA_URL
 AGREEMENT = ("This app is governed by Apple's Standard Licensed Application End User License Agreement: " + EULA_URL)
-NOTES = (
+VICEFOLD_NOTES = (
     "Terms of Use (EULA), as requested in the previous review:\n"
     "- A functional link to the Terms of Use (EULA) is at the end of the App Description of every localization: "
     + EULA_URL + "\n"
@@ -40,7 +40,21 @@ EDITABLE = ("PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADAT
 PENDING = ("WAITING_FOR_REVIEW", "IN_REVIEW")
 problems = []
 
-with open(os.path.join(ROOT, "tools/meta/vicefold.json"), encoding="utf-8") as f:
+# Par app : sa fiche, si elle vend un abonnement (lien et champ EULA exigés), et sa note pour Apple.
+APPS = {
+    "com.padelup.vicefold": {"meta": "tools/meta/vicefold.json", "eula": True, "notes": VICEFOLD_NOTES, "listing": None},
+    "com.padelup.allonoel": {"meta": "tools/meta/noel.json", "eula": False, "notes": None, "listing": "noel/store/listing.json"},
+}
+if BUNDLE not in APPS:
+    print("app non prévue :", BUNDLE)
+    sys.exit(1)
+APP = APPS[BUNDLE]
+WITH_EULA = APP["eula"]
+NOTES = APP["notes"]
+if not NOTES and APP["listing"]:
+    with open(os.path.join(ROOT, APP["listing"]), encoding="utf-8") as f:
+        NOTES = (json.load(f).get("reviewNotes") or "").strip()
+with open(os.path.join(ROOT, APP["meta"]), encoding="utf-8") as f:
     LOCALES = json.load(f)["locales"]
 
 token = jwt.encode(
@@ -217,7 +231,7 @@ else:
         locale = attrs(loc).get("locale")
         meta = meta_for(locale) or {}
         desc = (meta.get("description") or attrs(loc).get("description") or "").rstrip()
-        if LINE not in desc:
+        if WITH_EULA and LINE not in desc:
             desc = desc[:4000 - len(LINE) - 2].rstrip() + "\n\n" + LINE
         new = {"description": desc}
         for src, dst in (("keywords", "keywords"), ("promo", "promotionalText")):
@@ -229,35 +243,36 @@ else:
             "type": "appStoreVersionLocalizations", "id": loc["id"], "attributes": new}}))
 
     # 4. L'EULA propre à l'app (le contrat standard d'Apple), sur tous les pays.
-    terr = []
-    path = "/v1/territories?limit=200"
-    while path:
-        page = call("GET", path)
-        terr += [t["id"] for t in page.get("data", [])]
-        nxt = (page.get("links") or {}).get("next")
-        path = nxt.replace(API, "") if nxt else None
-    links = [{"type": "territories", "id": t} for t in terr]
-    existing = call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement").get("data")
-    if isinstance(existing, dict) and EULA_URL in (attrs(existing).get("agreementText") or ""):
-        print("ok     EULA déjà posée,", len(attrs(existing).get("agreementText") or ""), "caractères")
-    elif isinstance(existing, dict):
-        step("EULA mise à jour", write("PATCH", f"/v1/endUserLicenseAgreements/{existing['id']}", {"data": {
-            "type": "endUserLicenseAgreements", "id": existing["id"], "attributes": {"agreementText": AGREEMENT},
-            "relationships": {"territories": {"data": links}}}}))
-    else:
-        step(f"EULA créée ({len(terr)} pays)", write("POST", "/v1/endUserLicenseAgreements", {"data": {
-            "type": "endUserLicenseAgreements", "attributes": {"agreementText": AGREEMENT},
-            "relationships": {"app": {"data": {"type": "apps", "id": app_id}}, "territories": {"data": links}}}}))
+    if WITH_EULA:
+        terr = []
+        path = "/v1/territories?limit=200"
+        while path:
+            page = call("GET", path)
+            terr += [t["id"] for t in page.get("data", [])]
+            nxt = (page.get("links") or {}).get("next")
+            path = nxt.replace(API, "") if nxt else None
+        links = [{"type": "territories", "id": t} for t in terr]
+        existing = call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement").get("data")
+        if isinstance(existing, dict) and EULA_URL in (attrs(existing).get("agreementText") or ""):
+            print("ok     EULA déjà posée,", len(attrs(existing).get("agreementText") or ""), "caractères")
+        elif isinstance(existing, dict):
+            step("EULA mise à jour", write("PATCH", f"/v1/endUserLicenseAgreements/{existing['id']}", {"data": {
+                "type": "endUserLicenseAgreements", "id": existing["id"], "attributes": {"agreementText": AGREEMENT},
+                "relationships": {"territories": {"data": links}}}}))
+        else:
+            step(f"EULA créée ({len(terr)} pays)", write("POST", "/v1/endUserLicenseAgreements", {"data": {
+                "type": "endUserLicenseAgreements", "attributes": {"agreementText": AGREEMENT},
+                "relationships": {"app": {"data": {"type": "apps", "id": app_id}}, "territories": {"data": links}}}}))
 
     # 5. La note pour Apple : où trouver les conditions.
     det = call("GET", f"/v1/appStoreVersions/{vid}/appStoreReviewDetail").get("data")
     if det:
         old = (attrs(det).get("notes") or "").strip()
-        keep = old.split("Terms of Use (EULA), as requested")[0].strip()
-        notes = (NOTES + ("\n\n" + keep if keep else ""))[:4000]
+        keep = old.split("Terms of Use (EULA), as requested")[0].strip() if WITH_EULA else ""
+        notes = (NOTES + ("\n\n" + keep if keep else ""))[:4000] if NOTES else old
         step("note pour Apple", write("PATCH", f"/v1/appStoreReviewDetails/{det['id']}", {"data": {
             "type": "appStoreReviewDetails", "id": det["id"], "attributes": {"notes": notes}}}))
-    else:
+    elif NOTES:
         step("note pour Apple", write("POST", "/v1/appStoreReviewDetails", {"data": {
             "type": "appStoreReviewDetails", "attributes": {"notes": NOTES},
             "relationships": {"appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}}))
@@ -397,8 +412,9 @@ for it in call("GET", f"/v1/reviewSubmissions/{sub_id}/items?limit=20").get("dat
     print("READBACK élément", attrs(it).get("state"), ",".join(kinds) or "(genre non indiqué)")
 for loc in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations?limit=50").get("data", []):
     d = attrs(loc).get("description") or ""
-    ok = LINE in d
-    print("READBACK fiche", attrs(loc).get("locale"), "lien EULA", "oui" if ok else "NON", len(d), "caractères")
+    ok = LINE in d or not WITH_EULA
+    print("READBACK fiche", attrs(loc).get("locale"), ("lien EULA " + ("oui" if LINE in d else "NON")) if WITH_EULA else "",
+          len(d), "caractères")
     if not ok:
         problems.append("lien EULA " + str(attrs(loc).get("locale")))
 for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
@@ -409,8 +425,9 @@ for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data
 if warnings:
     print("ACHATS À JOINDRE À LA MAIN dans App Store Connect :", ", ".join(warnings))
 e = attrs(call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement").get("data"))
-eula_ok = EULA_URL in (e.get("agreementText") or "")
-print("READBACK EULA de l'app", "oui" if eula_ok else "NON")
+eula_ok = EULA_URL in (e.get("agreementText") or "") or not WITH_EULA
+if WITH_EULA:
+    print("READBACK EULA de l'app", "oui" if eula_ok else "NON")
 if not eula_ok:
     problems.append("EULA de l'app")
 if problems or sub_now.get("state") not in ("WAITING_FOR_REVIEW", "IN_REVIEW"):
