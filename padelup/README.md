@@ -1,6 +1,8 @@
 # PadelUp Neo
 
-L'app padel reconstruite à partir de [padelup-backend-forked](https://github.com/Ghadje/padelup-backend-forked) : un style épuré dans la lignée des autres apps PadelUp (cartes blanches, bleu PadelUp #094A73, clair ou sombre selon l'iPhone), tous les clubs de padel de la zone PadelUp sans passer par le tableau de bord, la météo du court, un bot qui réserve à ta place sur Playtomic et Anybuddy, et une ambiance qui suit les saisons.
+L'app padel reconstruite à partir de [padelup-backend-forked](https://github.com/Ghadje/padelup-backend-forked) : tous les clubs de padel de la zone PadelUp sans passer par le tableau de bord, la météo du court, un bot qui lit les créneaux Playtomic en direct et prévient à la seconde, les matchs entre joueurs de même niveau, et une ambiance qui suit les saisons.
+
+**Design, direction « Court »** (`ios/App/Theme.swift`). La typographie porte l'écran : titres en SF Pro Expanded, heures, prix et scores en chiffres condensés à chasse fixe, comme un tableau de score. Le contenu est posé sur la page (papier `#F4F2EC`, encre `#0D1B24`), séparé par des filets plutôt qu'enfermé dans des cartes. Deux couleurs, chacune avec un rôle : le bleu PadelUp `#094A73` pour agir, le jaune balle `#D6F04A` pour ce qui est libre, en direct ou réservé. Quatre éléments signent l'app : le billet de réservation (entaillé, perforé), le terrain vu de haut dans la fiche match, le niveau en barres montantes et la météo de jeu en graphique. Le mode sombre est un court de nuit, bleu-noir. Pas d'émoji, pas de sous-titre explicatif sous chaque titre.
 
 C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), qui n'est jamais modifiée. Sa fiche App Store Connect est « PADELUP Neo », identifiant `com.padelup.neo`.
 
@@ -13,8 +15,14 @@ C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), q
 ## L'app iPhone
 
 - **Zone couverte** : France, Belgique, Suisse, les pays frontaliers de la France (Luxembourg, Allemagne, Italie, Monaco, Andorre, Espagne), Maroc, Algérie et Tunisie. Le fichier OpenStreetMap de ces douze pays est embarqué dans l'app : il marche hors ligne et s'affiche tout de suite. Il est construit pays par pays, d'après la frontière officielle de chaque pays dans OSM. La zone affichée sur la carte est ensuite actualisée en direct (API Overpass, avec trois serveurs de secours), et les clubs Playtomic de la zone sont rattachés au club OSM correspondant. Hors de la zone, l'app n'ajoute pas de clubs. La recherche de ville passe par MapKit, sans clé d'API.
-- **Fiche club**. On y trouve la météo de jeu heure par heure (Open-Meteo, avec un indice padel sur 100 qui tient compte de la pluie, du vent et de la température), les disponibilités, la réservation en un geste par le bot, l'itinéraire, le site et le téléphone. Le bouton « Créer un match » ajoute le club au serveur PadelUp s'il vient d'OSM.
-- **Bot de réservation**. Le joueur connecte son compte Playtomic, puis choisit les jours, la plage horaire, les durées, intérieur ou extérieur, un prix maximum et le nombre de réservations. Le bot surveille et réserve tout seul. Il envoie une notification à chaque réservation et tient un journal.
+- **Fiche club**. On y trouve :
+  - les créneaux en direct, relus chaque minute et groupés par heure, puis par matin, après-midi et soir ;
+  - le billet de réservation ;
+  - la météo de jeu heure par heure (Open-Meteo), avec un indice padel sur 100 qui tient compte de la pluie, du vent et de la température ;
+  - l'itinéraire, le téléphone et le site du club.
+
+  Le club est retrouvé sur le site Playtomic par son nom et sa ville, et ce lien est gardé. Le bouton « Match » ajoute le club au serveur PadelUp s'il vient d'OSM.
+- **Bot**. Le joueur choisit les jours, la plage horaire, les durées, couvert ou extérieur, un prix maximum et le nombre de réservations. Option **ouverture des réservations**, reprise du dossier Padel Sniper : quand un club ouvre ses créneaux J-x à hh:mm, le bot prévient une minute avant (notification) et affiche un compte à rebours. À l'heure pile, il lit les créneaux une fois par seconde pendant 10 s, puis toutes les 3 s jusqu'à 45 s. Dès que le créneau apparaît, il ouvre la page de réservation, déjà connectée. Le journal garde tout, sur une frise.
 - **Compte PadelUp** : inscription par e-mail (code de confirmation) ou Se connecter avec Apple, puis **choix du niveau** (échelle FFT en 8 niveaux avec repères, ou ancienne échelle en 10), main forte et ville.
 - **Matchs** : matchs ouverts et les miens, rejoindre ou quitter, créer un match dans n'importe quel club de la carte. **Fiche match** : joueurs et places libres, discussion, saisie du résultat par l'organisateur, **notation des joueurs** (1 à 10, anonyme, elle affine le niveau public) et du terrain (1 à 5). Un rappel apparaît quand un match attend un résultat ou des notes.
 - **Amis** : mes amis, demandes reçues et envoyées, recherche de joueurs et suggestions.
@@ -33,22 +41,27 @@ C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), q
 
   Dans Profil, on peut forcer une saison pour la prévisualiser, ou couper les effets. Les effets s'arrêtent aussi quand « Réduire les animations » est activé sur l'iPhone.
 
-### Ce que le bot fait tout seul, plateforme par plateforme
+### Ce que le bot fait, plateforme par plateforme
 
-| Plateforme | Disponibilités | Réservation automatique |
-|---|---|---|
-| **Playtomic** | Oui, recherche publique | **Oui, de bout en bout**, si le club accepte le paiement sur place, le crédit club ou un bon. Si le club exige la carte, le bot ouvre le paiement et demande au joueur de le valider dans Playtomic (3-D Secure) |
-| **Anybuddy** | Oui, API publique du site | Le bot repère le créneau à la seconde et ouvre directement la page du créneau. Anybuddy fait payer par carte (Stripe) : la validation finale se fait en un geste. Le serveur peut tenter la réservation par l'API mobile d'Anybuddy (expérimental) |
-| **Clubs PadelUp** | Oui | Oui, immédiate |
+| Plateforme | Connexion | Créneaux | Réservation |
+|---|---|---|---|
+| **Playtomic** | Sur le site playtomic.com, ouvert dans l'app | En direct, lus sur le site depuis l'iPhone du joueur | La page du club s'ouvre à la bonne date, déjà connectée : le joueur valide et paie en un geste |
+| **Anybuddy** | Sur le site anybuddyapp.com (`/fr/login`), ouvert dans l'app | Non lus par PadelUp : Anybuddy les protège par une vérification anti-robot | La page du club (`/fr/club/<slug>`) et la réservation automatique d'Anybuddy s'ouvrent, déjà connectées |
+| **Clubs PadelUp** | Compte PadelUp | Oui | Oui, immédiate, y compris par le serveur 24 h/24 |
 
-> Ni Playtomic ni Anybuddy ne publient d'API pour les applications tierces. Le bot utilise les mêmes appels que leurs propres applications. Ces appels peuvent changer sans prévenir, et leurs conditions d'utilisation encadrent l'automatisation. Avant un lancement public, il faut valider avec eux, par exemple via le programme partenaires de Playtomic.
+Les règles du dossier Padel Sniper sont appliquées à la lettre :
+- **Aucun mot de passe de plateforme** n'est demandé, transmis ni enregistré. Le joueur se connecte sur le site de la plateforme, dans une vue web qui partage le stockage de l'app (`WKWebsiteDataStore.default`). La session reste sur l'iPhone. L'app repère la connexion dans les cookies et le stockage local.
+- **Aucune protection n'est contournée.** Si Playtomic répond 403 ou 429, le bot s'arrête et se met en pause une heure. Les créneaux d'Anybuddy, protégés, ne sont pas lus.
+- **Transparence** : PadelUp n'est affilié ni à Playtomic ni à Anybuddy, ce qui est écrit dans l'app.
+
+> Pourquoi le serveur ne réserve plus sur Playtomic : depuis novembre 2026, l'API mobile de Playtomic exige la vérification de leur propre application (`APP_ATTESTATION_REQUIRED`), et leur pare-feu refuse les adresses de serveurs. Une réservation 100 % automatique demanderait de contourner ces protections, ce que le dossier interdit. La voie propre est un accès partenaire Playtomic.
 >
-> Le mot de passe Playtomic n'est jamais enregistré. Seuls les jetons de session sont gardés : dans le trousseau de l'iPhone, et chiffrés (Fernet) sur le serveur si le bot 24 h/24 est activé.
+> Pourquoi la connexion Anybuddy ne marchait pas : l'app ouvrait leur site dans un Safari intégré (`SFSafariViewController`), qui garde ses cookies pour lui. L'app ne voyait donc jamais la session. Le site s'ouvre maintenant dans l'app, avec le stockage partagé.
 
 ### Où tourne le bot
 
-- **Sur l'iPhone**, sans compte PadelUp : toutes les 60 secondes quand l'app est ouverte, puis en arrière-plan quand iOS le permet. iOS limite le travail en arrière-plan, donc ce mode ne capte pas tous les créneaux.
-- **Sur le serveur, 24 h/24**, quand le joueur est connecté à son compte PadelUp : la règle et le compte Playtomic sont envoyés au serveur, qui réserve même quand l'iPhone est éteint. C'est le mode à utiliser pour décrocher les créneaux très demandés, qui ouvrent à heure fixe.
+- **Sur l'iPhone**, pour Playtomic : toutes les 30 à 60 secondes quand l'app est ouverte, puis en arrière-plan quand iOS le permet. Pour une ouverture à heure fixe, la notification une minute avant fait ouvrir l'app, et le bot lit les créneaux à la seconde.
+- **Sur le serveur, 24 h/24**, pour les clubs partenaires PadelUp, quand le joueur est connecté à son compte PadelUp.
 
 ### Compiler, tester, publier
 
