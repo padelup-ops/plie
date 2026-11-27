@@ -412,12 +412,14 @@ def tasks_of(a):
     avec le prénom, du plus courant au plus rare ; bye : les au revoir avec le prénom ; name : les deux). Sans
     --tasks : tout ce qui manque dans la langue --lang."""
     if not a.tasks:
-        return [(a.lang, "all")]
+        return [(a.lang, "all", 0)]
     out = []
     for t in a.tasks.replace(",", " ").split():
-        lang, _, kind = t.partition(":")
+        # « fr:hello:40 » : seulement les 40 premiers qui manquent (pour alterner les langues sur les prénoms les
+        # plus donnés).
+        lang, kind, first = (t.split(":") + ["", ""])[:3]
         assert lang in LANGS and kind in ("", "all", "line", "name", "hello", "bye"), t
-        out.append((lang, kind or "all"))
+        out.append((lang, kind or "all", int(first or 0)))
     return out
 
 
@@ -427,10 +429,13 @@ def cmd_gen(a):
     # Dans l'ordre demandé, et dans chaque langue dans l'ordre du plan : les répliques d'abord, puis les prénoms du
     # plus courant au plus rare. Si le temps manque, ce sont les prénoms les plus rares qui restent pour un prochain
     # passage (le lutin les dit en attendant).
-    todo = []
-    for lang, kind in tasks_of(a):
+    todo, taken = [], set()
+    for lang, kind, first in tasks_of(a):
         wanted = {"all": ("line", "hello", "bye"), "name": ("hello", "bye")}.get(kind, (kind,))
-        items = [it for it in missing(lang) if it["kind"] in wanted]
+        items = [it for it in missing(lang) if it["kind"] in wanted and (lang, it["id"]) not in taken]
+        if first:
+            items = items[:first]
+        taken.update((lang, it["id"]) for it in items)
         part = items[i::n]
         if a.limit:
             # Essai rapide : moitié répliques, moitié prénoms.
