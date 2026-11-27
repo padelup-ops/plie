@@ -28,3 +28,6 @@
 {"id": "cd9b6df498eb86cf7dda", "key": "hello|yael", "text": "Ho, ho, ho ! Bonjour Yaël !", "ok": true, "score": 1.0, "dur": 2.52, "heard": "Oh ho ho, bonjour Yael.", "tries": 3, "secs": 261.2}
 {"id": "b097fdbe59bd1a200f95", "key": "hello|nolwenn", "text": "Ho, ho, ho ! Bonjour Nolwenn !", "ok": true, "score": 1.0, "dur": 2.88, "heard": "Ho Ho Ho ! Bonjour Nolwenn !", "tries": 1, "secs": 73.2}
 {"id": "234314435ad0e71d6422", "key": "hello|flavie", "text": "Ho, ho, ho ! Bonjour Flavie !", "ok": true, "score": 1.0, "dur": 2.44, "heard": "Ho, ho, ho ! Bonjour Flavie !", "tries": 2, "secs": 178.9}
+{"id": "7a17ad635a733639125e", "key": "hello|colette", "text": "Ho, ho, ho ! Bonjour Colette !", "ok": true, "score": 0.945, "dur": 2.52, "heard": "Ho ho ho, bonjour Collette.", "tries": 1, "secs": 78.2}
+{"id": "369e58a96a6423d1d51c", "key": "hello|marion", "text": "Ho, ho, ho ! Bonjour Marion !", "ok": true, "score": 0.865, "dur": 2.66, "heard": "Ho ho ho ! Bonjour, malion !", "tries": 1, "secs": 81.8}
+{"id": "c5a0522b7787e95bfaa2", "key": "hello|sixtine", "text": "Ho, ho, ho ! Bonjour Sixtine !", "ok": false, "score": 0.213, "dur": 2.1, "heard": "Ho ho ho, Bonjour 16.", "tries": 1, "secs": 218.2}

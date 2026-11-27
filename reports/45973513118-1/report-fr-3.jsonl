@@ -30,3 +30,5 @@
 {"id": "6a0e0dea5944436b085f", "key": "hello|angele", "text": "Ho, ho, ho ! Bonjour Angèle !", "ok": true, "score": 1.0, "dur": 2.38, "heard": "Oh ho ho ! Bonjour, Angèle !", "tries": 1, "secs": 66.2}
 {"id": "23bc5044e62d46e325a6", "key": "hello|faustine", "text": "Ho, ho, ho ! Bonjour Faustine !", "ok": true, "score": 1.0, "dur": 2.64, "heard": "Ho ho ho ! Bonjour, Faustine.", "tries": 1, "secs": 75.4}
 {"id": "6a0de0bc52321b8a0bbf", "key": "hello|ophelie", "text": "Ho, ho, ho ! Bonjour Ophélie !", "ok": true, "score": 1.0, "dur": 3.94, "heard": "Ho ho ho ! Bonjour, Ophélie !", "tries": 1, "secs": 87.2}
+{"id": "0b2448fa0dcf3473b557", "key": "hello|tess", "text": "Ho, ho, ho ! Bonjour Tess !", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Oh, oh, oh, bonjour, Tess.", "tries": 2, "secs": 151.3}
+{"id": "6af053bcc2b23dd7f689", "key": "hello|lou-ann", "text": "Ho, ho, ho ! Bonjour Lou-Ann !", "ok": false, "score": 0.647, "dur": 2.64, "heard": "Oh ho ho ! Bonjour Luan !", "tries": 1, "secs": 267.0}
