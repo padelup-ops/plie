@@ -16,3 +16,6 @@
 {"id": "5957dc8d52aab6218306", "key": "hello|noa", "text": "Ho, ho, ho ! Bonjour Noa !", "ok": true, "score": 1.0, "dur": 3.2, "heard": "Ho ho ho ! Bonjour Noa !", "tries": 3, "secs": 246.9}
 {"id": "3cff1db01b8f3fac053a", "key": "hello|owen", "text": "Ho, ho, ho ! Bonjour Owen !", "ok": true, "score": 1.0, "dur": 2.6, "heard": "Oh, oh, oh, bonjour Owen.", "tries": 1, "secs": 74.3}
 {"id": "d04d48e73590a2960a50", "key": "hello|diego", "text": "Ho, ho, ho ! Bonjour Diego !", "ok": true, "score": 1.0, "dur": 2.8, "heard": "Ho ho ho ho ! Bonjour Diego !", "tries": 1, "secs": 70.1}
+{"id": "0bce7450d3a168bcb542", "key": "hello|garance", "text": "Ho, ho, ho ! Bonjour Garance !", "ok": true, "score": 1.0, "dur": 3.6, "heard": "Oh ho ho! Bonjour, garance!", "tries": 2, "secs": 154.7}
+{"id": "fb01d67a8c9f2d09c05b", "key": "hello|pablo", "text": "Ho, ho, ho ! Bonjour Pablo !", "ok": true, "score": 1.0, "dur": 2.42, "heard": "Ho, ho, ho ! Bonjour Pablo !", "tries": 1, "secs": 69.9}
+{"id": "4095617712db2f04a82c", "key": "hello|elias", "text": "Ho, ho, ho ! Bonjour Elias !", "ok": true, "score": 0.927, "dur": 2.64, "heard": "Oh ho ho! Bonjour, Relias!", "tries": 1, "secs": 71.1}
