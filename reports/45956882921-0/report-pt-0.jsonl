@@ -3,3 +3,7 @@
 {"id": "91e73b893181213b4022", "key": "hello|cecilia", "text": "Ho, ho, ho! Olá, Cecília!", "ok": true, "score": 1.0, "dur": 2.38, "heard": "Oh, oh, oh! Olá, Cecília!", "tries": 1, "secs": 64.6}
 {"id": "3d7143121be20c849e19", "key": "hello|isis", "text": "Ho, ho, ho! Olá, Isis!", "ok": true, "score": 0.98, "dur": 2.64, "heard": "Oh, oh, oh, hola, Isis!", "tries": 1, "secs": 43.1}
 {"id": "091e97bfcd84e8962138", "key": "hello|gael", "text": "Ho, ho, ho! Olá, Gael!", "ok": true, "score": 0.819, "dur": 3.14, "heard": "Oh, ho, ho, oh, oh, lagael!", "tries": 1, "secs": 49.9}
+{"id": "e404313ade9be2078791", "key": "hello|davi", "text": "Ho, ho, ho! Olá, Davi!", "ok": true, "score": 1.0, "dur": 2.12, "heard": "Oh, oh, oh, olá, Davi!", "tries": 2, "secs": 88.6}
+{"id": "4ff9fe775881b33e0295", "key": "hello|samuel", "text": "Ho, ho, ho! Olá, Samuel!", "ok": true, "score": 1.0, "dur": 2.1, "heard": "Oh, oh, olá Samuel!", "tries": 1, "secs": 47.7}
+{"id": "824535534a3953db815d", "key": "hello|benicio", "text": "Ho, ho, ho! Olá, Benício!", "ok": true, "score": 0.986, "dur": 2.54, "heard": "Oh, oh, oh, hola Benicio!", "tries": 1, "secs": 52.1}
+{"id": "602f5085a7d70768a1f6", "key": "hello|joaquim", "text": "Ho, ho, ho! Olá, Joaquim!", "ok": true, "score": 1.0, "dur": 2.56, "heard": "Oh, ho, ho! Olá, Joaquim!", "tries": 1, "secs": 45.2}

@@ -2,3 +2,7 @@
 {"id": "34d02f85b0b800383a83", "key": "hello|laura", "text": "Ho, ho, ho! Olá, Laura!", "ok": true, "score": 1.0, "dur": 2.76, "heard": "Oh ho ho! Olá, Laura!", "tries": 1, "secs": 49.5}
 {"id": "b18469b20b5beea15d55", "key": "hello|luisa", "text": "Ho, ho, ho! Olá, Luísa!", "ok": true, "score": 1.0, "dur": 3.8, "heard": "Oh, ho, ho, ho, ho! Olá, Luisa!", "tries": 1, "secs": 57.8}
 {"id": "10a6f685bd914edd8565", "key": "hello|antonella", "text": "Ho, ho, ho! Olá, Antonella!", "ok": true, "score": 0.947, "dur": 3.76, "heard": "Oh, oh, oh, oh! Olá, Antonela!", "tries": 1, "secs": 67.5}
+{"id": "b094d40b51987728aa6e", "key": "hello|theo", "text": "Ho, ho, ho! Olá, Théo!", "ok": false, "score": 0.648, "dur": 2.62, "heard": "Oh, oh, oh, olá, teu!", "tries": 2, "secs": 153.9}
+{"id": "4acd0b8b76f67b133f11", "key": "hello|bernardo", "text": "Ho, ho, ho! Olá, Bernardo!", "ok": true, "score": 0.986, "dur": 2.52, "heard": "Oh, oh, oh, lá, Bernardo!", "tries": 1, "secs": 51.1}
+{"id": "6e4154e148ceaa8a02e7", "key": "hello|pedro", "text": "Ho, ho, ho! Olá, Pedro!", "ok": false, "score": 0.881, "dur": 3.82, "heard": "Uh, uh, uh, hola Pedro!", "tries": 3, "secs": 160.5}
+{"id": "5c6600c5bd39ecba0d76", "key": "hello|benjamin", "text": "Ho, ho, ho! Olá, Benjamin!", "ok": true, "score": 0.778, "dur": 2.6, "heard": "Oh, ho, ho! Olá, beijamim!", "tries": 1, "secs": 43.5}
