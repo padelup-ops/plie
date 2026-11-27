@@ -25,6 +25,8 @@ C = {
            "collectibles": ("Tout le 100 %,", "avec un compteur"), "eggs": ("Tous les easter eggs,", "sans spoiler"), "guide": ("Des guides pour", "tout le jeu"), "characters": ("Qui est qui,", "avec tes notes"), "widgets": ("Widgets de progression,", "synchro iCloud"), "thread": ("Bloqué sur une mission ?", "Demande à la communauté")},
 }
 SIZES = {"duo": (2007, 2853, "duo-"), "iphone": (1290, 2796, ""), "ipad": (2064, 2752, "ipad-")}
+# Sur iPhone, « mission » montre déjà le suivi (une seule page à la fois) : « collectibles » ferait doublon.
+SKIP = {"iphone": {"collectibles"}}
 ANTON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Fonts", "Anton-Regular.ttf")
 
 # Les couleurs de l'app (Shared/Tokens.swift).
@@ -148,6 +150,8 @@ for dev, (w, h, prefix) in SIZES.items():
         files = sorted(f for f in os.listdir(d) if f.endswith(".png"))
         n = 0
         for route in ROUTES:
+            if route in SKIP.get(dev, ()):
+                continue
             f = next((x for x in files if x.split("-", 1)[1] == f"{route}.png"), None)
             if not f:
                 continue
