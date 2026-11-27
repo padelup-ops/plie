@@ -1,1 +1,6 @@
 {"id": "f2e929854d9a2ead017c", "key": "hello|violet", "text": "Ho, ho, ho! Hello, Violet!", "ok": false, "score": 0.925, "dur": 2.76, "heard": "Ho, ho, ho. Hello, Violet. Violet.", "tries": 1, "secs": 185.2}
+{"id": "007b8960521e6587fb9c", "key": "hello|james", "text": "Ho, ho, ho! Hello, James!", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Ho, ho, ho. Hello, James.", "tries": 1, "secs": 42.5}
+{"id": "444af234af66e5b5fc59", "key": "hello|lucas", "text": "Ho, ho, ho! Hello, Lucas!", "ok": true, "score": 1.0, "dur": 2.26, "heard": "Oh, ho, ho. Hello, Lucas.", "tries": 2, "secs": 93.0}
+{"id": "1de0aca2dd572665323d", "key": "hello|levi", "text": "Ho, ho, ho! Hello, Levi!", "ok": true, "score": 0.8, "dur": 2.72, "heard": "Ho ho ho! Hello, Levy!", "tries": 2, "secs": 95.0}
+{"id": "2c090897986bef9835f5", "key": "hello|michael", "text": "Ho, ho, ho! Hello, Michael!", "ok": true, "score": 1.0, "dur": 2.36, "heard": "Ho, ho, ho! Hello, Michael.", "tries": 2, "secs": 85.2}
+{"id": "1b7d494c775546e2bd05", "key": "hello|samuel", "text": "Ho, ho, ho! Hello, Samuel!", "ok": true, "score": 1.0, "dur": 3.34, "heard": "Ho ho ho! Hello Samuel!", "tries": 1, "secs": 63.9}
