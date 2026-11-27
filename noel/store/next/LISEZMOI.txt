@@ -1,6 +1,10 @@
-Textes de la fiche pour la version avec caméra (rectangle façon appel vidéo, photos de la réaction), qu'elle parte en 1.0 ou en 1.0.1.
-À copier le jour où cette version est soumise, pas avant :
+Textes de la fiche pour le premier build où le Père Noël a sa voix enregistrée dans les six langues
+(toutes les répliques, et les prénoms les plus donnés ; un prénom rare n'est plus prononcé nulle part).
+À copier le jour où ce build est soumis, pas avant :
   noel/store/next/noel.json    → tools/meta/noel.json
   noel/store/next/listing.json → noel/store/listing.json
-Fabriqués à partir des textes de la 1.0 par l'ajout d'une rubrique « Comme un appel vidéo », d'une ligne dans le
-Pass Noël, et de la mention de la caméra dans la confidentialité et dans les notes de vérification.
+  noel/store/next/iap-review.png → noel/store/iap-review.png (écran du Pass avec la ligne des photos de réaction)
+Fabriqués à partir des textes de la version avec caméra : les fiches es, de, it, pt ne disent plus que la voix est
+créée par l'iPhone ni l'astuce « voix améliorée », et annoncent les prénoms comme les fiches fr et en.
+À faire le même jour : les pages de confidentialité du site (clapet/tools/site/allonoel) disent encore « voix
+enregistrée en français et en anglais ».
