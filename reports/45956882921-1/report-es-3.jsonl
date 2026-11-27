@@ -7,3 +7,4 @@
 {"id": "2e896992d8984a0bfc1a", "key": "hello|hugo", "text": "¡Jo, jo, jo! ¡Hola, Hugo!", "ok": true, "score": 0.736, "dur": 1.78, "heard": "¡Ho ho ho! ¡Hola uo!", "tries": 3, "secs": 208.6}
 {"id": "6c33d669d43efcb83278", "key": "hello|leo", "text": "¡Jo, jo, jo! ¡Hola, Leo!", "ok": true, "score": 1.0, "dur": 3.26, "heard": "ho ho ho. Hola Leo.", "tries": 1, "secs": 69.8}
 {"id": "05241aa863ec73e5c8af", "key": "hello|manuel", "text": "¡Jo, jo, jo! ¡Hola, Manuel!", "ok": true, "score": 1.0, "dur": 2.2, "heard": "¡Oh, ho, ho, ho! ¡Hola, Manuel!", "tries": 1, "secs": 57.4}
+{"id": "dba7f557c00efe6dcf86", "key": "hello|mario", "text": "¡Jo, jo, jo! ¡Hola, Mario!", "ok": true, "score": 1.0, "dur": 3.82, "heard": "¡Ho ho ho! ¡Hola Mario!", "tries": 3, "secs": 202.1}
