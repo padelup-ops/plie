@@ -174,6 +174,12 @@ first_release = not any(attrs(v).get("appStoreState") in ("READY_FOR_SALE", "REP
                                                          "PENDING_APPLE_RELEASE", "PROCESSING_FOR_APP_STORE", "REMOVED_FROM_SALE",
                                                          "DEVELOPER_REMOVED_FROM_SALE") for v in all_v)
 version = next((v for v in all_v if attrs(v).get("appStoreState") in EDITABLE), None)
+# Déjà rangée dans une demande ouverte (un envoi précédent s'est arrêté juste avant de partir) : fiche, EULA, note et
+# build sont posés, il ne reste qu'à envoyer.
+staged = False
+if not version:
+    version = next((v for v in all_v if attrs(v).get("appStoreState") == "READY_FOR_REVIEW"), None)
+    staged = version is not None
 if DRY and not version:
     version = next((v for v in all_v if attrs(v).get("appStoreState") in PENDING), None)
 if not version:
@@ -190,84 +196,87 @@ if not version:
 vid = version["id"]
 vstring = attrs(version).get("versionString")
 print("cible", vstring, attrs(version).get("appStoreState"), "première sortie" if first_release else "mise à jour")
-step("sortie automatique après accord", write("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"releaseType": "AFTER_APPROVAL"}}}))
-
-# 3. La fiche de chaque langue, avec le lien EULA à la fin de la description.
-for loc in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations?limit=50").get("data", []):
-    locale = attrs(loc).get("locale")
-    meta = meta_for(locale) or {}
-    desc = (meta.get("description") or attrs(loc).get("description") or "").rstrip()
-    if LINE not in desc:
-        desc = desc[:4000 - len(LINE) - 2].rstrip() + "\n\n" + LINE
-    new = {"description": desc}
-    for src, dst in (("keywords", "keywords"), ("promo", "promotionalText")):
-        if meta.get(src):
-            new[dst] = meta[src]
-    if not first_release and meta.get("whatsNew"):
-        new["whatsNew"] = meta["whatsNew"]
-    step(f"fiche {locale}", write("PATCH", f"/v1/appStoreVersionLocalizations/{loc['id']}", {"data": {
-        "type": "appStoreVersionLocalizations", "id": loc["id"], "attributes": new}}))
-
-# 4. L'EULA propre à l'app (le contrat standard d'Apple), sur tous les pays.
-terr = []
-path = "/v1/territories?limit=200"
-while path:
-    page = call("GET", path)
-    terr += [t["id"] for t in page.get("data", [])]
-    nxt = (page.get("links") or {}).get("next")
-    path = nxt.replace(API, "") if nxt else None
-links = [{"type": "territories", "id": t} for t in terr]
-existing = call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement").get("data")
-if isinstance(existing, dict) and EULA_URL in (attrs(existing).get("agreementText") or ""):
-    print("ok     EULA déjà posée,", len(attrs(existing).get("agreementText") or ""), "caractères")
-elif isinstance(existing, dict):
-    step("EULA mise à jour", write("PATCH", f"/v1/endUserLicenseAgreements/{existing['id']}", {"data": {
-        "type": "endUserLicenseAgreements", "id": existing["id"], "attributes": {"agreementText": AGREEMENT},
-        "relationships": {"territories": {"data": links}}}}))
+if staged:
+    print("version déjà dans une demande ouverte : on passe directement à l'envoi")
 else:
-    step(f"EULA créée ({len(terr)} pays)", write("POST", "/v1/endUserLicenseAgreements", {"data": {
-        "type": "endUserLicenseAgreements", "attributes": {"agreementText": AGREEMENT},
-        "relationships": {"app": {"data": {"type": "apps", "id": app_id}}, "territories": {"data": links}}}}))
+    step("sortie automatique après accord", write("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
+        "type": "appStoreVersions", "id": vid, "attributes": {"releaseType": "AFTER_APPROVAL"}}}))
 
-# 5. La note pour Apple : où trouver les conditions.
-det = call("GET", f"/v1/appStoreVersions/{vid}/appStoreReviewDetail").get("data")
-if det:
-    old = (attrs(det).get("notes") or "").strip()
-    keep = old.split("Terms of Use (EULA), as requested")[0].strip()
-    notes = (NOTES + ("\n\n" + keep if keep else ""))[:4000]
-    step("note pour Apple", write("PATCH", f"/v1/appStoreReviewDetails/{det['id']}", {"data": {
-        "type": "appStoreReviewDetails", "id": det["id"], "attributes": {"notes": notes}}}))
-else:
-    step("note pour Apple", write("POST", "/v1/appStoreReviewDetails", {"data": {
-        "type": "appStoreReviewDetails", "attributes": {"notes": NOTES},
-        "relationships": {"appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}}))
+    # 3. La fiche de chaque langue, avec le lien EULA à la fin de la description.
+    for loc in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations?limit=50").get("data", []):
+        locale = attrs(loc).get("locale")
+        meta = meta_for(locale) or {}
+        desc = (meta.get("description") or attrs(loc).get("description") or "").rstrip()
+        if LINE not in desc:
+            desc = desc[:4000 - len(LINE) - 2].rstrip() + "\n\n" + LINE
+        new = {"description": desc}
+        for src, dst in (("keywords", "keywords"), ("promo", "promotionalText")):
+            if meta.get(src):
+                new[dst] = meta[src]
+        if not first_release and meta.get("whatsNew"):
+            new["whatsNew"] = meta["whatsNew"]
+        step(f"fiche {locale}", write("PATCH", f"/v1/appStoreVersionLocalizations/{loc['id']}", {"data": {
+            "type": "appStoreVersionLocalizations", "id": loc["id"], "attributes": new}}))
 
-# 6. Le build.
-build, states = None, []
-for attempt in range(40):
-    builds = call("GET", f"/v1/builds?filter[app]={app_id}&filter[version]={BUILD}&limit=5").get("data", [])
-    states = [attrs(b).get("processingState") for b in builds]
-    build = next((b for b in builds if attrs(b).get("processingState") == "VALID"), None)
-    print(f"build {BUILD}", states or "introuvable", f"essai {attempt + 1}")
-    if build or any(s in ("FAILED", "INVALID") for s in states) or DRY:
-        break
-    time.sleep(30)
-if not build:
-    print("ÉCHEC build pas prêt")
-    sys.exit(1)
-bid = build["id"]
-pre = attrs(call("GET", f"/v1/builds/{bid}/preReleaseVersion").get("data")).get("version")
-print("build", BUILD, "version du build", pre)
-enc = attrs(build).get("usesNonExemptEncryption")
-if enc is None:
-    step("chiffrement : aucun", write("PATCH", f"/v1/builds/{bid}", {"data": {
-        "type": "builds", "id": bid, "attributes": {"usesNonExemptEncryption": False}}}))
-elif enc is not False:
-    problems.append("chiffrement")
-    print("ÉCHEC  chiffrement inattendu", enc)
-step(f"build {BUILD} joint", write("PATCH", f"/v1/appStoreVersions/{vid}/relationships/build",
-     {"data": {"type": "builds", "id": bid}}))
+    # 4. L'EULA propre à l'app (le contrat standard d'Apple), sur tous les pays.
+    terr = []
+    path = "/v1/territories?limit=200"
+    while path:
+        page = call("GET", path)
+        terr += [t["id"] for t in page.get("data", [])]
+        nxt = (page.get("links") or {}).get("next")
+        path = nxt.replace(API, "") if nxt else None
+    links = [{"type": "territories", "id": t} for t in terr]
+    existing = call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement").get("data")
+    if isinstance(existing, dict) and EULA_URL in (attrs(existing).get("agreementText") or ""):
+        print("ok     EULA déjà posée,", len(attrs(existing).get("agreementText") or ""), "caractères")
+    elif isinstance(existing, dict):
+        step("EULA mise à jour", write("PATCH", f"/v1/endUserLicenseAgreements/{existing['id']}", {"data": {
+            "type": "endUserLicenseAgreements", "id": existing["id"], "attributes": {"agreementText": AGREEMENT},
+            "relationships": {"territories": {"data": links}}}}))
+    else:
+        step(f"EULA créée ({len(terr)} pays)", write("POST", "/v1/endUserLicenseAgreements", {"data": {
+            "type": "endUserLicenseAgreements", "attributes": {"agreementText": AGREEMENT},
+            "relationships": {"app": {"data": {"type": "apps", "id": app_id}}, "territories": {"data": links}}}}))
+
+    # 5. La note pour Apple : où trouver les conditions.
+    det = call("GET", f"/v1/appStoreVersions/{vid}/appStoreReviewDetail").get("data")
+    if det:
+        old = (attrs(det).get("notes") or "").strip()
+        keep = old.split("Terms of Use (EULA), as requested")[0].strip()
+        notes = (NOTES + ("\n\n" + keep if keep else ""))[:4000]
+        step("note pour Apple", write("PATCH", f"/v1/appStoreReviewDetails/{det['id']}", {"data": {
+            "type": "appStoreReviewDetails", "id": det["id"], "attributes": {"notes": notes}}}))
+    else:
+        step("note pour Apple", write("POST", "/v1/appStoreReviewDetails", {"data": {
+            "type": "appStoreReviewDetails", "attributes": {"notes": NOTES},
+            "relationships": {"appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}}))
+
+    # 6. Le build.
+    build, states = None, []
+    for attempt in range(40):
+        builds = call("GET", f"/v1/builds?filter[app]={app_id}&filter[version]={BUILD}&limit=5").get("data", [])
+        states = [attrs(b).get("processingState") for b in builds]
+        build = next((b for b in builds if attrs(b).get("processingState") == "VALID"), None)
+        print(f"build {BUILD}", states or "introuvable", f"essai {attempt + 1}")
+        if build or any(s in ("FAILED", "INVALID") for s in states) or DRY:
+            break
+        time.sleep(30)
+    if not build:
+        print("ÉCHEC build pas prêt")
+        sys.exit(1)
+    bid = build["id"]
+    pre = attrs(call("GET", f"/v1/builds/{bid}/preReleaseVersion").get("data")).get("version")
+    print("build", BUILD, "version du build", pre)
+    enc = attrs(build).get("usesNonExemptEncryption")
+    if enc is None:
+        step("chiffrement : aucun", write("PATCH", f"/v1/builds/{bid}", {"data": {
+            "type": "builds", "id": bid, "attributes": {"usesNonExemptEncryption": False}}}))
+    elif enc is not False:
+        problems.append("chiffrement")
+        print("ÉCHEC  chiffrement inattendu", enc)
+    step(f"build {BUILD} joint", write("PATCH", f"/v1/appStoreVersions/{vid}/relationships/build",
+         {"data": {"type": "builds", "id": bid}}))
 
 if problems:
     print("PAS ENVOYÉ :", ", ".join(problems))
