@@ -300,39 +300,46 @@ step("version ajoutée à la demande", write("POST", "/v1/reviewSubmissionItems"
      tolerate=("already", "ENTITY_ERROR"))
 
 # Les achats de Vicefold Pro partent avec la version (première fois) : sans eux, Apple ne peut pas vérifier l'écran Pro.
+# Deux voies, dans l'ordre : l'envoi propre à l'achat, puis l'achat comme élément de la demande de vérification.
 SENDABLE = ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED")
 warnings = []
+
+
+def attach(label, own_type, own_rel, own_kind, item_rels, obj_id):
+    r = write("POST", f"/v1/{own_type}", {"data": {
+        "type": own_type, "relationships": {own_rel: {"data": {"type": own_kind, "id": obj_id}}}}})
+    if "error" not in r or "already" in r.get("detail", ""):
+        print(f"ok     {label} envoyé avec la version")
+        return True
+    print(f"       {label} : envoi direct refusé -> HTTP {r['error']} {r['detail'][:300]}")
+    for rel in item_rels:
+        r2 = write("POST", "/v1/reviewSubmissionItems", {"data": {
+            "type": "reviewSubmissionItems", "relationships": {
+                "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
+                rel: {"data": {"type": own_kind, "id": obj_id}}}}})
+        if "error" not in r2 or "already" in r2.get("detail", ""):
+            print(f"ok     {label} ajouté à la demande ({rel})")
+            return True
+        print(f"       {label} : élément {rel} refusé -> HTTP {r2['error']} {r2['detail'][:300]}")
+    warnings.append(label)
+    return False
+
+
 for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
     pid, st = attrs(x).get("productId"), attrs(x).get("state")
     print("       achat", pid, st)
-    if st not in SENDABLE:
-        continue
-    r = write("POST", "/v1/inAppPurchaseSubmissions", {"data": {
-        "type": "inAppPurchaseSubmissions", "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
-    if "error" in r and "FIRST_" in r.get("detail", ""):
-        r = write("POST", "/v1/reviewSubmissionItems", {"data": {
-            "type": "reviewSubmissionItems", "relationships": {
-                "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
-                "inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
-    if "error" in r and "already" not in r.get("detail", ""):
-        warnings.append(f"achat {pid}")
-        print(f"ATTENTION achat {pid} pas joint -> HTTP {r['error']} {r['detail'][:500]}")
-    else:
-        print(f"ok     achat {pid} joint à la version")
+    if st in SENDABLE:
+        attach(f"achat {pid}", "inAppPurchaseSubmissions", "inAppPurchaseV2", "inAppPurchases",
+               ("inAppPurchaseV2", "inAppPurchase"), x["id"])
 for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
-    for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
-        pid, st = attrs(sx).get("productId"), attrs(sx).get("state")
-        print("       abonnement", pid, st)
-        if st not in SENDABLE:
-            continue
-        r = write("POST", "/v1/subscriptionSubmissions", {"data": {
-            "type": "subscriptionSubmissions",
-            "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sx["id"]}}}}})
-        if "error" in r and "already" not in r.get("detail", ""):
-            warnings.append(f"abonnement {pid}")
-            print(f"ATTENTION abonnement {pid} pas joint -> HTTP {r['error']} {r['detail'][:500]}")
-        else:
-            print(f"ok     abonnement {pid} joint à la version")
+    pending = [sx for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", [])
+               if attrs(sx).get("state") in SENDABLE]
+    for sx in pending:
+        attach(f"abonnement {attrs(sx).get('productId')}", "subscriptionSubmissions", "subscription", "subscriptions",
+               ("subscription",), sx["id"])
+    if pending:
+        attach(f"groupe {attrs(g).get('referenceName')}", "subscriptionGroupSubmissions", "subscriptionGroup",
+               "subscriptionGroups", ("subscriptionGroup",), g["id"])
 
 step("ENVOI À LA VÉRIFICATION", write("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
     "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}}))
