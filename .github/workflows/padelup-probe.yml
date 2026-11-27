@@ -1,6 +1,7 @@
-# PADELUP : cherche le serveur PadelUp existant (adresse de l'API dans le tableau de bord public, adresses probables)
-# et teste s'il répond. Résultat dans la branche ci-padelup-probe.
-name: PadelUp - serveur existant ?
+# PADELUP : sonde ponctuelle d'un site externe depuis GitHub (le réseau de développement ne l'atteint pas).
+# Ici : comment le site Anybuddy garde la session (page de connexion, cookies ou stockage local, appels d'auth).
+# Résultat dans la branche ci-padelup-probe. Aucune identification, aucun contournement : lecture des pages publiques.
+name: PadelUp - sonde
 on:
   workflow_dispatch:
   push:
@@ -13,16 +14,35 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Chercher
+      - name: Sonder Anybuddy
         run: |
           mkdir -p out && cd out
+          UA="padelup-probe/1.0 (+https://github.com/padelup-ops/plie)"
           {
-          for h in api.playtomic.io playtomic.io; do
-            for t in A AAAA CNAME; do
-              echo "$h $t (dig) : $(dig +short $h $t | tr '\n' ' ')"
-              echo "$h $t (DNS Google) : $(curl -s --max-time 15 "https://dns.google/resolve?name=$h&type=$t" | head -c 400)"
-            done
+          for u in https://www.anybuddyapp.com/fr https://www.anybuddyapp.com/fr/compte https://www.anybuddyapp.com/fr/connexion \
+                   https://www.anybuddyapp.com/fr/login https://www.anybuddyapp.com/fr/mon-compte https://www.anybuddyapp.com/fr/inscription \
+                   https://www.anybuddyapp.com/fr/club/4padel-bobigny https://app.anybuddyapp.com https://www.anybuddyapp.com/api/v1/me \
+                   https://www.anybuddyapp.com/api/v1/users/me https://api.anybuddyapp.com; do
+            echo "== $u"
+            curl -s -A "$UA" -o /dev/null -D - --max-time 20 "$u" | grep -iE "^(HTTP|location|set-cookie|content-type)" | sed 's/=[^;]\{12,\}/=<valeur>/'
           done
+          echo "== page d'accueil : liens de compte"
+          curl -s -A "$UA" --max-time 20 https://www.anybuddyapp.com/fr -o home.html
+          grep -oE 'href="[^"]*(compte|connexion|login|signin|sign-in|inscription|account|profil)[^"]*"' home.html | sort -u | head -30
+          echo "== scripts"
+          grep -oE '(src|href)="[^"]+\.js[^"]*"' home.html | sed -E 's/^(src|href)="//; s/"$//' | sort -u > scripts.txt
+          wc -l scripts.txt; head -40 scripts.txt
+          echo "== indices d'authentification dans les scripts"
+          n=0
+          while read -r s; do
+            case "$s" in http*) url="$s" ;; //*) url="https:$s" ;; /*) url="https://www.anybuddyapp.com$s" ;; *) url="https://www.anybuddyapp.com/$s" ;; esac
+            n=$((n+1)); [ $n -gt 60 ] && break
+            curl -s -A "$UA" --max-time 20 "$url" -o js.txt || continue
+            hits=$(grep -oE '(localStorage|sessionStorage)\.(get|set|remove)Item\("[^"]{2,60}"|(localStorage|sessionStorage)\.(get|set|remove)Item\(`[^`]{2,60}`|"(access_?token|accessToken|refresh_?token|refreshToken|id_token|jwt|auth[A-Za-z_]*|token)"|/api/v[0-9]/[a-zA-Z/_-]*(auth|login|token|me|session|users)[a-zA-Z/_-]*|cognito|firebase[a-zA-Z]*|auth0|supabase|keycloak|document\.cookie[^;]{0,60}' js.txt | sort | uniq -c | sort -rn | head -25)
+            [ -n "$hits" ] && { echo "--- $url"; echo "$hits"; }
+          done < scripts.txt
+          echo "== appels API vus dans la page"
+          grep -oE 'https?://[a-z0-9.-]*anybuddy[a-z0-9.-]*/[a-zA-Z0-9/_.-]{0,60}' home.html | sort -u | head -30
           } 2>&1 | tee resultat.txt
       - name: Publier
         if: always()
@@ -32,5 +52,5 @@ jobs:
           cd out && mkdir -p pub && cp resultat.txt pub/ 2>/dev/null || echo "rien" > pub/resultat.txt
           cd pub && git init -q -b ci-padelup-probe
           git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
-          git add -A && git commit -qm "Recherche du serveur PadelUp"
+          git add -A && git commit -qm "Sonde Anybuddy"
           git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-padelup-probe
