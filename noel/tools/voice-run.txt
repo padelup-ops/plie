@@ -1,2 +1,2 @@
 full fr en es de it pt
-2
+3 3 3 3 2 2

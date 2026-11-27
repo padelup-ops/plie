@@ -32,7 +32,7 @@ on:
       minutes:
         description: "Temps de fabrication par machine (minutes)"
         required: false
-        default: "235"
+        default: "210"
       branch:
         description: "Branche des résultats"
         required: false
@@ -58,10 +58,13 @@ jobs:
           words = lines[0].split()
           mode = os.environ.get("IN_MODE") or (words[0] if words else "pilot")
           langs = (os.environ.get("IN_LANGS") or " ".join(words[1:]) or "fr en es de it pt").split()
-          shards = int(os.environ.get("IN_SHARDS") or (lines[1].strip() if len(lines) > 1 and lines[1].strip().isdigit() else 3))
+          # Machines par langue : un nombre pour toutes, ou un par langue (« 3 3 3 3 2 2 »).
+          raw = (os.environ.get("IN_SHARDS") or (lines[1] if len(lines) > 1 else "") or "2").split()
+          per = [int(x) for x in raw if x.isdigit()] or [2]
+          count = {l: (per[i] if i < len(per) else per[-1]) for i, l in enumerate(langs)}
           if mode == "pilot":
-              shards = 1
-          m = [{"lang": l, "shard": i, "of": shards} for l in langs for i in range(shards)]
+              count = {l: 1 for l in langs}
+          m = [{"lang": l, "shard": i, "of": count[l]} for l in langs for i in range(count[l])]
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write("matrix=" + json.dumps({"include": m}) + "\n")
               f.write("mode=" + mode + "\n")
@@ -76,7 +79,7 @@ jobs:
     strategy:
       fail-fast: false
       # Pas toutes les machines du compte : les autres apps doivent pouvoir compiler pendant ce temps.
-      max-parallel: 12
+      max-parallel: 16
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v5
@@ -100,7 +103,7 @@ jobs:
           SHARD: ${{ matrix.shard }}
           OF: ${{ matrix.of }}
           LIMIT: ${{ inputs.limit || '0' }}
-          MINUTES: ${{ inputs.minutes || '235' }}
+          MINUTES: ${{ inputs.minutes || '210' }}
         run: |
           mkdir -p out
           if [ "$MODE" = pilot ]; then
