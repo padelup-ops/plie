@@ -37,6 +37,10 @@ on:
         description: "Taille en points pour le mode redimensionnable (ex. 669x951 : l'écran intérieur tenu en portrait) ; vide = captures normales"
         required: false
         default: ""
+      appearance:
+        description: "Apparence du simulateur : light ou dark (les captures sombres vont dans une branche « -dark »)"
+        required: false
+        default: "light"
 
 jobs:
   shots:
@@ -74,6 +78,7 @@ jobs:
           echo "UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
           xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+          xcrun simctl ui "$UDID" appearance "${{ inputs.appearance == 'dark' && 'dark' || 'light' }}" 2>&1 | tee -a shots/simulateur.txt || true
           set -o pipefail
           if ! command -v xcodegen >/dev/null; then brew install xcodegen >/dev/null 2>&1 || true; fi
           (cd vicefold && xcodegen generate)
@@ -168,7 +173,7 @@ jobs:
           mkdir -p shots && cd shots
           rm -f *.sb-*
           find . -type f -size +90M -print -delete
-          B=ci-vicefold-shots-${{ inputs.lang }}$(echo "${{ inputs.device }}" | tr -cd 'A-Za-z0-9' | tr 'A-Z' 'a-z' | sed 's/^duo$//;s/^./-&/')$( [ "${{ inputs.pose }}" = "close" ] && echo -closed || true )
+          B=ci-vicefold-shots-${{ inputs.lang }}$(echo "${{ inputs.device }}" | tr -cd 'A-Za-z0-9' | tr 'A-Z' 'a-z' | sed 's/^duo$//;s/^./-&/')$( [ "${{ inputs.pose }}" = "close" ] && echo -closed || true )$( [ "${{ inputs.appearance }}" = "dark" ] && echo -dark || true )
           git init -q -b "$B"
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"

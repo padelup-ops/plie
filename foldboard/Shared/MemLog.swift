@@ -15,6 +15,7 @@ enum KBMemLog {
     static func begin(mb: Double, context: String, mode: String) {
         start = mb
         peak = mb
+        lowRoom = 0
         let f = DateFormatter()
         f.dateFormat = "dd/MM HH:mm"
         current = "\(f.string(from: Date())) \(context) \(mode)"
@@ -32,6 +33,13 @@ enum KBMemLog {
         write(emoji: emoji, force: jump)
     }
 
+    /// La marge la plus basse qu'iOS a laissée pendant cette apparition (0 : inconnue).
+    private static var lowRoom = 0.0
+    static func room(_ mb: Double) {
+        guard mb > 0 else { return }
+        lowRoom = lowRoom > 0 ? min(lowRoom, mb) : mb
+    }
+
     /// Combien de claviers vivent en même temps (plus d'un longtemps : un clavier jeté par iOS mais pas libéré).
     private static var keyboards = 1
     /// Touches et boutons encore en vie. Un pli ne doit pas faire monter ce nombre.
@@ -42,6 +50,7 @@ enum KBMemLog {
         guard force || now - lastWrite > 2, let c = current else { return }
         lastWrite = now
         let line = c + String(format: " %.0f→%.0f Mo ×%d v%d", start, peak, keyboards, viewCount) + (emoji ? " emoji" : "")
+            + (lowRoom > 0 ? String(format: " marge %.0f", lowRoom) : "")
         var list = UserDefaults.standard.stringArray(forKey: key) ?? []
         if let last = list.last, last.hasPrefix(c) { list[list.count - 1] = line } else { list.append(line) }
         if list.count > 10 { list.removeFirst(list.count - 10) }
