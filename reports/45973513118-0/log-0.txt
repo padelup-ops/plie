@@ -32,3 +32,16 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [4/765] it ok  1.00 2.2s essais 1 (42s, reste 1070 min) Oh, oh, oh! Ciao, Gabriele! → Oh, oh, oh, ciao, Gabriele!
   self.gen = func(*args, **kwds)
+[5/765] it ok  1.00 2.7s essais 1 (58s, reste 1001 min) Oh, oh, oh! Ciao, Antonio! → Oh, oh, oh, ciao, Antonio!
+  self.gen = func(*args, **kwds)
+[6/765] it ok  1.00 2.1s essais 1 (53s, reste 945 min) Oh, oh, oh! Ciao, Mia! → Oh, oh, oh, ciao mia!
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[7/765] it ok  1.00 2.8s essais 2 (94s, reste 978 min) Oh, oh, oh! Ciao, Davide! → Oh, oh, oh, ciao, davide!
+  self.gen = func(*args, **kwds)
+[8/765] it ok  1.00 3.2s essais 1 (58s, reste 946 min) Oh, oh, oh! Ciao, Luca! → Oh, oh, oh, ciao Luca!
+  self.gen = func(*args, **kwds)
+[9/765] it ok  1.00 2.4s essais 1 (46s, reste 903 min) Oh, oh, oh! Ciao, Emanuele! → Oh, oh, oh, ciao, Emanuele!
+  self.gen = func(*args, **kwds)
+[10/765] it ok  1.00 2.9s essais 1 (55s, reste 881 min) Oh, oh, oh! Ciao, Maria! → Oh, oh, oh, ciao Maria!
+  self.gen = func(*args, **kwds)

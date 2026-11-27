@@ -34,3 +34,18 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [6/762] it ok  1.00 2.4s essais 1 (52s, reste 656 min) Oh, oh, oh! Ciao, Giulio! → Oh oh oh, ciao Giulio!
   self.gen = func(*args, **kwds)
+[7/762] it ok  1.00 3.5s essais 1 (55s, reste 661 min) Oh, oh, oh! Ciao, Elia! → Oh oh oh ciao Elia
+  self.gen = func(*args, **kwds)
+[8/762] it ok  1.00 2.8s essais 1 (51s, reste 657 min) Oh, oh, oh! Ciao, Samuel! → Oh, oh, oh, ciao Samuel!
+  self.gen = func(*args, **kwds)
+[9/762] it ok  1.00 2.1s essais 1 (49s, reste 651 min) Oh, oh, oh! Ciao, Eleonora! → Oh, oh, oh, ciao Eleonora!
+  self.gen = func(*args, **kwds)
+[10/762] it ok  1.00 2.7s essais 1 (46s, reste 643 min) Oh, oh, oh! Ciao, Sole! → Oh, oh, oh, ciao, sole!
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[11/762] es ok  1.00 3.8s essais 2 (114s, reste 714 min) ¡Jo, jo, jo! ¡Hola, Álvaro! → ¡Ho, ho, ho! ¡Hola, Álvaro!
+  self.gen = func(*args, **kwds)
+[12/762] es ok  1.00 2.0s essais 1 (50s, reste 705 min) ¡Jo, jo, jo! ¡Hola, Adam! → ¡Ho ho ho! ¡Hola Adam!
+  self.gen = func(*args, **kwds)
+[13/762] es ok  1.00 2.5s essais 1 (52s, reste 700 min) ¡Jo, jo, jo! ¡Hola, Elsa! → ¡Ho, ho, ho! ¡Hola, Elsa!
+  self.gen = func(*args, **kwds)
