@@ -940,3 +940,4 @@
 "Email the start of this file to the developer" = "このファイルの冒頭を開発者にメールで送る";
 "All-time folds set to %lld. Tap Save to keep it." = "累計の折りたたみ回数を %lld に設定しました。「保存」をタップして確定してください。";
 "Use the file's all-time total: %lld folds" = "ファイルの累計を使う：%lld 回";
+"This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json)." = "このファイルはスクリプト本体で、データではありません。スクリプトが保存するデータファイルを選んでください（Duo Folds の場合：duo_folds.json）。";

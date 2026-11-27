@@ -923,3 +923,4 @@
 "Email the start of this file to the developer" = "Invia per e-mail l’inizio di questo file allo sviluppatore";
 "All-time folds set to %lld. Tap Save to keep it." = "Totale piegature impostato a %lld. Tocca Salva per mantenerlo.";
 "Use the file's all-time total: %lld folds" = "Usa il totale del file: %lld piegature";
+"This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json)." = "Questo file è lo script stesso, non i suoi dati. Scegli invece il file di dati salvato dallo script (per Duo Folds: duo_folds.json).";

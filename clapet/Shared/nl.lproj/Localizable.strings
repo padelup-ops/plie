@@ -923,3 +923,4 @@
 "Email the start of this file to the developer" = "Het begin van dit bestand naar de ontwikkelaar mailen";
 "All-time folds set to %lld. Tap Save to keep it." = "Totaal aantal vouwen ingesteld op %lld. Tik op Bewaar om het te behouden.";
 "Use the file's all-time total: %lld folds" = "Totaal uit het bestand gebruiken: %lld vouwen";
+"This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json)." = "Dit bestand is het script zelf, niet de gegevens. Kies het gegevensbestand dat het script bewaart (bij Duo Folds: duo_folds.json).";

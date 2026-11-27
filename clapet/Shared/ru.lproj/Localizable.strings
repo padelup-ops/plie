@@ -923,3 +923,4 @@
 "Email the start of this file to the developer" = "Отправить начало этого файла разработчику по почте";
 "All-time folds set to %lld. Tap Save to keep it." = "Общее число складываний установлено: %lld. Нажмите «Сохранить», чтобы оставить.";
 "Use the file's all-time total: %lld folds" = "Взять общий итог из файла: %lld";
+"This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json)." = "Это сам скрипт, а не его данные. Выберите файл данных, который сохраняет скрипт (для Duo Folds: duo_folds.json).";

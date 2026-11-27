@@ -940,3 +940,4 @@
 "Email the start of this file to the developer" = "Envoyer le début de ce fichier au développeur par e-mail";
 "All-time folds set to %lld. Tap Save to keep it." = "Total de plis réglé sur %lld. Touche Enregistrer pour le garder.";
 "Use the file's all-time total: %lld folds" = "Reprendre le total du fichier : %lld plis";
+"This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json)." = "Ce fichier est le script lui-même, pas ses données. Choisis plutôt le fichier de données que le script enregistre (pour Duo Folds : duo_folds.json).";

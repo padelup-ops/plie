@@ -238,7 +238,10 @@ struct AdjustCountView: View {
             return
         }
         let r = HistoryImport.parse(text)
-        if r.isEmpty {
+        if r.isEmpty, ["js", "scriptable"].contains(url.pathExtension.lowercased()) {
+            // Le script lui-même au lieu du fichier où il range ses chiffres (arrivé à un utilisateur de Duo Folds).
+            importNote = String(localized: "This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json).")
+        } else if r.isEmpty {
             importNote = String(localized: "No dates found in this file. Its format isn't supported yet.")
             unreadExcerpt = String(text.prefix(1200))
         } else {
