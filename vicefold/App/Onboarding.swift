@@ -40,13 +40,9 @@ struct OnboardingFlow: View {
                         VStack(spacing: 0) {
                             topBar
                             ZStack {
-                                // Le texte est centré s'il tient ; sinon il défile.
-                                ViewThatFits(in: .vertical) {
-                                    copy.padding(.horizontal, 28).padding(.vertical, 18).frame(maxWidth: 520)
-                                    ScrollView { copy.padding(.horizontal, 28).padding(.vertical, 18).frame(maxWidth: 520) }
-                                }
-                                .id(page)
-                                .transition(turn)
+                                centered { copy.padding(.horizontal, 28).padding(.vertical, 18).frame(maxWidth: 520) }
+                                    .id(page)
+                                    .transition(turn)
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             bottomBar
@@ -57,17 +53,15 @@ struct OnboardingFlow: View {
                     VStack(spacing: 0) {
                         topBar
                         ZStack {
-                            ScrollView {
+                            centered {
                                 VStack(spacing: 22) {
                                     hero.frame(height: heroHeight(geo.size.height))
                                     copy
                                 }
                                 .padding(.horizontal, 20)
-                                .padding(.bottom, 16)
+                                .padding(.vertical, 12)
                                 .frame(maxWidth: 560)
-                                .frame(maxWidth: .infinity)
                             }
-                            .scrollBounceBehavior(.basedOnSize)
                             .id(page)
                             .transition(turn)
                         }
@@ -82,6 +76,18 @@ struct OnboardingFlow: View {
         .onAppear {
             name = progress.data.name
             chapter = max(1, progress.data.chapter)
+        }
+    }
+
+    /// Le contenu d'une page, centré en hauteur s'il tient, défilant sinon (y compris quand le clavier est là :
+    /// la vue reste la même, le champ de texte garde la main).
+    private func centered<V: View>(@ViewBuilder _ content: () -> V) -> some View {
+        let inner = content()
+        return GeometryReader { box in
+            ScrollView {
+                inner.frame(maxWidth: .infinity, minHeight: box.size.height)
+            }
+            .scrollBounceBehavior(.basedOnSize)
         }
     }
 
@@ -115,7 +121,7 @@ struct OnboardingFlow: View {
     }
 
     private func heroHeight(_ h: CGFloat) -> CGFloat {
-        let share: CGFloat = [0.40, 0.40, 0.34, 0.20, 0.24][page]
+        let share: CGFloat = [0.40, 0.40, 0.34, 0.24, 0.30][page]
         return max(page >= 3 ? 130 : 200, min(380, h * share))
     }
 
@@ -493,9 +499,9 @@ private struct TrackerHero: View {
             let layout = stacked ? AnyLayout(VStackLayout(spacing: 26)) : AnyLayout(HStackLayout(spacing: 16))
             layout {
                 ZStack {
-                    VFRing(parts: filled ? [1, 1, 1, 1] : [0.04, 0.03, 0.02, 0.01], lineWidth: side * 0.07)
+                    VFRing(parts: filled ? [1, 1, 1, 1] : [0.04, 0.03, 0.02, 0.01], lineWidth: side * 0.06, gap: side * 0.018)
                     VStack(spacing: 0) {
-                        Text(verbatim: "100%").font(VF.display(side * 0.2)).foregroundStyle(VF.gradient)
+                        Text(verbatim: "100%").font(VF.display(side * 0.13)).foregroundStyle(VF.gradient)
                             .shadow(color: VF.flamingo.opacity(0.6), radius: 10)
                             .opacity(filled ? 1 : 0.25)
                     }
