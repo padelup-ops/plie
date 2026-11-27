@@ -113,6 +113,38 @@ def versions():
 all_v = versions()
 print("versions", [(attrs(v).get("versionString"), attrs(v).get("appStoreState")) for v in all_v])
 
+if os.environ.get("DRY_RUN") == "iap":
+    # Achats seulement : la version est déjà chez Apple, on tente de lui joindre les achats Pro et on relit leur état.
+    for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
+        pid, st = attrs(x).get("productId"), attrs(x).get("state")
+        print("achat", pid, st)
+        if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
+            r = call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
+                "type": "inAppPurchaseSubmissions",
+                "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
+            print("   ->", ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+    for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
+        r = call("POST", "/v1/subscriptionGroupSubmissions", {"data": {
+            "type": "subscriptionGroupSubmissions",
+            "relationships": {"subscriptionGroup": {"data": {"type": "subscriptionGroups", "id": g["id"]}}}}})
+        print("groupe", attrs(g).get("referenceName"), "->",
+              ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+        for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
+            pid, st = attrs(sx).get("productId"), attrs(sx).get("state")
+            print("abonnement", pid, st)
+            if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
+                r = call("POST", "/v1/subscriptionSubmissions", {"data": {
+                    "type": "subscriptionSubmissions",
+                    "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sx["id"]}}}}})
+                print("   ->", ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+    time.sleep(5)
+    for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
+        print("READBACK achat", attrs(x).get("productId"), attrs(x).get("state"))
+    for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
+        for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
+            print("READBACK abonnement", attrs(sx).get("productId"), attrs(sx).get("state"))
+    sys.exit(0)
+
 # 1. Une demande encore chez Apple : on la retire, sinon ni la fiche ni le build ne peuvent changer.
 if any(attrs(v).get("appStoreState") in PENDING for v in all_v):
     waiting = call("GET", f"/v1/reviewSubmissions?filter[app]={app_id}&filter[state]=WAITING_FOR_REVIEW,IN_REVIEW&limit=10").get("data", [])
@@ -282,7 +314,7 @@ for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data",
             "type": "reviewSubmissionItems", "relationships": {
                 "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
                 "inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
-    if "error" in r and "already" not in r.get("detail", "") and "no pending version" not in r.get("detail", ""):
+    if "error" in r and "already" not in r.get("detail", ""):
         warnings.append(f"achat {pid}")
         print(f"ATTENTION achat {pid} pas joint -> HTTP {r['error']} {r['detail'][:500]}")
     else:

@@ -29,7 +29,7 @@ on:
         description: "1 : retire d'abord la demande en attente ; only : la retire sans rien renvoyer"
         required: false
       dry_run:
-        description: "Vicefold seulement, 1 : essai à blanc, lit tout sans rien écrire"
+        description: "Vicefold seulement, 1 : essai à blanc, lit tout sans rien écrire ; iap : joint seulement les achats Pro à la version déjà envoyée"
         required: false
 
 jobs:
