@@ -1,0 +1,68 @@
+ok     identifiant déjà là : com.padelup.vicefold
+ok     identifiant déjà là : com.padelup.vicefold.widget
+capacités : ['GAME_CENTER', 'ICLOUD', 'IN_APP_PURCHASE']
+ok     capacité déjà là : GAME_CENTER
+ok     capacité déjà là : ICLOUD
+APP    6838298570 com.padelup.vicefold «Guide for GTA VI: Leonida» GtaSix
+FICHE  ok 6838298570
+ÉCHEC  testeur interne 1 (409) {
+  "errors" : [ {
+    "id" : "242453bb-2275-4830-957a-a2d7e0f4b6de",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 2 (409) {
+  "errors" : [ {
+    "id" : "90d67598-e0dc-457e-b7b7-d35ea7632579",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ok     testeur interne 3 déjà là
+ÉCHEC  testeur interne 4 (409) {
+  "errors" : [ {
+    "id" : "e6787305-65c6-47ec-84b3-7913235d220f",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 5 (409) {
+  "errors" : [ {
+    "id" : "2a16ede9-80f0-4c92-bd32-3fd72173b148",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 6 (409) {
+  "errors" : [ {
+    "id" : "be2759b6-d971-428a-a396-c05d159211c8",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}

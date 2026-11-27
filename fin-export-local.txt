@@ -1,0 +1,4 @@
+2026-11-27 06:57:03.310 xcodebuild[9671:31242] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/Vicefold_2026-11-27_06-57-03.302.xcdistributionlogs".
+Exported Vicefold to: /Users/runner/work/_temp/local
+** EXPORT SUCCEEDED **
+
