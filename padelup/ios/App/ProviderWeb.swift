@@ -410,3 +410,122 @@ struct PlaytomicPickerSheet: View {
         .tint(UI.court)
     }
 }
+
+// MARK: - Le site Playtomic dans un navigateur invisible (recherche et identification automatiques)
+
+/// Le site Playtomic affiche ses résultats avec JavaScript, après le chargement : une simple requête n'y voit rien.
+/// Ici, un vrai navigateur (WebKit, invisible, avec la session du joueur) charge la page comme Safari le ferait,
+/// attend l'affichage, puis lit ce qui est à l'écran : les liens vers les pages des clubs. C'est la même navigation
+/// qu'une personne, au même rythme, depuis son iPhone : aucune protection n'est contournée.
+@MainActor
+final class HiddenPlaytomic: NSObject, WKNavigationDelegate {
+    static let shared = HiddenPlaytomic()
+    private var webView: WKWebView?
+    private var waiting: CheckedContinuation<Void, Never>?
+    private var busy = false
+
+    /// Ce que la page affiche : un club par lien « /clubs/<slug> », avec le texte du lien (nom, ville).
+    static let listJS = #"""
+    (function(){
+      var out = [], seen = {};
+      var links = document.querySelectorAll('a[href*="/clubs/"]');
+      for (var i = 0; i < links.length; i++) {
+        var href = links[i].getAttribute('href') || '';
+        var m = href.match(/\/clubs\/([^\/?#]+)/);
+        if (!m) continue;
+        var slug = decodeURIComponent(m[1]);
+        if (seen[slug]) continue;
+        seen[slug] = 1;
+        var lines = (links[i].innerText || '').split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 1; });
+        out.push({ slug: slug, name: lines[0] || '', detail: lines.slice(1, 3).join(' · ') });
+      }
+      return JSON.stringify(out.slice(0, 30));
+    })()
+    """#
+
+    private func view() -> WKWebView {
+        if let webView { return webView }
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = .default()
+        let w = WKWebView(frame: CGRect(x: 0, y: 0, width: 390, height: 844), configuration: config)
+        w.navigationDelegate = self
+        w.alpha = 0.01
+        w.isUserInteractionEnabled = false
+        // Posé sous l'interface, invisible : une page attachée à l'écran s'affiche comme dans Safari (rendu complet).
+        let window = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.first
+        window?.insertSubview(w, at: 0)
+        webView = w
+        return w
+    }
+
+    private func load(_ url: URL) async {
+        let w = view()
+        finished()
+        await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+            waiting = c
+            w.load(URLRequest(url: url, timeoutInterval: 25))
+            // Filet de sécurité : on n'attend jamais plus de 25 s.
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: 25_000_000_000)
+                self?.finished()
+            }
+        }
+    }
+
+    private func finished() {
+        waiting?.resume()
+        waiting = nil
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { finished() }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finished() }
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { finished() }
+
+    /// Recherche par le site : clubs affichés (slug, nom, ville). L'identifiant se lit ensuite sur la page du club.
+    func search(_ text: String) async -> [PlaytomicClub] {
+        guard !busy else { return [] }
+        busy = true
+        defer { busy = false }
+        var comps = URLComponents(string: "https://playtomic.com/search")!
+        comps.queryItems = [URLQueryItem(name: "q", value: text)]
+        guard let url = comps.url else { return [] }
+        await load(url)
+        // Les résultats arrivent après l'affichage : on regarde pendant une dizaine de secondes au plus.
+        for _ in 0..<20 {
+            if let w = webView {
+                // 1) Données de la page (si les clubs y sont, avec leur identifiant).
+                if let html = try? await w.evaluateJavaScript("document.documentElement.innerHTML") as? String {
+                    let parsed = PlaytomicWeb.parseClubs(html)
+                    if !parsed.isEmpty { return parsed }
+                }
+                // 2) Ce qui est affiché à l'écran.
+                if let raw = try? await w.evaluateJavaScript(Self.listJS) as? String,
+                   let rows = try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [[String: String]], !rows.isEmpty {
+                    return rows.compactMap { r in
+                        guard let slug = r["slug"], !slug.isEmpty else { return nil }
+                        let name = (r["name"] ?? "").isEmpty ? slug.replacingOccurrences(of: "-", with: " ").capitalized : r["name"]!
+                        return PlaytomicClub(id: "", name: name, slug: slug, countryCode: "", street: r["detail"] ?? "", postalCode: "")
+                    }
+                }
+            }
+            try? await Task.sleep(nanoseconds: 500_000_000)
+        }
+        return []
+    }
+
+    /// Identifiant (tenant) d'un club : lu sur sa page, dans les appels de disponibilités qu'elle fait elle-même.
+    func tenantID(slug: String) async -> String? {
+        guard !busy, let url = URL(string: "https://playtomic.com/clubs/\(slug)") else { return nil }
+        busy = true
+        defer { busy = false }
+        await load(url)
+        for _ in 0..<16 {
+            if let w = webView, let raw = try? await w.evaluateJavaScript(PlaytomicPickerModel.detectJS) as? String,
+               let o = try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any], let id = o["id"] as? String {
+                return id.lowercased()
+            }
+            try? await Task.sleep(nanoseconds: 500_000_000)
+        }
+        return nil
+    }
+}

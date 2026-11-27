@@ -347,7 +347,7 @@ struct RuleEditorView: View {
                             Button("Ajouter") { Task { await useLink() } }.buttonStyle(LinkButtonStyle())
                         }
                         VStack(spacing: 0) {
-                            ForEach(Array(results.prefix(10).enumerated()), id: \.element.id) { i, c in
+                            ForEach(Array(results.prefix(10).enumerated()), id: \.element.key) { i, c in
                                 Button { pick(c) } label: {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 2) {
@@ -372,6 +372,23 @@ struct RuleEditorView: View {
     }
 
     private func pick(_ c: PlaytomicClub) {
+        guard !c.id.isEmpty else {
+            // Club lu à l'écran : son identifiant se trouve sur sa page.
+            Task {
+                searching = true
+                info = "Identification de \(c.name)…"
+                defer { searching = false }
+                var id = await HiddenPlaytomic.shared.tenantID(slug: c.slug)
+                if id == nil { id = await PlaytomicWeb.resolve(link: "https://playtomic.com/clubs/\(c.slug)")?.id }
+                if let id {
+                    info = nil
+                    pick(PlaytomicClub(id: id, name: c.name, slug: c.slug, countryCode: c.countryCode, street: c.street, postalCode: c.postalCode))
+                } else {
+                    info = "Impossible d'identifier ce club. Choisis-le sur le site Playtomic (bouton ci-dessous)."
+                }
+            }
+            return
+        }
         rule.clubID = c.id
         rule.clubName = c.name
         rule.clubSlug = c.slug
@@ -415,12 +432,14 @@ struct RuleEditorView: View {
         var q = clubQuery.trimmingCharacters(in: .whitespaces)
         if q.isEmpty, let loc = location.location, let city = try? await CLGeocoder().reverseGeocodeLocation(loc).first?.locality { q = city }
         guard q.count >= 2 else { info = "Tape le nom du club ou une ville."; return }
-        do {
-            results = try await PlaytomicWeb.search(q)
-            if results.isEmpty { info = "Rien trouvé pour « \(q) » : essaie le nom du club, ou choisis-le directement sur le site Playtomic." }
-        } catch {
-            info = error.localizedDescription
+        results = (try? await PlaytomicWeb.search(q)) ?? []
+        if results.isEmpty {
+            // Le site affiche ses résultats avec JavaScript : on les lit dans un navigateur invisible, comme Safari.
+            info = "Recherche sur le site Playtomic…"
+            results = PlaytomicWeb.rank(await HiddenPlaytomic.shared.search(q + " france"), query: q)
+            if results.isEmpty { results = PlaytomicWeb.rank(await HiddenPlaytomic.shared.search(q), query: q) }
         }
+        info = results.isEmpty ? "Rien trouvé pour « \(q) » : essaie le nom exact du club, ou choisis-le sur le site Playtomic." : nil
     }
 
     // MARK: Anybuddy

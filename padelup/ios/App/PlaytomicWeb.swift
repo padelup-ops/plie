@@ -10,12 +10,15 @@ import WebKit
 //    son mot de passe ne passe jamais par PadelUp).
 // Les serveurs cloud sont refusés par Playtomic : tout se fait depuis l'iPhone.
 struct PlaytomicClub: Identifiable, Hashable {
-    let id: String       // identifiant du club (tenant), le même que pour les disponibilités
+    let id: String       // identifiant du club (tenant), le même que pour les disponibilités ; vide s'il reste à lire
     let name: String
     let slug: String     // pour la page playtomic.com/clubs/<slug>
     let countryCode: String
     let street: String
     let postalCode: String
+
+    /// Identité stable même quand l'identifiant reste à lire sur la page du club.
+    var key: String { id.isEmpty ? "slug:" + slug : id }
 }
 
 enum PlaytomicWeb {
@@ -258,11 +261,19 @@ enum PlaytomicWeb {
     /// Le club Playtomic qui correspond à un club de la carte (nom proche, même pays si connu).
     static func match(for club: Club) async -> PlaytomicClub? {
         guard !club.name.isEmpty else { return nil }
-        for query in [club.name, [club.name, club.city].filter { !$0.isEmpty }.joined(separator: " ")] {
-            guard let results = try? await search(query) else { return nil }
-            if let hit = results.first(where: { r in
+        func pickSimilar(_ results: [PlaytomicClub]) -> PlaytomicClub? {
+            results.first { r in
                 ClubDirectory.similar(r.name, club.name) && (club.country.isEmpty || r.countryCode.isEmpty || r.countryCode == club.country)
-            }) { return hit }
+            }
+        }
+        for query in [club.name, [club.name, club.city].filter { !$0.isEmpty }.joined(separator: " ")] {
+            if let results = try? await search(query), let hit = pickSimilar(results) { return hit }
+        }
+        // Le site affiche ses résultats avec JavaScript : un navigateur invisible les lit comme Safari.
+        if var hit = pickSimilar(await HiddenPlaytomic.shared.search(club.name)) {
+            if hit.id.isEmpty { hit = PlaytomicClub(id: await HiddenPlaytomic.shared.tenantID(slug: hit.slug) ?? "", name: hit.name, slug: hit.slug,
+                                                     countryCode: hit.countryCode, street: hit.street, postalCode: hit.postalCode) }
+            return hit.id.isEmpty ? nil : hit
         }
         return nil
     }
