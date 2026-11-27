@@ -1,0 +1,4 @@
+{"id": "8b8c0ba7ed78d222e747", "key": "hello|arthur", "text": "Ho, ho, ho ! Bonjour Arthur !", "ok": true, "score": 1.0, "dur": 2.08, "heard": "Oh, oh, oh, bonjour, Arthur.", "tries": 1, "secs": 63.0}
+{"id": "b99c7c324113f2aa220d", "key": "hello|mael", "text": "Ho, ho, ho ! Bonjour Maël !", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Oh, oh, oh ! Bonjour, maël !", "tries": 1, "secs": 44.8}
+{"id": "e75a107098e58a692692", "key": "hello|liam", "text": "Ho, ho, ho ! Bonjour Liam !", "ok": true, "score": 0.711, "dur": 2.54, "heard": "Ho ho ho, boljour lième.", "tries": 2, "secs": 97.7}
+{"id": "0f4aa877c1547dc9121a", "key": "hello|nathan", "text": "Ho, ho, ho ! Bonjour Nathan !", "ok": true, "score": 1.0, "dur": 2.8, "heard": "Oh ho ho, bonjour Nathan.", "tries": 1, "secs": 50.2}
