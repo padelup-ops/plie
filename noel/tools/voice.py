@@ -581,7 +581,7 @@ def cmd_plan(a):
     print("total", total)
 
 
-MIN_NAMES = 100
+MIN_NAMES = 80
 
 
 def mark(lang: str) -> bool:

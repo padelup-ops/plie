@@ -175,6 +175,12 @@ struct RootView: View {
             .tint(Noel.gold)
         }
         // L'écran reste allumé pendant l'appel ; la musique de Noël se tait avant la sonnerie.
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            model.call.appActive(false)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            model.call.appActive(true)
+        }
         .onChange(of: model.screen, initial: true) { _, s in
             UIApplication.shared.isIdleTimerDisabled = [.waiting, .incoming, .call].contains(s)
             ChristmasMusic.shared.screen(wantsMusic: ![.waiting, .incoming, .call].contains(s))

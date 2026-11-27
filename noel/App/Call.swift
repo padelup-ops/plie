@@ -32,6 +32,12 @@ final class CallController {
     private(set) var cameraOn = false
     /// Les photos de la réaction de l'enfant (Pass Noël) : en mémoire seulement, montrées au parent à la fin.
     private(set) var reactions: [UIImage] = []
+    /// La pièce est sombre : l'écran éclaire le visage de l'enfant (halo clair, luminosité au maximum) jusqu'à la fin.
+    private(set) var lowLight = false
+    /// Il faisait trop sombre pour garder des photos : on le dit au parent à la fin, plutôt que de montrer du noir.
+    private(set) var tooDarkForPhotos = false
+    private var savedBrightness: CGFloat?
+    private var lightTask: Task<Void, Never>?
     private var showChild = false
     private var keepReactions = false
 
@@ -59,6 +65,7 @@ final class CallController {
         startedAt = nil
         previewCut = false
         reactions = []
+        tooDarkForPhotos = false
         renderTask?.cancel()
         guard withAudio else { return }
         let segs = segments
@@ -83,16 +90,70 @@ final class CallController {
         guard cameraOn, keepReactions, reactions.count < 6 else { return }
         Task { [weak self] in
             try? await Task.sleep(for: .seconds(seconds))
-            guard let self, self.phase == .talking, self.cameraOn, self.reactions.count < 6,
-                  let image = self.reactionCamera.snapshot() else { return }
-            self.reactions.append(image)
+            // Jamais pendant que la caméra règle sa lumière : on lui laisse jusqu'à deux secondes.
+            for _ in 0..<6 {
+                guard let self, self.cameraOn else { return }
+                if !self.reactionCamera.isSettling { break }
+                try? await Task.sleep(for: .milliseconds(330))
+            }
+            guard let self, self.phase == .talking, self.cameraOn, self.reactions.count < 6 else { return }
+            switch self.reactionCamera.snapshot() {
+            case let .image(image): self.reactions.append(image)
+            case .tooDark: self.tooDarkForPhotos = true
+            case nil: break
+            }
+        }
+    }
+
+    private func startCamera() {
+        reactionCamera.start()
+        cameraOn = true
+        lowLight = false
+        lightTask?.cancel()
+        lightTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(500))
+                guard let self, self.cameraOn else { return }
+                if !self.lowLight, self.reactionCamera.isDim {
+                    self.lowLight = true
+                    self.lightScreen()
+                }
+            }
         }
     }
 
     private func stopCamera() {
         guard cameraOn else { return }
+        lightTask?.cancel()
         reactionCamera.stop()
         cameraOn = false
+        lowLight = false
+        restoreScreen()
+    }
+
+    private var screen: UIScreen? {
+        UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first?.screen
+    }
+
+    /// Dans une pièce sombre, c'est l'écran qui éclaire le visage : luminosité au maximum, le temps de l'appel.
+    private func lightScreen() {
+        guard savedBrightness == nil, let screen else { return }
+        savedBrightness = screen.brightness
+        screen.brightness = 1
+    }
+
+    private func restoreScreen() {
+        if let saved = savedBrightness, let screen { screen.brightness = saved }
+        savedBrightness = nil
+    }
+
+    /// L'app passe à l'arrière-plan pendant un appel : l'iPhone retrouve sa luminosité ; elle remonte au retour.
+    func appActive(_ active: Bool) {
+        if !active {
+            restoreScreen()
+        } else if cameraOn, lowLight {
+            lightScreen()
+        }
     }
 
     /// Le texte de l'appel (pour l'aperçu et les captures).
@@ -122,10 +183,7 @@ final class CallController {
         voice.stopRing()
         phase = .talking
         startedAt = Date()
-        if showChild, ReactionCamera.authorized {
-            reactionCamera.start()
-            cameraOn = true
-        }
+        if showChild, ReactionCamera.authorized { startCamera() }
         voice.ambience(on: true)
         callTask?.cancel()
         callTask = Task { [weak self] in
@@ -150,7 +208,7 @@ final class CallController {
             case let .say(text, who, laugh, wave, _):
                 // Les moments forts : le bonjour (l'enfant entend le Père Noël, et souvent son prénom), les rires,
                 // l'au revoir.
-                if i == firstLine { snap(after: 2.2) } else if wave { snap(after: 1.0) } else if laugh { snap(after: 1.6) }
+                if i == firstLine { snap(after: 3.0) } else if wave { snap(after: 1.0) } else if laugh { snap(after: 1.6) }
                 caption = text
                 speaker = who
                 // Pendant que le lutin parle, le Père Noël l'écoute.

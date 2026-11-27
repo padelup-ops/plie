@@ -167,6 +167,16 @@ struct CallView: View {
                 .allowsHitTesting(false)
             Snowfall(count: 18, speed: 0.45, opacity: 0.28)
 
+            // Dans une pièce sombre, l'écran sert de lampe : un halo clair tout autour éclaire le visage de l'enfant,
+            // pour le rectangle comme pour les photos de sa réaction.
+            RoundedRectangle(cornerRadius: 50, style: .continuous)
+                .strokeBorder(Color(red: 1, green: 0.97, blue: 0.9), lineWidth: 40)
+                .blur(radius: 12)
+                .opacity(call.cameraOn && call.lowLight ? 1 : 0)
+                .animation(.easeInOut(duration: 0.8), value: call.lowLight)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+
             if let at = call.surpriseAt {
                 SurpriseStar(start: at).id(at)
             }
@@ -379,6 +389,15 @@ struct EndView: View {
                 Spacer()
                 if !model.call.reactions.isEmpty {
                     ReactionsStrip(images: model.call.reactions)
+                        .padding(.bottom, 18)
+                        .opacity(shown ? 1 : 0)
+                } else if model.call.tooDarkForPhotos {
+                    Text("It was too dark for photos this time. With a little more light, you will get their reaction.")
+                        .font(.ui(14))
+                        .foregroundStyle(Noel.cream.opacity(0.75))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 34)
                         .padding(.bottom, 18)
                         .opacity(shown ? 1 : 0)
                 }
