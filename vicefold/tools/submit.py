@@ -60,7 +60,14 @@ def call(method, path, body=None):
         text = e.read().decode(errors="replace")
         try:
             errs = json.loads(text).get("errors", [])
-            detail = "; ".join(f"{x.get('code')}: {x.get('detail')}" for x in errs) or text[:600]
+            parts = []
+            for x in errs:
+                parts.append(f"{x.get('code')}: {x.get('detail')}")
+                # Apple range la vraie raison dans les erreurs associées (par ressource).
+                for where, subs in ((x.get("meta") or {}).get("associatedErrors") or {}).items():
+                    for e in subs:
+                        parts.append(f"[{where}] {e.get('code')}: {e.get('detail')}")
+            detail = "; ".join(parts) or text[:600]
         except Exception:
             detail = text[:600]
         return {"error": e.code, "detail": detail}
@@ -79,7 +86,7 @@ def step(label, result, tolerate=()):
             print(f"ok     {label} (déjà fait)")
             return result
         problems.append(label)
-        print(f"ÉCHEC  {label} -> HTTP {result['error']} {result['detail'][:500]}")
+        print(f"ÉCHEC  {label} -> HTTP {result['error']} {result['detail'][:3000]}")
     else:
         print(f"ok     {label}")
     return result
@@ -355,7 +362,15 @@ print("READBACK demande", sub_id[:8], sub_now.get("state"))
 for it in call("GET", f"/v1/reviewSubmissions/{sub_id}/items?limit=20").get("data", []):
     kinds = [k for k, x in (it.get("relationships") or {}).items()
              if k != "reviewSubmission" and isinstance(x, dict) and x.get("data")]
-    print("READBACK élément", attrs(it).get("state"), ",".join(kinds))
+    if not kinds:
+        # Relations non renvoyées d'office : on les demande une à une.
+        for k in (it.get("relationships") or {}):
+            if k == "reviewSubmission":
+                continue
+            rr = call("GET", f"/v1/reviewSubmissionItems/{it['id']}/relationships/{k}")
+            if "error" not in rr and rr.get("data"):
+                kinds.append(k)
+    print("READBACK élément", attrs(it).get("state"), ",".join(kinds) or "(genre non indiqué)")
 for loc in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations?limit=50").get("data", []):
     d = attrs(loc).get("description") or ""
     ok = LINE in d
