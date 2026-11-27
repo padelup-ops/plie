@@ -326,46 +326,51 @@ step("version ajoutée à la demande", write("POST", "/v1/reviewSubmissionItems"
      tolerate=("already", "ENTITY_ERROR"))
 
 # Les achats de Vicefold Pro partent avec la version (première fois) : sans eux, Apple ne peut pas vérifier l'écran Pro.
-# Deux voies, dans l'ordre : l'envoi propre à l'achat, puis l'achat comme élément de la demande de vérification.
-SENDABLE = ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED")
+# Chez Apple, un achat, un abonnement et un groupe ont chacun une « version » ; c'est elle qu'on range dans la demande.
+# Un nouveau groupe ne part que si au moins un de ses abonnements part avec lui.
+IN_SUBMISSION = ("READY_FOR_REVIEW", "WAITING_FOR_REVIEW", "IN_REVIEW")
+DONE = ("APPROVED", "ACCEPTED", "READY_FOR_SALE", "READY_FOR_DISTRIBUTION")
 warnings = []
+learned = False
 
 
-def attach(label, own_type, own_rel, own_kind, item_rels, obj_id):
-    r = write("POST", f"/v1/{own_type}", {"data": {
-        "type": own_type, "relationships": {own_rel: {"data": {"type": own_kind, "id": obj_id}}}}})
-    if "error" not in r or "already" in r.get("detail", ""):
-        print(f"ok     {label} envoyé avec la version")
-        return True
-    print(f"       {label} : envoi direct refusé -> HTTP {r['error']} {r['detail'][:300]}")
-    for rel in item_rels:
-        r2 = write("POST", "/v1/reviewSubmissionItems", {"data": {
+def attach(label, versions_path, kind, rel_names):
+    global learned
+    vs = call("GET", versions_path).get("data", [])
+    if not vs:
+        warnings.append(label)
+        print(f"ATTENTION {label} : aucune version côté Apple")
+        return
+    v = sorted(vs, key=lambda x: attrs(x).get("version") or 0)[-1]
+    st = attrs(v).get("state")
+    if st in IN_SUBMISSION or st in DONE:
+        print(f"ok     {label} déjà dans la demande ou accepté ({st})")
+        return
+    for rel in rel_names:
+        r = write("POST", "/v1/reviewSubmissionItems", {"data": {
             "type": "reviewSubmissionItems", "relationships": {
                 "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
-                rel: {"data": {"type": own_kind, "id": obj_id}}}}})
-        if "error" not in r2 or "already" in r2.get("detail", ""):
-            print(f"ok     {label} ajouté à la demande ({rel})")
-            return True
-        print(f"       {label} : élément {rel} refusé -> HTTP {r2['error']} {r2['detail'][:300]}")
+                rel: {"data": {"type": kind, "id": v["id"]}}}}})
+        if "error" not in r or "already" in r.get("detail", ""):
+            print(f"ok     {label} ajouté à la demande (était {st})")
+            return
+        print(f"       {label} ({st}) : {rel} refusé -> HTTP {r['error']} {r['detail'][:400]}")
+    if not learned:
+        learned = True
+        probe = call("GET", f"/v1/reviewSubmissions/{sub_id}/items?include=zzz&limit=1")
+        print("       relations connues d'Apple :", (probe.get("detail") or "")[:900])
     warnings.append(label)
-    return False
 
 
 for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
-    pid, st = attrs(x).get("productId"), attrs(x).get("state")
-    print("       achat", pid, st)
-    if st in SENDABLE:
-        attach(f"achat {pid}", "inAppPurchaseSubmissions", "inAppPurchaseV2", "inAppPurchases",
-               ("inAppPurchaseV2", "inAppPurchase"), x["id"])
+    attach(f"achat {attrs(x).get('productId')}", f"/v2/inAppPurchases/{x['id']}/versions",
+           "inAppPurchaseVersions", ("inAppPurchaseVersion",))
 for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
-    pending = [sx for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", [])
-               if attrs(sx).get("state") in SENDABLE]
-    for sx in pending:
-        attach(f"abonnement {attrs(sx).get('productId')}", "subscriptionSubmissions", "subscription", "subscriptions",
-               ("subscription",), sx["id"])
-    if pending:
-        attach(f"groupe {attrs(g).get('referenceName')}", "subscriptionGroupSubmissions", "subscriptionGroup",
-               "subscriptionGroups", ("subscriptionGroup",), g["id"])
+    for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
+        attach(f"abonnement {attrs(sx).get('productId')}", f"/v1/subscriptions/{sx['id']}/versions",
+               "subscriptionVersions", ("subscriptionVersion",))
+    attach(f"groupe {attrs(g).get('referenceName')}", f"/v1/subscriptionGroups/{g['id']}/versions",
+           "subscriptionGroupVersions", ("subscriptionGroupVersion",))
 
 step("ENVOI À LA VÉRIFICATION", write("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
     "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}}))
