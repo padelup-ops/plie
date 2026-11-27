@@ -10,3 +10,7 @@
 {"id": "f79b1165a91267867cde", "key": "bye|thais", "text": "Joyeux Noël, Thaïs !", "ok": true, "score": 1.0, "dur": 2.04, "heard": "Joyeux Noël, Thaïs !", "tries": 1, "secs": 41.2}
 {"id": "2048755790ee9ae78831", "key": "hello|aya", "text": "Ho, ho, ho ! Bonjour Aya !", "ok": false, "score": 0.852, "dur": 3.28, "heard": "Oh ho ho bonjour à ya !", "tries": 3, "secs": 180.0}
 {"id": "a1be3ac33b47d37676a8", "key": "hello|elina", "text": "Ho, ho, ho ! Bonjour Élina !", "ok": true, "score": 1.0, "dur": 2.48, "heard": "Oh, oh, oh, bonjour, Elina.", "tries": 1, "secs": 47.6}
+{"id": "03c204c0e6e07732bcd7", "key": "hello|maelle", "text": "Ho, ho, ho ! Bonjour Maëlle !", "ok": true, "score": 1.0, "dur": 3.24, "heard": "Oh ho ho ! Bonjour Maëlle !", "tries": 2, "secs": 106.6}
+{"id": "f5cf028b22929f643328", "key": "hello|ella", "text": "Ho, ho, ho ! Bonjour Ella !", "ok": true, "score": 1.0, "dur": 2.04, "heard": "Ho, ho, ho, bonjour, Ella.", "tries": 3, "secs": 134.8}
+{"id": "2fcfd1547710a4a36c92", "key": "hello|maia", "text": "Ho, ho, ho ! Bonjour Maïa !", "ok": true, "score": 0.73, "dur": 3.88, "heard": "Oh, oh, oh, bonjour, maillard.", "tries": 1, "secs": 54.8}
+{"id": "efd0e05f3dda4649a963", "key": "hello|pauline", "text": "Ho, ho, ho ! Bonjour Pauline !", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Ho ho ho ! Bonjour Pauline !", "tries": 1, "secs": 45.1}
