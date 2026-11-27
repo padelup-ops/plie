@@ -35,3 +35,9 @@
 {"id": "b1b57bd109dd8d4bab15", "key": "hello|bobby", "text": "Ho, ho, ho! Hello, Bobby!", "ok": true, "score": 1.0, "dur": 2.12, "heard": "Oh ho ho, hello Bobby.", "tries": 2, "secs": 81.5}
 {"id": "23625d343fd539bb45d4", "key": "hello|matty", "text": "Ho, ho, ho! Hello, Matty!", "ok": false, "score": 0.929, "dur": 2.72, "heard": "Ho Ho Ho! Hello Matty! Matty?", "tries": 1, "secs": 131.1}
 {"id": "6e96e6b723d54d504f9c", "key": "hello|alani", "text": "Ho, ho, ho! Hello, Alani!", "ok": true, "score": 0.722, "dur": 2.68, "heard": "Oh ho ho, hello, wellani.", "tries": 1, "secs": 45.6}
+{"id": "c7cf7bcffbd9a2ac3170", "key": "hello|katherine", "text": "Ho, ho, ho! Hello, Katherine!", "ok": true, "score": 0.904, "dur": 2.68, "heard": "Ho, ho, ho. Hello Catherine.", "tries": 2, "secs": 105.2}
+{"id": "36df6884c17714ec58f6", "key": "hello|phoebe", "text": "Ho, ho, ho! Hello, Phoebe!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "Ho ho ho! Hello, Phoebe!", "tries": 1, "secs": 36.8}
+{"id": "9b11a8e2441ab6113824", "key": "hello|muhammad", "text": "Ho, ho, ho! Hello, Muhammad!", "ok": true, "score": 0.786, "dur": 2.38, "heard": "Oh ho ho. Hello, Mohammed.", "tries": 2, "secs": 91.1}
+{"id": "53387fbb90b05395775f", "key": "hello|zayn", "text": "Ho, ho, ho! Hello, Zayn!", "ok": true, "score": 0.8, "dur": 2.7, "heard": "Ho ho ho, hello Zane!", "tries": 1, "secs": 42.7}
+{"id": "4b94cbf5b514ae052da8", "key": "hello|fatima", "text": "Ho, ho, ho! Hello, Fatima!", "ok": true, "score": 1.0, "dur": 3.98, "heard": "Ho Ho Ho! Hello Fatima!", "tries": 1, "secs": 58.7}
+{"id": "76174873c0e3425305c0", "key": "hello|noor", "text": "Ho, ho, ho! Hello, Noor!", "ok": true, "score": 0.887, "dur": 2.12, "heard": "Ho Ho Ho! Hello Nor!", "tries": 1, "secs": 38.3}

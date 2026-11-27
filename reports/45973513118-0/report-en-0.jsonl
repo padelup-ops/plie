@@ -19,3 +19,8 @@
 {"id": "0deec06cbc44e94022c3", "key": "hello|carson", "text": "Ho, ho, ho! Hello, Carson!", "ok": true, "score": 1.0, "dur": 2.26, "heard": "Ho ho ho! Hello Carson!", "tries": 1, "secs": 43.5}
 {"id": "53558386cb82bffc86bf", "key": "hello|arya", "text": "Ho, ho, ho! Hello, Arya!", "ok": true, "score": 1.0, "dur": 1.98, "heard": "Ho, ho, ho. Hello, Arya.", "tries": 1, "secs": 40.2}
 {"id": "5a090af5060345d4fddd", "key": "hello|millie", "text": "Ho, ho, ho! Hello, Millie!", "ok": true, "score": 1.0, "dur": 1.98, "heard": "Ho Ho Ho! Hello, Millie!", "tries": 3, "secs": 152.9}
+{"id": "b17689a3ffd12b391df1", "key": "hello|alina", "text": "Ho, ho, ho! Hello, Alina!", "ok": true, "score": 0.925, "dur": 1.9, "heard": "Ho, ho, ho, hello, Halina.", "tries": 3, "secs": 130.9}
+{"id": "6156b6774993e80a5f08", "key": "hello|alaia", "text": "Ho, ho, ho! Hello, Alaia!", "ok": true, "score": 0.836, "dur": 2.5, "heard": "Ho ho ho ho! Hello, Alaya!", "tries": 1, "secs": 51.6}
+{"id": "2d734fb06b428b30ff80", "key": "hello|harry", "text": "Ho, ho, ho! Hello, Harry!", "ok": true, "score": 1.0, "dur": 1.6, "heard": "Ho ho ho! Hello Harry!", "tries": 2, "secs": 78.5}
+{"id": "7ed6ccc4d173937e4962", "key": "hello|alfie", "text": "Ho, ho, ho! Hello, Alfie!", "ok": true, "score": 1.0, "dur": 2.54, "heard": "Ho Ho Ho. Hello Alfie!", "tries": 3, "secs": 133.5}
+{"id": "eee5d8fae2d3b849ced4", "key": "hello|louie", "text": "Ho, ho, ho! Hello, Louie!", "ok": true, "score": 0.836, "dur": 2.32, "heard": "Ho, ho, ho! Hello, Louis!", "tries": 1, "secs": 51.2}
