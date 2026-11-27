@@ -54,6 +54,11 @@ struct MapTab: View {
             // Vice City et Vice Beach, pour les captures.
             // Les véhicules rares seuls, pour les captures.
             if ShotMode.route == "cars" { state.layers = [.vehicle]; state.zoom = 3; state.focus = CGPoint(x: 0.8 * Leonida.size.width, y: 0.5 * Leonida.size.height) }
+            // La fiche d'un véhicule rare de Vice City, avec les votes des joueurs.
+            if ShotMode.route == "car", let p = ContentStore.shared.content.places.first(where: { $0.openMap && $0.x > 0.72 && $0.x < 0.86 && $0.y > 0.44 && $0.y < 0.56 }) {
+                state.layers = [.vehicle]
+                open(p)
+            }
             if ShotMode.route == "mappins" || ShotMode.route == "layers" { state.zoom = 3; state.focus = CGPoint(x: 0.8 * Leonida.size.width, y: 0.5 * Leonida.size.height) }
             if ShotMode.route == "place", let p = ContentStore.shared.content.places.first(where: { $0.community && $0.real != nil && $0.kind == .landmark }) { open(p) }
         }
