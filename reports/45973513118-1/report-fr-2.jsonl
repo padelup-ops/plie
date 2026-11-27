@@ -31,3 +31,4 @@
 {"id": "7a17ad635a733639125e", "key": "hello|colette", "text": "Ho, ho, ho ! Bonjour Colette !", "ok": true, "score": 0.945, "dur": 2.52, "heard": "Ho ho ho, bonjour Collette.", "tries": 1, "secs": 78.2}
 {"id": "369e58a96a6423d1d51c", "key": "hello|marion", "text": "Ho, ho, ho ! Bonjour Marion !", "ok": true, "score": 0.865, "dur": 2.66, "heard": "Ho ho ho ! Bonjour, malion !", "tries": 1, "secs": 81.8}
 {"id": "c5a0522b7787e95bfaa2", "key": "hello|sixtine", "text": "Ho, ho, ho ! Bonjour Sixtine !", "ok": false, "score": 0.213, "dur": 2.1, "heard": "Ho ho ho, Bonjour 16.", "tries": 1, "secs": 218.2}
+{"id": "807239a12805591cf10f", "key": "hello|marie-lou", "text": "Ho, ho, ho ! Bonjour Marie-Lou !", "ok": true, "score": 1.0, "dur": 2.02, "heard": "Ha ha ha bonjour Marie Lou.", "tries": 2, "secs": 172.1}

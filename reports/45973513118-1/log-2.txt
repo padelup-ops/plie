@@ -242,3 +242,6 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [83/759] fr FAIBLE 0.21 2.1s essais 1 (218s, reste 1381 min) Ho, ho, ho ! Bonjour Sixtine ! → Ho ho ho, Bonjour 16.
   self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[84/759] fr ok  1.00 2.0s essais 2 (172s, reste 1386 min) Ho, ho, ho ! Bonjour Marie-Lou ! → Ha ha ha bonjour Marie Lou.
+temps écoulé : 675 phrases restent pour le prochain passage
