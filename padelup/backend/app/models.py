@@ -1,0 +1,1297 @@
+from django.contrib.auth.models import User
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+import os
+import random
+import string
+from datetime import datetime
+from django.utils import timezone
+import pytz
+
+
+def avatar_upload_path(instance, filename):
+    return f'avatars/{instance.user.username}/{filename}'
+
+
+def club_photo_upload_path(instance, filename):
+    return f'clubs/{instance.name}/{filename}'
+
+
+class Profile(models.Model):
+    """Extended user profile matching Flutter UserModel"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    full_name = models.CharField(max_length=255, blank=True)
+    phone_number = models.CharField(max_length=15, blank=True)
+    avatar = models.ImageField(upload_to=avatar_upload_path, blank=True, null=True)
+    external_avatar_url = models.URLField(max_length=500, blank=True, default='')
+    bio = models.TextField(max_length=500, blank=True)
+    location = models.CharField(max_length=255, blank=True)
+    skill_level = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        default=5
+    )
+    EVALUATION_TYPE_CHOICES = [
+        ('new', 'Échelle 8 Niveaux (FFT)'),
+        ('old', 'Échelle 10 Niveaux'),
+    ]
+    evaluation_type = models.CharField(max_length=10, choices=EVALUATION_TYPE_CHOICES, default='new')
+    ROLE_CHOICES = [
+        ('admin', 'Administrateur'),
+        ('manager', 'Gestionnaire'),
+        ('player', 'Joueur'),
+    ]
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='player')
+    is_verified = models.BooleanField(default=False)
+    right_handed = models.BooleanField(default=True)
+    is_completed = models.BooleanField(default=False)
+    apple_sub = models.CharField(max_length=255, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Rating system
+    public_skill_level = models.FloatField(null=True, blank=True)
+    total_skill_ratings = models.IntegerField(default=0)
+    rating_points = models.IntegerField(default=0)  # Sum of all ratings received
+    tier_level = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(10)])  # 1-10 tier based on avg rating
+
+    def __str__(self):
+        return f"{self.user.username}'s profile"
+
+    def get_tier_name(self):
+        """Get tier/level name based on evaluation_type and skill_level (or tier_level)"""
+        level = self.skill_level or self.tier_level or 1
+        if self.evaluation_type == 'old':
+            tier_names_10 = {
+                1: "Découverte",
+                2: "Initiation",
+                3: "Loisir",
+                4: "Partenaire",
+                5: "Adversaire",
+                6: "Stratège",
+                7: "Perfectionniste",
+                8: "Challenger",
+                9: "Compétiteur",
+                10: "Élite"
+            }
+            return tier_names_10.get(level, "Découverte")
+        else:
+            tier_names_8 = {
+                1: "Débutant",
+                2: "Perfectionnement",
+                3: "Élémentaire",
+                4: "Intermédiaire",
+                5: "Confirmé",
+                6: "Avancé",
+                7: "Expert",
+                8: "Élite"
+            }
+            return tier_names_8.get(level, "Débutant")
+
+    def update_public_rating(self):
+        """Calculate and update the public rating based on received ratings"""
+        from django.db.models import Avg, Sum
+        ratings = Rating.objects.filter(rated_user=self.user)
+
+        avg_rating = ratings.aggregate(avg=Avg('rating'))['avg']
+        sum_ratings = ratings.aggregate(sum=Sum('rating'))['sum']
+
+        if avg_rating is not None:
+            self.public_skill_level = round(avg_rating, 1)
+            self.total_skill_ratings = ratings.count()
+            self.rating_points = sum_ratings if sum_ratings else 0
+            max_tier = 10 if self.evaluation_type == 'old' else 8
+            self.tier_level = min(max_tier, max(1, round(avg_rating)))
+            self.save()
+
+
+class PlayerStats(models.Model):
+    """User statistics matching Flutter UserStats"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='stats')
+    matches_played = models.IntegerField(default=0)
+    matches_won = models.IntegerField(default=0)
+    matches_lost = models.IntegerField(default=0)
+    total_hours = models.FloatField(default=0.0)  # Changed to FloatField to store decimal hours
+    favorite_clubs = models.IntegerField(default=0)
+    achievements = models.JSONField(default=list)
+    skill_progression = models.JSONField(default=list)
+    badges = models.JSONField(default=list)
+    city = models.CharField(max_length=100, blank=True)
+    favorite_club = models.ForeignKey('Club', on_delete=models.SET_NULL, null=True, blank=True, related_name='regular_players')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} stats"
+
+    @property
+    def win_rate(self):
+        if self.matches_played == 0:
+            return 0.0
+        return round((self.matches_won / self.matches_played) * 100, 1)
+
+    def add_skill_progression_entry(self, skill_level, date=None):
+        entry = {
+            'skill_level': skill_level,
+            'date': (date or timezone.now()).isoformat()
+        }
+        if not self.skill_progression:
+            self.skill_progression = []
+        self.skill_progression.append(entry)
+        self.save()
+
+
+class Club(models.Model):
+    """Club model matching Flutter ClubModel"""
+    SOURCE_CHOICES = [
+        ('manual', 'Saisi dans PadelUp'),
+        ('osm', 'OpenStreetMap'),
+        ('playtomic', 'Playtomic'),
+    ]
+    name = models.CharField(max_length=200)
+    address = models.CharField(max_length=500, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
+    country = models.CharField(max_length=2, blank=True)  # code ISO (FR, TN, ES...)
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='manual')
+    osm_id = models.CharField(max_length=40, unique=True, null=True, blank=True)  # « way/123456 »
+    playtomic_tenant_id = models.CharField(max_length=64, blank=True)
+    anybuddy_slug = models.CharField(max_length=120, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)  # -90.123456 to 90.123456
+    longitude = models.DecimalField(max_digits=10, decimal_places=6)  # -180.123456 to 180.123456
+
+    # Contact info
+    phone = models.CharField(max_length=40, blank=True)
+    email = models.EmailField(blank=True)
+    website = models.URLField(blank=True, null=True)
+    reservation_link = models.URLField(blank=True, null=True)  # External booking/reservation link
+
+    # Images - multiple images support
+    images = models.JSONField(default=list, blank=True)  # List of image URLs
+    primary_photo = models.ImageField(upload_to=club_photo_upload_path, blank=True, null=True)
+
+    # Ratings
+    rating = models.DecimalField(max_digits=2, decimal_places=1, default=0.0, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    review_count = models.IntegerField(default=0)
+
+    # Opening hours - stored as JSON for flexibility
+    opening_hours = models.JSONField(default=dict)  # {"monday": "08:00-22:00", "tuesday": "08:00-22:00", ...}
+
+    # Features and amenities
+    amenities = models.JSONField(default=list)  # ["Parking", "Lockers", "Shower", "Pro Shop", etc.]
+
+    # Manager
+    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_clubs')
+
+    # Price range
+    price_min = models.DecimalField(max_digits=6, decimal_places=2, default=25.00)
+    price_max = models.DecimalField(max_digits=6, decimal_places=2, default=60.00)
+    currency = models.CharField(max_length=3, default='EUR')
+
+    # Partnership status
+    is_partner = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    def update_rating(self):
+        """Update club rating based on court ratings"""
+        from django.db.models import Avg
+        avg_rating = CourtRating.objects.filter(
+            court__club=self
+        ).aggregate(avg=Avg('rating'))['avg']
+
+        if avg_rating is not None:
+            self.rating = round(avg_rating, 1)
+            self.review_count = CourtRating.objects.filter(court__club=self).count()
+            self.save()
+
+    def get_distance_from(self, lat, lng):
+        """Calculate distance from given coordinates (simplified)"""
+        # Simplified distance calculation - in production use proper geospatial libraries
+        import math
+        lat1, lon1 = float(self.latitude), float(self.longitude)
+        lat2, lon2 = float(lat), float(lng)
+
+        R = 6371  # Earth's radius in km
+        dLat = math.radians(lat2 - lat1)
+        dLon = math.radians(lon2 - lon1)
+        a = math.sin(dLat/2) * math.sin(dLat/2) + \
+            math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * \
+            math.sin(dLon/2) * math.sin(dLon/2)
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        distance = R * c
+        return round(distance, 1)
+
+
+class Court(models.Model):
+    """Court model matching Flutter CourtModel"""
+    COURT_TYPES = [
+        ('glass', 'Terrain vitré'),
+        ('indoor', 'Terrain intérieur'),
+        ('outdoor', 'Terrain extérieur'),
+        ('concrete', 'Terrain en béton'),
+        ('premium', 'Terrain premium'),
+        ('standard', 'Terrain standard'),
+    ]
+
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='courts')
+    name = models.CharField(max_length=100)
+    court_type = models.CharField(max_length=20, choices=COURT_TYPES, default='standard')
+    is_indoor = models.BooleanField(default=False)
+    is_available = models.BooleanField(default=True)
+
+    # Pricing - support for peak/off-peak
+    prices = models.JSONField(default=dict)  # {"peak": 45.00, "off_peak": 30.00, "weekend": 50.00}
+    price_per_hour = models.DecimalField(max_digits=6, decimal_places=2, default=35.00)  # Default/standard price
+
+    # Features
+    features = models.JSONField(default=list)  # ["LED Lighting", "Climate Control", "Premium Surface", etc.]
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.club.name}"
+
+    def get_current_price(self):
+        """Get current price based on time of day (heure locale)"""
+        now = timezone.localtime()
+        hour = now.hour
+
+        if self.prices:
+            # Peak hours (18:00-21:00)
+            if 18 <= hour < 21:
+                return self.prices.get('peak', self.price_per_hour)
+            # Weekend
+            elif now.weekday() >= 5:
+                return self.prices.get('weekend', self.price_per_hour)
+            # Off-peak
+            else:
+                return self.prices.get('off_peak', self.price_per_hour)
+
+        return self.price_per_hour
+
+
+class Booking(models.Model):
+    """Booking model for court reservations"""
+    STATUS_CHOICES = [
+        ('confirmed', 'Confirmé'),
+        ('cancelled', 'Annulé'),
+        ('completed', 'Terminé'),
+    ]
+
+    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    duration = models.IntegerField(default=60)  # Duration in minutes
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='confirmed')
+
+    # Payment info
+    total_amount = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    currency = models.CharField(max_length=3, default='EUR')
+    payment_intent_id = models.CharField(max_length=200, blank=True)
+    payment_status = models.CharField(max_length=20, default='pending')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['date', 'start_time']
+        constraints = [
+            models.UniqueConstraint(fields=['court', 'date', 'start_time'], condition=models.Q(status='confirmed'),
+                                    name='uniq_confirmed_booking_slot'),
+        ]
+
+    def __str__(self):
+        return f"{self.court.name} - {self.date} {self.start_time}"
+
+    def calculate_total(self):
+        """Prix au tarif de l'heure du créneau, en décimal exact."""
+        from decimal import Decimal
+        from .booking_utils import price_for
+        self.total_amount = (price_for(self.court, self.date, self.start_time) * Decimal(self.duration) / Decimal(60)).quantize(Decimal('0.01'))
+        return self.total_amount
+
+    def update_status(self):
+        """Update booking status to completed if date/time has passed"""
+        if self.status == 'confirmed':
+            from django.utils import timezone
+            import datetime
+            
+            try:
+                naive_dt = datetime.datetime.combine(self.date, self.end_time)
+                current_tz = timezone.get_current_timezone()
+                end_datetime = timezone.make_aware(naive_dt, current_tz)
+                
+                if timezone.now() > end_datetime:
+                    self.status = 'completed'
+                    self.save(update_fields=['status'])
+            except Exception:
+                pass
+
+
+class Match(models.Model):
+    """Match model matching Flutter MatchModel"""
+    MATCH_TYPES = [
+        ('casual', 'Amical'),
+        ('competitive', 'Compétitif'),
+        ('tournament', 'Tournoi'),
+        ('training', 'Entraînement'),
+    ]
+
+    STATUS_CHOICES = [
+        ('open', 'Ouvert'),
+        ('full', 'Complet'),
+        ('in_progress', 'En cours'),
+        ('completed', 'Terminé'),
+        ('cancelled', 'Annulé'),
+    ]
+
+    # Basic info
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, max_length=200)
+    match_type = models.CharField(max_length=20, choices=MATCH_TYPES, default='casual')
+
+    # Location and timing
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='matches')
+    court = models.ForeignKey(Court, on_delete=models.SET_NULL, related_name='matches', null=True, blank=True)
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='match', null=True, blank=True)
+
+    date_time = models.DateTimeField()
+    duration = models.IntegerField(default=60)  # Duration in minutes
+
+    # Organizer
+    organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organized_matches')
+
+    # Player settings
+    max_players = models.IntegerField(default=4, validators=[MinValueValidator(2), MaxValueValidator(4)])
+    min_skill_level = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(10)])
+    max_skill_level = models.IntegerField(default=10, validators=[MinValueValidator(1), MaxValueValidator(10)])
+
+    # Dual evaluation grille support
+    EVALUATION_TYPE_CHOICES = [
+        ('new', 'Nouveau (1-8)'),
+        ('old', 'Ancien (1-10)'),
+    ]
+    evaluation_type = models.CharField(max_length=10, choices=EVALUATION_TYPE_CHOICES, default='new')
+    min_skill_level_new = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(8)])
+    max_skill_level_new = models.IntegerField(default=8, validators=[MinValueValidator(1), MaxValueValidator(8)])
+    min_skill_level_old = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(10)])
+    max_skill_level_old = models.IntegerField(default=10, validators=[MinValueValidator(1), MaxValueValidator(10)])
+
+    # Pricing
+    price_per_player = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    currency = models.CharField(max_length=3, default='EUR')
+
+    # Status
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    is_public = models.BooleanField(default=True)
+    is_open = models.BooleanField(default=True)
+
+    # Share code for private matches
+    share_code = models.CharField(max_length=10, unique=True, blank=True, null=True)
+
+    # Winner tracking
+    winners = models.ManyToManyField(User, related_name='matches_won', blank=True)
+    losers = models.ManyToManyField(User, related_name='matches_lost', blank=True)
+
+    # Completion & Auto-resolution flags
+    end_notification_sent = models.BooleanField(default=False)
+    auto_resolved_48h = models.BooleanField(default=False)
+    reminder_30m_sent = models.BooleanField(default=False)
+
+    # Edit tracking
+    is_edited = models.BooleanField(default=False)
+    edited_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['date_time']
+
+    def save(self, *args, **kwargs):
+        if not self.share_code:
+            self.share_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
+        if not self.title:
+            self.title = f"Match {self.get_match_type_display()}"
+
+        # Synchronize dual evaluation grille
+        eval_type = self.evaluation_type or 'new'
+        if eval_type == 'new':
+            self.min_skill_level_new = self.min_skill_level
+            self.max_skill_level_new = self.max_skill_level
+            self.min_skill_level_old = max(1, min(10, round(self.min_skill_level * 10 / 8)))
+            self.max_skill_level_old = max(1, min(10, round(self.max_skill_level * 10 / 8)))
+        else:
+            self.min_skill_level_old = self.min_skill_level
+            self.max_skill_level_old = self.max_skill_level
+            self.min_skill_level_new = max(1, min(8, round(self.min_skill_level * 8 / 10)))
+            self.max_skill_level_new = max(1, min(8, round(self.max_skill_level * 8 / 10)))
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.title} - {self.date_time}"
+
+    def get_match_datetime_start(self):
+        """Get match start datetime as timezone-aware"""
+        return self.date_time
+
+    def get_match_datetime_end(self):
+        """Get match end datetime"""
+        from datetime import timedelta
+        return self.date_time + timedelta(minutes=self.duration)
+
+    def is_completed(self):
+        """Check if match is completed based on date/time"""
+        if self.status == 'completed':
+            return True
+
+        current_datetime = timezone.now()
+        match_end = self.get_match_datetime_end()
+
+        return match_end < current_datetime
+
+    def is_in_progress(self):
+        """Check if match is currently in progress"""
+        if self.status == 'in_progress':
+            return True
+
+        current_datetime = timezone.now()
+        match_start = self.get_match_datetime_start()
+        match_end = self.get_match_datetime_end()
+
+        return match_start <= current_datetime < match_end
+
+    def update_status(self):
+        """Update match status based on current conditions"""
+        # Don't update if manually cancelled
+        if self.status == 'cancelled':
+            return
+
+        current_datetime = timezone.now()
+        match_start = self.get_match_datetime_start()
+        match_end = self.get_match_datetime_end()
+        accepted_count = self.get_accepted_participants_count()
+
+        # Match terminé (heure de fin passée)
+        if self.status == 'completed' or match_end <= current_datetime:
+            if self.status != 'completed':
+                self.status = 'completed'
+                self.is_open = False
+                self.save(update_fields=['status', 'is_open'])
+            self._check_and_set_solo_creator_winner()
+            self._trigger_end_of_match_notifications()
+            self._check_and_auto_resolve_48h()
+
+        # Match en cours
+        elif match_start <= current_datetime < match_end:
+            if self.status != 'in_progress':
+                self.status = 'in_progress'
+                self.is_open = False
+                self.save(update_fields=['status', 'is_open'])
+
+        # Check if match is full (before it starts)
+        elif accepted_count >= self.max_players and current_datetime < match_start:
+            if self.status == 'open':
+                self.status = 'full'
+                self.is_open = False
+                self.save(update_fields=['status', 'is_open'])
+            self._check_and_trigger_30m_reminder()
+
+        # Otherwise it should be open (if not started yet and not full)
+        elif current_datetime < match_start and accepted_count < self.max_players:
+            if self.status != 'open':
+                self.status = 'open'
+                self.is_open = True
+                self.save(update_fields=['status', 'is_open'])
+            self._check_and_trigger_30m_reminder()
+
+    def _check_and_trigger_30m_reminder(self):
+        """When match is starting in <= 30 minutes, notify all confirmed match members (idempotent)"""
+        if self.reminder_30m_sent or self.status in ['cancelled', 'completed']:
+            return
+
+        now = timezone.now()
+        match_start = self.get_match_datetime_start()
+        if not match_start or match_start < now:
+            return
+
+        diff_seconds = (match_start - now).total_seconds()
+        # Trigger when match starts within 35 minutes (allowing slight buffer for periodic checks)
+        if 0 <= diff_seconds <= 35 * 60:
+            self.reminder_30m_sent = True
+            self.save(update_fields=['reminder_30m_sent'])
+
+            try:
+                from .fcm_service import create_notification, get_match_members
+                members = get_match_members(self)
+                start_str = (timezone.localtime(match_start) if timezone.is_aware(match_start) else match_start).strftime('%H:%M')
+                for user in members:
+                    create_notification(
+                        user=user,
+                        notification_type='match_reminder',
+                        match=self,
+                        message=f'Rappel : Votre match "{self.title}" commence à {start_str} (dans moins de 30 min) ! Préparez vos raquettes.',
+                        target='mobile',
+                        title="Match dans 30 minutes",
+                        data={
+                            'action': 'match_reminder',
+                            'match_id': str(self.id),
+                            'type': 'match_reminder',
+                        }
+                    )
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error sending 30m match reminder for match {self.id}: {e}")
+
+    def _check_and_set_solo_creator_winner(self):
+        """If match has ended, no winners/losers have been set, and organizer is the only player, mark organizer as winner by default"""
+        if self.status != 'completed':
+            return
+
+        # Check if winners or losers are already recorded
+        if self.winners.exists() or self.losers.exists():
+            return
+
+        # Check confirmed participants other than the organizer
+        confirmed_participants = self.participants.filter(status='confirmed')
+        other_confirmed = confirmed_participants.exclude(user=self.organizer)
+
+        # Seul dans son match : pas de victoire comptée (sinon on pourrait gonfler le classement).
+        if not other_confirmed.exists():
+            return
+
+    def _trigger_end_of_match_notifications(self):
+        """When match is completed, send email + push notification to all confirmed participants (idempotent)"""
+        if self.status != 'completed' or self.end_notification_sent:
+            return
+
+        # Mark as sent first to prevent duplicate sends
+        self.end_notification_sent = True
+        self.save(update_fields=['end_notification_sent'])
+
+        try:
+            from .email_service import send_match_ended_email
+            from .fcm_service import create_notification
+        except ImportError:
+            return
+
+        # Gather all confirmed participants including the organizer
+        participants = self.participants.filter(status='confirmed').select_related('user')
+        users_to_notify = {self.organizer}
+        for p in participants:
+            users_to_notify.add(p.user)
+
+        for user in users_to_notify:
+            # 1. Send match ended email
+            try:
+                send_match_ended_email(user, self)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error sending match ended email to {user.username}: {e}")
+
+            # 2. Send in-app notification + FCM push
+            try:
+                msg = f'Votre match "{self.title}" est terminé ! Donnez votre avis et notez les participants.' if self.title else f"Le match du {(timezone.localtime(self.date_time) if timezone.is_aware(self.date_time) else self.date_time).strftime('%d/%m')} est terminé ! Donnez votre avis et notez les participants."
+                create_notification(
+                    user=user,
+                    notification_type='match_ended',
+                    message=msg,
+                    match=self,
+                    target='mobile',
+                    title="PadelUp - Match terminé",
+                    data={
+                        'action': 'rate_match',
+                        'match_id': str(self.id),
+                    }
+                )
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error creating match ended notification for {user.username}: {e}")
+
+    def _check_and_auto_resolve_48h(self):
+        """If 48 hours have passed since match ended and no winner/loser defined, creator wins by default and participants are notified"""
+        if self.status != 'completed' or self.auto_resolved_48h:
+            return
+
+        from datetime import timedelta
+        match_end = self.get_match_datetime_end()
+        if timezone.now() < match_end + timedelta(hours=48):
+            return
+
+        # If winners or losers are already recorded, nothing to auto-resolve
+        if self.winners.exists() or self.losers.exists():
+            return
+        # Pas d'adversaire confirmé : rien à résoudre
+        if not self.participants.filter(status='confirmed').exclude(user=self.organizer).exists():
+            return
+
+        # Mark as auto-resolved
+        self.auto_resolved_48h = True
+        self.save(update_fields=['auto_resolved_48h'])
+
+        # Set creator as winner
+        self.mark_winners([self.organizer.id], [])
+
+        try:
+            from .email_service import send_match_auto_resolved_email
+            from .fcm_service import create_notification
+        except ImportError:
+            return
+
+        participants = self.participants.filter(status='confirmed').select_related('user')
+        users_to_notify = {self.organizer}
+        for p in participants:
+            users_to_notify.add(p.user)
+
+        for user in users_to_notify:
+            is_org = (user.id == self.organizer.id)
+            # 1. Send email
+            try:
+                send_match_auto_resolved_email(user, self, is_organizer=is_org)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error sending auto-resolved email to {user.username}: {e}")
+
+            # 2. Send in-app notification + FCM push
+            try:
+                if is_org:
+                    msg = f"Délai de 48h écoulé : vous avez été désigné vainqueur par défaut pour le match du {(timezone.localtime(self.date_time) if timezone.is_aware(self.date_time) else self.date_time).strftime('%d/%m')}."
+                else:
+                    msg = f"Délai de 48h écoulé : le créateur ({self.organizer.username}) est désigné vainqueur par défaut, aucun avis n'a été enregistré."
+
+                create_notification(
+                    user=user,
+                    notification_type='match_auto_resolved',
+                    message=msg,
+                    match=self,
+                    target='mobile',
+                    title="PadelUp - Match clôturé",
+                    data={
+                        'action': 'match_auto_resolved',
+                        'match_id': str(self.id),
+                    }
+                )
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error creating auto-resolved notification for {user.username}: {e}")
+
+    def get_accepted_participants_count(self):
+        """Get count of accepted participants including organizer"""
+        # Count the participants (organizer is already included as a participant)
+        return self.participants.filter(status='confirmed').count()
+
+    def get_location_info(self):
+        """Get match location info matching Flutter MatchLocation"""
+        return {
+            'club_name': self.club.name if self.club else '',
+            'court_name': self.court.name if self.court else '',
+            'address': self.club.address if self.club else '',
+            'latitude': float(self.club.latitude) if self.club else 0.0,
+            'longitude': float(self.club.longitude) if self.club else 0.0
+        }
+
+    def mark_winners(self, winner_ids, loser_ids):
+        """Mark individual winners and losers and update player stats (idempotent)"""
+        if self.status != 'completed':
+            return False
+        winner_ids = list(dict.fromkeys(int(i) for i in winner_ids))
+        loser_ids = [i for i in dict.fromkeys(int(i) for i in loser_ids) if i not in winner_ids]
+
+        # Get current winners and losers to decrement their stats first
+        old_winners = set(self.winners.all().values_list('id', flat=True))
+        old_losers = set(self.losers.all().values_list('id', flat=True))
+
+        # Match duration in minutes (convert to hours for storage)
+        match_hours = round(self.duration / 60, 1)
+
+        # Decrement stats for users who were previously counted
+        for user_id in old_winners:
+            try:
+                user = User.objects.get(id=user_id)
+                stats, _ = PlayerStats.objects.get_or_create(user=user)
+                stats.matches_played = max(0, stats.matches_played - 1)
+                stats.matches_won = max(0, stats.matches_won - 1)
+                stats.total_hours = max(0.0, stats.total_hours - match_hours)
+                stats.save()
+            except User.DoesNotExist:
+                pass
+
+        for user_id in old_losers:
+            try:
+                user = User.objects.get(id=user_id)
+                stats, _ = PlayerStats.objects.get_or_create(user=user)
+                stats.matches_played = max(0, stats.matches_played - 1)
+                stats.matches_lost = max(0, stats.matches_lost - 1)
+                stats.total_hours = max(0.0, stats.total_hours - match_hours)
+                stats.save()
+            except User.DoesNotExist:
+                pass
+
+        # Clear existing winners/losers
+        self.winners.clear()
+        self.losers.clear()
+
+        # Add winners
+        for user_id in winner_ids:
+            try:
+                user = User.objects.get(id=user_id)
+                self.winners.add(user)
+                # Update winner stats
+                stats, _ = PlayerStats.objects.get_or_create(user=user)
+                stats.matches_played += 1
+                stats.matches_won += 1
+                stats.total_hours += match_hours
+                stats.save()
+            except User.DoesNotExist:
+                pass
+
+        # Add losers
+        for user_id in loser_ids:
+            try:
+                user = User.objects.get(id=user_id)
+                self.losers.add(user)
+                # Update loser stats
+                stats, _ = PlayerStats.objects.get_or_create(user=user)
+                stats.matches_played += 1
+                stats.matches_lost += 1
+                stats.total_hours += match_hours
+                stats.save()
+            except User.DoesNotExist:
+                pass
+
+        return True
+
+
+class MatchParticipant(models.Model):
+    """Player slot in a match matching Flutter PlayerSlot"""
+    STATUS_CHOICES = [
+        ('empty', 'Vide'),
+        ('pending', 'En attente'),
+        ('confirmed', 'Confirmé'),
+        ('declined', 'Refusé'),
+        ('cancelled', 'Annulé'),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('paid', 'Payé'),
+        ('failed', 'Échoué'),
+        ('refunded', 'Remboursé'),
+    ]
+
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='participants')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_participations', null=True, blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='empty')
+
+    # Payment info
+    amount_paid = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    payment_intent_id = models.CharField(max_length=200, blank=True)
+
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['match', 'user']
+        ordering = ['joined_at']
+
+    def __str__(self):
+        if self.user:
+            return f"{self.user.username} in {self.match.title}"
+        return f"Empty slot in {self.match.title}"
+
+
+class MatchMessage(models.Model):
+    """Chat messages within a match"""
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_messages')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.sender.username} in {self.match.title}: {self.content[:50]}"
+
+
+class MatchComment(models.Model):
+    """Public match comments and Q&A (only for public matches)"""
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_comments')
+    content = models.TextField(max_length=1000)
+    parent_comment = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.author.username} on {self.match.title}: {self.content[:30]}"
+
+
+class Rating(models.Model):
+    """Player rating system"""
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='ratings')
+    rater = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings_given')
+    rated_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings_received')
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('match', 'rater', 'rated_user')
+
+    def __str__(self):
+        return f"{self.rater.username} rated {self.rated_user.username}: {self.rating}/10"
+
+
+class CourtRating(models.Model):
+    """Court rating system"""
+    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='ratings')
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='court_ratings')
+    rater = models.ForeignKey(User, on_delete=models.CASCADE, related_name='court_ratings_given')
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('court', 'match', 'rater')
+
+    def __str__(self):
+        return f"{self.rater.username} rated {self.court.name}: {self.rating}/5"
+
+
+class DeviceToken(models.Model):
+    """FCM Device tokens for push notifications"""
+    DEVICE_TYPES = [
+        ('ios', 'iOS'),
+        ('android', 'Android'),
+        ('web', 'Web'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='device_tokens')
+    token = models.CharField(max_length=500, unique=True)
+    device_type = models.CharField(max_length=10, choices=DEVICE_TYPES, default='android')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f"{self.user.username} ({self.device_type}) - {self.token[:20]}..."
+
+
+class Notification(models.Model):
+    """User notifications"""
+    TYPE_CHOICES = [
+        ('match_invite', 'Invitation au match'),
+        ('match_reminder', 'Rappel de match'),
+        ('match_accepted', 'Match accepté'),
+        ('match_cancelled', 'Match annulé'),
+        ('friend_request', 'Demande d\'ami'),
+        ('friend_accepted', 'Demande d\'ami acceptée'),
+        ('achievement', 'Succès déverrouillé'),
+        ('booking_confirmed', 'Réservation confirmée'),
+        ('new_booking', 'Nouvelle réservation'),
+        ('booking_cancelled', 'Réservation annulée'),
+        ('match_ended', 'Match terminé'),
+        ('match_auto_resolved', 'Match résolu par défaut'),
+        ('match_comment', 'Nouveau commentaire sur le match'),
+        ('match_player_left', 'Joueur a quitté le match'),
+        ('match_player_kicked', 'Joueur retiré du match'),
+        ('match_player_joined', 'Nouveau joueur dans le match'),
+        ('match_edited', 'Match modifié'),
+        ('match_deleted', 'Match supprimé'),
+        ('public_match_created', 'Nouveau match public de vos amis'),
+        ('bot_booked', 'Réservation faite par le bot'),
+        ('bot_slot_found', 'Créneau trouvé par le bot'),
+        ('bot_action_required', 'Le bot a besoin de vous'),
+    ]
+
+    TARGET_CHOICES = [
+        ('mobile', 'Mobile'),
+        ('dashboard', 'Dashboard'),
+        ('both', 'Tous'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    type = models.CharField(max_length=30, choices=TYPE_CHOICES)
+    target = models.CharField(max_length=10, choices=TARGET_CHOICES, default='mobile')
+    club = models.ForeignKey('Club', on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+    match = models.ForeignKey(Match, on_delete=models.SET_NULL, null=True, blank=True)
+    friend_request = models.ForeignKey('FriendRequest', on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.get_type_display()} for {self.user.username}"
+
+
+
+class CommunityPost(models.Model):
+    """Community forum posts"""
+    CATEGORY_CHOICES = [
+        ('general', 'Général'),
+        ('tips', 'Conseils & Astuces'),
+        ('tournaments', 'Tournois'),
+        ('equipment', 'Équipement'),
+        ('clubs', 'Clubs'),
+        ('looking_for_players', 'Recherche de joueurs'),
+    ]
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='general')
+    city = models.CharField(max_length=100, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    group = models.ForeignKey('CommunityGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='posts')
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def like_count(self):
+        return self.likes.count()
+
+    @property
+    def reply_count(self):
+        return self.replies.count()
+
+
+class PostReply(models.Model):
+    """Replies to community posts"""
+    post = models.ForeignKey(CommunityPost, on_delete=models.CASCADE, related_name='replies')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='post_replies')
+    content = models.TextField()
+    parent_reply = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='child_replies')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(User, related_name='liked_replies', blank=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Reply to {self.post.title} by {self.author.username}"
+
+    @property
+    def like_count(self):
+        return self.likes.count()
+
+
+class CommunityGroup(models.Model):
+    """Community groups/clubs"""
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    theme = models.CharField(max_length=50)  # e.g., "beginners", "tournaments", "technique"
+    city = models.CharField(max_length=100, blank=True)
+    club = models.ForeignKey('Club', on_delete=models.SET_NULL, null=True, blank=True, related_name='community_groups')
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_groups')
+    members = models.ManyToManyField(User, related_name='community_groups')
+    is_public = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class FriendRequest(models.Model):
+    """Friend request system"""
+    STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('accepted', 'Accepté'),
+        ('rejected', 'Refusé'),
+    ]
+
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_friend_requests')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_friend_requests')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('sender', 'receiver')
+
+    def __str__(self):
+        return f"{self.sender.username} -> {self.receiver.username} ({self.status})"
+
+
+class Friendship(models.Model):
+    """Friendship relationships"""
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships1')
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships2')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user1', 'user2')
+
+    def __str__(self):
+        return f"{self.user1.username} & {self.user2.username}"
+
+    @classmethod
+    def are_friends(cls, user1, user2):
+        from django.db.models import Q
+        return cls.objects.filter(
+            Q(user1=user1, user2=user2) |
+            Q(user1=user2, user2=user1)
+        ).exists()
+
+    @classmethod
+    def get_friends(cls, user):
+        from django.db.models import Q
+        friendships = cls.objects.filter(
+            Q(user1=user) | Q(user2=user)
+        )
+        friends = []
+        for friendship in friendships:
+            if friendship.user1 == user:
+                friends.append(friendship.user2)
+            else:
+                friends.append(friendship.user1)
+        return friends
+
+
+class PrivateMessage(models.Model):
+    """Direct messages between users"""
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.sender.username} to {self.receiver.username}: {self.content[:50]}"
+
+
+class BlockedUser(models.Model):
+    """User blocking system"""
+    blocker = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked_users')
+    blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked_by')
+    reason = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('blocker', 'blocked')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.blocker.username} blocked {self.blocked.username}"
+
+    @classmethod
+    def is_blocked(cls, user1, user2):
+        """Check if either user has blocked the other"""
+        from django.db.models import Q
+        return cls.objects.filter(
+            Q(blocker=user1, blocked=user2) |
+            Q(blocker=user2, blocked=user1)
+        ).exists()
+
+    @classmethod
+    def get_blocked_user_ids(cls, user):
+        """Get list of user IDs that are blocked by or have blocked the given user"""
+        from django.db.models import Q
+        blocked_relationships = cls.objects.filter(
+            Q(blocker=user) | Q(blocked=user)
+        )
+        blocked_ids = set()
+        for rel in blocked_relationships:
+            if rel.blocker == user:
+                blocked_ids.add(rel.blocked_id)
+            else:
+                blocked_ids.add(rel.blocker_id)
+        return list(blocked_ids)
+
+
+class SavedClub(models.Model):
+    """User saved/favorite clubs"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saved_clubs')
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='saved_by_users')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'club')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} saved {self.club.name}"
+
+
+# Signal handlers to create Profile and PlayerStats automatically
+from django.db.models.signals import post_save
+class EmailVerificationCode(models.Model):
+    """Stores email verification codes sent via email during registration"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='verification_codes')
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+    attempts = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def is_valid(self):
+        """Check if code is still valid (24 hours expiry)"""
+        from datetime import timedelta
+        if self.is_used:
+            return False
+        return timezone.now() - self.created_at < timedelta(hours=24)
+
+    def __str__(self):
+        return f"Verification code for {self.user.username} - {'used' if self.is_used else 'active'}"
+
+
+class PasswordResetCode(models.Model):
+    """Stores password reset codes sent via email"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reset_codes')
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+    attempts = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def is_valid(self):
+        """Check if code is still valid (15 minutes expiry)"""
+        from datetime import timedelta
+        if self.is_used:
+            return False
+        return timezone.now() - self.created_at < timedelta(minutes=15)
+
+    def __str__(self):
+        return f"Reset code for {self.user.username} - {'used' if self.is_used else 'active'}"
+
+
+class PasswordChangeAttempt(models.Model):
+    """Tracks password change attempts for authenticated users (limit 3 per day)"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_change_attempts')
+    created_at = models.DateTimeField(auto_now_add=True)
+    success = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Password change attempt for {self.user.username} at {self.created_at}"
+
+
+class AppVersion(models.Model):
+    """Configuration for mobile app versions, minimum supported version, and update enforcement"""
+    PLATFORM_CHOICES = [
+        ('all', 'Toutes plateformes'),
+        ('android', 'Android'),
+        ('ios', 'iOS'),
+    ]
+
+    platform = models.CharField(max_length=10, choices=PLATFORM_CHOICES, default='all', unique=True)
+    min_version = models.CharField(
+        max_length=20,
+        default='1.0.4',
+        help_text="Version minimale obligatoire. Si la version de l'application mobile est inférieure, une mise à jour bloquante est requise."
+    )
+    latest_version = models.CharField(
+        max_length=20,
+        default='1.0.4',
+        help_text="Dernière version disponible en production."
+    )
+    store_url_android = models.URLField(
+        max_length=500,
+        default='https://play.google.com/store/apps/details?id=com.padelup.app'
+    )
+    store_url_ios = models.URLField(
+        max_length=500,
+        default='https://apps.apple.com/app/id123456789'
+    )
+    force_update = models.BooleanField(
+        default=True,
+        help_text="Forcer le blocage de l'application si la version est inférieure à min_version"
+    )
+    update_title = models.CharField(
+        max_length=200,
+        default='Mise à jour requise'
+    )
+    update_message = models.TextField(
+        default="Une nouvelle version de PadelUp est disponible. Veuillez mettre à jour l'application pour continuer à l'utiliser."
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Configuration Version App"
+        verbose_name_plural = "Configuration Versions App"
+
+    def __str__(self):
+        return f"AppVersion ({self.platform}): min={self.min_version}, latest={self.latest_version}"
+
+    @classmethod
+    def get_config(cls, platform='all'):
+        config = cls.objects.filter(platform=platform, is_active=True).first()
+        if not config and platform != 'all':
+            config = cls.objects.filter(platform='all', is_active=True).first()
+        if not config:
+            config, _ = cls.objects.get_or_create(
+                platform='all',
+                defaults={
+                    'min_version': '1.0.4',
+                    'latest_version': '1.0.4',
+                    'store_url_android': 'https://play.google.com/store/apps/details?id=com.padelup.app',
+                    'store_url_ios': 'https://apps.apple.com/app/id123456789',
+                    'force_update': True,
+                    'update_title': 'Mise à jour requise',
+                    'update_message': "Une nouvelle version de PadelUp est disponible. Veuillez mettre à jour l'application pour continuer à l'utiliser.",
+                }
+            )
+        return config
+
+from django.dispatch import receiver
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    """Create Profile when a new user is created"""
+    if created:
+        Profile.objects.get_or_create(user=instance)
+
+@receiver(post_save, sender=User)
+def create_user_stats(sender, instance, created, **kwargs):
+    """Create PlayerStats when a new user is created"""
+    if created:
+        PlayerStats.objects.get_or_create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, created, **kwargs):
+    """Save Profile when user is saved (skip on creation, handled by create_user_profile)"""
+    if not created and hasattr(instance, 'profile'):
+        instance.profile.save()
