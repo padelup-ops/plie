@@ -11,7 +11,7 @@ options:
   createIntermediateGroups: true
 settings:
   base:
-    MARKETING_VERSION: 1.0.0
+    MARKETING_VERSION: 1.0.1
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1"
@@ -52,7 +52,8 @@ targets:
         UIRequiresFullScreen: true
         UIStatusBarStyle: UIStatusBarStyleLightContent
         ITSAppUsesNonExemptEncryption: false
-        NSPhotoLibraryAddUsageDescription: Lets you save the keepsake card to your photos.
+        NSPhotoLibraryAddUsageDescription: Lets you save the keepsake card and the photos of your child's reaction to your photos.
+        NSCameraUsageDescription: Shows your child in a corner of Santa's call, like a video call. Nothing is recorded unless you ask for photos of their reaction.
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
     settings:

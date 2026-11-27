@@ -187,7 +187,7 @@ struct PaywallView: View {
                         perk("envelope.fill", "A letter from Santa to print or share")
                         perk("rosette", "A good-child certificate")
                         perk("calendar", "An advent calendar, one message a day")
-                        perk("square.and.arrow.up", "Cards you can share, with the app's name")
+                        perk("camera.fill", "Photos of your child's reaction, to keep and share")
                     }
                     .padding(22)
                     .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Noel.night.opacity(0.6)))

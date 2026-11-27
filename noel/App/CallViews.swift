@@ -171,6 +171,20 @@ struct CallView: View {
                 SurpriseStar(start: at).id(at)
             }
 
+            // Comme en appel vidéo : l'enfant se voit dans un coin (si le parent l'a demandé avant l'appel).
+            if call.cameraOn {
+                VStack {
+                    HStack {
+                        Spacer()
+                        ReactionPip(session: call.reactionCamera.session)
+                    }
+                    Spacer()
+                }
+                .padding(.top, 62)
+                .padding(.trailing, 16)
+                .transition(.opacity)
+            }
+
             VStack(spacing: 12) {
                 topBar
                 if call.mood == .listening && call.speaker == .santa {
@@ -369,6 +383,11 @@ struct EndView: View {
                         .opacity(shown ? 1 : 0)
                 }
                 Spacer()
+                if !model.call.reactions.isEmpty {
+                    ReactionsStrip(images: model.call.reactions)
+                        .padding(.bottom, 18)
+                        .opacity(shown ? 1 : 0)
+                }
                 VStack(spacing: 12) {
                     if afterPreview {
                         Button { model.sheet = .paywall } label: { Label("Hear the whole call", systemImage: "sparkles") }

@@ -27,6 +27,13 @@ final class CallController {
     /// Le nom du lutin, pour l'étiquette de ses sous-titres.
     private(set) var elfLabel = ""
     let voice = SantaVoice()
+    /// La caméra avant, si le parent l'a demandée : l'enfant se voit dans un coin, comme en appel vidéo.
+    let reactionCamera = ReactionCamera()
+    private(set) var cameraOn = false
+    /// Les photos de la réaction de l'enfant (Pass Noël) : en mémoire seulement, montrées au parent à la fin.
+    private(set) var reactions: [UIImage] = []
+    private var showChild = false
+    private var keepReactions = false
 
     private var segments: [Segment] = []
     private var audio: [Int: SantaVoice.SpokenAudio] = [:]
@@ -51,6 +58,7 @@ final class CallController {
         surpriseAt = nil
         startedAt = nil
         previewCut = false
+        reactions = []
         renderTask?.cancel()
         guard withAudio else { return }
         let segs = segments
@@ -60,6 +68,31 @@ final class CallController {
                 if case let .say(_, _, _, _, cue) = s { self.audio[i] = await self.voice.render(cue: cue) }
             }
         }
+    }
+
+    /// Ce que le parent a choisi avant l'appel.
+    func camera(show: Bool, keep: Bool) {
+        showChild = show
+        keepReactions = show && keep
+    }
+
+    func forgetReactions() { reactions = [] }
+
+    /// Une photo de la réaction, un instant après un moment fort.
+    private func snap(after seconds: Double) {
+        guard cameraOn, keepReactions, reactions.count < 6 else { return }
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(seconds))
+            guard let self, self.phase == .talking, self.cameraOn, self.reactions.count < 6,
+                  let image = self.reactionCamera.snapshot() else { return }
+            self.reactions.append(image)
+        }
+    }
+
+    private func stopCamera() {
+        guard cameraOn else { return }
+        reactionCamera.stop()
+        cameraOn = false
     }
 
     /// Le texte de l'appel (pour l'aperçu et les captures).
@@ -89,6 +122,10 @@ final class CallController {
         voice.stopRing()
         phase = .talking
         startedAt = Date()
+        if showChild, ReactionCamera.authorized {
+            reactionCamera.start()
+            cameraOn = true
+        }
         voice.ambience(on: true)
         callTask?.cancel()
         callTask = Task { [weak self] in
@@ -99,16 +136,21 @@ final class CallController {
             self.previewCut = self.isPreview
             try? await Task.sleep(for: .milliseconds(1400))
             self.voice.ambience(on: false)
+            self.stopCamera()
             self.phase = .ended
             onEnd()
         }
     }
 
     private func run() async {
+        let firstLine = segments.firstIndex { if case .say = $0 { return true }; return false }
         for (i, s) in segments.enumerated() {
             if Task.isCancelled { return }
             switch s {
             case let .say(text, who, laugh, wave, _):
+                // Les moments forts : le bonjour (l'enfant entend le Père Noël, et souvent son prénom), les rires,
+                // l'au revoir.
+                if i == firstLine { snap(after: 2.2) } else if wave { snap(after: 1.0) } else if laugh { snap(after: 1.6) }
                 caption = text
                 speaker = who
                 // Pendant que le lutin parle, le Père Noël l'écoute.
@@ -131,6 +173,7 @@ final class CallController {
             case let .spark(sec):
                 mood = .surprised
                 surpriseAt = Date()
+                snap(after: 1.4)
                 voice.sparkle()
                 try? await Task.sleep(for: .seconds(sec))
                 mood = .idle
@@ -143,6 +186,7 @@ final class CallController {
         hapticTask?.cancel()
         renderTask?.cancel()
         voice.stopAll()
+        stopCamera()
         // Raccroché en plein aperçu : la fin de l'appel propose aussi d'entendre la suite.
         if phase == .talking, isPreview { previewCut = true }
         phase = .idle

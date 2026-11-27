@@ -1,2 +1,3 @@
 "CFBundleDisplayName" = "Papai Noel";
-"NSPhotoLibraryAddUsageDescription" = "Para salvar o cartão de lembrança nas suas fotos.";
+"NSPhotoLibraryAddUsageDescription" = "Para salvar o cartão de lembrança e as fotos da reação do seu filho nas suas fotos.";
+"NSCameraUsageDescription" = "Mostra seu filho em um canto da ligação do Papai Noel, como em uma chamada de vídeo. Nada é gravado, a menos que você peça fotos da reação.";

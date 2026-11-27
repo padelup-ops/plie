@@ -48,7 +48,6 @@
 "Everything stays on this iPhone" = "Alles bleibt auf diesem iPhone";
 "The first names, age, qualities, special moment and wish you enter are only used to build Santa's call. They are saved on this iPhone and never sent anywhere." = "Die Vornamen, das Alter, die Eigenschaften, der besondere Moment und der Wunsch, die du eingibst, dienen nur dazu, den Anruf des Weihnachtsmanns vorzubereiten. Sie bleiben auf diesem iPhone und werden nirgendwohin gesendet.";
 "No microphone, no recording" = "Kein Mikrofon, keine Aufnahme";
-"Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone or the camera." = "Der Weihnachtsmann macht Pausen, damit dein Kind antworten kann, aber die App hört nie zu: Sie nutzt weder Mikrofon noch Kamera.";
 "No account, no tracking, no ads" = "Kein Konto, kein Tracking, keine Werbung";
 "There is no sign-up, no advertising and no analytics. Santa's voice is inside the app: it works without the internet." = "Keine Anmeldung, keine Werbung, keine Analyse. Die Stimme des Weihnachtsmanns entsteht auf deinem iPhone, ohne Internet.";
 "Purchases" = "Käufe";
@@ -143,7 +142,6 @@
 "A letter from Santa to print or share" = "Ein Brief vom Weihnachtsmann zum Drucken oder Teilen";
 "A good-child certificate" = "Eine Urkunde für ein braves Kind";
 "An advent calendar, one message a day" = "Ein Adventskalender, jeden Tag eine Botschaft";
-"Cards you can share, with the app's name" = "Karten zum Teilen, mit dem Namen der App";
 "Pass unlocked. Thank you! ✨" = "Pass freigeschaltet. Danke! ✨";
 "Unlock the Pass for %@" = "Pass freischalten für %@";
 "One-time purchase. A short preview stays free. No ads, no account." = "Einmaliger Kauf. Eine kurze Vorschau bleibt kostenlos. Keine Werbung, kein Konto.";
@@ -185,3 +183,17 @@
 "The magic star surprise at the end of every call" = "Die Überraschung mit dem Zauberstern am Ende jedes Anrufs";
 "Calls for brothers and sisters together" = "Anrufe für Geschwister zusammen";
 "3 extra messages" = "3 weitere Nachrichten";
+"Show your child in a corner, like a video call" = "Dein Kind in einer Ecke zeigen, wie beim Videoanruf";
+"The front camera shows on screen only. Nothing is recorded." = "Die Frontkamera wird nur auf dem Bildschirm gezeigt. Nichts wird aufgenommen.";
+"Keep their reaction in photos" = "Die Reaktion in Fotos festhalten";
+"A few photos at the best moments, shown to you after the call. They stay on this iPhone unless you save or share them." = "Ein paar Fotos in den schönsten Momenten, die du nach dem Anruf siehst. Sie bleiben auf diesem iPhone, solange du sie nicht sicherst oder teilst.";
+"The camera is turned off for this app. You can allow it in the iPhone's Settings." = "Die Kamera ist für diese App ausgeschaltet. Du kannst sie in den iPhone-Einstellungen erlauben.";
+"Their reaction" = "Die Reaktion";
+"These photos are only here for now. Save or share the ones you want to keep." = "Diese Fotos sind nur für den Moment hier. Sichere oder teile die, die du behalten möchtest.";
+"Save to Photos" = "In Fotos sichern";
+"Saved to Photos" = "In Fotos gesichert";
+"Share the photos" = "Fotos teilen";
+"Photos of your child's reaction, to keep and share" = "Fotos von der Reaktion deines Kindes, zum Behalten und Teilen";
+"Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone." = "Der Weihnachtsmann macht Pausen, damit dein Kind antworten kann, aber die App hört nie zu: Sie nutzt das Mikrofon nicht.";
+"The camera, only if you turn it on" = "Die Kamera, nur wenn du sie einschaltest";
+"You can show your child in a corner of the call, like a video call. The picture only appears on the screen: nothing is recorded or sent. With the Christmas Pass, you can ask for a few photos of their reaction: they stay on this iPhone unless you save or share them." = "Du kannst dein Kind in einer Ecke des Anrufs zeigen, wie beim Videoanruf. Das Bild erscheint nur auf dem Bildschirm: Nichts wird aufgenommen oder gesendet. Mit dem Weihnachts-Pass kannst du ein paar Fotos der Reaktion machen lassen: Sie bleiben auf diesem iPhone, solange du sie nicht sicherst oder teilst.";

@@ -48,7 +48,6 @@
 "Everything stays on this iPhone" = "Tutto resta su questo iPhone";
 "The first names, age, qualities, special moment and wish you enter are only used to build Santa's call. They are saved on this iPhone and never sent anywhere." = "I nomi, l'età, le qualità, il momento speciale e il desiderio che inserisci servono solo a preparare la chiamata di Babbo Natale. Restano su questo iPhone e non vengono mai inviati da nessuna parte.";
 "No microphone, no recording" = "Niente microfono, nessuna registrazione";
-"Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone or the camera." = "Babbo Natale fa delle pause per lasciar rispondere, ma l'app non ascolta mai: non usa né il microfono né la fotocamera.";
 "No account, no tracking, no ads" = "Nessun account, nessun tracciamento, nessuna pubblicità";
 "There is no sign-up, no advertising and no analytics. Santa's voice is inside the app: it works without the internet." = "Nessuna iscrizione, nessuna pubblicità, nessuna statistica. La voce di Babbo Natale è creata dal tuo iPhone, senza internet.";
 "Purchases" = "Acquisti";
@@ -143,7 +142,6 @@
 "A letter from Santa to print or share" = "Una lettera di Babbo Natale da stampare o condividere";
 "A good-child certificate" = "Un diploma di bambino buono";
 "An advent calendar, one message a day" = "Un calendario dell'Avvento, un messaggio al giorno";
-"Cards you can share, with the app's name" = "Cartoline da condividere, con il nome dell'app";
 "Pass unlocked. Thank you! ✨" = "Pass sbloccato. Grazie! ✨";
 "Unlock the Pass for %@" = "Sblocca il Pass per %@";
 "One-time purchase. A short preview stays free. No ads, no account." = "Acquisto unico. Un breve assaggio resta gratis. Niente pubblicità, niente account.";
@@ -185,3 +183,17 @@
 "The magic star surprise at the end of every call" = "La sorpresa della stella magica alla fine di ogni chiamata";
 "Calls for brothers and sisters together" = "Chiamate per fratelli e sorelle insieme";
 "3 extra messages" = "3 messaggi in più";
+"Show your child in a corner, like a video call" = "Mostra il tuo bambino in un angolo, come in una videochiamata";
+"The front camera shows on screen only. Nothing is recorded." = "La fotocamera frontale si vede solo sullo schermo. Niente viene registrato.";
+"Keep their reaction in photos" = "Conserva la sua reazione in foto";
+"A few photos at the best moments, shown to you after the call. They stay on this iPhone unless you save or share them." = "Qualche foto nei momenti più belli, mostrata dopo la chiamata. Restano su questo iPhone finché non le salvi o le condividi.";
+"The camera is turned off for this app. You can allow it in the iPhone's Settings." = "La fotocamera è disattivata per questa app. Puoi consentirla nelle Impostazioni dell'iPhone.";
+"Their reaction" = "La sua reazione";
+"These photos are only here for now. Save or share the ones you want to keep." = "Queste foto restano qui solo per ora. Salva o condividi quelle che vuoi tenere.";
+"Save to Photos" = "Salva in Foto";
+"Saved to Photos" = "Salvate in Foto";
+"Share the photos" = "Condividi le foto";
+"Photos of your child's reaction, to keep and share" = "Foto della reazione del tuo bambino, da tenere e condividere";
+"Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone." = "Babbo Natale fa delle pause perché il tuo bambino risponda, ma l'app non ascolta mai: non usa il microfono.";
+"The camera, only if you turn it on" = "La fotocamera, solo se la attivi";
+"You can show your child in a corner of the call, like a video call. The picture only appears on the screen: nothing is recorded or sent. With the Christmas Pass, you can ask for a few photos of their reaction: they stay on this iPhone unless you save or share them." = "Puoi mostrare il tuo bambino in un angolo della chiamata, come in una videochiamata. L'immagine appare solo sullo schermo: niente viene registrato o inviato. Con il Pass Natale puoi chiedere qualche foto della sua reazione: restano su questo iPhone finché non le salvi o le condividi.";
