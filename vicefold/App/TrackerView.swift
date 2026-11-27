@@ -30,7 +30,8 @@ private enum TrackerSection: String, CaseIterable, Identifiable {
     var title: LocalizedStringKey {
         switch self {
         case .missions: return "Missions"
-        case .collectibles: return "Collectibles"
+        // « Objets » plutôt que « Objets à collectionner » : le mot long était coupé dans le sélecteur.
+        case .collectibles: return "Items"
         case .challenges: return "Challenges"
         }
     }
