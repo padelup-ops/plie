@@ -368,3 +368,5 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
   self.gen = func(*args, **kwds)
   self.gen = func(*args, **kwds)
+[142/762] es FAIBLE 0.68 2.5s essais 3 (123s, reste 746 min) ¡Jo, jo, jo! ¡Hola, Unai! → ¡Ho, ho, ho! ¡Hola, un ahí!
+temps écoulé : 620 phrases restent pour le prochain passage
