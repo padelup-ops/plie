@@ -25,3 +25,9 @@
 {"id": "9ae6183483bf4d213f7c", "key": "hello|teddy", "text": "Ho, ho, ho! Hello, Teddy!", "ok": true, "score": 1.0, "dur": 3.02, "heard": "Ho ho ho! Hello Teddy!", "tries": 2, "secs": 102.8}
 {"id": "ba6f20a51f7f964af593", "key": "hello|tommy", "text": "Ho, ho, ho! Hello, Tommy!", "ok": true, "score": 1.0, "dur": 2.4, "heard": "Ho ho ho, hello Tommy!", "tries": 2, "secs": 86.0}
 {"id": "71799b04ed8f37caf6ce", "key": "hello|rory", "text": "Ho, ho, ho! Hello, Rory!", "ok": true, "score": 1.0, "dur": 2.08, "heard": "Oh ho ho. Hello, Rory.", "tries": 1, "secs": 41.7}
+{"id": "c717c28d062756529057", "key": "hello|amara", "text": "Ho, ho, ho! Hello, Amara!", "ok": true, "score": 1.0, "dur": 3.1, "heard": "Ho, ho, ho, ho! Hello, Amara.", "tries": 1, "secs": 50.8}
+{"id": "dc5cfc6cf6b36937f052", "key": "hello|valerie", "text": "Ho, ho, ho! Hello, Valerie!", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho Ho Ho! Hello Valerie!", "tries": 1, "secs": 43.9}
+{"id": "8361efab5e81cc139d90", "key": "hello|andrea", "text": "Ho, ho, ho! Hello, Andrea!", "ok": false, "score": 0.925, "dur": 2.94, "heard": "Oh ho ho! Hello Andrea! Andrea!", "tries": 1, "secs": 149.6}
+{"id": "476529208363bb288f20", "key": "hello|ember", "text": "Ho, ho, ho! Hello, Ember!", "ok": true, "score": 1.0, "dur": 1.88, "heard": "Oh ho ho! Hello Ember!", "tries": 1, "secs": 41.9}
+{"id": "26db7d717d965cb35631", "key": "hello|lewis", "text": "Ho, ho, ho! Hello, Lewis!", "ok": true, "score": 1.0, "dur": 2.4, "heard": "Ho, ho, ho. Hello, Lewis.", "tries": 1, "secs": 44.5}
+{"id": "1f528a8804082bd847f1", "key": "hello|sam", "text": "Ho, ho, ho! Hello, Sam!", "ok": true, "score": 1.0, "dur": 2.04, "heard": "Ho ho ho! Hello Sam!", "tries": 1, "secs": 39.3}
