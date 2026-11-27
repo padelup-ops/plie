@@ -3,7 +3,6 @@
 // Le lancement (le titre qui apparaît dans la nuit) et l'accueil : la nuit du pôle Nord, la lune, la neige,
 // le Père Noël dans son médaillon doré, le compte à rebours, et un seul geste principal : préparer l'appel.
 
-import AVKit
 import SwiftUI
 import UIKit
 
@@ -48,10 +47,11 @@ struct SplashView: View {
 
 struct HomeView: View {
     @Environment(AppModel.self) private var model
+    @Environment(MagicStore.self) private var store
     @State private var appeared = false
     @State private var music = ChristmasMusic.shared
-    @State private var greeting = GreetingPlayback()
-    @State private var greetingMood: SantaMood = .idle
+    @State private var greeting: Task<Void, Never>?
+    private static var greeted = false
 
     var body: some View {
         ZStack {
@@ -72,21 +72,12 @@ struct HomeView: View {
                 .padding(.top, 8)
 
                 Spacer(minLength: 12)
-                Button {
-                    Task { await playGreeting(again: true) }
-                } label: {
-                    ZStack {
-                        if let player = greeting.player {
-                            GreetingVideo(player: player)
-                                .frame(width: 210, height: 210)
-                                .clipShape(Circle())
-                                .overlay(Circle().strokeBorder(Noel.goldGradient, lineWidth: 7))
-                        } else {
-                            SantaMedallion(size: 210, mood: greetingMood, mouth: greetingMood == .talking ? model.call.mouth : 0)
-                        }
-                    }
-                    .scaleEffect(appeared ? 1 : 0.94)
-                    .opacity(appeared ? 1 : 0)
+                // Le Père Noël, en photo : un toucher et il dit bonjour.
+                Button { greet(again: true) } label: {
+                    SantaMedallion(size: 214, mood: model.call.previewing ? model.call.mood : .idle,
+                                   mouth: model.call.previewing ? model.call.mouth : 0)
+                        .scaleEffect(appeared ? 1 : 0.94)
+                        .opacity(appeared ? 1 : 0)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Hear Santa's greeting"))
@@ -112,105 +103,50 @@ struct HomeView: View {
                 VStack(spacing: 12) {
                     Button { model.go(.setup) } label: { Text("✨ Prepare a magic call") }
                         .buttonStyle(MagicButtonStyle())
-                    Button { model.sheet = .discover } label: { Text("Discover the magic") }
-                        .buttonStyle(QuietButtonStyle(filled: true))
-                    Button { model.sheet = .advent } label: { Text("Advent calendar") }
-                        .buttonStyle(QuietButtonStyle(filled: true))
+                    HStack(spacing: 10) {
+                        Button { model.sheet = .advent } label: { Text("Advent calendar").lineLimit(1).minimumScaleFactor(0.7) }
+                            .buttonStyle(QuietButtonStyle(filled: true))
+                        if !store.owned {
+                            Button { model.sheet = .paywall } label: { Text("Christmas Pass").lineLimit(1).minimumScaleFactor(0.7) }
+                                .buttonStyle(QuietButtonStyle(filled: true))
+                        }
+                    }
+                    Button { model.sheet = .discover } label: {
+                        Text("Discover the magic").font(.ui(16, .semibold)).foregroundStyle(Noel.night.opacity(0.75)).padding(.vertical, 4)
+                    }
                     Text("A magical moment to share as a family")
                         .font(.story(15))
                         .foregroundStyle(Noel.night.opacity(0.62))
-                        .padding(.top, 6)
                 }
-                .padding(.horizontal, 28)
+                .padding(.horizontal, 24)
                 .padding(.bottom, 14)
             }
         }
-        .onAppear { withAnimation(.spring(duration: 0.9)) { appeared = true } }
-        .task { await playGreeting(again: false) }
+        .onAppear {
+            withAnimation(.spring(duration: 0.9)) { appeared = true }
+            greet(again: false)
+        }
         .onDisappear {
-            greeting.stop()
-            greetingMood = .idle
-            model.call.voice.stopSpeech()
+            greeting?.cancel()
+            model.call.stopSolo()
             music.duck(false)
         }
     }
 
-    /// La vidéo `santa-accueil.mp4` (768×1024, voir Resources/Video/SPEC.txt) si elle est dans l'app,
-    /// sinon le monologue enregistré `santa-accueil.m4a`.
-    private func playGreeting(again: Bool) async {
-        guard ShotMode.route == nil else { return }
-        if !again && GreetingPlayback.played { return }
-        GreetingPlayback.played = true
-        try? await Task.sleep(for: .milliseconds(again ? 0 : 500))
-        guard !Task.isCancelled else { return }
-        music.duck(true)
-        if greeting.startVideo() {
-            greetingMood = .idle
-            return
+    /// Le Père Noël dit bonjour, de sa vraie voix : une fois au lancement, puis à chaque toucher du médaillon.
+    private func greet(again: Bool) {
+        guard ShotMode.route == nil, !model.call.previewing else { return }
+        if !again && Self.greeted { return }
+        Self.greeted = true
+        greeting?.cancel()
+        greeting = Task {
+            try? await Task.sleep(for: .milliseconds(again ? 0 : 700))
+            guard !Task.isCancelled, model.screen == .home, model.sheet == nil else { return }
+            music.duck(true)
+            await model.call.speakBlock("welcome")
+            music.duck(false)
         }
-        greetingMood = .talking
-        let heard = await model.call.voice.playResource("santa-accueil")
-        greetingMood = .idle
-        if !heard { music.duck(false) }
-        else { music.duck(false) }
     }
-}
-
-/// Lecture de la vidéo d'accueil. Le fichier n'est pas encore dans l'app : le chemin est réservé.
-@MainActor @Observable
-final class GreetingPlayback {
-    static var played = false
-    private(set) var player: AVPlayer?
-    private var endObserver: NSObjectProtocol?
-
-    func startVideo() -> Bool {
-        stop()
-        guard let url = Bundle.main.url(forResource: "santa-accueil", withExtension: "mp4", subdirectory: "Video")
-                ?? Bundle.main.url(forResource: "santa-accueil", withExtension: "mp4") else { return false }
-        let item = AVPlayerItem(url: url)
-        let player = AVPlayer(playerItem: item)
-        player.isMuted = false
-        self.player = player
-        endObserver = NotificationCenter.default.addObserver(
-            forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.player?.pause()
-                ChristmasMusic.shared.duck(false)
-            }
-        }
-        player.play()
-        return true
-    }
-
-    func stop() {
-        player?.pause()
-        player = nil
-        if let endObserver { NotificationCenter.default.removeObserver(endObserver) }
-        endObserver = nil
-    }
-}
-
-/// La vidéo, sans les contrôles, recadrée sur le visage.
-struct GreetingVideo: UIViewRepresentable {
-    let player: AVPlayer
-
-    func makeUIView(context: Context) -> GreetingPlayerView {
-        let view = GreetingPlayerView()
-        view.playerLayer.player = player
-        view.playerLayer.videoGravity = .resizeAspectFill
-        view.backgroundColor = .clear
-        return view
-    }
-
-    func updateUIView(_ view: GreetingPlayerView, context: Context) {
-        view.playerLayer.player = player
-    }
-}
-
-final class GreetingPlayerView: UIView {
-    override static var layerClass: AnyClass { AVPlayerLayer.self }
-    var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
 }
 
 /// « Plus que 30 jours avant Noël 🎄 », avec une petite étoile qui scintille.

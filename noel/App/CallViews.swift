@@ -154,58 +154,18 @@ struct CallView: View {
     var body: some View {
         let call = model.call
         ZStack {
-            WorkshopScene()
-            Snowfall(count: 22, speed: 0.5, opacity: 0.35)
-
-            // Le Père Noël derrière son bureau : son visage reste toujours visible, les sous-titres et le bouton
-            // pour raccrocher sont posés sur le bureau.
-            GeometryReader { geo in
-                let w = min(geo.size.width, 470)
-                let h = w * 1.2
-                let santaTop: CGFloat = 46
-                let deskTop = min(santaTop + h * 0.86, geo.size.height - 210)
-                ZStack(alignment: .topLeading) {
-                    SantaView(mouth: call.mouth, mood: call.mood)
-                        .frame(width: w, height: h)
-                        .scaleEffect(entered ? 1 : 0.92, anchor: .bottom)
-                        .position(x: geo.size.width / 2, y: min(santaTop, deskTop - h * 0.86) + h / 2)
-                    Desk()
-                        .frame(width: geo.size.width, height: geo.size.height - deskTop + geo.safeAreaInsets.bottom)
-                        .offset(y: deskTop)
-                    VStack(spacing: 14) {
-                        Spacer(minLength: 0)
-                        if model.subtitles && !call.caption.isEmpty {
-                            Text(call.caption)
-                                .font(.story(22))
-                                .foregroundStyle(Noel.cream)
-                                .multilineTextAlignment(.center)
-                                .lineSpacing(3)
-                                .minimumScaleFactor(0.75)
-                                .padding(.horizontal, 20).padding(.vertical, 14)
-                                .frame(maxWidth: .infinity)
-                                .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.black.opacity(0.42)))
-                                .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Noel.gold.opacity(0.3), lineWidth: 1))
-                                .padding(.horizontal, 16)
-                                .id(call.caption)
-                                .transition(.opacity.combined(with: .offset(y: 8)))
-                        }
-                        Spacer(minLength: 0)
-                        Button { model.hangUp() } label: {
-                            Image(systemName: "phone.down.fill")
-                                .font(.system(size: 26, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .frame(width: 66, height: 66)
-                                .background(Circle().fill(Color(red: 0.92, green: 0.26, blue: 0.24)))
-                                .shadow(color: .black.opacity(0.35), radius: 8, y: 3)
-                        }
-                        .accessibilityLabel(Text("Hang up"))
-                        .padding(.bottom, 8)
-                    }
-                    .frame(width: geo.size.width, height: geo.size.height - deskTop - 18)
-                    .offset(y: deskTop + 18)
-                }
-            }
-            .animation(.easeInOut(duration: 0.35), value: call.caption)
+            Color.black.ignoresSafeArea()
+            // Le Père Noël en plein écran, comme un appel vidéo : sa bouche suit sa voix.
+            SantaPhoto(mouth: call.mouth, mood: call.mood, zoom: 1.0, focus: UnitPoint(x: 0.5, y: 0.36))
+                .scaleEffect(entered ? 1 : 1.06)
+                .ignoresSafeArea()
+            // Le bas s'assombrit pour les sous-titres, le haut pour la barre.
+            LinearGradient(stops: [.init(color: .black.opacity(0.45), location: 0), .init(color: .clear, location: 0.16),
+                                   .init(color: .clear, location: 0.52), .init(color: .black.opacity(0.82), location: 1)],
+                           startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+            Snowfall(count: 18, speed: 0.45, opacity: 0.28)
 
             if let at = call.surpriseAt {
                 SurpriseStar(start: at).id(at)
@@ -213,12 +173,30 @@ struct CallView: View {
 
             VStack(spacing: 12) {
                 topBar
-                if call.mood == .listening {
+                if call.mood == .listening && call.speaker == .santa {
                     ListeningBubble().transition(.scale.combined(with: .opacity))
                 }
                 Spacer()
+                if model.subtitles && !call.caption.isEmpty {
+                    CaptionBubble(text: call.caption, elf: call.speaker == .elf ? call.elfLabel : nil)
+                        .padding(.horizontal, 16)
+                        .id(call.caption)
+                        .transition(.opacity.combined(with: .offset(y: 8)))
+                }
+                Button { model.hangUp() } label: {
+                    Image(systemName: "phone.down.fill")
+                        .font(.system(size: 26, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 66, height: 66)
+                        .background(Circle().fill(Color(red: 0.92, green: 0.26, blue: 0.24)))
+                        .shadow(color: .black.opacity(0.35), radius: 8, y: 3)
+                }
+                .accessibilityLabel(Text("Hang up"))
+                .padding(.top, 4)
+                .padding(.bottom, 10)
             }
             .animation(.spring(duration: 0.4), value: call.mood)
+            .animation(.easeInOut(duration: 0.3), value: call.caption)
 
             // l'éclat du décroché qui se dissipe
             RadialGradient(colors: [Color.white, Noel.goldLight, Noel.gold.opacity(0)], center: .center, startRadius: 0, endRadius: 1400)
@@ -245,14 +223,14 @@ struct CallView: View {
             }
             .foregroundStyle(Noel.cream)
             .padding(.horizontal, 14).frame(height: 40)
-            .background(Capsule().fill(Color.black.opacity(0.4)))
+            .background(Capsule().fill(Color.black.opacity(0.45)))
             Spacer()
             Button { model.subtitles.toggle() } label: {
                 Image(systemName: model.subtitles ? "captions.bubble.fill" : "captions.bubble")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(Noel.cream)
                     .frame(width: 44, height: 44)
-                    .background(Circle().fill(Color.black.opacity(0.4)))
+                    .background(Circle().fill(Color.black.opacity(0.45)))
             }
             .accessibilityLabel(Text(model.subtitles ? "Hide subtitles" : "Show subtitles"))
         }
@@ -261,41 +239,35 @@ struct CallView: View {
     }
 }
 
-/// Le bureau du Père Noël : du bois chaud, un rebord clair, quelques lettres et un paquet.
-struct Desk: View {
+/// Les sous-titres. Quand c'est le lutin qui parle, son nom est écrit au-dessus, en vert sapin.
+struct CaptionBubble: View {
+    var text: String
+    var elf: String?
+
     var body: some View {
-        Canvas { ctx, s in
-            let w = s.width, h = s.height
-            ctx.fill(Path(CGRect(x: 0, y: 0, width: w, height: h)),
-                     with: .linearGradient(Gradient(colors: [Color(red: 0.47, green: 0.26, blue: 0.14), Color(red: 0.30, green: 0.15, blue: 0.08)]),
-                                           startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: h)))
-            for i in 1..<5 {
-                let y = 22 + Double(i) * (h - 22) / 5
-                ctx.fill(Path(CGRect(x: 0, y: y, width: w, height: 1.2)), with: .color(.black.opacity(0.16)))
+        VStack(spacing: 6) {
+            if let elf {
+                HStack(spacing: 6) {
+                    Text(verbatim: "🧝")
+                    Text(verbatim: elf).font(.ui(13, .bold))
+                }
+                .foregroundStyle(Noel.cream)
+                .padding(.horizontal, 12).frame(height: 26)
+                .background(Capsule().fill(Noel.forest))
+                .overlay(Capsule().strokeBorder(Noel.goldLight.opacity(0.6), lineWidth: 1))
             }
-            // le rebord
-            ctx.fill(Path(CGRect(x: 0, y: 0, width: w, height: 18)),
-                     with: .linearGradient(Gradient(colors: [Color(red: 0.70, green: 0.45, blue: 0.27), Color(red: 0.52, green: 0.30, blue: 0.16)]),
-                                           startPoint: .zero, endPoint: CGPoint(x: 0, y: 18)))
-            ctx.fill(Path(CGRect(x: 0, y: 18, width: w, height: 6)), with: .color(.black.opacity(0.25)))
-            // des lettres, à gauche
-            for (i, a) in [(-8.0), 6.0, -2.0].enumerated() {
-                var l = ctx
-                l.translateBy(x: 38 + Double(i) * 6, y: 2 - Double(i) * 3)
-                l.rotate(by: .degrees(a))
-                let r = CGRect(x: -26, y: -16, width: 52, height: 32)
-                l.fill(Path(roundedRect: r, cornerRadius: 2), with: .color(Noel.cream))
-                var flap = Path()
-                flap.move(to: CGPoint(x: -26, y: -16)); flap.addLine(to: CGPoint(x: 0, y: 2)); flap.addLine(to: CGPoint(x: 26, y: -16))
-                l.stroke(flap, with: .color(Noel.gold.opacity(0.8)), lineWidth: 1.2)
-                if i == 2 { l.fill(Path(ellipseIn: CGRect(x: -5, y: -3, width: 10, height: 10)), with: .color(Noel.red)) }
-            }
+            Text(verbatim: text)
+                .font(elf == nil ? .story(22) : .story(20))
+                .foregroundStyle(Noel.cream)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+                .minimumScaleFactor(0.75)
+                .padding(.horizontal, 20).padding(.vertical, 14)
+                .frame(maxWidth: .infinity)
+                .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.black.opacity(0.5)))
+                .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .strokeBorder((elf == nil ? Noel.gold : Noel.forest).opacity(elf == nil ? 0.3 : 0.9), lineWidth: 1))
         }
-        .overlay(alignment: .topTrailing) {
-            Gift(color: Noel.red, ribbon: Noel.gold).frame(width: 34, height: 30).offset(x: -30, y: -24)
-        }
-        .shadow(color: .black.opacity(0.4), radius: 14, y: -4)
-        .allowsHitTesting(false)
     }
 }
 
@@ -355,6 +327,9 @@ struct EndView: View {
     @State private var shown = false
     @State private var burst = Date()
 
+    /// L'aperçu gratuit vient de se terminer : c'est le moment de proposer la suite.
+    private var afterPreview: Bool { model.call.previewCut && !store.owned }
+
     var body: some View {
         ZStack {
             NightScene(moon: false, trees: false)
@@ -362,26 +337,44 @@ struct EndView: View {
             StarBurst(start: burst, count: 50)
             VStack(spacing: 0) {
                 Spacer()
-                StarShape().fill(Noel.goldGradient)
-                    .frame(width: 54, height: 54)
-                    .shadow(color: Noel.goldLight, radius: 18)
-                    .scaleEffect(shown ? 1 : 0.3)
-                Text("Santa sent you a little magic.")
-                    .font(.tale(34))
-                    .foregroundStyle(Noel.cream)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 26)
-                    .padding(.horizontal, 30)
-                    .opacity(shown ? 1 : 0)
+                if afterPreview {
+                    SantaMedallion(size: 132)
+                        .scaleEffect(shown ? 1 : 0.6)
+                    Text("Santa still has more to say…")
+                        .font(.tale(32))
+                        .foregroundStyle(Noel.cream)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 22)
+                        .padding(.horizontal, 30)
+                        .opacity(shown ? 1 : 0)
+                    Text("The surprise, the full stories, the elf's note about your child, the letter and the certificate.")
+                        .font(.ui(16))
+                        .foregroundStyle(Noel.cream.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 10)
+                        .padding(.horizontal, 34)
+                        .opacity(shown ? 1 : 0)
+                    CountdownChip().padding(.top, 16).opacity(shown ? 1 : 0)
+                } else {
+                    StarShape().fill(Noel.goldGradient)
+                        .frame(width: 54, height: 54)
+                        .shadow(color: Noel.goldLight, radius: 18)
+                        .scaleEffect(shown ? 1 : 0.3)
+                    Text("Santa sent you a little magic.")
+                        .font(.tale(34))
+                        .foregroundStyle(Noel.cream)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 26)
+                        .padding(.horizontal, 30)
+                        .opacity(shown ? 1 : 0)
+                }
                 Spacer()
                 VStack(spacing: 12) {
-                    if model.call.previewCut && !store.owned {
-                        Text("Santa still has more to say…")
-                            .font(.ui(16))
-                            .foregroundStyle(Noel.cream.opacity(0.8))
-                            .multilineTextAlignment(.center)
-                        Button { model.sheet = .paywall } label: { Text("Hear the rest") }
+                    if afterPreview {
+                        Button { model.sheet = .paywall } label: { Label("Hear the whole call", systemImage: "sparkles") }
                             .buttonStyle(MagicButtonStyle())
+                        Button { model.replay(premium: false) } label: { Label("Replay the preview", systemImage: "arrow.counterclockwise") }
+                            .buttonStyle(QuietButtonStyle())
                     } else {
                         Button { model.replay(premium: store.owned) } label: { Label("Replay the call", systemImage: "arrow.counterclockwise") }
                             .buttonStyle(MagicButtonStyle())
@@ -406,7 +399,9 @@ struct EndView: View {
             withAnimation(.easeOut(duration: ShotMode.route != nil ? 0 : 1.6)) { shown = true }
         }
         .task {
-            guard !model.call.previewCut, store.owned, ShotMode.route == nil else { return }
+            // Après l'aperçu, la suite est proposée sur cet écran, sans fenêtre qui s'ouvre toute seule : c'est souvent
+            // l'enfant qui tient encore le téléphone. L'achat reste derrière la question pour les grands.
+            guard ShotMode.route == nil, store.owned, !model.call.previewCut else { return }
             try? await Task.sleep(for: .seconds(1.8))
             guard !Task.isCancelled else { return }
             ReviewPrompt.ask()

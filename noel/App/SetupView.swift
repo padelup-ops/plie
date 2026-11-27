@@ -90,6 +90,7 @@ struct SetupView: View {
                     }
                     .padding(.bottom, 6)
                     .overlay(alignment: .bottom) { Rectangle().fill(Noel.gold).frame(height: 1.5) }
+                    nameHint(i)
                 }
                 if model.profile.names.count < 4 {
                     Button {
@@ -194,6 +195,23 @@ struct SetupView: View {
             get: { i < model.profile.names.count ? model.profile.names[i] : "" },
             set: { v in if i < model.profile.names.count { model.profile.names[i] = String(v.prefix(24)) } }
         )
+    }
+
+    /// Le Père Noël a enregistré ce prénom, ou bien c'est son lutin qui le dira : le parent le sait avant l'appel.
+    @ViewBuilder
+    private func nameHint(_ i: Int) -> some View {
+        let name = i < model.profile.names.count ? model.profile.names[i].trimmingCharacters(in: .whitespacesAndNewlines) : ""
+        if name.count >= 2 {
+            let knows = VoiceLibrary.shared.knows(name: name, lang: ScriptBook.load().1)
+            HStack(spacing: 5) {
+                Image(systemName: knows ? "checkmark.seal.fill" : "sparkles")
+                Text(knows ? "Santa will say this first name himself." : "Santa's elf will say this first name.")
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .font(.ui(12, .medium))
+            .foregroundStyle(knows ? Noel.forest : ink.opacity(0.55))
+            .transition(.opacity)
+        }
     }
 
     private var anecdoteExample: LocalizedStringKey {
