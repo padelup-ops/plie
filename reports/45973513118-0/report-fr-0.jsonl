@@ -23,3 +23,9 @@
 {"id": "45dd5441f5304f67ae64", "key": "hello|ilyan", "text": "Ho, ho, ho ! Bonjour Ilyan !", "ok": true, "score": 0.841, "dur": 2.88, "heard": "Oh, oh, oh, bonjour, Ilian.", "tries": 1, "secs": 55.6}
 {"id": "d73ba7ebd6d493dc317e", "key": "hello|idriss", "text": "Ho, ho, ho ! Bonjour Idriss !", "ok": true, "score": 0.781, "dur": 2.5, "heard": "Oh, oh, oh ! Bonjour, Idlis !", "tries": 3, "secs": 173.9}
 {"id": "ed6ebe89625696cc82fa", "key": "hello|hamza", "text": "Ho, ho, ho ! Bonjour Hamza !", "ok": true, "score": 1.0, "dur": 3.84, "heard": "Oh ho ho ! Bonjour Hamza !", "tries": 1, "secs": 58.6}
+{"id": "81c7831c013a13caaac5", "key": "hello|ayoub", "text": "Ho, ho, ho ! Bonjour Ayoub !", "ok": true, "score": 0.913, "dur": 2.4, "heard": "Ho ho ho ! Bonjour Ayub !", "tries": 2, "secs": 122.8}
+{"id": "1f1283d767578e1bde42", "key": "hello|loan", "text": "Ho, ho, ho ! Bonjour Loan !", "ok": true, "score": 0.738, "dur": 2.84, "heard": "Oh ho ho, bonjour Lowen !", "tries": 1, "secs": 45.4}
+{"id": "eda7cff40f5fe90bf846", "key": "hello|perrine", "text": "Ho, ho, ho ! Bonjour Perrine !", "ok": true, "score": 0.812, "dur": 3.64, "heard": "Oh oh oh, bonjour Bérine.", "tries": 1, "secs": 51.6}
+{"id": "80db634188d09cc62303", "key": "hello|enora", "text": "Ho, ho, ho ! Bonjour Enora !", "ok": true, "score": 0.913, "dur": 2.76, "heard": "Ho ho ho bonjour Nora.", "tries": 1, "secs": 42.8}
+{"id": "1fce93208ce1d945ad9e", "key": "hello|chiara", "text": "Ho, ho, ho ! Bonjour Chiara !", "ok": true, "score": 0.781, "dur": 2.54, "heard": "Ho ho ho! Bonjour Tiara!", "tries": 2, "secs": 130.6}
+{"id": "78b2bd870a34f7f3908e", "key": "hello|berenice", "text": "Ho, ho, ho ! Bonjour Bérénice !", "ok": true, "score": 1.0, "dur": 2.14, "heard": "Ho ho ho bonjour Berenice", "tries": 1, "secs": 46.6}
