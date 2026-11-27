@@ -4,3 +4,7 @@
 {"id": "694a3d35055f9a4f5efb", "key": "hello|maria isis", "text": "Ho, ho, ho! Olá, Maria Isis!", "ok": true, "score": 1.0, "dur": 3.04, "heard": "Oh, oh, oh! Olá, Maria Isis!", "tries": 1, "secs": 48.0}
 {"id": "862e2cd42f2192261dcc", "key": "hello|joao", "text": "Ho, ho, ho! Olá, João!", "ok": true, "score": 0.98, "dur": 2.72, "heard": "Ho, ho, ho, hola João.", "tries": 1, "secs": 48.9}
 {"id": "f37afdcc7bb74c9a9a8e", "key": "hello|eduardo", "text": "Ho, ho, ho! Olá, Eduardo!", "ok": true, "score": 1.0, "dur": 2.94, "heard": "Oh, oh, oh! Olá, Eduardo!", "tries": 1, "secs": 52.5}
+{"id": "788eae6d9861bc93f7ea", "key": "hello|enzo gabriel", "text": "Ho, ho, ho! Olá, Enzo Gabriel!", "ok": true, "score": 0.801, "dur": 3.74, "heard": "Ho ho ho! Olá! Eis o Gabriel!", "tries": 1, "secs": 59.8}
+{"id": "e65d5c8bf8c4b5cffeef", "key": "hello|enzo", "text": "Ho, ho, ho! Olá, Enzo!", "ok": true, "score": 0.98, "dur": 2.4, "heard": "Oh, ho, ho, hola, Enzo!", "tries": 1, "secs": 45.4}
+{"id": "2de1a2c0bd0fb1da6bd6", "key": "hello|joao guilherme", "text": "Ho, ho, ho! Olá, João Guilherme!", "ok": true, "score": 0.99, "dur": 2.42, "heard": "Oh, oh, oh, lá! Joao Guilherme!", "tries": 1, "secs": 50.5}
+{"id": "2509f896d8cd20ac291e", "key": "hello|bella", "text": "Ho, ho, ho! Olá, Bella!", "ok": true, "score": 1.0, "dur": 3.3, "heard": "Oh, oh, oh, olá, Bella!", "tries": 3, "secs": 164.6}

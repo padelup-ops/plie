@@ -1,0 +1,3 @@
+{"id": "b195a89059deb26fccaf", "key": "hello|luisa", "text": "Ho, ho, ho! Hallo, Luisa!", "ok": true, "score": 0.925, "dur": 4.16, "heard": "Ho ho ho! Hallo, Louisa!", "tries": 1, "secs": 63.9}
+{"id": "e442e21858062066aca5", "key": "hello|liam", "text": "Ho, ho, ho! Hallo, Liam!", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Ho ho ho hallo Liam.", "tries": 3, "secs": 135.0}
+{"id": "7b36cfdc61e8ba87dab9", "key": "hello|elisa", "text": "Ho, ho, ho! Hallo, Elisa!", "ok": true, "score": 1.0, "dur": 3.38, "heard": "Ho, ho, ho, hallo, Elisa.", "tries": 3, "secs": 146.0}
