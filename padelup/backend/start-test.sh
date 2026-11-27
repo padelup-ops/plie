@@ -5,4 +5,4 @@ set -e
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 (while true; do python manage.py run_booking_bot --loop --interval 60 || true; sleep 15; done) &
-exec gunicorn backend.wsgi:application --bind 0.0.0.0:${PORT:-8080} --workers 2 --timeout 60
+exec gunicorn backend.wsgi:application --bind 0.0.0.0:${PORT:-8080} --workers 3 --timeout 120

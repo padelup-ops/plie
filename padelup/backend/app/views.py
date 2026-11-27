@@ -3882,7 +3882,8 @@ class ClubFromOSMView(APIView):
         if existing:
             return Response(ClubSerializer(existing, context={'request': request}).data, status=status.HTTP_200_OK)
         try:
-            elements = opendata.run_query(opendata.element_query(m.group(1), m.group(2)), retries=1, timeout=30)
+            # Un seul passage sur les serveurs OSM, 12 s chacun : la requête web ne doit jamais dépasser le délai du serveur.
+            elements = opendata.run_query(opendata.element_query(m.group(1), m.group(2)), retries=0, timeout=12, pause=0)
         except RuntimeError:
             return Response({'error': 'OpenStreetMap est indisponible, réessaie dans un instant'}, status=status.HTTP_502_BAD_GATEWAY)
         tags = (elements[0].get('tags') or {}) if elements else {}

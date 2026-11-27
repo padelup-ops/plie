@@ -21,6 +21,14 @@ jobs:
       - uses: actions/checkout@v5
       - name: Tester
         run: python3 padelup/tools/smoke_test.py "${{ inputs.url || 'https://padelup-test-test.up.railway.app' }}" 2>&1 | tee resultat.txt
+      - name: Playtomic joignable depuis un serveur cloud (GitHub) ?
+        if: always()
+        run: |
+          {
+          echo; echo "== Accès direct à Playtomic depuis la machine GitHub"
+          curl -sS -o /tmp/pt.json -w "HTTP %{http_code} en %{time_total}s\n" --max-time 30 "https://api.playtomic.io/v1/tenants?coordinate=50.6292,3.0573&sport_id=PADEL&radius=20000&size=5" -H "Accept: application/json" -H "X-Requested-With: com.playtomic.web" 2>&1 || true
+          head -c 400 /tmp/pt.json 2>/dev/null; echo
+          } | tee -a resultat.txt
       - name: Publier
         if: always()
         env:

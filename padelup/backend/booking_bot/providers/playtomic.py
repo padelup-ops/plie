@@ -82,7 +82,7 @@ class PlaytomicProvider(BaseProvider):
         try:
             resp = self.http.request(method, API_BASE + path, headers=headers, timeout=TIMEOUT, **kwargs)
         except requests.RequestException as exc:
-            raise ProviderError(f'Playtomic injoignable : {exc.__class__.__name__}') from exc
+            raise ProviderError(f'Playtomic injoignable depuis ce serveur ({exc.__class__.__name__} : {str(exc)[:160]})') from exc
         if resp.status_code == 401 and auth and retry_auth and self.account and self.account.refresh_token:
             self._refresh()
             return self._request(method, path, auth=auth, retry_auth=False, headers={}, **kwargs)
