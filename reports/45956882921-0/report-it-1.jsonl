@@ -31,3 +31,5 @@
 {"id": "6a217287a69c6c9a669e", "key": "hello|filippo", "text": "Oh, oh, oh! Ciao, Filippo!", "ok": true, "score": 1.0, "dur": 2.64, "heard": "Oh, oh, oh, ciao, Filippo.", "tries": 1, "secs": 48.5}
 {"id": "212a1a3f143eb5602e36", "key": "hello|christian", "text": "Oh, oh, oh! Ciao, Christian!", "ok": true, "score": 1.0, "dur": 3.16, "heard": "Oh, oh, oh, ciao, Christian!", "tries": 1, "secs": 54.1}
 {"id": "d2e0d404e716d79a3398", "key": "hello|marco", "text": "Oh, oh, oh! Ciao, Marco!", "ok": true, "score": 1.0, "dur": 2.22, "heard": "Oh oh oh, ciao Marco!", "tries": 1, "secs": 46.8}
+{"id": "cda564433a1750472f9d", "key": "hello|liam", "text": "Oh, oh, oh! Ciao, Liam!", "ok": true, "score": 1.0, "dur": 2.34, "heard": "Oh, oh, oh, ciao Liam!", "tries": 1, "secs": 46.8}
+{"id": "61d9a44d85c9a9129fcf", "key": "hello|alessio", "text": "Oh, oh, oh! Ciao, Alessio!", "ok": true, "score": 1.0, "dur": 3.74, "heard": "Oh oh oh, ciao Alessio.", "tries": 1, "secs": 60.9}
