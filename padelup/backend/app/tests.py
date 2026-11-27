@@ -48,6 +48,15 @@ class AuthSecurityTests(TestCase):
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_active)
 
+    @mock.patch.dict('os.environ', {'AUTO_VERIFY_EMAIL': 'true'})
+    def test_test_server_signup_without_email_code(self):
+        r = self.api.post('/api/auth/register/', {'username': 'tester', 'email': 'tester@example.com', 'password': 'Sup3r-secret-pass',
+                                                  'password2': 'Sup3r-secret-pass'}, format='json')
+        self.assertEqual(r.status_code, 201)
+        self.assertFalse(r.data['verification_required'])
+        self.assertTrue(Token.objects.filter(key=r.data['token']).exists())
+        self.assertTrue(User.objects.get(username='tester').is_active)
+
     def test_email_duplicate_case_insensitive(self):
         make_user('dup')
         r = self.api.post('/api/auth/register/', {'username': 'dup2', 'email': 'DUP@example.com', 'password': 'Sup3r-secret-pass',

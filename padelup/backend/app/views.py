@@ -226,6 +226,20 @@ class RegisterView(AuthThrottleMixin, APIView):
         if serializer.is_valid():
             user = serializer.save()
 
+            # Serveur de test uniquement (AUTO_VERIFY_EMAIL=true) : pas d'e-mail, compte actif tout de suite.
+            if _os.environ.get('AUTO_VERIFY_EMAIL', '').lower() == 'true':
+                user.is_active = True
+                user.save(update_fields=['is_active'])
+                update_last_login(None, user)
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({
+                    'verification_required': False,
+                    'user': UserSerializer(user).data,
+                    'profile': ProfileSerializer(user.profile).data if hasattr(user, 'profile') else None,
+                    'token': token.key,
+                    'message': 'Compte créé (serveur de test : e-mail non vérifié)',
+                }, status=status.HTTP_201_CREATED)
+
             # Invalidate any previous unused verification codes for this user
             EmailVerificationCode.objects.filter(user=user, is_used=False).update(is_used=True)
 
