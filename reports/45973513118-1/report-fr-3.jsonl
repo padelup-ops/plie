@@ -12,3 +12,4 @@
 {"id": "19223f181b57802cca78", "key": "hello|pierre", "text": "Ho, ho, ho ! Bonjour Pierre !", "ok": true, "score": 1.0, "dur": 3.8, "heard": "Oh ho ho, bonjour Pierre.", "tries": 2, "secs": 159.8}
 {"id": "acf2f4f9b5ead7d6ccf0", "key": "hello|titouan", "text": "Ho, ho, ho ! Bonjour Titouan !", "ok": true, "score": 0.765, "dur": 1.96, "heard": "Oh oh oh, bonjour Titoine.", "tries": 1, "secs": 77.7}
 {"id": "7e40e86479be900dcafa", "key": "hello|ange", "text": "Ho, ho, ho ! Bonjour Ange !", "ok": true, "score": 0.841, "dur": 2.64, "heard": "Oh ho ho bonjour orange Ah", "tries": 1, "secs": 64.1}
+{"id": "b4257349178e43deeef7", "key": "hello|charly", "text": "Ho, ho, ho ! Bonjour Charly !", "ok": true, "score": 0.812, "dur": 2.64, "heard": "Ho ho ho ho ho! Bonjour, Charlie!", "tries": 3, "secs": 275.6}
