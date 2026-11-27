@@ -47,6 +47,7 @@ struct MapTab: View {
             NavigationStack { MapCanvasScreen() }
         }
         .environment(state)
+        .task { await CarStore.shared.loadSpots() }
         .onChange(of: AppRouter.shared.mapPlace) { _, p in open(p) }
         .onAppear {
             open(AppRouter.shared.mapPlace)
@@ -88,6 +89,7 @@ struct MapCanvasScreen: View {
     @State private var showLayers = ShotMode.route == "layers"
     @State private var showImport = false
     @State private var showPro = false
+    @State private var showCar = false
 
     var body: some View {
         @Bindable var state = state
@@ -114,6 +116,8 @@ struct MapCanvasScreen: View {
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showLayers = true } label: { Image(systemName: "square.3.layers.3d") }.accessibilityLabel("Layers")
+                    // Ajouter un véhicule rare là où pointe le centre de la carte (les autres joueurs voteront).
+                    Button { showCar = true } label: { Image(systemName: "car.fill") }.accessibilityLabel("Add a rare vehicle")
                     Button {
                         if progress.canAddPin { state.dropping.toggle() } else { showPro = true }
                     } label: { Image(systemName: state.dropping ? "mappin.slash" : "mappin.and.ellipse") }
@@ -137,6 +141,7 @@ struct MapCanvasScreen: View {
             .sheet(isPresented: $showList) { NavigationStack { PlaceList(onPick: { showList = false }) }.presentationDetents([.medium, .large]) }
             .sheet(isPresented: $showLayers) { NavigationStack { LayersView(showImport: $showImport) }.presentationDetents([.medium, .large]) }
             .sheet(isPresented: $showPro) { ProView() }
+            .sheet(isPresented: $showCar) { NavigationStack { CarSpotEditor(x: Double(state.center.x), y: Double(state.center.y)) }.presentationDetents([.medium, .large]) }
             .sheet(item: $state.selectedPin) { pin in NavigationStack { PinEditor(pin: pin) } }
     }
 
@@ -207,13 +212,16 @@ struct PlaceCard: View {
                     if place.closed == true {
                         Label("Closed", systemImage: "lock").font(.caption).foregroundStyle(VF.textDim)
                     }
+                    if place.kind == .vehicle {
+                        // Les joueurs votent : « il est là » ou « pas là » (Cars.swift).
+                        CarVoteRow(place: place, close: close)
+                    }
                     if place.openMap {
-                        // Les joueurs confirment ou corrigent l'emplacement dans le fil de ce véhicule (entraide).
+                        // Et ils précisent ou corrigent l'emplacement dans le fil de ce véhicule (entraide).
                         Button { showThread = true } label: {
                             Label("Players' notes", systemImage: "bubble.left.and.bubble.right.fill").font(.caption.weight(.semibold))
                         }
                         .tint(VF.cyan)
-                        Text("Seen it? Confirm the spot or correct it.").font(.caption2).foregroundStyle(VF.textDim)
                         Text("Source: Open GTA 6 Map (CC BY 4.0)").font(.caption2).foregroundStyle(VF.textFaint)
                     }
                     if place.gtadb, let url = URL(string: "https://map.gtadb.org/#VI," + place.id.dropFirst(2)) {
@@ -394,7 +402,7 @@ struct LeonidaMapView: View {
     }
 
     private var visiblePlaces: [VFPlace] {
-        content.content.places.filter { p in
+        content.mapPlaces.filter { p in
             guard p.kind != .region else { return false }
             if p.kind.pro && !store.isPro { return false }
             // Un lieu favori se voit quelles que soient les couches et les filtres (sur la carte, pas sur les aperçus).
@@ -595,9 +603,9 @@ struct PlaceList: View {
         @Bindable var state = state
         let pins = progress.data.pins.filter { matches($0.name) }
         let kinds = VFPlaceKind.allCases.filter { $0 != .region }
-        let found = kinds.contains { kind in content.content.places.contains { $0.kind == kind && shown($0) } }
+        let found = kinds.contains { kind in content.mapPlaces.contains { $0.kind == kind && shown($0) } }
         // Les favoris (jamais un lieu masqué : on ne peut mettre en favori qu'un lieu ouvert sur la carte).
-        let favorites = progress.data.favorites.isEmpty ? [] : content.content.places.filter { progress.isFavorite($0) && !progress.hidden($0.spoiler) && matches($0.name) }
+        let favorites = progress.data.favorites.isEmpty ? [] : content.mapPlaces.filter { progress.isFavorite($0) && !progress.hidden($0.spoiler) && matches($0.name) }
         List {
             Group {
                 if !pins.isEmpty {
@@ -640,7 +648,7 @@ struct PlaceList: View {
                     }
                 }
                 ForEach(kinds) { kind in
-                    let items = content.content.places.filter { $0.kind == kind && shown($0) }
+                    let items = content.mapPlaces.filter { $0.kind == kind && shown($0) }
                     if !items.isEmpty {
                         Section {
                             if kind.pro && !store.isPro {

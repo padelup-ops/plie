@@ -411,7 +411,19 @@
 /* Rare vehicles on the map (Open GTA 6 Map) */
 "Rare vehicles" = "Rare vehicles";
 "Players' notes" = "Players' notes";
-"Seen it? Confirm the spot or correct it." = "Seen it? Confirm the spot or correct it.";
 "Source: Open GTA 6 Map (CC BY 4.0)" = "Source: Open GTA 6 Map (CC BY 4.0)";
 "Open GTA 6 Map" = "Open GTA 6 Map";
 "Rare vehicle locations come from Open GTA 6 Map, by fbritoferreira and its contributors, shared under the same license. We converted the positions to this map." = "Rare vehicle locations come from Open GTA 6 Map, by fbritoferreira and its contributors, shared under the same license. We converted the positions to this map.";
+"It's here" = "It's here";
+"Not here" = "Not here";
+"Confirmed by players" = "Confirmed by players";
+"Players say it isn't here" = "Players say it isn't here";
+"Added by a player, not confirmed yet" = "Added by a player, not confirmed yet";
+"Sign in to Game Center to vote." = "Sign in to Game Center to vote.";
+"Added by %@" = "Added by %@";
+"Remove my vehicle" = "Remove my vehicle";
+"Add a rare vehicle" = "Add a rare vehicle";
+"Vehicle name" = "Vehicle name";
+"Use the name shown in the game. The spot is the center of the map: move the map first if it isn't right there." = "Use the name shown in the game. The spot is the center of the map: move the map first if it isn't right there.";
+"Share with players" = "Share with players";
+"Other players vote: confirmed spots stay, wrong ones disappear." = "Other players vote: confirmed spots stay, wrong ones disappear.";

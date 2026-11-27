@@ -178,8 +178,9 @@ struct VFPlace: Codable, Identifiable, Hashable {
     var uncertain: Bool?
     var closed: Bool?
 
-    /// Un lieu repris d'une base communautaire (pas un des nôtres) : GTADB, ou Open GTA 6 Map pour les véhicules rares.
-    var community: Bool { gtadb || openMap }
+    /// Un lieu repris d'une base communautaire (pas un des nôtres) : GTADB, Open GTA 6 Map pour les véhicules rares, ou
+    /// un véhicule ajouté par un joueur (Cars.swift).
+    var community: Bool { gtadb || openMap || playerSpot }
     /// Un lieu de GTADB.org (il a une page de photos là-bas).
     var gtadb: Bool { id.hasPrefix("g-") }
     /// Un véhicule rare relevé par Open GTA 6 Map (CC BY 4.0).

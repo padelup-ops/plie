@@ -415,7 +415,8 @@ struct ThreadView: View {
                 Text(hiddenMission ? String(localized: "Hidden mission") : title).font(VF.display(34)).foregroundStyle(VF.text)
                     .fixedSize(horizontal: false, vertical: true)
                 if let posts {
-                    let visible = posts.filter { !community.blocked.contains($0.author) && !community.reported.contains($0.id) }
+                    // Les votes « il est là / pas là » des véhicules rares sont des messages à part : ils ne s'affichent pas ici.
+                    let visible = posts.filter { !community.blocked.contains($0.author) && !community.reported.contains($0.id) && !CarStore.isMarker($0.text) }
                     let questions = visible.filter { $0.parent == nil }.sorted { $0.created > $1.created }
                     if questions.isEmpty {
                         Label("No questions yet. Ask the first one below.", systemImage: "bubble.left.and.bubble.right")

@@ -432,7 +432,19 @@
 /* Véhicules rares sur la carte (Open GTA 6 Map) */
 "Rare vehicles" = "Veicoli rari";
 "Players' notes" = "Note dei giocatori";
-"Seen it? Confirm the spot or correct it." = "L'hai visto? Conferma il posto o correggilo.";
 "Source: Open GTA 6 Map (CC BY 4.0)" = "Fonte: Open GTA 6 Map (CC BY 4.0)";
 "Open GTA 6 Map" = "Open GTA 6 Map";
 "Rare vehicle locations come from Open GTA 6 Map, by fbritoferreira and its contributors, shared under the same license. We converted the positions to this map." = "Le posizioni dei veicoli rari provengono da Open GTA 6 Map, di fbritoferreira e dei suoi collaboratori, con la stessa licenza. Abbiamo convertito le posizioni per questa mappa.";
+"It's here" = "È qui";
+"Not here" = "Non c'è";
+"Confirmed by players" = "Confermato dai giocatori";
+"Players say it isn't here" = "I giocatori dicono che non c'è";
+"Added by a player, not confirmed yet" = "Aggiunto da un giocatore, non ancora confermato";
+"Sign in to Game Center to vote." = "Accedi a Game Center per votare.";
+"Added by %@" = "Aggiunto da %@";
+"Remove my vehicle" = "Rimuovi il mio veicolo";
+"Add a rare vehicle" = "Aggiungi un veicolo raro";
+"Vehicle name" = "Nome del veicolo";
+"Use the name shown in the game. The spot is the center of the map: move the map first if it isn't right there." = "Usa il nome mostrato nel gioco. Il punto è il centro della mappa: sposta prima la mappa se non è proprio lì.";
+"Share with players" = "Condividi con i giocatori";
+"Other players vote: confirmed spots stay, wrong ones disappear." = "Gli altri giocatori votano: i punti confermati restano, quelli sbagliati spariscono.";

@@ -525,8 +525,8 @@ NEWS.insert(0, ("n2", "2026-11-23", T("All 91 missions and the full 100%", "Les 
        "Toutes les missions par chapitre, les missions facultatives, Strangers & Freaks, toutes les catégories du 100 %, 61 codes et 21 radios.")))
 
 NEWS.insert(0, ("n3", "2026-11-27", T("Rare vehicles on the map", "Les véhicules rares sur la carte"),
-     T("More than 400 standout vehicles, each pinned where it is parked. Seen one? Confirm the spot in its players' notes.",
-       "Plus de 400 véhicules remarquables, chacun épinglé là où il est garé. Tu en as vu un ? Confirme l'endroit dans ses notes des joueurs.")))
+     T("More than 400 standout vehicles pinned on the map. Vote to say if a car is there or not, and add the rare cars you find yourself.",
+       "Plus de 400 véhicules remarquables épinglés sur la carte. Vote pour dire si une voiture est bien là, et ajoute les voitures rares que tu trouves.")))
 
 SOURCES = T(["Facts from the publisher's official character and setting announcements. All text written for Vicefold."],
             ["Faits tirés des annonces officielles de l'éditeur (personnages, lieux). Tous les textes sont rédigés pour Vicefold."])
