@@ -342,3 +342,18 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
   self.gen = func(*args, **kwds)
   self.gen = func(*args, **kwds)
+[126/765] en FAIBLE 0.93 2.9s essais 1 (147s, reste 838 min) Ho, ho, ho! Hello, Elsie! → Ho Ho Ho! Hello Elsie! Elsie!
+  self.gen = func(*args, **kwds)
+[127/765] en ok  0.93 2.3s essais 1 (48s, reste 834 min) Ho, ho, ho! Hello, Yusuf! → Ho ho ho! Hello, Yousuf!
+  self.gen = func(*args, **kwds)
+[128/765] en ok  0.73 2.3s essais 1 (45s, reste 830 min) Ho, ho, ho! Hello, Aisha! → Hello Asia!
+  self.gen = func(*args, **kwds)
+[129/765] en ok  1.00 2.1s essais 1 (48s, reste 826 min) Ho, ho, ho! Hello, Amira! → Ho, ho, ho. Hello, Amira.
+  self.gen = func(*args, **kwds)
+[130/765] en ok  1.00 2.0s essais 1 (39s, reste 822 min) Ho, ho, ho! Hello, Rohan! → Ho, ho, ho. Hello, Rohan.
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[131/765] en ok  1.00 1.7s essais 2 (83s, reste 821 min) Ho, ho, ho! Hello, Erin! → Ho, ho, ho, hello, Erin.
+  self.gen = func(*args, **kwds)
+[132/765] en ok  1.00 2.1s essais 1 (40s, reste 816 min) Ho, ho, ho! Hello, Imogen! → Ho ho ho, hello, Imogen!
+temps écoulé : 633 phrases restent pour le prochain passage

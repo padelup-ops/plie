@@ -37,3 +37,10 @@
 {"id": "1ac09c377d71a22af73c", "key": "hello|genevieve", "text": "Ho, ho, ho! Hello, Genevieve!", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Ho ho ho. Hello Genevieve.", "tries": 1, "secs": 38.1}
 {"id": "b0bfe3ed350c609b1ba3", "key": "hello|taylor", "text": "Ho, ho, ho! Hello, Taylor!", "ok": true, "score": 1.0, "dur": 3.32, "heard": "Ho ho ho! Hello Taylor!", "tries": 2, "secs": 91.6}
 {"id": "3048cfa678bc21a75e28", "key": "hello|florence", "text": "Ho, ho, ho! Hello, Florence!", "ok": true, "score": 1.0, "dur": 2.2, "heard": "Ho, ho, ho! Hello Florence!", "tries": 1, "secs": 44.4}
+{"id": "e0308b998c165d9d3fd4", "key": "hello|elsie", "text": "Ho, ho, ho! Hello, Elsie!", "ok": false, "score": 0.929, "dur": 2.9, "heard": "Ho Ho Ho! Hello Elsie! Elsie!", "tries": 1, "secs": 146.9}
+{"id": "b995273baf47af5a14f7", "key": "hello|yusuf", "text": "Ho, ho, ho! Hello, Yusuf!", "ok": true, "score": 0.925, "dur": 2.34, "heard": "Ho ho ho! Hello, Yousuf!", "tries": 1, "secs": 47.8}
+{"id": "358d49332d0f47060b0a", "key": "hello|aisha", "text": "Ho, ho, ho! Hello, Aisha!", "ok": true, "score": 0.73, "dur": 2.26, "heard": "Hello Asia!", "tries": 1, "secs": 44.7}
+{"id": "6c9f85c6e282011dc8a0", "key": "hello|amira", "text": "Ho, ho, ho! Hello, Amira!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Ho, ho, ho. Hello, Amira.", "tries": 1, "secs": 47.8}
+{"id": "02148f741bca25ecaa1b", "key": "hello|rohan", "text": "Ho, ho, ho! Hello, Rohan!", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Ho, ho, ho. Hello, Rohan.", "tries": 1, "secs": 39.1}
+{"id": "14877637977395fbe072", "key": "hello|erin", "text": "Ho, ho, ho! Hello, Erin!", "ok": true, "score": 1.0, "dur": 1.72, "heard": "Ho, ho, ho, hello, Erin.", "tries": 2, "secs": 82.6}
+{"id": "18ae97604e8c5d724c83", "key": "hello|imogen", "text": "Ho, ho, ho! Hello, Imogen!", "ok": true, "score": 1.0, "dur": 2.1, "heard": "Ho ho ho, hello, Imogen!", "tries": 1, "secs": 40.1}
