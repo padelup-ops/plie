@@ -1,6 +1,7 @@
-"""Rend le film du guide : python3 render.py SORTIE.mp4 [instants…]
+"""Rend le film du guide : python3 render.py SORTIE.mp4 [LANGUE [LARGEURxHAUTEUR [instants…]]]
+LANGUE : fr (défaut) ou en. Format : 1080x1920 (défaut, vertical) ou 1080x1080 (carré, pour les fils X et Reddit).
 Sans instants : toutes les images (30 par seconde), la bande-son, puis l'assemblage avec ffmpeg.
-Avec des instants (en secondes) : seulement ces images, dans DOSSIER_DE_SORTIE/essais, pour vérifier un plan."""
+Avec des instants (en secondes) : seulement ces images, dans le dossier de travail, pour vérifier un plan."""
 import os, subprocess, sys, wave
 import numpy as np
 
@@ -10,9 +11,10 @@ BEAT = 0.625                      # 96 battements par minute : une étape dure 4
 STEPS_AT, STEP = 8.75, 2.5
 
 
-def frames(folder, times):
+def frames(folder, lang, size, times):
     """Les images sont prises par frames.js (Playwright pour Node)."""
-    subprocess.run(["node", os.path.join(HERE, "frames.js"), folder] + [str(t) for t in times], check=True)
+    w, h = size.split("x")
+    subprocess.run(["node", os.path.join(HERE, "frames.js"), folder, lang, w, h] + [str(t) for t in times], check=True)
 
 
 def tone(freq, dur, kind="sine"):
@@ -77,14 +79,16 @@ def soundtrack(path):
 
 def main():
     out = os.path.abspath(sys.argv[1])
-    work = os.path.join(os.path.dirname(out), "film-travail")
-    if len(sys.argv) > 2:
-        frames(os.path.join(work, "essais"), [float(t) for t in sys.argv[2:]])
+    lang = sys.argv[2] if len(sys.argv) > 2 else "fr"
+    size = sys.argv[3] if len(sys.argv) > 3 else "1080x1920"
+    work = os.path.join(os.path.dirname(out), f"film-travail-{lang}-{size}")
+    if len(sys.argv) > 4:
+        frames(os.path.join(work, "essais"), lang, size, [float(t) for t in sys.argv[4:]])
         return
-    frames(os.path.join(work, "images"), ["tout"])
+    frames(os.path.join(work, "images"), lang, size, ["tout"])
     soundtrack(os.path.join(work, "son.wav"))
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(work, "images", "f%05d.jpg"),
-                    "-i", os.path.join(work, "son.wav"), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "27", "-preset", "slow",
+                    "-i", os.path.join(work, "son.wav"), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "24", "-preset", "slow",
                     "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", "-shortest", out], check=True)
     print(out, os.path.getsize(out) // 1024, "Ko")
 

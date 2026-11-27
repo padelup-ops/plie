@@ -5,12 +5,12 @@
    l'instant voulu (window.seek) ; la pluie de code est redessinée pour cet instant, toujours la même à instant égal. */
 :root { --bg:#020604; --panel:#05100A; --fg:#A9E6B8; --bright:#00FF66; --white:#E8FFEC; --dim:#5C9E72; --line:#134229; --amber:#FFB454; }
 * { box-sizing:border-box; margin:0; }
-html, body { width:1080px; height:1920px; overflow:hidden; background:var(--bg); color:var(--fg); font-family:"DejaVu Sans Mono", monospace; }
+html, body { width:var(--w, 1080px); height:var(--h, 1920px); overflow:hidden; background:var(--bg); color:var(--fg); font-family:"DejaVu Sans Mono", monospace; }
 #rain { position:absolute; inset:0; opacity:.95; animation: rain-dim 1.3s ease 1.1s both, rain-up .8s ease 32.3s forwards; }
 @keyframes rain-dim { from { opacity:.95 } to { opacity:.4 } }
 @keyframes rain-up { from { opacity:.4 } to { opacity:.5 } }
 .lines { position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.2) 0 2px, transparent 2px 6px); z-index:9; }
-.scene { position:absolute; inset:0; padding:150px 80px; display:flex; flex-direction:column; justify-content:center; gap:44px; opacity:0;
+.scene { position:absolute; inset:0; padding:var(--pad, 150px) 80px; display:flex; flex-direction:column; justify-content:center; gap:44px; opacity:0;
   animation: s-in .3s steps(3) var(--at) both, s-out .25s steps(3) calc(var(--at) + var(--dur) - .25s) forwards; }
 .scene.last { animation: s-in .3s steps(3) var(--at) both; }
 @keyframes s-in { from { opacity:0 } to { opacity:1 } }
@@ -28,7 +28,7 @@ h1 em, h2 em { font-style:normal; color:var(--bright); }
 .small { font-size:24px; line-height:1.45; color:var(--dim); }
 .veil { background:rgba(2,6,4,.82); border:2px solid var(--line); padding:54px 48px; display:flex; flex-direction:column; gap:36px; }
 
-.card { background:var(--panel); color:var(--white); border:2px solid var(--bright); box-shadow:0 0 60px rgba(0,255,102,.16); padding:48px; display:flex; flex-direction:column; gap:30px; min-height:380px; justify-content:center; }
+.card { background:var(--panel); color:var(--white); border:2px solid var(--bright); box-shadow:0 0 60px rgba(0,255,102,.16); padding:48px; display:flex; flex-direction:column; gap:30px; min-height:var(--card, 380px); justify-content:center; }
 .row { display:flex; align-items:center; justify-content:space-between; gap:20px; font-size:40px; font-weight:700; }
 .chip { font-size:32px; font-weight:700; color:var(--bright); white-space:nowrap; }
 .chip::before { content:"[ "; color:var(--dim); } .chip::after { content:" ]"; color:var(--dim); }
@@ -41,67 +41,78 @@ h1 em, h2 em { font-style:normal; color:var(--bright); }
 .tiles i { aspect-ratio:1; display:block; border:2px solid var(--bright); position:relative; overflow:hidden; }
 .tiles i::after { content:""; position:absolute; inset:auto 0 0 0; height:44%; background:var(--bright); opacity:var(--o, .5); }
 .tiles i::before { content:""; position:absolute; width:22%; aspect-ratio:1; background:var(--white); top:16%; right:16%; }
-.dots { position:absolute; left:0; right:0; bottom:150px; display:flex; gap:18px; justify-content:center; opacity:0;
+.dots { position:absolute; left:0; right:0; bottom:var(--dots, 150px); display:flex; gap:18px; justify-content:center; opacity:0;
   animation: s-in .3s steps(3) 8.75s both, s-out .3s steps(3) 28.45s forwards; }
 .dots i { width:30px; height:14px; background:var(--line); animation: dot .2s steps(1) var(--on) both; }
 @keyframes dot { to { background:var(--bright) } }
 .price { font-weight:700; font-size:170px; letter-spacing:-.06em; line-height:1; color:var(--bright); text-shadow:0 0 50px rgba(0,255,102,.7); }
 </style></head>
 <body>
-<canvas id="rain" width="1080" height="1920"></canvas>
+<canvas id="rain"></canvas>
 <div id="stage"></div>
 <div class="lines"></div>
 <script>
+// Format et langue : donnés par frames.js dans window.FILM ; sans lui, le film vertical en français.
+const P = window.FILM || { w: 1080, h: 1920, lang: "fr", dict: {} };
+const tall = P.h >= 1600;
+const root = document.documentElement.style;
+root.setProperty("--w", P.w + "px"); root.setProperty("--h", P.h + "px");
+root.setProperty("--pad", tall ? "150px" : "64px"); root.setProperty("--card", tall ? "380px" : "300px"); root.setProperty("--dots", tall ? "150px" : "52px");
+document.documentElement.lang = P.lang;
+const T = s => (P.lang !== "fr" && Object.prototype.hasOwnProperty.call(P.dict, s)) ? P.dict[s] : s;
 const STEP = 2.5, STEPS_AT = 8.75;
-const ok = (txt, d) => `<span class="chip zoom" style="--d:${d}s">${txt}</span>`;
+const ok = (txt, d) => `<span class="chip zoom" style="--d:${d}s">${T(txt)}</span>`;
+const row = (name, state, d1, d2) => `<div class="row pop" style="--d:${d1}s"><span>${T(name)}</span>${ok(state, d2)}</div>`;
+const lab = (txt, d) => `<span class="lab pop" style="--d:${d}s">${T(txt)}</span>`;
 const steps = [
-  ["Récupère l'identifiant de ton appareil", `<span class="lab pop" style="--d:.45s">identifiant (UDID)</span><div class="mono pop" style="--d:.6s">00008160-000A1B2C…</div><div class="row"><span></span>${ok("copié", 1.25)}</div>`],
-  ["Installe les deux apps", `<div class="row pop" style="--d:.45s"><span>StikDebug</span>${ok("installée", 1.05)}</div><div class="row pop" style="--d:.65s"><span>Émulateur</span>${ok("installée", 1.45)}</div>`],
-  ["Active le Mode développeur", `<span class="lab pop" style="--d:.45s">Réglages › Confidentialité et sécurité</span><div class="row pop" style="--d:.6s"><span>Mode développeur</span>${ok("ON", 1.1)}</div>`],
-  ["Connecte LocalDevVPN", `<div class="row pop" style="--d:.45s"><span>LocalDevVPN</span>${ok("connecté", 1.05)}</div><span class="lab pop" style="--d:.75s">gratuit, sur l'App Store</span>`],
-  ["Appaire StikDebug", `<span class="lab pop" style="--d:.45s">code à saisir dans Réglages</span><div class="digits">${"482913".split("").map((c, i) => `<b class="zoom" style="--d:${.65 + i * .16}s">${c}</b>`).join("")}</div>`],
-  ["Active le JIT", `<div class="row pop" style="--d:.45s"><span>MeloNX</span>${ok("JIT actif", 1.05)}</div><span class="lab pop" style="--d:.75s">à refaire à chaque partie</span>`],
-  ["Importe tes clés et ton firmware", `<div class="row pop" style="--d:.45s"><span>prod.keys</span>${ok("importé", 1.0)}</div><div class="row pop" style="--d:.65s"><span>firmware.zip</span>${ok("importé", 1.4)}</div>`],
+  ["Récupère l'identifiant de ton appareil", `${lab("identifiant (UDID)", .45)}<div class="mono pop" style="--d:.6s">00008160-000A1B2C…</div><div class="row"><span></span>${ok("copié", 1.25)}</div>`],
+  ["Installe les deux apps", row("StikDebug", "installée", .45, 1.05) + row("Émulateur", "installée", .65, 1.45)],
+  ["Active le Mode développeur", lab("Réglages › Confidentialité et sécurité", .45) + row("Mode développeur", "ON", .6, 1.1)],
+  ["Connecte LocalDevVPN", row("LocalDevVPN", "connecté", .45, 1.05) + lab("gratuit, sur l'App Store", .75)],
+  ["Appaire StikDebug", `${lab("code à saisir dans Réglages", .45)}<div class="digits">${"482913".split("").map((c, i) => `<b class="zoom" style="--d:${.65 + i * .16}s">${c}</b>`).join("")}</div>`],
+  ["Active le JIT", row("MeloNX", "JIT actif", .45, 1.05) + lab("à refaire à chaque partie", .75)],
+  ["Importe tes clés et ton firmware", row("prod.keys", "importé", .45, 1.0) + row("firmware.zip", "importé", .65, 1.4)],
   ["Ajoute tes jeux", `<div class="tiles">${[.9, .35, .6, .45, .8, .25].map((o, i) => `<i class="zoom" style="--d:${.5 + i * .14}s;--o:${o}"></i>`).join("")}</div>`],
 ];
 let html = `
 <section class="scene" style="--at:0s;--dur:5s"><div class="veil pop" style="--d:1.3s">
-  <p class="eyebrow pop" style="--d:1.5s">&gt; connexion établie</p>
-  <h1 class="pop" style="--d:1.8s">L'émulateur Switch sur <em>iPhone et iPad.</em></h1></div>
+  <p class="eyebrow pop" style="--d:1.5s">&gt; ${T("connexion établie")}</p>
+  <h1 class="pop" style="--d:1.8s">${T("L'émulateur Switch sur")} <em>${T("iPhone et iPad.")}</em></h1></div>
 </section>
 <section class="scene" style="--at:5s;--dur:3.75s">
-  <h1 class="pop" style="--d:.3s">Sans ordinateur.</h1>
-  <h1 class="pop" style="--d:1.1s"><em>Sans jailbreak.</em></h1>
-  <p class="sub pop" style="--d:1.9s">Tout se fait depuis l'appareil, en 8 étapes.</p>
+  <h1 class="pop" style="--d:.3s">${T("Sans ordinateur.")}</h1>
+  <h1 class="pop" style="--d:1.1s"><em>${T("Sans jailbreak.")}</em></h1>
+  <p class="sub pop" style="--d:1.9s">${T("Tout se fait depuis l'appareil, en 8 étapes.")}</p>
 </section>`;
 steps.forEach(([title, mock], i) => {
   html += `<section class="scene" style="--at:${STEPS_AT + i * STEP}s;--dur:${STEP}s">
-    <p class="eyebrow pop" style="--d:.1s">étape 0${i + 1} / 08</p>
-    <h2 class="pop" style="--d:.2s">${title}</h2>
+    <p class="eyebrow pop" style="--d:.1s">${T("étape")} 0${i + 1} / 08</p>
+    <h2 class="pop" style="--d:.2s">${T(title)}</h2>
     <div class="card pop" style="--d:.35s">${mock}</div></section>`;
 });
 html += `
 <section class="scene" style="--at:28.75s;--dur:3.75s">
-  <h1 class="pop" style="--d:.3s">Tes clés.</h1><h1 class="pop" style="--d:.8s">Ton firmware.</h1><h1 class="pop" style="--d:1.3s"><em>Tes jeux.</em></h1>
-  <p class="sub pop" style="--d:2s">Rien n'est fourni : tu utilises les fichiers de ta propre console.</p>
+  <h1 class="pop" style="--d:.3s">${T("Tes clés.")}</h1><h1 class="pop" style="--d:.8s">${T("Ton firmware.")}</h1><h1 class="pop" style="--d:1.3s"><em>${T("Tes jeux.")}</em></h1>
+  <p class="sub pop" style="--d:2s">${T("Rien n'est fourni : tu utilises les fichiers de ta propre console.")}</p>
 </section>
 <section class="scene last" style="--at:32.5s;--dur:7s"><div class="veil pop" style="--d:.2s">
-  <p class="eyebrow pop" style="--d:.4s">&gt; accès complet</p>
-  <h2 class="pop" style="--d:.6s">Le guide, <em>pas à pas.</em></h2>
-  <p class="sub pop" style="--d:.9s">8 étapes · dépannage · assistant<br>iPhone et iPad</p>
-  <p class="price zoom" style="--d:1.4s">9,90 €</p>
-  <p class="small pop" style="--d:2s">Émulation expérimentale : tous les jeux ne tournent pas. MeloNX et StikDebug sont des logiciels libres (AGPL v3). Site non affilié à Nintendo ni à Apple.</p></div>
+  <p class="eyebrow pop" style="--d:.4s">&gt; ${T("accès complet")}</p>
+  <h2 class="pop" style="--d:.6s">${T("Le guide,")} <em>${T("pas à pas.")}</em></h2>
+  <p class="sub pop" style="--d:.9s">${T("8 étapes · dépannage · assistant")}<br>${T("iPhone et iPad")}</p>
+  <p class="price zoom" style="--d:1.4s">${T("9,90 €")}</p>
+  <p class="small pop" style="--d:2s">${T("Émulation expérimentale : tous les jeux ne tournent pas. MeloNX et StikDebug sont des logiciels libres (AGPL v3). Site non affilié à Nintendo ni à Apple.")}</p></div>
 </section>
 <div class="dots">${steps.map((_, i) => `<i style="--on:${STEPS_AT + i * STEP + .15}s"></i>`).join("")}</div>`;
 document.getElementById("stage").innerHTML = html;
 
 // La pluie : chaque colonne a sa vitesse et sa longueur, tirées d'une suite fixe.
-const cx = document.getElementById("rain").getContext("2d");
+const cv = document.getElementById("rain"); cv.width = P.w; cv.height = P.h;
+const cx = cv.getContext("2d");
 const G = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789";
-const SZ = 30, COLS = 36, ROWS = 64;
+const SZ = 30, COLS = Math.ceil(P.w / SZ), ROWS = Math.ceil(P.h / SZ);
 const rnd = a => { const x = Math.sin(a * 127.1 + 11.7) * 43758.5453; return x - Math.floor(x); };
 function rain(t) {
-  cx.fillStyle = "#020604"; cx.fillRect(0, 0, 1080, 1920);
+  cx.fillStyle = "#020604"; cx.fillRect(0, 0, P.w, P.h);
   cx.font = '26px "DejaVu Sans Mono", "WenQuanYi Zen Hei", monospace';
   for (let c = 0; c < COLS; c++) {
     for (let s = 0; s < 2; s++) {                       // deux traînées par colonne
