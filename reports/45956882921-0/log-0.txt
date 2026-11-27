@@ -47,3 +47,13 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [7/845] es ok  1.00 8.2s essais 1 (100s, reste 1360 min) Un pequeño reto para hoy: regala una sonrisa a alguien a qui → Un pequeño reto para hoy. Regala una sonrisa a alguien a qui
   self.gen = func(*args, **kwds)
+[8/845] pt ok  1.00 5.2s essais 1 (68s, reste 1307 min) É uma estrela mágica, só para você. Ela vai brilhar até o Na → É uma estrela mágica? Só para você. Ela vai brilhar até o Na
+  self.gen = func(*args, **kwds)
+[9/845] de ok  1.00 6.6s essais 1 (79s, reste 1282 min) Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werk → Ich bin's, der Weihnachtsmann. Ich rufe euch aus meiner Werk
+  self.gen = func(*args, **kwds)
+[10/845] de ok  1.00 6.2s essais 1 (76s, reste 1257 min) Und vergiss vor allem nicht: Der Zauber von Weihnachten ist  → Und vergiss vor allem nicht, der Zauber von Weihnachten ist 
+  self.gen = func(*args, **kwds)
+[11/845] de ok  1.00 5.2s essais 1 (65s, reste 1224 min) Weißt du, am Nordpol wissen wir: Die schönsten Erfolge sind  → Weißt du, am Nordpol wissen wir, die schönsten Erfolge sind 
+  self.gen = func(*args, **kwds)
+[12/845] de ok  0.99 5.4s essais 1 (73s, reste 1205 min) Und bis dahin: Hab einen wunderschönen Heiligabend mit deine → Und bis dahin habe einen wunderschönen Heiligabend mit Deine
+  self.gen = func(*args, **kwds)

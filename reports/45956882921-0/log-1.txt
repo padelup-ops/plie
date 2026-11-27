@@ -50,3 +50,13 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [10/844] de ok  0.96 4.0s essais 1 (58s, reste 978 min) Ho, ho, ho! Sehr gut. Dann hört mal zu… → Oh, ho, ho! Sehr gut! Dann hört man zu!
   self.gen = func(*args, **kwds)
+[11/844] de ok  1.00 3.4s essais 1 (50s, reste 951 min) Ho, ho, ho! Wunderbar! Macht weiter so! → Oh ho ho wunderbar macht weiter so
+  self.gen = func(*args, **kwds)
+[12/844] de ok  1.00 4.5s essais 1 (68s, reste 949 min) Das ist ein Zauberstern, nur für euch. Er leuchtet bis Weihn → Das ist ein Zauberstern nur für Euch. Er leuchtet bis Weihna
+  self.gen = func(*args, **kwds)
+[13/844] de ok  1.00 2.7s essais 1 (40s, reste 917 min) Und auch, dass du ein großes Herz hast. → und auch, dass du ein großes Herz hast.
+  self.gen = func(*args, **kwds)
+[14/844] de ok  0.98 5.5s essais 1 (70s, reste 920 min) Ho, ho, ho! Das habe ich mir notiert. Das erzähle ich gleich → Ho ho ho, das habe ich mir notiert. Das erzähle ich gleich m
+  self.gen = func(*args, **kwds)
+[15/844] de ok  1.00 8.4s essais 1 (94s, reste 944 min) Ich habe auf meine große Liste geschaut. Und weißt du was? I → Ich habe auf meine große Liste geschaut. Und weißt du was? I
+  self.gen = func(*args, **kwds)
