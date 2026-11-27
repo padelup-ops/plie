@@ -26,7 +26,7 @@ on:
         description: "1 : met aussi à jour description, mots-clés, texte promo"
         required: false
       cancel_pending:
-        description: "1 : retire d'abord la demande en attente"
+        description: "1 : retire d'abord la demande en attente ; only : la retire sans rien renvoyer"
         required: false
 
 jobs:

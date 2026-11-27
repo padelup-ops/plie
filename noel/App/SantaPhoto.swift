@@ -2,11 +2,13 @@
 //
 // Le Père Noël, en photo (un portrait créé par IA, qui n'est la photo de personne), et vivant : sa bouche s'ouvre
 // avec le volume réel de sa voix (donc avec n'importe quelle phrase, prénom compris), il cligne des yeux, respire,
-// hoche la tête quand il écoute, et tressaute quand il rit. La déformation est faite par App/Santa.metal, à chaque
-// image. Sans carte graphique, avec « Réduire les animations » ou dans les captures : deux photos (bouche fermée,
-// bouche ouverte) fondues l'une dans l'autre.
+// hoche la tête quand il écoute, et tressaute quand il rit.
+//
+// La bouche et les yeux sont des photos préparées d'avance (tools/photo_warp.py : la mâchoire descend, le sombre de
+// la bouche apparaît sous la moustache ; les paupières se ferment), fondues les unes dans les autres : cinq ouvertures
+// de bouche, et les yeux fermés montrés seulement à l'endroit des yeux. Rien n'est calculé sur l'iPhone, et l'app
+// montre exactement les images qui ont été réglées et regardées une à une.
 
-import Metal
 import SwiftUI
 
 enum SantaMood: Equatable { case idle, talking, listening, laughing, waving, surprised }
@@ -25,15 +27,15 @@ struct SantaPhoto: View {
 
     /// Le milieu du visage sur la photo (entre les yeux et la bouche).
     private static let face = UnitPoint(x: 0.569, y: 0.44)
-    private static let canShade: Bool = MTLCreateSystemDefaultDevice() != nil
+    /// Le nombre de photos « bouche ouverte » (SantaMouth1 … SantaMouth5).
+    private static let mouthFrames = 5
 
-    /// (« calllive » : une capture de contrôle, avec la vraie déformation, pour vérifier qu'elle se dessine.)
-    private var live: Bool { !still && !reduce && (ShotMode.route == nil || ShotMode.route == "calllive") && Self.canShade }
+    private var live: Bool { !still && !reduce && ShotMode.route == nil }
 
     var body: some View {
         GeometryReader { geo in
             if live {
-                TimelineView(.animation(minimumInterval: Motion.every(1.0 / 30))) { tl in
+                TimelineView(.animation(minimumInterval: 1.0 / 30)) { tl in
                     frame(in: geo.size, t: tl.date.timeIntervalSinceReferenceDate)
                 }
             } else {
@@ -51,10 +53,10 @@ struct SantaPhoto: View {
         let h = w * 4 / 3
         let ox = min(0, max(box.width - w, focus.x * box.width - Self.face.x * w))
         let oy = min(0, max(box.height - h, focus.y * box.height - Self.face.y * h))
-        let m = motion(t)
+        let m = pose(t)
         return ZStack(alignment: .topLeading) {
             Color.black
-            picture(w: w, h: h, open: m.open, blink: m.blink, shaded: t != nil)
+            picture(w: w, h: h, open: m.open, blink: m.blink)
                 .scaleEffect(CGFloat(1 + m.breath), anchor: UnitPoint(x: Self.face.x, y: 0.9))
                 .rotationEffect(.degrees(m.tilt), anchor: UnitPoint(x: Self.face.x, y: 0.85))
                 .offset(x: ox + CGFloat(m.dx), y: oy + CGFloat(m.dy))
@@ -67,33 +69,36 @@ struct SantaPhoto: View {
         .frame(width: box.width, height: box.height, alignment: .topLeading)
     }
 
-    @ViewBuilder
-    private func picture(w: CGFloat, h: CGFloat, open: Double, blink: Double, shaded: Bool) -> some View {
-        if shaded {
-            // La même photo dessous, sans effet : si la déformation ne pouvait pas se dessiner sur un appareil,
-            // le Père Noël resterait là (immobile), jamais un écran noir.
-            ZStack {
-                Image("SantaPhoto").resizable()
-                Image("SantaPhoto")
-                    .resizable()
-                    .layerEffect(ShaderLibrary.santaFace(.float2(w, h), .float(open), .float(blink)),
-                                 maxSampleOffset: CGSize(width: 0, height: h * 0.07))
+    /// La photo au repos, puis la bouche (la photo de l'ouverture juste en dessous, pleine, et la suivante qui
+    /// apparaît en fondu), puis les yeux fermés là où sont les yeux.
+    private func picture(w: CGFloat, h: CGFloat, open: Double, blink: Double) -> some View {
+        let steps = Double(Self.mouthFrames)
+        let x = min(steps, max(0, open * steps))
+        let below = Int(x.rounded(.down))
+        let above = min(Self.mouthFrames, below + 1)
+        let mix = x - Double(below)
+        return ZStack {
+            Image("SantaPhoto").resizable()
+            if below >= 1 {
+                Image("SantaMouth\(below)").resizable()
             }
-            .frame(width: w, height: h)
-        } else {
-            ZStack {
-                Image("SantaPhoto").resizable()
-                Image("SantaPhotoOpen").resizable().opacity(min(1, open * 1.4))
+            if above > below, mix > 0.01 {
+                Image("SantaMouth\(above)").resizable().opacity(mix)
             }
-            .frame(width: w, height: h)
+            if blink > 0.01 {
+                Image("SantaBlink").resizable()
+                    .mask(EyesMask())
+                    .opacity(min(1, blink * 1.15))
+            }
         }
+        .frame(width: w, height: h)
     }
 
     private struct Pose {
         var open = 0.0, blink = 0.0, breath = 0.0, tilt = 0.0, dx = 0.0, dy = 0.0, fire = 0.0
     }
 
-    private func motion(_ t: Double?) -> Pose {
+    private func pose(_ t: Double?) -> Pose {
         var m = Pose()
         m.open = pow(min(1, max(0, mouth) * 1.3), 0.85)
         guard let t else {
@@ -145,6 +150,23 @@ struct SantaPhoto: View {
     }
 }
 
+/// Là où sont les yeux sur la photo (les mêmes mesures que tools/photo_warp.py, sur un portrait de 768 × 1024),
+/// un peu plus large que l'œil et aux bords doux.
+private struct EyesMask: View {
+    private static let eyes: [(x: CGFloat, y: CGFloat, rx: CGFloat, ry: CGFloat)] = [(357, 369, 33, 12.5), (504, 371.5, 31, 12.5)]
+
+    var body: some View {
+        Canvas { ctx, size in
+            let k = size.width / 768
+            for e in Self.eyes {
+                let rx = e.rx * 1.12 * k, ry = e.ry * 1.25 * k
+                ctx.fill(Path(ellipseIn: CGRect(x: e.x * k - rx, y: e.y * k - ry, width: rx * 2, height: ry * 2)), with: .color(.white))
+            }
+        }
+        .blur(radius: 1.2)
+    }
+}
+
 /// Le portrait du Père Noël dans son médaillon doré.
 struct SantaMedallion: View {
     var size: CGFloat = 220
@@ -164,6 +186,6 @@ struct SantaMedallion: View {
                                              startRadius: size * 0.3, endRadius: size * 0.75))
                     .frame(width: size * 1.5, height: size * 1.5)
             )
-        .frame(width: size, height: size)
+            .frame(width: size, height: size)
     }
 }
