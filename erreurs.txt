@@ -1,0 +1,2 @@
+312:warning: 'UIRequiresFullScreen' has been deprecated starting in iOS 26.0 and will be ignored in a future release. See the UIRequiresFullScreen documentation for more details. (in target 'AlloPereNoel' from project 'AlloPereNoel')
+788:2026-11-27 07:45:04.969 appintentsmetadataprocessor[44502:111716] warning: Metadata extraction skipped, no AppIntents.framework dependency found
