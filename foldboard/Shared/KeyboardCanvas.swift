@@ -120,7 +120,14 @@ final class KeyView: UIView {
         UIView.performWithoutAnimation {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
-            label.frame = bounds.insetBy(dx: 2, dy: 0)
+            // L'étiquette à la taille de sa lettre, pas de la touche : iOS garde en mémoire une image de la taille
+            // de l'étiquette pour chaque touche. Sur le Duo ouvert en paysage (touches de 90 × 57 pt, plus hautes
+            // encore en mode portable), 33 étiquettes de la taille des touches pesaient plusieurs Mo de plus que
+            // sur l'écran fermé : c'est là que le clavier était fermé par iOS.
+            let room = bounds.insetBy(dx: 2, dy: 0)
+            let fit = label.sizeThatFits(room.size)
+            let lw = min(room.width, ceil(fit.width) + 6), lh = min(room.height, ceil(fit.height) + 4)
+            label.frame = CGRect(x: room.midX - lw / 2, y: room.midY - lh / 2, width: lw, height: lh).integral
             let s = min(bounds.width, bounds.height) * 0.46
             icon.frame = CGRect(x: (bounds.width - s) / 2, y: (bounds.height - s) / 2, width: s, height: s)
             let r = square ? min(4, bounds.height * 0.08) : min(13, bounds.height * 0.26)
@@ -1966,6 +1973,7 @@ final class KeyboardCanvas: UIView {
         guard force || memChecks % 30 == 0 else { return }
         let mb = Self.footprintMB()
         let room = NeuralSwipe.availableMB()
+        KBMemLog.room(room)
         if log {
             KBMemLog.note(mb: mb, emoji: showEmoji, alive: Self.alive, views: KBViews.live)
             NeuralSwipe.noteFootprint()
@@ -2538,6 +2546,8 @@ final class KeyboardCanvas: UIView {
             rebuild()
             CATransaction.commit()
         }
+        // Une autre taille (pli, rotation) : on mesure tout de suite, sans attendre la prochaine ronde.
+        if visible { checkMemory(force: true, log: true) }
     }
 
     private var isRight: Bool {
@@ -3942,7 +3952,22 @@ final class KeyboardCanvas: UIView {
                           avg(perfDelay), Int(perfDelay.max() ?? 0), avg(perfWork), perfStalls, perfCancelled, perfMissed)
             + " · L\(Int(bounds.width)) · " + lastHits.joined(separator: " ")
             + String(format: " · mémoire %.0f Mo (max %.0f)", Self.footprintMB(), Self.memoryPeak)
-        flash(text)
+        // Le rapport mémoire : ce qu'iOS laisse encore, la limite de cet iPhone, et les dernières apparitions du
+        // clavier (départ → plus haut ; une ligne qui s'arrête haut, c'est un clavier fermé par iOS).
+        let mb = Self.footprintMB(), room = NeuralSwipe.availableMB()
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+        var report = "Foldboard \(version) (\(build)) · \(gripContext) · \(layoutMode.rawValue) · \(Int(bounds.width))×\(Int(bounds.height))\n"
+        report += String(format: "mémoire %.0f Mo (max %.0f) · marge %.0f Mo · limite ≈ %.0f Mo · touches %d · vues %d\n",
+                         mb, Self.memoryPeak, room, room > 0 ? mb + room : 0, KBViews.keys, KBViews.live)
+        report += "listes rendues : \(listsShed ? "oui" : "non") · glisser neuronal : \(NeuralSwipe.statusLine)\n"
+        report += KBMemLog.lines.suffix(8).joined(separator: "\n") + "\n" + text
+        if input?.kbFullAccess == true {
+            UIPasteboard.general.string = report
+            flash(String(format: "Mémoire %.0f Mo, marge %.0f Mo. Rapport copié : colle-le dans un message.", mb, room), hold: 5)
+        } else {
+            flash(String(format: "Mémoire %.0f Mo (max %.0f), marge %.0f Mo", mb, Self.memoryPeak, room), hold: 5)
+        }
         perfDelay = []; perfWork = []; perfStalls = 0; perfCancelled = 0; perfMissed = 0
     }
 
