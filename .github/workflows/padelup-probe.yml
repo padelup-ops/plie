@@ -18,31 +18,35 @@ jobs:
         run: |
           mkdir -p out && cd out
           UA="padelup-probe/1.0 (+https://github.com/padelup-ops/plie)"
+          get() { curl -s -A "$UA" --max-time 25 "$@"; }
           {
-          for u in https://www.anybuddyapp.com/fr https://www.anybuddyapp.com/fr/compte https://www.anybuddyapp.com/fr/connexion \
-                   https://www.anybuddyapp.com/fr/login https://www.anybuddyapp.com/fr/mon-compte https://www.anybuddyapp.com/fr/inscription \
-                   https://www.anybuddyapp.com/fr/club/4padel-bobigny https://app.anybuddyapp.com https://www.anybuddyapp.com/api/v1/me \
-                   https://www.anybuddyapp.com/api/v1/users/me https://api.anybuddyapp.com; do
-            echo "== $u"
-            curl -s -A "$UA" -o /dev/null -D - --max-time 20 "$u" | grep -iE "^(HTTP|location|set-cookie|content-type)" | sed 's/=[^;]\{12,\}/=<valeur>/'
+          echo "== plan du site"
+          get https://www.anybuddyapp.com/sitemap.xml | grep -oE '<loc>[^<]+</loc>' | head -15
+          for sm in $(get https://www.anybuddyapp.com/sitemap.xml | grep -oE '<loc>[^<]+\.xml</loc>' | sed -E 's/<\/?loc>//g' | head -6); do
+            echo "-- $sm"; get "$sm" | grep -oE '<loc>[^<]+</loc>' | sed -E 's/<\/?loc>//g' | grep -iE 'padel|club' | head -8
           done
-          echo "== page d'accueil : liens de compte"
-          curl -s -A "$UA" --max-time 20 https://www.anybuddyapp.com/fr -o home.html
-          grep -oE 'href="[^"]*(compte|connexion|login|signin|sign-in|inscription|account|profil)[^"]*"' home.html | sort -u | head -30
-          echo "== scripts"
-          grep -oE '(src|href)="[^"]+\.js[^"]*"' home.html | sed -E 's/^(src|href)="//; s/"$//' | sort -u > scripts.txt
-          wc -l scripts.txt; head -40 scripts.txt
-          echo "== indices d'authentification dans les scripts"
-          n=0
+          echo "== robots"; get https://www.anybuddyapp.com/robots.txt | head -30
+          echo "== page de connexion"
+          get https://www.anybuddyapp.com/fr/login -o login.html
+          grep -oE '<(input|button|form)[^>]{0,200}>' login.html | head -20
+          grep -oE '(src)="[^"]+\.js[^"]*"' login.html | sed -E 's/^src="//; s/"$//' | sort -u > ljs.txt
+          wc -l ljs.txt
+          echo "== indices dans les scripts de la page de connexion"
           while read -r s; do
-            case "$s" in http*) url="$s" ;; //*) url="https:$s" ;; /*) url="https://www.anybuddyapp.com$s" ;; *) url="https://www.anybuddyapp.com/$s" ;; esac
-            n=$((n+1)); [ $n -gt 60 ] && break
-            curl -s -A "$UA" --max-time 20 "$url" -o js.txt || continue
-            hits=$(grep -oE '(localStorage|sessionStorage)\.(get|set|remove)Item\("[^"]{2,60}"|(localStorage|sessionStorage)\.(get|set|remove)Item\(`[^`]{2,60}`|"(access_?token|accessToken|refresh_?token|refreshToken|id_token|jwt|auth[A-Za-z_]*|token)"|/api/v[0-9]/[a-zA-Z/_-]*(auth|login|token|me|session|users)[a-zA-Z/_-]*|cognito|firebase[a-zA-Z]*|auth0|supabase|keycloak|document\.cookie[^;]{0,60}' js.txt | sort | uniq -c | sort -rn | head -25)
-            [ -n "$hits" ] && { echo "--- $url"; echo "$hits"; }
-          done < scripts.txt
-          echo "== appels API vus dans la page"
-          grep -oE 'https?://[a-z0-9.-]*anybuddy[a-z0-9.-]*/[a-zA-Z0-9/_.-]{0,60}' home.html | sort -u | head -30
+            case "$s" in http*) url="$s" ;; /*) url="https://www.anybuddyapp.com$s" ;; *) continue ;; esac
+            get "$url" -o js.txt || continue
+            hits=$(grep -oE '.{0,70}(localStorage|sessionStorage|Bearer |Authorization|accessToken|access_token|refreshToken|refresh_token|setCookie|js-cookie|cookies\.set|Cookies\.set|signInWith|/auth/|/login|/token|/oauth|firebase|cognito|supabase).{0,90}' js.txt | head -12)
+            [ -n "$hits" ] && { echo "--- $(basename "${url%%\?*}")"; echo "$hits"; }
+          done < ljs.txt
+          echo "== hôtes d'API cités"
+          cat login.html | grep -oE 'https://[a-z0-9.-]+anybuddy[a-z0-9.-]*' | sort | uniq -c | sort -rn | head
+          for s in $(cat ljs.txt); do case "$s" in http*) get "$s";; /*) get "https://www.anybuddyapp.com$s";; esac; done 2>/dev/null \
+            | grep -oE '"https://[a-z0-9.-]*anybuddy[a-z0-9.-]*[^"]{0,60}"' | sort | uniq -c | sort -rn | head -20
+          echo "== API publique (disponibilités)"
+          for u in "https://api.anybuddyapp.com/v1/clubs?activity=padel&limit=1" "https://api.anybuddyapp.com/v2/clubs?limit=1" \
+                   "https://www.anybuddyapp.com/api/v1/availabilities?clubSlug=4padel-bobigny&activity=padel"; do
+            echo "-- $u"; get -o body.txt -w "%{http_code}\n" "$u"; head -c 300 body.txt; echo
+          done
           } 2>&1 | tee resultat.txt
       - name: Publier
         if: always()
