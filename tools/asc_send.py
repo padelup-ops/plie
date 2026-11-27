@@ -43,7 +43,9 @@ problems = []
 # Par app : sa fiche, si elle vend un abonnement (lien et champ EULA exigés), et sa note pour Apple.
 APPS = {
     "com.padelup.vicefold": {"meta": "tools/meta/vicefold.json", "eula": True, "notes": VICEFOLD_NOTES, "listing": None},
-    "com.padelup.allonoel": {"meta": "tools/meta/noel.json", "eula": False, "notes": None, "listing": "noel/store/listing.json"},
+    # « magie » : un ancien achat jamais vendu, que l'app ne propose plus. Il ne part pas à la vérification.
+    "com.padelup.allonoel": {"meta": "tools/meta/noel.json", "eula": False, "notes": None, "listing": "noel/store/listing.json",
+                             "skip": ("com.padelup.allonoel.magie",)},
 }
 if BUNDLE not in APPS:
     print("app non prévue :", BUNDLE)
@@ -378,6 +380,9 @@ def attach(label, versions_path, kind, rel_names):
 
 
 for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
+    if attrs(x).get("productId") in APP.get("skip", ()):
+        print(f"       achat {attrs(x).get('productId')} laissé de côté (plus proposé par l'app)")
+        continue
     attach(f"achat {attrs(x).get('productId')}", f"/v2/inAppPurchases/{x['id']}/versions",
            "inAppPurchaseVersions", ("inAppPurchaseVersion",))
 for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
