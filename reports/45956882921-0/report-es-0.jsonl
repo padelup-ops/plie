@@ -9,3 +9,7 @@
 {"id": "98d900c639e75020930f", "key": "hello|martin", "text": "¡Jo, jo, jo! ¡Hola, Martín!", "ok": true, "score": 1.0, "dur": 1.78, "heard": "Ho, ho, ho, hola, Martín.", "tries": 1, "secs": 44.1}
 {"id": "d912a2fdb5cbbb859a5c", "key": "hello|daniel", "text": "¡Jo, jo, jo! ¡Hola, Daniel!", "ok": true, "score": 1.0, "dur": 2.82, "heard": "¡Ho ho ho! ¡Hola, Daniel!", "tries": 1, "secs": 48.6}
 {"id": "ba03bde40b943fec27d4", "key": "hello|alvaro", "text": "¡Jo, jo, jo! ¡Hola, Álvaro!", "ok": false, "score": 0.92, "dur": 2.1, "heard": "¡Pohoho! ¡Hola, Álvaro!", "tries": 1, "secs": 179.5}
+{"id": "72c6bfb0fe919eace8a2", "key": "hello|enzo", "text": "¡Jo, jo, jo! ¡Hola, Enzo!", "ok": true, "score": 1.0, "dur": 2.84, "heard": "¡Ho ho ho ho! ¡Hola, Enzo!", "tries": 1, "secs": 57.4}
+{"id": "c314c83e201095b64878", "key": "hello|javier", "text": "¡Jo, jo, jo! ¡Hola, Javier!", "ok": true, "score": 1.0, "dur": 3.4, "heard": "¡Ho ho ho ho! ¡Hola, Javier!", "tries": 1, "secs": 52.6}
+{"id": "35bed028b5d52c205195", "key": "hello|elena", "text": "¡Jo, jo, jo! ¡Hola, Elena!", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Ho, ho, ho. Hola, Elena.", "tries": 2, "secs": 97.7}
+{"id": "ddd8a5a30f9f7bb13c79", "key": "hello|alejandra", "text": "¡Jo, jo, jo! ¡Hola, Alejandra!", "ok": true, "score": 1.0, "dur": 2.64, "heard": "¡Ho ho ho! ¡Hola Alejandra!", "tries": 1, "secs": 54.7}
