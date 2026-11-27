@@ -32,6 +32,7 @@ enum ShotMode {
              city: "Tunis", country: "TN", source: .osm, osmID: "way/1007"),
     ]
 
+    @MainActor
     static func install(_ shot: String, directory: ClubDirectory, bot: BotEngine, location: LocationManager) {
         directory.installDemo(demoClubs)
         location.setDemo(paris)
