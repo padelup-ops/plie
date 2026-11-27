@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "gba, ds, vide (les deux) ou switch (l'émulateur Switch, à part)"
+        description: "gba, ds, vide (les deux), switch (l'émulateur Switch, à part) ou switch-appareils (iPhone enregistrés sur le compte développeur)"
         required: false
       platform:
         description: "vide : iPhone ; sim : simulateur (rangés dans sim/)"
@@ -19,7 +19,7 @@ on:
 
 jobs:
   cores:
-    if: inputs.only != 'switch'
+    if: inputs.only != 'switch' && inputs.only != 'switch-appareils'
     runs-on: xcode-27
     timeout-minutes: 90
     permissions:
@@ -90,3 +90,19 @@ jobs:
             retrofold/Switch/entitlements.plist
             retrofold/Switch/LICENSE-MeloNX.txt
           if-no-files-found: error
+
+  # Lecture seule : les iPhone déjà enregistrés sur le compte développeur (pour signer l'app Switch pour l'un d'eux).
+  switch-appareils:
+    if: inputs.only == 'switch-appareils'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m pip install --quiet pyjwt cryptography
+      - run: python3 retrofold/tools/switch_sign.py appareils
