@@ -1,0 +1,38 @@
+# VICEFOLD : envoie un build à la vérification d'Apple, avec le lien et le champ EULA (sortie automatique après accord).
+# Ne change ni prix ni achats.
+name: Vicefold - vérification Apple
+
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Numéro du build TestFlight"
+        required: true
+      version:
+        description: "Nouvelle version à créer (seulement si aucune n'est modifiable)"
+        required: false
+      dry_run:
+        description: "1 : essai à blanc, lit tout sans rien écrire"
+        required: false
+
+concurrency:
+  group: vicefold-submit
+  cancel-in-progress: false
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      RELEASE_BUILD: ${{ inputs.build }}
+      RELEASE_VERSION: ${{ inputs.version }}
+      DRY_RUN: ${{ inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Envoyer
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 vicefold/tools/submit.py
