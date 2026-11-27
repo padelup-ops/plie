@@ -155,6 +155,11 @@ struct CommunityView: View {
         }
         .background(VFBackdrop())
         .navigationTitle("Community")
+        // Tirer pour rafraîchir : les compteurs de l'entraide, et les amis.
+        .refreshable {
+            await community.loadCounts()
+            if section == 1 { await hub.loadFriends() }
+        }
         .task {
             if section == 1 || hub.used { hub.authenticate() }
             await community.loadCounts()
@@ -172,7 +177,7 @@ struct CommunityView: View {
     private var social: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Prefer Discord or Reddit? Chat with other players there too.")
-                .font(.caption).foregroundStyle(.secondary)
+                .font(.caption).foregroundStyle(VF.textDim)
             HStack(spacing: 10) {
                 if let url = community.social["discord"] { socialLink("Discord", "bubble.left.and.text.bubble.right.fill", url) }
                 if let url = community.social["reddit"] { socialLink("Reddit", "person.3.fill", url) }
@@ -183,13 +188,12 @@ struct CommunityView: View {
     private func socialLink(_ name: String, _ symbol: String, _ url: URL) -> some View {
         Link(destination: url) {
             HStack(spacing: 8) {
-                Image(systemName: symbol)
-                Text(verbatim: name).fontWeight(.semibold)
-                Image(systemName: "arrow.up.right").font(.caption2.weight(.bold)).foregroundStyle(.secondary)
+                Image(systemName: symbol).foregroundStyle(VF.sky)
+                Text(verbatim: name).fontWeight(.semibold).foregroundStyle(VF.text)
+                Image(systemName: "arrow.up.right").font(.caption2.weight(.bold)).foregroundStyle(VF.textFaint)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(.thinMaterial, in: .rect(cornerRadius: 14))
+            .vfCard(radius: 14, padding: 12)
         }
         .buttonStyle(.plain)
         .accessibilityHint(Text("Opens outside the app"))
@@ -199,17 +203,16 @@ struct CommunityView: View {
         VStack(alignment: .leading, spacing: 18) {
             NavigationLink { ThreadView(topic: "general", title: String(localized: "General")) } label: {
                 HStack(spacing: 14) {
-                    Image(systemName: "bubble.left.and.bubble.right.fill").font(.title2).foregroundStyle(.white)
-                        .frame(width: 52, height: 52).background(VF.dusk, in: .rect(cornerRadius: 14))
+                    VFIconBadge(icon: "bubble.left.and.bubble.right.fill", color: VF.flamingo, size: 52)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Ask the community").font(VF.display(24)).foregroundStyle(.primary)
+                        Text("Ask the community").font(VF.display(24)).foregroundStyle(VF.text).multilineTextAlignment(.leading)
                         Text("Questions about anything in Leonida. No spoilers here: use a mission's thread for those.")
-                            .font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.leading)
+                            .font(.caption).foregroundStyle(VF.textDim).multilineTextAlignment(.leading)
                     }
                     Spacer(minLength: 0)
                     count(community.counts["general"])
                 }
-                .vfCard(radius: 20, padding: 14)
+                .vfCard(radius: 20, padding: 14, tint: VF.flamingo)
             }
             .buttonStyle(.plain)
 
@@ -218,8 +221,8 @@ struct CommunityView: View {
             SectionTitle(title: "Missions with questions")
             let missions = content.content.missions.filter { (community.counts[$0.id] ?? 0) > 0 }
             if missions.isEmpty {
-                Text("No questions yet. Open a mission and ask the first one.")
-                    .font(.subheadline).foregroundStyle(.secondary).vfCard()
+                Label("No questions yet. Open a mission and ask the first one.", systemImage: "bubble.left.and.bubble.right")
+                    .font(.subheadline).foregroundStyle(VF.textDim).vfCard()
             } else {
                 VStack(spacing: 0) {
                     ForEach(missions) { m in
@@ -227,17 +230,18 @@ struct CommunityView: View {
                         NavigationLink { ThreadView(topic: m.id, title: m.title, chapter: m.chapter) } label: {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text(hidden ? String(localized: "Hidden mission") : m.title).font(.body.weight(.semibold)).foregroundStyle(.primary)
-                                    if let c = content.chapter(m.chapter) { Text(hidden ? String(localized: "Chapter \(c.id)") : c.title).font(.caption).foregroundStyle(.secondary) }
+                                    Text(hidden ? String(localized: "Hidden mission") : m.title).font(.body.weight(.semibold)).foregroundStyle(VF.text).multilineTextAlignment(.leading)
+                                    if let c = content.chapter(m.chapter) { Text(hidden ? String(localized: "Chapter \(c.id)") : c.title).font(.caption).foregroundStyle(VF.textDim) }
                                 }
                                 Spacer()
                                 count(community.counts[m.id])
-                                Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
+                                Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(VF.textFaint)
                             }
                             .padding(.vertical, 10)
+                            .contentShape(.rect)
                         }
                         .buttonStyle(.plain)
-                        if m.id != missions.last?.id { Divider() }
+                        if m.id != missions.last?.id { Rectangle().fill(VF.hairline).frame(height: 1) }
                     }
                 }
                 .vfCard(radius: 20, padding: 14)
@@ -247,9 +251,10 @@ struct CommunityView: View {
     }
 
     private func count(_ n: Int?) -> some View {
-        Text("\(n ?? 0)").font(.caption.weight(.bold)).monospacedDigit()
+        Text(verbatim: "\(n ?? 0)").font(VF.mono(11, weight: .bold))
             .padding(.horizontal, 9).padding(.vertical, 4)
-            .background(VF.flamingo.opacity(0.14), in: .capsule).foregroundStyle(VF.flamingo)
+            .background(VF.flamingo.opacity(0.16), in: .capsule).foregroundStyle(VF.flamingo)
+            .overlay(Capsule().stroke(VF.flamingo.opacity(0.4), lineWidth: 1))
     }
 
     // MARK: Amis
@@ -257,17 +262,17 @@ struct CommunityView: View {
     @ViewBuilder private var friends: some View {
         if !hub.signedIn {
             VStack(alignment: .leading, spacing: 12) {
-                Image(systemName: "person.2.circle.fill").font(.system(size: 44)).foregroundStyle(VF.flamingo)
-                Text("Play with friends").font(VF.display(28))
+                VFIconBadge(icon: "person.2.fill", color: VF.flamingo, size: 52)
+                Text("Play with friends").font(VF.display(28)).foregroundStyle(VF.text)
                 Text("Sign in to Game Center to add friends and compare your 100%. No account to create.")
-                    .font(.subheadline).foregroundStyle(.secondary)
+                    .font(.subheadline).foregroundStyle(VF.textDim)
                 Button { hub.authenticate() } label: { Label("Sign in to Game Center", systemImage: "gamecontroller.fill").frame(maxWidth: .infinity) }
-                    .buttonStyle(.borderedProminent).tint(VF.flamingo).controlSize(.large)
+                    .buttonStyle(.vfPrimary)
                 if hub.failed {
-                    Text("Game Center is off. Turn it on in Settings > Game Center.").font(.caption).foregroundStyle(.secondary)
+                    Text("Game Center is off. Turn it on in Settings > Game Center.").font(.caption).foregroundStyle(VF.sun)
                 }
             }
-            .vfCard()
+            .vfCard(tint: VF.flamingo)
         } else {
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
@@ -278,52 +283,47 @@ struct CommunityView: View {
                 VStack(spacing: 0) {
                     ForEach(Array(hub.friends.enumerated()), id: \.element.id) { i, f in
                         HStack(spacing: 12) {
-                            Text("\(i + 1)").font(VF.display(20)).monospacedDigit().foregroundStyle(.secondary).frame(width: 26)
+                            Text(verbatim: "\(i + 1)").font(VF.display(20)).monospacedDigit().foregroundStyle(i == 0 ? VF.sun : VF.textDim).frame(width: 26)
                             Monogram(name: f.name, size: 40)
                             VStack(alignment: .leading, spacing: 5) {
                                 HStack(spacing: 6) {
-                                    Text(f.name).font(.body.weight(.semibold)).lineLimit(1)
-                                    if f.isMe { Text("You").font(.caption2.weight(.bold)).padding(.horizontal, 6).padding(.vertical, 2).background(VF.palm.opacity(0.18), in: .capsule).foregroundStyle(VF.palm) }
+                                    Text(f.name).font(.body.weight(.semibold)).foregroundStyle(VF.text).lineLimit(1)
+                                    if f.isMe { Text("You").font(VF.mono(9.5, weight: .bold)).textCase(.uppercase).padding(.horizontal, 6).padding(.vertical, 2).background(VF.cyan.opacity(0.16), in: .capsule).foregroundStyle(VF.cyan) }
                                 }
                                 if let p = f.percent {
-                                    GeometryReader { g in
-                                        ZStack(alignment: .leading) {
-                                            Capsule().fill(VF.flamingo.opacity(0.14))
-                                            Capsule().fill(VF.gradient).frame(width: max(6, g.size.width * Double(p) / 100))
-                                        }
-                                    }
-                                    .frame(height: 7)
+                                    VFBar(value: Double(p) / 100, height: 6)
                                 } else {
-                                    Text("Hasn't shared progress yet").font(.caption).foregroundStyle(.secondary)
+                                    Text("Hasn't shared progress yet").font(.caption).foregroundStyle(VF.textDim)
                                 }
                             }
-                            Text(f.percent.map { "\($0)%" } ?? "—").font(VF.display(22)).monospacedDigit().frame(minWidth: 52, alignment: .trailing)
+                            Text(f.percent.map { "\($0)%" } ?? "—").font(VF.display(22)).monospacedDigit()
+                                .foregroundStyle(f.isMe ? AnyShapeStyle(VF.gradient) : AnyShapeStyle(VF.text))
+                                .frame(minWidth: 52, alignment: .trailing)
                         }
                         .padding(.vertical, 10)
-                        if i < hub.friends.count - 1 { Divider() }
+                        .accessibilityElement(children: .combine)
+                        if i < hub.friends.count - 1 { Rectangle().fill(VF.hairline).frame(height: 1) }
                     }
                 }
                 .vfCard(radius: 20, padding: 14)
                 if hub.friends.count <= 1 {
                     Text("No friends here yet. Add your Game Center friends, or invite someone who plays.")
-                        .font(.subheadline).foregroundStyle(.secondary)
+                        .font(.subheadline).foregroundStyle(VF.textDim)
                 }
                 if hub.friendsDenied {
                     Text("Vicefold can't see your Game Center friends. Allow it in Settings > Game Center > Friends.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(.caption).foregroundStyle(VF.sun)
                 }
                 HStack(spacing: 12) {
                     Button { hub.addFriends() } label: { Label("Add friends", systemImage: "person.badge.plus").frame(maxWidth: .infinity) }
-                        .buttonStyle(.borderedProminent).tint(VF.flamingo)
+                        .buttonStyle(.vfPrimary)
                     ShareLink(item: CommunityStore.appURL, message: Text("Track your GTA VI 100% with me on Vicefold.")) {
                         Label("Invite", systemImage: "square.and.arrow.up").frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.vfSecondary)
                 }
-                .controlSize(.large)
-                Text("Your progress is shared through Game Center with your friends only.").font(.caption).foregroundStyle(.secondary)
+                Text("Your progress is shared through Game Center with your friends only.").font(.caption).foregroundStyle(VF.textDim)
             }
-            .refreshable { await hub.loadFriends() }
         }
     }
 }
@@ -335,7 +335,7 @@ struct RulesFooter: View {
             Label("Community rules", systemImage: "hand.raised").font(.footnote.weight(.semibold))
         }
         .buttonStyle(.plain)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(VF.textDim)
         .sheet(isPresented: $show) { RulesSheet(accept: nil) }
     }
 }
@@ -349,6 +349,7 @@ struct RulesSheet: View {
     var body: some View {
         NavigationStack {
             List {
+                Group {
                 Section {
                     Label("Be kind. No insults, hate, threats or harassment.", systemImage: "heart")
                     Label("No spoilers outside a mission's own thread. Mark spoilers when you post.", systemImage: "eye.slash")
@@ -365,9 +366,12 @@ struct RulesSheet: View {
                         }
                     }
                 }
+                }
+                .vfRows()
             }
             .navigationTitle("Community rules")
             .navigationBarTitleDisplayMode(.inline)
+            .vfScreen()
             .toolbar {
                 if let accept {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
@@ -399,6 +403,7 @@ struct ThreadView: View {
     @State private var showRules = false
     @State private var reporting: VFPost?
     @State private var revealed: Set<String> = []
+    @State private var failed = false
     @AppStorage("vicefold.rulesAccepted") private var rulesAccepted = false
     @FocusState private var focused: Bool
 
@@ -407,12 +412,14 @@ struct ThreadView: View {
         let hiddenMission = chapter.map { progress.hidden($0) } ?? false
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(hiddenMission ? String(localized: "Hidden mission") : title).font(VF.display(34))
+                Text(hiddenMission ? String(localized: "Hidden mission") : title).font(VF.display(34)).foregroundStyle(VF.text)
+                    .fixedSize(horizontal: false, vertical: true)
                 if let posts {
                     let visible = posts.filter { !community.blocked.contains($0.author) && !community.reported.contains($0.id) }
                     let questions = visible.filter { $0.parent == nil }.sorted { $0.created > $1.created }
                     if questions.isEmpty {
-                        Text("No questions yet. Ask the first one below.").font(.subheadline).foregroundStyle(.secondary).vfCard()
+                        Label("No questions yet. Ask the first one below.", systemImage: "bubble.left.and.bubble.right")
+                            .font(.subheadline).foregroundStyle(VF.textDim).vfCard()
                     }
                     ForEach(questions) { q in
                         VStack(alignment: .leading, spacing: 10) {
@@ -420,7 +427,7 @@ struct ThreadView: View {
                             let answers = visible.filter { $0.parent == q.id }.sorted { ($0.votes, -$0.created) > ($1.votes, -$1.created) }
                             ForEach(answers) { a in
                                 row(a, question: false).padding(.leading, 16)
-                                    .overlay(alignment: .leading) { Capsule().fill(VF.flamingo.opacity(0.3)).frame(width: 3) }
+                                    .overlay(alignment: .leading) { Capsule().fill(VF.ice).frame(width: 3).shadow(color: VF.cyan.opacity(0.6), radius: 4) }
                             }
                             Button { replyTo = q; focused = true } label: {
                                 Label("Answer", systemImage: "arrowshape.turn.up.left").font(.footnote.weight(.semibold))
@@ -430,8 +437,18 @@ struct ThreadView: View {
                         .vfCard(radius: 20, padding: 14)
                     }
                     RulesFooter().padding(.top, 4)
+                } else if failed {
+                    // Pas de réseau, ou le serveur ne répond pas : on le dit, avec un bouton pour réessayer.
+                    VStack(spacing: 4) {
+                        VFEmptyState(icon: "wifi.slash", title: "Couldn't load the thread", message: "Check your connection and try again.")
+                        Button { Task { await load() } } label: { Label("Try again", systemImage: "arrow.clockwise") }
+                            .buttonStyle(.vf(.secondary, compact: true))
+                            .padding(.bottom, 8)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .vfCard()
                 } else {
-                    ProgressView().frame(maxWidth: .infinity).padding(40)
+                    ProgressView().tint(VF.flamingo).frame(maxWidth: .infinity).padding(40)
                 }
             }
             .padding()
@@ -454,14 +471,19 @@ struct ThreadView: View {
         } message: { Text("It disappears for you now. After 3 reports it's hidden for everyone until we review it.") }
     }
 
-    private func load() async { posts = await community.thread(topic) }
+    private func load() async {
+        failed = false
+        let loaded = await community.thread(topic)
+        // Un rafraîchissement raté ne vide pas un fil déjà affiché ; un premier chargement raté le dit.
+        if let loaded { posts = loaded } else if posts == nil { failed = true }
+    }
 
     private func row(_ p: VFPost, question: Bool) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 Monogram(name: p.alias, size: 26)
-                Text(p.alias).font(.subheadline.weight(.semibold))
-                Text(p.date, format: .relative(presentation: .named, unitsStyle: .abbreviated)).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                Text(p.alias).font(.subheadline.weight(.semibold)).foregroundStyle(p.mine ? VF.cyan : VF.text).lineLimit(1)
+                Text(p.date, format: .relative(presentation: .named, unitsStyle: .abbreviated)).font(.caption).foregroundStyle(VF.textDim).lineLimit(1)
                 Spacer()
                 Menu {
                     if p.mine {
@@ -475,20 +497,23 @@ struct ThreadView: View {
                 } label: {
                     Image(systemName: "ellipsis").frame(width: 30, height: 26).contentShape(.rect)
                 }
-                .foregroundStyle(.secondary)
+                .foregroundStyle(VF.textDim)
+                .accessibilityLabel("More")
             }
             let hide = (p.spoiler ?? false) && !revealed.contains(p.id)
             Text(p.text)
                 .font(question ? .body.weight(.semibold) : .body)
+                .foregroundStyle(VF.text)
                 .blur(radius: hide ? 7 : 0)
-                .overlay { if hide { Button("Show spoiler") { revealed.insert(p.id) }.buttonStyle(.bordered).controlSize(.small) } }
+                .accessibilityHidden(hide)
+                .overlay { if hide { Button("Show spoiler") { revealed.insert(p.id) }.buttonStyle(.vf(.secondary, compact: true)) } }
             if !question {
                 Button {
                     Task { await community.act(p, "vote", extra: ["on": !p.voted]); await load() }
                 } label: {
                     Label("Helpful \(p.votes)", systemImage: p.voted ? "hand.thumbsup.fill" : "hand.thumbsup").font(.caption.weight(.semibold))
                 }
-                .buttonStyle(.plain).foregroundStyle(p.voted ? VF.palm : .secondary)
+                .buttonStyle(.plain).foregroundStyle(p.voted ? VF.palm : VF.textDim)
                 .disabled(p.mine)
             }
         }
@@ -498,9 +523,10 @@ struct ThreadView: View {
         VStack(alignment: .leading, spacing: 6) {
             if let r = replyTo {
                 HStack {
-                    Text("Answering \(r.alias)").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                    Text("Answering \(r.alias)").font(.caption.weight(.semibold)).foregroundStyle(VF.cyan)
                     Spacer()
-                    Button { replyTo = nil } label: { Image(systemName: "xmark.circle.fill") }.foregroundStyle(.secondary)
+                    Button { replyTo = nil } label: { Image(systemName: "xmark.circle.fill") }.foregroundStyle(VF.textDim)
+                        .accessibilityLabel("Cancel")
                 }
             }
             HStack(alignment: .bottom, spacing: 10) {
@@ -508,24 +534,35 @@ struct ThreadView: View {
                     .lineLimit(1...5)
                     .focused($focused)
                     .padding(.horizontal, 14).padding(.vertical, 10)
-                    .background(.background, in: .rect(cornerRadius: 20))
-                Toggle(isOn: $spoiler) { Image(systemName: spoiler ? "eye.slash.fill" : "eye") }
-                    .toggleStyle(.button).buttonStyle(.bordered).clipShape(.circle)
-                    .accessibilityLabel("Spoiler")
+                    .background(Color.white.opacity(0.08), in: .rect(cornerRadius: 20, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(VF.hairline, lineWidth: 1))
+                Button { spoiler.toggle() } label: {
+                    Image(systemName: spoiler ? "eye.slash.fill" : "eye").font(.headline).frame(width: 40, height: 40)
+                        .foregroundStyle(spoiler ? VF.ink : VF.text)
+                        .background(spoiler ? AnyShapeStyle(VF.sun) : AnyShapeStyle(Color.white.opacity(0.08)), in: .circle)
+                        .overlay(Circle().stroke(VF.hairline, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Spoiler")
+                .accessibilityAddTraits(spoiler ? .isSelected : [])
                 Button {
                     if rulesAccepted { Task { await send() } } else { showRules = true }
                 } label: {
                     Image(systemName: sending ? "hourglass" : "arrow.up").font(.headline).frame(width: 40, height: 40)
-                        .background(VF.flamingo, in: .circle).foregroundStyle(.white)
+                        .background(VF.gradient, in: .circle).foregroundStyle(VF.ink)
                 }
+                .buttonStyle(.plain)
+                .opacity(sending || text.trimmingCharacters(in: .whitespacesAndNewlines).count < 4 ? 0.45 : 1)
                 .disabled(sending || text.trimmingCharacters(in: .whitespacesAndNewlines).count < 4)
+                .accessibilityLabel(replyTo == nil ? "Ask a question" : "Your answer")
             }
             if !hub.signedIn {
-                Text("Sign in to Game Center to post. Your Game Center name signs your messages.").font(.caption2).foregroundStyle(.secondary)
+                Text("Sign in to Game Center to post. Your Game Center name signs your messages.").font(.caption2).foregroundStyle(VF.textDim)
             }
         }
         .padding(.horizontal).padding(.top, 8).padding(.bottom, 6)
-        .background(.bar)
+        .background(VF.ink.opacity(0.94))
+        .overlay(alignment: .top) { Rectangle().fill(VF.hairline).frame(height: 1) }
     }
 
     private func send() async {

@@ -41,6 +41,13 @@ final class ChristmasMusic {
         p.setVolume(level, fadeDuration: 1.2)
     }
 
+    /// Baisse la musique pendant que le Père Noël parle à l'accueil.
+    func duck(_ down: Bool) {
+        guard let p = player else { return }
+        let target: Float = down ? level * 0.22 : ((wanted && enabled) ? level : 0)
+        p.setVolume(target, fadeDuration: 0.35)
+    }
+
     private func stop() {
         guard let p = player, p.isPlaying else { return }
         p.setVolume(0, fadeDuration: 0.8)

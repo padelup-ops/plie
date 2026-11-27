@@ -132,6 +132,22 @@ struct KBSettings: Codable, Equatable {
     var keyHeightOpen: Double = 0
     /// Les boutons position, réglages et masquer dans la barre du haut (on peut les cacher).
     var barButtons = true
+    /// Le raccourci des trois dispositions (suit la main, toute la largeur, coupé) seulement Duo ouvert.
+    var layoutSwitchOpenOnly = true
+    /// Chaque bouton de la barre du haut, un par un. Le « … » caché se rallume dans l'app.
+    /// Position (icône clavier / main), à part des curseurs de réglages.
+    var showHandButton = true
+    /// Les curseurs « ajuster le clavier », indépendants du bouton de position.
+    var showSettingsButton = true
+    /// Le micro dans la barre (en plus du réglage dictée).
+    var showMicButton = true
+    /// Le presse-papier dans la barre.
+    var showClipboardButton = true
+    var showSwapButton = true
+    var showCenterButton = true
+    var showLayoutMenu = true
+    var showLayoutSwitch = true
+    var showMoreButton = true
     /// Les quatre coins du clavier arrondis (Spotlight et les apps où il flotte), pas seulement ceux du haut.
     var roundAllCorners = false
     /// Toucher la place libre à côté du clavier (une main) le met de ce côté.
@@ -300,6 +316,16 @@ struct KBSettings: Codable, Equatable {
         keyHeight = (try? c.decodeIfPresent(Double.self, forKey: .keyHeight)) ?? d.keyHeight
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
+        layoutSwitchOpenOnly = (try? c.decodeIfPresent(Bool.self, forKey: .layoutSwitchOpenOnly)) ?? d.layoutSwitchOpenOnly
+        showHandButton = (try? c.decodeIfPresent(Bool.self, forKey: .showHandButton)) ?? barButtons
+        showSettingsButton = (try? c.decodeIfPresent(Bool.self, forKey: .showSettingsButton)) ?? barButtons
+        showMicButton = (try? c.decodeIfPresent(Bool.self, forKey: .showMicButton)) ?? d.showMicButton
+        showClipboardButton = (try? c.decodeIfPresent(Bool.self, forKey: .showClipboardButton)) ?? d.showClipboardButton
+        showSwapButton = (try? c.decodeIfPresent(Bool.self, forKey: .showSwapButton)) ?? d.showSwapButton
+        showCenterButton = (try? c.decodeIfPresent(Bool.self, forKey: .showCenterButton)) ?? d.showCenterButton
+        showLayoutMenu = (try? c.decodeIfPresent(Bool.self, forKey: .showLayoutMenu)) ?? d.showLayoutMenu
+        showLayoutSwitch = (try? c.decodeIfPresent(Bool.self, forKey: .showLayoutSwitch)) ?? d.showLayoutSwitch
+        showMoreButton = (try? c.decodeIfPresent(Bool.self, forKey: .showMoreButton)) ?? d.showMoreButton
         roundAllCorners = (try? c.decodeIfPresent(Bool.self, forKey: .roundAllCorners)) ?? d.roundAllCorners
         tapSideToMove = (try? c.decodeIfPresent(Bool.self, forKey: .tapSideToMove)) ?? d.tapSideToMove
         knockToMove = (try? c.decodeIfPresent(Bool.self, forKey: .knockToMove)) ?? d.knockToMove
@@ -501,6 +527,53 @@ struct KBSettings: Codable, Equatable {
         postureTwo = []
     }
 
+    /// Les interrupteurs de la barre et des touches, tels que l'app les a posés.
+    /// Le clavier les recopie avant d'enregistrer, pour ne pas réécrire un réglage plus récent avec son ancienne copie.
+    mutating func takeVisibility(from newer: KBSettings) {
+        barButtons = newer.barButtons
+        hideKeyButton = newer.hideKeyButton
+        wandButton = newer.wandButton
+        translateKey = newer.translateKey
+        emojiKey = newer.emojiKey
+        dictationKey = newer.dictationKey
+        globeAsEmoji = newer.globeAsEmoji
+        micByReturn = newer.micByReturn
+        showHandButton = newer.showHandButton
+        showSettingsButton = newer.showSettingsButton
+        showMicButton = newer.showMicButton
+        showClipboardButton = newer.showClipboardButton
+        showSwapButton = newer.showSwapButton
+        showCenterButton = newer.showCenterButton
+        showLayoutMenu = newer.showLayoutMenu
+        showLayoutSwitch = newer.showLayoutSwitch
+        showMoreButton = newer.showMoreButton
+        layoutSwitchOpenOnly = newer.layoutSwitchOpenOnly
+        barLayout = newer.barLayout
+        compactBar = newer.compactBar
+        learningTips = newer.learningTips
+    }
+
+    /// Les interrupteurs changés depuis le dernier chargement restent, même si une copie plus récente arrive.
+    mutating func restoreVisibilityEdits(from edited: KBSettings, baseline: KBSettings) {
+        func keep(_ edited: Bool, _ base: Bool, _ apply: (Bool) -> Void) {
+            if edited != base { apply(edited) }
+        }
+        keep(edited.showHandButton, baseline.showHandButton) { showHandButton = $0 }
+        keep(edited.showSettingsButton, baseline.showSettingsButton) { showSettingsButton = $0 }
+        keep(edited.showMicButton, baseline.showMicButton) { showMicButton = $0 }
+        keep(edited.showClipboardButton, baseline.showClipboardButton) { showClipboardButton = $0 }
+        keep(edited.hideKeyButton, baseline.hideKeyButton) { hideKeyButton = $0 }
+        keep(edited.showLayoutSwitch, baseline.showLayoutSwitch) { showLayoutSwitch = $0 }
+        keep(edited.layoutSwitchOpenOnly, baseline.layoutSwitchOpenOnly) { layoutSwitchOpenOnly = $0 }
+        keep(edited.showSwapButton, baseline.showSwapButton) { showSwapButton = $0 }
+        keep(edited.showCenterButton, baseline.showCenterButton) { showCenterButton = $0 }
+        keep(edited.showLayoutMenu, baseline.showLayoutMenu) { showLayoutMenu = $0 }
+        keep(edited.showMoreButton, baseline.showMoreButton) { showMoreButton = $0 }
+        keep(edited.emojiKey, baseline.emojiKey) { emojiKey = $0 }
+        keep(edited.dictationKey, baseline.dictationKey) { dictationKey = $0 }
+        keep(edited.barButtons, baseline.barButtons) { barButtons = $0 }
+    }
+
     /// Les réglages vraiment appliqués : sans Foldboard Pro (ni essai), on revient à l'essentiel.
     func effective(pro: Bool) -> KBSettings {
         // Comme le clavier d'Apple sur le Duo : quelques emojis dans la place libre à côté des touches
@@ -572,6 +645,38 @@ struct KBLearn: Codable, Equatable {
 
 enum KBVault {
     private static let service = "com.padelup.foldboard"
+    /// Préférences partagées (groupe d'app). Le clavier les relit à chaque apparition.
+    static let settingsNote = CFNotificationName("com.padelup.foldboard.settings" as CFString)
+
+    /// Vrai quand l'accès Pro vient du trousseau ou du groupe d'app. Faux : on n'a que le souvenir local
+    /// (accès complet coupé). On ne montre alors pas un état cassé (« essai fini », « autorisez l'accès complet »).
+    private(set) static var accessTrusted = false
+
+    private static var appGroupID: String? {
+        guard let g = Bundle.main.object(forInfoDictionaryKey: "FoldboardAppGroup") as? String,
+              g.hasPrefix("group.") else { return nil }
+        return g
+    }
+
+    private static var suite: UserDefaults? {
+        guard let id = appGroupID,
+              FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: id) != nil
+        else { return nil }
+        return UserDefaults(suiteName: id)
+    }
+
+    /// Partagé si on a pu le lire, sinon le dernier accès connu (achat ou essai). Sans les deux : pas Pro, et pas « confirmé ».
+    static func resolveAccess(shared: KBAccess?, cache: KBAccess?) -> (access: KBAccess, trusted: Bool) {
+        if let shared { return (shared, true) }
+        if let cache, cache.purchased || cache.trialStart != nil { return (cache, false) }
+        return (KBAccess(), false)
+    }
+
+    /// L'app vient d'enregistrer : les claviers encore ouverts relisent tout de suite.
+    private static func notifySharedChange() {
+        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(),
+                                             settingsNote, nil, nil, true)
+    }
 
     /// Groupe de trousseau commun à l'app et au clavier.
     private static var group: String? {
@@ -612,35 +717,48 @@ enum KBVault {
         }
     }
 
-    // Réglages : la copie la plus récente gagne (trousseau partagé ou préférences locales).
+    /// La copie la plus récente gagne : trousseau, groupe d'app, puis le souvenir dans ce processus.
     static func loadSettings() -> KBSettings {
-        let shared = read("settings").flatMap { try? JSONDecoder().decode(KBSettings.self, from: $0) }
-        let local = UserDefaults.standard.data(forKey: "foldboard.settings").flatMap { try? JSONDecoder().decode(KBSettings.self, from: $0) }
-        switch (shared, local) {
-        case let (s?, l?): return s.stamp >= l.stamp ? s : l
-        case let (s?, nil): return s
-        case let (nil, l?): return l
-        default: return KBSettings()
-        }
+        let best = newest(KBSettings.self, account: "settings", localKey: "foldboard.settings")
+        return best ?? KBSettings()
+    }
+
+    /// La date des derniers réglages écrits par ce processus. Sa propre notification lui revient aussi : le clavier
+    /// ne doit pas se refaire (touches replacées, appuis en cours annulés) parce qu'il vient lui-même d'enregistrer.
+    private(set) static var ownStamp: Date?
+
+    /// Ces réglages viennent-ils de ce processus ?
+    static func isOwn(_ settings: KBSettings) -> Bool {
+        guard let own = ownStamp else { return false }
+        return abs(settings.stamp.timeIntervalSince(own)) < 0.002
     }
 
     static func save(_ settings: KBSettings) {
         var s = settings
-        s.stamp = Date()
+        // Le clavier vient de poser la date : on la garde, pour que le prochain enregistrement
+        // ne croie pas qu'une copie plus vieille est la plus récente et n'annule l'interrupteur.
+        if abs(s.stamp.timeIntervalSinceNow) > 2 { s.stamp = Date() }
+        ownStamp = s.stamp
         guard let data = try? JSONEncoder().encode(s) else { return }
         write("settings", data)
+        suite?.set(data, forKey: "settings")
         UserDefaults.standard.set(data, forKey: "foldboard.settings")
+        notifySharedChange()
     }
 
+    /// Accès Pro : partagé si on peut le lire, sinon le dernier accès connu de ce clavier (jamais un état vide
+    /// qui ferait croire que l'achat a disparu juste parce que l'accès complet est coupé).
     static func loadAccess() -> KBAccess {
-        let shared = read("access").flatMap { try? JSONDecoder().decode(KBAccess.self, from: $0) }
-        let local = UserDefaults.standard.data(forKey: "foldboard.access").flatMap { try? JSONDecoder().decode(KBAccess.self, from: $0) }
-        switch (shared, local) {
-        case let (s?, l?): return s.stamp >= l.stamp ? s : l
-        case let (s?, nil): return s
-        case let (nil, l?): return l
-        default: return KBAccess()
+        let shared = newest(KBAccess.self, account: "access", localKey: "foldboard.access", includeLocal: false)
+        let cache = UserDefaults.standard.data(forKey: "foldboard.access.cache")
+            .flatMap { try? JSONDecoder().decode(KBAccess.self, from: $0) }
+        let resolved = resolveAccess(shared: shared, cache: cache)
+        accessTrusted = resolved.trusted
+        if resolved.trusted, let data = try? JSONEncoder().encode(resolved.access) {
+            UserDefaults.standard.set(data, forKey: "foldboard.access.cache")
+            UserDefaults.standard.set(data, forKey: "foldboard.access")
         }
+        return resolved.access
     }
 
     static func loadLearn() -> KBLearn {
@@ -727,9 +845,30 @@ enum KBVault {
         a.stamp = Date()
         guard let data = try? JSONEncoder().encode(a) else { return }
         write("access", data)
+        suite?.set(data, forKey: "access")
         UserDefaults.standard.set(data, forKey: "foldboard.access")
+        UserDefaults.standard.set(data, forKey: "foldboard.access.cache")
+        accessTrusted = true
+        notifySharedChange()
+    }
+
+    /// La plus récente des copies (trousseau, groupe d'app, et éventuellement ce processus).
+    private static func newest<T: Codable & Stampable>(_ type: T.Type, account: String, localKey: String, includeLocal: Bool = true) -> T? {
+        var found: [T] = []
+        if let s = read(account).flatMap({ try? JSONDecoder().decode(type, from: $0) }) { found.append(s) }
+        if let s = suite?.data(forKey: account).flatMap({ try? JSONDecoder().decode(type, from: $0) }) { found.append(s) }
+        if includeLocal, let s = UserDefaults.standard.data(forKey: localKey).flatMap({ try? JSONDecoder().decode(type, from: $0) }) {
+            found.append(s)
+        }
+        return found.max { $0.stamp < $1.stamp }
     }
 }
+
+private protocol Stampable {
+    var stamp: Date { get }
+}
+extension KBSettings: Stampable {}
+extension KBAccess: Stampable {}
 
 /// Les numéros de version : celle qui tourne, et s'il en existe une plus récente sur l'App Store.
 enum KBVersion {

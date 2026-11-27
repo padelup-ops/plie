@@ -89,26 +89,6 @@ struct RoundIcon: View {
     }
 }
 
-/// Le portrait du Père Noël dans son médaillon doré.
-struct SantaMedallion: View {
-    var size: CGFloat = 220
-    var mood: SantaMood = .idle
-    var still: Double? = nil
-    var body: some View {
-        ZStack {
-            Circle().fill(RadialGradient(colors: [Noel.goldLight.opacity(0.35), .clear], center: .center, startRadius: size * 0.3, endRadius: size * 0.75))
-                .frame(width: size * 1.5, height: size * 1.5)
-            Circle().fill(LinearGradient(colors: [Color(red: 0.42, green: 0.17, blue: 0.12), Color(red: 0.22, green: 0.08, blue: 0.07)], startPoint: .top, endPoint: .bottom))
-            SantaView(mood: mood, portrait: true, still: still)
-                .padding(size * 0.02)
-                .clipShape(Circle())
-            Circle().strokeBorder(Noel.goldGradient, lineWidth: size * 0.035)
-            Circle().strokeBorder(Noel.cream.opacity(0.35), lineWidth: 1).padding(size * 0.035)
-        }
-        .frame(width: size, height: size)
-    }
-}
-
 // MARK: - Neige
 
 /// La neige qui tombe : chaque flocon a sa vitesse, sa taille et son balancement. Calculé à partir du temps,

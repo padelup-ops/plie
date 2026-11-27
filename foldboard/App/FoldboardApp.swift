@@ -59,6 +59,7 @@ struct HomeView: View {
     @State private var showPro = false
     /// Le clavier a demandé la dictée (foldboard://dictate).
     @State private var showDictation = false
+    @State private var showKeyboardSettings = false
 
     var body: some View {
         NavigationStack {
@@ -66,10 +67,15 @@ struct HomeView: View {
             AtelierHome(showPro: $showPro)
             .sheet(isPresented: $showPro) { ProView().environment(store).fullScreenDuo() }
             .sheet(isPresented: $showDictation) { DictationView() }
+            .navigationDestination(isPresented: $showKeyboardSettings) { PositionView().fullScreenDuo() }
             .onOpenURL { url in
-                guard url.scheme == "foldboard", url.host == "dictate" else { return }
-                DictationService.shared.startSession()
-                showDictation = true
+                guard url.scheme == "foldboard" else { return }
+                if url.host == "dictate" {
+                    DictationService.shared.startSession()
+                    showDictation = true
+                } else if url.host == "settings" {
+                    showKeyboardSettings = true
+                }
             }
             .sheet(isPresented: $showButtonsGuide) {
                 NavigationStack { ButtonsGuide { showButtonsGuide = false } }

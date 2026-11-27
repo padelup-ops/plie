@@ -4,6 +4,7 @@
 // le Père Noël dans son médaillon doré, le compte à rebours, et un seul geste principal : préparer l'appel.
 
 import SwiftUI
+import UIKit
 
 struct SplashView: View {
     @Environment(AppModel.self) private var model
@@ -46,8 +47,11 @@ struct SplashView: View {
 
 struct HomeView: View {
     @Environment(AppModel.self) private var model
+    @Environment(MagicStore.self) private var store
     @State private var appeared = false
     @State private var music = ChristmasMusic.shared
+    @State private var greeting: Task<Void, Never>?
+    private static var greeted = false
 
     var body: some View {
         ZStack {
@@ -68,9 +72,15 @@ struct HomeView: View {
                 .padding(.top, 8)
 
                 Spacer(minLength: 12)
-                SantaMedallion(size: 210)
-                    .scaleEffect(appeared ? 1 : 0.94)
-                    .opacity(appeared ? 1 : 0)
+                // Le Père Noël, en photo : un toucher et il dit bonjour.
+                Button { greet(again: true) } label: {
+                    SantaMedallion(size: 250, mood: model.call.previewing ? model.call.mood : .idle,
+                                   mouth: model.call.previewing ? model.call.mouth : 0)
+                        .scaleEffect(appeared ? 1 : 0.94)
+                        .opacity(appeared ? 1 : 0)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Hear Santa's greeting"))
                 Spacer(minLength: 18)
 
                 VStack(spacing: 12) {
@@ -93,18 +103,49 @@ struct HomeView: View {
                 VStack(spacing: 12) {
                     Button { model.go(.setup) } label: { Text("✨ Prepare a magic call") }
                         .buttonStyle(MagicButtonStyle())
-                    Button { model.sheet = .discover } label: { Text("Discover the magic") }
-                        .buttonStyle(QuietButtonStyle(filled: true))
+                    HStack(spacing: 10) {
+                        Button { model.sheet = .advent } label: { Text("Advent calendar").lineLimit(1).minimumScaleFactor(0.7) }
+                            .buttonStyle(QuietButtonStyle(filled: true))
+                        if !store.owned {
+                            Button { model.sheet = .paywall } label: { Text("Christmas Pass").lineLimit(1).minimumScaleFactor(0.7) }
+                                .buttonStyle(QuietButtonStyle(filled: true))
+                        }
+                    }
+                    Button { model.sheet = .discover } label: {
+                        Text("Discover the magic").font(.ui(16, .semibold)).foregroundStyle(Noel.night.opacity(0.75)).padding(.vertical, 4)
+                    }
                     Text("A magical moment to share as a family")
                         .font(.story(15))
                         .foregroundStyle(Noel.night.opacity(0.62))
-                        .padding(.top, 6)
                 }
-                .padding(.horizontal, 28)
+                .padding(.horizontal, 24)
                 .padding(.bottom, 14)
             }
         }
-        .onAppear { withAnimation(.spring(duration: 0.9)) { appeared = true } }
+        .onAppear {
+            withAnimation(.spring(duration: 0.9)) { appeared = true }
+            greet(again: false)
+        }
+        .onDisappear {
+            greeting?.cancel()
+            model.call.stopSolo()
+            music.duck(false)
+        }
+    }
+
+    /// Le Père Noël dit bonjour, de sa vraie voix : une fois au lancement, puis à chaque toucher du médaillon.
+    private func greet(again: Bool) {
+        guard ShotMode.route == nil, !model.call.previewing else { return }
+        if !again && Self.greeted { return }
+        Self.greeted = true
+        greeting?.cancel()
+        greeting = Task {
+            try? await Task.sleep(for: .milliseconds(again ? 0 : 700))
+            guard !Task.isCancelled, model.screen == .home, model.sheet == nil else { return }
+            music.duck(true)
+            await model.call.speakBlock("welcome")
+            music.duck(false)
+        }
     }
 }
 

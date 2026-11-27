@@ -26,6 +26,7 @@ final class AdjustOverlay: UIView {
     private var start: CGPoint = .zero
     private var vertical: Bool?
     private let tick = UISelectionFeedbackGenerator()
+    private let panProxy = AdjustPanProxy()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -59,7 +60,8 @@ final class AdjustOverlay: UIView {
         cancel.accessibilityLabel = L("Cancel")
         ok.accessibilityLabel = L("Done")
 
-        addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(panned(_:))))
+        panProxy.overlay = self
+        addGestureRecognizer(UIPanGestureRecognizer(target: panProxy, action: #selector(AdjustPanProxy.panned(_:))))
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -114,7 +116,7 @@ final class AdjustOverlay: UIView {
         [reset, cancel, ok].forEach { bringSubviewToFront($0) }
     }
 
-    @objc private func panned(_ g: UIPanGestureRecognizer) {
+    @objc fileprivate func panned(_ g: UIPanGestureRecognizer) {
         let p = g.location(in: self)
         switch g.state {
         case .began:
@@ -146,6 +148,12 @@ final class AdjustOverlay: UIView {
             break
         }
     }
+}
+
+/// Le geste retient sa cible : ce relais ne retient pas le panneau d'ajustement.
+private final class AdjustPanProxy: NSObject {
+    weak var overlay: AdjustOverlay?
+    @objc func panned(_ g: UIPanGestureRecognizer) { overlay?.panned(g) }
 }
 
 /// Une étiquette avec un peu d'air autour du texte.

@@ -5,10 +5,7 @@ name: Foldboard - TestFlight
 
 on:
   push:
-    # Suspendu le temps du merge 1.0.21 : le build 149 est déjà sur TestFlight.
-    # Le fichier de workflow n'est plus dans les chemins, pour que le rétablissement
-    # ne lance pas un nouvel envoi.
-    branches: [hold-testflight]
+    branches: [main]
     paths:
       - "foldboard/App/**"
       - "foldboard/Keyboard/**"
@@ -119,6 +116,10 @@ jobs:
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
+            <key>com.apple.security.application-groups</key>
+            <array>
+              <string>group.com.padelup.foldboard</string>
+            </array>
             <key>keychain-access-groups</key>
             <array>
               <string>${APPLE_TEAM_ID}.com.padelup.foldboard.shared</string>

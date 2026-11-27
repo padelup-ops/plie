@@ -1,7 +1,7 @@
 // VicefoldWidget.swift — Vicefold
 //
-// Les widgets : ton anneau 100 % et la prochaine mission (écran d'accueil et écran verrouillé), et le compte des jours
-// depuis la sortie du jeu.
+// Les widgets : ton 100 % et la prochaine mission (écran d'accueil et écran verrouillé), et le compte des jours
+// depuis la sortie du jeu. Leur dessin est dans Shared/WidgetFaces.swift (le même que l'aperçu dans l'app).
 
 import SwiftUI
 import WidgetKit
@@ -24,10 +24,14 @@ struct VFProvider: TimelineProvider {
         completion(context.isPreview ? placeholder(in: context) : VFEntry(date: Date(), snap: VFSnapshot.load()))
     }
 
+    /// Une entrée maintenant et une à minuit : « jour N à Leonida » change de lui-même, même si l'app n'est pas
+    /// rouverte. L'app recharge aussi les widgets dès que la progression change.
     func getTimeline(in context: Context, completion: @escaping (Timeline<VFEntry>) -> Void) {
-        let e = VFEntry(date: Date(), snap: VFSnapshot.load())
-        let next = Calendar.current.startOfDay(for: Date()).addingTimeInterval(86_400 + 60)
-        completion(Timeline(entries: [e], policy: .after(next)))
+        let snap = VFSnapshot.load()
+        let now = Date()
+        let midnight = Calendar.current.startOfDay(for: now).addingTimeInterval(86_400)
+        let entries = [VFEntry(date: now, snap: snap), VFEntry(date: midnight, snap: snap)]
+        completion(Timeline(entries: entries, policy: .after(midnight.addingTimeInterval(86_400))))
     }
 }
 
@@ -55,6 +59,7 @@ struct ProgressWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "vicefold.progress", provider: VFProvider()) { e in
             ProgressWidgetView(entry: e)
+                .environment(\.colorScheme, .dark)
                 .containerBackground(for: .widget) { VFWidgetBackground() }
                 .widgetURL(URL(string: "vicefold://tracker"))
         }
@@ -69,16 +74,11 @@ struct DaysWidgetView: View {
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: VF.release), to: Calendar.current.startOfDay(for: entry.date)).day ?? 0
-        Group {
-            if family == .accessoryInline {
-                Text(days < 0 ? String(localized: "\(-days) days to Leonida") : String(localized: "Day \(days + 1) in Leonida"))
-            } else {
-                VStack(spacing: 0) {
-                    Text(days < 0 ? "\(-days)" : "\(days + 1)").font(VF.display(56)).monospacedDigit().foregroundStyle(VF.gradient)
-                    Text(days < 0 ? String(localized: "days to go") : String(localized: "days in Leonida")).font(.caption.weight(.semibold))
-                }
-            }
+        let days = VFDaysFace.days(entry.date)
+        if family == .accessoryInline {
+            Text(days < 0 ? String(localized: "\(-days) days to Leonida") : String(localized: "Day \(days + 1) in Leonida"))
+        } else {
+            VFDaysFace(days: days)
         }
     }
 }
@@ -87,7 +87,9 @@ struct DaysWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "vicefold.days", provider: VFProvider()) { e in
             DaysWidgetView(entry: e)
+                .environment(\.colorScheme, .dark)
                 .containerBackground(for: .widget) { VFWidgetBackground() }
+                .widgetURL(URL(string: "vicefold://home"))
         }
         .configurationDisplayName("Days in Leonida")
         .description("Counts the days since the game came out.")

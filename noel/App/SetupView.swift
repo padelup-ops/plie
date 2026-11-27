@@ -90,6 +90,7 @@ struct SetupView: View {
                     }
                     .padding(.bottom, 6)
                     .overlay(alignment: .bottom) { Rectangle().fill(Noel.gold).frame(height: 1.5) }
+                    nameHint(i)
                 }
                 if model.profile.names.count < 4 {
                     Button {
@@ -196,6 +197,24 @@ struct SetupView: View {
         )
     }
 
+    /// Le Père Noël a enregistré ce prénom, ou bien c'est son lutin qui le dira : le parent le sait avant l'appel.
+    @ViewBuilder
+    private func nameHint(_ i: Int) -> some View {
+        let name = i < model.profile.names.count ? model.profile.names[i].trimmingCharacters(in: .whitespacesAndNewlines) : ""
+        if name.count >= 2 {
+            let lang = ScriptBook.load().1
+            let knows = !VoiceLibrary.shared.ready(lang: lang) || VoiceLibrary.shared.knows(name: name, lang: lang)
+            HStack(spacing: 5) {
+                Image(systemName: knows ? "checkmark.seal.fill" : "sparkles")
+                Text(knows ? "Santa will say this first name himself." : "Santa hasn't recorded this first name yet: he will say hello without it.")
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .font(.ui(12, .medium))
+            .foregroundStyle(knows ? Noel.forest : ink.opacity(0.55))
+            .transition(.opacity)
+        }
+    }
+
     private var anecdoteExample: LocalizedStringKey {
         model.profile.isPlural ? "They helped decorate the tree" : "She learned to ride a bike"
     }
@@ -263,12 +282,12 @@ struct WaxSeal: View {
     }
 }
 
-/// « Magie complète » : ce qui demande l'achat unique.
+/// « Pass Noël » : ce qui demande le Pass.
 struct PremiumTag: View {
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: "lock.fill").font(.system(size: 9, weight: .bold))
-            Text("Full magic").font(.ui(11, .bold))
+            Text("Christmas Pass").font(.ui(11, .bold))
         }
         .foregroundStyle(Noel.night)
         .padding(.horizontal, 7).padding(.vertical, 3)

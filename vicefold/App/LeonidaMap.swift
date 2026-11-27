@@ -44,24 +44,33 @@ enum Leonida {
     }
 
     /// Dessine la carte : d'abord un niveau grossier (jamais de trou pendant qu'on zoome), puis le bon niveau.
+    /// `holo` : la carte recolorée en hologramme (voir `TileCache.hologram`) ; sinon ses couleurs d'origine, un peu
+    /// assombries pour la nuit.
     @MainActor
-    static func draw(_ ctx: inout GraphicsContext, visible r: CGRect, level z: Int, dark: Bool) {
-        ctx.fill(Path(r.insetBy(dx: -size.width, dy: -size.height)), with: .color(water))
+    static func draw(_ ctx: inout GraphicsContext, visible r: CGRect, level z: Int, holo: Bool) {
+        let around = Path(r.insetBy(dx: -size.width, dy: -size.height))
+        ctx.fill(around, with: .color(holo ? holoWater : water))
         var c = ctx
         c.clip(to: Path(CGRect(origin: .zero, size: size)))
         let levels = z > 1 ? [max(0, z - 2), z] : [z]
         for lv in levels {
             for t in tiles(level: lv, in: r) {
-                if let img = TileCache.shared.image(level: lv, name: t.name) {
+                if let img = TileCache.shared.image(level: lv, name: t.name, holo: holo) {
                     c.draw(Image(uiImage: img), in: t.rect)
                 }
             }
         }
-        if dark { c.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black.opacity(0.18))) }
+        if !holo { ctx.fill(around, with: .color(.black.opacity(0.22))) }
     }
+
+    /// Le réglage « couleurs d'origine » (faux par défaut : hologramme).
+    static let styleKey = "vicefold.mapOriginal"
+    /// L'eau en hologramme : la couleur `water` passée par la même transformation que les tuiles.
+    static let holoWater = Color(red: 0, green: 18 / 255, blue: 57 / 255)
 }
 
-/// Les tuiles déjà décodées (on en garde quelques centaines en mémoire).
+/// Les tuiles déjà décodées (on en garde quelques centaines en mémoire), dans leurs couleurs d'origine ou en
+/// hologramme.
 @MainActor
 final class TileCache {
     static let shared = TileCache()
@@ -72,16 +81,48 @@ final class TileCache {
     }()
     private var missing = Set<String>()
 
-    func image(level z: Int, name: String) -> UIImage? {
-        if let i = cache.object(forKey: name as NSString) { return i }
+    func image(level z: Int, name: String, holo: Bool = false) -> UIImage? {
+        let key = (holo ? "h:" + name : name) as NSString
+        if let i = cache.object(forKey: key) { return i }
         if missing.contains(name) { return nil }
         guard let url = Bundle.main.url(forResource: name, withExtension: "jpg", subdirectory: "Tiles/\(z)"),
               let img = UIImage(contentsOfFile: url.path) else {
             missing.insert(name)
             return nil
         }
-        let ready = img.preparingForDisplay() ?? img
-        cache.setObject(ready, forKey: name as NSString)
+        let shown = holo ? (Self.hologram(img) ?? img) : img
+        let ready = shown.preparingForDisplay() ?? shown
+        cache.setObject(ready, forKey: key)
         return ready
+    }
+
+    /// L'hologramme : une simple transformation des couleurs de la même carte, faite une fois par tuile au moment de
+    /// l'afficher (les fichiers ne sont pas modifiés ; rien à recalculer ensuite pendant qu'on déplace la carte).
+    /// La mer devient bleu nuit, la terre un cyan sombre, les routes un cyan clair ; une part de la teinte d'origine
+    /// reste, pour distinguer parcs, plages et quartiers.
+    /// sortie = bleu nuit + (1,25 × rouge − 0,15) × teinte + 0,3 × chrominance d'origine (coefficients × 1 024).
+    static func hologram(_ image: UIImage) -> UIImage? {
+        guard let cg = image.cgImage else { return nil }
+        let w = cg.width, h = cg.height
+        guard w > 0, h > 0,
+              let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
+                                  space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return nil }
+        ctx.draw(cg, in: CGRect(x: 0, y: 0, width: w, height: h))
+        guard let data = ctx.data else { return nil }
+        let px = data.bindMemory(to: UInt8.self, capacity: w * h * 4)
+        var o = 0
+        let end = w * h * 4
+        while o < end {
+            let r = Int(px[o]), g = Int(px[o + 1]), b = Int(px[o + 2])
+            let nr = (293 * r - 220 * g - 22 * b) / 1024 + 4
+            let ng = (395 * r + 87 * g - 22 * b) / 1024 - 4
+            let nb = (549 * r - 220 * g + 285 * b) / 1024 + 10
+            px[o] = UInt8(max(0, min(255, nr)))
+            px[o + 1] = UInt8(max(0, min(255, ng)))
+            px[o + 2] = UInt8(max(0, min(255, nb)))
+            o += 4
+        }
+        guard let out = ctx.makeImage() else { return nil }
+        return UIImage(cgImage: out, scale: image.scale, orientation: .up)
     }
 }

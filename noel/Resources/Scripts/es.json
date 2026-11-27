@@ -7,6 +7,17 @@
  "rate": 0.45,
  "pitch": 0.82,
  "and": " y ",
+ "hello": "¡Jo, jo, jo! ¡Hola, {name}!",
+ "helloAnyone": "¡Jo, jo, jo! ¡Hola, hola!",
+ "elfHello": "Papá Noel, Papá Noel… ¡al teléfono, {name}!",
+ "helloAfterElf": [
+  "¡Ah, claro que sí! ¡Qué alegría hablar contigo!",
+  "¡Ah, claro que sí! ¡Qué alegría hablar con ustedes!"
+ ],
+ "bye": "¡Feliz Navidad, {name}!",
+ "byeAnyone": "¡Feliz Navidad! ¡Jo, jo, jo!",
+ "elfBye": "¡Feliz Navidad, {name}!",
+ "elfLabel": "Pepín, el duende",
  "qualities": {
   "kind": [
    "tienes un gran corazón",
@@ -45,16 +56,10 @@
    "les encantan las aventuras"
   ]
  },
- "qualityJoin": [
-  " y que ",
-  " y que "
- ],
  "scenarios": {
   "magic": [
    {
-    "say": [
-     "¡Jo, jo, jo! ¡Hola, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -83,25 +88,17 @@
     "if": "single"
    },
    {
-    "say": [
-     "Este año he oído hablar de ti, {name}. Me han contado que {quality}. ¡Es maravilloso!",
-     "Este año he oído hablar de ustedes. Me han contado que {quality}. ¡Es maravilloso!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
-     "Este año he oído hablar de ti, {name}, ¡y me han contado cosas preciosas!",
+     "Este año he oído hablar de ti, ¡y me han contado cosas preciosas!",
      "Este año he oído hablar de ustedes, ¡y me han contado cosas preciosas!"
     ],
     "if": "noQuality"
    },
    {
-    "say": [
-     "Y fíjate, un pajarito me ha contado que {anecdote}. ¡Bravo!",
-     "Y fíjense, un pajarito me ha contado que {anecdote}. ¡Bravo!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -123,11 +120,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "Y he apuntado que sueñas con {gift}. ¡Se lo voy a contar ahora mismo a mis duendes!",
-     "Y he apuntado que sueñan con {gift}. ¡Se lo voy a contar ahora mismo a mis duendes!"
-    ],
-    "if": "gift"
+    "cut": true
+   },
+   {
+    "include": "gift"
    },
    {
     "say": [
@@ -149,9 +145,7 @@
   ],
   "secret": [
    {
-    "say": [
-     "Jo, jo, jo… ¡Hola, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -175,10 +169,7 @@
     ]
    },
    {
-    "say": [
-     "Me dijo que {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -188,11 +179,7 @@
     "if": "noQuality"
    },
    {
-    "say": [
-     "Y fíjate, hasta apuntó algo muy especial que hiciste este año: ¡{anecdote}!",
-     "Y fíjense, hasta apuntó algo muy especial que hicieron este año: ¡{anecdote}!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -236,9 +223,7 @@
   ],
   "congrats": [
    {
-    "say": [
-     "¡Jo, jo, jo! ¡Hola, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -255,16 +240,10 @@
     ]
    },
    {
-    "say": [
-     "Un pajarito me ha contado que {anecdote}. ¡Bravo, bravo, bravo!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
-    "say": [
-     "Y también me han dicho que {quality}. ¡Qué año tan bonito!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -286,8 +265,8 @@
    },
    {
     "say": [
-     "¡Jo, jo, jo! ¡Maravilloso! ¡Sigue así, {name}!",
-     "¡Jo, jo, jo! ¡Maravilloso! ¡Sigan así, {name}!"
+     "¡Jo, jo, jo! ¡Maravilloso! ¡Sigue así!",
+     "¡Jo, jo, jo! ¡Maravilloso! ¡Sigan así!"
     ],
     "laugh": true
    },
@@ -306,9 +285,7 @@
   ],
   "funny": [
    {
-    "say": [
-     "¡Jo, jo, jo! ¡Hola, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -348,18 +325,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "Pero también me han dicho que {quality}. ¡Eso es maravilloso!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "Ah, y he apuntado que sueñas con {gift}. Se lo diré a mis duendes… ¡con cuidado de no resbalar con ningún lazo!",
-     "Ah, y he apuntado que sueñan con {gift}. Se lo diré a mis duendes… ¡con cuidado de no resbalar con ningún lazo!"
-    ],
-    "laugh": true,
-    "if": "gift"
+    "include": "gift"
    },
    {
     "say": [
@@ -376,9 +345,7 @@
   ],
   "eve": [
    {
-    "say": [
-     "¡Jo, jo, jo! ¡Buenas noches, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -392,18 +359,10 @@
     ]
    },
    {
-    "say": [
-     "Antes de irme, quería decirte que he oído hablar de ti: me han contado que {quality}.",
-     "Antes de irme, quería decirles que he oído hablar de ustedes: me han contado que {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "Y un pajarito me ha contado que {anecdote}. ¡Estoy muy orgulloso de ti!",
-     "Y un pajarito me ha contado que {anecdote}. ¡Estoy muy orgulloso de ustedes!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -435,8 +394,11 @@
    },
    {
     "say": [
-     "Ya es hora de irme. ¡Mis renos me esperan! ¡Feliz Navidad, {name}! ¡Jo, jo, jo!"
-    ],
+     "Ya es hora de irme. ¡Mis renos me esperan!"
+    ]
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ]
@@ -462,9 +424,13 @@
   "goodbye": [
    {
     "say": [
-     "¡Jo, jo, jo! Tengo que volver a mi taller. ¡Te deseo una Navidad maravillosa, {name}!",
-     "¡Jo, jo, jo! Tengo que volver a mi taller. ¡Les deseo una Navidad maravillosa, {name}!"
+     "¡Jo, jo, jo! Tengo que volver a mi taller. ¡Te deseo una Navidad maravillosa!",
+     "¡Jo, jo, jo! Tengo que volver a mi taller. ¡Les deseo una Navidad maravillosa!"
     ],
+    "laugh": true
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ],
@@ -472,6 +438,96 @@
    {
     "say": [
      "¡Jo, jo, jo! ¡Hola! Soy Papá Noel, ¡te llamo desde el Polo Norte!"
+    ],
+    "laugh": true
+   }
+  ],
+  "qualities": [
+   {
+    "say": [
+     "Este año he oído cosas preciosas sobre ti.",
+     "Este año he oído cosas preciosas sobre ustedes."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Me han contado que {q1}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Y también que {q2}."
+    ],
+    "if": "quality2"
+   },
+   {
+    "say": [
+     "¡Es maravilloso!"
+    ],
+    "if": "quality"
+   }
+  ],
+  "anecdote": [
+   {
+    "say": [
+     "¡Oh, aquí llega corriendo mi duende Pepín! Tiene algo que contarme sobre ti…",
+     "¡Oh, aquí llega corriendo mi duende Pepín! Tiene algo que contarme sobre ustedes…"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "elf": [
+     "¡Papá Noel, Papá Noel! Traigo una gran noticia: ¡{anecdote}!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Bravo! ¡Estoy muy orgulloso de ti!",
+     "¡Jo, jo, jo! ¡Bravo! ¡Estoy muy orgulloso de ustedes!"
+    ],
+    "if": "anecdote",
+    "laugh": true
+   }
+  ],
+  "gift": [
+   {
+    "say": [
+     "Pepín, dime: ¿qué hay en la lista de Navidad?"
+    ],
+    "if": "gift"
+   },
+   {
+    "elf": [
+     "En la lista está: ¡{gift}!"
+    ],
+    "if": "gift"
+   },
+   {
+    "say": [
+     "¡Jo, jo, jo! Ya lo tengo apuntado. ¡Se lo voy a contar ahora mismo a mis duendes!"
+    ],
+    "if": "gift",
+    "laugh": true
+   }
+  ],
+  "previewEnd": [
+   {
+    "say": [
+     "¡Oh! Mis duendes me llaman desde el taller, ¡tengo que irme corriendo! ¡Hasta muy pronto!"
+    ]
+   },
+   {
+    "bye": true,
+    "wave": true
+   }
+  ],
+  "welcome": [
+   {
+    "say": [
+     "¡Jo, jo, jo! ¡Hola! Soy yo, Papá Noel. Te llamo desde mi taller, en el Polo Norte. Tengo una sorpresa solo para ti. ¡Feliz Navidad!"
     ],
     "laugh": true
    }

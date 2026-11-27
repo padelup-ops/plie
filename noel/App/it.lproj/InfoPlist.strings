@@ -1,2 +1,3 @@
 "CFBundleDisplayName" = "Babbo Natale";
-"NSPhotoLibraryAddUsageDescription" = "Per salvare la cartolina ricordo nelle tue foto.";
+"NSPhotoLibraryAddUsageDescription" = "Per salvare la cartolina ricordo e le foto della reazione del tuo bambino nelle tue foto.";
+"NSCameraUsageDescription" = "Mostra il tuo bambino in un angolo della chiamata di Babbo Natale, come in una videochiamata. Niente viene registrato, a meno che tu non chieda le foto della sua reazione.";

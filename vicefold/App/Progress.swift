@@ -30,7 +30,10 @@ struct VFPin: Codable, Identifiable, Hashable {
 
     static let icons = ["mappin", "star.fill", "flag.fill", "car.fill", "dollarsign", "cross.case.fill", "house.fill",
                         "bag.fill", "fish.fill", "camera.fill", "exclamationmark.triangle.fill", "heart.fill"]
-    static let colors: [Color] = [VF.coral, VF.teal, VF.sun, VF.magenta, .blue, .green, .purple, .gray]
+    /// Huit néons, dans le même ordre qu'avant (orange, menthe, jaune, magenta, bleu, vert, violet, gris) : les
+    /// épingles déjà posées gardent leur couleur.
+    static let colors: [Color] = [VF.sunset, VF.palm, VF.sun, VF.flamingo, Color(red: 0.44, green: 0.74, blue: 1.0),
+                                  Color(red: 0.54, green: 0.93, blue: 0.44), Color(red: 0.80, green: 0.58, blue: 1.0), Color(red: 0.70, green: 0.74, blue: 0.84)]
 }
 
 /// Le calage de ta propre carte (une capture de la carte du jeu) sur la nôtre.
@@ -162,6 +165,7 @@ final class Progress {
         for (i, s) in c.collectibles.enumerated() { d.collected[s.id] = Int(Double(s.target) * [0.62, 0.35, 0.8, 0.5, 0.2, 0.9][i % 6]) }
         d.challenges = ["f-narco", "f-cars"]
         d.favorites = ["lucia", "jason"]
+        for p in c.places.filter({ $0.community && $0.kind == .landmark }).prefix(2) { d.favorites.insert("place:" + p.id) }
         d.readGuides = ["start-how"]
         d.pins = [VFPin(name: "Stash", note: "Behind the bait shop", icon: "dollarsign", color: 2, x: 0.735, y: 0.535),
                   VFPin(name: "Car to scan", icon: "car.fill", color: 1, x: 0.79, y: 0.455),
@@ -257,7 +261,11 @@ final class Progress {
             var s = Set(d.objectives[m.id] ?? [])
             if s.contains(i) { s.remove(i) } else { s.insert(i) }
             d.objectives[m.id] = s.sorted()
-            if s.count == m.objectives.count, !m.objectives.isEmpty { d.missions.insert(m.id) }
+            if s.count == m.objectives.count, !m.objectives.isEmpty {
+                d.missions.insert(m.id)
+                // Comme `toggle` : finir une mission (ici par son dernier objectif) fait avancer « où j'en suis ».
+                if m.chapter > d.chapter { d.chapter = m.chapter }
+            }
         }
     }
 
@@ -340,6 +348,16 @@ final class Progress {
         edit { d in if d.favorites.contains(c.id) { d.favorites.remove(c.id) } else { d.favorites.insert(c.id) } }
     }
 
+    // MARK: Lieux favoris
+
+    /// Les lieux favoris sont rangés avec les personnages favoris, sous un préfixe (les identifiants ne se mélangent pas).
+    private static func favoriteKey(_ p: VFPlace) -> String { "place:" + p.id }
+    func isFavorite(_ p: VFPlace) -> Bool { data.favorites.contains(Self.favoriteKey(p)) }
+    func toggleFavorite(_ p: VFPlace) {
+        let k = Self.favoriteKey(p)
+        edit { d in if d.favorites.contains(k) { d.favorites.remove(k) } else { d.favorites.insert(k) } }
+    }
+
     // MARK: Le 100 %
 
     struct Parts {
@@ -364,8 +382,14 @@ final class Progress {
     }
 
     func nextMission(_ c: VFContent) -> VFMission? {
-        c.missions.filter { $0.optional != true }.sorted { ($0.chapter, c.missions.firstIndex(of: $0) ?? 0) < ($1.chapter, c.missions.firstIndex(of: $1) ?? 0) }
-            .first { !data.missions.contains($0.id) }
+        // La première mission de l'histoire pas encore faite, par chapitre puis dans l'ordre du guide (un seul
+        // passage : cette fonction est appelée à chaque dessin de l'accueil et à chaque écriture des widgets).
+        var best: (chapter: Int, index: Int, mission: VFMission)?
+        for (i, m) in c.missions.enumerated() where m.optional != true && !data.missions.contains(m.id) {
+            if let b = best, (b.chapter, b.index) <= (m.chapter, i) { continue }
+            best = (m.chapter, i, m)
+        }
+        return best?.mission
     }
 
     var hours: Double { data.psnHours ?? data.manualHours }

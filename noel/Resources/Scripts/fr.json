@@ -7,6 +7,17 @@
  "rate": 0.44,
  "pitch": 0.82,
  "and": " et ",
+ "hello": "Ho, ho, ho ! Bonjour {name} !",
+ "helloAnyone": "Ho, ho, ho ! Bonjour, bonjour !",
+ "elfHello": "Père Noël, Père Noël… c'est {name} !",
+ "helloAfterElf": [
+  "Ah, mais bien sûr ! Je suis très content de te parler !",
+  "Ah, mais bien sûr ! Je suis très content de vous parler !"
+ ],
+ "bye": "Joyeux Noël, {name} !",
+ "byeAnyone": "Joyeux Noël ! Ho, ho, ho !",
+ "elfBye": "Joyeux Noël, {name} !",
+ "elfLabel": "Pépin, le lutin",
  "qualities": {
   "kind": [
    "tu as un grand cœur",
@@ -45,16 +56,10 @@
    "vous adorez partir à l'aventure"
   ]
  },
- "qualityJoin": [
-  ", et que ",
-  ", et que "
- ],
  "scenarios": {
   "magic": [
    {
-    "say": [
-     "Ho, ho, ho ! Bonjour {name} !"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -83,25 +88,17 @@
     "if": "single"
    },
    {
-    "say": [
-     "J'ai entendu parler de toi cette année, {name}. On m'a dit que {quality}. C'est merveilleux !",
-     "J'ai entendu parler de vous cette année. On m'a dit que {quality}. C'est merveilleux !"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
-     "J'ai entendu parler de toi cette année, {name}, et on m'a dit beaucoup de belles choses !",
+     "J'ai entendu parler de toi cette année, et on m'a dit beaucoup de belles choses !",
      "J'ai entendu parler de vous cette année, et on m'a dit beaucoup de belles choses !"
     ],
     "if": "noQuality"
    },
    {
-    "say": [
-     "Et figure-toi qu'on m'a raconté que {anecdote}. Bravo !",
-     "Et figurez-vous qu'on m'a raconté que {anecdote}. Bravo !"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -123,11 +120,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "Et j'ai bien noté que tu rêves {gift_de}. Je vais en parler tout de suite à mes lutins !",
-     "Et j'ai bien noté que vous rêvez {gift_de}. Je vais en parler tout de suite à mes lutins !"
-    ],
-    "if": "gift"
+    "cut": true
+   },
+   {
+    "include": "gift"
    },
    {
     "say": [
@@ -149,9 +145,7 @@
   ],
   "secret": [
    {
-    "say": [
-     "Ho, ho, ho… Bonjour {name} !"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -175,10 +169,7 @@
     ]
    },
    {
-    "say": [
-     "Il m'a dit que {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -188,11 +179,7 @@
     "if": "noQuality"
    },
    {
-    "say": [
-     "Et figure-toi qu'il a même noté quelque chose de très spécial que tu as fait cette année : {anecdote} !",
-     "Et figurez-vous qu'il a même noté quelque chose de très spécial que vous avez fait cette année : {anecdote} !"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -236,9 +223,7 @@
   ],
   "congrats": [
    {
-    "say": [
-     "Ho, ho, ho ! Bonjour {name} !"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -255,16 +240,10 @@
     ]
    },
    {
-    "say": [
-     "On m'a raconté que {anecdote}. Bravo, bravo, bravo !"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
-    "say": [
-     "Et on m'a dit aussi que {quality}. Quelle belle année !"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -286,8 +265,8 @@
    },
    {
     "say": [
-     "Ho, ho, ho ! Formidable ! Alors continue comme ça, {name} !",
-     "Ho, ho, ho ! Formidable ! Alors continuez comme ça, {name} !"
+     "Ho, ho, ho ! Formidable ! Alors continue comme ça !",
+     "Ho, ho, ho ! Formidable ! Alors continuez comme ça !"
     ],
     "laugh": true
    },
@@ -306,9 +285,7 @@
   ],
   "funny": [
    {
-    "say": [
-     "Ho, ho, ho ! Bonjour {name} !"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -348,18 +325,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "Mais j'ai aussi entendu dire que {quality}. Ça, c'est formidable !"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "Ah, et j'ai bien noté que tu rêves {gift_de}. Je vais en parler à mes lutins… en faisant bien attention à ne pas glisser sur un ruban !",
-     "Ah, et j'ai bien noté que vous rêvez {gift_de}. Je vais en parler à mes lutins… en faisant bien attention à ne pas glisser sur un ruban !"
-    ],
-    "laugh": true,
-    "if": "gift"
+    "include": "gift"
    },
    {
     "say": [
@@ -376,9 +345,7 @@
   ],
   "eve": [
    {
-    "say": [
-     "Ho, ho, ho ! Bonsoir {name} !"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -392,18 +359,10 @@
     ]
    },
    {
-    "say": [
-     "Avant de partir, je voulais te dire que j'ai entendu parler de toi : on m'a dit que {quality}.",
-     "Avant de partir, je voulais vous dire que j'ai entendu parler de vous : on m'a dit que {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "Et on m'a raconté que {anecdote}. Je suis très fier de toi !",
-     "Et on m'a raconté que {anecdote}. Je suis très fier de vous !"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -435,8 +394,11 @@
    },
    {
     "say": [
-     "Il est temps pour moi de partir. Mes rennes m'attendent ! Joyeux Noël, {name} ! Ho, ho, ho !"
-    ],
+     "Il est temps pour moi de partir. Mes rennes m'attendent !"
+    ]
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ]
@@ -462,9 +424,13 @@
   "goodbye": [
    {
     "say": [
-     "Ho, ho, ho ! Je dois retourner à mon atelier. Je te souhaite un merveilleux Noël, {name} !",
-     "Ho, ho, ho ! Je dois retourner à mon atelier. Je vous souhaite un merveilleux Noël, {name} !"
+     "Ho, ho, ho ! Je dois retourner à mon atelier. Je te souhaite un merveilleux Noël !",
+     "Ho, ho, ho ! Je dois retourner à mon atelier. Je vous souhaite un merveilleux Noël !"
     ],
+    "laugh": true
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ],
@@ -472,6 +438,96 @@
    {
     "say": [
      "Ho, ho, ho ! Bonjour ! C'est le Père Noël, je t'appelle depuis le pôle Nord !"
+    ],
+    "laugh": true
+   }
+  ],
+  "qualities": [
+   {
+    "say": [
+     "J'ai entendu de très belles choses sur toi cette année.",
+     "J'ai entendu de très belles choses sur vous cette année."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "On m'a dit que {q1}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "Et aussi que {q2}."
+    ],
+    "if": "quality2"
+   },
+   {
+    "say": [
+     "C'est merveilleux !"
+    ],
+    "if": "quality"
+   }
+  ],
+  "anecdote": [
+   {
+    "say": [
+     "Oh, voilà mon lutin Pépin qui arrive en courant ! Il a quelque chose à me dire sur toi…",
+     "Oh, voilà mon lutin Pépin qui arrive en courant ! Il a quelque chose à me dire sur vous…"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "elf": [
+     "Père Noël, Père Noël ! J'ai une grande nouvelle : {anecdote} !"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Ho, ho, ho ! Bravo ! Je suis très fier de toi !",
+     "Ho, ho, ho ! Bravo ! Je suis très fier de vous !"
+    ],
+    "if": "anecdote",
+    "laugh": true
+   }
+  ],
+  "gift": [
+   {
+    "say": [
+     "Pépin, dis-moi : qu'y a-t-il sur la liste de Noël ?"
+    ],
+    "if": "gift"
+   },
+   {
+    "elf": [
+     "Sur la liste, il y a : {gift} !"
+    ],
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Ho, ho, ho ! C'est bien noté. Je vais en parler tout de suite à mes lutins !"
+    ],
+    "if": "gift",
+    "laugh": true
+   }
+  ],
+  "previewEnd": [
+   {
+    "say": [
+     "Oh ! Mes lutins m'appellent à l'atelier, je dois filer ! À très bientôt !"
+    ]
+   },
+   {
+    "bye": true,
+    "wave": true
+   }
+  ],
+  "welcome": [
+   {
+    "say": [
+     "Ho, ho, ho ! Bonjour ! C'est moi, le Père Noël. Je t'appelle depuis mon atelier, au pôle Nord. J'ai une surprise rien que pour toi. Joyeux Noël !"
     ],
     "laugh": true
    }

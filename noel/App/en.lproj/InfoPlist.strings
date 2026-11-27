@@ -1,2 +1,3 @@
 "CFBundleDisplayName" = "Santa Calls";
-"NSPhotoLibraryAddUsageDescription" = "Lets you save the keepsake card to your photos.";
+"NSPhotoLibraryAddUsageDescription" = "Lets you save the keepsake card and the photos of your child's reaction to your photos.";
+"NSCameraUsageDescription" = "Shows your child in a corner of Santa's call, like a video call. Nothing is recorded unless you ask for photos of their reaction.";

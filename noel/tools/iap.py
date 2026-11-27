@@ -21,8 +21,20 @@ NOTE = ("Unlocks the full magic: the four other Santa stories (secret, congratul
         "for brothers and sisters together, a special moment and a Christmas wish that Santa mentions, and premium keepsake cards. "
         "The first story stays free. The purchase screen opens from a locked story or from Settings > Unlock the full magic, "
         "and asks a multiplication question for grown-ups before buying. Restore is on the same screen.")
+PASS_NOTE = (
+    "Christmas Pass, non-consumable, 6.99 EUR. Unlocks the full personalized Santa call (name, age, qualities, "
+    "anecdote, wish, all stories, siblings), a printable letter, a good-child certificate, and the advent calendar. "
+    "The free tier is a short preview of the magic call (greeting by name, age, qualities, goodbye) plus advent door 1. A multiplication question for grown-ups "
+    "is required before the purchase and before the privacy-policy link. No ads, no account, no data collection. "
+    "Restore is on the paywall and in Settings. Do not submit this product for review from this script."
+)
+PACK_NOTE = (
+    "Consumable pack of 3 extra personalized messages for another child, 2.99 EUR. Bought from the paywall or Settings, "
+    "behind the same grown-up multiplication question. Credits stay on the device. No ads, no data collection. "
+    "Do not submit this product for review from this script."
+)
 PRODUCTS = [
-    {"id": "com.padelup.allonoel.magie", "name": "Full magic", "price": PRICE_EUR,
+    {"id": "com.padelup.allonoel.magie", "name": "Full magic", "price": PRICE_EUR, "type": "NON_CONSUMABLE",
      "locales": {"fr-FR": ("La magie complète", "Toutes les histoires, frères et sœurs, souvenirs"),
                  "en-US": ("The full magic", "All stories, siblings, special moments, cards"),
                  "es-ES": ("La magia completa", "Todas las historias, hermanos y recuerdos"),
@@ -30,6 +42,22 @@ PRODUCTS = [
                  "it": ("La magia completa", "Tutte le storie, fratelli e ricordi"),
                  "pt-BR": ("A magia completa", "Todas as histórias, irmãos e lembranças")},
      "note": NOTE},
+    {"id": "com.padelup.allonoel.pass", "name": "Christmas Pass", "price": "6.99", "type": "NON_CONSUMABLE",
+     "locales": {"fr-FR": ("Pass Noël", "Appels, lettre, certificat, calendrier"),
+                 "en-US": ("Christmas Pass", "Calls, letter, certificate, calendar"),
+                 "es-ES": ("Pase de Navidad", "Llamadas, carta, diploma y calendario"),
+                 "de-DE": ("Weihnachts-Pass", "Anrufe, Brief, Urkunde, Kalender"),
+                 "it": ("Pass Natale", "Chiamate, lettera, diploma, calendario"),
+                 "pt-BR": ("Passe de Natal", "Ligações, carta, diploma, calendário")},
+     "note": PASS_NOTE},
+    {"id": "com.padelup.allonoel.messages", "name": "Extra messages", "price": "2.99", "type": "CONSUMABLE",
+     "locales": {"fr-FR": ("Messages en plus", "Trois messages pour un autre enfant"),
+                 "en-US": ("Extra messages", "Three messages for another child"),
+                 "es-ES": ("Mensajes extra", "Tres mensajes para otro niño"),
+                 "de-DE": ("Extra-Botschaften", "Drei Botschaften für ein Kind mehr"),
+                 "it": ("Messaggi extra", "Tre messaggi per un altro bambino"),
+                 "pt-BR": ("Mensagens extra", "Três mensagens para outra criança")},
+     "note": PACK_NOTE},
 ]
 token = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": int(time.time()), "exp": int(time.time()) + 1200,
                     "aud": "appstoreconnect-v1"}, os.environ["ASC_PRIVATE_KEY"], algorithm="ES256",
@@ -96,7 +124,7 @@ for prod in PRODUCTS:
         print("ok     achat déjà créé, état", iap["attributes"].get("state"))
     else:
         r = step("création de l'achat " + pid, call("POST", "/v2/inAppPurchases", {"data": {"type": "inAppPurchases",
-            "attributes": {"name": prod["name"], "productId": pid, "inAppPurchaseType": "NON_CONSUMABLE",
+            "attributes": {"name": prod["name"], "productId": pid, "inAppPurchaseType": prod["type"],
                            "reviewNote": prod["note"], "familySharable": False},
             "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
         if "error" in r:

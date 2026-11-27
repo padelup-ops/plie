@@ -54,6 +54,8 @@
 "Layout" = "Layout";
 "Position" = "Posição";
 "Follows your hand" = "Segue sua mão";
+"Layout switcher only when the Duo is open" = "O seletor de layout só com o Duo aberto";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on." = "Escolha como o teclado fica em cada tela do Duo. Uma escolha no botão de posição vale só para aquela tela. Os três botões (segue sua mão, largura total, dividido) ficam ocultos com o Duo fechado quando isto está ligado.";
 "One hand, left" = "Uma mão, esquerda";
 "One hand, right" = "Uma mão, direita";
 "Full width" = "Largura total";
@@ -112,6 +114,14 @@
 "Double space adds a period" = "Espaço duplo adiciona um ponto";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Mantenha uma letra pressionada para os acentos (é, è, à, ç…). Mantenha apagar pressionado para apagar palavra por palavra.";
 "Switch side" = "Trocar de lado";
+"Settings button" = "Botão de ajustes";
+"Mic button" = "Botão do microfone";
+"Clipboard button" = "Botão da área de transferência";
+"Position button" = "Botão de posição";
+"Layout menu" = "Menu de layout";
+"Layout switcher" = "Seletor de layout";
+"Toolbar buttons" = "Botões da barra";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Desligue para uma barra mais limpa e mais espaço para sugestões. Para mover ou redimensionar o teclado, ligue de novo ou use esta tela. Se o botão … estiver oculto, o menu volta por aqui. As mensagens de aprendizado são notas curtas quando o Foldboard aprende sua pegada: ele continua aprendendo mesmo desligadas.";
 "Keyboard in the middle" = "Teclado no meio";
 "The keyboard buttons" = "Os botões do teclado";
 "The bar above the keys, from left to right." = "A barra acima das teclas, da esquerda para a direita.";
@@ -632,3 +642,5 @@
 "Delete %lld" = "Apagar %lld";
 "Delete all your words?" = "Apagar todas as suas palavras?";
 "Remind me when I just tap the mic" = "Me avisar quando eu só tocar no microfone";
+
+"Open Foldboard settings" = "Abrir os ajustes do Foldboard";

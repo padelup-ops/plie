@@ -29,7 +29,30 @@ extension KBInput {
     var kbReturnType: UIReturnKeyType { .default }
 }
 
+/// Images système déjà dessinées : un pli ne recharge pas une nouvelle loupe, un nouveau globe, etc.
+enum KBSymbol {
+    private static var cache: [String: UIImage] = [:]
+    static func image(_ name: String) -> UIImage? {
+        if let i = cache[name] { return i }
+        guard let i = UIImage(systemName: name) else { return nil }
+        cache[name] = i
+        return i
+    }
+    /// Mémoire serrée : les images se redessinent à la demande.
+    static func clear() { cache.removeAll() }
+}
+
+/// Vues encore en vie (touches, clavier, boutons du côté). Le journal de la main l'écrit pour vérifier
+/// qu'un pli ne laisse pas de nouvelles vues derrière lui.
+enum KBViews {
+    static var keys = 0
+    static var canvases = 0
+    static var panels = 0
+    static var live: Int { keys + canvases + panels }
+}
+
 /// Une touche dessinée (elle ne reçoit pas les touchers : c'est le clavier qui les gère tous).
+/// Créée une fois, puis reconfigurée : un changement de taille ne jette pas la touche.
 final class KeyView: UIView {
     let label = UILabel()
     let icon = UIImageView()
@@ -54,18 +77,64 @@ final class KeyView: UIView {
         icon.contentMode = .scaleAspectFit
         addSubview(label)
         addSubview(icon)
+        KBViews.keys += 1
+    }
+
+    deinit { KBViews.keys -= 1 }
+
+    /// Même vue, autre lettre ou autre place. On jette le glyphe précédent (image et calque).
+    func reconfigure(spec: KeySpec, special: Bool) {
+        self.spec = spec
+        self.special = special
+        park()
+        isHidden = false
+        alpha = 1
+    }
+
+    /// Le pavé tactile efface les lettres : elles reviennent toujours, même sur une touche rangée entre-temps.
+    func showGlyphs() {
+        label.alpha = 1
+        icon.alpha = 1
+    }
+
+    /// Touche en trop pour cette disposition : on garde la vue, plus son image.
+    func park() {
+        isHidden = true
+        label.text = nil
+        label.attributedText = nil
+        icon.image = nil
+        layer.contents = nil
+        layer.removeAllAnimations()
+        transform = .identity
+        backgroundColor = nil
+        alpha = 1
+        showGlyphs()
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        label.frame = bounds.insetBy(dx: 2, dy: 0)
-        let s = min(bounds.width, bounds.height) * 0.46
-        icon.frame = CGRect(x: (bounds.width - s) / 2, y: (bounds.height - s) / 2, width: s, height: s)
-        let r = square ? min(4, bounds.height * 0.08) : min(13, bounds.height * 0.26)
-        layer.cornerRadius = r
-        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: r).cgPath
+        // Jamais animé : quand iOS redimensionne le clavier dans une animation (pli, rotation, mode portable), la
+        // lettre et les coins de chaque touche glissaient à part, et les rangées semblaient se défaire.
+        UIView.performWithoutAnimation {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            // L'étiquette à la taille de sa lettre, pas de la touche : iOS garde en mémoire une image de la taille
+            // de l'étiquette pour chaque touche. Sur le Duo ouvert en paysage (touches de 90 × 57 pt, plus hautes
+            // encore en mode portable), 33 étiquettes de la taille des touches pesaient plusieurs Mo de plus que
+            // sur l'écran fermé : c'est là que le clavier était fermé par iOS.
+            let room = bounds.insetBy(dx: 2, dy: 0)
+            let fit = label.sizeThatFits(room.size)
+            let lw = min(room.width, ceil(fit.width) + 6), lh = min(room.height, ceil(fit.height) + 4)
+            label.frame = CGRect(x: room.midX - lw / 2, y: room.midY - lh / 2, width: lw, height: lh).integral
+            let s = min(bounds.width, bounds.height) * 0.46
+            icon.frame = CGRect(x: (bounds.width - s) / 2, y: (bounds.height - s) / 2, width: s, height: s)
+            let r = square ? min(4, bounds.height * 0.08) : min(13, bounds.height * 0.26)
+            layer.cornerRadius = r
+            layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: r).cgPath
+            CATransaction.commit()
+        }
     }
 }
 
@@ -102,6 +171,20 @@ final class KeyboardCanvas: UIView {
     private let middleButton = UIButton(type: .system)
     /// Écran intérieur, petit clavier : un bouton pour passer en grand (et revenir).
     private let bigButton = UIButton(type: .system)
+    /// Les trois dispositions (suit la main, toute la largeur, coupé en deux). Créé une fois : on ne fait que
+    /// le montrer ou le cacher, jamais un nouveau contrôle à chaque apparition.
+    private let layoutSwitch: UISegmentedControl = {
+        let images = ["hand.raised.fingers.spread", "keyboard", "rectangle.split.2x1"].map {
+            (UIImage(systemName: $0, withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold)) ?? UIImage())
+                .withRenderingMode(.alwaysTemplate)
+        }
+        let s = UISegmentedControl(items: images)
+        s.selectedSegmentIndex = 0
+        s.apportionsSegmentWidthsByContent = false
+        let names = ["Follows your hand", "Full width", "Split keyboard"]
+        for (i, n) in names.enumerated() { s.imageForSegment(at: i)?.accessibilityLabel = L(n) }
+        return s
+    }()
     private let hideButton = UIButton(type: .system)
     /// Petit clavier : le globe et les emojis sont ici, pour laisser la place à l'espace.
     private let globeButton = UIButton(type: .system)
@@ -138,6 +221,8 @@ final class KeyboardCanvas: UIView {
     private var dictState = DictState.idle { didSet { if micKey, oldValue != dictState { updateLabels() } } }
     private var dictSeq = 0
     private let adjustButton = UIButton(type: .system)
+    /// La cible des appuis longs (⇆ : la prise reconnue ; masquer : fluidité et mémoire).
+    private var holdRelay: AnyObject?
     private let chips = UIScrollView()
     private let chipStack = UIStackView()
     private let toast = UILabel()
@@ -239,6 +324,9 @@ final class KeyboardCanvas: UIView {
     }
 
     private func hideVoice() {
+        // La dictée est finie : plus de traduction en direct en attente.
+        resetLive()
+        KBTranslate.endLive()
         guard !voice.isHidden else { return }
         voice.isHidden = true
         layoutTopBar()
@@ -253,6 +341,7 @@ final class KeyboardCanvas: UIView {
 
     /// Demande à l'app si elle est prête (micro disponible) ; sinon, le panneau propose de l'ouvrir.
     private func startDictation() {
+        resetLive()
         dictCancelled = false
         dictState = .connecting
         showVoice(.connecting)
@@ -286,6 +375,10 @@ final class KeyboardCanvas: UIView {
             showVoice(.needsApp)
             return
         }
+        micRelease?.cancel()
+        micRelease = nil
+        // La page WebKit de la dictée coûte quelques Mo : on fait de la place avant, pas après.
+        emojiBoard.releaseMemory()
         let m = mic ?? KeyboardMic()
         mic = m
         m.attach(to: self)
@@ -300,8 +393,9 @@ final class KeyboardCanvas: UIView {
                 if !self.dictCancelled { self.insertDictation(t) }
                 self.dictState = .idle
                 self.hideVoice()
+                self.releaseMicSoon()
             } else if !t.isEmpty {
-                self.voice.set(self.dictState == .finishing ? .finishing : .listening, text: t)
+                self.showHeard(t)
             }
         }
         m.onLevel = { [weak self] l in self?.voice.push(level: CGFloat(l)) }
@@ -310,6 +404,7 @@ final class KeyboardCanvas: UIView {
             self.micMode = false
             self.dictState = .idle
             self.showVoice(.needsApp)
+            self.releaseMicIfIdle()
         }
         m.start(localeID: KBDictation.localeID())
     }
@@ -365,6 +460,70 @@ final class KeyboardCanvas: UIView {
         if dictState == .listening || dictState == .finishing { KBDictation.post(KBDictation.stop) }
         dictState = .idle
         hideVoice()
+        releaseMicSoon()
+    }
+
+    // MARK: Traduction en direct
+    //
+    // Avec « traduire ce que je dis », le panneau montre la traduction au fil de la parole (les langues doivent être
+    // sur l'iPhone : c'est la traduction d'Apple, hors ligne). Une seule traduction à la fois, la suivante part quand
+    // la précédente est rendue : la dernière phrase entendue est toujours celle qui finit par s'afficher.
+
+    private var liveText = ""
+    private var liveShown = ""
+    private var liveBusy = false
+    private var liveGen = 0
+    private var liveLast: TimeInterval = 0
+
+    private func resetLive() {
+        liveGen += 1
+        liveText = ""
+        liveShown = ""
+        liveBusy = false
+    }
+
+    /// Ce qui vient d'être entendu : affiché tel quel, ou traduit pendant qu'on parle.
+    private func showHeard(_ t: String) {
+        let mode: KBVoicePanel.Mode = dictState == .finishing ? .finishing : .listening
+        guard eff.dictTranslate, eff.translateKey,
+              let pair = KBTranslate.direction(for: t, spoken: dictationLang, pair: eff.translatePair) else {
+            voice.set(mode, text: t)
+            return
+        }
+        liveText = t
+        // Tant que rien n'est encore traduit, on montre ce qui est entendu.
+        if liveShown.isEmpty { voice.set(mode, text: t) }
+        pumpLive(pair)
+    }
+
+    private func pumpLive(_ pair: (from: String, to: String)) {
+        guard !liveBusy else { return }
+        liveBusy = true
+        let gen = liveGen
+        let wait = max(0, 0.3 - (ProcessInfo.processInfo.systemUptime - liveLast))
+        Task { @MainActor [weak self] in
+            if wait > 0 { try? await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000)) }
+            guard let self else { return }
+            guard gen == self.liveGen else { return }
+            let source = self.liveText
+            let out = await KBTranslate.quick(source, from: pair.from, to: pair.to)
+            guard gen == self.liveGen else { return }
+            self.liveBusy = false
+            self.liveLast = ProcessInfo.processInfo.systemUptime
+            guard self.dictState == .listening || self.dictState == .finishing else { return }
+            guard let out, !out.isEmpty else {
+                // Pas de traduction immédiate (langues à télécharger) : le texte entendu reste, traduit à la fin.
+                self.liveShown = ""
+                self.voice.set(self.dictState == .finishing ? .finishing : .listening, text: self.liveText)
+                return
+            }
+            self.liveShown = out
+            self.voice.set(self.dictState == .finishing ? .finishing : .listening, text: out)
+            if self.liveText != source,
+               let next = KBTranslate.direction(for: self.liveText, spoken: self.dictationLang, pair: self.eff.translatePair) {
+                self.pumpLive(next)
+            }
+        }
     }
 
     private func dictationUpdate() {
@@ -375,7 +534,7 @@ final class KeyboardCanvas: UIView {
             dictState = .idle
             hideVoice()
         } else {
-            if !s.text.isEmpty { voice.set(dictState == .finishing ? .finishing : .listening, text: s.text) }
+            if !s.text.isEmpty { showHeard(s.text) }
             voice.push(level: CGFloat(s.level ?? 0))
         }
     }
@@ -437,7 +596,7 @@ final class KeyboardCanvas: UIView {
     private func toggleDictTranslate() {
         settings.dictTranslate.toggle()
         eff.dictTranslate = settings.dictTranslate
-        input?.kbSettingsChanged(settings)
+        persist()
         voice.setTranslate(on: eff.dictTranslate && eff.translateKey, pair: eff.translatePair, shown: eff.translateKey)
         KBFeedback.shared.tap(sound: .off, haptics: max(0.3, eff.haptics))
     }
@@ -471,13 +630,14 @@ final class KeyboardCanvas: UIView {
         let t0 = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !t0.isEmpty else { return }
         // Dictée traduite : parlé en français, écrit en anglais (et l'inverse, ou d'autres langues).
-        if eff.dictTranslate, eff.translateKey, let pair = KBTranslate.target(for: t0, pair: eff.translatePair), pair.from != pair.to {
+        if eff.dictTranslate, eff.translateKey,
+           let pair = KBTranslate.direction(for: t0, spoken: dictationLang, pair: eff.translatePair), pair.from != pair.to {
             flash(L("Translating…"), hold: 1.2)
             Task { @MainActor [weak self] in
                 let r = await KBTranslate.translate(t0, from: pair.from, to: pair.to)
                 guard let self else { return }
                 switch r {
-                case .success(let out): self.writeDictation(out)
+                case .success(let out): self.writeDictation(out, lang: pair.to)
                 case .failure(let f): self.translateFailed(f); self.writeDictation(t0)
                 }
             }
@@ -486,29 +646,61 @@ final class KeyboardCanvas: UIView {
         writeDictation(t0)
     }
 
-    private func writeDictation(_ text: String) {
-        let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !t.isEmpty else { return }
+    /// La langue dictée (celle de la disposition), en deux lettres.
+    private var dictationLang: String {
+        switch eff.layout {
+        case .azerty: return "fr"
+        case .qwertz: return "de"
+        case .spanish: return "es"
+        case .swedish: return "sv"
+        case .qwerty: return "en"
+        }
+    }
+
+    /// La fin de ce que la dictée vient d'écrire : la lettre tapée juste après commence un nouveau mot (l'espace
+    /// vient toute seule, comme après un mot écrit en glissant).
+    private var dictatedTail: String?
+
+    private func writeDictation(_ text: String, lang: String? = nil) {
         let before = input?.kbTextBefore() ?? ""
-        let space = !(before.isEmpty || before.hasSuffix(" ") || before.hasSuffix("\n"))
-        input?.kbInsert((space ? " " : "") + t)
+        // Comme la dictée d'Apple : « à la ligne », la majuscule selon l'endroit où l'on écrit, l'espace devant.
+        let t = KBDictationText.prepare(text, before: before, lang: String((lang ?? dictationLang).prefix(2)))
+        guard !t.isEmpty else { return }
+        input?.kbInsert(t)
+        dictatedTail = t.last.map { $0.isWhitespace } == true ? nil : String(t.suffix(16))
+        glidedWord = nil
         wordTouches.removeAll()
         lastCorrection = nil
         refreshSuggestionsSoon()
         refreshShiftSoon()
     }
 
-    /// Ouvrir l'app Foldboard depuis le clavier (iOS ne le propose pas aux claviers : on passe par l'application
-    /// qui porte le clavier, comme Gboard ou SwiftKey).
-    private func openContainingApp(_ url: URL) {
-        var r: UIResponder? = self
+    /// Ouvrir l'app Foldboard depuis le clavier. `UIApplication.open` est refusé à une extension, avec ou sans
+    /// accès complet. Le sélecteur `openURL:` le long de la chaîne des répondeurs, lui, est transmis à l'app hôte
+    /// (Messages, Safari, Discord).
+    static func deliver(_ url: URL, from start: UIResponder) -> Bool {
+        let legacy = NSSelectorFromString("openURL:")
+        var r: UIResponder? = start
         while let cur = r {
-            if let app = cur as? UIApplication {
-                let sel = NSSelectorFromString("openURL:options:completionHandler:")
-                guard app.responds(to: sel) else { return }
+            if cur.responds(to: legacy) {
+                cur.perform(legacy, with: url)
+                return true
+            }
+            r = cur.next
+        }
+        return false
+    }
+
+    private func openContainingApp(_ url: URL) {
+        if Self.deliver(url, from: self) { return }
+        // Secours : l'API moderne, seulement si le sélecteur historique n'est pas là.
+        var r: UIResponder? = self
+        let modern = NSSelectorFromString("openURL:options:completionHandler:")
+        while let cur = r {
+            if let app = cur as? UIApplication, app.responds(to: modern) {
                 typealias OpenFn = @convention(c) (AnyObject, Selector, NSURL, NSDictionary, AnyObject?) -> Void
-                let f = unsafeBitCast(app.method(for: sel), to: OpenFn.self)
-                f(app, sel, url as NSURL, NSDictionary(), nil)
+                let f = unsafeBitCast(app.method(for: modern), to: OpenFn.self)
+                f(app, modern, url as NSURL, NSDictionary(), nil)
                 return
             }
             r = cur.next
@@ -592,6 +784,11 @@ final class KeyboardCanvas: UIView {
         /// L'instant de chaque point du tracé (secondes), pour le modèle de glisser.
         var times: [TimeInterval] = []
         var t0: TimeInterval = 0
+        /// La lettre effacée quand le glisser a commencé : si le doigt n'a fait que rouler sur la touche d'à côté,
+        /// c'était un appui et elle est réécrite.
+        var glideUndo: String?
+        /// Le doigt de cet appui : s'il a quitté l'écran sans qu'iOS le dise, l'appui s'arrête quand même.
+        weak var touch: UITouch?
         init(index: Int, start: CGPoint) {
             self.index = index
             self.start = start
@@ -688,6 +885,11 @@ final class KeyboardCanvas: UIView {
     /// La hauteur demandée à iOS (preferredHeight) reste celle des touches normales.
     private var keyH: CGFloat {
         let k = baseKeyH
+        // Moins de hauteur que demandé (iOS ne l'a pas encore donnée, ou la refuse) : les touches se tassent pour
+        // que la rangée du bas reste entière. Un clavier un peu bas se tape ; sans barre d'espace, non.
+        if bounds.height > 0, bounds.height < fixedH + k * rowUnits - 0.5 {
+            return max((k * 0.6).rounded(), ((bounds.height - fixedH) / rowUnits).rounded(.down))
+        }
         guard laptopLike, bounds.height > 0, bounds.height - (fixedH + k * rowUnits) > 12 else { return k }
         return max(k, min(k * 1.8, ((bounds.height - fixedH) / rowUnits).rounded(.down)))
     }
@@ -717,7 +919,7 @@ final class KeyboardCanvas: UIView {
 
     /// Banc d'essai de la mémoire (simulateur) : combien de claviers vivent encore.
     static var alive = 0
-    deinit { Self.alive -= 1 }
+    deinit { Self.alive -= 1; KBViews.canvases -= 1 }
 
     /// Banc d'essai de la mémoire (simulateur) : tape un texte comme au doigt, ouvre ou ferme les emojis.
     func probeType(_ s: String) { for ch in s { if ch == " " { typeSpace() } else { typeText(String(ch)) } } }
@@ -753,6 +955,7 @@ final class KeyboardCanvas: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         Self.alive += 1
+        KBViews.canvases += 1
         isMultipleTouchEnabled = true
         clipsToBounds = true
         // Passer de l'écran extérieur à l'écran intérieur garde parfois la même fenêtre : un changement de taille de
@@ -841,13 +1044,24 @@ final class KeyboardCanvas: UIView {
         middleButton.setImage(UIImage(systemName: "rectangle.center.inset.filled"), for: .normal)
         middleButton.addAction(UIAction { [weak self] _ in self?.centerKeyboard() }, for: .touchUpInside)
         middleButton.accessibilityLabel = L("Keyboard in the middle")
+        // Le menu système (UIMenu) s'ouvre dans l'app Foldboard et reste muet dans Messages, Safari, Discord.
+        // Le « … » ouvre un panneau dessiné par le clavier lui-même.
+        bigButton.addAction(UIAction { [weak self] _ in self?.toggleBarSheet() }, for: .touchUpInside)
         // Le bouton ouvre un menu (voir openLayoutMenu) : pas d'action directe.
         // Appui long : la situation reconnue et l'étalonnage utilisé (pour vérifier).
-        flipButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(showGripInfo(_:))))
+        // Le geste retient sa cible : un relais faible, sinon le clavier ne peut plus être libéré.
+        // (Un geste ne retient pas sa cible : le relais est gardé par le clavier, sinon l'appui long ne faisait plus rien.)
+        let hold = KBWeakTarget(self)
+        holdRelay = hold
+        flipButton.addGestureRecognizer(UILongPressGestureRecognizer(target: hold, action: #selector(KBWeakTarget.grip(_:))))
         hideButton.setImage(UIImage(systemName: "keyboard.chevron.compact.down"), for: .normal)
         hideButton.addAction(UIAction { [weak self] _ in self?.input?.kbDismiss() }, for: .touchUpInside)
         hideButton.accessibilityLabel = L("Hide keyboard")
-        hideButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(showPerf(_:))))
+        hideButton.addGestureRecognizer(UILongPressGestureRecognizer(target: hold, action: #selector(KBWeakTarget.perf(_:))))
+        layoutSwitch.addAction(UIAction { [weak self] _ in
+            guard let self, !self.switchProgrammatic else { return }
+            self.chooseOpenLayout(self.layoutSwitch.selectedSegmentIndex)
+        }, for: .valueChanged)
         globeButton.setImage(UIImage(systemName: "globe"), for: .normal)
         globeButton.addAction(UIAction { [weak self] _ in self?.globeTapped() }, for: .touchUpInside)
         emojiButton.setImage(UIImage(systemName: "face.smiling"), for: .normal)
@@ -901,6 +1115,7 @@ final class KeyboardCanvas: UIView {
 
     func configure(settings: KBSettings, pro: Bool) {
         self.settings = settings
+        visibilityAtLoad = settings
         self.pro = pro
         // « Oublier mes mains » dans l'app : on efface aussi ce que le détecteur a appris pendant cette session.
         if settings.gripResetAt > UserDefaults.standard.double(forKey: "foldboard.gripResetSeen") {
@@ -917,7 +1132,7 @@ final class KeyboardCanvas: UIView {
             guard let self else { return }
             // Refusé deux fois : on arrête de lire tout seul (la demande ne revient plus à chaque copie).
             self.settings.clipAutoSave = false
-            self.input?.kbSettingsChanged(self.settings)
+            self.persist()
             self.flash(L("Saving copies is off: iOS asked each time. Paste still works."), hold: 3.5)
         }
         suggest.useNames = settings.contactNames
@@ -961,11 +1176,22 @@ final class KeyboardCanvas: UIView {
         if !needSensors && gripStarted { grip.stop(); gripStarted = false }
     }
 
+    private var appearedAt: TimeInterval = 0
+
     /// Le clavier vient d'apparaître.
     func appeared() {
         Self.active = self
         hiddenByWindow = false
+        // Annoncé deux fois de suite (la fenêtre, puis le contrôleur) : une seule remise en route.
+        let now = ProcessInfo.processInfo.systemUptime
+        if visible, now - appearedAt < 0.3 {
+            builtFor = .zero
+            setNeedsLayout()
+            return
+        }
+        appearedAt = now
         visible = true
+        resetGestures()
         perfStart()
         typedOnSide = 0
         showEmoji = false
@@ -981,10 +1207,14 @@ final class KeyboardCanvas: UIView {
         startClipWatch()
         resumePendingDictation()
         KBMemLog.begin(mb: Self.footprintMB(), context: gripContext, mode: (settings.screenModes[gripContext] ?? settings.mode).rawValue)
+        // À l'apparition, les réglages ont déjà rechargé les listes rendues faute de place.
+        listsShed = false
         checkMemory(force: true)
-        // Le modèle de glisser se charge une fois, après l'affichage, si iOS laisse encore de la mémoire.
+        startMemoryWatch()
+        // Le modèle de glisser se charge une fois, après l'affichage, si iOS laisse encore de la mémoire — et
+        // seulement si le glisser est allumé.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-            guard let self, self.visible else { return }
+            guard let self, self.visible, self.eff.glide else { return }
             NeuralSwipe.warm()
         }
         if ProcessInfo.processInfo.arguments.contains("-shotClip") {
@@ -1033,6 +1263,12 @@ final class KeyboardCanvas: UIView {
     /// La charnière à moitié ouverte (mode « portable »).
     private var hingeHalf = false
     private var hingeWatched = false
+    /// Tant que l'angle de la charnière bouge, on ne replace pas les touches (sinon les rangées glissent).
+    private var hingeSettling = false
+    private var hingeTicket = 0
+    private var hingeApplies = 0
+    private var pendingHingeClosed: Bool?
+    private var pendingHingeHalf = false
 
     /// La taille de l'écran réellement utilisé (dans le bon sens : portrait ou paysage).
     private var screenSize: CGSize {
@@ -1051,7 +1287,7 @@ final class KeyboardCanvas: UIView {
         guard short > 0, abs((settings.screenWidths[key] ?? 0) - short) > 1 || abs((settings.screenWidths[key + "Px"] ?? 0) - px) > 1 else { return }
         settings.screenWidths[key] = short
         settings.screenWidths[key + "Px"] = px
-        input?.kbSettingsChanged(settings)
+        persist()
     }
 
     private func watchHinge() {
@@ -1060,17 +1296,54 @@ final class KeyboardCanvas: UIView {
         if #available(iOS 27.1, *) {
             addInteraction(UIHingeInteraction { [weak self] _, update in
                 guard let self else { return }
+                let closed: Bool?
                 switch update.hinge?.status {
-                case .closed?: self.hingeClosed = true
-                case .partiallyOpen?, .fullyOpen?: self.hingeClosed = false
-                default: self.hingeClosed = nil
+                case .closed?: closed = true
+                case .partiallyOpen?, .fullyOpen?: closed = false
+                default: closed = nil
                 }
-                self.hingeHalf = update.hinge?.status == .partiallyOpen
-                self.learnScreen()
-                self.updateGripContext()
-                self.builtFor = .zero
-                self.setNeedsLayout()
+                self.scheduleHinge(closed: closed, half: update.hinge?.status == .partiallyOpen)
             })
+        }
+    }
+
+    /// Plusieurs messages arrivent pendant que le téléphone se plie. On n'applique que le dernier,
+    /// une fois l'angle stabilisé, et les touches prennent leur place d'un coup.
+    private func scheduleHinge(closed: Bool?, half: Bool) {
+        // L'angle bouge sans changer d'état (le Duo ouvert fléchit un peu sous les pouces) : on ne touche à rien.
+        // Avant, chaque message refaisait toutes les touches, et l'appui en cours était perdu.
+        if !hingeSettling, closed == hingeClosed, half == hingeHalf { return }
+        hingeSettling = true
+        pendingHingeClosed = closed
+        pendingHingeHalf = half
+        hingeTicket += 1
+        let ticket = hingeTicket
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) { [weak self] in
+            guard let self, ticket == self.hingeTicket else { return }
+            self.applyScheduledHinge()
+        }
+    }
+
+    private func applyScheduledHinge() {
+        let changed = pendingHingeClosed != hingeClosed || pendingHingeHalf != hingeHalf
+        hingeSettling = false
+        // Revenu au même état : rien à refaire (seulement la taille, si elle a bougé entre-temps).
+        guard changed else {
+            if bounds.size != builtFor { setNeedsLayout() }
+            return
+        }
+        hingeClosed = pendingHingeClosed
+        hingeHalf = pendingHingeHalf
+        hingeApplies += 1
+        learnScreen()
+        updateGripContext()
+        builtFor = .zero
+        UIView.performWithoutAnimation {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            setNeedsLayout()
+            layoutIfNeeded()
+            CATransaction.commit()
         }
     }
 
@@ -1256,7 +1529,13 @@ final class KeyboardCanvas: UIView {
         clipTimer?.invalidate()
         clipTimer = nil
         grip.stop()
+        grip.onGrip = nil
+        grip.onUnlock = nil
+        grip.onSample = nil
+        grip.onSwipeSample = nil
         gripStarted = false
+        trackEdgeTimer?.invalidate()
+        trackEdgeTimer = nil
         // Si quelque chose garde encore ce clavier, il ne garde plus rien de lourd : touches, emojis, suggestions.
         cells.forEach { $0.view.removeFromSuperview() }
         cells = []
@@ -1267,10 +1546,51 @@ final class KeyboardCanvas: UIView {
         builtFor = .zero
     }
 
+    /// Tout ce qui ne vaut que le temps d'un geste. Le même clavier sert à chaque apparition (iOS change de
+    /// contrôleur à chaque pli, rotation ou changement d'app) : un doigt dont iOS n'a jamais annoncé la fin laissait
+    /// le pavé tactile affiché (touches sans lettres, barre vide), une touche enfoncée ou l'effacement qui continue.
+    private func resetGestures() {
+        for tr in tracks.values {
+            tr.done = true
+            tr.longTimer?.invalidate()
+            tr.repeatTimer?.invalidate()
+        }
+        tracks.removeAll()
+        order.removeAll()
+        placeTouches.removeAll()
+        pageSlide = nil
+        idleTimer?.invalidate()
+        pendingGrip = nil
+        liveWork?.cancel(); liveWork = nil
+        heightWork?.cancel(); heightWork = nil
+        setTrackpad(false, animated: false)
+        hideBubble()
+        accentView.isHidden = true
+        glideLayer.removeAllAnimations()
+        glideLayer.path = nil
+        glideLayer.opacity = 0
+        glidedWord = nil
+        dictatedTail = nil
+        lastCorrection = nil
+        wordTouches.removeAll()
+        emojiQuery = nil
+        barOpened = false
+        barSheet?.isHidden = true
+        hingeSettling = false
+        fixing = false
+        toast.layer.removeAllAnimations()
+        toast.alpha = 0
+        for i in cells.indices { setPressed(i, false) }
+    }
+
     /// Le clavier disparaît : on coupe les capteurs.
     func disappeared() {
         knock.stop()
+        if visible { KBMemLog.mark("parti", mb: Self.footprintMB(), room: NeuralSwipe.availableMB()) }
         visible = false
+        // Le réglage au doigt en cours est gardé tel qu'il est (pas de poignées encore affichées au retour).
+        if adjusting { endAdjust(keep: true) }
+        resetGestures()
         saveTaps()
         if dictState != .idle {
             KBDictation.post(KBDictation.stop)
@@ -1280,6 +1600,12 @@ final class KeyboardCanvas: UIView {
             micMode = false
             mic?.cancel()
         }
+        releaseMicIfIdle()
+        resetLive()
+        KBTranslate.endLive()
+        memTimer?.invalidate()
+        memTimer = nil
+        pasteControl = nil
         voice.isHidden = true
         perfLink?.invalidate()
         perfLink = nil
@@ -1309,14 +1635,481 @@ final class KeyboardCanvas: UIView {
         return mb
     }
 
-    /// Filet de sécurité : si le clavier approche la limite d'iOS, il libère ce qu'il peut avant qu'iOS ne le ferme.
+    /// Un seul clavier pour le processus. Un pli ou une rotation donne un nouveau contrôleur iOS :
+    /// on y déplace ce clavier, on n'en construit pas un deuxième.
+    static var shared: KeyboardCanvas?
+    private var hostPins: [NSLayoutConstraint] = []
+
+    func move(to host: UIView) {
+        guard superview !== host else { return }
+        // On ne « désactive » pas les attaches de l'ancien hôte : il a peut-être été détruit (iOS a jeté son
+        // contrôleur, par exemple après le globe), et y toucher planterait. Quitter l'ancien hôte les retire toutes
+        // seules ; on oublie juste nos références.
+        hostPins.removeAll()
+        removeFromSuperview()
+        // Attaché par ses quatre bords, comme jusqu'à la version 191 : le clavier a toujours exactement la taille
+        // de son hôte. Le redimensionnement automatique essayé ensuite laissait parfois le clavier plus haut que
+        // son hôte, et la rangée du bas sortait de l'écran.
+        translatesAutoresizingMaskIntoConstraints = false
+        autoresizingMask = []
+        host.addSubview(self)
+        hostPins = [
+            leadingAnchor.constraint(equalTo: host.leadingAnchor),
+            trailingAnchor.constraint(equalTo: host.trailingAnchor),
+            topAnchor.constraint(equalTo: host.topAnchor),
+            bottomAnchor.constraint(equalTo: host.bottomAnchor),
+        ]
+        NSLayoutConstraint.activate(hostPins)
+        // Un nouvel hôte ne sait rien de la hauteur déjà demandée à l'ancien : on la redemande à la première mise en
+        // page ici.
+        reportedHeight = 0
+        builtFor = .zero
+        setNeedsLayout()
+    }
+
+    /// Mis en page dans son hôte, à sa vraie largeur : la hauteur voulue est fiable (elle dépend de la largeur).
+    var heightIsReliable: Bool {
+        guard let host = superview, host.window != nil else { return false }
+        return bounds.width > 50 && abs(bounds.width - host.bounds.width) < 0.5 && builtFor == bounds.size
+    }
+
+    static func install(in host: UIView) -> KeyboardCanvas {
+        let c = shared ?? KeyboardCanvas()
+        shared = c
+        c.move(to: host)
+        return c
+    }
+
+    /// Trente plis et rotations, comme sur le Duo. Vrai si un seul clavier reste, les touches ne se
+    /// multiplient pas, le modèle neuronal n'est chargé qu'une fois, et la mémoire reste sous 50 Mo.
+    static func simulateFoldCycles() -> Bool {
+        let scenes: [(String, CGSize, KBMode)] = [
+            ("closed-portrait", CGSize(width: 390, height: 280), .full),
+            ("closed-landscape", CGSize(width: 844, height: 200), .left),
+            ("open-portrait", CGSize(width: 670, height: 340), .auto),
+            ("open-landscape", CGSize(width: 980, height: 360), .split),
+        ]
+        var host = UIView(frame: CGRect(x: 0, y: 0, width: 390, height: 360))
+        let canvas = install(in: host)
+        var base = KBSettings()
+        base.layout = .azerty
+        base.mode = .full
+        canvas.configure(settings: base, pro: true)
+        NeuralSwipe.warm()
+        let loads = NeuralSwipe.loads
+        let modelPresent = Bundle.main.url(forResource: "futo-swipe-encoder-int8", withExtension: "pte") != nil
+        var mb: [Double] = []
+        var keys: [Int] = []
+        var views: [Int] = []
+        for i in 0..<30 {
+            let s = scenes[i % scenes.count]
+            autoreleasepool {
+                // Un contrôleur neuf à chaque pli, comme iOS. Le bassin lâche menus et images
+                // avant la mesure : sans lui, la boucle les garde et la mémoire monte à tort.
+                let next = UIView(frame: CGRect(x: 0, y: 0, width: s.1.width, height: s.1.height + 48))
+                let c = install(in: next)
+                NSLayoutConstraint.deactivate(c.hostPins)
+                c.hostPins.removeAll()
+                c.translatesAutoresizingMaskIntoConstraints = true
+                c.frame = CGRect(origin: .zero, size: s.1)
+                c.demoContext = s.0
+                c.settings.screenModes[s.0] = s.2
+                c.settings.mode = s.2
+                c.eff = c.settings.effective(pro: true)
+                c.builtFor = .zero
+                c.layoutIfNeeded()
+                host = next
+            }
+            let m = footprintMB()
+            mb.append(m)
+            keys.append(KBViews.keys)
+            views.append(KBViews.live)
+            print("RESULT memcycle \(i) \(String(format: "%.1f", m)) Mo claviers \(alive) touches \(KBViews.keys) vues \(KBViews.live) loads \(NeuralSwipe.loads) \(s.0)")
+        }
+        NeuralSwipe.warm()
+        let final = mb.last ?? 99
+        let early = mb.count > 4 ? mb[4] : final
+        let growth = final - early
+        let keysFlat = keys.count > 4 && keys.dropFirst(4).allSatisfy { $0 == keys[4] }
+        let viewsFlat = views.count > 4 && views.dropFirst(4).allSatisfy { $0 == views[4] }
+        let built = (keys.last ?? 0) >= 20
+        var rises = 0
+        if mb.count > 5 {
+            for i in 5..<mb.count where mb[i] > mb[i - 1] + 0.35 { rises += 1 }
+        }
+        let once = NeuralSwipe.loads == loads && loads <= 1 && (!modelPresent || loads == 1)
+        let plateau = alive == 1 && keysFlat && viewsFlat && built && final < 50 && growth <= 3 && rises <= 6 && once
+        print("RESULT memcycle plateau \(plateau ? "yes" : "no") final \(String(format: "%.1f", final)) growth \(String(format: "%+.1f", growth)) rises \(rises) claviers \(alive) touches \(KBViews.keys) vues \(KBViews.live) loads \(NeuralSwipe.loads)")
+        return plateau
+    }
+
+    /// Les bugs remontés par les testeurs le 26 novembre, rejoués :
+    ///  - un pavé tactile resté affiché (touches sans lettres, barre vide) ne survit pas à la prochaine apparition ;
+    ///  - un doigt posé au milieu d'une touche écrit cette touche, même avec un décalage appris maximal (effacer et
+    ///    « P » au bord compris) ;
+    ///  - une touche reprise au pot revient toujours avec sa lettre.
+    static func verifyTouchSafety() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 669, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.demoContext = "open-portrait"
+        c.frame = CGRect(x: 0, y: 0, width: 669, height: 300)
+        var s = KBSettings()
+        s.layout = .qwerty
+        s.mode = .full
+        c.configure(settings: s, pro: true)
+        c.appearedAt = 0
+        c.appeared()
+        c.builtFor = .zero
+        c.layoutIfNeeded()
+        // 1. Le pavé tactile resté bloqué.
+        c.setTrackpad(true, animated: false)
+        let hidden = c.cells.allSatisfy { $0.view.label.alpha == 0 } && c.chips.alpha == 0
+        c.page = .numbers
+        c.builtFor = .zero
+        c.rebuild()
+        c.disappeared()
+        c.appearedAt = 0
+        c.appeared()
+        c.builtFor = .zero
+        c.layoutIfNeeded()
+        let shown = !c.trackpadOn && c.chips.alpha == 1 && c.hideButton.alpha == 1 && c.tracks.isEmpty
+            && c.cells.allSatisfy { $0.view.label.alpha == 1 && $0.view.icon.alpha == 1 && $0.view.alpha == 1 && !$0.view.isHidden }
+            && c.keyPool.allSatisfy { $0.label.alpha == 1 && $0.icon.alpha == 1 }
+        let labelled = c.cells.allSatisfy { cell in
+            if case .char(let ch) = cell.view.spec.kind { return cell.view.label.text?.lowercased() == ch.lowercased() }
+            return true
+        }
+        // 2. Le centre de chaque touche, avec le décalage appris le plus fort dans chaque sens.
+        var centred = true
+        for dx in [-0.9, 0.9] {
+            var m = KBTapMap()
+            for _ in 0..<80 { m.add(key: "g", dx: dx * 0.8, dy: 0.3, twoHands: true) }
+            c.tapMap = m
+            for (i, cell) in c.cells.enumerated() {
+                // +4 : le clavier retire 4 pt à chaque appui (le pouce touche plus bas qu'il ne vise).
+                if c.cellIndex(at: CGPoint(x: cell.frame.midX, y: cell.frame.midY + 4)) != i { centred = false }
+            }
+        }
+        // 3. Et le décalage appris sert bien entre deux lettres (près de la frontière).
+        var learns = false
+        if let g = c.cells.firstIndex(where: { $0.view.spec.kind == .char("g") }),
+           let h = c.cells.firstIndex(where: { $0.view.spec.kind == .char("h") }) {
+            let border = CGPoint(x: (c.cells[g].frame.maxX + c.cells[h].frame.minX) / 2 + 2, y: c.cells[g].frame.midY + 4)
+            c.tapMap = KBTapMap()
+            let plain = c.cellIndex(at: border)
+            var m = KBTapMap()
+            for _ in 0..<80 { m.add(key: "g", dx: 0.3, dy: 0, twoHands: true) }
+            c.tapMap = m
+            learns = plain == h && c.cellIndex(at: border) == g
+        }
+        c.tapMap = KBTapMap()
+        c.disappeared()
+        let ok = hidden && shown && labelled && centred && learns
+        print("RESULT touchsafety pave_cache=\(hidden) retabli=\(shown) lettres=\(labelled) centre=\(centred) frontiere=\(learns) \(ok ? "yes" : "no")")
+        return ok
+    }
+
+    /// Le filet mémoire : les paliers, et le dernier recours (les listes de mots rendues, puis rechargées à
+    /// l'apparition suivante) sans que le clavier s'arrête d'écrire.
+    /// Banc d'essai : un nouvel hôte arrive d'abord à une taille provisoire (étroite), puis à sa vraie largeur. Le
+    /// clavier doit lui redemander sa hauteur, même si c'est celle qu'il avait déjà demandée à l'ancien hôte
+    /// (sinon : bas du clavier coupé sur l'écran déplié).
+    static func verifyHostHeight() -> Bool {
+        let first = UIView(frame: CGRect(x: 0, y: 0, width: 760, height: 330))
+        let c = install(in: first)
+        c.demoContext = "open-landscape"
+        var s = KBSettings()
+        s.layout = .qwerty
+        s.mode = .full
+        c.configure(settings: s, pro: true)
+        first.layoutIfNeeded()
+        c.layoutIfNeeded()
+        let wide = c.preferredHeight
+        let pinned = abs(c.bounds.width - 760) < 0.5 && abs(c.bounds.height - 330) < 0.5
+        RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        var asked = 0
+        var askedFor: CGFloat = 0
+        c.onPreferredHeightChange = { asked += 1; askedFor = c.preferredHeight }
+        let second = UIView(frame: CGRect(x: 0, y: 0, width: 320, height: 216))
+        c.move(to: second)
+        second.layoutIfNeeded()
+        c.layoutIfNeeded()
+        let early = c.preferredHeight
+        second.frame = CGRect(x: 0, y: 0, width: 760, height: early)
+        second.layoutIfNeeded()
+        c.layoutIfNeeded()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        // Le clavier a exactement la taille de son hôte, jamais plus haut que lui.
+        let filled = pinned && abs(c.bounds.width - 760) < 0.5 && abs(c.bounds.height - early) < 0.5
+        // Tant que l'hôte est trop bas, rien ne dépasse : les touches se tassent, la rangée du bas reste entière.
+        let fits = c.fixedH + CGFloat(c.rowCount) * c.keyH + c.bottomExtra <= c.bounds.height + 0.5 && c.keyH < c.baseKeyH
+        // L'hôte a la bonne hauteur : plus rien à redemander.
+        second.frame = CGRect(x: 0, y: 0, width: 760, height: wide)
+        second.layoutIfNeeded()
+        c.layoutIfNeeded()
+        let followed = abs(c.bounds.height - wide) < 0.5
+        asked = 0
+        RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        let quiet = asked == 0 && followed
+        c.onPreferredHeightChange = nil
+        let ok = askedFor > 0 && abs(askedFor - wide) < 0.5 && early < wide - 1 && filled && quiet && fits
+        print("RESULT hote hauteur_redemandee \(ok ? "yes" : "no") (voulue \(Int(wide)), trop tôt \(Int(early)), demandée \(Int(askedFor)), rempli \(filled), calme \(quiet), rien ne dépasse \(fits))")
+        return ok
+    }
+
+    static func verifyMemoryShed() -> Bool {
+        let levels = memoryLevel(footprintMB: 30, headroomMB: 30) == .fine && memoryLevel(footprintMB: 58, headroomMB: 12) == .tight
+            && memoryLevel(footprintMB: 40, headroomMB: 5) == .critical && memoryLevel(footprintMB: 40, headroomMB: 0) == .fine
+            && memoryLevel(footprintMB: 47, headroomMB: 0) == .tight && memoryLevel(footprintMB: 60, headroomMB: 0) == .critical
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 390, height: 360))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.demoContext = "closed-portrait"
+        c.frame = CGRect(x: 0, y: 0, width: 390, height: 280)
+        var s = KBSettings()
+        s.layout = .azerty
+        s.mode = .full
+        c.configure(settings: s, pro: true)
+        backQueue.sync {}
+        c.builtFor = .zero
+        c.layoutIfNeeded()
+        let loaded = c.suggest.hasLists && c.bgSuggest.hasLists
+        let before = footprintMB()
+        c.shedMemory(.critical)
+        backQueue.sync {}
+        let after = footprintMB()
+        let shed = !c.suggest.hasLists && !c.bgSuggest.hasLists && c.listsShed
+        // Le clavier écrit toujours, et la correction ne plante pas sans ses listes.
+        let field = ProbeField()
+        c.input = field
+        c.probeType("bonjour ca va ")
+        _ = c.suggest.correction(for: "bonjoru", before: "bonjoru", touch: nil, fast: true)
+        _ = c.suggest.predictions(before: "je suis ")
+        let typed = field.text.lowercased().hasPrefix("bonjour")
+        // Apparition suivante : tout revient.
+        c.configure(settings: s, pro: true)
+        backQueue.sync {}
+        c.appearedAt = 0
+        c.appeared()
+        let back = c.suggest.hasLists && c.bgSuggest.hasLists && !c.listsShed
+        c.disappeared()
+        c.input = nil
+        let ok = levels && loaded && shed && typed && back
+        print("RESULT memshed paliers=\(levels) charge=\(loaded) rendu=\(shed) (\(String(format: "%.1f", before)) → \(String(format: "%.1f", after)) Mo) ecrit=\(typed) revenu=\(back) \(ok ? "yes" : "no")")
+        return ok
+    }
+
+    /// Un champ de texte pour les essais : ce que le clavier écrit.
+    final class ProbeField: KBInput {
+        var text = ""
+        func kbInsert(_ t: String) { text += t }
+        func kbDelete() { if !text.isEmpty { text.removeLast() } }
+        func kbMoveCursor(_ offset: Int) {}
+        func kbTextBefore() -> String? { String(text.suffix(400)) }
+        func kbTextAfter() -> String? { "" }
+        func kbNextKeyboard() {}
+        func kbDismiss() {}
+        func kbSettingsChanged(_ settings: KBSettings) {}
+        var kbNeedsGlobe: Bool { false }
+        var kbFullAccess: Bool { false }
+        func kbRecheckPro(_ done: @escaping (Bool) -> Void) { done(true) }
+    }
+
+    /// Chaque interrupteur de la barre, après une mise en page : le bouton correspondant est caché ou montré.
+    static func verifyVisibility() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        func layout(_ edit: (inout KBSettings) -> Void) {
+            var s = KBSettings()
+            s.layout = .azerty
+            s.mode = .right
+            s.layoutSwitchOpenOnly = false
+            edit(&s)
+            c.demoContext = "open-landscape"
+            c.frame = CGRect(x: 0, y: 0, width: 980, height: 360)
+            c.configure(settings: s, pro: true)
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+        }
+        layout {
+            $0.emojiKey = false
+            $0.showHandButton = true
+            $0.showSettingsButton = false
+            $0.showMicButton = false
+            $0.showClipboardButton = false
+            $0.dictationKey = true
+            $0.hideKeyButton = false
+            $0.showLayoutSwitch = false
+            $0.showSwapButton = false
+            $0.showCenterButton = false
+            $0.showLayoutMenu = false
+            $0.showMoreButton = false
+        }
+        let off = c.visibilityProbe()
+        layout {
+            $0.emojiKey = true
+            $0.showHandButton = true
+            $0.showSettingsButton = true
+            $0.showMicButton = true
+            $0.showClipboardButton = true
+            $0.dictationKey = true
+            $0.hideKeyButton = true
+            $0.showLayoutSwitch = true
+        }
+        let on = c.visibilityProbe()
+        // Le raccourci des dispositions : sur le clavier entier (il a sa place), entier et jamais sur les mots,
+        // avec ou sans suggestions ; pas sur le petit clavier à une main (il y serait écrasé).
+        layout { $0.mode = .full }
+        let wide = c.visibilityProbe().layoutSwitch
+        c.suggestionItems = ["bonjour", "bonsoir", "bonne"]
+        c.layoutTopBar()
+        let still = c.visibilityProbe().layoutSwitch
+        let whole = c.layoutSwitch.frame.width >= layoutSwitchWidth - 0.5
+            && !c.layoutSwitch.frame.intersects(c.chips.frame) && c.chips.frame.width >= 3 * 78
+        c.suggestionItems = []
+        let ok = !off.emoji && !off.adjust && off.mode && !off.mic && !off.hide && !off.clip && !off.layoutSwitch
+            && on.emoji && on.adjust && on.mode && on.mic && on.hide && on.clip && !on.layoutSwitch && wide && still && whole
+        print("RESULT visibility off emoji=\(off.emoji) adjust=\(off.adjust) mode=\(off.mode) mic=\(off.mic) clip=\(off.clip) hide=\(off.hide) switch=\(off.layoutSwitch) on emoji=\(on.emoji) adjust=\(on.adjust) mode=\(on.mode) mic=\(on.mic) clip=\(on.clip) hide=\(on.hide) switch_petit=\(on.layoutSwitch) switch_entier=\(wide) stable=\(still) entier=\(whole) \(ok ? "yes" : "no")")
+        let cached = KBVault.resolveAccess(shared: nil, cache: {
+            var a = KBAccess()
+            a.purchased = true
+            return a
+        }())
+        let fresh = KBVault.resolveAccess(shared: {
+            var a = KBAccess()
+            a.purchased = true
+            return a
+        }(), cache: nil)
+        let proOK = cached.access.purchased && !cached.trusted && fresh.access.purchased && fresh.trusted
+        print("RESULT access cache=\(cached.access.purchased) trusted=\(cached.trusted) fresh=\(fresh.trusted) \(proOK ? "yes" : "no")")
+        return ok && proOK
+    }
+
+    func visibilityProbe() -> (emoji: Bool, adjust: Bool, mode: Bool, mic: Bool, hide: Bool, hand: Bool, clip: Bool, layoutSwitch: Bool) {
+        func on(_ v: UIView) -> Bool { v.isHidden == false && v.alpha > 0.5 && v.frame.width > 1 }
+        return (on(emojiButton), on(adjustButton), on(modeButton), on(micButton), on(hideButton), on(modeButton), on(clipButton), on(layoutSwitch))
+    }
+
+    // MARK: Mémoire
+    //
+    // iOS ferme un clavier qui dépasse sa limite de mémoire (et remet le clavier d'Apple à la place). La limite change
+    // d'un iPhone à l'autre : on ne regarde donc pas un nombre de Mo fixe mais la marge qu'iOS dit laisser encore
+    // (os_proc_available_memory), toutes les deux secondes tant que le clavier est à l'écran et aux moments qui
+    // coûtent (emojis, dictée, pli). Trois paliers :
+    //  - serré : on rend ce qui se recrée sans que ça se voie (emojis cachés, modèle de glisser, page de la dictée,
+    //    caches) ;
+    //  - critique : on ferme aussi les emojis et on rend les listes de mots et le modèle de langue (les suggestions
+    //    s'arrêtent un instant, le clavier reste) ; ils reviennent dès qu'il y a de nouveau de la place.
+
+    enum MemoryLevel: Int { case fine, tight, critical }
+
+    /// Le palier pour une empreinte et une marge données (marge nulle ou négative : inconnue, simulateur).
+    static func memoryLevel(footprintMB mb: Double, headroomMB room: Double) -> MemoryLevel {
+        if room > 0 {
+            if room < 7 { return .critical }
+            if room < 14 { return .tight }
+            return .fine
+        }
+        if mb > 54 { return .critical }
+        if mb > 44 { return .tight }
+        return .fine
+    }
+
     private var memChecks = 0
-    private func checkMemory(force: Bool = false) {
+    private var memTimer: Timer?
+    private var lastCritical: TimeInterval = 0
+    private var lastTight: TimeInterval = -100
+    /// Les listes de mots ont été rendues (palier critique) : à recharger quand la place revient.
+    private var listsShed = false
+    private var shedAt: TimeInterval = 0
+
+    private func startMemoryWatch() {
+        memTimer?.invalidate()
+        memTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in self?.checkMemory(force: true, log: false) }
+    }
+
+    /// Filet de sécurité : si le clavier approche la limite d'iOS, il libère ce qu'il peut avant qu'iOS ne le ferme.
+    private func checkMemory(force: Bool = false, log: Bool = true) {
         memChecks += 1
         guard force || memChecks % 30 == 0 else { return }
         let mb = Self.footprintMB()
-        KBMemLog.note(mb: mb, emoji: showEmoji, alive: Self.alive)
-        if mb > 45 { trimMemory(flush: false) }
+        let room = NeuralSwipe.availableMB()
+        KBMemLog.room(room)
+        if log {
+            KBMemLog.note(mb: mb, emoji: showEmoji, alive: Self.alive, views: KBViews.live)
+            NeuralSwipe.noteFootprint()
+        }
+        let level = Self.memoryLevel(footprintMB: mb, headroomMB: room)
+        if level != .fine { shedMemory(level) }
+        else if listsShed { restoreListsIfRoom(footprintMB: mb, headroomMB: room) }
+    }
+
+    /// Rend de la mémoire selon le palier. `critical` au plus une fois toutes les 3 secondes.
+    func shedMemory(_ level: MemoryLevel) {
+        guard level != .fine else { return }
+        let now = ProcessInfo.processInfo.systemUptime
+        // Un iPhone dont la limite est basse reste « serré » en permanence : on ne refait pas le ménage toutes les
+        // deux secondes (les caches du correcteur servent à la frappe), seulement toutes les dix.
+        if level == .critical || now - lastTight > 10 {
+            lastTight = now
+            trimMemory(flush: false)
+            NeuralSwipe.release()
+            releaseMicIfIdle()
+        }
+        guard level == .critical else { return }
+        guard now - lastCritical > 3 else { return }
+        lastCritical = now
+        KBSymbol.clear()
+        pasteControl = nil
+        KBMemLog.note(mb: Self.footprintMB(), emoji: showEmoji, alive: Self.alive, views: KBViews.live)
+        if !listsShed {
+            // D'abord les listes de mots (une dizaine de Mo) : les emojis ouverts restent ouverts.
+            listsShed = true
+            shedAt = now
+            suggest.shed()
+            suggestQueue.async { [bgSuggest] in
+                bgSuggest.shed()
+                KBSuggest.shedShared()
+            }
+            cachedFix = nil
+            applySuggestions([], nil)
+        } else if showEmoji {
+            // Toujours critique alors que tout le reste est rendu : les emojis se ferment, le clavier reste.
+            closeEmoji()
+        }
+    }
+
+    /// La place est revenue (au moins 20 secondes plus tard, pour ne pas recharger et rendre en boucle) : les mots
+    /// et le modèle de langue reviennent.
+    private func restoreListsIfRoom(footprintMB mb: Double, headroomMB room: Double) {
+        let now = ProcessInfo.processInfo.systemUptime
+        guard listsShed, now - shedAt > 20, tracks.isEmpty else { return }
+        guard room > 0 ? room > 26 : mb < 34 else { return }
+        reloadLists()
+    }
+
+    /// Recharge les listes à part (elles sont partagées : le correcteur du fil principal les reprend ensuite sans
+    /// rien reconstruire, la frappe ne se fige pas).
+    private func reloadLists() {
+        guard listsShed else { return }
+        listsShed = false
+        let layout = eff.layout
+        suggestQueue.async { [weak self, bgSuggest] in
+            bgSuggest.setLayout(layout)
+            DispatchQueue.main.async {
+                guard let self, !self.listsShed, self.eff.layout == layout else { return }
+                self.suggest.setLayout(layout)
+                self.refreshSuggestionsSoon()
+            }
+        }
     }
 
     /// iOS prévient qu'il manque de mémoire : on libère tout ce qui se recrée tout seul, pour ne pas être fermé
@@ -1327,6 +2120,32 @@ final class KeyboardCanvas: UIView {
         suggestQueue.async { [bgSuggest] in bgSuggest.trimMemory() }
         // Écrire le journal ne libère rien (et demande un peu de mémoire) : seulement quand iOS prévient.
         if flush { KBGripLog.shared.flush() }
+    }
+
+    /// iOS prévient (alerte mémoire) : comme le palier serré, ou critique s'il ne reste presque rien.
+    func memoryWarning() {
+        let level = Self.memoryLevel(footprintMB: Self.footprintMB(), headroomMB: NeuralSwipe.availableMB())
+        shedMemory(level == .critical ? .critical : .tight)
+        KBGripLog.shared.flush()
+    }
+
+    /// La page cachée de la dictée dans le clavier (WebKit) : rendue dès que la dictée est finie. Avant, elle
+    /// restait en mémoire pour toujours après la première dictée.
+    private var micRelease: DispatchWorkItem?
+    private func releaseMicIfIdle() {
+        micRelease?.cancel()
+        micRelease = nil
+        guard !micMode, dictState == .idle, let m = mic else { return }
+        m.tearDown()
+        mic = nil
+    }
+
+    /// Après une dictée : la page reste 20 secondes (pour enchaîner), puis elle est rendue.
+    private func releaseMicSoon() {
+        micRelease?.cancel()
+        let w = DispatchWorkItem { [weak self] in self?.releaseMicIfIdle() }
+        micRelease = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20, execute: w)
     }
 
     /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
@@ -1345,7 +2164,17 @@ final class KeyboardCanvas: UIView {
     private static let globeKey = "foldboard.globeAt"
     private func globeTapped() {
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.globeKey)
-        input?.kbNextKeyboard()
+        // Avant de partir, on rend ce qui pèse : pendant le passage, iOS photographie ce clavier et prépare le
+        // suivant, et sur l'écran déplié il restait peu de marge. Les deux repères (avant, après) restent dans le
+        // journal de mémoire : si le clavier est fermé de force à ce moment, on saura avec quelle marge.
+        KBMemLog.mark("globe", mb: Self.footprintMB(), room: NeuralSwipe.availableMB())
+        trimMemory(flush: false)
+        NeuralSwipe.release()
+        KBSymbol.clear()
+        KBMemLog.mark("allégé", mb: Self.footprintMB(), room: NeuralSwipe.availableMB())
+        // Après le toucher en cours, pas au milieu : iOS retire le clavier pendant cet appel, et le traitement du
+        // doigt qui vient de se lever n'était pas fini.
+        DispatchQueue.main.async { [weak self] in self?.input?.kbNextKeyboard() }
     }
 
     private var gripStarted = false
@@ -1375,11 +2204,18 @@ final class KeyboardCanvas: UIView {
     private func scheduleGrip() {
         idleTimer?.invalidate()
         guard pendingGrip != nil, tracks.isEmpty else { return }
-        idleTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: false) { [weak self] _ in
+        // Une vraie pause, pas l'intervalle entre deux lettres : le clavier changeait de côté pendant que le pouce
+        // allait vers la touche suivante, et l'appui tombait sur une autre touche.
+        let since = ProcessInfo.processInfo.systemUptime - lastKeyTime
+        idleTimer = Timer.scheduledTimer(withTimeInterval: max(0.05, Self.gripPause - since), repeats: false) { [weak self] _ in
             guard let self, let g = self.pendingGrip, self.tracks.isEmpty else { return }
+            guard ProcessInfo.processInfo.systemUptime - self.lastKeyTime >= Self.gripPause - 0.02 else { self.scheduleGrip(); return }
             self.applyGrip(g)
         }
     }
+
+    /// Le temps sans appui avant que le clavier ose changer de côté tout seul.
+    private static let gripPause: TimeInterval = 0.45
 
     private func applyGrip(_ g: KBGrip) {
         pendingGrip = nil
@@ -1442,9 +2278,39 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    /// Réglages au dernier chargement : un interrupteur bougé depuis là n'est pas écrasé par une copie plus récente.
+    private var visibilityAtLoad = KBSettings()
+
     private func save() {
+        let edited = settings
+        let stored = KBVault.loadSettings()
+        if stored.stamp > visibilityAtLoad.stamp && stored.stamp > edited.stamp {
+            settings.takeVisibility(from: stored)
+            settings.restoreVisibilityEdits(from: edited, baseline: visibilityAtLoad)
+        }
+        settings.stamp = Date()
+        let stamped = settings
+        input?.kbSettingsChanged(stamped)
+        visibilityAtLoad = stamped
+        configure(settings: stamped, pro: pro)
+        settings.stamp = stamped.stamp
+        visibilityAtLoad = settings
+    }
+
+    /// Un réglage changé par le clavier lui-même (taille d'écran apprise, mot gardé…) : enregistré avec sa date,
+    /// sans refaire les touches.
+    private func persist() {
+        settings.stamp = Date()
         input?.kbSettingsChanged(settings)
-        configure(settings: settings, pro: pro)
+    }
+
+    /// L'app vient d'enregistrer des réglages : faut-il les prendre ? Seulement s'ils sont plus récents que ceux du
+    /// clavier et vraiment différents, et jamais pendant qu'un doigt est posé ou qu'on règle le clavier au doigt.
+    func shouldAdopt(_ stored: KBSettings) -> Bool {
+        guard tracks.isEmpty, !adjusting, stored.stamp > settings.stamp else { return false }
+        var a = stored, b = settings
+        a.stamp = .distantPast; b.stamp = .distantPast
+        return a != b
     }
 
     /// La disposition de cet écran (réglée par écran, sinon la générale), avec les limites de la version gratuite.
@@ -1470,9 +2336,9 @@ final class KeyboardCanvas: UIView {
                 if ok {
                     self.pro = true
                     self.setMode(m)
-                } else if !input.kbFullAccess {
+                } else if !input.kbFullAccess, KBVault.accessTrusted {
                     self.flash(L("Allow Full Access to use Foldboard Pro"))
-                } else {
+                } else if KBVault.accessTrusted {
                     self.flash(L("Foldboard Pro: open the app to unlock"))
                 }
             }
@@ -1591,7 +2457,7 @@ final class KeyboardCanvas: UIView {
         layoutIfNeeded()
     }
 
-    @objc private func showGripInfo(_ g: UILongPressGestureRecognizer) {
+    @objc fileprivate func showGripInfo(_ g: UILongPressGestureRecognizer) {
         guard g.state == .began else { return }
         let names = ["closed-portrait": L("Closed · portrait"), "open-portrait": L("Open · portrait"),
                      "open-landscape": L("Open · landscape"), "closed-landscape": L("Closed · landscape")]
@@ -1613,7 +2479,35 @@ final class KeyboardCanvas: UIView {
         }
         return UIMenu(children: [item(0, L("Follows your hand"), "hand.raised.fingers.spread"),
                                  item(1, L("Full width"), "keyboard"),
-                                 item(2, L("Split keyboard"), "rectangle.split.2x1")])
+                                 item(2, L("Split keyboard"), "rectangle.split.2x1"),
+                                 toolbarButtonsMenu()])
+    }
+
+    /// Montrer ou cacher chaque bouton de la barre. Le « … » lui-même se rallume dans l'app
+    /// (Position et taille), pour ne pas se retrouver sans menu.
+    private func toolbarButtonsMenu() -> UIMenu {
+        func item(_ title: String, _ icon: String, _ on: Bool, _ apply: @escaping (inout KBSettings) -> Void) -> UIAction {
+            UIAction(title: L(title), image: UIImage(systemName: icon), state: on ? .on : .off) { [weak self] _ in
+                guard let self else { return }
+                apply(&self.settings)
+                self.eff = self.settings.effective(pro: self.pro)
+                self.save()
+                self.setNeedsLayout()
+                self.layoutIfNeeded()
+            }
+        }
+        return UIMenu(title: L("Toolbar buttons"), children: [
+            item("Position button", "keyboard", settings.showHandButton, { $0.showHandButton.toggle() }),
+            item("Settings button", "slider.horizontal.3", settings.showSettingsButton, { $0.showSettingsButton.toggle() }),
+            item("Mic button", "mic", settings.showMicButton, { $0.showMicButton.toggle() }),
+            item("Clipboard button", "doc.on.clipboard", settings.showClipboardButton, { $0.showClipboardButton.toggle() }),
+            item("Hide keyboard button", "keyboard.chevron.compact.down", settings.hideKeyButton, { $0.hideKeyButton.toggle() }),
+            item("Switch side", "arrow.left.arrow.right", settings.showSwapButton, { $0.showSwapButton.toggle() }),
+            item("Keyboard in the middle", "rectangle.center.inset.filled", settings.showCenterButton, { $0.showCenterButton.toggle() }),
+            item("Layout menu", "ellipsis", settings.showLayoutMenu, { $0.showLayoutMenu.toggle() }),
+            item("Layout switcher", "rectangle.split.2x1", settings.showLayoutSwitch, { $0.showLayoutSwitch.toggle() }),
+            item("More", "ellipsis.circle", settings.showMoreButton, { $0.showMoreButton.toggle() }),
+        ])
     }
 
     /// 0 : suit la main · 1 : toute la largeur · 2 : coupé en deux.
@@ -1714,12 +2608,25 @@ final class KeyboardCanvas: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        if let sheet = barSheet, !sheet.isHidden {
+            sheet.frame = bounds
+            bringSubviewToFront(sheet)
+        }
         roundForHost()
         guard bounds.size != builtFor, bounds.width > 50 else { return }
+        // La charnière envoie plusieurs tailles pendant le pliage. On attend la dernière.
+        guard !hingeSettling else { return }
         builtFor = bounds.size
-        updateGripContext()
-        syncSensors()
-        rebuild()
+        UIView.performWithoutAnimation {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            updateGripContext()
+            syncSensors()
+            rebuild()
+            CATransaction.commit()
+        }
+        // Une autre taille (pli, rotation) : on mesure tout de suite, sans attendre la prochaine ronde.
+        if visible { checkMemory(force: true, log: true) }
     }
 
     private var isRight: Bool {
@@ -1971,18 +2878,63 @@ final class KeyboardCanvas: UIView {
             tr.done = true
             tr.longTimer?.invalidate()
             tr.repeatTimer?.invalidate()
+            tr.cursorMode = false
         }
+        if trackpadOn { setTrackpad(false, animated: false) }
+        pageSlideGuard()
+        hideBubble()
+        accentView.isHidden = true
+        UIView.performWithoutAnimation {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            rebuildKeys(oldBlocks: oldBlocks)
+            CATransaction.commit()
+        }
+    }
+
+    /// « 123 » tenu pendant que les touches changent : la touche survolée n'est plus la même.
+    private func pageSlideGuard() {
+        if let ps = pageSlide { pageSlide = (ps.touch, nil) }
+    }
+
+    /// Un doigt qu'iOS a retiré sans prévenir (clavier masqué ou déplacé en plein appui, geste du système) : son
+    /// appui se termine ici, au lieu de rester « enfoncé » (effacement sans fin, pavé tactile bloqué).
+    private func sweepLostTouches(_ event: UIEvent?) {
+        guard !tracks.isEmpty || !placeTouches.isEmpty || pageSlide != nil else { return }
+        let live = event?.allTouches
+        func gone(_ t: UITouch) -> Bool {
+            if t.phase == .ended || t.phase == .cancelled { return true }
+            if t.window == nil || t.view?.isDescendant(of: self) != true { return true }
+            if let live, !live.contains(t) { return true }
+            return false
+        }
+        for t in Array(tracks.keys) where gone(t) {
+            tracks[t]?.done = true
+            finish(t)
+        }
+        for t in Array(placeTouches.keys) where gone(t) { placeTouches[t] = nil }
+        if let ps = pageSlide, gone(ps.touch) { pageSlide = nil }
+    }
+
+    private func rebuildKeys(oldBlocks: [CGRect]) {
         // Thème automatique : le fond du clavier de l'iPhone se voit partout, jusqu'aux bords de l'écran.
         // Pas tout à fait transparent : dans les autres apps, iOS ne transmet pas au clavier les appuis tombés sur
         // une zone transparente (entre les touches), et des lettres se perdaient.
         // Thème automatique : fond plein, couleur du clavier d'Apple. Presque transparent, on voyait au travers
         // l'image de l'ancien clavier qu'iOS laisse dessous quand le Duo s'ouvre ou se ferme (claviers superposés).
         backgroundColor = theme.id == "glass" ? UIColor(white: 0, alpha: 0.012) : theme.background
-        cells.forEach { $0.view.removeFromSuperview() }
-        cells = []
+        // Les suggestions de l'écran d'avant ne restent pas (tableaux, pas les vues : elles sont réutilisées).
+        suggestionItems = []
+        suggestionsWord = ""
+        suggestionBest = nil
+        cachedFix = nil
+        reclaimKeys()
         // La hauteur change avec la disposition (grandes touches du clavier entier) : on la redemande.
-        if abs(preferredHeight - reportedHeight) > 0.5 {
-            reportedHeight = preferredHeight
+        // Aussi quand l'hôte n'a pas la hauteur voulue (il l'avait calculée trop tôt) : le redemander ne coûte rien
+        // s'il l'a déjà, et répare un clavier coupé en bas ou posé sous un vide.
+        let wanted = preferredHeight
+        if abs(wanted - reportedHeight) > 0.5 || (!adjustingHeight && bounds.height > 0 && abs(bounds.height - wanted) > 0.5) {
+            reportedHeight = wanted
             DispatchQueue.main.async { [weak self] in self?.onPreferredHeightChange?() }
         }
         let W = bounds.width
@@ -2103,6 +3055,9 @@ final class KeyboardCanvas: UIView {
     /// Le clavier change de côté, revient au milieu ou passe en grand : chaque touche glisse de son ancienne place
     /// à la nouvelle (pas de saut).
     private func slide(from old: [CGRect]) {
+        // Mode portable ou charnière en mouvement : pas de glissement. Les touches prennent leur place finale
+        // d'un coup, sinon les rangées se croisent pendant le pliage.
+        guard !hingeSettling, !hingeHalf else { return }
         guard visible, !adjusting, window != nil, old.count == 1, blocks.count == 1,
               abs(old[0].height - blocks[0].height) < 2 else { return }
         let o = old[0], n = blocks[0]
@@ -2155,9 +3110,13 @@ final class KeyboardCanvas: UIView {
                 case .space: special = false
                 default: special = true
                 }
-                let v = KeyView(spec: k, special: special)
+                let v = claimKey(spec: k, special: special)
+                v.transform = .identity
+                v.layer.removeAllAnimations()
+                CATransaction.begin()
+                CATransaction.setDisableActions(true)
                 v.frame = f
-                insertSubview(v, belowSubview: bubble)
+                CATransaction.commit()
                 let hit = CGRect(x: x, y: y - vgap / 2, width: w, height: rowH + vgap)
                 rowCells.append(Cell(view: v, frame: f, hit: hit))
                 x += w
@@ -2175,6 +3134,33 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    /// Touches déjà dessinées, rendues au pot avant de replacer la disposition.
+    private var keyPool: [KeyView] = []
+
+    private func reclaimKeys() {
+        var pool = keyPool
+        for c in cells {
+            c.view.park()
+            pool.append(c.view)
+        }
+        keyPool = pool
+        cells = []
+    }
+
+    /// Reprend une touche existante, ou en dessine une si la disposition en demande plus qu'avant.
+    private func claimKey(spec: KeySpec, special: Bool) -> KeyView {
+        let v: KeyView
+        if let last = keyPool.popLast() {
+            v = last
+            v.reconfigure(spec: spec, special: special)
+        } else {
+            v = KeyView(spec: spec, special: special)
+            insertSubview(v, belowSubview: bubble)
+        }
+        if v.superview !== self { insertSubview(v, belowSubview: bubble) }
+        return v
+    }
+
     private func layoutTopBar() {
         topBar.frame = CGRect(x: 0, y: barTop, width: bounds.width, height: Self.topBarHeight)
         let h = Self.topBarHeight
@@ -2183,43 +3169,45 @@ final class KeyboardCanvas: UIView {
         let confine = layoutMode.isOneHand && panelRect.width > 0 && !blocks.isEmpty
         let x0 = confine ? (blocks.map { $0.minX }.min() ?? 0) : 0
         let x1 = confine ? (blocks.map { $0.maxX }.max() ?? bounds.width) : bounds.width
-        let bb = eff.barButtons
-        modeButton.isHidden = !bb
-        modeButton.frame = CGRect(x: x0 + 6, y: 0, width: bb ? 40 : 0, height: h)
+        let showPosition = settings.showHandButton
+        modeButton.isHidden = !showPosition
+        modeButton.frame = CGRect(x: x0 + 6, y: 0, width: showPosition ? 40 : 0, height: h)
         modeButton.setImage(UIImage(systemName: eff.mode.symbol), for: .normal)
         modeButton.tintColor = theme.text.withAlphaComponent(0.7)
         modeButton.menu = modeMenu()
         modeButton.accessibilityLabel = L("Keyboard position")
         // La flèche ⇆ : changer de côté, ou revenir à une main depuis le milieu.
         let oneHand = layoutMode.isOneHand || (eff.mode == .auto && followsHand)
-        flipButton.isHidden = !oneHand
+        flipButton.isHidden = !oneHand || !settings.showSwapButton
         // En couleur : le clavier est verrouillé là où tu l'as mis.
         flipButton.tintColor = grip.locked && eff.mode == .auto ? theme.accent : theme.text.withAlphaComponent(0.7)
         flipButton.frame = CGRect(x: modeButton.frame.maxX, y: 0, width: oneHand ? 36 : 0, height: h)
         // Le bouton du milieu : là où le clavier suit la main (il apprend aussi quand on le veut au milieu).
-        let middleShown = eff.mode == .auto && followsHand && autoOn
+        let middleShown = eff.mode == .auto && followsHand && autoOn && settings.showCenterButton
         middleButton.isHidden = !middleShown
         middleButton.tintColor = settings.autoTwo ? theme.accent : theme.text.withAlphaComponent(0.7)
         middleButton.frame = CGRect(x: flipButton.frame.maxX, y: 0, width: middleShown ? 36 : 0, height: h)
         // Écran intérieur : un bouton pour passer d'une disposition à l'autre.
         // Portrait : petit clavier qui suit la main ⇄ deux moitiés. Paysage : clavier entier ⇄ deux moitiés.
         let open = gripContext.hasPrefix("open")
-        let bigShown = open && pro
+        let bigShown = open && pro && settings.showLayoutMenu
         bigButton.isHidden = !bigShown
         // Comme le clavier d'Apple sur le Duo ouvert : « … » ouvre un menu avec les deux dispositions, cochée.
         bigButton.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         bigButton.accessibilityLabel = L("Keyboard position on this screen")
-        bigButton.showsMenuAsPrimaryAction = true
-        bigButton.menu = openLayoutMenu()
+        if layoutSwitch.superview !== topBar { topBar.addSubview(layoutSwitch) }
+        bigButton.showsMenuAsPrimaryAction = false
+        bigButton.menu = nil
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
         bigButton.frame = CGRect(x: max(flipButton.frame.maxX, middleButton.frame.maxX), y: 0, width: bigShown ? 36 : 0, height: h)
         hideButton.tintColor = theme.text.withAlphaComponent(0.7)
-        let hk = bb || eff.hideKeyButton
+        let hk = settings.hideKeyButton
         hideButton.isHidden = !hk
         hideButton.frame = CGRect(x: x1 - (hk ? 46 : 6), y: 0, width: hk ? 40 : 0, height: h)
+        let showSettings = settings.showSettingsButton
         adjustButton.tintColor = theme.text.withAlphaComponent(0.7)
-        adjustButton.isHidden = !bb
-        adjustButton.frame = CGRect(x: hideButton.frame.minX - (bb ? 36 : 0), y: 0, width: bb ? 36 : 0, height: h)
+        adjustButton.isHidden = !showSettings
+        adjustButton.frame = CGRect(x: hideButton.frame.minX - (showSettings ? 36 : 0), y: 0, width: showSettings ? 36 : 0, height: h)
         let compact = layoutMode.isOneHand && !showEmoji
         let globe = input?.kbNeedsGlobe ?? false
         let emojiOn = compact && eff.emojiKey
@@ -2229,11 +3217,11 @@ final class KeyboardCanvas: UIView {
         emojiButton.tintColor = theme.text.withAlphaComponent(0.7)
         globeButton.tintColor = theme.text.withAlphaComponent(0.7)
         // Le presse-papier : juste à gauche des réglages, partout (sauf quand les emojis sont ouverts).
-        let clipShown = !showEmoji
+        let clipShown = settings.showClipboardButton && !showEmoji
         clipButton.isHidden = !clipShown
         clipButton.tintColor = theme.text.withAlphaComponent(0.7)
         clipButton.frame = CGRect(x: adjustButton.frame.minX - (clipShown ? 36 : 0), y: 0, width: clipShown ? 36 : 0, height: h)
-        let micShown = eff.dictationKey && !showEmoji && !micKey
+        let micShown = eff.dictationKey && settings.showMicButton && !showEmoji && !micKey
         micButton.isHidden = !micShown
         micButton.tintColor = dictState == .idle ? theme.text.withAlphaComponent(0.7) : theme.accent
         micButton.setImage(UIImage(systemName: dictState == .idle ? "mic" : "mic.fill"), for: .normal)
@@ -2286,9 +3274,9 @@ final class KeyboardCanvas: UIView {
             translateButton.isHidden = true
             fixButton.isHidden = true
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
-            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + (eff.dictationKey ? [micButton] : []) + [clipButton] + (eff.barButtons ? [adjustButton] : []) + (eff.barButtons || eff.hideKeyButton ? [hideButton] : [])
+            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + (micShown ? [micButton] : []) + (clipShown ? [clipButton] : []) + (showSettings ? [adjustButton] : []) + (hk ? [hideButton] : [])
             let gridW = CGFloat(g.cols) * 44
-            let vertical = gripContext == "open-portrait"
+            let vertical = gripContext == "open-portrait" || gripContext.hasSuffix("landscape")
             // En colonne : contre le clavier (côté pouce), et les boutons répartis sur la hauteur des touches.
             let ox = vertical ? (isRight ? panelRect.maxX - gridW - 6 : panelRect.minX + 6)
                               : (isRight ? panelRect.maxX - gridW : panelRect.minX)
@@ -2337,8 +3325,10 @@ final class KeyboardCanvas: UIView {
                 let wordsMin: CGFloat = !words ? 0 : (eff.compactBar && emojiQuery == nil ? CGFloat(suggestionItems.count) * 78 : 110)
                 let leadW: CGFloat = leadOutside ? 0 : leadWidth() + 4
                 let toolsW: CGFloat = tools.reduce(0) { $0 + width($1) }
+                // Le raccourci des dispositions prend sa place sur les outils, pas sur les mots.
+                let switchW: CGFloat = layoutSwitchFits ? Self.layoutSwitchWidth + 8 : 0
                 var tucked: [UIButton] = []
-                if middleTucked || leadW + toolsW + wordsMin > span {
+                if settings.showMoreButton && (middleTucked || leadW + toolsW + wordsMin + switchW > span) {
                     tucked = tools.filter { secondary.contains($0) }
                     tucked.forEach { $0.isHidden = true }
                 }
@@ -2350,7 +3340,7 @@ final class KeyboardCanvas: UIView {
                     let a: CGFloat = leadOutside ? 0 : leadWidth() + 4
                     let k: CGFloat = kept.reduce(0) { $0 + width($1) }
                     let m: CGFloat = moreButton.isHidden ? 0 : 36
-                    return a + k + m + min(wordsMin, 110)
+                    return a + k + m + min(wordsMin, 110) + switchW
                 }
                 for b in [middleButton, modeButton] where !leadOutside && needed() > span { drop(b) }
                 if needed() > span, kept.contains(micButton), micButton.isHidden == false {
@@ -2376,6 +3366,13 @@ final class KeyboardCanvas: UIView {
                 chips.frame = CGRect(x: x + (leftGroup.isEmpty ? 0 : 4), y: 0, width: max(0, r - x - (leftGroup.isEmpty ? 4 : 8)), height: h)
             }
         }
+        if !settings.showMoreButton {
+            moreButton.isHidden = true
+            moreButton.frame.size.width = 0
+        }
+        // Dernier mot : un interrupteur coupé ne peut pas être rallumé par la mise en page.
+        placeLayoutSwitch(barHeight: h)
+        enforceVisibility()
         dictLabel.frame = chips.frame
         dictLabel.textColor = theme.text
         dictLabel.backgroundColor = theme.background
@@ -2386,6 +3383,10 @@ final class KeyboardCanvas: UIView {
 
         rebuildChips()
     }
+
+    /// Le bouton « Coller » du système, créé une fois par thème.
+    private var pasteControl: UIView?
+    private var pasteControlTheme = ""
 
     private func rebuildChips() {
         let h = Self.topBarHeight
@@ -2464,22 +3465,11 @@ final class KeyboardCanvas: UIView {
                 guard let self, self.suggestionItems.isEmpty, self.emojiQuery == nil else { return }
                 self.rebuildChips()
             }
-            // Pas encore lu : le bouton « Coller » du système. iOS le donne aux apps pour coller sans jamais afficher
-            // la demande « Autoriser le collage ? » (le texte n'est lu que parce qu'on a touché ce bouton-là).
-            if pendingClip, #available(iOS 16.0, *) {
-                let cfgP = UIPasteControl.Configuration()
-                cfgP.displayMode = .iconAndLabel
-                cfgP.cornerStyle = .capsule
-                // Le bouton « Coller » du système doit être bien lisible et opaque : translucide, iOS le dessinait
-                // parfois comme un simple rectangle bleu, sans texte.
-                cfgP.baseBackgroundColor = theme.key.withAlphaComponent(1)
-                cfgP.baseForegroundColor = theme.text.withAlphaComponent(1)
-                let pc = UIPasteControl(configuration: cfgP)
-                pc.target = pasteTarget
-                chipStack.addArrangedSubview(pc)
-                pc.heightAnchor.constraint(equalToConstant: 30).isActive = true
-                pc.widthAnchor.constraint(greaterThanOrEqualToConstant: 96).isActive = true
-            } else {
+            // Notre propre bouton « Coller », toujours lisible. Le bouton « Coller » du système (UIPasteControl, qui
+            // colle sans la demande d'iOS) ne sait pas dessiner son texte dans un clavier : il n'en restait qu'un
+            // rectangle bleu vide dans la barre, pris pour une touche apparue par erreur. Pour ne plus voir la demande
+            // « Autoriser le collage » : Réglages › Foldboard › Coller depuis d'autres apps › Autoriser.
+            do {
             let b = UIButton(type: .system)
             var cfg = UIButton.Configuration.plain()
             let one = t.replacingOccurrences(of: "\n", with: " ")
@@ -2540,6 +3530,80 @@ final class KeyboardCanvas: UIView {
         chips.contentSize = CGSize(width: size.width, height: h)
     }
 
+    /// Poser l'index sans que le contrôle croie que c'est un doigt (sinon il change la disposition tout seul).
+    private var switchProgrammatic = false
+
+    /// Le raccourci des trois dispositions (suit la main, toute la largeur, coupé en deux).
+    /// Il n'apparaît que là où il a toute sa place à côté de trois suggestions : sur le clavier entier ou coupé de
+    /// l'écran déplié. Jamais écrasé ni posé sur les mots : serré contre « masquer le clavier », il ne restait de lui
+    /// qu'un carré bleu sans rien dedans, pris pour une touche apparue par erreur. Sur le petit clavier à une main,
+    /// le « … » propose les mêmes trois dispositions.
+    private static let layoutSwitchWidth: CGFloat = 132
+    private var switchStyledFor = ""
+
+    private var layoutSwitchFits: Bool {
+        let open = gripContext.hasPrefix("open")
+        guard settings.showLayoutSwitch, !settings.layoutSwitchOpenOnly || open, !showEmoji, !barOpened else { return false }
+        // La largeur de la barre (pas celle des suggestions, qui change à chaque mot) : il ne clignote pas.
+        let confine = layoutMode.isOneHand && panelRect.width > 0 && !blocks.isEmpty
+        let span = confine ? (blocks.map(\.maxX).max() ?? bounds.width) - (blocks.map(\.minX).min() ?? 0) : bounds.width
+        return span >= 560
+    }
+
+    private func placeLayoutSwitch(barHeight h: CGFloat) {
+        let w = Self.layoutSwitchWidth
+        let show = layoutSwitchFits && chips.frame.width >= w + 60
+        layoutSwitch.isHidden = !show
+        layoutSwitch.alpha = show && !trackpadOn ? 1 : 0
+        layoutSwitch.isUserInteractionEnabled = show
+        guard show else {
+            layoutSwitch.frame = .zero
+            return
+        }
+        layoutSwitch.frame = CGRect(x: chips.frame.maxX - w, y: (h - 30) / 2, width: w, height: 30)
+        chips.frame.size.width = max(0, chips.frame.width - w - 8)
+        if layoutSwitch.selectedSegmentIndex != openLayoutChoice {
+            switchProgrammatic = true
+            layoutSwitch.selectedSegmentIndex = openLayoutChoice
+            switchProgrammatic = false
+        }
+        // L'habillage une fois par thème (le contrôle redessine ses images à chaque changement).
+        if switchStyledFor != theme.id {
+            switchStyledFor = theme.id
+            layoutSwitch.selectedSegmentTintColor = theme.accent
+            layoutSwitch.backgroundColor = theme.key.withAlphaComponent(0.55)
+            for i in 0..<layoutSwitch.numberOfSegments { layoutSwitch.setWidth(w / 3, forSegmentAt: i) }
+            layoutSwitch.tintColor = theme.text
+            layoutSwitch.accessibilityLabel = L("Keyboard position")
+        }
+        if topBar.subviews.last !== layoutSwitch { topBar.bringSubviewToFront(layoutSwitch) }
+    }
+
+    /// Un réglage coupé reste coupé, même si une branche de la mise en page a réaffiché le bouton.
+    private func enforceVisibility() {
+        func hide(_ b: UIButton) {
+            b.isHidden = true
+            b.frame.size.width = 0
+        }
+        if !eff.emojiKey { hide(emojiButton) }
+        if !settings.showHandButton { hide(modeButton) }
+        if !settings.showSettingsButton { hide(adjustButton) }
+        if !settings.showSwapButton { hide(flipButton) }
+        if !settings.showCenterButton { hide(middleButton) }
+        if !settings.showLayoutMenu { hide(bigButton) }
+        if !settings.showMoreButton { hide(moreButton) }
+        if !settings.showMicButton || !eff.dictationKey { hide(micButton) }
+        if !settings.showClipboardButton { hide(clipButton) }
+        if !settings.hideKeyButton { hide(hideButton) }
+        if (input?.kbNeedsGlobe ?? false) == false { hide(globeButton) }
+        if !layoutSwitchFits {
+            layoutSwitch.isHidden = true
+            layoutSwitch.alpha = 0
+            layoutSwitch.isUserInteractionEnabled = false
+            layoutSwitch.frame = .zero
+        }
+    }
+
     private func modeMenu() -> UIMenu {
         let names: [KBMode: String] = [.auto: L("Follows your hand"), .left: L("One hand, left"), .right: L("One hand, right"),
                                        .full: L("Full width"), .split: L("Two hands")]
@@ -2597,6 +3661,7 @@ final class KeyboardCanvas: UIView {
                 self.layoutIfNeeded()
             }, at: 0)
         }
+        extra.append(toolbarButtonsMenu())
         // Le choix ne vaut que pour cet écran (fermé, ouvert en portrait, en paysage) : on le dit dans le titre.
         return UIMenu(title: L("Keyboard position on this screen"), children: [UIMenu(options: .displayInline, children: actions)] + extra)
     }
@@ -2605,12 +3670,16 @@ final class KeyboardCanvas: UIView {
     /// pour laisser toute la barre du haut aux suggestions (on voit les mots même tenu d'une main).
     private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
         guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
-        let n = 1 + (eff.barButtons ? 1 : 0) + (eff.barButtons || eff.hideKeyButton ? 1 : 0) + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
-            + (eff.dictationKey ? 1 : 0)
+        let n = (settings.showClipboardButton ? 1 : 0) + (settings.showSettingsButton ? 1 : 0) + (settings.hideKeyButton ? 1 : 0) + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
+            + (eff.dictationKey && settings.showMicButton ? 1 : 0)
+        guard n > 0 else { return nil }
         // Duo ouvert en portrait : une colonne verticale collée au clavier, à portée du pouce
         // (une rangée tout en haut de la place libre était trop loin).
         // Les touches ne font qu'environ 170 pt de haut : boutons resserrés (32 pt mini), sur deux colonnes s'il le faut.
-        if gripContext == "open-portrait", panelRect.width >= 100 {
+        // Paysage : la place libre est large et basse, une rangée horizontale dépasse des touches.
+        // Une colonne, comme en portrait ouvert.
+        let stacked = gripContext.hasSuffix("landscape") || gripContext == "open-portrait"
+        if stacked, panelRect.height >= 32 {
             let cols = CGFloat(n) * 32 <= panelRect.height ? 1 : 2
             return (cols, Int(ceil(Double(n) / Double(cols))), n)
         }
@@ -2638,11 +3707,79 @@ final class KeyboardCanvas: UIView {
         return super.hitTest(point, with: event)
     }
 
+    /// Boutons du côté, dessinés une fois et réécrits (un pli ne les recrée pas).
+    private var panelButtons: [UIButton] = []
+    private var panelHints: [UIImageView] = []
+    private var panelUse = 0
+    private var hintUse = 0
+    private var panelEmoji: [ObjectIdentifier: String] = [:]
+    private var panelPhrase: [ObjectIdentifier: String] = [:]
+
+    private func claimPanelButton() -> UIButton {
+        let b: UIButton
+        if panelUse < panelButtons.count {
+            b = panelButtons[panelUse]
+        } else {
+            b = UIButton(type: .custom)
+            b.addAction(UIAction { [weak self, weak b] _ in
+                guard let self, let b else { return }
+                let id = ObjectIdentifier(b)
+                if let e = self.panelEmoji[id] { self.insertEmoji(e) }
+                else if let p = self.panelPhrase[id] { self.insertPhrase(p) }
+            }, for: .touchUpInside)
+            panel.addSubview(b)
+            panelButtons.append(b)
+            KBViews.panels += 1
+        }
+        panelUse += 1
+        b.isHidden = false
+        let id = ObjectIdentifier(b)
+        panelEmoji[id] = nil
+        panelPhrase[id] = nil
+        return b
+    }
+
+    private func claimHint(_ symbol: String) -> UIImageView {
+        let v: UIImageView
+        if hintUse < panelHints.count {
+            v = panelHints[hintUse]
+        } else {
+            v = UIImageView()
+            v.contentMode = .center
+            v.isUserInteractionEnabled = false
+            panel.addSubview(v)
+            panelHints.append(v)
+            KBViews.panels += 1
+        }
+        hintUse += 1
+        v.isHidden = false
+        v.image = KBSymbol.image(symbol)
+        v.tintColor = theme.text.withAlphaComponent(0.22)
+        return v
+    }
+
+    private func parkPanelExtras() {
+        for b in panelButtons.dropFirst(panelUse) {
+            b.isHidden = true
+            b.setTitle(nil, for: .normal)
+            b.setImage(nil, for: .normal)
+            panelEmoji[ObjectIdentifier(b)] = nil
+            panelPhrase[ObjectIdentifier(b)] = nil
+        }
+        for v in panelHints.dropFirst(hintUse) {
+            v.isHidden = true
+            v.image = nil
+        }
+    }
+
     private func rebuildPanel() {
-        panel.subviews.forEach { $0.removeFromSuperview() }
+        panelUse = 0
+        hintUse = 0
+        panelEmoji.removeAll(keepingCapacity: true)
+        panelPhrase.removeAll(keepingCapacity: true)
         var area = panelRect
         if let g = sideButtonsGrid {
-            if gripContext == "open-portrait" {
+            if gripContext == "open-portrait" || gripContext.hasSuffix("landscape") {
                 // La colonne de boutons longe le clavier : le reste de la place libre est à côté.
                 let side = CGFloat(g.cols) * 44 + 12
                 area = CGRect(x: isRight ? area.minX : area.minX + side, y: area.minY, width: max(0, area.width - side), height: area.height)
@@ -2652,7 +3789,7 @@ final class KeyboardCanvas: UIView {
             }
         }
         panel.frame = area
-        guard area.width >= 44, area.height >= 44, eff.sidePanel != .none else { return }
+        guard area.width >= 44, area.height >= 44, eff.sidePanel != .none else { parkPanelExtras(); return }
         let w = area.width
         let h = area.height
         if layoutMode.isOneHand {
@@ -2673,23 +3810,19 @@ final class KeyboardCanvas: UIView {
             let oy = max(0, (h - gridH) / 2)
             for i in 0..<count {
                 let e = list[i]
-                let b = UIButton(type: .custom)
+                let b = claimPanelButton()
+                panelEmoji[ObjectIdentifier(b)] = e
                 b.setTitle(e, for: .normal)
+                b.setImage(nil, for: .normal)
                 b.titleLabel?.font = .systemFont(ofSize: 28)
                 b.frame = CGRect(x: ox + CGFloat(i % cols) * cell, y: oy + CGFloat(i / cols) * cell, width: cell, height: cell)
-                b.addAction(UIAction { [weak self] _ in self?.insertEmoji(e) }, for: .touchUpInside)
-                panel.addSubview(b)
             }
             // Indices discrets : flèches vers ce côté, et le milieu près du centre.
             let freeW = w - gridW - 4
             if freeW >= 36 {
-                let hint = UIImageView(image: UIImage(systemName: isRight ? "chevron.left.2" : "chevron.right.2"))
-                hint.tintColor = theme.text.withAlphaComponent(0.22)
-                hint.contentMode = .center
+                let hint = claimHint(isRight ? "chevron.left.2" : "chevron.right.2")
                 let fx = isRight ? gridW + 4 : 0
                 hint.frame = CGRect(x: fx, y: 0, width: freeW, height: h)
-                hint.isUserInteractionEnabled = false
-                panel.addSubview(hint)
             }
         } else if eff.sidePanel == .emoji || (layoutMode == .split && eff.sidePanel == .phrases && w < 90) {
             let cols = max(1, min(4, Int(w / 46)))
@@ -2702,30 +3835,31 @@ final class KeyboardCanvas: UIView {
             let oy = max(0, (h - gridH) / 2)
             for i in 0..<count {
                 let e = eff.emojis[i]
-                let b = UIButton(type: .custom)
+                let b = claimPanelButton()
+                panelEmoji[ObjectIdentifier(b)] = e
                 b.setTitle(e, for: .normal)
+                b.setImage(nil, for: .normal)
                 b.titleLabel?.font = .systemFont(ofSize: min(30, cell * 0.6))
                 b.frame = CGRect(x: ox + CGFloat(i % cols) * cell, y: oy + CGFloat(i / cols) * cell, width: cell, height: cell)
-                b.addAction(UIAction { [weak self] _ in self?.insertEmoji(e) }, for: .touchUpInside)
-                panel.addSubview(b)
             }
         } else if eff.sidePanel == .phrases {
             let bh: CGFloat = 36
             let n = min(eff.phrases.count, max(1, Int((h + 6) / (bh + 6))))
             for i in 0..<n {
                 let p = eff.phrases[i]
-                let b = UIButton(type: .system)
+                let b = claimPanelButton()
+                panelPhrase[ObjectIdentifier(b)] = p
                 b.setTitle(p, for: .normal)
+                b.setImage(nil, for: .normal)
                 b.titleLabel?.font = eff.font.ui(size: 14, weight: .medium)
                 b.titleLabel?.lineBreakMode = .byTruncatingTail
                 b.setTitleColor(theme.text, for: .normal)
                 b.backgroundColor = theme.key
                 b.layer.cornerRadius = 10
                 b.frame = CGRect(x: 0, y: CGFloat(i) * (bh + 6), width: w, height: bh)
-                b.addAction(UIAction { [weak self] _ in self?.insertPhrase(p) }, for: .touchUpInside)
-                panel.addSubview(b)
             }
         }
+        parkPanelExtras()
     }
 
     /// Le signe de la touche retour d'après le champ ; nil : le retour habituel, discret.
@@ -2757,14 +3891,14 @@ final class KeyboardCanvas: UIView {
                 v.label.text = upper ? s.uppercased() : s
                 v.label.font = eff.font.ui(size: fontSize, weight: .regular)
             case .shift:
-                v.icon.image = UIImage(systemName: shift == .caps ? "capslock.fill" : (shift == .on ? "shift.fill" : "shift"))
+                v.icon.image = KBSymbol.image(shift == .caps ? "capslock.fill" : (shift == .on ? "shift.fill" : "shift"))
                 if shift != .off { v.backgroundColor = theme.key }
             case .backspace:
-                v.icon.image = UIImage(systemName: "delete.left")
+                v.icon.image = KBSymbol.image("delete.left")
             case .space:
                 v.label.text = nil
             case .ret:
-                v.icon.image = UIImage(systemName: "return")
+                v.icon.image = KBSymbol.image("return")
                 // Comme le clavier d'Apple : dans un champ de recherche (Safari, Siri…), la touche devient bleue avec
                 // une loupe ; « aller », « envoyer », « terminé » aussi, chacun avec son signe.
                 let rt = input?.kbReturnType ?? .default
@@ -2782,11 +3916,11 @@ final class KeyboardCanvas: UIView {
                 v.label.text = p == .letters ? "ABC" : (p == .numbers ? "123" : "#+=")
                 v.label.font = eff.font.ui(size: 17, weight: .regular)
             case .globe:
-                v.icon.image = UIImage(systemName: eff.globeAsEmoji ? "face.smiling" : "globe")
+                v.icon.image = KBSymbol.image(eff.globeAsEmoji ? "face.smiling" : "globe")
             case .emoji:
-                v.icon.image = UIImage(systemName: "face.smiling")
+                v.icon.image = KBSymbol.image("face.smiling")
             case .mic:
-                v.icon.image = UIImage(systemName: dictState == .idle ? "mic" : "mic.fill")
+                v.icon.image = KBSymbol.image(dictState == .idle ? "mic" : "mic.fill")
                 if dictState != .idle { v.icon.tintColor = theme.accent }
             }
             // Verre : des touches vraiment transparentes, avec un liseré de lumière (comme le verre d'iOS).
@@ -2807,25 +3941,11 @@ final class KeyboardCanvas: UIView {
 
 
     private func cellIndex(at raw: CGPoint) -> Int? {
-        // Le pouce touche un peu plus bas qu'il ne vise (comme le clavier d'Apple, on compense de 4 pt) ; une fois
-        // appris où tu tapes vraiment, les zones d'appui se décalent d'autant (un tiers de touche au plus).
-        var p = CGPoint(x: raw.x, y: raw.y - 4)
-        let learned = eff.tapLearn && page == .letters ? tapMap.shift(twoHands: !layoutMode.isOneHand) : nil
-        if let s = learned, let k = cells.first(where: { if case .char = $0.view.spec.kind { return true }; return false }) {
-            p = CGPoint(x: raw.x - CGFloat(s.dx) * k.frame.width, y: raw.y - CGFloat(s.dy) * k.frame.height)
-        }
-        // La barre d'espace touchée plus haut que son centre : sa zone d'appui monte un peu dans la rangée du dessus.
-        if eff.tapLearn, page == .letters, tapMap.spaceRaise > 0 {
-            for (i, c) in cells.enumerated() {
-                guard case .space = c.view.spec.kind else { continue }
-                let up = CGFloat(tapMap.spaceRaise) * c.frame.height
-                if p.x >= c.hit.minX, p.x <= c.hit.maxX, p.y >= c.hit.minY - up, p.y < c.hit.minY { return i }
-            }
-        }
-        if learned != nil, let i = cells.firstIndex(where: { $0.hit.contains(p) }) { return i }
-        // D'abord la touche réellement dessinée sous le doigt (même pendant une animation).
-        // Seulement pendant une animation (le clavier qui glisse d'un côté à l'autre) ; et la touche dont le centre est
-        // le plus près, pas la première trouvée (pendant le glissement, les touches étirées se chevauchent).
+        // Le pouce touche un peu plus bas qu'il ne vise (comme le clavier d'Apple, on compense de 4 pt).
+        let base = CGPoint(x: raw.x, y: raw.y - 4)
+        // D'abord la touche réellement dessinée sous le doigt pendant une animation (le clavier qui glisse d'un côté
+        // à l'autre) ; la touche dont le centre est le plus près, pas la première trouvée (les touches étirées se
+        // chevauchent pendant le glissement).
         if cells.contains(where: { !($0.view.layer.animationKeys() ?? []).isEmpty }) {
             let hits = cells.indices.filter { (cells[$0].view.layer.presentation()?.frame ?? cells[$0].view.frame).contains(raw) }
             if let i = hits.min(by: {
@@ -2834,12 +3954,38 @@ final class KeyboardCanvas: UIView {
                 return hypot(a.midX - raw.x, a.midY - raw.y) < hypot(b.midX - raw.x, b.midY - raw.y)
             }) { return i }
         }
-        if let i = cells.firstIndex(where: { $0.hit.contains(p) }) { return i }
+        // Un doigt posé franchement sur une touche écrit cette touche, quoi que le clavier ait appris : l'apprentissage
+        // ne décide que près des bords (avant, toute la zone se décalait d'un tiers de touche au plus, effacer et les
+        // lettres du bord comprises : viser « P » pouvait écrire « O »).
+        if let i = cells.firstIndex(where: { $0.frame.insetBy(dx: $0.frame.width * 0.2, dy: $0.frame.height * 0.12).contains(base) }) {
+            return i
+        }
+        func isLetter(_ i: Int) -> Bool {
+            if case .char(let c) = cells[i].view.spec.kind { return c.count == 1 && c.first?.isLetter == true }
+            return false
+        }
+        let plain = cells.firstIndex(where: { $0.hit.contains(base) })
+        // Une fois appris où tu tapes vraiment, la frontière entre deux lettres se décale d'autant.
+        if eff.tapLearn, page == .letters, let s = tapMap.shift(twoHands: !layoutMode.isOneHand),
+           let k = cells.first(where: { if case .char = $0.view.spec.kind { return true }; return false }) {
+            let p = CGPoint(x: raw.x - CGFloat(s.dx) * k.frame.width, y: raw.y - CGFloat(s.dy) * k.frame.height)
+            // Entre deux lettres seulement : effacer, majuscule, retour et espace gardent leur place exacte.
+            if let i = cells.firstIndex(where: { $0.hit.contains(p) }), isLetter(i), plain.map(isLetter) ?? true { return i }
+        }
+        // La barre d'espace touchée plus haut que son centre : sa zone d'appui monte un peu dans la rangée du dessus.
+        if eff.tapLearn, page == .letters, tapMap.spaceRaise > 0 {
+            for (i, c) in cells.enumerated() {
+                guard case .space = c.view.spec.kind else { continue }
+                let up = CGFloat(tapMap.spaceRaise) * c.frame.height
+                if base.x >= c.hit.minX, base.x <= c.hit.maxX, base.y >= c.hit.minY - up, base.y < c.hit.minY { return i }
+            }
+        }
+        if let plain { return plain }
         // Juste à côté du clavier : la touche la plus proche (un appui un peu à côté écrit quand même).
-        guard blocks.contains(where: { $0.insetBy(dx: -18, dy: -10).contains(p) }) else { return nil }
+        guard blocks.contains(where: { $0.insetBy(dx: -18, dy: -10).contains(base) }) else { return nil }
         var best: (Int, CGFloat)?
         for (i, c) in cells.enumerated() {
-            let d = hypot(c.frame.midX - p.x, c.frame.midY - p.y)
+            let d = hypot(c.frame.midX - base.x, c.frame.midY - base.y)
             if d < 44, d < (best?.1 ?? .infinity) { best = (i, d) }
         }
         return best?.0
@@ -2881,19 +4027,40 @@ final class KeyboardCanvas: UIView {
         if a.count > 60 { a.removeFirst() }
     }
 
-    @objc private func showPerf(_ g: UILongPressGestureRecognizer) {
+    @objc fileprivate func showPerf(_ g: UILongPressGestureRecognizer) {
         guard g.state == .began else { return }
         func avg(_ a: [Double]) -> Int { a.isEmpty ? 0 : Int(a.reduce(0, +) / Double(a.count)) }
         let text = String(format: "Appui %d ms (max %d) · traitement %d ms · blocages %d · annulés %d · à côté %d",
                           avg(perfDelay), Int(perfDelay.max() ?? 0), avg(perfWork), perfStalls, perfCancelled, perfMissed)
             + " · L\(Int(bounds.width)) · " + lastHits.joined(separator: " ")
             + String(format: " · mémoire %.0f Mo (max %.0f)", Self.footprintMB(), Self.memoryPeak)
-        flash(text)
+        // Le rapport mémoire : ce qu'iOS laisse encore, la limite de cet iPhone, et les dernières apparitions du
+        // clavier (départ → plus haut ; une ligne qui s'arrête haut, c'est un clavier fermé par iOS).
+        let mb = Self.footprintMB(), room = NeuralSwipe.availableMB()
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+        var report = "Foldboard \(version) (\(build)) · \(gripContext) · \(layoutMode.rawValue) · \(Int(bounds.width))×\(Int(bounds.height))\n"
+        report += String(format: "mémoire %.0f Mo (max %.0f) · marge %.0f Mo · limite ≈ %.0f Mo · touches %d · vues %d\n",
+                         mb, Self.memoryPeak, room, room > 0 ? mb + room : 0, KBViews.keys, KBViews.live)
+        report += "listes rendues : \(listsShed ? "oui" : "non") · glisser neuronal : \(NeuralSwipe.statusLine)\n"
+        // La géométrie : le clavier, son hôte, sa fenêtre, l'écran, et la hauteur demandée à iOS (clavier coupé ?).
+        let hostH = superview?.bounds.height ?? -1
+        let winH = window?.bounds.height ?? -1
+        let seen = window.map { convert(bounds, to: $0).intersection($0.bounds).height } ?? -1
+        report += "hauteurs : clavier \(Int(bounds.height)) · hôte \(Int(hostH)) · visible \(Int(seen)) · fenêtre \(Int(winH)) · écran \(Int(screenSize.height)) · voulue \(Int(preferredHeight)) · touche \(Int(keyH))/\(Int(baseKeyH)) · portable \(laptopLike ? "oui" : "non")\n"
+        report += KBMemLog.lines.suffix(8).joined(separator: "\n") + "\n" + text
+        if input?.kbFullAccess == true {
+            UIPasteboard.general.string = report
+            flash(String(format: "Mémoire %.0f Mo, marge %.0f Mo. Rapport copié : colle-le dans un message.", mb, room), hold: 5)
+        } else {
+            flash(String(format: "Mémoire %.0f Mo (max %.0f), marge %.0f Mo", mb, Self.memoryPeak, room), hold: 5)
+        }
         perfDelay = []; perfWork = []; perfStalls = 0; perfCancelled = 0; perfMissed = 0
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         idleTimer?.invalidate()
+        sweepLostTouches(event)
         let w0 = ProcessInfo.processInfo.systemUptime
         if let t = touches.first { perfPush(&perfDelay, (w0 - t.timestamp) * 1000) }
         defer { perfPush(&perfWork, (ProcessInfo.processInfo.systemUptime - w0) * 1000) }
@@ -2929,6 +4096,7 @@ final class KeyboardCanvas: UIView {
             if lastHits.count > 4 { lastHits.removeFirst() }
             let tr = Track(index: i, start: p)
             tr.t0 = t.timestamp
+            tr.touch = t
             if recording != nil { halo(at: p, radius: t.majorRadius) }
             tr.points = [p]
             tr.times = [t.timestamp]
@@ -3180,13 +4348,21 @@ final class KeyboardCanvas: UIView {
     private func canGlide(_ tr: Track, _ k: KeyKind, to p: CGPoint) -> Bool {
         guard eff.glide, emojiQuery == nil, page == .letters, !tr.swipe, !tr.cursorMode, tr.accents.isEmpty, !adjusting else { return false }
         guard case .char(let c) = k, c.count == 1, c.first?.isLetter == true else { return false }
-        let kw = cells.first { if case .char = $0.view.spec.kind { return true }; return false }?.frame.width ?? 32
+        let kw = letterKeyWidth
         let dx = p.x - tr.start.x, dy = p.y - tr.start.y
-        // Sur les grandes touches (clavier entier sur l'écran déplié), le glisser démarrait tard : au plus 40 pt.
-        guard abs(dx) > min(kw * 0.95, 40) || hypot(dx, dy) > min(kw * 1.6, 64) else { return false }
-        // Arrivé sur une autre lettre.
+        // Le trait démarre tôt même sur les grandes touches (clavier entier sur l'écran déplié), mais jamais sur un
+        // simple roulement du pouce : en appuyant au bord d'une touche, le doigt glisse de quelques points sur la
+        // voisine (« P » écrivait « op »). Il faut un vrai déplacement, et être entré dans l'autre touche.
+        guard abs(dx) > min(kw * 0.95, max(40, kw * 0.6)) || hypot(dx, dy) > min(kw * 1.6, max(64, kw * 0.9)) else { return false }
+        // Arrivé sur une autre lettre, franchement (pas juste sur la bordure entre les deux).
         guard let j = cellIndex(at: p), j != tr.index, case .char(let c2) = cells[j].view.spec.kind, c2.first?.isLetter == true else { return false }
-        return true
+        let f = cells[j].frame
+        return f.insetBy(dx: min(8, f.width * 0.12), dy: 0).contains(CGPoint(x: p.x, y: f.midY)) || hypot(dx, dy) > kw * 1.25
+    }
+
+    /// La largeur d'une touche de lettre (les seuils du glisser en dépendent).
+    private var letterKeyWidth: CGFloat {
+        cells.first { if case .char(let c) = $0.view.spec.kind { return c.count == 1 && c.first?.isLetter == true }; return false }?.frame.width ?? 32
     }
 
     private func startGlide(_ tr: Track) {
@@ -3197,6 +4373,7 @@ final class KeyboardCanvas: UIView {
         if tr.typed != nil {
             input?.kbDelete()
             if !wordTouches.isEmpty { wordTouches.removeLast() }
+            tr.glideUndo = tr.typed
             tr.typed = nil
             // La lettre effacée avait consommé la majuscule : on la rend au mot tracé.
             if tr.shiftAtDown == .on && shift == .off {
@@ -3229,6 +4406,16 @@ final class KeyboardCanvas: UIView {
         fade.fromValue = 1; fade.toValue = 0; fade.duration = 0.25
         glideLayer.add(fade, forKey: "fade")
         glideLayer.opacity = 0
+        // Un tracé qui tient dans une seule touche n'est pas un mot : le pouce a roulé d'une touche sur sa voisine
+        // en appuyant. La lettre du départ revient, comme un appui normal.
+        var travelled: CGFloat = 0
+        for (a, b) in zip(tr.points, tr.points.dropFirst()) { travelled += hypot(b.x - a.x, b.y - a.y) }
+        if travelled < letterKeyWidth * 0.8, let letter = tr.glideUndo {
+            tr.glideUndo = nil
+            typeText(letter)
+            noteTouch(letter, at: tr.start)
+            return
+        }
         // Les centres des touches, comme pour la correction.
         var centers: [Character: [CGPoint]] = [:]
         var keyW: CGFloat = 0, keyH: CGFloat = 0
@@ -3326,21 +4513,32 @@ final class KeyboardCanvas: UIView {
         }
     }
 
-    private func setTrackpad(_ on: Bool) {
+    /// Le pavé tactile est affiché (touches sans lettres, barre du haut effacée).
+    private var trackpadOn = false
+
+    private func setTrackpad(_ on: Bool, animated: Bool = true) {
         trackGoalCol = nil
         if !on { trackEdgeTimer?.invalidate(); trackEdgeTimer = nil }
         if !on { trackMap = nil }
-        UIView.animate(withDuration: 0.18) {
+        guard on != trackpadOn || !on else { return }
+        trackpadOn = on
+        let bar: [UIView] = [chips, modeButton, flipButton, middleButton, bigButton, globeButton, emojiButton, micButton,
+                             clipButton, adjustButton, hideButton, moreButton, fixButton, translateButton]
+        let keys = cells.map(\.view)
+        let parked = keyPool
+        let apply = {
             // Comme chez Apple : la barre du haut disparaît aussi, il ne reste que le pavé.
-            for v in [self.chips, self.modeButton, self.flipButton, self.middleButton, self.bigButton, self.globeButton, self.emojiButton, self.micButton, self.clipButton, self.adjustButton, self.hideButton] as [UIView] {
-                v.alpha = on ? 0 : 1
+            for v in bar { v.alpha = on ? 0 : 1 }
+            self.layoutSwitch.alpha = on || self.layoutSwitch.isHidden ? 0 : 1
+            for v in keys {
+                v.label.alpha = on ? 0 : 1
+                v.icon.alpha = on ? 0 : 1
+                v.alpha = on ? 0.55 : 1
             }
-            for c in self.cells {
-                c.view.label.alpha = on ? 0 : 1
-                c.view.icon.alpha = on ? 0 : 1
-                c.view.alpha = on ? 0.55 : 1
-            }
+            // Les touches rangées (autre page, autre disposition) reviennent toujours entières.
+            if !on { for v in parked { v.alpha = 1; v.showGlyphs() } }
         }
+        if animated { UIView.animate(withDuration: 0.18, animations: apply) } else { UIView.performWithoutAnimation(apply) }
     }
 
     /// Une ligne plus haut ou plus bas, à la même colonne quand le texte a des retours à la ligne.
@@ -3448,7 +4646,7 @@ final class KeyboardCanvas: UIView {
             typeSpace()
             // Appui long : le clavier devient un pavé tactile, comme chez Apple.
             tr.longTimer = Timer.scheduledTimer(withTimeInterval: 0.45, repeats: false) { [weak self, weak tr] _ in
-                guard let self, let tr, !tr.done, !tr.cursorMode, !tr.swipe else { return }
+                guard let self, let tr, !tr.done, !tr.cursorMode, !tr.swipe, self.holds(tr) else { return }
                 self.enterTrackpad(tr, at: tr.start)
             }
             return
@@ -3462,7 +4660,7 @@ final class KeyboardCanvas: UIView {
             let options = KBLayouts.accents(s, layout: eff.layout)
             if !options.isEmpty {
                 tr.longTimer = Timer.scheduledTimer(withTimeInterval: 0.38, repeats: false) { [weak self, weak tr] _ in
-                    guard let self, let tr, !tr.done, tr.index < self.cells.count else { return }
+                    guard let self, let tr, !tr.done, tr.index < self.cells.count, self.holds(tr) else { return }
                     tr.accents = options.map { upper ? $0.uppercased() : $0 }
                     tr.accentIndex = 0
                     self.hideBubble()
@@ -3476,6 +4674,7 @@ final class KeyboardCanvas: UIView {
             typeText(text)
             noteTouch(text, at: tr.start)
         case .backspace:
+            dictatedTail = nil
             if let g = glidedWord, (input?.kbTextBefore() ?? "").hasSuffix(g) {
                 for _ in 0..<g.count { input?.kbDelete() }
                 glidedWord = nil
@@ -3495,10 +4694,11 @@ final class KeyboardCanvas: UIView {
             refreshSuggestionsSoon()
             tr.done = true
             tr.longTimer = Timer.scheduledTimer(withTimeInterval: 0.42, repeats: false) { [weak self, weak tr] _ in
-                guard let self, let tr else { return }
+                guard let self, let tr, self.holds(tr) else { return }
                 var count = 0
-                tr.repeatTimer = Timer.scheduledTimer(withTimeInterval: 0.07, repeats: true) { [weak self] _ in
-                    guard let self else { return }
+                tr.repeatTimer = Timer.scheduledTimer(withTimeInterval: 0.07, repeats: true) { [weak self, weak tr] timer in
+                    // Le doigt a quitté l'écran (ou le clavier) sans qu'iOS le dise : on n'efface plus rien.
+                    guard let self, let tr, self.holds(tr) else { timer.invalidate(); return }
                     count += 1
                     if count > 18 {
                         // Après un moment, on efface mot par mot.
@@ -3513,6 +4713,12 @@ final class KeyboardCanvas: UIView {
         default:
             break
         }
+    }
+
+    /// Le doigt de cet appui est-il encore posé sur le clavier affiché ?
+    private func holds(_ tr: Track) -> Bool {
+        guard visible, window != nil, let t = tr.touch, tracks[t] === tr else { return false }
+        return t.phase != .ended && t.phase != .cancelled
     }
 
     private func commit(_ tr: Track) {
@@ -3656,6 +4862,11 @@ final class KeyboardCanvas: UIView {
             glidedWord = nil
             if let c = text.first, c.isLetter || c.isNumber, (input?.kbTextBefore() ?? "").hasSuffix(g) { input?.kbInsert(" ") }
         }
+        // Pareil juste après une dictée.
+        if let tail = dictatedTail {
+            dictatedTail = nil
+            if let c = text.first, c.isLetter || c.isNumber, (input?.kbTextBefore() ?? "").hasSuffix(tail) { input?.kbInsert(" ") }
+        }
         if accentKey(text) || accentAfter(text) {
             lastCorrection = nil
             refreshSuggestionsSoon()
@@ -3700,6 +4911,7 @@ final class KeyboardCanvas: UIView {
     private var lastSpaceAt: TimeInterval = 0
 
     private func typeSpace() {
+        dictatedTail = nil
         let before = input?.kbTextBefore() ?? ""
         let now = ProcessInfo.processInfo.systemUptime
         defer { lastSpaceAt = now }
@@ -3927,7 +5139,7 @@ final class KeyboardCanvas: UIView {
         // La première annulation ne fait que s'en souvenir : le mot n'entre dans « Mes mots » qu'à la deuxième.
         if !caseOnly, w0.count >= 2, w0.allSatisfy({ $0.isLetter || $0 == "-" || $0 == "'" || $0 == "’" }), settings.learnOnUndo {
             let added = settings.undidCorrection(keep)
-            input?.kbSettingsChanged(settings)
+            persist()
             if added {
                 suggest.setMyWords(settings.activeMyWords)
                 let mine = settings.activeMyWords
@@ -4139,11 +5351,283 @@ final class KeyboardCanvas: UIView {
         KBFeedback.shared.tap(sound: .off, haptics: eff.haptics)
     }
 
+    /// Panneau du « … », créé une fois. Le menu système ne s'affiche pas dans les autres apps.
+    private var barSheet: KBBarSheet?
+
+    func toggleBarSheet() {
+        let sheet = barSheet ?? KBBarSheet()
+        barSheet = sheet
+        if sheet.superview !== self { addSubview(sheet) }
+        if sheet.isHidden || sheet.alpha == 0 {
+            sheet.alpha = 1
+            sheet.isHidden = false
+            sheet.frame = bounds
+            sheet.reload(self)
+            bringSubviewToFront(sheet)
+        } else {
+            sheet.isHidden = true
+        }
+    }
+
+    func barSheetPick(_ id: String) {
+        switch id {
+        case "layout-0": chooseOpenLayout(0)
+        case "layout-1": chooseOpenLayout(1)
+        case "layout-2": chooseOpenLayout(2)
+        case "hand": settings.showHandButton.toggle()
+        case "settings": settings.showSettingsButton.toggle()
+        case "mic": settings.showMicButton.toggle()
+        case "clip": settings.showClipboardButton.toggle()
+        case "hide": settings.hideKeyButton.toggle()
+        case "swap": settings.showSwapButton.toggle()
+        case "center": settings.showCenterButton.toggle()
+        case "menu": settings.showLayoutMenu.toggle()
+        case "switch": settings.showLayoutSwitch.toggle()
+        case "more": settings.showMoreButton.toggle()
+        case "app":
+            barSheet?.isHidden = true
+            openContainingApp(URL(string: "foldboard://settings")!)
+            return
+        case "close":
+            barSheet?.isHidden = true
+            return
+        default: return
+        }
+        if id.hasPrefix("layout-") { barSheet?.isHidden = true }
+        eff = settings.effective(pro: pro)
+        save()
+        setNeedsLayout()
+        layoutIfNeeded()
+        if barSheet?.isHidden == false { barSheet?.reload(self) }
+    }
+
+    /// Les couleurs du thème pour le panneau du « … ».
+    func barSheetStyle() -> (background: UIColor, key: UIColor, text: UIColor, accent: UIColor) {
+        (theme.background.withAlphaComponent(1), theme.key.withAlphaComponent(1), theme.text, theme.accent)
+    }
+
+    func barSheetRows() -> [(id: String, title: String, check: Bool)] {
+        let now = openLayoutChoice
+        return [
+            ("layout-0", L("Follows your hand"), now == 0),
+            ("layout-1", L("Full width"), now == 1),
+            ("layout-2", L("Split keyboard"), now == 2),
+            ("hand", L("Position button"), settings.showHandButton),
+            ("settings", L("Settings button"), settings.showSettingsButton),
+            ("mic", L("Mic button"), settings.showMicButton),
+            ("clip", L("Clipboard button"), settings.showClipboardButton),
+            ("hide", L("Hide keyboard button"), settings.hideKeyButton),
+            ("switch", L("Layout switcher"), settings.showLayoutSwitch),
+            ("app", L("Open Foldboard settings"), false),
+            ("close", L("Done"), false),
+        ]
+    }
+
+    /// Le « … » n'utilise pas le menu système, le panneau s'ouvre, un choix change la disposition,
+    /// et un lien part par la chaîne des répondeurs (pas par UIApplication.shared.open).
+    static func verifyBarSheet() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.frame = CGRect(x: 0, y: 0, width: 980, height: 360)
+        var s = KBSettings()
+        s.layout = .azerty
+        s.mode = .right
+        s.layoutSwitchOpenOnly = false
+        c.demoContext = "open-landscape"
+        c.configure(settings: s, pro: true)
+        c.builtFor = .zero
+        c.layoutIfNeeded()
+        let noSystemMenu = c.bigButton.menu == nil && c.bigButton.showsMenuAsPrimaryAction == false
+        c.toggleBarSheet()
+        let open = c.barSheet?.isHidden == false
+        c.barSheetPick("layout-2")
+        let split = c.settings.screenModes["open-landscape"] == .split
+        let closed = c.barSheet?.isHidden != false
+        c.barSheetPick("switch")
+        let switched = c.settings.showLayoutSwitch == false
+        final class Probe: UIResponder {
+            var url: URL?
+            @objc func openURL(_ url: URL) { self.url = url }
+        }
+        final class Start: UIResponder {
+            var nxt: UIResponder?
+            override var next: UIResponder? { nxt }
+        }
+        let probe = Probe()
+        let start = Start()
+        start.nxt = probe
+        let url = URL(string: "foldboard://settings")!
+        let delivered = deliver(url, from: start) && probe.url == url
+        let ok = noSystemMenu && open && split && closed && switched && delivered
+        print("RESULT barsheet menu=\(noSystemMenu) open=\(open) split=\(split) closed=\(closed) switch=\(switched) url=\(delivered) \(ok ? "yes" : "no")")
+        return ok
+    }
+
+    /// Passage en mode portable : les touches ne glissent pas, les rangées restent alignées,
+    /// et plusieurs angles de charnière ne font qu'une seule mise en page.
+    static func verifyLaptopLayout() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 500))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.frame = CGRect(x: 0, y: 0, width: 980, height: 260)
+        var s = KBSettings()
+        s.layout = .azerty
+        s.mode = .split
+        c.demoContext = "open-landscape"
+        c.configure(settings: s, pro: true)
+        c.hingeHalf = false
+        c.hingeSettling = false
+        c.builtFor = .zero
+        c.layoutIfNeeded()
+        var dirty = false
+        UIView.animate(withDuration: 0.45) {
+            c.frame = CGRect(x: 0, y: 0, width: 980, height: 420)
+            c.hingeHalf = true
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+            for cell in c.cells {
+                if cell.view.transform != .identity { dirty = true }
+                if !(cell.view.layer.animationKeys() ?? []).isEmpty { dirty = true }
+            }
+        }
+        var rows: [CGFloat: Int] = [:]
+        for cell in c.cells {
+            let y = cell.frame.minY.rounded()
+            rows[y, default: 0] += 1
+        }
+        let aligned = rows.values.contains { $0 >= 4 }
+        let before = c.hingeApplies
+        for i in 0..<8 { c.scheduleHinge(closed: false, half: i % 2 == 0) }
+        let held = c.hingeApplies == before && c.hingeSettling
+        c.hingeTicket += 1
+        c.pendingHingeHalf = true
+        c.pendingHingeClosed = false
+        c.applyScheduledHinge()
+        let once = c.hingeApplies == before + 1 && c.hingeHalf
+        let ok = !dirty && aligned && held && once
+        print("RESULT laptop anim=\(!dirty) aligned=\(aligned) held=\(held) once=\(once) \(ok ? "yes" : "no")")
+        return ok
+    }
+
     private func highlightAccent(_ i: Int) {
         for (j, l) in accentLabels.enumerated() {
             l.backgroundColor = j == i ? theme.accent : .clear
             l.textColor = j == i ? .white : theme.text
         }
+    }
+}
+
+/// Le menu du « … », dessiné dans le clavier. Les boutons existent une fois : on ne fait que réécrire leurs titres.
+/// Une grille (deux colonnes dès qu'il y a la place) qui défile si elle dépasse la hauteur du clavier : avant, les
+/// lignes en trop s'écrasaient les unes sur les autres en haut du panneau.
+final class KBBarSheet: UIView {
+    weak var canvas: KeyboardCanvas?
+    private let dim = UIButton(type: .custom)
+    private let card = UIView()
+    private let scroll = UIScrollView()
+    private var rows: [UIButton] = []
+    private var shown = 0
+    private var textColor = UIColor.label
+    private var accent = UIColor.systemBlue
+    private var keyColor = UIColor.secondarySystemBackground
+    private static let rowHeight: CGFloat = 42
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        dim.backgroundColor = UIColor.black.withAlphaComponent(0.35)
+        dim.addAction(UIAction { [weak self] _ in self?.canvas?.barSheetPick("close") }, for: .touchUpInside)
+        addSubview(dim)
+        card.layer.cornerRadius = 18
+        card.layer.cornerCurve = .continuous
+        card.clipsToBounds = true
+        addSubview(card)
+        scroll.alwaysBounceVertical = false
+        scroll.showsVerticalScrollIndicator = true
+        scroll.delaysContentTouches = false
+        card.addSubview(scroll)
+        isHidden = true
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        dim.frame = bounds
+        let width = max(0, bounds.width - 16)
+        let cols = width >= 380 ? 2 : 1
+        let pad: CGFloat = 8, gap: CGFloat = 6
+        let cellW = (width - 2 * pad - CGFloat(cols - 1) * gap) / CGFloat(cols)
+        let lines = max(1, Int(ceil(Double(shown) / Double(cols))))
+        // Les lignes se resserrent un peu (34 pt au moins) pour que tout tienne sans défiler quand c'est possible.
+        let room = bounds.height - 16 - 2 * pad - CGFloat(lines - 1) * gap
+        let rowH = min(Self.rowHeight, max(34, (room / CGFloat(lines)).rounded(.down)))
+        let contentH = CGFloat(lines) * rowH + CGFloat(lines - 1) * gap + 2 * pad
+        let cardH = min(max(0, bounds.height - 16), contentH)
+        card.frame = CGRect(x: 8, y: max(8, (bounds.height - cardH) / 2), width: width, height: cardH)
+        scroll.frame = card.bounds
+        scroll.contentSize = CGSize(width: width, height: contentH)
+        for (i, b) in rows.prefix(shown).enumerated() {
+            let col = i % cols, line = i / cols
+            b.frame = CGRect(x: pad + CGFloat(col) * (cellW + gap), y: pad + CGFloat(line) * (rowH + gap),
+                             width: cellW, height: rowH)
+        }
+        if scroll.contentSize.height > scroll.bounds.height + 1 { scroll.flashScrollIndicators() }
+    }
+
+    func reload(_ canvas: KeyboardCanvas) {
+        self.canvas = canvas
+        let style = canvas.barSheetStyle()
+        card.backgroundColor = style.background
+        textColor = style.text
+        accent = style.accent
+        keyColor = style.key
+        let items = canvas.barSheetRows()
+        while rows.count < items.count {
+            let b = UIButton(type: .system)
+            b.addAction(UIAction { [weak self, weak b] _ in
+                guard let id = b?.accessibilityIdentifier else { return }
+                self?.canvas?.barSheetPick(id)
+            }, for: .touchUpInside)
+            scroll.addSubview(b)
+            rows.append(b)
+        }
+        shown = items.count
+        for (i, item) in items.enumerated() {
+            let b = rows[i]
+            b.accessibilityIdentifier = item.id
+            b.accessibilityLabel = item.title
+            b.accessibilityTraits = item.check ? [.button, .selected] : .button
+            let closing = item.id == "close"
+            var cfg = UIButton.Configuration.plain()
+            var title = AttributedString(item.title)
+            title.font = .systemFont(ofSize: 15, weight: closing || item.check ? .semibold : .regular)
+            title.foregroundColor = closing ? UIColor.white : textColor
+            cfg.attributedTitle = title
+            cfg.titleLineBreakMode = .byTruncatingTail
+            cfg.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 10)
+            if !closing {
+                // La coche à gauche, toujours à la même place (une ligne non cochée garde l'alignement).
+                let symbol = item.id == "app" ? "arrow.up.forward.app" : (item.check ? "checkmark.circle.fill" : "circle")
+                cfg.image = UIImage(systemName: symbol, withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold))
+                cfg.imagePadding = 8
+                cfg.baseForegroundColor = item.check || item.id == "app" ? accent : textColor.withAlphaComponent(0.35)
+            }
+            cfg.background.backgroundColor = closing ? accent : keyColor
+            cfg.background.cornerRadius = 11
+            b.configuration = cfg
+            b.contentHorizontalAlignment = closing ? .center : .leading
+            b.titleLabel?.adjustsFontSizeToFitWidth = true
+            b.titleLabel?.minimumScaleFactor = 0.75
+            b.isHidden = false
+        }
+        for b in rows.dropFirst(items.count) { b.isHidden = true }
+        scroll.contentOffset = .zero
+        setNeedsLayout()
     }
 }
 
@@ -4155,6 +5639,8 @@ private final class KBWeakTarget: NSObject {
         guard let c = canvas else { l.invalidate(); return }
         c.perfTick(l)
     }
+    @objc func grip(_ g: UILongPressGestureRecognizer) { canvas?.showGripInfo(g) }
+    @objc func perf(_ g: UILongPressGestureRecognizer) { canvas?.showPerf(g) }
 }
 
 

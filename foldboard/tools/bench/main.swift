@@ -467,6 +467,15 @@ func realSwipes(_ L: Lang, file: String, layout: String, tag: String, limit: Int
 }
 
 let t0 = Date()
+NeuralSwipe.benchIgnoresBudget = true
+func mem(_ name: String) { print("RESULT mem \(name) \(String(format: "%.1f", NeuralSwipe.footprintMB())) Mo alive \(KeyboardCanvas.alive)") }
+mem("demarrage")
+let probe = KBSuggest()
+probe.setLayout(.qwerty)
+mem("liste_en")
+probe.setLayout(.azerty)
+mem("liste_fr")
+mem("modele_langue")
 // Les réglages à comparer : chaque ligne « nom k=v,k=v » (vide = valeurs par défaut du clavier).
 /// Les vraies fautes (Wikipédia, codespell ; accents oubliés en français) : un échantillon fixe de N cas.
 /// Comme le clavier à l'espace : la correction rapide, puis la proposition de la barre si elle n'a rien trouvé.
@@ -520,6 +529,56 @@ let mixedFR: [(String, String, String)] = [
     // Et le français reste français.
     ("je vais ", "a", "à"), ("il fait ", "tres", "très"), ("on se voit ", "apres", "après"),
 ]
+let memoryOK = KeyboardCanvas.simulateFoldCycles()
+let visibilityOK = KeyboardCanvas.verifyVisibility()
+let sheetOK = KeyboardCanvas.verifyBarSheet()
+let laptopOK = KeyboardCanvas.verifyLaptopLayout()
+let touchOK = KeyboardCanvas.verifyTouchSafety()
+let shedOK = KeyboardCanvas.verifyMemoryShed()
+let hostOK = KeyboardCanvas.verifyHostHeight()
+/// La dictée écrite là où est le curseur : (texte avant, entendu, langue, attendu).
+let dictCases: [(String, String, String, String)] = [
+    ("", "bonjour tout le monde", "fr", "Bonjour tout le monde"),
+    ("Je pense que", "Il fait beau.", "fr", " il fait beau."),
+    ("Je pense que ", "Il fait beau.", "fr", "il fait beau."),
+    ("Salut. ", "comment ça va ?", "fr", "Comment ça va ?"),
+    ("Hier j’ai vu ", "Marie au marché.", "fr", "Marie au marché."),
+    ("Bonjour", "À la ligne comment vas-tu ?", "fr", "\nComment vas-tu ?"),
+    ("", "Bonjour Paul. À la ligne. Merci pour hier, nouveau paragraphe à bientôt", "fr", "Bonjour Paul.\nMerci pour hier\n\nÀ bientôt"),
+    ("On se voit ", "L’autre jour.", "fr", "l’autre jour."),
+    ("I think ", "The weather is nice.", "en", "the weather is nice."),
+    ("I think", "I will come.", "en", " I will come."),
+    ("See you ", "NASA said so", "en", "NASA said so"),
+    ("Hello.", "how are you? New line. Fine", "en", " How are you?\nFine"),
+    ("Dear John", "New paragraph thank you", "en", "\n\nThank you"),
+    ("Ich glaube ", "Der Hund schläft.", "de", "der Hund schläft."),
+    ("Ich sehe ", "Hunde im Park.", "de", "Hunde im Park."),
+    ("(", "Voilà", "fr", "voilà"),
+    ("Merci", ", à demain", "fr", ", à demain"),
+]
+var dictOK = true
+for (before, heard, lang, want) in dictCases {
+    let got = KBDictationText.prepare(heard, before: before, lang: lang)
+    if got != want { dictOK = false; print("dictée ratée: «\(before)» + «\(heard)» → «\(got)» (voulu «\(want)»)") }
+}
+print("RESULT dictee mise_en_forme \(dictOK ? "yes" : "no") (sur \(dictCases.count))")
+/// Le sens de la traduction d'une dictée : de la langue parlée vers l'autre, même pour une phrase courte.
+let dirCases: [(String, String, [String], String)] = [
+    ("Salut ça va", "fr", ["fr", "en"], "fr>en"), ("Ciao", "fr", ["fr", "en"], "fr>en"), ("Ok", "en", ["fr", "en"], "en>fr"),
+    ("Hello, how are you doing today my friend?", "fr", ["fr", "en"], "en>fr"),
+    ("Bonjour, comment allez-vous aujourd’hui mon ami ?", "en", ["fr", "en"], "fr>en"),
+    ("Guten Morgen zusammen, wie geht es euch heute?", "de", ["fr", "en"], "de>fr"),
+]
+for (text, spoken, pair, want) in dirCases {
+    let d = KBTranslate.direction(for: text, spoken: spoken, pair: pair).map { $0.from + ">" + $0.to } ?? "-"
+    if d != want { dictOK = false; print("sens raté: «\(text)» parlé \(spoken) → \(d) (voulu \(want))") }
+}
+print("RESULT dictee sens_traduction \(dictOK ? "yes" : "no") (sur \(dirCases.count))")
+if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !hostOK || !dictOK {
+    fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
+    exit(1)
+}
+
 for (tag, cfg) in configs {
     KBSuggest.tune = cfg
     realCases(fr, realFR, tag: tag)

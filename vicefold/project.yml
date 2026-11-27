@@ -41,7 +41,11 @@ targets:
         CFBundleDevelopmentRegion: en
         CFBundleLocalizations: [en, fr, es, de, it, pt-BR]
         CFBundleAllowMixedLocalizations: true
-        UILaunchScreen: {}
+        # Toujours sombre : le néon et la carte holographique sont pensés pour la nuit. L'écran de lancement a la
+        # couleur du fond de l'animation d'ouverture (pas d'éclair blanc au démarrage).
+        UIUserInterfaceStyle: Dark
+        UILaunchScreen:
+          UIColorName: LaunchBackground
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         ITSAppUsesNonExemptEncryption: false

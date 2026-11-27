@@ -341,10 +341,11 @@ struct PositionView: View {
                         ForEach(KBMode.allCases) { mode in Text(modeTitle(mode)).tag(KBMode?.some(mode)) }
                     }
                 }
+                Toggle("Layout switcher only when the Duo is open", isOn: $m.settings.layoutSwitchOpenOnly)
             } header: {
                 Text("For each screen")
             } footer: {
-                Text("Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only.")
+                Text("Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on.")
             }
 
             if m.settings.mode == .auto {
@@ -406,8 +407,16 @@ struct PositionView: View {
             }
 
             Section {
-                Toggle("Position and settings buttons", isOn: $m.settings.barButtons)
+                Toggle("Position button", isOn: $m.settings.showHandButton)
+                Toggle("Settings button", isOn: $m.settings.showSettingsButton)
+                Toggle("Mic button", isOn: $m.settings.showMicButton)
+                Toggle("Clipboard button", isOn: $m.settings.showClipboardButton)
                 Toggle("Hide keyboard button", isOn: $m.settings.hideKeyButton)
+                Toggle("Switch side", isOn: $m.settings.showSwapButton)
+                Toggle("Keyboard in the middle", isOn: $m.settings.showCenterButton)
+                Toggle("Layout menu", isOn: $m.settings.showLayoutMenu)
+                Toggle("Layout switcher", isOn: $m.settings.showLayoutSwitch)
+                Toggle("More", isOn: $m.settings.showMoreButton)
                 Toggle("✨ Fix button", isOn: $m.settings.wandButton)
                 Picker("Buttons", selection: $m.settings.barLayout) {
                     Text("On the right").tag("right")
@@ -419,7 +428,7 @@ struct PositionView: View {
             } header: {
                 Text("Top bar")
             } footer: {
-                Text("Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off.")
+                Text("Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off.")
             }
         }
         .navigationTitle("Position and size")

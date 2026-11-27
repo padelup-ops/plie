@@ -1,2 +1,3 @@
 "CFBundleDisplayName" = "Allô Père Noël";
-"NSPhotoLibraryAddUsageDescription" = "Pour enregistrer la carte souvenir dans tes photos.";
+"NSPhotoLibraryAddUsageDescription" = "Pour enregistrer la carte souvenir et les photos de la réaction de ton enfant dans tes photos.";
+"NSCameraUsageDescription" = "Affiche ton enfant dans un coin de l'appel du Père Noël, comme en appel vidéo. Rien n'est enregistré, sauf si tu demandes des photos de sa réaction.";

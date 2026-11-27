@@ -40,6 +40,65 @@ enum KBTranslate {
         return (src, pair[0])
     }
 
+    /// Le sens de la traduction pour une dictée : de la langue parlée vers l'autre langue de la paire.
+    /// La langue reconnue dans le texte ne compte que si c'est une des deux de la paire (Parakeet écrit dans la
+    /// langue qu'on parle) ; sinon c'est la langue de la dictée. Avant, une phrase courte prise pour une troisième
+    /// langue (« Salut ça va » lu comme de l'italien) partait vers la première langue de la paire : rien n'était
+    /// traduit.
+    static func direction(for text: String, spoken: String, pair: [String]) -> (from: String, to: String)? {
+        guard pair.count == 2, pair[0] != pair[1] else { return nil }
+        let words = text.split(whereSeparator: { $0 == " " }).count
+        if words >= 3, let d = detect(text), pair.contains(d) { return (d, d == pair[0] ? pair[1] : pair[0]) }
+        if pair.contains(spoken) { return (spoken, spoken == pair[0] ? pair[1] : pair[0]) }
+        let src = detect(text) ?? spoken
+        return src == pair[0] ? nil : (src, pair[0])
+    }
+
+    // MARK: Pendant qu'on parle
+
+    /// La session de traduction gardée le temps d'une dictée (une par sens), et les sens qui ne peuvent pas se
+    /// traduire tout de suite (langues pas encore sur l'iPhone).
+    private static var liveKey = ""
+    private static var liveSession: AnyObject?
+    private static var liveMissing = Set<String>()
+
+    /// La traduction au fil de la parole : seulement avec les langues déjà sur l'iPhone (quelques dizaines de ms),
+    /// sinon nil — le texte entendu reste affiché tel quel et la traduction se fait à la fin, comme avant.
+    @MainActor
+    static func quick(_ text: String, from: String, to: String) async -> String? {
+        let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty, from != to else { return nil }
+        #if canImport(Translation)
+        if #available(iOS 26.0, *) {
+            let key = from + ">" + to
+            if liveMissing.contains(key) { return nil }
+            var session = liveKey == key ? liveSession as? TranslationSession : nil
+            if session == nil {
+                let src = Locale.Language(identifier: from), dst = Locale.Language(identifier: to)
+                guard await LanguageAvailability().status(from: src, to: dst) == .installed else {
+                    liveMissing.insert(key)
+                    return nil
+                }
+                let made = TranslationSession(installedSource: src, target: dst)
+                liveKey = key
+                liveSession = made
+                session = made
+            }
+            guard let session, let r = try? await session.translate(t) else { return nil }
+            return r.targetText
+        }
+        #endif
+        return nil
+    }
+
+    /// La dictée est finie : on rend la session (et on reverra si les langues ont été téléchargées entre-temps).
+    @MainActor
+    static func endLive() {
+        liveKey = ""
+        liveSession = nil
+        liveMissing.removeAll()
+    }
+
     enum Failure: Error { case notInstalled(String, String), unavailable }
 
     /// Le texte traduit. `notInstalled` : les langues ne sont pas encore sur l'iPhone (à télécharger dans l'app).

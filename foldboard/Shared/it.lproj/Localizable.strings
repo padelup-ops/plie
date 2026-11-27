@@ -54,6 +54,8 @@
 "Layout" = "Layout";
 "Position" = "Posizione";
 "Follows your hand" = "Segue la tua mano";
+"Layout switcher only when the Duo is open" = "Il selettore di layout solo con il Duo aperto";
+"Choose how the keyboard sits on each screen of your Duo. Picking a position from the keyboard's position button also sets it for that screen only. The three buttons on the keyboard (follows your hand, full width, split) stay hidden while the Duo is folded when this is on." = "Scegli come sta la tastiera su ogni schermo del Duo. Una scelta dal pulsante di posizione vale solo per quello schermo. I tre pulsanti (segue la mano, larghezza intera, divisa) restano nascosti a Duo chiuso se l'opzione è attiva.";
 "One hand, left" = "Una mano, sinistra";
 "One hand, right" = "Una mano, destra";
 "Full width" = "Larghezza piena";
@@ -112,6 +114,14 @@
 "Double space adds a period" = "Doppio spazio aggiunge un punto";
 "Hold a letter for its accents (é, è, à, ç…). Hold delete to erase word by word." = "Tieni premuta una lettera per i suoi accenti (é, è, à, ç…). Tieni premuto cancella per cancellare parola per parola.";
 "Switch side" = "Cambia lato";
+"Settings button" = "Pulsante impostazioni";
+"Mic button" = "Pulsante del microfono";
+"Clipboard button" = "Pulsante degli appunti";
+"Position button" = "Pulsante di posizione";
+"Layout menu" = "Menu del layout";
+"Layout switcher" = "Selettore di layout";
+"Toolbar buttons" = "Pulsanti della barra";
+"Turn off for a cleaner bar with more room for suggestions. To move or resize the keyboard, turn them back on or use this screen. If the … button is hidden, its menu comes back from here. Learning messages are the short notes shown when Foldboard learns your grip: it keeps learning when they're off." = "Disattivali per una barra più pulita e più spazio per i suggerimenti. Per spostare o ridimensionare la tastiera, riattivali o usa questa schermata. Se il pulsante … è nascosto, il suo menu si ritrova qui. I messaggi di apprendimento sono note brevi quando Foldboard impara la presa: continua a imparare anche se sono spenti.";
 "Keyboard in the middle" = "Tastiera al centro";
 "The keyboard buttons" = "I pulsanti della tastiera";
 "The bar above the keys, from left to right." = "La barra sopra i tasti, da sinistra a destra.";
@@ -632,3 +642,5 @@
 "Delete %lld" = "Elimina %lld";
 "Delete all your words?" = "Eliminare tutte le tue parole?";
 "Remind me when I just tap the mic" = "Avvisami quando tocco solo il microfono";
+
+"Open Foldboard settings" = "Apri le impostazioni di Foldboard";

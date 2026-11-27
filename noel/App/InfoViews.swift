@@ -41,8 +41,6 @@ struct DiscoverView: View {
                     .disabled(model.call.previewing)
                     .padding(.top, 22)
 
-                    VoiceTip().padding(.top, 14)
-
                     Button {
                         model.sheet = nil
                         model.go(.setup)
@@ -71,24 +69,12 @@ struct DiscoverView: View {
     }
 }
 
-/// Le conseil pour une voix plus chaleureuse (les voix « améliorées » d'iOS, gratuites).
-struct VoiceTip: View {
-    var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "lightbulb.fill").foregroundStyle(Noel.goldLight)
-            Text("For an even warmer voice, download an enhanced voice in Settings › Accessibility › Spoken Content › Voices.")
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .font(.ui(13))
-        .foregroundStyle(Noel.cream.opacity(0.65))
-    }
-}
-
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @Environment(MagicStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @State private var confirmForget = false
+    @State private var messageGate = false
     @State private var music = ChristmasMusic.shared
 
     var body: some View {
@@ -100,7 +86,6 @@ struct SettingsView: View {
                         Label(model.call.previewing ? "Santa is talking…" : "Hear Santa's voice", systemImage: "speaker.wave.2.fill")
                     }
                     .disabled(model.call.previewing)
-                    VoiceTip()
                 } header: { Text("Santa's voice") }
 
                 Section {
@@ -110,13 +95,19 @@ struct SettingsView: View {
 
                 Section {
                     if store.owned {
-                        Label("Full magic unlocked. Thank you! ✨", systemImage: "checkmark.seal.fill").foregroundStyle(Noel.goldLight)
+                        Label("Pass unlocked. Thank you! ✨", systemImage: "checkmark.seal.fill").foregroundStyle(Noel.goldLight)
                     } else {
-                        Button { model.sheet = .paywall } label: { Label("Unlock the full magic", systemImage: "sparkles") }
-                        Button { Task { await store.restore() } } label: { Label("Restore purchases", systemImage: "arrow.clockwise") }
+                        Button { model.sheet = .paywall } label: { Label("Unlock the Christmas Pass", systemImage: "sparkles") }
                     }
+                    Button { messageGate = true } label: {
+                        Label {
+                            if store.messagesLoaded { Text("3 extra messages for \(store.messagesPrice)") } else { Text("3 extra messages") }
+                        } icon: { Image(systemName: "bubble.left.and.bubble.right.fill") }
+                    }
+                    Text("Messages left: \(store.credits)")
+                    Button { Task { await store.restore() } } label: { Label("Restore purchases", systemImage: "arrow.clockwise") }
                     if let m = store.message { Text(m).font(.footnote).foregroundStyle(.secondary) }
-                } header: { Text("Full magic") }
+                } header: { Text("Christmas Pass") }
 
                 Section {
                     NavigationLink { DiscoverView() } label: { Label("How the magic works", systemImage: "wand.and.stars") }
@@ -133,6 +124,14 @@ struct SettingsView: View {
             .navigationTitle(Text("Settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .sheet(isPresented: $messageGate) {
+                ParentalGate {
+                    messageGate = false
+                    Task { await store.buyMessages() }
+                }
+                .presentationDetents([.medium])
+                .preferredColorScheme(.dark)
+            }
             .confirmationDialog(Text("Forget the first names, age, qualities, moment and wish saved on this iPhone?"),
                                 isPresented: $confirmForget, titleVisibility: .visible) {
                 Button("Forget", role: .destructive) {
@@ -152,12 +151,14 @@ struct PrivacyView: View {
                     .font(.tale(30))
                     .foregroundStyle(Noel.cream)
                 block("iphone", "Everything stays on this iPhone", "The first names, age, qualities, special moment and wish you enter are only used to build Santa's call. They are saved on this iPhone and never sent anywhere.")
-                block("mic.slash.fill", "No microphone, no recording", "Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone or the camera.")
-                block("person.crop.circle.badge.xmark", "No account, no tracking, no ads", "There is no sign-up, no advertising and no analytics. Santa's voice is made by your iPhone, without the internet.")
+                block("mic.slash.fill", "No microphone, no recording", "Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone.")
+                block("camera.fill", "The camera, only if you turn it on", "You can show your child in a corner of the call, like a video call. The picture only appears on the screen: nothing is recorded or sent. With the Christmas Pass, you can ask for a few photos of their reaction: they stay on this iPhone unless you save or share them.")
+                block("person.crop.circle.badge.xmark", "No account, no tracking, no ads", "There is no sign-up, no advertising and no analytics. Santa's voice is inside the app: it works without the internet.")
                 block("lock.fill", "Purchases", "The full magic is bought through the App Store, protected by a question for grown-ups. We never see your payment details.")
                 block("trash.fill", "You're in control", "You can erase the children's details at any time in Settings, or by deleting the app.")
-                Link("Full privacy policy", destination: URL(string: "https://foldly.netlify.app/allonoel/privacy")!)
+                GatedLink(title: "Full privacy policy", url: NoelLinks.privacy)
                     .font(.ui(15, .semibold))
+                    .foregroundStyle(Noel.goldLight)
             }
             .padding(24)
         }

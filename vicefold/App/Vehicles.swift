@@ -110,74 +110,83 @@ final class VehicleStore {
 }
 
 struct VehiclesView: View {
+    /// Une recherche déjà remplie (quand on arrive de la recherche générale).
+    var initialQuery = ""
     @State private var store = VehicleStore.shared
     @State private var query = ""
     @State private var kind: VehicleKind?
 
+    /// Une catégorie inconnue de cette version de l'app (la liste se met à jour toute seule) se range dans « Autres ».
+    private func kindOf(_ v: VFVehicle) -> VehicleKind { VehicleKind(rawValue: v.kind) ?? .other }
+
     private var filtered: [VFVehicle] {
         store.list.vehicles.filter { v in
-            (kind == nil || v.kind == kind!.rawValue) &&
+            (kind == nil || kindOf(v) == kind) &&
             (query.isEmpty || v.name.localizedCaseInsensitiveContains(query) || (v.maker ?? "").localizedCaseInsensitiveContains(query))
         }
     }
 
     var body: some View {
         let list = filtered
-        let kinds = VehicleKind.allCases.filter { k in list.contains { $0.kind == k.rawValue } }
-        let present = Set(store.list.vehicles.map(\.kind))
+        let byKind = Dictionary(grouping: list, by: kindOf)
+        let counts = Dictionary(grouping: store.list.vehicles, by: kindOf).mapValues(\.count)
         List {
-            Section {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        chip(nil, title: "All", count: store.list.vehicles.count)
-                        ForEach(VehicleKind.allCases.filter { present.contains($0.rawValue) }) { k in
-                            chip(k, title: k.title, count: store.list.vehicles.filter { $0.kind == k.rawValue }.count)
+            Group {
+                if !store.list.vehicles.isEmpty {
+                    Section {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                chip(nil, title: "All", count: store.list.vehicles.count)
+                                ForEach(VehicleKind.allCases.filter { counts[$0] != nil }) { k in
+                                    chip(k, title: k.title, count: counts[k] ?? 0)
+                                }
+                            }
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 8)
                         }
+                        .scrollClipDisabled()
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 4)
                 }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-            }
-            ForEach(kinds) { k in
+                ForEach(VehicleKind.allCases.filter { byKind[$0] != nil }) { k in
+                    Section {
+                        ForEach(byKind[k] ?? []) { v in row(v) }
+                    } header: {
+                        Label(k.title, systemImage: k.icon)
+                    }
+                }
+                if store.list.vehicles.isEmpty {
+                    Section { VFEmptyState(icon: "car.side", title: "No vehicles yet", message: "They arrive with a content update, no app update needed.").listRowBackground(Color.clear) }
+                } else if list.isEmpty {
+                    Section { ContentUnavailableView.search(text: query).listRowBackground(Color.clear) }
+                }
                 Section {
-                    ForEach(list.filter { $0.kind == k.rawValue }) { v in row(v) }
-                } header: {
-                    Label(k.title, systemImage: k.icon)
+                    Text("Prices appear here as soon as they're known. Vehicle list: gta6-data (MIT license), from gta6intel.com. Updated \(store.list.updated).")
+                        .font(.footnote)
+                        .foregroundStyle(VF.textDim)
                 }
             }
-            if store.list.vehicles.isEmpty {
-                ContentUnavailableView("No vehicles yet", systemImage: "car", description: Text("They arrive with a content update, no app update needed."))
-            } else if list.isEmpty {
-                ContentUnavailableView.search(text: query)
-            }
-            Section {
-                Text("Prices appear here as soon as they're known. Vehicle list: gta6-data (MIT license), from gta6intel.com. Updated \(store.list.updated).")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
+            .vfRows()
         }
         .searchable(text: $query)
         .navigationTitle("Vehicles")
-        .scrollContentBackground(.hidden)
-        .background(VFBackdrop())
+        .vfScreen()
+        .onAppear { if query.isEmpty { query = initialQuery } }
         .task { await store.refresh() }
     }
 
     private func chip(_ k: VehicleKind?, title: LocalizedStringKey, count: Int) -> some View {
         let on = kind == k
         return Button {
-            withAnimation(.snappy) { kind = k }
+            withAnimation(VFMotion.snap) { kind = k }
         } label: {
             HStack(spacing: 5) {
                 if let k { Image(systemName: k.icon).font(.caption) }
-                Text(title).font(.subheadline.weight(.semibold))
-                Text("\(count)").font(.caption.monospacedDigit()).opacity(0.7)
+                Text(title)
+                Text(verbatim: "\(count)").font(VF.mono(10)).opacity(0.75)
             }
-            .padding(.horizontal, 12).padding(.vertical, 7)
-            .foregroundStyle(on ? .white : .primary)
-            .background(Capsule().fill(on ? AnyShapeStyle(VF.flamingo) : AnyShapeStyle(Color.primary.opacity(0.08))))
+            .vfChip(selected: on, color: VF.palm)
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(on ? .isSelected : [])
@@ -186,16 +195,17 @@ struct VehiclesView: View {
     private func row(_ v: VFVehicle) -> some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(v.name).font(.headline)
-                if let m = v.maker { Text(m).font(.subheadline).foregroundStyle(.secondary) }
+                Text(v.name).font(.headline).foregroundStyle(VF.text)
+                if let m = v.maker { Text(m).font(.subheadline).foregroundStyle(VF.textDim) }
             }
             Spacer()
             if let p = v.price {
                 Text(p, format: .currency(code: "USD").precision(.fractionLength(0)))
-                    .font(.callout.monospacedDigit().weight(.semibold))
+                    .font(VF.mono(13, weight: .bold))
                     .foregroundStyle(VF.palm)
+                    .shadow(color: VF.palm.opacity(0.5), radius: 4)
             } else {
-                Text("Price not known yet").font(.caption).foregroundStyle(.secondary)
+                Text("Price not known yet").font(.caption).foregroundStyle(VF.textFaint)
             }
         }
         .accessibilityElement(children: .combine)

@@ -27,7 +27,7 @@ struct AlloPereNoelApp: App {
 enum Screen: Equatable { case splash, home, setup, scenario, waiting, incoming, call, ended, declined }
 
 enum Sheet: String, Identifiable {
-    case paywall, discover, settings, privacy, memory
+    case paywall, discover, settings, privacy, memory, advent, letter
     var id: String { rawValue }
 }
 
@@ -41,6 +41,13 @@ final class AppModel {
     var ringAt: Date?
     var subtitles: Bool = UserDefaults.standard.object(forKey: "allonoel.subtitles") as? Bool ?? true {
         didSet { UserDefaults.standard.set(subtitles, forKey: "allonoel.subtitles") }
+    }
+    /// Le parent a demandé à voir son enfant dans un coin de l'appel (caméra avant), et à garder sa réaction en photos.
+    var showChild: Bool = UserDefaults.standard.bool(forKey: "allonoel.camera") {
+        didSet { UserDefaults.standard.set(showChild, forKey: "allonoel.camera") }
+    }
+    var keepReactions: Bool = UserDefaults.standard.bool(forKey: "allonoel.reactions") {
+        didSet { UserDefaults.standard.set(keepReactions, forKey: "allonoel.reactions") }
     }
     let call = CallController()
 
@@ -56,6 +63,7 @@ final class AppModel {
     func startCall(premium: Bool) {
         profile.save()
         call.prepare(profile: profile, scenario: scenario, premium: premium)
+        call.camera(show: showChild, keep: keepReactions && premium)
         if delay == .now {
             ring()
         } else {
@@ -87,11 +95,13 @@ final class AppModel {
 
     func replay(premium: Bool) {
         call.prepare(profile: profile, scenario: scenario, premium: premium)
+        call.camera(show: showChild, keep: keepReactions && premium)
         ring()
     }
 
     func home() {
         call.hangUp()
+        call.forgetReactions()
         ringAt = nil
         go(.home)
     }
@@ -105,14 +115,17 @@ final class AppModel {
         case "scenario": screen = .scenario
         case "incoming": screen = .incoming
         case "call", "surprise":
-            call.prepare(profile: profile, scenario: .magic, premium: false, audio: false)
-            let lines = call.script.compactMap(\.text)
-            if route == "call" {
-                let line = lines.first(where: { $0.contains(profile.cleanNames.first ?? "§") && $0.count > 60 }) ?? lines.dropFirst(3).first ?? ""
-                call.pose(caption: line, mood: .talking)
+            call.prepare(profile: profile, scenario: .magic, premium: true, audio: false)
+            let script = call.script
+            let lines = script.compactMap(\.text)
+            if route != "surprise" {
+                // Le Père Noël dit le prénom : c'est la première phrase.
+                call.pose(caption: lines.first ?? "", mood: .talking, mouth: 0.75)
             } else {
-                let i = lines.count >= 3 ? lines.count - 2 : 0
-                call.pose(caption: lines.isEmpty ? "" : lines[i], mood: .surprised, surprise: true)
+                // La phrase qui annonce l'étoile, juste avant la surprise.
+                let spark = script.firstIndex { if case .spark = $0 { return true }; return false } ?? 0
+                let before = script[..<spark].last { $0.text != nil }?.text
+                call.pose(caption: before ?? lines.last ?? "", mood: .surprised, surprise: true, mouth: 0.4)
             }
             screen = .call
         case "end": screen = .ended
@@ -152,6 +165,8 @@ struct RootView: View {
                 case .settings: SettingsView()
                 case .privacy: NavigationStack { PrivacyView() }
                 case .memory: MemoryCardView()
+                case .advent: AdventView()
+                case .letter: LetterView()
                 }
             }
             .environment(model)

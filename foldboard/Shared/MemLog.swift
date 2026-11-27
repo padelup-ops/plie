@@ -15,6 +15,8 @@ enum KBMemLog {
     static func begin(mb: Double, context: String, mode: String) {
         start = mb
         peak = mb
+        lowRoom = 0
+        marks = ""
         let f = DateFormatter()
         f.dateFormat = "dd/MM HH:mm"
         current = "\(f.string(from: Date())) \(context) \(mode)"
@@ -23,22 +25,43 @@ enum KBMemLog {
 
     /// Une mesure : la ligne en cours garde le plus haut (écrite au plus toutes les 2 secondes, et tout de suite
     /// quand la mémoire monte beaucoup : c'est peut-être la dernière avant qu'iOS ferme le clavier).
-    static func note(mb: Double, emoji: Bool, alive: Int = 1) {
+    static func note(mb: Double, emoji: Bool, alive: Int = 1, views: Int = 0) {
         guard current != nil else { return }
-        let jump = mb > peak + 3 || alive != keyboards
+        let jump = mb > peak + 3 || alive != keyboards || views != viewCount
         peak = max(peak, mb)
         keyboards = alive
+        viewCount = views
         write(emoji: emoji, force: jump)
+    }
+
+    /// Des repères dans la ligne en cours (« globe », « parti »), avec la mémoire et la marge du moment : si iOS
+    /// ferme le clavier juste après, la ligne dit où il en était. Écrit tout de suite.
+    private static var marks = ""
+    static func mark(_ what: String, mb: Double, room: Double) {
+        guard current != nil else { return }
+        if marks.count < 160 { marks += String(format: " [%@ %.0f/%.0f]", what, mb, room) }
+        peak = max(peak, mb)
+        write(emoji: false, force: true)
+    }
+
+    /// La marge la plus basse qu'iOS a laissée pendant cette apparition (0 : inconnue).
+    private static var lowRoom = 0.0
+    static func room(_ mb: Double) {
+        guard mb > 0 else { return }
+        lowRoom = lowRoom > 0 ? min(lowRoom, mb) : mb
     }
 
     /// Combien de claviers vivent en même temps (plus d'un longtemps : un clavier jeté par iOS mais pas libéré).
     private static var keyboards = 1
+    /// Touches et boutons encore en vie. Un pli ne doit pas faire monter ce nombre.
+    private static var viewCount = 0
 
     private static func write(emoji: Bool, force: Bool) {
         let now = ProcessInfo.processInfo.systemUptime
         guard force || now - lastWrite > 2, let c = current else { return }
         lastWrite = now
-        let line = c + String(format: " %.0f→%.0f Mo", start, peak) + (keyboards > 1 ? " ×\(keyboards)" : "") + (emoji ? " emoji" : "")
+        let line = c + String(format: " %.0f→%.0f Mo ×%d v%d", start, peak, keyboards, viewCount) + (emoji ? " emoji" : "")
+            + (lowRoom > 0 ? String(format: " marge %.0f", lowRoom) : "") + marks
         var list = UserDefaults.standard.stringArray(forKey: key) ?? []
         if let last = list.last, last.hasPrefix(c) { list[list.count - 1] = line } else { list.append(line) }
         if list.count > 10 { list.removeFirst(list.count - 10) }
