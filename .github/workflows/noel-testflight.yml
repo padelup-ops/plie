@@ -111,6 +111,19 @@ jobs:
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" TARGETED_DEVICE_FAMILY=1 ${VERSION:+MARKETING_VERSION=$VERSION} 2>&1 | tee ../archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
           grep -q "ARCHIVE SUCCEEDED" ../archive.log
+          # Ce que l'app archivée contient vraiment : la voix enregistrée de chaque langue, et la version.
+          APP="$RUNNER_TEMP/AlloPereNoel.xcarchive/Products/Applications/AlloPereNoel.app"
+          {
+            for L in fr en es de it pt; do
+              N=$(find "$APP/voice/$L" -name "*.m4a" 2>/dev/null | wc -l | tr -d ' ')
+              C=non; [ -f "$APP/voice/$L/complet.txt" ] && C=oui
+              echo "$L : $N phrases, langue complète : $C"
+            done
+            echo "version $(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist") build $(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")"
+            echo "appareils : $(/usr/libexec/PlistBuddy -c 'Print :UIDeviceFamily' "$APP/Info.plist" | tr -d '\n')"
+            echo "caméra : $(/usr/libexec/PlistBuddy -c 'Print :NSCameraUsageDescription' "$APP/Info.plist" 2>/dev/null | cut -c1-40)"
+            echo "taille de l'app : $(du -sh "$APP" | cut -f1)"
+          } | tee ../contenu.txt
 
       - name: Signer pour l'App Store (sans envoyer)
         run: |
@@ -179,7 +192,7 @@ jobs:
           git init -q -b ci-noel-logs
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
-          for f in fiche.txt; do [ -f "$GITHUB_WORKSPACE/$f" ] && cp "$GITHUB_WORKSPACE/$f" .; done
+          for f in fiche.txt contenu.txt; do [ -f "$GITHUB_WORKSPACE/$f" ] && cp "$GITHUB_WORKSPACE/$f" .; done
           for f in build.log archive.log export-local.log export.log; do
             if [ -f "$GITHUB_WORKSPACE/$f" ]; then
               grep -n -B2 -A6 -E "error:" "$GITHUB_WORKSPACE/$f" | head -1500 > "erreurs-${f%.log}.txt" || true
