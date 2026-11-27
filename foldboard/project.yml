@@ -1,6 +1,7 @@
 # FOLDBOARD : le clavier pour l'iPhone Duo. Une app (installation, réglages, essai) et une extension clavier.
 # Projet généré par XcodeGen : `xcodegen generate` dans ce dossier.
 # Réglages et accès Pro : trousseau partagé, et groupe d'app group.com.padelup.foldboard (lu à chaque apparition du clavier).
+# Le groupe d'app a été créé à la main dans le portail développeur (27/11) : la signature automatique ne sait pas le créer.
 name: Foldboard
 options:
   bundleIdPrefix: com.padelup

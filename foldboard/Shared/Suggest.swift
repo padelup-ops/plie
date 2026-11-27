@@ -128,7 +128,8 @@ struct FirstRank {
     /// Même suite d'octets pour deux écritures du même mot (é en un ou deux caractères Unicode).
     private static func key(_ w: String) -> String {
         let k = w.lowercased()
-        return k.utf8.allSatisfy { $0 < 0x80 } ? k : k.precomposedStringWithCanonicalMapping
+        // Seulement s'il y a un accent écrit à part (rare : le clavier écrit « é » en un seul caractère).
+        return k.unicodeScalars.contains { $0.value >= 0x300 && $0.value <= 0x36F } ? k.precomposedStringWithCanonicalMapping : k
     }
 
     init(_ list: [String]) {
@@ -295,7 +296,7 @@ final class KBSuggest {
         if let url = Bundle.main.url(forResource: "words-" + code, withExtension: "txt"),
            let text = try? String(contentsOf: url, encoding: .utf8) {
             d.words = text.split(separator: "\n").map(String.init)
-            d.folded = d.words.map { $0.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil) }
+            d.folded = d.words.map(Self.foldedNative)
             d.rank = FirstRank(d.words)
             for (i, w) in d.words.enumerated() {
                 let f = d.folded[i]
@@ -313,6 +314,23 @@ final class KBSuggest {
         // Une seule langue en mémoire (comme le modèle de langue).
         listCache = [code: d]
         return d
+    }
+
+    /// Le mot sans accents ni majuscules, en chaîne Swift native. Un mot déjà simple (la plupart) est rendu tel quel,
+    /// sans passer par Foundation ; les autres ne restent pas des chaînes « pontées » : 20 000 mots accentués
+    /// gardaient chacun un objet à part (plus de 2 Mo) et ralentissaient chaque comparaison.
+    private static func foldedNative(_ w: String) -> String {
+        if w.utf8.allSatisfy({ $0 < 0x80 && !($0 >= 65 && $0 <= 90) }) { return w }
+        var f = w.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
+        f.makeContiguousUTF8()
+        return f
+    }
+
+    /// La lettre sans son accent (les lettres simples ne passent pas par Foundation : c'est appelé des milliers de
+    /// fois par correction).
+    private static func baseChar(_ c: Character) -> Character {
+        if c.isASCII { return c }
+        return Character(String(c).folding(options: .diacriticInsensitive, locale: nil))
     }
 
     private func loadList(_ code: String) {
@@ -1082,12 +1100,13 @@ final class KBSuggest {
         "cunts", "bitch", "bitches", "dick", "dicks", "cock", "cocks", "pussy", "whore", "whores", "slut", "sluts", "asshole", "assholes",
         "bastard", "wank", "wanker", "twat", "nigger", "nigga", "faggot", "fag", "retard", "porn", "tits", "boobs", "cum", "anal", "rape",
         "pute", "putes", "putain", "salope", "salopes", "connard", "connards", "connasse", "enculé", "encule", "enculer", "bite", "bites",
-        "couille", "couilles", "chatte", "nique", "niquer", "merde", "merdes", "pd", "pédé", "bordel", "cul", "chier", "salaud", "branleur"]
+        "couille", "couilles", "chatte", "nique", "niquer", "pd", "pédé", "salaud", "branleur"]
     static func rude(_ lower: String) -> Bool { tune["rudeOK"] ?? 0 > 0 ? false : rudeWords.contains(lower) }
 
     /// Même lettre, seul l'accent change (« é » et « e ») : pas une faute de frappe.
     static func sameBase(_ a: Character, _ b: Character) -> Bool {
-        String(a).folding(options: .diacriticInsensitive, locale: nil) == String(b).folding(options: .diacriticInsensitive, locale: nil)
+        if a.isASCII && b.isASCII { return a == b }
+        return String(a).folding(options: .diacriticInsensitive, locale: nil) == String(b).folding(options: .diacriticInsensitive, locale: nil)
     }
 
     /// Un infinitif (« aller », « venir », « prendre », « voir ») : « a » derrière est presque toujours « à ».
@@ -1452,8 +1471,7 @@ final class KBSuggest {
 
     /// Deux touches voisines sur le clavier (même rangée, ou rangée d'à côté, décalée d'au plus une touche).
     private func neighbors(_ a: Character, _ b: Character) -> Bool {
-        let fa = Character(String(a).folding(options: .diacriticInsensitive, locale: nil))
-        let fb = Character(String(b).folding(options: .diacriticInsensitive, locale: nil))
+        let fa = Self.baseChar(a), fb = Self.baseChar(b)
         if fa == fb { return true }   // seul l'accent change
         guard let pa = position(fa), let pb = position(fb), abs(pa.0 - pb.0) <= 1 else { return false }
         let xa = (pa.0 < rowInsets.count ? rowInsets[pa.0] : 0) + Double(pa.1)
