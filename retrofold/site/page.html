@@ -1,241 +1,176 @@
 <title>Guide RetroFold Switch</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=VT323&display=swap">
 <style>
-/* Mise en page : une seule colonne calme (mesure 680px). Le téléphone déplié ouvre la page ; sa charnière se
-   prolonge en une ligne verticale qui devient l'épine des 8 étapes. Un seul accent, le jaune signal, réservé aux actions. */
+/* Mise en page : un terminal. Une colonne alignée à gauche, pas de carte arrondie ni de pastille ; la pluie de code
+   ouvre la page, le reste est du texte de console, des filets fins et des crochets. Un seul monde visuel, sombre. */
 :root {
-  --paper: #EDF1F5; --surface: #FFFFFF; --ink: #0E1726; --muted: #566275; --line: #D3DBE5;
-  --signal: #FFC400; --signal-ink: #0E1726; --deep: #12233F; --on-deep: #F2F6FB; --on-deep-muted: #A9B8CC;
-  --ok: #0B7F58; --warn: #A34A12; --soft: #E2E8F0;
-  --f-display: "Bricolage Grotesque", "Arial Narrow", "Helvetica Neue", system-ui, sans-serif;
-  --f-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --measure: 680px;
+  --bg: #020604; --panel: #05100A; --fg: #A9E6B8; --bright: #00FF66; --white: #E8FFEC; --dim: #5C9E72; --line: #134229; --amber: #FFB454;
+  --f-display: "VT323", "Courier New", ui-monospace, monospace;
+  --f-body: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --measure: 720px;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #0A101B; --surface: #121B2B; --ink: #EAF0F7; --muted: #97A5B9; --line: #243248;
-    --signal: #FFCD1F; --signal-ink: #0E1726; --deep: #0F1B33; --on-deep: #F2F6FB; --on-deep-muted: #A9B8CC;
-    --ok: #46D3A0; --warn: #FFA566; --soft: #18233A; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --paper: #0A101B; --surface: #121B2B; --ink: #EAF0F7; --muted: #97A5B9; --line: #243248;
-  --signal: #FFCD1F; --signal-ink: #0E1726; --deep: #0F1B33; --on-deep: #F2F6FB; --on-deep-muted: #A9B8CC;
-  --ok: #46D3A0; --warn: #FFA566; --soft: #18233A; color-scheme: dark;
-}
-* { box-sizing: border-box; }
-body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-.wrap { max-width: 1040px; margin-inline: auto; padding-block: 20px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 72px; }
-h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
-h2 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.08; font-weight: 700; }
+* { box-sizing: border-box; border-radius: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15.5px; line-height: 1.65; }
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px); z-index: 5; }
+.wrap { max-width: 1000px; margin-inline: auto; padding-block: 18px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 76px; }
+h1, h2 { font-family: var(--f-display); font-weight: 400; margin: 0; color: var(--white); text-shadow: 0 0 18px rgba(0, 255, 102, 0.45); text-wrap: balance; }
+h2 { font-size: clamp(2.1rem, 7vw, 3.3rem); line-height: 0.98; }
 p { margin: 0; }
-a { color: inherit; }
-code, .path { font-family: var(--f-mono); font-size: 0.86em; }
-code { background: var(--soft); padding: 0.1em 0.4em; border-radius: 5px; overflow-wrap: anywhere; }
-.path { background: var(--soft); padding: 0.15em 0.5em; border-radius: 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+a { color: var(--bright); }
+strong { color: var(--white); font-weight: 600; }
+code, .path { font-family: var(--f-body); color: var(--bright); overflow-wrap: anywhere; }
+.path::before { content: "["; color: var(--dim); } .path::after { content: "]"; color: var(--dim); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-:focus-visible { outline: 3px solid var(--signal); outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+::selection { background: var(--bright); color: var(--bg); }
 
-.btn { font: 600 1rem/1 var(--f-body); border: 0; border-radius: 999px; padding: 0.95em 1.5em; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5em; justify-content: center; transition: transform 0.15s ease; }
-.btn:hover { transform: translateY(-1px); }
-.btn-signal { background: var(--signal); color: var(--signal-ink); }
-.btn-ghost { background: transparent; color: var(--on-deep); box-shadow: inset 0 0 0 1.5px var(--on-deep-muted); }
-.btn-plain { background: var(--ink); color: var(--paper); }
+.btn { font: 600 0.95rem/1.2 var(--f-body); letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--bright); background: transparent; color: var(--bright); padding: 0.95em 1.3em; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; }
+.btn:hover { background: var(--bright); color: var(--bg); }
+.btn-signal, .btn-plain { background: var(--bright); color: var(--bg); box-shadow: 0 0 22px rgba(0, 255, 102, 0.35); }
+.btn-signal:hover, .btn-plain:hover { background: var(--white); border-color: var(--white); }
+
+.cursor::after { content: "█"; color: var(--bright); animation: blink 1.1s steps(1) infinite; margin-left: 0.08em; }
+@keyframes blink { 50% { opacity: 0; } }
 
 /* En-tête */
-.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.brand { font-family: var(--f-display); font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.5em; }
-.brand i { width: 22px; height: 16px; border-radius: 4px; background: linear-gradient(90deg, var(--ink) 0 47%, var(--signal) 47% 53%, var(--ink) 53% 100%); display: inline-block; }
-.top .tag { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--dim); font-size: 0.85rem; }
+.top b { color: var(--bright); font-weight: 500; }
 
-/* Ouverture */
-.hero { background: var(--deep); color: var(--on-deep); border-radius: 28px; padding: clamp(28px, 6vw, 64px); display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 56px); align-items: center; overflow: hidden; }
-.hero .eyebrow { color: var(--signal); }
-.hero h1 { font-size: clamp(2.3rem, 7.4vw, 4.4rem); line-height: 0.98; font-weight: 800; margin-block: 14px 18px; }
-.hero h1 span { color: var(--signal); }
-.hero .sub { color: var(--on-deep-muted); font-size: 1.1rem; max-width: 34ch; }
-.hero .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 30px 0 0; padding: 0; list-style: none; }
-.facts li { display: flex; align-items: baseline; gap: 0.45em; color: var(--on-deep-muted); font-size: 0.95rem; }
-.facts b { font-family: var(--f-display); font-size: 1.7rem; color: var(--on-deep); font-weight: 700; font-variant-numeric: tabular-nums; }
-.eyebrow { font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
-
-/* Le téléphone déplié */
-.duo { perspective: 1400px; width: 100%; max-width: 480px; justify-self: center; }
-.duo-body { display: grid; grid-template-columns: 1fr 1fr; aspect-ratio: 4 / 3.1; max-width: 100%; transform-style: preserve-3d; filter: drop-shadow(0 28px 34px rgba(0, 0, 0, 0.45)); }
-.half { background: #05080E; padding: 9px; position: relative; transform-style: preserve-3d; }
-.half svg { display: block; width: 100%; height: 100%; backface-visibility: hidden; }
-.half.left { border-radius: 26px 0 0 26px; padding-right: 0; }
-.half.left svg { border-radius: 18px 0 0 18px; }
-.half.right { border-radius: 0 26px 26px 0; padding-left: 0; transform-origin: left center; animation: unfold 1.5s cubic-bezier(0.2, 0.75, 0.2, 1) 0.25s both; }
-.half.right svg { border-radius: 0 18px 18px 0; }
-.half.right::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 14px; background: linear-gradient(90deg, rgba(0, 0, 0, 0.38), transparent); pointer-events: none; }
-@keyframes unfold { from { transform: rotateY(-164deg); } to { transform: rotateY(0deg); } }
-@media (prefers-reduced-motion: reduce) { .half.right { animation: none; } .btn { transition: none; } }
-
-/* Film */
-.film { display: block; width: 100%; max-width: 340px; aspect-ratio: 9 / 16; border-radius: 26px; background: var(--deep); align-self: center; }
+/* Ouverture : la pluie, et la console par-dessus */
+.hero { position: relative; border: 1px solid var(--line); overflow: hidden; }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.console { position: relative; background: rgba(2, 6, 4, 0.84); border-right: 1px solid var(--line); max-width: 640px; padding: clamp(22px, 5vw, 52px); display: flex; flex-direction: column; gap: 18px; }
+.console .who { color: var(--dim); font-size: 0.85rem; }
+.hero h1 { font-size: clamp(3rem, 12.5vw, 6rem); line-height: 0.86; }
+.hero h1 span { color: var(--bright); }
+.sub { max-width: 46ch; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.stat { color: var(--dim); font-size: 0.9rem; margin-top: 6px; }
+.stat b { color: var(--white); font-weight: 500; }
 
 /* Blocs */
-.block { max-width: var(--measure); width: 100%; margin-inline: auto; display: flex; flex-direction: column; gap: 26px; }
+.block { max-width: var(--measure); width: 100%; display: flex; flex-direction: column; gap: 24px; }
 .block-head { display: flex; flex-direction: column; gap: 10px; }
-.lede { color: var(--muted); font-size: 1.06rem; }
+.eyebrow { color: var(--dim); font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.eyebrow::before { content: "// "; }
+.lede { color: var(--fg); }
+.film { display: block; width: 100%; max-width: 320px; aspect-ratio: 9 / 16; background: var(--panel); border: 1px solid var(--line); }
 
-.needs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); }
-.needs li { padding: 18px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
-.needs li:nth-child(odd) { padding-right: 20px; }
-.needs b { font-family: var(--f-display); font-size: 1.12rem; font-weight: 700; }
-.needs span { color: var(--muted); font-size: 0.95rem; }
-
-/* Sommaire verrouillé et étapes : l'épine */
-.spine, .steps { list-style: none; margin: 0; padding: 0; position: relative; display: flex; flex-direction: column; }
-.spine::before, .steps::before { content: ""; position: absolute; left: 21px; top: 12px; bottom: 12px; width: 2px; background: var(--line); }
-.spine li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 11px 0; position: relative; }
-.num { width: 44px; height: 44px; border-radius: 50%; background: var(--surface); box-shadow: inset 0 0 0 2px var(--line); display: grid; place-items: center; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; font-variant-numeric: tabular-nums; position: relative; flex: none; }
-.spine .t { font-weight: 600; }
-.spine .d { display: block; color: var(--muted); font-size: 0.93rem; font-weight: 400; }
-.lock { width: 18px; height: 18px; color: var(--muted); }
-
-.step { position: relative; }
-.step summary { list-style: none; display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 16px; align-items: center; padding: 12px 0; cursor: pointer; }
-.step summary::-webkit-details-marker { display: none; }
-.step summary .num { grid-row: span 2; }
-.step-title { font-family: var(--f-display); font-weight: 700; font-size: 1.22rem; line-height: 1.2; }
-.dur { grid-column: 2; color: var(--muted); font-size: 0.86rem; }
-.step.is-done .num { background: var(--ok); box-shadow: none; color: var(--surface); }
-.step details[open] .num { background: var(--signal); box-shadow: none; color: var(--signal-ink); }
-.step.is-done details[open] .num { background: var(--ok); color: var(--surface); }
-.step-body { margin: 4px 0 18px 60px; background: var(--surface); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
-.step-body ol { margin: 0; padding-left: 1.25em; display: flex; flex-direction: column; gap: 8px; }
-.note { font-size: 0.94rem; color: var(--muted); border-left: 3px solid var(--signal); padding-left: 12px; }
-.done { display: flex; align-items: center; gap: 10px; font-weight: 600; padding-top: 6px; border-top: 1px solid var(--line); margin-top: 4px; cursor: pointer; }
-.done input { width: 22px; height: 22px; accent-color: var(--ok); }
-.mock { align-self: flex-start; background: var(--soft); border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; gap: 18px; font-weight: 600; font-size: 0.95rem; }
-.mock-toggle i { width: 46px; height: 28px; border-radius: 999px; background: var(--ok); position: relative; display: block; }
-.mock-toggle i::after { content: ""; position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--surface); }
-.mock-code { gap: 8px; }
-.mock-code b { width: 34px; height: 44px; border-radius: 9px; background: var(--surface); display: grid; place-items: center; font-family: var(--f-mono); font-size: 1.2rem; }
-.mock-row em { font-style: normal; color: var(--ok); font-size: 0.85rem; }
-
-.progress { display: flex; align-items: center; gap: 14px; }
-.progress-track { flex: 1; height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; }
-.progress-fill { height: 100%; width: 0; background: var(--ok); border-radius: 99px; transition: width 0.3s ease; }
-.progress-label { font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.list li { padding: 14px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 3.2em minmax(0, 1fr); gap: 0 6px; }
+.list li > i { font-style: normal; color: var(--bright); }
+.list b { color: var(--white); font-weight: 600; display: block; }
+.list span { color: var(--dim); font-size: 0.93rem; display: block; }
+.list .locked { grid-column: 2; font-style: normal; color: var(--amber); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.list .locked::before { content: "[ "; } .list .locked::after { content: " ]"; }
 
 /* Déblocage */
-.unlock { background: var(--surface); border-radius: 24px; padding: clamp(22px, 5vw, 36px); display: flex; flex-direction: column; gap: 22px; }
-.price { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.price b { font-family: var(--f-display); font-size: clamp(2.8rem, 9vw, 3.8rem); font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.price span { color: var(--muted); }
-.incl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.incl li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; }
-.incl svg { width: 20px; height: 20px; color: var(--ok); margin-top: 3px; }
-.pay-note { font-size: 0.93rem; color: var(--warn); }
-.code-form { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 20px; }
-.code-form label { font-weight: 600; font-size: 0.95rem; }
+.unlock { border: 1px solid var(--bright); background: var(--panel); padding: clamp(20px, 5vw, 36px); display: flex; flex-direction: column; gap: 22px; box-shadow: 0 0 40px rgba(0, 255, 102, 0.12); }
+.price b { font-family: var(--f-display); font-weight: 400; font-size: clamp(4.2rem, 17vw, 6.4rem); line-height: 0.8; color: var(--bright); text-shadow: 0 0 26px rgba(0, 255, 102, 0.55); display: block; font-variant-numeric: tabular-nums; }
+.price span { color: var(--dim); font-size: 0.93rem; display: block; margin-top: 10px; }
+.incl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.incl li { display: grid; grid-template-columns: 2.4em minmax(0, 1fr); }
+.incl li::before { content: "[+]"; color: var(--bright); }
+.pay-note { margin-top: 12px; font-size: 0.92rem; color: var(--amber); }
+.code-form { display: flex; flex-direction: column; gap: 10px; border-top: 1px dashed var(--line); padding-top: 20px; }
+.code-form label { color: var(--white); }
 .code-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.code-row input { flex: 1; min-width: 0; font: 500 1.05rem var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 0.8em 1em; border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); }
-.code-msg { font-size: 0.93rem; min-height: 1.4em; color: var(--warn); }
-.code-msg.ok { color: var(--ok); }
+.code-row input { flex: 1; min-width: 0; font: 500 1.05rem var(--f-body); letter-spacing: 0.1em; text-transform: uppercase; padding: 0.8em 0.9em; border: 1px solid var(--line); background: var(--bg); color: var(--bright); caret-color: var(--bright); }
+.code-row input::placeholder { color: var(--line); }
+.code-msg { font-size: 0.92rem; min-height: 1.5em; color: var(--amber); }
+.code-msg.ok { color: var(--bright); }
 
-/* À savoir, FAQ */
-.facts-plain { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-.facts-plain li { padding: 16px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr); gap: 6px 20px; }
-.facts-plain b { font-family: var(--f-display); font-weight: 700; }
-.facts-plain span { color: var(--muted); }
+/* Guide débloqué */
+.progress { display: flex; align-items: center; gap: 14px; }
+.progress-track { flex: 1; height: 10px; border: 1px solid var(--line); background: var(--bg); }
+.progress-fill { height: 100%; width: 0; background: var(--bright); transition: width 0.3s steps(8); }
+.progress-label { font-size: 0.88rem; color: var(--dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.step { border-bottom: 1px solid var(--line); }
+.step summary { list-style: none; display: grid; grid-template-columns: 3.2em minmax(0, 1fr); gap: 0 6px; padding: 16px 0; cursor: pointer; }
+.step summary::-webkit-details-marker { display: none; }
+.num { color: var(--bright); grid-row: span 2; font-variant-numeric: tabular-nums; }
+.num::before { content: "0"; }
+.step-title { color: var(--white); font-weight: 600; }
+.step details[open] .step-title { color: var(--bright); }
+.step.is-done .step-title::after { content: "  [OK]"; color: var(--bright); font-weight: 400; white-space: nowrap; }
+.dur { grid-column: 2; color: var(--dim); font-size: 0.85rem; }
+.step-body { margin: 0 0 20px; padding: 18px 0 0 18px; border-left: 1px solid var(--bright); display: flex; flex-direction: column; gap: 14px; }
+.step-body ol { margin: 0; padding-left: 1.6em; display: flex; flex-direction: column; gap: 8px; }
+.step-body ol li::marker { color: var(--dim); }
+.note { color: var(--amber); font-size: 0.92rem; }
+.note::before { content: "! "; }
+.done { display: flex; align-items: center; gap: 10px; color: var(--white); cursor: pointer; padding-top: 4px; }
+.done input { width: 20px; height: 20px; accent-color: var(--bright); }
+.mock { align-self: flex-start; border: 1px dashed var(--line); padding: 10px 14px; display: flex; align-items: center; gap: 18px; color: var(--white); }
+.mock-toggle i { font-style: normal; color: var(--bright); } .mock-toggle i::after { content: "[ ON ]"; }
+.mock-code { gap: 8px; }
+.mock-code b { border: 1px solid var(--bright); width: 2em; height: 2.6em; display: grid; place-items: center; color: var(--bright); font-size: 1.2rem; font-weight: 500; }
+.mock-row em { font-style: normal; color: var(--bright); } .mock-row em::before { content: "[ "; } .mock-row em::after { content: " ]"; }
+
 .faq { border-top: 1px solid var(--line); }
 .faq details { border-bottom: 1px solid var(--line); }
-.faq summary { cursor: pointer; padding: 16px 28px 16px 0; font-weight: 600; list-style: none; position: relative; }
+.faq summary { cursor: pointer; padding: 14px 0; color: var(--white); list-style: none; display: grid; grid-template-columns: 1.8em minmax(0, 1fr); }
 .faq summary::-webkit-details-marker { display: none; }
-.faq summary::after { content: "+"; position: absolute; right: 4px; top: 12px; font-size: 1.4rem; color: var(--muted); font-family: var(--f-display); }
-.faq details[open] summary::after { content: "–"; }
-.faq p { padding: 0 0 18px; color: var(--muted); }
+.faq summary::before { content: "+"; color: var(--bright); }
+.faq details[open] summary::before { content: "-"; }
+.faq p { padding: 0 0 18px 1.8em; }
 
-/* Assistant */
-.chat { background: var(--surface); border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.chat-log { display: flex; flex-direction: column; gap: 10px; }
+.chat { border: 1px solid var(--line); background: var(--panel); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.chat-log { display: flex; flex-direction: column; gap: 12px; }
 .chat-log:empty { display: none; }
-.msg { max-width: 88%; padding: 11px 15px; border-radius: 16px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.98rem; }
-.msg.me { align-self: flex-end; background: var(--ink); color: var(--paper); border-bottom-right-radius: 5px; }
-.msg.bot { align-self: flex-start; background: var(--soft); border-bottom-left-radius: 5px; }
-.msg.err { align-self: flex-start; color: var(--warn); padding-inline: 0; }
+.msg { white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.me { color: var(--white); } .msg.me::before { content: "> "; color: var(--bright); }
+.msg.bot { color: var(--fg); padding-left: 1.2em; border-left: 1px solid var(--line); }
+.msg.err { color: var(--amber); }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { font: 500 0.9rem var(--f-body); background: transparent; color: var(--ink); border: 1.5px solid var(--line); border-radius: 999px; padding: 0.5em 0.95em; cursor: pointer; text-align: left; }
-.chat-form { display: flex; gap: 10px; align-items: flex-end; }
-.chat-form textarea { flex: 1; min-width: 0; resize: vertical; font: 400 1rem/1.4 var(--f-body); padding: 0.75em 1em; border-radius: 14px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); }
-.chat-off { color: var(--muted); font-size: 0.95rem; }
+.chip { font: 400 0.86rem var(--f-body); background: transparent; color: var(--fg); border: 1px dashed var(--line); padding: 0.5em 0.8em; cursor: pointer; text-align: left; }
+.chip:hover { border-color: var(--bright); color: var(--bright); }
+.chat-form { display: flex; gap: 10px; align-items: stretch; }
+.chat-form textarea { flex: 1; min-width: 0; resize: vertical; font: 400 1rem/1.4 var(--f-body); padding: 0.7em 0.9em; border: 1px solid var(--line); background: var(--bg); color: var(--white); caret-color: var(--bright); }
+.chat-off { color: var(--dim); font-size: 0.92rem; }
 
-footer { max-width: var(--measure); width: 100%; margin-inline: auto; color: var(--muted); font-size: 0.86rem; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 22px; }
+.table { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.table li { padding: 14px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 13em) minmax(0, 1fr); gap: 4px 20px; }
+.table b { color: var(--white); font-weight: 600; }
 
-@media (max-width: 760px) {
-  .wrap { gap: 56px; }
-  .hero { grid-template-columns: minmax(0, 1fr); border-radius: 22px; }
-  .duo { order: -1; max-width: 400px; }
-  .needs { grid-template-columns: minmax(0, 1fr); }
-  .needs li:nth-child(odd) { padding-right: 0; }
-  .step-body { margin-left: 0; padding: 18px; }
-  .facts-plain li { grid-template-columns: minmax(0, 1fr); }
-  .top .tag { display: none; }
-  .chat-form { flex-direction: column; align-items: stretch; }
+footer { max-width: var(--measure); color: var(--dim); font-size: 0.82rem; display: flex; flex-direction: column; gap: 8px; }
+
+@media (max-width: 640px) {
+  .wrap { gap: 60px; }
+  .console { max-width: none; border-right: 0; background: rgba(2, 6, 4, 0.8); }
+  .table li { grid-template-columns: minmax(0, 1fr); }
+  .chat-form { flex-direction: column; }
+  .step-body { padding-left: 14px; }
 }
+@media (prefers-reduced-motion: reduce) { .cursor::after { animation: none; } .progress-fill { transition: none; } }
 </style>
-
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#173A6B"/><stop offset="1" stop-color="#3F86B8"/></linearGradient>
-    <symbol id="scene" viewBox="0 0 400 310">
-      <rect width="400" height="310" fill="url(#g-sky)"/>
-      <circle cx="292" cy="78" r="34" fill="#FFC400"/>
-      <circle cx="292" cy="78" r="52" fill="#FFC400" opacity="0.16"/>
-      <path d="M0 214 Q70 150 150 198 T300 176 T400 196 V310 H0Z" fill="#12305A"/>
-      <path d="M0 246 Q90 204 190 240 T400 226 V310 H0Z" fill="#0E6F78"/>
-      <rect y="272" width="400" height="38" fill="#0A2238"/>
-      <g fill="#F2F6FB"><rect x="118" y="150" width="30" height="12" rx="3"/><rect x="152" y="150" width="30" height="12" rx="3"/><rect x="236" y="128" width="30" height="12" rx="3"/></g>
-      <g><rect x="180" y="232" width="34" height="40" rx="9" fill="#FFC400"/><rect x="189" y="244" width="6" height="9" rx="3" fill="#0E1726"/><rect x="200" y="244" width="6" height="9" rx="3" fill="#0E1726"/></g>
-      <g fill="#FFC400"><circle cx="133" cy="132" r="6"/><circle cx="167" cy="132" r="6"/><circle cx="251" cy="110" r="6"/></g>
-      <g fill="#FFFFFF" opacity="0.22"><circle cx="62" cy="226" r="30"/><circle cx="338" cy="204" r="13"/><circle cx="338" cy="252" r="13"/><circle cx="314" cy="228" r="13"/><circle cx="362" cy="228" r="13"/></g>
-      <circle cx="62" cy="226" r="14" fill="#FFFFFF" opacity="0.5"/>
-      <g fill="#FFFFFF" opacity="0.3"><rect x="16" y="14" width="46" height="12" rx="6"/><rect x="338" y="14" width="46" height="12" rx="6"/></g>
-    </symbol>
-    <symbol id="i-lock" viewBox="0 0 20 20"><rect x="4" y="9" width="12" height="8" rx="2" fill="currentColor"/><path d="M6.5 9V6.5a3.5 3.5 0 0 1 7 0V9" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
-    <symbol id="i-check" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  </defs>
-</svg>
 
 <div class="wrap">
   <header class="top">
-    <span class="brand"><i></i>RetroFold Switch</span>
-    <span class="tag">Guide d'installation · iOS 27</span>
+    <span><b>retrofold</b>@switch:~$ guide --installer</span>
+    <span>iOS 27 · iPadOS 27</span>
   </header>
 
   <section class="hero">
-    <div>
-      <p class="eyebrow">Sans ordinateur · sans jailbreak</p>
-      <h1>L'émulateur Switch sur ton iPhone, <span>déplié en 8 étapes.</span></h1>
-      <p class="sub">Le pas-à-pas complet pour installer l'émulateur, activer le JIT et importer tes propres jeux. Tout se fait depuis le téléphone.</p>
+    <canvas id="rain" aria-hidden="true"></canvas>
+    <div class="console">
+      <p class="who">&gt; connexion établie</p>
+      <h1>L'émulateur Switch sur <span class="cursor">iPhone et iPad.</span></h1>
+      <p class="sub">Sans ordinateur. Sans jailbreak. Le pas-à-pas complet pour installer l'émulateur, activer le JIT et importer tes propres jeux, depuis l'appareil lui-même.</p>
       <div class="cta">
         <a class="btn btn-signal" href="#debloquer">Débloquer le guide · 9,90 €</a>
-        <a class="btn btn-ghost" href="#etapes">Voir les 8 étapes</a>
+        <a class="btn" href="#etapes">Voir les 8 étapes</a>
       </div>
-      <ul class="facts">
-        <li><b>8</b> étapes</li>
-        <li><b>≈ 20</b> minutes</li>
-        <li><b>0</b> ordinateur</li>
-      </ul>
-    </div>
-    <div class="duo" role="img" aria-label="Un iPhone pliant ouvert à plat, un jeu de plateforme affiché sur ses deux moitiés">
-      <div class="duo-body">
-        <div class="half left"><svg viewBox="0 0 200 310" preserveAspectRatio="xMidYMid slice"><use href="#scene" width="400" height="310"/></svg></div>
-        <div class="half right"><svg viewBox="200 0 200 310" preserveAspectRatio="xMidYMid slice"><use href="#scene" width="400" height="310"/></svg></div>
-      </div>
+      <p class="stat"><b>8</b> étapes / <b>~20</b> min / <b>0</b> ordinateur</p>
     </div>
   </section>
 
   <section class="block" id="film">
     <div class="block-head">
-      <p class="eyebrow">En 40 secondes</p>
+      <p class="eyebrow">40 secondes</p>
       <h2>Le parcours en vidéo</h2>
     </div>
     <video class="film" controls playsinline preload="none" poster="affiche.jpg" src="film.mp4" aria-label="Vidéo de présentation du guide"></video>
@@ -246,11 +181,11 @@ footer { max-width: var(--measure); width: 100%; margin-inline: auto; color: var
       <p class="eyebrow">Avant de commencer</p>
       <h2>Ce qu'il te faut</h2>
     </div>
-    <ul class="needs">
-      <li><b>Un iPhone sous iOS 27 ou plus récent</b><span>C'est la version qui permet l'appairage sans ordinateur.</span></li>
-      <li><b>Une vingtaine de minutes</b><span>Dont un redémarrage du téléphone.</span></li>
-      <li><b>Tes clés et ton firmware</b><span>Extraits de ta propre console. Le guide n'en fournit pas.</span></li>
-      <li><b>Tes jeux</b><span>Les copies de tes propres cartouches et achats.</span></li>
+    <ul class="list">
+      <li><i>[+]</i><div><b>Un iPhone ou un iPad sous iOS 27 / iPadOS 27, ou plus récent</b><span>C'est la version qui permet l'appairage sans ordinateur. Plus l'appareil a de mémoire, mieux les jeux tournent.</span></div></li>
+      <li><i>[+]</i><div><b>Une vingtaine de minutes</b><span>Dont un redémarrage de l'appareil.</span></div></li>
+      <li><i>[+]</i><div><b>Tes clés et ton firmware</b><span>Extraits de ta propre console. Le guide n'en fournit pas.</span></div></li>
+      <li><i>[+]</i><div><b>Tes jeux</b><span>Les copies de tes propres cartouches et achats.</span></div></li>
     </ul>
   </section>
 
@@ -260,36 +195,34 @@ footer { max-width: var(--measure); width: 100%; margin-inline: auto; color: var
       <h2>8 étapes, du premier lien au premier jeu</h2>
       <p class="lede">Le détail de chaque étape, les réglages exacts et le dépannage s'ouvrent avec le guide.</p>
     </div>
-    <ol class="spine">
-      <li><span class="num">1</span><span class="t">Récupère l'identifiant de ton iPhone<span class="d">L'app est signée pour ton téléphone, pas pour un autre.</span></span><svg class="lock" aria-label="Verrouillé"><use href="#i-lock"/></svg></li>
-      <li><span class="num">2</span><span class="t">Installe les deux apps<span class="d">Deux liens à ouvrir dans Safari.</span></span><svg class="lock" aria-label="Verrouillé"><use href="#i-lock"/></svg></li>
-      <li><span class="num">3</span><span class="t">Active le Mode développeur<span class="d">Un réglage, un redémarrage.</span></span><svg class="lock" aria-label="Verrouillé"><use href="#i-lock"/></svg></li>
-      <li><span class="num">4</span><span class="t">Installe LocalDevVPN<span class="d">Gratuit, sur l'App Store.</span></span><svg class="lock" aria-label="Verrouillé"><use href="#i-lock"/></svg></li>
-      <li><span class="num">5</span><span class="t">Appaire StikDebug avec ton iPhone<span class="d">Un code à six chiffres, sans ordinateur.</span></span><svg class="lock" aria-label="Verrouillé"><use href="#i-lock"/></svg></li>
-      <li><span class="num">6</span><span class="t">Active le JIT et ouvre l'émulateur<span class="d">Le geste à refaire à chaque partie.</span></span><svg class="lock" aria-label="Verrouillé"><use href="#i-lock"/></svg></li>
-      <li><span class="num">7</span><span class="t">Importe tes clés et ton firmware<span class="d">Depuis l'app Fichiers.</span></span><svg class="lock" aria-label="Verrouillé"><use href="#i-lock"/></svg></li>
-      <li><span class="num">8</span><span class="t">Ajoute tes jeux<span class="d">Et lance le premier.</span></span><svg class="lock" aria-label="Verrouillé"><use href="#i-lock"/></svg></li>
+    <ol class="list">
+      <li><i>01</i><div><b>Récupère l'identifiant de ton appareil</b><span>L'app est signée pour lui, pas pour un autre.</span></div><em class="locked">verrouillé</em></li>
+      <li><i>02</i><div><b>Installe les deux apps</b><span>Deux liens à ouvrir dans Safari.</span></div><em class="locked">verrouillé</em></li>
+      <li><i>03</i><div><b>Active le Mode développeur</b><span>Un réglage, un redémarrage.</span></div><em class="locked">verrouillé</em></li>
+      <li><i>04</i><div><b>Installe LocalDevVPN</b><span>Gratuit, sur l'App Store.</span></div><em class="locked">verrouillé</em></li>
+      <li><i>05</i><div><b>Appaire StikDebug avec ton appareil</b><span>Un code à six chiffres, sans ordinateur.</span></div><em class="locked">verrouillé</em></li>
+      <li><i>06</i><div><b>Active le JIT et ouvre l'émulateur</b><span>Le geste à refaire à chaque partie.</span></div><em class="locked">verrouillé</em></li>
+      <li><i>07</i><div><b>Importe tes clés et ton firmware</b><span>Depuis l'app Fichiers.</span></div><em class="locked">verrouillé</em></li>
+      <li><i>08</i><div><b>Ajoute tes jeux</b><span>Et lance le premier.</span></div><em class="locked">verrouillé</em></li>
     </ol>
   </section>
 
   <section class="block" id="debloquer" data-locked-only>
     <div class="unlock">
-      <div class="block-head">
-        <p class="eyebrow">Accès complet</p>
-        <div class="price"><b>9,90 €</b><span>une seule fois, sans abonnement</span></div>
-      </div>
+      <p class="eyebrow">Accès complet</p>
+      <div class="price"><b>9,90 €</b><span>une seule fois, sans abonnement</span></div>
       <ul class="incl">
-        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><strong>Les 8 étapes détaillées</strong>, avec le chemin exact de chaque réglage.</span></li>
-        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><strong>Le dépannage</strong> des erreurs rencontrées pendant nos essais, message par message.</span></li>
-        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><strong>L'assistant</strong> : tu décris ton écran, il te dit quoi faire.</span></li>
-        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><strong>Les mises à jour du guide</strong>, sans repayer.</span></li>
+        <li><span><strong>Les 8 étapes détaillées</strong>, avec le chemin exact de chaque réglage.</span></li>
+        <li><span><strong>Le dépannage</strong> des erreurs rencontrées pendant nos essais, message par message.</span></li>
+        <li><span><strong>L'assistant</strong> : tu décris ton écran, il te dit quoi faire.</span></li>
+        <li><span><strong>Les mises à jour du guide</strong>, sans repayer.</span></li>
       </ul>
       <div>
         <button type="button" class="btn btn-signal" id="pay">Débloquer pour 9,90 €</button>
         <p class="pay-note" id="pay-note" hidden>Le paiement n'est pas encore ouvert. Si tu as déjà un code d'accès, saisis-le ci-dessous.</p>
       </div>
       <form class="code-form" id="code-form">
-        <label for="code">Tu as déjà un code d'accès ?</label>
+        <label for="code">&gt; Tu as déjà un code d'accès ?</label>
         <div class="code-row">
           <input id="code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX">
           <button type="submit" class="btn btn-plain">Ouvrir le guide</button>
@@ -303,20 +236,20 @@ footer { max-width: var(--measure); width: 100%; margin-inline: auto; color: var
 
   <section class="block" id="savoir">
     <div class="block-head">
-      <p class="eyebrow">En toute franchise</p>
+      <p class="eyebrow">Sans détour</p>
       <h2>À savoir avant de te lancer</h2>
     </div>
-    <ul class="facts-plain">
-      <li><b>Ce qui est vérifié</b><span>Sur un iPhone pliant sous iOS 27.2 : l'installation par lien, l'appairage, l'ouverture de l'émulateur et l'import des clés.</span></li>
-      <li><b>Ce qui dépend de toi</b><span>Les jeux qui tournent, et à quelle vitesse, varient selon le jeu et l'iPhone. L'émulation Switch sur iPhone reste expérimentale.</span></li>
+    <ul class="table">
+      <li><b>Ce qui est vérifié</b><span>Sur un iPhone sous iOS 27.2 : l'installation par lien, l'appairage, l'ouverture de l'émulateur et l'import des clés. Sur iPad, le parcours est le même&nbsp;; nous ne l'avons pas encore refait nous-mêmes.</span></li>
+      <li><b>Ce qui dépend de toi</b><span>Les jeux qui tournent, et à quelle vitesse, varient selon le jeu et l'appareil. L'émulation Switch sur iPhone et iPad reste expérimentale.</span></li>
       <li><b>Ce qui n'est pas fourni</b><span>Aucune clé, aucun firmware, aucun jeu. Tu utilises les fichiers de ta propre console.</span></li>
-      <li><b>Pas sur l'App Store</b><span>L'émulateur a besoin du JIT, qu'Apple n'accorde pas aux apps de l'App Store. Il est signé pour ton iPhone, pour un an.</span></li>
+      <li><b>Pas sur l'App Store</b><span>L'émulateur a besoin du JIT, qu'Apple n'accorde pas aux apps de l'App Store. Il est signé pour ton appareil, pour un an.</span></li>
     </ul>
   </section>
 
   <footer>
-    <p>L'émulateur est MeloNX, fondé sur Ryujinx ; le JIT est activé par StikDebug. Ce sont des logiciels libres (licence AGPL v3) écrits par leurs auteurs respectifs, que ce guide ne fait qu'expliquer.</p>
-    <p>Ce site n'est affilié ni à Nintendo ni à Apple. Nintendo Switch est une marque de Nintendo ; iPhone et App Store sont des marques d'Apple.</p>
+    <p>L'émulateur est MeloNX, fondé sur Ryujinx&nbsp;; le JIT est activé par StikDebug. Ce sont des logiciels libres (licence AGPL v3) écrits par leurs auteurs respectifs, que ce guide ne fait qu'expliquer.</p>
+    <p>Ce site n'est affilié ni à Nintendo ni à Apple. Nintendo Switch est une marque de Nintendo&nbsp;; iPhone, iPad et App Store sont des marques d'Apple.</p>
   </footer>
 </div>
 
@@ -338,6 +271,45 @@ footer { max-width: var(--measure); width: 100%; margin-inline: auto; color: var
   function $(id) { return document.getElementById(id); }
   function bytes(b64) { return Uint8Array.from(atob(b64), function (c) { return c.charCodeAt(0); }); }
   function normalise(code) { return code.toUpperCase().replace(/[^A-Z0-9]/g, ""); }
+
+  // La pluie de code de l'ouverture.
+  (function rain() {
+    var canvas = $("rain"), ctx = canvas.getContext("2d");
+    var glyphs = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789";
+    var size = 16, w = 0, h = 0, drops = [];
+    function step() {
+      ctx.fillStyle = "rgba(2, 6, 4, 0.09)";
+      ctx.fillRect(0, 0, w, h);
+      ctx.font = size + "px monospace";
+      for (var i = 0; i < drops.length; i++) {
+        var y = drops[i] * size;
+        ctx.fillStyle = Math.random() < 0.07 ? "#E8FFEC" : "#00FF66";
+        ctx.fillText(glyphs.charAt(Math.random() * glyphs.length | 0), i * size, y);
+        if (y > h && Math.random() > 0.97) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    function resize() {
+      var ratio = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas.clientWidth; h = canvas.clientHeight;
+      if (!w || !h) return;
+      canvas.width = w * ratio; canvas.height = h * ratio;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      drops = [];
+      for (var i = 0; i < Math.ceil(w / size); i++) drops.push(Math.random() * h / size);
+      ctx.fillStyle = "#020604"; ctx.fillRect(0, 0, w, h);
+      for (var k = 0; k < 70; k++) step();   // la pluie est déjà là à l'ouverture, même sans animation
+    }
+    resize();
+    var lastW = w, timer;
+    window.addEventListener("resize", function () { clearTimeout(timer); timer = setTimeout(function () { if (canvas.clientWidth !== lastW) { resize(); lastW = w; } }, 150); });
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var last = 0;
+    (function loop(now) {
+      if (!document.hidden && now - last > 58) { last = now; step(); }
+      requestAnimationFrame(loop);
+    })(0);
+  })();
 
   async function open(code) {
     var material = await crypto.subtle.importKey("raw", new TextEncoder().encode(normalise(code)), "PBKDF2", false, ["deriveKey"]);
@@ -364,14 +336,14 @@ footer { max-width: var(--measure); width: 100%; margin-inline: auto; color: var
     var msg = $("code-msg");
     if (!COFFRE || !window.crypto || !crypto.subtle) { if (!silent) msg.textContent = "Ce navigateur ne peut pas ouvrir le guide. Essaie avec Safari à jour."; return; }
     if (normalise(code).length < 8) { if (!silent) msg.textContent = "Le code est trop court. Recopie-le en entier."; return; }
-    if (!silent) { msg.className = "code-msg"; msg.textContent = "Vérification…"; }
+    if (!silent) { msg.className = "code-msg ok"; msg.textContent = "> vérification…"; }
     try {
       var html = await open(code);
       store(KEY_CODE, normalise(code));
       show(html);
       if (!silent) $("guide").scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (e) {
-      if (!silent) msg.textContent = "Ce code n'ouvre pas le guide. Vérifie chaque caractère, ou recopie-le depuis ton reçu.";
+      if (!silent) { msg.className = "code-msg"; msg.textContent = "Accès refusé : ce code n'ouvre pas le guide. Vérifie chaque caractère, ou recopie-le depuis ton reçu."; }
     }
   }
 
@@ -426,7 +398,7 @@ footer { max-width: var(--measure); width: 100%; margin-inline: auto; color: var
 
     function brief() {
       var guide = ($("guide").innerText + "\n\n" + $("depannage").innerText).replace(/\n{3,}/g, "\n\n");
-      return "Tu es l'assistant d'un guide d'installation, en français, pour un émulateur Switch (MeloNX) sur iPhone sous iOS 27, " +
+      return "Tu es l'assistant d'un guide d'installation, en français, pour un émulateur Switch (MeloNX) sur iPhone et iPad sous iOS 27 ou iPadOS 27, " +
         "avec StikDebug et LocalDevVPN pour le JIT. Réponds en français, en tutoyant, en quelques phrases ou une courte liste d'actions. " +
         "Appuie-toi d'abord sur le guide ci-dessous ; si la réponse n'y est pas, dis-le et propose la vérification la plus probable. " +
         "Ne fournis jamais de clés, de firmware ni de jeux, et n'indique aucun endroit où en télécharger : la personne utilise les fichiers de sa propre console. " +

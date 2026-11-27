@@ -2,7 +2,7 @@
   <div class="block-head">
     <p class="eyebrow">Guide débloqué</p>
     <h2>Les 8 étapes, dans l'ordre</h2>
-    <p class="lede">Tout se fait sur l'iPhone. Coche chaque étape quand elle est faite : la page s'en souvient sur ce téléphone.</p>
+    <p class="lede">Tout se fait sur l'appareil, iPhone ou iPad. Coche chaque étape quand elle est faite : la page s'en souvient sur cet appareil.</p>
   </div>
   <div class="progress" aria-live="polite">
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
@@ -12,9 +12,9 @@
   <ol class="steps">
     <li class="step" data-step="1">
       <details>
-        <summary><span class="num">1</span><span class="step-title">Récupère l'identifiant de ton iPhone</span><span class="dur">2 min</span></summary>
+        <summary><span class="num">1</span><span class="step-title">Récupère l'identifiant de ton appareil</span><span class="dur">2 min</span></summary>
         <div class="step-body">
-          <p>L'app n'est pas sur l'App Store : elle est signée pour un iPhone précis. Il faut donc son identifiant, l'UDID, une suite de 25 caractères qui ressemble à <code>00008160-000A1B2C3D4E5F6A</code>.</p>
+          <p>L'app n'est pas sur l'App Store : elle est signée pour un appareil précis, iPhone ou iPad. Il faut donc son identifiant, l'UDID, une suite de 25 caractères qui ressemble à <code>00008160-000A1B2C3D4E5F6A</code>.</p>
           <ol>
             <li>Dans Safari, ouvre un service qui lit l'UDID. Il te propose d'installer un petit profil de configuration.</li>
             <li>Valide le profil dans <span class="path">Réglages › Général › VPN et gestion de l'appareil</span>. La page affiche alors ton UDID.</li>
@@ -63,7 +63,7 @@
       <details>
         <summary><span class="num">4</span><span class="step-title">Installe LocalDevVPN</span><span class="dur">1 min</span></summary>
         <div class="step-body">
-          <p>C'est une app gratuite de l'App Store. Elle ne fait pas sortir ton trafic : elle relie le téléphone à lui-même, pour que StikDebug puisse lui parler.</p>
+          <p>C'est une app gratuite de l'App Store. Elle ne fait pas sortir ton trafic : elle relie l'appareil à lui-même, pour que StikDebug puisse lui parler.</p>
           <ol>
             <li>Installe <strong>LocalDevVPN</strong> depuis l'App Store.</li>
             <li>Ouvre-la, touche <strong>Connect</strong> et autorise la configuration VPN.</li>
@@ -76,9 +76,9 @@
 
     <li class="step" data-step="5">
       <details>
-        <summary><span class="num">5</span><span class="step-title">Appaire StikDebug avec ton iPhone</span><span class="dur">3 min</span></summary>
+        <summary><span class="num">5</span><span class="step-title">Appaire StikDebug avec ton appareil</span><span class="dur">3 min</span></summary>
         <div class="step-body">
-          <p>Sur iOS 27 ou plus récent, l'appairage se fait entièrement sur le téléphone. Avant, il fallait un ordinateur.</p>
+          <p>Sur iOS 27 et iPadOS 27 ou plus récents, l'appairage se fait entièrement sur l'appareil. Avant, il fallait un ordinateur.</p>
           <ol>
             <li>Ouvre StikDebug. L'alerte « Pairing file unavailable » est normale à ce stade : touche <strong>Cancel</strong>.</li>
             <li>Touche la roue dentée, puis <span class="path">Pair a Device › Pair iPhone or iPad</span>. Un code à six chiffres s'affiche.</li>
@@ -131,10 +131,10 @@
           <p>L'émulateur lit les copies de tes propres jeux, aux formats <code>.nsp</code> et <code>.xci</code>.</p>
           <ol>
             <li>Dans la bibliothèque, touche <strong>+</strong> (« Add Game ») et choisis tes fichiers.</li>
-            <li>Ou dépose-les dans <span class="path">Fichiers › Sur mon iPhone › MeloNX › roms</span>.</li>
+            <li>Ou dépose-les dans <span class="path">Fichiers › Sur mon iPhone (ou Sur mon iPad) › MeloNX › roms</span>.</li>
             <li>Touche un jeu pour le lancer.</li>
           </ol>
-          <p class="note">Le premier lancement d'un jeu est plus long que les suivants. Toutes les œuvres ne tournent pas : cela dépend du jeu et de ton iPhone.</p>
+          <p class="note">Le premier lancement d'un jeu est plus long que les suivants. Toutes les œuvres ne tournent pas : cela dépend du jeu et de la mémoire de ton appareil.</p>
           <label class="done"><input type="checkbox" id="done-8"> Étape faite</label>
         </div>
       </details>
@@ -149,11 +149,11 @@
   </div>
   <div class="faq">
     <details><summary>« Pairing file unavailable »</summary><p>Ce n'est pas une panne : StikDebug dit seulement que l'appairage n'est pas encore fait. Reprends l'étape 5.</p></details>
-    <details><summary>« Failed to connect debug proxy: ServiceNotFound »</summary><p>StikDebug a joint le téléphone mais n'y trouve pas le service de débogage. Vérifie que LocalDevVPN est connecté et que tu as Internet. Dans StikDebug, touche la roue dentée puis « Redownload DDI » et attends « DDI files refreshed successfully ». Ferme complètement StikDebug, rouvre-le, réessaie. Si l'erreur revient, redémarre l'iPhone. Sur une version d'iOS toute récente, il faut parfois attendre une mise à jour de StikDebug.</p></details>
+    <details><summary>« Failed to connect debug proxy: ServiceNotFound »</summary><p>StikDebug a joint l'appareil mais n'y trouve pas le service de débogage. Vérifie que LocalDevVPN est connecté et que tu as Internet. Dans StikDebug, touche la roue dentée puis « Redownload DDI » et attends « DDI files refreshed successfully ». Ferme complètement StikDebug, rouvre-le, réessaie. Si l'erreur revient, redémarre l'appareil. Sur une version d'iOS toute récente, il faut parfois attendre une mise à jour de StikDebug.</p></details>
     <details><summary>L'écran devient noir après la bibliothèque</summary><p>L'émulateur attend une réponse de StikDebug. Active « Always Run Scripts » et « Silent Audio » dans les réglages de StikDebug, puis relance le JIT. Sur un iPhone pliant, vérifie que tu as bien la dernière version de l'app : une version plus ancienne laissait le grand écran noir une fois le téléphone déplié.</p></details>
     <details><summary>L'app se ferme dès l'ouverture</summary><p>Vérifie que le Mode développeur est toujours actif (étape 3). S'il l'est, réinstalle la dernière version avec de nouveaux liens.</p></details>
     <details><summary>Le firmware ne s'importe pas</summary><p>Importe d'abord les clés, ensuite le firmware. Le fichier doit se terminer par <code>.zip</code> exactement. Si le message parle d'une clé manquante, ton firmware est plus récent que tes clés : refais les deux extractions le même jour.</p></details>
-    <details><summary>« Impossible d'installer » en ouvrant un lien</summary><p>Le lien a expiré (dix minutes environ) ou l'iPhone n'est pas celui pour lequel l'app a été signée. Demande de nouveaux liens et vérifie l'identifiant envoyé à l'étape 1.</p></details>
+    <details><summary>« Impossible d'installer » en ouvrant un lien</summary><p>Le lien a expiré (dix minutes environ) ou l'appareil n'est pas celui pour lequel l'app a été signée. Demande de nouveaux liens et vérifie l'identifiant envoyé à l'étape 1.</p></details>
     <details><summary>L'app ne s'ouvre plus après plusieurs mois</summary><p>La signature est valable un an. Passé ce délai, il faut réinstaller une version signée de nouveau. Tes clés, ton firmware et tes sauvegardes restent dans l'app tant que tu ne la supprimes pas.</p></details>
   </div>
 </section>

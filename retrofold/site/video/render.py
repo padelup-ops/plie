@@ -84,7 +84,7 @@ def main():
     frames(os.path.join(work, "images"), ["tout"])
     soundtrack(os.path.join(work, "son.wav"))
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(work, "images", "f%05d.jpg"),
-                    "-i", os.path.join(work, "son.wav"), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "21", "-preset", "slow",
+                    "-i", os.path.join(work, "son.wav"), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "27", "-preset", "slow",
                     "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", "-shortest", out], check=True)
     print(out, os.path.getsize(out) // 1024, "Ko")
 
