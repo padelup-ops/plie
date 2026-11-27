@@ -127,7 +127,15 @@ def preparer(udid, out):
 def nouveau_certificat(out, key, csr, pem, p12, cert_id_file):
     subprocess.run(["/usr/bin/openssl", "genrsa", "-out", key, "2048"], check=True, capture_output=True)
     subprocess.run(["/usr/bin/openssl", "req", "-new", "-key", key, "-out", csr, "-subj", "/CN=RetroFold Switch/C=FR"], check=True, capture_output=True)
-    r = call("POST", "/v1/certificates", {"data": {"type": "certificates", "attributes": {"certificateType": "DEVELOPMENT", "csrContent": open(csr).read()}}})
+    body = {"data": {"type": "certificates", "attributes": {"certificateType": "DEVELOPMENT", "csrContent": open(csr).read()}}}
+    r = call("POST", "/v1/certificates", body)
+    if "data" not in r and "already have a current Development certificate" in str(r):
+        # La clé d'accès n'a droit qu'à un certificat de développement. Si celui qui existe est le nôtre (créé par cet
+        # outil, clé privée perdue), on le remplace ; jamais un certificat que nous n'avons pas créé.
+        if not revoquer_le_notre():
+            print("ÉCHEC  certificat : un certificat de développement existe déjà et n'est pas celui de cet outil")
+            return None
+        r = call("POST", "/v1/certificates", body)
     if "data" not in r:
         print("ÉCHEC  certificat :", r)
         return None
@@ -139,6 +147,32 @@ def nouveau_certificat(out, key, csr, pem, p12, cert_id_file):
     open(cert_id_file, "w").write(cert["id"])
     print("ok     certificat de développement créé, expire", (cert["attributes"].get("expirationDate") or "")[:10])
     return cert
+
+
+def revoquer_le_notre():
+    """Révoque le certificat de développement attaché aux profils créés par cet outil (reconnus à leur nom), et
+    supprime ces profils. Ne touche à rien d'autre. Vrai si un certificat, et un seul, a été révoqué."""
+    names = tuple(title + " " for _, title in APPS.values())
+    ours = [p for p in call("GET", "/v1/profiles?limit=200").get("data", []) if p["attributes"].get("name", "").startswith(names)]
+    cert_ids = set()
+    for p in ours:
+        for c in call("GET", f"/v1/profiles/{p['id']}/certificates").get("data", []):
+            a = c["attributes"]
+            if a.get("certificateType") == "DEVELOPMENT" and a.get("displayName") == "Created via API":
+                cert_ids.add(c["id"])
+    if len(cert_ids) != 1:
+        print("note   certificats de cet outil trouvés :", len(cert_ids))
+        return False
+    cert_id = cert_ids.pop()
+    r = call("DELETE", "/v1/certificates/" + cert_id)
+    if "error" in r:
+        print("ÉCHEC  révocation :", r)
+        return False
+    print("ok     ancien certificat de cet outil révoqué (sa clé privée était perdue)")
+    for p in ours:
+        call("DELETE", "/v1/profiles/" + p["id"])
+    print("ok     anciens profils supprimés :", len(ours))
+    return True
 
 
 def profils(out, ids, resource, cert, device):
