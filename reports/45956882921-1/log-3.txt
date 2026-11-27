@@ -90,3 +90,9 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [27/831] it ok  1.00 1.2s essais 1 (50s, reste 1550 min) È meraviglioso! → è meraviglioso!
   self.gen = func(*args, **kwds)
+[28/831] it ok  1.00 8.6s essais 1 (144s, reste 1562 min) Oh, oh, oh! Ciao! Sono io, Babbo Natale. Ti chiamo dal mio l → Oh, oh, oh, ciao, sono io, Babbo Natale, ti chiamo dal mio l
+  self.gen = func(*args, **kwds)
+[29/831] it ok  1.00 7.4s essais 1 (122s, reste 1562 min) Mamma Natale ha preparato i biscotti alla cannella. Tutta la → Mamma Natale ha preparato i biscotti alla cannella, tutta la
+  self.gen = func(*args, **kwds)
+[30/831] it ok  0.99 7.8s essais 1 (132s, reste 1567 min) Sai che cosa mi piace di più del Natale? Vedere le famiglie  → Sai che cosa mi piace di più dal Natale? vedere le famiglie 
+  self.gen = func(*args, **kwds)
