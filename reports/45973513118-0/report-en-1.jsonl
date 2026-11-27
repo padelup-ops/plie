@@ -41,3 +41,6 @@
 {"id": "53387fbb90b05395775f", "key": "hello|zayn", "text": "Ho, ho, ho! Hello, Zayn!", "ok": true, "score": 0.8, "dur": 2.7, "heard": "Ho ho ho, hello Zane!", "tries": 1, "secs": 42.7}
 {"id": "4b94cbf5b514ae052da8", "key": "hello|fatima", "text": "Ho, ho, ho! Hello, Fatima!", "ok": true, "score": 1.0, "dur": 3.98, "heard": "Ho Ho Ho! Hello Fatima!", "tries": 1, "secs": 58.7}
 {"id": "76174873c0e3425305c0", "key": "hello|noor", "text": "Ho, ho, ho! Hello, Noor!", "ok": true, "score": 0.887, "dur": 2.12, "heard": "Ho Ho Ho! Hello Nor!", "tries": 1, "secs": 38.3}
+{"id": "708c1b3186ec8f58de5d", "key": "hello|priya", "text": "Ho, ho, ho! Hello, Priya!", "ok": true, "score": 0.673, "dur": 2.28, "heard": "Ho Ho Ho! Hello, Pryor!", "tries": 1, "secs": 42.4}
+{"id": "c875d3e7eaac9eb4754e", "key": "hello|niamh", "text": "Ho, ho, ho! Hello, Niamh!", "ok": false, "score": 0.55, "dur": 2.26, "heard": "Ho ho ho. Hello, Neum.", "tries": 2, "secs": 129.0}
+{"id": "a4ae877e9c22697a23f4", "key": "hello|amelie", "text": "Ho, ho, ho! Hello, Amelie!", "ok": false, "score": 0.925, "dur": 2.54, "heard": "Ho ho ho hello Amelie. Amelie!", "tries": 3, "secs": 129.0}

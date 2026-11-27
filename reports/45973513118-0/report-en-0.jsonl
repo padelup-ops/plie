@@ -24,3 +24,10 @@
 {"id": "2d734fb06b428b30ff80", "key": "hello|harry", "text": "Ho, ho, ho! Hello, Harry!", "ok": true, "score": 1.0, "dur": 1.6, "heard": "Ho ho ho! Hello Harry!", "tries": 2, "secs": 78.5}
 {"id": "7ed6ccc4d173937e4962", "key": "hello|alfie", "text": "Ho, ho, ho! Hello, Alfie!", "ok": true, "score": 1.0, "dur": 2.54, "heard": "Ho Ho Ho. Hello Alfie!", "tries": 3, "secs": 133.5}
 {"id": "eee5d8fae2d3b849ced4", "key": "hello|louie", "text": "Ho, ho, ho! Hello, Louie!", "ok": true, "score": 0.836, "dur": 2.32, "heard": "Ho, ho, ho! Hello, Louis!", "tries": 1, "secs": 51.2}
+{"id": "e53283120ec8fdf35fb0", "key": "hello|hugo", "text": "Ho, ho, ho! Hello, Hugo!", "ok": true, "score": 1.0, "dur": 2.34, "heard": "Ho, ho, ho. Hello, Hugo.", "tries": 1, "secs": 40.3}
+{"id": "f195113a80e9ab5a9d39", "key": "hello|mackenzie", "text": "Ho, ho, ho! Hello, Mackenzie!", "ok": true, "score": 1.0, "dur": 1.84, "heard": "Ho, ho, ho. Hello, Mackenzie.", "tries": 1, "secs": 40.3}
+{"id": "445550087bf4cd683f6c", "key": "hello|reagan", "text": "Ho, ho, ho! Hello, Reagan!", "ok": true, "score": 0.925, "dur": 2.28, "heard": "Ho Ho Ho! Hello Regan!", "tries": 1, "secs": 41.2}
+{"id": "e3db69e100eb02b3de91", "key": "hello|ashley", "text": "Ho, ho, ho! Hello, Ashley!", "ok": true, "score": 1.0, "dur": 2.46, "heard": "Oh ho ho hello Ashley", "tries": 2, "secs": 88.5}
+{"id": "c48b5ab631591470087e", "key": "hello|oaklynn", "text": "Ho, ho, ho! Hello, Oaklynn!", "ok": true, "score": 0.758, "dur": 2.44, "heard": "Oh ho ho hello Oakland", "tries": 1, "secs": 43.6}
+{"id": "3f68a6a189a7156d1990", "key": "hello|jamie", "text": "Ho, ho, ho! Hello, Jamie!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Ho Ho Ho! Hello Jamie!", "tries": 1, "secs": 45.6}
+{"id": "dba62b17e0205b02dd69", "key": "hello|jake", "text": "Ho, ho, ho! Hello, Jake!", "ok": true, "score": 1.0, "dur": 1.7, "heard": "Ho ho ho, hello Jake!", "tries": 1, "secs": 38.3}
