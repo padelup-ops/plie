@@ -91,7 +91,7 @@ final class KBLanguageModel {
 
     private func id(_ word: String) -> Int? {
         var key = word.lowercased().replacingOccurrences(of: "'", with: "’")
-        if !key.utf8.allSatisfy({ $0 < 0x80 }) { key = key.precomposedStringWithCanonicalMapping }
+        if key.unicodeScalars.contains(where: { $0.value >= 0x300 && $0.value <= 0x36F }) { key = key.precomposedStringWithCanonicalMapping }
         // Le mot cherché, au format du fichier (longueur puis octets), comparé octet par octet.
         var probe: [UInt8] = [0]
         probe.append(contentsOf: key.utf8)

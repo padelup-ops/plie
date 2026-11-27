@@ -128,7 +128,8 @@ struct FirstRank {
     /// Même suite d'octets pour deux écritures du même mot (é en un ou deux caractères Unicode).
     private static func key(_ w: String) -> String {
         let k = w.lowercased()
-        return k.utf8.allSatisfy { $0 < 0x80 } ? k : k.precomposedStringWithCanonicalMapping
+        // Seulement s'il y a un accent écrit à part (rare : le clavier écrit « é » en un seul caractère).
+        return k.unicodeScalars.contains { $0.value >= 0x300 && $0.value <= 0x36F } ? k.precomposedStringWithCanonicalMapping : k
     }
 
     init(_ list: [String]) {
@@ -1082,7 +1083,7 @@ final class KBSuggest {
         "cunts", "bitch", "bitches", "dick", "dicks", "cock", "cocks", "pussy", "whore", "whores", "slut", "sluts", "asshole", "assholes",
         "bastard", "wank", "wanker", "twat", "nigger", "nigga", "faggot", "fag", "retard", "porn", "tits", "boobs", "cum", "anal", "rape",
         "pute", "putes", "putain", "salope", "salopes", "connard", "connards", "connasse", "enculé", "encule", "enculer", "bite", "bites",
-        "couille", "couilles", "chatte", "nique", "niquer", "merde", "merdes", "pd", "pédé", "bordel", "cul", "chier", "salaud", "branleur"]
+        "couille", "couilles", "chatte", "nique", "niquer", "pd", "pédé", "salaud", "branleur"]
     static func rude(_ lower: String) -> Bool { tune["rudeOK"] ?? 0 > 0 ? false : rudeWords.contains(lower) }
 
     /// Même lettre, seul l'accent change (« é » et « e ») : pas une faute de frappe.
