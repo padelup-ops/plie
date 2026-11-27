@@ -8,3 +8,5 @@
 {"id": "eeb409ea2e53fb1f6b7a", "key": "hello|leo", "text": "Ho, ho, ho! Hello, Leo!", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho Ho Ho Hello Leo", "tries": 2, "secs": 115.9}
 {"id": "982225f1b42d250499c2", "key": "hello|john", "text": "Ho, ho, ho! Hello, John!", "ok": true, "score": 1.0, "dur": 2.12, "heard": "Ho, ho, ho. Hello, John.", "tries": 1, "secs": 56.3}
 {"id": "30999f4ed8181ea392a3", "key": "hello|joseph", "text": "Ho, ho, ho! Hello, Joseph!", "ok": true, "score": 1.0, "dur": 2.56, "heard": "Ho Ho Ho! Hello Joseph!", "tries": 1, "secs": 64.8}
+{"id": "e120d0ca9dd33f1e26f3", "key": "hello|luke", "text": "Ho, ho, ho! Hello, Luke!", "ok": true, "score": 1.0, "dur": 2.24, "heard": "Oh ho ho ho! Hello Luke!", "tries": 2, "secs": 115.4}
+{"id": "7f8ff951104a172b0aa1", "key": "hello|wyatt", "text": "Ho, ho, ho! Hello, Wyatt!", "ok": false, "score": 0.929, "dur": 2.92, "heard": "Ho, ho, ho. Hello, Wyatt. Wyatt.", "tries": 1, "secs": 182.9}
