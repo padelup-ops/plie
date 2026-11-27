@@ -1,4 +1,4 @@
-# Envoie une version de Foldboard à la vérification (sortie automatique après accord). Ne change pas le prix.
+# Envoie une version de Foldboard (ou de Vicefold, par son bundle) à la vérification (sortie automatique après accord). Ne change pas le prix.
 name: Envoyer une app à la vérification
 
 on:
@@ -28,6 +28,9 @@ on:
       cancel_pending:
         description: "1 : retire d'abord la demande en attente ; only : la retire sans rien renvoyer"
         required: false
+      dry_run:
+        description: "Vicefold seulement, 1 : essai à blanc, lit tout sans rien écrire"
+        required: false
 
 jobs:
   submit:
@@ -45,9 +48,15 @@ jobs:
       REVIEW_NOTES: ${{ inputs.review_notes }}
       SET_LISTING: ${{ inputs.set_listing }}
       CANCEL_PENDING: ${{ inputs.cancel_pending }}
+      DRY_RUN: ${{ inputs.dry_run }}
     steps:
       - uses: actions/checkout@v5
       - name: Envoyer
         run: |
           python3 -m pip install --quiet pyjwt cryptography
-          python3 foldboard/tools/asc_submit.py
+          # Vicefold a son propre envoi : lien et champ EULA, achats joints, première sortie sans « nouveautés ».
+          if [ "$BUNDLE" = "com.padelup.vicefold" ]; then
+            python3 vicefold/tools/submit.py
+          else
+            python3 foldboard/tools/asc_submit.py
+          fi

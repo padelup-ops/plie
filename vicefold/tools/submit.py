@@ -5,7 +5,7 @@
 - pose l'EULA propre à l'app dans App Store Connect (le contrat standard d'Apple) ;
 - joint le build, écrit la note pour Apple, envoie, puis relit tout.
 Ne touche qu'à com.padelup.vicefold. Ne change ni prix ni achats. N'écrit ni clé ni adresse.
-RELEASE_BUILD : numéro du build. RELEASE_VERSION : seulement s'il faut créer une nouvelle version.
+RELEASE_BUILD : numéro du build. RELEASE_VERSION : seulement s'il faut créer une nouvelle version (ignorée sinon).
 """
 import json
 import os
