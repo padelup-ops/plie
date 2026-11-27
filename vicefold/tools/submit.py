@@ -65,8 +65,8 @@ def call(method, path, body=None):
                 parts.append(f"{x.get('code')}: {x.get('detail')}")
                 # Apple range la vraie raison dans les erreurs associées (par ressource).
                 for where, subs in ((x.get("meta") or {}).get("associatedErrors") or {}).items():
-                    for e in subs:
-                        parts.append(f"[{where}] {e.get('code')}: {e.get('detail')}")
+                    for one in subs:
+                        parts.append(f"[{where}] {one.get('code')}: {one.get('detail')}")
             detail = "; ".join(parts) or text[:600]
         except Exception:
             detail = text[:600]
