@@ -56,8 +56,19 @@ code, data = call('GET', '/api/profile/')
 check('profil complet', code == 200 and data['profile']['is_completed'] and data['profile']['skill_level'] == 4,
       f"niveau {data.get('profile', {}).get('skill_level') if isinstance(data, dict) else '?'} · {data.get('profile', {}).get('tier_name') if isinstance(data, dict) else ''}")
 
-code, data = call('POST', '/api/clubs/from-osm/', {'osm_id': 'way/1455979295'})
+code, data = call('POST', '/api/clubs/from-osm/', {'osm_id': 'way/1455979295', 'name': 'Padel Horizon Lomme',
+                                                   'latitude': 50.6377, 'longitude': 2.9937, 'city': 'Lomme'})
 check('club OpenStreetMap ajouté (Padel Horizon Lomme)', code in (200, 201), f"{code} {data.get('name') if isinstance(data, dict) else data}")
+club_id = data.get('id') if isinstance(data, dict) else None
+if club_id:
+    from datetime import datetime, timezone as tz
+    when = (datetime.now(tz.utc) + timedelta(days=2)).replace(hour=18, minute=0, second=0, microsecond=0).isoformat()
+    code, m = call('POST', '/api/matches/', {'title': 'Match de test', 'club': club_id, 'date_time': when, 'duration': 90,
+                                             'max_players': 4, 'min_skill_level': 3, 'max_skill_level': 6, 'is_public': True})
+    check('match créé dans ce club', code == 201, f"{code} {m.get('title') if isinstance(m, dict) else m}")
+    if code == 201:
+        code, chat = call('POST', f"/api/matches/{m['id']}/chat/", {'content': 'Qui apporte les balles ?'})
+        check('message dans la discussion du match', code == 201, f'{code}')
 
 code, data = call('GET', '/api/bot/providers/')
 check('plateformes du bot', code == 200, ', '.join(p['name'] for p in data) if code == 200 else str(data)[:120])
