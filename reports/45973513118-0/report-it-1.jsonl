@@ -8,3 +8,4 @@
 {"id": "a7fd95533fed66ec99e8", "key": "hello|samuel", "text": "Oh, oh, oh! Ciao, Samuel!", "ok": true, "score": 1.0, "dur": 2.84, "heard": "Oh, oh, oh, ciao Samuel!", "tries": 1, "secs": 50.7}
 {"id": "25c2cb90cba1f43f766e", "key": "hello|eleonora", "text": "Oh, oh, oh! Ciao, Eleonora!", "ok": true, "score": 1.0, "dur": 2.12, "heard": "Oh, oh, oh, ciao Eleonora!", "tries": 1, "secs": 48.8}
 {"id": "c2c646e3569dc7d8c765", "key": "hello|sole", "text": "Oh, oh, oh! Ciao, Sole!", "ok": true, "score": 1.0, "dur": 2.68, "heard": "Oh, oh, oh, ciao, sole!", "tries": 1, "secs": 45.9}
+{"id": "f7233f2c2f2ee1cdbf90", "key": "hello|angelica", "text": "Oh, oh, oh! Ciao, Angelica!", "ok": true, "score": 1.0, "dur": 2.6, "heard": "Oh, oh, oh, ciao Angelica!", "tries": 1, "secs": 53.8}

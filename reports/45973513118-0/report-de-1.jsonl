@@ -1,3 +1,10 @@
 {"id": "b195a89059deb26fccaf", "key": "hello|luisa", "text": "Ho, ho, ho! Hallo, Luisa!", "ok": true, "score": 0.925, "dur": 4.16, "heard": "Ho ho ho! Hallo, Louisa!", "tries": 1, "secs": 63.9}
 {"id": "e442e21858062066aca5", "key": "hello|liam", "text": "Ho, ho, ho! Hallo, Liam!", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Ho ho ho hallo Liam.", "tries": 3, "secs": 135.0}
 {"id": "7b36cfdc61e8ba87dab9", "key": "hello|elisa", "text": "Ho, ho, ho! Hallo, Elisa!", "ok": true, "score": 1.0, "dur": 3.38, "heard": "Ho, ho, ho, hallo, Elisa.", "tries": 3, "secs": 146.0}
+{"id": "3f8202d839734ad5e868", "key": "hello|julian", "text": "Ho, ho, ho! Hallo, Julian!", "ok": true, "score": 1.0, "dur": 3.72, "heard": "Ho Ho Ho! Hallo Julian!", "tries": 2, "secs": 101.3}
+{"id": "1083c6cbd8c4db0a9a61", "key": "hello|lio", "text": "Ho, ho, ho! Hallo, Lio!", "ok": true, "score": 0.741, "dur": 2.26, "heard": "Ho, ho, ho, hallo Leo!", "tries": 1, "secs": 40.6}
+{"id": "94c364f82e7223f615fe", "key": "hello|elena", "text": "Ho, ho, ho! Hallo, Elena!", "ok": true, "score": 1.0, "dur": 2.58, "heard": "Ho ho ho, hallo Elena!", "tries": 1, "secs": 42.7}
+{"id": "e5af83d9f570a6000652", "key": "hello|tom", "text": "Ho, ho, ho! Hallo, Tom!", "ok": true, "score": 0.963, "dur": 2.36, "heard": "Ho, ho, ho, hello, Tom!", "tries": 1, "secs": 41.6}
+{"id": "98a1d4ab2f8b0729bc56", "key": "hello|linus", "text": "Ho, ho, ho! Hallo, Linus!", "ok": true, "score": 1.0, "dur": 2.48, "heard": "Ho ho ho, hallo Linus!", "tries": 1, "secs": 41.2}
+{"id": "b9f748b854e520cb7f40", "key": "hello|luis", "text": "Ho, ho, ho! Hallo, Luis!", "ok": true, "score": 1.0, "dur": 2.2, "heard": "Ho ho ho, hallo Luis!", "tries": 1, "secs": 38.2}
+{"id": "a52ade357cf940a89403", "key": "hello|nico", "text": "Ho, ho, ho! Hallo, Nico!", "ok": true, "score": 1.0, "dur": 1.92, "heard": "Ho ho ho, hallo Nico!", "tries": 1, "secs": 42.1}
