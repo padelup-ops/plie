@@ -1,6 +1,7 @@
-# PADELUP NEO : récupère tous les clubs de padel du monde (OpenStreetMap / Overpass) et publie le fichier
-# clubs-world.json dans la branche ci-padelup-clubs. Le workflow TestFlight l'embarque dans l'app.
-name: PadelUp - clubs du monde
+# PADELUP NEO : récupère les clubs de padel de la zone PadelUp (France, Belgique, Suisse, pays frontaliers de la France,
+# Maroc, Algérie, Tunisie) sur OpenStreetMap (Overpass) et publie clubs-zone.json dans la branche ci-padelup-clubs.
+# Le workflow TestFlight l'embarque dans l'app.
+name: PadelUp - clubs de la zone
 on:
   workflow_dispatch:
   schedule:
@@ -8,7 +9,7 @@ on:
   push:
     branches: ["claude/**"]
     paths:
-      - "padelup/tools/world_clubs.py"
+      - "padelup/tools/zone_clubs.py"
       - "padelup/backend/app/opendata.py"
       - ".github/workflows/padelup-clubs.yml"
 concurrency:
@@ -23,10 +24,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Interroger OpenStreetMap
-        timeout-minutes: 85
+        timeout-minutes: 70
         run: |
           set -o pipefail
-          python3 -u padelup/tools/world_clubs.py "$RUNNER_TEMP/clubs-world.json" 2>&1 | tee "$RUNNER_TEMP/journal.txt"
+          python3 -u padelup/tools/zone_clubs.py "$RUNNER_TEMP/clubs-zone.json" 2>&1 | tee "$RUNNER_TEMP/journal.txt"
       - name: Publier (fichier complet ou partiel, et journal)
         if: always()
         env:
@@ -39,10 +40,10 @@ jobs:
           cp "$RUNNER_TEMP/journal.txt" . 2>/dev/null || echo "pas de journal" > journal.txt
           echo "commit ${{ github.sha }} - $(date -u)" > run.txt
           BRANCH=ci-padelup-clubs-log
-          if [ -s "$RUNNER_TEMP/clubs-world.json" ] && [ "$(stat -c %s "$RUNNER_TEMP/clubs-world.json")" -gt 50000 ]; then
-            cp "$RUNNER_TEMP/clubs-world.json" .
+          if [ -s "$RUNNER_TEMP/clubs-zone.json" ] && [ "$(stat -c %s "$RUNNER_TEMP/clubs-zone.json")" -gt 20000 ]; then
+            cp "$RUNNER_TEMP/clubs-zone.json" .
             BRANCH=ci-padelup-clubs
           fi
           git checkout -q -b "$BRANCH"
-          git add -A && git commit -qm "Clubs de padel du monde (OpenStreetMap)"
+          git add -A && git commit -qm "Clubs de padel de la zone PadelUp (OpenStreetMap)"
           git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BRANCH"

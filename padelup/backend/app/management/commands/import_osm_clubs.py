@@ -1,8 +1,8 @@
 """Importe des clubs de padel OpenStreetMap dans la base PadelUp (pour le tableau de bord et les matchs).
 
-    python manage.py import_osm_clubs --file clubs-world.json         # fichier construit par padelup/tools/world_clubs.py
+    python manage.py import_osm_clubs --file clubs-zone.json         # fichier construit par padelup/tools/zone_clubs.py
     python manage.py import_osm_clubs --bbox 48.7,2.2,49.0,2.5         # une zone, directement depuis Overpass
-    python manage.py import_osm_clubs --file clubs-world.json --country FR --named-only
+    python manage.py import_osm_clubs --file clubs-zone.json --country FR --named-only
 
 Les clubs saisis à la main ne sont jamais modifiés ; seuls les clubs déjà importés d'OSM sont mis à jour.
 """

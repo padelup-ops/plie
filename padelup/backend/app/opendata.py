@@ -25,6 +25,19 @@ VENUE_RADIUS_M = 300
 CLUSTER_RADIUS_M = 200
 
 
+# Zone couverte par PadelUp : la France, la Belgique, la Suisse, les pays frontaliers de la France, et le Maghreb.
+ZONE_COUNTRIES = {
+    'FR': 'France', 'BE': 'Belgique', 'CH': 'Suisse', 'LU': 'Luxembourg', 'DE': 'Allemagne', 'IT': 'Italie',
+    'MC': 'Monaco', 'AD': 'Andorre', 'ES': 'Espagne', 'MA': 'Maroc', 'DZ': 'Algérie', 'TN': 'Tunisie',
+}
+
+
+def country_query(code, timeout=240):
+    """Tous les éléments padel d'un pays (frontière OSM du pays : ISO 3166-1)."""
+    return (f'[out:json][timeout:{timeout}];area["ISO3166-1"="{code}"][admin_level=2]->.a;'
+            f'nwr{PADEL_FILTER}(area.a);out center tags;')
+
+
 def bbox_query(south, west, north, east, timeout=180):
     return f'[out:json][timeout:{timeout}];nwr{PADEL_FILTER}({south},{west},{north},{east});out center tags;'
 
