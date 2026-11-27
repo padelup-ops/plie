@@ -11,38 +11,38 @@ on:
       - "padelup/tools/world_clubs.py"
       - "padelup/backend/app/opendata.py"
       - ".github/workflows/padelup-clubs.yml"
+concurrency:
+  group: padelup-clubs
+  cancel-in-progress: true
 jobs:
   clubs:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 100
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v5
       - name: Interroger OpenStreetMap
-        run: python3 padelup/tools/world_clubs.py "$RUNNER_TEMP/clubs-world.json" 2>&1 | tee "$RUNNER_TEMP/journal.txt"
-      - name: Publier
-        if: success()
+        timeout-minutes: 85
+        run: |
+          set -o pipefail
+          python3 -u padelup/tools/world_clubs.py "$RUNNER_TEMP/clubs-world.json" 2>&1 | tee "$RUNNER_TEMP/journal.txt"
+      - name: Publier (fichier complet ou partiel, et journal)
+        if: always()
         env:
           GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p "$RUNNER_TEMP/ci" && cd "$RUNNER_TEMP/ci"
-          git init -q -b ci-padelup-clubs
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          cp "$RUNNER_TEMP/clubs-world.json" "$RUNNER_TEMP/journal.txt" .
-          echo "commit ${{ github.sha }} - $(date -u)" > run.txt
-          git add -A && git commit -qm "Clubs de padel du monde (OpenStreetMap)"
-          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-padelup-clubs
-      - name: Publier le journal en cas d'échec
-        if: failure()
-        env:
-          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/cie" && cd "$RUNNER_TEMP/cie"
-          git init -q -b ci-padelup-clubs-log
+          git init -q
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           cp "$RUNNER_TEMP/journal.txt" . 2>/dev/null || echo "pas de journal" > journal.txt
-          git add -A && git commit -qm "Journal clubs"
-          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-padelup-clubs-log
+          echo "commit ${{ github.sha }} - $(date -u)" > run.txt
+          BRANCH=ci-padelup-clubs-log
+          if [ -s "$RUNNER_TEMP/clubs-world.json" ] && [ "$(stat -c %s "$RUNNER_TEMP/clubs-world.json")" -gt 50000 ]; then
+            cp "$RUNNER_TEMP/clubs-world.json" .
+            BRANCH=ci-padelup-clubs
+          fi
+          git checkout -q -b "$BRANCH"
+          git add -A && git commit -qm "Clubs de padel du monde (OpenStreetMap)"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BRANCH"
