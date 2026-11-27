@@ -1,0 +1,6 @@
+{"id": "b094d40b51987728aa6e", "key": "hello|theo", "text": "Ho, ho, ho! Olá, Théo!", "ok": false, "score": 0.648, "dur": 3.26, "heard": "Oh, oh, oh, oh, oh, olá, teu!", "tries": 3, "secs": 156.9}
+{"id": "b0fe8297f63fd87f3cc3", "key": "hello|alicia", "text": "Ho, ho, ho! Olá, Alícia!", "ok": true, "score": 1.0, "dur": 2.74, "heard": "Oh ho ho ho ho ho! Olá, Alicia!", "tries": 1, "secs": 49.8}
+{"id": "bb3c0c4ec105819204c1", "key": "hello|ana clara", "text": "Ho, ho, ho! Olá, Ana Clara!", "ok": true, "score": 0.706, "dur": 3.4, "heard": "Oh, oh, oh, hola, anaclada!", "tries": 2, "secs": 107.5}
+{"id": "694a3d35055f9a4f5efb", "key": "hello|maria isis", "text": "Ho, ho, ho! Olá, Maria Isis!", "ok": true, "score": 1.0, "dur": 3.04, "heard": "Oh, oh, oh! Olá, Maria Isis!", "tries": 1, "secs": 48.0}
+{"id": "862e2cd42f2192261dcc", "key": "hello|joao", "text": "Ho, ho, ho! Olá, João!", "ok": true, "score": 0.98, "dur": 2.72, "heard": "Ho, ho, ho, hola João.", "tries": 1, "secs": 48.9}
+{"id": "f37afdcc7bb74c9a9a8e", "key": "hello|eduardo", "text": "Ho, ho, ho! Olá, Eduardo!", "ok": true, "score": 1.0, "dur": 2.94, "heard": "Oh, oh, oh! Olá, Eduardo!", "tries": 1, "secs": 52.5}
