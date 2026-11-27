@@ -572,6 +572,17 @@ let staleScreenOK: Bool = {
     print("RESULT ecran_annonce_perime portrait_deplie=\(portrait) paysage_deplie=\(landscape) ecran_exterieur_garde=\(outerKept) exterieur_paysage=\(outerLandscape) ecran_interieur_garde=\(innerKept) iphone_classique_inchange=\(classic) \(ok ? "yes" : "no")")
     return ok
 }()
+// Le fond du thème automatique laisse voir le panneau d'iOS quand le clavier est plus étroit que l'écran (Duo déplié
+// en paysage : 801 sur 951), et seulement là : pas en portrait déplié (655 sur 669), ni sur l'écran extérieur, ni
+// sur un iPhone classique, ni quand l'écran annoncé est encore le petit.
+let seamlessOK: Bool = {
+    func narrow(_ w: CGFloat, _ sw: CGFloat, _ sh: CGFloat) -> Bool { KeyboardCanvas.narrowerThanScreen(keyboard: w, screen: CGSize(width: sw, height: sh)) }
+    let landscape = narrow(801, 951, 669) && narrow(801, 669, 951)
+    let others = !narrow(655, 669, 951) && !narrow(466, 466, 678) && !narrow(852, 852, 393) && !narrow(393, 393, 852) && !narrow(801, 466, 678) && !narrow(801, 0, 0)
+    let ok = landscape && others
+    print("RESULT fond_fondu paysage_deplie=\(landscape) ailleurs_inchange=\(others) \(ok ? "yes" : "no")")
+    return ok
+}()
 let backupOK: Bool = {
     var s = KBSettings()
     s.mode = .right
@@ -642,7 +653,7 @@ for (text, spoken, pair, want) in dirCases {
 }
 print("RESULT dictee sens_traduction \(dictOK ? "yes" : "no") (sur \(dirCases.count))")
 if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !hostOK || !hapticsOK || !dictOK
-    || !barOptionsOK || !toastsOK || !orderOK || !backupOK || !accentOK || !staleScreenOK {
+    || !barOptionsOK || !toastsOK || !orderOK || !backupOK || !accentOK || !staleScreenOK || !seamlessOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }

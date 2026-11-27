@@ -3222,7 +3222,14 @@ final class KeyboardCanvas: UIView {
         // une zone transparente (entre les touches), et des lettres se perdaient.
         // Thème automatique : fond plein, couleur du clavier d'Apple. Presque transparent, on voyait au travers
         // l'image de l'ancien clavier qu'iOS laisse dessous quand le Duo s'ouvre ou se ferme (claviers superposés).
-        backgroundColor = theme.id == "glass" ? UIColor(white: 0, alpha: 0.012) : theme.background
+        // Duo déplié en paysage : iOS ne donne au clavier que 801 pt sur les 951 de l'écran, et dessine son propre
+        // panneau sur toute la largeur. Notre fond opaque y faisait un rectangle plus étroit (« le clavier ne couvre
+        // plus tout l'écran »). Avec le thème automatique, qui a les couleurs d'iOS, on laisse voir le panneau d'iOS
+        // comme le fait le thème Verre : le clavier s'y fond. Les thèmes de couleur gardent leur fond, c'est leur
+        // raison d'être, et rien ne peut être peint hors du clavier.
+        let screen = window?.windowScene?.screen.bounds.size ?? .zero
+        let seamless = theme.id == "glass" || (theme.id == "auto" && Self.narrowerThanScreen(keyboard: bounds.width, screen: screen))
+        backgroundColor = seamless ? UIColor(white: 0, alpha: 0.012) : theme.background
         // Les suggestions de l'écran d'avant ne restent pas (tableaux, pas les vues : elles sont réutilisées).
         suggestionItems = []
         suggestionsWord = ""
@@ -5042,6 +5049,15 @@ final class KeyboardCanvas: UIView {
     }
 
     /// Le doigt de cet appui est-il encore posé sur le clavier affiché ?
+    /// Le clavier est nettement plus étroit que l'écran : iOS le pose dans un panneau plus large que lui (Duo déplié
+    /// en paysage, clavier flottant). Si l'écran annoncé n'est pas dans le même sens que le clavier, on prend son
+    /// grand côté ; un écran plus petit que le clavier (taille de l'autre écran) ne dit rien.
+    static func narrowerThanScreen(keyboard w: CGFloat, screen: CGSize) -> Bool {
+        guard w > 50, screen.width > 0 else { return false }
+        let side = w > screen.width + 1 ? max(screen.width, screen.height) : screen.width
+        return side - w > 40
+    }
+
     /// Le temps d'appui qui ouvre les accents d'une lettre.
     static let accentHold: TimeInterval = 0.38
 
