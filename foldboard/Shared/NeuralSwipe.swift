@@ -291,7 +291,8 @@ enum NeuralSwipe {
     private static func memoryAllows() -> Bool {
         if !benchIgnoresBudget, footprintMB() > 48 { return false }
         let avail = availableMB()
-        if avail > 0 { return avail >= 12 }
+        // 18 Mo libres : le modèle chargé, il en reste plus que le palier « serré » du clavier (14), qui le rendrait.
+        if avail > 0 { return avail >= 18 }
         return benchIgnoresBudget || footprintMB() < 48
     }
 

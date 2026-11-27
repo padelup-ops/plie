@@ -534,6 +534,7 @@ let visibilityOK = KeyboardCanvas.verifyVisibility()
 let sheetOK = KeyboardCanvas.verifyBarSheet()
 let laptopOK = KeyboardCanvas.verifyLaptopLayout()
 let touchOK = KeyboardCanvas.verifyTouchSafety()
+let shedOK = KeyboardCanvas.verifyMemoryShed()
 /// La dictée écrite là où est le curseur : (texte avant, entendu, langue, attendu).
 let dictCases: [(String, String, String, String)] = [
     ("", "bonjour tout le monde", "fr", "Bonjour tout le monde"),
@@ -560,7 +561,7 @@ for (before, heard, lang, want) in dictCases {
     if got != want { dictOK = false; print("dictée ratée: «\(before)» + «\(heard)» → «\(got)» (voulu «\(want)»)") }
 }
 print("RESULT dictee mise_en_forme \(dictOK ? "yes" : "no") (sur \(dictCases.count))")
-if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !dictOK {
+if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !dictOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }
