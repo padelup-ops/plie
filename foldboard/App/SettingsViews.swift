@@ -70,6 +70,9 @@ struct PreviewDock: View {
     /// Replié au départ (premier lancement : les réglages d'abord).
     var startClosed = false
     @State private var width: CGFloat = 0
+    /// Le vrai clavier est à l'écran (on écrit dans un champ des réglages, une phrase par exemple) : l'aperçu lui
+    /// laisse la place, sinon deux claviers se chevauchent.
+    @State private var typing = false
 
     /// Assez de hauteur pour l'aperçu (pas en paysage sur le Duo ni sur l'iPhone).
     private var roomy: Bool {
@@ -85,6 +88,7 @@ struct PreviewDock: View {
 
     var body: some View {
         VStack(spacing: 0) {
+          if !typing {
             HStack {
                 Text(text.isEmpty ? NSLocalizedString("Preview: try the keys", comment: "") : text)
                     .lineLimit(1)
@@ -110,11 +114,15 @@ struct PreviewDock: View {
                     .ignoresSafeArea(.container, edges: .horizontal)
                     .transition(.move(edge: .bottom))
             }
+          }
         }
         .background(Color(.systemBackground))
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { w in
-            if w != width { width = w; open = nil }
+            // Largeur nulle : l'aperçu s'est effacé devant le vrai clavier, ce n'est pas un changement d'écran.
+            if w != width, w > 0 { width = w; open = nil }
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in typing = true }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in typing = false }
     }
 }
 

@@ -4958,12 +4958,22 @@ final class KeyboardCanvas: UIView {
             showBubble(over: cells[tr.index].frame, text: text)
             let options = KBLayouts.accents(s, layout: eff.layout)
             if !options.isEmpty {
-                tr.longTimer = Timer.scheduledTimer(withTimeInterval: 0.38, repeats: false) { [weak self, weak tr] _ in
-                    guard let self, let tr, !tr.done, tr.index < self.cells.count, self.holds(tr) else { return }
-                    tr.accents = options.map { upper ? $0.uppercased() : $0 }
-                    tr.accentIndex = 0
-                    self.hideBubble()
-                    self.showAccents(tr.accents, over: self.cells[tr.index].frame)
+                tr.longTimer = Timer.scheduledTimer(withTimeInterval: Self.accentHold, repeats: false) { [weak self, weak tr] _ in
+                    let show = { [weak self, weak tr] in
+                        guard let self, let tr, !tr.done, tr.index < self.cells.count, self.holds(tr) else { return }
+                        tr.accents = options.map { upper ? $0.uppercased() : $0 }
+                        tr.accentIndex = 0
+                        self.hideBubble()
+                        self.showAccents(tr.accents, over: self.cells[tr.index].frame)
+                    }
+                    guard let tr else { return }
+                    // Minuteur en retard : le clavier était occupé, et le lever du doigt attend peut-être encore
+                    // d'être distribué. On laisse passer les touchers en attente avant de montrer les accents.
+                    if ProcessInfo.processInfo.systemUptime - tr.t0 > Self.accentHold + 0.08 {
+                        tr.longTimer = Timer.scheduledTimer(withTimeInterval: 0.06, repeats: false) { _ in show() }
+                    } else {
+                        show()
+                    }
                 }
             }
             // La lettre s'écrit dès que le doigt se pose : c'est ce qui rend la frappe immédiate.
@@ -5015,6 +5025,18 @@ final class KeyboardCanvas: UIView {
     }
 
     /// Le doigt de cet appui est-il encore posé sur le clavier affiché ?
+    /// Le temps d'appui qui ouvre les accents d'une lettre.
+    static let accentHold: TimeInterval = 0.38
+
+    /// Un appui long ne vaut que si le doigt est vraiment resté posé. Quand le clavier a été occupé un instant, le
+    /// minuteur de l'appui long part en retard, avant que le clavier n'apprenne que le doigt était déjà levé : un
+    /// appui bref sortait alors « é » ou « ß » à la place de la lettre. `up` : le moment où le doigt s'est levé
+    /// (nil s'il est encore posé).
+    static func accentHeld(down: TimeInterval, up: TimeInterval?) -> Bool {
+        guard let up else { return true }
+        return up - down >= accentHold - 0.03
+    }
+
     private func holds(_ tr: Track) -> Bool {
         guard visible, window != nil, let t = tr.touch, tracks[t] === tr else { return false }
         return t.phase != .ended && t.phase != .cancelled
@@ -5027,6 +5049,14 @@ final class KeyboardCanvas: UIView {
         let v = cells[tr.index].view
         switch v.spec.kind {
         case .char(let s):
+            if !tr.accents.isEmpty {
+                let lifted = tr.touch.flatMap { $0.phase == .ended || $0.phase == .cancelled ? $0.timestamp : nil }
+                if !Self.accentHeld(down: tr.t0, up: lifted) {
+                    // Appui bref pris pour un appui long (clavier occupé) : la lettre déjà écrite reste telle quelle.
+                    tr.accents = []
+                    accentView.isHidden = true
+                }
+            }
             if !tr.accents.isEmpty {
                 let chosen = tr.accents[tr.accentIndex]
                 if emojiQuery != nil {

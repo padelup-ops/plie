@@ -545,6 +545,15 @@ let orderOK = KeyboardCanvas.verifyPositionOrder()
 // Retours du testeur (27 novembre, suite) : le fichier de réglages se relit à l'identique et un fichier quelconque est
 // refusé ; dans une version de test, un essai lancé ne se termine pas (sauf « fin d'essai simulée »), et dans la
 // version de l'App Store il se termine comme avant.
+// Un appui bref ne sort jamais un accent, même si le minuteur de l'appui long est parti en retard (clavier occupé).
+let accentOK: Bool = {
+    let brief = !KeyboardCanvas.accentHeld(down: 100, up: 100.12) && !KeyboardCanvas.accentHeld(down: 100, up: 100.30)
+    let long = KeyboardCanvas.accentHeld(down: 100, up: 100.40) && KeyboardCanvas.accentHeld(down: 100, up: 101)
+    let still = KeyboardCanvas.accentHeld(down: 100, up: nil)
+    let ok = brief && long && still
+    print("RESULT accents appui_bref_sans_accent=\(brief) appui_long_garde=\(long) doigt_pose=\(still) \(ok ? "yes" : "no")")
+    return ok
+}()
 let backupOK: Bool = {
     var s = KBSettings()
     s.mode = .right
@@ -615,7 +624,7 @@ for (text, spoken, pair, want) in dirCases {
 }
 print("RESULT dictee sens_traduction \(dictOK ? "yes" : "no") (sur \(dirCases.count))")
 if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !hostOK || !hapticsOK || !dictOK
-    || !barOptionsOK || !toastsOK || !orderOK || !backupOK {
+    || !barOptionsOK || !toastsOK || !orderOK || !backupOK || !accentOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }
