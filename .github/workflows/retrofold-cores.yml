@@ -16,6 +16,9 @@ on:
       device:
         description: "switch-installer seulement : identifiant (UDID) de l'iPhone qui recevra l'app Switch"
         required: false
+      apps:
+        description: "switch-installer seulement : switch, stikdebug, ou vide (les deux)"
+        required: false
       switch_source:
         description: "switch seulement : autre dépôt et version, « adresse version » (vide : la copie fixée dans build_switch.sh)"
         required: false
@@ -129,9 +132,18 @@ jobs:
         run: |
           XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
           sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+      # Le certificat de développement et sa clé, gardés d'une signature à l'autre (sinon il en faudrait un neuf à chaque fois).
+      - name: Reprendre le certificat
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/retrofold-signature
+          key: retrofold-switch-signature-${{ github.run_id }}
+          restore-keys: retrofold-switch-signature-
       - name: Compiler et signer
         env:
           DEVICE: ${{ inputs.device }}
+          APPS: ${{ inputs.apps || 'switch stikdebug' }}
+          SIGN_DIR: ${{ runner.temp }}/retrofold-signature
         run: |
           set -o pipefail
           test -n "$DEVICE" || { echo "Il manque l'identifiant de l'iPhone (champ device)"; exit 1; }
@@ -143,13 +155,20 @@ jobs:
         run: |
           grep -n -B2 -A6 -E "error:|ÉCHEC|BUILD FAILED|ARCHIVE FAILED" installer.log | head -200 || true
           echo "----- fin du journal"; tail -40 installer.log
+      - name: Garder le certificat
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/retrofold-signature
+          key: retrofold-switch-signature-${{ github.run_id }}
       - name: Joindre l'émulateur signé
+        if: ${{ inputs.apps == '' || contains(inputs.apps, 'switch') }}
         uses: actions/upload-artifact@v7
         with:
           path: retrofold/Switch/RetroFoldSwitch-signee.ipa
           archive: false
           retention-days: 7
       - name: Joindre StikDebug signé
+        if: ${{ inputs.apps == '' || contains(inputs.apps, 'stikdebug') }}
         uses: actions/upload-artifact@v7
         with:
           path: retrofold/Switch/RetroFoldStikDebug-signee.ipa

@@ -42,6 +42,12 @@ OLD_DEPS="src/MeloNX/MeloNX/Dependencies/Dynamic Libraries"
 if [ -d "$OLD_DEPS" ]; then
   # Ancien rangement (2.x) : le cœur Ryujinx.Headless.SDL2 est compilé par le projet, puis lié depuis ce dossier.
   ls -la "$OLD_DEPS"
+  # Cette version ouvre sa fenêtre à l'ancienne manière, ce qu'iOS refuse à une app compilée avec le kit iOS 27
+  # (arrêt au lancement) : on lui donne le cycle de vie « scène ».
+  if ! grep -q "UIWindowSceneDelegate" src/MeloNX/MeloNX/App/UI/AppDelegate.swift; then
+    git apply "$HERE/tools/switch/scene.patch"
+    echo "=== Correctif appliqué : cycle de vie « scène »"
+  fi
   echo "=== Compilation"
   LIBDEPS="$WORK/libdeps"
   ln -sfn "$SRC/$OLD_DEPS" "$LIBDEPS"

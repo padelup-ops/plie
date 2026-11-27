@@ -109,19 +109,39 @@ def preparer(udid, out):
 
     # 3. Un certificat de développement à nous (la clé privée ne sort pas de cette machine de compilation).
     key, csr, pem, p12 = (os.path.join(out, n) for n in ("cle.pem", "demande.csr", "certificat.pem", "signature.p12"))
+    cert_id_file = os.path.join(out, "certificat.id")
+    cert = None
+    if os.path.exists(cert_id_file) and os.path.exists(p12):
+        # Celui d'une signature précédente, gardé avec sa clé : les apps déjà installées restent valables.
+        r = call("GET", "/v1/certificates/" + open(cert_id_file).read().strip())
+        if "data" in r:
+            cert = r["data"]
+            print("ok     certificat de développement repris, expire", (cert["attributes"].get("expirationDate") or "")[:10])
+    if cert is None:
+        cert = nouveau_certificat(out, key, csr, pem, p12, cert_id_file)
+        if cert is None:
+            return 1
+    return profils(out, ids, resource, cert, device)
+
+
+def nouveau_certificat(out, key, csr, pem, p12, cert_id_file):
     subprocess.run(["/usr/bin/openssl", "genrsa", "-out", key, "2048"], check=True, capture_output=True)
     subprocess.run(["/usr/bin/openssl", "req", "-new", "-key", key, "-out", csr, "-subj", "/CN=RetroFold Switch/C=FR"], check=True, capture_output=True)
     r = call("POST", "/v1/certificates", {"data": {"type": "certificates", "attributes": {"certificateType": "DEVELOPMENT", "csrContent": open(csr).read()}}})
     if "data" not in r:
         print("ÉCHEC  certificat :", r)
-        return 1
+        return None
     cert = r["data"]
     der = base64.b64decode(cert["attributes"]["certificateContent"])
     open(os.path.join(out, "certificat.cer"), "wb").write(der)
     subprocess.run(["/usr/bin/openssl", "x509", "-inform", "DER", "-in", os.path.join(out, "certificat.cer"), "-out", pem], check=True, capture_output=True)
     subprocess.run(["/usr/bin/openssl", "pkcs12", "-export", "-inkey", key, "-in", pem, "-out", p12, "-passout", "pass:retrofold"], check=True, capture_output=True)
+    open(cert_id_file, "w").write(cert["id"])
     print("ok     certificat de développement créé, expire", (cert["attributes"].get("expirationDate") or "")[:10])
+    return cert
 
+
+def profils(out, ids, resource, cert, device):
     # 4. Un profil par app : ce certificat, cet iPhone.
     for key_, ident in ids.items():
         r = call("POST", "/v1/profiles", {"data": {"type": "profiles", "attributes": {"name": f"{APPS[key_][1]} {time.strftime('%Y%m%d-%H%M%S')}", "profileType": "IOS_APP_DEVELOPMENT"},

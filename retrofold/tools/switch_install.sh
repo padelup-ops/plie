@@ -10,12 +10,19 @@ STIK_REV=63713ea2100660dc7066ee0e8d962858026f97aa
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$HERE/Switch"
 WORK=${WORK:-$(mktemp -d)}
-SIGN="$WORK/signature"
+# SIGN_DIR : un dossier gardé d'une fois sur l'autre (certificat et sa clé), pour ne pas en créer un à chaque signature.
+SIGN=${SIGN_DIR:-$WORK/signature}
+# APPS : « switch », « stikdebug » ou les deux.
+APPS=${APPS:-switch stikdebug}
 mkdir -p "$OUT" "$SIGN"
+want() { case " $APPS " in *" $1 "*) return 0;; *) return 1;; esac; }
 
+if want switch; then
 echo "=== Émulateur Switch"
 WORK="$WORK/melonx-build" bash "$HERE/tools/build_switch.sh"
+fi
 
+if want stikdebug; then
 echo "=== StikDebug ($STIK_REV)"
 mkdir -p "$WORK/stik" && cd "$WORK/stik"
 git init -q && git remote add origin "$STIK_REPO"
@@ -25,6 +32,7 @@ xcodebuild clean archive -project StikDebug.xcodeproj -scheme StikDebug -configu
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO SWIFT_OPTIMIZATION_LEVEL="-Onone" \
   IPHONEOS_DEPLOYMENT_TARGET=17.4 | grep -E "error|ARCHIVE (SUCCEEDED|FAILED)" || true
 [ -d "$WORK/StikDebug.xcarchive/Products/Applications/StikDebug.app" ] || { echo "StikDebug n'a pas été produite"; exit 1; }
+fi
 
 echo "=== Compte développeur"
 python3 "$HERE/tools/switch_sign.py" preparer "$UDID" "$SIGN"
@@ -64,8 +72,12 @@ sign_app() { # $1 clé (switch | stikdebug), $2 dossier .app, $3 nom de l'.ipa
   du -sh "$OUT/$ipa"
 }
 
-mkdir -p "$WORK/unsigned" && (cd "$WORK/unsigned" && unzip -q -o "$OUT/RetroFoldSwitch.ipa")
-sign_app switch "$WORK/unsigned/Payload/MeloNX.app" RetroFoldSwitch-signee.ipa
-sign_app stikdebug "$WORK/StikDebug.xcarchive/Products/Applications/StikDebug.app" RetroFoldStikDebug-signee.ipa
+if want switch; then
+  mkdir -p "$WORK/unsigned" && (cd "$WORK/unsigned" && unzip -q -o "$OUT/RetroFoldSwitch.ipa")
+  sign_app switch "$WORK/unsigned/Payload/MeloNX.app" RetroFoldSwitch-signee.ipa
+fi
+if want stikdebug; then
+  sign_app stikdebug "$WORK/StikDebug.xcarchive/Products/Applications/StikDebug.app" RetroFoldStikDebug-signee.ipa
+fi
 security delete-keychain "$KEYCHAIN"
-rm -rf "$SIGN"
+[ -n "${SIGN_DIR:-}" ] || rm -rf "$SIGN"
