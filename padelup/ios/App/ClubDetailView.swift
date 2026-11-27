@@ -3,6 +3,15 @@ import MapKit
 import SafariServices
 import SwiftUI
 
+/// Créneaux d'une même heure regroupés (plusieurs terrains libres à 19:30 = une seule case).
+struct SlotGroup: Identifiable, Hashable {
+    var time: String
+    var slots: [BookingSlot]
+    var id: String { time + ":" + (slots.first?.id ?? "") }
+    var first: BookingSlot { slots[0] }
+    var minPrice: String { slots.min { ($0.price ?? .infinity) < ($1.price ?? .infinity) }?.priceLabel ?? "" }
+}
+
 struct ClubDetailView: View {
     @State var club: Club
     @EnvironmentObject private var bot: BotEngine
@@ -16,15 +25,17 @@ struct ClubDetailView: View {
     @State private var loadingSlots = false
     @State private var slotError: String? = nil
     @State private var duration = 90
-    @State private var confirm: BookingSlot? = nil
+    @State private var picked: SlotGroup? = nil
     @State private var outcome: BookingOutcome? = nil
     @State private var showRuleEditor = false
-    @State private var showConnect = false
     @State private var showCreateMatch = false
     @State private var anybuddyLink = ""
-    @State private var safariURL: URL? = nil
+    @State private var web: URL? = nil
+    @State private var login: BotProvider? = nil
     @State private var findingPlaytomic = false
+    @State private var lastRefresh: Date? = nil
     @State private var address: String? = nil
+    @State private var accountsVersion = 0
 
     private var provider: BotProvider? {
         if club.playtomicTenantID != nil { return .playtomic }
@@ -34,31 +45,36 @@ struct ClubDetailView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    header
-                    facts
-                    availabilitySection
-                    if !weather.isEmpty { weatherSection }
-                    actionsSection
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                mapHeader
+                VStack(alignment: .leading, spacing: 30) {
+                    titleBlock
+                    if club.courts > 0 || Self.compactHours(club.openingHours) != nil { facts }
+                    quickActions
+                    bookingBlock
+                    if !weather.isEmpty {
+                        Block(title: "Météo de jeu", meta: club.isMostlyIndoor ? "couvert" : nil) {
+                            PlayWeatherChart(hours: Array(weather.prefix(12)), indoor: club.isMostlyIndoor)
+                        }
+                    }
+                    moreBlock
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 4)
-                .padding(.bottom, 40)
+                .padding(.horizontal, UI.margin)
+                .padding(.top, 22)
+                .padding(.bottom, 48)
             }
-            .background(UI.bg.ignoresSafeArea())
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { dismiss() } label: { Image(systemName: "xmark") }.tint(UI.ink)
-                }
-            }
+        }
+        .background(UI.paper.ignoresSafeArea())
+        .overlay(alignment: .topTrailing) {
+            RoundIconButton(systemImage: "xmark") { dismiss() }.padding(16).accessibilityLabel("Fermer")
         }
         .task {
             if ShotMode.current != nil {
                 weather = ShotMode.demoWeather()
                 slots = ShotMode.demoSlots(for: club)
                 day = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date())) ?? day
+                lastRefresh = Date()
                 return
             }
             async let w: Void = loadWeather()
@@ -66,243 +82,276 @@ struct ClubDetailView: View {
             await linkPlaytomicIfNeeded()
             await loadSlots()
             _ = await (w, a)
+            // Temps réel : les créneaux sont relus chaque minute tant que la fiche est ouverte.
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 60_000_000_000)
+                if Task.isCancelled { break }
+                await loadSlots(quiet: true)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .webAccountChanged)) { _ in accountsVersion += 1 }
+        .sheet(item: $web) { url in ProviderWebSheet(provider: WebAccount.owns(url), url: url) }
+        .sheet(item: $login) { p in ProviderWebSheet(provider: p, url: WebAccount.loginURL(p), title: "Connexion \(p.name)") }
+        .sheet(item: $picked) { group in
+            BookingSheet(club: club, group: group, duration: duration) { action in
+                picked = nil
+                switch action {
+                case .book(let slot): Task { await book(slot) }
+                case .watch: showRuleEditor = true
+                }
+            }
+            .presentationDetents([.height(480)])
+            .presentationBackground(UI.paper)
         }
         .sheet(isPresented: $showRuleEditor) {
             RuleEditorView(prefill: BotRule(provider: provider ?? .playtomic, clubID: club.playtomicTenantID ?? club.anybuddySlug ?? club.backendID.map(String.init) ?? "",
                                             clubName: club.displayName, clubCity: club.city, timezone: club.timezone ?? TimeZone.current.identifier,
-                                            durations: [duration]))
+                                            durations: [duration], clubSlug: club.playtomicSlug))
         }
-        .sheet(isPresented: $showConnect) { ConnectPlaytomicView() }
         .sheet(isPresented: $showCreateMatch) { CreateMatchView(club: club) }
-        .sheet(item: $safariURL) { url in SafariView(url: url).ignoresSafeArea() }
-        .alert("Réserver ce créneau ?", isPresented: Binding(get: { confirm != nil }, set: { if !$0 { confirm = nil } })) {
-            Button("Réserver") { if let s = confirm { Task { await book(s) } } }
-            Button("Annuler", role: .cancel) {}
-        } message: {
-            if let s = confirm {
-                Text("\(club.displayName)\n\(BotEngine.when(s)) · \(s.duration) min · \(s.courtName)\(s.priceLabel.isEmpty ? "" : " · " + s.priceLabel)\nLe bot fait toute la réservation avec ton compte.")
-            }
-        }
     }
 
     // MARK: En-tête
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Map(initialPosition: .region(MKCoordinateRegion(center: club.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.006, longitudeDelta: 0.006)))) {
-                Annotation(club.displayName, coordinate: club.coordinate) { ClubPin(club: club) }.annotationTitles(.hidden)
-            }
-            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
-            .frame(height: 170)
-            .clipShape(RoundedRectangle(cornerRadius: UI.radius, style: .continuous))
-            .allowsHitTesting(false)
-            VStack(alignment: .leading, spacing: 6) {
-                Text(club.displayName).font(.system(size: 28, weight: .bold)).foregroundStyle(UI.ink).fixedSize(horizontal: false, vertical: true)
-                Text(address ?? club.place).font(UI.callout()).foregroundStyle(UI.muted)
-                HStack(spacing: 6) {
-                    if club.canBookWithBot { Tag(text: "Réservable par le bot", systemImage: "bolt.fill", color: UI.accent) }
-                    Tag(text: club.source.label, color: UI.muted)
-                }
-                .padding(.top, 2)
-            }
-            .padding(.horizontal, 4)
+    private var mapHeader: some View {
+        Map(initialPosition: .region(MKCoordinateRegion(center: club.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)))) {
+            Annotation(club.displayName, coordinate: club.coordinate) { ClubPin(club: club) }.annotationTitles(.hidden)
+        }
+        .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll))
+        .frame(height: 190)
+        .allowsHitTesting(false)
+        .overlay(alignment: .bottom) {
+            LinearGradient(colors: [UI.paper.opacity(0), UI.paper], startPoint: .top, endPoint: .bottom).frame(height: 56)
+        }
+    }
+
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Eyebrow(text: [club.city, provider?.name ?? (club.source == .osm ? "OpenStreetMap" : club.source.label)].filter { !$0.isEmpty }.joined(separator: " · "))
+            Text(club.displayName).font(UI.display(30)).foregroundStyle(UI.ink).fixedSize(horizontal: false, vertical: true)
+            Text(address ?? club.place).font(UI.callout()).foregroundStyle(UI.muted)
         }
     }
 
     private var facts: some View {
+        var items: [(String, String)] = []
+        if club.courts > 0 { items.append(("\(club.courts)", club.courts > 1 ? "terrains" : "terrain")) }
+        if club.indoor > 0 { items.append(("\(club.indoor)", club.indoor > 1 ? "couverts" : "couvert")) }
+        if club.outdoor > 0 { items.append(("\(club.outdoor)", "dehors")) }
+        if let hours = Self.compactHours(club.openingHours) { items.append((hours, "horaires")) }
+        return StatsRow(items: Array(items.prefix(3)))
+    }
+
+    /// « Mo-Su 07:00-23:30 » → « 7–23 h ».
+    static func compactHours(_ raw: String) -> String? {
+        guard let r = raw.range(of: #"(\d{1,2}):\d{2}\s*-\s*(\d{1,2}):\d{2}"#, options: .regularExpression) else { return nil }
+        let parts = raw[r].split(separator: "-").map { $0.trimmingCharacters(in: .whitespaces) }
+        guard parts.count == 2, let a = Int(parts[0].prefix(while: { $0 != ":" })), let b = Int(parts[1].prefix(while: { $0 != ":" })) else { return nil }
+        return "\(a)–\(b) h"
+    }
+
+    private var quickActions: some View {
         HStack(spacing: 10) {
-            Metric(value: club.courts > 0 ? "\(club.courts)" : "–", label: "terrains")
-            Metric(value: club.indoor > 0 ? "\(club.indoor)" : "–", label: "couverts")
-            Metric(value: club.outdoor > 0 ? "\(club.outdoor)" : "–", label: "extérieurs")
-        }
-    }
-
-    // MARK: Disponibilités et réservation par le bot
-
-    private var days: [Date] {
-        (0..<7).compactMap { Calendar.current.date(byAdding: .day, value: $0, to: Calendar.current.startOfDay(for: Date())) }
-    }
-
-    @ViewBuilder private var availabilitySection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text("Disponibilités").font(UI.headline()).foregroundStyle(UI.ink)
-                Spacer()
-                if let provider { Text(provider.name).font(UI.caption()).foregroundStyle(UI.muted) }
-            }
-            if provider == nil {
-                notLinked
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(days, id: \.self) { d in
-                            let selected = Calendar.current.isDate(d, inSameDayAs: day)
-                            Button { day = d; Task { await loadSlots() } } label: {
-                                VStack(spacing: 3) {
-                                    Text(d.formatted(.dateTime.weekday(.abbreviated).locale(Locale(identifier: "fr_FR"))).capitalized)
-                                        .font(.system(size: 12, weight: .medium))
-                                    Text(d.formatted(.dateTime.day())).font(UI.number(18))
-                                }
-                                .frame(width: 48, height: 58)
-                                .foregroundStyle(selected ? UI.onAccent : UI.ink)
-                                .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(selected ? UI.accent : UI.tray))
-                            }.buttonStyle(.plain)
-                        }
-                    }
-                }
-                Picker("Durée", selection: $duration) {
-                    Text("60 min").tag(60); Text("90 min").tag(90); Text("120 min").tag(120)
-                }
-                .pickerStyle(.segmented)
-                if loadingSlots {
-                    HStack(spacing: 10) { ProgressView(); Text("Le bot interroge \(provider?.name ?? "")…").font(UI.caption()).foregroundStyle(UI.muted) }
-                } else if let slotError {
-                    Text(slotError).font(UI.caption()).foregroundStyle(UI.warning)
-                } else {
-                    let list = slots.filter { $0.duration == duration && $0.start > Date() }
-                    if list.isEmpty {
-                        Text("Aucun créneau de \(duration) min ce jour-là. Le bot peut surveiller et réserver dès qu'un créneau se libère.")
-                            .font(UI.caption()).foregroundStyle(UI.muted)
-                    } else {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 92), spacing: 8)], spacing: 8) {
-                            ForEach(list) { s in
-                                Button { confirm = s } label: { SlotCell(slot: s) }.buttonStyle(.plain)
-                            }
-                        }
-                    }
-                }
-                if let outcome { outcomeBanner(outcome) }
-                if provider == .playtomic && !PlaytomicAPI.shared.isConnected {
-                    Button { showConnect = true } label: { Text("Connecter Playtomic pour réserver") }
-                        .buttonStyle(SecondaryButtonStyle(color: UI.accent))
-                }
-                Button { showRuleEditor = true } label: { Label("Le bot surveille et réserve pour moi", systemImage: "bolt.fill") }
-                    .buttonStyle(PrimaryButtonStyle())
-                Text(provider?.automationNote ?? "").font(UI.small()).foregroundStyle(UI.faint)
-            }
-        }
-        .card()
-    }
-
-    private var notLinked: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if findingPlaytomic {
-                HStack(spacing: 10) { ProgressView(); Text("Recherche de ce club sur Playtomic…").font(UI.caption()).foregroundStyle(UI.muted) }
-            } else {
-                Text("Ce club n'est pas relié à une plateforme de réservation.").font(UI.callout()).foregroundStyle(UI.muted)
-            }
-            Text("Il est sur Anybuddy ? Colle le lien de sa page :").font(UI.caption()).foregroundStyle(UI.faint)
-            HStack(spacing: 8) {
-                InputField(title: "anybuddyapp.com/fr/club/…", text: $anybuddyLink)
-                Button("Relier") {
-                    if let slug = AnybuddyAPI.slug(from: anybuddyLink) {
-                        club.anybuddySlug = slug
-                        club.timezone = "Europe/Paris"
-                        Task { await loadSlots() }
-                    }
-                }
-                .buttonStyle(LinkButtonStyle())
-            }
-        }
-    }
-
-    private func outcomeBanner(_ o: BookingOutcome) -> some View {
-        let color = o.status == .booked ? UI.success : (o.status == .needsAction ? UI.accent : UI.danger)
-        return HStack(alignment: .top, spacing: 10) {
-            Image(systemName: o.status == .booked ? "checkmark.circle.fill" : (o.status == .needsAction ? "hand.tap.fill" : "xmark.circle.fill"))
-                .foregroundStyle(color).font(.system(size: 18))
-            VStack(alignment: .leading, spacing: 6) {
-                Text(o.message).font(UI.callout()).foregroundStyle(UI.ink)
-                if let url = o.actionURL {
-                    Button("Terminer en un geste") { safariURL = url }.buttonStyle(LinkButtonStyle())
-                }
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(color.opacity(0.10)))
-    }
-
-    // MARK: Météo de jeu
-
-    private var weatherSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Météo du court").font(UI.headline()).foregroundStyle(UI.ink)
-                Spacer()
-                Text(club.isMostlyIndoor ? "terrains couverts" : "indice de jeu /100").font(UI.caption()).foregroundStyle(UI.muted)
-            }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 14) {
-                    ForEach(weather.prefix(30)) { h in
-                        VStack(spacing: 6) {
-                            Text(Self.hourLabel(h.time)).font(UI.small()).foregroundStyle(UI.muted)
-                            Image(systemName: h.symbol).symbolRenderingMode(.multicolor).font(.system(size: 18))
-                            Text("\(Int(h.temperature.rounded()))°").font(.system(size: 15, weight: .semibold, design: .rounded)).foregroundStyle(UI.ink)
-                            Text("\(h.playScore)").font(.system(size: 11, weight: .semibold, design: .rounded))
-                                .foregroundStyle(h.playScore >= 70 ? UI.success : (h.playScore >= 40 ? UI.warning : UI.danger))
-                        }
-                        .frame(width: 40)
-                    }
-                }
-            }
-        }
-        .card()
-    }
-
-    private static func hourLabel(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "fr_FR")
-        f.dateFormat = "HH'h'"
-        return f.string(from: date)
-    }
-
-    // MARK: Actions
-
-    private var actionsSection: some View {
-        VStack(spacing: 0) {
-            actionRow("Itinéraire", "arrow.triangle.turn.up.right.diamond") {
+            quickAction("Itinéraire", "arrow.triangle.turn.up.right.diamond") {
                 let item = MKMapItem(placemark: MKPlacemark(coordinate: club.coordinate))
                 item.name = club.displayName
                 item.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
             }
-            Divider().overlay(UI.line).padding(.leading, 48)
-            actionRow("Créer un match ici", "person.2") { showCreateMatch = true }
-            if let url = URL(string: club.website), !club.website.isEmpty {
-                Divider().overlay(UI.line).padding(.leading, 48)
-                actionRow("Site du club", "safari") { safariURL = url }
-            }
             if !club.phone.isEmpty, let tel = URL(string: "tel:" + club.phone.filter { "+0123456789".contains($0) }) {
-                Divider().overlay(UI.line).padding(.leading, 48)
-                Link(destination: tel) { rowLabel("Appeler", "phone") }
+                quickAction("Appeler", "phone") { UIApplication.shared.open(tel) }
             }
-            if !club.openingHours.isEmpty {
-                Divider().overlay(UI.line).padding(.leading, 48)
-                HStack(spacing: 14) {
-                    Image(systemName: "clock").foregroundStyle(UI.muted).frame(width: 22)
-                    Text(club.openingHours).font(UI.caption()).foregroundStyle(UI.muted)
-                    Spacer()
+            if let url = URL(string: club.website), !club.website.isEmpty {
+                quickAction("Site", "safari") { web = url }
+            }
+            quickAction("Match", "person.2") { showCreateMatch = true }
+        }
+    }
+
+    private func quickAction(_ title: String, _ icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: icon).font(.system(size: 17, weight: .regular))
+                Text(title).font(.system(size: 12, weight: .medium))
+            }
+            .foregroundStyle(UI.ink)
+            .frame(maxWidth: .infinity, minHeight: 64)
+            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(UI.raised))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: Réservation
+
+    private var days: [Date] {
+        (0..<10).compactMap { Calendar.current.date(byAdding: .day, value: $0, to: Calendar.current.startOfDay(for: Date())) }
+    }
+
+    @ViewBuilder private var bookingBlock: some View {
+        let _ = accountsVersion
+        if let provider {
+            if provider == .anybuddy { anybuddyBlock } else { slotsBlock(provider) }
+        } else {
+            notLinked
+        }
+    }
+
+    private func slotsBlock(_ provider: BotProvider) -> some View {
+        Block(title: "Créneaux", meta: provider == .playtomic ? "en direct" + (lastRefresh.map { " · " + FR.time($0) } ?? "") : provider.name,
+              live: provider == .playtomic && slotError == nil) {
+            VStack(alignment: .leading, spacing: 18) {
+                dayStrip
+                InlinePicker(options: [(60, "60 min"), (90, "90 min"), (120, "120 min")], selection: $duration)
+                slotsContent
+                if provider == .playtomic && !PlaytomicWeb.connected && ShotMode.current == nil {
+                    HStack(spacing: 12) {
+                        Text("Connecte Playtomic pour réserver en un geste.").font(UI.callout()).foregroundStyle(UI.muted)
+                        Spacer(minLength: 8)
+                        Button("Connecter") { login = .playtomic }.buttonStyle(LinkButtonStyle())
+                    }
+                    .padding(.vertical, 4)
                 }
-                .padding(.vertical, 13)
+                if let outcome, outcome.status != .needsAction { outcomeNote(outcome) }
+                Button { showRuleEditor = true } label: { Label("Lancer un bot sur ce club", systemImage: "scope") }
+                    .buttonStyle(PrimaryButtonStyle())
+                Text(provider.automationNote).font(UI.small()).foregroundStyle(UI.faint).fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(.horizontal, 14)
-        .card(padding: 0)
     }
 
-    private func actionRow(_ title: String, _ icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) { rowLabel(title, icon) }.buttonStyle(.plain)
-    }
-
-    private func rowLabel(_ title: String, _ icon: String) -> some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon).foregroundStyle(UI.accent).frame(width: 22)
-            Text(title).font(UI.body()).foregroundStyle(UI.ink)
-            Spacer()
-            Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(UI.faint)
+    private var dayStrip: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(days, id: \.self) { d in
+                    let selected = Calendar.current.isDate(d, inSameDayAs: day)
+                    let today = Calendar.current.isDateInToday(d)
+                    Button { day = d; Task { await loadSlots() } } label: {
+                        VStack(spacing: 4) {
+                            Text(today ? "AUJ." : FR.string(d, "EEE").replacingOccurrences(of: ".", with: "").uppercased(with: UI.fr))
+                                .font(UI.label()).tracking(0.6)
+                            Text(FR.string(d, "d")).font(UI.score(22))
+                        }
+                        .frame(width: 50, height: 62)
+                        .foregroundStyle(selected ? UI.paper : UI.ink)
+                        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(selected ? UI.ink : UI.raised))
+                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(selected ? Color.clear : UI.rule, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
         }
-        .padding(.vertical, 13)
-        .contentShape(Rectangle())
+    }
+
+    private var groups: [(String, [SlotGroup])] {
+        let list = slots.filter { $0.duration == duration && $0.start > Date() }
+        var byTime: [String: [BookingSlot]] = [:]
+        for s in list { byTime[s.localTime, default: []].append(s) }
+        let all = byTime.keys.sorted().map { SlotGroup(time: $0, slots: (byTime[$0] ?? []).sorted { ($0.price ?? 0) < ($1.price ?? 0) }) }
+        let periods: [(String, ClosedRange<Int>)] = [("Matin", 0...719), ("Après-midi", 720...1079), ("Soir", 1080...1439)]
+        return periods.compactMap { name, range in
+            let g = all.filter { range.contains($0.first.minutesOfDay) }
+            return g.isEmpty ? nil : (name, g)
+        }
+    }
+
+    @ViewBuilder private var slotsContent: some View {
+        if loadingSlots && slots.isEmpty {
+            HStack(spacing: 10) {
+                ProgressView()
+                Text("Lecture des créneaux…").font(UI.callout()).foregroundStyle(UI.muted)
+            }
+            .padding(.vertical, 8)
+        } else if let slotError {
+            EmptyNote(title: "Créneaux indisponibles", message: slotError, actionTitle: "Réessayer") { Task { await loadSlots() } }
+        } else if groups.isEmpty {
+            EmptyNote(title: "Rien de libre en \(duration) min ce jour-là.",
+                      message: "Le bot peut surveiller ce club et te prévenir dès qu'un créneau se libère.")
+        } else {
+            VStack(alignment: .leading, spacing: 16) {
+                ForEach(groups, id: \.0) { name, list in
+                    VStack(alignment: .leading, spacing: 8) {
+                        Eyebrow(text: name)
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                            ForEach(list) { g in
+                                Button { picked = g } label: { SlotCell(group: g) }.buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var anybuddyBlock: some View {
+        Block(title: "Créneaux", meta: "Anybuddy") {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Anybuddy protège ses créneaux contre les robots : on ouvre la page du club, déjà connecté, pour réserver.")
+                    .font(UI.callout()).foregroundStyle(UI.muted).fixedSize(horizontal: false, vertical: true)
+                if !WebAccount.isConnected(.anybuddy) {
+                    HStack(spacing: 12) {
+                        Text("Compte Anybuddy non connecté.").font(UI.callout()).foregroundStyle(UI.ink)
+                        Spacer(minLength: 8)
+                        Button("Connecter") { login = .anybuddy }.buttonStyle(LinkButtonStyle())
+                    }
+                }
+                Button { web = AnybuddyAPI.clubURL(club.anybuddySlug ?? "") } label: { Label("Voir les créneaux", systemImage: "calendar") }
+                    .buttonStyle(PrimaryButtonStyle())
+                Button { web = AnybuddyAPI.autoBookingURL } label: { Label("Réservation automatique Anybuddy", systemImage: "scope") }
+                    .buttonStyle(SecondaryButtonStyle())
+            }
+        }
+    }
+
+    private var notLinked: some View {
+        Block(title: "Réservation") {
+            VStack(alignment: .leading, spacing: 12) {
+                if findingPlaytomic {
+                    HStack(spacing: 10) {
+                        ProgressView()
+                        Text("Recherche de ce club sur Playtomic…").font(UI.callout()).foregroundStyle(UI.muted)
+                    }
+                } else {
+                    Text("Ce club n'est pas relié à une plateforme de réservation.").font(UI.callout()).foregroundStyle(UI.muted)
+                }
+                Text("Il est sur Anybuddy ? Colle le lien de sa page.").font(UI.caption()).foregroundStyle(UI.faint)
+                HStack(spacing: 10) {
+                    InputField(title: "anybuddyapp.com/fr/club/…", text: $anybuddyLink, keyboard: .URL)
+                    Button("Relier") {
+                        if let slug = AnybuddyAPI.slug(from: anybuddyLink) {
+                            club.anybuddySlug = slug
+                            club.timezone = "Europe/Paris"
+                        }
+                    }
+                    .buttonStyle(LinkButtonStyle())
+                }
+            }
+        }
+    }
+
+    private func outcomeNote(_ o: BookingOutcome) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            if o.status == .booked { Stamp(text: "Réservé") } else { Stamp(text: "Échec", style: .clay) }
+            Text(o.message).font(UI.callout()).foregroundStyle(UI.ink)
+            Spacer(minLength: 0)
+        }
+    }
+
+    // MARK: Plus
+
+    @ViewBuilder private var moreBlock: some View {
+        if !club.openingHours.isEmpty || !club.email.isEmpty {
+            Block(title: "Infos") {
+                VStack(spacing: 0) {
+                    if !club.openingHours.isEmpty {
+                        ListRow(title: "Horaires", detail: club.openingHours, systemImage: "clock", chevron: false)
+                    }
+                    if !club.email.isEmpty, let mail = URL(string: "mailto:" + club.email) {
+                        if !club.openingHours.isEmpty { Hairline(inset: 36) }
+                        Link(destination: mail) { ListRow(title: club.email, systemImage: "envelope") }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: Données
@@ -325,57 +374,129 @@ struct ClubDetailView: View {
         guard club.playtomicTenantID == nil, club.anybuddySlug == nil, club.backendID == nil else { return }
         findingPlaytomic = true
         defer { findingPlaytomic = false }
-        guard let tenants = try? await PlaytomicAPI.shared.tenants(near: club.coordinate, radiusKm: 2) else { return }
-        if let match = tenants.first(where: { ClubDirectory.similar($0.name, club.name) || $0.location.distance(from: club.location) < 250 }) {
-            club.playtomicTenantID = match.playtomicTenantID
-            club.timezone = match.timezone
-            if club.courts == 0 { club.courts = match.courts }
-            directory.merge(playtomic: match)
+        // Recherche du club sur le site Playtomic (nom + ville).
+        if let match = await PlaytomicWeb.match(for: club) {
+            club.playtomicTenantID = match.id
+            club.playtomicSlug = match.slug
+            if club.timezone == nil { club.timezone = club.longitude > 8 && club.latitude < 38 ? "Africa/Tunis" : "Europe/Paris" }
+            directory.link(clubID: club.id, tenantID: match.id, slug: match.slug, timezone: club.timezone)
         }
     }
 
-    private func loadSlots() async {
-        guard let provider, ShotMode.current == nil else { return }
+    private func loadSlots(quiet: Bool = false) async {
+        guard let provider, provider != .anybuddy, ShotMode.current == nil else { return }
         if provider == .padelup && !server.isLoggedIn {
             slotError = "Connecte-toi à ton compte PadelUp (onglet Profil) pour voir et réserver les créneaux de ce club partenaire."
             return
         }
-        loadingSlots = true
-        slotError = nil
-        defer { loadingSlots = false }
+        if !quiet { loadingSlots = true }
+        defer { loadingSlots = false; lastRefresh = Date() }
         do {
             switch provider {
-            case .playtomic: slots = try await PlaytomicAPI.shared.slots(tenantID: club.playtomicTenantID ?? "", day: day)
-            case .anybuddy: slots = try await AnybuddyAPI.slots(slug: club.anybuddySlug ?? "", day: day)
+            case .playtomic: slots = try await PlaytomicWeb.slots(tenantID: club.playtomicTenantID ?? "", day: day, timezone: club.timezone)
+            case .anybuddy: slots = []
             case .padelup: slots = try await server.botSlots(provider: .padelup, clubID: String(club.backendID ?? 0), day: day)
             }
+            slotError = nil
             if !slots.contains(where: { $0.duration == duration }), let first = slots.first { duration = first.duration }
         } catch {
-            slots = []
+            if !quiet { slots = [] }
             slotError = error.localizedDescription
         }
     }
 
     private func book(_ slot: BookingSlot) async {
-        if slot.provider == .playtomic && !PlaytomicAPI.shared.isConnected { showConnect = true; return }
-        outcome = await bot.book(slot, clubName: club.displayName)
-        if outcome?.status == .booked { await loadSlots() }
-        if outcome?.status == .needsAction, let url = outcome?.actionURL { safariURL = url }
+        let result = await bot.book(slot, clubName: club.displayName, slug: club.playtomicSlug)
+        if result.status == .needsAction, let url = result.actionURL {
+            web = url
+        } else {
+            outcome = result
+            if result.status == .booked { await loadSlots() }
+        }
     }
 }
 
+/// Case d'un créneau : l'heure en grand, le prix et le nombre de terrains libres.
 struct SlotCell: View {
-    var slot: BookingSlot
+    var group: SlotGroup
 
     var body: some View {
-        VStack(spacing: 3) {
-            Text(slot.localTime).font(UI.number(18)).foregroundStyle(UI.ink)
-            Text(slot.courtName).font(.system(size: 11)).foregroundStyle(UI.muted).lineLimit(1)
-            if !slot.priceLabel.isEmpty { Text(slot.priceLabel).font(.system(size: 11, weight: .semibold)).foregroundStyle(UI.accent) }
+        VStack(alignment: .leading, spacing: 2) {
+            Text(group.time).font(UI.score(22)).foregroundStyle(UI.ink)
+            HStack(spacing: 4) {
+                Text(group.minPrice.isEmpty ? "—" : group.minPrice).font(.system(size: 12, weight: .medium)).foregroundStyle(UI.muted)
+                Spacer(minLength: 0)
+                if group.slots.count > 1 {
+                    Text("×\(group.slots.count)").font(UI.score(12)).foregroundStyle(UI.muted)
+                }
+            }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(UI.tray))
+        .padding(.horizontal, 12).padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(UI.raised))
+        .overlay(alignment: .topTrailing) {
+            Circle().fill(UI.ball).frame(width: 7, height: 7).overlay(Circle().strokeBorder(UI.ink.opacity(0.3), lineWidth: 0.5)).padding(8)
+        }
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(group.time), dès \(group.minPrice), \(group.slots.count) terrain\(group.slots.count > 1 ? "s" : "") libre\(group.slots.count > 1 ? "s" : "")")
+    }
+}
+
+/// Feuille de réservation : le billet du créneau, puis réserver ou confier au bot.
+struct BookingSheet: View {
+    enum Action { case book(BookingSlot), watch }
+    var club: Club
+    var group: SlotGroup
+    var duration: Int
+    var onAction: (Action) -> Void
+    @State private var courtIndex = 0
+
+    private var slot: BookingSlot { group.slots[min(courtIndex, group.slots.count - 1)] }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Ticket {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Eyebrow(text: slot.provider.name)
+                        Spacer()
+                        Stamp(text: "Libre")
+                    }
+                    HStack(alignment: .lastTextBaseline, spacing: 12) {
+                        Text(group.time).font(UI.scoreHeavy(64)).foregroundStyle(UI.ink)
+                        Text(FR.longDay(slot.start, tz: slot.timeZoneValue)).font(UI.headline()).foregroundStyle(UI.ink).lineLimit(2)
+                    }
+                    Text(club.displayName).font(UI.headline()).foregroundStyle(UI.ink)
+                    Text("\(slot.courtName) · \(duration) min\(slot.priceLabel.isEmpty ? "" : " · " + slot.priceLabel)")
+                        .font(UI.callout()).foregroundStyle(UI.muted)
+                }
+            } stub: {
+                Text(slot.provider == .padelup ? "Réservation directe, club partenaire PadelUp."
+                     : "Paiement sur \(slot.provider.name), avec ton compte déjà connecté.")
+                    .font(UI.caption()).foregroundStyle(UI.muted)
+            }
+            if group.slots.count > 1 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(group.slots.indices, id: \.self) { i in
+                            Button { courtIndex = i } label: {
+                                Chip(text: group.slots[i].courtName + (group.slots[i].priceLabel.isEmpty ? "" : " · " + group.slots[i].priceLabel), active: courtIndex == i)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+            Button { onAction(.book(slot)) } label: {
+                Text(slot.provider == .padelup ? "Réserver" : "Réserver sur \(slot.provider.name)")
+            }
+            .buttonStyle(PrimaryButtonStyle())
+            Button { onAction(.watch) } label: { Text("Confier au bot") }
+                .buttonStyle(SecondaryButtonStyle())
+        }
+        .padding(.horizontal, UI.margin)
+        .padding(.top, 28)
     }
 }
 
@@ -385,7 +506,7 @@ struct SafariView: UIViewControllerRepresentable {
     var url: URL
     func makeUIViewController(context: Context) -> SFSafariViewController {
         let vc = SFSafariViewController(url: url)
-        vc.preferredControlTintColor = UIColor(red: 0.035, green: 0.29, blue: 0.45, alpha: 1)
+        vc.preferredControlTintColor = UI.uiColor(0x094A73)
         return vc
     }
     func updateUIViewController(_ vc: SFSafariViewController, context: Context) {}

@@ -170,10 +170,12 @@ jobs:
           shot match auto 8 06-fiche-match
           shot level auto 8 07-niveau
           shot friends auto 8 08-amis
-          shot profile auto 6 09-profil
+          shot profile auto 8 09-profil
+          shot snipe auto 8 10-ouverture
           xcrun simctl ui "$UDID" appearance dark || true
-          shot home christmas 10 10-accueil-noel-sombre
-          shot club auto 10 11-club-sombre
+          shot home christmas 10 11-accueil-noel-sombre
+          shot club auto 10 12-club-sombre
+          shot bot auto 8 13-bot-sombre
           rm -f ci/shots/warmup.png
           xcrun simctl shutdown all || true
           ls -la ci/shots

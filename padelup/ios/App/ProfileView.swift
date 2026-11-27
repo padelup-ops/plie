@@ -9,113 +9,119 @@ struct ProfileView: View {
     @AppStorage("botServer") private var botServer = true
 
     var body: some View {
-        Screen(title: "Profil") {
+        Screen(title: server.me == nil ? "Profil" : displayName, eyebrow: server.me == nil ? nil : levelLine) {
             if let me = server.me {
-                profileCard(me)
-                accountRows(me)
-            } else if server.isLoggedIn { ProgressView().frame(maxWidth: .infinity) } else { AuthPanel() }
-            seasons
-            settings
-            about
+                identity(me)
+                accountBlock(me)
+            } else if server.isLoggedIn {
+                ProgressView().frame(maxWidth: .infinity)
+            } else {
+                AuthPanel()
+            }
+            seasonBlock
+            settingsBlock
+            aboutBlock
+            if server.me != nil && ShotMode.current == nil {
+                Button("Se déconnecter") { server.logout() }.buttonStyle(LinkButtonStyle(color: UI.danger))
+            }
         }
     }
 
-    private func profileCard(_ me: APIMe) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 14) {
-                Text(String((me.profile?.fullName ?? me.username).prefix(1)).uppercased())
-                    .font(.system(size: 24, weight: .bold)).foregroundStyle(.white)
-                    .frame(width: 56, height: 56).background(Circle().fill(UI.hero))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(me.profile?.fullName?.isEmpty == false ? me.profile!.fullName! : me.username).font(UI.title()).foregroundStyle(UI.ink)
-                    Text("Niveau \(me.profile?.skillLevel ?? 1) · \(me.profile?.tierName ?? "Débutant")").font(UI.caption()).foregroundStyle(UI.muted)
+    private var displayName: String {
+        guard let me = server.me else { return "Profil" }
+        return me.profile?.fullName?.isEmpty == false ? me.profile!.fullName! : me.username
+    }
+
+    private var levelLine: String {
+        let p = server.me?.profile
+        return "Niveau \(p?.skillLevel ?? 1) · " + (p?.tierName ?? PadelLevel.name(p?.skillLevel ?? 1, scale: p?.evaluationType ?? "new"))
+    }
+
+    private func identity(_ me: APIMe) -> some View {
+        VStack(alignment: .leading, spacing: 22) {
+            HStack(spacing: 16) {
+                Avatar(name: displayName, size: 64)
+                VStack(alignment: .leading, spacing: 6) {
+                    LevelBars(level: me.profile?.skillLevel ?? 1, count: me.profile?.evaluationType == "old" ? 10 : 8, height: 20, barWidth: 5)
+                    Text([me.profile?.location, me.profile?.rightHanded == false ? "gaucher" : "droitier"].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "))
+                        .font(UI.caption()).foregroundStyle(UI.muted)
                 }
             }
-            HStack(spacing: 10) {
-                Metric(value: "\(me.stats?.matchesPlayed ?? 0)", label: "matchs")
-                Metric(value: "\(me.stats?.matchesWon ?? 0)", label: "victoires")
-                Metric(value: "\(Int((me.stats?.winRate ?? 0).rounded())) %", label: "réussite")
-            }
-            Button(role: .destructive) { server.logout() } label: { Text("Se déconnecter") }
-                .buttonStyle(SecondaryButtonStyle(color: UI.danger))
+            StatsRow(items: [
+                ("\(me.stats?.matchesPlayed ?? 0)", "matchs"),
+                ("\(me.stats?.matchesWon ?? 0)", "victoires"),
+                ("\(Int((me.stats?.winRate ?? 0).rounded())) %", "réussite"),
+            ])
         }
-        .card()
     }
 
-    private func accountRows(_ me: APIMe) -> some View {
-        VStack(spacing: 0) {
-            row("Mon niveau", "chart.bar", detail: me.profile?.skillLevel.map { "\($0) · " + PadelLevel.name($0, scale: me.profile?.evaluationType ?? "new") } ?? "À choisir") {
-                router.showLevel = true
+    private func accountBlock(_ me: APIMe) -> some View {
+        Block(title: "Mon jeu") {
+            VStack(spacing: 0) {
+                Button { router.showLevel = true } label: {
+                    ListRow(title: "Mon niveau", value: me.profile?.skillLevel.map { "\($0) · " + PadelLevel.name($0, scale: me.profile?.evaluationType ?? "new") } ?? "À choisir",
+                            systemImage: "chart.bar")
+                }
+                .buttonStyle(.plain)
+                Hairline(inset: 36)
+                Button { router.showFriends = true } label: { ListRow(title: "Mes amis", systemImage: "person.2") }.buttonStyle(.plain)
+                Hairline(inset: 36)
+                Button { router.showNotifications = true } label: { ListRow(title: "Notifications", systemImage: "bell") }.buttonStyle(.plain)
             }
-            Divider().overlay(UI.line).padding(.leading, 48)
-            row("Mes amis", "person.2", detail: nil) { router.showFriends = true }
-            Divider().overlay(UI.line).padding(.leading, 48)
-            row("Notifications", "bell", detail: nil) { router.showNotifications = true }
         }
-        .padding(.horizontal, 14)
-        .card(padding: 0)
     }
 
-    private func row(_ title: String, _ icon: String, detail: String?, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                Image(systemName: icon).foregroundStyle(UI.accent).frame(width: 22)
-                Text(title).font(UI.body()).foregroundStyle(UI.ink)
-                Spacer()
-                if let detail { Text(detail).font(UI.caption()).foregroundStyle(UI.muted).lineLimit(1) }
-                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(UI.faint)
-            }
-            .padding(.vertical, 13)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var seasons: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Ambiance de saison").font(UI.headline()).foregroundStyle(UI.ink)
-            Text("Feuilles en automne, neige à Noël, confettis au Nouvel An. L'idée de Yacine.").font(UI.caption()).foregroundStyle(UI.muted)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    seasonChip("auto", "Auto")
-                    ForEach(Season.allCases) { s in seasonChip(s.rawValue, s.name) }
-                    seasonChip("off", "Aucune")
+    private var seasonBlock: some View {
+        Block(title: "Ambiance", meta: "l'idée de Yacine") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Feuilles en automne, neige à Noël, confettis au Nouvel An : elles tombent derrière les écrans.")
+                    .font(UI.callout()).foregroundStyle(UI.muted).fixedSize(horizontal: false, vertical: true)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        seasonChip("auto", "Selon la date")
+                        ForEach(Season.allCases) { s in seasonChip(s.rawValue, s.name) }
+                        seasonChip("off", "Aucune")
+                    }
                 }
             }
         }
-        .card()
     }
 
     private func seasonChip(_ raw: String, _ label: String) -> some View {
-        Button { seasonMode = raw } label: { Pill(text: label, active: seasonMode == raw) }.buttonStyle(.plain)
+        Button { withAnimation(.snappy(duration: 0.2)) { seasonMode = raw } } label: { Chip(text: label, active: seasonMode == raw) }.buttonStyle(.plain)
     }
 
-    private var settings: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Réglages").font(UI.headline()).foregroundStyle(UI.ink)
-            Toggle("Bot 24 h/24 sur le serveur PadelUp", isOn: $botServer).tint(UI.accent).font(UI.callout())
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Serveur PadelUp").font(UI.caption()).foregroundStyle(UI.muted)
-                InputField(title: "https://…/api (vide : serveur par défaut)", text: $serverURL, keyboard: .URL)
-                Text(server.baseURL.absoluteString).font(UI.small()).foregroundStyle(UI.faint)
+    private var settingsBlock: some View {
+        Block(title: "Réglages") {
+            VStack(alignment: .leading, spacing: 16) {
+                Toggle(isOn: $botServer) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Bot 24 h/24 sur le serveur PadelUp").font(UI.body()).foregroundStyle(UI.ink)
+                        Text("Pour les clubs partenaires PadelUp. Playtomic et Anybuddy se lisent depuis ton iPhone.").font(UI.caption()).foregroundStyle(UI.muted)
+                    }
+                }
+                .tint(UI.court)
+                VStack(alignment: .leading, spacing: 8) {
+                    Eyebrow(text: "Serveur PadelUp")
+                    InputField(title: "https://…/api (vide : serveur par défaut)", text: $serverURL, keyboard: .URL)
+                    Text(server.baseURL.absoluteString).font(UI.small()).foregroundStyle(UI.faint)
+                }
             }
         }
-        .card()
     }
 
-    private var about: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Sources libres").font(UI.headline()).foregroundStyle(UI.ink)
-            Group {
+    private var aboutBlock: some View {
+        Block(title: "Sources") {
+            VStack(alignment: .leading, spacing: 8) {
                 Text("Clubs (\(CoverageZone.countries)) : © contributeurs OpenStreetMap, licence ODbL.")
                 Text("Météo : Open-Meteo.com (CC BY 4.0).")
-                Text("Disponibilités : Playtomic et Anybuddy, avec ton compte. PadelUp n'est affilié à aucune de ces plateformes.")
+                Text("Playtomic et Anybuddy : lus avec ton compte, depuis ton iPhone. PadelUp n'est affilié à aucune de ces plateformes.")
                 Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""))")
                     .foregroundStyle(UI.faint)
             }
             .font(UI.caption()).foregroundStyle(UI.muted)
+            .fixedSize(horizontal: false, vertical: true)
         }
-        .card()
     }
 }
 
@@ -133,11 +139,11 @@ struct AuthPanel: View {
     @State private var error: String? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Ton compte PadelUp").font(UI.headline()).foregroundStyle(UI.ink)
-                Text("Pour les matchs, le classement et le bot 24 h/24. Les clubs, la météo et le bot sur l'iPhone marchent sans compte.")
-                    .font(UI.caption()).foregroundStyle(UI.muted)
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Ton compte PadelUp").font(UI.title(22)).foregroundStyle(UI.ink)
+                Text("Pour les matchs, les amis et le classement. Les clubs, la météo et le bot marchent sans compte.")
+                    .font(UI.callout()).foregroundStyle(UI.muted).fixedSize(horizontal: false, vertical: true)
             }
             SignInWithAppleButton(.signIn) { request in
                 request.requestedScopes = [.fullName, .email]
@@ -145,27 +151,33 @@ struct AuthPanel: View {
                 Task { await apple(result) }
             }
             .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
-            .frame(height: 50)
-            .clipShape(Capsule())
-            Picker("", selection: $mode) { Text("Connexion").tag(0); Text("Inscription").tag(1) }.pickerStyle(.segmented)
-            if awaitingCode {
-                InputField(title: "Code reçu par e-mail", text: $code, keyboard: .numberPad)
-            } else {
-                if mode == 1 {
-                    InputField(title: "Nom complet", text: $fullName)
-                    InputField(title: "Nom d'utilisateur", text: $username)
-                }
-                InputField(title: mode == 0 ? "E-mail ou nom d'utilisateur" : "E-mail", text: $identifier, keyboard: .emailAddress)
-                InputField(title: "Mot de passe", text: $password, secure: true)
+            .frame(height: 54)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            HStack(spacing: 12) {
+                Hairline()
+                Text("ou").font(UI.caption()).foregroundStyle(UI.faint)
+                Hairline()
             }
-            if let error { Text(error).font(UI.caption()).foregroundStyle(UI.danger) }
+            UnderlineTabs(items: ["Connexion", "Inscription"], selection: $mode)
+            VStack(spacing: 10) {
+                if awaitingCode {
+                    InputField(title: "Code reçu par e-mail", text: $code, keyboard: .numberPad)
+                } else {
+                    if mode == 1 {
+                        InputField(title: "Nom complet", text: $fullName)
+                        InputField(title: "Nom d'utilisateur", text: $username)
+                    }
+                    InputField(title: mode == 0 ? "E-mail ou nom d'utilisateur" : "E-mail", text: $identifier, keyboard: .emailAddress)
+                    InputField(title: "Mot de passe", text: $password, secure: true)
+                }
+            }
+            if let error { Text(error).font(UI.callout()).foregroundStyle(UI.danger) }
             Button { Task { await submit() } } label: {
-                if busy { ProgressView().tint(UI.onAccent) } else { Text(awaitingCode ? "Valider le code" : (mode == 0 ? "Se connecter" : "Créer mon compte")) }
+                if busy { ProgressView().tint(UI.onCourt) } else { Text(awaitingCode ? "Valider le code" : (mode == 0 ? "Se connecter" : "Créer mon compte")) }
             }
             .buttonStyle(PrimaryButtonStyle())
             .disabled(busy)
         }
-        .card()
     }
 
     private func submit() async {

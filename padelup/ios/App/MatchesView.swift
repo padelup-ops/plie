@@ -12,77 +12,95 @@ struct MatchesView: View {
     @State private var pending: APIPendingRating? = nil
 
     var body: some View {
-        Screen(title: "Matchs", subtitle: "Trouve des joueurs de ton niveau et grimpe au classement.") {
-            Picker("", selection: $tab) {
-                Text("Ouverts").tag(0); Text("Les miens").tag(1); Text("Classement").tag(2)
-            }
-            .pickerStyle(.segmented)
-            if let pending, pending.hasPendingRating, let m = pending.match {
-                Button { router.openMatch = m } label: {
-                    HStack(spacing: 12) {
-                        IconBadge(systemImage: pending.isOrganizer == true && pending.winnerDefined != true ? "trophy" : "star", color: UI.warning)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(pending.isOrganizer == true && pending.winnerDefined != true ? "Saisis le résultat de ton match" : "Note les joueurs de ton dernier match")
-                                .font(.system(size: 15, weight: .semibold)).foregroundStyle(UI.ink)
-                            Text(m.title ?? "Match de padel").font(UI.caption()).foregroundStyle(UI.muted)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(UI.faint)
-                    }
-                    .card(padding: 14)
-                }
-                .buttonStyle(.plain)
-            }
-            if !server.isLoggedIn && ShotMode.current == nil {
-                EmptyStateView(systemImage: "person.crop.circle", title: "Connecte-toi à PadelUp",
-                               message: "Les matchs et le classement utilisent ton compte PadelUp.")
-                Button { router.tab = .profile } label: { Text("Se connecter") }.buttonStyle(PrimaryButtonStyle())
-            } else if let error {
-                EmptyStateView(systemImage: "wifi.exclamationmark", title: "Serveur indisponible", message: error)
-            } else if loading && open.isEmpty && mine.isEmpty && leaders.isEmpty {
-                ProgressView().frame(maxWidth: .infinity).padding(40)
-            } else if tab == 2 {
-                leaderboard
-            } else {
-                let list = tab == 0 ? open : mine
-                if list.isEmpty {
-                    EmptyStateView(systemImage: "sportscourt", title: tab == 0 ? "Aucun match ouvert" : "Aucun match prévu",
-                                   message: "Crée un match depuis la fiche de n'importe quel club de la carte.")
-                }
-                ForEach(list) { m in
-                    MatchCard(match: m, joined: tab == 1) { await reload() }
-                        .contentShape(Rectangle())
-                        .onTapGesture { router.openMatch = m }
-                }
+        Screen(title: "Matchs", eyebrow: "Joue à ton niveau") {
+            VStack(alignment: .leading, spacing: 22) {
+                UnderlineTabs(items: ["Ouverts", "Les miens", "Classement"], selection: $tab)
+                if let pending, pending.hasPendingRating, let m = pending.match { pendingRow(pending, m) }
+                content
             }
         }
         .refreshable { await reload() }
         .task(id: server.isLoggedIn) { await reload() }
     }
 
+    @ViewBuilder private var content: some View {
+        if !server.isLoggedIn && ShotMode.current == nil {
+            EmptyNote(title: "Connecte-toi à PadelUp.", message: "Les matchs, les joueurs de ton niveau et le classement utilisent ton compte PadelUp.",
+                      actionTitle: "Se connecter") { router.tab = .profile }
+        } else if let error {
+            EmptyNote(title: "Serveur indisponible.", message: error, actionTitle: "Réessayer") { Task { await reload() } }
+        } else if loading && open.isEmpty && mine.isEmpty && leaders.isEmpty {
+            ProgressView().frame(maxWidth: .infinity).padding(40)
+        } else if tab == 2 {
+            leaderboard
+        } else {
+            let list = tab == 0 ? open : mine
+            if list.isEmpty {
+                EmptyNote(title: tab == 0 ? "Aucun match ouvert pour l'instant." : "Aucun match prévu.",
+                          message: "Crée un match depuis la fiche de n'importe quel club : les joueurs de ton niveau le verront ici.",
+                          actionTitle: "Choisir un club") { router.tab = .clubs }
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(list.enumerated()), id: \.element.id) { i, m in
+                        Button { router.openMatch = m } label: { MatchRow(match: m) }.buttonStyle(.plain)
+                        if i < list.count - 1 { Hairline(inset: 70) }
+                    }
+                }
+            }
+        }
+    }
+
+    private func pendingRow(_ pending: APIPendingRating, _ m: APIMatch) -> some View {
+        Button { router.openMatch = m } label: {
+            HStack(spacing: 12) {
+                Stamp(text: "À faire", style: .clay)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(pending.isOrganizer == true && pending.winnerDefined != true ? "Saisis le résultat" : "Note les joueurs")
+                        .font(UI.headline()).foregroundStyle(UI.ink)
+                    Text(m.title ?? "Match de padel").font(UI.caption()).foregroundStyle(UI.muted)
+                }
+                Spacer()
+                Image(systemName: "arrow.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(UI.ink)
+            }
+            .padding(.vertical, 14).padding(.horizontal, 16)
+            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(UI.clay.opacity(0.6), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
     private var leaderboard: some View {
         VStack(spacing: 0) {
+            if leaders.isEmpty {
+                EmptyNote(title: "Pas encore de classement.", message: "Termine un match et saisis le résultat pour y entrer.")
+            }
             ForEach(Array(leaders.enumerated()), id: \.element.id) { i, p in
-                HStack(spacing: 14) {
-                    Text("\(i + 1)").font(UI.number(17)).foregroundStyle(i < 3 ? UI.accent : UI.muted).frame(width: 28)
+                HStack(spacing: 16) {
+                    Text("\(i + 1)").font(UI.scoreHeavy(32)).foregroundStyle(i < 3 ? UI.ink : UI.faint).frame(width: 40, alignment: .leading)
+                    Avatar(name: p.displayName, size: 36)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(p.displayName).font(.system(size: 16, weight: .semibold)).foregroundStyle(UI.ink)
+                        HStack(spacing: 6) {
+                            Text(p.displayName).font(UI.headline()).foregroundStyle(UI.ink).lineLimit(1)
+                            if i == 0 { Stamp(text: "1er") }
+                        }
                         Text("\(p.matchesPlayed ?? 0) matchs · \(Int((p.winRate ?? 0).rounded())) % de victoires").font(UI.caption()).foregroundStyle(UI.muted)
                     }
                     Spacer()
-                    Text("\(p.matchesWon ?? 0)").font(UI.number(18)).foregroundStyle(UI.ink)
+                    VStack(alignment: .trailing, spacing: 0) {
+                        Text("\(p.matchesWon ?? 0)").font(UI.score(24)).foregroundStyle(UI.ink)
+                        Eyebrow(text: "victoires")
+                    }
                 }
                 .padding(.vertical, 12)
-                if i < leaders.count - 1 { Divider().overlay(UI.line) }
+                if i < leaders.count - 1 { Hairline(inset: 56) }
             }
         }
-        .padding(.horizontal, 14)
-        .card(padding: 0)
     }
 
     private func reload() async {
         if ShotMode.current != nil {
             open = ShotMode.demoMatches()
+            mine = Array(open.prefix(1))
+            leaders = ShotMode.demoLeaders()
             return
         }
         guard server.isLoggedIn else { return }
@@ -101,62 +119,73 @@ struct MatchesView: View {
     }
 }
 
-struct MatchCard: View {
+/// Un match : le jour en grand à gauche (calendrier), l'heure, le club, les places, le niveau.
+struct MatchRow: View {
     var match: APIMatch
-    var joined: Bool
-    var onChange: () async -> Void
-    @EnvironmentObject private var server: ServerAPI
-    @State private var busy = false
-    @State private var message: String? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Tag(text: match.typeLabel, color: UI.accent)
-                if match.isPublic == false { Tag(text: "Privé", systemImage: "lock.fill", color: UI.muted) }
-                Spacer()
-                Text(match.spotsLeft == 0 ? "Complet" : "\(match.spotsLeft) place\(match.spotsLeft > 1 ? "s" : "")")
-                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(match.spotsLeft == 0 ? UI.faint : UI.success)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(match.title ?? "Match de padel").font(UI.headline()).foregroundStyle(UI.ink)
-                if let d = match.date {
-                    Text(d.formatted(.dateTime.weekday(.wide).day().month().hour().minute().locale(Locale(identifier: "fr_FR"))).capitalized)
-                        .font(UI.callout()).foregroundStyle(UI.ink.opacity(0.8))
+        HStack(alignment: .top, spacing: 16) {
+            DateBlock(date: match.date)
+            VStack(alignment: .leading, spacing: 7) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(match.date.map { FR.time($0) } ?? "–").font(UI.score(18)).foregroundStyle(UI.ink)
+                    Text(match.typeLabel.uppercased(with: UI.fr)).font(UI.label()).tracking(0.8).foregroundStyle(UI.muted)
+                    if match.isPublic == false { Image(systemName: "lock.fill").font(.system(size: 10)).foregroundStyle(UI.muted) }
+                    Spacer(minLength: 6)
+                    if match.spotsLeft == 0 { Stamp(text: "Complet", style: .outline) }
+                    else { Stamp(text: "\(match.spotsLeft) place\(match.spotsLeft > 1 ? "s" : "")") }
                 }
+                Text(match.title ?? "Match de padel").font(UI.headline()).foregroundStyle(UI.ink).multilineTextAlignment(.leading)
                 Text([match.clubName, match.location?.address].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "))
-                    .font(UI.caption()).foregroundStyle(UI.muted).lineLimit(2)
-            }
-            HStack(spacing: -6) {
-                ForEach((match.participants ?? []).prefix(4)) { p in
-                    Text(String((p.userName ?? "?").prefix(1)).uppercased()).font(.system(size: 12, weight: .bold)).foregroundStyle(UI.onAccent)
-                        .frame(width: 30, height: 30).background(Circle().fill(UI.accent)).overlay(Circle().stroke(UI.card, lineWidth: 2))
+                    .font(UI.caption()).foregroundStyle(UI.muted).lineLimit(1)
+                HStack {
+                    PlayerDots(match: match)
+                    Spacer()
+                    HStack(spacing: 6) {
+                        LevelBars(level: match.maxSkillLevel ?? 8, height: 12, barWidth: 2.5)
+                        Text("Niv. \(match.minSkillLevel ?? 1)–\(match.maxSkillLevel ?? 8)").font(UI.score(14)).foregroundStyle(UI.muted)
+                    }
                 }
-                ForEach(0..<match.spotsLeft, id: \.self) { _ in
-                    Circle().strokeBorder(UI.faint, style: StrokeStyle(lineWidth: 1.2, dash: [3])).frame(width: 30, height: 30)
-                        .background(Circle().fill(UI.card))
-                }
-                Spacer()
-                Text("Niveau \(match.minSkillLevel ?? 1)–\(match.maxSkillLevel ?? 8)").font(UI.small()).foregroundStyle(UI.muted)
+                .padding(.top, 2)
             }
-            if let message { Text(message).font(UI.caption()).foregroundStyle(UI.success) }
-            Button {
-                Task {
-                    busy = true
-                    defer { busy = false }
-                    do {
-                        if joined { try await server.leave(matchID: match.id); message = "Tu as quitté le match." }
-                        else { try await server.join(matchID: match.id); message = "C'est noté, tu joues !" }
-                        await onChange()
-                    } catch { message = error.localizedDescription }
-                }
-            } label: {
-                if busy { ProgressView() } else { Text(joined ? "Quitter le match" : "Rejoindre") }
-            }
-            .buttonStyle(SecondaryButtonStyle(color: joined ? UI.danger : UI.accent))
-            .disabled(busy || (!joined && match.spotsLeft == 0))
         }
-        .card()
+        .padding(.vertical, 16)
+        .contentShape(Rectangle())
+    }
+}
+
+/// Bloc date façon calendrier : SAM / 28 / NOV.
+struct DateBlock: View {
+    var date: Date?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Text(date.map { FR.string($0, "EEE").replacingOccurrences(of: ".", with: "") }?.uppercased(with: UI.fr) ?? "")
+                .font(UI.label()).tracking(0.8).foregroundStyle(UI.muted)
+            Text(date.map { FR.string($0, "d") } ?? "–").font(UI.scoreHeavy(40)).foregroundStyle(UI.ink)
+            Text(date.map { FR.string($0, "MMM").replacingOccurrences(of: ".", with: "") }?.uppercased(with: UI.fr) ?? "")
+                .font(UI.label()).tracking(0.8).foregroundStyle(UI.muted)
+        }
+        .frame(width: 54)
+    }
+}
+
+/// Joueurs inscrits (initiales) et places libres (cercles en pointillés).
+struct PlayerDots: View {
+    var match: APIMatch
+    var size: CGFloat = 28
+
+    var body: some View {
+        HStack(spacing: -7) {
+            ForEach((match.participants ?? []).prefix(4)) { p in
+                Avatar(name: p.userName ?? "?", size: size).overlay(Circle().stroke(UI.paper, lineWidth: 2))
+            }
+            ForEach(0..<match.spotsLeft, id: \.self) { _ in
+                Circle().strokeBorder(UI.faint, style: StrokeStyle(lineWidth: 1.2, dash: [3, 3]))
+                    .frame(width: size, height: size)
+                    .background(Circle().fill(UI.paper))
+            }
+        }
     }
 }
 
@@ -178,26 +207,40 @@ struct CreateMatchView: View {
 
     var body: some View {
         NavigationStack {
-            Screen(title: "Créer un match", subtitle: club.displayName) {
+            Screen(title: "Nouveau match", eyebrow: club.displayName, seasonal: false) {
                 if !server.isLoggedIn {
-                    EmptyStateView(systemImage: "person.crop.circle", title: "Compte PadelUp requis", message: "Connecte-toi dans l'onglet Profil.")
+                    EmptyNote(title: "Compte PadelUp requis.", message: "Connecte-toi dans l'onglet Profil pour créer un match.")
                 } else {
-                    VStack(alignment: .leading, spacing: 14) {
-                        InputField(title: "Titre", text: $title)
-                        DatePicker("Date et heure", selection: $date, in: Date()..., displayedComponents: [.date, .hourAndMinute])
-                            .environment(\.locale, Locale(identifier: "fr_FR"))
-                        Picker("Durée", selection: $duration) { Text("60 min").tag(60); Text("90 min").tag(90); Text("120 min").tag(120) }
-                            .pickerStyle(.segmented)
-                        Stepper("\(players) joueurs", value: $players, in: 2...4, step: 2)
-                        Stepper("Niveau minimum  \(minLevel)", value: $minLevel, in: 1...8)
-                        Stepper("Niveau maximum  \(maxLevel)", value: $maxLevel, in: minLevel...8)
-                        Stepper("\(Int(price)) € par joueur", value: $price, in: 0...60, step: 1)
-                        Toggle("Match public", isOn: $isPublic).tint(UI.accent)
+                    Block(title: "Le match") {
+                        VStack(alignment: .leading, spacing: 16) {
+                            InputField(title: "Titre", text: $title)
+                            DatePicker("Date et heure", selection: $date, in: Date()..., displayedComponents: [.date, .hourAndMinute])
+                                .environment(\.locale, UI.fr).font(UI.body())
+                            VStack(alignment: .leading, spacing: 8) {
+                                Eyebrow(text: "Durée")
+                                InlinePicker(options: [(60, "60 min"), (90, "90 min"), (120, "120 min")], selection: $duration)
+                            }
+                            VStack(alignment: .leading, spacing: 8) {
+                                Eyebrow(text: "Joueurs")
+                                InlinePicker(options: [(2, "2 joueurs"), (4, "4 joueurs")], selection: $players)
+                            }
+                        }
                     }
-                    .font(UI.callout())
-                    .card()
-                    if let error { Text(error).font(UI.caption()).foregroundStyle(UI.danger) }
-                    if done { Text("Match créé. Il apparaît dans l'onglet Matchs.").font(UI.callout()).foregroundStyle(UI.success) }
+                    Block(title: "Niveau") {
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack(spacing: 0) {
+                                levelStepper("Minimum", value: $minLevel, range: 1...maxLevel)
+                                Rectangle().fill(UI.rule).frame(width: 0.5, height: 56).padding(.horizontal, 14)
+                                levelStepper("Maximum", value: $maxLevel, range: minLevel...8)
+                            }
+                            Stepper(value: $price, in: 0...60, step: 1) {
+                                Text("\(Int(price)) € par joueur").font(UI.score(20)).foregroundStyle(UI.ink)
+                            }
+                            Toggle("Match public", isOn: $isPublic).tint(UI.court).font(UI.body())
+                        }
+                    }
+                    if let error { Text(error).font(UI.callout()).foregroundStyle(UI.danger) }
+                    if done { Text("Match publié. Il apparaît dans l'onglet Matchs.").font(UI.callout()).foregroundStyle(UI.success) }
                     Button {
                         Task {
                             busy = true
@@ -210,13 +253,24 @@ struct CreateMatchView: View {
                                 dismiss()
                             } catch { self.error = error.localizedDescription }
                         }
-                    } label: { if busy { ProgressView().tint(UI.onAccent) } else { Text("Publier le match") } }
+                    } label: { if busy { ProgressView().tint(UI.onCourt) } else { Text("Publier le match") } }
                     .buttonStyle(PrimaryButtonStyle())
                     .disabled(busy || done)
                 }
             }
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() } } }
         }
-        .tint(UI.accent)
+        .tint(UI.court)
+    }
+
+    private func levelStepper(_ label: String, value: Binding<Int>, range: ClosedRange<Int>) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Eyebrow(text: label)
+            HStack(spacing: 10) {
+                Text("\(value.wrappedValue)").font(UI.score(30)).foregroundStyle(UI.ink)
+                Stepper("", value: value, in: range).labelsHidden()
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

@@ -15,6 +15,7 @@ struct ClubsView: View {
     @State private var filter: Filter = .all
     @State private var showList = false
     @State private var centeredOnUser = false
+    @FocusState private var searching: Bool
 
     enum Filter: String, CaseIterable { case all, bot, indoor, big
         var label: String {
@@ -36,6 +37,8 @@ struct ClubsView: View {
         }
     }
 
+    private var center: CLLocation { CLLocation(latitude: region.center.latitude, longitude: region.center.longitude) }
+
     var body: some View {
         ZStack(alignment: .top) {
             Map(position: $position) {
@@ -47,7 +50,7 @@ struct ClubsView: View {
                     .annotationTitles(.hidden)
                 }
             }
-            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
+            .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll))
             .mapControls { MapCompass() }
             .onMapCameraChange(frequency: .onEnd) { context in
                 region = context.region
@@ -58,28 +61,19 @@ struct ClubsView: View {
 
             VStack(spacing: 10) {
                 searchBar
-                if !query.isEmpty && (!places.isEmpty || !clubHits.isEmpty) { searchResults }
-                else { filters }
-                if !directory.liveStatus.isEmpty && query.isEmpty {
-                    Text(directory.liveStatus).font(UI.small()).foregroundStyle(UI.muted)
-                        .padding(.vertical, 6).padding(.horizontal, 12).background(Capsule().fill(UI.card))
-                        .overlay(Capsule().strokeBorder(UI.line, lineWidth: 0.5))
+                if searching || (!query.isEmpty && (!places.isEmpty || !clubHits.isEmpty)) {
+                    if !query.isEmpty { searchResults }
+                } else {
+                    filters
                 }
                 Spacer()
-                Button { showList = true } label: {
-                    HStack {
-                        Image(systemName: "list.bullet")
-                        Text(filtered.isEmpty ? "Aucun club dans cette zone" : "\(filtered.count) clubs dans cette zone")
-                    }
-                }
-                .buttonStyle(PrimaryButtonStyle())
-                .padding(.horizontal, 40)
+                if !searching { bottomPanel }
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
-            .padding(.bottom, 14)
+            .padding(.bottom, 12)
         }
-        .sheet(isPresented: $showList) { listSheet.presentationDetents([.medium, .large]) }
+        .sheet(isPresented: $showList) { listSheet.presentationDetents([.medium, .large]).presentationBackground(UI.paper) }
         .onAppear { reload(); centerOnUserIfPossible() }
         .onChange(of: directory.revision) { _, _ in reload() }
         .onChange(of: location.location) { _, _ in centerOnUserIfPossible() }
@@ -105,36 +99,51 @@ struct ClubsView: View {
         query = ""
         places = []
         clubHits = []
+        searching = false
         reload()
         Task { await directory.refreshLive(region: r); reload() }
     }
 
+    // MARK: Recherche
+
     private var searchBar: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "magnifyingglass").foregroundStyle(UI.muted)
-            TextField("Ville ou club (Lille, Genève, Tunis…)", text: $query)
-                .font(UI.body()).foregroundStyle(UI.ink).autocorrectionDisabled()
-                .submitLabel(.search)
-                .onSubmit { Task { await search() } }
-                .onChange(of: query) { _, text in
-                    clubHits = directory.search(text, near: location.location, limit: 6)
-                    Task {
-                        try? await Task.sleep(nanoseconds: 350_000_000)
-                        if text == query { await search() }
+        HStack(spacing: 8) {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass").font(.system(size: 16, weight: .medium)).foregroundStyle(UI.ink)
+                TextField("Un club, une ville", text: $query)
+                    .font(UI.body()).foregroundStyle(UI.ink).autocorrectionDisabled()
+                    .focused($searching)
+                    .submitLabel(.search)
+                    .onSubmit { Task { await search() } }
+                    .onChange(of: query) { _, text in
+                        clubHits = directory.search(text, near: location.location, limit: 6)
+                        Task {
+                            try? await Task.sleep(nanoseconds: 350_000_000)
+                            if text == query { await search() }
+                        }
+                    }
+                if !query.isEmpty {
+                    Button { query = ""; places = []; clubHits = [] } label: {
+                        Image(systemName: "xmark.circle.fill").foregroundStyle(UI.faint)
                     }
                 }
-            if !query.isEmpty {
-                Button { query = ""; places = []; clubHits = [] } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(UI.faint) }
             }
+            .padding(.horizontal, 16)
+            .frame(height: 52)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(UI.raised))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
+            .shadow(color: .black.opacity(0.08), radius: 16, y: 6)
+
             Button { location.request(); centeredOnUser = false; centerOnUserIfPossible() } label: {
-                Image(systemName: "location.fill").foregroundStyle(UI.accent)
+                Image(systemName: "location").font(.system(size: 17, weight: .medium)).foregroundStyle(UI.ink)
+                    .frame(width: 52, height: 52)
+                    .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(UI.raised))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
+                    .shadow(color: .black.opacity(0.08), radius: 16, y: 6)
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Autour de moi")
         }
-        .padding(.horizontal, 14)
-        .frame(height: 50)
-        .background(Capsule().fill(UI.card))
-        .overlay(Capsule().strokeBorder(UI.line, lineWidth: 0.5))
-        .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
 
     private func search() async {
@@ -146,83 +155,119 @@ struct ClubsView: View {
 
     private var searchResults: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(places.prefix(4)) { p in
-                Button { go(latitude: p.latitude, longitude: p.longitude, spanKm: p.spanKm) } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: "mappin").foregroundStyle(UI.muted).frame(width: 22)
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(p.name).font(.system(size: 15, weight: .semibold)).foregroundStyle(UI.ink)
-                            Text(p.detail).font(UI.caption()).foregroundStyle(UI.muted)
-                        }
-                        Spacer()
+            if !clubHits.isEmpty {
+                Eyebrow(text: "Clubs").padding(.top, 4).padding(.bottom, 2)
+                ForEach(Array(clubHits.prefix(4).enumerated()), id: \.element.id) { i, c in
+                    Button { searching = false; router.openClub = c } label: {
+                        ClubRow(club: c, distance: c.distance(from: location.location))
                     }
-                    .padding(.vertical, 9)
-                    .contentShape(Rectangle())
-                }.buttonStyle(.plain)
+                    .buttonStyle(.plain)
+                    Hairline()
+                }
             }
-            ForEach(clubHits.prefix(4)) { c in
-                Button { router.openClub = c } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: "sportscourt").foregroundStyle(UI.accent).frame(width: 22)
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(c.displayName).font(.system(size: 15, weight: .semibold)).foregroundStyle(UI.ink)
-                            Text(c.city.isEmpty ? c.source.label : c.city).font(UI.caption()).foregroundStyle(UI.muted)
+            if !places.isEmpty {
+                Eyebrow(text: "Lieux").padding(.top, 12).padding(.bottom, 2)
+                ForEach(places.prefix(4)) { p in
+                    Button { go(latitude: p.latitude, longitude: p.longitude, spanKm: p.spanKm) } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "mappin").font(.system(size: 15)).foregroundStyle(UI.muted).frame(width: 20)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(p.name).font(.system(size: 16, weight: .semibold)).foregroundStyle(UI.ink)
+                                Text(p.detail).font(UI.caption()).foregroundStyle(UI.muted)
+                            }
+                            Spacer()
+                            Image(systemName: "arrow.up.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(UI.faint)
                         }
-                        Spacer()
+                        .padding(.vertical, 11)
+                        .contentShape(Rectangle())
                     }
-                    .padding(.vertical, 9)
-                    .contentShape(Rectangle())
-                }.buttonStyle(.plain)
+                    .buttonStyle(.plain)
+                }
             }
         }
-        .card(padding: 12)
+        .surface(padding: 14)
+        .shadow(color: .black.opacity(0.08), radius: 18, y: 8)
     }
 
     private var filters: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(Filter.allCases, id: \.self) { f in
-                    Button { filter = f } label: { Pill(text: f.label, active: filter == f) }.buttonStyle(.plain)
+                    Button { withAnimation(.snappy(duration: 0.2)) { filter = f } } label: {
+                        Chip(text: f.label, systemImage: f == .bot ? "circle.fill" : nil, active: filter == f)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
+            .padding(.vertical, 2)
         }
+    }
+
+    // MARK: Panneau du bas : combien de clubs ici, les plus proches, la liste
+
+    private var bottomPanel: some View {
+        let nearest = filtered.sorted { $0.location.distance(from: center) < $1.location.distance(from: center) }.prefix(2)
+        return VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(filtered.isEmpty ? "Aucun club ici" : "\(filtered.count) club\(filtered.count > 1 ? "s" : "") ici")
+                    .font(UI.title(18)).foregroundStyle(UI.ink)
+                Spacer()
+                if !directory.liveStatus.isEmpty {
+                    Text(directory.liveStatus).font(UI.small()).foregroundStyle(UI.muted).lineLimit(1)
+                } else if !filtered.isEmpty {
+                    Button("Liste") { showList = true }.buttonStyle(LinkButtonStyle())
+                }
+            }
+            .padding(.bottom, nearest.isEmpty ? 0 : 4)
+            ForEach(Array(nearest.enumerated()), id: \.element.id) { i, club in
+                if i > 0 { Hairline() }
+                Button { router.openClub = club } label: { ClubRow(club: club, distance: location.location.map { club.location.distance(from: $0) }) }
+                    .buttonStyle(.plain)
+            }
+        }
+        .surface(padding: 16)
+        .shadow(color: .black.opacity(0.08), radius: 18, y: 8)
     }
 
     private var listSheet: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(filtered) { club in
+                    ForEach(Array(filtered.sorted { $0.location.distance(from: center) < $1.location.distance(from: center) }.enumerated()), id: \.element.id) { i, club in
                         Button { showList = false; router.openClub = club } label: {
-                            ClubRow(club: club, distance: club.distance(from: location.location ?? CLLocation(latitude: region.center.latitude, longitude: region.center.longitude)))
-                        }.buttonStyle(.plain)
-                        Divider().overlay(UI.line).padding(.leading, 62)
+                            ClubRow(club: club, distance: club.distance(from: location.location ?? center), index: i + 1)
+                        }
+                        .buttonStyle(.plain)
+                        Hairline(inset: 38)
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, UI.margin)
             }
-            .background(UI.bg.ignoresSafeArea())
-            .navigationTitle("Clubs de la zone")
+            .background(UI.paper.ignoresSafeArea())
+            .navigationTitle("\(filtered.count) clubs")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
 
+/// Repère de club : encre (nombre de terrains) ; jaune balle quand on peut réserver en ligne.
 struct ClubPin: View {
     var club: Club
 
     var body: some View {
-        let color: Color = club.canBookWithBot ? UI.accent : Color(white: 0.45)
+        let bookable = club.canBookWithBot
         ZStack {
-            Circle().fill(color)
+            Circle().fill(bookable ? UI.ball : UI.ink)
             if club.courts > 1 {
-                Text("\(min(club.courts, 99))").font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(.white)
+                Text("\(min(club.courts, 99))").font(.system(size: 11, weight: .bold).width(.condensed))
+                    .foregroundStyle(bookable ? UI.onBall : UI.paper)
             } else {
-                Circle().fill(.white).frame(width: 7, height: 7)
+                Circle().fill(bookable ? UI.onBall : UI.paper).frame(width: 6, height: 6)
             }
         }
         .frame(width: 26, height: 26)
-        .overlay(Circle().strokeBorder(.white, lineWidth: 2))
+        .overlay(Circle().strokeBorder(bookable ? UI.onBall.opacity(0.8) : UI.paper, lineWidth: 1.5))
         .shadow(color: .black.opacity(0.18), radius: 3, y: 1)
+        .accessibilityLabel(club.displayName)
     }
 }

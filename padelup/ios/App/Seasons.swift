@@ -23,7 +23,7 @@ enum Season: String, CaseIterable, Identifiable {
         switch self {
         case .autumn: return "Les feuilles tombent, les balles aussi."
         case .halloween: return "Smash à faire peur."
-        case .christmas: return "Joyeux Noël sur les courts ❄︎"
+        case .christmas: return "Joyeux Noël sur les courts."
         case .newYear: return "Bonne année, nouveau niveau !"
         case .winter: return "Courts couverts et mains au chaud."
         case .spring: return "Le printemps relance la partie."
@@ -80,7 +80,7 @@ enum SeasonSetting {
     }
 }
 
-/// Calque d'effets saisonniers, dessiné au-dessus de l'app sans intercepter les gestes.
+/// Calque d'effets saisonniers : il tombe derrière le contenu (fond de page), sans intercepter les gestes.
 struct SeasonalOverlay: View {
     var season: Season
     var density: Double = 1
@@ -90,12 +90,12 @@ struct SeasonalOverlay: View {
     private var count: Int {
         let base: Int
         switch season {
-        case .christmas: base = 34
-        case .winter: base = 18
-        case .newYear: base = 30
-        case .autumn, .halloween: base = 14
-        case .spring: base = 16
-        case .summer: base = 10
+        case .christmas: base = 26
+        case .winter: base = 14
+        case .newYear: base = 22
+        case .autumn, .halloween: base = 12
+        case .spring: base = 12
+        case .summer: base = 8
         }
         return reduceMotion ? base / 3 : Int(Double(base) * density)
     }
@@ -141,7 +141,7 @@ struct SeasonalOverlay: View {
         var ctx = context
         ctx.translateBy(x: x, y: y)
         ctx.rotate(by: angle)
-        ctx.opacity = season == .summer ? 0.25 + 0.35 * sin(t * 1.5 + phase).magnitude : 0.7
+        ctx.opacity = season == .summer ? 0.2 + 0.3 * sin(t * 1.5 + phase).magnitude : 0.55
 
         switch season {
         case .autumn, .halloween:
@@ -170,7 +170,7 @@ struct SeasonalOverlay: View {
             let s = 6 * depth
             ctx.fill(Path(ellipseIn: CGRect(x: -s, y: -s * 0.55, width: 2 * s, height: 1.1 * s)), with: .color(colors[i % colors.count]))
         case .newYear:
-            let colors = [UI.accent, UI.ball, Color(red: 0.85, green: 0.70, blue: 0.20), Color(red: 0.80, green: 0.30, blue: 0.45), Color(red: 0.25, green: 0.65, blue: 0.55)]
+            let colors = [UI.court, UI.ball, Color(red: 0.85, green: 0.70, blue: 0.20), Color(red: 0.80, green: 0.30, blue: 0.45), Color(red: 0.25, green: 0.65, blue: 0.55)]
             let w = 5 * depth, h = 9 * depth * abs(cos(t * 3 + phase)) + 1
             ctx.fill(Path(CGRect(x: -w / 2, y: -h / 2, width: w, height: h)), with: .color(colors[i % colors.count]))
         case .summer:
@@ -215,19 +215,5 @@ struct SeasonalOverlay: View {
             p.addLine(to: CGPoint(x: bx + cos(a - 0.6) * r * 0.3, y: by + sin(a - 0.6) * r * 0.3))
         }
         return p
-    }
-}
-
-/// Bandeau de saison (accueil) : symbole + petite phrase.
-struct SeasonBadge: View {
-    var season: Season
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: season.symbol).font(.system(size: 13, weight: .semibold)).foregroundStyle(season.tint)
-            Text(season.greeting).font(UI.caption()).foregroundStyle(UI.muted)
-        }
-        .padding(.vertical, 8).padding(.horizontal, 12)
-        .background(Capsule().fill(UI.tray))
     }
 }

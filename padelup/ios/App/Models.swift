@@ -37,6 +37,7 @@ struct Club: Identifiable, Hashable, Codable {
     var timezone: String? = nil
     var imageURL: String? = nil
     var backendID: Int? = nil
+    var playtomicSlug: String? = nil
 
     var coordinate: CLLocationCoordinate2D { CLLocationCoordinate2D(latitude: latitude, longitude: longitude) }
     var location: CLLocation { CLLocation(latitude: latitude, longitude: longitude) }
@@ -53,6 +54,21 @@ struct Club: Identifiable, Hashable, Codable {
     }
 
     var isMostlyIndoor: Bool { indoor > 0 && indoor >= outdoor }
+
+    /// « 8 terrains couverts », « 5 terrains dont 3 couverts »…
+    var courtsSummary: String {
+        guard courts > 0 else { return "" }
+        let n = courts == 1 ? "1 terrain" : "\(courts) terrains"
+        if indoor >= courts { return n + (courts == 1 ? " couvert" : " couverts") }
+        if outdoor >= courts { return n + (courts == 1 ? " extérieur" : " extérieurs") }
+        if indoor > 0 { return n + " dont \(indoor) couvert" + (indoor > 1 ? "s" : "") }
+        return n
+    }
+
+    var subtitle: String {
+        let parts = [city, courtsSummary].filter { !$0.isEmpty }
+        return parts.isEmpty ? "Terrains de padel" : parts.joined(separator: " · ")
+    }
     var canBookWithBot: Bool { playtomicTenantID != nil || anybuddySlug != nil || (backendID != nil && courts > 0) }
 
     func distance(from location: CLLocation?) -> Double? {
@@ -147,9 +163,9 @@ enum BotProvider: String, Codable, CaseIterable, Identifiable {
     var automationNote: String {
         switch self {
         case .playtomic:
-            return "Depuis novembre 2026, Playtomic n'accepte plus la connexion des applications tierces (vérification d'appareil) : le bot ne peut pas réserver chez eux tant qu'ils n'ouvrent pas d'accès partenaire. Les clubs partenaires PadelUp, eux, sont réservés automatiquement."
+            return "Le bot lit les créneaux en direct sur le site Playtomic, depuis ton iPhone, et te prévient dès qu'un créneau correspond. La page du club s'ouvre à la bonne date, déjà connectée : tu valides et tu paies en un geste."
         case .anybuddy:
-            return "Le bot surveille les créneaux à la seconde et lance la réservation ; Anybuddy fait payer par carte, la validation finale se fait en un geste."
+            return "Anybuddy protège ses créneaux contre les robots : PadelUp ne les lit pas à sa place. Le bot ouvre la page du club et la réservation automatique d'Anybuddy, déjà connecté à ton compte."
         case .padelup:
             return "Réservation directe et immédiate dans les clubs partenaires PadelUp."
         }

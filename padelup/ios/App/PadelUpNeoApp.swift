@@ -1,8 +1,33 @@
 import CoreLocation
 import SwiftUI
+import UserNotifications
+
+// Notification touchée (créneau libre, ouverture des réservations) : on ouvre la page de réservation dans l'app.
+final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        // Anciennes versions : jetons Playtomic issus d'une connexion par mot de passe, désormais inutiles.
+        Keychain.set(nil, for: "playtomic.session")
+        return true
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        [.banner, .sound, .list]
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        let info = response.notification.request.content.userInfo
+        let link = (info["url"] as? String).flatMap(URL.init(string:))
+        await MainActor.run {
+            if let link { BotEngine.shared.openURL = link }
+            BotEngine.shared.armImminentRelease()
+        }
+    }
+}
 
 @main
 struct PadelUpNeoApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var directory = ClubDirectory.shared
     @StateObject private var bot = BotEngine.shared
     @StateObject private var server = ServerAPI.shared
@@ -16,10 +41,10 @@ struct PadelUpNeoApp: App {
                 .environmentObject(bot)
                 .environmentObject(server)
                 .environmentObject(location)
-                .tint(UI.accent)
+                .tint(UI.court)
                 .task {
                     if let shot = ShotMode.current {
-                        ShotMode.install(shot, directory: directory, bot: bot, location: location)
+                        ShotMode.install(shot, directory: directory, bot: bot, location: location, server: server)
                         return
                     }
                     await directory.load()

@@ -272,6 +272,9 @@ final class ServerAPI: ObservableObject {
         me = try? decoder.decode(APIMe.self, from: data)
     }
 
+    /// Profil d'exemple pour les captures d'écran (mode « -shot »).
+    func setDemo(_ demo: APIMe) { me = demo }
+
     // MARK: Clubs partenaires (tableau de bord PadelUp), lecture publique
 
     func partnerClubs(maxPages: Int = 10) async -> [Club] {
@@ -416,10 +419,6 @@ final class ServerAPI: ObservableObject {
     func markNotificationsRead() async { _ = try? await call("PUT", "notifications/", body: [:]) }
 
     // MARK: Bot 24 h/24 sur le serveur
-
-    func connectBotAccount(provider: BotProvider, email: String, password: String) async throws {
-        _ = try await call("POST", "bot/accounts/", body: ["provider": provider.rawValue, "email": email, "password": password])
-    }
 
     func botSlots(provider: BotProvider, clubID: String, day: Date) async throws -> [BookingSlot] {
         let f = DateFormatter()

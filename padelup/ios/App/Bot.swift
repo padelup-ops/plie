@@ -2,7 +2,9 @@ import BackgroundTasks
 import Foundation
 import UserNotifications
 
-// Règle du bot : « réserve-moi le mardi entre 19 h et 21 h, 90 min, au club X ».
+// Règle du bot : « mardi et jeudi entre 19 h et 21 h, 90 min, au club X ».
+// Option « ouverture des réservations » (dossier Padel Sniper) : le club ouvre ses créneaux J-x à hh:mm ; le bot
+// prévient une minute avant, puis scrute à l'heure pile et ouvre la page de réservation dès que le créneau apparaît.
 struct BotRule: Identifiable, Codable, Hashable {
     enum Court: String, Codable, CaseIterable { case any, indoor, outdoor
         var label: String { self == .any ? "Peu importe" : (self == .indoor ? "Couvert" : "Extérieur") }
@@ -31,16 +33,61 @@ struct BotRule: Identifiable, Codable, Hashable {
     var lastCheck: Date? = nil
     var lastStatus: String = "Pas encore lancé"
     var serverRuleID: Int? = nil          // règle prise en charge 24 h/24 par le serveur PadelUp
+    // Ajouts (optionnels pour relire les règles déjà enregistrées)
+    var clubSlug: String? = nil           // page playtomic.com/clubs/<slug>
+    var releaseDays: Int? = nil           // ouverture des réservations : J-x…
+    var releaseMinutes: Int? = nil        // … à hh:mm (heure du club)
+    var pausedUntil: Date? = nil          // pause après un refus de la plateforme
 
     var isExhausted: Bool { maxBookings > 0 && bookingsMade >= maxBookings }
+    var hasRelease: Bool { releaseDays != nil && releaseMinutes != nil }
+    var isPaused: Bool { (pausedUntil ?? .distantPast) > Date() }
 
     static func hhmm(_ minutes: Int) -> String { String(format: "%02d:%02d", minutes / 60, minutes % 60) }
+    static let dayNames = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]
 
-    var summary: String {
-        let names = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]
-        let days = weekdays.sorted().map { names[$0] }.joined(separator: " · ")
-        let dur = durations.map { "\($0) min" }.joined(separator: " / ")
-        return "\(days)  ·  \(Self.hhmm(timeFrom))–\(Self.hhmm(timeTo))  ·  \(dur)"
+    var daysLabel: String {
+        if weekdays.count == 7 { return "tous les jours" }
+        if weekdays == [0, 1, 2, 3, 4] { return "en semaine" }
+        if weekdays == [5, 6] { return "le week-end" }
+        return weekdays.sorted().map { Self.dayNames[$0] }.joined(separator: " · ")
+    }
+
+    var hoursLabel: String { "\(Self.hhmm(timeFrom))–\(Self.hhmm(timeTo))" }
+    var durationsLabel: String { durations.sorted().map { "\($0)" }.joined(separator: "/") + " min" }
+    var summary: String { "\(daysLabel)  ·  \(hoursLabel)  ·  \(durationsLabel)" }
+    var releaseLabel: String? {
+        guard let d = releaseDays, let m = releaseMinutes else { return nil }
+        return "J-\(d) à \(Self.hhmm(m))"
+    }
+
+    var tz: TimeZone { TimeZone(identifier: timezone) ?? .current }
+
+    var calendar: Calendar {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = tz
+        return cal
+    }
+
+    /// Prochaines ouvertures de réservation : (moment d'ouverture, jour visé).
+    func upcomingReleases(from now: Date = Date(), limit: Int = 6) -> [(release: Date, day: Date)] {
+        guard let d = releaseDays, let m = releaseMinutes else { return [] }
+        let cal = calendar
+        let today = cal.startOfDay(for: now)
+        let key = DateFormatter()
+        key.timeZone = tz
+        key.dateFormat = "yyyy-MM-dd"
+        var out: [(Date, Date)] = []
+        for offset in 0...(d + 21) {
+            guard let day = cal.date(byAdding: .day, value: offset, to: today),
+                  weekdays.contains((cal.component(.weekday, from: day) + 5) % 7),
+                  !bookedDays.contains(key.string(from: day)),
+                  let releaseDay = cal.date(byAdding: .day, value: -d, to: day) else { continue }
+            let release = releaseDay.addingTimeInterval(Double(m) * 60)
+            if release > now.addingTimeInterval(-60) { out.append((release, day)) }
+            if out.count >= limit { break }
+        }
+        return out
     }
 }
 
@@ -57,18 +104,34 @@ struct BotLogEntry: Identifiable, Codable, Hashable {
     var actionURL: String? = nil
 }
 
+/// Une ouverture de réservation suivie en direct (compte à rebours, puis scan rapide).
+struct Snipe: Equatable {
+    enum Phase: Equatable { case countdown, scanning(Int), found(String), missed, blocked }
+    var ruleID: UUID
+    var clubName: String
+    var release: Date
+    var day: Date
+    var timezone: String
+    var phase: Phase = .countdown
+}
+
 @MainActor
 final class BotEngine: ObservableObject {
     static let shared = BotEngine()
     static let backgroundTaskID = "com.padelup.neo.bot"
 
-    @Published var rules: [BotRule] = [] { didSet { save() } }
+    @Published var rules: [BotRule] = [] { didSet { save(); rescheduleAlarmsIfNeeded() } }
     @Published var log: [BotLogEntry] = [] { didSet { save() } }
     @Published private(set) var running = false
     @Published var lastRun: Date? = nil
+    @Published var snipe: Snipe? = nil
+    /// Page à ouvrir dans l'app (réservation Playtomic / Anybuddy, connectée) : la vue racine la présente.
+    @Published var openURL: URL? = nil
 
     private var timer: Timer?
     private var loading = false
+    private var snipeTask: Task<Void, Never>?
+    private var alarmSignature = ""
 
     private static var storeURL: URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -88,7 +151,7 @@ final class BotEngine: ObservableObject {
     }
 
     private func save() {
-        guard !loading else { return }
+        guard !loading, ShotMode.current == nil else { return }
         let store = Store(rules: rules, log: Array(log.prefix(200)))
         if let data = try? JSONEncoder().encode(store) { try? data.write(to: Self.storeURL, options: .atomic) }
     }
@@ -97,9 +160,13 @@ final class BotEngine: ObservableObject {
 
     func startForeground() {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
-            Task { @MainActor in await BotEngine.shared.runAll() }
+        timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
+            Task { @MainActor in
+                BotEngine.shared.armImminentRelease()
+                if (BotEngine.shared.lastRun ?? .distantPast).timeIntervalSinceNow < -55 { await BotEngine.shared.runAll() }
+            }
         }
+        armImminentRelease()
         Task { await runAll() }
     }
 
@@ -117,7 +184,7 @@ final class BotEngine: ObservableObject {
     }
 
     func addRule(_ rule: BotRule) {
-        requestNotificationPermission()  // pour prévenir le joueur dès que le bot a réservé
+        requestNotificationPermission()
         rules.insert(rule, at: 0)
         Task { await run(ruleID: rule.id) }
     }
@@ -126,7 +193,7 @@ final class BotEngine: ObservableObject {
         guard !running else { return }
         running = true
         defer { running = false; lastRun = Date() }
-        for rule in rules where rule.active && !rule.isExhausted && rule.serverRuleID == nil {
+        for rule in rules where rule.active && !rule.isExhausted && !rule.isPaused && rule.serverRuleID == nil {
             await run(ruleID: rule.id)
         }
     }
@@ -136,16 +203,38 @@ final class BotEngine: ObservableObject {
         change(&rules[i])
     }
 
+    // MARK: Lecture des créneaux
+
+    private func fetchSlots(_ rule: BotRule, day: Date) async throws -> [BookingSlot] {
+        switch rule.provider {
+        case .playtomic: return try await PlaytomicWeb.slots(tenantID: rule.clubID, day: day, timezone: rule.timezone)
+        case .anybuddy: return try await AnybuddyAPI.slots(slug: rule.clubID, day: day)
+        case .padelup: return try await ServerAPI.shared.botSlots(provider: .padelup, clubID: rule.clubID, day: day)
+        }
+    }
+
+    /// Page où le joueur termine la réservation (déjà connecté, à la bonne date).
+    func actionURL(for slot: BookingSlot, slug: String?) -> URL? {
+        switch slot.provider {
+        case .playtomic: return PlaytomicWeb.bookingURL(slug: slug, tenantID: slot.clubID, day: slot.start, timezone: slot.timezone)
+        case .anybuddy: return AnybuddyAPI.clubURL(slot.clubID)
+        case .padelup: return nil
+        }
+    }
+
     // MARK: Une règle : dates candidates, créneaux libres, meilleur choix, réservation
 
     func run(ruleID: UUID) async {
-        guard let rule = rules.first(where: { $0.id == ruleID }), rule.active, !rule.isExhausted else { return }
-        let tz = TimeZone(identifier: rule.timezone) ?? .current
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = tz
+        guard let rule = rules.first(where: { $0.id == ruleID }), rule.active, !rule.isExhausted, !rule.isPaused else { return }
+        if rule.provider == .anybuddy {
+            // Créneaux protégés par Anybuddy : pas de lecture automatique, leur réservation automatique prend le relais.
+            update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = "Suivi par la réservation automatique Anybuddy" }
+            return
+        }
+        let cal = rule.calendar
         let today = cal.startOfDay(for: Date())
         let dayKey = DateFormatter()
-        dayKey.timeZone = tz
+        dayKey.timeZone = rule.tz
         dayKey.dateFormat = "yyyy-MM-dd"
         let days: [Date] = (0...max(0, rule.daysAhead)).compactMap { cal.date(byAdding: .day, value: $0, to: today) }
             .filter { rule.weekdays.contains((cal.component(.weekday, from: $0) + 5) % 7) }
@@ -153,39 +242,37 @@ final class BotEngine: ObservableObject {
         var candidates: [BookingSlot] = []
         do {
             for day in days {
-                let slots: [BookingSlot]
-                switch rule.provider {
-                case .playtomic: slots = try await PlaytomicAPI.shared.slots(tenantID: rule.clubID, day: day)
-                case .anybuddy: slots = try await AnybuddyAPI.slots(slug: rule.clubID, day: day)
-                case .padelup: slots = try await ServerAPI.shared.botSlots(provider: .padelup, clubID: rule.clubID, day: day)
-                }
-                candidates += slots.filter { matches(rule, $0) }
+                candidates += try await fetchSlots(rule, day: day).filter { matches(rule, $0) }
             }
+        } catch PlaytomicError.blockedByPlaytomic {
+            // Règle du dossier : on ne contourne jamais, on s'arrête.
+            update(ruleID) { $0.lastCheck = Date(); $0.pausedUntil = Date().addingTimeInterval(3600); $0.lastStatus = "Playtomic limite les requêtes : pause d'une heure." }
+            return
         } catch {
             update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = error.localizedDescription }
             return
         }
-        let prefs = rule.durations
-        candidates.sort { a, b in
-            let pa = prefs.firstIndex(of: a.duration) ?? prefs.count, pb = prefs.firstIndex(of: b.duration) ?? prefs.count
-            return (a.localDayKey, pa, a.start, a.price ?? 0) < (b.localDayKey, pb, b.start, b.price ?? 0)
-        }
+        candidates.sort(by: preference(rule))
         guard !candidates.isEmpty else {
-            update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = "Aucun créneau libre pour l'instant (\(days.count) date(s) surveillée(s))" }
+            update(ruleID) {
+                $0.lastCheck = Date()
+                $0.lastStatus = days.isEmpty ? "Aucune date à surveiller" : "Rien de libre pour l'instant · \(days.count) date\(days.count > 1 ? "s" : "") surveillée\(days.count > 1 ? "s" : "")"
+            }
             return
         }
-        // Anybuddy, ou mode « me prévenir » : alerte instantanée avec le lien direct du créneau.
-        if !rule.autoBook || rule.provider == .anybuddy {
+        // Playtomic et Anybuddy : le paiement se fait sur leur page. Le bot repère, prévient et ouvre la page déjà connectée.
+        if !rule.autoBook || rule.provider != .padelup {
             let fresh = candidates.filter { !rule.notifiedSlots.contains($0.id) }
             if let best = fresh.first {
-                let url = rule.provider == .anybuddy ? AnybuddyAPI.clubURL(rule.clubID)?.absoluteString : nil
-                record(.found, rule: rule, slot: best, message: "Créneau libre repéré", url: url)
-                notify(title: "Créneau libre 🎾 \(rule.clubName)", body: "\(Self.when(best)) · \(best.duration) min · \(best.courtName) \(best.priceLabel)")
+                let url = actionURL(for: best, slug: rule.clubSlug)
+                record(.found, rule: rule, slot: best, message: "Libre · \(best.duration) min · \(best.courtName)", url: url?.absoluteString)
+                notify(title: "Créneau libre · \(rule.clubName)", body: "\(Self.when(best)) · \(best.duration) min · \(best.courtName) \(best.priceLabel). Touche pour réserver.", url: url)
                 update(ruleID) { $0.notifiedSlots.append(best.id); $0.notifiedSlots = Array($0.notifiedSlots.suffix(200)) }
             }
-            update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = "\(candidates.count) créneau(x) libre(s) repéré(s)" }
+            update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = "\(candidates.count) créneau\(candidates.count > 1 ? "x" : "") libre\(candidates.count > 1 ? "s" : "") repéré\(candidates.count > 1 ? "s" : "")" }
             return
         }
+        // Clubs partenaires PadelUp : réservation directe.
         var tries = 0
         var booked: Set<String> = Set(rule.bookedDays)
         for slot in candidates where !booked.contains(slot.localDayKey) {
@@ -209,38 +296,39 @@ final class BotEngine: ObservableObject {
         update(ruleID) { $0.lastCheck = Date() }
     }
 
-    private func matches(_ rule: BotRule, _ slot: BookingSlot) -> Bool {
+    private func preference(_ rule: BotRule) -> (BookingSlot, BookingSlot) -> Bool {
+        let prefs = rule.durations
+        return { a, b in
+            let pa = prefs.firstIndex(of: a.duration) ?? prefs.count, pb = prefs.firstIndex(of: b.duration) ?? prefs.count
+            return (a.localDayKey, pa, a.start, a.price ?? 0) < (b.localDayKey, pb, b.start, b.price ?? 0)
+        }
+    }
+
+    private func matches(_ rule: BotRule, _ slot: BookingSlot, minNotice: Bool = true) -> Bool {
         let m = slot.minutesOfDay
         guard m >= rule.timeFrom, m <= rule.timeTo else { return false }
         guard rule.durations.isEmpty || rule.durations.contains(slot.duration) else { return false }
         if rule.court == .indoor, slot.indoor == false { return false }
         if rule.court == .outdoor, slot.indoor == true { return false }
         if let max = rule.maxPrice, let p = slot.price, p > max { return false }
-        return slot.start > Date().addingTimeInterval(Double(rule.minNoticeMinutes) * 60)
+        return !minNotice || slot.start > Date().addingTimeInterval(Double(rule.minNoticeMinutes) * 60)
     }
 
-    /// Réservation d'un créneau (bouton « Le bot réserve » ou règle automatique) : tout le parcours est fait ici.
+    /// Réservation d'un créneau (bouton « Réserver » d'une fiche club ou règle automatique).
     @discardableResult
-    func book(_ slot: BookingSlot, clubName: String, ruleID: UUID? = nil) async -> BookingOutcome {
+    func book(_ slot: BookingSlot, clubName: String, slug: String? = nil, ruleID: UUID? = nil) async -> BookingOutcome {
         let outcome: BookingOutcome
         do {
             switch slot.provider {
             case .playtomic:
-                outcome = try await PlaytomicAPI.shared.book(slot)
+                outcome = BookingOutcome(status: .needsAction, message: "Termine sur Playtomic, déjà connecté.",
+                                         actionURL: actionURL(for: slot, slug: slug))
             case .anybuddy:
-                if ServerAPI.shared.botServerEnabled {
-                    outcome = try await ServerAPI.shared.botBook(slot, clubName: clubName)
-                } else {
-                    outcome = BookingOutcome(status: .needsAction, message: "Termine en un geste sur Anybuddy (carte enregistrée).",
-                                             actionURL: AnybuddyAPI.clubURL(slot.clubID))
-                }
+                outcome = BookingOutcome(status: .needsAction, message: "Termine sur Anybuddy, déjà connecté.",
+                                         actionURL: AnybuddyAPI.clubURL(slot.clubID))
             case .padelup:
                 outcome = try await ServerAPI.shared.botBook(slot, clubName: clubName)
             }
-        } catch PlaytomicError.slotTaken {
-            outcome = BookingOutcome(status: .failed, message: "Créneau pris juste avant : le bot passe au suivant.")
-        } catch PlaytomicError.sessionExpired, PlaytomicError.notConnected {
-            outcome = BookingOutcome(status: .authError, message: "Reconnecte ton compte \(slot.provider.name).")
         } catch {
             outcome = BookingOutcome(status: .failed, message: error.localizedDescription)
         }
@@ -248,10 +336,12 @@ final class BotEngine: ObservableObject {
         switch outcome.status {
         case .booked:
             record(.booked, rule: rule, clubName: clubName, slot: slot, message: outcome.message)
-            notify(title: "Le bot a réservé ✅", body: "\(clubName) · \(Self.when(slot)) · \(slot.duration) min · \(slot.courtName)")
+            notify(title: "Réservé · \(clubName)", body: "\(Self.when(slot)) · \(slot.duration) min · \(slot.courtName)", url: nil)
         case .needsAction:
-            record(.needsAction, rule: rule, clubName: clubName, slot: slot, message: outcome.message, url: outcome.actionURL?.absoluteString)
-            notify(title: "Le bot a besoin de toi", body: "\(clubName) · \(Self.when(slot)) : \(outcome.message)")
+            if ruleID != nil {
+                record(.needsAction, rule: rule, clubName: clubName, slot: slot, message: outcome.message, url: outcome.actionURL?.absoluteString)
+                notify(title: "À toi de jouer · \(clubName)", body: "\(Self.when(slot)) : \(outcome.message)", url: outcome.actionURL)
+            }
         case .authError, .failed:
             record(.failed, rule: rule, clubName: clubName, slot: slot, message: outcome.message)
         }
@@ -265,22 +355,117 @@ final class BotEngine: ObservableObject {
     }
 
     static func when(_ slot: BookingSlot) -> String {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "fr_FR")
-        f.timeZone = slot.timeZoneValue
-        f.dateFormat = "EEEE d MMM 'à' HH:mm"
-        return f.string(from: slot.start)
+        FR.string(slot.start, "EEEE d MMM 'à' HH:mm", tz: slot.timeZoneValue)
     }
+
+    // MARK: Ouverture des réservations (mode « sniper »)
+
+    /// Prochaine ouverture toutes règles confondues.
+    var nextRelease: (rule: BotRule, release: Date, day: Date)? {
+        rules.filter { $0.active && !$0.isExhausted && $0.hasRelease }
+            .compactMap { r in r.upcomingReleases(limit: 1).first.map { (r, $0.release, $0.day) } }
+            .min { $0.1 < $1.1 }
+    }
+
+    /// Si une ouverture tombe dans les 3 prochaines minutes et que l'app est ouverte : compte à rebours puis scan.
+    func armImminentRelease() {
+        guard snipe == nil || snipe?.phase == .missed || snipe?.phase == .blocked || isFoundPhase, ShotMode.current == nil,
+              let next = nextRelease, next.release.timeIntervalSinceNow < 180, next.release.timeIntervalSinceNow > -30 else { return }
+        if let s = snipe, s.ruleID == next.rule.id, s.release == next.release { return }
+        startSnipe(rule: next.rule, release: next.release, day: next.day)
+    }
+
+    private var isFoundPhase: Bool { if case .found = snipe?.phase { return true }; return false }
+
+    func startSnipe(rule: BotRule, release: Date, day: Date) {
+        snipeTask?.cancel()
+        snipe = Snipe(ruleID: rule.id, clubName: rule.clubName, release: release, day: day, timezone: rule.timezone)
+        snipeTask = Task { [weak self] in
+            // Attendre l'heure pile (on commence 300 ms avant pour absorber la latence).
+            let wait = release.timeIntervalSinceNow - 0.3
+            if wait > 0 { try? await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000)) }
+            guard let self, !Task.isCancelled else { return }
+            let start = Date()
+            var attempt = 0
+            // Cadence prudente, depuis l'iPhone du joueur : 1 lecture/s pendant 10 s, puis toutes les 3 s jusqu'à 45 s.
+            while !Task.isCancelled, Date().timeIntervalSince(start) < 45 {
+                attempt += 1
+                self.snipe?.phase = .scanning(attempt)
+                guard let current = self.rules.first(where: { $0.id == rule.id }) else { return }
+                do {
+                    let found = try await self.fetchSlots(current, day: day).filter { self.matches(current, $0, minNotice: false) }
+                        .sorted(by: self.preference(current))
+                    if let best = found.first {
+                        let url = self.actionURL(for: best, slug: current.clubSlug)
+                        self.snipe?.phase = .found(Self.when(best) + " · " + best.courtName)
+                        self.record(.found, rule: current, slot: best, message: "Ouvert à l'instant · \(best.duration) min", url: url?.absoluteString)
+                        self.update(rule.id) { $0.notifiedSlots.append(best.id); $0.lastStatus = "Ouverture : \(Self.when(best)) repéré" }
+                        self.notify(title: "C'est ouvert · \(current.clubName)", body: "\(Self.when(best)) · \(best.courtName). Touche pour réserver.", url: url)
+                        if let url { self.openURL = url }
+                        return
+                    }
+                } catch PlaytomicError.blockedByPlaytomic {
+                    self.snipe?.phase = .blocked
+                    self.update(rule.id) { $0.lastStatus = "Playtomic limite les requêtes : le bot s'est arrêté." }
+                    return
+                } catch {
+                    // Erreur réseau passagère : on continue à la cadence prévue.
+                }
+                let elapsed = Date().timeIntervalSince(start)
+                try? await Task.sleep(nanoseconds: elapsed < 10 ? 1_000_000_000 : 3_000_000_000)
+            }
+            if !Task.isCancelled {
+                self.snipe?.phase = .missed
+                self.update(rule.id) { $0.lastStatus = "Rien n'est apparu à l'ouverture. Le bot continue de surveiller." }
+            }
+        }
+    }
+
+    func cancelSnipe() {
+        snipeTask?.cancel()
+        snipeTask = nil
+        snipe = nil
+    }
+
+    /// Alarmes locales : une minute avant chaque ouverture (iOS ne laisse pas une app tourner à la seconde en veille).
+    private func rescheduleAlarmsIfNeeded() {
+        guard !loading, ShotMode.current == nil else { return }
+        let releases = rules.filter { $0.active && !$0.isExhausted }.flatMap { r in r.upcomingReleases(limit: 4).map { (r, $0.release, $0.day) } }
+        let signature = releases.map { "\($0.0.id):\(Int($0.1.timeIntervalSince1970))" }.sorted().joined(separator: ",")
+        guard signature != alarmSignature else { return }
+        alarmSignature = signature
+        let center = UNUserNotificationCenter.current()
+        center.getPendingNotificationRequests { pending in
+            let old = pending.map(\.identifier).filter { $0.hasPrefix("release-") }
+            center.removePendingNotificationRequests(withIdentifiers: old)
+            for (rule, release, day) in releases.prefix(48) {
+                let fire = release.addingTimeInterval(-60)
+                guard fire > Date() else { continue }
+                let content = UNMutableNotificationContent()
+                content.title = "Ouverture dans 1 minute · \(rule.clubName)"
+                content.body = "Les créneaux du \(FR.string(day, "EEEE d MMM", tz: rule.tz)) ouvrent à \(FR.time(release, tz: rule.tz)). Ouvre PadelUp : le bot est prêt."
+                content.sound = .default
+                content.interruptionLevel = .timeSensitive
+                let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: fire)
+                let request = UNNotificationRequest(identifier: "release-\(rule.id.uuidString)-\(Int(release.timeIntervalSince1970))",
+                                                    content: content, trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false))
+                center.add(request)
+            }
+        }
+    }
+
+    // MARK: Notifications
 
     func requestNotificationPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
     }
 
-    private func notify(title: String, body: String) {
+    private func notify(title: String, body: String, url: URL?) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
+        if let url { content.userInfo = ["url": url.absoluteString] }
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
     }
 }

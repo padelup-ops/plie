@@ -224,11 +224,6 @@ final class ClubDirectory: ObservableObject {
         } catch {
             liveStatus = "OpenStreetMap indisponible, données embarquées"
         }
-        let center = CLLocation(latitude: region.center.latitude, longitude: region.center.longitude)
-        let radiusKm = max(5, min(60, region.span.latitudeDelta * 111 / 2))
-        if let tenants = try? await PlaytomicAPI.shared.tenants(near: center.coordinate, radiusKm: radiusKm) {
-            for t in tenants where CoverageZone.contains(latitude: t.latitude, longitude: t.longitude) { merge(playtomic: t) }
-        }
         totalCount = clubs.count
         revision += 1
         saveCache()
@@ -251,6 +246,17 @@ final class ClubDirectory: ObservableObject {
         }
         totalCount = clubs.count
         revision += 1
+    }
+
+    /// Club de la carte retrouvé sur le site Playtomic (fiche club) : rattaché pour de bon (gardé en cache).
+    func link(clubID: String, tenantID: String, slug: String, timezone: String?) {
+        guard var c = clubs[clubID] else { return }
+        c.playtomicTenantID = tenantID
+        c.playtomicSlug = slug
+        if c.timezone == nil { c.timezone = timezone }
+        insert(c)
+        revision += 1
+        saveCache()
     }
 
     /// Un club Playtomic : s'il correspond à un club OSM proche, on l'y rattache, sinon il devient un club à part.

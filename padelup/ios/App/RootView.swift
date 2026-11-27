@@ -3,7 +3,7 @@ import SwiftUI
 enum AppTab: Hashable { case home, clubs, bot, matches, profile }
 
 enum RootSheet: Identifiable {
-    case club(Club), match(APIMatch), level, friends, notifications
+    case club(Club), match(APIMatch), level, friends, notifications, web(URL)
 
     var id: String {
         switch self {
@@ -12,6 +12,7 @@ enum RootSheet: Identifiable {
         case .level: return "level"
         case .friends: return "friends"
         case .notifications: return "notifications"
+        case .web(let u): return "web:" + u.absoluteString
         }
     }
 }
@@ -45,22 +46,18 @@ final class Router: ObservableObject {
 struct RootView: View {
     @StateObject private var router = Router()
     @EnvironmentObject private var server: ServerAPI
-    @AppStorage(SeasonSetting.key) private var seasonMode = "auto"
+    @EnvironmentObject private var bot: BotEngine
     @AppStorage("levelAsked") private var levelAsked = false
 
     var body: some View {
-        ZStack {
-            TabView(selection: $router.tab) {
-                Tab("Accueil", systemImage: "house", value: AppTab.home) { HomeView() }
-                Tab("Clubs", systemImage: "map", value: AppTab.clubs) { ClubsView() }
-                Tab("Bot", systemImage: "bolt", value: AppTab.bot) { BotView() }
-                Tab("Matchs", systemImage: "figure.tennis", value: AppTab.matches) { MatchesView() }
-                Tab("Profil", systemImage: "person", value: AppTab.profile) { ProfileView() }
-            }
-            if let season = SeasonSetting.resolve(seasonMode) {
-                SeasonalOverlay(season: season)
-            }
+        TabView(selection: $router.tab) {
+            Tab("Accueil", systemImage: "circle.grid.2x2", value: AppTab.home) { HomeView() }
+            Tab("Clubs", systemImage: "map", value: AppTab.clubs) { ClubsView() }
+            Tab("Bot", systemImage: "scope", value: AppTab.bot) { BotView() }
+            Tab("Matchs", systemImage: "figure.tennis", value: AppTab.matches) { MatchesView() }
+            Tab("Profil", systemImage: "person", value: AppTab.profile) { ProfileView() }
         }
+        .tint(UI.court)
         .environmentObject(router)
         .sheet(item: $router.sheet) { sheet in
             switch sheet {
@@ -69,7 +66,14 @@ struct RootView: View {
             case .level: LevelPickerView()
             case .friends: FriendsView()
             case .notifications: NotificationsView()
+            case .web(let url): ProviderWebSheet(provider: WebAccount.owns(url), url: url)
             }
+        }
+        // Le bot (ou une notification touchée) demande d'ouvrir une page de réservation, déjà connectée.
+        .onChange(of: bot.openURL) { _, url in
+            guard let url else { return }
+            bot.openURL = nil
+            router.sheet = .web(url)
         }
         // Après l'inscription : choisir son niveau (une seule fois, modifiable ensuite dans Profil).
         .onChange(of: server.me?.profile?.isCompleted) { _, completed in
