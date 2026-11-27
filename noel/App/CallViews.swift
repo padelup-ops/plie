@@ -78,12 +78,12 @@ struct IncomingCallView: View {
                     ForEach(0..<3) { i in
                         Circle()
                             .strokeBorder(Noel.goldLight.opacity(0.5), lineWidth: 1.5)
-                            .frame(width: 176, height: 176)
+                            .frame(width: 200, height: 200)
                             .scaleEffect(pulse ? 1.55 + Double(i) * 0.18 : 1)
                             .opacity(pulse ? 0 : 0.7)
                             .animation(reduce ? nil : .easeOut(duration: 2.2).repeatForever(autoreverses: false).delay(Double(i) * 0.5), value: pulse)
                     }
-                    SantaMedallion(size: 176, mood: .idle)
+                    SantaMedallion(size: 200, mood: .idle)
                 }
                 .padding(.top, 44)
 

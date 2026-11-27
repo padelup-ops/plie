@@ -24,7 +24,7 @@ NOTE = ("Unlocks the full magic: the four other Santa stories (secret, congratul
 PASS_NOTE = (
     "Christmas Pass, non-consumable, 6.99 EUR. Unlocks the full personalized Santa call (name, age, qualities, "
     "anecdote, wish, all stories, siblings), a printable letter, a good-child certificate, and the advent calendar. "
-    "The free tier is a three-line preview of the magic call plus advent door 1. A multiplication question for grown-ups "
+    "The free tier is a short preview of the magic call (greeting by name, age, qualities, goodbye) plus advent door 1. A multiplication question for grown-ups "
     "is required before the purchase and before the privacy-policy link. No ads, no account, no data collection. "
     "Restore is on the paywall and in Settings. Do not submit this product for review from this script."
 )

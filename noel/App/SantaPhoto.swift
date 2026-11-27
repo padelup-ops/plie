@@ -147,15 +147,17 @@ struct SantaMedallion: View {
     /// Une image fixe (cartes exportées).
     var still: Double? = nil
     var body: some View {
-        ZStack {
-            Circle().fill(RadialGradient(colors: [Noel.goldLight.opacity(0.35), .clear], center: .center, startRadius: size * 0.3, endRadius: size * 0.75))
-                .frame(width: size * 1.5, height: size * 1.5)
-            SantaPhoto(mouth: mouth, mood: mood, zoom: 1.32, focus: UnitPoint(x: 0.5, y: 0.5), still: still != nil)
-                .frame(width: size, height: size)
-                .clipShape(Circle())
-            Circle().strokeBorder(Noel.goldGradient, lineWidth: size * 0.035)
-            Circle().strokeBorder(Noel.cream.opacity(0.35), lineWidth: 1).padding(size * 0.035)
-        }
+        // La photo, cerclée d'or : l'anneau est à la taille de la photo, le halo dépasse derrière.
+        SantaPhoto(mouth: mouth, mood: mood, zoom: 1.32, focus: UnitPoint(x: 0.5, y: 0.5), still: still != nil)
+            .frame(width: size, height: size)
+            .clipShape(Circle())
+            .overlay(Circle().strokeBorder(Noel.goldGradient, lineWidth: size * 0.035))
+            .overlay(Circle().strokeBorder(Noel.cream.opacity(0.35), lineWidth: 1).padding(size * 0.035))
+            .background(
+                Circle().fill(RadialGradient(colors: [Noel.goldLight.opacity(0.35), .clear], center: .center,
+                                             startRadius: size * 0.3, endRadius: size * 0.75))
+                    .frame(width: size * 1.5, height: size * 1.5)
+            )
         .frame(width: size, height: size)
     }
 }
