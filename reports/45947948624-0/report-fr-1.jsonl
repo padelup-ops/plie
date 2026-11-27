@@ -6,3 +6,5 @@
 {"id": "7a9bd9bed7bdb667e899", "key": "hello|valentin", "text": "Ho, ho, ho ! Bonjour Valentin !", "ok": false, "score": 1.0, "dur": 6.44, "heard": "Oh, oh, oh, bonjour Valentin !", "tries": 2, "secs": 278.5}
 {"id": "2322558872def7ae660b", "key": "hello|marceau", "text": "Ho, ho, ho ! Bonjour Marceau !", "ok": false, "score": 0.489, "dur": 3.44, "heard": "Ha ha ha ha ! Bonjour Marcel ! Panda !", "tries": 3, "secs": 241.3}
 {"id": "99a5bdc421a06c9efd50", "key": "hello|nolan", "text": "Ho, ho, ho ! Bonjour Nolan !", "ok": true, "score": 0.865, "dur": 2.1, "heard": "Oh, oh, oh, bonjour Nolaine.", "tries": 1, "secs": 59.1}
+{"id": "4de9450b238f1a30faa0", "key": "hello|baptiste", "text": "Ho, ho, ho ! Bonjour Baptiste !", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Ho ho ho bonjour Baptiste", "tries": 1, "secs": 61.6}
+{"id": "f247e326f38dfd62bbb1", "key": "hello|milo", "text": "Ho, ho, ho ! Bonjour Milo !", "ok": true, "score": 1.0, "dur": 3.92, "heard": "Ho ho ho ! Bonjour Milo !", "tries": 1, "secs": 77.9}
