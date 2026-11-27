@@ -12,7 +12,7 @@
 # avec un autre tirage.
 #
 #   voice.py plan                       ce qu'il y a à dire, par langue
-#   voice.py check                      ce qui manque dans Resources/Audio/voice
+#   voice.py check                      ce qui manque dans Resources/Audio/voice (et note les langues complètes)
 #   voice.py audit --src <dossier>      reprend une fabrication (branche ci-noel-voice) : garde ce qui passe le contrôle
 #   voice.py gen --lang fr --shard 0/6 --out out      (dans GitHub Actions : .github/workflows/noel-voice.yml)
 #   voice.py pilot --lang fr --out out  quelques phrases avec plusieurs réglages, pour choisir
@@ -119,7 +119,7 @@ def missing(lang: str):
 # Son
 
 def letters(s: str) -> str:
-    s = unicodedata.normalize("NFD", s.lower())
+    s = unicodedata.normalize("NFD", s.lower().replace("œ", "oe").replace("æ", "ae"))
     s = "".join(c for c in s if unicodedata.category(c) != "Mn")
     s = re.sub(r"[^a-z0-9ß ]+", " ", s)
     # Les rires (« ho, ho, ho », « jo, jo, jo », « oh, oh, oh ») s'écrivent de dix façons : on ne les compare pas.
@@ -328,42 +328,56 @@ def ensure_ref(out: Path) -> Path:
     return ref
 
 
+def tasks_of(a):
+    """« fr:line en:line fr:name » : quoi fabriquer, dans l'ordre (line : les répliques ; name : les prénoms, du
+    plus courant au plus rare). Sans --tasks : tout ce qui manque dans la langue --lang."""
+    if not a.tasks:
+        return [(a.lang, "all")]
+    out = []
+    for t in a.tasks.replace(",", " ").split():
+        lang, _, kind = t.partition(":")
+        assert lang in LANGS and kind in ("", "all", "line", "name"), t
+        out.append((lang, kind or "all"))
+    return out
+
+
 def cmd_gen(a):
-    lang = a.lang
     i, n = (int(x) for x in a.shard.split("/"))
     out = Path(a.out)
-    # Dans l'ordre du plan : les répliques d'abord, puis les prénoms du plus courant au plus rare. Si le temps
-    # manque, ce sont les prénoms les plus rares qui restent pour un prochain passage (le lutin les dit en attendant).
-    todo = missing(lang)[i::n]
-    if a.limit:
-        # Essai rapide : moitié répliques, moitié prénoms.
-        half = [it for it in todo if it["kind"] == "line"][: a.limit // 2]
-        todo = half + [it for it in todo if it["kind"] != "line"][: a.limit - len(half)]
-    print(f"{lang} lot {i}/{n} : {len(todo)} phrases", flush=True)
-    good = out / "voice" / lang
-    weak = out / "weak" / lang
-    good.mkdir(parents=True, exist_ok=True)
-    weak.mkdir(parents=True, exist_ok=True)
-    report = out / f"report-{lang}-{i}.jsonl"
+    # Dans l'ordre demandé, et dans chaque langue dans l'ordre du plan : les répliques d'abord, puis les prénoms du
+    # plus courant au plus rare. Si le temps manque, ce sont les prénoms les plus rares qui restent pour un prochain
+    # passage (le lutin les dit en attendant).
+    todo = []
+    for lang, kind in tasks_of(a):
+        items = [it for it in missing(lang) if kind == "all" or (it["kind"] == "line") == (kind == "line")]
+        part = items[i::n]
+        if a.limit:
+            # Essai rapide : moitié répliques, moitié prénoms.
+            half = [it for it in part if it["kind"] == "line"][: a.limit // 2]
+            part = half + [it for it in part if it["kind"] != "line"][: a.limit - len(half)]
+        print(f"{lang}:{kind} lot {i}/{n} : {len(part)} phrases", flush=True)
+        todo += [(lang, it) for it in part]
+        (out / "voice" / lang).mkdir(parents=True, exist_ok=True)
+        (out / "weak" / lang).mkdir(parents=True, exist_ok=True)
     if not todo:
-        report.write_text("")
         return
     studio = Studio(ensure_ref(out))
     t0 = time.time()
     deadline = t0 + a.minutes * 60
-    with report.open("w", encoding="utf-8") as log:
-        for k, it in enumerate(todo, 1):
-            if time.time() > deadline:
-                print(f"temps écoulé : {len(todo) - k + 1} phrases restent pour le prochain passage", flush=True)
-                break
-            r = produce(studio, it, lang, good, tries=6 if it["kind"] == "line" else 3)
-            if not r["ok"] and (good / f"{it['id']}.m4a").is_file():
-                (good / f"{it['id']}.m4a").rename(weak / f"{it['id']}.m4a")
+    for k, (lang, it) in enumerate(todo, 1):
+        if time.time() > deadline:
+            print(f"temps écoulé : {len(todo) - k + 1} phrases restent pour le prochain passage", flush=True)
+            break
+        good, weak = out / "voice" / lang, out / "weak" / lang
+        r = produce(studio, it, lang, good, tries=6 if it["kind"] == "line" else 3)
+        if not r["ok"] and (good / f"{it['id']}.m4a").is_file():
+            (good / f"{it['id']}.m4a").rename(weak / f"{it['id']}.m4a")
+        # Le rapport est écrit phrase par phrase : ce qui est fait peut être publié à tout moment.
+        with (out / f"report-{lang}-{i}.jsonl").open("a", encoding="utf-8") as log:
             log.write(json.dumps(r, ensure_ascii=False) + "\n")
-            log.flush()
-            left = (time.time() - t0) / k * (len(todo) - k) / 60
-            print(f"[{k}/{len(todo)}] {'ok ' if r['ok'] else 'FAIBLE'} {r['score']:.2f} {r['dur']:.1f}s essais {r['tries']} "
-                  f"({r['secs']:.0f}s, reste {left:.0f} min) {it['text'][:60]} → {r['heard'][:60]}", flush=True)
+        left = (time.time() - t0) / k * (len(todo) - k) / 60
+        print(f"[{k}/{len(todo)}] {lang} {'ok ' if r['ok'] else 'FAIBLE'} {r['score']:.2f} {r['dur']:.1f}s essais {r['tries']} "
+              f"({r['secs']:.0f}s, reste {left:.0f} min) {it['text'][:60]} → {r['heard'][:60]}", flush=True)
 
 
 def cmd_pilot(a):
@@ -421,11 +435,13 @@ def cmd_audit(a):
     for lang in LANGS:
         want = {it["id"]: it for it in plan(lang)}
         rows = {}
-        for rp in sorted(src.glob(f"report-{lang}-*.jsonl")):
+        for rp in sorted(src.rglob(f"report-{lang}-*.jsonl")):
             for line in rp.read_text(encoding="utf-8").splitlines():
                 if line.strip():
                     r = json.loads(line)
-                    rows[r["id"]] = r
+                    # Une phrase refaite à un passage suivant : c'est le tirage gardé qui compte.
+                    if r["id"] not in rows or r.get("ok"):
+                        rows[r["id"]] = r
         ok_n = bad_n = 0
         for id_, r in rows.items():
             it = want.get(id_)
@@ -442,6 +458,8 @@ def cmd_audit(a):
             else:
                 bad_n += 1
                 worst.append(f"{lang} {it['kind']} | {it['text'][:70]} | {r.get('heard', '')[:70]}")
+        if not a.dry:
+            mark(lang)
         m = missing(lang) if not a.dry else []
         stats[lang] = (ok_n, bad_n, len(m), sum(1 for it in m if it["kind"] == "line"))
         kept += ok_n
@@ -465,10 +483,27 @@ def cmd_plan(a):
     print("total", total)
 
 
+def mark(lang: str) -> bool:
+    """Une langue n'est servie par la voix enregistrée que si toutes ses répliques y sont : sinon le Père Noël
+    changerait de voix au milieu de l'appel. Le fichier « complet.txt » le dit à l'app (les prénoms, eux, peuvent
+    manquer : le lutin les dit)."""
+    m = missing(lang)
+    flag = VOICE / lang / "complet.txt"
+    done = not any(it["kind"] == "line" for it in m) and (VOICE / lang).is_dir()
+    if done:
+        total = sum(1 for it in plan(lang) if it["kind"] == "hello")
+        have = total - sum(1 for it in m if it["kind"] == "hello")
+        flag.write_text(f"toutes les répliques ; {have} prénoms sur {total}\n", encoding="utf-8")
+    else:
+        flag.unlink(missing_ok=True)
+    return done
+
+
 def cmd_check(a):
     bad = 0
     for lang in LANGS:
         m = missing(lang)
+        mark(lang)
         bad += len(m)
         want = {it["id"] for it in plan(lang)}
         extra = [p.name for p in (VOICE / lang).glob("*.m4a") if p.stem not in want] if (VOICE / lang).is_dir() else []
@@ -487,7 +522,8 @@ if __name__ == "__main__":
     sub.add_parser("plan").set_defaults(fn=cmd_plan)
     c = sub.add_parser("check"); c.add_argument("--strict", action="store_true"); c.add_argument("--prune", action="store_true"); c.set_defaults(fn=cmd_check)
     g = sub.add_parser("gen")
-    g.add_argument("--lang", required=True); g.add_argument("--shard", default="0/1"); g.add_argument("--out", default="out")
+    g.add_argument("--lang", default="fr"); g.add_argument("--tasks", default=""); g.add_argument("--shard", default="0/1")
+    g.add_argument("--out", default="out")
     g.add_argument("--limit", type=int, default=0); g.add_argument("--minutes", type=float, default=320)
     g.set_defaults(fn=cmd_gen)
     u = sub.add_parser("audit"); u.add_argument("--src", required=True); u.add_argument("--dry", action="store_true")

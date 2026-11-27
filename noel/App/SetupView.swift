@@ -281,12 +281,12 @@ struct WaxSeal: View {
     }
 }
 
-/// « Magie complète » : ce qui demande l'achat unique.
+/// « Pass Noël » : ce qui demande le Pass.
 struct PremiumTag: View {
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: "lock.fill").font(.system(size: 9, weight: .bold))
-            Text("Full magic").font(.ui(11, .bold))
+            Text("Christmas Pass").font(.ui(11, .bold))
         }
         .foregroundStyle(Noel.night)
         .padding(.horizontal, 7).padding(.vertical, 3)
