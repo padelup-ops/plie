@@ -1,2 +1,6 @@
 {"id": "de0617f19b7bb8192b8c", "key": "line|Mon traîneau est prêt, les cadeaux sont chargés, et mes rennes piaffent d'impatience dans la neige.", "text": "Mon traîneau est prêt, les cadeaux sont chargés, et mes rennes piaffent d'impatience dans la neige.", "ok": true, "score": 0.923, "dur": 6.08, "heard": "Montrénaud est prêt. Les cadeaux sont chargés et Mérène piaf d'impatience dans la neige.", "tries": 1, "secs": 89.1}
 {"id": "c75c903a8297d7627c9e", "key": "hello|romy", "text": "Ho, ho, ho ! Bonjour Romy !", "ok": true, "score": 1.0, "dur": 1.98, "heard": "Oh ho ho bonjour Romy", "tries": 1, "secs": 53.4}
+{"id": "c1decf37bd5657cd46ff", "key": "hello|nour", "text": "Ho, ho, ho ! Bonjour Nour !", "ok": false, "score": 0.902, "dur": 3.26, "heard": "Ho ho ho bonjour Nour. Nour Nour...", "tries": 1, "secs": 162.9}
+{"id": "130bbfe1b6866acc0b74", "key": "bye|victoria", "text": "Joyeux Noël, Victoria !", "ok": true, "score": 1.0, "dur": 3.04, "heard": "Joyeux Noël Victoria.", "tries": 2, "secs": 103.5}
+{"id": "e09c2da0aa780221c219", "key": "bye|mya", "text": "Joyeux Noël, Mya !", "ok": false, "score": 0.719, "dur": 2.4, "heard": "Joyeux Noël, mia, mia!", "tries": 3, "secs": 157.4}
+{"id": "fdf4d894414948625223", "key": "bye|lilou", "text": "Joyeux Noël, Lilou !", "ok": true, "score": 0.916, "dur": 2.88, "heard": "Joyeux Noël, Lilo.", "tries": 1, "secs": 50.5}
