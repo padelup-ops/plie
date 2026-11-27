@@ -4,8 +4,8 @@
 # Source : une copie publique du projet sur GitHub, à une version fixée. Rien de Nintendo n'est inclus : ni clés, ni
 # firmware, ni jeux. Sortie : retrofold/Switch/RetroFoldSwitch.ipa et les droits à donner à la signature.
 set -euo pipefail
-REPO=https://github.com/AzureDominus/melonx.git
-REV=55f84af15144e40d7fbe8984747855534d2a8ec1
+REPO=${SWITCH_REPO:-https://github.com/AzureDominus/melonx.git}
+REV=${SWITCH_REV:-55f84af15144e40d7fbe8984747855534d2a8ec1}
 BUNDLE_ID=${BUNDLE_ID:-com.padelup.retrofold.switch}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$HERE/Switch"
@@ -31,6 +31,7 @@ git init -q
 git remote add origin "$REPO"
 git fetch -q --depth 1 origin "$REV"
 git checkout -q FETCH_HEAD
+echo "=== Version des sources : $(git rev-parse HEAD) $(git log -1 --format=%cs)"
 git lfs pull
 ls -la "src/MeloNX/MeloNX/Dependencies/Dynamic Libraries"
 

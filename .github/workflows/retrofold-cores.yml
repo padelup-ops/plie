@@ -13,6 +13,9 @@ on:
       platform:
         description: "vide : iPhone ; sim : simulateur (rangés dans sim/)"
         required: false
+      switch_source:
+        description: "switch seulement : autre dépôt et version, « adresse version » (vide : la copie fixée dans build_switch.sh)"
+        required: false
 
 jobs:
   cores:
@@ -67,8 +70,11 @@ jobs:
           sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
           xcodebuild -version
       - name: Compiler
+        env:
+          SOURCE: ${{ inputs.switch_source }}
         run: |
           set -o pipefail
+          if [ -n "$SOURCE" ]; then export SWITCH_REPO="${SOURCE%% *}" SWITCH_REV="${SOURCE##* }"; fi
           bash retrofold/tools/build_switch.sh 2>&1 | tee switch.log | grep -E "^===|error|Error|warning: Compiling|BUILD (SUCCEEDED|FAILED)|\.ipa|dylib|^[0-9]+\.[0-9]+" | tail -120
       - name: Erreurs
         if: failure()
