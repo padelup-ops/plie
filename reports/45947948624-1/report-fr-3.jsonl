@@ -1,2 +1,7 @@
 {"id": "0350b21f1bb8b4a4c4dd", "key": "hello|paul", "text": "Ho, ho, ho ! Bonjour Paul !", "ok": true, "score": 1.0, "dur": 2.3, "heard": "Oh ho ho, bonjour Paul.", "tries": 2, "secs": 136.6}
 {"id": "f74a5d1219131982762c", "key": "hello|tom", "text": "Ho, ho, ho ! Bonjour Tom !", "ok": true, "score": 1.0, "dur": 2.4, "heard": "Ho ho ho bonjour Tom", "tries": 1, "secs": 52.9}
+{"id": "b19d9d10555786d523b1", "key": "hello|isaac", "text": "Ho, ho, ho ! Bonjour Isaac !", "ok": true, "score": 1.0, "dur": 2.58, "heard": "Oh ho ho ! Bonjour Isaac !", "tries": 3, "secs": 221.6}
+{"id": "330541892bdb50733f2e", "key": "hello|timeo", "text": "Ho, ho, ho ! Bonjour Timéo !", "ok": true, "score": 1.0, "dur": 2.92, "heard": "Oh ho ho ! Bonjour Timéo !", "tries": 1, "secs": 61.4}
+{"id": "66949c155360dfb72032", "key": "hello|antoine", "text": "Ho, ho, ho ! Bonjour Antoine !", "ok": true, "score": 1.0, "dur": 3.88, "heard": "Oh ho ho bonjour Antoine. Ah !", "tries": 1, "secs": 66.1}
+{"id": "d093258e975f43b00b49", "key": "hello|augustin", "text": "Ho, ho, ho ! Bonjour Augustin !", "ok": true, "score": 0.945, "dur": 1.88, "heard": "Oh, oh, oh, bonjour Agustin.", "tries": 1, "secs": 55.7}
+{"id": "fb7440f099cfa25b0f0d", "key": "hello|samuel", "text": "Ho, ho, ho ! Bonjour Samuel !", "ok": true, "score": 1.0, "dur": 2.78, "heard": "Ho, ho, ho, bonjour Samuel.", "tries": 1, "secs": 66.5}
