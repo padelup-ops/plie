@@ -1,0 +1,24 @@
+OK    serveur en ligne  — {'status': 'ok'}
+OK    inscription sans code (serveur de test)  — 201
+OK    choix du niveau  — 200
+OK    profil complet  — niveau 4 · Intermédiaire
+OK    club OpenStreetMap ajouté (Padel Horizon Lomme)  — 200 Padel Horizon Lomme
+OK    match créé dans ce club  — 201 Match de test
+OK    message dans la discussion du match  — 201
+OK    plateformes du bot  — Playtomic, Anybuddy, Clubs PadelUp
+OK    présence sur le radar (position arrondie)  — 200
+OK    disponibilité ajoutée  — 201
+OK    radar : joueur voisin trouvé, sans coordonnées  — 200 1 joueur(s), distance 1.0 km
+OK    proposition de match envoyée  — 201
+OK    proposition acceptée  — 200
+OK    communauté : publication  — 201
+OK    communauté : j'aime  — 200
+OK    liste des matchs  — 200
+OK    classement  — 200
+OK    suggestions d'amis (sans e-mail exposé)  — 200
+
+0 échec(s)
+
+== Accès direct à Playtomic depuis la machine GitHub
+curl: (6) Could not resolve host: api.playtomic.io
+HTTP 000 en 0.063575s
