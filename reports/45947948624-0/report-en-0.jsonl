@@ -5,3 +5,7 @@
 {"id": "7811472637d10954f9e5", "key": "hello|daniel", "text": "Ho, ho, ho! Hello, Daniel!", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho Ho Ho! Hello Daniel!", "tries": 1, "secs": 67.2}
 {"id": "67b5a7750f8e76f65dc1", "key": "hello|owen", "text": "Ho, ho, ho! Hello, Owen!", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Oh ho ho hello Owen.", "tries": 1, "secs": 55.2}
 {"id": "aaca4fb74f0506d0d5fe", "key": "hello|aria", "text": "Ho, ho, ho! Hello, Aria!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Ho, ho, ho. Hello, Aria!", "tries": 1, "secs": 54.2}
+{"id": "2529d14af4df1681a328", "key": "hello|ethan", "text": "Ho, ho, ho! Hello, Ethan!", "ok": true, "score": 1.0, "dur": 2.24, "heard": "Ho Ho Ho! Hello Ethan!", "tries": 2, "secs": 110.6}
+{"id": "2095261df12537a92d0f", "key": "hello|ezra", "text": "Ho, ho, ho! Hello, Ezra!", "ok": true, "score": 1.0, "dur": 2.98, "heard": "Ho Ho Ho! Hello Ezra!", "tries": 2, "secs": 130.9}
+{"id": "ddbc64af3936b2abbbc4", "key": "hello|aiden", "text": "Ho, ho, ho! Hello, Aiden!", "ok": true, "score": 1.0, "dur": 1.68, "heard": "Ho ho ho, hello Aiden.", "tries": 1, "secs": 52.0}
+{"id": "24b41bfc1ed5580b64b2", "key": "hello|logan", "text": "Ho, ho, ho! Hello, Logan!", "ok": true, "score": 1.0, "dur": 2.36, "heard": "Ho ho ho, hello Logan!", "tries": 1, "secs": 55.2}
