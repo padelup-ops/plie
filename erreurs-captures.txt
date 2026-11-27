@@ -1,0 +1,36 @@
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/01-home-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/01-home-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/02-mappins-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/02-mappins-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/03-mission-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/03-mission-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/04-thread-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/04-thread-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/05-collectibles-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/05-collectibles-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/06-eggs-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/06-eggs-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/07-widgets-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/07-widgets-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/08-guide-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/08-guide-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/09-characters-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/09-characters-dprimary-1.png
