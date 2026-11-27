@@ -22,9 +22,9 @@ on:
         required: false
         default: "fr en es de it pt"
       shards:
-        description: "Lots par langue"
+        description: "Machines par langue (deux fabrications par machine)"
         required: false
-        default: "6"
+        default: "3"
 
 jobs:
   plan:
@@ -46,7 +46,7 @@ jobs:
           words = lines[0].split()
           mode = os.environ.get("IN_MODE") or (words[0] if words else "pilot")
           langs = (os.environ.get("IN_LANGS") or " ".join(words[1:]) or "fr en es de it pt").split()
-          shards = int(os.environ.get("IN_SHARDS") or (lines[1].strip() if len(lines) > 1 and lines[1].strip().isdigit() else 6))
+          shards = int(os.environ.get("IN_SHARDS") or (lines[1].strip() if len(lines) > 1 and lines[1].strip().isdigit() else 3))
           if mode == "pilot":
               shards = 1
           m = [{"lang": l, "shard": i, "of": shards} for l in langs for i in range(shards)]
@@ -60,9 +60,11 @@ jobs:
   gen:
     needs: plan
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 215
     strategy:
       fail-fast: false
+      # Pas toutes les machines du compte : les autres apps doivent pouvoir compiler pendant ce temps.
+      max-parallel: 18
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v5
@@ -90,7 +92,13 @@ jobs:
           if [ "$MODE" = pilot ]; then
             python noel/tools/voice.py pilot --lang "$LANG_CODE" --out out 2>&1 | grep -v -i "warn" | tee out/log-$LANG_CODE.txt
           else
-            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$SHARD/$OF" --out out 2>&1 | grep -v -i "warn" | tee out/log-$LANG_CODE-$SHARD.txt
+            # Deux fabrications en parallèle sur la machine (deux fils chacune), chacune son lot.
+            export VOICE_THREADS=2 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
+            A=$((SHARD * 2)); B=$((SHARD * 2 + 1)); N=$((OF * 2))
+            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$A/$N" --out out --minutes 170 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$A.txt &
+            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$B/$N" --out out --minutes 170 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$B.txt &
+            wait
+            tail -n 5 out/log-$LANG_CODE-$A.txt out/log-$LANG_CODE-$B.txt
           fi
           find out -name "*.try*" -delete
           du -sh out; find out -name "*.m4a" | wc -l
