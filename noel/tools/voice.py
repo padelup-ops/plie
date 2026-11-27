@@ -134,14 +134,20 @@ def similarity(want: str, heard: str) -> float:
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 
-def duration_ok(it, seconds: float) -> bool:
+def duration_range(it):
+    """La durée raisonnable d'une phrase, en secondes."""
     if it["kind"] == "hello":
-        return 1.2 <= seconds <= 4.2
+        return 1.2, 4.2
     if it["kind"] == "bye":
-        return 0.8 <= seconds <= 3.2
+        return 0.8, 3.2
     text = it["text"]
     n = len(letters(text).replace(" ", "")) + 3 * len(re.findall(r"\b(?:[HhJj]o|[Oo]h)\b", text))
-    return 0.04 * n + 0.35 <= seconds <= 0.13 * n + 1.6
+    return 0.04 * n + 0.35, 0.13 * n + 1.6
+
+
+def duration_ok(it, seconds: float) -> bool:
+    lo, hi = duration_range(it)
+    return lo <= seconds <= hi
 
 
 # Des mots qu'un Père Noël ne dit pas. Le modèle ajoute parfois un bruit ou un mot en fin de phrase, que la
@@ -275,12 +281,27 @@ class Studio:
         self.sr = self.tts.sr
         self.ref = str(ref)
         self.prepared = None
+        # Quand le modèle ne trouve pas la fin de la phrase, il continue jusqu'à 40 secondes de son (plusieurs
+        # minutes de calcul pour un tirage perdu d'avance) : on l'arrête un peu après la durée raisonnable.
+        self.cap = 1000
+        try:
+            inner = self.tts.t3.inference
+
+            def limited(*a, **k):
+                if "max_new_tokens" in k:
+                    k["max_new_tokens"] = min(k["max_new_tokens"], self.cap)
+                return inner(*a, **k)
+            self.tts.t3.inference = limited
+        except Exception as e:
+            print("durée non limitée :", e, flush=True)
         from faster_whisper import WhisperModel
         self.asr = WhisperModel(whisper, device="cpu", compute_type="int8", cpu_threads=max(1, torch.get_num_threads()))
         print(f"modèles chargés en {time.time() - t:.0f} s, {torch.get_num_threads()} fils", flush=True)
 
-    def say(self, text, lang, seed, exaggeration, cfg_weight, temperature):
+    def say(self, text, lang, seed, exaggeration, cfg_weight, temperature, max_seconds=40.0):
         self.torch.manual_seed(seed)
+        # 25 jetons par seconde de voix, avec de la marge pour les silences du début et de la fin.
+        self.cap = max(60, min(1000, int(25 * (max_seconds * 1.25 + 1.5))))
         kw = dict(language_id=lang, exaggeration=exaggeration, cfg_weight=cfg_weight, temperature=temperature)
         # La voix de référence n'est analysée qu'une fois, pas à chaque phrase.
         if self.prepared != exaggeration:
@@ -329,7 +350,7 @@ def produce(studio, it, lang, out_dir: Path, tries=5, **override):
         if k >= 3:
             # Une phrase qui résiste : un tirage plus sage, plus près du texte.
             cfg = dict(cfg, temperature=0.65, cfg_weight=0.4)
-        raw = studio.say(it["text"], lang, seed, **cfg)
+        raw = studio.say(it["text"], lang, seed, max_seconds=duration_range(it)[1], **cfg)
         w = trim_and_level(raw, studio.sr)
         dur = len(w) / studio.sr
         if dur < 0.25:

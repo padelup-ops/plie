@@ -142,7 +142,7 @@ jobs:
             # Une fabrication qui s'arrête sur une erreur est relancée (elle ne refait pas ce qui est fait).
             run() {
               for t in 1 2 3; do
-                python noel/tools/voice.py gen --tasks "$TASKS" --shard "$1/$N" --out out --minutes "$MINUTES" 2>&1 | grep -v -i -E "warn|Sampling" >> out/log-$1.txt
+                python noel/tools/voice.py gen --tasks "$TASKS" --shard "$1/$N" --out out --minutes "$MINUTES" 2>&1 | grep --line-buffered -v -i -E "warn|Sampling" >> out/log-$1.txt
                 [ "${PIPESTATUS[0]}" = 0 ] && break
                 sleep 15
               done
