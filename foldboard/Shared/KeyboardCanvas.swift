@@ -317,6 +317,9 @@ final class KeyboardCanvas: UIView {
     }
 
     private func hideVoice() {
+        // La dictée est finie : plus de traduction en direct en attente.
+        resetLive()
+        KBTranslate.endLive()
         guard !voice.isHidden else { return }
         voice.isHidden = true
         layoutTopBar()
@@ -331,6 +334,7 @@ final class KeyboardCanvas: UIView {
 
     /// Demande à l'app si elle est prête (micro disponible) ; sinon, le panneau propose de l'ouvrir.
     private func startDictation() {
+        resetLive()
         dictCancelled = false
         dictState = .connecting
         showVoice(.connecting)
@@ -384,7 +388,7 @@ final class KeyboardCanvas: UIView {
                 self.hideVoice()
                 self.releaseMicSoon()
             } else if !t.isEmpty {
-                self.voice.set(self.dictState == .finishing ? .finishing : .listening, text: t)
+                self.showHeard(t)
             }
         }
         m.onLevel = { [weak self] l in self?.voice.push(level: CGFloat(l)) }
@@ -452,6 +456,69 @@ final class KeyboardCanvas: UIView {
         releaseMicSoon()
     }
 
+    // MARK: Traduction en direct
+    //
+    // Avec « traduire ce que je dis », le panneau montre la traduction au fil de la parole (les langues doivent être
+    // sur l'iPhone : c'est la traduction d'Apple, hors ligne). Une seule traduction à la fois, la suivante part quand
+    // la précédente est rendue : la dernière phrase entendue est toujours celle qui finit par s'afficher.
+
+    private var liveText = ""
+    private var liveShown = ""
+    private var liveBusy = false
+    private var liveGen = 0
+    private var liveLast: TimeInterval = 0
+
+    private func resetLive() {
+        liveGen += 1
+        liveText = ""
+        liveShown = ""
+        liveBusy = false
+    }
+
+    /// Ce qui vient d'être entendu : affiché tel quel, ou traduit pendant qu'on parle.
+    private func showHeard(_ t: String) {
+        let mode: KBVoicePanel.Mode = dictState == .finishing ? .finishing : .listening
+        guard eff.dictTranslate, eff.translateKey,
+              let pair = KBTranslate.direction(for: t, spoken: dictationLang, pair: eff.translatePair) else {
+            voice.set(mode, text: t)
+            return
+        }
+        liveText = t
+        // Tant que rien n'est encore traduit, on montre ce qui est entendu.
+        if liveShown.isEmpty { voice.set(mode, text: t) }
+        pumpLive(pair)
+    }
+
+    private func pumpLive(_ pair: (from: String, to: String)) {
+        guard !liveBusy else { return }
+        liveBusy = true
+        let gen = liveGen
+        let wait = max(0, 0.3 - (ProcessInfo.processInfo.systemUptime - liveLast))
+        Task { @MainActor [weak self] in
+            if wait > 0 { try? await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000)) }
+            guard let self else { return }
+            guard gen == self.liveGen else { return }
+            let source = self.liveText
+            let out = await KBTranslate.quick(source, from: pair.from, to: pair.to)
+            guard gen == self.liveGen else { return }
+            self.liveBusy = false
+            self.liveLast = ProcessInfo.processInfo.systemUptime
+            guard self.dictState == .listening || self.dictState == .finishing else { return }
+            guard let out, !out.isEmpty else {
+                // Pas de traduction immédiate (langues à télécharger) : le texte entendu reste, traduit à la fin.
+                self.liveShown = ""
+                self.voice.set(self.dictState == .finishing ? .finishing : .listening, text: self.liveText)
+                return
+            }
+            self.liveShown = out
+            self.voice.set(self.dictState == .finishing ? .finishing : .listening, text: out)
+            if self.liveText != source,
+               let next = KBTranslate.direction(for: self.liveText, spoken: self.dictationLang, pair: self.eff.translatePair) {
+                self.pumpLive(next)
+            }
+        }
+    }
+
     private func dictationUpdate() {
         guard dictState == .listening || dictState == .finishing, let s = KBVault.loadDictation(), s.seq > dictSeq else { return }
         if s.final {
@@ -460,7 +527,7 @@ final class KeyboardCanvas: UIView {
             dictState = .idle
             hideVoice()
         } else {
-            if !s.text.isEmpty { voice.set(dictState == .finishing ? .finishing : .listening, text: s.text) }
+            if !s.text.isEmpty { showHeard(s.text) }
             voice.push(level: CGFloat(s.level ?? 0))
         }
     }
@@ -556,7 +623,8 @@ final class KeyboardCanvas: UIView {
         let t0 = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !t0.isEmpty else { return }
         // Dictée traduite : parlé en français, écrit en anglais (et l'inverse, ou d'autres langues).
-        if eff.dictTranslate, eff.translateKey, let pair = KBTranslate.target(for: t0, pair: eff.translatePair), pair.from != pair.to {
+        if eff.dictTranslate, eff.translateKey,
+           let pair = KBTranslate.direction(for: t0, spoken: dictationLang, pair: eff.translatePair), pair.from != pair.to {
             flash(L("Translating…"), hold: 1.2)
             Task { @MainActor [weak self] in
                 let r = await KBTranslate.translate(t0, from: pair.from, to: pair.to)
@@ -1520,6 +1588,8 @@ final class KeyboardCanvas: UIView {
             mic?.cancel()
         }
         releaseMicIfIdle()
+        resetLive()
+        KBTranslate.endLive()
         memTimer?.invalidate()
         memTimer = nil
         pasteControl = nil
