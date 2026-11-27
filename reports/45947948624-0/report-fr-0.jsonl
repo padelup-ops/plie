@@ -19,3 +19,7 @@
 {"id": "0bce7450d3a168bcb542", "key": "hello|garance", "text": "Ho, ho, ho ! Bonjour Garance !", "ok": true, "score": 1.0, "dur": 3.6, "heard": "Oh ho ho! Bonjour, garance!", "tries": 2, "secs": 154.7}
 {"id": "fb01d67a8c9f2d09c05b", "key": "hello|pablo", "text": "Ho, ho, ho ! Bonjour Pablo !", "ok": true, "score": 1.0, "dur": 2.42, "heard": "Ho, ho, ho ! Bonjour Pablo !", "tries": 1, "secs": 69.9}
 {"id": "4095617712db2f04a82c", "key": "hello|elias", "text": "Ho, ho, ho ! Bonjour Elias !", "ok": true, "score": 0.927, "dur": 2.64, "heard": "Oh ho ho! Bonjour, Relias!", "tries": 1, "secs": 71.1}
+{"id": "0a3032c991f98c15628e", "key": "hello|alessio", "text": "Ho, ho, ho ! Bonjour Alessio !", "ok": false, "score": 1.0, "dur": 4.88, "heard": "Ho ho ho! Bonjour Alessio!", "tries": 1, "secs": 230.7}
+{"id": "57218130913835297a78", "key": "hello|mathys", "text": "Ho, ho, ho ! Bonjour Mathys !", "ok": true, "score": 0.686, "dur": 2.06, "heard": "Ho ho ho, bonjour Matisse.", "tries": 1, "secs": 56.9}
+{"id": "115919247c4482e00e36", "key": "hello|laura", "text": "Ho, ho, ho ! Bonjour Laura !", "ok": true, "score": 1.0, "dur": 2.72, "heard": "Oh ho ho, bonjour Laura.", "tries": 1, "secs": 70.5}
+{"id": "7e9f5bba8706d0eef549", "key": "hello|stella", "text": "Ho, ho, ho ! Bonjour Stella !", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho ho ho bonjour Stella.", "tries": 1, "secs": 67.5}
