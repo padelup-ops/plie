@@ -1,0 +1,34 @@
+# PADELUP : test de bout en bout du serveur de test (Railway) : compte, niveau, club OSM, lecture Playtomic par le bot.
+# Résultat dans la branche ci-padelup-smoke.
+name: PadelUp - test du serveur
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Adresse du serveur"
+        required: false
+        default: "https://padelup-test-test.up.railway.app"
+  push:
+    branches: ["claude/**"]
+    paths: ["padelup/tools/smoke_test.py", ".github/workflows/padelup-smoke.yml"]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Tester
+        run: python3 padelup/tools/smoke_test.py "${{ inputs.url || 'https://padelup-test-test.up.railway.app' }}" 2>&1 | tee resultat.txt
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/p" && cp resultat.txt "$RUNNER_TEMP/p/" 2>/dev/null || echo "rien" > "$RUNNER_TEMP/p/resultat.txt"
+          cd "$RUNNER_TEMP/p" && git init -q -b ci-padelup-smoke
+          git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          echo "commit ${{ github.sha }} - $(date -u)" > run.txt
+          git add -A && git commit -qm "Test du serveur PadelUp"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-padelup-smoke
