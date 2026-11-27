@@ -3303,32 +3303,11 @@ final class KeyboardCanvas: UIView {
                 guard let self, self.suggestionItems.isEmpty, self.emojiQuery == nil else { return }
                 self.rebuildChips()
             }
-            // Pas encore lu : le bouton « Coller » du système. iOS le donne aux apps pour coller sans jamais afficher
-            // la demande « Autoriser le collage ? » (le texte n'est lu que parce qu'on a touché ce bouton-là).
-            if pendingClip, #available(iOS 16.0, *) {
-                let cfgP = UIPasteControl.Configuration()
-                cfgP.displayMode = .iconAndLabel
-                cfgP.cornerStyle = .capsule
-                // Le bouton « Coller » du système doit être bien lisible et opaque : translucide, iOS le dessinait
-                // parfois comme un simple rectangle bleu, sans texte.
-                cfgP.baseBackgroundColor = theme.key.withAlphaComponent(1)
-                cfgP.baseForegroundColor = theme.text.withAlphaComponent(1)
-                // Un seul bouton, gardé d'une mise à jour de la barre à l'autre : chaque bouton « Coller » est une vue
-                // dessinée par iOS hors du clavier, et la barre se refait à chaque mot.
-                let pc: UIView
-                if let kept = pasteControl, pasteControlTheme == theme.id {
-                    pc = kept
-                } else {
-                    let made = UIPasteControl(configuration: cfgP)
-                    made.target = pasteTarget
-                    made.heightAnchor.constraint(equalToConstant: 30).isActive = true
-                    made.widthAnchor.constraint(greaterThanOrEqualToConstant: 96).isActive = true
-                    pasteControl = made
-                    pasteControlTheme = theme.id
-                    pc = made
-                }
-                chipStack.addArrangedSubview(pc)
-            } else {
+            // Notre propre bouton « Coller », toujours lisible. Le bouton « Coller » du système (UIPasteControl, qui
+            // colle sans la demande d'iOS) ne sait pas dessiner son texte dans un clavier : il n'en restait qu'un
+            // rectangle bleu vide dans la barre, pris pour une touche apparue par erreur. Pour ne plus voir la demande
+            // « Autoriser le collage » : Réglages › Foldboard › Coller depuis d'autres apps › Autoriser.
+            do {
             let b = UIButton(type: .system)
             var cfg = UIButton.Configuration.plain()
             let one = t.replacingOccurrences(of: "\n", with: " ")
