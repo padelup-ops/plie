@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<style>
+/* Film du guide : 1080×1920, tout est en animations CSS mises en pause, que render.py place à l'instant voulu (seek). */
+:root { --deep:#0F1B33; --deep2:#16284A; --ink:#0E1726; --paper:#F2F6FB; --muted:#A9B8CC; --signal:#FFC400; --ok:#19B37D; --soft:#E4EAF2; }
+* { box-sizing:border-box; margin:0; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:var(--deep); color:var(--paper); font-family:"Inter", sans-serif; }
+.stage { position:absolute; inset:0; background:radial-gradient(1200px 900px at 50% 38%, var(--deep2), var(--deep) 70%); }
+.scene { position:absolute; inset:0; padding:150px 90px; display:flex; flex-direction:column; justify-content:center; gap:44px; opacity:0;
+  animation: s-in .4s ease var(--at) both, s-out .35s ease calc(var(--at) + var(--dur) - .35s) forwards; }
+.scene.last { animation: s-in .4s ease var(--at) both; }
+@keyframes s-in { from { opacity:0 } to { opacity:1 } }
+@keyframes s-out { from { opacity:1 } to { opacity:0 } }
+.pop { opacity:0; animation: pop .55s cubic-bezier(.2,.8,.2,1) calc(var(--at) + var(--d, 0s)) both; }
+@keyframes pop { from { opacity:0; transform:translateY(46px) } to { opacity:1; transform:none } }
+.zoom { opacity:0; animation: zoom .45s cubic-bezier(.2,1.3,.3,1) calc(var(--at) + var(--d, 0s)) both; }
+@keyframes zoom { from { opacity:0; transform:scale(.6) } to { opacity:1; transform:none } }
+h1 { font-family:"Inter Display","Inter",sans-serif; font-weight:800; font-size:118px; line-height:1.0; letter-spacing:-.02em; }
+h1 em, h2 em { font-style:normal; color:var(--signal); }
+h2 { font-family:"Inter Display","Inter",sans-serif; font-weight:800; font-size:92px; line-height:1.04; letter-spacing:-.018em; }
+.eyebrow { font-size:34px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--signal); }
+.sub { font-size:44px; line-height:1.3; color:var(--muted); font-weight:500; }
+.small { font-size:27px; line-height:1.4; color:var(--muted); }
+
+/* Le téléphone */
+.duo { perspective:2400px; width:900px; align-self:center; }
+.duo-body { display:grid; grid-template-columns:1fr 1fr; aspect-ratio:4/3.1; transform-style:preserve-3d; filter:drop-shadow(0 50px 60px rgba(0,0,0,.5)); }
+.half { background:#05080E; padding:16px; position:relative; }
+.half svg { display:block; width:100%; height:100%; backface-visibility:hidden; }
+.half.l { border-radius:48px 0 0 48px; padding-right:0; } .half.l svg { border-radius:34px 0 0 34px; }
+.half.r { border-radius:0 48px 48px 0; padding-left:0; transform-origin:left center; } .half.r svg { border-radius:0 34px 34px 0; }
+.unfold .half.r { animation: unfold 1.6s cubic-bezier(.2,.75,.2,1) calc(var(--at) + .5s) both; }
+@keyframes unfold { from { transform:rotateY(-166deg) } to { transform:rotateY(0) } }
+
+/* Étapes */
+.card { background:var(--paper); color:var(--ink); border-radius:52px; padding:54px; display:flex; flex-direction:column; gap:30px; min-height:400px; justify-content:center; }
+.row { display:flex; align-items:center; justify-content:space-between; gap:24px; font-size:46px; font-weight:700; }
+.row .app { display:flex; align-items:center; gap:26px; }
+.ico { width:92px; height:92px; border-radius:24px; background:var(--deep); display:grid; place-items:center; color:var(--signal); font-size:44px; font-weight:800; flex:none; }
+.chip { font-size:34px; font-weight:700; padding:14px 28px; border-radius:999px; background:var(--ok); color:#fff; white-space:nowrap; }
+.chip.y { background:var(--signal); color:var(--ink); }
+.mono { font-family:"DejaVu Sans Mono", monospace; font-size:40px; font-weight:700; background:var(--soft); padding:26px 30px; border-radius:24px; letter-spacing:.02em; }
+.lab { font-size:32px; font-weight:600; color:#5A6678; }
+.toggle { width:150px; height:90px; border-radius:99px; background:#C5CEDA; position:relative; flex:none; animation: tg-bg .4s ease calc(var(--at) + 1s) both; }
+.toggle::after { content:""; position:absolute; top:9px; left:9px; width:72px; height:72px; border-radius:50%; background:#fff; animation: tg-knob .4s cubic-bezier(.3,1.3,.4,1) calc(var(--at) + 1s) both; }
+@keyframes tg-bg { to { background:var(--ok) } }
+@keyframes tg-knob { to { transform:translateX(60px) } }
+.digits { display:flex; gap:18px; justify-content:center; }
+.digits b { width:118px; height:150px; border-radius:26px; background:var(--soft); display:grid; place-items:center; font-family:"DejaVu Sans Mono", monospace; font-size:76px; }
+.tiles { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
+.tiles i { aspect-ratio:1; border-radius:30px; display:block; position:relative; overflow:hidden; }
+.tiles i::after { content:""; position:absolute; inset:auto 0 0 0; height:42%; background:rgba(14,23,38,.28); border-radius:60% 60% 0 0 / 40% 40% 0 0; }
+.tiles i::before { content:""; position:absolute; width:26%; aspect-ratio:1; border-radius:50%; background:rgba(255,255,255,.75); top:18%; right:18%; }
+.dots { position:absolute; left:0; right:0; bottom:150px; display:flex; gap:18px; justify-content:center; opacity:0;
+  animation: s-in .4s ease 8.75s both, s-out .35s ease 28.4s forwards; }
+.dots i { width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,.2); animation: dot .3s ease var(--on) both; }
+@keyframes dot { to { background:var(--signal) } }
+.price { font-family:"Inter Display","Inter",sans-serif; font-weight:800; font-size:170px; letter-spacing:-.04em; line-height:1; color:var(--signal); }
+.center { align-items:center; text-align:center; }
+.foot { position:absolute; left:90px; right:90px; bottom:110px; text-align:center; }
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#173A6B"/><stop offset="1" stop-color="#3F86B8"/></linearGradient>
+  <symbol id="scene" viewBox="0 0 400 310">
+    <rect width="400" height="310" fill="url(#g-sky)"/>
+    <circle cx="292" cy="78" r="34" fill="#FFC400"/><circle cx="292" cy="78" r="52" fill="#FFC400" opacity="0.16"/>
+    <path d="M0 214 Q70 150 150 198 T300 176 T400 196 V310 H0Z" fill="#12305A"/>
+    <path d="M0 246 Q90 204 190 240 T400 226 V310 H0Z" fill="#0E6F78"/>
+    <rect y="272" width="400" height="38" fill="#0A2238"/>
+    <g fill="#F2F6FB"><rect x="118" y="150" width="30" height="12" rx="3"/><rect x="152" y="150" width="30" height="12" rx="3"/><rect x="236" y="128" width="30" height="12" rx="3"/></g>
+    <g><rect x="180" y="232" width="34" height="40" rx="9" fill="#FFC400"/><rect x="189" y="244" width="6" height="9" rx="3" fill="#0E1726"/><rect x="200" y="244" width="6" height="9" rx="3" fill="#0E1726"/></g>
+    <g fill="#FFC400"><circle cx="133" cy="132" r="6"/><circle cx="167" cy="132" r="6"/><circle cx="251" cy="110" r="6"/></g>
+    <g fill="#FFFFFF" opacity="0.22"><circle cx="62" cy="226" r="30"/><circle cx="338" cy="204" r="13"/><circle cx="338" cy="252" r="13"/><circle cx="314" cy="228" r="13"/><circle cx="362" cy="228" r="13"/></g>
+    <circle cx="62" cy="226" r="14" fill="#FFFFFF" opacity="0.5"/>
+  </symbol>
+</defs></svg>
+<div class="stage" id="stage"></div>
+<script>
+const PHONE = cls => `<div class="duo ${cls}"><div class="duo-body">
+  <div class="half l"><svg viewBox="0 0 200 310" preserveAspectRatio="xMidYMid slice"><use href="#scene" width="400" height="310"/></svg></div>
+  <div class="half r"><svg viewBox="200 0 200 310" preserveAspectRatio="xMidYMid slice"><use href="#scene" width="400" height="310"/></svg></div></div></div>`;
+const STEP = 2.5, STEPS_AT = 8.75;
+const steps = [
+  ["Récupère l'identifiant de ton iPhone", `<span class="lab pop" style="--d:.5s">Identifiant (UDID)</span><div class="mono pop" style="--d:.7s">00008160-000A1B2C…</div><div class="row"><span></span><span class="chip zoom" style="--d:1.3s">Copié</span></div>`],
+  ["Installe les deux apps", `<div class="row pop" style="--d:.5s"><span class="app"><span class="ico">S</span>StikDebug</span><span class="chip zoom" style="--d:1.1s">Installée</span></div><div class="row pop" style="--d:.7s"><span class="app"><span class="ico">M</span>Émulateur</span><span class="chip zoom" style="--d:1.5s">Installée</span></div>`],
+  ["Active le Mode développeur", `<span class="lab pop" style="--d:.5s">Réglages › Confidentialité et sécurité</span><div class="row pop" style="--d:.6s"><span>Mode développeur</span><span class="toggle"></span></div>`],
+  ["Connecte LocalDevVPN", `<div class="row pop" style="--d:.5s"><span class="app"><span class="ico">L</span>LocalDevVPN</span><span class="chip zoom" style="--d:1.1s">Connecté</span></div><span class="lab pop" style="--d:.8s">Gratuit, sur l'App Store</span>`],
+  ["Appaire StikDebug", `<span class="lab pop" style="--d:.5s">Code à saisir dans Réglages</span><div class="digits">${"482913".split("").map((c, i) => `<b class="zoom" style="--d:${.7 + i * .16}s">${c}</b>`).join("")}</div>`],
+  ["Active le JIT", `<div class="row pop" style="--d:.5s"><span class="app"><span class="ico">M</span>MeloNX</span><span class="chip y zoom" style="--d:1.1s">JIT actif</span></div><span class="lab pop" style="--d:.8s">À refaire à chaque partie</span>`],
+  ["Importe tes clés et ton firmware", `<div class="row pop" style="--d:.5s"><span>prod.keys</span><span class="chip zoom" style="--d:1.0s">Importé</span></div><div class="row pop" style="--d:.7s"><span>firmware.zip</span><span class="chip zoom" style="--d:1.4s">Importé</span></div>`],
+  ["Ajoute tes jeux", `<div class="tiles">${["#E4572E", "#2E86AB", "#19B37D", "#FFC400", "#7A5CFA", "#F25F8B"].map((c, i) => `<i class="zoom" style="--d:${.5 + i * .14}s;background:${c}"></i>`).join("")}</div>`],
+];
+let html = `
+<section class="scene" style="--at:0s;--dur:5s">
+  ${PHONE("unfold")}
+  <p class="eyebrow pop" style="--d:2.1s">iPhone · iOS 27</p>
+  <h1 class="pop" style="--d:2.3s">L'émulateur Switch <em>sur ton iPhone.</em></h1>
+</section>
+<section class="scene" style="--at:5s;--dur:3.75s">
+  <h1 class="pop" style="--d:.3s">Sans ordinateur.</h1>
+  <h1 class="pop" style="--d:1.1s"><em>Sans jailbreak.</em></h1>
+  <p class="sub pop" style="--d:1.9s">Tout se fait depuis le téléphone, en 8 étapes.</p>
+</section>`;
+steps.forEach(([title, mock], i) => {
+  html += `<section class="scene" style="--at:${STEPS_AT + i * STEP}s;--dur:${STEP}s">
+    <p class="eyebrow pop" style="--d:.1s">Étape ${i + 1} / 8</p>
+    <h2 class="pop" style="--d:.2s">${title}</h2>
+    <div class="card pop" style="--d:.35s">${mock}</div></section>`;
+});
+html += `
+<section class="scene" style="--at:28.75s;--dur:3.75s">
+  <h1 class="pop" style="--d:.3s">Tes clés.</h1><h1 class="pop" style="--d:.8s">Ton firmware.</h1><h1 class="pop" style="--d:1.3s"><em>Tes jeux.</em></h1>
+  <p class="sub pop" style="--d:2s">Rien n'est fourni : tu utilises les fichiers de ta propre console.</p>
+</section>
+<section class="scene last center" style="--at:32.5s;--dur:7s">
+  ${PHONE("pop")}
+  <h2 class="pop" style="--d:.5s">Le guide complet,<br><em>pas à pas.</em></h2>
+  <p class="sub pop" style="--d:.9s">8 étapes · dépannage · assistant</p>
+  <p class="price zoom" style="--d:1.4s">9,90 €</p>
+  <p class="small foot pop" style="--d:2s">Émulation expérimentale : tous les jeux ne tournent pas. MeloNX et StikDebug sont des logiciels libres (AGPL v3). Site non affilié à Nintendo ni à Apple.</p>
+</section>
+<div class="dots">${steps.map((_, i) => `<i style="--on:${STEPS_AT + i * STEP + .15}s"></i>`).join("")}</div>`;
+document.getElementById("stage").innerHTML = html;
+document.fonts.ready.then(() => {
+  const anims = document.getAnimations();
+  anims.forEach(a => a.pause());
+  window.seek = t => { anims.forEach(a => { a.currentTime = t * 1000; }); };
+  window.seek(0);
+  window.ready = true;
+});
+</script>
+</body></html>
