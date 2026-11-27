@@ -1,1 +1,3 @@
 {"id": "bf905d36c2a195910212", "key": "hello|louna", "text": "Ho, ho, ho ! Bonjour Louna !", "ok": true, "score": 0.913, "dur": 2.24, "heard": "Oh, oh, oh! Bonjour Luna!", "tries": 2, "secs": 159.2}
+{"id": "c42e020c103bea61984d", "key": "hello|mya", "text": "Ho, ho, ho ! Bonjour Mya !", "ok": false, "score": 0.641, "dur": 3.5, "heard": "Ho, ho, ho. Bonjour, Mia. Bonjour, Mia.", "tries": 1, "secs": 269.0}
+{"id": "c5f1f7b31321b93408d8", "key": "bye|elena", "text": "Joyeux Noël, Elena !", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Joyeux Noël. Elena.", "tries": 2, "secs": 135.3}
