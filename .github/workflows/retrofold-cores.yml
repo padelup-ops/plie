@@ -1,12 +1,14 @@
 # RetroFold : compile les cœurs GBA (mGBA) et DS (melonDS DS) pour l'iPhone et les range dans la branche ci-retrofold-cores,
 # où la compilation de l'app vient les chercher.
+# Avec « switch » : compile à la place l'émulateur Switch libre MeloNX en .ipa non signée, pour un usage personnel
+# (jamais envoyée à Apple) ; elle se télécharge dans les fichiers joints de l'exécution.
 name: RetroFold - cœurs GBA et DS
 
 on:
   workflow_dispatch:
     inputs:
       only:
-        description: "gba, ds ou vide (les deux)"
+        description: "gba, ds, vide (les deux) ou switch (l'émulateur Switch, à part)"
         required: false
       platform:
         description: "vide : iPhone ; sim : simulateur (rangés dans sim/)"
@@ -14,6 +16,7 @@ on:
 
 jobs:
   cores:
+    if: inputs.only != 'switch'
     runs-on: xcode-27
     timeout-minutes: 90
     permissions:
@@ -49,3 +52,35 @@ jobs:
           for f in ../retrofold/CoresSim/*.framework; do [ -e "$f" ] || continue; rm -rf "sim/$(basename "$f")"; cp -R "$f" sim/; done
           git add -A && git commit -qm "Cœurs GBA / DS" && git push -q -f origin ci-retrofold-cores || true
           ls
+
+  switch:
+    if: inputs.only == 'switch'
+    runs-on: xcode-27
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          xcodebuild -version
+      - name: Compiler
+        run: |
+          set -o pipefail
+          bash retrofold/tools/build_switch.sh 2>&1 | tee switch.log | grep -E "^===|error|Error|warning: Compiling|BUILD (SUCCEEDED|FAILED)|\.ipa|dylib|^[0-9]+\.[0-9]+" | tail -120
+      - name: Erreurs
+        if: failure()
+        run: |
+          grep -n -B2 -A6 -E "error:|error [A-Z]+[0-9]+|BUILD FAILED" switch.log | head -300 || true
+          echo "----- fin du journal"; tail -60 switch.log
+      - name: Joindre l'app
+        uses: actions/upload-artifact@v4
+        with:
+          name: RetroFoldSwitch
+          path: |
+            retrofold/Switch/RetroFoldSwitch.ipa
+            retrofold/Switch/entitlements.plist
+            retrofold/Switch/LICENSE-MeloNX.txt
+          if-no-files-found: error
