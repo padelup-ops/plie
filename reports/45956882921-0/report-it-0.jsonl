@@ -25,3 +25,9 @@
 {"id": "29495a1aa979f91bfc3b", "key": "hello|lorenzo", "text": "Oh, oh, oh! Ciao, Lorenzo!", "ok": true, "score": 1.0, "dur": 2.88, "heard": "Oh, oh, ciao Lorenzo!", "tries": 1, "secs": 44.9}
 {"id": "774bab8f9740a014c641", "key": "hello|andrea", "text": "Oh, oh, oh! Ciao, Andrea!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "Oh oh oh, ciao Andrea!", "tries": 1, "secs": 43.7}
 {"id": "95b627bef0d3763b3036", "key": "hello|giuseppe", "text": "Oh, oh, oh! Ciao, Giuseppe!", "ok": true, "score": 1.0, "dur": 2.92, "heard": "Oh, oh, oh, ciao Giuseppe!", "tries": 1, "secs": 49.0}
+{"id": "b592f983bf56ed84d752", "key": "hello|samuele", "text": "Oh, oh, oh! Ciao, Samuele!", "ok": true, "score": 1.0, "dur": 2.48, "heard": "Oh, oh, oh, ciao, Samuele!", "tries": 1, "secs": 43.8}
+{"id": "8e09397c637c1361f015", "key": "hello|isabel", "text": "Oh, oh, oh! Ciao, Isabel!", "ok": true, "score": 1.0, "dur": 2.56, "heard": "Oh, oh, oh, ciao, Isabel!", "tries": 1, "secs": 46.5}
+{"id": "cbdf4b71ac00634b0585", "key": "hello|ambra", "text": "Oh, oh, oh! Ciao, Ambra!", "ok": true, "score": 1.0, "dur": 2.6, "heard": "Oh, oh, oh, ciao, AMBRA!", "tries": 1, "secs": 48.0}
+{"id": "b030654cca4101cf13d4", "key": "hello|emily", "text": "Oh, oh, oh! Ciao, Emily!", "ok": true, "score": 1.0, "dur": 3.38, "heard": "Oh, oh, ciao, Emily.", "tries": 1, "secs": 54.8}
+{"id": "67681cb7a6076ce80281", "key": "hello|gioele", "text": "Oh, oh, oh! Ciao, Gioele!", "ok": true, "score": 0.934, "dur": 2.22, "heard": "Oh oh oh ciao, Gioelle!", "tries": 1, "secs": 41.4}
+{"id": "f90a8660bc438f7cbabc", "key": "hello|luca", "text": "Oh, oh, oh! Ciao, Luca!", "ok": false, "score": 0.928, "dur": 2.56, "heard": "Oh, oh, oh, ciao Luca! Luca!", "tries": 1, "secs": 139.3}
