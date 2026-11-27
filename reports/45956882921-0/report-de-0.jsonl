@@ -13,3 +13,9 @@
 {"id": "35c0d24afff7f6f94490", "key": "hello|anton", "text": "Ho, ho, ho! Hallo, Anton!", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho ho ho, hallo Anton!", "tries": 1, "secs": 43.1}
 {"id": "253f1eae7a214e27383c", "key": "hello|lena", "text": "Ho, ho, ho! Hallo, Lena!", "ok": true, "score": 1.0, "dur": 1.9, "heard": "Ho, ho, ho! Hallo Lena!", "tries": 1, "secs": 43.5}
 {"id": "66c1cd28a0edac7b4629", "key": "hello|zoe", "text": "Ho, ho, ho! Hallo, Zoe!", "ok": false, "score": 0.541, "dur": 2.1, "heard": "Ho ho ho, hallo zu!", "tries": 1, "secs": 130.2}
+{"id": "0138fe7e283bf8cc1721", "key": "hello|moritz", "text": "Ho, ho, ho! Hallo, Moritz!", "ok": true, "score": 1.0, "dur": 2.18, "heard": "Ho, ho, ho. Hallo, Moritz!", "tries": 1, "secs": 40.3}
+{"id": "cc479c2149c9697e8b34", "key": "hello|samuel", "text": "Ho, ho, ho! Hallo, Samuel!", "ok": true, "score": 1.0, "dur": 2.64, "heard": "Hohoho! Hallo Samuel!", "tries": 1, "secs": 45.7}
+{"id": "7812ca21700452da5a32", "key": "hello|niklas", "text": "Ho, ho, ho! Hallo, Niklas!", "ok": true, "score": 1.0, "dur": 2.48, "heard": "Oh, ho, ho, hallo Niklas!", "tries": 1, "secs": 39.8}
+{"id": "998484d06f99aebb0712", "key": "hello|philipp", "text": "Ho, ho, ho! Hallo, Philipp!", "ok": true, "score": 0.879, "dur": 3.04, "heard": "Oh, ho, ho! Hallo, Phillip!", "tries": 2, "secs": 91.2}
+{"id": "15c25dbd69b642e7f758", "key": "hello|erik", "text": "Ho, ho, ho! Hallo, Erik!", "ok": true, "score": 0.8, "dur": 2.0, "heard": "Ho ho ho ho, hallo Eric.", "tries": 1, "secs": 43.4}
+{"id": "5632279983728ef1528e", "key": "hello|martha", "text": "Ho, ho, ho! Hallo, Martha!", "ok": true, "score": 0.925, "dur": 2.5, "heard": "Ho ho ho! Hallo Marta!", "tries": 2, "secs": 97.1}
