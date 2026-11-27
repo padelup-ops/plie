@@ -1,1 +1,5 @@
 {"id": "0b616485df9f6cda9d51", "key": "line|É uma estrela mágica, só para você. Ela vai brilhar até o Natal!", "text": "É uma estrela mágica, só para você. Ela vai brilhar até o Natal!", "ok": true, "score": 1.0, "dur": 5.2, "heard": "É uma estrela mágica? Só para você. Ela vai brilhar até o Natal.", "tries": 1, "secs": 67.8}
+{"id": "07ef556f8706b241cbfd", "key": "hello|helena", "text": "Ho, ho, ho! Olá, Helena!", "ok": true, "score": 0.922, "dur": 3.08, "heard": "Oh, oh, oh, olá, Elena!", "tries": 2, "secs": 113.8}
+{"id": "91e73b893181213b4022", "key": "hello|cecilia", "text": "Ho, ho, ho! Olá, Cecília!", "ok": true, "score": 1.0, "dur": 2.38, "heard": "Oh, oh, oh! Olá, Cecília!", "tries": 1, "secs": 64.6}
+{"id": "3d7143121be20c849e19", "key": "hello|isis", "text": "Ho, ho, ho! Olá, Isis!", "ok": true, "score": 0.98, "dur": 2.64, "heard": "Oh, oh, oh, hola, Isis!", "tries": 1, "secs": 43.1}
+{"id": "091e97bfcd84e8962138", "key": "hello|gael", "text": "Ho, ho, ho! Olá, Gael!", "ok": true, "score": 0.819, "dur": 3.14, "heard": "Oh, ho, ho, oh, oh, lagael!", "tries": 1, "secs": 49.9}

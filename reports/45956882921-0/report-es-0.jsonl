@@ -19,3 +19,4 @@
 {"id": "0bf559978fe1f2bd531b", "key": "hello|sergio", "text": "¡Jo, jo, jo! ¡Hola, Sergio!", "ok": true, "score": 1.0, "dur": 2.86, "heard": "Oh, ho, ho, hola Sergio.", "tries": 1, "secs": 62.9}
 {"id": "9c0100cd82952ccce4ba", "key": "hello|jorge", "text": "¡Jo, jo, jo! ¡Hola, Jorge!", "ok": true, "score": 1.0, "dur": 3.16, "heard": "¡Ho, ho, ho! ¡Hola Jorge!", "tries": 2, "secs": 89.3}
 {"id": "be20ec99cff541d5c043", "key": "hello|eric", "text": "¡Jo, jo, jo! ¡Hola, Eric!", "ok": true, "score": 1.0, "dur": 1.68, "heard": "¡Oh, ho, ho! ¡Hola, Eric!", "tries": 1, "secs": 38.8}
+{"id": "60dae0570be2b5d57dbe", "key": "hello|nerea", "text": "¡Jo, jo, jo! ¡Hola, Nerea!", "ok": true, "score": 0.833, "dur": 2.2, "heard": "¡Ho ho ho! ¡Hola, Nedea!", "tries": 1, "secs": 42.5}
