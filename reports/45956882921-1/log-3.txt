@@ -48,3 +48,9 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [6/831] es ok  1.00 6.7s essais 2 (237s, reste 2450 min) Hoy hemos decorado el gran árbol del taller. Arriba del todo → Hoy hemos decorado el gran árbol del taller. Arriba del todo
   self.gen = func(*args, **kwds)
+[7/831] de ok  1.00 10.8s essais 1 (163s, reste 2418 min) Bald mache ich mich bereit für meine große Reise um die ganz → Bald mache ich mich bereit für meine große Reise um die ganz
+  self.gen = func(*args, **kwds)
+[8/831] de ok  0.99 3.2s essais 1 (72s, reste 2237 min) Und dein kleines Geheimnis behalte ich für mich, versprochen → und ein kleines Geheimnis behalte ich für mich, versprochen.
+  self.gen = func(*args, **kwds)
+[9/831] de ok  0.99 7.3s essais 1 (122s, reste 2172 min) Mein Schlitten ist bereit, die Geschenke sind geladen, und m → Mein Schlitten ist bereit, die Geschenke sind geladen und me
+  self.gen = func(*args, **kwds)
