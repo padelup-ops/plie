@@ -7,7 +7,11 @@ on:
         required: false
         default: "asc_probe.py"
       bundle:
-        description: "Bundle de l'app (asc_crashes.py, asc_state.py)"
+        description: "Bundle de l'app (asc_crashes.py, asc_state.py, asc_forms.py)"
+        required: false
+        default: ""
+      fix:
+        description: "asc_forms.py, 1 : supprime les jeux de captures vides"
         required: false
         default: ""
 jobs:
@@ -21,8 +25,9 @@ jobs:
       ORIGAMO: ${{ secrets.BUNDLE_ID }}
       TOOL: ${{ inputs.tool || 'asc_probe.py' }}
       BUNDLE: ${{ inputs.bundle }}
+      FIX_EMPTY_SETS: ${{ inputs.fix }}
     steps:
       - uses: actions/checkout@v5
       - run: python3 -m pip install --quiet pyjwt cryptography
       - run: |
-          case "$TOOL" in asc_probe.py|asc_crashes.py|asc_state.py) python3 "tools/$TOOL" ;; *) echo "outil inconnu"; exit 1 ;; esac
+          case "$TOOL" in asc_probe.py|asc_crashes.py|asc_state.py|asc_forms.py) python3 "tools/$TOOL" ;; *) echo "outil inconnu"; exit 1 ;; esac
