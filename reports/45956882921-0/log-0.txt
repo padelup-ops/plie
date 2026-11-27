@@ -75,3 +75,15 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [20/845] it ok  1.00 8.3s essais 1 (105s, reste 1214 min) E pensate un po', si è perfino segnato tutti i piccoli momen → e pensate un po' si è perfino segnato tutti i piccoli moment
   self.gen = func(*args, **kwds)
+[21/845] it ok  1.00 2.8s essais 1 (57s, reste 1192 min) Volevo proprio parlarti oggi. Mi senti bene? → volevo proprio parlarti oggi mi senti bene?
+  self.gen = func(*args, **kwds)
+[22/845] it ok  1.00 4.6s essais 1 (66s, reste 1178 min) Ditemi, qual è la cosa che vi è piaciuta di più imparare que → Ditemi qual è la cosa che vi è piaciuta di più imparare ques
+  self.gen = func(*args, **kwds)
+[23/845] it ok  1.00 5.8s essais 1 (73s, reste 1168 min) Oh, oh, oh! Avevo carta da regalo perfino nella barba! → Oh, oh, oh! Avevo carta da regalo perfino nella barba!
+  self.gen = func(*args, **kwds)
+[24/845] it ok  0.97 3.6s essais 1 (52s, reste 1148 min) Dimmi, hai pensato a lasciare una carota per le mie renne? → Limmi, hai pensato a lasciare una carota per le mie rene?
+  self.gen = func(*args, **kwds)
+[25/845] it ok  1.00 5.6s essais 1 (84s, reste 1147 min) Oh, aspetta! Prima di andare, ho una piccola sorpresa per te → Oh, aspetta. Prima di andare. Ho una piccola sorpresa per te
+  self.gen = func(*args, **kwds)
+[26/845] it ok  1.00 3.0s essais 1 (55s, reste 1130 min) Quest'anno ho sentito cose bellissime su di voi. → Quest'anno ho sentito cose bellissime su di voi.
+  self.gen = func(*args, **kwds)

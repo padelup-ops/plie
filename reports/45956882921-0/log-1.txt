@@ -79,3 +79,16 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [24/844] it ok  0.99 3.9s essais 1 (56s, reste 989 min) Ditemi, avete pensato a lasciare una carota per le mie renne → Ditemi, avete pensato a lasciare una carota per le mie rene?
   self.gen = func(*args, **kwds)
+[25/844] it ok  1.00 6.9s essais 1 (85s, reste 995 min) Oh, aspettate! Prima di andare, ho una piccola sorpresa per  → Oh, aspettate, prima di andare, ho una piccola sorpresa per 
+  self.gen = func(*args, **kwds)
+[26/844] it ok  1.00 2.3s essais 1 (54s, reste 984 min) Mi hanno detto che hai un cuore grande. → mi hanno detto che hai un cuore grande
+  self.gen = func(*args, **kwds)
+[27/844] it ok  1.00 2.3s essais 1 (60s, reste 976 min) Mi hanno detto che adori le avventure. → Mi hanno detto che adori le avventure.
+  self.gen = func(*args, **kwds)
+[28/844] it ok  1.00 2.6s essais 1 (47s, reste 963 min) Mi hanno detto che vi prendete cura degli altri. → mi hanno detto che vi prendete cura degli altri.
+  self.gen = func(*args, **kwds)
+[29/844] it ok  1.00 2.6s essais 1 (42s, reste 949 min) E anche che hai una fantasia incredibile. → e anche che hai una fantasia incredibile.
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[30/844] it ok  0.96 2.6s essais 2 (126s, reste 973 min) E anche che avete la testa piena di sogni. → e anche che avete la destra piena di sogni.
+  self.gen = func(*args, **kwds)
