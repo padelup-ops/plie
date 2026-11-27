@@ -92,3 +92,11 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [30/844] it ok  0.96 2.6s essais 2 (126s, reste 973 min) E anche che avete la testa piena di sogni. → e anche che avete la destra piena di sogni.
   self.gen = func(*args, **kwds)
+[31/844] it ok  1.00 5.1s essais 1 (72s, reste 972 min) Oh, oh, oh! Complimenti! Sono molto orgoglioso di voi! → Oh, oh, oh, complimenti, sono molto orgoglioso di voi!
+  self.gen = func(*args, **kwds)
+[32/844] it ok  1.00 3.6s essais 1 (60s, reste 966 min) Ah, ma certo! Che bello parlare con voi! → Ah, ma certo! Che bello parlare con voi!
+  self.gen = func(*args, **kwds)
+[33/844] it ok  0.98 7.2s essais 1 (101s, reste 977 min) La mia slitta è dall'elfo meccanico. Ha montato dei campanel → La mia slitta è dall'erfo meccanico, ha montato dei campanel
+  self.gen = func(*args, **kwds)
+[34/844] it ok  0.99 8.1s essais 1 (104s, reste 988 min) Una piccola sfida per oggi: regala un sorriso a qualcuno a c → Una piccola sfida per oggi, legala un sorriso a qualcuno a c
+  self.gen = func(*args, **kwds)
