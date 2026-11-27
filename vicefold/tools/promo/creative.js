@@ -6,7 +6,7 @@ const Q = new URLSearchParams(location.search);
 const KIND = Q.get('kind') || 'header', LANG = Q.get('lang') || 'en';
 const HD = KIND === 'header';
 const W = HD ? 1920 : 1200, H = HD ? 823 : 800, DUR = 12;
-const T = TEXTS[LANG], PRE = LANG === 'en' ? '' : LANG + '-';
+const T = TEXTS[LANG];
 const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 const lerp = (a, b, k) => a + (b - a) * k;
 const eio = k => { k = clamp(k); return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; };
@@ -41,9 +41,10 @@ const chips = el('div', 'chips', txt); T.chips.forEach(c => el('span', '', chips
 
 // ---------------------------------------------------------------- the iPhone Duo: two halves around a hinge
 const persp = el('div', 'persp', stage);
-const SHOTS = ['duo-1', 'duo-2', 'duo-5'];
+// The screens: dark captures of the open Duo when they are there (see creative.py), the store ones otherwise.
+const SHOTS = DATA.creative[LANG];
 const BOX = HD ? { cx: 1340, cy: 398, w: 710 } : { cx: 600, cy: 540, w: 520 };
-const [sw, sh] = DATA.sizes[PRE + SHOTS[0]];
+const [sw, sh] = [2853, 2007];                     // the inner screen of the Duo, held sideways
 const DW = BOX.w, DH = DW * sh / sw;
 const ground = el('div', 'ground', persp);
 Object.assign(ground.style, { left: BOX.cx - DW * 0.42 + 'px', top: BOX.cy + DH * 0.6 + 'px', width: DW * 0.84 + 'px', height: DH * 0.12 + 'px' });
@@ -53,11 +54,12 @@ dev.style.setProperty('--r', DW * 0.062 + 'px'); dev.style.setProperty('--bz', D
 const halves = ['right', 'left'].map(side => {
   const half = el('div', 'half ' + side, dev);
   const face = el('div', 'face', half);
-  const imgs = SHOTS.map(s => { const i = el('img', '', face); i.src = PRE + s + '.png'; i.style.width = DW + 'px'; i.style.height = DH + 'px'; if (side === 'right') i.style.marginLeft = -DW / 2 + 'px'; return i; });
+  const imgs = SHOTS.map(s => { const i = el('img', '', face); i.src = s; i.style.width = DW + 'px'; i.style.height = DH + 'px'; if (side === 'right') i.style.marginLeft = -DW / 2 + 'px'; return i; });
   el('div', 'shade', face);
   return { half, imgs, shade: face.lastChild };
 });
 const hinge = el('div', 'hinge', dev);
+if (DATA.creativeDark) dev.classList.add('dark');
 // Three poses of 4 s each: [turn, tilt, roll, fold of the left half, size]. The move takes 1.2 s around each change.
 const POSES = [[-16, 7, 2.5, 0, 1], [13, 9, -3, 0, 1.03], [-22, 13, 1.5, 34, 0.98]];
 function render(t) {
@@ -73,7 +75,6 @@ function render(t) {
   dev.style.transform = `translateY(${Math.sin(a * 2) * 6}px) rotateY(${p[0] + Math.sin(a * 3) * 1.5}deg) rotateX(${p[1] + Math.cos(a * 2) * 1}deg) rotateZ(${p[2]}deg) scale(${p[4]})`;
   halves[1].half.style.transform = `rotateY(${p[3]}deg)`;
   halves[1].shade.style.opacity = p[3] / 34 * 0.14;
-  hinge.style.opacity = 1;
   ground.style.transform = `scaleX(${1 - p[3] / 34 * 0.14}) translateX(${p[0] * 1.2}px)`;
   // The screen changes with the pose, in the middle of the move.
   halves.forEach(h => h.imgs.forEach((img, j) => {

@@ -236,7 +236,7 @@ feature('hook', { texts: [{ center: true, lines: ['LEONIDA', 'IS *HUGE.*'], cy: 
 
 feature('intro', {
   texts: [{ kicker: 'Guide for GTA VI: Leonida', lines: ["DON'T PLAY", 'IT *BLIND.*'], sub: 'The fan-made companion.<br>Missions, map, 100%, secrets, cheats.' }],
-  shot: ['duo-1', 'iphone-1'],
+  shot: ['ipad-1', 'iphone-1'],
 });
 
 feature('map', {

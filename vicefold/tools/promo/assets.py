@@ -15,6 +15,7 @@ ROOT = os.path.join(HERE, "..", "..")
 OUT = sys.argv[1]
 os.makedirs(OUT, exist_ok=True)
 BORDER = np.array([11, 15, 22])
+POOL = (234, 246, 245)       # the page colour of the app by day
 
 
 def screen(path):
@@ -26,7 +27,21 @@ def screen(path):
     cols = np.where(m.sum(axis=0) > im.height * 0.2)[0]
     rows = np.where(m.sum(axis=1) > im.width * 0.2)[0]
     x0, x1, y0, y1 = cols.min(), cols.max(), rows.min(), rows.max()
-    return im.crop((x0 + bw, y0 + bw, x1 - bw + 1, y1 - bw + 1))
+    return unband(im.crop((x0 + bw, y0 + bw, x1 - bw + 1, y1 - bw + 1)))
+
+
+def unband(im):
+    """Older captures of the open Duo have a black band on the fold; the app now leaves the fold in the colour of
+    the page, so the band is painted that way here too (same picture as a new capture)."""
+    a = np.asarray(im).astype(int)
+    h, w = a.shape[:2]
+    dark = (a.sum(axis=2) < 40).mean(axis=0) > 0.8
+    mid = [x for x in np.where(dark)[0] if w * 0.3 < x < w * 0.7]
+    if not mid or w < h:
+        return im
+    out = im.copy()
+    out.paste(POOL, (min(mid) - 3, 0, max(mid) + 4, h))
+    return out
 
 
 sizes = {}

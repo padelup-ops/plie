@@ -55,7 +55,7 @@ html,body{margin:0;background:#091422}
 .dev.duo .backface{position:absolute;inset:0;border-radius:0 var(--r) var(--r) 0;transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden;
  background:linear-gradient(135deg,#3a4050,#171b24 45%,#0b0f16);box-shadow:0 0 0 var(--bz) #0b0f16,0 0 0 calc(var(--bz) + 2px) #4a5263}
 .dev.duo .backface:after{content:"";position:absolute;right:9%;top:6%;width:22%;aspect-ratio:1;border-radius:26%;background:#0b0f16;box-shadow:inset 0 0 0 3px #2b3140}
-.dev.duo .hinge{position:absolute;left:47.6%;width:4.8%;top:0;bottom:0;background:linear-gradient(90deg,#05070b,#1c212c 50%,#05070b)}
+.dev.duo .hinge{position:absolute;left:calc(50% - 1px);width:2px;top:0;bottom:0;background:rgba(14,27,43,.07)}
 .blur{position:absolute;inset:0;overflow:hidden}
 .blur img{width:100%;height:100%;filter:blur(13px) saturate(.7);transform:scale(1.04)}
 .blur:after{content:"";position:absolute;inset:0;background:rgba(234,246,245,.35)}
@@ -201,7 +201,7 @@ def main():
     print(f"{len(jobs)} frames in {time.time() - t0:.0f} s")
     film = os.path.join(work, f"vicefold-{fmt}-{cta}.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(out, "f%05d.jpg"), "-i", os.path.join(work, "music.wav"),
-                    "-c:v", "libx264", "-preset", "slow", "-crf", "17", "-pix_fmt", "yuv420p", "-profile:v", "high", "-colorspace", "bt709", "-color_primaries", "bt709",
+                    "-c:v", "libx264", "-preset", "slow", "-crf", "20", "-pix_fmt", "yuv420p", "-profile:v", "high", "-colorspace", "bt709", "-color_primaries", "bt709",
                     "-color_trc", "bt709", "-c:a", "aac", "-b:a", "192k", "-ar", "44100", "-movflags", "+faststart", "-shortest", film], check=True)
     print(film, f"{os.path.getsize(film) / 1e6:.1f} MB")
 

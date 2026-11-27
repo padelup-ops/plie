@@ -17,6 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FPS, DUR = 30, 12
 SIZES = {"header": (1920, 823), "search": (1200, 800)}       # drawn at 2x: 3840 x 1646 and 2400 x 1600
 LOCALE = {"en": "en-US", "fr": "fr-FR"}
+ROUTES = ["home", "mappins", "collectibles"]         # the three screens the Duo shows, in order
 TEXTS = {
     "en": {"brand": "Guide for GTA VI: Leonida", "title": ["Your Leonida,", "at 100%."], "sub": "Every mission, every secret, every cheat.",
            "chips": ["91 missions", "600-place map", "Spoiler-free"]},
@@ -57,7 +58,9 @@ html,body{margin:0;background:#F4F7F8}
 .dev .half.right .face{border-radius:0 var(--r) var(--r) 0}
 .dev .face img{position:absolute;left:0;top:0;max-width:none}
 .dev .shade{position:absolute;inset:0;background:#0E1B2B;opacity:0}
-.dev .hinge{position:absolute;left:47.6%;width:4.8%;top:0;bottom:0;background:linear-gradient(90deg,#05070b,#232936 50%,#05070b);transform:translateZ(1px)}
+.dev .hinge{position:absolute;left:calc(50% - 1px);width:2px;top:0;bottom:0;background:rgba(14,27,43,.08);transform:translateZ(1px)}
+.dev.dark .face{background:#091422}
+.dev.dark .hinge{background:rgba(0,0,0,.35)}
 """
 HTML = """<!doctype html><html><head><meta charset="utf-8"><style>__CSS__</style></head><body>
 <div id="stage"><canvas id="bg"></canvas></div>
@@ -66,7 +69,17 @@ HTML = """<!doctype html><html><head><meta charset="utf-8"><style>__CSS__</style
 
 def page(work, kind):
     css = CSS.replace("__PO__", "1340px 398px" if kind == "header" else "600px 540px")
-    html = (HTML.replace("__CSS__", css).replace("__DATA__", open(os.path.join(work, "data.json")).read())
+    data = json.load(open(os.path.join(work, "data.json")))
+    # Dark captures of the open Duo, straight from the simulator (branch ci-vicefold-shots-<lang>-dark), saved in the
+    # work folder as dark-<lang>-<screen>.png. Without them, the store captures by day.
+    data["creative"], data["creativeDark"] = {}, True
+    for lang, pre in (("en", ""), ("fr", "fr-")):
+        dark = [f"dark-{lang}-{r}.png" for r in ROUTES]
+        if all(os.path.exists(os.path.join(work, f)) for f in dark):
+            data["creative"][lang] = dark
+        else:
+            data["creative"][lang], data["creativeDark"] = [f"{pre}duo-{n}.png" for n in (1, 2, 5)], False
+    html = (HTML.replace("__CSS__", css).replace("__DATA__", json.dumps(data))
             .replace("__TEXTS__", json.dumps(TEXTS, ensure_ascii=False)).replace("__JS__", open(os.path.join(HERE, "creative.js")).read()))
     path = os.path.join(work, f"creative-{kind}.html")
     open(path, "w").write(html)
