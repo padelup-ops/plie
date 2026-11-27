@@ -3885,7 +3885,17 @@ class ClubFromOSMView(APIView):
             # Un seul passage sur les serveurs OSM, 12 s chacun : la requête web ne doit jamais dépasser le délai du serveur.
             elements = opendata.run_query(opendata.element_query(m.group(1), m.group(2)), retries=0, timeout=12, pause=0)
         except RuntimeError:
-            return Response({'error': 'OpenStreetMap est indisponible, réessaie dans un instant'}, status=status.HTTP_502_BAD_GATEWAY)
+            # OpenStreetMap injoignable depuis le serveur : on se contente des données envoyées par l'app,
+            # bornées et marquées comme venant d'OSM (le nom et la position suffisent pour créer un match).
+            try:
+                lat, lon = float(request.data.get('latitude')), float(request.data.get('longitude'))
+            except (TypeError, ValueError):
+                return Response({'error': 'OpenStreetMap est indisponible, réessaie dans un instant'}, status=status.HTTP_502_BAD_GATEWAY)
+            if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+                return Response({'error': 'Position invalide'}, status=status.HTTP_400_BAD_REQUEST)
+            club, _ = save_osm_club({'id': osm_id, 'name': _text(request.data, 'name')[:200] or 'Terrains de padel', 'lat': lat, 'lon': lon,
+                                     'city': _text(request.data, 'city')[:100], 'courts': 0}, update=False)
+            return Response(ClubSerializer(club, context={'request': request}).data, status=status.HTTP_201_CREATED)
         tags = (elements[0].get('tags') or {}) if elements else {}
         if not elements or 'padel' not in (tags.get('sport') or ''):
             return Response({'error': 'Ce lieu n\'est pas un club de padel sur OpenStreetMap'}, status=status.HTTP_404_NOT_FOUND)

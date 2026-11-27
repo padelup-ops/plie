@@ -24,7 +24,21 @@ from .base import (BaseProvider, BookingResult, ProviderAuthError, ProviderClub,
 
 logger = logging.getLogger(__name__)
 
-API_BASE = os.environ.get('PLAYTOMIC_API_BASE', 'https://api.playtomic.io').rstrip('/')
+# Depuis 2026 : api.app.playtomic.io (api.playtomic.io n'existe plus).
+API_BASE = os.environ.get('PLAYTOMIC_API_BASE', 'https://api.app.playtomic.io').rstrip('/')
+ATTESTATION_MESSAGE = ("Playtomic bloque désormais la connexion des applications tierces (vérification d'appareil "
+                       "APP_ATTESTATION_REQUIRED, novembre 2026) : la réservation automatique Playtomic reste impossible "
+                       "tant que Playtomic n'ouvre pas d'accès partenaire. Réserve dans l'app Playtomic.")
+DATACENTER_MESSAGE = "Playtomic refuse les requêtes venant de serveurs cloud : passe par l'app sur ton iPhone."
+
+
+def _blocked_message(resp):
+    text = (resp.text or '')[:2000] if hasattr(resp, 'text') else ''
+    if 'APP_ATTESTATION' in text or 'verify your device' in text:
+        return ATTESTATION_MESSAGE
+    if resp.status_code == 403 and '<html' in text.lower():
+        return DATACENTER_MESSAGE
+    return None
 LOGIN_PATH = '/v3/auth/login'
 REFRESH_PATH = '/v3/auth/token'
 TENANTS_PATH = '/v1/tenants'
@@ -88,6 +102,9 @@ class PlaytomicProvider(BaseProvider):
             return self._request(method, path, auth=auth, retry_auth=False, headers={}, **kwargs)
         if resp.status_code == 401 and auth:
             raise ProviderAuthError('Session Playtomic expirée : reconnecte ton compte.')
+        blocked = _blocked_message(resp) if resp.status_code == 403 else None
+        if blocked:
+            raise ProviderError(blocked)
         if resp.status_code == 429:
             raise ProviderError('Playtomic limite les requêtes, nouvel essai plus tard.')
         return resp
@@ -108,7 +125,8 @@ class PlaytomicProvider(BaseProvider):
 
     # --------------------------------------------------------------- compte
     def connect(self, email, password):
-        resp = self._request('POST', LOGIN_PATH, json={'grant_type': 'password', 'email': email, 'password': password})
+        resp = self._request('POST', LOGIN_PATH, json={'email': email, 'password': password,
+                                                       'requested_user_roles': ['ROLE_CUSTOMER']})
         if resp.status_code in (400, 401, 403, 404):
             raise ProviderAuthError('Identifiants Playtomic refusés.')
         if resp.status_code >= 300:
@@ -188,8 +206,9 @@ class PlaytomicProvider(BaseProvider):
             'sport_id': 'PADEL',
             'radius': int(min(max(radius_km, 1), 200) * 1000),
             'size': 50,
+            'playtomic_status': 'ACTIVE',
         }
-        resp = self._request('GET', TENANTS_PATH, params=params)
+        resp = self._request('GET', TENANTS_PATH, params=params, auth=self._has_session())
         if resp.status_code >= 300:
             raise ProviderError(f'Recherche Playtomic impossible ({self._error_text(resp)}).')
         tenants = self._json(resp)
@@ -206,17 +225,21 @@ class PlaytomicProvider(BaseProvider):
         clubs.sort(key=lambda c: c.distance_km if c.distance_km is not None else 1e9)
         return clubs
 
+    def _has_session(self):
+        """Playtomic a fermé l'accès anonyme : on lit avec le compte du joueur quand il en a un."""
+        return bool(self.account and self.account.access_token and self.account.status == 'active')
+
     def _tenant(self, club_id):
         club_id = str(club_id)
         if club_id not in self._tenants or not self._tenants[club_id].get('resources'):
-            resp = self._request('GET', f'{TENANTS_PATH}/{club_id}')
+            resp = self._request('GET', f'{TENANTS_PATH}/{club_id}', auth=self._has_session())
             if resp.status_code == 404:
                 raise ProviderError('Club Playtomic introuvable.')
             if resp.status_code >= 300:
                 raise ProviderError(f'Club Playtomic illisible ({self._error_text(resp)}).')
             tenant = self._json(resp) or {}
             if not tenant.get('resources'):
-                res = self._request('GET', f'{TENANTS_PATH}/{club_id}/resources')
+                res = self._request('GET', f'{TENANTS_PATH}/{club_id}/resources', auth=self._has_session())
                 if res.status_code < 300 and isinstance(self._json(res), list):
                     tenant['resources'] = self._json(res)
             self._tenants[club_id] = tenant
@@ -239,16 +262,15 @@ class PlaytomicProvider(BaseProvider):
                 'indoor': True if kind == 'indoor' else False if kind == 'outdoor' else None,
                 'sport': r.get('sport_id') or 'PADEL',
             }
-        # La journée locale du club, exprimée en UTC (l'API reçoit et renvoie des heures UTC).
-        start_local = datetime.combine(day, time(0, 0), tzinfo=tz)
-        end_local = datetime.combine(day, time(23, 59, 59), tzinfo=tz)
+        # Heures locales du club (local_start_min / local_start_max) ; la réponse est aussi en heure locale.
         params = {
             'sport_id': 'PADEL',
             'tenant_id': str(club_id),
-            'start_min': start_local.astimezone(dt_timezone.utc).strftime('%Y-%m-%dT%H:%M:%S'),
-            'start_max': end_local.astimezone(dt_timezone.utc).strftime('%Y-%m-%dT%H:%M:%S'),
+            'local_start_min': f'{day.isoformat()}T00:00:00',
+            'local_start_max': f'{day.isoformat()}T23:59:59',
+            'user_id': 'me',
         }
-        resp = self._request('GET', AVAILABILITY_PATH, params=params)
+        resp = self._request('GET', AVAILABILITY_PATH, params=params, auth=self._has_session())
         if resp.status_code >= 300:
             raise ProviderError(f'Disponibilités Playtomic illisibles ({self._error_text(resp)}).')
         slots = []
@@ -260,7 +282,7 @@ class PlaytomicProvider(BaseProvider):
             for s in block.get('slots') or []:
                 raw = f"{block.get('start_date')}T{s.get('start_time')}"
                 try:
-                    start = datetime.fromisoformat(raw).replace(tzinfo=dt_timezone.utc)
+                    start = datetime.fromisoformat(raw).replace(tzinfo=tz)
                 except ValueError:
                     continue
                 price, currency = parse_price(s.get('price'))

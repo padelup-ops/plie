@@ -72,14 +72,14 @@ TENANT = {
 
 
 def availability_for(day):
-    # 18:00 UTC = 19:00 à Madrid en hiver
+    # heures locales du club (Madrid)
     return [
         {'resource_id': 'R1', 'start_date': day.isoformat(), 'slots': [
-            {'start_time': '17:00:00', 'duration': 90, 'price': '36 EUR'},
             {'start_time': '18:00:00', 'duration': 90, 'price': '36 EUR'},
+            {'start_time': '19:00:00', 'duration': 90, 'price': '36 EUR'},
         ]},
         {'resource_id': 'R2', 'start_date': day.isoformat(), 'slots': [
-            {'start_time': '18:00:00', 'duration': 60, 'price': '20 EUR'},
+            {'start_time': '19:00:00', 'duration': 60, 'price': '20 EUR'},
         ]},
     ]
 
@@ -121,7 +121,7 @@ class PlaytomicProviderTests(TestCase):
                            ('GET', '/v1/availability'): FakeResponse(200, availability_for(self.day))})
         slots = p.list_slots('T1', self.day)
         self.assertEqual(len(slots), 3)
-        s = [x for x in slots if x.resource_id == 'R1' and x.raw_start.endswith('18:00:00')][0]
+        s = [x for x in slots if x.resource_id == 'R1' and x.raw_start.endswith('19:00:00')][0]
         self.assertEqual(s.price, Decimal('36'))
         self.assertTrue(s.indoor)
         self.assertEqual(s.local_start.strftime('%H:%M'), '19:00')
@@ -148,6 +148,15 @@ class PlaytomicProviderTests(TestCase):
         self.assertEqual(result.external_id, 'M9')
         patch = [c for c in p.http.calls if c[0] == 'PATCH'][0]
         self.assertEqual(patch[2]['json']['selected_payment_method_id'], 'CASH')
+
+    def test_attestation_block_gives_clear_message(self):
+        blocked = FakeResponse(403, {'status': 'APP_ATTESTATION_REQUIRED', 'localized_message': "We couldn't verify your device"})
+        blocked.text = '{"status": "APP_ATTESTATION_REQUIRED"}'
+        p = PlaytomicProvider(session=FakeSession({('POST', '/v3/auth/login'): blocked}))
+        from .providers.base import ProviderError
+        with self.assertRaises(ProviderError) as ctx:
+            p.connect('a@b.c', 'pw')
+        self.assertIn('APP_ATTESTATION_REQUIRED', str(ctx.exception))
 
     def test_card_only_club_needs_action(self):
         p = self.provider({('POST', '/v1/payment_intents'): FakeResponse(200, {'payment_intent_id': 'PI2', 'available_payment_methods': [

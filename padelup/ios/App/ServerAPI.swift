@@ -165,10 +165,10 @@ final class ServerAPI: ObservableObject {
 
     var baseURL: URL {
         let custom = UserDefaults.standard.string(forKey: "serverURL")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let fallback = Bundle.main.object(forInfoDictionaryKey: "PadelUpAPIBaseURL") as? String ?? "https://padelup-api.onrender.com/api"
+        let fallback = Bundle.main.object(forInfoDictionaryKey: "PadelUpAPIBaseURL") as? String ?? "https://padelup-test-test.up.railway.app/api"
         var s = custom.isEmpty ? fallback : custom
         if !s.hasSuffix("/") { s += "/" }
-        return URL(string: s) ?? URL(string: "https://padelup-api.onrender.com/api/")!
+        return URL(string: s) ?? URL(string: "https://padelup-test-test.up.railway.app/api/")!
     }
 
     private let decoder: JSONDecoder = {
@@ -230,6 +230,12 @@ final class ServerAPI: ObservableObject {
         let data = try await call("POST", "auth/register/", body: ["username": username, "email": email, "password": password,
                                                                     "password2": password, "full_name": fullName])
         let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        if let t = json?["token"] as? String {
+            // Serveur de test : le compte est actif tout de suite, sans code par e-mail.
+            token = t
+            await refreshMe()
+            return false
+        }
         return json?["verification_required"] as? Bool ?? true
     }
 
@@ -314,7 +320,8 @@ final class ServerAPI: ObservableObject {
     func adoptClub(_ club: Club) async throws -> Int {
         if let id = club.backendID { return id }
         guard let osm = club.osmID else { throw ServerError(message: "Ce club n'a pas d'identifiant OpenStreetMap.") }
-        let data = try await call("POST", "clubs/from-osm/", body: ["osm_id": osm, "name": club.name])
+        let data = try await call("POST", "clubs/from-osm/", body: ["osm_id": osm, "name": club.name, "latitude": club.latitude,
+                                                                    "longitude": club.longitude, "city": club.city])
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any], let id = json["id"] as? Int else {
             throw ServerError(message: "Club non ajouté.")
         }

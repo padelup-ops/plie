@@ -40,7 +40,7 @@ targets:
         NSLocationWhenInUseUsageDescription: PadelUp Neo affiche les clubs de padel autour de toi et la météo de jeu.
         UIBackgroundModes: [fetch]
         BGTaskSchedulerPermittedIdentifiers: [com.padelup.neo.bot]
-        PadelUpAPIBaseURL: https://padelup-api.onrender.com/api
+        PadelUpAPIBaseURL: https://padelup-test-test.up.railway.app/api
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
     entitlements:

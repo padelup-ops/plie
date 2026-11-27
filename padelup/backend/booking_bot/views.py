@@ -97,7 +97,7 @@ class ClubSearchView(APIView):
     def get(self, request):
         code = request.query_params.get('provider', 'playtomic')
         try:
-            provider = get_provider(code, request.user)
+            provider = get_provider(code, request.user, ProviderAccount.objects.filter(user=request.user, provider=code).first())
             radius = min(max(_float(request.query_params.get('radius')) or 30, 1), 200)
             clubs = provider.search_clubs(_float(request.query_params.get('lat')), _float(request.query_params.get('lon')),
                                           radius, request.query_params.get('q', '')[:200])
@@ -124,7 +124,7 @@ class SlotsView(APIView):
         if start < date.today() - timedelta(days=1) or start > date.today() + timedelta(days=60):
             return Response({'error': 'Date hors limites.'}, status=400)
         try:
-            provider = get_provider(code, request.user)
+            provider = get_provider(code, request.user, ProviderAccount.objects.filter(user=request.user, provider=code).first())
             club = provider.get_club(club_id)
             out = []
             for i in range(days):

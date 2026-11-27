@@ -147,7 +147,7 @@ enum BotProvider: String, Codable, CaseIterable, Identifiable {
     var automationNote: String {
         switch self {
         case .playtomic:
-            return "Réservation 100 % automatique dans les clubs qui acceptent le paiement sur place ou le crédit club. Si le club exige la carte, le bot bloque le créneau et te demande de valider le paiement."
+            return "Depuis novembre 2026, Playtomic n'accepte plus la connexion des applications tierces (vérification d'appareil) : le bot ne peut pas réserver chez eux tant qu'ils n'ouvrent pas d'accès partenaire. Les clubs partenaires PadelUp, eux, sont réservés automatiquement."
         case .anybuddy:
             return "Le bot surveille les créneaux à la seconde et lance la réservation ; Anybuddy fait payer par carte, la validation finale se fait en un geste."
         case .padelup:

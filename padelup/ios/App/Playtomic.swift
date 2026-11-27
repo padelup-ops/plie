@@ -42,7 +42,7 @@ struct PlaytomicSession: Codable {
 }
 
 enum PlaytomicError: LocalizedError {
-    case notConnected, badCredentials, sessionExpired, unavailable(String), slotTaken
+    case notConnected, badCredentials, sessionExpired, unavailable(String), slotTaken, blockedByPlaytomic
 
     var errorDescription: String? {
         switch self {
@@ -51,6 +51,8 @@ enum PlaytomicError: LocalizedError {
         case .sessionExpired: return "Session Playtomic expirée : reconnecte ton compte."
         case .unavailable(let m): return m
         case .slotTaken: return "Ce créneau vient d'être pris."
+        case .blockedByPlaytomic:
+            return "Playtomic bloque désormais la connexion des applications tierces (vérification d'appareil, novembre 2026). La réservation automatique Playtomic est impossible tant que Playtomic n'ouvre pas d'accès partenaire : réserve dans l'app Playtomic."
         }
     }
 }
@@ -60,7 +62,7 @@ enum PlaytomicError: LocalizedError {
 // et peuvent évoluer. Disponibilités et recherche de clubs sans compte ; réservation avec le compte du joueur.
 actor PlaytomicAPI {
     static let shared = PlaytomicAPI()
-    private let base = URL(string: "https://api.playtomic.io")!
+    private let base = URL(string: "https://api.app.playtomic.io")!  // api.playtomic.io n'existe plus
     private let sessionKey = "playtomic.session"
     private var tenantCache: [String: [String: Any]] = [:]
 
@@ -90,6 +92,10 @@ actor PlaytomicAPI {
             return try await request(method, path, query: query, body: body, auth: auth, retried: true)
         }
         if code == 401 && auth { throw PlaytomicError.sessionExpired }
+        if code == 403, let text = String(data: data.prefix(4000), encoding: .utf8),
+           text.contains("APP_ATTESTATION") || text.contains("verify your device") {
+            throw PlaytomicError.blockedByPlaytomic
+        }
         var json: Any? = nil
         if !data.isEmpty { json = try? JSONSerialization.jsonObject(with: data) }
         return (code, json)
@@ -118,7 +124,8 @@ actor PlaytomicAPI {
     // MARK: Compte
 
     func connect(email: String, password: String) async throws {
-        let (code, json) = try await request("POST", "/v3/auth/login", body: ["grant_type": "password", "email": email, "password": password])
+        let (code, json) = try await request("POST", "/v3/auth/login",
+                                             body: ["email": email, "password": password, "requested_user_roles": ["ROLE_CUSTOMER"]] as [String: Any])
         guard code < 300, let d = json as? [String: Any], let token = d["access_token"] as? String else {
             throw (400...404).contains(code) ? PlaytomicError.badCredentials : PlaytomicError.unavailable("Connexion Playtomic impossible (\(Self.message(json, code))).")
         }
@@ -157,7 +164,8 @@ actor PlaytomicAPI {
             URLQueryItem(name: "sport_id", value: "PADEL"),
             URLQueryItem(name: "radius", value: String(Int(radiusKm * 1000))),
             URLQueryItem(name: "size", value: "50"),
-        ])
+            URLQueryItem(name: "playtomic_status", value: "ACTIVE"),
+        ], auth: isConnected)
         guard code < 300 else { throw PlaytomicError.unavailable("Recherche Playtomic impossible.") }
         let list = (json as? [[String: Any]]) ?? ((json as? [String: Any])?["content"] as? [[String: Any]]) ?? []
         return list.compactMap { t in
@@ -184,10 +192,10 @@ actor PlaytomicAPI {
 
     private func tenant(_ id: String) async throws -> [String: Any] {
         if let t = tenantCache[id], t["resources"] != nil { return t }
-        let (code, json) = try await request("GET", "/v1/tenants/\(id)")
+        let (code, json) = try await request("GET", "/v1/tenants/\(id)", auth: isConnected)
         guard code < 300, var t = json as? [String: Any] else { throw PlaytomicError.unavailable("Club Playtomic introuvable.") }
         if t["resources"] == nil {
-            let (c2, j2) = try await request("GET", "/v1/tenants/\(id)/resources")
+            let (c2, j2) = try await request("GET", "/v1/tenants/\(id)/resources", auth: isConnected)
             if c2 < 300, let res = j2 as? [[String: Any]] { t["resources"] = res }
         }
         tenantCache[id] = t
@@ -206,20 +214,20 @@ actor PlaytomicAPI {
             let kind = ((r["properties"] as? [String: Any])?["resource_type"] as? String)?.lowercased()
             resources[rid] = (r["name"] as? String ?? "Terrain", kind == "indoor" ? true : (kind == "outdoor" ? false : nil))
         }
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = tz
-        let start = cal.startOfDay(for: day)
-        let end = start.addingTimeInterval(86_399)
-        let utc = DateFormatter()
-        utc.locale = Locale(identifier: "en_US_POSIX")
-        utc.timeZone = TimeZone(identifier: "UTC")
-        utc.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        // Heures locales du club (local_start_min / local_start_max) ; la réponse est aussi en heure locale.
+        let local = DateFormatter()
+        local.locale = Locale(identifier: "en_US_POSIX")
+        local.timeZone = tz
+        local.dateFormat = "yyyy-MM-dd"
+        let dayString = local.string(from: day)
+        local.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         let (code, json) = try await request("GET", "/v1/availability", query: [
             URLQueryItem(name: "sport_id", value: "PADEL"),
             URLQueryItem(name: "tenant_id", value: tenantID),
-            URLQueryItem(name: "start_min", value: utc.string(from: start)),
-            URLQueryItem(name: "start_max", value: utc.string(from: end)),
-        ])
+            URLQueryItem(name: "local_start_min", value: dayString + "T00:00:00"),
+            URLQueryItem(name: "local_start_max", value: dayString + "T23:59:59"),
+            URLQueryItem(name: "user_id", value: "me"),
+        ], auth: isConnected)
         guard code < 300 else { throw PlaytomicError.unavailable("Disponibilités Playtomic illisibles (\(Self.message(json, code))).") }
         var out: [BookingSlot] = []
         for block in json as? [[String: Any]] ?? [] {
@@ -228,7 +236,7 @@ actor PlaytomicAPI {
             for s in block["slots"] as? [[String: Any]] ?? [] {
                 guard let time = s["start_time"] as? String else { continue }
                 let raw = "\(startDate)T\(time)"
-                guard let date = utc.date(from: raw) else { continue }
+                guard let date = local.date(from: raw) else { continue }
                 let (price, currency) = Self.price(s["price"])
                 out.append(BookingSlot(provider: .playtomic, clubID: tenantID, resourceID: rid, courtName: info.0, start: date,
                                        duration: (s["duration"] as? NSNumber)?.intValue ?? 60, price: price, currency: currency,
