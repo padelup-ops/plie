@@ -319,11 +319,18 @@ final class VoiceLibrary {
         return url
     }
 
-    /// Le Père Noël a-t-il enregistré ce prénom (bonjour et au revoir) ?
+    /// Le Père Noël a-t-il enregistré son bonjour à ce prénom ?
     func knows(name: String, lang: String) -> Bool {
         let n = Self.normalized(name)
         guard !n.isEmpty else { return false }
-        return url(lang: lang, key: Self.helloKey(n)) != nil && url(lang: lang, key: Self.byeKey(n)) != nil
+        return url(lang: lang, key: Self.helloKey(n)) != nil
+    }
+
+    /// Et son au revoir ? (Sinon il dit au revoir sans le prénom.)
+    func knowsBye(name: String, lang: String) -> Bool {
+        let n = Self.normalized(name)
+        guard !n.isEmpty else { return false }
+        return url(lang: lang, key: Self.byeKey(n)) != nil
     }
 
     /// Les répliques dans l'ordre, ou rien si l'une d'elles manque (on retombe alors sur la synthèse, d'une seule voix).

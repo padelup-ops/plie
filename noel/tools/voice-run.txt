@@ -1,5 +1,5 @@
 light
-fr:line en:line fr:name es:line de:line pt:line it:line en:name es:name de:name it:name pt:name
+fr:hello es:line de:line pt:line it:line en:hello es:hello de:hello it:hello pt:hello fr:bye en:bye es:bye de:bye it:bye pt:bye
 2
 170
-passage 3
+passage 4

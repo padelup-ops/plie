@@ -164,13 +164,15 @@ struct ScriptBuilder {
     }
 
     private func bye(_ out: inout [Segment], wave: Bool) {
-        if namesKnown {
+        if namesKnown, names.allSatisfy({ VoiceLibrary.shared.knowsBye(name: $0, lang: lang) }) {
             let text = book.bye.replacingOccurrences(of: "{name}", with: joinedNames)
             out.append(.say(text, speaker: .santa, laugh: false, wave: wave,
                             cue: .clips(names.map { VoiceLibrary.byeKey($0) }, fallback: text)))
             return
         }
-        if !names.isEmpty {
+        // Le lutin ne redit les prénoms que s'il les a déjà soufflés au début ; si le Père Noël les a dits lui-même
+        // en arrivant, il dit simplement au revoir.
+        if !names.isEmpty, !namesKnown {
             let text = book.elfBye.replacingOccurrences(of: "{name}", with: joinedNames)
             out.append(.say(text, speaker: .elf, laugh: false, wave: false, cue: .elf(text)))
         }

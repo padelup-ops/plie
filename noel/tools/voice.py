@@ -57,8 +57,26 @@ def clip_id(lang: str, key: str) -> str:
 
 
 def names(lang: str):
+    """Les prénoms dans l'ordre de fabrication. Le fichier range les filles puis (ligne « # ») les garçons, du plus
+    courant au plus rare, vingt par ligne : on alterne une ligne de chaque, pour que les prénoms les plus donnés des
+    deux soient faits d'abord. Après « #fin » : les prénoms plus rares, composés ou diminutifs, à la suite."""
+    sections, tail, cur = [[]], [], None
+    for line in (NAMES / f"{lang}.txt").read_text(encoding="utf-8").split("\n"):
+        if line.strip() == "#fin":
+            cur = tail
+        elif line.startswith("#"):
+            sections.append([])
+        elif line.strip():
+            (cur if cur is not None else sections[-1]).append(line.split())
+    ordered = []
+    for k in range(max(len(sec) for sec in sections)):
+        for sec in sections:
+            if k < len(sec):
+                ordered += sec[k]
+    for row in tail:
+        ordered += row
     seen, out = set(), []
-    for raw in (NAMES / f"{lang}.txt").read_text(encoding="utf-8").split():
+    for raw in ordered:
         name = raw.replace("_", " ")
         k = norm_name(name)
         if k and k not in seen:
@@ -105,8 +123,11 @@ def plan(lang: str):
         line(t)
     for t in json.loads(ADVENT.read_text(encoding="utf-8"))[lang]:
         line(t)
+    # Tous les bonjours d'abord : c'est le moment où l'enfant entend son prénom. L'au revoir avec le prénom vient
+    # ensuite ; tant qu'il manque, le Père Noël dit au revoir sans le prénom.
     for name in names(lang):
         add("hello|" + norm_name(name), book["hello"].replace("{name}", name), "hello")
+    for name in names(lang):
         add("bye|" + norm_name(name), book["bye"].replace("{name}", name), "bye")
     return items
 
@@ -139,7 +160,7 @@ def duration_range(it):
     if it["kind"] == "hello":
         return 1.2, 4.2
     if it["kind"] == "bye":
-        return 0.8, 3.2
+        return 0.8, 4.0
     text = it["text"]
     n = len(letters(text).replace(" ", "")) + 3 * len(re.findall(r"\b(?:[HhJj]o|[Oo]h)\b", text))
     return 0.04 * n + 0.35, 0.13 * n + 1.6
@@ -387,14 +408,15 @@ def ensure_ref(out: Path) -> Path:
 
 
 def tasks_of(a):
-    """« fr:line en:line fr:name » : quoi fabriquer, dans l'ordre (line : les répliques ; name : les prénoms, du
-    plus courant au plus rare). Sans --tasks : tout ce qui manque dans la langue --lang."""
+    """« fr:line en:line fr:hello » : quoi fabriquer, dans l'ordre (line : les répliques ; hello : les bonjours
+    avec le prénom, du plus courant au plus rare ; bye : les au revoir avec le prénom ; name : les deux). Sans
+    --tasks : tout ce qui manque dans la langue --lang."""
     if not a.tasks:
         return [(a.lang, "all")]
     out = []
     for t in a.tasks.replace(",", " ").split():
         lang, _, kind = t.partition(":")
-        assert lang in LANGS and kind in ("", "all", "line", "name"), t
+        assert lang in LANGS and kind in ("", "all", "line", "name", "hello", "bye"), t
         out.append((lang, kind or "all"))
     return out
 
@@ -407,7 +429,8 @@ def cmd_gen(a):
     # passage (le lutin les dit en attendant).
     todo = []
     for lang, kind in tasks_of(a):
-        items = [it for it in missing(lang) if kind == "all" or (it["kind"] == "line") == (kind == "line")]
+        wanted = {"all": ("line", "hello", "bye"), "name": ("hello", "bye")}.get(kind, (kind,))
+        items = [it for it in missing(lang) if it["kind"] in wanted]
         part = items[i::n]
         if a.limit:
             # Essai rapide : moitié répliques, moitié prénoms.
