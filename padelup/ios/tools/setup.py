@@ -1,10 +1,9 @@
-"""PADELUP iOS : prépare App Store Connect (identifiant de l'app, groupe de test interne, testeurs internes).
+"""PADELUP NEO (iOS) : prépare App Store Connect (identifiant, fiche, groupe de test interne, testeurs internes).
 
-Variables : ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY (et PADELUP_BUNDLE pour imposer un identifiant).
-Écrit « BUNDLE=<identifiant> » : le workflow TestFlight compile l'app avec cet identifiant.
-Si une fiche « PadelUp » existe déjà sur App Store Connect, son identifiant est repris (la nouvelle app
-arrive alors dans le TestFlight de cette fiche). Sinon l'identifiant com.padelup.app est créé et la fiche
-doit être créée à la main sur App Store Connect (l'API d'Apple ne permet pas de créer une app).
+Variables : ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY (et PADELUP_BUNDLE pour imposer un autre identifiant).
+App séparée de « PADELUP (FR) » (com.padelup.padelup-new), qui n'est jamais touchée ici.
+Écrit « BUNDLE=<identifiant> » pour le workflow TestFlight. Si l'API d'Apple refuse de créer la fiche,
+elle se crée à la main : App Store Connect > Apps > + > Nouvelle app (nom PadelUp Neo, identifiant ci-dessous).
 """
 import json
 import os
@@ -42,36 +41,49 @@ for ident in sorted(existing):
     if "padel" in ident.split(".", 2)[-1] or ident.endswith(".app"):
         print("IDENT ", ident)
 
-wanted = os.environ.get("PADELUP_BUNDLE", "").strip()
-if not wanted:
-    named = [a for a in apps if "padelup" in a["attributes"]["name"].lower().replace(" ", "").replace("-", "")]
-    wanted = named[0]["attributes"]["bundleId"] if named else "com.padelup.app"
+wanted = os.environ.get("PADELUP_BUNDLE", "").strip() or "com.padelup.neo"
+if wanted == "com.padelup.padelup-new":
+    sys.exit("Refus : l'app PadelUp Neo ne doit pas partir dans la fiche PADELUP (FR).")
 
 if wanted not in existing:
-    r = call("POST", "/v1/bundleIds", {"data": {"type": "bundleIds", "attributes": {"identifier": wanted, "name": "PadelUp", "platform": "IOS"}}})
-    if "data" in r:
-        print("ok     identifiant créé :", wanted)
-    else:
-        print("ÉCHEC  identifiant :", wanted, json.dumps(r)[:600])
-        alt = "com.padelup.padelupapp"
-        if alt not in existing:
-            r = call("POST", "/v1/bundleIds", {"data": {"type": "bundleIds", "attributes": {"identifier": alt, "name": "PadelUp", "platform": "IOS"}}})
-            print("ok     identifiant de secours créé :" if "data" in r else "ÉCHEC  identifiant de secours :", alt)
-        wanted = alt
+    r = call("POST", "/v1/bundleIds", {"data": {"type": "bundleIds", "attributes": {"identifier": wanted, "name": "PadelUp Neo", "platform": "IOS"}}})
+    print("ok     identifiant créé :" if "data" in r else "ÉCHEC  identifiant :", wanted, "" if "data" in r else json.dumps(r)[:600])
+    existing = {b["attributes"]["identifier"]: b["id"] for b in call("GET", "/v1/bundleIds?limit=200&filter[platform]=IOS").get("data", [])}
 else:
     print("ok     identifiant déjà là :", wanted)
 print("BUNDLE=" + wanted)
 
+# Capacité « Se connecter avec Apple » sur l'identifiant (l'app la propose pour le compte PadelUp).
+if wanted in existing:
+    caps = call("GET", f"/v1/bundleIds/{existing[wanted]}/bundleIdCapabilities").get("data", [])
+    if not any(c["attributes"].get("capabilityType") == "APPLE_ID_AUTH" for c in caps):
+        r = call("POST", "/v1/bundleIdCapabilities", {"data": {"type": "bundleIdCapabilities",
+                 "attributes": {"capabilityType": "APPLE_ID_AUTH", "settings": [{"key": "APPLE_ID_AUTH_APP_CONSENT",
+                                "options": [{"key": "PRIMARY_APP_CONSENT"}]}]},
+                 "relationships": {"bundleId": {"data": {"type": "bundleIds", "id": existing[wanted]}}}}})
+        print("ok     Se connecter avec Apple activé" if "data" in r else "ÉCHEC  Se connecter avec Apple " + json.dumps(r)[:300])
+
+if not any(a["attributes"]["bundleId"] == wanted for a in apps) and wanted in existing:
+    # Essai de création de la fiche par l'API (Apple ne l'a longtemps pas permis : dans ce cas, création à la main).
+    r = call("POST", "/v1/apps", {"data": {"type": "apps", "attributes": {
+        "name": "PadelUp Neo", "primaryLocale": "fr-FR", "sku": "padelup-neo", "bundleId": wanted},
+        "relationships": {"bundleId": {"data": {"type": "bundleIds", "id": existing[wanted]}}}}})
+    if "data" in r:
+        print("ok     fiche créée par l'API :", r["data"]["id"])
+        apps = call("GET", "/v1/apps?limit=200").get("data", [])
+    else:
+        print("INFO   création de fiche par l'API refusée (" + str(r.get("error")) + ")")
+
 mine = [a for a in apps if a["attributes"]["bundleId"] == wanted]
 if not mine:
-    print("FICHE  à créer sur App Store Connect (Nouvelle app, nom PadelUp, identifiant " + wanted + ")")
+    print("FICHE  à créer sur App Store Connect (Nouvelle app, nom PadelUp Neo, langue Français, identifiant " + wanted + ", SKU padelup-neo)")
     sys.exit(0)
 cid = mine[0]["id"]
 print("FICHE  ok", cid)
 
 groups = call("GET", f"/v1/apps/{cid}/betaGroups?limit=50").get("data", [])
 if not any(g["attributes"].get("isInternalGroup") for g in groups):
-    r = call("POST", "/v1/betaGroups", {"data": {"type": "betaGroups", "attributes": {"name": "PadelUp interne", "isInternalGroup": True,
+    r = call("POST", "/v1/betaGroups", {"data": {"type": "betaGroups", "attributes": {"name": "PadelUp Neo interne", "isInternalGroup": True,
                                                                                         "hasAccessToAllBuilds": True},
                                                  "relationships": {"app": {"data": {"type": "apps", "id": cid}}}}})
     print("ok     groupe interne créé" if "data" in r else "ÉCHEC  groupe interne " + json.dumps(r)[:400])
