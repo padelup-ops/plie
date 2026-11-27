@@ -245,3 +245,168 @@ struct ProviderWebSheet: View {
         .tint(UI.court)
     }
 }
+
+// MARK: - Choisir son club directement sur le site Playtomic
+
+/// Le site Playtomic s'ouvre dans l'app (recherche, ou carte de leurs clubs) ; dès que le joueur ouvre la page d'un
+/// club, l'app reconnaît le club (identifiant lu dans la page ou dans ses appels de disponibilités) et propose de le
+/// choisir. C'est la voie la plus sûre : c'est leur propre site qui fait la recherche.
+@MainActor
+final class PlaytomicPickerModel: ObservableObject {
+    @Published var club: PlaytomicClub? = nil
+    @Published var loading = true
+    weak var webView: WKWebView?
+    private var probe: Task<Void, Never>?
+
+    static let detectJS = #"""
+    (function(){
+      var m = location.pathname.match(/\/clubs\/([^\/?#]+)/);
+      if (!m) return null;
+      var slug = decodeURIComponent(m[1]);
+      var id = null;
+      try {
+        var urls = performance.getEntriesByType('resource').map(function(e){ return e.name; });
+        for (var i = 0; i < urls.length && !id; i++) {
+          var t = urls[i].match(/tenant_id=([0-9a-fA-F-]{36})/);
+          if (t) id = t[1];
+        }
+      } catch (e) {}
+      var h = document.documentElement.innerHTML.replace(/\\"/g, '"');
+      if (!id) {
+        var k = h.indexOf('"slug":"' + slug + '"');
+        if (k > 0) {
+          var seg = h.substring(Math.max(0, k - 1500), k);
+          var all = seg.match(/"(?:tenant_)?id":"[0-9a-fA-F-]{36}"/g);
+          if (all && all.length) id = all[all.length - 1].match(/[0-9a-fA-F-]{36}/)[0];
+        }
+      }
+      if (!id) {
+        var t2 = h.match(/"tenant_id":"([0-9a-fA-F-]{36})"/);
+        if (t2) id = t2[1];
+      }
+      var h1 = document.querySelector('h1');
+      var name = (h1 && h1.innerText) || (document.title || '').split('|')[0].split(' - ')[0];
+      return JSON.stringify({ id: id, slug: slug, name: (name || '').trim() });
+    })()
+    """#
+
+    func pageChanged() {
+        probe?.cancel()
+        club = nil
+        guard let webView, webView.url?.path.contains("/clubs/") == true else { return }
+        // La page charge ses disponibilités juste après l'affichage : on regarde plusieurs fois.
+        probe = Task { [weak self] in
+            for _ in 0..<10 {
+                guard let self, !Task.isCancelled, let webView = self.webView else { return }
+                if let raw = try? await webView.evaluateJavaScript(Self.detectJS) as? String,
+                   let o = try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any],
+                   let id = o["id"] as? String, let slug = o["slug"] as? String {
+                    let name = (o["name"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? slug.replacingOccurrences(of: "-", with: " ").capitalized
+                    self.club = PlaytomicClub(id: id.lowercased(), name: name, slug: slug, countryCode: "", street: "", postalCode: "")
+                    return
+                }
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+            }
+        }
+    }
+}
+
+struct PlaytomicPickerWebView: UIViewRepresentable {
+    let url: URL
+    @ObservedObject var model: PlaytomicPickerModel
+
+    func makeCoordinator() -> Coordinator { Coordinator(model: model) }
+
+    func makeUIView(context: Context) -> WKWebView {
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = .default()
+        let view = WKWebView(frame: .zero, configuration: config)
+        view.allowsBackForwardNavigationGestures = true
+        view.navigationDelegate = context.coordinator
+        model.webView = view
+        // Le site change de page sans recharger (Next.js) : on suit l'adresse.
+        let m = model
+        context.coordinator.observation = view.observe(\.url, options: [.new]) { _, _ in
+            Task { @MainActor in m.pageChanged() }
+        }
+        view.load(URLRequest(url: url))
+        return view
+    }
+
+    func updateUIView(_ view: WKWebView, context: Context) {}
+
+    @MainActor
+    final class Coordinator: NSObject, WKNavigationDelegate {
+        let model: PlaytomicPickerModel
+        var observation: NSKeyValueObservation?
+
+        init(model: PlaytomicPickerModel) { self.model = model }
+
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) { model.loading = true }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            model.loading = false
+            model.pageChanged()
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { model.loading = false }
+    }
+}
+
+struct PlaytomicPickerSheet: View {
+    var query: String
+    var onPick: (PlaytomicClub) -> Void
+    @StateObject private var model = PlaytomicPickerModel()
+    @Environment(\.dismiss) private var dismiss
+
+    private var url: URL {
+        var comps = URLComponents(string: "https://playtomic.com/search")!
+        let q = query.trimmingCharacters(in: .whitespaces)
+        if !q.isEmpty { comps.queryItems = [URLQueryItem(name: "q", value: q)] }
+        return comps.url ?? PlaytomicWeb.site
+    }
+
+    var body: some View {
+        NavigationStack {
+            PlaytomicPickerWebView(url: url, model: model)
+                .ignoresSafeArea(edges: .bottom)
+                .overlay(alignment: .top) {
+                    if model.loading { ProgressView().progressViewStyle(.linear).tint(UI.court).frame(maxWidth: .infinity) }
+                }
+                .safeAreaInset(edge: .bottom) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        if let club = model.club {
+                            HStack(spacing: 12) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Eyebrow(text: "Club repéré")
+                                    Text(club.name).font(UI.headline()).foregroundStyle(UI.ink).lineLimit(1)
+                                }
+                                Spacer()
+                                Button("Choisir") {
+                                    onPick(club)
+                                    dismiss()
+                                }
+                                .buttonStyle(PrimaryButtonStyle())
+                                .frame(width: 120)
+                            }
+                        } else {
+                            Text("Ouvre la page de ton club : l'app la reconnaît toute seule.")
+                                .font(UI.callout()).foregroundStyle(UI.muted)
+                        }
+                    }
+                    .padding(.horizontal, UI.margin).padding(.vertical, 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.bar)
+                }
+                .navigationTitle("Choisir sur Playtomic")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button { model.webView?.goBack() } label: { Image(systemName: "chevron.left") }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() } }
+                }
+        }
+        .tint(UI.court)
+    }
+}

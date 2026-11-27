@@ -274,6 +274,8 @@ struct RuleEditorView: View {
     @State private var saving = false
     @State private var info: String? = nil
     @State private var web: URL? = nil
+    @State private var pickOnSite = false
+    @State private var link = ""
 
     private let dayLetters = ["L", "M", "M", "J", "V", "S", "D"]
 
@@ -301,6 +303,7 @@ struct RuleEditorView: View {
             }
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() } } }
             .sheet(item: $web) { url in ProviderWebSheet(provider: WebAccount.owns(url), url: url) }
+            .sheet(isPresented: $pickOnSite) { PlaytomicPickerSheet(query: clubQuery) { c in pick(c) } }
         }
         .tint(UI.court)
         .onAppear {
@@ -337,6 +340,12 @@ struct RuleEditorView: View {
                             .buttonStyle(LinkButtonStyle())
                         }
                         if let info, results.isEmpty { Text(info).font(UI.callout()).foregroundStyle(UI.muted) }
+                        Button { pickOnSite = true } label: { Label("Choisir sur le site Playtomic", systemImage: "safari") }
+                            .buttonStyle(SecondaryButtonStyle())
+                        HStack(spacing: 10) {
+                            InputField(title: "…ou colle le lien Playtomic du club", text: $link, keyboard: .URL, systemImage: "link")
+                            Button("Ajouter") { Task { await useLink() } }.buttonStyle(LinkButtonStyle())
+                        }
                         VStack(spacing: 0) {
                             ForEach(Array(results.prefix(10).enumerated()), id: \.element.id) { i, c in
                                 Button { pick(c) } label: {
@@ -388,6 +397,17 @@ struct RuleEditorView: View {
         }
     }
 
+    private func useLink() async {
+        searching = true
+        defer { searching = false }
+        if let c = await PlaytomicWeb.resolve(link: link) {
+            pick(c)
+            link = ""
+        } else {
+            info = "Lien non reconnu. Dans l'app Playtomic, ouvre le club puis « Partager », et colle le lien ici."
+        }
+    }
+
     private func searchClubs() async {
         searching = true
         defer { searching = false }
@@ -397,7 +417,7 @@ struct RuleEditorView: View {
         guard q.count >= 2 else { info = "Tape le nom du club ou une ville."; return }
         do {
             results = try await PlaytomicWeb.search(q)
-            if results.isEmpty { info = "Aucun club Playtomic pour « \(q) »." }
+            if results.isEmpty { info = "Rien trouvé pour « \(q) » : essaie le nom du club, ou choisis-le directement sur le site Playtomic." }
         } catch {
             info = error.localizedDescription
         }
@@ -444,7 +464,7 @@ struct RuleEditorView: View {
                 }
                 HStack(spacing: 0) {
                     TimeField(label: "Début dès", minutes: $rule.timeFrom, range: 6 * 60...23 * 60)
-                    Rectangle().fill(UI.rule).frame(width: 0.5, height: 56).padding(.horizontal, 14)
+                    Rectangle().fill(UI.rule).frame(width: 0.5, height: 90).padding(.horizontal, 14)
                     TimeField(label: "au plus tard", minutes: $rule.timeTo, range: rule.timeFrom...(23 * 60 + 30))
                 }
                 VStack(alignment: .leading, spacing: 8) {
@@ -476,15 +496,13 @@ struct RuleEditorView: View {
                 .tint(UI.court)
                 if useRelease {
                     HStack(spacing: 0) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 6) {
                             Eyebrow(text: "Jours avant")
-                            HStack(spacing: 10) {
-                                Text("J-\(releaseDays)").font(UI.score(30)).foregroundStyle(UI.ink)
-                                Stepper("", value: $releaseDays, in: 1...30).labelsHidden()
-                            }
+                            Text("J-\(releaseDays)").font(UI.score(34)).foregroundStyle(UI.ink).lineLimit(1).fixedSize()
+                            Stepper("", value: $releaseDays, in: 1...30).labelsHidden()
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        Rectangle().fill(UI.rule).frame(width: 0.5, height: 56).padding(.horizontal, 14)
+                        Rectangle().fill(UI.rule).frame(width: 0.5, height: 90).padding(.horizontal, 14)
                         TimeField(label: "à", minutes: $releaseMinutes, range: 0...(23 * 60 + 45), step: 15)
                     }
                 }
@@ -543,13 +561,12 @@ struct TimeField: View {
     var step = 30
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             Eyebrow(text: label)
-            HStack(spacing: 10) {
-                Text(BotRule.hhmm(minutes)).font(UI.score(30)).foregroundStyle(UI.ink).contentTransition(.numericText())
-                Stepper("", value: Binding(get: { minutes }, set: { minutes = min(max($0, range.lowerBound), range.upperBound) }),
-                        in: range, step: step).labelsHidden()
-            }
+            Text(BotRule.hhmm(minutes)).font(UI.score(34)).foregroundStyle(UI.ink)
+                .lineLimit(1).fixedSize().contentTransition(.numericText())
+            Stepper("", value: Binding(get: { minutes }, set: { minutes = min(max($0, range.lowerBound), range.upperBound) }),
+                    in: range, step: step).labelsHidden()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

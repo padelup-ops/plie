@@ -12,6 +12,7 @@ import MapKit
 enum CoverageZone {
     static let countries = "France, Belgique, Suisse, Luxembourg, Allemagne, Italie, Monaco, Andorre, Espagne, Maroc, Algérie, Tunisie"
     static let short = "France, pays voisins et Maghreb"
+    static let countryCodes: Set<String> = ["FR", "BE", "CH", "LU", "DE", "IT", "MC", "AD", "ES", "MA", "DZ", "TN"]
 
     // (sud, ouest, nord, est)
     private static let boxes: [(Double, Double, Double, Double)] = [

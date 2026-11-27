@@ -37,6 +37,7 @@ struct ClubDetailView: View {
     @State private var lastRefresh: Date? = nil
     @State private var address: String? = nil
     @State private var accountsVersion = 0
+    @State private var pickOnSite = false
 
     private var provider: BotProvider? {
         if club.playtomicTenantID != nil { return .playtomic }
@@ -110,6 +111,15 @@ struct ClubDetailView: View {
                                             durations: [duration], clubSlug: club.playtomicSlug))
         }
         .sheet(isPresented: $showCreateMatch) { CreateMatchView(club: club) }
+        .sheet(isPresented: $pickOnSite) {
+            PlaytomicPickerSheet(query: club.name) { match in
+                club.playtomicTenantID = match.id
+                club.playtomicSlug = match.slug
+                if club.timezone == nil { club.timezone = club.longitude > 8 && club.latitude < 38 ? "Africa/Tunis" : "Europe/Paris" }
+                directory.link(clubID: club.id, tenantID: match.id, slug: match.slug, timezone: club.timezone)
+                Task { await loadSlots() }
+            }
+        }
     }
 
     // MARK: En-tête
@@ -313,7 +323,9 @@ struct ClubDetailView: View {
                         Text("Recherche de ce club sur Playtomic…").font(UI.callout()).foregroundStyle(UI.muted)
                     }
                 } else {
-                    Text("Ce club n'est pas relié à une plateforme de réservation.").font(UI.callout()).foregroundStyle(UI.muted)
+                    Text("Ce club n'est pas encore relié à une plateforme de réservation.").font(UI.callout()).foregroundStyle(UI.muted)
+                    Button { pickOnSite = true } label: { Label("Le trouver sur Playtomic", systemImage: "safari") }
+                        .buttonStyle(SecondaryButtonStyle())
                 }
                 Text("Il est sur Anybuddy ? Colle le lien de sa page.").font(UI.caption()).foregroundStyle(UI.faint)
                 HStack(spacing: 10) {
