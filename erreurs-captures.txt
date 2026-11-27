@@ -1,0 +1,20 @@
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/01-home-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/01-home-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/02-mappins-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/02-mappins-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/03-collectibles-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/03-collectibles-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/04-mission-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/04-mission-dprimary-1.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/05-eggs-dprimary.png
+Detected file type from extension: PNG
+Wrote screenshot to: /Users/runner/work/plie/plie/shots/05-eggs-dprimary-1.png
