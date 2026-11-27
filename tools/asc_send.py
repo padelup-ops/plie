@@ -221,6 +221,13 @@ if not version:
         sys.exit(1)
 vid = version["id"]
 vstring = attrs(version).get("versionString")
+# Le build à envoyer porte un autre numéro de version (1.0.1 au lieu de 1.0, par exemple) : tant que rien n'est sorti,
+# on renomme la version en préparation plutôt que d'en créer une seconde.
+if NEW_VERSION and not staged and vstring != NEW_VERSION and attrs(version).get("appStoreState") in EDITABLE:
+    r = step(f"version {vstring} renommée en {NEW_VERSION}", write("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
+        "type": "appStoreVersions", "id": vid, "attributes": {"versionString": NEW_VERSION}}}))
+    if "error" not in r:
+        vstring = NEW_VERSION
 print("cible", vstring, attrs(version).get("appStoreState"), "première sortie" if first_release else "mise à jour")
 if staged:
     print("version déjà dans une demande ouverte : on passe directement à l'envoi")
