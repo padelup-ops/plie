@@ -20,7 +20,7 @@ final class KeyboardViewController: UIInputViewController, KBInput {
             c.input = self
             c.onPreferredHeightChange = { [weak self] in
                 guard let self, let c = self.canvas, c.superview === self.view else { return }
-                self.heightConstraint?.constant = c.preferredHeight
+                self.applyHeight(c, settled: true)
             }
             if let lexicon { c.setLexicon(lexicon) }
             canvas = c
@@ -227,7 +227,11 @@ final class KeyboardViewController: UIInputViewController, KBInput {
         applyHeight(c)
     }
 
-    private func applyHeight(_ c: KeyboardCanvas) {
+    /// La hauteur demandée à iOS. Elle dépend de la largeur du clavier (grandes touches sur l'écran déplié) : tant
+    /// que le clavier n'est pas mis en page dans cette vue, on garde la hauteur de la dernière fois plutôt qu'une
+    /// hauteur calculée sur une taille provisoire. Le clavier la redemande lui-même dès sa première mise en page.
+    private func applyHeight(_ c: KeyboardCanvas, settled: Bool = false) {
+        if !settled, !c.heightIsReliable, heightConstraint != nil { return }
         let h = c.preferredHeight
         UserDefaults.standard.set(Double(h), forKey: "foldboard.lastHeight")
         if let c = heightConstraint {

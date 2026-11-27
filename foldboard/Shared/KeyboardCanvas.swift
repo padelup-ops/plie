@@ -1648,6 +1648,18 @@ final class KeyboardCanvas: UIView {
         frame = host.bounds
         autoresizingMask = [.flexibleWidth, .flexibleHeight]
         host.addSubview(self)
+        // Un nouvel hôte ne sait rien de la hauteur déjà demandée à l'ancien : on la redemande à la première mise en
+        // page ici. Sinon, même hauteur voulue qu'avant = rien de signalé, et l'hôte gardait une hauteur calculée
+        // sur sa taille provisoire (touches normales au lieu des grandes) : le bas du clavier était coupé.
+        reportedHeight = 0
+        builtFor = .zero
+        setNeedsLayout()
+    }
+
+    /// Mis en page dans son hôte, à sa vraie largeur : la hauteur voulue est fiable (elle dépend de la largeur).
+    var heightIsReliable: Bool {
+        guard let host = superview, host.window != nil else { return false }
+        return bounds.width > 50 && abs(bounds.width - host.bounds.width) < 0.5 && builtFor == bounds.size
     }
 
     static func install(in host: UIView) -> KeyboardCanvas {
@@ -1791,6 +1803,44 @@ final class KeyboardCanvas: UIView {
 
     /// Le filet mémoire : les paliers, et le dernier recours (les listes de mots rendues, puis rechargées à
     /// l'apparition suivante) sans que le clavier s'arrête d'écrire.
+    /// Banc d'essai : un nouvel hôte arrive d'abord à une taille provisoire (étroite), puis à sa vraie largeur. Le
+    /// clavier doit lui redemander sa hauteur, même si c'est celle qu'il avait déjà demandée à l'ancien hôte
+    /// (sinon : bas du clavier coupé sur l'écran déplié).
+    static func verifyHostHeight() -> Bool {
+        let first = UIView(frame: CGRect(x: 0, y: 0, width: 760, height: 330))
+        let c = install(in: first)
+        c.demoContext = "open-landscape"
+        var s = KBSettings()
+        s.layout = .qwerty
+        s.mode = .full
+        c.configure(settings: s, pro: true)
+        c.layoutIfNeeded()
+        let wide = c.preferredHeight
+        RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        var asked = 0
+        var askedFor: CGFloat = 0
+        c.onPreferredHeightChange = { asked += 1; askedFor = c.preferredHeight }
+        let second = UIView(frame: CGRect(x: 0, y: 0, width: 320, height: 216))
+        c.move(to: second)
+        let early = c.preferredHeight
+        second.frame = CGRect(x: 0, y: 0, width: 760, height: early)
+        second.layoutIfNeeded()
+        c.layoutIfNeeded()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        let filled = abs(c.bounds.width - 760) < 0.5
+        // L'hôte a la bonne hauteur : plus rien à redemander.
+        second.frame = CGRect(x: 0, y: 0, width: 760, height: wide)
+        second.layoutIfNeeded()
+        c.layoutIfNeeded()
+        asked = 0
+        RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        let quiet = asked == 0
+        c.onPreferredHeightChange = nil
+        let ok = askedFor > 0 && abs(askedFor - wide) < 0.5 && early < wide - 1 && filled && quiet
+        print("RESULT hote hauteur_redemandee \(ok ? "yes" : "no") (voulue \(Int(wide)), trop tôt \(Int(early)), demandée \(Int(askedFor)), rempli \(filled), calme \(quiet))")
+        return ok
+    }
+
     static func verifyMemoryShed() -> Bool {
         let levels = memoryLevel(footprintMB: 30, headroomMB: 30) == .fine && memoryLevel(footprintMB: 58, headroomMB: 12) == .tight
             && memoryLevel(footprintMB: 40, headroomMB: 5) == .critical && memoryLevel(footprintMB: 40, headroomMB: 0) == .fine
@@ -2853,8 +2903,11 @@ final class KeyboardCanvas: UIView {
         cachedFix = nil
         reclaimKeys()
         // La hauteur change avec la disposition (grandes touches du clavier entier) : on la redemande.
-        if abs(preferredHeight - reportedHeight) > 0.5 {
-            reportedHeight = preferredHeight
+        // Aussi quand l'hôte n'a pas la hauteur voulue (il l'avait calculée trop tôt) : le redemander ne coûte rien
+        // s'il l'a déjà, et répare un clavier coupé en bas ou posé sous un vide.
+        let wanted = preferredHeight
+        if abs(wanted - reportedHeight) > 0.5 || (!adjustingHeight && bounds.height > 0 && abs(bounds.height - wanted) > 0.5) {
+            reportedHeight = wanted
             DispatchQueue.main.async { [weak self] in self?.onPreferredHeightChange?() }
         }
         let W = bounds.width

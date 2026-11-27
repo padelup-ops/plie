@@ -21,12 +21,12 @@ struct HomeView: View {
         DualLayout {
             column
         } secondary: {
-            // Droite du pli : reprendre, le secret du jour, les billets, par où commencer, les nouveautés.
+            // Droite du pli : le secret du jour (le titre court laisse la place aux icônes d'état du Duo), reprendre, les billets, par où commencer, les nouveautés.
             NavigationStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: VF.Space.l) {
-                        resume
                         secretOfTheDay
+                        resume
                         tickets
                         startHere
                         if let news = content.content.news, !news.isEmpty { newsCard(news) }
@@ -94,7 +94,8 @@ struct HomeView: View {
     // MARK: En-tête
 
     private var header: some View {
-        let days = Calendar.current.dateComponents([.day], from: VF.release, to: Date()).day ?? 0
+        // Le même compte de jours que les widgets et l'image à partager (jours du calendrier, pas tranches de 24 h).
+        let days = VFDaysFace.days()
         let line: Text = days < 0 ? Text("Release in \(-days) days") : (days == 0 ? Text("Out today on PS5 and Xbox Series") : Text("Day \(days + 1) in Leonida"))
         return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {

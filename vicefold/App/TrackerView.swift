@@ -30,7 +30,8 @@ private enum TrackerSection: String, CaseIterable, Identifiable {
     var title: LocalizedStringKey {
         switch self {
         case .missions: return "Missions"
-        case .collectibles: return "Collectibles"
+        // « Objets » plutôt que « Objets à collectionner » : le mot long était coupé dans le sélecteur.
+        case .collectibles: return "Items"
         case .challenges: return "Challenges"
         }
     }
@@ -434,7 +435,7 @@ struct CollectibleRows: View {
         let complete = n >= s.target
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(s.title).font(.headline).foregroundStyle(VF.text)
+                Text(s.title).font(.headline).foregroundStyle(VF.text).fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 8)
                 Text(verbatim: "\(n)/\(s.target)").font(VF.mono(13, weight: .bold)).foregroundStyle(complete ? VF.palm : VF.sun)
                     .contentTransition(.numericText())

@@ -60,7 +60,14 @@ def call(method, path, body=None):
         text = e.read().decode(errors="replace")
         try:
             errs = json.loads(text).get("errors", [])
-            detail = "; ".join(f"{x.get('code')}: {x.get('detail')}" for x in errs) or text[:600]
+            parts = []
+            for x in errs:
+                parts.append(f"{x.get('code')}: {x.get('detail')}")
+                # Apple range la vraie raison dans les erreurs associées (par ressource).
+                for where, subs in ((x.get("meta") or {}).get("associatedErrors") or {}).items():
+                    for one in subs:
+                        parts.append(f"[{where}] {one.get('code')}: {one.get('detail')}")
+            detail = "; ".join(parts) or text[:600]
         except Exception:
             detail = text[:600]
         return {"error": e.code, "detail": detail}
@@ -79,7 +86,7 @@ def step(label, result, tolerate=()):
             print(f"ok     {label} (déjà fait)")
             return result
         problems.append(label)
-        print(f"ÉCHEC  {label} -> HTTP {result['error']} {result['detail'][:500]}")
+        print(f"ÉCHEC  {label} -> HTTP {result['error']} {result['detail'][:3000]}")
     else:
         print(f"ok     {label}")
     return result
@@ -114,35 +121,45 @@ all_v = versions()
 print("versions", [(attrs(v).get("versionString"), attrs(v).get("appStoreState")) for v in all_v])
 
 if os.environ.get("DRY_RUN") == "iap":
-    # Achats seulement : la version est déjà chez Apple, on tente de lui joindre les achats Pro et on relit leur état.
+    # Diagnostic en lecture seule : de quoi est faite la demande ouverte, et quelles relations Apple expose
+    # pour les achats et les abonnements (leurs « versions »).
+    def show(label, r, n=1800):
+        print(label, json.dumps(r, ensure_ascii=False)[:n])
+
+    def rels(label, path):
+        r = call("GET", path)
+        d = r.get("data") if isinstance(r, dict) else None
+        if isinstance(d, dict):
+            print(label, "état", attrs(d).get("state"), "relations", sorted((d.get("relationships") or {}).keys()))
+        else:
+            show(label, r, 400)
+        return d
+
+    for sub in call("GET", f"/v1/reviewSubmissions?filter[app]={app_id}&filter[state]=READY_FOR_REVIEW,UNRESOLVED_ISSUES,WAITING_FOR_REVIEW&limit=5").get("data", []):
+        print("DEMANDE", sub["id"], attrs(sub).get("state"))
+        for it in call("GET", f"/v1/reviewSubmissions/{sub['id']}/items?limit=20").get("data", []):
+            print("  élément", it["id"], attrs(it).get("state"), "relations", sorted((it.get("relationships") or {}).keys()))
+            for k in (it.get("relationships") or {}):
+                if k == "reviewSubmission":
+                    continue
+                rr = call("GET", f"/v1/reviewSubmissionItems/{it['id']}/relationships/{k}")
+                if "error" not in rr and rr.get("data"):
+                    print("     ->", k, rr["data"])
     for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
-        pid, st = attrs(x).get("productId"), attrs(x).get("state")
-        print("achat", pid, st)
-        if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
-            r = call("POST", "/v1/inAppPurchaseSubmissions", {"data": {
-                "type": "inAppPurchaseSubmissions",
-                "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
-            print("   ->", ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+        d = rels(f"ACHAT {attrs(x).get('productId')}", f"/v2/inAppPurchases/{x['id']}")
+        for k in sorted((d or {}).get("relationships") or {}):
+            if "ersion" in k or "ubmission" in k:
+                show(f"   {k}", call("GET", f"/v2/inAppPurchases/{x['id']}/{k}"), 700)
     for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
-        r = call("POST", "/v1/subscriptionGroupSubmissions", {"data": {
-            "type": "subscriptionGroupSubmissions",
-            "relationships": {"subscriptionGroup": {"data": {"type": "subscriptionGroups", "id": g["id"]}}}}})
-        print("groupe", attrs(g).get("referenceName"), "->",
-              ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
+        d = rels(f"GROUPE {attrs(g).get('referenceName')}", f"/v1/subscriptionGroups/{g['id']}")
+        for k in sorted((d or {}).get("relationships") or {}):
+            if "ersion" in k or "ubmission" in k:
+                show(f"   {k}", call("GET", f"/v1/subscriptionGroups/{g['id']}/{k}"), 700)
         for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
-            pid, st = attrs(sx).get("productId"), attrs(sx).get("state")
-            print("abonnement", pid, st)
-            if st in ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"):
-                r = call("POST", "/v1/subscriptionSubmissions", {"data": {
-                    "type": "subscriptionSubmissions",
-                    "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sx["id"]}}}}})
-                print("   ->", ("HTTP %s %s" % (r["error"], r["detail"][:700])) if "error" in r else "envoyé")
-    time.sleep(5)
-    for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
-        print("READBACK achat", attrs(x).get("productId"), attrs(x).get("state"))
-    for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
-        for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
-            print("READBACK abonnement", attrs(sx).get("productId"), attrs(sx).get("state"))
+            d = rels(f"ABONNEMENT {attrs(sx).get('productId')}", f"/v1/subscriptions/{sx['id']}")
+            for k in sorted((d or {}).get("relationships") or {}):
+                if "ersion" in k or "ubmission" in k:
+                    show(f"   {k}", call("GET", f"/v1/subscriptions/{sx['id']}/{k}"), 700)
     sys.exit(0)
 
 # 1. Une demande encore chez Apple : on la retire, sinon ni la fiche ni le build ne peuvent changer.
@@ -167,6 +184,12 @@ first_release = not any(attrs(v).get("appStoreState") in ("READY_FOR_SALE", "REP
                                                          "PENDING_APPLE_RELEASE", "PROCESSING_FOR_APP_STORE", "REMOVED_FROM_SALE",
                                                          "DEVELOPER_REMOVED_FROM_SALE") for v in all_v)
 version = next((v for v in all_v if attrs(v).get("appStoreState") in EDITABLE), None)
+# Déjà rangée dans une demande ouverte (un envoi précédent s'est arrêté juste avant de partir) : fiche, EULA, note et
+# build sont posés, il ne reste qu'à envoyer.
+staged = False
+if not version:
+    version = next((v for v in all_v if attrs(v).get("appStoreState") == "READY_FOR_REVIEW"), None)
+    staged = version is not None
 if DRY and not version:
     version = next((v for v in all_v if attrs(v).get("appStoreState") in PENDING), None)
 if not version:
@@ -183,84 +206,87 @@ if not version:
 vid = version["id"]
 vstring = attrs(version).get("versionString")
 print("cible", vstring, attrs(version).get("appStoreState"), "première sortie" if first_release else "mise à jour")
-step("sortie automatique après accord", write("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"releaseType": "AFTER_APPROVAL"}}}))
-
-# 3. La fiche de chaque langue, avec le lien EULA à la fin de la description.
-for loc in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations?limit=50").get("data", []):
-    locale = attrs(loc).get("locale")
-    meta = meta_for(locale) or {}
-    desc = (meta.get("description") or attrs(loc).get("description") or "").rstrip()
-    if LINE not in desc:
-        desc = desc[:4000 - len(LINE) - 2].rstrip() + "\n\n" + LINE
-    new = {"description": desc}
-    for src, dst in (("keywords", "keywords"), ("promo", "promotionalText")):
-        if meta.get(src):
-            new[dst] = meta[src]
-    if not first_release and meta.get("whatsNew"):
-        new["whatsNew"] = meta["whatsNew"]
-    step(f"fiche {locale}", write("PATCH", f"/v1/appStoreVersionLocalizations/{loc['id']}", {"data": {
-        "type": "appStoreVersionLocalizations", "id": loc["id"], "attributes": new}}))
-
-# 4. L'EULA propre à l'app (le contrat standard d'Apple), sur tous les pays.
-terr = []
-path = "/v1/territories?limit=200"
-while path:
-    page = call("GET", path)
-    terr += [t["id"] for t in page.get("data", [])]
-    nxt = (page.get("links") or {}).get("next")
-    path = nxt.replace(API, "") if nxt else None
-links = [{"type": "territories", "id": t} for t in terr]
-existing = call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement").get("data")
-if isinstance(existing, dict) and EULA_URL in (attrs(existing).get("agreementText") or ""):
-    print("ok     EULA déjà posée,", len(attrs(existing).get("agreementText") or ""), "caractères")
-elif isinstance(existing, dict):
-    step("EULA mise à jour", write("PATCH", f"/v1/endUserLicenseAgreements/{existing['id']}", {"data": {
-        "type": "endUserLicenseAgreements", "id": existing["id"], "attributes": {"agreementText": AGREEMENT},
-        "relationships": {"territories": {"data": links}}}}))
+if staged:
+    print("version déjà dans une demande ouverte : on passe directement à l'envoi")
 else:
-    step(f"EULA créée ({len(terr)} pays)", write("POST", "/v1/endUserLicenseAgreements", {"data": {
-        "type": "endUserLicenseAgreements", "attributes": {"agreementText": AGREEMENT},
-        "relationships": {"app": {"data": {"type": "apps", "id": app_id}}, "territories": {"data": links}}}}))
+    step("sortie automatique après accord", write("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
+        "type": "appStoreVersions", "id": vid, "attributes": {"releaseType": "AFTER_APPROVAL"}}}))
 
-# 5. La note pour Apple : où trouver les conditions.
-det = call("GET", f"/v1/appStoreVersions/{vid}/appStoreReviewDetail").get("data")
-if det:
-    old = (attrs(det).get("notes") or "").strip()
-    keep = old.split("Terms of Use (EULA), as requested")[0].strip()
-    notes = (NOTES + ("\n\n" + keep if keep else ""))[:4000]
-    step("note pour Apple", write("PATCH", f"/v1/appStoreReviewDetails/{det['id']}", {"data": {
-        "type": "appStoreReviewDetails", "id": det["id"], "attributes": {"notes": notes}}}))
-else:
-    step("note pour Apple", write("POST", "/v1/appStoreReviewDetails", {"data": {
-        "type": "appStoreReviewDetails", "attributes": {"notes": NOTES},
-        "relationships": {"appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}}))
+    # 3. La fiche de chaque langue, avec le lien EULA à la fin de la description.
+    for loc in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations?limit=50").get("data", []):
+        locale = attrs(loc).get("locale")
+        meta = meta_for(locale) or {}
+        desc = (meta.get("description") or attrs(loc).get("description") or "").rstrip()
+        if LINE not in desc:
+            desc = desc[:4000 - len(LINE) - 2].rstrip() + "\n\n" + LINE
+        new = {"description": desc}
+        for src, dst in (("keywords", "keywords"), ("promo", "promotionalText")):
+            if meta.get(src):
+                new[dst] = meta[src]
+        if not first_release and meta.get("whatsNew"):
+            new["whatsNew"] = meta["whatsNew"]
+        step(f"fiche {locale}", write("PATCH", f"/v1/appStoreVersionLocalizations/{loc['id']}", {"data": {
+            "type": "appStoreVersionLocalizations", "id": loc["id"], "attributes": new}}))
 
-# 6. Le build.
-build, states = None, []
-for attempt in range(40):
-    builds = call("GET", f"/v1/builds?filter[app]={app_id}&filter[version]={BUILD}&limit=5").get("data", [])
-    states = [attrs(b).get("processingState") for b in builds]
-    build = next((b for b in builds if attrs(b).get("processingState") == "VALID"), None)
-    print(f"build {BUILD}", states or "introuvable", f"essai {attempt + 1}")
-    if build or any(s in ("FAILED", "INVALID") for s in states) or DRY:
-        break
-    time.sleep(30)
-if not build:
-    print("ÉCHEC build pas prêt")
-    sys.exit(1)
-bid = build["id"]
-pre = attrs(call("GET", f"/v1/builds/{bid}/preReleaseVersion").get("data")).get("version")
-print("build", BUILD, "version du build", pre)
-enc = attrs(build).get("usesNonExemptEncryption")
-if enc is None:
-    step("chiffrement : aucun", write("PATCH", f"/v1/builds/{bid}", {"data": {
-        "type": "builds", "id": bid, "attributes": {"usesNonExemptEncryption": False}}}))
-elif enc is not False:
-    problems.append("chiffrement")
-    print("ÉCHEC  chiffrement inattendu", enc)
-step(f"build {BUILD} joint", write("PATCH", f"/v1/appStoreVersions/{vid}/relationships/build",
-     {"data": {"type": "builds", "id": bid}}))
+    # 4. L'EULA propre à l'app (le contrat standard d'Apple), sur tous les pays.
+    terr = []
+    path = "/v1/territories?limit=200"
+    while path:
+        page = call("GET", path)
+        terr += [t["id"] for t in page.get("data", [])]
+        nxt = (page.get("links") or {}).get("next")
+        path = nxt.replace(API, "") if nxt else None
+    links = [{"type": "territories", "id": t} for t in terr]
+    existing = call("GET", f"/v1/apps/{app_id}/endUserLicenseAgreement").get("data")
+    if isinstance(existing, dict) and EULA_URL in (attrs(existing).get("agreementText") or ""):
+        print("ok     EULA déjà posée,", len(attrs(existing).get("agreementText") or ""), "caractères")
+    elif isinstance(existing, dict):
+        step("EULA mise à jour", write("PATCH", f"/v1/endUserLicenseAgreements/{existing['id']}", {"data": {
+            "type": "endUserLicenseAgreements", "id": existing["id"], "attributes": {"agreementText": AGREEMENT},
+            "relationships": {"territories": {"data": links}}}}))
+    else:
+        step(f"EULA créée ({len(terr)} pays)", write("POST", "/v1/endUserLicenseAgreements", {"data": {
+            "type": "endUserLicenseAgreements", "attributes": {"agreementText": AGREEMENT},
+            "relationships": {"app": {"data": {"type": "apps", "id": app_id}}, "territories": {"data": links}}}}))
+
+    # 5. La note pour Apple : où trouver les conditions.
+    det = call("GET", f"/v1/appStoreVersions/{vid}/appStoreReviewDetail").get("data")
+    if det:
+        old = (attrs(det).get("notes") or "").strip()
+        keep = old.split("Terms of Use (EULA), as requested")[0].strip()
+        notes = (NOTES + ("\n\n" + keep if keep else ""))[:4000]
+        step("note pour Apple", write("PATCH", f"/v1/appStoreReviewDetails/{det['id']}", {"data": {
+            "type": "appStoreReviewDetails", "id": det["id"], "attributes": {"notes": notes}}}))
+    else:
+        step("note pour Apple", write("POST", "/v1/appStoreReviewDetails", {"data": {
+            "type": "appStoreReviewDetails", "attributes": {"notes": NOTES},
+            "relationships": {"appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}}))
+
+    # 6. Le build.
+    build, states = None, []
+    for attempt in range(40):
+        builds = call("GET", f"/v1/builds?filter[app]={app_id}&filter[version]={BUILD}&limit=5").get("data", [])
+        states = [attrs(b).get("processingState") for b in builds]
+        build = next((b for b in builds if attrs(b).get("processingState") == "VALID"), None)
+        print(f"build {BUILD}", states or "introuvable", f"essai {attempt + 1}")
+        if build or any(s in ("FAILED", "INVALID") for s in states) or DRY:
+            break
+        time.sleep(30)
+    if not build:
+        print("ÉCHEC build pas prêt")
+        sys.exit(1)
+    bid = build["id"]
+    pre = attrs(call("GET", f"/v1/builds/{bid}/preReleaseVersion").get("data")).get("version")
+    print("build", BUILD, "version du build", pre)
+    enc = attrs(build).get("usesNonExemptEncryption")
+    if enc is None:
+        step("chiffrement : aucun", write("PATCH", f"/v1/builds/{bid}", {"data": {
+            "type": "builds", "id": bid, "attributes": {"usesNonExemptEncryption": False}}}))
+    elif enc is not False:
+        problems.append("chiffrement")
+        print("ÉCHEC  chiffrement inattendu", enc)
+    step(f"build {BUILD} joint", write("PATCH", f"/v1/appStoreVersions/{vid}/relationships/build",
+         {"data": {"type": "builds", "id": bid}}))
 
 if problems:
     print("PAS ENVOYÉ :", ", ".join(problems))
@@ -300,39 +326,51 @@ step("version ajoutée à la demande", write("POST", "/v1/reviewSubmissionItems"
      tolerate=("already", "ENTITY_ERROR"))
 
 # Les achats de Vicefold Pro partent avec la version (première fois) : sans eux, Apple ne peut pas vérifier l'écran Pro.
-SENDABLE = ("READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED")
+# Chez Apple, un achat, un abonnement et un groupe ont chacun une « version » ; c'est elle qu'on range dans la demande.
+# Un nouveau groupe ne part que si au moins un de ses abonnements part avec lui.
+IN_SUBMISSION = ("READY_FOR_REVIEW", "WAITING_FOR_REVIEW", "IN_REVIEW")
+DONE = ("APPROVED", "ACCEPTED", "READY_FOR_SALE", "READY_FOR_DISTRIBUTION")
 warnings = []
-for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
-    pid, st = attrs(x).get("productId"), attrs(x).get("state")
-    print("       achat", pid, st)
-    if st not in SENDABLE:
-        continue
-    r = write("POST", "/v1/inAppPurchaseSubmissions", {"data": {
-        "type": "inAppPurchaseSubmissions", "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
-    if "error" in r and "FIRST_" in r.get("detail", ""):
+learned = False
+
+
+def attach(label, versions_path, kind, rel_names):
+    global learned
+    vs = call("GET", versions_path).get("data", [])
+    if not vs:
+        warnings.append(label)
+        print(f"ATTENTION {label} : aucune version côté Apple")
+        return
+    v = sorted(vs, key=lambda x: attrs(x).get("version") or 0)[-1]
+    st = attrs(v).get("state")
+    if st in IN_SUBMISSION or st in DONE:
+        print(f"ok     {label} déjà dans la demande ou accepté ({st})")
+        return
+    for rel in rel_names:
         r = write("POST", "/v1/reviewSubmissionItems", {"data": {
             "type": "reviewSubmissionItems", "relationships": {
                 "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sub_id}},
-                "inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": x["id"]}}}}})
-    if "error" in r and "already" not in r.get("detail", ""):
-        warnings.append(f"achat {pid}")
-        print(f"ATTENTION achat {pid} pas joint -> HTTP {r['error']} {r['detail'][:500]}")
-    else:
-        print(f"ok     achat {pid} joint à la version")
+                rel: {"data": {"type": kind, "id": v["id"]}}}}})
+        if "error" not in r or "already" in r.get("detail", ""):
+            print(f"ok     {label} ajouté à la demande (était {st})")
+            return
+        print(f"       {label} ({st}) : {rel} refusé -> HTTP {r['error']} {r['detail'][:400]}")
+    if not learned:
+        learned = True
+        probe = call("GET", f"/v1/reviewSubmissions/{sub_id}/items?include=zzz&limit=1")
+        print("       relations connues d'Apple :", (probe.get("detail") or "")[:900])
+    warnings.append(label)
+
+
+for x in call("GET", f"/v1/apps/{app_id}/inAppPurchasesV2?limit=50").get("data", []):
+    attach(f"achat {attrs(x).get('productId')}", f"/v2/inAppPurchases/{x['id']}/versions",
+           "inAppPurchaseVersions", ("inAppPurchaseVersion",))
 for g in call("GET", f"/v1/apps/{app_id}/subscriptionGroups?limit=20").get("data", []):
     for sx in call("GET", f"/v1/subscriptionGroups/{g['id']}/subscriptions?limit=50").get("data", []):
-        pid, st = attrs(sx).get("productId"), attrs(sx).get("state")
-        print("       abonnement", pid, st)
-        if st not in SENDABLE:
-            continue
-        r = write("POST", "/v1/subscriptionSubmissions", {"data": {
-            "type": "subscriptionSubmissions",
-            "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sx["id"]}}}}})
-        if "error" in r and "already" not in r.get("detail", ""):
-            warnings.append(f"abonnement {pid}")
-            print(f"ATTENTION abonnement {pid} pas joint -> HTTP {r['error']} {r['detail'][:500]}")
-        else:
-            print(f"ok     abonnement {pid} joint à la version")
+        attach(f"abonnement {attrs(sx).get('productId')}", f"/v1/subscriptions/{sx['id']}/versions",
+               "subscriptionVersions", ("subscriptionVersion",))
+    attach(f"groupe {attrs(g).get('referenceName')}", f"/v1/subscriptionGroups/{g['id']}/versions",
+           "subscriptionGroupVersions", ("subscriptionGroupVersion",))
 
 step("ENVOI À LA VÉRIFICATION", write("PATCH", f"/v1/reviewSubmissions/{sub_id}", {"data": {
     "type": "reviewSubmissions", "id": sub_id, "attributes": {"submitted": True}}}))
@@ -348,7 +386,15 @@ print("READBACK demande", sub_id[:8], sub_now.get("state"))
 for it in call("GET", f"/v1/reviewSubmissions/{sub_id}/items?limit=20").get("data", []):
     kinds = [k for k, x in (it.get("relationships") or {}).items()
              if k != "reviewSubmission" and isinstance(x, dict) and x.get("data")]
-    print("READBACK élément", attrs(it).get("state"), ",".join(kinds))
+    if not kinds:
+        # Relations non renvoyées d'office : on les demande une à une.
+        for k in (it.get("relationships") or {}):
+            if k == "reviewSubmission":
+                continue
+            rr = call("GET", f"/v1/reviewSubmissionItems/{it['id']}/relationships/{k}")
+            if "error" not in rr and rr.get("data"):
+                kinds.append(k)
+    print("READBACK élément", attrs(it).get("state"), ",".join(kinds) or "(genre non indiqué)")
 for loc in call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations?limit=50").get("data", []):
     d = attrs(loc).get("description") or ""
     ok = LINE in d

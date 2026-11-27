@@ -378,8 +378,8 @@ struct LeonidaMapView: View {
         content.content.places.filter { p in
             guard p.kind != .region else { return false }
             if p.kind.pro && !store.isPro { return false }
-            // Un lieu favori se voit quelles que soient les couches et les filtres.
-            if progress.isFavorite(p) { return true }
+            // Un lieu favori se voit quelles que soient les couches et les filtres (sur la carte, pas sur les aperçus).
+            if decorated && progress.isFavorite(p) { return true }
             guard state.layers.contains(p.kind) else { return false }
             if state.hideVisited && progress.visited(p) { return false }
             return true
