@@ -15,7 +15,10 @@ C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), q
 - **Zone couverte** : France, Belgique, Suisse, les pays frontaliers de la France (Luxembourg, Allemagne, Italie, Monaco, Andorre, Espagne), Maroc, Algérie et Tunisie. Le fichier OpenStreetMap de ces douze pays est embarqué dans l'app : il marche hors ligne et s'affiche tout de suite. Il est construit pays par pays, d'après la frontière officielle de chaque pays dans OSM. La zone affichée sur la carte est ensuite actualisée en direct (API Overpass, avec trois serveurs de secours), et les clubs Playtomic de la zone sont rattachés au club OSM correspondant. Hors de la zone, l'app n'ajoute pas de clubs. La recherche de ville passe par MapKit, sans clé d'API.
 - **Fiche club**. On y trouve la météo de jeu heure par heure (Open-Meteo, avec un indice padel sur 100 qui tient compte de la pluie, du vent et de la température), les disponibilités, la réservation en un geste par le bot, l'itinéraire, le site et le téléphone. Le bouton « Créer un match » ajoute le club au serveur PadelUp s'il vient d'OSM.
 - **Bot de réservation**. Le joueur connecte son compte Playtomic, puis choisit les jours, la plage horaire, les durées, intérieur ou extérieur, un prix maximum et le nombre de réservations. Le bot surveille et réserve tout seul. Il envoie une notification à chaque réservation et tient un journal.
-- **Matchs et classement**, avec le compte PadelUp : e-mail ou Se connecter avec Apple.
+- **Compte PadelUp** : inscription par e-mail (code de confirmation) ou Se connecter avec Apple, puis **choix du niveau** (échelle FFT en 8 niveaux avec repères, ou ancienne échelle en 10), main forte et ville.
+- **Matchs** : matchs ouverts et les miens, rejoindre ou quitter, créer un match dans n'importe quel club de la carte. **Fiche match** : joueurs et places libres, discussion, saisie du résultat par l'organisateur, **notation des joueurs** (1 à 10, anonyme, elle affine le niveau public) et du terrain (1 à 5). Un rappel apparaît quand un match attend un résultat ou des notes.
+- **Amis** : mes amis, demandes reçues et envoyées, recherche de joueurs et suggestions.
+- **Classement** et **notifications** (invitations, matchs, amis, réservations du bot).
 - **Saisons** (l'idée de Yacine) :
 
   | Saison | Période | Effet |

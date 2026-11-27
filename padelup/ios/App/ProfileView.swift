@@ -3,13 +3,17 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject private var server: ServerAPI
+    @EnvironmentObject private var router: Router
     @AppStorage(SeasonSetting.key) private var seasonMode = "auto"
     @AppStorage("serverURL") private var serverURL = ""
     @AppStorage("botServer") private var botServer = true
 
     var body: some View {
         Screen(title: "Profil") {
-            if let me = server.me { profileCard(me) } else if server.isLoggedIn { ProgressView().frame(maxWidth: .infinity) } else { AuthPanel() }
+            if let me = server.me {
+                profileCard(me)
+                accountRows(me)
+            } else if server.isLoggedIn { ProgressView().frame(maxWidth: .infinity) } else { AuthPanel() }
             seasons
             settings
             about
@@ -36,6 +40,35 @@ struct ProfileView: View {
                 .buttonStyle(SecondaryButtonStyle(color: UI.danger))
         }
         .card()
+    }
+
+    private func accountRows(_ me: APIMe) -> some View {
+        VStack(spacing: 0) {
+            row("Mon niveau", "chart.bar", detail: me.profile?.skillLevel.map { "\($0) · " + PadelLevel.name($0, scale: me.profile?.evaluationType ?? "new") } ?? "À choisir") {
+                router.showLevel = true
+            }
+            Divider().overlay(UI.line).padding(.leading, 48)
+            row("Mes amis", "person.2", detail: nil) { router.showFriends = true }
+            Divider().overlay(UI.line).padding(.leading, 48)
+            row("Notifications", "bell", detail: nil) { router.showNotifications = true }
+        }
+        .padding(.horizontal, 14)
+        .card(padding: 0)
+    }
+
+    private func row(_ title: String, _ icon: String, detail: String?, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: icon).foregroundStyle(UI.accent).frame(width: 22)
+                Text(title).font(UI.body()).foregroundStyle(UI.ink)
+                Spacer()
+                if let detail { Text(detail).font(UI.caption()).foregroundStyle(UI.muted).lineLimit(1) }
+                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(UI.faint)
+            }
+            .padding(.vertical, 13)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private var seasons: some View {

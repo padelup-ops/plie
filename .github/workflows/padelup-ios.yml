@@ -162,14 +162,18 @@ jobs:
             lim 60 xcrun simctl io "$UDID" screenshot "ci/shots/$4.png" > /dev/null 2>&1 || true
           }
           shot home auto 12 warmup
-          shot home auto 8 01-accueil-automne
+          shot home auto 8 01-accueil
           shot clubs auto 14 02-carte
-          shot club auto 10 03-club-dispos
+          shot club auto 10 03-club
           shot bot auto 8 04-bot
           shot matches auto 8 05-matchs
-          shot profile auto 6 06-profil
-          shot home christmas 8 07-accueil-noel
-          shot home newYear 8 08-accueil-nouvel-an
+          shot match auto 8 06-fiche-match
+          shot level auto 8 07-niveau
+          shot friends auto 8 08-amis
+          shot profile auto 6 09-profil
+          xcrun simctl ui "$UDID" appearance dark || true
+          shot home christmas 10 10-accueil-noel-sombre
+          shot club auto 10 11-club-sombre
           rm -f ci/shots/warmup.png
           xcrun simctl shutdown all || true
           ls -la ci/shots

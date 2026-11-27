@@ -61,6 +61,9 @@ enum ShotMode {
         case "bot": router.tab = .bot
         case "matches": router.tab = .matches
         case "profile": router.tab = .profile
+        case "match": router.tab = .matches; router.openMatch = demoMatches().first
+        case "level": router.tab = .profile; router.showLevel = true
+        case "friends": router.tab = .profile; router.showFriends = true
         default: router.tab = .home
         }
     }
@@ -93,15 +96,15 @@ enum ShotMode {
     static func demoMatches() -> [APIMatch] {
         let base = Date().addingTimeInterval(86_400)
         let iso = ISO8601DateFormatter()
-        func p(_ id: Int, _ name: String) -> APIParticipant { APIParticipant(id: id, userName: name, userAvatar: nil, userSkillLevel: 5, status: "confirmed") }
+        func p(_ id: Int, _ name: String) -> APIParticipant { APIParticipant(id: id, user: id, userName: name, userAvatar: nil, userSkillLevel: 5, status: "confirmed") }
         return [
             APIMatch(id: 1, title: "Soirée compet' — niveau 5", description: nil, matchType: "competitive", club: 1, clubName: "Padel Horizon Paris",
-                     courtName: "Pista 4", dateTime: iso.string(from: base.addingTimeInterval(3 * 3600)), duration: 90, organizerName: "Yacine",
+                     court: 4, courtName: "Pista 4", dateTime: iso.string(from: base.addingTimeInterval(3 * 3600)), duration: 90, organizer: 1, organizerName: "Yacine",
                      maxPlayers: 4, participantsCount: 3, minSkillLevel: 4, maxSkillLevel: 6, pricePerPlayer: "10.00", currency: "EUR", status: "open",
                      isPublic: true, location: APILocation(clubName: "Padel Horizon Paris", address: "12 quai de la Rapée, Paris", latitude: nil, longitude: nil),
                      participants: [p(1, "Yacine"), p(2, "Inès"), p(3, "Hamza")]),
             APIMatch(id: 2, title: "Matinale du samedi", description: nil, matchType: "casual", club: 2, clubName: "4PADEL Bobigny",
-                     courtName: nil, dateTime: iso.string(from: base.addingTimeInterval(2 * 86_400)), duration: 90, organizerName: "Sami",
+                     court: nil, courtName: nil, dateTime: iso.string(from: base.addingTimeInterval(2 * 86_400)), duration: 90, organizer: 4, organizerName: "Sami",
                      maxPlayers: 4, participantsCount: 2, minSkillLevel: 2, maxSkillLevel: 5, pricePerPlayer: "9.00", currency: "EUR", status: "open",
                      isPublic: true, location: APILocation(clubName: "4PADEL Bobigny", address: "Bobigny", latitude: nil, longitude: nil),
                      participants: [p(4, "Sami"), p(5, "Léa")]),

@@ -9,6 +9,7 @@ struct MatchesView: View {
     @State private var leaders: [APILeader] = []
     @State private var error: String? = nil
     @State private var loading = false
+    @State private var pending: APIPendingRating? = nil
 
     var body: some View {
         Screen(title: "Matchs", subtitle: "Trouve des joueurs de ton niveau et grimpe au classement.") {
@@ -16,6 +17,22 @@ struct MatchesView: View {
                 Text("Ouverts").tag(0); Text("Les miens").tag(1); Text("Classement").tag(2)
             }
             .pickerStyle(.segmented)
+            if let pending, pending.hasPendingRating, let m = pending.match {
+                Button { router.openMatch = m } label: {
+                    HStack(spacing: 12) {
+                        IconBadge(systemImage: pending.isOrganizer == true && pending.winnerDefined != true ? "trophy" : "star", color: UI.warning)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(pending.isOrganizer == true && pending.winnerDefined != true ? "Saisis le résultat de ton match" : "Note les joueurs de ton dernier match")
+                                .font(.system(size: 15, weight: .semibold)).foregroundStyle(UI.ink)
+                            Text(m.title ?? "Match de padel").font(UI.caption()).foregroundStyle(UI.muted)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(UI.faint)
+                    }
+                    .card(padding: 14)
+                }
+                .buttonStyle(.plain)
+            }
             if !server.isLoggedIn && ShotMode.current == nil {
                 EmptyStateView(systemImage: "person.crop.circle", title: "Connecte-toi à PadelUp",
                                message: "Les matchs et le classement utilisent ton compte PadelUp.")
@@ -32,7 +49,11 @@ struct MatchesView: View {
                     EmptyStateView(systemImage: "sportscourt", title: tab == 0 ? "Aucun match ouvert" : "Aucun match prévu",
                                    message: "Crée un match depuis la fiche de n'importe quel club de la carte.")
                 }
-                ForEach(list) { m in MatchCard(match: m, joined: tab == 1) { await reload() } }
+                ForEach(list) { m in
+                    MatchCard(match: m, joined: tab == 1) { await reload() }
+                        .contentShape(Rectangle())
+                        .onTapGesture { router.openMatch = m }
+                }
             }
         }
         .refreshable { await reload() }
@@ -72,6 +93,7 @@ struct MatchesView: View {
             async let b = server.matches(mine: true)
             async let c = server.leaderboard()
             (open, mine, leaders) = try await (a, b, c)
+            pending = await server.pendingRating()
             error = nil
         } catch {
             self.error = error.localizedDescription

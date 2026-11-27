@@ -3196,7 +3196,7 @@ class FriendSuggestionsView(APIView):
                 Q(username__icontains=search_str) |
                 Q(first_name__icontains=search_str) |
                 Q(last_name__icontains=search_str) |
-                Q(email__icontains=search_str)
+                Q(profile__full_name__icontains=search_str)
             )
             if exact_matches.exists():
                 users_qs = exact_matches
@@ -3249,7 +3249,6 @@ class FriendSuggestionsView(APIView):
                 'id': u.id,
                 'username': u.username,
                 'full_name': full_name if full_name else u.username,
-                'email': u.email,
                 'avatar': avatar_url,
                 'skill_level': u.profile.skill_level if hasattr(u, 'profile') else None,
                 'evaluation_type': u.profile.evaluation_type if hasattr(u, 'profile') else 'new',
@@ -3612,7 +3611,7 @@ class UserSearchView(APIView):
             Q(username__icontains=query) |
             Q(first_name__icontains=query) |
             Q(last_name__icontains=query) |
-            Q(email__icontains=query) |
+            Q(profile__full_name__icontains=query) |
             Q(full_name_db__icontains=query) |
             Q(reverse_full_name_db__icontains=query)
         )
@@ -3650,7 +3649,6 @@ class UserSearchView(APIView):
                 'id': user.id,
                 'username': user.username,
                 'full_name': full_name if full_name else user.username,
-                'email': user.email,
                 'avatar': avatar_url,
                 'skill_level': user.profile.skill_level if hasattr(user, 'profile') else None,
                 'evaluation_type': user.profile.evaluation_type if hasattr(user, 'profile') else 'new',

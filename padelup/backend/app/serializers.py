@@ -1020,7 +1020,6 @@ class FriendshipSerializer(serializers.ModelSerializer):
                 'first_name': friend.first_name,
                 'last_name': friend.last_name,
                 'full_name': full_name if full_name else friend.username,
-                'email': friend.email,
                 'skill_level': friend.profile.skill_level if hasattr(friend, 'profile') else None,
                 'evaluation_type': friend.profile.evaluation_type if hasattr(friend, 'profile') else 'new',
                 'avatar': avatar_url

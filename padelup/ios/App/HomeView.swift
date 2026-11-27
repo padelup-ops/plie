@@ -47,6 +47,14 @@ struct HomeView: View {
             Text("PadelUp").font(.system(size: 20, weight: .bold)).foregroundStyle(UI.ink)
             Spacer()
             if let season = SeasonSetting.resolve(seasonMode) { SeasonBadge(season: season) }
+            if server.isLoggedIn {
+                Button { router.showNotifications = true } label: {
+                    Image(systemName: "bell").font(.system(size: 17, weight: .medium)).foregroundStyle(UI.ink)
+                        .frame(width: 38, height: 38).background(Circle().fill(UI.card))
+                        .overlay(Circle().strokeBorder(UI.line, lineWidth: 0.5))
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding(.horizontal, 4)
     }

@@ -12,6 +12,7 @@ struct APIProfile: Codable, Hashable {
     let location: String?
     let evaluationType: String?
     let isCompleted: Bool?
+    let rightHanded: Bool?
 }
 
 struct APIStats: Codable, Hashable {
@@ -36,7 +37,67 @@ struct APILeader: Codable, Identifiable, Hashable {
     var displayName: String { [user?.firstName, user?.lastName].compactMap { $0 }.joined(separator: " ").trimmingCharacters(in: .whitespaces).isEmpty ? (username ?? user?.username ?? "Joueur") : [user?.firstName, user?.lastName].compactMap { $0 }.joined(separator: " ") }
 }
 
-struct APIParticipant: Codable, Hashable, Identifiable { let id: Int; let userName: String?; let userAvatar: String?; let userSkillLevel: Int?; let status: String? }
+struct APIParticipant: Codable, Hashable, Identifiable { let id: Int; let user: Int?; let userName: String?; let userAvatar: String?; let userSkillLevel: Int?; let status: String? }
+
+/// Un joueur (recherche, suggestions, amis, demandes).
+struct APIPerson: Codable, Hashable, Identifiable {
+    let id: Int
+    let username: String?
+    let fullName: String?
+    let avatar: String?
+    let skillLevel: Int?
+    let evaluationType: String?
+    let city: String?
+    let isFriend: Bool?
+    let hasPendingRequest: Bool?
+
+    var name: String { (fullName?.isEmpty == false ? fullName : nil) ?? username ?? "Joueur" }
+    var initial: String { String(name.prefix(1)).uppercased() }
+    var levelLabel: String {
+        guard let skillLevel else { return "" }
+        return "Niveau \(skillLevel) · \(PadelLevel.name(skillLevel, scale: evaluationType ?? "new"))"
+    }
+}
+
+struct APIFriendship: Codable, Identifiable, Hashable { let id: Int; let friend: APIPerson? }
+struct APIFriendRequest: Codable, Identifiable, Hashable { let id: Int; let senderInfo: APIPerson?; let receiverInfo: APIPerson?; let status: String? }
+struct APIFriendRequests: Codable { let received: [APIFriendRequest]; let sent: [APIFriendRequest] }
+struct APISuggestions: Codable { let suggestions: [APIPerson] }
+
+struct APIMessage: Codable, Identifiable, Hashable {
+    let id: Int
+    let sender: Int?
+    let senderName: String?
+    let content: String
+    let createdAt: String?
+}
+
+struct APINotification: Codable, Identifiable, Hashable {
+    let id: Int
+    let type: String?
+    let typeDisplay: String?
+    let message: String
+    let isRead: Bool?
+    let createdAt: String?
+    let match: Int?
+
+    var date: Date? {
+        guard let createdAt else { return nil }
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f.date(from: createdAt) ?? ISO8601DateFormatter().date(from: createdAt)
+    }
+}
+
+struct APIPendingRating: Codable {
+    let hasPendingRating: Bool
+    let match: APIMatch?
+    let isOrganizer: Bool?
+    let winnerDefined: Bool?
+    let hasPlayersToRate: Bool?
+}
+
+struct APIMatchFlags: Codable { let isOrganizer: Bool?; let isParticipant: Bool? }
 struct APILocation: Codable, Hashable { let clubName: String?; let address: String?; let latitude: Double?; let longitude: Double? }
 
 struct APIMatch: Codable, Identifiable, Hashable {
@@ -46,9 +107,11 @@ struct APIMatch: Codable, Identifiable, Hashable {
     let matchType: String?
     let club: Int?
     let clubName: String?
+    let court: Int?
     let courtName: String?
     let dateTime: String
     let duration: Int?
+    let organizer: Int?
     let organizerName: String?
     let maxPlayers: Int?
     let participantsCount: Int?
@@ -268,6 +331,82 @@ final class ServerAPI: ObservableObject {
         ])
         return try decoder.decode(APIMatch.self, from: data)
     }
+
+    // MARK: Niveau et profil
+
+    func updateProfile(skillLevel: Int, scale: String, rightHanded: Bool, location: String) async throws {
+        _ = try await call("PUT", "profile/", body: ["skill_level": skillLevel, "evaluation_type": scale,
+                                                     "right_handed": rightHanded, "location": location, "is_completed": true])
+        await refreshMe()
+    }
+
+    // MARK: Amis
+
+    func friends() async throws -> [APIFriendship] {
+        try decoder.decode([APIFriendship].self, from: try await call("GET", "friends/"))
+    }
+
+    func friendRequests() async throws -> APIFriendRequests {
+        try decoder.decode(APIFriendRequests.self, from: try await call("GET", "friend-requests/"))
+    }
+
+    func sendFriendRequest(to userID: Int) async throws {
+        _ = try await call("POST", "friend-requests/", body: ["receiver_id": userID])
+    }
+
+    func answerFriendRequest(_ id: Int, accept: Bool) async throws {
+        _ = try await call("PUT", "friend-requests/\(id)/", body: ["action": accept ? "accept" : "reject"])
+    }
+
+    func removeFriend(_ userID: Int) async throws { _ = try await call("DELETE", "friends/\(userID)/") }
+
+    func searchPlayers(_ text: String) async throws -> [APIPerson] {
+        try decoder.decode([APIPerson].self, from: try await call("GET", "users/search/", query: [URLQueryItem(name: "q", value: text)]))
+    }
+
+    func suggestions() async throws -> [APIPerson] {
+        try decoder.decode(APISuggestions.self, from: try await call("GET", "friends/suggestions/")).suggestions
+    }
+
+    // MARK: Fiche match : détails, chat, résultat, notes
+
+    func matchDetail(_ id: Int) async throws -> (APIMatch, APIMatchFlags) {
+        let data = try await call("GET", "matches/\(id)/")
+        return (try decoder.decode(APIMatch.self, from: data), (try? decoder.decode(APIMatchFlags.self, from: data)) ?? APIMatchFlags(isOrganizer: nil, isParticipant: nil))
+    }
+
+    func chat(_ matchID: Int) async throws -> [APIMessage] {
+        try decoder.decode([APIMessage].self, from: try await call("GET", "matches/\(matchID)/chat/"))
+    }
+
+    func sendChat(_ matchID: Int, text: String) async throws {
+        _ = try await call("POST", "matches/\(matchID)/chat/", body: ["content": text])
+    }
+
+    func finish(_ matchID: Int, winners: [Int], losers: [Int]) async throws {
+        _ = try await call("POST", "matches/\(matchID)/finish/", body: ["winner_ids": winners, "loser_ids": losers])
+    }
+
+    func ratePlayer(match: Int, user: Int, rating: Int) async throws {
+        _ = try await call("POST", "ratings/players/", body: ["match": match, "rated_user": user, "rating": rating])
+    }
+
+    func rateCourt(match: Int, court: Int, rating: Int) async throws {
+        _ = try await call("POST", "ratings/courts/", body: ["match": match, "court": court, "rating": rating])
+    }
+
+    func pendingRating() async -> APIPendingRating? {
+        guard isLoggedIn, let data = try? await call("GET", "matches/pending-rating/") else { return nil }
+        return try? decoder.decode(APIPendingRating.self, from: data)
+    }
+
+    // MARK: Notifications
+
+    func notifications() async throws -> [APINotification] {
+        try decoder.decode([APINotification].self, from: try await call("GET", "notifications/", query: [URLQueryItem(name: "target", value: "mobile")]))
+    }
+
+    func markNotificationsRead() async { _ = try? await call("PUT", "notifications/", body: [:]) }
 
     // MARK: Bot 24 h/24 sur le serveur
 
