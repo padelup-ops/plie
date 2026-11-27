@@ -288,6 +288,19 @@ APP_NOTES = {
 
 RELEASE_NOTES = {
     "1.0.3": WHATS_NEW_103,
+    "1.0.27": {
+        "en-US": "• Importing your history: Foldly now reads many more files from Scriptable, shortcuts and other apps.\n• After an import, Foldly offers to take over the all-time total your previous counter kept.\n• A clearer message when you pick the script instead of its data file.",
+        "fr-FR": "• Import de ton historique : Foldly lit maintenant beaucoup plus de fichiers venus de Scriptable, de Raccourcis et d'autres apps.\n• Après un import, Foldly propose de reprendre le total depuis toujours que tenait ton ancien compteur.\n• Un message plus clair quand tu choisis le script au lieu de son fichier de données.",
+        "de-DE": "• Verlauf importieren: Foldly liest jetzt viel mehr Dateien aus Scriptable, Kurzbefehlen und anderen Apps.\n• Nach einem Import bietet Foldly an, die Gesamtzahl deines bisherigen Zählers zu übernehmen.\n• Eine klarere Meldung, wenn du das Skript statt seiner Datendatei auswählst.",
+        "es-ES": "• Importar tu historial: Foldly ahora lee muchos más archivos de Scriptable, Atajos y otras apps.\n• Tras importar, Foldly te propone recuperar el total histórico de tu contador anterior.\n• Un mensaje más claro si eliges el script en lugar de su archivo de datos.",
+        "it": "• Importazione della cronologia: Foldly ora legge molti più file da Scriptable, Comandi e altre app.\n• Dopo un'importazione, Foldly propone di riprendere il totale complessivo del tuo contatore precedente.\n• Un messaggio più chiaro se scegli lo script invece del suo file di dati.",
+        "pt-BR": "• Importação do histórico: o Foldly agora lê muito mais arquivos do Scriptable, de Atalhos e de outros apps.\n• Depois de importar, o Foldly oferece recuperar o total geral do seu contador anterior.\n• Uma mensagem mais clara quando você escolhe o script em vez do arquivo de dados.",
+        "nl-NL": "• Je geschiedenis importeren: Foldly leest nu veel meer bestanden uit Scriptable, Opdrachten en andere apps.\n• Na een import stelt Foldly voor om het totaal van je vorige teller over te nemen.\n• Een duidelijkere melding als je het script kiest in plaats van het gegevensbestand.",
+        "ja": "• 履歴の読み込み：Scriptable、ショートカット、ほかのアプリのファイルを、より多くの形式で読み込めるようになりました。\n• 読み込み後、以前のカウンターが記録していた累計を引き継ぐかどうかを選べます。\n• データファイルではなくスクリプト本体を選んだときのメッセージをわかりやすくしました。",
+        "ko": "• 기록 가져오기: 이제 Scriptable, 단축어, 다른 앱의 파일을 훨씬 더 다양한 형식으로 읽어요.\n• 가져온 뒤에는 이전 카운터의 전체 횟수를 이어받을 수 있어요.\n• 데이터 파일 대신 스크립트를 선택했을 때 더 알기 쉬운 안내가 나와요.",
+        "zh-Hans": "• 导入历史记录：Foldly 现在能读取更多来自 Scriptable、快捷指令和其他 App 的文件。\n• 导入后，Foldly 会提示沿用你之前计数器的累计次数。\n• 选到脚本而不是数据文件时，提示更清楚。",
+        "ru": "• Импорт истории: Foldly теперь читает гораздо больше файлов из Scriptable, «Команд» и других приложений.\n• После импорта Foldly предлагает взять общий итог прежнего счётчика.\n• Более понятное сообщение, если выбран сам скрипт, а не его файл данных.",
+    },
     "1.0.26": {
         "en-US": "• Fixed: folds could be counted during the night while your iPhone was locked and charging.\n• Report a bug now includes your latest folds, so we can track down any wrong count.",
         "fr-FR": "• Corrigé : des plis pouvaient être comptés la nuit, iPhone verrouillé et en charge.\n• Signaler un bug joint maintenant tes derniers plis, pour retrouver vite un comptage faux.",
@@ -617,7 +630,7 @@ if NEW_VERSION:
             new_vid = ev["id"]
         else:
             r = step(f"version {NEW_VERSION} créée", call("POST", "/v1/appStoreVersions", {"data": {"type": "appStoreVersions",
-                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.0.25", "1.0.26", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
+                     "attributes": {"platform": "IOS", "versionString": NEW_VERSION, "releaseType": "MANUAL" if BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.0.25", "1.0.26", "1.0.27", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"},
                      "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}}))
             new_vid = r.get("data", {}).get("id")
     # Les numéros de version se recoupent entre les apps : chaque app a ses propres notes quand il le faut.
@@ -667,7 +680,7 @@ if origamo:
             owner = c.split(" ", 1)[1] if c[:4].isdigit() and " " in c else c
             break
 step(f"copyright « 2026 {owner} » et sortie dès l'accord d'Apple", call("PATCH", f"/v1/appStoreVersions/{vid}", {"data": {
-    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.0.25", "1.0.26", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
+    "type": "appStoreVersions", "id": vid, "attributes": {"copyright": f"2026 {owner}", "releaseType": "MANUAL" if NEW_VERSION and BUNDLE == "com.padelup.clapet" and NEW_VERSION not in ("1.0.4", "1.0.5", "1.0.6", "1.0.7", "1.0.8", "1.0.9", "1.0.10", "1.0.11", "1.0.12", "1.0.13", "1.0.14", "1.0.15", "1.0.16", "1.0.17", "1.0.21", "1.0.22", "1.0.23", "1.0.24", "1.0.25", "1.0.26", "1.0.27", "1.6", "1.6.1", "1.6.2") else "AFTER_APPROVAL"}}}))
 
 # Coordonnées pour la vérification : celles déjà données pour la bêta
 contact = call("GET", f"/v1/apps/{app_id}/betaAppReviewDetail").get("data", {}).get("attributes", {})
