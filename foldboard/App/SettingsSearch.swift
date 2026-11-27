@@ -90,6 +90,7 @@ struct SettingsEntry: Identifiable {
         e("Hide keyboard button", "masquer fermer clavier hide dismiss keyboard button", .position),
         e("Learning messages", "messages apprentissage noté learning tips", .position),
         e("Layout switcher on the left", "raccourci dispositions gauche droite côté switcher left right side", .position),
+        e("Order of the positions", "ordre positions menu trier réordonner déplacer order reorder sort position menu", .position),
         e("Auto-correction", "correction autocorrect fautes typos corriger", .typing),
         e("Slide to type", "glisser glide swipe écrire en glissant", .typing),
         e("Word suggestions", "suggestions prédiction mots predictions words barre", .typing),

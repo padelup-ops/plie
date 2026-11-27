@@ -261,7 +261,8 @@ struct PositionView: View {
             }
 
             Section {
-                ForEach(KBMode.allCases) { mode in
+                // Dans l'ordre choisi (« Ordre des positions ») : le même que dans le menu du clavier.
+                ForEach(m.settings.orderedModes) { mode in
                     Button {
                         m.settings.mode = mode
                         // Choisi ici : partout. Les choix faits écran par écran depuis le clavier ne l'emportent plus
@@ -279,6 +280,11 @@ struct PositionView: View {
                             if m.settings.mode == mode { Image(systemName: "checkmark").foregroundStyle(Color.accentColor) }
                         }
                     }
+                }
+                NavigationLink {
+                    PositionOrderView()
+                } label: {
+                    Label("Order of the positions", systemImage: "arrow.up.arrow.down")
                 }
                 if m.settings.mode == .auto {
                     Button(role: .destructive) { confirmForget = true } label: {
@@ -338,7 +344,7 @@ struct PositionView: View {
                         get: { m.settings.screenModes[ctx] },
                         set: { m.settings.screenModes[ctx] = $0 })) {
                         Text("Same as above").tag(KBMode?.none)
-                        ForEach(KBMode.allCases) { mode in Text(modeTitle(mode)).tag(KBMode?.some(mode)) }
+                        ForEach(m.settings.orderedModes) { mode in Text(modeTitle(mode)).tag(KBMode?.some(mode)) }
                     }
                 }
                 Toggle("Layout switcher only when the Duo is open", isOn: $m.settings.layoutSwitchOpenOnly)
@@ -438,15 +444,7 @@ struct PositionView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) { PreviewDock() }
     }
 
-    private func modeTitle(_ m: KBMode) -> LocalizedStringKey {
-        switch m {
-        case .auto: return "Follows your hand"
-        case .left: return "One hand, left"
-        case .right: return "One hand, right"
-        case .full: return "Full width"
-        case .split: return "Two hands"
-        }
-    }
+    private func modeTitle(_ m: KBMode) -> LocalizedStringKey { m.titleKey }
 
     private func modeDetail(_ m: KBMode) -> LocalizedStringKey {
         switch m {
@@ -456,6 +454,50 @@ struct PositionView: View {
         case .full: return "The classic keyboard, edge to edge."
         case .split: return "Two halves at both edges of the open Duo."
         }
+    }
+}
+
+extension KBMode {
+    /// Le nom affiché dans l'app (clé de traduction, la même que dans le menu du clavier).
+    var titleKey: LocalizedStringKey {
+        switch self {
+        case .auto: return "Follows your hand"
+        case .left: return "One hand, left"
+        case .right: return "One hand, right"
+        case .full: return "Full width"
+        case .split: return "Two hands"
+        }
+    }
+}
+
+/// L'ordre des positions : celui du menu du bouton de position dans le clavier, et des listes de l'app.
+/// Les poignées sont toujours là (liste en mode édition) : on fait glisser une ligne pour la déplacer.
+struct PositionOrderView: View {
+    @Environment(SettingsModel.self) private var model
+
+    var body: some View {
+        @Bindable var m = model
+        List {
+            Section {
+                ForEach(m.settings.orderedModes) { mode in
+                    Label(mode.titleKey, systemImage: mode.symbol)
+                }
+                .onMove { from, to in
+                    var order = m.settings.orderedModes
+                    order.move(fromOffsets: from, toOffset: to)
+                    m.settings.positionOrder = order.map(\.rawValue)
+                }
+            } footer: {
+                Text("Drag the positions into the order you want. The keyboard's position menu and the lists in this app follow it.")
+            }
+            Section {
+                Button("Back to the default order") { m.settings.positionOrder = [] }
+                    .buttonStyle(.borderless)
+                    .disabled(m.settings.orderedModes == KBMode.allCases)
+            }
+        }
+        .environment(\.editMode, .constant(.active))
+        .navigationTitle("Order of the positions")
     }
 }
 

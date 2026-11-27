@@ -45,6 +45,17 @@ enum KBMode: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var isOneHand: Bool { self == .auto || self == .left || self == .right }
+
+    /// Les cinq positions dans l'ordre choisi dans l'app. Une valeur inconnue ou en double est ignorée, une position
+    /// oubliée revient à la suite dans l'ordre d'origine : le menu montre toujours les cinq.
+    static func ordered(_ raw: [String]) -> [KBMode] {
+        var out: [KBMode] = []
+        for r in raw {
+            if let m = KBMode(rawValue: r), !out.contains(m) { out.append(m) }
+        }
+        for m in allCases where !out.contains(m) { out.append(m) }
+        return out
+    }
     var symbol: String {
         switch self {
         case .auto: return "hand.raised.fingers.spread"
@@ -172,6 +183,9 @@ struct KBSettings: Codable, Equatable {
     var emojiSuggest = true
     /// Les petits messages « Foldboard connaît mieux ta prise en main » / « Noté » dans le clavier.
     var learningTips = true
+    /// L'ordre des positions dans le menu du bouton de position et dans l'app (noms de KBMode). Vide : l'ordre
+    /// d'origine. Toujours lu par `orderedModes`, qui tolère les valeurs inconnues ou manquantes.
+    var positionOrder: [String] = []
     /// Une rangée de chiffres au-dessus des lettres (désactivée par défaut : le clavier garde sa hauteur).
     var numberRow = false
     /// La hauteur de la rangée de la barre d'espace, par rapport aux autres (0,8 à 1,5).
@@ -218,6 +232,9 @@ struct KBSettings: Codable, Equatable {
 
     /// La disposition voulue sur cet écran (avant les limites de la version gratuite).
     func mode(for context: String) -> KBMode { screenModes[context] ?? mode }
+
+    /// Les cinq positions, dans l'ordre choisi (voir `positionOrder`).
+    var orderedModes: [KBMode] { KBMode.ordered(positionOrder) }
 
     static let myWordsMax = 500
 
@@ -340,6 +357,7 @@ struct KBSettings: Codable, Equatable {
         contactNames = (try? c.decodeIfPresent(Bool.self, forKey: .contactNames)) ?? d.contactNames
         emojiSuggest = (try? c.decodeIfPresent(Bool.self, forKey: .emojiSuggest)) ?? d.emojiSuggest
         learningTips = (try? c.decodeIfPresent(Bool.self, forKey: .learningTips)) ?? d.learningTips
+        positionOrder = (try? c.decodeIfPresent([String].self, forKey: .positionOrder)) ?? d.positionOrder
         numberRow = (try? c.decodeIfPresent(Bool.self, forKey: .numberRow)) ?? d.numberRow
         spaceRowScale = min(1.5, max(0.8, (try? c.decodeIfPresent(Double.self, forKey: .spaceRowScale)) ?? d.spaceRowScale))
         tapLearn = (try? c.decodeIfPresent(Bool.self, forKey: .tapLearn)) ?? d.tapLearn
@@ -555,6 +573,7 @@ struct KBSettings: Codable, Equatable {
         barLayout = newer.barLayout
         compactBar = newer.compactBar
         learningTips = newer.learningTips
+        positionOrder = newer.positionOrder
     }
 
     /// Les interrupteurs changés depuis le dernier chargement restent, même si une copie plus récente arrive.

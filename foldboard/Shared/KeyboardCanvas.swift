@@ -1038,6 +1038,8 @@ final class KeyboardCanvas: UIView {
         dictLabel.font = .systemFont(ofSize: 15, weight: .medium)
         topBar.addSubview(dictLabel)
         modeButton.showsMenuAsPrimaryAction = true
+        // L'ordre du menu est celui choisi dans l'app, de haut en bas : iOS ne le retourne pas selon la place.
+        modeButton.preferredMenuElementOrder = .fixed
         flipButton.setImage(UIImage(systemName: "arrow.left.arrow.right"), for: .normal)
         flipButton.addAction(UIAction { [weak self] _ in self?.flipSide() }, for: .touchUpInside)
         flipButton.accessibilityLabel = L("Switch side")
@@ -3608,13 +3610,18 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    /// Le nom de chaque position dans le menu (le banc d'essai y relit l'ordre affiché).
+    private static let modeActionPrefix = "foldboard.mode."
+
     private func modeMenu() -> UIMenu {
         let names: [KBMode: String] = [.auto: L("Follows your hand"), .left: L("One hand, left"), .right: L("One hand, right"),
                                        .full: L("Full width"), .split: L("Two hands")]
-        let actions = KBMode.allCases.map { m in
+        // Dans l'ordre choisi dans l'app (Position et taille › Ordre des positions) ; toujours les cinq.
+        let actions = settings.orderedModes.map { m in
             UIAction(title: names[m] ?? m.rawValue,
                      subtitle: (m == .auto || m == .split) && !pro ? "Foldboard Pro" : nil,
                      image: UIImage(systemName: m.symbol),
+                     identifier: UIAction.Identifier(Self.modeActionPrefix + m.rawValue),
                      state: m == eff.mode ? .on : .off) { [weak self] _ in self?.setMode(m) }
         }
         let adjustAction = UIAction(title: L("Adjust the keyboard"), image: UIImage(systemName: "arrow.left.and.right.square")) { [weak self] _ in

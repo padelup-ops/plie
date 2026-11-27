@@ -646,3 +646,6 @@
 "Open Foldboard settings" = "Foldboardの設定を開く";
 
 "Layout switcher on the left" = "レイアウト切替を左に表示";
+"Order of the positions" = "位置の並び順";
+"Drag the positions into the order you want. The keyboard's position menu and the lists in this app follow it." = "位置を好きな順番にドラッグしてください。キーボードの位置メニューとこのアプリのリストがその順番になります。";
+"Back to the default order" = "デフォルトの順番に戻す";

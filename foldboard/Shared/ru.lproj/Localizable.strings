@@ -646,3 +646,6 @@
 "Open Foldboard settings" = "Открыть настройки Foldboard";
 
 "Layout switcher on the left" = "Переключатель раскладки слева";
+"Order of the positions" = "Порядок положений";
+"Drag the positions into the order you want. The keyboard's position menu and the lists in this app follow it." = "Перетащите положения в нужном порядке. Меню положения клавиатуры и списки в этом приложении следуют ему.";
+"Back to the default order" = "Вернуть порядок по умолчанию";

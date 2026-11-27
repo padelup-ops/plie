@@ -646,3 +646,6 @@
 "Open Foldboard settings" = "Apri le impostazioni di Foldboard";
 
 "Layout switcher on the left" = "Selettore di layout a sinistra";
+"Order of the positions" = "Ordine delle posizioni";
+"Drag the positions into the order you want. The keyboard's position menu and the lists in this app follow it." = "Trascina le posizioni nell’ordine che preferisci. Il menu di posizione della tastiera e gli elenchi di questa app lo seguono.";
+"Back to the default order" = "Torna all’ordine predefinito";
