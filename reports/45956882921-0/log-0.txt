@@ -1,0 +1,39 @@
+es:line lot 0/4 : 7 phrases
+pt:line lot 0/4 : 1 phrases
+de:line lot 0/4 : 7 phrases
+it:line lot 0/4 : 20 phrases
+es:hello lot 0/4 : 15 phrases
+pt:hello lot 0/4 : 15 phrases
+de:hello lot 0/4 : 15 phrases
+it:hello lot 0/4 : 15 phrases
+fr:hello lot 0/4 : 15 phrases
+en:hello lot 0/4 : 15 phrases
+es:hello lot 0/4 : 15 phrases
+pt:hello lot 0/4 : 15 phrases
+de:hello lot 0/4 : 15 phrases
+it:hello lot 0/4 : 15 phrases
+fr:hello lot 0/4 : 23 phrases
+en:hello lot 0/4 : 39 phrases
+es:hello lot 0/4 : 46 phrases
+de:hello lot 0/4 : 34 phrases
+it:hello lot 0/4 : 46 phrases
+pt:hello lot 0/4 : 42 phrases
+fr:bye lot 0/4 : 60 phrases
+en:bye lot 0/4 : 79 phrases
+es:bye lot 0/4 : 79 phrases
+de:bye lot 0/4 : 70 phrases
+it:bye lot 0/4 : 73 phrases
+pt:bye lot 0/4 : 69 phrases
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files: 100%|██████████| 6/6 [00:00<00:00, 2880.37it/s]
+  deprecate("LoRACompatibleLinear", "1.0.0", deprecation_message)
+loaded PerthNet (Implicit) at step 250,000
+modèles chargés en 8 s, 2 fils
+  self.gen = func(*args, **kwds)
+The following generation flags are not valid and may be ignored: ['output_attentions']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+[1/845] es ok  1.00 4.8s essais 1 (88s, reste 1243 min) ¡Soy yo, Papá Noel! Te llamo desde mi taller, en el Polo Nor → Soy yo Papá Noel, te llamo desde mi taller en el polo norte.
+  self.gen = func(*args, **kwds)
+[2/845] es ok  1.00 3.8s essais 1 (61s, reste 1047 min) ¡Jo, jo, jo! Muy bien. Entonces escucha… → ¡Ho, ho, ho! ¡Muy bien! Entonces escucha.
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)

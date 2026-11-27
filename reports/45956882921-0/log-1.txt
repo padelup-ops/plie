@@ -1,0 +1,40 @@
+es:line lot 1/4 : 7 phrases
+pt:line lot 1/4 : 1 phrases
+de:line lot 1/4 : 7 phrases
+it:line lot 1/4 : 20 phrases
+es:hello lot 1/4 : 15 phrases
+pt:hello lot 1/4 : 15 phrases
+de:hello lot 1/4 : 15 phrases
+it:hello lot 1/4 : 15 phrases
+fr:hello lot 1/4 : 15 phrases
+en:hello lot 1/4 : 15 phrases
+es:hello lot 1/4 : 15 phrases
+pt:hello lot 1/4 : 15 phrases
+de:hello lot 1/4 : 15 phrases
+it:hello lot 1/4 : 15 phrases
+fr:hello lot 1/4 : 23 phrases
+en:hello lot 1/4 : 39 phrases
+es:hello lot 1/4 : 46 phrases
+de:hello lot 1/4 : 34 phrases
+it:hello lot 1/4 : 46 phrases
+pt:hello lot 1/4 : 41 phrases
+fr:bye lot 1/4 : 60 phrases
+en:bye lot 1/4 : 79 phrases
+es:bye lot 1/4 : 79 phrases
+de:bye lot 1/4 : 70 phrases
+it:bye lot 1/4 : 73 phrases
+pt:bye lot 1/4 : 69 phrases
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files: 100%|██████████| 6/6 [00:00<00:00, 2670.40it/s]
+  deprecate("LoRACompatibleLinear", "1.0.0", deprecation_message)
+loaded PerthNet (Implicit) at step 250,000
+modèles chargés en 8 s, 2 fils
+  self.gen = func(*args, **kwds)
+The following generation flags are not valid and may be ignored: ['output_attentions']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+[1/844] es ok  0.97 4.7s essais 1 (82s, reste 1145 min) Así que ahora tienes 5 años, ¿verdad? ¡Qué edad tan bonita! → Así que ahora tienes 5 años ¿verdad? Queda tan bonita
+  self.gen = func(*args, **kwds)
+[2/844] es ok  0.99 7.2s essais 1 (91s, reste 1208 min) Y fíjate, hasta apuntó todos los pequeños momentos en los qu → y fíjate hasta apuntó todos los pequeños momentos en los que
+  self.gen = func(*args, **kwds)
+[3/844] es ok  0.96 8.5s essais 1 (100s, reste 1273 min) Quería probar el chocolate caliente de los duendes… pero res → Quería probar el chocolate caliente de los duendes, pero res
+  self.gen = func(*args, **kwds)
+[4/844] es ok  1.00 3.5s essais 1 (52s, reste 1136 min) Este año he oído cosas preciosas sobre ti. → Este año he oído cosas preciosas sobre ti.
+  self.gen = func(*args, **kwds)
