@@ -7,3 +7,7 @@
 {"id": "6bf8a8bf2ced6070c4b2", "key": "hello|emery", "text": "Ho, ho, ho! Hello, Emery!", "ok": true, "score": 0.673, "dur": 2.48, "heard": "Ho ho ho! Hello, Henry!", "tries": 1, "secs": 42.4}
 {"id": "d1b3d1e32c505479cc84", "key": "hello|ayla", "text": "Ho, ho, ho! Hello, Ayla!", "ok": false, "score": 0.933, "dur": 2.6, "heard": "Ho ho ho! Hello Ayla! Ayla!", "tries": 2, "secs": 132.4}
 {"id": "8e996dd3ae5f915dca6c", "key": "hello|robert", "text": "Ho, ho, ho! Hello, Robert!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "Ho ho ho hello Robert", "tries": 1, "secs": 45.0}
+{"id": "1381c8de7719f80fc692", "key": "hello|beau", "text": "Ho, ho, ho! Hello, Beau!", "ok": false, "score": 0.481, "dur": 2.34, "heard": "Ho Ho Ho! Hello Bo!", "tries": 2, "secs": 130.5}
+{"id": "b187e21a5d528b99dbed", "key": "hello|parker", "text": "Ho, ho, ho! Hello, Parker!", "ok": true, "score": 1.0, "dur": 2.98, "heard": "Ho ho ho. Hello Parker.", "tries": 2, "secs": 130.2}
+{"id": "4fa7ac7258d8817e21c2", "key": "hello|nicholas", "text": "Ho, ho, ho! Hello, Nicholas!", "ok": true, "score": 1.0, "dur": 2.92, "heard": "Ho, ho, ho. Hello, Nicholas.", "tries": 1, "secs": 46.7}
+{"id": "9f16a674f5c3f9754dad", "key": "hello|samantha", "text": "Ho, ho, ho! Hello, Samantha!", "ok": true, "score": 1.0, "dur": 3.06, "heard": "Ho, ho, ho. Hello, Samantha.", "tries": 3, "secs": 153.2}

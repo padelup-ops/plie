@@ -19,3 +19,9 @@
 {"id": "5041d2d87849c1b73bb4", "key": "hello|ryder", "text": "Ho, ho, ho! Hello, Ryder!", "ok": true, "score": 0.836, "dur": 2.68, "heard": "Ho ho ho! Hello, Rider!", "tries": 3, "secs": 143.1}
 {"id": "538b284a5b2f083bae98", "key": "hello|charlie", "text": "Ho, ho, ho! Hello, Charlie!", "ok": false, "score": 0.922, "dur": 3.12, "heard": "Ho ho ho! Hello Charlie! Charlie!", "tries": 1, "secs": 148.8}
 {"id": "28fe0c8686ed5aff3461", "key": "hello|freya", "text": "Ho, ho, ho! Hello, Freya!", "ok": true, "score": 1.0, "dur": 3.4, "heard": "Ho ho ho! Hello Freya!", "tries": 1, "secs": 49.8}
+{"id": "4b3d521874a5decafe78", "key": "hello|sienna", "text": "Ho, ho, ho! Hello, Sienna!", "ok": true, "score": 1.0, "dur": 2.62, "heard": "Ho, ho, ho. Hello, Sienna.", "tries": 1, "secs": 49.3}
+{"id": "57e1c961b90a6ce867ee", "key": "hello|esther", "text": "Ho, ho, ho! Hello, Esther!", "ok": true, "score": 1.0, "dur": 2.6, "heard": "Ho ho ho! Hello Esther!", "tries": 1, "secs": 45.8}
+{"id": "a2652e227392190beeb7", "key": "hello|archie", "text": "Ho, ho, ho! Hello, Archie!", "ok": true, "score": 1.0, "dur": 1.98, "heard": "Ho, ho, ho, ho, hello Archie.", "tries": 1, "secs": 43.2}
+{"id": "9ae6183483bf4d213f7c", "key": "hello|teddy", "text": "Ho, ho, ho! Hello, Teddy!", "ok": true, "score": 1.0, "dur": 3.02, "heard": "Ho ho ho! Hello Teddy!", "tries": 2, "secs": 102.8}
+{"id": "ba6f20a51f7f964af593", "key": "hello|tommy", "text": "Ho, ho, ho! Hello, Tommy!", "ok": true, "score": 1.0, "dur": 2.4, "heard": "Ho ho ho, hello Tommy!", "tries": 2, "secs": 86.0}
+{"id": "71799b04ed8f37caf6ce", "key": "hello|rory", "text": "Ho, ho, ho! Hello, Rory!", "ok": true, "score": 1.0, "dur": 2.08, "heard": "Oh ho ho. Hello, Rory.", "tries": 1, "secs": 41.7}
