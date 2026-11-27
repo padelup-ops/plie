@@ -122,7 +122,7 @@ struct RuleRow: View {
                 }))
                 .labelsHidden().tint(UI.court)
             }
-            HStack(spacing: 6) {
+            FlowLayout(spacing: 6) {
                 Stamp(text: rule.provider.name, style: .outline)
                 if let release = rule.releaseLabel { Stamp(text: "Ouverture " + release, style: .ink) }
                 if rule.provider == .padelup && rule.autoBook { Stamp(text: "Réserve seul", style: .ink) }
