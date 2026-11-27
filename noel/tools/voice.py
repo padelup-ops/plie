@@ -1,329 +1,408 @@
 #!/usr/bin/env python3
-# Allô Père Noël — voix originale (aucune personne réelle), via le moteur headless
-# VoxCPM2 de VoiceStudio (backend/engines/voxcpm2_subprocess/main.py).
+# Allô Père Noël — la voix du Père Noël, enregistrée d'avance.
 #
-#   python3 noel/tools/voice.py
+# Chaque réplique fixe des scénarios, chaque message du calendrier de l'Avent et, pour chaque prénom de la banque,
+# « Ho, ho, ho ! Bonjour <prénom> ! » et « Joyeux Noël, <prénom> ! » : un fichier AAC par phrase, dans
+# noel/Resources/Audio/voice/<langue>/<identifiant>.m4a. L'app retrouve le fichier en recalculant l'identifiant
+# (SHA-256 de « langue|clé », voir VoiceLibrary dans App/Voice.swift) : pas d'index à tenir à jour.
 #
-# Reprend là où il s'est arrêté : un .m4a déjà écrit n'est pas refait.
-# Licence des poids : Apache-2.0 (openbmb/VoxCPM2). VoiceStudio lui-même est en AGPL-3.0 ;
-# il n'est pas embarqué dans l'app, seuls les fichiers audio le sont.
+# La voix : Chatterbox Multilingual (MIT), calée sur un Père Noël de dessin animé fabriqué avec Kokoro `am_santa`
+# (Apache 2.0). Aucune voix de personne réelle. Chaque fichier est réécouté par un modèle de transcription
+# (faster-whisper) : le texte entendu doit ressembler au texte voulu et la durée être plausible, sinon on recommence
+# avec un autre tirage.
+#
+#   voice.py plan                       ce qu'il y a à dire, par langue
+#   voice.py check                      ce qui manque dans Resources/Audio/voice
+#   voice.py gen --lang fr --shard 0/6 --out out      (dans GitHub Actions : .github/workflows/noel-voice.yml)
+#   voice.py pilot --lang fr --out out  quelques phrases avec plusieurs réglages, pour choisir
 
-import base64, hashlib, json, os, re, struct, subprocess, sys, time
-from itertools import combinations
+import argparse, difflib, hashlib, json, os, re, subprocess, sys, time, unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REPO = ROOT.parent
 SCRIPTS = ROOT / "Resources" / "Scripts"
+ADVENT = ROOT / "Resources" / "Advent" / "messages.json"
 VOICE = ROOT / "Resources" / "Audio" / "voice"
-INDEX = VOICE / "voice-index.json"
-MONOLOGUE = ROOT / "Resources" / "Audio" / "santa-accueil.m4a"
-REFERENCE = ROOT / "ai" / "santa-reference.wav"
-SPEC = ROOT / "Resources" / "Video" / "SPEC.txt"
-VS = Path(os.environ.get("VOICESTUDIO_ROOT", "/home/ubuntu/VoiceStudio"))
-SIDECAR = VS / "backend" / "engines" / "voxcpm2_subprocess" / "main.py"
-ORDER = ["kind", "curious", "brave", "funny", "sporty", "dreamer", "creative", "caring", "adventurous"]
+NAMES = ROOT / "tools" / "names"
+REF = ROOT / "ai" / "santa-voice-ref.wav"
 LANGS = ["fr", "en", "es", "de", "it", "pt"]
-DESIGN = (
-    "A warm, deep, jolly elderly man around seventy, Santa Claus, low chest voice, "
-    "slow merry smile, kind and gentle, slight soft rasp of age, round comforting storyteller, "
-    "never scary, never shouting"
-)
-INSTRUCT = "warm, deep, jolly elderly man, slow smile, kind, gentle, not scary"
-DESIGN_TEXT = "Ho, ho, ho ! Bonjour, mon enfant. C'est moi, le Père Noël, et je te parle depuis mon atelier, au pôle Nord."
-MONOLOGUES = [
-    "Ho, ho, ho ! Bonjour ! C'est moi, le Père Noël. Je t'appelle depuis mon atelier, au pôle Nord. J'ai une surprise rien que pour toi. Joyeux Noël !",
-    "Ho, ho, ho ! Bonjour ! C'est moi, le Père Noël. Je t'appelle depuis le pôle Nord. J'ai une surprise pour toi. Joyeux Noël !",
-    "Ho, ho, ho ! Bonjour ! C'est moi, le Père Noël. Je t'appelle depuis mon atelier, au pôle Nord. Les lutins ont presque fini les cadeaux, et j'ai une surprise pour toi. Joyeux Noël !",
-]
-STEPS = int(os.environ.get("SANTA_STEPS", "6"))
-CFG = 2.0
-SEED = 20251225
+QUALITIES = ["kind", "curious", "brave", "funny", "sporty", "dreamer", "creative", "caring", "adventurous"]
+AGES = range(3, 11)
 
-def strip_name(template: str, lang: str) -> str:
-    s = template.replace("{name}", "")
-    s = re.sub(r"[ \t]{2,}", " ", s)
-    s = re.sub(r",\s*,", ", ", s)
-    if lang == "fr":
-        s = re.sub(r",\s*([!?…])", r" \1", s)
-    else:
-        s = re.sub(r",\s*([!?…])", r"\1", s)
-    s = re.sub(r",\s*\.", ".", s)
-    s = re.sub(r"[ \t]{2,}", " ", s)
-    s = re.sub(r"\s+,", ",", s)
-    return s.strip()
+REF_TEXT = ("Ho, ho, ho! Merry Christmas! Oh, what a wonderful night it is here at the North Pole. "
+            "The elves are singing, the reindeer are ready, and I have a big bag full of surprises. "
+            "Now, tell me, have you been good this year? Ho, ho, ho!")
 
-def split_quality(text: str):
-    before, after = text.split("{quality}", 1)
-    before = before.strip()
-    after = after.strip()
-    after = re.sub(r"^[.]\s*", "", after)
-    after = re.sub(r"^,\s*", "", after).strip()
-    return before, after
+# Réglages retenus après l'essai (voice.py pilot) : entrain marqué ; hors anglais, cfg à 0 pour que la voix de
+# référence (anglaise) ne donne pas son accent aux autres langues.
+SETTINGS = {
+    "en": dict(exaggeration=0.8, cfg_weight=0.3, temperature=0.75),
+    "*": dict(exaggeration=0.8, cfg_weight=0.0, temperature=0.75),
+}
 
-def phrases(book):
-    found = []
-    for plural in (False, True):
-        join = book["qualityJoin"][1] if plural and len(book["qualityJoin"]) > 1 else book["qualityJoin"][0]
-        for size in (1, 2):
-            for comb in combinations(ORDER, size):
-                parts = []
-                for key in comb:
-                    arr = book["qualities"][key]
-                    parts.append(arr[1] if plural and len(arr) > 1 else arr[0])
-                found.append(join.join(parts))
-    return found
 
-def plan():
-    recipes = {}
-    rank = {}
-    def keep(text, lang):
-        if not text:
+def norm_name(s: str) -> str:
+    """Le prénom tel que l'app le cherche : sans accents, en minuscules, espaces simples."""
+    s = unicodedata.normalize("NFD", s.replace("_", " "))
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    return re.sub(r"\s+", " ", s.lower()).strip()
+
+
+def clip_id(lang: str, key: str) -> str:
+    return hashlib.sha256(f"{lang}|{key}".encode("utf-8")).hexdigest()[:20]
+
+
+def names(lang: str):
+    seen, out = set(), []
+    for raw in (NAMES / f"{lang}.txt").read_text(encoding="utf-8").split():
+        name = raw.replace("_", " ")
+        k = norm_name(name)
+        if k and k not in seen:
+            seen.add(k)
+            out.append(name)
+    return out
+
+
+def plan(lang: str):
+    book = json.loads((SCRIPTS / f"{lang}.json").read_text(encoding="utf-8"))
+    items, seen = [], set()
+
+    def add(key, text, kind):
+        if key in seen:
             return
-        rank[text] = min(rank.get(text, 9), LANGS.index(lang))
-    for lang in LANGS:
-        book = json.loads((SCRIPTS / f"{lang}.json").read_text())
-        recipes[lang] = {}
-        seen = set()
-        def consider(template):
-            if template in seen:
-                return
-            seen.add(template)
-            if "{anecdote}" in template or "{gift" in template:
-                recipes[lang][template] = {"kind": "device"}
-                return
-            if "{" not in template:
-                keep(template, lang)
-                return
-            if "{age}" in template and "{quality}" not in template and "{name}" not in template:
-                recipes[lang][template] = {"kind": "filled"}
-                for age in range(3, 11):
-                    keep(template.replace("{age}", str(age)), lang)
-                return
-            stripped = strip_name(template, lang)
-            if "{quality}" in stripped:
-                before, after = split_quality(stripped)
-                rec = {"kind": "quality", "before": before}
-                if after:
-                    rec["after"] = after
-                recipes[lang][template] = rec
-                keep(before, lang)
-                keep(after, lang)
-                return
-            if "{" in stripped:
-                raise SystemExit(f"modèle non géré ({lang}) : {stripped}")
-            recipes[lang][template] = {"kind": "line", "key": stripped}
-            keep(stripped, lang)
-        for steps in list(book["scenarios"].values()) + list(book["blocks"].values()):
-            for step in steps:
-                for line in step.get("say") or []:
-                    consider(line)
-        for phrase in phrases(book):
-            keep(phrase, lang)
-    clips = sorted(rank, key=lambda t: (rank[t], 0 if len(t) > 45 else 1, t))
-    return recipes, clips
+        seen.add(key)
+        items.append(dict(id=clip_id(lang, key), key=key, text=text, kind=kind))
 
-def fname(text: str) -> str:
-    return "vf-" + hashlib.sha256(text.encode()).hexdigest()[:12] + ".m4a"
+    def line(text):
+        add("line|" + text, text, "line")
 
-class Sidecar:
-    def __init__(self):
-        env = os.environ.copy()
-        env["OMNIVOICE_VOXCPM_DEVICE"] = "cpu"
-        env["OMNIVOICE_VOXCPM_MODEL"] = "openbmb/VoxCPM2"
-        env["TOKENIZERS_PARALLELISM"] = "false"
-        self.proc = subprocess.Popen(
-            [sys.executable, str(SIDECAR)],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, bufsize=0,
-        )
-        self.log = open("/tmp/santa-voice-sidecar.log", "w")
-        import threading
-        def drain():
-            for line in self.proc.stderr:
-                self.log.write(line.decode("utf-8", "replace"))
-                self.log.flush()
-        threading.Thread(target=drain, daemon=True).start()
-        ready = self.recv()
-        if not ready or ready.get("op") != "ready":
-            raise SystemExit(f"sidecar pas prêt : {ready}")
-        print("sidecar", ready, flush=True)
+    def expand(say):
+        # Les mêmes combinaisons que l'app (ScriptBuilder) : la phrase et la qualité au singulier, puis au pluriel.
+        for plural in (False, True):
+            tpl = say[1] if plural and len(say) > 1 else say[0]
+            texts = [tpl]
+            if "{age}" in tpl:
+                texts = [tpl.replace("{age}", str(a)) for a in AGES]
+            for slot in ("{q1}", "{q2}"):
+                if slot in tpl:
+                    forms = [book["qualities"][q] for q in QUALITIES]
+                    texts = [t.replace(slot, f[1] if plural and len(f) > 1 else f[0]) for t in texts for f in forms]
+            for t in texts:
+                assert "{" not in t, t
+                line(t)
 
-    def send(self, obj):
-        body = json.dumps(obj).encode()
-        self.proc.stdin.write(struct.pack("!I", len(body)))
-        self.proc.stdin.write(body)
-        self.proc.stdin.flush()
+    for steps in list(book["scenarios"].values()) + list(book["blocks"].values()):
+        for step in steps:
+            if step.get("say"):
+                expand(step["say"])
+    for k in ("helloAnyone", "byeAnyone"):
+        line(book[k])
+    for t in book["helloAfterElf"]:
+        line(t)
+    for t in json.loads(ADVENT.read_text(encoding="utf-8"))[lang]:
+        line(t)
+    for name in names(lang):
+        add("hello|" + norm_name(name), book["hello"].replace("{name}", name), "hello")
+        add("bye|" + norm_name(name), book["bye"].replace("{name}", name), "bye")
+    return items
 
-    def recv(self):
-        header = self.proc.stdout.read(4)
-        if len(header) < 4:
-            return None
-        n = struct.unpack("!I", header)[0]
-        body = b""
-        while len(body) < n:
-            chunk = self.proc.stdout.read(n - len(body))
-            if not chunk:
-                return None
-            body += chunk
-        return json.loads(body)
 
-    def synthesize(self, text, **options):
-        msg = {"op": "synthesize", "text": text, "num_step": STEPS, "guidance_scale": CFG}
-        msg.update(options)
-        self.send(msg)
-        while True:
-            frame = self.recv()
-            if frame is None:
-                err = self.proc.stderr.read() if self.proc.poll() is not None else b""
-                raise SystemExit("sidecar arrêté : " + err.decode("utf-8", "replace")[-2000:])
-            if frame.get("op") == "audio":
-                return frame
-            if frame.get("op") == "error":
-                raise RuntimeError(frame.get("message") + "\n" + frame.get("traceback", "")[-2000:])
-            if frame.get("op") == "progress":
-                print("  …", frame.get("stage"), frame.get("percent"), flush=True)
+def missing(lang: str):
+    return [it for it in plan(lang) if not (VOICE / lang / f"{it['id']}.m4a").is_file()]
 
-    def close(self):
-        try:
-            self.send({"op": "shutdown"})
-        except Exception:
-            pass
-        self.proc.terminate()
 
-def pcm_to_wav(frame, path: Path):
-    import numpy as np, soundfile as sf
-    pcm = base64.b64decode(frame["audio_pcm_b64"])
-    audio = np.frombuffer(pcm, dtype="<i2").astype("float32") / 32768.0
-    sr = int(frame["sample_rate"])
-    sf.write(path, audio, sr)
-    peak = float(np.max(np.abs(audio))) if len(audio) else 0
-    return len(audio) / sr, peak
+# ---------------------------------------------------------------------------------------------------------------
+# Son
 
-def to_m4a(wav: Path, m4a: Path):
-    af = (
-        "silenceremove=start_periods=1:start_threshold=0.02:start_silence=0.04,"
-        "areverse,silenceremove=start_periods=1:start_threshold=0.02:start_silence=0.06,areverse,"
-        "loudnorm=I=-16:TP=-1.5:LRA=11,"
-        "areverse,afade=t=in:st=0:d=0.02,areverse,afade=t=in:st=0:d=0.012"
-    )
-    subprocess.run(
-        ["ffmpeg", "-v", "error", "-y", "-i", str(wav), "-af", af, "-ar", "44100", "-ac", "1", "-c:a", "aac", "-b:a", "128k", str(m4a)],
-        check=True,
-    )
+def letters(s: str) -> str:
+    s = unicodedata.normalize("NFD", s.lower())
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    s = re.sub(r"[^a-z0-9ß ]+", " ", s)
+    # Les rires (« ho, ho, ho », « jo, jo, jo », « oh, oh, oh ») s'écrivent de dix façons : on ne les compare pas.
+    words = [w for w in s.split() if w not in ("ho", "jo", "oh", "hoho", "hohoho", "ah", "o", "ha")]
+    return " ".join(words)
 
-def duration(path: Path) -> float:
-    out = subprocess.check_output(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
-        text=True,
-    )
-    return float(out.strip())
 
-def write_index(recipes, clips_map, extra):
-    doc = {
-        "engine": "VoiceStudio voxcpm2 sidecar",
-        "model": "openbmb/VoxCPM2",
-        "license": "Apache-2.0",
-        "design": DESIGN,
-        "instruct": INSTRUCT,
-        "steps": STEPS,
-        "cfg": CFG,
-        "seed": SEED,
-        "loudness": "-16 LUFS",
-        "format": "AAC 128 kbps mono 44100 Hz",
-        "monologue": MONOLOGUES[0],
-        **extra,
-        "clips": clips_map,
-        "recipes": recipes,
-    }
-    INDEX.parent.mkdir(parents=True, exist_ok=True)
-    tmp = Path("/tmp/voice-index.json.tmp")
-    tmp.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n")
-    tmp.replace(INDEX)
+def similarity(want: str, heard: str) -> float:
+    a, b = letters(want), letters(heard)
+    if not a:
+        return 1.0 if len(b) < 12 else 0.5
+    return difflib.SequenceMatcher(None, a, b).ratio()
 
-def main():
-    if not SIDECAR.is_file():
-        raise SystemExit(f"VoiceStudio introuvable : {SIDECAR}")
-    recipes, clips = plan()
-    names = [fname(t) for t in clips]
-    if len(names) != len(set(names)):
-        raise SystemExit("collision de noms de fichiers")
-    clips_map = {}
-    if INDEX.is_file():
-        old = json.loads(INDEX.read_text())
-        clips_map = old.get("clips") or {}
-    print(f"{len(clips)} répliques, {len(clips_map)} déjà dans l'index", flush=True)
-    write_index(recipes, clips_map, {})
-    side = Sidecar()
-    try:
-        if not REFERENCE.is_file() or REFERENCE.stat().st_size < 1000:
-            REFERENCE.parent.mkdir(parents=True, exist_ok=True)
-            for seed in (SEED, 7, 11, 42):
-                t0 = time.time()
-                frame = side.synthesize(DESIGN_TEXT, description=DESIGN, seed=seed)
-                dur, peak = pcm_to_wav(frame, REFERENCE)
-                print(f"design seed {seed} : {dur:.1f}s crête {peak:.2f} en {time.time()-t0:.0f}s", flush=True)
-                if 3.5 <= dur <= 16 and peak > 0.05:
-                    break
-            else:
-                raise SystemExit("la voix dessinée n'est pas utilisable")
-        ref = str(REFERENCE)
-        # Monologue, ajusté pour tenir 10 à 15 secondes.
-        chosen = None
-        if MONOLOGUE.is_file() and MONOLOGUE.stat().st_size > 1000:
-            dur = duration(MONOLOGUE)
-            if 10 <= dur <= 15.4:
-                chosen = (json.loads(INDEX.read_text()).get("monologue", MONOLOGUES[0]), dur)
-                print(f"monologue déjà là : {dur:.1f}s", flush=True)
-        if chosen is None:
-            for text in MONOLOGUES:
-                wav = Path("/tmp/santa-monologue.wav")
-                t0 = time.time()
-                frame = side.synthesize(text, ref_audio=ref, instruct=INSTRUCT, seed=SEED)
-                pcm_to_wav(frame, wav)
-                to_m4a(wav, MONOLOGUE)
-                dur = duration(MONOLOGUE)
-                print(f"monologue {dur:.1f}s en {time.time()-t0:.0f}s : {text}", flush=True)
-                chosen = (text, dur)
-                if 10 <= dur <= 15.4:
-                    break
-        if chosen and SPEC.is_file():
-            spec = SPEC.read_text()
-            spec = re.sub(r"(?s)Monologue \(français\)\n  .+\n?", "Monologue (français)\n  " + chosen[0] + "\n", spec)
-            SPEC.write_text(spec)
-            # le champ monologue de l'index suit le texte retenu
-            global_monologue = chosen[0]
+
+def duration_ok(text: str, seconds: float) -> bool:
+    n = len(letters(text).replace(" ", "")) + 3 * len(re.findall(r"\b(?:[HhJj]o|[Oo]h)\b", text))
+    return 0.04 * n + 0.35 <= seconds <= 0.17 * n + 2.2
+
+
+def trim_and_level(w, sr):
+    """Coupe les silences du début et de la fin, met la voix au même niveau partout, sans saturer."""
+    import numpy as np
+    w = np.asarray(w, dtype=np.float32)
+    if len(w) < sr // 10:
+        return w
+    frame = sr // 50
+    n = len(w) // frame
+    rms = np.sqrt((w[: n * frame].reshape(n, frame) ** 2).mean(axis=1) + 1e-12)
+    loud = np.where(rms > max(0.004, rms.max() * 0.03))[0]
+    if len(loud) == 0:
+        return w[:0]
+    a = max(0, loud[0] * frame - int(0.06 * sr))
+    b = min(len(w), (loud[-1] + 1) * frame + int(0.14 * sr))
+    w = w[a:b].copy()
+    voiced = rms[loud[0]: loud[-1] + 1]
+    level = float(np.sqrt((voiced[voiced > voiced.max() * 0.1] ** 2).mean()))
+    w *= 0.09 / max(level, 1e-4)
+    w = np.tanh(w * 1.15) / 1.15
+    fade = int(0.012 * sr)
+    w[:fade] *= np.linspace(0, 1, fade)
+    w[-fade:] *= np.linspace(1, 0, fade)
+    return w
+
+
+def longest_gap(w, sr) -> float:
+    import numpy as np
+    frame = sr // 50
+    n = len(w) // frame
+    if n == 0:
+        return 0.0
+    rms = np.sqrt((w[: n * frame].reshape(n, frame) ** 2).mean(axis=1) + 1e-12)
+    quiet = rms < max(0.003, rms.max() * 0.02)
+    best = run = 0
+    for q in quiet:
+        run = run + 1 if q else 0
+        best = max(best, run)
+    return best * frame / sr
+
+
+def encode(w, sr, path: Path):
+    import soundfile as sf
+    tmp = path.with_suffix(".wav")
+    sf.write(tmp, w, sr)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(tmp), "-ar", "24000", "-ac", "1", "-c:a", "aac", "-b:a", "40k",
+                    "-movflags", "+faststart", str(path)], check=True)
+    tmp.unlink()
+
+
+class Studio:
+    def __init__(self, ref: Path, whisper="small"):
+        import torch
+        self.torch = torch
+        _load = torch.load
+
+        def _cpu_load(*a, **k):
+            k.setdefault("map_location", "cpu")
+            return _load(*a, **k)
+        torch.load = _cpu_load
+        from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+        t = time.time()
+        self.tts = ChatterboxMultilingualTTS.from_pretrained(device="cpu")
+        self.sr = self.tts.sr
+        self.ref = str(ref)
+        self.prepared = None
+        from faster_whisper import WhisperModel
+        self.asr = WhisperModel(whisper, device="cpu", compute_type="int8")
+        print(f"modèles chargés en {time.time() - t:.0f} s, {torch.get_num_threads()} fils", flush=True)
+
+    def say(self, text, lang, seed, exaggeration, cfg_weight, temperature):
+        self.torch.manual_seed(seed)
+        kw = dict(language_id=lang, exaggeration=exaggeration, cfg_weight=cfg_weight, temperature=temperature)
+        # La voix de référence n'est analysée qu'une fois, pas à chaque phrase.
+        if self.prepared != exaggeration:
+            try:
+                self.tts.prepare_conditionals(self.ref, exaggeration=exaggeration)
+                self.prepared = exaggeration
+            except Exception as e:  # ancienne version : on passe la référence à chaque fois
+                print("prepare_conditionals indisponible :", e, flush=True)
+                self.prepared = None
+        if self.prepared == exaggeration:
+            wav = self.tts.generate(text, **kw)
         else:
-            global_monologue = MONOLOGUES[0]
-        done = 0
-        t_batch = time.time()
-        for i, text in enumerate(clips, 1):
-            name = fname(text)
-            dest = VOICE / name
-            if dest.is_file() and dest.stat().st_size > 800 and clips_map.get(text) == name:
-                done += 1
-                continue
-            wav = Path("/tmp/santa-line.wav")
-            t0 = time.time()
-            seed = SEED + (int(hashlib.sha256(text.encode()).hexdigest()[:6], 16) % 10000)
-            frame = side.synthesize(text, ref_audio=ref, instruct=INSTRUCT, seed=seed)
-            dur, peak = pcm_to_wav(frame, wav)
-            if dur < 0.25 or peak < 0.02:
-                frame = side.synthesize(text, ref_audio=ref, instruct=INSTRUCT, seed=seed + 1)
-                dur, peak = pcm_to_wav(frame, wav)
-            to_m4a(wav, dest)
-            clips_map[text] = name
-            done += 1
-            elapsed = time.time() - t0
-            spent = time.time() - t_batch
-            left = len(clips) - i
-            eta = (spent / max(1, done)) * left
-            print(f"[{i}/{len(clips)}] {dur:.1f}s audio, {elapsed:.0f}s, ETA {eta/60:.0f} min — {text[:70]}", flush=True)
-            if done % 5 == 0:
-                write_index(recipes, clips_map, {"monologue": global_monologue})
-        write_index(recipes, clips_map, {"monologue": global_monologue})
-        print(f"terminé : {done} fichiers", flush=True)
-    finally:
-        side.close()
+            wav = self.tts.generate(text, audio_prompt_path=self.ref, **kw)
+        return wav.squeeze().cpu().numpy()
+
+    def hear(self, path, lang=None):
+        segs, info = self.asr.transcribe(str(path), language=lang, beam_size=1, vad_filter=False,
+                                         condition_on_previous_text=False)
+        return " ".join(s.text.strip() for s in segs).strip(), info
+
+
+def make_reference(path: Path):
+    """Le Père Noël de dessin animé de Kokoro (am_santa), en anglais : le timbre que Chatterbox reprend."""
+    import numpy as np, soundfile as sf
+    from kokoro import KPipeline
+    p = KPipeline(lang_code="a")
+    parts = [a for _, _, a in p(REF_TEXT, voice="am_santa", speed=0.9)]
+    y = np.concatenate([x.numpy() if hasattr(x, "numpy") else x for x in parts]).astype("float32")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    sf.write(path, y, 24000)
+    print(f"référence : {len(y) / 24000:.1f} s → {path}", flush=True)
+
+
+def settings(lang):
+    return SETTINGS.get(lang, SETTINGS["*"])
+
+
+def produce(studio, it, lang, out_dir: Path, tries=5, **override):
+    """Une phrase : on garde le premier tirage qui s'entend bien ; sinon le meilleur, marqué « faible »."""
+    cfg = dict(settings(lang), **override)
+    floor = 0.5 if it["kind"] != "line" else (0.6 if len(letters(it["text"])) < 28 else 0.72)
+    best = None
+    t0 = time.time()
+    for k in range(tries):
+        seed = int(it["id"][:8], 16) % 100000 + 7919 * k
+        raw = studio.say(it["text"], lang, seed, **cfg)
+        w = trim_and_level(raw, studio.sr)
+        dur = len(w) / studio.sr
+        if dur < 0.25:
+            continue
+        path = out_dir / f"{it['id']}.try{k}.m4a"
+        encode(w, studio.sr, path)
+        heard, _ = studio.hear(path, lang)
+        score = similarity(it["text"], heard)
+        ok = score >= floor and duration_ok(it["text"], dur) and longest_gap(w, studio.sr) < 1.6
+        cand = dict(path=path, score=score, dur=dur, heard=heard, ok=ok, tries=k + 1)
+        if best is None or (cand["ok"], cand["score"]) > (best["ok"], best["score"]):
+            if best:
+                best["path"].unlink(missing_ok=True)
+            best = cand
+        else:
+            path.unlink(missing_ok=True)
+        if ok:
+            break
+    if best is None:
+        return dict(id=it["id"], key=it["key"], text=it["text"], ok=False, score=0, dur=0, heard="", tries=tries, secs=time.time() - t0)
+    final = out_dir / f"{it['id']}.m4a"
+    best["path"].rename(final)
+    return dict(id=it["id"], key=it["key"], text=it["text"], ok=best["ok"], score=round(best["score"], 3), dur=round(best["dur"], 2),
+                heard=best["heard"], tries=best["tries"], secs=round(time.time() - t0, 1))
+
+
+def ensure_ref(out: Path) -> Path:
+    if REF.is_file():
+        return REF
+    ref = out / "santa-voice-ref.wav"
+    if not ref.is_file():
+        make_reference(ref)
+    return ref
+
+
+def cmd_gen(a):
+    lang = a.lang
+    i, n = (int(x) for x in a.shard.split("/"))
+    out = Path(a.out)
+    todo = sorted(missing(lang), key=lambda it: it["id"])[i::n]
+    if a.limit:
+        todo = todo[: a.limit]
+    print(f"{lang} lot {i}/{n} : {len(todo)} phrases", flush=True)
+    good = out / "voice" / lang
+    weak = out / "weak" / lang
+    good.mkdir(parents=True, exist_ok=True)
+    weak.mkdir(parents=True, exist_ok=True)
+    report = out / f"report-{lang}-{i}.jsonl"
+    if not todo:
+        report.write_text("")
+        return
+    studio = Studio(ensure_ref(out))
+    t0 = time.time()
+    deadline = t0 + a.minutes * 60
+    with report.open("w", encoding="utf-8") as log:
+        for k, it in enumerate(todo, 1):
+            if time.time() > deadline:
+                print(f"temps écoulé : {len(todo) - k + 1} phrases restent pour le prochain passage", flush=True)
+                break
+            r = produce(studio, it, lang, good)
+            if not r["ok"] and (good / f"{it['id']}.m4a").is_file():
+                (good / f"{it['id']}.m4a").rename(weak / f"{it['id']}.m4a")
+            log.write(json.dumps(r, ensure_ascii=False) + "\n")
+            log.flush()
+            left = (time.time() - t0) / k * (len(todo) - k) / 60
+            print(f"[{k}/{len(todo)}] {'ok ' if r['ok'] else 'FAIBLE'} {r['score']:.2f} {r['dur']:.1f}s essais {r['tries']} "
+                  f"({r['secs']:.0f}s, reste {left:.0f} min) {it['text'][:60]} → {r['heard'][:60]}", flush=True)
+
+
+def cmd_pilot(a):
+    """Quelques phrases et prénoms, plusieurs réglages : ressemblance au texte, langue reconnue, durée, hauteur."""
+    import numpy as np
+    lang = a.lang
+    out = Path(a.out)
+    items = plan(lang)
+    lines = [it for it in items if it["kind"] == "line" and 45 < len(it["text"]) < 120][:3]
+    lines += [it for it in items if it["kind"] == "line" and len(it["text"]) < 30][:1]
+    hello = [it for it in items if it["kind"] == "hello"][:3]
+    bye = [it for it in items if it["kind"] == "bye"][3:5]
+    studio = Studio(ensure_ref(out))
+    rows = []
+    for tag, over in (("cfg00-ex80", dict(cfg_weight=0.0, exaggeration=0.8)), ("cfg30-ex80", dict(cfg_weight=0.3, exaggeration=0.8)),
+                      ("cfg00-ex55", dict(cfg_weight=0.0, exaggeration=0.55)), ("cfg50-ex60", dict(cfg_weight=0.5, exaggeration=0.6))):
+        d = out / "pilot" / lang / tag
+        d.mkdir(parents=True, exist_ok=True)
+        for it in lines + hello + bye:
+            r = produce(studio, it, lang, d, tries=2, **over)
+            f = d / f"{it['id']}.m4a"
+            prob, f0 = 0.0, 0.0
+            if f.is_file():
+                _, info = studio.hear(f, None)
+                prob = info.language_probability if info.language == lang else 0.0
+                try:
+                    import librosa
+                    y, sr = librosa.load(str(f), sr=16000)
+                    p = librosa.yin(y, fmin=55, fmax=350, sr=sr)
+                    e = librosa.feature.rms(y=y, frame_length=2048, hop_length=512)[0]
+                    v = p[: len(e)][e[: len(p)] > e.max() * 0.2]
+                    f0 = float(np.median(v)) if len(v) else 0.0
+                except Exception as ex:
+                    print("hauteur :", ex)
+            r.update(tag=tag, lang_prob=round(float(prob), 2), f0=round(f0))
+            rows.append(r)
+            print(json.dumps(r, ensure_ascii=False), flush=True)
+    (out / f"pilot-{lang}.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1))
+    print(f"\n== {lang}")
+    for tag in sorted({r["tag"] for r in rows}):
+        rs = [r for r in rows if r["tag"] == tag]
+        print(f"{tag}: ok {sum(r['ok'] for r in rs)}/{len(rs)} ressemblance {np.mean([r['score'] for r in rs]):.2f} "
+              f"langue {np.mean([r['lang_prob'] for r in rs]):.2f} hauteur {np.median([r['f0'] for r in rs]):.0f} Hz "
+              f"temps {np.mean([r['secs'] for r in rs]):.0f} s/phrase essais {np.mean([r['tries'] for r in rs]):.1f}")
+
+
+def cmd_plan(a):
+    total = 0
+    for lang in LANGS:
+        items = plan(lang)
+        chars = sum(len(it["text"]) for it in items)
+        kinds = {k: sum(1 for it in items if it["kind"] == k) for k in ("line", "hello", "bye")}
+        ids = {it["id"] for it in items}
+        assert len(ids) == len(items), "identifiants en double"
+        print(f"{lang}: {len(items)} phrases {kinds}, {chars} caractères (≈ {chars / 14 / 60:.0f} min), manquent {len(missing(lang))}")
+        total += len(items)
+    print("total", total)
+
+
+def cmd_check(a):
+    bad = 0
+    for lang in LANGS:
+        m = missing(lang)
+        bad += len(m)
+        want = {it["id"] for it in plan(lang)}
+        extra = [p.name for p in (VOICE / lang).glob("*.m4a") if p.stem not in want] if (VOICE / lang).is_dir() else []
+        print(f"{lang}: manquent {len(m)} ({sum(1 for it in m if it['kind'] == 'line')} répliques), en trop {len(extra)}")
+        for it in m[:8]:
+            print("   ", it["kind"], it["text"][:90])
+        if a.prune:
+            for name in extra:
+                (VOICE / lang / name).unlink()
+    sys.exit(1 if bad and a.strict else 0)
+
 
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser()
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("plan").set_defaults(fn=cmd_plan)
+    c = sub.add_parser("check"); c.add_argument("--strict", action="store_true"); c.add_argument("--prune", action="store_true"); c.set_defaults(fn=cmd_check)
+    g = sub.add_parser("gen")
+    g.add_argument("--lang", required=True); g.add_argument("--shard", default="0/1"); g.add_argument("--out", default="out")
+    g.add_argument("--limit", type=int, default=0); g.add_argument("--minutes", type=float, default=320)
+    g.set_defaults(fn=cmd_gen)
+    p = sub.add_parser("pilot"); p.add_argument("--lang", required=True); p.add_argument("--out", default="out"); p.set_defaults(fn=cmd_pilot)
+    a = ap.parse_args()
+    a.fn(a)

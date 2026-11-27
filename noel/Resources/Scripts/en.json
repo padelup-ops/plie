@@ -7,6 +7,17 @@
  "rate": 0.45,
  "pitch": 0.82,
  "and": " and ",
+ "hello": "Ho, ho, ho! Hello, {name}!",
+ "helloAnyone": "Ho, ho, ho! Hello, hello!",
+ "elfHello": "Santa, Santa… it's {name}!",
+ "helloAfterElf": [
+  "Ah, of course! I'm so happy to talk to you!",
+  "Ah, of course! I'm so happy to talk to you all!"
+ ],
+ "bye": "Merry Christmas, {name}!",
+ "byeAnyone": "Merry Christmas! Ho, ho, ho!",
+ "elfBye": "Merry Christmas, {name}!",
+ "elfLabel": "Pip the elf",
  "qualities": {
   "kind": [
    "you have a big heart"
@@ -36,15 +47,10 @@
    "you love going on adventures"
   ]
  },
- "qualityJoin": [
-  ", and that "
- ],
  "scenarios": {
   "magic": [
    {
-    "say": [
-     "Ho, ho, ho! Hello, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -71,24 +77,17 @@
     "if": "single"
    },
    {
-    "say": [
-     "I've heard about you this year, {name}. They told me that {quality}. That's wonderful!",
-     "I've heard about you all this year. They told me that {quality}. That's wonderful!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
-     "I've heard about you this year, {name}, and I've heard so many lovely things!",
+     "I've heard about you this year, and I've heard so many lovely things!",
      "I've heard about you all this year, and I've heard so many lovely things!"
     ],
     "if": "noQuality"
    },
    {
-    "say": [
-     "And guess what? A little bird told me that {anecdote}. Well done!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -109,10 +108,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "And I've made a note that you're dreaming of {gift}. I'll tell my elves right away!"
-    ],
-    "if": "gift"
+    "cut": true
+   },
+   {
+    "include": "gift"
    },
    {
     "say": [
@@ -133,9 +132,7 @@
   ],
   "secret": [
    {
-    "say": [
-     "Ho, ho, ho… Hello, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -157,10 +154,7 @@
     ]
    },
    {
-    "say": [
-     "He told me that {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -170,10 +164,7 @@
     "if": "noQuality"
    },
    {
-    "say": [
-     "And guess what? He even wrote down something very special you did this year: {anecdote}!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -214,9 +205,7 @@
   ],
   "congrats": [
    {
-    "say": [
-     "Ho, ho, ho! Hello, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -232,16 +221,10 @@
     ]
    },
    {
-    "say": [
-     "A little bird told me that {anecdote}. Bravo, bravo, bravo!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
-    "say": [
-     "And they also told me that {quality}. What a wonderful year!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
     "say": [
@@ -262,7 +245,7 @@
    },
    {
     "say": [
-     "Ho, ho, ho! Wonderful! Keep it up, {name}!"
+     "Ho, ho, ho! Wonderful! Keep it up!"
     ],
     "laugh": true
    },
@@ -280,9 +263,7 @@
   ],
   "funny": [
    {
-    "say": [
-     "Ho, ho, ho! Hello, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -321,17 +302,10 @@
     "laugh": true
    },
    {
-    "say": [
-     "But I've also heard that {quality}. Now that's wonderful!"
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "Oh, and I've made a note that you're dreaming of {gift}. I'll tell my elves, and I'll be careful not to slip on any ribbons!"
-    ],
-    "laugh": true,
-    "if": "gift"
+    "include": "gift"
    },
    {
     "say": [
@@ -348,9 +322,7 @@
   ],
   "eve": [
    {
-    "say": [
-     "Ho, ho, ho! Good evening, {name}!"
-    ],
+    "hello": true,
     "laugh": true
    },
    {
@@ -364,16 +336,10 @@
     ]
    },
    {
-    "say": [
-     "Before I leave, I wanted to tell you that I've heard about you: they told me that {quality}."
-    ],
-    "if": "quality"
+    "include": "qualities"
    },
    {
-    "say": [
-     "And a little bird told me that {anecdote}. I'm so proud of you!"
-    ],
-    "if": "anecdote"
+    "include": "anecdote"
    },
    {
     "say": [
@@ -403,8 +369,11 @@
    },
    {
     "say": [
-     "It's time for me to go. My reindeer are waiting! Merry Christmas, {name}! Ho, ho, ho!"
-    ],
+     "It's time for me to go. My reindeer are waiting!"
+    ]
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ]
@@ -428,8 +397,12 @@
   "goodbye": [
    {
     "say": [
-     "Ho, ho, ho! I have to get back to my workshop. Have a wonderful Christmas, {name}!"
+     "Ho, ho, ho! I have to get back to my workshop. Have a wonderful Christmas!"
     ],
+    "laugh": true
+   },
+   {
+    "bye": true,
     "wave": true
    }
   ],
@@ -437,6 +410,96 @@
    {
     "say": [
      "Ho, ho, ho! Hello! It's Santa Claus, calling from the North Pole!"
+    ],
+    "laugh": true
+   }
+  ],
+  "qualities": [
+   {
+    "say": [
+     "I've heard such lovely things about you this year.",
+     "I've heard such lovely things about you all this year."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "They told me that {q1}."
+    ],
+    "if": "quality"
+   },
+   {
+    "say": [
+     "And also that {q2}."
+    ],
+    "if": "quality2"
+   },
+   {
+    "say": [
+     "That's wonderful!"
+    ],
+    "if": "quality"
+   }
+  ],
+  "anecdote": [
+   {
+    "say": [
+     "Oh, here comes my elf Pip, running in! He has something to tell me about you…",
+     "Oh, here comes my elf Pip, running in! He has something to tell me about you all…"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "elf": [
+     "Santa, Santa! I have big news: {anecdote}!"
+    ],
+    "if": "anecdote"
+   },
+   {
+    "say": [
+     "Ho, ho, ho! Well done! I'm so proud of you!",
+     "Ho, ho, ho! Well done! I'm so proud of you all!"
+    ],
+    "if": "anecdote",
+    "laugh": true
+   }
+  ],
+  "gift": [
+   {
+    "say": [
+     "Pip, tell me: what's on the Christmas list?"
+    ],
+    "if": "gift"
+   },
+   {
+    "elf": [
+     "On the list, there is: {gift}!"
+    ],
+    "if": "gift"
+   },
+   {
+    "say": [
+     "Ho, ho, ho! I've made a note of it. I'll tell my elves right away!"
+    ],
+    "if": "gift",
+    "laugh": true
+   }
+  ],
+  "previewEnd": [
+   {
+    "say": [
+     "Oh! My elves are calling me to the workshop, I must dash! See you very soon!"
+    ]
+   },
+   {
+    "bye": true,
+    "wave": true
+   }
+  ],
+  "welcome": [
+   {
+    "say": [
+     "Ho, ho, ho! Hello! It's me, Santa Claus. I'm calling from my workshop at the North Pole. I have a surprise just for you. Merry Christmas!"
     ],
     "laugh": true
    }
