@@ -38,6 +38,8 @@ enum KBSymbol {
         cache[name] = i
         return i
     }
+    /// Mémoire serrée : les images se redessinent à la demande.
+    static func clear() { cache.removeAll() }
 }
 
 /// Vues encore en vie (touches, clavier, boutons du côté). Le journal de la main l'écrit pour vérifier
@@ -360,6 +362,10 @@ final class KeyboardCanvas: UIView {
             showVoice(.needsApp)
             return
         }
+        micRelease?.cancel()
+        micRelease = nil
+        // La page WebKit de la dictée coûte quelques Mo : on fait de la place avant, pas après.
+        emojiBoard.releaseMemory()
         let m = mic ?? KeyboardMic()
         mic = m
         m.attach(to: self)
@@ -374,6 +380,7 @@ final class KeyboardCanvas: UIView {
                 if !self.dictCancelled { self.insertDictation(t) }
                 self.dictState = .idle
                 self.hideVoice()
+                self.releaseMicSoon()
             } else if !t.isEmpty {
                 self.voice.set(self.dictState == .finishing ? .finishing : .listening, text: t)
             }
@@ -384,6 +391,7 @@ final class KeyboardCanvas: UIView {
             self.micMode = false
             self.dictState = .idle
             self.showVoice(.needsApp)
+            self.releaseMicIfIdle()
         }
         m.start(localeID: KBDictation.localeID())
     }
@@ -439,6 +447,7 @@ final class KeyboardCanvas: UIView {
         if dictState == .listening || dictState == .finishing { KBDictation.post(KBDictation.stop) }
         dictState = .idle
         hideVoice()
+        releaseMicSoon()
     }
 
     private func dictationUpdate() {
@@ -551,7 +560,7 @@ final class KeyboardCanvas: UIView {
                 let r = await KBTranslate.translate(t0, from: pair.from, to: pair.to)
                 guard let self else { return }
                 switch r {
-                case .success(let out): self.writeDictation(out)
+                case .success(let out): self.writeDictation(out, lang: pair.to)
                 case .failure(let f): self.translateFailed(f); self.writeDictation(t0)
                 }
             }
@@ -560,12 +569,29 @@ final class KeyboardCanvas: UIView {
         writeDictation(t0)
     }
 
-    private func writeDictation(_ text: String) {
-        let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !t.isEmpty else { return }
+    /// La langue dictée (celle de la disposition), en deux lettres.
+    private var dictationLang: String {
+        switch eff.layout {
+        case .azerty: return "fr"
+        case .qwertz: return "de"
+        case .spanish: return "es"
+        case .swedish: return "sv"
+        case .qwerty: return "en"
+        }
+    }
+
+    /// La fin de ce que la dictée vient d'écrire : la lettre tapée juste après commence un nouveau mot (l'espace
+    /// vient toute seule, comme après un mot écrit en glissant).
+    private var dictatedTail: String?
+
+    private func writeDictation(_ text: String, lang: String? = nil) {
         let before = input?.kbTextBefore() ?? ""
-        let space = !(before.isEmpty || before.hasSuffix(" ") || before.hasSuffix("\n"))
-        input?.kbInsert((space ? " " : "") + t)
+        // Comme la dictée d'Apple : « à la ligne », la majuscule selon l'endroit où l'on écrit, l'espace devant.
+        let t = KBDictationText.prepare(text, before: before, lang: String((lang ?? dictationLang).prefix(2)))
+        guard !t.isEmpty else { return }
+        input?.kbInsert(t)
+        dictatedTail = t.last.map { $0.isWhitespace } == true ? nil : String(t.suffix(16))
+        glidedWord = nil
         wordTouches.removeAll()
         lastCorrection = nil
         refreshSuggestionsSoon()
@@ -1097,10 +1123,14 @@ final class KeyboardCanvas: UIView {
         startClipWatch()
         resumePendingDictation()
         KBMemLog.begin(mb: Self.footprintMB(), context: gripContext, mode: (settings.screenModes[gripContext] ?? settings.mode).rawValue)
+        // À l'apparition, les réglages ont déjà rechargé les listes rendues faute de place.
+        listsShed = false
         checkMemory(force: true)
-        // Le modèle de glisser se charge une fois, après l'affichage, si iOS laisse encore de la mémoire.
+        startMemoryWatch()
+        // Le modèle de glisser se charge une fois, après l'affichage, si iOS laisse encore de la mémoire — et
+        // seulement si le glisser est allumé.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-            guard let self, self.visible else { return }
+            guard let self, self.visible, self.eff.glide else { return }
             NeuralSwipe.warm()
         }
         if ProcessInfo.processInfo.arguments.contains("-shotClip") {
@@ -1447,6 +1477,7 @@ final class KeyboardCanvas: UIView {
         glideLayer.path = nil
         glideLayer.opacity = 0
         glidedWord = nil
+        dictatedTail = nil
         lastCorrection = nil
         wordTouches.removeAll()
         emojiQuery = nil
@@ -1475,6 +1506,10 @@ final class KeyboardCanvas: UIView {
             micMode = false
             mic?.cancel()
         }
+        releaseMicIfIdle()
+        memTimer?.invalidate()
+        memTimer = nil
+        pasteControl = nil
         voice.isHidden = true
         perfLink?.invalidate()
         perfLink = nil
@@ -1658,9 +1693,72 @@ final class KeyboardCanvas: UIView {
             learns = plain == h && c.cellIndex(at: border) == g
         }
         c.tapMap = KBTapMap()
+        c.disappeared()
         let ok = hidden && shown && labelled && centred && learns
         print("RESULT touchsafety pave_cache=\(hidden) retabli=\(shown) lettres=\(labelled) centre=\(centred) frontiere=\(learns) \(ok ? "yes" : "no")")
         return ok
+    }
+
+    /// Le filet mémoire : les paliers, et le dernier recours (les listes de mots rendues, puis rechargées à
+    /// l'apparition suivante) sans que le clavier s'arrête d'écrire.
+    static func verifyMemoryShed() -> Bool {
+        let levels = memoryLevel(footprintMB: 30, headroomMB: 30) == .fine && memoryLevel(footprintMB: 58, headroomMB: 12) == .tight
+            && memoryLevel(footprintMB: 40, headroomMB: 5) == .critical && memoryLevel(footprintMB: 40, headroomMB: 0) == .fine
+            && memoryLevel(footprintMB: 47, headroomMB: 0) == .tight && memoryLevel(footprintMB: 60, headroomMB: 0) == .critical
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 390, height: 360))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.demoContext = "closed-portrait"
+        c.frame = CGRect(x: 0, y: 0, width: 390, height: 280)
+        var s = KBSettings()
+        s.layout = .azerty
+        s.mode = .full
+        c.configure(settings: s, pro: true)
+        backQueue.sync {}
+        c.builtFor = .zero
+        c.layoutIfNeeded()
+        let loaded = c.suggest.hasLists && c.bgSuggest.hasLists
+        let before = footprintMB()
+        c.shedMemory(.critical)
+        backQueue.sync {}
+        let after = footprintMB()
+        let shed = !c.suggest.hasLists && !c.bgSuggest.hasLists && c.listsShed
+        // Le clavier écrit toujours, et la correction ne plante pas sans ses listes.
+        let field = ProbeField()
+        c.input = field
+        c.probeType("bonjour ca va ")
+        _ = c.suggest.correction(for: "bonjoru", before: "bonjoru", touch: nil, fast: true)
+        _ = c.suggest.predictions(before: "je suis ")
+        let typed = field.text.lowercased().hasPrefix("bonjour")
+        // Apparition suivante : tout revient.
+        c.configure(settings: s, pro: true)
+        backQueue.sync {}
+        c.appearedAt = 0
+        c.appeared()
+        let back = c.suggest.hasLists && c.bgSuggest.hasLists && !c.listsShed
+        c.disappeared()
+        c.input = nil
+        let ok = levels && loaded && shed && typed && back
+        print("RESULT memshed paliers=\(levels) charge=\(loaded) rendu=\(shed) (\(String(format: "%.1f", before)) → \(String(format: "%.1f", after)) Mo) ecrit=\(typed) revenu=\(back) \(ok ? "yes" : "no")")
+        return ok
+    }
+
+    /// Un champ de texte pour les essais : ce que le clavier écrit.
+    final class ProbeField: KBInput {
+        var text = ""
+        func kbInsert(_ t: String) { text += t }
+        func kbDelete() { if !text.isEmpty { text.removeLast() } }
+        func kbMoveCursor(_ offset: Int) {}
+        func kbTextBefore() -> String? { String(text.suffix(400)) }
+        func kbTextAfter() -> String? { "" }
+        func kbNextKeyboard() {}
+        func kbDismiss() {}
+        func kbSettingsChanged(_ settings: KBSettings) {}
+        var kbNeedsGlobe: Bool { false }
+        var kbFullAccess: Bool { false }
+        func kbRecheckPro(_ done: @escaping (Bool) -> Void) { done(true) }
     }
 
     /// Chaque interrupteur de la barre, après une mise en page : le bouton correspondant est caché ou montré.
@@ -1741,16 +1839,111 @@ final class KeyboardCanvas: UIView {
         return (on(emojiButton), on(adjustButton), on(modeButton), on(micButton), on(hideButton), on(modeButton), on(clipButton), on(layoutSwitch))
     }
 
-    /// Filet de sécurité : si le clavier approche la limite d'iOS, il libère ce qu'il peut avant qu'iOS ne le ferme.
+    // MARK: Mémoire
+    //
+    // iOS ferme un clavier qui dépasse sa limite de mémoire (et remet le clavier d'Apple à la place). La limite change
+    // d'un iPhone à l'autre : on ne regarde donc pas un nombre de Mo fixe mais la marge qu'iOS dit laisser encore
+    // (os_proc_available_memory), toutes les deux secondes tant que le clavier est à l'écran et aux moments qui
+    // coûtent (emojis, dictée, pli). Trois paliers :
+    //  - serré : on rend ce qui se recrée sans que ça se voie (emojis cachés, modèle de glisser, page de la dictée,
+    //    caches) ;
+    //  - critique : on ferme aussi les emojis et on rend les listes de mots et le modèle de langue (les suggestions
+    //    s'arrêtent un instant, le clavier reste) ; ils reviennent dès qu'il y a de nouveau de la place.
+
+    enum MemoryLevel: Int { case fine, tight, critical }
+
+    /// Le palier pour une empreinte et une marge données (marge nulle ou négative : inconnue, simulateur).
+    static func memoryLevel(footprintMB mb: Double, headroomMB room: Double) -> MemoryLevel {
+        if room > 0 {
+            if room < 7 { return .critical }
+            if room < 14 { return .tight }
+            return .fine
+        }
+        if mb > 54 { return .critical }
+        if mb > 44 { return .tight }
+        return .fine
+    }
+
     private var memChecks = 0
-    private func checkMemory(force: Bool = false) {
+    private var memTimer: Timer?
+    private var lastCritical: TimeInterval = 0
+    /// Les listes de mots ont été rendues (palier critique) : à recharger quand la place revient.
+    private var listsShed = false
+    private var shedAt: TimeInterval = 0
+
+    private func startMemoryWatch() {
+        memTimer?.invalidate()
+        memTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in self?.checkMemory(force: true, log: false) }
+    }
+
+    /// Filet de sécurité : si le clavier approche la limite d'iOS, il libère ce qu'il peut avant qu'iOS ne le ferme.
+    private func checkMemory(force: Bool = false, log: Bool = true) {
         memChecks += 1
         guard force || memChecks % 30 == 0 else { return }
         let mb = Self.footprintMB()
-        KBMemLog.note(mb: mb, emoji: showEmoji, alive: Self.alive, views: KBViews.live)
-        NeuralSwipe.noteFootprint()
-        if mb > 40 { trimMemory(flush: false) }
-        if mb > 48 { NeuralSwipe.release() }
+        let room = NeuralSwipe.availableMB()
+        if log {
+            KBMemLog.note(mb: mb, emoji: showEmoji, alive: Self.alive, views: KBViews.live)
+            NeuralSwipe.noteFootprint()
+        }
+        let level = Self.memoryLevel(footprintMB: mb, headroomMB: room)
+        if level != .fine { shedMemory(level) }
+        else if listsShed { restoreListsIfRoom(footprintMB: mb, headroomMB: room) }
+    }
+
+    /// Rend de la mémoire selon le palier. `critical` au plus une fois toutes les 3 secondes.
+    func shedMemory(_ level: MemoryLevel) {
+        guard level != .fine else { return }
+        trimMemory(flush: false)
+        NeuralSwipe.release()
+        releaseMicIfIdle()
+        KBSymbol.clear()
+        pasteControl = nil
+        guard level == .critical else { return }
+        let now = ProcessInfo.processInfo.systemUptime
+        guard now - lastCritical > 3 else { return }
+        lastCritical = now
+        KBMemLog.note(mb: Self.footprintMB(), emoji: showEmoji, alive: Self.alive, views: KBViews.live)
+        if !listsShed {
+            // D'abord les listes de mots (une dizaine de Mo) : les emojis ouverts restent ouverts.
+            listsShed = true
+            shedAt = now
+            suggest.shed()
+            suggestQueue.async { [bgSuggest] in
+                bgSuggest.shed()
+                KBSuggest.shedShared()
+            }
+            cachedFix = nil
+            applySuggestions([], nil)
+        } else if showEmoji {
+            // Toujours critique alors que tout le reste est rendu : les emojis se ferment, le clavier reste.
+            closeEmoji()
+        }
+    }
+
+    /// La place est revenue (au moins 20 secondes plus tard, pour ne pas recharger et rendre en boucle) : les mots
+    /// et le modèle de langue reviennent.
+    private func restoreListsIfRoom(footprintMB mb: Double, headroomMB room: Double) {
+        let now = ProcessInfo.processInfo.systemUptime
+        guard listsShed, now - shedAt > 20, tracks.isEmpty else { return }
+        guard room > 0 ? room > 26 : mb < 34 else { return }
+        reloadLists()
+    }
+
+    /// Recharge les listes à part (elles sont partagées : le correcteur du fil principal les reprend ensuite sans
+    /// rien reconstruire, la frappe ne se fige pas).
+    private func reloadLists() {
+        guard listsShed else { return }
+        listsShed = false
+        let layout = eff.layout
+        suggestQueue.async { [weak self, bgSuggest] in
+            bgSuggest.setLayout(layout)
+            DispatchQueue.main.async {
+                guard let self, !self.listsShed, self.eff.layout == layout else { return }
+                self.suggest.setLayout(layout)
+                self.refreshSuggestionsSoon()
+            }
+        }
     }
 
     /// iOS prévient qu'il manque de mémoire : on libère tout ce qui se recrée tout seul, pour ne pas être fermé
@@ -1761,6 +1954,32 @@ final class KeyboardCanvas: UIView {
         suggestQueue.async { [bgSuggest] in bgSuggest.trimMemory() }
         // Écrire le journal ne libère rien (et demande un peu de mémoire) : seulement quand iOS prévient.
         if flush { KBGripLog.shared.flush() }
+    }
+
+    /// iOS prévient (alerte mémoire) : comme le palier serré, ou critique s'il ne reste presque rien.
+    func memoryWarning() {
+        let level = Self.memoryLevel(footprintMB: Self.footprintMB(), headroomMB: NeuralSwipe.availableMB())
+        shedMemory(level == .critical ? .critical : .tight)
+        KBGripLog.shared.flush()
+    }
+
+    /// La page cachée de la dictée dans le clavier (WebKit) : rendue dès que la dictée est finie. Avant, elle
+    /// restait en mémoire pour toujours après la première dictée.
+    private var micRelease: DispatchWorkItem?
+    private func releaseMicIfIdle() {
+        micRelease?.cancel()
+        micRelease = nil
+        guard !micMode, dictState == .idle, let m = mic else { return }
+        m.tearDown()
+        mic = nil
+    }
+
+    /// Après une dictée : la page reste 20 secondes (pour enchaîner), puis elle est rendue.
+    private func releaseMicSoon() {
+        micRelease?.cancel()
+        let w = DispatchWorkItem { [weak self] in self?.releaseMicIfIdle() }
+        micRelease = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20, execute: w)
     }
 
     /// Étalonnage dans l'app : la prise qu'on enregistre (le clavier ne bouge pas, chaque appui est envoyé).
@@ -2984,6 +3203,10 @@ final class KeyboardCanvas: UIView {
         rebuildChips()
     }
 
+    /// Le bouton « Coller » du système, créé une fois par thème.
+    private var pasteControl: UIView?
+    private var pasteControlTheme = ""
+
     private func rebuildChips() {
         let h = Self.topBarHeight
         // Pas de fondu : les mots changent tout de suite, comme sur le clavier d'Apple (le fondu donnait une
@@ -3071,11 +3294,21 @@ final class KeyboardCanvas: UIView {
                 // parfois comme un simple rectangle bleu, sans texte.
                 cfgP.baseBackgroundColor = theme.key.withAlphaComponent(1)
                 cfgP.baseForegroundColor = theme.text.withAlphaComponent(1)
-                let pc = UIPasteControl(configuration: cfgP)
-                pc.target = pasteTarget
+                // Un seul bouton, gardé d'une mise à jour de la barre à l'autre : chaque bouton « Coller » est une vue
+                // dessinée par iOS hors du clavier, et la barre se refait à chaque mot.
+                let pc: UIView
+                if let kept = pasteControl, pasteControlTheme == theme.id {
+                    pc = kept
+                } else {
+                    let made = UIPasteControl(configuration: cfgP)
+                    made.target = pasteTarget
+                    made.heightAnchor.constraint(equalToConstant: 30).isActive = true
+                    made.widthAnchor.constraint(greaterThanOrEqualToConstant: 96).isActive = true
+                    pasteControl = made
+                    pasteControlTheme = theme.id
+                    pc = made
+                }
                 chipStack.addArrangedSubview(pc)
-                pc.heightAnchor.constraint(equalToConstant: 30).isActive = true
-                pc.widthAnchor.constraint(greaterThanOrEqualToConstant: 96).isActive = true
             } else {
             let b = UIButton(type: .system)
             var cfg = UIButton.Configuration.plain()
@@ -4259,6 +4492,7 @@ final class KeyboardCanvas: UIView {
             typeText(text)
             noteTouch(text, at: tr.start)
         case .backspace:
+            dictatedTail = nil
             if let g = glidedWord, (input?.kbTextBefore() ?? "").hasSuffix(g) {
                 for _ in 0..<g.count { input?.kbDelete() }
                 glidedWord = nil
@@ -4446,6 +4680,11 @@ final class KeyboardCanvas: UIView {
             glidedWord = nil
             if let c = text.first, c.isLetter || c.isNumber, (input?.kbTextBefore() ?? "").hasSuffix(g) { input?.kbInsert(" ") }
         }
+        // Pareil juste après une dictée.
+        if let tail = dictatedTail {
+            dictatedTail = nil
+            if let c = text.first, c.isLetter || c.isNumber, (input?.kbTextBefore() ?? "").hasSuffix(tail) { input?.kbInsert(" ") }
+        }
         if accentKey(text) || accentAfter(text) {
             lastCorrection = nil
             refreshSuggestionsSoon()
@@ -4490,6 +4729,7 @@ final class KeyboardCanvas: UIView {
     private var lastSpaceAt: TimeInterval = 0
 
     private func typeSpace() {
+        dictatedTail = nil
         let before = input?.kbTextBefore() ?? ""
         let now = ProcessInfo.processInfo.systemUptime
         defer { lastSpaceAt = now }

@@ -534,7 +534,34 @@ let visibilityOK = KeyboardCanvas.verifyVisibility()
 let sheetOK = KeyboardCanvas.verifyBarSheet()
 let laptopOK = KeyboardCanvas.verifyLaptopLayout()
 let touchOK = KeyboardCanvas.verifyTouchSafety()
-if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK {
+let shedOK = KeyboardCanvas.verifyMemoryShed()
+/// La dictée écrite là où est le curseur : (texte avant, entendu, langue, attendu).
+let dictCases: [(String, String, String, String)] = [
+    ("", "bonjour tout le monde", "fr", "Bonjour tout le monde"),
+    ("Je pense que", "Il fait beau.", "fr", " il fait beau."),
+    ("Je pense que ", "Il fait beau.", "fr", "il fait beau."),
+    ("Salut. ", "comment ça va ?", "fr", "Comment ça va ?"),
+    ("Hier j’ai vu ", "Marie au marché.", "fr", "Marie au marché."),
+    ("Bonjour", "À la ligne comment vas-tu ?", "fr", "\nComment vas-tu ?"),
+    ("", "Bonjour Paul. À la ligne. Merci pour hier, nouveau paragraphe à bientôt", "fr", "Bonjour Paul.\nMerci pour hier\n\nÀ bientôt"),
+    ("On se voit ", "L’autre jour.", "fr", "l’autre jour."),
+    ("I think ", "The weather is nice.", "en", "the weather is nice."),
+    ("I think", "I will come.", "en", " I will come."),
+    ("See you ", "NASA said so", "en", "NASA said so"),
+    ("Hello.", "how are you? New line. Fine", "en", " How are you?\nFine"),
+    ("Dear John", "New paragraph thank you", "en", "\n\nThank you"),
+    ("Ich glaube ", "Der Hund schläft.", "de", "der Hund schläft."),
+    ("Ich sehe ", "Hunde im Park.", "de", "Hunde im Park."),
+    ("(", "Voilà", "fr", "voilà"),
+    ("Merci", ", à demain", "fr", ", à demain"),
+]
+var dictOK = true
+for (before, heard, lang, want) in dictCases {
+    let got = KBDictationText.prepare(heard, before: before, lang: lang)
+    if got != want { dictOK = false; print("dictée ratée: «\(before)» + «\(heard)» → «\(got)» (voulu «\(want)»)") }
+}
+print("RESULT dictee mise_en_forme \(dictOK ? "yes" : "no") (sur \(dictCases.count))")
+if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !dictOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }

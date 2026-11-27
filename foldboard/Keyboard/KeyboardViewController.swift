@@ -95,13 +95,23 @@ final class KeyboardViewController: UIInputViewController, KBInput {
             self?.lexicon = lexicon
             self?.canvas?.setLexicon(lexicon)
         }
-        Task { [weak self] in await self?.checkStore() }
+        if !access.isPro() || Self.lastStoreCheck == 0 {
+            Self.lastStoreCheck = ProcessInfo.processInfo.systemUptime
+            Task { [weak self] in await self?.checkStore() }
+        }
     }
+
+    private static var lastStoreCheck: TimeInterval = 0
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         takeCanvas()
-        if !access.isPro() { Task { [weak self] in await self?.checkStore() } }
+        // Les achats : relus au plus une fois toutes les dix minutes (StoreKit pèse dans la mémoire du clavier).
+        let now = ProcessInfo.processInfo.systemUptime
+        if !access.isPro(), now - Self.lastStoreCheck > 600 {
+            Self.lastStoreCheck = now
+            Task { [weak self] in await self?.checkStore() }
+        }
     }
 
     /// Filet de sécurité : ce contrôleur est à l'écran sans le clavier (iOS le remontre parfois sans « apparition »,
@@ -164,7 +174,8 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        canvas?.trimMemory()
+        // Tous les contrôleurs encore en vie reçoivent l'alerte : le clavier partagé ne la traite qu'une fois.
+        if ownsCanvas { canvas?.memoryWarning() } else if Self.latest == nil { KeyboardCanvas.shared?.memoryWarning() }
     }
 
     override func viewWillDisappear(_ animated: Bool) {

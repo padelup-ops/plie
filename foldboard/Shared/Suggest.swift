@@ -160,7 +160,27 @@ final class KBSuggest {
     /// (« sdi », « rapelle »), légère pour un vrai mot rare (« chiming »).
     private var spellCache: [String: Bool] = [:]
     /// iOS manque de mémoire : on vide ce qui se recalcule.
-    func trimMemory() { spellCache = [:]; NeuralSwipe.releaseIfTight() }
+    func trimMemory() { spellCache = [:]; englishCache = ("", false); NeuralSwipe.releaseIfTight() }
+
+    /// Dernier recours avant qu'iOS ferme le clavier : ce correcteur rend ses listes de mots et le modèle de langue
+    /// (une dizaine de Mo). Il ne propose plus rien jusqu'au prochain `setLayout`, qui recharge tout.
+    func shed() {
+        words = []; folded = []; rank = FirstRank([])
+        byPrefix = [:]; byFirst = [:]; byFirstLen = [:]; accented = [:]
+        loadedList = ""
+        lm = nil
+        spellCache = [:]
+        englishCache = ("", false)
+    }
+
+    /// Les copies partagées entre correcteurs (à appeler une fois que chacun a rendu les siennes).
+    static func shedShared() {
+        listLock.lock(); listCache = [:]; listLock.unlock()
+        lmLock.lock(); lmCache = [:]; lmLock.unlock()
+    }
+
+    /// Les listes sont-elles chargées ? (banc d'essai)
+    var hasLists: Bool { !words.isEmpty }
     private func glideJunk(_ w: String, rank r: Int) -> Double {
         guard doubtful(w, rank: r) else { return 0 }
         let ok: Bool
