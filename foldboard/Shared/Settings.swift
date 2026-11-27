@@ -45,6 +45,17 @@ enum KBMode: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var isOneHand: Bool { self == .auto || self == .left || self == .right }
+
+    /// Les cinq positions dans l'ordre choisi dans l'app. Une valeur inconnue ou en double est ignorée, une position
+    /// oubliée revient à la suite dans l'ordre d'origine : le menu montre toujours les cinq.
+    static func ordered(_ raw: [String]) -> [KBMode] {
+        var out: [KBMode] = []
+        for r in raw {
+            if let m = KBMode(rawValue: r), !out.contains(m) { out.append(m) }
+        }
+        for m in allCases where !out.contains(m) { out.append(m) }
+        return out
+    }
     var symbol: String {
         switch self {
         case .auto: return "hand.raised.fingers.spread"
@@ -134,6 +145,10 @@ struct KBSettings: Codable, Equatable {
     var barButtons = true
     /// Le raccourci des trois dispositions (suit la main, toute la largeur, coupé) seulement Duo ouvert.
     var layoutSwitchOpenOnly = true
+    /// Le raccourci des dispositions à gauche des suggestions (sinon à droite).
+    var layoutSwitchLeft = false
+    /// Le bouton de position seulement Duo ouvert (caché sur l'écran extérieur).
+    var handButtonOpenOnly = false
     /// Chaque bouton de la barre du haut, un par un. Le « … » caché se rallume dans l'app.
     /// Position (icône clavier / main), à part des curseurs de réglages.
     var showHandButton = true
@@ -170,6 +185,11 @@ struct KBSettings: Codable, Equatable {
     var emojiSuggest = true
     /// Les petits messages « Foldboard connaît mieux ta prise en main » / « Noté » dans le clavier.
     var learningTips = true
+    /// Les emojis (récents, puis favoris) dans la place libre à côté du clavier à une main.
+    var sideEmojis = true
+    /// L'ordre des positions dans le menu du bouton de position et dans l'app (noms de KBMode). Vide : l'ordre
+    /// d'origine. Toujours lu par `orderedModes`, qui tolère les valeurs inconnues ou manquantes.
+    var positionOrder: [String] = []
     /// Une rangée de chiffres au-dessus des lettres (désactivée par défaut : le clavier garde sa hauteur).
     var numberRow = false
     /// La hauteur de la rangée de la barre d'espace, par rapport aux autres (0,8 à 1,5).
@@ -216,6 +236,9 @@ struct KBSettings: Codable, Equatable {
 
     /// La disposition voulue sur cet écran (avant les limites de la version gratuite).
     func mode(for context: String) -> KBMode { screenModes[context] ?? mode }
+
+    /// Les cinq positions, dans l'ordre choisi (voir `positionOrder`).
+    var orderedModes: [KBMode] { KBMode.ordered(positionOrder) }
 
     static let myWordsMax = 500
 
@@ -317,6 +340,8 @@ struct KBSettings: Codable, Equatable {
         keyHeightOpen = (try? c.decodeIfPresent(Double.self, forKey: .keyHeightOpen)) ?? d.keyHeightOpen
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
         layoutSwitchOpenOnly = (try? c.decodeIfPresent(Bool.self, forKey: .layoutSwitchOpenOnly)) ?? d.layoutSwitchOpenOnly
+        layoutSwitchLeft = (try? c.decodeIfPresent(Bool.self, forKey: .layoutSwitchLeft)) ?? d.layoutSwitchLeft
+        handButtonOpenOnly = (try? c.decodeIfPresent(Bool.self, forKey: .handButtonOpenOnly)) ?? d.handButtonOpenOnly
         showHandButton = (try? c.decodeIfPresent(Bool.self, forKey: .showHandButton)) ?? barButtons
         showSettingsButton = (try? c.decodeIfPresent(Bool.self, forKey: .showSettingsButton)) ?? barButtons
         showMicButton = (try? c.decodeIfPresent(Bool.self, forKey: .showMicButton)) ?? d.showMicButton
@@ -337,6 +362,8 @@ struct KBSettings: Codable, Equatable {
         contactNames = (try? c.decodeIfPresent(Bool.self, forKey: .contactNames)) ?? d.contactNames
         emojiSuggest = (try? c.decodeIfPresent(Bool.self, forKey: .emojiSuggest)) ?? d.emojiSuggest
         learningTips = (try? c.decodeIfPresent(Bool.self, forKey: .learningTips)) ?? d.learningTips
+        sideEmojis = (try? c.decodeIfPresent(Bool.self, forKey: .sideEmojis)) ?? d.sideEmojis
+        positionOrder = (try? c.decodeIfPresent([String].self, forKey: .positionOrder)) ?? d.positionOrder
         numberRow = (try? c.decodeIfPresent(Bool.self, forKey: .numberRow)) ?? d.numberRow
         spaceRowScale = min(1.5, max(0.8, (try? c.decodeIfPresent(Double.self, forKey: .spaceRowScale)) ?? d.spaceRowScale))
         tapLearn = (try? c.decodeIfPresent(Bool.self, forKey: .tapLearn)) ?? d.tapLearn
@@ -548,9 +575,13 @@ struct KBSettings: Codable, Equatable {
         showLayoutSwitch = newer.showLayoutSwitch
         showMoreButton = newer.showMoreButton
         layoutSwitchOpenOnly = newer.layoutSwitchOpenOnly
+        layoutSwitchLeft = newer.layoutSwitchLeft
+        handButtonOpenOnly = newer.handButtonOpenOnly
         barLayout = newer.barLayout
         compactBar = newer.compactBar
         learningTips = newer.learningTips
+        sideEmojis = newer.sideEmojis
+        positionOrder = newer.positionOrder
     }
 
     /// Les interrupteurs changés depuis le dernier chargement restent, même si une copie plus récente arrive.
@@ -565,6 +596,9 @@ struct KBSettings: Codable, Equatable {
         keep(edited.hideKeyButton, baseline.hideKeyButton) { hideKeyButton = $0 }
         keep(edited.showLayoutSwitch, baseline.showLayoutSwitch) { showLayoutSwitch = $0 }
         keep(edited.layoutSwitchOpenOnly, baseline.layoutSwitchOpenOnly) { layoutSwitchOpenOnly = $0 }
+        keep(edited.layoutSwitchLeft, baseline.layoutSwitchLeft) { layoutSwitchLeft = $0 }
+        keep(edited.handButtonOpenOnly, baseline.handButtonOpenOnly) { handButtonOpenOnly = $0 }
+        keep(edited.sideEmojis, baseline.sideEmojis) { sideEmojis = $0 }
         keep(edited.showSwapButton, baseline.showSwapButton) { showSwapButton = $0 }
         keep(edited.showCenterButton, baseline.showCenterButton) { showCenterButton = $0 }
         keep(edited.showLayoutMenu, baseline.showLayoutMenu) { showLayoutMenu = $0 }

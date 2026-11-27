@@ -644,3 +644,12 @@
 "Remind me when I just tap the mic" = "只是轻点麦克风时提醒我";
 
 "Open Foldboard settings" = "打开 Foldboard 设置";
+
+"Layout switcher on the left" = "布局切换显示在左侧";
+"Position button only when the Duo is open" = "仅在 Duo 展开时显示位置按钮";
+"Order of the positions" = "位置的顺序";
+"Drag the positions into the order you want. The keyboard's position menu and the lists in this app follow it." = "将各个位置拖动到你想要的顺序。键盘的位置菜单和本 App 中的列表都会按此顺序显示。";
+"Back to the default order" = "恢复默认顺序";
+"Show emoji next to the keys" = "在按键旁显示表情符号";
+"Tips and learning messages" = "小贴士与学习提示";
+"The short tips and notes the keyboard shows in its top bar. Errors and the confirmations you ask for still show." = "键盘在顶部栏中显示的简短提示和说明。错误信息以及你主动要求的确认仍会显示。";

@@ -1038,6 +1038,8 @@ final class KeyboardCanvas: UIView {
         dictLabel.font = .systemFont(ofSize: 15, weight: .medium)
         topBar.addSubview(dictLabel)
         modeButton.showsMenuAsPrimaryAction = true
+        // L'ordre du menu est celui choisi dans l'app, de haut en bas : iOS ne le retourne pas selon la place.
+        modeButton.preferredMenuElementOrder = .fixed
         flipButton.setImage(UIImage(systemName: "arrow.left.arrow.right"), for: .normal)
         flipButton.addAction(UIAction { [weak self] _ in self?.flipSide() }, for: .touchUpInside)
         flipButton.accessibilityLabel = L("Switch side")
@@ -1438,7 +1440,7 @@ final class KeyboardCanvas: UIView {
         if recentCorrections.count >= 3, Date().timeIntervalSince1970 - last > 86_400 {
             UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: key)
             recentCorrections.removeAll()
-            notice(L("Wrong side often? Redo the “Right hand, left hand” test in the Foldboard app (10 s)."))
+            tip(L("Wrong side often? Redo the “Right hand, left hand” test in the Foldboard app (10 s)."), hold: 6)
         }
     }
 
@@ -1467,7 +1469,7 @@ final class KeyboardCanvas: UIView {
         guard settings.learningTips else { return }
         let n = KBHabits.shared.learnedTotal
         if [3, 10, 25, 50, 100, 200].contains(n) {
-            notice(String(format: L("Foldboard knows your grip better: %lld habits learned"), n))
+            tip(String(format: L("Foldboard knows your grip better: %lld habits learned"), n), hold: 6)
             return
         }
         guard correction else { return }
@@ -1475,7 +1477,7 @@ final class KeyboardCanvas: UIView {
         let shown = UserDefaults.standard.integer(forKey: key)
         guard shown < 5 else { return }
         UserDefaults.standard.set(shown + 1, forKey: key)
-        flash(L("Noted, I’ll remember this grip"))
+        tip(L("Noted, I’ll remember this grip"))
     }
 
     /// Une lettre tapée avec le petit clavier d'un côté : après quelques lettres sans correction, c'est une habitude.
@@ -1993,6 +1995,199 @@ final class KeyboardCanvas: UIView {
         return ok && proOK
     }
 
+    /// Les demandes des testeurs du 27 novembre, rejouées :
+    ///  - le raccourci des dispositions à droite ou à gauche des suggestions : entier, jamais sur les mots ni sur un
+    ///    bouton, quelle que soit la répartition des boutons, clavier entier ou à une main ;
+    ///  - le bouton de position seulement Duo ouvert, sans trou laissé dans la barre de l'écran extérieur ;
+    ///  - les emojis à côté du clavier à une main, cachés par leur réglage ;
+    ///  - une seule flèche dans la place libre, vers le côté où ira le clavier, ni sur les emojis ni sur les boutons.
+    static func verifyBarOptions() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        // Pas en mode « portable » (l'essai de la charnière le laisse allumé) : le clavier de tous les jours.
+        c.hingeHalf = false
+        c.hingeSettling = false
+        func layout(_ context: String, _ width: CGFloat, _ edit: (inout KBSettings) -> Void) {
+            var s = KBSettings()
+            s.layout = .azerty
+            s.mode = .full
+            s.layoutSwitchOpenOnly = false
+            edit(&s)
+            c.demoContext = context
+            c.frame = CGRect(x: 0, y: 0, width: width, height: 360)
+            c.configure(settings: s, pro: true)
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+        }
+        // Les boutons visibles que porte la barre (les suggestions sont dans `chips`, pas ici).
+        func barButtons() -> [UIView] {
+            c.topBar.subviews.filter { $0 is UIButton && !$0.isHidden && $0.alpha > 0.01 && $0.frame.width > 1 }
+        }
+
+        // 1. Le raccourci des dispositions, à droite puis à gauche. La dernière scène est la plus serrée (petit
+        // clavier dont la barre porte aussi les boutons) : il y reste au moins de quoi lire un mot.
+        let scenes: [(name: String, context: String, width: CGFloat, words: CGFloat, edit: (inout KBSettings) -> Void)] = [
+            ("entier", "open-landscape", 980, 3 * 78, { $0.mode = .full }),
+            ("une main, boutons sur le côté", "open-landscape", 980, 3 * 78, { $0.mode = .right; $0.oneHandWidthOpen = 0.9 }),
+            ("une main, boutons dans la barre", "open-portrait", 669, 110, { $0.mode = .right; $0.oneHandWidthOpen = 0.9; $0.edgeMargin = 30 }),
+        ]
+        var switchOK = true
+        var cases = 0
+        for scene in scenes {
+            for bar in ["right", "left", "split"] {
+                for left in [false, true] {
+                    layout(scene.context, scene.width) {
+                        scene.edit(&$0)
+                        $0.barLayout = bar
+                        $0.layoutSwitchLeft = left
+                    }
+                    c.suggestionItems = ["bonjour", "bonsoir", "bonne"]
+                    c.layoutTopBar()
+                    let sw = c.layoutSwitch.frame
+                    let words = c.chips.frame
+                    let lo = c.blocks.map(\.minX).min() ?? 0, hi = c.blocks.map(\.maxX).max() ?? c.bounds.width
+                    let whole = c.visibilityProbe().layoutSwitch && sw.width >= layoutSwitchWidth - 0.5
+                    let clear = !sw.intersects(words) && words.width >= scene.words && !barButtons().contains { $0.frame.intersects(sw) }
+                    let inside = sw.minX >= lo - 0.5 && sw.maxX <= hi + 0.5
+                    let side = left ? sw.maxX <= words.minX : sw.minX >= words.maxX
+                    if !(whole && clear && inside && side) {
+                        switchOK = false
+                        print("raccourci raté : \(scene.name), boutons \(bar), \(left ? "à gauche" : "à droite") : entier=\(whole) libre=\(clear) dans la barre=\(inside) bon côté=\(side) \(sw) mots \(words)")
+                    }
+                    cases += 1
+                }
+            }
+        }
+        c.suggestionItems = []
+
+        // 2. Le bouton de position seulement Duo ouvert : caché sur l'écran extérieur, et les suggestions commencent
+        // au même endroit que quand le bouton est coupé par son interrupteur (pas de trou).
+        layout("closed-portrait", 466) { $0.showHandButton = false }
+        let reference = c.chips.frame.minX
+        layout("closed-portrait", 466) { $0.handButtonOpenOnly = true }
+        let hiddenClosed = !c.visibilityProbe().mode && abs(c.chips.frame.minX - reference) < 0.5
+        layout("closed-portrait", 466) { _ in }
+        let shownByDefault = c.visibilityProbe().mode && c.chips.frame.minX > reference + 30
+        layout("open-landscape", 980) { $0.handButtonOpenOnly = true }
+        let shownOpen = c.visibilityProbe().mode
+
+        // 3. Les emojis à côté du clavier à une main (Duo ouvert en portrait), et 4. la flèche de la place libre.
+        func sideEmojis() -> Int {
+            c.panelButtons.filter { !$0.isHidden && !($0.title(for: .normal) ?? "").isEmpty }.count
+        }
+        func arrow(_ wanted: String) -> Bool {
+            let text = c.sideHint.attributedText?.string ?? ""
+            let arrows = text.filter { "←→‹›".contains($0) }
+            let hint = c.sideHint.frame
+            let onEmoji = c.panelButtons.contains { !$0.isHidden && c.panel.convert($0.frame, to: c).intersects(hint) }
+            let onButton = barButtons().contains { c.topBar.convert($0.frame, to: c).intersects(hint) }
+            let images = c.panel.subviews.contains { $0 is UIImageView && !$0.isHidden }
+            return !c.sideHint.isHidden && arrows == wanted && hint.width >= 30 && !onEmoji && !onButton && !images
+        }
+        layout("open-portrait", 669) { $0.mode = .right }
+        let emojisOn = sideEmojis()
+        // Clavier à droite : la place libre est à gauche, y toucher l'envoie à gauche.
+        let arrowToLeft = arrow("←")
+        layout("open-portrait", 669) { $0.mode = .right; $0.sideEmojis = false }
+        let emojisOff = sideEmojis()
+        let arrowAlone = arrow("←")
+        layout("open-portrait", 669) { $0.mode = .left }
+        let arrowToRight = arrow("→") && sideEmojis() == emojisOn
+
+        let ok = switchOK && cases == 18 && hiddenClosed && shownByDefault && shownOpen
+            && emojisOn > 0 && emojisOff == 0 && arrowToLeft && arrowAlone && arrowToRight
+        print("RESULT baroptions raccourci_deux_cotes=\(switchOK) (\(cases) cas) position_cachee_ferme=\(hiddenClosed) position_ferme_par_defaut=\(shownByDefault) position_ouvert=\(shownOpen) emojis_cote=\(emojisOn) emojis_coupes=\(emojisOff) fleche_vers_gauche=\(arrowToLeft) fleche_sans_emojis=\(arrowAlone) fleche_vers_droite=\(arrowToRight) \(ok ? "yes" : "no")")
+        return ok
+    }
+
+    /// Les messages de la barre : un conseil se tait quand les conseils sont coupés (une erreur se dit toujours), et
+    /// un message affiché reste devant le raccourci des dispositions, même après la mise en page qui suit.
+    static func verifyToasts() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 669, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.hingeHalf = false
+        c.hingeSettling = false
+        func layout(_ edit: (inout KBSettings) -> Void) {
+            var s = KBSettings()
+            s.layout = .azerty
+            s.mode = .full
+            s.layoutSwitchOpenOnly = false
+            edit(&s)
+            c.demoContext = "open-portrait"
+            c.frame = CGRect(x: 0, y: 0, width: 669, height: 360)
+            c.configure(settings: s, pro: true)
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+        }
+        // 1. Conseils coupés : choisir une position ne dit plus rien (le clavier change bien de place)…
+        layout { $0.learningTips = false }
+        c.toast.text = nil
+        c.setMode(.left)
+        c.layoutIfNeeded()
+        let quiet = (c.toast.text ?? "").isEmpty && c.settings.screenModes["open-portrait"] == .left
+        // … mais une erreur se dit toujours (« ajuster » n'existe pas sur le clavier entier).
+        c.setMode(.full)
+        c.layoutIfNeeded()
+        c.toast.text = nil
+        c.startAdjust()
+        let errorSaid = (c.toast.text ?? "").contains(L("Choose one hand or two hands to adjust"))
+
+        // 2. Conseils allumés : le même choix affiche son message, par-dessus le raccourci des dispositions (le
+        // message traverse presque toute la barre ; avant, la mise en page suivante remettait le raccourci devant).
+        layout { $0.learningTips = true; $0.mode = .left }
+        c.toast.text = nil
+        c.setMode(.full)
+        c.layoutIfNeeded()
+        c.layoutTopBar()
+        let said = (c.toast.text ?? "").contains(L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."))
+        let stack = c.topBar.subviews
+        let crossing = c.visibilityProbe().layoutSwitch && c.toast.frame.intersects(c.layoutSwitch.frame)
+        let above = (stack.firstIndex(of: c.toast) ?? -1) > (stack.firstIndex(of: c.layoutSwitch) ?? Int.max)
+        let opaque = (c.toast.backgroundColor?.cgColor.alpha ?? 0) >= 1
+        c.toast.text = nil
+        let ok = quiet && errorSaid && said && crossing && above && opaque
+        print("RESULT messages conseil_coupe_muet=\(quiet) erreur_dite=\(errorSaid) conseil_allume_dit=\(said) croise_le_raccourci=\(crossing) message_devant=\(above) fond_opaque=\(opaque) \(ok ? "yes" : "no")")
+        return ok
+    }
+
+    /// L'ordre des positions choisi dans l'app, relu sur le vrai menu du bouton de position : il est respecté, et le
+    /// menu garde ses cinq positions même si le réglage est incomplet, inconnu ou d'un mauvais type.
+    static func verifyPositionOrder() -> Bool {
+        let host = UIView(frame: CGRect(x: 0, y: 0, width: 980, height: 420))
+        let c = install(in: host)
+        NSLayoutConstraint.deactivate(c.hostPins)
+        c.hostPins.removeAll()
+        c.translatesAutoresizingMaskIntoConstraints = true
+        c.hingeHalf = false
+        c.hingeSettling = false
+        c.demoContext = "open-landscape"
+        c.frame = CGRect(x: 0, y: 0, width: 980, height: 360)
+        // Les réglages tels qu'ils arrivent du coffre (JSON), puis l'ordre lu dans le menu du bouton.
+        func menuOrder(_ json: String) -> [String] {
+            guard let s = try? JSONDecoder().decode(KBSettings.self, from: Data(json.utf8)) else { return ["illisible"] }
+            c.configure(settings: s, pro: true)
+            c.builtFor = .zero
+            c.layoutIfNeeded()
+            let positions = c.modeButton.menu?.children.first as? UIMenu
+            let ids = (positions?.children ?? []).compactMap { ($0 as? UIAction)?.identifier.rawValue }
+            return ids.map { String($0.dropFirst(modeActionPrefix.count)) }
+        }
+        let original = ["auto", "left", "right", "full", "split"]
+        let plain = menuOrder("{}") == original
+        let custom = menuOrder(#"{"positionOrder":["split","full","right","left","auto"]}"#) == ["split", "full", "right", "left", "auto"]
+        let partial = menuOrder(#"{"positionOrder":["full","bogus","full","right"]}"#) == ["full", "right", "auto", "left", "split"]
+        let wrongType = menuOrder(#"{"positionOrder":"split"}"#) == original
+        let ok = plain && custom && partial && wrongType
+        print("RESULT ordre_positions origine=\(plain) choisi=\(custom) incomplet_ou_inconnu=\(partial) mauvais_type=\(wrongType) \(ok ? "yes" : "no")")
+        return ok
+    }
+
     func visibilityProbe() -> (emoji: Bool, adjust: Bool, mode: Bool, mic: Bool, hide: Bool, hand: Bool, clip: Bool, layoutSwitch: Bool) {
         func on(_ v: UIView) -> Bool { v.isHidden == false && v.alpha > 0.5 && v.frame.width > 1 }
         return (on(emojiButton), on(adjustButton), on(modeButton), on(micButton), on(hideButton), on(modeButton), on(clipButton), on(layoutSwitch))
@@ -2349,8 +2544,9 @@ final class KeyboardCanvas: UIView {
         grip.locked = false
         save()
         // Choisir « Toute la largeur » (ou un côté) fixe le clavier sur cet écran : on le dit, et comment revenir.
-        flash(m == .auto ? L("The keyboard follows your hand on this screen.")
-                         : L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."), hold: 3)
+        // C'est un conseil : rien si les conseils sont coupés dans l'app (le clavier, lui, a bien changé de place).
+        tip(m == .auto ? L("The keyboard follows your hand on this screen.")
+                       : L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."), hold: 3)
     }
 
     /// Un toucher dans la place libre : à gauche → clavier à gauche, à droite → à droite, au centre → au milieu
@@ -2367,26 +2563,29 @@ final class KeyboardCanvas: UIView {
             sideHint.isUserInteractionEnabled = false
             addSubview(sideHint)
         }
-        let lo = blocks.map(\.minX).min() ?? 0, hi = blocks.map(\.maxX).max() ?? bounds.width
-        let leftFree = lo - panelRect.minX, rightFree = panelRect.maxX - hi
-        guard eff.tapSideToMove, layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width > 0, max(leftFree, rightFree) > 70 else {
+        // Une seule flèche, dans la place vraiment libre (ni sur les emojis du bord, ni sur la colonne de boutons).
+        // Avant, deux flèches doubles étaient dessinées dans la même place : celle-ci (« ‹‹ » en texte, centrée sur
+        // toute la place libre, donc parfois sur les boutons) et une image de chevrons posée par le panneau du côté.
+        let free = sideFree
+        guard eff.tapSideToMove, layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width > 0,
+              free.width >= 44, free.height >= 44 else {
             sideHint.isHidden = true
             return
         }
-        let onLeft = leftFree > rightFree
-        let free = onLeft ? CGRect(x: panelRect.minX, y: panelRect.minY, width: leftFree, height: panelRect.height)
-                          : CGRect(x: hi, y: panelRect.minY, width: rightFree, height: panelRect.height)
+        // La place libre est à gauche des touches : y toucher envoie le clavier à gauche, la flèche le montre.
+        let onLeft = free.midX < (blocks.first?.midX ?? bounds.midX)
         let shown = UserDefaults.standard.integer(forKey: "foldboard.sideHintShown")
-        let words = shown < 6
-        let arrow = NSAttributedString(string: onLeft ? "‹‹" : "››", attributes: [.font: UIFont.systemFont(ofSize: 26, weight: .semibold),
-                                                                                .foregroundColor: theme.text.withAlphaComponent(words ? 0.45 : 0.22)])
+        // Le texte : les premières fois, s'il a la place, et seulement si les conseils sont allumés.
+        let words = shown < 6 && settings.learningTips && free.width >= 100 && free.height >= 96
+        let arrow = NSAttributedString(string: onLeft ? "←" : "→", attributes: [.font: UIFont.systemFont(ofSize: 26, weight: .semibold),
+                                                                              .foregroundColor: theme.text.withAlphaComponent(words ? 0.45 : 0.22)])
         let text = NSMutableAttributedString(attributedString: arrow)
         if words {
             text.append(NSAttributedString(string: "\n" + L("Tap here to move the keyboard"), attributes: [
                 .font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: theme.text.withAlphaComponent(0.45)]))
         }
         sideHint.attributedText = text
-        sideHint.frame = free.insetBy(dx: 8, dy: 10)
+        sideHint.frame = free.insetBy(dx: 4, dy: 6)
         if sideHint.isHidden || sideHint.tag != (onLeft ? 1 : 2) {
             sideHint.tag = onLeft ? 1 : 2
             if words { UserDefaults.standard.set(shown + 1, forKey: "foldboard.sideHintShown") }
@@ -2591,6 +2790,13 @@ final class KeyboardCanvas: UIView {
         flash(text, hold: 6)
     }
 
+    /// Un conseil ou un rappel (ni une erreur, ni la réponse à ce qu'on vient de demander) : rien quand les
+    /// conseils sont coupés dans l'app (« Conseils et messages d'apprentissage »).
+    private func tip(_ text: String, hold: TimeInterval = 2.2) {
+        guard settings.learningTips else { return }
+        flash(text, hold: hold)
+    }
+
     private func flash(_ text: String, hold: TimeInterval = 2.2) {
         toast.text = "  " + text + "  "
         toast.adjustsFontSizeToFitWidth = true
@@ -2600,6 +2806,8 @@ final class KeyboardCanvas: UIView {
         toast.sizeToFit()
         let w = min(topBar.bounds.width - 16, toast.bounds.width + 8)
         toast.frame = CGRect(x: (topBar.bounds.width - w) / 2, y: 7, width: w, height: 28)
+        // Toujours devant tout ce que porte la barre (le raccourci des dispositions passait par-dessus le texte).
+        if topBar.subviews.last !== toast { topBar.bringSubviewToFront(toast) }
         toast.alpha = 1
         UIView.animate(withDuration: 0.4, delay: hold, options: [], animations: { self.toast.alpha = 0 })
     }
@@ -2966,6 +3174,7 @@ final class KeyboardCanvas: UIView {
             emojiBoard.reloadRecent()
             rebuildPanel()
             layoutTopBar()
+            updateSideHint()
             return
         }
 
@@ -3161,6 +3370,11 @@ final class KeyboardCanvas: UIView {
         return v
     }
 
+    /// Le bouton de position : son interrupteur, et l'option « seulement Duo ouvert » (caché sur l'écran extérieur).
+    private var handButtonShown: Bool {
+        settings.showHandButton && (!settings.handButtonOpenOnly || gripContext.hasPrefix("open"))
+    }
+
     private func layoutTopBar() {
         topBar.frame = CGRect(x: 0, y: barTop, width: bounds.width, height: Self.topBarHeight)
         let h = Self.topBarHeight
@@ -3169,7 +3383,7 @@ final class KeyboardCanvas: UIView {
         let confine = layoutMode.isOneHand && panelRect.width > 0 && !blocks.isEmpty
         let x0 = confine ? (blocks.map { $0.minX }.min() ?? 0) : 0
         let x1 = confine ? (blocks.map { $0.maxX }.max() ?? bounds.width) : bounds.width
-        let showPosition = settings.showHandButton
+        let showPosition = handButtonShown
         modeButton.isHidden = !showPosition
         modeButton.frame = CGRect(x: x0 + 6, y: 0, width: showPosition ? 40 : 0, height: h)
         modeButton.setImage(UIImage(systemName: eff.mode.symbol), for: .normal)
@@ -3190,7 +3404,10 @@ final class KeyboardCanvas: UIView {
         // Écran intérieur : un bouton pour passer d'une disposition à l'autre.
         // Portrait : petit clavier qui suit la main ⇄ deux moitiés. Paysage : clavier entier ⇄ deux moitiés.
         let open = gripContext.hasPrefix("open")
-        let bigShown = open && pro && settings.showLayoutMenu
+        // Sans Foldboard Pro aussi : l'aperçu dans l'app (toujours Pro) montrait ce bouton, le vrai clavier jamais
+        // tant que l'essai n'était pas lancé. Son panneau sert aussi sans Pro (toute la largeur, boutons de la barre,
+        // réglages) et ses choix Pro demandent de débloquer, comme le raccourci des dispositions.
+        let bigShown = open && settings.showLayoutMenu
         bigButton.isHidden = !bigShown
         // Comme le clavier d'Apple sur le Duo ouvert : « … » ouvre un menu avec les deux dispositions, cochée.
         bigButton.setImage(UIImage(systemName: "ellipsis"), for: .normal)
@@ -3560,7 +3777,11 @@ final class KeyboardCanvas: UIView {
             layoutSwitch.frame = .zero
             return
         }
-        layoutSwitch.frame = CGRect(x: chips.frame.maxX - w, y: (h - 30) / 2, width: w, height: 30)
+        // À droite des suggestions, ou à gauche (réglage) : dans les deux cas il prend sa place sur elles, entre les
+        // boutons de gauche et ceux de droite, quelle que soit la répartition des boutons.
+        let left = settings.layoutSwitchLeft
+        layoutSwitch.frame = CGRect(x: left ? chips.frame.minX : chips.frame.maxX - w, y: (h - 30) / 2, width: w, height: 30)
+        if left { chips.frame.origin.x += w + 8 }
         chips.frame.size.width = max(0, chips.frame.width - w - 8)
         if layoutSwitch.selectedSegmentIndex != openLayoutChoice {
             switchProgrammatic = true
@@ -3576,7 +3797,13 @@ final class KeyboardCanvas: UIView {
             layoutSwitch.tintColor = theme.text
             layoutSwitch.accessibilityLabel = L("Keyboard position")
         }
-        if topBar.subviews.last !== layoutSwitch { topBar.bringSubviewToFront(layoutSwitch) }
+        // Devant les suggestions, mais derrière le message de la barre : un message recouvre le raccourci, il ne
+        // passe plus dessous (son texte y était illisible).
+        let stack = topBar.subviews
+        if stack.last !== toast || stack.dropLast().last !== layoutSwitch {
+            topBar.bringSubviewToFront(layoutSwitch)
+            topBar.bringSubviewToFront(toast)
+        }
     }
 
     /// Un réglage coupé reste coupé, même si une branche de la mise en page a réaffiché le bouton.
@@ -3586,7 +3813,7 @@ final class KeyboardCanvas: UIView {
             b.frame.size.width = 0
         }
         if !eff.emojiKey { hide(emojiButton) }
-        if !settings.showHandButton { hide(modeButton) }
+        if !handButtonShown { hide(modeButton) }
         if !settings.showSettingsButton { hide(adjustButton) }
         if !settings.showSwapButton { hide(flipButton) }
         if !settings.showCenterButton { hide(middleButton) }
@@ -3604,13 +3831,18 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    /// Le nom de chaque position dans le menu (le banc d'essai y relit l'ordre affiché).
+    private static let modeActionPrefix = "foldboard.mode."
+
     private func modeMenu() -> UIMenu {
         let names: [KBMode: String] = [.auto: L("Follows your hand"), .left: L("One hand, left"), .right: L("One hand, right"),
                                        .full: L("Full width"), .split: L("Two hands")]
-        let actions = KBMode.allCases.map { m in
+        // Dans l'ordre choisi dans l'app (Position et taille › Ordre des positions) ; toujours les cinq.
+        let actions = settings.orderedModes.map { m in
             UIAction(title: names[m] ?? m.rawValue,
                      subtitle: (m == .auto || m == .split) && !pro ? "Foldboard Pro" : nil,
                      image: UIImage(systemName: m.symbol),
+                     identifier: UIAction.Identifier(Self.modeActionPrefix + m.rawValue),
                      state: m == eff.mode ? .on : .off) { [weak self] _ in self?.setMode(m) }
         }
         let adjustAction = UIAction(title: L("Adjust the keyboard"), image: UIImage(systemName: "arrow.left.and.right.square")) { [weak self] _ in
@@ -3709,9 +3941,10 @@ final class KeyboardCanvas: UIView {
 
     /// Boutons du côté, dessinés une fois et réécrits (un pli ne les recrée pas).
     private var panelButtons: [UIButton] = []
-    private var panelHints: [UIImageView] = []
     private var panelUse = 0
-    private var hintUse = 0
+    /// La place vraiment libre à côté du clavier à une main (sans la colonne de boutons ni les emojis), dans le
+    /// repère du clavier : la flèche « touche ici » y va (voir updateSideHint).
+    private var sideFree: CGRect = .zero
     private var panelEmoji: [ObjectIdentifier: String] = [:]
     private var panelPhrase: [ObjectIdentifier: String] = [:]
 
@@ -3739,25 +3972,6 @@ final class KeyboardCanvas: UIView {
         return b
     }
 
-    private func claimHint(_ symbol: String) -> UIImageView {
-        let v: UIImageView
-        if hintUse < panelHints.count {
-            v = panelHints[hintUse]
-        } else {
-            v = UIImageView()
-            v.contentMode = .center
-            v.isUserInteractionEnabled = false
-            panel.addSubview(v)
-            panelHints.append(v)
-            KBViews.panels += 1
-        }
-        hintUse += 1
-        v.isHidden = false
-        v.image = KBSymbol.image(symbol)
-        v.tintColor = theme.text.withAlphaComponent(0.22)
-        return v
-    }
-
     private func parkPanelExtras() {
         for b in panelButtons.dropFirst(panelUse) {
             b.isHidden = true
@@ -3766,15 +3980,10 @@ final class KeyboardCanvas: UIView {
             panelEmoji[ObjectIdentifier(b)] = nil
             panelPhrase[ObjectIdentifier(b)] = nil
         }
-        for v in panelHints.dropFirst(hintUse) {
-            v.isHidden = true
-            v.image = nil
-        }
     }
 
     private func rebuildPanel() {
         panelUse = 0
-        hintUse = 0
         panelEmoji.removeAll(keepingCapacity: true)
         panelPhrase.removeAll(keepingCapacity: true)
         var area = panelRect
@@ -3789,6 +3998,7 @@ final class KeyboardCanvas: UIView {
             }
         }
         panel.frame = area
+        sideFree = layoutMode.isOneHand ? area : .zero
         guard area.width >= 44, area.height >= 44, eff.sidePanel != .none else { parkPanelExtras(); return }
         let w = area.width
         let h = area.height
@@ -3797,7 +4007,8 @@ final class KeyboardCanvas: UIView {
             // envoie le clavier de ce côté, ou au milieu près du centre.
             let cell: CGFloat = 44
             // Écran étroit : pas d'emojis sur le côté, toute la place libre sert à placer le clavier.
-            var cols = w >= 170 ? 2 : (w >= 110 ? 1 : 0)
+            // Réglage « emojis à côté des touches » coupé : pas d'emojis non plus, la place reste libre.
+            var cols = !eff.sideEmojis ? 0 : (w >= 170 ? 2 : (w >= 110 ? 1 : 0))
             let rowsN = max(1, min(4, Int(h / cell)))
             // Place pour un ou deux emojis seulement (sous les boutons) : rien plutôt qu'un emoji isolé.
             if cols * rowsN < 3 { cols = 0 }
@@ -3817,12 +4028,9 @@ final class KeyboardCanvas: UIView {
                 b.titleLabel?.font = .systemFont(ofSize: 28)
                 b.frame = CGRect(x: ox + CGFloat(i % cols) * cell, y: oy + CGFloat(i / cols) * cell, width: cell, height: cell)
             }
-            // Indices discrets : flèches vers ce côté, et le milieu près du centre.
-            let freeW = w - gridW - 4
-            if freeW >= 36 {
-                let hint = claimHint(isRight ? "chevron.left.2" : "chevron.right.2")
-                let fx = isRight ? gridW + 4 : 0
-                hint.frame = CGRect(x: fx, y: 0, width: freeW, height: h)
+            // Ce qui reste à côté des emojis : la place de la flèche « touche ici » (une seule, voir updateSideHint).
+            if count > 0 {
+                sideFree = CGRect(x: area.minX + (isRight ? gridW + 4 : 0), y: area.minY, width: max(0, w - gridW - 4), height: h)
             }
         } else if eff.sidePanel == .emoji || (layoutMode == .split && eff.sidePanel == .phrases && w < 90) {
             let cols = max(1, min(4, Int(w / 46)))
@@ -4792,9 +5000,9 @@ final class KeyboardCanvas: UIView {
                 // Le rappel « Maintiens le micro » : les trois premières fois seulement (il gênait à chaque
                 // effleurement du micro).
                 let seen = UserDefaults.standard.integer(forKey: "foldboard.micHoldHint")
-                if eff.micHold, eff.micHoldHint, seen < 3 {
+                if eff.micHold, eff.micHoldHint, settings.learningTips, seen < 3 {
                     UserDefaults.standard.set(seen + 1, forKey: "foldboard.micHoldHint")
-                    flash(L("Hold the mic to dictate"))
+                    tip(L("Hold the mic to dictate"))
                 }
             } else {
                 micTapped()
@@ -5401,9 +5609,57 @@ final class KeyboardCanvas: UIView {
         if barSheet?.isHidden == false { barSheet?.reload(self) }
     }
 
-    /// Les couleurs du thème pour le panneau du « … ».
-    func barSheetStyle() -> (background: UIColor, key: UIColor, text: UIColor, accent: UIColor) {
-        (theme.background.withAlphaComponent(1), theme.key.withAlphaComponent(1), theme.text, theme.accent)
+    /// Les couleurs du thème pour le panneau du « … », en clair ou en sombre comme le clavier.
+    func barSheetStyle() -> (background: UIColor, key: UIColor, text: UIColor, accent: UIColor, onAccent: UIColor) {
+        Self.sheetPalette(theme, traits: traitCollection)
+    }
+
+    /// Les couleurs du panneau du « … » : opaques, et un titre toujours lisible sur sa ligne.
+    /// Avant, les touches translucides du thème Verre étaient simplement rendues opaques : blanches, sous un texte
+    /// blanc en mode sombre (des lignes blanches sans titre). Ici chaque couleur translucide est posée sur le fond
+    /// qu'elle a dans le clavier, et si le texte du thème ne se lit pas assez sur la ligne (contraste sous 4,5),
+    /// il passe au noir ou au blanc, le plus lisible des deux.
+    static func sheetPalette(_ theme: KBTheme, traits: UITraitCollection)
+        -> (background: UIColor, key: UIColor, text: UIColor, accent: UIColor, onAccent: UIColor) {
+        // Sous un thème translucide, le fond du clavier d'iOS (clair ou sombre).
+        let base = KBTheme.auto.background.resolvedColor(with: traits)
+        let background = flatten(theme.background.resolvedColor(with: traits), over: base)
+        let key = flatten(theme.key.resolvedColor(with: traits), over: background)
+        let accent = flatten(theme.accent.resolvedColor(with: traits), over: background)
+        let text = readable(theme.text.resolvedColor(with: traits), on: key, atLeast: 4.5)
+        // « OK » : blanc sur la couleur d'accent, sauf sur un accent clair (jaune, menthe, bleu ciel).
+        let onAccent = readable(.white, on: accent, atLeast: 3)
+        return (background, key, text, accent, onAccent)
+    }
+
+    /// Une couleur posée sur un fond opaque : la couleur qu'on voit vraiment.
+    static func flatten(_ color: UIColor, over base: UIColor) -> UIColor {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        var br: CGFloat = 0, bg: CGFloat = 0, bb: CGFloat = 0, ba: CGFloat = 0
+        guard color.getRed(&r, green: &g, blue: &b, alpha: &a), base.getRed(&br, green: &bg, blue: &bb, alpha: &ba) else { return base }
+        return UIColor(red: r * a + br * (1 - a), green: g * a + bg * (1 - a), blue: b * a + bb * (1 - a), alpha: 1)
+    }
+
+    /// Le contraste entre deux couleurs opaques (rapport de luminance du WCAG : 1 pour deux couleurs égales, 21
+    /// entre le noir et le blanc).
+    static func contrast(_ first: UIColor, _ second: UIColor) -> CGFloat {
+        func luminance(_ color: UIColor) -> CGFloat {
+            var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+            guard color.getRed(&r, green: &g, blue: &b, alpha: &a) else { return 0 }
+            func linear(_ v: CGFloat) -> CGFloat {
+                let c = min(1, max(0, v))
+                return c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
+            }
+            return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
+        }
+        let x = luminance(first), y = luminance(second)
+        return (max(x, y) + 0.05) / (min(x, y) + 0.05)
+    }
+
+    /// La couleur voulue si elle se lit sur ce fond, sinon le noir ou le blanc (le plus lisible des deux).
+    static func readable(_ wanted: UIColor, on back: UIColor, atLeast ratio: CGFloat) -> UIColor {
+        if contrast(wanted, back) >= ratio { return wanted }
+        return contrast(.black, back) >= contrast(.white, back) ? .black : .white
     }
 
     func barSheetRows() -> [(id: String, title: String, check: Bool)] {
@@ -5461,8 +5717,35 @@ final class KeyboardCanvas: UIView {
         start.nxt = probe
         let url = URL(string: "foldboard://settings")!
         let delivered = deliver(url, from: start) && probe.url == url
-        let ok = noSystemMenu && open && split && closed && switched && delivered
-        print("RESULT barsheet menu=\(noSystemMenu) open=\(open) split=\(split) closed=\(closed) switch=\(switched) url=\(delivered) \(ok ? "yes" : "no")")
+        // Les titres du panneau se lisent sur leur ligne dans chaque thème, en clair comme en sombre : d'abord les
+        // couleurs calculées pour les deux modes, puis celles relues sur les vrais boutons du panneau ouvert.
+        // Un titre de la couleur de sa ligne donne 1 (c'était le thème Verre en sombre : blanc sur blanc).
+        var worstRow = CGFloat.greatestFiniteMagnitude, worstDone = CGFloat.greatestFiniteMagnitude
+        for t in KBTheme.all {
+            for style in [UIUserInterfaceStyle.light, .dark] {
+                let p = sheetPalette(t, traits: UITraitCollection(userInterfaceStyle: style))
+                worstRow = min(worstRow, contrast(p.text, p.key))
+                worstDone = min(worstDone, contrast(p.onAccent, p.accent))
+                c.overrideUserInterfaceStyle = style
+                s.theme = t.id
+                c.configure(settings: s, pro: true)
+                c.builtFor = .zero
+                c.layoutIfNeeded()
+                if c.barSheet?.isHidden != false { c.toggleBarSheet() } else { c.barSheet?.reload(c) }
+                let drawn = c.barSheet?.contrasts() ?? (rows: 0, done: 0)
+                worstRow = min(worstRow, drawn.rows)
+                worstDone = min(worstDone, drawn.done)
+            }
+        }
+        c.overrideUserInterfaceStyle = .unspecified
+        c.barSheet?.isHidden = true
+        // La mesure voit bien le défaut signalé : les anciennes couleurs du thème Verre en sombre.
+        let dark = UITraitCollection(userInterfaceStyle: .dark)
+        let glass = KBTheme.named("glass")
+        let before = contrast(glass.text.resolvedColor(with: dark), glass.key.withAlphaComponent(1).resolvedColor(with: dark))
+        let readableRows = worstRow >= 4.5 && worstDone >= 3 && before < 1.5
+        let ok = noSystemMenu && open && split && closed && switched && delivered && readableRows
+        print("RESULT barsheet menu=\(noSystemMenu) open=\(open) split=\(split) closed=\(closed) switch=\(switched) url=\(delivered) contraste_lignes=\(String(format: "%.1f", worstRow)) contraste_ok=\(String(format: "%.1f", worstDone)) ancien_verre_sombre=\(String(format: "%.1f", before)) lisible=\(readableRows) \(ok ? "yes" : "no")")
         return ok
     }
 
@@ -5535,6 +5818,8 @@ final class KBBarSheet: UIView {
     private var textColor = UIColor.label
     private var accent = UIColor.systemBlue
     private var keyColor = UIColor.secondarySystemBackground
+    /// Les couleurs sont choisies pour le mode clair ou sombre du moment : s'il change panneau ouvert, on les refait.
+    private var styledDark = false
     private static let rowHeight: CGFloat = 42
 
     override init(frame: CGRect) {
@@ -5551,6 +5836,11 @@ final class KBBarSheet: UIView {
         scroll.delaysContentTouches = false
         card.addSubview(scroll)
         isHidden = true
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (v: KBBarSheet, _: UITraitCollection) in
+            guard !v.isHidden, let canvas = v.canvas,
+                  v.styledDark != (canvas.traitCollection.userInterfaceStyle == .dark) else { return }
+            v.reload(canvas)
+        }
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -5586,6 +5876,7 @@ final class KBBarSheet: UIView {
         textColor = style.text
         accent = style.accent
         keyColor = style.key
+        styledDark = canvas.traitCollection.userInterfaceStyle == .dark
         let items = canvas.barSheetRows()
         while rows.count < items.count {
             let b = UIButton(type: .system)
@@ -5606,7 +5897,7 @@ final class KBBarSheet: UIView {
             var cfg = UIButton.Configuration.plain()
             var title = AttributedString(item.title)
             title.font = .systemFont(ofSize: 15, weight: closing || item.check ? .semibold : .regular)
-            title.foregroundColor = closing ? UIColor.white : textColor
+            title.foregroundColor = closing ? style.onAccent : textColor
             cfg.attributedTitle = title
             cfg.titleLineBreakMode = .byTruncatingTail
             cfg.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 10)
@@ -5628,6 +5919,20 @@ final class KBBarSheet: UIView {
         for b in rows.dropFirst(items.count) { b.isHidden = true }
         scroll.contentOffset = .zero
         setNeedsLayout()
+    }
+
+    /// Banc d'essai : le plus faible contraste entre un titre et son fond, lu sur les boutons tels qu'ils sont
+    /// configurés (les lignes d'une part, le bouton « OK » de l'autre). Un titre de la couleur de sa ligne donne 1.
+    func contrasts() -> (rows: CGFloat, done: CGFloat) {
+        guard shown > 0 else { return (0, 0) }
+        var worstRow = CGFloat.greatestFiniteMagnitude, worstDone = CGFloat.greatestFiniteMagnitude
+        for b in rows.prefix(shown) {
+            let fore: UIColor? = b.configuration?.attributedTitle?.foregroundColor
+            guard let fore, let back = b.configuration?.background.backgroundColor else { return (0, 0) }
+            let ratio = KeyboardCanvas.contrast(fore.resolvedColor(with: traitCollection), back.resolvedColor(with: traitCollection))
+            if b.accessibilityIdentifier == "close" { worstDone = min(worstDone, ratio) } else { worstRow = min(worstRow, ratio) }
+        }
+        return (worstRow, worstDone)
     }
 }
 

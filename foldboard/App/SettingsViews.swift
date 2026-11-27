@@ -261,7 +261,8 @@ struct PositionView: View {
             }
 
             Section {
-                ForEach(KBMode.allCases) { mode in
+                // Dans l'ordre choisi (« Ordre des positions ») : le même que dans le menu du clavier.
+                ForEach(m.settings.orderedModes) { mode in
                     Button {
                         m.settings.mode = mode
                         // Choisi ici : partout. Les choix faits écran par écran depuis le clavier ne l'emportent plus
@@ -279,6 +280,11 @@ struct PositionView: View {
                             if m.settings.mode == mode { Image(systemName: "checkmark").foregroundStyle(Color.accentColor) }
                         }
                     }
+                }
+                NavigationLink {
+                    PositionOrderView()
+                } label: {
+                    Label("Order of the positions", systemImage: "arrow.up.arrow.down")
                 }
                 if m.settings.mode == .auto {
                     Button(role: .destructive) { confirmForget = true } label: {
@@ -338,7 +344,7 @@ struct PositionView: View {
                         get: { m.settings.screenModes[ctx] },
                         set: { m.settings.screenModes[ctx] = $0 })) {
                         Text("Same as above").tag(KBMode?.none)
-                        ForEach(KBMode.allCases) { mode in Text(modeTitle(mode)).tag(KBMode?.some(mode)) }
+                        ForEach(m.settings.orderedModes) { mode in Text(modeTitle(mode)).tag(KBMode?.some(mode)) }
                     }
                 }
                 Toggle("Layout switcher only when the Duo is open", isOn: $m.settings.layoutSwitchOpenOnly)
@@ -408,6 +414,9 @@ struct PositionView: View {
 
             Section {
                 Toggle("Position button", isOn: $m.settings.showHandButton)
+                if m.settings.showHandButton {
+                    Toggle("Position button only when the Duo is open", isOn: $m.settings.handButtonOpenOnly)
+                }
                 Toggle("Settings button", isOn: $m.settings.showSettingsButton)
                 Toggle("Mic button", isOn: $m.settings.showMicButton)
                 Toggle("Clipboard button", isOn: $m.settings.showClipboardButton)
@@ -416,6 +425,9 @@ struct PositionView: View {
                 Toggle("Keyboard in the middle", isOn: $m.settings.showCenterButton)
                 Toggle("Layout menu", isOn: $m.settings.showLayoutMenu)
                 Toggle("Layout switcher", isOn: $m.settings.showLayoutSwitch)
+                if m.settings.showLayoutSwitch {
+                    Toggle("Layout switcher on the left", isOn: $m.settings.layoutSwitchLeft)
+                }
                 Toggle("More", isOn: $m.settings.showMoreButton)
                 Toggle("✨ Fix button", isOn: $m.settings.wandButton)
                 Picker("Buttons", selection: $m.settings.barLayout) {
@@ -424,7 +436,15 @@ struct PositionView: View {
                     Text("On both sides").tag("split")
                 }
                 Toggle("Square keys", isOn: $m.settings.squareKeys)
-                Toggle("Learning messages", isOn: $m.settings.learningTips)
+                // Tous les conseils du clavier (pas seulement ceux de l'apprentissage) : coupé, il ne dit plus que les
+                // erreurs et les confirmations demandées.
+                Toggle(isOn: $m.settings.learningTips) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Tips and learning messages")
+                        Text("The short tips and notes the keyboard shows in its top bar. Errors and the confirmations you ask for still show.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
             } header: {
                 Text("Top bar")
             } footer: {
@@ -435,15 +455,7 @@ struct PositionView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) { PreviewDock() }
     }
 
-    private func modeTitle(_ m: KBMode) -> LocalizedStringKey {
-        switch m {
-        case .auto: return "Follows your hand"
-        case .left: return "One hand, left"
-        case .right: return "One hand, right"
-        case .full: return "Full width"
-        case .split: return "Two hands"
-        }
-    }
+    private func modeTitle(_ m: KBMode) -> LocalizedStringKey { m.titleKey }
 
     private func modeDetail(_ m: KBMode) -> LocalizedStringKey {
         switch m {
@@ -453,6 +465,50 @@ struct PositionView: View {
         case .full: return "The classic keyboard, edge to edge."
         case .split: return "Two halves at both edges of the open Duo."
         }
+    }
+}
+
+extension KBMode {
+    /// Le nom affiché dans l'app (clé de traduction, la même que dans le menu du clavier).
+    var titleKey: LocalizedStringKey {
+        switch self {
+        case .auto: return "Follows your hand"
+        case .left: return "One hand, left"
+        case .right: return "One hand, right"
+        case .full: return "Full width"
+        case .split: return "Two hands"
+        }
+    }
+}
+
+/// L'ordre des positions : celui du menu du bouton de position dans le clavier, et des listes de l'app.
+/// Les poignées sont toujours là (liste en mode édition) : on fait glisser une ligne pour la déplacer.
+struct PositionOrderView: View {
+    @Environment(SettingsModel.self) private var model
+
+    var body: some View {
+        @Bindable var m = model
+        List {
+            Section {
+                ForEach(m.settings.orderedModes) { mode in
+                    Label(mode.titleKey, systemImage: mode.symbol)
+                }
+                .onMove { from, to in
+                    var order = m.settings.orderedModes
+                    order.move(fromOffsets: from, toOffset: to)
+                    m.settings.positionOrder = order.map(\.rawValue)
+                }
+            } footer: {
+                Text("Drag the positions into the order you want. The keyboard's position menu and the lists in this app follow it.")
+            }
+            Section {
+                Button("Back to the default order") { m.settings.positionOrder = [] }
+                    .buttonStyle(.borderless)
+                    .disabled(m.settings.orderedModes == KBMode.allCases)
+            }
+        }
+        .environment(\.editMode, .constant(.active))
+        .navigationTitle("Order of the positions")
     }
 }
 
@@ -626,6 +682,8 @@ struct PhrasesView: View {
             }
 
             Section {
+                // Coupé : plus d'emojis à côté du clavier à une main, la place libre ne sert qu'à le déplacer.
+                Toggle("Show emoji next to the keys", isOn: $m.settings.sideEmojis)
                 TextField("Emoji", text: $emojiText)
                     .font(.title2)
                     .onChange(of: emojiText) { _, t in
@@ -640,14 +698,6 @@ struct PhrasesView: View {
                 HStack { Text("Emoji next to the keys"); ProBadge() }
             } footer: {
                 Text("In one-hand mode, the free space next to the keyboard shows these emoji (up to 24).")
-            }
-
-            Section {
-                Picker("Next to the keyboard", selection: $m.settings.sidePanel) {
-                    Text("Emoji").tag(KBSidePanel.emoji)
-                    Text("Phrases").tag(KBSidePanel.phrases)
-                    Text("Nothing").tag(KBSidePanel.none)
-                }
             }
         }
         .navigationTitle("Phrases and emoji")
