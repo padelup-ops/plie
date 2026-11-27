@@ -83,3 +83,11 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [24/837] it ok  0.96 6.7s essais 1 (104s, reste 1632 min) Oh, oh, oh! Devo tornare al mio laboratorio. Ti auguro un Na → Oh, oh, oh, oh, devo tornare al mio laboratorio. Chi augura 
   self.gen = func(*args, **kwds)
+[25/837] it ok  1.00 3.4s essais 1 (80s, reste 1608 min) Mi hanno detto che fai ridere tutti quelli che ti stanno int → mi hanno detto che fai ridere tutti quelli che ti stanno int
+  self.gen = func(*args, **kwds)
+[26/837] it ok  1.00 2.6s essais 1 (83s, reste 1587 min) Mi hanno detto che avete tantissimo coraggio. → Mi hanno detto che avete tantissimo coraggio.
+  self.gen = func(*args, **kwds)
+[27/837] it ok  1.00 3.4s essais 1 (74s, reste 1564 min) E anche che fai tantissime domande per capire tutto. → e anche che fai tantissime domande per capire tutto.
+  self.gen = func(*args, **kwds)
+[28/837] it ok  1.00 2.1s essais 1 (89s, reste 1549 min) E anche che avete un cuore grande. → e anche che avete un cuore grande.
+  self.gen = func(*args, **kwds)
