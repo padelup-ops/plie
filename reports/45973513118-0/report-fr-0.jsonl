@@ -8,3 +8,6 @@
 {"id": "f2376d5139089f926831", "key": "hello|khadija", "text": "Ho, ho, ho ! Bonjour Khadija !", "ok": true, "score": 0.765, "dur": 2.94, "heard": "Oh ho ho ! Bonjour, Cadizja !", "tries": 1, "secs": 50.5}
 {"id": "a19b80a9cb6069f80090", "key": "hello|sirine", "text": "Ho, ho, ho ! Bonjour Sirine !", "ok": true, "score": 0.865, "dur": 2.84, "heard": "Oh ho ho ! Bonjour Serine !", "tries": 2, "secs": 105.7}
 {"id": "1109ed903bc98384a545", "key": "hello|aliya", "text": "Ho, ho, ho ! Bonjour Aliya !", "ok": true, "score": 1.0, "dur": 2.56, "heard": "Ho ho ho, bonjour Aliya !", "tries": 1, "secs": 51.1}
+{"id": "c4e54566be54fc7f2aa8", "key": "hello|hana", "text": "Ho, ho, ho ! Bonjour Hana !", "ok": true, "score": 0.806, "dur": 2.72, "heard": "Oh ho ho ho bonjour Anna", "tries": 1, "secs": 50.9}
+{"id": "538d3e1a370149684b58", "key": "hello|yse", "text": "Ho, ho, ho ! Bonjour Ysé !", "ok": false, "score": 0.683, "dur": 5.5, "heard": "Oh ho ho bonjour ici. I see.", "tries": 3, "secs": 162.2}
+{"id": "d254d0a1851dd980ac80", "key": "hello|romain", "text": "Ho, ho, ho ! Bonjour Romain !", "ok": true, "score": 0.927, "dur": 2.24, "heard": "Ho ho ho, bonjour, Roman.", "tries": 2, "secs": 104.9}
