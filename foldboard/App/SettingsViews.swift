@@ -822,7 +822,10 @@ struct TypingView: View {
             } header: {
                 Text("Emoji")
             } footer: {
-                Text("Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap.")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Prefer Apple’s emoji keyboard with stickers and Genmoji? Hide the Foldboard emoji key, then in Settings › General › Keyboard › Keyboards tap Edit and drag Emoji right below Foldboard: the globe key opens it in one tap.")
+                    Text("With the keyboard on one side, “Show the globe as a smiley” makes the smiley button open Apple’s emoji keyboard instead of Foldboard’s.")
+                }
             }
             Section {
                 Toggle("Save everything I copy", isOn: $m.settings.clipAutoSave)
@@ -883,6 +886,9 @@ struct ProView: View {
                                 .padding(.vertical, 6)
                             }
                             .buttonStyle(.borderedProminent)
+                        } else if store.access.endlessTrial {
+                            Text("Test version: Pro stays unlocked.")
+                                .font(.subheadline.weight(.semibold))
                         } else if let end = store.access.trialEnd, store.isPro {
                             Text(String(format: NSLocalizedString("Free trial until %@", comment: ""), end.formatted(date: .abbreviated, time: .shortened)))
                                 .font(.subheadline.weight(.semibold))

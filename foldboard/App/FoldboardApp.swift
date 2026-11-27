@@ -140,6 +140,7 @@ struct ProStatusRow: View {
 
     private var detail: String {
         if store.access.purchased { return NSLocalizedString("Thank you!", comment: "") }
+        if store.access.endlessTrial { return NSLocalizedString("Test version: Pro stays unlocked.", comment: "") }
         if store.isPro, let end = store.access.trialEnd {
             return String(format: NSLocalizedString("Until %@", comment: ""), end.formatted(date: .abbreviated, time: .shortened))
         }

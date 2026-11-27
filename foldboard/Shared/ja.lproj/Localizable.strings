@@ -653,3 +653,16 @@
 "Show emoji next to the keys" = "キーの横に絵文字を表示";
 "Tips and learning messages" = "ヒントと学習メッセージ";
 "The short tips and notes the keyboard shows in its top bar. Errors and the confirmations you ask for still show." = "キーボードが上部バーに表示する短いヒントやメモです。エラーと、自分で求めた確認は引き続き表示されます。";
+"Back up or share your settings" = "設定をバックアップ・共有";
+"One file with everything, to keep or to send" = "すべてを 1 つのファイルに。保存も送信もできます";
+"Export my settings" = "設定を書き出す";
+"One file with everything: positions, sizes, colors, buttons, your phrases, your words and what the keyboard learned from your thumbs. Save it in Files, send it to yourself or to a friend." = "位置、サイズ、色、ボタン、定型文、単語、親指から学習した内容まで、すべてを 1 つのファイルにまとめます。「ファイル」に保存したり、自分や友だちに送ったりできます。";
+"Import settings" = "設定を読み込む";
+"Choose a Foldboard settings file. It replaces all the settings on this iPhone." = "Foldboard の設定ファイルを選んでください。この iPhone の設定がすべて置き換わります。";
+"Backup" = "バックアップ";
+"This file isn’t a Foldboard settings file." = "このファイルは Foldboard の設定ファイルではありません。";
+"Replace all your settings with this file?" = "すべての設定をこのファイルで置き換えますか？";
+"Replace my settings" = "設定を置き換える";
+"Settings imported." = "設定を読み込みました。";
+"Test version: Pro stays unlocked." = "テスト版：Pro は解除されたままです。";
+"With the keyboard on one side, “Show the globe as a smiley” makes the smiley button open Apple’s emoji keyboard instead of Foldboard’s." = "キーボードを片側に寄せているとき、「地球儀キーを笑顔で表示」をオンにすると、笑顔ボタンで Foldboard ではなく Apple の絵文字キーボードが開きます。";

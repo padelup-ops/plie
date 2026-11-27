@@ -74,6 +74,12 @@ struct AtelierHome: View {
                         .padding(Atelier.s2)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .atelierCard()
+                    VStack(spacing: 0) {
+                        link("square.and.arrow.up.on.square", "Back up or share your settings", "One file with everything, to keep or to send") {
+                            SettingsBackupView().fullScreenDuo()
+                        }
+                    }
+                    .atelierCard()
                     Label("Foldboard never sends what you type anywhere. The keyboard has no internet access, and there is no account and no ads.", systemImage: "lock.shield")
                         .font(.footnote)
                         .foregroundStyle(Atelier.muted)
@@ -260,6 +266,7 @@ struct AtelierHome: View {
 
     private var proDetail: String {
         if store.access.purchased { return NSLocalizedString("Thank you!", comment: "") }
+        if store.access.endlessTrial { return NSLocalizedString("Test version: Pro stays unlocked.", comment: "") }
         if store.isPro, let end = store.access.trialEnd {
             return String(format: NSLocalizedString("Until %@", comment: ""), end.formatted(date: .abbreviated, time: .shortened))
         }

@@ -2125,9 +2125,25 @@ final class KeyboardCanvas: UIView {
         layout("open-portrait", 669) { $0.mode = .left }
         let arrowToRight = arrow("→") && sideEmojis() == emojisOn
 
+        // 5. « Le globe en smiley », clavier à une main : un seul smiley, celui qui ouvre le clavier suivant (les
+        // emojis d'Apple) ; sans ce réglage, le smiley reste celui des emojis de Foldboard.
+        var smileyOK = true
+        for (context, width) in [("open-portrait", CGFloat(669)), ("open-landscape", CGFloat(980))] {
+            layout(context, width) { $0.mode = .right }
+            let plain = c.visibilityProbe().emoji && !c.globeProbe()
+            layout(context, width) { $0.mode = .right; $0.globeAsEmoji = true }
+            let apple = !c.visibilityProbe().emoji && c.globeProbe()
+            layout(context, width) { $0.mode = .right; $0.globeAsEmoji = true; $0.emojiKey = false }
+            let appleOnly = !c.visibilityProbe().emoji && c.globeProbe()
+            if !(plain && apple && appleOnly) {
+                smileyOK = false
+                print("smiley raté : \(context) : foldboard=\(plain) apple=\(apple) apple_sans_touche_emoji=\(appleOnly)")
+            }
+        }
+
         let ok = switchOK && cases == 18 && hiddenClosed && shownByDefault && shownOpen
-            && emojisOn > 0 && emojisOff == 0 && arrowToLeft && arrowAlone && arrowToRight
-        print("RESULT baroptions raccourci_deux_cotes=\(switchOK) (\(cases) cas) position_cachee_ferme=\(hiddenClosed) position_ferme_par_defaut=\(shownByDefault) position_ouvert=\(shownOpen) emojis_cote=\(emojisOn) emojis_coupes=\(emojisOff) fleche_vers_gauche=\(arrowToLeft) fleche_sans_emojis=\(arrowAlone) fleche_vers_droite=\(arrowToRight) \(ok ? "yes" : "no")")
+            && emojisOn > 0 && emojisOff == 0 && arrowToLeft && arrowAlone && arrowToRight && smileyOK
+        print("RESULT baroptions raccourci_deux_cotes=\(switchOK) (\(cases) cas) position_cachee_ferme=\(hiddenClosed) position_ferme_par_defaut=\(shownByDefault) position_ouvert=\(shownOpen) emojis_cote=\(emojisOn) emojis_coupes=\(emojisOff) fleche_vers_gauche=\(arrowToLeft) fleche_sans_emojis=\(arrowAlone) fleche_vers_droite=\(arrowToRight) smiley_apple=\(smileyOK) \(ok ? "yes" : "no")")
         return ok
     }
 
@@ -2221,6 +2237,11 @@ final class KeyboardCanvas: UIView {
         let ok = plain && custom && partial && wrongType
         print("RESULT ordre_positions origine=\(plain) choisi=\(custom) incomplet_ou_inconnu=\(partial) mauvais_type=\(wrongType) \(ok ? "yes" : "no")")
         return ok
+    }
+
+    /// Le globe des boutons (clavier à une main) est-il visible ?
+    func globeProbe() -> Bool {
+        globeButton.isHidden == false && globeButton.alpha > 0.5 && globeButton.frame.width > 1
     }
 
     func visibilityProbe() -> (emoji: Bool, adjust: Bool, mode: Bool, mic: Bool, hide: Bool, hand: Bool, clip: Bool, layoutSwitch: Bool) {
@@ -3489,8 +3510,8 @@ final class KeyboardCanvas: UIView {
         adjustButton.isHidden = !showSettings
         adjustButton.frame = CGRect(x: hideButton.frame.minX - (showSettings ? 36 : 0), y: 0, width: showSettings ? 36 : 0, height: h)
         let compact = layoutMode.isOneHand && !showEmoji
-        let globe = input?.kbNeedsGlobe ?? false
-        let emojiOn = compact && eff.emojiKey
+        let globe = compactGlobe
+        let emojiOn = compact && compactEmoji
         emojiButton.isHidden = !emojiOn
         globeButton.isHidden = !(compact && globe)
         globeButton.setImage(UIImage(systemName: eff.globeAsEmoji ? "face.smiling" : "globe"), for: .normal)
@@ -3554,7 +3575,7 @@ final class KeyboardCanvas: UIView {
             translateButton.isHidden = true
             fixButton.isHidden = true
             // Dans la place libre, en haut, du côté du clavier : 🌐 😀 réglages masquer.
-            let buttons: [UIButton] = (globe ? [globeButton] : []) + (eff.emojiKey ? [emojiButton] : []) + (micShown ? [micButton] : []) + (clipShown ? [clipButton] : []) + (showSettings ? [adjustButton] : []) + (hk ? [hideButton] : [])
+            let buttons: [UIButton] = (globe ? [globeButton] : []) + (compactEmoji ? [emojiButton] : []) + (micShown ? [micButton] : []) + (clipShown ? [clipButton] : []) + (showSettings ? [adjustButton] : []) + (hk ? [hideButton] : [])
             let gridW = CGFloat(g.cols) * 44
             let vertical = gripContext == "open-portrait" || gripContext.hasSuffix("landscape")
             // En colonne : contre le clavier (côté pouce), et les boutons répartis sur la hauteur des touches.
@@ -3870,13 +3891,19 @@ final class KeyboardCanvas: UIView {
         }
     }
 
+    /// Clavier à une main, avec « le globe en smiley » : le smiley des boutons ouvre le clavier suivant (les emojis
+    /// d'Apple, avec autocollants et Genmoji) au lieu des emojis de Foldboard, même quand iOS montre déjà son propre
+    /// globe sous le clavier. Il n'y a alors qu'un seul smiley.
+    private var compactGlobe: Bool { (input?.kbNeedsGlobe ?? false) || eff.globeAsEmoji }
+    private var compactEmoji: Bool { eff.emojiKey && !eff.globeAsEmoji }
+
     /// Un réglage coupé reste coupé, même si une branche de la mise en page a réaffiché le bouton.
     private func enforceVisibility() {
         func hide(_ b: UIButton) {
             b.isHidden = true
             b.frame.size.width = 0
         }
-        if !eff.emojiKey { hide(emojiButton) }
+        if !compactEmoji { hide(emojiButton) }
         if !handButtonShown { hide(modeButton) }
         if !settings.showSettingsButton { hide(adjustButton) }
         if !settings.showSwapButton { hide(flipButton) }
@@ -3886,7 +3913,7 @@ final class KeyboardCanvas: UIView {
         if !settings.showMicButton || !eff.dictationKey { hide(micButton) }
         if !settings.showClipboardButton { hide(clipButton) }
         if !settings.hideKeyButton { hide(hideButton) }
-        if (input?.kbNeedsGlobe ?? false) == false { hide(globeButton) }
+        if !compactGlobe { hide(globeButton) }
         if !layoutSwitchFits {
             layoutSwitch.isHidden = true
             layoutSwitch.alpha = 0
@@ -3966,7 +3993,7 @@ final class KeyboardCanvas: UIView {
     /// pour laisser toute la barre du haut aux suggestions (on voit les mots même tenu d'une main).
     private var sideButtonsGrid: (cols: Int, rows: Int, count: Int)? {
         guard layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width >= 44, panelRect.height >= 132 else { return nil }
-        let n = (settings.showClipboardButton ? 1 : 0) + (settings.showSettingsButton ? 1 : 0) + (settings.hideKeyButton ? 1 : 0) + ((input?.kbNeedsGlobe ?? false) ? 1 : 0) + (eff.emojiKey ? 1 : 0)
+        let n = (settings.showClipboardButton ? 1 : 0) + (settings.showSettingsButton ? 1 : 0) + (settings.hideKeyButton ? 1 : 0) + (compactGlobe ? 1 : 0) + (compactEmoji ? 1 : 0)
             + (eff.dictationKey && settings.showMicButton ? 1 : 0)
         guard n > 0 else { return nil }
         // Duo ouvert en portrait : une colonne verticale collée au clavier, à portée du pouce

@@ -8,7 +8,7 @@ enum TrialReminders {
 
     static func update(_ access: KBAccess) {
         let center = UNUserNotificationCenter.current()
-        guard !access.purchased, let end = access.trialEnd, end > Date() else {
+        guard !access.purchased, !access.endlessTrial, let end = access.trialEnd, end > Date() else {
             center.removePendingNotificationRequests(withIdentifiers: ids)
             return
         }

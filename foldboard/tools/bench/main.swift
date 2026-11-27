@@ -542,6 +542,40 @@ let hapticsOK = KeyboardCanvas.verifyHaptics()
 let barOptionsOK = KeyboardCanvas.verifyBarOptions()
 let toastsOK = KeyboardCanvas.verifyToasts()
 let orderOK = KeyboardCanvas.verifyPositionOrder()
+// Retours du testeur (27 novembre, suite) : le fichier de réglages se relit à l'identique et un fichier quelconque est
+// refusé ; dans une version de test, un essai lancé ne se termine pas (sauf « fin d'essai simulée »), et dans la
+// version de l'App Store il se termine comme avant.
+let backupOK: Bool = {
+    var s = KBSettings()
+    s.mode = .right
+    s.globeAsEmoji = true
+    s.phrases = ["À tout de suite", "On my way"]
+    s.myWords = ["Foldboard"]
+    s.keyHeight = 51
+    s.positionOrder = ["split", "full"]
+    let back = KBSettingsFile.data(s).flatMap { KBSettingsFile.read($0) }
+    let same = back == s
+    let fields = back?.mode == .right && back?.globeAsEmoji == true && back?.phrases == s.phrases
+        && back?.myWords == s.myWords && back?.keyHeight == 51 && back?.positionOrder == s.positionOrder
+    let foreign = KBSettingsFile.read(Data("{}".utf8)) == nil
+        && KBSettingsFile.read(Data(#"{"mode":"left","phrases":[]}"#.utf8)) == nil
+        && KBSettingsFile.read(Data("bonjour".utf8)) == nil
+    var old = KBAccess()
+    old.trialStart = Date().addingTimeInterval(-10 * 86400)
+    let store = !old.isPro() && old.trialOver()
+    var tester = old
+    tester.tester = true
+    let kept = tester.isPro() && !tester.trialOver()
+    var simulated = tester
+    simulated.simulated = true
+    let simulatedOver = !simulated.isPro() && simulated.trialOver()
+    var never = KBAccess()
+    never.tester = true
+    let locked = !never.isPro()
+    let ok = same && fields && foreign && store && kept && simulatedOver && locked
+    print("RESULT reglages_fichier identique=\(same) champs=\(fields) fichier_etranger_refuse=\(foreign) essai_app_store_fini=\(store) essai_version_test_garde=\(kept) fin_simulee=\(simulatedOver) sans_essai_bloque=\(locked) \(ok ? "yes" : "no")")
+    return ok
+}()
 /// La dictée écrite là où est le curseur : (texte avant, entendu, langue, attendu).
 let dictCases: [(String, String, String, String)] = [
     ("", "bonjour tout le monde", "fr", "Bonjour tout le monde"),
@@ -581,7 +615,7 @@ for (text, spoken, pair, want) in dirCases {
 }
 print("RESULT dictee sens_traduction \(dictOK ? "yes" : "no") (sur \(dirCases.count))")
 if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !hostOK || !hapticsOK || !dictOK
-    || !barOptionsOK || !toastsOK || !orderOK {
+    || !barOptionsOK || !toastsOK || !orderOK || !backupOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }

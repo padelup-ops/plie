@@ -654,3 +654,16 @@
 "Show emoji next to the keys" = "Mostrar emojis junto a las teclas";
 "Tips and learning messages" = "Consejos y mensajes de aprendizaje";
 "The short tips and notes the keyboard shows in its top bar. Errors and the confirmations you ask for still show." = "Los consejos y notas breves que el teclado muestra en su barra superior. Los errores y las confirmaciones que pides se siguen mostrando.";
+"Back up or share your settings" = "Guardar o compartir tus ajustes";
+"One file with everything, to keep or to send" = "Un solo archivo con todo, para guardar o enviar";
+"Export my settings" = "Exportar mis ajustes";
+"One file with everything: positions, sizes, colors, buttons, your phrases, your words and what the keyboard learned from your thumbs. Save it in Files, send it to yourself or to a friend." = "Un solo archivo con todo: posiciones, tamaños, colores, botones, tus frases, tus palabras y lo que el teclado ha aprendido de tus pulgares. Guárdalo en Archivos, envíatelo o pásaselo a alguien.";
+"Import settings" = "Importar ajustes";
+"Choose a Foldboard settings file. It replaces all the settings on this iPhone." = "Elige un archivo de ajustes de Foldboard. Sustituye todos los ajustes de este iPhone.";
+"Backup" = "Copia de seguridad";
+"This file isn’t a Foldboard settings file." = "Este archivo no es un archivo de ajustes de Foldboard.";
+"Replace all your settings with this file?" = "¿Sustituir todos tus ajustes por este archivo?";
+"Replace my settings" = "Sustituir mis ajustes";
+"Settings imported." = "Ajustes importados.";
+"Test version: Pro stays unlocked." = "Versión de prueba: Pro sigue desbloqueado.";
+"With the keyboard on one side, “Show the globe as a smiley” makes the smiley button open Apple’s emoji keyboard instead of Foldboard’s." = "Con el teclado a un lado, «Mostrar el globo como emoji» hace que el botón de la carita abra el teclado de emojis de Apple en lugar del de Foldboard.";

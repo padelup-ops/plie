@@ -653,3 +653,16 @@
 "Show emoji next to the keys" = "在按键旁显示表情符号";
 "Tips and learning messages" = "小贴士与学习提示";
 "The short tips and notes the keyboard shows in its top bar. Errors and the confirmations you ask for still show." = "键盘在顶部栏中显示的简短提示和说明。错误信息以及你主动要求的确认仍会显示。";
+"Back up or share your settings" = "备份或分享设置";
+"One file with everything, to keep or to send" = "一个文件包含全部设置，可保存或发送";
+"Export my settings" = "导出我的设置";
+"One file with everything: positions, sizes, colors, buttons, your phrases, your words and what the keyboard learned from your thumbs. Save it in Files, send it to yourself or to a friend." = "一个文件包含全部内容：位置、大小、颜色、按钮、你的短语、你的词语，以及键盘从你的拇指学到的习惯。可存入“文件”，发给自己或朋友。";
+"Import settings" = "导入设置";
+"Choose a Foldboard settings file. It replaces all the settings on this iPhone." = "选择一个 Foldboard 设置文件。它会替换这台 iPhone 上的全部设置。";
+"Backup" = "备份";
+"This file isn’t a Foldboard settings file." = "这不是 Foldboard 设置文件。";
+"Replace all your settings with this file?" = "用此文件替换全部设置？";
+"Replace my settings" = "替换我的设置";
+"Settings imported." = "设置已导入。";
+"Test version: Pro stays unlocked." = "测试版：Pro 保持解锁。";
+"With the keyboard on one side, “Show the globe as a smiley” makes the smiley button open Apple’s emoji keyboard instead of Foldboard’s." = "键盘靠一侧时，开启“将地球键显示为笑脸”后，笑脸按钮会打开 Apple 的表情键盘，而不是 Foldboard 的。";

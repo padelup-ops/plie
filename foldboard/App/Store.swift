@@ -60,6 +60,7 @@ final class Store {
         if access.simulated == true { return }
         var a = KBAccess()
         a.trialStart = access.trialStart
+        a.tester = KBAccess.testBuild ? true : nil
         for await result in Transaction.currentEntitlements {
             guard case .verified(let t) = result, t.revocationDate == nil else { continue }
             if t.productID == KBProducts.pro { a.purchased = true }
@@ -67,7 +68,7 @@ final class Store {
                 a.trialStart = min(a.trialStart ?? t.originalPurchaseDate, t.originalPurchaseDate)
             }
         }
-        if a.purchased != access.purchased || a.trialStart != access.trialStart || access.stamp == .distantPast {
+        if a.purchased != access.purchased || a.trialStart != access.trialStart || a.tester != access.tester || access.stamp == .distantPast {
             access = a
             KBVault.save(a)
         }

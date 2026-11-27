@@ -637,20 +637,50 @@ struct KBAccess: Codable, Equatable {
     var stamp: Date = .distantPast
     /// Versions de test seulement : « fin d'essai simulée » depuis l'app (les vrais achats sont ignorés).
     var simulated: Bool? = nil
+    /// Versions de test (TestFlight) seulement : l'essai gratuit, une fois lancé, ne se termine pas. Les testeurs
+    /// gardent Pro d'une version à l'autre sans rien racheter. Posé à la lecture par l'app et par le clavier.
+    var tester: Bool? = nil
 
     static let trialDays: Double = 3
 
+    /// Cette app (ou ce clavier) vient de TestFlight : son reçu est celui du « bac à sable », jamais celui de
+    /// l'App Store.
+    static let testBuild: Bool = Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
+
     var trialEnd: Date? { trialStart.map { $0.addingTimeInterval(Self.trialDays * 86400) } }
 
+    /// Version de test : l'essai lancé reste ouvert (sauf « fin d'essai simulée », qui passe avant).
+    var endlessTrial: Bool { tester == true && simulated != true && trialStart != nil && !purchased }
+
     func isPro(_ now: Date = Date()) -> Bool {
-        if purchased { return true }
+        if purchased || endlessTrial { return true }
         if let end = trialEnd, now < end { return true }
         return false
     }
 
     /// L'essai a été lancé puis est fini (et rien n'a été acheté).
     func trialOver(_ now: Date = Date()) -> Bool {
-        !purchased && trialEnd.map { now >= $0 } == true
+        !purchased && !endlessTrial && trialEnd.map { now >= $0 } == true
+    }
+}
+
+// MARK: - Le fichier de réglages (sauvegarder, partager, reprendre)
+
+/// Tous les réglages dans un fichier. L'enveloppe dit d'où il vient : un JSON quelconque n'est jamais pris pour des
+/// réglages (chaque champ de KBSettings étant facultatif, il aurait tout remis à zéro).
+struct KBSettingsFile: Codable {
+    var foldboard: Int = 1
+    var settings: KBSettings
+
+    static func data(_ settings: KBSettings) -> Data? {
+        let e = JSONEncoder()
+        e.outputFormatting = [.sortedKeys]
+        return try? e.encode(KBSettingsFile(settings: settings))
+    }
+
+    static func read(_ data: Data) -> KBSettings? {
+        guard let file = try? JSONDecoder().decode(KBSettingsFile.self, from: data), file.foldboard >= 1 else { return nil }
+        return file.settings
     }
 }
 
@@ -792,7 +822,10 @@ enum KBVault {
             UserDefaults.standard.set(data, forKey: "foldboard.access.cache")
             UserDefaults.standard.set(data, forKey: "foldboard.access")
         }
-        return resolved.access
+        var access = resolved.access
+        // Version de test : ce que dit ce programme-ci, pas ce qu'une autre version a pu enregistrer.
+        access.tester = KBAccess.testBuild ? true : nil
+        return access
     }
 
     static func loadLearn() -> KBLearn {
