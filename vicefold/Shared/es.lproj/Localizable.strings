@@ -425,3 +425,6 @@
 "Home Screen" = "Pantalla de inicio";
 "Lock Screen" = "Pantalla de bloqueo";
 "Page %lld of %lld" = "Página %lld de %lld";
+
+/* Identité néon, présentation, recherche, états vides */
+"Favorites" = "Favoritos";

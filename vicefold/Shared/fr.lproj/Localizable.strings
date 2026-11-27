@@ -431,3 +431,6 @@
 "Home Screen" = "Écran d'accueil";
 "Lock Screen" = "Écran verrouillé";
 "Page %lld of %lld" = "Page %lld sur %lld";
+
+/* Identité néon, présentation, recherche, états vides */
+"Favorites" = "Favoris";

@@ -468,6 +468,9 @@ struct TicketTile: View {
 struct ProgressEqualizer: View {
     var parts: Progress.Parts
     var compact = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Les barres montent à l'apparition (tout de suite avec « Réduire les animations »).
+    @State private var risen = false
 
     var body: some View {
         let items: [(LocalizedStringKey, Double, Color)] = [("Missions", parts.missions, VF.ringColors[0]), ("Places", parts.places, VF.ringColors[1]),
@@ -487,14 +490,16 @@ struct ProgressEqualizer: View {
             }
             .layoutPriority(1)
             Spacer(minLength: 4)
-            ForEach(Array(items.enumerated()), id: \.offset) { _, it in
+            ForEach(Array(items.enumerated()), id: \.offset) { i, it in
                 VStack(spacing: 6) {
                     GeometryReader { g in
                         ZStack(alignment: .bottom) {
                             Capsule().fill(it.2.opacity(0.14))
                             Capsule().fill(LinearGradient(colors: [it.2, it.2.opacity(0.55)], startPoint: .top, endPoint: .bottom))
-                                .frame(height: max(6, g.size.height * min(1, it.1)))
+                                .frame(height: max(6, g.size.height * min(1, risen ? it.1 : 0)))
                                 .shadow(color: it.2.opacity(0.8), radius: 6)
+                                .animation(reduceMotion ? nil : VFMotion.stagger(i, step: 0.09), value: risen)
+                                .animation(reduceMotion ? nil : VFMotion.snap, value: it.1)
                         }
                     }
                     .frame(width: compact ? 12 : 16, height: compact ? 60 : 82)
@@ -507,6 +512,33 @@ struct ProgressEqualizer: View {
             }
         }
         .accessibilityElement(children: .combine)
+        .onAppear { risen = true }
+    }
+}
+
+/// Un balayage de radar : un faisceau qui tourne lentement sur une carte (immobile avec « Réduire les animations »).
+struct RadarSweep: View {
+    var color: Color = VF.cyan
+    var period: Double = 6
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var turning = false
+
+    var body: some View {
+        GeometryReader { g in
+            let side = max(g.size.width, g.size.height) * 1.5
+            Circle()
+                .fill(AngularGradient(colors: [color.opacity(0), color.opacity(0), color.opacity(0.30)], center: .center))
+                .frame(width: side, height: side)
+                .rotationEffect(.degrees(turning ? 300 : -60))
+                .position(x: g.size.width / 2, y: g.size.height / 2)
+                .blendMode(.plusLighter)
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .onAppear {
+            guard !reduceMotion, ShotMode.route == nil else { return }
+            withAnimation(.linear(duration: period).repeatForever(autoreverses: false)) { turning = true }
+        }
     }
 }
 

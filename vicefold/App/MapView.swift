@@ -221,8 +221,21 @@ struct PlaceCard: View {
                 .padding(.top, 4)
             }
             Spacer(minLength: 0)
-            Button(action: close) { Image(systemName: "xmark.circle.fill").font(.title2).foregroundStyle(VF.textDim) }
-                .accessibilityLabel("Close")
+            VStack(spacing: 14) {
+                Button(action: close) { Image(systemName: "xmark.circle.fill").font(.title2).foregroundStyle(VF.textDim) }
+                    .accessibilityLabel("Close")
+                // Un lieu favori reste toujours visible sur la carte, et en tête de la liste.
+                Button { progress.toggleFavorite(place) } label: {
+                    Image(systemName: progress.isFavorite(place) ? "star.fill" : "star").font(.title3)
+                        .foregroundStyle(progress.isFavorite(place) ? VF.sun : VF.textDim)
+                        .shadow(color: progress.isFavorite(place) ? VF.sun.opacity(0.8) : .clear, radius: 5)
+                        .frame(width: 30, height: 30)
+                        .contentShape(.rect)
+                }
+                .accessibilityLabel("Favorite")
+                .accessibilityAddTraits(progress.isFavorite(place) ? .isSelected : [])
+            }
+            .buttonStyle(.plain)
         }
         .padding()
         .frame(maxWidth: 520)
@@ -326,7 +339,7 @@ struct LeonidaMapView: View {
                 }
                 ForEach(markers(toScreen: toScreen, size: geo.size)) { mk in
                     PlaceMarker(place: mk.place, selected: state.selectedPlace == mk.place, visited: progress.visited(mk.place),
-                                hidden: progress.hidden(mk.place.spoiler), zoom: state.zoom)
+                                hidden: progress.hidden(mk.place.spoiler), zoom: state.zoom, favorite: progress.isFavorite(mk.place))
                         .position(mk.point)
                         .onTapGesture { withAnimation(.snappy) { state.selectedPlace = mk.place } }
                 }
@@ -363,8 +376,11 @@ struct LeonidaMapView: View {
 
     private var visiblePlaces: [VFPlace] {
         content.content.places.filter { p in
-            guard p.kind != .region, state.layers.contains(p.kind) else { return false }
+            guard p.kind != .region else { return false }
             if p.kind.pro && !store.isPro { return false }
+            // Un lieu favori se voit quelles que soient les couches et les filtres.
+            if progress.isFavorite(p) { return true }
+            guard state.layers.contains(p.kind) else { return false }
             if state.hideVisited && progress.visited(p) { return false }
             return true
         }
@@ -382,8 +398,12 @@ struct LeonidaMapView: View {
         let cell: CGFloat = state.zoom > 6 ? 56 : 34
         var taken = Set<Int>()
         var out: [Marker] = []
-        let sorted = visiblePlaces.sorted { a, b in
+        // Le lieu choisi d'abord, puis les favoris, puis par importance.
+        let places = visiblePlaces
+        let favorites = progress.data.favorites.isEmpty ? [] : Set(places.filter { progress.isFavorite($0) }.map(\.id))
+        let sorted = places.sorted { a, b in
             if (a == state.selectedPlace) != (b == state.selectedPlace) { return a == state.selectedPlace }
+            if favorites.contains(a.id) != favorites.contains(b.id) { return favorites.contains(a.id) }
             return a.rank < b.rank
         }
         for p in sorted {
@@ -475,9 +495,10 @@ struct PlaceMarker: View {
     var visited: Bool
     var hidden: Bool
     var zoom: CGFloat
+    var favorite = false
 
     var body: some View {
-        let size: CGFloat = selected ? 36 : (zoom > 2 ? 26 : 20)
+        let size: CGFloat = selected ? 36 : (favorite ? 28 : (zoom > 2 ? 26 : 20))
         let color = MapColors.color(place.kind)
         VStack(spacing: 3) {
             ZStack(alignment: .topTrailing) {
@@ -490,6 +511,12 @@ struct PlaceMarker: View {
                     .shadow(color: color.opacity(visited ? 0.2 : (selected ? 1 : 0.8)), radius: selected ? 10 : 4)
                 if visited {
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 11)).foregroundStyle(VF.ink, VF.palm).offset(x: 4, y: -4)
+                }
+            }
+            .overlay(alignment: .topLeading) {
+                if favorite {
+                    Image(systemName: "star.fill").font(.system(size: 10, weight: .bold)).foregroundStyle(VF.sun)
+                        .shadow(color: .black.opacity(0.8), radius: 1).offset(x: -4, y: -4)
                 }
             }
             if zoom > 6 || selected {
@@ -550,6 +577,8 @@ struct PlaceList: View {
         let pins = progress.data.pins.filter { matches($0.name) }
         let kinds = VFPlaceKind.allCases.filter { $0 != .region }
         let found = kinds.contains { kind in content.content.places.contains { $0.kind == kind && shown($0) } }
+        // Les favoris (jamais un lieu masqué : on ne peut mettre en favori qu'un lieu ouvert sur la carte).
+        let favorites = progress.data.favorites.isEmpty ? [] : content.content.places.filter { progress.isFavorite($0) && !progress.hidden($0.spoiler) && matches($0.name) }
         List {
             Group {
                 if !pins.isEmpty {
@@ -567,6 +596,27 @@ struct PlaceList: View {
                         }
                         .onDelete { idx in
                             for i in idx where i < pins.count { progress.remove(pins[i]) }
+                        }
+                    }
+                }
+                if !favorites.isEmpty {
+                    Section("Favorites") {
+                        ForEach(favorites) { p in
+                            Button {
+                                go(p.x, p.y)
+                                state.selectedPlace = p
+                            } label: {
+                                HStack {
+                                    Image(systemName: "star.fill").foregroundStyle(VF.sun).frame(width: 26)
+                                        .shadow(color: VF.sun.opacity(0.6), radius: 4)
+                                    VStack(alignment: .leading) {
+                                        Text(p.name).foregroundStyle(VF.text)
+                                        Text(p.region ?? p.kind.title).font(.caption).foregroundStyle(VF.textDim)
+                                    }
+                                    Spacer()
+                                    if progress.visited(p) { Image(systemName: "checkmark.circle.fill").foregroundStyle(VF.palm).accessibilityLabel("Visited") }
+                                }
+                            }
                         }
                     }
                 }
@@ -600,7 +650,7 @@ struct PlaceList: View {
                         }
                     }
                 }
-                if pins.isEmpty && !found {
+                if pins.isEmpty && favorites.isEmpty && !found {
                     // Rien ne correspond : la recherche ou « masquer les lieux visités » a tout retiré.
                     Section {
                         VFEmptyState(icon: "mappin.slash", title: "No place found", message: "Try another name, or show the places you've already visited.")

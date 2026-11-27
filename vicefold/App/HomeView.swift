@@ -124,6 +124,7 @@ struct HomeView: View {
             NavigationLink { MissionDetail(mission: m) } label: {
                 ZStack(alignment: .bottomLeading) {
                     MapPostcard(focus: spot.map { CGPoint(x: $0.x, y: $0.y) } ?? CGPoint(x: 0.74, y: 0.5), zoom: spot == nil ? 3.2 : 5, pin: spot != nil)
+                    RadarSweep(period: 7)
                     LinearGradient(colors: [VF.abyss.opacity(0.15), VF.abyss.opacity(0.35), VF.abyss.opacity(0.95)], startPoint: .top, endPoint: .bottom)
                     VStack {
                         HStack(alignment: .top) {

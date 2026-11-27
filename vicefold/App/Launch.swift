@@ -72,16 +72,16 @@ struct SynthScene: View {
         above.fill(Path(ellipseIn: CGRect(x: cx - radius * 3.2, y: hy - radius * 3.2, width: radius * 6.4, height: radius * 6.4)),
                    with: .radialGradient(halo, center: CGPoint(x: cx, y: hy), startRadius: 0, endRadius: radius * 3.2))
         var slices = Path()
-        slices.addRect(CGRect(x: cx - radius, y: cy - radius, width: radius * 2, height: radius * 1.06))
-        var y = cy + radius * 0.06
-        var gap = radius * 0.035
-        var band = radius * 0.135
+        slices.addRect(CGRect(x: cx - radius, y: cy - radius, width: radius * 2, height: radius * 0.70))
+        var y = cy - radius * 0.30
+        var gap = radius * 0.025
+        var band = radius * 0.14
         while y < cy + radius {
             y += gap
             slices.addRect(CGRect(x: cx - radius, y: y, width: radius * 2, height: band))
             y += band
-            gap *= 1.45
-            band *= 0.92
+            gap *= 1.35
+            band *= 0.88
         }
         var sunCtx = above
         sunCtx.clip(to: slices)
@@ -134,8 +134,8 @@ struct SynthScene: View {
         // Les palmiers, en ombre devant le ciel.
         if palms {
             let sway = sin(t * 0.9) * 2.2
-            palm(&ctx, base: CGPoint(x: w * 0.09, y: hy + (h - hy) * 0.42), height: unit * 0.66, lean: 0.55, sway: sway, seed: 0)
-            palm(&ctx, base: CGPoint(x: w * 0.93, y: hy + (h - hy) * 0.26), height: unit * 0.48, lean: -0.5, sway: -sway, seed: 20)
+            palm(&ctx, base: CGPoint(x: w * 0.09, y: hy + (h - hy) * 0.42), height: unit * 0.56, lean: 0.55, sway: sway, seed: 0)
+            palm(&ctx, base: CGPoint(x: w * 0.93, y: hy + (h - hy) * 0.26), height: unit * 0.42, lean: -0.5, sway: -sway, seed: 20)
         }
     }
 
@@ -319,7 +319,8 @@ struct LaunchView: View {
     @State private var faded = false
 
     private static let seenKey = "vicefold.launchSeen"
-    private let script: LaunchScript = UserDefaults.standard.bool(forKey: LaunchView.seenKey) ? .short : .full
+    // Choisi une fois, à l'ouverture (un état : il ne change pas si la vue est recréée pendant l'animation).
+    @State private var script: LaunchScript = UserDefaults.standard.bool(forKey: LaunchView.seenKey) ? .short : .full
 
     /// Au démarrage : toujours, sauf pendant les captures (où seules les routes « launch… » la montrent, figée).
     static var wanted: Bool { ShotMode.route == nil || ShotMode.launchFrame != nil }

@@ -165,6 +165,7 @@ final class Progress {
         for (i, s) in c.collectibles.enumerated() { d.collected[s.id] = Int(Double(s.target) * [0.62, 0.35, 0.8, 0.5, 0.2, 0.9][i % 6]) }
         d.challenges = ["f-narco", "f-cars"]
         d.favorites = ["lucia", "jason"]
+        for p in c.places.filter({ $0.community && $0.kind == .landmark }).prefix(2) { d.favorites.insert("place:" + p.id) }
         d.readGuides = ["start-how"]
         d.pins = [VFPin(name: "Stash", note: "Behind the bait shop", icon: "dollarsign", color: 2, x: 0.735, y: 0.535),
                   VFPin(name: "Car to scan", icon: "car.fill", color: 1, x: 0.79, y: 0.455),
@@ -345,6 +346,16 @@ final class Progress {
     func isFavorite(_ c: VFCharacter) -> Bool { data.favorites.contains(c.id) }
     func toggleFavorite(_ c: VFCharacter) {
         edit { d in if d.favorites.contains(c.id) { d.favorites.remove(c.id) } else { d.favorites.insert(c.id) } }
+    }
+
+    // MARK: Lieux favoris
+
+    /// Les lieux favoris sont rangés avec les personnages favoris, sous un préfixe (les identifiants ne se mélangent pas).
+    private static func favoriteKey(_ p: VFPlace) -> String { "place:" + p.id }
+    func isFavorite(_ p: VFPlace) -> Bool { data.favorites.contains(Self.favoriteKey(p)) }
+    func toggleFavorite(_ p: VFPlace) {
+        let k = Self.favoriteKey(p)
+        edit { d in if d.favorites.contains(k) { d.favorites.remove(k) } else { d.favorites.insert(k) } }
     }
 
     // MARK: Le 100 %
