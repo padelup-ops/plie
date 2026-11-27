@@ -195,7 +195,22 @@ def main():
         shoot(path, fmt, cta, [(round(t * 100), t) for t in times], out, link)
         return
     out = os.path.join(work, f"frames-{fmt}-{cta}")
+    # Frames are only reused when they were drawn from this very page and these very screens: the stamp says so.
+    # (Without it, a new cut was silently assembled from the frames of the previous one.)
+    import hashlib
+    shots = sorted(f for f in os.listdir(work) if f.endswith((".png", ".jpg")))
+    stamp = hashlib.sha1((open(path).read() + "".join(f"{f}:{os.path.getsize(os.path.join(work, f))}:{os.path.getmtime(os.path.join(work, f))}"
+                                                     for f in shots)).encode()).hexdigest()
+
+    def fresh(d):
+        f = os.path.join(d, "stamp.txt")
+        return os.path.exists(f) and open(f).read() == stamp
+
+    if os.path.isdir(out) and not fresh(out):
+        import shutil
+        shutil.rmtree(out)
     os.makedirs(out, exist_ok=True)
+    open(os.path.join(out, "stamp.txt"), "w").write(stamp)
     n = int(C.DURATION * FPS)
     jobs = [(i, i / FPS) for i in range(n)]
     # The endings (download, coming soon, with a link) share every frame before the last scene: those are drawn once.
@@ -203,7 +218,7 @@ def main():
     if link and all(os.path.exists(os.path.join(out, f"f{i:05d}.jpg")) for i in range(end)):
         jobs = jobs[end:]
     other = os.path.join(work, f"frames-{fmt}-{'soon' if cta == 'now' else 'now'}")
-    if len(jobs) == n and os.path.isdir(other):
+    if len(jobs) == n and os.path.isdir(other) and fresh(other) and all(os.path.exists(os.path.join(other, f"f{i:05d}.jpg")) for i in range(end)):
         for i in range(end):
             src, dst = os.path.join(other, f"f{i:05d}.jpg"), os.path.join(out, f"f{i:05d}.jpg")
             if os.path.exists(src) and not os.path.exists(dst):

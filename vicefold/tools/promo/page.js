@@ -461,14 +461,14 @@ SC.end = {
     this.halo = el('div', 'halo', wrap);
     this.name = el('div', 'endname', wrap);
     this.name.innerHTML = '<div><span>GUIDE FOR GTA VI:</span></div><div><span class="acc">LEONIDA</span></div>';
-    this.tag = el('div', 'endtag', wrap, 'Map · 100% tracker · all cheats · spoiler-free');
+    this.tag = el('div', 'endtag', wrap, 'Map · rare cars · 100% tracker · all cheats · spoiler-free');
     this.cta = el('div', 'cta', wrap);
     this.cta.innerHTML = CTA === 'soon' ? '<small>Coming soon to the</small><b>App Store</b>' : '<small>Download on the</small><b>App Store</b>';
     this.devs = el('div', 'enddevs', wrap, 'iPhone  ·  iPhone Duo  ·  iPad');
     // The App Store link, once the app is live (python3 build.py <work> wide now --link <url>).
     this.link = LINK ? el('div', 'endlink', wrap, LINK.replace(/^https?:\/\//, '')) : null;
     this.legal = el('div', 'legal', root);
-    this.legal.innerHTML = 'Unofficial fan guide. Not affiliated with, endorsed or approved by Rockstar Games or Take-Two Interactive. Game names are trademarks of their owners.<br>Map: GTA VI Community Map by Yanis &amp; the mapping community, via GTADB.org, CC BY 4.0. Some features need Vicefold Pro.';
+    this.legal.innerHTML = 'Unofficial fan guide. Not affiliated with, endorsed or approved by Rockstar Games or Take-Two Interactive. Game names are trademarks of their owners.<br>Map: GTA VI Community Map by Yanis &amp; the mapping community, via GTADB.org, CC BY 4.0. Rare vehicles: Open GTA 6 Map, CC BY 4.0. Some features need Vicefold Pro.';
     this.wrap = wrap;
   },
   update(u, dur) {
