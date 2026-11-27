@@ -1,0 +1,36 @@
+# PADELUP iOS : identifiant de l'app, groupe de test interne et testeurs internes sur App Store Connect.
+# Le résultat est publié dans la branche ci-padelup-setup.
+name: PadelUp - préparation
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/**"]
+    paths:
+      - "padelup/ios/tools/setup.py"
+      - ".github/workflows/padelup-setup.yml"
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m pip install --quiet pyjwt cryptography && python3 padelup/ios/tools/setup.py 2>&1 | tee fiche.txt
+      - name: Publier le résultat
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/ci" && cd "$RUNNER_TEMP/ci"
+          git init -q -b ci-padelup-setup
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          cp "$GITHUB_WORKSPACE/fiche.txt" . 2>/dev/null || echo "pas de résultat" > fiche.txt
+          echo "commit ${{ github.sha }} - $(date -u)" > run.txt
+          git add -A && git commit -qm "PadelUp préparation"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-padelup-setup
