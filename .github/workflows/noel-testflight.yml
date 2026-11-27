@@ -17,6 +17,9 @@ on:
       commit:
         description: "Commit à construire (vide : la tête de la branche)"
         required: false
+      version:
+        description: "Numéro de version à donner au build, par exemple 1.0.0 (vide : celui de noel/project.yml)"
+        required: false
 
 concurrency:
   group: noel-testflight
@@ -34,6 +37,7 @@ jobs:
       ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       BUILD_NUMBER: ${{ github.run_number }}
+      VERSION: ${{ inputs.version }}
 
     steps:
       - name: Récupérer le code
@@ -105,7 +109,7 @@ jobs:
             -archivePath "$RUNNER_TEMP/AlloPereNoel.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
-            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" TARGETED_DEVICE_FAMILY=1 2>&1 | tee ../archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" TARGETED_DEVICE_FAMILY=1 ${VERSION:+MARKETING_VERSION=$VERSION} 2>&1 | tee ../archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
           grep -q "ARCHIVE SUCCEEDED" ../archive.log
 
       - name: Signer pour l'App Store (sans envoyer)
@@ -182,7 +186,7 @@ jobs:
               tail -n 200 "$GITHUB_WORKSPACE/$f" > "fin-${f%.log}.txt"
             fi
           done
-          echo "build $BUILD_NUMBER - commit ${{ inputs.commit || github.sha }} - $(date -u)" > build.txt
+          echo "build $BUILD_NUMBER - version ${VERSION:-celle de project.yml} - commit ${{ inputs.commit || github.sha }} - $(date -u)" > build.txt
           git add -A
           git commit -qm "Journaux Noël build $BUILD_NUMBER"
           git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-noel-logs || echo "::warning::Impossible de publier les journaux"
