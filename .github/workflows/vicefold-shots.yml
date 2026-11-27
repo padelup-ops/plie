@@ -41,6 +41,10 @@ on:
         description: "Apparence du simulateur : light ou dark (les captures sombres vont dans une branche « -dark »)"
         required: false
         default: "light"
+      diag:
+        description: "Diagnostic : 1 = pour chaque capture, relever la pile de l'app (sample-<écran>.txt) si elle tourne, et dire si elle ne tourne plus"
+        required: false
+        default: ""
 
 jobs:
   shots:
@@ -149,6 +153,10 @@ jobs:
               sleep ${{ inputs.wait }}
               xcrun devicectl device info displays --device "$UDID" 2>/dev/null | grep -o 'Main display orientation: [a-zA-Z]*' | sed "s/^/$R$SUF : /" >> shots/simulateur.txt || true
               for D in primary primary-1; do xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$(printf %02d $N)-$R$SUF-d$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true; done
+              # L'app tourne-t-elle encore ? (un écran noir : plantage au lancement, ou app bloquée)
+              PID=$(pgrep -f "Vicefold.app/Vicefold" | head -1 || true)
+              if [ -z "$PID" ]; then echo "$R$SUF : l'app ne tourne plus" >> shots/simulateur.txt; fi
+              if [ -n "$PID" ] && [ "${{ inputs.diag }}" = "1" ]; then sample "$PID" 1 -file "shots/sample-$R.txt" > /dev/null 2>&1 || true; fi
             done
           done
           ls -la shots; command -v ffmpeg avconvert || true
@@ -157,6 +165,11 @@ jobs:
         run: |
           D=$(xcrun simctl get_app_container "$UDID" com.padelup.vicefold data 2>/dev/null || true)
           [ -n "$D" ] && cat "$D/Documents/vicefold-test.txt" 2>/dev/null | tee shots/essai.txt || echo "pas de journal" | tee shots/essai.txt
+          # Les rapports de plantage de l'app pendant les captures (le début suffit : la raison et la pile).
+          for F in ~/Library/Logs/DiagnosticReports/Vicefold*.ips; do
+            [ -f "$F" ] && head -c 60000 "$F" > "shots/plantage-$(basename "$F" .ips).txt" || true
+          done
+          ls shots | grep -c plantage || true
       - name: Vidéos (artefact)
         if: always() && inputs.record != ''
         uses: actions/upload-artifact@v4
