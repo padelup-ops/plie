@@ -94,7 +94,7 @@ extension EnvironmentValues {
 }
 
 /// La liste d'un côté, le détail de l'autre. Sur le Duo ouvert, la séparation tombe exactement sur le pli : rien
-/// n'est jamais coupé en deux.
+/// n'est jamais coupé en deux. Le pli garde la couleur du fond (pas de bande noire au milieu de l'écran).
 struct DualLayout<Primary: View, Secondary: View>: View {
     @ViewBuilder var primary: Primary
     @ViewBuilder var secondary: Secondary
@@ -105,7 +105,7 @@ struct DualLayout<Primary: View, Secondary: View>: View {
             if let fold, fold.height >= geo.size.height * 0.9 {
                 HStack(spacing: 0) {
                     primary.environment(\.vfWide, true).frame(width: fold.minX)
-                    Color.black.frame(width: fold.width)
+                    VFBackdrop().frame(width: fold.width)
                     secondary.environment(\.vfWide, true).frame(maxWidth: .infinity)
                 }
             } else if geo.size.width >= 740 {

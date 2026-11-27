@@ -30,13 +30,15 @@ def screen(path):
 
 
 sizes = {}
-for prefix, name, n, h in (("", "iphone", 8, 1500), ("duo-", "duo", 9, 1100), ("ipad-", "ipad", 9, 1400)):
-    for i in range(1, n + 1):
-        im = screen(os.path.join(ROOT, "store", f"{prefix}en-{i}.png"))
-        im = im.resize((round(im.width * h / im.height), h), Image.LANCZOS)
-        im.save(os.path.join(OUT, f"{name}-{i}.png"))
-        sizes[f"{name}-{i}"] = im.size
-    print(name, im.size)
+# English screens are "iphone-1.png"; French ones (for the App Store header in French) are "fr-iphone-1.png".
+for lang, pre in (("en", ""), ("fr", "fr-")):
+    for prefix, name, n, h in (("", "iphone", 8, 1500), ("duo-", "duo", 9, 1100), ("ipad-", "ipad", 9, 1400)):
+        for i in range(1, n + 1):
+            im = screen(os.path.join(ROOT, "store", f"{prefix}{lang}-{i}.png"))
+            im = im.resize((round(im.width * h / im.height), h), Image.LANCZOS)
+            im.save(os.path.join(OUT, f"{pre}{name}-{i}.png"))
+            sizes[f"{pre}{name}-{i}"] = im.size
+        print(lang, name, im.size)
 
 # The map: level 3 for the whole state (3776 x 5120), level 4 around Vice City.
 W, H = 15104, 20480

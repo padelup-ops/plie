@@ -100,6 +100,9 @@ struct ProgressEqualizer: View {
                 Text(parts.total, format: .percent.precision(.fractionLength(0)))
                     .font(VF.display(compact ? 44 : 58))
                     .monospacedDigit()
+                    // Dans un demi-écran étroit (Duo ouvert), le total rétrécit au lieu de passer sur deux lignes.
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
                     .contentTransition(.numericText())
                 Text("of Leonida done").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
             }
