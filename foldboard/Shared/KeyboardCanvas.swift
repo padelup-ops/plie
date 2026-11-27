@@ -1636,18 +1636,18 @@ final class KeyboardCanvas: UIView {
 
     func move(to host: UIView) {
         guard superview !== host else { return }
-        NSLayoutConstraint.deactivate(hostPins)
+        // L'ancien hôte existe encore : on retire ce qui nous y attachait. S'il a été détruit (iOS a jeté son
+        // contrôleur, par exemple après le globe), on n'y touche surtout pas : ces contraintes pointeraient vers une
+        // vue qui n'existe plus.
+        if superview != nil { NSLayoutConstraint.deactivate(hostPins) }
         hostPins.removeAll()
         removeFromSuperview()
-        translatesAutoresizingMaskIntoConstraints = false
+        // Le clavier remplit son hôte par simple redimensionnement automatique : plus aucun objet gardé d'un hôte
+        // à l'autre.
+        translatesAutoresizingMaskIntoConstraints = true
+        frame = host.bounds
+        autoresizingMask = [.flexibleWidth, .flexibleHeight]
         host.addSubview(self)
-        hostPins = [
-            leadingAnchor.constraint(equalTo: host.leadingAnchor),
-            trailingAnchor.constraint(equalTo: host.trailingAnchor),
-            topAnchor.constraint(equalTo: host.topAnchor),
-            bottomAnchor.constraint(equalTo: host.bottomAnchor),
-        ]
-        NSLayoutConstraint.activate(hostPins)
     }
 
     static func install(in host: UIView) -> KeyboardCanvas {
@@ -2095,7 +2095,9 @@ final class KeyboardCanvas: UIView {
     private static let globeKey = "foldboard.globeAt"
     private func globeTapped() {
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.globeKey)
-        input?.kbNextKeyboard()
+        // Après le toucher en cours, pas au milieu : iOS retire le clavier pendant cet appel, et le traitement du
+        // doigt qui vient de se lever n'était pas fini.
+        DispatchQueue.main.async { [weak self] in self?.input?.kbNextKeyboard() }
     }
 
     private var gripStarted = false
