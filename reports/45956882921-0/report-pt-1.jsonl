@@ -6,3 +6,8 @@
 {"id": "4acd0b8b76f67b133f11", "key": "hello|bernardo", "text": "Ho, ho, ho! Olá, Bernardo!", "ok": true, "score": 0.986, "dur": 2.52, "heard": "Oh, oh, oh, lá, Bernardo!", "tries": 1, "secs": 51.1}
 {"id": "6e4154e148ceaa8a02e7", "key": "hello|pedro", "text": "Ho, ho, ho! Olá, Pedro!", "ok": false, "score": 0.881, "dur": 3.82, "heard": "Uh, uh, uh, hola Pedro!", "tries": 3, "secs": 160.5}
 {"id": "5c6600c5bd39ecba0d76", "key": "hello|benjamin", "text": "Ho, ho, ho! Olá, Benjamin!", "ok": true, "score": 0.778, "dur": 2.6, "heard": "Oh, ho, ho! Olá, beijamim!", "tries": 1, "secs": 43.5}
+{"id": "872a2eecf5110d2e7645", "key": "hello|nicolas", "text": "Ho, ho, ho! Olá, Nicolas!", "ok": true, "score": 0.986, "dur": 2.64, "heard": "Oh, oh, oh, hola, Nicolás!", "tries": 1, "secs": 49.1}
+{"id": "f543adc85116f9b66e30", "key": "hello|esther", "text": "Ho, ho, ho! Olá, Esther!", "ok": true, "score": 0.982, "dur": 2.04, "heard": "Oh oh oh oh lá Esther!", "tries": 3, "secs": 127.4}
+{"id": "c21361d0ec26874549fb", "key": "hello|olivia", "text": "Ho, ho, ho! Olá, Olívia!", "ok": true, "score": 1.0, "dur": 2.16, "heard": "Oh, oh, oh, olá, Olivia!", "tries": 1, "secs": 43.8}
+{"id": "bc8bee642405743201a1", "key": "hello|lorenzo", "text": "Ho, ho, ho! Olá, Lorenzo!", "ok": true, "score": 1.0, "dur": 2.52, "heard": "Oh, oh, oh! Olá, Lorenzo!", "tries": 1, "secs": 53.8}
+{"id": "c1e24a6a54ef6d1fc99e", "key": "hello|henry", "text": "Ho, ho, ho! Olá, Henry!", "ok": true, "score": 0.982, "dur": 3.14, "heard": "Oh, oh, oh, oh, hola Henry!", "tries": 2, "secs": 91.9}
