@@ -9,7 +9,8 @@
 #
 #   python3 noel/tools/photo_warp.py sheet out.png      planche de contrôle (bouche fermée → ouverte, clignement)
 #   python3 noel/tools/photo_warp.py assets             SantaPhoto (au repos), SantaMouth1…5 (bouche de plus en plus
-#                                                       ouverte), SantaBlink (yeux fermés)
+#                                                       ouverte). Les yeux fermés (render(blink=1)) ne sont pas
+#                                                       exportés : pas assez propres derrière les lunettes.
 import sys
 from pathlib import Path
 
@@ -124,6 +125,5 @@ if __name__ == "__main__":
         asset("SantaPhoto", render(img, 0.0, 0.0))
         for k in range(1, 6):
             asset(f"SantaMouth{k}", render(img, k / 5, 0.0))
-        asset("SantaBlink", render(img, 0.0, 1.0))
     else:
         print(__doc__ or "sheet <fichier> | assets")

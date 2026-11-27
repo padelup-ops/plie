@@ -50,7 +50,7 @@
 "No microphone, no recording" = "Sin micrófono, sin grabaciones";
 "Santa pauses so your child can answer, but the app never listens: it doesn't use the microphone or the camera." = "Papá Noel hace pausas para que puedan responderle, pero la app nunca escucha: no usa ni el micrófono ni la cámara.";
 "No account, no tracking, no ads" = "Sin cuenta, sin rastreo, sin anuncios";
-"There is no sign-up, no advertising and no analytics. Santa's voice is made by your iPhone, without the internet." = "No hay registro, ni publicidad, ni analítica. La voz de Papá Noel la crea tu iPhone, sin internet.";
+"There is no sign-up, no advertising and no analytics. Santa's voice is inside the app: it works without the internet." = "No hay registro, ni publicidad, ni analítica. La voz de Papá Noel la crea tu iPhone, sin internet.";
 "Purchases" = "Compras";
 "The full magic is bought through the App Store, protected by a question for grown-ups. We never see your payment details." = "La magia completa se compra en el App Store, protegida por una pregunta para adultos. Nunca vemos tus datos de pago.";
 "You're in control" = "Tú tienes el control";
@@ -176,7 +176,7 @@
 "Santa Claus certifies that this child has been kind, curious and full of heart in %lld." = "Papá Noel certifica que este niño ha sido amable, curioso y de gran corazón en %lld.";
 "The North Pole" = "El Polo Norte";
 "Santa will say this first name himself." = "El propio Papá Noel dirá este nombre.";
-"Santa's elf will say this first name." = "Será el duende de Papá Noel quien diga este nombre.";
+"Santa hasn't recorded this first name yet: he will say hello without it." = "Papá Noel aún no ha grabado este nombre: saludará sin decirlo.";
 "The surprise, the full stories, the elf's note about your child, the letter and the certificate." = "La sorpresa, las historias completas, la notita del duende, la carta y el certificado.";
 "Hear the whole call" = "Escuchar la llamada completa";
 "Replay the preview" = "Volver a escuchar el avance";

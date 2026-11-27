@@ -1,13 +1,13 @@
 // SantaPhoto.swift — Allô Père Noël
 //
 // Le Père Noël, en photo (un portrait créé par IA, qui n'est la photo de personne), et vivant : sa bouche s'ouvre
-// avec le volume réel de sa voix (donc avec n'importe quelle phrase, prénom compris), il cligne des yeux, respire,
-// hoche la tête quand il écoute, et tressaute quand il rit.
+// avec le volume réel de sa voix (donc avec n'importe quelle phrase, prénom compris), il respire, hoche la tête quand
+// il écoute, et tressaute quand il rit.
 //
-// La bouche et les yeux sont des photos préparées d'avance (tools/photo_warp.py : la mâchoire descend, le sombre de
-// la bouche apparaît sous la moustache ; les paupières se ferment), fondues les unes dans les autres : cinq ouvertures
-// de bouche, et les yeux fermés montrés seulement à l'endroit des yeux. Rien n'est calculé sur l'iPhone, et l'app
-// montre exactement les images qui ont été réglées et regardées une à une.
+// La bouche, ce sont des photos préparées d'avance (tools/photo_warp.py : la mâchoire descend, le sombre de la bouche
+// apparaît sous la moustache), fondues les unes dans les autres : cinq ouvertures. Rien n'est calculé sur l'iPhone,
+// et l'app montre exactement les images qui ont été réglées et regardées une à une. Il ne cligne pas des yeux : des
+// paupières fabriquées par déformation, derrière des lunettes, se voyaient (mieux vaut pas de clignement du tout).
 
 import SwiftUI
 
@@ -57,7 +57,7 @@ struct SantaPhoto: View {
         let m = pose(t)
         return ZStack(alignment: .topLeading) {
             Color.black
-            picture(w: w, h: h, open: m.open, blink: m.blink)
+            picture(w: w, h: h, open: m.open)
                 .scaleEffect(CGFloat(1 + m.breath), anchor: UnitPoint(x: Self.face.x, y: 0.9))
                 .rotationEffect(.degrees(m.tilt), anchor: UnitPoint(x: Self.face.x, y: 0.85))
                 .offset(x: ox + CGFloat(m.dx), y: oy + CGFloat(m.dy))
@@ -71,8 +71,8 @@ struct SantaPhoto: View {
     }
 
     /// La photo au repos, puis la bouche (la photo de l'ouverture juste en dessous, pleine, et la suivante qui
-    /// apparaît en fondu), puis les yeux fermés là où sont les yeux.
-    private func picture(w: CGFloat, h: CGFloat, open: Double, blink: Double) -> some View {
+    /// apparaît en fondu).
+    private func picture(w: CGFloat, h: CGFloat, open: Double) -> some View {
         let steps = Double(Self.mouthFrames)
         let x = min(steps, max(0, open * steps))
         let below = Int(x.rounded(.down))
@@ -86,17 +86,12 @@ struct SantaPhoto: View {
             if above > below, mix > 0.01 {
                 SantaFrames.image("SantaMouth\(above)").resizable().opacity(mix)
             }
-            if blink > 0.01 {
-                SantaFrames.image("SantaBlink").resizable()
-                    .mask(EyesMask())
-                    .opacity(min(1, blink * 1.15))
-            }
         }
         .frame(width: w, height: h)
     }
 
     private struct Pose {
-        var open = 0.0, blink = 0.0, breath = 0.0, tilt = 0.0, dx = 0.0, dy = 0.0, fire = 0.0
+        var open = 0.0, breath = 0.0, tilt = 0.0, dx = 0.0, dy = 0.0, fire = 0.0
     }
 
     private func pose(_ t: Double?) -> Pose {
@@ -110,7 +105,6 @@ struct SantaPhoto: View {
         m.tilt = sin(t * 0.6) * 0.45 + sin(t * 0.23) * 0.25
         m.dx = sin(t * 0.41) * 1.6
         m.fire = (sin(t * 7.3) * 0.5 + sin(t * 12.1) * 0.3 + sin(t * 3.1) * 0.2) * 0.035
-        m.blink = Self.blink(t)
         switch mood {
         case .talking:
             m.dy = sin(t * 2.3) * 1.4 - m.open * 1.2
@@ -120,13 +114,11 @@ struct SantaPhoto: View {
             m.dy = max(0, sin(t * 2.8)) * 4
             m.tilt += sin(t * 0.9) * 0.5
         case .laughing:
-            // « Ho, ho, ho ! » : il tressaute, les yeux plissés.
+            // « Ho, ho, ho ! » : il tressaute.
             m.dy = -abs(sin(t * 9)) * 5
             m.open = max(m.open, 0.3 + 0.25 * abs(sin(t * 9)))
-            m.blink = max(m.blink, 0.42)
         case .waving:
             m.tilt += sin(t * 3.2) * 1.1
-            m.blink = max(m.blink, 0.25)
         case .surprised:
             m.open = max(m.open, 0.5)
             m.dy = -3
@@ -134,20 +126,6 @@ struct SantaPhoto: View {
             break
         }
         return m
-    }
-
-    /// Un clignement de temps en temps (toutes les 3 à 5 secondes, parfois deux de suite).
-    private static func blink(_ t: Double) -> Double {
-        let period = 4.1
-        let k = floor(t / period)
-        let jitter = fract(sin(k * 12.9898) * 43758.5453) * 1.6
-        let p = t - k * period - jitter
-        func one(_ p: Double) -> Double {
-            guard p > 0, p < 0.2 else { return 0 }
-            return p < 0.07 ? p / 0.07 : max(0, 1 - (p - 0.07) / 0.13)
-        }
-        let twice = fract(sin(k * 78.233) * 12345.678) > 0.72
-        return max(one(p), twice ? one(p - 0.32) : 0)
     }
 }
 
@@ -157,7 +135,7 @@ struct SantaPhoto: View {
 enum SantaFrames {
     private static var ready: [String: UIImage] = [:]
     private static var warming = false
-    private static let names = ["SantaPhoto", "SantaBlink"] + (1...5).map { "SantaMouth\($0)" }
+    private static let names = ["SantaPhoto"] + (1...5).map { "SantaMouth\($0)" }
 
     static func image(_ name: String) -> Image {
         if let ui = ready[name] { return Image(uiImage: ui) }
@@ -173,23 +151,6 @@ enum SantaFrames {
                 ready[name] = await ui.byPreparingForDisplay() ?? ui
             }
         }
-    }
-}
-
-/// Là où sont les yeux sur la photo (les mêmes mesures que tools/photo_warp.py, sur un portrait de 768 × 1024),
-/// un peu plus large que l'œil et aux bords doux.
-private struct EyesMask: View {
-    private static let eyes: [(x: CGFloat, y: CGFloat, rx: CGFloat, ry: CGFloat)] = [(357, 369, 33, 12.5), (504, 371.5, 31, 12.5)]
-
-    var body: some View {
-        Canvas { ctx, size in
-            let k = size.width / 768
-            for e in Self.eyes {
-                let rx = e.rx * 1.12 * k, ry = e.ry * 1.25 * k
-                ctx.fill(Path(ellipseIn: CGRect(x: e.x * k - rx, y: e.y * k - ry, width: rx * 2, height: ry * 2)), with: .color(.white))
-            }
-        }
-        .blur(radius: 1.2)
     }
 }
 
