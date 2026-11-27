@@ -13,3 +13,9 @@
 {"id": "c314c83e201095b64878", "key": "hello|javier", "text": "¡Jo, jo, jo! ¡Hola, Javier!", "ok": true, "score": 1.0, "dur": 3.4, "heard": "¡Ho ho ho ho! ¡Hola, Javier!", "tries": 1, "secs": 52.6}
 {"id": "35bed028b5d52c205195", "key": "hello|elena", "text": "¡Jo, jo, jo! ¡Hola, Elena!", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Ho, ho, ho. Hola, Elena.", "tries": 2, "secs": 97.7}
 {"id": "ddd8a5a30f9f7bb13c79", "key": "hello|alejandra", "text": "¡Jo, jo, jo! ¡Hola, Alejandra!", "ok": true, "score": 1.0, "dur": 2.64, "heard": "¡Ho ho ho! ¡Hola Alejandra!", "tries": 1, "secs": 54.7}
+{"id": "bdc5e665846f5c4adcfb", "key": "hello|nora", "text": "¡Jo, jo, jo! ¡Hola, Nora!", "ok": true, "score": 1.0, "dur": 2.12, "heard": "¡Ho, ho, ho! ¡Hola Nora!", "tries": 2, "secs": 165.2}
+{"id": "4423f4be445572e392c0", "key": "hello|thiago", "text": "¡Jo, jo, jo! ¡Hola, Thiago!", "ok": true, "score": 0.924, "dur": 2.48, "heard": "¡Ho ho ho! ¡Hola, Tiago!", "tries": 1, "secs": 47.6}
+{"id": "063327d37cbcb0514b5b", "key": "hello|angel", "text": "¡Jo, jo, jo! ¡Hola, Ángel!", "ok": true, "score": 0.833, "dur": 2.26, "heard": "ho ho ho, hola anjel", "tries": 1, "secs": 53.2}
+{"id": "0bf559978fe1f2bd531b", "key": "hello|sergio", "text": "¡Jo, jo, jo! ¡Hola, Sergio!", "ok": true, "score": 1.0, "dur": 2.86, "heard": "Oh, ho, ho, hola Sergio.", "tries": 1, "secs": 62.9}
+{"id": "9c0100cd82952ccce4ba", "key": "hello|jorge", "text": "¡Jo, jo, jo! ¡Hola, Jorge!", "ok": true, "score": 1.0, "dur": 3.16, "heard": "¡Ho, ho, ho! ¡Hola Jorge!", "tries": 2, "secs": 89.3}
+{"id": "be20ec99cff541d5c043", "key": "hello|eric", "text": "¡Jo, jo, jo! ¡Hola, Eric!", "ok": true, "score": 1.0, "dur": 1.68, "heard": "¡Oh, ho, ho! ¡Hola, Eric!", "tries": 1, "secs": 38.8}
