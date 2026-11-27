@@ -7,3 +7,4 @@
 {"id": "f90a8660bc438f7cbabc", "key": "hello|luca", "text": "Oh, oh, oh! Ciao, Luca!", "ok": true, "score": 1.0, "dur": 3.18, "heard": "Oh, oh, oh, ciao Luca!", "tries": 1, "secs": 57.5}
 {"id": "616cd6121b13e8a6a32b", "key": "hello|emanuele", "text": "Oh, oh, oh! Ciao, Emanuele!", "ok": true, "score": 1.0, "dur": 2.36, "heard": "Oh, oh, oh, ciao, Emanuele!", "tries": 1, "secs": 45.5}
 {"id": "52e01d37c2a26829f4cc", "key": "hello|maria", "text": "Oh, oh, oh! Ciao, Maria!", "ok": true, "score": 1.0, "dur": 2.92, "heard": "Oh, oh, oh, ciao Maria!", "tries": 1, "secs": 55.3}
+{"id": "064acec3f69b8bd09e4e", "key": "hello|nina", "text": "Oh, oh, oh! Ciao, Nina!", "ok": true, "score": 1.0, "dur": 3.12, "heard": "Oh, oh, oh, ciao Nina.", "tries": 1, "secs": 53.0}

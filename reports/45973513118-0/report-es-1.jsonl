@@ -1,3 +1,6 @@
 {"id": "ba03bde40b943fec27d4", "key": "hello|alvaro", "text": "¡Jo, jo, jo! ¡Hola, Álvaro!", "ok": true, "score": 1.0, "dur": 3.78, "heard": "¡Ho, ho, ho! ¡Hola, Álvaro!", "tries": 2, "secs": 114.1}
 {"id": "39cfdae016323ad74233", "key": "hello|adam", "text": "¡Jo, jo, jo! ¡Hola, Adam!", "ok": true, "score": 1.0, "dur": 2.02, "heard": "¡Ho ho ho! ¡Hola Adam!", "tries": 1, "secs": 49.8}
 {"id": "c0c0dbbe863b824d8373", "key": "hello|elsa", "text": "¡Jo, jo, jo! ¡Hola, Elsa!", "ok": true, "score": 1.0, "dur": 2.48, "heard": "¡Ho, ho, ho! ¡Hola, Elsa!", "tries": 1, "secs": 52.2}
+{"id": "203908b53521283c2d87", "key": "hello|celia", "text": "¡Jo, jo, jo! ¡Hola, Celia!", "ok": true, "score": 0.963, "dur": 1.82, "heard": "¡Ho ho ho ho! ¡La celia!", "tries": 2, "secs": 85.3}
+{"id": "7b8d62f56019145b4f1e", "key": "hello|hector", "text": "¡Jo, jo, jo! ¡Hola, Héctor!", "ok": true, "score": 1.0, "dur": 1.98, "heard": "¡Ho ho ho ho! ¡Hola, Héctor!", "tries": 2, "secs": 97.2}
+{"id": "c5f244caeb48213c65bb", "key": "hello|rodrigo", "text": "¡Jo, jo, jo! ¡Hola, Rodrigo!", "ok": true, "score": 1.0, "dur": 2.6, "heard": "¡Ho ho ho! ¡Hola Rodrigo!", "tries": 3, "secs": 190.9}

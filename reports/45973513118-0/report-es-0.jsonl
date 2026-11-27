@@ -1,1 +1,4 @@
 {"id": "a8b1a2b46fc31c4bba7b", "key": "line|¡Jo, jo, jo! ¡Ya me lo imaginaba!", "text": "¡Jo, jo, jo! ¡Ya me lo imaginaba!", "ok": true, "score": 0.889, "dur": 2.5, "heard": "¡Ho, ho, ho! ¡Chame lo imaginaba!", "tries": 2, "secs": 126.0}
+{"id": "fdc4e63f2f5b9bc2e18e", "key": "hello|paula", "text": "¡Jo, jo, jo! ¡Hola, Paula!", "ok": false, "score": 0.889, "dur": 2.96, "heard": "¡Ho ho ho ho la paula! ¡Paula!", "tries": 2, "secs": 164.7}
+{"id": "bff294b7980f2dec1ca4", "key": "hello|jose", "text": "¡Jo, jo, jo! ¡Hola, José!", "ok": true, "score": 1.0, "dur": 2.72, "heard": "¡Ho, ho, ho! ¡Hola, José!", "tries": 2, "secs": 101.1}
+{"id": "a34223dfbd0f1457f69e", "key": "hello|laura", "text": "¡Jo, jo, jo! ¡Hola, Laura!", "ok": true, "score": 1.0, "dur": 2.12, "heard": "Ho, ho, ho. Hola, Laura.", "tries": 1, "secs": 47.0}
