@@ -1,0 +1,181 @@
+<section class="block" id="guide">
+  <div class="block-head">
+    <p class="eyebrow">Guide unlocked</p>
+    <h2>The 8 steps, in order</h2>
+    <p class="lede">Everything happens on the device, iPhone or iPad. Tick each step once it's done: the page remembers it on this device.</p>
+  </div>
+  <div class="progress" aria-live="polite">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <p class="progress-label"><span id="progress-count">0</span> / 8 steps done</p>
+  </div>
+
+  <ol class="steps">
+    <li class="step" data-step="1">
+      <details>
+        <summary><span class="num">1</span><span class="step-title">Get your device's identifier</span><span class="dur">2 min</span></summary>
+        <div class="step-body">
+          <p>The app isn't on the App Store: it is signed for one specific device, iPhone or iPad. So you need its identifier, the UDID, a 25-character string that looks like <code>00008160-000A1B2C3D4E5F6A</code>.</p>
+          <ol>
+            <li>In Safari, open a service that reads the UDID. It offers to install a small configuration profile.</li>
+            <li>Approve the profile in <span class="path">Settings › General › VPN &amp; Device Management</span>. The page then shows your UDID.</li>
+            <li>Copy the identifier, then delete the profile in the same place.</li>
+            <li>Send the identifier to have your build signed. You get two install links back.</li>
+          </ol>
+          <p class="note">The identifier passes through the service you use. Pick one you trust.</p>
+          <label class="done"><input type="checkbox" id="done-1"> Step done</label>
+        </div>
+      </details>
+    </li>
+
+    <li class="step" data-step="2">
+      <details>
+        <summary><span class="num">2</span><span class="step-title">Install the two apps</span><span class="dur">3 min</span></summary>
+        <div class="step-body">
+          <p>You received two links: one for <strong>StikDebug</strong>, which gives the emulator the right to translate game code on the fly (JIT), and one for <strong>the emulator</strong>, MeloNX.</p>
+          <ol>
+            <li>Copy the first link in full and paste it into Safari's address bar.</li>
+            <li>Tap <strong>Open</strong>, then <strong>Install</strong>. The icon appears on the Home Screen.</li>
+            <li>Do the same with the second link.</li>
+          </ol>
+          <p class="note">The links expire after about ten minutes. If iOS answers “Unable to Install”, ask for new ones.</p>
+          <label class="done"><input type="checkbox" id="done-2"> Step done</label>
+        </div>
+      </details>
+    </li>
+
+    <li class="step" data-step="3">
+      <details>
+        <summary><span class="num">3</span><span class="step-title">Turn on Developer Mode</span><span class="dur">2 min + restart</span></summary>
+        <div class="step-body">
+          <p>iOS refuses to open an app signed this way while this mode is off.</p>
+          <ol>
+            <li>Open <span class="path">Settings › Privacy &amp; Security › Developer Mode</span>. The row appears once the apps are installed.</li>
+            <li>Turn the switch on, then tap <strong>Restart</strong>.</li>
+            <li>When the device is back, confirm with <strong>Turn On</strong> and enter your passcode.</li>
+          </ol>
+          <div class="mock mock-toggle" aria-hidden="true"><span>Developer Mode</span><i></i></div>
+          <label class="done"><input type="checkbox" id="done-3"> Step done</label>
+        </div>
+      </details>
+    </li>
+
+    <li class="step" data-step="4">
+      <details>
+        <summary><span class="num">4</span><span class="step-title">Install LocalDevVPN</span><span class="dur">1 min</span></summary>
+        <div class="step-body">
+          <p>It's a free app on the App Store. It doesn't send your traffic anywhere: it connects the device to itself, so StikDebug can talk to it.</p>
+          <ol>
+            <li>Install <strong>LocalDevVPN</strong> from the App Store.</li>
+            <li>Open it, tap <strong>Connect</strong> and allow the VPN configuration.</li>
+          </ol>
+          <p class="note">Reconnect it before every play session.</p>
+          <label class="done"><input type="checkbox" id="done-4"> Step done</label>
+        </div>
+      </details>
+    </li>
+
+    <li class="step" data-step="5">
+      <details>
+        <summary><span class="num">5</span><span class="step-title">Pair StikDebug with your device</span><span class="dur">3 min</span></summary>
+        <div class="step-body">
+          <p>On iOS 27 and iPadOS 27 or later, pairing happens entirely on the device. Before that, it took a computer.</p>
+          <ol>
+            <li>Open StikDebug. The “Pairing file unavailable” alert is normal at this point: tap <strong>Cancel</strong>.</li>
+            <li>Tap the gear, then <span class="path">Pair a Device › Pair iPhone or iPad</span>. A six-digit code appears.</li>
+            <li>Without closing StikDebug, open <span class="path">Settings › Privacy &amp; Security › Developer Mode</span> and tap the <strong>Pair with …</strong> row.</li>
+            <li>Enter the code. Back in StikDebug, you read “Pairing Complete”.</li>
+          </ol>
+          <div class="mock mock-code" aria-hidden="true"><b>4</b><b>8</b><b>2</b><b>9</b><b>1</b><b>3</b></div>
+          <p class="note">No “Pair with …” row? StikDebug must stay open on its pairing screen while you switch to Settings.</p>
+          <label class="done"><input type="checkbox" id="done-5"> Step done</label>
+        </div>
+      </details>
+    </li>
+
+    <li class="step" data-step="6">
+      <details>
+        <summary><span class="num">6</span><span class="step-title">Enable JIT and open the emulator</span><span class="dur">1 min, every launch</span></summary>
+        <div class="step-body">
+          <p>This is the move to repeat every time you want to play.</p>
+          <ol>
+            <li>Check that LocalDevVPN is connected.</li>
+            <li>In StikDebug, tap <strong>MeloNX</strong> in the “Enable JIT” list. The emulator opens with JIT on.</li>
+          </ol>
+          <div class="mock mock-row" aria-hidden="true"><span>MeloNX</span><em>JIT on</em></div>
+          <p class="note">Always open the emulator from StikDebug, not from the Home Screen. If it freezes, turn on “Always Run Scripts” and “Silent Audio” in StikDebug's settings.</p>
+          <label class="done"><input type="checkbox" id="done-6"> Step done</label>
+        </div>
+      </details>
+    </li>
+
+    <li class="step" data-step="7">
+      <details>
+        <summary><span class="num">7</span><span class="step-title">Import your keys and firmware</span><span class="dur">5 min</span></summary>
+        <div class="step-body">
+          <p>The emulator needs two files dumped from <strong>your own console</strong>. This guide provides neither.</p>
+          <ol>
+            <li>On first launch, the “Setup” screen appears. Tap <strong>Import Keys</strong> and pick your <code>prod.keys</code> file in Files.</li>
+            <li>Tap <strong>Add Firmware</strong> and pick the <code>.zip</code> archive of your firmware.</li>
+            <li>Keep the app open for a minute while the firmware installs.</li>
+          </ol>
+          <p class="note">The firmware must not be newer than your keys, or the import fails. The simplest way: dump both on the same day, from the same console.</p>
+          <label class="done"><input type="checkbox" id="done-7"> Step done</label>
+        </div>
+      </details>
+    </li>
+
+    <li class="step" data-step="8">
+      <details>
+        <summary><span class="num">8</span><span class="step-title">Add your games</span><span class="dur">2 min</span></summary>
+        <div class="step-body">
+          <p>The emulator reads copies of your own games, in <code>.nsp</code> and <code>.xci</code> formats.</p>
+          <ol>
+            <li>In the library, tap <strong>+</strong> (“Add Game”) and pick your files.</li>
+            <li>Or drop them into <span class="path">Files › On My iPhone (or On My iPad) › MeloNX › roms</span>.</li>
+            <li>Tap a game to launch it.</li>
+          </ol>
+          <p class="note">A game's first launch takes longer than the next ones. Not every title runs: it depends on the game and on your device's memory.</p>
+          <label class="done"><input type="checkbox" id="done-8"> Step done</label>
+        </div>
+      </details>
+    </li>
+  </ol>
+</section>
+
+<section class="block" id="depannage">
+  <div class="block-head">
+    <p class="eyebrow">Troubleshooting</p>
+    <h2>The errors we actually ran into</h2>
+  </div>
+  <div class="faq">
+    <details><summary>“Pairing file unavailable”</summary><p>Nothing is broken: StikDebug is only saying that pairing hasn't been done yet. Go back to step 5.</p></details>
+    <details><summary>“Failed to connect debug proxy: ServiceNotFound”</summary><p>StikDebug reached the device but can't find the debugging service on it. Check that LocalDevVPN is connected and that you have Internet. In StikDebug, tap the gear, then “Redownload DDI”, and wait for “DDI files refreshed successfully”. Quit StikDebug completely, reopen it, try again. If the error comes back, restart the device. On a brand-new iOS version, you sometimes have to wait for a StikDebug update.</p></details>
+    <details><summary>The screen goes black after the library</summary><p>The emulator is waiting for an answer from StikDebug. Turn on “Always Run Scripts” and “Silent Audio” in StikDebug's settings, then enable JIT again. On a foldable iPhone, make sure you have the latest build of the app: an older one left the large screen black once the phone was unfolded.</p></details>
+    <details><summary>The app closes as soon as it opens</summary><p>Check that Developer Mode is still on (step 3). If it is, reinstall the latest build with new links.</p></details>
+    <details><summary>The firmware won't import</summary><p>Import the keys first, then the firmware. The file name must end in <code>.zip</code> exactly. If the message mentions a missing key, your firmware is newer than your keys: redo both dumps on the same day.</p></details>
+    <details><summary>“Unable to Install” when opening a link</summary><p>The link has expired (about ten minutes) or the device isn't the one the app was signed for. Ask for new links and check the identifier you sent in step 1.</p></details>
+    <details><summary>The app stops opening after several months</summary><p>The signature is valid for one year. After that, you need to reinstall a freshly signed build. Your keys, firmware and saves stay in the app as long as you don't delete it.</p></details>
+  </div>
+</section>
+
+<section class="block" id="assistant">
+  <div class="block-head">
+    <p class="eyebrow">Assistant</p>
+    <h2>Stuck on a step? Ask.</h2>
+    <p class="lede">The assistant knows this guide and its common errors. Describe what you see on screen, word for word if it's an error message.</p>
+  </div>
+  <div class="chat" id="chat">
+    <div class="chat-log" id="chat-log" aria-live="polite"></div>
+    <div class="chips" id="chat-chips">
+      <button type="button" class="chip">StikDebug shows “ServiceNotFound”</button>
+      <button type="button" class="chip">I don't have the “Pair with …” row</button>
+      <button type="button" class="chip">My firmware is rejected</button>
+    </div>
+    <form class="chat-form" id="chat-form">
+      <label class="sr" for="chat-input">Your question</label>
+      <textarea id="chat-input" rows="2" placeholder="Type your question here" maxlength="800"></textarea>
+      <button type="submit" class="btn btn-signal" id="chat-send">Send</button>
+    </form>
+    <p class="chat-off" id="chat-off" hidden>The assistant isn't available in this view. The guide and troubleshooting above are complete on their own.</p>
+  </div>
+</section>

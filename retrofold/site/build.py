@@ -1,4 +1,5 @@
-"""Assemble le site du guide : la partie libre (page.html) et le contenu payant (premium.html), chiffré avec le
+"""Assemble le site du guide : la partie libre (page.html, en français, et son dictionnaire anglais en.json) et le
+contenu payant (premium.html en français, premium.en.html en anglais), chiffré avec le
 code d'accès remis après paiement. La page publiée ne contient que le contenu chiffré : sans le code, il est illisible.
 
     GUIDE_CODE=XXXX-XXXX python3 build.py            -> dist/index.html
@@ -32,11 +33,14 @@ def main():
     if len(normalise(code)) < 8:
         sys.exit("GUIDE_CODE : le code d'accès doit compter au moins 8 lettres ou chiffres")
     page = open(os.path.join(HERE, "page.html"), encoding="utf-8").read()
-    premium = open(os.path.join(HERE, "premium.html"), encoding="utf-8").read()
-    marker = "/*__COFFRE__*/null"
-    if page.count(marker) != 1:
-        sys.exit("page.html : repère du coffre introuvable")
-    out = page.replace(marker, json.dumps(coffre(premium, code)))
+    read = lambda name: open(os.path.join(HERE, name), encoding="utf-8").read()
+    premium = read("premium.html")
+    marker, words = "/*__COFFRE__*/null", "/*__EN__*/{}"
+    if page.count(marker) != 1 or page.count(words) != 1:
+        sys.exit("page.html : repère du coffre ou du dictionnaire introuvable")
+    # Un coffre par langue, ouvert par le même code ; le dictionnaire anglais de la partie libre vient de en.json.
+    vaults = {"fr": coffre(premium, code), "en": coffre(read("premium.en.html"), code)}
+    out = page.replace(marker, json.dumps(vaults)).replace(words, json.dumps(json.loads(read("en.json")), ensure_ascii=False).replace("<", "\\u003c"))
     os.makedirs(os.path.join(HERE, "dist"), exist_ok=True)
     with open(os.path.join(HERE, "dist", "index.html"), "w", encoding="utf-8") as f:
         f.write(out)
