@@ -31,6 +31,11 @@ jobs:
             ver=$(curl -s --max-time 25 "$u/api/app-version/" | head -c 200)
             echo "$code $u  /  $(head -c 80 body.txt | tr '\n' ' ')  /  app-version: $ver"
           done
+          echo
+          echo "== Hébergement de api.padel-up.io"
+          dig +short api.padel-up.io CNAME; dig +short api.padel-up.io A
+          curl -sI --max-time 20 https://api.padel-up.io/ | grep -iE "^(server|via|x-render|x-railway|x-powered-by|fly-request-id|x-vercel|cf-ray|x-served-by|x-heroku|rndr-id)" || true
+          dig +short padel-up.io NS
           } 2>&1 | tee resultat.txt
       - name: Publier
         if: always()
