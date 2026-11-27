@@ -1,0 +1,18 @@
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-27-2-iPhone19-4 device=com.apple.CoreSimulator.SimDeviceType.iPhone-Duo
+0.0
+    • active: true
+    • name: LCD-1
+    • nativeSize: (2007.0, 2853.0)
+    • active: false
+Main display orientation: portrait, non-flat orientation: portrait, orientation not locked
+launch : Main display orientation: portrait
+onb1 : Main display orientation: portrait
+onb2 : Main display orientation: portrait
+onb4 : Main display orientation: portrait
+onb5 : Main display orientation: portrait
+home : Main display orientation: portrait
+mappins : Main display orientation: portrait
+tracker : Main display orientation: portrait
+more : Main display orientation: portrait
+pro : Main display orientation: portrait
+widgets : Main display orientation: portrait
