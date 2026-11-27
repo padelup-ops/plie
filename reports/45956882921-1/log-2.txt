@@ -41,3 +41,11 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [4/837] es ok  1.00 3.1s essais 1 (81s, reste 2268 min) Me han contado que te encanta correr, saltar y moverte. → Me han contado que te encanta correr, saltar y moverte.
   self.gen = func(*args, **kwds)
+[5/837] es ok  1.00 3.5s essais 1 (78s, reste 2027 min) Y también que hacen muchísimas preguntas para entenderlo tod → y también que hacen muchísimas preguntas para entenderlo tod
+  self.gen = func(*args, **kwds)
+[6/837] es ok  0.99 8.1s essais 1 (124s, reste 1974 min) Mamá Noel ha hecho galletas de canela. Toda la casa huele de → Mamá Noel ha hecho galletas de canela. Toda la casa huele de
+  self.gen = func(*args, **kwds)
+[7/837] pt ok  1.00 6.4s essais 1 (111s, reste 1909 min) Hoje a noite é bem longa no Polo Norte. Ainda bem que as nos → Hoje à noite é bem longa no Polo Norte. Ainda bem que as nos
+  self.gen = func(*args, **kwds)
+[8/837] de ok  1.00 3.8s essais 1 (87s, reste 1818 min) Ich habe dieses Jahr von euch gehört, und nur schöne Dinge! → Ich habe dieses Jahr von Euch gehört und nur schöne Dinge.
+  self.gen = func(*args, **kwds)
