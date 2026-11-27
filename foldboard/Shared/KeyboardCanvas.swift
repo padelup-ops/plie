@@ -1586,6 +1586,7 @@ final class KeyboardCanvas: UIView {
     /// Le clavier disparaît : on coupe les capteurs.
     func disappeared() {
         knock.stop()
+        if visible { KBMemLog.mark("parti", mb: Self.footprintMB(), room: NeuralSwipe.availableMB()) }
         visible = false
         // Le réglage au doigt en cours est gardé tel qu'il est (pas de poignées encore affichées au retour).
         if adjusting { endAdjust(keep: true) }
@@ -2163,6 +2164,14 @@ final class KeyboardCanvas: UIView {
     private static let globeKey = "foldboard.globeAt"
     private func globeTapped() {
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.globeKey)
+        // Avant de partir, on rend ce qui pèse : pendant le passage, iOS photographie ce clavier et prépare le
+        // suivant, et sur l'écran déplié il restait peu de marge. Les deux repères (avant, après) restent dans le
+        // journal de mémoire : si le clavier est fermé de force à ce moment, on saura avec quelle marge.
+        KBMemLog.mark("globe", mb: Self.footprintMB(), room: NeuralSwipe.availableMB())
+        trimMemory(flush: false)
+        NeuralSwipe.release()
+        KBSymbol.clear()
+        KBMemLog.mark("allégé", mb: Self.footprintMB(), room: NeuralSwipe.availableMB())
         // Après le toucher en cours, pas au milieu : iOS retire le clavier pendant cet appel, et le traitement du
         // doigt qui vient de se lever n'était pas fini.
         DispatchQueue.main.async { [weak self] in self?.input?.kbNextKeyboard() }
