@@ -36,8 +36,9 @@ REF_TEXT = ("Ho, ho, ho! Merry Christmas! Oh, what a wonderful night it is here 
 # Réglages retenus après l'essai (voice.py pilot, 27 nov.) : entrain marqué (0,8) et cfg 0,3 dans toutes les
 # langues. C'est le réglage le mieux reconnu dans chaque langue par le modèle de transcription (0,94 à 1,0 sur les
 # phrases longues ; cfg 0 faisait moins bien, et plus lentement).
-# La voix de référence (ai/santa-voice-ref.wav) : le Père Noël de Kokoro, descendu de deux demi-tons (154 → 140 Hz)
-# pour un Père Noël un peu plus grave, sans toucher aux fichiers produits.
+# La voix de référence (ai/santa-voice-ref.wav) : le Père Noël de Kokoro tel quel (hauteur médiane 154 Hz), celui
+# de l'essai. (Un essai rapide avec une référence descendue de deux demi-tons et un modèle de transcription plus petit
+# rendait des transcriptions françaises douteuses, « Joyeux » → « Soyul » : on garde ce qui a été vérifié.)
 SETTINGS = {
     "*": dict(exaggeration=0.8, cfg_weight=0.3, temperature=0.75),
 }
@@ -148,14 +149,14 @@ def judge(it, heard: str):
     score = similarity(it["text"], heard)
     want, got = letters(it["text"]).split(), letters(heard).split()
     if it["kind"] == "line":
-        floor = 0.6 if len(" ".join(want)) < 28 else 0.75
+        floor = 0.8 if len(" ".join(want)) < 28 else 0.86
         extra = len(got) <= len(want) + max(1, round(len(want) * 0.15))
         return score, score >= floor and extra
     name = norm_name(it["key"].split("|", 1)[1]).replace("-", " ").split()
     tail = " ".join(got[-len(name):]) if got else ""
     who = difflib.SequenceMatcher(None, " ".join(name), tail).ratio()
     # Le prénom compte double : c'est lui que l'enfant écoute.
-    return round((score + 2 * who) / 3, 3), score >= 0.62 and who >= 0.6 and len(got) <= len(want)
+    return round((score + 2 * who) / 3, 3), score >= 0.8 and who >= 0.6 and len(got) <= len(want)
 
 
 def trim_and_level(w, sr):
@@ -208,7 +209,7 @@ def encode(w, sr, path: Path):
 
 
 class Studio:
-    def __init__(self, ref: Path, whisper="base"):
+    def __init__(self, ref: Path, whisper="small"):
         import torch
         self.torch = torch
         # Deux fabrications par machine, deux fils chacune : plus de phrases à l'heure que quatre fils pour une seule.
@@ -341,7 +342,7 @@ def cmd_gen(a):
             if time.time() > deadline:
                 print(f"temps écoulé : {len(todo) - k + 1} phrases restent pour le prochain passage", flush=True)
                 break
-            r = produce(studio, it, lang, good, tries=6 if it["kind"] == "line" else 4)
+            r = produce(studio, it, lang, good, tries=6 if it["kind"] == "line" else 3)
             if not r["ok"] and (good / f"{it['id']}.m4a").is_file():
                 (good / f"{it['id']}.m4a").rename(weak / f"{it['id']}.m4a")
             log.write(json.dumps(r, ensure_ascii=False) + "\n")

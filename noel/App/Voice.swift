@@ -203,7 +203,8 @@ final class SantaVoice {
         if spoken.kind != .elf {
             // La voix enregistrée est déjà celle du Père Noël ; la synthèse de secours est rendue plus grave.
             let device = spoken.kind == .santaDevice
-            pitch.pitch = device ? -180 : 0
+            // (la voix enregistrée est un rien descendue : un Père Noël un peu plus grave, sans la déformer)
+            pitch.pitch = device ? -180 : -60
             eq.bands[0].gain = device ? 3.5 : 2.5
             reverb.wetDryMix = device ? 14 : 7
         }
