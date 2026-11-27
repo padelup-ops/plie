@@ -15,3 +15,8 @@
 {"id": "c8a2752e87c3217cd4e6", "key": "hello|carter", "text": "Ho, ho, ho! Hello, Carter!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "Ho Ho Ho! Hello Carter!", "tries": 1, "secs": 44.6}
 {"id": "297bb222b39c8e54260e", "key": "hello|josiah", "text": "Ho, ho, ho! Hello, Josiah!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Oh, ho, ho. Hello Josiah.", "tries": 1, "secs": 45.7}
 {"id": "d6856fc06b5cce449541", "key": "hello|miles", "text": "Ho, ho, ho! Hello, Miles!", "ok": true, "score": 1.0, "dur": 1.68, "heard": "Ho Ho Ho, Hello Miles.", "tries": 1, "secs": 40.0}
+{"id": "d446533534d81583e003", "key": "hello|kai", "text": "Ho, ho, ho! Hello, Kai!", "ok": true, "score": 1.0, "dur": 1.88, "heard": "Ho ho ho! Hello Kai!", "tries": 1, "secs": 39.1}
+{"id": "cc12af3885cb455b055f", "key": "hello|audrey", "text": "Ho, ho, ho! Hello, Audrey!", "ok": true, "score": 1.0, "dur": 2.3, "heard": "Ho Ho Ho! Hello Audrey!", "tries": 1, "secs": 46.5}
+{"id": "7936b213978d2b09ebe2", "key": "hello|savannah", "text": "Ho, ho, ho! Hello, Savannah!", "ok": false, "score": 0.407, "dur": 3.58, "heard": "Ho Ho Ho Hello Savannah! Hello's!", "tries": 2, "secs": 184.3}
+{"id": "22656fbfa948c9ba7207", "key": "hello|adrian", "text": "Ho, ho, ho! Hello, Adrian!", "ok": true, "score": 1.0, "dur": 2.22, "heard": "Ho, ho, ho. Hello, Adrian.", "tries": 1, "secs": 46.4}
+{"id": "b99e64efb2032c832317", "key": "hello|jaxon", "text": "Ho, ho, ho! Hello, Jaxon!", "ok": true, "score": 0.722, "dur": 2.92, "heard": "Ho Ho Ho! Hello Jackson!", "tries": 1, "secs": 52.3}
