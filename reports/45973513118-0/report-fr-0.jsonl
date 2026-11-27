@@ -1,0 +1,3 @@
+{"id": "dda3eecc0cb7a7ad143c", "key": "hello|robin", "text": "Ho, ho, ho ! Bonjour Robin !", "ok": false, "score": 1.0, "dur": 4.36, "heard": "Oh ho ho, Bonjour Robin.", "tries": 3, "secs": 178.5}
+{"id": "1f3bc91583b1f19b30a2", "key": "hello|ilyes", "text": "Ho, ho, ho ! Bonjour Ilyes !", "ok": false, "score": 0.654, "dur": 2.52, "heard": "Ahaha, bonjour les liés.", "tries": 2, "secs": 170.0}
+{"id": "27575790c0d141315146", "key": "hello|kelya", "text": "Ho, ho, ho ! Bonjour Kelya !", "ok": true, "score": 0.927, "dur": 2.44, "heard": "Ho ho ho, bonjour, Keliya!", "tries": 1, "secs": 42.3}
