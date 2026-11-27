@@ -157,7 +157,6 @@ actor PlaytomicAPI {
             URLQueryItem(name: "sport_id", value: "PADEL"),
             URLQueryItem(name: "radius", value: String(Int(radiusKm * 1000))),
             URLQueryItem(name: "size", value: "50"),
-            URLQueryItem(name: "playtomic_status", value: "ACTIVE"),
         ])
         guard code < 300 else { throw PlaytomicError.unavailable("Recherche Playtomic impossible.") }
         let list = (json as? [[String: Any]]) ?? ((json as? [String: Any])?["content"] as? [[String: Any]]) ?? []

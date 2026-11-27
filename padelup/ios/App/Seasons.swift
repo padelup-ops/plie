@@ -45,11 +45,11 @@ enum Season: String, CaseIterable, Identifiable {
         switch self {
         case .autumn: return Color(red: 0.95, green: 0.55, blue: 0.20)
         case .halloween: return Color(red: 1.0, green: 0.45, blue: 0.10)
-        case .christmas: return Color(red: 0.85, green: 0.95, blue: 1.0)
-        case .newYear: return Neo.volt
-        case .winter: return Color(red: 0.75, green: 0.88, blue: 1.0)
-        case .spring: return Color(red: 1.0, green: 0.72, blue: 0.82)
-        case .summer: return Color(red: 1.0, green: 0.85, blue: 0.35)
+        case .christmas: return Color(red: 0.80, green: 0.20, blue: 0.22)
+        case .newYear: return Color(red: 0.85, green: 0.70, blue: 0.20)
+        case .winter: return Color(red: 0.35, green: 0.55, blue: 0.78)
+        case .spring: return Color(red: 0.85, green: 0.40, blue: 0.55)
+        case .summer: return Color(red: 0.90, green: 0.62, blue: 0.10)
         }
     }
 
@@ -85,16 +85,17 @@ struct SeasonalOverlay: View {
     var season: Season
     var density: Double = 1
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var scheme
 
     private var count: Int {
         let base: Int
         switch season {
-        case .christmas: base = 46
-        case .winter: base = 26
-        case .newYear: base = 44
-        case .autumn, .halloween: base = 18
-        case .spring: base = 22
-        case .summer: base = 16
+        case .christmas: base = 34
+        case .winter: base = 18
+        case .newYear: base = 30
+        case .autumn, .halloween: base = 14
+        case .spring: base = 16
+        case .summer: base = 10
         }
         return reduceMotion ? base / 3 : Int(Double(base) * density)
     }
@@ -140,7 +141,7 @@ struct SeasonalOverlay: View {
         var ctx = context
         ctx.translateBy(x: x, y: y)
         ctx.rotate(by: angle)
-        ctx.opacity = season == .summer ? 0.35 + 0.4 * sin(t * 1.5 + phase).magnitude : 0.85
+        ctx.opacity = season == .summer ? 0.25 + 0.35 * sin(t * 1.5 + phase).magnitude : 0.7
 
         switch season {
         case .autumn, .halloween:
@@ -154,20 +155,22 @@ struct SeasonalOverlay: View {
             ctx.fill(Self.leaf, with: .color(color))
             ctx.stroke(Self.vein, with: .color(Color.black.opacity(0.25)), lineWidth: 0.08)
         case .christmas, .winter:
-            let r = (season == .christmas ? 3.2 : 2.6) * depth
+            // Neige blanche la nuit, gris-bleu doux sur fond clair (sinon invisible).
+            let snow = scheme == .dark ? Color.white : Color(red: 0.62, green: 0.71, blue: 0.80)
+            let r = (season == .christmas ? 3.0 : 2.4) * depth
             if i % 4 == 0 {
-                ctx.stroke(Self.flake(radius: r * 2.2), with: .color(.white.opacity(0.9)), lineWidth: 1)
+                ctx.stroke(Self.flake(radius: r * 2.2), with: .color(snow.opacity(0.9)), lineWidth: 1)
             } else {
                 var blurred = ctx
-                if depth < 0.8 { blurred.addFilter(.blur(radius: 1.5)) }
-                blurred.fill(Path(ellipseIn: CGRect(x: -r, y: -r, width: 2 * r, height: 2 * r)), with: .color(.white.opacity(0.92)))
+                if depth < 0.8 { blurred.addFilter(.blur(radius: 1.2)) }
+                blurred.fill(Path(ellipseIn: CGRect(x: -r, y: -r, width: 2 * r, height: 2 * r)), with: .color(snow.opacity(0.9)))
             }
         case .spring:
             let colors = [Color(red: 1.0, green: 0.78, blue: 0.86), Color(red: 1.0, green: 0.9, blue: 0.94), Color(red: 0.98, green: 0.62, blue: 0.75)]
             let s = 6 * depth
             ctx.fill(Path(ellipseIn: CGRect(x: -s, y: -s * 0.55, width: 2 * s, height: 1.1 * s)), with: .color(colors[i % colors.count]))
         case .newYear:
-            let colors = [Neo.volt, Neo.cyan, Neo.magenta, Color.white, Color(red: 1.0, green: 0.8, blue: 0.3)]
+            let colors = [UI.accent, UI.ball, Color(red: 0.85, green: 0.70, blue: 0.20), Color(red: 0.80, green: 0.30, blue: 0.45), Color(red: 0.25, green: 0.65, blue: 0.55)]
             let w = 5 * depth, h = 9 * depth * abs(cos(t * 3 + phase)) + 1
             ctx.fill(Path(CGRect(x: -w / 2, y: -h / 2, width: w, height: h)), with: .color(colors[i % colors.count]))
         case .summer:
@@ -221,11 +224,10 @@ struct SeasonBadge: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: season.symbol).foregroundStyle(season.tint).neonGlow(season.tint, radius: 6)
-            Text(season.greeting).font(Neo.body(13)).foregroundStyle(Neo.dim)
+            Image(systemName: season.symbol).font(.system(size: 13, weight: .semibold)).foregroundStyle(season.tint)
+            Text(season.greeting).font(UI.caption()).foregroundStyle(UI.muted)
         }
         .padding(.vertical, 8).padding(.horizontal, 12)
-        .background(Capsule().fill(season.tint.opacity(0.10)))
-        .overlay(Capsule().strokeBorder(season.tint.opacity(0.35), lineWidth: 1))
+        .background(Capsule().fill(UI.tray))
     }
 }

@@ -36,8 +36,6 @@ targets:
           UIColorName: LaunchBackground
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIRequiresFullScreen: true
-        UIStatusBarStyle: UIStatusBarStyleLightContent
-        UIUserInterfaceStyle: Dark
         ITSAppUsesNonExemptEncryption: false
         NSLocationWhenInUseUsageDescription: PadelUp Neo affiche les clubs de padel autour de toi et la météo de jeu.
         UIBackgroundModes: [fetch]

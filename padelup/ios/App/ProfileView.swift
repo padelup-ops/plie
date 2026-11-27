@@ -8,21 +8,11 @@ struct ProfileView: View {
     @AppStorage("botServer") private var botServer = true
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                ScreenBackground(intensity: 0.4)
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        ScreenHeader(title: "Profil")
-                        if let me = server.me { profileCard(me) } else if server.isLoggedIn { ProgressView().tint(Neo.volt) } else { AuthPanel() }
-                        settings
-                        about
-                    }
-                    .padding(18)
-                    .padding(.bottom, 40)
-                }
-            }
-            .toolbar(.hidden, for: .navigationBar)
+        Screen(title: "Profil") {
+            if let me = server.me { profileCard(me) } else if server.isLoggedIn { ProgressView().frame(maxWidth: .infinity) } else { AuthPanel() }
+            seasons
+            settings
+            about
         }
     }
 
@@ -30,70 +20,75 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 14) {
                 Text(String((me.profile?.fullName ?? me.username).prefix(1)).uppercased())
-                    .font(Neo.title(26)).foregroundStyle(Neo.night)
-                    .frame(width: 64, height: 64).background(Circle().fill(Neo.neonGradient)).neonGlow(Neo.cyan, radius: 10)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(me.profile?.fullName?.isEmpty == false ? me.profile!.fullName! : me.username).font(Neo.title(20)).foregroundStyle(Neo.text)
-                    Text("Niveau \(me.profile?.skillLevel ?? 1) · \(me.profile?.tierName ?? "Débutant")").font(Neo.label(12)).foregroundStyle(Neo.volt)
-                    if let loc = me.profile?.location, !loc.isEmpty { Text(loc).font(Neo.body(12)).foregroundStyle(Neo.dim) }
+                    .font(.system(size: 24, weight: .bold)).foregroundStyle(.white)
+                    .frame(width: 56, height: 56).background(Circle().fill(UI.hero))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(me.profile?.fullName?.isEmpty == false ? me.profile!.fullName! : me.username).font(UI.title()).foregroundStyle(UI.ink)
+                    Text("Niveau \(me.profile?.skillLevel ?? 1) · \(me.profile?.tierName ?? "Débutant")").font(UI.caption()).foregroundStyle(UI.muted)
                 }
             }
             HStack(spacing: 10) {
-                StatTile(value: "\(me.stats?.matchesPlayed ?? 0)", label: "matchs", color: Neo.cyan)
-                StatTile(value: "\(me.stats?.matchesWon ?? 0)", label: "victoires", color: Neo.volt)
-                StatTile(value: "\(Int((me.stats?.winRate ?? 0).rounded())) %", label: "réussite", color: Neo.magenta)
+                Metric(value: "\(me.stats?.matchesPlayed ?? 0)", label: "matchs")
+                Metric(value: "\(me.stats?.matchesWon ?? 0)", label: "victoires")
+                Metric(value: "\(Int((me.stats?.winRate ?? 0).rounded())) %", label: "réussite")
             }
             Button(role: .destructive) { server.logout() } label: { Text("Se déconnecter") }
-                .buttonStyle(NeonButtonStyle(color: Neo.danger, filled: false))
+                .buttonStyle(SecondaryButtonStyle(color: UI.danger))
         }
-        .glassCard()
+        .card()
     }
 
-    private var settings: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            SectionTitle(text: "Ambiance de saison")
-            Text("Feuilles en automne, neige à Noël, confettis au Nouvel An… L'idée de Yacine 🍂❄︎").font(Neo.body(13)).foregroundStyle(Neo.dim)
+    private var seasons: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Ambiance de saison").font(UI.headline()).foregroundStyle(UI.ink)
+            Text("Feuilles en automne, neige à Noël, confettis au Nouvel An. L'idée de Yacine.").font(UI.caption()).foregroundStyle(UI.muted)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     seasonChip("auto", "Auto")
                     ForEach(Season.allCases) { s in seasonChip(s.rawValue, s.name) }
-                    seasonChip("off", "Désactivé")
+                    seasonChip("off", "Aucune")
                 }
             }
-            Divider().overlay(Neo.line)
-            SectionTitle(text: "Bot")
-            Toggle("Bot 24 h/24 sur le serveur PadelUp", isOn: $botServer).tint(Neo.volt).font(Neo.body(14))
-            Divider().overlay(Neo.line)
-            SectionTitle(text: "Serveur PadelUp")
-            TextField("https://…/api (laisser vide : serveur par défaut)", text: $serverURL)
-                .font(Neo.mono(13)).textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL).padding(12)
-                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.07)))
-            Text("Actuel : \(server.baseURL.absoluteString)").font(Neo.body(11)).foregroundStyle(Neo.faint)
         }
-        .glassCard()
+        .card()
     }
 
     private func seasonChip(_ raw: String, _ label: String) -> some View {
-        Button { seasonMode = raw } label: { Chip(text: label, selected: seasonMode == raw, color: Season(rawValue: raw)?.tint ?? Neo.cyan) }
-            .buttonStyle(.plain)
+        Button { seasonMode = raw } label: { Pill(text: label, active: seasonMode == raw) }.buttonStyle(.plain)
+    }
+
+    private var settings: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Réglages").font(UI.headline()).foregroundStyle(UI.ink)
+            Toggle("Bot 24 h/24 sur le serveur PadelUp", isOn: $botServer).tint(UI.accent).font(UI.callout())
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Serveur PadelUp").font(UI.caption()).foregroundStyle(UI.muted)
+                InputField(title: "https://…/api (vide : serveur par défaut)", text: $serverURL, keyboard: .URL)
+                Text(server.baseURL.absoluteString).font(UI.small()).foregroundStyle(UI.faint)
+            }
+        }
+        .card()
     }
 
     private var about: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionTitle(text: "Sources libres")
-            Text("Clubs (\(CoverageZone.countries)) : © contributeurs OpenStreetMap, licence ODbL (openstreetmap.org/copyright).").font(Neo.body(12))
-            Text("Météo : Open-Meteo.com (CC BY 4.0).").font(Neo.body(12))
-            Text("Disponibilités : Playtomic et Anybuddy, avec ton compte. PadelUp n'est affilié à aucune de ces plateformes.").font(Neo.body(12))
-            Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""))")
-                .font(Neo.mono(11)).foregroundStyle(Neo.faint)
+            Text("Sources libres").font(UI.headline()).foregroundStyle(UI.ink)
+            Group {
+                Text("Clubs (\(CoverageZone.countries)) : © contributeurs OpenStreetMap, licence ODbL.")
+                Text("Météo : Open-Meteo.com (CC BY 4.0).")
+                Text("Disponibilités : Playtomic et Anybuddy, avec ton compte. PadelUp n'est affilié à aucune de ces plateformes.")
+                Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""))")
+                    .foregroundStyle(UI.faint)
+            }
+            .font(UI.caption()).foregroundStyle(UI.muted)
         }
-        .foregroundStyle(Neo.dim)
-        .glassCard()
+        .card()
     }
 }
 
 struct AuthPanel: View {
     @EnvironmentObject private var server: ServerAPI
+    @Environment(\.colorScheme) private var scheme
     @State private var mode = 0
     @State private var identifier = ""
     @State private var password = ""
@@ -106,42 +101,38 @@ struct AuthPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Ton compte PadelUp").font(Neo.label(15)).foregroundStyle(Neo.text)
-            Text("Matchs, classement et bot 24 h/24. Les clubs, la météo et le bot sur l'iPhone marchent sans compte.")
-                .font(Neo.body(13)).foregroundStyle(Neo.dim)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Ton compte PadelUp").font(UI.headline()).foregroundStyle(UI.ink)
+                Text("Pour les matchs, le classement et le bot 24 h/24. Les clubs, la météo et le bot sur l'iPhone marchent sans compte.")
+                    .font(UI.caption()).foregroundStyle(UI.muted)
+            }
             SignInWithAppleButton(.signIn) { request in
                 request.requestedScopes = [.fullName, .email]
             } onCompletion: { result in
                 Task { await apple(result) }
             }
-            .signInWithAppleButtonStyle(.white)
+            .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
             .frame(height: 50)
             .clipShape(Capsule())
             Picker("", selection: $mode) { Text("Connexion").tag(0); Text("Inscription").tag(1) }.pickerStyle(.segmented)
             if awaitingCode {
-                field("Code reçu par e-mail", text: $code).keyboardType(.numberPad)
+                InputField(title: "Code reçu par e-mail", text: $code, keyboard: .numberPad)
             } else {
                 if mode == 1 {
-                    field("Nom complet", text: $fullName)
-                    field("Nom d'utilisateur", text: $username)
+                    InputField(title: "Nom complet", text: $fullName)
+                    InputField(title: "Nom d'utilisateur", text: $username)
                 }
-                field(mode == 0 ? "E-mail ou nom d'utilisateur" : "E-mail", text: $identifier).keyboardType(.emailAddress)
-                SecureField("Mot de passe", text: $password).font(Neo.body(16)).padding(14)
-                    .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.07)))
+                InputField(title: mode == 0 ? "E-mail ou nom d'utilisateur" : "E-mail", text: $identifier, keyboard: .emailAddress)
+                InputField(title: "Mot de passe", text: $password, secure: true)
             }
-            if let error { Text(error).font(Neo.body(13)).foregroundStyle(Neo.danger) }
+            if let error { Text(error).font(UI.caption()).foregroundStyle(UI.danger) }
             Button { Task { await submit() } } label: {
-                if busy { ProgressView().tint(Neo.night) } else { Text(awaitingCode ? "Valider le code" : (mode == 0 ? "Se connecter" : "Créer mon compte")) }
+                if busy { ProgressView().tint(UI.onAccent) } else { Text(awaitingCode ? "Valider le code" : (mode == 0 ? "Se connecter" : "Créer mon compte")) }
             }
-            .buttonStyle(NeonButtonStyle(color: Neo.volt))
+            .buttonStyle(PrimaryButtonStyle())
             .disabled(busy)
         }
-        .glassCard()
-    }
-
-    private func field(_ title: String, text: Binding<String>) -> some View {
-        TextField(title, text: text).font(Neo.body(16)).textInputAutocapitalization(.never).autocorrectionDisabled().padding(14)
-            .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.07)))
+        .card()
     }
 
     private func submit() async {

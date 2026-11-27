@@ -1,4 +1,5 @@
 import CoreLocation
+import MapKit
 import SwiftUI
 
 struct HomeView: View {
@@ -16,110 +17,117 @@ struct HomeView: View {
     }
 
     var body: some View {
-        ZStack {
-            ScreenBackground(intensity: 0.9)
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    hero
-                    if let season = SeasonSetting.resolve(seasonMode) { SeasonBadge(season: season) }
-                    stats
-                    actions
-                    botCard
-                    nearbySection
-                    Text("Clubs : © contributeurs OpenStreetMap (ODbL) et Playtomic · Météo : Open-Meteo")
-                        .font(Neo.body(11)).foregroundStyle(Neo.faint)
-                }
-                .padding(.horizontal, 18)
-                .padding(.top, 12)
-                .padding(.bottom, 40)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                header
+                hero
+                metrics
+                if let last = bot.log.first { lastBotAction(last) }
+                nearbySection
+                Text("Clubs © contributeurs OpenStreetMap (ODbL) et Playtomic · Météo Open-Meteo")
+                    .font(UI.small()).foregroundStyle(UI.faint).padding(.horizontal, 4)
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 40)
         }
+        .background(UI.bg.ignoresSafeArea())
+        .task(id: location.location.map { "\(Int($0.coordinate.latitude * 50)):\(Int($0.coordinate.longitude * 50))" }) {
+            // Les clubs autour du joueur sont actualisés tout de suite, sans passer par la carte.
+            guard let loc = location.location, ShotMode.current == nil else { return }
+            let region = MKCoordinateRegion(center: loc.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.7))
+            await directory.refreshLive(region: region)
+        }
+        .onAppear { if location.location == nil && location.status != .notDetermined { location.request() } }
     }
 
-    private var hero: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                BallMark(size: 38)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("PADELUP").font(Neo.title(26)).foregroundStyle(Neo.text)
-                    Text("NEO").font(Neo.label(13)).foregroundStyle(Neo.volt).tracking(6)
-                }
-                Spacer()
-                if let me = server.me {
-                    Text(String((me.profile?.fullName ?? me.username).prefix(1)).uppercased())
-                        .font(Neo.title(18)).foregroundStyle(Neo.night)
-                        .frame(width: 40, height: 40).background(Circle().fill(Neo.neonGradient))
-                }
-            }
-            Text(greeting).font(Neo.title(32)).foregroundStyle(Neo.text).fixedSize(horizontal: false, vertical: true)
-            Text("Les clubs de France, des pays voisins et du Maghreb, la météo du court, et un bot qui réserve à ta place.")
-                .font(Neo.body(15)).foregroundStyle(Neo.dim)
+    private var header: some View {
+        HStack(spacing: 10) {
+            BallMark(size: 26)
+            Text("PadelUp").font(.system(size: 20, weight: .bold)).foregroundStyle(UI.ink)
+            Spacer()
+            if let season = SeasonSetting.resolve(seasonMode) { SeasonBadge(season: season) }
         }
-        .padding(.top, 8)
+        .padding(.horizontal, 4)
     }
 
     private var greeting: String {
         let h = Calendar.current.component(.hour, from: Date())
         let name = server.me?.profile?.fullName?.split(separator: " ").first.map(String.init) ?? server.me?.firstName
-        let hello = h < 5 ? "Bonne nuit" : (h < 18 ? "Salut" : "Bonsoir")
-        if let name, !name.isEmpty { return "\(hello) \(name),\nprêt pour un match ?" }
-        return "\(hello),\nprêt pour un match ?"
+        let hello = h < 5 ? "Bonne nuit" : (h < 18 ? "Bonjour" : "Bonsoir")
+        if let name, !name.isEmpty { return "\(hello) \(name)" }
+        return hello
     }
 
-    private var stats: some View {
+    // La carte héros : bleu PadelUp, une phrase, une action.
+    private var hero: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(greeting).font(.system(size: 15, weight: .medium)).foregroundStyle(.white.opacity(0.75))
+            Text("Prêt pour un match ?").font(.system(size: 30, weight: .bold)).foregroundStyle(.white)
+            Text("Les clubs de France, des pays voisins et du Maghreb, la météo du court, et un bot qui réserve à ta place.")
+                .font(UI.callout()).foregroundStyle(.white.opacity(0.75)).fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 10) {
+                Button { router.tab = .clubs } label: { Label("Trouver un club", systemImage: "magnifyingglass") }
+                    .font(.system(size: 15, weight: .semibold)).foregroundStyle(UI.hero)
+                    .padding(.horizontal, 16).frame(height: 44).background(Capsule().fill(.white))
+                Button { router.tab = .bot } label: { Label("Bot", systemImage: "bolt.fill") }
+                    .font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
+                    .padding(.horizontal, 16).frame(height: 44).background(Capsule().fill(.white.opacity(0.16)))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 26, style: .continuous).fill(UI.hero))
+    }
+
+    private var metrics: some View {
+        HStack(spacing: 10) {
+            Metric(value: directory.totalCount > 0 ? directory.totalCount.formatted(.number.locale(Locale(identifier: "fr_FR"))) : "…",
+                   label: "clubs")
+            Metric(value: "\(bot.rules.filter { $0.active }.count)", label: "bots actifs")
+            Metric(value: "\(bot.log.filter { $0.kind == .booked }.count)", label: "réservés")
+        }
+    }
+
+    private func lastBotAction(_ last: BotLogEntry) -> some View {
         HStack(spacing: 12) {
-            StatTile(value: directory.totalCount > 0 ? directory.totalCount.formatted(.number.locale(Locale(identifier: "fr_FR"))) : "…",
-                     label: "clubs couverts", color: Neo.cyan)
-            StatTile(value: "\(bot.rules.filter { $0.active }.count)", label: "bots en veille", color: Neo.volt)
-            StatTile(value: "\(bot.log.filter { $0.kind == .booked }.count)", label: "réservés par le bot", color: Neo.magenta)
-        }
-    }
-
-    private var actions: some View {
-        VStack(spacing: 12) {
-            Button { router.tab = .clubs } label: {
-                Label("Trouver un club", systemImage: "globe.europe.africa.fill")
-            }.buttonStyle(NeonButtonStyle(color: Neo.volt))
-            HStack(spacing: 12) {
-                Button { router.tab = .bot } label: { Label("Bot de résa", systemImage: "bolt.fill") }
-                    .buttonStyle(NeonButtonStyle(color: Neo.cyan, filled: false))
-                Button { router.tab = .matches } label: { Label("Matchs", systemImage: "person.2.fill") }
-                    .buttonStyle(NeonButtonStyle(color: Neo.cyan, filled: false))
+            IconBadge(systemImage: last.kind == .booked ? "checkmark" : (last.kind == .found ? "eye" : "exclamationmark"),
+                      color: last.kind == .booked ? UI.success : (last.kind == .found ? UI.accent : UI.warning))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(last.clubName).font(UI.headline()).foregroundStyle(UI.ink).lineLimit(1)
+                Text(last.message).font(UI.caption()).foregroundStyle(UI.muted).lineLimit(2)
             }
+            Spacer()
+            Text(last.date.formatted(.relative(presentation: .named))).font(UI.small()).foregroundStyle(UI.faint)
         }
-    }
-
-    @ViewBuilder private var botCard: some View {
-        if let last = bot.log.first {
-            VStack(alignment: .leading, spacing: 10) {
-                SectionTitle(text: "Dernière action du bot", trailing: last.date.formatted(.relative(presentation: .named)))
-                HStack(spacing: 12) {
-                    Image(systemName: last.kind == .booked ? "checkmark.seal.fill" : (last.kind == .found ? "eye.fill" : "exclamationmark.triangle.fill"))
-                        .font(.system(size: 26)).foregroundStyle(last.kind == .booked ? Neo.volt : Neo.cyan).neonGlow(Neo.volt, radius: 6)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(last.clubName).font(Neo.label(14)).foregroundStyle(Neo.text)
-                        Text(last.message).font(Neo.body(13)).foregroundStyle(Neo.dim).lineLimit(2)
-                    }
-                }
-            }
-            .glassCard(glow: Neo.volt)
-        }
+        .card(padding: 14)
+        .onTapGesture { router.tab = .bot }
     }
 
     @ViewBuilder private var nearbySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionTitle(text: "Autour de toi", trailing: location.location == nil ? nil : "\(nearby.count) clubs")
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeader(title: "Autour de toi",
+                          trailing: location.location == nil ? nil : (directory.liveStatus.isEmpty ? "\(nearby.count) clubs" : directory.liveStatus))
             if location.location == nil {
-                Button { location.request() } label: { Label("Activer la localisation", systemImage: "location.fill") }
-                    .buttonStyle(NeonButtonStyle(color: Neo.cyan, filled: false))
-            } else if nearby.isEmpty {
-                EmptyStateView(systemImage: "mappin.slash", title: "Aucun club repéré tout près",
-                               message: "Ouvre la carte pour explorer les clubs de la région ou d'un autre pays.")
-            } else {
-                ForEach(nearby) { club in
-                    Button { router.openClub = club } label: { ClubRow(club: club, distance: club.distance(from: location.location)) }
-                        .buttonStyle(.plain)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Active la localisation pour voir les clubs près de chez toi.").font(UI.callout()).foregroundStyle(UI.muted)
+                    Button { location.request() } label: { Label("Activer la localisation", systemImage: "location") }
+                        .buttonStyle(SecondaryButtonStyle())
                 }
+                .card()
+            } else if nearby.isEmpty {
+                EmptyStateView(systemImage: "mappin.slash", title: "Recherche des clubs proches…",
+                               message: "Ouvre la carte pour explorer ta région ou une autre ville.")
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(nearby.enumerated()), id: \.element.id) { i, club in
+                        Button { router.openClub = club } label: { ClubRow(club: club, distance: club.distance(from: location.location)) }
+                            .buttonStyle(.plain)
+                        if i < nearby.count - 1 { Divider().overlay(UI.line).padding(.leading, 62) }
+                    }
+                }
+                .card(padding: 6)
             }
         }
     }
@@ -129,26 +137,28 @@ struct ClubRow: View {
     var club: Club
     var distance: Double?
 
+    private var subtitle: String {
+        var parts: [String] = []
+        if !club.city.isEmpty { parts.append(club.city) }
+        if club.courts > 0 { parts.append(club.courtsLabel) }
+        if club.indoor > 0 { parts.append("couvert") }
+        return parts.isEmpty ? club.source.label : parts.joined(separator: " · ")
+    }
+
     var body: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Neo.court.opacity(0.35))
-                Image(systemName: club.isMostlyIndoor ? "building.2.fill" : "sportscourt.fill")
-                    .font(.system(size: 20, weight: .semibold)).foregroundStyle(Neo.cyan)
-            }
-            .frame(width: 48, height: 48)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(club.displayName).font(Neo.label(14)).foregroundStyle(Neo.text).lineLimit(1)
-                Text([club.city, club.courts > 0 ? club.courtsLabel : nil].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "))
-                    .font(Neo.body(13)).foregroundStyle(Neo.dim).lineLimit(1)
-                if club.canBookWithBot {
-                    Text("Réservable par le bot").font(Neo.label(10)).foregroundStyle(Neo.volt)
+        HStack(spacing: 12) {
+            IconBadge(systemImage: club.isMostlyIndoor ? "building.2" : "sportscourt", color: club.canBookWithBot ? UI.accent : UI.muted)
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(club.displayName).font(.system(size: 16, weight: .semibold)).foregroundStyle(UI.ink).lineLimit(1)
+                    if club.canBookWithBot { Image(systemName: "bolt.fill").font(.system(size: 10)).foregroundStyle(UI.accent) }
                 }
+                Text(subtitle).font(UI.caption()).foregroundStyle(UI.muted).lineLimit(1)
             }
-            Spacer()
-            Text(formatDistance(distance)).font(Neo.mono(13)).foregroundStyle(Neo.cyan)
-            Image(systemName: "chevron.right").font(.system(size: 12, weight: .bold)).foregroundStyle(Neo.faint)
+            Spacer(minLength: 8)
+            Text(formatDistance(distance)).font(.system(size: 14, weight: .medium, design: .rounded)).monospacedDigit().foregroundStyle(UI.muted)
         }
-        .glassCard(radius: 18, padding: 12)
+        .padding(10)
+        .contentShape(Rectangle())
     }
 }

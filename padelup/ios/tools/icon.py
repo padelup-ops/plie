@@ -1,94 +1,44 @@
-"""PADELUP NEO : l'icône, dessinée ici. Un terrain de padel en perspective aux lignes néon cyan, sur une nuit bleu
-profond, et une balle jaune fluo lumineuse avec sa traînée. Usage : python3 tools/icon.py"""
+"""PADELUP NEO : l'icône, épurée. Fond bleu PadelUp (#094A73), terrain de padel vu du dessus au trait blanc,
+une balle jaune. À plat : ni dégradé ni halo. Usage : python3 tools/icon.py"""
 import math
 import os
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw
 
 S = 2048
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'App', 'Assets.xcassets', 'AppIcon.appiconset', 'icon-1024.png')
+BLUE, WHITE, BALL = (9, 74, 115), (255, 255, 255), (217, 242, 74)
 
-
-def hexc(h, a=255):
-    h = h.lstrip('#')
-    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4)) + (a,)
-
-
-NIGHT, DEEP, COURT, CYAN, VOLT = map(hexc, ['04070F', '0A1A4A', '1747FF', '22E6FF', 'D4FF3A'])
-
-# fond : dégradé vertical nuit -> bleu terrain, halo central
-img = Image.new('RGBA', (S, S))
-px = img.load()
-for y in range(S):
-    k = y / S
-    for x in range(S):
-        d = math.hypot((x - S * 0.5) / S, (y - S * 0.62) / S)
-        glow = max(0.0, 0.55 - d) * 0.9
-        c = [NIGHT[i] * (1 - k) + DEEP[i] * k + COURT[i] * glow * 0.55 for i in range(3)]
-        px[x, y] = tuple(min(255, int(v)) for v in c) + (255,)
-
-# terrain en perspective : trapèze
-top_y, bot_y = S * 0.42, S * 0.95
-top_half, bot_half = S * 0.20, S * 0.47
-cx = S / 2
-
-
-def lerp_pt(t, side):
-    y = top_y + (bot_y - top_y) * t
-    half = top_half + (bot_half - top_half) * t
-    return (cx + side * half, y)
-
-
-lines = Image.new('RGBA', (S, S), (0, 0, 0, 0))
-ld = ImageDraw.Draw(lines)
-W = 16
-# surface du terrain, légèrement plus claire
-ld.polygon([lerp_pt(0, -1), lerp_pt(0, 1), lerp_pt(1, 1), lerp_pt(1, -1)], fill=COURT[:3] + (70,))
-# contour
-for a, b in [((0, -1), (0, 1)), ((0, 1), (1, 1)), ((1, 1), (1, -1)), ((1, -1), (0, -1))]:
-    ld.line([lerp_pt(*a), lerp_pt(*b)], fill=CYAN, width=W)
-# filet (milieu en perspective)
-tn = 0.42
-ld.line([lerp_pt(tn, -1.04), lerp_pt(tn, 1.04)], fill=(255, 255, 255, 235), width=W + 6)
-# lignes de service
-for t in (0.16, 0.74):
-    ld.line([lerp_pt(t, -1), lerp_pt(t, 1)], fill=CYAN, width=W - 4)
-# ligne centrale de service
-ld.line([((lerp_pt(0.16, 0)[0]), lerp_pt(0.16, 0)[1]), (lerp_pt(0.74, 0)[0], lerp_pt(0.74, 0)[1])], fill=CYAN, width=W - 4)
-glow = lines.filter(ImageFilter.GaussianBlur(26))
-img = Image.alpha_composite(img, glow)
-img = Image.alpha_composite(img, glow)
-img = Image.alpha_composite(img, lines)
-
-# traînée de la balle : arc lumineux
-trail = Image.new('RGBA', (S, S), (0, 0, 0, 0))
-td = ImageDraw.Draw(trail)
-bx, by, br = S * 0.66, S * 0.30, S * 0.115
-for i in range(60):
-    t = i / 59
-    x = S * 0.18 + (bx - S * 0.18) * t
-    y = S * 0.62 - math.sin(t * math.pi * 0.92) * S * 0.36 + (by - S * 0.62 + S * 0.36 * math.sin(math.pi * 0.92)) * t
-    r = 8 + 70 * t
-    td.ellipse([x - r, y - r, x + r, y + r], fill=VOLT[:3] + (int(10 + 70 * t),))
-trail = trail.filter(ImageFilter.GaussianBlur(30))
-img = Image.alpha_composite(img, trail)
-
-# balle
-ball = Image.new('RGBA', (S, S), (0, 0, 0, 0))
-bd = ImageDraw.Draw(ball)
-for r, a in [(br * 2.3, 40), (br * 1.7, 70)]:
-    bd.ellipse([bx - r, by - r, bx + r, by + r], fill=VOLT[:3] + (a,))
-ball = ball.filter(ImageFilter.GaussianBlur(60))
-img = Image.alpha_composite(img, ball)
+img = Image.new('RGB', (S, S), BLUE)
 d = ImageDraw.Draw(img)
-d.ellipse([bx - br, by - br, bx + br, by + br], fill=VOLT)
-d.ellipse([bx - br * 0.70, by - br * 0.80, bx + br * 0.05, by - br * 0.10], fill=hexc('E6FF7A'))
-# coutures de la balle : deux arcs opposés, comme une vraie balle de padel
-seam_w = 20
-d.arc([bx - br * 1.75, by - br * 0.95, bx - br * 0.15, by + br * 0.95], start=-62, end=62, fill=(255, 255, 255, 235), width=seam_w)
-d.arc([bx + br * 0.15, by - br * 0.95, bx + br * 1.75, by + br * 0.95], start=118, end=242, fill=(255, 255, 255, 235), width=seam_w)
+W = int(S * 0.026)
 
-img = img.convert('RGB').resize((1024, 1024), Image.LANCZOS)
+# terrain vu du dessus (20 m x 10 m), légèrement décalé vers la gauche pour laisser respirer la balle
+cw, ch = S * 0.36, S * 0.66
+x0, y0 = S * 0.5 - cw / 2 - S * 0.04, S * 0.5 - ch / 2
+x1, y1 = x0 + cw, y0 + ch
+d.rounded_rectangle([x0, y0, x1, y1], radius=S * 0.03, outline=WHITE, width=W)
+net = (y0 + y1) / 2
+d.line([x0 - S * 0.03, net, x1 + S * 0.03, net], fill=WHITE, width=int(W * 1.6))
+service = ch / 2 * 0.695
+for y in (net - service, net + service):
+    d.line([x0, y, x1, y], fill=WHITE, width=W)
+cx = (x0 + x1) / 2
+d.line([cx, net - service, cx, net + service], fill=WHITE, width=W)
+
+# la balle, coutures découpées au contour de la balle
+bx, by, br = x1 + S * 0.02, y0 + S * 0.12, S * 0.105
+d.ellipse([bx - br - S * 0.02, by - br - S * 0.02, bx + br + S * 0.02, by + br + S * 0.02], fill=BLUE)
+ball = Image.new('RGB', (S, S), BALL)
+bd = ImageDraw.Draw(ball)
+seam = int(S * 0.016)
+bd.arc([bx - br * 1.75, by - br * 0.95, bx - br * 0.18, by + br * 0.95], start=-60, end=60, fill=WHITE, width=seam)
+bd.arc([bx + br * 0.18, by - br * 0.95, bx + br * 1.75, by + br * 0.95], start=120, end=240, fill=WHITE, width=seam)
+mask = Image.new('L', (S, S), 0)
+ImageDraw.Draw(mask).ellipse([bx - br, by - br, bx + br, by + br], fill=255)
+img.paste(ball, (0, 0), mask)
+
+img = img.resize((1024, 1024), Image.LANCZOS)
 img.save(OUT, optimize=True)
 print('icône écrite :', OUT)

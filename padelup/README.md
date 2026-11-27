@@ -1,6 +1,6 @@
 # PadelUp Neo
 
-L'app padel reconstruite à partir de [padelup-backend-forked](https://github.com/Ghadje/padelup-backend-forked) : un thème futuriste « court néon », tous les clubs de padel de la zone PadelUp sans passer par le tableau de bord, la météo du court, un bot qui réserve à ta place sur Playtomic et Anybuddy, et une ambiance qui suit les saisons.
+L'app padel reconstruite à partir de [padelup-backend-forked](https://github.com/Ghadje/padelup-backend-forked) : un style épuré dans la lignée des autres apps PadelUp (cartes blanches, bleu PadelUp #094A73, clair ou sombre selon l'iPhone), tous les clubs de padel de la zone PadelUp sans passer par le tableau de bord, la météo du court, un bot qui réserve à ta place sur Playtomic et Anybuddy, et une ambiance qui suit les saisons.
 
 C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), qui n'est jamais modifiée. Sa fiche App Store Connect est « PADELUP Neo », identifiant `com.padelup.neo`.
 

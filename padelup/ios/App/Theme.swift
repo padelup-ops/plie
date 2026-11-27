@@ -1,209 +1,184 @@
 import SwiftUI
+import UIKit
 
-// PADELUP NEO : thème « court néon ». Nuit bleu profond, lignes cyan du terrain, balle jaune fluo,
-// panneaux de verre (comme les vitres d'un court de padel).
-enum Neo {
-    static let night = Color(red: 0.016, green: 0.027, blue: 0.059)
-    static let deep = Color(red: 0.039, green: 0.090, blue: 0.220)
-    static let court = Color(red: 0.090, green: 0.278, blue: 1.0)
-    static let cyan = Color(red: 0.133, green: 0.902, blue: 1.0)
-    static let volt = Color(red: 0.831, green: 1.0, blue: 0.227)
-    static let magenta = Color(red: 1.0, green: 0.239, blue: 0.604)
-    static let danger = Color(red: 1.0, green: 0.36, blue: 0.36)
-    static let text = Color.white
-    static let dim = Color.white.opacity(0.62)
-    static let faint = Color.white.opacity(0.35)
-    static let line = Color.white.opacity(0.12)
+// PADELUP NEO : style épuré, dans la lignée des autres apps PadelUp (thème Bento de Foldly).
+// Une seule famille de gris chauds, des cartes blanches, UNE couleur d'accent (le bleu PadelUp #094A73),
+// une carte « héros » bleu profond, pas de dégradé ni de néon. Clair ou sombre selon l'iPhone.
+enum UI {
+    static func dyn(_ light: UInt32, _ dark: UInt32, _ alpha: CGFloat = 1) -> Color {
+        func ui(_ h: UInt32) -> UIColor {
+            UIColor(red: CGFloat((h >> 16) & 0xFF) / 255, green: CGFloat((h >> 8) & 0xFF) / 255, blue: CGFloat(h & 0xFF) / 255, alpha: alpha)
+        }
+        return Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? ui(dark) : ui(light) })
+    }
 
-    static let backgroundGradient = LinearGradient(colors: [night, deep, Color(red: 0.03, green: 0.05, blue: 0.14)],
-                                                   startPoint: .top, endPoint: .bottom)
-    static let neonGradient = LinearGradient(colors: [cyan, court], startPoint: .topLeading, endPoint: .bottomTrailing)
-    static let voltGradient = LinearGradient(colors: [volt, Color(red: 0.55, green: 1.0, blue: 0.45)],
-                                             startPoint: .topLeading, endPoint: .bottomTrailing)
+    static let bg = dyn(0xF6F6F3, 0x0F0F0E)
+    static let tray = dyn(0xECECE8, 0x1A1A18)
+    static let card = dyn(0xFFFFFF, 0x1C1C1A)
+    static let ink = dyn(0x141413, 0xF2F2EE)
+    static let muted = dyn(0x6B6B66, 0x9A9A93)
+    static let faint = dyn(0xA6A6A0, 0x66665F)
+    static let line = dyn(0x000000, 0xFFFFFF, 0.08)
+    static let accent = dyn(0x094A73, 0x6AB4E0)      // bleu PadelUp
+    static let onAccent = dyn(0xFFFFFF, 0x0B1A24)
+    static let tint = dyn(0xE7F0F6, 0x15283A)
+    static let hero = dyn(0x094A73, 0x0C3A57)        // la carte héros, bleu profond dans les deux thèmes
+    static let success = dyn(0x0F9F6E, 0x3ECF97)
+    static let warning = dyn(0xB25E09, 0xF2A33A)
+    static let danger = dyn(0xD12C2C, 0xF27272)
+    static let ball = Color(red: 0.85, green: 0.95, blue: 0.29)  // la balle, réservée au logo
 
-    static func title(_ size: CGFloat = 30) -> Font { .system(size: size, weight: .heavy).width(.expanded) }
-    static func label(_ size: CGFloat = 13) -> Font { .system(size: size, weight: .semibold).width(.expanded) }
-    static func body(_ size: CGFloat = 16) -> Font { .system(size: size, weight: .regular, design: .rounded) }
-    static func mono(_ size: CGFloat = 15) -> Font { .system(size: size, weight: .bold, design: .monospaced) }
+    static let radius: CGFloat = 22
+
+    static func largeTitle() -> Font { .system(size: 34, weight: .bold) }
+    static func title() -> Font { .system(size: 22, weight: .bold) }
+    static func headline() -> Font { .system(size: 17, weight: .semibold) }
+    static func body() -> Font { .system(size: 16) }
+    static func callout() -> Font { .system(size: 15) }
+    static func caption() -> Font { .system(size: 13) }
+    static func small() -> Font { .system(size: 12, weight: .medium) }
+    static func number(_ size: CGFloat = 28) -> Font { .system(size: size, weight: .semibold, design: .rounded).monospacedDigit() }
 }
 
-// Panneau de verre : matière translucide, reflet, liseré dégradé et halo discret.
-struct GlassCard: ViewModifier {
-    var radius: CGFloat = 22
-    var glow: Color = Neo.cyan
+// Carte : fond blanc (ou gris très sombre), coins doux, filet discret. Pas d'ombre, pas de verre.
+struct CardStyle: ViewModifier {
     var padding: CGFloat = 16
+    var fill: Color = UI.card
 
     func body(content: Content) -> some View {
         content
             .padding(padding)
-            .background(
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: radius, style: .continuous)
-                            .fill(LinearGradient(colors: [Color.white.opacity(0.10), Color.white.opacity(0.01)],
-                                                 startPoint: .top, endPoint: .bottom))
-                    )
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .strokeBorder(LinearGradient(colors: [glow.opacity(0.55), Color.white.opacity(0.08), glow.opacity(0.18)],
-                                                 startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-            )
-            .shadow(color: glow.opacity(0.16), radius: 18, x: 0, y: 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: UI.radius, style: .continuous).fill(fill))
+            .overlay(RoundedRectangle(cornerRadius: UI.radius, style: .continuous).strokeBorder(UI.line, lineWidth: 0.5))
     }
 }
 
 extension View {
-    func glassCard(radius: CGFloat = 22, glow: Color = Neo.cyan, padding: CGFloat = 16) -> some View {
-        modifier(GlassCard(radius: radius, glow: glow, padding: padding))
-    }
-
-    func neonGlow(_ color: Color = Neo.cyan, radius: CGFloat = 10) -> some View {
-        shadow(color: color.opacity(0.75), radius: radius / 2).shadow(color: color.opacity(0.35), radius: radius)
-    }
+    func card(padding: CGFloat = 16, fill: Color = UI.card) -> some View { modifier(CardStyle(padding: padding, fill: fill)) }
 }
 
-struct NeonButtonStyle: ButtonStyle {
-    var color: Color = Neo.volt
-    var filled = true
-
+struct PrimaryButtonStyle: ButtonStyle {
+    var color: Color = UI.accent
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(Neo.label(15))
-            .foregroundStyle(filled ? Neo.night : color)
-            .padding(.vertical, 14)
-            .padding(.horizontal, 20)
-            .frame(maxWidth: .infinity)
-            .background(
-                Capsule().fill(filled ? AnyShapeStyle(color) : AnyShapeStyle(color.opacity(0.10)))
-            )
-            .overlay(Capsule().strokeBorder(color.opacity(filled ? 0 : 0.7), lineWidth: 1))
-            .shadow(color: color.opacity(configuration.isPressed ? 0.2 : 0.45), radius: configuration.isPressed ? 4 : 14)
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+            .font(UI.headline())
+            .foregroundStyle(UI.onAccent)
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .background(Capsule().fill(color))
+            .opacity(configuration.isPressed ? 0.85 : 1)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 
-struct Chip: View {
+struct SecondaryButtonStyle: ButtonStyle {
+    var color: Color = UI.ink
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundStyle(color)
+            .frame(maxWidth: .infinity, minHeight: 46)
+            .background(Capsule().fill(UI.tray))
+            .opacity(configuration.isPressed ? 0.7 : 1)
+    }
+}
+
+/// Petit bouton texte (« Connecter », « Vérifier »…).
+struct LinkButtonStyle: ButtonStyle {
+    var color: Color = UI.accent
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label.font(.system(size: 15, weight: .semibold)).foregroundStyle(color).opacity(configuration.isPressed ? 0.5 : 1)
+    }
+}
+
+struct Pill: View {
     var text: String
     var systemImage: String? = nil
-    var selected = false
-    var color: Color = Neo.cyan
+    var active = false
 
     var body: some View {
-        HStack(spacing: 6) {
-            if let systemImage { Image(systemName: systemImage).font(.system(size: 12, weight: .bold)) }
-            Text(text).font(Neo.label(12))
+        HStack(spacing: 5) {
+            if let systemImage { Image(systemName: systemImage).font(.system(size: 11, weight: .semibold)) }
+            Text(text).font(UI.small())
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 7)
         .padding(.horizontal, 12)
-        .foregroundStyle(selected ? Neo.night : color)
-        .background(Capsule().fill(selected ? color : color.opacity(0.10)))
-        .overlay(Capsule().strokeBorder(color.opacity(selected ? 0 : 0.45), lineWidth: 1))
+        .foregroundStyle(active ? UI.onAccent : UI.ink)
+        .background(Capsule().fill(active ? UI.accent : UI.tray))
     }
 }
 
-struct SectionTitle: View {
+/// Étiquette d'information (couleur sémantique, fond très léger).
+struct Tag: View {
     var text: String
+    var systemImage: String? = nil
+    var color: Color = UI.accent
+
+    var body: some View {
+        HStack(spacing: 4) {
+            if let systemImage { Image(systemName: systemImage).font(.system(size: 10, weight: .semibold)) }
+            Text(text).font(.system(size: 12, weight: .semibold))
+        }
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
+        .foregroundStyle(color)
+        .background(Capsule().fill(color.opacity(0.12)))
+    }
+}
+
+struct SectionHeader: View {
+    var title: String
     var trailing: String? = nil
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(text.uppercased()).font(Neo.label(12)).foregroundStyle(Neo.cyan).tracking(1.6)
+            Text(title).font(UI.headline()).foregroundStyle(UI.ink)
             Spacer()
-            if let trailing { Text(trailing).font(Neo.label(11)).foregroundStyle(Neo.faint) }
+            if let trailing { Text(trailing).font(UI.caption()).foregroundStyle(UI.muted) }
         }
+        .padding(.horizontal, 4)
     }
 }
 
-struct StatTile: View {
+struct Metric: View {
     var value: String
     var label: String
-    var color: Color = Neo.volt
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(value).font(Neo.title(24)).foregroundStyle(color).minimumScaleFactor(0.6).lineLimit(1)
-            Text(label).font(Neo.label(11)).foregroundStyle(Neo.dim)
+        VStack(alignment: .leading, spacing: 2) {
+            Text(value).font(UI.number(26)).foregroundStyle(UI.ink).lineLimit(1).minimumScaleFactor(0.6)
+            Text(label).font(UI.caption()).foregroundStyle(UI.muted).lineLimit(1)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard(radius: 18, glow: color, padding: 14)
+        .card(padding: 14)
     }
 }
 
-// Terrain de padel en perspective, lignes néon, balayage lumineux lent : le décor de l'app.
-struct CourtBackdrop: View {
-    var intensity: Double = 1
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+struct IconBadge: View {
+    var systemImage: String
+    var color: Color = UI.accent
+    var size: CGFloat = 40
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion)) { timeline in
-            Canvas { context, size in
-                let t = timeline.date.timeIntervalSinceReferenceDate
-                draw(context: &context, size: size, t: reduceMotion ? 0 : t)
-            }
-        }
-        .background(Neo.backgroundGradient)
-        .ignoresSafeArea()
-    }
-
-    private func draw(context: inout GraphicsContext, size: CGSize, t: Double) {
-        let w = size.width, h = size.height
-        let topY = h * 0.30, botY = h * 1.05
-        let topHalf = w * 0.24, botHalf = w * 0.78
-        func p(_ k: Double, _ side: Double) -> CGPoint {
-            let y = topY + (botY - topY) * k
-            let half = topHalf + (botHalf - topHalf) * k
-            return CGPoint(x: w / 2 + side * half, y: y)
-        }
-        // halo du terrain
-        let halo = Path(ellipseIn: CGRect(x: w * 0.05, y: h * 0.35, width: w * 0.9, height: h * 0.5))
-        context.fill(halo, with: .radialGradient(Gradient(colors: [Neo.court.opacity(0.35 * intensity), .clear]),
-                                                 center: CGPoint(x: w / 2, y: h * 0.6), startRadius: 0, endRadius: w * 0.7))
-        // surface
-        var surface = Path()
-        surface.move(to: p(0, -1)); surface.addLine(to: p(0, 1)); surface.addLine(to: p(1, 1)); surface.addLine(to: p(1, -1))
-        surface.closeSubpath()
-        context.fill(surface, with: .linearGradient(Gradient(colors: [Neo.court.opacity(0.05 * intensity), Neo.court.opacity(0.22 * intensity)]),
-                                                     startPoint: CGPoint(x: w / 2, y: topY), endPoint: CGPoint(x: w / 2, y: botY)))
-        // lignes
-        var lines = Path()
-        lines.move(to: p(0, -1)); lines.addLine(to: p(0, 1)); lines.addLine(to: p(1, 1)); lines.addLine(to: p(1, -1)); lines.closeSubpath()
-        for k in [0.16, 0.74] { lines.move(to: p(k, -1)); lines.addLine(to: p(k, 1)) }
-        lines.move(to: p(0.16, 0)); lines.addLine(to: p(0.74, 0))
-        var glowCtx = context
-        glowCtx.addFilter(.blur(radius: 6))
-        glowCtx.stroke(lines, with: .color(Neo.cyan.opacity(0.55 * intensity)), lineWidth: 4)
-        context.stroke(lines, with: .color(Neo.cyan.opacity(0.65 * intensity)), lineWidth: 1.2)
-        // filet
-        var net = Path()
-        net.move(to: p(0.42, -1.04)); net.addLine(to: p(0.42, 1.04))
-        context.stroke(net, with: .color(Color.white.opacity(0.7 * intensity)), lineWidth: 2)
-        // balayage lumineux qui parcourt le terrain
-        let k = (t.truncatingRemainder(dividingBy: 6.0)) / 6.0
-        var scan = Path()
-        scan.move(to: p(k, -1)); scan.addLine(to: p(k, 1))
-        var scanCtx = context
-        scanCtx.addFilter(.blur(radius: 8))
-        scanCtx.stroke(scan, with: .color(Neo.volt.opacity(0.35 * intensity * (1 - k))), lineWidth: 10)
+        Image(systemName: systemImage)
+            .font(.system(size: size * 0.42, weight: .semibold))
+            .foregroundStyle(color)
+            .frame(width: size, height: size)
+            .background(RoundedRectangle(cornerRadius: size * 0.3, style: .continuous).fill(color.opacity(0.12)))
     }
 }
 
-// Petite balle de padel lumineuse (logo).
+/// Le logo : une balle de padel, à plat.
 struct BallMark: View {
-    var size: CGFloat = 34
+    var size: CGFloat = 30
 
     var body: some View {
         ZStack {
-            Circle().fill(Neo.voltGradient)
-            Circle().trim(from: 0.08, to: 0.42).stroke(Color.white.opacity(0.9), lineWidth: size * 0.07)
-                .rotationEffect(.degrees(-30)).padding(size * 0.12)
-            Circle().trim(from: 0.58, to: 0.92).stroke(Color.white.opacity(0.9), lineWidth: size * 0.07)
-                .rotationEffect(.degrees(-30)).padding(size * 0.12)
+            Circle().fill(UI.ball)
+            Circle().trim(from: 0.1, to: 0.4).stroke(Color.white, lineWidth: size * 0.07).rotationEffect(.degrees(-36)).padding(size * 0.14)
+            Circle().trim(from: 0.6, to: 0.9).stroke(Color.white, lineWidth: size * 0.07).rotationEffect(.degrees(-36)).padding(size * 0.14)
         }
         .frame(width: size, height: size)
-        .neonGlow(Neo.volt, radius: size * 0.4)
     }
 }
 
@@ -213,13 +188,58 @@ struct EmptyStateView: View {
     var message: String
 
     var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: systemImage).font(.system(size: 34, weight: .light)).foregroundStyle(Neo.cyan).neonGlow()
-            Text(title).font(Neo.label(15)).foregroundStyle(Neo.text)
-            Text(message).font(Neo.body(14)).foregroundStyle(Neo.dim).multilineTextAlignment(.center)
+        VStack(spacing: 8) {
+            Image(systemName: systemImage).font(.system(size: 28, weight: .regular)).foregroundStyle(UI.faint)
+            Text(title).font(UI.headline()).foregroundStyle(UI.ink)
+            Text(message).font(UI.callout()).foregroundStyle(UI.muted).multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(28)
-        .glassCard()
+        .padding(.vertical, 28)
+        .padding(.horizontal, 20)
+        .card(padding: 0)
+    }
+}
+
+/// Champ de saisie sobre.
+struct InputField: View {
+    var title: String
+    @Binding var text: String
+    var secure = false
+    var keyboard: UIKeyboardType = .default
+
+    var body: some View {
+        Group {
+            if secure { SecureField(title, text: $text) } else {
+                TextField(title, text: $text).keyboardType(keyboard).textInputAutocapitalization(.never).autocorrectionDisabled()
+            }
+        }
+        .font(UI.body())
+        .padding(.horizontal, 16)
+        .frame(minHeight: 50)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(UI.tray))
+    }
+}
+
+/// Mise en page commune : fond, défilement, marges.
+struct Screen<Content: View>: View {
+    var title: String
+    var subtitle: String? = nil
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(title).font(UI.largeTitle()).foregroundStyle(UI.ink)
+                    if let subtitle { Text(subtitle).font(UI.callout()).foregroundStyle(UI.muted) }
+                }
+                .padding(.horizontal, 4)
+                content()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 40)
+        }
+        .background(UI.bg.ignoresSafeArea())
     }
 }

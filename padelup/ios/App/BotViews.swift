@@ -5,81 +5,72 @@ struct BotView: View {
     @EnvironmentObject private var bot: BotEngine
     @EnvironmentObject private var server: ServerAPI
     @State private var showConnect = false
-    @State private var showAnybuddy = false
     @State private var showEditor = false
     @State private var safariURL: URL? = nil
     @State private var playtomicConnected = PlaytomicAPI.shared.isConnected
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                ScreenBackground(intensity: 0.45)
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 22) {
-                        ScreenHeader(title: "Bot de résa", subtitle: "Connecte ton compte, choisis ton créneau idéal : le bot surveille et réserve à ta place.")
-                        accounts
-                        Button { showEditor = true } label: { Label("Nouveau bot de réservation", systemImage: "plus.circle.fill") }
-                            .buttonStyle(NeonButtonStyle(color: Neo.volt))
-                        rulesSection
-                        journal
-                    }
-                    .padding(18)
-                    .padding(.bottom, 30)
-                }
-                .refreshable { await bot.runAll() }
-            }
-            .toolbar(.hidden, for: .navigationBar)
+        Screen(title: "Bot", subtitle: "Choisis ton créneau idéal : le bot surveille et réserve à ta place.") {
+            accounts
+            Button { showEditor = true } label: { Label("Nouveau bot", systemImage: "plus") }
+                .buttonStyle(PrimaryButtonStyle())
+            rulesSection
+            journal
         }
+        .refreshable { await bot.runAll() }
         .sheet(isPresented: $showConnect, onDismiss: { playtomicConnected = PlaytomicAPI.shared.isConnected }) { ConnectPlaytomicView() }
         .sheet(isPresented: $showEditor) { RuleEditorView(prefill: nil) }
         .sheet(item: $safariURL) { url in SafariView(url: url).ignoresSafeArea() }
     }
 
     private var accounts: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionTitle(text: "Comptes connectés")
-            accountRow(name: "Playtomic", detail: playtomicConnected ? (PlaytomicAPI.shared.connectedEmail ?? "Connecté") : "Réservation automatique",
-                       connected: playtomicConnected, color: Color(red: 0.2, green: 0.85, blue: 0.6)) {
-                if playtomicConnected {
-                    Task { await PlaytomicAPI.shared.disconnect(); playtomicConnected = false }
-                } else { showConnect = true }
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeader(title: "Comptes")
+            VStack(spacing: 0) {
+                accountRow(name: "Playtomic", detail: playtomicConnected ? (PlaytomicAPI.shared.connectedEmail ?? "Connecté") : "Réservation automatique",
+                           connected: playtomicConnected) {
+                    if playtomicConnected {
+                        Task { await PlaytomicAPI.shared.disconnect(); playtomicConnected = false }
+                    } else { showConnect = true }
+                }
+                Divider().overlay(UI.line).padding(.leading, 52)
+                accountRow(name: "Anybuddy", detail: "Alerte instantanée, paiement en un geste", connected: false, actionTitle: "Se connecter") {
+                    safariURL = URL(string: "https://www.anybuddyapp.com/fr/compte")
+                }
             }
-            accountRow(name: "Anybuddy", detail: "Surveillance + paiement en un geste", connected: false, color: Color(red: 1.0, green: 0.45, blue: 0.35),
-                       actionTitle: "Se connecter") {
-                safariURL = URL(string: "https://www.anybuddyapp.com/fr/compte")
-            }
-            HStack(spacing: 8) {
-                Image(systemName: server.botServerEnabled ? "server.rack" : "iphone")
-                    .foregroundStyle(server.botServerEnabled ? Neo.volt : Neo.cyan)
+            .card(padding: 6)
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: server.botServerEnabled ? "checkmark.circle.fill" : "iphone").foregroundStyle(server.botServerEnabled ? UI.success : UI.muted)
                 Text(server.botServerEnabled
                      ? "Bot 24 h/24 actif : le serveur PadelUp réserve même iPhone éteint."
-                     : "Le bot tourne sur l'iPhone (app ouverte ou en arrière-plan). Connecte ton compte PadelUp pour le 24 h/24.")
-                    .font(Neo.body(12)).foregroundStyle(Neo.dim)
+                     : "Le bot tourne sur l'iPhone. Connecte ton compte PadelUp (Profil) pour qu'il tourne 24 h/24.")
+                    .font(UI.caption()).foregroundStyle(UI.muted)
             }
+            .padding(.horizontal, 4)
         }
-        .glassCard()
     }
 
-    private func accountRow(name: String, detail: String, connected: Bool, color: Color, actionTitle: String? = nil,
+    private func accountRow(name: String, detail: String, connected: Bool, actionTitle: String? = nil,
                             action: @escaping () -> Void) -> some View {
         HStack(spacing: 12) {
-            Circle().fill(color).frame(width: 10, height: 10).neonGlow(color, radius: 6)
+            IconBadge(systemImage: connected ? "checkmark" : "link", color: connected ? UI.success : UI.muted, size: 34)
             VStack(alignment: .leading, spacing: 2) {
-                Text(name).font(Neo.label(14)).foregroundStyle(Neo.text)
-                Text(detail).font(Neo.body(12)).foregroundStyle(Neo.dim)
+                Text(name).font(.system(size: 16, weight: .semibold)).foregroundStyle(UI.ink)
+                Text(detail).font(UI.caption()).foregroundStyle(UI.muted).lineLimit(1)
             }
             Spacer()
             Button(actionTitle ?? (connected ? "Déconnecter" : "Connecter"), action: action)
-                .font(Neo.label(12)).foregroundStyle(connected ? Neo.faint : Neo.volt)
+                .buttonStyle(LinkButtonStyle(color: connected ? UI.muted : UI.accent))
         }
+        .padding(10)
     }
 
     @ViewBuilder private var rulesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionTitle(text: "Mes bots", trailing: bot.running ? "analyse en cours…" : bot.lastRun.map { "vérifié " + $0.formatted(.relative(presentation: .named)) })
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeader(title: "Mes bots", trailing: bot.running ? "vérification…" : bot.lastRun.map { "vérifié " + $0.formatted(.relative(presentation: .named)) })
             if bot.rules.isEmpty {
-                EmptyStateView(systemImage: "bolt.horizontal.circle", title: "Aucun bot pour l'instant",
-                               message: "Exemple : « Mardi et jeudi, entre 19 h et 21 h, 90 min, au club le plus proche ». Le bot réserve dès qu'un créneau se libère.")
+                EmptyStateView(systemImage: "bolt", title: "Aucun bot pour l'instant",
+                               message: "Par exemple : mardi et jeudi, entre 19 h et 21 h, 90 minutes, au club le plus proche.")
             } else {
                 ForEach(bot.rules) { rule in RuleCard(rule: rule) }
             }
@@ -89,44 +80,41 @@ struct BotView: View {
     @ViewBuilder private var journal: some View {
         if !bot.log.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
-                SectionTitle(text: "Journal du bot")
-                ForEach(bot.log.prefix(15)) { entry in
-                    HStack(alignment: .top, spacing: 10) {
-                        Image(systemName: icon(entry.kind)).foregroundStyle(color(entry.kind)).frame(width: 20)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("\(entry.clubName) · \(entry.slotStart.map { $0.formatted(.dateTime.weekday(.wide).day().hour().minute().locale(Locale(identifier: "fr_FR"))) } ?? "")")
-                                .font(Neo.label(12)).foregroundStyle(Neo.text)
-                            Text(entry.message).font(Neo.body(12)).foregroundStyle(Neo.dim)
-                            if let s = entry.actionURL, let url = URL(string: s) {
-                                Button("Terminer en un geste") { safariURL = url }.font(Neo.label(12)).foregroundStyle(Neo.volt)
+                SectionHeader(title: "Journal")
+                VStack(spacing: 0) {
+                    ForEach(Array(bot.log.prefix(12).enumerated()), id: \.element.id) { i, entry in
+                        HStack(alignment: .top, spacing: 12) {
+                            Circle().fill(color(entry.kind)).frame(width: 8, height: 8).padding(.top, 6)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(entry.clubName).font(.system(size: 15, weight: .semibold)).foregroundStyle(UI.ink)
+                                if let start = entry.slotStart {
+                                    Text(start.formatted(.dateTime.weekday(.wide).day().month().hour().minute().locale(Locale(identifier: "fr_FR"))))
+                                        .font(UI.caption()).foregroundStyle(UI.ink.opacity(0.8))
+                                }
+                                Text(entry.message).font(UI.caption()).foregroundStyle(UI.muted)
+                                if let s = entry.actionURL, let url = URL(string: s) {
+                                    Button("Terminer en un geste") { safariURL = url }.buttonStyle(LinkButtonStyle()).padding(.top, 2)
+                                }
                             }
+                            Spacer()
+                            Text(entry.date.formatted(.relative(presentation: .numeric))).font(UI.small()).foregroundStyle(UI.faint)
                         }
-                        Spacer()
-                        Text(entry.date.formatted(.relative(presentation: .numeric))).font(Neo.body(10)).foregroundStyle(Neo.faint)
+                        .padding(.vertical, 10)
+                        if i < min(bot.log.count, 12) - 1 { Divider().overlay(UI.line) }
                     }
-                    Divider().overlay(Neo.line)
                 }
+                .padding(.horizontal, 14)
+                .card(padding: 0)
             }
-            .glassCard()
-        }
-    }
-
-    private func icon(_ k: BotLogEntry.Kind) -> String {
-        switch k {
-        case .booked: return "checkmark.seal.fill"
-        case .found: return "eye.fill"
-        case .needsAction: return "hand.tap.fill"
-        case .failed: return "xmark.octagon"
-        case .info: return "info.circle"
         }
     }
 
     private func color(_ k: BotLogEntry.Kind) -> Color {
         switch k {
-        case .booked: return Neo.volt
-        case .found, .info: return Neo.cyan
-        case .needsAction: return Color.orange
-        case .failed: return Neo.danger
+        case .booked: return UI.success
+        case .found, .info: return UI.accent
+        case .needsAction: return UI.warning
+        case .failed: return UI.danger
         }
     }
 }
@@ -137,36 +125,37 @@ struct RuleCard: View {
     @EnvironmentObject private var server: ServerAPI
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(rule.clubName).font(Neo.label(15)).foregroundStyle(Neo.text).lineLimit(1)
-                    Text(rule.summary).font(Neo.mono(12)).foregroundStyle(Neo.cyan)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(rule.clubName).font(UI.headline()).foregroundStyle(UI.ink).lineLimit(1)
+                    Text(rule.summary).font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(UI.muted)
                 }
                 Spacer()
                 Toggle("", isOn: Binding(get: { rule.active }, set: { v in
                     if let i = bot.rules.firstIndex(where: { $0.id == rule.id }) { bot.rules[i].active = v }
-                })).labelsHidden().tint(Neo.volt)
+                })).labelsHidden().tint(UI.accent)
             }
             HStack(spacing: 6) {
-                Chip(text: rule.provider.name, color: Neo.cyan)
-                Chip(text: rule.autoBook && rule.provider != .anybuddy ? "Réserve seul" : "Me prévient", color: Neo.volt)
-                Chip(text: rule.maxBookings == 0 ? "Chaque semaine" : "\(rule.bookingsMade)/\(rule.maxBookings)", color: Neo.magenta)
-                if rule.serverRuleID != nil { Chip(text: "24 h/24", systemImage: "server.rack", color: Neo.volt) }
+                Tag(text: rule.provider.name, color: UI.muted)
+                Tag(text: rule.autoBook && rule.provider != .anybuddy ? "Réserve seul" : "Me prévient", color: UI.accent)
+                Tag(text: rule.maxBookings == 0 ? "Chaque semaine" : "\(rule.bookingsMade)/\(rule.maxBookings)", color: UI.muted)
+                if rule.serverRuleID != nil { Tag(text: "24 h/24", color: UI.success) }
             }
-            Text(rule.lastStatus).font(Neo.body(12)).foregroundStyle(Neo.dim)
+            Text(rule.lastStatus).font(UI.caption()).foregroundStyle(UI.muted)
             HStack {
-                Button { Task { await bot.run(ruleID: rule.id) } } label: { Label("Vérifier maintenant", systemImage: "arrow.clockwise") }
-                    .font(Neo.label(12)).foregroundStyle(Neo.volt)
+                Button { Task { await bot.run(ruleID: rule.id) } } label: { Label("Vérifier", systemImage: "arrow.clockwise") }
+                    .buttonStyle(LinkButtonStyle())
                 Spacer()
-                Button(role: .destructive) {
+                Button {
                     if let id = rule.serverRuleID { Task { await server.deleteServerRule(id) } }
                     bot.rules.removeAll { $0.id == rule.id }
-                } label: { Image(systemName: "trash") }.foregroundStyle(Neo.danger)
+                } label: { Image(systemName: "trash") }
+                    .buttonStyle(LinkButtonStyle(color: UI.danger))
             }
         }
-        .glassCard(radius: 20, glow: rule.active ? Neo.volt : Neo.faint, padding: 14)
-        .opacity(rule.active ? 1 : 0.6)
+        .card()
+        .opacity(rule.active ? 1 : 0.55)
     }
 }
 
@@ -181,52 +170,38 @@ struct ConnectPlaytomicView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                ScreenBackground(intensity: 0.4)
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        ScreenHeader(title: "Playtomic", subtitle: "Connecte ton compte : le bot voit les disponibilités et réserve avec ton compte.")
-                        VStack(spacing: 12) {
-                            field("E-mail Playtomic", text: $email, secure: false)
-                            field("Mot de passe", text: $password, secure: true)
-                        }
-                        if server.isLoggedIn {
-                            Toggle(isOn: $alsoServer) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Bot 24 h/24 sur le serveur PadelUp").font(Neo.label(13))
-                                    Text("Réserve même quand ton iPhone est éteint.").font(Neo.body(12)).foregroundStyle(Neo.dim)
-                                }
-                            }.tint(Neo.volt)
-                        }
-                        if let error { Text(error).font(Neo.body(13)).foregroundStyle(Neo.danger) }
-                        Button { Task { await connect() } } label: {
-                            if busy { ProgressView().tint(Neo.night) } else { Text("Connecter mon compte") }
-                        }
-                        .buttonStyle(NeonButtonStyle(color: Neo.volt))
-                        .disabled(busy || email.isEmpty || password.isEmpty)
-                        VStack(alignment: .leading, spacing: 8) {
-                            Label("Ton mot de passe n'est jamais enregistré : seuls les jetons de session Playtomic sont gardés, chiffrés dans le trousseau de l'iPhone.", systemImage: "lock.shield.fill")
-                            Label("Le bot paie avec ce que le club accepte sans carte (sur place, crédit club). Sinon il bloque le créneau et te demande de valider.", systemImage: "creditcard.fill")
-                            Label("Playtomic n'a pas d'API publique pour les apps tierces : PadelUp utilise les mêmes appels que leur app, ce qui peut évoluer.", systemImage: "info.circle")
-                        }
-                        .font(Neo.body(12)).foregroundStyle(Neo.dim)
-                    }
-                    .padding(18)
+            Screen(title: "Playtomic", subtitle: "Connecte ton compte : le bot voit les disponibilités et réserve pour toi.") {
+                VStack(spacing: 10) {
+                    InputField(title: "E-mail Playtomic", text: $email, keyboard: .emailAddress)
+                    InputField(title: "Mot de passe", text: $password, secure: true)
                 }
+                if server.isLoggedIn {
+                    Toggle(isOn: $alsoServer) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Bot 24 h/24 sur le serveur PadelUp").font(.system(size: 15, weight: .semibold))
+                            Text("Réserve même quand ton iPhone est éteint.").font(UI.caption()).foregroundStyle(UI.muted)
+                        }
+                    }
+                    .tint(UI.accent)
+                    .card()
+                }
+                if let error { Text(error).font(UI.caption()).foregroundStyle(UI.danger) }
+                Button { Task { await connect() } } label: {
+                    if busy { ProgressView().tint(UI.onAccent) } else { Text("Connecter mon compte") }
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(busy || email.isEmpty || password.isEmpty)
+                VStack(alignment: .leading, spacing: 10) {
+                    Label("Ton mot de passe n'est jamais enregistré : seuls les jetons de session sont gardés, dans le trousseau de l'iPhone.", systemImage: "lock")
+                    Label("Le bot paie avec ce que le club accepte sans carte (sur place, crédit club). Sinon il te demande de valider.", systemImage: "creditcard")
+                    Label("Playtomic n'a pas d'API publique : PadelUp utilise les mêmes appels que leur app, qui peuvent évoluer.", systemImage: "info.circle")
+                }
+                .font(UI.caption()).foregroundStyle(UI.muted)
+                .padding(.horizontal, 4)
             }
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() }.foregroundStyle(Neo.volt) } }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() } } }
         }
-    }
-
-    private func field(_ title: String, text: Binding<String>, secure: Bool) -> some View {
-        Group {
-            if secure { SecureField(title, text: text) } else {
-                TextField(title, text: text).keyboardType(.emailAddress).textInputAutocapitalization(.never).autocorrectionDisabled()
-            }
-        }
-        .font(Neo.body(16)).padding(14)
-        .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.07)))
-        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Neo.cyan.opacity(0.35), lineWidth: 1))
+        .tint(UI.accent)
     }
 
     private func connect() async {
@@ -267,56 +242,49 @@ struct RuleEditorView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                ScreenBackground(intensity: 0.35)
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        ScreenHeader(title: "Nouveau bot", subtitle: "Dis-lui ce que tu veux, il s'occupe du reste.")
-                        clubSection
-                        whenSection
-                        optionsSection
-                        if let info { Text(info).font(Neo.body(13)).foregroundStyle(Neo.danger) }
-                        Button { Task { await save() } } label: {
-                            if saving { ProgressView().tint(Neo.night) } else {
-                                Text(rule.autoBook && rule.provider != .anybuddy ? "Lancer le bot : il réserve pour moi" : "Lancer le bot : il me prévient")
-                            }
-                        }
-                        .buttonStyle(NeonButtonStyle(color: Neo.volt))
-                        .disabled(rule.clubID.isEmpty || rule.weekdays.isEmpty || saving)
-                        Text(rule.provider.automationNote).font(Neo.body(12)).foregroundStyle(Neo.faint)
+            Screen(title: "Nouveau bot", subtitle: "Dis-lui ce que tu veux, il s'occupe du reste.") {
+                clubSection
+                whenSection
+                optionsSection
+                if let info { Text(info).font(UI.caption()).foregroundStyle(UI.danger).padding(.horizontal, 4) }
+                Button { Task { await save() } } label: {
+                    if saving { ProgressView().tint(UI.onAccent) } else {
+                        Text(rule.autoBook && rule.provider != .anybuddy ? "Lancer : il réserve pour moi" : "Lancer : il me prévient")
                     }
-                    .padding(18)
                 }
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(rule.clubID.isEmpty || rule.weekdays.isEmpty || saving)
+                Text(rule.provider.automationNote).font(UI.small()).foregroundStyle(UI.faint).padding(.horizontal, 4)
             }
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() }.foregroundStyle(Neo.volt) } }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() } } }
         }
+        .tint(UI.accent)
         .onAppear { if let prefill { rule = prefill } }
     }
 
     private var clubSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionTitle(text: "Club")
+            Text("Club").font(UI.headline()).foregroundStyle(UI.ink)
             if !rule.clubID.isEmpty {
-                HStack {
-                    Image(systemName: "sportscourt.fill").foregroundStyle(Neo.volt)
-                    VStack(alignment: .leading) {
-                        Text(rule.clubName).font(Neo.label(14)).foregroundStyle(Neo.text)
-                        Text("\(rule.provider.name)\(rule.clubCity.isEmpty ? "" : " · " + rule.clubCity)").font(Neo.body(12)).foregroundStyle(Neo.dim)
+                HStack(spacing: 12) {
+                    IconBadge(systemImage: "sportscourt")
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(rule.clubName).font(.system(size: 16, weight: .semibold)).foregroundStyle(UI.ink)
+                        Text("\(rule.provider.name)\(rule.clubCity.isEmpty ? "" : " · " + rule.clubCity)").font(UI.caption()).foregroundStyle(UI.muted)
                     }
                     Spacer()
-                    if prefill == nil { Button("Changer") { rule.clubID = "" }.font(Neo.label(12)).foregroundStyle(Neo.cyan) }
+                    if prefill == nil { Button("Changer") { rule.clubID = "" }.buttonStyle(LinkButtonStyle()) }
                 }
             } else {
                 Picker("Plateforme", selection: $rule.provider) {
                     Text("Playtomic").tag(BotProvider.playtomic)
                     Text("Anybuddy").tag(BotProvider.anybuddy)
                 }.pickerStyle(.segmented)
-                TextField(rule.provider == .anybuddy ? "Lien de la page Anybuddy du club" : "Ville ou nom du club (vide = autour de moi)", text: $clubQuery)
-                    .font(Neo.body(15)).autocorrectionDisabled().textInputAutocapitalization(.never).padding(12)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.07)))
+                InputField(title: rule.provider == .anybuddy ? "Lien de la page Anybuddy du club" : "Ville ou club (vide : autour de moi)", text: $clubQuery)
                 Button { Task { await searchClubs() } } label: {
-                    if searching { ProgressView().tint(Neo.cyan) } else { Label("Chercher", systemImage: "magnifyingglass") }
-                }.buttonStyle(NeonButtonStyle(color: Neo.cyan, filled: false))
+                    if searching { ProgressView() } else { Label("Chercher", systemImage: "magnifyingglass") }
+                }
+                .buttonStyle(SecondaryButtonStyle())
                 ForEach(clubResults) { c in
                     Button {
                         rule.clubID = c.playtomicTenantID ?? c.anybuddySlug ?? c.id
@@ -327,60 +295,55 @@ struct RuleEditorView: View {
                 }
             }
         }
-        .glassCard()
+        .card()
     }
 
     private var whenSection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            SectionTitle(text: "Quand")
-            HStack(spacing: 8) {
+            Text("Quand").font(UI.headline()).foregroundStyle(UI.ink)
+            HStack(spacing: 6) {
                 ForEach(0..<7, id: \.self) { d in
+                    let on = rule.weekdays.contains(d)
                     Button {
-                        if rule.weekdays.contains(d) { rule.weekdays.remove(d) } else { rule.weekdays.insert(d) }
+                        if on { rule.weekdays.remove(d) } else { rule.weekdays.insert(d) }
                     } label: {
-                        Text(dayNames[d]).font(Neo.label(14)).frame(maxWidth: .infinity, minHeight: 40)
-                            .foregroundStyle(rule.weekdays.contains(d) ? Neo.night : Neo.text)
-                            .background(Circle().fill(rule.weekdays.contains(d) ? Neo.volt : Color.white.opacity(0.07)))
+                        Text(dayNames[d]).font(.system(size: 15, weight: .semibold)).frame(maxWidth: .infinity, minHeight: 40)
+                            .foregroundStyle(on ? UI.onAccent : UI.ink)
+                            .background(Circle().fill(on ? UI.accent : UI.tray))
                     }.buttonStyle(.plain)
                 }
             }
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Début au plus tôt").font(Neo.body(12)).foregroundStyle(Neo.dim)
-                    Stepper(BotRule.hhmm(rule.timeFrom), value: $rule.timeFrom, in: 6 * 60...23 * 60, step: 30).font(Neo.mono(16))
-                }
-                VStack(alignment: .leading) {
-                    Text("Début au plus tard").font(Neo.body(12)).foregroundStyle(Neo.dim)
-                    Stepper(BotRule.hhmm(rule.timeTo), value: $rule.timeTo, in: 6 * 60...23 * 60 + 30, step: 30).font(Neo.mono(16))
-                }
-            }
+            Stepper("Début au plus tôt  \(BotRule.hhmm(rule.timeFrom))", value: $rule.timeFrom, in: 6 * 60...23 * 60, step: 30)
+                .font(UI.callout())
+            Stepper("Début au plus tard  \(BotRule.hhmm(rule.timeTo))", value: $rule.timeTo, in: 6 * 60...23 * 60 + 30, step: 30)
+                .font(UI.callout())
             HStack(spacing: 8) {
                 ForEach([60, 90, 120], id: \.self) { d in
                     Button {
                         if rule.durations.contains(d) { if rule.durations.count > 1 { rule.durations.removeAll { $0 == d } } } else { rule.durations.append(d) }
-                    } label: { Chip(text: "\(d) min", selected: rule.durations.contains(d), color: Neo.cyan) }.buttonStyle(.plain)
+                    } label: { Pill(text: "\(d) min", active: rule.durations.contains(d)) }.buttonStyle(.plain)
                 }
             }
         }
-        .glassCard()
+        .card()
     }
 
     private var optionsSection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            SectionTitle(text: "Réglages")
-            Toggle("Réserver tout seul (sinon : me prévenir)", isOn: $rule.autoBook).tint(Neo.volt).font(Neo.body(14))
+            Text("Réglages").font(UI.headline()).foregroundStyle(UI.ink)
+            Toggle("Réserver tout seul (sinon : me prévenir)", isOn: $rule.autoBook).tint(UI.accent).font(UI.callout())
             Picker("Terrain", selection: $rule.court) {
                 ForEach(BotRule.Court.allCases, id: \.self) { Text($0.label).tag($0) }
             }.pickerStyle(.segmented)
-            Stepper("Surveiller les \(rule.daysAhead) prochains jours", value: $rule.daysAhead, in: 1...21).font(Neo.body(14))
+            Stepper("Surveiller les \(rule.daysAhead) prochains jours", value: $rule.daysAhead, in: 1...21).font(UI.callout())
             Stepper(rule.maxBookings == 0 ? "Chaque semaine, sans limite" : "S'arrêter après \(rule.maxBookings) réservation(s)",
-                    value: $rule.maxBookings, in: 0...10).font(Neo.body(14))
-            Toggle("Prix maximum", isOn: $limitPrice).tint(Neo.volt).font(Neo.body(14))
+                    value: $rule.maxBookings, in: 0...10).font(UI.callout())
+            Toggle("Prix maximum", isOn: $limitPrice).tint(UI.accent).font(UI.callout())
             if limitPrice {
-                Stepper("\(Int(price)) € max", value: $price, in: 5...200, step: 5).font(Neo.mono(14))
+                Stepper("\(Int(price)) € maximum", value: $price, in: 5...200, step: 5).font(UI.callout())
             }
         }
-        .glassCard()
+        .card()
     }
 
     private func searchClubs() async {
@@ -400,7 +363,7 @@ struct RuleEditorView: View {
         }
         guard let center else { info = "Active la localisation ou tape une ville."; location.request(); return }
         do {
-            var found = try await PlaytomicAPI.shared.tenants(near: center, radiusKm: 25)
+            var found = try await PlaytomicAPI.shared.tenants(near: center, radiusKm: 30)
             let q = clubQuery.lowercased()
             if !q.isEmpty, found.contains(where: { $0.name.lowercased().contains(q) }) { found = found.filter { $0.name.lowercased().contains(q) } }
             clubResults = Array(found.prefix(12))

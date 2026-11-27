@@ -16,8 +16,7 @@ struct PadelUpNeoApp: App {
                 .environmentObject(bot)
                 .environmentObject(server)
                 .environmentObject(location)
-                .preferredColorScheme(.dark)
-                .tint(Neo.volt)
+                .tint(UI.accent)
                 .task {
                     if let shot = ShotMode.current {
                         ShotMode.install(shot, directory: directory, bot: bot, location: location)

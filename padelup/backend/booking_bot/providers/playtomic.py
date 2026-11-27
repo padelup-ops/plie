@@ -188,7 +188,6 @@ class PlaytomicProvider(BaseProvider):
             'sport_id': 'PADEL',
             'radius': int(min(max(radius_km, 1), 200) * 1000),
             'size': 50,
-            'playtomic_status': 'ACTIVE',
         }
         resp = self._request('GET', TENANTS_PATH, params=params)
         if resp.status_code >= 300:
