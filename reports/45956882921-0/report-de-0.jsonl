@@ -8,3 +8,8 @@
 {"id": "213539f29476696e1dda", "key": "hello|ella", "text": "Ho, ho, ho! Hallo, Ella!", "ok": false, "score": 0.933, "dur": 2.88, "heard": "Ho, ho, ho, hallo, Ella. Ella!", "tries": 1, "secs": 136.7}
 {"id": "c3234f5e2fb3d9b7f04a", "key": "hello|matteo", "text": "Ho, ho, ho! Hallo, Matteo!", "ok": true, "score": 0.677, "dur": 2.56, "heard": "Ho, ho, ho! Hallo, Matheel!", "tries": 3, "secs": 157.4}
 {"id": "6ba62d63744ed39a641a", "key": "hello|theo", "text": "Ho, ho, ho! Hallo, Theo!", "ok": true, "score": 1.0, "dur": 1.86, "heard": "Ho ho ho, hallo Theo!", "tries": 1, "secs": 43.5}
+{"id": "3b03ef33faf23d913cd0", "key": "hello|ben", "text": "Ho, ho, ho! Hallo, Ben!", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Ho Ho Ho Hallo Ben", "tries": 1, "secs": 41.8}
+{"id": "a2a315113f2490a16b59", "key": "hello|jonas", "text": "Ho, ho, ho! Hallo, Jonas!", "ok": true, "score": 1.0, "dur": 1.92, "heard": "Ho ho ho, hallo Jonas!", "tries": 2, "secs": 80.3}
+{"id": "35c0d24afff7f6f94490", "key": "hello|anton", "text": "Ho, ho, ho! Hallo, Anton!", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho ho ho, hallo Anton!", "tries": 1, "secs": 43.1}
+{"id": "253f1eae7a214e27383c", "key": "hello|lena", "text": "Ho, ho, ho! Hallo, Lena!", "ok": true, "score": 1.0, "dur": 1.9, "heard": "Ho, ho, ho! Hallo Lena!", "tries": 1, "secs": 43.5}
+{"id": "66c1cd28a0edac7b4629", "key": "hello|zoe", "text": "Ho, ho, ho! Hallo, Zoe!", "ok": false, "score": 0.541, "dur": 2.1, "heard": "Ho ho ho, hallo zu!", "tries": 1, "secs": 130.2}
