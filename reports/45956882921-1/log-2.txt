@@ -1,0 +1,36 @@
+es:line lot 2/4 : 6 phrases
+pt:line lot 2/4 : 1 phrases
+de:line lot 2/4 : 7 phrases
+it:line lot 2/4 : 19 phrases
+es:hello lot 2/4 : 15 phrases
+pt:hello lot 2/4 : 15 phrases
+de:hello lot 2/4 : 15 phrases
+it:hello lot 2/4 : 15 phrases
+fr:hello lot 2/4 : 15 phrases
+en:hello lot 2/4 : 15 phrases
+es:hello lot 2/4 : 15 phrases
+pt:hello lot 2/4 : 15 phrases
+de:hello lot 2/4 : 15 phrases
+it:hello lot 2/4 : 15 phrases
+fr:hello lot 2/4 : 23 phrases
+en:hello lot 2/4 : 39 phrases
+es:hello lot 2/4 : 45 phrases
+de:hello lot 2/4 : 33 phrases
+it:hello lot 2/4 : 45 phrases
+pt:hello lot 2/4 : 41 phrases
+fr:bye lot 2/4 : 60 phrases
+en:bye lot 2/4 : 78 phrases
+es:bye lot 2/4 : 79 phrases
+de:bye lot 2/4 : 69 phrases
+it:bye lot 2/4 : 73 phrases
+pt:bye lot 2/4 : 69 phrases
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files: 100%|██████████| 6/6 [00:00<00:00, 1741.46it/s]
+  deprecate("LoRACompatibleLinear", "1.0.0", deprecation_message)
+loaded PerthNet (Implicit) at step 250,000
+modèles chargés en 10 s, 2 fils
+  self.gen = func(*args, **kwds)
+The following generation flags are not valid and may be ignored: ['output_attentions']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+[1/837] es ok  1.00 4.7s essais 1 (110s, reste 1535 min) Este año he oído hablar de ti, ¡y me han contado cosas preci → Este año he oído hablar de ti y me han contado cosas precios
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
