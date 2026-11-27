@@ -32,14 +32,23 @@ struct OnboardingFlow: View {
                 VFBackdrop(vivid: true)
                 if wide {
                     HStack(spacing: 0) {
-                        ZStack { hero.padding(28).id(page).transition(turn) }
+                        // L'illustration garde une forme agréable même sur un grand écran (iPad).
+                        ZStack { hero.frame(maxWidth: 560, maxHeight: 680).padding(28).id(page).transition(turn) }
                             .frame(width: fold?.minX ?? geo.size.width / 2)
                             .frame(maxHeight: .infinity)
                         Color.clear.frame(width: fold?.width ?? 0)
                         VStack(spacing: 0) {
                             topBar
-                            ZStack { ScrollView { copy.padding(.horizontal, 28).padding(.vertical, 18).frame(maxWidth: 520) }.id(page).transition(turn) }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            ZStack {
+                                // Le texte est centré s'il tient ; sinon il défile.
+                                ViewThatFits(in: .vertical) {
+                                    copy.padding(.horizontal, 28).padding(.vertical, 18).frame(maxWidth: 520)
+                                    ScrollView { copy.padding(.horizontal, 28).padding(.vertical, 18).frame(maxWidth: 520) }
+                                }
+                                .id(page)
+                                .transition(turn)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                             bottomBar
                         }
                         .frame(maxWidth: .infinity)
@@ -395,7 +404,6 @@ private struct WelcomeHero: View {
 private struct MapHero: View {
     var places: Int
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var sweep = false
     @State private var pulse = false
 
     private let pins: [(CGFloat, CGFloat, Color, String)] = [
@@ -408,12 +416,7 @@ private struct MapHero: View {
             GeometryReader { g in
                 ZStack {
                     MapPostcard(focus: CGPoint(x: 0.775, y: 0.5), zoom: 2.6)
-                    // Le radar.
-                    Circle()
-                        .fill(AngularGradient(colors: [VF.cyan.opacity(0), VF.cyan.opacity(0), VF.cyan.opacity(0.32)], center: .center))
-                        .frame(width: max(g.size.width, g.size.height) * 1.5, height: max(g.size.width, g.size.height) * 1.5)
-                        .rotationEffect(.degrees(sweep ? 360 : 0))
-                        .blendMode(.plusLighter)
+                    RadarSweep(period: 5)
                     ForEach(0..<pins.count, id: \.self) { i in
                         let p = pins[i]
                         ZStack {
@@ -445,7 +448,6 @@ private struct MapHero: View {
         }
         .onAppear {
             guard !reduceMotion, ShotMode.route == nil else { return }
-            withAnimation(.linear(duration: 5).repeatForever(autoreverses: false)) { sweep = true }
             pulse = true
         }
     }
