@@ -3560,7 +3560,11 @@ final class KeyboardCanvas: UIView {
             layoutSwitch.frame = .zero
             return
         }
-        layoutSwitch.frame = CGRect(x: chips.frame.maxX - w, y: (h - 30) / 2, width: w, height: 30)
+        // À droite des suggestions, ou à gauche (réglage) : dans les deux cas il prend sa place sur elles, entre les
+        // boutons de gauche et ceux de droite, quelle que soit la répartition des boutons.
+        let left = settings.layoutSwitchLeft
+        layoutSwitch.frame = CGRect(x: left ? chips.frame.minX : chips.frame.maxX - w, y: (h - 30) / 2, width: w, height: 30)
+        if left { chips.frame.origin.x += w + 8 }
         chips.frame.size.width = max(0, chips.frame.width - w - 8)
         if layoutSwitch.selectedSegmentIndex != openLayoutChoice {
             switchProgrammatic = true

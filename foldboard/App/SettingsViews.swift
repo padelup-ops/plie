@@ -416,6 +416,9 @@ struct PositionView: View {
                 Toggle("Keyboard in the middle", isOn: $m.settings.showCenterButton)
                 Toggle("Layout menu", isOn: $m.settings.showLayoutMenu)
                 Toggle("Layout switcher", isOn: $m.settings.showLayoutSwitch)
+                if m.settings.showLayoutSwitch {
+                    Toggle("Layout switcher on the left", isOn: $m.settings.layoutSwitchLeft)
+                }
                 Toggle("More", isOn: $m.settings.showMoreButton)
                 Toggle("✨ Fix button", isOn: $m.settings.wandButton)
                 Picker("Buttons", selection: $m.settings.barLayout) {
