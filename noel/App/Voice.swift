@@ -282,6 +282,7 @@ final class VoiceLibrary {
 
     private var cache: [String: AVAudioPCMBuffer] = [:]
     private var found: [String: URL?] = [:]
+    private var complete: [String: Bool] = [:]
     private let lock = NSLock()
 
     static func lineKey(_ text: String) -> String { "line|" + text }
@@ -305,6 +306,12 @@ final class VoiceLibrary {
         let name = Self.fileName(lang: lang, key: key)
         let id = lang + "/" + name
         lock.lock(); defer { lock.unlock() }
+        // Une langue dont toutes les répliques ne sont pas encore enregistrées garde la voix de l'iPhone du début
+        // à la fin (tools/voice.py pose « complet.txt » quand tout y est) : jamais deux voix dans un même appel.
+        if complete[lang] == nil {
+            complete[lang] = Bundle.main.url(forResource: "complet", withExtension: "txt", subdirectory: "voice/" + lang) != nil
+        }
+        guard complete[lang] == true else { return nil }
         if let known = found[id] { return known }
         var url = Bundle.main.url(forResource: name, withExtension: "m4a", subdirectory: "voice/" + lang)
         if url == nil { url = Bundle.main.url(forResource: name, withExtension: "m4a") }
