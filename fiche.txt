@@ -1,0 +1,20 @@
+APP    6827349081 com.padelup.clapet «Foldly : compteur de plis» clapet-001
+APP    6838298570 com.padelup.vicefold «Guide for GTA VI: Leonida» GtaSix
+APP    6832556606 com.padelup.foldboard «Foldboard» foldboard
+APP    6838565149 com.padelup.allonoel «Allô Père Noël : appel magique» allonoel
+APP    6837801236 com.padelup.twinfold «Twinfold – Dual Browser» Twinfold
+APP    6836120890 com.padelup.retrofold «RetroFold: Pocket Console» retrofold
+APP    6800102466 com.padelup.padelup-new «PADELUP (FR)» com.padelup.padelup-new
+APP    6836207612 com.padelup.foldwidgets «Fold Widgets» foldwidget-001
+APP    6836121157 com.padelup.foldfx «FoldFX: Hinge Sounds» foldfx
+APP    6825605393 com.padelup.plie «Origamo: Folding Mini Games» plie-001
+APP    6832373850 com.padelup.waffle «Waffle Fold» com.padelup.waffle
+APP    6830173446 com.padelup.unlocked «Unlocked: Found Phones» unlocked
+IDENT  com.hluffy.padeluptest
+IDENT  com.padelup.app
+IDENT  com.padelup.padelup-new
+ok     identifiant créé : com.padelup.neo 
+BUNDLE=com.padelup.neo
+ok     Se connecter avec Apple activé
+INFO   création de fiche par l'API refusée (403)
+FICHE  à créer sur App Store Connect (Nouvelle app, nom PadelUp Neo, langue Français, identifiant com.padelup.neo, SKU padelup-neo)
