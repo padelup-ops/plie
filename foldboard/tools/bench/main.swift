@@ -561,6 +561,18 @@ for (before, heard, lang, want) in dictCases {
     if got != want { dictOK = false; print("dictée ratée: «\(before)» + «\(heard)» → «\(got)» (voulu «\(want)»)") }
 }
 print("RESULT dictee mise_en_forme \(dictOK ? "yes" : "no") (sur \(dictCases.count))")
+/// Le sens de la traduction d'une dictée : de la langue parlée vers l'autre, même pour une phrase courte.
+let dirCases: [(String, String, [String], String)] = [
+    ("Salut ça va", "fr", ["fr", "en"], "fr>en"), ("Ciao", "fr", ["fr", "en"], "fr>en"), ("Ok", "en", ["fr", "en"], "en>fr"),
+    ("Hello, how are you doing today my friend?", "fr", ["fr", "en"], "en>fr"),
+    ("Bonjour, comment allez-vous aujourd’hui mon ami ?", "en", ["fr", "en"], "fr>en"),
+    ("Guten Morgen zusammen, wie geht es euch heute?", "de", ["fr", "en"], "de>fr"),
+]
+for (text, spoken, pair, want) in dirCases {
+    let d = KBTranslate.direction(for: text, spoken: spoken, pair: pair).map { $0.from + ">" + $0.to } ?? "-"
+    if d != want { dictOK = false; print("sens raté: «\(text)» parlé \(spoken) → \(d) (voulu \(want))") }
+}
+print("RESULT dictee sens_traduction \(dictOK ? "yes" : "no") (sur \(dirCases.count))")
 if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !dictOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
