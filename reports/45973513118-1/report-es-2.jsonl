@@ -6,3 +6,5 @@
 {"id": "5aadb5981d087e1fe053", "key": "hello|saul", "text": "¡Jo, jo, jo! ¡Hola, Saúl!", "ok": false, "score": 0.889, "dur": 2.58, "heard": "¡Ho ho ho ho la saul! Saul", "tries": 2, "secs": 198.8}
 {"id": "53722e903fd931a7cf69", "key": "hello|jesus", "text": "¡Jo, jo, jo! ¡Hola, Jesús!", "ok": true, "score": 1.0, "dur": 2.22, "heard": "¡Ho ho ho! ¡Hola, Jesús!", "tries": 1, "secs": 64.3}
 {"id": "eeb592a4606f120e2323", "key": "hello|ian", "text": "¡Jo, jo, jo! ¡Hola, Ian!", "ok": true, "score": 1.0, "dur": 1.76, "heard": "¡Ho ho ho! ¡Hola, Ian!", "tries": 3, "secs": 195.1}
+{"id": "66a8ac602ea1c1a0d2cd", "key": "hello|julen", "text": "¡Jo, jo, jo! ¡Hola, Julen!", "ok": false, "score": 0.652, "dur": 2.52, "heard": "Show, show, show, hola, Shulen.", "tries": 3, "secs": 199.0}
+{"id": "1aa0ba2b4369f12a99e4", "key": "hello|emily", "text": "¡Jo, jo, jo! ¡Hola, Emily!", "ok": true, "score": 1.0, "dur": 1.76, "heard": "¡Ho ho ho! ¡Hola, Emily!", "tries": 2, "secs": 158.8}
