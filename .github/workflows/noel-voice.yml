@@ -128,6 +128,7 @@ jobs:
           LIMIT: ${{ inputs.limit || '0' }}
           MINUTES: ${{ inputs.minutes || needs.plan.outputs.minutes || '210' }}
           TASKS: ${{ needs.plan.outputs.tasks }}
+          VOICE_SALT: ${{ github.run_number }}
           BRANCH: ${{ inputs.branch || 'ci-noel-voice' }}
           GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -136,9 +137,19 @@ jobs:
             # Deux fabrications sur la machine (deux fils chacune), la même liste de tâches, chacune son lot.
             export VOICE_THREADS=2 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
             A=$((SHARD * 2)); B=$((SHARD * 2 + 1)); N=$((OF * 2))
-            python noel/tools/voice.py gen --tasks "$TASKS" --shard "$A/$N" --out out --minutes "$MINUTES" 2>&1 | grep -v -i "warn" > out/log-$A.txt &
+            # Les modèles sont téléchargés une fois, avant : deux téléchargements en même temps s'abîmaient.
+            python noel/tools/voice.py warm --out out 2>&1 | grep -v -i -E "warn|Sampling" | tail -n 3
+            # Une fabrication qui s'arrête sur une erreur est relancée (elle ne refait pas ce qui est fait).
+            run() {
+              for t in 1 2 3; do
+                python noel/tools/voice.py gen --tasks "$TASKS" --shard "$1/$N" --out out --minutes "$MINUTES" 2>&1 | grep -v -i -E "warn|Sampling" >> out/log-$1.txt
+                [ "${PIPESTATUS[0]}" = 0 ] && break
+                sleep 15
+              done
+            }
+            run $A &
             P1=$!
-            python noel/tools/voice.py gen --tasks "$TASKS" --shard "$B/$N" --out out --minutes "$MINUTES" 2>&1 | grep -v -i "warn" > out/log-$B.txt &
+            run $B &
             P2=$!
             # Ce qui est fait est publié toutes les six minutes.
             ( while sleep 360; do bash noel/tools/voice-publish.sh || true; done ) &

@@ -154,18 +154,51 @@ cazzo merda stronzo vaffanculo porca puttana
 porra caralho bosta foda puta""".split())
 
 
+# Les âges sont écrits en chiffres dans les répliques ; la transcription les rend en chiffres ou en lettres.
+NUMBERS = {
+    "fr": "un deux trois quatre cinq six sept huit neuf dix",
+    "en": "one two three four five six seven eight nine ten",
+    "es": "uno dos tres cuatro cinco seis siete ocho nueve diez",
+    "de": "eins zwei drei vier fünf sechs sieben acht neun zehn",
+    "it": "uno due tre quattro cinque sei sette otto nove dieci",
+    "pt": "um dois três quatro cinco seis sete oito nove dez",
+}
+
+
 def judge(it, heard: str):
+    """Avec les chiffres tels quels, puis écrits en lettres dans chaque langue : le meilleur des deux compte."""
+    best = judge_text(it, it["text"], heard)
+    if re.search(r"\d", it["text"]):
+        for words in NUMBERS.values():
+            w = words.split()
+            spelled = re.sub(r"\b(10|[1-9])\b", lambda m: w[int(m.group(1)) - 1], it["text"])
+            cand = judge_text(it, spelled, heard)
+            if (cand[1], cand[0]) > (best[1], best[0]):
+                best = cand
+    return best
+
+
+def judge_text(it, text: str, heard: str):
     """La phrase entendue est-elle la bonne ? Elle ressemble au texte, rien n'est dit en plus (le modèle répète
     parfois un mot, ou en ajoute un : « Hello, Olivia! Olivia! »), elle finit sur le bon mot, et pour un prénom :
     c'est bien lui qu'on entend à la fin."""
-    score = similarity(it["text"], heard)
-    want, got = letters(it["text"]).split(), letters(heard).split()
+    score = similarity(text, heard)
+    want, got = letters(text).split(), letters(heard).split()
     if not got or any(w in RUDE for w in got if w not in want):
         return 0.0, False
     if it["kind"] == "line":
-        floor = 0.8 if len(" ".join(want)) < 28 else 0.86
-        end = difflib.SequenceMatcher(None, want[-1], got[-1]).ratio() >= 0.6 if want else True
-        return score, score >= floor and len(got) <= len(want) and end
+        floor = 0.8 if len(" ".join(want)) < 28 else 0.9
+        # Rien en plus : ni un mot ajouté à la fin (« … bien ? Euh… »), ni une phrase nettement plus longue. On compte
+        # en lettres, pas en mots : la transcription coupe les mots à sa façon (« Sais-tu » → « C'est-tu »).
+        a, b = "".join(want), "".join(got)
+        blocks = [m for m in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks() if m.size]
+        if not blocks:
+            return score, False
+        last = blocks[-1]
+        tail = (len(b) - last.b - last.size) - (len(a) - last.a - last.size)
+        first = blocks[0]
+        head = first.b - first.a
+        return score, score >= floor and tail < 2 and head < 3 and len(b) <= len(a) + max(3, 0.06 * len(a))
     name = norm_name(it["key"].split("|", 1)[1]).replace("-", " ").split()
     tail = " ".join(got[-len(name):])
     who = difflib.SequenceMatcher(None, " ".join(name), tail).ratio()
@@ -291,7 +324,11 @@ def produce(studio, it, lang, out_dir: Path, tries=5, **override):
     best = None
     t0 = time.time()
     for k in range(tries):
-        seed = int(it["id"][:8], 16) % 100000 + 7919 * k
+        # D'un passage à l'autre les tirages changent (VOICE_SALT) : une phrase ratée six fois ne l'est pas à l'identique.
+        seed = int(it["id"][:8], 16) % 100000 + 7919 * k + 104729 * int(os.environ.get("VOICE_SALT", "0"))
+        if k >= 3:
+            # Une phrase qui résiste : un tirage plus sage, plus près du texte.
+            cfg = dict(cfg, temperature=0.65, cfg_weight=0.4)
         raw = studio.say(it["text"], lang, seed, **cfg)
         w = trim_and_level(raw, studio.sr)
         dur = len(w) / studio.sr
@@ -369,6 +406,8 @@ def cmd_gen(a):
             print(f"temps écoulé : {len(todo) - k + 1} phrases restent pour le prochain passage", flush=True)
             break
         good, weak = out / "voice" / lang, out / "weak" / lang
+        if (good / f"{it['id']}.m4a").is_file() or (weak / f"{it['id']}.m4a").is_file():
+            continue  # déjà faite avant une reprise
         r = produce(studio, it, lang, good, tries=6 if it["kind"] == "line" else 3)
         if not r["ok"] and (good / f"{it['id']}.m4a").is_file():
             (good / f"{it['id']}.m4a").rename(weak / f"{it['id']}.m4a")
@@ -378,6 +417,14 @@ def cmd_gen(a):
         left = (time.time() - t0) / k * (len(todo) - k) / 60
         print(f"[{k}/{len(todo)}] {lang} {'ok ' if r['ok'] else 'FAIBLE'} {r['score']:.2f} {r['dur']:.1f}s essais {r['tries']} "
               f"({r['secs']:.0f}s, reste {left:.0f} min) {it['text'][:60]} → {r['heard'][:60]}", flush=True)
+
+
+def cmd_warm(a):
+    """Télécharge et ouvre les modèles une fois, avant de lancer deux fabrications côte à côte (deux téléchargements
+    en même temps s'abîmaient l'un l'autre)."""
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    Studio(ensure_ref(out))
 
 
 def cmd_pilot(a):
@@ -457,6 +504,8 @@ def cmd_audit(a):
                     shutil.copyfile(f, VOICE / lang / f.name)
             else:
                 bad_n += 1
+                if not a.dry:
+                    (VOICE / lang / f.name).unlink(missing_ok=True)
                 worst.append(f"{lang} {it['kind']} | {it['text'][:70]} | {r.get('heard', '')[:70]}")
         if not a.dry:
             mark(lang)
@@ -526,6 +575,7 @@ if __name__ == "__main__":
     g.add_argument("--out", default="out")
     g.add_argument("--limit", type=int, default=0); g.add_argument("--minutes", type=float, default=320)
     g.set_defaults(fn=cmd_gen)
+    w = sub.add_parser("warm"); w.add_argument("--out", default="out"); w.set_defaults(fn=cmd_warm)
     u = sub.add_parser("audit"); u.add_argument("--src", required=True); u.add_argument("--dry", action="store_true")
     u.add_argument("--show", type=int, default=25); u.set_defaults(fn=cmd_audit)
     p = sub.add_parser("pilot"); p.add_argument("--lang", required=True); p.add_argument("--out", default="out"); p.set_defaults(fn=cmd_pilot)
