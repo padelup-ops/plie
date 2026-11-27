@@ -2610,6 +2610,8 @@ final class KeyboardCanvas: UIView {
         toast.sizeToFit()
         let w = min(topBar.bounds.width - 16, toast.bounds.width + 8)
         toast.frame = CGRect(x: (topBar.bounds.width - w) / 2, y: 7, width: w, height: 28)
+        // Toujours devant tout ce que porte la barre (le raccourci des dispositions passait par-dessus le texte).
+        if topBar.subviews.last !== toast { topBar.bringSubviewToFront(toast) }
         toast.alpha = 1
         UIView.animate(withDuration: 0.4, delay: hold, options: [], animations: { self.toast.alpha = 0 })
     }
@@ -3590,7 +3592,13 @@ final class KeyboardCanvas: UIView {
             layoutSwitch.tintColor = theme.text
             layoutSwitch.accessibilityLabel = L("Keyboard position")
         }
-        if topBar.subviews.last !== layoutSwitch { topBar.bringSubviewToFront(layoutSwitch) }
+        // Devant les suggestions, mais derrière le message de la barre : un message recouvre le raccourci, il ne
+        // passe plus dessous (son texte y était illisible).
+        let stack = topBar.subviews
+        if stack.last !== toast || stack.dropLast().last !== layoutSwitch {
+            topBar.bringSubviewToFront(layoutSwitch)
+            topBar.bringSubviewToFront(toast)
+        }
     }
 
     /// Un réglage coupé reste coupé, même si une branche de la mise en page a réaffiché le bouton.
