@@ -9,3 +9,5 @@
 {"id": "6e48800537b2114f0ae7", "key": "hello|henry", "text": "Ho, ho, ho! Hallo, Henry!", "ok": true, "score": 1.0, "dur": 1.8, "heard": "Ho ho ho, hallo Henry!", "tries": 1, "secs": 67.4}
 {"id": "00e3a96306c746d4c2e5", "key": "hello|felix", "text": "Ho, ho, ho! Hallo, Felix!", "ok": true, "score": 1.0, "dur": 1.88, "heard": "Ho ho ho, hallo Felix!", "tries": 1, "secs": 54.2}
 {"id": "a3a188585d8e057dbe67", "key": "hello|oskar", "text": "Ho, ho, ho! Hallo, Oskar!", "ok": true, "score": 0.836, "dur": 2.64, "heard": "Ho, ho, ho, hallo Oscar!", "tries": 1, "secs": 62.6}
+{"id": "74318b576f76a4db7057", "key": "hello|laura", "text": "Ho, ho, ho! Hallo, Laura!", "ok": false, "score": 0.929, "dur": 3.0, "heard": "Ho ho ho! Hallo Laura! Laura!", "tries": 1, "secs": 243.1}
+{"id": "7ba1579ec058762652ba", "key": "hello|malia", "text": "Ho, ho, ho! Hallo, Malia!", "ok": true, "score": 1.0, "dur": 2.56, "heard": "Oh, ho, ho! Hallo, Malia!", "tries": 2, "secs": 168.4}
