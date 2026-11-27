@@ -17,12 +17,13 @@ echo "=== Outils"
 command -v git-lfs >/dev/null || brew install git-lfs >/dev/null
 git lfs install --skip-repo >/dev/null
 # .NET 8 (le cœur Ryujinx est en C#, compilé d'avance en bibliothèque native) : là où le projet le cherche.
-if [ ! -x "$HOME/.dotnet/dotnet" ]; then
+# Le projet demande .NET 8 (global.json) : on l'ajoute s'il manque, à côté des versions déjà là.
+export DOTNET_ROOT="$HOME/.dotnet" PATH="$HOME/.dotnet:$PATH" DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1
+if ! dotnet --list-sdks 2>/dev/null | grep -q '^8\.0\.'; then
   curl -sSL https://dot.net/v1/dotnet-install.sh -o "$WORK/dotnet-install.sh"
   bash "$WORK/dotnet-install.sh" --channel 8.0 --install-dir "$HOME/.dotnet" | tail -2
 fi
-export DOTNET_ROOT="$HOME/.dotnet" PATH="$HOME/.dotnet:$PATH" DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1
-dotnet --version
+dotnet --list-sdks | sed 's/^/SDK .NET /'
 dotnet workload install ios 2>&1 | tail -3
 
 echo "=== Sources ($REV)"
