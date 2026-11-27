@@ -885,6 +885,11 @@ final class KeyboardCanvas: UIView {
     /// La hauteur demandée à iOS (preferredHeight) reste celle des touches normales.
     private var keyH: CGFloat {
         let k = baseKeyH
+        // Moins de hauteur que demandé (iOS ne l'a pas encore donnée, ou la refuse) : les touches se tassent pour
+        // que la rangée du bas reste entière. Un clavier un peu bas se tape ; sans barre d'espace, non.
+        if bounds.height > 0, bounds.height < fixedH + k * rowUnits - 0.5 {
+            return max((k * 0.6).rounded(), ((bounds.height - fixedH) / rowUnits).rounded(.down))
+        }
         guard laptopLike, bounds.height > 0, bounds.height - (fixedH + k * rowUnits) > 12 else { return k }
         return max(k, min(k * 1.8, ((bounds.height - fixedH) / rowUnits).rounded(.down)))
     }
@@ -1828,6 +1833,8 @@ final class KeyboardCanvas: UIView {
         c.layoutIfNeeded()
         RunLoop.current.run(until: Date().addingTimeInterval(0.05))
         let filled = abs(c.bounds.width - 760) < 0.5
+        // Tant que l'hôte est trop bas, rien ne dépasse : les touches se tassent, la rangée du bas reste entière.
+        let fits = c.fixedH + CGFloat(c.rowCount) * c.keyH + c.bottomExtra <= c.bounds.height + 0.5 && c.keyH < c.baseKeyH
         // L'hôte a la bonne hauteur : plus rien à redemander.
         second.frame = CGRect(x: 0, y: 0, width: 760, height: wide)
         second.layoutIfNeeded()
@@ -1836,8 +1843,8 @@ final class KeyboardCanvas: UIView {
         RunLoop.current.run(until: Date().addingTimeInterval(0.05))
         let quiet = asked == 0
         c.onPreferredHeightChange = nil
-        let ok = askedFor > 0 && abs(askedFor - wide) < 0.5 && early < wide - 1 && filled && quiet
-        print("RESULT hote hauteur_redemandee \(ok ? "yes" : "no") (voulue \(Int(wide)), trop tôt \(Int(early)), demandée \(Int(askedFor)), rempli \(filled), calme \(quiet))")
+        let ok = askedFor > 0 && abs(askedFor - wide) < 0.5 && early < wide - 1 && filled && quiet && fits
+        print("RESULT hote hauteur_redemandee \(ok ? "yes" : "no") (voulue \(Int(wide)), trop tôt \(Int(early)), demandée \(Int(askedFor)), rempli \(filled), calme \(quiet), rien ne dépasse \(fits))")
         return ok
     }
 
