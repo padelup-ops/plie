@@ -63,3 +63,9 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [15/837] it ok  0.99 7.5s essais 1 (128s, reste 1603 min) Sapete, qui gli elfi sono indaffaratissimi. Ci sono regali d → Sapete qui gli elf sono indaffaratissimi, ci sono regali dap
   self.gen = func(*args, **kwds)
+[16/837] it ok  0.99 4.0s essais 1 (88s, reste 1576 min) Allora adesso hai 10 anni, vero? È un'età bellissima! → Allora adesso ai 10 anni, vero? È un'età bellissima!
+  self.gen = func(*args, **kwds)
+[17/837] it ok  1.00 7.7s essais 1 (143s, reste 1597 min) Presto preparerò il mio grande viaggio intorno al mondo. Tan → Presto preparerò il mio grande viaggio intorno al mondo. Tan
+  self.gen = func(*args, **kwds)
+[18/837] it ok  1.00 8.2s essais 1 (147s, reste 1617 min) Stamattina uno dei miei elfi è venuto da me con una lettera  → Stamattina uno dei miei Elfi è venuto da me con una lettera 
+  self.gen = func(*args, **kwds)
