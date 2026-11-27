@@ -425,3 +425,6 @@
 "Home Screen" = "Schermata Home";
 "Lock Screen" = "Schermata di blocco";
 "Page %lld of %lld" = "Pagina %lld di %lld";
+
+/* Identité néon, présentation, recherche, états vides */
+"Favorites" = "Preferiti";

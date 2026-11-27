@@ -425,3 +425,6 @@
 "Home Screen" = "Home-Bildschirm";
 "Lock Screen" = "Sperrbildschirm";
 "Page %lld of %lld" = "Seite %lld von %lld";
+
+/* Identité néon, présentation, recherche, états vides */
+"Favorites" = "Favoriten";

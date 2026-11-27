@@ -181,7 +181,12 @@ struct OnboardingFlow: View {
         case 0:
             OnbCopy(kicker: "Unofficial fan companion", title: "Welcome to Vicefold",
                     text: "Your companion for Leonida: guides, a map with your own pins, and every mission on your way to 100%.") {
-                FeatureChips()
+                VStack(alignment: .leading, spacing: 14) {
+                    FeatureChips()
+                    // Ce qu'il y a vraiment dans le guide, compté dans son contenu.
+                    StatStrip(items: [("Missions", content.missions.count), ("Places", content.content.places.count),
+                                      ("Vehicles", VehicleStore.shared.list.vehicles.count), ("Easter eggs", content.content.eggs.count)])
+                }
             }
         case 1:
             OnbCopy(kicker: "Map", title: "Every corner of Leonida",
@@ -323,6 +328,28 @@ private struct OnbPoint: View {
             }
         }
         .vfCard(radius: 18, padding: 14)
+    }
+}
+
+/// Quatre chiffres clés, en néon.
+private struct StatStrip: View {
+    var items: [(LocalizedStringKey, Int)]
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 6) {
+            ForEach(0..<items.count, id: \.self) { i in
+                VStack(spacing: 2) {
+                    Text(verbatim: "\(items[i].1)").font(VF.display(26, relativeTo: .title2)).monospacedDigit()
+                        .foregroundStyle(VF.gradient).shadow(color: VF.flamingo.opacity(0.5), radius: 8)
+                        .lineLimit(1).minimumScaleFactor(0.6)
+                    Text(items[i].0).font(.caption2.weight(.semibold)).foregroundStyle(VF.textDim)
+                        .lineLimit(1).minimumScaleFactor(0.6)
+                }
+                .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .combine)
+            }
+        }
+        .vfCard(radius: 18, padding: 12)
     }
 }
 

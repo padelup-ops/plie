@@ -404,3 +404,6 @@
 "Home Screen" = "Home Screen";
 "Lock Screen" = "Lock Screen";
 "Page %lld of %lld" = "Page %lld of %lld";
+
+/* Identité néon, présentation, recherche, états vides */
+"Favorites" = "Favorites";
