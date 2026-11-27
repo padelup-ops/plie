@@ -132,3 +132,16 @@ The following generation flags are not valid and may be ignored: ['output_attent
 [46/762] it FAIBLE 0.52 2.8s essais 3 (134s, reste 837 min) Oh, oh, oh! Ciao, Cesare! → Oh oh oh ciao, c'è sani!
   self.gen = func(*args, **kwds)
   self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[47/762] it FAIBLE 0.67 2.3s essais 1 (125s, reste 849 min) Oh, oh, oh! Ciao, Rachele! → Oh oh oh ciao, Raquel!
+  self.gen = func(*args, **kwds)
+[48/762] it ok  1.00 2.3s essais 1 (50s, reste 843 min) Oh, oh, oh! Ciao, Eva! → Oh, oh, oh, ciao Eva!
+  self.gen = func(*args, **kwds)
+[49/762] it ok  1.00 2.0s essais 1 (42s, reste 835 min) Oh, oh, oh! Ciao, Penelope! → Oh oh oh ciao Penelope
+  self.gen = func(*args, **kwds)
+[50/762] it ok  1.00 3.2s essais 1 (55s, reste 830 min) Oh, oh, oh! Ciao, Maya! → Oh oh oh ciao Maya!
+  self.gen = func(*args, **kwds)
+[51/762] fr ok  1.00 2.5s essais 1 (57s, reste 826 min) Ho, ho, ho ! Bonjour Valentin ! → Oh ho ho! Bonjour Valentin!
+  self.gen = func(*args, **kwds)
+[52/762] fr ok  1.00 3.2s essais 1 (56s, reste 822 min) Ho, ho, ho ! Bonjour Alessio ! → Ho ho ho, bonjour Alessio. Ah!
+  self.gen = func(*args, **kwds)
