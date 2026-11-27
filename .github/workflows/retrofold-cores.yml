@@ -8,10 +8,13 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "gba, ds, vide (les deux), switch (l'émulateur Switch, à part) ou switch-appareils (iPhone enregistrés sur le compte développeur)"
+        description: "gba, ds, vide (les deux) ; ou switch (l'émulateur Switch, non signé), switch-appareils (iPhone enregistrés), switch-installer (signé pour l'iPhone du champ device), switch-liens (liens d'installation)"
         required: false
       platform:
         description: "vide : iPhone ; sim : simulateur (rangés dans sim/)"
+        required: false
+      device:
+        description: "switch-installer seulement : identifiant (UDID) de l'iPhone qui recevra l'app Switch"
         required: false
       switch_source:
         description: "switch seulement : autre dépôt et version, « adresse version » (vide : la copie fixée dans build_switch.sh)"
@@ -19,7 +22,7 @@ on:
 
 jobs:
   cores:
-    if: inputs.only != 'switch' && inputs.only != 'switch-appareils'
+    if: ${{ !startsWith(inputs.only, 'switch') }}
     runs-on: xcode-27
     timeout-minutes: 90
     permissions:
@@ -106,3 +109,75 @@ jobs:
       - uses: actions/checkout@v5
       - run: python3 -m pip install --quiet pyjwt cryptography
       - run: python3 retrofold/tools/switch_sign.py appareils
+
+  # L'émulateur Switch et StikDebug, signés « développement » pour un iPhone : installables sans ordinateur, sans passer
+  # par la vérification d'Apple. Enregistre l'iPhone sur le compte s'il n'y est pas et crée un certificat de développement.
+  switch-installer:
+    if: inputs.only == 'switch-installer'
+    runs-on: xcode-27
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+      - name: Compiler et signer
+        env:
+          DEVICE: ${{ inputs.device }}
+        run: |
+          set -o pipefail
+          test -n "$DEVICE" || { echo "Il manque l'identifiant de l'iPhone (champ device)"; exit 1; }
+          echo "::add-mask::$DEVICE"
+          python3 -m pip install --quiet --user pyjwt cryptography >/dev/null 2>&1 || python3 -m pip install --quiet --break-system-packages pyjwt cryptography
+          bash retrofold/tools/switch_install.sh "$DEVICE" 2>&1 | tee installer.log | grep -E "^===|^ok|^note|^ÉCHEC|^droits|error|Error|fatal|BUILD (SUCCEEDED|FAILED)|ARCHIVE (SUCCEEDED|FAILED)|\.ipa" | tail -120
+      - name: Erreurs
+        if: failure()
+        run: |
+          grep -n -B2 -A6 -E "error:|ÉCHEC|BUILD FAILED|ARCHIVE FAILED" installer.log | head -200 || true
+          echo "----- fin du journal"; tail -40 installer.log
+      - name: Joindre l'émulateur signé
+        uses: actions/upload-artifact@v7
+        with:
+          path: retrofold/Switch/RetroFoldSwitch-signee.ipa
+          archive: false
+          retention-days: 7
+      - name: Joindre StikDebug signé
+        uses: actions/upload-artifact@v7
+        with:
+          path: retrofold/Switch/RetroFoldStikDebug-signee.ipa
+          archive: false
+          retention-days: 7
+
+  # Les liens d'installation des deux apps signées : ils pointent sur des adresses temporaires de GitHub, à refaire à
+  # chaque fois (elles expirent au bout de quelques minutes).
+  switch-liens:
+    if: inputs.only == 'switch-liens'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    env:
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 retrofold/tools/switch_sign.py liens liens
+      - uses: actions/upload-artifact@v7
+        with:
+          path: liens/switch-manifest.plist
+          archive: false
+          retention-days: 1
+      - uses: actions/upload-artifact@v7
+        with:
+          path: liens/stikdebug-manifest.plist
+          archive: false
+          retention-days: 1
