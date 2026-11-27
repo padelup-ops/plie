@@ -1,0 +1,69 @@
+ok     identifiant déjà là : com.padelup.allonoel
+APP    6838565149 com.padelup.allonoel «Allô Père Noël : appel magique» allonoel
+FICHE  ok 6838565149
+ÉCHEC  testeur interne 1 (409) {
+  "errors" : [ {
+    "id" : "f787249e-9df7-4891-b87b-6e7185642f17",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 2 (409) {
+  "errors" : [ {
+    "id" : "36157ff1-7331-490c-b90a-f5d84bae730b",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ok     testeur interne 3 déjà là
+ÉCHEC  testeur interne 4 (409) {
+  "errors" : [ {
+    "id" : "511e16f9-93cf-4428-9279-e6c715329679",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 5 (409) {
+  "errors" : [ {
+    "id" : "c17f4f57-f4f8-4670-9e20-0b1f28cd3f12",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 6 (409) {
+  "errors" : [ {
+    "id" : "50943cdb-acf9-48cb-b49d-06e28c241423",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+BUILD  15 VALID 2026-11-27T00:06
+BUILD  14 VALID 2026-11-26T22:59
+BUILD  13 VALID 2026-11-26T22:43
+BUILD  12 VALID 2026-11-26T22:35
+BUILD  11 VALID 2026-11-26T22:24

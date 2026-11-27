@@ -1,0 +1,4 @@
+2026-11-27 10:14:56.422 xcodebuild[6779:23965] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/AlloPereNoel_2026-11-27_10-14-56.420.xcdistributionlogs".
+Exported AlloPereNoel to: /Users/runner/work/_temp/local
+** EXPORT SUCCEEDED **
+

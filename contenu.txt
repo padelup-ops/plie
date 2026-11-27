@@ -1,0 +1,10 @@
+fr : 467 phrases, langue complète : oui
+en : 373 phrases, langue complète : oui
+es : 327 phrases, langue complète : oui
+de : 306 phrases, langue complète : oui
+it : 287 phrases, langue complète : oui
+pt : 300 phrases, langue complète : oui
+version 1.0.1 build 16
+appareils : Array {    1}
+caméra : Shows your child in a corner of Santa's 
+taille de l'app :  49M
