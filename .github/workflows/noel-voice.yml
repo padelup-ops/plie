@@ -2,8 +2,12 @@
 # Chatterbox Multilingual (MIT) calé sur le Père Noël de dessin animé de Kokoro (am_santa, Apache 2.0), sur les
 # machines de GitHub (processeur). Chaque phrase est réécoutée par un modèle de transcription avant d'être gardée.
 #   pilot : quelques phrases par langue avec plusieurs réglages (branche ci-noel-voice-pilot) ;
-#   full  : tout ce qui manque dans noel/Resources/Audio/voice, par langue et par lot (branche ci-noel-voice).
-# Lancé à la main, ou en modifiant noel/tools/voice-run.txt (première ligne : « pilot » ou « full », puis les langues).
+#   light : deux machines au plus, une liste de tâches dans l'ordre (« fr:line en:line fr:name »), et les phrases
+#           publiées toutes les quelques minutes dans la branche ci-noel-voice : rien n'est perdu si on arrête ;
+#   full  : tout ce qui manque dans noel/Resources/Audio/voice, par langue et par lot, sur beaucoup de machines
+#           (à ne lancer que si les autres apps n'ont rien à compiler).
+# Lancé à la main, ou en modifiant noel/tools/voice-run.txt (première ligne : le mode ; pour « light », les tâches
+# sur la deuxième ligne, le nombre de machines sur la troisième, les minutes sur la quatrième).
 name: Noël - voix du Père Noël
 
 on:
@@ -14,9 +18,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "pilot ou full"
+        description: "light, pilot ou full (full occupe beaucoup de machines)"
         required: false
-        default: "full"
+        default: "light"
       langs:
         description: "Langues (fr en es de it pt)"
         required: false
@@ -38,12 +42,19 @@ on:
         required: false
         default: "ci-noel-voice"
 
+# Une seule fabrication à la fois : la suivante attend.
+concurrency:
+  group: noel-voice
+  cancel-in-progress: false
+
 jobs:
   plan:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.m.outputs.matrix }}
       mode: ${{ steps.m.outputs.mode }}
+      tasks: ${{ steps.m.outputs.tasks }}
+      minutes: ${{ steps.m.outputs.minutes }}
     steps:
       - uses: actions/checkout@v5
       - id: m
@@ -65,9 +76,19 @@ jobs:
           if mode == "pilot":
               count = {l: 1 for l in langs}
           m = [{"lang": l, "shard": i, "of": count[l]} for l in langs for i in range(count[l])]
+          tasks, minutes = "", "210"
+          if mode == "light":
+              get = lambda i, d: (lines[i].strip() if len(lines) > i and lines[i].strip() else d)
+              tasks = get(1, "fr:line fr:name")
+              # Deux machines au plus : les autres apps doivent pouvoir compiler et partir en production.
+              machines = max(1, min(2, int(get(2, "2"))))
+              minutes = str(int(get(3, "170")))
+              m = [{"lang": "light", "shard": i, "of": machines} for i in range(machines)]
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write("matrix=" + json.dumps({"include": m}) + "\n")
               f.write("mode=" + mode + "\n")
+              f.write("tasks=" + tasks + "\n")
+              f.write("minutes=" + minutes + "\n")
           print(mode, len(m), "lots")
           EOF
           python3 noel/tools/voice.py plan
@@ -76,6 +97,8 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 270
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       # Pas toutes les machines du compte : les autres apps doivent pouvoir compiler pendant ce temps.
@@ -103,10 +126,27 @@ jobs:
           SHARD: ${{ matrix.shard }}
           OF: ${{ matrix.of }}
           LIMIT: ${{ inputs.limit || '0' }}
-          MINUTES: ${{ inputs.minutes || '210' }}
+          MINUTES: ${{ inputs.minutes || needs.plan.outputs.minutes || '210' }}
+          TASKS: ${{ needs.plan.outputs.tasks }}
+          BRANCH: ${{ inputs.branch || 'ci-noel-voice' }}
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p out
-          if [ "$MODE" = pilot ]; then
+          if [ "$MODE" = light ]; then
+            # Deux fabrications sur la machine (deux fils chacune), la même liste de tâches, chacune son lot.
+            export VOICE_THREADS=2 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
+            A=$((SHARD * 2)); B=$((SHARD * 2 + 1)); N=$((OF * 2))
+            python noel/tools/voice.py gen --tasks "$TASKS" --shard "$A/$N" --out out --minutes "$MINUTES" 2>&1 | grep -v -i "warn" > out/log-$A.txt &
+            P1=$!
+            python noel/tools/voice.py gen --tasks "$TASKS" --shard "$B/$N" --out out --minutes "$MINUTES" 2>&1 | grep -v -i "warn" > out/log-$B.txt &
+            P2=$!
+            # Ce qui est fait est publié toutes les six minutes.
+            ( while sleep 360; do bash noel/tools/voice-publish.sh || true; done ) &
+            PUB=$!
+            wait $P1 $P2
+            kill $PUB 2>/dev/null || true
+            tail -n 25 out/log-$A.txt out/log-$B.txt
+          elif [ "$MODE" = pilot ]; then
             python noel/tools/voice.py pilot --lang "$LANG_CODE" --out out 2>&1 | grep -v -i "warn" | tee out/log-$LANG_CODE.txt
           else
             # Deux fabrications en parallèle sur la machine (deux fils chacune), chacune son lot.
@@ -119,8 +159,15 @@ jobs:
           fi
           find out -name "*.try*" -delete
           du -sh out; find out -name "*.m4a" | wc -l
+      - name: Publier ce qui est fait
+        if: always() && needs.plan.outputs.mode == 'light'
+        env:
+          SHARD: ${{ matrix.shard }}
+          BRANCH: ${{ inputs.branch || 'ci-noel-voice' }}
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash noel/tools/voice-publish.sh
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && needs.plan.outputs.mode != 'light'
         with:
           name: voice-${{ matrix.lang }}-${{ matrix.shard }}
           path: out
@@ -128,7 +175,7 @@ jobs:
 
   collect:
     needs: [plan, gen]
-    if: always()
+    if: always() && needs.plan.outputs.mode != 'light'
     runs-on: ubuntu-latest
     permissions:
       contents: write
