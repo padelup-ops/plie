@@ -1,1 +1,6 @@
 {"id": "2c1b12382737afde020e", "key": "hello|sophia", "text": "Ho, ho, ho! Hello, Sophia!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Ho ho ho! Hello, Sophia!", "tries": 3, "secs": 239.3}
+{"id": "41a607cf87b676eff786", "key": "hello|oliver", "text": "Ho, ho, ho! Hello, Oliver!", "ok": true, "score": 1.0, "dur": 2.68, "heard": "Ho Ho Ho! Hello Oliver!", "tries": 2, "secs": 123.8}
+{"id": "3a71ca2160e4c54e0b33", "key": "hello|henry", "text": "Ho, ho, ho! Hello, Henry!", "ok": true, "score": 1.0, "dur": 3.32, "heard": "Ho, ho, ho, hello Henry.", "tries": 1, "secs": 66.7}
+{"id": "e6751c5070db9d07de25", "key": "hello|mateo", "text": "Ho, ho, ho! Hello, Mateo!", "ok": true, "score": 0.722, "dur": 2.76, "heard": "Ho Ho Ho Hello Matthew", "tries": 1, "secs": 59.5}
+{"id": "b9fddd7f97211d21c448", "key": "hello|jack", "text": "Ho, ho, ho! Hello, Jack!", "ok": true, "score": 1.0, "dur": 1.84, "heard": "Ho Ho Ho! Hello Jack!", "tries": 1, "secs": 51.5}
+{"id": "41b0e158ea1436b0182b", "key": "hello|asher", "text": "Ho, ho, ho! Hello, Asher!", "ok": true, "score": 1.0, "dur": 2.08, "heard": "Oh ho ho! Hello Asher!", "tries": 1, "secs": 52.1}
