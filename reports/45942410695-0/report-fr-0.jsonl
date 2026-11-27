@@ -1,2 +1,3 @@
 {"id": "d07adc0cb6bbbb1ca637", "key": "line|Ho, ho, ho… Est-ce que tu m'entends bien ?", "text": "Ho, ho, ho… Est-ce que tu m'entends bien ?", "ok": true, "score": 0.945, "dur": 2.38, "heard": "Ho ho ho ! As-ce que tu m'entends bien ?", "tries": 3, "secs": 268.3}
 {"id": "422ade76a996633555f7", "key": "line|On m'a dit que tu adores partir à l'aventure.", "text": "On m'a dit que tu adores partir à l'aventure.", "ok": true, "score": 1.0, "dur": 4.38, "heard": "On m'a dit que tu adores partir à l'aventure.", "tries": 2, "secs": 781.6}
+{"id": "30984e84ca710b5953f7", "key": "hello|rose", "text": "Ho, ho, ho ! Bonjour Rose !", "ok": true, "score": 1.0, "dur": 2.24, "heard": "Ho, ho, ho, bonjour Rose.", "tries": 1, "secs": 65.6}
