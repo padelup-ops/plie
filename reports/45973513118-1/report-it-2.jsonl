@@ -16,3 +16,5 @@
 {"id": "42bbb0a55da4d94da467", "key": "hello|damiano", "text": "Oh, oh, oh! Ciao, Damiano!", "ok": true, "score": 1.0, "dur": 3.06, "heard": "Oh, oh, ciao Damiano!", "tries": 1, "secs": 70.9}
 {"id": "e69badb2a5dd45143a86", "key": "hello|serena", "text": "Oh, oh, oh! Ciao, Serena!", "ok": true, "score": 1.0, "dur": 2.9, "heard": "Oh, oh, oh, ciao, Serena!", "tries": 1, "secs": 78.6}
 {"id": "0fed93e66e789dec0f7d", "key": "hello|lucia", "text": "Oh, oh, oh! Ciao, Lucia!", "ok": true, "score": 1.0, "dur": 3.5, "heard": "Oh, oh, oh, ciao, Lucia!", "tries": 1, "secs": 75.2}
+{"id": "cb317dfad258a4992366", "key": "hello|stella", "text": "Oh, oh, oh! Ciao, Stella!", "ok": true, "score": 1.0, "dur": 3.06, "heard": "Oh, oh, oh, ciao, stella!", "tries": 1, "secs": 71.7}
+{"id": "68ec78c2b2bb443f6a2b", "key": "hello|nora", "text": "Oh, oh, oh! Ciao, Nora!", "ok": true, "score": 1.0, "dur": 1.98, "heard": "Oh, oh, oh, ciao Nora!", "tries": 1, "secs": 59.5}
