@@ -34,6 +34,15 @@ git fetch -q --depth 1 origin "$REV"
 git checkout -q FETCH_HEAD
 echo "=== Version des sources : $(git rev-parse HEAD) $(git log -1 --format=%cs)"
 git lfs pull
+if [ ! -d "src/MeloNX/MeloNX/Dependencies/Dynamic Libraries" ]; then
+  # Le dépôt n'est pas rangé comme prévu : on montre sa structure pour adapter la recette.
+  echo "=== Structure inattendue"
+  ls | sed 's/^/=== racine : /'
+  find . -maxdepth 6 \( -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "*.dylib" -o -name "*.xcframework" -o -name "*.framework" -o -name "Package.swift" -o -name "*.entitlements" -o -name "*.sh" -o -name "Compile*.md" -o -name "global.json" -o -name ".gitmodules" \) -not -path "./.git/*" | sed 's/^/=== trouvé : /'
+  for f in Compile.md .gitmodules global.json; do [ -f "$f" ] && { echo "=== $f"; sed 's/^/=== | /' "$f" | head -120; }; done
+  find . -maxdepth 4 -name "*.sh" -not -path "./.git/*" -path "*ios*" | while read -r f; do echo "=== $f"; sed 's/^/=== | /' "$f" | head -60; done
+  exit 1
+fi
 ls -la "src/MeloNX/MeloNX/Dependencies/Dynamic Libraries"
 
 echo "=== Compilation"
