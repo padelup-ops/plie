@@ -19,3 +19,4 @@
 {"id": "998484d06f99aebb0712", "key": "hello|philipp", "text": "Ho, ho, ho! Hallo, Philipp!", "ok": true, "score": 0.879, "dur": 3.04, "heard": "Oh, ho, ho! Hallo, Phillip!", "tries": 2, "secs": 91.2}
 {"id": "15c25dbd69b642e7f758", "key": "hello|erik", "text": "Ho, ho, ho! Hallo, Erik!", "ok": true, "score": 0.8, "dur": 2.0, "heard": "Ho ho ho ho, hallo Eric.", "tries": 1, "secs": 43.4}
 {"id": "5632279983728ef1528e", "key": "hello|martha", "text": "Ho, ho, ho! Hallo, Martha!", "ok": true, "score": 0.925, "dur": 2.5, "heard": "Ho ho ho! Hallo Marta!", "tries": 2, "secs": 97.1}
+{"id": "a44b54e0d20565ccc975", "key": "hello|adam", "text": "Ho, ho, ho! Hallo, Adam!", "ok": true, "score": 1.0, "dur": 2.72, "heard": "Ho ho ho, hallo Adam!", "tries": 1, "secs": 46.0}
