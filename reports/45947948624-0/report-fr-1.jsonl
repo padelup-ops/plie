@@ -21,3 +21,4 @@
 {"id": "b2a62847d87763877819", "key": "hello|timothee", "text": "Ho, ho, ho ! Bonjour Timothée !", "ok": true, "score": 0.883, "dur": 2.28, "heard": "Ho ho ho, bonjour Timoté.", "tries": 1, "secs": 63.0}
 {"id": "528d9a71cb26a0324614", "key": "hello|benjamin", "text": "Ho, ho, ho ! Bonjour Benjamin !", "ok": true, "score": 1.0, "dur": 1.92, "heard": "Ho ho ho, bonjour Benjamin !", "tries": 1, "secs": 56.0}
 {"id": "0edc165f20b56a91ff17", "key": "hello|quentin", "text": "Ho, ho, ho ! Bonjour Quentin !", "ok": false, "score": 0.53, "dur": 2.12, "heard": "Ho, ho ! Bonjour, content !", "tries": 3, "secs": 214.9}
+{"id": "a3ec40b77dd5580c3847", "key": "hello|justine", "text": "Ho, ho, ho ! Bonjour Justine !", "ok": true, "score": 1.0, "dur": 2.64, "heard": "Ho ho ho ! Bonjour, Justine !", "tries": 2, "secs": 164.7}
