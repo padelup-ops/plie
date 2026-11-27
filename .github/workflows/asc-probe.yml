@@ -3,11 +3,11 @@ on:
   workflow_dispatch:
     inputs:
       tool:
-        description: "Outil à lancer (asc_probe.py, asc_crashes.py)"
+        description: "Outil à lancer (asc_probe.py, asc_crashes.py, asc_state.py)"
         required: false
         default: "asc_probe.py"
       bundle:
-        description: "Bundle de l'app (asc_crashes.py)"
+        description: "Bundle de l'app (asc_crashes.py, asc_state.py)"
         required: false
         default: ""
 jobs:
@@ -25,4 +25,4 @@ jobs:
       - uses: actions/checkout@v5
       - run: python3 -m pip install --quiet pyjwt cryptography
       - run: |
-          case "$TOOL" in asc_probe.py|asc_crashes.py) python3 "tools/$TOOL" ;; *) echo "outil inconnu"; exit 1 ;; esac
+          case "$TOOL" in asc_probe.py|asc_crashes.py|asc_state.py) python3 "tools/$TOOL" ;; *) echo "outil inconnu"; exit 1 ;; esac
