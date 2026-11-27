@@ -1,0 +1,158 @@
+APP 6827349081 Foldly : compteur de plis
+build 140 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-24T14:11
+build 139 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-24T08:59
+build 137 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-22T19:53
+build 133 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-18T19:23
+build 132 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-18T18:45
+build 131 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-18T18:01
+build 129 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-13T17:00
+build 127 | traitement VALID | expiré False | interne IN_BETA_TESTING | externe READY_FOR_BETA_SUBMISSION | envoyé 2026-11-13T16:45
+envoi 6 1.0 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 72 1.0.5 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 47 1.0 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 52 1.0.2 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 62 1.0.3 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+envoi 63 1.0.3 | AWAITING_UPLOAD | {"errors": [], "warnings": [], "infos": [], "state": "AWAITING_UPLOAD"}
+version App Store 1.0.26 | READY_FOR_SALE
+version App Store 1.0.25 | READY_FOR_SALE
+version App Store 1.0.24 | READY_FOR_SALE
+version App Store 1.0.23 | READY_FOR_SALE
+version App Store 1.0.22 | READY_FOR_SALE
+captures 1.0.26 th []
+captures 1.0.26 it []
+captures 1.0.26 vi []
+captures 1.0.26 fr-CA ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.26 zh-Hant []
+captures 1.0.26 pl []
+captures 1.0.26 ru []
+captures 1.0.26 fi []
+captures 1.0.26 ko ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.26 ja ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.26 hi []
+captures 1.0.26 el []
+captures 1.0.26 hr []
+captures 1.0.26 pt-PT []
+captures 1.0.26 zh-Hans ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.26 cs []
+captures 1.0.26 sv []
+captures 1.0.26 en-US ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.26 es-MX ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.26 nl-NL []
+captures 1.0.26 en-GB ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.26 hu []
+captures 1.0.26 no []
+captures 1.0.26 id []
+captures 1.0.26 pt-BR []
+captures 1.0.26 tr []
+captures 1.0.26 ar-SA []
+captures 1.0.26 fr-FR ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.26 ro []
+captures 1.0.26 ca []
+captures 1.0.26 en-CA ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+captures 1.0.26 uk []
+captures 1.0.26 en-AU ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.26 es-ES ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.26 sk []
+captures 1.0.26 he []
+captures 1.0.26 ms []
+captures 1.0.26 da []
+captures 1.0.26 de-DE ['APP_IPHONE_DUO:6', 'APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3']
+build choisi 1.0.26 140
+captures 1.0.25 zh-Hans ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.25 de-DE ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+captures 1.0.25 hr []
+captures 1.0.25 ko ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.25 hu []
+captures 1.0.25 en-GB ['APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6', 'APP_IPHONE_67:6']
+captures 1.0.25 pl []
+captures 1.0.25 es-MX ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.25 en-US ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.25 fr-FR ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.25 ja ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+captures 1.0.25 el []
+captures 1.0.25 hi []
+captures 1.0.25 vi []
+captures 1.0.25 sk []
+captures 1.0.25 pt-BR []
+captures 1.0.25 ca []
+captures 1.0.25 ru []
+captures 1.0.25 fr-CA ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+captures 1.0.25 da []
+captures 1.0.25 uk []
+captures 1.0.25 it []
+captures 1.0.25 es-ES ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.25 ms []
+captures 1.0.25 pt-PT []
+captures 1.0.25 nl-NL []
+captures 1.0.25 th []
+captures 1.0.25 he []
+captures 1.0.25 zh-Hant []
+captures 1.0.25 en-CA ['APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6', 'APP_IPHONE_67:6']
+captures 1.0.25 ar-SA []
+captures 1.0.25 tr []
+captures 1.0.25 ro []
+captures 1.0.25 cs []
+captures 1.0.25 fi []
+captures 1.0.25 id []
+captures 1.0.25 en-AU ['APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6', 'APP_IPHONE_67:6']
+captures 1.0.25 sv []
+captures 1.0.25 no []
+build choisi 1.0.25 137
+captures 1.0.24 hu []
+captures 1.0.24 ar-SA []
+captures 1.0.24 ja ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.24 sv []
+captures 1.0.24 sk []
+captures 1.0.24 el []
+captures 1.0.24 pt-PT []
+captures 1.0.24 zh-Hant []
+captures 1.0.24 pl []
+captures 1.0.24 ms []
+captures 1.0.24 es-ES ['APP_IPHONE_DUO:6', 'APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.24 de-DE ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+captures 1.0.24 nl-NL []
+captures 1.0.24 id []
+captures 1.0.24 he []
+captures 1.0.24 hr []
+captures 1.0.24 en-CA ['APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6', 'APP_IPHONE_67:6']
+captures 1.0.24 en-US ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+captures 1.0.24 en-GB ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.24 cs []
+captures 1.0.24 hi []
+captures 1.0.24 en-AU ['APP_IPHONE_67:6', 'APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3']
+captures 1.0.24 fr-FR ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.24 ro []
+captures 1.0.24 ru []
+captures 1.0.24 da []
+captures 1.0.24 ko ['APP_IPHONE_DUO:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6']
+captures 1.0.24 it []
+captures 1.0.24 th []
+captures 1.0.24 ca []
+captures 1.0.24 vi []
+captures 1.0.24 fr-CA ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.24 uk []
+captures 1.0.24 es-MX ['APP_WATCH_ULTRA:3', 'APP_IPHONE_67:6', 'APP_IPHONE_DUO:6']
+captures 1.0.24 fi []
+captures 1.0.24 zh-Hans ['APP_IPHONE_67:6', 'APP_WATCH_ULTRA:3', 'APP_IPHONE_DUO:6']
+captures 1.0.24 tr []
+captures 1.0.24 no []
+captures 1.0.24 pt-BR []
+build choisi 1.0.24 133
+prix : ['']
+catégories READY_FOR_DISTRIBUTION {'primaryCategory': 'HEALTH_AND_FITNESS', 'secondaryCategory': 'UTILITIES', 'primarySubcategoryOne': None, 'primarySubcategoryTwo': None}
+Game Center : activé
+disponibilité : oui
+achats intégrés : [('com.padelup.clapet.plus', 'APPROVED')]
+demande COMPLETE 2026-11-24T22:15:16.474Z | éléments 1 ['?:APPROVED']
+demande COMPLETE 2026-11-23T12:18:27.324Z | éléments 1 ['?:APPROVED']
+demande COMPLETE 2026-11-19T03:24:31.507Z | éléments 1 ['?:APPROVED']
+demande COMPLETE 2026-11-14T04:14:03.377Z | éléments 1 ['?:APPROVED']
+demande COMPLETE 2026-11-13T12:23:33.977Z | éléments 1 ['?:APPROVED']
+usage build 140 : {'installCount': 2, 'crashCount': 0, 'sessionCount': 7, 'inviteCount': 2, 'feedbackCount': 0}
+usage build 139 : {'installCount': 1, 'crashCount': 0, 'sessionCount': 1, 'inviteCount': 2, 'feedbackCount': 0}
+usage build 137 : {'installCount': 1, 'crashCount': 0, 'sessionCount': 14, 'inviteCount': 2, 'feedbackCount': 0}
+usage build 133 : {'installCount': 2, 'crashCount': 0, 'sessionCount': 12, 'inviteCount': 2, 'feedbackCount': 0}
+testeurs groupe « Clapet interne » (interne) : 2 · invitation {'EMAIL': 2} · état {'INSTALLED': 2}
+testeurs groupe « Clapet interne » (interne) : 0 · invitation {} · état {}
+testeurs groupe « Clapet interne » (interne) : 0 · invitation {} · état {}
+testeurs au total : 2 · état {'INSTALLED': 2} · invitation {'EMAIL': 2}
