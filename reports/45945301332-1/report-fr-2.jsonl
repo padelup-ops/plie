@@ -1,2 +1,4 @@
 {"id": "e212783cd5a18de513f7", "key": "bye|sofia", "text": "Joyeux Noël, Sofia !", "ok": true, "score": 0.79, "dur": 1.84, "heard": "Joyeux Noël, Sophia.", "tries": 2, "secs": 133.5}
 {"id": "77e1f420af3fe2567832", "key": "bye|lyna", "text": "Joyeux Noël, Lyna !", "ok": true, "score": 0.812, "dur": 1.52, "heard": "Joyeux Noël, Lina.", "tries": 3, "secs": 188.6}
+{"id": "5ba5b1b05b8542b43ae2", "key": "hello|emmy", "text": "Ho, ho, ho ! Bonjour Emmy !", "ok": false, "score": 0.671, "dur": 2.4, "heard": "Ho, ho, ho ! Bonjour, Amy !", "tries": 2, "secs": 192.5}
+{"id": "b93bc6fc633868d40359", "key": "hello|marie", "text": "Ho, ho, ho ! Bonjour Marie !", "ok": true, "score": 1.0, "dur": 2.46, "heard": "Oh ho ho, bonjour Marie.", "tries": 2, "secs": 138.9}
