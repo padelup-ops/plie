@@ -1,0 +1,32 @@
+fr:hello lot 3/4 : 10 phrases
+en:hello lot 3/4 : 15 phrases
+fr:hello lot 3/4 : 15 phrases
+en:hello lot 3/4 : 15 phrases
+fr:hello lot 3/4 : 34 phrases
+en:hello lot 3/4 : 44 phrases
+fr:bye lot 3/4 : 59 phrases
+en:bye lot 3/4 : 78 phrases
+es:line lot 3/4 : 6 phrases
+de:line lot 3/4 : 6 phrases
+pt:line lot 3/4 : 0 phrases
+it:line lot 3/4 : 19 phrases
+es:hello lot 3/4 : 75 phrases
+de:hello lot 3/4 : 63 phrases
+it:hello lot 3/4 : 75 phrases
+pt:hello lot 3/4 : 71 phrases
+es:bye lot 3/4 : 79 phrases
+de:bye lot 3/4 : 69 phrases
+it:bye lot 3/4 : 72 phrases
+pt:bye lot 3/4 : 68 phrases
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files: 100%|██████████| 6/6 [00:00<00:00, 2596.56it/s]
+  deprecate("LoRACompatibleLinear", "1.0.0", deprecation_message)
+loaded PerthNet (Implicit) at step 250,000
+modèles chargés en 9 s, 2 fils
+  self.gen = func(*args, **kwds)
+The following generation flags are not valid and may be ignored: ['output_attentions']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  self.gen = func(*args, **kwds)
+[1/873] fr ok  1.00 2.3s essais 2 (137s, reste 1986 min) Ho, ho, ho ! Bonjour Paul ! → Oh ho ho, bonjour Paul.
+  self.gen = func(*args, **kwds)
+[2/873] fr ok  1.00 2.4s essais 1 (53s, reste 1376 min) Ho, ho, ho ! Bonjour Tom ! → Ho ho ho bonjour Tom
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
