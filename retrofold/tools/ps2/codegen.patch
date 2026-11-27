@@ -1,0 +1,145 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 836114a..5b6e87c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -63,6 +63,8 @@ add_library(CodeGen
+ 	src/Jitter_CodeGen_x86_Md_Sse.cpp
+ 	src/Jitter_CodeGen_x86_Mul.h
+ 	src/Jitter_CodeGen_x86_Shift.h
++	src/Jitter_CodeGen_Interp.cpp
++	src/Jitter_Interp_Execute.cpp
+ 	src/Jitter_CodeGen_Wasm.cpp
+ 	src/Jitter_CodeGen_Wasm_64.cpp
+ 	src/Jitter_CodeGen_Wasm_Fpu.cpp
+@@ -116,6 +118,11 @@ add_library(CodeGen
+ 	include/X86CpuFeatures.h
+ )
+ 
++option(JITTER_INTERP "Run generated code with an interpreter instead of as machine code (no executable memory needed)" OFF)
++if(JITTER_INTERP)
++	target_compile_definitions(CodeGen PUBLIC JITTER_INTERP)
++endif()
++
+ target_link_libraries(CodeGen PUBLIC Framework ${CODEGEN_LIBS})
+ target_include_directories(CodeGen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+ enable_testing()
+diff --git a/src/Jitter_CodeGenFactory.cpp b/src/Jitter_CodeGenFactory.cpp
+index 4c6d781..2470ca3 100644
+--- a/src/Jitter_CodeGenFactory.cpp
++++ b/src/Jitter_CodeGenFactory.cpp
+@@ -2,7 +2,11 @@
+ 
+ // clang-format off
+ 
+-#ifdef _WIN32
++#if defined(JITTER_INTERP)
++
++	#include "Jitter_CodeGen_Interp.h"
++
++#elif defined(_WIN32)
+ 
+ 	#ifdef _M_X64
+ 		#include "Jitter_CodeGen_x86_64.h"
+@@ -47,7 +51,11 @@
+ 
+ Jitter::CCodeGen* Jitter::CreateCodeGen()
+ {
+-#ifdef _WIN32
++#if defined(JITTER_INTERP)
++
++	return new Jitter::CCodeGen_Interp();
++
++#elif defined(_WIN32)
+ 	
+ 	#ifdef _M_X64
+ 		auto codeGen = new Jitter::CCodeGen_x86_64();
+diff --git a/src/MemoryFunction.cpp b/src/MemoryFunction.cpp
+index 73a3dab..7a90b38 100644
+--- a/src/MemoryFunction.cpp
++++ b/src/MemoryFunction.cpp
+@@ -10,7 +10,11 @@
+ 
+ #define BLOCK_ALIGN 0x10
+ 
+-#ifdef _WIN32
++#if defined(JITTER_INTERP)
++	//No executable memory: the "code" is bytecode on the heap, run by the interpreter.
++	#include "Jitter_CodeGen_Interp.h"
++	#define MEMFUNC_USE_INTERP
++#elif defined(_WIN32)
+ 	#define MEMFUNC_USE_WIN32
+ #elif defined(__APPLE__)
+ 	#include "TargetConditionals.h"
+@@ -76,6 +80,7 @@ EM_JS(emscripten::EM_VAL, WasmCreateModule, (uintptr_t code, uintptr_t size),
+ 	let module = new WebAssembly.Module(moduleBytes);
+ 	return Emval.toHandle(module);
+ });
++#elif defined(MEMFUNC_USE_INTERP)
+ #else
+ #error "No API to use for CMemoryFunction"
+ #endif
+@@ -90,7 +95,11 @@ CMemoryFunction::CMemoryFunction()
+ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
+ : m_code(nullptr)
+ {
+-#if defined(MEMFUNC_USE_WIN32)
++#if defined(MEMFUNC_USE_INTERP)
++	m_size = size;
++	m_code = framework_aligned_alloc(size, BLOCK_ALIGN);
++	memcpy(m_code, code, size);
++#elif defined(MEMFUNC_USE_WIN32)
+ 	m_size = size;
+ 	m_code = framework_aligned_alloc(size, BLOCK_ALIGN);
+ 	memcpy(m_code, code, size);
+@@ -146,7 +155,8 @@ CMemoryFunction::~CMemoryFunction()
+ 
+ void CMemoryFunction::ClearCache()
+ {
+-#ifdef __APPLE__
++#if defined(MEMFUNC_USE_INTERP)
++#elif defined(__APPLE__)
+ 	sys_icache_invalidate(m_code, m_size);
+ #elif defined(MEMFUNC_USE_MMAP)
+ 	#if defined(__arm__) || defined(__aarch64__)
+@@ -159,7 +169,9 @@ void CMemoryFunction::Reset()
+ {
+ 	if(m_code != nullptr)
+ 	{
+-#if defined(MEMFUNC_USE_WIN32)
++#if defined(MEMFUNC_USE_INTERP)
++		framework_aligned_free(m_code);
++#elif defined(MEMFUNC_USE_WIN32)
+ 		framework_aligned_free(m_code);
+ #elif defined(MEMFUNC_USE_MACHVM)
+ 		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size);
+@@ -194,6 +206,10 @@ CMemoryFunction& CMemoryFunction::operator =(CMemoryFunction&& rhs)
+ 
+ void CMemoryFunction::operator()(void* context)
+ {
++#if defined(MEMFUNC_USE_INTERP)
++	Jitter::Interp::Execute(m_code, context);
++	return;
++#endif
+ 	typedef void (*FctType)(void*);
+ 	auto fct = reinterpret_cast<FctType>(m_code);
+ 	fct(context);
+@@ -211,7 +227,8 @@ size_t CMemoryFunction::GetSize() const
+ 
+ void CMemoryFunction::BeginModify()
+ {
+-#if defined(MEMFUNC_USE_MACHVM) && defined(MEMFUNC_MACHVM_STRICT_PROTECTION)
++#if defined(MEMFUNC_USE_INTERP)
++#elif defined(MEMFUNC_USE_MACHVM) && defined(MEMFUNC_MACHVM_STRICT_PROTECTION)
+ 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_WRITE);
+ 	assert(result == 0);
+ #elif defined(MEMFUNC_USE_MMAP) && defined(MEMFUNC_MMAP_REQUIRES_JIT_WRITE_PROTECT)
+@@ -221,7 +238,8 @@ void CMemoryFunction::BeginModify()
+ 
+ void CMemoryFunction::EndModify()
+ {
+-#if defined(MEMFUNC_USE_MACHVM) && defined(MEMFUNC_MACHVM_STRICT_PROTECTION)
++#if defined(MEMFUNC_USE_INTERP)
++#elif defined(MEMFUNC_USE_MACHVM) && defined(MEMFUNC_MACHVM_STRICT_PROTECTION)
+ 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_EXECUTE);
+ 	assert(result == 0);
+ #elif defined(MEMFUNC_USE_MMAP) && defined(MEMFUNC_MMAP_REQUIRES_JIT_WRITE_PROTECT)
