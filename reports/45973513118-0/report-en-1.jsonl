@@ -44,3 +44,11 @@
 {"id": "708c1b3186ec8f58de5d", "key": "hello|priya", "text": "Ho, ho, ho! Hello, Priya!", "ok": true, "score": 0.673, "dur": 2.28, "heard": "Ho Ho Ho! Hello, Pryor!", "tries": 1, "secs": 42.4}
 {"id": "c875d3e7eaac9eb4754e", "key": "hello|niamh", "text": "Ho, ho, ho! Hello, Niamh!", "ok": false, "score": 0.55, "dur": 2.26, "heard": "Ho ho ho. Hello, Neum.", "tries": 2, "secs": 129.0}
 {"id": "a4ae877e9c22697a23f4", "key": "hello|amelie", "text": "Ho, ho, ho! Hello, Amelie!", "ok": false, "score": 0.925, "dur": 2.54, "heard": "Ho ho ho hello Amelie. Amelie!", "tries": 3, "secs": 129.0}
+{"id": "982b217e76b4ba1eb2bf", "key": "hello|lauren", "text": "Ho, ho, ho! Hello, Lauren!", "ok": true, "score": 1.0, "dur": 2.96, "heard": "Ho, ho, ho! Hello, Lauren!", "tries": 2, "secs": 101.4}
+{"id": "d94f6764d7cea97486f0", "key": "hello|maddie", "text": "Ho, ho, ho! Hello, Maddie!", "ok": true, "score": 1.0, "dur": 2.62, "heard": "Oh ho ho. Hello Maddie.", "tries": 1, "secs": 47.1}
+{"id": "82648ce7c70e9845ff93", "key": "hello|tilly", "text": "Ho, ho, ho! Hello, Tilly!", "ok": true, "score": 1.0, "dur": 2.96, "heard": "Oh ho ho hello Tilly", "tries": 1, "secs": 47.6}
+{"id": "571fec4a4fe51a17e883", "key": "hello|yuna", "text": "Ho, ho, ho! Hello, Yuna!", "ok": true, "score": 1.0, "dur": 2.08, "heard": "Ho, ho, ho. Hello, Yuna!", "tries": 2, "secs": 79.3}
+{"id": "3e631d54a4a50115d2eb", "key": "hello|darius", "text": "Ho, ho, ho! Hello, Darius!", "ok": true, "score": 1.0, "dur": 2.34, "heard": "Ho, ho, ho. Hello, Darius.", "tries": 1, "secs": 40.8}
+{"id": "b57c390bcbd5b561e064", "key": "hello|amari", "text": "Ho, ho, ho! Hello, Amari!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Ho, ho, ho, hello Amari.", "tries": 1, "secs": 41.2}
+{"id": "cd38261266fe15e2cb87", "key": "hello|kiara", "text": "Ho, ho, ho! Hello, Kiara!", "ok": true, "score": 0.775, "dur": 2.36, "heard": "Ho, ho, ho, hello, Chiara.", "tries": 1, "secs": 43.7}
+{"id": "619ad2b77456017f11b4", "key": "hello|aliyah", "text": "Ho, ho, ho! Hello, Aliyah!", "ok": true, "score": 0.836, "dur": 2.24, "heard": "Ho Ho Ho Hello Alia", "tries": 1, "secs": 44.8}

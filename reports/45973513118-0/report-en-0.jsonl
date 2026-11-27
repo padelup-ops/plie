@@ -31,3 +31,9 @@
 {"id": "c48b5ab631591470087e", "key": "hello|oaklynn", "text": "Ho, ho, ho! Hello, Oaklynn!", "ok": true, "score": 0.758, "dur": 2.44, "heard": "Oh ho ho hello Oakland", "tries": 1, "secs": 43.6}
 {"id": "3f68a6a189a7156d1990", "key": "hello|jamie", "text": "Ho, ho, ho! Hello, Jamie!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Ho Ho Ho! Hello Jamie!", "tries": 1, "secs": 45.6}
 {"id": "dba62b17e0205b02dd69", "key": "hello|jake", "text": "Ho, ho, ho! Hello, Jake!", "ok": true, "score": 1.0, "dur": 1.7, "heard": "Ho ho ho, hello Jake!", "tries": 1, "secs": 38.3}
+{"id": "efe4469007e479bc25bd", "key": "hello|josh", "text": "Ho, ho, ho! Hello, Josh!", "ok": true, "score": 1.0, "dur": 1.88, "heard": "Ho ho ho. Hello Josh?", "tries": 1, "secs": 38.1}
+{"id": "6272d8e3e406c8f835bd", "key": "hello|billy", "text": "Ho, ho, ho! Hello, Billy!", "ok": true, "score": 1.0, "dur": 2.14, "heard": "Ho, ho, ho. Hello, Billy.", "tries": 1, "secs": 44.1}
+{"id": "684ef2aa6443d2208160", "key": "hello|mikey", "text": "Ho, ho, ho! Hello, Mikey!", "ok": true, "score": 1.0, "dur": 1.62, "heard": "Oh ho ho! Hello Mikey!", "tries": 1, "secs": 36.5}
+{"id": "1ac09c377d71a22af73c", "key": "hello|genevieve", "text": "Ho, ho, ho! Hello, Genevieve!", "ok": true, "score": 1.0, "dur": 2.0, "heard": "Ho ho ho. Hello Genevieve.", "tries": 1, "secs": 38.1}
+{"id": "b0bfe3ed350c609b1ba3", "key": "hello|taylor", "text": "Ho, ho, ho! Hello, Taylor!", "ok": true, "score": 1.0, "dur": 3.32, "heard": "Ho ho ho! Hello Taylor!", "tries": 2, "secs": 91.6}
+{"id": "3048cfa678bc21a75e28", "key": "hello|florence", "text": "Ho, ho, ho! Hello, Florence!", "ok": true, "score": 1.0, "dur": 2.2, "heard": "Ho, ho, ho! Hello Florence!", "tries": 1, "secs": 44.4}
