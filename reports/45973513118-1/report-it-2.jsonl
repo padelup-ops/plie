@@ -11,3 +11,8 @@
 {"id": "1e2f27435aa541ff6388", "key": "hello|celeste", "text": "Oh, oh, oh! Ciao, Celeste!", "ok": false, "score": 0.943, "dur": 2.56, "heard": "Oh, oh, oh, oh, ciao, ciao, Celeste!", "tries": 2, "secs": 190.7}
 {"id": "7ffff62a9e4eed26fbf6", "key": "hello|simone", "text": "Oh, oh, oh! Ciao, Simone!", "ok": true, "score": 1.0, "dur": 2.68, "heard": "Oh, oh, oh, ciao Simone!", "tries": 1, "secs": 64.5}
 {"id": "aa905841a5abec70eeb6", "key": "hello|daniel", "text": "Oh, oh, oh! Ciao, Daniel!", "ok": true, "score": 1.0, "dur": 2.32, "heard": "Oh oh oh ciao Daniel", "tries": 1, "secs": 59.6}
+{"id": "c2c620d37130d8bb2db7", "key": "hello|stefano", "text": "Oh, oh, oh! Ciao, Stefano!", "ok": true, "score": 1.0, "dur": 2.1, "heard": "Oh, oh, oh, ciao Stefano.", "tries": 1, "secs": 62.1}
+{"id": "10d3b79d2f72f4ddca66", "key": "hello|sebastiano", "text": "Oh, oh, oh! Ciao, Sebastiano!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Oh oh oh ciao Sebastiano", "tries": 1, "secs": 62.7}
+{"id": "42bbb0a55da4d94da467", "key": "hello|damiano", "text": "Oh, oh, oh! Ciao, Damiano!", "ok": true, "score": 1.0, "dur": 3.06, "heard": "Oh, oh, ciao Damiano!", "tries": 1, "secs": 70.9}
+{"id": "e69badb2a5dd45143a86", "key": "hello|serena", "text": "Oh, oh, oh! Ciao, Serena!", "ok": true, "score": 1.0, "dur": 2.9, "heard": "Oh, oh, oh, ciao, Serena!", "tries": 1, "secs": 78.6}
+{"id": "0fed93e66e789dec0f7d", "key": "hello|lucia", "text": "Oh, oh, oh! Ciao, Lucia!", "ok": true, "score": 1.0, "dur": 3.5, "heard": "Oh, oh, oh, ciao, Lucia!", "tries": 1, "secs": 75.2}

@@ -17,3 +17,4 @@
 {"id": "f4261ad045b639bfa91e", "key": "hello|federica", "text": "Oh, oh, oh! Ciao, Federica!", "ok": true, "score": 1.0, "dur": 3.94, "heard": "Oh oh oh, ciao Federica!", "tries": 1, "secs": 81.2}
 {"id": "5881ec5d2c0341f3826e", "key": "hello|melissa", "text": "Oh, oh, oh! Ciao, Melissa!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "Oh oh oh ciao Melissa", "tries": 1, "secs": 66.2}
 {"id": "c9ce0b7b6136b3b6c299", "key": "hello|zoe", "text": "Oh, oh, oh! Ciao, Zoe!", "ok": true, "score": 1.0, "dur": 2.64, "heard": "Oh oh oh ciao Zoe!", "tries": 1, "secs": 64.0}
+{"id": "bb218c1ca3cbd1a87bc1", "key": "hello|lavinia", "text": "Oh, oh, oh! Ciao, Lavinia!", "ok": false, "score": 0.79, "dur": 2.4, "heard": "Oh oh oh ciao la viña", "tries": 1, "secs": 223.9}
