@@ -20,7 +20,7 @@ on:
         description: "switch-installer seulement : switch, stikdebug, ou vide (les deux)"
         required: false
       switch_source:
-        description: "switch seulement : autre dépôt et version, « adresse version » (vide : la copie fixée dans build_switch.sh)"
+        description: "switch et switch-installer : autre dépôt et version, « adresse version » (vide : la copie fixée dans build_switch.sh)"
         required: false
 
 jobs:
@@ -144,9 +144,11 @@ jobs:
           DEVICE: ${{ inputs.device }}
           APPS: ${{ inputs.apps || 'switch stikdebug' }}
           SIGN_DIR: ${{ runner.temp }}/retrofold-signature
+          SOURCE: ${{ inputs.switch_source }}
         run: |
           set -o pipefail
           test -n "$DEVICE" || { echo "Il manque l'identifiant de l'iPhone (champ device)"; exit 1; }
+          if [ -n "$SOURCE" ]; then export SWITCH_REPO="${SOURCE%% *}" SWITCH_REV="${SOURCE##* }"; fi
           echo "::add-mask::$DEVICE"
           python3 -m pip install --quiet --user pyjwt cryptography >/dev/null 2>&1 || python3 -m pip install --quiet --break-system-packages pyjwt cryptography
           bash retrofold/tools/switch_install.sh "$DEVICE" 2>&1 | tee installer.log | grep -E "^===|^ok|^note|^ÉCHEC|^droits|error|Error|fatal|BUILD (SUCCEEDED|FAILED)|ARCHIVE (SUCCEEDED|FAILED)|\.ipa" | tail -120
