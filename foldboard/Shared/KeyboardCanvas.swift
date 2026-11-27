@@ -1582,6 +1582,7 @@ final class KeyboardCanvas: UIView {
         fixing = false
         toast.layer.removeAllAnimations()
         toast.alpha = 0
+        toastEnded(now: true)
         for i in cells.indices { setPressed(i, false) }
     }
 
@@ -2138,21 +2139,28 @@ final class KeyboardCanvas: UIView {
         c.startAdjust()
         let errorSaid = (c.toast.text ?? "").contains(L("Choose one hand or two hands to adjust"))
 
-        // 2. Conseils allumés : le même choix affiche son message, par-dessus le raccourci des dispositions (le
-        // message traverse presque toute la barre ; avant, la mise en page suivante remettait le raccourci devant).
+        // 2. Conseils allumés : le même choix affiche son message. Il traverse presque toute la barre, donc la place
+        // du raccourci des dispositions : le raccourci s'efface (et ne se touche plus) tant que le message est là,
+        // même après la mise en page qui suit le choix (avant, elle le remettait devant le texte), et le message
+        // reste devant lui.
         layout { $0.learningTips = true; $0.mode = .left }
         c.toast.text = nil
         c.setMode(.full)
         c.layoutIfNeeded()
         c.layoutTopBar()
         let said = (c.toast.text ?? "").contains(L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."))
+        let sw = c.layoutSwitch
         let stack = c.topBar.subviews
-        let crossing = c.visibilityProbe().layoutSwitch && c.toast.frame.intersects(c.layoutSwitch.frame)
-        let above = (stack.firstIndex(of: c.toast) ?? -1) > (stack.firstIndex(of: c.layoutSwitch) ?? Int.max)
+        let crossing = !sw.isHidden && sw.frame.width > 1 && c.toast.frame.intersects(sw.frame)
+        let effaced = sw.alpha == 0 && !sw.isUserInteractionEnabled
+        let above = (stack.firstIndex(of: c.toast) ?? -1) > (stack.firstIndex(of: sw) ?? Int.max)
         let opaque = (c.toast.backgroundColor?.cgColor.alpha ?? 0) >= 1
+        // Le message parti (3 s, puis le fondu), le raccourci revient tout seul.
+        RunLoop.current.run(until: Date().addingTimeInterval(3.8))
+        let back = c.visibilityProbe().layoutSwitch && sw.isUserInteractionEnabled
         c.toast.text = nil
-        let ok = quiet && errorSaid && said && crossing && above && opaque
-        print("RESULT messages conseil_coupe_muet=\(quiet) erreur_dite=\(errorSaid) conseil_allume_dit=\(said) croise_le_raccourci=\(crossing) message_devant=\(above) fond_opaque=\(opaque) \(ok ? "yes" : "no")")
+        let ok = quiet && errorSaid && said && crossing && effaced && above && opaque && back
+        print("RESULT messages conseil_coupe_muet=\(quiet) erreur_dite=\(errorSaid) conseil_allume_dit=\(said) croise_le_raccourci=\(crossing) raccourci_efface=\(effaced) message_devant=\(above) fond_opaque=\(opaque) raccourci_revenu=\(back) \(ok ? "yes" : "no")")
         return ok
     }
 
@@ -2809,7 +2817,35 @@ final class KeyboardCanvas: UIView {
         // Toujours devant tout ce que porte la barre (le raccourci des dispositions passait par-dessus le texte).
         if topBar.subviews.last !== toast { topBar.bringSubviewToFront(toast) }
         toast.alpha = 1
+        // Et le raccourci s'efface le temps du message : il ne dépasse pas de sous lui, et on ne le touche pas
+        // sans le voir. Il revient quand le message s'en va (voir toastEnded).
+        let life = hold + 0.4
+        toastUntil = ProcessInfo.processInfo.systemUptime + life
+        layoutSwitch.alpha = 0
+        layoutSwitch.isUserInteractionEnabled = false
         UIView.animate(withDuration: 0.4, delay: hold, options: [], animations: { self.toast.alpha = 0 })
+        DispatchQueue.main.asyncAfter(deadline: .now() + life) { [weak self] in self?.toastEnded() }
+    }
+
+    /// Jusqu'à quand le message de la barre est affiché (horloge du système). Pendant ce temps, le raccourci des
+    /// dispositions reste effacé, même si la barre est remise en page.
+    private var toastUntil: TimeInterval = 0
+    private var toastShowing: Bool { ProcessInfo.processInfo.systemUptime < toastUntil }
+
+    /// Le message est parti : le raccourci des dispositions revient (sauf si un autre message a pris la suite).
+    /// `now` : le message est retiré d'un coup (le clavier disparaît), sans attendre ni fondu.
+    private func toastEnded(now: Bool = false) {
+        guard now || ProcessInfo.processInfo.systemUptime >= toastUntil - 0.05 else { return }
+        toastUntil = 0
+        let shown = !layoutSwitch.isHidden
+        layoutSwitch.isUserInteractionEnabled = shown
+        let alpha: CGFloat = shown && !trackpadOn ? 1 : 0
+        guard layoutSwitch.alpha != alpha else { return }
+        if now {
+            layoutSwitch.alpha = alpha
+        } else {
+            UIView.animate(withDuration: 0.2) { self.layoutSwitch.alpha = alpha }
+        }
     }
 
     // MARK: Mise en page
@@ -3456,7 +3492,7 @@ final class KeyboardCanvas: UIView {
         globeButton.frame = CGRect(x: emojiButton.frame.minX - (compact && globe ? 36 : 0), y: 0, width: compact && globe ? 36 : 0, height: h)
         // Les boutons de position (main, ⇆, milieu, …) à gauche, serrés l'un contre l'autre.
         var lead = [modeButton, flipButton, middleButton, bigButton].filter { !$0.isHidden && $0.frame.width > 0 }
-        // Clavier à une main : s'il y a la place à côté des touches (là où sont les flèches ‹‹), les boutons de
+        // Clavier à une main : s'il y a la place à côté des touches (là où est la flèche), les boutons de
         // position y vont, contre le clavier. La barre au-dessus des touches garde toute sa largeur pour les
         // suggestions et les outils.
         // (Trop juste à trois : le bouton du milieu passe derrière « ⋯ ».)
@@ -3771,8 +3807,9 @@ final class KeyboardCanvas: UIView {
         let w = Self.layoutSwitchWidth
         let show = layoutSwitchFits && chips.frame.width >= w + 60
         layoutSwitch.isHidden = !show
-        layoutSwitch.alpha = show && !trackpadOn ? 1 : 0
-        layoutSwitch.isUserInteractionEnabled = show
+        // Effacé pendant le pavé tactile, et le temps d'un message dans la barre (voir flash).
+        layoutSwitch.alpha = show && !trackpadOn && !toastShowing ? 1 : 0
+        layoutSwitch.isUserInteractionEnabled = show && !toastShowing
         guard show else {
             layoutSwitch.frame = .zero
             return
@@ -4737,7 +4774,7 @@ final class KeyboardCanvas: UIView {
         let apply = {
             // Comme chez Apple : la barre du haut disparaît aussi, il ne reste que le pavé.
             for v in bar { v.alpha = on ? 0 : 1 }
-            self.layoutSwitch.alpha = on || self.layoutSwitch.isHidden ? 0 : 1
+            self.layoutSwitch.alpha = on || self.layoutSwitch.isHidden || self.toastShowing ? 0 : 1
             for v in keys {
                 v.label.alpha = on ? 0 : 1
                 v.icon.alpha = on ? 0 : 1
