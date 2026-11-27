@@ -211,14 +211,14 @@ struct TrackerSummary: View {
     var body: some View {
         if compact {
             HStack(spacing: 14) {
-                ring(size: 112, line: 8)
+                ring(size: 112, line: 6)
                 stats
             }
             .vfCard(radius: 22, padding: 14)
         } else {
             ScrollView {
                 VStack(spacing: 26) {
-                    ring(size: 250, line: 17)
+                    ring(size: 250, line: 15)
                     stats.frame(maxWidth: 380).vfCard(radius: 22, padding: 18)
                     Button { share = true } label: { Label("Share as an image", systemImage: "square.and.arrow.up").frame(maxWidth: 300) }
                         .buttonStyle(.vfPrimary)
@@ -236,7 +236,7 @@ struct TrackerSummary: View {
     private func ring(size: CGFloat, line: CGFloat) -> some View {
         let p = progress.parts(content.content)
         return ZStack {
-            VFRing(parts: p.all, lineWidth: line)
+            VFRing(parts: p.all, lineWidth: line, gap: max(2.5, line * 0.3))
             VStack(spacing: 2) {
                 Text(p.total, format: .percent.precision(.fractionLength(0)))
                     .font(VF.display(size * 0.2)).monospacedDigit()
@@ -523,9 +523,9 @@ struct ShareProgressView: View {
                 }
                 Spacer(minLength: 8)
                 ZStack {
-                    VFRing(parts: p.all, lineWidth: 12)
+                    VFRing(parts: p.all, lineWidth: 10, gap: 3)
                     VStack(spacing: 0) {
-                        Text(p.total, format: .percent.precision(.fractionLength(0))).font(VF.display(46)).monospacedDigit()
+                        Text(p.total, format: .percent.precision(.fractionLength(0))).font(VF.display(40)).monospacedDigit()
                             .foregroundStyle(VF.gradient).shadow(color: VF.flamingo.opacity(0.6), radius: 10)
                         Text("of Leonida").font(VF.mono(9)).textCase(.uppercase).foregroundStyle(VF.textDim)
                     }

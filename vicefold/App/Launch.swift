@@ -274,8 +274,10 @@ struct LaunchFrame: View {
 
     private func half(_ size: CGSize, leading: Bool, p: Double) -> some View {
         scene(size)
+            // Les moitiés s'assombrissent en s'ouvrant (un voile noir par-dessus : elles restent opaques).
+            .overlay(Color.black.opacity(0.45 * p))
             .mask(alignment: leading ? .leading : .trailing) { Rectangle().frame(width: size.width / 2 + 0.5) }
-            .brightness(-0.35 * p)
+            .compositingGroup()
             .rotation3DEffect(.degrees((leading ? -1 : 1) * 100 * p), axis: (x: 0, y: 1, z: 0),
                               anchor: leading ? .leading : .trailing, anchorZ: 0, perspective: 0.45)
             .opacity(1 - p * p * p)

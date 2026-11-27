@@ -117,11 +117,13 @@ struct VFRing: View {
     var parts: [Double]          // 0…1 pour chaque catégorie
     var lineWidth: CGFloat = 14
     var glow = true
+    /// L'espace entre deux anneaux.
+    var gap: CGFloat = 4
 
     var body: some View {
         ZStack {
             ForEach(Array(parts.enumerated()), id: \.offset) { i, p in
-                let inset = CGFloat(i) * (lineWidth + 4)
+                let inset = CGFloat(i) * (lineWidth + gap)
                 let color = VF.ringColors[i % 4]
                 Circle()
                     .stroke(color.opacity(0.14), lineWidth: lineWidth)
