@@ -69,14 +69,16 @@ struct ScenarioView: View {
                         .font(.ui(14))
                         .foregroundStyle(Noel.cream.opacity(0.7))
                         .padding(.top, 2)
-
-                        ReactionOptions()
-                            .padding(.top, 10)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 14)
                     .padding(.bottom, 24)
                 }
+
+                // Comme en appel vidéo : le parent décide ici, avant l'appel, si son enfant se voit dans un coin.
+                ReactionOptions()
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 10)
 
                 Button {
                     if !model.scenario.isFree && !store.owned {

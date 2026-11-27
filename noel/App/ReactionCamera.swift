@@ -19,6 +19,9 @@ final class ReactionCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelega
     private let lock = NSLock()
     private var last: CVPixelBuffer?
     private var configured = false
+    private var wanted = false
+    private var input: AVCaptureDeviceInput?
+    private let output = AVCaptureVideoDataOutput()
     private let context = CIContext()
 
     static var authorized: Bool { AVCaptureDevice.authorizationStatus(for: .video) == .authorized }
@@ -39,43 +42,86 @@ final class ReactionCamera: NSObject, AVCaptureVideoDataOutputSampleBufferDelega
     func start() {
         guard Self.authorized else { return }
         work.async { [self] in
+            wanted = true
             if !configured { configure() }
-            if configured, !session.isRunning { session.startRunning() }
+            selectCamera()
+            if input != nil, !session.isRunning { session.startRunning() }
+            watch()
         }
     }
 
     func stop() {
         work.async { [self] in
+            wanted = false
             if session.isRunning { session.stopRunning() }
             lock.lock(); last = nil; lock.unlock()
         }
     }
 
+    /// La caméra avant à utiliser maintenant. Un iPhone pliant en a plusieurs, et celle qui est cachée par le pli ne
+    /// montre que du noir : on écarte celles que le système a mises en pause, et on préfère celle qu'il recommande.
+    private static func frontCamera() -> AVCaptureDevice? {
+        let found = AVCaptureDevice.DiscoverySession(
+            deviceTypes: [.builtInWideAngleCamera, .builtInTrueDepthCamera, .builtInUltraWideCamera],
+            mediaType: .video, position: .front).devices
+        let usable = found.filter { $0.isConnected && !$0.isSuspended }
+        if let preferred = AVCaptureDevice.systemPreferredCamera, preferred.position == .front,
+           usable.contains(where: { $0.uniqueID == preferred.uniqueID }) {
+            return preferred
+        }
+        return usable.first ?? found.first ?? AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+    }
+
+    /// La sortie des images, une fois pour toutes.
     private func configure() {
-        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
-              let input = try? AVCaptureDeviceInput(device: device) else { return }
         session.beginConfiguration()
         // Pas de micro, et l'app garde la main sur le son de l'appel.
         session.automaticallyConfiguresApplicationAudioSession = false
         if session.canSetSessionPreset(.hd1280x720) { session.sessionPreset = .hd1280x720 }
-        guard session.canAddInput(input) else { session.commitConfiguration(); return }
-        session.addInput(input)
-        let output = AVCaptureVideoDataOutput()
         output.alwaysDiscardsLateVideoFrames = true
         output.setSampleBufferDelegate(self, queue: frames)
-        if session.canAddOutput(output) {
-            session.addOutput(output)
-            if let c = output.connection(with: .video) {
-                // Debout, et comme dans un miroir : ce que l'enfant voit dans le rectangle.
-                if c.isVideoRotationAngleSupported(90) { c.videoRotationAngle = 90 }
-                if c.isVideoMirroringSupported {
-                    c.automaticallyAdjustsVideoMirroring = false
-                    c.isVideoMirrored = true
-                }
+        if session.canAddOutput(output) { session.addOutput(output) }
+        session.commitConfiguration()
+        configured = true
+    }
+
+    /// Branche la bonne caméra avant (ou en change, si l'iPhone a été plié ou déplié depuis).
+    private func selectCamera() {
+        guard let device = Self.frontCamera() else { return }
+        if let input, input.device.uniqueID == device.uniqueID { return }
+        guard let fresh = try? AVCaptureDeviceInput(device: device) else { return }
+        session.beginConfiguration()
+        if let input { session.removeInput(input) }
+        if session.canAddInput(fresh) {
+            session.addInput(fresh)
+            input = fresh
+        } else {
+            input = nil
+        }
+        if let c = output.connection(with: .video) {
+            // Debout, et comme dans un miroir : ce que l'enfant voit dans le rectangle.
+            if c.isVideoRotationAngleSupported(90) { c.videoRotationAngle = 90 }
+            if c.isVideoMirroringSupported {
+                c.automaticallyAdjustsVideoMirroring = false
+                c.isVideoMirrored = true
             }
         }
         session.commitConfiguration()
-        configured = true
+        // Dans une pièce sombre (le soir, au lit), la caméra s'aide comme elle peut.
+        if device.isLowLightBoostSupported, (try? device.lockForConfiguration()) != nil {
+            device.automaticallyEnablesLowLightBoostWhenAvailable = true
+            device.unlockForConfiguration()
+        }
+    }
+
+    /// Toutes les deux secondes pendant l'appel : la caméra choisie est-elle toujours la bonne, et tourne-t-elle ?
+    private func watch() {
+        work.asyncAfter(deadline: .now() + 2) { [weak self] in
+            guard let self, self.wanted else { return }
+            self.selectCamera()
+            if self.input != nil, !self.session.isRunning { self.session.startRunning() }
+            self.watch()
+        }
     }
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
@@ -114,20 +160,64 @@ struct CameraPreview: UIViewRepresentable {
     func updateUIView(_ view: PreviewView, context: Context) {}
 }
 
-/// Le petit rectangle arrondi, dans un coin de l'appel.
+/// Le petit rectangle arrondi qui montre l'enfant.
 struct ReactionPip: View {
     let session: AVCaptureSession
+    var size = CGSize(width: 84, height: 112)
     var body: some View {
         CameraPreview(session: session)
-            .frame(width: 104, height: 140)
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Color.white.opacity(0.55), lineWidth: 1.5))
+            .frame(width: size.width, height: size.height)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Color.white.opacity(0.55), lineWidth: 1.5))
             .shadow(color: .black.opacity(0.45), radius: 10, y: 4)
+            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             .accessibilityHidden(true)
     }
 }
 
+/// Le rectangle dans un coin de l'appel, comme sur FaceTime : en bas à droite au départ, on le fait glisser au doigt
+/// et il s'aimante au coin le plus proche. Le coin choisi est retenu pour les appels suivants. Les coins restent sous
+/// la barre du haut et la bulle « le Père Noël t'écoute », et au-dessus des sous-titres et du bouton pour raccrocher.
+struct FloatingPip: View {
+    let session: AVCaptureSession
+    /// La place prise en haut (barre, bulle d'écoute) et en bas (sous-titres, bouton pour raccrocher).
+    var top: CGFloat
+    var bottom: CGFloat
+    /// 0 : en haut à gauche, 1 : en haut à droite, 2 : en bas à gauche, 3 : en bas à droite.
+    @AppStorage("allonoel.pip.corner") private var corner = 3
+    @State private var offset: CGSize = .zero
+
+    var body: some View {
+        GeometryReader { geo in
+            let size = CGSize(width: 84, height: 112)
+            let margin: CGFloat = 14
+            let xs = [margin + size.width / 2, geo.size.width - margin - size.width / 2]
+            let ys = [top + size.height / 2, max(top + size.height * 1.5 + 12, geo.size.height - bottom - size.height / 2)]
+            let c = min(3, max(0, corner))
+            let home = CGPoint(x: xs[c % 2], y: ys[c / 2])
+            ReactionPip(session: session, size: size)
+                .position(x: home.x + offset.width, y: home.y + offset.height)
+                .gesture(
+                    DragGesture(minimumDistance: 4)
+                        .onChanged { offset = $0.translation }
+                        .onEnded { drag in
+                            let end = CGPoint(x: home.x + drag.predictedEndTranslation.width,
+                                              y: home.y + drag.predictedEndTranslation.height)
+                            let next = (end.x > geo.size.width / 2 ? 1 : 0) + (end.y > (ys[0] + ys[1]) / 2 ? 2 : 0)
+                            // Il part de là où le doigt l'a lâché et rejoint son coin.
+                            offset = CGSize(width: home.x + drag.translation.width - xs[next % 2],
+                                            height: home.y + drag.translation.height - ys[next / 2])
+                            corner = next
+                            withAnimation(.spring(duration: 0.4, bounce: 0.25)) { offset = .zero }
+                        }
+                )
+                .animation(.spring(duration: 0.35), value: bottom)
+        }
+    }
+}
+
 /// Sur l'écran de préparation (côté parent) : montrer l'enfant pendant l'appel, et garder sa réaction en photos.
+/// Toujours visible, juste au-dessus du bouton qui lance l'appel.
 struct ReactionOptions: View {
     @Environment(AppModel.self) private var model
     @Environment(MagicStore.self) private var store
@@ -149,43 +239,50 @@ struct ReactionOptions: View {
             set: { on in
                 if store.owned { model.keepReactions = on } else { model.sheet = .paywall }
             })
-        VStack(alignment: .leading, spacing: 12) {
-            Toggle(isOn: show) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Show your child in a corner, like a video call")
-                        .font(.ui(16, .semibold))
-                    Text("The front camera shows on screen only. Nothing is recorded.")
-                        .font(.ui(13))
-                        .opacity(0.7)
-                }
-                .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Image(systemName: "video.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Noel.goldLight)
+                    .frame(width: 22)
+                Text("Show your child in a corner, like a video call")
+                    .font(.ui(14, .semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 6)
+                Toggle(isOn: show) { EmptyView() }.labelsHidden()
             }
             if model.showChild {
-                Toggle(isOn: keep) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        HStack(spacing: 8) {
-                            Text("Keep their reaction in photos")
-                                .font(.ui(16, .semibold))
-                            if !store.owned { PremiumTag() }
-                        }
-                        Text("A few photos at the best moments, shown to you after the call. They stay on this iPhone unless you save or share them.")
-                            .font(.ui(13))
-                            .opacity(0.7)
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 10) {
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Noel.goldLight)
+                        .frame(width: 22)
+                    Text("Keep their reaction in photos")
+                        .font(.ui(14, .semibold))
+                        .fixedSize(horizontal: false, vertical: true)
+                    if !store.owned { PremiumTag() }
+                    Spacer(minLength: 6)
+                    Toggle(isOn: keep) { EmptyView() }.labelsHidden()
                 }
+                Text(model.keepReactions && store.owned
+                     ? "A few photos at the best moments, shown to you after the call. They stay on this iPhone unless you save or share them."
+                     : "The front camera shows on screen only. Nothing is recorded.")
+                    .font(.ui(12))
+                    .opacity(0.7)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             if refused {
                 Text("The camera is turned off for this app. You can allow it in the iPhone's Settings.")
-                    .font(.ui(13))
+                    .font(.ui(12))
                     .foregroundStyle(Noel.goldLight)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
         .tint(Noel.gold)
         .foregroundStyle(Noel.cream)
-        .padding(14)
-        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Noel.night.opacity(0.55)))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Noel.night.opacity(0.8)))
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Noel.cream.opacity(0.15), lineWidth: 1))
         .onAppear {
             // L'autorisation a pu être retirée dans les Réglages depuis la dernière fois.
