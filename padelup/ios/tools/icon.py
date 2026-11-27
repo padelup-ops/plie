@@ -83,10 +83,11 @@ ball = ball.filter(ImageFilter.GaussianBlur(60))
 img = Image.alpha_composite(img, ball)
 d = ImageDraw.Draw(img)
 d.ellipse([bx - br, by - br, bx + br, by + br], fill=VOLT)
-d.ellipse([bx - br * 0.78, by - br * 0.86, bx + br * 0.5, by + br * 0.2], fill=hexc('ECFF8A'))
-# couture de la balle
-seam = [(bx - br * 0.95 + i * br * 1.9 / 40, by + math.sin(i / 40 * math.pi * 2) * br * 0.32) for i in range(41)]
-d.line(seam, fill=(255, 255, 255, 230), width=18, joint='curve')
+d.ellipse([bx - br * 0.70, by - br * 0.80, bx + br * 0.05, by - br * 0.10], fill=hexc('E6FF7A'))
+# coutures de la balle : deux arcs opposés, comme une vraie balle de padel
+seam_w = 20
+d.arc([bx - br * 1.75, by - br * 0.95, bx - br * 0.15, by + br * 0.95], start=-62, end=62, fill=(255, 255, 255, 235), width=seam_w)
+d.arc([bx + br * 0.15, by - br * 0.95, bx + br * 1.75, by + br * 0.95], start=118, end=242, fill=(255, 255, 255, 235), width=seam_w)
 
 img = img.convert('RGB').resize((1024, 1024), Image.LANCZOS)
 img.save(OUT, optimize=True)
