@@ -43,6 +43,7 @@ struct SantaPhoto: View {
             }
         }
         .clipped()
+        .task { SantaFrames.warm() }
         .accessibilityElement()
         .accessibilityLabel(Text("Santa Claus"))
     }
@@ -78,15 +79,15 @@ struct SantaPhoto: View {
         let above = min(Self.mouthFrames, below + 1)
         let mix = x - Double(below)
         return ZStack {
-            Image("SantaPhoto").resizable()
+            SantaFrames.image("SantaPhoto").resizable()
             if below >= 1 {
-                Image("SantaMouth\(below)").resizable()
+                SantaFrames.image("SantaMouth\(below)").resizable()
             }
             if above > below, mix > 0.01 {
-                Image("SantaMouth\(above)").resizable().opacity(mix)
+                SantaFrames.image("SantaMouth\(above)").resizable().opacity(mix)
             }
             if blink > 0.01 {
-                Image("SantaBlink").resizable()
+                SantaFrames.image("SantaBlink").resizable()
                     .mask(EyesMask())
                     .opacity(min(1, blink * 1.15))
             }
@@ -147,6 +148,31 @@ struct SantaPhoto: View {
         }
         let twice = fract(sin(k * 78.233) * 12345.678) > 0.72
         return max(one(p), twice ? one(p - 0.32) : 0)
+    }
+}
+
+/// Les photos du Père Noël, ouvertes une fois pour toutes dès qu'il apparaît : sa première phrase ne doit pas
+/// attendre qu'une image se décode (la bouche sauterait sur les premiers mots).
+@MainActor
+enum SantaFrames {
+    private static var ready: [String: UIImage] = [:]
+    private static var warming = false
+    private static let names = ["SantaPhoto", "SantaBlink"] + (1...5).map { "SantaMouth\($0)" }
+
+    static func image(_ name: String) -> Image {
+        if let ui = ready[name] { return Image(uiImage: ui) }
+        return Image(name)
+    }
+
+    static func warm() {
+        guard !warming else { return }
+        warming = true
+        Task {
+            for name in names {
+                guard let ui = UIImage(named: name) else { continue }
+                ready[name] = await ui.byPreparingForDisplay() ?? ui
+            }
+        }
     }
 }
 
