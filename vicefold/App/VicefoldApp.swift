@@ -158,7 +158,7 @@ enum ShotMode {
         case "guides", "guide": return .guides
         case "map", "mappins", "mycard": return .map
         case "tracker", "missions", "mission", "share", "collectibles": return .tracker
-        case "more", "characters", "radio", "profile", "pro", "cheats", "eggs", "community", "friends", "thread": return .more
+        case "more", "characters", "radio", "profile", "pro", "cheats", "vehicles", "eggs", "community", "friends", "thread": return .more
         case "search": return .search
         default: return .home
         }
