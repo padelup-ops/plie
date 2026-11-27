@@ -12,3 +12,5 @@
 {"id": "72ba10b590a0cf83c9cc", "key": "hello|abril", "text": "¡Jo, jo, jo! ¡Hola, Abril!", "ok": true, "score": 1.0, "dur": 2.66, "heard": "¡Ho ho ho! ¡Hola, Abril!", "tries": 3, "secs": 184.0}
 {"id": "2ccdae360e718e9cdd3f", "key": "hello|candela", "text": "¡Jo, jo, jo! ¡Hola, Candela!", "ok": true, "score": 1.0, "dur": 2.98, "heard": "¡Ho, ho, ho! ¡Hola, candela!", "tries": 1, "secs": 69.4}
 {"id": "435db498cd0b58764a61", "key": "hello|carlota", "text": "¡Jo, jo, jo! ¡Hola, Carlota!", "ok": true, "score": 1.0, "dur": 3.74, "heard": "¡Ho ho ho! ¡Hola, Carlota!", "tries": 1, "secs": 76.9}
+{"id": "52780a631b3bac1a3c82", "key": "hello|miguel", "text": "¡Jo, jo, jo! ¡Hola, Miguel!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "¡Ho ho ho ho! ¡Hola Miguel!", "tries": 2, "secs": 116.9}
+{"id": "2e4cbc04dbd05876311d", "key": "hello|carlos", "text": "¡Jo, jo, jo! ¡Hola, Carlos!", "ok": true, "score": 1.0, "dur": 2.08, "heard": "¡Ho ho ho! ¡Hola Carlos!", "tries": 2, "secs": 165.0}
