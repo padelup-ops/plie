@@ -218,7 +218,8 @@ def liens(out):
         if not rows:
             print("ÉCHEC  aucune app signée jointe sous le nom", name, status)
             return 1
-        art = rows[0]
+        # La plus récente : une signature plus ancienne peut porter un certificat remplacé depuis.
+        art = max(rows, key=lambda a: a.get("created_at") or "")
         status, headers, _ = github(f"/repos/{repo}/actions/artifacts/{art['id']}/zip", follow=False)
         url = headers.get("Location") or headers.get("location")
         if not url:
