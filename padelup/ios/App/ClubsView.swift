@@ -5,6 +5,7 @@ struct ClubsView: View {
     @EnvironmentObject private var directory: ClubDirectory
     @EnvironmentObject private var location: LocationManager
     @EnvironmentObject private var router: Router
+    @EnvironmentObject private var favorites: Favorites
 
     @State private var position: MapCameraPosition = .region(CoverageZone.overview)
     @State private var region = CoverageZone.overview
@@ -17,10 +18,11 @@ struct ClubsView: View {
     @State private var centeredOnUser = false
     @FocusState private var searching: Bool
 
-    enum Filter: String, CaseIterable { case all, bot, indoor, big
+    enum Filter: String, CaseIterable { case all, favorites, bot, indoor, big
         var label: String {
             switch self {
             case .all: return "Tous"
+            case .favorites: return "Favoris"
             case .bot: return "Réservables"
             case .indoor: return "Couverts"
             case .big: return "4 terrains et +"
@@ -31,6 +33,7 @@ struct ClubsView: View {
     private var filtered: [Club] {
         switch filter {
         case .all: return visible
+        case .favorites: return visible.filter { favorites.contains($0) } + favorites.clubs.filter { f in !visible.contains { $0.id == f.id } }
         case .bot: return visible.filter { $0.canBookWithBot }
         case .indoor: return visible.filter { $0.indoor > 0 }
         case .big: return visible.filter { $0.courts >= 4 }
@@ -194,7 +197,7 @@ struct ClubsView: View {
             HStack(spacing: 8) {
                 ForEach(Filter.allCases, id: \.self) { f in
                     Button { withAnimation(.snappy(duration: 0.2)) { filter = f } } label: {
-                        Chip(text: f.label, systemImage: f == .bot ? "circle.fill" : nil, active: filter == f)
+                        Chip(text: f.label, systemImage: f == .favorites ? "heart" : nil, active: filter == f)
                     }
                     .buttonStyle(.plain)
                 }

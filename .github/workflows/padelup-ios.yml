@@ -172,6 +172,9 @@ jobs:
           shot friends auto 8 08-amis
           shot profile auto 8 09-profil
           shot snipe auto 8 10-ouverture
+          shot radar auto 10 14-radar
+          shot player auto 8 15-joueur
+          shot community auto 8 16-communaute
           xcrun simctl ui "$UDID" appearance dark || true
           shot home christmas 10 11-accueil-noel-sombre
           shot club auto 10 12-club-sombre

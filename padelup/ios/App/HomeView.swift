@@ -8,7 +8,9 @@ struct HomeView: View {
     @EnvironmentObject private var location: LocationManager
     @EnvironmentObject private var server: ServerAPI
     @EnvironmentObject private var router: Router
+    @EnvironmentObject private var favorites: Favorites
     @AppStorage(SeasonSetting.key) private var seasonMode = "auto"
+    @State private var posts: [APIPost] = []
     @State private var weather: [WeatherHour] = []
     @State private var weatherPlace = ""
 
@@ -31,8 +33,10 @@ struct HomeView: View {
                 nextUp
                 searchEntry
                 if !weather.isEmpty { weatherBlock }
+                if !favorites.clubs.isEmpty { favoritesBlock }
                 nearbyBlock
                 if !bot.rules.isEmpty { botsBlock }
+                if server.isLoggedIn || ShotMode.current != nil { communityBlock }
                 Text("Clubs © contributeurs OpenStreetMap · Météo Open-Meteo · PadelUp n'est affilié ni à Playtomic ni à Anybuddy.")
                     .font(UI.small()).foregroundStyle(UI.faint).fixedSize(horizontal: false, vertical: true)
             }
@@ -45,8 +49,10 @@ struct HomeView: View {
             if ShotMode.current != nil {
                 weather = ShotMode.demoWeather()
                 weatherPlace = "Paris"
+                posts = ShotMode.demoPosts()
                 return
             }
+            if server.isLoggedIn { posts = (try? await server.posts(category: nil)) ?? posts }
             guard let loc = location.location else { return }
             // Les clubs autour du joueur sont actualisés tout de suite, sans passer par la carte.
             async let w = WeatherAPI.forecast(latitude: loc.coordinate.latitude, longitude: loc.coordinate.longitude)
@@ -180,6 +186,40 @@ struct HomeView: View {
                         }
                         .buttonStyle(.plain)
                         if i < nearby.count - 1 { Hairline(inset: 38) }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: Mes clubs
+
+    private var favoritesBlock: some View {
+        Block(title: "Mes clubs", meta: "\(favorites.clubs.count)") {
+            VStack(spacing: 0) {
+                ForEach(Array(favorites.clubs.prefix(4).enumerated()), id: \.element.id) { i, club in
+                    Button { router.openClub = directory.club(id: club.id) ?? club } label: {
+                        ClubRow(club: directory.club(id: club.id) ?? club, distance: club.distance(from: location.location))
+                    }
+                    .buttonStyle(.plain)
+                    if i < min(favorites.clubs.count, 4) - 1 { Hairline() }
+                }
+            }
+        }
+    }
+
+    // MARK: Communauté
+
+    private var communityBlock: some View {
+        Block(title: "Communauté", actionTitle: "Tout voir", action: { router.sheet = .community }) {
+            if posts.isEmpty {
+                EmptyNote(title: "Cherche un 4e, partage un conseil.", message: "Les joueurs PadelUp échangent ici.",
+                          actionTitle: "Ouvrir la communauté") { router.sheet = .community }
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(posts.prefix(2).enumerated()), id: \.element.id) { i, p in
+                        Button { router.sheet = .community } label: { PostRow(post: p, compact: true) }.buttonStyle(.plain)
+                        if i < min(posts.count, 2) - 1 { Hairline() }
                     }
                 }
             }

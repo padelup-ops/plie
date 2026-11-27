@@ -33,8 +33,9 @@ enum ShotMode {
     ]
 
     @MainActor
-    static func install(_ shot: String, directory: ClubDirectory, bot: BotEngine, location: LocationManager, server: ServerAPI) {
+    static func install(_ shot: String, directory: ClubDirectory, bot: BotEngine, location: LocationManager, server: ServerAPI, favorites: Favorites) {
         directory.installDemo(demoClubs)
+        favorites.setDemo([demoClubs[0], demoClubs[3]])
         location.setDemo(paris)
         server.setDemo(APIMe(id: 3, username: "camille", email: nil, firstName: "Camille",
                              profile: APIProfile(fullName: "Camille Laurent", skillLevel: 4, tierName: "Intermédiaire", avatarUrl: nil, location: "Lille",
@@ -70,6 +71,9 @@ enum ShotMode {
         case "clubs": router.tab = .clubs
         case "club": router.tab = .clubs; router.openClub = demoClubs[0]
         case "bot", "snipe": router.tab = .bot
+        case "radar": router.tab = .matches
+        case "community": router.tab = .home; router.sheet = .community
+        case "player": router.tab = .matches; router.sheet = .player(10)
         case "matches": router.tab = .matches
         case "profile": router.tab = .profile
         case "match": router.tab = .matches; router.openMatch = demoMatches().first
@@ -93,6 +97,78 @@ enum ShotMode {
         return people.enumerated().map { i, p in
             APIFriendship(id: i + 1, friend: APIPerson(id: i + 10, username: nil, fullName: p.0, avatar: nil, skillLevel: p.1, evaluationType: "new",
                                                        city: p.2, isFriend: true, hasPendingRequest: false))
+        }
+    }
+
+    static func demoRadar() -> [APIRadarPlayer] {
+        func avail(_ id: Int, _ day: Int, _ slot: TimeSlot) -> APIAvailability {
+            APIAvailability(id: id, dayOfWeek: day, specificDate: nil, timeSlot: slot.rawValue, timeSlotDisplay: slot.label, radiusKm: 10,
+                            minSkill: 3, maxSkill: 6, locationText: nil)
+        }
+        let people: [(Int, String, Int, String, Double, Bool, [APIAvailability])] = [
+            (10, "Yacine", 5, "Paris 11e", 1.5, true, [avail(1, 1, .evening), avail(2, 3, .evening)]),
+            (11, "Inès", 4, "Montreuil", 3.0, false, [avail(3, 5, .morning)]),
+            (12, "Sami", 4, "Vincennes", 4.5, false, [avail(4, 2, .noon), avail(5, 6, .afternoon)]),
+            (13, "Léa", 3, "Paris 20e", 6.0, false, []),
+            (14, "Malik", 5, "Bobigny", 9.5, true, [avail(6, 4, .night)]),
+            (15, "Chloé", 4, "Saint-Ouen", 12.0, false, [avail(7, 0, .evening)]),
+        ]
+        return people.map { p in
+            APIRadarPlayer(userId: p.0, username: p.1.lowercased(), firstName: p.1, avatar: nil, skillLevel: p.2, evaluationType: "new",
+                           tierName: PadelLevel.name(p.2, scale: "new"), city: p.3, distanceKm: p.4, matchesPlayed: 20, winRate: 55,
+                           isFriend: p.5, hasPendingProposal: p.0 == 11, availability: p.6)
+        }
+    }
+
+    static func demoProposals() -> APIProposals {
+        let day = ISO8601DateFormatter.day.string(from: Date().addingTimeInterval(3 * 86_400))
+        let later = ISO8601DateFormatter.day.string(from: Date().addingTimeInterval(5 * 86_400))
+        return APIProposals(
+            sent: [APIProposal(id: 2, senderId: 3, senderUsername: "camille", senderFirstName: "Camille", receiverId: 11, receiverUsername: "ines",
+                               receiverFirstName: "Inès", proposedDate: later, proposedTimeSlot: "morning", timeSlotDisplay: "Matin", message: nil,
+                               locationText: "Padel Horizon Paris", status: "pending", statusDisplay: "En attente")],
+            received: [APIProposal(id: 1, senderId: 12, senderUsername: "sami", senderFirstName: "Sami", receiverId: 3, receiverUsername: "camille",
+                                   receiverFirstName: "Camille", proposedDate: day, proposedTimeSlot: "evening", timeSlotDisplay: "Soir",
+                                   message: "Partant pour un 2 contre 2 ?", locationText: "Vincennes", status: "pending", statusDisplay: "En attente")])
+    }
+
+    static func demoAvailabilities() -> [APIAvailability] {
+        [APIAvailability(id: 1, dayOfWeek: 1, specificDate: nil, timeSlot: "evening", timeSlotDisplay: "Soir", radiusKm: 10, minSkill: 3, maxSkill: 5, locationText: nil),
+         APIAvailability(id: 2, dayOfWeek: 5, specificDate: nil, timeSlot: "morning", timeSlotDisplay: "Matin", radiusKm: 15, minSkill: 3, maxSkill: 5, locationText: nil)]
+    }
+
+    static func demoPublicProfile() -> APIPublicProfile {
+        APIPublicProfile(user: APIUser(id: 10, username: "yacine", firstName: "Yacine", lastName: "Benali"),
+                         profile: APIProfile(fullName: "Yacine Benali", skillLevel: 5, tierName: "Confirmé", avatarUrl: nil, location: "Paris 11e",
+                                             evaluationType: "new", isCompleted: true, rightHanded: false,
+                                             bio: "Joueur de gauche, bandeja solide. Dispo le mardi et le jeudi soir."),
+                         stats: APIStats(matchesPlayed: 38, matchesWon: 27, matchesLost: 11, winRate: 71, totalHours: 57),
+                         isFriend: true, isOwnProfile: false, friendRequest: nil)
+    }
+
+    static func demoPosts() -> [APIPost] {
+        let iso = ISO8601DateFormatter()
+        return [
+            APIPost(id: 1, authorInfo: APIAuthor(id: 10, username: "yacine", avatar: nil), title: "Cherche un 4e jeudi 19 h",
+                    content: "Padel Horizon Paris, terrain réservé, niveau 4 à 5. Il manque une personne, on partage les 40 €.",
+                    category: "looking_for_players", categoryDisplay: "Recherche de joueurs", city: "Paris", likeCount: 4, replyCount: 2,
+                    isLiked: false, replies: [APIReply(id: 1, authorInfo: APIAuthor(id: 11, username: "ines", avatar: nil), content: "Je viens !", createdAt: nil)],
+                    createdAt: iso.string(from: Date().addingTimeInterval(-2 * 3600))),
+            APIPost(id: 2, authorInfo: APIAuthor(id: 12, username: "sami", avatar: nil), title: "La bandeja, enfin",
+                    content: "Astuce de mon coach : frapper la balle sur le côté, épaule vers le filet, et finir le geste vers la vitre latérale.",
+                    category: "tips", categoryDisplay: "Conseils & Astuces", city: "Tunis", likeCount: 12, replyCount: 3, isLiked: true, replies: [],
+                    createdAt: iso.string(from: Date().addingTimeInterval(-26 * 3600))),
+        ]
+    }
+
+    static func demoHistory() -> [APIMatch] {
+        demoMatches().map { m in
+            APIMatch(id: m.id + 100, title: m.id == 1 ? "Revanche du dimanche" : "Match amical", description: nil, matchType: m.matchType, club: m.club,
+                     clubName: m.clubName, court: m.court, courtName: m.courtName,
+                     dateTime: ISO8601DateFormatter().string(from: Date().addingTimeInterval(-Double(m.id) * 6 * 86_400)), duration: 90,
+                     organizer: m.organizer, organizerName: m.organizerName, maxPlayers: 4, participantsCount: 4, minSkillLevel: m.minSkillLevel,
+                     maxSkillLevel: m.maxSkillLevel, pricePerPlayer: m.pricePerPlayer, currency: "EUR", status: "completed", isPublic: true,
+                     location: m.location, participants: m.participants)
         }
     }
 

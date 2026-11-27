@@ -17,6 +17,7 @@ struct ClubDetailView: View {
     @EnvironmentObject private var bot: BotEngine
     @EnvironmentObject private var directory: ClubDirectory
     @EnvironmentObject private var server: ServerAPI
+    @EnvironmentObject private var favorites: Favorites
     @Environment(\.dismiss) private var dismiss
 
     @State private var weather: [WeatherHour] = []
@@ -164,6 +165,7 @@ struct ClubDetailView: View {
                 quickAction("Site", "safari") { web = url }
             }
             quickAction("Match", "person.2") { showCreateMatch = true }
+            quickAction(favorites.contains(club) ? "Favori" : "Garder", favorites.contains(club) ? "heart.fill" : "heart") { favorites.toggle(club) }
         }
     }
 

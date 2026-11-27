@@ -10,11 +10,12 @@ struct MatchesView: View {
     @State private var error: String? = nil
     @State private var loading = false
     @State private var pending: APIPendingRating? = nil
+    @State private var history: [APIMatch] = []
 
     var body: some View {
         Screen(title: "Matchs", eyebrow: "Joue à ton niveau") {
             VStack(alignment: .leading, spacing: 22) {
-                UnderlineTabs(items: ["Ouverts", "Les miens", "Classement"], selection: $tab)
+                UnderlineTabs(items: ["Ouverts", "Les miens", "Radar", "Top"], selection: $tab)
                 if let pending, pending.hasPendingRating, let m = pending.match { pendingRow(pending, m) }
                 content
             }
@@ -32,10 +33,14 @@ struct MatchesView: View {
         } else if loading && open.isEmpty && mine.isEmpty && leaders.isEmpty {
             ProgressView().frame(maxWidth: .infinity).padding(40)
         } else if tab == 2 {
+            RadarSection()
+        } else if tab == 3 {
             leaderboard
         } else {
             let list = tab == 0 ? open : mine
-            if list.isEmpty {
+            if tab == 1 && list.isEmpty && !history.isEmpty {
+                EmptyNote(title: "Aucun match à venir.", message: "Ton historique est juste en dessous.")
+            } else if list.isEmpty {
                 EmptyNote(title: tab == 0 ? "Aucun match ouvert pour l'instant." : "Aucun match prévu.",
                           message: "Crée un match depuis la fiche de n'importe quel club : les joueurs de ton niveau le verront ici.",
                           actionTitle: "Choisir un club") { router.tab = .clubs }
@@ -44,6 +49,16 @@ struct MatchesView: View {
                     ForEach(Array(list.enumerated()), id: \.element.id) { i, m in
                         Button { router.openMatch = m } label: { MatchRow(match: m) }.buttonStyle(.plain)
                         if i < list.count - 1 { Hairline(inset: 70) }
+                    }
+                }
+            }
+            if tab == 1 && !history.isEmpty {
+                Block(title: "Historique", meta: "\(history.count) match\(history.count > 1 ? "s" : "")") {
+                    VStack(spacing: 0) {
+                        ForEach(Array(history.prefix(20).enumerated()), id: \.element.id) { i, m in
+                            Button { router.openMatch = m } label: { MatchRow(match: m).opacity(0.75) }.buttonStyle(.plain)
+                            if i < min(history.count, 20) - 1 { Hairline(inset: 70) }
+                        }
                     }
                 }
             }
@@ -74,6 +89,7 @@ struct MatchesView: View {
                 EmptyNote(title: "Pas encore de classement.", message: "Termine un match et saisis le résultat pour y entrer.")
             }
             ForEach(Array(leaders.enumerated()), id: \.element.id) { i, p in
+                Button { if let uid = p.user?.id { router.sheet = .player(uid) } } label: {
                 HStack(spacing: 16) {
                     Text("\(i + 1)").font(UI.scoreHeavy(32)).foregroundStyle(i < 3 ? UI.ink : UI.faint).frame(width: 40, alignment: .leading)
                     Avatar(name: p.displayName, size: 36)
@@ -91,6 +107,9 @@ struct MatchesView: View {
                     }
                 }
                 .padding(.vertical, 12)
+                .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
                 if i < leaders.count - 1 { Hairline(inset: 56) }
             }
         }
@@ -100,7 +119,9 @@ struct MatchesView: View {
         if ShotMode.current != nil {
             open = ShotMode.demoMatches()
             mine = Array(open.prefix(1))
+            history = ShotMode.demoHistory()
             leaders = ShotMode.demoLeaders()
+            if ShotMode.current == "radar" { tab = 2 }
             return
         }
         guard server.isLoggedIn else { return }
@@ -112,6 +133,7 @@ struct MatchesView: View {
             async let c = server.leaderboard()
             (open, mine, leaders) = try await (a, b, c)
             pending = await server.pendingRating()
+            history = (try? await server.matchHistory()) ?? history
             error = nil
         } catch {
             self.error = error.localizedDescription

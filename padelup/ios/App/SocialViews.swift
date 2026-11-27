@@ -7,16 +7,28 @@ enum PadelLevel {
     static let classic = ["Découverte", "Initiation", "Loisir", "Partenaire", "Adversaire", "Stratège", "Perfectionniste",
                           "Challenger", "Compétiteur", "Élite"]
 
-    /// Repères indicatifs pour l'échelle en 8 niveaux.
+    /// Description du jeu pour chaque niveau FFT (mêmes textes que l'app PadelUp actuelle, d'après les niveaux de padel 2025).
     static let fftHints = [
-        "Je découvre le padel : règles, prise de raquette, premiers échanges.",
-        "Je tiens l'échange sur des balles faciles et je découvre le jeu avec les vitres.",
-        "Je joue régulièrement ; la volée et la sortie de vitre de fond arrivent.",
-        "Je place la balle, je lobe et je défends avec les vitres.",
-        "Bandeja maîtrisée, je construis les points et je joue des tournois loisirs.",
-        "Jeu complet et varié (víbora, effets) ; tournois de bon niveau régional.",
-        "Très bon niveau de compétition, régulier dans les grands tournois.",
-        "Niveau national ou international.",
+        "Je commence à jouer. J'apprends les coups de base.",
+        "Je joue les coups de base. Je joue lentement des échanges courts. Je commence à voler.",
+        "Je joue en loisir. Je sais servir et je joue des matches avec échanges, en essayant de garder la balle en jeu. Je commence à jouer avec la vitre du fond.",
+        "Je joue des matches avec de longs échanges et montées-descentes répétées au filet. Je monte au filet au service et après un lob. Je redescends en défense sur lob adverse pour rejouer la balle. Je joue la balle après rebond sur la vitre. Je maîtrise le placement, notamment en fonction de mon partenaire, que j'accompagne au filet ou en recul du fond de court.",
+        "Je maîtrise mon jeu, avec service-volée, repli sur les lobs, remontée en contre-attaque, coups avec effets, retours de service en lob dans les pieds, et placement en phase avec mon partenaire. Je monte toujours au filet après un lob. Je finis des points à la volée et en smash. Je joue avec les vitres en défense, et remets la balle en jeu sur 360 et doubles vitres.",
+        "Je maîtrise le jeu rapide et les effets, au service ou dans le jeu. Je varie les zones et vitesses de mes volées. Je défends les doubles vitres. Je maîtrise parfaitement le 360. Je contre-attaque les smashs de l'adversaire.",
+        "Je maîtrise tous les aspects du jeu et les tactiques. J'utilise un jeu avec des effets maîtrisés, comme la bandeja et la vibora. Je maîtrise parfaitement les doubles vitres, et j'utilise les vitres en contre-attaque.",
+        "Joueuse experte : top 150 française. Joueur expert : top 100 française.",
+    ]
+
+    /// Repères de classement et de tournois (vides pour les premiers niveaux).
+    static let fftCriteria = [
+        "",
+        "",
+        "",
+        "Matches gagnés en P25 et P100 avec classement en fin de tableau de P100. Moyenne de points par tournoi joué : de 5 à 25 points.",
+        "Joueuse confirmée : top 1.050 française (jusqu'à 900€). Joueur confirmé : top 10.000 française (jusqu'à 6.000€). P100 : classement en fin de tableau, 50 % de matches gagnés. P250 : classement en fin de tableau. + de 12 tournois joués — moyenne points/tournoi : 25 à 50 pts.",
+        "Joueuse avancée : top 900 française (jusqu'à 450€). Joueur avancé : top 6.000 française (jusqu'à 3.000€). P100 : à ce titre, tournoi (semi)régulier, 70 % de victoires. P250 : classement en milieu de tableau, 50 % de victoires. P500 : à ce titre, 50 % de victoires et classement en fin de tableau. + de 12 tournois joués — moyenne points/tournoi : 50 pts et +.",
+        "Joueuse avancée : top 450 française (jusqu'à 1.500€). Joueur avancé : top 3.000 française (jusqu'à 3.000€). P250 : à ce titre, tournoi en fin de tableau de série. P500 : matchs gagnés, classement en fin de tableau. + de 12 tournois joués — moyenne points/tournoi : 100 pts et +.",
+        "Joueuses et joueurs de P1000, P1500 et P2000.",
     ]
 
     static func names(_ scale: String) -> [String] { scale == "old" ? classic : fft }
@@ -109,6 +121,13 @@ struct LevelPickerView: View {
             if scale == "new", level <= PadelLevel.fftHints.count {
                 Text(PadelLevel.fftHints[level - 1]).font(UI.body()).foregroundStyle(UI.ink).fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 2)
+                if !PadelLevel.fftCriteria[level - 1].isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Eyebrow(text: "Repères en compétition")
+                        Text(PadelLevel.fftCriteria[level - 1]).font(UI.caption()).foregroundStyle(UI.muted).fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.top, 4)
+                }
             }
         }
     }
@@ -155,6 +174,7 @@ struct PersonRow<Trailing: View>: View {
 struct FriendsView: View {
     @EnvironmentObject private var server: ServerAPI
     @Environment(\.dismiss) private var dismiss
+    @State private var playerRef: PlayerRef? = nil
     @State private var tab = 0
     @State private var friends: [APIFriendship] = []
     @State private var requests = APIFriendRequests(received: [], sent: [])
@@ -179,6 +199,7 @@ struct FriendsView: View {
             }
             .refreshable { await load() }
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() } } }
+            .sheet(item: $playerRef) { ref in PlayerProfileView(userID: ref.id) }
         }
         .tint(UI.court)
         .task { await load() }
@@ -196,6 +217,8 @@ struct FriendsView: View {
                                 Button("Retirer de mes amis", role: .destructive) { Task { try? await server.removeFriend(p.id); await load() } }
                             } label: { Image(systemName: "ellipsis").foregroundStyle(UI.muted).frame(width: 32, height: 32) }
                         }
+                        .contentShape(Rectangle())
+                        .onTapGesture { playerRef = PlayerRef(id: p.id) }
                         if i < friends.count - 1 { Hairline(inset: 56) }
                     }
                 }
@@ -274,6 +297,8 @@ struct FriendsView: View {
                             .buttonStyle(LinkButtonStyle())
                         }
                     }
+                    .contentShape(Rectangle())
+                    .onTapGesture { playerRef = PlayerRef(id: p.id) }
                     if i < list.count - 1 { Hairline(inset: 56) }
                 }
             }
@@ -322,6 +347,10 @@ struct MatchDetailView: View {
     @State private var courtStars = 0
     @State private var info: String? = nil
     @State private var busy = false
+    @State private var editing = false
+    @State private var inviting = false
+    @State private var confirmCancel = false
+    @State private var playerRef: PlayerRef? = nil
 
     private var players: [APIParticipant] { (match.participants ?? []).filter { $0.status == nil || $0.status == "confirmed" } }
     private var isMember: Bool { flags.isOrganizer == true || flags.isParticipant == true || ShotMode.current != nil }
@@ -335,7 +364,36 @@ struct MatchDetailView: View {
                    eyebrow: [match.typeLabel, match.clubName].compactMap { $0 }.joined(separator: " · "), seasonal: false) {
                 scoreboard
                 Block(title: "Sur le terrain", meta: "\(players.count)/\(match.maxPlayers ?? 4)") {
-                    CourtDiagram(players: players.map { $0.userName ?? "Joueur" }, capacity: match.maxPlayers ?? 4, organizer: match.organizerName)
+                    VStack(spacing: 0) {
+                        CourtDiagram(players: players.map { $0.userName ?? "Joueur" }, capacity: match.maxPlayers ?? 4, organizer: match.organizerName)
+                            .padding(.bottom, 8)
+                        ForEach(players) { p in
+                            HStack(spacing: 12) {
+                                Button { if let uid = p.user { playerRef = PlayerRef(id: uid) } } label: {
+                                    HStack(spacing: 12) {
+                                        Avatar(name: p.userName ?? "Joueur", size: 32)
+                                        Text(p.userName ?? "Joueur").font(UI.headline()).foregroundStyle(UI.ink)
+                                        if p.user == match.organizer { Stamp(text: "Organise", style: .outline) }
+                                        Spacer()
+                                        if let lvl = p.userSkillLevel { LevelBars(level: lvl, height: 11, barWidth: 2.5) }
+                                    }
+                                    .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                if flags.isOrganizer == true && p.user != match.organizer && !started {
+                                    Menu {
+                                        Button("Retirer du match", role: .destructive) {
+                                            Task {
+                                                do { try await server.removeParticipant(match: match.id, participant: p.id); await load() }
+                                                catch { info = error.localizedDescription }
+                                            }
+                                        }
+                                    } label: { Image(systemName: "ellipsis").foregroundStyle(UI.muted).frame(width: 30, height: 30) }
+                                }
+                            }
+                            .padding(.vertical, 8)
+                        }
+                    }
                 }
                 if !isMember && match.spotsLeft > 0 && !started { joinButton }
                 if isMember && started && flags.isOrganizer == true && !completedWithResult { resultBlock }
@@ -347,7 +405,32 @@ struct MatchDetailView: View {
                 }
                 if let info { Text(info).font(UI.callout()).foregroundStyle(UI.success) }
             }
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() } } }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if flags.isOrganizer == true && !completed {
+                        Menu {
+                            if !started {
+                                Button { editing = true } label: { Label("Modifier le match", systemImage: "pencil") }
+                                Button { inviting = true } label: { Label("Inviter des amis", systemImage: "person.badge.plus") }
+                            }
+                            Button(role: .destructive) { confirmCancel = true } label: { Label("Annuler le match", systemImage: "xmark.circle") }
+                        } label: { Image(systemName: "ellipsis.circle") }
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) { Button("Fermer") { dismiss() } }
+            }
+            .sheet(isPresented: $editing) { EditMatchView(match: match) { Task { await load() } } }
+            .sheet(isPresented: $inviting) { InviteFriendsView(match: match) }
+            .sheet(item: $playerRef) { ref in PlayerProfileView(userID: ref.id) }
+            .confirmationDialog("Annuler ce match ?", isPresented: $confirmCancel, titleVisibility: .visible) {
+                Button("Annuler le match", role: .destructive) {
+                    Task {
+                        do { try await server.cancelMatch(match.id); info = "Match annulé, les joueurs sont prévenus."; await load() }
+                        catch { info = error.localizedDescription }
+                    }
+                }
+                Button("Garder le match", role: .cancel) {}
+            } message: { Text("Les joueurs inscrits reçoivent une notification.") }
         }
         .tint(UI.court)
         .task { await load() }

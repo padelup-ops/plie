@@ -13,6 +13,7 @@ struct APIProfile: Codable, Hashable {
     let evaluationType: String?
     let isCompleted: Bool?
     let rightHanded: Bool?
+    var bio: String? = nil
 }
 
 struct APIStats: Codable, Hashable {
@@ -171,7 +172,7 @@ final class ServerAPI: ObservableObject {
         return URL(string: s) ?? URL(string: "https://padelup-test-test.up.railway.app/api/")!
     }
 
-    private let decoder: JSONDecoder = {
+    let decoder: JSONDecoder = {
         let d = JSONDecoder()
         d.keyDecodingStrategy = .convertFromSnakeCase
         return d
@@ -179,7 +180,7 @@ final class ServerAPI: ObservableObject {
 
     // MARK: HTTP
 
-    private func call(_ method: String, _ path: String, query: [URLQueryItem] = [], body: [String: Any]? = nil) async throws -> Data {
+    func call(_ method: String, _ path: String, query: [URLQueryItem] = [], body: [String: Any]? = nil) async throws -> Data {
         var comps = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: false)!
         if !query.isEmpty { comps.queryItems = query }
         guard let url = comps.url else { throw ServerError(message: "Adresse du serveur invalide.") }

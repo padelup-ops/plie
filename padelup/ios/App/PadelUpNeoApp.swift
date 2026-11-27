@@ -32,6 +32,7 @@ struct PadelUpNeoApp: App {
     @StateObject private var bot = BotEngine.shared
     @StateObject private var server = ServerAPI.shared
     @StateObject private var location = LocationManager()
+    @StateObject private var favorites = Favorites.shared
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
@@ -41,10 +42,11 @@ struct PadelUpNeoApp: App {
                 .environmentObject(bot)
                 .environmentObject(server)
                 .environmentObject(location)
+                .environmentObject(favorites)
                 .tint(UI.court)
                 .task {
                     if let shot = ShotMode.current {
-                        ShotMode.install(shot, directory: directory, bot: bot, location: location, server: server)
+                        ShotMode.install(shot, directory: directory, bot: bot, location: location, server: server, favorites: favorites)
                         return
                     }
                     await directory.load()

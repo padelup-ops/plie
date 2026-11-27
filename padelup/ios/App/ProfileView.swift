@@ -67,6 +67,12 @@ struct ProfileView: View {
                 Button { router.showFriends = true } label: { ListRow(title: "Mes amis", systemImage: "person.2") }.buttonStyle(.plain)
                 Hairline(inset: 36)
                 Button { router.showNotifications = true } label: { ListRow(title: "Notifications", systemImage: "bell") }.buttonStyle(.plain)
+                Hairline(inset: 36)
+                Button { router.sheet = .community } label: { ListRow(title: "Communauté", systemImage: "bubble.left.and.bubble.right") }.buttonStyle(.plain)
+                Hairline(inset: 36)
+                Button { router.sheet = .bookings } label: { ListRow(title: "Mes réservations", detail: "Clubs partenaires PadelUp", systemImage: "calendar") }.buttonStyle(.plain)
+                Hairline(inset: 36)
+                Button { router.sheet = .editProfile } label: { ListRow(title: "Modifier mon profil", detail: "Nom, présentation, ville, mot de passe, suppression du compte", systemImage: "person.text.rectangle") }.buttonStyle(.plain)
             }
         }
     }
@@ -137,6 +143,8 @@ struct AuthPanel: View {
     @State private var awaitingCode = false
     @State private var busy = false
     @State private var error: String? = nil
+    @State private var info: String? = nil
+    @State private var forgot = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -172,12 +180,28 @@ struct AuthPanel: View {
                 }
             }
             if let error { Text(error).font(UI.callout()).foregroundStyle(UI.danger) }
+            if let info { Text(info).font(UI.callout()).foregroundStyle(UI.success) }
             Button { Task { await submit() } } label: {
                 if busy { ProgressView().tint(UI.onCourt) } else { Text(awaitingCode ? "Valider le code" : (mode == 0 ? "Se connecter" : "Créer mon compte")) }
             }
             .buttonStyle(PrimaryButtonStyle())
             .disabled(busy)
+            HStack {
+                if awaitingCode {
+                    Button("Renvoyer le code") {
+                        Task {
+                            do { try await server.resendCode(email: identifier.trimmingCharacters(in: .whitespaces)); info = "Nouveau code envoyé." }
+                            catch { self.error = error.localizedDescription }
+                        }
+                    }
+                    .buttonStyle(LinkButtonStyle())
+                } else if mode == 0 {
+                    Button("Mot de passe oublié ?") { forgot = true }.buttonStyle(LinkButtonStyle(color: UI.muted))
+                }
+                Spacer()
+            }
         }
+        .sheet(isPresented: $forgot) { ForgotPasswordView(email: identifier.contains("@") ? identifier : "") }
     }
 
     private func submit() async {

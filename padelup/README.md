@@ -23,10 +23,16 @@ C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), q
 
   Le club est retrouvé sur le site Playtomic par son nom et sa ville, et ce lien est gardé. Le bouton « Match » ajoute le club au serveur PadelUp s'il vient d'OSM.
 - **Bot**. Le joueur choisit les jours, la plage horaire, les durées, couvert ou extérieur, un prix maximum et le nombre de réservations. Option **ouverture des réservations**, reprise du dossier Padel Sniper : quand un club ouvre ses créneaux J-x à hh:mm, le bot prévient une minute avant (notification) et affiche un compte à rebours. À l'heure pile, il lit les créneaux une fois par seconde pendant 10 s, puis toutes les 3 s jusqu'à 45 s. Dès que le créneau apparaît, il ouvre la page de réservation, déjà connectée. Le journal garde tout, sur une frise.
-- **Compte PadelUp** : inscription par e-mail (code de confirmation) ou Se connecter avec Apple, puis **choix du niveau** (échelle FFT en 8 niveaux avec repères, ou ancienne échelle en 10), main forte et ville.
+- **Compte PadelUp** : inscription par e-mail (code de confirmation) ou Se connecter avec Apple, puis **choix du niveau** : échelle FFT en 8 niveaux, avec la description du jeu et les repères de compétition de l'app PadelUp actuelle, ou ancienne échelle en 10. Puis la main forte et la ville.
 - **Matchs** : matchs ouverts et les miens, rejoindre ou quitter, créer un match dans n'importe quel club de la carte. **Fiche match** : joueurs et places libres, discussion, saisie du résultat par l'organisateur, **notation des joueurs** (1 à 10, anonyme, elle affine le niveau public) et du terrain (1 à 5). Un rappel apparaît quand un match attend un résultat ou des notes.
+- **Radar des joueurs**, comme dans l'app PadelUp actuelle : les joueurs proches, à ton niveau, avec leurs disponibilités (jour, moment), et les **propositions de match** (envoyer, accepter, refuser, annuler). La position est arrondie à environ 1 km par le serveur et n'est jamais renvoyée : on ne voit qu'une distance. Le radar ne montre que les joueurs qui ont choisi d'y apparaître.
+- **Profil d'un joueur** (depuis le radar, le classement, les amis ou un match) : niveau, présentation, statistiques, ajout en ami, proposition de match.
 - **Amis** : mes amis, demandes reçues et envoyées, recherche de joueurs et suggestions.
-- **Classement** et **notifications** (invitations, matchs, amis, réservations du bot).
+- **Outils de l'organisateur** : modifier le match, inviter des amis, retirer un joueur, annuler le match. **Historique** des matchs terminés.
+- **Communauté** : publications (cherche un 4e, conseils, tournois, matériel, clubs), « j'aime » et réponses.
+- **Clubs favoris** (sur l'iPhone, même sans compte), **réservations** dans les clubs partenaires (liste et annulation).
+- **Compte** : modifier son profil (nom, présentation, ville, main), changer de mot de passe, mot de passe oublié (code par e-mail), renvoyer le code d'inscription, **supprimer son compte** (exigé par l'App Store).
+- **Classement** et **notifications** (invitations, matchs, amis, propositions, réservations du bot).
 - **Saisons** (l'idée de Yacine) :
 
   | Saison | Période | Effet |
