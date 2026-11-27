@@ -2,3 +2,9 @@
 {"id": "dc442fabbdc135d9aacc", "key": "hello|emil", "text": "Ho, ho, ho! Hallo, Emil!", "ok": true, "score": 1.0, "dur": 2.52, "heard": "Oh, ho, ho! Hallo, Emil!", "tries": 3, "secs": 118.9}
 {"id": "74318b576f76a4db7057", "key": "hello|laura", "text": "Ho, ho, ho! Hallo, Laura!", "ok": false, "score": 0.929, "dur": 2.6, "heard": "Ho ho ho! Hallo Laura! Laura!", "tries": 2, "secs": 142.4}
 {"id": "bb778cd4030a3b6dc90c", "key": "hello|max", "text": "Ho, ho, ho! Hallo, Max!", "ok": true, "score": 1.0, "dur": 2.36, "heard": "Ho ho ho! Hallo Max!", "tries": 1, "secs": 41.2}
+{"id": "3e07faa92a8121b49349", "key": "hello|jonathan", "text": "Ho, ho, ho! Hallo, Jonathan!", "ok": true, "score": 1.0, "dur": 2.54, "heard": "Ho, ho, ho, hallo Jonathan!", "tries": 2, "secs": 97.1}
+{"id": "059fec450ee818c714ce", "key": "hello|raphael", "text": "Ho, ho, ho! Hallo, Raphael!", "ok": true, "score": 1.0, "dur": 2.52, "heard": "Oh ho ho, hallo Raphael!", "tries": 1, "secs": 43.3}
+{"id": "a2a511982c5279cf9ecd", "key": "hello|olivia", "text": "Ho, ho, ho! Hallo, Olivia!", "ok": true, "score": 1.0, "dur": 2.18, "heard": "Oh, oh, oh! Hallo, Olivia!", "tries": 2, "secs": 105.4}
+{"id": "a32d7ca669115c537230", "key": "hello|rafael", "text": "Ho, ho, ho! Hallo, Rafael!", "ok": true, "score": 0.806, "dur": 2.98, "heard": "Ho, ho, ho, hallo Raphael.", "tries": 1, "secs": 45.0}
+{"id": "1e5e35a69c0af459a5a6", "key": "hello|simon", "text": "Ho, ho, ho! Hallo, Simon!", "ok": true, "score": 1.0, "dur": 2.22, "heard": "Ho Ho Ho! Hallo Simon!", "tries": 1, "secs": 42.6}
+{"id": "03caa591d6ac2a547c7e", "key": "hello|aaron", "text": "Ho, ho, ho! Hallo, Aaron!", "ok": true, "score": 1.0, "dur": 2.22, "heard": "Ho, ho, ho, hallo Aaron!", "tries": 1, "secs": 41.5}
