@@ -3385,6 +3385,7 @@ final class KeyboardCanvas: UIView {
     /// qu'un carré bleu sans rien dedans, pris pour une touche apparue par erreur. Sur le petit clavier à une main,
     /// le « … » propose les mêmes trois dispositions.
     private static let layoutSwitchWidth: CGFloat = 132
+    private var switchStyledFor = ""
 
     private var layoutSwitchFits: Bool {
         let open = gripContext.hasPrefix("open")
@@ -3412,15 +3413,16 @@ final class KeyboardCanvas: UIView {
             layoutSwitch.selectedSegmentIndex = openLayoutChoice
             switchProgrammatic = false
         }
-        layoutSwitch.selectedSegmentTintColor = theme.accent
-        layoutSwitch.backgroundColor = theme.key.withAlphaComponent(0.55)
-        for i in 0..<layoutSwitch.numberOfSegments { layoutSwitch.setWidth(w / 3, forSegmentAt: i) }
-        let tint = theme.text
-        layoutSwitch.setTitleTextAttributes([.foregroundColor: tint], for: .normal)
-        layoutSwitch.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
-        layoutSwitch.tintColor = tint
-        layoutSwitch.accessibilityLabel = L("Keyboard position")
-        topBar.bringSubviewToFront(layoutSwitch)
+        // L'habillage une fois par thème (le contrôle redessine ses images à chaque changement).
+        if switchStyledFor != theme.id {
+            switchStyledFor = theme.id
+            layoutSwitch.selectedSegmentTintColor = theme.accent
+            layoutSwitch.backgroundColor = theme.key.withAlphaComponent(0.55)
+            for i in 0..<layoutSwitch.numberOfSegments { layoutSwitch.setWidth(w / 3, forSegmentAt: i) }
+            layoutSwitch.tintColor = theme.text
+            layoutSwitch.accessibilityLabel = L("Keyboard position")
+        }
+        if topBar.subviews.last !== layoutSwitch { topBar.bringSubviewToFront(layoutSwitch) }
     }
 
     /// Un réglage coupé reste coupé, même si une branche de la mise en page a réaffiché le bouton.

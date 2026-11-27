@@ -108,33 +108,65 @@ final class KBWordStore {
     }
 }
 
-/// Rang du mot (le premier dans la liste) sans le dictionnaire à table de hachage : ~100 000 chaînes
-/// en table ouverte pesaient plus lourd que les mots eux-mêmes. Recherche dichotomique.
+/// Rang du mot (le premier dans la liste), sans dictionnaire de chaînes : ~100 000 chaînes en `[String: Int]`
+/// pesaient plus lourd que les mots eux-mêmes. Une table d'indices (4 octets par case) vers la liste elle-même :
+/// aussi rapide qu'un dictionnaire (la recherche dichotomique qui l'avait remplacé doublait le temps de chaque
+/// correction), et encore plus légère (aucune copie des mots).
 struct FirstRank {
-    private var keys: [String]
-    private var ids: [Int32]
-    init(_ words: [String]) {
-        var pairs: [(String, Int32)] = []
-        pairs.reserveCapacity(words.count)
-        var seen = Set<String>()
-        seen.reserveCapacity(words.count)
-        for (i, w) in words.enumerated() {
-            let k = w.lowercased()
-            if seen.insert(k).inserted { pairs.append((k, Int32(i))) }
-        }
-        pairs.sort { $0.0 < $1.0 }
-        keys = pairs.map(\.0)
-        ids = pairs.map(\.1)
+    private var words: [String] = []
+    private var slots: [Int32] = []
+    private var mask = 0
+    /// Les rares mots dont la forme en minuscules diffère de la forme écrite dans la liste.
+    private var odd: [String: Int32] = [:]
+
+    private static func hash(_ s: String) -> Int {
+        var h: UInt64 = 14695981039346656037
+        for b in s.utf8 { h = (h ^ UInt64(b)) &* 1099511628211 }
+        return Int(truncatingIfNeeded: h ^ (h >> 29))
     }
-    subscript(_ w: String) -> Int? {
+
+    /// Même suite d'octets pour deux écritures du même mot (é en un ou deux caractères Unicode).
+    private static func key(_ w: String) -> String {
         let k = w.lowercased()
-        var lo = 0, hi = keys.count
-        while lo < hi {
-            let mid = (lo + hi) / 2
-            if keys[mid] < k { lo = mid + 1 } else { hi = mid }
+        return k.utf8.allSatisfy { $0 < 0x80 } ? k : k.precomposedStringWithCanonicalMapping
+    }
+
+    init(_ list: [String]) {
+        guard !list.isEmpty else { return }
+        words = list
+        var cap = 16
+        while cap < list.count * 2 { cap <<= 1 }
+        mask = cap - 1
+        slots = [Int32](repeating: 0, count: cap)
+        for (i, w) in list.enumerated() {
+            let k = Self.key(w)
+            if k != w {
+                if odd[k] == nil { odd[k] = Int32(i) }
+                continue
+            }
+            var h = Self.hash(k) & mask
+            while true {
+                let s = slots[h]
+                if s == 0 { slots[h] = Int32(i + 1); break }
+                if list[Int(s) - 1] == k { break }      // déjà là : le premier rang reste
+                h = (h + 1) & mask
+            }
         }
-        guard lo < keys.count, keys[lo] == k else { return nil }
-        return Int(ids[lo])
+    }
+
+    subscript(_ w: String) -> Int? {
+        guard mask > 0 else { return nil }
+        let k = Self.key(w)
+        var best: Int?
+        var h = Self.hash(k) & mask
+        while true {
+            let s = slots[h]
+            if s == 0 { break }
+            if words[Int(s) - 1] == k { best = Int(s) - 1; break }
+            h = (h + 1) & mask
+        }
+        if !odd.isEmpty, let o = odd[k] { best = min(best ?? Int.max, Int(o)) }
+        return best
     }
 }
 
@@ -944,11 +976,14 @@ final class KBSuggest {
         for g in pool {
             let gl = g.lowercased()
             guard !g.contains(" "), !g.contains("-") else { continue }
+            // Jamais de correction vers un gros mot (« ficks » ne devient pas tout seul ce qu'on imagine).
+            if Self.rude(gl) { continue }
             // Un mot que la liste ne connaît pas (formes conjuguées, pluriels : « reconnues ») mais que le
             // correcteur d'iOS propose : accepté comme un mot peu courant.
             let d = typoDistance(gl, lower)
             // Un mot moins courant (« largeur ») : accepté s'il n'est qu'à une touche voisine du mot tapé, même longueur.
-            let rareOK = Self.t("rareSub", 1) > 0 && d <= 1 && gl.count == lower.count && lower.count >= 5
+            let rareOK = Self.t("rareSub", 1) > 0 && d <= 1 && lower.count >= 5
+                && (gl.count == lower.count || (Self.t("rareEdit", 1) > 0 && lower.count >= 6))
             guard let r = rank[gl] ?? (fromChecker.contains(gl) && gl.count >= 6 ? 14_000 : nil), r < (rareOK ? 30_000 : 15_000) else { continue }
             let n = lower.count
             let touchAllowed = fromTouch.contains(gl) ? (n >= 8 ? 3 : (n >= 5 ? 2 : 1)) : 0
@@ -989,7 +1024,7 @@ final class KBSuggest {
             if language.hasPrefix("fr"), let e = genericElision(lower) { return matchCase(e, like: word) }
             // L'espace oubliée (« bonjourtoi » → « bonjour toi », « jaiete » → « j’ai été ») ou ratée, la lettre juste
             // au-dessus de la barre d'espace (« auncourant » → « au courant », « jensuis » → « je suis »).
-            if word.count >= 5 {
+            if word.count >= 5, !oneEditFromWord(lower) {
                 let sp = pickSplit([exactSplit(lower), nearSpaceSplit(lower, typo: false)].compactMap { $0 }, before: before)
                 if let sp { return matchCase(sp, like: word) }
             }
@@ -1015,8 +1050,9 @@ final class KBSuggest {
         }
         // Deux mots collés dont l'un a une touche voisine (« lenremplaczment » → « le remplacement »,
         // « largzurnest » → « largeur est », « alorsnedtce » → « alors est-ce »).
-        if best == nil, Self.t("spaceSplit", 1) > 0, word.count >= 5, let sp = nearSpaceSplit(lower, typo: Self.t("splitTypo", 1) > 0) {
-            return matchCase(sp.0, like: word)
+        if best == nil, Self.t("spaceSplit", 1) > 0, word.count >= 5, !oneEditFromWord(lower),
+           let sp = pickSplit([exactSplit(lower), nearSpaceSplit(lower, typo: Self.t("splitTypo", 1) > 0)].compactMap { $0 }, before: before) {
+            return matchCase(sp, like: word)
         }
         if best == nil, !(fast || Self.t("noGuesses", 0) > 0), word.count >= 4, let l2 = second {
             // Rien en français : peut-être une faute de frappe en anglais (et inversement). Seulement une touche voisine.
@@ -1034,6 +1070,20 @@ final class KBSuggest {
         }
         return best.map { matchCase($0.word, like: word) }
     }
+
+    /// Le mot tapé est-il à une faute de frappe d'un mot de la liste (même rare) ? Alors ce n'est pas deux mots collés.
+    private func oneEditFromWord(_ lower: String) -> Bool {
+        guard Self.t("splitGuard", 1) > 0, lower.count >= 6 else { return false }
+        return typoVariants(lower).contains { rank[$0.lowercased()] != nil && !$0.contains(" ") }
+    }
+
+    /// Les gros mots : écrits si on les tape, jamais mis à la place d'un autre mot.
+    private static let rudeWords: Set<String> = ["fuck", "fucks", "fucked", "fucker", "fuckers", "fucking", "shit", "shits", "shitty", "cunt",
+        "cunts", "bitch", "bitches", "dick", "dicks", "cock", "cocks", "pussy", "whore", "whores", "slut", "sluts", "asshole", "assholes",
+        "bastard", "wank", "wanker", "twat", "nigger", "nigga", "faggot", "fag", "retard", "porn", "tits", "boobs", "cum", "anal", "rape",
+        "pute", "putes", "putain", "salope", "salopes", "connard", "connards", "connasse", "enculé", "encule", "enculer", "bite", "bites",
+        "couille", "couilles", "chatte", "nique", "niquer", "merde", "merdes", "pd", "pédé", "bordel", "cul", "chier", "salaud", "branleur"]
+    static func rude(_ lower: String) -> Bool { tune["rudeOK"] ?? 0 > 0 ? false : rudeWords.contains(lower) }
 
     /// Même lettre, seul l'accent change (« é » et « e ») : pas une faute de frappe.
     static func sameBase(_ a: Character, _ b: Character) -> Bool {
@@ -1139,6 +1189,8 @@ final class KBSuggest {
         var split: (String, Int)?
         for i in 2..<(chars.count - 1) {
             let a = String(chars[..<i]), b = String(chars[i...])
+            // En anglais, un morceau de deux lettres doit être un vrai petit mot (« wraper » n'est pas « wrap er »).
+            if language.hasPrefix("en"), (a.count == 2 && !Self.enTwo.contains(a)) || (b.count == 2 && !Self.enTwo.contains(b)) { continue }
             guard let pa = resolvePart(a, typo: false), let pb = resolvePart(b, typo: false) else { continue }
             let sc = max(pa.1, pb.1)
             if split == nil || sc < split!.1 { split = (pa.0 + " " + pb.0, sc) }
@@ -1163,7 +1215,9 @@ final class KBSuggest {
             // En anglais, un morceau de deux lettres doit être un vrai petit mot (« co stench », « ba con » : non).
             if language.hasPrefix("en"), (a.count == 2 && !Self.enTwo.contains(a)) || (b.count == 2 && !Self.enTwo.contains(b)) { continue }
             let pa: (String, Int)? = oneA ? (a, 50) : resolvePart(a, typo: typo && a.count >= 5)
-            guard let pa, let pb = resolvePart(b, typo: typo && b.count >= 5) else { continue }
+            // Après une lettre seule (« i », « a »), le reste doit être un mot exact (« incoproration » n'est pas
+            // « i corporation », « acheeves » pas « a jeeves »).
+            guard let pa, let pb = resolvePart(b, typo: typo && b.count >= 5 && !oneA) else { continue }
             // Une seule faute de frappe en tout.
             if pa.1 >= 20_000 && pb.1 >= 20_000 { continue }
             let sc = max(pa.1, pb.1)
@@ -1511,9 +1565,19 @@ final class KBSuggest {
               word.allSatisfy({ $0.isLetter }), word.count == 1 || word != word.uppercased() else { return nil }
         if let f = word.first, f.isUppercase, !Self.atSentenceStart(before, word: word) { return nil }
         guard !isReal(word) else { return nil }
-        for item in items where item.lowercased() != low && !item.contains(" ") {
-            let il = item.lowercased()
-            guard rank[il] ?? Int.max < 30_000 || !isMisspelled(item) else { continue }
+        for item0 in items where item0.lowercased() != low && !item0.contains(" ") {
+            var item = item0
+            var il = item.lowercased()
+            // Le correcteur d'iOS propose souvent le possessif (« directive’s ») pour un pluriel mal tapé
+            // (« diretives ») : le pluriel, s'il existe.
+            for apo in ["’s", "'s"] where il.hasSuffix(apo) && !low.contains("’") && !low.contains("'") {
+                let plural = String(il.dropLast(2)) + "s"
+                if rank[plural] != nil { item = plural; il = plural }
+            }
+            if (il.contains("’") || il.contains("'")) && Self.contractions[String(language.prefix(2))]?[low] == nil { continue }
+            // Un mot de la liste seulement (le correcteur d'iOS rend parfois une suite de lettres qui n'existe pas),
+            // et jamais un gros mot.
+            guard let r = rank[il], r < 60_000 || !isMisspelled(item), !Self.rude(il) else { continue }
             let d = Self.distance(il, low)
             let allowed = low.count >= 8 ? 4 : (low.count >= 5 ? 3 : 1)
             guard d <= allowed else { continue }
