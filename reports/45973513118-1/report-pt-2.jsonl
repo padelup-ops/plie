@@ -1,1 +1,5 @@
 {"id": "d9f107204afeaac4c601", "key": "hello|maria clara", "text": "Ho, ho, ho! Olá, Maria Clara!", "ok": true, "score": 0.989, "dur": 2.6, "heard": "Ho ho ho! Hola Maria Clara!", "tries": 3, "secs": 250.5}
+{"id": "c21f26baaeebca39eb8f", "key": "hello|ana liz", "text": "Ho, ho, ho! Olá, Ana Liz!", "ok": false, "score": 0.612, "dur": 2.64, "heard": "Oh, oh, oh, hola! Analyze!", "tries": 1, "secs": 196.9}
+{"id": "d1005c5f15fd1f9d2aac", "key": "hello|stella", "text": "Ho, ho, ho! Olá, Stella!", "ok": true, "score": 0.902, "dur": 2.36, "heard": "O, o, o, o, la, stela!", "tries": 1, "secs": 73.2}
+{"id": "b42320738219f76ef59f", "key": "hello|joao lucas", "text": "Ho, ho, ho! Olá, João Lucas!", "ok": true, "score": 1.0, "dur": 2.44, "heard": "Oh, oh, oh, oh, olá, João Lucas!", "tries": 1, "secs": 64.3}
+{"id": "b444111505d8acce45e6", "key": "hello|davi lucca", "text": "Ho, ho, ho! Olá, Davi Lucca!", "ok": true, "score": 0.953, "dur": 3.96, "heard": "Oh, oh, oh, oh, olá, Davi Luca!", "tries": 1, "secs": 80.8}
