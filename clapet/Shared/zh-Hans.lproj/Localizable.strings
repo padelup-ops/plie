@@ -938,3 +938,5 @@
 "Black Friday: half price" = "黑色星期五：半价";
 "With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life." = "使用代码 BLACKFRIDAY，截至 11 月 30 日（周一）。Foldly+ 永久归你所有。";
 "Email the start of this file to the developer" = "将此文件的开头通过邮件发给开发者";
+"All-time folds set to %lld. Tap Save to keep it." = "累计折叠次数已设为 %lld。轻点“保存”以保留。";
+"Use the file's all-time total: %lld folds" = "使用文件中的累计次数：%lld 次";

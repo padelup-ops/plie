@@ -921,3 +921,5 @@
 "Black Friday: half price" = "Чёрная пятница: полцены";
 "With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life." = "С кодом BLACKFRIDAY, до понедельника, 30 ноября. Foldly+ остаётся вашим навсегда.";
 "Email the start of this file to the developer" = "Отправить начало этого файла разработчику по почте";
+"All-time folds set to %lld. Tap Save to keep it." = "Общее число складываний установлено: %lld. Нажмите «Сохранить», чтобы оставить.";
+"Use the file's all-time total: %lld folds" = "Взять общий итог из файла: %lld";

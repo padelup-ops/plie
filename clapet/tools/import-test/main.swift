@@ -20,10 +20,15 @@ struct Case {
     var days: Int?
     var closes: Int
     var opens: Int
+    /// Le total depuis toujours annoncé par le fichier, quand on l'attend.
+    var lifetime: Int? = nil
 }
 
 let cases: [Case] = [
     Case(name: "Scriptable : total, days, hours", text: #"{"total":493,"days":{"2025-10-27":47,"2025-10-28":52},"hours":{"08":3}}"#, days: 2, closes: 99, opens: 0),
+    Case(name: "Duo Folds (Scriptable) : total, days, hours avec date, last",
+         text: #"{"total":640,"days":{"2026-11-13":21,"2026-11-14":14,"2026-11-15":19},"hours":{"date":"2026-11-15","h":[1,0,0,2,1]},"last":1795782000000}"#,
+         days: 3, closes: 54, opens: 0, lifetime: 640),
     Case(name: "marque invisible en tête de fichier", text: "\u{FEFF}" + #"{"total":493,"days":{"2025-10-27":47,"2025-10-28":52}}"#, days: 2, closes: 99, opens: 0),
     Case(name: "nombres écrits en texte", text: #"{"2025-10-27":"47","2025-10-28":"52"}"#, days: 2, closes: 99, opens: 0),
     Case(name: "dates d'un bloc (20251027)", text: #"{"days":{"20251027":47,"20251028":52}}"#, days: 2, closes: 99, opens: 0),
@@ -55,8 +60,9 @@ var failed = 0
 for c in cases {
     let r = HistoryImport.parse(c.text)
     let ok = (c.days == nil || r.days.count == c.days) && r.totalCloses == c.closes && r.totalOpens == c.opens
+        && (c.lifetime == nil || r.lifetime == c.lifetime)
     if !ok { failed += 1 }
-    print("\(ok ? "ok    " : "RATÉ  ") \(c.name) : \(r.days.count) jours, \(r.totalCloses) plis, \(r.totalOpens) ouvertures"
+    print("\(ok ? "ok    " : "RATÉ  ") \(c.name) : \(r.days.count) jours, \(r.totalCloses) plis, \(r.totalOpens) ouvertures\(r.lifetime.map { ", total annoncé \($0)" } ?? "")"
         + (ok ? "" : " (attendu \(c.days.map(String.init) ?? "?") jours, \(c.closes) plis, \(c.opens) ouvertures)"))
 }
 print("RESULT import \(cases.count - failed)/\(cases.count) \(failed == 0 ? "yes" : "no")")

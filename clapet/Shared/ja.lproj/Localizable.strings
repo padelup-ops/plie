@@ -938,3 +938,5 @@
 "Black Friday: half price" = "ブラックフライデー：半額";
 "With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life." = "コード BLACKFRIDAY で、11月30日（月）まで。Foldly+はずっとあなたのものです。";
 "Email the start of this file to the developer" = "このファイルの冒頭を開発者にメールで送る";
+"All-time folds set to %lld. Tap Save to keep it." = "累計の折りたたみ回数を %lld に設定しました。「保存」をタップして確定してください。";
+"Use the file's all-time total: %lld folds" = "ファイルの累計を使う：%lld 回";

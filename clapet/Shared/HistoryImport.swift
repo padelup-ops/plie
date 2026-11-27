@@ -14,6 +14,9 @@ struct HistoryImport {
     var days: [String: Day] = [:]
     /// Le fichier listait des plis un par un (et non des totaux par jour).
     var eventLog = false
+    /// Le total depuis toujours que tenait l'autre outil (« total »), quand le fichier le donne : souvent plus grand
+    /// que la somme des jours, parce que l'outil ne garde que les derniers jours.
+    var lifetime: Int?
 
     var isEmpty: Bool { days.isEmpty }
     var totalCloses: Int { days.values.reduce(0) { $0 + $1.closes } }
@@ -225,7 +228,12 @@ struct HistoryImport {
                     let sub = cleaned(parseJSON(v))
                     if !sub.isEmpty, sub.days.count > (best?.days.count ?? 0) { best = sub }
                 }
-                if let best { return best }
+                if var best {
+                    for name in ["total", "totalFolds", "lifetime", "allTime"] {
+                        if let v = o[name], let n = number(v), n == n.rounded(), n >= 0, n <= 10_000_000 { best.lifetime = Int(n); break }
+                    }
+                    return best
+                }
                 fromObject(o)
             }
         }

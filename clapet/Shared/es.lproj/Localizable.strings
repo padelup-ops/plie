@@ -938,3 +938,5 @@
 "Black Friday: half price" = "Black Friday: mitad de precio";
 "With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life." = "Con el código BLACKFRIDAY, hasta el lunes 30 de noviembre. Foldly+ es tuyo para siempre.";
 "Email the start of this file to the developer" = "Enviar el principio de este archivo al desarrollador por correo";
+"All-time folds set to %lld. Tap Save to keep it." = "Total de pliegues ajustado a %lld. Toca Guardar para conservarlo.";
+"Use the file's all-time total: %lld folds" = "Usar el total del archivo: %lld pliegues";

@@ -921,3 +921,5 @@
 "Black Friday: half price" = "Black Friday: halve prijs";
 "With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life." = "Met de code BLACKFRIDAY, tot maandag 30 november. Foldly+ blijft voor altijd van jou.";
 "Email the start of this file to the developer" = "Het begin van dit bestand naar de ontwikkelaar mailen";
+"All-time folds set to %lld. Tap Save to keep it." = "Totaal aantal vouwen ingesteld op %lld. Tik op Bewaar om het te behouden.";
+"Use the file's all-time total: %lld folds" = "Totaal uit het bestand gebruiken: %lld vouwen";

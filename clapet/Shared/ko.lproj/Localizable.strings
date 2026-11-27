@@ -938,3 +938,5 @@
 "Black Friday: half price" = "블랙 프라이데이: 반값";
 "With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life." = "코드 BLACKFRIDAY로 11월 30일(월)까지. Foldly+는 영원히 내 것이에요.";
 "Email the start of this file to the developer" = "이 파일의 앞부분을 개발자에게 이메일로 보내기";
+"All-time folds set to %lld. Tap Save to keep it." = "전체 접기 횟수를 %lld로 설정했어요. 저장을 눌러 유지하세요.";
+"Use the file's all-time total: %lld folds" = "파일의 전체 횟수 사용: %lld회";

@@ -938,3 +938,5 @@
 "Black Friday: half price" = "Black Friday: half price";
 "With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life." = "With the code BLACKFRIDAY, until Monday, November 30. You keep Foldly+ for life.";
 "Email the start of this file to the developer" = "Email the start of this file to the developer";
+"All-time folds set to %lld. Tap Save to keep it." = "All-time folds set to %lld. Tap Save to keep it.";
+"Use the file's all-time total: %lld folds" = "Use the file's all-time total: %lld folds";

@@ -27,6 +27,8 @@ struct AdjustCountView: View {
     @State private var importNote: String?
     /// Le début d'un fichier que Foldly n'a pas su lire, à envoyer au développeur si la personne le veut.
     @State private var unreadExcerpt: String?
+    /// Le total depuis toujours donné par le fichier importé, s'il dépasse celui de Foldly : proposé d'un toucher.
+    @State private var fileTotal: Int?
     @State private var loaded = false
     @FocusState private var focus: Field?
 
@@ -99,6 +101,16 @@ struct AdjustCountView: View {
                     }
                     if let importNote {
                         Text(importNote).font(.footnote).foregroundStyle(.secondary)
+                    }
+                    if let fileTotal {
+                        Button {
+                            totalText = String(fileTotal)
+                            totalEdited = true
+                            importNote = String(localized: "All-time folds set to \(fileTotal). Tap Save to keep it.")
+                            self.fileTotal = nil
+                        } label: {
+                            Label { Text("Use the file's all-time total: \(fileTotal) folds") } icon: { Image(systemName: "sum") }
+                        }
                     }
                     if let unreadExcerpt {
                         Link(destination: BugReport.importHelp(excerpt: unreadExcerpt)) {
@@ -216,6 +228,7 @@ struct AdjustCountView: View {
     private func readFile(_ result: Result<URL, Error>) {
         found = nil
         unreadExcerpt = nil
+        fileTotal = nil
         guard case .success(let url) = result else { return }
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
@@ -243,6 +256,8 @@ struct AdjustCountView: View {
         if !totalEdited { totalText = String(followingTotal) }
         if !opensEdited { opensText = String(followingOpens) }
         loadPast()
+        // L'autre outil comptait depuis plus longtemps que les jours qu'il garde : son total est proposé.
+        if let lifetime = r.lifetime, lifetime > model.stats.totalCloses { fileTotal = lifetime }
     }
 
     private func save() {
