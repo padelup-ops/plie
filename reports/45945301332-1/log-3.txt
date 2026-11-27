@@ -1,0 +1,23 @@
+fr:line lot 3/4 : 0 phrases
+en:line lot 3/4 : 0 phrases
+fr:name lot 3/4 : 125 phrases
+es:line lot 3/4 : 6 phrases
+de:line lot 3/4 : 6 phrases
+pt:line lot 3/4 : 0 phrases
+it:line lot 3/4 : 19 phrases
+en:name lot 3/4 : 152 phrases
+es:name lot 3/4 : 154 phrases
+de:name lot 3/4 : 133 phrases
+it:name lot 3/4 : 148 phrases
+pt:name lot 3/4 : 140 phrases
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files: 100%|██████████| 6/6 [00:00<00:00, 2225.69it/s]
+  deprecate("LoRACompatibleLinear", "1.0.0", deprecation_message)
+loaded PerthNet (Implicit) at step 250,000
+modèles chargés en 10 s, 2 fils
+  self.gen = func(*args, **kwds)
+The following generation flags are not valid and may be ignored: ['output_attentions']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
+[1/883] fr ok  0.73 2.6s essais 3 (255s, reste 3746 min) Ho, ho, ho ! Bonjour Léana ! → Ho ho ho ! Bonjour, Léonard !
+  self.gen = func(*args, **kwds)
+  self.gen = func(*args, **kwds)
