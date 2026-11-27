@@ -1,0 +1,17 @@
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-27-2-iPhone19-4 device=com.apple.CoreSimulator.SimDeviceType.iPhone-Duo
+180.0
+    • name: LCD
+    • nativeSize: (1398.0, 2034.0)
+    • name: LCD-1
+    • nativeSize: (2007.0, 2853.0)
+Main display orientation: landscapeRight, non-flat orientation: landscapeRight, orientation not locked
+home : Main display orientation: landscapeRight
+mappins : Main display orientation: landscapeRight
+mission : Main display orientation: landscapeRight
+thread : Main display orientation: landscapeRight
+collectibles : Main display orientation: landscapeRight
+eggs : Main display orientation: landscapeRight
+widgets : Main display orientation: landscapeRight
+guide : Main display orientation: landscapeRight
+characters : Main display orientation: landscapeRight
+launchfold : Main display orientation: landscapeRight
