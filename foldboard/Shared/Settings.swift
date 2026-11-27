@@ -490,6 +490,20 @@ struct KBSettings: Codable, Equatable {
         return (open ? "open" : "closed") + "-" + (w > h ? "landscape" : "portrait")
     }
 
+    /// La largeur du clavier contredit l'écran annoncé. Quand le clavier apparaît sur l'écran déplié, iOS donne
+    /// parfois encore la taille de l'écran extérieur : le clavier se croyait alors fermé, en clavier entier et sans
+    /// le raccourci des dispositions (vu chez un testeur, en portrait déplié). Un clavier plus large que l'écran
+    /// extérieur tenu en portrait ne peut pas être dessus : la largeur du clavier, elle, ne ment pas.
+    /// Seulement pour un écran annoncé aux proportions de l'écran extérieur du Duo (un iPhone classique est plus allongé).
+    static func contextChecked(_ context: String, keyboardWidth w: Double, screen: CGSize, closed: Bool?) -> String {
+        let sw = Double(screen.width), sh = Double(screen.height)
+        guard w > 50, sw > 0, sh > sw, sw / sh > 0.6, sw >= 420, sw <= 520, w > sw + 20 else { return context }
+        // Aussi large que le grand côté de l'écran extérieur, et la charnière ne dit pas « ouvert » : écran
+        // extérieur tenu en paysage.
+        if closed != false, abs(w - sh) <= 12 { return "closed-landscape" }
+        return w >= 760 ? "open-landscape" : "open-portrait"
+    }
+
     static let contexts = ["closed-portrait", "open-portrait", "open-landscape", "closed-landscape"]
 
     mutating func calibrate(_ grip: String, roll: Double, incline: Double, context: String) {

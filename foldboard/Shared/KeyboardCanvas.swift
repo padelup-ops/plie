@@ -163,6 +163,8 @@ final class KeyboardCanvas: UIView {
     private var blocks: [CGRect] = []
     private var panelRect: CGRect = .zero
     private var builtFor: CGSize = .zero
+    /// L'écran vu à la dernière mise en page (voir layoutSubviews).
+    private var builtScreen: CGSize = .zero
 
     private let topBar = UIView()
     private let modeButton = UIButton(type: .system)
@@ -1361,6 +1363,8 @@ final class KeyboardCanvas: UIView {
             let portrait = !c.hasSuffix("landscape")
             if portrait { c = abs(w - o) < abs(w - cl) ? "open-portrait" : "closed-portrait" }
         }
+        // L'écran annoncé est encore l'écran extérieur alors que le clavier est plus large que lui : la largeur tranche.
+        c = KBSettings.contextChecked(c, keyboardWidth: w, screen: screen, closed: hingeClosed)
         // Le tutoriel montre toujours le fonctionnement de l'écran extérieur.
         if demoOneHand { c = "closed-portrait" }
         if let demoContext { c = demoContext }
@@ -2905,10 +2909,14 @@ final class KeyboardCanvas: UIView {
             bringSubviewToFront(sheet)
         }
         roundForHost()
-        guard bounds.size != builtFor, bounds.width > 50 else { return }
+        // Même taille, mais iOS vient de donner le bon écran (il annonçait encore l'autre écran du Duo) : on refait
+        // aussi le clavier, sinon il gardait la situation devinée sur le mauvais écran.
+        let seenScreen = screenSize
+        guard bounds.size != builtFor || seenScreen != builtScreen, bounds.width > 50 else { return }
         // La charnière envoie plusieurs tailles pendant le pliage. On attend la dernière.
         guard !hingeSettling else { return }
         builtFor = bounds.size
+        builtScreen = seenScreen
         UIView.performWithoutAnimation {
             CATransaction.begin()
             CATransaction.setDisableActions(true)

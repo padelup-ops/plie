@@ -554,6 +554,24 @@ let accentOK: Bool = {
     print("RESULT accents appui_bref_sans_accent=\(brief) appui_long_garde=\(long) doigt_pose=\(still) \(ok ? "yes" : "no")")
     return ok
 }()
+// L'écran annoncé est encore l'écran extérieur (466 × 678) alors que le clavier est sur l'écran déplié : la largeur
+// du clavier tranche (655 en portrait déplié, 801 en paysage déplié, mesurés sur un vrai Duo). Rien ne change quand
+// l'écran annoncé est le bon, ni sur un iPhone classique.
+let staleScreenOK: Bool = {
+    let outer = CGSize(width: 466, height: 678)
+    func fix(_ w: Double, _ screen: CGSize, _ closed: Bool?) -> String {
+        KBSettings.contextChecked(KBSettings.context(screen: screen, closed: closed), keyboardWidth: w, screen: screen, closed: closed)
+    }
+    let portrait = fix(655, outer, nil) == "open-portrait" && fix(655, outer, false) == "open-portrait" && fix(655, outer, true) == "open-portrait"
+    let landscape = fix(801, outer, nil) == "open-landscape" && fix(801, outer, true) == "open-landscape"
+    let outerKept = fix(466, outer, true) == "closed-portrait" && fix(466, outer, nil) == "closed-portrait"
+    let outerLandscape = fix(678, outer, true) == "closed-landscape"
+    let innerKept = fix(655, CGSize(width: 669, height: 951), nil) == "open-portrait" && fix(801, CGSize(width: 951, height: 669), nil) == "open-landscape"
+    let classic = fix(852, CGSize(width: 393, height: 852), nil) == KBSettings.context(screen: CGSize(width: 393, height: 852))
+    let ok = portrait && landscape && outerKept && outerLandscape && innerKept && classic
+    print("RESULT ecran_annonce_perime portrait_deplie=\(portrait) paysage_deplie=\(landscape) ecran_exterieur_garde=\(outerKept) exterieur_paysage=\(outerLandscape) ecran_interieur_garde=\(innerKept) iphone_classique_inchange=\(classic) \(ok ? "yes" : "no")")
+    return ok
+}()
 let backupOK: Bool = {
     var s = KBSettings()
     s.mode = .right
@@ -624,7 +642,7 @@ for (text, spoken, pair, want) in dirCases {
 }
 print("RESULT dictee sens_traduction \(dictOK ? "yes" : "no") (sur \(dirCases.count))")
 if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !hostOK || !hapticsOK || !dictOK
-    || !barOptionsOK || !toastsOK || !orderOK || !backupOK || !accentOK {
+    || !barOptionsOK || !toastsOK || !orderOK || !backupOK || !accentOK || !staleScreenOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }
