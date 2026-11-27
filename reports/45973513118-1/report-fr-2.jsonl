@@ -18,3 +18,5 @@
 {"id": "52f453bc908df6fa5517", "key": "hello|lubin", "text": "Ho, ho, ho ! Bonjour Lubin !", "ok": false, "score": 0.622, "dur": 4.08, "heard": "Oh ho ho bonjour Lubin. Oh oui.", "tries": 3, "secs": 250.5}
 {"id": "9028c1007c90e45fe71a", "key": "hello|mahe", "text": "Ho, ho, ho ! Bonjour Mahé !", "ok": false, "score": 0.635, "dur": 3.52, "heard": "Oh ho ho, aujour ma hé, bonjour ma...", "tries": 2, "secs": 232.7}
 {"id": "a2ecde143c4ca71c7599", "key": "hello|ruben", "text": "Ho, ho, ho ! Bonjour Ruben !", "ok": true, "score": 0.73, "dur": 2.18, "heard": "Oh ho ho, bonjour Roubain.", "tries": 1, "secs": 86.3}
+{"id": "7e8f6b796eab62f687ef", "key": "hello|mamadou", "text": "Ho, ho, ho ! Bonjour Mamadou !", "ok": true, "score": 1.0, "dur": 2.56, "heard": "Ho ho ho! Bonjour Mamadou!", "tries": 3, "secs": 275.1}
+{"id": "a779aa7e602f7dbdb1d1", "key": "hello|ousmane", "text": "Ho, ho, ho ! Bonjour Ousmane !", "ok": true, "score": 0.724, "dur": 2.36, "heard": "Oh, oh, oh, bonjour, Hussmann.", "tries": 2, "secs": 144.1}

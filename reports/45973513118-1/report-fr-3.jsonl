@@ -19,3 +19,6 @@
 {"id": "22996666eb5a81715fb1", "key": "hello|malone", "text": "Ho, ho, ho ! Bonjour Malone !", "ok": true, "score": 1.0, "dur": 2.4, "heard": "Ho ho ho ho ! Bonjour, Malone.", "tries": 1, "secs": 71.6}
 {"id": "f8796cdbb20ce74c9b2f", "key": "hello|sandro", "text": "Ho, ho, ho ! Bonjour Sandro !", "ok": false, "score": 0.933, "dur": 3.3, "heard": "Ho ho ho bonjour Sandro. Sandro...", "tries": 3, "secs": 227.9}
 {"id": "3422251458c4f5613989", "key": "hello|moussa", "text": "Ho, ho, ho ! Bonjour Moussa !", "ok": true, "score": 0.841, "dur": 3.2, "heard": "Ho! Ho! Ho! Bonjour Musa!", "tries": 2, "secs": 193.8}
+{"id": "b3daecde52c7d879a790", "key": "hello|bilal", "text": "Ho, ho, ho ! Bonjour Bilal !", "ok": true, "score": 1.0, "dur": 2.2, "heard": "Ho ho ho! Bonjour Bilal!", "tries": 2, "secs": 177.9}
+{"id": "21ba1626e72f2324b5a0", "key": "hello|anas", "text": "Ho, ho, ho ! Bonjour Anas !", "ok": true, "score": 1.0, "dur": 2.46, "heard": "Ho, ho, ho, bonjour, Anas!", "tries": 1, "secs": 72.1}
+{"id": "7c36a44b70e63ea40c3c", "key": "hello|zayd", "text": "Ho, ho, ho ! Bonjour Zayd !", "ok": true, "score": 0.806, "dur": 1.92, "heard": "Ho ho ho ! Bonjour Zade !", "tries": 1, "secs": 63.1}
