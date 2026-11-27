@@ -183,6 +183,8 @@ struct KBSettings: Codable, Equatable {
     var emojiSuggest = true
     /// Les petits messages « Foldboard connaît mieux ta prise en main » / « Noté » dans le clavier.
     var learningTips = true
+    /// Les emojis (récents, puis favoris) dans la place libre à côté du clavier à une main.
+    var sideEmojis = true
     /// L'ordre des positions dans le menu du bouton de position et dans l'app (noms de KBMode). Vide : l'ordre
     /// d'origine. Toujours lu par `orderedModes`, qui tolère les valeurs inconnues ou manquantes.
     var positionOrder: [String] = []
@@ -357,6 +359,7 @@ struct KBSettings: Codable, Equatable {
         contactNames = (try? c.decodeIfPresent(Bool.self, forKey: .contactNames)) ?? d.contactNames
         emojiSuggest = (try? c.decodeIfPresent(Bool.self, forKey: .emojiSuggest)) ?? d.emojiSuggest
         learningTips = (try? c.decodeIfPresent(Bool.self, forKey: .learningTips)) ?? d.learningTips
+        sideEmojis = (try? c.decodeIfPresent(Bool.self, forKey: .sideEmojis)) ?? d.sideEmojis
         positionOrder = (try? c.decodeIfPresent([String].self, forKey: .positionOrder)) ?? d.positionOrder
         numberRow = (try? c.decodeIfPresent(Bool.self, forKey: .numberRow)) ?? d.numberRow
         spaceRowScale = min(1.5, max(0.8, (try? c.decodeIfPresent(Double.self, forKey: .spaceRowScale)) ?? d.spaceRowScale))
@@ -573,6 +576,7 @@ struct KBSettings: Codable, Equatable {
         barLayout = newer.barLayout
         compactBar = newer.compactBar
         learningTips = newer.learningTips
+        sideEmojis = newer.sideEmojis
         positionOrder = newer.positionOrder
     }
 
@@ -589,6 +593,7 @@ struct KBSettings: Codable, Equatable {
         keep(edited.showLayoutSwitch, baseline.showLayoutSwitch) { showLayoutSwitch = $0 }
         keep(edited.layoutSwitchOpenOnly, baseline.layoutSwitchOpenOnly) { layoutSwitchOpenOnly = $0 }
         keep(edited.layoutSwitchLeft, baseline.layoutSwitchLeft) { layoutSwitchLeft = $0 }
+        keep(edited.sideEmojis, baseline.sideEmojis) { sideEmojis = $0 }
         keep(edited.showSwapButton, baseline.showSwapButton) { showSwapButton = $0 }
         keep(edited.showCenterButton, baseline.showCenterButton) { showCenterButton = $0 }
         keep(edited.showLayoutMenu, baseline.showLayoutMenu) { showLayoutMenu = $0 }

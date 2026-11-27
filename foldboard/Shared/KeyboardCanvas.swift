@@ -3808,7 +3808,8 @@ final class KeyboardCanvas: UIView {
             // envoie le clavier de ce côté, ou au milieu près du centre.
             let cell: CGFloat = 44
             // Écran étroit : pas d'emojis sur le côté, toute la place libre sert à placer le clavier.
-            var cols = w >= 170 ? 2 : (w >= 110 ? 1 : 0)
+            // Réglage « emojis à côté des touches » coupé : pas d'emojis non plus, la place reste libre.
+            var cols = !eff.sideEmojis ? 0 : (w >= 170 ? 2 : (w >= 110 ? 1 : 0))
             let rowsN = max(1, min(4, Int(h / cell)))
             // Place pour un ou deux emojis seulement (sous les boutons) : rien plutôt qu'un emoji isolé.
             if cols * rowsN < 3 { cols = 0 }

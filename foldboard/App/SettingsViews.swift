@@ -671,6 +671,8 @@ struct PhrasesView: View {
             }
 
             Section {
+                // Coupé : plus d'emojis à côté du clavier à une main, la place libre ne sert qu'à le déplacer.
+                Toggle("Show emoji next to the keys", isOn: $m.settings.sideEmojis)
                 TextField("Emoji", text: $emojiText)
                     .font(.title2)
                     .onChange(of: emojiText) { _, t in
@@ -685,14 +687,6 @@ struct PhrasesView: View {
                 HStack { Text("Emoji next to the keys"); ProBadge() }
             } footer: {
                 Text("In one-hand mode, the free space next to the keyboard shows these emoji (up to 24).")
-            }
-
-            Section {
-                Picker("Next to the keyboard", selection: $m.settings.sidePanel) {
-                    Text("Emoji").tag(KBSidePanel.emoji)
-                    Text("Phrases").tag(KBSidePanel.phrases)
-                    Text("Nothing").tag(KBSidePanel.none)
-                }
             }
         }
         .navigationTitle("Phrases and emoji")
