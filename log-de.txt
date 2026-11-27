@@ -1,0 +1,274 @@
+  WeightNorm.apply(module, name, dim)
+Collecting en-core-web-sm==3.8.0
+  Downloading en_core_web_sm-3.8.0-py3-none-any.whl (12.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.8/12.8 MB 33.4 MB/s  0:00:00
+Installing collected packages: en-core-web-sm
+Successfully installed en-core-web-sm-3.8.0
+[38;5;2m✔ Download and installation successful[0m
+You can now load the package via spacy.load('en_core_web_sm')
+référence : 15.0 s → out/santa-voice-ref.wav
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files:  50%|█████     | 3/6 [00:00<00:00,  4.69it/s]Fetching 6 files:  67%|██████▋   | 4/6 [00:00<00:00,  5.52it/s]Fetching 6 files:  83%|████████▎ | 5/6 [00:12<00:03,  3.78s/it]Fetching 6 files: 100%|██████████| 6/6 [00:19<00:00,  4.83s/it]Fetching 6 files: 100%|██████████| 6/6 [00:19<00:00,  3.25s/it]
+  deprecate("LoRACompatibleLinear", "1.0.0", deprecation_message)
+Downloading: "https://github.com/explosion/spacy-pkuseg/releases/download/v0.0.26/spacy_ontonotes.zip" to /home/runner/.pkuseg/spacy_ontonotes.zip
+  0%|          | 0/34567143 [00:00<?, ?it/s] 30%|███       | 10493952/34567143 [00:00<00:00, 91036964.79it/s] 61%|██████    | 21069824/34567143 [00:00<00:00, 99005437.98it/s] 91%|█████████ | 31465472/34567143 [00:00<00:00, 97463387.32it/s]100%|██████████| 34567143/34567143 [00:00<00:00, 103423974.97it/s]
+loaded PerthNet (Implicit) at step 250,000
+modèles chargés en 33 s, 4 fils
+  self.gen = func(*args, **kwds)
+The following generation flags are not valid and may be ignored: ['output_attentions']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+Sampling:  19%|█▊        | 187/1000 [00:47<03:27,  3.92it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "113ae28d50227c20a6f6", "key": "line|Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!", "text": "Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!", "ok": true, "score": 1.0, "dur": 7.44, "heard": "Ich bin's der Weihnachtsmann. Ich rufe dich aus meiner Werkstatt am Nordpol an.", "tries": 1, "secs": 91.0, "tag": "cfg00-ex80", "lang_prob": 0.99, "f0": 165}
+  self.gen = func(*args, **kwds)
+Sampling:  18%|█▊        | 185/1000 [00:45<03:22,  4.03it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "4e338c8423fe019b596a", "key": "line|Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werkstatt am Nordpol an!", "text": "Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werkstatt am Nordpol an!", "ok": true, "score": 1.0, "dur": 7.34, "heard": "Ich bin's der Weihnachtsmann. Ich rufe euch aus meiner Werkstatt am Nordpol an.", "tries": 1, "secs": 79.1, "tag": "cfg00-ex80", "lang_prob": 1.0, "f0": 154}
+  self.gen = func(*args, **kwds)
+Sampling:  16%|█▌        | 155/1000 [00:38<03:29,  4.02it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "71ab20b1fd562a11f0a4", "key": "line|Du bist jetzt also 3 Jahre alt? Das ist ein wunderbares Alter!", "text": "Du bist jetzt also 3 Jahre alt? Das ist ein wunderbares Alter!", "ok": true, "score": 0.918, "dur": 5.38, "heard": "Du bist jetzt also drei Jahre alt. Das ist ein wunderbares Auto.", "tries": 1, "secs": 68.9, "tag": "cfg00-ex80", "lang_prob": 0.98, "f0": 177}
+  self.gen = func(*args, **kwds)
+Sampling:   0%|          | 0/1000 [00:00<?, ?it/s]Sampling:   0%|          | 1/1000 [00:00<04:09,  4.01it/s]Sampling:   0%|          | 2/1000 [00:00<04:08,  4.01it/s]Sampling:   0%|          | 3/1000 [00:00<04:07,  4.02it/s]Sampling:   0%|          | 4/1000 [00:00<04:06,  4.03it/s]Sampling:   0%|          | 5/1000 [00:01<04:07,  4.02it/s]Sampling:   1%|          | 6/1000 [00:01<04:07,  4.01it/s]Sampling:   1%|          | 7/1000 [00:01<04:07,  4.01it/s]Sampling:   1%|          | 8/1000 [00:01<04:07,  4.01it/s]Sampling:   1%|          | 9/1000 [00:02<04:07,  4.00it/s]Sampling:   1%|          | 10/1000 [00:02<04:06,  4.01it/s]Sampling:   1%|          | 11/1000 [00:02<04:07,  3.99it/s]Sampling:   1%|          | 12/1000 [00:02<04:08,  3.98it/s]Sampling:   1%|▏         | 13/1000 [00:03<04:07,  3.99it/s]Sampling:   1%|▏         | 14/1000 [00:03<04:07,  3.98it/s]Sampling:   2%|▏         | 15/1000 [00:03<04:07,  3.98it/s]Sampling:   2%|▏         | 16/1000 [00:04<04:07,  3.98it/s]Sampling:   2%|▏         | 17/1000 [00:04<04:06,  3.99it/s]Sampling:   2%|▏         | 18/1000 [00:04<04:05,  4.00it/s]Sampling:   2%|▏         | 19/1000 [00:04<04:05,  4.00it/s]Sampling:   2%|▏         | 20/1000 [00:05<04:05,  3.99it/s]Sampling:   2%|▏         | 21/1000 [00:05<04:05,  3.99it/s]Sampling:   2%|▏         | 22/1000 [00:05<04:04,  4.00it/s]Sampling:   2%|▏         | 23/1000 [00:05<04:04,  4.00it/s]Sampling:   2%|▏         | 24/1000 [00:06<04:03,  4.00it/s]Sampling:   2%|▎         | 25/1000 [00:06<04:03,  4.00it/s]Sampling:   3%|▎         | 26/1000 [00:06<04:02,  4.01it/s]Sampling:   3%|▎         | 27/1000 [00:06<04:02,  4.01it/s]Sampling:   3%|▎         | 28/1000 [00:06<04:01,  4.03it/s]Sampling:   3%|▎         | 29/1000 [00:07<04:01,  4.02it/s]Sampling:   3%|▎         | 30/1000 [00:07<04:01,  4.02it/s]Sampling:   3%|▎         | 31/1000 [00:07<04:00,  4.03it/s]Sampling:   3%|▎         | 32/1000 [00:07<04:00,  4.03it/s]Sampling:   3%|▎         | 33/1000 [00:08<03:59,  4.04it/s]Sampling:   3%|▎         | 34/1000 [00:08<03:59,  4.03it/s]Sampling:   4%|▎         | 35/1000 [00:08<04:00,  4.02it/s]Sampling:   4%|▎         | 36/1000 [00:08<03:59,  4.02it/s]Sampling:   4%|▎         | 37/1000 [00:09<04:00,  4.01it/s]Sampling:   4%|▍         | 38/1000 [00:09<03:59,  4.01it/s]Sampling:   4%|▍         | 39/1000 [00:09<03:59,  4.02it/s]Sampling:   4%|▍         | 40/1000 [00:09<03:59,  4.01it/s]Sampling:   4%|▍         | 41/1000 [00:10<04:00,  3.99it/s]Sampling:   4%|▍         | 42/1000 [00:10<04:00,  3.99it/s]Sampling:   4%|▍         | 43/1000 [00:10<04:00,  3.98it/s]Sampling:   4%|▍         | 44/1000 [00:10<03:59,  4.00it/s]Sampling:   4%|▍         | 45/1000 [00:11<03:59,  3.99it/s]Sampling:   5%|▍         | 46/1000 [00:11<03:59,  3.98it/s]Sampling:   5%|▍         | 47/1000 [00:11<03:59,  3.98it/s]Sampling:   5%|▍         | 48/1000 [00:11<03:57,  4.00it/s]Sampling:   5%|▍         | 49/1000 [00:12<03:57,  4.00it/s]Sampling:   5%|▌         | 50/1000 [00:12<03:58,  3.98it/s]Sampling:   5%|▌         | 51/1000 [00:12<03:58,  3.99it/s]Sampling:   5%|▌         | 52/1000 [00:12<03:56,  4.00it/s]Sampling:   5%|▌         | 53/1000 [00:13<03:56,  4.00it/s]Sampling:   5%|▌         | 54/1000 [00:13<03:56,  4.00it/s]Sampling:   6%|▌         | 55/1000 [00:13<03:57,  3.98it/s]Sampling:   6%|▌         | 56/1000 [00:13<03:55,  4.00it/s]Sampling:   6%|▌         | 57/1000 [00:14<03:55,  4.01it/s]Sampling:   6%|▌         | 58/1000 [00:14<03:55,  4.01it/s]Sampling:   6%|▌         | 59/1000 [00:14<03:55,  4.00it/s]Sampling:   6%|▌         | 60/1000 [00:14<03:54,  4.00it/s]Sampling:   6%|▌         | 61/1000 [00:15<03:54,  4.00it/s]Sampling:   6%|▌         | 62/1000 [00:15<03:54,  4.00it/s]Sampling:   6%|▋         | 63/1000 [00:15<03:54,  4.00it/s]Sampling:   6%|▋         | 64/1000 [00:15<03:54,  4.00it/s]Sampling:   6%|▋         | 65/1000 [00:16<03:54,  3.99it/s]Sampling:   7%|▋         | 66/1000 [00:16<03:54,  3.98it/s]Sampling:   7%|▋         | 67/1000 [00:16<03:54,  3.98it/s]Sampling:   7%|▋         | 68/1000 [00:16<03:54,  3.98it/s]Sampling:   7%|▋         | 69/1000 [00:17<03:53,  3.98it/s]Sampling:   7%|▋         | 70/1000 [00:17<03:53,  3.98it/s]Sampling:   7%|▋         | 71/1000 [00:17<03:52,  4.00it/s]Sampling:   7%|▋         | 72/1000 [00:17<03:52,  3.99it/s]Sampling:   7%|▋         | 73/1000 [00:18<03:53,  3.98it/s]Sampling:   7%|▋         | 74/1000 [00:18<03:53,  3.97it/s]Sampling:   8%|▊         | 75/1000 [00:18<03:53,  3.97it/s]Sampling:   8%|▊         | 76/1000 [00:19<03:52,  3.98it/s]Sampling:   8%|▊         | 77/1000 [00:19<03:52,  3.97it/s]Sampling:   8%|▊         | 78/1000 [00:19<03:51,  3.98it/s]Sampling:   8%|▊         | 79/1000 [00:19<03:51,  3.98it/s]Sampling:   8%|▊         | 80/1000 [00:20<03:50,  3.98it/s]Sampling:   8%|▊         | 81/1000 [00:20<03:51,  3.98it/s]Sampling:   8%|▊         | 82/1000 [00:20<03:50,  3.99it/s]Sampling:   8%|▊         | 83/1000 [00:20<03:49,  4.00it/s]Sampling:   8%|▊         | 84/1000 [00:21<03:49,  4.00it/s]Sampling:   8%|▊         | 85/1000 [00:21<03:49,  3.99it/s]Sampling:   9%|▊         | 86/1000 [00:21<03:48,  4.00it/s]Sampling:   9%|▊         | 87/1000 [00:21<03:48,  3.99it/s]Sampling:   9%|▉         | 88/1000 [00:22<03:48,  3.99it/s]Sampling:   9%|▉         | 89/1000 [00:22<03:49,  3.98it/s]Sampling:   9%|▉         | 90/1000 [00:22<03:48,  3.98it/s]Sampling:   9%|▉         | 91/1000 [00:22<03:49,  3.97it/s]Sampling:   9%|▉         | 92/1000 [00:23<03:49,  3.95it/s]Sampling:   9%|▉         | 93/1000 [00:23<03:48,  3.96it/s]Sampling:   9%|▉         | 94/1000 [00:23<03:49,  3.96it/s]Sampling:  10%|▉         | 95/1000 [00:23<03:48,  3.97it/s]Sampling:  10%|▉         | 96/1000 [00:24<03:47,  3.97it/s]Sampling:  10%|▉         | 97/1000 [00:24<03:47,  3.97it/s]Sampling:  10%|▉         | 98/1000 [00:24<03:47,  3.96it/s]Sampling:  10%|▉         | 99/1000 [00:24<03:46,  3.97it/s]Sampling:  10%|█         | 100/1000 [00:25<03:46,  3.97it/s]Sampling:  10%|█         | 100/1000 [00:25<03:45,  3.99it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "90ca6566ac134bd076e7", "key": "line|Das ist wunderbar!", "text": "Das ist wunderbar!", "ok": true, "score": 0.829, "dur": 3.62, "heard": "Ah, das ist wunderbar. Komm, B!", "tries": 1, "secs": 49.8, "tag": "cfg00-ex80", "lang_prob": 0.72, "f0": 198}
+  self.gen = func(*args, **kwds)
+Sampling:  10%|▉         | 98/1000 [00:24<03:47,  3.97it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "12ebcc37e69fd7812fee", "key": "hello|emilia", "text": "Ho, ho, ho! Hallo, Emilia!", "ok": true, "score": 0.526, "dur": 3.68, "heard": "Oh, cool, hau, hau, hau, no Emilia.", "tries": 1, "secs": 63.3, "tag": "cfg00-ex80", "lang_prob": 0.0, "f0": 187}
+  self.gen = func(*args, **kwds)
+Sampling:   6%|▌         | 56/1000 [00:13<03:53,  4.05it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "dd0bab7c666909cdf92e", "key": "hello|mia", "text": "Ho, ho, ho! Hallo, Mia!", "ok": true, "score": 1.0, "dur": 2.24, "heard": "Ho ho ho, hallo mia!", "tries": 1, "secs": 34.9, "tag": "cfg00-ex80", "lang_prob": 0.0, "f0": 196}
+  self.gen = func(*args, **kwds)
+Sampling:   6%|▌         | 61/1000 [00:15<03:56,  3.96it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "56872cd03766cc420e44", "key": "hello|sophia", "text": "Ho, ho, ho! Hallo, Sophia!", "ok": true, "score": 0.87, "dur": 2.42, "heard": "Ho, ho, hallo Sofia!", "tries": 1, "secs": 37.0, "tag": "cfg00-ex80", "lang_prob": 0.0, "f0": 194}
+  self.gen = func(*args, **kwds)
+Sampling:   6%|▌         | 59/1000 [00:14<03:59,  3.94it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "3a31c060ff322083845c", "key": "bye|emma", "text": "Frohe Weihnachten, Emma!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "Frohe Weihnachten Emma!", "tries": 1, "secs": 36.5, "tag": "cfg00-ex80", "lang_prob": 0.95, "f0": 142}
+  self.gen = func(*args, **kwds)
+Sampling:   7%|▋         | 73/1000 [00:18<03:53,  3.97it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "f723a68373bbe68c44c4", "key": "bye|hannah", "text": "Frohe Weihnachten, Hannah!", "ok": true, "score": 0.873, "dur": 2.8, "heard": "Frohe Weihnachten, Hannah. Hannah!", "tries": 1, "secs": 40.8, "tag": "cfg00-ex80", "lang_prob": 0.0, "f0": 202}
+  self.gen = func(*args, **kwds)
+Sampling:  14%|█▎        | 136/1000 [00:34<03:41,  3.90it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "113ae28d50227c20a6f6", "key": "line|Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!", "text": "Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!", "ok": true, "score": 1.0, "dur": 5.4, "heard": "Ich bin's der Weihnachtsmann. Ich rufe dich aus meiner Werkstatt am Nordpol an.", "tries": 1, "secs": 63.8, "tag": "cfg30-ex80", "lang_prob": 0.99, "f0": 165}
+  self.gen = func(*args, **kwds)
+Sampling:  14%|█▍        | 141/1000 [00:36<03:40,  3.89it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "4e338c8423fe019b596a", "key": "line|Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werkstatt am Nordpol an!", "text": "Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werkstatt am Nordpol an!", "ok": true, "score": 0.968, "dur": 5.18, "heard": "Ich bin's der Weihnachtsmann. Ich hoffe Euch aus meiner Werkstatt am Nordpol an.", "tries": 1, "secs": 65.7, "tag": "cfg30-ex80", "lang_prob": 1.0, "f0": 142}
+  self.gen = func(*args, **kwds)
+Sampling:   0%|          | 0/1000 [00:00<?, ?it/s]Sampling:   0%|          | 1/1000 [00:00<04:19,  3.86it/s]Sampling:   0%|          | 2/1000 [00:00<04:15,  3.90it/s]Sampling:   0%|          | 3/1000 [00:00<04:15,  3.90it/s]Sampling:   0%|          | 4/1000 [00:01<04:15,  3.90it/s]Sampling:   0%|          | 5/1000 [00:01<04:14,  3.91it/s]Sampling:   1%|          | 6/1000 [00:01<04:14,  3.91it/s]Sampling:   1%|          | 7/1000 [00:01<04:13,  3.91it/s]Sampling:   1%|          | 8/1000 [00:02<04:13,  3.91it/s]Sampling:   1%|          | 9/1000 [00:02<04:13,  3.91it/s]Sampling:   1%|          | 10/1000 [00:02<04:12,  3.91it/s]Sampling:   1%|          | 11/1000 [00:02<04:12,  3.92it/s]Sampling:   1%|          | 12/1000 [00:03<04:10,  3.95it/s]Sampling:   1%|▏         | 13/1000 [00:03<04:10,  3.95it/s]Sampling:   1%|▏         | 14/1000 [00:03<04:09,  3.95it/s]Sampling:   2%|▏         | 15/1000 [00:03<04:09,  3.95it/s]Sampling:   2%|▏         | 16/1000 [00:04<04:09,  3.94it/s]Sampling:   2%|▏         | 17/1000 [00:04<04:10,  3.93it/s]Sampling:   2%|▏         | 18/1000 [00:04<04:10,  3.93it/s]Sampling:   2%|▏         | 19/1000 [00:04<04:09,  3.93it/s]Sampling:   2%|▏         | 20/1000 [00:05<04:08,  3.94it/s]Sampling:   2%|▏         | 21/1000 [00:05<04:08,  3.94it/s]Sampling:   2%|▏         | 22/1000 [00:05<04:08,  3.94it/s]Sampling:   2%|▏         | 23/1000 [00:05<04:07,  3.95it/s]Sampling:   2%|▏         | 24/1000 [00:06<04:06,  3.96it/s]Sampling:   2%|▎         | 25/1000 [00:06<04:05,  3.97it/s]Sampling:   3%|▎         | 26/1000 [00:06<04:06,  3.95it/s]Sampling:   3%|▎         | 27/1000 [00:06<04:06,  3.95it/s]Sampling:   3%|▎         | 28/1000 [00:07<04:06,  3.95it/s]Sampling:   3%|▎         | 29/1000 [00:07<04:05,  3.95it/s]Sampling:   3%|▎         | 30/1000 [00:07<04:06,  3.93it/s]Sampling:   3%|▎         | 31/1000 [00:07<04:06,  3.93it/s]Sampling:   3%|▎         | 32/1000 [00:08<04:05,  3.94it/s]Sampling:   3%|▎         | 33/1000 [00:08<04:03,  3.97it/s]Sampling:   3%|▎         | 34/1000 [00:08<04:03,  3.97it/s]Sampling:   4%|▎         | 35/1000 [00:08<04:01,  3.99it/s]Sampling:   4%|▎         | 36/1000 [00:09<04:00,  4.01it/s]Sampling:   4%|▎         | 37/1000 [00:09<03:59,  4.02it/s]Sampling:   4%|▍         | 38/1000 [00:09<03:58,  4.04it/s]Sampling:   4%|▍         | 39/1000 [00:09<03:57,  4.04it/s]Sampling:   4%|▍         | 40/1000 [00:10<03:57,  4.03it/s]Sampling:   4%|▍         | 41/1000 [00:10<03:57,  4.04it/s]Sampling:   4%|▍         | 42/1000 [00:10<03:56,  4.05it/s]Sampling:   4%|▍         | 43/1000 [00:10<03:56,  4.05it/s]Sampling:   4%|▍         | 44/1000 [00:11<03:56,  4.04it/s]Sampling:   4%|▍         | 45/1000 [00:11<03:55,  4.05it/s]Sampling:   5%|▍         | 46/1000 [00:11<03:55,  4.06it/s]Sampling:   5%|▍         | 47/1000 [00:11<03:54,  4.07it/s]Sampling:   5%|▍         | 48/1000 [00:12<03:55,  4.03it/s]Sampling:   5%|▍         | 49/1000 [00:12<03:55,  4.03it/s]Sampling:   5%|▌         | 50/1000 [00:12<03:56,  4.02it/s]Sampling:   5%|▌         | 51/1000 [00:12<03:58,  3.99it/s]Sampling:   5%|▌         | 52/1000 [00:13<03:59,  3.95it/s]Sampling:   5%|▌         | 53/1000 [00:13<03:59,  3.95it/s]Sampling:   5%|▌         | 54/1000 [00:13<03:59,  3.95it/s]Sampling:   6%|▌         | 55/1000 [00:13<03:58,  3.95it/s]Sampling:   6%|▌         | 56/1000 [00:14<03:59,  3.94it/s]Sampling:   6%|▌         | 57/1000 [00:14<03:58,  3.95it/s]Sampling:   6%|▌         | 58/1000 [00:14<03:56,  3.97it/s]Sampling:   6%|▌         | 59/1000 [00:14<03:55,  4.00it/s]Sampling:   6%|▌         | 60/1000 [00:15<03:54,  4.01it/s]Sampling:   6%|▌         | 61/1000 [00:15<03:53,  4.01it/s]Sampling:   6%|▌         | 62/1000 [00:15<03:52,  4.03it/s]Sampling:   6%|▋         | 63/1000 [00:15<03:51,  4.05it/s]Sampling:   6%|▋         | 64/1000 [00:16<03:51,  4.04it/s]Sampling:   6%|▋         | 65/1000 [00:16<03:52,  4.03it/s]Sampling:   7%|▋         | 66/1000 [00:16<03:51,  4.03it/s]Sampling:   7%|▋         | 67/1000 [00:16<03:51,  4.03it/s]Sampling:   7%|▋         | 68/1000 [00:17<03:52,  4.02it/s]Sampling:   7%|▋         | 69/1000 [00:17<03:52,  4.01it/s]Sampling:   7%|▋         | 70/1000 [00:17<03:52,  4.00it/s]Sampling:   7%|▋         | 71/1000 [00:17<03:51,  4.02it/s]Sampling:   7%|▋         | 72/1000 [00:18<03:52,  4.00it/s]Sampling:   7%|▋         | 73/1000 [00:18<03:53,  3.97it/s]Sampling:   7%|▋         | 74/1000 [00:18<03:55,  3.93it/s]Sampling:   8%|▊         | 75/1000 [00:18<03:56,  3.92it/s]Sampling:   8%|▊         | 76/1000 [00:19<03:55,  3.92it/s]Sampling:   8%|▊         | 77/1000 [00:19<03:54,  3.94it/s]Sampling:   8%|▊         | 78/1000 [00:19<03:54,  3.94it/s]Sampling:   8%|▊         | 79/1000 [00:19<03:52,  3.96it/s]Sampling:   8%|▊         | 80/1000 [00:20<03:51,  3.98it/s]Sampling:   8%|▊         | 81/1000 [00:20<03:50,  3.99it/s]Sampling:   8%|▊         | 82/1000 [00:20<03:51,  3.97it/s]Sampling:   8%|▊         | 83/1000 [00:20<03:52,  3.95it/s]Sampling:   8%|▊         | 84/1000 [00:21<03:51,  3.95it/s]Sampling:   8%|▊         | 85/1000 [00:21<03:51,  3.95it/s]Sampling:   9%|▊         | 86/1000 [00:21<03:51,  3.94it/s]Sampling:   9%|▊         | 87/1000 [00:21<03:51,  3.94it/s]Sampling:   9%|▉         | 88/1000 [00:22<03:51,  3.94it/s]Sampling:   9%|▉         | 89/1000 [00:22<03:51,  3.94it/s]Sampling:   9%|▉         | 90/1000 [00:22<03:50,  3.94it/s]Sampling:   9%|▉         | 91/1000 [00:22<03:51,  3.92it/s]Sampling:   9%|▉         | 92/1000 [00:23<03:51,  3.92it/s]Sampling:   9%|▉         | 93/1000 [00:23<03:51,  3.92it/s]Sampling:   9%|▉         | 94/1000 [00:23<03:51,  3.92it/s]Sampling:  10%|▉         | 95/1000 [00:23<03:51,  3.91it/s]Sampling:  10%|▉         | 96/1000 [00:24<03:51,  3.90it/s]Sampling:  10%|▉         | 97/1000 [00:24<03:51,  3.90it/s]Sampling:  10%|▉         | 98/1000 [00:24<03:50,  3.92it/s]Sampling:  10%|▉         | 99/1000 [00:24<03:49,  3.93it/s]Sampling:  10%|█         | 100/1000 [00:25<03:49,  3.93it/s]Sampling:  10%|█         | 101/1000 [00:25<03:47,  3.96it/s]Sampling:  10%|█         | 102/1000 [00:25<03:46,  3.97it/s]Sampling:  10%|█         | 103/1000 [00:25<03:46,  3.96it/s]Sampling:  10%|█         | 104/1000 [00:26<03:46,  3.95it/s]Sampling:  10%|█         | 105/1000 [00:26<03:46,  3.95it/s]Sampling:  11%|█         | 106/1000 [00:26<03:46,  3.95it/s]Sampling:  11%|█         | 107/1000 [00:26<03:46,  3.95it/s]Sampling:  11%|█         | 108/1000 [00:27<03:46,  3.94it/s]Sampling:  11%|█         | 109/1000 [00:27<03:45,  3.94it/s]Sampling:  11%|█         | 110/1000 [00:27<03:45,  3.94it/s]Sampling:  11%|█         | 111/1000 [00:28<03:45,  3.94it/s]Sampling:  11%|█         | 112/1000 [00:28<03:46,  3.93it/s]Sampling:  11%|█▏        | 113/1000 [00:28<03:47,  3.90it/s]Sampling:  11%|█▏        | 114/1000 [00:28<03:47,  3.90it/s]Sampling:  12%|█▏        | 115/1000 [00:29<03:47,  3.89it/s]Sampling:  12%|█▏        | 116/1000 [00:29<03:48,  3.87it/s]Sampling:  12%|█▏        | 117/1000 [00:29<03:48,  3.87it/s]Sampling:  12%|█▏        | 118/1000 [00:29<03:47,  3.88it/s]Sampling:  12%|█▏        | 119/1000 [00:30<03:45,  3.90it/s]Sampling:  12%|█▏        | 120/1000 [00:30<03:44,  3.92it/s]Sampling:  12%|█▏        | 121/1000 [00:30<03:44,  3.92it/s]Sampling:  12%|█▏        | 122/1000 [00:30<03:43,  3.93it/s]Sampling:  12%|█▏        | 123/1000 [00:31<03:42,  3.94it/s]Sampling:  12%|█▏        | 124/1000 [00:31<03:41,  3.96it/s]Sampling:  12%|█▎        | 125/1000 [00:31<03:41,  3.95it/s]Sampling:  12%|█▎        | 125/1000 [00:31<03:41,  3.96it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "71ab20b1fd562a11f0a4", "key": "line|Du bist jetzt also 3 Jahre alt? Das ist ein wunderbares Alter!", "text": "Du bist jetzt also 3 Jahre alt? Das ist ein wunderbares Alter!", "ok": true, "score": 0.959, "dur": 4.38, "heard": "Du bist jetzt also drei Jahre alt. Das ist ein wunderbares Alter.", "tries": 1, "secs": 59.4, "tag": "cfg30-ex80", "lang_prob": 1.0, "f0": 168}
+  self.gen = func(*args, **kwds)
+Sampling:   5%|▌         | 50/1000 [00:12<03:59,  3.96it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "90ca6566ac134bd076e7", "key": "line|Das ist wunderbar!", "text": "Das ist wunderbar!", "ok": true, "score": 1.0, "dur": 1.52, "heard": "Das ist wunderbar.", "tries": 1, "secs": 33.3, "tag": "cfg30-ex80", "lang_prob": 0.0, "f0": 172}
+  self.gen = func(*args, **kwds)
+Sampling:   8%|▊         | 79/1000 [00:20<03:53,  3.94it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "12ebcc37e69fd7812fee", "key": "hello|emilia", "text": "Ho, ho, ho! Hallo, Emilia!", "ok": true, "score": 1.0, "dur": 3.04, "heard": "Ho ho ho! Hallo Emilia!", "tries": 1, "secs": 43.3, "tag": "cfg30-ex80", "lang_prob": 0.0, "f0": 213}
+  self.gen = func(*args, **kwds)
+Sampling:   6%|▌         | 62/1000 [00:15<03:53,  4.02it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "dd0bab7c666909cdf92e", "key": "hello|mia", "text": "Ho, ho, ho! Hallo, Mia!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "Ho, ho, ho, hallo Mia!", "tries": 1, "secs": 37.3, "tag": "cfg30-ex80", "lang_prob": 0.0, "f0": 200}
+  self.gen = func(*args, **kwds)
+Sampling:  12%|█▎        | 125/1000 [00:31<03:42,  3.94it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "56872cd03766cc420e44", "key": "hello|sophia", "text": "Ho, ho, ho! Hallo, Sophia!", "ok": true, "score": 0.87, "dur": 4.96, "heard": "Ho ho ho, hallo Sofia!", "tries": 1, "secs": 59.1, "tag": "cfg30-ex80", "lang_prob": 0.0, "f0": 186}
+  self.gen = func(*args, **kwds)
+Sampling:   6%|▌         | 62/1000 [00:15<03:57,  3.95it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "3a31c060ff322083845c", "key": "bye|emma", "text": "Frohe Weihnachten, Emma!", "ok": true, "score": 0.889, "dur": 2.44, "heard": "Frohe Weihnachten immer!", "tries": 1, "secs": 37.1, "tag": "cfg30-ex80", "lang_prob": 0.0, "f0": 170}
+  self.gen = func(*args, **kwds)
+Sampling:   7%|▋         | 73/1000 [00:18<03:54,  3.96it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "f723a68373bbe68c44c4", "key": "bye|hannah", "text": "Frohe Weihnachten, Hannah!", "ok": true, "score": 0.906, "dur": 2.78, "heard": "Frohe Weihnachten, Hanna! Hanna!", "tries": 1, "secs": 40.9, "tag": "cfg30-ex80", "lang_prob": 0.63, "f0": 175}
+  self.gen = func(*args, **kwds)
+Sampling:  19%|█▊        | 186/1000 [00:47<03:27,  3.92it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "113ae28d50227c20a6f6", "key": "line|Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!", "text": "Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!", "ok": true, "score": 1.0, "dur": 7.34, "heard": "Ich bin's der Weihnachtsmann. Ich rufe Dich aus meiner Werkstatt am Nordpol an.", "tries": 1, "secs": 82.2, "tag": "cfg00-ex55", "lang_prob": 1.0, "f0": 157}
+  self.gen = func(*args, **kwds)
+Sampling:  17%|█▋        | 173/1000 [00:44<03:32,  3.90it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "4e338c8423fe019b596a", "key": "line|Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werkstatt am Nordpol an!", "text": "Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werkstatt am Nordpol an!", "ok": true, "score": 1.0, "dur": 6.84, "heard": "Ich bin's der Weihnachtsmann. Ich rufe euch aus meiner Werkstatt am Nordpol an.", "tries": 1, "secs": 76.9, "tag": "cfg00-ex55", "lang_prob": 0.99, "f0": 159}
+  self.gen = func(*args, **kwds)
+Sampling:  14%|█▍        | 143/1000 [00:36<03:38,  3.92it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "71ab20b1fd562a11f0a4", "key": "line|Du bist jetzt also 3 Jahre alt? Das ist ein wunderbares Alter!", "text": "Du bist jetzt also 3 Jahre alt? Das ist ein wunderbares Alter!", "ok": true, "score": 0.935, "dur": 5.36, "heard": "Nur bist jetzt also drei Jahre alt. Das ist ein wunderbares Alter.", "tries": 1, "secs": 65.5, "tag": "cfg00-ex55", "lang_prob": 0.99, "f0": 156}
+  self.gen = func(*args, **kwds)
+Sampling:  10%|▉         | 96/1000 [00:24<03:49,  3.93it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "90ca6566ac134bd076e7", "key": "line|Das ist wunderbar!", "text": "Das ist wunderbar!", "ok": true, "score": 0.829, "dur": 3.62, "heard": "Ah, das ist wunderbar. Komm, B!", "tries": 1, "secs": 49.1, "tag": "cfg00-ex55", "lang_prob": 0.72, "f0": 200}
+  self.gen = func(*args, **kwds)
+Sampling:   9%|▊         | 87/1000 [00:21<03:50,  3.96it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "12ebcc37e69fd7812fee", "key": "hello|emilia", "text": "Ho, ho, ho! Hallo, Emilia!", "ok": true, "score": 0.774, "dur": 3.42, "heard": "Oh ho ho! Hallo Emilia! Emilia!", "tries": 1, "secs": 45.5, "tag": "cfg00-ex55", "lang_prob": 0.0, "f0": 217}
+  self.gen = func(*args, **kwds)
+Sampling:   6%|▌         | 61/1000 [00:15<03:58,  3.93it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "dd0bab7c666909cdf92e", "key": "hello|mia", "text": "Ho, ho, ho! Hallo, Mia!", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Ho ho ho, hallo mia!", "tries": 1, "secs": 37.2, "tag": "cfg00-ex55", "lang_prob": 0.0, "f0": 209}
+  self.gen = func(*args, **kwds)
+Sampling:   9%|▊         | 86/1000 [00:21<03:51,  3.95it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "56872cd03766cc420e44", "key": "hello|sophia", "text": "Ho, ho, ho! Hallo, Sophia!", "ok": true, "score": 0.8, "dur": 3.4, "heard": "Ho, ho, ho, hallo, Sophia. Skirr!", "tries": 1, "secs": 45.3, "tag": "cfg00-ex55", "lang_prob": 0.0, "f0": 215}
+  self.gen = func(*args, **kwds)
+Sampling:   6%|▌         | 58/1000 [00:14<03:57,  3.96it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "3a31c060ff322083845c", "key": "bye|emma", "text": "Frohe Weihnachten, Emma!", "ok": true, "score": 0.842, "dur": 1.88, "heard": "Frohe Weine, Emma.", "tries": 1, "secs": 35.8, "tag": "cfg00-ex55", "lang_prob": 0.0, "f0": 156}
+  self.gen = func(*args, **kwds)
+Sampling:   7%|▋         | 70/1000 [00:17<03:53,  3.98it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "f723a68373bbe68c44c4", "key": "bye|hannah", "text": "Frohe Weihnachten, Hannah!", "ok": true, "score": 0.873, "dur": 2.66, "heard": "Frohe Weihnachten, Hannah! Hannah!", "tries": 1, "secs": 39.9, "tag": "cfg00-ex55", "lang_prob": 0.82, "f0": 185}
+  self.gen = func(*args, **kwds)
+Sampling:  15%|█▍        | 146/1000 [00:37<03:39,  3.89it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "113ae28d50227c20a6f6", "key": "line|Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!", "text": "Ich bin's, der Weihnachtsmann! Ich rufe dich aus meiner Werkstatt am Nordpol an!", "ok": true, "score": 1.0, "dur": 5.34, "heard": "Ich bin's der Weihnachtsmann. Ich rufe dich aus meiner Werkstatt am Nordpol an.", "tries": 1, "secs": 68.2, "tag": "cfg50-ex60", "lang_prob": 0.99, "f0": 178}
+  self.gen = func(*args, **kwds)
+Sampling:  13%|█▎        | 131/1000 [00:33<03:44,  3.88it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "4e338c8423fe019b596a", "key": "line|Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werkstatt am Nordpol an!", "text": "Ich bin's, der Weihnachtsmann! Ich rufe euch aus meiner Werkstatt am Nordpol an!", "ok": true, "score": 1.0, "dur": 5.08, "heard": "Ich bin's der Weihnachtsmann. Ich rufe euch aus meiner Werkstatt am Nordpol an.", "tries": 1, "secs": 62.4, "tag": "cfg50-ex60", "lang_prob": 0.99, "f0": 159}
+  self.gen = func(*args, **kwds)
+Sampling:   0%|          | 0/1000 [00:00<?, ?it/s]Sampling:   0%|          | 1/1000 [00:00<04:11,  3.97it/s]Sampling:   0%|          | 2/1000 [00:00<04:12,  3.95it/s]Sampling:   0%|          | 3/1000 [00:00<04:14,  3.92it/s]Sampling:   0%|          | 4/1000 [00:01<04:12,  3.94it/s]Sampling:   0%|          | 5/1000 [00:01<04:12,  3.95it/s]Sampling:   1%|          | 6/1000 [00:01<04:11,  3.96it/s]Sampling:   1%|          | 7/1000 [00:01<04:11,  3.94it/s]Sampling:   1%|          | 8/1000 [00:02<04:11,  3.94it/s]Sampling:   1%|          | 9/1000 [00:02<04:11,  3.95it/s]Sampling:   1%|          | 10/1000 [00:02<04:10,  3.95it/s]Sampling:   1%|          | 11/1000 [00:02<04:08,  3.97it/s]Sampling:   1%|          | 12/1000 [00:03<04:07,  4.00it/s]Sampling:   1%|▏         | 13/1000 [00:03<04:04,  4.03it/s]Sampling:   1%|▏         | 14/1000 [00:03<04:03,  4.05it/s]Sampling:   2%|▏         | 15/1000 [00:03<04:02,  4.06it/s]Sampling:   2%|▏         | 16/1000 [00:04<04:02,  4.05it/s]Sampling:   2%|▏         | 17/1000 [00:04<04:02,  4.05it/s]Sampling:   2%|▏         | 18/1000 [00:04<04:02,  4.05it/s]Sampling:   2%|▏         | 19/1000 [00:04<04:03,  4.03it/s]Sampling:   2%|▏         | 20/1000 [00:04<04:02,  4.04it/s]Sampling:   2%|▏         | 21/1000 [00:05<04:03,  4.02it/s]Sampling:   2%|▏         | 22/1000 [00:05<04:02,  4.03it/s]Sampling:   2%|▏         | 23/1000 [00:05<04:01,  4.04it/s]Sampling:   2%|▏         | 24/1000 [00:05<04:03,  4.01it/s]Sampling:   2%|▎         | 25/1000 [00:06<04:05,  3.98it/s]Sampling:   3%|▎         | 26/1000 [00:06<04:05,  3.96it/s]Sampling:   3%|▎         | 27/1000 [00:06<04:06,  3.96it/s]Sampling:   3%|▎         | 28/1000 [00:07<04:05,  3.95it/s]Sampling:   3%|▎         | 29/1000 [00:07<04:07,  3.93it/s]Sampling:   3%|▎         | 30/1000 [00:07<04:07,  3.93it/s]Sampling:   3%|▎         | 31/1000 [00:07<04:07,  3.92it/s]Sampling:   3%|▎         | 32/1000 [00:08<04:06,  3.92it/s]Sampling:   3%|▎         | 33/1000 [00:08<04:06,  3.92it/s]Sampling:   3%|▎         | 34/1000 [00:08<04:07,  3.90it/s]Sampling:   4%|▎         | 35/1000 [00:08<04:07,  3.90it/s]Sampling:   4%|▎         | 36/1000 [00:09<04:07,  3.90it/s]Sampling:   4%|▎         | 37/1000 [00:09<04:06,  3.90it/s]Sampling:   4%|▍         | 38/1000 [00:09<04:06,  3.91it/s]Sampling:   4%|▍         | 39/1000 [00:09<04:05,  3.92it/s]Sampling:   4%|▍         | 40/1000 [00:10<04:05,  3.92it/s]Sampling:   4%|▍         | 41/1000 [00:10<04:05,  3.90it/s]Sampling:   4%|▍         | 42/1000 [00:10<04:06,  3.88it/s]Sampling:   4%|▍         | 43/1000 [00:10<04:06,  3.88it/s]Sampling:   4%|▍         | 44/1000 [00:11<04:05,  3.89it/s]Sampling:   4%|▍         | 45/1000 [00:11<04:05,  3.89it/s]Sampling:   5%|▍         | 46/1000 [00:11<04:05,  3.89it/s]Sampling:   5%|▍         | 47/1000 [00:11<04:04,  3.90it/s]Sampling:   5%|▍         | 48/1000 [00:12<04:03,  3.92it/s]Sampling:   5%|▍         | 49/1000 [00:12<04:02,  3.92it/s]Sampling:   5%|▌         | 50/1000 [00:12<04:02,  3.92it/s]Sampling:   5%|▌         | 51/1000 [00:12<04:04,  3.88it/s]Sampling:   5%|▌         | 52/1000 [00:13<04:03,  3.90it/s]Sampling:   5%|▌         | 53/1000 [00:13<04:01,  3.92it/s]Sampling:   5%|▌         | 54/1000 [00:13<04:01,  3.91it/s]Sampling:   6%|▌         | 55/1000 [00:13<04:01,  3.92it/s]Sampling:   6%|▌         | 56/1000 [00:14<03:59,  3.94it/s]Sampling:   6%|▌         | 57/1000 [00:14<03:56,  3.98it/s]Sampling:   6%|▌         | 58/1000 [00:14<03:57,  3.97it/s]Sampling:   6%|▌         | 59/1000 [00:14<03:58,  3.95it/s]Sampling:   6%|▌         | 60/1000 [00:15<04:00,  3.90it/s]Sampling:   6%|▌         | 61/1000 [00:15<04:00,  3.90it/s]Sampling:   6%|▌         | 62/1000 [00:15<04:00,  3.90it/s]Sampling:   6%|▋         | 63/1000 [00:15<03:59,  3.91it/s]Sampling:   6%|▋         | 64/1000 [00:16<03:59,  3.91it/s]Sampling:   6%|▋         | 65/1000 [00:16<03:59,  3.91it/s]Sampling:   7%|▋         | 66/1000 [00:16<03:57,  3.92it/s]Sampling:   7%|▋         | 67/1000 [00:16<03:57,  3.93it/s]Sampling:   7%|▋         | 68/1000 [00:17<03:57,  3.93it/s]Sampling:   7%|▋         | 69/1000 [00:17<03:56,  3.93it/s]Sampling:   7%|▋         | 70/1000 [00:17<03:56,  3.93it/s]Sampling:   7%|▋         | 71/1000 [00:18<03:56,  3.92it/s]Sampling:   7%|▋         | 72/1000 [00:18<03:58,  3.90it/s]Sampling:   7%|▋         | 73/1000 [00:18<03:57,  3.90it/s]Sampling:   7%|▋         | 74/1000 [00:18<03:56,  3.91it/s]Sampling:   8%|▊         | 75/1000 [00:19<03:56,  3.90it/s]Sampling:   8%|▊         | 76/1000 [00:19<03:56,  3.91it/s]Sampling:   8%|▊         | 77/1000 [00:19<03:56,  3.91it/s]Sampling:   8%|▊         | 78/1000 [00:19<03:56,  3.90it/s]Sampling:   8%|▊         | 79/1000 [00:20<03:56,  3.89it/s]Sampling:   8%|▊         | 80/1000 [00:20<03:57,  3.88it/s]Sampling:   8%|▊         | 81/1000 [00:20<03:58,  3.86it/s]Sampling:   8%|▊         | 82/1000 [00:20<03:57,  3.86it/s]Sampling:   8%|▊         | 83/1000 [00:21<03:57,  3.86it/s]Sampling:   8%|▊         | 84/1000 [00:21<03:57,  3.85it/s]Sampling:   8%|▊         | 85/1000 [00:21<03:57,  3.85it/s]Sampling:   9%|▊         | 86/1000 [00:21<03:57,  3.86it/s]Sampling:   9%|▊         | 87/1000 [00:22<03:56,  3.85it/s]Sampling:   9%|▉         | 88/1000 [00:22<03:56,  3.86it/s]Sampling:   9%|▉         | 89/1000 [00:22<03:56,  3.85it/s]Sampling:   9%|▉         | 90/1000 [00:22<03:56,  3.84it/s]Sampling:   9%|▉         | 91/1000 [00:23<03:56,  3.84it/s]Sampling:   9%|▉         | 92/1000 [00:23<03:56,  3.84it/s]Sampling:   9%|▉         | 93/1000 [00:23<03:57,  3.82it/s]Sampling:   9%|▉         | 94/1000 [00:23<03:57,  3.82it/s]Sampling:  10%|▉         | 95/1000 [00:24<03:55,  3.84it/s]Sampling:  10%|▉         | 96/1000 [00:24<03:54,  3.86it/s]Sampling:  10%|▉         | 97/1000 [00:24<03:53,  3.86it/s]Sampling:  10%|▉         | 98/1000 [00:24<03:53,  3.86it/s]Sampling:  10%|▉         | 99/1000 [00:25<03:52,  3.87it/s]Sampling:  10%|█         | 100/1000 [00:25<03:52,  3.87it/s]Sampling:  10%|█         | 101/1000 [00:25<03:52,  3.87it/s]Sampling:  10%|█         | 102/1000 [00:26<03:51,  3.87it/s]Sampling:  10%|█         | 103/1000 [00:26<03:51,  3.88it/s]Sampling:  10%|█         | 104/1000 [00:26<03:51,  3.87it/s]Sampling:  10%|█         | 105/1000 [00:26<03:51,  3.87it/s]Sampling:  11%|█         | 106/1000 [00:27<03:50,  3.88it/s]Sampling:  11%|█         | 107/1000 [00:27<03:50,  3.87it/s]Sampling:  11%|█         | 108/1000 [00:27<03:50,  3.87it/s]Sampling:  11%|█         | 109/1000 [00:27<03:50,  3.87it/s]Sampling:  11%|█         | 110/1000 [00:28<03:50,  3.86it/s]Sampling:  11%|█         | 111/1000 [00:28<03:50,  3.86it/s]Sampling:  11%|█         | 112/1000 [00:28<03:50,  3.86it/s]Sampling:  11%|█▏        | 113/1000 [00:28<03:49,  3.87it/s]Sampling:  11%|█▏        | 114/1000 [00:29<03:50,  3.85it/s]Sampling:  12%|█▏        | 115/1000 [00:29<03:55,  3.76it/s]Sampling:  12%|█▏        | 116/1000 [00:29<03:51,  3.83it/s]Sampling:  12%|█▏        | 117/1000 [00:29<03:49,  3.84it/s]Sampling:  12%|█▏        | 117/1000 [00:29<03:45,  3.91it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "71ab20b1fd562a11f0a4", "key": "line|Du bist jetzt also 3 Jahre alt? Das ist ein wunderbares Alter!", "text": "Du bist jetzt also 3 Jahre alt? Das ist ein wunderbares Alter!", "ok": true, "score": 0.959, "dur": 4.08, "heard": "Du bist jetzt also drei Jahre alt? Das ist ein wunderbares Alter.", "tries": 1, "secs": 56.9, "tag": "cfg50-ex60", "lang_prob": 1.0, "f0": 153}
+  self.gen = func(*args, **kwds)
+Sampling:   0%|          | 0/1000 [00:00<?, ?it/s]Sampling:   0%|          | 1/1000 [00:00<04:04,  4.08it/s]Sampling:   0%|          | 2/1000 [00:00<04:07,  4.03it/s]Sampling:   0%|          | 3/1000 [00:00<04:06,  4.05it/s]Sampling:   0%|          | 4/1000 [00:00<04:03,  4.08it/s]Sampling:   0%|          | 5/1000 [00:01<04:03,  4.09it/s]Sampling:   1%|          | 6/1000 [00:01<04:03,  4.08it/s]Sampling:   1%|          | 7/1000 [00:01<04:04,  4.07it/s]Sampling:   1%|          | 8/1000 [00:01<04:01,  4.10it/s]Sampling:   1%|          | 9/1000 [00:02<04:01,  4.11it/s]Sampling:   1%|          | 10/1000 [00:02<04:00,  4.11it/s]Sampling:   1%|          | 11/1000 [00:02<04:01,  4.10it/s]Sampling:   1%|          | 12/1000 [00:02<04:01,  4.09it/s]Sampling:   1%|▏         | 13/1000 [00:03<04:01,  4.08it/s]Sampling:   1%|▏         | 14/1000 [00:03<04:02,  4.07it/s]Sampling:   2%|▏         | 15/1000 [00:03<04:01,  4.08it/s]Sampling:   2%|▏         | 16/1000 [00:03<04:01,  4.07it/s]Sampling:   2%|▏         | 17/1000 [00:04<04:01,  4.06it/s]Sampling:   2%|▏         | 18/1000 [00:04<04:02,  4.05it/s]Sampling:   2%|▏         | 19/1000 [00:04<04:03,  4.02it/s]Sampling:   2%|▏         | 20/1000 [00:04<04:05,  3.99it/s]Sampling:   2%|▏         | 21/1000 [00:05<04:04,  4.00it/s]Sampling:   2%|▏         | 22/1000 [00:05<04:05,  3.98it/s]Sampling:   2%|▏         | 23/1000 [00:05<04:06,  3.97it/s]Sampling:   2%|▏         | 24/1000 [00:05<04:05,  3.97it/s]Sampling:   2%|▎         | 25/1000 [00:06<04:06,  3.95it/s]Sampling:   3%|▎         | 26/1000 [00:06<04:05,  3.96it/s]Sampling:   3%|▎         | 27/1000 [00:06<04:05,  3.96it/s]Sampling:   3%|▎         | 28/1000 [00:06<04:04,  3.97it/s]Sampling:   3%|▎         | 29/1000 [00:07<04:05,  3.96it/s]Sampling:   3%|▎         | 30/1000 [00:07<04:04,  3.96it/s]Sampling:   3%|▎         | 31/1000 [00:07<04:04,  3.97it/s]Sampling:   3%|▎         | 32/1000 [00:07<04:02,  3.99it/s]Sampling:   3%|▎         | 33/1000 [00:08<04:04,  3.96it/s]Sampling:   3%|▎         | 34/1000 [00:08<04:03,  3.96it/s]Sampling:   4%|▎         | 35/1000 [00:08<04:03,  3.97it/s]Sampling:   4%|▎         | 36/1000 [00:08<04:02,  3.97it/s]Sampling:   4%|▎         | 37/1000 [00:09<04:02,  3.98it/s]Sampling:   4%|▍         | 38/1000 [00:09<04:03,  3.95it/s]Sampling:   4%|▍         | 39/1000 [00:09<04:03,  3.95it/s]Sampling:   4%|▍         | 40/1000 [00:09<04:03,  3.95it/s]Sampling:   4%|▍         | 41/1000 [00:10<04:02,  3.95it/s]Sampling:   4%|▍         | 42/1000 [00:10<04:02,  3.95it/s]Sampling:   4%|▍         | 43/1000 [00:10<04:02,  3.95it/s]Sampling:   4%|▍         | 44/1000 [00:10<04:01,  3.96it/s]Sampling:   4%|▍         | 45/1000 [00:11<04:00,  3.97it/s]Sampling:   5%|▍         | 46/1000 [00:11<04:01,  3.94it/s]Sampling:   5%|▍         | 47/1000 [00:11<04:00,  3.97it/s]Sampling:   5%|▍         | 47/1000 [00:11<03:58,  4.00it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "90ca6566ac134bd076e7", "key": "line|Das ist wunderbar!", "text": "Das ist wunderbar!", "ok": true, "score": 1.0, "dur": 1.44, "heard": "Das ist wunderbar!", "tries": 1, "secs": 32.2, "tag": "cfg50-ex60", "lang_prob": 0.77, "f0": 163}
+  self.gen = func(*args, **kwds)
+Sampling:   8%|▊         | 78/1000 [00:19<03:54,  3.93it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "12ebcc37e69fd7812fee", "key": "hello|emilia", "text": "Ho, ho, ho! Hallo, Emilia!", "ok": true, "score": 0.774, "dur": 3.12, "heard": "Ho ho ho, hallo Emilia. Emilia?", "tries": 1, "secs": 43.0, "tag": "cfg50-ex60", "lang_prob": 0.0, "f0": 189}
+  self.gen = func(*args, **kwds)
+Sampling:   7%|▋         | 71/1000 [00:18<03:55,  3.94it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "dd0bab7c666909cdf92e", "key": "hello|mia", "text": "Ho, ho, ho! Hallo, Mia!", "ok": true, "score": 0.75, "dur": 2.84, "heard": "Ho ho ho! Hallo Mia! Hallo!", "tries": 1, "secs": 40.7, "tag": "cfg50-ex60", "lang_prob": 0.0, "f0": 157}
+  self.gen = func(*args, **kwds)
+Sampling:   7%|▋         | 68/1000 [00:17<03:56,  3.93it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "56872cd03766cc420e44", "key": "hello|sophia", "text": "Ho, ho, ho! Hallo, Sophia!", "ok": true, "score": 0.774, "dur": 2.7, "heard": "Hohoho, hallo Sophia! Sophia!", "tries": 1, "secs": 40.0, "tag": "cfg50-ex60", "lang_prob": 0.0, "f0": 204}
+  self.gen = func(*args, **kwds)
+Sampling:   6%|▌         | 61/1000 [00:15<03:59,  3.92it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "3a31c060ff322083845c", "key": "bye|emma", "text": "Frohe Weihnachten, Emma!", "ok": true, "score": 1.0, "dur": 2.4, "heard": "Frohe Weihnachten Emma.", "tries": 1, "secs": 37.1, "tag": "cfg50-ex60", "lang_prob": 0.74, "f0": 177}
+  self.gen = func(*args, **kwds)
+Sampling:   0%|          | 0/1000 [00:00<?, ?it/s]Sampling:   0%|          | 1/1000 [00:00<04:10,  3.98it/s]Sampling:   0%|          | 2/1000 [00:00<04:10,  3.98it/s]Sampling:   0%|          | 3/1000 [00:00<04:11,  3.96it/s]Sampling:   0%|          | 4/1000 [00:01<04:18,  3.86it/s]Sampling:   0%|          | 5/1000 [00:01<04:18,  3.85it/s]Sampling:   1%|          | 6/1000 [00:01<04:15,  3.89it/s]Sampling:   1%|          | 7/1000 [00:01<04:14,  3.90it/s]Sampling:   1%|          | 8/1000 [00:02<04:13,  3.91it/s]Sampling:   1%|          | 9/1000 [00:02<04:13,  3.91it/s]Sampling:   1%|          | 10/1000 [00:02<04:12,  3.92it/s]Sampling:   1%|          | 11/1000 [00:02<04:12,  3.91it/s]Sampling:   1%|          | 12/1000 [00:03<04:12,  3.91it/s]Sampling:   1%|▏         | 13/1000 [00:03<04:11,  3.92it/s]Sampling:   1%|▏         | 14/1000 [00:03<04:10,  3.94it/s]Sampling:   2%|▏         | 15/1000 [00:03<04:08,  3.97it/s]Sampling:   2%|▏         | 16/1000 [00:04<04:08,  3.97it/s]Sampling:   2%|▏         | 17/1000 [00:04<04:07,  3.97it/s]Sampling:   2%|▏         | 18/1000 [00:04<04:07,  3.97it/s]Sampling:   2%|▏         | 19/1000 [00:04<04:06,  3.98it/s]Sampling:   2%|▏         | 20/1000 [00:05<04:08,  3.95it/s]Sampling:   2%|▏         | 21/1000 [00:05<04:06,  3.97it/s]Sampling:   2%|▏         | 22/1000 [00:05<04:05,  3.98it/s]Sampling:   2%|▏         | 23/1000 [00:05<04:05,  3.98it/s]Sampling:   2%|▏         | 24/1000 [00:06<04:04,  3.98it/s]Sampling:   2%|▎         | 25/1000 [00:06<04:05,  3.98it/s]Sampling:   3%|▎         | 26/1000 [00:06<04:04,  3.98it/s]Sampling:   3%|▎         | 27/1000 [00:06<04:04,  3.97it/s]Sampling:   3%|▎         | 28/1000 [00:07<04:04,  3.98it/s]Sampling:   3%|▎         | 29/1000 [00:07<04:04,  3.97it/s]Sampling:   3%|▎         | 30/1000 [00:07<04:05,  3.96it/s]Sampling:   3%|▎         | 31/1000 [00:07<04:05,  3.95it/s]Sampling:   3%|▎         | 32/1000 [00:08<04:05,  3.95it/s]Sampling:   3%|▎         | 33/1000 [00:08<04:05,  3.93it/s]Sampling:   3%|▎         | 34/1000 [00:08<04:04,  3.95it/s]Sampling:   4%|▎         | 35/1000 [00:08<04:04,  3.94it/s]Sampling:   4%|▎         | 36/1000 [00:09<04:04,  3.94it/s]Sampling:   4%|▎         | 37/1000 [00:09<04:04,  3.93it/s]Sampling:   4%|▍         | 38/1000 [00:09<04:04,  3.94it/s]Sampling:   4%|▍         | 39/1000 [00:09<04:03,  3.94it/s]Sampling:   4%|▍         | 40/1000 [00:10<04:02,  3.95it/s]Sampling:   4%|▍         | 41/1000 [00:10<04:01,  3.97it/s]Sampling:   4%|▍         | 42/1000 [00:10<04:02,  3.95it/s]Sampling:   4%|▍         | 43/1000 [00:10<04:02,  3.95it/s]Sampling:   4%|▍         | 44/1000 [00:11<04:02,  3.95it/s]Sampling:   4%|▍         | 45/1000 [00:11<04:00,  3.97it/s]Sampling:   5%|▍         | 46/1000 [00:11<04:01,  3.95it/s]Sampling:   5%|▍         | 47/1000 [00:11<04:00,  3.96it/s]Sampling:   5%|▍         | 48/1000 [00:12<04:00,  3.96it/s]Sampling:   5%|▍         | 49/1000 [00:12<03:59,  3.98it/s]Sampling:   5%|▌         | 50/1000 [00:12<03:59,  3.97it/s]Sampling:   5%|▌         | 51/1000 [00:12<03:59,  3.97it/s]Sampling:   5%|▌         | 52/1000 [00:13<03:58,  3.97it/s]Sampling:   5%|▌         | 53/1000 [00:13<03:58,  3.97it/s]Sampling:   5%|▌         | 54/1000 [00:13<03:58,  3.97it/s]Sampling:   6%|▌         | 55/1000 [00:13<03:58,  3.97it/s]Sampling:   6%|▌         | 56/1000 [00:14<03:58,  3.96it/s]Sampling:   6%|▌         | 57/1000 [00:14<03:57,  3.97it/s]Sampling:   6%|▌         | 58/1000 [00:14<03:57,  3.97it/s]Sampling:   6%|▌         | 59/1000 [00:14<03:57,  3.96it/s]Sampling:   6%|▌         | 60/1000 [00:15<03:58,  3.94it/s]Sampling:   6%|▌         | 61/1000 [00:15<03:58,  3.94it/s]Sampling:   6%|▌         | 61/1000 [00:15<03:57,  3.95it/s]
+  y, sr = librosa.load(str(f), sr=16000)
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"id": "f723a68373bbe68c44c4", "key": "bye|hannah", "text": "Frohe Weihnachten, Hannah!", "ok": true, "score": 1.0, "dur": 1.88, "heard": "Frohe Weihnachten, Hannah!", "tries": 1, "secs": 36.9, "tag": "cfg50-ex60", "lang_prob": 0.69, "f0": 155}
+
+== de
+cfg00-ex55: ok 9/9 ressemblance 0.89 langue 0.50 hauteur 185 Hz temps 53 s/phrase essais 1.0
+cfg00-ex80: ok 9/9 ressemblance 0.89 langue 0.52 hauteur 187 Hz temps 56 s/phrase essais 1.0
+cfg30-ex80: ok 9/9 ressemblance 0.95 langue 0.40 hauteur 172 Hz temps 49 s/phrase essais 1.0
+cfg50-ex60: ok 9/9 ressemblance 0.92 langue 0.58 hauteur 163 Hz temps 46 s/phrase essais 1.0
