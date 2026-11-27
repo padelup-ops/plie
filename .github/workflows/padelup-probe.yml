@@ -17,29 +17,12 @@ jobs:
         run: |
           mkdir -p out && cd out
           {
-          echo "== DNS"
-          for h in api.playtomic.io playtomic.io www.playtomic.io api.playtomic.com playtomic.com www.playtomic.com app.playtomic.com api-gateway.playtomic.com; do
-            echo "$h -> $(dig +short $h A | tr '\n' ' ') $(dig +short $h CNAME | tr '\n' ' ')"
+          for h in api.playtomic.io playtomic.io; do
+            for t in A AAAA CNAME; do
+              echo "$h $t (dig) : $(dig +short $h $t | tr '\n' ' ')"
+              echo "$h $t (DNS Google) : $(curl -s --max-time 15 "https://dns.google/resolve?name=$h&type=$t" | head -c 400)"
+            done
           done
-          echo
-          echo "== Pages"
-          for u in https://playtomic.io https://playtomic.com https://www.playtomic.com https://app.playtomic.com; do
-            echo "$(curl -s -o /dev/null -w '%{http_code} -> %{redirect_url}' --max-time 20 $u) $u"
-          done
-          echo
-          echo "== Hôtes d'API cités par le site de Playtomic"
-          curl -sL --max-time 25 https://playtomic.com -o site.html || true
-          grep -oE '(src|href)="[^"]+\.js[^"]*"' site.html | head -40 | sed -E 's/(src|href)="//; s/"$//' > js.txt || true
-          for j in $(cat js.txt); do case "$j" in http*) u="$j";; //*) u="https:$j";; *) u="https://playtomic.com$j";; esac; curl -sL --max-time 15 "$u" >> bundle.js || true; done
-          grep -ohE 'https?://[a-z0-9.-]*playtomic[a-z0-9.-]*\.[a-z]+(/api)?(/v[0-9])?' site.html bundle.js | sort | uniq -c | sort -rn | head -25
-          echo
-          echo "== Essais d'API"
-          for b in https://api.playtomic.com https://playtomic.com/api https://www.playtomic.com/api https://api.playtomic.io; do
-            echo "$(curl -s -o /tmp/r.txt -w '%{http_code}' --max-time 20 "$b/v1/tenants?coordinate=50.6292,3.0573&sport_id=PADEL&radius=20000&size=3" -H 'Accept: application/json' -H 'X-Requested-With: com.playtomic.web') $b  $(head -c 160 /tmp/r.txt | tr '\n' ' ')"
-          done
-          echo
-          echo "== OpenStreetMap (Overpass) depuis GitHub"
-          echo "$(curl -s -o /dev/null -w '%{http_code} %{time_total}s' --max-time 30 -X POST https://overpass-api.de/api/interpreter --data-urlencode 'data=[out:json];way(1455979295);out center tags;')"
           } 2>&1 | tee resultat.txt
       - name: Publier
         if: always()
