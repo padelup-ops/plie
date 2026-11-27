@@ -1,5 +1,5 @@
-Textes de la fiche pour la version 1.0.1 (caméra façon appel vidéo, photos de la réaction).
-À copier le jour de la soumission de la 1.0.1, pas avant :
+Textes de la fiche pour la version avec caméra (rectangle façon appel vidéo, photos de la réaction), qu'elle parte en 1.0 ou en 1.0.1.
+À copier le jour où cette version est soumise, pas avant :
   noel/store/next/noel.json    → tools/meta/noel.json
   noel/store/next/listing.json → noel/store/listing.json
 Fabriqués à partir des textes de la 1.0 par l'ajout d'une rubrique « Comme un appel vidéo », d'une ligne dans le
