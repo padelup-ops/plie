@@ -1440,7 +1440,7 @@ final class KeyboardCanvas: UIView {
         if recentCorrections.count >= 3, Date().timeIntervalSince1970 - last > 86_400 {
             UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: key)
             recentCorrections.removeAll()
-            notice(L("Wrong side often? Redo the “Right hand, left hand” test in the Foldboard app (10 s)."))
+            tip(L("Wrong side often? Redo the “Right hand, left hand” test in the Foldboard app (10 s)."), hold: 6)
         }
     }
 
@@ -1469,7 +1469,7 @@ final class KeyboardCanvas: UIView {
         guard settings.learningTips else { return }
         let n = KBHabits.shared.learnedTotal
         if [3, 10, 25, 50, 100, 200].contains(n) {
-            notice(String(format: L("Foldboard knows your grip better: %lld habits learned"), n))
+            tip(String(format: L("Foldboard knows your grip better: %lld habits learned"), n), hold: 6)
             return
         }
         guard correction else { return }
@@ -1477,7 +1477,7 @@ final class KeyboardCanvas: UIView {
         let shown = UserDefaults.standard.integer(forKey: key)
         guard shown < 5 else { return }
         UserDefaults.standard.set(shown + 1, forKey: key)
-        flash(L("Noted, I’ll remember this grip"))
+        tip(L("Noted, I’ll remember this grip"))
     }
 
     /// Une lettre tapée avec le petit clavier d'un côté : après quelques lettres sans correction, c'est une habitude.
@@ -2351,8 +2351,9 @@ final class KeyboardCanvas: UIView {
         grip.locked = false
         save()
         // Choisir « Toute la largeur » (ou un côté) fixe le clavier sur cet écran : on le dit, et comment revenir.
-        flash(m == .auto ? L("The keyboard follows your hand on this screen.")
-                         : L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."), hold: 3)
+        // C'est un conseil : rien si les conseils sont coupés dans l'app (le clavier, lui, a bien changé de place).
+        tip(m == .auto ? L("The keyboard follows your hand on this screen.")
+                       : L("The keyboard stays put on this screen. To let it follow your hand again, choose Follows your hand."), hold: 3)
     }
 
     /// Un toucher dans la place libre : à gauche → clavier à gauche, à droite → à droite, au centre → au milieu
@@ -2591,6 +2592,13 @@ final class KeyboardCanvas: UIView {
     /// Un message important, gardé plus longtemps à l'écran (fin de l'essai gratuit).
     func notice(_ text: String) {
         flash(text, hold: 6)
+    }
+
+    /// Un conseil ou un rappel (ni une erreur, ni la réponse à ce qu'on vient de demander) : rien quand les
+    /// conseils sont coupés dans l'app (« Conseils et messages d'apprentissage »).
+    private func tip(_ text: String, hold: TimeInterval = 2.2) {
+        guard settings.learningTips else { return }
+        flash(text, hold: hold)
     }
 
     private func flash(_ text: String, hold: TimeInterval = 2.2) {
@@ -4804,9 +4812,9 @@ final class KeyboardCanvas: UIView {
                 // Le rappel « Maintiens le micro » : les trois premières fois seulement (il gênait à chaque
                 // effleurement du micro).
                 let seen = UserDefaults.standard.integer(forKey: "foldboard.micHoldHint")
-                if eff.micHold, eff.micHoldHint, seen < 3 {
+                if eff.micHold, eff.micHoldHint, settings.learningTips, seen < 3 {
                     UserDefaults.standard.set(seen + 1, forKey: "foldboard.micHoldHint")
-                    flash(L("Hold the mic to dictate"))
+                    tip(L("Hold the mic to dictate"))
                 }
             } else {
                 micTapped()

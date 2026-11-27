@@ -433,7 +433,15 @@ struct PositionView: View {
                     Text("On both sides").tag("split")
                 }
                 Toggle("Square keys", isOn: $m.settings.squareKeys)
-                Toggle("Learning messages", isOn: $m.settings.learningTips)
+                // Tous les conseils du clavier (pas seulement ceux de l'apprentissage) : coupé, il ne dit plus que les
+                // erreurs et les confirmations demandées.
+                Toggle(isOn: $m.settings.learningTips) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Tips and learning messages")
+                        Text("The short tips and notes the keyboard shows in its top bar. Errors and the confirmations you ask for still show.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
             } header: {
                 Text("Top bar")
             } footer: {
