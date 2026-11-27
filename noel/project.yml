@@ -26,7 +26,11 @@ targets:
         buildPhase: resources
       - path: Resources/Audio
         buildPhase: resources
-      - path: Resources/Video
+        excludes:
+          - "voice/**"
+      # La voix enregistrée : un dossier (voice/<langue>/…) copié tel quel dans l'app.
+      - path: Resources/Audio/voice
+        type: folder
         buildPhase: resources
       - path: Resources/Advent
         buildPhase: resources

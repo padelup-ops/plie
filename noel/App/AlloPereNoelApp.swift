@@ -55,7 +55,7 @@ final class AppModel {
     /// Lance l'appel choisi : on prépare la voix tout de suite, la sonnerie part maintenant ou après le délai.
     func startCall(premium: Bool) {
         profile.save()
-        call.prepare(profile: profile, scenario: scenario, premium: premium, sayLimit: premium ? nil : 3)
+        call.prepare(profile: profile, scenario: scenario, premium: premium)
         if delay == .now {
             ring()
         } else {
@@ -86,7 +86,7 @@ final class AppModel {
     }
 
     func replay(premium: Bool) {
-        call.prepare(profile: profile, scenario: scenario, premium: premium, sayLimit: premium ? nil : 3)
+        call.prepare(profile: profile, scenario: scenario, premium: premium)
         ring()
     }
 
@@ -105,14 +105,17 @@ final class AppModel {
         case "scenario": screen = .scenario
         case "incoming": screen = .incoming
         case "call", "surprise":
-            call.prepare(profile: profile, scenario: .magic, premium: false, audio: false)
-            let lines = call.script.compactMap(\.text)
+            call.prepare(profile: profile, scenario: .magic, premium: true, audio: false)
+            let script = call.script
+            let lines = script.compactMap(\.text)
             if route == "call" {
-                let line = lines.first(where: { $0.contains(profile.cleanNames.first ?? "§") && $0.count > 60 }) ?? lines.dropFirst(3).first ?? ""
-                call.pose(caption: line, mood: .talking)
+                // Le Père Noël dit le prénom : c'est la première phrase.
+                call.pose(caption: lines.first ?? "", mood: .talking, mouth: 0.75)
             } else {
-                let i = lines.count >= 3 ? lines.count - 2 : 0
-                call.pose(caption: lines.isEmpty ? "" : lines[i], mood: .surprised, surprise: true)
+                // La phrase qui annonce l'étoile, juste avant la surprise.
+                let spark = script.firstIndex { if case .spark = $0 { return true }; return false } ?? 0
+                let before = script[..<spark].last { $0.text != nil }?.text
+                call.pose(caption: before ?? lines.last ?? "", mood: .surprised, surprise: true, mouth: 0.4)
             }
             screen = .call
         case "end": screen = .ended

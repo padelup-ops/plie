@@ -1,0 +1,2 @@
+La voix enregistrée du Père Noël : un dossier par langue, un fichier par phrase.
+Fabriqué par noel/tools/voice.py (workflow « Noël - voix du Père Noël »), ne pas modifier à la main.

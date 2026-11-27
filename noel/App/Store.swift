@@ -58,9 +58,19 @@ final class MagicStore {
             }
         }
         await refresh()
+        await loadProducts()
+    }
+
+    /// Les prix viennent de l'App Store. S'ils n'ont pas pu être lus (pas de réseau au lancement), on redemande à
+    /// l'ouverture de la page d'achat : le bouton n'affiche jamais un prix inventé.
+    var passLoaded: Bool { passProduct != nil || ShotMode.route != nil }
+    var messagesLoaded: Bool { messagesProduct != nil || ShotMode.route != nil }
+
+    func loadProducts() async {
+        guard ShotMode.route == nil, passProduct == nil || messagesProduct == nil else { return }
         let found = (try? await Product.products(for: [Self.passID, Self.legacyID, Self.messagesID])) ?? []
-        passProduct = found.first { $0.id == Self.passID }
-        messagesProduct = found.first { $0.id == Self.messagesID }
+        if let p = found.first(where: { $0.id == Self.passID }) ?? found.first(where: { $0.id == Self.legacyID }) { passProduct = p }
+        if let m = found.first(where: { $0.id == Self.messagesID }) { messagesProduct = m }
     }
 
     func refresh() async {
@@ -159,6 +169,8 @@ struct PaywallView: View {
                         .font(.tale(36))
                         .foregroundStyle(Noel.cream)
                         .padding(.top, 22)
+                    CountdownChip()
+                        .padding(.top, 12)
                     Text("One purchase for the whole season. No subscription.")
                         .font(.ui(16))
                         .foregroundStyle(Noel.cream.opacity(0.75))
@@ -167,8 +179,11 @@ struct PaywallView: View {
                         .padding(.horizontal, 30)
 
                     VStack(alignment: .leading, spacing: 18) {
-                        perk("phone.fill", "Personalized calls, in Santa's voice")
+                        perk("phone.fill", "Five complete stories, in Santa's own voice")
                         perk("person.fill", "Santa says their name, age and what you told him")
+                        perk("text.bubble.fill", "His elf reads your own words: a proud moment, the Christmas wish")
+                        perk("star.fill", "The magic star surprise at the end of every call")
+                        perk("person.2.fill", "Calls for brothers and sisters together")
                         perk("envelope.fill", "A letter from Santa to print or share")
                         perk("rosette", "A good-child certificate")
                         perk("calendar", "An advent calendar, one message a day")
@@ -191,7 +206,13 @@ struct PaywallView: View {
                             .padding(.top, 18)
                     } else {
                         Button { gate = true } label: {
-                            if store.busy { ProgressView().tint(Noel.night) } else { Text("Unlock the Pass for \(store.passPrice)") }
+                            if store.busy {
+                                ProgressView().tint(Noel.night)
+                            } else if store.passLoaded {
+                                Text("Unlock the Pass for \(store.passPrice)")
+                            } else {
+                                Text("Unlock the Christmas Pass")
+                            }
                         }
                         .buttonStyle(MagicButtonStyle())
                         .disabled(store.busy)
@@ -204,7 +225,7 @@ struct PaywallView: View {
                             .padding(.top, 10)
                             .padding(.horizontal, 28)
                         Button { messagesGate = true } label: {
-                            Text("3 extra messages for \(store.messagesPrice)")
+                            if store.messagesLoaded { Text("3 extra messages for \(store.messagesPrice)") } else { Text("3 extra messages") }
                         }
                         .font(.ui(15, .semibold))
                         .foregroundStyle(Noel.goldLight)
@@ -248,6 +269,7 @@ struct PaywallView: View {
             .preferredColorScheme(.dark)
         }
         .onDisappear { store.message = nil }
+        .task { await store.loadProducts() }
     }
 
     private func perk(_ symbol: String, _ text: LocalizedStringKey) -> some View {
