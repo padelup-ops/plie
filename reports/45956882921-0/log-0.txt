@@ -37,3 +37,13 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
   self.gen = func(*args, **kwds)
   self.gen = func(*args, **kwds)
+[3/845] es ok  1.00 2.8s essais 4 (246s, reste 1850 min) ¡Jo, jo, jo! ¡Maravilloso! ¡Sigue así! → ¡Ho, ho, ho! Maravilloso. Sigue así.
+  self.gen = func(*args, **kwds)
+[4/845] es ok  1.00 6.9s essais 1 (91s, reste 1705 min) ¡Oh, esperen! Antes de irme, tengo una pequeña sorpresa para → Oh, esperen. Antes de irme tengo una pequeña sorpresa para u
+  self.gen = func(*args, **kwds)
+[5/845] es ok  1.00 2.1s essais 1 (39s, reste 1472 min) Me han contado que cuidan mucho de los demás. → Me han contado que cuidan mucho de los demás.
+  self.gen = func(*args, **kwds)
+[6/845] es ok  1.00 3.8s essais 1 (56s, reste 1355 min) ¡Jo, jo, jo! ¡Bravo! ¡Estoy muy orgulloso de ustedes! → ¡Ho, ho, ho! ¡Bravo! Estoy muy orgulloso de ustedes.
+  self.gen = func(*args, **kwds)
+[7/845] es ok  1.00 8.2s essais 1 (100s, reste 1360 min) Un pequeño reto para hoy: regala una sonrisa a alguien a qui → Un pequeño reto para hoy. Regala una sonrisa a alguien a qui
+  self.gen = func(*args, **kwds)

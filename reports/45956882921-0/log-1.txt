@@ -38,3 +38,15 @@ The following generation flags are not valid and may be ignored: ['output_attent
   self.gen = func(*args, **kwds)
 [4/844] es ok  1.00 3.5s essais 1 (52s, reste 1136 min) Este año he oído cosas preciosas sobre ti. → Este año he oído cosas preciosas sobre ti.
   self.gen = func(*args, **kwds)
+[5/844] es ok  1.00 3.3s essais 1 (53s, reste 1055 min) Y también que te encanta correr, saltar y moverte. → y también que te encanta correr, saltar y moverte.
+  self.gen = func(*args, **kwds)
+[6/844] es ok  1.00 2.3s essais 1 (42s, reste 977 min) ¡Feliz Navidad! ¡Jo, jo, jo! → Feliz Navidad! Ho, ho, ho!
+  self.gen = func(*args, **kwds)
+[7/844] es ok  0.97 6.6s essais 1 (84s, reste 1004 min) ¡Ya faltan muy pocos días! Los renos comen muchas zanahorias → Chafalta muy pocos días. Los renos comen muchas zanahorias p
+  self.gen = func(*args, **kwds)
+[8/844] pt ok  0.96 6.6s essais 1 (81s, reste 1018 min) Ho, ho, ho! Preciso voltar para a minha oficina. Desejo um N → Oh, oh, oh, preciso voltar para minha oficina. Desejo Natal 
+  self.gen = func(*args, **kwds)
+[9/844] de ok  1.00 4.2s essais 1 (62s, reste 999 min) Du bist jetzt also 6 Jahre alt? Das ist ein wunderbares Alte → Du bist jetzt also sechs Jahre alt. Das ist ein wunderbares 
+  self.gen = func(*args, **kwds)
+[10/844] de ok  0.96 4.0s essais 1 (58s, reste 978 min) Ho, ho, ho! Sehr gut. Dann hört mal zu… → Oh, ho, ho! Sehr gut! Dann hört man zu!
+  self.gen = func(*args, **kwds)
