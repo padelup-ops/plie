@@ -14,3 +14,7 @@
 {"id": "435db498cd0b58764a61", "key": "hello|carlota", "text": "¡Jo, jo, jo! ¡Hola, Carlota!", "ok": true, "score": 1.0, "dur": 3.74, "heard": "¡Ho ho ho! ¡Hola, Carlota!", "tries": 1, "secs": 76.9}
 {"id": "52780a631b3bac1a3c82", "key": "hello|miguel", "text": "¡Jo, jo, jo! ¡Hola, Miguel!", "ok": true, "score": 1.0, "dur": 2.06, "heard": "¡Ho ho ho ho! ¡Hola Miguel!", "tries": 2, "secs": 116.9}
 {"id": "2e4cbc04dbd05876311d", "key": "hello|carlos", "text": "¡Jo, jo, jo! ¡Hola, Carlos!", "ok": true, "score": 1.0, "dur": 2.08, "heard": "¡Ho ho ho! ¡Hola Carlos!", "tries": 2, "secs": 165.0}
+{"id": "650b47609247364d4cd4", "key": "hello|gael", "text": "¡Jo, jo, jo! ¡Hola, Gael!", "ok": true, "score": 0.796, "dur": 2.72, "heard": "¡Ho ho ho! ¡Hola, gail!", "tries": 3, "secs": 184.2}
+{"id": "16d24f8cbafed21a0c7b", "key": "hello|gabriel", "text": "¡Jo, jo, jo! ¡Hola, Gabriel!", "ok": true, "score": 1.0, "dur": 1.94, "heard": "ho ho ho, hola Gabriel", "tries": 1, "secs": 63.7}
+{"id": "e17cb08740e3ca8de4ad", "key": "hello|liam", "text": "¡Jo, jo, jo! ¡Hola, Liam!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "¡Ho ho ho! ¡Hola Liam!", "tries": 1, "secs": 60.4}
+{"id": "ca446ce6ab3286eb03f4", "key": "hello|alicia", "text": "¡Jo, jo, jo! ¡Hola, Alicia!", "ok": true, "score": 1.0, "dur": 1.96, "heard": "¡Ho ho ho! ¡Hola Alicia!", "tries": 2, "secs": 117.0}
