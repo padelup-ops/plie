@@ -2,8 +2,8 @@
 
     python3 padelup/tools/smoke_test.py https://padelup-test-test.up.railway.app
 
-Crée un compte jetable, choisit un niveau, ajoute un club OpenStreetMap près de Lille, puis vérifie que le bot
-lit pour de vrai les clubs et les créneaux Playtomic (sans réserver : aucune règle, aucun compte Playtomic).
+Crée un compte jetable, choisit un niveau, ajoute un club OpenStreetMap près de Lille, crée un match, vérifie le radar
+des joueurs (présence arrondie, disponibilité, proposition acceptée) et la communauté.
 """
 import json
 import secrets
@@ -73,21 +73,45 @@ if club_id:
 code, data = call('GET', '/api/bot/providers/')
 check('plateformes du bot', code == 200, ', '.join(p['name'] for p in data) if code == 200 else str(data)[:120])
 
-for city, lat, lon in [('Lille', 50.6292, 3.0573), ('Genève / Saint-Genis-Pouilly', 46.2436, 6.0256), ('Tunis', 36.8065, 10.1815)]:
-    code, clubs = call('GET', f'/api/bot/clubs/?provider=playtomic&lat={lat}&lon={lon}&radius=25')
-    ok = code == 200 and isinstance(clubs, list)
-    check(f'clubs Playtomic autour de {city}', ok, f"{len(clubs)} club(s) : " + ', '.join(c['name'] for c in clubs[:4]) if ok else f'{code} {str(clubs)[:200]}')
-    if ok and clubs:
-        tenant = clubs[0]
-        day = (date.today() + timedelta(days=2)).isoformat()
-        code, slots = call('GET', f"/api/bot/slots/?provider=playtomic&club_id={tenant['id']}&date={day}")
-        ok2 = code == 200 and isinstance(slots, dict)
-        sample = []
-        if ok2:
-            for d in slots.get('days', []):
-                sample += [f"{s['local_time']} {s['duration']}min {s['court_name']} {s['price_label']}" for s in d['slots'][:4]]
-        n = sum(len(d['slots']) for d in slots.get('days', [])) if ok2 else 0
-        check(f"créneaux Playtomic de « {tenant['name']} » le {day}", ok2, f'{n} créneau(x) : ' + ' | '.join(sample) if ok2 else f'{code} {str(slots)[:200]}')
+# Playtomic n'est plus lu par le serveur (vérification d'appareil et pare-feu Playtomic) : l'app le lit depuis l'iPhone.
+
+# Radar des joueurs : un second joueur visible près de Lille, retrouvé à distance arrondie, sans coordonnées.
+main_token = TOKEN
+other = 'test_' + secrets.token_hex(4)
+code, data = call('POST', '/api/auth/register/', {'username': other, 'email': f'{other}@example.com', 'password': 'Padel-test-2026!',
+                                                   'password2': 'Padel-test-2026!', 'full_name': 'Voisin Test'})
+other_token = (data or {}).get('token') if isinstance(data, dict) else None
+if other_token:
+    TOKEN = other_token
+    call('PUT', '/api/profile/', {'skill_level': 4})
+    code, data = call('PATCH', '/api/radar/', {'lat': 50.6377, 'lng': 3.0633})
+    check('présence sur le radar (position arrondie)', code == 200, f'{code}')
+    code, data = call('POST', '/api/availabilities/', {'day_of_week': 1, 'time_slot': 'evening', 'radius_km': 10})
+    check('disponibilité ajoutée', code == 201, f'{code}')
+    other_id = call('GET', '/api/profile/')[1].get('id')
+    TOKEN = main_token
+    code, data = call('GET', '/api/radar/?lat=50.6292&lng=3.0573&radius_km=15&min_skill=3&max_skill=5')
+    rows = data.get('results', []) if isinstance(data, dict) else []
+    found = [r for r in rows if r.get('username') == other]
+    check('radar : joueur voisin trouvé, sans coordonnées', code == 200 and bool(found) and 'latitude' not in found[0],
+          f"{code} {len(rows)} joueur(s), distance {found[0]['distance_km'] if found else '?'} km")
+    day = (date.today() + timedelta(days=3)).isoformat()
+    code, data = call('POST', '/api/proposals/', {'receiver_id': other_id, 'proposed_date': day, 'proposed_time_slot': 'evening',
+                                                  'message': 'Partant ?'})
+    check('proposition de match envoyée', code == 201, f'{code}')
+    pid = data.get('id') if isinstance(data, dict) else None
+    TOKEN = other_token
+    code, data = call('PUT', f'/api/proposals/{pid}/', {'action': 'accept'})
+    check('proposition acceptée', code == 200 and data.get('status') == 'accepted', f'{code}')
+    call('DELETE', '/api/radar/')
+    TOKEN = main_token
+
+code, data = call('POST', '/api/community/posts/', {'title': 'Cherche un 4e', 'content': 'Jeudi 19 h à Lomme, niveau 4.',
+                                                    'category': 'looking_for_players', 'city': 'Lille'})
+check('communauté : publication', code == 201, f'{code}')
+if code == 201:
+    code, data2 = call('POST', f"/api/community/posts/{data['id']}/like/")
+    check('communauté : j\'aime', code == 200 and data2.get('liked') is True, f'{code}')
 
 code, data = call('GET', '/api/matches/?page=1')
 check('liste des matchs', code == 200, f'{code}')
