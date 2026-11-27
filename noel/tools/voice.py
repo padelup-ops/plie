@@ -581,16 +581,21 @@ def cmd_plan(a):
     print("total", total)
 
 
+MIN_NAMES = 100
+
+
 def mark(lang: str) -> bool:
     """Une langue n'est servie par la voix enregistrée que si toutes ses répliques y sont : sinon le Père Noël
     changerait de voix au milieu de l'appel. Le fichier « complet.txt » le dit à l'app (les prénoms, eux, peuvent
     manquer : le lutin les dit)."""
     m = missing(lang)
     flag = VOICE / lang / "complet.txt"
-    done = not any(it["kind"] == "line" for it in m) and (VOICE / lang).is_dir()
+    total = sum(1 for it in plan(lang) if it["kind"] == "hello")
+    have = total - sum(1 for it in m if it["kind"] == "hello")
+    # Avec la voix enregistrée, un prénom qui manque n'est pas dit du tout (la voix de l'iPhone, elle, les dit tous) :
+    # une langue ne bascule que si les prénoms les plus donnés y sont aussi.
+    done = not any(it["kind"] == "line" for it in m) and have >= MIN_NAMES and (VOICE / lang).is_dir()
     if done:
-        total = sum(1 for it in plan(lang) if it["kind"] == "hello")
-        have = total - sum(1 for it in m if it["kind"] == "hello")
         flag.write_text(f"toutes les répliques ; {have} prénoms sur {total}\n", encoding="utf-8")
     else:
         flag.unlink(missing_ok=True)

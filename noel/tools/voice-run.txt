@@ -1,5 +1,5 @@
 light
-fr:hello:40 en:hello:60 fr:hello:60 en:hello:60 fr:hello en:hello fr:bye en:bye es:line de:line pt:line it:line es:hello de:hello it:hello pt:hello es:bye de:bye it:bye pt:bye
+es:line pt:line de:line it:line es:hello:60 pt:hello:60 de:hello:60 it:hello:60 fr:hello:60 en:hello:60 es:hello:60 pt:hello:60 de:hello:60 it:hello:60 fr:hello en:hello es:hello de:hello it:hello pt:hello fr:bye en:bye es:bye de:bye it:bye pt:bye
 2
 170
-passage 5
+passage 6
