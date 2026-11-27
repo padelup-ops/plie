@@ -4,10 +4,10 @@ Français
   Nom : Allô Père Noël
   Sous-titre (30) : L'appel du Père Noël
   Mots-clés : appel du père noël,message personnalisé,voix du père noël,lettre du père noël,calendrier avent,enfant sage,noël,famille
-  Texte promotionnel : Le Père Noël appelle ton enfant par son prénom. Lettre à imprimer, certificat d'enfant sage, calendrier de l'Avent.
+  Texte promotionnel : Le Père Noël appelle ton enfant en vidéo et dit son prénom, de sa vraie voix. Lettre à imprimer, certificat d'enfant sage, calendrier de l'Avent.
   Captures, dans l'ordre :
     1. Il appelle ton enfant par son prénom
-    2. Un message personnalisé, avec sa voix
+    2. Il parle vraiment : sa bouche suit sa voix
     3. La lettre du Père Noël, à partager
     4. Le certificat d'enfant sage
     5. Un message chaque jour de l'Avent
@@ -18,10 +18,10 @@ English
   Name : Santa Calls
   Subtitle (30) : A call from Santa
   Keywords : santa call,personalized message,santa voice,letter from santa,advent calendar,nice list,christmas,family
-  Promotional text : Santa calls your child by name. A letter to print, a nice-list certificate, and an advent calendar.
+  Promotional text : Santa video-calls your child and says their name in his own voice. A letter to print, a nice-list certificate, and an advent calendar.
   Screenshots, in order :
     1. He calls your child by name
-    2. A personalized message, in his voice
+    2. He really talks: his lips follow his voice
     3. Santa's letter, ready to share
     4. The nice-list certificate
     5. A message every day of Advent

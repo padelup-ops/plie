@@ -60,11 +60,11 @@ jobs:
   gen:
     needs: plan
     runs-on: ubuntu-latest
-    timeout-minutes: 215
+    timeout-minutes: 270
     strategy:
       fail-fast: false
       # Pas toutes les machines du compte : les autres apps doivent pouvoir compiler pendant ce temps.
-      max-parallel: 18
+      max-parallel: 12
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v5
@@ -95,8 +95,8 @@ jobs:
             # Deux fabrications en parallèle sur la machine (deux fils chacune), chacune son lot.
             export VOICE_THREADS=2 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
             A=$((SHARD * 2)); B=$((SHARD * 2 + 1)); N=$((OF * 2))
-            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$A/$N" --out out --minutes 170 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$A.txt &
-            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$B/$N" --out out --minutes 170 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$B.txt &
+            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$A/$N" --out out --minutes 235 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$A.txt &
+            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$B/$N" --out out --minutes 235 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$B.txt &
             wait
             tail -n 5 out/log-$LANG_CODE-$A.txt out/log-$LANG_CODE-$B.txt
           fi
