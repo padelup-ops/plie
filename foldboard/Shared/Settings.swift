@@ -147,6 +147,8 @@ struct KBSettings: Codable, Equatable {
     var layoutSwitchOpenOnly = true
     /// Le raccourci des dispositions à gauche des suggestions (sinon à droite).
     var layoutSwitchLeft = false
+    /// Le bouton de position seulement Duo ouvert (caché sur l'écran extérieur).
+    var handButtonOpenOnly = false
     /// Chaque bouton de la barre du haut, un par un. Le « … » caché se rallume dans l'app.
     /// Position (icône clavier / main), à part des curseurs de réglages.
     var showHandButton = true
@@ -339,6 +341,7 @@ struct KBSettings: Codable, Equatable {
         barButtons = (try? c.decodeIfPresent(Bool.self, forKey: .barButtons)) ?? d.barButtons
         layoutSwitchOpenOnly = (try? c.decodeIfPresent(Bool.self, forKey: .layoutSwitchOpenOnly)) ?? d.layoutSwitchOpenOnly
         layoutSwitchLeft = (try? c.decodeIfPresent(Bool.self, forKey: .layoutSwitchLeft)) ?? d.layoutSwitchLeft
+        handButtonOpenOnly = (try? c.decodeIfPresent(Bool.self, forKey: .handButtonOpenOnly)) ?? d.handButtonOpenOnly
         showHandButton = (try? c.decodeIfPresent(Bool.self, forKey: .showHandButton)) ?? barButtons
         showSettingsButton = (try? c.decodeIfPresent(Bool.self, forKey: .showSettingsButton)) ?? barButtons
         showMicButton = (try? c.decodeIfPresent(Bool.self, forKey: .showMicButton)) ?? d.showMicButton
@@ -573,6 +576,7 @@ struct KBSettings: Codable, Equatable {
         showMoreButton = newer.showMoreButton
         layoutSwitchOpenOnly = newer.layoutSwitchOpenOnly
         layoutSwitchLeft = newer.layoutSwitchLeft
+        handButtonOpenOnly = newer.handButtonOpenOnly
         barLayout = newer.barLayout
         compactBar = newer.compactBar
         learningTips = newer.learningTips
@@ -593,6 +597,7 @@ struct KBSettings: Codable, Equatable {
         keep(edited.showLayoutSwitch, baseline.showLayoutSwitch) { showLayoutSwitch = $0 }
         keep(edited.layoutSwitchOpenOnly, baseline.layoutSwitchOpenOnly) { layoutSwitchOpenOnly = $0 }
         keep(edited.layoutSwitchLeft, baseline.layoutSwitchLeft) { layoutSwitchLeft = $0 }
+        keep(edited.handButtonOpenOnly, baseline.handButtonOpenOnly) { handButtonOpenOnly = $0 }
         keep(edited.sideEmojis, baseline.sideEmojis) { sideEmojis = $0 }
         keep(edited.showSwapButton, baseline.showSwapButton) { showSwapButton = $0 }
         keep(edited.showCenterButton, baseline.showCenterButton) { showCenterButton = $0 }

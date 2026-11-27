@@ -414,6 +414,9 @@ struct PositionView: View {
 
             Section {
                 Toggle("Position button", isOn: $m.settings.showHandButton)
+                if m.settings.showHandButton {
+                    Toggle("Position button only when the Duo is open", isOn: $m.settings.handButtonOpenOnly)
+                }
                 Toggle("Settings button", isOn: $m.settings.showSettingsButton)
                 Toggle("Mic button", isOn: $m.settings.showMicButton)
                 Toggle("Clipboard button", isOn: $m.settings.showClipboardButton)

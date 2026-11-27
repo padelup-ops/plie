@@ -646,6 +646,7 @@
 "Open Foldboard settings" = "Foldboard 설정 열기";
 
 "Layout switcher on the left" = "레이아웃 전환을 왼쪽에 표시";
+"Position button only when the Duo is open" = "위치 버튼은 Duo를 펼쳤을 때만";
 "Order of the positions" = "위치 순서";
 "Drag the positions into the order you want. The keyboard's position menu and the lists in this app follow it." = "위치를 원하는 순서로 드래그하세요. 키보드의 위치 메뉴와 이 앱의 목록이 그 순서를 따릅니다.";
 "Back to the default order" = "기본 순서로 되돌리기";

@@ -3177,6 +3177,11 @@ final class KeyboardCanvas: UIView {
         return v
     }
 
+    /// Le bouton de position : son interrupteur, et l'option « seulement Duo ouvert » (caché sur l'écran extérieur).
+    private var handButtonShown: Bool {
+        settings.showHandButton && (!settings.handButtonOpenOnly || gripContext.hasPrefix("open"))
+    }
+
     private func layoutTopBar() {
         topBar.frame = CGRect(x: 0, y: barTop, width: bounds.width, height: Self.topBarHeight)
         let h = Self.topBarHeight
@@ -3185,7 +3190,7 @@ final class KeyboardCanvas: UIView {
         let confine = layoutMode.isOneHand && panelRect.width > 0 && !blocks.isEmpty
         let x0 = confine ? (blocks.map { $0.minX }.min() ?? 0) : 0
         let x1 = confine ? (blocks.map { $0.maxX }.max() ?? bounds.width) : bounds.width
-        let showPosition = settings.showHandButton
+        let showPosition = handButtonShown
         modeButton.isHidden = !showPosition
         modeButton.frame = CGRect(x: x0 + 6, y: 0, width: showPosition ? 40 : 0, height: h)
         modeButton.setImage(UIImage(systemName: eff.mode.symbol), for: .normal)
@@ -3615,7 +3620,7 @@ final class KeyboardCanvas: UIView {
             b.frame.size.width = 0
         }
         if !eff.emojiKey { hide(emojiButton) }
-        if !settings.showHandButton { hide(modeButton) }
+        if !handButtonShown { hide(modeButton) }
         if !settings.showSettingsButton { hide(adjustButton) }
         if !settings.showSwapButton { hide(flipButton) }
         if !settings.showCenterButton { hide(middleButton) }

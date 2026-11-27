@@ -90,6 +90,7 @@ struct SettingsEntry: Identifiable {
         e("Hide keyboard button", "masquer fermer clavier hide dismiss keyboard button", .position),
         e("Tips and learning messages", "conseils astuces messages apprentissage noté tips hints learning", .position),
         e("Layout switcher on the left", "raccourci dispositions gauche droite côté switcher left right side", .position),
+        e("Position button only when the Duo is open", "bouton position ouvert déplié fermé écran extérieur unfolded open folded closed", .position),
         e("Order of the positions", "ordre positions menu trier réordonner déplacer order reorder sort position menu", .position),
         e("Show emoji next to the keys", "emojis récents côté une main cacher masquer recent emoji side one hand hide", .phrases),
         e("Auto-correction", "correction autocorrect fautes typos corriger", .typing),
