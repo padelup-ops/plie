@@ -24,7 +24,19 @@ on:
       shards:
         description: "Machines par langue (deux fabrications par machine)"
         required: false
-        default: "3"
+        default: "2"
+      limit:
+        description: "Essai rapide : nombre de phrases par fabrication (0 = tout)"
+        required: false
+        default: "0"
+      minutes:
+        description: "Temps de fabrication par machine (minutes)"
+        required: false
+        default: "235"
+      branch:
+        description: "Branche des résultats"
+        required: false
+        default: "ci-noel-voice"
 
 jobs:
   plan:
@@ -60,11 +72,11 @@ jobs:
   gen:
     needs: plan
     runs-on: ubuntu-latest
-    timeout-minutes: 215
+    timeout-minutes: 270
     strategy:
       fail-fast: false
       # Pas toutes les machines du compte : les autres apps doivent pouvoir compiler pendant ce temps.
-      max-parallel: 18
+      max-parallel: 12
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v5
@@ -87,6 +99,8 @@ jobs:
           LANG_CODE: ${{ matrix.lang }}
           SHARD: ${{ matrix.shard }}
           OF: ${{ matrix.of }}
+          LIMIT: ${{ inputs.limit || '0' }}
+          MINUTES: ${{ inputs.minutes || '235' }}
         run: |
           mkdir -p out
           if [ "$MODE" = pilot ]; then
@@ -95,10 +109,10 @@ jobs:
             # Deux fabrications en parallèle sur la machine (deux fils chacune), chacune son lot.
             export VOICE_THREADS=2 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
             A=$((SHARD * 2)); B=$((SHARD * 2 + 1)); N=$((OF * 2))
-            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$A/$N" --out out --minutes 170 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$A.txt &
-            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$B/$N" --out out --minutes 170 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$B.txt &
+            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$A/$N" --out out --minutes "$MINUTES" --limit "$LIMIT" 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$A.txt &
+            python noel/tools/voice.py gen --lang "$LANG_CODE" --shard "$B/$N" --out out --minutes "$MINUTES" --limit "$LIMIT" 2>&1 | grep -v -i "warn" > out/log-$LANG_CODE-$B.txt &
             wait
-            tail -n 5 out/log-$LANG_CODE-$A.txt out/log-$LANG_CODE-$B.txt
+            tail -n 40 out/log-$LANG_CODE-$A.txt out/log-$LANG_CODE-$B.txt
           fi
           find out -name "*.try*" -delete
           du -sh out; find out -name "*.m4a" | wc -l
@@ -123,6 +137,7 @@ jobs:
         env:
           GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODE: ${{ needs.plan.outputs.mode }}
+          BRANCH: ${{ inputs.branch || 'ci-noel-voice' }}
         run: |
           mkdir -p out
           for d in parts/*/; do cp -R "$d". out/ 2>/dev/null || true; done
@@ -141,7 +156,7 @@ jobs:
           for p in sorted(glob.glob("pilot-*.json")):
               print(p)
           EOF
-          BR=ci-noel-voice; [ "$MODE" = pilot ] && BR=ci-noel-voice-pilot
+          BR="$BRANCH"; [ "$MODE" = pilot ] && BR=ci-noel-voice-pilot
           git init -q -b "$BR"
           git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
           git add -A && git commit -qm "Voix du Père Noël ($MODE)" && git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BR"
