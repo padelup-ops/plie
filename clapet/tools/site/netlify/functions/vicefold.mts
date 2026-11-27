@@ -5,6 +5,11 @@
 // Clés :  p/<sujet>/<id>  le message (JSON)  ·  v/<id>/<auteur>  « utile »  ·  r/<id>/<auteur>  un signalement
 //         ban/<auteur>  auteur bloqué par la modération  ·  q/<auteur>/<jour>/<id>  pour limiter les envois
 // <sujet> : l'identifiant d'une mission (m1-04…) ou « general ».
+// Véhicules rares (Cars.swift dans l'app) : ils passent par les mêmes messages, sans autre route.
+//   · sujet « cars » : un message « Nom du véhicule @ 0.6123,0.4571 » est un emplacement ajouté par un joueur ; son vote
+//     « utile » veut dire « il est là », une réponse « [not here] » veut dire « pas là » ;
+//   · sujet = l'identifiant d'un véhicule de la carte (o-…) : un message « [here] » ou « [not here] » est un vote.
+//   Un vote ne compte pas dans la limite d'envois du jour, et chaque joueur n'en garde qu'un par emplacement.
 // Apple (règle 1.2) : filtre des contenus choquants, signalement, blocage, modération rapide (caché après 3 signalements).
 import { getStore } from "@netlify/blobs"
 import type { Config, Context } from "@netlify/functions"
@@ -138,13 +143,23 @@ export default async (req: Request, _context: Context) => {
       if (typeof b.parent !== "string" || !(await s.get(`p/${topic}/${b.parent}`))) return json({ error: "parent" }, 400)
       parent = b.parent
     }
+    // Véhicules rares : un vote (« [here] », « [not here] ») ou, dans « cars », un emplacement « Nom @ x,y ».
+    const vote = text === "[here]" || text === "[not here]"
+    if (topic === "cars" && !(parent ? text === "[not here]" : /^.{2,60} @ [01]\.\d{1,5},[01]\.\d{1,5}$/.test(text))) return json({ error: "format" }, 400)
     const day = new Date().toISOString().slice(0, 10)
-    const { blobs } = await s.list({ prefix: `q/${b.author}/${day}/` })
-    if (blobs.length >= 20) return json({ error: "limit" }, 429)
+    if (vote) {
+      // Un seul vote par joueur et par emplacement : le précédent s'efface.
+      for (const x of await posts(`p/${topic}/`)) {
+        if (x.author === b.author && x.parent === parent && (x.text === "[here]" || x.text === "[not here]")) await s.delete(`p/${topic}/${x.id}`)
+      }
+    } else {
+      const { blobs } = await s.list({ prefix: `q/${b.author}/${day}/` })
+      if (blobs.length >= 20) return json({ error: "limit" }, 429)
+    }
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
     const p: Post = { id, topic, parent, text, alias, author: b.author, lang: String(b.lang ?? "").slice(0, 8), created: Date.now(), spoiler: !!b.spoiler }
     await s.setJSON(`p/${topic}/${id}`, p)
-    await s.set(`q/${b.author}/${day}/${id}`, "1")
+    if (!vote) await s.set(`q/${b.author}/${day}/${id}`, "1")
     return json({ ok: true, id })
   }
 
