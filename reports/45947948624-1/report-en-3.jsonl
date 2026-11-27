@@ -8,3 +8,6 @@
 {"id": "7909acb277dedab4ea9b", "key": "hello|mason", "text": "Ho, ho, ho! Hello, Mason!", "ok": true, "score": 1.0, "dur": 2.6, "heard": "Ho, ho, ho. Hello, Mason.", "tries": 1, "secs": 51.3}
 {"id": "613d16b12b062d65c861", "key": "hello|luca", "text": "Ho, ho, ho! Hello, Luca!", "ok": true, "score": 1.0, "dur": 2.12, "heard": "Ho, ho, ho. Hello, Luca.", "tries": 2, "secs": 98.5}
 {"id": "9f66ea3247a179fa5b5e", "key": "hello|jacob", "text": "Ho, ho, ho! Hello, Jacob!", "ok": true, "score": 1.0, "dur": 2.28, "heard": "Oh ho ho! Hello Jacob!", "tries": 1, "secs": 49.3}
+{"id": "61c0fe3cdb257572b2e9", "key": "hello|gabriel", "text": "Ho, ho, ho! Hello, Gabriel!", "ok": true, "score": 1.0, "dur": 2.5, "heard": "Oh ho ho ho! Hello Gabriel!", "tries": 1, "secs": 49.4}
+{"id": "ed323a8c735df9fda09b", "key": "hello|maverick", "text": "Ho, ho, ho! Hello, Maverick!", "ok": true, "score": 1.0, "dur": 2.14, "heard": "Ho Ho Ho! Hello Maverick!", "tries": 1, "secs": 50.8}
+{"id": "6e790b5508fc2c8b3518", "key": "hello|delilah", "text": "Ho, ho, ho! Hello, Delilah!", "ok": false, "score": 0.922, "dur": 3.12, "heard": "Oh ho ho. Hello, Delilah. Delilah.", "tries": 3, "secs": 190.4}
