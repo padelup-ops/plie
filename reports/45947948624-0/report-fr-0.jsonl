@@ -1,2 +1,4 @@
 {"id": "b3197cedd7b029dc6dda", "key": "hello|jules", "text": "Ho, ho, ho ! Bonjour Jules !", "ok": false, "score": 1.0, "dur": 4.36, "heard": "Oh ho ho ! Bonjour Jules !", "tries": 1, "secs": 262.1}
 {"id": "04b72a754a8dc971387d", "key": "hello|sacha", "text": "Ho, ho, ho ! Bonjour Sacha !", "ok": true, "score": 1.0, "dur": 2.58, "heard": "Ho, ho, ho. Bonjour, Sacha.", "tries": 1, "secs": 69.9}
+{"id": "52a3a11174180041f6de", "key": "hello|noe", "text": "Ho, ho, ho ! Bonjour Noé !", "ok": true, "score": 1.0, "dur": 2.46, "heard": "Oh ho ho ! Bonjour Noé !", "tries": 2, "secs": 145.8}
+{"id": "213d32d701b882248d5b", "key": "hello|marius", "text": "Ho, ho, ho ! Bonjour Marius !", "ok": true, "score": 1.0, "dur": 2.84, "heard": "Oh ho ho ho bonjour, Marius.", "tries": 2, "secs": 164.8}
