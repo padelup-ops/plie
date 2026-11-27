@@ -319,7 +319,8 @@ struct LaunchView: View {
     @State private var faded = false
 
     private static let seenKey = "vicefold.launchSeen"
-    private let script: LaunchScript = UserDefaults.standard.bool(forKey: LaunchView.seenKey) ? .short : .full
+    // Choisi une fois, à l'ouverture (un état : il ne change pas si la vue est recréée pendant l'animation).
+    @State private var script: LaunchScript = UserDefaults.standard.bool(forKey: LaunchView.seenKey) ? .short : .full
 
     /// Au démarrage : toujours, sauf pendant les captures (où seules les routes « launch… » la montrent, figée).
     static var wanted: Bool { ShotMode.route == nil || ShotMode.launchFrame != nil }
