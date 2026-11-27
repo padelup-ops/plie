@@ -35,11 +35,8 @@
 "Santa pauses so your child can answer him. Nothing is recorded: the app never uses the microphone." = "Papá Noel hace pausas para que puedan responderle. No se graba nada: la app nunca usa el micrófono.";
 "Santa is talking…" = "Papá Noel está hablando…";
 "Hear Santa's voice" = "Escuchar la voz de Papá Noel";
-"For an even warmer voice, download an enhanced voice in Settings › Accessibility › Spoken Content › Voices." = "Para una voz aún más cálida, descarga una voz mejorada en Ajustes › Accesibilidad › Contenido leído › Voces.";
 "Santa's voice" = "La voz de Papá Noel";
 "Subtitles during the call" = "Subtítulos durante la llamada";
-"Full magic unlocked. Thank you! ✨" = "Magia completa desbloqueada. ¡Gracias! ✨";
-"Unlock the full magic" = "Desbloquear la magia completa";
 "Restore purchases" = "Restaurar compras";
 "Full magic" = "Magia completa";
 "Privacy" = "Privacidad";
@@ -129,18 +126,7 @@
 "The App Store can't be reached. Try again in a moment." = "No se puede conectar con el App Store. Inténtalo de nuevo en un momento.";
 "The purchase is waiting for approval." = "La compra está pendiente de aprobación.";
 "The purchase didn't go through. Nothing was charged." = "La compra no se ha completado. No se ha cobrado nada.";
-"The full magic is back! ✨" = "¡La magia completa ha vuelto! ✨";
 "No purchase to restore on this Apple account." = "No hay ninguna compra que restaurar en esta cuenta de Apple.";
-"The full magic" = "La magia completa";
-"One purchase for all your children. No subscription." = "Una sola compra para todos los niños de casa. Sin suscripción.";
-"4 more stories, including the Christmas Eve call" = "4 historias más, incluida la llamada de Nochebuena";
-"One call for brothers and sisters together" = "Una llamada para hermanos y hermanas juntos";
-"Santa mentions a special moment of the year" = "Papá Noel menciona un momento especial del año";
-"Santa knows the Christmas wish" = "Papá Noel conoce el deseo de Navidad";
-"Premium keepsake cards" = "Tarjetas de recuerdo premium";
-"Unlocked. Thank you! ✨" = "Desbloqueado. ¡Gracias! ✨";
-"Unlock for %@" = "Desbloquear por %@";
-"One-time purchase. The free magic call stays free." = "Compra única. La llamada mágica gratuita sigue siendo gratis.";
 "Not now" = "Ahora no";
 "Privacy policy" = "Política de privacidad";
 "For grown-ups" = "Para adultos";
@@ -154,7 +140,6 @@
 "Hear Santa's greeting" = "Escuchar el saludo de Papá Noel";
 "Christmas Pass" = "Pase de Navidad";
 "One purchase for the whole season. No subscription." = "Una compra para toda la temporada. Sin suscripción.";
-"Personalized calls, in Santa's voice" = "Llamadas personalizadas, con la voz de Papá Noel";
 "Santa says their name, age and what you told him" = "Dice el nombre, la edad y lo que le contaste";
 "A letter from Santa to print or share" = "Una carta de Papá Noel para imprimir o compartir";
 "A good-child certificate" = "Un diploma de niño bueno";
@@ -166,7 +151,6 @@
 "3 extra messages for %@" = "3 mensajes extra por %@";
 "Messages left: %lld" = "Mensajes restantes: %lld";
 "Santa still has more to say…" = "Papá Noel todavía tiene más que decir…";
-"Hear the rest" = "Escuchar el resto";
 "Letter from Santa" = "Carta de Papá Noel";
 "A short free preview" = "Una vista previa corta y gratis";
 "Advent calendar" = "Calendario de Adviento";
