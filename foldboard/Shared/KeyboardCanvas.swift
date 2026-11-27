@@ -3202,7 +3202,10 @@ final class KeyboardCanvas: UIView {
         // Écran intérieur : un bouton pour passer d'une disposition à l'autre.
         // Portrait : petit clavier qui suit la main ⇄ deux moitiés. Paysage : clavier entier ⇄ deux moitiés.
         let open = gripContext.hasPrefix("open")
-        let bigShown = open && pro && settings.showLayoutMenu
+        // Sans Foldboard Pro aussi : l'aperçu dans l'app (toujours Pro) montrait ce bouton, le vrai clavier jamais
+        // tant que l'essai n'était pas lancé. Son panneau sert aussi sans Pro (toute la largeur, boutons de la barre,
+        // réglages) et ses choix Pro demandent de débloquer, comme le raccourci des dispositions.
+        let bigShown = open && settings.showLayoutMenu
         bigButton.isHidden = !bigShown
         // Comme le clavier d'Apple sur le Duo ouvert : « … » ouvre un menu avec les deux dispositions, cochée.
         bigButton.setImage(UIImage(systemName: "ellipsis"), for: .normal)
@@ -5429,9 +5432,57 @@ final class KeyboardCanvas: UIView {
         if barSheet?.isHidden == false { barSheet?.reload(self) }
     }
 
-    /// Les couleurs du thème pour le panneau du « … ».
-    func barSheetStyle() -> (background: UIColor, key: UIColor, text: UIColor, accent: UIColor) {
-        (theme.background.withAlphaComponent(1), theme.key.withAlphaComponent(1), theme.text, theme.accent)
+    /// Les couleurs du thème pour le panneau du « … », en clair ou en sombre comme le clavier.
+    func barSheetStyle() -> (background: UIColor, key: UIColor, text: UIColor, accent: UIColor, onAccent: UIColor) {
+        Self.sheetPalette(theme, traits: traitCollection)
+    }
+
+    /// Les couleurs du panneau du « … » : opaques, et un titre toujours lisible sur sa ligne.
+    /// Avant, les touches translucides du thème Verre étaient simplement rendues opaques : blanches, sous un texte
+    /// blanc en mode sombre (des lignes blanches sans titre). Ici chaque couleur translucide est posée sur le fond
+    /// qu'elle a dans le clavier, et si le texte du thème ne se lit pas assez sur la ligne (contraste sous 4,5),
+    /// il passe au noir ou au blanc, le plus lisible des deux.
+    static func sheetPalette(_ theme: KBTheme, traits: UITraitCollection)
+        -> (background: UIColor, key: UIColor, text: UIColor, accent: UIColor, onAccent: UIColor) {
+        // Sous un thème translucide, le fond du clavier d'iOS (clair ou sombre).
+        let base = KBTheme.auto.background.resolvedColor(with: traits)
+        let background = flatten(theme.background.resolvedColor(with: traits), over: base)
+        let key = flatten(theme.key.resolvedColor(with: traits), over: background)
+        let accent = flatten(theme.accent.resolvedColor(with: traits), over: background)
+        let text = readable(theme.text.resolvedColor(with: traits), on: key, atLeast: 4.5)
+        // « OK » : blanc sur la couleur d'accent, sauf sur un accent clair (jaune, menthe, bleu ciel).
+        let onAccent = readable(.white, on: accent, atLeast: 3)
+        return (background, key, text, accent, onAccent)
+    }
+
+    /// Une couleur posée sur un fond opaque : la couleur qu'on voit vraiment.
+    static func flatten(_ color: UIColor, over base: UIColor) -> UIColor {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        var br: CGFloat = 0, bg: CGFloat = 0, bb: CGFloat = 0, ba: CGFloat = 0
+        guard color.getRed(&r, green: &g, blue: &b, alpha: &a), base.getRed(&br, green: &bg, blue: &bb, alpha: &ba) else { return base }
+        return UIColor(red: r * a + br * (1 - a), green: g * a + bg * (1 - a), blue: b * a + bb * (1 - a), alpha: 1)
+    }
+
+    /// Le contraste entre deux couleurs opaques (rapport de luminance du WCAG : 1 pour deux couleurs égales, 21
+    /// entre le noir et le blanc).
+    static func contrast(_ first: UIColor, _ second: UIColor) -> CGFloat {
+        func luminance(_ color: UIColor) -> CGFloat {
+            var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+            guard color.getRed(&r, green: &g, blue: &b, alpha: &a) else { return 0 }
+            func linear(_ v: CGFloat) -> CGFloat {
+                let c = min(1, max(0, v))
+                return c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
+            }
+            return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
+        }
+        let x = luminance(first), y = luminance(second)
+        return (max(x, y) + 0.05) / (min(x, y) + 0.05)
+    }
+
+    /// La couleur voulue si elle se lit sur ce fond, sinon le noir ou le blanc (le plus lisible des deux).
+    static func readable(_ wanted: UIColor, on back: UIColor, atLeast ratio: CGFloat) -> UIColor {
+        if contrast(wanted, back) >= ratio { return wanted }
+        return contrast(.black, back) >= contrast(.white, back) ? .black : .white
     }
 
     func barSheetRows() -> [(id: String, title: String, check: Bool)] {
@@ -5489,8 +5540,35 @@ final class KeyboardCanvas: UIView {
         start.nxt = probe
         let url = URL(string: "foldboard://settings")!
         let delivered = deliver(url, from: start) && probe.url == url
-        let ok = noSystemMenu && open && split && closed && switched && delivered
-        print("RESULT barsheet menu=\(noSystemMenu) open=\(open) split=\(split) closed=\(closed) switch=\(switched) url=\(delivered) \(ok ? "yes" : "no")")
+        // Les titres du panneau se lisent sur leur ligne dans chaque thème, en clair comme en sombre : d'abord les
+        // couleurs calculées pour les deux modes, puis celles relues sur les vrais boutons du panneau ouvert.
+        // Un titre de la couleur de sa ligne donne 1 (c'était le thème Verre en sombre : blanc sur blanc).
+        var worstRow = CGFloat.greatestFiniteMagnitude, worstDone = CGFloat.greatestFiniteMagnitude
+        for t in KBTheme.all {
+            for style in [UIUserInterfaceStyle.light, .dark] {
+                let p = sheetPalette(t, traits: UITraitCollection(userInterfaceStyle: style))
+                worstRow = min(worstRow, contrast(p.text, p.key))
+                worstDone = min(worstDone, contrast(p.onAccent, p.accent))
+                c.overrideUserInterfaceStyle = style
+                s.theme = t.id
+                c.configure(settings: s, pro: true)
+                c.builtFor = .zero
+                c.layoutIfNeeded()
+                if c.barSheet?.isHidden != false { c.toggleBarSheet() } else { c.barSheet?.reload(c) }
+                let drawn = c.barSheet?.contrasts() ?? (rows: 0, done: 0)
+                worstRow = min(worstRow, drawn.rows)
+                worstDone = min(worstDone, drawn.done)
+            }
+        }
+        c.overrideUserInterfaceStyle = .unspecified
+        c.barSheet?.isHidden = true
+        // La mesure voit bien le défaut signalé : les anciennes couleurs du thème Verre en sombre.
+        let dark = UITraitCollection(userInterfaceStyle: .dark)
+        let glass = KBTheme.named("glass")
+        let before = contrast(glass.text.resolvedColor(with: dark), glass.key.withAlphaComponent(1).resolvedColor(with: dark))
+        let readableRows = worstRow >= 4.5 && worstDone >= 3 && before < 1.5
+        let ok = noSystemMenu && open && split && closed && switched && delivered && readableRows
+        print("RESULT barsheet menu=\(noSystemMenu) open=\(open) split=\(split) closed=\(closed) switch=\(switched) url=\(delivered) contraste_lignes=\(String(format: "%.1f", worstRow)) contraste_ok=\(String(format: "%.1f", worstDone)) ancien_verre_sombre=\(String(format: "%.1f", before)) lisible=\(readableRows) \(ok ? "yes" : "no")")
         return ok
     }
 
@@ -5563,6 +5641,8 @@ final class KBBarSheet: UIView {
     private var textColor = UIColor.label
     private var accent = UIColor.systemBlue
     private var keyColor = UIColor.secondarySystemBackground
+    /// Les couleurs sont choisies pour le mode clair ou sombre du moment : s'il change panneau ouvert, on les refait.
+    private var styledDark = false
     private static let rowHeight: CGFloat = 42
 
     override init(frame: CGRect) {
@@ -5579,6 +5659,11 @@ final class KBBarSheet: UIView {
         scroll.delaysContentTouches = false
         card.addSubview(scroll)
         isHidden = true
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (v: KBBarSheet, _: UITraitCollection) in
+            guard !v.isHidden, let canvas = v.canvas,
+                  v.styledDark != (canvas.traitCollection.userInterfaceStyle == .dark) else { return }
+            v.reload(canvas)
+        }
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -5614,6 +5699,7 @@ final class KBBarSheet: UIView {
         textColor = style.text
         accent = style.accent
         keyColor = style.key
+        styledDark = canvas.traitCollection.userInterfaceStyle == .dark
         let items = canvas.barSheetRows()
         while rows.count < items.count {
             let b = UIButton(type: .system)
@@ -5634,7 +5720,7 @@ final class KBBarSheet: UIView {
             var cfg = UIButton.Configuration.plain()
             var title = AttributedString(item.title)
             title.font = .systemFont(ofSize: 15, weight: closing || item.check ? .semibold : .regular)
-            title.foregroundColor = closing ? UIColor.white : textColor
+            title.foregroundColor = closing ? style.onAccent : textColor
             cfg.attributedTitle = title
             cfg.titleLineBreakMode = .byTruncatingTail
             cfg.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 10)
@@ -5656,6 +5742,20 @@ final class KBBarSheet: UIView {
         for b in rows.dropFirst(items.count) { b.isHidden = true }
         scroll.contentOffset = .zero
         setNeedsLayout()
+    }
+
+    /// Banc d'essai : le plus faible contraste entre un titre et son fond, lu sur les boutons tels qu'ils sont
+    /// configurés (les lignes d'une part, le bouton « OK » de l'autre). Un titre de la couleur de sa ligne donne 1.
+    func contrasts() -> (rows: CGFloat, done: CGFloat) {
+        guard shown > 0 else { return (0, 0) }
+        var worstRow = CGFloat.greatestFiniteMagnitude, worstDone = CGFloat.greatestFiniteMagnitude
+        for b in rows.prefix(shown) {
+            let fore: UIColor? = b.configuration?.attributedTitle?.foregroundColor
+            guard let fore, let back = b.configuration?.background.backgroundColor else { return (0, 0) }
+            let ratio = KeyboardCanvas.contrast(fore.resolvedColor(with: traitCollection), back.resolvedColor(with: traitCollection))
+            if b.accessibilityIdentifier == "close" { worstDone = min(worstDone, ratio) } else { worstRow = min(worstRow, ratio) }
+        }
+        return (worstRow, worstDone)
     }
 }
 
