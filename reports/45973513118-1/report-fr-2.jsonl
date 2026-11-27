@@ -25,3 +25,6 @@
 {"id": "75554416b2de73503af9", "key": "hello|omar", "text": "Ho, ho, ho ! Bonjour Omar !", "ok": true, "score": 0.806, "dur": 2.44, "heard": "Ho ho ho ! Bonjour Amar !", "tries": 1, "secs": 72.5}
 {"id": "ca472e8caee8ba0ed928", "key": "hello|alex", "text": "Ho, ho, ho ! Bonjour Alex !", "ok": true, "score": 1.0, "dur": 2.38, "heard": "Oh, bonjour Alex.", "tries": 1, "secs": 66.1}
 {"id": "fc56f06fba92c7e4ec68", "key": "hello|marley", "text": "Ho, ho, ho ! Bonjour Marley !", "ok": false, "score": 0.933, "dur": 4.36, "heard": "Ho ho ho bonjour Marley. Marley?", "tries": 2, "secs": 318.2}
+{"id": "cd9b6df498eb86cf7dda", "key": "hello|yael", "text": "Ho, ho, ho ! Bonjour Yaël !", "ok": true, "score": 1.0, "dur": 2.52, "heard": "Oh ho ho, bonjour Yael.", "tries": 3, "secs": 261.2}
+{"id": "b097fdbe59bd1a200f95", "key": "hello|nolwenn", "text": "Ho, ho, ho ! Bonjour Nolwenn !", "ok": true, "score": 1.0, "dur": 2.88, "heard": "Ho Ho Ho ! Bonjour Nolwenn !", "tries": 1, "secs": 73.2}
+{"id": "234314435ad0e71d6422", "key": "hello|flavie", "text": "Ho, ho, ho ! Bonjour Flavie !", "ok": true, "score": 1.0, "dur": 2.44, "heard": "Ho, ho, ho ! Bonjour Flavie !", "tries": 2, "secs": 178.9}
