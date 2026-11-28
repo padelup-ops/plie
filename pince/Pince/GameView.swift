@@ -54,7 +54,7 @@ struct GameView: View {
             // la moitié relevée, face au joueur ; le pupitre et le bac prennent la moitié posée sur la table.
             let laptop = game.halfFolded && !wide
             let panel = laptop ? size.height / 2
-                : (wide ? max(120, size.height * 0.27) : min(250 * k, max(190 * k, size.height * 0.27)) + insets.bottom)
+                : (wide ? max(120, size.height * (compact ? 0.27 : 0.31)) : min(250 * k, max(190 * k, size.height * 0.27)) + insets.bottom)
             ZStack {
                 MachineView(game: game, panel: panel)
 
@@ -64,7 +64,7 @@ struct GameView: View {
                         HStack {
                             TrackingBadge()
                             Spacer()
-                            TopButtons()
+                            if compact { TopButtons() }
                         }
                     }
                     .padding(.horizontal, max(16, insets.leading + 8) / k)
@@ -354,6 +354,8 @@ struct TopButtons: View {
 
 struct Joystick: View {
     let diameter: CGFloat
+    /// Sur la plaque sombre, un anneau clair détache le manche.
+    var ringed = false
     let onMove: (CGSize) -> Void
     @State private var knob = CGSize.zero
     @State private var held = false
@@ -361,7 +363,10 @@ struct Joystick: View {
     var body: some View {
         let reach = diameter * 0.27
         ZStack {
-            Circle().fill(Color(hex: 0x4B2A4A))
+            Circle().fill(Color(hex: ringed ? 0x2F1830 : 0x4B2A4A))
+            if ringed {
+                Circle().strokeBorder(Color(hex: Tint.mint), lineWidth: max(2.5, diameter * 0.028))
+            }
             Circle()
                 .fill(RadialGradient(colors: [Color(hex: 0x7A4A6C), Color(hex: 0x3F2140)], center: .center, startRadius: 0, endRadius: diameter / 2))
                 .padding(diameter * 0.06)
@@ -435,8 +440,8 @@ struct ArcadeButton: ButtonStyle {
 struct DropControl: View {
     @Environment(Game.self) private var game
     let diameter: CGFloat
-    /// Écrit en clair, pour la plaque de commande.
-    var light = false
+    /// Le prix sous le bouton. Sur la plaque, c'est une étiquette à part qui le donne.
+    var labelled = true
 
     var body: some View {
         VStack(spacing: 12) {
@@ -448,7 +453,7 @@ struct DropControl: View {
                         .frame(width: diameter, height: diameter)
                 }
                 .buttonStyle(ArcadeButton(color: Color(hex: 0x4FBF8B), shade: Color(hex: 0x2F8F63)))
-                Text("+\(Game.gift)").font(.toon(16)).foregroundStyle(Color(hex: light ? Tint.paper : 0x2F8F63))
+                if labelled { Text("+\(Game.gift)").font(.toon(16)).foregroundStyle(Color(hex: 0x2F8F63)) }
             } else {
                 Button(action: { game.drop() }) {
                     Image(systemName: "chevron.down")
@@ -458,9 +463,11 @@ struct DropControl: View {
                 }
                 .buttonStyle(ArcadeButton(color: Color(hex: game.canDrop ? 0xF2496B : 0xC9B8C2), shade: Color(hex: game.canDrop ? 0xB52C4C : 0xA4939D)))
                 .disabled(!game.canDrop)
-                HStack(spacing: 4) {
-                    CoinIcon(size: 16)
-                    Text("\(Game.cost)").font(.toon(16)).foregroundStyle(Color(hex: light ? Tint.paper : Tint.plum))
+                if labelled {
+                    HStack(spacing: 4) {
+                        CoinIcon(size: 16)
+                        Text("\(Game.cost)").font(.toon(16)).foregroundStyle(Color(hex: Tint.plum))
+                    }
                 }
             }
         }
@@ -468,70 +475,82 @@ struct DropControl: View {
     }
 }
 
-/// Un raccourci vers la collection, sous le bac de sortie.
-struct CollectionChip: View {
+/// L'étiquette du prix d'une partie, entre le manche et le bouton. Sans pièces, elle annonce le cadeau.
+struct CostTag: View {
     @Environment(Game.self) private var game
 
     var body: some View {
-        Button(action: {
-            game.say(.pop)
-            Haptics.tap()
-            game.showCollection = true
-        }) {
-            HStack(spacing: 6) {
-                Image(systemName: "teddybear.fill").font(.system(size: 14, weight: .bold))
-                Text("\(game.collected)/\(Species.allCases.count)").font(.toon(15))
-            }
-            .foregroundStyle(Color(hex: Tint.plum))
-            .padding(.horizontal, 12)
-            .frame(height: 34)
-            .background(Capsule().fill(.white))
-            .overlay(Capsule().strokeBorder(Color(hex: Tint.coral), lineWidth: 2.5))
+        HStack(spacing: 4) {
+            CoinIcon(size: 17)
+            Text(game.broke ? "+\(Game.gift)" : "\(Game.cost)")
+                .font(.toon(16))
+                .foregroundStyle(Color(hex: Tint.plum))
+                .monospacedDigit()
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(T("Mes doudous", "My plushies"))
+        .padding(.leading, 6)
+        .padding(.trailing, 10)
+        .frame(height: 28)
+        .background(Capsule().fill(Color(hex: Tint.butter)))
+        .overlay(Capsule().strokeBorder(Color(hex: 0xE8A93C), lineWidth: 2))
     }
 }
 
-/// La plaque de commande : le même habillage que l'enseigne (corail, liseré crème, ampoules), avec le manche
-/// et le bouton dessus.
+/// La plaque de commande, sombre et un peu en relief, comme sur une vraie borne.
 struct ConsolePlate<Content: View>: View {
+    var radius: CGFloat = 18
     @ViewBuilder var content: () -> Content
 
     var body: some View {
         content()
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
             .background(
                 ZStack {
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(Color(hex: 0xB52C4C))
-                        .offset(y: 6)
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(LinearGradient(colors: [Color(hex: Tint.coral), Color(hex: Tint.rose)], startPoint: .top, endPoint: .bottom))
-                    RoundedRectangle(cornerRadius: 23)
-                        .strokeBorder(Color(hex: Tint.cream), lineWidth: 3)
-                        .padding(7)
-                    // Les ampoules, en haut et en bas, comme sur l'enseigne
-                    GeometryReader { geo in
-                        let count = max(4, Int(geo.size.width / 26))
-                        ForEach(0..<count, id: \.self) { i in
-                            let x = 30 + CGFloat(i) * (geo.size.width - 60) / CGFloat(count - 1)
-                            ForEach([CGFloat(8.5), geo.size.height - 8.5], id: \.self) { y in
-                                Circle()
-                                    .fill(Color(hex: i % 2 == 0 ? Tint.butter : 0xFFFFFF))
-                                    .frame(width: 7, height: 7)
-                                    .position(x: x, y: y)
-                            }
-                        }
-                    }
+                    RoundedRectangle(cornerRadius: radius).fill(Color(hex: 0x2F1830)).offset(y: 5)
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(LinearGradient(colors: [Color(hex: 0x6A3B5C), Color(hex: 0x4B2A4A)], startPoint: .top, endPoint: .bottom))
+                    RoundedRectangle(cornerRadius: radius)
+                        .strokeBorder(LinearGradient(colors: [.white.opacity(0.28), .clear], startPoint: .top, endPoint: .center), lineWidth: 2)
                 }
             )
     }
 }
 
-/// Les commandes, posées sur la face avant de la machine : la plaque avec le manche et le bouton.
-/// La gauche reste libre : c'est là que se trouve le bac de sortie, sous la trappe.
+/// Un petit bouton de la rangée du bas : une icône et un mot.
+struct MenuItem: View {
+    let symbol: String
+    let title: String
+    let stacked: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            Haptics.tap()
+            action()
+        }) {
+            Group {
+                if stacked {
+                    VStack(spacing: 2) {
+                        Image(systemName: symbol).font(.system(size: 14, weight: .bold))
+                        Text(title).font(.toon(10, .bold))
+                    }
+                } else {
+                    HStack(spacing: 5) {
+                        Image(systemName: symbol).font(.system(size: 13, weight: .bold))
+                        Text(title).font(.toon(12, .bold))
+                    }
+                }
+            }
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .foregroundStyle(Color(hex: Tint.cream))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// Les commandes, posées sur la face avant de la machine : la plaque (manche, prix, bouton) et, dessous,
+/// la rangée des petits boutons. La gauche reste libre : c'est là que se trouve le bac de sortie, sous la trappe.
 struct ControlBar: View {
     @Environment(Game.self) private var game
     let width: CGFloat
@@ -541,32 +560,55 @@ struct ControlBar: View {
     var body: some View {
         // La place laissée au bac, à gauche.
         let reserve = width * (wide ? 0.36 : 0.31)
-        let room = min(width - reserve - 14, 430)
-        let stick = min(height - 70, 150, (room - 58) * 0.56)
-        let button = min(stick * 0.76, height - 104)
-        HStack(spacing: 0) {
-            Color.clear.frame(width: reserve)
-            Spacer(minLength: 0)
+        let room = min(width - reserve - 12, 440)
+        // Assez de place : le prix se met entre le manche et le bouton. Sinon, sous le bouton.
+        let roomy = room >= 330
+        let menu: CGFloat = roomy ? 36 : 44
+        let stick = min(height - menu - 36, 150, (room - (roomy ? 150 : 56)) * 0.56)
+        let button = stick * 0.76
+        VStack(spacing: 9) {
             ConsolePlate {
-                HStack(spacing: 16) {
-                    Joystick(diameter: stick) { game.stick($0) }
-                    DropControl(diameter: button, light: true)
-                        .background(alignment: .top) {
-                            Circle()
-                                .fill(Color(hex: Tint.cream))
-                                .frame(width: button + 10, height: button + 10)
-                                .offset(y: -2)
+                HStack(spacing: roomy ? 16 : 14) {
+                    Joystick(diameter: stick, ringed: true) { game.stick($0) }
+                    if roomy {
+                        CostTag()
+                        DropControl(diameter: button, labelled: false)
+                    } else {
+                        VStack(spacing: 10) {
+                            DropControl(diameter: min(button, stick - 44), labelled: false)
+                            CostTag()
                         }
+                    }
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
+                .frame(width: room)
             }
-            Spacer(minLength: 0)
+            ConsolePlate(radius: 12) {
+                HStack(spacing: 0) {
+                    MenuItem(symbol: "teddybear.fill", title: T("Doudous", "Plushies") + " \(game.collected)/\(Species.allCases.count)", stacked: !roomy) {
+                        game.say(.pop)
+                        game.showCollection = true
+                    }
+                    MenuItem(symbol: "scope", title: T("Recentrer", "Recenter"), stacked: !roomy) { game.recenter() }
+                    MenuItem(symbol: game.soundOn ? "speaker.wave.2.fill" : "speaker.slash.fill", title: T("Son", "Sound"), stacked: !roomy) {
+                        game.setSound(!game.soundOn)
+                        game.setMusic(game.soundOn)
+                    }
+                    MenuItem(symbol: "gearshape.fill", title: T("Réglages", "Settings"), stacked: !roomy) {
+                        game.say(.pop)
+                        game.showSettings = true
+                    }
+                }
+                .padding(.horizontal, 6)
+                .frame(width: room, height: menu)
+            }
         }
-        .padding(.trailing, 8)
+        .frame(width: room)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+        .padding(.leading, reserve)
+        .padding(.trailing, max(6, (width - reserve - room) / 2))
         .frame(height: height)
-        .frame(maxWidth: .infinity)
-        .overlay(alignment: .bottomLeading) {
-            if !wide { CollectionChip().padding(.leading, 18).padding(.bottom, 16) }
-        }
     }
 }
 

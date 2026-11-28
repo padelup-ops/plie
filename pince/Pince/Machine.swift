@@ -687,7 +687,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         panel(40, 14, SIMD3<Float>(0, 3, Box.back - 0.5), yaw: 0, room)
         // Le socle de la salle, de chaque côté de la machine (pas dessous : la trappe doit rester creuse)
         for side in [Float(-1), 1] {
-            _ = box(20, 4, depth + 0.4, SIMD3<Float>(side * (Box.halfW + 10), -2.03, midZ - 0.22), Paint.matte(0xE9B9C6))
+            _ = box(20, 4, depth + 0.4, SIMD3<Float>(side * (Box.halfW + 10), -2.03, midZ - 0.22), Paint.matte(0xD79AB3))
         }
 
         // Le sol de la machine, avec la trappe

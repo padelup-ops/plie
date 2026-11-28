@@ -121,11 +121,11 @@ enum Backdrop {
     /// Combien de points d'image pour une unité de la scène, sur le décor du pupitre.
     static let panelScale: CGFloat = 512
 
-    /// Le décor peint sur la face avant de la machine, autour des commandes : le même monde que l'affiche du fond
-    /// (ruban arc-en-ciel, nuages, étoiles). `width` et `height` sont en unités de la scène.
+    /// La face avant de la machine, autour des commandes : claire et sobre, avec le ruban arc-en-ciel de la maison.
+    /// `width` et `height` sont en unités de la scène.
     static func panelArt(width: CGFloat, height: CGFloat) -> UIImage {
         canvas(width * panelScale, height * panelScale) { c, size in
-            gradient(c, [0xFFF5EA, 0xFFE9E4, 0xFFDCE6], from: .zero, to: CGPoint(x: 0, y: size.height))
+            gradient(c, [0xFFFDF8, 0xFFF6EE, 0xFFEFE8], from: .zero, to: CGPoint(x: 0, y: size.height))
 
             // Le ruban arc-en-ciel, tout en haut, sous la vitre
             let bands: [UInt32] = [0xFF9DB5, 0xFFC78A, 0xFFE89A, 0xA8E6CF, 0x9AD4F5, 0xC9B6F2]
@@ -134,29 +134,12 @@ enum Backdrop {
                 c.fill(CGRect(x: 0, y: 22 + CGFloat(i) * 9, width: size.width, height: 9))
             }
 
-            // Un semis régulier de pois pastel et d'étoiles, comme un papier cadeau
-            let dots: [UInt32] = [0xFFB7CB, 0xA8E6CF, 0x9AD4F5, 0xFFE08A, 0xC9B6F2]
-            var n = 0
-            var y: CGFloat = 130
-            var row = 0
-            while y < size.height {
-                var x: CGFloat = row % 2 == 0 ? 50 : 122
-                while x < size.width {
-                    if n % 3 == 0 {
-                        sparkle(c, x, y, 17, 0xFFFFFF, 0.95)
-                    } else {
-                        disc(c, x, y, 9, dots[n % dots.count], 0.75)
-                    }
-                    n += 1
-                    x += 144
-                }
-                y += 92
-                row += 1
+            // Une ombre légère sur les bords : la face avant paraît bombée
+            let edge = [UIColor(hex: 0xE7B8C6, alpha: 0.55).cgColor, UIColor(hex: 0xE7B8C6, alpha: 0).cgColor] as CFArray
+            if let g = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: edge, locations: [0, 1]) {
+                c.drawLinearGradient(g, start: .zero, end: CGPoint(x: 70, y: 0), options: [])
+                c.drawLinearGradient(g, start: CGPoint(x: size.width, y: 0), end: CGPoint(x: size.width - 70, y: 0), options: [])
             }
-
-            // Des nuages, plus bas : on les voit quand l'écran est debout
-            let clouds: [(CGFloat, CGFloat, CGFloat)] = [(0.16, 0.42, 44), (0.78, 0.5, 38), (0.42, 0.68, 50), (0.9, 0.8, 42), (0.12, 0.86, 40), (0.6, 0.93, 36)]
-            for (u, v, s) in clouds { cloud(c, u * size.width, v * size.height, s) }
         }
     }
 
