@@ -102,7 +102,7 @@ final class HeadTracker: NSObject, ARSessionDelegate {
         // Repère de la caméra, tourné comme l'interface : x vers la droite de l'image, y vers le haut,
         // et la caméra regarde vers −z. La caméra avant regarde le joueur : sa droite est la gauche de l'écran.
         let view = frame.camera.viewMatrix(for: orientation) * world
-        let head = SIMD3<Float>(-view.x, view.y, -view.z)
+        let head = SIMD3<Float>(-view.x, view.y, abs(view.z))
         guard head.z > 0.1, head.z < 1.5 else { return }
 
         guard let zero = neutral else {

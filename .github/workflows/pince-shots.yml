@@ -57,38 +57,41 @@ jobs:
           BID=com.padelup.pince
           APP=$(find build -name "Pince.app" -path "*iphonesimulator*" | head -1)
           [ "$LANG_CODE" = "en" ] && LANGS="(en)" || LANGS="(fr)"
-          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "
-          import json, sys
-          rs = [r for r in json.load(sys.stdin)['runtimes'] if r.get('platform') == 'iOS' and r.get('isAvailable')]
-          duo = [r for r in rs if any('Duo' in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
-          print((duo or rs)[-1]['identifier'] if rs else '')")
+          # Tous les appareils que les simulateurs installés savent jouer : nom | type | système
           xcrun simctl list runtimes -j | python3 -c "
           import json, sys
           for r in json.load(sys.stdin)['runtimes']:
-              if r.get('identifier') == '$RUNTIME':
-                  print('\n'.join(d['name'] + ' | ' + d['identifier'] for d in r.get('supportedDeviceTypes', [])))" > shots/appareils.txt
-          pick() { grep -E "$1" shots/appareils.txt | grep -v -E "${2:-ZZZ}" | tail -1 | sed 's/.* | //'; }
-          capture() {  # nom, type d'appareil, écrans
-            local NAME="$1" DT="$2" LIST="$3" N=0
-            [ -z "$DT" ] && { echo "pas d'appareil pour $NAME" >> shots/simulateur.txt; return 0; }
-            local UDID
-            UDID=$(xcrun simctl create "Pince $NAME" "$DT" "$RUNTIME") || return 0
-            echo "$NAME : $DT ($RUNTIME)" >> shots/simulateur.txt
-            xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
+              if r.get('platform') == 'iOS' and r.get('isAvailable'):
+                  for d in r.get('supportedDeviceTypes', []):
+                      print(d['name'] + ' | ' + d['identifier'] + ' | ' + r['identifier'])" > shots/appareils.txt
+          pick() { grep -E "$1" shots/appareils.txt | grep -v -E "${2:-ZZZ}" | tail -1; }
+          capture() {  # nom, ligne de appareils.txt, écrans
+            local NAME="$1" LINE="$2" LIST="$3" N=0
+            [ -z "$LINE" ] && { echo "pas d'appareil pour $NAME" >> shots/simulateur.txt; return 0; }
+            local DT RT UDID
+            DT=$(echo "$LINE" | awk -F' [|] ' '{print $2}')
+            RT=$(echo "$LINE" | awk -F' [|] ' '{print $3}')
+            UDID=$(xcrun simctl create "Pince $NAME" "$DT" "$RT") || return 0
+            echo "$NAME : $LINE" >> shots/simulateur.txt
+            xcrun simctl boot "$UDID" || return 0
+            xcrun simctl bootstatus "$UDID" -b || true
             xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
-            xcrun simctl install "$UDID" "$APP"
+            xcrun simctl install "$UDID" "$APP" || return 0
             for R in $LIST; do
               N=$((N+1))
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
               xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" > /dev/null 2>&1 || true
               case "$R" in grab|win) sleep 14 ;; *) sleep 8 ;; esac
-              xcrun simctl io "$UDID" screenshot --mask=black "shots/$NAME-$(printf %02d $N)-$R.png" 2>>shots/erreurs-captures.txt || true
+              # L'iPhone Duo a deux écrans : on prend les deux.
+              for D in primary primary-1; do
+                xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$NAME-$(printf %02d $N)-$R-$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true
+              done
             done
             xcrun simctl shutdown "$UDID" || true
           }
-          capture duo "$(pick 'Duo')" "$ROUTES"
-          capture iphone "$(pick '^iPhone' 'Duo|Max|Plus|SE|Air|e \|')" "game left grab win collection intro"
-          capture ipad "$(pick '^iPad Pro.*11|^iPad Pro 11')" "game right grab settings"
+          capture duo "$(pick '^iPhone Duo')" "$ROUTES"
+          capture iphone "$(pick '^iPhone [0-9]+ Pro [|]')" "game left grab win collection intro"
+          capture ipad "$(pick '^iPad Pro.*11')" "game right grab settings"
       - name: Publier
         if: always()
         env:
