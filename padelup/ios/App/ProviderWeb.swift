@@ -422,7 +422,18 @@ final class HiddenPlaytomic: NSObject, WKNavigationDelegate {
     static let shared = HiddenPlaytomic()
     private var webView: WKWebView?
     private var waiting: CheckedContinuation<Void, Never>?
-    private var busy = false
+    private var tail: Task<Void, Never>? = nil
+
+    /// Une page à la fois, dans l'ordre des demandes (plusieurs clubs peuvent être cherchés à la suite).
+    private func serial<T>(_ op: @escaping @MainActor () async -> T) async -> T {
+        let previous = tail
+        let task = Task { @MainActor () -> T in
+            await previous?.value
+            return await op()
+        }
+        tail = Task { @MainActor in _ = await task.value }
+        return await task.value
+    }
 
     /// Ce que la page affiche : un club par lien « /clubs/<slug> », avec le texte du lien (nom, ville).
     static let listJS = #"""
@@ -483,9 +494,10 @@ final class HiddenPlaytomic: NSObject, WKNavigationDelegate {
 
     /// Recherche par le site : clubs affichés (slug, nom, ville). L'identifiant se lit ensuite sur la page du club.
     func search(_ text: String) async -> [PlaytomicClub] {
-        guard !busy else { return [] }
-        busy = true
-        defer { busy = false }
+        await serial { await self.searchNow(text) }
+    }
+
+    private func searchNow(_ text: String) async -> [PlaytomicClub] {
         var comps = URLComponents(string: "https://playtomic.com/search")!
         comps.queryItems = [URLQueryItem(name: "q", value: text)]
         guard let url = comps.url else { return [] }
@@ -515,9 +527,11 @@ final class HiddenPlaytomic: NSObject, WKNavigationDelegate {
 
     /// Identifiant (tenant) d'un club : lu sur sa page, dans les appels de disponibilités qu'elle fait elle-même.
     func tenantID(slug: String) async -> String? {
-        guard !busy, let url = URL(string: "https://playtomic.com/clubs/\(slug)") else { return nil }
-        busy = true
-        defer { busy = false }
+        await serial { await self.tenantIDNow(slug: slug) }
+    }
+
+    private func tenantIDNow(slug: String) async -> String? {
+        guard let url = URL(string: "https://playtomic.com/clubs/\(slug)") else { return nil }
         await load(url)
         for _ in 0..<16 {
             if let w = webView, let raw = try? await w.evaluateJavaScript(PlaytomicPickerModel.detectJS) as? String,

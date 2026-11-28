@@ -31,6 +31,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 30) {
                 header
                 nextUp
+                FreeNowBlock()
                 searchEntry
                 if !weather.isEmpty { weatherBlock }
                 if !favorites.clubs.isEmpty { favoritesBlock }
