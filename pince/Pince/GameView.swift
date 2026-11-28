@@ -435,6 +435,8 @@ struct ArcadeButton: ButtonStyle {
 struct DropControl: View {
     @Environment(Game.self) private var game
     let diameter: CGFloat
+    /// Écrit en clair, pour la plaque de commande.
+    var light = false
 
     var body: some View {
         VStack(spacing: 12) {
@@ -446,7 +448,7 @@ struct DropControl: View {
                         .frame(width: diameter, height: diameter)
                 }
                 .buttonStyle(ArcadeButton(color: Color(hex: 0x4FBF8B), shade: Color(hex: 0x2F8F63)))
-                Text("+\(Game.gift)").font(.toon(16)).foregroundStyle(Color(hex: 0x2F8F63))
+                Text("+\(Game.gift)").font(.toon(16)).foregroundStyle(Color(hex: light ? Tint.paper : 0x2F8F63))
             } else {
                 Button(action: { game.drop() }) {
                     Image(systemName: "chevron.down")
@@ -458,7 +460,7 @@ struct DropControl: View {
                 .disabled(!game.canDrop)
                 HStack(spacing: 4) {
                     CoinIcon(size: 16)
-                    Text("\(Game.cost)").font(.toon(16)).foregroundStyle(Color(hex: Tint.plum))
+                    Text("\(Game.cost)").font(.toon(16)).foregroundStyle(Color(hex: light ? Tint.paper : Tint.plum))
                 }
             }
         }
@@ -491,7 +493,44 @@ struct CollectionChip: View {
     }
 }
 
-/// Les commandes, posées sur la face avant de la machine : le manche au milieu, le bouton à droite.
+/// La plaque de commande : le même habillage que l'enseigne (corail, liseré crème, ampoules), avec le manche
+/// et le bouton dessus.
+struct ConsolePlate<Content: View>: View {
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        content()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 30)
+                        .fill(Color(hex: 0xB52C4C))
+                        .offset(y: 6)
+                    RoundedRectangle(cornerRadius: 30)
+                        .fill(LinearGradient(colors: [Color(hex: Tint.coral), Color(hex: Tint.rose)], startPoint: .top, endPoint: .bottom))
+                    RoundedRectangle(cornerRadius: 23)
+                        .strokeBorder(Color(hex: Tint.cream), lineWidth: 3)
+                        .padding(7)
+                    // Les ampoules, en haut et en bas, comme sur l'enseigne
+                    GeometryReader { geo in
+                        let count = max(4, Int(geo.size.width / 26))
+                        ForEach(0..<count, id: \.self) { i in
+                            let x = 30 + CGFloat(i) * (geo.size.width - 60) / CGFloat(count - 1)
+                            ForEach([CGFloat(8.5), geo.size.height - 8.5], id: \.self) { y in
+                                Circle()
+                                    .fill(Color(hex: i % 2 == 0 ? Tint.butter : 0xFFFFFF))
+                                    .frame(width: 7, height: 7)
+                                    .position(x: x, y: y)
+                            }
+                        }
+                    }
+                }
+            )
+    }
+}
+
+/// Les commandes, posées sur la face avant de la machine : la plaque avec le manche et le bouton.
 /// La gauche reste libre : c'est là que se trouve le bac de sortie, sous la trappe.
 struct ControlBar: View {
     @Environment(Game.self) private var game
@@ -500,22 +539,34 @@ struct ControlBar: View {
     let wide: Bool
 
     var body: some View {
-        let inner = min(width, 660) - 32
-        let stick = min(height - 34, 150, inner * 0.4)
+        // La place laissée au bac, à gauche.
+        let reserve = width * (wide ? 0.36 : 0.31)
+        let room = min(width - reserve - 14, 430)
+        let stick = min(height - 62, 150, (room - 50) * 0.56)
+        let button = min(stick * 0.76, height - 96)
         HStack(spacing: 0) {
-            VStack {
-                Spacer(minLength: 0)
-                if !wide { CollectionChip().padding(.bottom, 18) }
+            Color.clear.frame(width: reserve)
+            Spacer(minLength: 0)
+            ConsolePlate {
+                HStack(spacing: 16) {
+                    Joystick(diameter: stick) { game.stick($0) }
+                    DropControl(diameter: button, light: true)
+                        .background(alignment: .top) {
+                            Circle()
+                                .fill(Color(hex: Tint.cream))
+                                .frame(width: button + 14, height: button + 14)
+                                .offset(y: -4)
+                        }
+                }
             }
-            .frame(maxWidth: .infinity)
-            Joystick(diameter: stick) { game.stick($0) }
-            DropControl(diameter: min(stick * 0.74, inner * 0.29, height - 58))
-                .frame(maxWidth: .infinity)
+            Spacer(minLength: 0)
         }
-        .padding(.horizontal, 16)
-        .frame(maxWidth: 660)
+        .padding(.trailing, 8)
         .frame(height: height)
         .frame(maxWidth: .infinity)
+        .overlay(alignment: .bottomLeading) {
+            if !wide { CollectionChip().padding(.leading, 18).padding(.bottom, 16) }
+        }
     }
 }
 
