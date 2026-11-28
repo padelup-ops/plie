@@ -1,0 +1,58 @@
+ok     identifiant déjà là : com.padelup.neo
+BUNDLE=com.padelup.neo
+FICHE  ok 6840055845
+ÉCHEC  testeur interne 1 (409) {
+  "errors" : [ {
+    "id" : "635a30e5-7564-410d-8edb-4b0874edb9ce",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 2 (409) {
+  "errors" : [ {
+    "id" : "84d7f3c0-8cab-457a-83cd-285ad385392f",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ok     testeur interne 3 déjà là
+ok     testeur interne 4 déjà là
+ÉCHEC  testeur interne 5 (409) {
+  "errors" : [ {
+    "id" : "71ba7545-739e-44df-a7ac-38f2ee2ef1cc",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+ÉCHEC  testeur interne 6 (409) {
+  "errors" : [ {
+    "id" : "f3f391f0-932f-4663-984a-82b2e54d3819",
+    "status" : "409",
+    "code" : "STATE_ERROR",
+    "title" : "The request cannot be fulfilled because of the state of another resource.",
+    "detail" : "Tester(s) cannot be assigned",
+    "meta" : {
+      "associatedErrors" : { }
+    }
+  } ]
+}
+BUILD  28 VALID 2026-11-28T02:23
+BUILD  26 VALID 2026-11-28T01:59
+BUILD  25 VALID 2026-11-28T01:33
+BUILD  24 VALID 2026-11-27T18:25
+BUILD  22 VALID 2026-11-27T17:55
