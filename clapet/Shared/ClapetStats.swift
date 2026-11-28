@@ -144,6 +144,10 @@ struct ClapetStats: Codable, Equatable {
     var openSince: Date?
     /// Début du repos en cours (raccourci clapet://repos), ou nil.
     var restSince: Date?
+    /// Quand le mode Repos en cours a vraiment commencé (`restSince` avance à chaque fermeture). Sert à l'arrêter
+    /// tout seul : si le raccourci « Foldly utilisé » ne passe pas (iPhone verrouillé à la fin du mode Sommeil),
+    /// le repos durait pour toujours et tout le temps ouvert restait à 0.
+    var restBegan: Date?
     /// Périodes de repos (mode Repos) pendant l'ouverture en cours.
     var focusSpans: [RestSpan] = []
     /// Heures de repos réglées dans l'app : le Duo ouvert pendant cette plage compte comme au repos.
@@ -165,11 +169,13 @@ struct ClapetStats: Codable, Equatable {
     static let maxOpenSession: TimeInterval = 16 * 3600
     /// Une nuit entière passée ouvert : jusqu'à 3 h avant et après les heures de repos comptent aussi.
     static let restMargin: TimeInterval = 3 * 3600
+    /// Le mode Repos lancé par le raccourci s'arrête tout seul au bout de 12 h (une nuit, pas une journée).
+    static let maxRest: TimeInterval = 12 * 3600
 
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case days, eachMove, goal, totalCloses, totalOpens, duoStart, duoSince, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, widgetLook, founder, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, closedLog, lifeOpen, lifeClosed, restSince, focusSpans, nightOn, nightFrom, nightTo
+        case days, eachMove, goal, totalCloses, totalOpens, duoStart, duoSince, firstDay, hourlyDay, hourly, lastClose, recordHour, plus, theme, widgetLook, founder, autoLast, openSince, weekHours, openFromEvent, downGoalMinutes, downCredited, goalOn, lastOpen, whyLog, sessionLog, closedLog, lifeOpen, lifeClosed, restSince, restBegan, focusSpans, nightOn, nightFrom, nightTo
     }
 
     /// Chaque champ est facultatif : une ancienne sauvegarde se relit toujours.
@@ -206,6 +212,7 @@ struct ClapetStats: Codable, Equatable {
         autoLast = try c.decodeIfPresent(Date.self, forKey: .autoLast)
         openSince = try c.decodeIfPresent(Date.self, forKey: .openSince)
         restSince = try c.decodeIfPresent(Date.self, forKey: .restSince)
+        restBegan = try c.decodeIfPresent(Date.self, forKey: .restBegan)
         focusSpans = try c.decodeIfPresent([RestSpan].self, forKey: .focusSpans) ?? []
         nightOn = try c.decodeIfPresent(Bool.self, forKey: .nightOn) ?? true
         nightFrom = min(23, max(0, try c.decodeIfPresent(Int.self, forKey: .nightFrom) ?? 23))
@@ -652,15 +659,31 @@ struct ClapetStats: Codable, Equatable {
 
     /// Le repos commence (raccourci « Foldly repos »).
     mutating func startRest(_ date: Date = Date()) {
-        if restSince == nil { restSince = date }
+        // Un repos resté allumé depuis trop longtemps est fini : celui-ci en commence un nouveau.
+        if let limit = restLimit, date >= limit { restSince = nil; restBegan = nil }
+        if restSince == nil { restSince = date; restBegan = date }
+    }
+
+    /// Le moment où le mode Repos en cours s'arrête tout seul (nil : pas de repos en cours).
+    var restLimit: Date? {
+        guard let since = restSince else { return nil }
+        return (restBegan ?? since).addingTimeInterval(Self.maxRest)
+    }
+
+    /// Le mode Repos (raccourci) est-il en cours ?
+    func isResting(_ now: Date = Date()) -> Bool {
+        guard restSince != nil, let limit = restLimit else { return false }
+        return now < limit
     }
 
     /// Le repos finit (raccourci « Foldly utilisé ») : on garde la période si le Duo est ouvert.
     mutating func endRest(_ date: Date = Date()) {
         guard let r = restSince else { return }
+        let stop = min(date, restLimit ?? date)
         restSince = nil
-        if openSince != nil {
-            focusSpans.append(RestSpan(a: r, b: date))
+        restBegan = nil
+        if openSince != nil, stop > r {
+            focusSpans.append(RestSpan(a: r, b: stop))
             if focusSpans.count > 40 { focusSpans.removeFirst(focusSpans.count - 40) }
         }
     }
@@ -673,7 +696,7 @@ struct ClapetStats: Codable, Equatable {
     func restSpans(from start: Date, to end: Date, openStart: Date? = nil) -> [RestSpan] {
         guard end > start else { return [] }
         var all = focusSpans
-        if let r = restSince { all.append(RestSpan(a: r, b: end)) }
+        if let r = restSince { all.append(RestSpan(a: r, b: min(end, restLimit ?? end))) }
         let hours = nightTo > nightFrom ? nightTo - nightFrom : 24 - nightFrom + nightTo
         if nightOn, nightFrom != nightTo, hours > 0 {
             let cal = Calendar.current
@@ -720,7 +743,17 @@ struct ClapetStats: Codable, Equatable {
             }
         }
         focusSpans = []
-        if restSince != nil { restSince = end }
+        if let since = restSince {
+            if let limit = restLimit, end >= limit {
+                // Le repos a duré son maximum : il est fini (le raccourci « Foldly utilisé » n'est pas passé).
+                restSince = nil
+                restBegan = nil
+            } else {
+                // Un repos commencé avec une ancienne version : son début connu, c'est celui-ci.
+                if restBegan == nil { restBegan = since }
+                restSince = end
+            }
+        }
     }
 
     /// Temps ouvert au repos d'une journée (l'ouverture en cours comprise pour aujourd'hui).

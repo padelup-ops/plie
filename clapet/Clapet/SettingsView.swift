@@ -308,6 +308,11 @@ struct SettingsView: View {
 
                 // Heures de repos
                 Section {
+                    if model.stats.isResting() {
+                        Button { model.setRest(false) } label: {
+                            Label { Text("Rest mode is on. Tap to end it.") } icon: { SIcon("moon.zzz.fill", .indigo) }
+                        }
+                    }
                     Toggle(isOn: Binding(get: { model.stats.nightOn }, set: { model.setNight(on: $0) })) {
                         Label { Text("Rest hours") } icon: { SIcon("bed.double.fill", .indigo) }
                     }

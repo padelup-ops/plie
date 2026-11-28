@@ -941,3 +941,4 @@
 "All-time folds set to %lld. Tap Save to keep it." = "All-time folds set to %lld. Tap Save to keep it.";
 "Use the file's all-time total: %lld folds" = "Use the file's all-time total: %lld folds";
 "This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json)." = "This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json).";
+"Rest mode is on. Tap to end it." = "Rest mode is on. Tap to end it.";

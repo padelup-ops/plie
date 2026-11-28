@@ -941,3 +941,4 @@
 "All-time folds set to %lld. Tap Save to keep it." = "Total de pliegues ajustado a %lld. Toca Guardar para conservarlo.";
 "Use the file's all-time total: %lld folds" = "Usar el total del archivo: %lld pliegues";
 "This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json)." = "Este archivo es el script, no sus datos. Elige el archivo de datos que guarda el script (en Duo Folds: duo_folds.json).";
+"Rest mode is on. Tap to end it." = "El modo Reposo está activado. Toca para terminarlo.";

@@ -56,6 +56,12 @@ jobs:
           swiftc -D HISTORY_IMPORT_TEST clapet/Shared/HistoryImport.swift clapet/tools/import-test/main.swift -o "$RUNNER_TEMP/import-test" 2>&1 | tee import-test.txt
           "$RUNNER_TEMP/import-test" | tee -a import-test.txt
 
+      - name: Vérifier le temps ouvert et le mode Repos
+        run: |
+          set -o pipefail
+          swiftc clapet/Shared/ClapetStats.swift clapet/Shared/Flags.swift clapet/tools/stats-test/main.swift -o "$RUNNER_TEMP/stats-test" 2>&1 | tee stats-test.txt
+          "$RUNNER_TEMP/stats-test" | tee -a stats-test.txt
+
       - name: Installer XcodeGen et générer le projet
         run: |
           if ! command -v xcodegen >/dev/null; then
@@ -254,7 +260,7 @@ jobs:
           git init -q -b ci-clapet-logs
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
-          for f in fiche.txt droits.txt import-test.txt; do [ -f "$GITHUB_WORKSPACE/$f" ] && cp "$GITHUB_WORKSPACE/$f" .; done
+          for f in fiche.txt droits.txt import-test.txt stats-test.txt; do [ -f "$GITHUB_WORKSPACE/$f" ] && cp "$GITHUB_WORKSPACE/$f" .; done
           for f in build.log archive.log export-local.log export.log; do
             if [ -f "$GITHUB_WORKSPACE/$f" ]; then
               grep -n -B2 -A6 -E "error:" "$GITHUB_WORKSPACE/$f" | head -1500 > "erreurs-${f%.log}.txt" || true

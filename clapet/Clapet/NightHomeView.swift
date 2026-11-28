@@ -852,6 +852,13 @@ struct NightHomeView: View {
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
+                    // Le mode Repos (raccourci) est allumé : on le dit, et on peut l'arrêter d'ici. S'il reste allumé par
+                    // erreur (le raccourci « Foldly utilisé » n'est pas passé), tout le temps ouvert tombe à 0.
+                    if s.isResting(now) {
+                        Button { model.setRest(false) } label: {
+                            Text("Rest mode is on. Tap to end it.").font(.footnote.weight(.medium))
+                        }
+                    }
                     Chart {
                         ForEach(0..<week.count, id: \.self) { i in
                             BarMark(x: .value("Day", week[i].date, unit: .day), y: .value("Hours", week[i].hours), width: .ratio(0.8))

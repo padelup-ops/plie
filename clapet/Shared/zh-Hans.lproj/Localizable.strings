@@ -941,3 +941,4 @@
 "All-time folds set to %lld. Tap Save to keep it." = "累计折叠次数已设为 %lld。轻点“保存”以保留。";
 "Use the file's all-time total: %lld folds" = "使用文件中的累计次数：%lld 次";
 "This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json)." = "这个文件是脚本本身，不是它的数据。请改选脚本保存的数据文件（Duo Folds 为 duo_folds.json）。";
+"Rest mode is on. Tap to end it." = "休息模式已开启。轻点结束。";

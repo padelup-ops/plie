@@ -941,3 +941,4 @@
 "All-time folds set to %lld. Tap Save to keep it." = "전체 접기 횟수를 %lld로 설정했어요. 저장을 눌러 유지하세요.";
 "Use the file's all-time total: %lld folds" = "파일의 전체 횟수 사용: %lld회";
 "This file is the script itself, not its data. Choose the data file the script saves instead (for Duo Folds: duo_folds.json)." = "이 파일은 스크립트 자체이며 데이터가 아니에요. 스크립트가 저장하는 데이터 파일을 선택하세요(Duo Folds의 경우: duo_folds.json).";
+"Rest mode is on. Tap to end it." = "휴식 모드가 켜져 있어요. 탭해서 끝내세요.";
