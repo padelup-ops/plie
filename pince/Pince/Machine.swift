@@ -442,10 +442,53 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             prize?.node.removeFromParentNode()
             prize?.shadow.removeFromParentNode()
             prize = p
+            // Des paillettes : une gerbe dans le bac, une autre qui jaillit de la trappe.
+            let holeX = (Box.holeMinX + Box.holeMaxX) / 2, holeZ = (Box.holeMinZ + Box.holeMaxZ) / 2
+            glitter(at: SIMD3<Float>(holeX, Box.binFloor + 0.22, holeZ), fountain: false)
+            glitter(at: SIMD3<Float>(holeX, 0.04, holeZ), fountain: true)
             emit(.plop)
             emit(.won(p.species))
         }
         prize?.sway(dt)
+    }
+
+    private lazy var glitterImage = Backdrop.glitter()
+
+    /// Une gerbe de paillettes dorées et rosées. `fountain` : elles jaillissent vers le haut ; sinon elles éclatent
+    /// dans tous les sens.
+    private func glitter(at position: SIMD3<Float>, fountain: Bool) {
+        let sparks = SCNParticleSystem()
+        sparks.particleImage = glitterImage
+        sparks.birthRate = fountain ? 150 : 240
+        sparks.emissionDuration = 0.4
+        sparks.loops = false
+        sparks.particleLifeSpan = 1.1
+        sparks.particleLifeSpanVariation = 0.5
+        sparks.particleVelocity = fountain ? 1.7 : 0.8
+        sparks.particleVelocityVariation = 0.7
+        sparks.emittingDirection = SCNVector3(0, 1, 0)
+        sparks.spreadingAngle = fountain ? 30 : 180
+        sparks.particleSize = 0.06
+        sparks.particleSizeVariation = 0.04
+        sparks.particleColor = UIColor(hex: 0xFFD84D)
+        sparks.particleColorVariation = SCNVector4(0.14, 0.35, 0.1, 0)
+        sparks.particleAngleVariation = 180
+        sparks.particleAngularVelocityVariation = 240
+        sparks.acceleration = SCNVector3(0, -1.8, 0)
+        sparks.blendMode = .alpha
+        sparks.isLightingEnabled = false
+        let fade = CAKeyframeAnimation()
+        fade.values = [1, 1, 0]
+        fade.keyTimes = [0, 0.6, 1]
+        sparks.propertyControllers = [.opacity: SCNParticlePropertyController(animation: fade)]
+
+        let node = SCNNode()
+        node.simdPosition = position
+        node.castsShadow = false
+        node.renderingOrder = 30
+        node.addParticleSystem(sparks)
+        scene.rootNode.addChildNode(node)
+        node.runAction(.sequence([.wait(duration: 2.4), .removeFromParentNode()]))
     }
 
     private func overHole(_ p: SIMD3<Float>) -> Bool {

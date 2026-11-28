@@ -230,6 +230,15 @@ enum Backdrop {
         }
     }
 
+    /// Une paillette : une étoile blanche à quatre branches, que la scène teinte à sa guise.
+    static func glitter() -> UIImage {
+        canvas(64, 64, opaque: false) { c, _ in
+            disc(c, 32, 32, 20, 0xFFFFFF, 0.25)
+            sparkle(c, 32, 32, 30, 0xFFFFFF, 1)
+            disc(c, 32, 32, 7, 0xFFFFFF, 1)
+        }
+    }
+
     /// Une ombre ronde et floue, posée sous les doudous du décor.
     static func blob() -> UIImage {
         canvas(128, 128, opaque: false) { c, size in

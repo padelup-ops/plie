@@ -180,7 +180,9 @@ final class StageView: SCNView {
         if let orientation = window?.windowScene?.interfaceOrientation, orientation != .unknown {
             game.tracker.orientation = orientation
             if bounds.width > 20 {
-                game.setScreen("\(Int(bounds.width))x\(Int(bounds.height))/\(orientation.rawValue)")
+                // Aucun autre iPhone n'a un écran de plus de 600 points dans son petit côté : c'est l'intérieur du Duo.
+                let inner = traitCollection.userInterfaceIdiom == .phone && min(bounds.width, bounds.height) > 600
+                game.setScreen("\(Int(bounds.width))x\(Int(bounds.height))/\(orientation.rawValue)", inner: inner)
             }
         }
     }
@@ -675,6 +677,84 @@ struct BigButton: View {
     }
 }
 
+// MARK: - Le partage
+
+/// La carte qu'on envoie quand on partage un doudou : son portrait, son nom, sa rareté.
+struct ShareCard: View {
+    let species: Species
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Text("PEEKACLAW")
+                .font(.toon(22, .black))
+                .kerning(3)
+                .foregroundStyle(.white)
+            Portrait(species: species, size: 230)
+                .shadow(color: Color(hex: Tint.plum, opacity: 0.25), radius: 14, x: 0, y: 8)
+            Text(species.name)
+                .font(.toon(27))
+                .foregroundStyle(Color(hex: Tint.plum))
+                .multilineTextAlignment(.center)
+            Text(species.rarity.label)
+                .font(.toon(16))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .frame(height: 32)
+                .background(Capsule().fill(Color(hex: species.rarity.tint)))
+        }
+        .padding(.vertical, 30)
+        .frame(width: 360, height: 470)
+        .background(
+            LinearGradient(colors: [Color(hex: 0xA9A4F5), Color(hex: 0xF0B4E4), Color(hex: 0xFFC4DA), Color(hex: 0xFFE3BD)],
+                           startPoint: .top, endPoint: .bottom)
+        )
+    }
+}
+
+enum ShareArt {
+    private static var cache: [Species: UIImage] = [:]
+
+    @MainActor
+    static func image(for species: Species) -> UIImage {
+        if let image = cache[species] { return image }
+        let renderer = ImageRenderer(content: ShareCard(species: species))
+        renderer.scale = 3
+        let image = renderer.uiImage ?? Portraits.image(species)
+        cache[species] = image
+        return image
+    }
+}
+
+/// Ouvre la feuille de partage d'iOS avec la carte du doudou et un petit mot.
+struct ShareButton: View {
+    let species: Species
+    var compact = false
+
+    var body: some View {
+        let picture = Image(uiImage: ShareArt.image(for: species))
+        let words = T("J'ai attrapé \(species.name) dans Peekaclaw !", "I caught \(species.name) in Peekaclaw!")
+        ShareLink(item: picture, message: Text(words), preview: SharePreview(species.name, image: picture)) {
+            if compact {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Color(hex: Tint.plum))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(.white))
+                    .overlay(Circle().strokeBorder(Color(hex: Tint.coral), lineWidth: 2))
+            } else {
+                Label(T("Partager", "Share"), systemImage: "square.and.arrow.up")
+                    .font(.toon(18))
+                    .foregroundStyle(Color(hex: Tint.rose))
+                    .padding(.horizontal, 18)
+                    .frame(height: 52)
+                    .background(Capsule().fill(.white))
+                    .overlay(Capsule().strokeBorder(Color(hex: Tint.rose), lineWidth: 3))
+            }
+        }
+        .accessibilityLabel(T("Partager \(species.name)", "Share \(species.name)"))
+    }
+}
+
 struct PrizeCard: View {
     @Environment(Game.self) private var game
     let prize: Prize
@@ -715,8 +795,11 @@ struct PrizeCard: View {
                     Text("+\(prize.reward)").font(.toon(18)).foregroundStyle(Color(hex: Tint.plum))
                 }
             }
-            BigButton(title: T("Super !", "Yay!")) { game.closePrize() }
-                .padding(.top, 6)
+            HStack(spacing: 14) {
+                ShareButton(species: prize.species)
+                BigButton(title: T("Super !", "Yay!")) { game.closePrize() }
+            }
+            .padding(.top, 6)
         }
         .frame(maxWidth: .infinity)
         .onAppear {
@@ -749,6 +832,9 @@ struct CollectionCard: View {
                         VStack(spacing: 6) {
                             if count > 0 {
                                 Portrait(species: species, size: 84)
+                                    .overlay(alignment: .topLeading) {
+                                        ShareButton(species: species, compact: true).offset(x: -6, y: -4)
+                                    }
                                     .overlay(alignment: .bottomTrailing) {
                                         Text("×\(count)")
                                             .font(.toon(13))
