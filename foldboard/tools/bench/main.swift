@@ -583,6 +583,13 @@ let seamlessOK: Bool = {
     print("RESULT fond_fondu paysage_deplie=\(landscape) ailleurs_inchange=\(others) \(ok ? "yes" : "no")")
     return ok
 }()
+// Un appui sur effacer pendant que le clavier est refait (la case devient « M ») n'écrit pas « M ».
+let staleKeyOK: Bool = {
+    let ok = !KeyboardCanvas.sameKey(down: .backspace, now: .char("m")) && KeyboardCanvas.sameKey(down: .char("m"), now: .char("m"))
+        && KeyboardCanvas.sameKey(down: nil, now: .backspace)
+    print("RESULT touche_refaite effacer_pas_en_M=\(ok) \(ok ? "yes" : "no")")
+    return ok
+}()
 let backupOK: Bool = {
     var s = KBSettings()
     s.mode = .right
@@ -653,7 +660,7 @@ for (text, spoken, pair, want) in dirCases {
 }
 print("RESULT dictee sens_traduction \(dictOK ? "yes" : "no") (sur \(dirCases.count))")
 if !memoryOK || !visibilityOK || !sheetOK || !laptopOK || !touchOK || !shedOK || !hostOK || !hapticsOK || !dictOK
-    || !barOptionsOK || !toastsOK || !orderOK || !backupOK || !accentOK || !staleScreenOK || !seamlessOK {
+    || !barOptionsOK || !toastsOK || !orderOK || !backupOK || !accentOK || !staleScreenOK || !seamlessOK || !staleKeyOK {
     fputs("mémoire pas stable ou interrupteurs ignorés\n", stderr)
     exit(1)
 }

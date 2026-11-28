@@ -791,6 +791,9 @@ final class KeyboardCanvas: UIView {
         var glideUndo: String?
         /// Le doigt de cet appui : s'il a quitté l'écran sans qu'iOS le dise, l'appui s'arrête quand même.
         weak var touch: UITouch?
+        /// La touche sous le doigt quand il s'est posé. Si le clavier est refait pendant l'appui (pli, rotation,
+        /// écran reconnu), `index` peut désigner une autre touche : on ne s'y fie plus (voir `kind`).
+        var key: KeyKind?
         init(index: Int, start: CGPoint) {
             self.index = index
             self.start = start
@@ -4493,6 +4496,7 @@ final class KeyboardCanvas: UIView {
             lastHits.append("\(Int(p.x))→\(label)")
             if lastHits.count > 4 { lastHits.removeFirst() }
             let tr = Track(index: i, start: p)
+            tr.key = cells[i].view.spec.kind
             tr.t0 = t.timestamp
             tr.touch = t
             if recording != nil { halo(at: p, radius: t.majorRadius) }
@@ -4991,8 +4995,15 @@ final class KeyboardCanvas: UIView {
     }
 
     private func kind(_ tr: Track) -> KeyKind? {
-        tr.index < cells.count ? cells[tr.index].view.spec.kind : nil
+        guard tr.index < cells.count else { return nil }
+        let now = cells[tr.index].view.spec.kind
+        // Le clavier a été refait sous le doigt : la case désigne une autre touche (effacer devenait « M »).
+        if let k = tr.key, k != now { return nil }
+        return now
     }
+
+    /// La touche d'un appui est-elle encore à sa place ? (Sinon, l'appui est abandonné sans rien écrire.)
+    static func sameKey(down: KeyKind?, now: KeyKind) -> Bool { down == nil || down == now }
 
     private func setPressed(_ i: Int, _ on: Bool) {
         guard i < cells.count else { return }
@@ -5154,7 +5165,11 @@ final class KeyboardCanvas: UIView {
         guard !tr.done, tr.index < cells.count else { return }
         tr.done = true
         tr.longTimer?.invalidate()
+        tr.repeatTimer?.invalidate()
         let v = cells[tr.index].view
+        // Le clavier a été refait pendant l'appui : cette case est maintenant une autre touche. Rien n'est écrit
+        // (avant, un appui sur effacer pendant un changement d'écran écrivait la lettre arrivée à sa place).
+        guard Self.sameKey(down: tr.key, now: v.spec.kind) else { return }
         switch v.spec.kind {
         case .char(let s):
             if !tr.accents.isEmpty {
