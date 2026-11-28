@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import simd
 
 // MARK: - Peekaclaw
 
@@ -152,6 +153,32 @@ enum Haptics {
     }
 }
 
+// MARK: - La charnière de l'iPhone Duo
+
+/// La charnière du Duo : son angle en degrés (180 = à plat), ou `nil` sur un appareil qui n'en a pas.
+struct HingeReader: ViewModifier {
+    let action: (Double?) -> Void
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        #if DUO_SDK
+        if #available(iOS 27.1, *) {
+            content.onHingeChange { _, context in
+                action(context.hinge?.angle.degrees)
+            }
+        } else {
+            content
+        }
+        #else
+        content
+        #endif
+    }
+}
+
+extension View {
+    func onHinge(_ action: @escaping (Double?) -> Void) -> some View { modifier(HingeReader(action: action)) }
+}
+
 // MARK: - La partie
 
 struct Prize: Equatable {
@@ -186,9 +213,11 @@ final class Game {
     /// Où est la tête par rapport au point « bien en face », en centimètres : vers la droite, vers le haut.
     var faceRight = 0
     var faceUp = 0
-    /// Si le relief part à l'envers sur un appareil, on peut retourner un axe.
-    var flipX: Bool
-    var flipY: Bool
+    /// Le réglage du relief en cours : 0 « mets-toi en face », 1 « va à droite », 2 « monte ». `nil` : pas de réglage.
+    var tuningStep: Int?
+    var tuningHint: String?
+    /// La charnière de l'iPhone Duo est-elle à moitié pliée ? (Pose « ordinateur portable » ou « livre ».)
+    var halfFolded = false
     /// Vrai : suivre le visage avec la caméra ordinaire, sans passer par le capteur 3D.
     var simpleCamera: Bool
     var showCollection = false
@@ -208,8 +237,6 @@ final class Game {
         soundOn = store.object(forKey: "soundOn") as? Bool ?? true
         musicOn = store.object(forKey: "musicOn") as? Bool ?? true
         simpleCamera = store.bool(forKey: "simpleCamera")
-        flipX = store.bool(forKey: "flipX")
-        flipY = store.bool(forKey: "flipY")
         let haptics = store.object(forKey: "hapticsOn") as? Bool ?? true
         hapticsOn = haptics
         Haptics.enabled = haptics
@@ -220,20 +247,14 @@ final class Game {
         machine.onEvent = { [weak self] event in self?.handle(event) }
         tracker.onEye = { [weak self] eye in
             guard let self else { return }
-            guard var eye else {
-                self.machine.setEye(nil)
-                return
-            }
-            if self.flipX { eye.x = -eye.x }
-            if self.flipY { eye.y = -eye.y }
             self.machine.setEye(eye)
         }
         tracker.onMode = { [weak self] mode in self?.tracking = mode }
         tracker.onSeen = { [weak self] seen, head in
             guard let self else { return }
             self.faceSeen = seen
-            self.faceRight = Int((head.x * 100).rounded()) * (self.flipX ? -1 : 1)
-            self.faceUp = Int((head.y * 100).rounded()) * (self.flipY ? -1 : 1)
+            self.faceRight = Int((head.x * 100).rounded())
+            self.faceUp = Int((head.y * 100).rounded())
             self.faceDistance = Int((head.z * 100).rounded())
         }
         tracker.prefersCamera = simpleCamera
@@ -346,11 +367,73 @@ final class Game {
         save()
     }
 
-    func setFlip(x: Bool? = nil, y: Bool? = nil) {
-        if let x { flipX = x }
-        if let y { flipY = y }
+    // MARK: Le réglage du relief
+    //
+    // Chaque écran a le sien (l'écran extérieur et l'écran intérieur de l'iPhone Duo n'ont pas la même caméra,
+    // et chaque sens de l'écran compte) : il est rangé sous une clé « largeur x hauteur / orientation ».
+
+    private var screenKey = ""
+    private var tuningPoints: [SIMD2<Float>] = []
+
+    /// L'écran a changé (taille, sens, Duo ouvert ou fermé) : on reprend le réglage qui lui correspond.
+    func setScreen(_ key: String) {
+        guard key != screenKey else { return }
+        screenKey = key
+        let saved = (store.dictionary(forKey: "tuning") as? [String: [Int]])?[key]
+        if let saved, saved.count == 3 {
+            tracker.mapping = HeadTracker.Mapping(swapped: saved[0] == 1, signX: Float(saved[1]), signY: Float(saved[2]))
+        } else {
+            tracker.mapping = HeadTracker.Mapping()
+        }
+    }
+
+    func startTuning() {
+        showSettings = false
+        tuningPoints = []
+        tuningHint = nil
+        tuningStep = 0
         Haptics.tap()
-        save()
+    }
+
+    func cancelTuning() {
+        tuningStep = nil
+        tuningHint = nil
+    }
+
+    /// Le joueur a pris la pose demandée : on note où est sa tête et on passe à la suite.
+    func tuningNext() {
+        guard let step = tuningStep else { return }
+        guard faceSeen, let raw = tracker.lastRaw else {
+            tuningHint = T("Je ne vois pas ton visage. Place-toi face à l'écran, dans la lumière.",
+                           "I can't see your face. Sit in front of the screen, in good light.")
+            return
+        }
+        tuningHint = nil
+        Haptics.tap()
+        tuningPoints.append(raw)
+        if step < 2 {
+            if step == 1, simd_distance(tuningPoints[1], tuningPoints[0]) < 0.025 {
+                tuningPoints.removeLast()
+                tuningHint = T("Décale-toi un peu plus vers la droite.", "Move a bit further to the right.")
+                return
+            }
+            tuningStep = step + 1
+            return
+        }
+        guard let mapping = HeadTracker.Mapping.from(right: tuningPoints[1] - tuningPoints[0], up: tuningPoints[2] - tuningPoints[0]) else {
+            tuningPoints.removeLast()
+            tuningHint = T("Je n'ai pas vu ta tête monter. Lève-la un peu plus, ou baisse l'appareil.",
+                           "I didn't see your head go up. Raise it a bit more, or lower the device.")
+            return
+        }
+        tracker.mapping = mapping
+        tracker.recenter(onRaw: tuningPoints[0])
+        var all = store.dictionary(forKey: "tuning") as? [String: [Int]] ?? [:]
+        all[screenKey] = [mapping.swapped ? 1 : 0, Int(mapping.signX), Int(mapping.signY)]
+        store.set(all, forKey: "tuning")
+        tuningStep = nil
+        say(.win, volume: 0.6)
+        Haptics.success()
     }
 
     func setSimpleCamera(_ on: Bool) {
@@ -432,8 +515,6 @@ final class Game {
         store.set(musicOn, forKey: "musicOn")
         store.set(hapticsOn, forKey: "hapticsOn")
         store.set(simpleCamera, forKey: "simpleCamera")
-        store.set(flipX, forKey: "flipX")
-        store.set(flipY, forKey: "flipY")
         store.set(depth, forKey: "depth")
         store.set(lastPrize?.rawValue, forKey: "lastPrize")
     }
@@ -458,6 +539,8 @@ final class Game {
         case "right": machine.setEye(SIMD3<Float>(0.17, 0.02, 0.36))
         case "high": machine.setEye(SIMD3<Float>(0.03, 0.2, 0.34))
         case "plain": machine.usePlainCamera()
+        case "tuning": tuningStep = 1
+        case "laptop": halfFolded = true
         case "grab":
             machine.setEye(SIMD3<Float>(-0.1, 0.07, 0.36))
             machine.demo(freezeOnLift: true)

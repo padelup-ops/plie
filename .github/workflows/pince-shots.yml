@@ -83,6 +83,12 @@ jobs:
             xcrun simctl bootstatus "$UDID" -b || true
             xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
             xcrun simctl install "$UDID" "$APP" || return 0
+            if [ "$NAME" = duo ]; then
+              # Déplier le simulateur (outil libre duo-hinge, récupéré au moment du job, jamais copié dans le dépôt)
+              [ -d "$RUNNER_TEMP/hinge" ] || git clone -q --depth 1 https://github.com/BugenZhao/duo-hinge-skill "$RUNNER_TEMP/hinge" || true
+              DUO_HINGE_DEVICE=$UDID "$RUNNER_TEMP/hinge/scripts/duo-hinge" open 2>&1 | tail -3 >> shots/simulateur.txt || true
+              sleep 3
+            fi
             for R in $LIST; do
               N=$((N+1))
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
@@ -94,11 +100,21 @@ jobs:
               done
             done
             # Les mêmes écrans, appareil couché (en dernier : le simulateur reste couché ensuite).
+            PORTRAIT_COUNT=$N
+            if [ "$NAME" = duo ] && [ -n "$WIDE_ROUTES" ]; then
+              xcrun devicectl device orientation set --device "$UDID" landscapeLeft 2>&1 | tail -2 >> shots/simulateur.txt || true
+              sleep 4
+            fi
             for R in $WIDE_ROUTES; do
               N=$((N+1))
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
               # L'iPad du simulateur ne se couche pas : on y dessine le jeu à la taille de l'iPhone Duo ouvert.
-              case "$NAME" in ipad) WIDE_ARGS="-previewSize $PREVIEW" ;; *) WIDE_ARGS="-wide YES" ;; esac
+              # L'écran intérieur de l'iPhone Duo n'obéit pas à l'app : c'est le simulateur qu'on tourne.
+              case "$NAME" in
+                ipad) WIDE_ARGS="-previewSize $PREVIEW" ;;
+                duo) WIDE_ARGS=""; [ "$N" -gt "$PORTRAIT_COUNT" ] || true ;;
+                *) WIDE_ARGS="-wide YES" ;;
+              esac
               xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" $WIDE_ARGS > /dev/null 2>&1 || true
               case "$R" in grab|win) sleep 15 ;; *) sleep 9 ;; esac
               for D in primary primary-1; do
