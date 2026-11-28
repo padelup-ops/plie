@@ -1,0 +1,24 @@
+ok     Scriptable : total, days, hours : 2 jours, 99 plis, 0 ouvertures, total annoncé 493
+ok     Duo Folds (Scriptable) : total, days, hours avec date, last : 3 jours, 54 plis, 0 ouvertures, total annoncé 640
+ok     marque invisible en tête de fichier : 2 jours, 99 plis, 0 ouvertures, total annoncé 493
+ok     nombres écrits en texte : 2 jours, 99 plis, 0 ouvertures
+ok     dates d'un bloc (20251027) : 2 jours, 99 plis, 0 ouvertures
+ok     champs f et u : 1 jours, 47 plis, 45 ouvertures
+ok     tranches horaires par jour : 1 jours, 8 plis, 0 ouvertures
+ok     liste des plis par jour : 1 jours, 3 plis, 0 ouvertures
+ok     paire [plis, ouvertures] par jour : 1 jours, 47 plis, 45 ouvertures
+ok     lignes [date, plis, ouvertures] : 2 jours, 99 plis, 95 ouvertures
+ok     journal, un objet par ligne : 2 jours, 2 plis, 1 ouvertures
+ok     horodatages dans un champ ts : 1 jours, 2 plis, 0 ouvertures
+ok     vrai/faux : open : 1 jours, 1 plis, 1 ouvertures
+ok     fichier JavaScript autour du JSON : 2 jours, 99 plis, 0 ouvertures
+ok     JSON avec une virgule en trop : 2 jours, 99 plis, 0 ouvertures
+ok     liste d'objets par jour : 2 jours, 99 plis, 45 ouvertures
+ok     historique rangé en profondeur : 1 jours, 47 plis, 0 ouvertures
+ok     count passe avant total : 1 jours, 5 plis, 0 ouvertures
+ok     liste de dates (un pli chacune) : 2 jours, 3 plis, 0 ouvertures
+ok     CSV avec en-tête : 2 jours, 99 plis, 95 ouvertures
+ok     une ligne par pli (Raccourcis) : 1 jours, 2 plis, 0 ouvertures
+ok     JSON sans date : 0 jours, 0 plis, 0 ouvertures
+ok     texte quelconque : 0 jours, 0 plis, 0 ouvertures
+RESULT import 23/23 yes

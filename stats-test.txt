@@ -1,0 +1,9 @@
+ok     nuit normale : jour 1 60 min, jour 2 60 min (attendu 60 et 60)
+ok     repos resté allumé, l'après-midi : jour 2 60 min (attendu 60), repos fini : true
+ok     repos resté allumé, matin puis après-midi : matin 0 min compté, 60 min au repos, journée 60 min (attendu 0, 60, 60)
+ok     repos d'une ancienne version : journée 60 min (attendu 60), début retrouvé : true
+ok     en direct, repos de la veille : 30 min (attendu 30)
+ok     pendant le repos : 0 min compté, 120 min au repos depuis minuit (attendu 0 et 120), repos annoncé : true
+ok     nouveau repos le lendemain soir : début le lendemain 23 h, fini 12 h après : true
+ok     enregistrement : début du repos relu : true
+RESULT stats yes (0 raté)
