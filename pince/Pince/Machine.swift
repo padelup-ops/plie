@@ -237,7 +237,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     /// Le doudou que les griffes ont seulement effleuré : il sursaute quand elles se referment.
     private var grazed: Plush?
     /// Le chariot est-il en butée, en largeur et en profondeur ?
-    private var against = SIMD2<Bool>(false, false)
+    private var againstX = false
+    private var againstZ = false
     private var plushes: [Plush] = []
     private var held: Plush?
     /// Le dernier doudou gagné, posé dans le bac.
@@ -399,11 +400,13 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
                 spot.y = max(Box.minZ, min(Box.maxZ, wish.y))
                 if simd_distance(before, spot) > 0.0005 { moving = .travel }
                 // En butée : un choc, une seule fois, tant qu'on ne s'en est pas écarté.
-                let blocked = SIMD2<Bool>(wish.x != spot.x, wish.y != spot.y)
-                if (blocked.x && !against.x) || (blocked.y && !against.y) { emit(.bumped) }
-                against = blocked
+                let blockedX = wish.x != spot.x, blockedZ = wish.y != spot.y
+                if (blockedX && !againstX) || (blockedZ && !againstZ) { emit(.bumped) }
+                againstX = blockedX
+                againstZ = blockedZ
             } else {
-                against = SIMD2<Bool>(false, false)
+                againstX = false
+                againstZ = false
             }
             if drop {
                 phase = .descending
