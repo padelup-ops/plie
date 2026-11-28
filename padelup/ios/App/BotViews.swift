@@ -276,6 +276,8 @@ struct RuleEditorView: View {
     @State private var web: URL? = nil
     @State private var pickOnSite = false
     @State private var link = ""
+    @State private var detected: BookingWindow? = nil
+    @State private var detecting = false
 
     private let dayLetters = ["L", "M", "M", "J", "V", "S", "D"]
 
@@ -312,6 +314,7 @@ struct RuleEditorView: View {
                 if let d = prefill.releaseDays, let m = prefill.releaseMinutes { useRelease = true; releaseDays = d; releaseMinutes = m }
             }
         }
+        .task(id: rule.clubID) { await detectWindow() }
     }
 
     // MARK: Club
@@ -414,6 +417,20 @@ struct RuleEditorView: View {
         }
     }
 
+    /// Fenêtre de réservation du club, lue sur Playtomic : préremplit l'ouverture (J-x, et l'heure si c'est glissant).
+    private func detectWindow() async {
+        guard rule.provider == .playtomic, !rule.clubID.isEmpty, ShotMode.current == nil else { return }
+        detecting = true
+        defer { detecting = false }
+        guard let w = await PlaytomicWeb.bookingWindow(tenantID: rule.clubID, timezone: rule.timezone) else { return }
+        detected = w
+        if prefill?.releaseDays == nil || prefill?.releaseDays == w.days {
+            useRelease = true
+            releaseDays = w.days
+            if w.rolling { releaseMinutes = rule.timeFrom }
+        }
+    }
+
     private func useLink() async {
         searching = true
         defer { searching = false }
@@ -513,6 +530,21 @@ struct RuleEditorView: View {
                     }
                 }
                 .tint(UI.court)
+                if detecting {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                        Text("Lecture de la fenêtre de réservation du club…").font(UI.caption()).foregroundStyle(UI.muted)
+                    }
+                } else if let w = detected {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Eyebrow(text: "Détecté sur Playtomic")
+                            Stamp(text: w.rolling ? "Glissant" : "Jour entier", style: .outline)
+                        }
+                        Text("\(w.title). " + w.explanation(example: rule.timeFrom)).font(UI.caption()).foregroundStyle(UI.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
                 if useRelease {
                     HStack(spacing: 0) {
                         VStack(alignment: .leading, spacing: 6) {
@@ -563,7 +595,8 @@ struct RuleEditorView: View {
         var r = rule
         r.maxPrice = limitPrice ? price : nil
         r.releaseDays = useRelease ? releaseDays : nil
-        r.releaseMinutes = useRelease ? releaseMinutes : nil
+        // Ouverture glissante : le premier créneau voulu ouvre à son heure de début, x jours avant.
+        r.releaseMinutes = useRelease ? (detected?.rolling == true ? r.timeFrom : releaseMinutes) : nil
         r.lastStatus = "Lancé, première lecture…"
         // Le serveur PadelUp ne lit que les clubs partenaires (Playtomic refuse les serveurs) : le reste tourne sur l'iPhone.
         if r.provider == .padelup, server.botServerEnabled, let id = try? await server.pushRule(r) { r.serverRuleID = id }

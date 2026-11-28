@@ -172,6 +172,24 @@ enum BotProvider: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+/// Combien de jours à l'avance un club ouvre ses créneaux, et comment.
+struct BookingWindow: Codable, Hashable {
+    let days: Int          // J-x
+    let rolling: Bool      // glissant : chaque créneau ouvre x jours avant, à la même heure
+    let lastDay: Date      // dernier jour réservable aujourd'hui
+    let checked: Date
+
+    var title: String { "Réservable \(days) jour\(days > 1 ? "s" : "") à l'avance" }
+
+    func explanation(example minutes: Int = 19 * 60) -> String {
+        let h = BotRule.hhmm(minutes)
+        if rolling {
+            return "Ouverture glissante : chaque créneau ouvre exactement \(days) jours avant, à la même heure. Le \(h) du \(FR.shortDay(lastDay.addingTimeInterval(86_400))) ouvrira demain à \(h)."
+        }
+        return "La journée entière ouvre d'un coup, \(days) jours à l'avance, à une heure fixée par le club (souvent minuit ou 8 h) : vérifie ses règles de réservation."
+    }
+}
+
 enum BookingOutcomeStatus: String, Codable {
     case booked, needsAction, failed, authError
 }

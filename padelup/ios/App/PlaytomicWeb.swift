@@ -78,6 +78,58 @@ enum PlaytomicWeb {
         return out.filter { $0.localDayKey == f.string(from: day) }.sorted { ($0.start, $0.duration, $0.courtName) < ($1.start, $1.duration, $1.courtName) }
     }
 
+    // MARK: Fenêtre de réservation du club (détectée en lisant les créneaux)
+
+    /// Le dernier jour qui a des créneaux libres donne le nombre de jours à l'avance (J-x). Si ce dernier jour ne
+    /// commence qu'autour de l'heure actuelle, l'ouverture est « glissante » : chaque créneau ouvre exactement x jours
+    /// avant, à la même heure. Sinon la journée entière ouvre d'un coup, à une heure fixée par le club.
+    /// Quelques lectures seulement (recherche par dichotomie), gardées 6 heures.
+    static func bookingWindow(tenantID: String, timezone: String?) async -> BookingWindow? {
+        let key = "bookingWindow." + tenantID
+        if let data = UserDefaults.standard.data(forKey: key), let w = try? JSONDecoder().decode(BookingWindow.self, from: data),
+           w.checked.timeIntervalSinceNow > -6 * 3600 { return w }
+        let tz = TimeZone(identifier: timezone ?? "Europe/Paris") ?? .current
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = tz
+        let today = cal.startOfDay(for: Date())
+        func day(_ n: Int) -> Date { cal.date(byAdding: .day, value: n, to: today) ?? today }
+        var cache: [Int: [BookingSlot]] = [:]
+        func list(_ n: Int) async throws -> [BookingSlot] {
+            if let c = cache[n] { return c }
+            let s = try await slots(tenantID: tenantID, day: day(n), timezone: timezone)
+            cache[n] = s
+            return s
+        }
+        do {
+            var open = 0
+            var closed: Int? = nil
+            for probe in [7, 14, 21, 30] {
+                let found = try await list(probe)
+                if !found.isEmpty { open = probe } else { closed = probe; break }
+            }
+            guard var upper = closed else { return nil }   // plus d'un mois à l'avance : pas de limite utile
+            var lower = open
+            while upper - lower > 1 {
+                let mid = (lower + upper) / 2
+                let found = try await list(mid)
+                if !found.isEmpty { lower = mid } else { upper = mid }
+            }
+            guard lower > 0 else { return nil }
+            let last = try await list(lower)
+            let previous = try await list(lower - 1)
+            let now = cal.dateComponents([.hour, .minute], from: Date())
+            let nowMinutes = (now.hour ?? 0) * 60 + (now.minute ?? 0)
+            let firstLast = last.map(\.minutesOfDay).min() ?? 0
+            let firstPrevious = previous.map(\.minutesOfDay).min() ?? firstLast
+            let rolling = firstLast >= firstPrevious + 90 && abs(firstLast - nowMinutes) <= 150
+            let w = BookingWindow(days: lower, rolling: rolling, lastDay: day(lower), checked: Date())
+            if let data = try? JSONEncoder().encode(w) { UserDefaults.standard.set(data, forKey: key) }
+            return w
+        } catch {
+            return nil
+        }
+    }
+
     // MARK: Recherche de clubs (page de recherche du site)
     //
     // La page playtomic.com/search renvoie au plus 30 clubs, classés par nom, dans le monde entier. Ajouter le pays

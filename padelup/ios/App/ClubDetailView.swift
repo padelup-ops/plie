@@ -38,6 +38,8 @@ struct ClubDetailView: View {
     @State private var address: String? = nil
     @State private var accountsVersion = 0
     @State private var pickOnSite = false
+    @State private var window: BookingWindow? = nil
+    @State private var watchRelease = false
 
     private var provider: BotProvider? {
         if club.playtomicTenantID != nil { return .playtomic }
@@ -75,6 +77,7 @@ struct ClubDetailView: View {
             if ShotMode.current != nil {
                 weather = ShotMode.demoWeather()
                 slots = ShotMode.demoSlots(for: club)
+                window = BookingWindow(days: 7, rolling: true, lastDay: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(), checked: Date())
                 day = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date())) ?? day
                 lastRefresh = Date()
                 return
@@ -83,6 +86,9 @@ struct ClubDetailView: View {
             async let a: Void = loadAddress()
             await linkPlaytomicIfNeeded()
             await loadSlots()
+            if let tenant = club.playtomicTenantID {
+                window = await PlaytomicWeb.bookingWindow(tenantID: tenant, timezone: club.timezone)
+            }
             _ = await (w, a)
             // Temps réel : les créneaux sont relus chaque minute tant que la fiche est ouverte.
             while !Task.isCancelled {
@@ -111,6 +117,11 @@ struct ClubDetailView: View {
                                             durations: [duration], clubSlug: club.playtomicSlug))
         }
         .sheet(isPresented: $showCreateMatch) { CreateMatchView(club: club) }
+        .sheet(isPresented: $watchRelease) {
+            RuleEditorView(prefill: BotRule(provider: .playtomic, clubID: club.playtomicTenantID ?? "", clubName: club.displayName, clubCity: club.city,
+                                            timezone: club.timezone ?? TimeZone.current.identifier, durations: [duration], clubSlug: club.playtomicSlug,
+                                            releaseDays: window?.days ?? 7, releaseMinutes: (window?.rolling ?? false) ? 19 * 60 : 0))
+        }
         .sheet(isPresented: $pickOnSite) {
             PlaytomicPickerSheet(query: club.name) { match in
                 club.playtomicTenantID = match.id
@@ -214,6 +225,7 @@ struct ClubDetailView: View {
             VStack(alignment: .leading, spacing: 18) {
                 dayStrip
                 InlinePicker(options: [(60, "60 min"), (90, "90 min"), (120, "120 min")], selection: $duration)
+                if provider == .playtomic, let window { windowNote(window) }
                 slotsContent
                 if provider == .playtomic && !PlaytomicWeb.connected && ShotMode.current == nil {
                     HStack(spacing: 12) {
@@ -229,6 +241,23 @@ struct ClubDetailView: View {
                 Text(provider.automationNote).font(UI.small()).foregroundStyle(UI.faint).fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+
+    /// Quand ouvrent les créneaux de ce club (détecté en lisant ses créneaux).
+    private func windowNote(_ w: BookingWindow) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Text(w.title).font(UI.headline()).foregroundStyle(UI.ink)
+                Stamp(text: w.rolling ? "Glissant" : "Jour entier", style: .outline)
+            }
+            Text("Jusqu'au \(FR.longDay(w.lastDay)). " + w.explanation()).font(UI.caption()).foregroundStyle(UI.muted)
+                .fixedSize(horizontal: false, vertical: true)
+            Button { watchRelease = true } label: { Label("Être prévenu à l'ouverture", systemImage: "alarm") }
+                .buttonStyle(LinkButtonStyle())
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
     }
 
     private var dayStrip: some View {
