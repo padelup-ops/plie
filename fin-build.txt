@@ -1,0 +1,200 @@
+   |                                                                   `- warning: instance method 'unlock' is unavailable from asynchronous contexts; Use async-safe scoped locking instead; this is an error in the Swift 6 language mode
+85 |         c?.finish()
+86 |         try? await a?.finalizeAndFinishThroughEndOfInput()
+
+/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk/System/Library/Frameworks/Foundation.framework/Headers/NSLock.h:18:1: note: 'unlock()' declared here
+ 16 | 
+ 17 | /// Relinquishes a previously acquired lock.
+ 18 | - (void)unlock NS_SWIFT_UNAVAILABLE_FROM_ASYNC("Use async-safe scoped locking instead");
+    | `- note: 'unlock()' declared here
+ 19 | 
+ 20 | @end
+
+/Users/runner/work/plie/plie/foldboard/App/ParakeetDictation.swift:57:35: warning: capture of 'self' with non-Sendable type 'ParakeetModel?' in a '@Sendable' closure [#SendableClosureCaptures]
+ 11 | /// arrière-plan, donc iOS ne la ferme pas et le clavier n'a pas à la rouvrir.
+ 12 | @Observable
+ 13 | final class ParakeetModel {
+    |             `- note: class 'ParakeetModel' does not conform to the 'Sendable' protocol
+ 14 |     static let shared = ParakeetModel()
+ 15 | 
+    :
+ 55 |                 let dir = try await AsrModels.download(version: Self.version) { p in
+ 56 |                     DispatchQueue.main.async {
+ 57 |                         guard let self else { return }
+    |                                   `- warning: capture of 'self' with non-Sendable type 'ParakeetModel?' in a '@Sendable' closure [#SendableClosureCaptures]
+ 58 |                         if case .compiling = p.phase { self.state = .preparing } else { self.state = .downloading(p.fractionCompleted) }
+ 59 |                     }
+
+/Users/runner/work/plie/plie/foldboard/App/ParakeetDictation.swift:63:39: warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 61 |                 Self.excludeFromBackup(dir.deletingLastPathComponent())
+ 62 |                 // Premier chargement tout de suite (iOS prépare le modèle pour le Neural Engine une fois pour toutes).
+ 63 |                 await MainActor.run { self?.state = .preparing }
+    |                                       `- warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 64 |                 try await self?.ensureLoaded()
+ 65 |                 await MainActor.run {
+
+/Users/runner/work/plie/plie/foldboard/App/ParakeetDictation.swift:67:21: warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 65 |                 await MainActor.run {
+ 66 |                     UIApplication.shared.isIdleTimerDisabled = false
+ 67 |                     self?.state = .installed
+    |                     `- warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 68 |                     self?.downloadTask = nil
+ 69 |                     self?.scheduleUnload()
+
+/Users/runner/work/plie/plie/foldboard/App/ParakeetDictation.swift:68:21: warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 66 |                     UIApplication.shared.isIdleTimerDisabled = false
+ 67 |                     self?.state = .installed
+ 68 |                     self?.downloadTask = nil
+    |                     `- warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 69 |                     self?.scheduleUnload()
+ 70 |                 }
+
+/Users/runner/work/plie/plie/foldboard/App/ParakeetDictation.swift:69:21: warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 67 |                     self?.state = .installed
+ 68 |                     self?.downloadTask = nil
+ 69 |                     self?.scheduleUnload()
+    |                     `- warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 70 |                 }
+ 71 |             } catch {
+
+/Users/runner/work/plie/plie/foldboard/App/ParakeetDictation.swift:74:21: warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 72 |                 await MainActor.run {
+ 73 |                     UIApplication.shared.isIdleTimerDisabled = false
+ 74 |                     self?.state = .failed(error.localizedDescription)
+    |                     `- warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 75 |                     self?.downloadTask = nil
+ 76 |                 }
+
+/Users/runner/work/plie/plie/foldboard/App/ParakeetDictation.swift:75:21: warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 73 |                     UIApplication.shared.isIdleTimerDisabled = false
+ 74 |                     self?.state = .failed(error.localizedDescription)
+ 75 |                     self?.downloadTask = nil
+    |                     `- warning: reference to captured var 'self' in concurrently-executing code; this is an error in the Swift 6 language mode [#SendableClosureCaptures]
+ 76 |                 }
+ 77 |             }
+
+/Users/runner/work/plie/plie/foldboard/App/ParakeetDictation.swift:129:100: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+125 |     /// Le modèle quitte la mémoire trois minutes après la dernière dictée.
+126 |     func scheduleUnload() {
+127 |         DispatchQueue.main.async {
+    |                                  |- note: 'self' implicitly strongly captured here
+    |                                  `- note: add 'self' as a capture list item to silence
+128 |             self.unloadTimer?.invalidate()
+129 |             self.unloadTimer = Timer.scheduledTimer(withTimeInterval: 180, repeats: false) { [weak self] _ in self?.unloadNow() }
+    |                                                                                                    |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                                    `- note: explicitly assign the capture list item to silence
+130 |         }
+131 |     }
+
+/Users/runner/work/plie/plie/foldboard/Shared/Suggest.swift:426:30: warning: immutable value 'end' was never used; consider replacing with '_' or removing it [#NoUsage]
+ 424 |         let userShape = Self.normalized(user)
+ 425 |         let probe = Self.resample(path, 64)
+ 426 |         let start = path[0], end = path[path.count - 1]
+     |                              `- warning: immutable value 'end' was never used; consider replacing with '_' or removing it [#NoUsage]
+ 427 |         // La longueur du tracé (en touches) et ses virages francs : un mot doit avoir à peu près la même longueur
+ 428 |         // de chemin et passer par chaque virage (« bonjour » fait demi-tour sur n puis sur o ; « bobby » non).
+
+/Users/runner/work/plie/plie/foldboard/Shared/WebAudioCapture.swift:64:48: warning: consider using asynchronous alternative function
+ 62 |         isCapturing = true
+ 63 |         heartbeat = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+ 64 |             Task { @MainActor in self?.webView.evaluateJavaScript("captureHeartbeat()") }
+    |                                                `- warning: consider using asynchronous alternative function
+ 65 |         }
+ 66 |         webView.evaluateJavaScript("startCapture(); 0") { [weak self] _, error in
+
+/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk/System/Library/Frameworks/WebKit.framework/Headers/WKWebView.h:269:1: note: 'evaluateJavaScript' declared here
+267 |    - A `contentWorld` value of `WKContentWorld.pageWorld`
+268 | */
+269 | - (void)evaluateJavaScript:(NSString *)javaScriptString completionHandler:(WK_SWIFT_UI_ACTOR void (^ _Nullable)(id WK_NULLABLE_RESULT, NSError * _Nullable error))completionHandler;
+    | `- note: 'evaluateJavaScript' declared here
+270 | 
+271 | /* @abstract Evaluates the given JavaScript string.
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+SwiftDriverJobDiscovery normal arm64 Compiling AdjustOverlay.swift, AtelierHome.swift, ButtonsGuide.swift, Clipboard.swift, CrashNote.swift, Dictation.swift, DictationService.swift, DictationText.swift, EmojiBoard.swift, EmojiSuggest.swift, FAQ.swift, Feedback.swift, FoldboardApp.swift, GripDetector.swift, GripLog.swift, GripSetup.swift, Habits.swift, HandTest.swift, KeyboardCanvas.swift, KeyboardMic.swift, KeyboardPreview.swift, KeyboardTour.swift, Knock.swift, KnockDiagram.swift, KnockTest.swift, LanguageModel.swift, Layouts.swift, LearningRow.swift, MemLog.swift, MemProbe.swift, ModernDictation.swift, MyWordsView.swift, NeuralSwipe.swift, OnboardingView.swift, ParakeetDictation.swift, PlaceTutorial.swift, Products.swift, RecapRow.swift, Settings.swift, SettingsBackup.swift, SettingsSearch.swift, SettingsViews.swift, ShotView.swift, Stats.swift, Store.swift, Suggest.swift, TapMap.swift, TapMapView.swift, Theme.swift, Thumb.swift, Translate.swift, TrialReminders.swift, VoicePanel.swift, WebAudioCapture.swift, WhatsNew.swift, WritingFix.swift, GeneratedAssetSymbols.swift (in target 'Foldboard' from project 'Foldboard')
+
+SwiftDriver\ Compilation\ Requirements Foldboard normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Foldboard -O -whole-module-optimization @/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.SwiftFileList -DFOLDBOARD_NEURAL -Xcc -fmodule-map-file\=/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/SourcePackages/checkouts/FluidAudio/Sources/MachTaskSelfWrapper/include/module.modulemap -Xcc -fmodule-map-file\=/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/SourcePackages/checkouts/FluidAudio/Sources/FastClusterWrapper/include/module.modulemap -I /Users/runner/work/plie/plie/foldboard/Vendor/executorch.xcframework/ios-arm64/Headers -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -target arm64-apple-ios17.0 -g -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos -F /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/PackageFrameworks -F /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos27.1-24A94232-e829b21a6f8c9b70876ba0858053c0442866d66f27be705873c55a4609c58824.sdkstatcache -output-file-map /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Foldboard-generated-files.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Foldboard-own-target-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Foldboard-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard-ee592c84af1897ed44d06bfa8c858101-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Foldboard-project-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/SourcePackages/checkouts/FluidAudio/Sources/MachTaskSelfWrapper/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/SourcePackages/checkouts/FluidAudio/Sources/FastClusterWrapper/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/DerivedSources/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard-Swift.h -working-directory /Users/runner/work/plie/plie/foldboard -no-emit-module-separately-wmo
+
+SwiftMergeGeneratedHeaders /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/DerivedSources/Foldboard-Swift.h /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard-Swift.h (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard-Swift.h -o /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/DerivedSources/Foldboard-Swift.h
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.swiftmodule/arm64-apple-ios.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.swiftmodule (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.swiftmodule/arm64-apple-ios.swiftmodule
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.swiftmodule/arm64-apple-ios.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.swiftdoc (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.swiftmodule/arm64-apple-ios.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.abi.json (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.swiftsourceinfo (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+Ld /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Foldboard normal (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0 -isysroot /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -L/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos -F/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -F/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/PackageFrameworks -F/Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos -filelist /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.LinkFileList -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard_lto.o -Xlinker -dependency_info -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.swiftmodule -lc++ -lc++ -lsqlite3 -framework Accelerate -framework CoreML -framework CoreGraphics -framework CoreImage -framework CoreVideo -Xlinker -force_load -Xlinker /Users/runner/work/plie/plie/foldboard/Vendor/executorch.xcframework/ios-arm64/libexecutorch_ios.a -Xlinker -force_load -Xlinker /Users/runner/work/plie/plie/foldboard/Vendor/backend_xnnpack.xcframework/ios-arm64/libbackend_xnnpack_ios.a -Xlinker -force_load -Xlinker /Users/runner/work/plie/plie/foldboard/Vendor/kernels_optimized.xcframework/ios-arm64/libkernels_optimized_ios.a -Xlinker -force_load -Xlinker /Users/runner/work/plie/plie/foldboard/Vendor/kleidiai.xcframework/ios-arm64/libkleidiai_ios.a -Xlinker -force_load -Xlinker /Users/runner/work/plie/plie/foldboard/Vendor/threadpool.xcframework/ios-arm64/libthreadpool_ios.a -ltext_processing_rs -o /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Foldboard
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/PlugIns/FoldboardKeyboard.appex /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/FoldboardKeyboard.appex (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks -remove-static-executable /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/FoldboardKeyboard.appex /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/PlugIns
+
+ProcessInfoPlistFile /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Info.plist /Users/runner/work/plie/plie/foldboard/App/Info.plist (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-infoPlistUtility /Users/runner/work/plie/plie/foldboard/App/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -additionalcontentfile /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/assetcatalog_generated_info.plist -scanforprivacyfile /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/FluidAudio_LuxTtsG2pResources.bundle -scanforprivacyfile /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/PlugIns/FoldboardKeyboard.appex -requiredArchitecture arm64 -o /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Info.plist
+
+ExtractAppIntentsMetadata (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.eWZgLS/Metal.xctoolchain --module-name Foldboard --sdk-root /Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 17.0 --bundle-identifier com.padelup.foldboard --output /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app --target-triple arm64-apple-ios17.0 --binary-file /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Foldboard --dependency-file /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard_dependency_info.dat --stringsdata-file /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.SwiftFileList --metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Foldboard.DependencyMetadataFileList --static-metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Foldboard.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Objects-normal/arm64/Foldboard.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-11-28 01:29:48.894 appintentsmetadataprocessor[30448:77914] Starting appintentsmetadataprocessor export
+2026-11-28 01:29:48.901 appintentsmetadataprocessor[30448:77914] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+CopySwiftLibs /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Foldboard --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Frameworks --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/PlugIns --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/SystemExtensions --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Extensions --platform iphoneos --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.eWZgLS/Metal.xctoolchain --toolchain /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+ValidateEmbeddedBinary /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/PlugIns/FoldboardKeyboard.appex (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    /Applications/Xcode_27.1.app/Contents/Developer/usr/bin/embeddedBinaryValidationUtility /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/PlugIns/FoldboardKeyboard.appex -info-plist-path /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Info.plist
+
+GenerateDSYMFile /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app.dSYM /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Foldboard (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    export PATH\=/Applications/Xcode_27.1.app/Contents/SharedFrameworks/SwiftBuild.framework/Versions/A/PlugIns/SWBBuildService.bundle/Contents/PlugIns/SWBUniversalPlatformPlugin.bundle/Contents/Frameworks/SWBUniversalPlatform.framework/Resources:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.eWZgLS/Metal.xctoolchain/usr/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.eWZgLS/Metal.xctoolchain/usr/local/bin:/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.eWZgLS/Metal.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/bin:/Applications/Xcode_27.1.app/Contents/Developer/usr/local/bin:/opt/homebrew/opt/rustup/bin:/opt/homebrew/lib/ruby/gems/3.4.0/bin:/opt/homebrew/opt/ruby@3.4/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Foldboard -o /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app.dSYM
+
+AppIntentsSSUTraining (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Info.plist --temp-dir-path /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/ssu --bundle-id com.padelup.foldboard --product-path /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app --extracted-metadata-path /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Metadata.appintents --metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/Foldboard.build/Release-iphoneos/Foldboard.build/Foldboard.DependencyMetadataFileList --source-file /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app/Info.plist --archive-ssu-assets
+2026-11-28 01:29:49.225 appintentsnltrainingprocessor[30451:77918] Parsing options for appintentsnltrainingprocessor
+2026-11-28 01:29:49.227 appintentsnltrainingprocessor[30451:77918] Starting AppIntents SSU YAML Generation
+2026-11-28 01:29:49.228 appintentsnltrainingprocessor[30451:77918] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app
+
+Validate /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    builtin-validationUtility /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app (in target 'Foldboard' from project 'Foldboard')
+    cd /Users/runner/work/plie/plie/foldboard
+    /usr/bin/touch -c /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Products/Release-iphoneos/Foldboard.app
+
+PruneExplicitPrecompiledModules /Users/runner/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/runner/Library/Developer/Xcode/DerivedData/Foldboard-ftrxgnbupcwnmiffjxjduwzmnfhw/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

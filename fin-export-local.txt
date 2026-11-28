@@ -1,0 +1,4 @@
+2026-11-28 01:34:18.990 xcodebuild[40417:100487] [MT] IDEDistribution: -[IDEDistributionLogging _createLoggingBundleAtPath:]: Created bundle at path "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/Foldboard_2026-11-28_01-34-18.988.xcdistributionlogs".
+Exported Foldboard to: /Users/runner/work/_temp/local
+** EXPORT SUCCEEDED **
+
