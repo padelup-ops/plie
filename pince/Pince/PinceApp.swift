@@ -176,8 +176,6 @@ final class Game {
     var soundOn: Bool
     var musicOn: Bool
     var hapticsOn: Bool
-    /// Avance d'un cran à chaque doudou gagné : le bac du pupitre s'anime.
-    var winTick = 0
     /// 0 : à plat, 1 : relief normal, 2 : relief accentué.
     var depth: Int
     var introSeen: Bool
@@ -185,6 +183,12 @@ final class Game {
     /// Le visage est-il vu par la caméra, et à combien de centimètres ?
     var faceSeen = false
     var faceDistance = 0
+    /// Où est la tête par rapport au point « bien en face », en centimètres : vers la droite, vers le haut.
+    var faceRight = 0
+    var faceUp = 0
+    /// Si le relief part à l'envers sur un appareil, on peut retourner un axe.
+    var flipX: Bool
+    var flipY: Bool
     /// Vrai : suivre le visage avec la caméra ordinaire, sans passer par le capteur 3D.
     var simpleCamera: Bool
     var showCollection = false
@@ -204,6 +208,8 @@ final class Game {
         soundOn = store.object(forKey: "soundOn") as? Bool ?? true
         musicOn = store.object(forKey: "musicOn") as? Bool ?? true
         simpleCamera = store.bool(forKey: "simpleCamera")
+        flipX = store.bool(forKey: "flipX")
+        flipY = store.bool(forKey: "flipY")
         let haptics = store.object(forKey: "hapticsOn") as? Bool ?? true
         hapticsOn = haptics
         Haptics.enabled = haptics
@@ -212,11 +218,23 @@ final class Game {
         if let last = store.string(forKey: "lastPrize") { lastPrize = Species(rawValue: last) }
 
         machine.onEvent = { [weak self] event in self?.handle(event) }
-        tracker.onEye = { [weak self] eye in self?.machine.setEye(eye) }
+        tracker.onEye = { [weak self] eye in
+            guard let self else { return }
+            guard var eye else {
+                self.machine.setEye(nil)
+                return
+            }
+            if self.flipX { eye.x = -eye.x }
+            if self.flipY { eye.y = -eye.y }
+            self.machine.setEye(eye)
+        }
         tracker.onMode = { [weak self] mode in self?.tracking = mode }
-        tracker.onSeen = { [weak self] seen, distance in
-            self?.faceSeen = seen
-            self?.faceDistance = Int((distance * 100).rounded())
+        tracker.onSeen = { [weak self] seen, head in
+            guard let self else { return }
+            self.faceSeen = seen
+            self.faceRight = Int((head.x * 100).rounded()) * (self.flipX ? -1 : 1)
+            self.faceUp = Int((head.y * 100).rounded()) * (self.flipY ? -1 : 1)
+            self.faceDistance = Int((head.z * 100).rounded())
         }
         tracker.prefersCamera = simpleCamera
         machine.setGain(gain)
@@ -328,6 +346,13 @@ final class Game {
         save()
     }
 
+    func setFlip(x: Bool? = nil, y: Bool? = nil) {
+        if let x { flipX = x }
+        if let y { flipY = y }
+        Haptics.tap()
+        save()
+    }
+
     func setSimpleCamera(_ on: Bool) {
         simpleCamera = on
         tracker.prefersCamera = on
@@ -383,7 +408,6 @@ final class Game {
             say(.plop)
             Haptics.plop()
         case .won(let species):
-            winTick += 1
             let isNew = (owned[species.rawValue] ?? 0) == 0
             owned[species.rawValue, default: 0] += 1
             coins += species.rarity.reward
@@ -408,6 +432,8 @@ final class Game {
         store.set(musicOn, forKey: "musicOn")
         store.set(hapticsOn, forKey: "hapticsOn")
         store.set(simpleCamera, forKey: "simpleCamera")
+        store.set(flipX, forKey: "flipX")
+        store.set(flipY, forKey: "flipY")
         store.set(depth, forKey: "depth")
         store.set(lastPrize?.rawValue, forKey: "lastPrize")
     }
@@ -425,6 +451,8 @@ final class Game {
         tracking = .face
         faceSeen = true
         faceDistance = 38
+        faceRight = 4
+        faceUp = 2
         switch shot {
         case "left": machine.setEye(SIMD3<Float>(-0.17, 0.05, 0.36))
         case "right": machine.setEye(SIMD3<Float>(0.17, 0.02, 0.36))

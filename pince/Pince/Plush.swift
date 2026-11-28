@@ -533,10 +533,13 @@ final class Plush {
         look.simdPosition = SIMD3<Float>(0, -squash * radius, 0)
 
         // L'ombre s'élargit et pâlit quand le doudou s'élève ; au-dessus de la trappe, il n'y a pas de sol.
-        let height = max(0, p.y - radius)
+        // Dans le bac, elle se pose sur le plancher du bac.
+        let inBin = p.y < 0
+        let ground: Float = inBin ? Box.binFloor : 0
+        let height = max(0, p.y - radius - ground)
         let overHole = p.x > Box.holeMinX && p.x < Box.holeMaxX && p.z > Box.holeMinZ && p.z < Box.holeMaxZ
-        shadow.isHidden = overHole || p.y < radius * 0.5
-        shadow.simdPosition = SIMD3<Float>(p.x, 0.004, p.z)
+        shadow.isHidden = overHole && !inBin
+        shadow.simdPosition = SIMD3<Float>(p.x, ground + (inBin ? 0.008 : 0.004), p.z)
         let spread = radius * 3.2 * (1 + height * 0.3)
         shadow.simdScale = SIMD3<Float>(spread, spread, 1)
         shadow.opacity = CGFloat(max(0.2, 1 - height * 0.5))

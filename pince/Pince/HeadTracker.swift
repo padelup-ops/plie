@@ -16,14 +16,49 @@ import simd
 /// Dans tous les cas on rend la position du milieu des yeux en mètres dans le repère de l'écran : x vers la droite,
 /// y vers le haut, z = distance. La position mesurée au premier regard sert de point neutre « bien en face »,
 /// ce qui évite de devoir savoir où est la caméra sur chaque appareil.
+/// Le filtre « 1 € » : il lisse beaucoup quand la tête est immobile (plus de tremblement) et presque plus quand
+/// elle bouge (pas de retard). C'est le filtre habituel pour ce genre de suivi.
+private struct OneEuro {
+    var calm: Float
+    var lively: Float
+    private var value: Float?
+    private(set) var speed: Float = 0
+
+    init(calm: Float, lively: Float) {
+        self.calm = calm
+        self.lively = lively
+    }
+
+    mutating func reset() {
+        value = nil
+        speed = 0
+    }
+
+    private static func blend(_ cutoff: Float, _ dt: Float) -> Float {
+        1 / (1 + 1 / (2 * Float.pi * cutoff * dt))
+    }
+
+    mutating func step(_ x: Float, dt: Float) -> Float {
+        guard let last = value, dt > 0 else {
+            value = x
+            return x
+        }
+        speed += ((x - last) / dt - speed) * OneEuro.blend(1, dt)
+        let out = last + (x - last) * OneEuro.blend(calm + lively * abs(speed), dt)
+        value = out
+        return out
+    }
+}
+
 final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
     enum Mode { case none, face, camera, tilt }
 
     /// Appelé sur le fil principal. `nil` : le visage n'est plus vu, on revient en face.
     var onEye: ((SIMD3<Float>?) -> Void)?
     var onMode: ((Mode) -> Void)?
-    /// Le visage est-il vu, et à quelle distance (en mètres) ? Appelé sur le fil principal quand ça change.
-    var onSeen: ((Bool, Float) -> Void)?
+    /// Le visage est-il vu, et où (en mètres : décalage vers la droite, vers le haut, distance) ?
+    /// Appelé sur le fil principal quand ça change d'au moins un centimètre.
+    var onSeen: ((Bool, SIMD3<Float>) -> Void)?
     var orientation: UIInterfaceOrientation = .portrait {
         didSet {
             guard oldValue != orientation else { return }
@@ -47,7 +82,11 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
     private var samples: [SIMD2<Float>] = []
     private var lastSeen = Date.distantPast
     private var seen = false
-    private var reportedDistance: Float = 0
+    private var reported = SIMD3<Float>(0, 0, 0)
+    private var filterX = OneEuro(calm: 2.5, lively: 40)
+    private var filterY = OneEuro(calm: 2.5, lively: 40)
+    private var filterZ = OneEuro(calm: 0.8, lively: 6)
+    private var lastFeed = Date.distantPast
     private var level: SIMD2<Float>?
     private var watchdog: Timer?
 
@@ -59,7 +98,6 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
     private var configured = false
     /// La focale, en « grands côtés d'image » : 0,5 / tan(champ / 2).
     private var focal: Float = 0.87
-    private var smooth: SIMD3<Float>?
 
     func start() {
         guard !running else { return }
@@ -88,7 +126,7 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         captureQueue.async { if self.capture.isRunning { self.capture.stopRunning() } }
         if motion.isDeviceMotionActive { motion.stopDeviceMotionUpdates() }
         set(.none)
-        report(false, 0)
+        report(false, SIMD3<Float>(0, 0, 0))
         onEye?(nil)
     }
 
@@ -97,6 +135,16 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         neutral = nil
         samples.removeAll()
         level = nil
+        filterX.reset()
+        filterY.reset()
+        filterZ.reset()
+    }
+
+    /// La caméra ordinaire tremble plus que le capteur 3D : on règle le filtre en conséquence.
+    private func tune(calm: Float, lively: Float) {
+        filterX = OneEuro(calm: calm, lively: lively)
+        filterY = OneEuro(calm: calm, lively: lively)
+        filterZ = OneEuro(calm: calm * 0.3, lively: lively * 0.15)
     }
 
     private func set(_ m: Mode) {
@@ -105,35 +153,47 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         onMode?(m)
     }
 
-    private func report(_ nowSeen: Bool, _ distance: Float) {
-        // La distance n'est annoncée que si elle a bougé d'au moins 3 cm : inutile de redessiner l'écran pour moins.
-        guard nowSeen != seen || abs(distance - reportedDistance) > 0.03 else { return }
+    private func report(_ nowSeen: Bool, _ where_: SIMD3<Float>) {
+        // Annoncé seulement si ça a bougé d'au moins un centimètre : inutile de redessiner l'écran pour moins.
+        guard nowSeen != seen || simd_distance(where_, reported) > 0.01 else { return }
         seen = nowSeen
-        reportedDistance = distance
-        onSeen?(nowSeen, distance)
+        reported = where_
+        onSeen?(nowSeen, where_)
     }
 
     /// Une mesure de la tête, d'où qu'elle vienne. `nil` : pas de visage dans cette image.
-    private func feed(_ head: SIMD3<Float>?) {
-        guard let head else {
-            if seen, Date().timeIntervalSince(lastSeen) > 0.6 {
-                report(false, 0)
+    private func feed(_ raw: SIMD3<Float>?) {
+        let now = Date()
+        guard let raw else {
+            if seen, now.timeIntervalSince(lastSeen) > 0.6 {
+                report(false, SIMD3<Float>(0, 0, 0))
+                filterX.reset()
+                filterY.reset()
+                filterZ.reset()
                 onEye?(nil)
             }
             return
         }
-        lastSeen = Date()
-        report(true, head.z)
+        let dt = Float(min(0.1, max(0.004, now.timeIntervalSince(lastFeed))))
+        lastFeed = now
+        lastSeen = now
+        var head = SIMD3<Float>(filterX.step(raw.x, dt: dt), filterY.step(raw.y, dt: dt), filterZ.step(raw.z, dt: dt))
+        // Un rien d'avance : on place la tête là où elle sera quand l'image s'affichera.
+        head.x += max(-0.02, min(0.02, filterX.speed * 0.025))
+        head.y += max(-0.02, min(0.02, filterY.speed * 0.025))
         guard let zero = neutral else {
             samples.append(SIMD2<Float>(head.x, head.y))
             if samples.count >= 10 {
                 neutral = samples.reduce(SIMD2<Float>(0, 0), +) / Float(samples.count)
                 samples.removeAll()
             }
+            report(true, SIMD3<Float>(0, 0, head.z))
             onEye?(SIMD3<Float>(0, 0, head.z))
             return
         }
-        onEye?(SIMD3<Float>(head.x - zero.x, head.y - zero.y, head.z))
+        let eye = SIMD3<Float>(head.x - zero.x, head.y - zero.y, head.z)
+        report(true, eye)
+        onEye?(eye)
     }
 
     private func startCameraTracking() {
@@ -146,6 +206,7 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         let config = ARFaceTrackingConfiguration()
         config.isLightEstimationEnabled = false
         session.delegate = self
+        tune(calm: 2.5, lively: 40)
         recenter()
         session.run(config, options: [.resetTracking, .removeExistingAnchors])
         set(.face)
@@ -167,10 +228,12 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         // Le milieu des deux yeux, d'abord dans le repère du visage, puis dans celui du monde.
         let mid = (face.leftEyeTransform.columns.3 + face.rightEyeTransform.columns.3) * 0.5
         let world = face.transform * SIMD4<Float>(mid.x, mid.y, mid.z, 1)
-        // Repère de la caméra, tourné comme l'interface : x vers la droite de l'image, y vers le haut,
-        // et la caméra regarde vers −z. La caméra avant regarde le joueur : sa droite est la gauche de l'écran.
+        // Repère de la caméra, tourné comme l'interface. Avec la caméra avant, ARKit donne un monde « en miroir »
+        // (c'est ce qui lui permet de dessiner par-dessus l'image retournée) : x grandit vers la droite de l'écran.
+        // C'est aussi ce que fait TheParallaxView, le projet de référence de cette technique, qui inverse x pour
+        // retrouver le monde réel.
         let view = frame.camera.viewMatrix(for: orientation) * world
-        let head = SIMD3<Float>(-view.x, view.y, abs(view.z))
+        let head = SIMD3<Float>(view.x, view.y, abs(view.z))
         guard head.z > 0.1, head.z < 1.5 else { return }
         feed(head)
     }
@@ -186,8 +249,8 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
     private func startCamera() {
         watchdog?.invalidate()
         watchdog = nil
+        tune(calm: 1.2, lively: 22)
         recenter()
-        smooth = nil
         set(.camera)
         let now = orientation
         captureQueue.async {
@@ -256,17 +319,7 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         }
         DispatchQueue.main.async { [weak self] in
             guard let self, self.running, self.mode == .camera else { return }
-            guard let head else {
-                self.feed(nil)
-                return
-            }
-            // Le cadre du visage tremble un peu, surtout sa taille : on lisse, la distance plus que le reste.
-            var value = self.smooth ?? head
-            value.x += (head.x - value.x) * 0.4
-            value.y += (head.y - value.y) * 0.4
-            value.z += (head.z - value.z) * 0.12
-            self.smooth = value
-            self.feed(value)
+            self.feed(head)
         }
     }
 
