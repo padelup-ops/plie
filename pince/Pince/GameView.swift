@@ -50,7 +50,11 @@ struct GameView: View {
             let k: CGFloat = min(size.width, size.height) >= 700 ? 1.4 : 1
             // La hauteur du pupitre : la face avant de la machine, sous la vitre. Elle est en 3D elle aussi,
             // avec le bac où tombent les doudous ; les commandes sont posées dessus.
-            let panel = wide ? max(120, size.height * 0.27) : min(250 * k, max(190 * k, size.height * 0.27)) + insets.bottom
+            // iPhone Duo à moitié plié, posé comme un ordinateur portable : la pliure passe au milieu. La machine prend
+            // la moitié relevée, face au joueur ; le pupitre et le bac prennent la moitié posée sur la table.
+            let laptop = game.halfFolded && !wide
+            let panel = laptop ? size.height / 2
+                : (wide ? max(120, size.height * 0.27) : min(250 * k, max(190 * k, size.height * 0.27)) + insets.bottom)
             ZStack {
                 MachineView(game: game, panel: panel)
 
@@ -93,7 +97,16 @@ struct GameView: View {
                 if !game.introSeen {
                     Modal(onClose: nil) { IntroCard() }
                 }
+                if let step = game.tuningStep {
+                    Modal(onClose: nil) { TuningCard(step: step) }
+                }
             }
+            .onHinge { angle in
+                let folded = angle.map { $0 > 40 && $0 < 150 } ?? false
+                if folded != game.halfFolded { game.halfFolded = folded }
+            }
+            .animation(.easeInOut(duration: 0.3), value: game.halfFolded)
+            .animation(.easeOut(duration: 0.2), value: game.tuningStep)
             .animation(.spring(response: 0.35, dampingFraction: 0.82), value: game.prize)
             .animation(.easeOut(duration: 0.2), value: game.showCollection)
             .animation(.easeOut(duration: 0.2), value: game.showSettings)
@@ -166,6 +179,9 @@ final class StageView: SCNView {
         game.machine.resize(bounds.size, panel: panel, pointsPerMeter: pad ? 5200 : 6100, restDistance: pad ? 0.5 : 0.38)
         if let orientation = window?.windowScene?.interfaceOrientation, orientation != .unknown {
             game.tracker.orientation = orientation
+            if bounds.width > 20 {
+                game.setScreen("\(Int(bounds.width))x\(Int(bounds.height))/\(orientation.rawValue)")
+            }
         }
     }
 }
@@ -713,13 +729,18 @@ struct SettingsCard: View {
                     .font(.toon(13, .medium))
                     .foregroundStyle(Color(hex: Tint.plum, opacity: 0.7))
                     .fixedSize(horizontal: false, vertical: true)
-                if game.depth > 0, game.tracking != .none {
-                    // Le relief doit suivre la tête : quand on va à droite, on découvre le côté droit de la machine.
-                    // Si un appareil donne un axe à l'envers, on le retourne ici.
-                    Toggle(T("Inverser gauche-droite", "Flip left-right"), isOn: Binding(get: { game.flipX }, set: { game.setFlip(x: $0) }))
-                        .font(.toon(14, .bold))
-                    Toggle(T("Inverser haut-bas", "Flip up-down"), isOn: Binding(get: { game.flipY }, set: { game.setFlip(y: $0) }))
-                        .font(.toon(14, .bold))
+                if game.depth > 0, game.tracking == .face || game.tracking == .camera {
+                    // Le relief doit suivre la tête : en allant à droite, on découvre le côté droit de la machine.
+                    // Si ce n'est pas le cas sur cet écran, deux gestes suffisent à le régler.
+                    Button(action: { game.startTuning() }) {
+                        Label(T("Régler le relief pour cet écran", "Tune the 3D effect for this screen"), systemImage: "slider.horizontal.3")
+                            .font(.toon(15))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 14)
+                            .frame(height: 40)
+                            .background(Capsule().fill(Color(hex: Tint.plum)))
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             HStack {
@@ -761,6 +782,67 @@ struct SettingsCard: View {
                      "Without the camera, the effect follows the tilt of the device: lean it to look around.")
         case .none:
             return T("Le relief n'est pas disponible sur cet appareil.", "The 3D effect isn't available on this device.")
+        }
+    }
+}
+
+/// Le réglage du relief, en trois poses : en face, à droite, en haut. On en déduit comment la caméra de cet écran
+/// voit le joueur, quel que soit l'appareil et le sens dans lequel il est tenu.
+struct TuningCard: View {
+    @Environment(Game.self) private var game
+    let step: Int
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Text(T("Régler le relief", "Tune the 3D effect"))
+                .font(.toon(26))
+                .foregroundStyle(Color(hex: Tint.rose))
+            HStack(spacing: 8) {
+                ForEach(0..<3, id: \.self) { i in
+                    Capsule()
+                        .fill(Color(hex: i <= step ? Tint.rose : 0xF5D6DE))
+                        .frame(width: i == step ? 34 : 16, height: 8)
+                }
+            }
+            Image(systemName: ["face.smiling", "arrow.right", "arrow.up"][min(step, 2)])
+                .font(.system(size: 54, weight: .black))
+                .foregroundStyle(Color(hex: Tint.plum))
+                .frame(width: 110, height: 110)
+                .background(Circle().fill(Color(hex: game.faceSeen ? Tint.mint : Tint.butter)))
+            Text(instruction)
+                .font(.toon(17, .bold))
+                .foregroundStyle(Color(hex: Tint.plum))
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            if let hint = game.tuningHint {
+                Text(hint)
+                    .font(.toon(14, .bold))
+                    .foregroundStyle(Color(hex: Tint.rose))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            HStack(spacing: 18) {
+                Button(T("Annuler", "Cancel")) { game.cancelTuning() }
+                    .font(.toon(16))
+                    .foregroundStyle(Color(hex: Tint.plum, opacity: 0.7))
+                BigButton(title: step < 2 ? T("Suivant", "Next") : T("Terminer", "Done")) { game.tuningNext() }
+            }
+            .padding(.top, 2)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var instruction: String {
+        switch step {
+        case 0:
+            return T("Installe-toi comme pour jouer, la tête bien en face de l'écran. Puis touche Suivant.",
+                     "Sit as you would to play, your head right in front of the screen. Then tap Next.")
+        case 1:
+            return T("Sans bouger l'appareil, décale ta tête d'une main vers la DROITE. Puis touche Suivant.",
+                     "Without moving the device, shift your head a hand's width to the RIGHT. Then tap Next.")
+        default:
+            return T("Reviens au milieu, puis MONTE la tête d'une main (ou baisse l'appareil). Puis touche Terminer.",
+                     "Come back to the middle, then RAISE your head a hand's width (or lower the device). Then tap Done.")
         }
     }
 }

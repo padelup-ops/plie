@@ -41,4 +41,5 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.padelup.pince
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DUO_SDK"
     scheme: {}

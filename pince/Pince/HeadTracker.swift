@@ -68,6 +68,35 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         }
     }
 
+    /// Comment lire la mesure pour cet écran : quel axe mesuré va vers la droite, et dans quel sens.
+    /// Sur un appareil ordinaire, il n'y a rien à tourner. Sur l'écran intérieur de l'iPhone Duo, l'orientation
+    /// annoncée ne dit pas comment la caméra est posée : le joueur fait le réglage une fois, en deux gestes.
+    struct Mapping: Equatable {
+        var swapped = false
+        var signX: Float = 1
+        var signY: Float = 1
+
+        func apply(_ v: SIMD2<Float>) -> SIMD2<Float> {
+            swapped ? SIMD2<Float>(v.y * signX, v.x * signY) : SIMD2<Float>(v.x * signX, v.y * signY)
+        }
+
+        /// Le réglage qui envoie le geste « vers la droite » sur +x et le geste « vers le haut » sur +y.
+        /// `nil` si les deux gestes vont dans la même direction ou sont trop petits.
+        static func from(right: SIMD2<Float>, up: SIMD2<Float>) -> Mapping? {
+            let swapped = abs(right.y) > abs(right.x)
+            let along = swapped ? right.y : right.x
+            let across = swapped ? up.x : up.y
+            guard abs(along) > 0.025, abs(across) > 0.015 else { return nil }
+            return Mapping(swapped: swapped, signX: along > 0 ? 1 : -1, signY: across > 0 ? 1 : -1)
+        }
+    }
+
+    var mapping = Mapping() {
+        didSet { if oldValue != mapping { recenter() } }
+    }
+    /// La dernière mesure, avant réglage et avant filtrage (x, y en mètres). Sert au réglage.
+    private(set) var lastRaw: SIMD2<Float>?
+
     /// Vrai : on n'essaie pas ARKit, on prend tout de suite la caméra ordinaire.
     var prefersCamera = false
     /// Cet appareil sait-il suivre un visage en 3D ?
@@ -140,6 +169,12 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         filterZ.reset()
     }
 
+    /// Après un réglage : ce point mesuré devient « bien en face ».
+    func recenter(onRaw point: SIMD2<Float>) {
+        recenter()
+        neutral = mapping.apply(point)
+    }
+
     /// La caméra ordinaire tremble plus que le capteur 3D : on règle le filtre en conséquence.
     private func tune(calm: Float, lively: Float) {
         filterX = OneEuro(calm: calm, lively: lively)
@@ -177,7 +212,9 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         let dt = Float(min(0.1, max(0.004, now.timeIntervalSince(lastFeed))))
         lastFeed = now
         lastSeen = now
-        var head = SIMD3<Float>(filterX.step(raw.x, dt: dt), filterY.step(raw.y, dt: dt), filterZ.step(raw.z, dt: dt))
+        lastRaw = SIMD2<Float>(raw.x, raw.y)
+        let turned = mapping.apply(SIMD2<Float>(raw.x, raw.y))
+        var head = SIMD3<Float>(filterX.step(turned.x, dt: dt), filterY.step(turned.y, dt: dt), filterZ.step(raw.z, dt: dt))
         // Un rien d'avance : on place la tête là où elle sera quand l'image s'affichera.
         head.x += max(-0.02, min(0.02, filterX.speed * 0.025))
         head.y += max(-0.02, min(0.02, filterY.speed * 0.025))
