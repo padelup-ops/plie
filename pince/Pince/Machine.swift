@@ -199,7 +199,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         super.init()
         build()
         // Au départ : un de chaque parmi les plus courants, et un invité surprise devant.
-        var first: [Species] = [.frog, .bear, .bunny, .whale, .mushroom, .axolotl, .fox, Species.random(), Species.random()]
+        var first: [Species] = [.frog, .bear, .bunny, .whale, .mushroom, .axolotl, .fox, Species.randomTreasure(), Species.random()]
         first.shuffle()
         first.append(Species.random())
         let slots = Box.slots.enumerated().filter { $0.offset != 0 && $0.offset != 4 }.map { $0.element }
@@ -280,11 +280,13 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         var target = eyeTarget
         let k = gain
         lock.unlock()
+        // Sans mesure (personne devant l'écran), la vue revient en face tout doucement, sans à-coup.
+        let pace: Float = target.z <= 0 ? 1.6 : 32
         if target.z <= 0 { target.z = w.restDistance }
-        eye += (target - eye) * (dt > 0 ? 1 - exp(-dt * 32) : 1)
+        eye += (target - eye) * (dt > 0 ? 1 - exp(-dt * pace) : 1)
 
         let ez = max(0.16, min(1.2, eye.z)) * w.unitsPerMeter
-        let reach = ez * 0.75
+        let reach = ez * 1.1
         let ex = max(-reach, min(reach, eye.x * k * w.unitsPerMeter))
         // Bien en face, on regarde quand même un peu d'en haut, comme devant une vraie machine : on voit le sol.
         let ey = max(-reach, min(reach, eye.y * k * w.unitsPerMeter + ez * 0.22))

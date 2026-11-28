@@ -532,7 +532,7 @@ final class Game {
         coins = 240
         soundOn = false
         musicOn = false
-        owned = ["frog": 3, "bunny": 1, "whale": 2, "mushroom": 1, "strawberry": 1]
+        owned = ["frog": 3, "bunny": 1, "whale": 2, "mushroom": 1, "strawberry": 1, "panda": 1, "star": 1]
         lastPrize = .bunny
         tracking = .face
         faceSeen = true

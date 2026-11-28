@@ -116,6 +116,8 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
     private var filterY = OneEuro(calm: 2.5, lively: 40)
     private var filterZ = OneEuro(calm: 0.8, lively: 6)
     private var lastFeed = Date.distantPast
+    /// Vrai quand la vue a été remise en face faute de visage.
+    private var parked = true
     private var level: SIMD2<Float>?
     private var watchdog: Timer?
 
@@ -200,15 +202,23 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
     private func feed(_ raw: SIMD3<Float>?) {
         let now = Date()
         guard let raw else {
-            if seen, now.timeIntervalSince(lastSeen) > 0.6 {
+            // Le visage sort du champ de la caméra, typiquement quand on se penche loin sur le côté.
+            // La vue ne revient pas au centre : elle reste où elle était, comme si la tête s'était arrêtée là.
+            // Ce n'est qu'au bout de quelques secondes sans personne qu'elle se remet doucement en face.
+            let gone = now.timeIntervalSince(lastSeen)
+            if seen, gone > 0.6 {
                 report(false, SIMD3<Float>(0, 0, 0))
                 filterX.reset()
                 filterY.reset()
                 filterZ.reset()
+            }
+            if !parked, gone > 6 {
+                parked = true
                 onEye?(nil)
             }
             return
         }
+        parked = false
         let dt = Float(min(0.1, max(0.004, now.timeIntervalSince(lastFeed))))
         lastFeed = now
         lastSeen = now
