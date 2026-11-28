@@ -25,7 +25,8 @@ enum WebAccount {
     /// Page d'accueil du compte sur le site de la plateforme.
     static func loginURL(_ p: BotProvider) -> URL {
         switch p {
-        case .playtomic: return URL(string: "https://playtomic.com")!
+        // Le paiement des réservations se fait sur app.playtomic.com, qui a sa propre connexion : c'est là qu'on se connecte.
+        case .playtomic: return URL(string: "https://app.playtomic.com/login")!
         case .anybuddy: return URL(string: "https://www.anybuddyapp.com/fr/login")!
         case .padelup: return URL(string: "https://padel-up.io")!
         }
@@ -121,6 +122,91 @@ final class WebPageModel: ObservableObject {
     @Published var signedIn = false
     @Published var canGoBack = false
     weak var webView: WKWebView?
+    let popups = PopupController()
+}
+
+// MARK: - Fenêtres ouvertes par la page (connexion Apple, Google, 3-D Secure)
+
+/// Une fenêtre que la page ouvre (« Continuer avec Apple », vérification bancaire…) doit rester une VRAIE fenêtre
+/// fille, reliée à la page qui l'a ouverte (window.opener) : c'est par là que la connexion revient. L'ouvrir à la place
+/// de la page (comme avant) cassait la connexion : la page de connexion ne revenait jamais.
+@MainActor
+final class PopupController: NSObject, ObservableObject, WKUIDelegate, WKNavigationDelegate {
+    struct Page: Identifiable {
+        let id = UUID()
+        let webView: WKWebView
+    }
+
+    @Published var page: Page?
+    @Published var host = ""
+    /// Pages ouvertes dans des fenêtres (pour le journal).
+    private(set) var visited: [String] = []
+
+    var onGoogle: Bool { host.contains("google.") }
+
+    /// À rendre tel quel à WebKit depuis createWebViewWith : il y charge lui-même la page demandée.
+    func open(with configuration: WKWebViewConfiguration) -> WKWebView {
+        let w = WKWebView(frame: CGRect(x: 0, y: 0, width: 390, height: 760), configuration: configuration)
+        w.uiDelegate = self
+        w.navigationDelegate = self
+        host = ""
+        page = Page(webView: w)
+        return w
+    }
+
+    func close() { page = nil }
+
+    func webViewDidClose(_ webView: WKWebView) {
+        if page?.webView === webView { page = nil }
+    }
+
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        host = webView.url?.host ?? ""
+        if let u = webView.url { visited.append((u.host ?? "") + u.path); if visited.count > 20 { visited.removeFirst() } }
+    }
+
+    /// Une fenêtre ouverte depuis la fenêtre : dans la même.
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
+                 for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if navigationAction.targetFrame == nil { webView.load(navigationAction.request) }
+        return nil
+    }
+}
+
+private struct PopupWebView: UIViewRepresentable {
+    let webView: WKWebView
+    func makeUIView(context: Context) -> WKWebView { webView }
+    func updateUIView(_ view: WKWebView, context: Context) {}
+}
+
+/// Présente les fenêtres de la page par-dessus, avec « Fermer ». Elles se referment seules une fois la connexion faite.
+struct PopupWindows: ViewModifier {
+    @ObservedObject var controller: PopupController
+
+    func body(content: Content) -> some View {
+        content.sheet(item: $controller.page) { page in
+            NavigationStack {
+                PopupWebView(webView: page.webView)
+                    .ignoresSafeArea(edges: .bottom)
+                    .safeAreaInset(edge: .top) {
+                        if controller.onGoogle {
+                            Text("Google refuse souvent sa connexion à l'intérieur d'une autre app. Si ça bloque, ferme cette fenêtre et choisis Apple ou ton e-mail.")
+                                .font(UI.caption()).foregroundStyle(UI.ink)
+                                .padding(12).frame(maxWidth: .infinity, alignment: .leading)
+                                .background(UI.raised)
+                        }
+                    }
+                    .navigationTitle(controller.host)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Fermer") { controller.close() }.fontWeight(.semibold)
+                        }
+                    }
+            }
+            .tint(UI.court)
+        }
+    }
 }
 
 struct AccountWebView: UIViewRepresentable {
@@ -173,11 +259,10 @@ struct AccountWebView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { model.loading = false }
 
-        /// Fenêtres « nouvel onglet » (connexion Google, paiement) : ouvertes dans la même vue.
+        /// Fenêtres ouvertes par la page (connexion Apple ou Google, paiement) : de vraies fenêtres, par-dessus.
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                      for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-            if navigationAction.targetFrame == nil { webView.load(navigationAction.request) }
-            return nil
+            model.popups.open(with: configuration)
         }
     }
 }
@@ -216,6 +301,7 @@ struct ProviderWebSheet: View {
                         .background(.bar)
                     }
                 }
+                .modifier(PopupWindows(controller: model.popups))
                 .navigationTitle(title.isEmpty ? (provider?.name ?? model.title) : title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -749,7 +835,7 @@ final class BookingAssistant: ObservableObject {
         needsLogin = true
         stage = max(stage, 1)
         log("connexion demandée")
-        finish("Connecte-toi une fois à ton compte ici : ensuite j'arrive direct au paiement.", done: false)
+        finish("Connecte-toi une fois ici (Apple ou e-mail) : ensuite j'arrive direct au paiement.", done: false)
         watcher?.cancel()
         watcher = Task { [weak self] in
             var reloads = 0
@@ -837,6 +923,7 @@ enum NetRecorder {
 final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate {
     let webView: WKWebView
     let assistant = BookingAssistant()
+    let popups = PopupController()
     let target: BookingTarget?
     @Published var showPage = false
     private var timeout: Task<Void, Never>?
@@ -890,6 +977,7 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
     func journal() async -> String {
         let net = await NetRecorder.dump(webView)
         return "PadelUp · journal de réservation\nPages : " + visited.joined(separator: " > ")
+            + (popups.visited.isEmpty ? "" : "\nFenêtres : " + popups.visited.joined(separator: " > "))
             + "\n\nAssistant :\n" + assistant.trace.joined(separator: "\n") + "\n\n" + net
     }
 
@@ -897,10 +985,10 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
         if let u = webView.url { visited.append((u.host ?? "") + u.path); if visited.count > 30 { visited.removeFirst() } }
     }
 
+    /// Fenêtres ouvertes par la page (connexion Apple ou Google, 3-D Secure) : de vraies fenêtres, par-dessus.
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                  for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        if navigationAction.targetFrame == nil { webView.load(navigationAction.request) }
-        return nil
+        popups.open(with: configuration)
     }
 }
 
@@ -949,6 +1037,7 @@ struct BookingFlowSheet: View {
                     PreparingView(assistant: preparer.assistant, request: request) { preparer.reveal() }
                 }
             }
+            .modifier(PopupWindows(controller: preparer.popups))
             .navigationTitle(preparer.showPage ? (WebAccount.owns(request.url)?.name ?? "Réservation") : "")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
