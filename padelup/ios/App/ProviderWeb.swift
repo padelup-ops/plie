@@ -355,11 +355,15 @@ final class BookingAssistant: ObservableObject {
     @Published var reachedPayment = false
     @Published var needsLogin = false
     @Published var failed = false
+    /// Le paiement est passé : la plateforme a confirmé la réservation.
+    @Published var confirmed = false
     @Published var steps = ["J'ouvre la page du club", "Je touche ton créneau", "Je choisis la durée", "J'avance jusqu'au paiement"]
     private(set) var trace: [String] = []
     private var started = false
     private var task: Task<Void, Never>?
     private var watcher: Task<Void, Never>?
+    private var confirmWatch: Task<Void, Never>?
+    private var sawPayment = false
     private weak var webView: WKWebView?
     private var t0 = Date()
 
@@ -419,6 +423,19 @@ final class BookingAssistant: ObservableObject {
     """#
 
     static let stateJS = commonJS + "\nreturn pageState();"
+
+    /// Après le paiement : la plateforme a-t-elle confirmé ? (appel de confirmation réussi, message ou page de succès)
+    static let confirmJS = commonJS + #"""
+    var text = document.body ? document.body.innerText.replace(/\s+/g, ' ').slice(0, 6000) : '';
+    var path = location.pathname.toLowerCase();
+    var net = (window.__padelupNet || []).join('\n');
+    var api = /POST \S*payment_intents\/[^\/\s]+\/confirmation\S* → 2\d\d/i.test(net);
+    var words = /(réservation (est |a été |bien )?confirmée|réservation réussie|paiement (réussi|confirmé|accepté|validé)|booking (is )?confirmed|reservation confirmed|payment (successful|confirmed|complete)|c'est réservé|tu as réservé|vous avez réservé|merci pour (ta|votre) réservation|match (est )?confirmé|reserva confirmada)/i.test(text);
+    var page = /(success|succes|thank|merci|confirmed|confirmee)/.test(path) || /\/matches?\/[0-9a-z-]{8,}/.test(path);
+    var pay = pageState().state === 'payment';
+    var ok = api || ((words || page) && !findPay(document));
+    return { confirmed: ok, api: api, pay: pay, how: api ? 'paiement confirmé par la plateforme' : (words ? 'message de confirmation' : (page ? 'page de confirmation' : '')) };
+    """#
 
     /// Un tour : regarder la page, faire UN geste, dire lequel. Arguments : time, duration, resource, attempt.
     static let stepJS = commonJS + #"""
@@ -704,6 +721,13 @@ final class BookingAssistant: ObservableObject {
 
     // MARK: Déroulé
 
+    var webViewAttached: Bool { webView != nil }
+
+    /// Page ouverte sans créneau à choisir : l'assistant ne fait que guetter la confirmation.
+    func attach(_ webView: WKWebView) {
+        if self.webView == nil { self.webView = webView; t0 = Date() }
+    }
+
     func run(target: BookingTarget?, clubURL: URL, payURL: URL?, in webView: WKWebView) {
         guard !started else { return }
         started = true
@@ -827,7 +851,30 @@ final class BookingAssistant: ObservableObject {
         reachedPayment = true
         needsLogin = false
         failed = false
+        sawPayment = true
         finish("Tout est prêt : vérifie puis touche « \(label.isEmpty ? "Payer" : label) ».", done: true)
+        watchConfirmation()
+    }
+
+    /// Une fois la page de paiement atteinte (par l'assistant ou à la main) : guetter la confirmation de la plateforme.
+    /// Un message « confirmé » ne compte qu'après être passé par le paiement (une page club peut parler de matchs
+    /// « confirmés ») ; l'appel de confirmation du paiement, lui, compte toujours.
+    func watchConfirmation() {
+        guard confirmWatch == nil, !confirmed else { return }
+        confirmWatch = Task { [weak self] in
+            for _ in 0..<1800 {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                guard let self, !Task.isCancelled, let wv = self.webView else { return }
+                if wv.isLoading { continue }
+                let r = await self.js(Self.confirmJS)
+                if r["pay"] as? Bool == true { self.sawPayment = true }
+                if r["confirmed"] as? Bool == true, self.sawPayment || r["api"] as? Bool == true {
+                    self.log("réservation confirmée (\(r["how"] as? String ?? ""))")
+                    self.confirmed = true
+                    return
+                }
+            }
+        }
     }
 
     /// La plateforme demande de se connecter : la page s'affiche. Une fois connecté, on revient au paiement du créneau.
@@ -870,6 +917,7 @@ final class BookingAssistant: ObservableObject {
     func cancelAll() {
         task?.cancel()
         watcher?.cancel()
+        confirmWatch?.cancel()
         working = false
     }
 }
@@ -951,7 +999,9 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
             assistant.run(target: target, clubURL: request.url, payURL: pay, in: webView)
         } else {
             webView.load(URLRequest(url: request.url))
+            assistant.attach(webView)
             showPage = true
+            assistant.watchConfirmation()
         }
         // Filet de sécurité : on montre la page quoi qu'il arrive.
         timeout = Task { [weak self] in
@@ -963,6 +1013,8 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
     func reveal(reason: String = "Je te laisse la main : termine ici.") {
         timeout?.cancel()
         assistant.stop(reason)
+        // Même si le joueur finit à la main : dès que la plateforme confirme, l'app le voit.
+        if assistant.webViewAttached { assistant.watchConfirmation() }
         withAnimation(.snappy(duration: 0.35)) { showPage = true }
     }
 
@@ -1020,6 +1072,8 @@ struct BookingFlowSheet: View {
     let request: BookingRequest
     @StateObject private var preparer: BookingPreparer
     @Environment(\.dismiss) private var dismiss
+    /// Réservation confirmée par la plateforme : la page se ferme et la confirmation s'affiche (avec les rappels posés).
+    @State private var reminders: [Date]? = nil
 
     init(request: BookingRequest) {
         self.request = request
@@ -1029,7 +1083,9 @@ struct BookingFlowSheet: View {
     var body: some View {
         NavigationStack {
             Group {
-                if preparer.showPage {
+                if let reminders {
+                    BookingConfirmedView(target: request.target, provider: WebAccount.owns(request.url), reminders: reminders) { dismiss() }
+                } else if preparer.showPage {
                     ExistingWebView(webView: preparer.webView)
                         .ignoresSafeArea(edges: .bottom)
                         .overlay(alignment: .top) { PaymentBanner(assistant: preparer.assistant, copyJournal: copyJournal) }
@@ -1038,11 +1094,11 @@ struct BookingFlowSheet: View {
                 }
             }
             .modifier(PopupWindows(controller: preparer.popups))
-            .navigationTitle(preparer.showPage ? (WebAccount.owns(request.url)?.name ?? "Réservation") : "")
+            .navigationTitle(preparer.showPage && reminders == nil ? (WebAccount.owns(request.url)?.name ?? "Réservation") : "")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if preparer.showPage {
+                    if preparer.showPage && reminders == nil {
                         HStack(spacing: 4) {
                             Button { preparer.webView.goBack() } label: { Image(systemName: "chevron.left") }
                             Menu {
@@ -1052,7 +1108,7 @@ struct BookingFlowSheet: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(preparer.showPage ? "Terminé" : "Annuler") {
+                    Button(reminders != nil ? "Fermer" : (preparer.showPage ? "Terminé" : "Annuler")) {
                         if let p = WebAccount.owns(request.url) { Task { await WebAccount.refresh(p, webView: preparer.webView) } }
                         preparer.cancel()
                         dismiss()
@@ -1065,12 +1121,95 @@ struct BookingFlowSheet: View {
         .onDisappear { preparer.cancel() }
         .onReceive(preparer.assistant.$working.dropFirst()) { working in
             // L'assistant a fini (paiement atteint, ou il a besoin de toi) : la page apparaît.
-            if !working && preparer.assistant.stage > 0 { preparer.reveal() }
+            if !working && preparer.assistant.stage > 0 && reminders == nil { preparer.reveal() }
+        }
+        .onReceive(preparer.assistant.$confirmed) { ok in
+            guard ok, reminders == nil else { return }
+            let provider = WebAccount.owns(request.url)
+            let target = request.target ?? BookingTarget(time: "", duration: nil)
+            // La réservation est notée (accueil, historique), la règle compte une réservation, les rappels sont posés.
+            let planned = BotEngine.shared.bookingConfirmed(target, provider: provider)
+            if let provider { Task { await WebAccount.refresh(provider, webView: preparer.webView, seen: true) } }
+            withAnimation(.snappy(duration: 0.4)) { reminders = planned }
+            // La page de la plateforme se ferme d'elle-même.
+            preparer.cancel()
         }
     }
 
     private func copyJournal() {
         Task { UIPasteboard.general.string = await preparer.journal() }
+    }
+}
+
+/// Après le paiement : « Ta réservation est confirmée », le billet de la partie, et les rappels programmés.
+struct BookingConfirmedView: View {
+    let target: BookingTarget?
+    let provider: BotProvider?
+    let reminders: [Date]
+    var done: () -> Void
+    @State private var appear = false
+
+    private var tz: TimeZone { target?.timezone.flatMap(TimeZone.init(identifier:)) ?? .current }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 26) {
+                ZStack {
+                    Circle().fill(UI.ball)
+                    Image(systemName: "checkmark").font(.system(size: 36, weight: .heavy)).foregroundStyle(UI.onBall)
+                }
+                .frame(width: 84, height: 84)
+                .scaleEffect(appear ? 1 : 0.3)
+                .opacity(appear ? 1 : 0)
+                VStack(alignment: .leading, spacing: 8) {
+                    Eyebrow(text: "Payé" + (provider.map { " sur " + $0.name } ?? ""))
+                    Text("Ta réservation est confirmée.").font(UI.display(34)).foregroundStyle(UI.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if let t = target, let start = t.start {
+                    Ticket {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Eyebrow(text: "Ta partie")
+                                Spacer()
+                                Stamp(text: "Réservé")
+                            }
+                            HStack(alignment: .lastTextBaseline, spacing: 12) {
+                                Text(FR.time(start, tz: tz)).font(UI.scoreHeavy(64)).foregroundStyle(UI.ink)
+                                Text(FR.longDay(start, tz: tz)).font(UI.headline()).foregroundStyle(UI.ink).lineLimit(2)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(t.clubName.isEmpty ? (provider?.name ?? "Club") : t.clubName).font(UI.headline()).foregroundStyle(UI.ink)
+                                Text([t.court, t.duration.map { "\($0) min" } ?? "", t.price].filter { !$0.isEmpty }.joined(separator: " · "))
+                                    .font(UI.callout()).foregroundStyle(UI.muted)
+                            }
+                        }
+                    } stub: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "bell.badge").font(.system(size: 13, weight: .semibold)).foregroundStyle(UI.ink)
+                            Text(reminderLine).font(UI.caption()).foregroundStyle(UI.muted).fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                } else {
+                    Text(reminderLine).font(UI.callout()).foregroundStyle(UI.muted)
+                }
+                Text("Elle t'attend sur l'accueil, dans « Prochaine partie ».").font(UI.caption()).foregroundStyle(UI.muted)
+                Button("Super", action: done).buttonStyle(PrimaryButtonStyle())
+            }
+            .padding(.horizontal, UI.margin)
+            .padding(.top, 20)
+            .padding(.bottom, 30)
+        }
+        .background(PageBackground(seasonal: false))
+        .overlay { ConfettiBurst().allowsHitTesting(false) }
+        .sensoryFeedback(.success, trigger: appear)
+        .onAppear { withAnimation(.spring(response: 0.45, dampingFraction: 0.6)) { appear = true } }
+    }
+
+    private var reminderLine: String {
+        guard !reminders.isEmpty else { return "Le match est trop proche pour un rappel : file sur le terrain !" }
+        let parts = reminders.map { FR.string($0, "EEEE 'à' HH:mm", tz: tz) }
+        return "Rappel" + (parts.count > 1 ? "s " : " ") + parts.joined(separator: " et ") + "."
     }
 }
 

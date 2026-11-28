@@ -103,6 +103,9 @@ struct BotLogEntry: Identifiable, Codable, Hashable {
     var court: String = ""
     var price: String = ""
     var actionURL: String? = nil
+    // Ajouts (optionnels pour relire l'historique déjà enregistré)
+    var duration: Int? = nil
+    var provider: String? = nil
 }
 
 /// Un créneau Playtomic précis (club, terrain, début, durée) : de quoi ouvrir directement sa page de paiement.
@@ -136,19 +139,54 @@ struct DirectPay: Hashable {
     }
 }
 
-/// Ce que l'assistant de réservation doit choisir sur la page (heure, durée), et le créneau exact s'il est connu.
+/// Ce que l'assistant de réservation doit choisir sur la page (heure, durée), le créneau exact s'il est connu, et de quoi
+/// afficher la réservation une fois payée (club, début, terrain, prix) et programmer les rappels.
 struct BookingTarget: Hashable {
     let time: String        // « 19:30 »
     let duration: Int?      // 90, ou nil si la durée se choisit sur la page
     let direct: DirectPay?
+    var start: Date? = nil
+    var clubName = ""
+    var court = ""
+    var price = ""
+    var timezone: String? = nil
+    var ruleID: UUID? = nil
 
-    init(time: String, duration: Int?, direct: DirectPay? = nil) {
+    init(time: String, duration: Int?, direct: DirectPay? = nil, start: Date? = nil, clubName: String = "", court: String = "",
+         price: String = "", timezone: String? = nil, ruleID: UUID? = nil) {
         self.time = time
         self.duration = (duration ?? 0) > 0 ? duration : nil
         self.direct = direct
+        self.start = start
+        self.clubName = clubName
+        self.court = court
+        self.price = price
+        self.timezone = timezone
+        self.ruleID = ruleID
     }
 
-    init(slot: BookingSlot) { self.init(time: slot.localTime, duration: slot.duration, direct: DirectPay(slot: slot)) }
+    init(slot: BookingSlot, clubName: String = "", ruleID: UUID? = nil) {
+        self.init(time: slot.localTime, duration: slot.duration, direct: DirectPay(slot: slot), start: slot.start, clubName: clubName,
+                  court: slot.courtName, price: slot.priceLabel, timezone: slot.timezone, ruleID: ruleID)
+    }
+
+    /// Pour une notification : de quoi rouvrir la réservation et l'afficher une fois payée.
+    var userInfo: [String: Any] {
+        var info: [String: Any] = ["time": time, "duration": duration ?? 0, "club": clubName, "court": court, "price": price]
+        if let start { info["slotStart"] = start.timeIntervalSince1970 }
+        if let timezone { info["tz"] = timezone }
+        if let ruleID { info["rule"] = ruleID.uuidString }
+        if let direct { info.merge(direct.userInfo) { a, _ in a } }
+        return info
+    }
+
+    init?(userInfo info: [AnyHashable: Any]) {
+        guard let time = info["time"] as? String else { return nil }
+        self.init(time: time, duration: info["duration"] as? Int, direct: DirectPay(userInfo: info),
+                  start: (info["slotStart"] as? Double).map { Date(timeIntervalSince1970: $0) },
+                  clubName: info["club"] as? String ?? "", court: info["court"] as? String ?? "", price: info["price"] as? String ?? "",
+                  timezone: info["tz"] as? String, ruleID: (info["rule"] as? String).flatMap(UUID.init(uuidString:)))
+    }
 }
 
 /// Une page de réservation à ouvrir, avec l'assistant qui choisit le créneau.
@@ -329,7 +367,7 @@ final class BotEngine: ObservableObject {
             let fresh = candidates.filter { !rule.notifiedSlots.contains($0.id) }
             if let best = fresh.first {
                 let url = actionURL(for: best, slug: rule.clubSlug)
-                let target = BookingTarget(slot: best)
+                let target = BookingTarget(slot: best, clubName: rule.clubName, ruleID: rule.id)
                 record(.found, rule: rule, slot: best, message: "Libre · \(best.duration > 0 ? "\(best.duration) min" : "durée au choix") · \(best.courtName)", url: url?.absoluteString)
                 notify(title: "Créneau libre · \(rule.clubName)", body: "\(Self.when(best)) · \(best.courtName) \(best.priceLabel). Touche : l'assistant prépare la réservation.",
                        url: url, target: target)
@@ -410,7 +448,7 @@ final class BotEngine: ObservableObject {
         case .needsAction:
             if ruleID != nil {
                 record(.needsAction, rule: rule, clubName: clubName, slot: slot, message: outcome.message, url: outcome.actionURL?.absoluteString)
-                notify(title: "À toi de jouer · \(clubName)", body: "\(Self.when(slot)) : \(outcome.message)", url: outcome.actionURL, target: BookingTarget(slot: slot))
+                notify(title: "À toi de jouer · \(clubName)", body: "\(Self.when(slot)) : \(outcome.message)", url: outcome.actionURL, target: BookingTarget(slot: slot, clubName: clubName, ruleID: ruleID))
             }
         case .authError, .failed:
             record(.failed, rule: rule, clubName: clubName, slot: slot, message: outcome.message)
@@ -474,8 +512,8 @@ final class BotEngine: ObservableObject {
                         self.record(.found, rule: current, slot: best, message: "Ouvert à l'instant · \(best.duration) min", url: url?.absoluteString)
                         self.update(rule.id) { $0.notifiedSlots.append(best.id); $0.lastStatus = "Ouverture : \(Self.when(best)) repéré" }
                         self.notify(title: "C'est ouvert · \(current.clubName)", body: "\(Self.when(best)) · \(best.courtName). Touche pour réserver.",
-                                    url: url, target: BookingTarget(slot: best))
-                        if let url { self.openBooking = BookingRequest(url: url, target: BookingTarget(slot: best)) }
+                                    url: url, target: BookingTarget(slot: best, clubName: current.clubName, ruleID: current.id))
+                        if let url { self.openBooking = BookingRequest(url: url, target: BookingTarget(slot: best, clubName: current.clubName, ruleID: current.id)) }
                         return
                     }
                 } catch PlaytomicError.blockedByPlaytomic {
@@ -544,12 +582,74 @@ final class BotEngine: ObservableObject {
         content.sound = .default
         if let url {
             var info: [String: Any] = ["url": url.absoluteString]
-            if let target {
-                info["time"] = target.time; info["duration"] = target.duration ?? 0
-                if let d = target.direct { info.merge(d.userInfo) { a, _ in a } }
-            }
+            if let target { info.merge(target.userInfo) { a, _ in a } }
             content.userInfo = info
         }
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
+    }
+
+    // MARK: Réservation payée sur la plateforme
+
+    /// Le paiement est passé sur Playtomic ou Anybuddy : la partie est notée (accueil, historique), la règle qui l'a
+    /// trouvée compte une réservation de plus, et les rappels sont programmés. Renvoie l'heure des rappels posés.
+    @discardableResult
+    func bookingConfirmed(_ target: BookingTarget, provider: BotProvider?) -> [Date] {
+        let tz = target.timezone.flatMap(TimeZone.init(identifier:)) ?? .current
+        let start = target.start
+        let key = "\(target.clubName)|\(Int(start?.timeIntervalSince1970 ?? 0))"
+        // Une même réservation n'est notée qu'une fois (la page de confirmation peut se recharger).
+        let already = log.contains { $0.kind == .booked && "\($0.clubName)|\(Int($0.slotStart?.timeIntervalSince1970 ?? 0))" == key }
+        if !already {
+            let on = provider.map { " sur \($0.name)" } ?? ""
+            log.insert(BotLogEntry(kind: .booked, clubName: target.clubName.isEmpty ? (provider?.name ?? "Club") : target.clubName,
+                                   message: "Réservé et payé\(on)", slotStart: start, court: target.court, price: target.price,
+                                   duration: target.duration, provider: provider?.rawValue), at: 0)
+            if log.count > 200 { log = Array(log.prefix(200)) }
+            if let id = target.ruleID, let start {
+                let day = FR.string(start, "yyyy-MM-dd", tz: tz)
+                update(id) {
+                    if !$0.bookedDays.contains(day) { $0.bookedDays.append(day); $0.bookingsMade += 1 }
+                    if $0.isExhausted { $0.active = false }
+                    $0.lastStatus = "Réservé : \(FR.string(start, "EEEE d MMM 'à' HH:mm", tz: tz))"
+                }
+            }
+        }
+        guard let start else { return [] }
+        return scheduleMatchReminders(club: target.clubName, start: start, court: target.court, tz: tz)
+    }
+
+    /// Deux rappels pour ne pas oublier le match : la veille au soir (20:00) et 2 h avant.
+    private func scheduleMatchReminders(club: String, start: Date, court: String, tz: TimeZone) -> [Date] {
+        requestNotificationPermission()
+        let center = UNUserNotificationCenter.current()
+        let stable = club.unicodeScalars.reduce(7) { ($0 &* 31 &+ Int($1.value)) % 1_000_003 }
+        let id = "match-\(Int(start.timeIntervalSince1970))-\(stable)"
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = tz
+        let hour = FR.string(start, "HH:mm", tz: tz)
+        let place = [club, court].filter { !$0.isEmpty }.joined(separator: " · ")
+        var plans: [(String, Date, String, String)] = []
+        if let dayBefore = cal.date(byAdding: .day, value: -1, to: start),
+           let evening = cal.date(bySettingHour: 20, minute: 0, second: 0, of: dayBefore),
+           evening > Date(), start.timeIntervalSince(evening) > 6 * 3600 {
+            plans.append(("veille", evening, "Demain : padel à \(hour)", "\(place). Raquette, balles, eau : tout est prêt ?"))
+        }
+        var soon = start.addingTimeInterval(-2 * 3600)
+        if soon <= Date() { soon = start.addingTimeInterval(-30 * 60) }
+        if soon > Date() {
+            let left = start.timeIntervalSince(soon) >= 2 * 3600 ? "dans 2 h" : "dans 30 min"
+            plans.append(("bientot", soon, "Match \(left) · \(hour)", "\(place). Pense à partir à l'heure."))
+        }
+        for (suffix, date, title, body) in plans {
+            let content = UNMutableNotificationContent()
+            content.title = title
+            content.body = body
+            content.sound = .default
+            if suffix == "bientot" { content.interruptionLevel = .timeSensitive }
+            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+            center.add(UNNotificationRequest(identifier: "\(id)-\(suffix)", content: content,
+                                             trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)))
+        }
+        return plans.map(\.1)
     }
 }

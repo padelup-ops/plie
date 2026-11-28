@@ -22,7 +22,8 @@ function openDlg(c){const g=document.createElement('div');g.className='dlg';g.se
  const go=document.createElement('button');go.textContent='Réserver';go.disabled=true;go.onclick=()=>{location.href='/payments?type=CUSTOMER_MATCH&t='+sel.t+'&d='+sel.du;};g.appendChild(go);
  g.querySelector('[aria-label=Fermer]').onclick=()=>g.remove();document.body.appendChild(g);}
 </script>${cookie}</body></html>`;
-exports.payment = `<!doctype html><html><body><div id=app>Chargement…</div><script>setTimeout(()=>{document.getElementById('app').innerHTML='<h2>Paiement</h2><p>'+decodeURIComponent(location.search)+'</p><p>Total 36,00 €</p><label><input type=radio name=m> Carte</label><button>Payer 36 €</button>'},800)</script></body></html>`;
+exports.payment = `<!doctype html><html><body><div id=app>Chargement…</div><script>setTimeout(()=>{document.getElementById('app').innerHTML='<h2>Paiement</h2><p>'+decodeURIComponent(location.search)+'</p><p>Total 36,00 €</p><label><input type=radio name=m> Carte</label><button id=pay>Payer 36 €</button>';document.getElementById('pay').onclick=()=>{location.href='/matches/1b2c3d4e-5f60'};},800)</script></body></html>`;
+exports.confirmed = `<!doctype html><html><body><h2>Ta réservation est confirmée</h2><p>Piste Agence DIX · samedi 28 novembre · 19:30 · 90 min</p><a href="/">Voir mes matchs</a></body></html>`;
 exports.login = `<!doctype html><html><body><h2>Connexion</h2><input type=email><input type=password><button>Se connecter</button></body></html>`;
 exports.anybuddyClub = `<!doctype html><html><head><style>.chip{padding:8px;margin:4px}.sheet{position:fixed;inset:20% 0 0 0;background:#fff;z-index:5}</style></head><body>
 <nav><a href="/fr/aide/paiement">Paiement sécurisé</a></nav><h1>Border Padel Lille</h1>

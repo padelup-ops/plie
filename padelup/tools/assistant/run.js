@@ -16,7 +16,7 @@ function raw(name) {
   const end = swift.indexOf(DELIM + '#', open);
   return swift.slice(open, swift.lastIndexOf('\n', end));
 }
-const common = raw('commonJS'), step = raw('stepJS');
+const common = raw('commonJS'), step = raw('stepJS'), confirm = raw('confirmJS');
 const body = common + '\n' + step;
 let failures = 0;
 
@@ -66,6 +66,28 @@ async function scenario(name, start, args, routes, expect) {
     [[/^\/clubs\//, P.inlineClub], [/^\/checkout$/, P.payment]], 'payment @ /checkout?slot=19:30');
   await scenario('Lien direct qui demande la connexion', 'https://app.playtomic.test/payments?x=1', { time: '19:30', duration: 90, resource: '' },
     [[/^\/payments$/, P.login]], 'login');
+  // Confirmation : rien sur la page de paiement, « confirmé » une fois que le joueur a payé.
+  {
+    const browser = await chromium.launch();
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await page.route('**/*', r => {
+      const u = new URL(r.request().url());
+      const html = /^\/payments$/.test(u.pathname) ? P.payment : /^\/matches\//.test(u.pathname) ? P.confirmed : null;
+      return html ? r.fulfill({ contentType: 'text/html; charset=utf-8', body: html }) : r.fulfill({ status: 404, body: '' });
+    });
+    const check = () => page.evaluate(src => new Function(src)(), common + '\n' + confirm);
+    await page.goto('https://app.playtomic.test/payments?type=CUSTOMER_MATCH');
+    await page.waitForTimeout(1200);
+    const before = await check();
+    await page.click('#pay');   // le joueur paie lui-même
+    await page.waitForTimeout(800);
+    const after = await check();
+    const ok = before.confirmed === false && before.pay === true && after.confirmed === true;
+    if (!ok) failures++;
+    console.log('\n=== Confirmation après paiement');
+    console.log(ok ? 'OK ' : 'ÉCHEC', 'avant :', JSON.stringify(before), '· après :', JSON.stringify(after));
+    await browser.close();
+  }
   console.log(failures ? `\n${failures} scénario(s) en échec` : '\nTous les scénarios passent');
   process.exit(failures ? 1 : 0);
 })();

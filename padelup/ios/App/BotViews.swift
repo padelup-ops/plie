@@ -179,7 +179,9 @@ struct BotView: View {
                     let items = Array(bot.log.prefix(6))
                     ForEach(Array(items.enumerated()), id: \.element.id) { i, entry in
                         JournalRow(entry: entry, last: i == items.count - 1) { url in
-                            booking = BookingRequest(url: url, target: entry.slotStart.map { BookingTarget(time: FR.time($0), duration: nil) })
+                            booking = BookingRequest(url: url, target: entry.slotStart.map {
+                                BookingTarget(time: FR.time($0), duration: entry.duration, start: $0, clubName: entry.clubName, court: entry.court, price: entry.price)
+                            })
                         }
                     }
                 }
