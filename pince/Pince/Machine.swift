@@ -125,7 +125,12 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         case motor(Bool)
         case clack
         case grabbed
+        /// Les griffes se sont refermées sur rien, ou ont seulement effleuré un doudou.
+        case missed
         case slipped
+        /// La pince s'ouvre au-dessus de la trappe et lâche le doudou.
+        case released
+        case restocked
         case plop
         case won(Species)
     }
@@ -378,7 +383,10 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
 
         case .opening:
             timer += dt
-            if timer > 0.18, let p = held { release(p) }
+            if timer > 0.18, let p = held {
+                release(p)
+                emit(.released)
+            }
             if timer > 0.5 {
                 phase = .settling
                 timer = 0
@@ -490,10 +498,14 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
                 p.node.physicsBody?.applyForce(SCNVector3(push.x, 0.25, push.y), asImpulse: true)
             }
         }
-        guard let p = best else { return }
+        guard let p = best else {
+            emit(.missed)
+            return
+        }
         let quality = 1 - bestOffset
         if quality < 0.2 {
             p.node.physicsBody?.applyForce(SCNVector3(0, 1.1, 0), asImpulse: true)
+            emit(.missed)
             return
         }
         held = p
@@ -531,6 +543,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             add(Species.random(), slot: slot, height: height)
             height += 0.12
         }
+        emit(.restocked)
     }
 
     private func add(_ species: Species, slot: SIMD2<Float>, height: Float?) {
@@ -700,7 +713,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let sign = box(2.1, 0.64, 0.34, SIMD3<Float>(0, Box.top + 0.5, Box.front - 0.2), coral, chamfer: 0.08)
         let title = SCNMaterial()
         title.lightingModel = .constant
-        title.diffuse.contents = Backdrop.marquee(T("PINCE-DOUDOU", "PLUSHIE CLAW"))
+        title.diffuse.contents = Backdrop.marquee("PEEKACLAW")
         sign.geometry?.materials = [title, coral, coral, coral, coral, coral]
 
         // Le portique : deux rails, un pont qui avance et recule, un chariot qui va de gauche à droite

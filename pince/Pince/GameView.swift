@@ -22,7 +22,7 @@ struct GameView: View {
                     let panel = min(250 * k, max(190 * k, size.height * 0.27))
                     VStack(spacing: 0) {
                         MachineView(game: game)
-                        ControlPanel(height: panel / k, bottomInset: insets.bottom / k)
+                        ControlPanel(width: size.width / k, height: panel / k, bottomInset: insets.bottom / k)
                             .frame(width: size.width / k)
                             .scaleEffect(k, anchor: .bottom)
                             .frame(width: size.width, height: panel + insets.bottom, alignment: .bottom)
@@ -253,10 +253,12 @@ struct TopButtons: View {
         HStack(spacing: 10) {
             RoundButton(symbol: "teddybear.fill") {
                 game.say(.pop)
+                Haptics.tap()
                 game.showCollection = true
             }
             RoundButton(symbol: "gearshape.fill") {
                 game.say(.pop)
+                Haptics.tap()
                 game.showSettings = true
             }
         }
@@ -269,6 +271,7 @@ struct Joystick: View {
     let diameter: CGFloat
     let onMove: (CGSize) -> Void
     @State private var knob = CGSize.zero
+    @State private var held = false
 
     var body: some View {
         let reach = diameter * 0.27
@@ -301,6 +304,10 @@ struct Joystick: View {
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { drag in
+                    if !held {
+                        held = true
+                        Haptics.tap()
+                    }
                     var v = drag.translation
                     let length = hypot(v.width, v.height)
                     if length > reach {
@@ -311,6 +318,7 @@ struct Joystick: View {
                     onMove(CGSize(width: v.width / reach, height: -v.height / reach))
                 }
                 .onEnded { _ in
+                    held = false
                     withAnimation(.spring(response: 0.25, dampingFraction: 0.5)) { knob = .zero }
                     onMove(.zero)
                 }
@@ -373,30 +381,47 @@ struct DropControl: View {
     }
 }
 
-/// La trappe de sortie : on y voit le dernier doudou gagné. Elle ouvre la collection.
+/// Le bac de sortie, juste sous la trappe de la machine : le doudou gagné y tombe. Il ouvre la collection.
 struct Tray: View {
     @Environment(Game.self) private var game
-    let side: CGFloat
+    let width: CGFloat
+    @State private var fall: CGFloat = 0
 
     var body: some View {
+        let height = width * 0.92
         Button(action: {
             game.say(.pop)
+            Haptics.tap()
             game.showCollection = true
         }) {
             VStack(spacing: 6) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16).fill(Color(hex: 0x5C2E4B))
-                    RoundedRectangle(cornerRadius: 12).fill(Color(hex: 0x7A3F63)).padding(6)
+                ZStack(alignment: .bottom) {
+                    // Le fond du bac, sombre en haut : c'est par là que tombent les doudous.
+                    LinearGradient(colors: [Color(hex: 0x3F1F38), Color(hex: 0x8A4A70)], startPoint: .top, endPoint: .bottom)
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(hex: 0xF7A8BC))
+                        .frame(height: height * 0.16)
+                        .padding(.horizontal, 7)
+                        .padding(.bottom, 6)
                     if let last = game.lastPrize {
-                        Portrait(species: last, size: side * 0.68)
+                        Portrait(species: last, size: height * 0.7)
+                            .padding(.bottom, height * 0.09)
+                            .offset(y: fall)
                     } else {
-                        Image(systemName: "questionmark")
-                            .font(.system(size: side * 0.34, weight: .black))
-                            .foregroundStyle(.white.opacity(0.35))
+                        Image(systemName: "arrow.down")
+                            .font(.system(size: height * 0.3, weight: .black))
+                            .foregroundStyle(.white.opacity(0.3))
+                            .padding(.bottom, height * 0.3)
+                    }
+                    // Le volet du haut
+                    VStack(spacing: 0) {
+                        Rectangle().fill(Color(hex: Tint.rose)).frame(height: 7)
+                        Spacer(minLength: 0)
                     }
                 }
-                .frame(width: side, height: side)
-                .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Color(hex: Tint.coral), lineWidth: 3))
+                .frame(width: width, height: height)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color(hex: Tint.coral), lineWidth: 3))
                 Text("\(game.collected)/\(Species.allCases.count)")
                     .font(.toon(15))
                     .foregroundStyle(Color(hex: Tint.plum))
@@ -404,18 +429,24 @@ struct Tray: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(T("Mes doudous", "My plushies"))
+        .onChange(of: game.winTick) { _, _ in
+            fall = -height
+            withAnimation(.interpolatingSpring(stiffness: 170, damping: 11)) { fall = 0 }
+        }
     }
 }
 
 /// Le pupitre de la machine, sous la vitre.
 struct ControlPanel: View {
     @Environment(Game.self) private var game
+    let width: CGFloat
     let height: CGFloat
     let bottomInset: CGFloat
 
     var body: some View {
         let row = height - 56
-        let stick = min(row - 26, 150)
+        let inner = min(width, 640) - 40
+        let stick = min(row - 26, 150, inner * 0.4)
         VStack(spacing: 0) {
             Rectangle().fill(Color(hex: Tint.rose)).frame(height: 5)
             ZStack {
@@ -428,14 +459,15 @@ struct ControlPanel: View {
             }
             .padding(.horizontal, 16)
             .frame(height: 51)
+            // Comme sur une vraie machine : le bac de sortie est à gauche, sous la trappe.
             HStack(spacing: 0) {
+                Tray(width: min(inner * 0.27, 112))
+                Spacer(minLength: 4)
                 Joystick(diameter: stick) { game.stick($0) }
-                Spacer(minLength: 8)
-                Tray(side: min(92, stick * 0.66))
-                Spacer(minLength: 8)
-                DropControl(diameter: stick * 0.74)
+                Spacer(minLength: 4)
+                DropControl(diameter: min(stick * 0.74, inner * 0.29))
             }
-            .padding(.horizontal, 22)
+            .padding(.horizontal, 20)
             .frame(maxWidth: 640)
             .frame(height: row)
             Spacer(minLength: 0)
@@ -464,7 +496,8 @@ struct FloatingControls: View {
                 TopButtons()
             }
             Spacer()
-            HStack(alignment: .bottom) {
+            HStack(alignment: .bottom, spacing: 14) {
+                Tray(width: stick * 0.62)
                 Joystick(diameter: stick) { game.stick($0) }
                 Spacer()
                 DropControl(diameter: stick * 0.74)
@@ -646,6 +679,9 @@ struct SettingsCard: View {
                 .foregroundStyle(Color(hex: Tint.rose))
             Toggle(T("Bruitages", "Sound effects"), isOn: Binding(get: { game.soundOn }, set: { game.setSound($0) }))
             Toggle(T("Musique", "Music"), isOn: Binding(get: { game.musicOn }, set: { game.setMusic($0) }))
+            if UIDevice.current.userInterfaceIdiom == .phone {
+                Toggle(T("Vibrations", "Vibrations"), isOn: Binding(get: { game.hapticsOn }, set: { game.setHaptics($0) }))
+            }
             VStack(alignment: .leading, spacing: 8) {
                 Text(T("Relief", "3D effect"))
                 Picker(T("Relief", "3D effect"), selection: Binding(get: { game.depth }, set: { game.setDepth($0) })) {
@@ -701,7 +737,7 @@ struct IntroCard: View {
     var body: some View {
         VStack(spacing: 14) {
             Portrait(species: .bunny, size: 120)
-            Text(T("Pince-Doudou", "Plushie Claw"))
+            Text("Peekaclaw")
                 .font(.toon(30))
                 .foregroundStyle(Color(hex: Tint.rose))
             VStack(alignment: .leading, spacing: 12) {
@@ -714,6 +750,7 @@ struct IntroCard: View {
             }
             BigButton(title: T("C'est parti !", "Let's play!")) {
                 game.say(.pop)
+                Haptics.tap()
                 game.begin()
             }
             .padding(.top, 4)

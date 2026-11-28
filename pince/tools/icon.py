@@ -1,4 +1,4 @@
-"""PINCE-DOUDOU : dessine l'icône de l'app (1024 x 1024, sans transparence).
+"""PEEKACLAW : dessine l'icône de l'app (1024 x 1024, sans transparence).
 
     python3 pince/tools/icon.py
 """

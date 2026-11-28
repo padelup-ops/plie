@@ -1,5 +1,5 @@
-# PINCE-DOUDOU : compile le jeu, le lance sur les simulateurs (iPhone Duo, iPhone, iPad) et capture les écrans (branche ci-pince-shots).
-name: Pince-Doudou - captures
+# PEEKACLAW : compile le jeu, le lance sur les simulateurs (iPhone Duo, iPhone, iPad) et capture les écrans (branche ci-pince-shots).
+name: Peekaclaw - captures
 
 on:
   push:
@@ -34,10 +34,10 @@ jobs:
     permissions:
       contents: write
     env:
-      ROUTES: ${{ inputs.routes || 'game high grab win' }}
+      ROUTES: ${{ inputs.routes || 'game left grab win collection settings intro' }}
       LANG_CODE: ${{ inputs.lang || 'fr' }}
       # Chaque simulateur met un bon quart d'heure à démarrer : on ne lance que ceux qu'on veut voir.
-      DEVICES: ${{ inputs.devices || 'iphone' }}
+      DEVICES: ${{ inputs.devices || 'iphone ipad' }}
     steps:
       - uses: actions/checkout@v5
       - name: Choisir Xcode 27.1
@@ -112,5 +112,5 @@ jobs:
           git init -q -b ci-pince-shots
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
-          git add -A && git commit -qm "Captures Pince-Doudou"
+          git add -A && git commit -qm "Captures Peekaclaw"
           git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-pince-shots

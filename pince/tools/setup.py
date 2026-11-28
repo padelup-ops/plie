@@ -1,4 +1,4 @@
-"""PINCE-DOUDOU : prépare App Store Connect (identifiant de l'app, fiche, groupe de testeurs).
+"""PEEKACLAW : prépare App Store Connect (identifiant de l'app, fiche, groupe de testeurs).
 
 Variables : ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY, BUNDLE_ID (celui d'Origamo, pour trouver le préfixe).
 Écrit le rapport sur la sortie standard. N'invente rien : la fiche de l'app doit être créée à la main
@@ -35,7 +35,7 @@ app_id = base + ".pince"
 print("BUNDLE_APP", app_id)
 
 existing = {b["attributes"]["identifier"]: b["id"] for b in call("GET", "/v1/bundleIds?limit=200&filter[platform]=IOS").get("data", [])}
-for ident, name in [(app_id, "Pince-Doudou")]:
+for ident, name in [(app_id, "Peekaclaw")]:
     if ident in existing:
         print("ok     identifiant déjà là :", ident)
         continue
@@ -57,7 +57,7 @@ groups = call("GET", f"/v1/apps/{cid}/betaGroups?limit=50").get("data", [])
 for g in groups:
     print("GROUPE", g["attributes"]["name"], "| interne" if g["attributes"].get("isInternalGroup") else "| externe")
 if not any(g["attributes"].get("isInternalGroup") for g in groups):
-    r = call("POST", "/v1/betaGroups", {"data": {"type": "betaGroups", "attributes": {"name": "Pince interne", "isInternalGroup": True,
+    r = call("POST", "/v1/betaGroups", {"data": {"type": "betaGroups", "attributes": {"name": "Peekaclaw interne", "isInternalGroup": True,
                                                                                         "hasAccessToAllBuilds": True},
                                                  "relationships": {"app": {"data": {"type": "apps", "id": cid}}}}})
     print("ok     groupe interne créé" if "data" in r else "ÉCHEC  groupe interne " + json.dumps(r)[:400])

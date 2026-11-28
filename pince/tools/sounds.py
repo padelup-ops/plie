@@ -1,4 +1,4 @@
-"""PINCE-DOUDOU : fabrique les bruitages et la petite musique (fichiers WAV dans Pince/Sounds).
+"""PEEKACLAW : fabrique les bruitages et la petite musique (fichiers WAV dans Pince/Sounds).
 
     python3 pince/tools/sounds.py
 

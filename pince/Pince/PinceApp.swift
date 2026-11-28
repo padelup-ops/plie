@@ -1,7 +1,7 @@
 import SwiftUI
 import AVFoundation
 
-// MARK: - Pince-Doudou
+// MARK: - Peekaclaw
 
 @main
 struct PinceApp: App {
@@ -100,10 +100,56 @@ enum Sound: String {
     }
 }
 
+/// Les vibrations. Chaque moment de la partie a la sienne : on sent la pince travailler sans regarder.
 enum Haptics {
-    static func tap() { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
-    static func thud() { UIImpactFeedbackGenerator(style: .medium).impactOccurred() }
-    static func success() { UINotificationFeedbackGenerator().notificationOccurred(.success) }
+    static var enabled = true
+
+    private static let soft = UIImpactFeedbackGenerator(style: .soft)
+    private static let light = UIImpactFeedbackGenerator(style: .light)
+    private static let medium = UIImpactFeedbackGenerator(style: .medium)
+    private static let heavy = UIImpactFeedbackGenerator(style: .heavy)
+    private static let rigid = UIImpactFeedbackGenerator(style: .rigid)
+    private static let notice = UINotificationFeedbackGenerator()
+
+    private static func hit(_ generator: UIImpactFeedbackGenerator, _ strength: CGFloat, after delay: Double = 0) {
+        guard enabled else { return }
+        if delay == 0 {
+            generator.impactOccurred(intensity: strength)
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                if enabled { generator.impactOccurred(intensity: strength) }
+            }
+        }
+    }
+
+    /// Un bouton de l'interface.
+    static func tap() { hit(light, 0.7) }
+    /// Le gros bouton rouge : la pince part.
+    static func press() { hit(medium, 1); heavy.prepare(); rigid.prepare() }
+    /// Le treuil qui tourne : un petit cran, répété tant que la pince bouge.
+    static func tick(_ strength: CGFloat) { hit(soft, strength) }
+    /// Les griffes se referment : un claquement sec.
+    static func clack() { hit(rigid, 0.9) }
+    /// Un doudou est pris : un choc franc, puis son poids au bout du câble.
+    static func grab() { hit(heavy, 1); hit(soft, 0.8, after: 0.13) }
+    /// Les griffes se referment sur rien : deux petits coups dans le vide.
+    static func miss() { hit(light, 0.6, after: 0.05); hit(soft, 0.4, after: 0.17) }
+    /// Le doudou glisse et retombe.
+    static func slip() {
+        guard enabled else { return }
+        notice.notificationOccurred(.warning)
+        hit(medium, 0.7, after: 0.42)
+    }
+    /// La pince s'ouvre au-dessus de la trappe.
+    static func release() { hit(light, 0.8) }
+    /// Le doudou tombe dans le bac.
+    static func plop() { hit(heavy, 0.85); hit(soft, 0.5, after: 0.1) }
+    /// Gagné.
+    static func success() { if enabled { notice.notificationOccurred(.success) } }
+    /// De nouveaux doudous tombent dans la machine.
+    static func rain() {
+        for i in 0..<5 { hit(soft, 0.55, after: 0.35 + Double(i) * 0.09) }
+    }
 }
 
 // MARK: - La partie
@@ -129,6 +175,9 @@ final class Game {
     var deltaTick = 0
     var soundOn: Bool
     var musicOn: Bool
+    var hapticsOn: Bool
+    /// Avance d'un cran à chaque doudou gagné : le bac du pupitre s'anime.
+    var winTick = 0
     /// 0 : à plat, 1 : relief normal, 2 : relief accentué.
     var depth: Int
     var introSeen: Bool
@@ -139,6 +188,7 @@ final class Game {
     let machine = Machine()
     let tracker = HeadTracker()
     private var active = true
+    private var winchTimer: Timer?
     /// Vrai pendant une mise en scène pour les captures : le point de vue est imposé, rien n'est enregistré.
     private var staged = false
     private let store = UserDefaults.standard
@@ -148,6 +198,8 @@ final class Game {
         owned = store.dictionary(forKey: "owned") as? [String: Int] ?? [:]
         soundOn = store.object(forKey: "soundOn") as? Bool ?? true
         musicOn = store.object(forKey: "musicOn") as? Bool ?? true
+        hapticsOn = store.object(forKey: "hapticsOn") as? Bool ?? true
+        Haptics.enabled = hapticsOn
         depth = store.object(forKey: "depth") as? Int ?? 1
         introSeen = store.bool(forKey: "introSeen")
         if let last = store.string(forKey: "lastPrize") { lastPrize = Species(rawValue: last) }
@@ -188,6 +240,7 @@ final class Game {
         } else {
             tracker.stop()
             Sound.loop(.motor, on: false)
+            winch(false)
         }
         Sound.loop(.music, on: on && musicOn, volume: 0.35)
     }
@@ -202,7 +255,7 @@ final class Game {
         flash(-Game.cost)
         save()
         say(.coin)
-        Haptics.thud()
+        Haptics.press()
         busy = true
         machine.drop()
     }
@@ -219,6 +272,24 @@ final class Game {
     func closePrize() {
         prize = nil
         say(.pop)
+        Haptics.tap()
+    }
+
+    func setHaptics(_ on: Bool) {
+        hapticsOn = on
+        Haptics.enabled = on
+        if on { Haptics.grab() } else { winch(false) }
+        save()
+    }
+
+    /// Le treuil : de petits crans tant que la pince se déplace, plus marqués quand elle descend ou remonte.
+    private func winch(_ on: Bool) {
+        winchTimer?.invalidate()
+        winchTimer = nil
+        guard on, hapticsOn, active else { return }
+        winchTimer = Timer.scheduledTimer(withTimeInterval: 0.13, repeats: true) { [weak self] _ in
+            Haptics.tick(self?.busy == true ? 0.42 : 0.25)
+        }
     }
 
     func setSound(_ on: Bool) {
@@ -248,6 +319,7 @@ final class Game {
     func recenter() {
         tracker.recenter()
         say(.pop)
+        Haptics.tap()
     }
 
     func say(_ s: Sound, volume: Float = 1) {
@@ -269,16 +341,27 @@ final class Game {
             busy = on
         case .motor(let on):
             Sound.loop(.motor, on: on && soundOn && active, volume: 0.22)
+            winch(on)
         case .clack:
             say(.clack)
-            Haptics.tap()
+            Haptics.clack()
         case .grabbed:
-            Haptics.thud()
+            Haptics.grab()
+        case .missed:
+            Haptics.miss()
         case .slipped:
             say(.aww, volume: 0.8)
+            Haptics.slip()
+        case .released:
+            Haptics.release()
+        case .restocked:
+            say(.pop, volume: 0.6)
+            Haptics.rain()
         case .plop:
             say(.plop)
+            Haptics.plop()
         case .won(let species):
+            winTick += 1
             let isNew = (owned[species.rawValue] ?? 0) == 0
             owned[species.rawValue, default: 0] += 1
             coins += species.rarity.reward
@@ -301,6 +384,7 @@ final class Game {
         store.set(owned, forKey: "owned")
         store.set(soundOn, forKey: "soundOn")
         store.set(musicOn, forKey: "musicOn")
+        store.set(hapticsOn, forKey: "hapticsOn")
         store.set(depth, forKey: "depth")
         store.set(lastPrize?.rawValue, forKey: "lastPrize")
     }

@@ -1,7 +1,7 @@
-# PINCE-DOUDOU : compile le jeu sur un Mac de GitHub et l'envoie sur TestFlight (quand la fiche existe sur App Store Connect).
+# PEEKACLAW : compile le jeu sur un Mac de GitHub et l'envoie sur TestFlight (quand la fiche existe sur App Store Connect).
 # Projet Xcode généré par XcodeGen depuis pince/project.yml.
 
-name: Pince-Doudou - TestFlight
+name: Peekaclaw - TestFlight
 
 on:
   push:
@@ -83,7 +83,7 @@ jobs:
             echo "record=true" >> "$GITHUB_OUTPUT"
           else
             echo "record=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::La fiche Pince-Doudou n'existe pas encore sur App Store Connect : le build est signé mais pas envoyé."
+            echo "::warning::La fiche Peekaclaw n'existe pas encore sur App Store Connect : le build est signé mais pas envoyé."
           fi
 
       # Archive sans signature : aucun certificat de développement n'est créé à chaque build.
@@ -153,7 +153,7 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export.log
           grep -q -E "EXPORT SUCCEEDED|Upload succeeded|Uploaded" export.log
-          echo "::notice::Pince-Doudou build $BUILD_NUMBER envoyé. Il apparaît dans TestFlight après 15 à 30 minutes de traitement."
+          echo "::notice::Peekaclaw build $BUILD_NUMBER envoyé. Il apparaît dans TestFlight après 15 à 30 minutes de traitement."
 
       - name: Afficher les erreurs de signature ou d'envoi
         if: failure()
@@ -177,7 +177,7 @@ jobs:
           done
           echo "build $BUILD_NUMBER - commit ${{ github.sha }} - $(date -u)" > build.txt
           git add -A
-          git commit -qm "Journaux Pince-Doudou build $BUILD_NUMBER"
+          git commit -qm "Journaux Peekaclaw build $BUILD_NUMBER"
           git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-pince-logs || echo "::warning::Impossible de publier les journaux"
 
       - name: Effacer la clé

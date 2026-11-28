@@ -1,4 +1,4 @@
-# PINCE-DOUDOU : une machine à pince en relief. La caméra avant suit la position de la tête et la perspective
+# PEEKACLAW (dossier « pince ») : une machine à pince en relief. La caméra avant suit la position de la tête et la perspective
 # se recalcule à chaque image, comme si l'écran était la vitre d'une vraie boîte. Projet généré par XcodeGen : `xcodegen generate` dans ce dossier.
 name: Pince
 options:
@@ -23,7 +23,7 @@ targets:
     info:
       path: Pince/Info.plist
       properties:
-        CFBundleDisplayName: Pince-Doudou
+        CFBundleDisplayName: Peekaclaw
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleDevelopmentRegion: en
