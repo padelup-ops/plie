@@ -355,6 +355,7 @@ struct TopButtons: View {
 // MARK: - Les commandes
 
 struct Joystick: View {
+    @Environment(Game.self) private var game
     let diameter: CGFloat
     /// Sur la plaque sombre, un anneau clair détache le manche.
     var ringed = false
@@ -392,10 +393,21 @@ struct Joystick: View {
                 .offset(knob)
         }
         .frame(width: diameter, height: diameter)
+        // Sans pièce dans la fente, le manche est verrouillé : il s'estompe et ne bouge pas.
+        .opacity(game.credit || game.busy ? 1 : 0.55)
+        .animation(.easeOut(duration: 0.2), value: game.credit)
         .contentShape(Circle())
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { drag in
+                    guard game.credit else {
+                        // On le touche quand même : la pièce s'agite pour rappeler de payer.
+                        if !held {
+                            held = true
+                            game.refuse()
+                        }
+                        return
+                    }
                     if !held {
                         held = true
                         Haptics.tap()

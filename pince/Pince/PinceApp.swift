@@ -315,8 +315,16 @@ final class Game {
         Sound.loop(.music, on: on && musicOn, volume: 0.35)
     }
 
+    /// Le manche. Tant qu'aucune pièce n'est dans la fente, la pince ne bouge pas.
     func stick(_ v: CGSize) {
-        machine.setStick(SIMD2<Float>(Float(v.width), Float(v.height)))
+        machine.setStick(credit ? SIMD2<Float>(Float(v.width), Float(v.height)) : SIMD2<Float>(0, 0))
+    }
+
+    /// On a touché une commande sans avoir payé : la pièce s'agite pour le rappeler.
+    func refuse() {
+        guard !busy, prize == nil, !credit else { return }
+        nudge += 1
+        Haptics.miss()
     }
 
     /// Le joueur glisse une pièce dans la fente : la partie est payée.
@@ -333,13 +341,11 @@ final class Game {
     func drop() {
         guard canDrop else {
             // Pas de pièce dans la fente : on le rappelle.
-            if !busy, prize == nil, !credit {
-                nudge += 1
-                Haptics.miss()
-            }
+            refuse()
             return
         }
         credit = false
+        machine.setStick(SIMD2<Float>(0, 0))
         save()
         Haptics.press()
         busy = true
