@@ -91,6 +91,10 @@ struct RootView: View {
         .onChange(of: bot.openBooking) { _, request in
             guard let request else { return }
             bot.openBooking = nil
+            // Ouverture automatique : jamais par-dessus une page déjà ouverte (paiement en cours, fiche club…).
+            if request.auto && (router.sheet != nil || bot.bookingOnScreen) { return }
+            // Même page déjà à l'écran : on ne la recharge pas.
+            if case .booking(let current) = router.sheet, current.id == request.id { return }
             router.sheet = .booking(request)
         }
         // Après l'inscription : choisir son niveau (une seule fois, modifiable ensuite dans Profil).

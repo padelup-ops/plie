@@ -1238,7 +1238,11 @@ struct BookingFlowSheet: View {
             }
         }
         .tint(UI.court)
-        .onDisappear { preparer.cancel() }
+        .onAppear { BotEngine.shared.bookingScreen(visible: true) }
+        .onDisappear {
+            preparer.cancel()
+            BotEngine.shared.bookingScreen(visible: false)
+        }
         .onReceive(preparer.assistant.$working.dropFirst()) { working in
             // L'assistant a fini (paiement atteint, ou il a besoin de toi) : la page apparaît.
             if !working && preparer.assistant.stage > 0 && reminders == nil { preparer.reveal() }

@@ -210,6 +210,8 @@ struct BookingTarget: Hashable {
 struct BookingRequest: Identifiable, Hashable {
     let url: URL
     let target: BookingTarget?
+    /// Ouverte toute seule par la réservation auto (et non par un geste du joueur) : jamais par-dessus une autre page.
+    var auto = false
     var id: String { url.absoluteString + "|" + (target?.time ?? "") }
 }
 
@@ -236,6 +238,22 @@ final class BotEngine: ObservableObject {
     @Published var snipe: Snipe? = nil
     /// Page de réservation à ouvrir dans l'app (connectée), avec l'assistant : la vue racine la présente.
     @Published var openBooking: BookingRequest? = nil
+    /// Une page de réservation est à l'écran (préparation, paiement, confirmation) : la réservation auto ne doit ni
+    /// en rouvrir une autre par-dessus, ni envoyer de notification pendant ce temps.
+    private(set) var bookingScreens = 0
+    var bookingOnScreen: Bool { bookingScreens > 0 }
+    /// Dernière ouverture automatique d'une page, par règle : pas plus d'une toutes les 15 minutes.
+    private var lastAutoOpen: [UUID: Date] = [:]
+
+    func bookingScreen(visible: Bool) {
+        bookingScreens = max(0, bookingScreens + (visible ? 1 : -1))
+    }
+
+    private func mayAutoOpen(_ ruleID: UUID) -> Bool {
+        guard !bookingOnScreen, UIApplication.shared.applicationState == .active else { return false }
+        if let last = lastAutoOpen[ruleID], Date().timeIntervalSince(last) < 15 * 60 { return false }
+        return true
+    }
 
     private var timer: Timer?
     private var loading = false
@@ -381,17 +399,26 @@ final class BotEngine: ObservableObject {
         }
         // Playtomic et Anybuddy : le paiement se fait sur leur page. Le bot repère, prévient et ouvre la page déjà connectée.
         if !rule.autoBook || rule.provider != .padelup {
-            let fresh = candidates.filter { !rule.notifiedSlots.contains($0.id) }
+            // Un jour déjà réservé (payé) ne compte plus.
+            let open = candidates.filter { !rule.bookedDays.contains($0.localDayKey) }
+            let fresh = open.filter { !rule.notifiedSlots.contains($0.id) }
+            // Le joueur est en train de réserver : ni nouvelle page, ni notification. On reprendra après.
+            if bookingOnScreen {
+                update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = "Réservation en cours : je patiente." }
+                return
+            }
             if let best = fresh.first {
                 let url = actionURL(for: best, slug: rule.clubSlug)
                 let target = BookingTarget(slot: best, clubName: rule.clubName, ruleID: rule.id)
                 record(.found, rule: rule, slot: best, message: "Libre · \(best.duration > 0 ? "\(best.duration) min" : "durée au choix") · \(best.courtName)", url: url?.absoluteString)
                 notify(title: "Créneau libre · \(rule.clubName)", body: "\(Self.when(best)) · \(best.courtName) \(best.priceLabel). Touche : l'assistant prépare la réservation.",
                        url: url, target: target)
-                update(ruleID) { $0.notifiedSlots.append(best.id); $0.notifiedSlots = Array($0.notifiedSlots.suffix(200)) }
-                // « Réserver tout seul » : si l'app est ouverte, la page s'ouvre et l'assistant choisit le créneau.
-                if rule.autoBook, let url, UIApplication.shared.applicationState == .active, openBooking == nil {
-                    openBooking = BookingRequest(url: url, target: target)
+                // Une seule notification pour tous les créneaux vus maintenant (pas une par terrain ou par durée).
+                update(ruleID) { $0.notifiedSlots.append(contentsOf: open.map(\.id)); $0.notifiedSlots = Array($0.notifiedSlots.suffix(300)) }
+                // « Réserver tout seul » : si l'app est ouverte, la page s'ouvre UNE fois et l'assistant choisit le créneau.
+                if rule.autoBook, let url, mayAutoOpen(ruleID) {
+                    lastAutoOpen[ruleID] = Date()
+                    openBooking = BookingRequest(url: url, target: target, auto: true)
                 }
             }
             update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = "Trouvé ! \(candidates.count) créneau\(candidates.count > 1 ? "x" : "") libre\(candidates.count > 1 ? "s" : "")." }
@@ -530,7 +557,10 @@ final class BotEngine: ObservableObject {
                         self.update(rule.id) { $0.notifiedSlots.append(best.id); $0.lastStatus = "Ouverture : \(Self.when(best)) repéré" }
                         self.notify(title: "C'est ouvert · \(current.clubName)", body: "\(Self.when(best)) · \(best.courtName). Touche pour réserver.",
                                     url: url, target: BookingTarget(slot: best, clubName: current.clubName, ruleID: current.id))
-                        if let url { self.openBooking = BookingRequest(url: url, target: BookingTarget(slot: best, clubName: current.clubName, ruleID: current.id)) }
+                        if let url, self.mayAutoOpen(rule.id) {
+                            self.lastAutoOpen[rule.id] = Date()
+                            self.openBooking = BookingRequest(url: url, target: BookingTarget(slot: best, clubName: current.clubName, ruleID: current.id), auto: true)
+                        }
                         return
                     }
                 } catch PlaytomicError.blockedByPlaytomic {
