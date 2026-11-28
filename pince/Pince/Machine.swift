@@ -127,9 +127,12 @@ final class Claw {
 // MARK: - La machine
 
 final class Machine: NSObject, SCNSceneRendererDelegate {
+    /// Ce que fait la mécanique : rien, le chariot qui se déplace, le treuil qui descend, le treuil qui remonte.
+    enum Motion { case still, travel, down, up }
+
     enum Event {
         case busy(Bool)
-        case motor(Bool)
+        case motor(Motion)
         case clack
         case grabbed
         /// Les griffes se sont refermées sur rien, ou ont seulement effleuré un doudou.
@@ -183,7 +186,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     private var slipAt: Float = 2
     private var liftFrom: Float = 0
     private var tripFrom = Box.home
-    private var motorOn = false
+    private var motion = Motion.still
     private var freezeOnLift = false
     private var restockIn: Float = -1
     private var tried = false
@@ -325,14 +328,14 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         lock.unlock()
         for job in jobs { job(self) }
 
-        var moving = false
+        var moving = Motion.still
         switch phase {
         case .idle:
             if simd_length(s) > 0.08 {
                 let before = spot
                 spot.x = max(Box.minX, min(Box.maxX, spot.x + s.x * 0.75 * dt))
                 spot.y = max(Box.minZ, min(Box.maxZ, spot.y - s.y * 0.75 * dt))
-                moving = simd_distance(before, spot) > 0.0005
+                if simd_distance(before, spot) > 0.0005 { moving = .travel }
             }
             if drop {
                 phase = .descending
@@ -343,7 +346,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             }
 
         case .descending:
-            moving = true
+            moving = .down
             headY -= 0.95 * dt
             shove(dt)
             let stop = stopHeight()
@@ -368,7 +371,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             }
 
         case .ascending:
-            moving = true
+            moving = .up
             headY = min(Box.restY, headY + 0.9 * dt)
             let done = (headY - liftFrom) / max(0.01, Box.restY - liftFrom)
             if held != nil, done >= slipAt { slip() }
@@ -390,7 +393,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
                 timer = 0
                 prongGoal = Claw.open
             } else {
-                moving = true
+                moving = .travel
                 spot += gap / far * min(far, 0.8 * dt)
             }
 
@@ -417,8 +420,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             break
         }
 
-        if moving != motorOn {
-            motorOn = moving
+        if moving != motion {
+            motion = moving
             emit(.motor(moving))
         }
 

@@ -67,7 +67,7 @@ extension Font {
 // MARK: - Sons et vibrations
 
 enum Sound: String {
-    case pop, coin, clack, win, aww, plop, motor, music
+    case pop, coin, clack, win, aww, plop, motor, winch, insert, music
 
     private static var players: [Sound: AVAudioPlayer] = [:]
 
@@ -75,6 +75,7 @@ enum Sound: String {
         if let p = players[s] { return p }
         guard let url = Bundle.main.url(forResource: s.rawValue, withExtension: "wav"),
               let p = try? AVAudioPlayer(contentsOf: url) else { return nil }
+        p.enableRate = true
         p.prepareToPlay()
         players[s] = p
         return p
@@ -87,17 +88,25 @@ enum Sound: String {
         p.play()
     }
 
-    /// Lance ou arrête un son qui tourne en boucle (le moteur de la pince, la musique).
-    static func loop(_ s: Sound, on: Bool, volume: Float = 1) {
+    /// Lance ou arrête un son qui tourne en boucle (les moteurs de la pince, la musique).
+    /// `rate` : plus ou moins vite, donc plus ou moins aigu (le treuil remonte plus vite qu'il ne descend).
+    static func loop(_ s: Sound, on: Bool, volume: Float = 1, rate: Float = 1) {
         guard let p = player(s) else { return }
         if on {
+            p.rate = rate
+            p.volume = volume
             guard !p.isPlaying else { return }
             p.numberOfLoops = -1
-            p.volume = volume
             p.play()
         } else if p.isPlaying {
             p.pause()
         }
+    }
+
+    /// Coupe les moteurs.
+    static func stopMotors() {
+        loop(.motor, on: false)
+        loop(.winch, on: false)
     }
 }
 
@@ -237,6 +246,7 @@ final class Game {
         soundOn = store.object(forKey: "soundOn") as? Bool ?? true
         musicOn = store.object(forKey: "musicOn") as? Bool ?? true
         simpleCamera = store.bool(forKey: "simpleCamera")
+        credit = store.bool(forKey: "credit")
         let haptics = store.object(forKey: "hapticsOn") as? Bool ?? true
         hapticsOn = haptics
         Haptics.enabled = haptics
@@ -269,8 +279,14 @@ final class Game {
     private var gain: Float { depth == 0 ? 0 : (depth == 1 ? 1 : 1.7) }
 
     var collected: Int { Species.allCases.filter { (owned[$0.rawValue] ?? 0) > 0 }.count }
-    var canDrop: Bool { !busy && prize == nil && coins >= Game.cost }
-    var broke: Bool { !busy && coins < Game.cost }
+    /// Une pièce a-t-elle été glissée dans la fente ? Il en faut une pour faire descendre la pince.
+    var credit: Bool
+    /// Avance d'un cran quand on appuie sur le bouton sans avoir mis de pièce : la pièce s'agite pour le rappeler.
+    var nudge = 0
+
+    var canInsert: Bool { !credit && coins >= Game.cost && prize == nil }
+    var canDrop: Bool { !busy && prize == nil && credit }
+    var broke: Bool { !busy && !credit && coins < Game.cost }
 
     /// Après l'écran d'accueil : la musique et le suivi de la tête démarrent.
     func begin() {
@@ -290,7 +306,7 @@ final class Game {
             if depth > 0, !staged { tracker.start() }
         } else {
             tracker.stop()
-            Sound.loop(.motor, on: false)
+            Sound.stopMotors()
             winch(false)
         }
         Sound.loop(.music, on: on && musicOn, volume: 0.35)
@@ -300,12 +316,28 @@ final class Game {
         machine.setStick(SIMD2<Float>(Float(v.width), Float(v.height)))
     }
 
-    func drop() {
-        guard canDrop else { return }
+    /// Le joueur glisse une pièce dans la fente : la partie est payée.
+    func insertCoin() {
+        guard canInsert else { return }
         coins -= Game.cost
+        credit = true
         flash(-Game.cost)
         save()
-        say(.coin)
+        say(.insert)
+        Haptics.clack()
+    }
+
+    func drop() {
+        guard canDrop else {
+            // Pas de pièce dans la fente : on le rappelle.
+            if !busy, prize == nil, !credit {
+                nudge += 1
+                Haptics.miss()
+            }
+            return
+        }
+        credit = false
+        save()
         Haptics.press()
         busy = true
         machine.drop()
@@ -345,7 +377,7 @@ final class Game {
 
     func setSound(_ on: Bool) {
         soundOn = on
-        if !on { Sound.loop(.motor, on: false) }
+        if !on { Sound.stopMotors() }
         save()
     }
 
@@ -474,9 +506,11 @@ final class Game {
         switch event {
         case .busy(let on):
             busy = on
-        case .motor(let on):
-            Sound.loop(.motor, on: on && soundOn && active, volume: 0.22)
-            winch(on)
+        case .motor(let motion):
+            let audible = soundOn && active
+            Sound.loop(.motor, on: motion == .travel && audible, volume: 0.45)
+            Sound.loop(.winch, on: (motion == .down || motion == .up) && audible, volume: 0.55, rate: motion == .up ? 1.22 : 0.92)
+            winch(motion != .still)
         case .clack:
             say(.clack)
             Haptics.clack()
@@ -520,6 +554,7 @@ final class Game {
         store.set(musicOn, forKey: "musicOn")
         store.set(hapticsOn, forKey: "hapticsOn")
         store.set(simpleCamera, forKey: "simpleCamera")
+        store.set(credit, forKey: "credit")
         store.set(depth, forKey: "depth")
         store.set(lastPrize?.rawValue, forKey: "lastPrize")
     }
