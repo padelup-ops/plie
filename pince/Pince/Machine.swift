@@ -729,6 +729,19 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         }
         // Un liseré tout le long du pupitre, sous la vitre de la machine
         _ = box(2 * Box.halfW + 0.02, 0.028, 0.014, SIMD3<Float>(0, -0.03, Box.front + 0.006), trim)
+        // Le décor peint du pupitre, posé sur la face avant en deux morceaux : à droite du bac, et sous le bac.
+        let artTop: Float = -0.05, artBottom: Float = -2.05
+        let art = Backdrop.panelArt(width: CGFloat(2 * Box.halfW), height: CGFloat(artTop - artBottom))
+        func paint(_ x0: Float, _ x1: Float, _ y0: Float, _ y1: Float) {
+            let k = Float(Backdrop.panelScale)
+            let cut = CGRect(x: CGFloat((x0 + Box.halfW) * k), y: CGFloat((artTop - y1) * k), width: CGFloat((x1 - x0) * k), height: CGFloat((y1 - y0) * k))
+            let m = SCNMaterial()
+            m.lightingModel = .constant
+            m.diffuse.contents = Backdrop.piece(of: art, cut)
+            panel(x1 - x0, y1 - y0, SIMD3<Float>((x0 + x1) / 2, (y0 + y1) / 2, Box.front + 0.0015), yaw: 0, m)
+        }
+        paint(Box.holeMaxX + 0.036, Box.halfW, artBottom, artTop)
+        paint(-Box.halfW, Box.holeMaxX + 0.036, artBottom, Box.binFloor - 0.036)
         // Le rebord
         let rim = Paint.gloss(Tint.rose)
         _ = box(holeW + 0.06, 0.016, 0.03, SIMD3<Float>(holeX, 0.008, Box.holeMinZ - 0.015), rim)
