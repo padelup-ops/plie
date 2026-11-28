@@ -376,12 +376,17 @@ final class Game {
     private var tuningPoints: [SIMD2<Float>] = []
 
     /// L'écran a changé (taille, sens, Duo ouvert ou fermé) : on reprend le réglage qui lui correspond.
-    func setScreen(_ key: String) {
+    /// `inner` : c'est l'écran intérieur de l'iPhone Duo.
+    func setScreen(_ key: String, inner: Bool) {
         guard key != screenKey else { return }
         screenKey = key
         let saved = (store.dictionary(forKey: "tuning") as? [String: [Int]])?[key]
         if let saved, saved.count == 3 {
             tracker.mapping = HeadTracker.Mapping(swapped: saved[0] == 1, signX: Float(saved[1]), signY: Float(saved[2]))
+        } else if inner {
+            // Constaté sur l'appareil : avec la caméra intérieure, lever la tête faisait tourner la vue vers la droite
+            // et aller à droite la faisait monter. Les deux axes sont échangés ; on les remet dans l'ordre.
+            tracker.mapping = HeadTracker.Mapping(swapped: true, signX: 1, signY: 1)
         } else {
             tracker.mapping = HeadTracker.Mapping()
         }
