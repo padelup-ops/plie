@@ -500,6 +500,46 @@ final class BookingAssistant: ObservableObject {
 /// Un navigateur invisible ouvre la page du club avec la session du joueur ; l'assistant y fait les gestes
 /// (créneau, durée, étapes). Quand il atteint le paiement, CE MÊME navigateur s'affiche : le joueur arrive
 /// directement sur la page de paiement. S'il coince, la page s'affiche là où il en est.
+/// Journal technique : les appels que fait la page (méthode, chemin, noms des paramètres, sans leurs valeurs) et les
+/// pages visitées. Aucun mot de passe, aucun contenu. Sert à amener l'app directement au paiement.
+enum NetRecorder {
+    static let script = #"""
+    (function(){
+      if (window.__padelupNet) return;
+      window.__padelupNet = [];
+      function clean(u) {
+        try {
+          var x = new URL(u, location.href);
+          if (!/playtomic|anybuddy/.test(x.host)) return null;
+          var keys = []; x.searchParams.forEach(function(v, k){ keys.push(k); });
+          return x.host + x.pathname + (keys.length ? '?' + keys.join('&') : '');
+        } catch (e) { return null; }
+      }
+      function add(m, u, s) { var c = clean(u); if (!c) return; var l = window.__padelupNet; l.push(m + ' ' + c + (s ? ' → ' + s : '')); if (l.length > 300) l.shift(); }
+      var f = window.fetch;
+      if (f) window.fetch = function(input, init) {
+        var u = typeof input === 'string' ? input : (input && input.url) || '';
+        var m = (init && init.method) || (input && input.method) || 'GET';
+        return f.apply(this, arguments).then(function(r){ add(m.toUpperCase(), u, r.status); return r; });
+      };
+      var o = XMLHttpRequest.prototype.open, sd = XMLHttpRequest.prototype.send;
+      XMLHttpRequest.prototype.open = function(m, u) { this.__p = [m, u]; return o.apply(this, arguments); };
+      XMLHttpRequest.prototype.send = function() { var x = this; x.addEventListener('loadend', function(){ if (x.__p) add(String(x.__p[0]).toUpperCase(), x.__p[1], x.status); }); return sd.apply(this, arguments); };
+      add('PAGE', location.href, '');
+    })();
+    """#
+
+    static func install(in config: WKWebViewConfiguration) {
+        config.userContentController.addUserScript(WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+    }
+
+    @MainActor
+    static func dump(_ webView: WKWebView) async -> String {
+        let lines = (try? await webView.evaluateJavaScript("(window.__padelupNet || []).join('\\n')") as? String) ?? ""
+        return "Page : " + (webView.url.map { ($0.host ?? "") + $0.path } ?? "?") + "\n" + lines
+    }
+}
+
 @MainActor
 final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate {
     let webView: WKWebView
@@ -509,9 +549,13 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
     private var loadedOnce = false
     private var timeout: Task<Void, Never>?
 
+    /// Pages visitées pendant la préparation (le journal de la page repart à zéro à chaque nouvelle page).
+    private(set) var visited: [String] = []
+
     init(request: BookingRequest) {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        NetRecorder.install(in: config)
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 390, height: 844), configuration: config)
         target = request.target
         super.init()
@@ -546,6 +590,7 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        if let u = webView.url { visited.append((u.host ?? "") + u.path); if visited.count > 30 { visited.removeFirst() } }
         guard !loadedOnce, let target else { return }
         loadedOnce = true
         assistant.start(target: target, in: webView)
@@ -608,7 +653,17 @@ struct BookingFlowSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if preparer.showPage {
-                        Button { preparer.webView.goBack() } label: { Image(systemName: "chevron.left") }
+                        HStack(spacing: 4) {
+                            Button { preparer.webView.goBack() } label: { Image(systemName: "chevron.left") }
+                            Menu {
+                                Button {
+                                    Task {
+                                        let log = await NetRecorder.dump(preparer.webView)
+                                        UIPasteboard.general.string = "Pages : " + preparer.visited.joined(separator: " > ") + "\n" + log
+                                    }
+                                } label: { Label("Copier le journal technique", systemImage: "doc.on.doc") }
+                            } label: { Image(systemName: "ellipsis.circle") }
+                        }
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
