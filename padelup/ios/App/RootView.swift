@@ -73,7 +73,7 @@ struct RootView: View {
             case .friends: FriendsView()
             case .notifications: NotificationsView()
             case .web(let url): ProviderWebSheet(provider: WebAccount.owns(url), url: url)
-            case .booking(let r): ProviderWebSheet(provider: WebAccount.owns(r.url), url: r.url, title: "Réservation", target: r.target)
+            case .booking(let r): BookingFlowSheet(request: r)
             case .player(let id): PlayerProfileView(userID: id)
             case .community: CommunityView()
             case .bookings: BookingsView()

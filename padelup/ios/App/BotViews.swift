@@ -118,7 +118,7 @@ struct BotView: View {
         .onReceive(NotificationCenter.default.publisher(for: .webAccountChanged)) { _ in accountsVersion += 1 }
         .onAppear { if ShotMode.current?.hasPrefix("wizard") == true { showEditor = true } }
         .sheet(isPresented: $showEditor) { RuleEditorView(prefill: nil) }
-        .sheet(item: $booking) { r in ProviderWebSheet(provider: WebAccount.owns(r.url), url: r.url, title: "Réservation", target: r.target) }
+        .sheet(item: $booking) { r in BookingFlowSheet(request: r) }
         .sheet(item: $login) { p in ProviderWebSheet(provider: p, url: WebAccount.loginURL(p), title: "Connexion \(p.name)") }
     }
 

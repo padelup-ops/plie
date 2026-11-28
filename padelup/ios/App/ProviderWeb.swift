@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import WebKit
 
@@ -285,6 +286,9 @@ final class BookingAssistant: ObservableObject {
     @Published var status = ""
     @Published var working = false
     @Published var done = false
+    /// 0 page ouverte · 1 créneau · 2 durée · 3 étapes · 4 paiement atteint
+    @Published var stage = 0
+    @Published var reachedPayment = false
     private(set) var started = false
     private var task: Task<Void, Never>?
     private weak var webView: WKWebView?
@@ -399,21 +403,26 @@ final class BookingAssistant: ObservableObject {
         task = Task {
             try? await Task.sleep(nanoseconds: 600_000_000)
             _ = await step("consent", target: target)
+            stage = 1
             status = "Je touche le créneau de \(target.time)…"
             guard await wait("time", target: target, seconds: 18) != nil else {
                 finish("Je ne trouve pas \(target.time) sur la page : choisis-le toi-même.", done: false)
                 return
             }
+            stage = 2
             if let d = target.duration {
                 status = "Je choisis \(d) min…"
                 _ = await wait("duration", target: target, seconds: 5)
             }
+            stage = 3
             status = "Étape suivante…"
             var clicks = 0
             let end = Date().addingTimeInterval(25)
             while Date() < end, !Task.isCancelled {
                 let r = await step("next", target: target)
                 if r["final"] as? Bool == true {
+                    stage = 4
+                    reachedPayment = true
                     finish("Tout est prêt : vérifie puis touche « \((r["label"] as? String) ?? "Payer") ».", done: true)
                     return
                 }
@@ -442,6 +451,220 @@ final class BookingAssistant: ObservableObject {
     func stop() {
         task?.cancel()
         if working { finish("Assistant arrêté : à toi de jouer.", done: false) }
+    }
+}
+
+// MARK: - Réservation préparée en coulisses, page de paiement directement
+
+/// Un navigateur invisible ouvre la page du club avec la session du joueur ; l'assistant y fait les gestes
+/// (créneau, durée, étapes). Quand il atteint le paiement, CE MÊME navigateur s'affiche : le joueur arrive
+/// directement sur la page de paiement. S'il coince, la page s'affiche là où il en est.
+@MainActor
+final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate {
+    let webView: WKWebView
+    let assistant = BookingAssistant()
+    let target: BookingTarget?
+    @Published var showPage = false
+    private var loadedOnce = false
+    private var timeout: Task<Void, Never>?
+
+    init(request: BookingRequest) {
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = .default()
+        webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 390, height: 844), configuration: config)
+        target = request.target
+        super.init()
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
+        webView.allowsBackForwardNavigationGestures = true
+        // En coulisses : posé sous l'interface, invisible, pour un rendu complet comme dans Safari.
+        webView.alpha = 0.01
+        webView.isUserInteractionEnabled = false
+        let window = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.first
+        window?.insertSubview(webView, at: 0)
+        webView.load(URLRequest(url: request.url))
+        if target == nil { showPage = true }
+        // Filet de sécurité : au bout de 40 s, on montre la page quoi qu'il arrive.
+        timeout = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 40_000_000_000)
+            self?.reveal()
+        }
+    }
+
+    func reveal() {
+        timeout?.cancel()
+        assistant.stop()
+        withAnimation(.snappy(duration: 0.35)) { showPage = true }
+    }
+
+    func cancel() {
+        timeout?.cancel()
+        assistant.stop()
+        webView.stopLoading()
+        webView.removeFromSuperview()
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        guard !loadedOnce, let target else { return }
+        loadedOnce = true
+        assistant.start(target: target, in: webView)
+    }
+
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
+                 for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if navigationAction.targetFrame == nil { webView.load(navigationAction.request) }
+        return nil
+    }
+}
+
+/// Affiche un navigateur déjà existant (celui qui a préparé la réservation).
+struct ExistingWebView: UIViewRepresentable {
+    let webView: WKWebView
+
+    func makeUIView(context: Context) -> UIView {
+        let container = UIView()
+        webView.removeFromSuperview()
+        webView.alpha = 1
+        webView.isUserInteractionEnabled = true
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(webView)
+        NSLayoutConstraint.activate([
+            webView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            webView.topAnchor.constraint(equalTo: container.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+        ])
+        return container
+    }
+
+    func updateUIView(_ view: UIView, context: Context) {}
+}
+
+/// La feuille « Réserver » : préparation en coulisses, puis directement la page de paiement.
+struct BookingFlowSheet: View {
+    let request: BookingRequest
+    @StateObject private var preparer: BookingPreparer
+    @Environment(\.dismiss) private var dismiss
+
+    init(request: BookingRequest) {
+        self.request = request
+        _preparer = StateObject(wrappedValue: BookingPreparer(request: request))
+    }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if preparer.showPage {
+                    ExistingWebView(webView: preparer.webView)
+                        .ignoresSafeArea(edges: .bottom)
+                        .overlay(alignment: .top) { PaymentBanner(assistant: preparer.assistant) }
+                } else {
+                    PreparingView(assistant: preparer.assistant, request: request) { preparer.reveal() }
+                }
+            }
+            .navigationTitle(preparer.showPage ? (WebAccount.owns(request.url)?.name ?? "Réservation") : "")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if preparer.showPage {
+                        Button { preparer.webView.goBack() } label: { Image(systemName: "chevron.left") }
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(preparer.showPage ? "Terminé" : "Annuler") {
+                        if let p = WebAccount.owns(request.url) { Task { await WebAccount.refresh(p, webView: preparer.webView) } }
+                        preparer.cancel()
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+        }
+        .tint(UI.court)
+        .onDisappear { preparer.cancel() }
+        .onReceive(preparer.assistant.$working.dropFirst()) { working in
+            // L'assistant a fini (paiement atteint, ou il a besoin de toi) : la page apparaît.
+            if !working && preparer.assistant.stage > 0 { preparer.reveal() }
+        }
+    }
+}
+
+/// Pendant la préparation : le billet du créneau et les étapes qui se cochent.
+struct PreparingView: View {
+    @ObservedObject var assistant: BookingAssistant
+    let request: BookingRequest
+    var showNow: () -> Void
+
+    private let steps = ["J'ouvre la page du club", "Je touche ton créneau", "Je choisis la durée", "J'avance jusqu'au paiement"]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 26) {
+            VStack(alignment: .leading, spacing: 8) {
+                Eyebrow(text: "En coulisses · " + (WebAccount.owns(request.url)?.name ?? "réservation"))
+                Text("Je prépare ta réservation.").font(UI.display(30)).foregroundStyle(UI.ink).fixedSize(horizontal: false, vertical: true)
+            }
+            if let t = request.target {
+                HStack(alignment: .lastTextBaseline, spacing: 12) {
+                    Text(t.time).font(UI.scoreHeavy(72)).foregroundStyle(UI.ink)
+                    if let d = t.duration { Text("\(d) min").font(UI.title(20)).foregroundStyle(UI.muted) }
+                }
+            }
+            VStack(alignment: .leading, spacing: 16) {
+                ForEach(steps.indices, id: \.self) { i in
+                    HStack(spacing: 14) {
+                        ZStack {
+                            Circle().fill(i < assistant.stage ? UI.ball : (i == assistant.stage ? UI.raised : Color.clear))
+                            Circle().strokeBorder(i < assistant.stage ? UI.onBall.opacity(0.3) : UI.rule, lineWidth: 1)
+                            if i < assistant.stage {
+                                Image(systemName: "checkmark").font(.system(size: 12, weight: .bold)).foregroundStyle(UI.onBall)
+                            } else if i == assistant.stage {
+                                ProgressView().controlSize(.small)
+                            }
+                        }
+                        .frame(width: 30, height: 30)
+                        Text(steps[i]).font(.system(size: 17, weight: i == assistant.stage ? .semibold : .regular))
+                            .foregroundStyle(i <= assistant.stage ? UI.ink : UI.faint)
+                    }
+                    .animation(.snappy, value: assistant.stage)
+                }
+            }
+            Spacer()
+            Text("Rien n'est payé sans toi : je m'arrête au paiement et tu confirmes.").font(UI.caption()).foregroundStyle(UI.muted)
+            Button("Voir la page maintenant", action: showNow).buttonStyle(SecondaryButtonStyle())
+        }
+        .padding(.horizontal, UI.margin)
+        .padding(.top, 12)
+        .padding(.bottom, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(PageBackground(seasonal: false))
+    }
+}
+
+/// Le bandeau au-dessus de la page révélée : « tout est prêt, paie » ou « à toi de finir ».
+struct PaymentBanner: View {
+    @ObservedObject var assistant: BookingAssistant
+
+    var body: some View {
+        Group {
+            if !assistant.status.isEmpty { banner }
+        }
+        .sensoryFeedback(.success, trigger: assistant.reachedPayment)
+    }
+
+    private var banner: some View {
+            HStack(spacing: 10) {
+                Image(systemName: assistant.reachedPayment ? "creditcard.fill" : "hand.point.up.left.fill")
+                    .foregroundStyle(assistant.reachedPayment ? UI.onBall : UI.ink)
+                Text(assistant.reachedPayment ? "C'est prêt : vérifie et paie." : assistant.status)
+                    .font(.system(size: 14, weight: .semibold)).foregroundStyle(assistant.reachedPayment ? UI.onBall : UI.ink)
+                    .lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.horizontal, 14).padding(.vertical, 10)
+            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(assistant.reachedPayment ? UI.ball : UI.raised))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
+            .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
+            .padding(.horizontal, 12).padding(.top, 8)
+            .transition(.move(edge: .top).combined(with: .opacity))
     }
 }
 
