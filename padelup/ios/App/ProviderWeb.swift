@@ -182,15 +182,14 @@ struct AccountWebView: UIViewRepresentable {
     }
 }
 
-/// Feuille « site de la plateforme » : connexion au compte, ou page de réservation déjà connectée.
+/// Feuille « site de la plateforme » : connexion au compte, ou page déjà connectée.
+/// (Les réservations passent par BookingFlowSheet, avec l'assistant.)
 struct ProviderWebSheet: View {
     var provider: BotProvider?
     var url: URL
     var title: String = ""
-    var target: BookingTarget? = nil
     var onClose: () -> Void = {}
     @StateObject private var model = WebPageModel()
-    @StateObject private var assistant = BookingAssistant()
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -198,14 +197,7 @@ struct ProviderWebSheet: View {
             AccountWebView(url: url, provider: provider, model: model)
                 .ignoresSafeArea(edges: .bottom)
                 .overlay(alignment: .top) {
-                    VStack(spacing: 0) {
-                        if model.loading { ProgressView().progressViewStyle(.linear).tint(UI.court).frame(maxWidth: .infinity) }
-                        if target != nil && !assistant.status.isEmpty { assistantBar }
-                    }
-                }
-                .onChange(of: model.loading) { _, loading in
-                    // Première page affichée : l'assistant choisit le créneau.
-                    if !loading, let target, !assistant.started, let web = model.webView { assistant.start(target: target, in: web) }
+                    if model.loading { ProgressView().progressViewStyle(.linear).tint(UI.court).frame(maxWidth: .infinity) }
                 }
                 .safeAreaInset(edge: .bottom) {
                     // Si la session du site n'est pas repérée automatiquement, le joueur peut le confirmer lui-même.
@@ -253,34 +245,20 @@ struct ProviderWebSheet: View {
                 }
         }
         .tint(UI.court)
-        .onDisappear { assistant.stop() }
-    }
-
-    private var assistantBar: some View {
-        HStack(spacing: 10) {
-            if assistant.working { ProgressView().controlSize(.small) } else {
-                Image(systemName: assistant.done ? "hand.tap.fill" : "info.circle").foregroundStyle(assistant.done ? UI.onBall : UI.ink)
-            }
-            Text(assistant.status).font(.system(size: 14, weight: .medium)).foregroundStyle(assistant.done ? UI.onBall : UI.ink)
-                .lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
-            if assistant.working {
-                Button("Arrêter") { assistant.stop() }.font(.system(size: 14, weight: .semibold)).foregroundStyle(UI.ink)
-            }
-        }
-        .padding(.horizontal, 14).padding(.vertical, 10)
-        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(assistant.done ? UI.ball : UI.raised))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
-        .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
-        .padding(.horizontal, 12).padding(.top, 8)
     }
 }
 
 // MARK: - L'assistant de réservation (sur la page, avec le compte du joueur)
 
-/// Fait à la place du joueur les gestes qu'il ferait sur la page Playtomic ou Anybuddy : accepter les cookies,
-/// toucher l'heure voulue, choisir la durée, passer à l'étape suivante. Il S'ARRÊTE au bouton de paiement ou de
-/// confirmation finale, qu'il met en évidence : c'est le joueur qui valide (et sa banque, 3-D Secure).
-/// Rythme humain, page visible, rien de caché ni de contourné.
+/// Fait à la place du joueur les gestes qu'il ferait sur la page Playtomic ou Anybuddy, et VÉRIFIE chaque étape.
+///
+/// 1. Playtomic, créneau exact connu : on ouvre directement la page de paiement de ce créneau (club, terrain, heure,
+///    durée), comme le bouton « Réserver » du site. Rien à cliquer.
+/// 2. Sinon (ou si ce lien ne mène pas au paiement) : la page du club. À chaque tour l'assistant regarde ce qui est à
+///    l'écran (fenêtre ouverte ? heures ? terrains ? bouton pour avancer ?) et fait le geste suivant : ouvrir le bon
+///    terrain, toucher l'heure, la durée, avancer. Un terrain sans l'heure voulue est refermé, on essaie le suivant.
+/// Il S'ARRÊTE au paiement : jamais de clic sur « Payer » ni sur une page de paiement. C'est le joueur qui valide.
+/// Chaque geste est noté dans un journal (sans mot de passe ni saisie) pour corriger si une page change.
 @MainActor
 final class BookingAssistant: ObservableObject {
     @Published var status = ""
@@ -289,197 +267,506 @@ final class BookingAssistant: ObservableObject {
     /// 0 page ouverte · 1 créneau · 2 durée · 3 étapes · 4 paiement atteint
     @Published var stage = 0
     @Published var reachedPayment = false
-    private(set) var started = false
+    @Published var needsLogin = false
+    @Published var failed = false
+    @Published var steps = ["J'ouvre la page du club", "Je touche ton créneau", "Je choisis la durée", "J'avance jusqu'au paiement"]
+    private(set) var trace: [String] = []
+    private var started = false
     private var task: Task<Void, Never>?
+    private var watcher: Task<Void, Never>?
     private weak var webView: WKWebView?
+    private var t0 = Date()
 
-    static let stepJS = #"""
+    /// Outils communs : visibilité, texte d'un élément, page de paiement / connexion.
+    static let commonJS = #"""
     function visible(el) {
-      var r = el.getBoundingClientRect(); var st = window.getComputedStyle(el);
-      return r.width > 0 && r.height > 0 && st.visibility !== 'hidden' && st.display !== 'none' && st.opacity !== '0';
+      if (!el || !el.getBoundingClientRect) return false;
+      var r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) return false;
+      var st = window.getComputedStyle(el);
+      return st.visibility !== 'hidden' && st.display !== 'none' && parseFloat(st.opacity || '1') > 0.05;
     }
-    function label(el) { return ((el.getAttribute && el.getAttribute('aria-label')) || el.innerText || el.value || '').replace(/\s+/g, ' ').trim(); }
+    function label(el) {
+      if (!el || !el.tagName) return '';
+      if (el.tagName === 'INPUT') {
+        var ty = (el.type || '').toLowerCase();
+        return ((ty === 'submit' || ty === 'button') ? el.value : el.getAttribute('aria-label')) || '';
+      }
+      return (el.getAttribute('aria-label') || el.innerText || '').replace(/\s+/g, ' ').trim();
+    }
+    function buttonish(el) {
+      if (!el || !el.tagName) return false;
+      var role = el.getAttribute('role') || '';
+      return el.tagName === 'BUTTON' || el.tagName === 'A' || el.tagName === 'INPUT' || role === 'button' || role === 'link';
+    }
+    // Le bouton qui paie ou confirme définitivement : jamais touché.
+    function isFinalPay(t, el) {
+      if (!buttonish(el) || !t || t.length > 70) return false;
+      return /^(payer|pay|pagar)\b|^(valider|réserver|confirmer) et payer|^confirmer (la |ma )?réservation|^confirm (booking|reservation)|^place order|^finaliser/i.test(t)
+        || (/\b(payer|pay now|pagar)\b/i.test(t) && /\d/.test(t));
+    }
+    function findPay(scope) {
+      var els = (scope || document).querySelectorAll('button, a, input[type="submit"], [role="button"]');
+      for (var i = 0; i < els.length; i++) { var e = els[i]; if (visible(e) && isFinalPay(label(e), e)) return e; }
+      return null;
+    }
+    function topLayer() {
+      var ds = document.querySelectorAll('[role="dialog"], [role="alertdialog"], [aria-modal="true"], dialog[open]');
+      var best = null;
+      for (var i = 0; i < ds.length; i++) if (visible(ds[i]) && label(ds[i]).length > 2) best = ds[i];
+      return best;
+    }
+    function onPayPath() { return /(^|\/)(payments?|paiement|checkout|cart|panier|commande|order|summary|recap|booking-summary)(\/|$)/.test(location.pathname.toLowerCase()); }
+    function pageState() {
+      var text = document.body ? document.body.innerText.replace(/\s+/g, ' ') : '';
+      var path = location.pathname.toLowerCase();
+      var price = /\d+([.,]\d{1,2})?\s*(€|eur\b|chf|mad|dh\b|dzd|tnd)|€\s*\d+/i.test(text);
+      var pw = document.querySelector('input[type="password"]');
+      if ((pw && visible(pw)) || /(^|\/)(login|signin|sign-in|signup|register|auth|connexion|inscription)(\/|$)/.test(path)) return { state: 'login' };
+      var iframe = document.querySelector('iframe[src*="stripe"], iframe[name^="__privateStripe"], iframe[src*="adyen"], iframe[src*="checkout"], iframe[src*="payment"], iframe[src*="mangopay"]');
+      var btn = findPay(document);
+      if (btn || (onPayPath() && (price || iframe)) || (iframe && price)) return { state: 'payment', label: btn ? label(btn).slice(0, 40) : '' };
+      if (!price && /(n'est plus disponible|plus disponible|indisponible|not available|no longer available|introuvable|page not found|une erreur|something went wrong|expiré|expired)/i.test(text)) return { state: 'error' };
+      if (text.length < 60 || onPayPath()) return { state: 'loading' };
+      return { state: 'page' };
+    }
+    """#
+
+    static let stateJS = commonJS + "\nreturn pageState();"
+
+    /// Un tour : regarder la page, faire UN geste, dire lequel. Arguments : time, duration, resource, attempt.
+    static let stepJS = commonJS + #"""
+    var P = window.__padelup || (window.__padelup = { tried: {}, picked: '', pickedAt: -99, dur: false, row: false, rowAt: -99 });
+    function seen(k) { return P.tried[k] || 0; }
+    function bump(k) { P.tried[k] = seen(k) + 1; return P.tried[k]; }
     function mark(el) { try { el.scrollIntoView({ block: 'center' }); el.style.outline = '3px solid #D6F04A'; el.style.outlineOffset = '2px'; } catch (e) {} }
+    function modal(el) { return el.getAttribute('role') === 'dialog' || el.getAttribute('aria-modal') === 'true' || el.tagName === 'DIALOG'; }
     function clickable(el) {
       var hops = 0;
-      while (el && el !== document.body && hops < 7) {
-        var st = window.getComputedStyle(el);
-        if (el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'button' || st.cursor === 'pointer' || el.onclick) return el;
+      while (el && el !== document.body && hops < 8) {
+        var role = el.getAttribute('role') || '';
+        if (el.tagName === 'BUTTON' || el.tagName === 'A' || /^(button|option|radio|tab|link|menuitem|gridcell|checkbox)$/.test(role)
+            || el.onclick || el.getAttribute('tabindex') === '0') return el;
+        if (window.getComputedStyle(el).cursor === 'pointer') {
+          // Le curseur « main » se transmet aux enfants : on remonte jusqu'à l'élément qui le porte vraiment.
+          var top = el, up = el.parentElement, k = 0;
+          while (up && up !== document.body && k < 6 && !modal(up) && window.getComputedStyle(up).cursor === 'pointer') {
+            top = up;
+            if (up.tagName === 'BUTTON' || up.tagName === 'A' || /^(button|option|radio|tab|link)$/.test(up.getAttribute('role') || '')) break;
+            up = up.parentElement; k++;
+          }
+          return top;
+        }
         el = el.parentElement; hops++;
       }
       return null;
     }
-    var SEL = 'button, a, input[type="submit"], input[type="button"], [role="button"], [role="option"], [role="radio"], [role="tab"], label, li, [tabindex]';
-    function find(re, ok, wide) {
-      var els = document.querySelectorAll(wide ? SEL + ', div, span' : SEL);
-      var best = null, bestLen = 1e9;
+    // Un vrai toucher : certains sites réagissent à l'appui (pointerdown), d'autres au clic. Au 2e essai, les deux.
+    function press(el, hard) {
+      mark(el);
+      if (hard) {
+        var r = el.getBoundingClientRect();
+        var o = { bubbles: true, cancelable: true, view: window, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, pointerId: 1, isPrimary: true, pointerType: 'touch' };
+        try { el.dispatchEvent(new PointerEvent('pointerdown', o)); } catch (e) {}
+        try { el.dispatchEvent(new MouseEvent('mousedown', o)); } catch (e) {}
+        try { el.dispatchEvent(new PointerEvent('pointerup', o)); } catch (e) {}
+        try { el.dispatchEvent(new MouseEvent('mouseup', o)); } catch (e) {}
+      }
+      el.click();
+    }
+    function selectedish(el) {
+      for (var i = 0, x = el; i < 3 && x && x.getAttribute; i++, x = x.parentElement) {
+        if (x.getAttribute('aria-selected') === 'true' || x.getAttribute('aria-pressed') === 'true' || x.getAttribute('aria-checked') === 'true'
+            || x.getAttribute('data-state') === 'checked' || x.getAttribute('data-selected') === 'true') return true;
+      }
+      return false;
+    }
+    function off(el) { return el.disabled || el.getAttribute('aria-disabled') === 'true'; }
+    function minutes(h, m) { return parseInt(h, 10) * 60 + parseInt(m, 10); }
+    // La première heure du jour dans un texte (« 19:30 », « 19h30 »), pas une durée (« 1h30 »).
+    function firstTime(t) {
+      var m = t.match(/(\d{1,2}):(\d{2})|(?:^|\D)([5-9]|1\d|2[0-3])\s*h\s*(\d{2})/);
+      if (!m) return null;
+      return m[1] ? minutes(m[1], m[2]) : minutes(m[3], m[4]);
+    }
+    function out(state, did, note) { return { state: state, did: did || '', note: note || '' }; }
+
+    var tp = time.split(':'), H = parseInt(tp[0], 10), M = tp[1], target = minutes(tp[0], tp[1]);
+    var reStart = new RegExp('^\\D{0,3}0?' + H + '\\s*[:hH]\\s*' + M + '(?!\\d)');
+    var reAny = new RegExp('(^|\\D)0?' + H + '\\s*[:hH]\\s*' + M + '(?!\\d)');
+    var reDur = null;
+    if (duration) {
+      var dh = Math.floor(duration / 60), dm = duration % 60;
+      reDur = new RegExp('(^|\\D)(' + duration + '\\s*min|' + (dm === 0 ? (dh + '\\s*h(?!\\s*\\d)|' + dh + '\\s*heures?') : (dh + '\\s*h\\s*' + dm + '|' + dh + ':' + dm + '\\s*h')) + ')', 'i');
+    }
+    var NOT_SLOT = /(\d+\s*options?\b|partir de|jusqu|ouvert|horaires|opening|fermé)/i;
+    var SEL = 'button, a, input[type="submit"], input[type="button"], [role="button"], [role="option"], [role="radio"], [role="tab"], [role="link"], [role="gridcell"], [role="menuitem"], label, li, [tabindex]';
+
+    // 0) Bandeau cookies.
+    var sels = ['#didomi-notice-agree-button', '#axeptio_btn_acceptAll', '#onetrust-accept-btn-handler', '[data-testid="uc-accept-all-button"]', '#tarteaucitronPersonalize2'];
+    for (var k = 0; k < sels.length; k++) {
+      var cb = document.querySelector(sels[k]);
+      if (cb && visible(cb) && bump('consent' + k) < 3) { cb.click(); return out('act', 'consent', 'cookies acceptés'); }
+    }
+    var cbs = document.querySelectorAll('button, [role="button"]');
+    for (var q = 0; q < cbs.length; q++) {
+      var ct = label(cbs[q]);
+      if (/^(tout accepter|accepter tout|accepter et fermer|accept all|j'accepte|ok, j'accepte|autoriser tous les cookies)$/i.test(ct) && visible(cbs[q]) && bump('consent:' + ct) < 3) {
+        cbs[q].click(); return out('act', 'consent', 'cookies : ' + ct);
+      }
+    }
+
+    // 1) Arrivé ? Paiement ou connexion : on s'arrête là.
+    var ps = pageState();
+    if (ps.state === 'payment') { var pb = findPay(document); if (pb) mark(pb); return out('payment', '', ps.label || ''); }
+    if (ps.state === 'login') return out('login', '', 'connexion demandée');
+    if (onPayPath()) return out('idle', '', 'page de paiement en chargement');
+
+    var dlg = topLayer();
+    var root = dlg || document.body;
+
+    // Nom du terrain voulu (lu dans les données de la page à partir de son identifiant), s'il est connu.
+    if (P.court === undefined) {
+      P.court = '';
+      if (resource) {
+        var html = document.documentElement.innerHTML.replace(/\\"/g, '"');
+        var at = html.indexOf(resource);
+        while (at >= 0 && !P.court) {
+          var aft = html.slice(at, at + 900).match(/"name"\s*:\s*"([^"]{2,80})"/);
+          if (aft) P.court = aft[1];
+          at = html.indexOf(resource, at + 1);
+        }
+      }
+    }
+    var court = P.court || '';
+
+    // 2) Les heures à l'écran (dans la fenêtre ouverte s'il y en a une).
+    function slotCands() {
+      var els = root.querySelectorAll(SEL + ', div, span, p, time');
+      var got = [], res = [];
       for (var i = 0; i < els.length; i++) {
         var e = els[i];
-        if (!visible(e) || e.disabled || e.getAttribute('aria-disabled') === 'true') continue;
+        var al = e.getAttribute('aria-label') || '', raw = e.textContent || '';
+        if (!((al && reAny.test(al)) || (raw.length <= 200 && reAny.test(raw)))) continue;
+        if (!visible(e)) continue;
         var t = label(e);
-        if (!t || t.length > 160 || !re.test(t)) continue;
-        if (ok && !ok(t, e)) continue;
-        if (t.length < bestLen) { best = e; bestLen = t.length; }
+        if (!t || t.length > 90 || !reAny.test(t) || NOT_SLOT.test(t)) continue;
+        var c = clickable(e);
+        if (!c || got.indexOf(c) >= 0) continue;
+        got.push(c);
+        var ctl = label(c);
+        if (ctl.length > 140 || NOT_SLOT.test(ctl) || isFinalPay(ctl, c) || off(c)) continue;
+        var score = 0;
+        if (reStart.test(ctl) || reStart.test(t)) score += 3;
+        var first = firstTime(ctl);
+        if (first !== null && first !== target) score -= 6;   // « 18:00 - 19:30 » : finit à l'heure voulue
+        if (reDur && reDur.test(ctl)) score += 3;
+        if (court && ctl.indexOf(court) >= 0) score += 2;
+        if (dlg) score += 1;
+        if (/disabled|unavailable|indisponible|complet/i.test(String(c.className) + ' ' + ctl)) score -= 8;
+        res.push({ el: c, t: ctl, score: score, sel: selectedish(c) });
+      }
+      res.sort(function (a, b) { return b.score - a.score || a.t.length - b.t.length; });
+      return res;
+    }
+    function findShort(re, maxLen) {
+      var els = root.querySelectorAll(SEL + ', div, span');
+      var best = null, bl = 1e9;
+      for (var i = 0; i < els.length; i++) {
+        var e = els[i], raw = e.textContent || '';
+        if (raw.length > 120 && !(e.getAttribute('aria-label') || '')) continue;
+        var t = label(e);
+        if (!t || t.length > maxLen || !re.test(t) || NOT_SLOT.test(t) || !visible(e)) continue;
+        var ft = firstTime(t);
+        if (ft !== null && ft !== target) continue;   // la durée d'un AUTRE créneau
+        var c = clickable(e);
+        if (!c || off(c) || isFinalPay(label(c), c) || selectedish(c)) continue;
+        if (t.length < bl) { best = c; bl = t.length; }
       }
       return best;
     }
-    function minutes(h, m) { return parseInt(h, 10) * 60 + parseInt(m, 10); }
-    // Paiement : un bouton qui annonce un paiement, ou une action finale avec un prix. Jamais touché par l'assistant.
-    var payWords = /(payer|paiement|payment|pay now|confirmer (la |ma )?réservation|confirm booking|réserver et payer|valider et payer|place order)/i;
-    function isPayButton(t, e) {
-      var tag = e ? e.tagName : '';
-      var btn = tag === 'BUTTON' || tag === 'INPUT' || (e && e.getAttribute('role') === 'button');
-      return btn && (payWords.test(t) || /^(réserver|confirmer|valider|book|continuer|reserve)\b.*\d+([.,]\d+)?\s*€/i.test(t) || /^\d+([.,]\d+)?\s*€\s*(réserver|payer)/i.test(t));
+    // Le bouton qui fait avancer vers le paiement (jamais celui qui paie, jamais un lien vers une autre partie du site).
+    function findCTA() {
+      var els = root.querySelectorAll('button, a, [role="button"], input[type="submit"]');
+      var best = null, bs = -1e9;
+      for (var i = 0; i < els.length; i++) {
+        var e = els[i];
+        if (!visible(e) || off(e)) continue;
+        var t = label(e);
+        if (!t || t.length > 60 || isFinalPay(t, e)) continue;
+        if (!/^(réserver|reserver|continuer|suivant|book|reserve|continue|next|choisir|sélectionner|select)\b/i.test(t)) continue;
+        if (e.tagName === 'A') {
+          var href = e.getAttribute('href') || '';
+          if (href && href !== '#' && !/(payment|paiement|checkout|book|reserv|cart|panier)/i.test(href)) continue;
+        }
+        var n = seen('cta:' + t);
+        if (n >= 3) continue;
+        var s = (dlg && dlg.contains(e) ? 5 : 0) + (/\d/.test(t) ? 2 : 0) - n * 4;
+        if (s > bs) { best = e; bs = s; }
+      }
+      return best;
     }
-    var tp = time.split(':');
-    var target = minutes(tp[0], tp[1]);
-    var reStart = new RegExp('^0?' + parseInt(tp[0], 10) + '\\s*[:hH]\\s*' + tp[1] + '(?!\\d)');
-    var reAny = new RegExp('(^|\\D)0?' + parseInt(tp[0], 10) + '\\s*[:hH]\\s*' + tp[1] + '(?!\\d)');
-    var reDur = null;
-    if (duration) {
-      var h = Math.floor(duration / 60), m = duration % 60;
-      reDur = new RegExp('(^|\\D)(' + duration + '\\s*min|' + (m === 0 ? (h + '\\s*h(?!\\s*\\d)') : (h + '\\s*h\\s*' + m)) + ')', 'i');
+
+    var cands = slotCands();
+    var isSel = cands.some(function (c) { return c.sel; });
+    var waited = attempt - P.pickedAt;
+
+    // 3) Heure déjà choisie : la durée, puis le bouton pour avancer.
+    if (P.picked || isSel) {
+      if (reDur && !P.dur) {
+        var d = findShort(reDur, 60);
+        if (d) { P.dur = true; press(d, false); return out('act', 'duration', 'durée : ' + label(d).slice(0, 40)); }
+      }
+      var go = findCTA();
+      if (go) { var gn = bump('cta:' + label(go)); press(go, gn > 1); return out('act', 'next', 'bouton : ' + label(go).slice(0, 40)); }
+      if (waited < 5) return out('idle', '', '');
     }
-    if (step === 'consent') {
-      var sels = ['#didomi-notice-agree-button', '#axeptio_btn_acceptAll', '#onetrust-accept-btn-handler', '[data-testid="uc-accept-all-button"]', '#tarteaucitronPersonalize2'];
-      for (var k = 0; k < sels.length; k++) { var b = document.querySelector(sels[k]); if (b && visible(b)) { b.click(); return { done: true, clicked: true }; } }
-      var c = find(/^(tout accepter|accepter tout|accepter et fermer|accepter|accept all|accept|j'accepte|ok, j'accepte)$/i);
-      if (c) { c.click(); return { done: true, clicked: true }; }
-      return { done: true, clicked: false };
+
+    // 4) Toucher l'heure.
+    var fresh = cands.filter(function (c) {
+      return c.score >= 0 && !c.sel && seen('t:' + c.t) < 2 && (c.t !== P.picked || waited >= 5);
+    });
+    if (fresh.length) {
+      var c = fresh[0];
+      var tn = bump('t:' + c.t);
+      press(c.el, tn > 1);
+      P.picked = c.t; P.pickedAt = attempt; P.dur = !!(reDur && reDur.test(c.t));
+      return out('act', 'time', 'heure : ' + c.t.slice(0, 50));
     }
-    if (step === 'time') {
-      // 1) Une option qui porte l'heure ET la durée (« 14:00 · 90 min · 36 € »).
-      var e = null;
-      if (reDur) e = find(reAny, function (t, el) { return reDur.test(t) && !isPayButton(t, el) && t.length < 80; }, true);
-      // 2) Un élément qui commence par l'heure.
-      if (!e) e = find(reStart, function (t, el) { return !isPayButton(t, el); });
-      // 3) L'heure affichée n'importe où : on remonte vers l'élément cliquable.
-      if (!e && document.body) {
-        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-        var n;
-        while ((n = walker.nextNode())) {
-          var v = (n.nodeValue || '').trim();
-          if (v.length > 14 || !reStart.test(v)) continue;
-          var el = clickable(n.parentElement);
-          if (el && visible(el)) { e = el; break; }
+
+    function closeLayer(d) {
+      var xs = d.querySelectorAll('button, [role="button"]'), x = null;
+      for (var j = 0; j < xs.length; j++) {
+        var xl = (xs[j].getAttribute('aria-label') || xs[j].innerText || '').trim();
+        if (/^(fermer|close|retour|back|annuler|cancel|plus tard|non merci|×|✕)$/i.test(xl) && visible(xs[j])) { x = xs[j]; break; }
+      }
+      if (x) x.click(); else document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, bubbles: true }));
+    }
+    // 5) Fenêtre d'un terrain ouverte sans l'heure voulue : la refermer pour essayer le suivant.
+    if (dlg && P.row && attempt - P.rowAt >= 6) {
+      P.row = false;
+      if (P.rowKey) P.tried[P.rowKey] = 9;
+      closeLayer(dlg);
+      return out('act', 'close', 'ce terrain n\'a pas ' + time);
+    }
+    if (dlg && P.row) return out('idle', '', '');
+    // Une fenêtre qui n'est pas celle d'un terrain (publicité, « télécharge l'app ») : la fermer.
+    if (dlg && !P.row && seen('popup') < 2) { bump('popup'); closeLayer(dlg); return out('act', 'close', 'fenêtre fermée'); }
+
+    // 6) Playtomic liste d'abord les terrains (« 12 options · À partir de 04:30 jusqu'à 21:00 ») : ouvrir le bon.
+    var rows = document.querySelectorAll('button, a, [role="button"], li, div');
+    var best = null, bscore = -1e9, bkey = '', keys = {};
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i], rraw = r.textContent || '';
+      if (rraw.length > 400 || !/\d+\s*options?/i.test(rraw) || !visible(r)) continue;
+      if ((rraw.match(/\d+\s*options?/gi) || []).length > 1) continue;   // la liste entière, pas une ligne
+      var cl = clickable(r), cr = cl || r;
+      var rt = label(cr);
+      if (rt.length > 300 || !/\d+\s*options?/i.test(rt)) continue;
+      // Clé stable : le nom et la plage horaire (le texte change quand la ligne se déplie).
+      var head = rt.match(/^.*?\d+\s*options?.*?\d{1,2}[:h]\d{2}\D+?\d{1,2}[:h]\d{2}/i);
+      var key = 'row:' + (head ? head[0] : rt).slice(0, 120);
+      keys[key] = 1;
+      var rn = seen(key);
+      if (rn >= 2) continue;
+      var rr = rt.match(/(\d{1,2})[:h](\d{2})\D+?(\d{1,2})[:h](\d{2})/);
+      var covers = rr ? (minutes(rr[1], rr[2]) <= target && target <= minutes(rr[3], rr[4])) : true;
+      var sc = (covers ? 10 : 0) + (court && rt.indexOf(court) >= 0 ? 20 : 0) + (cl ? 0 : -5) - rn * 15 - rt.length / 1000;
+      if (sc > bscore) { best = cr; bscore = sc; bkey = key; }
+    }
+    if (best) {
+      var bn = bump(bkey);
+      P.row = true; P.rowAt = attempt; P.rowKey = bkey;
+      press(best, bn > 1);
+      return out('act', 'row', 'terrain : ' + label(best).slice(0, 60));
+    }
+
+    // Tous les terrains ouverts, l'heure n'y est pas : elle vient sans doute d'être prise.
+    var nrows = Object.keys(keys).length;
+    if (nrows > 0 && !cands.length) return out('missing', '', time + ' introuvable sur les ' + nrows + ' terrain(s)');
+
+    // 7) Rien de tout ça : un bouton « Réserver » ou « Voir les créneaux » de temps en temps, sinon descendre.
+    if (attempt === 6 || attempt === 18) {
+      var els2 = document.querySelectorAll('button, [role="button"], a');
+      for (var z = 0; z < els2.length; z++) {
+        var zt = label(els2[z]);
+        if (/^(réserver|reserver|book|voir les créneaux|disponibilités)/i.test(zt) && zt.length < 40 && visible(els2[z]) && !isFinalPay(zt, els2[z])
+            && !(els2[z].tagName === 'A' && /^\/(search|clubs\/?$)/.test(els2[z].getAttribute('href') || ''))) {
+          press(els2[z], false); return out('act', 'cta', 'bouton : ' + zt);
         }
       }
-      if (e) { var ce = clickable(e) || e; mark(ce); ce.click(); return { done: true, clicked: true, both: !!reDur && reDur.test(label(e)), label: label(e).slice(0, 40) }; }
-      // 4) Playtomic liste d'abord les terrains (« 12 options · À partir de 04:30 jusqu'à 21:00 ») : on en ouvre un.
-      var rows = document.querySelectorAll('button, a, [role="button"], li, div');
-      var pick = null, fallback = null;
-      for (var i = 0; i < rows.length; i++) {
-        var r = rows[i];
-        if (r.getAttribute('data-padelup-open') === '1' || !visible(r)) continue;
-        var t = label(r);
-        if (t.length > 160 || !/\d+\s*options?/i.test(t) || !/(partir de|from)\s*\d{1,2}[:h]\d{2}/i.test(t)) continue;
-        var rr = t.match(/(\d{1,2})[:h](\d{2})\D+(\d{1,2})[:h](\d{2})/);
-        var covers = rr ? (minutes(rr[1], rr[2]) <= target && target <= minutes(rr[3], rr[4])) : true;
-        // Le plus petit élément qui contient la ligne (et pas toute la liste).
-        if (covers && (!pick || label(pick).length > t.length)) pick = r;
-        if (!covers && (!fallback || label(fallback).length > t.length)) fallback = r;
-      }
-      var row = pick || fallback;
-      if (row) {
-        row.setAttribute('data-padelup-open', '1');
-        var cr = clickable(row) || row;
-        cr.setAttribute('data-padelup-open', '1');
-        mark(cr); cr.click();
-        return { done: false, expanded: true, label: label(row).slice(0, 40) };
-      }
-      window.scrollBy(0, 600);
-      if (attempt === 5 || attempt === 16) {
-        var cta = find(/^(réserver|reserver|réserver un terrain|book|book a court|voir les créneaux|disponibilités|horaires)/i,
-                       function (t, el) { return !isPayButton(t, el) && t.length < 40; });
-        if (cta) { mark(cta); cta.click(); return { done: false, clicked: true }; }
-      }
-      return { done: false };
     }
-    if (step === 'duration') {
-      if (!reDur) return { done: true };
-      var e2 = find(reDur, function (t, el) { return !isPayButton(t, el) && t.length < 60; }, true);
-      if (e2) { var c2 = clickable(e2) || e2; mark(c2); c2.click(); return { done: true, clicked: true, label: label(e2).slice(0, 40) }; }
-      return { done: false };
-    }
-    if (step === 'next') {
-      var pay = find(/./, function (t, el) { return isPayButton(t, el); });
-      if (pay) { mark(pay); return { done: true, final: true, label: label(pay).slice(0, 40) }; }
-      var login = /(se connecter|connexion|log in|sign in|identifie)/i.test(document.body ? document.body.innerText.slice(0, 3000) : '') && /login|auth|signin|connexion/i.test(location.href);
-      if (login) return { done: true, login: true };
-      var go = find(/^(réserver|reserver|continuer|suivant|valider|choisir|sélectionner|book( now)?|reserve|continue|next|select)\b/i,
-                    function (t, el) { return !isPayButton(t, el) && t.length < 40; });
-      if (go) { mark(go); go.click(); return { done: false, clicked: true, label: label(go).slice(0, 40) }; }
-      return { done: false };
-    }
-    return { done: true };
+    window.scrollBy(0, 500);
+    return out('idle', 'scroll', cands.length ? (cands.length + ' heure(s) vues, aucune utilisable') : '');
     """#
 
-    private var attempt = 0
-
-    private func step(_ name: String, target: BookingTarget) async -> [String: Any] {
-        guard let webView else { return [:] }
-        attempt += 1
-        let args: [String: Any] = ["step": name, "time": target.time, "duration": target.duration ?? 0, "attempt": attempt]
-        return ((try? await webView.callAsyncJavaScript(Self.stepJS, arguments: args, contentWorld: .page)) as? [String: Any]) ?? [:]
+    /// Ce que voit l'assistant quand il coince (pour le journal) : éléments touchables, sans les saisies.
+    static let snapshotJS = commonJS + #"""
+    var dlg = topLayer(), root = dlg || document.body, lines = [];
+    lines.push('URL ' + location.host + location.pathname + (dlg ? ' · fenêtre ouverte' : ''));
+    var els = root.querySelectorAll('button, a, [role], label, li, [tabindex]');
+    for (var i = 0; i < els.length && lines.length < 70; i++) {
+      var e = els[i];
+      if (!visible(e)) continue;
+      var t = label(e).replace(/\S+@\S+/g, '<e-mail>').replace(/\d{6,}/g, '<n>').slice(0, 80);
+      if (!t) continue;
+      var role = e.getAttribute('role');
+      lines.push(e.tagName.toLowerCase() + (role ? '[' + role + ']' : '') + (window.getComputedStyle(e).cursor === 'pointer' ? '*' : '') + ' ' + t);
     }
+    return lines.join('\n');
+    """#
 
-    /// Répète une étape jusqu'à ce qu'elle aboutisse (la page charge ses créneaux après l'affichage).
-    private func wait(_ name: String, target: BookingTarget, seconds: Double) async -> [String: Any]? {
-        let end = Date().addingTimeInterval(seconds)
-        attempt = 0
-        while Date() < end, !Task.isCancelled {
-            let r = await step(name, target: target)
-            if r["done"] as? Bool == true { return r }
-            try? await Task.sleep(nanoseconds: 350_000_000)
-        }
-        return nil
-    }
+    // MARK: Déroulé
 
-    func start(target: BookingTarget, in webView: WKWebView) {
+    func run(target: BookingTarget?, clubURL: URL, payURL: URL?, in webView: WKWebView) {
         guard !started else { return }
         started = true
         self.webView = webView
+        t0 = Date()
         working = true
-        status = "Assistant : je prépare \(target.time)…"
-        task = Task {
-            try? await Task.sleep(nanoseconds: 600_000_000)
-            _ = await step("consent", target: target)
-            stage = 1
-            status = "Je touche le créneau de \(target.time)…"
-            guard let picked = await wait("time", target: target, seconds: 28) else {
-                finish("Je ne trouve pas \(target.time) sur la page : touche-le, puis termine ici.", done: false)
+        task = Task { [weak self] in
+            guard let self else { return }
+            if let payURL, target != nil {
+                self.steps = ["J'ouvre ta page de paiement", "Je vérifie ton créneau", "Je prépare le paiement", "Paiement prêt"]
+                self.status = "J'ouvre ta page de paiement…"
+                self.log("lien direct : " + (payURL.host ?? "") + payURL.path)
+                await self.load(payURL)
+                self.stage = 1
+                let (state, label) = await self.waitState(seconds: 15)
+                self.log("lien direct → " + state)
+                if Task.isCancelled { return }
+                if state == "payment" { self.paid(label); return }
+                if state == "login" { self.loginNeeded(reload: payURL); return }
+                self.steps = ["J'ouvre la page du club", "Je touche ton créneau", "Je choisis la durée", "J'avance jusqu'au paiement"]
+                self.stage = 0
+                self.status = "Je passe par la page du club…"
+            }
+            await self.load(clubURL)
+            if Task.isCancelled { return }
+            self.stage = 1
+            guard let target else { self.finish("", done: false); return }
+            await self.walk(target)
+        }
+    }
+
+    private func walk(_ target: BookingTarget) async {
+        status = "Je cherche \(target.time) sur la page…"
+        let end = Date().addingTimeInterval(40)
+        var attempt = 0
+        while Date() < end, !Task.isCancelled {
+            attempt += 1
+            let r = await js(Self.stepJS, ["time": target.time, "duration": target.duration ?? 0,
+                                           "resource": target.direct?.resourceID ?? "", "attempt": attempt])
+            let state = r["state"] as? String ?? ""
+            let did = r["did"] as? String ?? ""
+            let note = r["note"] as? String ?? ""
+            if !note.isEmpty { log((did.isEmpty ? state : did) + " · " + note) }
+            if state == "payment" { paid(note); return }
+            if state == "login" { loginNeeded(reload: nil); return }
+            if state == "missing" {
+                log(await snapshot())
+                failed = true
+                finish("\(target.time) n'apparaît plus sur la page : il vient sans doute d'être pris. Choisis un autre créneau ici.", done: false)
                 return
             }
-            stage = 2
-            if let d = target.duration, picked["both"] as? Bool != true {
-                status = "Je choisis \(d) min…"
-                _ = await wait("duration", target: target, seconds: 5)
+            switch did {
+            case "row": status = "J'ouvre le terrain…"
+            case "close": status = note.hasPrefix("fenêtre") ? "Je ferme une fenêtre…" : "Pas \(target.time) sur ce terrain, j'essaie le suivant…"
+            case "time": stage = max(stage, 2); status = "Je touche \(target.time)…"
+            case "duration": stage = max(stage, 3); status = "Je choisis \(target.duration ?? 0) min…"
+            case "next": stage = max(stage, 3); status = "J'avance vers le paiement…"
+            default: break
             }
-            stage = 3
-            status = "Étape suivante…"
-            var clicks = 0
-            let end = Date().addingTimeInterval(25)
-            while Date() < end, !Task.isCancelled {
-                let r = await step("next", target: target)
-                if r["final"] as? Bool == true {
-                    stage = 4
-                    reachedPayment = true
-                    finish("Tout est prêt : vérifie puis touche « \((r["label"] as? String) ?? "Payer") ».", done: true)
-                    return
-                }
-                if r["login"] as? Bool == true {
-                    finish("Connecte-toi à ton compte sur la page, puis termine la réservation.", done: false)
-                    return
-                }
-                if r["clicked"] as? Bool == true {
-                    clicks += 1
-                    if clicks >= 4 { break }
-                    try? await Task.sleep(nanoseconds: 900_000_000)
-                } else {
-                    try? await Task.sleep(nanoseconds: 400_000_000)
+            let acted = !did.isEmpty && did != "scroll"
+            try? await Task.sleep(nanoseconds: acted ? 750_000_000 : 350_000_000)
+        }
+        guard !Task.isCancelled else { return }
+        log(await snapshot())
+        failed = true
+        finish("Je n'arrive pas au paiement tout seul : termine ici. Le journal est prêt (bouton ci-contre).", done: false)
+    }
+
+    // MARK: Outils
+
+    private func js(_ source: String, _ args: [String: Any] = [:]) async -> [String: Any] {
+        guard let webView else { return [:] }
+        return ((try? await webView.callAsyncJavaScript(source, arguments: args, contentWorld: .page)) as? [String: Any]) ?? [:]
+    }
+
+    private func load(_ url: URL) async {
+        guard let webView else { return }
+        webView.load(URLRequest(url: url))
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        let end = Date().addingTimeInterval(20)
+        while webView.isLoading, Date() < end, !Task.isCancelled { try? await Task.sleep(nanoseconds: 150_000_000) }
+    }
+
+    private func pageState() async -> (String, String) {
+        let r = await js(Self.stateJS)
+        return ((r["state"] as? String) ?? "loading", (r["label"] as? String) ?? "")
+    }
+
+    /// Attend que la page se décide : paiement, connexion, erreur, ou une page ordinaire stable 5 s.
+    private func waitState(seconds: Double) async -> (String, String) {
+        let end = Date().addingTimeInterval(seconds)
+        var last = ("loading", ""), errors = 0
+        var pageSince: Date? = nil
+        while Date() < end, !Task.isCancelled {
+            last = await pageState()
+            switch last.0 {
+            case "payment", "login": return last
+            case "error": errors += 1; if errors >= 3 { return last }
+            case "page":
+                if pageSince == nil { pageSince = Date() }
+                if let s = pageSince, Date().timeIntervalSince(s) > 5 { return last }
+            default: pageSince = nil
+            }
+            try? await Task.sleep(nanoseconds: 400_000_000)
+        }
+        return last
+    }
+
+    private func snapshot() async -> String {
+        guard let webView else { return "" }
+        return ((try? await webView.callAsyncJavaScript(Self.snapshotJS, arguments: [:], contentWorld: .page)) as? String) ?? ""
+    }
+
+    private func log(_ line: String) {
+        trace.append(String(format: "%.1fs ", Date().timeIntervalSince(t0)) + line)
+        if trace.count > 200 { trace.removeFirst() }
+    }
+
+    private func paid(_ label: String) {
+        stage = 4
+        reachedPayment = true
+        needsLogin = false
+        failed = false
+        finish("Tout est prêt : vérifie puis touche « \(label.isEmpty ? "Payer" : label) ».", done: true)
+    }
+
+    /// La plateforme demande de se connecter : la page s'affiche. Une fois connecté, on revient au paiement du créneau.
+    private func loginNeeded(reload: URL?) {
+        needsLogin = true
+        stage = max(stage, 1)
+        log("connexion demandée")
+        finish("Connecte-toi une fois à ton compte ici : ensuite j'arrive direct au paiement.", done: false)
+        watcher?.cancel()
+        watcher = Task { [weak self] in
+            var reloads = 0
+            for _ in 0..<600 {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                guard let self, !Task.isCancelled, let wv = self.webView else { return }
+                if wv.isLoading { continue }
+                let (state, label) = await self.pageState()
+                if state == "payment" { self.paid(label); return }
+                if state == "page", let reload, reloads < 2, let p = WebAccount.owns(reload),
+                   await WebAccount.detect(p, in: wv) {
+                    reloads += 1
+                    self.log("connecté → retour au paiement")
+                    self.status = "Connecté ! J'ouvre ta page de paiement…"
+                    await self.load(reload)
                 }
             }
-            finish("Créneau choisi : termine la réservation sur la page.", done: true)
         }
     }
 
@@ -493,13 +780,16 @@ final class BookingAssistant: ObservableObject {
         task?.cancel()
         if working { finish(reason, done: false) }
     }
+
+    func cancelAll() {
+        task?.cancel()
+        watcher?.cancel()
+        working = false
+    }
 }
 
 // MARK: - Réservation préparée en coulisses, page de paiement directement
 
-/// Un navigateur invisible ouvre la page du club avec la session du joueur ; l'assistant y fait les gestes
-/// (créneau, durée, étapes). Quand il atteint le paiement, CE MÊME navigateur s'affiche : le joueur arrive
-/// directement sur la page de paiement. S'il coince, la page s'affiche là où il en est.
 /// Journal technique : les appels que fait la page (méthode, chemin, noms des paramètres, sans leurs valeurs) et les
 /// pages visitées. Aucun mot de passe, aucun contenu. Sert à amener l'app directement au paiement.
 enum NetRecorder {
@@ -540,13 +830,15 @@ enum NetRecorder {
     }
 }
 
+/// Un navigateur invisible ouvre la réservation avec la session du joueur (page de paiement directe, ou page du club
+/// parcourue par l'assistant). Quand il atteint le paiement, CE MÊME navigateur s'affiche : le joueur arrive
+/// directement sur la page de paiement. S'il coince, la page s'affiche là où il en est.
 @MainActor
 final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate {
     let webView: WKWebView
     let assistant = BookingAssistant()
     let target: BookingTarget?
     @Published var showPage = false
-    private var loadedOnce = false
     private var timeout: Task<Void, Never>?
 
     /// Pages visitées pendant la préparation (le journal de la page repart à zéro à chaque nouvelle page).
@@ -567,11 +859,16 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
         webView.isUserInteractionEnabled = false
         let window = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.first
         window?.insertSubview(webView, at: 0)
-        webView.load(URLRequest(url: request.url))
-        if target == nil { showPage = true }
-        // Filet de sécurité : au bout de 40 s, on montre la page quoi qu'il arrive.
+        if let target {
+            let pay = WebAccount.owns(request.url) == .playtomic ? target.direct.map(PlaytomicWeb.paymentURL) : nil
+            assistant.run(target: target, clubURL: request.url, payURL: pay, in: webView)
+        } else {
+            webView.load(URLRequest(url: request.url))
+            showPage = true
+        }
+        // Filet de sécurité : on montre la page quoi qu'il arrive.
         timeout = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 45_000_000_000)
+            try? await Task.sleep(nanoseconds: 75_000_000_000)
             self?.reveal(reason: "Je n'ai pas trouvé la suite à temps : termine ici, la page est prête.")
         }
     }
@@ -584,16 +881,20 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
 
     func cancel() {
         timeout?.cancel()
-        assistant.stop()
+        assistant.cancelAll()
         webView.stopLoading()
         webView.removeFromSuperview()
     }
 
+    /// Le journal à coller pour corriger : pages, gestes de l'assistant, ce qu'il voyait, appels de la page.
+    func journal() async -> String {
+        let net = await NetRecorder.dump(webView)
+        return "PadelUp · journal de réservation\nPages : " + visited.joined(separator: " > ")
+            + "\n\nAssistant :\n" + assistant.trace.joined(separator: "\n") + "\n\n" + net
+    }
+
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         if let u = webView.url { visited.append((u.host ?? "") + u.path); if visited.count > 30 { visited.removeFirst() } }
-        guard !loadedOnce, let target else { return }
-        loadedOnce = true
-        assistant.start(target: target, in: webView)
     }
 
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
@@ -643,7 +944,7 @@ struct BookingFlowSheet: View {
                 if preparer.showPage {
                     ExistingWebView(webView: preparer.webView)
                         .ignoresSafeArea(edges: .bottom)
-                        .overlay(alignment: .top) { PaymentBanner(assistant: preparer.assistant) }
+                        .overlay(alignment: .top) { PaymentBanner(assistant: preparer.assistant, copyJournal: copyJournal) }
                 } else {
                     PreparingView(assistant: preparer.assistant, request: request) { preparer.reveal() }
                 }
@@ -656,12 +957,7 @@ struct BookingFlowSheet: View {
                         HStack(spacing: 4) {
                             Button { preparer.webView.goBack() } label: { Image(systemName: "chevron.left") }
                             Menu {
-                                Button {
-                                    Task {
-                                        let log = await NetRecorder.dump(preparer.webView)
-                                        UIPasteboard.general.string = "Pages : " + preparer.visited.joined(separator: " > ") + "\n" + log
-                                    }
-                                } label: { Label("Copier le journal technique", systemImage: "doc.on.doc") }
+                                Button { copyJournal() } label: { Label("Copier le journal technique", systemImage: "doc.on.doc") }
                             } label: { Image(systemName: "ellipsis.circle") }
                         }
                     }
@@ -683,6 +979,10 @@ struct BookingFlowSheet: View {
             if !working && preparer.assistant.stage > 0 { preparer.reveal() }
         }
     }
+
+    private func copyJournal() {
+        Task { UIPasteboard.general.string = await preparer.journal() }
+    }
 }
 
 /// Pendant la préparation : le billet du créneau et les étapes qui se cochent.
@@ -690,8 +990,6 @@ struct PreparingView: View {
     @ObservedObject var assistant: BookingAssistant
     let request: BookingRequest
     var showNow: () -> Void
-
-    private let steps = ["J'ouvre la page du club", "Je touche ton créneau", "Je choisis la durée", "J'avance jusqu'au paiement"]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 26) {
@@ -706,7 +1004,7 @@ struct PreparingView: View {
                 }
             }
             VStack(alignment: .leading, spacing: 16) {
-                ForEach(steps.indices, id: \.self) { i in
+                ForEach(assistant.steps.indices, id: \.self) { i in
                     HStack(spacing: 14) {
                         ZStack {
                             Circle().fill(i < assistant.stage ? UI.ball : (i == assistant.stage ? UI.raised : Color.clear))
@@ -718,11 +1016,14 @@ struct PreparingView: View {
                             }
                         }
                         .frame(width: 30, height: 30)
-                        Text(steps[i]).font(.system(size: 17, weight: i == assistant.stage ? .semibold : .regular))
+                        Text(assistant.steps[i]).font(.system(size: 17, weight: i == assistant.stage ? .semibold : .regular))
                             .foregroundStyle(i <= assistant.stage ? UI.ink : UI.faint)
                     }
                     .animation(.snappy, value: assistant.stage)
                 }
+            }
+            if !assistant.status.isEmpty {
+                Text(assistant.status).font(UI.caption()).foregroundStyle(UI.muted).contentTransition(.opacity)
             }
             Spacer()
             Text("Rien n'est payé sans toi : je m'arrête au paiement et tu confirmes.").font(UI.caption()).foregroundStyle(UI.muted)
@@ -736,9 +1037,16 @@ struct PreparingView: View {
     }
 }
 
-/// Le bandeau au-dessus de la page révélée : « tout est prêt, paie » ou « à toi de finir ».
+/// Le bandeau au-dessus de la page révélée : « tout est prêt, paie », « connecte-toi », ou « à toi de finir ».
 struct PaymentBanner: View {
     @ObservedObject var assistant: BookingAssistant
+    var copyJournal: () -> Void
+    @State private var copied = false
+
+    init(assistant: BookingAssistant, copyJournal: @escaping () -> Void = {}) {
+        self.assistant = assistant
+        self.copyJournal = copyJournal
+    }
 
     var body: some View {
         Group {
@@ -747,20 +1055,37 @@ struct PaymentBanner: View {
         .sensoryFeedback(.success, trigger: assistant.reachedPayment)
     }
 
+    private var icon: String {
+        if assistant.reachedPayment { return "creditcard.fill" }
+        if assistant.needsLogin { return "person.crop.circle.badge.checkmark" }
+        return "hand.point.up.left.fill"
+    }
+
     private var banner: some View {
-            HStack(spacing: 10) {
-                Image(systemName: assistant.reachedPayment ? "creditcard.fill" : "hand.point.up.left.fill")
-                    .foregroundStyle(assistant.reachedPayment ? UI.onBall : UI.ink)
-                Text(assistant.reachedPayment ? "C'est prêt : vérifie et paie." : assistant.status)
-                    .font(.system(size: 14, weight: .semibold)).foregroundStyle(assistant.reachedPayment ? UI.onBall : UI.ink)
-                    .lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .foregroundStyle(assistant.reachedPayment ? UI.onBall : UI.ink)
+            Text(assistant.reachedPayment ? "C'est prêt : vérifie et paie." : assistant.status)
+                .font(.system(size: 14, weight: .semibold)).foregroundStyle(assistant.reachedPayment ? UI.onBall : UI.ink)
+                .lineLimit(3).frame(maxWidth: .infinity, alignment: .leading)
+            if assistant.failed && !assistant.reachedPayment {
+                Button {
+                    copyJournal()
+                    copied = true
+                } label: {
+                    Text(copied ? "Copié" : "Journal").font(.system(size: 13, weight: .bold))
+                        .padding(.horizontal, 10).padding(.vertical, 6)
+                        .background(Capsule().fill(UI.court)).foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 14).padding(.vertical, 10)
-            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(assistant.reachedPayment ? UI.ball : UI.raised))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
-            .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
-            .padding(.horizontal, 12).padding(.top, 8)
-            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+        .padding(.horizontal, 14).padding(.vertical, 10)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(assistant.reachedPayment ? UI.ball : UI.raised))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
+        .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
+        .padding(.horizontal, 12).padding(.top, 8)
+        .transition(.move(edge: .top).combined(with: .opacity))
     }
 }
 

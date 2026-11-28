@@ -18,7 +18,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let info = response.notification.request.content.userInfo
         let link = (info["url"] as? String).flatMap(URL.init(string:))
-        let target = (info["time"] as? String).map { BookingTarget(time: $0, duration: info["duration"] as? Int) }
+        let target = (info["time"] as? String).map { BookingTarget(time: $0, duration: info["duration"] as? Int, direct: DirectPay(userInfo: info)) }
         await MainActor.run {
             if let link { BotEngine.shared.openBooking = BookingRequest(url: link, target: target) }
             BotEngine.shared.armImminentRelease()

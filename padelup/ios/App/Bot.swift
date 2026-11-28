@@ -105,17 +105,50 @@ struct BotLogEntry: Identifiable, Codable, Hashable {
     var actionURL: String? = nil
 }
 
-/// Ce que l'assistant de réservation doit choisir sur la page (heure, durée).
+/// Un créneau Playtomic précis (club, terrain, début, durée) : de quoi ouvrir directement sa page de paiement.
+struct DirectPay: Hashable {
+    let tenantID: String
+    let resourceID: String
+    let start: Date
+    let duration: Int
+
+    init?(slot: BookingSlot) {
+        guard slot.provider == .playtomic, !slot.clubID.isEmpty, !slot.resourceID.isEmpty, slot.duration > 0 else { return nil }
+        self.init(tenantID: slot.clubID, resourceID: slot.resourceID, start: slot.start, duration: slot.duration)
+    }
+
+    init(tenantID: String, resourceID: String, start: Date, duration: Int) {
+        self.tenantID = tenantID
+        self.resourceID = resourceID
+        self.start = start
+        self.duration = duration
+    }
+
+    /// Pour une notification : les mêmes infos en texte.
+    var userInfo: [String: Any] {
+        ["tenant": tenantID, "resource": resourceID, "start": start.timeIntervalSince1970, "payDuration": duration]
+    }
+
+    init?(userInfo info: [AnyHashable: Any]) {
+        guard let t = info["tenant"] as? String, let r = info["resource"] as? String,
+              let s = info["start"] as? Double, let d = info["payDuration"] as? Int, d > 0 else { return nil }
+        self.init(tenantID: t, resourceID: r, start: Date(timeIntervalSince1970: s), duration: d)
+    }
+}
+
+/// Ce que l'assistant de réservation doit choisir sur la page (heure, durée), et le créneau exact s'il est connu.
 struct BookingTarget: Hashable {
     let time: String        // « 19:30 »
     let duration: Int?      // 90, ou nil si la durée se choisit sur la page
+    let direct: DirectPay?
 
-    init(time: String, duration: Int?) {
+    init(time: String, duration: Int?, direct: DirectPay? = nil) {
         self.time = time
         self.duration = (duration ?? 0) > 0 ? duration : nil
+        self.direct = direct
     }
 
-    init(slot: BookingSlot) { self.init(time: slot.localTime, duration: slot.duration) }
+    init(slot: BookingSlot) { self.init(time: slot.localTime, duration: slot.duration, direct: DirectPay(slot: slot)) }
 }
 
 /// Une page de réservation à ouvrir, avec l'assistant qui choisit le créneau.
@@ -511,7 +544,10 @@ final class BotEngine: ObservableObject {
         content.sound = .default
         if let url {
             var info: [String: Any] = ["url": url.absoluteString]
-            if let target { info["time"] = target.time; info["duration"] = target.duration ?? 0 }
+            if let target {
+                info["time"] = target.time; info["duration"] = target.duration ?? 0
+                if let d = target.direct { info.merge(d.userInfo) { a, _ in a } }
+            }
             content.userInfo = info
         }
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))

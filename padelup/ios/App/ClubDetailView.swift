@@ -460,7 +460,8 @@ struct ClubDetailView: View {
         let result = await bot.book(slot, clubName: club.displayName, slug: club.playtomicSlug)
         if result.status == .needsAction, let url = result.actionURL {
             // Page déjà connectée ; l'assistant choisit l'heure et la durée, tu confirmes.
-            booking = BookingRequest(url: url, target: BookingTarget(time: slot.localTime, duration: slot.duration > 0 ? slot.duration : duration))
+            booking = BookingRequest(url: url, target: BookingTarget(time: slot.localTime, duration: slot.duration > 0 ? slot.duration : duration,
+                                                                     direct: DirectPay(slot: slot)))
         } else {
             outcome = result
             if result.status == .booked { await loadSlots() }

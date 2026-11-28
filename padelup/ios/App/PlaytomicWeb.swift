@@ -358,4 +358,23 @@ enum PlaytomicWeb {
         }
         return URL(string: "https://playtomic.io/clubs/\(tenantID)")!
     }
+
+    /// La page de paiement d'un créneau précis (club, terrain, début en UTC, durée), comme le bouton « Réserver » du
+    /// site y mène : rien à cliquer, le joueur arrive sur le paiement et valide lui-même.
+    static func paymentURL(_ d: DirectPay) -> URL {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "UTC")
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'.000Z'"
+        var c = URLComponents(string: "https://app.playtomic.com/payments")!
+        c.queryItems = [
+            URLQueryItem(name: "type", value: "CUSTOMER_MATCH"),
+            URLQueryItem(name: "tenant_id", value: d.tenantID),
+            URLQueryItem(name: "resource_id", value: d.resourceID),
+            URLQueryItem(name: "start", value: f.string(from: d.start)),
+            URLQueryItem(name: "duration", value: String(d.duration)),
+            URLQueryItem(name: "sport_id", value: "PADEL"),
+        ]
+        return c.url!
+    }
 }

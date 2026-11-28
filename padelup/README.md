@@ -51,9 +51,19 @@ C'est une **app séparée** de « PADELUP (FR) » (`com.padelup.padelup-new`), q
 
 | Plateforme | Connexion | Créneaux | Réservation |
 |---|---|---|---|
-| **Playtomic** | Sur le site playtomic.com, ouvert dans l'app | En direct, lus sur le site depuis l'iPhone du joueur | La page du club s'ouvre à la bonne date, déjà connectée : le joueur valide et paie en un geste |
-| **Anybuddy** | Sur le site anybuddyapp.com (`/fr/login`), ouvert dans l'app | Non lus par PadelUp : Anybuddy les protège par une vérification anti-robot | La page du club (`/fr/club/<slug>`) et la réservation automatique d'Anybuddy s'ouvrent, déjà connectées |
+| **Playtomic** | Sur le site playtomic.com, ouvert dans l'app | En direct, lus sur le site depuis l'iPhone du joueur | L'assistant ouvre directement la page de paiement du créneau exact (club, terrain, heure, durée). Sinon il parcourt la page du club jusqu'au paiement. Le joueur valide et paie |
+| **Anybuddy** | Sur le site anybuddyapp.com (`/fr/login`), ouvert dans l'app | Lus sur la page publique du club, depuis l'iPhone. Arrêt en cas de vérification anti-robot | L'assistant parcourt la page du club (heure, durée, « Continuer ») jusqu'au paiement |
 | **Clubs PadelUp** | Compte PadelUp | Oui | Oui, immédiate, y compris par le serveur 24 h/24 |
+
+**L'assistant de réservation** (`ios/App/ProviderWeb.swift`, `BookingAssistant`) travaille dans un navigateur invisible, avec la session du joueur.
+- Pour Playtomic, quand le créneau exact est connu, il ouvre la page de paiement de ce créneau, comme le bouton « Réserver » du site.
+- Sinon, il regarde la page à chaque tour et fait un seul geste à la fois : cookies, terrain, heure, durée, bouton pour avancer. Il vérifie le résultat de chaque geste.
+- Un terrain qui n'a pas l'heure voulue est refermé, et l'assistant passe au suivant.
+- Une heure qui n'existe plus est signalée.
+- Il s'arrête au paiement : il ne touche jamais un bouton « Payer » ni une page de paiement.
+- S'il coince, la page s'affiche, avec un journal des gestes à copier, sans saisie ni mot de passe.
+
+Banc d'essai sur des pages factices : `node padelup/tools/assistant/run.js`.
 
 Les règles du dossier Padel Sniper sont appliquées à la lettre :
 - **Aucun mot de passe de plateforme** n'est demandé, transmis ni enregistré. Le joueur se connecte sur le site de la plateforme, dans une vue web qui partage le stockage de l'app (`WKWebsiteDataStore.default`). La session reste sur l'iPhone. L'app repère la connexion dans les cookies et le stockage local.
