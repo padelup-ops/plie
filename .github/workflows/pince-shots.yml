@@ -100,7 +100,6 @@ jobs:
               done
             done
             # Les mêmes écrans, appareil couché (en dernier : le simulateur reste couché ensuite).
-            PORTRAIT_COUNT=$N
             if [ "$NAME" = duo ] && [ -n "$WIDE_ROUTES" ]; then
               xcrun devicectl device orientation set --device "$UDID" landscapeLeft 2>&1 | tail -2 >> shots/simulateur.txt || true
               sleep 4
@@ -112,7 +111,7 @@ jobs:
               # L'écran intérieur de l'iPhone Duo n'obéit pas à l'app : c'est le simulateur qu'on tourne.
               case "$NAME" in
                 ipad) WIDE_ARGS="-previewSize $PREVIEW" ;;
-                duo) WIDE_ARGS=""; [ "$N" -gt "$PORTRAIT_COUNT" ] || true ;;
+                duo) WIDE_ARGS="" ;;
                 *) WIDE_ARGS="-wide YES" ;;
               esac
               xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" $WIDE_ARGS > /dev/null 2>&1 || true
