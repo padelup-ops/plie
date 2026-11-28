@@ -362,6 +362,9 @@ struct Joystick: View {
     let onMove: (CGSize) -> Void
     @State private var knob = CGSize.zero
     @State private var held = false
+    /// La direction du manche, parmi huit, et s'il est en bout de course : pour les crans qu'on sent sous le doigt.
+    @State private var sector: Int?
+    @State private var atEdge = false
 
     var body: some View {
         let reach = diameter * 0.27
@@ -418,11 +421,21 @@ struct Joystick: View {
                         v.width *= reach / length
                         v.height *= reach / length
                     }
+                    // Une butée quand le manche arrive au bout, un cran quand il change de direction.
+                    let edge = length >= reach
+                    if edge, !atEdge { Haptics.stop() }
+                    atEdge = edge
+                    let now: Int? = length > reach * 0.35 ? Int((atan2(v.height, v.width) / (.pi / 4)).rounded()) & 7 : nil
+                    if let now, let sector, now != sector { Haptics.detent() }
+                    sector = now
                     knob = v
                     onMove(CGSize(width: v.width / reach, height: -v.height / reach))
                 }
                 .onEnded { _ in
+                    if held, knob != .zero { Haptics.spring() }
                     held = false
+                    sector = nil
+                    atEdge = false
                     withAnimation(.spring(response: 0.25, dampingFraction: 0.5)) { knob = .zero }
                     onMove(.zero)
                 }

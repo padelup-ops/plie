@@ -181,6 +181,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         case slipped
         /// La pince s'ouvre au-dessus de la trappe et lâche le doudou.
         case released
+        /// Le chariot arrive en butée contre un bord de la machine.
+        case bumped
         case restocked
         case plop
         case won(Species)
@@ -234,6 +236,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     private var slipping: Float?
     /// Le doudou que les griffes ont seulement effleuré : il sursaute quand elles se referment.
     private var grazed: Plush?
+    /// Le chariot est-il en butée, en largeur et en profondeur ?
+    private var against = SIMD2<Bool>(false, false)
     private var plushes: [Plush] = []
     private var held: Plush?
     /// Le dernier doudou gagné, posé dans le bac.
@@ -390,9 +394,16 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         case .idle:
             if simd_length(s) > 0.08 {
                 let before = spot
-                spot.x = max(Box.minX, min(Box.maxX, spot.x + s.x * 0.75 * dt))
-                spot.y = max(Box.minZ, min(Box.maxZ, spot.y - s.y * 0.75 * dt))
+                let wish = SIMD2<Float>(spot.x + s.x * 0.75 * dt, spot.y - s.y * 0.75 * dt)
+                spot.x = max(Box.minX, min(Box.maxX, wish.x))
+                spot.y = max(Box.minZ, min(Box.maxZ, wish.y))
                 if simd_distance(before, spot) > 0.0005 { moving = .travel }
+                // En butée : un choc, une seule fois, tant qu'on ne s'en est pas écarté.
+                let blocked = SIMD2<Bool>(wish.x != spot.x, wish.y != spot.y)
+                if (blocked.x && !against.x) || (blocked.y && !against.y) { emit(.bumped) }
+                against = blocked
+            } else {
+                against = SIMD2<Bool>(false, false)
             }
             if drop {
                 phase = .descending

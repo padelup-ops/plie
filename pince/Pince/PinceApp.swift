@@ -120,6 +120,7 @@ enum Haptics {
     private static let heavy = UIImpactFeedbackGenerator(style: .heavy)
     private static let rigid = UIImpactFeedbackGenerator(style: .rigid)
     private static let notice = UINotificationFeedbackGenerator()
+    private static let select = UISelectionFeedbackGenerator()
 
     private static func hit(_ generator: UIImpactFeedbackGenerator, _ strength: CGFloat, after delay: Double = 0) {
         guard enabled else { return }
@@ -136,6 +137,18 @@ enum Haptics {
     static func tap() { hit(light, 0.7) }
     /// Le gros bouton rouge : la pince part.
     static func press() { hit(medium, 1); heavy.prepare(); rigid.prepare() }
+    /// Le manche passe d'une direction à une autre : un cran, comme sur un vrai manche à huit positions.
+    static func detent() {
+        guard enabled else { return }
+        select.selectionChanged()
+        select.prepare()
+    }
+    /// Le manche arrive en bout de course.
+    static func stop() { hit(rigid, 0.55) }
+    /// Le manche relâché revient au centre.
+    static func spring() { hit(light, 0.5); hit(soft, 0.3, after: 0.07) }
+    /// Le chariot tape le bord de la machine.
+    static func bump() { hit(rigid, 0.9); hit(medium, 0.5, after: 0.06) }
     /// Le treuil qui tourne : un petit cran, répété tant que la pince bouge.
     static func tick(_ strength: CGFloat) { hit(soft, strength) }
     /// Les griffes se referment : un claquement sec.
@@ -239,6 +252,8 @@ final class Game {
     let tracker = HeadTracker()
     private var active = true
     private var winchTimer: Timer?
+    /// De combien le manche est poussé, de 0 à 1.
+    @ObservationIgnored private var push: CGFloat = 0
     /// Vrai pendant une mise en scène pour les captures : le point de vue est imposé, rien n'est enregistré.
     private var staged = false
     private let store = UserDefaults.standard
@@ -317,6 +332,7 @@ final class Game {
 
     /// Le manche. Tant qu'aucune pièce n'est dans la fente, la pince ne bouge pas.
     func stick(_ v: CGSize) {
+        push = credit ? min(1, hypot(v.width, v.height)) : 0
         machine.setStick(credit ? SIMD2<Float>(Float(v.width), Float(v.height)) : SIMD2<Float>(0, 0))
     }
 
@@ -380,7 +396,9 @@ final class Game {
         winchTimer = nil
         guard on, hapticsOn, active else { return }
         winchTimer = Timer.scheduledTimer(withTimeInterval: 0.13, repeats: true) { [weak self] _ in
-            Haptics.tick(self?.busy == true ? 0.42 : 0.25)
+            guard let self else { return }
+            // Plus on pousse le manche, plus on sent le chariot rouler.
+            Haptics.tick(self.busy ? 0.42 : 0.16 + 0.3 * self.push)
         }
     }
 
@@ -530,6 +548,9 @@ final class Game {
             Haptics.slip()
         case .released:
             Haptics.release()
+        case .bumped:
+            say(.clack, volume: 0.3)
+            Haptics.bump()
         case .restocked:
             say(.pop, volume: 0.6)
             Haptics.rain()
