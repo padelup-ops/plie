@@ -157,12 +157,13 @@ struct BotView: View {
                 .background(Circle().fill(connected ? UI.ball : UI.sunken))
             VStack(alignment: .leading, spacing: 2) {
                 Text(p.name).font(UI.headline()).foregroundStyle(UI.ink)
-                Text(connected ? "Connecté : je réserve avec ton compte" : "À connecter pour réserver en un geste")
+                Text(connected ? "Connecté : je garde ta connexion pour réserver" : "À connecter une fois pour réserver en un geste")
                     .font(UI.caption()).foregroundStyle(UI.muted)
             }
             Spacer(minLength: 8)
             if connected {
                 Menu {
+                    Button("Vérifier ou reconnecter") { login = p }
                     Button("Déconnecter", role: .destructive) { Task { await WebAccount.disconnect(p); accountsVersion += 1 } }
                 } label: { Image(systemName: "ellipsis").font(.system(size: 16, weight: .semibold)).foregroundStyle(UI.muted).frame(width: 32, height: 32) }
             } else {

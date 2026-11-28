@@ -88,6 +88,7 @@ enum WebAccount {
     @MainActor
     static func refresh(_ p: BotProvider, webView: WKWebView? = nil, seen: Bool = false) async {
         let found = await detect(p, in: webView)
+        if found { await SessionKeeper.save(p, from: webView) }
         setConnected(p, found || seen)
     }
 
@@ -97,6 +98,7 @@ enum WebAccount {
         let records = await store.dataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes())
         await store.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
                                for: records.filter { $0.displayName.lowercased().contains(domain(p)) })
+        SessionKeeper.forget(p)
         setConnected(p, false)
     }
 
@@ -106,6 +108,109 @@ enum WebAccount {
         let cookies = await WKWebsiteDataStore.default().httpCookieStore.allCookies().filter { $0.domain.contains(domain) }
         guard !cookies.isEmpty else { return nil }
         return cookies.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
+    }
+}
+
+// MARK: - Garder la connexion d'une ouverture de l'app à l'autre
+
+/// Certains sites gardent la connexion dans des cookies « de session » ou dans le stockage d'un onglet : iOS les efface
+/// quand l'app se ferme (ou à chaque nouvelle page), et chaque réservation repartait déconnectée. Après une connexion
+/// réussie, l'app garde une copie de CETTE session (cookies et stockage du site) dans le trousseau de l'iPhone, chiffrée,
+/// jamais envoyée ailleurs. Jamais de mot de passe : seulement ce que le site a lui-même posé. Elle la remet en place
+/// avant d'ouvrir une page de la plateforme, sans écraser une session plus récente.
+enum SessionKeeper {
+    struct Cookie: Codable {
+        var name: String
+        var value: String
+        var domain: String
+        var path: String
+        var secure: Bool
+        var httpOnly: Bool
+        var expires: Date?
+        var sameSite: String?
+
+        init(_ c: HTTPCookie) {
+            name = c.name; value = c.value; domain = c.domain; path = c.path
+            secure = c.isSecure; httpOnly = c.isHTTPOnly; expires = c.expiresDate
+            sameSite = c.sameSitePolicy?.rawValue
+        }
+
+        var httpCookie: HTTPCookie? {
+            var props: [HTTPCookiePropertyKey: Any] = [.name: name, .value: value, .domain: domain, .path: path]
+            if secure { props[.secure] = "TRUE" }
+            if httpOnly { props[HTTPCookiePropertyKey("HttpOnly")] = "TRUE" }
+            if let expires { props[.expires] = expires }
+            if let sameSite { props[.sameSitePolicy] = sameSite }
+            return HTTPCookie(properties: props)
+        }
+    }
+
+    struct Snapshot: Codable {
+        var cookies: [Cookie] = []
+        /// site (« app.playtomic.com ») → « local » / « session » → clé → valeur
+        var storage: [String: [String: [String: String]]] = [:]
+        var date = Date()
+    }
+
+    static let providers: [BotProvider] = [.playtomic, .anybuddy]
+    private static func key(_ p: BotProvider) -> String { "session.web." + p.rawValue }
+
+    static func snapshot(_ p: BotProvider) -> Snapshot? { Keychain.getCodable(Snapshot.self, for: key(p)) }
+    static func has(_ p: BotProvider) -> Bool { snapshot(p) != nil }
+    static func forget(_ p: BotProvider) { Keychain.set(nil, for: key(p)) }
+
+    private static let grabJS = #"""
+    var noise = /(^_ga|^_gid|^_fbp|amplitude|^mp_|intercom|didomi|axeptio|optanon|consent|hubspot|^__hs|^_hj|crisp|segment|datadog|sentry|^ajs_)/i;
+    function grab(st) {
+      var o = {};
+      try { for (var i = 0; i < st.length; i++) { var k = st.key(i), v = st.getItem(k); if (!noise.test(k) && v !== null && v.length < 20000) o[k] = v; } } catch (e) {}
+      return o;
+    }
+    return { local: grab(window.localStorage), session: grab(window.sessionStorage) };
+    """#
+
+    /// Après une connexion réussie (ou une page de paiement atteinte) : on garde la session telle que le site l'a posée.
+    @MainActor
+    static func save(_ p: BotProvider, from webView: WKWebView?) async {
+        let all = await WKWebsiteDataStore.default().httpCookieStore.allCookies()
+        var snap = snapshot(p) ?? Snapshot()
+        let mine = all.filter { $0.domain.lowercased().contains(WebAccount.domain(p)) }
+        if !mine.isEmpty { snap.cookies = mine.map(Cookie.init) }
+        if let webView, let host = webView.url?.host?.lowercased(), host.contains(WebAccount.domain(p)),
+           let r = try? await webView.callAsyncJavaScript(grabJS, arguments: [:], contentWorld: .defaultClient) as? [String: Any] {
+            var entry: [String: [String: String]] = [:]
+            for kind in ["local", "session"] { entry[kind] = (r[kind] as? [String: String]) ?? [:] }
+            if !(entry["local"]?.isEmpty ?? true) || !(entry["session"]?.isEmpty ?? true) { snap.storage[host] = entry }
+        }
+        guard !snap.cookies.isEmpty || !snap.storage.isEmpty else { return }
+        snap.date = Date()
+        Keychain.setCodable(snap, for: key(p))
+    }
+
+    /// À l'ouverture de l'app et avant une réservation : les cookies manquants sont remis (jamais par-dessus un plus récent).
+    @MainActor
+    static func restoreCookies() async {
+        let store = WKWebsiteDataStore.default().httpCookieStore
+        let existing = await store.allCookies()
+        for p in providers {
+            guard let snap = snapshot(p) else { continue }
+            for c in snap.cookies where (c.expires ?? .distantFuture) > Date() {
+                if existing.contains(where: { $0.name == c.name && $0.domain == c.domain && $0.path == c.path }) { continue }
+                if let cookie = c.httpCookie { await store.setCookie(cookie) }
+            }
+        }
+    }
+
+    /// Le stockage du site est remis dès le début de chaque page de la plateforme, seulement s'il manque.
+    static func install(in config: WKWebViewConfiguration) {
+        var map: [String: [String: [String: String]]] = [:]
+        for p in providers { if let snap = snapshot(p) { map.merge(snap.storage) { a, _ in a } } }
+        guard !map.isEmpty, let data = try? JSONSerialization.data(withJSONObject: map),
+              let json = String(data: data, encoding: .utf8) else { return }
+        let js = "(function(){var m=" + json + ";var e=m[location.host.toLowerCase()];if(!e)return;"
+            + "function put(st,o){if(!o)return;try{for(var k in o){if(st.getItem(k)===null)st.setItem(k,o[k]);}}catch(x){}}"
+            + "put(window.localStorage,e.local);put(window.sessionStorage,e.session);})();"
+        config.userContentController.addUserScript(WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: true))
     }
 }
 
@@ -219,6 +324,7 @@ struct AccountWebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        SessionKeeper.install(in: config)
         let view = WKWebView(frame: .zero, configuration: config)
         view.allowsBackForwardNavigationGestures = true
         view.navigationDelegate = context.coordinator
@@ -253,7 +359,10 @@ struct AccountWebView: UIViewRepresentable {
             Task { @MainActor in
                 let ok = await WebAccount.detect(provider, in: webView)
                 if ok != self.model.signedIn { self.model.signedIn = ok }
-                if ok { WebAccount.setConnected(provider, true) }
+                if ok {
+                    WebAccount.setConnected(provider, true)
+                    await SessionKeeper.save(provider, from: webView)
+                }
             }
         }
 
@@ -736,6 +845,7 @@ final class BookingAssistant: ObservableObject {
         working = true
         task = Task { [weak self] in
             guard let self else { return }
+            await SessionKeeper.restoreCookies()
             if let payURL, target != nil {
                 self.steps = ["J'ouvre ta page de paiement", "Je vérifie ton créneau", "Je prépare le paiement", "Paiement prêt"]
                 self.status = "J'ouvre ta page de paiement…"
@@ -854,6 +964,13 @@ final class BookingAssistant: ObservableObject {
         sawPayment = true
         finish("Tout est prêt : vérifie puis touche « \(label.isEmpty ? "Payer" : label) ».", done: true)
         watchConfirmation()
+        // Arrivé au paiement = connecté : la session est gardée pour les prochaines réservations.
+        if let wv = webView, let p = wv.url.flatMap(WebAccount.owns) {
+            Task {
+                await SessionKeeper.save(p, from: wv)
+                if !WebAccount.isConnected(p) { WebAccount.setConnected(p, true) }
+            }
+        }
     }
 
     /// Une fois la page de paiement atteinte (par l'assistant ou à la main) : guetter la confirmation de la plateforme.
@@ -881,8 +998,10 @@ final class BookingAssistant: ObservableObject {
     private func loginNeeded(reload: URL?) {
         needsLogin = true
         stage = max(stage, 1)
-        log("connexion demandée")
-        finish("Connecte-toi une fois ici (Apple ou e-mail) : ensuite j'arrive direct au paiement.", done: false)
+        log("connexion demandée" + (webView?.url?.host.map { " sur " + $0 } ?? ""))
+        // La plateforme ne reconnaît plus la session : « Tes comptes » doit le dire, pas afficher « Connecté ».
+        if let p = webView?.url.flatMap(WebAccount.owns), WebAccount.isConnected(p) { WebAccount.setConnected(p, false) }
+        finish("Connecte-toi une fois ici (Apple ou e-mail) : je retiens ta connexion pour les prochaines fois.", done: false)
         watcher?.cancel()
         watcher = Task { [weak self] in
             var reloads = 0
@@ -982,6 +1101,7 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
     init(request: BookingRequest) {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        SessionKeeper.install(in: config)
         NetRecorder.install(in: config)
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 390, height: 844), configuration: config)
         target = request.target
@@ -1391,6 +1511,7 @@ struct PlaytomicPickerWebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        SessionKeeper.install(in: config)
         let view = WKWebView(frame: .zero, configuration: config)
         view.allowsBackForwardNavigationGestures = true
         view.navigationDelegate = context.coordinator
@@ -1529,6 +1650,7 @@ final class HiddenBrowser: NSObject, WKNavigationDelegate {
         if let webView { return webView }
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        SessionKeeper.install(in: config)
         let w = WKWebView(frame: CGRect(x: 0, y: 0, width: 390, height: 844), configuration: config)
         w.navigationDelegate = self
         w.alpha = 0.01

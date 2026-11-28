@@ -8,6 +8,17 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         UNUserNotificationCenter.current().delegate = self
         // Anciennes versions : jetons Playtomic issus d'une connexion par mot de passe, désormais inutiles.
         Keychain.set(nil, for: "playtomic.session")
+        // Playtomic : la connexion utile est celle d'app.playtomic.com, où se fait le paiement. Une connexion faite avant
+        // sur playtomic.com ne suffit pas : « Tes comptes » propose une fois de se connecter au bon endroit.
+        let defaults = UserDefaults.standard
+        if !defaults.bool(forKey: "migration.playtomicAppLogin") {
+            defaults.set(true, forKey: "migration.playtomicAppLogin")
+            if SessionKeeper.snapshot(.playtomic)?.storage["app.playtomic.com"] == nil {
+                defaults.set(false, forKey: WebAccount.key(.playtomic))
+            }
+        }
+        // La connexion gardée (cookies que iOS efface à la fermeture de l'app) est remise en place.
+        Task { @MainActor in await SessionKeeper.restoreCookies() }
         return true
     }
 
