@@ -62,11 +62,11 @@ enum Backdrop {
 
     /// L'affiche du fond : un coucher de soleil tout doux, un arc-en-ciel, des collines.
     static func poster() -> UIImage {
-        canvas(1024, 1076) { c, size in
+        canvas(1536, 992) { c, size in
             gradient(c, [0xA9A4F5, 0xD7B4F3, 0xFFC4DA, 0xFFE3BD], from: .zero, to: CGPoint(x: 0, y: size.height * 0.8))
 
             // Le soleil, ses halos et son visage endormi
-            let sx: CGFloat = 690, sy: CGFloat = 420
+            let sx: CGFloat = 1090, sy: CGFloat = 360
             disc(c, sx, sy, 250, 0xFFF3C4, 0.22)
             disc(c, sx, sy, 200, 0xFFF3C4, 0.3)
             disc(c, sx, sy, 150, 0xFFE89A)
@@ -87,27 +87,27 @@ enum Backdrop {
             for (i, hex) in bands.enumerated() {
                 c.setStrokeColor(UIColor(hex: hex, alpha: 0.92).cgColor)
                 c.setLineWidth(30)
-                c.addArc(center: CGPoint(x: 250, y: 860), radius: 470 - CGFloat(i) * 30, startAngle: .pi, endAngle: 0, clockwise: false)
+                c.addArc(center: CGPoint(x: 470, y: 800), radius: 470 - CGFloat(i) * 30, startAngle: .pi, endAngle: 0, clockwise: false)
                 c.strokePath()
             }
 
-            cloud(c, 190, 250, 62)
-            cloud(c, 850, 170, 46)
-            cloud(c, 470, 110, 34)
+            cloud(c, 230, 190, 62)
+            cloud(c, 1370, 140, 46)
+            cloud(c, 760, 110, 38)
 
-            let stars: [(CGFloat, CGFloat, CGFloat)] = [(90, 90, 22), (330, 190, 14), (610, 80, 18), (930, 330, 16), (540, 300, 12),
-                                                         (60, 420, 13), (780, 60, 11), (420, 420, 10), (980, 110, 13), (250, 60, 10)]
+            let stars: [(CGFloat, CGFloat, CGFloat)] = [(90, 90, 22), (480, 170, 14), (930, 70, 18), (1420, 320, 16), (800, 290, 12),
+                                                         (60, 400, 13), (1180, 60, 11), (640, 400, 10), (1480, 90, 13), (360, 60, 10)]
             for (x, y, r) in stars { sparkle(c, x, y, r) }
 
-            hill(c, size, base: 800, bumps: [(380, 220), (360, 150), (340, 240)], 0xC9E9D0, 0xA8DDBE)
-            hill(c, size, base: 900, bumps: [(300, 150), (420, 220), (360, 130)], 0xA9E0B4, 0x86CFA0)
-            hill(c, size, base: 1000, bumps: [(460, 170), (320, 110), (300, 190)], 0x8FD49C, 0x6FC088)
-            cloud(c, 150, 800, 40)
-            cloud(c, 900, 760, 34)
+            hill(c, size, base: 720, bumps: [(520, 220), (540, 150), (540, 240)], 0xC9E9D0, 0xA8DDBE)
+            hill(c, size, base: 820, bumps: [(440, 150), (620, 220), (540, 130)], 0xA9E0B4, 0x86CFA0)
+            hill(c, size, base: 920, bumps: [(660, 170), (480, 110), (460, 190)], 0x8FD49C, 0x6FC088)
+            cloud(c, 190, 720, 40)
+            cloud(c, 1380, 690, 34)
 
             // Des fleurs sur les collines
-            let flowers: [(CGFloat, CGFloat, UInt32)] = [(120, 960, 0xFFFFFF), (300, 1010, 0xFFE89A), (520, 950, 0xFFB7CB), (700, 1020, 0xFFFFFF),
-                                                         (880, 940, 0xFFE89A), (960, 1030, 0xFFB7CB), (420, 1040, 0xFFFFFF), (620, 890, 0xFFE89A)]
+            let flowers: [(CGFloat, CGFloat, UInt32)] = [(160, 880, 0xFFFFFF), (420, 930, 0xFFE89A), (760, 870, 0xFFB7CB), (1040, 940, 0xFFFFFF),
+                                                         (1320, 860, 0xFFE89A), (1450, 950, 0xFFB7CB), (620, 960, 0xFFFFFF), (930, 810, 0xFFE89A)]
             for (x, y, hex) in flowers {
                 for i in 0..<5 {
                     let a = CGFloat(i) * 2 * .pi / 5

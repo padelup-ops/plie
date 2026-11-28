@@ -3,6 +3,32 @@ import SceneKit
 
 // MARK: - L'écran de jeu
 
+/// Le jeu, en plein écran. Pour les captures, `-previewSize 951x669` le dessine à une taille donnée
+/// (celle de l'iPhone Duo ouvert, par exemple) au milieu de l'écran.
+struct RootView: View {
+    var body: some View {
+        #if DEBUG
+        if let size = RootView.previewSize {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                GameView().frame(width: size.width, height: size.height).clipped()
+            }
+        } else {
+            GameView()
+        }
+        #else
+        GameView()
+        #endif
+    }
+
+    #if DEBUG
+    private static let previewSize: CGSize? = {
+        let parts = (UserDefaults.standard.string(forKey: "previewSize") ?? "").split(separator: "x").compactMap { Double($0) }
+        return parts.count == 2 ? CGSize(width: parts[0], height: parts[1]) : nil
+    }()
+    #endif
+}
+
 struct GameView: View {
     @Environment(Game.self) private var game
 
@@ -19,10 +45,30 @@ struct GameView: View {
                 } else {
                     // Sur un grand écran, le pupitre est dessiné plus gros.
                     let k: CGFloat = min(size.width, size.height) >= 700 ? 1.4 : 1
-                    let panel = min(250 * k, max(190 * k, size.height * 0.27))
+                    // Écran couché (iPhone Duo ouvert, iPad) : la machine prend toute la place, les pièces et les
+                    // boutons passent par-dessus, et le pupitre ne garde qu'une rangée de commandes.
+                    let wide = size.width > size.height
+                    let panel = wide ? min(170 * k, max(132 * k, size.height * 0.21)) : min(250 * k, max(190 * k, size.height * 0.27))
                     VStack(spacing: 0) {
                         MachineView(game: game)
-                        ControlPanel(width: size.width / k, height: panel / k, bottomInset: insets.bottom / k)
+                            .overlay(alignment: .top) {
+                                if wide {
+                                    ZStack {
+                                        CoinPill()
+                                        HStack {
+                                            TrackingBadge()
+                                            Spacer()
+                                            TopButtons()
+                                        }
+                                    }
+                                    .padding(.horizontal, max(16, insets.leading + 8))
+                                    .padding(.top, max(12, insets.top + 6))
+                                    .scaleEffect(k, anchor: .top)
+                                    .frame(width: size.width / k)
+                                    .frame(width: size.width, alignment: .top)
+                                }
+                            }
+                        ControlPanel(width: size.width / k, height: panel / k, bottomInset: insets.bottom / k, header: !wide)
                             .frame(width: size.width / k)
                             .scaleEffect(k, anchor: .bottom)
                             .frame(width: size.width, height: panel + insets.bottom, alignment: .bottom)
@@ -89,6 +135,12 @@ final class StageView: SCNView {
     override func didMoveToWindow() {
         super.didMoveToWindow()
         refresh()
+        #if DEBUG
+        // Pour les captures : `-wide YES` couche l'écran, le simulateur ne sachant pas tourner tout seul.
+        if UserDefaults.standard.bool(forKey: "wide"), let scene = window?.windowScene {
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
+        }
+        #endif
     }
 
     /// La taille de la vue et le sens de l'écran fixent la « fenêtre » par laquelle on regarde la machine.
@@ -234,14 +286,14 @@ struct TrackingBadge: View {
     var body: some View {
         if game.depth > 0, game.tracking != .none {
             HStack(spacing: 5) {
-                Image(systemName: game.tracking == .face ? "eye.fill" : "gyroscope")
+                Image(systemName: game.tracking == .tilt ? "gyroscope" : (game.faceSeen ? "eye.fill" : "eye.slash.fill"))
                     .font(.system(size: 13, weight: .bold))
                 Text("3D").font(.toon(14))
             }
             .foregroundStyle(Color(hex: Tint.plum))
             .padding(.horizontal, 10)
             .frame(height: 30)
-            .background(Capsule().fill(Color(hex: Tint.mint)))
+            .background(Capsule().fill(Color(hex: game.tracking == .tilt || game.faceSeen ? Tint.mint : Tint.butter)))
         }
     }
 }
@@ -442,26 +494,32 @@ struct ControlPanel: View {
     let width: CGFloat
     let height: CGFloat
     let bottomInset: CGFloat
+    /// Les pièces et les boutons sont-ils dans le pupitre ? (Sinon ils sont posés sur la machine.)
+    var header = true
 
     var body: some View {
-        let row = height - 56
+        let row = height - (header ? 56 : 13)
         let inner = min(width, 640) - 40
         let stick = min(row - 26, 150, inner * 0.4)
         VStack(spacing: 0) {
             Rectangle().fill(Color(hex: Tint.rose)).frame(height: 5)
-            ZStack {
-                CoinPill()
-                HStack {
-                    TrackingBadge()
-                    Spacer()
-                    TopButtons()
+            if header {
+                ZStack {
+                    CoinPill()
+                    HStack {
+                        TrackingBadge()
+                        Spacer()
+                        TopButtons()
+                    }
                 }
+                .padding(.horizontal, 16)
+                .frame(height: 51)
+            } else {
+                Spacer().frame(height: 8)
             }
-            .padding(.horizontal, 16)
-            .frame(height: 51)
             // Comme sur une vraie machine : le bac de sortie est à gauche, sous la trappe.
             HStack(spacing: 0) {
-                Tray(width: min(inner * 0.27, 112))
+                Tray(width: min(inner * 0.27, 112, (row - 27) / 0.92))
                 Spacer(minLength: 4)
                 Joystick(diameter: stick) { game.stick($0) }
                 Spacer(minLength: 4)
@@ -487,7 +545,8 @@ struct FloatingControls: View {
     let insets: EdgeInsets
 
     var body: some View {
-        let stick = min(132, height * 0.34)
+        // Le manche reste tout à gauche, devant la machine voisine : la trappe doit rester visible.
+        let stick = min(120, height * 0.3)
         VStack {
             HStack(alignment: .top, spacing: 10) {
                 CoinPill()
@@ -496,17 +555,16 @@ struct FloatingControls: View {
                 TopButtons()
             }
             Spacer()
-            HStack(alignment: .bottom, spacing: 14) {
-                Tray(width: stick * 0.62)
+            HStack(alignment: .bottom) {
                 Joystick(diameter: stick) { game.stick($0) }
                 Spacer()
-                DropControl(diameter: stick * 0.74)
+                DropControl(diameter: stick * 0.8)
             }
         }
         .padding(.top, max(12, insets.top + 6))
         .padding(.bottom, max(14, insets.bottom + 6))
-        .padding(.leading, max(18, insets.leading + 6))
-        .padding(.trailing, max(18, insets.trailing + 6))
+        .padding(.leading, max(14, insets.leading - 8))
+        .padding(.trailing, max(14, insets.trailing - 8))
     }
 }
 
@@ -690,6 +748,13 @@ struct SettingsCard: View {
                     Text(T("Fort", "Strong")).tag(2)
                 }
                 .pickerStyle(.segmented)
+                if game.depth > 0, HeadTracker.hasDepthTracking, game.tracking == .face || game.tracking == .camera {
+                    Picker(T("Suivi", "Tracking"), selection: Binding(get: { game.simpleCamera ? 1 : 0 }, set: { game.setSimpleCamera($0 == 1) })) {
+                        Text(T("Suivi automatique", "Automatic tracking")).tag(0)
+                        Text(T("Caméra simple", "Plain camera")).tag(1)
+                    }
+                    .pickerStyle(.segmented)
+                }
                 Text(status)
                     .font(.toon(13, .medium))
                     .foregroundStyle(Color(hex: Tint.plum, opacity: 0.7))
@@ -719,9 +784,13 @@ struct SettingsCard: View {
     private var status: String {
         if game.depth == 0 { return T("L'image reste fixe.", "The picture stays still.") }
         switch game.tracking {
-        case .face:
-            return T("La caméra avant suit la position de ta tête. Aucune image n'est enregistrée ni envoyée.",
-                     "The front camera follows the position of your head. No image is recorded or sent.")
+        case .face, .camera:
+            let privacy = T(" Aucune image n'est enregistrée ni envoyée.", " No image is recorded or sent.")
+            if game.faceSeen {
+                return T("Je vois ton visage, à environ \(game.faceDistance) cm.", "I can see your face, about \(game.faceDistance) cm away.") + privacy
+            }
+            return T("Je ne vois pas ton visage : place-toi bien face à la caméra avant, dans la lumière.",
+                     "I can't see your face: sit right in front of the front camera, in good light.") + privacy
         case .tilt:
             return T("Sans la caméra, le relief suit l'inclinaison de l'appareil : penche-le pour regarder sur les côtés.",
                      "Without the camera, the effect follows the tilt of the device: lean it to look around.")

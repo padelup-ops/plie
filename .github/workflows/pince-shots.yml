@@ -8,6 +8,10 @@ on:
         description: "Écrans à capturer"
         required: false
         default: "game left right high grab win collection all settings intro"
+      wide:
+        description: "Écrans à capturer appareil couché"
+        required: false
+        default: "game left grab"
       devices:
         description: "Simulateurs (duo iphone ipad)"
         required: false
@@ -30,6 +34,8 @@ jobs:
     env:
       ROUTES: ${{ inputs.routes || 'game left right high grab win collection all settings intro' }}
       LANG_CODE: ${{ inputs.lang || 'fr' }}
+      WIDE_ROUTES: ${{ inputs.wide }}
+      PREVIEW: "760x535"
       # Chaque simulateur met un bon quart d'heure à démarrer : on ne lance que ceux qu'on veut voir.
       DEVICES: ${{ inputs.devices || 'duo iphone ipad' }}
     steps:
@@ -85,6 +91,18 @@ jobs:
               # L'iPhone Duo a deux écrans : on prend les deux.
               for D in primary primary-1; do
                 xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$NAME-$(printf %02d $N)-$R-$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true
+              done
+            done
+            # Les mêmes écrans, appareil couché (en dernier : le simulateur reste couché ensuite).
+            for R in $WIDE_ROUTES; do
+              N=$((N+1))
+              xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+              # L'iPad du simulateur ne se couche pas : on y dessine le jeu à la taille de l'iPhone Duo ouvert.
+              case "$NAME" in ipad) WIDE_ARGS="-previewSize $PREVIEW" ;; *) WIDE_ARGS="-wide YES" ;; esac
+              xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" $WIDE_ARGS > /dev/null 2>&1 || true
+              case "$R" in grab|win) sleep 15 ;; *) sleep 9 ;; esac
+              for D in primary primary-1; do
+                xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$NAME-$(printf %02d $N)-$R-large-$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true
               done
             done
             xcrun simctl shutdown "$UDID" || true
