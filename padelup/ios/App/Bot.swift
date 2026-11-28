@@ -168,7 +168,18 @@ final class BotEngine: ObservableObject {
             rules = store.rules
             log = store.log
         }
+        // Résas auto créées avec un club Playtomic mal reconnu (ancienne comparaison des noms) : mises en pause.
+        if UserDefaults.standard.integer(forKey: "playtomicRuleCheck") < 2 {
+            for i in rules.indices where rules[i].provider == .playtomic {
+                guard let slug = rules[i].clubSlug, !slug.isEmpty,
+                      !ClubDirectory.similar(rules[i].clubName, slug.replacingOccurrences(of: "-", with: " ")) else { continue }
+                rules[i].active = false
+                rules[i].lastStatus = "Club à revérifier : Playtomic m'a donné « \(slug.replacingOccurrences(of: "-", with: " ").capitalized) ». Supprime cette résa et reprogramme-la."
+            }
+            UserDefaults.standard.set(2, forKey: "playtomicRuleCheck")
+        }
         loading = false
+        save()
     }
 
     private func save() {
@@ -184,7 +195,7 @@ final class BotEngine: ObservableObject {
         timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
             Task { @MainActor in
                 BotEngine.shared.armImminentRelease()
-                if (BotEngine.shared.lastRun ?? .distantPast).timeIntervalSinceNow < -55 { await BotEngine.shared.runAll() }
+                if (BotEngine.shared.lastRun ?? .distantPast).timeIntervalSinceNow < -25 { await BotEngine.shared.runAll() }
             }
         }
         armImminentRelease()

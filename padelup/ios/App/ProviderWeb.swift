@@ -321,7 +321,30 @@ final class BookingAssistant: ObservableObject {
       var p = time.split(':');
       var re = new RegExp('^0?' + parseInt(p[0], 10) + '\\s*[:hH]\\s*' + p[1] + '(?!\\d)');
       var e = find(re, function (t) { return !payRe.test(t); });
+      if (!e && document.body) {
+        // L'heure affichée n'importe où (simples blocs) : on remonte vers l'élément cliquable le plus proche.
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        var n;
+        while ((n = walker.nextNode())) {
+          var v = (n.nodeValue || '').trim();
+          if (v.length > 14 || !re.test(v)) continue;
+          var el = n.parentElement, hops = 0;
+          while (el && hops < 6) {
+            var st = window.getComputedStyle(el);
+            if (el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'button' || st.cursor === 'pointer' || el.onclick) break;
+            el = el.parentElement; hops++;
+          }
+          if (el && el !== document.body && visible(el)) { e = el; break; }
+        }
+      }
       if (e) { mark(e); e.click(); return { done: true, clicked: true, label: label(e).slice(0, 40) }; }
+      // Pas encore : les créneaux sont plus bas, ou derrière un bouton « Réserver ».
+      window.scrollBy(0, 600);
+      if (attempt === 5 || attempt === 14) {
+        var cta = find(/^(réserver|reserver|réserver un terrain|book|book a court|voir les créneaux|disponibilités|horaires)/i,
+                       function (t) { return !payRe.test(t) && t.length < 40; });
+        if (cta) { mark(cta); cta.click(); return { done: false, clicked: true }; }
+      }
       return { done: false };
     }
     if (step === 'duration') {
@@ -346,19 +369,23 @@ final class BookingAssistant: ObservableObject {
     return { done: true };
     """#
 
+    private var attempt = 0
+
     private func step(_ name: String, target: BookingTarget) async -> [String: Any] {
         guard let webView else { return [:] }
-        let args: [String: Any] = ["step": name, "time": target.time, "duration": target.duration ?? 0]
+        attempt += 1
+        let args: [String: Any] = ["step": name, "time": target.time, "duration": target.duration ?? 0, "attempt": attempt]
         return ((try? await webView.callAsyncJavaScript(Self.stepJS, arguments: args, contentWorld: .page)) as? [String: Any]) ?? [:]
     }
 
     /// Répète une étape jusqu'à ce qu'elle aboutisse (la page charge ses créneaux après l'affichage).
     private func wait(_ name: String, target: BookingTarget, seconds: Double) async -> [String: Any]? {
         let end = Date().addingTimeInterval(seconds)
+        attempt = 0
         while Date() < end, !Task.isCancelled {
             let r = await step(name, target: target)
             if r["done"] as? Bool == true { return r }
-            try? await Task.sleep(nanoseconds: 500_000_000)
+            try? await Task.sleep(nanoseconds: 350_000_000)
         }
         return nil
     }
@@ -370,10 +397,10 @@ final class BookingAssistant: ObservableObject {
         working = true
         status = "Assistant : je prépare \(target.time)…"
         task = Task {
-            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            try? await Task.sleep(nanoseconds: 600_000_000)
             _ = await step("consent", target: target)
             status = "Je touche le créneau de \(target.time)…"
-            guard await wait("time", target: target, seconds: 14) != nil else {
+            guard await wait("time", target: target, seconds: 18) != nil else {
                 finish("Je ne trouve pas \(target.time) sur la page : choisis-le toi-même.", done: false)
                 return
             }
@@ -397,9 +424,9 @@ final class BookingAssistant: ObservableObject {
                 if r["clicked"] as? Bool == true {
                     clicks += 1
                     if clicks >= 4 { break }
-                    try? await Task.sleep(nanoseconds: 1_500_000_000)
+                    try? await Task.sleep(nanoseconds: 900_000_000)
                 } else {
-                    try? await Task.sleep(nanoseconds: 700_000_000)
+                    try? await Task.sleep(nanoseconds: 400_000_000)
                 }
             }
             finish("Créneau choisi : termine la réservation sur la page.", done: true)

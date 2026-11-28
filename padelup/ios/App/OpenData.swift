@@ -61,6 +61,7 @@ final class ClubDirectory: ObservableObject {
             return all
         }.value
         for club in loadedClubs { insert(club) }
+        validateLinks()
         loaded = true
         totalCount = clubs.count
         revision += 1
@@ -287,14 +288,53 @@ final class ClubDirectory: ObservableObject {
         }
     }
 
+    /// Mots qui ne distinguent pas un club d'un autre.
+    nonisolated static let genericWords: Set<String> = ["padel", "club", "clubs", "de", "du", "des", "la", "le", "les", "the", "center", "centre",
+                                                       "sport", "sports", "and", "et", "complexe", "espace", "salle", "terrain", "terrains"]
+
+    nonisolated static func folded(_ s: String) -> String {
+        s.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current).lowercased()
+    }
+
+    /// Mots distinctifs du nom, dans l'ordre (« PadelBreak Lille Bondues » → padelbreak, lille, bondues).
+    nonisolated static func nameWords(_ s: String) -> [String] {
+        var seen = Set<String>()
+        return folded(s).split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
+            .filter { $0.count > 2 && !genericWords.contains($0) && seen.insert($0).inserted }
+    }
+
+    /// Deux noms désignent-ils le même club ? Le PREMIER mot distinctif de l'un doit se retrouver dans l'autre
+    /// (« PadelBreak » ≠ « PadelShot », même si les deux sont à Lille), ou bien deux mots distinctifs en commun.
     nonisolated static func similar(_ a: String, _ b: String) -> Bool {
-        func words(_ s: String) -> Set<String> {
-            let folded = s.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
-            let stop: Set<String> = ["padel", "club", "de", "du", "la", "le", "les", "the", "center", "centre", "sport", "sports"]
-            return Set(folded.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init).filter { $0.count > 2 && !stop.contains($0) })
+        let wa = nameWords(a), wb = nameWords(b)
+        guard let fa = wa.first, let fb = wb.first else { return false }
+        let sa = Set(wa), sb = Set(wb)
+        if sb.contains(fa) || sa.contains(fb) { return true }
+        // Noms écrits attachés ou séparés (« Padel Shot » / « PadelShot »).
+        let ja = folded(a).filter { $0.isLetter || $0.isNumber }, jb = folded(b).filter { $0.isLetter || $0.isNumber }
+        if (fb.count >= 5 && ja.contains(fb)) || (fa.count >= 5 && jb.contains(fa)) { return true }
+        return sa.intersection(sb).count >= 2
+    }
+
+    /// Rattachements Playtomic faits avec l'ancienne comparaison (un seul mot commun suffisait, souvent la ville) :
+    /// ceux dont le nom ne correspond pas à la page Playtomic sont défaits, et seront recherchés à nouveau.
+    private func validateLinks() {
+        let key = "playtomicLinkVersion"
+        guard UserDefaults.standard.integer(forKey: key) < 2 else { return }
+        var undone = 0
+        for (id, c) in clubs where c.source == .osm && c.playtomicTenantID != nil {
+            guard let slug = c.playtomicSlug, !slug.isEmpty else { continue }
+            if !Self.similar(c.name, slug.replacingOccurrences(of: "-", with: " ")) {
+                var fixed = c
+                fixed.playtomicTenantID = nil
+                fixed.playtomicSlug = nil
+                clubs[id] = fixed
+                undone += 1
+            }
         }
-        let wa = words(a), wb = words(b)
-        return !wa.isEmpty && !wa.isDisjoint(with: wb)
+        for k in UserDefaults.standard.dictionaryRepresentation().keys where k.hasPrefix("playtomicMiss.") { UserDefaults.standard.removeObject(forKey: k) }
+        UserDefaults.standard.set(2, forKey: key)
+        if undone > 0 { saveCache() }
     }
 
     // Les clubs vus en direct sont gardés en cache (l'app reste utile hors ligne).
