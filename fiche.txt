@@ -1,0 +1,18 @@
+BUNDLE_APP com.padelup.pince
+ok     identifiant déjà là : com.padelup.pince
+APP 6840329961 | Peekaclaw | com.padelup.pince | sku pince-001
+APP 6838298570 | Guide for GTA VI: Leonida | com.padelup.vicefold | sku GtaSix
+APP 6827349081 | Foldly : compteur de plis | com.padelup.clapet | sku clapet-001
+APP 6840055845 | PADELUP Neo | com.padelup.neo | sku padelup-neo
+APP 6832556606 | Foldboard | com.padelup.foldboard | sku foldboard
+APP 6838565149 | Allô Père Noël : appel magique | com.padelup.allonoel | sku allonoel
+APP 6837801236 | Twinfold – Dual Browser | com.padelup.twinfold | sku Twinfold
+APP 6836120890 | RetroFold: Pocket Console | com.padelup.retrofold | sku retrofold
+APP 6800102466 | PADELUP (FR) | com.padelup.padelup-new | sku com.padelup.padelup-new
+APP 6836207612 | Fold Widgets | com.padelup.foldwidgets | sku foldwidget-001
+APP 6836121157 | FoldFX: Hinge Sounds | com.padelup.foldfx | sku foldfx
+APP 6825605393 | Origamo: Folding Mini Games | com.padelup.plie | sku plie-001
+APP 6832373850 | Waffle Fold | com.padelup.waffle | sku com.padelup.waffle
+APP 6830173446 | Unlocked: Found Phones | com.padelup.unlocked | sku unlocked
+FICHE  ok 6840329961
+GROUPE Peekaclaw interne | interne
