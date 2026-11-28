@@ -147,6 +147,10 @@ enum Haptics {
     static func stop() { hit(rigid, 0.55) }
     /// Le manche relâché revient au centre.
     static func spring() { hit(light, 0.5); hit(soft, 0.3, after: 0.07) }
+    /// Une secousse de la pince ou d'un doudou, plus ou moins forte (0 à 1).
+    static func shake(_ strength: CGFloat) {
+        hit(strength > 0.6 ? medium : soft, 0.3 + 0.7 * strength)
+    }
     /// Le chariot tape le bord de la machine.
     static func bump() { hit(rigid, 0.9); hit(medium, 0.5, after: 0.06) }
     /// Le treuil qui tourne : un petit cran, répété tant que la pince bouge.
@@ -551,6 +555,8 @@ final class Game {
         case .bumped:
             say(.clack, volume: 0.3)
             Haptics.bump()
+        case .shake(let strength):
+            Haptics.shake(CGFloat(strength))
         case .restocked:
             say(.pop, volume: 0.6)
             Haptics.rain()
