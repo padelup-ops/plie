@@ -198,8 +198,9 @@ final class Game {
         owned = store.dictionary(forKey: "owned") as? [String: Int] ?? [:]
         soundOn = store.object(forKey: "soundOn") as? Bool ?? true
         musicOn = store.object(forKey: "musicOn") as? Bool ?? true
-        hapticsOn = store.object(forKey: "hapticsOn") as? Bool ?? true
-        Haptics.enabled = hapticsOn
+        let haptics = store.object(forKey: "hapticsOn") as? Bool ?? true
+        hapticsOn = haptics
+        Haptics.enabled = haptics
         depth = store.object(forKey: "depth") as? Int ?? 1
         introSeen = store.bool(forKey: "introSeen")
         if let last = store.string(forKey: "lastPrize") { lastPrize = Species(rawValue: last) }

@@ -53,7 +53,7 @@ jobs:
           set -o pipefail
           xcodebuild build -project pince/Pince.xcodeproj -scheme Pince -configuration Debug -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO 2>&1 | tee shots/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
-          grep -n -B2 -A8 -E "error:" shots/build.log | head -400 > shots/erreurs.txt || true
+          grep -n -B2 -A8 -E "error:" shots/build.log | cut -c1-400 | head -400 > shots/erreurs.txt || true
           grep -n -E "warning:" shots/build.log | grep "pince/Pince" | sort -u | head -80 > shots/avertissements.txt || true
           tail -n 60 shots/build.log > shots/fin-build.txt
           rm -f shots/build.log
