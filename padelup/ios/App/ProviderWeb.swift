@@ -300,20 +300,46 @@ final class BookingAssistant: ObservableObject {
     }
     function label(el) { return ((el.getAttribute && el.getAttribute('aria-label')) || el.innerText || el.value || '').replace(/\s+/g, ' ').trim(); }
     function mark(el) { try { el.scrollIntoView({ block: 'center' }); el.style.outline = '3px solid #D6F04A'; el.style.outlineOffset = '2px'; } catch (e) {} }
-    function find(re, ok) {
-      var els = document.querySelectorAll('button, a, input[type="submit"], input[type="button"], [role="button"], [role="option"], [role="radio"], [role="tab"], label, li, [tabindex]');
+    function clickable(el) {
+      var hops = 0;
+      while (el && el !== document.body && hops < 7) {
+        var st = window.getComputedStyle(el);
+        if (el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'button' || st.cursor === 'pointer' || el.onclick) return el;
+        el = el.parentElement; hops++;
+      }
+      return null;
+    }
+    var SEL = 'button, a, input[type="submit"], input[type="button"], [role="button"], [role="option"], [role="radio"], [role="tab"], label, li, [tabindex]';
+    function find(re, ok, wide) {
+      var els = document.querySelectorAll(wide ? SEL + ', div, span' : SEL);
       var best = null, bestLen = 1e9;
       for (var i = 0; i < els.length; i++) {
         var e = els[i];
         if (!visible(e) || e.disabled || e.getAttribute('aria-disabled') === 'true') continue;
         var t = label(e);
-        if (!t || t.length > 120 || !re.test(t)) continue;
-        if (ok && !ok(t)) continue;
+        if (!t || t.length > 160 || !re.test(t)) continue;
+        if (ok && !ok(t, e)) continue;
         if (t.length < bestLen) { best = e; bestLen = t.length; }
       }
       return best;
     }
-    var payRe = /(payer|paiement|payment|pay now|confirmer (la |ma )?réservation|confirm booking|réserver et payer|valider et payer|place order)/i;
+    function minutes(h, m) { return parseInt(h, 10) * 60 + parseInt(m, 10); }
+    // Paiement : un bouton qui annonce un paiement, ou une action finale avec un prix. Jamais touché par l'assistant.
+    var payWords = /(payer|paiement|payment|pay now|confirmer (la |ma )?réservation|confirm booking|réserver et payer|valider et payer|place order)/i;
+    function isPayButton(t, e) {
+      var tag = e ? e.tagName : '';
+      var btn = tag === 'BUTTON' || tag === 'INPUT' || (e && e.getAttribute('role') === 'button');
+      return btn && (payWords.test(t) || /^(réserver|confirmer|valider|book|continuer|reserve)\b.*\d+([.,]\d+)?\s*€/i.test(t) || /^\d+([.,]\d+)?\s*€\s*(réserver|payer)/i.test(t));
+    }
+    var tp = time.split(':');
+    var target = minutes(tp[0], tp[1]);
+    var reStart = new RegExp('^0?' + parseInt(tp[0], 10) + '\\s*[:hH]\\s*' + tp[1] + '(?!\\d)');
+    var reAny = new RegExp('(^|\\D)0?' + parseInt(tp[0], 10) + '\\s*[:hH]\\s*' + tp[1] + '(?!\\d)');
+    var reDur = null;
+    if (duration) {
+      var h = Math.floor(duration / 60), m = duration % 60;
+      reDur = new RegExp('(^|\\D)(' + duration + '\\s*min|' + (m === 0 ? (h + '\\s*h(?!\\s*\\d)') : (h + '\\s*h\\s*' + m)) + ')', 'i');
+    }
     if (step === 'consent') {
       var sels = ['#didomi-notice-agree-button', '#axeptio_btn_acceptAll', '#onetrust-accept-btn-handler', '[data-testid="uc-accept-all-button"]', '#tarteaucitronPersonalize2'];
       for (var k = 0; k < sels.length; k++) { var b = document.querySelector(sels[k]); if (b && visible(b)) { b.click(); return { done: true, clicked: true }; } }
@@ -322,51 +348,66 @@ final class BookingAssistant: ObservableObject {
       return { done: true, clicked: false };
     }
     if (step === 'time') {
-      var p = time.split(':');
-      var re = new RegExp('^0?' + parseInt(p[0], 10) + '\\s*[:hH]\\s*' + p[1] + '(?!\\d)');
-      var e = find(re, function (t) { return !payRe.test(t); });
+      // 1) Une option qui porte l'heure ET la durée (« 14:00 · 90 min · 36 € »).
+      var e = null;
+      if (reDur) e = find(reAny, function (t, el) { return reDur.test(t) && !isPayButton(t, el) && t.length < 80; }, true);
+      // 2) Un élément qui commence par l'heure.
+      if (!e) e = find(reStart, function (t, el) { return !isPayButton(t, el); });
+      // 3) L'heure affichée n'importe où : on remonte vers l'élément cliquable.
       if (!e && document.body) {
-        // L'heure affichée n'importe où (simples blocs) : on remonte vers l'élément cliquable le plus proche.
         var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
         var n;
         while ((n = walker.nextNode())) {
           var v = (n.nodeValue || '').trim();
-          if (v.length > 14 || !re.test(v)) continue;
-          var el = n.parentElement, hops = 0;
-          while (el && hops < 6) {
-            var st = window.getComputedStyle(el);
-            if (el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'button' || st.cursor === 'pointer' || el.onclick) break;
-            el = el.parentElement; hops++;
-          }
-          if (el && el !== document.body && visible(el)) { e = el; break; }
+          if (v.length > 14 || !reStart.test(v)) continue;
+          var el = clickable(n.parentElement);
+          if (el && visible(el)) { e = el; break; }
         }
       }
-      if (e) { mark(e); e.click(); return { done: true, clicked: true, label: label(e).slice(0, 40) }; }
-      // Pas encore : les créneaux sont plus bas, ou derrière un bouton « Réserver ».
+      if (e) { var ce = clickable(e) || e; mark(ce); ce.click(); return { done: true, clicked: true, both: !!reDur && reDur.test(label(e)), label: label(e).slice(0, 40) }; }
+      // 4) Playtomic liste d'abord les terrains (« 12 options · À partir de 04:30 jusqu'à 21:00 ») : on en ouvre un.
+      var rows = document.querySelectorAll('button, a, [role="button"], li, div');
+      var pick = null, fallback = null;
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        if (r.getAttribute('data-padelup-open') === '1' || !visible(r)) continue;
+        var t = label(r);
+        if (t.length > 160 || !/\d+\s*options?/i.test(t) || !/(partir de|from)\s*\d{1,2}[:h]\d{2}/i.test(t)) continue;
+        var rr = t.match(/(\d{1,2})[:h](\d{2})\D+(\d{1,2})[:h](\d{2})/);
+        var covers = rr ? (minutes(rr[1], rr[2]) <= target && target <= minutes(rr[3], rr[4])) : true;
+        // Le plus petit élément qui contient la ligne (et pas toute la liste).
+        if (covers && (!pick || label(pick).length > t.length)) pick = r;
+        if (!covers && (!fallback || label(fallback).length > t.length)) fallback = r;
+      }
+      var row = pick || fallback;
+      if (row) {
+        row.setAttribute('data-padelup-open', '1');
+        var cr = clickable(row) || row;
+        cr.setAttribute('data-padelup-open', '1');
+        mark(cr); cr.click();
+        return { done: false, expanded: true, label: label(row).slice(0, 40) };
+      }
       window.scrollBy(0, 600);
-      if (attempt === 5 || attempt === 14) {
+      if (attempt === 5 || attempt === 16) {
         var cta = find(/^(réserver|reserver|réserver un terrain|book|book a court|voir les créneaux|disponibilités|horaires)/i,
-                       function (t) { return !payRe.test(t) && t.length < 40; });
+                       function (t, el) { return !isPayButton(t, el) && t.length < 40; });
         if (cta) { mark(cta); cta.click(); return { done: false, clicked: true }; }
       }
       return { done: false };
     }
     if (step === 'duration') {
-      if (!duration) return { done: true };
-      var h = Math.floor(duration / 60), m = duration % 60;
-      var hours = m === 0 ? (h + '\\s*h(?!\\s*\\d)') : (h + '\\s*h\\s*' + m);
-      var re2 = new RegExp('(^|\\D)(' + duration + '\\s*min|' + hours + ')', 'i');
-      var e2 = find(re2, function (t) { return !payRe.test(t); });
-      if (e2) { mark(e2); e2.click(); return { done: true, clicked: true, label: label(e2).slice(0, 40) }; }
+      if (!reDur) return { done: true };
+      var e2 = find(reDur, function (t, el) { return !isPayButton(t, el) && t.length < 60; }, true);
+      if (e2) { var c2 = clickable(e2) || e2; mark(c2); c2.click(); return { done: true, clicked: true, label: label(e2).slice(0, 40) }; }
       return { done: false };
     }
     if (step === 'next') {
-      var pay = find(payRe);
+      var pay = find(/./, function (t, el) { return isPayButton(t, el); });
       if (pay) { mark(pay); return { done: true, final: true, label: label(pay).slice(0, 40) }; }
       var login = /(se connecter|connexion|log in|sign in|identifie)/i.test(document.body ? document.body.innerText.slice(0, 3000) : '') && /login|auth|signin|connexion/i.test(location.href);
       if (login) return { done: true, login: true };
       var go = find(/^(réserver|reserver|continuer|suivant|valider|choisir|sélectionner|book( now)?|reserve|continue|next|select)\b/i,
-                    function (t) { return !payRe.test(t) && t.length < 40; });
+                    function (t, el) { return !isPayButton(t, el) && t.length < 40; });
       if (go) { mark(go); go.click(); return { done: false, clicked: true, label: label(go).slice(0, 40) }; }
       return { done: false };
     }
@@ -405,12 +446,12 @@ final class BookingAssistant: ObservableObject {
             _ = await step("consent", target: target)
             stage = 1
             status = "Je touche le créneau de \(target.time)…"
-            guard await wait("time", target: target, seconds: 18) != nil else {
-                finish("Je ne trouve pas \(target.time) sur la page : choisis-le toi-même.", done: false)
+            guard let picked = await wait("time", target: target, seconds: 28) else {
+                finish("Je ne trouve pas \(target.time) sur la page : touche-le, puis termine ici.", done: false)
                 return
             }
             stage = 2
-            if let d = target.duration {
+            if let d = target.duration, picked["both"] as? Bool != true {
                 status = "Je choisis \(d) min…"
                 _ = await wait("duration", target: target, seconds: 5)
             }
@@ -448,9 +489,9 @@ final class BookingAssistant: ObservableObject {
         working = false
     }
 
-    func stop() {
+    func stop(_ reason: String = "Je te laisse la main : termine ici.") {
         task?.cancel()
-        if working { finish("Assistant arrêté : à toi de jouer.", done: false) }
+        if working { finish(reason, done: false) }
     }
 }
 
@@ -486,14 +527,14 @@ final class BookingPreparer: NSObject, ObservableObject, WKNavigationDelegate, W
         if target == nil { showPage = true }
         // Filet de sécurité : au bout de 40 s, on montre la page quoi qu'il arrive.
         timeout = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 40_000_000_000)
-            self?.reveal()
+            try? await Task.sleep(nanoseconds: 45_000_000_000)
+            self?.reveal(reason: "Je n'ai pas trouvé la suite à temps : termine ici, la page est prête.")
         }
     }
 
-    func reveal() {
+    func reveal(reason: String = "Je te laisse la main : termine ici.") {
         timeout?.cancel()
-        assistant.stop()
+        assistant.stop(reason)
         withAnimation(.snappy(duration: 0.35)) { showPage = true }
     }
 
