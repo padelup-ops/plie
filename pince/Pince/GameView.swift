@@ -17,9 +17,15 @@ struct GameView: View {
                     MachineView(game: game)
                     FloatingControls(height: size.height, insets: insets)
                 } else {
+                    // Sur un grand écran, le pupitre est dessiné plus gros.
+                    let k: CGFloat = min(size.width, size.height) >= 700 ? 1.4 : 1
+                    let panel = min(250 * k, max(190 * k, size.height * 0.27))
                     VStack(spacing: 0) {
                         MachineView(game: game)
-                        ControlPanel(height: min(250, max(190, size.height * 0.27)), bottomInset: insets.bottom)
+                        ControlPanel(height: panel / k, bottomInset: insets.bottom / k)
+                            .frame(width: size.width / k)
+                            .scaleEffect(k, anchor: .bottom)
+                            .frame(width: size.width, height: panel + insets.bottom, alignment: .bottom)
                     }
                 }
 
@@ -490,6 +496,7 @@ struct Modal<Content: View>: View {
                 .overlay(RoundedRectangle(cornerRadius: 30).strokeBorder(Color(hex: Tint.coral), lineWidth: 4))
                 .padding(.horizontal, 20)
                 .padding(.vertical, 24)
+                .scaleEffect(UIDevice.current.userInterfaceIdiom == .pad ? 1.35 : 1)
                 .transition(.scale(scale: 0.85).combined(with: .opacity))
         }
         .transition(.opacity)

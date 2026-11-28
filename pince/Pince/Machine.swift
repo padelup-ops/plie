@@ -173,6 +173,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     private var freezeOnLift = false
     private var restockIn: Float = -1
     private var tried = false
+    private var plain = false
 
     private let claw = Claw(dome: Tint.coral, trim: Tint.cream, face: true)
     private let cable = SCNNode()
@@ -226,6 +227,11 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         lock.unlock()
     }
 
+    /// Pour les essais : une caméra ordinaire à la place de la perspective « fenêtre ».
+    func usePlainCamera() {
+        lock.lock(); todo.append { $0.plain = true }; lock.unlock()
+    }
+
     /// Pour les captures : la pince va toute seule chercher le doudou de devant.
     func demo(freezeOnLift freeze: Bool) {
         lock.lock()
@@ -266,7 +272,14 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let ey = max(-reach, min(reach, eye.y * k * w.unitsPerMeter))
         cameraNode.simdPosition = SIMD3<Float>(ex, w.centerY + ey, ez)
 
-        let n = ez * 0.9, f = ez + 40
+        if plain {
+            // Vue ordinaire, sans perspective oblique : sert seulement à vérifier le décor.
+            cameraNode.camera?.fieldOfView = CGFloat(2 * atan(w.halfH / ez) * 180 / .pi)
+            return
+        }
+        // Le plan proche est tout près de l'œil, comme le fait ARKit : le moteur de rendu coupe sinon
+        // tout ce qui est plus près que deux fois cette distance.
+        let n: Float = 0.2, f: Float = 120
         let l = (-w.halfW - ex) * n / ez, r = (w.halfW - ex) * n / ez
         let b = (-w.halfH - ey) * n / ez, t = (w.halfH - ey) * n / ez
         var m = matrix_identity_float4x4
@@ -437,7 +450,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             let away = SIMD2<Float>(c.x - spot.x, c.z - spot.y)
             let d = simd_length(away)
             guard d > p.radius * 0.98, d < 0.26 + p.radius * 0.85, tips < c.y + p.radius * 0.6 else { continue }
-            let push = away / d * 5
+            // Assez fort pour vaincre le frottement du sol, pas plus.
+            let push = away / d * 11
             p.node.physicsBody?.applyForce(SCNVector3(push.x, 0, push.y), asImpulse: false)
         }
     }
@@ -462,7 +476,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             let away = SIMD2<Float>(c.x - spot.x, c.z - spot.y)
             let d = simd_length(away)
             if d > 0.01, d < 0.3 + p.radius * 0.7, c.y < headY {
-                let push = away / d * 0.5
+                let push = away / d * 0.9
                 p.node.physicsBody?.applyForce(SCNVector3(push.x, 0.25, push.y), asImpulse: true)
             }
         }

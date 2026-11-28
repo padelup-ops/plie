@@ -139,6 +139,8 @@ final class Game {
     let machine = Machine()
     let tracker = HeadTracker()
     private var active = true
+    /// Vrai pendant une mise en scène pour les captures : le point de vue est imposé, rien n'est enregistré.
+    private var staged = false
     private let store = UserDefaults.standard
 
     init() {
@@ -173,7 +175,7 @@ final class Game {
             introSeen = true
             store.set(true, forKey: "introSeen")
         }
-        if depth > 0 { tracker.start() }
+        if depth > 0, !staged { tracker.start() }
         Sound.loop(.music, on: musicOn && active, volume: 0.35)
     }
 
@@ -182,7 +184,7 @@ final class Game {
         machine.setStick(.zero)
         guard introSeen else { return }
         if on {
-            if depth > 0 { tracker.start() }
+            if depth > 0, !staged { tracker.start() }
         } else {
             tracker.stop()
             Sound.loop(.motor, on: false)
@@ -237,7 +239,7 @@ final class Game {
         if d == 0 {
             tracker.stop()
             machine.setEye(nil)
-        } else {
+        } else if !staged {
             tracker.start()
         }
         save()
@@ -294,6 +296,7 @@ final class Game {
     }
 
     private func save() {
+        guard !staged else { return }
         store.set(coins, forKey: "coins")
         store.set(owned, forKey: "owned")
         store.set(soundOn, forKey: "soundOn")
@@ -305,6 +308,7 @@ final class Game {
     #if DEBUG
     /// Mises en scène pour les captures d'écran (`-shot side`, `-shot grab`…). Rien n'est enregistré.
     private func stage(_ shot: String) {
+        staged = true
         introSeen = shot != "intro"
         coins = 240
         soundOn = false
@@ -316,6 +320,7 @@ final class Game {
         case "left": machine.setEye(SIMD3<Float>(-0.17, 0.05, 0.36))
         case "right": machine.setEye(SIMD3<Float>(0.17, 0.02, 0.36))
         case "high": machine.setEye(SIMD3<Float>(0.03, 0.2, 0.34))
+        case "plain": machine.usePlainCamera()
         case "grab":
             machine.setEye(SIMD3<Float>(-0.1, 0.07, 0.36))
             machine.demo(freezeOnLift: true)

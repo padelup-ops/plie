@@ -14,6 +14,10 @@ on:
         description: "Écrans à capturer"
         required: false
         default: "game left right high grab win collection all settings intro"
+      devices:
+        description: "Simulateurs (duo iphone ipad)"
+        required: false
+        default: "duo iphone ipad"
       lang:
         description: "Langue (fr ou en)"
         required: false
@@ -30,8 +34,10 @@ jobs:
     permissions:
       contents: write
     env:
-      ROUTES: ${{ inputs.routes || 'game left right high grab win collection all settings intro' }}
+      ROUTES: ${{ inputs.routes || 'game plain left right high grab win' }}
       LANG_CODE: ${{ inputs.lang || 'fr' }}
+      # Chaque simulateur met un bon quart d'heure à démarrer : on ne lance que ceux qu'on veut voir.
+      DEVICES: ${{ inputs.devices || 'iphone' }}
     steps:
       - uses: actions/checkout@v5
       - name: Choisir Xcode 27.1
@@ -89,9 +95,13 @@ jobs:
             done
             xcrun simctl shutdown "$UDID" || true
           }
-          capture duo "$(pick '^iPhone Duo')" "$ROUTES"
-          capture iphone "$(pick '^iPhone [0-9]+ Pro [|]')" "game left grab win collection intro"
-          capture ipad "$(pick '^iPad Pro.*11')" "game right grab settings"
+          for DEVICE in $DEVICES; do
+            case "$DEVICE" in
+              duo) capture duo "$(pick '^iPhone Duo')" "$ROUTES" ;;
+              iphone) capture iphone "$(pick '^iPhone [0-9]+ Pro [|]')" "$ROUTES" ;;
+              ipad) capture ipad "$(pick '^iPad Pro.*11')" "$ROUTES" ;;
+            esac
+          done
       - name: Publier
         if: always()
         env:
