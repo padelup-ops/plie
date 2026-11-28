@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "Peekaclaw";
+"NSCameraUsageDescription" = "The front camera follows the position of your head to draw the machine in 3D. No image is recorded or sent.";

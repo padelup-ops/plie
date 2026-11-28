@@ -1,0 +1,44 @@
+# PEEKACLAW (dossier « pince ») : une machine à pince en relief. La caméra avant suit la position de la tête et la perspective
+# se recalcule à chaque image, comme si l'écran était la vitre d'une vraie boîte. Projet généré par XcodeGen : `xcodegen generate` dans ce dossier.
+name: Pince
+options:
+  bundleIdPrefix: com.padelup
+  developmentLanguage: en
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+targets:
+  Pince:
+    type: application
+    platform: iOS
+    sources:
+      - path: Pince
+    info:
+      path: Pince/Info.plist
+      properties:
+        CFBundleDisplayName: Peekaclaw
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, fr]
+        CFBundleAllowMixedLocalizations: true
+        UILaunchScreen: {}
+        UIStatusBarHidden: true
+        UIViewControllerBasedStatusBarAppearance: false
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        ITSAppUsesNonExemptEncryption: false
+        NSCameraUsageDescription: The front camera follows the position of your head to draw the machine in 3D. No image is recorded or sent.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.padelup.pince
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    scheme: {}
