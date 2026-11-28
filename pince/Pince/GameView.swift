@@ -654,7 +654,7 @@ struct ControlBar: View {
                         DropControl(diameter: button, labelled: false)
                     } else {
                         VStack(spacing: 10) {
-                            DropControl(diameter: min(button, stick - 62), labelled: false)
+                            DropControl(diameter: min(button, height - menu - 102), labelled: false)
                             CoinSlot()
                         }
                     }
