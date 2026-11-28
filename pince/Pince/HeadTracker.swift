@@ -14,7 +14,8 @@ import simd
 /// 3. sans caméra du tout (refus), l'inclinaison de l'appareil.
 ///
 /// Dans tous les cas on rend la position du milieu des yeux en mètres dans le repère de l'écran : x vers la droite,
-/// y vers le haut, z = distance. La position mesurée au premier regard sert de point neutre « bien en face »,
+/// y vers le haut, z = distance. Le haut, c'est le visage qui le donne (voir `upright`) : on ne se fie pas à
+/// l'orientation annoncée par l'écran, qui trompe sur l'écran intérieur de l'iPhone Duo. La position mesurée au premier regard sert de point neutre « bien en face »,
 /// ce qui évite de devoir savoir où est la caméra sur chaque appareil.
 /// Le filtre « 1 € » : il lisse beaucoup quand la tête est immobile (plus de tremblement) et presque plus quand
 /// elle bouge (pas de retard). C'est le filtre habituel pour ce genre de suivi.
@@ -63,8 +64,6 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         didSet {
             guard oldValue != orientation else { return }
             recenter()
-            let now = orientation
-            captureQueue.async { self.applyRotation(now) }
         }
     }
 
@@ -125,7 +124,10 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
     private let capture = AVCaptureSession()
     private let captureQueue = DispatchQueue(label: "peekaclaw.head.camera")
     private let output = AVCaptureVideoDataOutput()
-    private let faceRequest = VNDetectFaceRectanglesRequest()
+    private let faceRequest = VNDetectFaceLandmarksRequest()
+    /// Vers où pointe le haut du visage dans l'image de la caméra : 0 vers le haut, 1 vers la droite, 2 vers le bas,
+    /// 3 vers la gauche. C'est ce qui dit comment l'appareil est tenu.
+    private var quarter = 0
     private var configured = false
     /// La focale, en « grands côtés d'image » : 0,5 / tan(champ / 2).
     private var focal: Float = 0.87
@@ -243,6 +245,36 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         onEye?(eye)
     }
 
+    /// Remet d'aplomb une position mesurée dans l'image de la caméra, et la donne dans le repère de l'écran.
+    ///
+    /// Le joueur tient l'écran droit devant son visage : la direction « menton vers front » est donc le haut de l'écran.
+    /// On tourne la mesure d'autant de quarts de tour qu'il faut, sans rien demander à l'orientation de l'interface.
+    /// Reste le sens gauche-droite : la caméra regarde le joueur, ce qui est à sa droite à elle est à gauche de l'écran.
+    private func upright(_ p: SIMD2<Float>, faceUp: SIMD2<Float>) -> SIMD2<Float> {
+        let length = simd_length(faceUp)
+        if length > 0.0001 {
+            let u = faceUp / length
+            let now = abs(u.y) >= abs(u.x) ? (u.y > 0 ? 0 : 2) : (u.x > 0 ? 1 : 3)
+            // On ne change de quart de tour que si c'est net : une tête penchée ne doit pas faire basculer la vue.
+            let along: Float
+            switch quarter {
+            case 0: along = u.y
+            case 1: along = u.x
+            case 2: along = -u.y
+            default: along = -u.x
+            }
+            if now != quarter, along < 0.45 { quarter = now }
+        }
+        let turned: SIMD2<Float>
+        switch quarter {
+        case 0: turned = p
+        case 1: turned = SIMD2<Float>(-p.y, p.x)
+        case 2: turned = SIMD2<Float>(-p.x, -p.y)
+        default: turned = SIMD2<Float>(p.y, -p.x)
+        }
+        return SIMD2<Float>(-turned.x, turned.y)
+    }
+
     private func startCameraTracking() {
         if ARFaceTrackingConfiguration.isSupported, !prefersCamera { startFace() } else { startCamera() }
     }
@@ -272,17 +304,17 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
             feed(nil)
             return
         }
-        // Le milieu des deux yeux, d'abord dans le repère du visage, puis dans celui du monde.
+        // Le visage dans le repère de la caméra elle-même, sans se fier à l'orientation annoncée par l'écran
+        // (l'écran intérieur de l'iPhone Duo en annonce une qui ne correspond pas à sa caméra).
+        let local = simd_inverse(frame.camera.transform) * face.transform
+        // Le milieu des deux yeux, et la direction « menton vers front ».
         let mid = (face.leftEyeTransform.columns.3 + face.rightEyeTransform.columns.3) * 0.5
-        let world = face.transform * SIMD4<Float>(mid.x, mid.y, mid.z, 1)
-        // Repère de la caméra, tourné comme l'interface. Avec la caméra avant, ARKit donne un monde « en miroir »
-        // (c'est ce qui lui permet de dessiner par-dessus l'image retournée) : x grandit vers la droite de l'écran.
-        // C'est aussi ce que fait TheParallaxView, le projet de référence de cette technique, qui inverse x pour
-        // retrouver le monde réel.
-        let view = frame.camera.viewMatrix(for: orientation) * world
-        let head = SIMD3<Float>(view.x, view.y, abs(view.z))
-        guard head.z > 0.1, head.z < 1.5 else { return }
-        feed(head)
+        let eyes = local * SIMD4<Float>(mid.x, mid.y, mid.z, 1)
+        let up = SIMD2<Float>(local.columns.1.x, local.columns.1.y)
+        let distance = abs(eyes.z)
+        guard distance > 0.1, distance < 1.5 else { return }
+        let seen = upright(SIMD2<Float>(eyes.x, eyes.y), faceUp: up)
+        feed(SIMD3<Float>(seen.x, seen.y, distance))
     }
 
     func session(_ session: ARSession, didFailWithError error: Error) {
@@ -299,14 +331,13 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         tune(calm: 1.2, lively: 22)
         recenter()
         set(.camera)
-        let now = orientation
         captureQueue.async {
             if !self.configured { self.configured = self.configureCapture() }
             guard self.configured else {
                 DispatchQueue.main.async { if self.running, self.mode == .camera { self.startTilt() } }
                 return
             }
-            self.applyRotation(now)
+            self.keepRaw()
             if !self.capture.isRunning { self.capture.startRunning() }
         }
     }
@@ -329,44 +360,51 @@ final class HeadTracker: NSObject, ARSessionDelegate, AVCaptureVideoDataOutputSa
         return true
     }
 
-    /// L'image arrive droite et en miroir, comme dans une glace : ce qui est à droite dans l'image est à droite de l'écran.
+    /// L'image est prise telle que le capteur la voit : ni tournée, ni retournée. C'est le visage qui dira où est le haut.
     /// Sur la file de la caméra.
-    private func applyRotation(_ interface: UIInterfaceOrientation) {
-        guard let connection = output.connection(with: .video) else { return }
-        if connection.isVideoMirroringSupported {
-            connection.automaticallyAdjustsVideoMirroring = false
-            connection.isVideoMirrored = true
-        }
-        if connection.isVideoOrientationSupported {
-            switch interface {
-            case .landscapeLeft: connection.videoOrientation = .landscapeLeft
-            case .landscapeRight: connection.videoOrientation = .landscapeRight
-            case .portraitUpsideDown: connection.videoOrientation = .portraitUpsideDown
-            default: connection.videoOrientation = .portrait
-            }
-        }
+    private func keepRaw() {
+        guard let connection = output.connection(with: .video), connection.isVideoMirroringSupported else { return }
+        connection.automaticallyAdjustsVideoMirroring = false
+        connection.isVideoMirrored = false
+    }
+
+    private static func middle(_ points: [CGPoint]) -> SIMD2<Float>? {
+        guard !points.isEmpty else { return nil }
+        var sum = SIMD2<Float>(0, 0)
+        for p in points { sum += SIMD2<Float>(Float(p.x), Float(p.y)) }
+        return sum / Float(points.count)
     }
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixels = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         try? VNImageRequestHandler(cvPixelBuffer: pixels, orientation: .up, options: [:]).perform([faceRequest])
-        let width = Float(CVPixelBufferGetWidth(pixels)), height = Float(CVPixelBufferGetHeight(pixels))
-        var head: SIMD3<Float>?
-        // Le plus grand visage de l'image : celui du joueur.
-        if let box = (faceRequest.results ?? []).map({ $0.boundingBox }).max(by: { $0.width < $1.width }) {
-            let focalPixels = focal * max(width, height)
-            let facePixels = Float(box.width) * width
-            if facePixels > 12 {
-                // Un visage fait à peu près 15 cm de large : sa taille dans l'image donne la distance.
-                let distance = max(0.15, min(1.4, focalPixels * 0.155 / facePixels))
-                let x = (Float(box.midX) - 0.5) * width / focalPixels * distance
-                let y = (Float(box.midY) - 0.5) * height / focalPixels * distance
-                head = SIMD3<Float>(x, y, distance)
+        let size = CGSize(width: CVPixelBufferGetWidth(pixels), height: CVPixelBufferGetHeight(pixels))
+        let focalPixels = focal * Float(max(size.width, size.height))
+        var found: (at: SIMD3<Float>, up: SIMD2<Float>)?
+        // Le plus grand visage de l'image : celui du joueur. On y repère les deux yeux et la bouche.
+        if let face = (faceRequest.results ?? []).max(by: { $0.boundingBox.width < $1.boundingBox.width }),
+           let marks = face.landmarks,
+           let left = HeadTracker.middle(marks.leftEye?.pointsInImage(imageSize: size) ?? []),
+           let right = HeadTracker.middle(marks.rightEye?.pointsInImage(imageSize: size) ?? []),
+           let mouth = HeadTracker.middle(marks.outerLips?.pointsInImage(imageSize: size) ?? []) {
+            let eyes = (left + right) / 2
+            let apart = simd_distance(left, right)
+            if apart > 6 {
+                // Les yeux sont écartés de 6,3 cm en moyenne : leur écart dans l'image donne la distance.
+                let distance = max(0.15, min(1.4, focalPixels * 0.063 / apart))
+                let centre = SIMD2<Float>(Float(size.width), Float(size.height)) / 2
+                let at = (eyes - centre) / focalPixels * distance
+                found = (SIMD3<Float>(at.x, at.y, distance), eyes - mouth)
             }
         }
         DispatchQueue.main.async { [weak self] in
             guard let self, self.running, self.mode == .camera else { return }
-            self.feed(head)
+            guard let found else {
+                self.feed(nil)
+                return
+            }
+            let seen = self.upright(SIMD2<Float>(found.at.x, found.at.y), faceUp: found.up)
+            self.feed(SIMD3<Float>(seen.x, seen.y, found.at.z))
         }
     }
 

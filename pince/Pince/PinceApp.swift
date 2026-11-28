@@ -200,6 +200,9 @@ struct Prize: Equatable {
 @Observable
 final class Game {
     static let cost = 10
+    /// Où sont rangés les réglages du relief faits à la main. Le nom a changé quand la mesure a changé de repère :
+    /// les anciens réglages ne valaient plus.
+    static let tuningKey = "tuning3"
     static let gift = 60
 
     var coins: Int
@@ -412,13 +415,11 @@ final class Game {
     func setScreen(_ key: String, inner: Bool) {
         guard key != screenKey else { return }
         screenKey = key
-        let saved = (store.dictionary(forKey: "tuning") as? [String: [Int]])?[key]
+        // Le suivi se redresse tout seul d'après le visage : par défaut il n'y a rien à tourner, quel que soit l'écran.
+        // Un réglage fait à la main (« Régler le relief ») garde la priorité.
+        let saved = (store.dictionary(forKey: Game.tuningKey) as? [String: [Int]])?[key]
         if let saved, saved.count == 3 {
             tracker.mapping = HeadTracker.Mapping(swapped: saved[0] == 1, signX: Float(saved[1]), signY: Float(saved[2]))
-        } else if inner {
-            // Constaté sur l'appareil : avec la caméra intérieure, lever la tête faisait tourner la vue vers la droite
-            // et aller à droite la faisait monter. Les deux axes sont échangés ; on les remet dans l'ordre.
-            tracker.mapping = HeadTracker.Mapping(swapped: true, signX: 1, signY: 1)
         } else {
             tracker.mapping = HeadTracker.Mapping()
         }
@@ -465,9 +466,9 @@ final class Game {
         }
         tracker.mapping = mapping
         tracker.recenter(onRaw: tuningPoints[0])
-        var all = store.dictionary(forKey: "tuning") as? [String: [Int]] ?? [:]
+        var all = store.dictionary(forKey: Game.tuningKey) as? [String: [Int]] ?? [:]
         all[screenKey] = [mapping.swapped ? 1 : 0, Int(mapping.signX), Int(mapping.signY)]
-        store.set(all, forKey: "tuning")
+        store.set(all, forKey: Game.tuningKey)
         tuningStep = nil
         say(.win, volume: 0.6)
         Haptics.success()
