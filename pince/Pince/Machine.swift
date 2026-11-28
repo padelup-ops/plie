@@ -42,8 +42,49 @@ final class Claw {
 
     let node = SCNNode()
     private var swings: [SCNNode] = []
+    /// Les trois griffes ensemble.
     var angle: Float = Claw.open {
         didSet { for s in swings { s.eulerAngles.z = angle } }
+    }
+    /// Chaque griffe à son angle : celle de derrière, puis les deux de devant.
+    var angles: [Float] = [Claw.open, Claw.open, Claw.open] {
+        didSet { for (s, a) in zip(swings, angles) { s.eulerAngles.z = a } }
+    }
+
+    // La forme d'une griffe, dans son plan : le coude, puis le bout, depuis l'articulation.
+    private static let elbow = SIMD2<Float>(0.075, -0.16)
+    private static let tip = SIMD2<Float>(0, -0.34)
+
+    /// La direction de la griffe `k`, vue de dessus.
+    static func heading(_ k: Int) -> Float { -Float.pi / 2 + Float(k) * 2 * .pi / 3 }
+
+    private static func distance(_ p: SIMD2<Float>, _ a: SIMD2<Float>, _ b: SIMD2<Float>) -> Float {
+        let ab = b - a
+        let t = max(0, min(1, simd_dot(p - a, ab) / simd_length_squared(ab)))
+        return simd_distance(p, a + ab * t)
+    }
+
+    /// Jusqu'où la griffe `k` peut se refermer avant de buter sur une boule de rayon `radius`, centrée en `center`
+    /// (dans le repère de la pince). C'est ce qui fait que les griffes épousent le doudou au lieu de le traverser :
+    /// on referme pas à pas, et on s'arrête au contact, en appuyant un tout petit peu dans la peluche.
+    func contactAngle(_ k: Int, center: SIMD3<Float>, radius: Float) -> Float {
+        let phi = Claw.heading(k)
+        let d = center - SIMD3<Float>(0.1 * cos(phi), -0.05, 0.1 * sin(phi))
+        // Le centre de la boule dans le plan de la griffe (vers l'extérieur, vers le haut), et son écart à ce plan.
+        let c = SIMD2<Float>(d.x * cos(phi) + d.z * sin(phi), d.y)
+        let off = -d.x * sin(phi) + d.z * cos(phi)
+        var a = Claw.open
+        while a > Claw.shut {
+            let next = a - 0.012
+            let sn = sin(next), cs = cos(next)
+            let e = SIMD2<Float>(Claw.elbow.x * cs - Claw.elbow.y * sn, Claw.elbow.x * sn + Claw.elbow.y * cs)
+            let t = SIMD2<Float>(Claw.tip.x * cs - Claw.tip.y * sn, Claw.tip.x * sn + Claw.tip.y * cs)
+            let arm = min(Claw.distance(c, SIMD2<Float>(0, 0), e), Claw.distance(c, e, t))
+            let pad = simd_distance(c, t)
+            if (arm * arm + off * off).squareRoot() < radius + 0.008 || (pad * pad + off * off).squareRoot() < radius + 0.018 { break }
+            a = next
+        }
+        return a
     }
 
     init(dome: UInt32, trim: UInt32, face: Bool) {
@@ -87,7 +128,7 @@ final class Claw {
         let rubber = Paint.gloss(trim)
         for k in 0..<3 {
             // Une griffe derrière, deux devant : le visage du doudou reste visible.
-            let phi = -Float.pi / 2 + Float(k) * 2 * .pi / 3
+            let phi = Claw.heading(k)
             let pivot = SCNNode()
             pivot.simdPosition = SIMD3<Float>(0.1 * cos(phi), -0.05, 0.1 * sin(phi))
             pivot.eulerAngles.y = -phi
@@ -177,8 +218,22 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     private var eye = SIMD3<Float>(0, 0, 0.4)
     private var spot = Box.home
     private var headY = Box.restY
-    private var prongs = Claw.open
+    private var prongAngles: [Float] = [Claw.open, Claw.open, Claw.open]
     private var prongGoal = Claw.open
+    /// Le balancement de la pince au bout de son câble : deux angles (vers la droite, vers le fond) et leur vitesse.
+    private var swing = SIMD2<Float>(0, 0)
+    private var swingSpeed = SIMD2<Float>(0, 0)
+    private var lastSpot = Box.home
+    private var lastSpotSpeed = SIMD2<Float>(0, 0)
+    private var cableLength: Float = 0.3
+    /// Où se trouve vraiment la pince, vue de dessus : sous le chariot, plus le balancement.
+    private var aim = Box.home
+    /// La vitesse du treuil, qui démarre en douceur.
+    private var winchSpeed: Float = 0
+    /// Depuis combien de temps le doudou est en train de glisser des griffes. `nil` : il tient.
+    private var slipping: Float?
+    /// Le doudou que les griffes ont seulement effleuré : il sursaute quand elles se referment.
+    private var grazed: Plush?
     private var plushes: [Plush] = []
     private var held: Plush?
     /// Le dernier doudou gagné, posé dans le bac.
@@ -260,6 +315,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             if let target = m.plushes.last {
                 let p = target.node.simdPosition
                 m.spot = SIMD2<Float>(p.x, p.z)
+                m.lastSpot = m.spot
+                m.aim = m.spot
             }
         }
         wantDrop = true
@@ -339,6 +396,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             }
             if drop {
                 phase = .descending
+                winchSpeed = 0.15
                 emit(.busy(true))
             } else if restockIn >= 0 {
                 restockIn -= dt
@@ -347,7 +405,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
 
         case .descending:
             moving = .down
-            headY -= 0.95 * dt
+            winchSpeed = min(0.95, winchSpeed + 3.5 * dt)
+            headY -= winchSpeed * dt
             shove(dt)
             let stop = stopHeight()
             if headY <= stop {
@@ -357,22 +416,34 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
                 tried = false
                 prongGoal = Claw.shut
                 emit(.clack)
+                seize()
             }
 
         case .closing:
+            // Les griffes se referment : sur le doudou jusqu'au contact, ou dans le vide.
             timer += dt
-            if timer > 0.2, !tried {
+            if timer > 0.22, !tried {
                 tried = true
-                grab()
+                jostle()
+                if held != nil {
+                    emit(.grabbed)
+                } else {
+                    grazed?.node.physicsBody?.applyForce(SCNVector3(0, 1.1, 0), asImpulse: true)
+                    emit(.missed)
+                }
+                grazed = nil
             }
-            if timer > 0.55 {
+            if timer > 0.62 {
                 phase = .ascending
                 liftFrom = headY
+                winchSpeed = 0
             }
 
         case .ascending:
             moving = .up
-            headY = min(Box.restY, headY + 0.9 * dt)
+            // Le treuil prend de la vitesse : on sent le poids au démarrage.
+            winchSpeed = min(0.9, winchSpeed + 2.6 * dt)
+            headY = min(Box.restY, headY + winchSpeed * dt)
             let done = (headY - liftFrom) / max(0.01, Box.restY - liftFrom)
             if held != nil, done >= slipAt { slip() }
             if freezeOnLift, done > 0.55 {
@@ -425,14 +496,41 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             emit(.motor(moving))
         }
 
-        prongs += (prongGoal - prongs) * (1 - exp(-dt * 16))
-        claw.angle = prongs
+        sway(dt)
         place()
 
         if let p = held {
-            let goal = SIMD3<Float>(spot.x, headY - 0.115 - p.radius, spot.y)
-            p.node.simdPosition += (goal - p.node.simdPosition) * (1 - exp(-dt * 20))
+            // Le doudou est porté par la pince : il suit ses mouvements et son balancement. Pendant que les griffes
+            // se referment, elles le ramènent doucement vers le centre ; ensuite il est tenu ferme.
+            var grip = SIMD3<Float>(0, -0.115 - p.radius, 0)
+            var tilt = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 0, 1))
+            if let t = slipping {
+                // La prise lâche : il s'affaisse entre les griffes, penche, puis tombe.
+                let k = min(1, t / 0.45)
+                grip.y -= 0.2 * k * k
+                tilt = simd_quatf(angle: 0.55 * k, axis: SIMD3<Float>(0, 0, 1))
+                slipping = t + dt
+            }
+            let goal = claw.node.simdConvertPosition(grip, to: nil)
+            let pull: Float = phase == .closing ? 9 : 24
+            p.node.simdPosition += (goal - p.node.simdPosition) * (1 - exp(-dt * pull))
+            p.node.simdOrientation = simd_slerp(p.node.simdOrientation, claw.node.simdOrientation * tilt, 1 - exp(-dt * 14))
+            if let t = slipping, t >= 0.45 {
+                slipping = nil
+                release(p)
+            }
         }
+
+        // Les griffes : ouvertes, fermées dans le vide, ou refermées jusqu'au contact du doudou qu'elles tiennent.
+        var goals = [prongGoal, prongGoal, prongGoal]
+        if let p = held, prongGoal != Claw.open {
+            let center = claw.node.simdConvertPosition(p.node.simdPosition, from: nil)
+            for k in 0..<3 { goals[k] = claw.contactAngle(k, center: center, radius: p.radius) }
+        }
+        let snap: Float = phase == .closing ? 10 : 16
+        for k in 0..<3 { prongAngles[k] += (goals[k] - prongAngles[k]) * (1 - exp(-dt * snap)) }
+        claw.angles = prongAngles
+
         for p in plushes { p.sway(dt) }
 
         // Un doudou tombé dans la trappe est gagné, qu'il ait été porté ou simplement poussé.
@@ -502,20 +600,50 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
 
     /// Range la pince, le câble et le chariot à leur place.
     private func place() {
-        claw.node.simdPosition = SIMD3<Float>(spot.x, headY, spot.y)
         carriage.simdPosition = SIMD3<Float>(spot.x, Box.railY - 0.03, spot.y)
         bridge.simdPosition = SIMD3<Float>(0, Box.railY, spot.y)
-        let top = Box.railY - 0.06, bottom = headY + 0.16
-        let length = max(0.01, top - bottom)
-        cable.simdPosition = SIMD3<Float>(spot.x, (top + bottom) / 2, spot.y)
+        // La pince pend sous le chariot, dans l'axe du câble.
+        let top = SIMD3<Float>(spot.x, Box.railY - 0.06, spot.y)
+        let head = SIMD3<Float>(aim.x, headY, aim.y)
+        let down = simd_normalize(head - top)
+        let hang = simd_quatf(from: SIMD3<Float>(0, -1, 0), to: down)
+        claw.node.simdPosition = head
+        claw.node.simdOrientation = hang
+        let stem = head - down * 0.16
+        let length = max(0.01, simd_distance(top, stem))
+        cable.simdPosition = (top + stem) / 2
+        cable.simdOrientation = hang
         cable.simdScale = SIMD3<Float>(1, length, 1)
 
-        let overHole = spot.x > Box.holeMinX && spot.x < Box.holeMaxX && spot.y > Box.holeMinZ && spot.y < Box.holeMaxZ
+        let overHole = aim.x > Box.holeMinX && aim.x < Box.holeMaxX && aim.y > Box.holeMinZ && aim.y < Box.holeMaxZ
         clawShadow.isHidden = overHole
-        clawShadow.simdPosition = SIMD3<Float>(spot.x, 0.005, spot.y)
+        clawShadow.simdPosition = SIMD3<Float>(aim.x, 0.005, aim.y)
         let spread: Float = 0.42 + headY * 0.12
         clawShadow.simdScale = SIMD3<Float>(spread, spread, 1)
         clawShadow.opacity = CGFloat(max(0.25, 1 - headY * 0.42))
+    }
+
+    /// Le balancement : un pendule. Chaque à-coup du chariot le lance, la pesanteur le ramène, et il s'amortit.
+    /// Plus le câble est long, plus il est lent.
+    private func sway(_ dt: Float) {
+        let length = max(0.3, Box.railY - 0.06 - headY)
+        // Quand le câble s'allonge, le même élan fait un angle plus petit.
+        let stretch = pow(cableLength / length, 0.75)
+        swing *= stretch
+        swingSpeed *= stretch
+        cableLength = length
+        let speed = (spot - lastSpot) / dt
+        var jolt = speed - lastSpotSpeed
+        if simd_length(jolt) > 1.2 { jolt = simd_normalize(jolt) * 1.2 }
+        swingSpeed -= jolt / length * 0.36
+        lastSpot = spot
+        lastSpotSpeed = speed
+        // Posée sur un doudou ou sur le sol, la pince ne se balance plus.
+        let damping: Float = phase == .closing ? 16 : 2.4
+        swingSpeed += (swing * (-7 / length) - swingSpeed * damping) * dt
+        swing += swingSpeed * dt
+        swing = simd_clamp(swing, SIMD2<Float>(-0.38, -0.38), SIMD2<Float>(0.38, 0.38))
+        aim = spot + SIMD2<Float>(sin(swing.x), sin(swing.y)) * length
     }
 
     /// Jusqu'où la pince peut descendre : le sol, ou le dessus du doudou qui est sous elle.
@@ -523,7 +651,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         var stop: Float = 0.37
         for p in plushes {
             let c = p.position
-            let d = simd_length(SIMD2<Float>(c.x - spot.x, c.z - spot.y))
+            let d = simd_length(SIMD2<Float>(c.x - aim.x, c.z - aim.y))
             if d < p.radius * 0.98 {
                 stop = max(stop, c.y + (p.radius * p.radius - d * d).squareRoot() * 0.95 + 0.115)
             }
@@ -536,7 +664,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let tips = headY - 0.35
         for p in plushes {
             let c = p.position
-            let away = SIMD2<Float>(c.x - spot.x, c.z - spot.y)
+            let away = SIMD2<Float>(c.x - aim.x, c.z - aim.y)
             let d = simd_length(away)
             guard d > p.radius * 0.98, d < 0.26 + p.radius * 0.85, tips < c.y + p.radius * 0.6 else { continue }
             // Assez fort pour vaincre le frottement du sol, pas plus.
@@ -545,14 +673,15 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         }
     }
 
-    /// Les griffes se referment. Tout se joue sur la précision : bien centré, le doudou est tenu jusqu'au bout ;
-    /// un peu de travers, il glisse en route ; trop loin, la pince ne fait que le chatouiller.
-    private func grab() {
+    /// La pince vient de se poser : on regarde ce qu'elle a sous elle. Tout se joue sur la précision : bien centré,
+    /// le doudou est tenu jusqu'au bout ; un peu de travers, il glisse en route ; trop loin, la pince ne fait que
+    /// le chatouiller. S'il est pris, les griffes vont se refermer sur lui et le ramener au centre.
+    private func seize() {
         var best: Plush?
         var bestOffset: Float = 10
         for p in plushes {
             let c = p.position
-            let d = simd_length(SIMD2<Float>(c.x - spot.x, c.z - spot.y))
+            let d = simd_length(SIMD2<Float>(c.x - aim.x, c.z - aim.y))
             guard d < p.radius * 0.98 else { continue }
             let contact = c.y + (p.radius * p.radius - d * d).squareRoot() * 0.95 + 0.115
             if abs(contact - headY) < 0.07, d / p.radius < bestOffset {
@@ -560,42 +689,44 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
                 bestOffset = d / p.radius
             }
         }
-        for p in plushes where p !== best {
+        grazed = nil
+        slipping = nil
+        guard let p = best else { return }
+        let quality = 1 - bestOffset
+        if quality < 0.2 {
+            grazed = p
+            return
+        }
+        held = p
+        p.node.physicsBody = nil
+        // 2 : ne glisse jamais. Entre 0 et 1 : glisse pendant la montée. Entre 1 et 1,25 : pendant le retour.
+        slipAt = quality >= 0.5 ? 2 : 0.2 + (quality - 0.2) / 0.3
+    }
+
+    /// En se refermant, les griffes bousculent un peu les doudous voisins.
+    private func jostle() {
+        for p in plushes where p !== held {
             let c = p.position
-            let away = SIMD2<Float>(c.x - spot.x, c.z - spot.y)
+            let away = SIMD2<Float>(c.x - aim.x, c.z - aim.y)
             let d = simd_length(away)
             if d > 0.01, d < 0.3 + p.radius * 0.7, c.y < headY {
                 let push = away / d * 0.9
                 p.node.physicsBody?.applyForce(SCNVector3(push.x, 0.25, push.y), asImpulse: true)
             }
         }
-        guard let p = best else {
-            emit(.missed)
-            return
-        }
-        let quality = 1 - bestOffset
-        if quality < 0.2 {
-            p.node.physicsBody?.applyForce(SCNVector3(0, 1.1, 0), asImpulse: true)
-            emit(.missed)
-            return
-        }
-        held = p
-        p.node.physicsBody = nil
-        prongGoal = Claw.hold(p.radius)
-        // 2 : ne glisse jamais. Entre 0 et 1 : glisse pendant la montée. Entre 1 et 1,25 : pendant le retour.
-        slipAt = quality >= 0.5 ? 2 : 0.2 + (quality - 0.2) / 0.3
-        emit(.grabbed)
     }
 
+    /// La prise n'était pas assez bonne : le doudou commence à glisser. Il tombera dans un instant.
     private func slip() {
-        guard let p = held else { return }
-        prongGoal = Claw.shut
-        release(p)
+        guard held != nil, slipping == nil else { return }
+        slipping = 0
         emit(.slipped)
     }
 
     private func release(_ p: Plush) {
         held = nil
+        slipping = nil
+        p.node.simdOrientation = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 1, 0))
         p.node.physicsBody = p.makeBody()
     }
 
