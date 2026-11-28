@@ -2,12 +2,6 @@
 name: Peekaclaw - captures
 
 on:
-  push:
-    branches: ["claude/**"]
-    paths:
-      - "pince/Pince/**"
-      - "pince/project.yml"
-      - ".github/workflows/pince-shots.yml"
   workflow_dispatch:
     inputs:
       routes:
@@ -34,10 +28,10 @@ jobs:
     permissions:
       contents: write
     env:
-      ROUTES: ${{ inputs.routes || 'game left grab win collection settings intro' }}
+      ROUTES: ${{ inputs.routes || 'game left right high grab win collection all settings intro' }}
       LANG_CODE: ${{ inputs.lang || 'fr' }}
       # Chaque simulateur met un bon quart d'heure à démarrer : on ne lance que ceux qu'on veut voir.
-      DEVICES: ${{ inputs.devices || 'iphone ipad' }}
+      DEVICES: ${{ inputs.devices || 'duo iphone ipad' }}
     steps:
       - uses: actions/checkout@v5
       - name: Choisir Xcode 27.1
