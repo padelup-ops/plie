@@ -291,7 +291,8 @@ struct FreeNowBlock: View {
         let s = g.slots.first { duration == nil || $0.duration == duration } ?? g.first
         // La page s'ouvre déjà connectée, et l'assistant touche l'heure choisie et la durée à ta place.
         let target = BookingTarget(time: g.time, duration: duration ?? (s.duration > 0 ? s.duration : nil), direct: DirectPay(slot: s),
-                                   start: s.start, clubName: club.displayName, court: s.courtName, price: s.priceLabel, timezone: s.timezone)
+                                   start: s.start, clubName: club.displayName, court: s.courtName, price: s.priceLabel, timezone: s.timezone,
+                                   amount: s.price, currency: s.currency)
         if s.provider == .playtomic {
             let url = PlaytomicWeb.bookingURL(slug: club.playtomicSlug, tenantID: s.clubID, day: s.start, timezone: s.timezone)
             router.sheet = .booking(BookingRequest(url: url, target: target))

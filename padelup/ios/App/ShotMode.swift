@@ -66,6 +66,22 @@ enum ShotMode {
         ]
     }
 
+    /// Captures : une réservation payée (demain 19:30, 90 min, 36 €) pour l'écran de confirmation.
+    static func demoConfirmed() -> BookingTarget {
+        let cal = Calendar.current
+        let day = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: Date())) ?? Date()
+        let start = cal.date(bySettingHour: 19, minute: 30, second: 0, of: day) ?? day
+        return BookingTarget(time: "19:30", duration: 90, start: start, clubName: demoClubs.first?.displayName ?? "Club",
+                             court: "Terrain 2", price: "36 €", amount: 36)
+    }
+
+    static func demoReminders(for t: BookingTarget) -> [Date] {
+        guard let start = t.start else { return [] }
+        let cal = Calendar.current
+        let eve = cal.date(bySettingHour: 20, minute: 0, second: 0, of: cal.date(byAdding: .day, value: -1, to: start) ?? start) ?? start
+        return [eve, start.addingTimeInterval(-2 * 3600)]
+    }
+
     static func route(_ shot: String, router: Router) {
         switch shot {
         case "clubs": router.tab = .clubs
@@ -79,6 +95,7 @@ enum ShotMode {
         case "match": router.tab = .matches; router.openMatch = demoMatches().first
         case "level": router.tab = .profile; router.showLevel = true
         case "friends": router.tab = .profile; router.showFriends = true
+        case "confirmed": router.tab = .home; router.sheet = .confirmed(demoConfirmed())
         default: router.tab = .home
         }
     }

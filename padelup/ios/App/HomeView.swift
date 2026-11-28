@@ -109,6 +109,9 @@ struct HomeView: View {
                             Text(next.clubName).font(UI.headline()).foregroundStyle(UI.ink)
                             Text([next.court, next.price].filter { !$0.isEmpty }.joined(separator: " · "))
                                 .font(UI.callout()).foregroundStyle(UI.muted)
+                            if let split = next.splitLabel {
+                                Text(split).font(UI.callout().weight(.semibold)).foregroundStyle(UI.ink)
+                            }
                         }
                     }
                 } stub: {

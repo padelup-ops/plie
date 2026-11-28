@@ -4,6 +4,7 @@ enum AppTab: Hashable { case home, clubs, bot, matches, profile }
 
 enum RootSheet: Identifiable {
     case club(Club), match(APIMatch), level, friends, notifications, web(URL), booking(BookingRequest), player(Int), community, bookings, editProfile, diagnostic
+    case confirmed(BookingTarget)   // captures : l'écran « Ta réservation est confirmée »
 
     var id: String {
         switch self {
@@ -19,6 +20,7 @@ enum RootSheet: Identifiable {
         case .bookings: return "bookings"
         case .editProfile: return "editProfile"
         case .diagnostic: return "diagnostic"
+        case .confirmed(let t): return "confirmed:" + t.time
         }
     }
 }
@@ -79,6 +81,10 @@ struct RootView: View {
             case .bookings: BookingsView()
             case .editProfile: EditProfileView()
             case .diagnostic: DiagnosticView()
+            case .confirmed(let t):
+                NavigationStack {
+                    BookingConfirmedView(target: t, provider: .playtomic, reminders: ShotMode.demoReminders(for: t)) { router.sheet = nil }
+                }
             }
         }
         // Le bot (ou une notification touchée) demande d'ouvrir une page de réservation, déjà connectée.

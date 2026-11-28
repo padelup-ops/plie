@@ -106,6 +106,16 @@ struct BotLogEntry: Identifiable, Codable, Hashable {
     // Ajouts (optionnels pour relire l'historique déjà enregistré)
     var duration: Int? = nil
     var provider: String? = nil
+    /// Partage des frais : total payé par l'organisateur et nombre de joueurs.
+    var amount: Double? = nil
+    var currency: String? = nil
+    var players: Int? = nil
+
+    /// « 9 € chacun · 4 joueurs »
+    var splitLabel: String? {
+        guard let amount, let players, players > 1 else { return nil }
+        return Money.label(Money.share(total: amount, players: players), currency: currency ?? "EUR") + " chacun · \(players) joueurs"
+    }
 }
 
 /// Un créneau Playtomic précis (club, terrain, début, durée) : de quoi ouvrir directement sa page de paiement.
@@ -151,9 +161,11 @@ struct BookingTarget: Hashable {
     var price = ""
     var timezone: String? = nil
     var ruleID: UUID? = nil
+    var amount: Double? = nil
+    var currency = "EUR"
 
     init(time: String, duration: Int?, direct: DirectPay? = nil, start: Date? = nil, clubName: String = "", court: String = "",
-         price: String = "", timezone: String? = nil, ruleID: UUID? = nil) {
+         price: String = "", timezone: String? = nil, ruleID: UUID? = nil, amount: Double? = nil, currency: String = "EUR") {
         self.time = time
         self.duration = (duration ?? 0) > 0 ? duration : nil
         self.direct = direct
@@ -163,11 +175,14 @@ struct BookingTarget: Hashable {
         self.price = price
         self.timezone = timezone
         self.ruleID = ruleID
+        self.amount = amount
+        self.currency = currency
     }
 
     init(slot: BookingSlot, clubName: String = "", ruleID: UUID? = nil) {
         self.init(time: slot.localTime, duration: slot.duration, direct: DirectPay(slot: slot), start: slot.start, clubName: clubName,
-                  court: slot.courtName, price: slot.priceLabel, timezone: slot.timezone, ruleID: ruleID)
+                  court: slot.courtName, price: slot.priceLabel, timezone: slot.timezone, ruleID: ruleID,
+                  amount: slot.price, currency: slot.currency)
     }
 
     /// Pour une notification : de quoi rouvrir la réservation et l'afficher une fois payée.
@@ -176,6 +191,7 @@ struct BookingTarget: Hashable {
         if let start { info["slotStart"] = start.timeIntervalSince1970 }
         if let timezone { info["tz"] = timezone }
         if let ruleID { info["rule"] = ruleID.uuidString }
+        if let amount { info["amount"] = amount; info["currency"] = currency }
         if let direct { info.merge(direct.userInfo) { a, _ in a } }
         return info
     }
@@ -185,7 +201,8 @@ struct BookingTarget: Hashable {
         self.init(time: time, duration: info["duration"] as? Int, direct: DirectPay(userInfo: info),
                   start: (info["slotStart"] as? Double).map { Date(timeIntervalSince1970: $0) },
                   clubName: info["club"] as? String ?? "", court: info["court"] as? String ?? "", price: info["price"] as? String ?? "",
-                  timezone: info["tz"] as? String, ruleID: (info["rule"] as? String).flatMap(UUID.init(uuidString:)))
+                  timezone: info["tz"] as? String, ruleID: (info["rule"] as? String).flatMap(UUID.init(uuidString:)),
+                  amount: info["amount"] as? Double, currency: info["currency"] as? String ?? "EUR")
     }
 }
 
@@ -603,7 +620,8 @@ final class BotEngine: ObservableObject {
             let on = provider.map { " sur \($0.name)" } ?? ""
             log.insert(BotLogEntry(kind: .booked, clubName: target.clubName.isEmpty ? (provider?.name ?? "Club") : target.clubName,
                                    message: "Réservé et payé\(on)", slotStart: start, court: target.court, price: target.price,
-                                   duration: target.duration, provider: provider?.rawValue), at: 0)
+                                   duration: target.duration, provider: provider?.rawValue,
+                                   amount: target.amount, currency: target.currency, players: 4), at: 0)
             if log.count > 200 { log = Array(log.prefix(200)) }
             if let id = target.ruleID, let start {
                 let day = FR.string(start, "yyyy-MM-dd", tz: tz)
@@ -616,6 +634,15 @@ final class BotEngine: ObservableObject {
         }
         guard let start else { return [] }
         return scheduleMatchReminders(club: target.clubName, start: start, court: target.court, tz: tz)
+    }
+
+    /// Partage des frais modifié sur l'écran de confirmation (nombre de joueurs, total réellement payé).
+    func updateSplit(clubName: String, start: Date?, players: Int, amount: Double?) {
+        let key = Int(start?.timeIntervalSince1970 ?? 0)
+        guard let i = log.firstIndex(where: { $0.kind == .booked && Int($0.slotStart?.timeIntervalSince1970 ?? 0) == key
+                                              && (clubName.isEmpty || $0.clubName == clubName) }) else { return }
+        log[i].players = players
+        if let amount { log[i].amount = amount }
     }
 
     /// Deux rappels pour ne pas oublier le match : la veille au soir (20:00) et 2 h avant.

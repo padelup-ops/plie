@@ -85,6 +85,28 @@ func formatDistance(_ meters: Double?) -> String {
 }
 
 // Créneau réservable (Playtomic, Anybuddy ou club PadelUp).
+/// Montants affichés à la française (« 9 € », « 12,17 € »), et la part de chacun quand on partage un terrain.
+enum Money {
+    static func label(_ value: Double, currency: String = "EUR") -> String {
+        let cents = (value * 100).rounded() / 100
+        let amount = cents.rounded() == cents ? String(Int(cents)) : String(format: "%.2f", cents).replacingOccurrences(of: ".", with: ",")
+        return currency == "EUR" ? "\(amount) €" : "\(amount) \(currency)"
+    }
+
+    /// La part de chacun, arrondie au centime supérieur : l'organisateur n'y est jamais de sa poche.
+    static func share(total: Double, players: Int) -> Double {
+        guard players > 0 else { return total }
+        return (total * 100 / Double(players)).rounded(.up) / 100
+    }
+
+    /// « 36 », « 36,50 », « 36.5 € » → 36.5
+    static func parse(_ text: String) -> Double? {
+        let cleaned = text.replacingOccurrences(of: ",", with: ".").filter { "0123456789.".contains($0) }
+        guard let v = Double(cleaned), v > 0 else { return nil }
+        return v
+    }
+}
+
 struct BookingSlot: Identifiable, Hashable, Codable {
     var provider: BotProvider
     var clubID: String
@@ -103,8 +125,7 @@ struct BookingSlot: Identifiable, Hashable, Codable {
 
     var priceLabel: String {
         guard let price else { return "" }
-        let amount = price.rounded() == price ? String(Int(price)) : String(format: "%.2f", price).replacingOccurrences(of: ".", with: ",")
-        return currency == "EUR" ? "\(amount) €" : "\(amount) \(currency)"
+        return Money.label(price, currency: currency)
     }
 
     var timeZoneValue: TimeZone { TimeZone(identifier: timezone) ?? .current }

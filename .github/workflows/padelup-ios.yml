@@ -189,6 +189,7 @@ jobs:
           shot wizard auto 9 17-resa-jours
           shot wizard-moment auto 9 18-resa-moment
           shot wizard-ticket auto 9 19-resa-billet
+          shot confirmed auto 9 20-reservation-confirmee
           xcrun simctl ui "$UDID" appearance dark || true
           shot home christmas 10 11-accueil-noel-sombre
           shot club auto 10 12-club-sombre

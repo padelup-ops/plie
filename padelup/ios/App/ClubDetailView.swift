@@ -462,7 +462,8 @@ struct ClubDetailView: View {
             // Page déjà connectée ; l'assistant choisit l'heure et la durée, tu confirmes.
             booking = BookingRequest(url: url, target: BookingTarget(time: slot.localTime, duration: slot.duration > 0 ? slot.duration : duration,
                                                                      direct: DirectPay(slot: slot), start: slot.start, clubName: club.displayName,
-                                                                     court: slot.courtName, price: slot.priceLabel, timezone: slot.timezone))
+                                                                     court: slot.courtName, price: slot.priceLabel, timezone: slot.timezone,
+                                                                     amount: slot.price, currency: slot.currency))
         } else {
             outcome = result
             if result.status == .booked { await loadSlots() }

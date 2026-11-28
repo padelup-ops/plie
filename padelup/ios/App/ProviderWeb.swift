@@ -1268,8 +1268,39 @@ struct BookingConfirmedView: View {
     let reminders: [Date]
     var done: () -> Void
     @State private var appear = false
+    /// Partage des frais : 4 joueurs au padel, le total payé (prix du créneau, modifiable).
+    @State private var players = 4
+    @State private var totalText = ""
+    @FocusState private var editingTotal: Bool
 
     private var tz: TimeZone { target?.timezone.flatMap(TimeZone.init(identifier:)) ?? .current }
+    private var currency: String { target?.currency ?? "EUR" }
+    private var total: Double? { Money.parse(totalText) }
+    private var share: Double? { total.map { Money.share(total: $0, players: players) } }
+
+    /// L'organisateur du match : le joueur connecté à PadelUp (sinon « l'organisateur »).
+    private var organizer: String? {
+        let me = ServerAPI.shared.me
+        let name = me?.firstName ?? me?.profile?.fullName?.split(separator: " ").first.map(String.init)
+        return (name?.isEmpty ?? true) ? nil : name
+    }
+
+    /// Le message à envoyer aux autres joueurs.
+    private var message: String {
+        var parts: [String] = []
+        if let t = target, let start = t.start {
+            let when = FR.string(start, "EEEE d MMMM 'à' HH:mm", tz: tz)
+            let details = [t.court, t.duration.map { "\($0) min" } ?? ""].filter { !$0.isEmpty }.joined(separator: ", ")
+            parts.append("Padel réservé : \(when), \(t.clubName.isEmpty ? "au club" : t.clubName)" + (details.isEmpty ? "." : " (\(details))."))
+        } else {
+            parts.append("Padel réservé.")
+        }
+        if let total, let share {
+            let who = organizer.map { "à \($0), l'organisateur du match" } ?? "à l'organisateur du match"
+            parts.append("Total \(Money.label(total, currency: currency)) pour \(players) joueurs : vous devez \(Money.label(share, currency: currency)) chacun \(who).")
+        }
+        return parts.joined(separator: " ")
+    }
 
     var body: some View {
         ScrollView {
@@ -1313,8 +1344,9 @@ struct BookingConfirmedView: View {
                 } else {
                     Text(reminderLine).font(UI.callout()).foregroundStyle(UI.muted)
                 }
+                splitBlock
                 Text("Elle t'attend sur l'accueil, dans « Prochaine partie ».").font(UI.caption()).foregroundStyle(UI.muted)
-                Button("Super", action: done).buttonStyle(PrimaryButtonStyle())
+                Button("Super", action: done).buttonStyle(SecondaryButtonStyle())
             }
             .padding(.horizontal, UI.margin)
             .padding(.top, 20)
@@ -1323,7 +1355,75 @@ struct BookingConfirmedView: View {
         .background(PageBackground(seasonal: false))
         .overlay { ConfettiBurst().allowsHitTesting(false) }
         .sensoryFeedback(.success, trigger: appear)
-        .onAppear { withAnimation(.spring(response: 0.45, dampingFraction: 0.6)) { appear = true } }
+        .onAppear {
+            if totalText.isEmpty, let amount = target?.amount { totalText = Money.label(amount, currency: "").trimmingCharacters(in: .whitespaces) }
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.6)) { appear = true }
+        }
+        .onChange(of: players) { _, _ in saveSplit() }
+        .onChange(of: totalText) { _, _ in saveSplit() }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("OK") { editingTotal = false }.fontWeight(.semibold)
+            }
+        }
+    }
+
+    private func saveSplit() {
+        BotEngine.shared.updateSplit(clubName: target?.clubName ?? "", start: target?.start, players: players, amount: total)
+    }
+
+    /// Partage des frais : combien chacun doit à l'organisateur, selon le nombre de joueurs, et le message à envoyer.
+    private var splitBlock: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Eyebrow(text: "Partage des frais")
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(share.map { Money.label($0, currency: currency) } ?? "–")
+                        .font(UI.scoreHeavy(52)).foregroundStyle(UI.ink).contentTransition(.numericText())
+                    Text("par joueur").font(UI.caption()).foregroundStyle(UI.muted)
+                }
+                Spacer(minLength: 8)
+                HStack(spacing: 10) {
+                    RoundIconButton(systemImage: "minus") { if players > 2 { players -= 1 } }
+                        .opacity(players > 2 ? 1 : 0.35)
+                    VStack(spacing: 0) {
+                        Text("\(players)").font(UI.score(28)).foregroundStyle(UI.ink).contentTransition(.numericText())
+                        Text("joueurs").font(UI.small()).foregroundStyle(UI.muted)
+                    }
+                    .frame(minWidth: 52)
+                    RoundIconButton(systemImage: "plus") { if players < 8 { players += 1 } }
+                        .opacity(players < 8 ? 1 : 0.35)
+                }
+            }
+            .animation(.snappy, value: players)
+            Hairline()
+            HStack {
+                Text("Total payé").font(UI.callout()).foregroundStyle(UI.muted)
+                Spacer()
+                TextField("0", text: $totalText)
+                    .keyboardType(.decimalPad)
+                    .multilineTextAlignment(.trailing)
+                    .font(UI.score(20)).foregroundStyle(UI.ink)
+                    .focused($editingTotal)
+                    .frame(maxWidth: 110)
+                Text(currency == "EUR" ? "€" : currency).font(UI.score(20)).foregroundStyle(UI.ink)
+            }
+            if let share {
+                Text("Chacun des \(players - 1) autres joueurs te doit \(Money.label(share, currency: currency)).")
+                    .font(UI.callout()).foregroundStyle(UI.ink).fixedSize(horizontal: false, vertical: true)
+            } else {
+                Text("Indique le total payé pour calculer la part de chacun.").font(UI.callout()).foregroundStyle(UI.muted)
+            }
+            ShareLink(item: message) {
+                Label("Envoyer aux joueurs", systemImage: "square.and.arrow.up")
+            }
+            .buttonStyle(PrimaryButtonStyle())
+            .disabled(share == nil)
+        }
+        .padding(18)
+        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(UI.raised))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
     }
 
     private var reminderLine: String {
