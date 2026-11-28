@@ -14,7 +14,7 @@ struct PinceApp: App {
 
     var body: some Scene {
         WindowGroup {
-            GameView()
+            RootView()
                 .environment(game)
                 .preferredColorScheme(.light)
                 .statusBarHidden()

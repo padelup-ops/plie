@@ -3,6 +3,32 @@ import SceneKit
 
 // MARK: - L'écran de jeu
 
+/// Le jeu, en plein écran. Pour les captures, `-previewSize 951x669` le dessine à une taille donnée
+/// (celle de l'iPhone Duo ouvert, par exemple) au milieu de l'écran.
+struct RootView: View {
+    var body: some View {
+        #if DEBUG
+        if let size = RootView.previewSize {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                GameView().frame(width: size.width, height: size.height).clipped()
+            }
+        } else {
+            GameView()
+        }
+        #else
+        GameView()
+        #endif
+    }
+
+    #if DEBUG
+    private static let previewSize: CGSize? = {
+        let parts = (UserDefaults.standard.string(forKey: "previewSize") ?? "").split(separator: "x").compactMap { Double($0) }
+        return parts.count == 2 ? CGSize(width: parts[0], height: parts[1]) : nil
+    }()
+    #endif
+}
+
 struct GameView: View {
     @Environment(Game.self) private var game
 
@@ -519,7 +545,8 @@ struct FloatingControls: View {
     let insets: EdgeInsets
 
     var body: some View {
-        let stick = min(132, height * 0.34)
+        // Le manche reste tout à gauche, devant la machine voisine : la trappe doit rester visible.
+        let stick = min(120, height * 0.3)
         VStack {
             HStack(alignment: .top, spacing: 10) {
                 CoinPill()
@@ -528,17 +555,16 @@ struct FloatingControls: View {
                 TopButtons()
             }
             Spacer()
-            HStack(alignment: .bottom, spacing: 14) {
-                Tray(width: stick * 0.62)
+            HStack(alignment: .bottom) {
                 Joystick(diameter: stick) { game.stick($0) }
                 Spacer()
-                DropControl(diameter: stick * 0.74)
+                DropControl(diameter: stick * 0.8)
             }
         }
         .padding(.top, max(12, insets.top + 6))
         .padding(.bottom, max(14, insets.bottom + 6))
-        .padding(.leading, max(18, insets.leading + 6))
-        .padding(.trailing, max(18, insets.trailing + 6))
+        .padding(.leading, max(14, insets.leading - 8))
+        .padding(.trailing, max(14, insets.trailing - 8))
     }
 }
 

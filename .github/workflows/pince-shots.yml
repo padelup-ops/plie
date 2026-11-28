@@ -35,6 +35,7 @@ jobs:
       ROUTES: ${{ inputs.routes || 'game left right high grab win collection all settings intro' }}
       LANG_CODE: ${{ inputs.lang || 'fr' }}
       WIDE_ROUTES: ${{ inputs.wide }}
+      PREVIEW: "760x535"
       # Chaque simulateur met un bon quart d'heure à démarrer : on ne lance que ceux qu'on veut voir.
       DEVICES: ${{ inputs.devices || 'duo iphone ipad' }}
     steps:
@@ -96,7 +97,9 @@ jobs:
             for R in $WIDE_ROUTES; do
               N=$((N+1))
               xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
-              xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" -wide YES > /dev/null 2>&1 || true
+              # L'iPad du simulateur ne se couche pas : on y dessine le jeu à la taille de l'iPhone Duo ouvert.
+              case "$NAME" in ipad) WIDE_ARGS="-previewSize $PREVIEW" ;; *) WIDE_ARGS="-wide YES" ;; esac
+              xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" $WIDE_ARGS > /dev/null 2>&1 || true
               case "$R" in grab|win) sleep 15 ;; *) sleep 9 ;; esac
               for D in primary primary-1; do
                 xcrun simctl io "$UDID" screenshot --display=$D --mask=black "shots/$NAME-$(printf %02d $N)-$R-large-$D.png" > /dev/null 2>>shots/erreurs-captures.txt || true
