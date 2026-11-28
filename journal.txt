@@ -1,0 +1,4 @@
+  NET GET 403 playtomic.com/search?q=lille
+PAGE → https://playtomic.com/search?q=lille
+==== 01-recherche · https://playtomic.com/search?q=lille
+BLOQUÉ par le site : arrêt.
