@@ -4,26 +4,29 @@ import simd
 
 /// Les mesures de la machine. L'écran est le plan z = 0 : tout le décor est derrière, du côté des z négatifs.
 enum Box {
-    static let halfW: Float = 1.0
-    static let top: Float = 2.1
+    // Plus large que haute, comme une vraie machine : elle remplit mieux un écran couché.
+    static let halfW: Float = 1.2
+    static let top: Float = 1.55
     static let front: Float = -0.15
     static let back: Float = -1.85
     // La trappe, devant à gauche
-    static let holeMinX: Float = -0.97, holeMaxX: Float = -0.33
+    static let holeMinX: Float = -1.17, holeMaxX: Float = -0.53
     static let holeMinZ: Float = -0.78, holeMaxZ: Float = -0.18
     /// La pince attend au-dessus de la trappe.
-    static let home = SIMD2<Float>(-0.65, -0.48)
-    static let railY: Float = 2.03
+    static let home = SIMD2<Float>(-0.85, -0.48)
+    static let railY: Float = 1.48
     /// Hauteur du centre de la pince quand elle est remontée.
-    static let restY: Float = 1.66
-    static let minX: Float = -0.74, maxX: Float = 0.74
+    static let restY: Float = 1.2
+    static let minX: Float = -0.94, maxX: Float = 0.94
     static let minZ: Float = -1.58, maxZ: Float = -0.42
     /// Les emplacements où les doudous sont posés (x, z).
     static let slots: [SIMD2<Float>] = [
-        SIMD2(-0.72, -1.52), SIMD2(-0.24, -1.55), SIMD2(0.25, -1.5), SIMD2(0.72, -1.54),
-        SIMD2(-0.6, -1.04), SIMD2(-0.08, -1.06), SIMD2(0.44, -1.0),
-        SIMD2(0.1, -0.56), SIMD2(0.66, -0.55),
+        SIMD2(-0.92, -1.53), SIMD2(-0.46, -1.55), SIMD2(0, -1.52), SIMD2(0.46, -1.55), SIMD2(0.92, -1.53),
+        SIMD2(-0.69, -1.05), SIMD2(-0.23, -1.06), SIMD2(0.23, -1.04), SIMD2(0.69, -1.06),
+        SIMD2(0, -0.56), SIMD2(0.46, -0.57), SIMD2(0.92, -0.56),
     ]
+    /// Combien de doudous la machine contient quand elle est pleine.
+    static let full = 10
 }
 
 // MARK: - La pince
@@ -147,7 +150,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     private var wantDrop = false
     private var eyeTarget = SIMD3<Float>(0, 0, 0)
     private var gain: Float = 1
-    private var window = Window(halfW: 2, halfH: 1.17, centerY: 1.03, unitsPerMeter: 20, restDistance: 0.4)
+    private var window = Window(halfW: 2, halfH: 0.87, centerY: 0.82, unitsPerMeter: 20, restDistance: 0.4)
     private var todo: [(Machine) -> Void] = []
 
     private struct Window {
@@ -190,10 +193,10 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         super.init()
         build()
         // Au départ : un de chaque parmi les plus courants, et un invité surprise devant.
-        var first: [Species] = [.frog, .bear, .bunny, .whale, .mushroom, .axolotl, .fox]
+        var first: [Species] = [.frog, .bear, .bunny, .whale, .mushroom, .axolotl, .fox, Species.random(), Species.random()]
         first.shuffle()
         first.append(Species.random())
-        let slots = Box.slots.enumerated().filter { $0.offset != 3 }.map { $0.element }
+        let slots = Box.slots.enumerated().filter { $0.offset != 0 && $0.offset != 4 }.map { $0.element }
         for (species, slot) in zip(first, slots) { add(species, slot: slot, height: nil) }
         place()
         updateCamera(0)
@@ -225,7 +228,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let w = Float(size.width), h = Float(size.height)
         guard w > 20, h > 20 else { return }
         // Il faut voir au moins toute la largeur et toute la hauteur de la machine.
-        let unitsPerPoint = max(1.1 / (w / 2), 1.17 / (h / 2))
+        let unitsPerPoint = max((Box.halfW + 0.1) / (w / 2), (Box.top + 0.19) / h)
         let halfH = unitsPerPoint * h / 2
         lock.lock()
         window = Window(halfW: unitsPerPoint * w / 2, halfH: halfH, centerY: -0.05 + halfH,
@@ -397,7 +400,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             if timer > 0.7 {
                 phase = .idle
                 emit(.busy(false))
-                if plushes.count <= 2 { restockIn = 0.4 }
+                if plushes.count <= 3 { restockIn = 0.4 }
             }
 
         case .frozen:
@@ -539,7 +542,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         }
         free.shuffle()
         var height: Float = 1.15
-        for slot in free.prefix(max(0, 8 - plushes.count)) {
+        for slot in free.prefix(max(0, Box.full - plushes.count)) {
             add(Species.random(), slot: slot, height: height)
             height += 0.12
         }
@@ -698,18 +701,18 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         // Les parois qui retiennent les doudous
         wall(0.4, 4, depth + 0.8, SIMD3<Float>(-Box.halfW - 0.2, 1.5, midZ))
         wall(0.4, 4, depth + 0.8, SIMD3<Float>(Box.halfW + 0.2, 1.5, midZ))
-        wall(2.8, 4, 0.4, SIMD3<Float>(0, 1.5, Box.back - 0.2))
-        wall(2.8, 4, 0.4, SIMD3<Float>(0, 1.5, Box.front + 0.2))
+        wall(2 * Box.halfW + 0.8, 4, 0.4, SIMD3<Float>(0, 1.5, Box.back - 0.2))
+        wall(2 * Box.halfW + 0.8, 4, 0.4, SIMD3<Float>(0, 1.5, Box.front + 0.2))
 
         // Le fond, les montants, les vitres, le plafond et l'enseigne
-        panel(2, Box.top, SIMD3<Float>(0, Box.top / 2, Box.back + 0.002), yaw: 0, textured(Backdrop.poster()))
+        panel(2 * Box.halfW, Box.top, SIMD3<Float>(0, Box.top / 2, Box.back + 0.002), yaw: 0, textured(Backdrop.poster()))
         for x in [-Box.halfW, Box.halfW] {
             for z in [Box.front - 0.045, Box.back + 0.045] {
                 _ = box(0.09, Box.top + 0.2, 0.09, SIMD3<Float>(x, Box.top / 2 + 0.05, z), cream, chamfer: 0.025)
             }
             panel(depth, Box.top, SIMD3<Float>(x, Box.top / 2, midZ), yaw: .pi / 2, glass(), order: 20)
         }
-        _ = box(2.1, 0.16, depth + 0.1, SIMD3<Float>(0, Box.top + 0.08, midZ), coral)
+        _ = box(2 * Box.halfW + 0.1, 0.16, depth + 0.1, SIMD3<Float>(0, Box.top + 0.08, midZ), coral)
         let sign = box(2.1, 0.64, 0.34, SIMD3<Float>(0, Box.top + 0.5, Box.front - 0.2), coral, chamfer: 0.08)
         let title = SCNMaterial()
         title.lightingModel = .constant
@@ -718,10 +721,10 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
 
         // Le portique : deux rails, un pont qui avance et recule, un chariot qui va de gauche à droite
         let steel = Paint.gloss(0xD9D4EC)
-        for x in [Float(-0.94), 0.94] {
+        for x in [-Box.halfW + 0.06, Box.halfW - 0.06] {
             _ = box(0.05, 0.05, depth - 0.1, SIMD3<Float>(x, Box.railY, midZ), steel)
         }
-        let bar = SCNBox(width: 1.9, height: 0.05, length: 0.07, chamferRadius: 0.01)
+        let bar = SCNBox(width: CGFloat(2 * Box.halfW - 0.1), height: 0.05, length: 0.07, chamferRadius: 0.01)
         bar.firstMaterial = steel
         bridge.geometry = bar
         bridge.castsShadow = false
@@ -741,7 +744,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
 
         // Une guirlande au fond et une devant, tout en haut : deux plans de plus pour le relief
         let bulbs: [UInt32] = [Tint.butter, Tint.mint, Tint.coral, Tint.sky, Tint.lilac]
-        for (z, sag, count) in [(Box.back + 0.06, Float(0.16), 11), (Box.front - 0.07, Float(0.07), 9)] {
+        for (z, sag, count) in [(Box.back + 0.06, Float(0.13), 13), (Box.front - 0.07, Float(0.06), 11)] {
             for i in 0..<count {
                 let u = Float(i) / Float(count - 1)
                 let g = SCNSphere(radius: 0.035)
@@ -749,16 +752,36 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
                 g.firstMaterial = Paint.flat(bulbs[i % bulbs.count])
                 let n = SCNNode(geometry: g)
                 let droop: Float = sag * 4 * u * (1 - u)
-                n.simdPosition = SIMD3<Float>(-0.9 + 1.8 * u, Box.top - 0.06 - droop, z)
+                n.simdPosition = SIMD3<Float>((Box.halfW - 0.1) * (2 * u - 1), Box.top - 0.06 - droop, z)
                 n.castsShadow = false
                 scene.rootNode.addChildNode(n)
             }
         }
 
-        neighbour(x: -2.42, wall: (0xFFF0C2, 0xFFDF8E), floor: 0xF6C98A, trim: Tint.butter, claw: Tint.mint,
+        let roof = Box.top + 0.82
+        let sitters: [(Species, Float, Float, Float)] = [(.bear, -0.72, 0.27, 0.25), (.unicorn, 0, 0.3, 0), (.axolotl, 0.72, 0.27, -0.25)]
+        for (species, x, size, yaw) in sitters {
+            let model = PlushModel.make(species)
+            model.simdScale = SIMD3<Float>(size, size, size)
+            model.simdPosition = SIMD3<Float>(x, roof + size * 0.9, Box.front - 0.22)
+            model.eulerAngles.y = yaw
+            scene.rootNode.addChildNode(model)
+        }
+        for i in 0..<17 {
+            let u = Float(i) / 16
+            let g = SCNSphere(radius: 0.06)
+            g.segmentCount = 12
+            g.firstMaterial = Paint.flat(bulbs[i % bulbs.count])
+            let n = SCNNode(geometry: g)
+            let droop: Float = 0.5 * 4 * u * (1 - u)
+            n.simdPosition = SIMD3<Float>(3.2 * (2 * u - 1), roof + 1.75 - droop, Box.back - 0.44)
+            scene.rootNode.addChildNode(n)
+        }
+
+        neighbour(x: -Box.halfW - 1.42, wall: (0xFFF0C2, 0xFFDF8E), floor: 0xF6C98A, trim: Tint.butter, claw: Tint.mint,
                   guests: [(.bear, SIMD3<Float>(-0.35, 0, -1.25), 0.34, 0.5), (.fox, SIMD3<Float>(0.4, 0, -0.9), 0.3, 0.2),
                            (.strawberry, SIMD3<Float>(-0.1, 0, -0.5), 0.22, 0.6)])
-        neighbour(x: 2.42, wall: (0xD6F3E6, 0xAEE5CC), floor: 0x8FD3C0, trim: Tint.mint, claw: Tint.lilac,
+        neighbour(x: Box.halfW + 1.42, wall: (0xD6F3E6, 0xAEE5CC), floor: 0x8FD3C0, trim: Tint.mint, claw: Tint.lilac,
                   guests: [(.bunny, SIMD3<Float>(0.3, 0, -1.3), 0.33, -0.5), (.whale, SIMD3<Float>(-0.4, 0, -0.95), 0.3, -0.3),
                            (.mushroom, SIMD3<Float>(0.25, 0, -0.5), 0.23, -0.6)])
     }
@@ -798,13 +821,13 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         }
 
         let hanging = Claw(dome: clawTint, trim: Tint.cream, face: false)
-        hanging.node.simdPosition = SIMD3<Float>(x - 0.3 * (x < 0 ? -1 : 1), 1.5, -0.8)
+        hanging.node.simdPosition = SIMD3<Float>(x - 0.3 * (x < 0 ? -1 : 1), Box.top - 0.45, -0.8)
         hanging.node.castsShadow = false
         scene.rootNode.addChildNode(hanging.node)
-        let wire = SCNCylinder(radius: 0.012, height: 0.42)
+        let wire = SCNCylinder(radius: 0.012, height: 0.28)
         wire.firstMaterial = Paint.gloss(0xB9B3D6)
         let wireNode = SCNNode(geometry: wire)
-        wireNode.simdPosition = hanging.node.simdPosition + SIMD3<Float>(0, 0.37, 0)
+        wireNode.simdPosition = hanging.node.simdPosition + SIMD3<Float>(0, 0.32, 0)
         wireNode.castsShadow = false
         scene.rootNode.addChildNode(wireNode)
     }

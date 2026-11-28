@@ -182,6 +182,11 @@ final class Game {
     var depth: Int
     var introSeen: Bool
     var tracking: HeadTracker.Mode = .none
+    /// Le visage est-il vu par la caméra, et à combien de centimètres ?
+    var faceSeen = false
+    var faceDistance = 0
+    /// Vrai : suivre le visage avec la caméra ordinaire, sans passer par le capteur 3D.
+    var simpleCamera: Bool
     var showCollection = false
     var showSettings = false
 
@@ -198,6 +203,7 @@ final class Game {
         owned = store.dictionary(forKey: "owned") as? [String: Int] ?? [:]
         soundOn = store.object(forKey: "soundOn") as? Bool ?? true
         musicOn = store.object(forKey: "musicOn") as? Bool ?? true
+        simpleCamera = store.bool(forKey: "simpleCamera")
         let haptics = store.object(forKey: "hapticsOn") as? Bool ?? true
         hapticsOn = haptics
         Haptics.enabled = haptics
@@ -208,6 +214,11 @@ final class Game {
         machine.onEvent = { [weak self] event in self?.handle(event) }
         tracker.onEye = { [weak self] eye in self?.machine.setEye(eye) }
         tracker.onMode = { [weak self] mode in self?.tracking = mode }
+        tracker.onSeen = { [weak self] seen, distance in
+            self?.faceSeen = seen
+            self?.faceDistance = Int((distance * 100).rounded())
+        }
+        tracker.prefersCamera = simpleCamera
         machine.setGain(gain)
 
         #if DEBUG
@@ -317,6 +328,16 @@ final class Game {
         save()
     }
 
+    func setSimpleCamera(_ on: Bool) {
+        simpleCamera = on
+        tracker.prefersCamera = on
+        if depth > 0, !staged {
+            tracker.stop()
+            tracker.start()
+        }
+        save()
+    }
+
     func recenter() {
         tracker.recenter()
         say(.pop)
@@ -386,6 +407,7 @@ final class Game {
         store.set(soundOn, forKey: "soundOn")
         store.set(musicOn, forKey: "musicOn")
         store.set(hapticsOn, forKey: "hapticsOn")
+        store.set(simpleCamera, forKey: "simpleCamera")
         store.set(depth, forKey: "depth")
         store.set(lastPrize?.rawValue, forKey: "lastPrize")
     }
@@ -401,6 +423,8 @@ final class Game {
         owned = ["frog": 3, "bunny": 1, "whale": 2, "mushroom": 1, "strawberry": 1]
         lastPrize = .bunny
         tracking = .face
+        faceSeen = true
+        faceDistance = 38
         switch shot {
         case "left": machine.setEye(SIMD3<Float>(-0.17, 0.05, 0.36))
         case "right": machine.setEye(SIMD3<Float>(0.17, 0.02, 0.36))
