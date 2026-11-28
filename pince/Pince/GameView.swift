@@ -500,8 +500,8 @@ struct ConsolePlate<Content: View>: View {
 
     var body: some View {
         content()
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 30)
@@ -542,8 +542,8 @@ struct ControlBar: View {
         // La place laissée au bac, à gauche.
         let reserve = width * (wide ? 0.36 : 0.31)
         let room = min(width - reserve - 14, 430)
-        let stick = min(height - 62, 150, (room - 50) * 0.56)
-        let button = min(stick * 0.76, height - 96)
+        let stick = min(height - 70, 150, (room - 58) * 0.56)
+        let button = min(stick * 0.76, height - 104)
         HStack(spacing: 0) {
             Color.clear.frame(width: reserve)
             Spacer(minLength: 0)
@@ -554,8 +554,8 @@ struct ControlBar: View {
                         .background(alignment: .top) {
                             Circle()
                                 .fill(Color(hex: Tint.cream))
-                                .frame(width: button + 14, height: button + 14)
-                                .offset(y: -4)
+                                .frame(width: button + 10, height: button + 10)
+                                .offset(y: -2)
                         }
                 }
             }
