@@ -163,7 +163,7 @@ enum BotProvider: String, Codable, CaseIterable, Identifiable {
     var automationNote: String {
         switch self {
         case .playtomic:
-            return "Le bot lit les créneaux en direct sur le site Playtomic, depuis ton iPhone, et te prévient dès qu'un créneau correspond. La page du club s'ouvre à la bonne date, déjà connectée : tu valides et tu paies en un geste."
+            return "Je lis les créneaux en direct sur Playtomic, depuis ton iPhone. Dès qu'un créneau correspond, je t'ouvre la réservation déjà remplie : tu confirmes en un geste."
         case .anybuddy:
             return "Les créneaux sont lus sur la page Anybuddy du club, comme tu la verrais, depuis ton iPhone. Si Anybuddy demande une vérification, on s'arrête et la page s'ouvre pour toi. La réservation se termine sur Anybuddy, déjà connecté."
         case .padelup:

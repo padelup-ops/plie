@@ -697,7 +697,7 @@ struct NotificationsView: View {
         NavigationStack {
             Screen(title: "Notifications", seasonal: false) {
                 if loaded && items.isEmpty {
-                    EmptyNote(title: "Rien de neuf.", message: "Invitations, matchs, amis et réservations du bot apparaissent ici.")
+                    EmptyNote(title: "Rien de neuf.", message: "Invitations, matchs, amis et réservations automatiques apparaissent ici.")
                 }
                 if !items.isEmpty {
                     VStack(spacing: 0) {

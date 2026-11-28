@@ -136,7 +136,7 @@ struct HomeView: View {
                         Text(release.rule.clubName).font(UI.headline()).foregroundStyle(UI.ink)
                     }
                 } stub: {
-                    Text("Créneaux du \(FR.longDay(release.day, tz: release.rule.tz)) · le bot te prévient une minute avant.")
+                    Text("Créneaux du \(FR.longDay(release.day, tz: release.rule.tz)) · je te préviens une minute avant.")
                         .font(UI.caption()).foregroundStyle(UI.muted)
                 }
             }
@@ -231,7 +231,7 @@ struct HomeView: View {
 
     private var botsBlock: some View {
         let active = bot.rules.filter { $0.active }
-        return Block(title: "Tes bots", meta: active.isEmpty ? "en pause" : "\(active.count) en veille", live: !active.isEmpty,
+        return Block(title: "Résa auto", meta: active.isEmpty ? "en pause" : "\(active.count) en veille", live: !active.isEmpty,
                      actionTitle: "Gérer", action: { router.tab = .bot }) {
             VStack(spacing: 0) {
                 ForEach(Array(bot.rules.prefix(3).enumerated()), id: \.element.id) { i, rule in

@@ -43,12 +43,12 @@ enum ShotMode {
                              stats: APIStats(matchesPlayed: 24, matchesWon: 15, matchesLost: 9, winRate: 62.5, totalHours: 36)))
         bot.rules = [
             BotRule(provider: .playtomic, clubID: "demo-1", clubName: "Padel Horizon Paris", clubCity: "Paris", timezone: "Europe/Paris",
-                    weekdays: [1, 3], timeFrom: 19 * 60, timeTo: 21 * 60, durations: [90], maxBookings: 0, bookingsMade: 3,
-                    lastCheck: Date(), lastStatus: "Rien de libre pour l'instant · 2 dates surveillées", clubSlug: "padel-horizon-paris",
+                    weekdays: [1, 3], timeFrom: 18 * 60, timeTo: 21 * 60 + 30, durations: [90], maxBookings: 0, bookingsMade: 3,
+                    lastCheck: Date(), lastStatus: "Je guette… rien de libre pour l'instant.", clubSlug: "padel-horizon-paris",
                     releaseDays: 7, releaseMinutes: 8 * 60),
             BotRule(provider: .anybuddy, clubID: "4padel-bobigny", clubName: "4PADEL Bobigny", clubCity: "Bobigny", timezone: "Europe/Paris",
-                    weekdays: [5, 6], timeFrom: 10 * 60, timeTo: 12 * 60, durations: [60, 90], autoBook: false,
-                    lastCheck: Date(), lastStatus: "Suivi par la réservation automatique Anybuddy"),
+                    weekdays: [5, 6], timeFrom: 8 * 60, timeTo: 11 * 60 + 30, durations: [90], autoBook: false,
+                    lastCheck: Date(), lastStatus: "Trouvé ! 2 créneaux libres samedi matin."),
         ]
         if shot == "snipe", let first = bot.rules.first {
             bot.snipe = Snipe(ruleID: first.id, clubName: first.clubName, release: Date().addingTimeInterval(97),
@@ -70,7 +70,7 @@ enum ShotMode {
         switch shot {
         case "clubs": router.tab = .clubs
         case "club": router.tab = .clubs; router.openClub = demoClubs[0]
-        case "bot", "snipe": router.tab = .bot
+        case "bot", "snipe", "wizard", "wizard-moment", "wizard-ticket": router.tab = .bot
         case "radar": router.tab = .matches
         case "community": router.tab = .home; router.sheet = .community
         case "player": router.tab = .matches; router.sheet = .player(10)

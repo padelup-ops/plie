@@ -38,6 +38,7 @@ struct ClubDetailView: View {
     @State private var address: String? = nil
     @State private var accountsVersion = 0
     @State private var pickOnSite = false
+    @State private var booking: BookingRequest? = nil
     @State private var window: BookingWindow? = nil
     @State private var watchRelease = false
 
@@ -99,6 +100,7 @@ struct ClubDetailView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .webAccountChanged)) { _ in accountsVersion += 1 }
         .sheet(item: $web) { url in ProviderWebSheet(provider: WebAccount.owns(url), url: url) }
+        .sheet(item: $booking) { r in ProviderWebSheet(provider: WebAccount.owns(r.url), url: r.url, title: "Réservation", target: r.target) }
         .sheet(item: $login) { p in ProviderWebSheet(provider: p, url: WebAccount.loginURL(p), title: "Connexion \(p.name)") }
         .sheet(item: $picked) { group in
             BookingSheet(club: club, group: group, duration: duration) { action in
@@ -237,7 +239,7 @@ struct ClubDetailView: View {
                     .padding(.vertical, 4)
                 }
                 if let outcome, outcome.status != .needsAction { outcomeNote(outcome) }
-                Button { showRuleEditor = true } label: { Label("Lancer un bot sur ce club", systemImage: "scope") }
+                Button { showRuleEditor = true } label: { Label("Réserver automatiquement ici", systemImage: "bolt.fill") }
                     .buttonStyle(PrimaryButtonStyle())
                 Text(provider.automationNote).font(UI.small()).foregroundStyle(UI.faint).fixedSize(horizontal: false, vertical: true)
             }
@@ -307,7 +309,7 @@ struct ClubDetailView: View {
             EmptyNote(title: "Créneaux indisponibles", message: slotError, actionTitle: "Réessayer") { Task { await loadSlots() } }
         } else if groups.isEmpty {
             EmptyNote(title: "Rien de libre en \(duration) min ce jour-là.",
-                      message: "Le bot peut surveiller ce club et te prévenir dès qu'un créneau se libère.")
+                      message: "La résa auto peut guetter ce club et te préparer la réservation dès qu'un créneau se libère.")
         } else {
             VStack(alignment: .leading, spacing: 16) {
                 ForEach(groups, id: \.0) { name, list in
@@ -457,7 +459,8 @@ struct ClubDetailView: View {
     private func book(_ slot: BookingSlot) async {
         let result = await bot.book(slot, clubName: club.displayName, slug: club.playtomicSlug)
         if result.status == .needsAction, let url = result.actionURL {
-            web = url
+            // Page déjà connectée ; l'assistant choisit l'heure et la durée, tu confirmes.
+            booking = BookingRequest(url: url, target: BookingTarget(time: slot.localTime, duration: slot.duration > 0 ? slot.duration : duration))
         } else {
             outcome = result
             if result.status == .booked { await loadSlots() }
@@ -541,7 +544,7 @@ struct BookingSheet: View {
                 Text(slot.provider == .padelup ? "Réserver" : "Réserver sur \(slot.provider.name)")
             }
             .buttonStyle(PrimaryButtonStyle())
-            Button { onAction(.watch) } label: { Text("Confier au bot") }
+            Button { onAction(.watch) } label: { Text("Résa auto sur ce club") }
                 .buttonStyle(SecondaryButtonStyle())
         }
         .padding(.horizontal, UI.margin)

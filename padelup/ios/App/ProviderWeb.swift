@@ -186,8 +186,10 @@ struct ProviderWebSheet: View {
     var provider: BotProvider?
     var url: URL
     var title: String = ""
+    var target: BookingTarget? = nil
     var onClose: () -> Void = {}
     @StateObject private var model = WebPageModel()
+    @StateObject private var assistant = BookingAssistant()
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -195,7 +197,14 @@ struct ProviderWebSheet: View {
             AccountWebView(url: url, provider: provider, model: model)
                 .ignoresSafeArea(edges: .bottom)
                 .overlay(alignment: .top) {
-                    if model.loading { ProgressView().progressViewStyle(.linear).tint(UI.court).frame(maxWidth: .infinity) }
+                    VStack(spacing: 0) {
+                        if model.loading { ProgressView().progressViewStyle(.linear).tint(UI.court).frame(maxWidth: .infinity) }
+                        if target != nil && !assistant.status.isEmpty { assistantBar }
+                    }
+                }
+                .onChange(of: model.loading) { _, loading in
+                    // Première page affichée : l'assistant choisit le créneau.
+                    if !loading, let target, !assistant.started, let web = model.webView { assistant.start(target: target, in: web) }
                 }
                 .safeAreaInset(edge: .bottom) {
                     // Si la session du site n'est pas repérée automatiquement, le joueur peut le confirmer lui-même.
@@ -243,6 +252,169 @@ struct ProviderWebSheet: View {
                 }
         }
         .tint(UI.court)
+        .onDisappear { assistant.stop() }
+    }
+
+    private var assistantBar: some View {
+        HStack(spacing: 10) {
+            if assistant.working { ProgressView().controlSize(.small) } else {
+                Image(systemName: assistant.done ? "hand.tap.fill" : "info.circle").foregroundStyle(assistant.done ? UI.onBall : UI.ink)
+            }
+            Text(assistant.status).font(.system(size: 14, weight: .medium)).foregroundStyle(assistant.done ? UI.onBall : UI.ink)
+                .lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
+            if assistant.working {
+                Button("Arrêter") { assistant.stop() }.font(.system(size: 14, weight: .semibold)).foregroundStyle(UI.ink)
+            }
+        }
+        .padding(.horizontal, 14).padding(.vertical, 10)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(assistant.done ? UI.ball : UI.raised))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(UI.rule, lineWidth: 1))
+        .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
+        .padding(.horizontal, 12).padding(.top, 8)
+    }
+}
+
+// MARK: - L'assistant de réservation (sur la page, avec le compte du joueur)
+
+/// Fait à la place du joueur les gestes qu'il ferait sur la page Playtomic ou Anybuddy : accepter les cookies,
+/// toucher l'heure voulue, choisir la durée, passer à l'étape suivante. Il S'ARRÊTE au bouton de paiement ou de
+/// confirmation finale, qu'il met en évidence : c'est le joueur qui valide (et sa banque, 3-D Secure).
+/// Rythme humain, page visible, rien de caché ni de contourné.
+@MainActor
+final class BookingAssistant: ObservableObject {
+    @Published var status = ""
+    @Published var working = false
+    @Published var done = false
+    private(set) var started = false
+    private var task: Task<Void, Never>?
+    private weak var webView: WKWebView?
+
+    static let stepJS = #"""
+    function visible(el) {
+      var r = el.getBoundingClientRect(); var st = window.getComputedStyle(el);
+      return r.width > 0 && r.height > 0 && st.visibility !== 'hidden' && st.display !== 'none' && st.opacity !== '0';
+    }
+    function label(el) { return ((el.getAttribute && el.getAttribute('aria-label')) || el.innerText || el.value || '').replace(/\s+/g, ' ').trim(); }
+    function mark(el) { try { el.scrollIntoView({ block: 'center' }); el.style.outline = '3px solid #D6F04A'; el.style.outlineOffset = '2px'; } catch (e) {} }
+    function find(re, ok) {
+      var els = document.querySelectorAll('button, a, input[type="submit"], input[type="button"], [role="button"], [role="option"], [role="radio"], [role="tab"], label, li, [tabindex]');
+      var best = null, bestLen = 1e9;
+      for (var i = 0; i < els.length; i++) {
+        var e = els[i];
+        if (!visible(e) || e.disabled || e.getAttribute('aria-disabled') === 'true') continue;
+        var t = label(e);
+        if (!t || t.length > 120 || !re.test(t)) continue;
+        if (ok && !ok(t)) continue;
+        if (t.length < bestLen) { best = e; bestLen = t.length; }
+      }
+      return best;
+    }
+    var payRe = /(payer|paiement|payment|pay now|confirmer (la |ma )?réservation|confirm booking|réserver et payer|valider et payer|place order)/i;
+    if (step === 'consent') {
+      var sels = ['#didomi-notice-agree-button', '#axeptio_btn_acceptAll', '#onetrust-accept-btn-handler', '[data-testid="uc-accept-all-button"]', '#tarteaucitronPersonalize2'];
+      for (var k = 0; k < sels.length; k++) { var b = document.querySelector(sels[k]); if (b && visible(b)) { b.click(); return { done: true, clicked: true }; } }
+      var c = find(/^(tout accepter|accepter tout|accepter et fermer|accepter|accept all|accept|j'accepte|ok, j'accepte)$/i);
+      if (c) { c.click(); return { done: true, clicked: true }; }
+      return { done: true, clicked: false };
+    }
+    if (step === 'time') {
+      var p = time.split(':');
+      var re = new RegExp('^0?' + parseInt(p[0], 10) + '\\s*[:hH]\\s*' + p[1] + '(?!\\d)');
+      var e = find(re, function (t) { return !payRe.test(t); });
+      if (e) { mark(e); e.click(); return { done: true, clicked: true, label: label(e).slice(0, 40) }; }
+      return { done: false };
+    }
+    if (step === 'duration') {
+      if (!duration) return { done: true };
+      var h = Math.floor(duration / 60), m = duration % 60;
+      var hours = m === 0 ? (h + '\\s*h(?!\\s*\\d)') : (h + '\\s*h\\s*' + m);
+      var re2 = new RegExp('(^|\\D)(' + duration + '\\s*min|' + hours + ')', 'i');
+      var e2 = find(re2, function (t) { return !payRe.test(t); });
+      if (e2) { mark(e2); e2.click(); return { done: true, clicked: true, label: label(e2).slice(0, 40) }; }
+      return { done: false };
+    }
+    if (step === 'next') {
+      var pay = find(payRe);
+      if (pay) { mark(pay); return { done: true, final: true, label: label(pay).slice(0, 40) }; }
+      var login = /(se connecter|connexion|log in|sign in|identifie)/i.test(document.body ? document.body.innerText.slice(0, 3000) : '') && /login|auth|signin|connexion/i.test(location.href);
+      if (login) return { done: true, login: true };
+      var go = find(/^(réserver|reserver|continuer|suivant|valider|choisir|sélectionner|book( now)?|reserve|continue|next|select)\b/i,
+                    function (t) { return !payRe.test(t) && t.length < 40; });
+      if (go) { mark(go); go.click(); return { done: false, clicked: true, label: label(go).slice(0, 40) }; }
+      return { done: false };
+    }
+    return { done: true };
+    """#
+
+    private func step(_ name: String, target: BookingTarget) async -> [String: Any] {
+        guard let webView else { return [:] }
+        let args: [String: Any] = ["step": name, "time": target.time, "duration": target.duration ?? 0]
+        return ((try? await webView.callAsyncJavaScript(Self.stepJS, arguments: args, contentWorld: .page)) as? [String: Any]) ?? [:]
+    }
+
+    /// Répète une étape jusqu'à ce qu'elle aboutisse (la page charge ses créneaux après l'affichage).
+    private func wait(_ name: String, target: BookingTarget, seconds: Double) async -> [String: Any]? {
+        let end = Date().addingTimeInterval(seconds)
+        while Date() < end, !Task.isCancelled {
+            let r = await step(name, target: target)
+            if r["done"] as? Bool == true { return r }
+            try? await Task.sleep(nanoseconds: 500_000_000)
+        }
+        return nil
+    }
+
+    func start(target: BookingTarget, in webView: WKWebView) {
+        guard !started else { return }
+        started = true
+        self.webView = webView
+        working = true
+        status = "Assistant : je prépare \(target.time)…"
+        task = Task {
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            _ = await step("consent", target: target)
+            status = "Je touche le créneau de \(target.time)…"
+            guard await wait("time", target: target, seconds: 14) != nil else {
+                finish("Je ne trouve pas \(target.time) sur la page : choisis-le toi-même.", done: false)
+                return
+            }
+            if let d = target.duration {
+                status = "Je choisis \(d) min…"
+                _ = await wait("duration", target: target, seconds: 5)
+            }
+            status = "Étape suivante…"
+            var clicks = 0
+            let end = Date().addingTimeInterval(25)
+            while Date() < end, !Task.isCancelled {
+                let r = await step("next", target: target)
+                if r["final"] as? Bool == true {
+                    finish("Tout est prêt : vérifie puis touche « \((r["label"] as? String) ?? "Payer") ».", done: true)
+                    return
+                }
+                if r["login"] as? Bool == true {
+                    finish("Connecte-toi à ton compte sur la page, puis termine la réservation.", done: false)
+                    return
+                }
+                if r["clicked"] as? Bool == true {
+                    clicks += 1
+                    if clicks >= 4 { break }
+                    try? await Task.sleep(nanoseconds: 1_500_000_000)
+                } else {
+                    try? await Task.sleep(nanoseconds: 700_000_000)
+                }
+            }
+            finish("Créneau choisi : termine la réservation sur la page.", done: true)
+        }
+    }
+
+    private func finish(_ text: String, done: Bool) {
+        status = text
+        self.done = done
+        working = false
+    }
+
+    func stop() {
+        task?.cancel()
+        if working { finish("Assistant arrêté : à toi de jouer.", done: false) }
     }
 }
 

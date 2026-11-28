@@ -40,7 +40,7 @@ enum PlaytomicError: LocalizedError {
         switch self {
         case .unavailable(let m): return m
         case .blockedByPlaytomic:
-            return "Playtomic limite les requêtes depuis ce réseau. Le bot s'arrête et réessaiera plus tard."
+            return "Playtomic limite les requêtes depuis ce réseau. Je m'arrête et je réessaierai plus tard."
         }
     }
 }

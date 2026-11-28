@@ -3,7 +3,7 @@ import SwiftUI
 enum AppTab: Hashable { case home, clubs, bot, matches, profile }
 
 enum RootSheet: Identifiable {
-    case club(Club), match(APIMatch), level, friends, notifications, web(URL), player(Int), community, bookings, editProfile, diagnostic
+    case club(Club), match(APIMatch), level, friends, notifications, web(URL), booking(BookingRequest), player(Int), community, bookings, editProfile, diagnostic
 
     var id: String {
         switch self {
@@ -13,6 +13,7 @@ enum RootSheet: Identifiable {
         case .friends: return "friends"
         case .notifications: return "notifications"
         case .web(let u): return "web:" + u.absoluteString
+        case .booking(let r): return "booking:" + r.id
         case .player(let id): return "player:\(id)"
         case .community: return "community"
         case .bookings: return "bookings"
@@ -58,7 +59,7 @@ struct RootView: View {
         TabView(selection: $router.tab) {
             Tab("Accueil", systemImage: "circle.grid.2x2", value: AppTab.home) { HomeView() }
             Tab("Clubs", systemImage: "map", value: AppTab.clubs) { ClubsView() }
-            Tab("Bot", systemImage: "scope", value: AppTab.bot) { BotView() }
+            Tab("Résa auto", systemImage: "bolt.fill", value: AppTab.bot) { BotView() }
             Tab("Matchs", systemImage: "figure.tennis", value: AppTab.matches) { MatchesView() }
             Tab("Profil", systemImage: "person", value: AppTab.profile) { ProfileView() }
         }
@@ -72,6 +73,7 @@ struct RootView: View {
             case .friends: FriendsView()
             case .notifications: NotificationsView()
             case .web(let url): ProviderWebSheet(provider: WebAccount.owns(url), url: url)
+            case .booking(let r): ProviderWebSheet(provider: WebAccount.owns(r.url), url: r.url, title: "Réservation", target: r.target)
             case .player(let id): PlayerProfileView(userID: id)
             case .community: CommunityView()
             case .bookings: BookingsView()
@@ -80,10 +82,10 @@ struct RootView: View {
             }
         }
         // Le bot (ou une notification touchée) demande d'ouvrir une page de réservation, déjà connectée.
-        .onChange(of: bot.openURL) { _, url in
-            guard let url else { return }
-            bot.openURL = nil
-            router.sheet = .web(url)
+        .onChange(of: bot.openBooking) { _, request in
+            guard let request else { return }
+            bot.openBooking = nil
+            router.sheet = .booking(request)
         }
         // Après l'inscription : choisir son niveau (une seule fois, modifiable ensuite dans Profil).
         .onChange(of: server.me?.profile?.isCompleted) { _, completed in

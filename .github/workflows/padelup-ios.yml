@@ -186,6 +186,9 @@ jobs:
           shot radar auto 10 14-radar
           shot player auto 8 15-joueur
           shot community auto 8 16-communaute
+          shot wizard auto 9 17-resa-jours
+          shot wizard-moment auto 9 18-resa-moment
+          shot wizard-ticket auto 9 19-resa-billet
           xcrun simctl ui "$UDID" appearance dark || true
           shot home christmas 10 11-accueil-noel-sombre
           shot club auto 10 12-club-sombre

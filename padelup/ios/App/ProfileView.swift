@@ -102,7 +102,7 @@ struct ProfileView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Toggle(isOn: $botServer) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Bot 24 h/24 sur le serveur PadelUp").font(UI.body()).foregroundStyle(UI.ink)
+                        Text("Résa auto 24 h/24 sur le serveur PadelUp").font(UI.body()).foregroundStyle(UI.ink)
                         Text("Pour les clubs partenaires PadelUp. Playtomic et Anybuddy se lisent depuis ton iPhone.").font(UI.caption()).foregroundStyle(UI.muted)
                     }
                 }
@@ -150,7 +150,7 @@ struct AuthPanel: View {
         VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Ton compte PadelUp").font(UI.title(22)).foregroundStyle(UI.ink)
-                Text("Pour les matchs, les amis et le classement. Les clubs, la météo et le bot marchent sans compte.")
+                Text("Pour les matchs, les amis et le classement. Les clubs, la météo et la résa auto marchent sans compte.")
                     .font(UI.callout()).foregroundStyle(UI.muted).fixedSize(horizontal: false, vertical: true)
             }
             SignInWithAppleButton(.signIn) { request in

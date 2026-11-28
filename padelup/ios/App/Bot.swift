@@ -1,5 +1,6 @@
 import BackgroundTasks
 import Foundation
+import UIKit
 import UserNotifications
 
 // Règle du bot : « mardi et jeudi entre 19 h et 21 h, 90 min, au club X ».
@@ -104,6 +105,26 @@ struct BotLogEntry: Identifiable, Codable, Hashable {
     var actionURL: String? = nil
 }
 
+/// Ce que l'assistant de réservation doit choisir sur la page (heure, durée).
+struct BookingTarget: Hashable {
+    let time: String        // « 19:30 »
+    let duration: Int?      // 90, ou nil si la durée se choisit sur la page
+
+    init(time: String, duration: Int?) {
+        self.time = time
+        self.duration = (duration ?? 0) > 0 ? duration : nil
+    }
+
+    init(slot: BookingSlot) { self.init(time: slot.localTime, duration: slot.duration) }
+}
+
+/// Une page de réservation à ouvrir, avec l'assistant qui choisit le créneau.
+struct BookingRequest: Identifiable, Hashable {
+    let url: URL
+    let target: BookingTarget?
+    var id: String { url.absoluteString + "|" + (target?.time ?? "") }
+}
+
 /// Une ouverture de réservation suivie en direct (compte à rebours, puis scan rapide).
 struct Snipe: Equatable {
     enum Phase: Equatable { case countdown, scanning(Int), found(String), missed, blocked }
@@ -125,8 +146,8 @@ final class BotEngine: ObservableObject {
     @Published private(set) var running = false
     @Published var lastRun: Date? = nil
     @Published var snipe: Snipe? = nil
-    /// Page à ouvrir dans l'app (réservation Playtomic / Anybuddy, connectée) : la vue racine la présente.
-    @Published var openURL: URL? = nil
+    /// Page de réservation à ouvrir dans l'app (connectée), avec l'assistant : la vue racine la présente.
+    @Published var openBooking: BookingRequest? = nil
 
     private var timer: Timer?
     private var loading = false
@@ -224,13 +245,10 @@ final class BotEngine: ObservableObject {
 
     // MARK: Une règle : dates candidates, créneaux libres, meilleur choix, réservation
 
-    func run(ruleID: UUID) async {
+    func run(ruleID: UUID, force: Bool = false) async {
         guard let rule = rules.first(where: { $0.id == ruleID }), rule.active, !rule.isExhausted, !rule.isPaused else { return }
-        if rule.provider == .anybuddy {
-            // Créneaux protégés par Anybuddy : pas de lecture automatique, leur réservation automatique prend le relais.
-            update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = "Suivi par la réservation automatique Anybuddy" }
-            return
-        }
+        // Anybuddy : lecture de la page du club (une page à la fois) ; pas plus d'une fois toutes les 10 minutes.
+        if rule.provider == .anybuddy, let last = rule.lastCheck, last.timeIntervalSinceNow > -600, !force { return }
         let cal = rule.calendar
         let today = cal.startOfDay(for: Date())
         let dayKey = DateFormatter()
@@ -240,13 +258,15 @@ final class BotEngine: ObservableObject {
             .filter { rule.weekdays.contains((cal.component(.weekday, from: $0) + 5) % 7) }
             .filter { !rule.bookedDays.contains(dayKey.string(from: $0)) }
         var candidates: [BookingSlot] = []
+        // Anybuddy se lit page par page : les trois prochaines dates suffisent.
+        let toRead = rule.provider == .anybuddy ? Array(days.prefix(3)) : days
         do {
-            for day in days {
+            for day in toRead {
                 candidates += try await fetchSlots(rule, day: day).filter { matches(rule, $0) }
             }
         } catch PlaytomicError.blockedByPlaytomic {
             // Règle du dossier : on ne contourne jamais, on s'arrête.
-            update(ruleID) { $0.lastCheck = Date(); $0.pausedUntil = Date().addingTimeInterval(3600); $0.lastStatus = "Playtomic limite les requêtes : pause d'une heure." }
+            update(ruleID) { $0.lastCheck = Date(); $0.pausedUntil = Date().addingTimeInterval(3600); $0.lastStatus = "Playtomic limite les lectures : je fais une pause d'une heure." }
             return
         } catch {
             update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = error.localizedDescription }
@@ -256,7 +276,7 @@ final class BotEngine: ObservableObject {
         guard !candidates.isEmpty else {
             update(ruleID) {
                 $0.lastCheck = Date()
-                $0.lastStatus = days.isEmpty ? "Aucune date à surveiller" : "Rien de libre pour l'instant · \(days.count) date\(days.count > 1 ? "s" : "") surveillée\(days.count > 1 ? "s" : "")"
+                $0.lastStatus = days.isEmpty ? "Aucune date à surveiller" : "Je guette… rien de libre pour l'instant."
             }
             return
         }
@@ -265,11 +285,17 @@ final class BotEngine: ObservableObject {
             let fresh = candidates.filter { !rule.notifiedSlots.contains($0.id) }
             if let best = fresh.first {
                 let url = actionURL(for: best, slug: rule.clubSlug)
-                record(.found, rule: rule, slot: best, message: "Libre · \(best.duration) min · \(best.courtName)", url: url?.absoluteString)
-                notify(title: "Créneau libre · \(rule.clubName)", body: "\(Self.when(best)) · \(best.duration) min · \(best.courtName) \(best.priceLabel). Touche pour réserver.", url: url)
+                let target = BookingTarget(slot: best)
+                record(.found, rule: rule, slot: best, message: "Libre · \(best.duration > 0 ? "\(best.duration) min" : "durée au choix") · \(best.courtName)", url: url?.absoluteString)
+                notify(title: "Créneau libre · \(rule.clubName)", body: "\(Self.when(best)) · \(best.courtName) \(best.priceLabel). Touche : l'assistant prépare la réservation.",
+                       url: url, target: target)
                 update(ruleID) { $0.notifiedSlots.append(best.id); $0.notifiedSlots = Array($0.notifiedSlots.suffix(200)) }
+                // « Réserver tout seul » : si l'app est ouverte, la page s'ouvre et l'assistant choisit le créneau.
+                if rule.autoBook, let url, UIApplication.shared.applicationState == .active, openBooking == nil {
+                    openBooking = BookingRequest(url: url, target: target)
+                }
             }
-            update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = "\(candidates.count) créneau\(candidates.count > 1 ? "x" : "") libre\(candidates.count > 1 ? "s" : "") repéré\(candidates.count > 1 ? "s" : "")" }
+            update(ruleID) { $0.lastCheck = Date(); $0.lastStatus = "Trouvé ! \(candidates.count) créneau\(candidates.count > 1 ? "x" : "") libre\(candidates.count > 1 ? "s" : "")." }
             return
         }
         // Clubs partenaires PadelUp : réservation directe.
@@ -336,11 +362,11 @@ final class BotEngine: ObservableObject {
         switch outcome.status {
         case .booked:
             record(.booked, rule: rule, clubName: clubName, slot: slot, message: outcome.message)
-            notify(title: "Réservé · \(clubName)", body: "\(Self.when(slot)) · \(slot.duration) min · \(slot.courtName)", url: nil)
+            notify(title: "Réservé · \(clubName)", body: "\(Self.when(slot)) · \(slot.duration) min · \(slot.courtName)", url: nil, target: nil)
         case .needsAction:
             if ruleID != nil {
                 record(.needsAction, rule: rule, clubName: clubName, slot: slot, message: outcome.message, url: outcome.actionURL?.absoluteString)
-                notify(title: "À toi de jouer · \(clubName)", body: "\(Self.when(slot)) : \(outcome.message)", url: outcome.actionURL)
+                notify(title: "À toi de jouer · \(clubName)", body: "\(Self.when(slot)) : \(outcome.message)", url: outcome.actionURL, target: BookingTarget(slot: slot))
             }
         case .authError, .failed:
             record(.failed, rule: rule, clubName: clubName, slot: slot, message: outcome.message)
@@ -403,13 +429,14 @@ final class BotEngine: ObservableObject {
                         self.snipe?.phase = .found(Self.when(best) + " · " + best.courtName)
                         self.record(.found, rule: current, slot: best, message: "Ouvert à l'instant · \(best.duration) min", url: url?.absoluteString)
                         self.update(rule.id) { $0.notifiedSlots.append(best.id); $0.lastStatus = "Ouverture : \(Self.when(best)) repéré" }
-                        self.notify(title: "C'est ouvert · \(current.clubName)", body: "\(Self.when(best)) · \(best.courtName). Touche pour réserver.", url: url)
-                        if let url { self.openURL = url }
+                        self.notify(title: "C'est ouvert · \(current.clubName)", body: "\(Self.when(best)) · \(best.courtName). Touche pour réserver.",
+                                    url: url, target: BookingTarget(slot: best))
+                        if let url { self.openBooking = BookingRequest(url: url, target: BookingTarget(slot: best)) }
                         return
                     }
                 } catch PlaytomicError.blockedByPlaytomic {
                     self.snipe?.phase = .blocked
-                    self.update(rule.id) { $0.lastStatus = "Playtomic limite les requêtes : le bot s'est arrêté." }
+                    self.update(rule.id) { $0.lastStatus = "Playtomic limite les lectures : je me suis arrêté." }
                     return
                 } catch {
                     // Erreur réseau passagère : on continue à la cadence prévue.
@@ -419,7 +446,7 @@ final class BotEngine: ObservableObject {
             }
             if !Task.isCancelled {
                 self.snipe?.phase = .missed
-                self.update(rule.id) { $0.lastStatus = "Rien n'est apparu à l'ouverture. Le bot continue de surveiller." }
+                self.update(rule.id) { $0.lastStatus = "Rien à l'ouverture. Je continue de guetter." }
             }
         }
     }
@@ -449,7 +476,7 @@ final class BotEngine: ObservableObject {
                 guard fire > Date() else { continue }
                 let content = UNMutableNotificationContent()
                 content.title = "Ouverture dans 1 minute · \(rule.clubName)"
-                content.body = "Les créneaux du \(FR.string(day, "EEEE d MMM", tz: rule.tz)) ouvrent à \(FR.time(release, tz: rule.tz)). Ouvre PadelUp : le bot est prêt."
+                content.body = "Les créneaux du \(FR.string(day, "EEEE d MMM", tz: rule.tz)) ouvrent à \(FR.time(release, tz: rule.tz)). Ouvre PadelUp : je suis prêt."
                 content.sound = .default
                 content.interruptionLevel = .timeSensitive
                 let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: fire)
@@ -466,12 +493,16 @@ final class BotEngine: ObservableObject {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
     }
 
-    private func notify(title: String, body: String, url: URL?) {
+    private func notify(title: String, body: String, url: URL?, target: BookingTarget?) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
-        if let url { content.userInfo = ["url": url.absoluteString] }
+        if let url {
+            var info: [String: Any] = ["url": url.absoluteString]
+            if let target { info["time"] = target.time; info["duration"] = target.duration ?? 0 }
+            content.userInfo = info
+        }
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
     }
 }

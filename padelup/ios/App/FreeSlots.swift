@@ -242,7 +242,7 @@ struct FreeNowBlock: View {
                 } else if rows.isEmpty {
                     EmptyNote(title: "Rien de libre \(period.label.lowercased()).",
                               message: model.clubs.isEmpty ? "Aucun club lisible près de toi pour l'instant."
-                                : "Dans \(model.clubs.count) club\(model.clubs.count > 1 ? "s" : "") proches. Essaie un autre moment, ou lance un bot : il te prévient dès qu'un créneau se libère.")
+                                : "Dans \(model.clubs.count) club\(model.clubs.count > 1 ? "s" : "") proches. Essaie un autre moment, ou lance une résa auto : je te préviens dès qu'un créneau se libère.")
                     if let err = model.lastError {
                         Text(err).font(UI.small()).foregroundStyle(UI.faint).fixedSize(horizontal: false, vertical: true)
                     }
@@ -288,10 +288,13 @@ struct FreeNowBlock: View {
     /// Une heure touchée : la page de réservation du club s'ouvre à la bonne date, déjà connectée.
     private func book(_ club: Club, _ g: SlotGroup) {
         let s = g.first
+        // La page s'ouvre déjà connectée, et l'assistant touche l'heure choisie et la durée à ta place.
+        let target = BookingTarget(time: g.time, duration: duration ?? (s.duration > 0 ? s.duration : nil))
         if s.provider == .playtomic {
-            router.sheet = .web(PlaytomicWeb.bookingURL(slug: club.playtomicSlug, tenantID: s.clubID, day: s.start, timezone: s.timezone))
+            let url = PlaytomicWeb.bookingURL(slug: club.playtomicSlug, tenantID: s.clubID, day: s.start, timezone: s.timezone)
+            router.sheet = .booking(BookingRequest(url: url, target: target))
         } else if s.provider == .anybuddy, let url = AnybuddyAPI.clubURL(s.clubID, day: s.start) {
-            router.sheet = .web(url)
+            router.sheet = .booking(BookingRequest(url: url, target: target))
         } else {
             router.openClub = club
         }
