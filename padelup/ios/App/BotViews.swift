@@ -381,7 +381,7 @@ struct RuleEditorView: View {
                 searching = true
                 info = "Identification de \(c.name)…"
                 defer { searching = false }
-                var id = await HiddenPlaytomic.shared.tenantID(slug: c.slug)
+                var id = await HiddenBrowser.shared.tenantID(slug: c.slug)
                 if id == nil { id = await PlaytomicWeb.resolve(link: "https://playtomic.com/clubs/\(c.slug)")?.id }
                 if let id {
                     info = nil
@@ -453,8 +453,8 @@ struct RuleEditorView: View {
         if results.isEmpty {
             // Le site affiche ses résultats avec JavaScript : on les lit dans un navigateur invisible, comme Safari.
             info = "Recherche sur le site Playtomic…"
-            results = PlaytomicWeb.rank(await HiddenPlaytomic.shared.search(q + " france"), query: q)
-            if results.isEmpty { results = PlaytomicWeb.rank(await HiddenPlaytomic.shared.search(q), query: q) }
+            results = PlaytomicWeb.rank(await HiddenBrowser.shared.search(q + " france"), query: q)
+            if results.isEmpty { results = PlaytomicWeb.rank(await HiddenBrowser.shared.search(q), query: q) }
         }
         info = results.isEmpty ? "Rien trouvé pour « \(q) » : essaie le nom exact du club, ou choisis-le sur le site Playtomic." : nil
     }

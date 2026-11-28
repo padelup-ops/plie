@@ -50,13 +50,29 @@ enum PlaytomicWeb {
         var comps = URLComponents(string: "https://playtomic.com/api/clubs/availability")!
         comps.queryItems = [URLQueryItem(name: "tenant_id", value: tenantID), URLQueryItem(name: "date", value: f.string(from: day)),
                             URLQueryItem(name: "sport_id", value: "PADEL")]
-        let (data, resp) = try await URLSession.shared.data(for: await request(comps.url!))
-        let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
+        // 1) Requête directe de l'app.
+        var code = 0
+        if let result = try? await URLSession.shared.data(for: await request(comps.url!)) {
+            let (data, resp) = result
+            code = (resp as? HTTPURLResponse)?.statusCode ?? 0
+            if code == 200, let blocks = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+                return parseAvailability(blocks, tenantID: tenantID, dayKey: f.string(from: day), tzName: tzName)
+            }
+        }
+        // 2) Sinon, la page Playtomic fait l'appel elle-même, comme sur le site (mêmes en-têtes qu'un navigateur).
+        let path = "/api/clubs/availability?" + (comps.percentEncodedQuery ?? "")
+        if let page = await HiddenBrowser.shared.pageFetch(origin: site, path: path) {
+            if page.status == 200, let blocks = try? JSONSerialization.jsonObject(with: Data(page.body.utf8)) as? [[String: Any]] {
+                return parseAvailability(blocks, tenantID: tenantID, dayKey: f.string(from: day), tzName: tzName)
+            }
+            code = page.status
+        }
         // Refus ou limitation : on s'arrête (règle du dossier : ne jamais contourner, arrêter si Playtomic bloque).
         if code == 403 || code == 429 { throw PlaytomicError.blockedByPlaytomic }
-        guard code == 200, let blocks = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-            throw PlaytomicError.unavailable("Disponibilités Playtomic indisponibles (\(code)).")
-        }
+        throw PlaytomicError.unavailable("Disponibilités Playtomic indisponibles (\(code)).")
+    }
+
+    static func parseAvailability(_ blocks: [[String: Any]], tenantID: String, dayKey: String, tzName: String) -> [BookingSlot] {
         let utc = DateFormatter()
         utc.locale = Locale(identifier: "en_US_POSIX")
         utc.timeZone = TimeZone(identifier: "UTC")
@@ -75,7 +91,7 @@ enum PlaytomicWeb {
                                        indoor: nil, timezone: tzName, rawStart: "\(startDate)T\(time)"))
             }
         }
-        return out.filter { $0.localDayKey == f.string(from: day) }.sorted { ($0.start, $0.duration, $0.courtName) < ($1.start, $1.duration, $1.courtName) }
+        return out.filter { $0.localDayKey == dayKey }.sorted { ($0.start, $0.duration, $0.courtName) < ($1.start, $1.duration, $1.courtName) }
     }
 
     // MARK: Fenêtre de réservation du club (détectée en lisant les créneaux)
@@ -322,8 +338,8 @@ enum PlaytomicWeb {
             if let results = try? await search(query), let hit = pickSimilar(results) { return hit }
         }
         // Le site affiche ses résultats avec JavaScript : un navigateur invisible les lit comme Safari.
-        if var hit = pickSimilar(await HiddenPlaytomic.shared.search(club.name)) {
-            if hit.id.isEmpty { hit = PlaytomicClub(id: await HiddenPlaytomic.shared.tenantID(slug: hit.slug) ?? "", name: hit.name, slug: hit.slug,
+        if var hit = pickSimilar(await HiddenBrowser.shared.search(club.name)) {
+            if hit.id.isEmpty { hit = PlaytomicClub(id: await HiddenBrowser.shared.tenantID(slug: hit.slug) ?? "", name: hit.name, slug: hit.slug,
                                                      countryCode: hit.countryCode, street: hit.street, postalCode: hit.postalCode) }
             return hit.id.isEmpty ? nil : hit
         }

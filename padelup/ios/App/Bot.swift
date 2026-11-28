@@ -217,7 +217,7 @@ final class BotEngine: ObservableObject {
     func actionURL(for slot: BookingSlot, slug: String?) -> URL? {
         switch slot.provider {
         case .playtomic: return PlaytomicWeb.bookingURL(slug: slug, tenantID: slot.clubID, day: slot.start, timezone: slot.timezone)
-        case .anybuddy: return AnybuddyAPI.clubURL(slot.clubID)
+        case .anybuddy: return AnybuddyAPI.clubURL(slot.clubID, day: slot.start)
         case .padelup: return nil
         }
     }
@@ -325,7 +325,7 @@ final class BotEngine: ObservableObject {
                                          actionURL: actionURL(for: slot, slug: slug))
             case .anybuddy:
                 outcome = BookingOutcome(status: .needsAction, message: "Termine sur Anybuddy, déjà connecté.",
-                                         actionURL: AnybuddyAPI.clubURL(slot.clubID))
+                                         actionURL: AnybuddyAPI.clubURL(slot.clubID, day: slot.start))
             case .padelup:
                 outcome = try await ServerAPI.shared.botBook(slot, clubName: clubName)
             }

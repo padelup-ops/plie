@@ -165,7 +165,7 @@ enum BotProvider: String, Codable, CaseIterable, Identifiable {
         case .playtomic:
             return "Le bot lit les créneaux en direct sur le site Playtomic, depuis ton iPhone, et te prévient dès qu'un créneau correspond. La page du club s'ouvre à la bonne date, déjà connectée : tu valides et tu paies en un geste."
         case .anybuddy:
-            return "Anybuddy protège ses créneaux contre les robots : PadelUp ne les lit pas à sa place. Le bot ouvre la page du club et la réservation automatique d'Anybuddy, déjà connecté à ton compte."
+            return "Les créneaux sont lus sur la page Anybuddy du club, comme tu la verrais, depuis ton iPhone. Si Anybuddy demande une vérification, on s'arrête et la page s'ouvre pour toi. La réservation se termine sur Anybuddy, déjà connecté."
         case .padelup:
             return "Réservation directe et immédiate dans les clubs partenaires PadelUp."
         }

@@ -46,6 +46,9 @@ final class FreeSlotsModel: ObservableObject {
     private var lastLoad: Date? = nil
     private var task: Task<Void, Never>? = nil
 
+    private var anybuddyRead: [String: Date] = [:]     // « slug|jour » → dernière lecture
+    @Published private(set) var lastError: String? = nil
+
     private func missKey(_ club: Club) -> String { "playtomicMiss." + club.id }
 
     /// Clubs à lire : favoris d'abord, puis les plus proches ; ceux qu'on sait lire en premier.
@@ -54,63 +57,109 @@ final class FreeSlotsModel: ObservableObject {
         if let location {
             for c in directory.nearest(to: location, limit: 14, maxKm: 30) where !list.contains(where: { $0.id == c.id }) { list.append(c) }
         }
+        // Reconnaissance Anybuddy immédiate (liste publique de leurs clubs, embarquée).
+        list = list.map { c in
+            guard c.playtomicTenantID == nil, c.anybuddySlug == nil, c.backendID == nil, let slug = AnybuddyDirectory.match(c) else { return c }
+            var linked = c
+            linked.anybuddySlug = slug
+            directory.linkAnybuddy(clubID: c.id, slug: slug)
+            return linked
+        }
         let recentMiss: (Club) -> Bool = { c in
             guard let d = UserDefaults.standard.object(forKey: "playtomicMiss." + c.id) as? Date else { return false }
             return d.timeIntervalSinceNow > -7 * 86_400
         }
-        list = list.filter { $0.playtomicTenantID != nil || $0.backendID != nil || ($0.anybuddySlug == nil && !recentMiss($0)) }
-        return Array(list.sorted { ($0.playtomicTenantID != nil ? 0 : 1) < ($1.playtomicTenantID != nil ? 0 : 1) }.prefix(10))
+        list = list.filter { $0.playtomicTenantID != nil || $0.backendID != nil || $0.anybuddySlug != nil || !recentMiss($0) }
+        func rank(_ c: Club) -> Int { c.playtomicTenantID != nil ? 0 : (c.anybuddySlug != nil ? 1 : (c.backendID != nil ? 1 : 2)) }
+        return Array(list.enumerated().sorted { (rank($0.element), $0.offset) < (rank($1.element), $1.offset) }.map(\.element).prefix(10))
     }
 
-    func refresh(directory: ClubDirectory, favorites: [Club], location: CLLocation?, force: Bool = false) {
+    func refresh(directory: ClubDirectory, favorites: [Club], location: CLLocation?, period: FreePeriod, force: Bool = false) {
         if ShotMode.current != nil { installDemo(); return }
-        if !force, let lastLoad, lastLoad.timeIntervalSinceNow > -90, !slots.isEmpty { return }
+        let fresh = !force && (lastLoad?.timeIntervalSinceNow ?? -1000) > -90 && !slots.isEmpty
         task?.cancel()
-        let list = candidates(directory: directory, favorites: favorites, location: location)
+        let list = fresh ? clubs : candidates(directory: directory, favorites: favorites, location: location)
         clubs = list
         guard !list.isEmpty else { status = location == nil ? "" : "Aucun club proche à lire."; return }
+        if force { anybuddyRead = [:] }
         loading = true
         status = "Lecture des créneaux…"
         task = Task {
-            // Clubs déjà reliés : lus tout de suite, en parallèle (deux jours chacun).
-            await withTaskGroup(of: (String, [BookingSlot]).self) { group in
-                for club in list where club.playtomicTenantID != nil || club.backendID != nil {
-                    group.addTask { (club.id, await Self.read(club)) }
+            // 1) Playtomic et clubs PadelUp déjà reliés : lus en parallèle (aujourd'hui et demain).
+            if !fresh {
+                await withTaskGroup(of: (String, [BookingSlot], String?).self) { group in
+                    for club in list where club.playtomicTenantID != nil || club.backendID != nil {
+                        group.addTask { await Self.read(club) }
+                    }
+                    for await (id, s, err) in group {
+                        self.slots[id] = s
+                        if let err { self.lastError = err }
+                    }
                 }
-                for await (id, s) in group { self.slots[id] = s }
             }
-            // Clubs pas encore reliés : retrouvés sur Playtomic un par un (quelques secondes chacun, la première fois).
-            for var club in list where club.playtomicTenantID == nil && club.backendID == nil {
-                if Task.isCancelled { break }
-                self.status = "Recherche de \(club.displayName) sur Playtomic…"
-                if let match = await PlaytomicWeb.match(for: club) {
-                    club.playtomicTenantID = match.id
-                    club.playtomicSlug = match.slug
-                    if club.timezone == nil { club.timezone = club.longitude > 8 && club.latitude < 38 ? "Africa/Tunis" : "Europe/Paris" }
-                    directory.link(clubID: club.id, tenantID: match.id, slug: match.slug, timezone: club.timezone)
-                    if let i = self.clubs.firstIndex(where: { $0.id == club.id }) { self.clubs[i] = club }
-                    self.slots[club.id] = await Self.read(club)
-                } else {
-                    UserDefaults.standard.set(Date(), forKey: self.missKey(club))
+            // 2) Anybuddy : la page de chaque club, pour le jour du moment choisi (une page à la fois).
+            await self.readAnybuddy(list, period: period)
+            // 3) Clubs pas encore reliés : retrouvés sur Playtomic un par un (la première fois seulement).
+            if !fresh {
+                for var club in list where club.playtomicTenantID == nil && club.backendID == nil && club.anybuddySlug == nil {
+                    if Task.isCancelled { break }
+                    self.status = "Recherche de \(club.displayName) sur Playtomic…"
+                    if let match = await PlaytomicWeb.match(for: club) {
+                        club.playtomicTenantID = match.id
+                        club.playtomicSlug = match.slug
+                        if club.timezone == nil { club.timezone = club.longitude > 8 && club.latitude < 38 ? "Africa/Tunis" : "Europe/Paris" }
+                        directory.link(clubID: club.id, tenantID: match.id, slug: match.slug, timezone: club.timezone)
+                        if let i = self.clubs.firstIndex(where: { $0.id == club.id }) { self.clubs[i] = club }
+                        let (_, s, err) = await Self.read(club)
+                        self.slots[club.id] = s
+                        if let err { self.lastError = err }
+                    } else {
+                        UserDefaults.standard.set(Date(), forKey: self.missKey(club))
+                    }
                 }
+                self.lastLoad = Date()
             }
             self.loading = false
-            self.lastLoad = Date()
             self.status = ""
         }
     }
 
-    private static func read(_ club: Club) async -> [BookingSlot] {
-        var out: [BookingSlot] = []
-        for offset in 0...1 {
-            guard let day = Calendar.current.date(byAdding: .day, value: offset, to: Calendar.current.startOfDay(for: Date())) else { continue }
-            if let tenant = club.playtomicTenantID {
-                out += (try? await PlaytomicWeb.slots(tenantID: tenant, day: day, timezone: club.timezone)) ?? []
-            } else if let id = club.backendID, await ServerAPI.shared.isLoggedIn {
-                out += (try? await ServerAPI.shared.botSlots(provider: .padelup, clubID: String(id), day: day)) ?? []
+    private func readAnybuddy(_ list: [Club], period: FreePeriod) async {
+        guard let day = Calendar.current.date(byAdding: .day, value: period.dayOffset, to: Calendar.current.startOfDay(for: Date())) else { return }
+        let dayKey = FR.string(day, "yyyy-MM-dd")
+        for club in list where club.playtomicTenantID == nil {
+            guard let slug = club.anybuddySlug, !Task.isCancelled else { continue }
+            let key = slug + "|" + dayKey
+            if let last = anybuddyRead[key], last.timeIntervalSinceNow > -180 { continue }
+            status = "Lecture de \(club.displayName) sur Anybuddy…"
+            do {
+                let found = try await AnybuddyAPI.slots(slug: slug, day: day)
+                let others = (slots[club.id] ?? []).filter { $0.localDayKey != dayKey }
+                slots[club.id] = others + found
+                anybuddyRead[key] = Date()
+            } catch {
+                lastError = error.localizedDescription
+                if error.localizedDescription.contains("vérification") { break }   // Anybuddy demande une vérification : on s'arrête
             }
         }
-        return out
+    }
+
+    private static func read(_ club: Club) async -> (String, [BookingSlot], String?) {
+        var out: [BookingSlot] = []
+        var err: String? = nil
+        for offset in 0...1 {
+            guard let day = Calendar.current.date(byAdding: .day, value: offset, to: Calendar.current.startOfDay(for: Date())) else { continue }
+            do {
+                if let tenant = club.playtomicTenantID {
+                    out += try await PlaytomicWeb.slots(tenantID: tenant, day: day, timezone: club.timezone)
+                } else if let id = club.backendID, ServerAPI.shared.isLoggedIn {
+                    out += try await ServerAPI.shared.botSlots(provider: .padelup, clubID: String(id), day: day)
+                }
+            } catch {
+                err = "\(club.displayName) : \(error.localizedDescription)"
+            }
+        }
+        return (club.id, out, err)
     }
 
     /// Créneaux libres d'un club pour un moment, regroupés par heure.
@@ -122,7 +171,7 @@ final class FreeSlotsModel: ObservableObject {
         let key = FR.string(day, "yyyy-MM-dd", tz: tz)
         let list = (slots[club.id] ?? []).filter {
             $0.localDayKey == key && period.range.contains($0.minutesOfDay) && $0.start > Date().addingTimeInterval(15 * 60)
-                && (duration == nil || $0.duration == duration)
+                && (duration == nil || $0.duration == duration || $0.duration == 0)
         }
         var byTime: [String: [BookingSlot]] = [:]
         for s in list { byTime[s.localTime, default: []].append(s) }
@@ -194,6 +243,10 @@ struct FreeNowBlock: View {
                     EmptyNote(title: "Rien de libre \(period.label.lowercased()).",
                               message: model.clubs.isEmpty ? "Aucun club lisible près de toi pour l'instant."
                                 : "Dans \(model.clubs.count) club\(model.clubs.count > 1 ? "s" : "") proches. Essaie un autre moment, ou lance un bot : il te prévient dès qu'un créneau se libère.")
+                    if let err = model.lastError {
+                        Text(err).font(UI.small()).foregroundStyle(UI.faint).fixedSize(horizontal: false, vertical: true)
+                    }
+                    Button("Pourquoi rien ? Lancer le diagnostic") { router.sheet = .diagnostic }.buttonStyle(LinkButtonStyle())
                 }
                 ForEach(rows) { row in
                     let club = row.club
@@ -225,10 +278,11 @@ struct FreeNowBlock: View {
         }
         .onAppear { reload(force: false) }
         .onChange(of: location.location == nil) { _, _ in reload(force: false) }
+        .onChange(of: period) { _, _ in reload(force: false) }
     }
 
     private func reload(force: Bool) {
-        model.refresh(directory: directory, favorites: favorites.clubs, location: location.location, force: force)
+        model.refresh(directory: directory, favorites: favorites.clubs, location: location.location, period: period, force: force)
     }
 
     /// Une heure touchée : la page de réservation du club s'ouvre à la bonne date, déjà connectée.
@@ -236,6 +290,8 @@ struct FreeNowBlock: View {
         let s = g.first
         if s.provider == .playtomic {
             router.sheet = .web(PlaytomicWeb.bookingURL(slug: club.playtomicSlug, tenantID: s.clubID, day: s.start, timezone: s.timezone))
+        } else if s.provider == .anybuddy, let url = AnybuddyAPI.clubURL(s.clubID, day: s.start) {
+            router.sheet = .web(url)
         } else {
             router.openClub = club
         }

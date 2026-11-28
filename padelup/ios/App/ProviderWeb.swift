@@ -418,8 +418,8 @@ struct PlaytomicPickerSheet: View {
 /// attend l'affichage, puis lit ce qui est à l'écran : les liens vers les pages des clubs. C'est la même navigation
 /// qu'une personne, au même rythme, depuis son iPhone : aucune protection n'est contournée.
 @MainActor
-final class HiddenPlaytomic: NSObject, WKNavigationDelegate {
-    static let shared = HiddenPlaytomic()
+final class HiddenBrowser: NSObject, WKNavigationDelegate {
+    static let shared = HiddenBrowser()
     private var webView: WKWebView?
     private var waiting: CheckedContinuation<Void, Never>?
     private var tail: Task<Void, Never>? = nil
@@ -523,6 +523,89 @@ final class HiddenPlaytomic: NSObject, WKNavigationDelegate {
             try? await Task.sleep(nanoseconds: 500_000_000)
         }
         return []
+    }
+
+    /// Appel fait PAR la page elle-même (même origine, mêmes cookies, mêmes en-têtes qu'un navigateur) : c'est ainsi
+    /// que le site lit ses propres créneaux. Sert quand une requête directe de l'app n'aboutit pas.
+    func pageFetch(origin: URL, path: String) async -> (status: Int, body: String)? {
+        await serial { await self.pageFetchNow(origin: origin, path: path) }
+    }
+
+    private func pageFetchNow(origin: URL, path: String) async -> (status: Int, body: String)? {
+        if webView?.url?.host != origin.host { await load(origin) }
+        guard let w = webView else { return nil }
+        let js = "const r = await fetch(u, {credentials: 'include', headers: {'Accept': 'application/json'}}); return JSON.stringify({s: r.status, b: await r.text()});"
+        guard let raw = try? await w.callAsyncJavaScript(js, arguments: ["u": path], contentWorld: .page) as? String,
+              let o = try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any] else { return nil }
+        return ((o["s"] as? NSNumber)?.intValue ?? 0, o["b"] as? String ?? "")
+    }
+
+    enum PageSlots { case slots([(time: String, price: Double?, count: Int)]), none, captcha, failed(String) }
+
+    /// Créneaux d'un club Anybuddy tels que sa page les affiche (boutons « 19:30, dès 36 €, 2 choix disponibles »).
+    /// Si Anybuddy demande une vérification (captcha), on s'arrête : jamais de contournement.
+    static let anybuddyJS = #"""
+    (function(){
+      var body = document.body ? document.body.innerText : '';
+      if (document.querySelector('iframe[src*="captcha"], iframe[src*="turnstile"], iframe[src*="challenges"], iframe[src*="recaptcha"]')) {
+        return JSON.stringify({ captcha: true });
+      }
+      var out = [], seen = {};
+      var els = document.querySelectorAll('[aria-label]');
+      for (var i = 0; i < els.length; i++) {
+        var l = els[i].getAttribute('aria-label') || '';
+        var m = l.match(/^(\d{1,2})[:h](\d{2})\s*,\s*d[èe]s\s*([0-9]+(?:[.,][0-9]+)?)/i);
+        if (!m) continue;
+        var t = (m[1].length < 2 ? '0' : '') + m[1] + ':' + m[2];
+        if (seen[t]) continue;
+        seen[t] = 1;
+        var c = l.match(/(\d+)\s*choix/);
+        out.push({ t: t, p: m[3].replace(',', '.'), c: c ? parseInt(c[1]) : 1 });
+      }
+      if (!out.length) {
+        var bs = document.querySelectorAll('button, a, [role="button"]');
+        for (var j = 0; j < bs.length; j++) {
+          var tx = (bs[j].innerText || '').trim();
+          var mm = tx.match(/^(\d{1,2})[:h](\d{2})\b[\s\S]{0,40}?(\d+(?:[.,]\d+)?)\s*€/);
+          if (!mm) continue;
+          var t2 = (mm[1].length < 2 ? '0' : '') + mm[1] + ':' + mm[2];
+          if (seen[t2]) continue;
+          seen[t2] = 1;
+          out.push({ t: t2, p: mm[3].replace(',', '.'), c: 1 });
+        }
+      }
+      var empty = /aucun (terrain|créneau)|plus de créneau|complet/i.test(body);
+      return JSON.stringify({ slots: out, empty: empty, text: body.substring(0, 4000) });
+    })()
+    """#
+
+    func anybuddySlots(slug: String, day: Date) async -> PageSlots {
+        await serial { await self.anybuddySlotsNow(slug: slug, day: day) }
+    }
+
+    private func anybuddySlotsNow(slug: String, day: Date) async -> PageSlots {
+        let dayKey = FR.string(day, "yyyy-MM-dd", tz: TimeZone(identifier: "Europe/Paris") ?? .current)
+        guard let url = URL(string: "https://www.anybuddyapp.com/fr/club/\(slug)?date=\(dayKey)&activity=padel") else { return .failed("adresse") }
+        await load(url)
+        let isToday = Calendar.current.isDateInToday(day)
+        let dayWords = [FR.string(day, "d MMMM"), FR.string(day, "d MMM"), FR.string(day, "EEEE d")].map { $0.lowercased() }
+        for _ in 0..<24 {
+            if let w = webView, let raw = try? await w.evaluateJavaScript(Self.anybuddyJS) as? String,
+               let o = try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any] {
+                if o["captcha"] as? Bool == true { return .captcha }
+                let text = (o["text"] as? String ?? "").lowercased()
+                // Pour un autre jour qu'aujourd'hui, on vérifie que la page affiche bien ce jour-là (sinon on ne dit rien).
+                let rightDay = isToday || dayWords.contains { text.contains($0) }
+                let rows = (o["slots"] as? [[String: Any]] ?? []).compactMap { r -> (time: String, price: Double?, count: Int)? in
+                    guard let t = r["t"] as? String else { return nil }
+                    return (t, (r["p"] as? String).flatMap { Double($0) }, (r["c"] as? NSNumber)?.intValue ?? 1)
+                }
+                if !rows.isEmpty { return rightDay ? .slots(rows) : .failed("jour non confirmé") }
+                if o["empty"] as? Bool == true && rightDay { return .none }
+            }
+            try? await Task.sleep(nanoseconds: 500_000_000)
+        }
+        return .failed("aucun créneau lisible sur la page")
     }
 
     /// Identifiant (tenant) d'un club : lu sur sa page, dans les appels de disponibilités qu'elle fait elle-même.

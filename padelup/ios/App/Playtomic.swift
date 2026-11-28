@@ -81,7 +81,72 @@ enum AnybuddyAPI {
 
     static let protectedMessage = "Anybuddy protège ses créneaux (vérification anti-robot) : ouvre la page du club, déjà connecté, pour les voir."
 
+    /// Page du club à une date (le site lit « ?date= »).
+    static func clubURL(_ slug: String, day: Date) -> URL? {
+        let key = FR.string(day, "yyyy-MM-dd", tz: TimeZone(identifier: "Europe/Paris") ?? .current)
+        return URL(string: "https://www.anybuddyapp.com/fr/club/\(slug)?date=\(key)&activity=padel")
+    }
+
+    /// Créneaux affichés par la page du club, lus dans le navigateur invisible (comme une personne qui regarde).
+    /// Si Anybuddy demande une vérification, on s'arrête : la page s'ouvre pour le joueur, sans contournement.
     static func slots(slug: String, day: Date) async throws -> [BookingSlot] {
-        throw PlaytomicError.unavailable(protectedMessage)
+        let tz = TimeZone(identifier: "Europe/Paris") ?? .current
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = tz
+        let base = cal.startOfDay(for: day)
+        let dayKey = FR.string(base, "yyyy-MM-dd", tz: tz)
+        switch await HiddenBrowser.shared.anybuddySlots(slug: slug, day: base) {
+        case .slots(let rows):
+            return rows.compactMap { r in
+                let parts = r.time.split(separator: ":").compactMap { Int($0) }
+                guard parts.count == 2 else { return nil }
+                let start = base.addingTimeInterval(Double(parts[0] * 3600 + parts[1] * 60))
+                return BookingSlot(provider: .anybuddy, clubID: slug, resourceID: "", courtName: r.count > 1 ? "\(r.count) choix" : "Padel",
+                                   start: start, duration: 0, price: r.price, currency: "EUR", indoor: nil, timezone: tz.identifier,
+                                   rawStart: "\(dayKey)T\(r.time)")
+            }
+        case .none:
+            return []
+        case .captcha:
+            throw PlaytomicError.unavailable("Anybuddy demande une vérification : ouvre la page du club pour voir ses créneaux.")
+        case .failed(let why):
+            throw PlaytomicError.unavailable("Créneaux Anybuddy illisibles (\(why)).")
+        }
+    }
+}
+
+/// Les clubs Anybuddy (plan du site public, embarqué à la compilation) : le club de la carte est reconnu par son nom.
+enum AnybuddyDirectory {
+    static let slugs: [String] = {
+        guard let url = Bundle.main.url(forResource: "anybuddy-clubs", withExtension: "txt"),
+              let text = try? String(contentsOf: url, encoding: .utf8) else { return [] }
+        return text.split(whereSeparator: \.isNewline).map(String.init).filter { !$0.isEmpty }
+    }()
+
+    private static let stop: Set<String> = ["padel", "club", "clubs", "de", "du", "des", "la", "le", "les", "the", "center", "centre",
+                                           "sport", "sports", "and", "et", "terrain", "terrains", "complexe", "espace", "salle"]
+
+    static func tokens(_ s: String) -> Set<String> {
+        let folded = s.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current).lowercased()
+        return Set(folded.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init).filter { $0.count > 2 })
+    }
+
+    /// Le slug Anybuddy d'un club : tous les mots du nom (hors mots génériques) doivent s'y retrouver, la ville aide.
+    static func match(_ club: Club) -> String? {
+        let name = tokens(club.name).subtracting(stop)
+        guard !name.isEmpty, !slugs.isEmpty else { return nil }
+        let city = tokens(club.city).subtracting(stop)
+        var best: (String, Int)? = nil
+        for slug in slugs {
+            let parts = Set(slug.split(separator: "-").map(String.init))
+            let common = name.intersection(parts)
+            guard common.count == name.count || common.count >= 2 else { continue }
+            var score = common.count * 3 + city.intersection(parts).count * 2
+            if parts.contains("padel") { score += 1 }
+            if common.count == name.count { score += 2 }
+            if score > (best?.1 ?? 0) { best = (slug, score) }
+        }
+        guard let best, best.1 >= 5 else { return nil }
+        return best.0
     }
 }

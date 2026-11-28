@@ -117,7 +117,7 @@ struct ProfileView: View {
     }
 
     private var aboutBlock: some View {
-        Block(title: "Sources") {
+        Block(title: "Sources", actionTitle: "Diagnostic", action: { router.sheet = .diagnostic }) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Clubs (\(CoverageZone.countries)) : © contributeurs OpenStreetMap, licence ODbL.")
                 Text("Météo : Open-Meteo.com (CC BY 4.0).")

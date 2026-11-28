@@ -44,6 +44,17 @@ jobs:
           else
             echo "pas encore de fichier des clubs : l'app actualisera en direct" | tee ci/clubs.txt
           fi
+      - name: Embarquer la liste des clubs Anybuddy (plan du site public)
+        continue-on-error: true
+        run: |
+          UA="padelup-build/1.0 (+https://github.com/padelup-ops/plie)"
+          curl -s -A "$UA" --max-time 30 https://www.anybuddyapp.com/sitemap.xml | grep -oE '<loc>[^<]*sitemap-clubs[^<]*</loc>' | sed -E 's#</?loc>##g' > /tmp/maps.txt || true
+          : > /tmp/slugs.txt
+          while read -r m; do
+            curl -s -A "$UA" --max-time 40 "$m" | grep -oE '<loc>[^<]+/club/[^<]+</loc>' | sed -E 's|.*/club/([^<?/]+).*|\1|' >> /tmp/slugs.txt || true
+          done < /tmp/maps.txt
+          if [ -s /tmp/slugs.txt ]; then sort -u /tmp/slugs.txt > padelup/ios/App/Resources/anybuddy-clubs.txt; fi
+          echo "clubs Anybuddy embarqués : $(wc -l < padelup/ios/App/Resources/anybuddy-clubs.txt)" | tee -a ci/clubs.txt
       - name: Installer XcodeGen et générer le projet
         run: |
           if ! command -v xcodegen >/dev/null; then brew install xcodegen >/dev/null 2>&1 || true; fi

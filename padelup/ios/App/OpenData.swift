@@ -260,6 +260,16 @@ final class ClubDirectory: ObservableObject {
         saveCache()
     }
 
+    /// Club de la carte reconnu sur Anybuddy (liste publique de leurs clubs) : rattaché et gardé.
+    func linkAnybuddy(clubID: String, slug: String) {
+        guard var c = clubs[clubID] else { return }
+        c.anybuddySlug = slug
+        if c.timezone == nil { c.timezone = "Europe/Paris" }
+        insert(c)
+        revision += 1
+        saveCache()
+    }
+
     /// Un club Playtomic : s'il correspond à un club OSM proche, on l'y rattache, sinon il devient un club à part.
     func merge(playtomic t: Club) {
         guard let tenant = t.playtomicTenantID else { return }
@@ -298,7 +308,7 @@ final class ClubDirectory: ObservableObject {
     }
 
     private func saveCache() {
-        let live = clubs.values.filter { $0.source != .osm || $0.playtomicTenantID != nil || $0.id.hasPrefix("osm:live") }
+        let live = clubs.values.filter { $0.source != .osm || $0.playtomicTenantID != nil || $0.anybuddySlug != nil || $0.id.hasPrefix("osm:live") }
         let snapshot = Array(live.prefix(5000))
         Task.detached(priority: .background) {
             if let data = try? JSONEncoder().encode(snapshot) { try? data.write(to: Self.cacheURL, options: .atomic) }

@@ -213,7 +213,8 @@ struct ClubDetailView: View {
     @ViewBuilder private var bookingBlock: some View {
         let _ = accountsVersion
         if let provider {
-            if provider == .anybuddy { anybuddyBlock } else { slotsBlock(provider) }
+            slotsBlock(provider)
+            if provider == .anybuddy { anybuddyBlock }
         } else {
             notLinked
         }
@@ -284,7 +285,7 @@ struct ClubDetailView: View {
     }
 
     private var groups: [(String, [SlotGroup])] {
-        let list = slots.filter { $0.duration == duration && $0.start > Date() }
+        let list = slots.filter { ($0.duration == duration || $0.duration == 0) && $0.start > Date() }
         var byTime: [String: [BookingSlot]] = [:]
         for s in list { byTime[s.localTime, default: []].append(s) }
         let all = byTime.keys.sorted().map { SlotGroup(time: $0, slots: (byTime[$0] ?? []).sorted { ($0.price ?? 0) < ($1.price ?? 0) }) }
@@ -324,22 +325,18 @@ struct ClubDetailView: View {
     }
 
     private var anybuddyBlock: some View {
-        Block(title: "Créneaux", meta: "Anybuddy") {
-            VStack(alignment: .leading, spacing: 14) {
-                Text("Anybuddy protège ses créneaux contre les robots : on ouvre la page du club, déjà connecté, pour réserver.")
-                    .font(UI.callout()).foregroundStyle(UI.muted).fixedSize(horizontal: false, vertical: true)
-                if !WebAccount.isConnected(.anybuddy) {
-                    HStack(spacing: 12) {
-                        Text("Compte Anybuddy non connecté.").font(UI.callout()).foregroundStyle(UI.ink)
-                        Spacer(minLength: 8)
-                        Button("Connecter") { login = .anybuddy }.buttonStyle(LinkButtonStyle())
-                    }
+        VStack(alignment: .leading, spacing: 12) {
+            if !WebAccount.isConnected(.anybuddy) {
+                HStack(spacing: 12) {
+                    Text("Compte Anybuddy non connecté.").font(UI.callout()).foregroundStyle(UI.ink)
+                    Spacer(minLength: 8)
+                    Button("Connecter") { login = .anybuddy }.buttonStyle(LinkButtonStyle())
                 }
-                Button { web = AnybuddyAPI.clubURL(club.anybuddySlug ?? "") } label: { Label("Voir les créneaux", systemImage: "calendar") }
-                    .buttonStyle(PrimaryButtonStyle())
-                Button { web = AnybuddyAPI.autoBookingURL } label: { Label("Réservation automatique Anybuddy", systemImage: "scope") }
-                    .buttonStyle(SecondaryButtonStyle())
             }
+            Button { web = AnybuddyAPI.clubURL(club.anybuddySlug ?? "", day: day) } label: { Label("Ouvrir la page Anybuddy du club", systemImage: "calendar") }
+                .buttonStyle(SecondaryButtonStyle())
+            Button { web = AnybuddyAPI.autoBookingURL } label: { Label("Réservation automatique Anybuddy", systemImage: "scope") }
+                .buttonStyle(LinkButtonStyle())
         }
     }
 
@@ -415,6 +412,13 @@ struct ClubDetailView: View {
 
     private func linkPlaytomicIfNeeded() async {
         guard club.playtomicTenantID == nil, club.anybuddySlug == nil, club.backendID == nil else { return }
+        // Anybuddy d'abord : reconnu tout de suite par son nom dans la liste publique de leurs clubs.
+        if let slug = AnybuddyDirectory.match(club) {
+            club.anybuddySlug = slug
+            if club.timezone == nil { club.timezone = "Europe/Paris" }
+            directory.linkAnybuddy(clubID: club.id, slug: slug)
+            return
+        }
         findingPlaytomic = true
         defer { findingPlaytomic = false }
         // Recherche du club sur le site Playtomic (nom + ville).
@@ -427,7 +431,7 @@ struct ClubDetailView: View {
     }
 
     private func loadSlots(quiet: Bool = false) async {
-        guard let provider, provider != .anybuddy, ShotMode.current == nil else { return }
+        guard let provider, ShotMode.current == nil else { return }
         if provider == .padelup && !server.isLoggedIn {
             slotError = "Connecte-toi à ton compte PadelUp (onglet Profil) pour voir et réserver les créneaux de ce club partenaire."
             return
@@ -437,11 +441,13 @@ struct ClubDetailView: View {
         do {
             switch provider {
             case .playtomic: slots = try await PlaytomicWeb.slots(tenantID: club.playtomicTenantID ?? "", day: day, timezone: club.timezone)
-            case .anybuddy: slots = []
+            case .anybuddy: slots = try await AnybuddyAPI.slots(slug: club.anybuddySlug ?? "", day: day)
             case .padelup: slots = try await server.botSlots(provider: .padelup, clubID: String(club.backendID ?? 0), day: day)
             }
             slotError = nil
-            if !slots.contains(where: { $0.duration == duration }), let first = slots.first { duration = first.duration }
+            if !slots.contains(where: { $0.duration == duration || $0.duration == 0 }), let first = slots.first(where: { $0.duration > 0 }) {
+                duration = first.duration
+            }
         } catch {
             if !quiet { slots = [] }
             slotError = error.localizedDescription
@@ -511,7 +517,7 @@ struct BookingSheet: View {
                         Text(FR.longDay(slot.start, tz: slot.timeZoneValue)).font(UI.headline()).foregroundStyle(UI.ink).lineLimit(2)
                     }
                     Text(club.displayName).font(UI.headline()).foregroundStyle(UI.ink)
-                    Text("\(slot.courtName) · \(duration) min\(slot.priceLabel.isEmpty ? "" : " · " + slot.priceLabel)")
+                    Text("\(slot.courtName) · \(slot.duration == 0 ? "durée au choix" : "\(duration) min")\(slot.priceLabel.isEmpty ? "" : " · " + slot.priceLabel)")
                         .font(UI.callout()).foregroundStyle(UI.muted)
                 }
             } stub: {

@@ -3,7 +3,7 @@ import SwiftUI
 enum AppTab: Hashable { case home, clubs, bot, matches, profile }
 
 enum RootSheet: Identifiable {
-    case club(Club), match(APIMatch), level, friends, notifications, web(URL), player(Int), community, bookings, editProfile
+    case club(Club), match(APIMatch), level, friends, notifications, web(URL), player(Int), community, bookings, editProfile, diagnostic
 
     var id: String {
         switch self {
@@ -17,6 +17,7 @@ enum RootSheet: Identifiable {
         case .community: return "community"
         case .bookings: return "bookings"
         case .editProfile: return "editProfile"
+        case .diagnostic: return "diagnostic"
         }
     }
 }
@@ -75,6 +76,7 @@ struct RootView: View {
             case .community: CommunityView()
             case .bookings: BookingsView()
             case .editProfile: EditProfileView()
+            case .diagnostic: DiagnosticView()
             }
         }
         // Le bot (ou une notification touchée) demande d'ouvrir une page de réservation, déjà connectée.
