@@ -143,6 +143,27 @@ enum Paint {
         }
     }
 
+    /// L'ombre ronde et floue posée sous chaque doudou et sous la pince.
+    static let blob: SCNMaterial = {
+        let m = SCNMaterial()
+        m.lightingModel = .constant
+        m.diffuse.contents = Backdrop.blob()
+        m.writesToDepthBuffer = false
+        m.blendMode = .alpha
+        return m
+    }()
+
+    /// Un carré d'ombre d'un mètre de côté, couché sur le sol. À mettre à l'échelle.
+    static func shadow() -> SCNNode {
+        let plane = SCNPlane(width: 1, height: 1)
+        plane.firstMaterial = blob
+        let node = SCNNode(geometry: plane)
+        node.eulerAngles.x = -.pi / 2
+        node.castsShadow = false
+        node.renderingOrder = 5
+        return node
+    }
+
     /// La même couleur, plus sombre (`k` < 1) ou plus claire (`k` > 1).
     static func shade(_ hex: UInt32, _ k: Float) -> UInt32 {
         func ch(_ v: UInt32) -> UInt32 { UInt32(max(0, min(255, (Float(v) * k).rounded()))) }
@@ -445,6 +466,8 @@ final class Plush {
     let species: Species
     let radius: Float
     let node = SCNNode()
+    /// L'ombre au sol, à ajouter à la scène à côté du doudou.
+    let shadow = Paint.shadow()
     private let look = SCNNode()
     private var lean = SIMD2<Float>(0, 0)
     private var leanSpeed = SIMD2<Float>(0, 0)
@@ -508,5 +531,14 @@ final class Plush {
         look.simdEulerAngles = SIMD3<Float>(lean.y, yaw, -lean.x)
         look.simdScale = SIMD3<Float>(1 + squash * 0.5, 1 - squash, 1 + squash * 0.5)
         look.simdPosition = SIMD3<Float>(0, -squash * radius, 0)
+
+        // L'ombre s'élargit et pâlit quand le doudou s'élève ; au-dessus de la trappe, il n'y a pas de sol.
+        let height = max(0, p.y - radius)
+        let overHole = p.x > Box.holeMinX && p.x < Box.holeMaxX && p.z > Box.holeMinZ && p.z < Box.holeMaxZ
+        shadow.isHidden = overHole || p.y < radius * 0.5
+        shadow.simdPosition = SIMD3<Float>(p.x, 0.004, p.z)
+        let spread = radius * 2.9 * (1 + height * 0.3)
+        shadow.simdScale = SIMD3<Float>(spread, spread, 1)
+        shadow.opacity = CGFloat(max(0.2, 1 - height * 0.5))
     }
 }

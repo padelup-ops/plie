@@ -34,10 +34,10 @@ jobs:
     permissions:
       contents: write
     env:
-      ROUTES: ${{ inputs.routes || 'game plain left right high grab win' }}
+      ROUTES: ${{ inputs.routes || 'game left right high grab win collection settings intro' }}
       LANG_CODE: ${{ inputs.lang || 'fr' }}
       # Chaque simulateur met un bon quart d'heure à démarrer : on ne lance que ceux qu'on veut voir.
-      DEVICES: ${{ inputs.devices || 'iphone' }}
+      DEVICES: ${{ inputs.devices || 'iphone ipad' }}
     steps:
       - uses: actions/checkout@v5
       - name: Choisir Xcode 27.1

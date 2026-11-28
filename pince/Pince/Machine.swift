@@ -179,6 +179,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     private let cable = SCNNode()
     private let carriage = SCNNode()
     private let bridge = SCNNode()
+    private let clawShadow = Paint.shadow()
 
     override init() {
         super.init()
@@ -222,7 +223,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let unitsPerPoint = max(1.1 / (w / 2), 1.17 / (h / 2))
         let halfH = unitsPerPoint * h / 2
         lock.lock()
-        window = Window(halfW: unitsPerPoint * w / 2, halfH: halfH, centerY: -0.14 + halfH,
+        window = Window(halfW: unitsPerPoint * w / 2, halfH: halfH, centerY: -0.05 + halfH,
                         unitsPerMeter: unitsPerPoint * pointsPerMeter, restDistance: restDistance)
         lock.unlock()
     }
@@ -269,7 +270,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let ez = max(0.16, min(1.2, eye.z)) * w.unitsPerMeter
         let reach = ez * 0.75
         let ex = max(-reach, min(reach, eye.x * k * w.unitsPerMeter))
-        let ey = max(-reach, min(reach, eye.y * k * w.unitsPerMeter))
+        // Bien en face, on regarde quand même un peu d'en haut, comme devant une vraie machine : on voit le sol.
+        let ey = max(-reach, min(reach, eye.y * k * w.unitsPerMeter + ez * 0.22))
         cameraNode.simdPosition = SIMD3<Float>(ex, w.centerY + ey, ez)
 
         if plain {
@@ -412,6 +414,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         // Un doudou tombé dans la trappe est gagné, qu'il ait été porté ou simplement poussé.
         for p in plushes where p !== held && p.position.y < -0.32 {
             p.node.removeFromParentNode()
+            p.shadow.removeFromParentNode()
             plushes.removeAll { $0 === p }
             emit(.plop)
             emit(.won(p.species))
@@ -427,6 +430,13 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let length = max(0.01, top - bottom)
         cable.simdPosition = SIMD3<Float>(spot.x, (top + bottom) / 2, spot.y)
         cable.simdScale = SIMD3<Float>(1, length, 1)
+
+        let overHole = spot.x > Box.holeMinX && spot.x < Box.holeMaxX && spot.y > Box.holeMinZ && spot.y < Box.holeMaxZ
+        clawShadow.isHidden = overHole
+        clawShadow.simdPosition = SIMD3<Float>(spot.x, 0.005, spot.y)
+        let spread: Float = 0.42 + headY * 0.12
+        clawShadow.simdScale = SIMD3<Float>(spread, spread, 1)
+        clawShadow.opacity = CGFloat(max(0.25, 1 - headY * 0.42))
     }
 
     /// Jusqu'où la pince peut descendre : le sol, ou le dessus du doudou qui est sous elle.
@@ -528,6 +538,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let p = Plush(species, at: SIMD3<Float>(slot.x + jitter.x, height ?? species.radius, slot.y + jitter.y))
         plushes.append(p)
         scene.rootNode.addChildNode(p.node)
+        scene.rootNode.addChildNode(p.shadow)
     }
 
     // MARK: Le décor
@@ -602,7 +613,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         cameraNode.camera = camera
         scene.rootNode.addChildNode(cameraNode)
 
-        // Les lumières : une ambiance chaude, un projecteur qui fait les ombres, un appoint de face.
+        // Les lumières : une ambiance chaude, un projecteur, un appoint de face. Les ombres sont des taches
+        // floues posées au sol (voir Paint.shadow) : c'est plus doux, et ça ne dépend pas de la perspective oblique.
         let ambient = SCNNode()
         ambient.light = SCNLight()
         ambient.light?.type = .ambient
@@ -615,15 +627,6 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         keyLight.type = .directional
         keyLight.color = UIColor(hex: 0xFFFBF2)
         keyLight.intensity = 620
-        keyLight.castsShadow = true
-        keyLight.shadowColor = UIColor(red: 0.25, green: 0.15, blue: 0.4, alpha: 0.3)
-        keyLight.shadowRadius = 5
-        keyLight.shadowSampleCount = 16
-        keyLight.shadowMapSize = CGSize(width: 2048, height: 2048)
-        keyLight.automaticallyAdjustsShadowProjection = false
-        keyLight.orthographicScale = 2.2
-        keyLight.zNear = 0.5
-        keyLight.zFar = 12
         key.light = keyLight
         key.simdPosition = SIMD3<Float>(1.3, 5.6, 0.9)
         key.look(at: SCNVector3(0, 0.6, -1))
@@ -646,7 +649,10 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         // La salle, derrière les machines
         let room = textured(Backdrop.stripes(0xFFD9C9, 0xFFE6D8), repeatX: 14, repeatY: 1)
         panel(40, 14, SIMD3<Float>(0, 3, Box.back - 0.5), yaw: 0, room)
-        _ = box(40, 1, depth + 0.4, SIMD3<Float>(0, -0.53, midZ - 0.22), Paint.matte(0xE9B9C6))
+        // Le socle de la salle, de chaque côté de la machine (pas dessous : la trappe doit rester creuse)
+        for side in [Float(-1), 1] {
+            _ = box(20, 1, depth + 0.4, SIMD3<Float>(side * (Box.halfW + 10), -0.53, midZ - 0.22), Paint.matte(0xE9B9C6))
+        }
 
         // Le sol de la machine, avec la trappe
         let floor = SCNMaterial()
@@ -691,7 +697,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             panel(depth, Box.top, SIMD3<Float>(x, Box.top / 2, midZ), yaw: .pi / 2, glass(), order: 20)
         }
         _ = box(2.1, 0.16, depth + 0.1, SIMD3<Float>(0, Box.top + 0.08, midZ), coral)
-        let sign = box(2.3, 0.64, 0.34, SIMD3<Float>(0, Box.top + 0.5, Box.front - 0.2), coral, chamfer: 0.08)
+        let sign = box(2.1, 0.64, 0.34, SIMD3<Float>(0, Box.top + 0.5, Box.front - 0.2), coral, chamfer: 0.08)
         let title = SCNMaterial()
         title.lightingModel = .constant
         title.diffuse.contents = Backdrop.marquee(T("PINCE-DOUDOU", "PLUSHIE CLAW"))
@@ -718,6 +724,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         cable.castsShadow = false
         scene.rootNode.addChildNode(cable)
         scene.rootNode.addChildNode(claw.node)
+        scene.rootNode.addChildNode(clawShadow)
 
         // Une guirlande au fond et une devant, tout en haut : deux plans de plus pour le relief
         let bulbs: [UInt32] = [Tint.butter, Tint.mint, Tint.coral, Tint.sky, Tint.lilac]
@@ -764,11 +771,6 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         _ = box(2.1, 0.16, depth + 0.1, SIMD3<Float>(x, Box.top + 0.08, midZ), Paint.gloss(trim))
         _ = box(2.3, 0.64, 0.34, SIMD3<Float>(x, Box.top + 0.5, Box.front - 0.2), Paint.gloss(trim), chamfer: 0.08)
 
-        let shade = SCNMaterial()
-        shade.lightingModel = .constant
-        shade.diffuse.contents = Backdrop.blob()
-        shade.writesToDepthBuffer = false
-        shade.blendMode = .alpha
         for (species, at, size, yaw) in guests {
             let model = PlushModel.make(species)
             model.simdScale = SIMD3<Float>(size, size, size)
@@ -776,14 +778,10 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
             model.eulerAngles.y = yaw
             model.castsShadow = false
             scene.rootNode.addChildNode(model)
-            let blob = SCNPlane(width: CGFloat(size * 2.6), height: CGFloat(size * 2.6))
-            blob.firstMaterial = shade
-            let blobNode = SCNNode(geometry: blob)
-            blobNode.simdPosition = SIMD3<Float>(x + at.x, 0.004, at.z)
-            blobNode.eulerAngles.x = -.pi / 2
-            blobNode.castsShadow = false
-            blobNode.renderingOrder = 5
-            scene.rootNode.addChildNode(blobNode)
+            let blob = Paint.shadow()
+            blob.simdPosition = SIMD3<Float>(x + at.x, 0.004, at.z)
+            blob.simdScale = SIMD3<Float>(size * 2.9, size * 2.9, 1)
+            scene.rootNode.addChildNode(blob)
         }
 
         let hanging = Claw(dome: clawTint, trim: Tint.cream, face: false)

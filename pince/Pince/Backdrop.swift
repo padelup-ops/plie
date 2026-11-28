@@ -144,7 +144,7 @@ enum Backdrop {
 
     /// L'enseigne au-dessus de la machine.
     static func marquee(_ title: String) -> UIImage {
-        canvas(1100, 310) { c, size in
+        canvas(1050, 320) { c, size in
             gradient(c, [Tint.coral, Tint.rose], from: .zero, to: CGPoint(x: 0, y: size.height))
             let frame = CGRect(origin: .zero, size: size).insetBy(dx: 26, dy: 26)
             c.setStrokeColor(UIColor(hex: Tint.cream).cgColor)
@@ -160,8 +160,16 @@ enum Backdrop {
                     disc(c, x, y, 9, i % 2 == 0 ? Tint.butter : 0xFFFFFF)
                 }
             }
-            let base = UIFont.systemFont(ofSize: 132, weight: .black)
-            let font = base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: 132) } ?? base
+            // Le titre prend toute la largeur disponible, quelle que soit la langue.
+            func rounded(_ points: CGFloat) -> UIFont {
+                let base = UIFont.systemFont(ofSize: points, weight: .black)
+                return base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: points) } ?? base
+            }
+            var points: CGFloat = 132
+            while points > 60, (title as NSString).size(withAttributes: [.font: rounded(points), .kern: 3]).width > size.width - 150 {
+                points -= 4
+            }
+            let font = rounded(points)
             let style = NSMutableParagraphStyle()
             style.alignment = .center
             let box = CGRect(x: 0, y: (size.height - font.lineHeight) / 2 - 4, width: size.width, height: font.lineHeight)
@@ -169,8 +177,6 @@ enum Backdrop {
             (title as NSString).draw(in: box.offsetBy(dx: 0, dy: 9), withAttributes: shadow)
             let face: [NSAttributedString.Key: Any] = [.font: font, .paragraphStyle: style, .foregroundColor: UIColor(hex: Tint.paper), .kern: 3]
             (title as NSString).draw(in: box, withAttributes: face)
-            sparkle(c, 110, size.height / 2, 30, Tint.butter)
-            sparkle(c, size.width - 110, size.height / 2, 30, Tint.butter)
         }
     }
 
@@ -196,8 +202,9 @@ enum Backdrop {
     /// Une ombre ronde et floue, posée sous les doudous du décor.
     static func blob() -> UIImage {
         canvas(128, 128, opaque: false) { c, size in
-            let colors = [UIColor(white: 0, alpha: 0.32).cgColor, UIColor(white: 0, alpha: 0).cgColor] as CFArray
-            guard let g = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors, locations: [0, 1]) else { return }
+            let tint = UIColor(red: 0.22, green: 0.12, blue: 0.38, alpha: 1)
+            let colors = [tint.withAlphaComponent(0.42).cgColor, tint.withAlphaComponent(0.3).cgColor, tint.withAlphaComponent(0).cgColor] as CFArray
+            guard let g = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors, locations: [0, 0.45, 1]) else { return }
             c.drawRadialGradient(g, startCenter: CGPoint(x: 64, y: 64), startRadius: 0, endCenter: CGPoint(x: 64, y: 64), endRadius: 62, options: [])
         }
     }
