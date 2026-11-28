@@ -47,7 +47,10 @@ enum Rarity: Int {
 }
 
 enum Species: String, CaseIterable, Identifiable {
-    case frog, bear, bunny, fox, whale, mushroom, axolotl, strawberry, unicorn
+    // Dans l'ordre de la collection : les courants, les peu courants, les rares, les légendaires.
+    case frog, bear, bunny, fox, whale, mushroom, axolotl
+    case strawberry, panda, ghost, dragon, bee
+    case unicorn, star, cloud
 
     var id: String { rawValue }
 
@@ -61,7 +64,13 @@ enum Species: String, CaseIterable, Identifiable {
         case .mushroom: return T("Chapi le champignon", "Cap the mushroom")
         case .axolotl: return T("Axo l'axolotl", "Axo the axolotl")
         case .strawberry: return T("Fraisie la fraise", "Berry the strawberry")
+        case .panda: return T("Bambou le panda", "Bamboo the panda")
+        case .ghost: return T("Bouh le fantôme", "Boo the ghost")
+        case .dragon: return T("Braise le dragon", "Ember the dragon")
+        case .bee: return T("Miel l'abeille", "Honey the bee")
         case .unicorn: return T("Nova la licorne", "Nova the unicorn")
+        case .star: return T("Stella l'étoile", "Stella the star")
+        case .cloud: return T("Nimbus le nuage", "Nimbus the cloud")
         }
     }
 
@@ -69,8 +78,8 @@ enum Species: String, CaseIterable, Identifiable {
         switch self {
         case .frog, .bear, .bunny, .fox: return .common
         case .whale, .mushroom, .axolotl: return .uncommon
-        case .strawberry: return .rare
-        case .unicorn: return .legendary
+        case .strawberry, .panda, .ghost, .dragon, .bee: return .rare
+        case .unicorn, .star, .cloud: return .legendary
         }
     }
 
@@ -80,9 +89,25 @@ enum Species: String, CaseIterable, Identifiable {
         case .frog, .bunny: return 0.21
         case .bear, .fox, .mushroom: return 0.22
         case .whale, .axolotl: return 0.225
-        case .strawberry: return 0.2
+        case .strawberry, .star: return 0.2
         case .unicorn: return 0.215
+        case .panda: return 0.22
+        case .ghost, .cloud: return 0.21
+        case .dragon: return 0.225
+        case .bee: return 0.205
         }
+    }
+
+    /// Un doudou tiré au sort parmi les rares et les légendaires.
+    static func randomTreasure() -> Species {
+        let pool = allCases.filter { $0.rarity.rawValue >= Rarity.rare.rawValue }
+        let total = pool.reduce(0) { $0 + $1.rarity.weight }
+        var pick = Int.random(in: 0..<total)
+        for s in pool {
+            pick -= s.rarity.weight
+            if pick < 0 { return s }
+        }
+        return .strawberry
     }
 
     static func random() -> Species {
@@ -227,6 +252,32 @@ private struct Kit {
         n.simdOrientation = simd_quatf(from: SIMD3<Float>(0, 1, 0), to: simd_normalize(d))
         root.addChildNode(n)
         return n
+    }
+
+    /// La rotation qui tourne l'axe y (celui des cônes et des gélules) vers `v`.
+    func point(_ v: SIMD3<Float>) -> simd_quatf {
+        simd_quatf(from: SIMD3<Float>(0, 1, 0), to: simd_normalize(v))
+    }
+
+    /// Une rayure qui fait le tour du corps à la hauteur `y`.
+    func band(_ y: Float, height: Float, _ m: SCNMaterial) {
+        let around = (1 - (y / 0.92) * (y / 0.92)).squareRoot()
+        let g = SCNCylinder(radius: CGFloat(around + 0.012), height: CGFloat(height))
+        g.radialSegmentCount = 40
+        g.firstMaterial = m
+        let n = SCNNode(geometry: g)
+        n.simdPosition = SIMD3<Float>(0, y, 0)
+        root.addChildNode(n)
+    }
+
+    /// Un anneau debout, face au joueur, centré en `pos`.
+    func ring(_ radius: Float, _ pipe: Float, _ pos: SIMD3<Float>, _ m: SCNMaterial) {
+        let g = SCNTorus(ringRadius: CGFloat(radius), pipeRadius: CGFloat(pipe))
+        g.firstMaterial = m
+        let n = SCNNode(geometry: g)
+        n.simdPosition = pos
+        n.eulerAngles.x = .pi / 2
+        root.addChildNode(n)
     }
 
     func body(_ m: SCNMaterial) {
@@ -455,6 +506,111 @@ enum PlushModel {
             k.mouth(-0.14)
             k.feet(Paint.matte(0xC9B6F2))
             k.arms(fur)
+
+        case .panda:
+            let fur = Paint.matte(0xFFFDF9), black = Paint.matte(0x3A3340)
+            k.body(fur)
+            for s in [Float(-1), 1] {
+                k.ball(0.27, SIMD3<Float>(s * 0.64, 0.72, 0), black, scale: SIMD3<Float>(1, 1, 0.7))
+                // La tache noire autour de l'œil, penchée vers l'extérieur
+                let spot = k.patch(s * 0.4, 0.1, radius: 0.21, black, flat: 0.3, lift: 0.025, stretch: 1.3)
+                spot.simdOrientation = spot.simdOrientation * simd_quatf(angle: s * 0.35, axis: SIMD3<Float>(0, 0, 1))
+                let p = k.at(s * 0.4, 0.12, 1.035)
+                k.eye(at: p, normal: p, size: 0.075)
+            }
+            let nose = k.at(0, -0.08, 1.0)
+            k.ball(0.06, nose, Paint.gloss(0x3A3340), scale: SIMD3<Float>(1.3, 0.85, 0.6))
+            k.mouth(-0.2)
+            k.blush(0.78, -0.16)
+            k.feet(black)
+            k.arms(black)
+
+        case .ghost:
+            let sheet = Paint.matte(0xF6F3FF)
+            k.body(sheet)
+            // Le bas du drap, en festons
+            for i in 0..<6 {
+                let a = Float(i) * .pi / 3 + 0.2
+                k.ball(0.3, SIMD3<Float>(cos(a) * 0.68, -0.78, sin(a) * 0.68), sheet)
+            }
+            for s in [Float(-1), 1] {
+                k.ball(0.2, SIMD3<Float>(s * 0.95, 0.12, 0.2), sheet, scale: SIMD3<Float>(1.1, 0.8, 0.8))
+                let p = k.at(s * 0.34, 0.16, 0.985)
+                k.eye(at: p, normal: p, size: 0.11)
+            }
+            let mouth = k.at(0, -0.14, 0.99)
+            k.ball(0.1, mouth, Paint.matte(0x5A3A56), scale: SIMD3<Float>(1, 1.2, 0.4), turn: k.turn(mouth))
+            k.ball(0.06, k.at(0, -0.2, 1.01), Paint.matte(0xFF8FA3), scale: SIMD3<Float>(1, 0.8, 0.4))
+            for s in [Float(-1), 1] { k.patch(s * 0.7, -0.08, radius: 0.13, Paint.matte(0xD8C8FF), flat: 0.28, lift: 0.022, stretch: 0.62) }
+
+        case .dragon:
+            let scales = Paint.matte(0x7FD9C4), belly = Paint.matte(0xF4F9D9), horn = Paint.gloss(0xFFE08A), spike = Paint.matte(0xFF8FA3)
+            k.body(scales)
+            k.patch(0, -0.42, radius: 0.62, belly, flat: 0.4, lift: 0.03)
+            for s in [Float(-1), 1] {
+                k.cone(0.12, 0.38, SIMD3<Float>(s * 0.38, 1.02, 0.12), horn, turn: simd_quatf(angle: -s * 0.3, axis: SIMD3<Float>(0, 0, 1)))
+                // Les petites ailes, dans le dos
+                k.ball(0.42, SIMD3<Float>(s * 0.92, 0.32, -0.42), Paint.matte(0xC9B6F2), scale: SIMD3<Float>(0.75, 1, 0.16),
+                       turn: simd_quatf(angle: s * 0.7, axis: SIMD3<Float>(0, 1, 0)) * simd_quatf(angle: -s * 0.4, axis: SIMD3<Float>(0, 0, 1)))
+                // Les narines
+                k.ball(0.03, k.at(s * 0.09, -0.02, 1.13), Paint.matte(0x4E9E8C))
+            }
+            for (y, z, size) in [(Float(0.98), Float(-0.2), Float(0.16)), (0.78, -0.62, 0.15), (0.42, -0.9, 0.13)] {
+                k.cone(size, size * 2.2, SIMD3<Float>(0, y, z), spike, turn: k.point(SIMD3<Float>(0, y, z)))
+            }
+            k.patch(0, -0.06, radius: 0.3, Paint.matte(0x9BE6D4), flat: 0.6, lift: 0.1, stretch: 0.75)
+            k.ball(0.3, SIMD3<Float>(0.72, -0.5, -0.62), scales, scale: SIMD3<Float>(0.7, 0.7, 1.2))
+            k.cone(0.13, 0.3, SIMD3<Float>(0.92, -0.42, -0.98), spike, turn: k.point(SIMD3<Float>(0.5, 0.2, -1)))
+            k.eyes(0.42, 0.2)
+            k.blush(0.8, -0.04)
+            k.smile(-0.2, width: 0.16)
+            k.feet(Paint.matte(0x5FC2AC))
+            k.arms(scales)
+
+        case .bee:
+            let fuzz = Paint.matte(0xFFD95A), stripe = Paint.matte(0x5A3A2E), wing = Paint.gloss(0xEAF7FF)
+            k.body(fuzz)
+            k.band(0.5, height: 0.17, stripe)
+            k.band(-0.42, height: 0.17, stripe)
+            for s in [Float(-1), 1] {
+                k.ball(0.5, SIMD3<Float>(s * 0.5, 0.95, -0.35), wing, scale: SIMD3<Float>(0.7, 0.13, 1),
+                       turn: simd_quatf(angle: s * 0.5, axis: SIMD3<Float>(0, 0, 1)) * simd_quatf(angle: -0.3, axis: SIMD3<Float>(1, 0, 0)))
+                let tip = SIMD3<Float>(s * 0.34, 1.32, 0.34)
+                k.rod(SIMD3<Float>(s * 0.2, 0.85, 0.25), tip, 0.03, stripe)
+                k.ball(0.075, tip, stripe)
+            }
+            k.cone(0.14, 0.3, SIMD3<Float>(0, -0.3, -1.02), stripe, turn: k.point(SIMD3<Float>(0, -0.2, -1)))
+            k.eyes(0.38, 0.12)
+            k.blush(0.68, -0.1)
+            k.mouth(-0.1)
+            k.feet(stripe)
+
+        case .star:
+            let gold = Paint.gloss(0xFFD23C)
+            k.body(gold)
+            // Cinq branches, dans le plan qui fait face au joueur
+            for i in 0..<5 {
+                let a = Float.pi / 2 + Float(i) * 2 * .pi / 5
+                let dir = SIMD3<Float>(cos(a), sin(a), 0)
+                k.cone(0.5, 0.95, dir * 1.0, gold, turn: k.point(dir))
+            }
+            k.eyes(0.36, 0.1)
+            k.blush(0.64, -0.12)
+            k.smile(-0.14, width: 0.16)
+
+        case .cloud:
+            let fluff = Paint.matte(0xFFFFFF)
+            k.body(fluff)
+            // L'arc-en-ciel, en auréole derrière lui
+            for (radius, hex) in [(Float(1.42), UInt32(0xFF9DB5)), (1.28, 0xFFE08A), (1.14, 0x9AD4F5)] {
+                k.ring(radius, 0.075, SIMD3<Float>(0, 0.05, -0.45), Paint.matte(hex))
+            }
+            let puffs: [(Float, Float, Float)] = [(-0.78, 0.2, 0.52), (0.78, 0.2, 0.52), (-0.46, 0.68, 0.5), (0.46, 0.68, 0.5),
+                                                  (0, 0.86, 0.5), (-0.62, -0.42, 0.5), (0.62, -0.42, 0.5), (0, -0.62, 0.55)]
+            for (x, y, r) in puffs { k.ball(r, SIMD3<Float>(x, y, -0.08), fluff) }
+            k.eyes(0.36, 0.1)
+            k.blush(0.64, -0.12)
+            k.mouth(-0.12)
         }
         return root
     }
@@ -489,6 +645,38 @@ final class Plush {
         node.addChildNode(look)
         node.simdPosition = position
         node.physicsBody = makeBody()
+        if species.rarity.rawValue >= Rarity.rare.rawValue { look.addParticleSystem(Plush.halo(species.rarity, radius: radius)) }
+    }
+
+    /// Quelques paillettes qui scintillent autour des doudous rares (argentées) et légendaires (dorées, plus nombreuses) :
+    /// on les repère dans la machine.
+    private static let sparkImage = Backdrop.glitter()
+
+    private static func halo(_ rarity: Rarity, radius: Float) -> SCNParticleSystem {
+        let legendary = rarity == .legendary
+        let sparks = SCNParticleSystem()
+        sparks.particleImage = sparkImage
+        sparks.birthRate = legendary ? 9 : 4
+        sparks.loops = true
+        sparks.particleLifeSpan = 0.9
+        sparks.particleLifeSpanVariation = 0.4
+        sparks.emitterShape = SCNSphere(radius: CGFloat(radius * 1.25))
+        sparks.birthLocation = .surface
+        sparks.particleVelocity = 0.08
+        sparks.particleVelocityVariation = 0.08
+        sparks.spreadingAngle = 180
+        sparks.particleSize = CGFloat(radius * (legendary ? 0.3 : 0.24))
+        sparks.particleSizeVariation = CGFloat(radius * 0.12)
+        sparks.particleColor = legendary ? UIColor(hex: 0xFFD23C) : UIColor(hex: 0xFFFFFF)
+        sparks.particleAngleVariation = 180
+        sparks.particleAngularVelocityVariation = 120
+        sparks.blendMode = .alpha
+        sparks.isLightingEnabled = false
+        let twinkle = CAKeyframeAnimation()
+        twinkle.values = [0, 1, 0]
+        twinkle.keyTimes = [0, 0.35, 1]
+        sparks.propertyControllers = [.opacity: SCNParticlePropertyController(animation: twinkle)]
+        return sparks
     }
 
     func makeBody() -> SCNPhysicsBody {

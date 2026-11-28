@@ -464,7 +464,7 @@ struct DropControl: View {
                         .frame(width: diameter, height: diameter)
                 }
                 .buttonStyle(ArcadeButton(color: Color(hex: game.canDrop ? 0xF2496B : 0xC9B8C2), shade: Color(hex: game.canDrop ? 0xB52C4C : 0xA4939D)))
-                .disabled(!game.canDrop)
+                .disabled(game.busy || game.prize != nil)
                 if labelled {
                     HStack(spacing: 4) {
                         CoinIcon(size: 16)
@@ -477,23 +477,100 @@ struct DropControl: View {
     }
 }
 
-/// L'étiquette du prix d'une partie, entre le manche et le bouton. Sans pièces, elle annonce le cadeau.
-struct CostTag: View {
+/// Le monnayeur : une pièce qu'on glisse soi-même dans la fente pour payer la partie.
+/// On peut aussi toucher la pièce, elle y va toute seule.
+struct CoinSlot: View {
     @Environment(Game.self) private var game
+    /// Vrai : la fente au-dessus, la pièce dessous. Faux : la pièce à gauche, la fente à droite.
+    var vertical = false
+    @State private var drag = CGSize.zero
+    @State private var swallowed = false
+    @State private var wiggle: CGFloat = 0
+    @State private var pulse = false
+
+    private let coin: CGFloat = 36
+    private let gap: CGFloat = 9
+    private let slotW: CGFloat = 36
+    private let slotH: CGFloat = 46
+
+    /// Le chemin de la pièce jusqu'à la fente.
+    private var toSlot: CGSize {
+        vertical ? CGSize(width: 0, height: -(coin / 2 + gap + slotH / 2)) : CGSize(width: coin / 2 + gap + slotW / 2, height: 0)
+    }
 
     var body: some View {
-        HStack(spacing: 4) {
-            CoinIcon(size: 17)
-            Text(game.broke ? "+\(Game.gift)" : "\(Game.cost)")
-                .font(.toon(16))
-                .foregroundStyle(Color(hex: Tint.plum))
-                .monospacedDigit()
+        let layout = vertical ? AnyLayout(VStackLayout(spacing: gap)) : AnyLayout(HStackLayout(spacing: gap))
+        layout {
+            if vertical { slot }
+            ZStack {
+                Circle()
+                    .strokeBorder(Color.white.opacity(0.28), style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
+                if game.canInsert || swallowed {
+                    CoinIcon(size: coin)
+                        .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 3)
+                        .scaleEffect(swallowed ? 0.35 : (pulse && drag == .zero ? 1.08 : 1))
+                        .opacity(swallowed ? 0 : 1)
+                        .offset(x: drag.width + wiggle, y: drag.height)
+                        .gesture(
+                            DragGesture(minimumDistance: 4)
+                                .onChanged { drag = $0.translation }
+                                .onEnded { _ in
+                                    let dx = drag.width - toSlot.width, dy = drag.height - toSlot.height
+                                    if hypot(dx, dy) < 30 { swallow() } else {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { drag = .zero }
+                                    }
+                                }
+                        )
+                        .onTapGesture { swallow() }
+                        .accessibilityLabel(T("Mettre une pièce", "Insert a coin"))
+                        .accessibilityAddTraits(.isButton)
+                }
+            }
+            .frame(width: coin, height: coin)
+            .zIndex(2)
+            if !vertical { slot }
         }
-        .padding(.leading, 6)
-        .padding(.trailing, 10)
-        .frame(height: 28)
-        .background(Capsule().fill(Color(hex: Tint.butter)))
-        .overlay(Capsule().strokeBorder(Color(hex: 0xE8A93C), lineWidth: 2))
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { pulse = true }
+        }
+        .onChange(of: game.nudge) { _, _ in
+            // On a appuyé sur le bouton sans payer : la pièce s'agite.
+            withAnimation(.linear(duration: 0.07).repeatCount(5, autoreverses: true)) { wiggle = 7 }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { wiggle = 0 }
+        }
+    }
+
+    /// La fente : une plaque dorée, une ouverture sombre qui s'allume quand la partie est payée, et le prix.
+    private var slot: some View {
+        VStack(spacing: 3) {
+            Capsule()
+                .fill(Color(hex: game.credit ? 0x7CE0B0 : 0x2F1830))
+                .frame(width: 7, height: 22)
+                .shadow(color: Color(hex: 0x7CE0B0).opacity(game.credit ? 0.9 : 0), radius: 5)
+            Text("\(Game.cost)")
+                .font(.toon(11, .black))
+                .foregroundStyle(Color(hex: 0x7A4A12))
+        }
+        .frame(width: slotW, height: slotH)
+        .background(
+            RoundedRectangle(cornerRadius: 9)
+                .fill(LinearGradient(colors: [Color(hex: 0xFFF0B8), Color(hex: 0xF2B84A)], startPoint: .top, endPoint: .bottom))
+        )
+        .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(Color(hex: 0xC98A1E), lineWidth: 2))
+    }
+
+    /// La pièce file dans la fente, puis la partie est payée.
+    private func swallow() {
+        guard game.canInsert, !swallowed else { return }
+        withAnimation(.easeIn(duration: 0.16)) {
+            drag = toSlot
+            swallowed = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.17) {
+            game.insertCoin()
+            drag = .zero
+            swallowed = false
+        }
     }
 }
 
@@ -566,19 +643,19 @@ struct ControlBar: View {
         // Assez de place : le prix se met entre le manche et le bouton. Sinon, sous le bouton.
         let roomy = room >= 330
         let menu: CGFloat = roomy ? 36 : 44
-        let stick = min(height - menu - 36, 150, (room - (roomy ? 150 : 56)) * 0.56)
+        let stick = min(height - menu - 36, 150, (room - (roomy ? 120 : 56)) * 0.56)
         let button = stick * 0.76
         VStack(spacing: 9) {
             ConsolePlate {
                 HStack(spacing: roomy ? 16 : 14) {
                     Joystick(diameter: stick, ringed: true) { game.stick($0) }
                     if roomy {
-                        CostTag()
+                        CoinSlot(vertical: true)
                         DropControl(diameter: button, labelled: false)
                     } else {
                         VStack(spacing: 10) {
-                            DropControl(diameter: min(button, stick - 44), labelled: false)
-                            CostTag()
+                            DropControl(diameter: min(button, height - menu - 102), labelled: false)
+                            CoinSlot()
                         }
                     }
                 }
@@ -625,7 +702,12 @@ struct CornerControls: View {
         HStack(alignment: .bottom) {
             Joystick(diameter: stick) { game.stick($0) }
             Spacer()
-            DropControl(diameter: stick * 0.8)
+            VStack(spacing: 12) {
+                CoinSlot()
+                    .padding(8)
+                    .background(Capsule().fill(Color(hex: 0x4B2A4A)))
+                DropControl(diameter: stick * 0.8, labelled: false)
+            }
         }
         .padding(.bottom, max(14, insets.bottom + 6))
         .padding(.leading, max(14, insets.leading - 8))
@@ -1038,8 +1120,8 @@ struct IntroCard: View {
             VStack(alignment: .leading, spacing: 12) {
                 tip("eye.fill", T("La machine est en relief : bouge la tête pour regarder sur les côtés et par-dessus.",
                                   "The machine is in 3D: move your head to look around the sides and over the top."))
-                tip("scope", T("Place la pince pile au-dessus d'un doudou, puis fais-la descendre. Bien centré, il ne glisse pas.",
-                               "Put the claw right above a plushie, then drop it. Dead centre, it won't slip."))
+                tip("scope", T("Glisse une pièce dans la fente, place la pince pile au-dessus d'un doudou, puis fais-la descendre.",
+                               "Slide a coin into the slot, put the claw right above a plushie, then drop it."))
                 tip("camera.fill", T("La caméra avant sert seulement à repérer ta tête. Aucune image n'est enregistrée ni envoyée.",
                                      "The front camera is only used to locate your head. No image is recorded or sent."))
             }

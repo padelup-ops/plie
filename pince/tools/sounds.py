@@ -90,12 +90,57 @@ def plop():
     return np.sin(phase) * np.exp(-x * 16)
 
 
+def clicks(seconds, per_second, seed, ring=1800.0, level=1.0):
+    """Un train de cliquetis réguliers (les dents d'un engrenage), qui boucle sans raccord."""
+    rng = np.random.default_rng(seed)
+    n = int(seconds * RATE)
+    out = np.zeros(n)
+    x = t(0.012)
+    one = (rng.standard_normal(len(x)) * 0.6 + np.sin(2 * np.pi * ring * x)) * np.exp(-x * 420)
+    count = int(round(seconds * per_second))
+    for i in range(count):
+        start = int(i * n / count)
+        idx = (start + np.arange(len(one))) % n
+        out[idx] += one * level * (1.0 if i % 2 == 0 else 0.7)
+    return out
+
+
+def buzz(seconds, freq, harmonics=10, tilt=1.0):
+    """Le grognement d'un petit moteur électrique : une dent de scie adoucie."""
+    x = t(seconds)
+    out = np.zeros(len(x))
+    for k in range(1, harmonics + 1):
+        out += np.sin(2 * np.pi * freq * k * x + k * 0.7) / (k ** tilt)
+    return out
+
+
 def motor():
-    """Un ronron qui boucle sans raccord : toutes les fréquences font un nombre entier de tours en une demi-seconde."""
+    """Le chariot qui se déplace : un servomoteur qui ronronne, avec le cliquetis de sa crémaillère.
+    Toutes les fréquences font un nombre entier de tours en une demi-seconde : la boucle ne s'entend pas."""
     x = t(0.5)
-    hum = np.sin(2 * np.pi * 110 * x) + 0.5 * np.sin(2 * np.pi * 220 * x) + 0.25 * np.sin(2 * np.pi * 440 * x) \
-        + 0.12 * np.sin(2 * np.pi * 660 * x)
-    return hum * (1 + 0.3 * np.sin(2 * np.pi * 24 * x))
+    whine = buzz(0.5, 180, harmonics=9, tilt=1.1) * (1 + 0.25 * np.sin(2 * np.pi * 24 * x))
+    hum = 0.5 * np.sin(2 * np.pi * 60 * x)
+    return whine * 0.55 + hum + clicks(0.5, 24, seed=5, ring=2100, level=0.9)
+
+
+def winch():
+    """Le treuil qui déroule le câble : plus grave, plus lourd, avec un cliquet bien marqué.
+    Joué un peu plus vite, il sert aussi à la remontée."""
+    x = t(0.5)
+    growl = buzz(0.5, 96, harmonics=12, tilt=0.9) * (1 + 0.35 * np.sin(2 * np.pi * 14 * x))
+    rumble = 0.7 * np.sin(2 * np.pi * 48 * x)
+    return growl * 0.6 + rumble + clicks(0.5, 14, seed=9, ring=1400, level=1.5)
+
+
+def insert():
+    """Une pièce glissée dans la fente : elle tinte contre le métal, roule, puis tombe dans la caisse."""
+    ping = lambda f, d, decay: np.sin(2 * np.pi * f * t(d)) * np.exp(-t(d) * decay)
+    first = ping(3100, 0.12, 38) + 0.6 * ping(4650, 0.12, 50)
+    second = ping(2600, 0.1, 45) + 0.5 * ping(3900, 0.1, 60)
+    rng = np.random.default_rng(11)
+    x = t(0.09)
+    thunk = (np.sin(2 * np.pi * (140 + 90 * np.exp(-x * 30)) * x) + 0.3 * rng.standard_normal(len(x))) * np.exp(-x * 34)
+    return mix(int(0.5 * RATE), [(0, first * 0.9), (int(0.1 * RATE), second * 0.7), (int(0.24 * RATE), thunk * 1.2)])
 
 
 def music():
@@ -136,7 +181,9 @@ if __name__ == "__main__":
     save("win", win(), peak=0.75)
     save("aww", aww(), peak=0.55)
     save("plop", plop(), peak=0.8)
-    save("motor", motor(), peak=0.5)
+    save("motor", motor(), peak=0.6)
+    save("winch", winch(), peak=0.7)
+    save("insert", insert(), peak=0.7)
     samples, rate = music()
     save("music", samples, rate=rate, peak=0.7)
     for f in sorted(os.listdir(OUT)):
