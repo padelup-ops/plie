@@ -1592,6 +1592,8 @@ final class KeyboardCanvas: UIView {
 
     /// Le clavier disparaît : on coupe les capteurs.
     func disappeared() {
+        KBCrashNote.step("disparition : début (visible \(visible))")
+        defer { KBCrashNote.step("disparition : fin") }
         knock.stop()
         if visible { KBMemLog.mark("parti", mb: Self.footprintMB(), room: NeuralSwipe.availableMB()) }
         visible = false
@@ -2440,13 +2442,21 @@ final class KeyboardCanvas: UIView {
         // suivant, et sur l'écran déplié il restait peu de marge. Les deux repères (avant, après) restent dans le
         // journal de mémoire : si le clavier est fermé de force à ce moment, on saura avec quelle marge.
         KBMemLog.mark("globe", mb: Self.footprintMB(), room: NeuralSwipe.availableMB())
+        KBCrashNote.step("globe · \(gripContext) · \(layoutMode.rawValue) · \(Int(bounds.width))×\(Int(bounds.height))")
         trimMemory(flush: false)
+        KBCrashNote.step("globe : caches rendus")
         NeuralSwipe.release()
+        KBCrashNote.step("globe : glisser neuronal rendu")
         KBSymbol.clear()
+        KBCrashNote.step("globe : images rendues")
         KBMemLog.mark("allégé", mb: Self.footprintMB(), room: NeuralSwipe.availableMB())
         // Après le toucher en cours, pas au milieu : iOS retire le clavier pendant cet appel, et le traitement du
         // doigt qui vient de se lever n'était pas fini.
-        DispatchQueue.main.async { [weak self] in self?.input?.kbNextKeyboard() }
+        DispatchQueue.main.async { [weak self] in
+            KBCrashNote.step("globe : clavier suivant demandé à iOS")
+            self?.input?.kbNextKeyboard()
+            KBCrashNote.step("globe : iOS a rendu la main")
+        }
     }
 
     private var gripStarted = false
@@ -2939,6 +2949,8 @@ final class KeyboardCanvas: UIView {
         guard bounds.size != builtFor || seenScreen != builtScreen, bounds.width > 50 else { return }
         // La charnière envoie plusieurs tailles pendant le pliage. On attend la dernière.
         guard !hingeSettling else { return }
+        KBCrashNote.step("mise en page \(Int(bounds.width))×\(Int(bounds.height)) · écran \(Int(seenScreen.width))×\(Int(seenScreen.height)) · visible \(visible)")
+        defer { KBCrashNote.step("mise en page : faite · \(gripContext) · \(layoutMode.rawValue)") }
         builtFor = bounds.size
         builtScreen = seenScreen
         UIView.performWithoutAnimation {
@@ -4433,6 +4445,8 @@ final class KeyboardCanvas: UIView {
             + " · dans la fenêtre x \(Int(inWindow.minX)) y \(Int(inWindow.minY)) · dans l'écran x \(Int(inScreen.minX)) y \(Int(inScreen.minY))"
             + " · coins du bas arrondis \(rounded ? "oui" : "non") · globe d'iOS \((input?.kbNeedsGlobe ?? false) ? "non (touche globe)" : "oui")\n"
         report += KBMemLog.lines.suffix(8).joined(separator: "\n") + "\n" + text
+        // Ce que le clavier faisait juste avant son dernier redémarrage (et le plantage, s'il y en a eu un).
+        if !KBCrashNote.previous.isEmpty { report += "\navant le dernier redémarrage du clavier :\n" + KBCrashNote.previous }
         if input?.kbFullAccess == true {
             UIPasteboard.general.string = report
             flash(String(format: "Mémoire %.0f Mo, marge %.0f Mo. Rapport copié : colle-le dans un message.", mb, room), hold: 5)

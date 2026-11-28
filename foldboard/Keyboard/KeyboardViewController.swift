@@ -71,6 +71,8 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        KBCrashNote.install()
+        KBCrashNote.step("contrôleur chargé")
         let relay = KBSettingsRelay { [weak self] in self?.sharedChanged() }
         relay.start()
         settingsRelay = relay
@@ -105,6 +107,7 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        KBCrashNote.step("va apparaître")
         takeCanvas()
         // Les achats : relus au plus une fois toutes les dix minutes (StoreKit pèse dans la mémoire du clavier).
         let now = ProcessInfo.processInfo.systemUptime
@@ -126,6 +129,7 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        KBCrashNote.step("est apparu \(Int(view.bounds.width))×\(Int(view.bounds.height))")
         undelayTouches()
         // Certains gestes du système s'installent un peu après l'apparition.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.undelayTouches() }
@@ -180,12 +184,14 @@ final class KeyboardViewController: UIInputViewController, KBInput {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        KBCrashNote.step("va disparaître (porte le clavier : \(ownsCanvas))")
         // Seulement si le clavier est encore ici : un contrôleur remplacé ne l'éteint pas sous le suivant.
         if ownsCanvas { canvas?.disappeared() }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        KBCrashNote.step("a disparu")
         showing = false
         // Un peu plus tard, si le clavier n'est vraiment plus à l'écran, on le rend (iOS envoie parfois ce message
         // alors que le clavier reste affiché : dans ce cas on n'y touche pas).
@@ -322,6 +328,7 @@ final class KBSettingsRelay {
     }
 
     deinit {
+        KBCrashNote.step("contrôleur libéré")
         CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(),
             Unmanaged.passUnretained(self).toOpaque(), KBVault.settingsNote, nil)
     }
