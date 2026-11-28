@@ -33,9 +33,16 @@ struct GameView: View {
     @Environment(Game.self) private var game
 
     var body: some View {
+        // Les marges sûres (encoche, barre du bas) se lisent ici : une fois qu'on dessine en plein écran,
+        // elles sont annoncées à zéro.
+        GeometryReader { safe in
+            screen(insets: safe.safeAreaInsets)
+        }
+    }
+
+    private func screen(insets: EdgeInsets) -> some View {
         GeometryReader { geo in
             let size = geo.size
-            let insets = geo.safeAreaInsets
             let wide = size.width > size.height
             // Téléphone couché : les commandes se posent dans les coins.
             let compact = wide && size.height < 520
